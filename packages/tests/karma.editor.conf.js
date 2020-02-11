@@ -57,19 +57,11 @@ export const karmaConfig = {
 
     customDebugFile: 'tests/dist/editor/runnereditor.html',
 
-    reporters: ['progress', 'html', 'json'],
+    reporters: ['progress', 'json'],
 
     jsonReporter: {
         stdout: false,
         outputFile: 'tests/dist/editor/output/report.json' // defaults to none
-    },
-
-    htmlReporter: {
-        outputDir: 'dist/editor/output', // where to put the reports
-        focusOnFailures: true, // reports show failures on start
-        namedFiles: false, // name files instead of creating sub-directories
-        pageTitle: null, // page title for reports; browser info by default
-        urlFriendlyName: false // simply replaces spaces with _ for files/dirs
     },
 
     singleRun: true,
@@ -79,8 +71,7 @@ export const karmaConfig = {
         'karma-chai',
         'karma-chrome-launcher',
         'karma-firefox-launcher',
-        'karma-json-reporter',
-        'karma-html-reporter'
+        'karma-json-reporter'
     ]
 };
 
