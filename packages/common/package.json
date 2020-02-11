@@ -14,7 +14,6 @@
   },
   "main": "dist/xyz-maps-common.min.js",
   "module": "dist/xyz-maps-common.esm.min.js",
-  "types": "src/index.ts",
   "files": [
     "dist/xyz*.min.js"
   ],
