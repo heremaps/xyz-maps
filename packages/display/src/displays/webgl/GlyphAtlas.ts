@@ -340,6 +340,7 @@ class GlyphAtlas {
                         width: charWidth * scale + 2 * paddingX,
                         height: avgGlyphHeight
                     };
+
                     this.x += charWidth + this.marginX + 2 / scale * paddingX;
 
                     // console.log(c, 'x', this.x, 'y', this.y, 'width', charWidth, 'charOffsetX', charOffsetX, glyphInfos[c]);

@@ -296,13 +296,13 @@ export class GLRender implements BasicRender {
 
         // convert from clipspace to screen.
         let screenMatrix = mat4.identity(this.screenMat);
-        mat4.scale(screenMatrix, screenMatrix, [pixelWidth / 2, -pixelHeight / 2, 1]);
+        mat4.scale(screenMatrix, screenMatrix, [centerPixelX, -centerPixelY, 1]);
         mat4.translate(screenMatrix, screenMatrix, [1, -1, 0]);
         mat4.multiply(screenMatrix, screenMatrix, this.pMat);
 
         invert(this.invScreenMat, screenMatrix);
 
-        // used for debug only...
+        // // used for debug only...
         // let s05 = mat4.clone(this.pMat);
         // mat4.translate(s05, s05, [centerPixelX, centerPixelY, 0]);
         // mat4.scale(s05, s05, [.5, .5,.5]);
@@ -323,9 +323,11 @@ export class GLRender implements BasicRender {
             if (!buf) {
                 buf = gl.createBuffer();
                 this.buffers.set(attr, buf);
+            }
+            if (attr.dirty) {
+                attr.dirty = false;
                 gl.bindBuffer(gl.ARRAY_BUFFER, buf);
                 gl.bufferData(gl.ARRAY_BUFFER, attr.data, gl.STATIC_DRAW);
-            } else {
                 // delete attr.data;
             }
         }

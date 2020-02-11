@@ -16,7 +16,6 @@
  * SPDX-License-Identifier: Apache-2.0
  * License-Filename: LICENSE
  */
-
 import {addText} from './addText';
 import {addLineText} from './addLineText';
 import {addPoint} from './addPoint';
@@ -24,15 +23,14 @@ import {addLineString} from './addLineString';
 import {addPolygon, FlatPolygon} from './addPolygon';
 import {addExtrude} from './addExtrude';
 import {addIcon} from './addIcon';
-
 import earcut from 'earcut';
-
 import {getValue} from '../../styleTools';
 import {defaultFont} from '../../fontCache';
 import {GlyphTexture} from '../GlyphTexture';
 import {toRGB} from '../color';
 import {IconManager} from '../IconManager';
 import {DashAtlas} from '../DashAtlas';
+import {CollisionHandler} from '../CollisionHandler';
 
 import {TextBuffer} from './templates/TextBuffer';
 import {SymbolBuffer} from './templates/SymbolBuffer';
@@ -47,6 +45,7 @@ const DEFAULT_LINE_JOIN = 'round';
 const NONE = '*';
 let UNDEF;
 
+type BBox = [number, number, number, number];
 
 const textRefCache = new Map();
 
@@ -78,14 +77,64 @@ export class FeatureFactory {
 
     private dashes: DashAtlas;
 
-    constructor(gl: WebGLRenderingContext, iconManager: IconManager, devicePixelRatio: number) {
+    collisions: CollisionHandler;
+    private tile: any;
+    private groups: any;
+    private tileSize: number;
+    private tileCollision: { rendered: any[]; neighbours: BBox[] };
+
+
+    constructor(gl: WebGLRenderingContext, iconManager: IconManager, collisionHandler, devicePixelRatio: number) {
         this.gl = gl;
         this.icons = iconManager;
         this.dpr = devicePixelRatio;
         this.dashes = new DashAtlas(gl);
+        this.collisions = collisionHandler;
     }
 
-    create(feature, geomType, coordinates, styleGroups, strokeWidthScale, tile, groups, tileSize: number): boolean {
+    init(tile, groups, tileSize: number) {
+        this.tile = tile;
+        this.groups = groups;
+        this.tileSize = tileSize;
+
+        // let provider = tile.provider;
+        // let neighbours: BBox[] = [];
+
+        // // console.inittime(tile.quadkey);
+        // // for (let y = -1; y < 2; y++) {
+        // //     for (let x = -1; x < 2; x++) {
+        // //         if (x != 0 || y != 0) {
+        // //             let qk = tileUtils.tileXYToQuadKey(tile.z, tile.y + y, tile.x + x);
+        // //             // let neighbour = provider.getCachedTile(qk);
+        // //             // if (neighbour && neighbour.collision) {
+        // //             //     let ren = neighbour.collision.rendered;
+        // //             let collisions = this.collisions.get(qk);
+        // //             if (collisions) {
+        // //                 let ren = collisions.rendered;
+        // //                 for (let o of ren) {
+        // //                     // debugger;
+        // //
+        // //                     // if(o[])
+        // //
+        // //                     neighbours[neighbours.length] = o;
+        // //                 }
+        // //             }
+        // //         }
+        // //     }
+        // // }
+        // // console.timeEnd(tile.quadkey);
+        // //
+        // // this.collisions.set(tile.quadkey, this.tileCollision = {
+        // //     rendered: [],
+        // //     neighbours: neighbours
+        // // });
+        //
+
+        // this.collisions.init(tile);
+    }
+
+    create(feature, geomType, coordinates, styleGroups, strokeWidthScale/* , tile, groups, tileSize: number*/): boolean {
+        const {tile, groups, tileSize} = this;
         const level = tile.z;
         let vertex; // = vertexGroups[geomType];
         let extrudeDataAdded: FlatPolygon;
@@ -120,6 +169,7 @@ export class FeatureFactory {
         let offsetY;
         let text;
         let strokeScale;
+        let pitch;
         let allReady = true;
 
         if (!vertex) {
@@ -169,6 +219,7 @@ export class FeatureFactory {
             offsetX = UNDEF;
             offsetY = UNDEF;
             text = UNDEF;
+            pitch = UNDEF;
             strokeScale = strokeWidthScale;
 
 
@@ -229,6 +280,11 @@ export class FeatureFactory {
                         }
 
                         font = getValue('font', style, feature, level) || defaultFont;
+
+                        pitch = getValue('pitch', style, feature, level);
+                        if (pitch == UNDEF) {
+                            pitch = true;
+                        }
 
                         groupId = 'T' + (font || NONE);
                     } else if (type == 'Circle') {
@@ -310,7 +366,8 @@ export class FeatureFactory {
                         radius: radius,
                         rotation: rotation,
                         offsetX: offsetX,
-                        offsetY: offsetY
+                        offsetY: offsetY,
+                        pitch: pitch
                     }
                     // ,index: []
                 };
@@ -337,23 +394,48 @@ export class FeatureFactory {
                     // vertex = group.data.vertex;
                     vertex = aPosition.data;
 
-                    const collision = style.collide;
+                    // const collide = style.collide;
 
-                    addText(
-                        text,
-                        groupBuffer.attributes.a_point.data,
-                        vertex,
-                        groupBuffer.attributes.a_texcoord.data,
-                        coordinates,
-                        glyphs,
-                        tile,
-                        collision == UNDEF
-                            ? true
-                            : collision,
-                        tileSize,
-                        offsetX,
-                        offsetY
-                    );
+                    const cx = tile.lon2x(coordinates[0], tileSize);
+                    const cy = tile.lat2y(coordinates[1], tileSize);
+
+                    glyphs.addChars(text);
+
+                    const fontInfo = glyphs.getAtlas();
+                    const estimatedTextWidth = fontInfo.avgCharWidth * text.length / 2;
+                    const ty = fontInfo.baselineOffset - offsetY;
+                    // collides(cx,cy,width,height,tile, tileSize, fontInfo, bufferIndex: number) {
+                    const bufferStart = groupBuffer.attributes.a_point.data.length;
+                    let glyphCnt = 0;
+                    for (let c of text) {
+                        if (c != ' ') glyphCnt++;
+                    }
+
+
+                    if (style.collide || !this.collisions.collides(
+                        cx, cy,
+                        estimatedTextWidth, ty,
+                        tile, tileSize,
+                        fontInfo,
+                        bufferStart, bufferStart + glyphCnt * 6 * 3
+                    )) {
+                        addText(
+                            text,
+                            groupBuffer.attributes.a_point.data,
+                            vertex,
+                            groupBuffer.attributes.a_texcoord.data,
+                            coordinates,
+                            // glyphs,
+                            fontInfo,
+                            cx,
+                            cy,
+                            // tile,
+                            // !collide ? this.tileCollision : false,
+                            // tileSize,
+                            offsetX,
+                            offsetY
+                        );
+                    }
                 } else {
                     if (type == 'Icon') {
                         let src = getValue('src', style, feature, level);

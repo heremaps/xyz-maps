@@ -65,7 +65,7 @@ const getCenter = (ev: TouchEvent | MouseEvent, mapEl: HTMLElement) => {
 
 const getAngle = (ev: TouchEvent) => {
     // iOS
-    const rotation = {ev};
+    const {rotation} = <any>ev;
     if (rotation != UNDEF) {
         return rotation;
     }
@@ -93,7 +93,7 @@ class Behaviour {
     drag: (boolean) => void;
     scroll: (boolean) => void;
     scrollHandler: ScrollHandler;
-    getOptions: ()=>BehaviourOptions;
+    getOptions: () => BehaviourOptions;
 
     constructor(mapEl: HTMLElement, map, kinetic, settings: BehaviourOptions, mapCfg) {
         this.scrollHandler = new ScrollHandler(mapEl, map, settings, mapCfg.zoomAnimationMs);

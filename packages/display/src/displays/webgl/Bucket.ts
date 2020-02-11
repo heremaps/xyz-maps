@@ -20,11 +20,11 @@
 import GLTile from './GLTile';
 import BasicBucket from '../BasicBucket';
 import {LRU} from '@here/xyz-maps-common';
-import BasicTile from '../BasicTile';
+import {GeometryBuffer} from './buffer/GeometryBuffer';
 
 
 class Bucket extends BasicBucket {
-    onDrop: (GLTile) => void | null;
+    onDrop: (data:GeometryBuffer[]) => void | null;
 
     tiles: LRU<GLTile>;
 

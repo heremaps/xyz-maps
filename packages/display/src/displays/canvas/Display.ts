@@ -271,7 +271,7 @@ class CanvasDisplay extends BasicDisplay {
         super.update();
     }
 
-    project(x: number, y: number, screenOffsetX ?: number, screenOffsetY ?: number): [number, number] {
+    project(x: number, y: number): [number, number] {
         const displ = this;
         const scale = displ.s;
 

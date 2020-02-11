@@ -39,7 +39,10 @@ const COLOR_UNDEFINED = new Float32Array([-1.0, -1.0, -1.0, -1.0]);
 
 let UNDEF;
 
-const handlePolygons = (factory, feature, coordinates, styleGroups, lsScale, tile, groups, tileSize: number) => {
+
+type Tile = tile.Tile;
+
+const handlePolygons = (factory: FeatureFactory, feature, coordinates, styleGroups, lsScale, tile, groups, tileSize: number) => {
     const zoom = tile.z;
     for (let style of styleGroups) {
         const styleType = style.type;
@@ -80,7 +83,15 @@ const typeArray = (TypedArray, arr: any[], typedCache: any) => {
     return typedArr;
 };
 
-const createBuffer = (data: any[], renderLayer: Layer, tileSize: number, tile, factory: FeatureFactory, onDone) => {
+const createBuffer = (
+    data: any[],
+    renderLayer: Layer,
+    tileSize: number,
+    tile: Tile,
+    factory: FeatureFactory,
+    onInit: () => void,
+    onDone: (data: GeometryBuffer[], imagesLoaded: boolean) => void
+) => {
 // const createBuffer = (data: any[], renderLayer: Layer, tileSize: number, tile, gl: WebGLRenderingContext, iconManager: IconManager, onDone) => {
     const layer = renderLayer.layer;
     // const exclusiveTimeMS = this.ms;
@@ -124,33 +135,38 @@ const createBuffer = (data: any[], renderLayer: Layer, tileSize: number, tile, f
             }
 
 
-            let provider = tile.provider;
-            let rendered = [];
-            let overlaps = [];
+            // let provider = tile.provider;
+            // let overlaps: BBox[] = [];
+            //
+            // // console.time(tile.quadkey);
+            // for (let y = -1; y < 2; y++) {
+            //     for (let x = -1; x < 2; x++) {
+            //         if (x != 0 || y != 0) {
+            //             let qk = tileUtils.tileXYToQuadKey(tile.z, tile.y + y, tile.x + x);
+            //             let neighbour = provider.getCachedTile(qk);
+            //             if (neighbour && neighbour.collision) {
+            //                 let ren = neighbour.collision.rendered;
+            //                 for (let o of ren) {
+            //                     overlaps[overlaps.length] = o;
+            //                 }
+            //             }
+            //         }
+            //     }
+            // }
+            // // console.timeEnd(tile.quadkey);
+            //
+            //
+            // tile.collision = {
+            //     rendered: [],
+            //     overlaps: overlaps
+            // };
+            // console.log(tile.collision);
 
-            // console.time(tile.quadkey);
-            for (let y = -1; y < 2; y++) {
-                for (let x = -1; x < 2; x++) {
-                    if (x != 0 || y != 0) {
-                        let qk = tileUtils.tileXYToQuadKey(tile.z, tile.y + y, tile.x + x);
-                        let neighbour = provider.getCachedTile(qk);
-                        if (neighbour && neighbour.collision) {
-                            let ren = neighbour.collision.rendered;
-                            for (let o of ren) {
-                                overlaps[overlaps.length] = o;
-                            }
-                        }
-                    }
-                }
+            if (onInit) {
+                onInit();
             }
-            // console.timeEnd(tile.quadkey);
 
-
-            tile.collision = {
-                rendered: rendered,
-                overlaps: overlaps
-            };
-
+            factory.init(tile, groups, tileSize);
 
             return [
                 tile,
@@ -248,9 +264,13 @@ const createBuffer = (data: any[], renderLayer: Layer, tileSize: number, tile, f
 
                             grp.glyphs.sync();
 
+
+                            factory.collisions.setAttribute(geoBuffer.attributes.a_point);
+
                             geoBuffer.addUniform('u_texture', 0);
                             geoBuffer.addUniform('u_atlasScale', [1 / grp.glyphs.width, 1 / grp.glyphs.height]);
                             geoBuffer.addUniform('u_opacity', shared.opacity);
+                            geoBuffer.addUniform('u_pitch', shared.pitch);
                         } else {
                             if (type == 'Rect' || type == 'Circle') {
                                 geoBuffer.addUniform('u_fill', shared.fill || COLOR_UNDEFINED);
@@ -423,6 +443,7 @@ const createBuffer = (data: any[], renderLayer: Layer, tileSize: number, tile, f
 
     taskManager.start(task);
     return task;
-};
+}
+;
 
 export {createBuffer};

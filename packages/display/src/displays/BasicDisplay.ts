@@ -58,6 +58,8 @@ abstract class Display {
         return dpr < 1 ? 1 : dpr;
     }
 
+    protected sx: number; // grid/screen offset x
+    protected sy: number; // grid/screen offset y
     private previewer: Preview;
     private updating: boolean = false;
     protected dirty: boolean = false;
@@ -238,9 +240,9 @@ abstract class Display {
 
     abstract prepareTile(tile: Tile, data, layer, dTile: BasicTile, onDone: (dTile: BasicTile, layer: TileLayer) => void);
 
-    abstract unproject(x: number, y: number, screenOffsetX?: number, screenOffsetY?: number): [number, number];
+    abstract unproject(x: number, y: number): [number, number];
 
-    abstract project(x: number, y: number, screenOffsetX?: number, screenOffsetY?: number): [number, number];
+    abstract project(x: number, y: number): [number, number];
 
     private setLayerBgColor(layer: TileLayer) {
         const style = layer.getStyle();
@@ -360,6 +362,9 @@ abstract class Display {
     }
 
     updateGrid(centerWorld: [number, number], zoomlevel: number, screenOffsetX: number, screenOffsetY: number) {
+        this.sx = screenOffsetX;
+        this.sy = screenOffsetY;
+
         const display = this;
         const rotZRad = this.rz;
         const mapWidthPixel = this.w;

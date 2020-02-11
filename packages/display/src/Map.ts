@@ -323,6 +323,7 @@ class TigerMap {
         this._ox = centerWorldPixelX - cOffsetX - topLeftWorldX;
         this._oy = centerWorldPixelY - cOffsetY - topLeftWorldY;
 
+
         const worldSizePixel = this._wSize;
 
         let topLeftLon = project.x2lon(topLeftWorldX, worldSizePixel);
@@ -422,7 +423,7 @@ class TigerMap {
 
     rotate(deg?: number): number {
         if (deg !== UNDEF) {
-            const rad = (deg | 0) * Math.PI / 180;
+            const rad = Math.round(10*deg||0) * Math.PI / 1800;
             const rotZRad = this._rz;
 
             if (rad !== rotZRad) {
@@ -444,7 +445,7 @@ class TigerMap {
                 );
             }
         }
-        return Math.round(this._rz / Math.PI * 180);
+        return this._rz / Math.PI * 180;
     };
 
     setBackgroundColor(bgc: string) {
@@ -1076,7 +1077,7 @@ class TigerMap {
         const screenOffsetY = this._oy;
 
         // converts screenpixel to unprojected screenpixels
-        let p = this._display.unproject(<number>x, <number>y, screenOffsetX, screenOffsetY);
+        let p = this._display.unproject(<number>x, <number>y);
 
         const topLeftWorldX = this._tlwx;
         const topLeftWorldY = this._tlwy;
@@ -1132,7 +1133,7 @@ class TigerMap {
         const topLeftWorldY = this._tlwy;
         const screenX = project.lon2x(<number>lon, worldSizePixel) - topLeftWorldX;
         const screenY = project.lat2y(<number>lat, worldSizePixel) - topLeftWorldY;
-        const pixel = this._display.project(screenX, screenY, this._ox, this._oy);
+        const pixel = this._display.project(screenX, screenY);
 
         return new PixelPoint(pixel[0], pixel[1]);
     };

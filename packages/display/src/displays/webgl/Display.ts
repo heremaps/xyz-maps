@@ -28,6 +28,7 @@ import {transformMat4} from 'gl-matrix/vec3';
 import {Layer} from '../Layers';
 import GLTile from './GLTile';
 import {FeatureFactory} from './buffer/FeatureFactory';
+import {CollisionHandler} from './CollisionHandler';
 import {GeometryBuffer} from './buffer/GeometryBuffer';
 
 const PREVIEW_LOOK_AHEAD_LEVELS: [number, number] = [3, 9];
@@ -51,7 +52,7 @@ let UNDEF;
 
 
 class WebGlDisplay extends BasicDisplay {
-    static zoomBehaviour:'fixed'|'float' = 'float';
+    static zoomBehaviour: 'fixed' | 'float' = 'float';
 
     private name: string = 'gl-test';
 
@@ -61,6 +62,8 @@ class WebGlDisplay extends BasicDisplay {
 
     private tilesNotReady: { quadkey: string, layerId: string }[];
 
+    private collision: CollisionHandler;
+
     constructor(mapEl, renderTileSize, devicePixelRatio, renderOptions?: RenderOptions) {
         super(mapEl, renderTileSize,
             // auto dpr is default for gl display
@@ -69,15 +72,19 @@ class WebGlDisplay extends BasicDisplay {
             new GLRender(renderOptions),
             PREVIEW_LOOK_AHEAD_LEVELS
         );
+        const display = this;
+        this.collision = new CollisionHandler(display);
 
-        this.buckets.onDrop = (data) => {
-            this.releaseBuffers(data);
+        this.buckets.onDrop = function(buffers) {
+            display.collision.tiles.delete(this.quadkey);
+
+            display.releaseBuffers(buffers);
         };
 
         // this.render.dpr = this.dpr;
         this.render.init(this.canvas, this.dpr);
 
-        this.factory = new FeatureFactory(this.render.gl, this.render.icons, this.dpr);
+        this.factory = new FeatureFactory(this.render.gl, this.render.icons, this.collision, this.dpr);
 
         // TODO: do clean implementation for tile refresh after image load
         this.tilesNotReady = [];
@@ -100,7 +107,6 @@ class WebGlDisplay extends BasicDisplay {
             }
             this.tilesNotReady = [];
         };
-
 
         console.log('dpr', this.dpr, devicePixelRatio);
     };
@@ -143,15 +149,16 @@ class WebGlDisplay extends BasicDisplay {
         ];
     }
 
-    project(x: number, y: number, screenOffsetX?: number, screenOffsetY?: number): [number, number] {
-        x -= screenOffsetX;
-        y -= screenOffsetY;
-        const p = [x, y, 0];
+    // from unprojected screen pixels to projected screen pixels
+    project(x: number, y: number, sx = this.sx, sy = this.sy): [number, number] {
+        // x -= screenOffsetX;
+        // y -= screenOffsetY;
+        // const p = [x, y, 0];
 
         // const s = this.s;
         // const p = [x * s, y * s, 0];
 
-
+        const p = [x - sx, y - sy, 0];
         return transformMat4(p, p, this.render.screenMat);
 
         // transformMat4(p, p, this.render.pMat);
@@ -192,19 +199,39 @@ class WebGlDisplay extends BasicDisplay {
         } else {
             const displayLayer = this.layers.get(layer.id);
             if (data.length) {
-                const task = createBuffer(data, displayLayer, tileSize, tile, this.factory, (buffer, allImgLoaded) => {
-                    dTile.removeTask(task, layer);
-                    dTile.setData(buffer, layer);
+                const task = createBuffer(data, displayLayer, tileSize, tile, this.factory,
+                    // on init / start
+                    () => {
+                        // let cTile;
+                        // if (tileSize == 256) {
+                        //     cTile = display.getBucket(dTile.quadkey.slice(0, -1), true);
+                        // } else {
+                        //     cTile = dTile;
+                        // }
 
-                    if (!allImgLoaded) {
-                        display.tilesNotReady.push({
-                            quadkey: dTile.quadkey,
-                            layerId: layer.id
-                        });
-                    }
+                        let {quadkey} = dTile;
+                        if (tileSize == 256 && display.tiles[512].length) {
+                            quadkey = quadkey.slice(0, -1);
+                        }
 
-                    onDone(dTile, layer);
-                });
+
+                        this.collision.init(quadkey, tile.x, tile.y, tile.z);
+                        // this.collision.init(cTile, tile.x, tile.y, tile.z);
+                    },
+                    // on done
+                    (buffer, allImgLoaded) => {
+                        dTile.removeTask(task, layer);
+                        dTile.setData(buffer, layer);
+
+                        if (!allImgLoaded) {
+                            display.tilesNotReady.push({
+                                quadkey: dTile.quadkey,
+                                layerId: layer.id
+                            });
+                        }
+
+                        onDone(dTile, layer);
+                    });
                 dTile.addTask(task, layer);
             } else {
                 dTile.setData([], layer);
@@ -235,11 +262,37 @@ class WebGlDisplay extends BasicDisplay {
         if (this.dirty || dirty) {
             // this.render.clear();
             this.dirty = false;
+
+
+            layer = layers[0];
+            // window.updateCollisions = ((aa,a,b,c,d)=>{
+            //     return ()=> {
+            //         updateCollisions(aa,a,b,c,d);
+            //         display.viewport()
+            //     }
+            // })(display, layer.tiles, layer.layer, this.rz, this.factory.collisions);
+
+            this.collision.update(layer.tiles);
         }
+
+
+        // clearTimeout(this._timer);
+        // if(!this._timer){
+        //     this._timer = setTimeout(() => {
+        //         console.log('update boysa!',this.updating);
+        //         this.collision.update(layers[0].tiles);
+        //         if (!this.updating) {
+        //             this.viewport();
+        //         }
+        //         this._timer = null;
+        //     }, 50);
+        // }
+
 
         render.clear();
 
         render.setPass('opaque');
+
 
         while (l--) {
             // for (let l = 0; l < layerCount; l++) {
@@ -249,6 +302,7 @@ class WebGlDisplay extends BasicDisplay {
             if (tiles) {
                 length = tiles.length;
                 i = 0;
+
                 while (i < length) {
                     screenTile = tiles[i++];
                     // if (dTile.lrTs != dTile.luTs || dirty) {

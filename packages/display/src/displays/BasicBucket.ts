@@ -33,7 +33,8 @@ abstract class BasicBucket {
 
     get(quadkey: string, skipTrack?: boolean) {
         if (skipTrack) {
-            return this.tiles._[quadkey] && this.tiles._[quadkey].data;
+            const item = this.tiles._[quadkey];
+            return item && item.data;
         }
 
         return this.tiles.get(quadkey);

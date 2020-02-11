@@ -19,47 +19,86 @@
 
 import {createTextData} from './createText';
 import {GlyphTexture} from '../GlyphTexture';
+import {tile} from '@here/xyz-maps-core';
 // import rbush from 'rbush';
 
 // const intersectBBox = (ax, ax2, ay, ay2, bx, bx2, by, by2) => {
 //     return ax <= bx2 && bx <= ax2 && ay <= by2 && by <= ay2;
 // };
 
-const collides = (box1, data) => {
-    for (let bbox2 of data) {
-        if (box1[0] <= bbox2[1] && bbox2[0] <= box1[1] && box1[2] <= bbox2[3] && bbox2[2] <= box1[3]) {
-            return true;
-        }
-    }
-};
+// const collides = (box1, data) => {
+//     for (let bbox2 of data) {
+//         if (box1.minX <= bbox2.maxX && bbox2.minX <= box1.maxX && box1.minY <= bbox2.maxY && bbox2.minY <= box1.maxY) {
+//             return true;
+//         }
+//     }
+// };
 
-
-const addText = (text: string, point, vertex, texcoord, coordinates, glyphs: GlyphTexture, tile, collision, tileSize: number, offsetX?: number, offsetY?: number) => {
-    const fontInfo = glyphs.getAtlas();
-    const cx = tile.lon2x(coordinates[0], tileSize);
-    const cy = tile.lat2y(coordinates[1], tileSize);
+const addText = (
+    text: string,
+    point: number[],
+    vertex: number[],
+    texcoord: number[],
+    coordinates: number[],
+    fontInfo,
+    // glyphs: GlyphTexture,
+    // tile: tile.Tile,
+    // detectCollisions: boolean,
+    // tileSize: number,
+    cx: number,
+    cy: number,
+    offsetX?: number,
+    offsetY?: number
+) => {
+    // const fontInfo = glyphs.getAtlas();
+    // const cx = tile.lon2x(coordinates[0], tileSize);
+    // const cy = tile.lat2y(coordinates[1], tileSize);
     const ty = fontInfo.baselineOffset - offsetY;
     // const rendered = levelCollisionData[tile.z];
 
-    glyphs.addChars(text);
+    // glyphs.addChars(text);
 
-    if (!collision) {
-        const tileX = tile.x * tileSize;
-        const tileY = tile.y * tileSize;
-        // const estimatedTextWidth = fontInfo.getTextWidth(text);
-        const estimatedTextWidth = fontInfo.avgCharWidth * text.length / 2;
-        const x1 = tileX + cx - estimatedTextWidth;
-        const x2 = tileX + cx + estimatedTextWidth;
-        const y1 = tileY + cy - ty;
-        const y2 = tileY + cy + ty;
-        const bbox = [x1, x2, y1, y2];
-        const collisionInfo = tile.collision;
-        const rendered = collisionInfo.rendered;
-        if (collides(bbox, rendered) || collides(bbox, collisionInfo.overlaps)) {
-            return;
-        }
-        rendered.push(bbox);
-    }
+
+    // let bbox;
+
+
+    // if (detectCollisions) {
+    //     const tileX = tile.x * tileSize;
+    //     const tileY = tile.y * tileSize;
+    //     // const estimatedTextWidth = fontInfo.getTextWidth(text);
+    //     const estimatedTextWidth = fontInfo.avgCharWidth * text.length / 2;
+    //
+    //     // console.time('cntGlyphs');
+    //     let glyphs = 0;
+    //     for (let c of text) {
+    //         if (c != ' ') glyphs++;
+    //     }
+    //     // console.timeEnd('cntGlyphs');
+    //
+    //     const x1 = tileX + cx - estimatedTextWidth;
+    //     const x2 = tileX + cx + estimatedTextWidth;
+    //     const y1 = tileY + cy - ty;
+    //     const y2 = tileY + cy + ty;
+    //
+    //     const bbox = {
+    //         minX: x1,
+    //         maxX: x2,
+    //         minY: y1,
+    //         maxY: y2,
+    //         tileX: tileX,
+    //         tileY: tileY,
+    //         bos: point.length,
+    //         boe: point.length + glyphs * 18
+    //     };
+    //
+    //     const collisionInfo = detectCollisions;
+    //     // const collisionInfo = tile.collision;
+    //     const rendered = collisionInfo.rendered;
+    //     if (collides(bbox, rendered) || collides(bbox, collisionInfo.neighbours)) {
+    //         return;
+    //     }
+    //     rendered.push(bbox);
+    // }
 
     // glyphs.addChars(text);
 
@@ -84,6 +123,10 @@ const addText = (text: string, point, vertex, texcoord, coordinates, glyphs: Gly
         texcoord[texcoord.length] = textTextCoords[v];
         texcoord[texcoord.length] = textTextCoords[v + 1];
     }
+
+    // if (bbox) {
+    //     bbox[7] = point.length;
+    // }
 };
 
 

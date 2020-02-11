@@ -27,8 +27,6 @@ const TILE_SIZE = 512;
 
 
 const createTileBuffer = (tileSize: 256 | 512) => {
-    debugger;
-
     // 0 ------- 1
     // |      /  |
     // |    /    |
@@ -160,8 +158,8 @@ const createGridTextBuffer = (quadkey: string, gl: WebGLRenderingContext, font: 
     textBuffer.addUniform('u_texture', 0);
     textBuffer.addUniform('u_atlasScale', [1 / glyphs.width, 1 / glyphs.height]);
     textBuffer.addUniform('u_opacity', 1.0);
+    textBuffer.addUniform('u_pitch', true);
 
-    // textBuffer.addGroup(group);
     return textBuffer;
 };
 

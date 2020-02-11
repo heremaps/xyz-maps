@@ -61,6 +61,7 @@ class Program {
         case gl.FLOAT_VEC4:
             return (v) => gl.uniform4fv(location, v);
 
+        case gl.BOOL:
         case gl.SAMPLER_2D:
             return (v) => gl.uniform1i(location, v);
         }

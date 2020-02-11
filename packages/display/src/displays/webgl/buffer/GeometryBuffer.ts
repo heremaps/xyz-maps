@@ -21,7 +21,7 @@ import {Attribute} from './Attribute';
 import {glType, TypedArray, TypedArrayConstructor} from './glType';
 import {Texture} from '../Texture';
 
-type Uniform = number | number[];
+type Uniform = number | number[] | boolean;
 
 type Index = {
     data: Uint16Array | Uint32Array
@@ -123,6 +123,10 @@ class GeometryBuffer {
 
         if (attr.stride == UNDEF) {
             attr.stride = 0;
+        }
+
+        if (attr.dirty == UNDEF) {
+            attr.dirty = true;
         }
 
         this.attributes[name] = attr;
