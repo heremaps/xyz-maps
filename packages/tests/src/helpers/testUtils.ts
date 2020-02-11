@@ -45,7 +45,17 @@ export namespace testUtils {
         }
     };
 
+    function backingScale() {
+        if ('devicePixelRatio' in window) {
+            if (window.devicePixelRatio > 1) {
+                return window.devicePixelRatio;
+            }
+        }
+        return 1;
+    }
+
     export function getCanvasPixelColor(elem: HTMLElement, x: number, y: number): string {
+        const scaleFactor = backingScale();
         let canvas = elem.getElementsByTagName('canvas')[0];
         let ctx = canvas.getContext('2d');
         let pixel;
@@ -55,7 +65,7 @@ export namespace testUtils {
         } else {
             const gl = canvas.getContext('webgl');
             pixel = new Uint8Array(4);
-            gl.readPixels(x, canvas.height - y, 1, 1, gl.RGBA, gl.UNSIGNED_BYTE, pixel);
+            gl.readPixels(x * scaleFactor, canvas.height - y * scaleFactor, 1, 1, gl.RGBA, gl.UNSIGNED_BYTE, pixel);
         }
 
         let r = pixel[0];
