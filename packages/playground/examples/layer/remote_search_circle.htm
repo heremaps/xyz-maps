@@ -1,0 +1,172 @@
+ <!DOCTYPE html>
+ <html>
+	<head>
+		<meta name="viewport" content="width=device-width, initial-scale=1.0, minimum-scale=1.0, user-scalable=no">
+		<title>XYZ Maps Example: Remote search in layer in a circle</title>
+
+	    <script src="${XYZ_COMMON_PATH}" type="text/javascript" charset="UTF-8" ></script>
+	    <script src="${XYZ_CORE_PATH}" type="text/javascript" charset="UTF-8" ></script>
+	    <script src="${XYZ_DISPLAY_PATH}" type="text/javascript" charset="UTF-8" ></script>
+
+
+ 		<style type="text/css">
+			#map {
+				position: absolute;
+            	overflow: hidden;
+				top: 0;
+				left: 0;
+				width: 100%;
+                height: 100%;
+			}
+			#searcharea {
+				position: absolute;
+				border-radius: 50%;
+				width: 300px;
+				height: 300px;
+				top: 50%;
+				left: 50%;
+				margin: -150px 0 0 -150px;
+				background-color: #0000C0;
+				opacity: 0.3;
+                pointer-events: none;
+			}
+ 		</style>
+	</head>
+	<body>
+		<div id="map"></div>
+		<pre><div id="info"></div></pre>
+
+		<script type="application/javascript">
+			//specify your credentials for mvt and place layers
+	      	var YOUR_ACCESS_TOKEN = window.parent.YOUR_ACCESS_TOKEN;
+
+			var bgLayer = new here.xyz.maps.layers.MVTLayer({
+				name: 'background layer',
+				min: 1,
+				max: 20,
+				remote: {
+					url: 'https://xyz.api.here.com/tiles/osmbase/256/all/{z}/{x}/{y}.mvt?access_token='+YOUR_ACCESS_TOKEN
+				}
+			});
+			var placeLayer = new here.xyz.maps.layers.TileLayer({
+				name: 'Place Layer',
+				min: 14,
+				max: 20,
+				provider: new here.xyz.maps.providers.SpaceProvider ({
+					name:  'SpaceProvider',
+					level: 14,
+					space: '6CkeaGLg',
+					credentials: {
+						access_token: YOUR_ACCESS_TOKEN
+					}
+				})
+			});
+			var myLayer = new here.xyz.maps.layers.TileLayer({
+				name: 'Local Layer',
+				min: 14,
+				max: 20,
+				provider: new here.xyz.maps.providers.LocalProvider ({
+					name:  'myProvider'
+				}),
+				style: {
+					styleGroups: {
+						style: [
+							{zIndex: 0, type: "Rect", fill: "#000", width:24, height:14},
+							{zIndex: 0, type: "Circle", radius: 7, fill:"#000", offsetX: -12},
+							{zIndex: 0, type: "Circle", radius: 7, fill:"#000", offsetX:12},
+							{zIndex: 1, type: "Circle", radius: 5, fill:"yellow"},
+							{zIndex: 1, type: "Circle", radius: 5, fill:"green", offsetX:11},
+							{zIndex: 1, type: "Circle", radius: 5, fill:"red", offsetX:-11}
+						]
+					},
+					assign: function(feature, zoomlevel){
+						return "style";
+					}
+				}
+			});
+
+			// setup the Map Display
+			const display = new  here.xyz.maps.Map( document.getElementById("map"), {
+			    zoomLevel : 17,
+			    center: {
+			        longitude: -122.253324, latitude: 37.795146
+			    },
+
+			    // add layers to display
+			    layers: [bgLayer, myLayer]
+			});
+
+			// A Display tag shows search area
+			var searcharea = document.createElement("div");
+				searcharea.id = "searcharea";
+			display.getContainer().appendChild(searcharea);
+
+/*###visiblesource*/
+var infoTag = document.querySelector("#info");
+
+var searchResult = [];
+
+// Add features to local overlay in display
+function addFeatures(features){
+	for(var i in features){
+		var feature = features[i];
+		myLayer.addFeature(feature)
+	}
+}
+
+// remove features from local overlay
+function removeFeatures(features){
+	for(var i in features){
+		var feature = features[i];
+		myLayer.removeFeature(feature)
+	}
+}
+
+// add event listener to mapviewchangeend
+display.addEventListener('mapviewchangeend', function(evt){
+	// Calculate center point and radius of the circle
+	var center = display.pixelToGeo(display.getWidth()/2, display.getHeight()/2);
+	var top = display.pixelToGeo(display.getWidth()/2, display.getHeight()/2 - 150);
+
+	var r = 6.371 * 1e6 * (top.latitude - center.latitude)/180*Math.PI;
+
+	// Remove features that are added to local overlay
+	removeFeatures(searchResult);
+
+	// Search for features in circle in Place layer
+	searchResult = placeLayer.search({
+		point: center,
+
+		radius: r,
+
+		// force function to do remote search
+		remote: true,
+
+		// callback function to return result from remote server
+		onload: function(e){
+			// Add result features to local layer
+			if(!searchResult){
+				addFeatures(e);
+
+				// Indicate search result comes from remote server
+				infoTag.innerText = "Remote results";
+			}
+
+			searchResult = e;
+		}
+	});
+
+	// Add result features to local layer
+	if(searchResult){
+		addFeatures(searchResult);
+
+		// Indicate search result comes from local cache
+		infoTag.innerText = "Local results";
+	}
+});
+
+/*visiblesource###*/
+
+		</script>
+	</body>
+</html>

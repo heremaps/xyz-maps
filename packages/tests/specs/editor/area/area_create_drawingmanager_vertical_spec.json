@@ -1,0 +1,17 @@
+{
+    "layers": [{
+        "id": "buildingLayer",
+        "provider": {
+            "id": "buildingProvider",
+            "type": "TestProvider",
+            "name": "Buildings",
+            "space": "${SPACEID}",
+            "url": "${URL}",
+            "credentials": "${CREDENTIALS}",
+            "level": 13
+        },
+        "min": 14,
+        "max": 20,
+        "clear": {"minLon": 76.08097994367017, "minLat": 13.21327162725639, "maxLon": 76.085271478094, "maxLat": 13.216405047338895}
+    }]
+}

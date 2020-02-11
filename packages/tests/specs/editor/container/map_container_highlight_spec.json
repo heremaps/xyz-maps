@@ -1,0 +1,59 @@
+{
+    "layers": [{
+        "id": "linkLayer",
+        "provider": {
+            "id": "linkProvider",
+            "type": "TestProvider",
+            "name": "Links",
+            "space": "${SPACEID}",
+            "url": "${URL}",
+            "https": false,
+            "credentials": "${CREDENTIALS}",
+            "level": 15,
+            "class": "NAVLINK"
+        },
+        "min": 14,
+        "max": 20
+    },{
+        "id": "placeLayer",
+        "provider": {
+            "id": "placeProvider",
+            "type": "TestProvider",
+            "name": "Places",
+            "space": "${SPACEID}",
+            "url": "${URL}",
+            "https": false,
+            "credentials": "${CREDENTIALS}",
+            "level": 14
+        },
+        "min": 14,
+        "max": 20,
+        "data": {
+            "remote": [{
+                "id": -29493,
+                "geometry": {
+                    "coordinates": [80.478081562, 16.476287616, 0],
+                    "type": "Point"
+                },
+                "type": "Feature",
+                "properties": {
+                    "featureClass": "PLACE",
+                    "routingPoint":[80.478081562, 16.476287616],
+                    "routingLink": "abc"
+                }
+            }, {
+                "id": -29494,
+                "geometry": {
+                    "coordinates": [80.478618003, 16.476287616, 0],
+                    "type": "Point"
+                },
+                "type": "Feature",
+                "properties": {
+                    "featureClass": "PLACE",
+                    "routingPoint":[80.478618003, 16.476287616],
+                    "routingLink": "abc"
+                }
+            }]
+        }
+    }]
+}

@@ -1,0 +1,64 @@
+{
+    "layers": [{
+        "id": "linkLayer",
+        "provider": {
+            "id": "linkProvider",
+            "type": "TestProvider",
+            "name": "Links",
+            "space": "${SPACEID}",
+            "url": "${URL}",
+            "credentials": "${CREDENTIALS}",
+            "level": 15,
+            "class": "NAVLINK"
+        },
+        "min": 14,
+        "max": 20,
+        "data": {
+            "remote": [{
+                "id": -189168,
+                "type": "Feature",
+                "properties": {
+                    "featureClass": "NAVLINK",
+                    "type": "primary"
+                },
+                "geometry": {
+                    "type": "LineString",
+                    "coordinates": [
+                        [75.66569455, 11.868735208, 0],
+                        [75.66629, 11.868939948, 0]
+                    ]
+                }
+            }]
+        },
+        "clear": {"minLon": 75.66414423278809, "minLat": 11.866315070349245, "maxLon": 75.66843576721192, "maxLat": 11.86946492055327}
+    },{
+        "id": "placeLayer",
+        "provider": {
+            "id": "placeProvider",
+            "type": "TestProvider",
+            "name": "Places",
+            "space": "${SPACEID}",
+            "url": "${URL}",
+            "credentials": "${CREDENTIALS}",
+            "level": 14
+        },
+        "min": 14,
+        "max": 20,
+        "data": {
+            "remote": [{
+                "id": -29530,
+                "type": "Feature",
+                "properties": {
+                    "featureClass": "PLACE",
+                    "routingPoint":[75.665286854, 11.868278481],
+                    "routingLink": "abc"
+                },
+                "geometry": {
+                    "type": "Point",
+                    "coordinates": [75.665286854, 11.868278481, 0]
+                }
+            }]
+        },
+        "clear": {"minLon": 75.66414423278809, "minLat": 11.866315070349245, "maxLon": 75.66843576721192, "maxLat": 11.86946492055327}
+    }]
+}

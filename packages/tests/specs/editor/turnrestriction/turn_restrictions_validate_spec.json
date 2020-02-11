@@ -1,0 +1,63 @@
+{
+    "layers": [{
+        "id": "linkLayer",
+        "provider": {
+            "id": "linkProvider",
+            "type": "TestProvider",
+            "name": "Links",
+            "space": "${SPACEID}",
+            "url": "${URL}",
+            "credentials": "${CREDENTIALS}",
+            "level": 15,
+            "class": "NAVLINK"
+        },
+        "min": 14,
+        "max": 20,
+        "data": {
+            "remote": [{
+                "id": -189234,
+                "type": "Feature",
+                "properties": {
+                    "featureClass": "NAVLINK",
+                    "type": "highway"
+                },
+                "geometry": {
+                    "type": "LineString",
+                    "coordinates": [
+                        [-105.427578667,35.290946813,0],
+                        [-105.4274982,35.290644689,0]
+                    ]
+                }
+            }, {
+                "id": -189235,
+                "type": "Feature",
+                "properties": {
+                    "featureClass": "NAVLINK",
+                    "type": "highway"
+                },
+                "geometry": {
+                    "type": "LineString",
+                    "coordinates": [
+                        [-105.427578667,35.290552738,0],
+                        [-105.4274982,35.290644689,0]
+                    ]
+                }
+            }, {
+                "id": -189236,
+                "type": "Feature",
+                "properties": {
+                    "featureClass": "NAVLINK",
+                    "type": "highway"
+                },
+                "geometry": {
+                    "type": "LineString",
+                    "coordinates": [
+                        [-105.426505783,35.290727883,0],
+                        [-105.4274982,35.290644689,0]
+                    ]
+                }
+            }]
+        },
+        "clear": {"minLon":-105.42865155023954,"minLat":35.28875748652328,"maxLon":-105.42436001581572,"maxLat":35.291384670715445}
+    }]
+}

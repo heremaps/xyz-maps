@@ -1,0 +1,90 @@
+ <!DOCTYPE html>
+ <html>
+	<head>
+		<meta name="viewport" content="width=device-width, initial-scale=1.0, minimum-scale=1.0, user-scalable=no">
+		<title>XYZ Maps Example: Display Space Provider and filter features by tag</title>
+
+	    <script src="${XYZ_COMMON_PATH}" type="text/javascript" charset="UTF-8" ></script>
+	    <script src="${XYZ_CORE_PATH}" type="text/javascript" charset="UTF-8" ></script>
+	    <script src="${XYZ_DISPLAY_PATH}" type="text/javascript" charset="UTF-8" ></script>
+
+
+ 		<style type="text/css">
+			#map {
+				position: absolute;
+            	overflow: hidden;
+				top: 0;
+				left: 0;
+				width: 100%;
+                height: 100%;
+			}
+ 		</style>
+	</head>
+	<body>
+		<div id="map"></div>
+		<input type="text" name="fname" value="soccer">
+		<a id="settagbtn" class="button">Set Tag</a>
+
+		<script type="application/javascript">
+			//specify your credentials for mvt and point layers
+	      	var YOUR_ACCESS_TOKEN = window.parent.YOUR_ACCESS_TOKEN;
+
+
+			// configure layers
+			var layers = [
+				new here.xyz.maps.layers.MVTLayer({
+					name: 'background layer',
+					min: 1,
+					max: 20,
+					remote: {
+						url: 'https://xyz.api.here.com/tiles/osmbase/256/all/{z}/{x}/{y}.mvt?access_token='+YOUR_ACCESS_TOKEN
+					}
+				})
+			]
+			// setup the Map Display
+			const display = new  here.xyz.maps.Map( document.getElementById("map"), {
+			    zoomLevel : 2,
+			    center: {
+			        longitude: -96.76883, latitude: 39.6104
+			    },
+
+			    // add layers to display
+			    layers: layers
+			});
+
+
+/*###visiblesource*/
+// This example shows how to show SpaceProvider and set its tags.
+var taginput = document.querySelector("input");
+var settagbtn = document.querySelector("#settagbtn");
+
+// Create Space provider
+var mySpaceProvider = new here.xyz.maps.providers.SpaceProvider({
+		name:  'SpaceProvider',
+		level: 1,
+		space: 'KjZI17j2',
+		credentials: {
+			access_token: YOUR_ACCESS_TOKEN
+		}
+	})
+// Create data layer with Space provider
+var myLayer = new here.xyz.maps.layers.TileLayer({
+    name: 'SpaceLayer',
+    provider: mySpaceProvider,
+    min: 2,
+    max: 20
+})
+
+// Add the layer to display
+display.addLayer(myLayer)
+
+settagbtn.onclick = function(){
+	// set tag for SpaceProvider
+	//this example displays different kind of Stadium around the world, you could set tags: baseball, soccer, football to filter these stadiums
+	mySpaceProvider.setTags(taginput.value);
+};
+
+/*visiblesource###*/
+		</script>
+	</body>
+</html>

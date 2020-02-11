@@ -1,0 +1,42 @@
+{
+    "layers": [{
+        "id": "placeGeoJsonLayer",
+        "provider": {
+            "id": "placeGeoJsonProvider",
+            "type": "GeoJSONProvider",
+            "name": "Places",
+            "url": "${URL}",
+            "level": 14
+        },
+        "min": 14,
+        "max": 20
+    }, {
+        "id": "placeLayer",
+        "provider": {
+            "id": "placeProvider",
+            "type": "SpaceProvider",
+            "name": "Places",
+            "space": "${SPACEID}",
+            "url": "${URL}",
+            "https": false,
+            "credentials": "${CREDENTIALS}",
+            "level": 14
+        },
+        "min": 14,
+        "max": 20
+    }, {
+        "id": "spaceLayer",
+        "provider": {
+            "id": "spaceProvider",
+            "type": "SpaceProvider",
+            "name": "my SpaceProvider",
+            "level": 15,
+            "url": "${URL}",
+            "https": false,
+            "space": "${SPACEID}",
+            "credentials": "${CREDENTIALS}"
+        },
+        "min": 14,
+        "max": 20
+    }]
+}

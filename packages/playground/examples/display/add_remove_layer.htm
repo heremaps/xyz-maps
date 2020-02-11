@@ -1,0 +1,131 @@
+ <!DOCTYPE html>
+ <html>
+	<head>
+		<meta name="viewport" content="width=device-width, initial-scale=1.0, minimum-scale=1.0, user-scalable=no">
+		<title>XYZ Maps Example: Add and remove layer</title>
+
+	    <script src="${XYZ_COMMON_PATH}" type="text/javascript" charset="UTF-8" ></script>
+	    <script src="${XYZ_CORE_PATH}" type="text/javascript" charset="UTF-8" ></script>
+	    <script src="${XYZ_DISPLAY_PATH}" type="text/javascript" charset="UTF-8" ></script>
+
+
+ 		<style type="text/css">
+			#map {
+				position: absolute;
+            	overflow: hidden;
+				top: 0;
+				left: 0;
+				width: 100%;
+                height: 100%;
+			}
+			#navlinklayerbutton, #placelayerbutton{
+				width: 200px;
+			}
+ 		</style>
+	</head>
+	<body>
+		<div id="map"></div>
+		<a id="navlinklayerbutton" class="button">Add Navlink Layer</a>
+		<a id="placelayerbutton" class="button">Add Place Layer</a>
+
+		<script type="application/javascript">
+			//specify your credentials for mvt and navlink layers
+	      	var YOUR_ACCESS_TOKEN = window.parent.YOUR_ACCESS_TOKEN;
+
+			// configure layers
+			var layers = [
+				new here.xyz.maps.layers.MVTLayer({
+					name: 'background layer',
+					min: 1,
+					max: 20,
+					remote: {
+						url: 'https://xyz.api.here.com/tiles/osmbase/256/all/{z}/{x}/{y}.mvt?access_token='+YOUR_ACCESS_TOKEN
+					}
+				})
+			]
+			// setup the Map Display
+			const display = new  here.xyz.maps.Map( document.getElementById("map"), {
+			    zoomLevel : 17,
+			    center: {
+					longitude: -122.226136, latitude: 37.777699
+			    },
+
+			    // add layers to display
+			    layers: layers
+			});
+
+/*###visiblesource*/
+// Create a data layer for navlink
+var myNavlinkLayer = new here.xyz.maps.layers.TileLayer({
+	name: 'myNavlinkLayer',
+    min: 14,
+    max: 20,
+    provider: new here.xyz.maps.providers.SpaceProvider ({
+		id:  'NavlinkProvider',
+		level: 14,
+		space: '6HMU19KY',
+		credentials: {
+            access_token: YOUR_ACCESS_TOKEN
+		}
+	})
+})
+
+// Create another data layer for Place
+var myPlaceLayer = new here.xyz.maps.layers.TileLayer({
+	name: 'myPlaceLayer',
+    min: 14,
+    max: 20,
+    provider: new here.xyz.maps.providers.SpaceProvider ({
+		id:  'PlaceProvider',
+		level: 14,
+		space: '6CkeaGLg',
+		credentials: {
+            access_token: YOUR_ACCESS_TOKEN
+		}
+	})
+})
+
+var navlinkLayerAdded = false;
+// add/remove navlink layer in button handler
+document.querySelector("#navlinklayerbutton").onclick = function(){
+
+	if(!navlinkLayerAdded){
+		display.addLayer(myNavlinkLayer);
+
+		this.innerText="Remove Navlink Layer";
+
+		navlinkLayerAdded = true;
+	}
+	else{
+		display.removeLayer(myNavlinkLayer);
+
+		this.innerText="Add Navlink Layer";
+
+		navlinkLayerAdded = false;
+	}
+};
+
+var placeLayerAdded = false;
+// add/remove place layer in button handler
+document.querySelector("#placelayerbutton").onclick = function(){
+
+	if(!placeLayerAdded){
+		display.addLayer(myPlaceLayer);
+
+		this.innerText="Remove Place Layer";
+
+		placeLayerAdded = true;
+	}
+	else{
+		display.removeLayer(myPlaceLayer);
+
+		this.innerText="Add Place Layer";
+
+		placeLayerAdded = false;
+	}
+};
+
+/*visiblesource###*/
+		</script>
+	</body>
+</html>

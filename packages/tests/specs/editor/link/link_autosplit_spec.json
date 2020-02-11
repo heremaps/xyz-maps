@@ -1,0 +1,18 @@
+{
+    "layers": [{
+        "id": "linkLayer",
+        "provider": {
+            "id": "linkProvider",
+            "type": "TestProvider",
+            "name": "Links",
+            "space": "${SPACEID}",
+            "url": "${URL}",
+            "credentials": "${CREDENTIALS}",
+            "level": 15,
+            "class": "NAVLINK"
+        },
+        "min": 14,
+        "max": 20,
+        "clear": {"minLon":76.9757642327881,"minLat":12.936771527878818,"maxLon":76.98005576721192,"maxLat":12.939908462257108}
+    }]
+}

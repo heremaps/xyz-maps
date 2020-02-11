@@ -1,0 +1,6 @@
+node_modules/
+dist/
+credentials.json
+.awspublish-*
+.idea/
+debug/token.js

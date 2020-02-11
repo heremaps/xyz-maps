@@ -1,0 +1,80 @@
+{
+    "layers": [{
+        "id": "linkLayer",
+        "provider": {
+            "id": "linkProvider",
+            "type": "TestProvider",
+            "name": "Links",
+            "space": "${SPACEID}",
+            "url": "${URL}",
+            "https": false,
+            "credentials": "${CREDENTIALS}",
+            "level": 15,
+            "class": "NAVLINK"
+        },
+        "min": 14,
+        "max": 20,
+        "data": {
+            "remote": [{
+                "type": "Feature",
+                "id": -188824,
+                "properties": {
+                    "featureClass": "NAVLINK",
+                    "type": "path"
+                },
+                "geometry": {
+                    "type": "LineString",
+                    "coordinates": [
+                        [77.029369782, 12.943559958, 0],
+                        [77.028833341, 12.943037146, 0]
+                    ]
+                }
+            }, {
+                "id": -188825,
+                "type": "Feature",
+                "properties": {
+                    "featureClass": "NAVLINK",
+                    "type": "path"
+                },
+                "geometry": {
+                    "type": "LineString",
+                    "coordinates": [
+                        [77.029369782, 12.943037146, 0],
+                        [77.028833341, 12.942514333, 0]
+                    ]
+                }
+            }]
+        },
+        "clear": {"minLon":77.02829689884182,"minLat":12.94146870355695,"maxLon":77.03258843326565,"maxLat":12.944605578844246}
+    },{
+        "id": "paLayer",
+        "provider": {
+            "id": "paProvider",
+            "type": "TestProvider",
+            "name": "address",
+            "space": "${SPACEID}",
+            "url": "${URL}",
+            "https": false,
+            "credentials": "${CREDENTIALS}",
+            "level": 14
+        },
+        "min": 14,
+        "max": 20,
+        "data": {
+            "remote": [{
+                "id": -47937,
+                "type": "Feature",
+                "properties": {
+                    "featureClass": "ADDRESS",
+                    "routingLink": "-188824",
+                    "routingPoint": [77.02937, 12.94356, 0]
+                },
+                "geometry": {
+                    "type": "Point",
+                    "coordinates": [77.029369782, 12.944082769, 0]
+                }
+            }]
+        },
+        "clear": {"minLon":77.02829689884182,"minLat":12.94146870355695,"maxLon":77.03258843326565,"maxLat":12.944605578844246}
+    }]
+}

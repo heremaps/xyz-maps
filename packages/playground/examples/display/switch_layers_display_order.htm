@@ -1,0 +1,117 @@
+ <!DOCTYPE html>
+ <html>
+	<head>
+		<meta name="viewport" content="width=device-width, initial-scale=1.0, minimum-scale=1.0, user-scalable=no">
+		<title>XYZ Maps Example: Switch layers display order</title>
+
+	    <script src="${XYZ_COMMON_PATH}" type="text/javascript" charset="UTF-8" ></script>
+	    <script src="${XYZ_CORE_PATH}" type="text/javascript" charset="UTF-8" ></script>
+	    <script src="${XYZ_DISPLAY_PATH}" type="text/javascript" charset="UTF-8" ></script>
+
+
+ 		<style type="text/css">
+			#map {
+				position: absolute;
+            	overflow: hidden;
+				top: 0;
+				left: 0;
+				width: 100%;
+                height: 100%;
+			}
+ 		</style>
+	</head>
+	<body>
+		<div id="map"></div>
+		<a id="switchlayerbutton" class="button">Switch</a>
+		<pre><div id="info">Top layer: Place Layer</div></pre>
+
+		<script type="application/javascript">
+			//specify your credentials for mvt and navlink layers
+	      	var YOUR_ACCESS_TOKEN = window.parent.YOUR_ACCESS_TOKEN;
+
+			// configure layers
+			var layers = [
+				new here.xyz.maps.layers.MVTLayer({
+					name: 'background layer',
+					min: 1,
+					max: 20,
+					remote: {
+						url: 'https://xyz.api.here.com/tiles/osmbase/256/all/{z}/{x}/{y}.mvt?access_token='+YOUR_ACCESS_TOKEN
+					}
+				}),
+				new here.xyz.maps.layers.TileLayer({
+					name: 'Building Layer',
+				    min: 15,
+				    max: 20,
+				    provider: new here.xyz.maps.providers.SpaceProvider({
+						name:  'BuildingProvider',
+						level: 15,
+						space: 'XhxKLZGL',
+						credentials: {
+							access_token: YOUR_ACCESS_TOKEN
+						}
+					}),
+					style: {
+					    styleGroups: {
+					    	style: [
+						    	{zIndex: 1, type: "Polygon", fill:"#008800", opacity: 0.8}
+						    ]
+					    },
+					    assign: function(feature){
+					    	return "style";
+					    }
+				    }
+				}),
+				new here.xyz.maps.layers.TileLayer({
+					name: 'Place Layer',
+				    min: 14,
+				    max: 20,
+				    provider: new here.xyz.maps.providers.SpaceProvider ({
+						id:  'PlaceProvider',
+						level: 14,
+						space: '6CkeaGLg',
+						credentials: {
+							access_token: YOUR_ACCESS_TOKEN
+						}
+					}),
+					style: {
+					    styleGroups: {
+					    	style: [
+					    		{zIndex: 0, type: "Circle", radius:12, strokeWidth:2, "stroke": "#FFFFFF", "fill": "#1188DD"}
+					    	]
+					    },
+					    assign: function(feature){
+					    	return "style";
+					    }
+				    }
+				})
+			]
+			// setup the Map Display
+			const display = new  here.xyz.maps.Map( document.getElementById("map"), {
+			    zoomLevel : 18,
+			    center: {
+			        longitude: -122.227145, latitude: 37.779873
+			    },
+			    // add layers to display
+			    layers: layers
+			});
+
+/*###visiblesource*/
+document.querySelector("#switchlayerbutton").onclick = function(){
+	// Get layer to switch display order
+	var addedLayer = display.getLayers(1);
+	// remove this layer from current map display
+	display.removeLayer(addedLayer);
+	// add this layer to map display, this layer is above all other layers
+	display.addLayer(addedLayer);
+
+
+	// Get current top layer
+	var topLayer = display.getLayers(2);
+	document.querySelector("#info").innerText = "Top layer: " + topLayer.name;
+};
+
+/*visiblesource###*/
+		</script>
+	</body>
+</html>

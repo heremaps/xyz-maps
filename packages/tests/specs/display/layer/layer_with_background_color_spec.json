@@ -1,0 +1,29 @@
+{
+    "layers": [{
+        "id": "spaceLayer1",
+        "provider": {
+            "id": "spaceProvider",
+            "type": "SpaceProvider",
+            "name": "my SpaceProvider",
+            "level": 15,
+            "url": "${URL}",
+            "space": "${SPACEID}",
+            "credentials": "${CREDENTIALS}"
+        },
+        "min": 14,
+        "max": 20
+    }, {
+        "id": "spaceLayer2",
+        "provider": {
+            "id": "spaceProvider",
+            "type": "SpaceProvider",
+            "name": "my SpaceProvider",
+            "level": 15,
+            "url": "${URL}",
+            "space": "${SPACEID}",
+            "credentials": "${CREDENTIALS}"
+        },
+        "min": 14,
+        "max": 20
+    }]
+}

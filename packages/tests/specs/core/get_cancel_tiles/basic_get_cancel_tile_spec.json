@@ -1,0 +1,17 @@
+{
+    "layers": [{
+        "id": "placeLayer",
+        "provider": {
+            "id": "placeProvider",
+            "type": "SpaceProvider",
+            "name": "Places",
+            "url": "${URL}",
+            "https": false,
+            "level": 16,
+            "space": "${SPACEID}",
+            "credentials": "${CREDENTIALS}"
+        },
+        "min": 14,
+        "max": 20
+    }]
+}

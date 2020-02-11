@@ -1,0 +1,64 @@
+{
+    "layers": [{
+        "id": "linkLayer",
+        "provider": {
+            "id": "linkProvider",
+            "type": "TestProvider",
+            "name": "Links",
+            "space": "${SPACEID}",
+            "url": "${URL}",
+            "credentials": "${CREDENTIALS}",
+            "level": 15,
+            "class": "NAVLINK"
+        },
+        "min": 14,
+        "max": 20,
+        "data": {
+            "remote": [{
+                "id": -189165,
+                "type": "Feature",
+                "properties": {
+                    "featureClass": "NAVLINK",
+                    "type": "primary"
+                },
+                "geometry": {
+                    "type": "LineString",
+                    "coordinates": [
+                        [75.491018648,12.776229273,0],
+                        [75.489409323,12.776229273,0]
+                    ]
+                }
+            }]
+        },
+        "clear": {"minLon":75.48887288091906,"minLat":12.774136623633282,"maxLon":75.49316441534289,"maxLat":12.77727559097248}
+    },{
+        "id": "placeLayer",
+        "provider": {
+            "id": "placeProvider",
+            "type": "TestProvider",
+            "name": "Places",
+            "space": "${SPACEID}",
+            "url": "${URL}",
+            "credentials": "${CREDENTIALS}",
+            "level": 14
+        },
+        "min": 14,
+        "max": 20,
+        "data": {
+            "remote": [{
+                "id": -29528,
+                "type": "Feature",
+                "properties": {
+                    "featureClass": "PLACE",
+                    "routingPoint":[75.489945765,12.776229273],
+                    "routingLink": "abc"
+                },
+                "geometry": {
+                    "type": "Point",
+                    "coordinates": [75.489945765,12.776229273,0]
+                }
+            }]
+        },
+        "clear": {"minLon":75.48887288091906,"minLat":12.774136623633282,"maxLon":75.49316441534289,"maxLat":12.77727559097248}
+    }]
+}

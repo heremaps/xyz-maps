@@ -1,0 +1,4 @@
+
+Features/Objects/Overlayobjects:
+
+type: 'NVT_XXX' -> 'Feature', editorType() -> 'NVT_XXX'

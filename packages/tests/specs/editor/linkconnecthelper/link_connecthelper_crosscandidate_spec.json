@@ -1,0 +1,49 @@
+{
+    "layers": [{
+        "id": "linkLayer",
+        "provider": {
+            "id": "linkProvider",
+            "type": "TestProvider",
+            "name": "Links",
+            "space": "${SPACEID}",
+            "url": "${URL}",
+            "credentials": "${CREDENTIALS}",
+            "level": 15,
+            "class": "NAVLINK"
+        },
+        "min": 14,
+        "max": 20,
+        "data": {
+            "remote": [{
+                "id": -189124,
+                "type": "Feature",
+                "properties": {
+                    "featureClass": "NAVLINK",
+                    "type": "residential"
+                },
+                "geometry": {
+                    "type": "LineString",
+                    "coordinates": [
+                        [80.568860962, 16.726007576, 0],
+                        [80.569210962, 16.726837639, 0]
+                    ]
+                }
+            }, {
+                "id": -189125,
+                "type": "Feature",
+                "properties": {
+                    "featureClass": "NAVLINK",
+                    "type": "residential"
+                },
+                "geometry": {
+                    "type": "LineString",
+                    "coordinates": [
+                        [80.569200962, 16.725857565, 0],
+                        [80.569560962, 16.726687628, 0]
+                    ]
+                }
+            }]
+        },
+        "clear": {"minLon": 80.5669938524764, "minLat": 16.724911423292963, "maxLon": 80.57128538690023, "maxLat": 16.727997106813288}
+    }]
+}

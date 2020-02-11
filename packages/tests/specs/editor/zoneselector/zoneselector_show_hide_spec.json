@@ -1,0 +1,75 @@
+{
+    "layers": [{
+        "id": "linkLayer",
+        "provider": {
+            "id": "linkProvider",
+            "type": "TestProvider",
+            "name": "Links",
+            "space": "${SPACEID}",
+            "url": "${URL}",
+            "credentials": "${CREDENTIALS}",
+            "level": 15,
+            "class": "NAVLINK"
+        },
+        "min": 14,
+        "max": 20,
+        "data": {
+            "remote": [{
+                "id": -18254,
+                "type": "Feature",
+                "properties": {
+                    "featureClass": "NAVLINK",
+                    "type": "highway"
+                },
+                "geometry": {
+                    "type": "LineString",
+                    "coordinates": [
+                        [-107.79304,37.24814,0],
+                        [-107.79297,37.24785,0]
+                    ]
+                }
+            }, {
+                "id": -18255,
+                "type": "Feature",
+                "properties": {
+                    "featureClass": "NAVLINK",
+                    "type": "highway"
+                },
+                "geometry": {
+                    "type": "LineString",
+                    "coordinates": [
+                        [-107.79314,37.24859,0],
+                        [-107.79304,37.24814,0]
+                    ]
+                }
+            }, {
+                "type": "Feature",
+                "properties": {
+                    "featureClass": "NAVLINK",
+                    "type": "highway"
+                },
+                "geometry": {
+                    "type": "LineString",
+                    "coordinates": [
+                        [-107.79297,37.24785,0],
+                        [-107.79271,37.24751,0]
+                    ]
+                }
+            }, {
+                "id": -18257,
+                "type": "Feature",
+                "properties": {
+                    "featureClass": "NAVLINK",
+                    "type": "highway"
+                },
+                "geometry": {
+                    "type": "LineString",
+                    "coordinates": [
+                        [-107.79271,37.24751,0],
+                        [-107.79149,37.24803,0]
+                    ]
+                }
+            }]
+        }
+    }]
+}

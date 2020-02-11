@@ -1,0 +1,17 @@
+{
+  "extends": "../../tsconfig.json",
+  "compilerOptions": {
+    "target": "es5",
+    "sourceMap": true,
+    "skipLibCheck": true,
+    "lib": ["es6","dom"]
+  },
+  "include": [
+    "src/**/*"
+  ],
+  "exclude": [
+    "src/**/*.glsl",
+    "node_modules",
+    "dist"
+  ]
+}

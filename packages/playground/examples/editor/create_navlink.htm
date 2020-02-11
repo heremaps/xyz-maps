@@ -1,0 +1,202 @@
+ <!DOCTYPE html>
+ <html>
+	<head>
+		<meta name="viewport" content="width=device-width, initial-scale=1.0, minimum-scale=1.0, user-scalable=no">
+		<title>XYZ Maps Example: Create Navlink</title>
+
+	   	<script src="${XYZ_COMMON_PATH}" type="text/javascript" charset="UTF-8" ></script>
+	    <script src="${XYZ_CORE_PATH}" type="text/javascript" charset="UTF-8" ></script>
+	    <script src="${XYZ_DISPLAY_PATH}" type="text/javascript" charset="UTF-8" ></script>
+	    <script src="${XYZ_EDITOR_PATH}" type="text/javascript" charset="UTF-8" ></script>
+
+
+ 		<style type="text/css">
+			#map {
+				position: absolute;
+            	overflow: hidden;
+				top: 0;
+				left: 0;
+				width: 100%;
+                height: 100%;
+			}
+
+ 		</style>
+	</head>
+	<body>
+	<div id="map"></div>
+	<a id="createbuttongeo" class="button">Create - geo</a>
+	<a id="createbuttonpixel" class="button">Create - pixel</a>
+
+	<script type="application/javascript">
+		// specify credentials
+      	var YOUR_ACCESS_TOKEN = window.parent.YOUR_ACCESS_TOKEN;
+
+		// Create a custom provider.
+		class MyProvider extends here.xyz.maps.providers.SpaceProvider {
+
+    		// In this exmaple, all data does already contain desired feature class in the property 'featureClass'.
+			detectFeatureClass(feature) {
+				return feature.properties.featureClass;
+			}
+
+
+			// ########################       Navlink      ########################
+			// Following functions are only necessary if you want to edit Navlink.
+
+
+			// In addition to Lines, Navlinks have navigation information and are connected to each other to form a road network.
+			// Implementing following functions enables you to easily edit Navlinks.
+
+
+			// This function returns a boolean value to indicate if turn from from-link's shape point to to-link's shape point
+			// is restricted.
+			// It takes two arguments ('from' and 'to' in this example), they have the same data structure:
+			// {
+			//     'link': Navlink,
+			//     'index': Number
+			// }
+			// 'link': Navlink to turn from and into.
+			// 'index': index of Navlink's shape point, it specifies the shape point where turn takes place.
+			// In this example, turn restriction information is stored in from-link, we read this information and determin if the
+			// turn is restricted.
+			readTurnRestriction(from, to) {
+				let turn = from.link.prop('turnRestriction') || {};
+				// first shape point is 'start' and the last one is 'end'
+				let restrictions = turn[from.index ? 'end' : 'start'] || [];
+
+				return restrictions.indexOf(to.link.id) >= 0;
+			};
+
+			// This function stores turn restriction information for turn from from-link to to-link.
+			// It takes arguments ('restricted', 'from' and 'to' in this example) similar to that of above function, but its first
+			// argument is a boolean value for indicating the turn is (or is not) restricted.
+			// In this example, we store turn restriction information as following object in from-link:
+			// {
+			//     'start': Array<String>  // Array of Navlink id
+			//     'end': Array<String>    // Array of Navlink id
+			// }
+			// 'start' and 'end' refer to first and last shape point of from-link.
+			// Their values are array of Navlink ids, you are not allowed to turn from from-link's start (or end) shape point into
+			// any Navlink that is in this array.
+			writeTurnRestriction(restricted, from, to) {
+				let turn = from.link.prop('turnRestriction') || {};
+				let node = from.index ? 'end' : 'start';
+				let restrictions = turn[node] = turn[node] || [];
+				let index = restrictions.indexOf(to.link.id);
+
+				if (restricted) {
+					if (index == -1) {
+						restrictions.push(to.link.id);
+					}
+				} else if (index >= 0) {
+					restrictions.splice(index, 1);
+				}
+
+				from.link.prop('turnRestriction', turn);
+			}
+
+			// Indicate if the Navlink is pedestrian only, it's not allowed to turn into a pedestrian only Navlink.
+			readPedestrianOnly(feature) {
+				return Boolean(feature.prop('pedestrianOnly'));
+			}
+
+			// Navlink's direction indicates if the Navlink is a one-way road.
+			// Valid values are:
+			// 'BOTH': the Navlink is a two-way road.
+			// 'START_TO_END': the Navlink is a one-way road with travel direction from its first to last shape point.
+			// 'END_TO_START': the Navlink is a one-way road with travel direction from its last to first shape point.
+			// It's not allowed to turn into one Navlink with direction 'END_TO_START' at its start (first) shape point or turn into
+			// one Navlink with direction 'START_TO_END' at its end (last) shape point.
+			readDirection(feature) {
+				return feature.prop('direction') || 'BOTH';
+			}
+		}
+
+		var bgLayer = new here.xyz.maps.layers.MVTLayer({
+			name: 'background layer',
+			min: 1,
+			max: 20,
+			remote: {
+				url: 'https://xyz.api.here.com/tiles/osmbase/256/all/{z}/{x}/{y}.mvt?access_token='+YOUR_ACCESS_TOKEN
+			}
+		});
+		var navlinkLayer = new here.xyz.maps.layers.TileLayer({
+			name: 'Navlink Layer',
+			min: 14,
+			max: 20,
+			// Customized provider to provide navlinks
+			provider: new MyProvider({
+				id: "navlinkProvider",
+				space: "6HMU19KY",
+				credentials: {
+					access_token: YOUR_ACCESS_TOKEN
+				},
+				level: 14
+			})
+		});
+
+        // setup the Map Display
+		const display = new  here.xyz.maps.Map( document.getElementById("map"), {
+                zoomLevel : 17,
+                center: {
+                    latitude:52.50512864669059, longitude:13.276881159541091
+                },
+
+                // add layers to display
+                layers: [bgLayer, navlinkLayer]
+            });
+
+		// setup the editor
+        const editor = new here.xyz.maps.editor.Editor( display );
+
+		// add navlink layer to editor, make layers editable
+		editor.addLayer( navlinkLayer );
+
+
+/*###visiblesource*/
+/**
+ *  This example shows how to create navlink by an array of geo and pixel coordinates with editor API.
+ */
+
+// Coordinates of the navlink to create
+const geoCoords = [
+	new here.xyz.maps.editor.GeoCoordinate(13.278050, 52.504436),
+	new here.xyz.maps.editor.GeoCoordinate(13.277975, 52.504583),
+	new here.xyz.maps.editor.GeoCoordinate(13.277803, 52.504675),
+	new here.xyz.maps.editor.GeoCoordinate(13.277374, 52.504799),
+	new here.xyz.maps.editor.GeoCoordinate(13.277229, 52.504871),
+	new here.xyz.maps.editor.GeoCoordinate(13.277455, 52.505635),
+	new here.xyz.maps.editor.GeoCoordinate(13.277621, 52.505716),
+	new here.xyz.maps.editor.GeoCoordinate(13.278662, 52.505759),
+	new here.xyz.maps.editor.GeoCoordinate(13.278780, 52.505648)
+];
+const pixelCoords = [
+	new here.xyz.maps.editor.PixelCoordinate(404, 76),
+	new here.xyz.maps.editor.PixelCoordinate(489, 118),
+	new here.xyz.maps.editor.PixelCoordinate(437, 248),
+	new here.xyz.maps.editor.PixelCoordinate(359, 251),
+	new here.xyz.maps.editor.PixelCoordinate(295, 350)
+];
+
+document.querySelector("#createbuttongeo").onclick = function(){
+	// create navlink with road type 'path'
+	// set featureClass to 'NAVLINK' to indicate this is navlink
+	var navlink = new here.xyz.maps.editor.features.Navlink(geoCoords, { featureClass: 'NAVLINK', type : 'path' });
+
+	// add navlink to editor
+	editor.addFeature( navlink );
+};
+
+document.querySelector("#createbuttonpixel").onclick = function(){
+	// create navlink with road type 'path'
+	// set featureClass to 'NAVLINK' to indicate this is navlink
+	var navlink = new here.xyz.maps.editor.features.Navlink(pixelCoords, { featureClass: 'NAVLINK', type : 'path' });
+
+	// add navlink to editor
+	editor.addFeature( navlink );
+};
+
+/*visiblesource###*/
+		</script>
+	</body>
+</html>

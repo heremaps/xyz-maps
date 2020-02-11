@@ -1,0 +1,36 @@
+{
+  "name": "@here/xyz-maps-editor",
+  "version": "0.10.0-dev",
+  "description": "XYZ editor.",
+  "author": {
+    "name": "HERE Europe B.V.",
+    "url": "https://here.com"
+  },
+  "license": "Apache-2.0",
+  "repository": {
+    "type": "git",
+    "url": "https://github.com/heremaps/xyz-editor.git",
+    "directory": "packages/editor"
+  },
+  "main": "dist/xyz-maps-editor.min.js",
+  "module": "dist/xyz-maps-editor.esm.min.js",
+  "files": [
+    "dist/xyz*.min.js"
+  ],
+  "publishConfig": {
+  },
+  "scripts": {
+    "watch-dev": "rollup -c --watch --environment BUILD:dev",
+    "build-dev": "rollup -c --environment BUILD:dev",
+    "build-release": "rollup -c --environment BUILD:production"
+  },
+  "dependencies": {},
+  "devDependencies": {
+    "rollup": "^1.29.1",
+    "rollup-plugin-img": "^1.1.0",
+    "@rollup/plugin-typescript": "^2.1.0",
+    "rollup-plugin-uglify": "^6.0.4",
+    "rollup-plugin-terser": "^5.1.3",
+    "typescript": "^3.7.5"
+  }
+}

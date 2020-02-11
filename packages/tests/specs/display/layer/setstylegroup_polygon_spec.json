@@ -1,0 +1,42 @@
+{
+    "layers": [{
+        "id": "linkLayer",
+        "name": "Link Layer",
+        "provider": {
+            "id": "linkProvider",
+            "type": "TestProvider",
+            "name": "Links",
+            "space": "${SPACEID}",
+            "url": "${URL}",
+            "credentials": "${CREDENTIALS}",
+            "level": 15,
+            "class": "NAVLINK"
+        },
+        "min": 14,
+        "max": 20
+    },{
+        "id": "buildingLayer",
+        "provider": {
+            "id": "buildingProvider",
+            "type": "TestProvider",
+            "name": "Buildings",
+            "space": "${SPACEID}",
+            "url": "${URL}",
+            "credentials": "${CREDENTIALS}",
+            "level": 13
+        },
+        "min": 14,
+        "max": 20,
+        "data": {
+            "local": [{
+                "id": 123,
+                "geometry": {
+                    "coordinates": [[[[73.471185, 21.4043, 0], [73.471469, 21.404854, 0], [73.472429, 21.404784, 0], [73.472376, 21.404245, 0], [73.471185, 21.4043, 0]]]],
+                    "type": "MultiPolygon"
+                },
+                "type": "Feature",
+                "properties": {}
+            }]
+        }
+    }]
+}

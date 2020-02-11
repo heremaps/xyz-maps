@@ -1,0 +1,93 @@
+{
+    "layers": [{
+        "id": "linkLayer",
+        "provider": {
+            "id": "linkProvider",
+            "type": "TestProvider",
+            "name": "Links",
+            "space": "${SPACEID}",
+            "url": "${URL}",
+            "credentials": "${CREDENTIALS}",
+            "level": 15,
+            "class": "NAVLINK"
+        },
+        "min": 14,
+        "max": 20,
+        "data": {
+            "remote": [{
+                "id": -189182,
+                "type": "Feature",
+                "properties": {
+                    "featureClass": "NAVLINK",
+                    "type": "highway"
+                },
+                "geometry": {
+                    "type": "LineString",
+                    "coordinates": [
+                        [76.033924202, 13.710025573, 0],
+                        [76.033559421, 13.708701829, 0]
+                    ]
+                }
+            }]
+        },
+        "clear": {"minLon":76.03440163538352,"minLat":13.708389133153133,"maxLon":76.03654740259543,"maxLat":13.709952610810362}
+    }, {
+        "id": "placeLayer",
+        "provider": {
+            "id": "placeProvider",
+            "type": "TestProvider",
+            "name": "Places",
+            "space": "${SPACEID}",
+            "url": "${URL}",
+            "credentials": "${CREDENTIALS}",
+            "level": 14
+        },
+        "min": 14,
+        "max": 20,
+        "data": {
+            "remote": [{
+                "id": -29538,
+                "type": "Feature",
+                "properties": {
+                    "featureClass": "PLACE",
+                    "routingPoint":[76.035206298, 13.709301163],
+                    "routingLink": "abc"
+                },
+                "geometry": {
+                    "type": "Point",
+                    "coordinates": [76.035206298, 13.709301163, 0]
+                }
+            }]
+        },
+        "clear": {"minLon":76.03440163538352,"minLat":13.708389133153133,"maxLon":76.03654740259543,"maxLat":13.709952610810362}
+    }, {
+        "id": "paLayer",
+        "provider": {
+            "id": "paProvider",
+            "type": "TestProvider",
+            "name": "address",
+            "space": "${SPACEID}",
+            "url": "${URL}",
+            "credentials": "${CREDENTIALS}",
+            "level": 14
+        },
+        "min": 14,
+        "max": 20,
+        "data": {
+            "remote": [{
+                "id": -48036,
+                "type": "Feature",
+                "properties": {
+                    "featureClass": "ADDRESS",
+                    "routingLink": "-10",
+                    "routingPoint": [74.81124, 12.92608, 0]
+                },
+                "geometry": {
+                    "type": "Point",
+                    "coordinates": [76.035072188, 13.709170873, 0]
+                }
+            }]
+        },
+        "clear": {"minLon":76.03440163538352,"minLat":13.708389133153133,"maxLon":76.03654740259543,"maxLat":13.709952610810362}
+    }]
+}

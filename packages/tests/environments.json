@@ -1,0 +1,4 @@
+{
+    "xyzhub": "https://xyz.api.here.com/hub",
+    "image": "{LOCALHOST}/base/tests/assets/tiles/{QUADKEY}.png"
+}

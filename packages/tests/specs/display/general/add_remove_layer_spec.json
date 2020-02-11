@@ -1,0 +1,27 @@
+{
+    "layers": [{
+        "id": "imageLayer",
+        "provider": {
+            "id": "imageProvider",
+            "type": "ImageProvider",
+            "name": "image provider",
+            "url": "${URL}"
+        },
+        "min": 14,
+        "max": 20
+    },{
+        "id": "linkLayer",
+        "provider": {
+            "id": "linkProvider",
+            "type": "TestProvider",
+            "name": "Links",
+            "space": "${SPACEID}",
+            "url": "${URL}",
+            "credentials": "${CREDENTIALS}",
+            "level": 15,
+            "class": "NAVLINK"
+        },
+        "min": 14,
+        "max": 20
+    }]
+}

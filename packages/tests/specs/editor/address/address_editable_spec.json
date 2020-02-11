@@ -1,0 +1,64 @@
+{
+    "layers": [{
+        "id": "linkLayer",
+        "provider": {
+            "id": "linkProvider",
+            "type": "TestProvider",
+            "name": "Links",
+            "space": "${SPACEID}",
+            "url": "${URL}",
+            "credentials": "${CREDENTIALS}",
+            "level": 15,
+            "class": "NAVLINK"
+        },
+        "min": 14,
+        "max": 20,
+        "data": {
+            "remote": [{
+                "id": -188809,
+                "type": "Feature",
+                "properties": {
+                    "featureClass": "NAVLINK",
+                    "type": "path"
+                },
+                "geometry": {
+                    "type": "LineString",
+                    "coordinates": [
+                        [80.536523979, 16.48085974, 0],
+                        [80.537328642, 16.48085974, 0]
+                    ]
+                }
+            }]
+        },
+        "clear": {"minLon":80.53518287494662,"minLat":16.479830933933485,"maxLon":80.53947440937045,"maxLat":16.48291733686689}
+    },{
+        "id": "paLayer",
+        "provider": {
+            "id": "paProvider",
+            "type": "TestProvider",
+            "name": "address",
+            "space": "${SPACEID}",
+            "url": "${URL}",
+            "credentials": "${CREDENTIALS}",
+            "level": 14
+        },
+        "min": 14,
+        "max": 20,
+        "data": {
+            "remote": [{
+                "id": -47934,
+                "type": "Feature",
+                "properties": {
+                    "featureClass": "ADDRESS",
+                    "routingPoint":[80.478618003, 16.476287616],
+                    "routingLink": "abc"
+                },
+                "geometry": {
+                    "type": "Point",
+                    "coordinates": [80.535719317, 16.481374142, 0]
+                }
+            }]
+        },
+        "clear": {"minLon":80.53518287494662,"minLat":16.479830933933485,"maxLon":80.53947440937045,"maxLat":16.48291733686689}
+    }]
+}

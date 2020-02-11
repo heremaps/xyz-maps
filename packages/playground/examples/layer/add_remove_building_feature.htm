@@ -1,0 +1,111 @@
+ <!DOCTYPE html>
+ <html>
+	<head>
+		<meta name="viewport" content="width=device-width, initial-scale=1.0, minimum-scale=1.0, user-scalable=no">
+		<title>XYZ Maps Example: Add and remove building feature</title>
+
+	    <script src="${XYZ_COMMON_PATH}" type="text/javascript" charset="UTF-8" ></script>
+	    <script src="${XYZ_CORE_PATH}" type="text/javascript" charset="UTF-8" ></script>
+	    <script src="${XYZ_DISPLAY_PATH}" type="text/javascript" charset="UTF-8" ></script>
+
+
+ 		<style type="text/css">
+			#map {
+				position: absolute;
+            	overflow: hidden;
+				top: 0;
+				left: 0;
+				width: 100%;
+                height: 100%;
+			}
+ 		</style>
+	</head>
+	<body>
+		<div id="map"></div>
+		<a id="buildingbutton" class="button">Add Building</a>
+
+		<script type="application/javascript">
+			//specify your credentials for mvt and building layers
+	      	var YOUR_ACCESS_TOKEN = window.parent.YOUR_ACCESS_TOKEN;
+
+			var bgLayer = new here.xyz.maps.layers.MVTLayer({
+				name: 'background layer',
+				min: 1,
+				max: 20,
+				remote: {
+					url: 'https://xyz.api.here.com/tiles/osmbase/256/all/{z}/{x}/{y}.mvt?access_token='+YOUR_ACCESS_TOKEN
+				}
+			});
+			var buildingLayer = new here.xyz.maps.layers.TileLayer({
+				name: 'my Layer',
+				min: 14,
+				max: 19,
+				provider: new here.xyz.maps.providers.LocalProvider ({
+					name:  'my Provider'
+				}),
+				style:{
+					styleGroups: {
+						style: [
+							{zIndex:0, type:"Polygon", fill: "#99CEFF", strokeWidth: 1, stroke: "#FFFFFF", opacity: 0.7}
+						]
+					},
+					assign: function(feature){
+						return "style";
+					}
+				}
+			});
+
+			// setup the Map Display
+			const display = new  here.xyz.maps.Map( document.getElementById("map"), {
+			    zoomLevel : 17,
+			    center: {
+			        longitude: -122.160931, latitude: 37.434539
+			    },
+
+			    // add layers to display
+			    layers: [bgLayer, buildingLayer]
+			});
+
+/*###visiblesource*/
+var addedBuilding;
+
+// click "Add Building"to add building, click "Remove Building" to remove the added building
+document.querySelector("#buildingbutton").onclick = function(){
+	if(!addedBuilding){
+		// Add point Feature
+		addedBuilding = buildingLayer.addFeature(building);
+
+		this.innerText="Remove Building";
+	}
+	else{
+		// Remove the added building
+		buildingLayer.removeFeature(addedBuilding);
+
+		addedBuilding = null;
+
+		this.innerText="Add Building";
+	}
+};
+
+// building feature
+var building = {
+	geometry: {
+		coordinates: [[[
+			[-122.1621648, 37.4348761,0],
+			[-122.1613924, 37.4354213,0],
+			[-122.1610061, 37.4354086,0],
+			[-122.1598635, 37.4343905,0],
+			[-122.1598796, 37.4340796,0],
+			[-122.1606413, 37.4335301,0],
+			[-122.1610383, 37.4335428,0],
+			[-122.1621809, 37.4345694,0],
+			[-122.1621648, 37.4348761,0]
+		]]],
+		type: "MultiPolygon"
+	},
+	type: "Feature"
+}
+/*visiblesource###*/
+		</script>
+	</body>
+</html>

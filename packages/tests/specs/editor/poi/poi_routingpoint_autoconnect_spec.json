@@ -1,0 +1,32 @@
+{
+    "layers": [{
+        "id": "linkLayer",
+        "provider": {
+            "id": "linkProvider",
+            "type": "TestProvider",
+            "name": "Links",
+            "space": "${SPACEID}",
+            "url": "${URL}",
+            "credentials": "${CREDENTIALS}",
+            "level": 15,
+            "class": "NAVLINK"
+        },
+        "min": 14,
+        "max": 20,
+        "clear": {"minLon":78.3532324569378,"minLat":17.31226128949558,"maxLon":78.35752399136163,"maxLat":17.315334100538948}
+    }, {
+        "id": "placeLayer",
+        "provider": {
+            "id": "placeProvider",
+            "type": "TestProvider",
+            "name": "Places",
+            "space": "${SPACEID}",
+            "url": "${URL}",
+            "credentials": "${CREDENTIALS}",
+            "level": 14
+        },
+        "min": 14,
+        "max": 20,
+        "clear": {"minLon":78.3532324569378,"minLat":17.31226128949558,"maxLon":78.35752399136163,"maxLat":17.315334100538948}
+    }]
+}

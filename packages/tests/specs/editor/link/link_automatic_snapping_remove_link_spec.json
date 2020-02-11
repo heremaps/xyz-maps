@@ -1,0 +1,77 @@
+{
+    "layers": [{
+        "id": "linkLayer",
+        "provider": {
+            "id": "linkProvider",
+            "type": "TestProvider",
+            "name": "Links",
+            "space": "${SPACEID}",
+            "url": "${URL}",
+            "credentials": "${CREDENTIALS}",
+            "level": 15,
+            "class": "NAVLINK"
+        },
+        "min": 14,
+        "max": 20,
+        "data": {
+            "remote": [{
+                "id": -189023,
+                "type": "Feature",
+                "properties": {
+                    "featureClass": "NAVLINK",
+                    "type": "residential"
+                },
+                "geometry": {
+                    "type": "LineString",
+                    "coordinates": [
+                        [77.054675157, 12.972393589, 0],
+                        [77.055211598, 12.972393589, 0]
+                    ]
+                }
+            }, {
+                "id": -189024,
+                "type": "Feature",
+                "properties": {
+                    "featureClass": "NAVLINK",
+                    "type": "residential"
+                },
+                "geometry": {
+                    "type": "LineString",
+                    "coordinates": [
+                        [77.055211598, 12.972393589, 0],
+                        [77.05574804, 12.972132213, 0]
+                    ]
+                }
+            }, {
+                "id": -189025,
+                "type": "Feature",
+                "properties": {
+                    "featureClass": "NAVLINK",
+                    "type": "residential"
+                },
+                "geometry": {
+                    "type": "LineString",
+                    "coordinates": [
+                        [77.05574804, 12.972132213, 0],
+                        [77.056016261, 12.972393589, 0]
+                    ]
+                }
+            }, {
+                "id": -189026,
+                "type": "Feature",
+                "properties": {
+                    "featureClass": "NAVLINK",
+                    "type": "residential"
+                },
+                "geometry": {
+                    "type": "LineString",
+                    "coordinates": [
+                        [77.05574804, 12.972132213, 0],
+                        [77.056284482, 12.971609461, 0]
+                    ]
+                }
+            }]
+        },
+        "clear": {"minLon":77.05413871486655,"minLat":12.96977982071806,"maxLon":77.05843024929038,"maxLat":12.972916339401777}
+    }]
+}

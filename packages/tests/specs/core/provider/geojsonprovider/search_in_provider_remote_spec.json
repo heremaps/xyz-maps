@@ -1,0 +1,193 @@
+{
+    "layers": [{
+        "id": "placeGeoJsonLayer",
+        "provider": {
+            "id": "placeGeoJsonProvider",
+            "type": "GeoJSONProvider",
+            "name": "Places",
+            "url": "${URL}",
+            "level": 14
+        },
+        "min": 14,
+        "max": 20,
+        "data": {
+            "local": [{
+                "geometry": {
+                    "coordinates": [-95.929989053, 28.531022673, 0],
+                    "type": "Point"
+                },
+                "type": "Feature",
+                "properties": {
+                }
+            }, {
+                "geometry": {
+                    "coordinates": [-95.930852724, 28.530881284, 0],
+                    "type": "Point"
+                },
+                "type": "Feature",
+                "properties": {
+                }
+            }, {
+                "geometry": {
+                    "coordinates": [-95.930225087, 28.53106509, 0],
+                    "type": "Point"
+                },
+                "type": "Feature",
+                "properties": {
+                }
+            }, {
+                "geometry": {
+                    "coordinates": [-95.927133299, 28.794278586, 0],
+                    "type": "Point"
+                },
+                "type": "Feature",
+                "properties": {
+                }
+            }, {
+                "geometry": {
+                    "coordinates": [-95.928013064, 28.794240977, 0],
+                    "type": "Point"
+                },
+                "type": "Feature",
+                "properties": {
+                }
+            }, {
+                "geometry": {
+                    "coordinates": [-95.928844548, 28.794358506, 0],
+                    "type": "Point"
+                },
+                "type": "Feature",
+                "properties": {
+                }
+            }, {
+                "geometry": {
+                    "coordinates": [-95.927026011, 28.794245678, 0],
+                    "type": "Point"
+                },
+                "type": "Feature",
+                "properties": {
+                }
+            }, {
+                "geometry": {
+                    "coordinates": [-95.927739478, 28.794320897, 0],
+                    "type": "Point"
+                },
+                "type": "Feature",
+                "properties": {
+                }
+            }, {
+                "geometry": {
+                    "coordinates": [-95.925582982, 28.79441962, 0],
+                    "type": "Point"
+                },
+                "type": "Feature",
+                "properties": {
+                }
+            }, {
+                "geometry": {
+                    "coordinates": [-95.924408175, 28.794175161, 0],
+                    "type": "Point"
+                },
+                "type": "Feature",
+                "properties": {
+                }
+            }, {
+                "geometry": {
+                    "coordinates": [-95.934479357, 28.886671263, 0],
+                    "type": "Point"
+                },
+                "type": "Feature",
+                "properties": {
+                }
+            }, {
+                "geometry": {
+                    "coordinates": [-95.933299185, 28.887047019, 0],
+                    "type": "Point"
+                },
+                "type": "Feature",
+                "properties": {
+                }
+            }, {
+                "geometry": {
+                    "coordinates": [-95.93315971, 28.885623836, 0],
+                    "type": "Point"
+                },
+                "type": "Feature",
+                "properties": {
+                }
+            }, {
+                "geometry": {
+                    "coordinates": [-95.931346537, 28.886873232, 0],
+                    "type": "Point"
+                },
+                "type": "Feature",
+                "properties": {
+                }
+            }, {
+                "geometry": {
+                    "coordinates": [-95.931260706, 28.885839898, 0],
+                    "type": "Point"
+                },
+                "type": "Feature",
+                "properties": {
+                }
+            }, {
+                "geometry": {
+                    "coordinates": [-95.576659442, 28.883349096, 0],
+                    "type": "Point"
+                },
+                "type": "Feature",
+                "properties": {
+                }
+            }, {
+                "geometry": {
+                    "coordinates": [-95.578311683, 28.883744445, 0],
+                    "type": "Point"
+                },
+                "type": "Feature",
+                "properties": {
+                }
+            }, {
+                "geometry": {
+                    "coordinates": [-95.576423408, 28.884000258, 0],
+                    "type": "Point"
+                },
+                "type": "Feature",
+                "properties": {
+                }
+            }, {
+                "geometry": {
+                    "coordinates": [-95.577571393, 28.883288631, 0],
+                    "type": "Point"
+                },
+                "type": "Feature",
+                "properties": {
+                }
+            }, {
+                "geometry": {
+                    "coordinates": [-95.578209759, 28.883070025, 0],
+                    "type": "Point"
+                },
+                "type": "Feature",
+                "properties": {
+                }
+            }, {
+                "geometry": {
+                    "coordinates": [-95.574331285, 28.882572347, 0],
+                    "type": "Point"
+                },
+                "type": "Feature",
+                "properties": {
+                }
+            }, {
+                "geometry": {
+                    "coordinates": [-95.576460959, 28.882042108, 0],
+                    "type": "Point"
+                },
+                "type": "Feature",
+                "properties": {
+                }
+            }]
+        }
+    }]
+}

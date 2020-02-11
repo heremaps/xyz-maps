@@ -1,0 +1,76 @@
+{
+    "layers": [{
+        "id": "linkLayer",
+        "provider": {
+            "id": "linkProvider",
+            "type": "TestProvider",
+            "name": "Links",
+            "space": "${SPACEID}",
+            "url": "${URL}",
+            "credentials": "${CREDENTIALS}",
+            "level": 15,
+            "class": "NAVLINK"
+        },
+        "min": 14,
+        "max": 20,
+        "data": {
+            "remote": [{
+                "id": -189177,
+                "type": "Feature",
+                "properties": {
+                    "featureClass": "NAVLINK",
+                    "type": "highway"
+                },
+                "geometry": {
+                    "type": "LineString",
+                    "coordinates": [
+                        [76.326177251,14.402797405,0],
+                        [76.326981914,14.402797405,0]
+                    ]
+                }
+            }, {
+                "id": -189178,
+                "type": "Feature",
+                "properties": {
+                    "featureClass": "NAVLINK",
+                    "type": "highway"
+                },
+                "geometry": {
+                    "type": "LineString",
+                    "coordinates": [
+                        [76.326177251,14.402667509,0],
+                        [76.326981914,14.402277822,0]
+                    ]
+                }
+            }]
+        },
+        "clear": {"minLon":76.3259090304552,"minLat":14.40201803019373,"maxLon":76.32805479766711,"maxLat":14.40357677614324}
+    }, {
+        "id": "placeLayer",
+        "provider": {
+            "id": "placeProvider",
+            "type": "TestProvider",
+            "name": "Places",
+            "space": "${SPACEID}",
+            "url": "${URL}",
+            "credentials": "${CREDENTIALS}",
+            "level": 14
+        },
+        "min": 14,
+        "max": 20,
+        "data": {
+            "remote": [{
+                "id": -29536,
+                "type": "Feature",
+                "properties": {
+                    "featureClass": "PLACE"
+                },
+                "geometry": {
+                    "type": "Point",
+                    "coordinates": [76.326445472,14.403057195,0]
+                }
+            }]
+        },
+        "clear": {"minLon":76.3259090304552,"minLat":14.40201803019373,"maxLon":76.32805479766711,"maxLat":14.40357677614324}
+    }]
+}

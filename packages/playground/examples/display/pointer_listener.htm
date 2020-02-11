@@ -1,0 +1,101 @@
+ <!DOCTYPE html>
+ <html>
+	<head>
+		<meta name="viewport" content="width=device-width, initial-scale=1.0, minimum-scale=1.0, user-scalable=no">
+		<title>XYZ Maps Example: Add pointer listener</title>
+
+	    <script src="${XYZ_COMMON_PATH}" type="text/javascript" charset="UTF-8" ></script>
+	    <script src="${XYZ_CORE_PATH}" type="text/javascript" charset="UTF-8" ></script>
+	    <script src="${XYZ_DISPLAY_PATH}" type="text/javascript" charset="UTF-8" ></script>
+
+
+ 		<style type="text/css">
+			#map {
+				position: absolute;
+            	overflow: hidden;
+				top: 0;
+				left: 0;
+				width: 100%;
+                height: 100%;
+			}
+ 		</style>
+	</head>
+	<body>
+		<div id="map"></div>
+		<pre><div id="info">Pointer event: </div></pre>
+
+		<script type="application/javascript">
+			//specify your credentials for mvt and navlink layers
+	      	var YOUR_ACCESS_TOKEN = window.parent.YOUR_ACCESS_TOKEN;
+
+			var layers = [
+				new here.xyz.maps.layers.MVTLayer({
+					name: 'background layer',
+					min: 1,
+					max: 20,
+					remote: {
+						url: 'https://xyz.api.here.com/tiles/osmbase/256/all/{z}/{x}/{y}.mvt?access_token='+YOUR_ACCESS_TOKEN
+					}
+				}),
+				new here.xyz.maps.layers.TileLayer({
+        			name: 'myLayer',
+                    min: 14,
+                    max: 20,
+                    provider: new here.xyz.maps.providers.SpaceProvider ({
+						name:  'MyProvider',
+						level: 14,
+						space: '6HMU19KY',
+						credentials: {
+							access_token: YOUR_ACCESS_TOKEN
+						}
+					}),
+				})
+			]
+			// setup the Map Display
+			const display = new  here.xyz.maps.Map( document.getElementById("map"), {
+			    zoomLevel : 17,
+			    center: {
+			        longitude: -122.283467, latitude: 37.819543
+			    },
+
+			    // add layers to display
+			    layers: layers
+			});
+
+/*###visiblesource*/
+// This example shows how to add listeners to pointer events in display.
+// Supported pointer events are pointerdown, pointerup, pointerenter, pointerleave and pressmove.
+
+var evtInfo = {}
+// Event handler to pointer events.
+// It shows the current pointer event
+function eventHandler(evt){
+	evtInfo = {};
+	evtInfo[evt.type] = {
+		x: evt.mapX,
+		y: evt.mapY
+	};
+
+	document.querySelector("#info").innerText = "Pointer event: " + JSON.stringify(evtInfo, null, 4);
+}
+
+// add event listener to pointerdown
+display.addEventListener('pointerdown', eventHandler);
+
+// add event listener to pointerup
+display.addEventListener('pointerup', eventHandler);
+
+// add event listener to pointerenter
+display.addEventListener('pointerenter', eventHandler);
+
+// add event listener to pointerleave
+display.addEventListener('pointerleave', eventHandler);
+
+// add event listener to pressmove
+display.addEventListener('pressmove', eventHandler);
+
+
+/*visiblesource###*/
+		</script>
+	</body>
+</html>

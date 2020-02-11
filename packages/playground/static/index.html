@@ -1,0 +1,62 @@
+<!DOCTYPE html>
+	<head>
+		<meta http-equiv="content-type" content="text/html; charset=utf-8"/>
+		<title>XYZ Maps Playground</title>
+		<link rel="icon" type="image/x-icon" href="assets/icon/favicon.ico">
+		<link rel="stylesheet" href="assets/css/playground.css"/>
+        <script src="src/playground.js"></script>
+	</head>
+	
+	<body>
+		<nav class="navbar navbar-inverse navbar-fixed-top" role="navigation">
+			<span class="navbar-header">
+				<a class="navbar-brand"  href="/">
+		          <img alt="Logo" />
+		        </a>
+				<a class="navbar-brand navbar-headline" >XYZ Maps Playground</a>
+			</span>
+			<span id="version" class="version">API Version: 0.0.0</span>
+		</nav>
+		
+		<div id="overview" class="overview">
+			<div class="header">API's</div>
+			<div id="ovcnt"></div>
+		</div>
+		
+		<div id="vdrag" onclick="pg.toggleOverview()">◀</div>
+			
+		<div id="content">
+			<div id="middle">
+				<div id="code" class="box code">
+					<div class="edit">
+						<textarea id="codeedit" class="edit"></textarea>
+						<div class="icnt">
+							<div id="info" class="info"></div>
+						</div>
+					</div>
+				</div>
+				
+				<div id="hdrag" class="header">
+					<a onclick="pg.download(1);" class="btn btn-primary download"></a>
+					<a onclick="pg.docs(2);"class="btn btn-primary docs" target="_blank" style="margin:0 2px 0 10px">Docs</a>
+					<a onclick="pg.updatePreview(3);" class="btn btn-primary run">Run</a>
+					<a onclick='pg.resetCode(4);' class="btn btn-primary reset">Reset</a>
+					<a onclick="pg.toggleMode(this, 5);" class="togglemode btn btn-primary tohtml">HTML&JS</a>
+					<a onclick="pg.toggleMode(this, 6);" class="togglemode disabled btn btn-primary tojs">JS only</a>
+				</div>
+			</div>
+			
+			<div id="vrdrag" onmousedown="pg.codeMousedown(event)">I</div>
+			
+			<div id="right">
+				<div id="sample" class="box sample">
+					<div class="header">Example : <span id="sampleinfo"></span></div>
+					<div class="sampleinner">
+						<iframe id="preview" style="width:100%;height:100%;border:none" id="result"></iframe> 
+						<div id="sampleblock"></div>
+					</div>
+				</div>
+			</div>
+		</div>
+	</body>
+</html>

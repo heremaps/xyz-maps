@@ -1,0 +1,43 @@
+
+input {
+	position: relative;
+    display: inline-block;
+    margin: 7px 0 7px 0;
+	left: 20px;
+	z-index: 2;
+	width: 200px;
+	height: 22px;
+}
+
+pre div, span div {
+	position: relative;
+    display: inline-block;
+	left: 20px;
+    background-color: #555555;
+    color: #FFFFFF;
+    padding: 10px;
+    margin: 0 0 0 0;
+    font-family: 'LFira Sans',Arial,Helvetica,sans-serif;
+}
+
+pre .properties{
+    max-width: 50%;
+    overflow-x: auto;
+}
+
+a.button {
+	position: relative;
+    display: block;
+    color: #FFFFFF;
+    cursor: pointer;
+	left: 20px;
+    height: 23px;
+    padding: 5px 6px 0px;
+    width: 120px;
+    text-align: center;
+    margin: 12px 0 0 0;
+    background-color: #aaaaaa;
+}
+a.button:hover{
+    background-color: #222222;
+}

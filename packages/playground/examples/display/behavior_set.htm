@@ -1,0 +1,93 @@
+ <!DOCTYPE html>
+ <html>
+	<head>
+		<meta name="viewport" content="width=device-width, initial-scale=1.0, minimum-scale=1.0, user-scalable=no">
+		<title>XYZ Maps Example: Set and get behavior</title>
+
+	    <script src="${XYZ_COMMON_PATH}" type="text/javascript" charset="UTF-8" ></script>
+	    <script src="${XYZ_CORE_PATH}" type="text/javascript" charset="UTF-8" ></script>
+	    <script src="${XYZ_DISPLAY_PATH}" type="text/javascript" charset="UTF-8" ></script>
+
+
+ 		<style type="text/css">
+			#map {
+				position: absolute;
+            	overflow: hidden;
+				top: 0;
+				left: 0;
+				width: 100%;
+                height: 100%;
+			}
+ 		</style>
+	</head>
+	<body>
+		<div id="map"></div>
+		<pre><div id="info">Current Behavior:</div></pre>
+
+		<a id="switchdrag" class="button">Disable Drag</a>
+		<a id="switchzoom" class="button">Disable Zoom</a>
+
+		<script type="application/javascript">
+			//specify your credentials for mvt and navlink layers
+	      	var YOUR_ACCESS_TOKEN = window.parent.YOUR_ACCESS_TOKEN;
+
+			var layers = [
+				new here.xyz.maps.layers.MVTLayer({
+					name: 'background layer',
+					min: 1,
+					max: 20,
+					remote: {
+						url: 'https://xyz.api.here.com/tiles/osmbase/256/all/{z}/{x}/{y}.mvt?access_token='+YOUR_ACCESS_TOKEN
+					}
+				})
+			]
+			// setup the Map Display
+			const display = new  here.xyz.maps.Map( document.getElementById("map"), {
+			    zoomLevel : 17,
+			    center: {
+			        longitude: -122.48024, latitude: 37.77326
+			    },
+
+			    // add layers to display
+			    layers: layers
+			});
+
+/*###visiblesource*/
+// This example shows how to get and set display behavior: zoom and drag.
+// zoom or drag behavior set to false means zooming and dragging the map display
+// with MOUSE is disabled.
+
+var switchdrag = document.querySelector("#switchdrag");
+var switchzoom = document.querySelector("#switchzoom");
+var infotag = document.querySelector("#info");
+
+// Get current behavior
+var currentbehavior = display.getBehavior();
+infotag.innerText = "Current Behavior:" + JSON.stringify(currentbehavior, undefined, 4);
+
+switchdrag.onclick = function(){
+	display.setBehavior("drag", !currentbehavior.drag);
+
+	// update current display behavior in info tag
+	currentbehavior = display.getBehavior();
+	infotag.innerText = "Current Behavior:" + JSON.stringify(currentbehavior, undefined, 4);
+
+	// update button text
+	this.innerText = currentbehavior.drag ? "Disable Drag" : "Enable Drag";
+};
+
+switchzoom.onclick = function(){
+	display.setBehavior("zoom", !currentbehavior.zoom);
+
+	//update current display behavior in info tag
+	currentbehavior = display.getBehavior();
+	infotag.innerText = "Current Behavior:" + JSON.stringify(currentbehavior, undefined, 4);
+
+	// update button text
+	this.innerText = currentbehavior.zoom ? "Disable Zoom" : "Enable Zoom";
+};
+
+/*visiblesource###*/
+		</script>
+	</body>
+</html>

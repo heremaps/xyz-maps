@@ -1,0 +1,72 @@
+{
+    "layers": [{
+        "id": "linkLayer",
+        "provider": {
+            "id": "linkProvider",
+            "type": "SpaceProvider",
+            "name": "Links",
+            "space": "${SPACEID}",
+            "url": "${URL}",
+            "credentials": "${CREDENTIALS}",
+            "level": 15,
+            "class": "NAVLINK"
+        },
+        "min": 14,
+        "max": 20,
+        "data": {
+            "remote": [{
+                "id": -9123,
+                "geometry": {
+                    "coordinates": [
+                        [73.42545365, 17.890637531, 0],
+                        [73.426142977, 17.890675818, 0],
+                        [73.426166081, 17.890420526, 0]
+                    ],
+                    "type": "LineString"
+                },
+                "type": "Feature",
+                "properties": {
+                    "featureClass": "ADDRESS"
+                }
+            },{
+                "id": -9124,
+                "geometry": {
+                    "coordinates": [
+                        [73.426166081, 17.890420526, 0],
+                        [73.426191257, 17.890142343, 0],
+                        [73.426698195, 17.890040243, 0]
+                    ],
+                    "type": "LineString"
+                },
+                "type": "Feature",
+                "properties": {
+                    "featureClass": "ADDRESS"
+                }
+            },{
+                "geometry": {
+                    "coordinates": [
+                        [73.425397323, 17.890259759, 0],
+                        [73.426166081, 17.890420526, 0]
+                    ],
+                    "type": "LineString"
+                },
+                "type": "Feature",
+                "properties": {
+                    "featureClass": "ADDRESS"
+                }
+            },{
+                "geometry": {
+                    "coordinates": [
+                        [73.426166081, 17.890420526, 0],
+                        [73.426953005, 17.890502248, 0]
+                    ],
+                    "type": "LineString"
+                },
+                "type": "Feature",
+                "properties": {
+                    "featureClass": "NAVLINK"
+                }
+            }]
+        }
+    }]
+}

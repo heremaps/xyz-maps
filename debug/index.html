@@ -1,0 +1,99 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, minimum-scale=1.0, user-scalable=no">
+    <title>XYZ Maps display</title>
+
+    <script src="../packages/common/dist/xyz-maps-common.js" type="text/javascript" charset="UTF-8"></script>
+    <script src="../packages/core/dist/xyz-maps-core.js" type="text/javascript" charset="UTF-8"></script>
+    <script src="../packages/display/dist/xyz-maps-display.js" type="text/javascript" charset="UTF-8"></script>
+
+    <script src="token.js" type="text/javascript" charset="UTF-8"></script>
+
+    <style type="text/css">
+        #map {
+            position: absolute;
+            overflow: hidden;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+        }
+    </style>
+</head>
+<body>
+<div id="map"></div>
+
+<script type="application/javascript">
+    // specify your credentials
+    const XYZ_ACCESS_TOKEN = getXYZToken();
+
+    // setup the Map Display
+    window.display = new here.xyz.maps.Map( document.getElementById("map"), {
+        zoomLevel : 5,
+        center: {
+            longitude: -96.76883, latitude: 39.6104
+        },
+        // add layers to display
+        layers: [
+            new here.xyz.maps.layers.MVTLayer({
+                name   : 'mvt-world-layer',
+                remote : {
+                    url : 'https://xyz.api.here.com/tiles/osmbase/512/all/{z}/{x}/{y}.mvt?access_token=' + XYZ_ACCESS_TOKEN
+                    // optional settings:
+                    // max  : 16,     // max level for loading data
+                    // min  : 1       // min level for loading data
+                    // tileSize : 512 // 512|256 defines mvt tilesize in case it can't be automatically detected in url..
+                },
+                min : 1,
+                max : 20,
+
+                style : {
+
+                    backgroundColor: '#555555',
+
+                    strokeWidthZoomScale: function (level) {
+                        return level > 17 ? 1 : level > 14 ? .5 : .25
+                    },
+
+                    styleGroups: {
+                        'earth'        : [{ zIndex: 1, type: 'Polygon', fill: '#555555' }],
+                        'water'        : [{ zIndex: 2, type: 'Polygon', fill: '#353535' }],
+                        'landuse'      : [{ zIndex: 3, type: 'Polygon', fill: '#666666' }],
+                        'roads'        : [{ zIndex: 4, type: 'Line',  stroke: '#ffffff', strokeWidth: 4 }],
+                        'roadshighway' : [{ zIndex: 5, type: 'Line',  stroke: '#ffffff', strokeWidth: 6 }],
+                        'buildings'    : [{ zIndex: 7, type: 'Polygon', fill: '#999999' }]
+                    },
+
+                    assign: function (feature, level)
+                    {
+                        var props = feature.properties;
+                        var kind  = props.kind;
+                        var layer = props.layer; // the data layer of the feature
+                        var geom  = feature.geometry.type;
+
+                        if (layer == 'water') {
+                            if (geom == 'LineString' || geom == 'MultiLineString') {
+                                return;
+                            }
+                        }
+                        if (layer == 'roads') {
+                            if (kind == 'rail' || kind == 'ferry') {
+                                return;
+                            }
+                            if (kind == 'highway') {
+                                return layer + kind;
+                            }
+                        }
+                        return layer;
+                    }
+                }
+            })
+        ]
+    });
+
+    window.onresize = display.resize;
+
+</script>
+</body>
+</html>

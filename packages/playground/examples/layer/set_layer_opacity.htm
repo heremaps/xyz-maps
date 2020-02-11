@@ -1,0 +1,123 @@
+ <!DOCTYPE html>
+ <html>
+	<head>
+		<meta name="viewport" content="width=device-width, initial-scale=1.0, minimum-scale=1.0, user-scalable=no">
+		<title>XYZ Maps Example: Set Layer Opacity</title>
+
+	    <script src="${XYZ_COMMON_PATH}" type="text/javascript" charset="UTF-8" ></script>
+	    <script src="${XYZ_CORE_PATH}" type="text/javascript" charset="UTF-8" ></script>
+	    <script src="${XYZ_DISPLAY_PATH}" type="text/javascript" charset="UTF-8" ></script>
+
+
+ 		<style type="text/css">
+			#map {
+				position: absolute;
+            	overflow: hidden;
+				top: 0;
+				left: 0;
+				width: 100%;
+                height: 100%;
+			}
+
+			.info label {
+			    display: block;
+			}
+
+			.info input {
+			    position: relative;
+			    left: 0;
+			    right: 0;
+			    cursor: ew-resize;
+			}
+ 		</style>
+	</head>
+	<body>
+		<div id="map"></div>
+		<span><div class='info'>
+	        <label>Layer opacity: <span id='slidervalue'>100%</span></label>
+	        <input id='slider' type='range' min='0' max='100' step='0' value='100' />
+		</div><span>
+
+		<script type="application/javascript">
+			//specify your credentials for mvt and navlink layers
+	      	var YOUR_ACCESS_TOKEN = window.parent.YOUR_ACCESS_TOKEN;
+
+			var bgLayer = new here.xyz.maps.layers.MVTLayer({
+				name: 'background layer',
+				min: 1,
+				max: 20,
+				remote: {
+					url: 'https://xyz.api.here.com/tiles/osmbase/256/all/{z}/{x}/{y}.mvt?access_token='+YOUR_ACCESS_TOKEN
+				}
+			});
+			var navlinkLayer = new here.xyz.maps.layers.TileLayer({
+				name: 'myLayer',
+				min: 14,
+				max: 20,
+				provider: new here.xyz.maps.providers.SpaceProvider ({
+					name:  'SpaceProvider',
+					level: 14,
+					space: '6HMU19KY',
+					credentials: {
+						access_token: YOUR_ACCESS_TOKEN
+					}
+				}),
+				style: {
+					styleGroups: {
+						lineStyle: [
+							{zIndex: 0, type: "Line", opacity:1, strokeWidth: 10, stroke:"#50A62B"}
+						]
+					},
+					assign: function(){
+						return "lineStyle";
+					}
+				}
+			});
+
+			// setup the Map Display
+			const display = new  here.xyz.maps.Map( document.getElementById("map"), {
+			    zoomLevel : 16,
+			    center: {
+			        longitude: -122.285482, latitude: 37.819649
+			    },
+
+			    // add layers to display
+			    layers: [bgLayer, navlinkLayer]
+			});
+
+
+var slider = document.getElementById('slider');
+var sliderValue = document.getElementById('slidervalue');
+
+/*###visiblesource*/
+// new layer style
+var style = {
+	styleGroups: {
+		newStyle: [
+			{zIndex: 0, type: "Line", opacity:1, strokeWidth:10, stroke:"#50A62B"}
+		]
+	},
+	assign: function(){
+		return "newStyle";
+	}
+}
+
+
+slider.addEventListener('input', function(e) {
+	// customize style
+	style.styleGroups.newStyle[0].opacity = e.target.value / 100;
+
+	// set layer style
+    navlinkLayer.setStyle(style);
+
+    // refresh layer
+    display.refresh(navlinkLayer);
+
+    // Value indicator
+    sliderValue.textContent = e.target.value + '%';
+});
+
+/*visiblesource###*/
+		</script>
+	</body>
+</html>

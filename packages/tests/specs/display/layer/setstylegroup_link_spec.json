@@ -1,0 +1,28 @@
+{
+    "layers": [{
+        "id": "linkLayer",
+        "provider": {
+            "id": "linkProvider",
+            "type": "TestProvider",
+            "name": "Links",
+            "space": "${SPACEID}",
+            "url": "${URL}",
+            "credentials": "${CREDENTIALS}",
+            "level": 15,
+            "class": "NAVLINK"
+        },
+        "min": 14,
+        "max": 20,
+        "data": {
+            "local": [{
+                "id": "123",
+                "geometry": {
+                    "coordinates": [[73.707821, 21.189023, 0], [73.708821, 21.189023, 0], [73.709521, 21.188023, 0]],
+                    "type": "LineString"
+                },
+                "type": "Feature",
+                "properties": {}
+            }]
+        }
+    }]
+}

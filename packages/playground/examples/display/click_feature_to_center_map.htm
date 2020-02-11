@@ -1,0 +1,140 @@
+ <!DOCTYPE html>
+ <html>
+	<head>
+		<meta name="viewport" content="width=device-width, initial-scale=1.0, minimum-scale=1.0, user-scalable=no">
+		<title>XYZ Maps Example: Click feature to center the map</title>
+
+	    <script src="${XYZ_COMMON_PATH}" type="text/javascript" charset="UTF-8" ></script>
+	    <script src="${XYZ_CORE_PATH}" type="text/javascript" charset="UTF-8" ></script>
+	    <script src="${XYZ_DISPLAY_PATH}" type="text/javascript" charset="UTF-8" ></script>
+
+
+ 		<style type="text/css">
+			#map {
+				position: absolute;
+            	overflow: hidden;
+				top: 0;
+				left: 0;
+				width: 100%;
+                height: 100%;
+			}
+ 		</style>
+	</head>
+	<body>
+		<div id="map"></div>
+		<pre><div id="info">Click on a feature</div></pre>
+
+		<script type="application/javascript">
+			//specify your credentials for mvt and navlink layers
+	      	var YOUR_ACCESS_TOKEN = window.parent.YOUR_ACCESS_TOKEN;
+
+			var layers = [
+				new here.xyz.maps.layers.MVTLayer({
+					name: 'background layer',
+					min: 1,
+					max: 20,
+					remote: {
+						url: 'https://xyz.api.here.com/tiles/osmbase/256/all/{z}/{x}/{y}.mvt?access_token='+YOUR_ACCESS_TOKEN
+					}
+				}),
+				new here.xyz.maps.layers.TileLayer({
+        			name: 'my Navlink Layer',
+                    min: 14,
+                    max: 20,
+                    provider: new here.xyz.maps.providers.SpaceProvider ({
+						id:  'NavlinkProvider',
+						level: 14,
+						space: '6HMU19KY',
+						credentials: {
+							access_token: YOUR_ACCESS_TOKEN
+						}
+					}),
+
+				    style: {
+					    styleGroups: {
+					    	myStyle: [
+						    	{zIndex: 1, type: "Line", strokeWidth:6, "stroke": "#1188DD"},
+						    	{zIndex: 0, type: "Line", strokeWidth:10, "stroke": "#F0F0F0"},
+						    	{zIndex: 2, type: "Text", fill:"#000000", textRef: "properties.name"}
+						]},
+					    assign: function(feature){
+					    	return "myStyle";
+					    }
+				    }
+				}),
+				new here.xyz.maps.layers.TileLayer({
+        			name: 'mySecondLayer',
+                    min: 14,
+                    max: 20,
+                    provider: new here.xyz.maps.providers.SpaceProvider ({
+						id:  'PlaceProvider',
+						level: 14,
+						space: '6CkeaGLg',
+						credentials: {
+							access_token: YOUR_ACCESS_TOKEN
+						}
+					}),
+
+				    style: {
+					    styleGroups: {
+					    	myStyle: [
+					    	{zIndex: 2, type: "Circle", radius:12, strokeWidth:2, "stroke": "#FFFFFF", "fill": "#1188DD"}
+					    ]},
+					    assign: function(feature){
+					    	return "myStyle";
+					    }
+				    }
+				})
+			]
+			// setup the Map Display
+			const display = new  here.xyz.maps.Map( document.getElementById("map"), {
+			    zoomLevel : 17,
+			    center: {
+					longitude: -122.227791, latitude: 37.781058
+			    },
+
+			    // add layers to display
+			    layers: layers
+			});
+
+
+/*###visiblesource*/
+// create a event handler to pointerup
+function eventHandler(evt){
+	// Click on a feature
+	if(evt.target){
+		// reset style of last clicked feature
+		if(clickedDetail)
+			clickedDetail.layer.setStyleGroup(clickedDetail.feature);
+
+		var bbox = evt.target.bbox;
+		// set map center
+		display.setCenter((bbox[0]+bbox[2])/2, (bbox[1]+bbox[3])/2);
+
+		clickedDetail = evt.detail;
+		// highlight clicked feature
+		clickedDetail.layer.setStyleGroup(
+			evt.target,
+			clickFeatureStyle[evt.target.geometry.type]
+		);
+	}
+}
+
+// add event listener to pointerup
+display.addEventListener('pointerup', eventHandler);
+
+var clickedDetail;
+var clickFeatureStyle = {
+	LineString: [
+    	{zIndex: 1, type: "Line", strokeWidth:6, "stroke": "#DD8811"},
+    	{zIndex: 0, type: "Line", strokeWidth:10, "stroke": "#F0F0F0"},
+    	{zIndex: 2, type: "Text", fill:"#000000", textRef: "properties.name"}
+	],
+	Point: [
+    	{zIndex: 2, type: "Circle", radius:12, strokeWidth:2, "stroke": "#FFFFFF", "fill": "#DD8811"}
+    ]
+}
+/*visiblesource###*/
+		</script>
+	</body>
+</html>

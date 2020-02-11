@@ -1,0 +1,217 @@
+ <!DOCTYPE html>
+ <html>
+	<head>
+		<meta name="viewport" content="width=device-width, initial-scale=1.0, minimum-scale=1.0, user-scalable=no">
+		<title>XYZ Maps Example: Turn Restriction Editor</title>
+
+	   	<script src="${XYZ_COMMON_PATH}" type="text/javascript" charset="UTF-8" ></script>
+	    <script src="${XYZ_CORE_PATH}" type="text/javascript" charset="UTF-8" ></script>
+	    <script src="${XYZ_DISPLAY_PATH}" type="text/javascript" charset="UTF-8" ></script>
+	    <script src="${XYZ_EDITOR_PATH}" type="text/javascript" charset="UTF-8" ></script>
+
+
+ 		<style type="text/css">
+			#map {
+				position: absolute;
+            	overflow: hidden;
+				top: 0;
+				left: 0;
+				width: 100%;
+                height: 100%;
+			}
+			#treditor {
+				width: 150px;
+			}
+ 		</style>
+	</head>
+	<body>
+	<div id="map"></div>
+		<a id="revert" class="button">Revert All</a>
+		<pre><div id="info">Click on a Navlink to Start</div></pre>
+
+	<script type="application/javascript">
+		// specify credentials
+      	var YOUR_ACCESS_TOKEN = window.parent.YOUR_ACCESS_TOKEN;
+
+		// Create a custom provider.
+		class MyProvider extends here.xyz.maps.providers.SpaceProvider {
+
+    		// In this exmaple, all data does already contain desired feature class in the property 'featureClass'.
+			detectFeatureClass(feature) {
+				return feature.properties.featureClass;
+			}
+
+
+			// ########################       Navlink      ########################
+			// Following functions are only necessary if you want to edit Navlink.
+
+
+			// In addition to Lines, Navlinks have navigation information and are connected to each other to form a road network.
+			// Implementing following functions enables you to easily edit Navlinks.
+
+
+			// This function returns a boolean value to indicate if turn from from-link's shape point to to-link's shape point
+			// is restricted.
+			// It takes two arguments ('from' and 'to' in this example), they have the same data structure:
+			// {
+			//     'link': Navlink,
+			//     'index': Number
+			// }
+			// 'link': Navlink to turn from and into.
+			// 'index': index of Navlink's shape point, it specifies the shape point where turn takes place.
+			// In this example, turn restriction information is stored in from-link, we read this information and determin if the
+			// turn is restricted.
+			readTurnRestriction(from, to) {
+				let turn = from.link.prop('turnRestriction') || {};
+				// first shape point is 'start' and the last one is 'end'
+				let restrictions = turn[from.index ? 'end' : 'start'] || [];
+
+				return restrictions.indexOf(to.link.id) >= 0;
+			};
+
+			// This function stores turn restriction information for turn from from-link to to-link.
+			// It takes arguments ('restricted', 'from' and 'to' in this example) similar to that of above function, but its first
+			// argument is a boolean value for indicating the turn is (or is not) restricted.
+			// In this example, we store turn restriction information as following object in from-link:
+			// {
+			//     'start': Array<String>  // Array of Navlink id
+			//     'end': Array<String>    // Array of Navlink id
+			// }
+			// 'start' and 'end' refer to first and last shape point of from-link.
+			// Their values are array of Navlink ids, you are not allowed to turn from from-link's start (or end) shape point into
+			// any Navlink that is in this array.
+			writeTurnRestriction(restricted, from, to) {
+				let turn = from.link.prop('turnRestriction') || {};
+				let node = from.index ? 'end' : 'start';
+				let restrictions = turn[node] = turn[node] || [];
+				let index = restrictions.indexOf(to.link.id);
+
+				if (restricted) {
+					if (index == -1) {
+						restrictions.push(to.link.id);
+					}
+				} else if (index >= 0) {
+					restrictions.splice(index, 1);
+				}
+
+				from.link.prop('turnRestriction', turn);
+			}
+
+			// Indicate if the Navlink is pedestrian only, it's not allowed to turn into a pedestrian only Navlink.
+			readPedestrianOnly(feature) {
+				return Boolean(feature.prop('pedestrianOnly'));
+			}
+
+			// Navlink's direction indicates if the Navlink is a one-way road.
+			// Valid values are:
+			// 'BOTH': the Navlink is a two-way road.
+			// 'START_TO_END': the Navlink is a one-way road with travel direction from its first to last shape point.
+			// 'END_TO_START': the Navlink is a one-way road with travel direction from its last to first shape point.
+			// It's not allowed to turn into one Navlink with direction 'END_TO_START' at its start (first) shape point or turn into
+			// one Navlink with direction 'START_TO_END' at its end (last) shape point.
+			readDirection(feature) {
+				return feature.prop('direction') || 'BOTH';
+			}
+		}
+
+		var bgLayer = new here.xyz.maps.layers.MVTLayer({
+			name: 'background layer',
+			min: 1,
+			max: 20,
+			remote: {
+				url: 'https://xyz.api.here.com/tiles/osmbase/256/all/{z}/{x}/{y}.mvt?access_token='+YOUR_ACCESS_TOKEN
+			}
+		});
+		var navlinkLayer = new here.xyz.maps.layers.TileLayer({
+			name: 'Navlink Layer',
+			min: 14,
+			max: 20,
+			// Customized provider to provide navlinks
+			provider: new MyProvider({
+				id: "NavlinkProvider",
+				space: "6HMU19KY",
+				credentials: {
+					access_token: YOUR_ACCESS_TOKEN
+				},
+				level: 14
+			}),
+
+			// Customize layer style
+			style:{
+				// Define a set of styles to differentiate pedestrian only road
+				styleGroups: {
+					'normal': [
+						{zIndex:0, type:"Line", stroke:"red", strokeWidth:10},
+						{zIndex:2, type:"Text", textRef:"properties.name", fill:"#3D272B"}
+					],
+					'pedestrianOnly': [
+						{zIndex:0, type:"Line", stroke:"#999999", strokeWidth:6},
+						{zIndex:2, type:"Text", textRef:"properties.name", fill:"#3D272B"}
+					]
+				},
+
+				assign: function(feature){
+					if (feature.properties.pedestrianOnly) {
+						return 'pedestrianOnly';
+					}
+					else {
+						return 'normal'
+					}
+
+				}
+			}
+		});
+
+        // setup the Map Display
+		const display = new  here.xyz.maps.Map( document.getElementById("map"), {
+                zoomLevel : 18,
+                center: {
+					longitude: -122.249878, latitude: 37.810195
+                },
+
+                // add layers to display
+				layers: [bgLayer, navlinkLayer]
+            });
+
+		// setup the editor
+        const editor = new here.xyz.maps.editor.Editor( display );
+
+		// add navlink layer to editor, make layers editable
+		editor.addLayer( navlinkLayer );
+
+
+/*###visiblesource*/
+// Click on a navlink to activate turn restrictions.
+// Info Tag displays turn restrictions value of each modified navlink.
+
+// info tag
+var infoTag = document.querySelector("#info");
+
+// Add event listener
+editor.addEventListener("pointerup", function(e){
+	// Get feature in event
+	var feature = e.target;
+	// Activate turn restriction editor when mouse clicks on navlink or navlink shape point
+	if(feature && feature.class.indexOf("NAVLINK")>-1)
+		feature.editTurnRestrictions();
+})
+
+// Add observer to display changes
+editor.addObserver("history.current", function(ob, currentStep, lastStep){
+	var info = editor.info();
+	var cInfo = {};
+	for(var i = 0; i<info.length; i++){
+		cInfo[info[i].id] = info[i].properties.turnRestriction;
+	}
+
+	// show attribute 'myTurn' of modified navlinks
+	infoTag.innerText = JSON.stringify(cInfo, null, 4)
+})
+
+document.querySelector("#revert").onclick = function(){
+	editor.revert();
+}
+/*visiblesource###*/
+		</script>
+	</body>
+</html>

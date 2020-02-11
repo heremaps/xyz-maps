@@ -1,0 +1,44 @@
+{
+    "layers": [{
+        "id": "linkLayer",
+        "name": "Link Layer",
+        "provider": {
+            "id": "linkProvider",
+            "type": "TestProvider",
+            "name": "Links",
+            "space": "${SPACEID}",
+            "url": "${URL}",
+            "credentials": "${CREDENTIALS}",
+            "level": 15,
+            "class": "NAVLINK"
+        },
+        "min": 14,
+        "max": 20,
+        "data": {
+            "remote": [{
+                "type": "Feature",
+                "properties": {
+                    "featureClass": "NAVLINK",
+                    "access": 2015,
+                    "pv": 42,
+                    "dir": "B",
+                    "oda": 1,
+                    "laneCat": 1,
+                    "pc": 4,
+                    "speedCat": 6,
+                    "name": "",
+                    "isocc": ["IND"],
+                    "lang": "",
+                    "fc": 5
+                },
+                "geometry": {
+                    "type": "LineString",
+                    "coordinates": [
+                        [73.02545, 20.52515, 0.0],
+                        [73.02645, 20.52515, 0.0]
+                    ]
+                }
+            }]
+        }
+    }]
+}

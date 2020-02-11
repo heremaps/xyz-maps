@@ -1,0 +1,45 @@
+<!DOCTYPE html>
+<html>
+    <head>
+        <meta http-equiv="Content-Type" content="text/html;charset=utf-8">
+        <title>Map Common Protoype</title>
+        <style type="text/css">
+            #apiversion{
+                position: absolute;
+                left: 380px;
+                top: 15px;
+            }
+            #info{
+                position: absolute;
+                left: 90px;
+                right: 0px;
+                height: 100%;
+                overflow: auto;
+            }
+        </style>
+        <link rel="icon" href="data:;base64,iVBORw0KGgo=">
+
+    </head>
+    <body onload='here.test.run("common", {version: "0.0.0"})'>
+        <div id="apiversion">API Version: 0.0.0</div>
+        <div id="info">
+            <div id="mocha">
+            </div>
+        </div>
+        <!-- The scripts need to be in the body DOM element, as some test running frameworks need the body
+       to have already been created so they can insert their magic into it. For example, if loaded
+       before body, Angular Scenario test framework fails to find the body and crashes and burns in
+       an epic manner. -->
+       <script src="context.js"></script>
+       <script type="text/javascript">
+           // Configure our Karma and set up bindings
+           %CLIENT_CONFIG%
+           window.__karma__.setupContext(window);
+   
+           // All served files with the latest timestamps
+           %MAPPINGS%
+       </script>
+       <!-- Dynamically replaced with <script> tags -->
+       %SCRIPTS%
+    </body>
+</html>

@@ -1,0 +1,114 @@
+{
+    "layers": [{
+        "id": "buildingLayer",
+        "provider": {
+            "id": "buildingProvider",
+            "type": "TestProvider",
+            "name": "Buildings",
+            "space": "${SPACEID}",
+            "url": "${URL}",
+            "credentials": "${CREDENTIALS}",
+            "level": 13
+        },
+        "min": 14,
+        "max": 20
+    }, {
+        "id": "linkLayer",
+        "provider": {
+            "id": "linkProvider",
+            "type": "TestProvider",
+            "name": "Links",
+            "space": "${SPACEID}",
+            "url": "${URL}",
+            "credentials": "${CREDENTIALS}",
+            "level": 15,
+            "class": "NAVLINK"
+        },
+        "min": 14,
+        "max": 20,
+        "data": {
+            "remote": [{
+                "type": "Feature",
+                "properties": {
+                    "featureClass": "NAVLINK",
+                    "type": "path"
+                },
+                "geometry": {
+                    "type": "LineString",
+                    "coordinates": [
+                        [-92.872819325, 40.593582, 0],
+                        [-92.87121, 40.593582, 0]
+                    ]
+                }
+            }, {
+                "type": "Feature",
+                "properties": {
+                    "featureClass": "NAVLINK",
+                    "type": "path"
+                },
+                "geometry": {
+                    "type": "LineString",
+                    "coordinates": [
+                        [-92.872819325, 40.593582, 0],
+                        [-92.872819325, 40.593174655, 0]
+                    ]
+                }
+            }]
+        },
+        "clear": {"minLon": -92.87335576721191, "minLat": 40.59235995691884, "maxLon": -92.86906423278809, "maxLat": 40.59480402074658}
+    },{
+        "id": "paLayer",
+        "provider": {
+            "id": "paProvider",
+            "type": "TestProvider",
+            "name": "address",
+            "space": "${SPACEID}",
+            "url": "${URL}",
+            "credentials": "${CREDENTIALS}",
+            "level": 14
+        },
+        "min": 14,
+        "max": 20,
+        "data": {
+            "remote": [{
+                "type": "Feature",
+                "properties": {
+                    "featureClass": "ADDRESS",
+                    "routingPoint":[-92.872819325, 40.593989343],
+                    "routingLink": "abc"
+                },
+                "geometry": {
+                    "type": "Point",
+                    "coordinates": [-92.872819325, 40.593989343, 0]
+                }
+            }]
+        },
+        "clear": {"minLon": -92.87335576721191, "minLat": 40.59235995691884, "maxLon": -92.86906423278809, "maxLat": 40.59480402074658}
+    }, {
+        "id": "placeLayer",
+        "provider": {
+            "id": "placeProvider",
+            "type": "TestProvider",
+            "name": "Places",
+            "space": "${SPACEID}",
+            "url": "${URL}",
+            "credentials": "${CREDENTIALS}",
+            "level": 14
+        },
+        "min": 14,
+        "max": 20,
+        "data": {
+            "remote": [{
+                "type": "Feature",
+                "properties": {
+                    "featureClass": "PLACE"
+                },
+                "geometry": {
+                    "type": "Point",
+                    "coordinates": [-92.871746442, 40.593989343, 0]
+                }
+            }]
+        },
+        "clear": {"minLon": -92.87335576721191, "minLat": 40.59235995691884, "maxLon": -92.86906423278809, "maxLat": 40.59480402074658}
+    }]
+}

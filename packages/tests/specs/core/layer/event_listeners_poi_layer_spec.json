@@ -1,0 +1,40 @@
+{
+    "layers": [{
+        "id": "placeLayer",
+        "provider": {
+            "id": "placeProvider",
+            "type": "SpaceProvider",
+            "name": "Places",
+            "space": "${SPACEID}",
+            "url": "${URL}",
+            "credentials": "${CREDENTIALS}",
+            "level": 16
+        },
+        "min": 14,
+        "max": 20,
+        "data": {
+            "remote": [{
+                "id": -9119,
+                "geometry": {
+                    "coordinates": [-88.7789715, 36.1600827, 0.0],
+                    "type": "Point"
+                },
+                "type": "Feature",
+                "properties": {
+                    "featureClass": "PLACE"
+                }
+            }, {
+                "id": -9118,
+                "geometry": {
+                    "coordinates": [-88.77912, 36.16015, 0.0],
+                    "type": "Point"
+                },
+                "type": "Feature",
+                "properties": {
+                    "featureClass": "PLACE"
+                },
+                "class": "PLACE"
+            }]
+        }
+    }]
+}

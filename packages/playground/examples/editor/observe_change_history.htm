@@ -1,0 +1,162 @@
+<!DOCTYPE html>
+<html>
+	<head>
+		<meta name="viewport" content="width=device-width, initial-scale=1.0, minimum-scale=1.0, user-scalable=no">
+		<title>XYZ Maps Example: Observe Changes History </title>
+	   	<script src="${XYZ_COMMON_PATH}" type="text/javascript" charset="UTF-8" ></script>
+	    <script src="${XYZ_CORE_PATH}" type="text/javascript" charset="UTF-8" ></script>
+	    <script src="${XYZ_DISPLAY_PATH}" type="text/javascript" charset="UTF-8" ></script>
+	    <script src="${XYZ_EDITOR_PATH}" type="text/javascript" charset="UTF-8" ></script>
+
+		<style type="text/css">
+			#map {
+				position: absolute;
+            	overflow: hidden;
+				top: 0;
+				left: 0;
+				width: 100%;
+                height: 100%;
+			}
+		</style>
+	</head>
+	<body>
+		<div id="map"></div>
+		<pre><div id="info"></div></pre>
+		<a id="add" class="button">Add Place</a>
+		<a id="undo" class="button">Undo</a>
+		<a id="redo" class="button">Redo</a>
+		<a id="revert" class="button">Revert</a>
+
+		<script type="application/javascript">
+	      	var YOUR_ACCESS_TOKEN = window.parent.YOUR_ACCESS_TOKEN;
+
+
+			// Create a custom provider.
+			class MyProvider extends here.xyz.maps.providers.SpaceProvider {
+
+    			// In this exmaple, all data does already contain desired feature class in the property 'featureClass'.
+				detectFeatureClass(feature) {
+					return feature.properties.featureClass;
+				}
+
+
+				// ########################   Address, Place   ########################
+				// Following functions are only necessary if you want to edit Address or Place.
+
+				// In addition to a simple Marker, a Place CAN, while an Address MUST have a routing point.
+				// A routing point of a Place or Address is a geo position (routingPosition) intended for routing purposes and references
+				// to a navlink (routingLink).
+				// In this example, we get routingPosition from features's properties 'routingPoint' and routingLink from 'routingLink'.
+
+				// Get coordinate of routing point, its format is: [longitude, latitude, altitude].
+				// This position should always be on the geometry of referenced Navlink.
+				readRoutingPosition(feature) {
+					return feature.prop('routingPoint');
+				}
+
+    			// Get id of referenced Navlink for Address or Place. Place becomes floating if this function does not return a Navlink id properly.
+				readRoutingLink(feature) {
+					return feature.prop('routingLink');
+				}
+
+				// This function is called to write updated coordinate on referenced Navlink when routing position is changed.
+				// Format of routing position: [longitude, latitude, altitude].
+				writeRoutingPosition(feature, position) {
+					feature.prop('routingPoint', position);
+				}
+
+				// This function is called to write new Navlink reference when routingLink is changed.
+				// For example, drag routing point from one Navlink to another will change routingLink.
+				// In this example, Navlink id is updated when routingLink changes.
+				writeRoutingLink(feature, navlink) {
+					feature.prop('routingLink', navlink ? navlink.id : navlink);
+				}
+
+				// In this examle, all Navlinks are provided by provider "navlinkProvider"
+				readRoutingProvider(location, providers) {
+					return this.id;
+				}
+			}
+
+			var bgLayer = new here.xyz.maps.layers.MVTLayer({
+				name: 'background layer',
+				min: 1,
+				max: 20,
+				remote: {
+					url: 'https://xyz.api.here.com/tiles/osmbase/256/all/{z}/{x}/{y}.mvt?access_token='+YOUR_ACCESS_TOKEN
+				}
+			});
+			var myLayer = new here.xyz.maps.layers.TileLayer({
+				name: 'My Layer',
+				min: 14,
+				max: 20,
+				// Customized provider to provide places
+				provider: new MyProvider({
+					id: "placeProvider",
+					space: "6CkeaGLg",
+					credentials: {
+						access_token: YOUR_ACCESS_TOKEN
+					},
+					level: 14
+				})
+			});
+
+
+	        // setup the Map Display
+			const display = new  here.xyz.maps.Map( document.getElementById("map"), {
+	                zoomLevel : 17,
+					center : {longitude: -116.85755, latitude: 33.03607},
+
+	                // add layers to display
+	                layers: [bgLayer, myLayer]
+	            });
+
+			// setup the editor
+	        const editor = new here.xyz.maps.editor.Editor( display );
+
+			// add layer to editor, make it editable
+			editor.addLayer( myLayer );
+
+
+/*###visiblesource*/
+var changesInfo = {
+	"Current Step": 0,
+	"Total Steps": 0,
+	"Modified Features": 0
+}
+var info = document.querySelector("#info");
+info.innerText = JSON.stringify(changesInfo, undefined, 4);
+
+// Add observer to current history
+editor.addObserver("history.current", function(ob, currentStep, lastStep){
+	changesInfo["Current Step"] = editor.get("history.current");
+	changesInfo["Total Steps"] = editor.get("history.length");
+	changesInfo["Modified Features"] = editor.get("changes.length");
+
+	info.innerText = JSON.stringify(changesInfo, undefined, 4);
+})
+
+document.querySelector("#add").onclick = function(){
+	var width = display.getWidth();
+	var height = display.getHeight();
+	var point = new here.xyz.maps.editor.PixelCoordinate(width * Math.random() , height * Math.random());
+
+	// add Place to editor
+	var Place = editor.addFeature( new here.xyz.maps.editor.features.Place(point), {featureClass: 'PLACE'} );
+}
+
+document.querySelector("#undo").onclick = function(){
+	editor.undo();
+}
+
+document.querySelector("#redo").onclick = function(){
+	editor.redo();
+}
+
+document.querySelector("#revert").onclick = function(){
+	editor.revert();
+}
+/*visiblesource###*/
+		</script>
+	</body>
+</html>

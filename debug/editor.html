@@ -1,0 +1,77 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, minimum-scale=1.0, user-scalable=no">
+    <title>XYZ Maps Editor</title>
+
+    <script src="../packages/common/dist/xyz-maps-common.js" type="text/javascript" charset="UTF-8"></script>
+    <script src="../packages/core/dist/xyz-maps-core.js" type="text/javascript" charset="UTF-8"></script>
+    <script src="../packages/display/dist/xyz-maps-display.js" type="text/javascript" charset="UTF-8"></script>
+    <script src="../packages/editor/dist/xyz-maps-editor.js" type="text/javascript" charset="UTF-8"></script>
+
+    <script src="token.js" type="text/javascript" charset="UTF-8"></script>
+
+    <style type="text/css">
+        #map {
+            position: absolute;
+            overflow: hidden;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+        }
+    </style>
+</head>
+<body>
+<div id="map"></div>
+
+<script type="application/javascript">
+    //specify your credentials
+    const XYZ_ACCESS_TOKEN = getXYZToken();
+
+    let backgroundLayer = new here.xyz.maps.layers.MVTLayer({
+        name: 'background layer',
+        min: 1,
+        max: 20,
+        remote: {
+            url: 'https://xyz.api.here.com/tiles/osmbase/256/all/{z}/{x}/{y}.mvt?access_token=' + XYZ_ACCESS_TOKEN
+        }
+    });
+    let editLayer = new here.xyz.maps.layers.TileLayer({
+        name: 'MyLayer',
+        min: 14,
+        max: 20,
+        // link provider to provide link objects
+        provider: new here.xyz.maps.providers.SpaceProvider({
+            // Name of the provider
+            name: 'SpaceProvider',
+            // Zoom level at which tiles are cached
+            level: 14,
+            // Space ID
+            space: 'YOUR_SPACE_ID',
+
+            // User credential of the provider
+            credentials: {
+                access_token: XYZ_ACCESS_TOKEN
+            }
+        })
+    });
+
+    // setup the map display
+    window.display = new here.xyz.maps.Map(document.getElementById("map"), {
+        zoomLevel: 17,
+        center: {
+            latitude: 37.796902, longitude: -122.217104
+        },
+        // add layers to display
+        layers: [backgroundLayer, editLayer]
+    });
+
+    // setup the edit engine
+    window.editor = new here.xyz.maps.editor.Editor(display);
+
+    // add the layer to edit engine to enable editing
+    editor.addLayer(editLayer);
+</script>
+</body>
+</html>

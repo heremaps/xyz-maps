@@ -1,0 +1,142 @@
+{
+    "layers": [{
+        "id": "linkLayer",
+        "provider": {
+            "id": "linkProvider",
+            "type": "TestProvider",
+            "name": "Links",
+            "space": "${SPACEID}",
+            "url": "${URL}",
+            "credentials": "${CREDENTIALS}",
+            "level": 15,
+            "class": "NAVLINK"
+        },
+        "min": 14,
+        "max": 20,
+        "data": {
+            "remote": [{
+                "id": "link1",
+                "type": "Feature",
+                "properties": {
+                    "featureClass": "NAVLINK",
+                    "type": "residential"
+                },
+                "geometry": {
+                    "type": "LineString",
+                    "coordinates": [[76.904084337, 16.410220412, 0], [76.904889, 16.410220412, 0]]
+                }
+            }, {
+                "id": "link2",
+                "type": "Feature",
+                "properties": {
+                    "featureClass": "NAVLINK",
+                    "type": "residential"
+                },
+                "geometry": {
+                    "type": "LineString",
+                    "coordinates": [[76.905425442, 16.411249587, 0], [76.905425442, 16.410220412, 0]]
+                }
+            }]
+        }
+    }, {
+        "id": "paLayer",
+        "provider": {
+            "id": "paProvider",
+            "type": "TestProvider",
+            "name": "Address",
+            "space": "${SPACEID}",
+            "url": "${URL}",
+            "credentials": "${CREDENTIALS}",
+            "level": 14
+        },
+        "min": 14,
+        "max": 20,
+        "data": {
+            "remote": [{
+                "id": "pa1",
+                "type": "Feature",
+                "properties": {
+                    "featureClass": "ADDRESS",
+                    "routingLink": "-18154",
+                    "routingPoint": [76.90435, 16.41022, 0]
+                },
+                "geometry": {
+                    "type": "Point",
+                    "coordinates": [76.904352558, 16.410735, 0]
+                }
+            }]
+        }
+    }, {
+        "id": "placeLayer",
+        "provider": {
+            "id": "placeProvider",
+            "type": "TestProvider",
+            "name": "Places",
+            "space": "${SPACEID}",
+            "url": "${URL}",
+            "credentials": "${CREDENTIALS}",
+            "level": 14
+        },
+        "min": 14,
+        "max": 20,
+        "data": {
+            "remote": [{
+                "id": "place1",
+                "type": "Feature",
+                "properties": {
+                    "featureClass": "PLACE",
+                    "type": "hotel"
+                },
+                "geometry": {
+                    "type": "Point",
+                    "coordinates": [76.904513491, 16.411249587, 0]
+                }
+            }, {
+                "id": "place2",
+                "type": "Feature",
+                "properties": {
+                    "featureClass": "PLACE",
+                    "type": "hotel"
+                },
+                "geometry": {
+                    "type": "Point",
+                    "coordinates": [76.904513491, 16.410992294, 0]
+                }
+            }, {
+                "id": "place3",
+                "type": "Feature",
+                "properties": {
+                    "featureClass": "PLACE",
+                    "type": "hotel"
+                },
+                "geometry": {
+                    "type": "Point",
+                    "coordinates": [76.904513491, 16.410735, 0]
+                }
+            }, {
+                "id": "place4",
+                "type": "Feature",
+                "properties": {
+                    "featureClass": "PLACE"
+                },
+                "geometry": {
+                    "type": "Point",
+                    "coordinates": [76.904513491, 16.410477706, 0]
+                }
+            }]
+        }
+    }, {
+        "id": "buildingLayer",
+        "provider": {
+            "id": "buildingProvider",
+            "type": "TestProvider",
+            "name": "Buildings",
+            "space": "${SPACEID}",
+            "url": "${URL}",
+            "credentials": "${CREDENTIALS}",
+            "level": 13
+        },
+        "min": 14,
+        "max": 20
+    }]
+}

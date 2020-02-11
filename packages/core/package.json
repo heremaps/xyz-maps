@@ -1,0 +1,43 @@
+{
+  "name": "@here/xyz-maps-core",
+  "version": "0.10.0-dev",
+  "description": "Core libs of XYZ Editor.",
+  "author": {
+    "name": "HERE Europe B.V.",
+    "url": "https://here.com"
+  },
+  "license": "Apache-2.0",
+  "repository": {
+    "type": "git",
+    "url": "https://github.com/heremaps/xyz-editor.git",
+    "directory": "packages/core"
+  },
+  "main": "dist/xyz-maps-core.min.js",
+  "module": "dist/xyz-maps-core.esm.min.js",
+  "files": [
+    "dist/xyz*.min.js"
+  ],
+  "scripts": {
+    "decleration": "tsc --allowJs false --emitDeclarationOnly --declaration --module amd --outFile ./dist/test.js",
+    "watch-dev": "rollup -c --watch --environment BUILD:dev",
+    "build-dev": "rollup -c --environment BUILD:dev",
+    "build-release": "rollup -c --environment BUILD:production"
+  },
+  "publishConfig": {
+  },
+  "dependencies": {},
+  "devDependencies": {
+    "git-rev-sync": "^2.0.0",
+    "rbush": "^2.0.1",
+    "pbf": "^3.2.1",
+    "@mapbox/vector-tile": "^1.3.1",
+    "rollup": "^1.29.1",
+    "rollup-plugin-commonjs": "^10.1.0",
+    "@rollup/plugin-node-resolve": "^6.0.0",
+    "@rollup/plugin-virtual": "^2.0.0",
+    "rollup-plugin-sourcemaps": "^0.4.2",
+    "@rollup/plugin-typescript": "^2.1.0",
+    "rollup-plugin-uglify": "^6.0.4",
+    "typescript": "^3.7.5"
+  }
+}

@@ -1,0 +1,153 @@
+{
+    "layers": [{
+        "id": "addressLayer",
+        "provider": {
+            "id": "addressProvider",
+            "type": "SpaceProvider",
+            "name": "Address",
+            "space": "${SPACEID}",
+            "url": "${URL}",
+            "https": false,
+            "credentials": "${CREDENTIALS}",
+            "level": 14
+        },
+        "min": 14,
+        "max": 20,
+        "data": {
+            "remote":[{
+                "id": -10443,
+                "geometry": {
+                    "coordinates": [78.903727826, 14.307241293, 0],
+                    "type": "Point"
+                },
+                "type": "Feature",
+                "properties": {
+                    "featureClass": "ADDRESS"
+                }
+            }, {
+                "id": -10462,
+                "geometry": {
+                    "coordinates": [78.903428768, 14.307542778, 0],
+                    "type": "Point"
+                },
+                "type": "Feature",
+                "properties": {
+                    "featureClass": "ADDRESS"
+                }
+            }, {
+                "id": -10471,
+                "geometry": {
+                    "coordinates": [78.902775655, 14.307353051, 0],
+                    "type": "Point"
+                },
+                "type": "Feature",
+                "properties": {
+                    "featureClass": "ADDRESS"
+                }
+            }, {
+                "geometry": {
+                    "coordinates": [78.904493592, 14.307575265, 0],
+                    "type": "Point"
+                },
+                "type": "Feature",
+                "properties": {
+                    "featureClass": "ADDRESS"
+                }
+            }, {
+                "id": -10468,
+                "geometry": {
+                    "coordinates": [78.904347412, 14.30659674, 0],
+                    "type": "Point"
+                },
+                "type": "Feature",
+                "properties": {
+                    "featureClass": "ADDRESS"
+                }
+            }, {
+                "id": -10470,
+                "geometry": {
+                    "coordinates": [78.903080082, 14.306925513, 0],
+                    "type": "Point"
+                },
+                "type": "Feature",
+                "properties": {
+                    "featureClass": "ADDRESS"
+                }
+            }, {
+                "id": -10469,
+                "geometry": {
+                    "coordinates": [78.904739023, 14.306622727, 0],
+                    "type": "Point"
+                },
+                "type": "Feature",
+                "properties": {
+                    "featureClass": "ADDRESS"
+                }
+            }, {
+                "geometry": {
+                    "coordinates": [78.869585506, 14.288554701, 0],
+                    "type": "Point"
+                },
+                "type": "Feature",
+                "properties": {
+                    "featureClass": "ADDRESS"
+                }
+            }, {
+                "id": -10472,
+                "geometry": {
+                    "coordinates": [78.871130458, 14.288390901, 0],
+                    "type": "Point"
+                },
+                "type": "Feature",
+                "properties": {
+                    "featureClass": "ADDRESS"
+                }
+            }, {
+                "geometry": {
+                    "coordinates": [78.943682326, 14.597395191, 0],
+                    "type": "Point"
+                },
+                "type": "Feature",
+                "properties": {
+                    "featureClass": "ADDRESS"
+                }
+            }, {
+                "geometry": {
+                    "coordinates": [78.943660869, 14.597293962, 0],
+                    "type": "Point"
+                },
+                "type": "Feature",
+                "properties": {
+                    "featureClass": "ADDRESS"
+                }
+            }, {
+                "geometry": {
+                    "coordinates": [78.943102969, 14.597299153, 0],
+                    "type": "Point"
+                },
+                "type": "Feature",
+                "properties": {
+                    "featureClass": "ADDRESS"
+                }
+            }, {
+                "geometry": {
+                    "coordinates": [78.943719877, 14.59730694, 0],
+                    "type": "Point"
+                },
+                "type": "Feature",
+                "properties": {
+                    "featureClass": "ADDRESS"
+                }
+            }, {
+                "geometry": {
+                    "coordinates": [78.943296093, 14.59728877, 0],
+                    "type": "Point"
+                },
+                "type": "Feature",
+                "properties": {
+                    "featureClass": "ADDRESS"
+                }
+            }]
+        }
+    }]
+}

@@ -1,0 +1,64 @@
+{
+    "layers": [{
+        "id": "linkLayer",
+        "provider": {
+            "id": "linkProvider",
+            "type": "TestProvider",
+            "name": "Links",
+            "space": "${SPACEID}",
+            "url": "${URL}",
+            "credentials": "${CREDENTIALS}",
+            "level": 15,
+            "class": "NAVLINK"
+        },
+        "min": 14,
+        "max": 20,
+        "data": {
+            "remote": [{
+                "id": -189186,
+                "type": "Feature",
+                "properties": {
+                    "featureClass": "NAVLINK",
+                    "type": "highway"
+                },
+                "geometry": {
+                    "type": "LineString",
+                    "coordinates": [
+                        [77.813725767,12.651573696,0],
+                        [77.812652884,12.651416671,0]
+                    ]
+                }
+            }]
+        },
+        "clear": {"minLon":77.81211644180303,"minLat":12.64974172977334,"maxLon":77.81640797622686,"maxLat":12.652882234998415}
+    }, {
+        "id": "paLayer",
+        "provider": {
+            "id": "paProvider",
+            "type": "TestProvider",
+            "name": "address",
+            "space": "${SPACEID}",
+            "url": "${URL}",
+            "credentials": "${CREDENTIALS}",
+            "level": 14
+        },
+        "min": 14,
+        "max": 20,
+        "data": {
+            "remote": [{
+                "id": -48037,
+                "type": "Feature",
+                "properties": {
+                    "featureClass": "ADDRESS",
+                    "routingLink": "-10",
+                    "routingPoint": [74.81124, 12.92608, 0]
+                },
+                "geometry": {
+                    "type": "Point",
+                    "coordinates": [77.813189325,12.651311987,0]
+                }
+            }]
+        },
+        "clear": {"minLon":77.81211644180303,"minLat":12.64974172977334,"maxLon":77.81640797622686,"maxLat":12.652882234998415}
+    }]
+}

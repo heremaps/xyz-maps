@@ -1,0 +1,74 @@
+{
+    "layers": [{
+        "id": "linkLayer",
+        "provider": {
+            "id": "linkProvider",
+            "type": "TestProvider",
+            "name": "Links",
+            "space": "${SPACEID}",
+            "url": "${URL}",
+            "credentials": "${CREDENTIALS}",
+            "level": 15,
+            "class": "NAVLINK"
+        },
+        "min": 14,
+        "max": 20,
+        "data": {
+            "remote": [{
+                "type": "Feature",
+                "properties": {
+                    "featureClass": "NAVLINK",
+                    "type": "residential"
+                },
+                "geometry": {
+                    "type": "LineString",
+                    "coordinates": [
+                        [77.198960253, 13.144964205, 0],
+                        [77.199496695, 13.144964205, 0]
+                    ]
+                }
+            }]
+        },
+        "clear": {"minLon":77.19842381136405,"minLat":13.142352261650217,"maxLon":77.20271534578787,"maxLat":13.145486590073858}
+    }, {
+        "id": "placeLayer",
+        "provider": {
+            "id": "placeProvider",
+            "type": "TestProvider",
+            "name": "Places",
+            "space": "${SPACEID}",
+            "url": "${URL}",
+            "credentials": "${CREDENTIALS}",
+            "level": 14
+        },
+        "min": 14,
+        "max": 20,
+        "data": {
+            "remote": [{
+                "type": "Feature",
+                "properties": {
+                    "featureClass": "PLACE",
+                    "routingPoint":[77.200301358, 13.143397042],
+                    "routingLink": "abc"
+                },
+                "geometry": {
+                    "type": "Point",
+                    "coordinates": [77.200301358, 13.143397042, 0]
+                }
+            }, {
+                "id": -29498,
+                "type": "Feature",
+                "properties": {
+                    "featureClass": "PLACE",
+                    "routingPoint":[77.199228474, 13.143397042],
+                    "routingLink": "abc"
+                },
+                "geometry": {
+                    "type": "Point",
+                    "coordinates": [77.199228474, 13.143397042, 0]
+                }
+            }]
+        },
+        "clear": {"minLon":77.19842381136405,"minLat":13.142352261650217,"maxLon":77.20271534578787,"maxLat":13.145486590073858}
+    }]
+}

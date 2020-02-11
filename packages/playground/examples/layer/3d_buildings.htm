@@ -1,0 +1,89 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, minimum-scale=1.0, user-scalable=no">
+    <title>XYZ Maps Example: Use the MVTLayer to display a vector world map</title>
+
+    <script src="${XYZ_COMMON_PATH}" type="text/javascript" charset="UTF-8"></script>
+    <script src="${XYZ_CORE_PATH}" type="text/javascript" charset="UTF-8"></script>
+    <script src="${XYZ_DISPLAY_PATH}" type="text/javascript" charset="UTF-8"></script>
+    <script src="${XYZ_PLUGINS_PATH}"></script>
+
+    <style type="text/css">
+        #map {
+            position: absolute;
+            overflow: hidden;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+        }
+    </style>
+</head>
+<body>
+<div id="map"></div>
+
+<script type="application/javascript">
+    //specify your credentials for mvt layer
+    var YOUR_ACCESS_TOKEN = window.parent.YOUR_ACCESS_TOKEN;
+
+    /*###visiblesource*/
+    // setup the Map Display
+    const display = new here.xyz.maps.Map(document.getElementById("map"), {
+        zoomLevel: 17,
+        center: { longitude: -74.01137, latitude: 40.70613 },
+        // add layers to display
+        layers: [
+            new here.xyz.maps.layers.MVTLayer({
+                name: 'mvt-world-layer',
+                remote: {
+                    url: 'https://xyz.api.here.com/tiles/osmbase/512/all/{z}/{x}/{y}.mvt?access_token=' + YOUR_ACCESS_TOKEN
+                },
+                style: {
+                    backgroundColor: '#555555',
+                    strokeWidthZoomScale: (level) => level > 17 ? 1 : level > 14 ? .5 : .25,
+
+                    styleGroups: {
+                        'earth': [{zIndex: 1, type: 'Polygon', fill: '#555555'}],
+                        'landuse': [{zIndex: 2, type: 'Polygon', fill: '#666666'}],
+                        'water': [{zIndex: 3, type: 'Polygon', fill: '#353535'}],
+                        'roads': [{zIndex: 4, type: 'Line', stroke: '#ffffff', strokeWidth: 4}],
+                        'roadshighway': [{zIndex: 5, type: 'Line', stroke: '#ffffff', strokeWidth: 6}],
+                        'buildings': [{
+                            zIndex: 6,
+                            type: 'Polygon',
+                            fill: '#999999',
+                            // define extrude in meters to display polygons with extrusion
+                            extrude: (feature) => feature.properties.height || 25
+                        }]
+                    },
+
+                    assign: (feature, level) => {
+                        var props = feature.properties;
+                        var kind = props.kind;
+                        var layer = props.layer; // the data layer of the feature
+                        var geom = feature.geometry.type;
+
+                        if (layer == 'water') {
+                            if (geom == 'LineString' || geom == 'MultiLineString') {
+                                return;
+                            }
+                        }
+                        else if (layer == 'roads') {
+                            if (kind == 'rail' || kind == 'ferry') {
+                                return;
+                            }
+                            if (kind == 'highway') {
+                                return layer + kind;
+                            }
+                        }
+                        return layer;
+                    }
+                }
+            })
+        ]
+    });
+    /*visiblesource###*/
+</script>
+</body>
+</html>

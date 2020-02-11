@@ -1,0 +1,67 @@
+{
+    "layers": [{
+        "id": "spaceLayer",
+        "provider": {
+            "id": "spaceProvider",
+            "type": "SpaceProvider",
+            "name": "my SpaceProvider",
+            "level": 1,
+            "url": "${URL}",
+            "https": false,
+            "space": "${SPACEID}",
+            "credentials": "${CREDENTIALS}"
+        },
+        "min": 14,
+        "max": 20,
+        "data": {
+            "remote": [{
+                "type": "Feature",
+                "properties": {
+                    "name": "Anfield",
+                    "amenity": "Football Stadium",
+                    "capacity": 54074,
+                    "popupContent": "Home of Liverpool Football Club",
+                    "@ns:com:here:xyz": {
+                        "tags": ["football", "stadium"]
+                    }
+                },
+                "geometry": {
+                    "type": "Point",
+                    "coordinates": [20.455120646705893, 44.76173261908431]
+                }
+            }, {
+                "type": "Feature",
+                "properties": {
+                    "name": "Stade de Gerland",
+                    "sport": "association football",
+                    "amenity": "Soccer Stadium",
+                    "capacity": 41044,
+                    "occupant": "Lyon OU",
+                    "@ns:com:here:xyz": {
+                        "tags": ["soccer", "stadium"]
+                    }
+                },
+                "geometry": {
+                    "type": "Point",
+                    "coordinates": [4.8325, 45.723889]
+                }
+            }, {
+                "type": "Feature",
+                "properties": {
+                    "name": "Olympique Lyonnais",
+                    "sport": "association football",
+                    "amenity": "Soccer Stadium",
+                    "capacity": 59186,
+                    "occupant": "Olympique Lyonnais",
+                    "@ns:com:here:xyz": {
+                        "tags": ["soccer", "stadium"]
+                    }
+                },
+                "geometry": {
+                    "type": "Point",
+                    "coordinates": [4.979825, 45.764327777]
+                }
+            }]
+        }
+    }]
+}

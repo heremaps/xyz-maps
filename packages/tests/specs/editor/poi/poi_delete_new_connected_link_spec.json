@@ -1,0 +1,62 @@
+{
+    "layers": [{
+        "id": "linkLayer",
+        "provider": {
+            "id": "linkProvider",
+            "type": "TestProvider",
+            "name": "Links",
+            "space": "${SPACEID}",
+            "url": "${URL}",
+            "credentials": "${CREDENTIALS}",
+            "level": 15,
+            "class": "NAVLINK"
+        },
+        "min": 14,
+        "max": 20,
+        "data": {
+            "remote": [{
+                "id": -189172,
+                "type": "Feature",
+                "properties": {
+                    "featureClass": "NAVLINK",
+                    "type": "primary"
+                },
+                "geometry": {
+                    "type": "LineString",
+                    "coordinates": [
+                        [78.348325337,17.316544258,0],
+                        [78.348325337,17.315007869,0]
+                    ]
+                }
+            }]
+        },
+        "clear": {"minLon":78.34698423278809,"minLat":17.313983602453845,"maxLon":78.35127576721192,"maxLat":17.317056384701985}
+    }, {
+        "id": "placeLayer",
+        "provider": {
+            "id": "placeProvider",
+            "type": "TestProvider",
+            "name": "Places",
+            "space": "${SPACEID}",
+            "url": "${URL}",
+            "credentials": "${CREDENTIALS}",
+            "level": 14
+        },
+        "min": 14,
+        "max": 20,
+        "data": {
+            "remote": [{
+                "id": -29531,
+                "type": "Feature",
+                "properties": {
+                    "featureClass": "PLACE"
+                },
+                "geometry": {
+                    "type": "Point",
+                    "coordinates": [78.34913,17.31552,0]
+                }
+            }]
+        },
+        "clear": {"minLon":78.34698423278809,"minLat":17.313983602453845,"maxLon":78.35127576721192,"maxLat":17.317056384701985}
+    }]
+}

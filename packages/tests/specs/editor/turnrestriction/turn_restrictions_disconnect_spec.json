@@ -1,0 +1,78 @@
+{
+    "layers": [{
+        "id": "linkLayer",
+        "provider": {
+            "id": "linkProvider",
+            "type": "TestProvider",
+            "name": "Links",
+            "space": "${SPACEID}",
+            "url": "${URL}",
+            "credentials": "${CREDENTIALS}",
+            "level": 15,
+            "class": "NAVLINK"
+        },
+        "min": 14,
+        "max": 20,
+        "data": {
+            "remote": [{
+                "id": -189189,
+                "type": "Feature",
+                "properties": {
+                    "featureClass": "NAVLINK",
+                    "type": "highway"
+                },
+                "geometry": {
+                    "type": "LineString",
+                    "coordinates": [
+                        [77.940522458,13.330834971,0],
+                        [77.9410589,13.330834971,0]
+                    ]
+                }
+            }, {
+                "id": -189190,
+                "type": "Feature",
+                "properties": {
+                    "featureClass": "NAVLINK",
+                    "type": "highway"
+                },
+                "geometry": {
+                    "type": "LineString",
+                    "coordinates": [
+                        [77.9410589,13.330834971,0],
+                        [77.9410589,13.330312983,0],
+                        [77.941595342,13.330312983,0]
+                    ]
+                }
+            }, {
+                "id": -189191,
+                "type": "Feature",
+                "properties": {
+                    "featureClass": "NAVLINK",
+                    "type": "highway"
+                },
+                "geometry": {
+                    "type": "LineString",
+                    "coordinates": [
+                        [77.941595342,13.330834971,0],
+                        [77.941595342,13.330312983,0]
+                    ]
+                }
+            }, {
+                "id": -189192,
+                "type": "Feature",
+                "properties": {
+                    "featureClass": "NAVLINK",
+                    "type": "highway"
+                },
+                "geometry": {
+                    "type": "LineString",
+                    "coordinates": [
+                        [77.941595342,13.329790994,0],
+                        [77.941595342,13.330312983,0]
+                    ]
+                }
+            }]
+        },
+        "clear": {"minLon":77.939986016422,"minLat":13.32822502013002,"maxLon":77.94427755084583,"maxLat":13.331356957683525}
+    }]
+}

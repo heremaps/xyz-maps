@@ -1,0 +1,32 @@
+{
+    "layers": [{
+        "id": "linkLayer",
+        "provider": {
+            "id": "linkProvider",
+            "type": "TestProvider",
+            "name": "Links",
+            "space": "${SPACEID}",
+            "url": "${URL}",
+            "credentials": "${CREDENTIALS}",
+            "level": 15,
+            "class": "NAVLINK"
+        },
+        "min": 14,
+        "max": 20,
+        "clear": {"minLon": 75.55402265889137, "minLat": 14.021050590289647, "maxLon": 75.5583141933152, "maxLat": 14.024173325877541}
+    },{
+        "id": "paLayer",
+        "provider": {
+            "id": "paProvider",
+            "type": "TestProvider",
+            "name": "address",
+            "space": "${SPACEID}",
+            "url": "${URL}",
+            "credentials": "${CREDENTIALS}",
+            "level": 14
+        },
+        "min": 14,
+        "max": 20,
+        "clear": {"minLon": 75.55402265889137, "minLat": 14.021050590289647, "maxLon": 75.5583141933152, "maxLat": 14.024173325877541}
+    }]
+}

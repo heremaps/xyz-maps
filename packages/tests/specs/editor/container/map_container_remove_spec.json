@@ -1,0 +1,90 @@
+{
+    "layers": [{
+        "id": "linkLayer",
+        "provider": {
+            "id": "linkProvider",
+            "type": "TestProvider",
+            "name": "Links",
+            "space": "${SPACEID}",
+            "url": "${URL}",
+            "credentials": "${CREDENTIALS}",
+            "level": 15,
+            "class": "NAVLINK"
+        },
+        "min": 14,
+        "max": 20,
+        "data": {
+            "remote": [{
+                "id": -188842,
+                "type": "Feature",
+                "properties": {
+                    "featureClass": "NAVLINK",
+                    "type": "residential"
+                },
+                "geometry": {
+                    "type": "LineString",
+                    "coordinates": [
+                        [80.576400521, 16.518459837, 0],
+                        [80.576454165, 16.517945534, 0]
+                    ]
+                }
+            }, {
+                "id": -188843,
+                "type": "Feature",
+                "properties": {
+                    "featureClass": "NAVLINK",
+                    "type": "residential"
+                },
+                "geometry": {
+                    "type": "LineString",
+                    "coordinates": [
+                        [80.576936963, 16.518408407, 0],
+                        [80.577044251, 16.518459837, 0]
+                    ]
+                }
+            }]
+        },
+        "clear": {"minLon":80.57581043517439,"minLat":16.515939741111794,"maxLon":80.58010196959822,"maxLat":16.519025567958195}
+    },{
+        "id": "placeLayer",
+        "provider": {
+            "id": "placeProvider",
+            "type": "TestProvider",
+            "name": "Places",
+            "space": "${SPACEID}",
+            "url": "${URL}",
+            "credentials": "${CREDENTIALS}",
+            "level": 14
+        },
+        "min": 14,
+        "max": 20,
+        "data": {
+            "remote": [{
+                "id": -29495,
+                "geometry": {
+                    "coordinates": [80.576346877, 16.517996964, 0],
+                    "type": "Point"
+                },
+                "type": "Feature",
+                "properties": {
+                    "featureClass": "PLACE",
+                    "routingPoint":[80.576346877, 16.517996964],
+                    "routingLink": "abc"
+                }
+            }, {
+                "id": -29496,
+                "geometry": {
+                    "coordinates": [80.576883319, 16.517996964, 0],
+                    "type": "Point"
+                },
+                "type": "Feature",
+                "properties": {
+                    "featureClass": "PLACE",
+                    "routingPoint":[80.576883319, 16.517996964],
+                    "routingLink": "abc"
+                }
+            }]
+        },
+        "clear": {"minLon":80.57581043517439,"minLat":16.515939741111794,"maxLon":80.58010196959822,"maxLat":16.519025567958195}
+    }]
+}

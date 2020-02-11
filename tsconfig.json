@@ -1,0 +1,21 @@
+{
+  "compilerOptions": {
+    "target": "es5",
+    "sourceMap": true,
+    "skipLibCheck": true,
+    "baseUrl": ".",
+    "paths": {
+      "@here/xyz-maps-*": ["packages/*/src"]
+    }
+  },
+  "exclude": [
+    "node_modules",
+    "dist"
+  ],
+  "references": [
+    { "path": "packages/common" },
+    { "path": "packages/core" },
+    { "path": "packages/display" },
+    { "path": "packages/editor" }
+  ]
+}

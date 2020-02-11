@@ -1,0 +1,72 @@
+{
+    "layers": [{
+        "id": "buildingLayer",
+        "provider": {
+            "id": "buildingProvider",
+            "type": "SpaceProvider",
+            "name": "Buildings",
+            "space": "${SPACEID}",
+            "url": "${URL}",
+            "https": false,
+            "credentials": "${CREDENTIALS}",
+            "level": 13
+        },
+        "min": 14,
+        "max": 20
+    },{
+        "id": "linkLayer",
+        "provider": {
+            "id": "linkProvider",
+            "type": "SpaceProvider",
+            "name": "Links",
+            "space": "${SPACEID}",
+            "url": "${URL}",
+            "https": false,
+            "credentials": "${CREDENTIALS}",
+            "level": 15
+        },
+        "min": 14,
+        "max": 20
+    },{
+        "id": "paLayer",
+        "name": "Address Layer",
+        "provider": {
+            "id": "paProvider",
+            "type": "SpaceProvider",
+            "name": "Address",
+            "space": "${SPACEID}",
+            "url": "${URL}",
+            "https": false,
+            "credentials": "${CREDENTIALS}",
+            "level": 14
+        },
+        "min": 14,
+        "max": 20,
+        "data": {
+            "local": [{
+                "id": -804,
+                "geometry": {
+                    "coordinates": [79.926650912, 12.964113637, 0],
+                    "type": "Point"
+                },
+                "type": "Feature",
+                "properties": {
+                }
+            }]
+        }
+    },{
+        "id": "placeLayer",
+        "provider": {
+            "id": "placeProvider",
+            "type": "SpaceProvider",
+            "name": "Places",
+            "space": "${SPACEID}",
+            "url": "${URL}",
+            "https": false,
+            "credentials": "${CREDENTIALS}",
+            "level": 14
+        },
+        "min": 14,
+        "max": 20
+    }]
+}

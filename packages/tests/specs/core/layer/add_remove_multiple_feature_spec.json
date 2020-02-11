@@ -1,0 +1,16 @@
+{
+    "layers": [{
+        "id": "addressLayer",
+        "provider": {
+            "id": "addressProvider",
+            "type": "SpaceProvider",
+            "name": "Address",
+            "space": "${SPACEID}",
+            "url": "${URL}",
+            "credentials": "${CREDENTIALS}",
+            "level": 14
+        },
+        "min": 14,
+        "max": 20
+    }]
+}

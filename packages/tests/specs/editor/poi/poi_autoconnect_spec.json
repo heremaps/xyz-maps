@@ -1,0 +1,49 @@
+{
+    "layers": [{
+        "id": "linkLayer",
+        "provider": {
+            "id": "linkProvider",
+            "type": "TestProvider",
+            "name": "Links",
+            "space": "${SPACEID}",
+            "url": "${URL}",
+            "credentials": "${CREDENTIALS}",
+            "level": 15,
+            "class": "NAVLINK"
+        },
+        "min": 14,
+        "max": 20,
+        "data": {
+            "remote": [{
+                "id": -189170,
+                "type": "Feature",
+                "properties": {
+                    "featureClass": "NAVLINK",
+                    "type": "primary"
+                },
+                "geometry": {
+                    "type": "LineString",
+                    "coordinates": [
+                        [77.069592427,12.953740013,0],
+                        [77.069592427,12.953217222,0]
+                    ]
+                }
+            }]
+        },
+        "clear": {"minLon":77.06851954296121,"minLat":12.951126048449595,"maxLon":77.07281107738504,"maxLat":12.954262802180153}
+    }, {
+        "id": "placeLayer",
+        "provider": {
+            "id": "placeProvider",
+            "type": "TestProvider",
+            "name": "Places",
+            "space": "${SPACEID}",
+            "url": "${URL}",
+            "credentials": "${CREDENTIALS}",
+            "level": 14
+        },
+        "min": 14,
+        "max": 20,
+        "clear": {"minLon":77.06851954296121,"minLat":12.951126048449595,"maxLon":77.07281107738504,"maxLat":12.954262802180153}
+    }]
+}

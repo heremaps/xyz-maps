@@ -1,0 +1,39 @@
+{
+    "layers": [{
+        "id": "linkLayer",
+        "provider": {
+            "id": "linkProvider",
+            "type": "TestProvider",
+            "name": "Links",
+            "space": "${SPACEID}",
+            "url": "${URL}",
+            "credentials": "${CREDENTIALS}",
+            "level": 15,
+            "class": "NAVLINK"
+        },
+        "min": 14,
+        "max": 20,
+        "data": {
+            "remote": [{
+                "id": -189073,
+                "type": "Feature",
+                "properties": {
+                    "featureClass": "NAVLINK",
+                    "type": "residential",
+                    "name": "test road",
+                    "turnRestriction": {"end": ["abcdefg"]},
+                    "direction": "END_TO_START",
+                    "pedestrianOnly": true
+                },
+                "geometry": {
+                    "type": "LineString",
+                    "coordinates": [
+                        [8.527619957,49.909971348,0],
+                        [8.527861356,49.909978257,0]
+                    ]
+                }
+            }]
+        },
+        "clear": {"minLon":8.526144742232168,"minLat":49.90868620697421,"maxLon":8.530436276655996,"maxLat":49.91075899820885}
+    }]
+}

@@ -1,0 +1,18 @@
+excludes:
+  paths:
+  - pattern: "packages/tests/**"
+    reason: "TEST_TOOL_OF"
+    comment: "Directory containing only user/integration tests."
+  - pattern: "packages/docs/**"
+    reason: "DOCUMENTATION_OF"
+    comment: "Directory containing only documentation or scripts to generate documentation."
+  - pattern: "packages/playground/**"
+    reason: "EXAMPLE_OF"
+    comment: "Playground used to demonstrate the project."
+  - pattern: "packages/debug/**"
+    reason: "BUILD_TOOL_OF"
+    comment: "Directory containing only debug/test/dev tools/pages."
+  scopes:
+  - pattern: "devDependencies"
+    reason: "DEV_DEPENDENCY_OF"
+    comment: "Scope with dependencies only used for development. Not included in released artifacts."

@@ -1,0 +1,14 @@
+{
+    "layers": [{
+        "id": "placeGeoJsonLayer",
+        "provider": {
+            "id": "placeGeoJsonProvider",
+            "type": "GeoJSONProvider",
+            "name": "Places",
+            "url": "${URL}",
+            "level": 14
+        },
+        "min": 14,
+        "max": 20
+    }]
+}

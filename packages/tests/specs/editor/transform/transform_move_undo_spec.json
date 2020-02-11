@@ -1,0 +1,63 @@
+{
+    "layers": [{
+        "id": "linkLayer",
+        "provider": {
+            "id": "linkProvider",
+            "type": "TestProvider",
+            "name": "Links",
+            "space": "${SPACEID}",
+            "url": "${URL}",
+            "credentials": "${CREDENTIALS}",
+            "level": 15,
+            "class": "NAVLINK"
+        },
+        "min": 14,
+        "max": 20,
+        "data": {
+            "remote": [{
+                "id": -189183,
+                "type": "Feature",
+                "properties": {
+                    "featureClass": "NAVLINK",
+                    "type": "highway"
+                },
+                "geometry": {
+                    "type": "LineString",
+                    "coordinates": [
+                        [78.192281318,12.549091989,0],
+                        [78.191744876,12.549091989,0]
+                    ]
+                }
+            }, {
+                "id": -189184,
+                "type": "Feature",
+                "properties": {
+                    "featureClass": "NAVLINK",
+                    "type": "highway"
+                },
+                "geometry": {
+                    "type": "LineString",
+                    "coordinates": [
+                        [78.192281318,12.549091989,0],
+                        [78.19217403,12.548568362,0]
+                    ]
+                }
+            }, {
+                "id": -189185,
+                "type": "Feature",
+                "properties": {
+                    "featureClass": "NAVLINK",
+                    "type": "highway"
+                },
+                "geometry": {
+                    "type": "LineString",
+                    "coordinates": [
+                        [78.192281318,12.549091989,0],
+                        [78.19281776,12.549196714,0]
+                    ]
+                }
+            }]
+        },
+        "clear": {"minLon":78.19120843440646,"minLat":12.546997474976706,"maxLon":78.19549996883029,"maxLat":12.550139239259948}
+    }]
+}

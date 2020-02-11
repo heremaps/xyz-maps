@@ -1,0 +1,71 @@
+{
+    "layers": [{
+        "id": "linkLayer",
+        "provider": {
+            "id": "linkProvider",
+            "type": "TestProvider",
+            "name": "Links",
+            "space": "${SPACEID}",
+            "url": "${URL}",
+            "credentials": "${CREDENTIALS}",
+            "level": 15,
+            "class": "NAVLINK"
+        },
+        "min": 14,
+        "max": 20,
+        "data": {
+            "remote": [{
+                "id": -18154,
+                "type": "Feature",
+                "properties": {
+                    "featureClass": "NAVLINK",
+                    "type": "residential"
+                },
+                "geometry": {
+                    "type": "LineString",
+                    "coordinates": [[77.134304887, 18.038764825, 0], [77.135578936, 18.038767376, 0]]
+                }
+            }]
+        },
+        "clear" : {
+            "minLon": 77.134304887, 
+            "minLat": 18.038764825, 
+            "maxLon": 77.135578936, 
+            "maxLat": 18.038767376
+        }
+    },{
+        "id": "paLayer",
+        "provider": {
+            "id": "paProvider",
+            "type": "TestProvider",
+            "name": "Address",
+            "space": "${SPACEID}",
+            "url": "${URL}",
+            "credentials": "${CREDENTIALS}",
+            "level": 14
+        },
+        "min": 14,
+        "max": 20,
+        "data": {
+            "remote": [{
+                "id": -47998,
+                "type": "Feature",
+                "properties": {
+                    "featureClass": "ADDRESS",
+                    "routingLink": "-18154",
+                    "routingPoint": [77.13478, 18.03877, 0]
+                },
+                "geometry": {
+                    "type": "Point",
+                    "coordinates": [77.134776956, 18.038907646, 0]
+                }
+            }]
+        },
+        "clear": {
+            "minLon": 77.134776956, 
+            "minLat": 18.03877, 
+            "maxLon": 77.13478, 
+            "maxLat": 18.038907646
+        }
+    }]
+}

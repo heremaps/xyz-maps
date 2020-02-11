@@ -1,0 +1,49 @@
+{
+    "layers": [{
+        "id": "linkLayer",
+        "provider": {
+            "id": "linkProvider",
+            "type": "TestProvider",
+            "name": "Links",
+            "space": "${SPACEID}",
+            "url": "${URL}",
+            "credentials": "${CREDENTIALS}",
+            "level": 15,
+            "class": "NAVLINK"
+        },
+        "min": 14,
+        "max": 20,
+        "data": {
+            "remote": [{
+                "id": -189187,
+                "type": "Feature",
+                "properties": {
+                    "featureClass": "NAVLINK",
+                    "type": "highway"
+                },
+                "geometry": {
+                    "type": "LineString",
+                    "coordinates": [
+                        [77.551066488,13.848904847,0],
+                        [77.549993604,13.848904847,0]
+                    ]
+                }
+            }, {
+                "id": -189188,
+                "type": "Feature",
+                "properties": {
+                    "featureClass": "NAVLINK",
+                    "type": "highway"
+                },
+                "geometry": {
+                    "type": "LineString",
+                    "coordinates": [
+                        [77.549993604,13.849425694,0],
+                        [77.550798267,13.848644423,0]
+                    ]
+                }
+            }]
+        },
+        "clear": {"minLon":77.54945716250428,"minLat":13.847081873613703,"maxLon":77.55374869692811,"maxLat":13.850206962802304}
+    }]
+}

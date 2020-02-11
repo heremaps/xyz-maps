@@ -1,0 +1,33 @@
+{
+    "tags": {
+        "allowUnknownTags": true,
+        "readonly": false
+    },
+    "source": {
+        "include": [
+            "../editor/dist/xyz-maps-editor.js",
+            "../display/dist/xyz-maps-display.js",
+            "../core/dist/xyz-maps-core.js",
+            "../common/dist/xyz-maps-common.js"
+        ],
+        "exclude": [],
+        "includePattern": ".+\\.js(doc)?$",
+        "excludePattern": "(^|\\/)_"
+    },
+    "opts": {
+        "encoding": "utf8",
+        "destination": "./dist",
+        "recurse": false,
+        "private": false,
+        "lenient": true,
+		"apiVersion": "0.0.0"
+    },
+    "jsVersion": 180,
+    "markdown"  : {
+		"parser"   : "gfm",
+		"hardwrap" : true
+	},
+	"eventDumper": {
+		"include": ["symbolFound"]
+	}
+}

@@ -1,0 +1,38 @@
+{
+    "layers": [{
+        "id": "buildingLayer",
+        "provider": {
+            "id": "buildingProvider",
+            "type": "TestProvider",
+            "name": "Buildings",
+            "space": "${SPACEID}",
+            "url": "${URL}",
+            "credentials": "${CREDENTIALS}",
+            "level": 13
+        },
+        "min": 14,
+        "max": 20,
+        "data": {
+            "remote": [{
+                "id": -9075,
+                "type": "Feature",
+                "properties": {
+                    "featureClass": "AREA",
+                    "type": "building",
+                    "name": "test"
+                },
+                "geometry": {
+                    "type": "MultiPolygon",
+                    "coordinates": [[[     
+                        [-120.124076884, 41.242238, 0],
+                        [-120.124076884, 41.241431263, 0],
+                        [-120.123004, 41.241431263, 0],
+                        [-120.123004, 41.242238, 0],
+                        [-120.124076884, 41.242238, 0]
+                    ]]]
+                }
+            }]
+        },
+        "clear": {"minLon":-120.1251497672119,"minLat":41.24102789015177,"maxLon":-120.12085823278807,"maxLat":41.24344808744098}
+    }]
+}

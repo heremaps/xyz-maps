@@ -1,0 +1,65 @@
+{
+    "layers": [{
+        "id": "linkLayer",
+        "provider": {
+            "id": "linkProvider",
+            "type": "TestProvider",
+            "name": "Links",
+            "space": "${SPACEID}",
+            "url": "${URL}",
+            "https": false,
+            "credentials": "${CREDENTIALS}",
+            "level": 15
+        },
+        "min": 14,
+        "max": 20,
+        "data": {
+            "remote": [{
+                "type": "Feature",
+                "id": -188821,
+                "properties": {
+                    "featureClass": "NAVLINK",
+                    "type": "path"
+                },
+                "geometry": {
+                    "type": "LineString",
+                    "coordinates": [
+                        [73.262642985, 19.209812741, 0],
+                        [73.26398409, 19.209812741, 0]
+                    ]
+                }
+            }]
+        }
+    },{
+        "id": "paLayer",
+        "provider": {
+            "id": "paProvider",
+            "type": "TestProvider",
+            "name": "address",
+            "space": "${SPACEID}",
+            "url": "${URL}",
+            "https": false,
+            "credentials": "${CREDENTIALS}",
+            "level": 14
+        },
+        "min": 14,
+        "max": 20,
+        "data": {
+            "remote": [{
+                "id": -47935,
+                "type": "Feature",
+                "properties": {
+                    "featureClass": "ADDRESS",
+                    "routingPoint": [73.26291, 19.20981, 0],
+                    "routingLink": "-188821",
+                    "housenumber": "180a",
+                    "roadname": "test street"
+                },
+                "geometry": {
+                    "type": "Point",
+                    "coordinates": [73.262911206, 19.210066027, 0]
+                }
+            }]
+        }
+    }]
+}

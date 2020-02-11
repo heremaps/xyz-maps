@@ -1,0 +1,90 @@
+{
+    "layers": [{
+        "id": "linkLayer",
+        "name": "Link Layer",
+        "provider": {
+            "id": "linkProvider",
+            "type": "TestProvider",
+            "name": "Links",
+            "space": "${SPACEID}",
+            "url": "${URL}",
+            "credentials": "${CREDENTIALS}",
+            "level": 15,
+            "class": "NAVLINK"
+        },
+        "min": 14,
+        "max": 20,
+        "data": {
+            "remote": [{
+                "type": "Feature",
+                "properties": {
+                    "featureClass": "NAVLINK"
+                },
+                "geometry": {
+                    "type": "LineString",
+                    "coordinates": [
+                        [73.0231, 20.27379, 0.0],
+                        [73.02338, 20.27398, 0.0]
+                    ]
+                }
+            }, {
+                "type": "Feature",
+                "properties": {
+                    "featureClass": "NAVLINK"
+                },
+                "geometry": {
+                    "type": "LineString",
+                    "coordinates": [
+                        [73.02245, 20.27374, 0.0],
+                        [73.02271, 20.27374, 0.0]
+                    ]
+                }
+            }, {
+                "type": "Feature",
+                "properties": {
+                    "featureClass": "NAVLINK"
+                },
+                "geometry": {
+                    "type": "LineString",
+                    "coordinates": [
+                        [73.02275, 20.27347, 0.0],
+                        [73.02288, 20.27374, 0.0]
+                    ]
+                }
+            }]
+        }
+    },{
+        "id": "placeLayer",
+        "provider": {
+            "id": "placeProvider",
+            "type": "TestProvider",
+            "name": "Places",
+            "url": "${URL}",
+            "credentials": "${CREDENTIALS}",
+            "level": 14
+        },
+        "min": 14,
+        "max": 20,
+        "data": {
+            "remote": [{
+                "geometry": {
+                    "coordinates": [73.02272, 20.27385, 0.0],
+                    "type": "Point"
+                },
+                "type": "Feature",
+                "properties": {
+                    "featureClass": "PLACE"
+                }
+            }, {
+                "geometry": {
+                    "coordinates": [73.02337, 20.27386, 0.0],
+                    "type": "Point"
+                },
+                "type": "Feature",
+                "properties": {
+                    "featureClass": "PLACE"
+                }
+            }]
+        }
+    }]
+}

@@ -1,0 +1,128 @@
+{
+    "layers": [{
+        "id": "buildingLayer",
+        "provider": {
+            "id": "buildingProvider",
+            "type": "TestProvider",
+            "name": "Buildings",
+            "space": "${SPACEID}",
+            "url": "${URL}",
+            "credentials": "${CREDENTIALS}",
+            "level": 13
+        },
+        "min": 14,
+        "max": 20,
+        "data": {
+            "remote": [{
+                "id": -9083,
+                "type": "Feature",
+                "properties": {
+                    "featureClass": "AREA",
+                    "type": "building"
+                },
+                "geometry": {
+                    "type": "MultiPolygon",
+                    "coordinates": [[[
+                        [8.571916983, 50.037115985, 0],
+                        [8.572185204, 50.037047074, 0],
+                        [8.571648762, 50.037047074, 0],
+                        [8.571916983, 50.037115985, 0]
+                    ]]]
+                }
+            }]
+        },
+        "clear": {"minLon":8.571112320196391,"minLat":50.035668844876284,"maxLon":8.57540385462022,"maxLat":50.03773617388501}
+    },{
+        "id": "linkLayer",
+        "provider": {
+            "id": "linkProvider",
+            "type": "TestProvider",
+            "name": "Links",
+            "space": "${SPACEID}",
+            "url": "${URL}",
+            "credentials": "${CREDENTIALS}",
+            "level": 15,
+            "class": "NAVLINK"
+        },
+        "min": 14,
+        "max": 20,
+        "data": {
+            "remote": [{
+                "id": -189160,
+                "type": "Feature",
+                "properties": {
+                    "featureClass": "NAVLINK",
+                    "type": "residential"
+                },
+                "geometry": {
+                    "type": "LineString",
+                    "coordinates": [
+                        [8.571648762, 50.037391625, 0],
+                        [8.572185204, 50.037391625, 0],
+                        [8.572185204, 50.0375639, 0]
+                    ]
+                }
+            }]
+        },
+        "clear": {"minLon":8.571112320196391,"minLat":50.035668844876284,"maxLon":8.57540385462022,"maxLat":50.03773617388501}
+    },{
+        "id": "paLayer",
+        "name": "Address Layer",
+        "provider": {
+            "id": "paProvider",
+            "type": "TestProvider",
+            "name": "Address",
+            "space": "${SPACEID}",
+            "url": "${URL}",
+            "credentials": "${CREDENTIALS}",
+            "level": 14
+        },
+        "min": 14,
+        "max": 20,
+        "data": {
+            "remote": [{
+                "id": -48030,
+                "type": "Feature",
+                "properties": {
+                    "featureClass": "ADDRESS",
+                    "routingLink": "-10",
+                    "routingPoint": [74.81124, 12.92608, 0]
+                },
+                "geometry": {
+                    "type": "Point",
+                    "coordinates": [8.571648762, 50.03721935, 0]
+                }
+            }]
+        },
+        "clear": {"minLon":8.571112320196391,"minLat":50.035668844876284,"maxLon":8.57540385462022,"maxLat":50.03773617388501}
+    },{
+        "id": "placeLayer",
+        "provider": {
+            "id": "placeProvider",
+            "type": "TestProvider",
+            "name": "Places",
+            "space": "${SPACEID}",
+            "url": "${URL}",
+            "credentials": "${CREDENTIALS}",
+            "level": 14
+        },
+        "min": 14,
+        "max": 20,
+        "data": {
+            "remote": [{
+                "id": -29522,
+                "type": "Feature",
+                "properties": {
+                    "featureClass": "PLACE",
+                    "routingPoint":[8.571916983, 50.03721935],
+                    "routingLink": "abc"
+                },
+                "geometry": {
+                    "type": "Point",
+                    "coordinates": [8.571916983, 50.03721935, 0]
+                }
+            }]
+        },
+        "clear": {"minLon":8.571112320196391,"minLat":50.035668844876284,"maxLon":8.57540385462022,"maxLat":50.03773617388501}
+    }]
+}

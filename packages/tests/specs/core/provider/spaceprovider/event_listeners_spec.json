@@ -1,0 +1,17 @@
+{
+    "layers": [{
+        "id": "spaceLayer",
+        "provider": {
+            "id": "spaceProvider",
+            "type": "SpaceProvider",
+            "name": "my SpaceProvider",
+            "level": 1,
+            "url": "${URL}",
+            "https": false,
+            "space": "${SPACEID}",
+            "credentials": "${CREDENTIALS}"
+        },
+        "min": 14,
+        "max": 20
+    }]
+}

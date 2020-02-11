@@ -1,0 +1,68 @@
+{
+    "layers": [{
+        "id": "linkLayer",
+        "name": "Link Layer",
+        "provider": {
+            "id": "linkProvider",
+            "type": "TestProvider",
+            "name": "Links",
+            "space": "${SPACEID}",
+            "url": "${URL}",
+            "credentials": "${CREDENTIALS}",
+            "level": 15,
+            "class": "NAVLINK"
+        },
+        "min": 14,
+        "max": 20,
+        "data": {
+            "remote": [{
+                "type": "Feature",
+                "properties": {
+                    "featureClass": "NAVLINK"
+                },
+                "geometry": {
+                    "type": "LineString",
+                    "coordinates": [
+                        [73.011561312, 20.285664602, 0.0],
+                        [73.010499157, 20.283365101, 0.0]
+                    ]
+                }
+            }]
+        }
+    },{
+        "id": "paLayer",
+        "name": "Address Layer",
+        "provider": {
+            "id": "paProvider",
+            "type": "TestProvider",
+            "name": "Address",
+            "url": "${URL}",
+            "credentials": "${CREDENTIALS}",
+            "level": 14
+        },
+        "min": 14,
+        "max": 20,
+        "data": {
+            "remote": [{
+                "id": -10791,
+                "geometry": {
+                    "coordinates": [73.01148889202659, 20.284570204424128, 0.0],
+                    "type": "Point"
+                },
+                "type": "Feature",
+                "properties": {
+                    "featureClass": "ADDRESS"
+                }
+            }, {
+                "geometry": {
+                    "coordinates": [73.01156131167, 20.284570204424128, 0.0],
+                    "type": "Point"
+                },
+                "type": "Feature",
+                "properties": {
+                    "featureClass": "ADDRESS"
+                }
+            }]
+        }
+    }]
+}
