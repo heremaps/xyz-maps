@@ -104,7 +104,7 @@ class Copyright extends UIComponent {
         super.enable();
 
         ui.display.addObserver(ZOOMLEVEL_EVENT, ui.onZoomChange = (type: string, zoom: number, _zoom: number) => {
-            if (!(zoom % 1)) {
+            if (Math.abs((zoom^0) - (_zoom^0))) {
                 const sources = ui.sources;
                 sources.forEach((src) => {
                     displayElement(src.el, isVisible(src, zoom));
@@ -158,7 +158,6 @@ class Copyright extends UIComponent {
         const tacWidth = 132;
         const requiredWidth = ui.calcWidth();
         const availableWidth = (width - tacWidth) ^ 0;
-
 
         ui.$src.style.width = (availableWidth < requiredWidth
             ? availableWidth - 10
@@ -316,6 +315,7 @@ Copyright.prototype.style = {
         border-right: 2px;',
 
     '.btn': '\
+        display: none;\
         font-family: sans-serif;\
         font-weight: bold;\
         text-align: center;\
