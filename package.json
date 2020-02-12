@@ -12,7 +12,7 @@
         "url": "https://github.com/heremaps/xyz-editor.git"
     },
     "scripts": {
-        "test": "lerna run --stream --no-prefix --scope @here/xyz-maps-test test -- --browser Chrome",
+        "test": "lerna run --stream --no-prefix --scope @here/xyz-maps-test test -- ",
         "preversion": "yarn run test",
         "postversion": "yarn run bundle-release",
         "watch-dev": "lerna run watch-dev --parallel",
