@@ -1,0 +1,20 @@
+language: node_js
+dist: bionic
+node_js:
+    - "12"
+cache:
+    yarn: true
+
+addons:
+    chrome: stable
+
+branches:
+    only:
+        - travis-ci
+
+jobs:
+    include:
+        - name: "Test"
+          script:
+              - yarn build-release
+              - yarn test --browser ChromeHeadless
