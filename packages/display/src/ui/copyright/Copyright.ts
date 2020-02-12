@@ -72,6 +72,16 @@ type Source = {
     label: string
 };
 
+type TACOptions = {
+    title?: string;
+    url: string;
+}
+
+type CopyrightOptions = {
+    visible?: boolean,
+    defaultOwner?: string,
+    termsAndConditions?: TACOptions
+}
 
 class Copyright extends UIComponent {
     private $src: HTMLElement;
@@ -88,7 +98,7 @@ class Copyright extends UIComponent {
 
     private details: Details;
 
-    constructor(element: HTMLElement, options, display) {
+    constructor(element: HTMLElement, options: CopyrightOptions, display) {
         super(element, options, display);
 
         const ui = this;
@@ -100,19 +110,21 @@ class Copyright extends UIComponent {
 
         this.details = new Details(element, {visible: false}, display);
 
-
         this.setDefaultOwner(defaultOwner);
-
-        if (typeof termsAndConditions == 'string') {
-            this.setTermsAndConditions(termsAndConditions);
-        } else {
-            displayElement(this.querySelector('.terms'), HIDE);
-        }
+        this.setTermsAndConditions(termsAndConditions);
     };
 
-    private setTermsAndConditions(href: string) {
-        if (typeof href == 'string') {
-            this.querySelector('.terms').lastChild.href = href;
+    private setTermsAndConditions(options: TACOptions) {
+        const {url, title} = options;
+        const termsEl = this.querySelector('.terms');
+
+        if (url) {
+            termsEl.lastChild.href = url;
+            if (title) {
+                termsEl.lastChild.innerText = title;
+            }
+        } else {
+            displayElement(termsEl, HIDE);
         }
     }
 
@@ -368,7 +380,7 @@ Copyright.prototype.templ =
     '<div class="copyright">\
         <span style="float: left; white-space: nowrap;">\
             <span class="sources"></span>\
-            <span class="cDefault">© DEFAULT_COPYRIGHT_OWNER</span>\
+            <span class="cDefault"></span>\
          </span>\
         <span class="tac" style="float: right; white-space: nowrap;">\
             <span class="btn">+</span>\

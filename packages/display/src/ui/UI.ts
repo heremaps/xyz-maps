@@ -32,7 +32,12 @@ const Components = {
 const defaultOptions = {
 
     Copyright: {
-        visible: true
+        visible: true,
+        defaultOwner: 'DEFAULT_COPYRIGHT_OWNER',
+        termsAndConditions: {
+            title: 'Terms and Conditions',
+            url: false
+        }
     },
 
     ZoomControl: {
