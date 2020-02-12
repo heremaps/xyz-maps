@@ -75,7 +75,7 @@ type Source = {
 
 class Copyright extends UIComponent {
     private $src: HTMLElement;
-    private $here: HTMLElement;
+    private $cDefault: HTMLElement;
     private $btn: HTMLElement;
     private sources: Map<Source> = new Map();
     private sLen: number = 0;
@@ -92,19 +92,42 @@ class Copyright extends UIComponent {
         super(element, options, display);
 
         const ui = this;
+        const {termsAndConditions, defaultOwner} = options;
+
         ui.$src = ui.querySelector('.sources');
-        ui.$here = ui.querySelector('.here');
+        ui.$cDefault = ui.querySelector('.cDefault');
         ui.$btn = ui.querySelector('.btn');
 
         this.details = new Details(element, {visible: false}, display);
+
+
+        this.setDefaultOwner(defaultOwner);
+
+        if (typeof termsAndConditions == 'string') {
+            this.setTermsAndConditions(termsAndConditions);
+        } else {
+            displayElement(this.querySelector('.terms'), HIDE);
+        }
     };
+
+    private setTermsAndConditions(href: string) {
+        if (typeof href == 'string') {
+            this.querySelector('.terms').lastChild.href = href;
+        }
+    }
+
+    private setDefaultOwner(owner: string) {
+        if (typeof owner == 'string') {
+            this.setOwnerLabel(this.$cDefault, owner);
+        }
+    }
 
     enable() {
         let ui = this;
         super.enable();
 
         ui.display.addObserver(ZOOMLEVEL_EVENT, ui.onZoomChange = (type: string, zoom: number, _zoom: number) => {
-            if (Math.abs((zoom^0) - (_zoom^0))) {
+            if (Math.abs((zoom ^ 0) - (_zoom ^ 0))) {
                 const sources = ui.sources;
                 sources.forEach((src) => {
                     displayElement(src.el, isVisible(src, zoom));
@@ -186,6 +209,10 @@ class Copyright extends UIComponent {
         }
     }
 
+    private setOwnerLabel(el: HTMLElement, label: string) {
+        el.innerText = '© ' + label;
+    }
+
     private addSource(src: CopyrightSource, layer: any) {
         const ui = this;
         const sources = ui.sources;
@@ -199,7 +226,8 @@ class Copyright extends UIComponent {
             el = document.createElement('span');
             el.className = this.prefixClass('.source').substr(1);
 
-            el.innerText = '© ' + label;
+            ui.setOwnerLabel(el, label);
+
             ui.$src.appendChild(el);
             source = {
                 label: label,
@@ -224,7 +252,7 @@ class Copyright extends UIComponent {
                 layer: layer
             }));
         }
-        displayElement(ui.$here, HIDE);
+        displayElement(ui.$cDefault, HIDE);
         displayElement(el, isVisible(source, zoom));
 
         ui.handleOverflow();
@@ -265,7 +293,7 @@ class Copyright extends UIComponent {
                 ui.handleOverflow();
                 // delete ui.sources[label];
                 if (!--ui.sLen) {
-                    displayElement(ui.$here, SHOW);
+                    displayElement(ui.$cDefault, SHOW);
                 }
             }
         }
@@ -330,7 +358,7 @@ Copyright.prototype.style = {
         border-radius: 3px;\
         border: 1px solid;',
 
-    '.divider, .here, .source': '\
+    '.terms, .cDefault, .source': '\
         white-space: nowrap;\
         padding-right: 4px;'
 };
@@ -340,12 +368,12 @@ Copyright.prototype.templ =
     '<div class="copyright">\
         <span style="float: left; white-space: nowrap;">\
             <span class="sources"></span>\
-            <span class="here">© 2019 HERE</span>\
+            <span class="cDefault">© DEFAULT_COPYRIGHT_OWNER</span>\
          </span>\
         <span class="tac" style="float: right; white-space: nowrap;">\
             <span class="btn">+</span>\
-            <span class="divider" style="white-space: nowrap;">|</span>\
-            <a target="_blank" style="white-space: nowrap;" href="https://legal.here.com/us-en/terms/serviceterms/">Terms and Conditions</a>\
+            <span class="terms" style="white-space: nowrap;">|\
+            <a target="_blank" style="white-space: nowrap;" href="">Terms and Conditions</a></span>\
         </span>\
     </div>';
 
