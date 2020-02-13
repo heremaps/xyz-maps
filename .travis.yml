@@ -1,20 +1,23 @@
 language: node_js
 dist: bionic
 node_js:
-    - "12"
+  - "12"
 cache:
     yarn: true
-
 addons:
-    chrome: stable
+  chrome: stable
 
 branches:
-    only:
-        - travis-ci
+  only:
+    - travis-ci
 
 jobs:
-    include:
-        - name: "Test"
-          script:
-              - yarn build-release
-              - yarn test --browser ChromeHeadless
+  include:
+    - name: "Build & Publish"
+      script: ./scripts/publish-npm.sh --dry-run
+      deploy:
+        - provider: script
+          script: ./scripts/publish-npm.sh
+          skip_cleanup: true
+          on:
+            condition: "$TRAVIS_TAG =~ ^v[0-9].[0-9].[0-9]$"
