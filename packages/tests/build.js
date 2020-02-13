@@ -31,7 +31,7 @@ const request = require('request');
 var testReport = {};
 
 var karmaSettings = {
-    browser: ['ChromeHeadlessV'],
+    browser: ['Chrome'],
     singlerun: true // run tests and then exit with an exit code of 0 or 1 depending on whether all tests passed or any tests failed.
 };
 
