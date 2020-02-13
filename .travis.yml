@@ -6,11 +6,9 @@ cache:
     yarn: true
 addons:
   chrome: stable
-
 branches:
   only:
-    - travis-ci
-
+    - master
 jobs:
   include:
     - name: "Build & Publish"
