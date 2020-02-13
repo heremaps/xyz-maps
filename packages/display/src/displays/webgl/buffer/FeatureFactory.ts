@@ -199,8 +199,7 @@ export class FeatureFactory {
 
                     groupId = 'L' + strokeLinecap + strokeLinejoin + (strokeDasharray || NONE);
                 } else if (type == 'Polygon') {
-                    if (geomType != 'Polygon' && geomType != 'MultiPolygon') {
-                        // console.log('skip', geomType, 'for', type);
+                    if (!fill || geomType != 'Polygon' && geomType != 'MultiPolygon') {
                         continue;
                     }
                     extrude = getValue('extrude', style, feature, level);
