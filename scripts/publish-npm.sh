@@ -4,8 +4,6 @@ set -ex
 
 #echo '//registry.npmjs.org/:_authToken=${NPM_TOKEN}' > ~/.npmrc
 
-yarn install
-
 yarn build-release
 
 # packages that should be published
