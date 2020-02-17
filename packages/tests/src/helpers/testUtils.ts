@@ -18,10 +18,10 @@
  */
 declare global {
     interface XMLHttpRequest {
-        realOpen: (t: string, u: string, s?: boolean, username?: string, password?: string)=>void,
-        realSend: (p: string)=>void,
-        realAbort: ()=>void,
-        realSetRequestHeader: (n: string, v: string)=>void
+        origOpen: (method: string, url: string, async?: boolean, username?: string, password?: string)=>void,
+        origSend: (payload: string)=>void,
+        origAbort: ()=>void,
+        origSetRequestHeader: (n: string, v: string)=>void
     }
 }
 
@@ -263,73 +263,74 @@ export namespace testUtils {
         };
     };
 
-    type XHRRequest = any;
+    type MonitoredXHRRequest = any;
+    type MonitorStartOpt = {
+        method?: string,
+        onReady?: (req: RequestSummary)=>void
+    };
 
     export class MonitorXHR {
         public requestCount: number;
         public readyRequests: RequestSummary[];
         public stopMonitor: number;
 
-        private requests = new Map<XMLHttpRequest, XHRRequest>();
+        private requests = new Map<XMLHttpRequest, MonitoredXHRRequest>();
+
+        private filter: RegExp;
+        /**
+         * @param filter {RegExp=} filter for requests
+         */
+        constructor(filter?: RegExp) {
+            this.filter = filter;
+        }
 
         /**
-         * @param cb {Function=}callback function
-         *
-         * or:
-         *
-         * @param f {RegExp=} filter for requests
-         * @param cb {Function=} callback function
+         * @param options
+         * @param options.method {String} monitor requests with this method.
+         * @param options.onReady {Function} callback function when request is done.
          */
-        constructor(f?: ((req: RequestSummary)=>void)|RegExp, cb?: (req: RequestSummary)=>void) {
-            let filter: RegExp;
-            let readyCb: (req: RequestSummary)=>void;
-
+        start(options: MonitorStartOpt = {}) {
             let monitor = this;
-
-            if (typeof f == 'function') {
-                readyCb = f;
-            } else if (typeof f == 'object') {
-                filter = f;
-                readyCb = cb;
-            }
+            let filter = monitor.filter;
+            let readyCb = options.onReady;
+            let monitoredMethod = options.method ? String(options.method).toUpperCase() : 'ALL';
 
             monitor.readyRequests = [];
             monitor.requestCount = 0;
             monitor.stopMonitor = 0;
 
             XMLHttpRequest = (<any>window).XMLHttpRequest;
-            XMLHttpRequest.prototype.realOpen = XMLHttpRequest.prototype.open;
-            XMLHttpRequest.prototype.realSend = XMLHttpRequest.prototype.send;
-            XMLHttpRequest.prototype.realAbort = XMLHttpRequest.prototype.abort;
-            XMLHttpRequest.prototype.realSetRequestHeader = XMLHttpRequest.prototype.setRequestHeader;
+            if (!XMLHttpRequest.prototype.origOpen) {
+                XMLHttpRequest.prototype.origOpen = XMLHttpRequest.prototype.open;
+                XMLHttpRequest.prototype.origSend = XMLHttpRequest.prototype.send;
+                XMLHttpRequest.prototype.origAbort = XMLHttpRequest.prototype.abort;
+                XMLHttpRequest.prototype.origSetRequestHeader = XMLHttpRequest.prototype.setRequestHeader;
+            } else {
+                monitor.requests.forEach((req)=>req.origXHR.onreadystatechange = null);
+                monitor.requests.clear();
+            }
 
             XMLHttpRequest.prototype.abort = function(): void {
-                this.realAbort();
+                this.origAbort();
             };
 
-            XMLHttpRequest.prototype.open = function(t: string, u: string, s?: boolean, username?: string, password?: string): void {
-                this.openMethod = t;
-                this.openUrl = u;
+            XMLHttpRequest.prototype.open = function(method: string, url: string, async?: boolean, username?: string, password?: string): void {
+                this.openUrl = url;
 
-                this.filter = !filter || filter.test(this.openUrl);
-
-                if (this.filter) {
-                    monitor.requests.set(this, {method: t, url: u, payload: null, requestHeader: {}});
+                if ((monitoredMethod == 'ALL' || monitoredMethod == method) && (!filter || filter.test(url))) {
+                    monitor.requests.set(this, {method: method, url: url, payload: null, origXHR: this, requestHeader: {}});
                 }
-                // console.log(t,u,s);
-                this.realOpen(t, u, s);
+                this.origOpen(method, url, async);
             };
 
-            XMLHttpRequest.prototype.send = function(p: string): void {
+            XMLHttpRequest.prototype.send = function(payload: string): void {
                 clearTimeout(monitor.stopMonitor);
-                monitor.requestCount++;
+                let mReq = monitor.requests.get(this);
 
-                this.filter = !filter || filter.test(this.openUrl);
-
-                if (this.filter && this.openMethod == 'POST') {
-                    let v = monitor.requests.get(this);
-                    v.payload = JSON.parse(p);
-                    monitor.requests.set(this, v);
+                if (mReq && (!filter || filter.test(mReq.url))) {
+                    monitor.requestCount++;
+                    mReq.payload = JSON.parse(payload);
+                    monitor.requests.set(this, mReq);
                 }
 
                 var realonreadystatechange = this.onreadystatechange;
@@ -342,14 +343,14 @@ export namespace testUtils {
                             openURL: this.openUrl
                         };
 
-                        if (this.filter) {
+                        if (mReq && (!filter || filter.test(mReq.url))) {
                             monitor.readyRequests.push(req);
                         }
                         readyCb && readyCb(req);
                     }
                     realonreadystatechange && realonreadystatechange.apply(this, arguments);
                 };
-                this.realSend(p);
+                this.origSend(payload);
             };
 
             XMLHttpRequest.prototype.setRequestHeader = function(n: string, v: string): void {
@@ -358,26 +359,28 @@ export namespace testUtils {
                     m.requestHeader[n] = v;
                     monitor.requests.set(this, m);
                 }
-                this.realSetRequestHeader(n, v);
+                this.origSetRequestHeader(n, v);
             };
         }
 
-        stop(options): object {
-            XMLHttpRequest.prototype.open = XMLHttpRequest.prototype.realOpen;
-            XMLHttpRequest.prototype.send = XMLHttpRequest.prototype.realSend;
-            XMLHttpRequest.prototype.abort = XMLHttpRequest.prototype.realAbort;
-            XMLHttpRequest.prototype.setRequestHeader = XMLHttpRequest.prototype.realSetRequestHeader;
+        stop(): object {
+            if (XMLHttpRequest.prototype.origOpen) {
+                XMLHttpRequest.prototype.open = XMLHttpRequest.prototype.origOpen;
+                XMLHttpRequest.prototype.send = XMLHttpRequest.prototype.origSend;
+                XMLHttpRequest.prototype.abort = XMLHttpRequest.prototype.origAbort;
+                XMLHttpRequest.prototype.setRequestHeader = XMLHttpRequest.prototype.origSetRequestHeader;
+
+                XMLHttpRequest.prototype.origOpen = null;
+                XMLHttpRequest.prototype.origSend = null;
+                XMLHttpRequest.prototype.origAbort = null;
+                XMLHttpRequest.prototype.origSetRequestHeader = null;
+            }
 
             let reqs = [];
-            this.requests.forEach((req)=>{
-                if (!options || options.method == 'all' || String(options.method).toUpperCase() == req.method) {
-                    reqs.push(req);
-                }
-            });
-
+            this.requests.forEach((req)=>reqs.push(req));
             this.requests.clear();
 
-            return options ? reqs : reqs.slice(-1)[0];
+            return reqs;
         }
     };
 };

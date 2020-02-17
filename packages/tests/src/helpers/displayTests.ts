@@ -18,7 +18,7 @@
  */
 
 import {testUtils} from './testUtils';
-import {layers, providers} from '@here/xyz-maps-core';
+import {layers} from '@here/xyz-maps-core';
 import Map from '@here/xyz-maps-display';
 
 export namespace displayTests {
