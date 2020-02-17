@@ -31,7 +31,7 @@ describe('initial requests of display', function() {
         let preparedData = await prepare(dataset);
 
         let monitor = new testUtils.MonitorXHR();
-
+        monitor.start();
         display = new Map(document.getElementById('map'), {
             renderOptions: {
                 preserveDrawingBuffer: true

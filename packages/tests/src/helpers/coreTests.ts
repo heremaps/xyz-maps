@@ -37,15 +37,17 @@ export namespace coreTests {
         // excludes requests for metadata
         var requestFilter = /^((?!metadata).)*$/;
 
-        let monitor: testUtils.MonitorXHR = new testUtils.MonitorXHR(requestFilter, function(req) {
-            if (++requestMonitoredCount == monitor.requestCount) {
-                monitor.stopMonitor = setTimeout(()=>{
-                    monitor.stop();
-                    opts.onFinish && opts.onFinish(monitor.readyRequests, callbackResults);
-                }, timeout);
+        let monitor: testUtils.MonitorXHR = new testUtils.MonitorXHR(requestFilter);
+        monitor.start({
+            onReady: function(req) {
+                if (++requestMonitoredCount == monitor.requestCount) {
+                    monitor.stopMonitor = setTimeout(()=>{
+                        monitor.stop();
+                        opts.onFinish && opts.onFinish(monitor.readyRequests, callbackResults);
+                    }, timeout);
+                }
             }
         });
-
         var qks = opts.quadkeys;
         var sameCallback = opts.sameCallback;
         var requester = opts.provider || opts.layer;

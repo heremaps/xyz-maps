@@ -16,7 +16,7 @@
  * SPDX-License-Identifier: Apache-2.0
  * License-Filename: LICENSE
  */
-import {editorTests, displayTests, testUtils, prepare} from 'hereTest';
+import {editorTests, testUtils, prepare} from 'hereTest';
 import {Map} from '@here/xyz-maps-core';
 import {features, Editor} from '@here/xyz-maps-editor';
 import dataset from './address_create_outofview_spec.json';
@@ -25,7 +25,6 @@ describe('add Address object and submit out of viewport', function() {
     const expect = chai.expect;
 
     let preparedData;
-    let address;
     let link;
 
     let editor;
@@ -63,7 +62,7 @@ describe('add Address object and submit out of viewport', function() {
         let lk = new features.Navlink([{x: 250, y: 400}, {x: 400, y: 400}], {featureClass: 'NAVLINK'});
 
         link = editor.addFeature(lk, linkLayer);
-        address = editor.addFeature(addr, paLayer);
+        editor.addFeature(addr, paLayer);
 
         let objs = editor.search(display.getViewBounds());
         expect(objs).to.have.lengthOf(2);
@@ -78,13 +77,13 @@ describe('add Address object and submit out of viewport', function() {
         editor.redo();
 
         let monitor = new testUtils.MonitorXHR();
-
+        monitor.start({method: 'post'});
         await editorTests.waitForEditorReady(editor, async ()=>{
             idMap = await editorTests.submit(editor);
         });
 
         let linkId = idMap.permanentIDMap[link.getProvider().id][link.id];
-        let reqs = monitor.stop({method: 'post'});
+        let reqs = monitor.stop();
         let payloadAddress;
         expect(reqs).to.have.lengthOf(2);
 
@@ -124,11 +123,11 @@ describe('add Address object and submit out of viewport', function() {
         });
 
         let monitor = new testUtils.MonitorXHR(/&id=/);
-
+        monitor.start({method: 'delete'});
         await editorTests.waitForEditorReady(editor, async ()=>{
             await editorTests.submit(editor);
         });
-        let request = monitor.stop({method: 'delete'})[0];
+        let request = monitor.stop()[0];
 
         expect(request.payload).to.equal(null);
         expect(request.method).to.equal('DELETE');

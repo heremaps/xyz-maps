@@ -15,7 +15,8 @@
  *
  * SPDX-License-Identifier: Apache-2.0
  * License-Filename: LICENSE
- */import {editorTests, displayTests, testUtils, prepare} from 'hereTest';
+ */
+import {editorTests, testUtils, prepare} from 'hereTest';
 import {Map} from '@here/xyz-maps-core';
 import {Editor} from '@here/xyz-maps-editor';
 import chaiAlmost from 'chai-almost';
@@ -106,10 +107,11 @@ describe('Create new Link and drag it outside of viewport before splitting the o
 
     it('submit and validate', async function() {
         let monitor = new testUtils.MonitorXHR();
+        monitor.start({method: 'post'});
         await editorTests.waitForEditorReady(editor, async ()=>{
             await editorTests.submit(editor);
         });
-        let reqs = monitor.stop({method: 'post'});
+        let reqs = monitor.stop();
         expect(reqs).to.have.lengthOf(1);
         let payload = reqs[0].payload;
 

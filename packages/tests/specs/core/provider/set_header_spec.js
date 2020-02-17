@@ -25,18 +25,15 @@ describe('set request header of requests that handled by provider', function() {
 
     var preparedData;
     var poiProvider;
-    var placeProvider;
     var spaceProvider;
 
     before(async function() {
         preparedData = await prepare(dataset);
 
         let poiLayer = preparedData.getLayers('placeGeoJsonLayer');
-        let placeLayer = preparedData.getLayers('placeLayer');
         let spaceLayer = preparedData.getLayers('spaceLayer');
 
         poiProvider = poiLayer.getProvider();
-        placeProvider = placeLayer.getProvider();
         spaceProvider = spaceLayer.getProvider();
     });
 
@@ -46,6 +43,7 @@ describe('set request header of requests that handled by provider', function() {
 
     it('set header and make search with geojson provider', async function() {
         let monitor = new testUtils.MonitorXHR();
+        monitor.start();
         // 1. make request with default headers
         let objs = poiProvider.search({
             point: {longitude: -95.936362, latitude: 28.885083},
@@ -53,13 +51,15 @@ describe('set request header of requests that handled by provider', function() {
             remote: true
         });
 
-        let requestHeader = monitor.stop().requestHeader;
+        let req = monitor.stop();
+        expect(req).to.have.lengthOf(1);
+        let requestHeader = req[0].requestHeader;
         expect(requestHeader).to.deep.equal({
             'Accept': 'application/geo+json'
         });
 
 
-        monitor = new testUtils.MonitorXHR();
+        monitor.start();
         // 2. set header and make requests
         poiProvider.setHeader('TEST', 'abc');
         objs = poiProvider.search({
@@ -67,15 +67,16 @@ describe('set request header of requests that handled by provider', function() {
             radius: 10,
             remote: true
         });
-
-        requestHeader = monitor.stop().requestHeader;
+        req = monitor.stop();
+        expect(req).to.have.lengthOf(1);
+        requestHeader = req[0].requestHeader;
         expect(requestHeader).to.deep.equal({
             'Accept': 'application/geo+json',
             'TEST': 'abc'
         });
 
 
-        monitor = new testUtils.MonitorXHR();
+        monitor.start();
         // 3. make requests again with customized header
         objs = poiProvider.search({
             point: {longitude: -95.536362, latitude: 28.685083},
@@ -83,14 +84,16 @@ describe('set request header of requests that handled by provider', function() {
             remote: true
         });
 
-        requestHeader = monitor.stop().requestHeader;
+        req = monitor.stop();
+        expect(req).to.have.lengthOf(1);
+        requestHeader = req[0].requestHeader;
         expect(requestHeader).to.deep.equal({
             'Accept': 'application/geo+json',
             'TEST': 'abc'
         });
 
 
-        monitor = new testUtils.MonitorXHR();
+        monitor.start();
         // 4. make requests with set headers
         poiProvider.setHeaders({
             'TEST1': 'abc1',
@@ -102,7 +105,9 @@ describe('set request header of requests that handled by provider', function() {
             remote: true
         });
 
-        requestHeader = monitor.stop().requestHeader;
+        req = monitor.stop();
+        expect(req).to.have.lengthOf(1);
+        requestHeader = req[0].requestHeader;
         expect(requestHeader).to.deep.equal({
             'Accept': 'application/geo+json',
             'TEST': 'abc',
@@ -111,7 +116,7 @@ describe('set request header of requests that handled by provider', function() {
         });
 
 
-        monitor = new testUtils.MonitorXHR();
+        monitor.start();
         // 5. overwrite header
         poiProvider.setHeader('TEST1', 'abcnew');
         objs = poiProvider.search({
@@ -120,7 +125,9 @@ describe('set request header of requests that handled by provider', function() {
             remote: true
         });
 
-        requestHeader = monitor.stop().requestHeader;
+        req = monitor.stop();
+        expect(req).to.have.lengthOf(1);
+        requestHeader = req[0].requestHeader;
         expect(requestHeader).to.deep.equal({
             'Accept': 'application/geo+json',
             'TEST': 'abc',
@@ -132,6 +139,7 @@ describe('set request header of requests that handled by provider', function() {
 
     it('set header and make search with space provider', async function() {
         let monitor = new testUtils.MonitorXHR();
+        monitor.start();
         // 1. make request with default headers
         let objs = spaceProvider.search({
             point: {longitude: -95.936362, latitude: 28.885083},
@@ -139,13 +147,15 @@ describe('set request header of requests that handled by provider', function() {
             remote: true
         });
 
-        let requestHeader = monitor.stop().requestHeader;
+        let req = monitor.stop();
+        expect(req).to.have.lengthOf(1);
+        let requestHeader = req[0].requestHeader;
         expect(requestHeader).to.deep.equal({
             'Accept': 'application/geo+json'
         });
 
 
-        monitor = new testUtils.MonitorXHR();
+        monitor.start();
         // 2. set header and make requests
         spaceProvider.setHeader('TESTSPACE', 'abcspace');
         objs = spaceProvider.search({
@@ -154,14 +164,16 @@ describe('set request header of requests that handled by provider', function() {
             remote: true
         });
 
-        requestHeader = monitor.stop().requestHeader;
+        req = monitor.stop();
+        expect(req).to.have.lengthOf(1);
+        requestHeader = req[0].requestHeader;
         expect(requestHeader).to.deep.equal({
             'Accept': 'application/geo+json',
             'TESTSPACE': 'abcspace'
         });
 
 
-        monitor = new testUtils.MonitorXHR();
+        monitor.start();
         // 3. make requests again with customized header
         objs = spaceProvider.search({
             point: {longitude: -95.536362, latitude: 28.685083},
@@ -169,14 +181,16 @@ describe('set request header of requests that handled by provider', function() {
             remote: true
         });
 
-        requestHeader = monitor.stop().requestHeader;
+        req = monitor.stop();
+        expect(req).to.have.lengthOf(1);
+        requestHeader = req[0].requestHeader;
         expect(requestHeader).to.deep.equal({
             'Accept': 'application/geo+json',
             'TESTSPACE': 'abcspace'
         });
 
 
-        monitor = new testUtils.MonitorXHR();
+        monitor.start();
         // 4. make requests with set headers
         spaceProvider.setHeaders({
             'TESTSPACE1': 'abcspace1',
@@ -188,7 +202,9 @@ describe('set request header of requests that handled by provider', function() {
             remote: true
         });
 
-        requestHeader = monitor.stop().requestHeader;
+        req = monitor.stop();
+        expect(req).to.have.lengthOf(1);
+        requestHeader = req[0].requestHeader;
         expect(requestHeader).to.deep.equal({
             'Accept': 'application/geo+json',
             'TESTSPACE': 'abcspace',
@@ -197,7 +213,7 @@ describe('set request header of requests that handled by provider', function() {
         });
 
 
-        monitor = new testUtils.MonitorXHR();
+        monitor.start();
         // 5. make requests with set headers
         spaceProvider.setHeader('TESTSPACE1', 'abcspacenew');
         objs = spaceProvider.search({
@@ -206,7 +222,9 @@ describe('set request header of requests that handled by provider', function() {
             remote: true
         });
 
-        requestHeader = monitor.stop().requestHeader;
+        req = monitor.stop();
+        expect(req).to.have.lengthOf(1);
+        requestHeader = req[0].requestHeader;
         expect(requestHeader).to.deep.equal({
             'Accept': 'application/geo+json',
             'TESTSPACE': 'abcspace',
