@@ -85,7 +85,7 @@ describe('setStyleGroup Point with rect', function() {
         paLayer.setStyleGroup(
             feature, [
                 {'zIndex': 0, 'type': 'Rect', 'width': 30, 'height': 30, 'fill': '#000000'},
-                {'zIndex': 1, 'type': 'Rect', 'width': 16, 'height': 16, 'opacity': 0.5, 'fill': '#ff0000'}
+                {'zIndex': 1, 'type': 'Rect', 'width': 16, 'height': 16, 'opacity': 0.6, 'fill': '#ff0000'}
             ]);
 
         // validate features have new style
@@ -97,7 +97,8 @@ describe('setStyleGroup Point with rect', function() {
                 let color4 = testUtils.getCanvasPixelColor(mapContainer, 400, 291); // get color at top border
                 let color5 = testUtils.getCanvasPixelColor(mapContainer, 400, 309); // get color of bottom border
 
-                expect(color1).to.equal('#800000');
+                // validate overlapped transparent color
+                expect(color1).to.equal('#990000');
                 expect(color2).to.equal('#000000');
                 expect(color3).to.equal('#000000');
                 expect(color4).to.equal('#000000');
