@@ -19,6 +19,7 @@
 import {editorTests, testUtils, prepare} from 'hereTest';
 import {Map} from '@here/xyz-maps-core';
 import {Editor} from '@here/xyz-maps-editor';
+import chaiAlmost from 'chai-almost';
 import dataset from './drawingmanager_styling_drawingboard_spec.json';
 
 describe('Styling drawingboard', function() {
@@ -31,6 +32,7 @@ describe('Styling drawingboard', function() {
     let link;
 
     before(async function() {
+        chai.use(chaiAlmost());
         preparedData = await prepare(dataset);
         display = new Map(document.getElementById('map'), {
             renderOptions: {
@@ -64,15 +66,38 @@ describe('Styling drawingboard', function() {
         await testUtils.events.click(mapContainer, 100, 100);
 
         let features = layer.search(display.getViewBounds());
-        // 3 features: link, link shape and float shape below mouse
+        // 3 features: link, link shape and floating shape below mouse
         expect(features).to.have.lengthOf(3);
+
+        // validate position of link shape and floating shape below mouse
+        features.forEach((feature)=>{
+            if (feature.geometry.type == 'Point') {
+                expect(feature.geometry.coordinates).to.deep.almost([77.124422675, 12.75986339, 0]);
+            }
+        });
 
         await testUtils.events.mousemove(mapContainer, {x: 100, y: 280}, {x: 100, y: 300});
         await testUtils.events.click(mapContainer, 100, 300);
 
-        let features = layer.search(display.getViewBounds());
+        features = layer.search(display.getViewBounds());
         // 4 features: link, 2 link shapes and float shape below mouse
         expect(features).to.have.lengthOf(4);
+
+        // check position of added first link shape points
+        features = layer.search({point: {longitude: 77.124422675, latitude: 12.75986339}, radius: 5});
+        features.forEach((feature)=>{
+            if (feature.geometry.type == 'Point') {
+                expect(feature.geometry.coordinates).to.deep.almost([77.124422675, 12.75986339, 0]);
+            }
+        });
+
+        // check position of added second link shape points and floating shape below mouse
+        features = layer.search({point: {longitude: 77.124422675, latitude: 12.758817}, radius: 5});
+        features.forEach((feature)=>{
+            if (feature.geometry.type == 'Point') {
+                expect(feature.geometry.coordinates).to.deep.almost([77.124422675, 12.758817, 0]);
+            }
+        });
 
         expect(editor.getDrawingBoard().getLength()).to.be.equal(2);
     });

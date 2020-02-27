@@ -62,8 +62,12 @@ describe('verify Link overlapped shape point style', function() {
         await testUtils.events.click(mapContainer, 300, 200);
 
         let overlay = editor.getOverlay();
-        let nodes = overlay.search(display.getViewBounds());
-        expect(nodes[1].properties.isOverlapping).to.be.true;
+        let node = overlay.search({point: {longitude: 77.367151349, latitude: 13.09411499}, radius: 5});
+        expect(node[0].properties.isOverlapping).to.be.false;
+        node = overlay.search({point: {longitude: 77.368224233, latitude: 13.09411499}, radius: 5});
+        expect(node[0].properties.isOverlapping).to.be.true;
+        node = overlay.search({point: {longitude: 77.369297116, latitude: 13.09411499}, radius: 5});
+        expect(node[0].properties.isOverlapping).to.be.false;
     });
 
     it('select the other link and click, valiate overlapped shapepoint is highlighted', async function() {
@@ -71,7 +75,11 @@ describe('verify Link overlapped shape point style', function() {
         await testUtils.events.click(mapContainer, 200, 100);
 
         let overlay = editor.getOverlay();
-        let nodes = overlay.search(display.getViewBounds());
-        expect(nodes[1].properties.isOverlapping).to.be.true;
+        let node = overlay.search({point: {longitude: 77.368224233, latitude: 13.095159976}, radius: 5});
+        expect(node[0].properties.isOverlapping).to.be.false;
+        node = overlay.search({point: {longitude: 77.368224233, latitude: 13.09411499}, radius: 5});
+        expect(node[0].properties.isOverlapping).to.be.true;
+        node = overlay.search({point: {longitude: 77.368224233, latitude: 13.09307}, radius: 5});
+        expect(node[0].properties.isOverlapping).to.be.false;
     });
 });

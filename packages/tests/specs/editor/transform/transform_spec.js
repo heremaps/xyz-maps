@@ -136,4 +136,12 @@ describe('transform objects', function() {
         ]);
         expect(address.coord()).to.deep.almost([77.813423251, 12.651311726, 0]);
     });
+
+
+    it('after transforming link validate it is not selected', async function() {
+        let overlay = editor.getOverlay();
+        let controller = overlay.search(display.getViewBounds());
+        // there are just transformer constrollers
+        expect(controller).to.be.lengthOf(7);
+    });
 });

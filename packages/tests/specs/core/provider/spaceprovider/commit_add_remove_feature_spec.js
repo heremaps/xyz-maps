@@ -26,10 +26,12 @@ describe('commit add and remove feature to spaceprovider', function() {
     var dataset;
     var preparedData;
     var spaceProvider;
+    var spaceLayer;
 
     before(async function() {
         // preparedData = await prepare(dataset);
-        // spaceProvider = preparedData.getLayers('spaceLayer');
+        // spaceLayer = preparedData.getLayers('spaceLayer');
+        // spaceProvider = spaceLayer.getProvider();
     });
 
     after(async function() {
