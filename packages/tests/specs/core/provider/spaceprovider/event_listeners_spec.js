@@ -23,11 +23,13 @@ import dataset from './event_listeners_spec.json';
 describe('event listeners in spaceprovider', function() {
     const expect = chai.expect;
     var preparedData;
+    var spaceLayer;
     var spaceProvider;
 
     before(async function() {
         preparedData = await prepare(dataset);
-        spaceProvider = preparedData.getLayers('spaceLayer');
+        spaceLayer = preparedData.getLayers('spaceLayer');
+        spaceProvider = spaceLayer.getProvider();
     });
 
     after(async function() {

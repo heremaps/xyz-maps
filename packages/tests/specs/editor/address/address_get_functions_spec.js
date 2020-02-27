@@ -16,7 +16,7 @@
  * SPDX-License-Identifier: Apache-2.0
  * License-Filename: LICENSE
  */
-import {editorTests, prepare} from 'hereTest';
+import {editorTests, testUtils, prepare} from 'hereTest';
 import {Editor} from '@here/xyz-maps-editor';
 import {Map} from '@here/xyz-maps-core';
 import dataset from './address_get_functions_spec.json';
@@ -29,6 +29,7 @@ describe('Address get functions', function() {
     var preparedData;
     var link;
     var address;
+    var mapContainer;
 
     before(async function() {
         preparedData = await prepare(dataset);
@@ -41,6 +42,8 @@ describe('Address get functions', function() {
 
         await editorTests.waitForEditorReady(editor);
 
+        mapContainer = display.getContainer();
+
         link = preparedData.getFeature('linkLayer', -188821);
         address = preparedData.getFeature('paLayer', -47935);
     });
@@ -50,6 +53,32 @@ describe('Address get functions', function() {
         display.destroy();
 
         await preparedData.clear();
+    });
+
+
+    it('get editstates', async function() {
+        expect(address.editState('selected')).to.be.false;
+        expect(address.editState('hovered')).to.be.false;
+
+        // hover address
+        await testUtils.events.mousemove(mapContainer, {x: 180, y: 100}, {x: 200, y: 100});
+        expect(address.editState('selected')).to.be.false;
+        expect(address.editState('hovered')).to.be.true;
+
+        // select address
+        address.select();
+        expect(address.editState('selected')).to.be.true;
+        expect(address.editState('hovered')).to.be.true;
+
+        // leave address
+        await testUtils.events.mousemove(mapContainer, {x: 180, y: 100}, {x: 200, y: 80});
+        expect(address.editState('selected')).to.be.true;
+        expect(address.editState('hovered')).to.be.false;
+
+        // unselect address
+        address.unselect();
+        expect(address.editState('selected')).to.be.false;
+        expect(address.editState('hovered')).to.be.false;
     });
 
     it('get correct geoCoordinates, pixel coordinate', async function() {
