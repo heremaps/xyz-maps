@@ -19,6 +19,7 @@
 import {editorTests, testUtils, prepare} from 'hereTest';
 import {Map} from '@here/xyz-maps-core';
 import {features, Editor} from '@here/xyz-maps-editor';
+import chaiAlmost from 'chai-almost';
 import dataset from './link_edit_restrictions_spec.json';
 
 describe('link edit restrictions', function() {
@@ -31,6 +32,7 @@ describe('link edit restrictions', function() {
     let mapContainer;
 
     before(async function() {
+        chai.use(chaiAlmost());
         preparedData = await prepare(dataset);
         display = new Map(document.getElementById('map'), {
             center: {longitude: 77.25004908649441, latitude: 13.107718606505642},
@@ -59,7 +61,7 @@ describe('link edit restrictions', function() {
 
         await testUtils.events.drag(mapContainer, {x: 100, y: 200}, {x: 100, y: 300});
 
-        expect(link1.coord()).to.deep.equal([
+        expect(link1.coord()).to.deep.almost([
             [77.250049086, 13.108241071, 0],
             [77.249512645, 13.108241071, 0],
             [77.248439761, 13.107718607, 0],
@@ -71,7 +73,7 @@ describe('link edit restrictions', function() {
         link2.select();
         await testUtils.events.drag(mapContainer, {x: 300, y: 100}, {x: 400, y: 100});
 
-        expect(link2.coord()).to.deep.equal([
+        expect(link2.coord()).to.deep.almost([
             [77.250049087, 13.108763534, 0],
             [77.248439761, 13.108763534, 0]
         ]);
@@ -106,7 +108,7 @@ describe('link edit restrictions', function() {
 
         await testUtils.events.drag(mapContainer, {x: 300, y: 200}, {x: 300, y: 300});
 
-        expect(links[0].coord()).to.deep.equal([
+        expect(links[0].coord()).to.deep.almost([
             [77.250049086, 13.108241071, 0],
             [77.249512645, 13.108241071, 0],
             [77.248439761, 13.108241071, 0],
@@ -130,7 +132,7 @@ describe('link edit restrictions', function() {
 
         await testUtils.events.drag(mapContainer, {x: 300, y: 100}, {x: 450, y: 150});
 
-        expect(links[1].coord()).to.deep.equal([
+        expect(links[1].coord()).to.deep.almost([
             [77.249512645, 13.108763534, 0],
             [77.248439761, 13.108763534, 0]
         ]);
@@ -155,7 +157,7 @@ describe('link edit restrictions', function() {
 
         await testUtils.events.drag(mapContainer, {x: 400, y: 200}, {x: 400, y: 300});
 
-        expect(links[0].coord()).to.deep.equal([
+        expect(links[0].coord()).to.deep.almost([
             [77.250049086, 13.107718607, 0],
             [77.249512645, 13.108241071, 0],
             [77.248439761, 13.108241071, 0],
