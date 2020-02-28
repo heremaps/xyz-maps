@@ -20,6 +20,7 @@
 import ZoomControl from './ZoomControl';
 import Copyright from './copyright/Copyright';
 import Logo from './Logo';
+import UIComponent from './UIComponent';
 
 const Components = {
 
@@ -32,7 +33,7 @@ const Components = {
 let UNDEF;
 
 class UI {
-    components: any;
+    components: { [name: string]: UIComponent };
     el: HTMLElement;
 
     constructor(element: HTMLElement, mapfcg, display) {
@@ -48,7 +49,7 @@ class UI {
         }
 
         for (let c in Components) {
-            let opt = uiOptions[c]||{};
+            let opt = uiOptions[c] || {};
 
             if (opt.visible == UNDEF) {
                 opt.visible = true;

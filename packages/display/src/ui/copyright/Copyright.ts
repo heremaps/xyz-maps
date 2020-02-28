@@ -149,7 +149,7 @@ class Copyright extends UIComponent {
         let ui = this;
         super.enable();
 
-        ui.display.addObserver(ZOOMLEVEL_EVENT, ui.onZoomChange = (type: string, zoom: number, _zoom: number) => {
+        ui.map.addObserver(ZOOMLEVEL_EVENT, ui.onZoomChange = (type: string, zoom: number, _zoom: number) => {
             if (Math.abs((zoom ^ 0) - (_zoom ^ 0))) {
                 const sources = ui.sources;
                 sources.forEach((src) => {
@@ -160,7 +160,7 @@ class Copyright extends UIComponent {
             }
         });
 
-        ui.display.addEventListener(LAYER_TOGGLE_EVENTS, ui.onLayerChange = (ev) => {
+        ui.map.addEventListener(LAYER_TOGGLE_EVENTS, ui.onLayerChange = (ev) => {
             let layer = ev.detail.layer;
             layer.getCopyright((copyright) => {
                 // ui might have been destroyed in the meanwhile
@@ -174,21 +174,21 @@ class Copyright extends UIComponent {
             });
         });
 
-        ui.display.addEventListener('resize', ui.onResize = () => ui.handleOverflow());
+        ui.map.addEventListener('resize', ui.onResize = () => ui.handleOverflow());
     };
 
 
     disable() {
         let ui = this;
         super.disable();
-        ui.display.removeObserver(ZOOMLEVEL_EVENT, ui.onZoomChange);
-        ui.display.removeEventListener(LAYER_TOGGLE_EVENTS, ui.onLayerChange);
-        ui.display.removeEventListener('resize', ui.onResize);
+        ui.map.removeObserver(ZOOMLEVEL_EVENT, ui.onZoomChange);
+        ui.map.removeEventListener(LAYER_TOGGLE_EVENTS, ui.onLayerChange);
+        ui.map.removeEventListener('resize', ui.onResize);
     };
 
     private calcWidth(): number {
         const ui = this;
-        const zoom = ui.display.getZoomlevel() ^ 0;
+        const zoom = ui.map.getZoomlevel() ^ 0;
         const sources = ui.sources;
         let width = 0;
         sources.forEach((src) => {
@@ -200,7 +200,7 @@ class Copyright extends UIComponent {
     private handleOverflow() {
         const ui = this;
         const $btn = ui.$btn;
-        const width = ui.display.getWidth();
+        const width = ui.map.getWidth();
         const tacWidth = 132;
         const requiredWidth = ui.calcWidth();
         const availableWidth = (width - tacWidth) ^ 0;
@@ -220,7 +220,7 @@ class Copyright extends UIComponent {
     private showDetails(show: boolean) {
         const ui = this;
         const details = ui.details;
-        const zoom = ui.display.getZoomlevel();
+        const zoom = ui.map.getZoomlevel();
 
         ui.$btn.innerText = show ? '-' : '+';
 
@@ -241,7 +241,7 @@ class Copyright extends UIComponent {
         const sources = ui.sources;
         const label = src.label;
         const scopes = src.scopes;
-        const zoom = ui.display.getZoomlevel() ^ 0;
+        const zoom = ui.map.getZoomlevel() ^ 0;
         let source = sources.get(label);
         let el;
 
