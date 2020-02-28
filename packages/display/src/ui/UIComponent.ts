@@ -32,8 +32,9 @@ class UIComponent {
     cPrefix: string;
 
     parent: HTMLElement;
-    opt: any;
     active: boolean;
+
+    protected opt: {};
 
     constructor(element: HTMLElement, options, display) {
         let uic = this;
