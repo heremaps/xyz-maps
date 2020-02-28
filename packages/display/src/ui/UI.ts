@@ -17,7 +17,6 @@
  * License-Filename: LICENSE
  */
 
-import {JSUtils} from '@here/xyz-maps-common';
 import ZoomControl from './ZoomControl';
 import Copyright from './copyright/Copyright';
 import Logo from './Logo';
@@ -28,25 +27,6 @@ const Components = {
     Copyright: Copyright,
     Logo: Logo
 
-};
-const defaultOptions = {
-
-    Copyright: {
-        visible: true,
-        defaultOwner: 'DEFAULT_COPYRIGHT_OWNER',
-        termsAndConditions: {
-            title: 'Terms and Conditions',
-            url: false
-        }
-    },
-
-    ZoomControl: {
-        visible: true
-    },
-
-    Logo: {
-        visible: true
-    }
 };
 
 let UNDEF;
@@ -67,15 +47,14 @@ class UI {
             uiOptions.Logo = uiOptions.HERE;
         }
 
-        uiOptions = JSUtils.extend(true,
-            JSUtils.clone(defaultOptions),
-            uiOptions
-        );
+        for (let c in Components) {
+            let opt = uiOptions[c]||{};
 
-        for (let c in uiOptions) {
-            let opt = uiOptions[c];
+            if (opt.visible == UNDEF) {
+                opt.visible = true;
+            }
 
-            if (opt.visible && Components[c]) {
+            if (opt.visible) {
                 // ui[c] = new Components[c]( uiContainer, opt, display )
                 uiComponents[c] = new Components[c](element, opt, display, mapfcg);
             }

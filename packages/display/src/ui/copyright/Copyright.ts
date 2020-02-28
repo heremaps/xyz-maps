@@ -20,7 +20,7 @@
 import UIComponent from '../UIComponent';
 import Details from './CopyrightDetails';
 import {CopyrightSource} from './CopyrightSource';
-import {global, Map} from '@here/xyz-maps-common';
+import {global, Map, JSUtils} from '@here/xyz-maps-common';
 
 const document = global.document;
 
@@ -73,8 +73,8 @@ type Source = {
 };
 
 type TACOptions = {
-    title?: string;
-    url: string;
+    label?: string;
+    url: string|false;
 }
 
 type CopyrightOptions = {
@@ -82,6 +82,15 @@ type CopyrightOptions = {
     defaultOwner?: string,
     termsAndConditions?: TACOptions
 }
+
+const defaultOptions: CopyrightOptions = {
+
+    defaultOwner: 'DEFAULT_COPYRIGHT_OWNER',
+    termsAndConditions: {
+        label: 'Terms and Conditions',
+        url: false
+    }
+};
 
 class Copyright extends UIComponent {
     private $src: HTMLElement;
@@ -98,11 +107,13 @@ class Copyright extends UIComponent {
 
     private details: Details;
 
+    protected opt: CopyrightOptions;
+
     constructor(element: HTMLElement, options: CopyrightOptions, display) {
-        super(element, options, display);
+        super(element, JSUtils.extend(true, JSUtils.clone(defaultOptions), options), display);
 
         const ui = this;
-        const {termsAndConditions, defaultOwner} = options;
+        const {termsAndConditions, defaultOwner} = ui.opt;
 
         ui.$src = ui.querySelector('.sources');
         ui.$cDefault = ui.querySelector('.cDefault');
@@ -115,13 +126,13 @@ class Copyright extends UIComponent {
     };
 
     private setTermsAndConditions(options: TACOptions) {
-        const {url, title} = options;
+        const {url, label} = options;
         const termsEl = this.querySelector('.terms');
 
         if (url) {
             termsEl.lastChild.href = url;
-            if (title) {
-                termsEl.lastChild.innerText = title;
+            if (label) {
+                termsEl.lastChild.innerText = label;
             }
         } else {
             displayElement(termsEl, HIDE);
