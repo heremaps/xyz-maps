@@ -91,10 +91,7 @@ describe('event listeners in link layer', function() {
 
         linkLayer.modifyFeatureCoordinates(
             {
-                id: link2.id,
-                geometry: {
-                    // coordinates: [[49.97183, 8.2691, 0], [49.97195, 8.26949, 0]]
-                }
+                id: link2.id
             },
             [[73.426166081, 17.890420526, 0], [73.426191257, 17.890142343, 0]],
         );
