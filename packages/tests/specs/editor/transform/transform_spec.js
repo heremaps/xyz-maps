@@ -18,7 +18,7 @@
  */
 import {editorTests, testUtils, prepare} from 'hereTest';
 import {Map} from '@here/xyz-maps-core';
-import {features, Editor} from '@here/xyz-maps-editor';
+import {Editor} from '@here/xyz-maps-editor';
 import chaiAlmost from 'chai-almost';
 import dataset from './transform_spec.json';
 
@@ -135,5 +135,13 @@ describe('transform objects', function() {
             [77.812931512, 12.651652858, 0]
         ]);
         expect(address.coord()).to.deep.almost([77.813423251, 12.651311726, 0]);
+    });
+
+
+    it('after transforming link validate it is not selected', async function() {
+        let overlay = editor.getOverlay();
+        let controller = overlay.search(display.getViewBounds());
+        // there are just transformer constrollers
+        expect(controller).to.be.lengthOf(7);
     });
 });
