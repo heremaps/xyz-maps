@@ -19,7 +19,7 @@
 
 import UIComponent from '../UIComponent';
 import Details from './CopyrightDetails';
-import {CopyrightSource} from './CopyrightSource';
+import {CopyrightSource, CopyrightSourceScope} from './CopyrightSource';
 import {global, Map, JSUtils} from '@here/xyz-maps-common';
 
 const document = global.document;
@@ -32,10 +32,10 @@ const ZOOMLEVEL_EVENT = 'zoomlevel';
 
 const MAX_SOURCE_WIDTH = 384;
 
-const isVisible = (src: CopyrightSource | { scopes: any[] }, zoom: number) => {
+const isVisible = (src: CopyrightSource | { scopes: CopyrightSourceScope[] }, zoom: number) => {
     let scopes = src.scopes;
     let s = scopes.length;
-    let scp;
+    let scp: CopyrightSourceScope;
     let min;
     let max;
 
@@ -67,7 +67,7 @@ let UNDEF;
 type Source = {
     el: HTMLElement
     cnt: number
-    scopes: any[]
+    scopes: CopyrightSourceScope[]
     width: number
     label: string
 };
@@ -85,7 +85,7 @@ type CopyrightOptions = {
 
 const defaultOptions: CopyrightOptions = {
 
-    defaultOwner: 'DEFAULT_COPYRIGHT_OWNER',
+    defaultOwner: 'XYZ',
     termsAndConditions: {
         label: 'Terms and Conditions',
         url: false
@@ -308,13 +308,9 @@ class Copyright extends UIComponent {
             if (!--source.cnt) {
                 ui.$src.removeChild(source.el);
 
-                // if (!ui.$src.children.length) {
-                //     displayElement(ui.$divider, HIDE);
-                // }
-
                 ui.sources.delete(label);
                 ui.handleOverflow();
-                // delete ui.sources[label];
+
                 if (!--ui.sLen) {
                     displayElement(ui.$cDefault, SHOW);
                 }
