@@ -18,7 +18,7 @@
  */
 
 import {testUtils} from './testUtils';
-import {features, Editor} from '@here/xyz-maps-editor';
+import {Editor} from '@here/xyz-maps-editor';
 
 export namespace editorTests {
     export async function click(editor: Editor, x: number, y: number): Promise<MouseEvent|void> {

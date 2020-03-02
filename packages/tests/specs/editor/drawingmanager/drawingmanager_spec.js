@@ -88,13 +88,14 @@ describe('Create new Links then remove by drawingmanager', function() {
 
     it('submit the new link', async function() {
         let monitor = new testUtils.MonitorXHR();
+        monitor.start({method: 'post'});
         let idMap;
 
         await editorTests.waitForEditorReady(editor, async ()=>{
             idMap = await editorTests.submit(editor);
         });
         let linkId = idMap.permanentIDMap[link.getProvider().id][link.id];
-        let reqs = monitor.stop({method: 'post'});
+        let reqs = monitor.stop();
         expect(reqs).to.have.lengthOf(1);
         let payload = reqs[0].payload;
 

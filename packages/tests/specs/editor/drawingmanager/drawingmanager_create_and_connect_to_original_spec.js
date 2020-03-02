@@ -15,7 +15,8 @@
  *
  * SPDX-License-Identifier: Apache-2.0
  * License-Filename: LICENSE
- */import {editorTests, testUtils, prepare} from 'hereTest';
+ */
+import {editorTests, testUtils, prepare} from 'hereTest';
 import {Map} from '@here/xyz-maps-core';
 import {Editor} from '@here/xyz-maps-editor';
 import dataset from './drawingmanager_create_and_connect_to_original_spec.json';
@@ -85,11 +86,11 @@ describe('Create new Links and connect to original link', function() {
 
     it('submit links and verify', async function() {
         let monitor = new testUtils.MonitorXHR();
-
+        monitor.start({method: 'post'});
         await editorTests.waitForEditorReady(editor, async ()=>{
             await editorTests.submit(editor);
         });
-        let reqs = monitor.stop({method: 'post'});
+        let reqs = monitor.stop();
         expect(reqs).to.have.lengthOf(1);
 
         let payload = reqs[0].payload;

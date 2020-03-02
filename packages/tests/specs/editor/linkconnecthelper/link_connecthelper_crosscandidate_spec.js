@@ -34,7 +34,7 @@ describe('link connect helper crosscandidate', function() {
     let linkLayer;
 
     before(async function() {
-        chai.use(chaiAlmost(1e-4));
+        chai.use(chaiAlmost(1e-3));
         preparedData = await prepare(dataset);
         display = new Map(document.getElementById('map'), {
             renderOptions: {

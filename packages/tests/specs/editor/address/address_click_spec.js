@@ -19,6 +19,7 @@
 import {editorTests, testUtils, prepare} from 'hereTest';
 import {Map} from '@here/xyz-maps-core';
 import {Editor, features} from '@here/xyz-maps-editor';
+import chaiAlmost from 'chai-almost';
 import dataset from './address_click_spec.json';
 
 describe('click on address to validate the coordinate', function() {
@@ -33,6 +34,7 @@ describe('click on address to validate the coordinate', function() {
     let mapContainer;
 
     before(async function() {
+        chai.use(chaiAlmost());
         preparedData = await prepare(dataset);
 
         display = new Map(document.getElementById('map'), {
@@ -94,7 +96,7 @@ describe('click on address to validate the coordinate', function() {
         await testUtils.events.click(mapContainer, 200, 200);
 
         // validate address coordinate
-        expect(address.coord()).to.deep.equal([76.283685558, 14.125304111, 0]);
+        expect(address.coord()).to.deep.almost([76.283685558, 14.125304111, 0]);
 
         // click on ground
         await testUtils.events.click(mapContainer, 300, 200);

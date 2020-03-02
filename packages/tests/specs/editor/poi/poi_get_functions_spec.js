@@ -16,7 +16,7 @@
  * SPDX-License-Identifier: Apache-2.0
  * License-Filename: LICENSE
  */
-import {editorTests, prepare} from 'hereTest';
+import {editorTests, testUtils, prepare} from 'hereTest';
 import {Editor} from '@here/xyz-maps-editor';
 import {Map} from '@here/xyz-maps-core';
 import dataset from './poi_get_functions_spec.json';
@@ -27,8 +27,8 @@ describe('Place get functions', function() {
     var editor;
     var display;
     var preparedData;
-    var link;
-    var poi;
+    var place;
+    var mapContainer;
 
     before(async function() {
         preparedData = await prepare(dataset);
@@ -41,7 +41,9 @@ describe('Place get functions', function() {
 
         await editorTests.waitForEditorReady(editor);
 
-        poi = preparedData.getFeature('placeLayer', -48135);
+        mapContainer = display.getContainer();
+
+        place = preparedData.getFeature('placeLayer', -48135);
     });
 
     after(async function() {
@@ -51,9 +53,34 @@ describe('Place get functions', function() {
         await preparedData.clear();
     });
 
+    it('get editstates', async function() {
+        expect(place.editState('selected')).to.be.false;
+        expect(place.editState('hovered')).to.be.false;
+
+        // hover place
+        await testUtils.events.mousemove(mapContainer, {x: 380, y: 300}, {x: 400, y: 300});
+        expect(place.editState('selected')).to.be.false;
+        expect(place.editState('hovered')).to.be.true;
+
+        // select place
+        place.select();
+        expect(place.editState('selected')).to.be.true;
+        expect(place.editState('hovered')).to.be.true;
+
+        // leave place
+        await testUtils.events.mousemove(mapContainer, {x: 380, y: 300}, {x: 400, y: 280});
+        expect(place.editState('selected')).to.be.true;
+        expect(place.editState('hovered')).to.be.false;
+
+        // unselect place
+        place.unselect();
+        expect(place.editState('selected')).to.be.false;
+        expect(place.editState('hovered')).to.be.false;
+    });
+
     it('get correct geoCoordinates, properties', async function() {
-        expect(poi.coord()).to.deep.equal([73.29398409, 19.27905288, 0]);
-        expect(poi.prop()).to.deep.include({
+        expect(place.coord()).to.deep.equal([73.29398409, 19.27905288, 0]);
+        expect(place.prop()).to.deep.include({
             routingPoint: [78.26291, 19.20981, 0],
             routingLink: '-178821',
             name: 'test hotel',

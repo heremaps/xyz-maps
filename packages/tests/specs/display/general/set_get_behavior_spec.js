@@ -19,6 +19,7 @@
 
 import {displayTests, testUtils, prepare} from 'hereTest';
 import {Map} from '@here/xyz-maps-core';
+import chaiAlmost from 'chai-almost';
 import dataset from './set_get_behavior_spec.json';
 
 describe('set and get behavior', function() {
@@ -28,6 +29,7 @@ describe('set and get behavior', function() {
     let mapContainer;
 
     before(async function() {
+        chai.use(chaiAlmost());
         let preparedData = await prepare(dataset);
         display = new Map(document.getElementById('map'), {
             center: {longitude: 77.79802, latitude: 12.62214},
@@ -45,7 +47,7 @@ describe('set and get behavior', function() {
         expect(display.getCenter()).to.deep.equal({
             longitude: 77.79802, latitude: 12.62214
         });
-        expect(display.getViewBounds()).to.deep.equal({
+        expect(display.getViewBounds()).to.deep.almost({
             maxLat: 12.623710427048564,
             maxLon: 77.80016576721192,
             minLat: 12.620569563312458,
@@ -62,7 +64,7 @@ describe('set and get behavior', function() {
         expect(display.getCenter()).to.deep.equal({
             longitude: 77.79802, latitude: 12.62214
         });
-        expect(display.getViewBounds()).to.deep.equal({
+        expect(display.getViewBounds()).to.deep.almost({
             maxLat: 12.623710427048564,
             maxLon: 77.80016576721192,
             minLat: 12.620569563312458,

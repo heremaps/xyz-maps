@@ -19,7 +19,6 @@
 
 import {displayTests, prepare, testUtils} from 'hereTest';
 import {Map} from '@here/xyz-maps-core';
-import chaiAlmost from 'chai-almost';
 import dataset from './setstylegroup_polygon_spec.json';
 
 describe('setStyleGroup Polygon', function() {
@@ -31,7 +30,6 @@ describe('setStyleGroup Polygon', function() {
     let feature;
 
     before(async function() {
-        chai.use(chaiAlmost(1));
         let preparedData = await prepare(dataset);
         display = new Map(document.getElementById('map'), {
             renderOptions: {
@@ -79,7 +77,8 @@ describe('setStyleGroup Polygon', function() {
         // set style for the added feature
         buildingLayer.setStyleGroup(
             feature, [
-                {'zIndex': 0, 'type': 'Polygon', 'opacity': 0.6, 'fill': '#9fe030', 'stroke': '#916eff', 'strokeWidth': 15}
+                // fill and opacity values makes sure alpha blending background and fill colors/background and stroke colors will produce integer color value
+                {'zIndex': 0, 'type': 'Polygon', 'opacity': 0.6, 'fill': '#9be128', 'stroke': '#3750cd', 'strokeWidth': 15}
             ]);
 
         // validate features have new style
@@ -88,23 +87,8 @@ describe('setStyleGroup Polygon', function() {
                 let color1 = testUtils.getCanvasPixelColor(mapContainer, 380, 280); // get fill color
                 let color2 = testUtils.getCanvasPixelColor(mapContainer, 246, 328); // get stroke color on first shape point
 
-                // expect(color1).to.equal('#c5ec82');
-                color1 = color1.replace('#', '0x');
-                // blue
-                expect(parseInt(color1) >> 0 & 255).to.almost.equal(131);
-                // green
-                expect(parseInt(color1) >> 8 & 255).to.almost.equal(236);
-                // red
-                expect(parseInt(color1) >> 16 & 255).to.almost.equal(197);
-
-                // expect(color2).to.equal('#a385ff');
-                color2 = color2.replace('#', '0x');
-                // blue
-                expect(parseInt(color2) >> 0 & 255).to.almost.equal(255);
-                // green
-                expect(parseInt(color2) >> 8 & 255).to.almost.equal(133);
-                // red
-                expect(parseInt(color2) >> 16 & 255).to.almost.equal(163);
+                expect(color1).to.equal('#c3ed7e');
+                expect(color2).to.equal('#576cd5');
 
                 resolve();
             }, 100);
@@ -115,7 +99,7 @@ describe('setStyleGroup Polygon', function() {
         // set style for the added feature
         buildingLayer.setStyleGroup(
             feature, [
-                {'zIndex': 0, 'type': 'Polygon', 'opacity': 0.6, 'fill': '#9fe030', 'stroke': '#906fff', 'strokeWidth': 15},
+                {'zIndex': 0, 'type': 'Polygon', 'opacity': 0.6, 'fill': '#9be128', 'stroke': '#3750cd', 'strokeWidth': 15},
                 {'zIndex': 1, 'type': 'Polygon', 'opacity': 1, 'fill': '#ff0000', 'stroke': '#906fff', 'strokeWidth': 15}
             ]);
 
