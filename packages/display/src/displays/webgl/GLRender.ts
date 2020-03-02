@@ -270,8 +270,10 @@ export class GLRender implements BasicRender {
         const alpha = Math.PI * .5 - hFOV + rotX;
         const d1 = cosHFOV * targetZ;
         const d2 = height / Math.tan(alpha);
-        const zFar = cosHFOV * (d1 + d2);
         const zNear = targetZ * .25;
+        let zFar = cosHFOV * (d1 + d2);
+        // avoid precision issues...
+        zFar *= 1.005;
 
         this.w = pixelWidth;
         this.h = pixelHeight;
@@ -329,20 +331,6 @@ export class GLRender implements BasicRender {
                 // delete attr.data;
             }
         }
-
-
-        // let buffers = this.buffers.get(attributes);
-        //
-        // if (!buffers) {
-        //     const gl = this.gl;
-        //     buffers = {};
-        //     for (let name in attributes) {
-        //         gl.bindBuffer(gl.ARRAY_BUFFER, buffers[name] = gl.createBuffer());
-        //         gl.bufferData(gl.ARRAY_BUFFER, attributes[name].data, gl.STATIC_DRAW);
-        //     }
-        //     this.buffers.set(attributes, buffers);
-        // }
-        // return buffers;
     }
 
     private prog: Program;
