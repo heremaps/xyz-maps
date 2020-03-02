@@ -30,7 +30,6 @@ describe('add Address object and then remove', function() {
 
     var link;
     var address;
-    var linkLayer;
     var paLayer;
 
     before(async function() {
@@ -46,7 +45,6 @@ describe('add Address object and then remove', function() {
         await editorTests.waitForEditorReady(editor);
 
         link = preparedData.getFeature('linkLayer', -188807);
-        linkLayer = preparedData.getLayers('linkLayer');
         paLayer = preparedData.getLayers('paLayer');
     });
 
@@ -65,12 +63,12 @@ describe('add Address object and then remove', function() {
         editor.redo();
 
         let monitor = new testUtils.MonitorXHR();
-
+        monitor.start({method: 'post'});
         await editorTests.waitForEditorReady(editor, async ()=>{
             idMap = await editorTests.submit(editor);
         });
         let addressId = idMap.permanentIDMap[address.getProvider().id][address.id];
-        let reqs = monitor.stop({method: 'post'});
+        let reqs = monitor.stop();
         expect(reqs).to.have.lengthOf(1);
 
         let payloadAddress = reqs[0].payload;
@@ -98,10 +96,11 @@ describe('add Address object and then remove', function() {
         expect(address.prop('estate')).to.be.equal('REMOVED');
 
         let monitor = new testUtils.MonitorXHR(RegExp(/&id=/));
+        monitor.start({method: 'delete'});
         await editorTests.waitForEditorReady(editor, async ()=>{
             await editorTests.submit(editor);
         });
-        let request = monitor.stop({method: 'delete'})[0];
+        let request = monitor.stop()[0];
 
         expect(request.payload).to.equal(null);
         expect(request.method).to.equal('DELETE');

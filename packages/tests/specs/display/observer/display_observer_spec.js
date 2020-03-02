@@ -19,6 +19,7 @@
 
 import {displayTests, testUtils, prepare} from 'hereTest';
 import {Map} from '@here/xyz-maps-core';
+import chaiAlmost from 'chai-almost';
 import dataset from './display_observer_spec.json';
 
 describe('map observer', function() {
@@ -27,9 +28,10 @@ describe('map observer', function() {
     let display;
 
     before(async function() {
+        chai.use(chaiAlmost());
         let preparedData = await prepare(dataset);
         display = new Map(document.getElementById('map'), {
-            center: {longitude: 73.00368500489765, latitude: 20.27239042522672},
+            center: {longitude: 73.003685005, latitude: 20.272390425},
             zoomLevel: 18,
             layers: preparedData.getLayers()
         });
@@ -44,34 +46,34 @@ describe('map observer', function() {
 
         await displayTests.waitForViewportReady(display, ()=>{
             display.setCenter({
-                longitude: 80.24112862940257,
-                latitude: 15.693135202251213
+                longitude: 80.241128629,
+                latitude: 15.6931352023
             });
         });
 
         await displayTests.waitForViewportReady(display, ()=>{
             display.setCenter({
-                longitude: 80.04209397743875,
-                latitude: 15.494536519179078
+                longitude: 80.042093977,
+                latitude: 15.494536519
             });
         });
 
         let results = observer.stop();
-        expect(results.center[0]).to.deep.equal({latitude: 15.693135202251213, longitude: 80.24112862940257});
-        expect(results.center[1]).to.deep.equal({latitude: 15.494536519179078, longitude: 80.04209397743875});
+        expect(results.center[0]).to.deep.almost({longitude: 80.241128629, latitude: 15.6931352023});
+        expect(results.center[1]).to.deep.almost({longitude: 80.042093977, latitude: 15.494536519});
     });
 
     it('set map center with same coord and validate observer again', async function() {
         display.setCenter({
-            longitude: 80.04209397743875,
-            latitude: 15.494536519179078
+            longitude: 80.0420939774,
+            latitude: 15.4945365192
         });
 
         let observer = new testUtils.Observer(display, 'center');
 
         display.setCenter({
-            longitude: 80.04209397743875,
-            latitude: 15.494536519179078
+            longitude: 80.0420939774,
+            latitude: 15.4945365192
         });
 
         let results = observer.stop();

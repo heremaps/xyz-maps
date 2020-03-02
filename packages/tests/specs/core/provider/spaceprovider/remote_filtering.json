@@ -18,11 +18,12 @@
                 "type": "Feature",
                 "properties": {
                     "name": "Anfield",
-                    "amenity": "Football Stadium",
+                    "sport": "association football",
+                    "amenity": "Soccer Stadium",
                     "capacity": 54000,
                     "popupContent": "Home of Liverpool Football Club",
                     "@ns:com:here:xyz": {
-                        "tags": ["football", "stadium"]
+                        "tags": ["soccer", "stadium"]
                     }
                 },
                 "geometry": {
@@ -34,11 +35,11 @@
                 "properties": {
                     "name": "Stade de Gerland",
                     "sport": "association football",
-                    "amenity": "Soccer Stadium",
+                    "amenity": "Rugby Stadium",
                     "capacity": 41000,
                     "occupant": "Lyon OU",
                     "@ns:com:here:xyz": {
-                        "tags": ["soccer", "stadium"]
+                        "tags": ["rugby", "stadium"]
                     }
                 },
                 "geometry": {
@@ -61,17 +62,20 @@
                     "type": "Point",
                     "coordinates": [4.979825, 45.764327777]
                 }
-            }],
-            "local": [{
-                "geometry": {
-                    "coordinates": [20.45512, 44.761732, 0],
-                    "type": "Point"
-                },
+            }, {
                 "type": "Feature",
                 "properties": {
+                    "name": "Stade Geoffroy-Guichard",
+                    "sport": "association football",
+                    "amenity": "Soccer Stadium",
+                    "capacity": 35616,
                     "@ns:com:here:xyz": {
-                        "tags": ["stadium", "football"]
+                        "tags": ["soccer", "stadium"]
                     }
+                },
+                "geometry": {
+                    "type": "Point",
+                    "coordinates": [4.3887178, 45.4607733]
                 }
             }]
         }

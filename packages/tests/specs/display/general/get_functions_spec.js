@@ -19,6 +19,7 @@
 
 import {displayTests, prepare} from 'hereTest';
 import {Map} from '@here/xyz-maps-core';
+import chaiAlmost from 'chai-almost';
 import dataset from './get_functions_spec.json';
 
 describe('get functions', function() {
@@ -27,6 +28,7 @@ describe('get functions', function() {
     let display;
 
     before(async function() {
+        chai.use(chaiAlmost());
         let preparedData = await prepare(dataset);
         display = new Map(document.getElementById('map'), {
             center: {longitude: 77.79802, latitude: 12.62214},
@@ -44,8 +46,7 @@ describe('get functions', function() {
         expect(display.getHeight()).to.equal(600);
         expect(display.getWidth()).to.equal(800);
         expect(display.getLayers()).to.have.lengthOf(1);
-        // expect(display.getPadding()).to.deep.equal({left: 0, top: 0, right: 0, bottom: 0});
-        expect(display.getViewBounds()).to.deep.equal({
+        expect(display.getViewBounds()).to.deep.almost({
             maxLat: 12.623710427048564,
             maxLon: 77.80016576721192,
             minLat: 12.620569563312458,
@@ -57,19 +58,18 @@ describe('get functions', function() {
     it('validate map display has correct values after zoom and pan the map', async function() {
         await displayTests.waitForViewportReady(display, ()=>{
             display.setZoomlevel(19);
-            display.setCenter({longitude: 77.79960786773677, latitude: 12.622584955309119});
+            display.setCenter({longitude: 77.799607868, latitude: 12.622584955});
         });
 
-        expect(display.getCenter()).to.deep.equal({longitude: 77.79960786773677, latitude: 12.622584955309119});
+        expect(display.getCenter()).to.deep.equal({longitude: 77.799607868, latitude: 12.622584955});
         expect(display.getHeight()).to.equal(600);
         expect(display.getWidth()).to.equal(800);
         expect(display.getLayers()).to.have.lengthOf(1);
-        // expect(display.getPadding()).to.deep.equal({left: 0, top: 0, right: 0, bottom: 0});
-        expect(display.getViewBounds()).to.deep.equal({
-            minLon: 77.79853498413081,
-            minLat: 12.621799739535646,
-            maxLon: 77.80068075134272,
-            maxLat: 12.62337016867275
+        expect(display.getViewBounds()).to.deep.almost({
+            minLon: 77.79853498439405,
+            minLat: 12.621799739226546,
+            maxLon: 77.80068075160597,
+            maxLat: 12.623370168363635
         });
         expect(display.getZoomlevel()).to.equal(19);
     });
