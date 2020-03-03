@@ -1,6 +1,6 @@
 {
   "name": "@here/xyz-maps-docs",
-  "version": "0.10.0-dev",
+  "version": "0.10.0",
   "description": "Documentation for XYZ editor.",
   "author": {
     "name": "HERE Europe B.V.",
@@ -17,7 +17,6 @@
   "scripts": {
     "build": "node clean.js --configure ./jsdoc3_config.json && jsdoc --configure ./jsdoc3_config.json"
   },
-  "dependencies": {},
   "devDependencies": {
     "jsdoc": "^3.6.3",
     "rimraf": "~2.6.2",

@@ -1,6 +1,6 @@
 {
   "name": "@here/xyz-maps-test",
-  "version": "0.10.0-dev",
+  "version": "0.10.0",
   "description": "Tests for XYZ editor.",
   "author": {
     "name": "HERE Europe B.V.",
@@ -18,10 +18,11 @@
     "watch": "node build.js --buildTestsWatch",
     "test": "node build.js --test"
   },
-  "dependencies": {},
   "devDependencies": {
     "@rollup/plugin-json": "^4.0.0",
     "@rollup/plugin-node-resolve": "^6.0.0",
+    "@rollup/plugin-typescript": "^2.1.0",
+    "@rollup/plugin-virtual": "^2.0.0",
     "@types/chai": "^4.1.7",
     "@types/mocha": "^5.2.5",
     "chai": "~4.2.0",
@@ -40,8 +41,6 @@
     "rollup-plugin-delete": "^1.1.0",
     "rollup-plugin-glob-import": "^0.4.5",
     "rollup-plugin-postcss": "^2.0.3",
-    "@rollup/plugin-typescript": "^2.1.0",
-    "@rollup/plugin-virtual": "^2.0.0",
     "typescript": "^3.7.5",
     "yargs": "^10.0.3"
   }
