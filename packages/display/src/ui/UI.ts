@@ -21,6 +21,8 @@ import ZoomControl from './ZoomControl';
 import Copyright from './copyright/Copyright';
 import Logo from './Logo';
 import UIComponent from './UIComponent';
+import Display from '../Map';
+import {MapOptions} from '../Config';
 
 const Components = {
 
@@ -36,11 +38,10 @@ class UI {
     components: { [name: string]: UIComponent };
     el: HTMLElement;
 
-    constructor(element: HTMLElement, mapfcg, display) {
+    constructor(element: HTMLElement, mapfcg: MapOptions, display: Display) {
         const ui = this;
-        let uiOptions = {...mapfcg['UI'] || mapfcg['ui'] || {}};
-        let uiComponents = ui.components = {};
-        let opt;
+        const uiOptions = {...mapfcg['UI'] || mapfcg['ui'] || {}};
+        const uiComponents = ui.components = {};
 
         ui.el = element;
 
@@ -50,15 +51,15 @@ class UI {
         }
 
         for (let c in Components) {
-            if (opt = uiOptions[c]) {
+            let opt = uiOptions[c];
+
+            if (opt !== false) {
                 if (typeof opt != 'object') {
                     opt = {};
                 }
-
                 if (opt.visible == UNDEF) {
                     opt.visible = true;
                 }
-
                 if (opt.visible) {
                     uiComponents[c] = new Components[c](element, opt, display, mapfcg);
                 }
@@ -67,12 +68,11 @@ class UI {
     }
 
     destroy() {
-        const element = this.el;
-        const components = this.components;
+        const {el, components} = this;
         for (let name in components) {
             components[name].disable();
         }
-        element.parentNode.removeChild(element);
+        el.parentNode.removeChild(el);
     };
 };
 

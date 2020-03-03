@@ -18,18 +18,22 @@
  */
 
 import UIComponent from './UIComponent';
-import {JSUtils} from '@here/xyz-maps-common';
+import Display from '../Map';
+
+type ZoomCtrlOptions = {
+    visible?: boolean
+}
 
 class ZoomControl extends UIComponent {
     private _zll: (ev: any) => void;
 
-    constructor(element: HTMLElement, options, display, mapcfg) {
+    constructor(element: HTMLElement, options: ZoomCtrlOptions, display: Display, mapCfg) {
         super(element, options, display);
 
         let zoomCtrl = this;
 
-        if (mapcfg && mapcfg.zoomAnimationMs) {
-            zoomCtrl.ams = mapcfg.zoomAnimationMs;
+        if (mapCfg && mapCfg.zoomAnimationMs) {
+            zoomCtrl.ams = mapCfg.zoomAnimationMs;
         }
     };
 

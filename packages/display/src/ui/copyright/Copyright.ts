@@ -21,6 +21,7 @@ import UIComponent from '../UIComponent';
 import Details from './CopyrightDetails';
 import {CopyrightSource, CopyrightSourceScope} from './CopyrightSource';
 import {global, Map, JSUtils} from '@here/xyz-maps-common';
+import Display from '../../Map';
 
 const document = global.document;
 
@@ -109,7 +110,7 @@ class Copyright extends UIComponent {
 
     protected opt: CopyrightOptions;
 
-    constructor(element: HTMLElement, options: CopyrightOptions, display) {
+    constructor(element: HTMLElement, options: CopyrightOptions, display: Display) {
         super(element, JSUtils.extend(true, JSUtils.clone(defaultOptions), options), display);
 
         const ui = this;
