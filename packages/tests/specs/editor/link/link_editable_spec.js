@@ -15,21 +15,25 @@
  *
  * SPDX-License-Identifier: Apache-2.0
  * License-Filename: LICENSE
- */import {editorTests, displayTests, testUtils, prepare} from 'hereTest';
+ */
+import {editorTests, testUtils, prepare} from 'hereTest';
 import {Map} from '@here/xyz-maps-core';
-import {features, Editor} from '@here/xyz-maps-editor';
+import {Editor} from '@here/xyz-maps-editor';
+import chaiAlmost from 'chai-almost';
 import dataset from './link_editable_spec.json';
 
 describe('link editable', function() {
     const expect = chai.expect;
 
     let link;
-    let editor; let display;
+    let editor;
+    let display;
     let preparedData;
     let mapContainer;
     let linkLayer;
 
     before(async function() {
+        chai.use(chaiAlmost(1e-7));
         preparedData = await prepare(dataset);
         display = new Map(document.getElementById('map'), {
             center: {longitude: 80.14459, latitude: 17.96039},
@@ -56,7 +60,7 @@ describe('link editable', function() {
     it('set link to not editable', function() {
         link.editable(false);
 
-        expect(link.coord()).to.deep.equal([
+        expect(link.coord()).to.deep.almost([
             [80.142980675, 17.961410599, 0],
             [80.144053558, 17.961410599, 0],
             [80.144053558, 17.96039, 0]
@@ -75,7 +79,7 @@ describe('link editable', function() {
         let lnk = editor.getFeature(link.id, linkLayer);
 
         // link geometry is not changed
-        expect(lnk.coord()).to.deep.equal([
+        expect(lnk.coord()).to.deep.almost([
             [80.142980675, 17.961410599, 0],
             [80.144053558, 17.961410599, 0],
             [80.144053558, 17.96039, 0]
@@ -99,7 +103,7 @@ describe('link editable', function() {
         lnk = editor.getFeature(link.id, linkLayer);
 
         // link geometry is changed
-        expect(lnk.coord()).to.deep.equal([
+        expect(lnk.coord()).to.deep.almost([
             [80.142980675, 17.961410599, 0],
             [80.144053558, 17.961410599, 0],
             [80.14459, 17.96039, 0]

@@ -34,7 +34,7 @@ describe('click on address to validate the coordinate', function() {
     let mapContainer;
 
     before(async function() {
-        chai.use(chaiAlmost());
+        chai.use(chaiAlmost(1e-7));
         preparedData = await prepare(dataset);
 
         display = new Map(document.getElementById('map'), {
@@ -62,26 +62,26 @@ describe('click on address to validate the coordinate', function() {
     });
 
     it('validate address coordinate with click', async function() {
-        expect(address.coord()).to.deep.equal([76.283418331, 14.125304508, 0]);
+        expect(address.coord()).to.deep.almost([76.283418331, 14.125304508, 0]);
 
         // click on an address
         await testUtils.events.click(mapContainer, 100, 200);
 
         // validate address coordinate again
-        expect(address.coord()).to.deep.equal([76.283418331, 14.125304508, 0]);
+        expect(address.coord()).to.deep.almost([76.283418331, 14.125304508, 0]);
 
         // valiate object is not modified
         expect(editor.info().length).to.equal(0);
     });
 
     it('validate poi coordinate with click', async function() {
-        expect(poi.coord()).to.deep.equal([76.283954773, 14.125304508, 0]);
+        expect(poi.coord()).to.deep.almost([76.283954773, 14.125304508, 0]);
 
         // click on POI
         await testUtils.events.click(mapContainer, 300, 200);
 
         // validate POI coordinate
-        expect(poi.coord()).to.deep.equal([76.283954773, 14.125304508, 0]);
+        expect(poi.coord()).to.deep.almost([76.283954773, 14.125304508, 0]);
 
         // valiate object is not modified
         expect(editor.info().length).to.equal(0);

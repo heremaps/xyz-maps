@@ -19,6 +19,7 @@
 import {editorTests, testUtils, prepare} from 'hereTest';
 import {Map} from '@here/xyz-maps-core';
 import {Editor} from '@here/xyz-maps-editor';
+import chaiAlmost from 'chai-almost';
 import dataset from './drawingmanager_modify_shapepoint_spec.json';
 
 describe('Create new Link by drawing manager and remove some shape points', function() {
@@ -27,9 +28,9 @@ describe('Create new Link by drawing manager and remove some shape points', func
     let editor;
     let display;
     let preparedData;
-    let mapContainer;
 
     before(async function() {
+        chai.use(chaiAlmost(1e-7));
         preparedData = await prepare(dataset);
         display = new Map(document.getElementById('map'), {
             center: {longitude: 76.98670509884607, latitude: 12.88815358638164},
@@ -40,7 +41,6 @@ describe('Create new Link by drawing manager and remove some shape points', func
             layers: preparedData.getLayers()
         });
         await editorTests.waitForEditorReady(editor);
-        mapContainer = display.getContainer();
     });
 
     after(async function() {
@@ -90,7 +90,7 @@ describe('Create new Link by drawing manager and remove some shape points', func
 
         let lnk = editor.getDrawingBoard().create({featureClass: 'NAVLINK'});
 
-        expect(lnk.coord()).to.deep.equal([
+        expect(lnk.coord()).to.deep.almost([
             [76.986168657, 12.88841505, 0],
             [76.986168657, 12.888153586, 0]
         ]);

@@ -32,7 +32,7 @@ describe('map event system', function() {
     let mapContainer;
 
     before(async function() {
-        chai.use(chaiAlmost());
+        chai.use(chaiAlmost(1e-7));
         preparedData = await prepare(dataset);
         display = new Map(document.getElementById('map'), {
             center: {longitude: 8.573258087408306, latitude: 50.03670252050714},
@@ -137,7 +137,7 @@ describe('map event system', function() {
             type: 'dragStop'
         });
 
-        expect(address.coord()).to.deep.equal([8.571380542, 50.03721935, 0]);
+        expect(address.coord()).to.deep.almost([8.571380542, 50.03721935, 0]);
     });
 
 
@@ -174,7 +174,7 @@ describe('map event system', function() {
             type: 'dragStop'
         });
 
-        expect(poi.coord()).to.deep.equal([8.571756051, 50.03721935, 0]);
+        expect(poi.coord()).to.deep.almost([8.571756051, 50.03721935, 0]);
     });
 
 

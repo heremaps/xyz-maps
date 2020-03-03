@@ -19,6 +19,7 @@
 import {editorTests, testUtils, prepare} from 'hereTest';
 import {Editor} from '@here/xyz-maps-editor';
 import {Map} from '@here/xyz-maps-core';
+import chaiAlmost from 'chai-almost';
 import dataset from './address_get_functions_spec.json';
 
 describe('Address get functions', function() {
@@ -32,6 +33,7 @@ describe('Address get functions', function() {
     var mapContainer;
 
     before(async function() {
+        chai.use(chaiAlmost(1e-7));
         preparedData = await prepare(dataset);
         display = new Map(document.getElementById('map'), {
             center: {longitude: 73.26398409, latitude: 19.20905288},
@@ -82,7 +84,7 @@ describe('Address get functions', function() {
     });
 
     it('get correct geoCoordinates, pixel coordinate', async function() {
-        expect(address.coord()).to.deep.equal([73.262911206, 19.210066027, 0]);
+        expect(address.coord()).to.deep.almost([73.262911206, 19.210066027, 0]);
         expect(address.prop()).to.deep.include({
             'routingLink': link.id,
             'routingPoint': [73.26291, 19.20981, 0],

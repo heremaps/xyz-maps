@@ -32,7 +32,7 @@ describe('link add shape point', function() {
     var linkLayer;
 
     before(async function() {
-        chai.use(chaiAlmost());
+        chai.use(chaiAlmost(1e-7));
         preparedData = await prepare(dataset);
         display = new Map(document.getElementById('map'), {
             center: {latitude: 12.94086, longitude: 76.99443},

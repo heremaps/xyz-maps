@@ -19,6 +19,7 @@
 import {editorTests, testUtils, prepare} from 'hereTest';
 import {Map} from '@here/xyz-maps-core';
 import {Editor} from '@here/xyz-maps-editor';
+import chaiAlmost from 'chai-almost';
 import dataset from './link_shapepoint_spec.json';
 
 describe('link shape points', function() {
@@ -33,6 +34,7 @@ describe('link shape points', function() {
     let shape;
 
     before(async function() {
+        chai.use(chaiAlmost(1e-7));
         preparedData = await prepare(dataset);
         display = new Map(document.getElementById('map'), {
             center: {longitude: 77.26942, latitude: 13.08243},
@@ -68,7 +70,7 @@ describe('link shape points', function() {
 
         expect(link1.prop('disconnected')).to.be.equal('HOOK');
         expect(link1.prop('estate')).to.be.equal('UPDATED');
-        expect(link1.coord()).to.deep.equal([
+        expect(link1.coord()).to.deep.almost([
             [77.26942, 13.082952518, 0],
             [77.268883558, 13.082952518, 0],
             [77.267810675, 13.082952518, 0],
@@ -81,7 +83,7 @@ describe('link shape points', function() {
 
         shape.remove();
 
-        expect(link1.coord()).to.deep.equal([
+        expect(link1.coord()).to.deep.almost([
             [77.26942, 13.082952518, 0],
             [77.268883558, 13.082952518, 0],
             [77.267810675, 13.083448055, 0]
@@ -96,11 +98,11 @@ describe('link shape points', function() {
         // click on ground
         await testUtils.events.click(mapContainer, 100, 500);
 
-        expect(links[0].coord()).to.deep.equal([
+        expect(links[0].coord()).to.deep.almost([
             [77.26942, 13.082952518, 0],
             [77.268883558, 13.082952518, 0]
         ]);
-        expect(links[1].coord()).to.deep.equal([
+        expect(links[1].coord()).to.deep.almost([
             [77.268883558, 13.082952518, 0],
             [77.267810675, 13.083448055, 0]
         ]);

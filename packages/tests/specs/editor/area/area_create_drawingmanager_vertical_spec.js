@@ -19,6 +19,7 @@
 import {editorTests, testUtils, prepare} from 'hereTest';
 import {Map} from '@here/xyz-maps-core';
 import {features, Editor} from '@here/xyz-maps-editor';
+import chaiAlmost from 'chai-almost';
 import dataset from './area_create_drawingmanager_vertical_spec.json';
 
 xdescribe('Area drawing manager points with same longitude ', function() {
@@ -30,6 +31,7 @@ xdescribe('Area drawing manager points with same longitude ', function() {
     let mapContainer;
 
     before(async function() {
+        chai.use(chaiAlmost(1e-7));
         preparedData = await prepare(dataset);
         display = new Map(document.getElementById('map'), {
             center: {longitude: 76.08312571088209, latitude: 13.214838342327566},
@@ -77,11 +79,11 @@ xdescribe('Area drawing manager points with same longitude ', function() {
             height: 0
         });
 
-        expect(area.coord()).to.deep.equal([[[
-            [76.08151638547315, 13.215360578449165, 0],
-            [76.08205282727613, 13.21588281345295, 0],
-            [76.08205282727613, 13.215360578449165, 0],
-            [76.08151638547315, 13.215360578449165, 0]
+        expect(area.coord()).to.deep.almost([[[
+            [76.081516385, 13.215360578, 0],
+            [76.082052827, 13.215882813, 0],
+            [76.082052827, 13.215360578, 0],
+            [76.081516385, 13.215360578, 0]
         ]]]);
     });
 });

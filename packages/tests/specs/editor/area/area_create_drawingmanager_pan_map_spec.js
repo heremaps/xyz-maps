@@ -19,6 +19,7 @@
 import {editorTests, displayTests, testUtils, prepare} from 'hereTest';
 import {Map} from '@here/xyz-maps-core';
 import {features, Editor} from '@here/xyz-maps-editor';
+import chaiAlmost from 'chai-almost';
 import dataset from './area_create_drawingmanager_pan_map_spec.json';
 
 describe('Area drawing manager and pan map', function() {
@@ -30,6 +31,7 @@ describe('Area drawing manager and pan map', function() {
     let mapContainer;
 
     before(async function() {
+        chai.use(chaiAlmost(1e-7));
         preparedData = await prepare(dataset);
         display = new Map(document.getElementById('map'), {
             center: {longitude: 76.08312571088209, latitude: 13.214838342327566},
@@ -106,7 +108,7 @@ describe('Area drawing manager and pan map', function() {
 
         let area = (await editorTests.click(editor, 271, 266)).target;
 
-        expect(area.coord()).to.deep.equal([[[
+        expect(area.coord()).to.deep.almost([[[
             [76.081516385, 13.215360578, 0],
             [76.082589269, 13.215099461, 0],
             [76.083125711, 13.214577224, 0],

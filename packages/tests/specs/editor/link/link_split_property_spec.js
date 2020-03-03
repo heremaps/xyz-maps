@@ -19,12 +19,13 @@
 import {editorTests, prepare} from 'hereTest';
 import {Map} from '@here/xyz-maps-core';
 import {features, Editor} from '@here/xyz-maps-editor';
+import chaiAlmost from 'chai-almost';
 import dataset from './link_split_property_spec.json';
 
 describe('link splitting basic', function() {
     const expect = chai.expect;
 
-    let link; let link1; let link2; let link3; let link4; let link5; let link6; let link7; let link8; let link9; let link10;
+    let link; let link1; let link2;
     let shape;
     let splitLinks;
 
@@ -33,6 +34,7 @@ describe('link splitting basic', function() {
     let preparedData;
 
     before(async function() {
+        chai.use(chaiAlmost(1e-7));
         preparedData = await prepare(dataset);
         display = new Map(document.getElementById('map'), {
             center: {longitude: 77.29272829961394, latitude: 13.124072806285966},
@@ -130,7 +132,7 @@ describe('link splitting basic', function() {
 
         splitLinks = shape.splitLink();
 
-        expect(splitLinks[0].coord()).to.deep.equal([[77.291118974, 13.125117665, 0], [77.291118974, 13.124386264, 0]]);
-        expect(splitLinks[1].coord()).to.deep.equal([[77.291118974, 13.124386264, 0], [77.291118974, 13.124072806, 0]]);
+        expect(splitLinks[0].coord()).to.deep.almost([[77.291118974, 13.125117665, 0], [77.291118974, 13.124386264, 0]]);
+        expect(splitLinks[1].coord()).to.deep.almost([[77.291118974, 13.124386264, 0], [77.291118974, 13.124072806, 0]]);
     });
 });

@@ -18,7 +18,8 @@
  */
 import {editorTests, testUtils, prepare} from 'hereTest';
 import {Map} from '@here/xyz-maps-core';
-import {features, Editor} from '@here/xyz-maps-editor';
+import {Editor} from '@here/xyz-maps-editor';
+import chaiAlmost from 'chai-almost';
 import dataset from './transform_move_undo_spec.json';
 
 describe('undo the link transforming, link should connect to its connected links', function() {
@@ -32,6 +33,7 @@ describe('undo the link transforming, link should connect to its connected links
     var linkLayer;
 
     before(async function() {
+        chai.use(chaiAlmost(1e-7));
         preparedData = await prepare(dataset);
         display = new Map(document.getElementById('map'), {
             center: {longitude: 78.19335420161838, latitude: 12.548568361911578},
@@ -59,7 +61,7 @@ describe('undo the link transforming, link should connect to its connected links
 
         expect(shp.getConnectedLinks()).to.have.lengthOf(2);
 
-        expect(link1.coord()).to.deep.equal([[78.192281318, 12.549091989, 0], [78.191744876, 12.549091989, 0]]);
+        expect(link1.coord()).to.deep.almost([[78.192281318, 12.549091989, 0], [78.191744876, 12.549091989, 0]]);
     });
 
     it('transform the link and validate', async function() {
@@ -67,7 +69,7 @@ describe('undo the link transforming, link should connect to its connected links
         let mapContainer = display.getContainer();
         await testUtils.events.drag(mapContainer, {x: 150, y: 200}, {x: 150, y: 250});
 
-        expect(link1.coord()).to.deep.equal([
+        expect(link1.coord()).to.deep.almost([
             [78.192281318, 12.548830174, 0],
             [78.191744876, 12.548830174, 0]
         ]);
@@ -82,6 +84,6 @@ describe('undo the link transforming, link should connect to its connected links
 
         expect(shp.getConnectedLinks()).to.have.lengthOf(2);
 
-        expect(lnk.coord()).to.deep.equal([[78.192281318, 12.549091989, 0], [78.191744876, 12.549091989, 0]]);
+        expect(lnk.coord()).to.deep.almost([[78.192281318, 12.549091989, 0], [78.191744876, 12.549091989, 0]]);
     });
 });

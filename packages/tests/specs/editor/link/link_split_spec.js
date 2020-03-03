@@ -31,7 +31,7 @@ describe('link splitting and set its properties correctly', function() {
     let linkLayer;
 
     before(async function() {
-        chai.use(chaiAlmost());
+        chai.use(chaiAlmost(1e-7));
         preparedData = await prepare(dataset);
         display = new Map(document.getElementById('map'), {
             center: {longitude: 77.47053701721183, latitude: 13.211750283939665},

@@ -19,6 +19,7 @@
 import {editorTests, prepare} from 'hereTest';
 import {Map} from '@here/xyz-maps-core';
 import {Editor} from '@here/xyz-maps-editor';
+import chaiAlmost from 'chai-almost';
 import dataset from './poi_setcoordinates_spec.json';
 
 describe('set POI coordinates', function() {
@@ -28,11 +29,11 @@ describe('set POI coordinates', function() {
     var display;
     var preparedData;
 
-    var preparedFeatures;
     var poi;
     var poiLayer;
 
     before(async function() {
+        chai.use(chaiAlmost(1e-7));
         preparedData = await prepare(dataset);
         display = new Map(document.getElementById('map'), {
             center: {longitude: 77.283773, latitude: 13.1006019},
@@ -56,10 +57,10 @@ describe('set POI coordinates', function() {
     });
 
     it('validate POI coordinate, set coordinate by geocoordinate and validate again', function() {
-        expect(poi.coord()).to.deep.equal([77.282700116, 13.1006019, 0]);
+        expect(poi.coord()).to.deep.almost([77.282700116, 13.1006019, 0]);
 
         poi.coord([77.282701, 13.1006119, 0]);
-        expect(poi.coord()).to.deep.equal([77.282701, 13.1006119, 0]);
+        expect(poi.coord()).to.deep.almost([77.282701, 13.1006119, 0]);
     });
 
     it('remove POI layer and validate objects in viewport', async function() {

@@ -32,7 +32,7 @@ xdescribe('link undo its instance is updated', function() {
     let link;
 
     before(async function() {
-        chai.use(chaiAlmost());
+        chai.use(chaiAlmost(1e-7));
         preparedData = await prepare(dataset);
         display = new Map(document.getElementById('map'), {
             center: {longitude: 80.63357782733888, latitude: 17.71492567213454},

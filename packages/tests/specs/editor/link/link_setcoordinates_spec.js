@@ -16,9 +16,10 @@
  * SPDX-License-Identifier: Apache-2.0
  * License-Filename: LICENSE
  */
-import {editorTests, displayTests, testUtils, prepare} from 'hereTest';
+import {editorTests, testUtils, prepare} from 'hereTest';
 import {Map} from '@here/xyz-maps-core';
 import {Editor} from '@here/xyz-maps-editor';
+import chaiAlmost from 'chai-almost';
 import dataset from './link_setcoordinates_spec.json';
 
 describe('set link coordinates', function() {
@@ -31,6 +32,7 @@ describe('set link coordinates', function() {
     let link;
 
     before(async function() {
+        chai.use(chaiAlmost(1e-7));
         preparedData = await prepare(dataset);
         display = new Map(document.getElementById('map'), {
             center: {longitude: 77.179447, latitude: 13.404587},
@@ -55,28 +57,28 @@ describe('set link coordinates', function() {
 
     it('set coordinate by coord and validate', function() {
         link.coord([
-            [77.17897617923736, 13.403983932102679, 0],
+            [77.178976179, 13.403983932, 0],
             [77.17784, 13.40511, 0]
         ]);
 
-        expect(link.coord()).to.deep.equal([
-            [77.17897617923736, 13.403983932102679, 0],
+        expect(link.coord()).to.deep.almost([
+            [77.178976179, 13.403983932, 0],
             [77.17784, 13.40511, 0]
         ]);
     });
 
     it('set coordinate, click and drag the link', async function() {
         link.coord([
-            [77.17837384668902, 13.405631823674528, 0],
-            [77.178910288492, 13.4040644102724, 0]
+            [77.178373847, 13.405631824, 0],
+            [77.178910288, 13.40406441, 0]
         ]);
 
         await testUtils.events.click(mapContainer, 200, 100);
         await testUtils.events.drag(mapContainer, {x: 200, y: 100}, {x: 100, y: 200});
 
-        expect(link.coord()).to.deep.equal([
+        expect(link.coord()).to.deep.almost([
             [77.177837405, 13.405109998, 0],
-            [77.178910288492, 13.4040644102724, 0]
+            [77.178910288, 13.40406441, 0]
         ]);
     });
 
@@ -85,9 +87,9 @@ describe('set link coordinates', function() {
             await testUtils.events.drag(mapContainer, {x: 100, y: 100}, {x: 100, y: 200});
         });
 
-        expect(link.coord()).to.deep.equal([
+        expect(link.coord()).to.deep.almost([
             [77.177837405, 13.405109998, 0],
-            [77.178910288492, 13.4040644102724, 0]
+            [77.178910288, 13.40406441, 0]
         ]);
     });
 });

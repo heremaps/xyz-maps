@@ -18,7 +18,8 @@
  */
 import {editorTests, testUtils, prepare} from 'hereTest';
 import {Map} from '@here/xyz-maps-core';
-import {features, Editor} from '@here/xyz-maps-editor';
+import {Editor} from '@here/xyz-maps-editor';
+import chaiAlmost from 'chai-almost';
 import dataset from './map_container_transform_spec.json';
 
 describe('map container transform', function() {
@@ -33,6 +34,7 @@ describe('map container transform', function() {
     let link;
 
     before(async function() {
+        chai.use(chaiAlmost(1e-7));
         preparedData = await prepare(dataset);
         display = new Map(document.getElementById('map'), {
             center: {longitude: 80.47614231309831, latitude: 16.44729312879116},
@@ -66,12 +68,12 @@ describe('map container transform', function() {
         // move container
         await testUtils.events.drag(mapContainer, {x: 158, y: 161}, {x: 258, y: 161});
 
-        expect(link.coord()).to.deep.equal([
+        expect(link.coord()).to.deep.almost([
             [80.475123072, 16.448270659, 0],
             [80.475176716, 16.44775617, 0]
         ]);
 
-        expect(poi.coord()).to.deep.equal([
+        expect(poi.coord()).to.deep.almost([
             80.475605869, 16.447807619, 0
         ]);
     });
@@ -84,12 +86,12 @@ describe('map container transform', function() {
         // move container
         await testUtils.events.drag(mapContainer, {x: 212, y: 159}, {x: 312, y: 159});
 
-        expect(link.coord()).to.deep.equal([
+        expect(link.coord()).to.deep.almost([
             [80.475659512, 16.448270659, 0],
             [80.475713156, 16.44775617, 0]
         ]);
 
-        expect(poi.coord()).to.deep.equal([
+        expect(poi.coord()).to.deep.almost([
             80.475605869, 16.447807619, 0
         ]);
     });

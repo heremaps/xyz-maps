@@ -32,7 +32,7 @@ describe('address editable', function() {
     let address;
 
     before(async function() {
-        chai.use(chaiAlmost());
+        chai.use(chaiAlmost(1e-7));
         preparedData = await prepare(dataset);
         display = new Map(document.getElementById('map'), {
             center: {longitude: 80.537329, latitude: 16.481374},
@@ -57,7 +57,7 @@ describe('address editable', function() {
 
 
     it('get point address object and validate the point address object coordinates', function() {
-        expect(address.coord()).to.deep.equal([80.535719317, 16.481374142, 0]);
+        expect(address.coord()).to.deep.almost([80.535719317, 16.481374142, 0]);
     });
 
     it('drag the point address, validate the address is not dragged', async function() {
@@ -68,7 +68,7 @@ describe('address editable', function() {
             await testUtils.events.drag(mapContainer, {x: 100, y: 300}, {x: 324, y: 303});
         });
 
-        expect(address.coord()).to.deep.equal([80.535719317, 16.481374142, 0]);
+        expect(address.coord()).to.deep.almost([80.535719317, 16.481374142, 0]);
     });
 
     it('move the map back and set the address editable then drag the address', async function() {
