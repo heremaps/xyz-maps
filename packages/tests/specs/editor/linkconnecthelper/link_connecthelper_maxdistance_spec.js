@@ -19,6 +19,7 @@
 import {editorTests, prepare} from 'hereTest';
 import {Map} from '@here/xyz-maps-core';
 import {Editor} from '@here/xyz-maps-editor';
+import chaiAlmost from 'chai-almost';
 import dataset from './link_connecthelper_maxdistance_spec.json';
 
 describe('link connect helper with maxdistance greater than 3', function() {
@@ -34,6 +35,7 @@ describe('link connect helper with maxdistance greater than 3', function() {
     var crossings;
 
     before(async function() {
+        chai.use(chaiAlmost(1e-7));
         preparedData = await prepare(dataset);
         display = new Map(document.getElementById('map'), {
             center: {longitude: 77.642761, latitude: 17.791314},
@@ -73,8 +75,8 @@ describe('link connect helper with maxdistance greater than 3', function() {
 
         crossings[0].connect();
 
-        expect(link1.coord()).to.deep.equal([[77.641956337, 17.790593789, 0], [77.642417677, 17.791564285, 0]]);
-        expect(link2.coord()).to.deep.equal([[77.642417677, 17.791564285, 0], [77.643061407, 17.790644868, 0]]);
-        expect(link3.coord()).to.deep.equal([[77.641210683, 17.791400834, 0], [77.642417677, 17.791564285, 0]]);
+        expect(link1.coord()).to.deep.almost([[77.641956337, 17.790593789, 0], [77.642417677, 17.791564285, 0]]);
+        expect(link2.coord()).to.deep.almost([[77.642417677, 17.791564285, 0], [77.643061407, 17.790644868, 0]]);
+        expect(link3.coord()).to.deep.almost([[77.641210683, 17.791400834, 0], [77.642417677, 17.791564285, 0]]);
     });
 });

@@ -31,7 +31,7 @@ describe('map viewport lock', function() {
     let mapContainer;
 
     before(async function() {
-        chai.use(chaiAlmost());
+        chai.use(chaiAlmost(1e-7));
         preparedData = await prepare(dataset);
         display = new Map(document.getElementById('map'), {
             center: {longitude: 76.00056, latitude: 13.00109},

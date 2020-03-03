@@ -28,13 +28,11 @@ describe('add Address layer set coordinates', function() {
     var preparedData;
     let editor;
     let display;
-    let mapContainer;
-    let link;
     let address;
     let addrLayer;
 
     before(async function() {
-        chai.use(chaiAlmost());
+        chai.use(chaiAlmost(1e-7));
         preparedData = await prepare(dataset);
         display = new Map(document.getElementById('map'), {
             center: {longitude: 75.573482, latitude: 12.950542},
@@ -45,7 +43,7 @@ describe('add Address layer set coordinates', function() {
 
         await editorTests.waitForEditorReady(editor);
 
-        link = preparedData.getFeature('linkLayer', -188828);
+        preparedData.getFeature('linkLayer', -188828);
         address = preparedData.getFeature('paLayer', -47939);
 
         addrLayer = preparedData.getLayers('paLayer');
@@ -58,25 +56,25 @@ describe('add Address layer set coordinates', function() {
     });
 
     it('verify address has correct geo coordinate then modify its geo coordinate', function() {
-        expect(address.coord()).to.deep.equal([
+        expect(address.coord()).to.deep.almost([
             75.572408633, 12.951587932, 0
         ]);
 
-        address.coord([75.57348151653287, 12.95054234105065, 0]);
+        address.coord([75.573481516, 12.950542341, 0]);
     });
 
 
     it('verify address has correct geo coordinate', function() {
-        expect(address.coord()).to.deep.equal([
-            75.57348151653287, 12.95054234105065, 0
+        expect(address.coord()).to.deep.almost([
+            75.573481516, 12.950542341, 0
         ]);
     });
 
     it('modify and verify address has correct geo coordinate', function() {
-        address.coord([75.57240863292691, 12.9515879324657, 0]);
+        address.coord([75.572408632, 12.9515879324, 0]);
 
-        expect(address.coord()).to.deep.equal([
-            75.57240863292691, 12.9515879324657, 0
+        expect(address.coord()).to.deep.almost([
+            75.572408632, 12.951587932, 0
         ]);
     });
 

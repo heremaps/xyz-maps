@@ -18,7 +18,8 @@
  */
 import {editorTests, displayTests, testUtils, prepare} from 'hereTest';
 import {Map} from '@here/xyz-maps-core';
-import {features, Editor} from '@here/xyz-maps-editor';
+import {Editor} from '@here/xyz-maps-editor';
+import chaiAlmost from 'chai-almost';
 import dataset from './zoneselector_spec.json';
 
 describe('zone selector drag', function() {
@@ -28,11 +29,12 @@ describe('zone selector drag', function() {
     let display;
     let preparedData;
     let mapContainer;
-    let results1; let results2;
+    let results2;
 
     let link1; let link2; let link3;
 
     before(async function() {
+        chai.use(chaiAlmost(1e-7));
         preparedData = await prepare(dataset);
         display = new Map(document.getElementById('map'), {
             center: {longitude: -105.145534, latitude: 35.374829},
@@ -177,7 +179,7 @@ describe('zone selector drag', function() {
 
         await testUtils.events.drag(mapContainer, {x: 451, y: 205}, {x: 501, y: 205});
 
-        expect(link3.coord()).to.deep.equal([
+        expect(link3.coord()).to.deep.almost([
             [-105.1444, 35.37458, 0],
             [-105.143881779, 35.37504, 0]
         ]);

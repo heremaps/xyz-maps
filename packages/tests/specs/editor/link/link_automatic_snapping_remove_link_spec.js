@@ -15,9 +15,11 @@
  *
  * SPDX-License-Identifier: Apache-2.0
  * License-Filename: LICENSE
- */import {editorTests, testUtils, prepare} from 'hereTest';
+ */
+import {editorTests, testUtils, prepare} from 'hereTest';
 import {Map} from '@here/xyz-maps-core';
-import {features, Editor} from '@here/xyz-maps-editor';
+import {Editor} from '@here/xyz-maps-editor';
+import chaiAlmost from 'chai-almost';
 import dataset from './link_automatic_snapping_remove_link_spec.json';
 
 describe('link auto remove link', function() {
@@ -34,6 +36,7 @@ describe('link auto remove link', function() {
     let linkLayer;
 
     before(async function() {
+        chai.use(chaiAlmost(1e-7));
         preparedData = await prepare(dataset);
         display = new Map(document.getElementById('map'), {
             center: {longitude: 77.05628448207847, latitude: 12.971348085003669},
@@ -65,17 +68,17 @@ describe('link auto remove link', function() {
 
         await testUtils.events.drag(mapContainer, {x: 300, y: 150}, {x: 250, y: 150});
 
-        expect(link4.coord()).to.deep.equal([
+        expect(link4.coord()).to.deep.almost([
             [77.055479819, 12.972132213, 0],
             [77.056284482, 12.971609461, 0]
         ]);
 
-        expect(link3.coord()).to.deep.equal([
+        expect(link3.coord()).to.deep.almost([
             [77.055479819, 12.972132213, 0],
             [77.056016261, 12.972393589, 0]
         ]);
 
-        expect(link2.coord()).to.deep.equal([
+        expect(link2.coord()).to.deep.almost([
             [77.055211598, 12.972393589, 0],
             [77.055479819, 12.972132213, 0]
         ]);
@@ -101,12 +104,12 @@ describe('link auto remove link', function() {
         let objs = editor.search(display.getViewBounds());
         expect(objs).to.have.lengthOf(3);
 
-        expect(lnk3.coord()).to.deep.equal([
+        expect(lnk3.coord()).to.deep.almost([
             [77.055211598, 12.972393589, 0],
             [77.056016261, 12.972393589, 0]
         ]);
 
-        expect(lnk4.coord()).to.deep.equal([
+        expect(lnk4.coord()).to.deep.almost([
             [77.055211598, 12.972393589, 0],
             [77.056284482, 12.971609461, 0]
         ]);

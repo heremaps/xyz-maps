@@ -19,6 +19,7 @@
 import {editorTests, testUtils, prepare} from 'hereTest';
 import {Map} from '@here/xyz-maps-core';
 import {Editor} from '@here/xyz-maps-editor';
+import chaiAlmost from 'chai-almost';
 import dataset from './map_show_hide_spec.json';
 
 describe('map activate and deactivate', function() {
@@ -31,6 +32,7 @@ describe('map activate and deactivate', function() {
     let link;
 
     before(async function() {
+        chai.use(chaiAlmost(1e-7));
         preparedData = await prepare(dataset);
         display = new Map(document.getElementById('map'), {
             center: {longitude: 75.5553, latitude: 13.99646},
@@ -58,7 +60,7 @@ describe('map activate and deactivate', function() {
         link.select();
         await testUtils.events.drag(mapContainer, {x: 100, y: 100}, {x: 150, y: 100});
 
-        expect(link.coord()).to.deep.equal([
+        expect(link.coord()).to.deep.almost([
             [75.553958896, 13.997501028, 0],
             [75.554227116, 13.997501028, 0],
             [75.554227116, 13.997761284, 0]
@@ -84,7 +86,7 @@ describe('map activate and deactivate', function() {
         link.select();
         await testUtils.events.drag(mapContainer, {x: 150, y: 100}, {x: 100, y: 100});
 
-        expect(link.coord()).to.deep.equal([
+        expect(link.coord()).to.deep.almost([
             [75.553690675, 13.997501028, 0],
             [75.554227116, 13.997501028, 0],
             [75.554227116, 13.997761284, 0]

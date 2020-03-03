@@ -19,6 +19,7 @@
 import {editorTests, prepare, testUtils} from 'hereTest';
 import {features, Editor} from '@here/xyz-maps-editor';
 import {Map} from '@here/xyz-maps-core';
+import chaiAlmost from 'chai-almost';
 import dataset from './address_create_remove_spec.json';
 
 describe('add Address object and then remove', function() {
@@ -33,6 +34,7 @@ describe('add Address object and then remove', function() {
     var paLayer;
 
     before(async function() {
+        chai.use(chaiAlmost(1e-7));
         preparedData = await prepare(dataset);
 
         display = new Map(document.getElementById('map'), {
@@ -72,14 +74,8 @@ describe('add Address object and then remove', function() {
         expect(reqs).to.have.lengthOf(1);
 
         let payloadAddress = reqs[0].payload;
-
-        expect(payloadAddress.features[0]).to.deep.include({
-            'geometry': {
-                'coordinates': [77.327237116, 12.9356, 0],
-                'type': 'Point'
-            }
-        });
-
+        expect(payloadAddress.features[0].geometry.coordinates).to.deep.almost([77.327237116, 12.9356, 0]);
+        expect(payloadAddress.features[0].geometry.type).to.equal('Point');
         expect(payloadAddress.features[0].properties).to.deep.include({
             'featureClass': 'ADDRESS',
             'routingLink': link.id + '',

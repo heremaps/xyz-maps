@@ -18,7 +18,8 @@
  */
 import {editorTests, prepare} from 'hereTest';
 import {Map} from '@here/xyz-maps-core';
-import {features, Editor} from '@here/xyz-maps-editor';
+import {Editor} from '@here/xyz-maps-editor';
+import chaiAlmost from 'chai-almost';
 import dataset from './link_get_functions_spec.json';
 
 describe('Link getters return correct value', function() {
@@ -31,6 +32,7 @@ describe('Link getters return correct value', function() {
     var link;
 
     before(async function() {
+        chai.use(chaiAlmost(1e-7));
         preparedData = await prepare(dataset);
         display = new Map(document.getElementById('map'), {
             center: {longitude: 8.528291, latitude: 49.909723},
@@ -52,7 +54,7 @@ describe('Link getters return correct value', function() {
     });
 
     it('get a link in viewport and validate', function() {
-        expect(link.coord()).to.deep.equal([
+        expect(link.coord()).to.deep.almost([
             [8.527619957, 49.909971348, 0],
             [8.527861356, 49.909978257, 0]
         ]);

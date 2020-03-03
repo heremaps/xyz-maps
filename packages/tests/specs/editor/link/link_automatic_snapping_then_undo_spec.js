@@ -15,9 +15,11 @@
  *
  * SPDX-License-Identifier: Apache-2.0
  * License-Filename: LICENSE
- */import {editorTests, testUtils, prepare} from 'hereTest';
+ */
+import {editorTests, testUtils, prepare} from 'hereTest';
 import {Map} from '@here/xyz-maps-core';
-import {features, Editor} from '@here/xyz-maps-editor';
+import {Editor} from '@here/xyz-maps-editor';
+import chaiAlmost from 'chai-almost';
 import dataset from './link_automatic_snapping_then_undo_spec.json';
 
 describe('drag a link shape point to the other one and then undo', function() {
@@ -31,6 +33,7 @@ describe('drag a link shape point to the other one and then undo', function() {
     let linkLayer;
 
     before(async function() {
+        chai.use(chaiAlmost(1e-7));
         preparedData = await prepare(dataset);
         display = new Map(document.getElementById('map'), {
             center: {longitude: 76.229901, latitude: 15.187356},
@@ -74,7 +77,7 @@ describe('drag a link shape point to the other one and then undo', function() {
 
         link2 = editor.getFeature(link2.id, linkLayer);
         let coord = link2.coord();
-        expect(coord).to.deep.equal([
+        expect(coord).to.deep.almost([
             [76.22923083, 15.187728775, 0],
             [76.230233976, 15.186895307, 0]
         ]);

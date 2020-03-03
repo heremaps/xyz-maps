@@ -28,7 +28,7 @@ describe('map observer', function() {
     let display;
 
     before(async function() {
-        chai.use(chaiAlmost());
+        chai.use(chaiAlmost(1e-7));
         let preparedData = await prepare(dataset);
         display = new Map(document.getElementById('map'), {
             center: {longitude: 73.003685005, latitude: 20.272390425},

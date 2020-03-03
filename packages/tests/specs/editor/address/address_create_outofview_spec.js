@@ -19,6 +19,7 @@
 import {editorTests, testUtils, prepare} from 'hereTest';
 import {Map} from '@here/xyz-maps-core';
 import {features, Editor} from '@here/xyz-maps-editor';
+import chaiAlmost from 'chai-almost';
 import dataset from './address_create_outofview_spec.json';
 
 describe('add Address object and submit out of viewport', function() {
@@ -34,6 +35,7 @@ describe('add Address object and submit out of viewport', function() {
     let paLayer;
 
     before(async function() {
+        chai.use(chaiAlmost(1e-7));
         preparedData = await prepare(dataset);
 
         display = new Map(document.getElementById('map'), {
@@ -96,10 +98,8 @@ describe('add Address object and submit out of viewport', function() {
         link = editor.getFeature(linkId, linkLayer);
 
         payloadAddress.features.forEach(function(p, i) {
-            expect(p.geometry).to.deep.equal({
-                'coordinates': [76.516014886, 12.462893473, 0],
-                'type': 'Point'
-            });
+            expect(p.geometry.coordinates).to.deep.almost([76.516014886, 12.462893473, 0]);
+            expect(p.geometry.type).to.deep.equal('Point');
             expect(p.type).to.equal('Feature');
 
             expect(p.properties).to.deep.include({

@@ -19,6 +19,7 @@
 import {editorTests, testUtils, prepare} from 'hereTest';
 import {Map} from '@here/xyz-maps-core';
 import {Editor} from '@here/xyz-maps-editor';
+import chaiAlmost from 'chai-almost';
 import dataset from './drawingmanager_spec.json';
 
 describe('Create new Links then remove by drawingmanager', function() {
@@ -32,6 +33,7 @@ describe('Create new Links then remove by drawingmanager', function() {
     let linkLayer;
 
     before(async function() {
+        chai.use(chaiAlmost(1e-7));
         preparedData = await prepare(dataset);
         display = new Map(document.getElementById('map'), {
             center: {longitude: 76.98506, latitude: 12.88776},
@@ -79,7 +81,7 @@ describe('Create new Links then remove by drawingmanager', function() {
             link = editor.getDrawingBoard().create({featureClass: 'NAVLINK'});
         });
 
-        expect(link.coord()).to.deep.equal([
+        expect(link.coord()).to.deep.almost([
             [76.983987116, 12.888282928, 0],
             [76.983718895, 12.888648976, 0]
         ]);
@@ -101,7 +103,7 @@ describe('Create new Links then remove by drawingmanager', function() {
 
         link = editor.getFeature(linkId, linkLayer);
 
-        expect(payload.features[0].geometry.coordinates).to.deep.equal([
+        expect(payload.features[0].geometry.coordinates).to.deep.almost([
             [76.983987116, 12.888282928, 0],
             [76.983718895, 12.888648976, 0]
         ]);
@@ -111,7 +113,7 @@ describe('Create new Links then remove by drawingmanager', function() {
     });
 
     it('validate link after submission', async function() {
-        expect(link.coord()).to.deep.equal([
+        expect(link.coord()).to.deep.almost([
             [76.983987116, 12.888282928, 0],
             [76.983718895, 12.888648976, 0]
         ]);

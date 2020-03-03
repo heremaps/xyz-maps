@@ -15,9 +15,11 @@
  *
  * SPDX-License-Identifier: Apache-2.0
  * License-Filename: LICENSE
- */import {editorTests, testUtils, prepare} from 'hereTest';
+ */
+import {editorTests, testUtils, prepare} from 'hereTest';
 import {Map} from '@here/xyz-maps-core';
-import {features, Editor} from '@here/xyz-maps-editor';
+import {Editor} from '@here/xyz-maps-editor';
+import chaiAlmost from 'chai-almost';
 import dataset from './link_geofence_spec.json';
 
 describe('link geofence setting', function() {
@@ -31,6 +33,7 @@ describe('link geofence setting', function() {
     let linkLayer;
 
     before(async function() {
+        chai.use(chaiAlmost(1e-7));
         preparedData = await prepare(dataset);
         display = new Map(document.getElementById('map'), {
             center: {longitude: 80.63257782733888, latitude: 17.71492567213454},
@@ -58,7 +61,7 @@ describe('link geofence setting', function() {
         link.select();
         await testUtils.events.drag(mapContainer, {x: 300, y: 100}, {x: 400, y: 200});
 
-        expect(link.coord()).to.deep.equal([
+        expect(link.coord()).to.deep.almost([
             [80.630968502, 17.715947679, 0],
             [80.632577828, 17.715436676, 0]
         ]);
@@ -73,7 +76,7 @@ describe('link geofence setting', function() {
 
         await testUtils.events.drag(mapContainer, {x: 300, y: 100}, {x: 400, y: 200});
 
-        expect(lnk.coord()).to.deep.equal([
+        expect(lnk.coord()).to.deep.almost([
             [80.630968502, 17.715947679, 0],
             [80.632577828, 17.715436676, 0]
         ]);
@@ -89,7 +92,7 @@ describe('link geofence setting', function() {
 
         await testUtils.events.drag(mapContainer, {x: 300, y: 100}, {x: 400, y: 200});
 
-        expect(lnk.coord()).to.deep.equal([
+        expect(lnk.coord()).to.deep.almost([
             [80.630968502, 17.715947679, 0],
             [80.632577828, 17.715436676, 0]
         ]);

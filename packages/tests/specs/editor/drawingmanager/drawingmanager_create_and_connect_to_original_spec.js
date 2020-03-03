@@ -19,6 +19,7 @@
 import {editorTests, testUtils, prepare} from 'hereTest';
 import {Map} from '@here/xyz-maps-core';
 import {Editor} from '@here/xyz-maps-editor';
+import chaiAlmost from 'chai-almost';
 import dataset from './drawingmanager_create_and_connect_to_original_spec.json';
 
 describe('Create new Links and connect to original link', function() {
@@ -31,6 +32,7 @@ describe('Create new Links and connect to original link', function() {
     let link;
 
     before(async function() {
+        chai.use(chaiAlmost(1e-7));
         preparedData = await prepare(dataset);
         display = new Map(document.getElementById('map'), {
             center: {longitude: 77.221332, latitude: 13.151157},
@@ -67,7 +69,7 @@ describe('Create new Links and connect to original link', function() {
             lnk = editor.getDrawingBoard().create({featureClass: 'NAVLINK'});
         });
 
-        expect(lnk.coord()).to.deep.equal([
+        expect(lnk.coord()).to.deep.almost([
             [77.220259106, 13.152202639, 0],
             [77.220259116, 13.151679372, 0]
         ]);
@@ -97,7 +99,7 @@ describe('Create new Links and connect to original link', function() {
 
         expect(payload.features).to.have.lengthOf(1);
         expect(payload.features[0].type).to.equal('Feature');
-        expect(payload.features[0].geometry.coordinates).to.deep.equal([
+        expect(payload.features[0].geometry.coordinates).to.deep.almost([
             [77.220259106, 13.152202639, 0],
             [77.220259116, 13.151679372, 0]
         ]);
