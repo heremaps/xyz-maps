@@ -40,6 +40,7 @@ class UI {
         const ui = this;
         let uiOptions = {...mapfcg['UI'] || mapfcg['ui'] || {}};
         let uiComponents = ui.components = {};
+        let opt;
 
         ui.el = element;
 
@@ -49,15 +50,18 @@ class UI {
         }
 
         for (let c in Components) {
-            let opt = uiOptions[c] || {};
+            if (opt = uiOptions[c]) {
+                if (typeof opt != 'object') {
+                    opt = {};
+                }
 
-            if (opt.visible == UNDEF) {
-                opt.visible = true;
-            }
+                if (opt.visible == UNDEF) {
+                    opt.visible = true;
+                }
 
-            if (opt.visible) {
-                // ui[c] = new Components[c]( uiContainer, opt, display )
-                uiComponents[c] = new Components[c](element, opt, display, mapfcg);
+                if (opt.visible) {
+                    uiComponents[c] = new Components[c](element, opt, display, mapfcg);
+                }
             }
         }
     }
