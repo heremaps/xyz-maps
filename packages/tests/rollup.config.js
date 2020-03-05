@@ -101,8 +101,8 @@ module.exports = function(config) {
                     typescript({
                         typescript: require('typescript'),
                         // only compileroptions are read from tsconfig.json
-                        include: ['specs/common/**/*'],
-                        exclude: ['node_modules', 'dist', 'specs/common/**/*.json']
+                        include: ['specs/main.ts'],
+                        exclude: ['node_modules', 'dist']
                     }),
                     json(),
                     del({targets: 'dist/common/specs*.js'}),
@@ -183,8 +183,8 @@ module.exports = function(config) {
                     typescript({
                         typescript: require('typescript'),
                         // only compileroptions are read from tsconfig.json
-                        include: ['specs/core/**/*'],
-                        exclude: ['node_modules', 'dist', 'specs/core/**/*.json']
+                        include: ['specs/main.ts'],
+                        exclude: ['node_modules', 'dist']
                     }),
                     json(),
                     del({targets: 'dist/core/specs*.js'}),
@@ -265,8 +265,8 @@ module.exports = function(config) {
                     typescript({
                         typescript: require('typescript'),
                         // only compileroptions are read from tsconfig.json
-                        include: ['specs/display/**/*'],
-                        exclude: ['node_modules', 'dist', 'specs/display/**/*.json']
+                        include: ['specs/main.ts'],
+                        exclude: ['node_modules', 'dist']
                     }),
                     json(),
                     del({targets: 'dist/display/specs*.js'}),
@@ -348,8 +348,8 @@ module.exports = function(config) {
                     typescript({
                         typescript: require('typescript'),
                         // only compileroptions are read from tsconfig.json
-                        include: ['specs/editor/**/*'],
-                        exclude: ['node_modules', 'dist', 'specs/editor/**/*.json']
+                        include: ['specs/main.ts'],
+                        exclude: ['node_modules', 'dist']
                     }),
                     json(),
                     del({targets: 'dist/editor/specs*.js'}),
