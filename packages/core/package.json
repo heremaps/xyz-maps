@@ -13,7 +13,6 @@
     "directory": "packages/core"
   },
   "main": "dist/xyz-maps-core.min.js",
-  "module": "dist/xyz-maps-core.esm.min.js",
   "files": [
     "dist/xyz*.min.js"
   ],
