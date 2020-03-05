@@ -24,7 +24,7 @@
     "build-release": "rollup -c --environment BUILD:production"
   },
   "devDependencies": {
-    "@rollup/plugin-typescript": "^3.0.0",
+    "@rollup/plugin-typescript": "^2.1.0",
     "rollup": "^1.32.0",
     "rollup-plugin-img": "^1.1.0",
     "rollup-plugin-terser": "^5.2.0",

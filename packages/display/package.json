@@ -24,7 +24,7 @@
   },
   "publishConfig": {},
   "devDependencies": {
-    "@rollup/plugin-typescript": "^3.0.0",
+    "@rollup/plugin-typescript": "^2.1.0",
     "@rollup/plugin-virtual": "^2.0.1",
     "earcut": "^2.2.2",
     "gl-matrix": "^3.2.1",
