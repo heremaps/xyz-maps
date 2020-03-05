@@ -137,7 +137,7 @@
 		});
 
         // setup the Map Display
-		const display = new  here.xyz.maps.Map( document.getElementById("map"), {
+		const display = new here.xyz.maps.Map( document.getElementById("map"), {
 			zoomLevel : 17,
 			center: {
 				longitude: -122.283766, latitude: 37.818477
@@ -207,6 +207,8 @@ document.querySelector("#hidebtn").onclick = function(){
 	infoTag.innerText = "Zone Info";
 }
 /*visiblesource###*/
+            // used by playground to automatically resize the map on size change
+            window.display = display;
 		</script>
 	</body>
 </html>
