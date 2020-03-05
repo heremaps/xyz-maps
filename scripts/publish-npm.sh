@@ -19,10 +19,12 @@
 #
 # simple script for npm publishing
 # to be run from travis
+
 set -ex
 
-echo '//registry.npmjs.org/:_authToken=${NPM_TOKEN}' > ~/.npmrc
+echo "//registry.npmjs.org/:_authToken=${NPM_TOKEN}" > ~/.npmrc
 
+yarn install
 yarn build-release
 
 # packages that should be published
