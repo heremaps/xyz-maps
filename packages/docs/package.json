@@ -19,7 +19,7 @@
   },
   "devDependencies": {
     "jsdoc": "^3.6.3",
-    "rimraf": "~2.6.2",
-    "yargs": "^10.0.3"
+    "rimraf": "~3.0.2",
+    "yargs": "^15.1.0"
   }
 }

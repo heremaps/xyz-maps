@@ -19,8 +19,8 @@
     "test": "node build.js --test"
   },
   "devDependencies": {
-    "@rollup/plugin-json": "^4.0.0",
-    "@rollup/plugin-node-resolve": "^6.0.0",
+    "@rollup/plugin-json": "^4.0.2",
+    "@rollup/plugin-node-resolve": "^7.1.1",
     "@rollup/plugin-typescript": "^2.1.0",
     "@rollup/plugin-virtual": "^2.0.0",
     "@types/chai": "^4.1.7",
@@ -36,12 +36,13 @@
     "mkdirp": "~0.5.1",
     "mocha": "~6.0.2",
     "rimraf": "~2.6.2",
-    "rollup": "^1.29.1",
-    "rollup-plugin-copy": "^3.2.1",
-    "rollup-plugin-delete": "^1.1.0",
+    "rollup": "^1.32.0",
+    "rollup-plugin-copy": "^3.3.0",
+    "rollup-plugin-delete": "^1.2.0",
     "rollup-plugin-glob-import": "^0.4.5",
-    "rollup-plugin-postcss": "^2.0.3",
-    "typescript": "^3.7.5",
+    "rollup-plugin-postcss": "^2.2.0",
+    "typescript": "^3.8.3",
+    "tslib": "^1.11.1",
     "yargs": "^10.0.3"
   }
 }
