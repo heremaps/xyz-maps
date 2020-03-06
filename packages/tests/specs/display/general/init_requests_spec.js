@@ -17,7 +17,8 @@
  * License-Filename: LICENSE
  */
 
-import {displayTests, testUtils, prepare} from 'hereTest';
+import {waitForViewportReady} from 'displayTests';
+import {MonitorXHR, prepare} from 'testUtils';
 import {Map} from '@here/xyz-maps-core';
 import dataset from './init_requests_spec.json';
 
@@ -30,7 +31,7 @@ describe('initial requests of display', function() {
     before(async function() {
         let preparedData = await prepare(dataset);
 
-        let monitor = new testUtils.MonitorXHR();
+        let monitor = new MonitorXHR();
         monitor.start();
         display = new Map(document.getElementById('map'), {
             renderOptions: {
@@ -41,7 +42,7 @@ describe('initial requests of display', function() {
             layers: preparedData.getLayers()
         });
 
-        await displayTests.waitForViewportReady(display);
+        await waitForViewportReady(display);
 
         requests = monitor.stop({method: 'all'});
     });

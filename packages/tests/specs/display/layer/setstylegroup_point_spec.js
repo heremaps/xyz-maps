@@ -17,7 +17,8 @@
  * License-Filename: LICENSE
  */
 
-import {displayTests, prepare, testUtils} from 'hereTest';
+import {waitForViewportReady} from 'displayTests';
+import {getCanvasPixelColor, prepare} from 'testUtils';
 import {Map} from '@here/xyz-maps-core';
 import dataset from './setstylegroup_point_spec.json';
 
@@ -41,7 +42,7 @@ describe('setStyleGroup Point', function() {
             layers: preparedData.getLayers()
         });
 
-        await displayTests.waitForViewportReady(display);
+        await waitForViewportReady(display);
 
         mapContainer = display.getContainer();
         paLayer = preparedData.getLayers('paLayer');
@@ -70,8 +71,8 @@ describe('setStyleGroup Point', function() {
         // validate features have new style
         await new Promise((resolve) => {
             setTimeout(() => {
-                let color1 = testUtils.getCanvasPixelColor(mapContainer, 400, 300); // get color of address 1
-                let color2 = testUtils.getCanvasPixelColor(mapContainer, 217, 300); // get color of address 2
+                let color1 = getCanvasPixelColor(mapContainer, 400, 300); // get color of address 1
+                let color2 = getCanvasPixelColor(mapContainer, 217, 300); // get color of address 2
 
                 expect(color1).to.equal('#be6b65');
                 expect(color2).to.equal('#be6b65');
@@ -92,8 +93,8 @@ describe('setStyleGroup Point', function() {
         // validate features have style reset
         await new Promise((resolve) => {
             setTimeout(() => {
-                let color1 = testUtils.getCanvasPixelColor(mapContainer, 400, 300); // get color of address 1 again
-                let color2 = testUtils.getCanvasPixelColor(mapContainer, 217, 300); // get color of address 2 again
+                let color1 = getCanvasPixelColor(mapContainer, 400, 300); // get color of address 1 again
+                let color2 = getCanvasPixelColor(mapContainer, 217, 300); // get color of address 2 again
 
                 expect(color1).to.equal('#ff0000');
                 expect(color2).to.equal('#ff0000');
@@ -114,9 +115,9 @@ describe('setStyleGroup Point', function() {
         // validate features have new style
         await new Promise((resolve) => {
             setTimeout(() => {
-                let color1 = testUtils.getCanvasPixelColor(mapContainer, 400, 300); // get color in middle of address 1
-                let color2 = testUtils.getCanvasPixelColor(mapContainer, 400, 305); // get color in mid bottom of address 1
-                let color3 = testUtils.getCanvasPixelColor(mapContainer, 405, 300); // get color in mid right of address 1
+                let color1 = getCanvasPixelColor(mapContainer, 400, 300); // get color in middle of address 1
+                let color2 = getCanvasPixelColor(mapContainer, 400, 305); // get color in mid bottom of address 1
+                let color3 = getCanvasPixelColor(mapContainer, 405, 300); // get color in mid right of address 1
 
                 expect(color1).to.equal('#ffffff');
                 expect(color2).to.equal('#be6b65');
@@ -137,9 +138,9 @@ describe('setStyleGroup Point', function() {
         // validate features have new style
         await new Promise((resolve) => {
             setTimeout(() => {
-                let color1 = testUtils.getCanvasPixelColor(mapContainer, 400, 300); // get color in the middle of address 1
-                let color2 = testUtils.getCanvasPixelColor(mapContainer, 400, 305); // get color in mid bottom of address 1
-                let color3 = testUtils.getCanvasPixelColor(mapContainer, 405, 300); // get color in mid right of address 1
+                let color1 = getCanvasPixelColor(mapContainer, 400, 300); // get color in the middle of address 1
+                let color2 = getCanvasPixelColor(mapContainer, 400, 305); // get color in mid bottom of address 1
+                let color3 = getCanvasPixelColor(mapContainer, 405, 300); // get color in mid right of address 1
 
                 expect(color1).to.equal('#be6b65');
                 expect(color2).to.equal('#be6b65');

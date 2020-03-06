@@ -17,7 +17,8 @@
  * License-Filename: LICENSE
  */
 
-import {displayTests, prepare} from 'hereTest';
+import {prepare} from 'testUtils';
+import {waitForViewportReady} from 'displayTests';
 import {Map} from '@here/xyz-maps-core';
 import dataset from './get_containers_spec.json';
 
@@ -52,7 +53,7 @@ describe('validate map container', function() {
 
 
     it('validate map containers again after moving map', async function() {
-        await displayTests.waitForViewportReady(display, ()=>{
+        await waitForViewportReady(display, ()=>{
             display.setCenter({longitude: 77.79851889087672, latitude: 12.623621436440137});
         });
 

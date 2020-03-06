@@ -16,7 +16,9 @@
  * SPDX-License-Identifier: Apache-2.0
  * License-Filename: LICENSE
  */
-import {editorTests, displayTests, testUtils, prepare} from 'hereTest';
+import {prepare} from 'testUtils';
+import {waitForEditorReady} from 'editorTests';
+import {mousemove, drag, click} from 'utilEvents';
 import {Map} from '@here/xyz-maps-core';
 import {Editor} from '@here/xyz-maps-editor';
 import chaiAlmost from 'chai-almost';
@@ -41,7 +43,7 @@ describe('map viewport lock', function() {
         editor = new Editor(display, {
             layers: preparedData.getLayers()
         });
-        await editorTests.waitForEditorReady(editor);
+        await waitForEditorReady(editor);
         mapContainer = display.getContainer();
     });
 
@@ -53,7 +55,7 @@ describe('map viewport lock', function() {
     it('locked viewport is not draggable', async function() {
         display.lockViewport({pan: true});
 
-        await testUtils.events.drag(mapContainer, {x: 100, y: 100}, {x: 200, y: 100});
+        await drag(mapContainer, {x: 100, y: 100}, {x: 200, y: 100});
 
         expect(display.getCenter()).to.deep.equal({longitude: 76.00056, latitude: 13.00109});
     });
@@ -61,24 +63,24 @@ describe('map viewport lock', function() {
     it('locked viewport is not draggable when drawingboard is active', async function() {
         editor.getDrawingBoard().start();
 
-        await testUtils.events.mousemove(mapContainer, {x: 80, y: 100}, {x: 100, y: 100});
+        await mousemove(mapContainer, {x: 80, y: 100}, {x: 100, y: 100});
 
-        await testUtils.events.drag(mapContainer, {x: 100, y: 100}, {x: 100, y: 150});
+        await drag(mapContainer, {x: 100, y: 100}, {x: 100, y: 150});
 
         expect(display.getCenter()).to.deep.equal({longitude: 76.00056, latitude: 13.00109});
     });
 
     it('create link with drawingboard', async function() {
-        await testUtils.events.click(mapContainer, 100, 100);
+        await click(mapContainer, 100, 100);
 
         // try draging the map
-        await testUtils.events.drag(mapContainer, {x: 100, y: 200}, {x: 100, y: 300});
+        await drag(mapContainer, {x: 100, y: 200}, {x: 100, y: 300});
 
-        await testUtils.events.click(mapContainer, 100, 300);
+        await click(mapContainer, 100, 300);
 
         let lnk;
 
-        await editorTests.waitForEditorReady(editor, ()=>{
+        await waitForEditorReady(editor, ()=>{
             lnk = editor.getDrawingBoard().create({featureClass: 'NAVLINK'});
         });
 
@@ -87,14 +89,14 @@ describe('map viewport lock', function() {
             [75.998950675, 13.00109, 0]
         ]);
 
-        await editorTests.waitForEditorReady(editor, ()=>{
+        await waitForEditorReady(editor, ()=>{
             editor.revert();
         });
     });
 
 
     it('drag map not possible when viewport is locked', async function() {
-        await testUtils.events.drag(mapContainer, {x: 100, y: 200}, {x: 100, y: 300});
+        await drag(mapContainer, {x: 100, y: 200}, {x: 100, y: 300});
 
         expect(display.getCenter()).to.deep.equal({longitude: 76.00056, latitude: 13.00109});
     });
@@ -103,8 +105,8 @@ describe('map viewport lock', function() {
     it('unblock viewport and drag viewport', async function() {
         display.lockViewport({pan: false});
 
-        await editorTests.waitForEditorReady(editor, async ()=>{
-            await testUtils.events.drag(mapContainer, {x: 100, y: 100}, {x: 150, y: 150});
+        await waitForEditorReady(editor, async ()=>{
+            await drag(mapContainer, {x: 100, y: 100}, {x: 150, y: 150});
         });
 
         expect(display.getCenter().latitude).to.not.equal( 13.00109);

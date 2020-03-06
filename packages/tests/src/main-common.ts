@@ -18,6 +18,7 @@
  */
 
 import {commonTests} from './helpers/commonTests';
+import {testUtils} from './helpers/testUtils';
 
 import {run} from './runner';
 
@@ -26,5 +27,5 @@ import mochaSettings from 'settings';
 
 mocha.setup(mochaSettings);
 
-export default {commonTests, run};
+export default {commonTests, testUtils, run};
 

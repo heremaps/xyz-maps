@@ -96,7 +96,7 @@ module.exports = function(config) {
         }, {
             input: {
                 input: 'specs/common/main.ts',
-                external: ['hereTest', '@here/xyz-maps-common'],
+                external: ['testUtils', '@here/xyz-maps-common'],
                 plugins: [
                     typescript({
                         typescript: require('typescript'),
@@ -122,7 +122,7 @@ module.exports = function(config) {
                 name: 'commonTests',
                 sourcemap: true,
                 globals: {
-                    'hereTest': 'here.test',
+                    'testUtils': 'here.test.testUtils',
                     '@here/xyz-maps-common': 'here.xyz.maps.common'
                 }
             }
@@ -177,7 +177,7 @@ module.exports = function(config) {
         }, {
             input: {
                 input: 'specs/core/main.ts',
-                external: ['hereTest', '@here/xyz-maps-common', '@here/xyz-maps-core', '@here/xyz-maps-editor'],
+                external: ['coreTests', 'testUtils', '@here/xyz-maps-common', '@here/xyz-maps-core', '@here/xyz-maps-editor'],
 
                 plugins: [
                     typescript({
@@ -204,7 +204,8 @@ module.exports = function(config) {
                 name: 'coreTests',
                 sourcemap: true,
                 globals: {
-                    'hereTest': 'here.test'
+                    'coreTests': 'here.test.coreTests',
+                    'testUtils': 'here.test.testUtils'
                 }
             }
         });
@@ -259,7 +260,7 @@ module.exports = function(config) {
         }, {
             input: {
                 input: 'specs/display/main.ts',
-                external: ['hereTest', '@here/xyz-maps-core', '@here/xyz-maps-display', '@here/xyz-maps-editor'],
+                external: ['displayTests', 'testUtils', 'utilEvents', '@here/xyz-maps-core', '@here/xyz-maps-display', '@here/xyz-maps-editor'],
 
                 plugins: [
                     typescript({
@@ -288,7 +289,9 @@ module.exports = function(config) {
                 name: 'displayTests',
                 sourcemap: true,
                 globals: {
-                    'hereTest': 'here.test',
+                    'displayTests': 'here.test.displayTests',
+                    'testUtils': 'here.test.testUtils',
+                    'utilEvents': 'here.test.testUtils.events',
                     '@here/xyz-maps-core': 'here.xyz.maps'
                 }
             }
@@ -343,7 +346,7 @@ module.exports = function(config) {
         }, {
             input: {
                 input: 'specs/editor/main.ts',
-                external: ['hereTest', '@here/xyz-maps-core', '@here/xyz-maps-display', '@here/xyz-maps-editor'],
+                external: ['displayTests', 'editorTests', 'testUtils', 'utilEvents', '@here/xyz-maps-core', '@here/xyz-maps-display', '@here/xyz-maps-editor'],
                 plugins: [
                     typescript({
                         typescript: require('typescript'),
@@ -371,7 +374,10 @@ module.exports = function(config) {
                 name: 'editorTests',
                 sourcemap: true,
                 globals: {
-                    'hereTest': 'here.test',
+                    'displayTests': 'here.test.displayTests',
+                    'editorTests': 'here.test.editorTests',
+                    'testUtils': 'here.test.testUtils',
+                    'utilEvents': 'here.test.testUtils.events',
                     '@here/xyz-maps-core': 'here.xyz.maps',
                     '@here/xyz-maps-editor': 'here.xyz.maps.editor'
                 }

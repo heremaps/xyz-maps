@@ -16,7 +16,9 @@
  * SPDX-License-Identifier: Apache-2.0
  * License-Filename: LICENSE
  */
-import {editorTests, testUtils, prepare} from 'hereTest';
+import {prepare} from 'testUtils';
+import {waitForEditorReady} from 'editorTests';
+import {drag} from 'utilEvents';
 import {Map} from '@here/xyz-maps-core';
 import {Editor} from '@here/xyz-maps-editor';
 import dataset from './map_viewport_getobjects_spec.json';
@@ -42,7 +44,7 @@ describe('map viewport getobjects', function() {
             layers: preparedData.getLayers()
         });
 
-        await editorTests.waitForEditorReady(editor);
+        await waitForEditorReady(editor);
 
         poiLayer = preparedData.getLayers('placeLayer');
 
@@ -85,7 +87,7 @@ describe('map viewport getobjects', function() {
     it('select a poi, validate POI objects in boundingbox of the viewport again', async function() {
         poi1.select();
         let mapContainer = display.getContainer();
-        await testUtils.events.drag(mapContainer, {x: 150, y: 100}, {x: 180, y: 100});
+        await drag(mapContainer, {x: 150, y: 100}, {x: 180, y: 100});
 
         let obj = editor.search({
             rect: {minLon: 77.19860754268157, minLat: 13.143048347212835, maxLon: 77.19968042628752, maxLat: 13.143831930849458},

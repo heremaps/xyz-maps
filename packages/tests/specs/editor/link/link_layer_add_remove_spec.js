@@ -16,7 +16,9 @@
  * SPDX-License-Identifier: Apache-2.0
  * License-Filename: LICENSE
  */
-import {editorTests, displayTests, testUtils, prepare} from 'hereTest';
+import {prepare} from 'testUtils';
+import {waitForEditorReady} from 'editorTests';
+import {drag, click} from 'utilEvents';
 import {Map} from '@here/xyz-maps-core';
 import {Editor} from '@here/xyz-maps-editor';
 import chaiAlmost from 'chai-almost';
@@ -45,7 +47,7 @@ describe('Link layer add and remove', function() {
             layers: preparedData.getLayers()
         });
 
-        await editorTests.waitForEditorReady(editor);
+        await waitForEditorReady(editor);
         mapContainer = display.getContainer();
 
         linkLayer = preparedData.getLayers('linkLayer');
@@ -75,23 +77,23 @@ describe('Link layer add and remove', function() {
     });
 
     it('drag poi and validate it is not dragged', async function() {
-        await testUtils.events.click(mapContainer, 200, 250);
-        await testUtils.events.drag(mapContainer, {x: 200, y: 250}, {x: 200, y: 280});
+        await click(mapContainer, 200, 250);
+        await drag(mapContainer, {x: 200, y: 250}, {x: 200, y: 280});
 
         expect(poi.coord()).to.deep.almost([75.336187116, 14.029118089, 0]);
     });
 
     it('drag link shape and valdidate map is dragged', async function() {
-        await testUtils.events.click(mapContainer, 150, 200);
-        await editorTests.waitForEditorReady(editor, async ()=>{
-            await testUtils.events.drag(mapContainer, {x: 400, y: 200}, {x: 450, y: 250});
+        await click(mapContainer, 150, 200);
+        await waitForEditorReady(editor, async ()=>{
+            await drag(mapContainer, {x: 400, y: 200}, {x: 450, y: 250});
         });
 
         expect(display.getCenter().latitude).to.not.equal(14.029014);
     });
 
     it('move map to original area add link layer', async function() {
-        await editorTests.waitForEditorReady(editor, ()=>{
+        await waitForEditorReady(editor, ()=>{
             display.setCenter({longitude: 75.33726, latitude: 14.029014});
         });
 
@@ -106,7 +108,7 @@ describe('Link layer add and remove', function() {
         let lnk = editor.getFeature(link.id, linkLayer);
         lnk.select();
 
-        await testUtils.events.drag(mapContainer, {x: 400, y: 200}, {x: 300, y: 200});
+        await drag(mapContainer, {x: 400, y: 200}, {x: 300, y: 200});
 
         expect(display.getCenter()).to.deep.equal({longitude: 75.33726, latitude: 14.029014});
     });

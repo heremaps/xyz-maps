@@ -16,7 +16,9 @@
  * SPDX-License-Identifier: Apache-2.0
  * License-Filename: LICENSE
  */
-import {editorTests, testUtils, prepare} from 'hereTest';
+import {prepare} from 'testUtils';
+import {waitForEditorReady, click, submit} from 'editorTests';
+import {drag} from 'utilEvents';
 import {Map} from '@here/xyz-maps-core';
 import {features, Editor} from '@here/xyz-maps-editor';
 import dataset from './link_style_spec.json';
@@ -43,13 +45,13 @@ xdescribe('verify Link style', function() {
         editor = new Editor(display, {
             layers: preparedData.getLayers()
         });
-        await editorTests.waitForEditorReady(editor);
+        await waitForEditorReady(editor);
         mapContainer = display.getContainer();
         linkLayer = preparedData.getLayers('linkLayer');
     });
 
     after(async function() {
-        await editorTests.clean(editor, isMaps);
+        await clean(editor, isMaps);
         editor.destroy();
         display.destroy();
         await preparedData.clear();
@@ -69,7 +71,7 @@ xdescribe('verify Link style', function() {
     });
 
     it('click the created Link, validate its style', async function() {
-        await editorTests.click(editor, 200, 200);
+        await click(editor, 200, 200);
 
         expect(link.style()).to.deep.equal([
             {zIndex: 0, type: 'Line', strokeWidth: 10, stroke: '#ff0000'}
@@ -90,7 +92,7 @@ xdescribe('verify Link style', function() {
 
 
     it('click to dehighlight Link', async function() {
-        await editorTests.click(editor, 200, 100);
+        await click(editor, 200, 100);
 
         expect(link.style()).to.deep.equal([
             {zIndex: 0, type: 'Line', strokeWidth: 10, stroke: '#ff0000'}
@@ -111,9 +113,9 @@ xdescribe('verify Link style', function() {
     });
 
     it('click to dehighlight link, validate link color is changed back', async function() {
-        await editorTests.click(editor, 100, 100);
+        await click(editor, 100, 100);
 
-        await editorTests.click(editor, 200, 200);
+        await click(editor, 200, 200);
 
         expect(link.style()).to.deep.equal([
             {zIndex: 0, type: 'Line', strokeWidth: 10, stroke: '#ff0000'}
@@ -137,7 +139,7 @@ xdescribe('verify Link style', function() {
 
 
     it('add a link, submit and select', async function() {
-        await editorTests.waitForEditorReady(editor, ()=>{
+        await waitForEditorReady(editor, ()=>{
             editor.revert();
         });
 
@@ -146,8 +148,8 @@ xdescribe('verify Link style', function() {
 
         let idMap;
 
-        await editorTests.waitForEditorReady(editor, async ()=>{
-            idMap = await editorTests.submit(editor);
+        await waitForEditorReady(editor, async ()=>{
+            idMap = await submit(editor);
             isMaps.push(idMap);
         });
         let linkId = idMap.permanentIDMap[link2.getProvider().id][link2.id];
@@ -161,7 +163,7 @@ xdescribe('verify Link style', function() {
     });
 
     it('drag the link shape and undo, validate the change', async function() {
-        await testUtils.events.drag(mapContainer, {x: 100, y: 300}, {x: 150, y: 290});
+        await drag(mapContainer, {x: 100, y: 300}, {x: 150, y: 290});
 
         editor.undo();
 

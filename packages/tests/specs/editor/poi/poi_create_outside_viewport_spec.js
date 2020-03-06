@@ -16,7 +16,8 @@
  * SPDX-License-Identifier: Apache-2.0
  * License-Filename: LICENSE
  */
-import {editorTests, prepare} from 'hereTest';
+import {prepare} from 'testUtils';
+import {waitForEditorReady} from 'editorTests';
 import {Map} from '@here/xyz-maps-core';
 import {features, Editor} from '@here/xyz-maps-editor';
 import dataset from './poi_create_outside_viewport_spec.json';
@@ -40,7 +41,7 @@ describe('create a poi outside viewport, it connects to a link nearby', function
         editor = new Editor(display, {
             layers: preparedData.getLayers()
         });
-        await editorTests.waitForEditorReady(editor);
+        await waitForEditorReady(editor);
 
         link = preparedData.getFeature('linkLayer', -189171);
     });
@@ -52,7 +53,7 @@ describe('create a poi outside viewport, it connects to a link nearby', function
     });
 
     it('create a poi outside viewport, validate it connects a link nearby', async function() {
-        await editorTests.waitForEditorReady(editor, ()=>{
+        await waitForEditorReady(editor, ()=>{
             display.setCenter({longitude: 78.69697807230585, latitude: 17.06284978426463});
         });
 

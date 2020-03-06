@@ -17,7 +17,9 @@
  * License-Filename: LICENSE
  */
 
-import {displayTests, testUtils, prepare} from 'hereTest';
+import {waitForViewportReady} from 'displayTests';
+import {prepare} from 'testUtils';
+import {drag, mousewheel} from 'utilEvents';
 import {Map} from '@here/xyz-maps-core';
 import chaiAlmost from 'chai-almost';
 import dataset from './set_get_behavior_spec.json';
@@ -59,7 +61,7 @@ describe('set and get behavior', function() {
     it('set pan behavior to false and validate the map', async function() {
         display.setBehavior('drag', false);
 
-        await testUtils.events.drag(mapContainer, {x: 100, y: 100}, {x: 200, y: 100});
+        await drag(mapContainer, {x: 100, y: 100}, {x: 200, y: 100});
 
         expect(display.getCenter()).to.deep.equal({
             longitude: 77.79802, latitude: 12.62214
@@ -77,8 +79,8 @@ describe('set and get behavior', function() {
     it('set pan behavior to false', async function() {
         display.setBehavior('drag', true);
 
-        await displayTests.waitForViewportReady(display, async ()=>{
-            await testUtils.events.drag(mapContainer, {x: 100, y: 100}, {x: 200, y: 100});
+        await waitForViewportReady(display, async ()=>{
+            await drag(mapContainer, {x: 100, y: 100}, {x: 200, y: 100});
         });
 
         expect(display.getCenter().longitude).to.not.equal(
@@ -92,7 +94,7 @@ describe('set and get behavior', function() {
     it('zoom out and validate', async function() {
         display.setBehavior('zoom', false);
 
-        await testUtils.events.mousewheel(mapContainer, 200, 210, 1);
+        await mousewheel(mapContainer, 200, 210, 1);
 
         expect(display.getZoomlevel()).to.equal(18);
         expect(display.getBehavior()).to.deep.include({zoom: false, drag: true});
@@ -101,7 +103,7 @@ describe('set and get behavior', function() {
     it('set zoom behavior to true and validate', async function() {
         display.setBehavior('zoom', true);
 
-        await displayTests.waitForViewportReady(display, ()=>{
+        await waitForViewportReady(display, ()=>{
             display.setZoomlevel(19);
         });
 
@@ -110,8 +112,8 @@ describe('set and get behavior', function() {
 
         display.setBehavior('zoom', 'fixed');
 
-        await displayTests.waitForViewportReady(display, async ()=>{
-            await testUtils.events.mousewheel(mapContainer, 200, 210, -1);
+        await waitForViewportReady(display, async ()=>{
+            await mousewheel(mapContainer, 200, 210, -1);
         });
 
         expect(display.getZoomlevel()).to.equal(18);

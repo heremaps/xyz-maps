@@ -16,9 +16,11 @@
  * SPDX-License-Identifier: Apache-2.0
  * License-Filename: LICENSE
  */
-import {editorTests, displayTests, testUtils, prepare} from 'hereTest';
+import {prepare} from 'testUtils';
+import {waitForEditorReady} from 'editorTests';
+import {drag} from 'utilEvents';
 import {Map} from '@here/xyz-maps-core';
-import {features, Editor} from '@here/xyz-maps-editor';
+import {Editor} from '@here/xyz-maps-editor';
 import dataset from './transform_split_link_spec.json';
 
 describe('splitting link deactivates transformer of objects', function() {
@@ -40,7 +42,7 @@ describe('splitting link deactivates transformer of objects', function() {
             layers: preparedData.getLayers()
         });
 
-        await editorTests.waitForEditorReady(editor);
+        await waitForEditorReady(editor);
         mapContainer = display.getContainer();
 
         link2 = preparedData.getFeature('linkLayer', -189188);
@@ -71,8 +73,8 @@ describe('splitting link deactivates transformer of objects', function() {
 
     xit('validate not able to transform', async function() {
         let obj;
-        await editorTests.waitForEditorReady(editor, async ()=>{
-            obj = testUtils.events.drag(display, {x: 170, y: 225}, {x: 200, y: 250});
+        await waitForEditorReady(editor, async ()=>{
+            obj = drag(display, {x: 170, y: 225}, {x: 200, y: 250});
         });
 
         expect(editor.get('history.current')).to.equal(2);

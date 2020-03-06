@@ -16,7 +16,9 @@
  * SPDX-License-Identifier: Apache-2.0
  * License-Filename: LICENSE
  */
-import {editorTests, testUtils, prepare} from 'hereTest';
+import {MonitorXHR, prepare} from 'testUtils';
+import {waitForEditorReady, submit} from 'editorTests';
+import {click, mousemove} from 'utilEvents';
 import {Map} from '@here/xyz-maps-core';
 import {Editor} from '@here/xyz-maps-editor';
 import chaiAlmost from 'chai-almost';
@@ -43,7 +45,7 @@ describe('Create new Links then remove by drawingmanager', function() {
         editor = new Editor(display, {
             layers: preparedData.getLayers()
         });
-        await editorTests.waitForEditorReady(editor);
+        await waitForEditorReady(editor);
         mapContainer = display.getContainer();
         linkLayer = preparedData.getLayers('linkLayer');
     });
@@ -71,13 +73,13 @@ describe('Create new Links then remove by drawingmanager', function() {
 
         expect(editor.getDrawingBoard().isActive()).to.be.true;
 
-        await testUtils.events.mousemove(mapContainer, {x: 150, y: 200}, {x: 200, y: 200});
-        await testUtils.events.click(mapContainer, 200, 200);
+        await mousemove(mapContainer, {x: 150, y: 200}, {x: 200, y: 200});
+        await click(mapContainer, 200, 200);
 
-        await testUtils.events.mousemove(mapContainer, {x: 150, y: 200}, {x: 150, y: 130});
-        await testUtils.events.click(mapContainer, 150, 130);
+        await mousemove(mapContainer, {x: 150, y: 200}, {x: 150, y: 130});
+        await click(mapContainer, 150, 130);
 
-        await editorTests.waitForEditorReady(editor, ()=>{
+        await waitForEditorReady(editor, ()=>{
             link = editor.getDrawingBoard().create({featureClass: 'NAVLINK'});
         });
 
@@ -89,12 +91,12 @@ describe('Create new Links then remove by drawingmanager', function() {
 
 
     it('submit the new link', async function() {
-        let monitor = new testUtils.MonitorXHR();
+        let monitor = new MonitorXHR();
         monitor.start({method: 'post'});
         let idMap;
 
-        await editorTests.waitForEditorReady(editor, async ()=>{
-            idMap = await editorTests.submit(editor);
+        await waitForEditorReady(editor, async ()=>{
+            idMap = await submit(editor);
         });
         let linkId = idMap.permanentIDMap[link.getProvider().id][link.id];
         let reqs = monitor.stop();
@@ -123,8 +125,8 @@ describe('Create new Links then remove by drawingmanager', function() {
     it('remove created link', async function() {
         link.remove();
 
-        await editorTests.waitForEditorReady(editor, async ()=>{
-            await editorTests.submit(editor);
+        await waitForEditorReady(editor, async ()=>{
+            await submit(editor);
         });
 
         let objs = editor.search(display.getViewBounds());

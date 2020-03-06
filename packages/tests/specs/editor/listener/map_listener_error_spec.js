@@ -16,9 +16,10 @@
  * SPDX-License-Identifier: Apache-2.0
  * License-Filename: LICENSE
  */
-import {editorTests, testUtils, prepare} from 'hereTest';
+import {Listener, prepare} from 'testUtils';
+import {waitForEditorReady} from 'editorTests';
 import {Map} from '@here/xyz-maps-core';
-import {features, Editor} from '@here/xyz-maps-editor';
+import {Editor} from '@here/xyz-maps-editor';
 import dataset from './map_listener_error_spec.json';
 
 describe('map error listener', function() {
@@ -43,7 +44,7 @@ describe('map error listener', function() {
         editor = new Editor(display, {
             layers: preparedData.getLayers()
         });
-        await editorTests.waitForEditorReady(editor);
+        await waitForEditorReady(editor);
 
         linkLayer = preparedData.getLayers('linkLayer');
     });
@@ -63,7 +64,7 @@ describe('map error listener', function() {
             XMLHttpRequest.prototype.open = XMLHttpRequest.prototype.realOpen;
         };
 
-        listener = new testUtils.Listener(editor, ['error']);
+        listener = new Listener(editor, ['error']);
 
         let lnk = editor.search({point: {longitude: 86.904889, latitude: 16.410735}, radius: 50, remote: true});
 

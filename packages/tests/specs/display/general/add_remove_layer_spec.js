@@ -17,7 +17,8 @@
  * License-Filename: LICENSE
  */
 
-import {displayTests, testUtils, prepare} from 'hereTest';
+import {waitForViewportReady} from 'displayTests';
+import {getCanvasPixelColor, prepare} from 'testUtils';
 import {Map} from '@here/xyz-maps-core';
 import dataset from './add_remove_layer_spec.json';
 
@@ -39,7 +40,7 @@ describe('get add and remove map layer', function() {
             zoomLevel: 18,
             layers: preparedData.getLayers()
         });
-        await displayTests.waitForViewportReady(display);
+        await waitForViewportReady(display);
 
         mapContainer = display.getContainer();
         imageLayer = preparedData.getLayers('imageLayer');
@@ -54,7 +55,7 @@ describe('get add and remove map layer', function() {
         expect(display.getLayers()).to.lengthOf(2);
 
         // validate no tile is displayed
-        let color = testUtils.getCanvasPixelColor(mapContainer, 70, 119);
+        let color = getCanvasPixelColor(mapContainer, 70, 119);
         expect(color).to.not.equal('#ffffff');
     });
 
@@ -62,27 +63,27 @@ describe('get add and remove map layer', function() {
         expect(display.getLayers()).to.lengthOf(2);
 
 
-        await displayTests.waitForViewportReady(display, [linkLayer], ()=>{
+        await waitForViewportReady(display, [linkLayer], ()=>{
             display.removeLayer(imageLayer);
         });
 
         expect(display.getLayers()).to.lengthOf(1);
 
-        let color = testUtils.getCanvasPixelColor(mapContainer, 70, 119);
+        let color = getCanvasPixelColor(mapContainer, 70, 119);
         expect(color).to.equal('#ffffff');
     });
 
     it('add image overlay and validate sat image', async function() {
         expect(display.getLayers()).to.lengthOf(1);
 
-        await displayTests.waitForViewportReady(display, [imageLayer, linkLayer], ()=>{
+        await waitForViewportReady(display, [imageLayer, linkLayer], ()=>{
             display.addLayer(imageLayer, 0);
         });
 
         expect(display.getLayers()).to.lengthOf(2);
 
         // validate no tile is displayed
-        let color = testUtils.getCanvasPixelColor(mapContainer, 70, 119);
+        let color = getCanvasPixelColor(mapContainer, 70, 119);
         expect(color).to.not.equal('#ffffff');
     });
 });

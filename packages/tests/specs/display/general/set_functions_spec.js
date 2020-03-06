@@ -17,7 +17,8 @@
  * License-Filename: LICENSE
  */
 
-import {displayTests, prepare} from 'hereTest';
+import {prepare} from 'testUtils';
+import {waitForViewportReady} from 'displayTests';
 import {Map} from '@here/xyz-maps-core';
 import chaiAlmost from 'chai-almost';
 import dataset from './set_functions_spec.json';
@@ -56,20 +57,20 @@ describe('set functions', function() {
     });
 
     it('set map center zoomlevel and validate', async function() {
-        await displayTests.waitForViewportReady(display, ()=>{
+        await waitForViewportReady(display, ()=>{
             display.setCenter(77.75143322, 12.62290951);
         });
 
         expect(display.getCenter()).to.deep.almost({longitude: 77.75143322, latitude: 12.62290951});
 
 
-        await displayTests.waitForViewportReady(display, ()=>{
+        await waitForViewportReady(display, ()=>{
             display.setZoomlevel(19);
         });
 
         expect(display.getZoomlevel()).to.deep.equal(19);
 
-        await displayTests.waitForViewportReady(display, ()=>{
+        await waitForViewportReady(display, ()=>{
             display.setZoomlevel(17.5);
         });
 

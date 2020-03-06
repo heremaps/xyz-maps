@@ -16,7 +16,9 @@
  * SPDX-License-Identifier: Apache-2.0
  * License-Filename: LICENSE
  */
-import {editorTests, testUtils, prepare} from 'hereTest';
+import {prepare} from 'testUtils';
+import {waitForEditorReady, editorClick} from 'editorTests';
+import {drag} from 'utilEvents';
 import {Map} from '@here/xyz-maps-core';
 import {Editor} from '@here/xyz-maps-editor';
 import chaiAlmost from 'chai-almost';
@@ -44,7 +46,7 @@ describe('undo the link transforming, link should connect to its connected links
             layers: preparedData.getLayers()
         });
 
-        await editorTests.waitForEditorReady(editor);
+        await waitForEditorReady(editor);
         link1 = preparedData.getFeature('linkLayer', '-189183');
         linkLayer = preparedData.getLayers('linkLayer');
     });
@@ -57,7 +59,7 @@ describe('undo the link transforming, link should connect to its connected links
 
     it('validate connected links on the shape point', async function() {
         link1.select();
-        let shp = (await editorTests.click(editor, 200, 200)).target;
+        let shp = (await editorClick(editor, 200, 200)).target;
 
         expect(shp.getConnectedLinks()).to.have.lengthOf(2);
 
@@ -67,7 +69,7 @@ describe('undo the link transforming, link should connect to its connected links
     it('transform the link and validate', async function() {
         link1.transform();
         let mapContainer = display.getContainer();
-        await testUtils.events.drag(mapContainer, {x: 150, y: 200}, {x: 150, y: 250});
+        await drag(mapContainer, {x: 150, y: 200}, {x: 150, y: 250});
 
         expect(link1.coord()).to.deep.almost([
             [78.192281318, 12.548830174, 0],
@@ -80,7 +82,7 @@ describe('undo the link transforming, link should connect to its connected links
         editor.undo();
         let lnk = editor.getFeature(link1.id, linkLayer);
         lnk.select();
-        let shp = (await editorTests.click(editor, 200, 200)).target;
+        let shp = (await editorClick(editor, 200, 200)).target;
 
         expect(shp.getConnectedLinks()).to.have.lengthOf(2);
 

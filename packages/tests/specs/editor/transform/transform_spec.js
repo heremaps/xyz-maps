@@ -16,7 +16,9 @@
  * SPDX-License-Identifier: Apache-2.0
  * License-Filename: LICENSE
  */
-import {editorTests, testUtils, prepare} from 'hereTest';
+import {prepare} from 'testUtils';
+import {waitForEditorReady} from 'editorTests';
+import {drag, click} from 'utilEvents';
 import {Map} from '@here/xyz-maps-core';
 import {Editor} from '@here/xyz-maps-editor';
 import chaiAlmost from 'chai-almost';
@@ -47,7 +49,7 @@ describe('transform objects', function() {
             layers: preparedData.getLayers()
         });
 
-        await editorTests.waitForEditorReady(editor);
+        await waitForEditorReady(editor);
         mapContainer = display.getContainer();
 
         container = editor.createFeatureContainer();
@@ -69,7 +71,7 @@ describe('transform objects', function() {
         let controller = overlay.search(display.getViewBounds());
         expect(controller).to.be.lengthOf(7);
 
-        await testUtils.events.click(mapContainer, 100, 100);
+        await click(mapContainer, 100, 100);
 
         controller = overlay.search(display.getViewBounds());
         expect(controller).to.be.lengthOf(0);
@@ -78,7 +80,7 @@ describe('transform objects', function() {
     });
 
     it('drag right bar of transformer to scale ', async function() {
-        await testUtils.events.drag(mapContainer, {x: 307, y: 280}, {x: 357, y: 280});
+        await drag(mapContainer, {x: 307, y: 280}, {x: 357, y: 280});
 
         expect(link.coord()).to.deep.almost([
             [77.813991539, 12.651573696, 0],
@@ -88,7 +90,7 @@ describe('transform objects', function() {
     });
 
     it('drag left bar of transformer to scale', async function() {
-        await testUtils.events.drag(mapContainer, {x: 92, y: 280}, {x: 120, y: 280});
+        await drag(mapContainer, {x: 92, y: 280}, {x: 120, y: 280});
 
         expect(link.coord()).to.deep.almost([
             [77.813991539, 12.651573696, 0],
@@ -98,7 +100,7 @@ describe('transform objects', function() {
     });
 
     it('drag top bar of transformer to scale', async function() {
-        await testUtils.events.drag(mapContainer, {x: 200, y: 241}, {x: 200, y: 220});
+        await drag(mapContainer, {x: 200, y: 241}, {x: 200, y: 220});
 
         expect(link.coord()).to.deep.almost([
             [77.813991539, 12.651690721, 0],
@@ -108,7 +110,7 @@ describe('transform objects', function() {
     });
 
     it('drag bottom bar of transformer to scale', async function() {
-        await testUtils.events.drag(mapContainer, {x: 200, y: 306}, {x: 200, y: 280});
+        await drag(mapContainer, {x: 200, y: 306}, {x: 200, y: 280});
 
         expect(link.coord()).to.deep.almost([
             [77.813991539, 12.651690721, 0],
@@ -118,7 +120,7 @@ describe('transform objects', function() {
     });
 
     it('drag the transformer to move the link and address', async function() {
-        await testUtils.events.drag(mapContainer, {x: 235, y: 250}, {x: 250, y: 280});
+        await drag(mapContainer, {x: 235, y: 250}, {x: 250, y: 280});
 
         expect(link.coord()).to.deep.almost([
             [77.814072005, 12.651533695, 0],
@@ -128,7 +130,7 @@ describe('transform objects', function() {
     });
 
     it('drag the transformer to rotate the link and address', async function() {
-        await testUtils.events.drag(mapContainer, {x: 370, y: 310}, {x: 300, y: 320});
+        await drag(mapContainer, {x: 370, y: 310}, {x: 300, y: 320});
 
         expect(link.coord()).to.deep.almost([
             [77.814063588, 12.65126444, 0],

@@ -17,7 +17,8 @@
  * License-Filename: LICENSE
  */
 
-import {coreTests, prepare} from 'hereTest';
+import {prepare} from 'testUtils';
+import {getTileOnProvider} from 'coreTests';
 import dataset from './gettile_then_cancel_with_all_requests_spec.json';
 
 describe('get and cancel requesting all other related requests', function() {
@@ -61,7 +62,7 @@ describe('get and cancel requesting all other related requests', function() {
     it('get tile at level 16 and another at 17, cancel request at 16', function(done) {
         // qk11    = '3112301330131010' // length 16
         // qk12    = '31123013301310101' // length 17
-        coreTests.getTileOnProvider({
+        getTileOnProvider({
             provider: placeProvider,
             quadkeys: [qk11, qk12],
             sameCallback: false,
@@ -91,7 +92,7 @@ describe('get and cancel requesting all other related requests', function() {
     xit('get tile at level 15 and another at 16, cancel request at 15', function(done) {
         // qk21    = '311230133013100' // length 15
         // qk22    = '3112301330131001' // length 16
-        coreTests.getTileOnProvider({
+        getTileOnProvider({
             provider: placeProvider,
             quadkeys: [qk21, qk22],
             sameCallback: false,
@@ -123,7 +124,7 @@ describe('get and cancel requesting all other related requests', function() {
     xit('get tile at level 16 and another at 17, cancel request at 17', function(done) {
         // qk31    = '3112301330131020' // length 16
         // qk32    = '31123013301310201' // length 17
-        coreTests.getTileOnProvider({
+        getTileOnProvider({
             provider: placeProvider,
             quadkeys: [qk31, qk32],
             sameCallback: false,
@@ -155,7 +156,7 @@ describe('get and cancel requesting all other related requests', function() {
     xit('get tile at level 15 and another at 16, cancel request at 16', function(done) {
         // qk41    = '311230133013103' // length 15
         // qk42    = '3112301330131030' // length 16
-        coreTests.getTileOnProvider({
+        getTileOnProvider({
             provider: placeProvider,
             quadkeys: [qk41, qk42],
             sameCallback: false,

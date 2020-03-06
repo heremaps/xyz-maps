@@ -17,7 +17,8 @@
  * License-Filename: LICENSE
  */
 
-import {displayTests, prepare} from 'hereTest';
+import {prepare} from 'testUtils';
+import {waitForViewportReady} from 'displayTests';
 import {Map} from '@here/xyz-maps-core';
 import chaiAlmost from 'chai-almost';
 import dataset from './get_functions_spec.json';
@@ -56,7 +57,7 @@ describe('get functions', function() {
     });
 
     it('validate map display has correct values after zoom and pan the map', async function() {
-        await displayTests.waitForViewportReady(display, ()=>{
+        await waitForViewportReady(display, ()=>{
             display.setZoomlevel(19);
             display.setCenter({longitude: 77.799607868, latitude: 12.622584955});
         });

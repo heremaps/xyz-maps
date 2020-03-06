@@ -17,12 +17,12 @@
  * License-Filename: LICENSE
  */
 
-import mapsCommon from '@here/xyz-maps-common';
+import {TaskManager} from '@here/xyz-maps-common';
 
 describe('task manager run 2 tasks', function() {
     const expect = chai.expect;
 
-    let taskmanager = mapsCommon.TaskManager.getInstance( 5 );
+    let taskmanager = TaskManager.getInstance( 5 );
 
     it('one task start another same priority task', async function() {
         let results1 = [];

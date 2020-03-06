@@ -16,7 +16,9 @@
  * SPDX-License-Identifier: Apache-2.0
  * License-Filename: LICENSE
  */
-import {editorTests, testUtils, prepare} from 'hereTest';
+import {prepare} from 'testUtils';
+import {waitForEditorReady, editorClick, submit} from 'editorTests';
+import {drag} from 'utilEvents';
 import {Map} from '@here/xyz-maps-core';
 import {Editor} from '@here/xyz-maps-editor';
 import chaiAlmost from 'chai-almost';
@@ -45,7 +47,7 @@ describe('area add and remove shape point', function() {
             layers: preparedData.getLayers()
         });
 
-        await editorTests.waitForEditorReady(editor);
+        await waitForEditorReady(editor);
 
         mapContainer = display.getContainer();
 
@@ -69,7 +71,7 @@ describe('area add and remove shape point', function() {
     it('drag a middle point to add shape point and validate', async function() {
         area.select();
 
-        await testUtils.events.drag(mapContainer, {x: 300, y: 300}, {x: 300, y: 250});
+        await drag(mapContainer, {x: 300, y: 300}, {x: 300, y: 250});
 
         expect(area.coord()).to.deep.almost([[[
             [-111.718267489, 40.211738323, 0],
@@ -82,7 +84,7 @@ describe('area add and remove shape point', function() {
     });
 
     it('click to remove a shape point and validate', async function() {
-        areashp = (await editorTests.click(editor, 200, 500)).target;
+        areashp = (await editorClick(editor, 200, 500)).target;
         areashp.remove();
 
         expect(area.coord()).to.deep.almost([[[
@@ -95,7 +97,7 @@ describe('area add and remove shape point', function() {
     });
 
     it('drag middle point to add shape point again', async function() {
-        await testUtils.events.drag(mapContainer, {x: 400, y: 400}, {x: 450, y: 400});
+        await drag(mapContainer, {x: 400, y: 400}, {x: 450, y: 400});
 
         expect(area.coord()).to.deep.almost([[[
             [-111.718267489, 40.211738323, 0],
@@ -108,8 +110,8 @@ describe('area add and remove shape point', function() {
     });
 
     it('submit and validate coord', async function() {
-        await editorTests.waitForEditorReady(editor, async ()=>{
-            await editorTests.submit(editor);
+        await waitForEditorReady(editor, async ()=>{
+            await submit(editor);
         });
 
         let a = editor.getFeature(area.id, areaLayer);

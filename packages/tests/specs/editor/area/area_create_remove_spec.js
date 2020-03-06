@@ -16,7 +16,8 @@
  * SPDX-License-Identifier: Apache-2.0
  * License-Filename: LICENSE
  */
-import {editorTests, prepare} from 'hereTest';
+import {prepare} from 'testUtils';
+import {waitForEditorReady, submit} from 'editorTests';
 import {Map} from '@here/xyz-maps-core';
 import {features, Editor} from '@here/xyz-maps-editor';
 import dataset from './area_create_remove_spec.json';
@@ -43,7 +44,7 @@ describe('add Area object and then remove', function() {
             layers: preparedData.getLayers()
         });
 
-        await editorTests.waitForEditorReady(editor);
+        await waitForEditorReady(editor);
 
         areaLayer = preparedData.getLayers('buildingLayer');
 
@@ -67,8 +68,8 @@ describe('add Area object and then remove', function() {
         let objs = editor.search({rect: display.getViewBounds(), layers: [areaLayer]});
         expect(objs).to.have.lengthOf(1);
 
-        await editorTests.waitForEditorReady(editor, async ()=>{
-            idMap = await editorTests.submit(editor);
+        await waitForEditorReady(editor, async ()=>{
+            idMap = await submit(editor);
         });
 
         // validate there is one area object in viewport
@@ -88,8 +89,8 @@ describe('add Area object and then remove', function() {
         let objs = editor.search({rect: display.getViewBounds(), layers: [areaLayer]});
         expect(objs).to.have.lengthOf(0);
 
-        await editorTests.waitForEditorReady(editor, async ()=>{
-            await editorTests.submit(editor);
+        await waitForEditorReady(editor, async ()=>{
+            await submit(editor);
         });
 
         // validate there is no area object in viewport

@@ -17,7 +17,7 @@
  * License-Filename: LICENSE
  */
 
-import {testUtils, prepare} from 'hereTest';
+import {MonitorXHR, prepare} from 'testUtils';
 import dataset from './set_header_spec.json';
 
 describe('set request header of requests that handled by provider', function() {
@@ -42,7 +42,7 @@ describe('set request header of requests that handled by provider', function() {
     });
 
     it('set header and make search with geojson provider', async function() {
-        let monitor = new testUtils.MonitorXHR();
+        let monitor = new MonitorXHR();
         monitor.start();
         // 1. make request with default headers
         let objs = poiProvider.search({
@@ -138,7 +138,7 @@ describe('set request header of requests that handled by provider', function() {
 
 
     it('set header and make search with space provider', async function() {
-        let monitor = new testUtils.MonitorXHR();
+        let monitor = new MonitorXHR();
         monitor.start();
         // 1. make request with default headers
         let objs = spaceProvider.search({

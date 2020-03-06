@@ -16,7 +16,9 @@
  * SPDX-License-Identifier: Apache-2.0
  * License-Filename: LICENSE
  */
-import {editorTests, testUtils, prepare} from 'hereTest';
+import {MonitorXHR, prepare} from 'testUtils';
+import {waitForEditorReady, submit} from 'editorTests';
+import {drag} from 'utilEvents';
 import {Map} from '@here/xyz-maps-core';
 import {features, Editor} from '@here/xyz-maps-editor';
 import chaiAlmost from 'chai-almost';
@@ -45,7 +47,7 @@ describe('add Address object and submit out of viewport', function() {
         });
         editor = new Editor(display, {layers: preparedData.getLayers()});
 
-        await editorTests.waitForEditorReady(editor);
+        await waitForEditorReady(editor);
 
         linkLayer = preparedData.getLayers('linkLayer');
         paLayer = preparedData.getLayers('paLayer');
@@ -71,17 +73,17 @@ describe('add Address object and submit out of viewport', function() {
 
         let mapContainer = display.getContainer();
         // drag map
-        await editorTests.waitForEditorReady(editor, async ()=>{
-            await testUtils.events.drag(mapContainer, {x: 300, y: 400}, {x: 350, y: 450});
+        await waitForEditorReady(editor, async ()=>{
+            await drag(mapContainer, {x: 300, y: 400}, {x: 350, y: 450});
         });
 
         editor.undo();
         editor.redo();
 
-        let monitor = new testUtils.MonitorXHR();
+        let monitor = new MonitorXHR();
         monitor.start({method: 'post'});
-        await editorTests.waitForEditorReady(editor, async ()=>{
-            idMap = await editorTests.submit(editor);
+        await waitForEditorReady(editor, async ()=>{
+            idMap = await submit(editor);
         });
 
         let linkId = idMap.permanentIDMap[link.getProvider().id][link.id];
@@ -111,7 +113,7 @@ describe('add Address object and submit out of viewport', function() {
     });
 
     it('move map and then remove the address object and submit', async function() {
-        await editorTests.waitForEditorReady(editor, ()=>{
+        await waitForEditorReady(editor, ()=>{
             display.setCenter({longitude: 76.51452894260433, latitude: 12.463857265087213});
         });
 
@@ -122,10 +124,10 @@ describe('add Address object and submit out of viewport', function() {
             o.remove();
         });
 
-        let monitor = new testUtils.MonitorXHR(/&id=/);
+        let monitor = new MonitorXHR(/&id=/);
         monitor.start({method: 'delete'});
-        await editorTests.waitForEditorReady(editor, async ()=>{
-            await editorTests.submit(editor);
+        await waitForEditorReady(editor, async ()=>{
+            await submit(editor);
         });
         let request = monitor.stop()[0];
 

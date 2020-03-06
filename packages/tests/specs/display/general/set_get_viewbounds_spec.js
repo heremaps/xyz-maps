@@ -17,7 +17,8 @@
  * License-Filename: LICENSE
  */
 
-import {displayTests, prepare} from 'hereTest';
+import {prepare} from 'testUtils';
+import {waitForViewportReady} from 'displayTests';
 import {Map} from '@here/xyz-maps-core';
 import chaiAlmost from 'chai-almost';
 import dataset from './set_get_viewbounds_spec.json';
@@ -51,7 +52,7 @@ describe('set and get viewbounds', function() {
     });
 
     it('set new viewbounds and validate', async function() {
-        await displayTests.waitForViewportReady(display, ()=>{
+        await waitForViewportReady(display, ()=>{
             display.setViewBounds({minLon: 77.793739194, minLat: 12.620344457, maxLon: 77.798030729, maxLat: 12.623485323});
         });
         expect(display.getViewBounds()).to.deep.almost({
@@ -63,7 +64,7 @@ describe('set and get viewbounds', function() {
     });
 
     it('set new viewbounds and validate map center and zoomlevel', async function() {
-        await displayTests.waitForViewportReady(display, ()=>{
+        await waitForViewportReady(display, ()=>{
             display.setViewBounds({minLon: 77.596065467, maxLat: 12.7210192045, maxLon: 77.598211234, minLat: 12.719449377});
         });
 
@@ -72,7 +73,7 @@ describe('set and get viewbounds', function() {
     });
 
     it('set new viewbounds again and validate map center and zoomlevel', async function() {
-        await displayTests.waitForViewportReady(display, ()=>{
+        await waitForViewportReady(display, ()=>{
             display.setViewBounds({minLon: 76.447934159, maxLat: 14.177960381, maxLon: 76.51659871, minLat: 14.1280251379});
         });
 
@@ -81,7 +82,7 @@ describe('set and get viewbounds', function() {
     });
 
     it('set new viewbounds again and validate map center and zoomlevel', async function() {
-        await displayTests.waitForViewportReady(display, ()=>{
+        await waitForViewportReady(display, ()=>{
             display.setViewBounds({minLon: 76.475896931, maxLat: 14.201168294, maxLon: 76.478042698, minLat: 14.199608139});
         });
 

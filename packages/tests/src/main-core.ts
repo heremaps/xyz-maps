@@ -23,11 +23,12 @@ import {prepare} from './helpers/prepareData';
 
 import {run} from './runner';
 
-
 // @ts-ignore
 import mochaSettings from 'settings';
 
 mocha.setup(mochaSettings);
 
-export default {coreTests, testUtils, prepare, run};
+Object.assign(testUtils, {prepare});
+
+export default {coreTests, testUtils, run};
 

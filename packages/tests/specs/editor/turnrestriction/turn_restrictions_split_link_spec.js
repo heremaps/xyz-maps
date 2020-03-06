@@ -16,9 +16,11 @@
  * SPDX-License-Identifier: Apache-2.0
  * License-Filename: LICENSE
  */
-import {editorTests, testUtils, prepare} from 'hereTest';
+import {prepare} from 'testUtils';
+import {waitForEditorReady, editorClick, clean, submit} from 'editorTests';
+import {click} from 'utilEvents';
 import {Map} from '@here/xyz-maps-core';
-import {features, Editor} from '@here/xyz-maps-editor';
+import {Editor} from '@here/xyz-maps-editor';
 import dataset from './turn_restrictions_split_link_spec.json';
 
 describe('turn restriction test split a link', function() {
@@ -44,7 +46,7 @@ describe('turn restriction test split a link', function() {
             layers: preparedData.getLayers()
         });
 
-        await editorTests.waitForEditorReady(editor);
+        await waitForEditorReady(editor);
         mapContainer = display.getContainer();
         linkLayer = preparedData.getLayers('linkLayer');
 
@@ -56,19 +58,19 @@ describe('turn restriction test split a link', function() {
     });
 
     after(async function() {
-        await editorTests.clean(editor, idMaps);
+        await clean(editor, idMaps);
         editor.destroy();
         display.destroy();
         await preparedData.clear();
     });
 
     it('set turn restrictions, validate value', async function() {
-        await testUtils.events.click(mapContainer, 120, 100);
-        let shape = (await editorTests.click(editor, 200, 100)).target;
+        await click(mapContainer, 120, 100);
+        let shape = (await editorClick(editor, 200, 100)).target;
         shape.editTurnRestrictions();
 
         // click on traffic sign
-        await testUtils.events.click(mapContainer, 210, 100);
+        await click(mapContainer, 210, 100);
 
         expect(link3.prop('turnRestriction')).to.deep.equal({end: [link1.id]});
     });
@@ -76,7 +78,7 @@ describe('turn restriction test split a link', function() {
 
     it('get the shapepoint to split the link, validate link again', async function() {
         link1.select();
-        let shape = (await editorTests.click(editor, 300, 100)).target;
+        let shape = (await editorClick(editor, 300, 100)).target;
 
         let splitLinks = shape.splitLink();
         let sLink1 = splitLinks[0];
@@ -84,8 +86,8 @@ describe('turn restriction test split a link', function() {
 
         let idMap;
 
-        await editorTests.waitForEditorReady(editor, async ()=>{
-            idMap = await editorTests.submit(editor);
+        await waitForEditorReady(editor, async ()=>{
+            idMap = await submit(editor);
             idMaps.push(idMap);
         });
 

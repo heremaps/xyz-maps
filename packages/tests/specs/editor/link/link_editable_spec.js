@@ -16,7 +16,9 @@
  * SPDX-License-Identifier: Apache-2.0
  * License-Filename: LICENSE
  */
-import {editorTests, testUtils, prepare} from 'hereTest';
+import {prepare} from 'testUtils';
+import {waitForEditorReady} from 'editorTests';
+import {drag, click} from 'utilEvents';
 import {Map} from '@here/xyz-maps-core';
 import {Editor} from '@here/xyz-maps-editor';
 import chaiAlmost from 'chai-almost';
@@ -44,7 +46,7 @@ describe('link editable', function() {
             layers: preparedData.getLayers()
         });
 
-        await editorTests.waitForEditorReady(editor);
+        await waitForEditorReady(editor);
         mapContainer = display.getContainer();
 
         link = preparedData.getFeature('linkLayer', -189070);
@@ -69,11 +71,11 @@ describe('link editable', function() {
 
     it('click on link and try drag again', async function() {
         // click on link
-        await testUtils.events.click(mapContainer, 100, 100);
+        await click(mapContainer, 100, 100);
 
         // try drag link shape point
-        await editorTests.waitForEditorReady(editor, async ()=>{
-            await testUtils.events.drag(mapContainer, {x: 300, y: 300}, {x: 400, y: 300});
+        await waitForEditorReady(editor, async ()=>{
+            await drag(mapContainer, {x: 300, y: 300}, {x: 400, y: 300});
         });
 
         let lnk = editor.getFeature(link.id, linkLayer);
@@ -87,7 +89,7 @@ describe('link editable', function() {
     });
 
     it('set link to editable and drag it', async function() {
-        await editorTests.waitForEditorReady(editor, ()=>{
+        await waitForEditorReady(editor, ()=>{
             display.setCenter({longitude: 80.14459, latitude: 17.96039});
         });
 
@@ -95,10 +97,10 @@ describe('link editable', function() {
         lnk.editable(true);
 
         // click on link
-        await testUtils.events.click(mapContainer, 100, 100);
+        await click(mapContainer, 100, 100);
 
         // drag link shape point
-        await testUtils.events.drag(mapContainer, {x: 300, y: 300}, {x: 400, y: 300});
+        await drag(mapContainer, {x: 300, y: 300}, {x: 400, y: 300});
 
         lnk = editor.getFeature(link.id, linkLayer);
 

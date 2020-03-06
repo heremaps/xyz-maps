@@ -16,7 +16,9 @@
  * SPDX-License-Identifier: Apache-2.0
  * License-Filename: LICENSE
  */
-import {editorTests, testUtils, prepare} from 'hereTest';
+import {MonitorXHR, prepare} from 'testUtils';
+import {waitForEditorReady, submit} from 'editorTests';
+import {click, mousemove} from 'utilEvents';
 import {Map} from '@here/xyz-maps-core';
 import {Editor} from '@here/xyz-maps-editor';
 import chaiAlmost from 'chai-almost';
@@ -42,7 +44,7 @@ describe('Create new Links and split original link', function() {
         editor = new Editor(display, {
             layers: preparedData.getLayers()
         });
-        await editorTests.waitForEditorReady(editor);
+        await waitForEditorReady(editor);
         mapContainer = display.getContainer();
         link = preparedData.getFeature('linkLayer', -188849);
     });
@@ -59,11 +61,11 @@ describe('Create new Links and split original link', function() {
             connectTo: link
         });
 
-        await testUtils.events.mousemove(mapContainer, {x: 100, y: 200}, {x: 200, y: 200});
-        await testUtils.events.click(mapContainer, 200, 200);
+        await mousemove(mapContainer, {x: 100, y: 200}, {x: 200, y: 200});
+        await click(mapContainer, 200, 200);
 
         let lnk;
-        await editorTests.waitForEditorReady(editor, ()=>{
+        await waitForEditorReady(editor, ()=>{
             lnk = editor.getDrawingBoard().create({featureClass: 'NAVLINK'});
         });
         let lnk1 = editor.info()[1];
@@ -86,10 +88,10 @@ describe('Create new Links and split original link', function() {
     });
 
     it('submit and validate', async function() {
-        let monitor = new testUtils.MonitorXHR();
+        let monitor = new MonitorXHR();
         monitor.start({method: 'post'});
-        await editorTests.waitForEditorReady(editor, async ()=>{
-            await editorTests.submit(editor);
+        await waitForEditorReady(editor, async ()=>{
+            await submit(editor);
         });
         let reqs = monitor.stop();
         expect(reqs).to.have.lengthOf(1);

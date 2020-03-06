@@ -16,9 +16,10 @@
  * SPDX-License-Identifier: Apache-2.0
  * License-Filename: LICENSE
  */
-import {editorTests, prepare} from 'hereTest';
+import {prepare} from 'testUtils';
+import {waitForEditorReady, editorClick} from 'editorTests';
 import {Map} from '@here/xyz-maps-core';
-import {features, Editor} from '@here/xyz-maps-editor';
+import {Editor} from '@here/xyz-maps-editor';
 import dataset from './area_display_zoomlevel_spec.json';
 
 describe('Area object display and hide', function() {
@@ -40,7 +41,7 @@ describe('Area object display and hide', function() {
             layers: preparedData.getLayers()
         });
 
-        await editorTests.waitForEditorReady(editor);
+        await waitForEditorReady(editor);
     });
 
     after(async function() {
@@ -57,7 +58,7 @@ describe('Area object display and hide', function() {
 
 
     it('move map and validate the object again in viewport', async function() {
-        await editorTests.waitForEditorReady(editor, ()=>{
+        await waitForEditorReady(editor, ()=>{
             display.setCenter({longitude: -95.34138669444274, latitude: 40.32966953325723});
         });
 
@@ -67,22 +68,22 @@ describe('Area object display and hide', function() {
 
 
     it('zoom out and validate area is not clicked', async function() {
-        await editorTests.waitForEditorReady(editor, ()=>{
+        await waitForEditorReady(editor, ()=>{
             display.setZoomlevel(17);
         });
 
-        let obj = (await editorTests.click(editor, 241, 222)).target;
+        let obj = (await editorClick(editor, 241, 222)).target;
 
         expect(obj).to.equal(undefined);
     });
 
 
     it('zoom in again to display area and validate area is clicked', async function() {
-        await editorTests.waitForEditorReady(editor, ()=>{
+        await waitForEditorReady(editor, ()=>{
             display.setZoomlevel(18);
         });
 
-        let obj = (await editorTests.click(editor, 242, 146)).target;
+        let obj = (await editorClick(editor, 242, 146)).target;
 
         expect(obj.properties).to.deep.include({
             type: 'building',

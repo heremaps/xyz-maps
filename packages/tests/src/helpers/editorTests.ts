@@ -21,7 +21,7 @@ import {testUtils} from './testUtils';
 import {Editor} from '@here/xyz-maps-editor';
 
 export namespace editorTests {
-    export async function click(editor: Editor, x: number, y: number): Promise<MouseEvent|void> {
+    export async function editorClick(editor: Editor, x: number, y: number): Promise<MouseEvent|void> {
         return new Promise(async (resolve) => {
             var mapContainer = editor.container;
             var eventHandler = function(e: MouseEvent) {

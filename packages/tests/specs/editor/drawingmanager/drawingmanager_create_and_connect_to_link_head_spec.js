@@ -16,7 +16,9 @@
  * SPDX-License-Identifier: Apache-2.0
  * License-Filename: LICENSE
  */
-import {editorTests, testUtils, prepare} from 'hereTest';
+import {prepare} from 'testUtils';
+import {waitForEditorReady, editorClick} from 'editorTests';
+import {click, mousemove} from 'utilEvents';
 import {Map} from '@here/xyz-maps-core';
 import {Editor} from '@here/xyz-maps-editor';
 import chaiAlmost from 'chai-almost';
@@ -42,7 +44,7 @@ describe('Create new Links and connect to head of original link', function() {
         editor = new Editor(display, {
             layers: preparedData.getLayers()
         });
-        await editorTests.waitForEditorReady(editor);
+        await waitForEditorReady(editor);
         mapContainer = display.getContainer();
 
         link = preparedData.getFeature('linkLayer', -188846);
@@ -61,15 +63,15 @@ describe('Create new Links and connect to head of original link', function() {
             connectTo: link
         });
 
-        await testUtils.events.mousemove(mapContainer, {x: 400, y: 190}, {x: 400, y: 200});
-        await testUtils.events.click(mapContainer, 400, 200);
+        await mousemove(mapContainer, {x: 400, y: 190}, {x: 400, y: 200});
+        await click(mapContainer, 400, 200);
 
         editor.getDrawingBoard().create({featureClass: 'NAVLINK'});
     });
 
 
     it('get link and validate it', async function() {
-        let createdLink = (await editorTests.click(editor, 400, 200)).target;
+        let createdLink = (await editorClick(editor, 400, 200)).target;
 
         expect(createdLink.coord()).to.deep.almost([
             [77.000806597, 13.074550786, 0],
@@ -77,7 +79,7 @@ describe('Create new Links and connect to head of original link', function() {
         ]);
 
         // validate shape point is connecting to another link
-        let shape = (await editorTests.click(editor, 300, 310)).target;
+        let shape = (await editorClick(editor, 300, 310)).target;
         expect(shape.getConnectedLinks()).to.have.lengthOf(1);
     });
 

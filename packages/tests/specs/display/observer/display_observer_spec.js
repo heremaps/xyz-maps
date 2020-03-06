@@ -17,7 +17,8 @@
  * License-Filename: LICENSE
  */
 
-import {displayTests, testUtils, prepare} from 'hereTest';
+import {waitForViewportReady} from 'displayTests';
+import {Observer, prepare} from 'testUtils';
 import {Map} from '@here/xyz-maps-core';
 import chaiAlmost from 'chai-almost';
 import dataset from './display_observer_spec.json';
@@ -42,16 +43,16 @@ describe('map observer', function() {
     });
 
     it('set map center and validate observer', async function() {
-        let observer = new testUtils.Observer(display, 'center');
+        let observer = new Observer(display, 'center');
 
-        await displayTests.waitForViewportReady(display, ()=>{
+        await waitForViewportReady(display, ()=>{
             display.setCenter({
                 longitude: 80.241128629,
                 latitude: 15.6931352023
             });
         });
 
-        await displayTests.waitForViewportReady(display, ()=>{
+        await waitForViewportReady(display, ()=>{
             display.setCenter({
                 longitude: 80.042093977,
                 latitude: 15.494536519
@@ -69,7 +70,7 @@ describe('map observer', function() {
             latitude: 15.4945365192
         });
 
-        let observer = new testUtils.Observer(display, 'center');
+        let observer = new Observer(display, 'center');
 
         display.setCenter({
             longitude: 80.0420939774,
@@ -82,9 +83,9 @@ describe('map observer', function() {
 
 
     it('set zoomlevel and validate observer', async function() {
-        let observer = new testUtils.Observer(display, 'zoomlevel');
+        let observer = new Observer(display, 'zoomlevel');
 
-        await displayTests.waitForViewportReady(display, ()=>{
+        await waitForViewportReady(display, ()=>{
             display.setZoomlevel(19);
         });
 

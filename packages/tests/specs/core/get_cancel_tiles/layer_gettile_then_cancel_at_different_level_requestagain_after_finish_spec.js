@@ -17,7 +17,8 @@
  * License-Filename: LICENSE
  */
 
-import {coreTests, prepare} from 'hereTest';
+import {prepare} from 'testUtils';
+import {getTileOnLayer} from 'coreTests';
 import dataset from './layer_gettile_then_cancel_at_different_level_requestagain_after_finish_spec.json';
 
 describe('layer get and cancel requesting with different level', function() {
@@ -86,7 +87,7 @@ describe('layer get and cancel requesting with different level', function() {
     it('get one tile at level 15 and another at 16', function(done) {
         // qk11    = '311230132010130' // length 15
         // qk12    = '3112301320101301' // length 16
-        coreTests.getTileOnLayer({
+        getTileOnLayer({
             layer: placeLayer,
             quadkeys: [qk11, qk12],
             sameCallback: false,
@@ -114,7 +115,7 @@ describe('layer get and cancel requesting with different level', function() {
     it('get one tile at level 15 and another at 16, cancel the request at level 16', function(done) {
         // qk21    = '311230132010131' // length 15
         // qk22    = '3112301320101311' // length 16
-        coreTests.getTileOnLayer({
+        getTileOnLayer({
             layer: placeLayer,
             quadkeys: [qk21, qk22],
             sameCallback: false,
@@ -147,7 +148,7 @@ describe('layer get and cancel requesting with different level', function() {
     it('get one tile at level 15 and another at 16, cancel the request at level 15', function(done) {
         // qk31    = '311230132010132' // length 15
         // qk32    = '3112301320101321' // length 16
-        coreTests.getTileOnLayer({
+        getTileOnLayer({
             layer: placeLayer,
             quadkeys: [qk31, qk32],
             sameCallback: false,
@@ -181,7 +182,7 @@ describe('layer get and cancel requesting with different level', function() {
     it('get one tile at level 15 and another at 16, cancel both requests', function(done) {
         // qk41    = '311230132010133' // length 15
         // qk42    = '3112301320101331' // length 16
-        coreTests.getTileOnLayer({
+        getTileOnLayer({
             layer: placeLayer,
             quadkeys: [qk41, qk42],
             sameCallback: false,
@@ -214,7 +215,7 @@ describe('layer get and cancel requesting with different level', function() {
     it('get one tile at level 17 and another at 16', function(done) {
         // qk51    = '31123013201010300' // length 17
         // qk52    = '3112301320101030' // length 16
-        coreTests.getTileOnLayer({
+        getTileOnLayer({
             layer: placeLayer,
             quadkeys: [qk51, qk52],
             sameCallback: false,
@@ -241,7 +242,7 @@ describe('layer get and cancel requesting with different level', function() {
     it('get one tile at level 17 and another at 16, cancel the request at 17', function(done) {
         // qk61    = '31123013201010310' // length 17
         // qk62    = '3112301320101031' // length 16
-        coreTests.getTileOnLayer({
+        getTileOnLayer({
             layer: placeLayer,
             quadkeys: [qk61, qk62],
             sameCallback: false,
@@ -274,7 +275,7 @@ describe('layer get and cancel requesting with different level', function() {
     it('get one tile at level 17 and another at 16, cancel the request at 16', function(done) {
         // qk71    = '31123013201010320' // length 17
         // qk72    = '3112301320101032' // length 16
-        coreTests.getTileOnLayer({
+        getTileOnLayer({
             layer: placeLayer,
             quadkeys: [qk71, qk72],
             sameCallback: false,
@@ -307,7 +308,7 @@ describe('layer get and cancel requesting with different level', function() {
     it('get one tile at level 17 and another at 16, cancel both requests', function(done) {
         // qk81    = '31123013201010330' // length 17
         // qk82    = '3112301320101033' // length 16
-        coreTests.getTileOnLayer({
+        getTileOnLayer({
             layer: placeLayer,
             quadkeys: [qk81, qk82],
             sameCallback: false,
@@ -339,7 +340,7 @@ describe('layer get and cancel requesting with different level', function() {
     it('get requested tile at level 15 and another at 16', function(done) {
         // qk11    = '311230132010130' // length 15
         // qk12    = '3112301320101301' // length 16
-        coreTests.getTileOnLayer({
+        getTileOnLayer({
             layer: placeLayer,
             quadkeys: [qk11, qk12],
             sameCallback: false,
@@ -366,7 +367,7 @@ describe('layer get and cancel requesting with different level', function() {
     it('get requested tile at level 15 and another at 16, canceled the request at level 15', function(done) {
         // qk11    = '311230132010130' // length 15
         // qk12    = '3112301320101301' // length 16
-        coreTests.getTileOnLayer({
+        getTileOnLayer({
             layer: placeLayer,
             quadkeys: [qk11, qk12],
             sameCallback: false,
@@ -399,7 +400,7 @@ describe('layer get and cancel requesting with different level', function() {
     it('get requested tile at level 15 and another at 16, canceled the request at level 16', function(done) {
         // qk11    = '311230132010130' // length 15
         // qk12    = '3112301320101301' // length 16
-        coreTests.getTileOnLayer({
+        getTileOnLayer({
             layer: placeLayer,
             quadkeys: [qk11, qk12],
             sameCallback: false,
@@ -432,7 +433,7 @@ describe('layer get and cancel requesting with different level', function() {
     it('get requested tile at level 15 and another at 16, cancel the request at level 16', function(done) {
         // qk21    = '311230132010131' // length 15
         // qk22    = '3112301320101311' // length 16
-        coreTests.getTileOnLayer({
+        getTileOnLayer({
             layer: placeLayer,
             quadkeys: [qk21, qk22],
             sameCallback: false,
@@ -465,7 +466,7 @@ describe('layer get and cancel requesting with different level', function() {
     it('get requested but canceled tile at level 15 and another at 16, cancel the request at level 15', function(done) {
         // qk31    = '311230132010132' // length 15
         // qk32    = '3112301320101321' // length 16
-        coreTests.getTileOnLayer({
+        getTileOnLayer({
             layer: placeLayer,
             quadkeys: [qk31, qk32],
             sameCallback: false,
@@ -498,7 +499,7 @@ describe('layer get and cancel requesting with different level', function() {
     it('get requested but canceled tile at level 15 and another at 16, cancel the request at level 16', function(done) {
         // qk31    = '311230132010132' // length 15
         // qk32    = '3112301320101321' // length 16
-        coreTests.getTileOnLayer({
+        getTileOnLayer({
             layer: placeLayer,
             quadkeys: [qk31, qk32],
             sameCallback: false,
@@ -530,7 +531,7 @@ describe('layer get and cancel requesting with different level', function() {
     it('get requested and cancelled tile at level 15 and another at 16, cancel both requests', function(done) {
         // qk41    = '311230132010133' // length 15
         // qk42    = '3112301320101331' // length 16
-        coreTests.getTileOnLayer({
+        getTileOnLayer({
             layer: placeLayer,
             quadkeys: [qk41, qk42],
             sameCallback: false,

@@ -16,7 +16,7 @@
  * SPDX-License-Identifier: Apache-2.0
  * License-Filename: LICENSE
  */
-import {displayTests, prepare} from 'hereTest';
+import {prepare} from 'testUtils';
 import {Map} from '@here/xyz-maps-core';
 import dataset from './map_destroy_with_space_and_copyright_spec.json';
 

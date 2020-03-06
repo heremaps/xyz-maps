@@ -16,7 +16,9 @@
  * SPDX-License-Identifier: Apache-2.0
  * License-Filename: LICENSE
  */
-import {editorTests, testUtils, prepare} from 'hereTest';
+import {prepare} from 'testUtils';
+import {waitForEditorReady} from 'editorTests';
+import {drag} from 'utilEvents';
 import {Map} from '@here/xyz-maps-core';
 import {Editor} from '@here/xyz-maps-editor';
 import chaiAlmost from 'chai-almost';
@@ -44,7 +46,7 @@ describe('drag a link shape point to the other link and then undo', function() {
         editor = new Editor(display, {
             layers: preparedData.getLayers()
         });
-        await editorTests.waitForEditorReady(editor);
+        await waitForEditorReady(editor);
         mapContainer = display.getContainer();
         link2 = preparedData.getFeature('linkLayer', -189033);
         linkLayer = preparedData.getLayers('linkLayer');
@@ -66,7 +68,7 @@ describe('drag a link shape point to the other link and then undo', function() {
 
     it('select a link to drag and split', async function() {
         link2.select();
-        await testUtils.events.drag(mapContainer, {x: 300, y: 300}, {x: 150, y: 100});
+        await drag(mapContainer, {x: 300, y: 300}, {x: 150, y: 100});
 
         expect(editor.info()).to.have.lengthOf(6);
 

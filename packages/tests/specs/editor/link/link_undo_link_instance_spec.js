@@ -16,7 +16,9 @@
  * SPDX-License-Identifier: Apache-2.0
  * License-Filename: LICENSE
  */
-import {editorTests, testUtils, prepare} from 'hereTest';
+import {prepare} from 'testUtils';
+import {waitForEditorReady} from 'editorTests';
+import {drag} from 'utilEvents';
 import {Map} from '@here/xyz-maps-core';
 import {features, Editor} from '@here/xyz-maps-editor';
 import chaiAlmost from 'chai-almost';
@@ -43,7 +45,7 @@ xdescribe('link undo its instance is updated', function() {
         editor = new Editor(display, {
             layers: preparedData.getLayers()
         });
-        await editorTests.waitForEditorReady(editor);
+        await waitForEditorReady(editor);
         mapContainer = display.getContainer();
         link = editor.addFeature(
             new features.Navlink([{x: 100, y: 100}, {x: 300, y: 100}], {featureClass: 'NAVLINK'})
@@ -58,7 +60,7 @@ xdescribe('link undo its instance is updated', function() {
 
     it('drag shape point and validate', async function() {
         link.select();
-        await testUtils.events.drag(mapContainer, {x: 300, y: 100}, {x: 400, y: 200});
+        await drag(mapContainer, {x: 300, y: 100}, {x: 400, y: 200});
 
         expect(link.coord()).to.deep.almost([
             [80.631968502, 17.715947679, 0],
@@ -72,7 +74,7 @@ xdescribe('link undo its instance is updated', function() {
         let lnk = editor.getFeature(link.id, link.getProvider().src);
         lnk.select();
 
-        await testUtils.events.drag(mapContainer, {x: 300, y: 100}, {x: 400, y: 200});
+        await drag(mapContainer, {x: 300, y: 100}, {x: 400, y: 200});
 
         expect(link.coord()).to.deep.almost([
             [80.631968502, 17.715947679, 0],

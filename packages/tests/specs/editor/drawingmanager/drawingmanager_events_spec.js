@@ -16,7 +16,9 @@
  * SPDX-License-Identifier: Apache-2.0
  * License-Filename: LICENSE
  */
-import {editorTests, displayTests, testUtils, prepare} from 'hereTest';
+import {Listener, prepare} from 'testUtils';
+import {waitForEditorReady} from 'editorTests';
+import {click, drag, mousemove} from 'utilEvents';
 import {Map} from '@here/xyz-maps-core';
 import {Editor} from '@here/xyz-maps-editor';
 import dataset from './drawingmanager_events_spec.json';
@@ -39,7 +41,7 @@ describe('mouse events when drawingmanager is active', function() {
         editor = new Editor(display, {
             layers: preparedData.getLayers()
         });
-        await editorTests.waitForEditorReady(editor);
+        await waitForEditorReady(editor);
         mapContainer = display.getContainer();
     });
 
@@ -52,25 +54,25 @@ describe('mouse events when drawingmanager is active', function() {
         let mapContainer = display.getContainer();
         editor.getDrawingBoard().start();
 
-        let listener = new testUtils.Listener(editor, ['pointerup', 'dragStart', 'dragStop']);
+        let listener = new Listener(editor, ['pointerup', 'dragStart', 'dragStop']);
 
         // click to add a shape
-        await testUtils.events.mousemove(mapContainer, {x: 100, y: 200}, {x: 200, y: 200});
-        await testUtils.events.click(mapContainer, 200, 200);
+        await mousemove(mapContainer, {x: 100, y: 200}, {x: 200, y: 200});
+        await click(mapContainer, 200, 200);
 
         // click to add another shape
-        await testUtils.events.mousemove(mapContainer, {x: 200, y: 200}, {x: 300, y: 200});
-        await testUtils.events.click(mapContainer, 300, 200);
+        await mousemove(mapContainer, {x: 200, y: 200}, {x: 300, y: 200});
+        await click(mapContainer, 300, 200);
 
         // drag shape point
-        await testUtils.events.drag(mapContainer, {x: 300, y: 200}, {x: 250, y: 100});
+        await drag(mapContainer, {x: 300, y: 200}, {x: 250, y: 100});
 
         // click on one shape point
-        await testUtils.events.click(mapContainer, 200, 200);
+        await click(mapContainer, 200, 200);
 
         // drag map
-        await editorTests.waitForEditorReady(editor, async ()=>{
-            await testUtils.events.drag(mapContainer, {x: 300, y: 400}, {x: 250, y: 400});
+        await waitForEditorReady(editor, async ()=>{
+            await drag(mapContainer, {x: 300, y: 400}, {x: 250, y: 400});
         });
 
         editor.getDrawingBoard().cancel();

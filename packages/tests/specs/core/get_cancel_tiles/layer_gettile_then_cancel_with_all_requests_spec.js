@@ -17,7 +17,8 @@
  * License-Filename: LICENSE
  */
 
-import {coreTests, prepare} from 'hereTest';
+import {prepare} from 'testUtils';
+import {getTileOnLayer} from 'coreTests';
 import dataset from './layer_gettile_then_cancel_with_all_requests_spec.json';
 
 describe('layer get and cancel requesting all other related requests', function() {
@@ -60,7 +61,7 @@ describe('layer get and cancel requesting all other related requests', function(
     it('get tile at level 16 and another at 17, cancel request at 16', function(done) {
         // qk11    = '3112301320131010' // length 16
         // qk12    = '31123013201310101' // length 17
-        coreTests.getTileOnLayer({
+        getTileOnLayer({
             layer: placeLayer,
             quadkeys: [qk11, qk12],
             sameCallback: false,
@@ -90,7 +91,7 @@ describe('layer get and cancel requesting all other related requests', function(
     xit('get tile at level 15 and another at 16, cancel request at 15', function(done) {
         // qk21    = '311230132013100' // length 15
         // qk22    = '3112301320131001' // length 16
-        coreTests.getTileOnLayer({
+        getTileOnLayer({
             layer: placeLayer,
             quadkeys: [qk21, qk22],
             sameCallback: false,
@@ -122,7 +123,7 @@ describe('layer get and cancel requesting all other related requests', function(
     xit('get tile at level 16 and another at 17, cancel request at 17', function(done) {
         // qk31    = '3112301320131020' // length 16
         // qk32    = '31123013201310201' // length 17
-        coreTests.getTileOnLayer({
+        getTileOnLayer({
             layer: placeLayer,
             quadkeys: [qk31, qk32],
             sameCallback: false,
@@ -154,7 +155,7 @@ describe('layer get and cancel requesting all other related requests', function(
     xit('get tile at level 15 and another at 16, cancel request at 16', function(done) {
         // qk41    = '311230132013103' // length 15
         // qk42    = '3112301320131030' // length 16
-        coreTests.getTileOnLayer({
+        getTileOnLayer({
             layer: placeLayer,
             quadkeys: [qk41, qk42],
             sameCallback: false,

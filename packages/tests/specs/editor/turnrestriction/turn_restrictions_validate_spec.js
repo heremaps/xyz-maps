@@ -16,9 +16,11 @@
  * SPDX-License-Identifier: Apache-2.0
  * License-Filename: LICENSE
  */
-import {editorTests, testUtils, prepare} from 'hereTest';
+import {prepare} from 'testUtils';
+import {waitForEditorReady} from 'editorTests';
+import {mousemove, click} from 'utilEvents';
 import {Map} from '@here/xyz-maps-core';
-import {features, Editor} from '@here/xyz-maps-editor';
+import {Editor} from '@here/xyz-maps-editor';
 import dataset from './turn_restrictions_validate_spec.json';
 
 describe('turn restriction validate', function() {
@@ -42,7 +44,7 @@ describe('turn restriction validate', function() {
             layers: preparedData.getLayers()
         });
 
-        await editorTests.waitForEditorReady(editor);
+        await waitForEditorReady(editor);
         mapContainer = display.getContainer();
         linkLayer = preparedData.getLayers('linkLayer');
 
@@ -60,13 +62,13 @@ describe('turn restriction validate', function() {
     });
 
     it('modify turn restriction and validate its value', async function() {
-        await testUtils.events.click(mapContainer, 100, 115);
+        await click(mapContainer, 100, 115);
 
         link3.editTurnRestrictions();
 
-        await testUtils.events.click(mapContainer, 212, 152);
+        await click(mapContainer, 212, 152);
 
-        await testUtils.events.mousemove(mapContainer, {x: 200, y: 100}, {x: 210, y: 110});
+        await mousemove(mapContainer, {x: 200, y: 100}, {x: 210, y: 110});
 
         expect(link3.prop('turnRestriction')).to.deep.equal({end: [link1.id]});
     });

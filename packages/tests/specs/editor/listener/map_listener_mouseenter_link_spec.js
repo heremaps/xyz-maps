@@ -16,9 +16,11 @@
  * SPDX-License-Identifier: Apache-2.0
  * License-Filename: LICENSE
  */
-import {editorTests, testUtils, prepare} from 'hereTest';
+import {Listener, prepare} from 'testUtils';
+import {waitForEditorReady} from 'editorTests';
+import {mousemove, click} from 'utilEvents';
 import {Map} from '@here/xyz-maps-core';
-import {features, Editor} from '@here/xyz-maps-editor';
+import {Editor} from '@here/xyz-maps-editor';
 import dataset from './map_listener_mouseenter_link_spec.json';
 
 describe('map mouseenter link when link layer is removed', function() {
@@ -42,7 +44,7 @@ describe('map mouseenter link when link layer is removed', function() {
             layers: preparedData.getLayers()
         });
 
-        await editorTests.waitForEditorReady(editor);
+        await waitForEditorReady(editor);
         mapContainer = display.getContainer();
 
         linkLayer = preparedData.getLayers('linkLayer');
@@ -56,28 +58,28 @@ describe('map mouseenter link when link layer is removed', function() {
 
     it('validate mouse hover events', async function() {
         // click on map
-        await testUtils.events.click(mapContainer, 150, 100);
-        await testUtils.events.mousemove(mapContainer, {x: 150, y: 100}, {x: 200, y: 100});
+        await click(mapContainer, 150, 100);
+        await mousemove(mapContainer, {x: 150, y: 100}, {x: 200, y: 100});
 
-        let listener = new testUtils.Listener(editor, ['pointerenter', 'pointerleave']);
+        let listener = new Listener(editor, ['pointerenter', 'pointerleave']);
 
         // click on link
-        await testUtils.events.click(mapContainer, 330, 167);
+        await click(mapContainer, 330, 167);
 
         // click on map
-        await testUtils.events.click(mapContainer, 350, 132);
+        await click(mapContainer, 350, 132);
 
         // mouse over a link
-        await testUtils.events.mousemove(mapContainer, {x: 350, y: 132}, {x: 330, y: 167});
+        await mousemove(mapContainer, {x: 350, y: 132}, {x: 330, y: 167});
 
         // mouse out of a link
-        await testUtils.events.mousemove(mapContainer, {x: 330, y: 167}, {x: 360, y: 132});
+        await mousemove(mapContainer, {x: 330, y: 167}, {x: 360, y: 132});
 
         // mouse over a POI
-        await testUtils.events.mousemove(mapContainer, {x: 300, y: 132}, {x: 285, y: 146});
+        await mousemove(mapContainer, {x: 300, y: 132}, {x: 285, y: 146});
 
         // mouse out of a poi
-        await testUtils.events.mousemove(mapContainer, {x: 285, y: 146}, {x: 285, y: 130});
+        await mousemove(mapContainer, {x: 285, y: 146}, {x: 285, y: 130});
 
         let results = listener.stop();
 
@@ -88,25 +90,25 @@ describe('map mouseenter link when link layer is removed', function() {
     it('remove link layer, validate mouse hover events', async function() {
         editor.removeLayer(linkLayer);
 
-        let listener = new testUtils.Listener(editor, ['pointerenter', 'pointerleave']);
+        let listener = new Listener(editor, ['pointerenter', 'pointerleave']);
 
         // click on link
-        await testUtils.events.click(mapContainer, 330, 167);
+        await click(mapContainer, 330, 167);
 
         // click on map
-        await testUtils.events.click(mapContainer, 350, 132);
+        await click(mapContainer, 350, 132);
 
         // mouse over a link
-        await testUtils.events.mousemove(mapContainer, {x: 350, y: 132}, {x: 330, y: 167});
+        await mousemove(mapContainer, {x: 350, y: 132}, {x: 330, y: 167});
 
         // mouse out of a link
-        await testUtils.events.mousemove(mapContainer, {x: 330, y: 167}, {x: 360, y: 132});
+        await mousemove(mapContainer, {x: 330, y: 167}, {x: 360, y: 132});
 
         // mouse over a POI
-        await testUtils.events.mousemove(mapContainer, {x: 300, y: 132}, {x: 285, y: 146});
+        await mousemove(mapContainer, {x: 300, y: 132}, {x: 285, y: 146});
 
         // mouse out of a poi
-        await testUtils.events.mousemove(mapContainer, {x: 285, y: 146}, {x: 285, y: 130});
+        await mousemove(mapContainer, {x: 285, y: 146}, {x: 285, y: 130});
 
         let results = listener.stop();
 
@@ -118,25 +120,25 @@ describe('map mouseenter link when link layer is removed', function() {
     it('add link layer, validate mouse hover events', async function() {
         editor.addLayer(linkLayer);
 
-        let listener = new testUtils.Listener(editor, ['pointerenter', 'pointerleave']);
+        let listener = new Listener(editor, ['pointerenter', 'pointerleave']);
 
         // click on link
-        await testUtils.events.click(mapContainer, 330, 167);
+        await click(mapContainer, 330, 167);
 
         // click on map
-        await testUtils.events.click(mapContainer, 350, 132);
+        await click(mapContainer, 350, 132);
 
         // mouse over a link
-        await testUtils.events.mousemove(mapContainer, {x: 350, y: 132}, {x: 330, y: 167});
+        await mousemove(mapContainer, {x: 350, y: 132}, {x: 330, y: 167});
 
         // mouse out of a link
-        await testUtils.events.mousemove(mapContainer, {x: 330, y: 167}, {x: 360, y: 132});
+        await mousemove(mapContainer, {x: 330, y: 167}, {x: 360, y: 132});
 
         // mouse over a POI
-        await testUtils.events.mousemove(mapContainer, {x: 300, y: 132}, {x: 285, y: 146});
+        await mousemove(mapContainer, {x: 300, y: 132}, {x: 285, y: 146});
 
         // mouse out of a poi
-        await testUtils.events.mousemove(mapContainer, {x: 285, y: 146}, {x: 285, y: 130});
+        await mousemove(mapContainer, {x: 285, y: 146}, {x: 285, y: 130});
 
         let results = listener.stop();
 

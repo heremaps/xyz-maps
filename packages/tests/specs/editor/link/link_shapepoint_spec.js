@@ -16,7 +16,9 @@
  * SPDX-License-Identifier: Apache-2.0
  * License-Filename: LICENSE
  */
-import {editorTests, testUtils, prepare} from 'hereTest';
+import {prepare} from 'testUtils';
+import {waitForEditorReady, editorClick} from 'editorTests';
+import {click} from 'utilEvents';
 import {Map} from '@here/xyz-maps-core';
 import {Editor} from '@here/xyz-maps-editor';
 import chaiAlmost from 'chai-almost';
@@ -45,7 +47,7 @@ describe('link shape points', function() {
             layers: preparedData.getLayers()
         });
 
-        await editorTests.waitForEditorReady(editor);
+        await waitForEditorReady(editor);
         mapContainer = display.getContainer();
 
         link1 = preparedData.getFeature('linkLayer', -189083);
@@ -58,8 +60,8 @@ describe('link shape points', function() {
     });
 
     it('click on link to get shape point', async function() {
-        await testUtils.events.click(mapContainer, 100, 200);
-        shape = (await editorTests.click(editor, 100, 100)).target;
+        await click(mapContainer, 100, 200);
+        shape = (await editorClick(editor, 100, 100)).target;
 
         expect(shape.getConnectedLinks()).to.have.lengthOf(1);
         expect(shape.getIndex()).to.equal(3);
@@ -79,7 +81,7 @@ describe('link shape points', function() {
     });
 
     it('remove a link shape point and validate coordinates again', async function() {
-        shape = (await editorTests.click(editor, 100, 200)).target;
+        shape = (await editorClick(editor, 100, 200)).target;
 
         shape.remove();
 
@@ -91,12 +93,12 @@ describe('link shape points', function() {
     });
 
     it('split link and validate the new links', async function() {
-        shape = (await editorTests.click(editor, 300, 200)).target;
+        shape = (await editorClick(editor, 300, 200)).target;
 
         let links = shape.splitLink();
 
         // click on ground
-        await testUtils.events.click(mapContainer, 100, 500);
+        await click(mapContainer, 100, 500);
 
         expect(links[0].coord()).to.deep.almost([
             [77.26942, 13.082952518, 0],

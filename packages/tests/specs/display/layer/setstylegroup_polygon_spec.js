@@ -17,7 +17,8 @@
  * License-Filename: LICENSE
  */
 
-import {displayTests, prepare, testUtils} from 'hereTest';
+import {waitForViewportReady} from 'displayTests';
+import {getCanvasPixelColor, prepare} from 'testUtils';
 import {Map} from '@here/xyz-maps-core';
 import dataset from './setstylegroup_polygon_spec.json';
 
@@ -39,7 +40,7 @@ describe('setStyleGroup Polygon', function() {
             zoomLevel: 18,
             layers: preparedData.getLayers()
         });
-        await displayTests.waitForViewportReady(display);
+        await waitForViewportReady(display);
 
         mapContainer = display.getContainer();
         buildingLayer = preparedData.getLayers('buildingLayer');
@@ -62,8 +63,8 @@ describe('setStyleGroup Polygon', function() {
         // validate features have new style
         await new Promise((resolve) => {
             setTimeout(() => {
-                let color1 = testUtils.getCanvasPixelColor(mapContainer, 380, 280); // get fill color
-                let color2 = testUtils.getCanvasPixelColor(mapContainer, 247, 327); // get stroke color on first shape point
+                let color1 = getCanvasPixelColor(mapContainer, 380, 280); // get fill color
+                let color2 = getCanvasPixelColor(mapContainer, 247, 327); // get stroke color on first shape point
 
                 expect(color1).to.equal('#9fe030');
                 expect(color2).to.equal('#906fff');
@@ -84,8 +85,8 @@ describe('setStyleGroup Polygon', function() {
         // validate features have new style
         await new Promise((resolve) => {
             setTimeout(() => {
-                let color1 = testUtils.getCanvasPixelColor(mapContainer, 380, 280); // get fill color
-                let color2 = testUtils.getCanvasPixelColor(mapContainer, 246, 328); // get stroke color on first shape point
+                let color1 = getCanvasPixelColor(mapContainer, 380, 280); // get fill color
+                let color2 = getCanvasPixelColor(mapContainer, 246, 328); // get stroke color on first shape point
 
                 expect(color1).to.equal('#c3ed7e');
                 expect(color2).to.equal('#576cd5');
@@ -106,8 +107,8 @@ describe('setStyleGroup Polygon', function() {
         // validate features have new style
         await new Promise((resolve) => {
             setTimeout(() => {
-                let color1 = testUtils.getCanvasPixelColor(mapContainer, 380, 280); // get fill color
-                let color2 = testUtils.getCanvasPixelColor(mapContainer, 247, 327); // get stroke color on first shape point
+                let color1 = getCanvasPixelColor(mapContainer, 380, 280); // get fill color
+                let color2 = getCanvasPixelColor(mapContainer, 247, 327); // get stroke color on first shape point
 
                 expect(color1).to.equal('#ff0000');
                 expect(color2).to.equal('#906fff');

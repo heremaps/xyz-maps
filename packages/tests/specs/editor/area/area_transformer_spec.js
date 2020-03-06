@@ -16,7 +16,9 @@
  * SPDX-License-Identifier: Apache-2.0
  * License-Filename: LICENSE
  */
-import {editorTests, displayTests, testUtils, prepare} from 'hereTest';
+import {prepare} from 'testUtils';
+import {waitForEditorReady} from 'editorTests';
+import {drag} from 'utilEvents';
 import {Map} from '@here/xyz-maps-core';
 import {Editor} from '@here/xyz-maps-editor';
 import chaiAlmost from 'chai-almost';
@@ -43,7 +45,7 @@ describe('area transformer', function() {
             layers: preparedData.getLayers()
         });
 
-        await editorTests.waitForEditorReady(editor);
+        await waitForEditorReady(editor);
 
         mapContainer = display.getContainer();
 
@@ -70,7 +72,7 @@ describe('area transformer', function() {
 
 
     it('drag to scale left', async function() {
-        await testUtils.events.drag(mapContainer, {x: 185, y: 400}, {x: 200, y: 400});
+        await drag(mapContainer, {x: 185, y: 400}, {x: 200, y: 400});
 
         expect(area.coord()).to.deep.almost([[[
             [74.82135612, 12.901112607, 0],
@@ -81,7 +83,7 @@ describe('area transformer', function() {
     });
 
     it('drag to scale right', async function() {
-        await testUtils.events.drag(mapContainer, {x: 415, y: 400}, {x: 400, y: 400});
+        await drag(mapContainer, {x: 415, y: 400}, {x: 400, y: 400});
 
         expect(area.coord()).to.deep.almost([[[
             [74.82135612, 12.901112607, 0],
@@ -93,7 +95,7 @@ describe('area transformer', function() {
 
 
     it('drag to scale up', async function() {
-        await testUtils.events.drag(mapContainer, {x: 300, y: 285}, {x: 300, y: 250});
+        await drag(mapContainer, {x: 300, y: 285}, {x: 300, y: 250});
 
         expect(area.coord()).to.deep.almost([[[
             [74.82135612, 12.901203332, 0],
@@ -105,7 +107,7 @@ describe('area transformer', function() {
 
 
     it('drag to scale down', async function() {
-        await testUtils.events.drag(mapContainer, {x: 300, y: 515}, {x: 300, y: 450});
+        await drag(mapContainer, {x: 300, y: 515}, {x: 300, y: 450});
 
         expect(area.coord()).to.deep.almost([[[
             [74.82135612, 12.901203332, 0],
@@ -116,7 +118,7 @@ describe('area transformer', function() {
     });
 
     it('drag to move', async function() {
-        await testUtils.events.drag(mapContainer, {x: 300, y: 350}, {x: 320, y: 300});
+        await drag(mapContainer, {x: 300, y: 350}, {x: 320, y: 300});
 
         expect(area.coord()).to.deep.almost([[[
             [74.821409765, 12.901334057, 0],
@@ -128,7 +130,7 @@ describe('area transformer', function() {
 
 
     it('drag to rotate', async function() {
-        await testUtils.events.drag(mapContainer, {x: 420, y: 400}, {x: 400, y: 400});
+        await drag(mapContainer, {x: 420, y: 400}, {x: 400, y: 400});
 
         expect(area.coord()).to.deep.almost([[[
             [74.821436249, 12.901357269, 0],
@@ -140,8 +142,8 @@ describe('area transformer', function() {
 
 
     xit('drag blank area, validate area is not transformed', async function() {
-        await editorTests.waitForEditorReady(editor, async ()=>{
-            await testUtils.events.drag(mapContainer, {x: 380, y: 300}, {x: 380, y: 380});
+        await waitForEditorReady(editor, async ()=>{
+            await drag(mapContainer, {x: 380, y: 300}, {x: 380, y: 380});
         });
         expect(area.coord()).to.deep.almost([[[
             [74.821436249, 12.901357269, 0],

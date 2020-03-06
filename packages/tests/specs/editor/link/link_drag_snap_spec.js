@@ -16,7 +16,9 @@
  * SPDX-License-Identifier: Apache-2.0
  * License-Filename: LICENSE
  */
-import {editorTests, testUtils, prepare} from 'hereTest';
+import {prepare} from 'testUtils';
+import {waitForEditorReady} from 'editorTests';
+import {drag} from 'utilEvents';
 import {Map} from '@here/xyz-maps-core';
 import {Editor} from '@here/xyz-maps-editor';
 import chaiAlmost from 'chai-almost';
@@ -44,7 +46,7 @@ describe('link shape point drag to snapping to other links', function() {
             layers: preparedData.getLayers()
         });
 
-        await editorTests.waitForEditorReady(editor);
+        await waitForEditorReady(editor);
         mapContainer = display.getContainer();
 
         link2 = preparedData.getFeature('linkLayer', -189063);
@@ -60,7 +62,7 @@ describe('link shape point drag to snapping to other links', function() {
     it('select the second link, drag the shape point to connect to link', async function() {
         link2.select();
 
-        await testUtils.events.drag(mapContainer, {x: 150, y: 150}, {x: 294, y: 100});
+        await drag(mapContainer, {x: 150, y: 150}, {x: 294, y: 100});
 
         expect(link2.coord()).to.deep.almost([
             [75.290493779, 16.325440813, 0], [75.289957337, 16.32531211, 0]
@@ -72,7 +74,7 @@ describe('link shape point drag to snapping to other links', function() {
         let lnk = editor.getFeature(link2.id, linkLayer);
         lnk.select();
 
-        await testUtils.events.drag(mapContainer, {x: 150, y: 150}, {x: 294, y: 200});
+        await drag(mapContainer, {x: 150, y: 150}, {x: 294, y: 200});
 
         expect(lnk.coord()).to.deep.almost([
             [75.290493779, 16.325183407, 0], [75.289957337, 16.32531211, 0]

@@ -17,7 +17,7 @@
  * License-Filename: LICENSE
  */
 
-import {prepare} from 'hereTest';
+import {prepare} from 'testUtils';
 import dataset from './search_in_provider_and_layer_spec.json';
 
 describe('search features in poi layer and provider', function() {
