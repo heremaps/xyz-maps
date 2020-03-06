@@ -20,8 +20,6 @@
 import environments from 'environments';
 // @ts-ignore
 import credentials from 'credentials';
-// // @ts-ignore
-// import environment from 'environment';
 import {providers, layers as mLayers} from '@here/xyz-maps-core';
 import {TestProvider} from '../TestProvider';
 import {spacePool} from '../runner';
@@ -79,31 +77,6 @@ function adaptProviderConfig(config, geoJSONUrlc) {
 };
 
 
-function updateRoutingPoint(dataset, submitted): Promise<{[key: string]: object[]}> {
-    let xhrs = [];
-    let layers = [];
-
-    for (let layer in dataset) {
-        let features = dataset[layer].data;
-        let provider = dataset[layer].provider;
-
-        xhrs.push(new Promise((resolve, reject)=>{
-            provider.commit({'put': features}, (e)=>{
-                resolve(e.inserted);
-            }, reject);
-        }));
-        layers.push(layer);
-    }
-    return new Promise(async function(resolve) {
-        let res = await Promise.all(xhrs);
-        let response = {};
-        for (let i in res) {
-            response[layers[i]] = res[i];
-        }
-        resolve(response);
-    });
-}
-
 function prepareFeatures(dataset): Promise<{[key: string]: object[]}> {
     let xhrs = [];
     let layers = [];
@@ -132,7 +105,7 @@ function prepareFeatures(dataset): Promise<{[key: string]: object[]}> {
 };
 
 
-export async function prepare(dataset) {
+export default async function prepare(dataset) {
     let preparedData = new PreparedData();
 
     let featuresToCommit= {};

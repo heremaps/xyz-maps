@@ -96,7 +96,7 @@ module.exports = function(config) {
         }, {
             input: {
                 input: 'specs/common/main.ts',
-                external: ['testUtils', '@here/xyz-maps-common'],
+                external: ['@here/xyz-maps-common'],
                 plugins: [
                     typescript({
                         typescript: require('typescript'),
@@ -122,7 +122,6 @@ module.exports = function(config) {
                 name: 'commonTests',
                 sourcemap: true,
                 globals: {
-                    'testUtils': 'here.test.testUtils',
                     '@here/xyz-maps-common': 'here.xyz.maps.common'
                 }
             }
@@ -177,7 +176,7 @@ module.exports = function(config) {
         }, {
             input: {
                 input: 'specs/core/main.ts',
-                external: ['coreTests', 'testUtils', '@here/xyz-maps-common', '@here/xyz-maps-core', '@here/xyz-maps-editor'],
+                external: ['coreUtils', 'utils', '@here/xyz-maps-common', '@here/xyz-maps-core', '@here/xyz-maps-editor'],
 
                 plugins: [
                     typescript({
@@ -201,11 +200,11 @@ module.exports = function(config) {
             output: {
                 file: 'dist/core/'+specsFileName,
                 format: 'umd',
-                name: 'coreTests',
+                name: 'coreTestSpecs',
                 sourcemap: true,
                 globals: {
-                    'coreTests': 'here.test.coreTests',
-                    'testUtils': 'here.test.testUtils'
+                    'coreUtils': 'here.test.coreUtils',
+                    'utils': 'here.test.utils'
                 }
             }
         });
@@ -260,7 +259,7 @@ module.exports = function(config) {
         }, {
             input: {
                 input: 'specs/display/main.ts',
-                external: ['displayTests', 'testUtils', 'utilEvents', '@here/xyz-maps-core', '@here/xyz-maps-display', '@here/xyz-maps-editor'],
+                external: ['displayUtils', 'utils', 'triggerEvents', '@here/xyz-maps-core', '@here/xyz-maps-display', '@here/xyz-maps-editor'],
 
                 plugins: [
                     typescript({
@@ -286,12 +285,12 @@ module.exports = function(config) {
             output: {
                 file: 'dist/display/'+specsFileName,
                 format: 'umd',
-                name: 'displayTests',
+                name: 'displayTestSpecs',
                 sourcemap: true,
                 globals: {
-                    'displayTests': 'here.test.displayTests',
-                    'testUtils': 'here.test.testUtils',
-                    'utilEvents': 'here.test.testUtils.events',
+                    'displayUtils': 'here.test.displayUtils',
+                    'utils': 'here.test.utils',
+                    'triggerEvents': 'here.test.events',
                     '@here/xyz-maps-core': 'here.xyz.maps'
                 }
             }
@@ -346,7 +345,7 @@ module.exports = function(config) {
         }, {
             input: {
                 input: 'specs/editor/main.ts',
-                external: ['displayTests', 'editorTests', 'testUtils', 'utilEvents', '@here/xyz-maps-core', '@here/xyz-maps-display', '@here/xyz-maps-editor'],
+                external: ['displayUtils', 'editorUtils', 'utils', 'triggerEvents', '@here/xyz-maps-core', '@here/xyz-maps-display', '@here/xyz-maps-editor'],
                 plugins: [
                     typescript({
                         typescript: require('typescript'),
@@ -374,10 +373,10 @@ module.exports = function(config) {
                 name: 'editorTests',
                 sourcemap: true,
                 globals: {
-                    'displayTests': 'here.test.displayTests',
-                    'editorTests': 'here.test.editorTests',
-                    'testUtils': 'here.test.testUtils',
-                    'utilEvents': 'here.test.testUtils.events',
+                    'displayUtils': 'here.test.displayUtils',
+                    'editorUtils': 'here.test.editorUtils',
+                    'utils': 'here.test.utils',
+                    'triggerEvents': 'here.test.events',
                     '@here/xyz-maps-core': 'here.xyz.maps',
                     '@here/xyz-maps-editor': 'here.xyz.maps.editor'
                 }

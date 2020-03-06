@@ -17,9 +17,9 @@
  * License-Filename: LICENSE
  */
 
-import {waitForViewportReady} from 'displayTests';
-import {Listener, prepare} from 'testUtils';
-import {click} from 'utilEvents';
+import {waitForViewportReady} from 'displayUtils';
+import {Listener, prepare} from 'utils';
+import {click} from 'triggerEvents';
 import {Map} from '@here/xyz-maps-core';
 import dataset from './pointer_down_up_listener_spec.json';
 

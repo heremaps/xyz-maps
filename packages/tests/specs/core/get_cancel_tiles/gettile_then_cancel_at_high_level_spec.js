@@ -17,8 +17,8 @@
  * License-Filename: LICENSE
  */
 
-import {prepare} from 'testUtils';
-import {getTileOnProvider} from 'coreTests';
+import {prepare} from 'utils';
+import {getTileOnProvider} from 'coreUtils';
 import dataset from './gettile_then_cancel_at_high_level_spec.json';
 
 describe('get and cancel requesting with high level', function() {

@@ -17,8 +17,8 @@
  * License-Filename: LICENSE
  */
 
-import {waitForViewportReady} from 'displayTests';
-import {MonitorXHR, prepare} from 'testUtils';
+import {waitForViewportReady} from 'displayUtils';
+import {MonitorXHR, prepare} from 'utils';
 import {Map} from '@here/xyz-maps-core';
 import dataset from './init_requests_spec.json';
 

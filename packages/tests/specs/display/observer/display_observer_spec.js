@@ -17,8 +17,8 @@
  * License-Filename: LICENSE
  */
 
-import {waitForViewportReady} from 'displayTests';
-import {Observer, prepare} from 'testUtils';
+import {waitForViewportReady} from 'displayUtils';
+import {Observer, prepare} from 'utils';
 import {Map} from '@here/xyz-maps-core';
 import chaiAlmost from 'chai-almost';
 import dataset from './display_observer_spec.json';

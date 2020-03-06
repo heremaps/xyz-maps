@@ -17,9 +17,9 @@
  * License-Filename: LICENSE
  */
 
-import {waitForViewportReady} from 'displayTests';
-import {prepare} from 'testUtils';
-import {click} from 'utilEvents';
+import {waitForViewportReady} from 'displayUtils';
+import {prepare} from 'utils';
+import {click} from 'triggerEvents';
 import {Map} from '@here/xyz-maps-core';
 import dataset from './disable_zoomcontrol_spec.json';
 

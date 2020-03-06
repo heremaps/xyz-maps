@@ -16,8 +16,8 @@
  * SPDX-License-Identifier: Apache-2.0
  * License-Filename: LICENSE
  */
-import {getCanvasPixelColor, prepare} from 'testUtils';
-import {waitForEditorReady, editorClick} from 'editorTests';
+import {getCanvasPixelColor, prepare} from 'utils';
+import {waitForEditorReady, editorClick} from 'editorUtils';
 import {Map} from '@here/xyz-maps-core';
 import {features, Editor} from '@here/xyz-maps-editor';
 import chaiAlmost from 'chai-almost';

@@ -17,9 +17,9 @@
  * License-Filename: LICENSE
  */
 
-import {waitForViewportReady} from 'displayTests';
-import {Listener, getCanvasPixelColor, prepare} from 'testUtils';
-import {click} from 'utilEvents';
+import {waitForViewportReady} from 'displayUtils';
+import {Listener, getCanvasPixelColor, prepare} from 'utils';
+import {click} from 'triggerEvents';
 import {Map} from '@here/xyz-maps-core';
 import dataset from './pointer_listener_with_different_style_link_spec.json';
 

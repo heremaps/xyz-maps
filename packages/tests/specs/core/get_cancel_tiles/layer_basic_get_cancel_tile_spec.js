@@ -17,8 +17,8 @@
  * License-Filename: LICENSE
  */
 
-import {prepare} from 'testUtils';
-import {getTileOnLayer} from 'coreTests';
+import {prepare} from 'utils';
+import {getTileOnLayer} from 'coreUtils';
 import dataset from './layer_basic_get_cancel_tile_spec.json';
 
 describe('layer basic get and cancel tiles', function() {

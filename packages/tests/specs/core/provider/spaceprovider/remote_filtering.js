@@ -17,7 +17,7 @@
  * License-Filename: LICENSE
  */
 
-import {prepare} from 'testUtils';
+import {prepare} from 'utils';
 import dataset from './remote_filtering.json';
 
 describe('remote filtering in spaceprovider', function() {
