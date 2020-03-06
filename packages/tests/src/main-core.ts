@@ -17,9 +17,8 @@
  * License-Filename: LICENSE
  */
 
-import {coreTests} from './helpers/coreTests';
-import {testUtils} from './helpers/testUtils';
-import {prepare} from './helpers/prepareData';
+import * as coreUtils from './utils/coreUtils';
+import * as utils from './utils/utils';
 
 import {run} from './runner';
 
@@ -28,7 +27,5 @@ import mochaSettings from 'settings';
 
 mocha.setup(mochaSettings);
 
-Object.assign(testUtils, {prepare});
-
-export default {coreTests, testUtils, run};
+export default {coreUtils, utils, run};
 

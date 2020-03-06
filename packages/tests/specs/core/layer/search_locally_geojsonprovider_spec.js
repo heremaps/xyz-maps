@@ -17,7 +17,7 @@
  * License-Filename: LICENSE
  */
 
-import {prepare} from 'testUtils';
+import {prepare} from 'utils';
 import dataset from './search_locally_geojsonprovider_spec.json';
 
 describe('search features in geojson provider by single parameter', function() {

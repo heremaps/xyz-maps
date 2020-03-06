@@ -17,9 +17,9 @@
  * License-Filename: LICENSE
  */
 
-import {prepare} from 'testUtils';
-import {waitForViewportReady} from 'displayTests';
-import {drag} from 'utilEvents';
+import {prepare} from 'utils';
+import {waitForViewportReady} from 'displayUtils';
+import {drag} from 'triggerEvents';
 import {Map} from '@here/xyz-maps-core';
 import dataset from './display_multi_mapview_listener_spec.json';
 

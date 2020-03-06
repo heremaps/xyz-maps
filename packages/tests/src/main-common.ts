@@ -16,10 +16,6 @@
  * SPDX-License-Identifier: Apache-2.0
  * License-Filename: LICENSE
  */
-
-import {commonTests} from './helpers/commonTests';
-import {testUtils} from './helpers/testUtils';
-
 import {run} from './runner';
 
 // @ts-ignore
@@ -27,5 +23,5 @@ import mochaSettings from 'settings';
 
 mocha.setup(mochaSettings);
 
-export default {commonTests, testUtils, run};
+export default {run};
 

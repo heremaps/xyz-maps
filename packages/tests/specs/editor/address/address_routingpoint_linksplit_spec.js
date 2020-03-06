@@ -16,8 +16,8 @@
  * SPDX-License-Identifier: Apache-2.0
  * License-Filename: LICENSE
  */
-import {prepare} from 'testUtils';
-import {editorClick, waitForEditorReady} from 'editorTests';
+import {prepare} from 'utils';
+import {editorClick, waitForEditorReady} from 'editorUtils';
 import {Editor} from '@here/xyz-maps-editor';
 import {Map} from '@here/xyz-maps-core';
 import dataset from './address_routingpoint_linksplit_spec.json';

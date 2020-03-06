@@ -17,9 +17,9 @@
  * License-Filename: LICENSE
  */
 
-import {waitForViewportReady} from 'displayTests';
-import {prepare} from 'testUtils';
-import {drag, mousewheel} from 'utilEvents';
+import {waitForViewportReady} from 'displayUtils';
+import {prepare} from 'utils';
+import {drag, mousewheel} from 'triggerEvents';
 import {Map} from '@here/xyz-maps-core';
 import chaiAlmost from 'chai-almost';
 import dataset from './set_get_behavior_spec.json';

@@ -17,7 +17,7 @@
  * License-Filename: LICENSE
  */
 
-import {Listener, prepare} from 'testUtils';
+import {Listener, prepare} from 'utils';
 import dataset from './event_listeners_link_layer_spec.json';
 
 describe('event listeners in link layer', function() {

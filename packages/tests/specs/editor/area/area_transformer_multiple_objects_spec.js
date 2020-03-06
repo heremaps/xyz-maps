@@ -16,9 +16,9 @@
  * SPDX-License-Identifier: Apache-2.0
  * License-Filename: LICENSE
  */
-import {waitForEditorReady} from 'editorTests';
-import {prepare} from 'testUtils';
-import {click, drag} from 'utilEvents';
+import {waitForEditorReady} from 'editorUtils';
+import {prepare} from 'utils';
+import {click, drag} from 'triggerEvents';
 import {Map} from '@here/xyz-maps-core';
 import {Editor} from '@here/xyz-maps-editor';
 import chaiAlmost from 'chai-almost';

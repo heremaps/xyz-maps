@@ -17,7 +17,7 @@
  * License-Filename: LICENSE
  */
 
-import {prepare} from 'testUtils';
+import {prepare} from 'utils';
 import dataset from './commit_add_remove_feature_spec.json';
 
 xdescribe('commit add and remove feature to spaceprovider', function() {

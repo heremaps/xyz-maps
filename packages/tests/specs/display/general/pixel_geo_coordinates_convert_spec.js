@@ -17,8 +17,8 @@
  * License-Filename: LICENSE
  */
 
-import {prepare} from 'testUtils';
-import {waitForViewportReady} from 'displayTests';
+import {prepare} from 'utils';
+import {waitForViewportReady} from 'displayUtils';
 import {Map} from '@here/xyz-maps-core';
 import chaiAlmost from 'chai-almost';
 import dataset from './pixel_geo_coordinates_convert_spec.json';

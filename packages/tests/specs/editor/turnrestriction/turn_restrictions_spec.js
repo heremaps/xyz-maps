@@ -17,9 +17,9 @@
  * License-Filename: LICENSE
  */
 
-import {prepare} from 'testUtils';
-import {waitForEditorReady, editorClick, submit} from 'editorTests';
-import {mousemove, click} from 'utilEvents';
+import {prepare} from 'utils';
+import {waitForEditorReady, editorClick, submit} from 'editorUtils';
+import {mousemove, click} from 'triggerEvents';
 import {Map} from '@here/xyz-maps-core';
 import {Editor} from '@here/xyz-maps-editor';
 import dataset from './turn_restrictions_spec.json';

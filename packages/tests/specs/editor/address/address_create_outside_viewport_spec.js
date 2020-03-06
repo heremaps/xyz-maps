@@ -16,8 +16,8 @@
  * SPDX-License-Identifier: Apache-2.0
  * License-Filename: LICENSE
  */
-import {prepare} from 'testUtils';
-import {waitForEditorReady} from 'editorTests';
+import {prepare} from 'utils';
+import {waitForEditorReady} from 'editorUtils';
 import {features, Editor} from '@here/xyz-maps-editor';
 import {Map} from '@here/xyz-maps-core';
 import dataset from './address_create_outside_viewport_spec.json';

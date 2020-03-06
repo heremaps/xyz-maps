@@ -16,9 +16,9 @@
  * SPDX-License-Identifier: Apache-2.0
  * License-Filename: LICENSE
  */
-import {Listener, prepare} from 'testUtils';
-import {waitForEditorReady} from 'editorTests';
-import {mousemove, dblclick} from 'utilEvents';
+import {Listener, prepare} from 'utils';
+import {waitForEditorReady} from 'editorUtils';
+import {mousemove, dblclick} from 'triggerEvents';
 import {Map} from '@here/xyz-maps-core';
 import {Editor} from '@here/xyz-maps-editor';
 import dataset from './map_listener_dblclick_spec.json';

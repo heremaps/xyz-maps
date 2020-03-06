@@ -16,9 +16,9 @@
  * SPDX-License-Identifier: Apache-2.0
  * License-Filename: LICENSE
  */
-import {Observer, prepare} from 'testUtils';
-import {waitForEditorReady, submit} from 'editorTests';
-import {drag} from 'utilEvents';
+import {Observer, prepare} from 'utils';
+import {waitForEditorReady, submit} from 'editorUtils';
+import {drag} from 'triggerEvents';
 import {Map} from '@here/xyz-maps-core';
 import {features, Editor} from '@here/xyz-maps-editor';
 import dataset from './map_observer_ready_spec.json';

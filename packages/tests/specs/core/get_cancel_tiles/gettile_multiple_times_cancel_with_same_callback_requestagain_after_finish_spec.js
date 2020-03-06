@@ -17,8 +17,8 @@
  * License-Filename: LICENSE
  */
 
-import {prepare} from 'testUtils';
-import {getTileOnProvider} from 'coreTests';
+import {prepare} from 'utils';
+import {getTileOnProvider} from 'coreUtils';
 import dataset from './gettile_multiple_times_cancel_with_same_callback_requestagain_after_finish_spec.json';
 
 describe('get one tile multiple times and cancel with same callback', function() {

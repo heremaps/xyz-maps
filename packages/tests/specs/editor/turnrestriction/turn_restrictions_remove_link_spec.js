@@ -16,9 +16,9 @@
  * SPDX-License-Identifier: Apache-2.0
  * License-Filename: LICENSE
  */
-import {prepare} from 'testUtils';
-import {waitForEditorReady} from 'editorTests';
-import {click} from 'utilEvents';
+import {prepare} from 'utils';
+import {waitForEditorReady} from 'editorUtils';
+import {click} from 'triggerEvents';
 import {Map} from '@here/xyz-maps-core';
 import {Editor} from '@here/xyz-maps-editor';
 import dataset from './turn_restrictions_remove_link_spec.json';

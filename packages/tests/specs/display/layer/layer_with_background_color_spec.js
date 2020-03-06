@@ -17,8 +17,8 @@
  * License-Filename: LICENSE
  */
 
-import {waitForViewportReady} from 'displayTests';
-import {getCanvasPixelColor, prepare} from 'testUtils';
+import {waitForViewportReady} from 'displayUtils';
+import {getCanvasPixelColor, prepare} from 'utils';
 import {Map} from '@here/xyz-maps-core';
 import dataset from './layer_with_background_color_spec.json';
 

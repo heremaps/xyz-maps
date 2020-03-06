@@ -18,7 +18,7 @@
  */
 
 import {build} from '@here/xyz-maps-core';
-import SpacePool from './helpers/spacePool';
+import SpacePool from './utils/spacePool';
 // @ts-ignore
 import cleanupServer from 'cleanupServer';
 

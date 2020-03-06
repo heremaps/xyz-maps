@@ -17,7 +17,7 @@
  * License-Filename: LICENSE
  */
 
-import {prepare} from 'testUtils';
+import {prepare} from 'utils';
 import dataset from './add_feature_spec.json';
 
 describe('add feature to spaceprovider', function() {

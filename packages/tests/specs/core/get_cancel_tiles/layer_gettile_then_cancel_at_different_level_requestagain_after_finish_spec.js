@@ -17,8 +17,8 @@
  * License-Filename: LICENSE
  */
 
-import {prepare} from 'testUtils';
-import {getTileOnLayer} from 'coreTests';
+import {prepare} from 'utils';
+import {getTileOnLayer} from 'coreUtils';
 import dataset from './layer_gettile_then_cancel_at_different_level_requestagain_after_finish_spec.json';
 
 describe('layer get and cancel requesting with different level', function() {

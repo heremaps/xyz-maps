@@ -17,7 +17,7 @@
  * License-Filename: LICENSE
  */
 
-import {MonitorXHR, prepare} from 'testUtils';
+import {MonitorXHR, prepare} from 'utils';
 import dataset from './set_header_spec.json';
 
 describe('set request header of requests that handled by provider', function() {

@@ -17,8 +17,8 @@
  * License-Filename: LICENSE
  */
 
-import {prepare} from 'testUtils';
-import {waitForViewportReady} from 'displayTests';
+import {prepare} from 'utils';
+import {waitForViewportReady} from 'displayUtils';
 import {Map} from '@here/xyz-maps-core';
 import dataset from './get_containers_spec.json';
 
