@@ -37,6 +37,8 @@ let file = 'xyz-maps-' + module + '.js';
 const banner = '/*\n * ' + pkg.name + '\n * (c) 2019 HERE\n */\n';
 const logoSrc = process.env.logo || './assets/xyz.svg';
 const cOwner = process.env.cOwner || 'XYZ';
+const tacUrl = process.env.tacUrl || false;
+
 
 if (production) {
     sourcemap = false;
@@ -49,7 +51,8 @@ const createPlugins = (uglify) => {
     return [
         virtual({
             'ui-logo-src': `export default "data:image/svg+xml;base64,${fs.readFileSync(logoSrc, 'base64')}"`,
-            'ui-default-cOwner': `export default "${cOwner}"`
+            'ui-default-cOwner': `export default "${cOwner}"`,
+            'ui-tac-url': `export default "${tacUrl}"`
         }),
         string({
             include: 'src/**/*.glsl'

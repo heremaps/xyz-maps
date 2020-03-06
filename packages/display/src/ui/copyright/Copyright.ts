@@ -24,6 +24,8 @@ import {global, Map, JSUtils} from '@here/xyz-maps-common';
 import Display from '../../Map';
 // @ts-ignore
 import defaultOwner from 'ui-default-cOwner';
+// @ts-ignore
+import tacUrl from 'ui-tac-url';
 
 const document = global.document;
 
@@ -77,7 +79,7 @@ type Source = {
 
 type TACOptions = {
     label?: string;
-    url: string|false;
+    url: string | false;
 }
 
 type CopyrightOptions = {
@@ -91,7 +93,7 @@ const defaultOptions: CopyrightOptions = {
     defaultOwner: defaultOwner,
     termsAndConditions: {
         label: 'Terms and Conditions',
-        url: false
+        url: tacUrl || false
     }
 };
 
