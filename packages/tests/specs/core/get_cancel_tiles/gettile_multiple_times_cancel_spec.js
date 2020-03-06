@@ -17,7 +17,8 @@
  * License-Filename: LICENSE
  */
 
-import {coreTests, prepare} from 'hereTest';
+import {prepare} from 'testUtils';
+import {getTileOnProvider} from 'coreTests';
 import dataset from './gettile_multiple_times_cancel_spec.json';
 
 describe('get one tile multiple times and cancel', function() {
@@ -32,7 +33,6 @@ describe('get one tile multiple times and cancel', function() {
     before(async function() {
         let preparedData = await prepare(dataset);
         placeProvider = preparedData.getLayers('placeLayer').getProvider();
-
         qk1 = '3112301330012230'; // length 16
         qk2 = '3112301330012231'; // length 16
         qk3 = '3112301330012232'; // length 16
@@ -45,7 +45,7 @@ describe('get one tile multiple times and cancel', function() {
 
     it('get one tile for multiple times and dont cancel', function(done) {
         // qk1     = '3112301330012230' // length 16
-        coreTests.getTileOnProvider({
+        getTileOnProvider({
             provider: placeProvider,
             quadkeys: [qk1, qk1, qk1],
             sameCallback: false,
@@ -63,7 +63,6 @@ describe('get one tile multiple times and cancel', function() {
 
                 expect(cancelledRequests).to.equal(0);
 
-
                 done();
             }
         });
@@ -72,7 +71,7 @@ describe('get one tile multiple times and cancel', function() {
 
     it('get one tile for multiple times and cancel once', function(done) {
         // qk2     = '3112301330012231' // length 16
-        coreTests.getTileOnProvider({
+        getTileOnProvider({
             provider: placeProvider,
             quadkeys: [qk2, qk2, qk2],
             sameCallback: false,
@@ -104,7 +103,7 @@ describe('get one tile multiple times and cancel', function() {
 
     it('get one tile for multiple times and cancel two times', function(done) {
         // qk3     = '3112301330012232' // length 16
-        coreTests.getTileOnProvider({
+        getTileOnProvider({
             provider: placeProvider,
             quadkeys: [qk3, qk3, qk3],
             sameCallback: false,
@@ -136,7 +135,7 @@ describe('get one tile multiple times and cancel', function() {
 
     it('get one tile for multiple times and cancel all', function(done) {
         // qk4     = '3112301330012233' // length 16
-        coreTests.getTileOnProvider({
+        getTileOnProvider({
             provider: placeProvider,
             quadkeys: [qk4, qk4, qk4],
             sameCallback: false,

@@ -16,7 +16,8 @@
  * SPDX-License-Identifier: Apache-2.0
  * License-Filename: LICENSE
  */
-import {editorTests, prepare} from 'hereTest';
+import {prepare} from 'testUtils';
+import {waitForEditorReady} from 'editorTests';
 import {Map} from '@here/xyz-maps-core';
 import {features, Editor} from '@here/xyz-maps-editor';
 import dataset from './minshapedistance_spec.json';
@@ -39,7 +40,7 @@ describe('set minShapeDistance', function() {
             layers: preparedData.getLayers()
         });
 
-        await editorTests.waitForEditorReady(editor);
+        await waitForEditorReady(editor);
     });
 
     after(async function() {
@@ -54,7 +55,7 @@ describe('set minShapeDistance', function() {
             minShapeDistance: 5
         });
 
-        await editorTests.waitForEditorReady(editor, ()=>{
+        await waitForEditorReady(editor, ()=>{
             display.setCenter({longitude: 77.84172527566523, latitude: 17.450976000022266});
             display.setZoomlevel(19);
         });
@@ -75,7 +76,7 @@ describe('set minShapeDistance', function() {
             layers: preparedData.getLayers()
         });
 
-        await editorTests.waitForEditorReady(editor, ()=>{
+        await waitForEditorReady(editor, ()=>{
             display.setCenter({longitude: 77.84172527566523, latitude: 17.450976000022266});
             display.setZoomlevel(19);
         });

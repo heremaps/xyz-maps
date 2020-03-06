@@ -16,9 +16,11 @@
  * SPDX-License-Identifier: Apache-2.0
  * License-Filename: LICENSE
  */
-import {editorTests, testUtils, prepare} from 'hereTest';
+import {prepare} from 'testUtils';
+import {waitForEditorReady, editorClick} from 'editorTests';
+import {click} from 'utilEvents';
 import {Map} from '@here/xyz-maps-core';
-import {features, Editor} from '@here/xyz-maps-editor';
+import {Editor} from '@here/xyz-maps-editor';
 import dataset from './turn_restrictions_disconnect_spec.json';
 
 describe('edit turn restriction disconnect link, link is marked as disconnected', function() {
@@ -43,7 +45,7 @@ describe('edit turn restriction disconnect link, link is marked as disconnected'
             layers: preparedData.getLayers()
         });
 
-        await editorTests.waitForEditorReady(editor);
+        await waitForEditorReady(editor);
         mapContainer = display.getContainer();
         linkLayer = preparedData.getLayers('linkLayer');
 
@@ -63,17 +65,17 @@ describe('edit turn restriction disconnect link, link is marked as disconnected'
         link1.editTurnRestrictions();
 
         // set turn restriction
-        await testUtils.events.click(mapContainer, 200, 115);
+        await click(mapContainer, 200, 115);
 
         expect(link1.prop('turnRestriction')).to.deep.equal({end: [link2.id]});
     });
 
     it('deactivate turn restriction editor and disconnect shape point, validate disconnected link', async function() {
-        await testUtils.events.click(mapContainer, 100, 300);
+        await click(mapContainer, 100, 300);
 
         link1.select();
 
-        let shape = (await editorTests.click(editor, 200, 100)).target;
+        let shape = (await editorClick(editor, 200, 100)).target;
         shape.disconnect();
 
         expect(link1.prop('disconnected')).to.be.equal('HOOK');
@@ -92,7 +94,7 @@ describe('edit turn restriction disconnect link, link is marked as disconnected'
 
     it('disconnect and validate disconnected attribute again', async function() {
         link2.select();
-        let shape = (await editorTests.click(editor, 200, 100)).target;
+        let shape = (await editorClick(editor, 200, 100)).target;
 
         shape.disconnect();
 
@@ -112,17 +114,17 @@ describe('edit turn restriction disconnect link, link is marked as disconnected'
         link4.editTurnRestrictions();
 
         // set turn restriction
-        await testUtils.events.click(mapContainer, 290, 200);
+        await click(mapContainer, 290, 200);
         // click to deactivate turn restriction
-        await testUtils.events.click(mapContainer, 100, 200);
+        await click(mapContainer, 100, 200);
 
 
         link3.editTurnRestrictions();
 
         // set turn restriction
-        await testUtils.events.click(mapContainer, 290, 200);
+        await click(mapContainer, 290, 200);
         // click to deactivate turn restriction
-        await testUtils.events.click(mapContainer, 100, 200);
+        await click(mapContainer, 100, 200);
 
         expect(link1.prop('turnRestriction')).to.deep.equal({end: [link2.id]});
         expect(link3.prop('turnRestriction')).to.deep.equal({end: [link2.id]});
@@ -133,7 +135,7 @@ describe('edit turn restriction disconnect link, link is marked as disconnected'
         link3.select();
 
         // get link shape point to disconnect
-        let shape = (await editorTests.click(editor, 300, 200)).target;
+        let shape = (await editorClick(editor, 300, 200)).target;
         shape.disconnect();
 
         expect(link3.prop('disconnected')).to.be.equal('HOOK');
@@ -147,7 +149,7 @@ describe('edit turn restriction disconnect link, link is marked as disconnected'
         link2.select();
 
         // get link shape point to disconnect
-        let shape = (await editorTests.click(editor, 300, 200)).target;
+        let shape = (await editorClick(editor, 300, 200)).target;
         shape.disconnect();
 
         link1 = editor.getFeature(link1.id, linkLayer);

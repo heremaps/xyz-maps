@@ -16,7 +16,8 @@
  * SPDX-License-Identifier: Apache-2.0
  * License-Filename: LICENSE
  */
-import {editorTests, prepare} from 'hereTest';
+import {prepare} from 'testUtils';
+import {waitForEditorReady, editorClick} from 'editorTests';
 import {Map} from '@here/xyz-maps-core';
 import {features, Editor} from '@here/xyz-maps-editor';
 import dataset from './split_link_attribute_spec.json';
@@ -38,7 +39,7 @@ describe('validate attributes after splitting a link', function() {
         editor = new Editor(display, {
             layers: preparedData.getLayers()
         });
-        await editorTests.waitForEditorReady(editor);
+        await waitForEditorReady(editor);
     });
 
     after(async function() {
@@ -59,7 +60,7 @@ describe('validate attributes after splitting a link', function() {
         let link0 = editor.addFeature(l);
         link0.select();
 
-        let shape = (await editorTests.click(editor, 300, 50)).target;
+        let shape = (await editorClick(editor, 300, 50)).target;
 
         let splitLinks = shape.splitLink();
 

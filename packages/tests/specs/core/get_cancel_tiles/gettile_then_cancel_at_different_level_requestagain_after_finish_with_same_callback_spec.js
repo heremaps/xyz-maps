@@ -17,7 +17,8 @@
  * License-Filename: LICENSE
  */
 
-import {coreTests, prepare} from 'hereTest';
+import {prepare} from 'testUtils';
+import {getTileOnProvider} from 'coreTests';
 import dataset from './gettile_then_cancel_at_different_level_requestagain_after_finish_with_same_callback_spec.json';
 
 describe('get and cancel requesting with different level with same callback', function() {
@@ -87,7 +88,7 @@ describe('get and cancel requesting with different level with same callback', fu
     it('get one tile at level 15 and another at 16', function(done) {
         // qk11    = '311230133011130' // length 15
         // qk12    = '3112301330111301' // length 16
-        coreTests.getTileOnProvider({
+        getTileOnProvider({
             provider: placeProvider,
             quadkeys: [qk11, qk12],
             sameCallback: true,
@@ -115,7 +116,7 @@ describe('get and cancel requesting with different level with same callback', fu
     it('get one tile at level 15 and another at 16, cancel the request at level 16', function(done) {
         // qk21    = '311230133011131' // length 15
         // qk22    = '3112301330111311' // length 16
-        coreTests.getTileOnProvider({
+        getTileOnProvider({
             provider: placeProvider,
             quadkeys: [qk21, qk22],
             sameCallback: true,
@@ -148,7 +149,7 @@ describe('get and cancel requesting with different level with same callback', fu
     it('get one tile at level 15 and another at 16, cancel the request at level 15', function(done) {
         // qk31    = '311230133011132' // length 15
         // qk32    = '3112301330111321' // length 16
-        coreTests.getTileOnProvider({
+        getTileOnProvider({
             provider: placeProvider,
             quadkeys: [qk31, qk32],
             sameCallback: true,
@@ -182,7 +183,7 @@ describe('get and cancel requesting with different level with same callback', fu
     it('get one tile at level 15 and another at 16, cancel both requests', function(done) {
         // qk41    = '311230133011133' // length 15
         // qk42    = '3112301330111331' // length 16
-        coreTests.getTileOnProvider({
+        getTileOnProvider({
             provider: placeProvider,
             quadkeys: [qk41, qk42],
             sameCallback: true,
@@ -215,7 +216,7 @@ describe('get and cancel requesting with different level with same callback', fu
     it('get one tile at level 17 and another at 16', function(done) {
         // qk51    = '31123013301110300' // length 17
         // qk52    = '3112301330111030' // length 16
-        coreTests.getTileOnProvider({
+        getTileOnProvider({
             provider: placeProvider,
             quadkeys: [qk51, qk52],
             sameCallback: true,
@@ -242,7 +243,7 @@ describe('get and cancel requesting with different level with same callback', fu
     it('get one tile at level 17 and another at 16, cancel the request at 17', function(done) {
         // qk61    = '31123013301110310' // length 17
         // qk62    = '3112301330111031' // length 16
-        coreTests.getTileOnProvider({
+        getTileOnProvider({
             provider: placeProvider,
             quadkeys: [qk61, qk62],
             sameCallback: true,
@@ -275,7 +276,7 @@ describe('get and cancel requesting with different level with same callback', fu
     it('get one tile at level 17 and another at 16, cancel the request at 16', function(done) {
         // qk71    = '31123013301110320' // length 17
         // qk72    = '3112301330111032' // length 16
-        coreTests.getTileOnProvider({
+        getTileOnProvider({
             provider: placeProvider,
             quadkeys: [qk71, qk72],
             sameCallback: true,
@@ -308,7 +309,7 @@ describe('get and cancel requesting with different level with same callback', fu
     it('get one tile at level 17 and another at 16, cancel both requests', function(done) {
         // qk81    = '31123013301110330' // length 17
         // qk82    = '3112301330111033' // length 16
-        coreTests.getTileOnProvider({
+        getTileOnProvider({
             provider: placeProvider,
             quadkeys: [qk81, qk82],
             sameCallback: true,
@@ -340,7 +341,7 @@ describe('get and cancel requesting with different level with same callback', fu
     it('get requested tile at level 15 and another at 16', function(done) {
         // qk11    = '311230133011130' // length 15
         // qk12    = '3112301330111301' // length 16
-        coreTests.getTileOnProvider({
+        getTileOnProvider({
             provider: placeProvider,
             quadkeys: [qk11, qk12],
             sameCallback: true,
@@ -367,7 +368,7 @@ describe('get and cancel requesting with different level with same callback', fu
     it('get requested tile at level 15 and another at 16, canceled the request at level 15', function(done) {
         // qk11    = '311230133011130' // length 15
         // qk12    = '3112301330111301' // length 16
-        coreTests.getTileOnProvider({
+        getTileOnProvider({
             provider: placeProvider,
             quadkeys: [qk11, qk12],
             sameCallback: true,
@@ -400,7 +401,7 @@ describe('get and cancel requesting with different level with same callback', fu
     it('get requested tile at level 15 and another at 16, canceled the request at level 16', function(done) {
         // qk11    = '311230133011130' // length 15
         // qk12    = '3112301330111301' // length 16
-        coreTests.getTileOnProvider({
+        getTileOnProvider({
             provider: placeProvider,
             quadkeys: [qk11, qk12],
             sameCallback: true,
@@ -433,7 +434,7 @@ describe('get and cancel requesting with different level with same callback', fu
     it('get requested tile at level 15 and another at 16, cancel the request at level 16', function(done) {
         // qk21    = '311230133011131' // length 15
         // qk22    = '3112301330111311' // length 16
-        coreTests.getTileOnProvider({
+        getTileOnProvider({
             provider: placeProvider,
             quadkeys: [qk21, qk22],
             sameCallback: true,
@@ -466,7 +467,7 @@ describe('get and cancel requesting with different level with same callback', fu
     it('get requested but canceled tile at level 15 and another at 16, cancel the request at level 15', function(done) {
         // qk31    = '311230133011132' // length 15
         // qk32    = '3112301330111321' // length 16
-        coreTests.getTileOnProvider({
+        getTileOnProvider({
             provider: placeProvider,
             quadkeys: [qk31, qk32],
             sameCallback: true,
@@ -499,7 +500,7 @@ describe('get and cancel requesting with different level with same callback', fu
     it('get requested but canceled tile at level 15 and another at 16, cancel the request at level 16', function(done) {
         // qk31    = '311230133011132' // length 15
         // qk32    = '3112301330111321' // length 16
-        coreTests.getTileOnProvider({
+        getTileOnProvider({
             provider: placeProvider,
             quadkeys: [qk31, qk32],
             sameCallback: true,
@@ -531,7 +532,7 @@ describe('get and cancel requesting with different level with same callback', fu
     it('get requested and cancelled tile at level 15 and another at 16, cancel both requests', function(done) {
         // qk41    = '311230133011133' // length 15
         // qk42    = '3112301330111331' // length 16
-        coreTests.getTileOnProvider({
+        getTileOnProvider({
             provider: placeProvider,
             quadkeys: [qk41, qk42],
             sameCallback: true,

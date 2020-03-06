@@ -16,7 +16,8 @@
  * SPDX-License-Identifier: Apache-2.0
  * License-Filename: LICENSE
  */
-import {editorTests, testUtils, prepare} from 'hereTest';
+import {Observer, prepare} from 'testUtils';
+import {waitForEditorReady} from 'editorTests';
 import {Map} from '@here/xyz-maps-core';
 import {Editor} from '@here/xyz-maps-editor';
 import dataset from './map_observer_ready_addlayer_spec.json';
@@ -38,8 +39,8 @@ describe('map ready observer for addlayer', function() {
         editor = new Editor(display);
 
         // validate ready event
-        let observer = new testUtils.Observer(editor, 'ready');
-        await editorTests.waitForEditorReady(editor);
+        let observer = new Observer(editor, 'ready');
+        await waitForEditorReady(editor);
 
         let results = observer.stop();
         expect(results['ready']).to.deep.equal([true]);
@@ -55,10 +56,10 @@ describe('map ready observer for addlayer', function() {
 
         expect(layers).to.be.lengthOf(0);
 
-        let observer = new testUtils.Observer(editor, 'ready');
+        let observer = new Observer(editor, 'ready');
 
 
-        await editorTests.waitForEditorReady(editor, ()=>{
+        await waitForEditorReady(editor, ()=>{
             // add a layer to editor
             editor.addLayer(preparedData.getLayers()[0]);
         });

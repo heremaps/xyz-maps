@@ -16,7 +16,8 @@
  * SPDX-License-Identifier: Apache-2.0
  * License-Filename: LICENSE
  */
-import {editorTests, prepare} from 'hereTest';
+import {prepare} from 'testUtils';
+import {waitForEditorReady} from 'editorTests';
 import {Map} from '@here/xyz-maps-core';
 import {Editor} from '@here/xyz-maps-editor';
 import chaiAlmost from 'chai-almost';
@@ -45,7 +46,7 @@ describe('link connect helper with maxdistance greater than 3', function() {
         editor = new Editor(display, {
             layers: preparedData.getLayers()
         });
-        await editorTests.waitForEditorReady(editor);
+        await waitForEditorReady(editor);
 
         link1 = preparedData.getFeature('linkLayer', -6128);
         link2 = preparedData.getFeature('linkLayer', -189129);

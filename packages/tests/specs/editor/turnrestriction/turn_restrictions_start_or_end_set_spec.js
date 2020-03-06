@@ -16,9 +16,11 @@
  * SPDX-License-Identifier: Apache-2.0
  * License-Filename: LICENSE
  */
-import {editorTests, testUtils, prepare} from 'hereTest';
+import {prepare} from 'testUtils';
+import {waitForEditorReady} from 'editorTests';
+import {click} from 'utilEvents';
 import {Map} from '@here/xyz-maps-core';
-import {features, Editor} from '@here/xyz-maps-editor';
+import {Editor} from '@here/xyz-maps-editor';
 import dataset from './turn_restrictions_start_or_end_set_spec.json';
 
 describe('turn restriction either start or end is set', function() {
@@ -44,7 +46,7 @@ describe('turn restriction either start or end is set', function() {
             layers: preparedData.getLayers()
         });
 
-        await editorTests.waitForEditorReady(editor);
+        await waitForEditorReady(editor);
         mapContainer = display.getContainer();
 
         link1 = preparedData.getFeature('linkLayer', -189215);
@@ -67,7 +69,7 @@ describe('turn restriction either start or end is set', function() {
         expect(link3.prop('turnRestriction')).to.deep.equal({end: [link4.id]});
 
         link3.editTurnRestrictions();
-        await testUtils.events.click(mapContainer, 415, 200);
+        await click(mapContainer, 415, 200);
 
         expect(link3.prop('turnRestriction')).to.deep.equal({end: []});
     });
@@ -77,7 +79,7 @@ describe('turn restriction either start or end is set', function() {
         expect(link3.prop('turnRestriction')).to.deep.equal({end: [link4.id]});
 
         link3.editTurnRestrictions();
-        await testUtils.events.click(mapContainer, 415, 100);
+        await click(mapContainer, 415, 100);
         expect(link3.prop('turnRestriction')).to.deep.equal({end: [link4.id], start: [link2.id]});
     });
 
@@ -86,7 +88,7 @@ describe('turn restriction either start or end is set', function() {
         expect(link3.prop('turnRestriction')).to.deep.equal({end: [link4.id]});
 
         link3.editTurnRestrictions();
-        await testUtils.events.click(mapContainer, 385, 100);
+        await click(mapContainer, 385, 100);
         expect(link3.prop('turnRestriction')).to.deep.equal({end: [link4.id], start: [link1.id]});
     });
 
@@ -95,7 +97,7 @@ describe('turn restriction either start or end is set', function() {
         expect(link3.prop('turnRestriction')).to.deep.equal({end: [link4.id], start: [link1.id]});
 
         link3.editTurnRestrictions();
-        await testUtils.events.click(mapContainer, 385, 100);
+        await click(mapContainer, 385, 100);
 
         expect(link3.prop('turnRestriction')).to.deep.equal({end: [link4.id], start: []});
     });
@@ -106,7 +108,7 @@ describe('turn restriction either start or end is set', function() {
         expect(link3.prop('turnRestriction')).to.deep.equal({end: [link4.id], start: [link1.id]});
 
         link3.editTurnRestrictions();
-        await testUtils.events.click(mapContainer, 415, 200);
+        await click(mapContainer, 415, 200);
 
         expect(link3.prop('turnRestriction')).to.deep.equal({end: [], start: [link1.id]});
     });
@@ -117,7 +119,7 @@ describe('turn restriction either start or end is set', function() {
         expect(link3.prop('turnRestriction')).to.deep.equal({end: [link4.id], start: [link1.id]});
 
         link3.editTurnRestrictions();
-        await testUtils.events.click(mapContainer, 415, 100);
+        await click(mapContainer, 415, 100);
 
         expect(link3.prop('turnRestriction')).to.deep.equal({end: [link4.id], start: [link1.id, link2.id]});
     });
@@ -127,7 +129,7 @@ describe('turn restriction either start or end is set', function() {
         expect(link3.prop('turnRestriction')).to.deep.equal({end: [link4.id]});
 
         link3.editTurnRestrictions();
-        await testUtils.events.click(mapContainer, 385, 100);
+        await click(mapContainer, 385, 100);
 
         expect(link3.prop('turnRestriction')).to.deep.equal({end: [link4.id], start: [link1.id]});
     });
@@ -138,7 +140,7 @@ describe('turn restriction either start or end is set', function() {
         expect(link3.prop('turnRestriction')).to.deep.equal({end: [link4.id]});
 
         link3.editTurnRestrictions();
-        await testUtils.events.click(mapContainer, 415, 200);
+        await click(mapContainer, 415, 200);
 
         expect(link3.prop('turnRestriction')).to.deep.equal({end: []});
     });
@@ -149,7 +151,7 @@ describe('turn restriction either start or end is set', function() {
         expect(link3.prop('turnRestriction')).to.deep.equal({end: [link4.id]});
 
         link3.editTurnRestrictions();
-        await testUtils.events.click(mapContainer, 415, 100);
+        await click(mapContainer, 415, 100);
 
         expect(link3.prop('turnRestriction')).to.deep.equal({end: [link4.id], start: [link2.id]});
     });

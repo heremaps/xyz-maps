@@ -16,7 +16,9 @@
  * SPDX-License-Identifier: Apache-2.0
  * License-Filename: LICENSE
  */
-import {editorTests, displayTests, testUtils, prepare} from 'hereTest';
+import {Observer, prepare} from 'testUtils';
+import {waitForEditorReady, submit} from 'editorTests';
+import {drag} from 'utilEvents';
 import {Map} from '@here/xyz-maps-core';
 import {features, Editor} from '@here/xyz-maps-editor';
 import dataset from './map_observer_ready_spec.json';
@@ -41,7 +43,7 @@ describe('map ready observer', function() {
         editor = new Editor(display, {
             layers: preparedData.getLayers()
         });
-        await editorTests.waitForEditorReady(editor);
+        await waitForEditorReady(editor);
         mapContainer = display.getContainer();
         linkLayer = preparedData.getLayers('linkLayer');
     });
@@ -53,11 +55,11 @@ describe('map ready observer', function() {
     });
 
     it('observe ready', async function() {
-        let observer = new testUtils.Observer(editor, 'ready');
+        let observer = new Observer(editor, 'ready');
 
         // drag map
-        await editorTests.waitForEditorReady(editor, async ()=>{
-            await testUtils.events.drag(mapContainer, {x: 100, y: 100}, {x: 100, y: 200});
+        await waitForEditorReady(editor, async ()=>{
+            await drag(mapContainer, {x: 100, y: 100}, {x: 100, y: 200});
         });
 
         let p = new features.Navlink([{x: 50, y: 50}, {x: 100, y: 50}], {featureClass: 'NAVLINK'});
@@ -67,7 +69,7 @@ describe('map ready observer', function() {
 
         editor.redo();
 
-        await editorTests.waitForEditorReady(editor, ()=>{
+        await waitForEditorReady(editor, ()=>{
             editor.revert();
         });
 
@@ -76,15 +78,15 @@ describe('map ready observer', function() {
     });
 
     it('start observe again with submitting changes', async function() {
-        let observer = new testUtils.Observer(editor, 'ready');
+        let observer = new Observer(editor, 'ready');
 
         let l = new features.Navlink([{x: 100, y: 50}, {x: 150, y: 50}], {featureClass: 'NAVLINK'});
         let link = editor.addFeature(l, linkLayer);
 
         let idMap;
 
-        await editorTests.waitForEditorReady(editor, async ()=>{
-            idMap = await editorTests.submit(editor);
+        await waitForEditorReady(editor, async ()=>{
+            idMap = await submit(editor);
         });
 
         let linkId = idMap.permanentIDMap[link.getProvider().id][link.id];
@@ -92,8 +94,8 @@ describe('map ready observer', function() {
         let lnk = editor.getFeature(linkId, linkLayer);
         lnk.remove();
 
-        await editorTests.waitForEditorReady(editor, async ()=>{
-            await editorTests.submit(editor);
+        await waitForEditorReady(editor, async ()=>{
+            await submit(editor);
         });
 
         let results = observer.stop();
@@ -101,7 +103,7 @@ describe('map ready observer', function() {
     });
 
     it('observe again with activate and deactivate the editor', function() {
-        let observer = new testUtils.Observer(editor, 'ready');
+        let observer = new Observer(editor, 'ready');
 
         editor.active(false);
 
@@ -112,29 +114,29 @@ describe('map ready observer', function() {
     });
 
     it('observe again with setting zoomlevels', async function() {
-        let observer = new testUtils.Observer(editor, 'ready');
+        let observer = new Observer(editor, 'ready');
 
-        await editorTests.waitForEditorReady(editor, ()=>{
+        await waitForEditorReady(editor, ()=>{
             display.setZoomlevel(16);
         });
 
-        await editorTests.waitForEditorReady(editor, ()=>{
+        await waitForEditorReady(editor, ()=>{
             display.setZoomlevel(10);
         });
 
-        await editorTests.waitForEditorReady(editor, ()=>{
+        await waitForEditorReady(editor, ()=>{
             display.setZoomlevel(7);
         });
 
-        await editorTests.waitForEditorReady(editor, ()=>{
+        await waitForEditorReady(editor, ()=>{
             display.setZoomlevel(4);
         });
 
-        await editorTests.waitForEditorReady(editor, ()=>{
+        await waitForEditorReady(editor, ()=>{
             display.setZoomlevel(2);
         });
 
-        await editorTests.waitForEditorReady(editor, ()=>{
+        await waitForEditorReady(editor, ()=>{
             display.setZoomlevel(18);
         });
 

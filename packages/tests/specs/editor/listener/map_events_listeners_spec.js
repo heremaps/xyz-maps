@@ -16,7 +16,9 @@
  * SPDX-License-Identifier: Apache-2.0
  * License-Filename: LICENSE
  */
-import {editorTests, displayTests, testUtils, prepare} from 'hereTest';
+import {Listener, prepare} from 'testUtils';
+import {waitForEditorReady, editorClick} from 'editorTests';
+import {drag, click} from 'utilEvents';
 import {Map} from '@here/xyz-maps-core';
 import {Editor} from '@here/xyz-maps-editor';
 import chaiAlmost from 'chai-almost';
@@ -42,7 +44,7 @@ describe('map event system', function() {
         editor = new Editor(display, {
             layers: preparedData.getLayers()
         });
-        await editorTests.waitForEditorReady(editor);
+        await waitForEditorReady(editor);
         mapContainer = display.getContainer();
     });
 
@@ -53,13 +55,13 @@ describe('map event system', function() {
     });
 
     it('validate pointup, dragStart and dragStop events on link', async function() {
-        let listener = new testUtils.Listener(editor, ['pointerup', 'dragStart', 'dragStop']);
+        let listener = new Listener(editor, ['pointerup', 'dragStart', 'dragStop']);
 
         // click on link
-        link = (await editorTests.click(editor, 120, 101)).target;
+        link = (await editorClick(editor, 120, 101)).target;
 
         // drag middle shape point of link
-        await testUtils.events.drag(mapContainer, {x: 200, y: 75}, {x: 150, y: 75});
+        await drag(mapContainer, {x: 200, y: 75}, {x: 150, y: 75});
 
         let results = listener.stop();
         expect(results.pointerup).to.have.lengthOf(1);
@@ -92,16 +94,16 @@ describe('map event system', function() {
     });
 
     it('validate pointup, dragStart and dragStop events on address', async function() {
-        let listener = new testUtils.Listener(editor, ['pointerup', 'dragStart', 'dragStop']);
+        let listener = new Listener(editor, ['pointerup', 'dragStart', 'dragStop']);
 
         // click on address
-        address = (await editorTests.click(editor, 100, 150)).target;
+        address = (await editorClick(editor, 100, 150)).target;
 
         // drag navigation position of address
-        await testUtils.events.drag(mapContainer, {x: 100, y: 100}, {x: 150, y: 100});
+        await drag(mapContainer, {x: 100, y: 100}, {x: 150, y: 100});
 
         // drag address object
-        await testUtils.events.drag(mapContainer, {x: 100, y: 150}, {x: 50, y: 150});
+        await drag(mapContainer, {x: 100, y: 150}, {x: 50, y: 150});
 
         let results = listener.stop();
 
@@ -142,14 +144,14 @@ describe('map event system', function() {
 
 
     it('validate pointup, dragStart and dragStop events on place', async function() {
-        let listener = new testUtils.Listener(editor, ['pointerup', 'dragStart', 'dragStop']);
+        let listener = new Listener(editor, ['pointerup', 'dragStart', 'dragStop']);
 
 
         // click on place
-        poi = (await editorTests.click(editor, 150, 150)).target;
+        poi = (await editorClick(editor, 150, 150)).target;
 
         // drag place
-        await testUtils.events.drag(mapContainer, {x: 150, y: 150}, {x: 120, y: 150});
+        await drag(mapContainer, {x: 150, y: 150}, {x: 120, y: 150});
 
         let results = listener.stop();
 
@@ -179,13 +181,13 @@ describe('map event system', function() {
 
 
     it('validate pointup, dragStart and dragStop events on area', async function() {
-        let listener = new testUtils.Listener(editor, ['pointerup', 'dragStart', 'dragStop']);
+        let listener = new Listener(editor, ['pointerup', 'dragStart', 'dragStop']);
 
         // click on area
-        area = (await editorTests.click(editor, 150, 190)).target;
+        area = (await editorClick(editor, 150, 190)).target;
 
         // drag area middle point
-        await testUtils.events.drag(mapContainer, {x: 150, y: 200}, {x: 150, y: 220});
+        await drag(mapContainer, {x: 150, y: 200}, {x: 150, y: 220});
 
         let results = listener.stop();
 
@@ -219,27 +221,27 @@ describe('map event system', function() {
     });
 
     it('validate pointup, dragStart and dragStop events on the ground', async function() {
-        let listener = new testUtils.Listener(editor, ['pointerup', 'dragStart', 'dragStop']);
+        let listener = new Listener(editor, ['pointerup', 'dragStart', 'dragStop']);
 
         // drag area shape point
-        await testUtils.events.drag(mapContainer, {x: 100, y: 200}, {x: 80, y: 200});
+        await drag(mapContainer, {x: 100, y: 200}, {x: 80, y: 200});
 
         // click on map
-        await testUtils.events.click(mapContainer, 450, 50);
+        await click(mapContainer, 450, 50);
 
         // drag the ground
-        await editorTests.waitForEditorReady(editor, async ()=>{
-            await testUtils.events.drag(mapContainer, {x: 80, y: 80}, {x: 60, y: 80});
+        await waitForEditorReady(editor, async ()=>{
+            await drag(mapContainer, {x: 80, y: 80}, {x: 60, y: 80});
         });
 
         // drag the ground under link
-        await editorTests.waitForEditorReady(editor, async ()=>{
-            await testUtils.events.drag(mapContainer, {x: 100, y: 100}, {x: 120, y: 100});
+        await waitForEditorReady(editor, async ()=>{
+            await drag(mapContainer, {x: 100, y: 100}, {x: 120, y: 100});
         });
 
         // drag the ground under area
-        await editorTests.waitForEditorReady(editor, async ()=>{
-            await testUtils.events.drag(mapContainer, {x: 150, y: 190}, {x: 180, y: 190});
+        await waitForEditorReady(editor, async ()=>{
+            await drag(mapContainer, {x: 150, y: 190}, {x: 180, y: 190});
         });
 
         let results = listener.stop();

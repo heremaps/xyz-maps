@@ -16,7 +16,9 @@
  * SPDX-License-Identifier: Apache-2.0
  * License-Filename: LICENSE
  */
-import {editorTests, displayTests, testUtils, prepare} from 'hereTest';
+import {prepare} from 'testUtils';
+import {waitForEditorReady} from 'editorTests';
+import {drag} from 'utilEvents';
 import {Map} from '@here/xyz-maps-core';
 import {Editor} from '@here/xyz-maps-editor';
 import chaiAlmost from 'chai-almost';
@@ -45,7 +47,7 @@ describe('zone selector drag', function() {
             layers: preparedData.getLayers()
         });
 
-        await editorTests.waitForEditorReady(editor);
+        await waitForEditorReady(editor);
         mapContainer = display.getContainer();
 
         link1 = preparedData.getFeature('linkLayer', '-189231');
@@ -114,7 +116,7 @@ describe('zone selector drag', function() {
     });
 
     it('drag zone selector and validate again', async function() {
-        await testUtils.events.drag(mapContainer, {x: 350, y: 217}, {x: 350, y: 250});
+        await drag(mapContainer, {x: 350, y: 217}, {x: 350, y: 250});
 
         expect(results2[0]).to.deep.include({
             from: 0.44694291493948723, to: 0.7212504779966603,
@@ -163,21 +165,21 @@ describe('zone selector drag', function() {
     it('hide zoneselector, drag the map to validate the zone selector is deactivated, validate map is dragged', async function() {
         editor.getZoneSelector().hide();
 
-        await editorTests.waitForEditorReady(editor, async ()=>{
-            await testUtils.events.drag(mapContainer, {x: 350, y: 185}, {x: 360, y: 250});
+        await waitForEditorReady(editor, async ()=>{
+            await drag(mapContainer, {x: 350, y: 185}, {x: 360, y: 250});
         });
 
         expect(display.getCenter().longitude).to.not.equal(-105.145534);
     });
 
     it('move map to a new area and validate a link can be dragged', async function() {
-        await editorTests.waitForEditorReady(editor, ()=>{
+        await waitForEditorReady(editor, ()=>{
             display.setCenter({longitude: -105.14442356546784, latitude: 35.37463216746484});
         });
 
         link3.select();
 
-        await testUtils.events.drag(mapContainer, {x: 451, y: 205}, {x: 501, y: 205});
+        await drag(mapContainer, {x: 451, y: 205}, {x: 501, y: 205});
 
         expect(link3.coord()).to.deep.almost([
             [-105.1444, 35.37458, 0],

@@ -16,7 +16,9 @@
  * SPDX-License-Identifier: Apache-2.0
  * License-Filename: LICENSE
  */
-import {editorTests, displayTests, testUtils, prepare} from 'hereTest';
+import {prepare} from 'testUtils';
+import {waitForEditorReady} from 'editorTests';
+import {drag} from 'utilEvents';
 import {Map} from '@here/xyz-maps-core';
 import {features, Editor} from '@here/xyz-maps-editor';
 import dataset from './poi_routingpoint_autoconnect_spec.json';
@@ -41,7 +43,7 @@ describe('POI routing point auto reconnect', function() {
             layers: preparedData.getLayers()
         });
 
-        await editorTests.waitForEditorReady(editor);
+        await waitForEditorReady(editor);
         mapContainer = display.getContainer();
     });
 
@@ -52,7 +54,7 @@ describe('POI routing point auto reconnect', function() {
     });
 
     it('zoom in to 19 and add a POI object and create routing point, validate the poi connects to a link', async function() {
-        await editorTests.waitForEditorReady(editor, ()=>{
+        await waitForEditorReady(editor, ()=>{
             display.setZoomlevel(19);
         });
 
@@ -67,14 +69,14 @@ describe('POI routing point auto reconnect', function() {
     });
 
     it('drag map and zoom out, validate the poi always connects to the link', async function() {
-        await editorTests.waitForEditorReady(editor, async ()=>{
-            await testUtils.events.drag(mapContainer, {x: 300, y: 200}, {x: 250, y: 200});
+        await waitForEditorReady(editor, async ()=>{
+            await drag(mapContainer, {x: 300, y: 200}, {x: 250, y: 200});
         });
 
         expect(objs[1].prop('routingPoint')).to.deep.equal([78.35461, 17.31375, 0]);
         expect(objs[1].prop('routingLink')).to.equal(objs[0].id);
 
-        await editorTests.waitForEditorReady(editor, ()=>{
+        await waitForEditorReady(editor, ()=>{
             display.setZoomlevel(18);
         });
 

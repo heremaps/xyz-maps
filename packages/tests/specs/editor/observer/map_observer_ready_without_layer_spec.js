@@ -16,7 +16,8 @@
  * SPDX-License-Identifier: Apache-2.0
  * License-Filename: LICENSE
  */
-import {editorTests, testUtils} from 'hereTest';
+import {Observer} from 'testUtils';
+import {waitForEditorReady} from 'editorTests';
 import {Map, providers, layers} from '@here/xyz-maps-core';
 import {Editor} from '@here/xyz-maps-editor';
 
@@ -44,9 +45,9 @@ describe('editor triggers ready without adding layer to it', function() {
             })]
         });
         editor = new Editor(display);
-        let observer = new testUtils.Observer(editor, 'ready');
+        let observer = new Observer(editor, 'ready');
 
-        await editorTests.waitForEditorReady(editor);
+        await waitForEditorReady(editor);
 
         let results = observer.stop();
         expect(results['ready']).to.have.lengthOf(1);

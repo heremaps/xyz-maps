@@ -16,7 +16,8 @@
  * SPDX-License-Identifier: Apache-2.0
  * License-Filename: LICENSE
  */
-import {editorTests, testUtils, prepare} from 'hereTest';
+import {getCanvasPixelColor, prepare} from 'testUtils';
+import {waitForEditorReady, editorClick} from 'editorTests';
 import {Map} from '@here/xyz-maps-core';
 import {features, Editor} from '@here/xyz-maps-editor';
 import chaiAlmost from 'chai-almost';
@@ -47,7 +48,7 @@ describe('link connect helper crosscandidate', function() {
         editor = new Editor(display, {
             layers: preparedData.getLayers()
         });
-        await editorTests.waitForEditorReady(editor);
+        await waitForEditorReady(editor);
         mapContainer = display.getContainer();
         linkLayer = preparedData.getLayers('linkLayer');
     });
@@ -81,15 +82,15 @@ describe('link connect helper crosscandidate', function() {
         });
         await new Promise((resolve) => {
             setTimeout(() => {
-                let color1 = testUtils.getCanvasPixelColor(mapContainer, 380, 247);
-                let color2 = testUtils.getCanvasPixelColor(mapContainer, 532, 240);
+                let color1 = getCanvasPixelColor(mapContainer, 380, 247);
+                let color2 = getCanvasPixelColor(mapContainer, 532, 240);
                 expect(color1).to.equal('#ff0000');
                 expect(color2).to.equal('#ff0000');
                 resolve();
             }, 100);
         });
 
-        let crx = (await editorTests.click(editor, 536, 239)).target;
+        let crx = (await editorClick(editor, 536, 239)).target;
         crx.connect();
 
         expect(editor.info()).to.have.lengthOf(4);

@@ -16,7 +16,8 @@
  * SPDX-License-Identifier: Apache-2.0
  * License-Filename: LICENSE
  */
-import {editorTests, testUtils, prepare} from 'hereTest';
+import {Listener, prepare} from 'testUtils';
+import {waitForEditorReady, clean, submit} from 'editorTests';
 import {Map} from '@here/xyz-maps-core';
 import {features, Editor} from '@here/xyz-maps-editor';
 import dataset from './poi_and_link_create_spec.json';
@@ -39,18 +40,18 @@ describe('poi and link create', function() {
         editor = new Editor(display, {
             layers: preparedData.getLayers()
         });
-        await editorTests.waitForEditorReady(editor);
+        await waitForEditorReady(editor);
     });
 
     after(async function() {
-        await editorTests.clean(editor, idMaps);
+        await clean(editor, idMaps);
         editor.destroy();
         display.destroy();
         await preparedData.clear();
     });
 
     it('start listener, validate no error is triggered', async function() {
-        let listener = new testUtils.Listener(editor, 'error');
+        let listener = new Listener(editor, 'error');
 
         let p = new features.Place({x: 300, y: 250}, {featureClass: 'PLACE'});
         editor.addFeature(p);
@@ -59,8 +60,8 @@ describe('poi and link create', function() {
         editor.addFeature(l);
 
         let idMap;
-        await editorTests.waitForEditorReady(editor, async ()=>{
-            idMap = await editorTests.submit(editor);
+        await waitForEditorReady(editor, async ()=>{
+            idMap = await submit(editor);
             idMaps.push(idMap);
         });
 

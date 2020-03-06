@@ -17,7 +17,9 @@
  * License-Filename: LICENSE
  */
 
-import {displayTests, testUtils, prepare} from 'hereTest';
+import {prepare} from 'testUtils';
+import {waitForViewportReady} from 'displayTests';
+import {drag} from 'utilEvents';
 import {Map} from '@here/xyz-maps-core';
 import dataset from './display_multi_mapview_listener_spec.json';
 
@@ -43,8 +45,8 @@ xdescribe('mapview start end end triggered multiple times', function() {
     });
 
     it('mapviewchangestart mapviewchangeend should be triggered in pairs', async function() {
-        await displayTests.waitForViewportReady(display, async ()=>{
-            await testUtils.events.drag(mapContainer, {x: 100, y: 100}, {x: 200, y: 100});
+        await waitForViewportReady(display, async ()=>{
+            await drag(mapContainer, {x: 100, y: 100}, {x: 200, y: 100});
         });
     });
 });

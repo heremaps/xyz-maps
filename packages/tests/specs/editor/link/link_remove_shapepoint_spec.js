@@ -16,7 +16,8 @@
  * SPDX-License-Identifier: Apache-2.0
  * License-Filename: LICENSE
  */
-import {editorTests, prepare} from 'hereTest';
+import {prepare} from 'testUtils';
+import {waitForEditorReady, editorClick} from 'editorTests';
 import {Map} from '@here/xyz-maps-core';
 import {features, Editor} from '@here/xyz-maps-editor';
 import dataset from './link_remove_shapepoint_spec.json';
@@ -41,7 +42,7 @@ describe('remove link shapepoints', function() {
             layers: preparedData.getLayers()
         });
 
-        await editorTests.waitForEditorReady(editor);
+        await waitForEditorReady(editor);
     });
 
     after(async function() {
@@ -60,14 +61,14 @@ describe('remove link shapepoints', function() {
     it('remove a shape point and validate the coord', async function() {
         link.select();
 
-        let shape = (await editorTests.click(editor, 200, 200)).target;
+        let shape = (await editorClick(editor, 200, 200)).target;
         shape.remove();
 
         expect(link.coord()).to.have.lengthOf(2);
     });
 
     it('click another link shape point to remove', async function() {
-        let shape = (await editorTests.click(editor, 100, 200)).target;
+        let shape = (await editorClick(editor, 100, 200)).target;
         shape.remove();
 
         expect(link.coord()).to.have.lengthOf(2);

@@ -16,7 +16,8 @@
  * SPDX-License-Identifier: Apache-2.0
  * License-Filename: LICENSE
  */
-import {editorTests, prepare} from 'hereTest';
+import {prepare} from 'testUtils';
+import {waitForEditorReady, editorClick} from 'editorTests';
 import {Map} from '@here/xyz-maps-core';
 import {features, Editor} from '@here/xyz-maps-editor';
 import chaiAlmost from 'chai-almost';
@@ -45,7 +46,7 @@ describe('link splitting basic', function() {
             layers: preparedData.getLayers()
         });
 
-        await editorTests.waitForEditorReady(editor);
+        await waitForEditorReady(editor);
     });
 
     after(async function() {
@@ -59,7 +60,7 @@ describe('link splitting basic', function() {
         link = editor.addFeature(lnk);
 
         link.select();
-        shape = (await editorTests.click(editor, 100, 111)).target;
+        shape = (await editorClick(editor, 100, 111)).target;
 
         splitLinks = shape.splitLink();
 
@@ -73,7 +74,7 @@ describe('link splitting basic', function() {
         link1 = editor.addFeature(lnk);
         link1.select();
 
-        shape = (await editorTests.click(editor, 100, 120)).target;
+        shape = (await editorClick(editor, 100, 120)).target;
 
         splitLinks = shape.splitLink();
 
@@ -87,7 +88,7 @@ describe('link splitting basic', function() {
         link2 = editor.addFeature(lnk);
         link2.select();
 
-        shape = (await editorTests.click(editor, 100, 140)).target;
+        shape = (await editorClick(editor, 100, 140)).target;
 
         splitLinks = shape.splitLink();
 
@@ -101,7 +102,7 @@ describe('link splitting basic', function() {
         link2 = editor.addFeature(lnk);
         link2.select();
 
-        shape = (await editorTests.click(editor, 100, 160)).target;
+        shape = (await editorClick(editor, 100, 160)).target;
 
         splitLinks = shape.splitLink();
         expect(splitLinks[0].prop()).to.deep.include({'direction': 'BOTH'});
@@ -114,7 +115,7 @@ describe('link splitting basic', function() {
         link2 = editor.addFeature(lnk);
         link2.select();
 
-        shape = (await editorTests.click(editor, 100, 200)).target;
+        shape = (await editorClick(editor, 100, 200)).target;
 
         splitLinks = shape.splitLink();
 
@@ -128,7 +129,7 @@ describe('link splitting basic', function() {
         link2 = editor.addFeature(lnk);
         link2.select();
 
-        shape = (await editorTests.click(editor, 100, 240)).target;
+        shape = (await editorClick(editor, 100, 240)).target;
 
         splitLinks = shape.splitLink();
 

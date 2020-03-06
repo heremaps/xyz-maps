@@ -15,7 +15,10 @@
  *
  * SPDX-License-Identifier: Apache-2.0
  * License-Filename: LICENSE
- */import {editorTests, displayTests, prepare} from 'hereTest';
+ */
+import {prepare} from 'testUtils';
+import {waitForEditorReady} from 'editorTests';
+import {waitForViewportReady} from 'displayTests';
 import {Map} from '@here/xyz-maps-core';
 import {Editor} from '@here/xyz-maps-editor';
 import dataset from './link_modify_then_undo_clear_provider_spec.json';
@@ -42,7 +45,7 @@ describe('link modify two time and undo then clear provider', function() {
             layers: preparedData.getLayers()
         });
 
-        await editorTests.waitForEditorReady(editor);
+        await waitForEditorReady(editor);
         linkLayer = preparedData.getLayers('linkLayer');
         linkProvider = preparedData.getLayers('linkLayer').getProvider();
 
@@ -74,7 +77,7 @@ describe('link modify two time and undo then clear provider', function() {
     });
 
     it('clear provider validate again the link coordinate', async function() {
-        await displayTests.waitForViewportReady(display, ()=>{
+        await waitForViewportReady(display, ()=>{
             linkProvider.clear();
         });
 

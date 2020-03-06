@@ -16,7 +16,9 @@
  * SPDX-License-Identifier: Apache-2.0
  * License-Filename: LICENSE
  */
-import {editorTests, testUtils, prepare} from 'hereTest';
+import {prepare} from 'testUtils';
+import {waitForEditorReady} from 'editorTests';
+import {drag} from 'utilEvents';
 import {Map} from '@here/xyz-maps-core';
 import {Editor} from '@here/xyz-maps-editor';
 import chaiAlmost from 'chai-almost';
@@ -42,7 +44,7 @@ describe('transform area objects', function() {
         editor = new Editor(display, {
             layers: preparedData.getLayers()
         });
-        await editorTests.waitForEditorReady(editor);
+        await waitForEditorReady(editor);
         mapContainer = display.getContainer();
         area = preparedData.getFeature('buildingLayer', '-9084');
     });
@@ -56,7 +58,7 @@ describe('transform area objects', function() {
     it('scale area with transformer and validate its coordinates', async function() {
         area.transform();
 
-        await testUtils.events.drag(mapContainer, {x: 307, y: 260}, {x: 347, y: 260});
+        await drag(mapContainer, {x: 307, y: 260}, {x: 347, y: 260});
 
         expect(area.coord()).to.deep.almost([[[
             [77.797695686, 12.622401739, 0],
@@ -67,7 +69,7 @@ describe('transform area objects', function() {
     });
 
     it('move area with transformer and validate its coordinates', async function() {
-        await testUtils.events.drag(mapContainer, {x: 220, y: 300}, {x: 240, y: 350});
+        await drag(mapContainer, {x: 220, y: 300}, {x: 240, y: 350});
 
         expect(area.coord()).to.deep.almost([[[
             [77.797802976, 12.622139999, 0],
@@ -78,7 +80,7 @@ describe('transform area objects', function() {
     });
 
     it('rotate area with transformer and validate its coordinates', async function() {
-        await testUtils.events.drag(mapContainer, {x: 370, y: 410}, {x: 300, y: 450});
+        await drag(mapContainer, {x: 370, y: 410}, {x: 300, y: 450});
 
         expect(area.coord()).to.deep.almost([[[
             [77.797842629, 12.621742286, 0],

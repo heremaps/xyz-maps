@@ -17,7 +17,7 @@
  * License-Filename: LICENSE
  */
 
-import {prepare} from 'hereTest';
+import {prepare} from 'testUtils';
 import dataset from './get_functions_spec.json';
 
 describe('get functions', function() {

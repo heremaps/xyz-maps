@@ -16,7 +16,9 @@
  * SPDX-License-Identifier: Apache-2.0
  * License-Filename: LICENSE
  */
-import {editorTests, testUtils, prepare} from 'hereTest';
+import {prepare} from 'testUtils';
+import {waitForEditorReady} from 'editorTests';
+import {drag} from 'utilEvents';
 import {Map} from '@here/xyz-maps-core';
 import {features, Editor} from '@here/xyz-maps-editor';
 import chaiAlmost from 'chai-almost';
@@ -42,7 +44,7 @@ describe('link auto split', function() {
         editor = new Editor(display, {
             layers: preparedData.getLayers()
         });
-        await editorTests.waitForEditorReady(editor);
+        await waitForEditorReady(editor);
 
         mapContainer = display.getContainer();
     });
@@ -58,7 +60,7 @@ describe('link auto split', function() {
         link1 = editor.addFeature(lnk1);
         link1.select();
 
-        await testUtils.events.drag(mapContainer, {x: 400, y: 200}, {x: 100, y: 200});
+        await drag(mapContainer, {x: 400, y: 200}, {x: 100, y: 200});
 
         let objs = editor.search(display.getViewBounds());
 
@@ -71,7 +73,7 @@ describe('link auto split', function() {
         link2 = editor.addFeature(lnk2);
         link2.select();
 
-        await testUtils.events.drag(mapContainer, {x: 100, y: 100}, {x: 150, y: 200});
+        await drag(mapContainer, {x: 100, y: 100}, {x: 150, y: 200});
 
 
         expect(link2.coord()).to.deep.almost([
@@ -88,7 +90,7 @@ describe('link auto split', function() {
         link3 = editor.addFeature(lnk3);
         link3.select();
 
-        await testUtils.events.drag(mapContainer, {x: 100, y: 150}, {x: 250, y: 160});
+        await drag(mapContainer, {x: 100, y: 150}, {x: 250, y: 160});
 
         let objs = editor.search(display.getViewBounds());
         expect(objs).to.have.lengthOf(2);
@@ -103,7 +105,7 @@ describe('link auto split', function() {
             [76.976837116, 12.939124232, 0]
         ]);
 
-        await editorTests.waitForEditorReady(editor, ()=>{
+        await waitForEditorReady(editor, ()=>{
             editor.revert();
         });
     });
@@ -116,7 +118,7 @@ describe('link auto split', function() {
 
         link5.select();
 
-        await testUtils.events.drag(mapContainer, {x: 200, y: 200}, {x: 300, y: 200});
+        await drag(mapContainer, {x: 200, y: 200}, {x: 300, y: 200});
 
         let objs = editor.search(display.getViewBounds());
         expect(objs).to.have.lengthOf(2);
@@ -130,7 +132,7 @@ describe('link auto split', function() {
         expect(link6.getZLevels()).to.deep.equal([0, 0, 1]);
         link6.select();
 
-        await testUtils.events.drag(mapContainer, {x: 100, y: 100}, {x: 200, y: 200});
+        await drag(mapContainer, {x: 100, y: 100}, {x: 200, y: 200});
 
         expect(link6.coord()).to.deep.almost([
             [76.976837117, 12.938862822, 0],
@@ -146,7 +148,7 @@ describe('link auto split', function() {
         expect(link7.getZLevels()).to.deep.equal([1, 0, 1]);
         link7.select();
 
-        await testUtils.events.drag(mapContainer, {x: 100, y: 300}, {x: 200, y: 400});
+        await drag(mapContainer, {x: 100, y: 300}, {x: 200, y: 400});
 
         expect(link7.coord()).to.deep.almost([
             [76.976837116, 12.93834, 0],

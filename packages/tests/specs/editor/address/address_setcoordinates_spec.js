@@ -16,7 +16,9 @@
  * SPDX-License-Identifier: Apache-2.0
  * License-Filename: LICENSE
  */
-import {editorTests, prepare, testUtils} from 'hereTest';
+import {prepare} from 'testUtils';
+import {waitForEditorReady} from 'editorTests';
+import {drag, click} from 'utilEvents';
 import {Editor} from '@here/xyz-maps-editor';
 import {Map} from '@here/xyz-maps-core';
 import chaiAlmost from 'chai-almost';
@@ -41,7 +43,7 @@ describe('add Address layer set coordinates', function() {
         });
         editor = new Editor(display, {layers: preparedData.getLayers()});
 
-        await editorTests.waitForEditorReady(editor);
+        await waitForEditorReady(editor);
 
         preparedData.getFeature('linkLayer', -188828);
         address = preparedData.getFeature('paLayer', -47939);
@@ -89,8 +91,8 @@ describe('add Address layer set coordinates', function() {
 
     it('drag the address, remove the address layer and validate modified address in viewport', async function() {
         let mapContainer = display.getContainer();
-        await testUtils.events.click(mapContainer, 200, 100);
-        await testUtils.events.drag(mapContainer, {x: 200, y: 100}, {x: 200, y: 150});
+        await click(mapContainer, 200, 100);
+        await drag(mapContainer, {x: 200, y: 100}, {x: 200, y: 150});
 
         editor.removeLayer(addrLayer);
 

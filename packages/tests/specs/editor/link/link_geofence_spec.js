@@ -16,7 +16,9 @@
  * SPDX-License-Identifier: Apache-2.0
  * License-Filename: LICENSE
  */
-import {editorTests, testUtils, prepare} from 'hereTest';
+import {prepare} from 'testUtils';
+import {waitForEditorReady} from 'editorTests';
+import {drag} from 'utilEvents';
 import {Map} from '@here/xyz-maps-core';
 import {Editor} from '@here/xyz-maps-editor';
 import chaiAlmost from 'chai-almost';
@@ -44,7 +46,7 @@ describe('link geofence setting', function() {
             layers: preparedData.getLayers()
         });
 
-        await editorTests.waitForEditorReady(editor);
+        await waitForEditorReady(editor);
         mapContainer = display.getContainer();
 
         link = preparedData.getFeature('linkLayer', -189071);
@@ -59,7 +61,7 @@ describe('link geofence setting', function() {
 
     it('drag shape point and validate', async function() {
         link.select();
-        await testUtils.events.drag(mapContainer, {x: 300, y: 100}, {x: 400, y: 200});
+        await drag(mapContainer, {x: 300, y: 100}, {x: 400, y: 200});
 
         expect(link.coord()).to.deep.almost([
             [80.630968502, 17.715947679, 0],
@@ -74,7 +76,7 @@ describe('link geofence setting', function() {
         lnk.select();
         lnk.setGeoFence(50);
 
-        await testUtils.events.drag(mapContainer, {x: 300, y: 100}, {x: 400, y: 200});
+        await drag(mapContainer, {x: 300, y: 100}, {x: 400, y: 200});
 
         expect(lnk.coord()).to.deep.almost([
             [80.630968502, 17.715947679, 0],
@@ -90,7 +92,7 @@ describe('link geofence setting', function() {
         lnk.select();
         lnk.setGeoFence(false);
 
-        await testUtils.events.drag(mapContainer, {x: 300, y: 100}, {x: 400, y: 200});
+        await drag(mapContainer, {x: 300, y: 100}, {x: 400, y: 200});
 
         expect(lnk.coord()).to.deep.almost([
             [80.630968502, 17.715947679, 0],

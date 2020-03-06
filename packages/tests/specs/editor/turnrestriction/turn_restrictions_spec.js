@@ -16,9 +16,12 @@
  * SPDX-License-Identifier: Apache-2.0
  * License-Filename: LICENSE
  */
-import {editorTests, testUtils, prepare} from 'hereTest';
+
+import {prepare} from 'testUtils';
+import {waitForEditorReady, editorClick, submit} from 'editorTests';
+import {mousemove, click} from 'utilEvents';
 import {Map} from '@here/xyz-maps-core';
-import {features, Editor} from '@here/xyz-maps-editor';
+import {Editor} from '@here/xyz-maps-editor';
 import dataset from './turn_restrictions_spec.json';
 
 describe('turn restriction test basic', function() {
@@ -41,7 +44,7 @@ describe('turn restriction test basic', function() {
         editor = new Editor(display, {
             layers: preparedData.getLayers()
         });
-        await editorTests.waitForEditorReady(editor);
+        await waitForEditorReady(editor);
         mapContainer = display.getContainer();
         linkLayer = preparedData.getLayers('linkLayer');
 
@@ -58,11 +61,11 @@ describe('turn restriction test basic', function() {
     });
 
     it('edit turn restriction, validate its value', async function() {
-        let link = (await editorTests.click(editor, 320, 100)).target;
+        let link = (await editorClick(editor, 320, 100)).target;
 
         link.editTurnRestrictions();
 
-        await testUtils.events.click(mapContainer, 300, 115);
+        await click(mapContainer, 300, 115);
 
         expect(link.prop('turnRestriction')).to.deep.equal({start: [link2.id]});
     });
@@ -71,8 +74,8 @@ describe('turn restriction test basic', function() {
     it('submit, validate link has correct value', async function() {
         let idMap;
 
-        await editorTests.waitForEditorReady(editor, async ()=>{
-            idMap = await editorTests.submit(editor);
+        await waitForEditorReady(editor, async ()=>{
+            idMap = await submit(editor);
         });
 
         let lnk1 = editor.getFeature(link1.id, linkLayer);
@@ -82,16 +85,16 @@ describe('turn restriction test basic', function() {
     });
 
     it('edit turn restriction again and revert, after that move mouse and submit', async function() {
-        await testUtils.events.click(mapContainer, 320, 100);
-        let shape = (await editorTests.click(editor, 300, 115)).target;
+        await click(mapContainer, 320, 100);
+        let shape = (await editorClick(editor, 300, 115)).target;
         shape.editTurnRestrictions();
-        await testUtils.events.click(mapContainer, 300, 115);
+        await click(mapContainer, 300, 115);
 
-        await editorTests.waitForEditorReady(editor, ()=>{
+        await waitForEditorReady(editor, ()=>{
             editor.revert();
         });
 
-        await testUtils.events.mousemove(mapContainer, {x: 310, y: 100}, {x: 310, y: 120}); // exception was thrown if mouse was moved after editting turn restriction
+        await mousemove(mapContainer, {x: 310, y: 100}, {x: 310, y: 120}); // exception was thrown if mouse was moved after editting turn restriction
 
         expect(editor.info()).to.lengthOf(0); // nothing is expected to be submitted
         editor.submit();

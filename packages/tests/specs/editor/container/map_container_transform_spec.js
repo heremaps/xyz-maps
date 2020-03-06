@@ -16,7 +16,9 @@
  * SPDX-License-Identifier: Apache-2.0
  * License-Filename: LICENSE
  */
-import {editorTests, testUtils, prepare} from 'hereTest';
+import {prepare} from 'testUtils';
+import {waitForEditorReady} from 'editorTests';
+import {drag} from 'utilEvents';
 import {Map} from '@here/xyz-maps-core';
 import {Editor} from '@here/xyz-maps-editor';
 import chaiAlmost from 'chai-almost';
@@ -44,7 +46,7 @@ describe('map container transform', function() {
         editor = new Editor(display, {
             layers: preparedData.getLayers()
         });
-        await editorTests.waitForEditorReady(editor);
+        await waitForEditorReady(editor);
 
         mapContainer = display.getContainer();
         container = editor.createFeatureContainer();
@@ -66,7 +68,7 @@ describe('map container transform', function() {
         container.transform();
 
         // move container
-        await testUtils.events.drag(mapContainer, {x: 158, y: 161}, {x: 258, y: 161});
+        await drag(mapContainer, {x: 158, y: 161}, {x: 258, y: 161});
 
         expect(link.coord()).to.deep.almost([
             [80.475123072, 16.448270659, 0],
@@ -84,7 +86,7 @@ describe('map container transform', function() {
         container.transform();
 
         // move container
-        await testUtils.events.drag(mapContainer, {x: 212, y: 159}, {x: 312, y: 159});
+        await drag(mapContainer, {x: 212, y: 159}, {x: 312, y: 159});
 
         expect(link.coord()).to.deep.almost([
             [80.475659512, 16.448270659, 0],

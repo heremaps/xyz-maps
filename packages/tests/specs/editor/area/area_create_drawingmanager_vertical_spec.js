@@ -16,7 +16,9 @@
  * SPDX-License-Identifier: Apache-2.0
  * License-Filename: LICENSE
  */
-import {editorTests, testUtils, prepare} from 'hereTest';
+import {prepare} from 'testUtils';
+import {waitForEditorReady, editorClick} from 'editorTests';
+import {click, mousemove} from 'utilEvents';
 import {Map} from '@here/xyz-maps-core';
 import {features, Editor} from '@here/xyz-maps-editor';
 import chaiAlmost from 'chai-almost';
@@ -42,7 +44,7 @@ xdescribe('Area drawing manager points with same longitude ', function() {
             layers: preparedData.getLayers()
         });
 
-        await editorTests.waitForEditorReady(editor);
+        await waitForEditorReady(editor);
 
         mapContainer = display.getContainer();
     });
@@ -55,24 +57,24 @@ xdescribe('Area drawing manager points with same longitude ', function() {
     it('create area by drawing manager and validate', async function() {
         editor.getDrawingBoard().start({mode: features.Area});
 
-        await testUtils.events.mousemove(mapContainer, {x: 100, y: 100}, {x: 100, y: 200});
-        await testUtils.events.click(mapContainer, 100, 200);
+        await mousemove(mapContainer, {x: 100, y: 100}, {x: 100, y: 200});
+        await click(mapContainer, 100, 200);
 
-        await testUtils.events.mousemove(mapContainer, {x: 100, y: 200}, {x: 200, y: 100});
-        await testUtils.events.click(mapContainer, 200, 100);
+        await mousemove(mapContainer, {x: 100, y: 200}, {x: 200, y: 100});
+        await click(mapContainer, 200, 100);
 
-        await testUtils.events.mousemove(mapContainer, {x: 200, y: 100}, {x: 300, y: 150});
-        await testUtils.events.click(mapContainer, 300, 150);
+        await mousemove(mapContainer, {x: 200, y: 100}, {x: 300, y: 150});
+        await click(mapContainer, 300, 150);
 
-        await testUtils.events.mousemove(mapContainer, {x: 200, y: 100}, {x: 300, y: 170});
-        await testUtils.events.click(mapContainer, 300, 170);
+        await mousemove(mapContainer, {x: 200, y: 100}, {x: 300, y: 170});
+        await click(mapContainer, 300, 170);
 
-        await testUtils.events.mousemove(mapContainer, {x: 100, y: 310}, {x: 200, y: 200});
-        await testUtils.events.click(mapContainer, 200, 200);
+        await mousemove(mapContainer, {x: 100, y: 310}, {x: 200, y: 200});
+        await click(mapContainer, 200, 200);
 
         editor.getDrawingBoard().create({featureClass: 'AREA'});
 
-        let area = (await editorTests.click(editor, 271, 266)).target;
+        let area = (await editorClick(editor, 271, 266)).target;
 
         expect(area.prop()).to.include({
             featureType: 2005700,

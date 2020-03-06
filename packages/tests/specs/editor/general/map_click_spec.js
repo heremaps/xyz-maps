@@ -16,7 +16,9 @@
  * SPDX-License-Identifier: Apache-2.0
  * License-Filename: LICENSE
  */
-import {editorTests, displayTests, testUtils, prepare} from 'hereTest';
+import {Listener, prepare} from 'testUtils';
+import {waitForEditorReady} from 'editorTests';
+import {drag, click} from 'utilEvents';
 import {Map} from '@here/xyz-maps-core';
 import {features, Editor} from '@here/xyz-maps-editor';
 import dataset from './map_click_spec.json';
@@ -39,7 +41,7 @@ describe('map click on ground and link', function() {
             layers: preparedData.getLayers()
         });
 
-        await editorTests.waitForEditorReady(editor);
+        await waitForEditorReady(editor);
     });
 
     after(async function() {
@@ -49,23 +51,23 @@ describe('map click on ground and link', function() {
 
 
     it('listen to events and validate', async function() {
-        let listener = new testUtils.Listener(editor, ['pointerup', 'dragStart', 'dragStop']);
+        let listener = new Listener(editor, ['pointerup', 'dragStart', 'dragStop']);
 
         let mapContainer = display.getContainer();
         // click on ground
-        await testUtils.events.click(mapContainer, 200, 170);
+        await click(mapContainer, 200, 170);
 
         // drag map
-        await editorTests.waitForEditorReady(editor, async ()=>{
-            await testUtils.events.drag(mapContainer, {x: 100, y: 100}, {x: 300, y: 100});
+        await waitForEditorReady(editor, async ()=>{
+            await drag(mapContainer, {x: 100, y: 100}, {x: 300, y: 100});
         });
 
         // drag map again
-        await editorTests.waitForEditorReady(editor, async ()=>{
-            await testUtils.events.drag(mapContainer, {x: 350, y: 100}, {x: 150, y: 100});
+        await waitForEditorReady(editor, async ()=>{
+            await drag(mapContainer, {x: 350, y: 100}, {x: 150, y: 100});
         });
 
-        await editorTests.waitForEditorReady(editor, ()=>{
+        await waitForEditorReady(editor, ()=>{
             display.setCenter({longitude: 76.05532722717277, latitude: 13.084839606874539});
         });
 
@@ -74,7 +76,7 @@ describe('map click on ground and link', function() {
         let link = editor.addFeature(lnk);
 
         // click on a link
-        await testUtils.events.click(mapContainer, 160, 100);
+        await click(mapContainer, 160, 100);
 
         let results = listener.stop();
 

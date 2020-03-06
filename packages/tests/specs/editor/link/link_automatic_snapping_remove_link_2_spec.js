@@ -16,7 +16,9 @@
  * SPDX-License-Identifier: Apache-2.0
  * License-Filename: LICENSE
  */
-import {editorTests, testUtils, prepare} from 'hereTest';
+import {prepare} from 'testUtils';
+import {waitForEditorReady} from 'editorTests';
+import {drag} from 'utilEvents';
 import {Map} from '@here/xyz-maps-core';
 import {Editor} from '@here/xyz-maps-editor';
 import dataset from './link_automatic_snapping_remove_link_2_spec.json';
@@ -40,7 +42,7 @@ describe('drag a link shape point to the other and removes the link automaticall
             layers: preparedData.getLayers()
         });
 
-        await editorTests.waitForEditorReady(editor);
+        await waitForEditorReady(editor);
 
         link1 = preparedData.getFeature('linkLayer', -189018);
     });
@@ -55,7 +57,7 @@ describe('drag a link shape point to the other and removes the link automaticall
         let mapContainer = display.getContainer();
         link1.select();
 
-        await testUtils.events.drag(mapContainer, {x: 320, y: 226}, {x: 278, y: 229});
+        await drag(mapContainer, {x: 320, y: 226}, {x: 278, y: 229});
 
         expect(editor.info()).to.have.lengthOf(1);
     });

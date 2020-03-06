@@ -16,7 +16,9 @@
  * SPDX-License-Identifier: Apache-2.0
  * License-Filename: LICENSE
  */
-import {editorTests, testUtils, prepare} from 'hereTest';
+import {prepare} from 'testUtils';
+import {waitForEditorReady, editorClick} from 'editorTests';
+import {click, drag, mousemove} from 'utilEvents';
 import {Map} from '@here/xyz-maps-core';
 import {Editor} from '@here/xyz-maps-editor';
 import chaiAlmost from 'chai-almost';
@@ -40,7 +42,7 @@ describe('Create new Link by drawing manager and remove some shape points', func
         editor = new Editor(display, {
             layers: preparedData.getLayers()
         });
-        await editorTests.waitForEditorReady(editor);
+        await waitForEditorReady(editor);
     });
 
     after(async function() {
@@ -53,19 +55,19 @@ describe('Create new Link by drawing manager and remove some shape points', func
 
         let mapContainer = display.getContainer();
 
-        await testUtils.events.mousemove(mapContainer, {x: 100, y: 80}, {x: 100, y: 100});
-        await testUtils.events.click(mapContainer, 100, 100);
+        await mousemove(mapContainer, {x: 100, y: 80}, {x: 100, y: 100});
+        await click(mapContainer, 100, 100);
 
-        await testUtils.events.mousemove(mapContainer, {x: 100, y: 200}, {x: 100, y: 300});
-        await testUtils.events.click(mapContainer, 100, 300);
+        await mousemove(mapContainer, {x: 100, y: 200}, {x: 100, y: 300});
+        await click(mapContainer, 100, 300);
 
-        await testUtils.events.mousemove(mapContainer, {x: 100, y: 100}, {x: 100, y: 200});
-        await testUtils.events.click(mapContainer, 100, 200);
+        await mousemove(mapContainer, {x: 100, y: 100}, {x: 100, y: 200});
+        await click(mapContainer, 100, 200);
 
-        await testUtils.events.drag(mapContainer, {x: 100, y: 100}, {x: 200, y: 100});
+        await drag(mapContainer, {x: 100, y: 100}, {x: 200, y: 100});
 
 
-        var shape = (await editorTests.click(editor, 100, 300)).target;
+        var shape = (await editorClick(editor, 100, 300)).target;
         shape.remove();
 
         expect(editor.getDrawingBoard().getLength()).to.equal(2);
@@ -78,10 +80,10 @@ describe('Create new Link by drawing manager and remove some shape points', func
 
         expect(editor.getDrawingBoard().getLength()).to.equal(5);
 
-        shape = (await editorTests.click(editor, 200, 200)).target;
+        shape = (await editorClick(editor, 200, 200)).target;
         shape.remove();
 
-        shape = (await editorTests.click(editor, 100, 200)).target;
+        shape = (await editorClick(editor, 100, 200)).target;
         shape.remove();
 
         editor.getDrawingBoard().removeShape(0);

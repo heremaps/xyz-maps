@@ -17,7 +17,7 @@
  * License-Filename: LICENSE
  */
 
-import {prepare, testUtils} from 'hereTest';
+import {Listener, prepare} from 'testUtils';
 import dataset from './event_listeners_poi_layer_spec.json';
 
 describe('event listeners in poi layer', function() {
@@ -61,7 +61,7 @@ describe('event listeners in poi layer', function() {
     });
 
     it('start event listener', function() {
-        let listener = new testUtils.Listener(placeLayer, 'featureRemove');
+        let listener = new Listener(placeLayer, 'featureRemove');
 
         placeLayer.removeFeature({
             type: 'Feature',
@@ -78,7 +78,7 @@ describe('event listeners in poi layer', function() {
 
 
     it('start add, remove and modify event', function() {
-        let listener = new testUtils.Listener(placeLayer, ['featureAdd', 'featureRemove', 'featureCoordinatesChange']);
+        let listener = new Listener(placeLayer, ['featureAdd', 'featureRemove', 'featureCoordinatesChange']);
 
         placeLayer.addFeature({
             geometry: {

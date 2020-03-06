@@ -17,7 +17,8 @@
  * License-Filename: LICENSE
  */
 
-import {displayTests, testUtils, prepare} from 'hereTest';
+import {waitForViewportReady} from 'displayTests';
+import {getCanvasPixelColor, prepare} from 'testUtils';
 import {Map} from '@here/xyz-maps-core';
 import dataset from './setstylegroup_invalid_style_spec.json';
 
@@ -43,7 +44,7 @@ describe('setStyleGroup with invalid style', function() {
             zoomLevel: 18,
             layers: preparedData.getLayers()
         });
-        await displayTests.waitForViewportReady(display);
+        await waitForViewportReady(display);
         mapContainer = display.getContainer();
         linkLayer = preparedData.getLayers('linkLayer');
         addressLayer = preparedData.getLayers('paLayer');
@@ -76,7 +77,7 @@ describe('setStyleGroup with invalid style', function() {
         // validate new link style
         await new Promise((resolve) => {
             setTimeout(() => {
-                let color = testUtils.getCanvasPixelColor(mapContainer, 350, 300); // get link color
+                let color = getCanvasPixelColor(mapContainer, 350, 300); // get link color
 
                 expect(color).to.equal('#be6b65');
                 resolve();
@@ -102,7 +103,7 @@ describe('setStyleGroup with invalid style', function() {
         // validate link style
         await new Promise((resolve) => {
             setTimeout(() => {
-                let color = testUtils.getCanvasPixelColor(mapContainer, 350, 300); // get link color
+                let color = getCanvasPixelColor(mapContainer, 350, 300); // get link color
 
                 expect(color).to.equal('#be6b65');
                 resolve();
@@ -131,7 +132,7 @@ describe('setStyleGroup with invalid style', function() {
         // validate new address style
         await new Promise((resolve) => {
             setTimeout(() => {
-                let color = testUtils.getCanvasPixelColor(mapContainer, 300, 200); // get address color
+                let color = getCanvasPixelColor(mapContainer, 300, 200); // get address color
 
                 expect(color).to.equal('#765432');
                 resolve();
@@ -157,7 +158,7 @@ describe('setStyleGroup with invalid style', function() {
         // validate address style
         await new Promise((resolve) => {
             setTimeout(() => {
-                let color = testUtils.getCanvasPixelColor(mapContainer, 300, 200); // get address color
+                let color = getCanvasPixelColor(mapContainer, 300, 200); // get address color
 
                 expect(color).to.equal('#765432');
                 resolve();

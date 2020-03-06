@@ -16,7 +16,9 @@
  * SPDX-License-Identifier: Apache-2.0
  * License-Filename: LICENSE
  */
-import {editorTests, testUtils, prepare} from 'hereTest';
+import {prepare} from 'testUtils';
+import {waitForEditorReady} from 'editorTests';
+import {click} from 'utilEvents';
 import {Map} from '@here/xyz-maps-core';
 import {Editor} from '@here/xyz-maps-editor';
 import dataset from './link_shapepoint_overlap_spec.json';
@@ -44,7 +46,7 @@ describe('verify Link overlapped shape point style', function() {
         editor = new Editor(display, {
             layers: preparedData.getLayers()
         });
-        await editorTests.waitForEditorReady(editor);
+        await waitForEditorReady(editor);
         mapContainer = display.getContainer();
 
         link1 = preparedData.getFeature('linkLayer', -189081);
@@ -59,7 +61,7 @@ describe('verify Link overlapped shape point style', function() {
 
     it('select one link and click, valiate overlapped shapepoint is highlighted', async function() {
         link1.select();
-        await testUtils.events.click(mapContainer, 300, 200);
+        await click(mapContainer, 300, 200);
 
         let overlay = editor.getOverlay();
         let node = overlay.search({point: {longitude: 77.367151349, latitude: 13.09411499}, radius: 5});
@@ -72,7 +74,7 @@ describe('verify Link overlapped shape point style', function() {
 
     it('select the other link and click, valiate overlapped shapepoint is highlighted', async function() {
         link2.select();
-        await testUtils.events.click(mapContainer, 200, 100);
+        await click(mapContainer, 200, 100);
 
         let overlay = editor.getOverlay();
         let node = overlay.search({point: {longitude: 77.368224233, latitude: 13.095159976}, radius: 5});

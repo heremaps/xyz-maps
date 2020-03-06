@@ -16,7 +16,9 @@
  * SPDX-License-Identifier: Apache-2.0
  * License-Filename: LICENSE
  */
-import {editorTests, testUtils, prepare} from 'hereTest';
+import {prepare} from 'testUtils';
+import {waitForEditorReady} from 'editorTests';
+import {click, mousemove} from 'utilEvents';
 import {Map} from '@here/xyz-maps-core';
 import {Editor} from '@here/xyz-maps-editor';
 import dataset from './drawingmanager_hove_shape_spec.json';
@@ -40,7 +42,7 @@ describe('Hover shape point in drawingboard create link then move mouse', functi
         editor = new Editor(display, {
             layers: preparedData.getLayers()
         });
-        await editorTests.waitForEditorReady(editor);
+        await waitForEditorReady(editor);
         mapContainer = display.getContainer();
     });
 
@@ -53,35 +55,35 @@ describe('Hover shape point in drawingboard create link then move mouse', functi
         editor.getDrawingBoard().start();
 
         // add one shape
-        await testUtils.events.mousemove(mapContainer, {x: 100, y: 200}, {x: 200, y: 200});
-        await testUtils.events.click(mapContainer, 200, 200);
+        await mousemove(mapContainer, {x: 100, y: 200}, {x: 200, y: 200});
+        await click(mapContainer, 200, 200);
 
         // move mouse point
-        await testUtils.events.mousemove(mapContainer, {x: 200, y: 200}, {x: 200, y: 300});
+        await mousemove(mapContainer, {x: 200, y: 200}, {x: 200, y: 300});
 
         // hover shape point
-        await testUtils.events.mousemove(mapContainer, {x: 200, y: 300}, {x: 200, y: 200});
+        await mousemove(mapContainer, {x: 200, y: 300}, {x: 200, y: 200});
 
         editor.getDrawingBoard().cancel();
 
-        await testUtils.events.mousemove(mapContainer, {x: 200, y: 200}, {x: 200, y: 300});
+        await mousemove(mapContainer, {x: 200, y: 200}, {x: 200, y: 300});
 
         // start drawingmanager again and add one shape point
         editor.getDrawingBoard().start();
 
-        await testUtils.events.mousemove(mapContainer, {x: 200, y: 200}, {x: 200, y: 300});
-        await testUtils.events.click(mapContainer, 200, 300);
+        await mousemove(mapContainer, {x: 200, y: 200}, {x: 200, y: 300});
+        await click(mapContainer, 200, 300);
 
-        await testUtils.events.mousemove(mapContainer, {x: 200, y: 300}, {x: 300, y: 300});
-        await testUtils.events.click(mapContainer, 300, 300);
+        await mousemove(mapContainer, {x: 200, y: 300}, {x: 300, y: 300});
+        await click(mapContainer, 300, 300);
 
-        await testUtils.events.mousemove(mapContainer, {x: 300, y: 300}, {x: 350, y: 300});
+        await mousemove(mapContainer, {x: 300, y: 300}, {x: 350, y: 300});
 
-        await testUtils.events.mousemove(mapContainer, {x: 350, y: 300}, {x: 300, y: 300});
+        await mousemove(mapContainer, {x: 350, y: 300}, {x: 300, y: 300});
 
         link = editor.getDrawingBoard().create({featureClass: 'NAVLINK'});
 
-        await testUtils.events.mousemove(mapContainer, {x: 300, y: 300}, {x: 360, y: 300});
+        await mousemove(mapContainer, {x: 300, y: 300}, {x: 360, y: 300});
 
         expect(link.coord()).to.have.lengthOf(2);
         expect(editor.info()).to.have.lengthOf(1);

@@ -17,7 +17,9 @@
  * License-Filename: LICENSE
  */
 
-import {displayTests, prepare, testUtils} from 'hereTest';
+import {waitForViewportReady} from 'displayTests';
+import {Listener, prepare} from 'testUtils';
+import {click, mousemove} from 'utilEvents';
 import {Map} from '@here/xyz-maps-core';
 import dataset from './display_pointer_events_spec.json';
 
@@ -37,7 +39,7 @@ describe('validate pointer events', function() {
             layers: preparedData.getLayers()
         });
 
-        await displayTests.waitForViewportReady(display);
+        await waitForViewportReady(display);
 
         mapContainer = display.getContainer();
         pa = preparedData.getFeature('paLayer', -10791);
@@ -50,12 +52,12 @@ describe('validate pointer events', function() {
     });
 
     it('validate pointenter and pointerleave events', async function() {
-        await testUtils.events.mousemove(mapContainer, {x: 100, y: 200}, {x: 540, y: 300});
+        await mousemove(mapContainer, {x: 100, y: 200}, {x: 540, y: 300});
 
-        let listener = new testUtils.Listener(display, ['pointerenter', 'pointerleave']);
+        let listener = new Listener(display, ['pointerenter', 'pointerleave']);
 
-        await testUtils.events.mousemove(mapContainer, {x: 540, y: 300}, {x: 483, y: 352});
-        await testUtils.events.mousemove(mapContainer, {x: 483, y: 352}, {x: 540, y: 300});
+        await mousemove(mapContainer, {x: 540, y: 300}, {x: 483, y: 352});
+        await mousemove(mapContainer, {x: 483, y: 352}, {x: 540, y: 300});
 
         let results = listener.stop();
 
@@ -65,9 +67,9 @@ describe('validate pointer events', function() {
 
     it('validate pointdown and pointerup events', async function() {
         let result = display.getFeatureAt({x: 456, y: 352});
-        let listener = new testUtils.Listener(display, ['pointerdown', 'pointerup']);
+        let listener = new Listener(display, ['pointerdown', 'pointerup']);
 
-        await testUtils.events.click(mapContainer, 456, 352);
+        await click(mapContainer, 456, 352);
 
         let results = listener.stop();
 
@@ -94,9 +96,9 @@ describe('validate pointer events', function() {
     });
 
     it('validate pointenter and pointerleave again', async function() {
-        let listener = new testUtils.Listener(display, ['pointerdown', 'pointerup']);
+        let listener = new Listener(display, ['pointerdown', 'pointerup']);
 
-        await testUtils.events.click(mapContainer, 788, 352);
+        await click(mapContainer, 788, 352);
 
         let results = listener.stop();
 

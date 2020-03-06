@@ -28,5 +28,7 @@ import mochaSettings from 'settings';
 
 mocha.setup(mochaSettings);
 
-export default {displayTests, testUtils, prepare, run};
+Object.assign(testUtils, {prepare});
+
+export default {displayTests, testUtils, run};
 

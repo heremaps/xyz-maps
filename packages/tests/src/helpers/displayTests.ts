@@ -17,45 +17,10 @@
  * License-Filename: LICENSE
  */
 
-import {testUtils} from './testUtils';
 import {layers} from '@here/xyz-maps-core';
 import Map from '@here/xyz-maps-display';
 
 export namespace displayTests {
-    export async function click(display: Map, x: number, y: number): Promise<MouseEvent> {
-        return new Promise(async (resolve) => {
-            let mapContainer = display.getContainer();
-            let cb = (evt: MouseEvent):void => {
-                display.removeEventListener('pointerup', cb);
-                resolve(evt);
-            };
-
-            display.addEventListener('pointerup', cb);
-
-            await testUtils.events.click(mapContainer, x, y);
-
-            display.removeEventListener('pointerup', cb);
-            resolve();
-        });
-    };
-
-    export async function dblclick(display: Map, x: number, y: number): Promise<MouseEvent> {
-        return new Promise(async (resolve) => {
-            let mapContainer = display.getContainer();
-            let cb = (evt: MouseEvent):void => {
-                display.removeEventListener('dbltap', cb);
-                resolve(evt);
-            };
-
-            display.addEventListener('dbltap', cb);
-
-            await testUtils.events.dblclick(mapContainer, x, y);
-
-            display.removeEventListener('dbltap', cb);
-            resolve();
-        });
-    }
-
     export function waitForViewportReady(display: Map, mapLayers?: layers.TileLayer[], fn?:Function): Promise<Map> {
         return new Promise(async (resolve) => {
             let elem = display.getContainer();

@@ -16,7 +16,8 @@
  * SPDX-License-Identifier: Apache-2.0
  * License-Filename: LICENSE
  */
-import {editorTests, prepare} from 'hereTest';
+import {prepare} from 'testUtils';
+import {waitForEditorReady} from 'editorTests';
 import {features, Editor} from '@here/xyz-maps-editor';
 import {Map} from '@here/xyz-maps-core';
 import dataset from './address_create_when_link_inactive_spec.json';
@@ -38,7 +39,7 @@ describe('add Address object when link is deactivated', function() {
         });
         editor = new Editor(display, {layers: preparedData.getLayers()});
 
-        await editorTests.waitForEditorReady(editor);
+        await waitForEditorReady(editor);
     });
 
     after(async function() {
@@ -53,7 +54,7 @@ describe('add Address object when link is deactivated', function() {
     });
 
     it('set zoomlevel to 19 and validate objs in viewport again', async function() {
-        await editorTests.waitForEditorReady(editor, ()=>{
+        await waitForEditorReady(editor, ()=>{
             display.setZoomlevel(19);
         });
 
@@ -70,11 +71,11 @@ describe('add Address object when link is deactivated', function() {
     });
 
     it('revert changes set zoomlevel back and validate objs in viewport again', async function() {
-        await editorTests.waitForEditorReady(editor, ()=>{
+        await waitForEditorReady(editor, ()=>{
             editor.revert();
         });
 
-        await editorTests.waitForEditorReady(editor, ()=>{
+        await waitForEditorReady(editor, ()=>{
             display.setZoomlevel(18);
         });
 

@@ -17,7 +17,8 @@
  * License-Filename: LICENSE
  */
 
-import {displayTests, testUtils, prepare} from 'hereTest';
+import {prepare} from 'testUtils';
+import {waitForViewportReady} from 'displayTests';
 import {Map} from '@here/xyz-maps-core';
 import dataset from './get_objects_spec.json';
 
@@ -36,7 +37,7 @@ describe('get objects', function() {
             zoomLevel: 18,
             layers: preparedData.getLayers()
         });
-        await displayTests.waitForViewportReady(display);
+        await waitForViewportReady(display);
 
         link = preparedData.getFeature('linkLayer', 1003913693);
     });
@@ -62,7 +63,7 @@ describe('get objects', function() {
 
 
     it('validate getFeatureAt at a difference place after moving map to another place', async function() {
-        await displayTests.waitForViewportReady(display, ()=>{
+        await waitForViewportReady(display, ()=>{
             display.setCenter({
                 longitude: 76.75926261624988,
                 latitude: 12.836190489456936

@@ -16,7 +16,9 @@
  * SPDX-License-Identifier: Apache-2.0
  * License-Filename: LICENSE
  */
-import {editorTests, displayTests, prepare, testUtils} from 'hereTest';
+import {prepare} from 'testUtils';
+import {waitForEditorReady} from 'editorTests';
+import {drag, click} from 'utilEvents';
 import {Editor} from '@here/xyz-maps-editor';
 import {Map} from '@here/xyz-maps-core';
 import dataset from './address_layer_add_remove_spec.json';
@@ -39,7 +41,7 @@ describe('Address layer add and remove', function() {
         });
         editor = new Editor(display, {layers: preparedData.getLayers()});
 
-        await editorTests.waitForEditorReady(editor);
+        await waitForEditorReady(editor);
         mapContainer = display.getContainer();
 
         addrLayer = preparedData.getLayers('paLayer');
@@ -68,11 +70,11 @@ describe('Address layer add and remove', function() {
 
     it('click n drag on an address, validate map is dragged', async function() {
         // click on an address
-        await testUtils.events.click(mapContainer, 100, 200);
+        await click(mapContainer, 100, 200);
 
         // drag on Address
-        await editorTests.waitForEditorReady(editor, async ()=>{
-            await testUtils.events.drag(mapContainer, {x: 100, y: 200}, {x: 154, y: 237});
+        await waitForEditorReady(editor, async ()=>{
+            await drag(mapContainer, {x: 100, y: 200}, {x: 154, y: 237});
         });
 
         let nc = display.getCenter();
@@ -80,7 +82,7 @@ describe('Address layer add and remove', function() {
     });
 
     it('add address layer and validate', async function() {
-        await editorTests.waitForEditorReady(editor, ()=>{
+        await waitForEditorReady(editor, ()=>{
             display.setCenter({longitude: -92.87121, latitude: 40.593582});
         });
 
@@ -92,15 +94,15 @@ describe('Address layer add and remove', function() {
 
     it('click n drag on an address, validate map is not dragged', async function() {
         // click on an address
-        await testUtils.events.click(mapContainer, 100, 200);
+        await click(mapContainer, 100, 200);
 
         // drag on Address
-        await testUtils.events.drag(mapContainer, {x: 100, y: 200}, {x: 154, y: 237});
+        await drag(mapContainer, {x: 100, y: 200}, {x: 154, y: 237});
 
         let nc = display.getCenter();
         expect(nc).to.deep.equal({longitude: -92.87121, latitude: 40.593582});
 
         // click on ground
-        await testUtils.events.click(mapContainer, 300, 200);
+        await click(mapContainer, 300, 200);
     });
 });

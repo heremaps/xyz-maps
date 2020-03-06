@@ -16,9 +16,11 @@
  * SPDX-License-Identifier: Apache-2.0
  * License-Filename: LICENSE
  */
-import {editorTests, testUtils, prepare} from 'hereTest';
+import {prepare} from 'testUtils';
+import {waitForEditorReady} from 'editorTests';
+import {drag} from 'utilEvents';
 import {Map} from '@here/xyz-maps-core';
-import {features, Editor} from '@here/xyz-maps-editor';
+import {Editor} from '@here/xyz-maps-editor';
 import dataset from './link_snap_delete_self_spec.json';
 
 describe('link shape point snapping to delete link itself', function() {
@@ -41,7 +43,7 @@ describe('link shape point snapping to delete link itself', function() {
             layers: preparedData.getLayers()
         });
 
-        await editorTests.waitForEditorReady(editor);
+        await waitForEditorReady(editor);
         link = preparedData.getFeature('linkLayer', -189090);
     });
 
@@ -60,7 +62,7 @@ describe('link shape point snapping to delete link itself', function() {
     it('drag the link shape point to connect one point to the other, validate the link is removed', async function() {
         link.select();
         let mapContainer = display.getContainer();
-        await testUtils.events.drag(mapContainer, {x: 200, y: 200}, {x: 295, y: 200});
+        await drag(mapContainer, {x: 200, y: 200}, {x: 295, y: 200});
 
         let objs = editor.search(display.getViewBounds());
         expect(objs).to.have.lengthOf(0);

@@ -16,7 +16,9 @@
  * SPDX-License-Identifier: Apache-2.0
  * License-Filename: LICENSE
  */
-import {editorTests, testUtils, prepare} from 'hereTest';
+import {prepare} from 'testUtils';
+import {waitForEditorReady} from 'editorTests';
+import {click} from 'utilEvents';
 import {Map} from '@here/xyz-maps-core';
 import {features, Editor} from '@here/xyz-maps-editor';
 import dataset from './keepfeatureselection_spec.json';
@@ -39,7 +41,7 @@ describe('set keepFeatureSelection', function() {
         editor = new Editor(display, {
             layers: preparedData.getLayers()
         });
-        await editorTests.waitForEditorReady(editor);
+        await waitForEditorReady(editor);
         mapContainer = display.getContainer();
     });
 
@@ -55,7 +57,7 @@ describe('set keepFeatureSelection', function() {
             keepFeatureSelection: false
         });
 
-        await editorTests.waitForEditorReady(editor, ()=>{
+        await waitForEditorReady(editor, ()=>{
             display.setCenter({longitude: 77.84172527566523, latitude: 17.450976000022266});
             display.setZoomlevel(19);
         });
@@ -68,14 +70,14 @@ describe('set keepFeatureSelection', function() {
         expect(links[1].editState('selected')).to.be.true;
 
         // click on ground to unselect link
-        await testUtils.events.click(mapContainer, 150, 200);
+        await click(mapContainer, 150, 200);
 
         expect(links[1].editState('selected')).to.be.false;
 
         // select link
         links[1].select();
 
-        await editorTests.waitForEditorReady(editor, ()=>{
+        await waitForEditorReady(editor, ()=>{
             // set map center to unselect link
             display.setCenter({longitude: 77.84172527566523, latitude: 17.450976000022266});
         });
@@ -90,7 +92,7 @@ describe('set keepFeatureSelection', function() {
             keepFeatureSelection: true
         });
 
-        await editorTests.waitForEditorReady(editor, ()=>{
+        await waitForEditorReady(editor, ()=>{
             display.setCenter({longitude: 77.84172527566523, latitude: 17.450976000022266});
             display.setZoomlevel(19);
         });
@@ -104,12 +106,12 @@ describe('set keepFeatureSelection', function() {
         expect(links[1].editState('selected')).to.be.true;
 
         // clik on ground
-        await testUtils.events.click(mapContainer, 150, 200);
+        await click(mapContainer, 150, 200);
 
         // validate link is still selected
         expect(links[1].editState('selected')).to.be.true;
 
-        await editorTests.waitForEditorReady(editor, ()=>{
+        await waitForEditorReady(editor, ()=>{
             // set map center
             display.setCenter({longitude: 77.84172527566523, latitude: 17.450976000022266});
         });
@@ -125,7 +127,7 @@ describe('set keepFeatureSelection', function() {
             keepFeatureSelection: 'viewportChange'
         });
 
-        await editorTests.waitForEditorReady(editor, ()=>{
+        await waitForEditorReady(editor, ()=>{
             display.setCenter({longitude: 77.84172527566523, latitude: 17.450976000022266});
             display.setZoomlevel(19);
         });
@@ -138,14 +140,14 @@ describe('set keepFeatureSelection', function() {
         expect(links[1].editState('selected')).to.be.true;
 
         // click on ground
-        await testUtils.events.click(mapContainer, 150, 200);
+        await click(mapContainer, 150, 200);
 
         // validate link is not selected
         expect(links[1].editState('selected')).to.be.false;
 
         links[1].select();
 
-        await editorTests.waitForEditorReady(editor, ()=>{
+        await waitForEditorReady(editor, ()=>{
             // set map center
             display.setCenter({longitude: 77.84172527566523, latitude: 17.450976000022266});
         });

@@ -16,7 +16,9 @@
  * SPDX-License-Identifier: Apache-2.0
  * License-Filename: LICENSE
  */
-import {editorTests, testUtils, prepare} from 'hereTest';
+import {prepare} from 'testUtils';
+import {waitForEditorReady} from 'editorTests';
+import {drag} from 'utilEvents';
 import {Map} from '@here/xyz-maps-core';
 import {Editor} from '@here/xyz-maps-editor';
 import chaiAlmost from 'chai-almost';
@@ -43,7 +45,7 @@ describe('map activate and deactivate', function() {
             layers: preparedData.getLayers()
         });
 
-        await editorTests.waitForEditorReady(editor);
+        await waitForEditorReady(editor);
 
         mapContainer = display.getContainer();
 
@@ -58,7 +60,7 @@ describe('map activate and deactivate', function() {
 
     it('drag link shape point, validate link shape point', async function() {
         link.select();
-        await testUtils.events.drag(mapContainer, {x: 100, y: 100}, {x: 150, y: 100});
+        await drag(mapContainer, {x: 100, y: 100}, {x: 150, y: 100});
 
         expect(link.coord()).to.deep.almost([
             [75.553958896, 13.997501028, 0],
@@ -84,7 +86,7 @@ describe('map activate and deactivate', function() {
 
     it('drag link shape', async function() {
         link.select();
-        await testUtils.events.drag(mapContainer, {x: 150, y: 100}, {x: 100, y: 100});
+        await drag(mapContainer, {x: 150, y: 100}, {x: 100, y: 100});
 
         expect(link.coord()).to.deep.almost([
             [75.553690675, 13.997501028, 0],

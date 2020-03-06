@@ -16,7 +16,9 @@
  * SPDX-License-Identifier: Apache-2.0
  * License-Filename: LICENSE
  */
-import {editorTests, testUtils, prepare} from 'hereTest';
+import {prepare} from 'testUtils';
+import {waitForEditorReady} from 'editorTests';
+import {click} from 'utilEvents';
 import {Map} from '@here/xyz-maps-core';
 import {Editor, features} from '@here/xyz-maps-editor';
 import chaiAlmost from 'chai-almost';
@@ -46,7 +48,7 @@ describe('click on address to validate the coordinate', function() {
             layers: preparedData.getLayers()
         });
 
-        await editorTests.waitForEditorReady(editor);
+        await waitForEditorReady(editor);
 
         mapContainer = display.getContainer();
 
@@ -65,7 +67,7 @@ describe('click on address to validate the coordinate', function() {
         expect(address.coord()).to.deep.almost([76.283418331, 14.125304508, 0]);
 
         // click on an address
-        await testUtils.events.click(mapContainer, 100, 200);
+        await click(mapContainer, 100, 200);
 
         // validate address coordinate again
         expect(address.coord()).to.deep.almost([76.283418331, 14.125304508, 0]);
@@ -78,7 +80,7 @@ describe('click on address to validate the coordinate', function() {
         expect(poi.coord()).to.deep.almost([76.283954773, 14.125304508, 0]);
 
         // click on POI
-        await testUtils.events.click(mapContainer, 300, 200);
+        await click(mapContainer, 300, 200);
 
         // validate POI coordinate
         expect(poi.coord()).to.deep.almost([76.283954773, 14.125304508, 0]);
@@ -93,12 +95,12 @@ describe('click on address to validate the coordinate', function() {
         let address = editor.addFeature(a);
 
         // click on an address
-        await testUtils.events.click(mapContainer, 200, 200);
+        await click(mapContainer, 200, 200);
 
         // validate address coordinate
         expect(address.coord()).to.deep.almost([76.283685558, 14.125304111, 0]);
 
         // click on ground
-        await testUtils.events.click(mapContainer, 300, 200);
+        await click(mapContainer, 300, 200);
     });
 });

@@ -16,12 +16,12 @@
  * SPDX-License-Identifier: Apache-2.0
  * License-Filename: LICENSE
  */
-import mapsCommon from '@here/xyz-maps-common';
+import {TaskManager} from '@here/xyz-maps-common';
 
 describe('task manager run more than 2 tasks', function() {
     const expect = chai.expect;
 
-    let taskmanager = mapsCommon.TaskManager.getInstance( 5 );
+    let taskmanager = TaskManager.getInstance( 5 );
 
     it('one task start other same priority tasks', async function() {
         let results1 = [];

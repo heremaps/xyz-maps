@@ -16,8 +16,9 @@
  * SPDX-License-Identifier: Apache-2.0
  * License-Filename: LICENSE
  */
-import {editorTests, prepare, testUtils} from 'hereTest';
-import {features, Editor} from '@here/xyz-maps-editor';
+import {prepare} from 'testUtils';
+import {waitForEditorReady} from 'editorTests';
+import {Editor} from '@here/xyz-maps-editor';
 import {Map} from '@here/xyz-maps-core';
 import dataset from './address_set_routing_point__and_link_spec.json';
 
@@ -44,7 +45,7 @@ describe('address set routing point and link manually', function() {
         });
         editor = new Editor(display, {layers: preparedData.getLayers()});
 
-        await editorTests.waitForEditorReady(editor);
+        await waitForEditorReady(editor);
 
         link1 = preparedData.getFeature('linkLayer', -188826);
         link2 = preparedData.getFeature('linkLayer', -188827);

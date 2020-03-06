@@ -17,7 +17,8 @@
  * License-Filename: LICENSE
  */
 
-import {coreTests, prepare} from 'hereTest';
+import {prepare} from 'testUtils';
+import {getTileOnLayer} from 'coreTests';
 import dataset from './layer_gettile_multiple_times_cancel_with_same_callback_spec.json';
 
 describe('layer get one tile multiple times and cancel with same callback', function() {
@@ -45,7 +46,7 @@ describe('layer get one tile multiple times and cancel with same callback', func
     // Sydney, AUS
     it('get one tile for multiple times and dont cancel', function(done) {
         // qk1     = '3112301320032300' // length 16
-        coreTests.getTileOnLayer({
+        getTileOnLayer({
             layer: placeLayer,
             quadkeys: [qk1, qk1, qk1],
             sameCallback: true,
@@ -72,7 +73,7 @@ describe('layer get one tile multiple times and cancel with same callback', func
 
     it('get one tile for multiple times and cancel once', function(done) {
         // qk2     = '3112301320032301' // length 16
-        coreTests.getTileOnLayer({
+        getTileOnLayer({
             layer: placeLayer,
             quadkeys: [qk2, qk2, qk2],
             sameCallback: true,
@@ -104,7 +105,7 @@ describe('layer get one tile multiple times and cancel with same callback', func
 
     it('get one tile for multiple times and cancel two times', function(done) {
         // qk3     = '3112301320032302' // length 16
-        coreTests.getTileOnLayer({
+        getTileOnLayer({
             layer: placeLayer,
             quadkeys: [qk3, qk3, qk3],
             sameCallback: true,
@@ -136,7 +137,7 @@ describe('layer get one tile multiple times and cancel with same callback', func
 
     it('get one tile for multiple times and cancel all', function(done) {
         // qk4     = '3112301320032303' // length 16
-        coreTests.getTileOnLayer({
+        getTileOnLayer({
             layer: placeLayer,
             quadkeys: [qk4, qk4, qk4],
             sameCallback: true,

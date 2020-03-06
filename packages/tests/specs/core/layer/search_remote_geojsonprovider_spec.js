@@ -17,7 +17,7 @@
  * License-Filename: LICENSE
  */
 
-import {prepare} from 'hereTest';
+import {prepare} from 'testUtils';
 import dataset from './search_remote_geojsonprovider_spec.json';
 
 // GeoJSonProvider actually does not support remote search......

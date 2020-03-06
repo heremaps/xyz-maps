@@ -17,7 +17,8 @@
  * License-Filename: LICENSE
  */
 
-import {displayTests, prepare, testUtils} from 'hereTest';
+import {waitForViewportReady} from 'displayTests';
+import {getCanvasPixelColor, prepare} from 'testUtils';
 import {Map} from '@here/xyz-maps-core';
 import dataset from './setstylegroup_point_image.json';
 
@@ -40,7 +41,7 @@ describe('setStyleGroup Point with image', function() {
             zoomLevel: 18,
             layers: preparedData.getLayers()
         });
-        await displayTests.waitForViewportReady(display);
+        await waitForViewportReady(display);
 
         mapContainer = display.getContainer();
         paLayer = preparedData.getLayers('paLayer');
@@ -69,11 +70,11 @@ describe('setStyleGroup Point with image', function() {
         // validate features have new style
         await new Promise((resolve) => {
             setTimeout(() => {
-                color1 = testUtils.getCanvasPixelColor(mapContainer, 400, 300); // get color in the center
-                color2 = testUtils.getCanvasPixelColor(mapContainer, 390, 300); // get color mid left
-                color3 = testUtils.getCanvasPixelColor(mapContainer, 410, 300); // get color mid right
-                color4 = testUtils.getCanvasPixelColor(mapContainer, 400, 290); // get color mid top
-                color5 = testUtils.getCanvasPixelColor(mapContainer, 400, 310); // get color mid bottom
+                color1 = getCanvasPixelColor(mapContainer, 400, 300); // get color in the center
+                color2 = getCanvasPixelColor(mapContainer, 390, 300); // get color mid left
+                color3 = getCanvasPixelColor(mapContainer, 410, 300); // get color mid right
+                color4 = getCanvasPixelColor(mapContainer, 400, 290); // get color mid top
+                color5 = getCanvasPixelColor(mapContainer, 400, 310); // get color mid bottom
 
                 expect(color1).to.not.equal('#ffffff');
                 expect(color2).to.not.equal('#ffffff');
@@ -97,11 +98,11 @@ describe('setStyleGroup Point with image', function() {
         // validate features have new style
         await new Promise((resolve) => {
             setTimeout(() => {
-                let opacolor1 = testUtils.getCanvasPixelColor(mapContainer, 400, 300); // get color in the center
-                let opacolor2 = testUtils.getCanvasPixelColor(mapContainer, 390, 300); // get color mid left
-                let opacolor3 = testUtils.getCanvasPixelColor(mapContainer, 410, 300); // get color mid right
-                let opacolor4 = testUtils.getCanvasPixelColor(mapContainer, 400, 290); // get color mid top
-                let opacolor5 = testUtils.getCanvasPixelColor(mapContainer, 400, 310); // get color mid bottom
+                let opacolor1 = getCanvasPixelColor(mapContainer, 400, 300); // get color in the center
+                let opacolor2 = getCanvasPixelColor(mapContainer, 390, 300); // get color mid left
+                let opacolor3 = getCanvasPixelColor(mapContainer, 410, 300); // get color mid right
+                let opacolor4 = getCanvasPixelColor(mapContainer, 400, 290); // get color mid top
+                let opacolor5 = getCanvasPixelColor(mapContainer, 400, 310); // get color mid bottom
 
                 // different opacity, different color
                 expect(color1).to.not.equal(opacolor1);
@@ -127,11 +128,11 @@ describe('setStyleGroup Point with image', function() {
         // validate features have new style
         await new Promise((resolve) => {
             setTimeout(() => {
-                let color1 = testUtils.getCanvasPixelColor(mapContainer, 400, 300); // get color in the center
-                let color2 = testUtils.getCanvasPixelColor(mapContainer, 390, 300); // get color mid left
-                let color3 = testUtils.getCanvasPixelColor(mapContainer, 410, 300); // get color mid right
-                let color4 = testUtils.getCanvasPixelColor(mapContainer, 400, 290); // get color mid top
-                let color5 = testUtils.getCanvasPixelColor(mapContainer, 400, 310); // get color mid bottom
+                let color1 = getCanvasPixelColor(mapContainer, 400, 300); // get color in the center
+                let color2 = getCanvasPixelColor(mapContainer, 390, 300); // get color mid left
+                let color3 = getCanvasPixelColor(mapContainer, 410, 300); // get color mid right
+                let color4 = getCanvasPixelColor(mapContainer, 400, 290); // get color mid top
+                let color5 = getCanvasPixelColor(mapContainer, 400, 310); // get color mid bottom
 
                 expect(color1).to.not.equal('#ffffff');
                 expect(color2).to.equal('#ffffff');
@@ -156,11 +157,11 @@ describe('setStyleGroup Point with image', function() {
         // validate features have new style
         await new Promise((resolve) => {
             setTimeout(() => {
-                let color1 = testUtils.getCanvasPixelColor(mapContainer, 400, 300); // get color in the center
-                let color2 = testUtils.getCanvasPixelColor(mapContainer, 390, 300); // get color mid left
-                let color3 = testUtils.getCanvasPixelColor(mapContainer, 410, 300); // get color mid right
-                let color4 = testUtils.getCanvasPixelColor(mapContainer, 400, 290); // get color mid top
-                let color5 = testUtils.getCanvasPixelColor(mapContainer, 400, 310); // get color mid bottom
+                let color1 = getCanvasPixelColor(mapContainer, 400, 300); // get color in the center
+                let color2 = getCanvasPixelColor(mapContainer, 390, 300); // get color mid left
+                let color3 = getCanvasPixelColor(mapContainer, 410, 300); // get color mid right
+                let color4 = getCanvasPixelColor(mapContainer, 400, 290); // get color mid top
+                let color5 = getCanvasPixelColor(mapContainer, 400, 310); // get color mid bottom
 
                 expect(color1).to.not.equal('#ffffff');
                 expect(color2).to.not.equal('#ffffff');
@@ -185,11 +186,11 @@ describe('setStyleGroup Point with image', function() {
         // validate features have new style
         await new Promise((resolve) => {
             setTimeout(() => {
-                let color1 = testUtils.getCanvasPixelColor(mapContainer, 400, 300); // get color in the center
-                let color2 = testUtils.getCanvasPixelColor(mapContainer, 390, 300); // get color mid left
-                let color3 = testUtils.getCanvasPixelColor(mapContainer, 410, 300); // get color mid right
-                let color4 = testUtils.getCanvasPixelColor(mapContainer, 400, 290); // get color mid top
-                let color5 = testUtils.getCanvasPixelColor(mapContainer, 400, 310); // get color mid bottom
+                let color1 = getCanvasPixelColor(mapContainer, 400, 300); // get color in the center
+                let color2 = getCanvasPixelColor(mapContainer, 390, 300); // get color mid left
+                let color3 = getCanvasPixelColor(mapContainer, 410, 300); // get color mid right
+                let color4 = getCanvasPixelColor(mapContainer, 400, 290); // get color mid top
+                let color5 = getCanvasPixelColor(mapContainer, 400, 310); // get color mid bottom
 
                 expect(color1).to.not.equal('#ffffff');
                 expect(color2).to.equal('#ffffff');
@@ -214,11 +215,11 @@ describe('setStyleGroup Point with image', function() {
         // validate features have new style
         await new Promise((resolve) => {
             setTimeout(() => {
-                let color1 = testUtils.getCanvasPixelColor(mapContainer, 400, 300); // get color in the center
-                let color2 = testUtils.getCanvasPixelColor(mapContainer, 390, 300); // get color mid left
-                let color3 = testUtils.getCanvasPixelColor(mapContainer, 410, 300); // get color mid right
-                let color4 = testUtils.getCanvasPixelColor(mapContainer, 400, 290); // get color mid top
-                let color5 = testUtils.getCanvasPixelColor(mapContainer, 400, 310); // get color mid bottom
+                let color1 = getCanvasPixelColor(mapContainer, 400, 300); // get color in the center
+                let color2 = getCanvasPixelColor(mapContainer, 390, 300); // get color mid left
+                let color3 = getCanvasPixelColor(mapContainer, 410, 300); // get color mid right
+                let color4 = getCanvasPixelColor(mapContainer, 400, 290); // get color mid top
+                let color5 = getCanvasPixelColor(mapContainer, 400, 310); // get color mid bottom
 
                 expect(color1).to.not.equal('#ffffff');
                 expect(color2).to.equal('#ffffff');
@@ -244,11 +245,11 @@ describe('setStyleGroup Point with image', function() {
         // validate features have new style
         await new Promise((resolve) => {
             setTimeout(() => {
-                let color1 = testUtils.getCanvasPixelColor(mapContainer, 400, 300); // get color in the center
-                let color2 = testUtils.getCanvasPixelColor(mapContainer, 390, 300); // get color mid left
-                let color3 = testUtils.getCanvasPixelColor(mapContainer, 410, 300); // get color mid right
-                let color4 = testUtils.getCanvasPixelColor(mapContainer, 400, 290); // get color mid top
-                let color5 = testUtils.getCanvasPixelColor(mapContainer, 400, 310); // get color mid bottom
+                let color1 = getCanvasPixelColor(mapContainer, 400, 300); // get color in the center
+                let color2 = getCanvasPixelColor(mapContainer, 390, 300); // get color mid left
+                let color3 = getCanvasPixelColor(mapContainer, 410, 300); // get color mid right
+                let color4 = getCanvasPixelColor(mapContainer, 400, 290); // get color mid top
+                let color5 = getCanvasPixelColor(mapContainer, 400, 310); // get color mid bottom
 
                 expect(color1).to.equal('#ffffff');
                 expect(color2).to.equal('#ffffff');

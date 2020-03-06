@@ -16,7 +16,8 @@
  * SPDX-License-Identifier: Apache-2.0
  * License-Filename: LICENSE
  */
-import {editorTests, prepare} from 'hereTest';
+import {prepare} from 'testUtils';
+import {waitForEditorReady, editorClick, submit} from 'editorTests';
 import {Map} from '@here/xyz-maps-core';
 import {features, Editor} from '@here/xyz-maps-editor';
 import chaiAlmost from 'chai-almost';
@@ -42,7 +43,7 @@ describe('link splitting and set its properties correctly', function() {
             layers: preparedData.getLayers()
         });
 
-        await editorTests.waitForEditorReady(editor);
+        await waitForEditorReady(editor);
         linkLayer = preparedData.getLayers('linkLayer');
     });
 
@@ -57,7 +58,7 @@ describe('link splitting and set its properties correctly', function() {
         let link1 = editor.addFeature(lnk1, linkLayer);
 
         link1.select();
-        let shape = (await editorTests.click(editor, 100, 200)).target;
+        let shape = (await editorClick(editor, 100, 200)).target;
         let splitLinks = shape.splitLink();
 
         expect(splitLinks[0].prop()).to.deep.include({'type': 'residential', 'name': 'test street', 'originLink': link1.id, 'parentLink': link1.id});
@@ -78,7 +79,7 @@ describe('link splitting and set its properties correctly', function() {
         let link2 = editor.addFeature(lnk2, linkLayer);
 
         link2.select();
-        let shape = (await editorTests.click(editor, 100, 200)).target;
+        let shape = (await editorClick(editor, 100, 200)).target;
         let splitLinks = shape.splitLink();
 
         expect(splitLinks[0].prop().turnRestrition).to.deep.equal({start: ['abc'], end: 'efg'});
@@ -101,8 +102,8 @@ describe('link splitting and set its properties correctly', function() {
 
         let idMap;
 
-        await editorTests.waitForEditorReady(editor, async ()=>{
-            idMap = await editorTests.submit(editor);
+        await waitForEditorReady(editor, async ()=>{
+            idMap = await submit(editor);
         });
 
         let linkId = idMap.permanentIDMap[link.getProvider().id][link.id];
@@ -110,7 +111,7 @@ describe('link splitting and set its properties correctly', function() {
         link = editor.getFeature(linkId, linkLayer);
         link.select();
 
-        let shape = (await editorTests.click(editor, 100, 200)).target;
+        let shape = (await editorClick(editor, 100, 200)).target;
         let splitLinks = shape.splitLink();
 
         expect(splitLinks[0].prop('originLink')).to.equal('testOrigin');
@@ -130,8 +131,8 @@ describe('link splitting and set its properties correctly', function() {
 
         let idMap;
 
-        await editorTests.waitForEditorReady(editor, async ()=>{
-            idMap = await editorTests.submit(editor);
+        await waitForEditorReady(editor, async ()=>{
+            idMap = await submit(editor);
         });
 
         let linkId = idMap.permanentIDMap[link3.getProvider().id][link3.id];
@@ -139,7 +140,7 @@ describe('link splitting and set its properties correctly', function() {
         lnk3 = editor.getFeature(linkId, linkLayer);
         lnk3.select();
 
-        let shape = (await editorTests.click(editor, 300, 200)).target;
+        let shape = (await editorClick(editor, 300, 200)).target;
         let splitLinks = shape.splitLink();
 
         expect(splitLinks[0].prop('parentLink')).to.equal(lnk3.id);
@@ -154,8 +155,8 @@ describe('link splitting and set its properties correctly', function() {
 
         let idMap;
 
-        await editorTests.waitForEditorReady(editor, async ()=>{
-            idMap = await editorTests.submit(editor);
+        await waitForEditorReady(editor, async ()=>{
+            idMap = await submit(editor);
         });
 
         let linkId = idMap.permanentIDMap[link.getProvider().id][link.id];
@@ -163,7 +164,7 @@ describe('link splitting and set its properties correctly', function() {
         link = editor.getFeature(linkId, linkLayer);
         link.select();
 
-        let shape = (await editorTests.click(editor, 100, 200)).target;
+        let shape = (await editorClick(editor, 100, 200)).target;
         let splitLinks = shape.splitLink();
 
         expect(splitLinks[0].prop('originLink')).to.equal('testOrigin');

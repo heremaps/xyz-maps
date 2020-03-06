@@ -17,7 +17,8 @@
  * License-Filename: LICENSE
  */
 
-import {displayTests, prepare} from 'hereTest';
+import {prepare} from 'testUtils';
+import {waitForViewportReady} from 'displayTests';
 import {Map} from '@here/xyz-maps-core';
 import chaiAlmost from 'chai-almost';
 import dataset from './pan_map_spec.json';
@@ -46,7 +47,7 @@ describe('pan the map', function() {
     });
 
     it('pan the map and validate', async function() {
-        await displayTests.waitForViewportReady(display, ()=>{
+        await waitForViewportReady(display, ()=>{
             display.pan(100, 100, 0, 0);
         });
 

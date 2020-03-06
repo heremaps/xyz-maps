@@ -17,7 +17,8 @@
  * License-Filename: LICENSE
  */
 
-import {displayTests, prepare} from 'hereTest';
+import {prepare} from 'testUtils';
+import {waitForViewportReady} from 'displayTests';
 import {Map} from '@here/xyz-maps-core';
 import chaiAlmost from 'chai-almost';
 import dataset from './pixel_geo_coordinates_convert_spec.json';
@@ -55,7 +56,7 @@ describe('convert pixel and geo coordinates', function() {
     });
 
     it('get display configures and then validate again', async function() {
-        await displayTests.waitForViewportReady(display, ()=>{
+        await waitForViewportReady(display, ()=>{
             display.setCenter({longitude: 8.71902, latitude: 50.1109});
         });
 
@@ -75,10 +76,10 @@ describe('convert pixel and geo coordinates', function() {
     });
 
     it('validate pixelToGeo works at boarder', async function() {
-        await displayTests.waitForViewportReady(display, ()=>{
+        await waitForViewportReady(display, ()=>{
             display.setCenter({longitude: 0, latitude: 0});
         });
-        await displayTests.waitForViewportReady(display, ()=>{
+        await waitForViewportReady(display, ()=>{
             display.setZoomlevel(2);
         });
 

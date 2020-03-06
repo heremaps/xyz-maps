@@ -16,7 +16,9 @@
  * SPDX-License-Identifier: Apache-2.0
  * License-Filename: LICENSE
  */
-import {editorTests, testUtils, prepare} from 'hereTest';
+import {prepare} from 'testUtils';
+import {waitForEditorReady, editorClick} from 'editorTests';
+import {click, drag, mousemove} from 'utilEvents';
 import {Map} from '@here/xyz-maps-core';
 import {features, Editor} from '@here/xyz-maps-editor';
 import chaiAlmost from 'chai-almost';
@@ -42,7 +44,7 @@ describe('Area drawing manager without panning the map', function() {
             layers: preparedData.getLayers()
         });
 
-        await editorTests.waitForEditorReady(editor);
+        await waitForEditorReady(editor);
 
         mapContainer = display.getContainer();
     });
@@ -56,28 +58,28 @@ describe('Area drawing manager without panning the map', function() {
         editor.getDrawingBoard().start({mode: features.Area});
 
 
-        await testUtils.events.mousemove(mapContainer, {x: 100, y: 100}, {x: 100, y: 200});
-        await testUtils.events.click(mapContainer, 100, 200);
+        await mousemove(mapContainer, {x: 100, y: 100}, {x: 100, y: 200});
+        await click(mapContainer, 100, 200);
 
 
-        await testUtils.events.mousemove(mapContainer, {x: 200, y: 100}, {x: 200, y: 100});
-        await testUtils.events.click(mapContainer, 200, 100);
+        await mousemove(mapContainer, {x: 200, y: 100}, {x: 200, y: 100});
+        await click(mapContainer, 200, 100);
 
 
-        await testUtils.events.mousemove(mapContainer, {x: 200, y: 100}, {x: 300, y: 200});
-        await testUtils.events.click(mapContainer, 300, 200);
+        await mousemove(mapContainer, {x: 200, y: 100}, {x: 300, y: 200});
+        await click(mapContainer, 300, 200);
 
-        let point = (await editorTests.click(editor, 200, 100)).target;
+        let point = (await editorClick(editor, 200, 100)).target;
         point.remove();
 
-        await testUtils.events.mousemove(mapContainer, {x: 200, y: 100}, {x: 200, y: 300});
-        await testUtils.events.click(mapContainer, 200, 300);
+        await mousemove(mapContainer, {x: 200, y: 100}, {x: 200, y: 300});
+        await click(mapContainer, 200, 300);
 
 
-        await testUtils.events.drag(mapContainer, {x: 100, y: 200}, {x: 400, y: 300});
+        await drag(mapContainer, {x: 100, y: 200}, {x: 400, y: 300});
 
 
-        let shape = (await editorTests.click(editor, 400, 300)).target;
+        let shape = (await editorClick(editor, 400, 300)).target;
 
         expect(shape.getIndex()).to.equal(0);
         expect(shape.getLength()).to.equal(3);
@@ -88,7 +90,7 @@ describe('Area drawing manager without panning the map', function() {
 
     // 1204.25 366.7
     it('validate created area', async function() {
-        let area = (await editorTests.click(editor, 271, 266)).target;
+        let area = (await editorClick(editor, 271, 266)).target;
 
         expect(area.coord()).to.deep.almost([[[
             [76.08312571, 13.214838342, 0],

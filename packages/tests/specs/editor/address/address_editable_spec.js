@@ -16,7 +16,9 @@
  * SPDX-License-Identifier: Apache-2.0
  * License-Filename: LICENSE
  */
-import {editorTests, displayTests, prepare, testUtils} from 'hereTest';
+import {prepare} from 'testUtils';
+import {waitForEditorReady} from 'editorTests';
+import {drag, click} from 'utilEvents';
 import {Editor} from '@here/xyz-maps-editor';
 import {Map} from '@here/xyz-maps-core';
 import chaiAlmost from 'chai-almost';
@@ -41,7 +43,7 @@ describe('address editable', function() {
         });
         editor = new Editor(display, {layers: preparedData.getLayers()});
 
-        await editorTests.waitForEditorReady(editor);
+        await waitForEditorReady(editor);
 
         mapContainer = display.getContainer();
 
@@ -63,28 +65,28 @@ describe('address editable', function() {
     it('drag the point address, validate the address is not dragged', async function() {
         address.editable(false);
 
-        await testUtils.events.click(mapContainer, 100, 300);
-        await editorTests.waitForEditorReady(editor, async ()=>{
-            await testUtils.events.drag(mapContainer, {x: 100, y: 300}, {x: 324, y: 303});
+        await click(mapContainer, 100, 300);
+        await waitForEditorReady(editor, async ()=>{
+            await drag(mapContainer, {x: 100, y: 300}, {x: 324, y: 303});
         });
 
         expect(address.coord()).to.deep.almost([80.535719317, 16.481374142, 0]);
     });
 
     it('move the map back and set the address editable then drag the address', async function() {
-        await editorTests.waitForEditorReady(editor, ()=>{
+        await waitForEditorReady(editor, ()=>{
             display.setCenter({longitude: 80.53732864215854, latitude: 16.481374141548827});
         });
 
         // set the address editable
         address.editable(true);
 
-        await testUtils.events.click(mapContainer, 100, 300);
-        await testUtils.events.drag(mapContainer, {x: 100, y: 300}, {x: 324, y: 303});
+        await click(mapContainer, 100, 300);
+        await drag(mapContainer, {x: 100, y: 300}, {x: 324, y: 303});
 
         expect(address.coord()).to.deep.almost([80.536920945, 16.48135871, 0]);
 
         // click to unselect address
-        await testUtils.events.click(mapContainer, 200, 300);
+        await click(mapContainer, 200, 300);
     });
 });

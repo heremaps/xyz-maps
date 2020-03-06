@@ -16,9 +16,11 @@
  * SPDX-License-Identifier: Apache-2.0
  * License-Filename: LICENSE
  */
-import {editorTests, testUtils, prepare} from 'hereTest';
+import {Listener, prepare} from 'testUtils';
+import {waitForEditorReady} from 'editorTests';
+import {mousemove, dblclick} from 'utilEvents';
 import {Map} from '@here/xyz-maps-core';
-import {features, Editor} from '@here/xyz-maps-editor';
+import {Editor} from '@here/xyz-maps-editor';
 import dataset from './map_listener_dblclick_spec.json';
 
 describe('map double click listener', function() {
@@ -39,7 +41,7 @@ describe('map double click listener', function() {
         editor = new Editor(display, {
             layers: preparedData.getLayers()
         });
-        await editorTests.waitForEditorReady(editor);
+        await waitForEditorReady(editor);
         mapContainer = display.getContainer();
     });
 
@@ -52,30 +54,30 @@ describe('map double click listener', function() {
     it('start drawingmanager and validate pointup and dbltap events', async function() {
         editor.getDrawingBoard().start();
 
-        let listener = new testUtils.Listener(editor, ['pointerup', 'dbltap']);
+        let listener = new Listener(editor, ['pointerup', 'dbltap']);
 
         // double click on map
-        await testUtils.events.mousemove(mapContainer, {x: 100, y: 200}, {x: 200, y: 300});
-        await testUtils.events.dblclick(mapContainer, 200, 300);
+        await mousemove(mapContainer, {x: 100, y: 200}, {x: 200, y: 300});
+        await dblclick(mapContainer, 200, 300);
 
         // double click on POI
-        await testUtils.events.mousemove(mapContainer, {x: 300, y: 250}, {x: 350, y: 293});
-        await testUtils.events.dblclick(mapContainer, 350, 293);
+        await mousemove(mapContainer, {x: 300, y: 250}, {x: 350, y: 293});
+        await dblclick(mapContainer, 350, 293);
 
         // double click on link
-        await testUtils.events.mousemove(mapContainer, {x: 50, y: 100}, {x: 90, y: 163});
-        await testUtils.events.dblclick(mapContainer, 90, 163);
+        await mousemove(mapContainer, {x: 50, y: 100}, {x: 90, y: 163});
+        await dblclick(mapContainer, 90, 163);
 
         // double click on link shape
-        await testUtils.events.mousemove(mapContainer, {x: 100, y: 250}, {x: 145, y: 304});
-        await testUtils.events.dblclick(mapContainer, 145, 304);
+        await mousemove(mapContainer, {x: 100, y: 250}, {x: 145, y: 304});
+        await dblclick(mapContainer, 145, 304);
 
         let results = listener.stop();
 
         expect(results.pointerup).to.have.lengthOf(4);
         expect(results.dbltap).to.have.lengthOf(0);
 
-        await editorTests.waitForEditorReady(editor, ()=>{
+        await waitForEditorReady(editor, ()=>{
             editor.revert();
         });
 
@@ -86,15 +88,15 @@ describe('map double click listener', function() {
     it('start drawingmanager and validate pointerup and dbltap', async function() {
         editor.getDrawingBoard().start();
 
-        let listener = new testUtils.Listener(editor, ['pointerup', 'dbltap']);
+        let listener = new Listener(editor, ['pointerup', 'dbltap']);
 
         // add one shape point by double click
-        await testUtils.events.mousemove(mapContainer, {x: 200, y: 200}, {x: 200, y: 300});
-        await testUtils.events.dblclick(mapContainer, 200, 300);
+        await mousemove(mapContainer, {x: 200, y: 200}, {x: 200, y: 300});
+        await dblclick(mapContainer, 200, 300);
 
         // add one more shape point by double click
-        await testUtils.events.mousemove(mapContainer, {x: 300, y: 200}, {x: 300, y: 300});
-        await testUtils.events.dblclick(mapContainer, 300, 300);
+        await mousemove(mapContainer, {x: 300, y: 200}, {x: 300, y: 300});
+        await dblclick(mapContainer, 300, 300);
 
         let results = listener.stop();
         expect(results.pointerup).to.have.lengthOf(2);

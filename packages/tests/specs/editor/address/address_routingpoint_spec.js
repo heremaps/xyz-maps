@@ -16,7 +16,9 @@
  * SPDX-License-Identifier: Apache-2.0
  * License-Filename: LICENSE
  */
-import {editorTests, prepare, testUtils} from 'hereTest';
+import {prepare} from 'testUtils';
+import {waitForEditorReady} from 'editorTests';
+import {drag, click} from 'utilEvents';
 import {features, Editor} from '@here/xyz-maps-editor';
 import {Map} from '@here/xyz-maps-core';
 import dataset from './address_routingpoint_spec.json';
@@ -42,7 +44,7 @@ describe('routing point of address objects should always exists', function() {
         });
         editor = new Editor(display, {layers: preparedData.getLayers()});
 
-        await editorTests.waitForEditorReady(editor);
+        await waitForEditorReady(editor);
 
         mapContainer = display.getContainer();
 
@@ -77,7 +79,7 @@ describe('routing point of address objects should always exists', function() {
         let l3 = new features.Navlink([{x: 200, y: 400}, {x: 100, y: 500}], {featureClass: 'NAVLINK'});
         let link3 = editor.addFeature(l3);
 
-        await testUtils.events.click(mapContainer, 200, 100);
+        await click(mapContainer, 200, 100);
 
         expect(address.prop()).to.deep.include({
             'routingLink': link2.id + '',
@@ -87,7 +89,7 @@ describe('routing point of address objects should always exists', function() {
 
 
     it('drag address navigation point, address has its routing point changed', async function() {
-        await testUtils.events.drag(mapContainer, {x: 200, y: 300}, {x: 150, y: 350});
+        await drag(mapContainer, {x: 200, y: 300}, {x: 150, y: 350});
 
         expect(address.prop()).to.deep.include({
             'routingLink': link2.id + '',
@@ -96,8 +98,8 @@ describe('routing point of address objects should always exists', function() {
     });
 
     it('drag connected link, address has its routing point changed', async function() {
-        await testUtils.events.click(mapContainer, 200, 300);
-        await testUtils.events.drag(mapContainer, {x: 200, y: 300}, {x: 200, y: 400});
+        await click(mapContainer, 200, 300);
+        await drag(mapContainer, {x: 200, y: 300}, {x: 200, y: 400});
 
         expect(address.prop()).to.deep.include({
             'routingLink': link2.id + '',

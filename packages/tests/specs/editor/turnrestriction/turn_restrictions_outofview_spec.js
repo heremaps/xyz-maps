@@ -16,9 +16,11 @@
  * SPDX-License-Identifier: Apache-2.0
  * License-Filename: LICENSE
  */
-import {editorTests, displayTests, testUtils, prepare} from 'hereTest';
+import {prepare} from 'testUtils';
+import {waitForEditorReady, editorClick} from 'editorTests';
+import {drag, click} from 'utilEvents';
 import {Map} from '@here/xyz-maps-core';
-import {features, Editor} from '@here/xyz-maps-editor';
+import {Editor} from '@here/xyz-maps-editor';
 import dataset from './turn_restrictions_outofview_spec.json';
 
 describe('turn restriction test move link outside of viewport', function() {
@@ -40,7 +42,7 @@ describe('turn restriction test move link outside of viewport', function() {
         editor = new Editor(display, {
             layers: preparedData.getLayers()
         });
-        await editorTests.waitForEditorReady(editor);
+        await waitForEditorReady(editor);
         mapContainer = display.getContainer();
 
         link1 = preparedData.getFeature('linkLayer', -189213);
@@ -54,25 +56,25 @@ describe('turn restriction test move link outside of viewport', function() {
     });
 
     it('edit turn restriction and validate it is set', async function() {
-        await testUtils.events.click(mapContainer, 150, 100);
+        await click(mapContainer, 150, 100);
 
-        let shape = (await editorTests.click(editor, 300, 100)).target;
+        let shape = (await editorClick(editor, 300, 100)).target;
 
         shape.editTurnRestrictions();
 
-        await testUtils.events.click(mapContainer, 310, 100);
+        await click(mapContainer, 310, 100);
 
         expect(link1.prop('turnRestriction')).to.deep.equal({end: [link2.id]});
     });
 
 
     it('drag map to move link outside of viewport and move back into viewport, validate its value', async function() {
-        await editorTests.waitForEditorReady(editor, async ()=>{
-            await testUtils.events.drag(mapContainer, {x: 50, y: 210}, {x: 650, y: 210});
+        await waitForEditorReady(editor, async ()=>{
+            await drag(mapContainer, {x: 50, y: 210}, {x: 650, y: 210});
         });
 
-        await editorTests.waitForEditorReady(editor, async ()=>{
-            await testUtils.events.drag(mapContainer, {x: 650, y: 210}, {x: 50, y: 210});
+        await waitForEditorReady(editor, async ()=>{
+            await drag(mapContainer, {x: 650, y: 210}, {x: 50, y: 210});
         });
 
         expect(link1.prop('turnRestriction')).to.deep.equal({end: [link2.id]});

@@ -16,7 +16,9 @@
  * SPDX-License-Identifier: Apache-2.0
  * License-Filename: LICENSE
  */
-import {editorTests, testUtils, prepare} from 'hereTest';
+import {MonitorXHR, prepare} from 'testUtils';
+import {waitForEditorReady, editorClick, submit} from 'editorTests';
+import {click, mousemove} from 'utilEvents';
 import {Map} from '@here/xyz-maps-core';
 import {Editor} from '@here/xyz-maps-editor';
 import chaiAlmost from 'chai-almost';
@@ -42,7 +44,7 @@ describe('Create new Links and connect to original link', function() {
         editor = new Editor(display, {
             layers: preparedData.getLayers()
         });
-        await editorTests.waitForEditorReady(editor);
+        await waitForEditorReady(editor);
         mapContainer = display.getContainer();
 
         link = preparedData.getFeature('linkLayer', -188847);
@@ -61,11 +63,11 @@ describe('Create new Links and connect to original link', function() {
             connectTo: link
         });
 
-        await testUtils.events.mousemove(mapContainer, {x: 100, y: 200}, {x: 200, y: 200});
-        await testUtils.events.click(mapContainer, 200, 200);
+        await mousemove(mapContainer, {x: 100, y: 200}, {x: 200, y: 200});
+        await click(mapContainer, 200, 200);
 
         let lnk;
-        await editorTests.waitForEditorReady(editor, async ()=>{
+        await waitForEditorReady(editor, async ()=>{
             lnk = editor.getDrawingBoard().create({featureClass: 'NAVLINK'});
         });
 
@@ -77,8 +79,8 @@ describe('Create new Links and connect to original link', function() {
 
 
     it('validate the connect shape point', async function() {
-        await testUtils.events.click(mapContainer, 200, 120);
-        let linkshape = (await editorTests.click(editor, 200, 100)).target;
+        await click(mapContainer, 200, 120);
+        let linkshape = (await editorClick(editor, 200, 100)).target;
 
         let lnk = linkshape.getConnectedLinks();
 
@@ -87,10 +89,10 @@ describe('Create new Links and connect to original link', function() {
     });
 
     it('submit links and verify', async function() {
-        let monitor = new testUtils.MonitorXHR();
+        let monitor = new MonitorXHR();
         monitor.start({method: 'post'});
-        await editorTests.waitForEditorReady(editor, async ()=>{
-            await editorTests.submit(editor);
+        await waitForEditorReady(editor, async ()=>{
+            await submit(editor);
         });
         let reqs = monitor.stop();
         expect(reqs).to.have.lengthOf(1);
@@ -110,8 +112,8 @@ describe('Create new Links and connect to original link', function() {
 
 
     it('validate the connect shape point again after submit', async function() {
-        await testUtils.events.click(mapContainer, 200, 120);
-        let linkshape = (await editorTests.click(editor, 200, 100)).target;
+        await click(mapContainer, 200, 120);
+        let linkshape = (await editorClick(editor, 200, 100)).target;
 
         let lnk = linkshape.getConnectedLinks();
 

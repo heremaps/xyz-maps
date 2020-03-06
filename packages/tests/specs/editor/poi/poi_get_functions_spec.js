@@ -16,7 +16,9 @@
  * SPDX-License-Identifier: Apache-2.0
  * License-Filename: LICENSE
  */
-import {editorTests, testUtils, prepare} from 'hereTest';
+import {prepare} from 'testUtils';
+import {waitForEditorReady} from 'editorTests';
+import {mousemove} from 'utilEvents';
 import {Editor} from '@here/xyz-maps-editor';
 import {Map} from '@here/xyz-maps-core';
 import chaiAlmost from 'chai-almost';
@@ -41,7 +43,7 @@ describe('Place get functions', function() {
         });
         editor = new Editor(display, {layers: preparedData.getLayers()});
 
-        await editorTests.waitForEditorReady(editor);
+        await waitForEditorReady(editor);
 
         mapContainer = display.getContainer();
 
@@ -60,7 +62,7 @@ describe('Place get functions', function() {
         expect(place.editState('hovered')).to.be.false;
 
         // hover place
-        await testUtils.events.mousemove(mapContainer, {x: 380, y: 300}, {x: 400, y: 300});
+        await mousemove(mapContainer, {x: 380, y: 300}, {x: 400, y: 300});
         expect(place.editState('selected')).to.be.false;
         expect(place.editState('hovered')).to.be.true;
 
@@ -70,7 +72,7 @@ describe('Place get functions', function() {
         expect(place.editState('hovered')).to.be.true;
 
         // leave place
-        await testUtils.events.mousemove(mapContainer, {x: 380, y: 300}, {x: 400, y: 280});
+        await mousemove(mapContainer, {x: 380, y: 300}, {x: 400, y: 280});
         expect(place.editState('selected')).to.be.true;
         expect(place.editState('hovered')).to.be.false;
 

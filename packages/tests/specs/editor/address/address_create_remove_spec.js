@@ -16,7 +16,8 @@
  * SPDX-License-Identifier: Apache-2.0
  * License-Filename: LICENSE
  */
-import {editorTests, prepare, testUtils} from 'hereTest';
+import {MonitorXHR, prepare} from 'testUtils';
+import {waitForEditorReady, submit} from 'editorTests';
 import {features, Editor} from '@here/xyz-maps-editor';
 import {Map} from '@here/xyz-maps-core';
 import chaiAlmost from 'chai-almost';
@@ -44,7 +45,7 @@ describe('add Address object and then remove', function() {
         });
         editor = new Editor(display, {layers: preparedData.getLayers()});
 
-        await editorTests.waitForEditorReady(editor);
+        await waitForEditorReady(editor);
 
         link = preparedData.getFeature('linkLayer', -188807);
         paLayer = preparedData.getLayers('paLayer');
@@ -64,10 +65,10 @@ describe('add Address object and then remove', function() {
         editor.undo();
         editor.redo();
 
-        let monitor = new testUtils.MonitorXHR();
+        let monitor = new MonitorXHR();
         monitor.start({method: 'post'});
-        await editorTests.waitForEditorReady(editor, async ()=>{
-            idMap = await editorTests.submit(editor);
+        await waitForEditorReady(editor, async ()=>{
+            idMap = await submit(editor);
         });
         let addressId = idMap.permanentIDMap[address.getProvider().id][address.id];
         let reqs = monitor.stop();
@@ -91,10 +92,10 @@ describe('add Address object and then remove', function() {
         expect(address.prop('removed')).to.be.equal('HOOK');
         expect(address.prop('estate')).to.be.equal('REMOVED');
 
-        let monitor = new testUtils.MonitorXHR(RegExp(/&id=/));
+        let monitor = new MonitorXHR(RegExp(/&id=/));
         monitor.start({method: 'delete'});
-        await editorTests.waitForEditorReady(editor, async ()=>{
-            await editorTests.submit(editor);
+        await waitForEditorReady(editor, async ()=>{
+            await submit(editor);
         });
         let request = monitor.stop()[0];
 

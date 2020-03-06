@@ -16,9 +16,11 @@
  * SPDX-License-Identifier: Apache-2.0
  * License-Filename: LICENSE
  */
-import {editorTests, testUtils, prepare} from 'hereTest';
+import {Listener, prepare} from 'testUtils';
+import {waitForEditorReady} from 'editorTests';
+import {mousemove, click} from 'utilEvents';
 import {Map} from '@here/xyz-maps-core';
-import {features, Editor} from '@here/xyz-maps-editor';
+import {Editor} from '@here/xyz-maps-editor';
 import dataset from './map_listener_mousemove_spec.json';
 
 describe('map mousemove listener', function() {
@@ -39,7 +41,7 @@ describe('map mousemove listener', function() {
         editor = new Editor(display, {
             layers: preparedData.getLayers()
         });
-        await editorTests.waitForEditorReady(editor);
+        await waitForEditorReady(editor);
         mapContainer = display.getContainer();
     });
 
@@ -51,28 +53,28 @@ describe('map mousemove listener', function() {
 
     it('validate pointerenter and pointerleave listener', async function() {
         // click on map
-        await testUtils.events.click(mapContainer, 275, 155);
-        await testUtils.events.mousemove(mapContainer, {x: 275, y: 155}, {x: 260, y: 139});
+        await click(mapContainer, 275, 155);
+        await mousemove(mapContainer, {x: 275, y: 155}, {x: 260, y: 139});
 
-        let listener = new testUtils.Listener(editor, ['pointerenter', 'pointerleave']);
+        let listener = new Listener(editor, ['pointerenter', 'pointerleave']);
 
         // click on link
-        await testUtils.events.click(mapContainer, 290, 139);
+        await click(mapContainer, 290, 139);
 
         // click on map
-        await testUtils.events.click(mapContainer, 275, 155);
+        await click(mapContainer, 275, 155);
 
         // mouse over a link
-        await testUtils.events.mousemove(mapContainer, {x: 275, y: 155}, {x: 289, y: 139});
+        await mousemove(mapContainer, {x: 275, y: 155}, {x: 289, y: 139});
 
         // mouse out of a link
-        await testUtils.events.mousemove(mapContainer, {x: 290, y: 139}, {x: 32, y: 155});
+        await mousemove(mapContainer, {x: 290, y: 139}, {x: 32, y: 155});
 
         // mouse over a POI
-        await testUtils.events.mousemove(mapContainer, {x: 210, y: 207}, {x: 213, y: 226});
+        await mousemove(mapContainer, {x: 210, y: 207}, {x: 213, y: 226});
 
         // mouse out of a poi
-        await testUtils.events.mousemove(mapContainer, {x: 213, y: 226}, {x: 210, y: 207});
+        await mousemove(mapContainer, {x: 213, y: 226}, {x: 210, y: 207});
 
         let results = listener.stop();
 

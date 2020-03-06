@@ -16,7 +16,8 @@
  * SPDX-License-Identifier: Apache-2.0
  * License-Filename: LICENSE
  */
-import {editorTests, prepare} from 'hereTest';
+import {prepare} from 'testUtils';
+import {waitForEditorReady} from 'editorTests';
 import {Map} from '@here/xyz-maps-core';
 import {features, Editor} from '@here/xyz-maps-editor';
 import dataset from './poi_routingpoint_outside_viewport.json';
@@ -41,7 +42,7 @@ describe('poi connects to a link which is outside of viewport', function() {
             layers: preparedData.getLayers()
         });
 
-        await editorTests.waitForEditorReady(editor);
+        await waitForEditorReady(editor);
         linkLayer = preparedData.getLayers('linkLayer');
 
         link1 = preparedData.getFeature('linkLayer', -189174);
@@ -69,7 +70,7 @@ describe('poi connects to a link which is outside of viewport', function() {
     });
 
     it('move map to a new area and validate link is not in viewport, poi connects still connects the link', async function() {
-        await editorTests.waitForEditorReady(editor, ()=>{
+        await waitForEditorReady(editor, ()=>{
             display.setCenter({longitude: 78.35594148804284, latitude: 17.31247638794072});
         });
 
@@ -80,7 +81,7 @@ describe('poi connects to a link which is outside of viewport', function() {
     });
 
     it('move map to a new area and validate links are in viewport, poi connects still connects the link ', async function() {
-        await editorTests.waitForEditorReady(editor, ()=>{
+        await waitForEditorReady(editor, ()=>{
             display.setCenter({longitude: 78.35442872215845, latitude: 17.314192045099656});
         });
 
@@ -92,7 +93,7 @@ describe('poi connects to a link which is outside of viewport', function() {
 
 
     it('move map to a new area where no link is visible in viewport, but there is one found in viewbound search', async function() {
-        await editorTests.waitForEditorReady(editor, ()=>{
+        await waitForEditorReady(editor, ()=>{
             display.setCenter({longitude: 78.35573764015771, latitude: 17.313439206467375});
         });
 
@@ -109,7 +110,7 @@ describe('poi connects to a link which is outside of viewport', function() {
     });
 
     it('move map to a new area where no link in viewport, validate poi still connects to a link', async function() {
-        await editorTests.waitForEditorReady(editor, ()=>{
+        await waitForEditorReady(editor, ()=>{
             display.setCenter({longitude: 78.35578055550195, latitude: 17.312558330139318});
         });
 

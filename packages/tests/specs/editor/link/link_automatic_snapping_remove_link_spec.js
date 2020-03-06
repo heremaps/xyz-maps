@@ -16,7 +16,9 @@
  * SPDX-License-Identifier: Apache-2.0
  * License-Filename: LICENSE
  */
-import {editorTests, testUtils, prepare} from 'hereTest';
+import {prepare} from 'testUtils';
+import {waitForEditorReady} from 'editorTests';
+import {drag} from 'utilEvents';
 import {Map} from '@here/xyz-maps-core';
 import {Editor} from '@here/xyz-maps-editor';
 import chaiAlmost from 'chai-almost';
@@ -47,7 +49,7 @@ describe('link auto remove link', function() {
             layers: preparedData.getLayers()
         });
 
-        await editorTests.waitForEditorReady(editor);
+        await waitForEditorReady(editor);
         mapContainer = display.getContainer();
 
         link1 = preparedData.getFeature('linkLayer', -189023);
@@ -66,7 +68,7 @@ describe('link auto remove link', function() {
     it('select a link to drag and validate its coordinates', async function() {
         link4.select();
 
-        await testUtils.events.drag(mapContainer, {x: 300, y: 150}, {x: 250, y: 150});
+        await drag(mapContainer, {x: 300, y: 150}, {x: 250, y: 150});
 
         expect(link4.coord()).to.deep.almost([
             [77.055479819, 12.972132213, 0],
@@ -85,7 +87,7 @@ describe('link auto remove link', function() {
     });
 
     it('drag link shape point which is too far away from the other shape point', async function() {
-        await testUtils.events.drag(mapContainer, {x: 250, y: 150}, {x: 200, y: 104});
+        await drag(mapContainer, {x: 250, y: 150}, {x: 200, y: 104});
 
         expect(editor.info()).to.have.lengthOf(3);
     });
@@ -99,7 +101,7 @@ describe('link auto remove link', function() {
 
         lnk2.select();
 
-        await testUtils.events.drag(mapContainer, {x: 250, y: 150}, {x: 200, y: 103});
+        await drag(mapContainer, {x: 250, y: 150}, {x: 200, y: 103});
 
         let objs = editor.search(display.getViewBounds());
         expect(objs).to.have.lengthOf(3);

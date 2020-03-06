@@ -17,7 +17,8 @@
  * License-Filename: LICENSE
  */
 
-import {displayTests, prepare} from 'hereTest';
+import {prepare} from 'testUtils';
+import {waitForViewportReady} from 'displayTests';
 import {Map} from '@here/xyz-maps-core';
 import chaiAlmost from 'chai-almost';
 import dataset from './coordinates_convert_spec.json';
@@ -36,7 +37,7 @@ describe('converts coordinates between pixel and geo', function() {
             layers: preparedData.getLayers()
         });
 
-        await displayTests.waitForViewportReady(display);
+        await waitForViewportReady(display);
     });
 
     after(async function() {
@@ -57,7 +58,7 @@ describe('converts coordinates between pixel and geo', function() {
 
 
     it('reset center and convert again from pixel to geo coordinate', async function() {
-        await displayTests.waitForViewportReady(display, ()=>{
+        await waitForViewportReady(display, ()=>{
             display.setCenter({longitude: 77.801566, latitude: 12.623742});
         });
 

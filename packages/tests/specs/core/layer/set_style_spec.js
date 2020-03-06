@@ -17,7 +17,7 @@
  * License-Filename: LICENSE
  */
 
-import {prepare} from 'hereTest';
+import {prepare} from 'testUtils';
 import dataset from './set_style_spec.json';
 
 describe('set features style and restore', function() {

@@ -16,9 +16,10 @@
  * SPDX-License-Identifier: Apache-2.0
  * License-Filename: LICENSE
  */
-import {editorTests, prepare} from 'hereTest';
+import {prepare} from 'testUtils';
+import {waitForEditorReady} from 'editorTests';
 import {Map} from '@here/xyz-maps-core';
-import {features, Editor} from '@here/xyz-maps-editor';
+import {Editor} from '@here/xyz-maps-editor';
 import dataset from './poi_set_routing_point_and_link_spec.json';
 
 describe('poi set routing point and link manually', function() {
@@ -43,7 +44,7 @@ describe('poi set routing point and link manually', function() {
             layers: preparedData.getLayers()
         });
 
-        await editorTests.waitForEditorReady(editor);
+        await waitForEditorReady(editor);
         linkLayer = preparedData.getLayers('linkLayer');
         placeLayer = preparedData.getLayers('placeLayer');
         link1 = preparedData.getFeature('linkLayer', -189177);

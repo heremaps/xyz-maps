@@ -16,9 +16,11 @@
  * SPDX-License-Identifier: Apache-2.0
  * License-Filename: LICENSE
  */
-import {editorTests, testUtils, prepare} from 'hereTest';
+import {Listener, prepare} from 'testUtils';
+import {waitForEditorReady} from 'editorTests';
+import {drag, click} from 'utilEvents';
 import {Map} from '@here/xyz-maps-core';
-import {features, Editor} from '@here/xyz-maps-editor';
+import {Editor} from '@here/xyz-maps-editor';
 import dataset from './map_listener_drag_after_click_spec.json';
 
 describe('map events, click objects after dragging', function() {
@@ -39,7 +41,7 @@ describe('map events, click objects after dragging', function() {
         editor = new Editor(display, {
             layers: preparedData.getLayers()
         });
-        await editorTests.waitForEditorReady(editor);
+        await waitForEditorReady(editor);
         mapContainer = display.getContainer();
     });
 
@@ -50,22 +52,22 @@ describe('map events, click objects after dragging', function() {
     });
 
     it('drag after click on poi and validate events', async function() {
-        let listener = new testUtils.Listener(editor, ['pointerup', 'dragStart', 'dragStop']);
+        let listener = new Listener(editor, ['pointerup', 'dragStart', 'dragStop']);
 
         // click on poi
-        await testUtils.events.click(mapContainer, 165, 324);
+        await click(mapContainer, 165, 324);
 
         // click on another poi
-        await testUtils.events.click(mapContainer, 257, 337);
+        await click(mapContainer, 257, 337);
 
         // click the poi
-        await testUtils.events.drag(mapContainer, {x: 257, y: 337}, {x: 357, y: 337});
+        await drag(mapContainer, {x: 257, y: 337}, {x: 357, y: 337});
 
         // click on the clicked poi
-        await testUtils.events.click(mapContainer, 165, 324);
+        await click(mapContainer, 165, 324);
 
         // click on dragged poi
-        await testUtils.events.click(mapContainer, 357, 337);
+        await click(mapContainer, 357, 337);
 
         let results = listener.stop();
 

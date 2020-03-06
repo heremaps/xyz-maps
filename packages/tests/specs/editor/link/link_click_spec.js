@@ -16,7 +16,9 @@
  * SPDX-License-Identifier: Apache-2.0
  * License-Filename: LICENSE
  */
-import {editorTests, testUtils, prepare} from 'hereTest';
+import {Listener, prepare} from 'testUtils';
+import {waitForEditorReady} from 'editorTests';
+import {click} from 'utilEvents';
 import {Map} from '@here/xyz-maps-core';
 import {Editor} from '@here/xyz-maps-editor';
 import dataset from './link_click_spec.json';
@@ -42,7 +44,7 @@ describe('link click events', function() {
             layers: preparedData.getLayers()
         });
 
-        await editorTests.waitForEditorReady(editor);
+        await waitForEditorReady(editor);
         mapContainer = display.getContainer();
         link = preparedData.getFeature('linkLayer', -189058);
     });
@@ -55,18 +57,18 @@ describe('link click events', function() {
 
 
     it('create a link and validate click events', async function() {
-        let listener = new testUtils.Listener(editor, ['pointerup']);
+        let listener = new Listener(editor, ['pointerup']);
 
         link.select();
 
         // click on link
-        await testUtils.events.click(mapContainer, 250, 200);
+        await click(mapContainer, 250, 200);
 
         // click on link
-        await testUtils.events.click(mapContainer, 260, 200);
+        await click(mapContainer, 260, 200);
 
         // click on link
-        await testUtils.events.click(mapContainer, 270, 200);
+        await click(mapContainer, 270, 200);
 
         let results = listener.stop();
 

@@ -17,7 +17,8 @@
  * License-Filename: LICENSE
  */
 
-import {displayTests, prepare, testUtils} from 'hereTest';
+import {waitForViewportReady} from 'displayTests';
+import {getCanvasPixelColor, prepare} from 'testUtils';
 import {Map} from '@here/xyz-maps-core';
 import dataset from './setstylegroup_point_with_same_zindex.json';
 
@@ -41,7 +42,7 @@ describe('setStyleGroup point with same zIndex', function() {
             zoomLevel: 18,
             layers: preparedData.getLayers()
         });
-        await displayTests.waitForViewportReady(display);
+        await waitForViewportReady(display);
 
         mapContainer = display.getContainer();
         buildingLayer = preparedData.getLayers('buildingLayer');
@@ -67,8 +68,8 @@ describe('setStyleGroup point with same zIndex', function() {
         // validate features have new style
         await new Promise((resolve) => {
             setTimeout(() => {
-                let color1 = testUtils.getCanvasPixelColor(mapContainer, 410, 300); // get color in mid right of address
-                let color2 = testUtils.getCanvasPixelColor(mapContainer, 400, 310); // get color in mid bottom of address
+                let color1 = getCanvasPixelColor(mapContainer, 410, 300); // get color in mid right of address
+                let color2 = getCanvasPixelColor(mapContainer, 400, 310); // get color in mid bottom of address
 
                 expect(color1).to.equal('#be6b65');
                 expect(color2).to.equal('#be6b65');
@@ -89,8 +90,8 @@ describe('setStyleGroup point with same zIndex', function() {
         // validate features have new style
         await new Promise((resolve) => {
             setTimeout(() => {
-                let color1 = testUtils.getCanvasPixelColor(mapContainer, 410, 300); // get color in mid right of address
-                let color2 = testUtils.getCanvasPixelColor(mapContainer, 400, 310); // get color in mid bottom of address
+                let color1 = getCanvasPixelColor(mapContainer, 410, 300); // get color in mid right of address
+                let color2 = getCanvasPixelColor(mapContainer, 400, 310); // get color in mid bottom of address
 
                 expect(color1).to.equal('#be6b65');
                 expect(color2).to.equal('#ffffff');
@@ -112,8 +113,8 @@ describe('setStyleGroup point with same zIndex', function() {
         // validate features have new style
         await new Promise((resolve) => {
             setTimeout(() => {
-                let color1 = testUtils.getCanvasPixelColor(mapContainer, 410, 300); // get color in mid right of address
-                let color2 = testUtils.getCanvasPixelColor(mapContainer, 400, 310); // get color in mid bottom of address
+                let color1 = getCanvasPixelColor(mapContainer, 410, 300); // get color in mid right of address
+                let color2 = getCanvasPixelColor(mapContainer, 400, 310); // get color in mid bottom of address
 
                 expect(color1).to.equal('#be6b65');
                 expect(color2).to.equal('#be6b65');
@@ -135,8 +136,8 @@ describe('setStyleGroup point with same zIndex', function() {
         // validate features have new style
         await new Promise((resolve) => {
             setTimeout(() => {
-                let color1 = testUtils.getCanvasPixelColor(mapContainer, 410, 300); // get color in mid right of address
-                let color2 = testUtils.getCanvasPixelColor(mapContainer, 400, 310); // get color in mid bottom of address
+                let color1 = getCanvasPixelColor(mapContainer, 410, 300); // get color in mid right of address
+                let color2 = getCanvasPixelColor(mapContainer, 400, 310); // get color in mid bottom of address
 
                 expect(color1).to.equal('#be6b65');
                 expect(color2).to.equal('#be6b65');
@@ -157,8 +158,8 @@ describe('setStyleGroup point with same zIndex', function() {
         // validate features have new style
         await new Promise((resolve) => {
             setTimeout(() => {
-                let color1 = testUtils.getCanvasPixelColor(mapContainer, 400, 300); // get color in the middle of address
-                let color2 = testUtils.getCanvasPixelColor(mapContainer, 400, 310); // get color in mid bottom of address
+                let color1 = getCanvasPixelColor(mapContainer, 400, 300); // get color in the middle of address
+                let color2 = getCanvasPixelColor(mapContainer, 400, 310); // get color in mid bottom of address
 
                 expect(color1).to.equal('#be6b65');
                 expect(color2).to.equal('#be6b65');
@@ -179,8 +180,8 @@ describe('setStyleGroup point with same zIndex', function() {
         // validate features have new style
         await new Promise((resolve) => {
             setTimeout(() => {
-                let color1 = testUtils.getCanvasPixelColor(mapContainer, 400, 300); // get color in the middle of address
-                let color2 = testUtils.getCanvasPixelColor(mapContainer, 410, 310); // get color in bottom right of address
+                let color1 = getCanvasPixelColor(mapContainer, 400, 300); // get color in the middle of address
+                let color2 = getCanvasPixelColor(mapContainer, 410, 310); // get color in bottom right of address
 
                 expect(color1).to.equal('#be6b65');
                 expect(color2).to.equal('#be6b65');
@@ -201,8 +202,8 @@ describe('setStyleGroup point with same zIndex', function() {
         // validate features have new style
         await new Promise((resolve) => {
             setTimeout(() => {
-                let color1 = testUtils.getCanvasPixelColor(mapContainer, 410, 300); // get color in mid right of address
-                let color2 = testUtils.getCanvasPixelColor(mapContainer, 400, 310); // get color in mid bottom of address
+                let color1 = getCanvasPixelColor(mapContainer, 410, 300); // get color in mid right of address
+                let color2 = getCanvasPixelColor(mapContainer, 400, 310); // get color in mid bottom of address
 
                 expect(color1).to.equal('#be6b65');
                 expect(color2).to.equal('#be6b65');
@@ -224,8 +225,8 @@ describe('setStyleGroup point with same zIndex', function() {
         // validate features have new style
         await new Promise((resolve) => {
             setTimeout(() => {
-                let color1 = testUtils.getCanvasPixelColor(mapContainer, 410, 300); // get color in mid right of address
-                let color2 = testUtils.getCanvasPixelColor(mapContainer, 400, 310); // get color in mid bottom of address
+                let color1 = getCanvasPixelColor(mapContainer, 410, 300); // get color in mid right of address
+                let color2 = getCanvasPixelColor(mapContainer, 400, 310); // get color in mid bottom of address
 
                 expect(color1).to.equal('#be6b65');
                 expect(color2).to.equal('#be6b65');
@@ -253,7 +254,7 @@ describe('setStyleGroup point with same zIndex', function() {
         // validate features have new style
         await new Promise((resolve) => {
             setTimeout(() => {
-                let color = testUtils.getCanvasPixelColor(mapContainer, 400, 300); // get color in the middle of address
+                let color = getCanvasPixelColor(mapContainer, 400, 300); // get color in the middle of address
 
                 expect(color).to.equal('#90514b');
 
@@ -280,7 +281,7 @@ describe('setStyleGroup point with same zIndex', function() {
         // validate features have new style
         await new Promise((resolve) => {
             setTimeout(() => {
-                let color = testUtils.getCanvasPixelColor(mapContainer, 400, 300); // get color in the middle of address
+                let color = getCanvasPixelColor(mapContainer, 400, 300); // get color in the middle of address
 
                 expect(color).to.equal('#cccccc');
 
@@ -307,7 +308,7 @@ describe('setStyleGroup point with same zIndex', function() {
         // validate features have new style
         await new Promise((resolve) => {
             setTimeout(() => {
-                let color = testUtils.getCanvasPixelColor(mapContainer, 400, 300); // get color in the middle of address
+                let color = getCanvasPixelColor(mapContainer, 400, 300); // get color in the middle of address
 
                 expect(color).to.equal('#cccccc');
 

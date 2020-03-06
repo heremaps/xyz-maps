@@ -16,7 +16,8 @@
  * SPDX-License-Identifier: Apache-2.0
  * License-Filename: LICENSE
  */
-import {editorTests, prepare} from 'hereTest';
+import {prepare} from 'testUtils';
+import {waitForEditorReady, clean, submit} from 'editorTests';
 import {Map} from '@here/xyz-maps-core';
 import {features, Editor} from '@here/xyz-maps-editor';
 import chaiAlmost from 'chai-almost';
@@ -45,13 +46,13 @@ describe('add POI object and then remove', function() {
         editor = new Editor(display, {
             layers: preparedData.getLayers()
         });
-        await editorTests.waitForEditorReady(editor);
+        await waitForEditorReady(editor);
         linkLayer = preparedData.getLayers('linkLayer');
         placeLayer = preparedData.getLayers('placeLayer');
     });
 
     after(async function() {
-        await editorTests.clean(editor, idMaps);
+        await clean(editor, idMaps);
         editor.destroy();
         display.destroy();
         await preparedData.clear();
@@ -95,8 +96,8 @@ describe('add POI object and then remove', function() {
     it('submit created objects and validate again', async function() {
         let idMap;
 
-        await editorTests.waitForEditorReady(editor, async ()=>{
-            idMap = await editorTests.submit(editor);
+        await waitForEditorReady(editor, async ()=>{
+            idMap = await submit(editor);
             idMaps.push(idMap);
         });
 

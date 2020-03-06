@@ -16,9 +16,11 @@
  * SPDX-License-Identifier: Apache-2.0
  * License-Filename: LICENSE
  */
-import {editorTests, prepare} from 'hereTest';
+import {prepare} from 'testUtils';
+import {waitForEditorReady, editorClick} from 'editorTests';
 import {Map} from '@here/xyz-maps-core';
 import {features, Editor} from '@here/xyz-maps-editor';
+import chaiAlmost from 'chai-almost';
 import dataset from './disconnectshapedistance_spec.json';
 
 describe('set disconnectShapeDistance', function() {
@@ -29,6 +31,7 @@ describe('set disconnectShapeDistance', function() {
     let preparedData;
 
     before(async function() {
+        chai.use(chaiAlmost(1e-7));
         preparedData = await prepare(dataset);
         display = new Map(document.getElementById('map'), {
             center: {longitude: 77.84172527566523, latitude: 17.450976000022266},
@@ -39,7 +42,7 @@ describe('set disconnectShapeDistance', function() {
             layers: preparedData.getLayers()
         });
 
-        await editorTests.waitForEditorReady(editor);
+        await waitForEditorReady(editor);
     });
 
     after(async function() {
@@ -54,7 +57,7 @@ describe('set disconnectShapeDistance', function() {
             disconnectShapeDistance: 10
         });
 
-        await editorTests.waitForEditorReady(editor, ()=>{
+        await waitForEditorReady(editor, ()=>{
             display.setCenter({longitude: 77.84172527566523, latitude: 17.450976000022266});
             display.setZoomlevel(19);
         });
@@ -64,7 +67,7 @@ describe('set disconnectShapeDistance', function() {
         let links = editor.addFeature([l1, l2]);
 
         links[1].select();
-        let shape = (await editorTests.click(editor, 100, 300)).target;
+        let shape = (await editorClick(editor, 100, 300)).target;
         shape.disconnect();
 
         expect(links[1].coord()).to.deep.almost([[77.840920613, 17.451065932, 0], [77.840920613, 17.451487751, 0]]);
@@ -76,7 +79,7 @@ describe('set disconnectShapeDistance', function() {
             layers: preparedData.getLayers()
         });
 
-        await editorTests.waitForEditorReady(editor, ()=>{
+        await waitForEditorReady(editor, ()=>{
             display.setCenter({longitude: 77.84172527566523, latitude: 17.450976000022266});
             display.setZoomlevel(19);
         });
@@ -86,7 +89,7 @@ describe('set disconnectShapeDistance', function() {
         let links = editor.addFeature([l1, l2]);
 
         links[1].select();
-        let shape = (await editorTests.click(editor, 100, 300)).target;
+        let shape = (await editorClick(editor, 100, 300)).target;
         shape.disconnect();
 
         expect(links[1].coord()).to.deep.almost([[77.840920613, 17.45100298, 0], [77.840920613, 17.451487751, 0]]);
