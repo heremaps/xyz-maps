@@ -34,20 +34,22 @@ let sourcemap = true;
 let module = pkg.name.split('-').pop();
 let file = 'xyz-maps-' + module + '.js';
 
+const banner = '/*\n * ' + pkg.name + '\n * (c) 2019 HERE\n */\n';
+const logoSrc = process.env.logo || './assets/xyz.svg';
+const cOwner = process.env.cOwner || 'XYZ';
+
 if (production) {
     sourcemap = false;
     file = file.replace('.js', '.min.js');
+
+    console.info(`Use logo: ${logoSrc} cOwner: ${cOwner}`);
 }
-
-const banner = '/*\n * ' + pkg.name + '\n * (c) 2019 HERE\n */\n';
-const logoSrc = process.env.logo || './assets/xyz.svg';
-
-console.info('Use logo', logoSrc);
 
 const createPlugins = (uglify) => {
     return [
         virtual({
-            'ui-logo-src': `export default "data:image/svg+xml;base64,${fs.readFileSync(logoSrc, 'base64')}"`
+            'ui-logo-src': `export default "data:image/svg+xml;base64,${fs.readFileSync(logoSrc, 'base64')}"`,
+            'ui-default-cOwner': `export default "${cOwner}"`
         }),
         string({
             include: 'src/**/*.glsl'

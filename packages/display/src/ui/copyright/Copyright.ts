@@ -22,6 +22,8 @@ import Details from './CopyrightDetails';
 import {CopyrightSource, CopyrightSourceScope} from './CopyrightSource';
 import {global, Map, JSUtils} from '@here/xyz-maps-common';
 import Display from '../../Map';
+// @ts-ignore
+import defaultOwner from 'ui-default-cOwner';
 
 const document = global.document;
 
@@ -86,7 +88,7 @@ type CopyrightOptions = {
 
 const defaultOptions: CopyrightOptions = {
 
-    defaultOwner: 'XYZ',
+    defaultOwner: defaultOwner,
     termsAndConditions: {
         label: 'Terms and Conditions',
         url: false
