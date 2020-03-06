@@ -177,10 +177,11 @@ var onChangeHandler = function(zones){
 document.querySelector("#showbtn").onclick = function(){
 
 	var navlink = editor.getFeature("m1v9xTLkjLn0IVkp", navlinkLayer);
+    var navlink2 = editor.getFeature("9tDPp8Wwv4DqKkVR", navlinkLayer);
 
 	// Add navlink to zone Selector
 	var zoneSelector = editor.getZoneSelector();
-	zoneSelector.add( navlink );
+	zoneSelector.add( [navlink, navlink2] );
 
 	// show zone Selector with two zones
 	zoneSelector.show({

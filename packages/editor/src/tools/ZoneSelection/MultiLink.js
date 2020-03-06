@@ -82,8 +82,6 @@ function MultiLink( HERE_WIKI, overlay, link ) {
 
     refreshGeometry();
 
-    this.getChilds = () => childs;
-
     this.coord = () => completePath.map((c) => c.slice());
     //* **************************************************************************************
 
