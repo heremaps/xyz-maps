@@ -5,9 +5,6 @@
             "id": "linkProvider",
             "type": "TestProvider",
             "name": "Links",
-            "space": "${SPACEID}",
-            "url": "${URL}",
-            "credentials": "${CREDENTIALS}",
             "level": 15,
             "class": "NAVLINK"
         },
@@ -53,9 +50,6 @@
             "id": "paProvider",
             "type": "TestProvider",
             "name": "address",
-            "space": "${SPACEID}",
-            "url": "${URL}",
-            "credentials": "${CREDENTIALS}",
             "level": 14
         },
         "min": 14,

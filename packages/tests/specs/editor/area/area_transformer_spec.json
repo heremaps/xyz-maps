@@ -5,9 +5,6 @@
             "id": "buildingProvider",
             "type": "TestProvider",
             "name": "Buildings",
-            "space": "${SPACEID}",
-            "url": "${URL}",
-            "credentials": "${CREDENTIALS}",
             "level": 13
         },
         "min": 14,

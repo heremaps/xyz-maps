@@ -20,6 +20,7 @@
 import {waitForViewportReady} from 'displayUtils';
 import {getCanvasPixelColor, prepare} from 'utils';
 import {Map} from '@here/xyz-maps-core';
+import chaiAlmost from 'chai-almost';
 import dataset from './setstylegroup_point_rect.json';
 
 describe('setStyleGroup Point with rect', function() {
@@ -31,6 +32,7 @@ describe('setStyleGroup Point with rect', function() {
     let feature;
 
     before(async function() {
+        chai.use(chaiAlmost(1));
         let preparedData = await prepare(dataset);
         display = new Map(document.getElementById('map'), {
             renderOptions: {
