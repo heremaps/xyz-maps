@@ -16,7 +16,9 @@
  * SPDX-License-Identifier: Apache-2.0
  * License-Filename: LICENSE
  */
-import {editorTests, testUtils, prepare} from 'hereTest';
+import {prepare} from 'utils';
+import {waitForEditorReady} from 'editorUtils';
+import {mousemove, click} from 'triggerEvents';
 import {Map} from '@here/xyz-maps-core';
 import {Editor} from '@here/xyz-maps-editor';
 import dataset from './drawingmanager_vertical_coordinates_spec.json';
@@ -40,7 +42,7 @@ describe('Create new Links with coordinates in a vertical line', function() {
         editor = new Editor(display, {
             layers: preparedData.getLayers()
         });
-        await editorTests.waitForEditorReady(editor);
+        await waitForEditorReady(editor);
         mapContainer = display.getContainer();
     });
 
@@ -55,20 +57,20 @@ describe('Create new Links with coordinates in a vertical line', function() {
 
         expect(editor.getDrawingBoard().isActive()).to.be.true;
 
-        await testUtils.events.mousemove(mapContainer, {x: 150, y: 200}, {x: 200, y: 200});
-        await testUtils.events.click(mapContainer, 200, 200);
+        await mousemove(mapContainer, {x: 150, y: 200}, {x: 200, y: 200});
+        await click(mapContainer, 200, 200);
 
-        await testUtils.events.mousemove(mapContainer, {x: 200, y: 200}, {x: 300, y: 150});
-        await testUtils.events.click(mapContainer, 300, 150);
+        await mousemove(mapContainer, {x: 200, y: 200}, {x: 300, y: 150});
+        await click(mapContainer, 300, 150);
 
-        await testUtils.events.mousemove(mapContainer, {x: 200, y: 200}, {x: 300, y: 150});
-        await testUtils.events.click(mapContainer, 300, 150);
+        await mousemove(mapContainer, {x: 200, y: 200}, {x: 300, y: 150});
+        await click(mapContainer, 300, 150);
 
-        await testUtils.events.mousemove(mapContainer, {x: 300, y: 150}, {x: 200, y: 100});
-        await testUtils.events.click(mapContainer, 200, 100);
+        await mousemove(mapContainer, {x: 300, y: 150}, {x: 200, y: 100});
+        await click(mapContainer, 200, 100);
 
-        await testUtils.events.mousemove(mapContainer, {x: 200, y: 150}, {x: 300, y: 200});
-        await testUtils.events.click(mapContainer, 300, 200);
+        await mousemove(mapContainer, {x: 200, y: 150}, {x: 300, y: 200});
+        await click(mapContainer, 300, 200);
 
         link = editor.getDrawingBoard().create({featureClass: 'NAVLINK'});
 
@@ -77,23 +79,23 @@ describe('Create new Links with coordinates in a vertical line', function() {
 
 
     xit('revert changes and start again', async function() {
-        await editorTests.waitForEditorReady(editor, ()=>{
+        await waitForEditorReady(editor, ()=>{
             editor.revert();
         });
 
         editor.getDrawingBoard().start();
 
-        await testUtils.events.mousemove(mapContainer, {x: 150, y: 200}, {x: 200, y: 200});
-        await testUtils.events.click(mapContainer, 200, 200);
+        await mousemove(mapContainer, {x: 150, y: 200}, {x: 200, y: 200});
+        await click(mapContainer, 200, 200);
 
-        await testUtils.events.mousemove(mapContainer, {x: 200, y: 200}, {x: 300, y: 150});
-        await testUtils.events.click(mapContainer, 300, 150);
+        await mousemove(mapContainer, {x: 200, y: 200}, {x: 300, y: 150});
+        await click(mapContainer, 300, 150);
 
-        await testUtils.events.mousemove(mapContainer, {x: 300, y: 150}, {x: 200, y: 100});
-        await testUtils.events.click(mapContainer, 200, 100);
+        await mousemove(mapContainer, {x: 300, y: 150}, {x: 200, y: 100});
+        await click(mapContainer, 200, 100);
 
-        await testUtils.events.mousemove(mapContainer, {x: 200, y: 150}, {x: 200, y: 300});
-        await testUtils.events.click(mapContainer, 200, 300);
+        await mousemove(mapContainer, {x: 200, y: 150}, {x: 200, y: 300});
+        await click(mapContainer, 200, 300);
 
         editor.getDrawingBoard().create({featureClass: 'NAVLINK'});
 

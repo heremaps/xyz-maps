@@ -1,15 +1,31 @@
+/*
+ * Copyright (C) 2019-2020 HERE Europe B.V.
+ *
+ * Licensed under the Apache License, Version 2.0 (the "License");
+ * you may not use this file except in compliance with the License.
+ * You may obtain a copy of the License at
+ *
+ *     http://www.apache.org/licenses/LICENSE-2.0
+ *
+ * Unless required by applicable law or agreed to in writing, software
+ * distributed under the License is distributed on an "AS IS" BASIS,
+ * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+ * See the License for the specific language governing permissions and
+ * limitations under the License.
+ *
+ * SPDX-License-Identifier: Apache-2.0
+ * License-Filename: LICENSE
+ */
 // @ts-ignore
 import environments from 'environments';
 // @ts-ignore
 import credentials from 'credentials';
-// @ts-ignore
-// import environment from 'environment';
 
 const TOKEN = credentials.access_token;
 
 const XYZHUBURL = environments.xyzhub + '/spaces';
 
-function xhr(method: string, url: string, header: object, payload: object, async?:boolean): Promise<{id}> {
+function sendReq(method: string, url: string, header: object, payload: object, async?:boolean): Promise<{id}> {
     return new Promise(function(resolve, reject) {
         let request = new XMLHttpRequest();
         request.onreadystatechange = function() {
@@ -41,7 +57,7 @@ function deleteSpace(space) {
     let header = {
         'Authorization': 'Bearer ' + TOKEN
     };
-    return xhr('DELETE', url, header, {});
+    return sendReq('DELETE', url, header, {});
 };
 
 function createSpace(): Promise<{id}> {
@@ -58,7 +74,7 @@ function createSpace(): Promise<{id}> {
             'alt': 'HERE alt'
         }]
     };
-    return xhr('POST', url, header, space);
+    return sendReq('POST', url, header, space);
 };
 
 function removeFeatures(spaceId, tag) {
@@ -66,7 +82,7 @@ function removeFeatures(spaceId, tag) {
     let header = {
         'Authorization': 'Bearer ' + TOKEN
     };
-    return xhr('DELETE', url, header, {});
+    return sendReq('DELETE', url, header, {});
 };
 
 function searchFeatures(spaceId, tag) {
@@ -74,7 +90,7 @@ function searchFeatures(spaceId, tag) {
     let header = {
         'Authorization': 'Bearer ' + TOKEN
     };
-    return xhr('GET', url, header, {});
+    return sendReq('GET', url, header, {});
 };
 
 class SpaceLocalStorage {

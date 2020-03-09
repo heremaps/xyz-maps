@@ -96,13 +96,13 @@ module.exports = function(config) {
         }, {
             input: {
                 input: 'specs/common/main.ts',
-                external: ['hereTest', '@here/xyz-maps-common'],
+                external: ['@here/xyz-maps-common'],
                 plugins: [
                     typescript({
                         typescript: require('typescript'),
                         // only compileroptions are read from tsconfig.json
-                        include: ['specs/common/**/*'],
-                        exclude: ['node_modules', 'dist', 'specs/common/**/*.json']
+                        include: ['specs/main.ts'],
+                        exclude: ['node_modules', 'dist']
                     }),
                     json(),
                     del({targets: 'dist/common/specs*.js'}),
@@ -122,7 +122,6 @@ module.exports = function(config) {
                 name: 'commonTests',
                 sourcemap: true,
                 globals: {
-                    'hereTest': 'here.test',
                     '@here/xyz-maps-common': 'here.xyz.maps.common'
                 }
             }
@@ -177,14 +176,14 @@ module.exports = function(config) {
         }, {
             input: {
                 input: 'specs/core/main.ts',
-                external: ['hereTest', '@here/xyz-maps-common', '@here/xyz-maps-core', '@here/xyz-maps-editor'],
+                external: ['coreUtils', 'utils', '@here/xyz-maps-common', '@here/xyz-maps-core', '@here/xyz-maps-editor'],
 
                 plugins: [
                     typescript({
                         typescript: require('typescript'),
                         // only compileroptions are read from tsconfig.json
-                        include: ['specs/core/**/*'],
-                        exclude: ['node_modules', 'dist', 'specs/core/**/*.json']
+                        include: ['specs/main.ts'],
+                        exclude: ['node_modules', 'dist']
                     }),
                     json(),
                     del({targets: 'dist/core/specs*.js'}),
@@ -201,10 +200,11 @@ module.exports = function(config) {
             output: {
                 file: 'dist/core/'+specsFileName,
                 format: 'umd',
-                name: 'coreTests',
+                name: 'coreTestSpecs',
                 sourcemap: true,
                 globals: {
-                    'hereTest': 'here.test'
+                    'coreUtils': 'here.test.coreUtils',
+                    'utils': 'here.test.utils'
                 }
             }
         });
@@ -259,14 +259,14 @@ module.exports = function(config) {
         }, {
             input: {
                 input: 'specs/display/main.ts',
-                external: ['hereTest', '@here/xyz-maps-core', '@here/xyz-maps-display', '@here/xyz-maps-editor'],
+                external: ['displayUtils', 'utils', 'triggerEvents', '@here/xyz-maps-core', '@here/xyz-maps-display', '@here/xyz-maps-editor'],
 
                 plugins: [
                     typescript({
                         typescript: require('typescript'),
                         // only compileroptions are read from tsconfig.json
-                        include: ['specs/display/**/*'],
-                        exclude: ['node_modules', 'dist', 'specs/display/**/*.json']
+                        include: ['specs/main.ts'],
+                        exclude: ['node_modules', 'dist']
                     }),
                     json(),
                     del({targets: 'dist/display/specs*.js'}),
@@ -285,10 +285,12 @@ module.exports = function(config) {
             output: {
                 file: 'dist/display/'+specsFileName,
                 format: 'umd',
-                name: 'displayTests',
+                name: 'displayTestSpecs',
                 sourcemap: true,
                 globals: {
-                    'hereTest': 'here.test',
+                    'displayUtils': 'here.test.displayUtils',
+                    'utils': 'here.test.utils',
+                    'triggerEvents': 'here.test.events',
                     '@here/xyz-maps-core': 'here.xyz.maps'
                 }
             }
@@ -343,13 +345,13 @@ module.exports = function(config) {
         }, {
             input: {
                 input: 'specs/editor/main.ts',
-                external: ['hereTest', '@here/xyz-maps-core', '@here/xyz-maps-display', '@here/xyz-maps-editor'],
+                external: ['displayUtils', 'editorUtils', 'utils', 'triggerEvents', '@here/xyz-maps-core', '@here/xyz-maps-display', '@here/xyz-maps-editor'],
                 plugins: [
                     typescript({
                         typescript: require('typescript'),
                         // only compileroptions are read from tsconfig.json
-                        include: ['specs/editor/**/*'],
-                        exclude: ['node_modules', 'dist', 'specs/editor/**/*.json']
+                        include: ['specs/main.ts'],
+                        exclude: ['node_modules', 'dist']
                     }),
                     json(),
                     del({targets: 'dist/editor/specs*.js'}),
@@ -371,7 +373,10 @@ module.exports = function(config) {
                 name: 'editorTests',
                 sourcemap: true,
                 globals: {
-                    'hereTest': 'here.test',
+                    'displayUtils': 'here.test.displayUtils',
+                    'editorUtils': 'here.test.editorUtils',
+                    'utils': 'here.test.utils',
+                    'triggerEvents': 'here.test.events',
                     '@here/xyz-maps-core': 'here.xyz.maps',
                     '@here/xyz-maps-editor': 'here.xyz.maps.editor'
                 }

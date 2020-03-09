@@ -16,9 +16,12 @@
  * SPDX-License-Identifier: Apache-2.0
  * License-Filename: LICENSE
  */
-import {editorTests, prepare} from 'hereTest';
+import {prepare} from 'utils';
+import {waitForEditorReady} from 'editorUtils';
+import {mousemove} from 'triggerEvents';
 import {Editor} from '@here/xyz-maps-editor';
 import {Map} from '@here/xyz-maps-core';
+import chaiAlmost from 'chai-almost';
 import dataset from './address_get_functions_spec.json';
 
 describe('Address get functions', function() {
@@ -29,8 +32,10 @@ describe('Address get functions', function() {
     var preparedData;
     var link;
     var address;
+    var mapContainer;
 
     before(async function() {
+        chai.use(chaiAlmost(1e-7));
         preparedData = await prepare(dataset);
         display = new Map(document.getElementById('map'), {
             center: {longitude: 73.26398409, latitude: 19.20905288},
@@ -39,7 +44,9 @@ describe('Address get functions', function() {
         });
         editor = new Editor(display, {layers: preparedData.getLayers()});
 
-        await editorTests.waitForEditorReady(editor);
+        await waitForEditorReady(editor);
+
+        mapContainer = display.getContainer();
 
         link = preparedData.getFeature('linkLayer', -188821);
         address = preparedData.getFeature('paLayer', -47935);
@@ -52,8 +59,34 @@ describe('Address get functions', function() {
         await preparedData.clear();
     });
 
+
+    it('get editstates', async function() {
+        expect(address.editState('selected')).to.be.false;
+        expect(address.editState('hovered')).to.be.false;
+
+        // hover address
+        await mousemove(mapContainer, {x: 180, y: 100}, {x: 200, y: 100});
+        expect(address.editState('selected')).to.be.false;
+        expect(address.editState('hovered')).to.be.true;
+
+        // select address
+        address.select();
+        expect(address.editState('selected')).to.be.true;
+        expect(address.editState('hovered')).to.be.true;
+
+        // leave address
+        await mousemove(mapContainer, {x: 180, y: 100}, {x: 200, y: 80});
+        expect(address.editState('selected')).to.be.true;
+        expect(address.editState('hovered')).to.be.false;
+
+        // unselect address
+        address.unselect();
+        expect(address.editState('selected')).to.be.false;
+        expect(address.editState('hovered')).to.be.false;
+    });
+
     it('get correct geoCoordinates, pixel coordinate', async function() {
-        expect(address.coord()).to.deep.equal([73.262911206, 19.210066027, 0]);
+        expect(address.coord()).to.deep.almost([73.262911206, 19.210066027, 0]);
         expect(address.prop()).to.deep.include({
             'routingLink': link.id,
             'routingPoint': [73.26291, 19.20981, 0],

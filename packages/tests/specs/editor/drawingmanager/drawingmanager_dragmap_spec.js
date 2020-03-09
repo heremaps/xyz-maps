@@ -16,7 +16,9 @@
  * SPDX-License-Identifier: Apache-2.0
  * License-Filename: LICENSE
  */
-import {editorTests, displayTests, testUtils, prepare} from 'hereTest';
+import {prepare} from 'utils';
+import {waitForEditorReady} from 'editorUtils';
+import {click, drag, mousemove} from 'triggerEvents';
 import {Map} from '@here/xyz-maps-core';
 import {Editor} from '@here/xyz-maps-editor';
 import dataset from './drawingmanager_dragmap_spec.json';
@@ -42,7 +44,7 @@ describe('Create new Links by drawing manager', function() {
             layers: preparedData.getLayers()
         });
 
-        await editorTests.waitForEditorReady(editor);
+        await waitForEditorReady(editor);
         mapContainer = display.getContainer();
     });
 
@@ -53,7 +55,7 @@ describe('Create new Links by drawing manager', function() {
 
 
     it('start drawing manager', async function() {
-        await editorTests.waitForEditorReady(editor, ()=>{
+        await waitForEditorReady(editor, ()=>{
             editor.getDrawingBoard().start({
                 position: {x: 143, y: 95}
             });
@@ -64,30 +66,30 @@ describe('Create new Links by drawing manager', function() {
 
 
     it('add shape point and validate', async function() {
-        await testUtils.events.mousemove(mapContainer, {x: 100, y: 80}, {x: 100, y: 100});
-        await testUtils.events.click(mapContainer, 100, 100);
+        await mousemove(mapContainer, {x: 100, y: 80}, {x: 100, y: 100});
+        await click(mapContainer, 100, 100);
 
-        await testUtils.events.mousemove(mapContainer, {x: 100, y: 280}, {x: 100, y: 300});
-        await testUtils.events.click(mapContainer, 100, 300);
+        await mousemove(mapContainer, {x: 100, y: 280}, {x: 100, y: 300});
+        await click(mapContainer, 100, 300);
 
         expect(editor.getDrawingBoard().getLength()).to.be.equal(3);
 
-        await testUtils.events.mousemove(mapContainer, {x: 100, y: 180}, {x: 150, y: 200});
-        await testUtils.events.click(mapContainer, 150, 200);
+        await mousemove(mapContainer, {x: 100, y: 180}, {x: 150, y: 200});
+        await click(mapContainer, 150, 200);
 
         expect(editor.getDrawingBoard().getLength()).to.be.equal(4);
     });
 
     it('drag ground, validate map is dragged', async function() {
-        await editorTests.waitForEditorReady(editor, async ()=>{
-            await testUtils.events.drag(mapContainer, {x: 200, y: 100}, {x: 250, y: 100});
+        await waitForEditorReady(editor, async ()=>{
+            await drag(mapContainer, {x: 200, y: 100}, {x: 250, y: 100});
         });
         expect(display.getCenter().longitude).to.not.equal(76.98506);
     });
 
 
     it('finish drawing the link and validate its prop', async function() {
-        await editorTests.waitForEditorReady(editor, ()=>{
+        await waitForEditorReady(editor, ()=>{
             link = editor.getDrawingBoard().create({featureClass: 'NAVLINK'});
         });
 
@@ -98,7 +100,7 @@ describe('Create new Links by drawing manager', function() {
 
 
     it('revert all modifications', async function() {
-        await editorTests.waitForEditorReady(editor, ()=>{
+        await waitForEditorReady(editor, ()=>{
             editor.revert();
         });
 

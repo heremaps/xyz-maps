@@ -19,7 +19,7 @@
 
 import {geo, layers} from '@here/xyz-maps-core';
 
-export type MapConfig = {
+export type MapOptions = {
     ui: {},
     zoomlevel: number,
     center: geo.Point,
@@ -41,7 +41,7 @@ export type MapConfig = {
  *  @interface
  *  @name here.xyz.maps.Map.Config
  */
-export const defaultCfg: MapConfig = {
+export const defaultOptions: MapOptions = {
 
     /**
      * Configure visibility and position of ui components

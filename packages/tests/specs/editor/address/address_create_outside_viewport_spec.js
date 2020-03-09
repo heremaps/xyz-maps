@@ -16,7 +16,8 @@
  * SPDX-License-Identifier: Apache-2.0
  * License-Filename: LICENSE
  */
-import {editorTests, prepare} from 'hereTest';
+import {prepare} from 'utils';
+import {waitForEditorReady} from 'editorUtils';
 import {features, Editor} from '@here/xyz-maps-editor';
 import {Map} from '@here/xyz-maps-core';
 import dataset from './address_create_outside_viewport_spec.json';
@@ -39,7 +40,7 @@ describe('create an address outside viewport, it connects to a link nearby', fun
         });
         editor = new Editor(display, {layers: preparedData.getLayers()});
 
-        await editorTests.waitForEditorReady(editor);
+        await waitForEditorReady(editor);
     });
 
     after(async function() {
@@ -54,7 +55,7 @@ describe('create an address outside viewport, it connects to a link nearby', fun
         let l = new features.Navlink([{x: 100, y: 300}, {x: 400, y: 300}], {featureClass: 'NAVLINK'});
         link = editor.addFeature(l);
 
-        await editorTests.waitForEditorReady(editor, ()=>{
+        await waitForEditorReady(editor, ()=>{
             // move map to a new area
             display.setCenter({longitude: 78.89367980171193, latitude: 16.123231585461355});
         });

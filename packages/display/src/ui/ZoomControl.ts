@@ -18,18 +18,22 @@
  */
 
 import UIComponent from './UIComponent';
-import {JSUtils} from '@here/xyz-maps-common';
+import Display from '../Map';
+
+type ZoomCtrlOptions = {
+    visible?: boolean
+}
 
 class ZoomControl extends UIComponent {
     private _zll: (ev: any) => void;
 
-    constructor(element: HTMLElement, options, display, mapcfg) {
+    constructor(element: HTMLElement, options: ZoomCtrlOptions, display: Display, mapCfg) {
         super(element, options, display);
 
         let zoomCtrl = this;
 
-        if (mapcfg && mapcfg.zoomAnimationMs) {
-            zoomCtrl.ams = mapcfg.zoomAnimationMs;
+        if (mapCfg && mapCfg.zoomAnimationMs) {
+            zoomCtrl.ams = mapCfg.zoomAnimationMs;
         }
     };
 
@@ -37,7 +41,7 @@ class ZoomControl extends UIComponent {
         super.enable();
 
         let infoElem = this.querySelector('.info');
-        let display = this.display;
+        let display = this.map;
 
         infoElem.innerText = display.getZoomlevel();
 
@@ -49,7 +53,7 @@ class ZoomControl extends UIComponent {
     disable() {
         super.disable();
 
-        this.display.removeEventListener('mapviewchangeend', this._zll);
+        this.map.removeEventListener('mapviewchangeend', this._zll);
     };
 
     ams: 250;
@@ -61,7 +65,7 @@ ZoomControl.prototype.listeners = {
         {
             'click': function(ev) {
                 let dir = ev.srcElement.getAttribute('dir') ^ 0;
-                this.display.setZoomlevel(this.display.getZoomlevel() + dir, this.ams);
+                this.map.setZoomlevel(this.map.getZoomlevel() + dir, this.ams);
             }
         }
 };

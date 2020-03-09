@@ -16,9 +16,11 @@
  * SPDX-License-Identifier: Apache-2.0
  * License-Filename: LICENSE
  */
-import {editorTests, testUtils, prepare} from 'hereTest';
+import {prepare} from 'utils';
+import {waitForEditorReady, editorClick} from 'editorUtils';
+import {drag, click} from 'triggerEvents';
 import {Map} from '@here/xyz-maps-core';
-import {features, Editor} from '@here/xyz-maps-editor';
+import {Editor} from '@here/xyz-maps-editor';
 import dataset from './poi_routingpoint_spec.json';
 
 describe('set POI routing point', function() {
@@ -40,7 +42,7 @@ describe('set POI routing point', function() {
         editor = new Editor(display, {
             layers: preparedData.getLayers()
         });
-        await editorTests.waitForEditorReady(editor);
+        await waitForEditorReady(editor);
         mapContainer = display.getContainer();
         link = preparedData.getFeature('linkLayer', -189176);
         poi = preparedData.getFeature('placeLayer', -29535);
@@ -63,8 +65,8 @@ describe('set POI routing point', function() {
 
 
     it('click and drag routingPoint of poi, validate routing point of another poi not created and create it', async function() {
-        await testUtils.events.click(mapContainer, 180, 300);
-        await testUtils.events.drag(mapContainer, {x: 100, y: 300}, {x: 100, y: 400});
+        await click(mapContainer, 180, 300);
+        await drag(mapContainer, {x: 100, y: 300}, {x: 100, y: 400});
 
         poi.createRoutingPoint();
 
@@ -75,7 +77,7 @@ describe('set POI routing point', function() {
     it('split link, validate poi connects to split link', async function() {
         link.select();
 
-        let shape = (await editorTests.click(editor, 100, 300)).target;
+        let shape = (await editorClick(editor, 100, 300)).target;
 
         let splitLinks = shape.splitLink();
 

@@ -19,8 +19,13 @@
 
 import UIComponent from '../UIComponent';
 import Details from './CopyrightDetails';
-import {CopyrightSource} from './CopyrightSource';
-import {global, Map} from '@here/xyz-maps-common';
+import {CopyrightSource, CopyrightSourceScope} from './CopyrightSource';
+import {global, Map, JSUtils} from '@here/xyz-maps-common';
+import Display from '../../Map';
+// @ts-ignore
+import defaultOwner from 'ui-default-cOwner';
+// @ts-ignore
+import tacUrl from 'ui-tac-url';
 
 const document = global.document;
 
@@ -32,10 +37,10 @@ const ZOOMLEVEL_EVENT = 'zoomlevel';
 
 const MAX_SOURCE_WIDTH = 384;
 
-const isVisible = (src: CopyrightSource | { scopes: any[] }, zoom: number) => {
+const isVisible = (src: CopyrightSource | { scopes: CopyrightSourceScope[] }, zoom: number) => {
     let scopes = src.scopes;
     let s = scopes.length;
-    let scp;
+    let scp: CopyrightSourceScope;
     let min;
     let max;
 
@@ -67,11 +72,30 @@ let UNDEF;
 type Source = {
     el: HTMLElement
     cnt: number
-    scopes: any[]
+    scopes: CopyrightSourceScope[]
     width: number
     label: string
 };
 
+type TACOptions = {
+    label?: string;
+    url: string | false;
+}
+
+type CopyrightOptions = {
+    visible?: boolean,
+    defaultOwner?: string,
+    termsAndConditions?: TACOptions
+}
+
+const defaultOptions: CopyrightOptions = {
+
+    defaultOwner: defaultOwner,
+    termsAndConditions: {
+        label: 'Terms and Conditions',
+        url: tacUrl || false
+    }
+};
 
 class Copyright extends UIComponent {
     private $src: HTMLElement;
@@ -88,11 +112,13 @@ class Copyright extends UIComponent {
 
     private details: Details;
 
-    constructor(element: HTMLElement, options, display) {
-        super(element, options, display);
+    protected opt: CopyrightOptions;
+
+    constructor(element: HTMLElement, options: CopyrightOptions, display: Display) {
+        super(element, JSUtils.extend(true, JSUtils.clone(defaultOptions), options), display);
 
         const ui = this;
-        const {termsAndConditions, defaultOwner} = options;
+        const {termsAndConditions, defaultOwner} = ui.opt;
 
         ui.$src = ui.querySelector('.sources');
         ui.$cDefault = ui.querySelector('.cDefault');
@@ -100,19 +126,21 @@ class Copyright extends UIComponent {
 
         this.details = new Details(element, {visible: false}, display);
 
-
         this.setDefaultOwner(defaultOwner);
-
-        if (typeof termsAndConditions == 'string') {
-            this.setTermsAndConditions(termsAndConditions);
-        } else {
-            displayElement(this.querySelector('.terms'), HIDE);
-        }
+        this.setTermsAndConditions(termsAndConditions);
     };
 
-    private setTermsAndConditions(href: string) {
-        if (typeof href == 'string') {
-            this.querySelector('.terms').lastChild.href = href;
+    private setTermsAndConditions(options: TACOptions) {
+        const {url, label} = options;
+        const termsEl = this.querySelector('.terms');
+
+        if (url) {
+            termsEl.lastChild.href = url;
+            if (label) {
+                termsEl.lastChild.innerText = label;
+            }
+        } else {
+            displayElement(termsEl, HIDE);
         }
     }
 
@@ -126,7 +154,7 @@ class Copyright extends UIComponent {
         let ui = this;
         super.enable();
 
-        ui.display.addObserver(ZOOMLEVEL_EVENT, ui.onZoomChange = (type: string, zoom: number, _zoom: number) => {
+        ui.map.addObserver(ZOOMLEVEL_EVENT, ui.onZoomChange = (type: string, zoom: number, _zoom: number) => {
             if (Math.abs((zoom ^ 0) - (_zoom ^ 0))) {
                 const sources = ui.sources;
                 sources.forEach((src) => {
@@ -137,7 +165,7 @@ class Copyright extends UIComponent {
             }
         });
 
-        ui.display.addEventListener(LAYER_TOGGLE_EVENTS, ui.onLayerChange = (ev) => {
+        ui.map.addEventListener(LAYER_TOGGLE_EVENTS, ui.onLayerChange = (ev) => {
             let layer = ev.detail.layer;
             layer.getCopyright((copyright) => {
                 // ui might have been destroyed in the meanwhile
@@ -151,21 +179,21 @@ class Copyright extends UIComponent {
             });
         });
 
-        ui.display.addEventListener('resize', ui.onResize = () => ui.handleOverflow());
+        ui.map.addEventListener('resize', ui.onResize = () => ui.handleOverflow());
     };
 
 
     disable() {
         let ui = this;
         super.disable();
-        ui.display.removeObserver(ZOOMLEVEL_EVENT, ui.onZoomChange);
-        ui.display.removeEventListener(LAYER_TOGGLE_EVENTS, ui.onLayerChange);
-        ui.display.removeEventListener('resize', ui.onResize);
+        ui.map.removeObserver(ZOOMLEVEL_EVENT, ui.onZoomChange);
+        ui.map.removeEventListener(LAYER_TOGGLE_EVENTS, ui.onLayerChange);
+        ui.map.removeEventListener('resize', ui.onResize);
     };
 
     private calcWidth(): number {
         const ui = this;
-        const zoom = ui.display.getZoomlevel() ^ 0;
+        const zoom = ui.map.getZoomlevel() ^ 0;
         const sources = ui.sources;
         let width = 0;
         sources.forEach((src) => {
@@ -177,7 +205,7 @@ class Copyright extends UIComponent {
     private handleOverflow() {
         const ui = this;
         const $btn = ui.$btn;
-        const width = ui.display.getWidth();
+        const width = ui.map.getWidth();
         const tacWidth = 132;
         const requiredWidth = ui.calcWidth();
         const availableWidth = (width - tacWidth) ^ 0;
@@ -197,7 +225,7 @@ class Copyright extends UIComponent {
     private showDetails(show: boolean) {
         const ui = this;
         const details = ui.details;
-        const zoom = ui.display.getZoomlevel();
+        const zoom = ui.map.getZoomlevel();
 
         ui.$btn.innerText = show ? '-' : '+';
 
@@ -218,7 +246,7 @@ class Copyright extends UIComponent {
         const sources = ui.sources;
         const label = src.label;
         const scopes = src.scopes;
-        const zoom = ui.display.getZoomlevel() ^ 0;
+        const zoom = ui.map.getZoomlevel() ^ 0;
         let source = sources.get(label);
         let el;
 
@@ -285,13 +313,9 @@ class Copyright extends UIComponent {
             if (!--source.cnt) {
                 ui.$src.removeChild(source.el);
 
-                // if (!ui.$src.children.length) {
-                //     displayElement(ui.$divider, HIDE);
-                // }
-
                 ui.sources.delete(label);
                 ui.handleOverflow();
-                // delete ui.sources[label];
+
                 if (!--ui.sLen) {
                     displayElement(ui.$cDefault, SHOW);
                 }
@@ -368,7 +392,7 @@ Copyright.prototype.templ =
     '<div class="copyright">\
         <span style="float: left; white-space: nowrap;">\
             <span class="sources"></span>\
-            <span class="cDefault">© DEFAULT_COPYRIGHT_OWNER</span>\
+            <span class="cDefault"></span>\
          </span>\
         <span class="tac" style="float: right; white-space: nowrap;">\
             <span class="btn">+</span>\

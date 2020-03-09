@@ -17,7 +17,7 @@
  * License-Filename: LICENSE
  */
 
-import {prepare} from 'hereTest';
+import {prepare} from 'utils';
 import dataset from './search_locally_spec.json';
 
 describe('search features in provider by single parameter', function() {

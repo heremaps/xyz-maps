@@ -17,9 +17,9 @@
  * License-Filename: LICENSE
  */
 
-import {displayTests, testUtils, prepare} from 'hereTest';
+import {waitForViewportReady} from 'displayUtils';
+import {getCanvasPixelColor, prepare} from 'utils';
 import {Map} from '@here/xyz-maps-core';
-import chaiAlmost from 'chai-almost';
 import dataset from './setstylegroup_invalid_style_spec.json';
 
 
@@ -34,7 +34,6 @@ describe('setStyleGroup with invalid style', function() {
     let address;
 
     before(async function() {
-        chai.use(chaiAlmost(1));
         let preparedData = await prepare(dataset);
 
         display = new Map(document.getElementById('map'), {
@@ -45,7 +44,7 @@ describe('setStyleGroup with invalid style', function() {
             zoomLevel: 18,
             layers: preparedData.getLayers()
         });
-        await displayTests.waitForViewportReady(display);
+        await waitForViewportReady(display);
         mapContainer = display.getContainer();
         linkLayer = preparedData.getLayers('linkLayer');
         addressLayer = preparedData.getLayers('paLayer');
@@ -78,16 +77,9 @@ describe('setStyleGroup with invalid style', function() {
         // validate new link style
         await new Promise((resolve) => {
             setTimeout(() => {
-                let color = testUtils.getCanvasPixelColor(mapContainer, 350, 300); // get link color
+                let color = getCanvasPixelColor(mapContainer, 350, 300); // get link color
 
-                // expect(color).to.equal('#be6b65');
-                color = color.replace('#', '0x');
-                // blue
-                expect(parseInt(color) >> 0 & 255).to.almost.equal(101);
-                // green
-                expect(parseInt(color) >> 8 & 255).to.almost.equal(107);
-                // red
-                expect(parseInt(color) >> 16 & 255).to.almost.equal(190);
+                expect(color).to.equal('#be6b65');
                 resolve();
             }, 100);
         });
@@ -111,16 +103,9 @@ describe('setStyleGroup with invalid style', function() {
         // validate link style
         await new Promise((resolve) => {
             setTimeout(() => {
-                let color = testUtils.getCanvasPixelColor(mapContainer, 350, 300); // get link color
+                let color = getCanvasPixelColor(mapContainer, 350, 300); // get link color
 
-                // expect(color).to.equal('#be6b65');
-                color = color.replace('#', '0x');
-                // blue
-                expect(parseInt(color) >> 0 & 255).to.almost.equal(101);
-                // green
-                expect(parseInt(color) >> 8 & 255).to.almost.equal(107);
-                // red
-                expect(parseInt(color) >> 16 & 255).to.almost.equal(190);
+                expect(color).to.equal('#be6b65');
                 resolve();
             }, 100);
         });
@@ -147,16 +132,9 @@ describe('setStyleGroup with invalid style', function() {
         // validate new address style
         await new Promise((resolve) => {
             setTimeout(() => {
-                let color = testUtils.getCanvasPixelColor(mapContainer, 300, 200); // get address color
+                let color = getCanvasPixelColor(mapContainer, 300, 200); // get address color
 
-                // expect(color).to.equal('#765432');
-                color = color.replace('#', '0x');
-                // blue
-                expect(parseInt(color) >> 0 & 255).to.almost.equal(50);
-                // green
-                expect(parseInt(color) >> 8 & 255).to.almost.equal(84);
-                // red
-                expect(parseInt(color) >> 16 & 255).to.almost.equal(118);
+                expect(color).to.equal('#765432');
                 resolve();
             }, 100);
         });
@@ -180,16 +158,9 @@ describe('setStyleGroup with invalid style', function() {
         // validate address style
         await new Promise((resolve) => {
             setTimeout(() => {
-                let color = testUtils.getCanvasPixelColor(mapContainer, 300, 200); // get address color
+                let color = getCanvasPixelColor(mapContainer, 300, 200); // get address color
 
-                // expect(color).to.equal('#765432');
-                color = color.replace('#', '0x');
-                // blue
-                expect(parseInt(color) >> 0 & 255).to.almost.equal(50);
-                // green
-                expect(parseInt(color) >> 8 & 255).to.almost.equal(84);
-                // red
-                expect(parseInt(color) >> 16 & 255).to.almost.equal(118);
+                expect(color).to.equal('#765432');
                 resolve();
             }, 100);
         });

@@ -17,7 +17,8 @@
  * License-Filename: LICENSE
  */
 
-import {coreTests, prepare} from 'hereTest';
+import {prepare} from 'utils';
+import {getTileOnProvider} from 'coreUtils';
 import dataset from './gettile_multiple_times_cancel_with_same_callback_requestagain_after_finish_spec.json';
 
 describe('get one tile multiple times and cancel with same callback', function() {
@@ -45,7 +46,7 @@ describe('get one tile multiple times and cancel with same callback', function()
     // Sydney, AUS
     it('get one tile for multiple times and dont cancel', function(done) {
         // qk1     = '3112301330022300' // length 16
-        coreTests.getTileOnProvider({
+        getTileOnProvider({
             provider: placeProvider,
             quadkeys: [qk1, qk1, qk1],
             sameCallback: true,
@@ -73,7 +74,7 @@ describe('get one tile multiple times and cancel with same callback', function()
     // Sydney, AUS
     it('get requested tile again for multiple times and dont cancel', function(done) {
         // qk1     = '3112301330022300' // length 16
-        coreTests.getTileOnProvider({
+        getTileOnProvider({
             provider: placeProvider,
             quadkeys: [qk1, qk1, qk1],
             sameCallback: true,
@@ -99,7 +100,7 @@ describe('get one tile multiple times and cancel with same callback', function()
 
     it('get one tile for multiple times and cancel once', function(done) {
         // qk2     = '3112301330022301' // length 16
-        coreTests.getTileOnProvider({
+        getTileOnProvider({
             provider: placeProvider,
             quadkeys: [qk2, qk2, qk2],
             sameCallback: true,
@@ -132,7 +133,7 @@ describe('get one tile multiple times and cancel with same callback', function()
     // Sydney, AUS
     it('get requested but canceled tile again for multiple times and cancel once', function(done) {
         // qk2     = '3112301330022301' // length 16
-        coreTests.getTileOnProvider({
+        getTileOnProvider({
             provider: placeProvider,
             quadkeys: [qk2, qk2, qk2],
             sameCallback: true,
@@ -163,7 +164,7 @@ describe('get one tile multiple times and cancel with same callback', function()
 
     it('get one tile for multiple times and cancel two times', function(done) {
         // qk3     = '3112301330022302' // length 16
-        coreTests.getTileOnProvider({
+        getTileOnProvider({
             provider: placeProvider,
             quadkeys: [qk3, qk3, qk3],
             sameCallback: true,
@@ -195,7 +196,7 @@ describe('get one tile multiple times and cancel with same callback', function()
 
     it('get requested but canceled tile for multiple times and cancel two times', function(done) {
         // qk3     = '3112301330022302' // length 16
-        coreTests.getTileOnProvider({
+        getTileOnProvider({
             provider: placeProvider,
             quadkeys: [qk3, qk3, qk3],
             sameCallback: true,
@@ -226,7 +227,7 @@ describe('get one tile multiple times and cancel with same callback', function()
 
     it('get one tile for multiple times and cancel all', function(done) {
         // qk4     = '3112301330022303' // length 16
-        coreTests.getTileOnProvider({
+        getTileOnProvider({
             provider: placeProvider,
             quadkeys: [qk4, qk4, qk4],
             sameCallback: true,

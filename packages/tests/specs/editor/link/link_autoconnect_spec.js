@@ -15,9 +15,13 @@
  *
  * SPDX-License-Identifier: Apache-2.0
  * License-Filename: LICENSE
- */import {editorTests, testUtils, prepare} from 'hereTest';
+ */
+import {prepare} from 'utils';
+import {waitForEditorReady, editorClick} from 'editorUtils';
+import {drag} from 'triggerEvents';
 import {Map} from '@here/xyz-maps-core';
 import {Editor} from '@here/xyz-maps-editor';
+import chaiAlmost from 'chai-almost';
 import dataset from './link_autoconnect_spec.json';
 
 describe('link auto connect', function() {
@@ -32,6 +36,7 @@ describe('link auto connect', function() {
     let linkLayer;
 
     before(async function() {
+        chai.use(chaiAlmost(1e-7));
         preparedData = await prepare(dataset);
         display = new Map(document.getElementById('map'), {
             center: {longitude: 77.35174, latitude: 11.8725},
@@ -42,7 +47,7 @@ describe('link auto connect', function() {
             layers: preparedData.getLayers()
         });
 
-        await editorTests.waitForEditorReady(editor);
+        await waitForEditorReady(editor);
         mapContainer = display.getContainer();
 
         link1 = preparedData.getFeature('linkLayer', -189016);
@@ -58,14 +63,14 @@ describe('link auto connect', function() {
 
     it('drag link shape point to connect', async function() {
         link2.select();
-        await testUtils.events.drag(mapContainer, {x: 200, y: 300}, {x: 300, y: 300});
+        await drag(mapContainer, {x: 200, y: 300}, {x: 300, y: 300});
 
-        expect(link1.coord()).to.deep.equal([
+        expect(link1.coord()).to.deep.almost([
             [77.350130675, 11.87354993, 0],
             [77.351203558, 11.87354993, 0],
             [77.351203558, 11.8725, 0]
         ]);
-        expect(link2.coord()).to.deep.equal([
+        expect(link2.coord()).to.deep.almost([
             [77.350130675, 11.8725, 0],
             [77.351203558, 11.8725, 0]
         ]);
@@ -78,14 +83,14 @@ describe('link auto connect', function() {
         let lnk2 = editor.getFeature(link2.id, linkLayer);
         lnk2.select();
 
-        await testUtils.events.drag(mapContainer, {x: 200, y: 300}, {x: 300, y: 297});
+        await drag(mapContainer, {x: 200, y: 300}, {x: 300, y: 297});
 
-        expect(lnk1.coord()).to.deep.equal([
+        expect(lnk1.coord()).to.deep.almost([
             [77.350130675, 11.87354993, 0],
             [77.351203558, 11.87354993, 0],
             [77.351203558, 11.8725, 0]
         ]);
-        expect(lnk2.coord()).to.deep.equal([
+        expect(lnk2.coord()).to.deep.almost([
             [77.350130675, 11.8725, 0],
             [77.351203558, 11.8725, 0]
         ]);
@@ -99,14 +104,14 @@ describe('link auto connect', function() {
         let lnk2 = editor.getFeature(link2.id, linkLayer);
         lnk2.select();
 
-        await testUtils.events.drag(mapContainer, {x: 200, y: 300}, {x: 300, y: 303});
+        await drag(mapContainer, {x: 200, y: 300}, {x: 300, y: 303});
 
-        expect(lnk1.coord()).to.deep.equal([
+        expect(lnk1.coord()).to.deep.almost([
             [77.350130675, 11.87354993, 0],
             [77.351203558, 11.87354993, 0],
             [77.351203558, 11.8725, 0]
         ]);
-        expect(lnk2.coord()).to.deep.equal([
+        expect(lnk2.coord()).to.deep.almost([
             [77.350130675, 11.8725, 0],
             [77.351203558, 11.8725, 0]
         ]);
@@ -118,8 +123,8 @@ describe('link auto connect', function() {
         let lnk = editor.getFeature(link2.id, linkLayer);
         lnk.select();
 
-        await testUtils.events.drag(mapContainer, {x: 200, y: 300}, {x: 300, y: 308});
-        let shape = (await editorTests.click(editor, 300, 308)).target;
+        await drag(mapContainer, {x: 200, y: 300}, {x: 300, y: 308});
+        let shape = (await editorClick(editor, 300, 308)).target;
 
         expect(shape.getConnectedLinks()).to.have.lengthOf(0);
     });
@@ -130,9 +135,9 @@ describe('link auto connect', function() {
         let lnk = editor.getFeature(link2.id, linkLayer);
         lnk.select();
 
-        await testUtils.events.drag(mapContainer, {x: 200, y: 300}, {x: 300, y: 108});
+        await drag(mapContainer, {x: 200, y: 300}, {x: 300, y: 108});
 
-        expect(lnk.coord()).to.deep.equal([
+        expect(lnk.coord()).to.deep.almost([
             [77.350130675, 11.8725, 0],
             [77.351203558, 11.873507933, 0]
         ]);
@@ -144,9 +149,9 @@ describe('link auto connect', function() {
         let lnk = editor.getFeature(link2.id, linkLayer);
         lnk.select();
 
-        await testUtils.events.drag(mapContainer, {x: 200, y: 300}, {x: 300, y: 103});
+        await drag(mapContainer, {x: 200, y: 300}, {x: 300, y: 103});
 
-        expect(lnk.coord()).to.deep.equal([
+        expect(lnk.coord()).to.deep.almost([
             [77.350130675, 11.8725, 0],
             [77.351203558, 11.87354993, 0]
         ]);

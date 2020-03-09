@@ -17,7 +17,9 @@
  * License-Filename: LICENSE
  */
 
-import {displayTests, testUtils, prepare} from 'hereTest';
+import {waitForViewportReady} from 'displayUtils';
+import {Listener, prepare} from 'utils';
+import {drag} from 'triggerEvents';
 import {Map} from '@here/xyz-maps-core';
 import dataset from './parent_map_listener_spec.json';
 
@@ -35,7 +37,7 @@ describe('display event listener', function() {
             layers: preparedData.getLayers()
         });
 
-        await displayTests.waitForViewportReady(display);
+        await waitForViewportReady(display);
         mapContainer = display.getContainer();
     });
 
@@ -44,10 +46,10 @@ describe('display event listener', function() {
     });
 
     it('validate mapviewchange start and end events', async function() {
-        let listener = new testUtils.Listener(display, ['mapviewchangestart', 'mapviewchangeend']);
+        let listener = new Listener(display, ['mapviewchangestart', 'mapviewchangeend']);
 
-        await displayTests.waitForViewportReady(display, async ()=>{
-            await testUtils.events.drag(mapContainer, {x: 100, y: 100}, {x: 150, y: 100});
+        await waitForViewportReady(display, async ()=>{
+            await drag(mapContainer, {x: 100, y: 100}, {x: 150, y: 100});
         });
 
         let results = listener.stop();
@@ -60,13 +62,13 @@ describe('display event listener', function() {
     });
 
     it('validate mapviewchange start and end events with setting map center', async function() {
-        let listener = new testUtils.Listener(display, ['mapviewchangestart', 'mapviewchangeend']);
+        let listener = new Listener(display, ['mapviewchangestart', 'mapviewchangeend']);
 
-        await displayTests.waitForViewportReady(display, async ()=>{
-            await testUtils.events.drag(mapContainer, {x: 100, y: 100}, {x: 150, y: 100});
+        await waitForViewportReady(display, async ()=>{
+            await drag(mapContainer, {x: 100, y: 100}, {x: 150, y: 100});
         });
 
-        await displayTests.waitForViewportReady(display, ()=>{
+        await waitForViewportReady(display, ()=>{
             display.setCenter({longitude: 73.00185037393146, latitude: 20.273578002075286});
         });
 
@@ -79,9 +81,9 @@ describe('display event listener', function() {
     it('lock viewport and validate mapviewchange start and end events', async function() {
         display.setBehavior('drag', false);
 
-        let listener = new testUtils.Listener(display, ['mapviewchangestart', 'mapviewchangeend']);
+        let listener = new Listener(display, ['mapviewchangestart', 'mapviewchangeend']);
 
-        await testUtils.events.drag(mapContainer, {x: 100, y: 100}, {x: 200, y: 100});
+        await drag(mapContainer, {x: 100, y: 100}, {x: 200, y: 100});
 
         let results = listener.stop();
         expect(results.mapviewchangestart).to.have.lengthOf(0);
@@ -91,10 +93,10 @@ describe('display event listener', function() {
     it('unlock viewport and validate mapviewchange start and end events', async function() {
         display.setBehavior('drag', true);
 
-        let listener = new testUtils.Listener(display, ['mapviewchangestart', 'mapviewchangeend']);
+        let listener = new Listener(display, ['mapviewchangestart', 'mapviewchangeend']);
 
-        await displayTests.waitForViewportReady(display, async ()=>{
-            await testUtils.events.drag(mapContainer, {x: 100, y: 100}, {x: 200, y: 100});
+        await waitForViewportReady(display, async ()=>{
+            await drag(mapContainer, {x: 100, y: 100}, {x: 200, y: 100});
         });
 
         let results = listener.stop();

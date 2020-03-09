@@ -16,9 +16,11 @@
  * SPDX-License-Identifier: Apache-2.0
  * License-Filename: LICENSE
  */
-import {editorTests, prepare} from 'hereTest';
+import {prepare} from 'utils';
+import {waitForEditorReady} from 'editorUtils';
 import {Map} from '@here/xyz-maps-core';
-import {features, Editor} from '@here/xyz-maps-editor';
+import {Editor} from '@here/xyz-maps-editor';
+import chaiAlmost from 'chai-almost';
 import dataset from './area_get_functions_spec.json';
 
 describe('Area getters return value', function() {
@@ -30,6 +32,7 @@ describe('Area getters return value', function() {
     var area;
 
     before(async function() {
+        chai.use(chaiAlmost(1e-7));
         preparedData = await prepare(dataset);
         display = new Map(document.getElementById('map'), {
             center: {longitude: -120.123004, latitude: 41.242238},
@@ -40,7 +43,7 @@ describe('Area getters return value', function() {
             layers: preparedData.getLayers()
         });
 
-        await editorTests.waitForEditorReady(editor);
+        await waitForEditorReady(editor);
 
         area = preparedData.getFeature('buildingLayer', -9075);
     });
@@ -54,7 +57,7 @@ describe('Area getters return value', function() {
 
 
     it('get an area object and validate', function() {
-        expect(area.coord()).to.deep.equal([[[
+        expect(area.coord()).to.deep.almost([[[
             [-120.124076884, 41.242238, 0],
             [-120.124076884, 41.241431263, 0],
             [-120.123004, 41.241431263, 0],

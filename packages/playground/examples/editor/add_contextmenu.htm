@@ -152,7 +152,7 @@ var navlinkLayer = new here.xyz.maps.layers.TileLayer({
 })
 
 // setup the Map Display
-const display = new  here.xyz.maps.Map( document.getElementById("map"), {
+const display = new here.xyz.maps.Map( document.getElementById("map"), {
     zoomLevel : 17,
     center: {
         latitude:37.796478, longitude:-122.25392
@@ -228,6 +228,9 @@ editor.addEventListener('pointerup', function(event) {
 	}
 });
 /*visiblesource###*/
+
+            // used by playground to automatically resize the map on size change
+            window.display = display;
 		</script>
 	</body>
 </html>

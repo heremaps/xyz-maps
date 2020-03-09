@@ -17,24 +17,33 @@
  * License-Filename: LICENSE
  */
 
+// @ts-ignore
 import iconArrow from '../../assets/icons/arrow.gif';
+// @ts-ignore
 import iconArrowHint from '../../assets/icons/arrow.hint.gif';
+// @ts-ignore
 import iconArrowDirHint from '../../assets/icons/arrow.d.hint.gif';
+// @ts-ignore
 import iconCar from '../../assets/icons/car.gif';
+// @ts-ignore
 import iconOneway from '../../assets/icons/oneway_24.gif';
+// @ts-ignore
 import iconForbidden from '../../assets/icons/noentry_24.gif';
+// @ts-ignore
 import iconAllowed from '../../assets/icons/thoroughfare_24.gif';
+// @ts-ignore
 import iconPedestrian from '../../assets/icons/pedestrian_24.gif';
-
-// import iconPointA from '../../assets/icons/pointA.gif';
-// import iconPointB from '../../assets/icons/pointB.gif';
-
 
 let UNDEF;
 
 const BLACK = '#111111';
 
 const isHovered = (feature) => feature.properties['@ns:com:here:editor'].hovered;
+
+const getValue = (val, feature, zoomlevel: number) => {
+    return typeof val == 'function' ? val(feature, zoomlevel) : val;
+};
+
 
 const createHighlightLineStyle = () => [{
     'zIndex': 0,
@@ -90,8 +99,8 @@ const createTurnrestrictionSign = (src) => [{
     'rotation': (feature) => feature.properties.rotation
 }];
 
-const OverlayStyles = function() {
-    this.styleGroups = {
+class OverlayStyles {
+    styleGroups = {
 
         'ADDRESS_LINE': createHighlightLineStyle(),
 
@@ -109,9 +118,9 @@ const OverlayStyles = function() {
             'strokeWidth': 2,
             'stroke': BLACK,
             'radius': (feature) => isHovered(feature) ? 6 : 4,
-            'fill': (feature) => isHovered(feature)
+            'fill': (feature, zoom) => isHovered(feature)
                 ? BLACK
-                : feature.properties['AREA'].style[0].fill
+                : getValue(feature.properties['AREA'].style[0].fill, feature, zoom)
         }],
 
         'AREA_VIRTUAL_SHAPE': [{
@@ -126,18 +135,18 @@ const OverlayStyles = function() {
         'LINE_SHAPE': [{
             zIndex: 0,
             type: 'Circle',
-            radius: (feature) => {
-                const style = feature.properties.LINE.style[0];
-                return style.strokeWidth / 2 + 4 ^ 0;
+            radius: (feature, zoom) => {
+                const strokeWidth = feature.properties.LINE.style[0].strokeWidth;
+                return getValue(strokeWidth, feature, zoom) / 2 + 4 ^ 0;
             },
-            stroke: (feature) => {
+            stroke: (feature, zoom) => {
                 const style = feature.properties.LINE.style.filter((s) => s.type == 'Line');
                 const last = style.length - 1;
-                return last > 0 ? style[last].stroke : BLACK;
+                return last > 0 ? getValue(style[last].stroke, feature, zoom) : BLACK;
             },
-            fill: (feature) => {
+            fill: (feature, zoom) => {
                 let style = feature.properties.LINE.style;
-                return style.length > 1 ? style[0].stroke : '#151515';
+                return style.length > 1 ? getValue(style[0].stroke, feature, zoom) : '#151515';
             },
             strokeWidth: 2
         }],
@@ -145,7 +154,10 @@ const OverlayStyles = function() {
         'LINE_VIRTUAL_SHAPE': [{
             zIndex: 0,
             type: 'Circle',
-            radius: (feature) => feature.properties.LINE.style[0].strokeWidth / 2 ^ 0,
+            radius: (feature, zoom) => {
+                const strokeWidth = feature.properties.LINE.style[0].strokeWidth;
+                return getValue(strokeWidth, feature, zoom) / 2 ^ 0;
+            },
             fill: '#151515'
         }],
 
@@ -163,9 +175,9 @@ const OverlayStyles = function() {
             'radius': (feature) => isHovered(feature) ? 9 : 6,
             'strokeWidth': 2,
 
-            'fill': (feature) => feature.isOverlapping()
+            'fill': (feature, zoom) => feature.isOverlapping()
                 ? '#FFFFFF'
-                : feature.properties.NAVLINK.style[0].stroke,
+                : getValue(feature.properties.NAVLINK.style[0].stroke, feature, zoom),
 
             'stroke': (feature) => feature.isOverlapping()
                 ? '#FF0000'
@@ -264,12 +276,12 @@ const OverlayStyles = function() {
             'fill': '#0000FF',
             'radius': 10
         }]
-    };
+    }
 
-    this.assign = (feature) => {
+    assign(feature) {
         const type = feature.class || feature.properties.type;
         return this.styleGroups[type] !== UNDEF ? type : 'UNKNOWN';
-    };
+    }
 };
 
 export default OverlayStyles;

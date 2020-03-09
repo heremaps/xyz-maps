@@ -16,7 +16,9 @@
  * SPDX-License-Identifier: Apache-2.0
  * License-Filename: LICENSE
  */
-import {editorTests, testUtils, prepare} from 'hereTest';
+import {prepare} from 'utils';
+import {waitForEditorReady} from 'editorUtils';
+import {drag} from 'triggerEvents';
 import {Map} from '@here/xyz-maps-core';
 import {Editor} from '@here/xyz-maps-editor';
 import dataset from './link_automatic_split_then_undo_spec.json';
@@ -41,7 +43,7 @@ describe('drag a link shape point to the other one to split itself and then undo
         editor = new Editor(display, {
             layers: preparedData.getLayers()
         });
-        await editorTests.waitForEditorReady(editor);
+        await waitForEditorReady(editor);
         mapContainer = display.getContainer();
         link = preparedData.getFeature('linkLayer', -189057);
     });
@@ -62,7 +64,7 @@ describe('drag a link shape point to the other one to split itself and then undo
 
     it('select a link to drag', async function() {
         link.select();
-        await testUtils.events.drag(mapContainer, {x: 400, y: 200}, {x: 100, y: 100});
+        await drag(mapContainer, {x: 400, y: 200}, {x: 100, y: 100});
 
         expect(editor.info()).to.have.lengthOf(3);
     });
@@ -81,7 +83,7 @@ describe('drag a link shape point to the other one to split itself and then undo
     });
 
     it('revert changes', async function() {
-        await editorTests.waitForEditorReady(editor, ()=>{
+        await waitForEditorReady(editor, ()=>{
             editor.revert();
         });
 

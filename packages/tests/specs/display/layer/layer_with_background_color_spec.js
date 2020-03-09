@@ -17,7 +17,8 @@
  * License-Filename: LICENSE
  */
 
-import {displayTests, testUtils, prepare} from 'hereTest';
+import {waitForViewportReady} from 'displayUtils';
+import {getCanvasPixelColor, prepare} from 'utils';
 import {Map} from '@here/xyz-maps-core';
 import dataset from './layer_with_background_color_spec.json';
 
@@ -51,7 +52,7 @@ describe('layer with background color', function() {
 
         let newLayer = preparedData.getLayers('spaceLayer1');
 
-        await displayTests.waitForViewportReady(display, [newLayer], ()=>{
+        await waitForViewportReady(display, [newLayer], ()=>{
             display.addLayer(newLayer);
         });
 
@@ -60,7 +61,7 @@ describe('layer with background color', function() {
         // validate default background color is white
         await new Promise((resolve) => {
             setTimeout(() => {
-                let color = testUtils.getCanvasPixelColor(mapContainer, 400, 300);
+                let color = getCanvasPixelColor(mapContainer, 400, 300);
                 expect(color).to.equal('#ffffff');
                 resolve();
             }, 100);
@@ -80,7 +81,7 @@ describe('layer with background color', function() {
 
         let newLayer = preparedData.getLayers('spaceLayer2');
 
-        await displayTests.waitForViewportReady(display, [newLayer], ()=>{
+        await waitForViewportReady(display, [newLayer], ()=>{
             display.addLayer(newLayer);
         });
 
@@ -89,7 +90,7 @@ describe('layer with background color', function() {
         // validate default background color is white
         await new Promise((resolve) => {
             setTimeout(() => {
-                let color = testUtils.getCanvasPixelColor(mapContainer, 400, 300);
+                let color = getCanvasPixelColor(mapContainer, 400, 300);
                 expect(color).to.equal('#345678');
                 resolve();
             }, 100);

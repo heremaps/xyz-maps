@@ -17,11 +17,10 @@
  * License-Filename: LICENSE
  */
 
-import {coreTests} from './helpers/coreTests';
-import {displayTests} from './helpers/displayTests';
-import {editorTests} from './helpers/editorTests';
-import {testUtils} from './helpers/testUtils';
-import {prepare} from './helpers/prepareData';
+import * as displayUtils from './utils/displayUtils';
+import * as editorUtils from './utils/editorUtils';
+import * as utils from './utils/utils';
+import * as events from './utils/triggerEvents';
 
 import {run} from './runner';
 
@@ -30,5 +29,5 @@ import mochaSettings from 'settings';
 
 mocha.setup(mochaSettings);
 
-export default {coreTests, displayTests, editorTests, testUtils, prepare, run};
+export default {displayUtils, editorUtils, utils, events, run};
 

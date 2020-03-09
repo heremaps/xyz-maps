@@ -39,7 +39,7 @@
 				})
 			]
 			// setup the Map Display
-			const display = new  here.xyz.maps.Map( document.getElementById("map"), {
+			const display = new here.xyz.maps.Map( document.getElementById("map"), {
 			    zoomLevel : 17,
 			    center: {
 			        longitude: -122.229621, latitude: 37.7820641
@@ -82,6 +82,9 @@ var myLayer = new here.xyz.maps.layers.TileLayer({
 // Add the layer to display
 display.addLayer(myLayer)
 /*visiblesource###*/
+
+            // used by playground to automatically resize the map on size change
+            window.display = display;
 		</script>
 	</body>
 </html>

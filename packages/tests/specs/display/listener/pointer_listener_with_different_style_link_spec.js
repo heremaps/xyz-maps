@@ -17,7 +17,9 @@
  * License-Filename: LICENSE
  */
 
-import {displayTests, prepare, testUtils} from 'hereTest';
+import {waitForViewportReady} from 'displayUtils';
+import {Listener, getCanvasPixelColor, prepare} from 'utils';
+import {click} from 'triggerEvents';
 import {Map} from '@here/xyz-maps-core';
 import dataset from './pointer_listener_with_different_style_link_spec.json';
 
@@ -41,7 +43,7 @@ describe('pointer listener with different style link', function() {
             layers: preparedData.getLayers()
         });
 
-        await displayTests.waitForViewportReady(display);
+        await waitForViewportReady(display);
 
         mapContainer = display.getContainer();
 
@@ -55,10 +57,10 @@ describe('pointer listener with different style link', function() {
     });
 
     it('click on link and validate pointer events', async function() {
-        let listener = new testUtils.Listener(display, ['pointerdown', 'pointerup']);
+        let listener = new Listener(display, ['pointerdown', 'pointerup']);
 
 
-        await testUtils.events.click(mapContainer, 605, 310);
+        await click(mapContainer, 605, 310);
 
         let results = listener.stop();
         expect(results.pointerdown).to.have.lengthOf(1);
@@ -92,9 +94,9 @@ describe('pointer listener with different style link', function() {
 
         display.refresh(linkLayer);
 
-        let listener = new testUtils.Listener(display, ['pointerdown', 'pointerup']);
+        let listener = new Listener(display, ['pointerdown', 'pointerup']);
 
-        await testUtils.events.click(mapContainer, 322, 309);
+        await click(mapContainer, 322, 309);
 
         let results = listener.stop();
         expect(results.pointerdown).to.have.lengthOf(1);
@@ -114,11 +116,11 @@ describe('pointer listener with different style link', function() {
 
         await new Promise((resolve) => {
             setTimeout(() => {
-                let color1 = testUtils.getCanvasPixelColor(mapContainer, 395, 294);
-                let color2 = testUtils.getCanvasPixelColor(mapContainer, 395, 303);
-                let color3 = testUtils.getCanvasPixelColor(mapContainer, 395, 310);
-                let color4 = testUtils.getCanvasPixelColor(mapContainer, 395, 316);
-                let color5 = testUtils.getCanvasPixelColor(mapContainer, 395, 322);
+                let color1 = getCanvasPixelColor(mapContainer, 395, 294);
+                let color2 = getCanvasPixelColor(mapContainer, 395, 303);
+                let color3 = getCanvasPixelColor(mapContainer, 395, 310);
+                let color4 = getCanvasPixelColor(mapContainer, 395, 316);
+                let color5 = getCanvasPixelColor(mapContainer, 395, 322);
 
                 expect(color1).to.equal('#ffffff');
                 expect(color2).to.equal('#ff0000');
@@ -138,7 +140,7 @@ describe('pointer listener with different style link', function() {
 
         await new Promise((resolve) => {
             setTimeout(() => {
-                let color = testUtils.getCanvasPixelColor(mapContainer, 322, 309);
+                let color = getCanvasPixelColor(mapContainer, 322, 309);
                 expect(color).to.equal('#ff0000');
                 resolve();
             }, 100);

@@ -16,9 +16,12 @@
  * SPDX-License-Identifier: Apache-2.0
  * License-Filename: LICENSE
  */
-import {editorTests, testUtils, prepare} from 'hereTest';
+import {prepare} from 'utils';
+import {waitForEditorReady} from 'editorUtils';
+import {click} from 'triggerEvents';
 import {Map} from '@here/xyz-maps-core';
 import {Editor, features} from '@here/xyz-maps-editor';
+import chaiAlmost from 'chai-almost';
 import dataset from './address_click_spec.json';
 
 describe('click on address to validate the coordinate', function() {
@@ -33,6 +36,7 @@ describe('click on address to validate the coordinate', function() {
     let mapContainer;
 
     before(async function() {
+        chai.use(chaiAlmost(1e-7));
         preparedData = await prepare(dataset);
 
         display = new Map(document.getElementById('map'), {
@@ -44,7 +48,7 @@ describe('click on address to validate the coordinate', function() {
             layers: preparedData.getLayers()
         });
 
-        await editorTests.waitForEditorReady(editor);
+        await waitForEditorReady(editor);
 
         mapContainer = display.getContainer();
 
@@ -60,26 +64,26 @@ describe('click on address to validate the coordinate', function() {
     });
 
     it('validate address coordinate with click', async function() {
-        expect(address.coord()).to.deep.equal([76.283418331, 14.125304508, 0]);
+        expect(address.coord()).to.deep.almost([76.283418331, 14.125304508, 0]);
 
         // click on an address
-        await testUtils.events.click(mapContainer, 100, 200);
+        await click(mapContainer, 100, 200);
 
         // validate address coordinate again
-        expect(address.coord()).to.deep.equal([76.283418331, 14.125304508, 0]);
+        expect(address.coord()).to.deep.almost([76.283418331, 14.125304508, 0]);
 
         // valiate object is not modified
         expect(editor.info().length).to.equal(0);
     });
 
     it('validate poi coordinate with click', async function() {
-        expect(poi.coord()).to.deep.equal([76.283954773, 14.125304508, 0]);
+        expect(poi.coord()).to.deep.almost([76.283954773, 14.125304508, 0]);
 
         // click on POI
-        await testUtils.events.click(mapContainer, 300, 200);
+        await click(mapContainer, 300, 200);
 
         // validate POI coordinate
-        expect(poi.coord()).to.deep.equal([76.283954773, 14.125304508, 0]);
+        expect(poi.coord()).to.deep.almost([76.283954773, 14.125304508, 0]);
 
         // valiate object is not modified
         expect(editor.info().length).to.equal(0);
@@ -91,12 +95,12 @@ describe('click on address to validate the coordinate', function() {
         let address = editor.addFeature(a);
 
         // click on an address
-        await testUtils.events.click(mapContainer, 200, 200);
+        await click(mapContainer, 200, 200);
 
         // validate address coordinate
-        expect(address.coord()).to.deep.equal([76.283685558, 14.125304111, 0]);
+        expect(address.coord()).to.deep.almost([76.283685558, 14.125304111, 0]);
 
         // click on ground
-        await testUtils.events.click(mapContainer, 300, 200);
+        await click(mapContainer, 300, 200);
     });
 });

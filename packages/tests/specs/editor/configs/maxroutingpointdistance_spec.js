@@ -16,7 +16,8 @@
  * SPDX-License-Identifier: Apache-2.0
  * License-Filename: LICENSE
  */
-import {editorTests, prepare} from 'hereTest';
+import {prepare} from 'utils';
+import {waitForEditorReady} from 'editorUtils';
 import {Map} from '@here/xyz-maps-core';
 import {features, Editor} from '@here/xyz-maps-editor';
 import dataset from './maxroutingpointdistance_spec.json';
@@ -39,7 +40,7 @@ describe('set maxRoutingPointDistance', function() {
             layers: preparedData.getLayers()
         });
 
-        await editorTests.waitForEditorReady(editor);
+        await waitForEditorReady(editor);
     });
 
     after(async function() {
@@ -55,7 +56,7 @@ describe('set maxRoutingPointDistance', function() {
             maxRoutingPointDistance: 10
         });
 
-        await editorTests.waitForEditorReady(editor, ()=>{
+        await waitForEditorReady(editor, ()=>{
             display.setCenter({longitude: 77.84172527566523, latitude: 17.450976000022266});
             display.setZoomlevel(19);
         });
@@ -83,7 +84,7 @@ describe('set maxRoutingPointDistance', function() {
         });
 
 
-        await editorTests.waitForEditorReady(editor, ()=>{
+        await waitForEditorReady(editor, ()=>{
             display.setCenter({longitude: 77.84172527566523, latitude: 17.450976000022266});
             display.setZoomlevel(19);
         });

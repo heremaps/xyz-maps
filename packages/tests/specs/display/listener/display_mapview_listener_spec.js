@@ -17,7 +17,9 @@
  * License-Filename: LICENSE
  */
 
-import {displayTests, testUtils, prepare} from 'hereTest';
+import {waitForViewportReady} from 'displayUtils';
+import {Listener, prepare} from 'utils';
+import {drag} from 'triggerEvents';
 import {Map} from '@here/xyz-maps-core';
 import dataset from './display_mapview_listener_spec.json';
 
@@ -43,10 +45,10 @@ describe('mapview change listener', function() {
     });
 
     it('validate mapview events are triggered by dragging map', async function() {
-        let listener = new testUtils.Listener(display, ['mapviewchangestart', 'mapviewchangeend']);
+        let listener = new Listener(display, ['mapviewchangestart', 'mapviewchangeend']);
 
-        await displayTests.waitForViewportReady(display, async ()=>{
-            await events.drag(mapContainer, {x: 100, y: 100}, {x: 200, y: 100});
+        await waitForViewportReady(display, async ()=>{
+            await drag(mapContainer, {x: 100, y: 100}, {x: 200, y: 100});
         });
 
         let results = listener.stop();
@@ -56,10 +58,10 @@ describe('mapview change listener', function() {
     });
 
     xit('validate mapview events numbers after dragging map', async function() {
-        let listener = new testUtils.Listener(display, ['mapviewchangestart', 'mapviewchangeend']);
+        let listener = new Listener(display, ['mapviewchangestart', 'mapviewchangeend']);
 
         await displayTest.waitForViewportReady(display, async ()=>{
-            await events.drag(mapContainer, {x: 100, y: 100}, {x: 200, y: 100});
+            await drag(mapContainer, {x: 100, y: 100}, {x: 200, y: 100});
         });
 
         let results = listener.stop();
@@ -68,10 +70,10 @@ describe('mapview change listener', function() {
     });
 
     xit('validate mapview events after dragging map slowly', async function() {
-        let listener = new testUtils.Listener(display, ['mapviewchangestart', 'mapviewchangeend']);
+        let listener = new Listener(display, ['mapviewchangestart', 'mapviewchangeend']);
 
         await displayTest.waitForViewportReady(display, async ()=>{
-            await testUtils.events.drag(display, {x: 200, y: 100}, {x: 100, y: 100}, {fps: 20});
+            await drag(display, {x: 200, y: 100}, {x: 100, y: 100}, {fps: 20});
         });
 
         let results = listener.stop();
@@ -83,9 +85,9 @@ describe('mapview change listener', function() {
 
     it('lock viewport for panning then validate mapview events after dragging map', async function() {
         display.lockViewport({pan: true});
-        let listener = new testUtils.Listener(display, ['mapviewchangestart', 'mapviewchangeend']);
+        let listener = new Listener(display, ['mapviewchangestart', 'mapviewchangeend']);
 
-        await testUtils.events.drag(mapContainer, {x: 100, y: 100}, {x: 200, y: 100});
+        await drag(mapContainer, {x: 100, y: 100}, {x: 200, y: 100});
 
         let results = listener.stop();
 

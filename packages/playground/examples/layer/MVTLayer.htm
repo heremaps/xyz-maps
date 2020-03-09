@@ -7,7 +7,6 @@
     <script src="${XYZ_COMMON_PATH}" type="text/javascript" charset="UTF-8" ></script>
     <script src="${XYZ_CORE_PATH}" type="text/javascript" charset="UTF-8" ></script>
     <script src="${XYZ_DISPLAY_PATH}" type="text/javascript" charset="UTF-8" ></script>
-    <script src="${XYZ_PLUGINS_PATH}"></script>
 
     <style type="text/css">
         #map {
@@ -29,7 +28,7 @@
 
     /*###visiblesource*/
     // setup the Map Display
-    const display = new  here.xyz.maps.Map( document.getElementById("map"), {
+    const display = new here.xyz.maps.Map( document.getElementById("map"), {
         zoomLevel : 2,
         center: {
             longitude: -96.76883, latitude: 39.6104
@@ -93,6 +92,9 @@
         ]
     });
     /*visiblesource###*/
+
+    // used by playground to automatically resize the map on size change
+    window.display = display;
 </script>
 </body>
 </html>

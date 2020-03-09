@@ -16,9 +16,11 @@
  * SPDX-License-Identifier: Apache-2.0
  * License-Filename: LICENSE
  */
-import {editorTests, displayTests, prepare} from 'hereTest';
+import {prepare} from 'utils';
+import {waitForEditorReady} from 'editorUtils';
+import {waitForViewportReady} from 'displayUtils';
 import {Map} from '@here/xyz-maps-core';
-import {features, Editor} from '@here/xyz-maps-editor';
+import {Editor} from '@here/xyz-maps-editor';
 import dataset from './link_remove_clear_provider_spec.json';
 
 describe('link remove and clear provider', function() {
@@ -41,7 +43,7 @@ describe('link remove and clear provider', function() {
             layers: preparedData.getLayers()
         });
 
-        await editorTests.waitForEditorReady(editor);
+        await waitForEditorReady(editor);
         linkProvider = preparedData.getLayers('linkLayer').getProvider();
     });
 
@@ -62,7 +64,7 @@ describe('link remove and clear provider', function() {
             o.remove();
         });
 
-        await displayTests.waitForViewportReady(display, ()=>{
+        await waitForViewportReady(display, ()=>{
             linkProvider.clear();
         });
 

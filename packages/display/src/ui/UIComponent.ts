@@ -18,12 +18,13 @@
  */
 
 import {fromString} from '../DOMTools';
+import Map from '../Map';
 
 let styleEl;
 
 class UIComponent {
     style: any;
-    display: any;
+    map: any;
     listeners: any;
     templ: string;
     html: any;
@@ -32,12 +33,13 @@ class UIComponent {
     cPrefix: string;
 
     parent: HTMLElement;
-    opt: any;
     active: boolean;
 
-    constructor(element: HTMLElement, options, display) {
+    protected opt: {};
+
+    constructor(element: HTMLElement, options, map: Map) {
         let uic = this;
-        uic.display = display;
+        uic.map = map;
 
         uic.cPrefix = element.className + '-ui-';
 

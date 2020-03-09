@@ -1,6 +1,6 @@
 {
   "name": "@here/xyz-maps-playground",
-  "version": "0.10.0-dev",
+  "version": "0.10.0",
   "description": "Playground for XYZ editor.",
   "author": {
     "name": "HERE Europe B.V.",
@@ -19,19 +19,19 @@
     "dev": "rollup -c -w"
   },
   "dependencies": {
-    "codemirror": "~5.49.2",
+    "codemirror": "~5.52.0",
     "jquery": "~3.4.1"
   },
   "devDependencies": {
-    "rollup": "^1.29.1",
-    "@rollup/plugin-buble": "^0.21.0",
-    "rollup-plugin-copy": "^3.2.1",
-    "rollup-plugin-delete": "^1.1.0",
-    "@rollup/plugin-json": "^4.0.1",
-    "@rollup/plugin-node-resolve": "^6.1.0",
-    "rollup-plugin-postcss": "^2.0.3",
+    "@rollup/plugin-buble": "^0.21.1",
+    "@rollup/plugin-json": "^4.0.2",
+    "@rollup/plugin-node-resolve": "^7.1.1",
+    "@rollup/plugin-virtual": "^2.0.1",
+    "rollup": "^1.32.0",
+    "rollup-plugin-copy": "^3.3.0",
+    "rollup-plugin-delete": "^1.2.0",
+    "rollup-plugin-postcss": "^2.2.0",
     "rollup-plugin-uglify": "^6.0.4",
-    "@rollup/plugin-virtual": "^2.0.0",
-    "yargs": "^15.0.2"
+    "yargs": "^15.1.0"
   }
 }

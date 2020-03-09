@@ -16,9 +16,11 @@
  * SPDX-License-Identifier: Apache-2.0
  * License-Filename: LICENSE
  */
-import {editorTests, displayTests, testUtils, prepare} from 'hereTest';
+import {Listener, prepare} from 'utils';
+import {waitForEditorReady} from 'editorUtils';
+import {drag, click} from 'triggerEvents';
 import {Map} from '@here/xyz-maps-core';
-import {features, Editor} from '@here/xyz-maps-editor';
+import {Editor} from '@here/xyz-maps-editor';
 import dataset from './map_listener_drag_spec.json';
 
 describe('map drag listener', function() {
@@ -41,7 +43,7 @@ describe('map drag listener', function() {
         editor = new Editor(display, {
             layers: preparedData.getLayers()
         });
-        await editorTests.waitForEditorReady(editor);
+        await waitForEditorReady(editor);
         mapContainer = display.getContainer();
 
         link2 = preparedData.getFeature('linkLayer', -189164);
@@ -55,19 +57,19 @@ describe('map drag listener', function() {
     });
 
     it('validate dragStart and dragStop by draging poi and its routing point', async function() {
-        let listener = new testUtils.Listener(editor, ['dragStart', 'dragStop']);
+        let listener = new Listener(editor, ['dragStart', 'dragStop']);
 
         // click on poi
-        await testUtils.events.click(mapContainer, 569, 428);
+        await click(mapContainer, 569, 428);
 
         // drag poi
-        await testUtils.events.drag(mapContainer, {x: 569, y: 428}, {x: 551, y: 408});
+        await drag(mapContainer, {x: 569, y: 428}, {x: 551, y: 408});
 
         // click the poi
-        await testUtils.events.click(mapContainer, 551, 408);
+        await click(mapContainer, 551, 408);
 
         // drag poi routing point
-        await testUtils.events.drag(mapContainer, {x: 546, y: 448}, {x: 570, y: 460});
+        await drag(mapContainer, {x: 546, y: 448}, {x: 570, y: 460});
 
         let results = listener.stop();
 
@@ -106,13 +108,13 @@ describe('map drag listener', function() {
         let l = editor.getFeature(link2.id, linkLayer);
         l.select();
 
-        let listener = new testUtils.Listener(editor, ['dragStart', 'dragStop']);
+        let listener = new Listener(editor, ['dragStart', 'dragStop']);
 
         // drag shape point
-        await testUtils.events.drag(mapContainer, {x: 180, y: 100}, {x: 180, y: 200});
+        await drag(mapContainer, {x: 180, y: 100}, {x: 180, y: 200});
 
         // drag middle shape point
-        await testUtils.events.drag(mapContainer, {x: 140, y: 150}, {x: 140, y: 190});
+        await drag(mapContainer, {x: 140, y: 150}, {x: 140, y: 190});
 
         let results = listener.stop();
 
@@ -147,16 +149,16 @@ describe('map drag listener', function() {
 
 
     it('validate dragStart and dragStop by draging map', async function() {
-        let listener = new testUtils.Listener(editor, ['dragStart', 'dragStop']);
+        let listener = new Listener(editor, ['dragStart', 'dragStop']);
 
         // drag map
-        await editorTests.waitForEditorReady(editor, async ()=>{
-            await testUtils.events.drag(mapContainer, {x: 110, y: 110}, {x: 100, y: 200});
+        await waitForEditorReady(editor, async ()=>{
+            await drag(mapContainer, {x: 110, y: 110}, {x: 100, y: 200});
         });
 
         // drag map on click
-        await editorTests.waitForEditorReady(editor, async ()=>{
-            await testUtils.events.drag(mapContainer, {x: 393, y: 478}, {x: 506, y: 389});
+        await waitForEditorReady(editor, async ()=>{
+            await drag(mapContainer, {x: 393, y: 478}, {x: 506, y: 389});
         });
 
         let results = listener.stop();

@@ -16,7 +16,9 @@
  * SPDX-License-Identifier: Apache-2.0
  * License-Filename: LICENSE
  */
-import {editorTests, testUtils, prepare} from 'hereTest';
+import {prepare} from 'utils';
+import {waitForEditorReady} from 'editorUtils';
+import {drag} from 'triggerEvents';
 import {Map} from '@here/xyz-maps-core';
 import {Editor} from '@here/xyz-maps-editor';
 import dataset from './map_history_close_shapepoints_spec.json';
@@ -41,7 +43,7 @@ describe('map history for undo, redo changes to shapepoints which are close to e
             layers: preparedData.getLayers()
         });
 
-        await editorTests.waitForEditorReady(editor);
+        await waitForEditorReady(editor);
 
         link2 = preparedData.getFeature('linkLayer', -189000);
     });
@@ -61,8 +63,8 @@ describe('map history for undo, redo changes to shapepoints which are close to e
     it('select link and connect a shapepoint to link, undo and validate', async function() {
         link2.select();
         let mapContainer = display.getContainer();
-        await testUtils.events.drag(mapContainer, {x: 280, y: 346}, {x: 270, y: 346});
-        await testUtils.events.drag(mapContainer, {x: 215, y: 149}, {x: 150, y: 100});
+        await drag(mapContainer, {x: 280, y: 346}, {x: 270, y: 346});
+        await drag(mapContainer, {x: 215, y: 149}, {x: 150, y: 100});
 
         editor.undo();
 

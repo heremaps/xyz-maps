@@ -16,9 +16,12 @@
  * SPDX-License-Identifier: Apache-2.0
  * License-Filename: LICENSE
  */
-import {editorTests, testUtils, prepare} from 'hereTest';
+import {MonitorXHR, prepare} from 'utils';
+import {waitForEditorReady, submit} from 'editorUtils';
+import {click, mousemove} from 'triggerEvents';
 import {Map} from '@here/xyz-maps-core';
 import {Editor} from '@here/xyz-maps-editor';
+import chaiAlmost from 'chai-almost';
 import dataset from './drawingmanager_spec.json';
 
 describe('Create new Links then remove by drawingmanager', function() {
@@ -32,6 +35,7 @@ describe('Create new Links then remove by drawingmanager', function() {
     let linkLayer;
 
     before(async function() {
+        chai.use(chaiAlmost(1e-7));
         preparedData = await prepare(dataset);
         display = new Map(document.getElementById('map'), {
             center: {longitude: 76.98506, latitude: 12.88776},
@@ -41,7 +45,7 @@ describe('Create new Links then remove by drawingmanager', function() {
         editor = new Editor(display, {
             layers: preparedData.getLayers()
         });
-        await editorTests.waitForEditorReady(editor);
+        await waitForEditorReady(editor);
         mapContainer = display.getContainer();
         linkLayer = preparedData.getLayers('linkLayer');
     });
@@ -69,17 +73,17 @@ describe('Create new Links then remove by drawingmanager', function() {
 
         expect(editor.getDrawingBoard().isActive()).to.be.true;
 
-        await testUtils.events.mousemove(mapContainer, {x: 150, y: 200}, {x: 200, y: 200});
-        await testUtils.events.click(mapContainer, 200, 200);
+        await mousemove(mapContainer, {x: 150, y: 200}, {x: 200, y: 200});
+        await click(mapContainer, 200, 200);
 
-        await testUtils.events.mousemove(mapContainer, {x: 150, y: 200}, {x: 150, y: 130});
-        await testUtils.events.click(mapContainer, 150, 130);
+        await mousemove(mapContainer, {x: 150, y: 200}, {x: 150, y: 130});
+        await click(mapContainer, 150, 130);
 
-        await editorTests.waitForEditorReady(editor, ()=>{
+        await waitForEditorReady(editor, ()=>{
             link = editor.getDrawingBoard().create({featureClass: 'NAVLINK'});
         });
 
-        expect(link.coord()).to.deep.equal([
+        expect(link.coord()).to.deep.almost([
             [76.983987116, 12.888282928, 0],
             [76.983718895, 12.888648976, 0]
         ]);
@@ -87,20 +91,21 @@ describe('Create new Links then remove by drawingmanager', function() {
 
 
     it('submit the new link', async function() {
-        let monitor = new testUtils.MonitorXHR();
+        let monitor = new MonitorXHR();
+        monitor.start({method: 'post'});
         let idMap;
 
-        await editorTests.waitForEditorReady(editor, async ()=>{
-            idMap = await editorTests.submit(editor);
+        await waitForEditorReady(editor, async ()=>{
+            idMap = await submit(editor);
         });
         let linkId = idMap.permanentIDMap[link.getProvider().id][link.id];
-        let reqs = monitor.stop({method: 'post'});
+        let reqs = monitor.stop();
         expect(reqs).to.have.lengthOf(1);
         let payload = reqs[0].payload;
 
         link = editor.getFeature(linkId, linkLayer);
 
-        expect(payload.features[0].geometry.coordinates).to.deep.equal([
+        expect(payload.features[0].geometry.coordinates).to.deep.almost([
             [76.983987116, 12.888282928, 0],
             [76.983718895, 12.888648976, 0]
         ]);
@@ -110,7 +115,7 @@ describe('Create new Links then remove by drawingmanager', function() {
     });
 
     it('validate link after submission', async function() {
-        expect(link.coord()).to.deep.equal([
+        expect(link.coord()).to.deep.almost([
             [76.983987116, 12.888282928, 0],
             [76.983718895, 12.888648976, 0]
         ]);
@@ -120,8 +125,8 @@ describe('Create new Links then remove by drawingmanager', function() {
     it('remove created link', async function() {
         link.remove();
 
-        await editorTests.waitForEditorReady(editor, async ()=>{
-            await editorTests.submit(editor);
+        await waitForEditorReady(editor, async ()=>{
+            await submit(editor);
         });
 
         let objs = editor.search(display.getViewBounds());

@@ -30,7 +30,7 @@ import UI from './ui/UI';
 import {JSUtils, Listener} from '@here/xyz-maps-common';
 import {ZoomAnimator} from './animation/ZoomAnimator';
 import {KineticPanAnimator} from './animation/KineticPanAnimator';
-import {defaultCfg, MapConfig} from './Config';
+import {defaultOptions, MapOptions} from './Config';
 import {layers, projection, geo, pixel} from '@here/xyz-maps-core';
 
 const project = projection.webMercator;
@@ -137,7 +137,7 @@ class TigerMap {
 
     private _ui: UI;
 
-    private _cfg: MapConfig;// mapconfig
+    private _cfg: MapOptions;// mapconfig
 
     private _evDispatcher: EventDispatcher;
     private _behaviour: Behaviour;
@@ -159,7 +159,7 @@ class TigerMap {
 
     constructor(mapEl, mapConfig) {
         this._cfg = mapConfig = JSUtils.extend(
-            JSUtils.extend(true, {}, defaultCfg),
+            JSUtils.extend(true, {}, defaultOptions),
             mapConfig || {}
         );
 

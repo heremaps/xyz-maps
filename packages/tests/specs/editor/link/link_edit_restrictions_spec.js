@@ -16,9 +16,12 @@
  * SPDX-License-Identifier: Apache-2.0
  * License-Filename: LICENSE
  */
-import {editorTests, testUtils, prepare} from 'hereTest';
+import {prepare} from 'utils';
+import {waitForEditorReady} from 'editorUtils';
+import {drag, click} from 'triggerEvents';
 import {Map} from '@here/xyz-maps-core';
 import {features, Editor} from '@here/xyz-maps-editor';
+import chaiAlmost from 'chai-almost';
 import dataset from './link_edit_restrictions_spec.json';
 
 describe('link edit restrictions', function() {
@@ -31,6 +34,7 @@ describe('link edit restrictions', function() {
     let mapContainer;
 
     before(async function() {
+        chai.use(chaiAlmost(1e-7));
         preparedData = await prepare(dataset);
         display = new Map(document.getElementById('map'), {
             center: {longitude: 77.25004908649441, latitude: 13.107718606505642},
@@ -41,7 +45,7 @@ describe('link edit restrictions', function() {
             layers: preparedData.getLayers()
         });
 
-        await editorTests.waitForEditorReady(editor);
+        await waitForEditorReady(editor);
         mapContainer = display.getContainer();
 
         link1 = preparedData.getFeature('linkLayer', -189068);
@@ -55,11 +59,11 @@ describe('link edit restrictions', function() {
     });
 
     it('click on a link, drag shape and validate', async function() {
-        await testUtils.events.click(mapContainer, 100, 200);
+        await click(mapContainer, 100, 200);
 
-        await testUtils.events.drag(mapContainer, {x: 100, y: 200}, {x: 100, y: 300});
+        await drag(mapContainer, {x: 100, y: 200}, {x: 100, y: 300});
 
-        expect(link1.coord()).to.deep.equal([
+        expect(link1.coord()).to.deep.almost([
             [77.250049086, 13.108241071, 0],
             [77.249512645, 13.108241071, 0],
             [77.248439761, 13.107718607, 0],
@@ -69,9 +73,9 @@ describe('link edit restrictions', function() {
 
     it('select a link and drag the shape point', async function() {
         link2.select();
-        await testUtils.events.drag(mapContainer, {x: 300, y: 100}, {x: 400, y: 100});
+        await drag(mapContainer, {x: 300, y: 100}, {x: 400, y: 100});
 
-        expect(link2.coord()).to.deep.equal([
+        expect(link2.coord()).to.deep.almost([
             [77.250049087, 13.108763534, 0],
             [77.248439761, 13.108763534, 0]
         ]);
@@ -95,7 +99,7 @@ describe('link edit restrictions', function() {
             }
         });
 
-        await editorTests.waitForEditorReady(editor);
+        await waitForEditorReady(editor);
 
         let l1 = new features.Navlink([{x: 400, y: 200}, {x: 300, y: 200}, {x: 100, y: 200}, {x: 100, y: 100}], {featureClass: 'NAVLINK', protected: 35});
         let l2 = new features.Navlink([{x: 300, y: 100}, {x: 100, y: 100}], {featureClass: 'NAVLINK'});
@@ -104,9 +108,9 @@ describe('link edit restrictions', function() {
 
         links[0].select();
 
-        await testUtils.events.drag(mapContainer, {x: 300, y: 200}, {x: 300, y: 300});
+        await drag(mapContainer, {x: 300, y: 200}, {x: 300, y: 300});
 
-        expect(links[0].coord()).to.deep.equal([
+        expect(links[0].coord()).to.deep.almost([
             [77.250049086, 13.108241071, 0],
             [77.249512645, 13.108241071, 0],
             [77.248439761, 13.108241071, 0],
@@ -128,9 +132,9 @@ describe('link edit restrictions', function() {
     it('select a link and drag, validate link again', async function() {
         links[1].select();
 
-        await testUtils.events.drag(mapContainer, {x: 300, y: 100}, {x: 450, y: 150});
+        await drag(mapContainer, {x: 300, y: 100}, {x: 450, y: 150});
 
-        expect(links[1].coord()).to.deep.equal([
+        expect(links[1].coord()).to.deep.almost([
             [77.249512645, 13.108763534, 0],
             [77.248439761, 13.108763534, 0]
         ]);
@@ -142,7 +146,7 @@ describe('link edit restrictions', function() {
             layers: preparedData.getLayers()
         });
 
-        await editorTests.waitForEditorReady(editor, ()=>{
+        await waitForEditorReady(editor, ()=>{
             display.setCenter({longitude: 77.25004908649441, latitude: 13.107718606505642});
             display.setZoomlevel(18);
         });
@@ -153,9 +157,9 @@ describe('link edit restrictions', function() {
 
         links[0].select();
 
-        await testUtils.events.drag(mapContainer, {x: 400, y: 200}, {x: 400, y: 300});
+        await drag(mapContainer, {x: 400, y: 200}, {x: 400, y: 300});
 
-        expect(links[0].coord()).to.deep.equal([
+        expect(links[0].coord()).to.deep.almost([
             [77.250049086, 13.107718607, 0],
             [77.249512645, 13.108241071, 0],
             [77.248439761, 13.108241071, 0],

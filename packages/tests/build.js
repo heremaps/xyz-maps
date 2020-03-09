@@ -272,7 +272,7 @@ function getKarmaConfig(comp) {
 function cleanReport(comp) {
     var output = 'dist/' + comp + '/output/';
 
-    mkdirp(output, function(e) {
+    mkdirp(output).then(()=>{
         rimraf(output + '*', function(e) {
             console.log('\x1b[32m%s\x1b[0m', 'Outputs cleaned for ' + comp);
         });

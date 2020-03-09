@@ -16,9 +16,12 @@
  * SPDX-License-Identifier: Apache-2.0
  * License-Filename: LICENSE
  */
-import {editorTests, testUtils, prepare} from 'hereTest';
+import {getCanvasPixelColor, prepare} from 'utils';
+import {waitForEditorReady} from 'editorUtils';
+import {click, mousemove} from 'triggerEvents';
 import {Map} from '@here/xyz-maps-core';
 import {Editor} from '@here/xyz-maps-editor';
+import chaiAlmost from 'chai-almost';
 import dataset from './drawingmanager_styling_drawingboard_spec.json';
 
 describe('Styling drawingboard', function() {
@@ -31,6 +34,7 @@ describe('Styling drawingboard', function() {
     let link;
 
     before(async function() {
+        chai.use(chaiAlmost(1e-7));
         preparedData = await prepare(dataset);
         display = new Map(document.getElementById('map'), {
             renderOptions: {
@@ -43,7 +47,7 @@ describe('Styling drawingboard', function() {
         editor = new Editor(display, {
             layers: preparedData.getLayers()
         });
-        await editorTests.waitForEditorReady(editor);
+        await waitForEditorReady(editor);
         mapContainer = display.getContainer();
     });
 
@@ -60,19 +64,42 @@ describe('Styling drawingboard', function() {
     it('add shape point and validate drawingboard features in editor overlay', async function() {
         let layer = editor.getOverlay();
 
-        await testUtils.events.mousemove(mapContainer, {x: 100, y: 80}, {x: 100, y: 100});
-        await testUtils.events.click(mapContainer, 100, 100);
+        await mousemove(mapContainer, {x: 100, y: 80}, {x: 100, y: 100});
+        await click(mapContainer, 100, 100);
 
         let features = layer.search(display.getViewBounds());
-        // 3 features: link, link shape and float shape below mouse
+        // 3 features: link, link shape and floating shape below mouse
         expect(features).to.have.lengthOf(3);
 
-        await testUtils.events.mousemove(mapContainer, {x: 100, y: 280}, {x: 100, y: 300});
-        await testUtils.events.click(mapContainer, 100, 300);
+        // validate position of link shape and floating shape below mouse
+        features.forEach((feature)=>{
+            if (feature.geometry.type == 'Point') {
+                expect(feature.geometry.coordinates).to.deep.almost([77.124422675, 12.75986339, 0]);
+            }
+        });
 
-        let features = layer.search(display.getViewBounds());
+        await mousemove(mapContainer, {x: 100, y: 280}, {x: 100, y: 300});
+        await click(mapContainer, 100, 300);
+
+        features = layer.search(display.getViewBounds());
         // 4 features: link, 2 link shapes and float shape below mouse
         expect(features).to.have.lengthOf(4);
+
+        // check position of added first link shape points
+        features = layer.search({point: {longitude: 77.124422675, latitude: 12.75986339}, radius: 5});
+        features.forEach((feature)=>{
+            if (feature.geometry.type == 'Point') {
+                expect(feature.geometry.coordinates).to.deep.almost([77.124422675, 12.75986339, 0]);
+            }
+        });
+
+        // check position of added second link shape points and floating shape below mouse
+        features = layer.search({point: {longitude: 77.124422675, latitude: 12.758817}, radius: 5});
+        features.forEach((feature)=>{
+            if (feature.geometry.type == 'Point') {
+                expect(feature.geometry.coordinates).to.deep.almost([77.124422675, 12.758817, 0]);
+            }
+        });
 
         expect(editor.getDrawingBoard().getLength()).to.be.equal(2);
     });
@@ -98,20 +125,20 @@ describe('Styling drawingboard', function() {
     });
 
     it('add shape point and validate new style of drawingboard', async function() {
-        await testUtils.events.mousemove(mapContainer, {x: 200, y: 80}, {x: 200, y: 100});
-        await testUtils.events.click(mapContainer, 200, 100);
+        await mousemove(mapContainer, {x: 200, y: 80}, {x: 200, y: 100});
+        await click(mapContainer, 200, 100);
 
-        await testUtils.events.mousemove(mapContainer, {x: 200, y: 280}, {x: 200, y: 300});
-        await testUtils.events.click(mapContainer, 200, 300);
+        await mousemove(mapContainer, {x: 200, y: 280}, {x: 200, y: 300});
+        await click(mapContainer, 200, 300);
 
         expect(editor.getDrawingBoard().getLength()).to.be.equal(2);
 
         await new Promise((resolve) => {
             setTimeout(() => {
-                let color1 = testUtils.getCanvasPixelColor(mapContainer, 200, 100);
-                let color2 = testUtils.getCanvasPixelColor(mapContainer, 206, 106);
-                let color3 = testUtils.getCanvasPixelColor(mapContainer, 200, 200);
-                let color4 = testUtils.getCanvasPixelColor(mapContainer, 207, 200);
+                let color1 = getCanvasPixelColor(mapContainer, 200, 100);
+                let color2 = getCanvasPixelColor(mapContainer, 206, 106);
+                let color3 = getCanvasPixelColor(mapContainer, 200, 200);
+                let color4 = getCanvasPixelColor(mapContainer, 207, 200);
 
                 expect(color1).to.equal('#ee9922');
                 expect(color2).to.equal('#2233ee');

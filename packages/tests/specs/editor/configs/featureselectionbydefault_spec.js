@@ -16,7 +16,9 @@
  * SPDX-License-Identifier: Apache-2.0
  * License-Filename: LICENSE
  */
-import {editorTests, testUtils, prepare} from 'hereTest';
+import {prepare} from 'utils';
+import {waitForEditorReady} from 'editorUtils';
+import {click} from 'triggerEvents';
 import {Map} from '@here/xyz-maps-core';
 import {features, Editor} from '@here/xyz-maps-editor';
 import dataset from './featureselectionbydefault_spec.json';
@@ -40,7 +42,7 @@ describe('set featureSelectionByDefault', function() {
             layers: preparedData.getLayers()
         });
 
-        await editorTests.waitForEditorReady(editor);
+        await waitForEditorReady(editor);
 
         mapContainer = display.getContainer();
     });
@@ -57,7 +59,7 @@ describe('set featureSelectionByDefault', function() {
             featureSelectionByDefault: false
         });
 
-        await editorTests.waitForEditorReady(editor, ()=>{
+        await waitForEditorReady(editor, ()=>{
             display.setCenter({longitude: 77.84172527566523, latitude: 17.450976000022266});
             display.setZoomlevel(19);
         });
@@ -67,7 +69,7 @@ describe('set featureSelectionByDefault', function() {
         let links = editor.addFeature([l1, l2]);
 
         // click on a link
-        await testUtils.events.click(mapContainer, 100, 200);
+        await click(mapContainer, 100, 200);
 
         // validate link is not selected
         expect(links[1].editState('selected')).to.be.false;
@@ -79,7 +81,7 @@ describe('set featureSelectionByDefault', function() {
             layers: preparedData.getLayers()
         });
 
-        await editorTests.waitForEditorReady(editor, ()=>{
+        await waitForEditorReady(editor, ()=>{
             display.setCenter({longitude: 77.84172527566523, latitude: 17.450976000022266});
             display.setZoomlevel(19);
         });
@@ -89,7 +91,7 @@ describe('set featureSelectionByDefault', function() {
         let links = editor.addFeature([l1, l2]);
 
         // click on a link
-        await testUtils.events.click(mapContainer, 100, 200);
+        await click(mapContainer, 100, 200);
 
         // validate link is selected
         expect(links[1].editState('selected')).to.be.true;

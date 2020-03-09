@@ -16,9 +16,11 @@
  * SPDX-License-Identifier: Apache-2.0
  * License-Filename: LICENSE
  */
-import {editorTests, testUtils, prepare} from 'hereTest';
+import {prepare} from 'utils';
+import {waitForEditorReady, editorClick} from 'editorUtils';
+import {click} from 'triggerEvents';
 import {Map} from '@here/xyz-maps-core';
-import {features, Editor} from '@here/xyz-maps-editor';
+import {Editor} from '@here/xyz-maps-editor';
 import dataset from './turn_restrictions_split_depart_link_spec.json';
 
 describe('turn restriction test split the depart link', function() {
@@ -42,7 +44,7 @@ describe('turn restriction test split the depart link', function() {
             layers: preparedData.getLayers()
         });
 
-        await editorTests.waitForEditorReady(editor);
+        await waitForEditorReady(editor);
         mapContainer = display.getContainer();
 
         link1 = preparedData.getFeature('linkLayer', -189223);
@@ -59,20 +61,20 @@ describe('turn restriction test split the depart link', function() {
     });
 
     it('set turn restriction and validate', async function() {
-        await testUtils.events.click(mapContainer, 200, 100);
+        await click(mapContainer, 200, 100);
 
-        let shape = (await editorTests.click(editor, 200, 200)).target;
+        let shape = (await editorClick(editor, 200, 200)).target;
         shape.editTurnRestrictions();
 
         // click on traffic sign
-        await testUtils.events.click(mapContainer, 215, 200);
+        await click(mapContainer, 215, 200);
 
         expect(link2.prop('turnRestriction')).to.deep.equal({end: [link1.id]});
     });
 
     it('split the link, verify links after splitting', async function() {
         link2.select();
-        let shape = (await editorTests.click(editor, 200, 100)).target;
+        let shape = (await editorClick(editor, 200, 100)).target;
         let newLinks = shape.splitLink();
 
         expect(newLinks[0].prop('originLink')).to.be.equal(link2.id);
