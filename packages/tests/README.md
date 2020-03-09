@@ -40,7 +40,7 @@ Start a test under 'test/' sub-directory. API is build under root directory `yar
         `yarn run test [OPTIONS]`
 
     Config Options:
-        --browser               Run test in a normal or headless browser                                             [true|false] [default: false]
+        --browser               Run tests in specified browser                           ['Chrome'|'ChromeHeadless'|'Firefox'] [default: 'Chrome']
         --singleRun             Run tests and then exit with an exit code of 0 or 1 depending on whether all tests passed or any tests failed
                                                                                                                       [true|false] [default: true]
 
@@ -54,16 +54,27 @@ Start a test under 'test/' sub-directory. API is build under root directory `yar
     Mocha Options:
         --bail                  Abort ("bail") after first test failure                                               [true|false] [default: false]
         --timeout               Specify test timeout threshold (in milliseconds)                                          [number] [default: 20000]
-        --invert                Inverts matches defined in Component Options                                                                        [boolean]
+        --invert                Inverts matches defined in Component Options                                                              [boolean]
 
     Sources:
         --common-src            Path of component 'common'                              [string] [default: '../common/dist/xyz-maps-common.min.js']
         --core-src              Path of component 'core'                                    [string] [default: '../core/dist/xyz-maps-core.min.js']
         --display-src           Path of component 'display'                           [string] [default: '../display/dist/xyz-maps-display.min.js']
         --editor-src            Path of component 'editor'                              [string] [default: '../editor/dist/xyz-maps-editor.min.js']
+    
+    Test Environments:
+        --environments          Path of environments file, details of the file see above in `Setup Environments`  
+                                                                                                        ['string'] [default: './environments.json']
+        --environments.xyzhub   Set/overwrite endpoint of XYZ Hub                                                                        ['string']
+        --environments.image    Set/overwrite endpoint of image server                                                                   ['string']
+                                         
+    XYZ Hub credentials:
+        --credentials:          Path of credentials file, details of the file see above in `Setup Credentials`
+                                                                                                         ['string'] [default: './credentials.json']
+        --credentials.access_token  Set/overwrite access token for XYZ Hub                                                               ['string']
 
 ### Other commands
 
-  * build test: `yarn run build`
+  * Build test: `yarn run build`
 
   * Rebuild test when test changes: `yarn run watch`

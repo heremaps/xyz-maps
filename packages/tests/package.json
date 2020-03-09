@@ -27,6 +27,7 @@
     "@types/mocha": "^7.0.2",
     "chai": "~4.2.0",
     "chai-almost": "^1.0.1",
+    "cross-spawn": "^7.0.0",
     "karma": "^4.4.1",
     "karma-chai": "^0.1.0",
     "karma-chrome-launcher": "^3.1.0",
