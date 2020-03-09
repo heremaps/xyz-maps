@@ -1,3 +1,9 @@
+## 0.10.1 (2020-3-9)
+### general
+* fixed:  bundling issues when webpack is used to consume packages
+### editor
+* fixed:  Line/Navlink Shapes not displayed correctly in case of feature style is using value functions
+
 ## 0.10.0 (2020-03-03)
 ### display
 * added: new webgl based 3d map renderer.

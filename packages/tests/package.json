@@ -1,6 +1,6 @@
 {
   "name": "@here/xyz-maps-test",
-  "version": "0.10.0",
+  "version": "0.10.1",
   "description": "Tests for XYZ editor.",
   "author": {
     "name": "HERE Europe B.V.",
@@ -41,8 +41,8 @@
     "rollup-plugin-delete": "^1.2.0",
     "rollup-plugin-glob-import": "^0.4.5",
     "rollup-plugin-postcss": "^2.2.0",
-    "typescript": "^3.8.3",
     "tslib": "^1.11.1",
+    "typescript": "^3.8.3",
     "yargs": "^15.1.0"
   }
 }
