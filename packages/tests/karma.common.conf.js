@@ -20,7 +20,7 @@ const karmaBaseConfig = require('./karma.base.conf').karmaBaseConfig;
 
 export const karmaConfig = Object.assign(karmaBaseConfig, {
     files: [
-        {id: 'common-src', pattern: 'common/dist/xyz-maps-common.js', watched: true, served: true, included: true},
+        {id: 'common-src', pattern: 'common/dist/xyz-maps-common.min.js', watched: true, served: true, included: true},
         {pattern: 'tests/dist/common/commonTests*.js', watched: true, served: true, included: true},
         {pattern: 'tests/dist/common/specs*.js', watched: true, served: true, included: true}
     ],
