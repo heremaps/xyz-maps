@@ -6,21 +6,22 @@ Build XYZ Editor JS for tests to run against:
 
 * build in root directory `yarn run build-release`
 
-### Setup Credentials
-
-Create `credentials.json` in ./tests with your credentials:
-```javascript
-{
-    "access_token": "YOUR_ACCESS_TOKEN"
-}
-```
 ### Setup Environments
 
-Create `environments.json` in ./tests with your settings:
+Create `environments.json` in ./tests with your settings, tests will run in the environments you specified:
 ```javascript
 {
     "xyzhub": "YOUR_XYZHUB_ENDPOINT",
     "image": "{LOCALHOST}/base/tests/assets/tiles/{QUADKEY}.png"
+}
+```
+
+### Setup Credentials
+
+Create `credentials.json` in ./tests with your credentials, the credentials will work within your environments:
+```javascript
+{
+    "access_token": "YOUR_ACCESS_TOKEN"
 }
 ```
 
@@ -43,6 +44,7 @@ Start a test under 'test/' sub-directory. API is build under root directory `yar
         --browser               Run tests in specified browser                           ['Chrome'|'ChromeHeadless'|'Firefox'] [default: 'Chrome']
         --singleRun             Run tests and then exit with an exit code of 0 or 1 depending on whether all tests passed or any tests failed
                                                                                                                       [true|false] [default: true]
+        --startHub              Start XYZ Hub in docker container of your local machine                              [true|false] [default: false]
 
     Component Options:
         Tests run against all components by default

@@ -164,6 +164,11 @@ async function buildTests(done) {
 };
 
 async function test(done) {
+    // start xyzhub
+    if (argv.startHub === true || argv.startHub === 'true') {
+        await startHub();
+    }
+
     // all test components are built here
     await buildTests();
 
@@ -351,7 +356,7 @@ function CleanupServer(port) {
     this.close = ()=>this.server.close();
 }
 
-function startHub() {
+async function startHub() {
     let args = ['bash', './start-hub.sh'];
     if (argv.kill) {
         args.push('kill', true);
