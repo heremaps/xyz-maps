@@ -238,7 +238,7 @@ class Copyright extends UIComponent {
     }
 
     private setOwnerLabel(el: HTMLElement, label: string) {
-        el.innerText = '© ' + label;
+        el.innerText = '\u00A9 ' + label;
     }
 
     private addSource(src: CopyrightSource, layer: any) {

@@ -37,7 +37,7 @@ let file = 'xyz-maps-' + module + '.js';
 const banner = '/*\n * ' + pkg.name + '\n * (c) 2019 HERE\n */\n';
 const logoSrc = process.env.logo || './assets/xyz.svg';
 const cOwner = process.env.cOwner || 'XYZ';
-const tacUrl = process.env.tacUrl || false;
+const tacUrl = process.env.tacUrl || '';
 
 
 if (production) {
