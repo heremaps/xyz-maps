@@ -1,0 +1,31 @@
+version: "3"
+services:
+    xyz-hub:
+        image: "docker.internal.community.nw.ops.here.com/xyz-hub:latest"
+        container_name: "xyz-hub"
+        ports:
+            - "8080:8080"
+            - "8181:8181"
+        depends_on:
+            - "postgres"
+            - "redis"
+        command: java -jar xyz-hub-service.jar
+        environment:
+            - LOG_CONFIG=log4j2-console-plain.json
+            - FS_WEB_ROOT=www
+            - STORAGE_DB_URL=jdbc:postgresql://postgres/postgres
+            - PSQL_HOST=postgres
+            - XYZ_HUB_REDIS_HOST=redis
+    postgres:
+        image: "xyz-postgres"
+        build:
+            context: "./"
+            dockerfile: "Dockerfile-postgres"
+        container_name: "postgres"
+        ports:
+            - "5432:5432"
+    redis:
+        image: "redis:alpine"
+        container_name: "redis"
+        ports:
+            - "6379:6379"

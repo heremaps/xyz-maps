@@ -41,41 +41,30 @@ function spaceTypes(type: string) : boolean {
     return type == 'SpaceProvider' || type == 'GeoJSONProvider' || existingProviders.indexOf(type) < 0;
 }
 
-function adaptProviderConfig(config, geoJSONUrlc) {
+async function prepareProviderConfig(config, ts) {
+    let providerConfig = Object.assign({}, config);
+    let spaceId;
+
     if (config.type == 'ImageProvider') {
-        let providerConfig = {url: null};
-
-        Object.assign(providerConfig, config);
-
-        providerConfig['url'] = function(z, x, y, quad) {
+        providerConfig.url = providerConfig.url || function(z, x, y, quad) {
             return IMAGEURL.replace('{LOCALHOST}', location.protocol + '//' + location.host).replace('{QUADKEY}', quad.charAt(quad.length-1));
         };
-
-        return providerConfig;
-    } else if (config.type == 'GeoJSONProvider') {
-        let providerConfig = {url: ''};
-
-        Object.assign(providerConfig, config);
-
-        providerConfig.url = config.url.replace('${URL}', geoJSONUrlc);
-
-        return providerConfig;
     } else if (spaceTypes(config.type)) {
-        let providerConfig = {
-            space: '',
-            url: '',
-            credentials: {}
-        };
-
-        Object.assign(providerConfig, config);
-
-        providerConfig.url = config.url.replace('${URL}', XYZHUBURL);
-        providerConfig.credentials = {
-            access_token: TOKEN
-        };
-
-        return providerConfig;
+        spaceId = await spacePool.get(ts);
+        if (config.type == 'GeoJSONProvider') {
+            providerConfig.url = providerConfig.url || GEOJSONURL.replace('{SPACEID}', spaceId);
+        } else {
+            providerConfig.url = providerConfig.url || XYZHUBURL;
+            providerConfig.credentials = providerConfig.credentials || {
+                access_token: TOKEN
+            };
+            providerConfig.space = spaceId;
+            if (providerConfig.url.indexOf('localhost') > 0) {
+                providerConfig.https = false;
+            }
+        }
     }
+    return {providerConfig, spaceId};
 };
 
 
@@ -140,31 +129,15 @@ export async function prepare(dataset) {
     let linkLayerId;
 
     if (dataset && dataset.layers) {
-        let ts = (new Date()).getTime();
+        let ts = (new Date()).getTime().toString();
         for (let l of dataset.layers) {
             const providerType = l.provider.type;
             const layerId = l.id;
-            let spaceId: string;
-            let geoJSONUrlc: string;
 
-            // SpaceProvider or user defined Providers
-            if (spaceTypes(providerType)) {
-                spaceId = await spacePool.get(ts.toString());
-                if (providerType == 'GeoJSONProvider') {
-                    geoJSONUrlc = GEOJSONURL.replace('{SPACEID}', spaceId);
-                } else {
-                    l.provider.space = spaceId;
-                }
-            }
+            let preparedConfig = await prepareProviderConfig(l.provider, ts);
+            let provider = TestProvider.name == providerType ? new TestProvider(preparedConfig.providerConfig) : new providers[providerType](preparedConfig.providerConfig);
 
-            let providerConfig = adaptProviderConfig(l.provider, geoJSONUrlc);
-
-            let layerConfig = {};
-
-            Object.assign(layerConfig, l);
-
-            let provider = providers[providerType] ? new providers[providerType](providerConfig) : new TestProvider(providerConfig);
-
+            let layerConfig = Object.assign({}, l);
             layerConfig['provider'] = provider;
             delete layerConfig['data'];
             delete layerConfig['clear'];
@@ -173,7 +146,7 @@ export async function prepare(dataset) {
 
             preparedData.addLayer(layer);
 
-            preparedData.setProvider(layerId, provider, spaceId);
+            preparedData.setProvider(layerId, provider, preparedConfig.spaceId);
 
             if (l.data && l.data.remote) {
                 // data to commit

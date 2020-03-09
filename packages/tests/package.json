@@ -16,7 +16,9 @@
   "scripts": {
     "build": "node build.js --buildTests",
     "watch": "node build.js --buildTestsWatch",
-    "test": "node build.js --test"
+    "test": "node build.js --test",
+    "start-localhub": "node build.js --localHub",
+    "stop-localhub": "node build.js --localHub --kill"
   },
   "dependencies": {},
   "devDependencies": {

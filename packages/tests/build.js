@@ -351,6 +351,19 @@ function CleanupServer(port) {
     this.close = ()=>this.server.close();
 }
 
+function startHub() {
+    let args = ['bash', './start-hub.sh'];
+    if (argv.kill) {
+        args.push('kill', true);
+    }
+
+    return new Promise((resolve, reject) => {
+        spawn('sudo', args, {stdio: 'inherit'})
+            .on('close', resolve)
+            .on('error', reject);
+    });
+}
+
 if (argv.test) {
     test();
 }
@@ -361,4 +374,8 @@ if (argv.buildTests) {
 
 if (argv.buildTestsWatch) {
     buildTestsWatch();
+}
+
+if (argv.localHub) {
+    startHub();
 }

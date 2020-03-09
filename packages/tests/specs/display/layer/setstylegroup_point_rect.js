@@ -19,6 +19,7 @@
 
 import {displayTests, prepare, testUtils} from 'hereTest';
 import {Map} from '@here/xyz-maps-core';
+import chaiAlmost from 'chai-almost';
 import dataset from './setstylegroup_point_rect.json';
 
 describe('setStyleGroup Point with rect', function() {
@@ -30,6 +31,7 @@ describe('setStyleGroup Point with rect', function() {
     let feature;
 
     before(async function() {
+        chai.use(chaiAlmost(1));
         let preparedData = await prepare(dataset);
         display = new Map(document.getElementById('map'), {
             renderOptions: {
@@ -97,7 +99,15 @@ describe('setStyleGroup Point with rect', function() {
                 let color4 = testUtils.getCanvasPixelColor(mapContainer, 400, 291); // get color at top border
                 let color5 = testUtils.getCanvasPixelColor(mapContainer, 400, 309); // get color of bottom border
 
-                expect(color1).to.equal('#800000');
+                // validate overlapped transparent color
+                // expect(color1).to.equal('#800000');
+                color1 = color1.replace('#', '0x');
+                // blue
+                expect(parseInt(color1) >> 0 & 255).to.almost.equal(0);
+                // green
+                expect(parseInt(color1) >> 8 & 255).to.almost.equal(0);
+                // red
+                expect(parseInt(color1) >> 16 & 255).to.almost.almost(128);
                 expect(color2).to.equal('#000000');
                 expect(color3).to.equal('#000000');
                 expect(color4).to.equal('#000000');

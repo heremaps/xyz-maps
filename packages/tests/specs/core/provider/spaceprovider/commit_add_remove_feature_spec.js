@@ -20,7 +20,7 @@
 import {prepare} from 'hereTest';
 import dataset from './commit_add_remove_feature_spec.json';
 
-describe('commit add and remove feature to spaceprovider', function() {
+xdescribe('commit add and remove feature to spaceprovider', function() {
     const expect = chai.expect;
 
     var dataset;

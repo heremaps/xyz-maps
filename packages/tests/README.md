@@ -78,3 +78,7 @@ Start a test under 'test/' sub-directory. API is build under root directory `yar
   * Build test: `yarn run build`
 
   * Rebuild test when test changes: `yarn run watch`
+
+  * Start XYZ Hub on local as test environment: `yarn run start-localhub`
+  
+  * Stop XYZ Hub on local: `yarn run stop-localhub`
