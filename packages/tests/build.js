@@ -16,7 +16,6 @@
  * SPDX-License-Identifier: Apache-2.0
  * License-Filename: LICENSE
  */
-
 const fs = require('fs');
 const rimraf = require('rimraf');
 const mkdirp = require('mkdirp');
@@ -27,8 +26,8 @@ const KarmaServer = require('karma').Server;
 const cfg = require('karma').config;
 const http = require('http');
 const request = require('request');
+const spawn = require('cross-spawn');
 
-var testReport = {};
 
 var karmaSettings = {
     browser: ['Chrome'],
@@ -43,91 +42,84 @@ var mochaSettings = {
 };
 var mochaConfigs = ['bail', 'timeout', 'slow', 'grep', 'fgrep', 'invert'];
 
-var environments = {};
-var credentials = {};
+var environments = {
+    xyzhub: undefined,
+    image: undefined
+};
+var credentials = {
+    access_token: undefined
+};
 var environmentsPath = './environments.json';
 var credentialsPath = './credentials.json';
 
 var parallelTest = true;
 
-var cleanupServer;
 var cleanupServerPort = 8090;
 
-var sourceFiles = {};
-
 let apiComponents = ['editor', 'display', 'core', 'common'];
-let testFilter = {};
 let compsToRun = [];
 
-
-function getArguments() {
-    // pass credential in argument
+function parseArgv(arg, dataPath, data) {
     try {
-        // credentialsPath = argv.credentials || credentialsPath;
-        credentialsPath = argv.credentials || path.join(__dirname, credentialsPath);
-        credentials = require(credentialsPath);
-        // credentials = JSON.parse(fs.readFileSync(redentialsPath));
-    } catch (e) {
-        throw e;
-        // throw Error(credentialsPath + ' not found! Please refer to README.md for details');
-    }
+        dataPath = path.join(__dirname, dataPath);
 
-    // pass environment in argument
-    try {
-        // environmentsPath = argv.environments || environmentsPath;
-        environmentsPath = argv.environments || path.join(__dirname, environmentsPath);
-        environments = require(environmentsPath);
-    } catch (e) {
-        throw e;
-        // throw Error(environmentsPath + ' not found! Please refer to README.md for details');
-    }
-
-    // pass in path of each API component
-    apiComponents.forEach((component) => {
-        let argvName = component + '-src';
-        if (argv[argvName]) {
-            sourceFiles[argvName] = argv[argvName];
+        if (Array.isArray(arg)) {
+            arg.forEach((v)=>{
+                if (typeof v == 'string') {
+                    dataPath = v;
+                } else {
+                    data = Object.assign(data, v);
+                }
+            });
+        } else if (typeof arg == 'object') {
+            data = Object.assign(data, arg);
+        } else if (typeof arg == 'string') {
+            dataPath = arg;
         }
-    });
 
-    parallelTest = argv.parallel ? (argv.parallel === 'true' || argv.parallel === true) : parallelTest;
+        let dataTemp;
+        for (let key in data) {
+            if (data[key] === undefined) {
+                dataTemp = dataTemp || require(dataPath);
+                data[key] = dataTemp[key];
+            }
+        }
+    } catch (e) {
+        throw e;
+    }
+    return data;
+}
 
-    // Get CLI parameters
+function getRollupConfig() {
+    // get credential in argument
+    credentials = parseArgv(argv.credentials, credentialsPath, credentials);
+
+    // get environment in argument
+    environments = parseArgv(argv.environments, environmentsPath, environments);
+
+    let testFilter = {};
+    let compListCopy = Object.assign([], apiComponents);
+
+    // Get mochaSettings and components to run
     for (let s in argv) {
         let ls = s.toLowerCase();
-
-        if (karmaSettings.hasOwnProperty(ls)) {
-            // browser, singleRun are set here
-            karmaSettings[ls] = argv[s];
-        } else if (apiComponents.indexOf(ls) > -1) {
-            if (argv[s] == 'true' || argv[s] == true) {
+        if (compListCopy.indexOf(ls) > -1) {
+            if (argv[s] === 'true' || argv[s] === true) {
                 compsToRun.push(ls);
             } else if (typeof argv[s] == 'string' && argv[s] != 'false') {
                 compsToRun.push(ls);
                 testFilter[ls] = decodeURI(argv[s]);
-            } else if (argv[s] == 'false') {
-                apiComponents.splice(apiComponents.indexOf(ls), 1);
+            } else if (argv[s] === 'false' || argv[s] === false) {
+                compListCopy.splice(compListCopy.indexOf(ls), 1);
             }
         } else if (mochaConfigs.indexOf(ls) > -1) {
             mochaSettings[ls] = argv[ls] || mochaSettings[ls];
         }
     }
 
-    if (compsToRun.length == 0) compsToRun = apiComponents;
+    if (compsToRun.length == 0) compsToRun = compListCopy;
 
-    // set browsers to test in
-    if (karmaSettings.browser === true || karmaSettings.browser === 'true') {
-        // test default in chrome
-        karmaSettings.browser = ['Chrome'];
-    } else if (typeof karmaSettings.browser == 'string' && karmaSettings.browser !== 'false') {
-        karmaSettings.browser = karmaSettings.browser.split(',');
-    }
-};
-
-function buildTestsWatch() {
-    getArguments();
-
-    var rollupConfigs = require('./rollup.config')({
+    return require('./rollup.config')({
         mochaSettings,
         compsToRun,
         testFilter,
@@ -135,6 +127,10 @@ function buildTestsWatch() {
         credentials,
         cleanupServerPort
     });
+};
+
+function buildTestsWatch() {
+    var rollupConfigs = getRollupConfig();
 
     rollupConfigs.forEach(async (config) => {
         const watchOptions = Object.assign({output: config.output}, config.input);
@@ -148,20 +144,11 @@ function buildTestsWatch() {
 };
 
 async function buildTests(done) {
-    getArguments();
-
-    var rollupConfigs = require('./rollup.config')({
-        mochaSettings,
-        compsToRun,
-        testFilter,
-        environments,
-        credentials,
-        cleanupServerPort
-    });
-
     let bundles = [];
     let outputConfigs = [];
     let outputs = [];
+
+    var rollupConfigs = getRollupConfig();
 
     rollupConfigs.forEach(async (config) => {
         // create a bundle
@@ -182,9 +169,9 @@ async function test(done) {
 
     // start server for listening to messages that test is cancelled manually(reload page, close browser)
     // the server will clear the spaces that were created by these tests.
-    cleanupServer = new CleanupServer(cleanupServerPort);
+    let cleanupServer = new CleanupServer(cleanupServerPort);
 
-    testReport = {};
+    let testReport = {};
 
     startTests(compsToRun, function(results) {
         for (let cmp in results) {
@@ -196,7 +183,7 @@ async function test(done) {
         }
         cleanupServer.close();
         if (done) done();
-    }, parallelTest);
+    });
 
     console.log('\x1b[32m%s\x1b[0m', 'All components finish!!');
 
@@ -221,26 +208,6 @@ async function test(done) {
     });
 };
 
-
-// Start tests without building
-function simpleRun(done) {
-    getArguments();
-
-    testReport = {};
-
-    startTests(compsToRun, function(results) {
-        for (let cmp in results) {
-            var file = 'dist/' + cmp + '/output/report.json';
-            var output = JSON.parse(fs.readFileSync(file));
-
-            testReport[cmp] = output;
-            testReport[cmp + '-report-path'] = file;
-        }
-        if (done) done();
-    }, parallelTest);
-};
-
-
 function validateFile(id, filePath, karmaBasePath) {
     const p = path.isAbsolute(filePath) ? filePath : path.join(__dirname, karmaBasePath, filePath);
 
@@ -250,12 +217,23 @@ function validateFile(id, filePath, karmaBasePath) {
     }
 };
 
-function getKarmaConfig(comp, browsers) {
+function getKarmaConfig(comp) {
     const karmaConfigPath = './karma.' + comp + '.conf.js';
     const karmaConfig = require(karmaConfigPath).karmaConfig;
 
+
     karmaConfig.files.forEach((file) => {
         if (file.id ) {
+            var sourceFiles = {};
+
+            // pass in path of each API component
+            apiComponents.forEach((component) => {
+                let argvName = component + '-src';
+                if (argv[argvName]) {
+                    sourceFiles[argvName] = argv[argvName];
+                }
+            });
+
             // Use custom API path if it is passed in with arguments
             if (sourceFiles[file.id]) {
                 file.pattern = sourceFiles[file.id];
@@ -266,8 +244,21 @@ function getKarmaConfig(comp, browsers) {
         }
     });
 
+    for ( a in argv) {
+        let la = a.toLowerCase();
+        if (karmaSettings.hasOwnProperty(la)) {
+            // browser, singleRun are get here
+            karmaSettings[la] = argv[a];
+        }
+    }
+
+    // set browsers to test in
+    if (typeof karmaSettings.browser == 'string') {
+        karmaSettings.browser = karmaSettings.browser.split(',');
+    }
+
     return cfg.parseConfig(path.resolve(karmaConfigPath), {
-        'browsers': browsers,
+        'browsers': karmaSettings.browser,
         'singleRun': (karmaSettings.singlerun === 'true' || karmaSettings.singlerun === true),
         'files': karmaConfig.files
     });
@@ -283,7 +274,9 @@ function cleanReport(comp) {
     });
 }
 
-function startTests(comps, done, parallel) {
+function startTests(comps, done) {
+    let parallel = argv.parallel ? (argv.parallel === 'true' || argv.parallel === true) : parallelTest;
+
     let finishedTests = 0;
     let testResults = {};
 
@@ -292,15 +285,12 @@ function startTests(comps, done, parallel) {
         cleanReport(comp);
 
         // get configure
-        let config = getKarmaConfig(comp, karmaSettings.browser);
+        let config = getKarmaConfig(comp);
 
         let server = new KarmaServer(config, callback);
         server.start();
-
-        // server.addListener('browser_log', function(e, b, c) {
-        //     console.log(b, "ffffffff");
-        // });
     }
+
 
     if (parallel) {
         comps.forEach((comp) => {
@@ -360,7 +350,6 @@ function CleanupServer(port) {
 
     this.close = ()=>this.server.close();
 }
-
 
 if (argv.test) {
     test();

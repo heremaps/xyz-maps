@@ -16,60 +16,24 @@
  * SPDX-License-Identifier: Apache-2.0
  * License-Filename: LICENSE
  */
+const karmaBaseConfig = require('./karma.base.conf').karmaBaseConfig;
 
-export const karmaConfig = {
-    browsers: ['Chrome'],
-
-    customLaunchers: {
-        ChromeHeadlessV: {
-            base: 'ChromeHeadless',
-            flags: ['--window-size=1280,1024', '--no-sandbox']
-        }
-    },
-
-    frameworks: ['mocha', 'chai'],
-
+export const karmaConfig = Object.assign(karmaBaseConfig, {
     files: [
         {id: 'common-src', pattern: 'common/dist/xyz-maps-common.js', watched: true, served: true, included: true},
-        {pattern: 'tests/dist/common/commonTests*.js', watched: true, served: true, included: true, nocache: true},
-        {pattern: 'tests/dist/common/specs*.js', watched: true, served: true, included: true, nocache: true}
+        {pattern: 'tests/dist/common/commonTests*.js', watched: true, served: true, included: true},
+        {pattern: 'tests/dist/common/specs*.js', watched: true, served: true, included: true}
     ],
-
-    basePath: '../',
-
-    client: {
-        clearContext: false,
-        captureConsole: false,
-        mocha: {
-            // change Karma's debug.html to the mocha web reporter
-            reporter: 'html',
-
-            // custom ui, defined in required file above
-            ui: 'bdd'
-        }
-    },
 
     customContextFile: 'tests/dist/common/runnercommon.html',
 
     customDebugFile: 'tests/dist/common/runnercommon.html',
 
-    reporters: ['progress', 'json'],
-
     jsonReporter: {
         stdout: false,
         outputFile: 'tests/dist/common/output/report.json' // defaults to none
-    },
-
-    singleRun: true,
-
-    plugins: [
-        'karma-mocha',
-        'karma-chai',
-        'karma-chrome-launcher',
-        'karma-firefox-launcher',
-        'karma-json-reporter'
-    ]
-};
+    }
+});
 
 export default function(config) {
     config.set(karmaConfig);

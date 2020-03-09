@@ -22,10 +22,13 @@
   "devDependencies": {
     "@rollup/plugin-json": "^4.0.0",
     "@rollup/plugin-node-resolve": "^6.0.0",
+    "@rollup/plugin-typescript": "^2.1.0",
+    "@rollup/plugin-virtual": "^2.0.0",
     "@types/chai": "^4.1.7",
     "@types/mocha": "^5.2.5",
     "chai": "~4.2.0",
     "chai-almost": "^1.0.1",
+    "cross-spawn": "^7.0.0",
     "karma": "^4.4.1",
     "karma-chai": "^0.1.0",
     "karma-chrome-launcher": "^3.1.0",
@@ -40,8 +43,6 @@
     "rollup-plugin-delete": "^1.1.0",
     "rollup-plugin-glob-import": "^0.4.5",
     "rollup-plugin-postcss": "^2.0.3",
-    "@rollup/plugin-typescript": "^2.1.0",
-    "@rollup/plugin-virtual": "^2.0.0",
     "typescript": "^3.7.5",
     "yargs": "^10.0.3"
   }
