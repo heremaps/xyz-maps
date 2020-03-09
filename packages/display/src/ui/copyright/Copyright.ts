@@ -28,13 +28,10 @@ import defaultOwner from 'ui-default-cOwner';
 import tacUrl from 'ui-tac-url';
 
 const document = global.document;
-
 const SHOW = true;
 const HIDE = !SHOW;
-
 const LAYER_TOGGLE_EVENTS = 'addLayer removeLayer';
 const ZOOMLEVEL_EVENT = 'zoomlevel';
-
 const MAX_SOURCE_WIDTH = 384;
 
 const isVisible = (src: CopyrightSource | { scopes: CopyrightSourceScope[] }, zoom: number) => {
@@ -238,7 +235,7 @@ class Copyright extends UIComponent {
     }
 
     private setOwnerLabel(el: HTMLElement, label: string) {
-        el.innerText = '© ' + label;
+        el.innerText = '\u00A9 ' + label;
     }
 
     private addSource(src: CopyrightSource, layer: any) {
