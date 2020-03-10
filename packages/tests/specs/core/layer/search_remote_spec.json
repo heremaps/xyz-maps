@@ -5,10 +5,6 @@
             "id": "addressProvider",
             "type": "SpaceProvider",
             "name": "Address",
-            "space": "${SPACEID}",
-            "url": "${URL}",
-            "https": false,
-            "credentials": "${CREDENTIALS}",
             "level": 14
         },
         "min": 14,

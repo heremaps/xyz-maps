@@ -5,10 +5,7 @@
             "id": "spaceProvider",
             "type": "SpaceProvider",
             "name": "my SpaceProvider",
-            "level": 14,
-            "space": "${SPACEID}",
-            "url": "${URL}",
-            "credentials": "${CREDENTIALS}"
+            "level": 14
         },
         "min": 14,
         "max": 20
