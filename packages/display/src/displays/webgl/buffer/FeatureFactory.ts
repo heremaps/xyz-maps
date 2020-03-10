@@ -337,6 +337,7 @@ export class FeatureFactory {
                     vertex = aPosition.data;
 
                     const collision = style.collide;
+                    const {dpr} = this;
 
                     addText(
                         text,
@@ -350,8 +351,8 @@ export class FeatureFactory {
                             ? true
                             : collision,
                         tileSize,
-                        offsetX,
-                        offsetY
+                        offsetX * dpr,
+                        offsetY * dpr
                     );
                 } else {
                     if (type == 'Icon') {
