@@ -17,7 +17,8 @@ varying mat2 vRotMatrix;
 
 void main(void){
 
-    vec2 size = DEVICE_PIXEL_RATIO * (u_size + u_strokeWidth);
+    float strokeWidth = DEVICE_PIXEL_RATIO * u_strokeWidth;
+    vec2 size = DEVICE_PIXEL_RATIO * u_size + strokeWidth;
 
     if ( size.x > size.y ){
         gl_PointSize = size.x;
@@ -29,12 +30,12 @@ void main(void){
 
     float rotSin = sin(u_rotation);
     float rotCos = cos(u_rotation);
-    float rotScale = rotCos + rotSin; // 45deg -> 1.414
+    float rotScale = rotCos + rotSin;
 
     gl_PointSize *= rotScale;
 
-    vSize = size/2.0 / gl_PointSize;
-    vStrokeWidth = u_strokeWidth / gl_PointSize;
+    vSize = size / 2.0 / gl_PointSize;
+    vStrokeWidth = strokeWidth / gl_PointSize;
 
     vRotMatrix = mat2(rotCos, rotSin, -rotSin, rotCos);
 }
