@@ -31,7 +31,6 @@ import {FeatureFactory} from './buffer/FeatureFactory';
 import {GeometryBuffer} from './buffer/GeometryBuffer';
 
 const PREVIEW_LOOK_AHEAD_LEVELS: [number, number] = [3, 9];
-let UNDEF;
 
 
 // const fromClipSpace = (clip, width, height) => {
@@ -51,7 +50,7 @@ let UNDEF;
 
 
 class WebGlDisplay extends BasicDisplay {
-    static zoomBehaviour:'fixed'|'float' = 'float';
+    static zoomBehaviour: 'fixed' | 'float' = 'float';
 
     private name: string = 'gl-test';
 
@@ -100,9 +99,6 @@ class WebGlDisplay extends BasicDisplay {
             }
             this.tilesNotReady = [];
         };
-
-
-        console.log('dpr', this.dpr, devicePixelRatio);
     };
 
     private releaseBuffers(buffers: GeometryBuffer[]) {
@@ -160,7 +156,6 @@ class WebGlDisplay extends BasicDisplay {
 
 
     setSize(w, h) {
-        console.log('set', w, h);
         super.setSize(w, h);
 
         if (this.render.gl) {
@@ -246,6 +241,9 @@ class WebGlDisplay extends BasicDisplay {
             layer = layers[l]; // {ready: false, layer: Layer, cnt: 0, visible: true}
 
             tiles = layer.tiles;
+            // reset tile ready count
+            layer.cnt = 0;
+
             if (tiles) {
                 length = tiles.length;
                 i = 0;
