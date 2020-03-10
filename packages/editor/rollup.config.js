@@ -37,7 +37,7 @@ if (production) {
     file = file.replace('.js', '.min.js');
 }
 
-const banner = '/*\n * ' + pkg.name + '\n * (c) 2019 HERE\n */\n';
+const banner = '/*\n * ' + pkg.name + '\n * (c) 2019-2020 HERE\n */\n';
 
 const createPlugins = (uglify) => {
     return [

@@ -34,7 +34,7 @@ let sourcemap = true;
 let module = pkg.name.split('-').pop();
 let file = 'xyz-maps-' + module + '.js';
 
-const banner = '/*\n * ' + pkg.name + '\n * (c) 2019 HERE\n */\n';
+const banner = '/*\n * ' + pkg.name + '\n * (c) 2019-2020 HERE\n */\n';
 const logoSrc = process.env.logo || './assets/xyz.svg';
 const cOwner = process.env.cOwner || 'XYZ';
 const tacUrl = process.env.tacUrl || '';
