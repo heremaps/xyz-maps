@@ -15,9 +15,13 @@
  *
  * SPDX-License-Identifier: Apache-2.0
  * License-Filename: LICENSE
- */import {editorTests, testUtils, prepare} from 'hereTest';
+ */
+import {prepare} from 'utils';
+import {waitForEditorReady} from 'editorUtils';
+import {drag} from 'triggerEvents';
 import {Map} from '@here/xyz-maps-core';
-import {features, Editor} from '@here/xyz-maps-editor';
+import {Editor} from '@here/xyz-maps-editor';
+import chaiAlmost from 'chai-almost';
 import dataset from './link_automatic_snapping_then_undo_spec.json';
 
 describe('drag a link shape point to the other one and then undo', function() {
@@ -31,6 +35,7 @@ describe('drag a link shape point to the other one and then undo', function() {
     let linkLayer;
 
     before(async function() {
+        chai.use(chaiAlmost(1e-7));
         preparedData = await prepare(dataset);
         display = new Map(document.getElementById('map'), {
             center: {longitude: 76.229901, latitude: 15.187356},
@@ -41,7 +46,7 @@ describe('drag a link shape point to the other one and then undo', function() {
             layers: preparedData.getLayers()
         });
 
-        await editorTests.waitForEditorReady(editor);
+        await waitForEditorReady(editor);
         mapContainer = display.getContainer();
 
         link2 = preparedData.getFeature('linkLayer', -189027);
@@ -56,7 +61,7 @@ describe('drag a link shape point to the other one and then undo', function() {
 
     it('get a link to select and drag', async function() {
         link2.select();
-        await testUtils.events.drag(mapContainer, {x: 462, y: 389}, {x: 275, y: 228});
+        await drag(mapContainer, {x: 462, y: 389}, {x: 275, y: 228});
 
         expect(editor.info()).to.have.lengthOf(2);
 
@@ -74,7 +79,7 @@ describe('drag a link shape point to the other one and then undo', function() {
 
         link2 = editor.getFeature(link2.id, linkLayer);
         let coord = link2.coord();
-        expect(coord).to.deep.equal([
+        expect(coord).to.deep.almost([
             [76.22923083, 15.187728775, 0],
             [76.230233976, 15.186895307, 0]
         ]);

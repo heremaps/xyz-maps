@@ -5,9 +5,6 @@
             "id": "placeProvider",
             "type": "SpaceProvider",
             "name": "Places",
-            "space": "${SPACEID}",
-            "url": "${URL}",
-            "credentials": "${CREDENTIALS}",
             "level": 16
         },
         "min": 14,

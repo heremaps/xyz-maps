@@ -15,7 +15,10 @@
  *
  * SPDX-License-Identifier: Apache-2.0
  * License-Filename: LICENSE
- */import {editorTests, displayTests, testUtils, prepare} from 'hereTest';
+ */
+import {MonitorXHR, prepare} from 'utils';
+import {waitForEditorReady, submit} from 'editorUtils';
+import {click, drag, mousemove} from 'triggerEvents';
 import {Map} from '@here/xyz-maps-core';
 import {Editor} from '@here/xyz-maps-editor';
 import chaiAlmost from 'chai-almost';
@@ -30,7 +33,7 @@ describe('Create new Link and drag it outside of viewport before splitting the o
     let link;
 
     before(async function() {
-        chai.use(chaiAlmost());
+        chai.use(chaiAlmost(1e-7));
         preparedData = await prepare(dataset);
         display = new Map(document.getElementById('map'), {
             center: {longitude: 79.26345, latitude: 13.04889},
@@ -40,7 +43,7 @@ describe('Create new Link and drag it outside of viewport before splitting the o
         editor = new Editor(display, {
             layers: preparedData.getLayers()
         });
-        await editorTests.waitForEditorReady(editor);
+        await waitForEditorReady(editor);
 
         link = preparedData.getFeature('linkLayer', -188848);
     });
@@ -61,26 +64,26 @@ describe('Create new Link and drag it outside of viewport before splitting the o
         });
 
         // click to add a shape
-        await testUtils.events.mousemove(mapContainer, {x: 100, y: 200}, {x: 200, y: 200});
-        await testUtils.events.click(mapContainer, 200, 200);
+        await mousemove(mapContainer, {x: 100, y: 200}, {x: 200, y: 200});
+        await click(mapContainer, 200, 200);
 
         // pan the map and move the split link outside of the viewport
-        await testUtils.events.mousemove(mapContainer, {x: 100, y: 200}, {x: 110, y: 60});
-        await editorTests.waitForEditorReady(editor, async ()=>{
-            await testUtils.events.drag(mapContainer, {x: 110, y: 60}, {x: 110, y: 450});
+        await mousemove(mapContainer, {x: 100, y: 200}, {x: 110, y: 60});
+        await waitForEditorReady(editor, async ()=>{
+            await drag(mapContainer, {x: 110, y: 60}, {x: 110, y: 450});
         });
         // pan the map and move the split link outside of the viewport
-        await testUtils.events.mousemove(mapContainer, {x: 100, y: 200}, {x: 110, y: 60});
-        await editorTests.waitForEditorReady(editor, async ()=>{
-            await testUtils.events.drag(mapContainer, {x: 110, y: 60}, {x: 110, y: 450});
+        await mousemove(mapContainer, {x: 100, y: 200}, {x: 110, y: 60});
+        await waitForEditorReady(editor, async ()=>{
+            await drag(mapContainer, {x: 110, y: 60}, {x: 110, y: 450});
         });
 
         // add one shape point to link
-        await testUtils.events.mousemove(mapContainer, {x: 100, y: 200}, {x: 200, y: 200});
-        await testUtils.events.click(mapContainer, 200, 200);
+        await mousemove(mapContainer, {x: 100, y: 200}, {x: 200, y: 200});
+        await click(mapContainer, 200, 200);
 
         let lnk;
-        await editorTests.waitForEditorReady(editor, ()=>{
+        await waitForEditorReady(editor, ()=>{
             lnk = editor.getDrawingBoard().create({featureClass: 'NAVLINK'});
         });
 
@@ -105,11 +108,12 @@ describe('Create new Link and drag it outside of viewport before splitting the o
     });
 
     it('submit and validate', async function() {
-        let monitor = new testUtils.MonitorXHR();
-        await editorTests.waitForEditorReady(editor, async ()=>{
-            await editorTests.submit(editor);
+        let monitor = new MonitorXHR();
+        monitor.start({method: 'post'});
+        await waitForEditorReady(editor, async ()=>{
+            await submit(editor);
         });
-        let reqs = monitor.stop({method: 'post'});
+        let reqs = monitor.stop();
         expect(reqs).to.have.lengthOf(1);
         let payload = reqs[0].payload;
 

@@ -250,8 +250,7 @@ export class FeatureFactory {
 
                     groupId = 'L' + strokeLinecap + strokeLinejoin + (strokeDasharray || NONE);
                 } else if (type == 'Polygon') {
-                    if (geomType != 'Polygon' && geomType != 'MultiPolygon') {
-                        // console.log('skip', geomType, 'for', type);
+                    if (!fill || geomType != 'Polygon' && geomType != 'MultiPolygon') {
                         continue;
                     }
                     extrude = getValue('extrude', style, feature, level);
@@ -395,6 +394,7 @@ export class FeatureFactory {
                     vertex = aPosition.data;
 
                     // const collide = style.collide;
+                    const {dpr} = this;
 
                     const cx = tile.lon2x(coordinates[0], tileSize);
                     const cy = tile.lat2y(coordinates[1], tileSize);
@@ -432,8 +432,8 @@ export class FeatureFactory {
                             // tile,
                             // !collide ? this.tileCollision : false,
                             // tileSize,
-                            offsetX,
-                            offsetY
+                            offsetX * dpr,
+                            offsetY * dpr
                         );
                     }
                 } else {

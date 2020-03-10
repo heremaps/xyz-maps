@@ -17,7 +17,8 @@
  * License-Filename: LICENSE
  */
 
-import {coreTests, prepare} from 'hereTest';
+import {prepare} from 'utils';
+import {getTileOnLayer} from 'coreUtils';
 import dataset from './layer_basic_get_cancel_tile_spec.json';
 
 describe('layer basic get and cancel tiles', function() {
@@ -88,7 +89,7 @@ describe('layer basic get and cancel tiles', function() {
     // Sydney, AUS
     it('get one tile and dont cancel', function(done) {
         // qk1     = '3112301320002101' // length 16
-        coreTests.getTileOnLayer({
+        getTileOnLayer({
             layer: placeLayer,
             quadkeys: [qk1],
             sameCallback: false,
@@ -110,7 +111,7 @@ describe('layer basic get and cancel tiles', function() {
 
     it('get one tile and cancel', function(done) {
         // qk2     = '3112301320002102' // length 16
-        coreTests.getTileOnLayer({
+        getTileOnLayer({
             layer: placeLayer,
             quadkeys: [qk2],
             sameCallback: false,
@@ -139,7 +140,7 @@ describe('layer basic get and cancel tiles', function() {
     it('get two tile and dont cancel', function(done) {
         // qk31    = '3112301320002111' // length 16
         // qk32    = '3112301320002112' // length 16
-        coreTests.getTileOnLayer({
+        getTileOnLayer({
             layer: placeLayer,
             quadkeys: [qk31, qk32],
             sameCallback: false,
@@ -167,7 +168,7 @@ describe('layer basic get and cancel tiles', function() {
     it('get two tile and cancel first request', function(done) {
         // qk41    = '3112301320002121' // length 16
         // qk42    = '3112301320002122' // length 16
-        coreTests.getTileOnLayer({
+        getTileOnLayer({
             layer: placeLayer,
             quadkeys: [qk41, qk42],
             sameCallback: false,
@@ -203,7 +204,7 @@ describe('layer basic get and cancel tiles', function() {
     it('get two tile and cancel both requests', function(done) {
         // qk51    = '3112301320002131' // length 16
         // qk52    = '3112301320002132' // length 16
-        coreTests.getTileOnLayer({
+        getTileOnLayer({
             layer: placeLayer,
             quadkeys: [qk51, qk52],
             sameCallback: false,
@@ -238,7 +239,7 @@ describe('layer basic get and cancel tiles', function() {
         // qk61    = '3112301320002200' // length 16
         // qk62    = '3112301320002201' // length 16
         // qk63    = '3112301320002202' // length 16
-        coreTests.getTileOnLayer({
+        getTileOnLayer({
             layer: placeLayer,
             quadkeys: [qk61, qk62, qk63],
             sameCallback: false,
@@ -272,7 +273,7 @@ describe('layer basic get and cancel tiles', function() {
         // qk71    = '3112301320002210' // length 16
         // qk72    = '3112301320002211' // length 16
         // qk73    = '3112301320002212' // length 16
-        coreTests.getTileOnLayer({
+        getTileOnLayer({
             layer: placeLayer,
             quadkeys: [qk71, qk72, qk73],
             sameCallback: false,
@@ -307,7 +308,7 @@ describe('layer basic get and cancel tiles', function() {
         // qk81    = '3112301320002220' // length 16
         // qk82    = '3112301320002221' // length 16
         // qk83    = '3112301320002222' // length 16
-        coreTests.getTileOnLayer({
+        getTileOnLayer({
             layer: placeLayer,
             quadkeys: [qk81, qk82, qk83],
             sameCallback: false,

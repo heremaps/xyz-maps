@@ -276,8 +276,7 @@ export let pg = new (function Playground() {
         var iframe = document.getElementById('preview');
         var disp = iframe.contentWindow.display;
         if (disp) {
-            var container = disp.getContainer();
-            disp.resize(container.offsetWidth, container.offsetHeight);
+            disp.resize();
         }
     }
 

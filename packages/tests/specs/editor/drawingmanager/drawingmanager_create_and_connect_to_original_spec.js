@@ -15,9 +15,13 @@
  *
  * SPDX-License-Identifier: Apache-2.0
  * License-Filename: LICENSE
- */import {editorTests, testUtils, prepare} from 'hereTest';
+ */
+import {MonitorXHR, prepare} from 'utils';
+import {waitForEditorReady, editorClick, submit} from 'editorUtils';
+import {click, mousemove} from 'triggerEvents';
 import {Map} from '@here/xyz-maps-core';
 import {Editor} from '@here/xyz-maps-editor';
+import chaiAlmost from 'chai-almost';
 import dataset from './drawingmanager_create_and_connect_to_original_spec.json';
 
 describe('Create new Links and connect to original link', function() {
@@ -30,6 +34,7 @@ describe('Create new Links and connect to original link', function() {
     let link;
 
     before(async function() {
+        chai.use(chaiAlmost(1e-7));
         preparedData = await prepare(dataset);
         display = new Map(document.getElementById('map'), {
             center: {longitude: 77.221332, latitude: 13.151157},
@@ -39,7 +44,7 @@ describe('Create new Links and connect to original link', function() {
         editor = new Editor(display, {
             layers: preparedData.getLayers()
         });
-        await editorTests.waitForEditorReady(editor);
+        await waitForEditorReady(editor);
         mapContainer = display.getContainer();
 
         link = preparedData.getFeature('linkLayer', -188847);
@@ -58,15 +63,15 @@ describe('Create new Links and connect to original link', function() {
             connectTo: link
         });
 
-        await testUtils.events.mousemove(mapContainer, {x: 100, y: 200}, {x: 200, y: 200});
-        await testUtils.events.click(mapContainer, 200, 200);
+        await mousemove(mapContainer, {x: 100, y: 200}, {x: 200, y: 200});
+        await click(mapContainer, 200, 200);
 
         let lnk;
-        await editorTests.waitForEditorReady(editor, async ()=>{
+        await waitForEditorReady(editor, async ()=>{
             lnk = editor.getDrawingBoard().create({featureClass: 'NAVLINK'});
         });
 
-        expect(lnk.coord()).to.deep.equal([
+        expect(lnk.coord()).to.deep.almost([
             [77.220259106, 13.152202639, 0],
             [77.220259116, 13.151679372, 0]
         ]);
@@ -74,8 +79,8 @@ describe('Create new Links and connect to original link', function() {
 
 
     it('validate the connect shape point', async function() {
-        await testUtils.events.click(mapContainer, 200, 120);
-        let linkshape = (await editorTests.click(editor, 200, 100)).target;
+        await click(mapContainer, 200, 120);
+        let linkshape = (await editorClick(editor, 200, 100)).target;
 
         let lnk = linkshape.getConnectedLinks();
 
@@ -84,19 +89,19 @@ describe('Create new Links and connect to original link', function() {
     });
 
     it('submit links and verify', async function() {
-        let monitor = new testUtils.MonitorXHR();
-
-        await editorTests.waitForEditorReady(editor, async ()=>{
-            await editorTests.submit(editor);
+        let monitor = new MonitorXHR();
+        monitor.start({method: 'post'});
+        await waitForEditorReady(editor, async ()=>{
+            await submit(editor);
         });
-        let reqs = monitor.stop({method: 'post'});
+        let reqs = monitor.stop();
         expect(reqs).to.have.lengthOf(1);
 
         let payload = reqs[0].payload;
 
         expect(payload.features).to.have.lengthOf(1);
         expect(payload.features[0].type).to.equal('Feature');
-        expect(payload.features[0].geometry.coordinates).to.deep.equal([
+        expect(payload.features[0].geometry.coordinates).to.deep.almost([
             [77.220259106, 13.152202639, 0],
             [77.220259116, 13.151679372, 0]
         ]);
@@ -107,8 +112,8 @@ describe('Create new Links and connect to original link', function() {
 
 
     it('validate the connect shape point again after submit', async function() {
-        await testUtils.events.click(mapContainer, 200, 120);
-        let linkshape = (await editorTests.click(editor, 200, 100)).target;
+        await click(mapContainer, 200, 120);
+        let linkshape = (await editorClick(editor, 200, 100)).target;
 
         let lnk = linkshape.getConnectedLinks();
 

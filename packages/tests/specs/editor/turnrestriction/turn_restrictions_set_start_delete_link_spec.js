@@ -16,9 +16,11 @@
  * SPDX-License-Identifier: Apache-2.0
  * License-Filename: LICENSE
  */
-import {editorTests, testUtils, prepare} from 'hereTest';
+import {prepare} from 'utils';
+import {waitForEditorReady} from 'editorUtils';
+import {click} from 'triggerEvents';
 import {Map} from '@here/xyz-maps-core';
-import {features, Editor} from '@here/xyz-maps-editor';
+import {Editor} from '@here/xyz-maps-editor';
 import dataset from './turn_restrictions_set_start_delete_link_spec.json';
 
 describe('edit turn restriction set turn restriction and delete link', function() {
@@ -42,7 +44,7 @@ describe('edit turn restriction set turn restriction and delete link', function(
             layers: preparedData.getLayers()
         });
 
-        await editorTests.waitForEditorReady(editor);
+        await waitForEditorReady(editor);
         mapContainer = display.getContainer();
 
         link1 = preparedData.getFeature('linkLayer', -189219);
@@ -61,7 +63,7 @@ describe('edit turn restriction set turn restriction and delete link', function(
         link2.select();
         link2.editTurnRestrictions();
 
-        await testUtils.events.click(mapContainer, 300, 300);
+        await click(mapContainer, 300, 300);
 
         expect(link2.prop('turnRestriction')).to.deep.equal({start: [12345]});
     });

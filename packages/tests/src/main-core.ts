@@ -17,17 +17,15 @@
  * License-Filename: LICENSE
  */
 
-import {coreTests} from './helpers/coreTests';
-import {testUtils} from './helpers/testUtils';
-import {prepare} from './helpers/prepareData';
+import * as coreUtils from './utils/coreUtils';
+import * as utils from './utils/utils';
 
 import {run} from './runner';
-
 
 // @ts-ignore
 import mochaSettings from 'settings';
 
 mocha.setup(mochaSettings);
 
-export default {coreTests, testUtils, prepare, run};
+export default {coreUtils, utils, run};
 

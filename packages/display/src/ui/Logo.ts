@@ -21,10 +21,25 @@ import UIComponent from './UIComponent';
 // @ts-ignore
 import logoSrc from 'ui-logo-src';
 
+type LogoOptions = {
+    visible?: boolean,
+    url?: string
+}
+
 class Logo extends UIComponent {
-    constructor(element, options, display) {
+    constructor(element, options: LogoOptions, display) {
         super(element, options, display);
-    };
+
+        const {url} = options;
+
+        if (url) {
+            this.setSrc(url);
+        }
+    }
+
+    private setSrc(url: string) {
+        this.html.style.backgroundImage = `url(${url})`;
+    }
 };
 
 

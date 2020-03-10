@@ -15,21 +15,27 @@
  *
  * SPDX-License-Identifier: Apache-2.0
  * License-Filename: LICENSE
- */import {editorTests, displayTests, testUtils, prepare} from 'hereTest';
+ */
+import {prepare} from 'utils';
+import {waitForEditorReady} from 'editorUtils';
+import {drag, click} from 'triggerEvents';
 import {Map} from '@here/xyz-maps-core';
-import {features, Editor} from '@here/xyz-maps-editor';
+import {Editor} from '@here/xyz-maps-editor';
+import chaiAlmost from 'chai-almost';
 import dataset from './link_editable_spec.json';
 
 describe('link editable', function() {
     const expect = chai.expect;
 
     let link;
-    let editor; let display;
+    let editor;
+    let display;
     let preparedData;
     let mapContainer;
     let linkLayer;
 
     before(async function() {
+        chai.use(chaiAlmost(1e-7));
         preparedData = await prepare(dataset);
         display = new Map(document.getElementById('map'), {
             center: {longitude: 80.14459, latitude: 17.96039},
@@ -40,7 +46,7 @@ describe('link editable', function() {
             layers: preparedData.getLayers()
         });
 
-        await editorTests.waitForEditorReady(editor);
+        await waitForEditorReady(editor);
         mapContainer = display.getContainer();
 
         link = preparedData.getFeature('linkLayer', -189070);
@@ -56,7 +62,7 @@ describe('link editable', function() {
     it('set link to not editable', function() {
         link.editable(false);
 
-        expect(link.coord()).to.deep.equal([
+        expect(link.coord()).to.deep.almost([
             [80.142980675, 17.961410599, 0],
             [80.144053558, 17.961410599, 0],
             [80.144053558, 17.96039, 0]
@@ -65,17 +71,17 @@ describe('link editable', function() {
 
     it('click on link and try drag again', async function() {
         // click on link
-        await testUtils.events.click(mapContainer, 100, 100);
+        await click(mapContainer, 100, 100);
 
         // try drag link shape point
-        await editorTests.waitForEditorReady(editor, async ()=>{
-            await testUtils.events.drag(mapContainer, {x: 300, y: 300}, {x: 400, y: 300});
+        await waitForEditorReady(editor, async ()=>{
+            await drag(mapContainer, {x: 300, y: 300}, {x: 400, y: 300});
         });
 
         let lnk = editor.getFeature(link.id, linkLayer);
 
         // link geometry is not changed
-        expect(lnk.coord()).to.deep.equal([
+        expect(lnk.coord()).to.deep.almost([
             [80.142980675, 17.961410599, 0],
             [80.144053558, 17.961410599, 0],
             [80.144053558, 17.96039, 0]
@@ -83,7 +89,7 @@ describe('link editable', function() {
     });
 
     it('set link to editable and drag it', async function() {
-        await editorTests.waitForEditorReady(editor, ()=>{
+        await waitForEditorReady(editor, ()=>{
             display.setCenter({longitude: 80.14459, latitude: 17.96039});
         });
 
@@ -91,15 +97,15 @@ describe('link editable', function() {
         lnk.editable(true);
 
         // click on link
-        await testUtils.events.click(mapContainer, 100, 100);
+        await click(mapContainer, 100, 100);
 
         // drag link shape point
-        await testUtils.events.drag(mapContainer, {x: 300, y: 300}, {x: 400, y: 300});
+        await drag(mapContainer, {x: 300, y: 300}, {x: 400, y: 300});
 
         lnk = editor.getFeature(link.id, linkLayer);
 
         // link geometry is changed
-        expect(lnk.coord()).to.deep.equal([
+        expect(lnk.coord()).to.deep.almost([
             [80.142980675, 17.961410599, 0],
             [80.144053558, 17.961410599, 0],
             [80.14459, 17.96039, 0]

@@ -17,7 +17,7 @@
  * License-Filename: LICENSE
  */
 
-import {prepare} from 'hereTest';
+import {prepare} from 'utils';
 import dataset from './search_remote_spec.json';
 
 describe('search in layers remotely', function() {

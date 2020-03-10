@@ -16,7 +16,8 @@
  * SPDX-License-Identifier: Apache-2.0
  * License-Filename: LICENSE
  */
-import {editorTests, prepare, testUtils} from 'hereTest';
+import {prepare} from 'utils';
+import {editorClick, waitForEditorReady} from 'editorUtils';
 import {Editor} from '@here/xyz-maps-editor';
 import {Map} from '@here/xyz-maps-core';
 import dataset from './address_routingpoint_linksplit_spec.json';
@@ -40,7 +41,7 @@ describe('Address routing point updates by link split', function() {
         });
         editor = new Editor(display, {layers: preparedData.getLayers()});
 
-        await editorTests.waitForEditorReady(editor);
+        await waitForEditorReady(editor);
 
         link = preparedData.getFeature('linkLayer', -188823);
         address = preparedData.getFeature('paLayer', -47936);
@@ -66,7 +67,7 @@ describe('Address routing point updates by link split', function() {
     it('split the link, validate address connects to a new link', async function() {
         link.select();
 
-        let linkShape = (await editorTests.click(editor, 400, 150)).target;
+        let linkShape = (await editorClick(editor, 400, 150)).target;
         let newLinks = linkShape.splitLink();
 
         address.select();

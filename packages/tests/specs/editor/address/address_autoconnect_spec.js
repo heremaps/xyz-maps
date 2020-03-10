@@ -16,7 +16,9 @@
  * SPDX-License-Identifier: Apache-2.0
  * License-Filename: LICENSE
  */
-import {editorTests, testUtils, prepare} from 'hereTest';
+import {prepare} from 'utils';
+import {waitForEditorReady} from 'editorUtils';
+import {drag} from 'triggerEvents';
 import {Map} from '@here/xyz-maps-core';
 import {Editor} from '@here/xyz-maps-editor';
 import dataset from './address_autoconnect_spec.json';
@@ -42,7 +44,7 @@ describe('address routing point connects to links automatically', function() {
             layers: preparedData.getLayers()
         });
 
-        await editorTests.waitForEditorReady(editor);
+        await waitForEditorReady(editor);
 
         mapContainer = display.getContainer();
 
@@ -69,14 +71,14 @@ describe('address routing point connects to links automatically', function() {
         address.select();
 
         // drag routing point of address
-        await testUtils.events.drag(mapContainer, {x: 300, y: 400}, {x: 400, y: 500});
+        await drag(mapContainer, {x: 300, y: 400}, {x: 400, y: 500});
 
         var props = address.prop();
         expect(props.routingLink).to.equal(link1.id + '');
         expect(props).to.deep.include({'routingPoint': [74.81151, 12.97608, 0]});
 
         // drag routing point of address
-        await testUtils.events.drag(mapContainer, {x: 400, y: 400}, {x: 420, y: 370});
+        await drag(mapContainer, {x: 400, y: 400}, {x: 420, y: 370});
 
         var props = address.prop();
         expect(props.routingLink).to.equal(link2.id + '');

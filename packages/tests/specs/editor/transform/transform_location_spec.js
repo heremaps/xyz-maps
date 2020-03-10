@@ -16,9 +16,11 @@
  * SPDX-License-Identifier: Apache-2.0
  * License-Filename: LICENSE
  */
-import {editorTests, testUtils, prepare} from 'hereTest';
+import {prepare} from 'utils';
+import {waitForEditorReady} from 'editorUtils';
+import {drag} from 'triggerEvents';
 import {Map} from '@here/xyz-maps-core';
-import {features, Editor} from '@here/xyz-maps-editor';
+import {Editor} from '@here/xyz-maps-editor';
 import dataset from './transform_location_spec.json';
 
 describe('transform for poi and point address', function() {
@@ -43,7 +45,7 @@ describe('transform for poi and point address', function() {
             layers: preparedData.getLayers()
         });
 
-        await editorTests.waitForEditorReady(editor);
+        await waitForEditorReady(editor);
         mapContainer = display.getContainer();
 
         poi = preparedData.getFeature('placeLayer', '-29538');
@@ -65,7 +67,7 @@ describe('transform for poi and point address', function() {
     it('get container and transform right boarder', async function() {
         container.transform();
 
-        await testUtils.events.drag(mapContainer, {x: 313, y: 250}, {x: 330, y: 250});
+        await drag(mapContainer, {x: 313, y: 250}, {x: 330, y: 250});
 
         expect(poi.coord(), [76.035246764, 13.709301163, 0]);
         expect(address.coord(), [76.035072188, 13.709170873, 0]);
@@ -74,7 +76,7 @@ describe('transform for poi and point address', function() {
     it('get container and transform left boarder', async function() {
         container.transform();
 
-        await testUtils.events.drag(mapContainer, {x: 235, y: 250}, {x: 210, y: 250});
+        await drag(mapContainer, {x: 235, y: 250}, {x: 210, y: 250});
 
         expect(poi.coord(), [76.035246764, 13.709301163, 0]);
         expect(address.coord(), [76.035004899, 13.709170873, 0]);
@@ -84,7 +86,7 @@ describe('transform for poi and point address', function() {
     it('get container and transform top boarder', async function() {
         container.transform();
 
-        await testUtils.events.drag(mapContainer, {x: 270, y: 233}, {x: 270, y: 200});
+        await drag(mapContainer, {x: 270, y: 233}, {x: 270, y: 200});
 
         expect(poi.coord(), [76.035246764, 13.709391453, 0]);
         expect(address.coord(), [76.035004899, 13.709170873, 0]);
@@ -93,7 +95,7 @@ describe('transform for poi and point address', function() {
     it('get container and transform bottom boarder', async function() {
         container.transform();
 
-        await testUtils.events.drag(mapContainer, {x: 270, y: 315}, {x: 270, y: 280});
+        await drag(mapContainer, {x: 270, y: 315}, {x: 270, y: 280});
 
         expect(poi.coord(), [76.035246764, 13.709391453, 0]);
         expect(address.coord(), [76.035004899, 13.709262989, 0]);
@@ -102,7 +104,7 @@ describe('transform for poi and point address', function() {
     it('get container and move transformer', async function() {
         container.transform();
 
-        await testUtils.events.drag(mapContainer, {x: 270, y: 240}, {x: 300, y: 280});
+        await drag(mapContainer, {x: 270, y: 240}, {x: 300, y: 280});
 
         expect(poi.coord(), [76.03532723, 13.709287221, 0]);
         expect(address.coord(), [76.035085365, 13.709158757, 0]);
@@ -111,7 +113,7 @@ describe('transform for poi and point address', function() {
     it('get container and rotate transformer', async function() {
         container.transform();
 
-        await testUtils.events.drag(mapContainer, {x: 360, y: 320}, {x: 300, y: 330});
+        await drag(mapContainer, {x: 360, y: 320}, {x: 300, y: 330});
 
         expect(poi.coord(), [76.03532839, 13.709160863, 0]);
         expect(address.coord(), [76.035084205, 13.709285115, 0]);
@@ -120,7 +122,7 @@ describe('transform for poi and point address', function() {
     xit('get container and rotate transformer', async function() {
         container.transform();
 
-        await testUtils.events.drag(mapContainer, {x: 330, y: 270}, {x: 340, y: 300});
+        await drag(mapContainer, {x: 330, y: 270}, {x: 340, y: 300});
 
         expect(poi.coord(), [76.03532839, 13.709160863, 0]);
         expect(address.coord(), [76.035084205, 13.709285115, 0]);

@@ -17,7 +17,9 @@
  * License-Filename: LICENSE
  */
 
-import {displayTests, testUtils, prepare} from 'hereTest';
+import {waitForViewportReady} from 'displayUtils';
+import {prepare} from 'utils';
+import {click} from 'triggerEvents';
 import {Map} from '@here/xyz-maps-core';
 import dataset from './disable_zoomcontrol_spec.json';
 
@@ -45,9 +47,9 @@ describe('disable zoomcontrol component', function() {
     it('validate zoomcontrol component is active', async function() {
         expect(display.getZoomlevel()).to.equal(18);
 
-        await displayTests.waitForViewportReady(display, ()=>{
+        await waitForViewportReady(display, ()=>{
             // click zoom control to zoom in
-            testUtils.events.click(mapContainer, 765, 520);
+            click(mapContainer, 765, 520);
         });
         expect(display.getZoomlevel()).to.equal(19);
     });
@@ -65,9 +67,9 @@ describe('disable zoomcontrol component', function() {
         expect(display.getZoomlevel()).to.equal(18);
 
         // click the position where zoom control was
-        await testUtils.events.click(mapContainer, 765, 520);
+        await click(mapContainer, 765, 520);
 
-        // await displayTests.waitForViewportReady(display);
+        // await waitForViewportReady(display);
         expect(display.getZoomlevel()).to.equal(18);
     });
 
@@ -81,9 +83,9 @@ describe('disable zoomcontrol component', function() {
 
         expect(display.getZoomlevel()).to.equal(18);
 
-        await displayTests.waitForViewportReady(display, ()=>{
+        await waitForViewportReady(display, ()=>{
             // click zoom control
-            testUtils.events.click(mapContainer, 765, 520);
+            click(mapContainer, 765, 520);
         });
 
         expect(display.getZoomlevel()).to.equal(19);

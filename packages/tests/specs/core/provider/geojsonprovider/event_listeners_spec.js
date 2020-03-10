@@ -17,7 +17,7 @@
  * License-Filename: LICENSE
  */
 
-import {prepare, testUtils} from 'hereTest';
+import {Listener, prepare} from 'utils';
 import dataset from './event_listeners_spec.json';
 
 describe('event listeners in provider layer', function() {
@@ -32,7 +32,7 @@ describe('event listeners in provider layer', function() {
 
 
     it('add and remove feature and validate add and remove events', function() {
-        let listener = new testUtils.Listener(poiProvider, ['featureAdd', 'featureRemove']);
+        let listener = new Listener(poiProvider, ['featureAdd', 'featureRemove']);
 
         poiProvider.addFeature({
             geometry: {
@@ -53,7 +53,7 @@ describe('event listeners in provider layer', function() {
         expect(evts.featureRemove).to.have.lengthOf(0);
 
 
-        let listener2 = new testUtils.Listener(poiProvider, ['featureAdd', 'featureRemove']);
+        let listener2 = new Listener(poiProvider, ['featureAdd', 'featureRemove']);
 
         poiProvider.removeFeature({
             type: 'Feature',

@@ -16,7 +16,9 @@
  * SPDX-License-Identifier: Apache-2.0
  * License-Filename: LICENSE
  */
-import {editorTests, testUtils, prepare} from 'hereTest';
+import {prepare} from 'utils';
+import {waitForEditorReady} from 'editorUtils';
+import {drag} from 'triggerEvents';
 import {Map} from '@here/xyz-maps-core';
 import {features, Editor} from '@here/xyz-maps-editor';
 import dataset from './autoconnectshapedistance_spec.json';
@@ -40,7 +42,7 @@ describe('set autoConnectShapeDistance', function() {
             layers: preparedData.getLayers()
         });
 
-        await editorTests.waitForEditorReady(editor);
+        await waitForEditorReady(editor);
 
         mapContainer = display.getContainer();
     });
@@ -58,7 +60,7 @@ describe('set autoConnectShapeDistance', function() {
         });
 
 
-        await editorTests.waitForEditorReady(editor, ()=>{
+        await waitForEditorReady(editor, ()=>{
             display.setCenter({longitude: 77.84172527566523, latitude: 17.450976000022266});
             display.setZoomlevel(19);
         });
@@ -69,10 +71,10 @@ describe('set autoConnectShapeDistance', function() {
 
         links[1].select();
 
-        await testUtils.events.drag(mapContainer, {x: 100, y: 100}, {x: 100, y: 265});
+        await drag(mapContainer, {x: 100, y: 100}, {x: 100, y: 265});
         expect(editor.info()).to.have.lengthOf(1);
 
-        await editorTests.waitForEditorReady(editor, ()=>{
+        await waitForEditorReady(editor, ()=>{
             editor.revert();
         });
     });
@@ -83,7 +85,7 @@ describe('set autoConnectShapeDistance', function() {
             layers: preparedData.getLayers()
         });
 
-        await editorTests.waitForEditorReady(editor, ()=>{
+        await waitForEditorReady(editor, ()=>{
             display.setCenter({longitude: 77.84172527566523, latitude: 17.450976000022266});
             display.setZoomlevel(19);
         });
@@ -94,13 +96,13 @@ describe('set autoConnectShapeDistance', function() {
 
         links[1].select();
 
-        await testUtils.events.drag(mapContainer, {x: 100, y: 100}, {x: 100, y: 265});
+        await drag(mapContainer, {x: 100, y: 100}, {x: 100, y: 265});
         expect(editor.info()).to.have.lengthOf(2);
 
-        await testUtils.events.drag(mapContainer, {x: 100, y: 265}, {x: 100, y: 294});
+        await drag(mapContainer, {x: 100, y: 265}, {x: 100, y: 294});
         expect(editor.info()).to.have.lengthOf(1);
 
-        await editorTests.waitForEditorReady(editor, ()=>{
+        await waitForEditorReady(editor, ()=>{
             editor.revert();
         });
     });

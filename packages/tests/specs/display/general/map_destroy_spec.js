@@ -17,7 +17,7 @@
  * License-Filename: LICENSE
  */
 
-import {prepare} from 'hereTest';
+import {prepare} from 'utils';
 import {Map} from '@here/xyz-maps-core';
 import dataset from './map_destroy_spec.json';
 

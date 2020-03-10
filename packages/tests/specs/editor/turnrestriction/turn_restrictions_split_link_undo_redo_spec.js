@@ -16,9 +16,11 @@
  * SPDX-License-Identifier: Apache-2.0
  * License-Filename: LICENSE
  */
-import {editorTests, testUtils, prepare} from 'hereTest';
+import {prepare} from 'utils';
+import {waitForEditorReady, editorClick} from 'editorUtils';
+import {click} from 'triggerEvents';
 import {Map} from '@here/xyz-maps-core';
-import {features, Editor} from '@here/xyz-maps-editor';
+import {Editor} from '@here/xyz-maps-editor';
 import dataset from './turn_restrictions_split_link_undo_redo_spec.json';
 
 describe('edit turn restriction split link then undo and redo the change', function() {
@@ -44,7 +46,7 @@ describe('edit turn restriction split link then undo and redo the change', funct
             layers: preparedData.getLayers()
         });
 
-        await editorTests.waitForEditorReady(editor);
+        await waitForEditorReady(editor);
         mapContainer = display.getContainer();
         linkLayer = preparedData.getLayers('linkLayer');
 
@@ -64,17 +66,17 @@ describe('edit turn restriction split link then undo and redo the change', funct
     it('set turn restriction and validate tr', async function() {
         link1.editTurnRestrictions();
 
-        await testUtils.events.click(mapContainer, 180, 100);
+        await click(mapContainer, 180, 100);
 
         // deactivate turn restriction
-        await testUtils.events.click(mapContainer, 120, 200);
+        await click(mapContainer, 120, 200);
 
         expect(link1.prop('turnRestriction')).to.deep.equal({start: [link2.id]});
     });
 
     it('get link to split and then validate link', async function() {
         link1.select();
-        let shape = (await editorTests.click(editor, 300, 100)).target;
+        let shape = (await editorClick(editor, 300, 100)).target;
         splitLinks = shape.splitLink();
 
         expect(splitLinks[0].prop('originLink')).to.be.equal(link1.id);

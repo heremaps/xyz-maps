@@ -5,9 +5,6 @@
             "id": "buildingProvider",
             "type": "TestProvider",
             "name": "Buildings",
-            "space": "${SPACEID}",
-            "url": "${URL}",
-            "credentials": "${CREDENTIALS}",
             "level": 13
         },
         "min": 14,
@@ -38,9 +35,6 @@
             "id": "linkProvider",
             "type": "TestProvider",
             "name": "Links",
-            "space": "${SPACEID}",
-            "url": "${URL}",
-            "credentials": "${CREDENTIALS}",
             "level": 15,
             "class": "NAVLINK"
         },
@@ -72,9 +66,6 @@
             "id": "paProvider",
             "type": "TestProvider",
             "name": "Address",
-            "space": "${SPACEID}",
-            "url": "${URL}",
-            "credentials": "${CREDENTIALS}",
             "level": 14
         },
         "min": 14,
@@ -101,9 +92,6 @@
             "id": "placeProvider",
             "type": "TestProvider",
             "name": "Places",
-            "space": "${SPACEID}",
-            "url": "${URL}",
-            "credentials": "${CREDENTIALS}",
             "level": 14
         },
         "min": 14,

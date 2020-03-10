@@ -16,16 +16,18 @@
  * SPDX-License-Identifier: Apache-2.0
  * License-Filename: LICENSE
  */
-import {editorTests, displayTests, testUtils, prepare} from 'hereTest';
+import {MonitorXHR, prepare} from 'utils';
+import {waitForEditorReady, submit} from 'editorUtils';
+import {drag} from 'triggerEvents';
 import {Map} from '@here/xyz-maps-core';
 import {features, Editor} from '@here/xyz-maps-editor';
+import chaiAlmost from 'chai-almost';
 import dataset from './address_create_outofview_spec.json';
 
 describe('add Address object and submit out of viewport', function() {
     const expect = chai.expect;
 
     let preparedData;
-    let address;
     let link;
 
     let editor;
@@ -35,6 +37,7 @@ describe('add Address object and submit out of viewport', function() {
     let paLayer;
 
     before(async function() {
+        chai.use(chaiAlmost(1e-7));
         preparedData = await prepare(dataset);
 
         display = new Map(document.getElementById('map'), {
@@ -44,7 +47,7 @@ describe('add Address object and submit out of viewport', function() {
         });
         editor = new Editor(display, {layers: preparedData.getLayers()});
 
-        await editorTests.waitForEditorReady(editor);
+        await waitForEditorReady(editor);
 
         linkLayer = preparedData.getLayers('linkLayer');
         paLayer = preparedData.getLayers('paLayer');
@@ -63,28 +66,28 @@ describe('add Address object and submit out of viewport', function() {
         let lk = new features.Navlink([{x: 250, y: 400}, {x: 400, y: 400}], {featureClass: 'NAVLINK'});
 
         link = editor.addFeature(lk, linkLayer);
-        address = editor.addFeature(addr, paLayer);
+        editor.addFeature(addr, paLayer);
 
         let objs = editor.search(display.getViewBounds());
         expect(objs).to.have.lengthOf(2);
 
         let mapContainer = display.getContainer();
         // drag map
-        await editorTests.waitForEditorReady(editor, async ()=>{
-            await testUtils.events.drag(mapContainer, {x: 300, y: 400}, {x: 350, y: 450});
+        await waitForEditorReady(editor, async ()=>{
+            await drag(mapContainer, {x: 300, y: 400}, {x: 350, y: 450});
         });
 
         editor.undo();
         editor.redo();
 
-        let monitor = new testUtils.MonitorXHR();
-
-        await editorTests.waitForEditorReady(editor, async ()=>{
-            idMap = await editorTests.submit(editor);
+        let monitor = new MonitorXHR();
+        monitor.start({method: 'post'});
+        await waitForEditorReady(editor, async ()=>{
+            idMap = await submit(editor);
         });
 
         let linkId = idMap.permanentIDMap[link.getProvider().id][link.id];
-        let reqs = monitor.stop({method: 'post'});
+        let reqs = monitor.stop();
         let payloadAddress;
         expect(reqs).to.have.lengthOf(2);
 
@@ -97,10 +100,8 @@ describe('add Address object and submit out of viewport', function() {
         link = editor.getFeature(linkId, linkLayer);
 
         payloadAddress.features.forEach(function(p, i) {
-            expect(p.geometry).to.deep.equal({
-                'coordinates': [76.516014886, 12.462893473, 0],
-                'type': 'Point'
-            });
+            expect(p.geometry.coordinates).to.deep.almost([76.516014886, 12.462893473, 0]);
+            expect(p.geometry.type).to.deep.equal('Point');
             expect(p.type).to.equal('Feature');
 
             expect(p.properties).to.deep.include({
@@ -112,7 +113,7 @@ describe('add Address object and submit out of viewport', function() {
     });
 
     it('move map and then remove the address object and submit', async function() {
-        await editorTests.waitForEditorReady(editor, ()=>{
+        await waitForEditorReady(editor, ()=>{
             display.setCenter({longitude: 76.51452894260433, latitude: 12.463857265087213});
         });
 
@@ -123,12 +124,12 @@ describe('add Address object and submit out of viewport', function() {
             o.remove();
         });
 
-        let monitor = new testUtils.MonitorXHR(/&id=/);
-
-        await editorTests.waitForEditorReady(editor, async ()=>{
-            await editorTests.submit(editor);
+        let monitor = new MonitorXHR(/&id=/);
+        monitor.start({method: 'delete'});
+        await waitForEditorReady(editor, async ()=>{
+            await submit(editor);
         });
-        let request = monitor.stop({method: 'delete'})[0];
+        let request = monitor.stop()[0];
 
         expect(request.payload).to.equal(null);
         expect(request.method).to.equal('DELETE');

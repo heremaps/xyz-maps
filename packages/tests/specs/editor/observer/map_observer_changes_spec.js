@@ -16,7 +16,8 @@
  * SPDX-License-Identifier: Apache-2.0
  * License-Filename: LICENSE
  */
-import {editorTests, testUtils, prepare} from 'hereTest';
+import {Observer, prepare} from 'utils';
+import {waitForEditorReady, clean, submit} from 'editorUtils';
 import dataset from './map_observer_changes_spec.json';
 import {Map} from '@here/xyz-maps-core';
 import {features, Editor} from '@here/xyz-maps-editor';
@@ -39,11 +40,11 @@ describe('map changes observers', function() {
         editor = new Editor(display, {
             layers: preparedData.getLayers()
         });
-        await editorTests.waitForEditorReady(editor);
+        await waitForEditorReady(editor);
     });
 
     after(async function() {
-        await editorTests.clean(editor, idMaps);
+        await clean(editor, idMaps);
         editor.destroy();
         display.destroy();
 
@@ -51,7 +52,7 @@ describe('map changes observers', function() {
     });
 
     it('observe changes history with undo, redo', async function() {
-        let observer = new testUtils.Observer(editor, 'history.current');
+        let observer = new Observer(editor, 'history.current');
 
         let addr1 = new features.Address({x: 200, y: 300}, {featureClass: 'ADDRESS'});
         let lnk = new features.Navlink([{x: 100, y: 200}, {x: 200, y: 300}], {featureClass: 'NAVLINK'});
@@ -62,7 +63,7 @@ describe('map changes observers', function() {
         editor.undo();
         editor.redo();
 
-        await editorTests.waitForEditorReady(editor, ()=>{
+        await waitForEditorReady(editor, ()=>{
             editor.revert();
         });
 
@@ -71,22 +72,22 @@ describe('map changes observers', function() {
     });
 
     it('observe changes history with undo, revert and submit', async function() {
-        let observer = new testUtils.Observer(editor, 'history.current');
+        let observer = new Observer(editor, 'history.current');
 
         let addr1 = new features.Address({x: 200, y: 300}, {featureClass: 'ADDRESS'});
         editor.addFeature(addr1);
 
         editor.undo();
 
-        await editorTests.waitForEditorReady(editor, ()=>{
+        await waitForEditorReady(editor, ()=>{
             editor.revert();
         });
 
         let addr2 = new features.Address({x: 300, y: 300}, {featureClass: 'ADDRESS'});
         editor.addFeature(addr2);
         let idMap;
-        await editorTests.waitForEditorReady(editor, async ()=>{
-            idMap = await editorTests.submit(editor);
+        await waitForEditorReady(editor, async ()=>{
+            idMap = await submit(editor);
             idMaps.push(idMap);
         });
 

@@ -17,7 +17,9 @@
  * License-Filename: LICENSE
  */
 
-import {displayTests, testUtils, prepare} from 'hereTest';
+import {waitForViewportReady} from 'displayUtils';
+import {Listener, prepare} from 'utils';
+import {click} from 'triggerEvents';
 import {Map} from '@here/xyz-maps-core';
 import dataset from './pointer_down_up_listener_spec.json';
 
@@ -36,7 +38,7 @@ describe('pointer down and pointer up listener', function() {
             layers: preparedData.getLayers()
         });
 
-        await displayTests.waitForViewportReady(display);
+        await waitForViewportReady(display);
         mapContainer = display.getContainer();
     });
 
@@ -46,9 +48,9 @@ describe('pointer down and pointer up listener', function() {
     });
 
     it('validate pointer down and up events on link', async function() {
-        let listener = new testUtils.Listener(display, ['pointerdown', 'pointerup']);
+        let listener = new Listener(display, ['pointerdown', 'pointerup']);
 
-        await testUtils.events.click(mapContainer, 554, 243);
+        await click(mapContainer, 554, 243);
 
         let results = listener.stop();
 
@@ -72,9 +74,9 @@ describe('pointer down and pointer up listener', function() {
     });
 
     it('validate pointer down and up events on poi', async function() {
-        let listener = new testUtils.Listener(display, ['pointerdown', 'pointerup']);
+        let listener = new Listener(display, ['pointerdown', 'pointerup']);
 
-        await testUtils.events.click(mapContainer, 616, 240);
+        await click(mapContainer, 616, 240);
 
         let results = listener.stop();
 
@@ -99,9 +101,9 @@ describe('pointer down and pointer up listener', function() {
 
 
     it('validate pointer down and up events on the ground', async function() {
-        let listener = new testUtils.Listener(display, ['pointerdown', 'pointerup']);
+        let listener = new Listener(display, ['pointerdown', 'pointerup']);
 
-        await testUtils.events.click(mapContainer, 253, 204);
+        await click(mapContainer, 253, 204);
 
         let results = listener.stop();
 

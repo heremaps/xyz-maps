@@ -18,7 +18,7 @@
  */
 
 import {providers, layers} from '@here/xyz-maps-core';
-import OverlayStyles from '../styles/WikiOverlayStyles';
+import OverlayStyles from '../styles/OverlayStyles';
 import InternalEditor from '../IEditor';
 
 

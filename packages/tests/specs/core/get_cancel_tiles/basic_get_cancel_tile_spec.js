@@ -17,7 +17,8 @@
  * License-Filename: LICENSE
  */
 
-import {coreTests, prepare} from 'hereTest';
+import {prepare} from 'utils';
+import {getTileOnProvider} from 'coreUtils';
 import dataset from './basic_get_cancel_tile_spec.json';
 
 describe('basic get and cancel tiles', function() {
@@ -85,7 +86,7 @@ describe('basic get and cancel tiles', function() {
     // Sydney, AUS
     it('get one tile and dont cancel', function(done) {
         // qk1     = '3112301330002101' // length 16
-        coreTests.getTileOnProvider({
+        getTileOnProvider({
             provider: placeProvider,
             quadkeys: [qk1],
             sameCallback: false,
@@ -108,7 +109,7 @@ describe('basic get and cancel tiles', function() {
 
     it('get one tile and cancel', function(done) {
         // qk2     = '3112301330002102' // length 16
-        coreTests.getTileOnProvider({
+        getTileOnProvider({
             provider: placeProvider,
             quadkeys: [qk2],
             sameCallback: false,
@@ -137,7 +138,7 @@ describe('basic get and cancel tiles', function() {
     it('get two tile and dont cancel', function(done) {
         // qk31    = '3112301330002111' // length 16
         // qk32    = '3112301330002112' // length 16
-        coreTests.getTileOnProvider({
+        getTileOnProvider({
             provider: placeProvider,
             quadkeys: [qk31, qk32],
             sameCallback: false,
@@ -165,7 +166,7 @@ describe('basic get and cancel tiles', function() {
     it('get two tile and cancel first request', function(done) {
         // qk41    = '3112301330002121' // length 16
         // qk42    = '3112301330002122' // length 16
-        coreTests.getTileOnProvider({
+        getTileOnProvider({
             provider: placeProvider,
             quadkeys: [qk41, qk42],
             sameCallback: false,
@@ -201,7 +202,7 @@ describe('basic get and cancel tiles', function() {
     it('get two tile and cancel both requests', function(done) {
         // qk51    = '3112301330002131' // length 16
         // qk52    = '3112301330002132' // length 16
-        coreTests.getTileOnProvider({
+        getTileOnProvider({
             provider: placeProvider,
             quadkeys: [qk51, qk52],
             sameCallback: false,
@@ -236,7 +237,7 @@ describe('basic get and cancel tiles', function() {
         // qk61    = '3112301330002200' // length 16
         // qk62    = '3112301330002201' // length 16
         // qk63    = '3112301330002202' // length 16
-        coreTests.getTileOnProvider({
+        getTileOnProvider({
             provider: placeProvider,
             quadkeys: [qk61, qk62, qk63],
             sameCallback: false,
@@ -270,7 +271,7 @@ describe('basic get and cancel tiles', function() {
         // qk71    = '3112301330002210' // length 16
         // qk72    = '3112301330002211' // length 16
         // qk73    = '3112301330002212' // length 16
-        coreTests.getTileOnProvider({
+        getTileOnProvider({
             provider: placeProvider,
             quadkeys: [qk71, qk72, qk73],
             sameCallback: false,
@@ -305,7 +306,7 @@ describe('basic get and cancel tiles', function() {
         // qk81    = '3112301330002220' // length 16
         // qk82    = '3112301330002221' // length 16
         // qk83    = '3112301330002222' // length 16
-        coreTests.getTileOnProvider({
+        getTileOnProvider({
             provider: placeProvider,
             quadkeys: [qk81, qk82, qk83],
             sameCallback: false,

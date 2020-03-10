@@ -16,7 +16,8 @@
  * SPDX-License-Identifier: Apache-2.0
  * License-Filename: LICENSE
  */
-import {editorTests, testUtils, prepare} from 'hereTest';
+import {Observer, prepare} from 'utils';
+import {waitForEditorReady} from 'editorUtils';
 import {Map} from '@here/xyz-maps-core';
 import {Editor} from '@here/xyz-maps-editor';
 import dataset from './map_observer_active_spec.json';
@@ -38,7 +39,7 @@ describe('map active observer', function() {
         editor = new Editor(display, {
             layers: preparedData.getLayers()
         });
-        await editorTests.waitForEditorReady(editor);
+        await waitForEditorReady(editor);
     });
 
     after(async function() {
@@ -47,7 +48,7 @@ describe('map active observer', function() {
     });
 
     it('observe active', function() {
-        let observer = new testUtils.Observer(editor, ['active', 'ready']);
+        let observer = new Observer(editor, ['active', 'ready']);
 
         editor.active(false);
 

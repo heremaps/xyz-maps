@@ -17,7 +17,7 @@
  * License-Filename: LICENSE
  */
 
-import {prepare} from 'hereTest';
+import {prepare} from 'utils';
 import dataset from './add_remove_multiple_feature_spec.json';
 
 describe('add and remove multiple features in layer', function() {

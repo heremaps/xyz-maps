@@ -137,7 +137,7 @@
 		});
 
         // setup the Map Display
-		const display = new  here.xyz.maps.Map( document.getElementById("map"), {
+		const display = new here.xyz.maps.Map( document.getElementById("map"), {
 			zoomLevel : 17,
 			center: {
 				longitude: -122.283766, latitude: 37.818477
@@ -177,10 +177,11 @@ var onChangeHandler = function(zones){
 document.querySelector("#showbtn").onclick = function(){
 
 	var navlink = editor.getFeature("m1v9xTLkjLn0IVkp", navlinkLayer);
+    var navlink2 = editor.getFeature("9tDPp8Wwv4DqKkVR", navlinkLayer);
 
 	// Add navlink to zone Selector
 	var zoneSelector = editor.getZoneSelector();
-	zoneSelector.add( navlink );
+	zoneSelector.add( [navlink, navlink2] );
 
 	// show zone Selector with two zones
 	zoneSelector.show({
@@ -207,6 +208,8 @@ document.querySelector("#hidebtn").onclick = function(){
 	infoTag.innerText = "Zone Info";
 }
 /*visiblesource###*/
+            // used by playground to automatically resize the map on size change
+            window.display = display;
 		</script>
 	</body>
 </html>

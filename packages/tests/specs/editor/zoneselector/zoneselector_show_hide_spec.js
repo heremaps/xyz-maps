@@ -16,7 +16,9 @@
  * SPDX-License-Identifier: Apache-2.0
  * License-Filename: LICENSE
  */
-import {editorTests, testUtils, prepare} from 'hereTest';
+import {prepare} from 'utils';
+import {waitForEditorReady} from 'editorUtils';
+import {drag} from 'triggerEvents';
 import {Map} from '@here/xyz-maps-core';
 import {Editor} from '@here/xyz-maps-editor';
 import dataset from './zoneselector_show_hide_spec.json';
@@ -40,7 +42,7 @@ describe('zone selector show and hide', function() {
         editor = new Editor(display, {
             layers: preparedData.getLayers()
         });
-        await editorTests.waitForEditorReady(editor);
+        await waitForEditorReady(editor);
         mapContainer = display.getContainer();
         link1 = preparedData.getFeature('linkLayer', '-18254');
         link2 = preparedData.getFeature('linkLayer', '-18255');
@@ -67,7 +69,7 @@ describe('zone selector show and hide', function() {
             }
         });
 
-        await testUtils.events.drag(mapContainer, {x: 120, y: 185}, {x: 120, y: 200});
+        await drag(mapContainer, {x: 120, y: 185}, {x: 120, y: 200});
 
         expect(results[0]).to.deep.include({
             from: 0.10000000000200623,
@@ -97,7 +99,7 @@ describe('zone selector show and hide', function() {
             }
         });
 
-        await testUtils.events.drag(mapContainer, {x: 140, y: 296}, {x: 140, y: 280});
+        await drag(mapContainer, {x: 140, y: 296}, {x: 140, y: 280});
 
         expect(results[0]).to.deep.include({
             from: 0.09999999998970112,
@@ -115,7 +117,7 @@ describe('zone selector show and hide', function() {
 
         link4.select();
 
-        await testUtils.events.drag(mapContainer, {x: 423, y: 276}, {x: 400, y: 276});
+        await drag(mapContainer, {x: 423, y: 276}, {x: 400, y: 276});
 
         expect(editor.info()).to.have.lengthOf(1);
     });

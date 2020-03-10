@@ -15,7 +15,9 @@
  *
  * SPDX-License-Identifier: Apache-2.0
  * License-Filename: LICENSE
- */import {editorTests, prepare} from 'hereTest';
+ */
+import {prepare} from 'utils';
+import {waitForEditorReady} from 'editorUtils';
 import {Map} from '@here/xyz-maps-core';
 import {features, Editor} from '@here/xyz-maps-editor';
 import chaiAlmost from 'chai-almost';
@@ -32,7 +34,7 @@ describe('link add shape point', function() {
     var linkLayer;
 
     before(async function() {
-        chai.use(chaiAlmost());
+        chai.use(chaiAlmost(1e-7));
         preparedData = await prepare(dataset);
         display = new Map(document.getElementById('map'), {
             center: {latitude: 12.94086, longitude: 76.99443},
@@ -43,7 +45,7 @@ describe('link add shape point', function() {
             layers: preparedData.getLayers()
         });
 
-        await editorTests.waitForEditorReady(editor);
+        await waitForEditorReady(editor);
         linkLayer = preparedData.getLayers('linkLayer');
     });
 

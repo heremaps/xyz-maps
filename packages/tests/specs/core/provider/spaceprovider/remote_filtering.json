@@ -1,0 +1,83 @@
+{
+    "layers": [{
+        "id": "spaceLayer",
+        "provider": {
+            "id": "spaceProvider",
+            "type": "SpaceProvider",
+            "name": "my SpaceProvider",
+            "level": 1,
+            "url": "${URL}",
+            "https": false,
+            "space": "${SPACEID}",
+            "credentials": "${CREDENTIALS}"
+        },
+        "min": 14,
+        "max": 20,
+        "data": {
+            "remote": [{
+                "type": "Feature",
+                "properties": {
+                    "name": "Anfield",
+                    "sport": "association football",
+                    "amenity": "Soccer Stadium",
+                    "capacity": 54000,
+                    "popupContent": "Home of Liverpool Football Club",
+                    "@ns:com:here:xyz": {
+                        "tags": ["soccer", "stadium"]
+                    }
+                },
+                "geometry": {
+                    "type": "Point",
+                    "coordinates": [20.45512, 44.76173]
+                }
+            }, {
+                "type": "Feature",
+                "properties": {
+                    "name": "Stade de Gerland",
+                    "sport": "association football",
+                    "amenity": "Rugby Stadium",
+                    "capacity": 41000,
+                    "occupant": "Lyon OU",
+                    "@ns:com:here:xyz": {
+                        "tags": ["rugby", "stadium"]
+                    }
+                },
+                "geometry": {
+                    "type": "Point",
+                    "coordinates": [4.8325, 45.723889]
+                }
+            }, {
+                "type": "Feature",
+                "properties": {
+                    "name": "Olympique Lyonnais",
+                    "sport": "association football",
+                    "amenity": "Soccer Stadium",
+                    "capacity": 60000,
+                    "occupant": "Olympique Lyonnais",
+                    "@ns:com:here:xyz": {
+                        "tags": ["soccer", "stadium"]
+                    }
+                },
+                "geometry": {
+                    "type": "Point",
+                    "coordinates": [4.979825, 45.764327777]
+                }
+            }, {
+                "type": "Feature",
+                "properties": {
+                    "name": "Stade Geoffroy-Guichard",
+                    "sport": "association football",
+                    "amenity": "Soccer Stadium",
+                    "capacity": 35616,
+                    "@ns:com:here:xyz": {
+                        "tags": ["soccer", "stadium"]
+                    }
+                },
+                "geometry": {
+                    "type": "Point",
+                    "coordinates": [4.3887178, 45.4607733]
+                }
+            }]
+        }
+    }]
+}

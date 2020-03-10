@@ -5,11 +5,7 @@
             "id": "spaceProvider",
             "type": "SpaceProvider",
             "name": "my SpaceProvider",
-            "level": 1,
-            "url": "${URL}",
-            "https": false,
-            "space": "${SPACEID}",
-            "credentials": "${CREDENTIALS}"
+            "level": 1
         },
         "min": 14,
         "max": 20,
@@ -19,7 +15,7 @@
                 "properties": {
                     "name": "Anfield",
                     "amenity": "Football Stadium",
-                    "capacity": 54074,
+                    "capacity": 54000,
                     "popupContent": "Home of Liverpool Football Club",
                     "@ns:com:here:xyz": {
                         "tags": ["football", "stadium"]
@@ -27,7 +23,7 @@
                 },
                 "geometry": {
                     "type": "Point",
-                    "coordinates": [20.455120646705893, 44.76173261908431]
+                    "coordinates": [20.45512, 44.76173]
                 }
             }, {
                 "type": "Feature",
@@ -35,7 +31,7 @@
                     "name": "Stade de Gerland",
                     "sport": "association football",
                     "amenity": "Soccer Stadium",
-                    "capacity": 41044,
+                    "capacity": 41000,
                     "occupant": "Lyon OU",
                     "@ns:com:here:xyz": {
                         "tags": ["soccer", "stadium"]
@@ -51,7 +47,7 @@
                     "name": "Olympique Lyonnais",
                     "sport": "association football",
                     "amenity": "Soccer Stadium",
-                    "capacity": 59186,
+                    "capacity": 60000,
                     "occupant": "Olympique Lyonnais",
                     "@ns:com:here:xyz": {
                         "tags": ["soccer", "stadium"]
@@ -64,7 +60,7 @@
             }],
             "local": [{
                 "geometry": {
-                    "coordinates": [20.455120646705893, 44.76173261908431, 0],
+                    "coordinates": [20.45512, 44.761732, 0],
                     "type": "Point"
                 },
                 "type": "Feature",

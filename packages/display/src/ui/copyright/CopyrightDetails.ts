@@ -44,7 +44,7 @@ class CopyrightDetails extends UIComponent {
 
     private add(data: CopyrightSource) {
         // const el = this.html;
-        const el = createElement('div', this.prefixClass('.src').substr(1), '© ' + data.label, this.html);
+        const el = createElement('div', this.prefixClass('.src').substr(1), '\u00A9 ' + data.label, this.html);
     }
 
     setData(data: CopyrightSource[]) {

@@ -16,9 +16,12 @@
  * SPDX-License-Identifier: Apache-2.0
  * License-Filename: LICENSE
  */
-import {editorTests, displayTests, testUtils, prepare} from 'hereTest';
+import {prepare} from 'utils';
+import {waitForEditorReady, editorClick} from 'editorUtils';
+import {drag, click, mousemove} from 'triggerEvents';
 import {Map} from '@here/xyz-maps-core';
 import {features, Editor} from '@here/xyz-maps-editor';
+import chaiAlmost from 'chai-almost';
 import dataset from './area_create_drawingmanager_pan_map_spec.json';
 
 describe('Area drawing manager and pan map', function() {
@@ -30,6 +33,7 @@ describe('Area drawing manager and pan map', function() {
     let mapContainer;
 
     before(async function() {
+        chai.use(chaiAlmost(1e-7));
         preparedData = await prepare(dataset);
         display = new Map(document.getElementById('map'), {
             center: {longitude: 76.08312571088209, latitude: 13.214838342327566},
@@ -40,7 +44,7 @@ describe('Area drawing manager and pan map', function() {
             layers: preparedData.getLayers()
         });
 
-        await editorTests.waitForEditorReady(editor);
+        await waitForEditorReady(editor);
 
         mapContainer = display.getContainer();
     });
@@ -55,44 +59,44 @@ describe('Area drawing manager and pan map', function() {
 
 
         // add a shape point
-        await testUtils.events.mousemove(mapContainer, {x: 100, y: 100}, {x: 100, y: 200});
-        await testUtils.events.click(mapContainer, 100, 200);
+        await mousemove(mapContainer, {x: 100, y: 100}, {x: 100, y: 200});
+        await click(mapContainer, 100, 200);
 
 
         // add one more shape point
-        await testUtils.events.mousemove(mapContainer, {x: 100, y: 200}, {x: 200, y: 100});
-        await testUtils.events.click(mapContainer, 200, 100);
+        await mousemove(mapContainer, {x: 100, y: 200}, {x: 200, y: 100});
+        await click(mapContainer, 200, 100);
 
 
         // add one more shape point
-        await testUtils.events.mousemove(mapContainer, {x: 200, y: 100}, {x: 300, y: 250});
-        await testUtils.events.click(mapContainer, 300, 250);
+        await mousemove(mapContainer, {x: 200, y: 100}, {x: 300, y: 250});
+        await click(mapContainer, 300, 250);
 
 
         // click on shape point and remove
-        let shape = (await editorTests.click(editor, 200, 100)).target;
+        let shape = (await editorClick(editor, 200, 100)).target;
         shape.remove();
 
 
         // click on another shape point
-        await testUtils.events.mousemove(mapContainer, {x: 200, y: 100}, {x: 200, y: 350});
-        await testUtils.events.click(mapContainer, 200, 350);
+        await mousemove(mapContainer, {x: 200, y: 100}, {x: 200, y: 350});
+        await click(mapContainer, 200, 350);
 
         // drag the shape point
-        await testUtils.events.drag(mapContainer, {x: 200, y: 350}, {x: 400, y: 350});
+        await drag(mapContainer, {x: 200, y: 350}, {x: 400, y: 350});
 
         // click on a shape point
-        shape = (await editorTests.click(editor, 300, 250)).target;
+        shape = (await editorClick(editor, 300, 250)).target;
 
         expect(shape.getIndex()).to.equal(1);
         expect(shape.getLength()).to.equal(3);
 
         // drag map to move area outside of viewport
-        await editorTests.waitForEditorReady(editor, async ()=>{
-            await testUtils.events.drag(mapContainer, {x: 500, y: 100}, {x: 100, y: 100});
+        await waitForEditorReady(editor, async ()=>{
+            await drag(mapContainer, {x: 500, y: 100}, {x: 100, y: 100});
         });
 
-        await editorTests.waitForEditorReady(editor, async ()=>{
+        await waitForEditorReady(editor, async ()=>{
             editor.getDrawingBoard().create({featureClass: 'AREA'});
         });
     });
@@ -100,13 +104,13 @@ describe('Area drawing manager and pan map', function() {
 
     it('drag map and validate created area', async function() {
         // drag map to move area back to viewport
-        await editorTests.waitForEditorReady(editor, async ()=>{
-            await testUtils.events.drag(mapContainer, {x: 100, y: 100}, {x: 500, y: 100});
+        await waitForEditorReady(editor, async ()=>{
+            await drag(mapContainer, {x: 100, y: 100}, {x: 500, y: 100});
         });
 
-        let area = (await editorTests.click(editor, 271, 266)).target;
+        let area = (await editorClick(editor, 271, 266)).target;
 
-        expect(area.coord()).to.deep.equal([[[
+        expect(area.coord()).to.deep.almost([[[
             [76.081516385, 13.215360578, 0],
             [76.082589269, 13.215099461, 0],
             [76.083125711, 13.214577224, 0],

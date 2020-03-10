@@ -7,7 +7,6 @@
     <script src="${XYZ_COMMON_PATH}" type="text/javascript" charset="UTF-8"></script>
     <script src="${XYZ_CORE_PATH}" type="text/javascript" charset="UTF-8"></script>
     <script src="${XYZ_DISPLAY_PATH}" type="text/javascript" charset="UTF-8"></script>
-    <script src="${XYZ_PLUGINS_PATH}"></script>
 
     <style type="text/css">
         #map {
@@ -84,6 +83,9 @@
         ]
     });
     /*visiblesource###*/
+
+    // used by playground to automatically resize the map on size change
+    window.display = display;
 </script>
 </body>
 </html>

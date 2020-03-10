@@ -16,7 +16,9 @@
  * SPDX-License-Identifier: Apache-2.0
  * License-Filename: LICENSE
  */
-import {editorTests, testUtils, prepare} from 'hereTest';
+import {prepare} from 'utils';
+import {waitForEditorReady} from 'editorUtils';
+import {click, mousemove} from 'triggerEvents';
 import {Map} from '@here/xyz-maps-core';
 import {Editor} from '@here/xyz-maps-editor';
 import dataset from './drawingmanager_create_cancel_and_destroy_editor_display.json';
@@ -35,16 +37,16 @@ describe('Drawing manager create or cancel drawing and then destroy editor and d
         let editor = new Editor(display, {
             layers: preparedData.getLayers()
         });
-        await editorTests.waitForEditorReady(editor);
+        await waitForEditorReady(editor);
         let mapContainer = display.getContainer();
 
         editor.getDrawingBoard().start();
 
-        await testUtils.events.mousemove(mapContainer, {x: 100, y: 200}, {x: 200, y: 200});
-        await testUtils.events.click(mapContainer, 200, 200);
+        await mousemove(mapContainer, {x: 100, y: 200}, {x: 200, y: 200});
+        await click(mapContainer, 200, 200);
 
-        await testUtils.events.mousemove(mapContainer, {x: 200, y: 200}, {x: 200, y: 300});
-        await testUtils.events.click(mapContainer, 200, 300);
+        await mousemove(mapContainer, {x: 200, y: 200}, {x: 200, y: 300});
+        await click(mapContainer, 200, 300);
 
         editor.getDrawingBoard().create({featureClass: 'NAVLINK'});
 
@@ -63,16 +65,16 @@ describe('Drawing manager create or cancel drawing and then destroy editor and d
         let editor = new Editor(display, {
             layers: preparedData.getLayers()
         });
-        await editorTests.waitForEditorReady(editor);
+        await waitForEditorReady(editor);
         let mapContainer = display.getContainer();
 
         editor.getDrawingBoard().start();
 
-        await testUtils.events.mousemove(mapContainer, {x: 100, y: 200}, {x: 200, y: 200});
-        await testUtils.events.click(mapContainer, 200, 200);
+        await mousemove(mapContainer, {x: 100, y: 200}, {x: 200, y: 200});
+        await click(mapContainer, 200, 200);
 
-        await testUtils.events.mousemove(mapContainer, {x: 200, y: 200}, {x: 200, y: 300});
-        await testUtils.events.click(mapContainer, 200, 300);
+        await mousemove(mapContainer, {x: 200, y: 200}, {x: 200, y: 300});
+        await click(mapContainer, 200, 300);
 
         editor.getDrawingBoard().cancel();
 

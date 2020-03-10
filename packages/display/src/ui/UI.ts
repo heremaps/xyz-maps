@@ -17,10 +17,12 @@
  * License-Filename: LICENSE
  */
 
-import {JSUtils} from '@here/xyz-maps-common';
 import ZoomControl from './ZoomControl';
 import Copyright from './copyright/Copyright';
 import Logo from './Logo';
+import UIComponent from './UIComponent';
+import Display from '../Map';
+import {MapOptions} from '../Config';
 
 const Components = {
 
@@ -29,31 +31,17 @@ const Components = {
     Logo: Logo
 
 };
-const defaultOptions = {
-
-    Copyright: {
-        visible: true
-    },
-
-    ZoomControl: {
-        visible: true
-    },
-
-    Logo: {
-        visible: true
-    }
-};
 
 let UNDEF;
 
 class UI {
-    components: any;
+    components: { [name: string]: UIComponent };
     el: HTMLElement;
 
-    constructor(element: HTMLElement, mapfcg, display) {
+    constructor(element: HTMLElement, mapfcg: MapOptions, display: Display) {
         const ui = this;
-        let uiOptions = {...mapfcg['UI'] || mapfcg['ui'] || {}};
-        let uiComponents = ui.components = {};
+        const uiOptions = {...mapfcg['UI'] || mapfcg['ui'] || {}};
+        const uiComponents = ui.components = {};
 
         ui.el = element;
 
@@ -62,28 +50,29 @@ class UI {
             uiOptions.Logo = uiOptions.HERE;
         }
 
-        uiOptions = JSUtils.extend(true,
-            JSUtils.clone(defaultOptions),
-            uiOptions
-        );
-
-        for (let c in uiOptions) {
+        for (let c in Components) {
             let opt = uiOptions[c];
 
-            if (opt.visible && Components[c]) {
-                // ui[c] = new Components[c]( uiContainer, opt, display )
-                uiComponents[c] = new Components[c](element, opt, display, mapfcg);
+            if (opt !== false) {
+                if (typeof opt != 'object') {
+                    opt = {};
+                }
+                if (opt.visible == UNDEF) {
+                    opt.visible = true;
+                }
+                if (opt.visible) {
+                    uiComponents[c] = new Components[c](element, opt, display, mapfcg);
+                }
             }
         }
     }
 
     destroy() {
-        const element = this.el;
-        const components = this.components;
+        const {el, components} = this;
         for (let name in components) {
             components[name].disable();
         }
-        element.parentNode.removeChild(element);
+        el.parentNode.removeChild(el);
     };
 };
 

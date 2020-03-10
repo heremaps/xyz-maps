@@ -16,7 +16,9 @@
  * SPDX-License-Identifier: Apache-2.0
  * License-Filename: LICENSE
  */
-import {editorTests, testUtils, prepare} from 'hereTest';
+import {prepare} from 'utils';
+import {waitForEditorReady} from 'editorUtils';
+import {drag} from 'triggerEvents';
 import {Map} from '@here/xyz-maps-core';
 import {Editor} from '@here/xyz-maps-editor';
 import dataset from './link_automatic_snapping_remove_link_commit_spec.json';
@@ -40,7 +42,7 @@ describe('link auto remove link then commit', function() {
             layers: preparedData.getLayers()
         });
 
-        await editorTests.waitForEditorReady(editor);
+        await waitForEditorReady(editor);
 
         link = preparedData.getFeature('linkLayer', -189019);
     });
@@ -55,7 +57,7 @@ describe('link auto remove link then commit', function() {
         link.select();
 
         let mapContainer = display.getContainer();
-        await testUtils.events.drag(mapContainer, {x: 100, y: 100}, {x: 200, y: 100});
+        await drag(mapContainer, {x: 100, y: 100}, {x: 200, y: 100});
 
         expect(editor.info()).to.have.lengthOf(1);
 
@@ -67,7 +69,7 @@ describe('link auto remove link then commit', function() {
     it('submit the change and validate link is removed', async function() {
         let result;
 
-        await editorTests.waitForEditorReady(editor, async ()=>{
+        await waitForEditorReady(editor, async ()=>{
             await new Promise((resolve)=>{
                 result = editor.submit({
                     onSuccess: function(idMap) {

@@ -16,9 +16,11 @@
  * SPDX-License-Identifier: Apache-2.0
  * License-Filename: LICENSE
  */
-import {editorTests, testUtils, prepare} from 'hereTest';
+import {prepare} from 'utils';
+import {waitForEditorReady} from 'editorUtils';
+import {drag} from 'triggerEvents';
 import {Map} from '@here/xyz-maps-core';
-import {features, Editor} from '@here/xyz-maps-editor';
+import {Editor} from '@here/xyz-maps-editor';
 import dataset from './link_modify_address_changed_spec.json';
 
 describe('link modify, address changed automatically', function() {
@@ -42,7 +44,7 @@ describe('link modify, address changed automatically', function() {
             layers: preparedData.getLayers()
         });
 
-        await editorTests.waitForEditorReady(editor);
+        await waitForEditorReady(editor);
         mapContainer = display.getContainer();
 
         link = preparedData.getFeature('linkLayer', -189075);
@@ -58,7 +60,7 @@ describe('link modify, address changed automatically', function() {
     it('select a link and drag', async function() {
         link.select();
 
-        await testUtils.events.drag(mapContainer, {x: 300, y: 226}, {x: 300, y: 300});
+        await drag(mapContainer, {x: 300, y: 226}, {x: 300, y: 300});
 
         expect(editor.info()).to.have.lengthOf(4);
     });
@@ -69,7 +71,7 @@ describe('link modify, address changed automatically', function() {
         let lnk = editor.getFeature(link.id, linkLayer);
         lnk.select();
 
-        await testUtils.events.drag(mapContainer, {x: 300, y: 226}, {x: 398, y: 240});
+        await drag(mapContainer, {x: 300, y: 226}, {x: 398, y: 240});
 
         expect(editor.info()).to.have.lengthOf(4);
     });

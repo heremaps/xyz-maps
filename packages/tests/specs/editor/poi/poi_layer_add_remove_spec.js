@@ -16,9 +16,11 @@
  * SPDX-License-Identifier: Apache-2.0
  * License-Filename: LICENSE
  */
-import {editorTests, displayTests, testUtils, prepare} from 'hereTest';
+import {prepare} from 'utils';
+import {waitForEditorReady} from 'editorUtils';
+import {drag, click} from 'triggerEvents';
 import {Map} from '@here/xyz-maps-core';
-import {features, Editor} from '@here/xyz-maps-editor';
+import {Editor} from '@here/xyz-maps-editor';
 import dataset from './poi_layer_add_remove_spec.json';
 
 describe('POI layer add and remove', function() {
@@ -41,7 +43,7 @@ describe('POI layer add and remove', function() {
             layers: preparedData.getLayers()
         });
 
-        await editorTests.waitForEditorReady(editor);
+        await waitForEditorReady(editor);
         mapContainer = display.getContainer();
 
         poiLayer = preparedData.getLayers('placeLayer');
@@ -66,16 +68,16 @@ describe('POI layer add and remove', function() {
     });
 
     it('try dragging the poi and validate the map is dragged', async function() {
-        await testUtils.events.click(mapContainer, 200, 250);
-        await editorTests.waitForEditorReady(editor, async ()=>{
-            await testUtils.events.drag(mapContainer, {x: 200, y: 250}, {x: 250, y: 280});
+        await click(mapContainer, 200, 250);
+        await waitForEditorReady(editor, async ()=>{
+            await drag(mapContainer, {x: 200, y: 250}, {x: 250, y: 280});
         });
 
         expect(display.getCenter().longitude).to.not.equal(75.54966);
     });
 
     it('add poi layer, and validate it is added', async function() {
-        await editorTests.waitForEditorReady(editor, ()=>{
+        await waitForEditorReady(editor, ()=>{
             display.setCenter({longitude: 75.54966, latitude: 14.02363});
         });
 
@@ -88,8 +90,8 @@ describe('POI layer add and remove', function() {
     });
 
     it('try dragging the poi and validate the map is not dragged', async function() {
-        await testUtils.events.click(mapContainer, 200, 250);
-        await testUtils.events.drag(mapContainer, {x: 200, y: 250}, {x: 200, y: 260});
+        await click(mapContainer, 200, 250);
+        await drag(mapContainer, {x: 200, y: 250}, {x: 200, y: 260});
 
         expect(display.getCenter()).to.deep.equal({longitude: 75.54966, latitude: 14.02363});
     });

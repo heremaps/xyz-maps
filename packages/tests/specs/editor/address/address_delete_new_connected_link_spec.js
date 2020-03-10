@@ -16,7 +16,8 @@
  * SPDX-License-Identifier: Apache-2.0
  * License-Filename: LICENSE
  */
-import {editorTests, prepare} from 'hereTest';
+import {prepare} from 'utils';
+import {waitForEditorReady, submit, clean} from 'editorUtils';
 import {features, Editor} from '@here/xyz-maps-editor';
 import {Map} from '@here/xyz-maps-core';
 import dataset from './address_delete_new_connected_link_spec.json';
@@ -44,7 +45,7 @@ xdescribe('New address connect to a new link and then remove the link', function
     });
 
     after(async function() {
-        await editorTests.clean(editor, idMaps);
+        await clean(editor, idMaps);
         editor.destroy();
         display.destroy();
         await preparedData.clear();
@@ -72,8 +73,8 @@ xdescribe('New address connect to a new link and then remove the link', function
     it('submit the address and validate its routingPoint again', async function() {
         let idMap;
 
-        await editorTests.waitForEditorReady(editor, async ()=>{
-            idMap = await editorTests.submit(editor);
+        await waitForEditorReady(editor, async ()=>{
+            idMap = await submit(editor);
         });
 
         idMaps.push(idMap);
@@ -84,8 +85,8 @@ xdescribe('New address connect to a new link and then remove the link', function
         expect(addr.prop('routingLink')).to.equal('897474422');
 
         addr.remove();
-        await editorTests.waitForEditorReady(editor, async ()=>{
-            await editorTests.submit(editor);
+        await waitForEditorReady(editor, async ()=>{
+            await submit(editor);
         });
     });
 });

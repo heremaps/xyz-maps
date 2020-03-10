@@ -17,27 +17,28 @@
  * License-Filename: LICENSE
  */
 
-import {prepare} from 'hereTest';
+import {prepare} from 'utils';
 import dataset from './commit_add_remove_feature_spec.json';
 
-describe('commit add and remove feature to spaceprovider', function() {
+xdescribe('commit add and remove feature to spaceprovider', function() {
     const expect = chai.expect;
 
-    var dataset;
     var preparedData;
     var spaceProvider;
+    var spaceLayer;
 
     before(async function() {
-        // preparedData = await prepare(dataset);
-        // spaceProvider = preparedData.getLayers('spaceLayer');
+        preparedData = await prepare(dataset);
+        spaceLayer = preparedData.getLayers('spaceLayer');
+        spaceProvider = spaceLayer.getProvider();
     });
 
     after(async function() {
-        // await preparedData.clear();
+        await preparedData.clear();
     });
 
 
-    xit('add feature and validate', async function() {
+    it('add feature and validate', async function() {
         var objs; var robjs;
         await new Promise(function(resolve) {
             objs = spaceProvider.search({
@@ -62,7 +63,7 @@ describe('commit add and remove feature to spaceprovider', function() {
                         type: 'Feature',
                         properties: {
                             '@ns:com:here:xyz': {
-                                tags: ['test']
+                                tags: ['PREPAREDFEATURE']
                             }
                         }
                     }

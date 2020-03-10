@@ -16,9 +16,12 @@
  * SPDX-License-Identifier: Apache-2.0
  * License-Filename: LICENSE
  */
-import {editorTests, testUtils, prepare} from 'hereTest';
+import {prepare} from 'utils';
+import {waitForEditorReady, editorClick} from 'editorUtils';
+import {drag, click} from 'triggerEvents';
 import {Map} from '@here/xyz-maps-core';
-import {features, Editor} from '@here/xyz-maps-editor';
+import {Editor} from '@here/xyz-maps-editor';
+import chaiAlmost from 'chai-almost';
 import dataset from './link_split_hide_turn_restrictions_spec.json';
 
 describe('link splitting hides the turn restrictions edit', function() {
@@ -31,6 +34,7 @@ describe('link splitting hides the turn restrictions edit', function() {
     let link1; let link2; let link3;
 
     before(async function() {
+        chai.use(chaiAlmost(1e-7));
         preparedData = await prepare(dataset);
         display = new Map(document.getElementById('map'), {
             center: {longitude: 77.775492, latitude: 13.344394},
@@ -40,7 +44,7 @@ describe('link splitting hides the turn restrictions edit', function() {
         editor = new Editor(display, {
             layers: preparedData.getLayers()
         });
-        await editorTests.waitForEditorReady(editor);
+        await waitForEditorReady(editor);
         mapContainer = display.getContainer();
 
         link1 = preparedData.getFeature('linkLayer', -189091);
@@ -58,7 +62,7 @@ describe('link splitting hides the turn restrictions edit', function() {
         link3.select();
         link3.editTurnRestrictions();
 
-        await testUtils.events.click(mapContainer, 110, 100);
+        await click(mapContainer, 110, 100);
 
         expect(link3.prop('turnRestriction')).to.deep.equal({start: [link2.id]});
     });
@@ -69,12 +73,12 @@ describe('link splitting hides the turn restrictions edit', function() {
     });
 
     it('drag middle point to split the link, validate turn restrictions is deactivated, link is clicked', async function() {
-        await testUtils.events.drag(mapContainer, {x: 100, y: 150}, {x: 100, y: 300});
+        await drag(mapContainer, {x: 100, y: 150}, {x: 100, y: 300});
 
         // link is clicked, not turn restriction editor
-        let link = (await editorTests.click(editor, 110, 100)).target;
+        let link = (await editorClick(editor, 110, 100)).target;
 
-        expect(link.geometry.coordinates).to.deep.equal([
+        expect(link.geometry.coordinates).to.deep.almost([
             [77.773883099, 13.345438764, 0],
             [77.774419541, 13.345438764, 0],
             [77.774419541, 13.344393992, 0]

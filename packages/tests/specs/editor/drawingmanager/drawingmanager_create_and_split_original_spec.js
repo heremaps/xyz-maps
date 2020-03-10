@@ -15,7 +15,10 @@
  *
  * SPDX-License-Identifier: Apache-2.0
  * License-Filename: LICENSE
- */import {editorTests, testUtils, prepare} from 'hereTest';
+ */
+import {MonitorXHR, prepare} from 'utils';
+import {waitForEditorReady, submit} from 'editorUtils';
+import {click, mousemove} from 'triggerEvents';
 import {Map} from '@here/xyz-maps-core';
 import {Editor} from '@here/xyz-maps-editor';
 import chaiAlmost from 'chai-almost';
@@ -31,7 +34,7 @@ describe('Create new Links and split original link', function() {
     let link;
 
     before(async function() {
-        chai.use(chaiAlmost());
+        chai.use(chaiAlmost(1e-7));
         preparedData = await prepare(dataset);
         display = new Map(document.getElementById('map'), {
             center: {longitude: 79.26345, latitude: 13.04889},
@@ -41,7 +44,7 @@ describe('Create new Links and split original link', function() {
         editor = new Editor(display, {
             layers: preparedData.getLayers()
         });
-        await editorTests.waitForEditorReady(editor);
+        await waitForEditorReady(editor);
         mapContainer = display.getContainer();
         link = preparedData.getFeature('linkLayer', -188849);
     });
@@ -58,11 +61,11 @@ describe('Create new Links and split original link', function() {
             connectTo: link
         });
 
-        await testUtils.events.mousemove(mapContainer, {x: 100, y: 200}, {x: 200, y: 200});
-        await testUtils.events.click(mapContainer, 200, 200);
+        await mousemove(mapContainer, {x: 100, y: 200}, {x: 200, y: 200});
+        await click(mapContainer, 200, 200);
 
         let lnk;
-        await editorTests.waitForEditorReady(editor, ()=>{
+        await waitForEditorReady(editor, ()=>{
             lnk = editor.getDrawingBoard().create({featureClass: 'NAVLINK'});
         });
         let lnk1 = editor.info()[1];
@@ -85,11 +88,12 @@ describe('Create new Links and split original link', function() {
     });
 
     it('submit and validate', async function() {
-        let monitor = new testUtils.MonitorXHR();
-        await editorTests.waitForEditorReady(editor, async ()=>{
-            await editorTests.submit(editor);
+        let monitor = new MonitorXHR();
+        monitor.start({method: 'post'});
+        await waitForEditorReady(editor, async ()=>{
+            await submit(editor);
         });
-        let reqs = monitor.stop({method: 'post'});
+        let reqs = monitor.stop();
         expect(reqs).to.have.lengthOf(1);
         let payload = reqs[0].payload;
 

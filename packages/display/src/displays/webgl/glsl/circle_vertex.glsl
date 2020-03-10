@@ -19,5 +19,5 @@ void main(void){
 
     gl_PointSize = DEVICE_PIXEL_RATIO * 2.0 * u_radius;
 
-    vFillRadius = 0.5 - u_strokeWidth / gl_PointSize;
+    vFillRadius = 0.5 - DEVICE_PIXEL_RATIO * u_strokeWidth / gl_PointSize;
 }

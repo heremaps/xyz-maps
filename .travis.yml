@@ -1,0 +1,21 @@
+os: linux
+language: node_js
+dist: bionic
+node_js:
+  - "12"
+cache:
+  yarn: true
+addons:
+  chrome: stable
+jobs:
+  include:
+    - name: "Build & Publish"
+      script: yarn run build-release
+      deploy:
+      - provider: script
+        script: ./scripts/publish-npm.sh
+        cleanup: false
+        on:
+          branch: master
+          tags: true
+          condition: "$TRAVIS_TAG =~ ^v[0-9]+.[0-9]+.[0-9]+$"

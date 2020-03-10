@@ -16,7 +16,9 @@
  * SPDX-License-Identifier: Apache-2.0
  * License-Filename: LICENSE
  */
-import {editorTests, testUtils, prepare} from 'hereTest';
+import {prepare} from 'utils';
+import {waitForEditorReady} from 'editorUtils';
+import {drag} from 'triggerEvents';
 import {Map} from '@here/xyz-maps-core';
 import {features, Editor} from '@here/xyz-maps-editor';
 import dataset from './map_history_info_spec.json';
@@ -41,7 +43,7 @@ describe('map history info', function() {
             layers: preparedData.getLayers()
         });
 
-        await editorTests.waitForEditorReady(editor);
+        await waitForEditorReady(editor);
 
         link1 = preparedData.getFeature('linkLayer', -189004);
     });
@@ -64,7 +66,7 @@ describe('map history info', function() {
     it('get a link and select', async function() {
         link1.select();
         let mapContainer = display.getContainer();
-        await testUtils.events.drag(mapContainer, {x: 300, y: 200}, {x: 300, y: 150});
+        await drag(mapContainer, {x: 300, y: 200}, {x: 300, y: 150});
 
         expect(editor.get('history.current')).to.equal(2);
         expect(editor.get('history.length')).to.equal(2);

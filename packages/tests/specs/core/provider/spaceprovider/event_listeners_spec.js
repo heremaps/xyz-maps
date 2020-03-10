@@ -17,17 +17,19 @@
  * License-Filename: LICENSE
  */
 
-import {testUtils, prepare} from 'hereTest';
+import {Listener, prepare} from 'utils';
 import dataset from './event_listeners_spec.json';
 
 describe('event listeners in spaceprovider', function() {
     const expect = chai.expect;
     var preparedData;
+    var spaceLayer;
     var spaceProvider;
 
     before(async function() {
         preparedData = await prepare(dataset);
-        spaceProvider = preparedData.getLayers('spaceLayer');
+        spaceLayer = preparedData.getLayers('spaceLayer');
+        spaceProvider = spaceLayer.getProvider();
     });
 
     after(async function() {
@@ -35,7 +37,7 @@ describe('event listeners in spaceprovider', function() {
     });
 
     it('add and remove feature and validate add and remove events', function() {
-        let listener = new testUtils.Listener(spaceProvider, ['featureAdd', 'featureRemove']);
+        let listener = new Listener(spaceProvider, ['featureAdd', 'featureRemove']);
 
         spaceProvider.addFeature({
             geometry: {
@@ -56,7 +58,7 @@ describe('event listeners in spaceprovider', function() {
         expect(evts.featureRemove).to.have.lengthOf(0);
 
 
-        let listener2 = new testUtils.Listener(spaceProvider, ['featureAdd', 'featureRemove']);
+        let listener2 = new Listener(spaceProvider, ['featureAdd', 'featureRemove']);
 
         spaceProvider.removeFeature({
             type: 'Feature',

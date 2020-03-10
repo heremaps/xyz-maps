@@ -16,9 +16,11 @@
  * SPDX-License-Identifier: Apache-2.0
  * License-Filename: LICENSE
  */
-import {editorTests, testUtils, prepare} from 'hereTest';
+import {Listener, prepare} from 'utils';
+import {waitForEditorReady} from 'editorUtils';
+import {drag, click} from 'triggerEvents';
 import {Map} from '@here/xyz-maps-core';
-import {features, Editor} from '@here/xyz-maps-editor';
+import {Editor} from '@here/xyz-maps-editor';
 import dataset from './map_listener_featureunselected_spec.json';
 
 describe('map featureunselected event listener', function() {
@@ -40,7 +42,7 @@ describe('map featureunselected event listener', function() {
             layers: preparedData.getLayers()
         });
 
-        await editorTests.waitForEditorReady(editor);
+        await waitForEditorReady(editor);
         mapContainer = display.getContainer();
     });
 
@@ -51,16 +53,16 @@ describe('map featureunselected event listener', function() {
     });
 
     it('drag link shape point to remove and validate drag and featureUnselected events', async function() {
-        let listener = new testUtils.Listener(editor, ['dragStart', 'dragStop', 'featureUnselected']);
+        let listener = new Listener(editor, ['dragStart', 'dragStop', 'featureUnselected']);
 
         // click on link
-        await testUtils.events.click(mapContainer, 150, 200);
+        await click(mapContainer, 150, 200);
 
         // drag link shape point
-        await testUtils.events.drag(mapContainer, {x: 300, y: 200}, {x: 300, y: 210});
+        await drag(mapContainer, {x: 300, y: 200}, {x: 300, y: 210});
 
         // drag link shape point to remove
-        await testUtils.events.drag(mapContainer, {x: 300, y: 210}, {x: 100, y: 200});
+        await drag(mapContainer, {x: 300, y: 210}, {x: 100, y: 200});
 
         let results = listener.stop();
 

@@ -16,9 +16,11 @@
  * SPDX-License-Identifier: Apache-2.0
  * License-Filename: LICENSE
  */
-import {editorTests, testUtils, prepare} from 'hereTest';
+import {prepare} from 'utils';
+import {waitForEditorReady, editorClick} from 'editorUtils';
+import {click} from 'triggerEvents';
 import {Map} from '@here/xyz-maps-core';
-import {features, Editor} from '@here/xyz-maps-editor';
+import {Editor} from '@here/xyz-maps-editor';
 import dataset from './map_history_undo_split_restrictions_spec.json';
 
 describe('turn restriction with spliting the depart link and undo', function() {
@@ -45,7 +47,7 @@ describe('turn restriction with spliting the depart link and undo', function() {
             layers: preparedData.getLayers()
         });
 
-        await editorTests.waitForEditorReady(editor);
+        await waitForEditorReady(editor);
 
         mapContainer = display.getContainer();
 
@@ -63,14 +65,14 @@ describe('turn restriction with spliting the depart link and undo', function() {
     it('click on connection point to edit turn restrictions', async function() {
         link2.editTurnRestrictions();
 
-        await testUtils.events.click(mapContainer, 390, 400);
+        await click(mapContainer, 390, 400);
 
         expect(link2.prop('turnRestriction')).to.deep.equal({start: [link1.id]});
     });
 
     it('get the shapepoint to split the link, validate link is splitted correctly', async function() {
         link2.select();
-        let linkshape = (await editorTests.click(editor, 450, 400)).target;
+        let linkshape = (await editorClick(editor, 450, 400)).target;
 
         splitLinks = linkshape.splitLink();
 

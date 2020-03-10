@@ -17,7 +17,7 @@
  * License-Filename: LICENSE
  */
 
-import {testUtils, prepare} from 'hereTest';
+import {Listener, prepare} from 'utils';
 import dataset from './event_listeners_link_layer_spec.json';
 
 describe('event listeners in link layer', function() {
@@ -62,7 +62,7 @@ describe('event listeners in link layer', function() {
     });
 
     it('validate remove event', function() {
-        let test = new testUtils.Listener(linkLayer, 'featureRemove');
+        let test = new Listener(linkLayer, 'featureRemove');
 
         let a = linkLayer.removeFeature({id: link1.id});
 
@@ -75,7 +75,7 @@ describe('event listeners in link layer', function() {
     });
 
     it('validate add remove and modify events', function() {
-        let test = new testUtils.Listener(linkLayer, ['featureAdd', 'featureRemove', 'featureCoordinatesChange']);
+        let test = new Listener(linkLayer, ['featureAdd', 'featureRemove', 'featureCoordinatesChange']);
 
         linkLayer.addFeature({
             geometry: {

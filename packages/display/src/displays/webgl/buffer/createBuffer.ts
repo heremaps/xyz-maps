@@ -227,9 +227,9 @@ const createBuffer = (
                             }
                         }
 
-                        if (grpBuffer) {
+                        if (!grpBuffer || grpBuffer.isEmpty()) {
                             // nothing to render..no need to create empty buffers -> skip.
-                            if (grpBuffer.isEmpty()) continue;
+                            continue;
                         }
 
                         if (grpBuffer.hasIndex()) {

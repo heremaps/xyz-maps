@@ -17,8 +17,10 @@
  * License-Filename: LICENSE
  */
 
-import {displayTests, prepare} from 'hereTest';
+import {prepare} from 'utils';
+import {waitForViewportReady} from 'displayUtils';
 import {Map} from '@here/xyz-maps-core';
+import chaiAlmost from 'chai-almost';
 import dataset from './set_get_viewbounds_spec.json';
 
 describe('set and get viewbounds', function() {
@@ -27,6 +29,7 @@ describe('set and get viewbounds', function() {
     let display;
 
     before(async function() {
+        chai.use(chaiAlmost(1e-7));
         let preparedData = await prepare(dataset);
         display = new Map(document.getElementById('map'), {
             center: {longitude: 77.79802, latitude: 12.62214},
@@ -40,7 +43,7 @@ describe('set and get viewbounds', function() {
     });
 
     it('validate viewbounds', function() {
-        expect(display.getViewBounds()).to.deep.equal({
+        expect(display.getViewBounds()).to.deep.almost({
             minLon: 77.7958742327881,
             minLat: 12.620569563312458,
             maxLon: 77.80016576721192,
@@ -49,42 +52,41 @@ describe('set and get viewbounds', function() {
     });
 
     it('set new viewbounds and validate', async function() {
-        await displayTests.waitForViewportReady(display, ()=>{
-            display.setViewBounds({minLon: 77.79373919441207, minLat: 12.620344456958378, maxLon: 77.7980307288359, maxLat: 12.623485323457771});
+        await waitForViewportReady(display, ()=>{
+            display.setViewBounds({minLon: 77.793739194, minLat: 12.620344457, maxLon: 77.798030729, maxLat: 12.623485323});
         });
-
-        expect(display.getViewBounds()).to.deep.equal({
-            maxLat: 12.623485318638373,
-            maxLon: 77.7980307288359,
-            minLat: 12.620344452138923,
-            minLon: 77.79373919441207
+        expect(display.getViewBounds()).to.deep.almost({
+            minLon: 77.793739194,
+            minLat: 12.620344457,
+            maxLon: 77.798030729,
+            maxLat: 12.623485323
         });
     });
 
     it('set new viewbounds and validate map center and zoomlevel', async function() {
-        await displayTests.waitForViewportReady(display, ()=>{
-            display.setViewBounds({minLon: 77.5960654672823, maxLat: 12.721019204453619, maxLon: 77.59821123449422, minLat: 12.71944937697039});
+        await waitForViewportReady(display, ()=>{
+            display.setViewBounds({minLon: 77.596065467, maxLat: 12.7210192045, maxLon: 77.598211234, minLat: 12.719449377});
         });
 
-        expect(display.getCenter()).to.deep.equal({longitude: 77.59713835088826, latitude: 12.720234290712003});
+        expect(display.getCenter()).to.deep.almost({longitude: 77.5971383505, latitude: 12.72023429075});
         expect(display.getZoomlevel()).to.equal(19);
     });
 
     it('set new viewbounds again and validate map center and zoomlevel', async function() {
-        await displayTests.waitForViewportReady(display, ()=>{
-            display.setViewBounds({minLon: 76.44793415940495, maxLat: 14.177960380886176, maxLon: 76.5165987101862, minLat: 14.128025137919971});
+        await waitForViewportReady(display, ()=>{
+            display.setViewBounds({minLon: 76.447934159, maxLat: 14.177960381, maxLon: 76.51659871, minLat: 14.1280251379});
         });
 
-        expect(display.getCenter()).to.deep.equal({longitude: 76.48226643479558, latitude: 14.152992759403073});
+        expect(display.getCenter()).to.deep.almost({longitude: 76.4822664345, latitude: 14.15299275945});
         expect(display.getZoomlevel()).to.equal(14);
     });
 
     it('set new viewbounds again and validate map center and zoomlevel', async function() {
-        await displayTests.waitForViewportReady(display, ()=>{
-            display.setViewBounds({minLon: 76.475896930898615, maxLat: 14.201168294682864, maxLon: 76.47804269811053, minLat: 14.199608138948952});
+        await waitForViewportReady(display, ()=>{
+            display.setViewBounds({minLon: 76.475896931, maxLat: 14.201168294, maxLon: 76.478042698, minLat: 14.199608139});
         });
 
-        expect(display.getCenter()).to.deep.equal({longitude: 76.47696981450457, latitude: 14.200388216815908});
+        expect(display.getCenter()).to.deep.almost({longitude: 76.4769698145, latitude: 14.2003882165});
         expect(display.getZoomlevel()).to.equal(19);
     });
 });

@@ -17,7 +17,8 @@
  * License-Filename: LICENSE
  */
 
-import {coreTests, prepare} from 'hereTest';
+import {prepare} from 'utils';
+import {getTileOnProvider} from 'coreUtils';
 import dataset from './gettile_then_cancel_at_high_level_spec.json';
 
 describe('get and cancel requesting with high level', function() {
@@ -72,7 +73,7 @@ describe('get and cancel requesting with high level', function() {
         let cbResults;
         let cancelledRequests = 0;
         await new Promise((resolve)=>{
-            coreTests.getTileOnProvider({
+            getTileOnProvider({
                 provider: placeProvider,
                 quadkeys: [qk11, qk12],
                 sameCallback: false,
@@ -101,7 +102,7 @@ describe('get and cancel requesting with high level', function() {
     it('get tile at level 14 and another at 15, cancel the request at 15', function(done) {
         // qk21    = '31122313000231' // length 14
         // qk22    = '311223130002311' // length 15
-        coreTests.getTileOnProvider({
+        getTileOnProvider({
             provider: placeProvider,
             quadkeys: [qk21, qk22],
             sameCallback: false,
@@ -134,7 +135,7 @@ describe('get and cancel requesting with high level', function() {
     it('get tile at level 14 and another at 15, cancel the request at 14', function(done) {
         // qk31    = '31122313000232' // length 14
         // qk32    = '311223130002321' // length 15
-        coreTests.getTileOnProvider({
+        getTileOnProvider({
             provider: placeProvider,
             quadkeys: [qk31, qk32],
             sameCallback: false,
@@ -166,7 +167,7 @@ describe('get and cancel requesting with high level', function() {
     it('get tile at level 14 and another at 15', function(done) {
         // qk41    = '31122313000220' // length 14
         // qk42    = '311223130002211' // length 15
-        coreTests.getTileOnProvider({
+        getTileOnProvider({
             provider: placeProvider,
             quadkeys: [qk41, qk42],
             sameCallback: false,
@@ -193,7 +194,7 @@ describe('get and cancel requesting with high level', function() {
     it('get tile at level 14 and another at 15 and cancel one at level 14', function(done) {
         // qk51    = '31122313000222' // length 14
         // qk52    = '311223130002231' // length 15
-        coreTests.getTileOnProvider({
+        getTileOnProvider({
             provider: placeProvider,
             quadkeys: [qk51, qk52],
             sameCallback: false,

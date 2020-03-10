@@ -16,9 +16,11 @@
  * SPDX-License-Identifier: Apache-2.0
  * License-Filename: LICENSE
  */
-import {editorTests, testUtils, prepare} from 'hereTest';
+import {Listener, prepare} from 'utils';
+import {waitForEditorReady} from 'editorUtils';
+import {click} from 'triggerEvents';
 import {Map} from '@here/xyz-maps-core';
-import {features, Editor} from '@here/xyz-maps-editor';
+import {Editor} from '@here/xyz-maps-editor';
 import dataset from './map_listener_click_spec.json';
 
 describe('map click listener', function() {
@@ -40,7 +42,7 @@ describe('map click listener', function() {
             layers: preparedData.getLayers()
         });
 
-        await editorTests.waitForEditorReady(editor);
+        await waitForEditorReady(editor);
         mapContainer = display.getContainer();
     });
 
@@ -51,22 +53,22 @@ describe('map click listener', function() {
     });
 
     it('start listener and validate events', async function() {
-        let listener = new testUtils.Listener(editor, ['pointerup']);
+        let listener = new Listener(editor, ['pointerup']);
 
         // lick on Address
-        await testUtils.events.click(mapContainer, 300, 260);
+        await click(mapContainer, 300, 260);
 
         // click on address navigation point
-        await testUtils.events.click(mapContainer, 300, 200);
+        await click(mapContainer, 300, 200);
 
         // click on map
-        await testUtils.events.click(mapContainer, 631, 324);
+        await click(mapContainer, 631, 324);
 
         // click on link
-        await testUtils.events.click(mapContainer, 350, 200);
+        await click(mapContainer, 350, 200);
 
         // click on link shape point
-        await testUtils.events.click(mapContainer, 400, 200);
+        await click(mapContainer, 400, 200);
 
         let results = listener.stop();
 

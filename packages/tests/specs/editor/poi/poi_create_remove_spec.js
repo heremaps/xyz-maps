@@ -16,9 +16,11 @@
  * SPDX-License-Identifier: Apache-2.0
  * License-Filename: LICENSE
  */
-import {editorTests, prepare} from 'hereTest';
+import {prepare} from 'utils';
+import {waitForEditorReady, clean, submit} from 'editorUtils';
 import {Map} from '@here/xyz-maps-core';
 import {features, Editor} from '@here/xyz-maps-editor';
+import chaiAlmost from 'chai-almost';
 import dataset from './poi_create_remove_spec.json';
 
 describe('add POI object and then remove', function() {
@@ -34,6 +36,7 @@ describe('add POI object and then remove', function() {
     var placeLayer;
 
     before(async function() {
+        chai.use(chaiAlmost(1e-7));
         preparedData = await prepare(dataset);
         display = new Map(document.getElementById('map'), {
             center: {longitude: 77.2357240158081, latitude: 13.005706927303237},
@@ -43,13 +46,13 @@ describe('add POI object and then remove', function() {
         editor = new Editor(display, {
             layers: preparedData.getLayers()
         });
-        await editorTests.waitForEditorReady(editor);
+        await waitForEditorReady(editor);
         linkLayer = preparedData.getLayers('linkLayer');
         placeLayer = preparedData.getLayers('placeLayer');
     });
 
     after(async function() {
-        await editorTests.clean(editor, idMaps);
+        await clean(editor, idMaps);
         editor.destroy();
         display.destroy();
         await preparedData.clear();
@@ -61,8 +64,8 @@ describe('add POI object and then remove', function() {
         link1 = editor.addFeature(l, linkLayer);
         poi1 = editor.addFeature(p, placeLayer);
 
-        expect(link1.coord()).to.deep.equal([[77.23411469, 13.006752287, 0], [77.234651132, 13.005706927, 0]]);
-        expect(poi1.coord()).to.deep.equal([77.23411469, 13.005968268, 0]);
+        expect(link1.coord()).to.deep.almost([[77.23411469, 13.006752287, 0], [77.234651132, 13.005706927, 0]]);
+        expect(poi1.coord()).to.deep.almost([77.23411469, 13.005968268, 0]);
 
         expect(poi1.getLink()).to.equal(null);
         expect(poi1.prop('type')).to.equal('hotel');
@@ -76,8 +79,8 @@ describe('add POI object and then remove', function() {
         link2 = obj[0];
         poi2 = obj[1];
 
-        expect(link2.coord()).to.deep.equal([[77.234919352, 13.006752287, 0], [77.235455794, 13.005706927, 0]]);
-        expect(poi2.coord()).to.deep.equal([77.234919352, 13.005968268, 0]);
+        expect(link2.coord()).to.deep.almost([[77.234919352, 13.006752287, 0], [77.235455794, 13.005706927, 0]]);
+        expect(poi2.coord()).to.deep.almost([77.234919352, 13.005968268, 0]);
 
         expect(poi2.getLink().id).to.equal(link2.id);
         expect(poi2.prop('type')).to.equal('hospital');
@@ -93,8 +96,8 @@ describe('add POI object and then remove', function() {
     it('submit created objects and validate again', async function() {
         let idMap;
 
-        await editorTests.waitForEditorReady(editor, async ()=>{
-            idMap = await editorTests.submit(editor);
+        await waitForEditorReady(editor, async ()=>{
+            idMap = await submit(editor);
             idMaps.push(idMap);
         });
 

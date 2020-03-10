@@ -16,7 +16,9 @@
  * SPDX-License-Identifier: Apache-2.0
  * License-Filename: LICENSE
  */
-import {editorTests, testUtils, prepare} from 'hereTest';
+import {prepare} from 'utils';
+import {waitForEditorReady, editorClick} from 'editorUtils';
+import {drag, click} from 'triggerEvents';
 import {Map} from '@here/xyz-maps-core';
 import {features, Editor} from '@here/xyz-maps-editor';
 import dataset from './link_zlevels_spec.json';
@@ -40,7 +42,7 @@ describe('link set zlevel', function() {
         editor = new Editor(display, {
             layers: preparedData.getLayers()
         });
-        await editorTests.waitForEditorReady(editor);
+        await waitForEditorReady(editor);
         mapContainer = display.getContainer();
 
         link = preparedData.getFeature('linkLayer', -189094);
@@ -77,8 +79,8 @@ describe('link set zlevel', function() {
 
 
     it('drag shape point and validate', async function() {
-        await testUtils.events.click(mapContainer, 100, 200);
-        await testUtils.events.drag(mapContainer, {x: 400, y: 200}, {x: 100, y: 300});
+        await click(mapContainer, 100, 200);
+        await drag(mapContainer, {x: 400, y: 200}, {x: 100, y: 300});
 
         expect(link.getZLevels()).to.deep.equal([1, 1, 1]);
     });
@@ -95,7 +97,7 @@ describe('link set zlevel', function() {
     });
 
     it('split link and validate', async function() {
-        let shape = (await editorTests.click(editor, 100, 300)).target;
+        let shape = (await editorClick(editor, 100, 300)).target;
 
         let splitLinks = shape.splitLink();
 

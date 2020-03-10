@@ -16,9 +16,12 @@
  * SPDX-License-Identifier: Apache-2.0
  * License-Filename: LICENSE
  */
-import {editorTests, testUtils, prepare} from 'hereTest';
+import {prepare} from 'utils';
+import {waitForEditorReady, editorClick} from 'editorUtils';
+import {click, mousemove} from 'triggerEvents';
 import {Map} from '@here/xyz-maps-core';
-import {features, Editor} from '@here/xyz-maps-editor';
+import {Editor} from '@here/xyz-maps-editor';
+import chaiAlmost from 'chai-almost';
 import dataset from './drawingmanager_create_and_connect_to_link_head_spec.json';
 
 describe('Create new Links and connect to head of original link', function() {
@@ -31,6 +34,7 @@ describe('Create new Links and connect to head of original link', function() {
     let link;
 
     before(async function() {
+        chai.use(chaiAlmost(1e-7));
         preparedData = await prepare(dataset);
         display = new Map(document.getElementById('map'), {
             center: {longitude: 77.001343, latitude: 13.074603},
@@ -40,7 +44,7 @@ describe('Create new Links and connect to head of original link', function() {
         editor = new Editor(display, {
             layers: preparedData.getLayers()
         });
-        await editorTests.waitForEditorReady(editor);
+        await waitForEditorReady(editor);
         mapContainer = display.getContainer();
 
         link = preparedData.getFeature('linkLayer', -188846);
@@ -59,23 +63,23 @@ describe('Create new Links and connect to head of original link', function() {
             connectTo: link
         });
 
-        await testUtils.events.mousemove(mapContainer, {x: 400, y: 190}, {x: 400, y: 200});
-        await testUtils.events.click(mapContainer, 400, 200);
+        await mousemove(mapContainer, {x: 400, y: 190}, {x: 400, y: 200});
+        await click(mapContainer, 400, 200);
 
         editor.getDrawingBoard().create({featureClass: 'NAVLINK'});
     });
 
 
     it('get link and validate it', async function() {
-        let createdLink = (await editorTests.click(editor, 400, 200)).target;
+        let createdLink = (await editorClick(editor, 400, 200)).target;
 
-        expect(createdLink.coord()).to.deep.equal([
+        expect(createdLink.coord()).to.deep.almost([
             [77.000806597, 13.074550786, 0],
             [77.001343, 13.075125535, 0]
         ]);
 
         // validate shape point is connecting to another link
-        let shape = (await editorTests.click(editor, 300, 310)).target;
+        let shape = (await editorClick(editor, 300, 310)).target;
         expect(shape.getConnectedLinks()).to.have.lengthOf(1);
     });
 

@@ -16,7 +16,9 @@
  * SPDX-License-Identifier: Apache-2.0
  * License-Filename: LICENSE
  */
-import {editorTests, testUtils, prepare} from 'hereTest';
+import {prepare} from 'utils';
+import {waitForEditorReady} from 'editorUtils';
+import {drag, click} from 'triggerEvents';
 import {Map} from '@here/xyz-maps-core';
 import {features, Editor} from '@here/xyz-maps-editor';
 import dataset from './map_history_modify_remove_layer_undo_spec.json';
@@ -41,7 +43,7 @@ describe('modify object and remove its layer, then undo the change', function() 
             layers: preparedData.getLayers()
         });
 
-        await editorTests.waitForEditorReady(editor);
+        await waitForEditorReady(editor);
         poiLayer = preparedData.getLayers('placeLayer');
     });
 
@@ -56,9 +58,9 @@ describe('modify object and remove its layer, then undo the change', function() 
         let p = new features.Place({x: 300, y: 250}, {featureClass: 'PLACE'});
         editor.addFeature(p);
 
-        await testUtils.events.click(mapContainer, 300, 250);
+        await click(mapContainer, 300, 250);
 
-        await testUtils.events.drag(mapContainer, {x: 300, y: 250}, {x: 400, y: 300});
+        await drag(mapContainer, {x: 300, y: 250}, {x: 400, y: 300});
 
 
         expect(editor.info()).to.have.lengthOf(1);

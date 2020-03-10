@@ -16,9 +16,11 @@
  * SPDX-License-Identifier: Apache-2.0
  * License-Filename: LICENSE
  */
-import {editorTests, prepare, testUtils} from 'hereTest';
+import {MonitorXHR, prepare} from 'utils';
+import {waitForEditorReady, submit} from 'editorUtils';
 import {features, Editor} from '@here/xyz-maps-editor';
 import {Map} from '@here/xyz-maps-core';
+import chaiAlmost from 'chai-almost';
 import dataset from './address_create_remove_spec.json';
 
 describe('add Address object and then remove', function() {
@@ -30,10 +32,10 @@ describe('add Address object and then remove', function() {
 
     var link;
     var address;
-    var linkLayer;
     var paLayer;
 
     before(async function() {
+        chai.use(chaiAlmost(1e-7));
         preparedData = await prepare(dataset);
 
         display = new Map(document.getElementById('map'), {
@@ -43,10 +45,9 @@ describe('add Address object and then remove', function() {
         });
         editor = new Editor(display, {layers: preparedData.getLayers()});
 
-        await editorTests.waitForEditorReady(editor);
+        await waitForEditorReady(editor);
 
         link = preparedData.getFeature('linkLayer', -188807);
-        linkLayer = preparedData.getLayers('linkLayer');
         paLayer = preparedData.getLayers('paLayer');
     });
 
@@ -64,24 +65,18 @@ describe('add Address object and then remove', function() {
         editor.undo();
         editor.redo();
 
-        let monitor = new testUtils.MonitorXHR();
-
-        await editorTests.waitForEditorReady(editor, async ()=>{
-            idMap = await editorTests.submit(editor);
+        let monitor = new MonitorXHR();
+        monitor.start({method: 'post'});
+        await waitForEditorReady(editor, async ()=>{
+            idMap = await submit(editor);
         });
         let addressId = idMap.permanentIDMap[address.getProvider().id][address.id];
-        let reqs = monitor.stop({method: 'post'});
+        let reqs = monitor.stop();
         expect(reqs).to.have.lengthOf(1);
 
         let payloadAddress = reqs[0].payload;
-
-        expect(payloadAddress.features[0]).to.deep.include({
-            'geometry': {
-                'coordinates': [77.327237116, 12.9356, 0],
-                'type': 'Point'
-            }
-        });
-
+        expect(payloadAddress.features[0].geometry.coordinates).to.deep.almost([77.327237116, 12.9356, 0]);
+        expect(payloadAddress.features[0].geometry.type).to.equal('Point');
         expect(payloadAddress.features[0].properties).to.deep.include({
             'featureClass': 'ADDRESS',
             'routingLink': link.id + '',
@@ -97,11 +92,12 @@ describe('add Address object and then remove', function() {
         expect(address.prop('removed')).to.be.equal('HOOK');
         expect(address.prop('estate')).to.be.equal('REMOVED');
 
-        let monitor = new testUtils.MonitorXHR(RegExp(/&id=/));
-        await editorTests.waitForEditorReady(editor, async ()=>{
-            await editorTests.submit(editor);
+        let monitor = new MonitorXHR(RegExp(/&id=/));
+        monitor.start({method: 'delete'});
+        await waitForEditorReady(editor, async ()=>{
+            await submit(editor);
         });
-        let request = monitor.stop({method: 'delete'})[0];
+        let request = monitor.stop()[0];
 
         expect(request.payload).to.equal(null);
         expect(request.method).to.equal('DELETE');

@@ -16,9 +16,12 @@
  * SPDX-License-Identifier: Apache-2.0
  * License-Filename: LICENSE
  */
-import {editorTests, displayTests, testUtils, prepare} from 'hereTest';
+import {prepare} from 'utils';
+import {waitForEditorReady} from 'editorUtils';
+import {drag, click} from 'triggerEvents';
 import {Map} from '@here/xyz-maps-core';
-import {features, Editor} from '@here/xyz-maps-editor';
+import {Editor} from '@here/xyz-maps-editor';
+import chaiAlmost from 'chai-almost';
 import dataset from './poi_editable_spec.json';
 
 describe('poi editable', function() {
@@ -31,6 +34,7 @@ describe('poi editable', function() {
     let poi;
 
     before(async function() {
+        chai.use(chaiAlmost(1e-7));
         preparedData = await prepare(dataset);
         display = new Map(document.getElementById('map'), {
             center: {longitude: 80.63813, latitude: 16.50068},
@@ -40,7 +44,7 @@ describe('poi editable', function() {
         editor = new Editor(display, {
             layers: preparedData.getLayers()
         });
-        await editorTests.waitForEditorReady(editor);
+        await waitForEditorReady(editor);
         mapContainer = display.getContainer();
 
         poi = preparedData.getFeature('placeLayer', -29532);
@@ -55,28 +59,28 @@ describe('poi editable', function() {
     it('set poi to not editable and validate its coordinate', function() {
         poi.editable(false);
 
-        expect(poi.coord()).to.deep.equal([80.637593558, 16.500937174, 0]);
+        expect(poi.coord()).to.deep.almost([80.637593558, 16.500937174, 0]);
     });
 
     it('drag the POI object and validate its coordinate again', async function() {
-        await editorTests.waitForEditorReady(editor, async ()=>{
-            await testUtils.events.drag(mapContainer, {x: 300, y: 250}, {x: 200, y: 250});
+        await waitForEditorReady(editor, async ()=>{
+            await drag(mapContainer, {x: 300, y: 250}, {x: 200, y: 250});
         });
 
-        expect(poi.coord()).to.deep.equal([80.637593558, 16.500937174, 0]);
+        expect(poi.coord()).to.deep.almost([80.637593558, 16.500937174, 0]);
     });
 
     it('set poi to editable and drag it', async function() {
-        await editorTests.waitForEditorReady(editor, ()=>{
+        await waitForEditorReady(editor, ()=>{
             display.setCenter({longitude: 80.63813, latitude: 16.50068});
         });
 
         poi.editable(true);
 
-        await testUtils.events.click(mapContainer, 300, 250);
+        await click(mapContainer, 300, 250);
 
-        await testUtils.events.drag(mapContainer, {x: 300, y: 250}, {x: 370, y: 250});
+        await drag(mapContainer, {x: 300, y: 250}, {x: 370, y: 250});
 
-        expect(poi.coord()).to.deep.equal([80.637969066, 16.500937174, 0]);
+        expect(poi.coord()).to.deep.almost([80.637969066, 16.500937174, 0]);
     });
 });

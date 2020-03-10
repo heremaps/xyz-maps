@@ -16,7 +16,9 @@
  * SPDX-License-Identifier: Apache-2.0
  * License-Filename: LICENSE
  */
-import {editorTests, testUtils, prepare} from 'hereTest';
+import {prepare} from 'utils';
+import {waitForEditorReady} from 'editorUtils';
+import {click, drag, mousemove} from 'triggerEvents';
 import {Map} from '@here/xyz-maps-core';
 import {features, Editor} from '@here/xyz-maps-editor';
 import dataset from './drawingmanager_connect_link_spec.json';
@@ -39,7 +41,7 @@ describe('Create new Links and drag connect point,original link is not split', f
         editor = new Editor(display, {
             layers: preparedData.getLayers()
         });
-        await editorTests.waitForEditorReady(editor);
+        await waitForEditorReady(editor);
 
         link = preparedData.getFeature('linkLayer', -188845);
     });
@@ -59,16 +61,16 @@ describe('Create new Links and drag connect point,original link is not split', f
             connectTo: link
         });
 
-        await testUtils.events.mousemove(mapContainer, {x: 100, y: 200}, {x: 200, y: 200});
-        await testUtils.events.click(mapContainer, 200, 200);
+        await mousemove(mapContainer, {x: 100, y: 200}, {x: 200, y: 200});
+        await click(mapContainer, 200, 200);
 
-        await testUtils.events.mousemove(mapContainer, {x: 200, y: 200}, {x: 200, y: 300});
-        await testUtils.events.click(mapContainer, 200, 300);
+        await mousemove(mapContainer, {x: 200, y: 200}, {x: 200, y: 300});
+        await click(mapContainer, 200, 300);
 
         // drag the connectting point
-        await testUtils.events.drag(mapContainer, {x: 143, y: 95}, {x: 50, y: 100});
+        await drag(mapContainer, {x: 143, y: 95}, {x: 50, y: 100});
 
-        await editorTests.waitForEditorReady(editor, ()=>{
+        await waitForEditorReady(editor, ()=>{
             editor.getDrawingBoard().create({featureClass: 'NAVLINK'});
         });
 

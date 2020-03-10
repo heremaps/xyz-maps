@@ -16,7 +16,9 @@
  * SPDX-License-Identifier: Apache-2.0
  * License-Filename: LICENSE
  */
-import {editorTests, testUtils, prepare} from 'hereTest';
+import {prepare} from 'utils';
+import {waitForEditorReady} from 'editorUtils';
+import {drag} from 'triggerEvents';
 import {Map} from '@here/xyz-maps-core';
 import {features, Editor} from '@here/xyz-maps-editor';
 import dataset from './poi_autoconnect_spec.json';
@@ -42,7 +44,7 @@ describe('poi routing point connects to links automatically', function() {
         editor = new Editor(display, {
             layers: preparedData.getLayers()
         });
-        await editorTests.waitForEditorReady(editor);
+        await waitForEditorReady(editor);
 
         mapContainer = display.getContainer();
 
@@ -74,7 +76,7 @@ describe('poi routing point connects to links automatically', function() {
 
     it('drag routing point and validate again', async function() {
         poi.select();
-        await testUtils.events.drag(mapContainer, {x: 200, y: 200}, {x: 200, y: 160});
+        await drag(mapContainer, {x: 200, y: 200}, {x: 200, y: 160});
 
         expect(poi.prop()).to.deep.include({
             'routingLink': link.id+''

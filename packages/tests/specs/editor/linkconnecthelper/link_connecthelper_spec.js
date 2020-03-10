@@ -16,9 +16,11 @@
  * SPDX-License-Identifier: Apache-2.0
  * License-Filename: LICENSE
  */
-import {editorTests, testUtils, prepare} from 'hereTest';
+import {prepare} from 'utils';
+import {waitForEditorReady, editorClick} from 'editorUtils';
+import {drag, click} from 'triggerEvents';
 import {Map} from '@here/xyz-maps-core';
-import {features, Editor} from '@here/xyz-maps-editor';
+import {Editor} from '@here/xyz-maps-editor';
 import dataset from './link_connecthelper_spec.json';
 
 describe('link connect helper with undos', function() {
@@ -41,7 +43,7 @@ describe('link connect helper with undos', function() {
         editor = new Editor(display, {
             layers: preparedData.getLayers()
         });
-        await editorTests.waitForEditorReady(editor);
+        await waitForEditorReady(editor);
 
         mapContainer = display.getContainer();
 
@@ -64,17 +66,17 @@ describe('link connect helper with undos', function() {
         link2.remove();
 
         // click on a crossing
-        let crx = (await editorTests.click(editor, 133, 200)).target;
+        let crx = (await editorClick(editor, 133, 200)).target;
         crx.connect(false);
 
         // click on a crossing
-        crx = (await editorTests.click(editor, 116, 300)).target;
+        crx = (await editorClick(editor, 116, 300)).target;
         crx.connect();
 
         // click to select a link
-        await testUtils.events.click(mapContainer, 169, 300);
+        await click(mapContainer, 169, 300);
 
-        let shape = (await editorTests.click(editor, 116, 300)).target;
+        let shape = (await editorClick(editor, 116, 300)).target;
         let links = shape.getConnectedLinks();
 
         expect(links).to.have.lengthOf(3);
@@ -92,13 +94,13 @@ describe('link connect helper with undos', function() {
         });
 
         // click on a crossing
-        let crx = (await editorTests.click(editor, 133, 200)).target;
+        let crx = (await editorClick(editor, 133, 200)).target;
         crx.connect();
 
         // click on a link
-        await testUtils.events.click(mapContainer, 172, 200);
+        await click(mapContainer, 172, 200);
 
-        let shape = (await editorTests.click(editor, 133, 200)).target;
+        let shape = (await editorClick(editor, 133, 200)).target;
         let links = shape.getConnectedLinks();
 
         expect(links).to.have.lengthOf(3);

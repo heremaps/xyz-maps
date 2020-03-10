@@ -17,7 +17,7 @@
  * License-Filename: LICENSE
  */
 
-import {prepare} from 'hereTest';
+import {prepare} from 'utils';
 import dataset from './settag_space_spec.json';
 
 describe('settag in spaceprovider', function() {

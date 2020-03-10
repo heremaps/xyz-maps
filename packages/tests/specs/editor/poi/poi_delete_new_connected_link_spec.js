@@ -16,9 +16,10 @@
  * SPDX-License-Identifier: Apache-2.0
  * License-Filename: LICENSE
  */
-import {editorTests, prepare} from 'hereTest';
+import {prepare} from 'utils';
+import {waitForEditorReady, submit} from 'editorUtils';
 import {Map} from '@here/xyz-maps-core';
-import {features, Editor} from '@here/xyz-maps-editor';
+import {Editor} from '@here/xyz-maps-editor';
 import dataset from './poi_delete_new_connected_link_spec.json';
 
 describe('New poi connect to a new link and then remove the link', function() {
@@ -40,7 +41,7 @@ describe('New poi connect to a new link and then remove the link', function() {
         editor = new Editor(display, {
             layers: preparedData.getLayers()
         });
-        await editorTests.waitForEditorReady(editor);
+        await waitForEditorReady(editor);
 
         link = preparedData.getFeature('linkLayer', -189172);
         poi = preparedData.getFeature('placeLayer', -29531);
@@ -69,8 +70,8 @@ describe('New poi connect to a new link and then remove the link', function() {
     xit('submit created objects and validate again', async function() {
         let idMap;
 
-        await editorTests.waitForEditorReady(editor, async ()=>{
-            idMap = await editorTests.submit(editor);
+        await waitForEditorReady(editor, async ()=>{
+            idMap = await submit(editor);
         });
 
         let poiId = idMap.permanentIDMap[poi.getProvider().id][poi.id];

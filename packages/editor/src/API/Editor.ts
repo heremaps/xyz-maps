@@ -28,7 +28,7 @@ import legacyAPI from './Legacy';
 import {eSearch, SearchOptions} from './ESearch';
 import {eListeners} from './EListeners';
 import {eObservers} from './EObservers';
-import ZoneSelector from './MZoneSelector';
+import ZoneSelector from './EZoneSelector';
 import InternalEditor from './../IEditor';
 import {mergeOptions, EditorOptions} from './EditorOptions';
 import {initHooks} from './../hooks/init';
