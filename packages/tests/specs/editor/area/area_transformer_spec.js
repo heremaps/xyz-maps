@@ -142,6 +142,7 @@ describe('area transformer', function() {
 
 
     xit('drag blank area, validate area is not transformed', async function() {
+        // drag inside transformer also transforms area
         await waitForEditorReady(editor, async ()=>{
             await drag(mapContainer, {x: 380, y: 300}, {x: 380, y: 380});
         });

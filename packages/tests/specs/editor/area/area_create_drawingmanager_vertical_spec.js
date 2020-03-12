@@ -24,7 +24,7 @@ import {features, Editor} from '@here/xyz-maps-editor';
 import chaiAlmost from 'chai-almost';
 import dataset from './area_create_drawingmanager_vertical_spec.json';
 
-xdescribe('Area drawing manager points with same longitude ', function() {
+describe('Area drawing manager points with same longitude', function() {
     const expect = chai.expect;
 
     let editor;
@@ -57,35 +57,41 @@ xdescribe('Area drawing manager points with same longitude ', function() {
     it('create area by drawing manager and validate', async function() {
         editor.getDrawingBoard().start({mode: features.Area});
 
+        // 1st shape point
         await mousemove(mapContainer, {x: 100, y: 100}, {x: 100, y: 200});
         await click(mapContainer, 100, 200);
 
+        // 2nd shape point
         await mousemove(mapContainer, {x: 100, y: 200}, {x: 200, y: 100});
         await click(mapContainer, 200, 100);
 
+        // 3rd shape point
         await mousemove(mapContainer, {x: 200, y: 100}, {x: 300, y: 150});
         await click(mapContainer, 300, 150);
 
+        // 4th shape point, has the same longitude as the 3rd
         await mousemove(mapContainer, {x: 200, y: 100}, {x: 300, y: 170});
         await click(mapContainer, 300, 170);
 
+        // 5th shape point
         await mousemove(mapContainer, {x: 100, y: 310}, {x: 200, y: 200});
         await click(mapContainer, 200, 200);
 
         editor.getDrawingBoard().create({featureClass: 'AREA'});
 
-        let area = (await editorClick(editor, 271, 266)).target;
+        let area = (await editorClick(editor, 250, 150)).target;
 
         expect(area.prop()).to.include({
-            featureType: 2005700,
-            height: 0
+            featureClass: 'AREA'
         });
 
         expect(area.coord()).to.deep.almost([[[
-            [76.081516385, 13.215360578, 0],
+            [76.081516386, 13.215360578, 0],
             [76.082052827, 13.215882813, 0],
+            [76.082589269, 13.215621696, 0], // 3rd shape point
+            [76.082589269, 13.215517249, 0], // 4th shape point
             [76.082052827, 13.215360578, 0],
-            [76.081516385, 13.215360578, 0]
+            [76.081516386, 13.215360578, 0]
         ]]]);
     });
 });

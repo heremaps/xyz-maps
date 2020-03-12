@@ -17,22 +17,27 @@
  * License-Filename: LICENSE
  */
 import {prepare} from 'utils';
-import {waitForEditorReady, submit} from 'editorUtils';
+import {waitForEditorReady, submit, clean} from 'editorUtils';
 import {Map} from '@here/xyz-maps-core';
-import {Editor} from '@here/xyz-maps-editor';
+import {features, Editor} from '@here/xyz-maps-editor';
 import dataset from './poi_delete_new_connected_link_spec.json';
 
-describe('New poi connect to a new link and then remove the link', function() {
+xdescribe('New poi connect to a new link and then remove the link', function() {
     const expect = chai.expect;
 
     var editor;
     var display;
     var preparedData;
 
-    var link; var poi;
+    var link;
+    var poi;
+    var linkLayer;
+    var placeLayer;
+    var idMaps = [];
 
     before(async function() {
         preparedData = await prepare(dataset);
+
         display = new Map(document.getElementById('map'), {
             center: {longitude: 78.34913, latitude: 17.31552},
             zoomLevel: 18,
@@ -43,42 +48,55 @@ describe('New poi connect to a new link and then remove the link', function() {
         });
         await waitForEditorReady(editor);
 
-        link = preparedData.getFeature('linkLayer', -189172);
-        poi = preparedData.getFeature('placeLayer', -29531);
+        linkLayer = preparedData.getLayers('linkLayer');
+        placeLayer = preparedData.getLayers('placeLayer');
 
-        poi.createRoutingPoint();
+        // ready should be triggered two times after editor.submit, but it is triggered 4 times
+        editor.addObserver('ready', function(e, v) {
+            console.log(e, v, 'ready');
+        });
     });
 
     after(async function() {
+        await clean(editor, idMaps);
         editor.destroy();
         display.destroy();
         await preparedData.clear();
     });
 
-    it('validate routingPoint value of poi', function() {
+    it('validate routingPoint value of poi', async function() {
+        let p = new features.Place({x: 400, y: 300}, {featureClass: 'PLACE'}, );
+        let lnk = new features.Navlink([{x: 250, y: 100}, {x: 250, y: 400}], {featureClass: 'NAVLINK'});
+
+        link = editor.addFeature(lnk, linkLayer);
+        poi = editor.addFeature(p, placeLayer);
+
+        poi.createRoutingPoint();
+
         expect(poi.prop('routingPoint')).to.deep.equal([78.34833, 17.31552, 0]);
     });
 
-    xit('remove link and validate again', async function() {
+    it('remove link and validate again', async function() {
         link.remove();
 
-        expect(poi.prop().routingLink).to.equal(null);
-        expect(poi.prop().routingPoint).to.equal(null);
+        expect(poi.prop('routingLink')).to.be.equal(null);
+        expect(poi.prop('routingPoint')).to.be.equal(null);
     });
 
 
-    xit('submit created objects and validate again', async function() {
+    it('submit created objects and validate again', async function() {
         let idMap;
 
         await waitForEditorReady(editor, async ()=>{
             idMap = await submit(editor);
         });
 
+        idMaps.push(idMap);
         let poiId = idMap.permanentIDMap[poi.getProvider().id][poi.id];
 
-        let p = editor.getFeature(poiId, poi.getProvider().src);
+        let p = editor.getFeature(poiId, placeLayer);
 
-        expect(p.prop().routingLink).to.equal(null);
-        expect(p.prop().routingPoint).to.equal(null);
+        expect(p.prop('routingLink')).to.be.undefined;
+        expect(p.prop('routingPoint')).to.be.undefined;
     });
 });

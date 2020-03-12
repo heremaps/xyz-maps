@@ -72,6 +72,7 @@ describe('splitting link deactivates transformer of objects', function() {
 
 
     xit('validate not able to transform', async function() {
+        // transformer does not work correctly, it is not disabled and transforms splitted link
         let obj;
         await waitForEditorReady(editor, async ()=>{
             obj = drag(display, {x: 170, y: 225}, {x: 200, y: 250});

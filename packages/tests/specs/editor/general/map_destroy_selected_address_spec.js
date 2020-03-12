@@ -56,6 +56,7 @@ describe('destroy editor when point address is selected', function() {
     });
 
     xit('validate destroy editor is working', async function() {
+        // exception is thrown
         address.select();
 
         editor.destroy();

@@ -16,40 +16,42 @@
  * SPDX-License-Identifier: Apache-2.0
  * License-Filename: LICENSE
  */
-import {prepare} from 'utils';
+import {Observer, prepare} from 'utils';
+import {drag} from 'triggerEvents';
 import {waitForEditorReady, submit, clean} from 'editorUtils';
-import {features, Editor} from '@here/xyz-maps-editor';
 import {Map} from '@here/xyz-maps-core';
-import dataset from './address_delete_new_connected_link_spec.json';
+import {features, Editor} from '@here/xyz-maps-editor';
+import dataset from './map_observer_submit_removed_link.json';
 
-xdescribe('New address connect to a new link and then remove the link', function() {
-    // routingPoint and routingLink should be cleared when address's referenced link is removed
+xdescribe('ready event is triggered once after submitting removed links', function() {
     const expect = chai.expect;
 
-    var preparedData;
     var editor;
     var display;
+    var preparedData;
 
     var link;
-    var address;
-    var addresssLayer;
+    var poi;
     var linkLayer;
-
+    var placeLayer;
     var idMaps = [];
 
     before(async function() {
         preparedData = await prepare(dataset);
+
         display = new Map(document.getElementById('map'), {
-            center: {longitude: 72.81168548744967, latitude: 19.44202601424145},
+            center: {longitude: 77.75294, latitude: 17.97126},
             zoomLevel: 18,
             layers: preparedData.getLayers()
         });
-        editor = new Editor(display, {layers: preparedData.getLayers()});
-
+        editor = new Editor(display, {
+            layers: preparedData.getLayers()
+        });
         await waitForEditorReady(editor);
 
-        addresssLayer = preparedData.getLayers('paLayer');
         linkLayer = preparedData.getLayers('linkLayer');
+        placeLayer = preparedData.getLayers('placeLayer');
+
     });
 
     after(async function() {
@@ -59,37 +61,33 @@ xdescribe('New address connect to a new link and then remove the link', function
         await preparedData.clear();
     });
 
-    it('add link and address and validate its routing point', async function() {
-        let addr = new features.Address({x: 400, y: 300}, {featureClass: 'ADDRESS'});
+    it('create one place and one link, remove the link and submit', async function() {
+        let p = new features.Place({x: 400, y: 300}, {featureClass: 'PLACE'}, );
         let lnk = new features.Navlink([{x: 250, y: 100}, {x: 250, y: 400}], {featureClass: 'NAVLINK'});
 
         link = editor.addFeature(lnk, linkLayer);
-        address = editor.addFeature(addr, addresssLayer);
+        poi = editor.addFeature(p, placeLayer);
 
-        expect(address.prop('routingPoint')).to.deep.equal([72.81088, 19.44203, 0]);
-    });
-
-
-    it('remove the created link and validate links routingPoint', function() {
         link.remove();
 
-        expect(address.prop('routingPoint')).to.be.equal(null);
-        expect(address.prop('routingLink')).to.be.equal(null);
-    });
-
-
-    it('submit the address and validate its routingPoint again', async function() {
         let idMap;
 
+        let observer = new Observer(editor, ['ready']);
+        editor.addObserver('ready', (e,v)=>console.log(e, v));
         await waitForEditorReady(editor, async ()=>{
             idMap = await submit(editor);
         });
 
         idMaps.push(idMap);
-        let addressId = idMap.permanentIDMap[address.getProvider().id][address.id];
-        let addr = editor.getFeature(addressId, addresssLayer);
 
-        expect(addr.prop('routingPoint')).to.be.undefined;
-        expect(addr.prop('routingLink')).to.be.undefined;
+        // wait for a while for all ready events to be triggered
+        display.setBehavior('drag', false);
+        let mapContainer = display.getContainer();
+        await drag(mapContainer, {x: 200, y: 100}, {x: 500, y: 100}, {fps: 20});
+
+        let results = observer.stop();
+
+        // expect to have ready events triggered one time (false and true)
+        expect(results.ready).to.have.lengthOf(2);
     });
 });

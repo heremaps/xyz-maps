@@ -70,11 +70,12 @@ describe('link geofence setting', function() {
     });
 
     xit('undo and set geofence', async function() {
+        // dragging link shape point should be restricted when geofence is set.
         editor.undo();
 
         let lnk = editor.getFeature(link.id, linkLayer);
         lnk.select();
-        lnk.setGeoFence(50);
+        lnk.setGeoFence(5);
 
         await drag(mapContainer, {x: 300, y: 100}, {x: 400, y: 200});
 

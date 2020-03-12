@@ -82,6 +82,7 @@ xdescribe('commit add and remove feature to spaceprovider', function() {
             });
         });
 
+        // expect search function return committed feature
         expect(robjs).to.have.lengthOf(1);
     });
 });

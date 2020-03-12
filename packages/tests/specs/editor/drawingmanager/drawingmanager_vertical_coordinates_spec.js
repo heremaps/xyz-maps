@@ -23,7 +23,7 @@ import {Map} from '@here/xyz-maps-core';
 import {Editor} from '@here/xyz-maps-editor';
 import dataset from './drawingmanager_vertical_coordinates_spec.json';
 
-describe('Create new Links with coordinates in a vertical line', function() {
+describe('Create new Links whose start and end shape points have same longitude', function() {
     const expect = chai.expect;
 
     let editor;
@@ -78,13 +78,15 @@ describe('Create new Links with coordinates in a vertical line', function() {
     });
 
 
-    xit('revert changes and start again', async function() {
+    xit('revert changes and start again, draw link with start and end shape point with same longitude', async function() {
+        // link should have 4 shape points but not a vertical link with 2 shape points
         await waitForEditorReady(editor, ()=>{
             editor.revert();
         });
 
         editor.getDrawingBoard().start();
 
+        // start shape point
         await mousemove(mapContainer, {x: 150, y: 200}, {x: 200, y: 200});
         await click(mapContainer, 200, 200);
 
@@ -94,10 +96,11 @@ describe('Create new Links with coordinates in a vertical line', function() {
         await mousemove(mapContainer, {x: 300, y: 150}, {x: 200, y: 100});
         await click(mapContainer, 200, 100);
 
+        // end shape point, it has the same longtitude as the start shape point
         await mousemove(mapContainer, {x: 200, y: 150}, {x: 200, y: 300});
         await click(mapContainer, 200, 300);
 
-        editor.getDrawingBoard().create({featureClass: 'NAVLINK'});
+        link = editor.getDrawingBoard().create({featureClass: 'NAVLINK'});
 
         expect(link.coord()).to.have.lengthOf(4);
     });
