@@ -63,6 +63,7 @@ abstract class Display {
     private previewer: Preview;
     private updating: boolean = false;
     protected dirty: boolean = false;
+    protected gridSizes: number[];
     tileSize: number;
     layers: Layers;
     dpr: number;
@@ -74,7 +75,7 @@ abstract class Display {
     rz: number;
     render: BasicRender;
     buckets: BasicBucket;
-    listeners: any;
+    listeners: {[event:string]:()=>void};
     tiles: { [tilesize: string]: TilePosition[] };
     cluster: LayerClusterer;
     grid: Grid;
@@ -387,6 +388,8 @@ abstract class Display {
         const layers = this.layers;
         // const prevVPTiles =
         const tileSizes = layers.reset(zoomlevel);
+
+        this.gridSizes = tileSizes;
 
 
         for (let tileSize of tileSizes) {

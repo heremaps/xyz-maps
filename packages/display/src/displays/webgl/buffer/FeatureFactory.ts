@@ -136,7 +136,6 @@ export class FeatureFactory {
     create(feature, geomType, coordinates, styleGroups, strokeWidthScale/* , tile, groups, tileSize: number*/): boolean {
         const {tile, groups, tileSize} = this;
         const level = tile.z;
-        let vertex; // = vertexGroups[geomType];
         let extrudeDataAdded: FlatPolygon;
         let polygonDataAdded: FlatPolygon;
         let flatPoly: FlatPolygon;
@@ -171,11 +170,6 @@ export class FeatureFactory {
         let strokeScale;
         let pitch;
         let allReady = true;
-
-        if (!vertex) {
-            // if (geomType != 'LineString') console.warn('NO VERTEXGROUPS:', geomType);
-            // return true;
-        }
 
         for (let i = 0, iLen = styleGroups.length; i < iLen; i++) {
             style = styleGroups[i];
@@ -387,15 +381,8 @@ export class FeatureFactory {
                         group.buffer = new TextBuffer();
                     }
 
-                    let groupBuffer = group.buffer;
-
-                    let aPosition = groupBuffer.attributes.a_position;
-                    // vertex = group.data.vertex;
-                    vertex = aPosition.data;
-
-                    // const collide = style.collide;
+                    const {attributes} = group.buffer;
                     const {dpr} = this;
-
                     const cx = tile.lon2x(coordinates[0], tileSize);
                     const cy = tile.lat2y(coordinates[1], tileSize);
 
@@ -405,7 +392,7 @@ export class FeatureFactory {
                     const estimatedTextWidth = fontInfo.avgCharWidth * text.length / 2;
                     const ty = fontInfo.baselineOffset - offsetY;
                     // collides(cx,cy,width,height,tile, tileSize, fontInfo, bufferIndex: number) {
-                    const bufferStart = groupBuffer.attributes.a_point.data.length;
+                    const bufferStart = attributes.a_point.data.length;
                     let glyphCnt = 0;
                     for (let c of text) {
                         if (c != ' ') glyphCnt++;
@@ -421,9 +408,9 @@ export class FeatureFactory {
                     )) {
                         addText(
                             text,
-                            groupBuffer.attributes.a_point.data,
-                            vertex,
-                            groupBuffer.attributes.a_texcoord.data,
+                            attributes.a_point.data,
+                            attributes.a_position.data,
+                            attributes.a_texcoord.data,
                             coordinates,
                             // glyphs,
                             fontInfo,
@@ -438,16 +425,16 @@ export class FeatureFactory {
                     }
                 } else {
                     if (type == 'Icon') {
-                        let src = getValue('src', style, feature, level);
-                        let width = getValue('width', style, feature, level);
-                        let height = getValue('height', style, feature, level) || width;
-
                         if (!group.buffer) {
                             group.buffer = new SymbolBuffer();
                         }
-                        const groupBuffer = group.buffer;
 
-                        let img = this.icons.get(src, width, height);
+                        const src = getValue('src', style, feature, level);
+                        const width = getValue('width', style, feature, level);
+                        const height = getValue('height', style, feature, level) || width;
+                        const groupBuffer = group.buffer;
+                        const {attributes} = groupBuffer;
+                        const img = this.icons.get(src, width, height);
 
                         if (!img) {
                             allReady = false;
@@ -458,9 +445,9 @@ export class FeatureFactory {
                             img,
                             width,
                             height,
-                            groupBuffer.attributes.a_point.data,
-                            groupBuffer.attributes.a_position.data,
-                            groupBuffer.attributes.a_texcoord.data,
+                            attributes.a_point.data,
+                            attributes.a_position.data,
+                            attributes.a_texcoord.data,
                             coordinates,
                             tile,
                             tileSize
@@ -471,7 +458,7 @@ export class FeatureFactory {
                             group.buffer = new PointBuffer();
                         }
 
-                        let groupBuffer = group.buffer;
+                        const groupBuffer = group.buffer;
 
                         if (!addPoint(groupBuffer.attributes.a_position.data, coordinates, tile, tileSize)) {
                             // in case of point has not been added because it's not inside tile
@@ -578,15 +565,15 @@ export class FeatureFactory {
 
                         const groupBuffer = group.buffer;
                         const index = groupBuffer.index();
-
-                        vertex = groupBuffer.attributes.a_position.data;
+                        const {attributes} = groupBuffer;
+                        const aPosition = attributes.a_position.data;
 
 
                         if (type == 'Extrude') {
                             // if (!extrudeDataAdded) {
                             extrudeDataAdded = addExtrude(
-                                vertex,
-                                group.buffer.attributes.a_normal.data,
+                                aPosition,
+                                attributes.a_normal.data,
                                 index,
                                 coordinates,
                                 tile,
@@ -597,7 +584,7 @@ export class FeatureFactory {
                             // }
                         } else if (type == 'Polygon') {
                             // if (!polygonDataAdded) {
-                            polygonDataAdded = <FlatPolygon>addPolygon(vertex, coordinates, tile, tileSize);
+                            polygonDataAdded = <FlatPolygon>addPolygon(aPosition, coordinates, tile, tileSize);
                             flatPoly = polygonDataAdded;
                             // }
                         }

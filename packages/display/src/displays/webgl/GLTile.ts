@@ -26,12 +26,15 @@ type TileLayer = layers.TileLayer;
 
 let UNDEF;
 
+
+type DropHandler = (data: GeometryBuffer[], layerIndex: number) => void;
+
 class GLTile extends BasicTile {
     data = [];
 
-    private onDrop;
+    private onDrop: DropHandler;
 
-    constructor(quadkey: string, layers: any[], onDrop?: (data: GeometryBuffer[]) => void) {
+    constructor(quadkey: string, layers: any[], onDrop?: DropHandler) {
         super();
         this.onDrop = onDrop;
         this.init(quadkey, layers);
@@ -49,7 +52,7 @@ class GLTile extends BasicTile {
         this.data.length = 0;
     }
 
-    setData(data: any, layer: number | TileLayer) {
+    setData(data: GeometryBuffer[], layer: number | TileLayer) {
         const index = typeof layer == 'number'
             ? layer
             : this.layers.indexOf(layer);
@@ -57,9 +60,9 @@ class GLTile extends BasicTile {
         this.preview(index, UNDEF);
 
         const _data = this.data[index];
-        if (_data) {
+        if (_data && _data.length) {
             if (this.onDrop) {
-                this.onDrop(_data);
+                this.onDrop(_data, index);
             }
         }
         this.data[index] = data;

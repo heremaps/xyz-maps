@@ -24,7 +24,7 @@ import {GeometryBuffer} from './buffer/GeometryBuffer';
 
 
 class Bucket extends BasicBucket {
-    onDrop: (data:GeometryBuffer[]) => void | null;
+    onDrop: (data: GeometryBuffer[], layerIndex: number) => void | null;
 
     tiles: LRU<GLTile>;
 

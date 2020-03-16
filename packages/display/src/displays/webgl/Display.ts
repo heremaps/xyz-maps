@@ -30,6 +30,9 @@ import GLTile from './GLTile';
 import {FeatureFactory} from './buffer/FeatureFactory';
 import {CollisionHandler} from './CollisionHandler';
 import {GeometryBuffer} from './buffer/GeometryBuffer';
+import {layers} from '@here/xyz-maps-core';
+
+type TileLayer = layers.TileLayer;
 
 const PREVIEW_LOOK_AHEAD_LEVELS: [number, number] = [3, 9];
 
@@ -74,8 +77,17 @@ class WebGlDisplay extends BasicDisplay {
         const display = this;
         this.collision = new CollisionHandler(display);
 
-        this.buckets.onDrop = function(buffers) {
-            display.collision.tiles.delete(this.quadkey);
+        this.buckets.onDrop = function(buffers, index) {
+            // if (buffers.length) {
+            //     debugger;
+            // }
+            let {quadkey, layers} = this;
+
+            if (layers[index].tileSize == 256 && display.gridActive(512)) {
+                quadkey = quadkey.slice(0, -1);
+            }
+
+            display.collision.clear(quadkey, buffers);
 
             display.releaseBuffers(buffers);
         };
@@ -108,6 +120,10 @@ class WebGlDisplay extends BasicDisplay {
         };
     };
 
+    private gridActive(size: 256 | 512): boolean {
+        return this.gridSizes.indexOf(size) != -1;
+    }
+
     private releaseBuffers(buffers: GeometryBuffer[]) {
         const renderer = this.render;
 
@@ -116,6 +132,22 @@ class WebGlDisplay extends BasicDisplay {
                 renderer.deleteBuffer(buf);
             }
         }
+    }
+
+    addLayer(layer: TileLayer, styles, index: number): boolean {
+        // addLayer(index: number) {
+        //     this.r.splice(index, 0, false);
+        //     this.p.splice(index, 0, UNDEF);
+        // };
+        return super.addLayer(layer, styles, index);
+    }
+
+    removeLayer(layer: TileLayer): number {
+        // removeLayer(index: number) {
+        //     this.r.splice(index, 1);
+        //     this.p.splice(index, 1);
+        // };
+        return super.removeLayer(layer);
     }
 
     unproject(x: number, y: number): [number, number] {
@@ -206,13 +238,11 @@ class WebGlDisplay extends BasicDisplay {
                         // }
 
                         let {quadkey} = dTile;
-                        if (tileSize == 256 && display.tiles[512].length) {
+                        if (tileSize == 256 && display.gridActive(512)) {
                             quadkey = quadkey.slice(0, -1);
                         }
 
-
                         this.collision.init(quadkey, tile.x, tile.y, tile.z);
-                        // this.collision.init(cTile, tile.x, tile.y, tile.z);
                     },
                     // on done
                     (buffer, allImgLoaded) => {
@@ -226,6 +256,10 @@ class WebGlDisplay extends BasicDisplay {
                             });
                         }
 
+                        this.dirty = true;
+                        this.collision.enforce();
+                        // this.collision.update(displayLayer.tiles);
+
                         onDone(dTile, layer);
                     });
                 dTile.addTask(task, layer);
@@ -238,12 +272,7 @@ class WebGlDisplay extends BasicDisplay {
 
     protected viewport(dirty?: boolean) {
         const display = this;
-        // const quads = display.quads;
-        // const tiles = display.tiles;
-        const render = display.render;
-        // const length = tiles.length;
-        const layers = display.layers;
-        const bucket = display.buckets;
+        const {buckets, layers, render} = display;
         const layerLength = layers.length;
 
         let l = layerLength;
@@ -259,8 +288,6 @@ class WebGlDisplay extends BasicDisplay {
             // this.render.clear();
             this.dirty = false;
 
-
-            layer = layers[0];
             // window.updateCollisions = ((aa,a,b,c,d)=>{
             //     return ()=> {
             //         updateCollisions(aa,a,b,c,d);
@@ -268,7 +295,17 @@ class WebGlDisplay extends BasicDisplay {
             //     }
             // })(display, layer.tiles, layer.layer, this.rz, this.factory.collisions);
 
-            this.collision.update(layer.tiles);
+
+            this.collision.update(
+                display.tiles[display.gridActive(512) ? 512 : 256],
+                this.rx,
+                this.rz,
+                this.s
+            );
+
+            // this.collision.update(layer.tiles, this.rx, this.rz, this.s);
+
+            // this.collision.update(layer.tiles);
         }
 
 
@@ -306,7 +343,7 @@ class WebGlDisplay extends BasicDisplay {
                     screenTile = tiles[i++];
                     // if (dTile.lrTs != dTile.luTs || dirty) {
                     let dTile = screenTile.tile;
-                    render.layer(dTile, screenTile.x, screenTile.y, layer, bucket);
+                    render.layer(dTile, screenTile.x, screenTile.y, layer, buckets);
                     // }
 
                     if (!layer.ready && dTile.ready(l)) {
@@ -337,7 +374,7 @@ class WebGlDisplay extends BasicDisplay {
                     i = 0;
                     while (i < length) {
                         screenTile = tiles[i++];
-                        render.layer(screenTile.tile, screenTile.x, screenTile.y, layer, bucket);
+                        render.layer(screenTile.tile, screenTile.x, screenTile.y, layer, buckets);
                     }
                 }
             }
@@ -355,7 +392,7 @@ class WebGlDisplay extends BasicDisplay {
                     i = 0;
                     while (i < length) {
                         screenTile = tiles[i++];
-                        render.layer(screenTile.tile, screenTile.x, screenTile.y, layer, bucket);
+                        render.layer(screenTile.tile, screenTile.x, screenTile.y, layer, buckets);
                     }
                 }
             }

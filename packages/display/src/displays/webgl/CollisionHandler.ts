@@ -53,7 +53,8 @@ export class CollisionHandler {
     }
 
     init(quadkey: string, tileX: number, tileY: number, tileZ: number, tileSize: number) {
-        // console.log('init', quadkey, tileSize);
+        console.log('SET init', quadkey, tileSize);
+
         console.time(quadkey);
 
         let collisionData = this.tiles.get(quadkey);
@@ -74,7 +75,6 @@ export class CollisionHandler {
                         if (collisions) {
                             let ren = collisions.rendered;
                             for (let o of ren) {
-                                // debugger;
                                 neighbours[neighbours.length] = o;
                             }
                         }
@@ -88,6 +88,7 @@ export class CollisionHandler {
                 attrInfo: []
             });
         }
+
 
         collisionData.attrInfo.push({
             start: collisionData.rendered.length,
@@ -139,9 +140,6 @@ export class CollisionHandler {
         let tileX = tile.x * tileSize;
         let tileY = tile.y * tileSize;
 
-
-        // debugger;
-
         // const estimatedTextWidth = fontInfo.getTextWidth(text);
         // const estimatedTextWidth = fontInfo.avgCharWidth * text.length / 2;
 
@@ -192,15 +190,56 @@ export class CollisionHandler {
         rendered.push(bbox);
     }
 
+    private rx: number;
+    private rz: number;
+    private s: number;
 
-    update(tiles) {
-        // return;
+    enforce() {
+        // force next update
+        this.rx = this.rz = this.s = null;
+    }
+
+    clear(quadkey: string, buffers) {
+        const cInfo = this.tiles.get(quadkey);
+
+        if (cInfo) {
+            const attrInfo = cInfo.attrInfo;
+            for (let buffer of buffers) {
+                for (let a in buffer.attributes) {
+                    for (let i = 0; i < attrInfo.length; i++) {
+                        let ai = attrInfo[i];
+                        if (!ai.attr|| ai.attr == buffer.attributes[a]) {
+                            attrInfo.splice(i--, 1);
+                        }
+                    }
+                }
+            }
+
+            if (!attrInfo.length) {
+                this.tiles.delete(quadkey);
+            }
+        }
+
+
+        // this.tiles.delete
+    }
+
+    update(tiles, rotX: number, rotZ: number, scale: number) {
+        if (!(this.rx != rotX || this.rz != rotZ || this.s != scale)) {
+            // no view changes.. no need to recalculate collision
+            return;
+        }
+        this.rx = rotX;
+        this.rz = rotZ;
+        this.s = scale;
+
+        console.log(this.tiles.size);
 
         // this._t = tiles;
         // console.log('####', 'updateCollisions', '####');
         // console.log(tiles);
         // console.log(collisionData);
-        // console.time('update-collisions');
+        console.time('update-collisions');
 
         const {display} = this;
         let rendered = [];
@@ -209,10 +248,6 @@ export class CollisionHandler {
             let quadkey = screentile.tile.quadkey;
 
             let collisions = this.tiles.get(quadkey);
-
-            // console.log(collisions);
-
-            if (collisions && !collisions.attrInfo.length) debugger;
 
             if (collisions /* && collisions.attrInfo && collisions.attrInfo.buffer */) {
                 for (let i = 0, _rendered = collisions.rendered; i < _rendered.length; i++) {
@@ -325,7 +360,7 @@ export class CollisionHandler {
             // }
         }
 
-        // console.timeEnd('update-collisions');
+        console.timeEnd('update-collisions');
     }
 
     // _update() {
