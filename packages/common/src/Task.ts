@@ -51,7 +51,7 @@ class Task {
 
     canceled: boolean;
 
-    exec: (any?)=> boolean|void;
+    exec: (any?) => boolean | void;
 
     heap: any;
 
@@ -62,7 +62,7 @@ class Task {
     constructor(
         manager: TaskManager,
         prio: number,
-        task: (any?)=> boolean|void,
+        task: (any?) => boolean | void,
         init?: () => any,
         time?: number,
         onDone?: (any) => void,
@@ -97,7 +97,7 @@ class Task {
         return task.manager.start(task);
     };
 
-    restart(opt: TaskRestartOptions) {
+    restart(opt: TaskRestartOptions = {}) {
         // cancel in case of active
         this.cancel();
 
