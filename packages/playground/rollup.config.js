@@ -18,7 +18,7 @@
  */
 
 import resolve from '@rollup/plugin-node-resolve';
-import commonjs from 'rollup-plugin-commonjs';
+import commonjs from '@rollup/plugin-commonjs';
 import postcss from 'rollup-plugin-postcss';
 import copy from 'rollup-plugin-copy';
 import virtual from '@rollup/plugin-virtual';

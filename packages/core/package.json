@@ -32,7 +32,7 @@
     "pbf": "^3.2.1",
     "rbush": "^2.0.1",
     "rollup": "^1.32.0",
-    "rollup-plugin-commonjs": "^10.1.0",
+    "@rollup/plugin-commonjs": "^11.0.2",
     "rollup-plugin-sourcemaps": "^0.5.0",
     "rollup-plugin-uglify": "^6.0.4",
     "typescript": "^3.8.3"

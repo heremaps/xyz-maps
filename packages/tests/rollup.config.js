@@ -18,7 +18,7 @@
  */
 
 const resolve = require('@rollup/plugin-node-resolve');
-const commonjs = require('rollup-plugin-commonjs');
+const commonjs = require('@rollup/plugin-commonjs');
 const postcss = require('rollup-plugin-postcss');
 const typescript = require('@rollup/plugin-typescript');
 const virtual = require('@rollup/plugin-virtual');
