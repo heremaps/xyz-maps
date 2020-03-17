@@ -250,6 +250,7 @@ const editor = scp[dns.pop()] = {
 
 const providers = global.here['xyz']['maps']['providers'];
 // TODO: remove HACK required for geospace provider being editable...
+providers.EditableFeatureProvider.prototype.getFeatureClass =
 providers.EditableProvider.prototype.getFeatureClass = function(feature) {
     switch (this.detectFeatureClass(feature)) {
     case 'NAVLINK':

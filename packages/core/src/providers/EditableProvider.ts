@@ -299,6 +299,8 @@ abstract class EditableProvider extends GeoJSONProvider {
 
     isEditable = true;
 
+    _clearOnCommit = true;
+
     isDroppable(feature: Feature | EditorFeature) {
         const editStates = (<EditorFeature>feature).editState && (<EditorFeature>feature).editState();
         return !editStates || (

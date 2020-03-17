@@ -27,8 +27,8 @@ import {layers, providers} from '@here/xyz-maps-core';
 import {Map, JSUtils, geotools} from '@here/xyz-maps-common';
 import {getPntOnLine, intersectBBox} from '../geometry';
 import Navlink from './link/NavLink';
-import {FeatureProvider} from '@here/xyz-maps-core/src/providers/FeatureProvider';
 
+type FeatureProvider = providers.FeatureProvider;
 type TileLayer = layers.TileLayer;
 
 type Point = [number, number, number?];
