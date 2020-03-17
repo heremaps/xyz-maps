@@ -18,9 +18,10 @@
  */
 
 import InternalEditor from '../IEditor';
-import {geo} from '@here/xyz-maps-core';
+import {geo, layers} from '@here/xyz-maps-core';
 import EditFeature from '../features/feature/Feature';
-import {TileLayer} from '@here/xyz-maps-core/src/layers/TileLayer';
+
+type TileLayer = layers.TileLayer;
 
 export interface SearchOptions {
     id?: string | number;

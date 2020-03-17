@@ -18,7 +18,9 @@
  */
 
 import InternalEditor from '../IEditor';
-import {EditableProvider} from '@here/xyz-maps-core/src/providers/EditableProvider';
+import {providers} from '@here/xyz-maps-core';
+
+type EditableProvider = providers.EditableProvider;
 
 const NAVLINK = 'NAVLINK';
 
