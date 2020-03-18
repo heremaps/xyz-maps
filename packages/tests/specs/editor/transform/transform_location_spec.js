@@ -120,6 +120,7 @@ describe('transform for poi and point address', function() {
     });
 
     xit('get container and rotate transformer', async function() {
+        // expect transformer not to transform when dragging inside transformer
         container.transform();
 
         await drag(mapContainer, {x: 330, y: 270}, {x: 340, y: 300});

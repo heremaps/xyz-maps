@@ -190,27 +190,6 @@ describe('area transform multiple objects', function() {
         ]]]);
     });
 
-
-    xit('drag at blank area and validate objects are not transformed', async function() {
-        await waitForEditorReady(editor, async ()=>{
-            await drag(mapContainer, {x: 540, y: 200}, {x: 540, y: 240});
-        });
-        expect(area1.coord()).to.deep.almost([[[
-            [74.915839992, 12.968845106, 0],
-            [74.915634658, 12.968519349, 0],
-            [74.91587009, 12.968378423, 0],
-            [74.91610729, 12.968460769, 0],
-            [74.915839992, 12.968845106, 0]
-        ]]]);
-
-        expect(area2.coord()).to.deep.almost([[[
-            [74.916278993, 12.968806654, 0],
-            [74.916176328, 12.96864378, 0],
-            [74.916391225, 12.968470274, 0],
-            [74.916278993, 12.968806654, 0]
-        ]]]);
-    });
-
     it('validate two objects are modified', async function() {
         // hide transformer
         await click(mapContainer, 100, 50);

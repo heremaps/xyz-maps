@@ -23,9 +23,9 @@ import Task from './Task';
 const FPS60 = 1000 / 60;
 let TMID = 0;
 
-export interface ITask{
+export interface ITask {
     priority?: number;
-    exec: (data?)=> boolean|void;
+    exec: (data?) => boolean | void;
     init?: () => any;
     time?: number;
     onDone?: (data?) => void;
@@ -248,11 +248,10 @@ export class TaskManager {
 
     private _next() {
         const manager = this;
-        let task;
-
-        const nextDelayed = manager.queue[0][0];
-
+        const {queue} = manager;
+        const nextDelayed = queue[0][0];
         const nowTS = manager.now();
+        let task;
 
         if (nextDelayed && nowTS >= nextDelayed.delayed) {
             if (manager._delayed) {
@@ -262,13 +261,11 @@ export class TaskManager {
             return manager.queue[0].shift();
         }
 
-
-        for (let prio = 1; prio < 5; prio++) {
-            if (task = manager.queue[prio].shift()) {
+        for (let prio = 1, {length} = queue; prio < length; prio++) {
+            if (task = queue[prio].shift()) {
                 return task;
             }
         }
-
 
         if (nextDelayed) {
             if (manager._delayed) {

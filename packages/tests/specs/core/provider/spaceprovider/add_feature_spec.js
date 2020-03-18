@@ -68,6 +68,8 @@ describe('add feature to spaceprovider', function() {
 
 
     xit('set tag and validate objects in an area where new feature is added', async function() {
+        // expect search function to return 2 features
+        spaceProvider.clear();
         var objs; var robjs;
         await new Promise(function(resolve) {
             spaceProvider.setTags('stadium');

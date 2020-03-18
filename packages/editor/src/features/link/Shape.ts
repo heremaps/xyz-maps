@@ -21,8 +21,8 @@ import {JSUtils, geotools} from '@here/xyz-maps-common';
 import {providers, features} from '@here/xyz-maps-core';
 import GeoFence from './GeoFence';
 import NavLink from './NavLink';
-import {FeatureProvider} from '@here/xyz-maps-core/src/providers/FeatureProvider';
 
+type FeatureProvider = providers.FeatureProvider;
 
 const NS_EDITOR = '@ns:com:here:editor';
 

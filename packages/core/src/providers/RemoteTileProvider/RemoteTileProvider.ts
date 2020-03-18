@@ -553,6 +553,7 @@ export class RemoteTileProvider extends FeatureProvider {
         if ((tile = storage.get(quadkey)) == UNDEF) {
             tile = provider.createTile(quadkey);
             tile.onLoaded = [];
+            tile.data = [];
 
             storage.set(tile);
         } else {
@@ -579,8 +580,6 @@ export class RemoteTileProvider extends FeatureProvider {
             let receiver;
 
             tile.loadStartTs = Date.now();
-            tile.data = [];
-
 
             if (!tile.onLoaded.length) {
                 receiver = new TileReceiver(tile, loaderTiles);
@@ -628,8 +627,6 @@ export class RemoteTileProvider extends FeatureProvider {
                     tile.loadStopTs = Date.now();
 
                     tile.error = errormsg;
-
-                    tile.data = [];
 
                     provider.execTile(tile);
 

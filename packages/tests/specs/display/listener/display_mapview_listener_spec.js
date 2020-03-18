@@ -58,9 +58,10 @@ describe('mapview change listener', function() {
     });
 
     xit('validate mapview events numbers after dragging map', async function() {
+        // mapviewchangestart and mapviewchangeend are expected to be triggered in pairs
         let listener = new Listener(display, ['mapviewchangestart', 'mapviewchangeend']);
 
-        await displayTest.waitForViewportReady(display, async ()=>{
+        await waitForViewportReady(display, async ()=>{
             await drag(mapContainer, {x: 100, y: 100}, {x: 200, y: 100});
         });
 
@@ -70,10 +71,11 @@ describe('mapview change listener', function() {
     });
 
     xit('validate mapview events after dragging map slowly', async function() {
+        // mapviewchangestart and mapviewchangeend are expected to be triggered in pairs
         let listener = new Listener(display, ['mapviewchangestart', 'mapviewchangeend']);
 
-        await displayTest.waitForViewportReady(display, async ()=>{
-            await drag(display, {x: 200, y: 100}, {x: 100, y: 100}, {fps: 20});
+        await waitForViewportReady(display, async ()=>{
+            await drag(mapContainer, {x: 200, y: 100}, {x: 100, y: 100}, {fps: 20});
         });
 
         let results = listener.stop();
