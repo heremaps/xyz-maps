@@ -87,7 +87,7 @@ class WebGlDisplay extends BasicDisplay {
                 quadkey = quadkey.slice(0, -1);
             }
 
-            display.collision.clear(quadkey, buffers);
+            display.collision.clear(quadkey, index);
 
             display.releaseBuffers(buffers);
         };
@@ -242,7 +242,7 @@ class WebGlDisplay extends BasicDisplay {
                             quadkey = quadkey.slice(0, -1);
                         }
 
-                        this.collision.init(quadkey, tile.x, tile.y, tile.z);
+                        this.collision.init(quadkey, tile.x, tile.y, tile.z, displayLayer);
                     },
                     // on done
                     (buffer, allImgLoaded) => {

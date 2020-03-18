@@ -20,6 +20,7 @@
 import {tile} from '@here/xyz-maps-core';
 import Display from './Display';
 import {Attribute} from './buffer/Attribute';
+import {Layer} from '../Layers';
 
 const tileUtils = tile.Utils;
 type Tile = tile.Tile;
@@ -27,7 +28,7 @@ type Tile = tile.Tile;
 type BBox = { minX: number, maxX: number, minY: number, maxY: number };
 
 type AttributeInfo = { start: number, attr: Attribute };
-type Collision = { rendered: any[]; neighbours: BBox[], attrInfo: AttributeInfo[] }
+type Collision = { rendered: any[]; neighbours: BBox[], attrInfo: AttributeInfo[][] }
 
 
 export class CollisionHandler {
@@ -36,6 +37,7 @@ export class CollisionHandler {
     tileCollision: Collision;
 
     private display: Display;
+    private layerIndex: number;
 
     constructor(display) {
         this.tiles = new Map();
@@ -52,8 +54,8 @@ export class CollisionHandler {
         }
     }
 
-    init(quadkey: string, tileX: number, tileY: number, tileZ: number, tileSize: number) {
-        console.log('SET init', quadkey, tileSize);
+    init(quadkey: string, tileX: number, tileY: number, tileZ: number, layer: Layer) {
+        console.log('SET init', quadkey, layer);
 
         console.time(quadkey);
 
@@ -90,12 +92,18 @@ export class CollisionHandler {
         }
 
 
-        collisionData.attrInfo.push({
+        const {index} = layer;
+        const attributeData = collisionData.attrInfo[index] = collisionData.attrInfo[index] || [];
+
+
+        attributeData.push({
             start: collisionData.rendered.length,
             attr: null
         });
 
         this.tileCollision = collisionData;
+
+        this.layerIndex = index;
 
         console.timeEnd(quadkey);
 
@@ -103,22 +111,24 @@ export class CollisionHandler {
     }
 
     setAttribute(attribute: Attribute) {
-        const {tileCollision} = this;
-        const {attrInfo} = tileCollision;
+        const {attrInfo} = this.tileCollision;
+        const layerAttrData = attrInfo[this.layerIndex];
 
-        attrInfo[attrInfo.length - 1].attr = attribute;
+        layerAttrData[layerAttrData.length - 1].attr = attribute;
     }
 
-    getAttribute(index: number, attrInfo: AttributeInfo[]): Attribute {
+    getAttribute(index: number, attrInfo: AttributeInfo[][]): Attribute {
         // const {tileCollision} = this;
         // const {attrInfo} = tileCollision;
-        let _attr;
-        let i = attrInfo.length;
 
-        while (i--) {
-            _attr = attrInfo[i];
-            if (index >= _attr.start) {
-                return _attr.attr;
+        for (let l = 0, layers = attrInfo.length, i, attrsData, attr; l < layers; l++) {
+            attrsData = attrInfo[l];
+            i = attrsData.length;
+            while (i--) {
+                attr = attrsData[i];
+                if (index >= attr.start) {
+                    return attr.attr;
+                }
             }
         }
     }
@@ -199,22 +209,25 @@ export class CollisionHandler {
         this.rx = this.rz = this.s = null;
     }
 
-    clear(quadkey: string, buffers) {
+    clear(quadkey: string, layerIndex: number) {
         const cInfo = this.tiles.get(quadkey);
 
         if (cInfo) {
-            const attrInfo = cInfo.attrInfo;
-            for (let buffer of buffers) {
-                for (let a in buffer.attributes) {
-                    for (let i = 0; i < attrInfo.length; i++) {
-                        let ai = attrInfo[i];
-                        if (!ai.attr|| ai.attr == buffer.attributes[a]) {
-                            attrInfo.splice(i--, 1);
-                        }
-                    }
-                }
-            }
+            const {attrInfo} = cInfo;
 
+            attrInfo.splice(layerIndex, 1);
+
+            // for (let buffer of buffers) {
+            //     for (let a in buffer.attributes) {
+            //         for (let i = 0; i < attrInfo.length; i++) {
+            //             let ai = attrInfo[i];
+            //             if (!ai.attr || ai.attr == buffer.attributes[a]) {
+            //                 attrInfo.splice(i--, 1);
+            //             }
+            //         }
+            //     }
+            // }
+            //
             if (!attrInfo.length) {
                 this.tiles.delete(quadkey);
             }
@@ -232,8 +245,6 @@ export class CollisionHandler {
         this.rx = rotX;
         this.rz = rotZ;
         this.s = scale;
-
-        console.log(this.tiles.size);
 
         // this._t = tiles;
         // console.log('####', 'updateCollisions', '####');
@@ -361,7 +372,198 @@ export class CollisionHandler {
         }
 
         console.timeEnd('update-collisions');
+
+        console.log('rendered', rendered.length);
     }
+
+    // neighbours(qk: string) {
+    //     const neighbours = [];
+    //     const grid = tileUtils.quadToGrid(qk);
+    //     const tileZ = grid[0];
+    //     const tileX = grid[2];
+    //     const tileY = grid[1];
+    //
+    //     for (let y = -1; y < 2; y++) {
+    //         for (let x = -1; x < 2; x++) {
+    //             if (x != 0 || y != 0) {
+    //                 let qk = tileUtils.tileXYToQuadKey(tileZ, tileY + y, tileX + x);
+    //                 let collisions = this.tiles.get(qk);
+    //                 if (collisions) {
+    //                     let ren = collisions.rendered;
+    //                     for (let o of ren) {
+    //                         neighbours[neighbours.length] = o;
+    //                     }
+    //                 }
+    //             }
+    //         }
+    //     }
+    //
+    //     return neighbours;
+    // }
+    //
+    // update(tiles, rotX: number, rotZ: number, scale: number) {
+    //     if (!(this.rx != rotX || this.rz != rotZ || this.s != scale)) {
+    //         // no view changes.. no need to recalculate collision
+    //         return;
+    //     }
+    //
+    //     // this.cache = {};
+    //
+    //     this.rx = rotX;
+    //     this.rz = rotZ;
+    //     this.s = scale;
+    //
+    //     const {display} = this;
+    //
+    //     let n = 0;
+    //     console.time('calc-neighbours');
+    //     for (let screentile of tiles) {
+    //         const quadkey = screentile.tile.quadkey;
+    //         let collisions = this.tiles.get(quadkey);
+    //
+    //         if (collisions /* && collisions.attrInfo && collisions.attrInfo.buffer */) {
+    //             let rendered = [];
+    //             let neighbours = this.neighbours(quadkey, tiles);
+    //
+    //             console.log(collisions.neighbours.length,'vs',neighbours.length);
+    //
+    //             for (let i = 0, _rendered = collisions.rendered; i < _rendered.length; i++) {
+    //                 let bbox = _rendered[i];
+    //                 let attribute = this.getAttribute(i, bbox.attrInfo);
+    //
+    //                 if (attribute) {
+    //                     let minX = bbox.minX;
+    //                     let maxX = bbox.maxX;
+    //                     let minY = bbox.minY;
+    //                     let maxY = bbox.maxY;
+    //                     let tileWorldX = bbox.tileX;
+    //                     let tileWorldY = bbox.tileY;
+    //                     let halfWidth = (maxX - minX) * .5;
+    //                     let halfHeight = (maxY - minY) * .5;
+    //                     let screenX = screentile.x + minX - tileWorldX;
+    //                     let screenY = screentile.y + minY - tileWorldY;
+    //
+    //                     // center
+    //                     screenX += halfWidth;
+    //                     screenY += halfHeight;
+    //
+    //                     let ac = display.project(screenX, screenY, 0, 0); // 0,0 for unscaled world pixels
+    //
+    //                     rendered.push({
+    //                         minX: ac[0] - halfWidth, // minX
+    //                         maxX: ac[0] + halfWidth, // maxX
+    //                         minY: ac[1] - halfHeight, // minY
+    //                         maxY: ac[1] + halfHeight, // maxY
+    //                         bos: bbox.bos,
+    //                         boe: bbox.boe,
+    //                         // attrInfo: bbox.attrInfo
+    //                         attr: attribute
+    //                     });
+    //                 }
+    //             }
+    //
+    //             let r = 0;
+    //             while (r < rendered.length) {
+    //                 let bbox = rendered[r];
+    //                 let attribute = bbox.attr;
+    //                 let data = attribute.data;
+    //                 let start = bbox.bos;
+    //                 let stop = bbox.boe;
+    //
+    //                 if (this.intersects(bbox, rendered, ++r)) {
+    //                     // is visible?
+    //                     if (data[start + 2] < 720) {
+    //                         // console.log(collisions);
+    //                         // hide all glyphs
+    //                         while (start < stop) {
+    //                             data[start + 2] += 720;
+    //                             start += 3;
+    //                         }
+    //                         attribute.dirty = true;
+    //                     }
+    //                 } else {
+    //                     // is invisible ?
+    //                     if (data[start + 2] >= 720) {
+    //                         // show all glyphs again..
+    //                         while (start < stop) {
+    //                             data[start + 2] -= 720;
+    //                             start += 3;
+    //                         }
+    //                         attribute.dirty = true;
+    //                     }
+    //                 }
+    //
+    //             }
+    //
+    //         }
+    //     }
+    //     console.timeEnd('calc-neighbours');
+    //     console.log('total neighbours', n);
+    //
+    //     // this._t = tiles;
+    //     // console.log('####', 'updateCollisions', '####');
+    //     // console.log(tiles);
+    //     // console.log(collisionData);
+    //     console.time('update-collisions');
+    //
+    //
+    //     let rendered = [];
+    //
+    //     // for (let screentile of tiles) {
+    //     //     let quadkey = screentile.tile.quadkey;
+    //     //
+    //     //
+    //     // }
+    //
+    //
+    //     // let r = 0;
+    //     // while (r < rendered.length) {
+    //     //     let bbox = rendered[r];
+    //     //     // let attribute = this.getAttribute(r, bbox.attrInfo);
+    //     //
+    //     //     let attribute = bbox.attr;
+    //     //
+    //     //     // if(!attribute){
+    //     //     //     r++;
+    //     //     //     continue;
+    //     //     // }
+    //     //
+    //     //
+    //     //     let data = attribute.data;
+    //     //     let start = bbox.bos;
+    //     //     let stop = bbox.boe;
+    //     //
+    //     //     if (this.intersects(bbox, rendered, ++r)) {
+    //     //         // window.addPixelPoint(bbox[0] + .5 * (bbox[1] - bbox[0]), bbox[2] + .5 * (bbox[3] - bbox[2]), 'red');
+    //     //
+    //     //         // is visible?
+    //     //         if (data[start + 2] < 720) {
+    //     //             // console.log(collisions);
+    //     //             // hide all glyphs
+    //     //             while (start < stop) {
+    //     //                 data[start + 2] += 720;
+    //     //                 start += 3;
+    //     //             }
+    //     //             attribute.dirty = true;
+    //     //         }
+    //     //     } else {
+    //     //         // is invisible ?
+    //     //         if (data[start + 2] >= 720) {
+    //     //             // show all glyphs again..
+    //     //             while (start < stop) {
+    //     //                 data[start + 2] -= 720;
+    //     //                 start += 3;
+    //     //             }
+    //     //             attribute.dirty = true;
+    //     //         }
+    //     //     }
+    //     //
+    //     // }
+    //
+    //     console.timeEnd('update-collisions');
+    //
+    //     console.log('rendered', rendered.length);
+    // }
 
     // _update() {
     //

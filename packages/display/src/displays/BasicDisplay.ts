@@ -75,7 +75,7 @@ abstract class Display {
     rz: number;
     render: BasicRender;
     buckets: BasicBucket;
-    listeners: {[event:string]:()=>void};
+    listeners: { [event: string]: () => void };
     tiles: { [tilesize: string]: TilePosition[] };
     cluster: LayerClusterer;
     grid: Grid;
@@ -162,7 +162,7 @@ abstract class Display {
         const layers = this.layers;
         const dLayer = layers.get(layer);
         const tiles = dLayer.tiles;
-        const index = layers.remove(layer);
+        const index = layers.indexOf(layer);
 
         if (index !== -1) {
             display.buckets.forEach((dTile) => {
@@ -175,6 +175,8 @@ abstract class Display {
                 display.releaseTile(quadkey, dLayer);
                 display.cancel(quadkey, layer);
             }
+
+            layers.remove(layer);
 
             toggleLayerEventListener('remove', layer, display.listeners);
         }
