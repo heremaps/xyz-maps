@@ -134,19 +134,8 @@ class WebGlDisplay extends BasicDisplay {
         }
     }
 
-    addLayer(layer: TileLayer, styles, index: number): boolean {
-        // addLayer(index: number) {
-        //     this.r.splice(index, 0, false);
-        //     this.p.splice(index, 0, UNDEF);
-        // };
-        return super.addLayer(layer, styles, index);
-    }
-
     removeLayer(layer: TileLayer): number {
-        // removeLayer(index: number) {
-        //     this.r.splice(index, 1);
-        //     this.p.splice(index, 1);
-        // };
+        this.collision.removeLayer(this.layers.indexOf(layer));
         return super.removeLayer(layer);
     }
 

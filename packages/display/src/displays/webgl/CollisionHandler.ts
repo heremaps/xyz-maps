@@ -48,10 +48,25 @@ export class CollisionHandler {
         // for (let bbox2 of data) {
         for (let len = data.length, bbox2; i < len; i++) {
             bbox2 = data[i];
-            if (box1.minX <= bbox2.maxX && bbox2.minX <= box1.maxX && box1.minY <= bbox2.maxY && bbox2.minY <= box1.maxY) {
+            if (bbox2 != null &&
+                box1.minX <= bbox2.maxX && bbox2.minX <= box1.maxX && box1.minY <= bbox2.maxY && bbox2.minY <= box1.maxY) {
                 return true;
             }
         }
+    }
+
+    removeLayer(index: number) {
+        this.tiles.forEach((collisionTile) => {
+            const {rendered} = collisionTile;
+            let i = rendered.length;
+            let r;
+
+            while (r = rendered[--i]) {
+                if (r.li > index) {
+                    r.li--;
+                }
+            }
+        });
     }
 
     init(quadkey: string, tileX: number, tileY: number, tileZ: number, layer: Layer) {
@@ -86,6 +101,7 @@ export class CollisionHandler {
 
             this.tiles.set(quadkey, collisionData = {
                 rendered: [],
+                cnt: 0,
                 neighbours: neighbours,
                 attrInfo: []
             });
@@ -93,17 +109,19 @@ export class CollisionHandler {
 
 
         const {index} = layer;
-        const attributeData = collisionData.attrInfo[index] = collisionData.attrInfo[index] || [];
-
-
-        attributeData.push({
-            start: collisionData.rendered.length,
-            attr: null
-        });
+        // const attributeData = collisionData.attrInfo[index] = collisionData.attrInfo[index] || [];
+        //
+        //
+        // attributeData.push({
+        //     start: collisionData.rendered.length,
+        //     attr: null
+        // });
 
         this.tileCollision = collisionData;
 
         this.layerIndex = index;
+
+        this.ri = collisionData.rendered.length;
 
         console.timeEnd(quadkey);
 
@@ -111,25 +129,11 @@ export class CollisionHandler {
     }
 
     setAttribute(attribute: Attribute) {
-        const {attrInfo} = this.tileCollision;
-        const layerAttrData = attrInfo[this.layerIndex];
-
-        layerAttrData[layerAttrData.length - 1].attr = attribute;
-    }
-
-    getAttribute(index: number, attrInfo: AttributeInfo[][]): Attribute {
-        // const {tileCollision} = this;
-        // const {attrInfo} = tileCollision;
-
-        for (let l = 0, layers = attrInfo.length, i, attrsData, attr; l < layers; l++) {
-            attrsData = attrInfo[l];
-            i = attrsData.length;
-            while (i--) {
-                attr = attrsData[i];
-                if (index >= attr.start) {
-                    return attr.attr;
-                }
-            }
+        // const layerAttrData = this.tileCollision.attrInfo[this.layerIndex];
+        // layerAttrData[layerAttrData.length - 1].attr = attribute;
+        const rendered = this.tileCollision.rendered;
+        for (let i = this.ri; i < rendered.length; i++) {
+            rendered[i]._attr = attribute;
         }
     }
 
@@ -187,7 +191,8 @@ export class CollisionHandler {
             tileY: tileY,
             bos: bufferOffsetStart,
             boe: bufferOffsetEnd,
-            attrInfo: collisionInfo.attrInfo
+            attrInfo: collisionInfo.attrInfo,
+            li: this.layerIndex
             // bos: bufferIndex,
             // boe: bufferIndex + glyphs * 18
         };
@@ -198,6 +203,7 @@ export class CollisionHandler {
         }
 
         rendered.push(bbox);
+        collisionInfo.cnt++;
     }
 
     private rx: number;
@@ -213,9 +219,37 @@ export class CollisionHandler {
         const cInfo = this.tiles.get(quadkey);
 
         if (cInfo) {
-            const {attrInfo} = cInfo;
+            let empty = true;
 
-            attrInfo.splice(layerIndex, 1);
+            // if(quadkey == '023013221') debugger;
+
+            for (let i = 0; i < cInfo.rendered.length; i++) {
+                let r = cInfo.rendered[i];
+                if (r) {
+                    if (r.li == layerIndex) {
+                        cInfo.rendered[i] = null;
+                    } else {
+                        // need for remove layer!!!!!
+                        // if (r.li > layerIndex) {
+                        //     r.li--;
+                        // }
+
+                        empty = false;
+                    }
+                }
+            }
+
+            // const {attrInfo} = cInfo;
+            // let start = cInfo.layers[layerIndex];
+            // let stop = cInfo.layers[layerIndex+1]||cInfo.rendered.length;
+            //
+            // while(start<stop){
+            //     cInfo.rendered[start++] = null;
+            //     cInfo.cnt--;
+            // }
+
+
+            // attrInfo.splice(layerIndex, 1);
 
             // for (let buffer of buffers) {
             //     for (let a in buffer.attributes) {
@@ -228,7 +262,9 @@ export class CollisionHandler {
             //     }
             // }
             //
-            if (!attrInfo.length) {
+            if (empty) {
+                // if (!attrInfo.length) {
+                console.log('drop ', quadkey);
                 this.tiles.delete(quadkey);
             }
         }
@@ -252,6 +288,7 @@ export class CollisionHandler {
         // console.log(collisionData);
         console.time('update-collisions');
 
+
         const {display} = this;
         let rendered = [];
 
@@ -263,8 +300,11 @@ export class CollisionHandler {
             if (collisions /* && collisions.attrInfo && collisions.attrInfo.buffer */) {
                 for (let i = 0, _rendered = collisions.rendered; i < _rendered.length; i++) {
                     let bbox = _rendered[i];
-                    // let attribute = bbox.attr;
-                    let attribute = this.getAttribute(i, bbox.attrInfo);
+
+                    // could have been cleared because of LRU drop or layer removed
+                    if (!bbox) continue;
+
+                    let attribute = bbox._attr;
 
                     if (attribute) {
                         let minX = bbox.minX;
@@ -317,21 +357,19 @@ export class CollisionHandler {
 
 
         let r = 0;
+
+        let total = 0;
+
         while (r < rendered.length) {
             let bbox = rendered[r];
             // let attribute = this.getAttribute(r, bbox.attrInfo);
-
             let attribute = bbox.attr;
-
-            // if(!attribute){
-            //     r++;
-            //     continue;
-            // }
-
-
             let data = attribute.data;
             let start = bbox.bos;
             let stop = bbox.boe;
+
+
+            total += rendered.length - r;
 
             if (this.intersects(bbox, rendered, ++r)) {
                 // window.addPixelPoint(bbox[0] + .5 * (bbox[1] - bbox[0]), bbox[2] + .5 * (bbox[3] - bbox[2]), 'red');
@@ -373,7 +411,7 @@ export class CollisionHandler {
 
         console.timeEnd('update-collisions');
 
-        console.log('rendered', rendered.length);
+        console.log('rendered', rendered.length, '-- total checks -->', total, '!!');
     }
 
     // neighbours(qk: string) {
