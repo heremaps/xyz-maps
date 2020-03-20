@@ -403,8 +403,8 @@ export class FeatureFactory {
                         cx, cy,
                         estimatedTextWidth, ty,
                         tile, tileSize,
-                        fontInfo,
-                        bufferStart, bufferStart + glyphCnt * 6 * 3
+                        bufferStart, bufferStart + glyphCnt * 6 * 3,
+                        attributes.a_point
                     )) {
                         addText(
                             text,
@@ -515,13 +515,14 @@ export class FeatureFactory {
 
                         addLineText(
                             text,
-                            attributes.a_point.data,
+                            attributes.a_point,
                             attributes.a_position.data,
                             attributes.a_texcoord.data,
                             coordinates,
                             glyphs,
                             tile,
                             tileSize,
+                            !style.collide && this.collisions,
                             offsetX,
                             offsetY
                         );

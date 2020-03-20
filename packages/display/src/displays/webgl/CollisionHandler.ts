@@ -70,9 +70,9 @@ export class CollisionHandler {
     }
 
     init(quadkey: string, tileX: number, tileY: number, tileZ: number, layer: Layer) {
-        console.log('SET init', quadkey, layer);
-
-        console.time(quadkey);
+        // console.log('SET init', quadkey, layer);
+        //
+        // console.time(quadkey);
 
         let collisionData = this.tiles.get(quadkey);
 
@@ -101,7 +101,6 @@ export class CollisionHandler {
 
             this.tiles.set(quadkey, collisionData = {
                 rendered: [],
-                cnt: 0,
                 neighbours: neighbours,
                 attrInfo: []
             });
@@ -121,20 +120,11 @@ export class CollisionHandler {
 
         this.layerIndex = index;
 
-        this.ri = collisionData.rendered.length;
+        // this.ri = collisionData.rendered.length;
 
-        console.timeEnd(quadkey);
+        // console.timeEnd(quadkey);
 
         // this.tiles.set(tile, this.tileCollision);
-    }
-
-    setAttribute(attribute: Attribute) {
-        // const layerAttrData = this.tileCollision.attrInfo[this.layerIndex];
-        // layerAttrData[layerAttrData.length - 1].attr = attribute;
-        const rendered = this.tileCollision.rendered;
-        for (let i = this.ri; i < rendered.length; i++) {
-            rendered[i]._attr = attribute;
-        }
     }
 
     collides(
@@ -144,9 +134,9 @@ export class CollisionHandler {
         height: number,
         tile: Tile,
         tileSize: number,
-        fontInfo,
         bufferOffsetStart: number,
-        bufferOffsetEnd: number
+        bufferOffsetEnd: number,
+        attributeBuffer
     ) {
         // const tileX = tile.x * tileSize;
         // const tileY = tile.y * tileSize;
@@ -192,19 +182,29 @@ export class CollisionHandler {
             bos: bufferOffsetStart,
             boe: bufferOffsetEnd,
             attrInfo: collisionInfo.attrInfo,
-            li: this.layerIndex
+            li: this.layerIndex,
+            _attr: attributeBuffer
+
             // bos: bufferIndex,
             // boe: bufferIndex + glyphs * 18
         };
-
 
         if (this.intersects(bbox, rendered) || this.intersects(bbox, collisionInfo.neighbours)) {
             return true;
         }
 
         rendered.push(bbox);
-        collisionInfo.cnt++;
     }
+
+    // setAttribute(attribute: Attribute) {
+    //     // const layerAttrData = this.tileCollision.attrInfo[this.layerIndex];
+    //     // layerAttrData[layerAttrData.length - 1].attr = attribute;
+    //     const rendered = this.tileCollision.rendered;
+    //     for (let i = this.ri; i < rendered.length; i++) {
+    //         rendered[i]._attr = attribute;
+    //     }
+    // }
+
 
     private rx: number;
     private rz: number;
@@ -264,7 +264,7 @@ export class CollisionHandler {
             //
             if (empty) {
                 // if (!attrInfo.length) {
-                console.log('drop ', quadkey);
+                // console.log('drop ', quadkey);
                 this.tiles.delete(quadkey);
             }
         }
@@ -286,7 +286,7 @@ export class CollisionHandler {
         // console.log('####', 'updateCollisions', '####');
         // console.log(tiles);
         // console.log(collisionData);
-        console.time('update-collisions');
+        // console.time('update-collisions');
 
 
         const {display} = this;
@@ -409,9 +409,9 @@ export class CollisionHandler {
             // }
         }
 
-        console.timeEnd('update-collisions');
+        // console.timeEnd('update-collisions');
 
-        console.log('rendered', rendered.length, '-- total checks -->', total, '!!');
+        // console.log('rendered', rendered.length, '-- total checks -->', total, '!!');
     }
 
     // neighbours(qk: string) {

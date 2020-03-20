@@ -61,6 +61,8 @@ const addText = (
 
     // let bbox;
 
+    console.log('add text');
+
 
     // if (detectCollisions) {
     //     const tileX = tile.x * tileSize;

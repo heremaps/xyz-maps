@@ -264,8 +264,7 @@ const createBuffer = (
 
                             grp.glyphs.sync();
 
-
-                            factory.collisions.setAttribute(geoBuffer.attributes.a_point);
+                            // factory.collisions.setAttribute(geoBuffer.attributes.a_point);
 
                             geoBuffer.addUniform('u_texture', 0);
                             geoBuffer.addUniform('u_atlasScale', [1 / grp.glyphs.width, 1 / grp.glyphs.height]);
