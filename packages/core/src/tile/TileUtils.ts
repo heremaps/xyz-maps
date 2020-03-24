@@ -76,10 +76,8 @@ export const tileXYToQuadKey = (level: number, row: number, col: number): Quadke
     let quadkey = '';
     let tiles;
 
-
     while (level-- > 0) {
         tiles = 1 << level;
-
         quadkey += (<any>((col & tiles) !== 0)) + (<any>((row & tiles) !== 0)) * 2;
     }
 

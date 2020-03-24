@@ -404,7 +404,9 @@ export class FeatureFactory {
                         estimatedTextWidth, ty,
                         tile, tileSize,
                         bufferStart, bufferStart + glyphCnt * 6 * 3,
-                        attributes.a_point
+                        attributes.a_point,
+                        // style.priority
+                        getValue('priority', style, feature, level)
                     )) {
                         addText(
                             text,

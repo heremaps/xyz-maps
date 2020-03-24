@@ -1,5 +1,5 @@
 /*
- * Copyright (C) 2019 HERE Europe B.V.
+ * Copyright (C) 2019-2020 HERE Europe B.V.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -136,7 +136,8 @@ export class CollisionHandler {
         tileSize: number,
         bufferOffsetStart: number,
         bufferOffsetEnd: number,
-        attributeBuffer
+        attributeBuffer,
+        priority?: number
     ) {
         // const tileX = tile.x * tileSize;
         // const tileY = tile.y * tileSize;
@@ -183,7 +184,8 @@ export class CollisionHandler {
             boe: bufferOffsetEnd,
             attrInfo: collisionInfo.attrInfo,
             li: this.layerIndex,
-            _attr: attributeBuffer
+            _attr: attributeBuffer,
+            priority: priority || 0
 
             // bos: bufferIndex,
             // boe: bufferIndex + glyphs * 18
@@ -286,7 +288,7 @@ export class CollisionHandler {
         // console.log('####', 'updateCollisions', '####');
         // console.log(tiles);
         // console.log(collisionData);
-        // console.time('update-collisions');
+        console.time('update-collisions');
 
 
         const {display} = this;
@@ -342,7 +344,8 @@ export class CollisionHandler {
                             bos: bbox.bos,
                             boe: bbox.boe,
                             // attrInfo: bbox.attrInfo
-                            attr: attribute
+                            attr: attribute,
+                            priority: bbox.priority
                         });
                     }
 
@@ -359,6 +362,12 @@ export class CollisionHandler {
         let r = 0;
 
         let total = 0;
+
+        // console.time('sort-'+rendered.length);
+        rendered.sort((a, b) => a.priority - b.priority);
+        // console.timeEnd('sort-'+rendered.length);
+
+        // console.log(rendered);
 
         while (r < rendered.length) {
             let bbox = rendered[r];
@@ -409,7 +418,7 @@ export class CollisionHandler {
             // }
         }
 
-        // console.timeEnd('update-collisions');
+        console.timeEnd('update-collisions');
 
         // console.log('rendered', rendered.length, '-- total checks -->', total, '!!');
     }

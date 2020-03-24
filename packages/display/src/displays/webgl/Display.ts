@@ -198,7 +198,7 @@ class WebGlDisplay extends BasicDisplay {
             this.rz = rotZ;
             this.rx = rotX;
 
-            console.log('set rotZ', rotZ);
+            // console.log('set rotZ', rotZ);
             const PI2 = 2 * Math.PI;
             rotZ = (rotZ + PI2) % PI2;
             this.render.initView(this.w, this.h, scale, rotX, rotZ);
