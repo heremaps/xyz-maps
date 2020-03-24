@@ -61,7 +61,7 @@ const addText = (
 
     // let bbox;
 
-    console.log('add text');
+    // console.log('add text');
 
 
     // if (detectCollisions) {

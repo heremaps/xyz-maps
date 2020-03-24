@@ -53,8 +53,6 @@ const addLineText = (text: string, pointAttr, vertex, texcoord, coordinates, gly
     let tx;
     let ty;
 
-    console.log('add line-text');
-
     for (let c = 1; c < vLength; c++) {
         x2 = tile.lon2x(coordinates[c][0], tileSize);
         y2 = tile.lat2y(coordinates[c][1], tileSize);
@@ -218,6 +216,10 @@ const addLineText = (text: string, pointAttr, vertex, texcoord, coordinates, gly
                 }
 
                 let alpha = angle(dy, dx) * TO_DEG;
+
+                // make sure angle is 0->360 deg
+                alpha = (alpha+360)%360;
+
                 a = 0;
                 // a = 0;
                 // let sin = Math.sin(a);
