@@ -42,7 +42,7 @@ let UNDEF;
 
 type Tile = tile.Tile;
 
-const handlePolygons = (factory: FeatureFactory, feature, coordinates, styleGroups, lsScale, tile, groups, tileSize: number) => {
+const handlePolygons = (factory: FeatureFactory, feature, coordinates, styleGroups, lsScale, tile) => {
     const zoom = tile.z;
     for (let style of styleGroups) {
         const styleType = style.type;
@@ -55,18 +55,12 @@ const handlePolygons = (factory: FeatureFactory, feature, coordinates, styleGrou
             const cy = center[1];
             const tileBounds = tile.bounds;
             if (cx >= tileBounds[0] && cy >= tileBounds[1] && cx < tileBounds[2] && cy < tileBounds[3]) {
-                factory.create(
-                    feature, 'Point', center, [style], lsScale,
-                    tile, groups, tileSize
-                );
+                factory.create(feature, 'Point', center, [style], lsScale);
             }
         } else if (type == 'Polygon' && getValue('stroke', style, feature, zoom)) {
             style.type = 'Line';
             for (let linestring of coordinates) {
-                factory.create(
-                    feature, 'LineString', linestring, [style], lsScale,
-                    tile, groups, tileSize
-                );
+                factory.create(feature, 'LineString', linestring, [style], lsScale);
             }
             style.type = styleType;
         }
@@ -382,46 +376,28 @@ const createBuffer = (
                             let simpleType = geomType == 'MultiPoint' ? 'Point' : 'LineString';
 
                             for (let coords of coordinates) {
-                                factory.create(
-                                    feature, simpleType, coords, styleGroups, lsScale,
-                                    tile, groups, tileSize
-                                );
+                                factory.create(feature, simpleType, coords, styleGroups, lsScale);
                             }
                         } else if (geomType == 'MultiPolygon') {
                             let _xyzGeom = geom._xyz;
                             if (_xyzGeom) {
-                                factory.create(
-                                    feature, 'Polygon', coordinates, styleGroups, lsScale,
-                                    tile, groups, tileSize
-                                );
+                                factory.create(feature, 'Polygon', coordinates, styleGroups, lsScale);
                             }
                             for (let polygon of coordinates) {
                                 if (!_xyzGeom) {
-                                    factory.create(
-                                        feature, 'Polygon', polygon, styleGroups, lsScale,
-                                        tile, groups, tileSize
-                                    );
+                                    factory.create(feature, 'Polygon', polygon, styleGroups, lsScale);
                                 }
-                                handlePolygons(factory,
-                                    feature, polygon, styleGroups, lsScale,
-                                    tile, groups, tileSize
-                                );
+                                handlePolygons(factory, feature, polygon, styleGroups, lsScale, tile);
                             }
                         } else {
-                            let ready = factory.create(
-                                feature, geomType, coordinates, styleGroups, lsScale,
-                                tile, groups, tileSize
-                            );
+                            let ready = factory.create(feature, geomType, coordinates, styleGroups, lsScale);
 
                             if (!ready) {
                                 iconsLoaded = false;
                             }
 
                             if (geomType == 'Polygon') {
-                                handlePolygons(factory,
-                                    feature, coordinates, styleGroups, lsScale,
-                                    tile, groups, tileSize
-                                );
+                                handlePolygons(factory, feature, coordinates, styleGroups, lsScale, tile);
                             }
                         }
                     }
