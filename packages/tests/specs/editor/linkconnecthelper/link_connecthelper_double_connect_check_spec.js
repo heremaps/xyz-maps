@@ -33,7 +33,7 @@ describe('link connect helper connect crossing and then add new link and connect
     var link2;
 
     before(async function() {
-        chai.use(chaiAlmost(1e-4));
+        chai.use(chaiAlmost(1e-1));
         preparedData = await prepare(dataset);
         display = new Map(document.getElementById('map'), {
             center: {longitude: 80.5752066315913, latitude: 16.51980167657008},
@@ -61,12 +61,12 @@ describe('link connect helper connect crossing and then add new link and connect
         let c1 = crossings[1];
 
         expect(c0.distance).to.be.almost(0);
-        expect(c0.x).to.be.almost(200.00000273436308);
-        expect(c0.y).to.be.almost(200.00003627687693);
+        expect(c0.x).to.be.almost(200);
+        expect(c0.y).to.be.almost(200);
 
         expect(c1.distance).to.be.almost(0);
-        expect(c1.x).to.be.almost(200.00000273436308);
-        expect(c1.y).to.be.almost(259.9999574124813);
+        expect(c1.x).to.be.almost(200);
+        expect(c1.y).to.be.almost(260);
     });
 
     it('connect a crossing', function() {
@@ -86,12 +86,12 @@ describe('link connect helper connect crossing and then add new link and connect
         let c1 = crossings[1];
 
         expect(c0.distance).to.be.almost(0);
-        expect(c0.x).to.be.almost(250.00002110004425);
-        expect(c0.y).to.be.almost(200.00003627687693);
+        expect(c0.x).to.be.almost(250);
+        expect(c0.y).to.be.almost(200);
 
         expect(c1.distance).to.be.almost(0);
-        expect(c1.x).to.be.almost(250.00002110004425);
-        expect(c1.y).to.be.almost(259.9999574124813);
+        expect(c1.x).to.be.almost(250);
+        expect(c1.y).to.be.almost(260);
 
         crossings = link3.checkCrossings();
 

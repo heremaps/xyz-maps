@@ -37,7 +37,7 @@ describe('add Address object and submit out of viewport', function() {
     let paLayer;
 
     before(async function() {
-        chai.use(chaiAlmost(1e-7));
+        chai.use(chaiAlmost());
         preparedData = await prepare(dataset);
 
         display = new Map(document.getElementById('map'), {

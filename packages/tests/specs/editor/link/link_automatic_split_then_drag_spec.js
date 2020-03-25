@@ -34,7 +34,7 @@ describe('drag a link shape point to the other one to split itself and then drag
     let link2;
 
     before(async function() {
-        chai.use(chaiAlmost(1e-7));
+        chai.use(chaiAlmost());
         preparedData = await prepare(dataset);
         display = new Map(document.getElementById('map'), {
             center: {longitude: 76.31624, latitude: 15.841013},

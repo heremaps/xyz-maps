@@ -35,7 +35,7 @@ describe('drag a link shape point to the other one and then undo', function() {
     let linkLayer;
 
     before(async function() {
-        chai.use(chaiAlmost(1e-7));
+        chai.use(chaiAlmost());
         preparedData = await prepare(dataset);
         display = new Map(document.getElementById('map'), {
             center: {longitude: 76.229901, latitude: 15.187356},
