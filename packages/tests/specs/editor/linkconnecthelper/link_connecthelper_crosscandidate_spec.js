@@ -35,7 +35,7 @@ describe('link connect helper crosscandidate', function() {
     let linkLayer;
 
     before(async function() {
-        chai.use(chaiAlmost(1e-3));
+        chai.use(chaiAlmost(1e-1));
         preparedData = await prepare(dataset);
         display = new Map(document.getElementById('map'), {
             renderOptions: {
@@ -68,12 +68,12 @@ describe('link connect helper crosscandidate', function() {
         let c1 = crossings[1];
 
         expect(c0.distance).to.be.equal(0);
-        expect(c0.x).to.almost.equal(387.4074245095253);
-        expect(c0.y).to.almost.equal(247.3506297841668);
+        expect(c0.x).to.almost.equal(387.4074);
+        expect(c0.y).to.almost.equal(247.3506);
 
-        expect(c1.distance).to.almost.equal(6.1642614106534515);
-        expect(c1.x).to.almost.equal(539.8464839756489);
-        expect(c1.y).to.almost.equal(242.18216574192047);
+        expect(c1.distance).to.almost.equal(6.1643);
+        expect(c1.x).to.almost.equal(539.8465);
+        expect(c1.y).to.almost.equal(242.1822);
     });
 
     it('show crossings and connect one of it', async function() {
@@ -103,7 +103,7 @@ describe('link connect helper crosscandidate', function() {
         crossings = link1.checkCrossings();
         let c = crossings[0];
         expect(c.distance).to.be.equal(0);
-        expect(c.x).to.almost.equal(377.1906134337187);
-        expect(c.y).to.almost.equal(272.6514024361968);
+        expect(c.x).to.almost.equal(377.1906);
+        expect(c.y).to.almost.equal(272.6514);
     });
 });

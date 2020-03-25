@@ -32,7 +32,7 @@ describe('Area getters return value', function() {
     var area;
 
     before(async function() {
-        chai.use(chaiAlmost(1e-7));
+        chai.use(chaiAlmost());
         preparedData = await prepare(dataset);
         display = new Map(document.getElementById('map'), {
             center: {longitude: -120.123004, latitude: 41.242238},

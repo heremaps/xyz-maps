@@ -34,7 +34,7 @@ describe('link auto split', function() {
     let link1; let link2; let link3; let link4; let link5; let link6; let link7;
 
     before(async function() {
-        chai.use(chaiAlmost(1e-7));
+        chai.use(chaiAlmost());
         preparedData = await prepare(dataset);
         display = new Map(document.getElementById('map'), {
             center: {longitude: 76.97791, latitude: 12.93834},

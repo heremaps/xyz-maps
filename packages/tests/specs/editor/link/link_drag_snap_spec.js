@@ -35,7 +35,7 @@ describe('link shape point drag to snapping to other links', function() {
     let linkLayer;
 
     before(async function() {
-        chai.use(chaiAlmost(1e-7));
+        chai.use(chaiAlmost());
         preparedData = await prepare(dataset);
         display = new Map(document.getElementById('map'), {
             center: {latitude: 16.324926, longitude: 75.290762},

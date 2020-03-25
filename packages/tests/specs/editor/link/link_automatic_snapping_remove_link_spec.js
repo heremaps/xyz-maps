@@ -38,7 +38,7 @@ describe('link auto remove link', function() {
     let linkLayer;
 
     before(async function() {
-        chai.use(chaiAlmost(1e-7));
+        chai.use(chaiAlmost());
         preparedData = await prepare(dataset);
         display = new Map(document.getElementById('map'), {
             center: {longitude: 77.05628448207847, latitude: 12.971348085003669},

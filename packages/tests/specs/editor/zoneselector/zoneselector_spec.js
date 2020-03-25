@@ -36,7 +36,7 @@ describe('zone selector drag', function() {
     let link1; let link2; let link3;
 
     before(async function() {
-        chai.use(chaiAlmost(1e-7));
+        chai.use(chaiAlmost());
         preparedData = await prepare(dataset);
         display = new Map(document.getElementById('map'), {
             center: {longitude: -105.145534, latitude: 35.374829},

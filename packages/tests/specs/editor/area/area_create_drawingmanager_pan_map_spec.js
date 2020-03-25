@@ -33,7 +33,7 @@ describe('Area drawing manager and pan map', function() {
     let mapContainer;
 
     before(async function() {
-        chai.use(chaiAlmost(1e-7));
+        chai.use(chaiAlmost());
         preparedData = await prepare(dataset);
         display = new Map(document.getElementById('map'), {
             center: {longitude: 76.08312571088209, latitude: 13.214838342327566},

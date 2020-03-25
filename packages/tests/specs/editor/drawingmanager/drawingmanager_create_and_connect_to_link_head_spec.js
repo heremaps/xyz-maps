@@ -34,7 +34,7 @@ describe('Create new Links and connect to head of original link', function() {
     let link;
 
     before(async function() {
-        chai.use(chaiAlmost(1e-7));
+        chai.use(chaiAlmost());
         preparedData = await prepare(dataset);
         display = new Map(document.getElementById('map'), {
             center: {longitude: 77.001343, latitude: 13.074603},
