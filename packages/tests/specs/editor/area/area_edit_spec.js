@@ -36,7 +36,7 @@ describe('area add and remove shape point', function() {
     let areashp;
 
     before(async function() {
-        chai.use(chaiAlmost(1e-7));
+        chai.use(chaiAlmost());
         preparedData = await prepare(dataset);
         display = new Map(document.getElementById('map'), {
             center: {longitude: -111.717195, latitude: 40.211738},
@@ -119,9 +119,9 @@ describe('area add and remove shape point', function() {
         expect(a.coord()).to.deep.almost([[[
             [-111.718267489, 40.211738323, 0],
             [-111.717194605, 40.210918996, 0],
-            [-111.716926385, 40.21132866],
+            [-111.716926385, 40.21132866, 0],
             [-111.717194605, 40.211738323, 0],
-            [-111.717731047, 40.211943153],
+            [-111.717731047, 40.211943153, 0],
             [-111.718267489, 40.211738323, 0]
         ]]]);
     });

@@ -36,7 +36,7 @@ describe('map container transform', function() {
     let link;
 
     before(async function() {
-        chai.use(chaiAlmost(1e-7));
+        chai.use(chaiAlmost());
         preparedData = await prepare(dataset);
         display = new Map(document.getElementById('map'), {
             center: {longitude: 80.47614231309831, latitude: 16.44729312879116},

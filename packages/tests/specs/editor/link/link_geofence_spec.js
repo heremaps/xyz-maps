@@ -35,7 +35,7 @@ describe('link geofence setting', function() {
     let linkLayer;
 
     before(async function() {
-        chai.use(chaiAlmost(1e-7));
+        chai.use(chaiAlmost());
         preparedData = await prepare(dataset);
         display = new Map(document.getElementById('map'), {
             center: {longitude: 80.63257782733888, latitude: 17.71492567213454},

@@ -34,7 +34,7 @@ describe('set POI coordinates', function() {
     var poiLayer;
 
     before(async function() {
-        chai.use(chaiAlmost(1e-7));
+        chai.use(chaiAlmost());
         preparedData = await prepare(dataset);
         display = new Map(document.getElementById('map'), {
             center: {longitude: 77.283773, latitude: 13.1006019},

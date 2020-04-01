@@ -34,7 +34,7 @@ describe('poi editable', function() {
     let poi;
 
     before(async function() {
-        chai.use(chaiAlmost(1e-7));
+        chai.use(chaiAlmost());
         preparedData = await prepare(dataset);
         display = new Map(document.getElementById('map'), {
             center: {longitude: 80.63813, latitude: 16.50068},
