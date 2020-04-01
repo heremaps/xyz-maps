@@ -27,7 +27,7 @@ import InternalEditor from '../../IEditor';
 const doc = Properties; // doc only!
 
 const {Feature} = features;
-type EditableProvider = providers.EditableProvider;
+type EditableProvider = providers.EditableRemoteTileProvider;
 let UNDEF;
 
 const cpyCoord = (c) => {
@@ -80,7 +80,7 @@ class EditFeature extends Feature {
         return this.class + ' 🌎 ' + this.id;
     };
 
-    getProvider(): providers.EditableProvider {
+    getProvider(): providers.EditableRemoteTileProvider {
         // return super.getProvider();
         return <EditableProvider> this._provider;
     }

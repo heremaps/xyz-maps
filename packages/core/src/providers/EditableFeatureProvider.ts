@@ -18,17 +18,56 @@
  */
 
 import {FeatureProvider as FeatureTileProvider} from './FeatureProvider';
-import LRUStorage from '../storage/LRUStorage';
 import {Feature} from '../features/Feature';
-import {EditableProvider} from './EditableProvider';
+import {JSUtils} from '@here/xyz-maps-common';
 
 type FeatureClass = 'LINE' | 'NAVLINK' | 'MARKER' | 'PLACE' | 'ADDRESS' | 'AREA';
 
-const METHOD_NOT_IMPLEMENTED = 'Method not implemented.';
+// type EditorFeature = { editState: (state?: string, value?) => any };
 
+type NavlinkId = string | number;
 
-export class EditableFeatureProvider extends FeatureTileProvider {
+type Navlink = Feature;
+
+type Coordinate = [number, number, number?];
+
+// const METHOD_NOT_IMPLEMENTED = 'Method not implemented.';
+
+type TurnNode = {
+    link: Navlink,
+    index: number
+};
+
+type SplitHookData = {
+    link: Navlink,
+    index: number,
+    children: [Navlink, Navlink],
+    relativePosition: number // 0.0 -> 1.0
+};
+type DisconnectHookData = {
+    link: Navlink,
+    index: number
+};
+type RemoveHookData = {
+    feature: Feature
+};
+
+type SplitHook = (data: SplitHookData) => void;
+type DisconnectHook = (data: DisconnectHookData) => void;
+type RemoveHook = (data: RemoveHookData) => void;
+
+type Hooks = {
+    'Navlink.split'?: SplitHook | SplitHook[],
+    'Navlink.disconnect'?: DisconnectHook | DisconnectHook[],
+    'Feature.remove'?: RemoveHook | RemoveHook[]
+};
+
+export abstract class EditableFeatureProvider extends FeatureTileProvider {
+    _e: any;
+
     isEditable = true;
+
+    hooks: Hooks;
 
     detectFeatureClass(feature): FeatureClass {
         switch (feature.geometry.type) {
@@ -47,45 +86,35 @@ export class EditableFeatureProvider extends FeatureTileProvider {
         return feature.properties;
     }
 
-    readDirection(link: Feature): 'BOTH' | 'START_TO_END' | 'END_TO_START' {
-        throw new Error(METHOD_NOT_IMPLEMENTED);
-        // return 'BOTH';
-    }
+    abstract readDirection(link: Navlink): 'BOTH' | 'START_TO_END' | 'END_TO_START';
 
-    readPedestrianOnly(link: Feature): boolean {
-        throw new Error(METHOD_NOT_IMPLEMENTED);
-    }
+    abstract readPedestrianOnly(link: Navlink): boolean;
 
-    writeTurnRestriction(restricted: boolean, turnFrom: { link: Feature; index: number; }, turnTo: { link: Feature; index: number; }) {
-        throw new Error(METHOD_NOT_IMPLEMENTED);
-    }
+    abstract readTurnRestriction(turnFrom: TurnNode, turnTo: TurnNode): boolean;
 
-    readRoutingProvider(location: Feature, providers?: EditableProvider[]): string {
-        return this.id;
-    }
+    abstract writeTurnRestriction(restricted: boolean, turnFrom: TurnNode, turnTo: TurnNode);
 
-    readRoutingPosition(feature: any): [number, number, number?] {
-        throw new Error(METHOD_NOT_IMPLEMENTED);
-    }
+    abstract readRoutingProvider(location: Feature): string; // return undefined -> provider itself acts as routing provider
 
-    readRoutingLink(feature: any): string | number {
-        throw new Error(METHOD_NOT_IMPLEMENTED);
-    }
+    abstract readRoutingPosition(feature): Coordinate;
 
-    writeRoutingPosition(feature: any, position: [number, number, number?]) {
-        throw new Error(METHOD_NOT_IMPLEMENTED);
-    }
+    abstract readRoutingLink(feature): NavlinkId;
 
-    writeRoutingLink(location: any, link: Feature) {
-        throw new Error(METHOD_NOT_IMPLEMENTED);
-    }
+    abstract writeRoutingPosition(feature, position: Coordinate | null);
 
-    readTurnRestriction(turnFrom: { link: Feature; index: number; }, turnTo: { link: Feature; index: number; }): boolean {
-        throw new Error(METHOD_NOT_IMPLEMENTED);
-    }
+    abstract writeRoutingLink(location, link: Navlink | null);
 
-    writeEditState(feature, editState: 'created' | 'modified' | 'removed' | 'split') {
-    }
+    // by default edit states aren't tracked/stored
+    abstract writeEditState(feature, editState: 'created' | 'modified' | 'removed' | 'split');
+
+
+    readRoutingPoint(location): { link: NavlinkId, position: Coordinate } {
+        return {
+            link: this.readRoutingLink(location),
+            position: this.readRoutingPosition(location)
+        };
+    };
+
 
     private blocked = {};
 
@@ -101,4 +130,21 @@ export class EditableFeatureProvider extends FeatureTileProvider {
             }
         }
     };
+
+    _insert(o, tile?) {
+        if (this.blocked[o.id]) {
+            return null;
+        }
+        return super._insert(o, tile);
+    };
+
+    reserveId(createdFeatures, cb) {
+        setTimeout(() => cb(createdFeatures.map((f) => f.id)), 0);
+    };
+
+    // act as getter/setter
+    isoCC(feature, isocc?: string|number) {
+        // isoCC always valid -> no reverse geoc
+        return true;
+    }
 }

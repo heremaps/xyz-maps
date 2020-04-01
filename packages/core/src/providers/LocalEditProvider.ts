@@ -19,8 +19,15 @@
 
 import {EditableFeatureProvider} from './EditableFeatureProvider';
 import LRUStorage from '../storage/LRUStorage';
+import {Feature} from '../features/Feature';
 
-let UNDEF;
+
+type Navlink = Feature;
+type Coordinate = [number, number, number?];
+
+
+const METHOD_NOT_IMPLEMENTED = 'Method not implemented.';
+
 
 /**
  *  Configuration of local provider.
@@ -101,10 +108,57 @@ export class LocalEditProvider extends EditableFeatureProvider {
 
     _clearOnCommit = false;
 
-    commit(features, onSuccess, onError) {
+    commit(features, onSuccess?, onError?) {
         // just fake commit. nothing is done here.
-        setTimeout(() => onSuccess({}), 0);
+        if (typeof onSuccess == 'function') {
+            setTimeout(() => onSuccess({}), 0);
+        }
         return true;
-        // return features.length;
+    }
+
+
+    readDirection(link: Feature): 'BOTH' | 'START_TO_END' | 'END_TO_START' {
+        throw new Error(METHOD_NOT_IMPLEMENTED);
+        // return 'BOTH';
+    }
+
+    readPedestrianOnly(link: Feature): boolean {
+        throw new Error(METHOD_NOT_IMPLEMENTED);
+    }
+
+    writeTurnRestriction(restricted: boolean, turnFrom: { link: Feature; index: number; }, turnTo: { link: Feature; index: number; }) {
+        throw new Error(METHOD_NOT_IMPLEMENTED);
+    }
+
+    readRoutingProvider(location: Feature, providers?: EditableFeatureProvider[]): string {
+        return this.id;
+    }
+
+    readRoutingPosition(feature: any): [number, number, number?] {
+        throw new Error(METHOD_NOT_IMPLEMENTED);
+    }
+
+    readRoutingLink(feature: any): string | number {
+        throw new Error(METHOD_NOT_IMPLEMENTED);
+    }
+
+    writeRoutingPosition(feature: any, position: [number, number, number?]) {
+        throw new Error(METHOD_NOT_IMPLEMENTED);
+    }
+
+    writeRoutingLink(location: any, link: Feature) {
+        throw new Error(METHOD_NOT_IMPLEMENTED);
+    }
+
+    readTurnRestriction(turnFrom: { link: Feature; index: number; }, turnTo: { link: Feature; index: number; }): boolean {
+        throw new Error(METHOD_NOT_IMPLEMENTED);
+    }
+
+    writeRoutingPoint(location, link: Navlink | null, position: Coordinate | null) {
+        this.writeRoutingLink(location, link);
+        this.writeRoutingPosition(location, position);
+    };
+
+    writeEditState(feature, editState: 'created' | 'modified' | 'removed' | 'split') {
     }
 }

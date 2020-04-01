@@ -31,7 +31,7 @@ import Display from '@here/xyz-maps-display';
 import Feature from './features/feature/Feature';
 
 type TileLayer = layers.TileLayer;
-type EditableProvider = providers.EditableProvider;
+type EditableProvider = providers.EditableRemoteTileProvider;
 
 const ERROR_EVENT = 'error';
 

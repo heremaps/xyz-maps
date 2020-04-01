@@ -437,7 +437,7 @@ class ObjectManager {
         return objects.length > 1 ? objects : objects[0];
     };
 
-    getNearestLine(point: Point, data: providers.EditableProvider | Navlink[], options?: Options) {
+    getNearestLine(point: Point, data: providers.EditableRemoteTileProvider | Navlink[], options?: Options) {
         const HERE_WIKI = this.iEdit;
         // overwrite default configuration
         options = JSUtils.extend({
@@ -465,7 +465,7 @@ class ObjectManager {
             ? geotools.getPointBBox(geopos, maxDistance)
             : null;
 
-        if (data instanceof providers.EditableProvider) {
+        if (data instanceof providers.EditableRemoteTileProvider) {
             data = this.getInBBox(searchBBox, data);
         }
 
@@ -480,7 +480,7 @@ class ObjectManager {
                 : Infinity;
         };
 
-        for (let line of data) {
+        for (let line of <Navlink[]>data) {
             if (
                 // check if link must be skipped
                 options.ignore.indexOf(line.id) == -1

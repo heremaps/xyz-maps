@@ -101,21 +101,24 @@ class FeatureTransmitter {
                         let oID;
                         for (const id in pIDs) {
                             if (obj = moddedObjects[layerId][id]) {
-                                pID = pIDs[id];
-                                oID = obj[ID].replace(/(?=[.\\+*?[^\]$(){}\|])/g, '\\');
+                                pID = typeof pIDs[id] == 'number'
+                                    ? pIDs[id]
+                                    : '"' + pIDs[id] + '"';
 
-                                moddedObjsJSON = moddedObjsJSON
-                                    .replace('"' + oID + '":{', JSON_PROP_PLACEHOLDER)
-                                    // link property of poi/addr is defined as String value!
-                                    .replace(new RegExp('"link":"' + oID + '"', 'g'), '"link":"' + pID + '"')
+                                oID = obj[ID];
 
-                                    .replace(new RegExp('"' + oID + '"|' + oID, 'g'),
-                                        typeof pID == 'number'
-                                            ? pID
-                                            : '"' + pID + '"'
-                                    )
-                                    .replace(JSON_PROP_PLACEHOLDER, '"' + pID + '":{');
+                                if (typeof oID == 'string') {
+                                    oID = `"${obj[ID].replace(/(?=[.\\+*?[^\]$(){}\|])/g, '\\')}"`;
+                                }
 
+                                if (pID != oID) {
+                                    moddedObjsJSON = moddedObjsJSON
+                                        .replace(oID + ':{', JSON_PROP_PLACEHOLDER)
+                                        // link property of poi/addr is defined as String value!
+                                        .replace(new RegExp('"link":' + oID, 'g'), '"link":"' + pID + '"')
+                                        .replace(new RegExp(oID, 'g'), pID)
+                                        .replace(JSON_PROP_PLACEHOLDER, pID + ':{');
+                                }
                                 iEdit.dump(obj[ID] + ' -> ' + pID, DBG_LEVEL_INFO);
                             }
                         }

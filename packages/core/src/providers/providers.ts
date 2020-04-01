@@ -23,7 +23,7 @@ export {GeoJSONProvider} from './GeoJSONProvider';
 export {FeatureProvider} from './FeatureProvider';
 export {LocalProvider} from './LocalProvider';
 export {RemoteTileProvider} from './RemoteTileProvider/RemoteTileProvider';
-export {EditableProvider} from './EditableProvider';
+export {EditableRemoteTileProvider} from './RemoteTileProvider/EditableRemoteTileProvider';
 export {SpaceProvider} from './GeoSpace/SpaceProvider';
 export {MVTProvider} from './MVTProvider/MVTProvider';
 export {EditableFeatureProvider} from './EditableFeatureProvider';
