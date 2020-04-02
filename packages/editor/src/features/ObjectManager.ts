@@ -465,7 +465,7 @@ class ObjectManager {
             ? geotools.getPointBBox(geopos, maxDistance)
             : null;
 
-        if (data instanceof providers.EditableRemoteTileProvider) {
+        if (data instanceof providers.EditableFeatureProvider) {
             data = this.getInBBox(searchBBox, data);
         }
 
