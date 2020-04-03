@@ -19,7 +19,7 @@
 
 import {FeatureProvider as FeatureTileProvider} from './FeatureProvider';
 import {Feature} from '../features/Feature';
-import {JSUtils} from '@here/xyz-maps-common';
+import {prepareFeature, updateBBox} from '../data/prepare/EditableGeoJSON';
 
 type FeatureClass = 'LINE' | 'NAVLINK' | 'MARKER' | 'PLACE' | 'ADDRESS' | 'AREA';
 
@@ -148,3 +148,7 @@ export abstract class EditableFeatureProvider extends FeatureTileProvider {
         return true;
     }
 }
+
+
+EditableFeatureProvider.prototype.prepareFeature = prepareFeature;
+EditableFeatureProvider.prototype.updateBBox = updateBBox;

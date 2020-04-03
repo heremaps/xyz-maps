@@ -23,7 +23,6 @@ import {JSUtils, Queue} from '@here/xyz-maps-common';
 /* exported SpaceProviderOptions */
 
 import SpaceProviderOptions from './SpaceOptions';
-import {prepareFeature, updateBBox} from '../../data/prepare/EditableGeoJSON';
 import {GeoJSONProvider} from '../GeoJSONProvider';
 
 type FeatureId = string | number;
@@ -472,5 +471,4 @@ export class SpaceProvider extends GeoJSONProvider {
     };
 }
 
-SpaceProvider.prototype.prepareFeature = prepareFeature;
-SpaceProvider.prototype.updateBBox = updateBBox;
+
