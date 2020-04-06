@@ -470,5 +470,3 @@ export class SpaceProvider extends GeoJSONProvider {
         return url;
     };
 }
-
-
