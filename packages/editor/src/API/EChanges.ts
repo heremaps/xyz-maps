@@ -34,17 +34,19 @@ export const eChanges = (HERE_WIKI) => {
         for (const layerId in commited) {
             provider = HERE_WIKI.getProviderById(layerId);
 
-            if (provider._clearOnCommit) {
-                for (const id in commited[layerId]) {
-                    feature = provider.search(id);
+            for (const id in commited[layerId]) {
+                feature = provider.search(id);
 
+                if (provider._clearOnCommit) {
                     // make sure featKeeper is not protecting the feature from being cleared after commit..
                     // and can be refreshed/replaced with latest version returned from backend...
                     if (feature) {
                         delete feature.properties['@ns:com:here:editor'];
                     }
-
                     clearBBoxes.push(provider, commited[layerId][id].bbox);
+                } else if (feature) {
+                    // make sure edit states are reset
+                    feature.properties['@ns:com:here:editor'] = {};
                 }
             }
         }
