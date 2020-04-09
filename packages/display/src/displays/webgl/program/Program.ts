@@ -212,53 +212,110 @@ class Program {
         }
     };
 
-    private setStates(states: GLStates) {
+    private setStates(states: GLStates, pass) {
         const gl = this.gl;
-        // apply default options
+        // apply default gl-states
+        let {blend, scissor, depth} = this.glStates;
 
-
-        const scissor = states.scissor;
-        if (scissor != UNDEF) {
-            if (scissor) {
-                gl.enable(gl.SCISSOR_TEST);
-                // gl.enable(gl.STENCIL_TEST);
-            } else {
-                gl.disable(gl.SCISSOR_TEST);
-                // gl.disable(gl.STENCIL_TEST);
-            }
+        // overwrite with custom gl-states
+        if (states.scissor != UNDEF) {
+            scissor = states.scissor;
+        }
+        if (states.blend != UNDEF) {
+            blend = states.blend;
+        }
+        if (states.depth != UNDEF) {
+            depth = states.depth;
         }
 
-        const blend = states.blend;
-        if (blend != UNDEF) {
+        if (scissor) {
+            gl.enable(gl.SCISSOR_TEST);
+            // console.log('pass boy',pass);
+            if (blend && pass == 'alpha') {
+                // debugger;
+                gl.enable(gl.STENCIL_TEST);
+            }
+        } else {
+            gl.disable(gl.SCISSOR_TEST);
             if (blend) {
-                gl.enable(gl.BLEND);
-            } else {
-                gl.disable(gl.BLEND);
+                gl.disable(gl.STENCIL_TEST);
             }
         }
 
-        const depth = states.depth;
-        if (depth != UNDEF) {
-            if (depth) {
-                gl.enable(gl.DEPTH_TEST);
-            } else {
-                gl.disable(gl.DEPTH_TEST);
-            }
+        if (blend) {
+            gl.enable(gl.BLEND);
+        } else {
+            gl.disable(gl.BLEND);
+        }
+
+        if (depth) {
+            gl.enable(gl.DEPTH_TEST);
+        } else {
+            gl.disable(gl.DEPTH_TEST);
         }
     }
 
-    init(options: GLStates) {
+    // private _setStates(states: GLStates) {
+    //     const gl = this.gl;
+    //     // apply default options
+    //     const {blend, scissor, depth} = states;
+    //
+    //     if (scissor != UNDEF) {
+    //         if (blend) {
+    //             if (scissor) {
+    //                 gl.disable(gl.SCISSOR_TEST);
+    //                 gl.enable(gl.STENCIL_TEST);
+    //             } else {
+    //                 gl.disable(gl.STENCIL_TEST);
+    //                 gl.enable(gl.SCISSOR_TEST);
+    //             }
+    //         } else {
+    //             if (scissor) {
+    //                 gl.enable(gl.SCISSOR_TEST);
+    //             } else {
+    //                 gl.disable(gl.SCISSOR_TEST);
+    //             }
+    //         }
+    //     }
+    //
+    //     if (blend != UNDEF) {
+    //         if (blend) {
+    //             gl.enable(gl.BLEND);
+    //         } else {
+    //             gl.disable(gl.BLEND);
+    //         }
+    //     }
+    //
+    //
+    //     if (depth != UNDEF) {
+    //         if (depth) {
+    //             gl.enable(gl.DEPTH_TEST);
+    //         } else {
+    //             gl.disable(gl.DEPTH_TEST);
+    //         }
+    //     }
+    // }
+
+    init(options: GLStates, pass: 'opaque'|'alpha') {
         const prog = this;
         const {gl} = prog;
         gl.blendFunc(gl.SRC_ALPHA, gl.ONE_MINUS_SRC_ALPHA);
-        gl.depthMask(true);
-        // first set program defaults
-        prog.setStates(prog.glStates);
 
-        // overwrite with custom
-        if (options) {
-            prog.setStates(options);
-        }
+
+        this._pass = pass;
+
+        // console.log(this.name,options.blend,options.alpha,options);
+        // if(options.blend)
+        // gl.depthMask(options.blend);
+        prog.setStates(options, pass);
+
+        // first set program defaults
+        // prog.setStates(prog.glStates);
+        //
+        // // overwrite with custom
+        // if (options) {
+        //     prog.setStates(options);
+        // }
 
         // const states = options || this.glStates;
         // const gl = this.gl;

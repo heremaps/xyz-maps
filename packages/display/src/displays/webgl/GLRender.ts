@@ -107,10 +107,10 @@ export class GLRender implements BasicRender {
         512: createGridTileBuffer(512)
     };
 
-    // private stencilTile = {
-    //     256: createTileBuffer(256),
-    //     512: createTileBuffer(512)
-    // }
+    private stencilTile = {
+        256: createTileBuffer(256),
+        512: createTileBuffer(512)
+    }
 
     private depthFnc: GLenum;
     private pass: 'opaque' | 'alpha';
@@ -169,16 +169,14 @@ export class GLRender implements BasicRender {
     }
 
     clear(): void {
-        const gl = this.gl;
+        const {gl} = this;
         // gl.clearDepth(1.0);
         gl.colorMask(true, true, true, true);
         gl.disable(gl.SCISSOR_TEST);
         gl.depthMask(true);
-        gl.clear(gl.COLOR_BUFFER_BIT | gl.DEPTH_BUFFER_BIT | gl.STENCIL_BUFFER_BIT);
+        gl.clear(gl.COLOR_BUFFER_BIT | gl.DEPTH_BUFFER_BIT);
+        // gl.clear(gl.COLOR_BUFFER_BIT | gl.DEPTH_BUFFER_BIT | gl.STENCIL_BUFFER_BIT);
         gl.colorMask(true, true, true, false);
-        // gl.clearStencil(0);
-        // gl.clear(gl.STENCIL_BUFFER_BIT);
-        // gl.stencilOp(gl.KEEP, gl.KEEP, gl.REPLACE);
     }
 
     init(canvas: HTMLCanvasElement, devicePixelRation: number): void {
@@ -203,6 +201,8 @@ export class GLRender implements BasicRender {
         gl.enable(gl.SCISSOR_TEST);
         // gl.enable(gl.BLEND);
         // gl.enable(gl.DEPTH_TEST);
+
+        // gl.clearStencil(0);
 
         // || canvas.getContext('experimental-webgl', GL_OPTIONS);
         // this.gl.clearColor(244/255, 248/255, 250/255, 1.0);// #F4F8FA
@@ -422,7 +422,7 @@ export class GLRender implements BasicRender {
         const renderPass = this.pass;
 
         let bufAttributes;
-        let program;
+        let program: Program;
         let uLocation;
 
         // const isAlphaPass = renderPass == 'alpha';
@@ -452,7 +452,7 @@ export class GLRender implements BasicRender {
                 // initialise pass default
                 gl.depthFunc(this.depthFnc);
 
-                program.init(buffer);
+                program.init(buffer, renderPass);
 
                 program.initAttributes(bufAttributes, buffers);
 
@@ -479,34 +479,40 @@ export class GLRender implements BasicRender {
     }
 
 
-    // private initStencil(x: number, y: number, tileSize: number) {
-    //     const gl = this.gl;
-    //     // gl.clearStencil(0);
-    //     gl.clear(gl.STENCIL_BUFFER_BIT);
-    //
-    //     // Replacing the values at the stencil buffer to 1 on every pixel we draw
-    //     gl.stencilFunc(gl.ALWAYS, 1, 1);
-    //     gl.stencilOp(gl.REPLACE, gl.REPLACE, gl.REPLACE);
-    //
-    //     // disable color (u can also disable here the depth buffers)
-    //     gl.colorMask(false, false, false, false);
-    //
-    //     // gl.disable(gl.DEPTH_TEST);
-    //     gl.enable(gl.STENCIL_TEST);
-    //
-    //     this.stencilTile[tileSize].groups[0].alpha = this.pass == 'alpha';
-    //     let grpFilter = this.grpFilter;
-    //     this.grpFilter = null;
-    //     this.drawBuffer(this.stencilTile[tileSize], x, y, null, null); //, {depth: false,scissor: false});
-    //
-    //     this.grpFilter = grpFilter;
-    //     // Telling the stencil now to draw/keep only pixels that equals 1 - which we set earlier
-    //     gl.stencilFunc(gl.EQUAL, 1, 1);
-    //     gl.stencilOp(gl.KEEP, gl.KEEP, gl.KEEP);
-    //     // enabling back the color buffer
-    //     gl.colorMask(true, true, true, true);
-    //     // gl.enable(gl.DEPTH_TEST);
-    // }
+    initStencil(x: number, y: number, tileSize: number, refVal: number) {
+        const {gl} = this;
+        const stencilTile = this.stencilTile[tileSize];
+        // gl.clearStencil(0);
+        // gl.clear(gl.STENCIL_BUFFER_BIT);
+        // refVal = 1;
+
+        // refVal = ++this.stencilIndex;
+        // if (refVal > 0xff) {
+        //     refVal = this.stencilIndex = 1;
+        //     gl.clear(gl.STENCIL_BUFFER_BIT);
+        // }
+
+        gl.stencilFunc(gl.ALWAYS, refVal, 0xff);
+        gl.stencilOp(gl.REPLACE, gl.REPLACE, gl.REPLACE);
+
+        // disable color buffer
+        gl.colorMask(false, false, false, false);
+
+        stencilTile.alpha = true; // this.pass == 'alpha';
+        stencilTile.blend = false;
+        // stencilTile.alpha =
+        //     stencilTile.blend = this.pass == 'alpha';
+
+        let grpFilter = this.grpFilter;
+        this.grpFilter = null;
+        this.drawBuffer(stencilTile, x, y, null, null); // , {depth: false,scissor: false});
+
+        this.grpFilter = grpFilter;
+        gl.stencilFunc(gl.EQUAL, refVal, 0xff);
+        gl.stencilOp(gl.KEEP, gl.KEEP, gl.KEEP);
+        // enable color buffer again
+        gl.colorMask(true, true, true, false);
+    }
 
     private initScissor(x: number, y: number, width: number, height: number) {
         const gl = this.gl;
@@ -538,6 +544,15 @@ export class GLRender implements BasicRender {
         // gl.enable(gl.SCISSOR_TEST);
     }
 
+    private initTileStencil(x: number, y: number, tileSize: number, stencilVal: number) {
+        // return this.initStencil(x, y, tileSize, stencilVal);
+        this.initScissor(x, y, tileSize, tileSize);
+
+        if (this.pass == 'alpha') {
+            this.initStencil(x, y, tileSize, stencilVal);
+        }
+    }
+
     layer(dTile: GLTile, x: number, y: number, renderLayer: Layer, tileBucket: Bucket): void {
         const data = dTile.data;
         const z = dTile.quadkey.length;
@@ -566,16 +581,28 @@ export class GLRender implements BasicRender {
         let px;
         let py;
 
+        // this.initStencil(x, y, tileSize);
+
+        let stenciled = false;
+        // this.initScissor(x, y, tileSize, tileSize);
+
         if (buffers = data[layerIndex]) {
             const length = buffers.length - 1;
             const isAlphaPass = this.pass == 'alpha';
 
-            this.initScissor(x, y, tileSize, tileSize);
             // this.initStencil(x, y, tileSize);
+            // this.initScissor(x, y, tileSize, tileSize);
 
             for (let b = 0; b <= length; b++) {
                 // in case of alpha pass reverse drawing order to allow alpha blending using depthfunc LEQUAL
                 buffer = buffers[isAlphaPass ? length - b : b];
+
+                if (!stenciled) {
+                    stenciled = true;
+                    this.initTileStencil(x, y, tileSize, dTile.i);
+                    // this.initTileStencil(x, y, tileSize);
+                    // this.initScissor(x, y, tileSize, tileSize);
+                }
 
                 this.drawBuffer(buffer, x, y, null, null);
             }
@@ -590,6 +617,7 @@ export class GLRender implements BasicRender {
                     qk = preview[0];
                     previewTile = tileBucket.get(qk, true /* SKIP TRACK*/);
 
+                    // if (false) {
                     if (previewTile) {
                         if (previewBuffers = previewTile.getData(layerIndex)) {
                             // let ordererd = this._test(previewBuffers);
@@ -611,7 +639,8 @@ export class GLRender implements BasicRender {
 
 
                             for (let buf of previewBuffers) {
-                                this.initScissor(x + dx, y + dy, dWidth, dWidth);
+                                // this.initTileStencil(x, y, tileSize, dTile.i);
+                                // this.initScissor(x + dx, y + dy, dWidth, dWidth);
                                 // this.initStencil(x, y, tileSize);
                                 this.drawBuffer(buf, px, py, tileScaleMatrix, dZoom);
                             }

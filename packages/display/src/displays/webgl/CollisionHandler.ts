@@ -361,7 +361,7 @@ export class CollisionHandler {
 
         let r = 0;
 
-        let total = 0;
+        // let total = 0;
 
         // console.time('sort-'+rendered.length);
         rendered.sort((a, b) => a.priority - b.priority);
@@ -378,7 +378,7 @@ export class CollisionHandler {
             let stop = bbox.boe;
 
 
-            total += rendered.length - r;
+            // total += rendered.length - r;
 
             if (this.intersects(bbox, rendered, ++r)) {
                 // window.addPixelPoint(bbox[0] + .5 * (bbox[1] - bbox[0]), bbox[2] + .5 * (bbox[3] - bbox[2]), 'red');

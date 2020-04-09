@@ -40,6 +40,13 @@ class ExtrudeProgram extends Program {
     constructor(gl: WebGLRenderingContext, devicePixelRation: number) {
         super(gl, gl.TRIANGLES, vertexShader, fragmentShader, devicePixelRation);
     }
+
+    init(options: GLStates) {
+        const {gl} = this;
+
+        super.init(options);
+        gl.disable(gl.STENCIL_TEST);
+    }
 }
 
 export default ExtrudeProgram;

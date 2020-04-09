@@ -70,7 +70,7 @@ class WebGlDisplay extends BasicDisplay {
         super(mapEl, renderTileSize,
             // auto dpr is default for gl display
             !devicePixelRatio ? 'auto' : devicePixelRatio,
-            new GLBucket(512),
+            new GLBucket(768),
             new GLRender(renderOptions),
             PREVIEW_LOOK_AHEAD_LEVELS
         );

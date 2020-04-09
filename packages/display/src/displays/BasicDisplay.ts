@@ -326,6 +326,8 @@ abstract class Display {
             const displayTile = display.getBucket(quadkey, CREATE_IF_NOT_EXISTS);
             const tilePosition = new TilePosition(x1, y1, displayTile);
 
+            displayTile.i = this._i++;
+
             screenTiles.push(tilePosition);
             vpTiles.push(tilePosition);
 
@@ -394,6 +396,7 @@ abstract class Display {
         this.gridSizes = tileSizes;
 
 
+        this._i = 0;
         for (let tileSize of tileSizes) {
             this.initGrid(zoomlevel, tileSize);
         }
