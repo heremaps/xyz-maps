@@ -37,7 +37,7 @@ class Program {
     // protected attributeSetters = {};
 
     attributes: { [name: string]: number } = {};
-    protected uniforms: { [name: string]: WebGLUniformLocation } = {};
+    uniforms: { [name: string]: WebGLUniformLocation } = {};
     protected uniformSetters = {};
 
     protected mode: number; // gl.POINTS;
@@ -212,7 +212,7 @@ class Program {
         }
     };
 
-    private setStates(states: GLStates, pass) {
+    private setStates(states: GLStates) {
         const gl = this.gl;
         // apply default gl-states
         let {blend, scissor, depth} = this.glStates;
@@ -230,9 +230,7 @@ class Program {
 
         if (scissor) {
             gl.enable(gl.SCISSOR_TEST);
-            // console.log('pass boy',pass);
-            if (blend && pass == 'alpha') {
-                // debugger;
+            if (blend) {
                 gl.enable(gl.STENCIL_TEST);
             }
         } else {
@@ -296,18 +294,14 @@ class Program {
     //     }
     // }
 
-    init(options: GLStates, pass: 'opaque'|'alpha') {
+    init(options: GLStates) {
         const prog = this;
         const {gl} = prog;
         gl.blendFunc(gl.SRC_ALPHA, gl.ONE_MINUS_SRC_ALPHA);
-
-
-        this._pass = pass;
-
         // console.log(this.name,options.blend,options.alpha,options);
         // if(options.blend)
         // gl.depthMask(options.blend);
-        prog.setStates(options, pass);
+        prog.setStates(options);
 
         // first set program defaults
         // prog.setStates(prog.glStates);

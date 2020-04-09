@@ -54,6 +54,7 @@ import {
     identity
 } from 'gl-matrix/mat4';
 import {Layer} from '../Layers';
+import {GLStates} from './program/GLStates';
 
 const mat4 = {create, lookAt, multiply, perspective, rotateX, rotateZ, translate, scale, clone, invert, identity};
 
@@ -452,7 +453,7 @@ export class GLRender implements BasicRender {
                 // initialise pass default
                 gl.depthFunc(this.depthFnc);
 
-                program.init(buffer, renderPass);
+                program.init(<GLStates>buffer);
 
                 program.initAttributes(bufAttributes, buffers);
 
@@ -470,7 +471,7 @@ export class GLRender implements BasicRender {
                 // 'DEPTH_WRITEMASK', gl.getParameter(gl.DEPTH_WRITEMASK),
                 // 'SCISSOR_TEST', gl.getParameter(gl.SCISSOR_TEST), program.name );
 
-                program.draw(buffer, buffers, this.pass);
+                program.draw(buffer, buffers);
             }
         } else {
             // console.warn('no program found', group.type);
