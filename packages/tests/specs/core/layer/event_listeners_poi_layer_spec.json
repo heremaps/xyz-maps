@@ -3,14 +3,14 @@
         "id": "placeLayer",
         "provider": {
             "id": "placeProvider",
-            "type": "SpaceProvider",
+            "type": "LocalEditProvider",
             "name": "Places",
             "level": 16
         },
         "min": 14,
         "max": 20,
         "data": {
-            "remote": [{
+            "local": [{
                 "id": -9119,
                 "geometry": {
                     "coordinates": [-88.7789715, 36.1600827, 0.0],

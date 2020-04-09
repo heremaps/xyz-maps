@@ -3,14 +3,14 @@
         "id": "linkLayer",
         "provider": {
             "id": "linkProvider",
-            "type": "TestProvider",
+            "type": "TestLocalProvider",
             "name": "Links",
             "level": 15
         },
         "min": 14,
         "max": 20,
         "data": {
-            "remote": [{
+            "local": [{
                 "type": "Feature",
                 "id": -188821,
                 "properties": {
@@ -30,14 +30,14 @@
         "id": "paLayer",
         "provider": {
             "id": "paProvider",
-            "type": "TestProvider",
+            "type": "TestLocalProvider",
             "name": "address",
             "level": 14
         },
         "min": 14,
         "max": 20,
         "data": {
-            "remote": [{
+            "local": [{
                 "id": -47935,
                 "type": "Feature",
                 "properties": {

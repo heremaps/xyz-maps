@@ -16,8 +16,8 @@
  * SPDX-License-Identifier: Apache-2.0
  * License-Filename: LICENSE
  */
-import {MonitorXHR, prepare} from 'utils';
-import {waitForEditorReady, submit} from 'editorUtils';
+import {prepare} from 'utils';
+import {waitForEditorReady} from 'editorUtils';
 import {click, drag, mousemove} from 'triggerEvents';
 import {Map} from '@here/xyz-maps-core';
 import {Editor} from '@here/xyz-maps-editor';
@@ -105,46 +105,5 @@ describe('Create new Link and drag it outside of viewport before splitting the o
             [79.262377116, 13.049412589, 0],
             [79.262377116, 13.053488746, 0]
         ]);
-    });
-
-    it('submit and validate', async function() {
-        let monitor = new MonitorXHR();
-        monitor.start({method: 'post'});
-        await waitForEditorReady(editor, async ()=>{
-            await submit(editor);
-        });
-        let reqs = monitor.stop();
-        expect(reqs).to.have.lengthOf(1);
-        let payload = reqs[0].payload;
-
-        expect(payload.features).to.have.lengthOf(3);
-        expect(payload.features[0].type).to.equal('Feature');
-        expect(payload.features[0].geometry.coordinates).to.deep.almost([
-            [79.262377116, 13.049935177, 0],
-            [79.262071345, 13.049935177, 0]
-        ]);
-        expect(payload.features[0].properties).to.deep.include({
-            'featureClass': 'NAVLINK'
-        });
-
-        expect(payload.features[1].type).to.equal('Feature');
-        expect(payload.features[1].geometry.coordinates).to.deep.almost([
-            [79.262071345, 13.049935177, 0],
-            [79.261840675, 13.049935177, 0]
-        ]);
-        expect(payload.features[1].properties).to.deep.include({
-            'featureClass': 'NAVLINK'
-        });
-
-
-        expect(payload.features[2].type).to.equal('Feature');
-        expect(payload.features[2].geometry.coordinates).to.deep.almost([
-            [79.262071345, 13.049935177, 0],
-            [79.262377116, 13.049412589, 0],
-            [79.262377116, 13.053488746, 0]
-        ]);
-        expect(payload.features[2].properties).to.deep.include({
-            'featureClass': 'NAVLINK'
-        });
     });
 });

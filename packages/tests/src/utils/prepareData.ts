@@ -21,7 +21,7 @@ import environments from 'environments';
 // @ts-ignore
 import credentials from 'credentials';
 import {providers, layers as mLayers} from '@here/xyz-maps-core';
-import {TestProvider} from '../TestProvider';
+import {TestLocalProvider, TestProvider} from '../TestProvider';
 import {spacePool} from '../runner';
 
 
@@ -32,11 +32,11 @@ const GEOJSONURL = environments.xyzhub + '/spaces/{SPACEID}/tile/quadkey/{QUADKE
 const XYZHUBURL = environments.xyzhub + '/spaces';
 
 
-const existingProviders = ['ProProvider', 'RemoteTileProvider', 'SpaceProvider', 'GeoJSONProvider', 'ImageProvider', 'MVTProvider', 'LocalProvider', 'FeatureProvider', 'EditableProvider'];
+const existingProviders = ['ProProvider', 'RemoteTileProvider', 'SpaceProvider', 'GeoJSONProvider', 'ImageProvider', 'MVTProvider', 'LocalProvider', 'FeatureProvider', 'EditableProvider', 'LocalEditProvider'];
 
 
 function spaceTypes(type: string) : boolean {
-    return type == 'SpaceProvider' || type == 'GeoJSONProvider' || existingProviders.indexOf(type) < 0;
+    return type == 'SpaceProvider' || type == 'GeoJSONProvider' || type == 'TestProvider';
 }
 
 async function prepareProviderConfig(config, ts) {
@@ -48,10 +48,13 @@ async function prepareProviderConfig(config, ts) {
             return IMAGEURL.replace('{LOCALHOST}', location.protocol + '//' + location.host).replace('{QUADKEY}', quad.charAt(quad.length-1));
         };
     } else if (spaceTypes(config.type)) {
-        spaceId = await spacePool.get(ts);
         if (config.type == 'GeoJSONProvider') {
-            providerConfig.url = providerConfig.url || GEOJSONURL.replace('{SPACEID}', spaceId);
+            if (!providerConfig.url) {
+                spaceId = await spacePool.get(ts);
+                providerConfig.url = GEOJSONURL.replace('{SPACEID}', spaceId);
+            }
         } else {
+            spaceId = await spacePool.get(ts);
             providerConfig.url = providerConfig.url || XYZHUBURL;
             providerConfig.credentials = providerConfig.credentials || {
                 access_token: TOKEN
@@ -108,7 +111,9 @@ export default async function prepare(dataset) {
             const layerId = l.id;
 
             let preparedConfig = await prepareProviderConfig(l.provider, ts);
-            let provider = TestProvider.name == providerType ? new TestProvider(preparedConfig.providerConfig) : new providers[providerType](preparedConfig.providerConfig);
+            let provider = providerType == 'TestLocalProvider' ?
+                new TestLocalProvider(preparedConfig.providerConfig) :
+                (providerType == 'TestProvider' ? new TestProvider(preparedConfig.providerConfig) : new providers[providerType](preparedConfig.providerConfig));
 
             let layerConfig = Object.assign({}, l);
             layerConfig['provider'] = provider;

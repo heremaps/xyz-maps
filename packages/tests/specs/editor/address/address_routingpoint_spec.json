@@ -3,7 +3,7 @@
         "id": "linkLayer",
         "provider": {
             "id": "linkProvider",
-            "type": "TestProvider",
+            "type": "TestLocalProvider",
             "name": "Links",
             "level": 15,
             "class": "NAVLINK"
@@ -11,9 +11,9 @@
         "min": 14,
         "max": 20,
         "data": {
-            "remote": [{
+            "local": [{
                 "type": "Feature",
-                "id": -188824,
+                "id": "-188824",
                 "properties": {
                     "featureClass": "NAVLINK",
                     "type": "path"
@@ -26,7 +26,7 @@
                     ]
                 }
             }, {
-                "id": -188825,
+                "id": "-188825",
                 "type": "Feature",
                 "properties": {
                     "featureClass": "NAVLINK",
@@ -46,14 +46,14 @@
         "id": "paLayer",
         "provider": {
             "id": "paProvider",
-            "type": "TestProvider",
+            "type": "TestLocalProvider",
             "name": "address",
             "level": 14
         },
         "min": 14,
         "max": 20,
         "data": {
-            "remote": [{
+            "local": [{
                 "id": -47937,
                 "type": "Feature",
                 "properties": {

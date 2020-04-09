@@ -22,6 +22,7 @@ export const karmaConfig = Object.assign(karmaBaseConfig, {
     files: [
         {id: 'common-src', pattern: 'common/dist/xyz-maps-common.min.js', watched: true, served: true, included: true},
         {id: 'core-src', pattern: 'core/dist/xyz-maps-core.min.js', watched: true, served: true, included: true},
+        {pattern: 'tests/assets/tiles/tile.json', watched: false, included: false, served: true},
         {pattern: 'tests/dist/core/coreTests*.js', watched: true, served: true, included: true},
         {pattern: 'tests/dist/core/specs*.js', watched: true, served: true, included: true}
     ],

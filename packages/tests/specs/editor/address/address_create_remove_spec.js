@@ -16,7 +16,7 @@
  * SPDX-License-Identifier: Apache-2.0
  * License-Filename: LICENSE
  */
-import {MonitorXHR, prepare} from 'utils';
+import {prepare} from 'utils';
 import {waitForEditorReady, submit} from 'editorUtils';
 import {features, Editor} from '@here/xyz-maps-editor';
 import {Map} from '@here/xyz-maps-core';
@@ -64,23 +64,10 @@ describe('add Address object and then remove', function() {
 
         editor.undo();
         editor.redo();
+        expect(address.prop('estate')).to.be.equal('CREATED');
 
-        let monitor = new MonitorXHR();
-        monitor.start({method: 'post'});
         await waitForEditorReady(editor, async ()=>{
             idMap = await submit(editor);
-        });
-        let addressId = idMap.permanentIDMap[address.getProvider().id][address.id];
-        let reqs = monitor.stop();
-        expect(reqs).to.have.lengthOf(1);
-
-        let payloadAddress = reqs[0].payload;
-        expect(payloadAddress.features[0].geometry.coordinates).to.deep.almost([77.327237116, 12.9356, 0]);
-        expect(payloadAddress.features[0].geometry.type).to.equal('Point');
-        expect(payloadAddress.features[0].properties).to.deep.include({
-            'featureClass': 'ADDRESS',
-            'routingLink': link.id + '',
-            'routingPoint': [77.32724, 12.93586, 0]
         });
     });
 
@@ -92,15 +79,8 @@ describe('add Address object and then remove', function() {
         expect(address.prop('removed')).to.be.equal('HOOK');
         expect(address.prop('estate')).to.be.equal('REMOVED');
 
-        let monitor = new MonitorXHR(RegExp(/&id=/));
-        monitor.start({method: 'delete'});
         await waitForEditorReady(editor, async ()=>{
             await submit(editor);
         });
-        let request = monitor.stop()[0];
-
-        expect(request.payload).to.equal(null);
-        expect(request.method).to.equal('DELETE');
-        expect(request.url.indexOf(address.id)>-1).to.be.true;
     });
 });
