@@ -326,7 +326,7 @@ abstract class Display {
             const displayTile = display.getBucket(quadkey, CREATE_IF_NOT_EXISTS);
             const tilePosition = new TilePosition(x1, y1, displayTile);
 
-            displayTile.i = this._i++;
+            displayTile.i = ++this._i;
 
             screenTiles.push(tilePosition);
             vpTiles.push(tilePosition);

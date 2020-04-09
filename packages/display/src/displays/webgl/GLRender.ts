@@ -175,8 +175,7 @@ export class GLRender implements BasicRender {
         gl.colorMask(true, true, true, true);
         gl.disable(gl.SCISSOR_TEST);
         gl.depthMask(true);
-        gl.clear(gl.COLOR_BUFFER_BIT | gl.DEPTH_BUFFER_BIT);
-        // gl.clear(gl.COLOR_BUFFER_BIT | gl.DEPTH_BUFFER_BIT | gl.STENCIL_BUFFER_BIT);
+        gl.clear(gl.COLOR_BUFFER_BIT | gl.DEPTH_BUFFER_BIT | gl.STENCIL_BUFFER_BIT);
         gl.colorMask(true, true, true, false);
     }
 
@@ -203,7 +202,7 @@ export class GLRender implements BasicRender {
         // gl.enable(gl.BLEND);
         // gl.enable(gl.DEPTH_TEST);
 
-        // gl.clearStencil(0);
+        gl.clearStencil(0);
 
         // || canvas.getContext('experimental-webgl', GL_OPTIONS);
         // this.gl.clearColor(244/255, 248/255, 250/255, 1.0);// #F4F8FA
@@ -598,10 +597,6 @@ export class GLRender implements BasicRender {
                     stenciled = true;
                     this.initStencil(x, y, tileSize, dTile.i);
                 }
-
-                //
-                // this.initTileStencil(x, y, tileSize);
-
 
                 this.drawBuffer(buffer, x, y, null, null);
             }
