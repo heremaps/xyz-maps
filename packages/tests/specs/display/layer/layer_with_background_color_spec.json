@@ -1,20 +1,20 @@
 {
     "layers": [{
-        "id": "spaceLayer1",
+        "id": "Layer1",
         "provider": {
-            "id": "spaceProvider",
-            "type": "SpaceProvider",
-            "name": "my SpaceProvider",
+            "id": "myProvider1",
+            "type": "LocalEditProvider",
+            "name": "my Provider",
             "level": 15
         },
         "min": 14,
         "max": 20
     }, {
-        "id": "spaceLayer2",
+        "id": "Layer2",
         "provider": {
-            "id": "spaceProvider",
-            "type": "SpaceProvider",
-            "name": "my SpaceProvider",
+            "id": "myProvider2",
+            "type": "LocalEditProvider",
+            "name": "my Provider",
             "level": 15
         },
         "min": 14,

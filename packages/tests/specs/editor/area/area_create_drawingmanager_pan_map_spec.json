@@ -3,7 +3,7 @@
         "id": "buildingLayer",
         "provider": {
             "id": "buildingProvider",
-            "type": "TestProvider",
+            "type": "TestLocalProvider",
             "name": "Buildings",
             "level": 13
         },

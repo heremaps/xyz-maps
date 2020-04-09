@@ -3,7 +3,7 @@
         "id": "linkLayer",
         "provider": {
             "id": "linkProvider",
-            "type": "TestProvider",
+            "type": "TestLocalProvider",
             "name": "Links",
             "level": 15,
             "class": "NAVLINK"
@@ -14,7 +14,7 @@
         "id": "paLayer",
         "provider": {
             "id": "paProvider",
-            "type": "TestProvider",
+            "type": "TestLocalProvider",
             "name": "address",
             "level": 14
         },

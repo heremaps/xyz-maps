@@ -43,14 +43,6 @@ describe('map history create objects and undo last changes, should create just o
     });
 
     after(async function() {
-        let objs = editor.search(display.getViewBounds());
-        objs.forEach((f)=>{
-            f.remove();
-        });
-        await waitForEditorReady(editor, ()=>{
-            editor.submit();
-        });
-
         editor.destroy();
         display.destroy();
     });

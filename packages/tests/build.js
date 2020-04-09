@@ -57,6 +57,7 @@ var parallelTest = true;
 var cleanupServerPort = 8090;
 
 let apiComponents = ['editor', 'display', 'core', 'common'];
+let testComponents = ['editor', 'display', 'core', 'common', 'integration'];
 let compsToRun = [];
 
 function parseArgv(arg, dataPath, data) {
@@ -98,7 +99,7 @@ function getRollupConfig() {
     environments = parseArgv(argv.environments, environmentsPath, environments);
 
     let testFilter = {};
-    let compListCopy = Object.assign([], apiComponents);
+    let compListCopy = Object.assign([], testComponents);
 
     // Get mochaSettings and components to run
     for (let s in argv) {

@@ -3,7 +3,7 @@
         "id": "buildingLayer",
         "provider": {
             "id": "buildingProvider",
-            "type": "TestProvider",
+            "type": "LocalEditProvider",
             "name": "Buildings",
             "level": 13
         },
@@ -24,7 +24,7 @@
         "id": "linkLayer",
         "provider": {
             "id": "linkProvider",
-            "type": "TestProvider",
+            "type": "LocalEditProvider",
             "name": "Links",
             "level": 15,
             "class": "NAVLINK"

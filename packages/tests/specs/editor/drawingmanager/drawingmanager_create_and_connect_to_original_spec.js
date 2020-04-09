@@ -16,7 +16,7 @@
  * SPDX-License-Identifier: Apache-2.0
  * License-Filename: LICENSE
  */
-import {MonitorXHR, prepare} from 'utils';
+import {prepare} from 'utils';
 import {waitForEditorReady, editorClick, submit} from 'editorUtils';
 import {click, mousemove} from 'triggerEvents';
 import {Map} from '@here/xyz-maps-core';
@@ -78,7 +78,7 @@ describe('Create new Links and connect to original link', function() {
     });
 
 
-    it('validate the connect shape point', async function() {
+    it('validate the connect shape point then submit', async function() {
         await click(mapContainer, 200, 120);
         let linkshape = (await editorClick(editor, 200, 100)).target;
 
@@ -86,27 +86,9 @@ describe('Create new Links and connect to original link', function() {
 
         expect(lnk).to.have.lengthOf(1);
         expect(lnk[0].id).to.equal(link.id);
-    });
 
-    it('submit links and verify', async function() {
-        let monitor = new MonitorXHR();
-        monitor.start({method: 'post'});
         await waitForEditorReady(editor, async ()=>{
             await submit(editor);
-        });
-        let reqs = monitor.stop();
-        expect(reqs).to.have.lengthOf(1);
-
-        let payload = reqs[0].payload;
-
-        expect(payload.features).to.have.lengthOf(1);
-        expect(payload.features[0].type).to.equal('Feature');
-        expect(payload.features[0].geometry.coordinates).to.deep.almost([
-            [77.220259106, 13.152202639, 0],
-            [77.220259116, 13.151679372, 0]
-        ]);
-        expect(payload.features[0].properties).to.deep.include({
-            'featureClass': 'NAVLINK'
         });
     });
 
