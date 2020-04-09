@@ -544,15 +544,6 @@ export class GLRender implements BasicRender {
         // gl.enable(gl.SCISSOR_TEST);
     }
 
-    private initTileStencil(x: number, y: number, tileSize: number, stencilVal: number) {
-        // return this.initStencil(x, y, tileSize, stencilVal);
-        this.initScissor(x, y, tileSize, tileSize);
-
-        if (this.pass == 'alpha') {
-            this.initStencil(x, y, tileSize, stencilVal);
-        }
-    }
-
     layer(dTile: GLTile, x: number, y: number, renderLayer: Layer, tileBucket: Bucket): void {
         const data = dTile.data;
         const z = dTile.quadkey.length;
@@ -583,6 +574,7 @@ export class GLRender implements BasicRender {
 
         // this.initStencil(x, y, tileSize);
 
+        let scissored = false;
         let stenciled = false;
         // this.initScissor(x, y, tileSize, tileSize);
 
@@ -597,12 +589,18 @@ export class GLRender implements BasicRender {
                 // in case of alpha pass reverse drawing order to allow alpha blending using depthfunc LEQUAL
                 buffer = buffers[isAlphaPass ? length - b : b];
 
-                if (!stenciled) {
-                    stenciled = true;
-                    this.initTileStencil(x, y, tileSize, dTile.i);
-                    // this.initTileStencil(x, y, tileSize);
-                    // this.initScissor(x, y, tileSize, tileSize);
+                if (!scissored) {
+                    scissored = true;
+                    this.initScissor(x, y, tileSize, tileSize);
                 }
+                if (!stenciled && buffer.alpha) {
+                    stenciled = true;
+                    this.initStencil(x, y, tileSize, dTile.i);
+                }
+
+                //
+                // this.initTileStencil(x, y, tileSize);
+
 
                 this.drawBuffer(buffer, x, y, null, null);
             }
