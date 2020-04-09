@@ -45,9 +45,9 @@ class TextProgram extends Program {
         return pass == 'alpha';
     }
 
-    init(options: GLStates) {
+    init(options: GLStates, pass) {
         const {gl} = this;
-        super.init(options);
+        super.init(options, pass);
         gl.blendFunc(gl.ONE, gl.ONE_MINUS_SRC_ALPHA);
     }
 }

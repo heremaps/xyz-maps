@@ -253,84 +253,15 @@ class Program {
         }
     }
 
-    // private _setStates(states: GLStates) {
-    //     const gl = this.gl;
-    //     // apply default options
-    //     const {blend, scissor, depth} = states;
-    //
-    //     if (scissor != UNDEF) {
-    //         if (blend) {
-    //             if (scissor) {
-    //                 gl.disable(gl.SCISSOR_TEST);
-    //                 gl.enable(gl.STENCIL_TEST);
-    //             } else {
-    //                 gl.disable(gl.STENCIL_TEST);
-    //                 gl.enable(gl.SCISSOR_TEST);
-    //             }
-    //         } else {
-    //             if (scissor) {
-    //                 gl.enable(gl.SCISSOR_TEST);
-    //             } else {
-    //                 gl.disable(gl.SCISSOR_TEST);
-    //             }
-    //         }
-    //     }
-    //
-    //     if (blend != UNDEF) {
-    //         if (blend) {
-    //             gl.enable(gl.BLEND);
-    //         } else {
-    //             gl.disable(gl.BLEND);
-    //         }
-    //     }
-    //
-    //
-    //     if (depth != UNDEF) {
-    //         if (depth) {
-    //             gl.enable(gl.DEPTH_TEST);
-    //         } else {
-    //             gl.disable(gl.DEPTH_TEST);
-    //         }
-    //     }
-    // }
-
-    init(options: GLStates) {
+    init(options: GLStates, pass: 'alpha'|'opaque') {
         const prog = this;
         const {gl} = prog;
         gl.blendFunc(gl.SRC_ALPHA, gl.ONE_MINUS_SRC_ALPHA);
-        // console.log(this.name,options.blend,options.alpha,options);
-        // if(options.blend)
-        // gl.depthMask(options.blend);
+
         prog.setStates(options);
-
-        // first set program defaults
-        // prog.setStates(prog.glStates);
-        //
-        // // overwrite with custom
-        // if (options) {
-        //     prog.setStates(options);
-        // }
-
-        // const states = options || this.glStates;
-        // const gl = this.gl;
-        // // apply default options
-        // if (states.scissor) {
-        //     gl.enable(gl.SCISSOR_TEST);
-        // } else {
-        //     gl.disable(gl.SCISSOR_TEST);
-        // }
-        //
-        // if (states.blend) {
-        //     gl.enable(gl.BLEND);
-        // } else {
-        //     gl.disable(gl.BLEND);
-        // }
-        //
-        // if (states.depth) {
-        //     gl.enable(gl.DEPTH_TEST);
-        // } else {
-        //     gl.disable(gl.DEPTH_TEST);
-        // }
+        // get rid of zfighting for alpha pass.
+        // alpha pass is drawn ordered zindex -> no need to write to depthbuffer
+        gl.depthMask(pass == 'opaque');
     }
 
     // use() {

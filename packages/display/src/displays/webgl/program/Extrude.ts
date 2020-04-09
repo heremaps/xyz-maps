@@ -41,11 +41,11 @@ class ExtrudeProgram extends Program {
         super(gl, gl.TRIANGLES, vertexShader, fragmentShader, devicePixelRation);
     }
 
-    init(options: GLStates) {
+    init(options: GLStates, pass) {
         const {gl} = this;
-
-        super.init(options);
-        gl.disable(gl.STENCIL_TEST);
+        super.init(options, pass);
+        // extrudes always need depth testing (alpha pass)
+        gl.depthMask(true);
     }
 }
 

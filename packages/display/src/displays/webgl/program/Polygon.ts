@@ -23,6 +23,7 @@ import vertexShader from '../glsl/polygon_vertex.glsl';
 import fragmentShader from '../glsl/fill_fragment.glsl';
 
 import Program from './Program';
+import {GLStates} from './GLStates';
 
 class PolygonProgram extends Program {
     name = 'Polygon';
@@ -30,6 +31,12 @@ class PolygonProgram extends Program {
     constructor(gl: WebGLRenderingContext, devicePixelRation: number) {
         super(gl, gl.TRIANGLES, vertexShader, fragmentShader, devicePixelRation);
     }
+
+    // init(options: GLStates) {
+    //     super.init(options);
+    //     this.gl.depthMask(false);
+    // }
 }
+
 
 export default PolygonProgram;

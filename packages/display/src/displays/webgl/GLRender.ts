@@ -452,7 +452,7 @@ export class GLRender implements BasicRender {
                 // initialise pass default
                 gl.depthFunc(this.depthFnc);
 
-                program.init(<GLStates>buffer);
+                program.init(<GLStates>buffer, renderPass);
 
                 program.initAttributes(bufAttributes, buffers);
 

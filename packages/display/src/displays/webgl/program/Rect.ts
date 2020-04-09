@@ -39,11 +39,6 @@ class RectProgram extends Program {
     constructor(gl: WebGLRenderingContext, devicePixelRation: number) {
         super(gl, gl.POINTS, vertexShader, fragmentShader, devicePixelRation);
     }
-
-    // pass(pass: string) {
-    //     // draw in opaque pass only
-    //     return pass == 'opaque';
-    // }
 }
 
 export default RectProgram;

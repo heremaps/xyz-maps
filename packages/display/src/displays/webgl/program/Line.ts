@@ -43,8 +43,8 @@ class LineProgram extends Program {
         super(gl, gl.TRIANGLES, vertexShader, fragmentShader, devicePixelRation);
     }
 
-    init(options: GLStates) {
-        super.init(options);
+    init(options: GLStates, pass) {
+        super.init(options, pass);
         this.gl.depthMask(false);
     }
 }
