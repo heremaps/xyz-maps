@@ -21,5 +21,5 @@ import './core/layer/*';
 import './core/provider/*.js';
 import './core/provider/*/*';
 import './display/*/*';
-import './editor/*/*';
+import './editor/*';
 

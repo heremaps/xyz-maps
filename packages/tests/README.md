@@ -46,11 +46,12 @@ Start a test under 'test/' sub-directory. API is build under root directory `yar
                                                                                                                       [true|false] [default: true]
 
     Component Options:
-        Tests run against all components by default
+        Tests run against all components except integration by default
         --common                Include or exclude component 'common' or only run tests matching this string                    [true|false|string]
         --core                  Include or exclude component 'core' or only run tests matching this string                      [true|false|string]
         --display               Include or exclude component 'display' or only run tests matching this string                   [true|false|string]
         --editor                Include or exclude component 'editor' or only run tests matching this string                    [true|false|string]
+        --integration           Include or exclude component 'integration' or only run tests matching this string               [true|false|string]
 
     Mocha Options:
         --bail                  Abort ("bail") after first test failure                                               [true|false] [default: false]

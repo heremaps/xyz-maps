@@ -118,7 +118,8 @@ function getRollupConfig() {
         }
     }
 
-    if (compsToRun.length == 0) compsToRun = compListCopy;
+    // run tests for editor, display, core, common by default
+    if (compsToRun.length == 0) compsToRun = apiComponents;
 
     return require('./rollup.config')({
         mochaSettings,

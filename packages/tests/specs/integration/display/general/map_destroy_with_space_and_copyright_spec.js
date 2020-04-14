@@ -26,6 +26,8 @@ describe('destroy display with space layer and copyright', function() {
     let display;
 
     before(async function() {
+        // prepare map display which has Space with copyright and destroy the display in test
+        // the destroy function should not throw exception
         let preparedData = await prepare(dataset);
         display = new Map(document.getElementById('map'), {
             center: {longitude: 77.852437, latitude: 13.542848},
@@ -38,10 +40,6 @@ describe('destroy display with space layer and copyright', function() {
         if (display.destroy) display.destroy();
     });
 
-    it('validate display is working', function() {
-        expect(display.getCenter()).to.deep.equal({longitude: 77.852437, latitude: 13.542848});
-    });
-
     it('destroy display and validate', function(done) {
         setTimeout(()=>{
             display.destroy();
@@ -50,6 +48,6 @@ describe('destroy display with space layer and copyright', function() {
 
             // wait 100ms for exception thrown asynchronously by destroy
             setTimeout(done, 100);
-        }, 64);
+        }, 0);
     });
 });

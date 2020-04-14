@@ -57,7 +57,7 @@ type Hooks = {
 };
 
 const createProvider = (provider) => {
-    class newProvider extends provider {
+    class NewProvider extends provider {
         hooks: Hooks;
 
         constructor(props, preprocessor?: Function) {
@@ -165,7 +165,7 @@ const createProvider = (provider) => {
         }
     }
 
-    return newProvider;
+    return NewProvider;
 };
 
 const TestLocalProvider = createProvider(providers.LocalEditProvider);
