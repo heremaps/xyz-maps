@@ -168,7 +168,7 @@ export class FeatureFactory {
         let offsetY;
         let text;
         let strokeScale;
-        let pitch;
+        let alignment;
         let allReady = true;
 
         for (let i = 0, iLen = styleGroups.length; i < iLen; i++) {
@@ -213,7 +213,7 @@ export class FeatureFactory {
             offsetX = UNDEF;
             offsetY = UNDEF;
             text = UNDEF;
-            pitch = UNDEF;
+            alignment = UNDEF;
             strokeScale = strokeWidthScale;
 
 
@@ -274,9 +274,9 @@ export class FeatureFactory {
 
                         font = getValue('font', style, feature, level) || defaultFont;
 
-                        pitch = getValue('pitch', style, feature, level);
-                        if (pitch == UNDEF) {
-                            pitch = true;
+                        alignment = getValue('alignment', style, feature, level);
+                        if (alignment == UNDEF) {
+                            alignment = 'map';
                         }
 
                         groupId = 'T' + (font || NONE);
@@ -360,7 +360,7 @@ export class FeatureFactory {
                         rotation: rotation,
                         offsetX: offsetX,
                         offsetY: offsetY,
-                        pitch: pitch
+                        alignment: alignment
                     }
                     // ,index: []
                 };

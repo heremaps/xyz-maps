@@ -91,6 +91,7 @@ export class GLRender implements BasicRender {
     invScreenMat: Float32Array;
     private scale: number;
     private rz: number;
+    private rx: number;
     private programs: { [name: string]: Program };
     private gridTextBuf = new WeakMap();
     private clearColor: string;
@@ -278,6 +279,7 @@ export class GLRender implements BasicRender {
         this.w = pixelWidth;
         this.h = pixelHeight;
         this.rz = rotZ;
+        this.rx = rotX;
         this.scale = scale;
 
         this.gl.viewport(0, 0, pixelWidth * this.dpr, pixelHeight * this.dpr);
@@ -486,44 +488,35 @@ export class GLRender implements BasicRender {
 
     initStencil(x: number, y: number, tileSize: number, refVal: number, tileScaleMatrix?, ts?) {
         // return this.gl.stencilFunc(this.gl.ALWAYS, 0, 0);
+        if (this.rx || this.rz) {
+            const {gl} = this;
+            const stencilTile = this.stencilTile[tileSize];
 
-        const {gl} = this;
-        const stencilTile = this.stencilTile[tileSize];
-        // gl.clearStencil(0);
+            gl.stencilFunc(gl.ALWAYS, refVal, 0xff);
+            gl.stencilOp(gl.REPLACE, gl.REPLACE, gl.REPLACE);
 
-        // gl.clear(gl.STENCIL_BUFFER_BIT);
-        // refVal = 1;
+            // disable color buffer
+            gl.colorMask(false, false, false, false);
 
-        // refVal = ++this.stencilIndex;
-        // if (refVal > 0xff) {
-        //     refVal = this.stencilIndex = 1;
-        //     gl.clear(gl.STENCIL_BUFFER_BIT);
-        // }
+            // will only draw in alpha pass!
+            stencilTile.alpha = true; // this.pass == 'alpha';
+            // need to be set to enable stencil test in program init.
+            stencilTile.blend = true;
+            // stencilTile.scissor = true;
 
-        gl.stencilFunc(gl.ALWAYS, refVal, 0xff);
-        gl.stencilOp(gl.REPLACE, gl.REPLACE, gl.REPLACE);
+            const grpFilter = this.grpFilter;
+            this.grpFilter = null;
+            // this.drawBuffer(stencilTile, x, y, null, null); // , {depth: false,scissor: false});
 
-        // disable color buffer
-        gl.colorMask(false, false, false, false);
-
-        // will only draw in alpha pass!
-        stencilTile.alpha = true; // this.pass == 'alpha';
-        // need to be set to enable stencil test in program init.
-        stencilTile.blend = true;
-        // stencilTile.scissor = true;
-
-        const grpFilter = this.grpFilter;
-        this.grpFilter = null;
-        // this.drawBuffer(stencilTile, x, y, null, null); // , {depth: false,scissor: false});
-
-        this.drawBuffer(stencilTile, x, y, tileScaleMatrix, null, ts);
+            this.drawBuffer(stencilTile, x, y, tileScaleMatrix, null, ts);
 
 
-        this.grpFilter = grpFilter;
-        gl.stencilFunc(gl.EQUAL, refVal, 0xff);
-        gl.stencilOp(gl.KEEP, gl.KEEP, gl.KEEP);
-        // enable color buffer again
-        gl.colorMask(true, true, true, false);
+            this.grpFilter = grpFilter;
+            gl.stencilFunc(gl.EQUAL, refVal, 0xff);
+            gl.stencilOp(gl.KEEP, gl.KEEP, gl.KEEP);
+            // enable color buffer again
+            gl.colorMask(true, true, true, false);
+        }
     }
 
     private initScissor(x: number, y: number, width: number, height: number) {
