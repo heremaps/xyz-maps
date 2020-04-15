@@ -199,7 +199,15 @@ class Program {
         const gl = this.gl;
         const {index, texture} = group;
         const mode = group.mode || this.mode;
-        // console.log(this.name,'DEPTH_TEST',gl.getParameter(gl.DEPTH_TEST),'SCISSOR_TEST',gl.getParameter(gl.SCISSOR_TEST),'blend',gl.getParameter(gl.BLEND));
+
+        // console.log(
+        //     this.name,
+        //     'DEPTH_TEST', gl.getParameter(gl.DEPTH_TEST),
+        //     'SCISSOR_TEST', gl.getParameter(gl.SCISSOR_TEST),
+        //     'STENCIL_TEST', gl.getParameter(gl.STENCIL_TEST),
+        //     'BLEND', gl.getParameter(gl.BLEND)
+        // );
+
         if (texture) {
             gl.activeTexture(gl.TEXTURE0);
             texture.bind();
@@ -232,12 +240,12 @@ class Program {
             gl.enable(gl.SCISSOR_TEST);
             if (blend) {
                 gl.enable(gl.STENCIL_TEST);
+            } else {
+                gl.disable(gl.STENCIL_TEST);
             }
         } else {
             gl.disable(gl.SCISSOR_TEST);
-            if (blend) {
-                gl.disable(gl.STENCIL_TEST);
-            }
+            gl.disable(gl.STENCIL_TEST);
         }
 
         if (blend) {
@@ -253,7 +261,7 @@ class Program {
         }
     }
 
-    init(options: GLStates, pass: 'alpha'|'opaque') {
+    init(options: GLStates, pass: 'alpha' | 'opaque') {
         const prog = this;
         const {gl} = prog;
         gl.blendFunc(gl.SRC_ALPHA, gl.ONE_MINUS_SRC_ALPHA);

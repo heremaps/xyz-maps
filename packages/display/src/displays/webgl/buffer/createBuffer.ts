@@ -289,6 +289,9 @@ const createBuffer = (
                                 }
                                 geoBuffer.addUniform('u_fill', stroke);
                                 geoBuffer.addUniform('u_strokeWidth', strokeWidth * .5);
+
+                                geoBuffer.alpha = true;
+                                // geoBuffer.blend = true;
                             } else if (type == 'Polygon' || type == 'Extrude') {
                                 geoBuffer.addUniform('u_fill', shared.fill);
 
