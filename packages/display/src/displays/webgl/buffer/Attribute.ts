@@ -34,7 +34,6 @@ export class FlexArray {
     }
 }
 
-
 type Attribute = {
     data: TypedArray, // | FlexArray,
     stride?: number;
@@ -42,6 +41,7 @@ type Attribute = {
     size: number;
     normalized?: boolean;
     offset?: number;
+    dirty?: boolean;
 };
 
 export {Attribute};

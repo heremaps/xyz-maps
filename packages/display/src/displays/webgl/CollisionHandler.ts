@@ -28,7 +28,7 @@ type Tile = tile.Tile;
 type BBox = { minX: number, maxX: number, minY: number, maxY: number };
 
 type AttributeInfo = { start: number, attr: Attribute };
-type Collision = { rendered: any[]; neighbours: BBox[], attrInfo: AttributeInfo[][] }
+type Collision = { rendered: any[]; neighbours: BBox[] }
 
 
 export class CollisionHandler {
@@ -101,30 +101,16 @@ export class CollisionHandler {
 
             this.tiles.set(quadkey, collisionData = {
                 rendered: [],
-                neighbours: neighbours,
-                attrInfo: []
+                neighbours: neighbours
             });
         }
 
 
         const {index} = layer;
-        // const attributeData = collisionData.attrInfo[index] = collisionData.attrInfo[index] || [];
-        //
-        //
-        // attributeData.push({
-        //     start: collisionData.rendered.length,
-        //     attr: null
-        // });
 
         this.tileCollision = collisionData;
 
         this.layerIndex = index;
-
-        // this.ri = collisionData.rendered.length;
-
-        // console.timeEnd(quadkey);
-
-        // this.tiles.set(tile, this.tileCollision);
     }
 
     collides(
@@ -182,7 +168,6 @@ export class CollisionHandler {
             tileY: tileY,
             bos: bufferOffsetStart,
             boe: bufferOffsetEnd,
-            attrInfo: collisionInfo.attrInfo,
             li: this.layerIndex,
             _attr: attributeBuffer,
             priority: priority || 0
@@ -197,16 +182,6 @@ export class CollisionHandler {
 
         rendered.push(bbox);
     }
-
-    // setAttribute(attribute: Attribute) {
-    //     // const layerAttrData = this.tileCollision.attrInfo[this.layerIndex];
-    //     // layerAttrData[layerAttrData.length - 1].attr = attribute;
-    //     const rendered = this.tileCollision.rendered;
-    //     for (let i = this.ri; i < rendered.length; i++) {
-    //         rendered[i]._attr = attribute;
-    //     }
-    // }
-
 
     private rx: number;
     private rz: number;
@@ -241,32 +216,7 @@ export class CollisionHandler {
                 }
             }
 
-            // const {attrInfo} = cInfo;
-            // let start = cInfo.layers[layerIndex];
-            // let stop = cInfo.layers[layerIndex+1]||cInfo.rendered.length;
-            //
-            // while(start<stop){
-            //     cInfo.rendered[start++] = null;
-            //     cInfo.cnt--;
-            // }
-
-
-            // attrInfo.splice(layerIndex, 1);
-
-            // for (let buffer of buffers) {
-            //     for (let a in buffer.attributes) {
-            //         for (let i = 0; i < attrInfo.length; i++) {
-            //             let ai = attrInfo[i];
-            //             if (!ai.attr || ai.attr == buffer.attributes[a]) {
-            //                 attrInfo.splice(i--, 1);
-            //             }
-            //         }
-            //     }
-            // }
-            //
             if (empty) {
-                // if (!attrInfo.length) {
-                // console.log('drop ', quadkey);
                 this.tiles.delete(quadkey);
             }
         }
@@ -284,12 +234,7 @@ export class CollisionHandler {
         this.rz = rotZ;
         this.s = scale;
 
-        // this._t = tiles;
-        // console.log('####', 'updateCollisions', '####');
-        // console.log(tiles);
-        // console.log(collisionData);
         console.time('update-collisions');
-
 
         const {display} = this;
         let rendered = [];
@@ -299,7 +244,7 @@ export class CollisionHandler {
 
             let collisions = this.tiles.get(quadkey);
 
-            if (collisions /* && collisions.attrInfo && collisions.attrInfo.buffer */) {
+            if (collisions) {
                 for (let i = 0, _rendered = collisions.rendered; i < _rendered.length; i++) {
                     let bbox = _rendered[i];
 
@@ -343,13 +288,11 @@ export class CollisionHandler {
                             maxY: ac[1] + halfHeight, // maxY
                             bos: bbox.bos,
                             boe: bbox.boe,
-                            // attrInfo: bbox.attrInfo
                             attr: attribute,
                             priority: bbox.priority
                         });
                     }
-
-
+                    // debug only
                     // window.addPixelPoint(minX, minY, 'red', 5);
                     // window.addPixelPoint(maxX, minY, 'red', 5);
                     // window.addPixelPoint(maxX, maxY, 'red', 5);
@@ -361,31 +304,21 @@ export class CollisionHandler {
 
         let r = 0;
 
-        // let total = 0;
-
-        // console.time('sort-'+rendered.length);
+        // sort by collision priority
         rendered.sort((a, b) => a.priority - b.priority);
-        // console.timeEnd('sort-'+rendered.length);
-
-        // console.log(rendered);
 
         while (r < rendered.length) {
             let bbox = rendered[r];
-            // let attribute = this.getAttribute(r, bbox.attrInfo);
             let attribute = bbox.attr;
             let data = attribute.data;
             let start = bbox.bos;
             let stop = bbox.boe;
-
-
-            // total += rendered.length - r;
 
             if (this.intersects(bbox, rendered, ++r)) {
                 // window.addPixelPoint(bbox[0] + .5 * (bbox[1] - bbox[0]), bbox[2] + .5 * (bbox[3] - bbox[2]), 'red');
 
                 // is visible?
                 if (data[start + 2] < 720) {
-                    // console.log(collisions);
                     // hide all glyphs
                     while (start < stop) {
                         data[start + 2] += 720;
@@ -404,344 +337,8 @@ export class CollisionHandler {
                     attribute.dirty = true;
                 }
             }
-
-            // if(window._wtf){
-            //     start = bbox[5];
-            //     if (data[start + 2] >= 720) {
-            //         // show all letters again..
-            //         while (start < stop) {
-            //             data[start + 2] -= 720;
-            //             start += 3;
-            //         }
-            //         attribute.dirty = true;
-            //     }
-            // }
         }
 
         console.timeEnd('update-collisions');
-
-        // console.log('rendered', rendered.length, '-- total checks -->', total, '!!');
     }
-
-    // neighbours(qk: string) {
-    //     const neighbours = [];
-    //     const grid = tileUtils.quadToGrid(qk);
-    //     const tileZ = grid[0];
-    //     const tileX = grid[2];
-    //     const tileY = grid[1];
-    //
-    //     for (let y = -1; y < 2; y++) {
-    //         for (let x = -1; x < 2; x++) {
-    //             if (x != 0 || y != 0) {
-    //                 let qk = tileUtils.tileXYToQuadKey(tileZ, tileY + y, tileX + x);
-    //                 let collisions = this.tiles.get(qk);
-    //                 if (collisions) {
-    //                     let ren = collisions.rendered;
-    //                     for (let o of ren) {
-    //                         neighbours[neighbours.length] = o;
-    //                     }
-    //                 }
-    //             }
-    //         }
-    //     }
-    //
-    //     return neighbours;
-    // }
-    //
-    // update(tiles, rotX: number, rotZ: number, scale: number) {
-    //     if (!(this.rx != rotX || this.rz != rotZ || this.s != scale)) {
-    //         // no view changes.. no need to recalculate collision
-    //         return;
-    //     }
-    //
-    //     // this.cache = {};
-    //
-    //     this.rx = rotX;
-    //     this.rz = rotZ;
-    //     this.s = scale;
-    //
-    //     const {display} = this;
-    //
-    //     let n = 0;
-    //     console.time('calc-neighbours');
-    //     for (let screentile of tiles) {
-    //         const quadkey = screentile.tile.quadkey;
-    //         let collisions = this.tiles.get(quadkey);
-    //
-    //         if (collisions /* && collisions.attrInfo && collisions.attrInfo.buffer */) {
-    //             let rendered = [];
-    //             let neighbours = this.neighbours(quadkey, tiles);
-    //
-    //             console.log(collisions.neighbours.length,'vs',neighbours.length);
-    //
-    //             for (let i = 0, _rendered = collisions.rendered; i < _rendered.length; i++) {
-    //                 let bbox = _rendered[i];
-    //                 let attribute = this.getAttribute(i, bbox.attrInfo);
-    //
-    //                 if (attribute) {
-    //                     let minX = bbox.minX;
-    //                     let maxX = bbox.maxX;
-    //                     let minY = bbox.minY;
-    //                     let maxY = bbox.maxY;
-    //                     let tileWorldX = bbox.tileX;
-    //                     let tileWorldY = bbox.tileY;
-    //                     let halfWidth = (maxX - minX) * .5;
-    //                     let halfHeight = (maxY - minY) * .5;
-    //                     let screenX = screentile.x + minX - tileWorldX;
-    //                     let screenY = screentile.y + minY - tileWorldY;
-    //
-    //                     // center
-    //                     screenX += halfWidth;
-    //                     screenY += halfHeight;
-    //
-    //                     let ac = display.project(screenX, screenY, 0, 0); // 0,0 for unscaled world pixels
-    //
-    //                     rendered.push({
-    //                         minX: ac[0] - halfWidth, // minX
-    //                         maxX: ac[0] + halfWidth, // maxX
-    //                         minY: ac[1] - halfHeight, // minY
-    //                         maxY: ac[1] + halfHeight, // maxY
-    //                         bos: bbox.bos,
-    //                         boe: bbox.boe,
-    //                         // attrInfo: bbox.attrInfo
-    //                         attr: attribute
-    //                     });
-    //                 }
-    //             }
-    //
-    //             let r = 0;
-    //             while (r < rendered.length) {
-    //                 let bbox = rendered[r];
-    //                 let attribute = bbox.attr;
-    //                 let data = attribute.data;
-    //                 let start = bbox.bos;
-    //                 let stop = bbox.boe;
-    //
-    //                 if (this.intersects(bbox, rendered, ++r)) {
-    //                     // is visible?
-    //                     if (data[start + 2] < 720) {
-    //                         // console.log(collisions);
-    //                         // hide all glyphs
-    //                         while (start < stop) {
-    //                             data[start + 2] += 720;
-    //                             start += 3;
-    //                         }
-    //                         attribute.dirty = true;
-    //                     }
-    //                 } else {
-    //                     // is invisible ?
-    //                     if (data[start + 2] >= 720) {
-    //                         // show all glyphs again..
-    //                         while (start < stop) {
-    //                             data[start + 2] -= 720;
-    //                             start += 3;
-    //                         }
-    //                         attribute.dirty = true;
-    //                     }
-    //                 }
-    //
-    //             }
-    //
-    //         }
-    //     }
-    //     console.timeEnd('calc-neighbours');
-    //     console.log('total neighbours', n);
-    //
-    //     // this._t = tiles;
-    //     // console.log('####', 'updateCollisions', '####');
-    //     // console.log(tiles);
-    //     // console.log(collisionData);
-    //     console.time('update-collisions');
-    //
-    //
-    //     let rendered = [];
-    //
-    //     // for (let screentile of tiles) {
-    //     //     let quadkey = screentile.tile.quadkey;
-    //     //
-    //     //
-    //     // }
-    //
-    //
-    //     // let r = 0;
-    //     // while (r < rendered.length) {
-    //     //     let bbox = rendered[r];
-    //     //     // let attribute = this.getAttribute(r, bbox.attrInfo);
-    //     //
-    //     //     let attribute = bbox.attr;
-    //     //
-    //     //     // if(!attribute){
-    //     //     //     r++;
-    //     //     //     continue;
-    //     //     // }
-    //     //
-    //     //
-    //     //     let data = attribute.data;
-    //     //     let start = bbox.bos;
-    //     //     let stop = bbox.boe;
-    //     //
-    //     //     if (this.intersects(bbox, rendered, ++r)) {
-    //     //         // window.addPixelPoint(bbox[0] + .5 * (bbox[1] - bbox[0]), bbox[2] + .5 * (bbox[3] - bbox[2]), 'red');
-    //     //
-    //     //         // is visible?
-    //     //         if (data[start + 2] < 720) {
-    //     //             // console.log(collisions);
-    //     //             // hide all glyphs
-    //     //             while (start < stop) {
-    //     //                 data[start + 2] += 720;
-    //     //                 start += 3;
-    //     //             }
-    //     //             attribute.dirty = true;
-    //     //         }
-    //     //     } else {
-    //     //         // is invisible ?
-    //     //         if (data[start + 2] >= 720) {
-    //     //             // show all glyphs again..
-    //     //             while (start < stop) {
-    //     //                 data[start + 2] -= 720;
-    //     //                 start += 3;
-    //     //             }
-    //     //             attribute.dirty = true;
-    //     //         }
-    //     //     }
-    //     //
-    //     // }
-    //
-    //     console.timeEnd('update-collisions');
-    //
-    //     console.log('rendered', rendered.length);
-    // }
-
-    // _update() {
-    //
-    //     const tiles = this._t;
-    //     console.time('update-collisions');
-    //
-    //     const {display} = this;
-    //
-    //     let rendered = [];
-    //
-    //     for (let screentile of tiles) {
-    //         // let quadkey = screentile.tile.quadkey;
-    //         let collisions = this.tiles.get(screentile.tile);
-    //
-    //         if (collisions && collisions.attr) {
-    //             for (let bbox of collisions.rendered) {
-    //                 let minX = bbox.minX;
-    //                 let maxX = bbox.maxX;
-    //                 let minY = bbox.minY;
-    //                 let maxY = bbox.maxY;
-    //                 let tileWorldX = bbox.tileX;
-    //                 let tileWorldY = bbox.tileY;
-    //
-    //                 // let tileWorldX = bbox[4];
-    //                 // let tileWorldY = bbox[5];
-    //                 // let minX = bbox[0];
-    //                 // let maxX = bbox[1];
-    //                 // let minY = bbox[2];
-    //                 // let maxY = bbox[3];
-    //
-    //                 let width = maxX - minX;
-    //                 let height = maxY - minY;
-    //
-    //                 let screenX = screentile.x + minX - tileWorldX;
-    //                 let screenY = screentile.y + minY - tileWorldY;
-    //
-    //
-    //                 // center
-    //                 screenX += width * .5;
-    //                 screenY += height * .5;
-    //
-    //
-    //                 let ac = display.project(screenX, screenY, 0, 0);
-    //                 //
-    //                 // // window.addPixelPoint(ac[0],ac[1],'red');
-    //                 //
-    //                 //
-    //                 minX = ac[0] - width / 2;
-    //                 minY = ac[1] - height / 2;
-    //                 maxX = ac[0] + width / 2;
-    //                 maxY = ac[1] + height / 2;
-    //
-    //                 // rendered.push({
-    //                 //     minX: minX,
-    //                 //     maxX: maxX,
-    //                 //     minY: minY,
-    //                 //     maxY: maxY,
-    //                 // });
-    //
-    //                 rendered.push([minX, maxX, minY, maxY, collisions, bbox.bos, bbox.boe]);
-    //                 // rendered.push([minX, maxX, minY, maxY, collisions, bbox[6], bbox[7]]);
-    //
-    //
-    //                 window.addPixelPoint2(ac[0],ac[1]);
-    //
-    //                 window.addPixelPoint2(minX, minY);
-    //                 window.addPixelPoint2(maxX, minY);
-    //                 window.addPixelPoint2(maxX, maxY);
-    //                 window.addPixelPoint2(minX, maxY);
-    //
-    //                 // // window.addPixelPoint(ac[0] - width / 2, ac[1] - height / 2, 'red');
-    //                 // window.addPixelPoint(maxX,minY, 'red');
-    //                 //
-    //                 //
-    //                 // // window.addPixelPoint(ac[0]+width,ac[1]+height,'red');
-    //                 // // window.addPixelPoint(ac[0]+width/2,ac[1]+height/2,'red');
-    //                 //
-    //                 //
-    //                 // // window.addPixelPoint(screenX,screenY,'red');
-    //             }
-    //             // console.log(collisions.rendered.length)
-    //         }
-    //     }
-    //
-    //     let r = 0;
-    //     while (r < rendered.length) {
-    //         let bbox = rendered[r];
-    //         let collisions = bbox[4];
-    //         let attribute = collisions.attr;
-    //         let data = attribute.data;
-    //         let start = bbox[5];
-    //         let stop = bbox[6];
-    //
-    //         if (collides(bbox, rendered, ++r)) {
-    //             // window.addPixelPoint(bbox[0] + .5 * (bbox[1] - bbox[0]), bbox[2] + .5 * (bbox[3] - bbox[2]), 'red');
-    //
-    //             // is visible?
-    //             if (data[start + 2] < 720) {
-    //                 // console.log(collisions);
-    //                 // hide all glyphs
-    //                 while (start < stop) {
-    //                     data[start + 2] += 720;
-    //                     start += 3;
-    //                 }
-    //                 attribute.dirty = true;
-    //             }
-    //         } else {
-    //             // is invisible ?
-    //             if (data[start + 2] >= 720) {
-    //                 // show all glyphs again..
-    //                 while (start < stop) {
-    //                     data[start + 2] -= 720;
-    //                     start += 3;
-    //                 }
-    //                 attribute.dirty = true;
-    //             }
-    //         }
-    //
-    //         // if(window._wtf){
-    //         //     start = bbox[5];
-    //         //     if (data[start + 2] >= 720) {
-    //         //         // show all letters again..
-    //         //         while (start < stop) {
-    //         //             data[start + 2] -= 720;
-    //         //             start += 3;
-    //         //         }
-    //         //         attribute.dirty = true;
-    //         //     }
-    //         // }
-    //     }
-    //
-    //     console.timeEnd('update-collisions');
-    // }
 }

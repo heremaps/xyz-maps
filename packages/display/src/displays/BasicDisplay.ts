@@ -62,6 +62,7 @@ abstract class Display {
     protected sy: number; // grid/screen offset y
     private previewer: Preview;
     private updating: boolean = false;
+    private ti: number; // tile index
     protected dirty: boolean = false;
     protected gridSizes: number[];
     tileSize: number;
@@ -75,7 +76,7 @@ abstract class Display {
     rz: number;
     render: BasicRender;
     buckets: BasicBucket;
-    listeners: { [event: string]: () => void };
+    listeners: { [event: string]: (a1?, a2?) => void };
     tiles: { [tilesize: string]: TilePosition[] };
     cluster: LayerClusterer;
     grid: Grid;
@@ -183,7 +184,7 @@ abstract class Display {
         return index;
     }
 
-    getBucket(quadkey: string, createIfNotExists?: boolean) {
+    getBucket(quadkey: string, createIfNotExists?: boolean): BasicTile {
         const display = this;
         let bucket;
 
@@ -326,7 +327,7 @@ abstract class Display {
             const displayTile = display.getBucket(quadkey, CREATE_IF_NOT_EXISTS);
             const tilePosition = new TilePosition(x1, y1, displayTile);
 
-            displayTile.i = ++this._i;
+            displayTile.i = ++this.ti;
 
             screenTiles.push(tilePosition);
             vpTiles.push(tilePosition);
@@ -396,7 +397,8 @@ abstract class Display {
         this.gridSizes = tileSizes;
 
 
-        this._i = 0;
+        this.ti = 0;
+
         for (let tileSize of tileSizes) {
             this.initGrid(zoomlevel, tileSize);
         }

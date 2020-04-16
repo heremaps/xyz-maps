@@ -31,6 +31,7 @@ abstract class BasicTile {
     quadkey: string;
     layers: TileLayer[];
     luTs: number; // last update timestamp
+    i: number; // tile index of current viewport. 1-n
     private r: boolean[] = [];
     private p: PreviewData[]|false[] = [];
 
