@@ -404,16 +404,24 @@ class TigerMap {
         this.updateGrid();
     };
 
-    pitch(x) {
-        if (x !== UNDEF) {
+    /**
+     * Set or get map pitch (tilt) in degrees
+     *
+     * @expose
+     * @function
+     * @param {number=} pitch in degrees
+     * @name here.xyz.maps.Map#pitch
+     */
+    pitch(angle?: number) {
+        if (angle !== UNDEF) {
             const maxPitch = this._cfg.maxPitch;
 
-            if (x < 0) {
-                x = 0;
-            } else if (x > maxPitch) {
-                x = maxPitch;
+            if (angle < 0) {
+                angle = 0;
+            } else if (angle > maxPitch) {
+                angle = maxPitch;
             }
-            let xdeg = -x % 360 | 0;
+            let xdeg = -angle % 360 | 0;
 
             this._rx = xdeg * Math.PI / 180;
             this.updateGrid();
@@ -421,6 +429,14 @@ class TigerMap {
         return -this._rx * 180 / Math.PI;
     };
 
+    /**
+     * Set or get map rotation along z-axis
+     *
+     * @expose
+     * @function
+     * @param {number=} rotation of map in degrees
+     * @name here.xyz.maps.Map#rotate
+     */
     rotate(deg?: number): number {
         if (deg !== UNDEF) {
             const rad = Math.round(10*deg||0) * Math.PI / 1800;
