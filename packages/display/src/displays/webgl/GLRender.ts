@@ -453,6 +453,12 @@ export class GLRender implements BasicRender {
 
 
             if (pass) {
+                if (this.stencilVal && buffer.alpha) {
+                    const refVal = this.stencilVal;
+                    this.stencilVal = null;
+                    this.drawStencil(refVal);
+                }
+
                 bufAttributes = buffer.getAttributes();
                 this.initBuffers(bufAttributes);
 
@@ -490,10 +496,27 @@ export class GLRender implements BasicRender {
     }
 
 
-    initStencil(x: number, y: number, tileSize: number, refVal: number, tileScaleMatrix?) {
+    private stencilVal: number;
+    private stencilSize: number;
+    private stencilX: number;
+    private stencilY: number;
+
+    initStencil(refValue: number, x, y, tileSize: number) {
+        this.stencilVal = refValue;
+        this.stencilSize = tileSize;
+        this.stencilX = x;
+        this.stencilY = y;
+    };
+
+    drawStencil(refVal: number) {
         // return this.gl.stencilFunc(this.gl.ALWAYS, 0, 0);
+
+        // console.log('stencil...');
+
         if (this.rx || this.rz) {
             const {gl, stencilTile} = this;
+            const x = this.stencilX;
+            const y = this.stencilY;
 
             gl.stencilFunc(gl.ALWAYS, refVal, 0xff);
             gl.stencilOp(gl.REPLACE, gl.REPLACE, gl.REPLACE);
@@ -505,7 +528,7 @@ export class GLRender implements BasicRender {
             this.grpFilter = null;
             // this.drawBuffer(stencilTile, x, y, null, null); // , {depth: false,scissor: false});
 
-            this.drawBuffer(stencilTile, x, y, tileScaleMatrix, null, tileSize);
+            this.drawBuffer(stencilTile, x, y, null, null, this.stencilSize);
 
             this.grpFilter = grpFilter;
             gl.stencilFunc(gl.EQUAL, refVal, 0xff);
@@ -589,27 +612,13 @@ export class GLRender implements BasicRender {
         let px;
         let py;
 
-        // this.initStencil(x, y, tileSize);
-
         let scissored = false;
         let stenciled = false;
-        // this.initScissor(x, y, tileSize, tileSize);
-
-        // if(dTile.quadkey == '03201011030111'){
-        //     console.log('----',dTile.quadkey,'-----',this.pass,'!!!!!!');
-        //     // this._dbg=true;
-        // }else{
-        // //     this._dbg=false;
-        //     console.log('----',dTile.quadkey,'-----',this.pass);
-        // }
 
 
         if (buffers = data[layerIndex]) {
             const length = buffers.length - 1;
             const isAlphaPass = this.pass == 'alpha';
-
-            // this.initStencil(x, y, tileSize);
-            // this.initScissor(x, y, tileSize, tileSize);
 
             for (let b = 0; b <= length; b++) {
                 // in case of alpha pass reverse drawing order to allow alpha blending using depthfunc LEQUAL
@@ -620,10 +629,10 @@ export class GLRender implements BasicRender {
 
                     this.initScissor(x, y, tileSize, tileSize);
                 }
-                if (!stenciled && buffer.alpha) {
+
+                if (!stenciled) {
+                    this.initStencil(dTile.i, x, y, tileSize);
                     stenciled = true;
-                    // console.log('stencil',this.pass,dTile.i);
-                    this.initStencil(x, y, tileSize, dTile.i);
                 }
 
                 this.drawBuffer(buffer, x, y);
@@ -676,11 +685,11 @@ export class GLRender implements BasicRender {
 
                                 if (dZoom < 1) {
                                     // this.gl.clear(this.gl.STENCIL_BUFFER_BIT);
-                                    this.initStencil(x + dx, y + dy, tileSize * dZoom, previewTile.i);
+                                    this.initStencil(previewTile.i, x + dx, y + dy, tileSize * dZoom);
                                     // this.gl.stencilFunc(this.gl.ALWAYS, 0, 0);
                                 } else if (!stenciled) {
                                     stenciled = true;
-                                    this.initStencil(x, y, tileSize, dTile.i);
+                                    this.initStencil(dTile.i, x, y, tileSize);
                                 }
 
                                 this.drawBuffer(buf, px, py, tileScaleMatrix, dZoom);
