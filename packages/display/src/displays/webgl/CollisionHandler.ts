@@ -26,8 +26,6 @@ const tileUtils = tile.Utils;
 type Tile = tile.Tile;
 
 type BBox = { minX: number, maxX: number, minY: number, maxY: number };
-
-type AttributeInfo = { start: number, attr: Attribute };
 type Collision = { rendered: any[]; neighbours: BBox[] }
 
 
@@ -70,8 +68,6 @@ export class CollisionHandler {
     }
 
     init(quadkey: string, tileX: number, tileY: number, tileZ: number, layer: Layer) {
-        // console.log('SET init', quadkey, layer);
-        //
         // console.time(quadkey);
 
         let collisionData = this.tiles.get(quadkey);
@@ -105,12 +101,9 @@ export class CollisionHandler {
             });
         }
 
-
-        const {index} = layer;
-
         this.tileCollision = collisionData;
 
-        this.layerIndex = index;
+        this.layerIndex = layer.index;
     }
 
     collides(
@@ -122,42 +115,24 @@ export class CollisionHandler {
         tileSize: number,
         bufferOffsetStart: number,
         bufferOffsetEnd: number,
-        attributeBuffer,
+        attributeBuffer: Attribute,
         priority?: number
     ) {
-        // const tileX = tile.x * tileSize;
-        // const tileY = tile.y * tileSize;
-
         let tileX = tile.x * tileSize;
         let tileY = tile.y * tileSize;
-
         // const estimatedTextWidth = fontInfo.getTextWidth(text);
         // const estimatedTextWidth = fontInfo.avgCharWidth * text.length / 2;
-
-        // console.time('cntGlyphs');
-        // let glyphs = 0;
-        // for (let c of text) {
-        //     if (c != ' ') glyphs++;
-        // }
-        // console.timeEnd('cntGlyphs');
-
+        const collisionInfo = this.tileCollision;
+        const rendered = collisionInfo.rendered;
         const x1 = tileX + cx - width;
         const x2 = tileX + cx + width;
         const y1 = tileY + cy - height;
         const y2 = tileY + cy + height;
 
-
         if (tileSize == 256) {
             tileX = (tile.x * .5 ^ 0) * 512;
             tileY = (tile.y * .5 ^ 0) * 512;
         }
-
-        // console.log(tile,'tileSize',tileSize,'->',tileX,tileY);
-        // console.log(x1,y1,x2,y2);
-
-        const collisionInfo = this.tileCollision;
-        // const collisionInfo = tile.collision;
-        const rendered = collisionInfo.rendered;
 
         const bbox = {
             minX: x1,
@@ -169,11 +144,8 @@ export class CollisionHandler {
             bos: bufferOffsetStart,
             boe: bufferOffsetEnd,
             li: this.layerIndex,
-            _attr: attributeBuffer,
+            attr: attributeBuffer,
             priority: priority || 0
-
-            // bos: bufferIndex,
-            // boe: bufferIndex + glyphs * 18
         };
 
         if (this.intersects(bbox, rendered) || this.intersects(bbox, collisionInfo.neighbours)) {
@@ -197,20 +169,12 @@ export class CollisionHandler {
 
         if (cInfo) {
             let empty = true;
-
-            // if(quadkey == '023013221') debugger;
-
             for (let i = 0; i < cInfo.rendered.length; i++) {
                 let r = cInfo.rendered[i];
                 if (r) {
                     if (r.li == layerIndex) {
                         cInfo.rendered[i] = null;
                     } else {
-                        // need for remove layer!!!!!
-                        // if (r.li > layerIndex) {
-                        //     r.li--;
-                        // }
-
                         empty = false;
                     }
                 }
@@ -220,9 +184,6 @@ export class CollisionHandler {
                 this.tiles.delete(quadkey);
             }
         }
-
-
-        // this.tiles.delete
     }
 
     update(tiles, rotX: number, rotZ: number, scale: number) {
@@ -251,7 +212,7 @@ export class CollisionHandler {
                     // could have been cleared because of LRU drop or layer removed
                     if (!bbox) continue;
 
-                    let attribute = bbox._attr;
+                    let attribute = bbox.attr;
 
                     if (attribute) {
                         let minX = bbox.minX;
@@ -270,16 +231,6 @@ export class CollisionHandler {
                         screenY += halfHeight;
 
                         let ac = display.project(screenX, screenY, 0, 0); // 0,0 for unscaled world pixels
-
-                        // rendered.push([
-                        //     ac[0] - halfWidth, // minX
-                        //     ac[0] + halfWidth, // maxX
-                        //     ac[1] - halfHeight, // minY
-                        //     ac[1] + halfHeight, // maxY
-                        //     collisions,
-                        //     bbox.bos,
-                        //     bbox.boe
-                        // ]);
 
                         rendered.push({
                             minX: ac[0] - halfWidth, // minX
