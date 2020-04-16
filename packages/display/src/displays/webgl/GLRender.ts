@@ -109,10 +109,7 @@ export class GLRender implements BasicRender {
         512: createGridTileBuffer(512)
     };
 
-    private stencilTile = {
-        256: createTileBuffer(256),
-        512: createTileBuffer(512)
-    }
+    private stencilTile: GeometryBuffer;
 
     private depthFnc: GLenum;
     private pass: 'opaque' | 'alpha';
@@ -138,6 +135,13 @@ export class GLRender implements BasicRender {
         this.invPMat = mat4.create();
         this.screenMat = mat4.create();
         this.invScreenMat = mat4.create();
+
+        const stencilTile = createTileBuffer(1);
+        // will only draw in alpha pass!
+        stencilTile.alpha = true; // this.pass == 'alpha';
+        // need to be set to enable stencil test in program init.
+        stencilTile.blend = true;
+        this.stencilTile = stencilTile;
     }
 
     setPass(pass: 'opaque' | 'alpha') {
@@ -470,7 +474,7 @@ export class GLRender implements BasicRender {
                 gl.uniform1f(uLocation.u_scale, this.scale * (dZoom || 1));
                 gl.uniform2f(uLocation.u_topLeft, x, y);
 
-                gl.uniform1f(uLocation.u_tilescale, tileScale || 1);
+                gl.uniform1f(uLocation.u_tileScale, tileScale || 1);
 
                 gl.uniformMatrix4fv(uLocation.u_matrix, false, pMat || this.pMat);
                 // console.log( 'DEPTH_TEST', gl.getParameter(gl.DEPTH_TEST),
@@ -486,11 +490,10 @@ export class GLRender implements BasicRender {
     }
 
 
-    initStencil(x: number, y: number, tileSize: number, refVal: number, tileScaleMatrix?, ts?) {
+    initStencil(x: number, y: number, tileSize: number, refVal: number, tileScaleMatrix?) {
         // return this.gl.stencilFunc(this.gl.ALWAYS, 0, 0);
         if (this.rx || this.rz) {
-            const {gl} = this;
-            const stencilTile = this.stencilTile[tileSize];
+            const {gl, stencilTile} = this;
 
             gl.stencilFunc(gl.ALWAYS, refVal, 0xff);
             gl.stencilOp(gl.REPLACE, gl.REPLACE, gl.REPLACE);
@@ -498,18 +501,11 @@ export class GLRender implements BasicRender {
             // disable color buffer
             gl.colorMask(false, false, false, false);
 
-            // will only draw in alpha pass!
-            stencilTile.alpha = true; // this.pass == 'alpha';
-            // need to be set to enable stencil test in program init.
-            stencilTile.blend = true;
-            // stencilTile.scissor = true;
-
             const grpFilter = this.grpFilter;
             this.grpFilter = null;
             // this.drawBuffer(stencilTile, x, y, null, null); // , {depth: false,scissor: false});
 
-            this.drawBuffer(stencilTile, x, y, tileScaleMatrix, null, ts);
-
+            this.drawBuffer(stencilTile, x, y, tileScaleMatrix, null, tileSize);
 
             this.grpFilter = grpFilter;
             gl.stencilFunc(gl.EQUAL, refVal, 0xff);
@@ -680,8 +676,8 @@ export class GLRender implements BasicRender {
 
                                 if (dZoom < 1) {
                                     // this.gl.clear(this.gl.STENCIL_BUFFER_BIT);
-                                    this.initStencil(x + dx, y + dy, tileSize, previewTile.i, null, dZoom);
-                                    this.gl.stencilFunc(this.gl.ALWAYS, 0, 0);
+                                    this.initStencil(x + dx, y + dy, tileSize * dZoom, previewTile.i);
+                                    // this.gl.stencilFunc(this.gl.ALWAYS, 0, 0);
                                 } else if (!stenciled) {
                                     stenciled = true;
                                     this.initStencil(x, y, tileSize, dTile.i);

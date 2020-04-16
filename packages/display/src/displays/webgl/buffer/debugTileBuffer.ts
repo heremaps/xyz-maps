@@ -26,20 +26,22 @@ const TILE_SIZE = 512;
 // const TILE_SIZE = 256;
 
 
-const createTileBuffer = (tileSize: 256 | 512) => {
+const createTileBuffer = (tileSize: number) => {
     // 0 ------- 1
     // |      /  |
     // |    /    |
     // |  /      |
     // 3 ------- 2
 
-    let gridTileBuffer = new GeometryBuffer([
+    const gridTileBuffer = new GeometryBuffer([
         0, 1, 3,
         3, 1, 2
     ], 'Polygon');
 
+    const TypedArray = tileSize > 256 ? Int16Array : Int8Array;
+
     gridTileBuffer.addAttribute('a_position', {
-        data: new Int16Array([
+        data: new TypedArray([
             0, 0,
             tileSize, 0,
             tileSize, tileSize,
