@@ -29,7 +29,15 @@ export type MapOptions = {
     debug: boolean,
     minPanMapThreshold: number,
     zoomAnimationMs: number,
-    maxPitch: number
+    maxPitch: number,
+    behaviour: {
+        zoom?: true | false | 'fixed' | 'float',
+        drag?: boolean;
+        pitch?: boolean;
+        rotate?: boolean;
+    }
+    rotate?: number,
+    pitch?: number
 };
 
 /**
@@ -50,6 +58,54 @@ export const defaultOptions: MapOptions = {
      * @optional
      */
     ui: {},
+
+
+    /**
+     *  Behaviour options of the map.
+     *  Allow user to "drag" / "rotate" / "pitch" or "zoom" the map by mouse/touch interaction.
+     *
+     *  "drag" / "rotate" and "pitch" are booleans indicating if user interaction is possible or not.
+     *  Possible values for "zoom" property are
+     *  - false: disable zoom
+     *  - true: enable zoom ("float")
+     *  - "fixed": fixed zoom animation to next integer zoomlevel. floating zoomlevels are not allowed (eg 14.4)
+     *  - "float": allow floating zoomlevels [default]
+     *
+     *  @public
+     *  @expose
+     *  @name here.xyz.maps.Map.Config#bahaviour
+     *  @optional
+     *  @type {object}
+     */
+    behaviour: {
+        drag: true,
+        pitch: false,
+        rotate: false
+    },
+
+    /**
+     *  initial rotation of the map in degree.
+     *
+     *  @public
+     *  @expose
+     *  @name here.xyz.maps.Map.Config#rotate
+     *  @optional
+     *  @default 0
+     *  @type {number}
+     */
+    rotate: 0,
+
+    /**
+     *  initial pitch (tilt) of the map in degree.
+     *
+     *  @public
+     *  @expose
+     *  @name here.xyz.maps.Map.Config#pitch
+     *  @optional
+     *  @default 0
+     *  @type {number}
+     */
+    pitch: 0,
 
     /**
      *  zoomlevel of the map.

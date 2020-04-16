@@ -88,7 +88,13 @@
 						"description":"Set and get behavior",
 						"file":"./display/behavior_set.htm",
 						"docs":"here.xyz.maps.Map.html#setBehavior"
-					}
+					},
+                    {
+                        "title":"Pitch and Rotate Map",
+                        "description":"Allow map pitch/rotation by user interaction",
+                        "file":"./display/pitch_rotate_map.htm",
+                        "docs":"here.xyz.maps.Map.html#pitch"
+                    }
 				]
 			}
 		]

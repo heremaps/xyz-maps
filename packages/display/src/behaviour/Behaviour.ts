@@ -111,8 +111,6 @@ class Behaviour {
         const dragDx = [];
         const dragDy = [];
 
-        console.log(mapEl);
-
         const resetDrag = () => {
             dragGrouped = 0;
             dragDx.length = 0;

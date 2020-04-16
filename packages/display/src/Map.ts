@@ -140,7 +140,7 @@ class TigerMap {
     private _cfg: MapOptions;// mapconfig
 
     private _evDispatcher: EventDispatcher;
-    private _behaviour: Behaviour;
+    private _b: Behaviour;
 
     // TODO: cleanup
     private _cw: pixel.Point = new PixelPoint(0, 0); // center world in pixel
@@ -257,13 +257,14 @@ class TigerMap {
                 }
             }
         });
-        let behaviourOptions = {};
-        behaviourOptions[BEHAVIOUR_ZOOM] = DEFAULT_ZOOM_BEHAVIOUR;
-        behaviourOptions[BEHAVIOUR_DRAG] = true;
-        behaviourOptions[BEHAVIOUR_PITCH] = false;
-        behaviourOptions[BEHAVIOUR_ROTATE] = false;
 
-        let behaviour = this._behaviour = new Behaviour(
+        const behaviourOptions = {...mapConfig['behaviour']};
+
+        if (behaviourOptions[BEHAVIOUR_ZOOM] == UNDEF) {
+            behaviourOptions[BEHAVIOUR_ZOOM] = DEFAULT_ZOOM_BEHAVIOUR;
+        }
+
+        let behaviour = this._b = new Behaviour(
             mapEl,
             tigerMap,
             new KineticPanAnimator(tigerMap, {
@@ -298,6 +299,9 @@ class TigerMap {
         this._ui = new UI(mapEl, mapConfig, tigerMap);
 
         tigerMap.setCenter(mapConfig['center']);
+        tigerMap.pitch(mapConfig['pitch']);
+        tigerMap.rotate(mapConfig['rotate']);
+
         tigerMap.setZoomlevel(zoomLevel);
 
         (mapConfig['layers'] || []).forEach((layer) => this.addLayer(layer));
@@ -439,7 +443,7 @@ class TigerMap {
      */
     rotate(deg?: number): number {
         if (deg !== UNDEF) {
-            const rad = Math.round(10*deg||0) * Math.PI / 1800;
+            const rad = Math.round(10 * deg || 0) * Math.PI / 1800;
             const rotZRad = this._rz;
 
             if (rad !== rotZRad) {
@@ -709,7 +713,7 @@ class TigerMap {
      */
     getBehavior() {
         const settings = {};
-        const options = this._behaviour.getOptions();
+        const options = this._b.getOptions();
         for (let b in options) {
             settings[b] = !!options[b];
         }
@@ -737,7 +741,7 @@ class TigerMap {
     setBehavior(key, value) {
         let type = typeof key;
         let options = type == 'object' ? key : {};
-        const behaviourOptions = this._behaviour.getOptions();
+        const behaviourOptions = this._b.getOptions();
 
         if (type == 'string') {
             options[key] = value;
@@ -1172,8 +1176,8 @@ class TigerMap {
 
         this._evDispatcher.destroy();
 
-        this._behaviour.drag(false);
-        this._behaviour.scroll(false);
+        this._b.drag(false);
+        this._b.scroll(false);
         // behavior.resize(false);
 
         const map = this;
