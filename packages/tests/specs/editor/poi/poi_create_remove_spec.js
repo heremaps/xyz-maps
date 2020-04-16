@@ -36,7 +36,7 @@ describe('add POI object and then remove', function() {
     var placeLayer;
 
     before(async function() {
-        chai.use(chaiAlmost(1e-7));
+        chai.use(chaiAlmost());
         preparedData = await prepare(dataset);
         display = new Map(document.getElementById('map'), {
             center: {longitude: 77.2357240158081, latitude: 13.005706927303237},

@@ -32,7 +32,7 @@ describe('Create new Link by drawing manager and remove some shape points', func
     let preparedData;
 
     before(async function() {
-        chai.use(chaiAlmost(1e-7));
+        chai.use(chaiAlmost());
         preparedData = await prepare(dataset);
         display = new Map(document.getElementById('map'), {
             center: {longitude: 76.98670509884607, latitude: 12.88815358638164},

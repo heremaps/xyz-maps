@@ -36,7 +36,7 @@ describe('click on address to validate the coordinate', function() {
     let mapContainer;
 
     before(async function() {
-        chai.use(chaiAlmost(1e-7));
+        chai.use(chaiAlmost());
         preparedData = await prepare(dataset);
 
         display = new Map(document.getElementById('map'), {

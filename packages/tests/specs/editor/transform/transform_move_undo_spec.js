@@ -35,7 +35,7 @@ describe('undo the link transforming, link should connect to its connected links
     var linkLayer;
 
     before(async function() {
-        chai.use(chaiAlmost(1e-7));
+        chai.use(chaiAlmost());
         preparedData = await prepare(dataset);
         display = new Map(document.getElementById('map'), {
             center: {longitude: 78.19335420161838, latitude: 12.548568361911578},

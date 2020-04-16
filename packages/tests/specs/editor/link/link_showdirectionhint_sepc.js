@@ -37,7 +37,7 @@ describe('show link direction hint', function() {
     let link3;
 
     before(async function() {
-        chai.use(chaiAlmost(1e-7));
+        chai.use(chaiAlmost());
         preparedData = await prepare(dataset);
         display = new Map(document.getElementById('map'), {
             center: {longitude: 80.407689, latitude: 19.640012},

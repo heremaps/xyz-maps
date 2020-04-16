@@ -35,7 +35,7 @@ describe('transform objects', function() {
     let link; let address;
 
     before(async function() {
-        chai.use(chaiAlmost(1e-7));
+        chai.use(chaiAlmost());
         preparedData = await prepare(dataset);
         display = new Map(document.getElementById('map'), {
             renderOptions: {

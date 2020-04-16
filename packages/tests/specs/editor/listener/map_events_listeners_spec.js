@@ -34,7 +34,7 @@ describe('map event system', function() {
     let mapContainer;
 
     before(async function() {
-        chai.use(chaiAlmost(1e-7));
+        chai.use(chaiAlmost());
         preparedData = await prepare(dataset);
         display = new Map(document.getElementById('map'), {
             center: {longitude: 8.573258087408306, latitude: 50.03670252050714},

@@ -34,7 +34,7 @@ describe('link connect helper 1', function() {
     var crossings;
 
     before(async function() {
-        chai.use(chaiAlmost(1e-4));
+        chai.use(chaiAlmost(1e-1));
         preparedData = await prepare(dataset);
         display = new Map(document.getElementById('map'), {
             center: {longitude: 80.58758879566193, latitude: 16.564128450446262},
@@ -61,8 +61,8 @@ describe('link connect helper 1', function() {
 
         let c = crossings[0];
         expect(c.distance).to.be.equal(0);
-        expect(c.x).to.almost.equal(199.99998956918716);
-        expect(c.y).to.almost.equal(199.99998024106026);
+        expect(c.x).to.almost.equal(200);
+        expect(c.y).to.almost.equal(200);
     });
 
     it('connect the crossing and validate links', async function() {

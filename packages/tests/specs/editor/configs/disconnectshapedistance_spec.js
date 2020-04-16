@@ -31,7 +31,7 @@ describe('set disconnectShapeDistance', function() {
     let preparedData;
 
     before(async function() {
-        chai.use(chaiAlmost(1e-7));
+        chai.use(chaiAlmost());
         preparedData = await prepare(dataset);
         display = new Map(document.getElementById('map'), {
             center: {longitude: 77.84172527566523, latitude: 17.450976000022266},

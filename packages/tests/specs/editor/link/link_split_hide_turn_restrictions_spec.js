@@ -34,7 +34,7 @@ describe('link splitting hides the turn restrictions edit', function() {
     let link1; let link2; let link3;
 
     before(async function() {
-        chai.use(chaiAlmost(1e-7));
+        chai.use(chaiAlmost());
         preparedData = await prepare(dataset);
         display = new Map(document.getElementById('map'), {
             center: {longitude: 77.775492, latitude: 13.344394},

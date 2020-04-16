@@ -26,19 +26,6 @@ import InternalEditor from '../IEditor';
 
 let UNDEF;
 
-
-// {
-//     link: toLink,
-//         index: crossing.index,
-//     avoidSplitPointSnapping: true
-// } : {
-//     link: toLink,
-//         point: pnt,
-//         index: false,
-//         preferSegment: preferSegment,
-//         avoidSnapping: true
-// }
-
 export interface SplitOptions {
     link: Navlink;
     index?: number;
@@ -49,7 +36,7 @@ export interface SplitOptions {
 
 // split at exsiting shape
 // or split at existing shape and keep the position of existing shape
-export const split = (HERE_WIKI: InternalEditor, options: SplitOptions): [Navlink, Navlink]|false => {
+export const split = (HERE_WIKI: InternalEditor, options: SplitOptions): [Navlink, Navlink] | false => {
     const parentLink = options.link;
     let splitAtShpIndex = options.index;
     const preferSegment = options.preferSegment;
@@ -74,6 +61,10 @@ export const split = (HERE_WIKI: InternalEditor, options: SplitOptions): [Navlin
     ) {
         return false;
     }
+
+    // make sure parentlink is in origin state if linksplit gets reverted
+    HERE_WIKI.objects.history.origin(parentLink);
+
     // if split is defined by absolute coordinates...
     if (splitAtShpIndex === UNDEF) {
         const crossing = HERE_WIKI.map.calcCrossingAt(path, options.point, snapTolerance, preferSegment);
@@ -83,8 +74,6 @@ export const split = (HERE_WIKI: InternalEditor, options: SplitOptions): [Navlin
         if (crossing.existingShape && (splitAtShpIndex === 0 || splitAtShpIndex === lastIndex)) {
             return false;
         }
-
-
         // addNewShape request index of the shape point regardless it is new or existing
         splitAtShpIndex = linkTools.addShp(parentLink, [x, y], null, true, null, preferSegment);
 
@@ -106,15 +95,9 @@ export const split = (HERE_WIKI: InternalEditor, options: SplitOptions): [Navlin
             },
             properties: props
         };
-
         delete props['@ns:com:here:editor'];
 
-        return HERE_WIKI.objects.create(
-            [objDef],
-            provider,
-            prefIdx,
-            UNDEF
-        );
+        return HERE_WIKI.objects.create([objDef], provider, prefIdx, UNDEF);
     };
 
     const newLink1 = createSplitLink(
