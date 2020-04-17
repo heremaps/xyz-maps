@@ -222,17 +222,14 @@ class WebGlDisplay extends BasicDisplay {
                 const task = createBuffer(data, displayLayer, tileSize, tile, this.factory,
                     // on init / start
                     () => {
-                        // let cTile;
-                        // if (tileSize == 256) {
-                        //     cTile = display.getBucket(dTile.quadkey.slice(0, -1), true);
-                        // } else {
-                        //     cTile = dTile;
-                        // }
-
                         let {quadkey} = dTile;
                         if (tileSize == 256 && display.gridActive(512)) {
                             quadkey = quadkey.slice(0, -1);
                         }
+                        // if its not a fresh create but tile data is getting updated make sure to ..
+                        // .. clear collision data before tile is updated / reprepared.
+                        // otherwise collision data will directly be dropped after updating tile (onDrop(...)).
+                        dTile.setData(null, layer);
 
                         this.collision.init(quadkey, tile.x, tile.y, tile.z, displayLayer);
                     },
