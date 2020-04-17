@@ -276,7 +276,7 @@ export class FeatureFactory {
 
                         alignment = getValue('alignment', style, feature, level);
                         if (alignment == UNDEF) {
-                            alignment = 'map';
+                            alignment = geomType == 'Point' ? 'viewport' : 'map';
                         }
 
                         groupId = 'T' + (font || NONE);
