@@ -36,6 +36,9 @@ interface LayerStyle {
     textRef?: string;
     offsetX?: number | styleNumberFunction;
     offsetY?: number | styleNumberFunction;
+    alignment?: 'map' | 'viewport';
+    rotation?: number;
+    priority?: number;
 }
 
 export type StyleGroupMap = { [id: string]: StyleGroup }

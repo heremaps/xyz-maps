@@ -116,7 +116,7 @@ export class CollisionHandler {
         bufferOffsetStart: number,
         bufferOffsetEnd: number,
         attributeBuffer: Attribute,
-        priority?: number
+        priority: number = 0xffff
     ) {
         let tileX = tile.x * tileSize;
         let tileY = tile.y * tileSize;
@@ -145,7 +145,7 @@ export class CollisionHandler {
             boe: bufferOffsetEnd,
             li: this.layerIndex,
             attr: attributeBuffer,
-            priority: priority || 0
+            priority: priority
         };
 
         if (this.intersects(bbox, rendered) || this.intersects(bbox, collisionInfo.neighbours)) {
@@ -256,7 +256,7 @@ export class CollisionHandler {
         let r = 0;
 
         // sort by collision priority
-        rendered.sort((a, b) => a.priority - b.priority);
+        rendered.sort((a, b) => b.priority - a.priority);
 
         while (r < rendered.length) {
             let bbox = rendered[r];

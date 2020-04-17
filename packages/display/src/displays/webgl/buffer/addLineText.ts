@@ -23,7 +23,7 @@ import {CollisionHandler} from '../CollisionHandler';
 
 const TO_DEG = 180 / Math.PI;
 
-const addLineText = (text: string, pointAttr, vertex, texcoord, coordinates, glyphs: GlyphTexture, tile, tileSize: number, collisions: CollisionHandler, offsetX?: number, offsetY?: number) => {
+const addLineText = (text: string, pointAttr, vertex, texcoord, coordinates, glyphs: GlyphTexture, tile, tileSize: number, collisions: CollisionHandler, priority: number, offsetX?: number, offsetY?: number) => {
     const point = pointAttr.data;
     const fontInfo = glyphs.getAtlas();
     const vLength = coordinates.length;
@@ -101,7 +101,8 @@ const addLineText = (text: string, pointAttr, vertex, texcoord, coordinates, gly
                     labeldx, labeldy,
                     tile, tileSize,
                     bufferStart, bufferStart + glyphCnt * 6 * 3,
-                    pointAttr
+                    pointAttr,
+                    priority
                 )) {
                     continue;
                 }

@@ -525,6 +525,7 @@ export class FeatureFactory {
                             tile,
                             tileSize,
                             !style.collide && this.collisions,
+                            getValue('priority', style, feature, level),
                             offsetX,
                             offsetY
                         );

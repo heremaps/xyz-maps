@@ -98,7 +98,7 @@ import {ILayerStyle, StyleGroup, StyleGroupMap} from './ILayerStyle';
  * A style object should always include "zIndex" and "type" attributes, and each type of symbolizer should include its own type-specific attributes:
  * -Circle:  "radius" must be included and either "fill" or "stroke" should be included.
  * -Rect:  "width" must be included and "height" will be set with the same value as "width" if only "width" is present. Either "fill" or "stroke" should be included
- * -Text:  "text" or "textRef" should be included and "fill" or "stroke" shoule also be included for text color
+ * -Text:  "text" or "textRef" should be included and "fill" or "stroke" should also be included for text color
  * -Image:  "src" and "width" must be included. "height" will be set with the same value as "width" if only "width" is present.
  * -Line:  "stroke" must be included.
  * -Polygon:  "fill" or "stroke" must be included.
@@ -320,6 +320,31 @@ import {ILayerStyle, StyleGroup, StyleGroupMap} from './ILayerStyle';
  *  @type string
  */
 // "textRef": ’properties.name’,
+
+/**
+ *  In case of label collision, Text with a higher priority (lower value) will be drawn before lower priorities (higher value).
+ *  "priority" applies to Text only.
+ *
+ *  @public
+ *  @expose
+ *  @optional
+ *  @name here.xyz.maps.layers.TileLayer.Style#priority
+ *  @type number
+ */
+// "priority": number,
+
+/**
+ *  Alignment for Text. Possible values are: "map" and "viewport".
+ *  "map" aligns to the plane of the map and "viewport" aligns to the plane of the viewport/screen.
+ *  Default alignment for Text based on point geometries is "map" while "viewport" is the default for line geometries.
+ *
+ *  @public
+ *  @expose
+ *  @optional
+ *  @name here.xyz.maps.layers.TileLayer.Style#alignment
+ *  @type string
+ */
+// "alignment": 'map'| 'viewport',
 
 /**
  *  Specifies the URL of an image. It can be either absolute or relative path. It is only required by Image.
