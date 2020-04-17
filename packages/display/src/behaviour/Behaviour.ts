@@ -354,10 +354,10 @@ class Behaviour {
             } else if (mouseButtonPressed == 2) {
                 if (settings['rotate']) {
                     map.rotate(startMapRotation + (lastX - ev.clientX) * .25);
+                }
 
-                    if (settings['pitch']) {
-                        map.pitch(startMapPitch + (lastY - ev.clientY) * .1);
-                    }
+                if (settings['pitch']) {
+                    map.pitch(startMapPitch + (lastY - ev.clientY) * .1);
                 }
             }
         }

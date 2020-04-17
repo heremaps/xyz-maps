@@ -158,7 +158,7 @@ class TigerMap {
     private _search: Search;
 
     constructor(mapEl, mapConfig) {
-        this._cfg = mapConfig = JSUtils.extend(
+        this._cfg = mapConfig = JSUtils.extend(true,
             JSUtils.extend(true, {}, defaultOptions),
             mapConfig || {}
         );
