@@ -43,9 +43,9 @@ class DashedLineProgram extends Program {
         super(gl, gl.TRIANGLES, vertexShader, fragmentShader, devicePixelRation);
     }
 
-    init(options: GLStates, pass) {
+    init(options: GLStates, pass, stencil: boolean) {
         const {gl} = this;
-        super.init(options, pass);
+        super.init(options, pass, stencil);
         gl.blendFunc(gl.ONE, gl.ONE_MINUS_SRC_ALPHA);
         // gl.depthFunc(gl.LESS);
     }

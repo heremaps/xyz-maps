@@ -451,7 +451,10 @@ export class GLRender implements BasicRender {
                 // initialise pass default
                 gl.depthFunc(this.depthFnc);
 
-                program.init(<GLStates>buffer, renderPass);
+                program.init(<GLStates>buffer, renderPass,
+                    // only use stencil when needed.. no need if map is untransformed
+                    Boolean(this.rx || this.rz)
+                );
 
                 program.initAttributes(bufAttributes, buffers);
 

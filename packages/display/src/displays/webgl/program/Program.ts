@@ -220,31 +220,18 @@ class Program {
         }
     };
 
-    private setStates(states: GLStates) {
+    private setStates(scissor: boolean, blend: boolean, depth: boolean, stencil: boolean) {
         const gl = this.gl;
         // apply default gl-states
-        let {blend, scissor, depth} = this.glStates;
-
-        // overwrite with custom gl-states
-        if (states.scissor != UNDEF) {
-            scissor = states.scissor;
-        }
-        if (states.blend != UNDEF) {
-            blend = states.blend;
-        }
-        if (states.depth != UNDEF) {
-            depth = states.depth;
-        }
-
         if (scissor) {
             gl.enable(gl.SCISSOR_TEST);
-            if (blend) {
-                gl.enable(gl.STENCIL_TEST);
-            } else {
-                gl.disable(gl.STENCIL_TEST);
-            }
         } else {
             gl.disable(gl.SCISSOR_TEST);
+        }
+
+        if (stencil) {
+            gl.enable(gl.STENCIL_TEST);
+        } else {
             gl.disable(gl.STENCIL_TEST);
         }
 
@@ -261,15 +248,29 @@ class Program {
         }
     }
 
-    init(options: GLStates, pass: 'alpha' | 'opaque') {
+    init(options: GLStates, pass: 'alpha' | 'opaque', stencil: boolean) {
         const prog = this;
         const {gl} = prog;
+        const opaquePass = pass == 'opaque';
+        let {blend, scissor, depth} = this.glStates;
+
+        // overwrite with custom gl-states
+        if (options.scissor != UNDEF) {
+            scissor = options.scissor;
+        }
+        if (options.blend != UNDEF) {
+            blend = options.blend;
+        }
+        if (options.depth != UNDEF) {
+            depth = options.depth;
+        }
+        prog.setStates(scissor, blend, depth, stencil && !opaquePass && blend && scissor);
+
         gl.blendFunc(gl.SRC_ALPHA, gl.ONE_MINUS_SRC_ALPHA);
 
-        prog.setStates(options);
         // get rid of zfighting for alpha pass.
         // alpha pass is drawn ordered zindex -> no need to write to depthbuffer
-        gl.depthMask(pass == 'opaque');
+        gl.depthMask(opaquePass);
     }
 
     // use() {

@@ -44,9 +44,9 @@ class TextProgram extends Program {
         return pass == 'alpha';
     }
 
-    init(options: GLStates, pass) {
+    init(options: GLStates, pass, stencil: boolean) {
         const {gl} = this;
-        super.init(options, pass);
+        super.init(options, pass, stencil);
         // using LEQUAL and write to depthbuffer used as default in alpha pass will
         // lead to lost context on some systems (driverbug?!)
         // this issues is also related to overlapping (atlas.spacing) of characters
