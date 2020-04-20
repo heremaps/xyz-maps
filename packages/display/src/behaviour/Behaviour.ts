@@ -30,7 +30,7 @@ type BehaviourOptions = {
     rotate: boolean;
 }
 
-const getCenter = (ev: TouchEvent | MouseEvent, mapEl: HTMLElement) => {
+const getCenter = (ev: TouchEvent | MouseEvent, mapEl: HTMLElement): [number, number] => {
     let targetTouches = (<TouchEvent>ev).targetTouches;
     let x: number;
     let y: number;
@@ -63,28 +63,28 @@ const getCenter = (ev: TouchEvent | MouseEvent, mapEl: HTMLElement) => {
     return [x ^ 0, y ^ 0];
 };
 
-const getAngle = (ev: TouchEvent) => {
+const getAngle = (ev: TouchEvent): number => {
+    // disabled because of "hiccups"
     // iOS
-    const {rotation} = <any>ev;
-    if (rotation != UNDEF) {
-        return rotation;
-    }
+    // const {rotation} = <any>ev;
+    // if (rotation != UNDEF) {
+    //     return rotation;
+    // }
 
-    let targetTouches = ev.targetTouches;
-    let targetLen = targetTouches.length;
-    let p1 = targetTouches[targetLen - 1];
-    let p2 = targetTouches[targetLen - 2];
-
+    const targetTouches = ev.targetTouches;
+    const length = targetTouches.length;
+    const p2 = targetTouches[length - 2];
 
     if (p2) {
-        let x = p2.clientX - p1.clientX;
-        let y = p2.clientY - p1.clientY;
+        const p1 = targetTouches[length - 1];
+        const dx = p2.clientX - p1.clientX;
+        const dy = p2.clientY - p1.clientY;
 
-        return Math.atan2(y, x) * 180 / Math.PI;
+        return Math.atan2(dy, dx) * 180 / Math.PI;
     }
 };
 
-const getDistance = (p1x: number, p1y: number, p2x: number, p2y: number) => {
+const getDistance = (p1x: number, p1y: number, p2x: number, p2y: number): number => {
     return Math.sqrt(Math.pow((p1x - p2x), 2) + Math.pow((p1y - p2y), 2));
 };
 
@@ -211,10 +211,17 @@ class Behaviour {
         let startMapRotation;
         let startMapPitch;
         let startAngle;
-        // var lastCenter;
         let lastScale;
         let startZoomlevel;
 
+
+        let t1x;
+        let t1y;
+        let t2x;
+        let t2y;
+
+        let lastTime;
+        let pitch = null;
 
         function onTouchStart(ev) {
             resetDrag();
@@ -238,12 +245,12 @@ class Behaviour {
                 let t1 = targetTouches[touches - 1];
                 let t2 = targetTouches[touches - 2];
 
-                initalDistance = getDistance(
-                    t1.clientX,
-                    t1.clientY,
-                    t2.clientX,
-                    t2.clientY
-                );
+                t1x = t1.clientX;
+                t1y = t1.clientY;
+                t2x = t2.clientX;
+                t2y = t2.clientY;
+
+                initalDistance = getDistance(t1x, t1y, t2x, t2y);
 
                 startZoomlevel = map.getZoomlevel();
 
@@ -251,36 +258,51 @@ class Behaviour {
                 startMapPitch = map.pitch();
 
                 startAngle = getAngle(ev);
-            }
 
-            // if default is prevent browser won't trigger click events anymore
-            // ev.preventDefault();
+                lastTime = Date.now();
+            }
         }
 
 
         function onTouchMove(ev) {
+            let targetTouches = ev.targetTouches;
+            let touches = targetTouches.length;
             let center = getCenter(ev, mapEl);
             let scale = getScale(ev);
 
-            panMap(center[0], center[1]);
+            if (touches > 1) {
+                if (settings['pitch']) {
+                    const t1 = targetTouches[touches - 1];
+                    const t2 = targetTouches[touches - 2];
+                    const PINCH_THRESHHOLD = ev.target.clientWidth / 10;
 
-            if (ev.targetTouches.length > 1) {
-                that.scrollHandler.zoom(
-                    //  log2(2)   ->  1
-                    //  log2(1)   ->  0
-                    //  log2(0.5) -> -1
-                    startZoomlevel + Math.log2(scale),
-                    center[0],
-                    center[1],
-                    false
-                );
+                    if (pitch || pitch != false && (Math.abs(t2.clientY - t1.clientY) < PINCH_THRESHHOLD)) {
+                        pitch = true;
+                        map.pitch(startMapPitch + (t1y - t1.clientY) * .2);
+                        ev.preventDefault();
+                        return;
+                    }
+                    // disable map pitch for this 2 finger gesture
+                    pitch = false;
 
-                // map.zoom(scale - lastScale, center[0], center[1]);
-                // console.log(  ' _SCALE: '+ scale + ', '+ lastScale +' -> ' +( scale - lastScale)+ ' total: '+scl);
-                // map.rotate( startMapRotation + getAngle(ev) - startAngle, center[0], center[1] );
+                    that.scrollHandler.zoom(
+                        //  log2(2)   ->  1
+                        //  log2(1)   ->  0
+                        //  log2(0.5) -> -1
+                        startZoomlevel + Math.log2(scale),
+                        center[0],
+                        center[1],
+                        false
+                    );
 
-                lastScale = scale;
+                    if (settings['rotate']) {
+                        map.rotate(startMapRotation + getAngle(ev) - startAngle, center[0], center[1]);
+                    }
+                    lastScale = scale;
+                }
             }
+
+            panMap(center[0], center[1]);
 
             lastX = center[0];
             lastY = center[1];
@@ -293,6 +315,7 @@ class Behaviour {
         function onTouchEnd(ev) {
             let pos = getCenter(ev, mapEl);
             let targetTouchLength = ev.targetTouches.length;
+            pitch = null;
 
             if (pos) {
                 lastX = pos[0];
