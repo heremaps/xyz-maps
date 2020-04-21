@@ -45,16 +45,17 @@ class Layer {
     visible: boolean;
     tiles: TilePosition[];
     tileSize: number;
-
     handleTile: (tile: Tile) => void;
-
-    private zd: boolean = false; // dirty
     z: { [zIndex: string]: number } = {};
     zLength: number;
 
-    constructor(layer: TileLayer) {
+    private layers: Layers;
+    private zd: boolean = false; // dirty
+
+    constructor(layer: TileLayer, layers: Layers) {
         this.layer = layer;
         this.tileSize = layer.tileSize;
+        this.layers = layers;
     }
 
     getZ(z: number | string): number {
@@ -70,6 +71,19 @@ class Layer {
         return zSorted[z] || 0;
     }
 
+    getAbsoluteZ(zIndex?: number) {
+        const {index, layers} = this;
+        let i = 0;
+        let z = 0;
+        while (i < index) {
+            z += layers[i++].zLength;
+        }
+        if (zIndex != undefined) {
+            z += this.getZ(zIndex);
+        }
+        return z;
+    }
+
     addZ(z: number | string) {
         const zSorted = this.z;
         if (zSorted[z] == undefined) {
@@ -78,11 +92,6 @@ class Layer {
         }
     }
 }
-
-
-type TileMap = { [quadkey: string]: [number, number] };
-
-// type TileMap = { [quadkey: string]: { x: number, y: number, tile: Tile } };
 
 class Layers extends Array<Layer> {
     constructor(...items: Layer[]) {
@@ -120,7 +129,7 @@ class Layers extends Array<Layer> {
 
             isNew = false;
         } else {
-            data = this._map[id] = new Layer(layer);
+            data = this._map[id] = new Layer(layer, this);
 
             this.splice(index, 0, data);
 
