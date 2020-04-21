@@ -1,8 +1,20 @@
-## 0.10.1 (2020-3-9)
-### general
-* fixed:  bundling issues when webpack is used to consume packages
+## 0.11.0 (2020-4-21)
+### display
+* added: it's now possible to pitch and rotate the map
+* added: label collision detection for Text based on Line geometries.
+* added: realtime label collision when map gets transformed
+* added: control visibility of Text in case of label collision via style.priority=number
+* added: control alignment of Text if map is pitched/rotated via style.alignment="map"|"viewport"
+* added: set initial map pitch/rotate via options.pitch/options.rotate=number
+* added: initial behaviour settings can now be configured via options.behaviour
+* added: pitch/rotate map via api by map.pitch(deg) or map.rotate(deg)
+* fixed: init map with float zoomlevel
+* fixed: show TAC UI even if no url is defined
+* fixed: viewportReady event can get triggered too early (webgl only)
+* fixed: stroke of rects/circles is rendered with wrong strokeWidth on retina devices
+* fixed: text positioning on retina devices if style uses offsetX/offsetY
 ### editor
-* fixed:  Line/Navlink Shapes not displayed correctly in case of feature style is using value functions
+* fixed: make sure parentlink is in origin state if linksplit gets reverted in any case
 
 ## 0.10.0 (2020-03-03)
 ### display
