@@ -322,6 +322,19 @@ import {ILayerStyle, StyleGroup, StyleGroupMap} from './ILayerStyle';
 // "textRef": ’properties.name’,
 
 /**
+ *  Enable or disable collision detection. Works for "Text" only.
+ *  true - collision detection is enabled [default]
+ *  false - collision is disabled
+ *
+ *  @public
+ *  @expose
+ *  @optional
+ *  @name here.xyz.maps.layers.TileLayer.Style#collide
+ *  @type boolean
+ */
+// "collide": boolean,
+
+/**
  *  In case of label collision, Text with a higher priority (lower value) will be drawn before lower priorities (higher value).
  *  "priority" applies to Text only.
  *

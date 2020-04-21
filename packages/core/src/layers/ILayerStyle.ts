@@ -39,6 +39,7 @@ interface LayerStyle {
     alignment?: 'map' | 'viewport';
     rotation?: number;
     priority?: number;
+    collide?: boolean
 }
 
 export type StyleGroupMap = { [id: string]: StyleGroup }
