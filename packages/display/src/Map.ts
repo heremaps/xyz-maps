@@ -172,9 +172,11 @@ class TigerMap {
         this._cy = this._h / 2;
 
         // init defaults
-        let zoomLevel = this._z = mapConfig['zoomLevel'] || mapConfig['zoomlevel'];
+        const zoomLevel = mapConfig['zoomLevel'] || mapConfig['zoomlevel'];
 
-        this._wSize = TILESIZE << zoomLevel;
+        this._z = zoomLevel^0;
+
+        this._wSize = TILESIZE << this._z;
 
         this._l = new Listener([
             'center',
