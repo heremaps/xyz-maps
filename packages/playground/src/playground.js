@@ -276,6 +276,7 @@ export let pg = new (function Playground() {
         var iframe = document.getElementById('preview');
         var disp = iframe.contentWindow.display;
         if (disp) {
+            setFullscreen();
             disp.resize();
         }
     }
@@ -439,6 +440,16 @@ export let pg = new (function Playground() {
             });
         }
         this.utag(idx);
+    };
+
+    function setFullscreen() {
+        const urlParams = new URLSearchParams(window.location.search);
+        const mode = urlParams.get('mode');
+        if (mode == 'fullscreen') {
+            $('#right').css({width: window.innerWidth+10});
+            $('#vrdrag').css({right: window.innerWidth, left: 'auto'});
+            console.log($('.navbar-headline').text('XYZ Maps'))
+        }
     };
 
     var linkForPath = document.createElement('a');
@@ -702,6 +713,7 @@ export let pg = new (function Playground() {
         if (activateNode) {
             setTimeout(function() {
                 $('#overview #ovcnt').trigger('click', activateNode);
+                setFullscreen();
             }, 100);
         }
     });
