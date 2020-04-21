@@ -671,3 +671,21 @@ ul ul {
 }
 
 
+
+.header .fullscreen {
+    margin: 4px 2px 0px 0px;
+    width: 12px;
+    min-width: 18px;
+    background-repeat: no-repeat;
+    background-position: center;
+    background: url('data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAABIAAAASCAYAAABWzo5XAAAANElEQVR4AWMYOeA/MiZNHlPhfiCuB2N0gBDfT9Ag7AZgGkgXgxBgFAz6WKM8QVKeRUYGAABshybR1Pa5KAAAAABJRU5ErkJggg==');
+}
+
+.header .exitfullscreen {
+    margin: 4px 2px 0px 0px;
+    width: 12px;
+    min-width: 18px;
+    background-repeat: no-repeat;
+    background-position: center;
+    background: url('data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAABIAAAASCAYAAABWzo5XAAAANElEQVR4AWMYeaAeiP+jC0LF6ulqUD0U78dj0H64OjzgPzImKE8QjAKaBTbl0T/wKXtkAQBshybRIb4vjAAAAABJRU5ErkJggg==');
+}

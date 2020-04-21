@@ -186,6 +186,15 @@ export let pg = new (function Playground() {
                 actionTrack: title + ':example-list'
             };
             break;
+
+        case 8:
+            tag = {
+                link_id: this,
+                link_text: 'toggle-fullscreen:' + title,
+                linkEvent: 'toggle-fullscreen:' + title,
+                actionTrack: 'toggle-fullscreen:' + title
+            };
+            break;
         }
 
         if (window.utag) {
@@ -276,7 +285,7 @@ export let pg = new (function Playground() {
         var iframe = document.getElementById('preview');
         var disp = iframe.contentWindow.display;
         if (disp) {
-            setFullscreen();
+            initFullscreen();
             disp.resize();
         }
     }
@@ -443,15 +452,47 @@ export let pg = new (function Playground() {
         this.utag(idx);
     };
 
-    function setFullscreen() {
+    playground.toggleFullscreen = function(idx) {
+        if (idx) {
+            this.utag(idx);
+        }
+
         const urlParams = new URLSearchParams(window.location.search);
-        const mode = urlParams.get('mode');
-        if (mode == 'fullscreen') {
+        const fullscreen = urlParams.get('fullscreen');
+
+        if (fullscreen !== null) {
+            setFullscreen(false);
+            window.history.replaceState({}, document.title, location.pathname+location.hash);
+
+            $('.header .exitfullscreen').removeClass('exitfullscreen').addClass('fullscreen');
+        } else {
+            setFullscreen(true);
+            window.history.replaceState({}, document.title, location.pathname+'?fullscreen'+location.hash);
+            $('.header .fullscreen').addClass('exitfullscreen').removeClass('fullscreen');
+        }
+
+        updateDisplay();
+    };
+
+    function setFullscreen(fullscreen) {
+        if (fullscreen) {
             $('#right').css({width: window.innerWidth+10});
             $('#vrdrag').css({right: window.innerWidth, left: 'auto'});
-            console.log($('.navbar-headline').text('XYZ Maps'))
+        } else {
+            $('#right').css({width: '50%'});
+            $('#vrdrag').css({left: '50%'});
         }
     };
+
+    function initFullscreen() {
+        const urlParams = new URLSearchParams(window.location.search);
+        const fullscreen = urlParams.get('fullscreen');
+
+        if (fullscreen !== null) {
+            setFullscreen(true);
+            $('.header .fullscreen').addClass('exitfullscreen').removeClass('fullscreen');
+        }
+    }
 
     var linkForPath = document.createElement('a');
 
@@ -714,7 +755,7 @@ export let pg = new (function Playground() {
         if (activateNode) {
             setTimeout(function() {
                 $('#overview #ovcnt').trigger('click', activateNode);
-                setFullscreen();
+                initFullscreen();
             }, 100);
         }
     });
