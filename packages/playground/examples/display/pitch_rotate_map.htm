@@ -39,7 +39,17 @@
                 'earth': [{zIndex: 1, type: 'Polygon', fill: '#555555'}],
                 'landuse': [{zIndex: 2, type: 'Polygon', fill: '#666666'}],
                 'water': [{zIndex: 3, type: 'Polygon', fill: '#353535'}],
-                'roads': [{zIndex: 4, type: 'Line', stroke: '#ffffff', strokeWidth: 4}],
+                'roads': [{zIndex: 4, type: 'Line', stroke: '#ffffff', strokeWidth: 4},{
+                    zIndex: 6,
+                    type: 'Text',
+                    fill: '#222222',
+                    font: '12px sans-serif',
+                    strokeWidth: 4,
+                    stroke:'white',
+                    text: (f)=>f.properties.name,
+                    alignment: 'map',
+                    priority: 2
+                }],
                 'roadshighway': [{zIndex: 5, type: 'Line', stroke: '#ffffff', strokeWidth: 6}],
                 'buildings': [{
                     zIndex: 6,
@@ -47,6 +57,17 @@
                     fill: '#999999',
                     // define extrude in meters to display polygons with extrusion
                     extrude: (feature) => feature.properties.height || 25
+                }],
+                'places': [{
+                    zIndex: 8,
+                    type: 'Text',
+                    text: (f) => f.properties.name,
+                    stroke: '#333333',
+                    fill: 'white',
+                    font: '22px sans-serif',
+                    strokeWidth: 6,
+                    alignment: 'viewport',
+                    priority: 1
                 }]
             },
 
