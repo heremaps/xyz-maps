@@ -215,19 +215,19 @@ export let pg = new (function Playground() {
         }
     };
 
-    function patchMouseEvents() {
-        function bubbleIframeMouse(iframe, mouseeventName) {
-            var existingOnMouseMove = iframe.contentWindow.onmousemove;
+    function patchPointerEvents() {
+        function bubbleIframePointer(iframe, pointereventName) {
+            var existingOnPointerMove = iframe.contentWindow.onpointermove;
 
             // suppose no other events handlers attached to window
-            iframe.contentWindow['on' + mouseeventName] = function(e) {
-                if (existingOnMouseMove) existingOnMouseMove(e);
+            iframe.contentWindow['on' + pointereventName] = function(e) {
+                if (existingOnPointerMove) existingOnPointerMove(e);
 
                 var evt = document.createEvent('MouseEvents');
                 var boundingClientRect = iframe.getBoundingClientRect();
 
                 evt.initMouseEvent(
-                    mouseeventName,
+                    pointereventName,
                     true, // bubbles
                     false, // not cancelable
                     window,
@@ -252,24 +252,24 @@ export let pg = new (function Playground() {
         var myIframe = document.getElementById('preview');
 
         // Run it through the function to setup bubbling
-        bubbleIframeMouse(myIframe, 'mousemove');
-        bubbleIframeMouse(myIframe, 'mouseup');
+        bubbleIframePointer(myIframe, 'pointermove');
+        bubbleIframePointer(myIframe, 'pointerup');
     }
 
-    function unPatchMouseEvents() {
-        function bubbleIframeMouse(iframe, mouseeventName) {
-            var existingOnMouseMove = iframe.contentWindow.onmousemove;
+    function unPatchPointerEvents() {
+        function bubbleIframePointer(iframe, pointereventName) {
+            var existingOnPointerMove = iframe.contentWindow.onpointermove;
 
             // suppose no other events handlers
-            iframe.contentWindow['on' + mouseeventName] = null;
+            iframe.contentWindow['on' + pointereventName] = null;
         }
 
-        // Get the iframe element we want to track mouse movements on
+        // Get the iframe element we want to track Pointer movements on
         var myIframe = document.getElementById('preview');
 
         // Run it through the function to setup bubbling
-        bubbleIframeMouse(myIframe, 'mousemove');
-        bubbleIframeMouse(myIframe, 'mouseup');
+        bubbleIframePointer(myIframe, 'pointermove');
+        bubbleIframePointer(myIframe, 'pointerup');
     }
 
     function updateDisplay() {
@@ -280,7 +280,7 @@ export let pg = new (function Playground() {
         }
     }
 
-    function codeMousemove(e) {
+    function codePointermove(e) {
         var dx = e.clientX - evt.clientX;
         var rightNewWidth = rightWidth - dx;
 
@@ -293,10 +293,10 @@ export let pg = new (function Playground() {
         }
     }
 
-    function codeMouseup(e) {
-        document.removeEventListener('mousemove', codeMousemove);
-        document.removeEventListener('mouseup', codeMouseup);
-        unPatchMouseEvents();
+    function codePointerup(e) {
+        document.removeEventListener('pointermove', codePointermove);
+        document.removeEventListener('pointerup', codePointerup);
+        unPatchPointerEvents();
 
         // resize map display
         updateDisplay();
@@ -318,13 +318,14 @@ export let pg = new (function Playground() {
 
     var evt;
     var rightWidth;
-    playground.codeMousedown = function(e) {
+    playground.codePointerdown = function(e) {
         evt = e;
         rightWidth = $('#right').width();
 
-        document.addEventListener('mousemove', codeMousemove);
-        document.addEventListener('mouseup', codeMouseup);
-        patchMouseEvents();
+        document.addEventListener('pointermove', codePointermove);
+        document.addEventListener('pointerup', codePointerup);
+
+        patchPointerEvents();
     };
 
     var overviewWidth;
