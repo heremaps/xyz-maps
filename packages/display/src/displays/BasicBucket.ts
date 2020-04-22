@@ -31,6 +31,10 @@ abstract class BasicBucket {
 
     abstract create(quadkey: string, layers: any[]): BasicTile
 
+    setSize(size: number) {
+        this.tiles.setSize(size);
+    }
+
     get(quadkey: string, skipTrack?: boolean) {
         if (skipTrack) {
             const item = this.tiles._[quadkey];

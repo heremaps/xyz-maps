@@ -116,11 +116,13 @@ const addLineText = (text: string, pointAttr, vertex, texcoord, coordinates, gly
                     // ty = fontInfo.baselineOffset - offsetY;
                 }
 
-                // let alpha = Math.atan2(dy, dx) * TO_DEG;
-                let alpha = Math.atan(dy/ dx) * TO_DEG;
-
+                let alpha = Math.atan2(dy, dx) * TO_DEG;
                 // make sure angle is 0->360 deg
                 alpha = (alpha + 360) % 360;
+
+                if (alpha >= 180 ) {
+                    alpha -= 180;
+                }
 
                 for (let i = 0, v = vertex.length, j; i < numVertices; i++) {
                     j = i * 2;

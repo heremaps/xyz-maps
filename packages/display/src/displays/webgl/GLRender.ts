@@ -466,7 +466,6 @@ export class GLRender implements BasicRender {
                 gl.uniform2f(uLocation.u_resolution, this.w, this.h);
                 gl.uniform1f(uLocation.u_zIndex, -.05 * renderLayer.getAbsoluteZ(buffer.zIndex));
                 gl.uniform1f(uLocation.u_scale, this.scale * (dZoom || 1));
-                gl.uniform1f(uLocation.u_scale, this.scale * (dZoom || 1));
                 gl.uniform2f(uLocation.u_topLeft, x, y);
                 gl.uniform1f(uLocation.u_tileScale, tileScale || 1);
                 gl.uniformMatrix4fv(uLocation.u_matrix, false, pMat || this.pMat);

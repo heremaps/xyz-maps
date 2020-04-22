@@ -70,10 +70,15 @@ class WebGlDisplay extends BasicDisplay {
         super(mapEl, renderTileSize,
             // auto dpr is default for gl display
             !devicePixelRatio ? 'auto' : devicePixelRatio,
-            new GLBucket(1024),
+            new GLBucket(512),
             new GLRender(renderOptions),
             PREVIEW_LOOK_AHEAD_LEVELS
         );
+
+        if (this.dpr < 2) {
+            this.buckets.setSize(1024);
+        }
+
         const display = this;
         this.collision = new CollisionHandler(display);
 

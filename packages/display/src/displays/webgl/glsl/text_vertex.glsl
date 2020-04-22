@@ -10,7 +10,7 @@ uniform mat4 u_umatrix;
 uniform vec2 u_topLeft;
 uniform float u_scale;
 uniform float u_rotate;
-uniform bool u_pitch;
+uniform bool u_alignMap;
 uniform highp float u_zIndex;
 uniform vec2 u_atlasScale;
 
@@ -18,10 +18,12 @@ varying vec2 v_texcoord;
 varying vec4 vColor;
 
 #define M_PI 3.1415926535897932384626433832795
-#define TO_RAD M_PI / 180.0
 
-vec2 rotate(vec2 point, float deg){
-    float rad = -deg * TO_RAD;
+const float PI_05 = M_PI * 0.5;
+const float PI_15 = M_PI * 1.5;
+const float TO_RAD = M_PI / 180.0;
+
+vec2 rotate(vec2 point, float rad){
     float s = sin(rad);
     float c = cos(rad);
     return vec2(point.x * c + point.y * s, point.y * c - point.x * s);
@@ -35,8 +37,16 @@ void main(void){
 
         v_texcoord = a_texcoord * u_atlasScale;
 
-        if(u_pitch){
-            vec2 offset = rotate(a_point.xy, rotation) / u_scale / DEVICE_PIXEL_RATIO;
+        if(u_alignMap){
+            rotation *= TO_RAD;
+
+            float aRotation = u_rotate + rotation;
+
+            if(aRotation > PI_05 && aRotation < PI_15 ){
+                rotation += M_PI;
+            }
+
+            vec2 offset = rotate(a_point.xy, -rotation) / u_scale / DEVICE_PIXEL_RATIO;
             gl_Position = u_matrix * vec4(u_topLeft + a_position + offset, u_zIndex, 1.0);
         }else{
             vec4 cpos = u_matrix * vec4(u_topLeft + a_position, u_zIndex, 1.0);
