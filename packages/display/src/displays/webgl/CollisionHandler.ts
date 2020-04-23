@@ -33,6 +33,7 @@ export class CollisionHandler {
     tiles: Map<string, Collision>;
 
     tileCollision: Collision;
+    updated: boolean;
 
     private display: Display;
     private layerIndex: number;
@@ -104,6 +105,8 @@ export class CollisionHandler {
         this.tileCollision = collisionData;
 
         this.layerIndex = layer.index;
+
+        this.updated = false;
     }
 
     collides(
@@ -118,10 +121,10 @@ export class CollisionHandler {
         attributeBuffer: Attribute,
         priority: number = 0xffff
     ) {
-        let tileX = tile.x * tileSize;
-        let tileY = tile.y * tileSize;
         // const estimatedTextWidth = fontInfo.getTextWidth(text);
         // const estimatedTextWidth = fontInfo.avgCharWidth * text.length / 2;
+        let tileX = tile.x * tileSize;
+        let tileY = tile.y * tileSize;
         const collisionInfo = this.tileCollision;
         const rendered = collisionInfo.rendered;
         const x1 = tileX + cx - width;
@@ -129,9 +132,12 @@ export class CollisionHandler {
         const y1 = tileY + cy - height;
         const y2 = tileY + cy + height;
 
+        // align to 512er tile-grid
         if (tileSize == 256) {
-            tileX = (tile.x * .5 ^ 0) * 512;
-            tileY = (tile.y * .5 ^ 0) * 512;
+            cx -= (tile.x * .5 ^ 0) * 512 - tileX;
+            cy -= (tile.y * .5 ^ 0) * 512 - tileY;
+            // tileX = (tile.x * .5 ^ 0) * 512;
+            // tileY = (tile.y * .5 ^ 0) * 512;
         }
 
         const bbox = {
@@ -139,14 +145,18 @@ export class CollisionHandler {
             maxX: x2,
             minY: y1,
             maxY: y2,
-            tileX: tileX,
-            tileY: tileY,
+            // tileX: tileX,
+            // tileY: tileY,
+            cx: cx,
+            cy: cy,
             bos: bufferOffsetStart,
             boe: bufferOffsetEnd,
             li: this.layerIndex,
             attr: attributeBuffer,
             priority: priority
         };
+
+        this.updated = true;
 
         if (this.intersects(bbox, rendered) || this.intersects(bbox, collisionInfo.neighbours)) {
             return true;
@@ -160,8 +170,10 @@ export class CollisionHandler {
     private s: number;
 
     enforce() {
-        // force next update
-        this.rx = this.rz = this.s = null;
+        if (this.updated) {
+            // force next update
+            this.rx = this.rz = this.s = null;
+        }
     }
 
     clear(quadkey: string, layerIndex: number) {
@@ -191,6 +203,7 @@ export class CollisionHandler {
             // no view changes.. no need to recalculate collision
             return;
         }
+
         this.rx = rotX;
         this.rz = rotZ;
         this.s = scale;
@@ -201,7 +214,7 @@ export class CollisionHandler {
         let rendered = [];
 
         for (let screentile of tiles) {
-            let quadkey = screentile.tile.quadkey;
+            let quadkey = screentile.quadkey;
 
             let collisions = this.tiles.get(quadkey);
 
@@ -215,21 +228,13 @@ export class CollisionHandler {
                     let attribute = bbox.attr;
 
                     if (attribute) {
-                        let minX = bbox.minX;
-                        let maxX = bbox.maxX;
-                        let minY = bbox.minY;
-                        let maxY = bbox.maxY;
-                        let tileWorldX = bbox.tileX;
-                        let tileWorldY = bbox.tileY;
+                        let {minX, maxX, minY, maxY} = bbox;
                         let halfWidth = (maxX - minX) * .5;
                         let halfHeight = (maxY - minY) * .5;
-                        let screenX = screentile.x + minX - tileWorldX;
-                        let screenY = screentile.y + minY - tileWorldY;
-
-                        // center
-                        screenX += halfWidth;
-                        screenY += halfHeight;
-
+                        let screenX = screentile.x + bbox.cx;
+                        let screenY = screentile.y + bbox.cy;
+                        // let screenX = screentile.x + minX - bbox.tileX + halfWidth;
+                        // let screenY = screentile.y + minY - bbox.tileY + halfHeight;
                         let ac = display.project(screenX, screenY, 0, 0); // 0,0 for unscaled world pixels
 
                         rendered.push({
@@ -243,18 +248,11 @@ export class CollisionHandler {
                             priority: bbox.priority
                         });
                     }
-                    // debug only
-                    // window.addPixelPoint(minX, minY, 'red', 5);
-                    // window.addPixelPoint(maxX, minY, 'red', 5);
-                    // window.addPixelPoint(maxX, maxY, 'red', 5);
-                    // window.addPixelPoint(minX, maxY, 'red', 5);
                 }
             }
         }
 
-
         let r = 0;
-
         // sort by collision priority
         rendered.sort((a, b) => b.priority - a.priority);
 
@@ -266,8 +264,6 @@ export class CollisionHandler {
             let stop = bbox.boe;
 
             if (this.intersects(bbox, rendered, ++r)) {
-                // window.addPixelPoint(bbox[0] + .5 * (bbox[1] - bbox[0]), bbox[2] + .5 * (bbox[3] - bbox[2]), 'red');
-
                 // is visible?
                 if (data[start + 2] < 720) {
                     // hide all glyphs

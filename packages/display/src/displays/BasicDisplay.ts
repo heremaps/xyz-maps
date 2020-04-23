@@ -312,10 +312,10 @@ abstract class Display {
     }
 
 
-    private initGrid(zoomLevel: number, gridTileSize: number) {
+    private initVpTiles(gridTiles, zoomLevel: number, gridTileSize: number) {
         const display = this;
         const layers: Layer[] = <Layer[]><unknown> this.layers;
-        const gridTiles = display.grid.getGrid(zoomLevel - Number(gridTileSize == 512), gridTileSize);
+
         const prevVPTiles = display.tiles[gridTileSize];
         let vpTiles = display.tiles[gridTileSize] = [];
         const screenTiles = [];
@@ -391,17 +391,20 @@ abstract class Display {
 
 
         const layers = this.layers;
-        // const prevVPTiles =
         const tileSizes = layers.reset(zoomlevel);
-
-        this.gridSizes = tileSizes;
-
-
         this.ti = 0;
 
         for (let tileSize of tileSizes) {
-            this.initGrid(zoomlevel, tileSize);
+            const gridTiles = display.grid.getTiles(zoomlevel - Number(tileSize == 512), tileSize);
+            this.initVpTiles(gridTiles, zoomlevel, tileSize);
         }
+
+        if (tileSizes.indexOf(512) == -1) {
+            // 512er tile-grid is used for collision detection.
+            // so we need to make sure grid is initialised with 512er tiles.
+            display.grid.getTiles(zoomlevel - 1, 512);
+        }
+
         this.dirty = true;
 
         display.update();

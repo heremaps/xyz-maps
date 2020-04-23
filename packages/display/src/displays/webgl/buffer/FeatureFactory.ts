@@ -81,8 +81,6 @@ export class FeatureFactory {
     private tile: any;
     private groups: any;
     private tileSize: number;
-    private tileCollision: { rendered: any[]; neighbours: BBox[] };
-
 
     constructor(gl: WebGLRenderingContext, iconManager: IconManager, collisionHandler, devicePixelRatio: number) {
         this.gl = gl;
@@ -96,41 +94,6 @@ export class FeatureFactory {
         this.tile = tile;
         this.groups = groups;
         this.tileSize = tileSize;
-
-        // let provider = tile.provider;
-        // let neighbours: BBox[] = [];
-
-        // // console.inittime(tile.quadkey);
-        // // for (let y = -1; y < 2; y++) {
-        // //     for (let x = -1; x < 2; x++) {
-        // //         if (x != 0 || y != 0) {
-        // //             let qk = tileUtils.tileXYToQuadKey(tile.z, tile.y + y, tile.x + x);
-        // //             // let neighbour = provider.getCachedTile(qk);
-        // //             // if (neighbour && neighbour.collision) {
-        // //             //     let ren = neighbour.collision.rendered;
-        // //             let collisions = this.collisions.get(qk);
-        // //             if (collisions) {
-        // //                 let ren = collisions.rendered;
-        // //                 for (let o of ren) {
-        // //                     // debugger;
-        // //
-        // //                     // if(o[])
-        // //
-        // //                     neighbours[neighbours.length] = o;
-        // //                 }
-        // //             }
-        // //         }
-        // //     }
-        // // }
-        // // console.timeEnd(tile.quadkey);
-        // //
-        // // this.collisions.set(tile.quadkey, this.tileCollision = {
-        // //     rendered: [],
-        // //     neighbours: neighbours
-        // // });
-        //
-
-        // this.collisions.init(tile);
     }
 
     create(feature, geomType, coordinates, styleGroups, strokeWidthScale/* , tile, groups, tileSize: number*/): boolean {
@@ -414,13 +377,9 @@ export class FeatureFactory {
                             attributes.a_position.data,
                             attributes.a_texcoord.data,
                             coordinates,
-                            // glyphs,
                             fontInfo,
                             cx,
                             cy,
-                            // tile,
-                            // !collide ? this.tileCollision : false,
-                            // tileSize,
                             offsetX * dpr,
                             offsetY * dpr
                         );

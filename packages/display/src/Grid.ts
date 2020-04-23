@@ -50,6 +50,11 @@ class Grid {
     // untransformed view bounds relative to screen
     private bounds: [number, number][];
 
+    tiles: {
+        256?: GridTile[],
+        512?: GridTile[],
+    } = {};
+
     constructor(tileSize: number) {
         this.size = tileSize;
     }
@@ -82,7 +87,7 @@ class Grid {
     };
 
 
-    getGrid(zoomLevel: number, tileSizePixel: number = this.size): GridTile[] {
+    getTiles(zoomLevel: number, tileSizePixel: number = this.size): GridTile[] {
         const {width, height} = this;
         const worldSizePixel = tileSizePixel << zoomLevel;
         let bounds = this.bounds;
@@ -128,6 +133,8 @@ class Grid {
                 }
             }
         }
+
+        this.tiles[tileSizePixel] = tiles;
 
         return tiles;
     }

@@ -32,50 +32,79 @@
             url: 'https://xyz.api.here.com/tiles/osmbase/512/all/{z}/{x}/{y}.mvt?access_token=' + YOUR_ACCESS_TOKEN
         },
         style: {
-            backgroundColor: '#555555',
-            strokeWidthZoomScale: (level) => level > 17 ? 1 : level > 14 ? .5 : .25,
+            backgroundColor: '#ECE0CA',
+            strokeWidthZoomScale: (level) => level > 17 ? 1 : level > 14 ? .5 : level > 9 ? .25 : .1,
 
             styleGroups: {
-                'earth': [{zIndex: 1, type: 'Polygon', fill: '#555555'}],
-                'landuse': [{zIndex: 2, type: 'Polygon', fill: '#666666'}],
-                'water': [{zIndex: 3, type: 'Polygon', fill: '#353535'}],
-                'roads': [{zIndex: 4, type: 'Line', stroke: '#ffffff', strokeWidth: 4},{
-                    zIndex: 6,
-                    type: 'Text',
-                    fill: '#222222',
-                    font: '12px sans-serif',
-                    strokeWidth: 4,
-                    stroke:'white',
-                    text: (f)=>f.properties.name,
-                    alignment: 'map',
-                    priority: 2
-                }],
-                'roadshighway': [{zIndex: 5, type: 'Line', stroke: '#ffffff', strokeWidth: 6}],
+                'landuse': [{zIndex: 0, type: 'Polygon', fill: '#ECE0CA'}],
+                'pier': [{zIndex: 1, type: 'Polygon', fill: '#ECE0CA', stroke: '#c8b89d', strokeWidth: 2}],
+                'park': [{zIndex: 1, type: 'Polygon', fill: '#c8dd97'}],
+                'nature_reserve': [{zIndex: 1, type: 'Polygon', fill: '#dadeb0'}],
+                'hospital': [{zIndex: 1, type: 'Polygon', fill: '#f3d3d3'}],
+                'water': [{zIndex: 2, type: 'Polygon', fill: 'rgb(120,188,237)'}],
+                'path': [{zIndex: 3, type: 'Line', stroke: '#c8b89d', strokeWidth: 2}],
+                'tunnel': [{zIndex: 3, type: 'Line', stroke: '#ffffff', strokeWidth: 14, strokeDasharray: [4, 4]}],
+                'ferry': [{zIndex: 4, type: 'Line', stroke: '#164ac8', strokeWidth: 1}],
+                'highway': [{zIndex: 5, type: 'Line', stroke: '#ffffff', strokeWidth: 16}],
+                'boundaries': [{zIndex: 6, type: 'Line', stroke: '#b3b1ad', strokeWidth: 2}],
                 'buildings': [{
-                    zIndex: 6,
-                    type: 'Polygon',
-                    fill: '#999999',
+                    zIndex: 7, type: 'Polygon', fill: 'rgb(155,175,196)',
                     // define extrude in meters to display polygons with extrusion
                     extrude: (feature) => feature.properties.height || 25
+                }],
+                'roads': [{zIndex: 4, type: 'Line', stroke: '#ffffff', strokeWidth: 4}, {
+                    zIndex: 6, type: 'Text', fill: '#222222',
+                    font: '12px sans-serif',
+                    strokeWidth: 4,
+                    stroke: 'white', text: (f) => f.properties.name,
+                    // Alignment for Text. "map" aligns to the plane of the map.
+                    alignment: 'map',
+                    // Text with a higher priority (lower value) will be drawn before lower priorities (higher value)
+                    // make sure "road labels" are drawn after "place labels".
+                    priority: 2
                 }],
                 'places': [{
                     zIndex: 8,
                     type: 'Text',
                     text: (f) => f.properties.name,
-                    stroke: '#333333',
+                    stroke: 'black',
                     fill: 'white',
-                    font: '22px sans-serif',
-                    strokeWidth: 6,
+                    font: "18px sans-serif",
+                    strokeWidth: 4,
+                    // set collide property to false to enable label collision detection [default]
+                    collide: false,
+                    // Alignment for Text. "viewport" aligns to the plane of the viewport/screen.
                     alignment: 'viewport',
+                    // Text with a higher priority (lower value) will be drawn before lower priorities (higher value)
+                    // In case of "place label" and "road label" are colliding "place label" will be draw
+                    // because priority 1 is smaller than priority 2
                     priority: 1
                 }]
             },
 
-            assign: (feature, level) => {
-                var props = feature.properties;
-                var kind = props.kind;
-                var layer = props.layer; // the data layer of the feature
-                var geom = feature.geometry.type;
+            assign: (feature, zoom) => {
+                let props = feature.properties;
+                let kind = props.kind;
+                let layer = props.layer;
+                let geom = feature.geometry.type;
+
+                if (layer == 'landuse') {
+                    switch (kind) {
+                        case 'pier':
+                            return 'pier';
+                        case 'nature_reserve':
+                            return 'nature_reserve';
+                        case 'park':
+                        case 'garden':
+                        case 'pedestrian':
+                        case 'forrest':
+                            return 'park';
+                        case 'hospital':
+                            return 'hospital';
+                        default:
+                            return 'landuse'
+                    }
+                }
 
                 if (layer == 'water') {
                     if (geom == 'LineString' || geom == 'MultiLineString') {
@@ -85,8 +114,11 @@
                     if (kind == 'rail' || kind == 'ferry') {
                         return;
                     }
-                    if (kind == 'highway') {
-                        return layer + kind;
+                    if (props.is_tunnel && zoom > 13) {
+                        return 'tunnel';
+                    }
+                    if (kind == 'highway' || kind == 'path') {
+                        return kind;
                     }
                 }
                 return layer;

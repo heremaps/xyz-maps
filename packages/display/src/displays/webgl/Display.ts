@@ -83,12 +83,9 @@ class WebGlDisplay extends BasicDisplay {
         this.collision = new CollisionHandler(display);
 
         this.buckets.onDrop = function(buffers, index) {
-            // if (buffers.length) {
-            //     debugger;
-            // }
             let {quadkey, layers} = this;
 
-            if (layers[index].tileSize == 256 && display.gridActive(512)) {
+            if (layers[index].tileSize == 256) {
                 quadkey = quadkey.slice(0, -1);
             }
 
@@ -124,10 +121,6 @@ class WebGlDisplay extends BasicDisplay {
             this.tilesNotReady = [];
         };
     };
-
-    private gridActive(size: 256 | 512): boolean {
-        return this.gridSizes.indexOf(size) != -1;
-    }
 
     private releaseBuffers(buffers: GeometryBuffer[]) {
         const renderer = this.render;
@@ -228,7 +221,7 @@ class WebGlDisplay extends BasicDisplay {
                     // on init / start
                     () => {
                         let {quadkey} = dTile;
-                        if (tileSize == 256 && display.gridActive(512)) {
+                        if (tileSize == 256) {
                             quadkey = quadkey.slice(0, -1);
                         }
                         // if its not a fresh create but tile data is getting updated make sure to ..
@@ -277,44 +270,11 @@ class WebGlDisplay extends BasicDisplay {
         let length;
         let tiles;
 
-
         if (this.dirty || dirty) {
             // this.render.clear();
             this.dirty = false;
-
-            // window.updateCollisions = ((aa,a,b,c,d)=>{
-            //     return ()=> {
-            //         updateCollisions(aa,a,b,c,d);
-            //         display.viewport()
-            //     }
-            // })(display, layer.tiles, layer.layer, this.rz, this.factory.collisions);
-
-
-            this.collision.update(
-                display.tiles[display.gridActive(512) ? 512 : 256],
-                this.rx,
-                this.rz,
-                this.s
-            );
-
-            // this.collision.update(layer.tiles, this.rx, this.rz, this.s);
-
-            // this.collision.update(layer.tiles);
+            this.collision.update(display.grid.tiles[512], this.rx, this.rz, this.s,);
         }
-
-
-        // clearTimeout(this._timer);
-        // if(!this._timer){
-        //     this._timer = setTimeout(() => {
-        //         console.log('update boysa!',this.updating);
-        //         this.collision.update(layers[0].tiles);
-        //         if (!this.updating) {
-        //             this.viewport();
-        //         }
-        //         this._timer = null;
-        //     }, 50);
-        // }
-
 
         render.clear();
 
