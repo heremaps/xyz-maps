@@ -47,7 +47,7 @@ class Layer {
     tileSize: number;
     handleTile: (tile: Tile) => void;
     z: { [zIndex: string]: number } = {};
-    zLength: number;
+    zLength: number = 0;
 
     private layers: Layers;
     private zd: boolean = false; // dirty
