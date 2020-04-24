@@ -174,7 +174,7 @@ class TigerMap {
         // init defaults
         const zoomLevel = mapConfig['zoomLevel'] || mapConfig['zoomlevel'];
 
-        this._z = zoomLevel^0;
+        this._z = zoomLevel ^ 0;
 
         this._wSize = TILESIZE << this._z;
 
@@ -907,7 +907,7 @@ class TigerMap {
      * @name here.xyz.maps.Map#lockViewport
      * @return {Object} an object literal including "pan", "minLevel" and "maxLevel" values.
      */
-    lockViewport(lock) {
+    lockViewport(lock?): { pan: boolean, minLevel: number, maxLevel: number } {
         const lockState = this._vplock;
 
         if (lock) {

@@ -20,8 +20,9 @@
 import {addEventListener, removeEventListener} from '../DOMTools';
 import {global as WIN} from '@here/xyz-maps-common';
 import {ScrollHandler} from './ScrollHandler';
+import Map from '@here/xyz-maps-display';
 
-
+const TWO_FINGER_PINCH_THRESHHOLD = 110;
 let UNDEF;
 
 type BehaviourOptions = {
@@ -95,7 +96,7 @@ class Behaviour {
     scrollHandler: ScrollHandler;
     getOptions: () => BehaviourOptions;
 
-    constructor(mapEl: HTMLElement, map, kinetic, settings: BehaviourOptions, mapCfg) {
+    constructor(mapEl: HTMLElement, map: Map, kinetic, settings: BehaviourOptions, mapCfg) {
         this.scrollHandler = new ScrollHandler(mapEl, map, settings, mapCfg.zoomAnimationMs);
         let that = this;
         let startX;
@@ -222,6 +223,7 @@ class Behaviour {
 
         let lastTime;
         let pitch = null;
+        let ticks;
 
         function onTouchStart(ev) {
             resetDrag();
@@ -242,6 +244,8 @@ class Behaviour {
             dragged = false;
 
             if (touches == 2) {
+                ticks = 0;
+
                 let t1 = targetTouches[touches - 1];
                 let t2 = targetTouches[touches - 2];
 
@@ -272,13 +276,26 @@ class Behaviour {
 
             if (touches > 1) {
                 if (settings['pitch']) {
+                    // wait some ticks for better gesture recognition
+                    if (++ticks < 5) {
+                        ev.preventDefault();
+                        return;
+                    }
+
                     const t1 = targetTouches[touches - 1];
                     const t2 = targetTouches[touches - 2];
-                    const PINCH_THRESHHOLD = ev.target.clientWidth / 10;
 
-                    if (pitch || pitch != false && (Math.abs(t2.clientY - t1.clientY) < PINCH_THRESHHOLD)) {
+                    const dy1 = t1y - t1.clientY;
+                    const dy2 = t2y - t2.clientY;
+
+
+                    if (
+                        pitch || pitch != false &&
+                        Math.abs(t2.clientY - t1.clientY) < TWO_FINGER_PINCH_THRESHHOLD &&
+                        Math.sign(dy1) == Math.sign(dy2)
+                    ) {
                         pitch = true;
-                        map.pitch(startMapPitch + (t1y - t1.clientY) * .2);
+                        map.pitch(startMapPitch + dy1 * .2);
                         ev.preventDefault();
                         return;
                     }
@@ -296,7 +313,7 @@ class Behaviour {
                     );
 
                     if (settings['rotate']) {
-                        map.rotate(startMapRotation + getAngle(ev) - startAngle, center[0], center[1]);
+                        map.rotate(startMapRotation + getAngle(ev) - startAngle);
                     }
                     lastScale = scale;
                 }
