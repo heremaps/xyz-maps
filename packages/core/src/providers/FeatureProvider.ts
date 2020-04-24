@@ -18,13 +18,11 @@
  */
 
 import {Feature as GeoJsonFeature} from '../features/Feature';
-
 import Provider from './TileProvider/TileProvider';
 import {geotools} from '@here/xyz-maps-common';
 import {Tile} from '../tile/Tile';
 import {updateBBox, prepareFeature} from '../data/prepare/GeoJSON';
-
-import rbush from 'rbush';
+import RTree from '../features/RTree';
 
 
 const REMOVE_FEATURE_EVENT = 'featureRemove';
@@ -73,7 +71,7 @@ export class FeatureProvider extends Provider {
     constructor(defaultConfig, config) {
         super(defaultConfig, config);
 
-        this.tree = rbush(9, ['.bbox[0]', '.bbox[1]', '.bbox[2]', '.bbox[3]']);
+        this.tree = new RTree(9);
 
         this.Feature = this.Feature || GeoJsonFeature;
     }

@@ -18,8 +18,9 @@
  */
 
 import {quadToGrid, getGeoBounds} from './TileUtils';
-import rbush from 'rbush';
+import RTree from '../features/RTree';
 import projection from '../projection/webMercator';
+
 
 const TILESIZE = 256;
 
@@ -201,7 +202,7 @@ export class Tile {
         if (this.data) {
             if (!this.tree) {
                 // console.time('create tile index ' + this.quadkey);
-                this.tree = rbush(9, ['.bbox[0]', '.bbox[1]', '.bbox[2]', '.bbox[3]']);
+                this.tree = new RTree(9);
                 this.tree.load(this.data);
                 // console.timeEnd('create tile index ' + this.quadkey);
             }

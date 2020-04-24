@@ -33,6 +33,7 @@
     "rollup-plugin-string": "^3.0.0",
     "rollup-plugin-terser": "^5.2.0",
     "rollup-plugin-uglify": "^6.0.4",
-    "typescript": "^3.8.3"
+    "typescript": "^3.8.3",
+    "tslib": "^1.11.1"
   }
 }
