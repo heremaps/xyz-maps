@@ -1,3 +1,10 @@
+## 0.11.1 (2020-4-24)
+### display
+* improved: two finger pinch gesture detection on touch devices
+* improved: cross layers collision detection with mixed tilesizes
+* fixed: FeatureProviders are hidden if used in combination with ImageProvider
+* improved: correct orientation of text on line geometry when map is rotated
+
 ## 0.11.0 (2020-4-21)
 ### display
 * added: it's now possible to pitch and rotate the map
