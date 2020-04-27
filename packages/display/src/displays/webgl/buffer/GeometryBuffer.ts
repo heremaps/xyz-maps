@@ -64,10 +64,10 @@ class GeometryBuffer {
     blend?: true;
 
 
-    constructor(index?: Arrays | number[], type?: string) {
+    constructor(index?: Arrays | number[], type?: string, i32?: boolean) {
         if (index) {
             if (index instanceof Array) {
-                this.setIndex(index);
+                this.setIndex(index, i32);
             } else {
                 this.setArrays(index);
             }
@@ -75,9 +75,9 @@ class GeometryBuffer {
         }
     }
 
-    setIndex(index: number[]) {
-        this.index = index.length > 0xffff
-            ? {
+    setIndex(index: number[], i32?: boolean) {
+        this.index = i32 ?
+            {
                 data: new Uint32Array(index),
                 type: GL_UNSIGNED_INT,
                 length: index.length

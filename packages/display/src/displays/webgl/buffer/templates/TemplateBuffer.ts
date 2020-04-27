@@ -40,6 +40,8 @@ export class TemplateBuffer {
         attributes: { [name: string]: FlexAttribute; }
     }
 
+    i32: boolean = false;
+
     private _index?: number[];
 
     constructor(scissor: boolean) {

@@ -230,7 +230,7 @@ const createBuffer = (
                             const index = grpBuffer.index();
                             if (!index.length) continue;
 
-                            geoBuffer = new GeometryBuffer(index, type);
+                            geoBuffer = new GeometryBuffer(index, type, grpBuffer.i32);
                         } else {
                             geoBuffer = new GeometryBuffer({
                                 first: grpBuffer.first,

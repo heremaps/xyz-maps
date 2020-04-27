@@ -557,9 +557,13 @@ export class FeatureFactory {
                                 earcut(flatPoly.vertices, flatPoly.holes, flatPoly.dimensions);
                         }
 
-                        for (let t = 0, s = flatPoly.start; t < triangles.length; t++) {
-                            index.push(s + triangles[t]);
+                        let i32 = false;
+                        for (let t = 0, s = flatPoly.start, i; t < triangles.length; t++) {
+                            i = s + triangles[t];
+                            i32 = i32 || i > 0xffff;
+                            index.push(i);
                         }
+                        groupBuffer.i32 =i32;
                     }
                 }
             }
