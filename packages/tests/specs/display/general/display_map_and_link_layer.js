@@ -20,9 +20,9 @@
 import {waitForViewportReady} from 'displayUtils';
 import {getCanvasPixelColor, prepare} from 'utils';
 import {Map} from '@here/xyz-maps-core';
-import dataset from './add_remove_layer_spec.json';
+import dataset from './display_map_and_link_layer.json';
 
-describe('get add and remove map layer', function() {
+describe('display image and link layers', function() {
     const expect = chai.expect;
 
     let imageLayer;
@@ -36,7 +36,7 @@ describe('get add and remove map layer', function() {
             renderOptions: {
                 preserveDrawingBuffer: true
             },
-            center: {longitude: 74.17035879069607, latitude: 15.482777312100069},
+            center: {longitude: 75.17035879069607, latitude: 15.482777312100069},
             zoomLevel: 18,
             layers: preparedData.getLayers()
         });
@@ -51,40 +51,16 @@ describe('get add and remove map layer', function() {
         display.destroy();
     });
 
-    it('validate sat image layer added and validate sat image', async function() {
+    it('validate sat image link', async function() {
         expect(display.getLayers()).to.lengthOf(2);
 
         // validate map tile is displayed
-        let color = getCanvasPixelColor(mapContainer, 70, 119);
+        let color = getCanvasPixelColor(mapContainer, 700, 150);
         expect(color).to.not.equal('#ffffff');
-    });
+        expect(color).to.not.equal('#ff0000');
 
-    it('remove image overlay and validate ground', async function() {
-        expect(display.getLayers()).to.lengthOf(2);
-
-
-        await waitForViewportReady(display, [linkLayer], ()=>{
-            display.removeLayer(imageLayer);
-        });
-
-        expect(display.getLayers()).to.lengthOf(1);
-
-        // validate map tile is not displayed
-        let color = getCanvasPixelColor(mapContainer, 70, 119);
-        expect(color).to.equal('#ffffff');
-    });
-
-    it('add image overlay and validate sat image', async function() {
-        expect(display.getLayers()).to.lengthOf(1);
-
-        await waitForViewportReady(display, [imageLayer, linkLayer], ()=>{
-            display.addLayer(imageLayer, 0);
-        });
-
-        expect(display.getLayers()).to.lengthOf(2);
-
-        // validate map tile is displayed
-        let color = getCanvasPixelColor(mapContainer, 70, 119);
-        expect(color).to.not.equal('#ffffff');
+        // validate link is displayed
+        color = getCanvasPixelColor(mapContainer, 700, 110);
+        expect(color).to.equal('#ff0000');
     });
 });

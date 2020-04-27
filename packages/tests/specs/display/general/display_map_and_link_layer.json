@@ -1,0 +1,39 @@
+{
+    "layers": [{
+        "id": "imageLayer",
+        "provider": {
+            "id": "imageProvider",
+            "type": "ImageProvider",
+            "name": "image provider"
+        },
+        "min": 14,
+        "max": 20
+    },{
+        "id": "linkLayer",
+        "provider": {
+            "id": "linkProvider",
+            "type": "TestProvider",
+            "name": "Links",
+            "level": 15,
+            "class": "NAVLINK"
+        },
+        "min": 14,
+        "max": 20,
+        "data": {
+            "remote": [{
+                "id": 1003913693,
+                "type": "Feature",
+                "properties": {
+                    "featureClass": "NAVLINK"
+                },
+                "geometry": {
+                    "type": "LineString",
+                    "coordinates": [
+                        [75.1793588, 15.483777, 0],
+                        [75.1696812, 15.483777, 0]
+                    ]
+                }
+            }]
+        }
+    }]
+}
