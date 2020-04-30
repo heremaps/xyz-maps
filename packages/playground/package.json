@@ -20,7 +20,7 @@
   },
   "dependencies": {
     "codemirror": "~5.52.0",
-    "jquery": "~3.4.1"
+    "jquery": "~3.5.0"
   },
   "devDependencies": {
     "@rollup/plugin-buble": "^0.21.1",
