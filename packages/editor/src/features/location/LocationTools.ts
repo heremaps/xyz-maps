@@ -145,14 +145,14 @@ function onHover(ev) {
     const isPointerenter = ev.type == 'pointerenter';
 
     if (prv.allowEdit) {
+        location.editState('hovered', isPointerenter);
         if (!prv.isSelected) {
             if (isPointerenter) {
                 showRoutingPoint(location, ev);
             } else {
-                hideRoutingPoint(this, ev);
+                hideRoutingPoint(location, ev);
             }
         }
-        location.editState('hovered', isPointerenter);
     }
 }
 
