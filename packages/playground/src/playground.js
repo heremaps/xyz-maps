@@ -70,7 +70,6 @@ export let pg = new (function Playground() {
     var gt = null;
     var examplecss;
 
-
     $.ajax({
         url: 'assets/css/example.css',
         dataType: 'text',
@@ -78,6 +77,10 @@ export let pg = new (function Playground() {
             examplecss = cssText;
         }
     });
+
+    function mobileLayerout() {
+        return window.innerWidth < 600;
+    }
 
     function getCookie(name) {
         var cookieName = encodeURIComponent(name) + '=';
@@ -118,6 +121,44 @@ export let pg = new (function Playground() {
     if (!plyid) {
         setCookie('plyid', Math.round(Math.random() * 1000) + ('' + new Date().getTime()).substr(-5), 999);
     }
+    function updateQueryParam(param) {
+        const query = param ? '?' + param : '';
+        window.history.replaceState({}, document.title, location.pathname + query + location.hash);
+    }
+
+    playground.showOverview = function() {
+        updateQueryParam();
+        $('#overview').css({'left': '0px'});
+        $('#content').css({'visibility': 'hidden'});
+        $('#right').css({'visibility': 'hidden'});
+
+        $('.overviewswitch').addClass('disabled');
+        $('.codeswitch').removeClass('disabled');
+        $('.mapswitch').removeClass('disabled');
+    };
+
+    playground.showCode = function() {
+        updateQueryParam('code');
+        $('#content').css({'visibility': 'visible', 'left': 0});
+        $('#middle').css({'right': 0});
+        $('#right').css({'visibility': 'hidden'});
+
+        $('.overviewswitch').removeClass('disabled');
+        $('.codeswitch').addClass('disabled');
+        $('.mapswitch').removeClass('disabled');
+    };
+
+    playground.showMap = function() {
+        initFullscreen();
+        updateQueryParam('fullscreen');
+        $('#content').css({'visibility': 'visible'});
+        $('#right').css({'visibility': 'visible'});
+
+        $('.overviewswitch').removeClass('disabled');
+        $('.codeswitch').removeClass('disabled');
+        $('.mapswitch').addClass('disabled');
+        updateDisplay();
+    };
 
     playground.utag = function(index) {
         let tag = {};
@@ -323,6 +364,7 @@ export let pg = new (function Playground() {
     }
 
     window.onresize = function() {
+        initState();
         updateDisplay();
     };
 
@@ -341,6 +383,7 @@ export let pg = new (function Playground() {
     var overviewWidth;
     var contentPosition;
     var vdragPosition;
+    var currentContentPosition = 334;
     playground.toggleOverview = function() {
         if ($('#content').css('left') != '0px') {
             // set right value to make middle tag not scale with overview tag
@@ -356,11 +399,13 @@ export let pg = new (function Playground() {
             $('#overview').animate({left: overviewWidth * -1}, speed, function() {
             }).css({'z-index': 0});
             $('#content').animate({left: 0}, speed);
+            currentContentPosition = 0;
         } else {
             $('#vdrag').animate({left: vdragPosition.left}, speed).text('◀');
             $('#overview').animate({left: 0}, speed, function() {
             }).css({'z-index': 0});
             $('#content').animate({left: contentPosition.left}, speed);
+            currentContentPosition = contentPosition.left;
         }
     };
 
@@ -462,6 +507,10 @@ export let pg = new (function Playground() {
 
         if (fullscreen !== null) {
             setFullscreen(false);
+            // show overview in mobile layout
+            if (mobileLayerout()) {
+                playground.showOverview();
+            }
             window.history.replaceState({}, document.title, location.pathname+location.hash);
 
             $('.header .exitfullscreen').removeClass('exitfullscreen').addClass('fullscreen');
@@ -481,8 +530,28 @@ export let pg = new (function Playground() {
         } else {
             $('#right').css({width: '50%'});
             $('#vrdrag').css({left: '50%'});
+            $('#middle').css({right: '50%'});
         }
     };
+    function initState() {
+        const urlParams = new URLSearchParams(window.location.search);
+        const fullscreen = urlParams.get('fullscreen'); // map
+        const code = urlParams.get('code');
+
+        if ( fullscreen === '' ) {
+            playground.showMap();
+            $('#content').css({'visibility': 'visible', 'left': currentContentPosition});
+        } else if (mobileLayerout()) {
+            if ( code === '' ) {
+                playground.showCode();
+            } else {
+                playground.showOverview();
+            }
+        } else {
+            $('#content').css({'visibility': 'visible', 'left': currentContentPosition});
+            $('#right').css({'visibility': 'visible'});
+        }
+    }
 
     function initFullscreen() {
         const urlParams = new URLSearchParams(window.location.search);
@@ -755,7 +824,7 @@ export let pg = new (function Playground() {
         if (activateNode) {
             setTimeout(function() {
                 $('#overview #ovcnt').trigger('click', activateNode);
-                initFullscreen();
+                initState();
             }, 100);
         }
     });

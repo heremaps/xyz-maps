@@ -1,4 +1,9 @@
 
+html, body
+{
+    height: 100%
+}
+
 nav {
     display: block;
 }
@@ -272,7 +277,7 @@ a.btn.disabled {
 }
 
 .navbar-headline {
-    padding: 12.5px 15px;
+    padding: 12.5px 2px;
 }
 
 @media only screen and (-webkit-min-device-pixel-ratio: 1.5), only screen and (-o-min-device-pixel-ratio: 3 / 2), only screen and (min--moz-device-pixel-ratio: 1.5), only screen and (min-device-pixel-ratio: 1.5) {
@@ -365,7 +370,7 @@ h1 {
     position: absolute;
     border-left: 2px solid #a0a0a0;
     left: 0;
-    top: 26px;
+    top: 0;
     right: 50%;
     bottom: 0;
 }
@@ -412,7 +417,7 @@ h1 {
     background: #E0E0E0;
     left: 334px;
     right: 0;
-    top: 0;
+    top: 50px;
     bottom: 0;
 }
 
@@ -454,7 +459,7 @@ h1 {
     overflow: auto;
     overflow-x: hidden;
     left: 10px;
-    top: 35px;
+    top: 25px;
     right: 0;
     bottom: 0;
 }
@@ -462,7 +467,7 @@ h1 {
 #right {
     position: absolute;
     right: 0;
-    top: 50px;
+    top: 0;
     width: 50%;
     bottom: 0;
     background: white;
@@ -473,7 +478,7 @@ h1 {
 .code {
     border-right: solid 2px;
     right: 0;
-    top: 46px;
+    top: 20px;
     width: 100%;
     bottom: 0;
     background: white;
@@ -484,7 +489,7 @@ h1 {
     position: absolute;
     left: 0px;
     right: 0;
-    top: 24px;
+    top: 0;
     z-index: 20;
     /*cursor:n-resize;*/
     /*background:#E0E0E0;*/
