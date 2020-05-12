@@ -127,6 +127,9 @@ export let pg = new (function Playground() {
     }
 
     playground.showOverview = function() {
+
+        setFullscreen(false);
+        $('.header .exitfullscreen').removeClass('exitfullscreen').addClass('fullscreen');
         updateQueryParam();
         $('#overview').css({'left': '0px'});
         $('#content').css({'visibility': 'hidden'});
@@ -138,6 +141,9 @@ export let pg = new (function Playground() {
     };
 
     playground.showCode = function() {
+
+        setFullscreen(false);
+        $('.header .exitfullscreen').removeClass('exitfullscreen').addClass('fullscreen');
         updateQueryParam('code');
         $('#content').css({'visibility': 'visible', 'left': 0});
         $('#middle').css({'right': 0});
@@ -339,6 +345,7 @@ export let pg = new (function Playground() {
             $('#right').css({width: rightNewWidth});
             $('#vrdrag').css({right: rightNewWidth - 10, left: 'auto'});
             $('#middle').css({right: rightNewWidth});
+            currentRightWidth = rightNewWidth;
 
             updateDisplay();
         }
@@ -384,12 +391,14 @@ export let pg = new (function Playground() {
     var contentPosition;
     var vdragPosition;
     var currentContentPosition = 334;
+    var currentRightWidth = '50%';
     playground.toggleOverview = function() {
         if ($('#content').css('left') != '0px') {
             // set right value to make middle tag not scale with overview tag
-            $('#right').css({width: $('#right').width() + 2});
-            $('#middle').css({right: $('#right').width() + 2});
-            $('#vrdrag').css({right: $('#right').width() - 8, left: 'auto'});
+            const rightWidth = $('#right').width();
+            $('#right').css({width: rightWidth + 2});
+            $('#middle').css({right: rightWidth + 2});
+            $('#vrdrag').css({right: rightWidth - 8, left: 'auto'});
 
             overviewWidth = overviewWidth || parseInt($('#overview').css('width'));
             contentPosition = contentPosition || $('#content').position();
@@ -400,6 +409,7 @@ export let pg = new (function Playground() {
             }).css({'z-index': 0});
             $('#content').animate({left: 0}, speed);
             currentContentPosition = 0;
+            currentRightWidth = rightWidth + 2;
         } else {
             $('#vdrag').animate({left: vdragPosition.left}, speed).text('◀');
             $('#overview').animate({left: 0}, speed, function() {
@@ -507,12 +517,7 @@ export let pg = new (function Playground() {
 
         if (fullscreen !== null) {
             setFullscreen(false);
-            // show overview in mobile layout
-            if (mobileLayerout()) {
-                playground.showOverview();
-            }
             window.history.replaceState({}, document.title, location.pathname+location.hash);
-
             $('.header .exitfullscreen').removeClass('exitfullscreen').addClass('fullscreen');
         } else {
             setFullscreen(true);
@@ -550,13 +555,13 @@ export let pg = new (function Playground() {
         } else {
             $('#content').css({'visibility': 'visible', 'left': currentContentPosition});
             $('#right').css({'visibility': 'visible'});
+            $('#middle').css({'right': currentRightWidth});
         }
     }
 
     function initFullscreen() {
         const urlParams = new URLSearchParams(window.location.search);
         const fullscreen = urlParams.get('fullscreen');
-
         if (fullscreen !== null) {
             setFullscreen(true);
             $('.header .fullscreen').addClass('exitfullscreen').removeClass('fullscreen');
@@ -578,7 +583,7 @@ export let pg = new (function Playground() {
 
     function updateAPIVersion(build) {
         var versionTag = document.getElementById('version');
-        versionTag.innerHTML = 'API Version: ' + build.version;
+        versionTag.innerHTML = build.version;
     }
 
     function attachPage(data) {

@@ -6,10 +6,10 @@
     a.togglemode {
         width: 70px;
     }
-    #vdrag, #vrdrag {
+    #vdrag, #vrdrag, #fullscreen {
         display: none;
     } 
-    #middle, #right, #middle #code, #right #sample {
+    #middle, #middle #code {
         border-left: 0;
     }
 
@@ -24,27 +24,6 @@
         top: 77px;
         visibility: hidden
     }
-
-    /* #overview {
-        left: -100%;
-    }    
-    #content {
-        left: 0;
-    }
-    #middle {
-        right: 0;
-    }
-    #right {
-        display: none;
-    } */
-
-    /* #content {
-        left: 0;
-    }
-
-    #right {
-        width: 100%;
-    }  */
 
     .switch {
         position: absolute;
@@ -65,11 +44,11 @@
     .codeswitch {
         position: absolute;
         top: 0;
-        left: 33.33%;
+        left: 33.4%;
     }
     .mapswitch {
         position: absolute;
         top: 0;
-        left: 66.7%;
+        left: 66.8%;
     }
 }
