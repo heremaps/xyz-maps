@@ -179,7 +179,9 @@
 			const display = new here.xyz.maps.Map( document.getElementById("map"), {
 			        zoomLevel : 18,
 					center: { longitude: -122.2281, latitude: 37.778747},
-
+					behaviour: {
+						pitch: true
+					},
 			        // add layers to display
 			        layers: [bgLayer, navlinkLayer]
 			    });

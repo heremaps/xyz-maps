@@ -43,7 +43,6 @@ export let pg = new (function Playground() {
     var playground = this;
     var ts = Math.round(Math.random() * 1000) + ('' + new Date().getTime()).substr(-4);
     var codeEditor = null;
-    var authtry = 0;
     var speed = 500;
     var visiblePH1 = '/*###visiblesource*/';
     var visiblePH2 = '/*visiblesource###*/';
@@ -127,7 +126,6 @@ export let pg = new (function Playground() {
     }
 
     playground.showOverview = function() {
-
         setFullscreen(false);
         $('.header .exitfullscreen').removeClass('exitfullscreen').addClass('fullscreen');
         updateQueryParam();
@@ -141,7 +139,6 @@ export let pg = new (function Playground() {
     };
 
     playground.showCode = function() {
-
         setFullscreen(false);
         $('.header .exitfullscreen').removeClass('exitfullscreen').addClass('fullscreen');
         updateQueryParam('code');
@@ -152,6 +149,8 @@ export let pg = new (function Playground() {
         $('.overviewswitch').removeClass('disabled');
         $('.codeswitch').addClass('disabled');
         $('.mapswitch').removeClass('disabled');
+
+        codeEditor.refresh();
     };
 
     playground.showMap = function() {
@@ -610,9 +609,13 @@ export let pg = new (function Playground() {
             iframe.document.write(data);
             iframe.document.close();
 
-            iframe.onload = function() {
-                updateAPIVersion(iframe.window.here.xyz.maps.build);
-            };
+            // workaround for missing onload event in safari
+            let versionTimer = setInterval(function() {
+                if (iframe.document.readyState == 'complete') {
+                    clearInterval(versionTimer);
+                    updateAPIVersion(iframe.window.here.xyz.maps.build);
+                }
+            }, 500);
         }, 0);
     }
 
@@ -796,7 +799,6 @@ export let pg = new (function Playground() {
         codeEditor.setOption('scrollbarStyle', 'simple');
 
         var list = $('<ul></ul>');
-
 
         let xyzmapsExclude = pgSettings.exclude;
         let xyzmapsExp = [];

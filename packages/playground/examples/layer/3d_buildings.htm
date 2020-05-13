@@ -31,6 +31,9 @@
     const display = new here.xyz.maps.Map(document.getElementById("map"), {
         zoomLevel: 17,
         center: { longitude: -74.01137, latitude: 40.70613 },
+        behaviour: {
+            pitch: true
+        },
         // add layers to display
         layers: [
             new here.xyz.maps.layers.MVTLayer({

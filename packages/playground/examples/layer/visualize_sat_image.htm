@@ -55,6 +55,9 @@ var myLayer = new here.xyz.maps.layers.TileLayer({
 			   center: {
 				   longitude: -117.15406, latitude: 32.72966
 			   },
+				behaviour: {
+					pitch: true
+				},
 			   // add layer to display
 			   layers: [myLayer]
 		   });
