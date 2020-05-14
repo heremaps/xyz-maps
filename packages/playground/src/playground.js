@@ -136,6 +136,7 @@ export let pg = new (function Playground() {
         $('.overviewswitch').addClass('disabled');
         $('.codeswitch').removeClass('disabled');
         $('.mapswitch').removeClass('disabled');
+        this.utag(9);
     };
 
     playground.showCode = function() {
@@ -150,6 +151,7 @@ export let pg = new (function Playground() {
         $('.codeswitch').addClass('disabled');
         $('.mapswitch').removeClass('disabled');
 
+        this.utag(10);
         codeEditor.refresh();
     };
 
@@ -163,6 +165,7 @@ export let pg = new (function Playground() {
         $('.codeswitch').removeClass('disabled');
         $('.mapswitch').addClass('disabled');
         updateDisplay();
+        this.utag(11);
     };
 
     playground.utag = function(index) {
@@ -239,6 +242,31 @@ export let pg = new (function Playground() {
                 link_text: 'toggle-fullscreen:' + title,
                 linkEvent: 'toggle-fullscreen:' + title,
                 actionTrack: 'toggle-fullscreen:' + title
+            };
+            break;
+            // mobile overview
+        case 9:
+            tag = {
+                link_id: this,
+                link_text: 'mobile-overview',
+                linkEvent: 'mobile-overview',
+                actionTrack: 'mobile-overview'
+            };
+            break;
+        case 10:
+            tag = {
+                link_id: this,
+                link_text: 'mobile-code',
+                linkEvent: 'mobile-code',
+                actionTrack: 'mobile-code'
+            };
+            break;
+        case 11:
+            tag = {
+                link_id: this,
+                link_text: 'mobile-map',
+                linkEvent: 'mobile-map',
+                actionTrack: 'mobile-map'
             };
             break;
         }
