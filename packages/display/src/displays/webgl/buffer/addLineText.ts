@@ -20,37 +20,74 @@
 import {createTextData} from './createText';
 import {GlyphTexture} from '../GlyphTexture';
 import {CollisionHandler} from '../CollisionHandler';
+import {tile} from '@here/xyz-maps-core';
+import {Attribute} from './Attribute';
+
+type Tile = tile.Tile;
 
 const TO_DEG = 180 / Math.PI;
 
-const addLineText = (text: string, pointAttr, vertex, texcoord, coordinates, glyphs: GlyphTexture, tile, tileSize: number, collisions: CollisionHandler, priority: number, offsetX?: number, offsetY?: number) => {
+const addLineText = (
+    text: string,
+    pointAttr: Attribute,
+    vertex: number[],
+    texcoord: number[],
+    coordinates: [number, number, number?][],
+    glyphs: GlyphTexture,
+    tile: Tile,
+    tileSize: number,
+    collisions: CollisionHandler,
+    priority: number,
+    minRepeatDistance: number,
+    offsetX?: number,
+    offsetY?: number
+) => {
     const point = pointAttr.data;
     const fontInfo = glyphs.getAtlas();
     const vLength = coordinates.length;
-    let x1 = tile.lon2x(coordinates[0][0], tileSize);
-    let y1 = tile.lat2y(coordinates[0][1], tileSize);
+    let distancePrevLabel = Infinity;
+    let labelWidth = null;
+    let lineWidth;
+    let textData;
+    let position;
+    let numVertices;
     let x2;
     let y2;
     let dx;
     let dy;
     let cx;
     let cy;
-    let lineWidth;
-    let textData;
-    let position;
-    let labelWidth = null;
-    let numVertices;
     let tx;
     let ty;
+    // for optimal repeat distance the first label gets placed in the middle of the linestring.
+    let offset = Math.floor(vLength / 2) - 1;
+    // we move to the end of the linestring..
+    let dir = 1;
+    let x1 = tile.lon2x(coordinates[offset][0], tileSize);
+    let y1 = tile.lat2y(coordinates[offset][1], tileSize);
+    let startX = x1;
+    let startY = y1;
+    let startDistance = distancePrevLabel;
 
-    for (let c = 1; c < vLength; c++) {
+    for (let i = 1; i < vLength; i++) {
+        let c = offset + dir * i;
+        if (c >= vLength) {
+            // from now on we move from middle to beginning of linestring
+            dir = -1;
+            c = offset - 1;
+            offset = vLength - 1;
+            x1 = startX;
+            y1 = startY;
+            distancePrevLabel = startDistance;
+        }
+
         x2 = tile.lon2x(coordinates[c][0], tileSize);
         y2 = tile.lat2y(coordinates[c][1], tileSize);
 
         dx = x2 - x1;
         dy = y2 - y1;
-        cx = dx / 2 + x1;
-        cy = dy / 2 + y1;
+        cx = dx * .5 + x1;
+        cy = dy * .5 + y1;
 
         // not inside tile -> skip!
         if (cx >= 0 && cy >= 0 && cx < tileSize && cy < tileSize) {
@@ -63,8 +100,6 @@ const addLineText = (text: string, pointAttr, vertex, texcoord, coordinates, gly
             if (Math.floor(lineWidth / labelWidth) > 0) {
                 ty = fontInfo.baselineOffset - offsetY;
 
-                let w = labelWidth * .5;
-                let h = labelWidth * .5;
                 let halfLabelWidth = labelWidth * .25;
                 let f = halfLabelWidth / lineWidth;
                 let fh = (.5 * ty) / lineWidth;
@@ -72,7 +107,6 @@ const addLineText = (text: string, pointAttr, vertex, texcoord, coordinates, gly
                 let labely1 = cy + (dy * f);
                 let labelx2 = cx + (dx * f);
                 let labely2 = cy - (dy * f);
-
 
                 if (dy < 0 && dx > 0 || (dx < 0 && dy > 0)) {
                     dy *= -1;
@@ -87,16 +121,13 @@ const addLineText = (text: string, pointAttr, vertex, texcoord, coordinates, gly
                 let labeldx = Math.abs(labelx2 - labelx1);
                 let labeldy = Math.abs(labely2 - labely1);
 
-                w = labeldx;
-                h = labeldy;
-
                 let glyphCnt = 0;
                 for (let c of text) {
                     if (c != ' ') glyphCnt++;
                 }
                 const bufferStart = point.length;
 
-                if (collisions && collisions.collides(
+                if (!collisions || !collisions.collides(
                     cx, cy,
                     labeldx, labeldy,
                     tile, tileSize,
@@ -104,41 +135,52 @@ const addLineText = (text: string, pointAttr, vertex, texcoord, coordinates, gly
                     pointAttr,
                     priority
                 )) {
-                    continue;
+                    let d = (lineWidth - labelWidth) / 2;
+
+                    if (distancePrevLabel + d < minRepeatDistance) {
+                        distancePrevLabel += lineWidth;
+                    } else {
+                        if (startDistance == Infinity) {
+                            startDistance = d;
+                        }
+                        distancePrevLabel = d;
+
+                        if (!textData) {
+                            glyphs.addChars(text);
+                            textData = createTextData(text, fontInfo/* , vertex, texcoord*/);
+                            position = textData.position;
+                            numVertices = textData.numVertices;
+                            tx = textData.width * fontInfo.scale / 2 - offsetX;
+                            // ty = fontInfo.baselineOffset - offsetY;
+                        }
+
+                        let alpha = Math.atan2(dy, dx) * TO_DEG;
+                        // make sure angle is 0->360 deg
+                        alpha = (alpha + 360) % 360;
+
+                        if (alpha >= 180) {
+                            alpha -= 180;
+                        }
+
+                        for (let i = 0, v = vertex.length, j; i < numVertices; i++) {
+                            j = i * 2;
+
+                            point[point.length] = position[j] - tx; // + (i*8);
+                            texcoord[v] = textData.texcoord[j];
+                            vertex[v] = cx;
+                            v++;
+
+                            point[point.length] = position[j + 1] - ty; // + (i*8);
+                            texcoord[v] = textData.texcoord[j + 1];
+                            vertex[v] = cy;
+                            v++;
+
+                            point[point.length] = alpha;
+                        }
+                    }
                 }
-
-                if (!textData) {
-                    glyphs.addChars(text);
-                    textData = createTextData(text, fontInfo/* , vertex, texcoord*/);
-                    position = textData.position;
-                    numVertices = textData.numVertices;
-                    tx = textData.width * fontInfo.scale / 2 - offsetX;
-                    // ty = fontInfo.baselineOffset - offsetY;
-                }
-
-                let alpha = Math.atan2(dy, dx) * TO_DEG;
-                // make sure angle is 0->360 deg
-                alpha = (alpha + 360) % 360;
-
-                if (alpha >= 180 ) {
-                    alpha -= 180;
-                }
-
-                for (let i = 0, v = vertex.length, j; i < numVertices; i++) {
-                    j = i * 2;
-
-                    point[point.length] = position[j] - tx; // + (i*8);
-                    texcoord[v] = textData.texcoord[j];
-                    vertex[v] = cx;
-                    v++;
-
-                    point[point.length] = position[j + 1] - ty; // + (i*8);
-                    texcoord[v] = textData.texcoord[j + 1];
-                    vertex[v] = cy;
-                    v++;
-
-                    point[point.length] = alpha;
-                }
+            } else {
+                distancePrevLabel += lineWidth;
             }
         }
 

@@ -347,6 +347,18 @@ import {ILayerStyle, StyleGroup, StyleGroupMap} from './ILayerStyle';
 // "priority": number,
 
 /**
+ *  Minimum distance in pixel between repeated text labels on line geometries.
+ *  Applies per tile only. Default is 256 pixel.
+ *
+ *  @public
+ *  @expose
+ *  @optional
+ *  @name here.xyz.maps.layers.TileLayer.Style#repeat
+ *  @type number
+ */
+// "repeat": number,
+
+/**
  *  Alignment for Text. Possible values are: "map" and "viewport".
  *  "map" aligns to the plane of the map and "viewport" aligns to the plane of the viewport/screen.
  *  Default alignment for Text based on point geometries is "map" while "viewport" is the default for line geometries.
