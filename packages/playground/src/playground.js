@@ -634,16 +634,12 @@ export let pg = new (function Playground() {
             var iframe = (previewFrame.contentWindow) ? previewFrame.contentWindow : (previewFrame.contentDocument.document) ? previewFrame.contentDocument.document : previewFrame.contentDocument;
 
             iframe.document.open();
+            iframe.onload = function() {
+                updateAPIVersion(iframe.window.here.xyz.maps.build);
+            };
             iframe.document.write(data);
             iframe.document.close();
 
-            // workaround for missing onload event in safari
-            let versionTimer = setInterval(function() {
-                if (iframe.document.readyState == 'complete') {
-                    clearInterval(versionTimer);
-                    updateAPIVersion(iframe.window.here.xyz.maps.build);
-                }
-            }, 500);
         }, 0);
     }
 

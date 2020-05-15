@@ -18,9 +18,6 @@
 				width: 100%;
                 height: 100%;
 			}
-			#switchdrag, #switchzoom, #switchpitch, #switchrotate{
-				width: 200px;
-			}
  		</style>
 	</head>
 	<body>
@@ -28,9 +25,7 @@
 		<pre><div id="info">Current Behavior:</div></pre>
 
 		<a id="switchdrag" class="button">Disable Drag</a>
-		<a id="switchzoom" class="button">Disable Zoom (mousewheel)</a>
-		<a id="switchpitch" class="button">Disable Pitch</a>
-		<a id="switchrotate" class="button">Disable Rotate</a>
+		<a id="switchzoom" class="button">Disable Zoom</a>
 
 		<script type="application/javascript">
 			//specify your credentials for mvt and navlink layers
@@ -52,12 +47,7 @@
 			    center: {
 			        longitude: -122.48024, latitude: 37.77326
 			    },
-				behaviour: {
-					// allow map pitch by user interaction (mouse/touch)
-					pitch: true,
-					// allow map rotation by user interaction (mouse/touch)
-					rotate: true
-				},
+
 			    // add layers to display
 			    layers: layers
 			});
@@ -94,29 +84,7 @@ switchzoom.onclick = function(){
 	infotag.innerText = "Current Behavior:" + JSON.stringify(currentbehavior, undefined, 4);
 
 	// update button text
-	this.innerText = currentbehavior.zoom ? "Disable Zoom (mousewheel)" : "Enable Zoom (mousewheel)";
-};
-
-switchpitch.onclick = function(){
-	display.setBehavior("pitch", !currentbehavior.pitch);
-
-	//update current display behavior in info tag
-	currentbehavior = display.getBehavior();
-	infotag.innerText = "Current Behavior:" + JSON.stringify(currentbehavior, undefined, 4);
-
-	// update button text
-	this.innerText = currentbehavior.pitch ? "Disable Pitch" : "Enable Pitch";
-};
-
-switchrotate.onclick = function(){
-	display.setBehavior("rotate", !currentbehavior.rotate);
-
-	//update current display behavior in info tag
-	currentbehavior = display.getBehavior();
-	infotag.innerText = "Current Behavior:" + JSON.stringify(currentbehavior, undefined, 4);
-
-	// update button text
-	this.innerText = currentbehavior.rotate ? "Disable Rotate" : "Enable Rotate";
+	this.innerText = currentbehavior.zoom ? "Disable Zoom" : "Enable Zoom";
 };
 
 /*visiblesource###*/
