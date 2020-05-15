@@ -18,6 +18,7 @@
  */
 
 import {tile} from '@here/xyz-maps-core';
+import {PixelCoordinateCache} from './LineFactory';
 
 type Tile = tile.Tile;
 type Cap = 'round' | 'butt' | 'square';
@@ -90,15 +91,10 @@ const addCap = (cap: Cap, x: number, y: number, nx: number, ny: number, vertex: 
     }
 };
 
-// reused pixel coordinate cache
-let pixels = new Float32Array(5e5); // ~1MB
-
-window.lineTriTimeTotal = 0;
-
 const addLineString = (
     vertex: number[],
     normal: number[],
-    coordinates: [number, number, number?][],
+    coordinates: PixelCoordinateCache,
     tile: Tile,
     tileSize: number,
     cap: Cap,
@@ -108,38 +104,33 @@ const addLineString = (
 ) => {
     strokeWidth *= .5;
 
-    const vLength = coordinates.length;
     let _inside = true;
     let length = 0;
-    let t = 0;
-    let s = 0;
+    let pixels = coordinates.data;
+    let vLength = coordinates.length;
+    let start = null;
     let _x;
     let _y;
+    let c;
 
-    let starttime = performance.now();
 
-    for (let c = 0; c < vLength; c++) {
-        let x = tile.lon2x(coordinates[c][0], tileSize);
-        let y = tile.lat2y(coordinates[c][1], tileSize);
+    for (c = 0; c < vLength; c += 2) {
+        let x = pixels[c];
+        let y = pixels[c + 1];
         let inside = isInBox(x, y, 0, 0, tileSize, tileSize);
 
         if (inside) {
             if (!_inside) {
-                pixels[t++] = _x;
-                pixels[t++] = _y;
-            }
-
-            if (!c || (Math.round(_x) - Math.round(x)) || (Math.round(_y) - Math.round(y))) {
-                pixels[t++] = x;
-                pixels[t++] = y;
+                start = c - 2;
+            } else {
+                if (start == null) {
+                    start = c;
+                }
             }
         } else if (c) {
             if (_inside) {
-                pixels[t++] = x;
-                pixels[t++] = y;
-                length = addSegments(vertex, normal, pixels, s, t, tile, tileSize, cap, cap, join, strokeWidth, lengthSoFar, length);
-                s = t;
-                t = s;
+                length = addSegments(vertex, normal, pixels, start, c + 2, tile, tileSize, cap, cap, join, strokeWidth, lengthSoFar, length);
+                start = null;
             } else {
                 // check for tile intersection
                 let minX = x;
@@ -166,13 +157,8 @@ const addLineString = (
                     // horizontal botton
                     intersectLineLine(_x, _y, x, y, 0, tileSize, tileSize, tileSize)
                 )*/) {
-                    pixels[t++] = _x;
-                    pixels[t++] = _y;
-                    pixels[t++] = x;
-                    pixels[t++] = y;
-                    length = addSegments(vertex, normal, pixels, s, t, tile, tileSize, cap, cap, join, strokeWidth, lengthSoFar, length);
-                    s = t;
-                    t = s;
+                    length = addSegments(vertex, normal, pixels, c - 2, c + 2, tile, tileSize, cap, cap, join, strokeWidth, lengthSoFar, length);
+                    start = null;
                 } else if (lengthSoFar) {
                     let dx = _x - x;
                     let dy = _y - y;
@@ -185,11 +171,9 @@ const addLineString = (
         _y = y;
     }
 
-    if (t > s) {
-        addSegments(vertex, normal, pixels, s, t, tile, tileSize, cap, cap, join, strokeWidth, lengthSoFar, length);
+    if (start != null) {
+        addSegments(vertex, normal, pixels, start, c, tile, tileSize, cap, cap, join, strokeWidth, lengthSoFar, length);
     }
-
-    window.lineTriTimeTotal += performance.now() - starttime;
 };
 
 const addSegments = (

@@ -97,13 +97,7 @@ export class ScrollHandler {
 
     zoom(toLevel: number, toX: number, toY: number, animate?: boolean) {
         const {map, ams} = this;
-        let viewportLock = map.lockViewport();
-
-        if (toLevel >= viewportLock.minLevel && toLevel <= viewportLock.maxLevel) {
-            let animationMs = animate && ams;
-
-            map.setZoomlevel(toLevel, toX, toY, animationMs);
-        }
+        map.setZoomlevel(toLevel, toX, toY, animate && ams);
     };
 }
 

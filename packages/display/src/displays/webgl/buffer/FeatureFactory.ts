@@ -17,9 +17,7 @@
  * License-Filename: LICENSE
  */
 import {addText} from './addText';
-import {addLineText} from './addLineText';
 import {addPoint} from './addPoint';
-import {addLineString} from './addLineString';
 import {addPolygon, FlatPolygon} from './addPolygon';
 import {addExtrude} from './addExtrude';
 import {addIcon} from './addIcon';
@@ -31,18 +29,17 @@ import {toRGB} from '../color';
 import {IconManager} from '../IconManager';
 import {DashAtlas} from '../DashAtlas';
 import {CollisionHandler} from '../CollisionHandler';
+import {LineFactory} from './LineFactory';
 
 import {TextBuffer} from './templates/TextBuffer';
 import {SymbolBuffer} from './templates/SymbolBuffer';
 import {PointBuffer} from './templates/PointBuffer';
-import {LineBuffer} from './templates/LineBuffer';
 import {PolygonBuffer} from './templates/PolygonBuffer';
 import {ExtrudeBuffer} from './templates/ExtrudeBuffer';
 
 const DEFAULT_STROKE_WIDTH = 1;
 const DEFAULT_LINE_CAP = 'round';
 const DEFAULT_LINE_JOIN = 'round';
-const DEFAULT_MIN_TEXT_REPEAT = 256;
 const NONE = '*';
 let UNDEF;
 
@@ -82,6 +79,7 @@ export class FeatureFactory {
     private tile: any;
     private groups: any;
     private tileSize: number;
+    private lineFactory: LineFactory;
 
     constructor(gl: WebGLRenderingContext, iconManager: IconManager, collisionHandler, devicePixelRatio: number) {
         this.gl = gl;
@@ -89,6 +87,8 @@ export class FeatureFactory {
         this.dpr = devicePixelRatio;
         this.dashes = new DashAtlas(gl);
         this.collisions = collisionHandler;
+
+        this.lineFactory = new LineFactory(gl);
     }
 
     init(tile, groups, tileSize: number) {
@@ -134,6 +134,8 @@ export class FeatureFactory {
         let strokeScale;
         let alignment;
         let allReady = true;
+
+        this.lineFactory.init();
 
         for (let i = 0, iLen = styleGroups.length; i < iLen; i++) {
             style = styleGroups[i];
@@ -432,26 +434,15 @@ export class FeatureFactory {
             } else {
                 if (geomType == 'LineString') {
                     if (type == 'Line') {
-                        if (strokeDasharray) {
-                            group.texture = this.dashes.get(strokeDasharray);
-                        }
-
-                        if (!group.buffer) {
-                            group.buffer = new LineBuffer();
-                        }
-
-                        const groupBuffer = group.buffer;
-
-                        addLineString(
-                            groupBuffer.attributes.a_position.data,
-                            groupBuffer.attributes.a_normal.data,
+                        this.lineFactory.createLine(
                             coordinates,
+                            group,
                             tile,
                             tileSize,
+                            strokeDasharray,
                             strokeLinecap,
                             strokeLinejoin,
-                            strokeWidth,
-                            strokeDasharray && groupBuffer.attributes.a_lengthSoFar.data
+                            strokeWidth
                         );
                     } else if (type == 'Circle' || type == 'Rect') {
                         if (!group.buffer) {
@@ -464,109 +455,66 @@ export class FeatureFactory {
                             addPoint(positionBuffer, coord, tile, tileSize);
                         }
                     } else if (type == 'Text') {
-                        let {glyphs} = group;
-
-                        if (!glyphs) {
-                            // console.time('create Glyph Tex');
-                            glyphs = group.glyphs = new GlyphTexture(this.gl, style);
-                            // console.timeEnd('create Glyph Tex');
-                            group.buffer = new TextBuffer();
-                        }
-
-                        const attributes = group.buffer.attributes;
-
-                        addLineText(
+                        this.lineFactory.createText(
                             text,
-                            attributes.a_point,
-                            attributes.a_position.data,
-                            attributes.a_texcoord.data,
                             coordinates,
-                            glyphs,
+                            group,
                             tile,
                             tileSize,
                             !style.collide && this.collisions,
                             getValue('priority', style, feature, level),
-                            getValue('repeat', style, feature, level)|| DEFAULT_MIN_TEXT_REPEAT,
+                            getValue('repeat', style, feature, level),
                             offsetX,
-                            offsetY
+                            offsetY,
+                            style
                         );
                     }
                 } else {
                     // Polygon geometry
-
-                    if (type == 'Line') {
-                        if (strokeDasharray) {
-                            group.texture = this.dashes.get(strokeDasharray);
-                        }
-
-                        if (!group.buffer) {
-                            group.buffer = new LineBuffer();
-                        }
-
-                        const groupBuffer = group.buffer;
-                        const positionBuffer = groupBuffer.attributes.a_position.data;
-                        const normalBuffer = groupBuffer.attributes.a_normal.data;
-                        const dashBuffer = strokeDasharray && groupBuffer.attributes.a_lengthSoFar.data;
-
-                        for (let ls of coordinates) {
-                            addLineString(
-                                positionBuffer,
-                                normalBuffer,
-                                ls,
-                                tile,
-                                tileSize,
-                                strokeLinecap,
-                                strokeLinejoin,
-                                strokeWidth,
-                                dashBuffer
-                            );
-                        }
-                    } else {
-                        if (!group.buffer) {
-                            group.buffer = type == 'Polygon'
-                                ? new PolygonBuffer()
-                                : new ExtrudeBuffer();
-                        }
-
-                        const groupBuffer = group.buffer;
-                        const index = groupBuffer.index();
-                        const {attributes} = groupBuffer;
-                        const aPosition = attributes.a_position.data;
-
-
-                        if (type == 'Extrude') {
-                            // if (!extrudeDataAdded) {
-                            extrudeDataAdded = addExtrude(
-                                aPosition,
-                                attributes.a_normal.data,
-                                index,
-                                coordinates,
-                                tile,
-                                tileSize,
-                                extrude
-                            );
-                            flatPoly = extrudeDataAdded;
-                            // }
-                        } else if (type == 'Polygon') {
-                            // if (!polygonDataAdded) {
-                            polygonDataAdded = <FlatPolygon>addPolygon(aPosition, coordinates, tile, tileSize);
-                            flatPoly = polygonDataAdded;
-                            // }
-                        }
-
-                        if (!triangles) {
-                            triangles = feature.geometry._xyz ||
-                                earcut(flatPoly.vertices, flatPoly.holes, flatPoly.dimensions);
-                        }
-
-                        let i32 = false;
-                        for (let t = 0, s = flatPoly.start, i; t < triangles.length; t++) {
-                            i = s + triangles[t];
-                            i32 = i32 || i > 0xffff;
-                            index.push(i);
-                        }
-                        groupBuffer.i32 = i32;
+                    if (!group.buffer) {
+                        group.buffer = type == 'Polygon'
+                            ? new PolygonBuffer()
+                            : new ExtrudeBuffer();
                     }
+
+                    const groupBuffer = group.buffer;
+                    const index = groupBuffer.index();
+                    const {attributes} = groupBuffer;
+                    const aPosition = attributes.a_position.data;
+
+                    // debugger;
+                    if (type == 'Extrude') {
+                        // if (!extrudeDataAdded) {
+                        extrudeDataAdded = addExtrude(
+                            aPosition,
+                            attributes.a_normal.data,
+                            index,
+                            coordinates,
+                            tile,
+                            tileSize,
+                            extrude
+                        );
+                        flatPoly = extrudeDataAdded;
+                        // }
+                    } else if (type == 'Polygon') {
+                        // if (!polygonDataAdded) {
+                        polygonDataAdded = <FlatPolygon>addPolygon(aPosition, coordinates, tile, tileSize);
+                        flatPoly = polygonDataAdded;
+                        // }
+                    }
+
+                    if (!triangles) {
+                        triangles = feature.geometry._xyz ||
+                            earcut(flatPoly.vertices, flatPoly.holes, flatPoly.dimensions);
+                    }
+
+                    let i32 = false;
+                    for (let t = 0, s = flatPoly.start, i; t < triangles.length; t++) {
+                        i = s + triangles[t];
+                        i32 = i32 || i > 0xffff;
+                        index.push(i);
+                    }
+                    groupBuffer.i32 = i32;
                 }
             }
         }
