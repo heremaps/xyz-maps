@@ -358,8 +358,8 @@ export let pg = new (function Playground() {
     function updateDisplay() {
         var iframe = document.getElementById('preview');
         var disp = iframe.contentWindow.display;
+        initFullscreen();
         if (disp) {
-            initFullscreen();
             disp.resize();
         }
     }
