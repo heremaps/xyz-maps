@@ -294,7 +294,7 @@ class TigerMap {
 
         this._vplock = {
             pan: false,
-            minLevel: 1,
+            minLevel: mapConfig['minLevel'],
             maxLevel: mapConfig['maxLevel']
         };
 
@@ -792,11 +792,12 @@ class TigerMap {
      * @name here.xyz.maps.Map#setZoomlevel
      */
     setZoomlevel(zoomTo: number, fixedX?: number, fixedY?: number, animate?: number) {
-        const mapConfig = this._cfg;
+        const vplock = this._vplock;
         const zoomLevel = this._z;
         const currentScale = this._s;
 
         zoomTo = Math.round(zoomTo * 1e3) / 1e3;
+        zoomTo = Math.max(Math.min(zoomTo, vplock.maxLevel), vplock.minLevel);
 
         if (arguments.length == 2) {
             animate = fixedX;
@@ -806,45 +807,41 @@ class TigerMap {
             fixedX = this._cx;
             fixedY = this._cy;
         }
-        if (zoomTo > mapConfig['maxLevel']) {
-            zoomTo = mapConfig['maxLevel'];
-        }
-        if (animate) {
-            this.zoomAnimator.animate(zoomTo, fixedX, fixedY,
-                typeof animate === 'number'
-                    ? animate
-                    : DEFAULT_ZOOM_ANIMATION_MS
-            );
-        } else if (
-            zoomTo <= mapConfig['maxLevel'] &&
-            zoomTo >= mapConfig['minLevel'] &&
-            (zoomLevel != zoomTo || currentScale != 1)
-        ) {
-            const zFromFloat = zoomLevel + (currentScale % 1);
-            const deltaLevel = zoomLevel - (zoomTo ^ 0);
-            const deltaLevelScale = Math.pow(.5, deltaLevel);
-            const worldSizePixel = this._wSize;
-            const _ufixed = this._display.unproject(fixedX, fixedY);
-            const scale = 1 + Math.round((zoomTo % 1) * 1e4) / 1e4;
 
-            if (deltaLevel) {
-                this._z = zoomTo ^ 0;
-                this._wSize = TILESIZE << this._z;
+        if (zoomLevel != zoomTo || currentScale != 1) {
+            if (animate) {
+                this.zoomAnimator.animate(zoomTo, fixedX, fixedY,
+                    typeof animate === 'number'
+                        ? animate
+                        : DEFAULT_ZOOM_ANIMATION_MS
+                );
+            } else {
+                const zFromFloat = zoomLevel + (currentScale % 1);
+                const deltaLevel = zoomLevel - (zoomTo ^ 0);
+                const deltaLevelScale = Math.pow(.5, deltaLevel);
+                const worldSizePixel = this._wSize;
+                const _ufixed = this._display.unproject(fixedX, fixedY);
+                const scale = 1 + Math.round((zoomTo % 1) * 1e4) / 1e4;
+
+                if (deltaLevel) {
+                    this._z = zoomTo ^ 0;
+                    this._wSize = TILESIZE << this._z;
+                }
+
+                this._display.setTransform(scale * deltaLevelScale, this._rz, this._rx);
+
+                const ufixed = this._display.unproject(fixedX, fixedY);
+
+                this._setCenter(
+                    project.x2lon(this._cw.x + _ufixed[0] - ufixed[0], worldSizePixel),
+                    project.y2lat(this._cw.y + _ufixed[1] - ufixed[1], worldSizePixel)
+                );
+
+                this._s = scale;
+                this.updateGrid();
+
+                this._l.trigger('zoomlevel', ['zoomlevel', this.getZoomlevel(), zFromFloat], true);
             }
-
-            this._display.setTransform(scale * deltaLevelScale, this._rz, this._rx);
-
-            const ufixed = this._display.unproject(fixedX, fixedY);
-
-            this._setCenter(
-                project.x2lon(this._cw.x + _ufixed[0] - ufixed[0], worldSizePixel),
-                project.y2lat(this._cw.y + _ufixed[1] - ufixed[1], worldSizePixel)
-            );
-
-            this._s = scale;
-            this.updateGrid();
-
-            this._l.trigger('zoomlevel', ['zoomlevel', this.getZoomlevel(), zFromFloat], true);
         }
     };
 
@@ -916,7 +913,7 @@ class TigerMap {
             let maxLevel = lock['maxLevel'];
 
             // resest to default
-            minLevel = minLevel === false ? 1 : minLevel;
+            minLevel = minLevel === false ? this._cfg['minLevel'] : minLevel;
             maxLevel = maxLevel === false ? this._cfg['maxLevel'] : maxLevel;
 
             if (pan != UNDEF) {
