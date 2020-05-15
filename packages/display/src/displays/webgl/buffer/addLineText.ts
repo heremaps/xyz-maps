@@ -22,6 +22,7 @@ import {GlyphTexture} from '../GlyphTexture';
 import {CollisionHandler} from '../CollisionHandler';
 import {tile} from '@here/xyz-maps-core';
 import {Attribute} from './Attribute';
+import {PixelCoordinateCache} from './LineFactory';
 
 type Tile = tile.Tile;
 
@@ -32,7 +33,7 @@ const addLineText = (
     pointAttr: Attribute,
     vertex: number[],
     texcoord: number[],
-    coordinates: [number, number, number?][],
+    prjCoordinates: PixelCoordinateCache,
     glyphs: GlyphTexture,
     tile: Tile,
     tileSize: number,
@@ -44,7 +45,8 @@ const addLineText = (
 ) => {
     const point = pointAttr.data;
     const fontInfo = glyphs.getAtlas();
-    const vLength = coordinates.length;
+    const vLength = prjCoordinates.length / 2;
+    let coordinates = prjCoordinates.data;
     let distancePrevLabel = Infinity;
     let labelWidth = null;
     let lineWidth;
@@ -63,8 +65,8 @@ const addLineText = (
     let offset = Math.floor(vLength / 2) - 1;
     // we move to the end of the linestring..
     let dir = 1;
-    let x1 = tile.lon2x(coordinates[offset][0], tileSize);
-    let y1 = tile.lat2y(coordinates[offset][1], tileSize);
+    let x1 = coordinates[offset * 2];
+    let y1 = coordinates[offset * 2 + 1];
     let startX = x1;
     let startY = y1;
     let startDistance = distancePrevLabel;
@@ -81,9 +83,8 @@ const addLineText = (
             distancePrevLabel = startDistance;
         }
 
-        x2 = tile.lon2x(coordinates[c][0], tileSize);
-        y2 = tile.lat2y(coordinates[c][1], tileSize);
-
+        x2 = coordinates[c * 2];
+        y2 = coordinates[c * 2 + 1];
         dx = x2 - x1;
         dy = y2 - y1;
         cx = dx * .5 + x1;
