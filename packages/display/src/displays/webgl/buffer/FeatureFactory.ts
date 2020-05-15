@@ -42,6 +42,7 @@ import {ExtrudeBuffer} from './templates/ExtrudeBuffer';
 const DEFAULT_STROKE_WIDTH = 1;
 const DEFAULT_LINE_CAP = 'round';
 const DEFAULT_LINE_JOIN = 'round';
+const DEFAULT_MIN_TEXT_REPEAT = 256;
 const NONE = '*';
 let UNDEF;
 
@@ -485,6 +486,7 @@ export class FeatureFactory {
                             tileSize,
                             !style.collide && this.collisions,
                             getValue('priority', style, feature, level),
+                            getValue('repeat', style, feature, level)|| DEFAULT_MIN_TEXT_REPEAT,
                             offsetX,
                             offsetY
                         );
@@ -563,7 +565,7 @@ export class FeatureFactory {
                             i32 = i32 || i > 0xffff;
                             index.push(i);
                         }
-                        groupBuffer.i32 =i32;
+                        groupBuffer.i32 = i32;
                     }
                 }
             }

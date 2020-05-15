@@ -39,6 +39,7 @@ interface LayerStyle {
     alignment?: 'map' | 'viewport';
     rotation?: number;
     priority?: number;
+    repeat?: number;
     collide?: boolean
 }
 
