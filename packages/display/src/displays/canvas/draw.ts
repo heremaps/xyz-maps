@@ -129,8 +129,8 @@ const feature = (tile: tile.Tile, tileCtx: CanvasRenderingContext2D, feature, te
 
         return drawPoint(
             symbol,
-            tile.lon2x(bbox[0] + (bbox[2] - bbox[0]) / 2),
-            tile.lat2y(bbox[1] + (bbox[3] - bbox[1]) / 2),
+            Math.round(tile.lon2x(bbox[0] + (bbox[2] - bbox[0]) / 2)),
+            Math.round(tile.lat2y(bbox[1] + (bbox[3] - bbox[1]) / 2)),
             renderStyle,
             feature,
             text,
@@ -147,8 +147,8 @@ const feature = (tile: tile.Tile, tileCtx: CanvasRenderingContext2D, feature, te
     if (geometryType == 'Point') {
         drawPoint(
             symbol,
-            tile.lon2x(coords[0]),
-            tile.lat2y(coords[1]),
+            Math.round(tile.lon2x(coords[0])),
+            Math.round(tile.lat2y(coords[1])),
             renderStyle,
             feature,
             text,
@@ -195,8 +195,8 @@ const feature = (tile: tile.Tile, tileCtx: CanvasRenderingContext2D, feature, te
                 while (pnts--) {
                     drawPoint(
                         symbol,
-                        tile.lon2x(coords[pnts][0]),
-                        tile.lat2y(coords[pnts][1]),
+                        Math.round(tile.lon2x(coords[pnts][0])),
+                        Math.round(tile.lat2y(coords[pnts][1])),
                         renderStyle,
                         feature,
                         text,

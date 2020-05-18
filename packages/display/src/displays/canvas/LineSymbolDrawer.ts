@@ -68,33 +68,32 @@ class LineSymbolDrawer {
         let dy;
         const offset = this.o;
 
-        p1x = tile.lon2x(coords[0][0]);
-        p1y = tile.lat2y(coords[0][1]);
+        for (let i = 0; i < coords.length; i++) {
+            p2x = Math.round(tile.lon2x(coords[i][0]));
+            p2y = Math.round(tile.lat2y(coords[i][1]));
 
-        for (let i = 1; i < coords.length; i++) {
-            p2x = tile.lon2x(coords[i][0]);
-            p2y = tile.lat2y(coords[i][1]);
+            if (i) {
+                dx = p2x - p1x;
+                dy = p2y - p1y;
 
-            dx = p2x - p1x;
-            dy = p2y - p1y;
+                lineWidth = MATH.sqrt(MATH.pow(dx, 2) + MATH.pow(dy, 2)) - NODE_SPACING;
 
-            lineWidth = MATH.sqrt(MATH.pow(dx, 2) + MATH.pow(dy, 2)) - NODE_SPACING;
+                symbol = this.createSymbol(lineWidth, renderStyle);
 
-            symbol = this.createSymbol(lineWidth, renderStyle);
+                if (symbol) {
+                    cx = (dx * offset + p1x) * devicePixelRatio;
+                    cy = (dy * offset + p1y) * devicePixelRatio;
 
-            if (symbol) {
-                cx = (dx * offset + p1x) * devicePixelRatio;
-                cy = (dy * offset + p1y) * devicePixelRatio;
+                    ctx.setTransform(devicePixelRatio, 0, 0, devicePixelRatio, cx, cy);
 
-                ctx.setTransform(devicePixelRatio, 0, 0, devicePixelRatio, cx, cy);
+                    ctx.rotate(this.angle(dy, dx));
 
-                ctx.rotate(this.angle(dy, dx));
+                    ctx.translate(-cx, -cy);
 
-                ctx.translate(-cx, -cy);
+                    this.drawSymbol(symbol, cx, cy, ctx, renderStyle, tile, feature, displayTile, layer, pmap, renderer);
 
-                this.drawSymbol(symbol, cx, cy, ctx, renderStyle, tile, feature, displayTile, layer, pmap, renderer);
-
-                ctx.setTransform(devicePixelRatio, 0, 0, devicePixelRatio, 0, 0);
+                    ctx.setTransform(devicePixelRatio, 0, 0, devicePixelRatio, 0, 0);
+                }
             }
             p1x = p2x;
             p1y = p2y;

@@ -504,17 +504,24 @@ export class FeatureFactory {
                     }
 
                     if (!triangles) {
-                        triangles = feature.geometry._xyz ||
-                            earcut(flatPoly.vertices, flatPoly.holes, flatPoly.dimensions);
+                        const geom = feature.geometry;
+                        if (geom._xyz) {
+                            triangles = geom._xyz;
+                        } else {
+                            triangles = earcut(flatPoly.vertices, flatPoly.holes, flatPoly.dimensions);
+
+                            if (!tile.clipped) {
+                                // cache for reuse
+                                geom._xyz = triangles;
+                            }
+                        }
                     }
 
-                    let i32 = false;
                     for (let t = 0, s = flatPoly.start, i; t < triangles.length; t++) {
                         i = s + triangles[t];
-                        i32 = i32 || i > 0xffff;
+                        groupBuffer.i32 = groupBuffer.i32 || i > 0xffff;
                         index.push(i);
                     }
-                    groupBuffer.i32 = i32;
                 }
             }
         }

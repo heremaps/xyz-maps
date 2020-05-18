@@ -65,6 +65,8 @@ abstract class TileProvider {
 
     listeners: Listener;
 
+    clipped: boolean = false;
+
     protected abstract dataType: string;
 
     abstract _removeTile(tile: Tile, triggerEvent: boolean);
@@ -291,6 +293,7 @@ abstract class TileProvider {
         const tile = new this.Tile(
             quadkey,
             this.dataType,
+            this.clipped,
             this.expire
         );
 

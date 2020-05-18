@@ -40,7 +40,9 @@ type Bounds = [number, number, number, number];
  *  @name here.xyz.maps.providers.TileProvider.Tile
  */
 export class Tile {
-    constructor(quadkey: string, type: string, expire?: number) {
+    clipped: boolean;
+
+    constructor(quadkey: string, type: string, clipped: boolean, expire?: number) {
         const grid = quadToGrid(quadkey);
 
         /**
@@ -90,8 +92,6 @@ export class Tile {
          */
         this.type = type;
 
-        this.expire = expire;
-
         /**
          *  Bounding box has the coordinates in order: [minLon, minLat, maxLon, maxLat].
          *
@@ -101,6 +101,9 @@ export class Tile {
          *  @name here.xyz.maps.providers.TileProvider.Tile#bounds
          */
         this.bounds = getGeoBounds(grid[0], grid[1], grid[2]);
+
+        this.expire = expire;
+        this.clipped = clipped;
     }
 
 
@@ -282,15 +285,13 @@ export class Tile {
     lon2x(lon: number, width: number = TILESIZE): number {
         const worldsize = width << this.z;
         const tileX = this.x * width;
-
-        return Math.round(projection.lon2x(lon, worldsize) - tileX);
+        return projection.lon2x(lon, worldsize) - tileX; // +.5^0;
     };
 
     lat2y(lat: number, height: number = TILESIZE): number {
         const worldsize = height << this.z;
         const tileY = this.y * height;
-
-        return Math.round(projection.lat2y(lat, worldsize) - tileY);
+        return projection.lat2y(lat, worldsize) - tileY; // +.5^0;
     };
 
     isInside(point: [number, number, number?]) {

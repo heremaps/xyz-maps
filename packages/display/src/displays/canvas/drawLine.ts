@@ -25,13 +25,13 @@ const drawLine = (coords: number[][], tileCtx: CanvasRenderingContext2D, tile /*
     let _y;
 
     tileCtx.moveTo(
-        _x = tile.lon2x(coords[coordLen][0]),
-        _y = tile.lat2y(coords[coordLen][1])
+        _x = Math.round(tile.lon2x(coords[coordLen][0])),
+        _y = Math.round(tile.lat2y(coords[coordLen][1]))
     );
 
     while (coordLen--) {
-        x = tile.lon2x(coords[coordLen][0]);
-        y = tile.lat2y(coords[coordLen][1]);
+        x = Math.round(tile.lon2x(coords[coordLen][0]));
+        y = Math.round(tile.lat2y(coords[coordLen][1]));
 
         if (_x - x || _y - y) {
             tileCtx.lineTo(

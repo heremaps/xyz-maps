@@ -38,13 +38,14 @@ class MvtFeature extends Feature {
     }
 }
 
+// @ts-ignore
+window.prjTimeTotal = 0;
 
 class MVTTile extends Tile {
     private s: number;
 
-    constructor(quadkey: string, type: string, expire: number) {
-        super(quadkey, type, expire);
-
+    constructor(quadkey: string, type: string, clipped: boolean, expire?: number) {
+        super(quadkey, type, clipped, expire);
         this.s = (1 << this.z);
     }
 
