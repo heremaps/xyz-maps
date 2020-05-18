@@ -213,26 +213,30 @@ abstract class EditableProvider extends GeoJSONProvider {
     getFeatures(ids, options) {
         options = options || {};
 
-        if (!(ids instanceof Array)) {
-            if (typeof ids == 'object') {
-                if (ids['remote']) {
-                    options['remote'] = ids['remote'];
-                }
-                if (ids['onload']) {
-                    options['onload'] = ids['onload'];
-                }
-
-                ids = ids['ids'] || ids['id'];
+        if (typeof ids == 'object' && !(ids instanceof Array)) {
+            if (ids['remote']) {
+                options['remote'] = ids['remote'];
+            }
+            if (ids['onload']) {
+                options['onload'] = ids['onload'];
             }
 
-            ids = [].concat(ids);
+            ids = ids['ids'] || ids['id'];
         }
-
         const prov = this;
-        let cached = true;
         const onload = options['onload'];
         const remote = options['remote'];
-        var result = super.getFeatures(ids);
+        const missingIds = [];
+        let searchArray = false;
+        let cached = true;
+
+        if (ids instanceof Array) {
+            searchArray = true;
+        } else {
+            ids = [ids];
+        }
+
+        let result = super.getFeatures(ids);
 
         if (!(result instanceof Array)) {
             result = [result];
@@ -240,37 +244,31 @@ abstract class EditableProvider extends GeoJSONProvider {
 
         for (let r = 0; r < result.length; r++) {
             if (!result[r]) {
-                result[r] = ids[r];
+                missingIds.push(ids[r]);
                 cached = false;
             }
         }
 
-        function createResult() {
-            result = result.map((e) => typeof e == 'object' ? e : UNDEF);
+        result = result.filter((a) => typeof a == 'object');
 
-            return result.length == 1
-                ? result[0]
-                : result;
-        }
-
+        const createResult = () => {
+            return searchArray ? result : result[0];
+        };
 
         if (!cached && remote) {
-            ids = result.filter((a) => typeof a != 'object');
-
-            prov._requestFeatures(ids,
+            prov._requestFeatures(missingIds,
                 (data) => {
-                    let len = data.length;
-                    let o;
+                    prov.preprocess({}, data, (data) => {
+                        let len = data.length;
+                        while (len--) {
+                            data[len] = prov.addFeature(data[len]);
+                        }
+                        result = result.concat(data);
 
-                    while (len--) {
-                        o = data[len];
-
-                        result[result.indexOf(o.id)] = prov.addFeature(o);
-                    }
-
-                    if (onload) {
-                        onload(createResult());
-                    }
+                        if (onload) {
+                            onload(createResult());
+                        }
+                    });
                 },
                 (e) => {
                     const onerror = options['onerror'];
@@ -282,7 +280,7 @@ abstract class EditableProvider extends GeoJSONProvider {
                 options
             );
         } else {
-            var result = createResult();
+            result = createResult();
 
             if (onload) {
                 onload(result);
@@ -317,7 +315,7 @@ abstract class EditableProvider extends GeoJSONProvider {
     }
 
     // act as getter/setter
-    isoCC(feature, isocc?: string|number) {
+    isoCC(feature, isocc?: string | number) {
         // isoCC always valid -> no reverse geoc
         return true;
     }
