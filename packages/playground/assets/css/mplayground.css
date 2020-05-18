@@ -1,0 +1,54 @@
+@media only screen and (max-width:600px) {
+    /* For mobile phones: */
+    a.btn {
+        width: 45px;
+    }
+    a.togglemode {
+        width: 70px;
+    }
+    #vdrag, #vrdrag, #fullscreen {
+        display: none;
+    } 
+    #middle, #middle #code {
+        border-left: 0;
+    }
+
+    #overview {
+        top: 77px;
+        left: 0px;
+        width: 100%;
+        border-right: 0px solid #e0e0e0
+    }
+    
+    #content {
+        top: 77px;
+        visibility: hidden
+    }
+
+    .switch {
+        position: absolute;
+        background-color: #a0a0a0;
+        width: 100%;
+        left: 0;
+        top: 50px;
+        height: 30px;
+    }
+    .switch a{
+        width: 33%;
+    }
+    .overviewswitch {
+        position: absolute;
+        top: 0;
+        left: 0;
+    }
+    .codeswitch {
+        position: absolute;
+        top: 0;
+        left: 33.4%;
+    }
+    .mapswitch {
+        position: absolute;
+        top: 0;
+        left: 66.8%;
+    }
+}
