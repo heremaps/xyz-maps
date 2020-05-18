@@ -301,7 +301,9 @@ class Behaviour {
                     }
                     // disable map pitch for this 2 finger gesture
                     pitch = false;
+                }
 
+                if (settings['zoom']) {
                     that.scrollHandler.zoom(
                         //  log2(2)   ->  1
                         //  log2(1)   ->  0
@@ -311,12 +313,12 @@ class Behaviour {
                         center[1],
                         false
                     );
-
-                    if (settings['rotate']) {
-                        map.rotate(startMapRotation + getAngle(ev) - startAngle);
-                    }
-                    lastScale = scale;
                 }
+
+                if (settings['rotate']) {
+                    map.rotate(startMapRotation + getAngle(ev) - startAngle);
+                }
+                lastScale = scale;
             }
 
             panMap(center[0], center[1]);
