@@ -43,7 +43,6 @@ export let pg = new (function Playground() {
     var playground = this;
     var ts = Math.round(Math.random() * 1000) + ('' + new Date().getTime()).substr(-4);
     var codeEditor = null;
-    var authtry = 0;
     var speed = 500;
     var visiblePH1 = '/*###visiblesource*/';
     var visiblePH2 = '/*visiblesource###*/';
@@ -70,7 +69,6 @@ export let pg = new (function Playground() {
     var gt = null;
     var examplecss;
 
-
     $.ajax({
         url: 'assets/css/example.css',
         dataType: 'text',
@@ -78,6 +76,10 @@ export let pg = new (function Playground() {
             examplecss = cssText;
         }
     });
+
+    function mobileLayerout() {
+        return window.innerWidth < 600;
+    }
 
     function getCookie(name) {
         var cookieName = encodeURIComponent(name) + '=';
@@ -118,6 +120,53 @@ export let pg = new (function Playground() {
     if (!plyid) {
         setCookie('plyid', Math.round(Math.random() * 1000) + ('' + new Date().getTime()).substr(-5), 999);
     }
+    function updateQueryParam(param) {
+        const query = param ? '?' + param : '';
+        window.history.replaceState({}, document.title, location.pathname + query + location.hash);
+    }
+
+    playground.showOverview = function() {
+        setFullscreen(false);
+        $('.header .exitfullscreen').removeClass('exitfullscreen').addClass('fullscreen');
+        updateQueryParam();
+        $('#overview').css({'left': '0px'});
+        $('#content').css({'visibility': 'hidden'});
+        $('#right').css({'visibility': 'hidden'});
+
+        $('.overviewswitch').addClass('disabled');
+        $('.codeswitch').removeClass('disabled');
+        $('.mapswitch').removeClass('disabled');
+        this.utag(9);
+    };
+
+    playground.showCode = function() {
+        setFullscreen(false);
+        $('.header .exitfullscreen').removeClass('exitfullscreen').addClass('fullscreen');
+        updateQueryParam('code');
+        $('#content').css({'visibility': 'visible', 'left': 0});
+        $('#middle').css({'right': 0});
+        $('#right').css({'visibility': 'hidden'});
+
+        $('.overviewswitch').removeClass('disabled');
+        $('.codeswitch').addClass('disabled');
+        $('.mapswitch').removeClass('disabled');
+
+        this.utag(10);
+        codeEditor.refresh();
+    };
+
+    playground.showMap = function() {
+        initFullscreen();
+        updateQueryParam('fullscreen');
+        $('#content').css({'visibility': 'visible'});
+        $('#right').css({'visibility': 'visible'});
+
+        $('.overviewswitch').removeClass('disabled');
+        $('.codeswitch').removeClass('disabled');
+        $('.mapswitch').addClass('disabled');
+        updateDisplay();
+        this.utag(11);
+    };
 
     playground.utag = function(index) {
         let tag = {};
@@ -193,6 +242,31 @@ export let pg = new (function Playground() {
                 link_text: 'toggle-fullscreen:' + title,
                 linkEvent: 'toggle-fullscreen:' + title,
                 actionTrack: 'toggle-fullscreen:' + title
+            };
+            break;
+            // mobile overview
+        case 9:
+            tag = {
+                link_id: this,
+                link_text: 'mobile-overview',
+                linkEvent: 'mobile-overview',
+                actionTrack: 'mobile-overview'
+            };
+            break;
+        case 10:
+            tag = {
+                link_id: this,
+                link_text: 'mobile-code',
+                linkEvent: 'mobile-code',
+                actionTrack: 'mobile-code'
+            };
+            break;
+        case 11:
+            tag = {
+                link_id: this,
+                link_text: 'mobile-map',
+                linkEvent: 'mobile-map',
+                actionTrack: 'mobile-map'
             };
             break;
         }
@@ -284,8 +358,8 @@ export let pg = new (function Playground() {
     function updateDisplay() {
         var iframe = document.getElementById('preview');
         var disp = iframe.contentWindow.display;
+        initFullscreen();
         if (disp) {
-            initFullscreen();
             disp.resize();
         }
     }
@@ -298,6 +372,7 @@ export let pg = new (function Playground() {
             $('#right').css({width: rightNewWidth});
             $('#vrdrag').css({right: rightNewWidth - 10, left: 'auto'});
             $('#middle').css({right: rightNewWidth});
+            currentRightWidth = rightNewWidth;
 
             updateDisplay();
         }
@@ -323,6 +398,7 @@ export let pg = new (function Playground() {
     }
 
     window.onresize = function() {
+        initState();
         updateDisplay();
     };
 
@@ -341,12 +417,15 @@ export let pg = new (function Playground() {
     var overviewWidth;
     var contentPosition;
     var vdragPosition;
+    var currentContentPosition = 334;
+    var currentRightWidth = '50%';
     playground.toggleOverview = function() {
         if ($('#content').css('left') != '0px') {
             // set right value to make middle tag not scale with overview tag
-            $('#right').css({width: $('#right').width() + 2});
-            $('#middle').css({right: $('#right').width() + 2});
-            $('#vrdrag').css({right: $('#right').width() - 8, left: 'auto'});
+            const rightWidth = $('#right').width();
+            $('#right').css({width: rightWidth + 2});
+            $('#middle').css({right: rightWidth + 2});
+            $('#vrdrag').css({right: rightWidth - 8, left: 'auto'});
 
             overviewWidth = overviewWidth || parseInt($('#overview').css('width'));
             contentPosition = contentPosition || $('#content').position();
@@ -356,11 +435,14 @@ export let pg = new (function Playground() {
             $('#overview').animate({left: overviewWidth * -1}, speed, function() {
             }).css({'z-index': 0});
             $('#content').animate({left: 0}, speed);
+            currentContentPosition = 0;
+            currentRightWidth = rightWidth + 2;
         } else {
             $('#vdrag').animate({left: vdragPosition.left}, speed).text('◀');
             $('#overview').animate({left: 0}, speed, function() {
             }).css({'z-index': 0});
             $('#content').animate({left: contentPosition.left}, speed);
+            currentContentPosition = contentPosition.left;
         }
     };
 
@@ -463,7 +545,6 @@ export let pg = new (function Playground() {
         if (fullscreen !== null) {
             setFullscreen(false);
             window.history.replaceState({}, document.title, location.pathname+location.hash);
-
             $('.header .exitfullscreen').removeClass('exitfullscreen').addClass('fullscreen');
         } else {
             setFullscreen(true);
@@ -481,13 +562,33 @@ export let pg = new (function Playground() {
         } else {
             $('#right').css({width: '50%'});
             $('#vrdrag').css({left: '50%'});
+            $('#middle').css({right: '50%'});
         }
     };
+    function initState() {
+        const urlParams = new URLSearchParams(window.location.search);
+        const fullscreen = urlParams.get('fullscreen'); // map
+        const code = urlParams.get('code');
+
+        if ( fullscreen === '' ) {
+            playground.showMap();
+            $('#content').css({'visibility': 'visible', 'left': currentContentPosition});
+        } else if (mobileLayerout()) {
+            if ( code === '' ) {
+                playground.showCode();
+            } else {
+                playground.showOverview();
+            }
+        } else {
+            $('#content').css({'visibility': 'visible', 'left': currentContentPosition});
+            $('#right').css({'visibility': 'visible'});
+            $('#middle').css({'right': currentRightWidth});
+        }
+    }
 
     function initFullscreen() {
         const urlParams = new URLSearchParams(window.location.search);
         const fullscreen = urlParams.get('fullscreen');
-
         if (fullscreen !== null) {
             setFullscreen(true);
             $('.header .fullscreen').addClass('exitfullscreen').removeClass('fullscreen');
@@ -509,7 +610,7 @@ export let pg = new (function Playground() {
 
     function updateAPIVersion(build) {
         var versionTag = document.getElementById('version');
-        versionTag.innerHTML = 'API Version: ' + build.version;
+        versionTag.innerHTML = build.version;
     }
 
     function attachPage(data) {
@@ -533,12 +634,12 @@ export let pg = new (function Playground() {
             var iframe = (previewFrame.contentWindow) ? previewFrame.contentWindow : (previewFrame.contentDocument.document) ? previewFrame.contentDocument.document : previewFrame.contentDocument;
 
             iframe.document.open();
-            iframe.document.write(data);
-            iframe.document.close();
-
             iframe.onload = function() {
                 updateAPIVersion(iframe.window.here.xyz.maps.build);
             };
+            iframe.document.write(data);
+            iframe.document.close();
+
         }, 0);
     }
 
@@ -723,7 +824,6 @@ export let pg = new (function Playground() {
 
         var list = $('<ul></ul>');
 
-
         let xyzmapsExclude = pgSettings.exclude;
         let xyzmapsExp = [];
 
@@ -755,7 +855,7 @@ export let pg = new (function Playground() {
         if (activateNode) {
             setTimeout(function() {
                 $('#overview #ovcnt').trigger('click', activateNode);
-                initFullscreen();
+                initState();
             }, 100);
         }
     });
