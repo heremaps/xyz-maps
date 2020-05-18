@@ -470,57 +470,73 @@ export class FeatureFactory {
                         );
                     }
                 } else {
-                    // Polygon geometry
-                    if (!group.buffer) {
-                        group.buffer = type == 'Polygon'
-                            ? new PolygonBuffer()
-                            : new ExtrudeBuffer();
-                    }
+                    if (type == 'Line') {
+                        for (let ls of coordinates) {
+                            this.lineFactory.init();
+                            this.lineFactory.createLine(
+                                ls,
+                                group,
+                                tile,
+                                tileSize,
+                                strokeDasharray,
+                                strokeLinecap,
+                                strokeLinejoin,
+                                strokeWidth
+                            );
+                        }
+                    } else {
+                        // Polygon geometry
+                        if (!group.buffer) {
+                            group.buffer = type == 'Polygon'
+                                ? new PolygonBuffer()
+                                : new ExtrudeBuffer();
+                        }
 
-                    const groupBuffer = group.buffer;
-                    const index = groupBuffer.index();
-                    const {attributes} = groupBuffer;
-                    const aPosition = attributes.a_position.data;
+                        const groupBuffer = group.buffer;
+                        const index = groupBuffer.index();
+                        const {attributes} = groupBuffer;
+                        const aPosition = attributes.a_position.data;
 
-                    // debugger;
-                    if (type == 'Extrude') {
-                        // if (!extrudeDataAdded) {
-                        extrudeDataAdded = addExtrude(
-                            aPosition,
-                            attributes.a_normal.data,
-                            index,
-                            coordinates,
-                            tile,
-                            tileSize,
-                            extrude
-                        );
-                        flatPoly = extrudeDataAdded;
-                        // }
-                    } else if (type == 'Polygon') {
-                        // if (!polygonDataAdded) {
-                        polygonDataAdded = <FlatPolygon>addPolygon(aPosition, coordinates, tile, tileSize);
-                        flatPoly = polygonDataAdded;
-                        // }
-                    }
+                        // debugger;
+                        if (type == 'Extrude') {
+                            // if (!extrudeDataAdded) {
+                            extrudeDataAdded = addExtrude(
+                                aPosition,
+                                attributes.a_normal.data,
+                                index,
+                                coordinates,
+                                tile,
+                                tileSize,
+                                extrude
+                            );
+                            flatPoly = extrudeDataAdded;
+                            // }
+                        } else if (type == 'Polygon') {
+                            // if (!polygonDataAdded) {
+                            polygonDataAdded = <FlatPolygon>addPolygon(aPosition, coordinates, tile, tileSize);
+                            flatPoly = polygonDataAdded;
+                            // }
+                        }
 
-                    if (!triangles) {
-                        const geom = feature.geometry;
-                        if (geom._xyz) {
-                            triangles = geom._xyz;
-                        } else {
-                            triangles = earcut(flatPoly.vertices, flatPoly.holes, flatPoly.dimensions);
+                        if (!triangles) {
+                            const geom = feature.geometry;
+                            if (geom._xyz) {
+                                triangles = geom._xyz;
+                            } else {
+                                triangles = earcut(flatPoly.vertices, flatPoly.holes, flatPoly.dimensions);
 
-                            if (!tile.clipped) {
-                                // cache for reuse
-                                geom._xyz = triangles;
+                                if (!tile.clipped) {
+                                    // cache for reuse
+                                    geom._xyz = triangles;
+                                }
                             }
                         }
-                    }
 
-                    for (let t = 0, s = flatPoly.start, i; t < triangles.length; t++) {
-                        i = s + triangles[t];
-                        groupBuffer.i32 = groupBuffer.i32 || i > 0xffff;
-                        index.push(i);
+                        for (let t = 0, s = flatPoly.start, i; t < triangles.length; t++) {
+                            i = s + triangles[t];
+                            groupBuffer.i32 = groupBuffer.i32 || i > 0xffff;
+                            index.push(i);
+                        }
                     }
                 }
             }
