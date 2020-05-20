@@ -175,6 +175,8 @@ class Navlink extends BasicFeature {
         return added;
     };
 
+    getConnectedLinks(index: number, details?: false): Navlink[];
+    getConnectedLinks(index: number, details: true): { link: Navlink, index: number }[];
     /**
      *  Get connected links of node.
      *
@@ -190,8 +192,6 @@ class Navlink extends BasicFeature {
      *  @function
      *  @name here.xyz.maps.editor.features.Navlink#getConnectedLinks
      */
-    getConnectedLinks(index: number, details?: false): Navlink[];
-    getConnectedLinks(index: number, details: true): { link: Navlink, index: number }[];
     getConnectedLinks(index: number, details: boolean = false) {
         const line = this;
         const EDITOR = line._e();
