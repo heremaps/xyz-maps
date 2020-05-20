@@ -20,13 +20,6 @@
 import {tile} from '@here/xyz-maps-core';
 
 type Point = [number, number, number?];
-type Rect = [number, number, number, number];
-
-const isPointInRect = (point: Point, rect: Rect) => {
-    const x = point[0];
-    const y = point[1];
-    return x > rect[0] && x <= rect[2] && y > rect[1] && y <= rect[3];
-};
 
 export const addPoint = (vertex: number[], coordinates: Point, tile: tile.Tile, tileSize: number): number => {
     const v = vertex.length;
@@ -34,10 +27,10 @@ export const addPoint = (vertex: number[], coordinates: Point, tile: tile.Tile, 
     // to prevent alpha blending in case if opacity is used for rendering and point is close to boundaries.
     // tile based rendering does not clip so we can ignore if not inside.
     if (tile.isInside(coordinates)) {
-    // if (isPointInRect(coordinates, tile.bounds)) {
-        // add vertex data
-        vertex[v] = tile.lon2x(coordinates[0], tileSize);
-        vertex[v+1] = tile.lat2y(coordinates[1], tileSize);
-        return v+2;
+        vertex.push(
+            tile.lon2x(coordinates[0], tileSize),
+            tile.lat2y(coordinates[1], tileSize)
+        );
+        return v + 2;
     }
 };

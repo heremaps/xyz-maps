@@ -18,6 +18,7 @@
  */
 
 import {TemplateBuffer} from './TemplateBuffer';
+import {FlexArray} from './FlexArray';
 
 export class ExtrudeBuffer extends TemplateBuffer {
     constructor() {
@@ -26,13 +27,11 @@ export class ExtrudeBuffer extends TemplateBuffer {
         this.attributes = {
             // vertex
             a_position: {
-                data: [],
-                type: Float32Array,
+                data: new FlexArray(Float32Array),
                 size: 3
             },
             a_normal: {
-                data: [],
-                type: Int8Array,
+                data: new FlexArray(Int8Array),
                 size: 2,
                 normalized: true
             }

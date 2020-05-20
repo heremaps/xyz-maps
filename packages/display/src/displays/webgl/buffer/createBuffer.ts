@@ -244,7 +244,7 @@ const createBuffer = (
                         for (let name in attributes) {
                             let attr = attributes[name];
                             if (attr.data.length) {
-                                geoBuffer.addAttribute(name, grpBuffer.typeAttributeData(attr));
+                                geoBuffer.addAttribute(name, grpBuffer.trimAttribute(attr));
                             }
                         }
 
@@ -382,14 +382,9 @@ const createBuffer = (
                                 factory.create(feature, simpleType, coords, styleGroups, lsScale);
                             }
                         } else if (geomType == 'MultiPolygon') {
-                            let _xyzGeom = geom._xyz;
-                            if (_xyzGeom) {
-                                factory.create(feature, 'Polygon', coordinates, styleGroups, lsScale);
-                            }
+                            factory.create(feature, 'Polygon', coordinates, styleGroups, lsScale);
+
                             for (let polygon of coordinates) {
-                                if (!_xyzGeom) {
-                                    factory.create(feature, 'Polygon', polygon, styleGroups, lsScale);
-                                }
                                 handlePolygons(factory, feature, polygon, styleGroups, lsScale, tile);
                             }
                         } else {

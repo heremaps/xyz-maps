@@ -100,9 +100,9 @@ export class FeatureFactory {
     create(feature, geomType, coordinates, styleGroups, strokeWidthScale/* , tile, groups, tileSize: number*/): boolean {
         const {tile, groups, tileSize} = this;
         const level = tile.z;
-        let extrudeDataAdded: FlatPolygon;
-        let polygonDataAdded: FlatPolygon;
-        let flatPoly: FlatPolygon;
+        let extrudeDataAdded: FlatPolygon[];
+        let polygonDataAdded: FlatPolygon[];
+        let flatPoly: FlatPolygon[];
         let triangles;
         let style;
         let zIndex;
@@ -497,9 +497,9 @@ export class FeatureFactory {
                         const {attributes} = groupBuffer;
                         const aPosition = attributes.a_position.data;
 
-                        // debugger;
                         if (type == 'Extrude') {
                             // if (!extrudeDataAdded) {
+                            // debugger;
                             extrudeDataAdded = addExtrude(
                                 aPosition,
                                 attributes.a_normal.data,
@@ -513,17 +513,35 @@ export class FeatureFactory {
                             // }
                         } else if (type == 'Polygon') {
                             // if (!polygonDataAdded) {
-                            polygonDataAdded = <FlatPolygon>addPolygon(aPosition, coordinates, tile, tileSize);
+                            polygonDataAdded = addPolygon(aPosition, coordinates, tile, tileSize);
                             flatPoly = polygonDataAdded;
                             // }
                         }
 
                         if (!triangles) {
                             const geom = feature.geometry;
+
                             if (geom._xyz) {
                                 triangles = geom._xyz;
                             } else {
-                                triangles = earcut(flatPoly.vertices, flatPoly.holes, flatPoly.dimensions);
+                                let flatCnt = 0;
+
+                                for (let flat of flatPoly) {
+                                    let tri;
+                                    let d = flat.dimensions;
+                                    let start = flat.start;
+                                    let coords = aPosition.data.subarray(start, flat.stop);
+                                    tri = earcut(coords, flat.holes, d);
+
+                                    if (flatCnt++) {
+                                        start /= 3;
+                                        for (let t of tri) {
+                                            triangles.push(start + t);
+                                        }
+                                    } else {
+                                        triangles = tri;
+                                    }
+                                }
 
                                 if (!tile.clipped) {
                                     // cache for reuse
@@ -532,7 +550,7 @@ export class FeatureFactory {
                             }
                         }
 
-                        for (let t = 0, s = flatPoly.start, i; t < triangles.length; t++) {
+                        for (let t = 0, s = flatPoly[0].start/flatPoly[0].dimensions, i; t < triangles.length; t++) {
                             i = s + triangles[t];
                             groupBuffer.i32 = groupBuffer.i32 || i > 0xffff;
                             index.push(i);

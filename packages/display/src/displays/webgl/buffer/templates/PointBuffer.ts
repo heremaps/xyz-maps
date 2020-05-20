@@ -18,6 +18,7 @@
  */
 
 import {TemplateBuffer} from './TemplateBuffer';
+import {FlexArray} from './FlexArray';
 
 export class PointBuffer extends TemplateBuffer {
     constructor() {
@@ -26,9 +27,7 @@ export class PointBuffer extends TemplateBuffer {
         this.attributes = {
             // vertex
             a_position: {
-                data: [],
-                type: Int16Array,
-                // type: Float32Array,
+                data: new FlexArray(Int16Array),
                 size: 2
             }
         };

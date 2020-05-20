@@ -18,17 +18,15 @@
  */
 
 import {addPolygon, FlatPolygon} from './addPolygon';
-// import {normalize} from './addLineString';
-// import {normalize, cross} from 'gl-matrix/vec3';
-
 
 const addExterior = (flatPolygon, vertex, normals, vIndex, extrude) => {
     const holes = flatPolygon.holes;
     const verts = flatPolygon.vertices;
-    const stop = verts.length - 3;
-    let start = 0;
+    const stop = flatPolygon.stop - 3;
+    let start = flatPolygon.start;
     let holeIndex = 0;
-    let nextHole = holes[holeIndex] * 3 - 6;
+    let nextHole = start + holes[holeIndex] * 3 - 6;
+
     let x1;
     let x2;
     let y1;
@@ -36,10 +34,15 @@ const addExterior = (flatPolygon, vertex, normals, vIndex, extrude) => {
     let vi;
 
     while (start < stop) {
-        x1 = verts[start];
-        y1 = verts[start + 1];
-        x2 = verts[start + 3];
-        y2 = verts[start + 4];
+        // x1 = verts[start];
+        // y1 = verts[start + 1];
+        // x2 = verts[start + 3];
+        // y2 = verts[start + 4];
+
+        x1 = verts.get(start);
+        y1 = verts.get(start + 1);
+        x2 = verts.get(start + 3);
+        y2 = verts.get(start + 4);
 
         vi = vertex.length / 3;
 
@@ -91,9 +94,10 @@ const addExterior = (flatPolygon, vertex, normals, vIndex, extrude) => {
         //     nx, ny, nz
         // );
 
+
         if (start == nextHole) {
             start += 6;
-            nextHole = holes[++holeIndex] * 3 - 6;
+            nextHole = flatPolygon.start + holes[++holeIndex] * 3 - 6;
         } else {
             start += 3;
         }
@@ -101,10 +105,9 @@ const addExterior = (flatPolygon, vertex, normals, vIndex, extrude) => {
 };
 
 
-export const addExtrude = (vertex, normals, vIndex, coordinates, tile, tileSize: number, extrude: number): FlatPolygon => {
+export const addExtrude = (vertex, normals, vIndex, coordinates, tile, tileSize: number, extrude: number): FlatPolygon[] => {
     let v = vertex.length;
-    const flatPolygon = // feature.geometry._xyz ||
-        addPolygon(vertex, coordinates, tile, tileSize, extrude);
+    const flatPolygon = addPolygon(vertex, coordinates, tile, tileSize, extrude);
 
     // add fake normals for top surface
     while (v < vertex.length) {
@@ -112,15 +115,11 @@ export const addExtrude = (vertex, normals, vIndex, coordinates, tile, tileSize:
         v += 3;
     }
 
-    if (flatPolygon instanceof Array) {
-        for (let flat of flatPolygon) {
-            addExterior(flat, vertex, normals, vIndex, extrude);
-        }
-    } else {
-        addExterior(flatPolygon, vertex, normals, vIndex, extrude);
+    for (let flat of flatPolygon) {
+        addExterior(flat, vertex, normals, vIndex, extrude);
     }
 
-    return <FlatPolygon>flatPolygon;
+    return flatPolygon;
 };
 
 

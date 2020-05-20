@@ -21,8 +21,8 @@ import {createTextData} from './createText';
 import {GlyphTexture} from '../GlyphTexture';
 import {CollisionHandler} from '../CollisionHandler';
 import {tile} from '@here/xyz-maps-core';
-import {Attribute} from './Attribute';
 import {PixelCoordinateCache} from './LineFactory';
+import {FlexAttribute} from './templates/TemplateBuffer';
 
 type Tile = tile.Tile;
 
@@ -30,7 +30,7 @@ const TO_DEG = 180 / Math.PI;
 
 const addLineText = (
     text: string,
-    pointAttr: Attribute,
+    pointAttr: FlexAttribute,
     vertex: number[],
     texcoord: number[],
     prjCoordinates: PixelCoordinateCache,
@@ -163,20 +163,21 @@ const addLineText = (
                             alpha -= 180;
                         }
 
-                        for (let i = 0, v = vertex.length, j; i < numVertices; i++) {
+                        for (let i = 0, j; i < numVertices; i++) {
                             j = i * 2;
 
-                            point[point.length] = position[j] - tx; // + (i*8);
-                            texcoord[v] = textData.texcoord[j];
-                            vertex[v] = cx;
-                            v++;
+                            point.push(
+                                position[j] - tx, // + (i*8);
+                                position[j + 1] - ty, // + (i*8);
+                                alpha
+                            );
 
-                            point[point.length] = position[j + 1] - ty; // + (i*8);
-                            texcoord[v] = textData.texcoord[j + 1];
-                            vertex[v] = cy;
-                            v++;
+                            texcoord.push(
+                                textData.texcoord[j],
+                                textData.texcoord[j + 1]
+                            );
 
-                            point[point.length] = alpha;
+                            vertex.push(cx, cy);
                         }
                     }
                 }

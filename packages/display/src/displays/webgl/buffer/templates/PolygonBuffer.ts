@@ -18,6 +18,7 @@
  */
 
 import {TemplateBuffer} from './TemplateBuffer';
+import {FlexArray} from './FlexArray';
 
 export class PolygonBuffer extends TemplateBuffer {
     constructor() {
@@ -26,8 +27,7 @@ export class PolygonBuffer extends TemplateBuffer {
         this.attributes = {
             // vertex
             a_position: {
-                data: [],
-                type: Float32Array,
+                data: new FlexArray(Float32Array),
                 size: 2
             }
         };

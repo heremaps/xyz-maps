@@ -18,7 +18,7 @@
  */
 
 import {Attribute} from './Attribute';
-import {glType, TypedArray, TypedArrayConstructor} from './glType';
+import {glType} from './glType';
 import {Texture} from '../Texture';
 
 type Uniform = number | number[] | boolean;

@@ -21,6 +21,7 @@ import {tile} from '@here/xyz-maps-core';
 import Display from './Display';
 import {Attribute} from './buffer/Attribute';
 import {Layer} from '../Layers';
+import {FlexAttribute} from './buffer/templates/TemplateBuffer';
 
 const tileUtils = tile.Utils;
 type Tile = tile.Tile;
@@ -118,7 +119,7 @@ export class CollisionHandler {
         tileSize: number,
         bufferOffsetStart: number,
         bufferOffsetEnd: number,
-        attributeBuffer: Attribute,
+        attributeBuffer: Attribute | FlexAttribute,
         priority: number = 0xffff
     ) {
         // const estimatedTextWidth = fontInfo.getTextWidth(text);

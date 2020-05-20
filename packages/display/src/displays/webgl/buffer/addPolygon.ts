@@ -22,20 +22,23 @@ export type FlatPolygon = {
     holes: number[];
     dimensions: number;
     start: number;
+    stop: number;
 }
 
-const flatten = (data: number[][][], tile, tileSize: number, height?: number) => {
-    const vertices = [];
+const flatten = (vertices, data: number[][][], tile, tileSize: number, height?: number) => {
+    const start = vertices.length;
     const holes = [];
     let holeIndex = 0;
 
     for (let i = 0; i < data.length; i++) {
-        for (let j = 0; j < data[i].length; j++) {
-            vertices[vertices.length] = tile.lon2x(data[i][j][0], tileSize);
-            vertices[vertices.length] = tile.lat2y(data[i][j][1], tileSize);
+        for (let j = 0, x, y; j < data[i].length; j++) {
+            x = tile.lon2x(data[i][j][0], tileSize);
+            y = tile.lat2y(data[i][j][1], tileSize);
 
             if (height) {
-                vertices[vertices.length] = height; // || data[i][j][2]^0;
+                vertices.push(x, y, height);
+            } else {
+                vertices.push(x, y);
             }
         }
         if (i > 0) {
@@ -45,37 +48,26 @@ const flatten = (data: number[][][], tile, tileSize: number, height?: number) =>
     }
 
     return {
+        dimensions: height ? 3 : 2,
         vertices: vertices,
-        holes: holes
+        holes: holes,
+        start: start,
+        stop: vertices.length
     };
 };
 
-const addPolygon = (vertex, coordinates, tile, tileSize: number, extrude?: number): FlatPolygon | FlatPolygon[] => {
-    const dim = extrude ? 3 : 2;
-    let vi = vertex.length;
-    let flat;
-
+const addPolygon = (vertex, coordinates, tile, tileSize: number, extrude?: number): FlatPolygon[] => {
+    let flatPolygons;
     if (typeof coordinates[0][0][0] != 'number') {
         // MultiPolygon: only for already triangulated data (MVT)
-        flat = [];
+        flatPolygons = [];
         for (let poly of coordinates) {
-            let _flat = flatten(poly, tile, tileSize, extrude);
-            for (let vtx of _flat.vertices) {
-                vertex.push(vtx);
-            }
-            flat.push(_flat);
+            flatPolygons.push(flatten(vertex, poly, tile, tileSize, extrude));
         }
     } else {
-        flat = flatten(coordinates, tile, tileSize, extrude);
-        for (let vtx of flat.vertices) {
-            vertex.push(vtx);
-        }
+        flatPolygons = [flatten(vertex, coordinates, tile, tileSize, extrude)];
     }
-
-    flat.dimensions = dim;
-    flat.start = vi / dim;
-
-    return flat;
+    return flatPolygons;
 };
 
 export {addPolygon};

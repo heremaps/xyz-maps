@@ -17,12 +17,11 @@
  * License-Filename: LICENSE
  */
 
-import {TypedArray, TypedArrayConstructor} from '../glType';
 import {Attribute} from '../Attribute';
+import {FlexArray} from './FlexArray';
 
 export type FlexAttribute = {
-    data: Array<number> | TypedArray;
-    type: TypedArrayConstructor;
+    data: FlexArray;
     size: number;
     normalized?: boolean;
     stride?: number;
@@ -65,11 +64,9 @@ export class TemplateBuffer {
         return this.count() == 0;
     }
 
-    typeAttributeData(attr: FlexAttribute): Attribute {
-        const TypedArray = attr.type;
-
-        attr.data = new TypedArray(attr.data);
-
-        return <Attribute><unknown>attr;
+    trimAttribute(flexAttr: FlexAttribute): Attribute {
+        const attr = <any>flexAttr;
+        attr.data = attr.data.trim();
+        return attr;
     }
 }

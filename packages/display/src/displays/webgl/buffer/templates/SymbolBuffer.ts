@@ -18,6 +18,7 @@
  */
 
 import {TemplateBuffer} from './TemplateBuffer';
+import {FlexArray} from './FlexArray';
 
 export class SymbolBuffer extends TemplateBuffer {
     constructor() {
@@ -26,19 +27,16 @@ export class SymbolBuffer extends TemplateBuffer {
         this.attributes = {
             // vertex
             a_position: {
-                data: [],
-                type: Int16Array,
+                data: new FlexArray(Int16Array),
                 size: 2
             },
             // point
             a_point: {
-                data: [],
-                type: Int8Array,
+                data: new FlexArray(Int8Array),
                 size: 2
             },
             a_texcoord: {
-                data: [],
-                type: Uint16Array,
+                data: new FlexArray(Uint16Array),
                 size: 2
             }
         };

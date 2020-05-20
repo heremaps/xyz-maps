@@ -17,27 +17,13 @@
  * License-Filename: LICENSE
  */
 
-import {TypedArray, TypedArrayConstructor} from './glType';
+import {TypedArray} from './glType';
 
-
-// type FlexArray = {
-//     type: TypedArrayConstructor,
-//     data: Array<number>
-// }
-export class FlexArray {
-    type: TypedArrayConstructor;
-    data: Array<number>;
-
-    constructor(type: TypedArrayConstructor) {
-        this.data = [];
-        this.type = type;
-    }
-}
 
 type Attribute = {
-    data: TypedArray, // | FlexArray,
+    data: TypedArray,
     stride?: number;
-    type?: number|TypedArray;
+    type?: number | TypedArray;
     size: number;
     normalized?: boolean;
     offset?: number;

@@ -33,12 +33,8 @@ class GlyphTexture extends Texture {
         // this.format = gl.LUMINANCE_ALPHA;
     }
 
-    // time = 0;
-
     addChars(text: string) {
-        // const t = performance.now();
         this.dirty = this.atlas.addChars(text) || this.dirty;
-        // this.time+=performance.now()-t;
     }
 
     getAtlas() {
@@ -47,11 +43,8 @@ class GlyphTexture extends Texture {
 
     sync() {
         if (this.dirty) {
-            // console.time('sync');
             this.set(this.atlas.canvas);
             delete this.atlas.canvas;
-            // this.dirty = false;
-            // console.timeEnd('sync');
         }
     }
 

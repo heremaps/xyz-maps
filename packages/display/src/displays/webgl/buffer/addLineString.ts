@@ -237,6 +237,9 @@ const addSegments = (
         join = 'none';
     }
 
+    // vertex.reserve((end-start)*8);
+    // normal.reserve((end-start)*16);
+
     for (let c = start + 2; c < vLength; c += 2) {
         x2 = coordinates[c];
         y2 = coordinates[c + 1];
