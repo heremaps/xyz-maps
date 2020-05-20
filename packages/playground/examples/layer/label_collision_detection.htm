@@ -68,6 +68,9 @@
                             font: '12px sans-serif',
                             strokeWidth:4,
                             stroke:'white',text: (f)=>f.properties.name,
+                            // Minimum distance in pixel between repeated text labels on line geometries.
+                            // Applies per tile only. Default is 256 pixel.
+                            repeat: 256,
                             // Alignment for Text. "map" aligns to the plane of the map.
                             alignment: 'map',
                             // Text with a higher priority (lower value) will be drawn before lower priorities (higher value)
