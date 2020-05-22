@@ -1,6 +1,6 @@
 {
   "name": "@here/xyz-maps-core",
-  "version": "0.11.1",
+  "version": "0.12.0",
   "description": "Core libs of XYZ Editor.",
   "author": {
     "name": "HERE Europe B.V.",
@@ -36,7 +36,7 @@
     "rollup": "^2.10.7",
     "rollup-plugin-sourcemaps": "^0.6.2",
     "rollup-plugin-uglify": "^6.0.4",
-    "typescript": "^3.9.3",
-    "tslib": "^2.0.0"
+    "tslib": "^2.0.0",
+    "typescript": "^3.9.3"
   }
 }

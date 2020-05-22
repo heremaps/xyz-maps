@@ -1,3 +1,21 @@
+## 0.12.0 (2020-5-22)
+### display
+* added: control minimum distance of repeated text labels on line geometries via style.repeat=number
+* improved: optimised memory usage and performance improvement of geometry buffer creation
+* improved: optimised triangulation of polygons from unclipped source data
+* improved: reuse projected coordinates if line geometry is rendered multiple times
+* improved: major performance improvement of line triangulation of very large unclipped geometries
+* fixed: behaviour settings on mobile/touch have no effect
+* fixed: set exact minimum/maximum configured zoomlevel by mouse/touch
+* fixed: default to configured "minLevel" when viewport lock gets reset
+* fixed: text labels are placed correctly on line geometries in all cases
+* fixed: possible strokedasharray pattern mismatch of ending line segments
+* fixed: artifacts for polygon geometry with very large coordinate count
+### editor
+* fixed: update "hovered" state of places/addresses when pointerenter/pointerleave listeners are executed
+### core
+* added: preprocess result of remote search by id(s) if custom preprocessor is defined
+
 ## 0.11.1 (2020-4-24)
 ### display
 * improved: two finger pinch gesture detection on touch devices
