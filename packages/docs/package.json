@@ -18,8 +18,8 @@
     "build": "node clean.js --configure ./jsdoc3_config.json && jsdoc --configure ./jsdoc3_config.json"
   },
   "devDependencies": {
-    "jsdoc": "^3.6.3",
+    "jsdoc": "^3.6.4",
     "rimraf": "~3.0.2",
-    "yargs": "^15.1.0"
+    "yargs": "^15.3.1"
   }
 }
