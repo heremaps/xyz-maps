@@ -79,7 +79,7 @@ export const eLayers = (HERE_WIKI: InternalEditor, initLayers) => {
             if (layer) {
                 const prov = <EditableProvider>layer.getProvider();
 
-                if (prov && prov.__type == 'FeatureProvider' && prov.isEditable && (
+                if (prov && prov.__type == 'FeatureProvider' && prov.editable && (
                     !layerMap[getIdentifier(prov)] ||
                     // @ts-ignore TODO: remove class property
                     prov.class == NAVLINK
@@ -147,7 +147,7 @@ export const eLayers = (HERE_WIKI: InternalEditor, initLayers) => {
 
                 const lid = getIdentifier(prov);
 
-                if (prov.__type == 'FeatureProvider' && prov.isEditable && layerMap[lid]) {
+                if (prov.__type == 'FeatureProvider' && prov.editable && layerMap[lid]) {
                     HERE_WIKI.listeners.trigger('_layerRemove', {
                         layer: layer
                     });

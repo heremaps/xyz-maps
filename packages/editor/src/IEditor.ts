@@ -134,7 +134,10 @@ export default class InternalEditor {
 
         // also supporting currently not active layers.
         HERE_WIKI.getProviderById = function(layerId) {
-            return PROVIDER_ID_TO_LAYER[layerId].getProvider();
+            const layer = PROVIDER_ID_TO_LAYER[layerId];
+            if (layer) {
+                return layer.getProvider();
+            }
         };
 
         HERE_WIKI.getLayerById = (layerId) => {

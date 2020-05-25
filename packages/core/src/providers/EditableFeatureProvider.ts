@@ -65,18 +65,24 @@ type Hooks = {
 export abstract class EditableFeatureProvider extends FeatureTileProvider {
     _e: any;
 
-    isEditable = true;
+    editable: boolean;
 
     hooks: Hooks;
 
-    detectFeatureClass(feature): FeatureClass {
+    private blocked = {};
+
+    constructor(cfg, options) {
+        super({editable: true, ...cfg}, options);
+    }
+
+
+    detectFeatureClass(feature): FeatureClass | null {
         switch (feature.geometry.type) {
         case 'Point':
             return 'MARKER';
         case 'LineString':
             return 'LINE';
         case 'Polygon':
-            return 'AREA';
         case 'MultiPolygon':
             return 'AREA';
         }
@@ -115,9 +121,6 @@ export abstract class EditableFeatureProvider extends FeatureTileProvider {
         };
     };
 
-
-    private blocked = {};
-
     blockFeature(feature, block) {
         const id = feature.id || feature;
         const type = typeof id;
@@ -143,7 +146,7 @@ export abstract class EditableFeatureProvider extends FeatureTileProvider {
     };
 
     // act as getter/setter
-    isoCC(feature, isocc?: string|number) {
+    isoCC(feature, isocc?: string | number) {
         // isoCC always valid -> no reverse geoc
         return true;
     }

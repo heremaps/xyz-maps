@@ -27,4 +27,3 @@ export {EditableRemoteTileProvider} from './RemoteTileProvider/EditableRemoteTil
 export {SpaceProvider} from './GeoSpace/SpaceProvider';
 export {MVTProvider} from './MVTProvider/MVTProvider';
 export {EditableFeatureProvider} from './EditableFeatureProvider';
-export {LocalEditProvider} from './LocalEditProvider';

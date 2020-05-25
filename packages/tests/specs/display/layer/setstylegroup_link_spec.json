@@ -3,7 +3,7 @@
         "id": "linkLayer",
         "provider": {
             "id": "linkProvider",
-            "type": "LocalEditProvider",
+            "type": "LocalProvider",
             "name": "Links",
             "level": 15,
             "class": "NAVLINK"

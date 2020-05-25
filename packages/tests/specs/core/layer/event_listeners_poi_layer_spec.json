@@ -3,7 +3,7 @@
         "id": "placeLayer",
         "provider": {
             "id": "placeProvider",
-            "type": "LocalEditProvider",
+            "type": "LocalProvider",
             "name": "Places",
             "level": 16
         },

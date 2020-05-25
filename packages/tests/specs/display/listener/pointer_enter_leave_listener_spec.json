@@ -4,7 +4,7 @@
         "name": "Link Layer",
         "provider": {
             "id": "linkProvider",
-            "type": "LocalEditProvider",
+            "type": "LocalProvider",
             "name": "Links",
             "level": 15,
             "class": "NAVLINK"
@@ -54,7 +54,7 @@
         "id": "placeLayer",
         "provider": {
             "id": "placeProvider",
-            "type": "LocalEditProvider",
+            "type": "LocalProvider",
             "name": "Places",
             "level": 14
         },

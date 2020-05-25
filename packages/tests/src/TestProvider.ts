@@ -61,7 +61,7 @@ const createProvider = (provider) => {
         hooks: Hooks;
 
         constructor(props, preprocessor?: Function) {
-            super(props, preprocessor);
+            super({editable: true, ...props}, preprocessor);
 
             this.hooks = {
                 'Navlink.split': function(data: SplitHookData) {
@@ -69,7 +69,7 @@ const createProvider = (provider) => {
                     let children = data.children;
                     link.prop('splittedInto', children.map((c) => c.id));
                     link.prop('splitted', 'HOOK');
-                    children.forEach((child)=>{
+                    children.forEach((child) => {
                         child.prop('parentLink', link.id);
                         child.prop('originLink', link.prop('originLink') || link.id);
                     });
@@ -137,7 +137,7 @@ const createProvider = (provider) => {
             return feature.prop('direction') || 'BOTH';
         }
 
-        readRoutingProvider(location: Feature, providers ): string {
+        readRoutingProvider(location: Feature, providers): string {
             for (let provider of providers) {
                 if (provider.id.toLowerCase().indexOf('link') >= 0) {
                     return provider.id;
@@ -168,7 +168,7 @@ const createProvider = (provider) => {
     return NewProvider;
 };
 
-const TestLocalProvider = createProvider(providers.LocalEditProvider);
+const TestLocalProvider = createProvider(providers.LocalProvider);
 const TestProvider = createProvider(providers.SpaceProvider);
 
 export {TestLocalProvider, TestProvider};

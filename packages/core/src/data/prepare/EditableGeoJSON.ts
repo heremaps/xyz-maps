@@ -77,8 +77,9 @@ const updateBBox = function(feature) {
     const provider = this;
 
     if (geoType == 'Point') {
+        const featureClass = feature.class;
         // add routingpoint to bbox to make sure point bbox and navlink bbox are intersecting.
-        if (feature.class && feature.class != 'MARKER') {
+        if (featureClass == 'PLACE' || featureClass == 'ADDRESS') {
             const routingPointPosition = feature.properties && provider.readRoutingPosition(feature);
 
             if (routingPointPosition) {

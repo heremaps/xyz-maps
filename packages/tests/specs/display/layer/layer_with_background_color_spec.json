@@ -3,7 +3,7 @@
         "id": "Layer1",
         "provider": {
             "id": "myProvider1",
-            "type": "LocalEditProvider",
+            "type": "LocalProvider",
             "name": "my Provider",
             "level": 15
         },
@@ -13,7 +13,7 @@
         "id": "Layer2",
         "provider": {
             "id": "myProvider2",
-            "type": "LocalEditProvider",
+            "type": "LocalProvider",
             "name": "my Provider",
             "level": 15
         },

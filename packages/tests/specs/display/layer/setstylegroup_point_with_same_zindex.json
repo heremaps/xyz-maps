@@ -4,7 +4,7 @@
         "name": "Link Layer",
         "provider": {
             "id": "linkProvider",
-            "type": "LocalEditProvider",
+            "type": "LocalProvider",
             "name": "Links",
             "level": 15,
             "class": "NAVLINK"
@@ -15,7 +15,7 @@
         "id": "buildingLayer",
         "provider": {
             "id": "buildingProvider",
-            "type": "LocalEditProvider",
+            "type": "LocalProvider",
             "name": "Buildings",
             "level": 13
         },
@@ -37,7 +37,7 @@
         "name": "Address Layer",
         "provider": {
             "id": "paProvider",
-            "type": "LocalEditProvider",
+            "type": "LocalProvider",
             "name": "Address",
             "level": 14
         },

@@ -3,7 +3,7 @@
         "id": "addressLayer",
         "provider": {
             "id": "addressProvider",
-            "type": "LocalEditProvider",
+            "type": "LocalProvider",
             "name": "Address",
             "level": 16
         },
