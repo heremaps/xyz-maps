@@ -65,7 +65,7 @@ function parseArgv(arg, dataPath, data) {
         dataPath = path.join(__dirname, dataPath);
 
         if (Array.isArray(arg)) {
-            arg.forEach((v)=>{
+            arg.forEach((v) => {
                 if (typeof v == 'string') {
                     dataPath = v;
                 } else {
@@ -92,12 +92,6 @@ function parseArgv(arg, dataPath, data) {
 }
 
 function getRollupConfig() {
-    // get credential in argument
-    credentials = parseArgv(argv.credentials, credentialsPath, credentials);
-
-    // get environment in argument
-    environments = parseArgv(argv.environments, environmentsPath, environments);
-
     let testFilter = {};
     let compListCopy = Object.assign([], testComponents);
 
@@ -120,6 +114,26 @@ function getRollupConfig() {
 
     // run tests for editor, display, core, common by default
     if (compsToRun.length == 0) compsToRun = apiComponents;
+
+
+    try {
+        // get credential in argument
+        credentials = parseArgv(argv.credentials, credentialsPath, credentials);
+    } catch (e) {
+        // only needed for integration tests..
+        if (compsToRun.indexOf('integration') >= 0) {
+            process.exitCode = 1;
+            throw e;
+        }
+    }
+
+    try {
+        // get environment in argument
+        environments = parseArgv(argv.environments, environmentsPath, environments);
+    } catch (e) {
+        process.exitCode = 1;
+        throw e;
+    }
 
     return require('./rollup.config')({
         mochaSettings,
@@ -225,7 +239,7 @@ function getKarmaConfig(comp) {
 
 
     karmaConfig.files.forEach((file) => {
-        if (file.id ) {
+        if (file.id) {
             var sourceFiles = {};
 
             // pass in path of each API component
@@ -246,7 +260,7 @@ function getKarmaConfig(comp) {
         }
     });
 
-    for ( a in argv) {
+    for (a in argv) {
         let la = a.toLowerCase();
         if (karmaSettings.hasOwnProperty(la)) {
             // browser, singleRun are get here
@@ -269,7 +283,7 @@ function getKarmaConfig(comp) {
 function cleanReport(comp) {
     var output = 'dist/' + comp + '/output/';
 
-    mkdirp(output).then(()=>{
+    mkdirp(output).then(() => {
         rimraf(output + '*', function(e) {
             console.log('\x1b[32m%s\x1b[0m', 'Outputs cleaned for ' + comp);
         });
@@ -350,7 +364,7 @@ function CleanupServer(port) {
 
     this.port = port;
 
-    this.close = ()=>this.server.close();
+    this.close = () => this.server.close();
 }
 
 if (argv.test) {
