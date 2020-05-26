@@ -58,7 +58,7 @@ describe('setStyleGroup Point with text', function() {
         paLayer.setStyleGroup(
             feature, [
                 {'zIndex': 0, 'type': 'Rect', 'width': 96, 'height': 96, 'opacity': 1, 'fill': '#ff0000'},
-                {'zIndex': 1, 'type': 'Text', 'fill': '#000000', 'text': 'H', 'font': 'bold 96px Arial'}
+                {'zIndex': 1, 'type': 'Text', 'fill': '#000000', 'text': 'H', 'font': 'bold 96px Arial,Helvetica,sans-serif'}
             ]);
 
         // validate features have new style
@@ -86,7 +86,7 @@ describe('setStyleGroup Point with text', function() {
         paLayer.setStyleGroup(
             feature, [
                 {'zIndex': 0, 'type': 'Rect', 'width': 96, 'height': 96, 'opacity': 1, 'fill': '#ff0000'},
-                {'zIndex': 1, 'type': 'Text', 'fill': '#000000', 'text': 'H', 'opacity': 0.5, 'font': 'bold 96px Arial'}
+                {'zIndex': 1, 'type': 'Text', 'fill': '#000000', 'text': 'H', 'opacity': 0.5, 'font': 'bold 96px Arial,Helvetica,sans-serif'}
             ]);
 
         // validate features have new style
@@ -114,7 +114,7 @@ describe('setStyleGroup Point with text', function() {
         paLayer.setStyleGroup(
             feature, [
                 {'zIndex': 0, 'type': 'Rect', 'width': 96, 'height': 96, 'opacity': 1, 'fill': '#ff0000'},
-                {'zIndex': 1, 'type': 'Text', 'fill': '#000000', 'textRef': 'properties.address', 'font': 'bold 96px Arial'}
+                {'zIndex': 1, 'type': 'Text', 'fill': '#000000', 'textRef': 'properties.address', 'font': 'bold 96px Arial,Helvetica,sans-serif'}
             ]);
 
         // validate features have new style
@@ -140,7 +140,7 @@ describe('setStyleGroup Point with text', function() {
         paLayer.setStyleGroup(
             feature, [
                 {'zIndex': 0, 'type': 'Rect', 'width': 96, 'height': 96, 'opacity': 1, 'fill': '#ff0000'},
-                {'zIndex': 1, 'type': 'Text', 'fill': '#000000', 'text': 'H', 'font': 'bold 96px Arial', 'offsetX': 10}
+                {'zIndex': 1, 'type': 'Text', 'fill': '#000000', 'text': 'H', 'font': 'bold 96px Arial,Helvetica,sans-serif', 'offsetX': 10}
             ]);
 
         // validate features have new style
@@ -168,7 +168,7 @@ describe('setStyleGroup Point with text', function() {
         paLayer.setStyleGroup(
             feature, [
                 {'zIndex': 0, 'type': 'Rect', 'width': 96, 'height': 96, 'opacity': 1, 'fill': '#ff0000'},
-                {'zIndex': 1, 'type': 'Text', 'fill': '#000000', 'text': 'H', 'font': 'bold 96px Arial', 'offsetX': -10}
+                {'zIndex': 1, 'type': 'Text', 'fill': '#000000', 'text': 'H', 'font': 'bold 96px Arial,Helvetica,sans-serif', 'offsetX': -10}
             ]);
 
         // validate features have new style
@@ -196,7 +196,7 @@ describe('setStyleGroup Point with text', function() {
         paLayer.setStyleGroup(
             feature, [
                 {'zIndex': 0, 'type': 'Rect', 'width': 96, 'height': 96, 'opacity': 1, 'fill': '#ff0000'},
-                {'zIndex': 1, 'type': 'Text', 'fill': '#000000', 'text': 'H', 'font': 'bold 96px Arial', 'offsetY': 10}
+                {'zIndex': 1, 'type': 'Text', 'fill': '#000000', 'text': 'H', 'font': 'bold 96px Arial,Helvetica,sans-serif', 'offsetY': 10}
             ]);
 
         // validate features have new style
@@ -224,7 +224,7 @@ describe('setStyleGroup Point with text', function() {
         paLayer.setStyleGroup(
             feature, [
                 {'zIndex': 0, 'type': 'Rect', 'width': 96, 'height': 96, 'opacity': 1, 'fill': '#ff0000'},
-                {'zIndex': 1, 'type': 'Text', 'fill': '#000000', 'text': 'H', 'font': 'bold 96px Arial', 'offsetY': -10}
+                {'zIndex': 1, 'type': 'Text', 'fill': '#000000', 'text': 'H', 'font': 'bold 96px Arial,Helvetica,sans-serif', 'offsetY': -10}
             ]);
 
         // validate features have new style
@@ -252,7 +252,7 @@ describe('setStyleGroup Point with text', function() {
         paLayer.setStyleGroup(
             feature, [
                 {'zIndex': 0, 'type': 'Rect', 'width': 96, 'height': 96, 'opacity': 1, 'fill': '#ff0000'},
-                {'zIndex': 1, 'type': 'Text', 'fill': '#000000', 'text': 'H', 'font': 'bold 96px Arial', 'offsetX': 10, 'offsetY': 10}
+                {'zIndex': 1, 'type': 'Text', 'fill': '#000000', 'text': 'H', 'font': 'bold 96px Arial,Helvetica,sans-serif', 'offsetX': 10, 'offsetY': 10}
             ]);
 
         // validate features have new style
