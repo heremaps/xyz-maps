@@ -4,6 +4,7 @@
         "provider": {
             "id": "placeGeoJsonProvider",
             "type": "GeoJSONProvider",
+            "url": "base/tests/assets/tiles/tile.json?quadkey={QUADKEY}",
             "name": "Places",
             "level": 14
         },

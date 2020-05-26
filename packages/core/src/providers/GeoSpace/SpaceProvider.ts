@@ -17,14 +17,13 @@
  * License-Filename: LICENSE
  */
 
-import {EditableProvider} from '../EditableProvider';
-
 import {Feature} from '../../features/Feature';
 import {JSUtils, Queue} from '@here/xyz-maps-common';
 
 /* exported SpaceProviderOptions */
 
 import SpaceProviderOptions from './SpaceOptions';
+import {GeoJSONProvider} from '../GeoJSONProvider';
 
 type FeatureId = string | number;
 
@@ -45,8 +44,6 @@ const addUrlParams = (url: string, params: { [key: string]: string }, p: '?' | '
     }
     return url;
 };
-
-const METHOD_NOT_IMPLEMENTED = 'Method not implemented.';
 
 const createOptions = (options) => {
     options = JSUtils.extend(JSUtils.clone(SpaceProviderOptions), options);
@@ -73,12 +70,12 @@ type ErrorEventHandler = (error) => void;
  *  @public
  *  @expose
  *  @constructor
- *  @extends here.xyz.maps.providers.EditableProvider
+ *  @extends here.xyz.maps.providers.HTTPProvider
  *  @param {here.xyz.maps.providers.SpaceProvider.Options} config configuration of the provider
  *  @param {Function} preprocessor function to be called after this provider is ready.
  *  @name here.xyz.maps.providers.SpaceProvider
  */
-export class SpaceProvider extends EditableProvider {
+export class SpaceProvider extends GeoJSONProvider {
     private tags: string[];
     private space: string;
     private clip: boolean;
@@ -111,9 +108,6 @@ export class SpaceProvider extends EditableProvider {
      *  @param {here.xyz.maps.providers.SpaceProvider.Options} cfg
      *  @return {here.xyz.maps.providers.SpaceProvider}
      */
-    // config
-
-
     commit(features, onSuccess?, onError?) {
         const prov = this;
         const loaders = prov.loader.src;
@@ -216,7 +210,7 @@ export class SpaceProvider extends EditableProvider {
     };
 
     setMargin(margin) {
-        EditableProvider.prototype.setMargin.call(this, margin);
+        GeoJSONProvider.prototype.setMargin.call(this, margin);
         this.setUrl(this.getTileUrl(this.space));
     };
 
@@ -472,44 +466,4 @@ export class SpaceProvider extends EditableProvider {
 
         return url;
     };
-
-    readDirection(link: Feature): 'BOTH' | 'START_TO_END' | 'END_TO_START' {
-        throw new Error(METHOD_NOT_IMPLEMENTED);
-        // return 'BOTH';
-    }
-
-    readPedestrianOnly(link: Feature): boolean {
-        throw new Error(METHOD_NOT_IMPLEMENTED);
-    }
-
-    writeTurnRestriction(restricted: boolean, turnFrom: { link: Feature; index: number; }, turnTo: { link: Feature; index: number; }) {
-        throw new Error(METHOD_NOT_IMPLEMENTED);
-    }
-
-    readRoutingProvider(location: Feature, providers?: EditableProvider[]): string {
-        return this.id;
-    }
-
-    readRoutingPosition(feature: any): [number, number, number?] {
-        throw new Error(METHOD_NOT_IMPLEMENTED);
-    }
-
-    readRoutingLink(feature: any): string | number {
-        throw new Error(METHOD_NOT_IMPLEMENTED);
-    }
-
-    writeRoutingPosition(feature: any, position: [number, number, number?]) {
-        throw new Error(METHOD_NOT_IMPLEMENTED);
-    }
-
-    writeRoutingLink(location: any, link: Feature) {
-        throw new Error(METHOD_NOT_IMPLEMENTED);
-    }
-
-    readTurnRestriction(turnFrom: { link: Feature; index: number; }, turnTo: { link: Feature; index: number; }): boolean {
-        throw new Error(METHOD_NOT_IMPLEMENTED);
-    }
-
-    writeEditState(feature, editState: 'created' | 'modified' | 'removed' | 'split') {
-    }
 }

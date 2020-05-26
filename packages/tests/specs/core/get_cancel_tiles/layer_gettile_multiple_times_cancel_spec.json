@@ -3,7 +3,8 @@
         "id": "placeLayer",
         "provider": {
             "id": "placeProvider",
-            "type": "SpaceProvider",
+            "type": "GeoJSONProvider",
+            "url": "base/tests/assets/tiles/tile.json?quadkey={QUADKEY}",
             "name": "Places",
             "level": 16
         },

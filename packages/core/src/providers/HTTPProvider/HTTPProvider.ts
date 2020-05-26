@@ -17,10 +17,9 @@
  * License-Filename: LICENSE
  */
 
-import {RemoteTileProvider} from '../RemoteTileProvider/RemoteTileProvider';
+import {EditableRemoteTileProvider} from '../RemoteTileProvider/EditableRemoteTileProvider';
 import LoaderManager from '../../loaders/Manager';
 import {HTTPLoader} from '../../loaders/HTTPLoader';
-
 import {JSUtils} from '@here/xyz-maps-common';
 
 /* exported Options */
@@ -29,6 +28,7 @@ import Options from './HTTPProviderOptions';
 
 const doc = Options; // doc only!
 
+const METHOD_NOT_IMPLEMENTED = 'Method not implemented.';
 
 const parseParams = (url: string, params?: { [key: string]: string }) => {
     params = params || {};
@@ -48,10 +48,9 @@ const parseParams = (url: string, params?: { [key: string]: string }) => {
  *  @constructor
  *  @extends here.xyz.maps.providers.RemoteTileProvider
  *  @param {here.xyz.maps.providers.HTTPProvider.Options} config configuration of the provider
- *  @param {Object} defaultConfig
  *  @name here.xyz.maps.providers.HTTPProvider
  */
-class HTTPProvider extends RemoteTileProvider {
+class HTTPProvider extends EditableRemoteTileProvider {
     protected url: string;
     protected params;
     protected headers: { [name: string]: string };
@@ -83,7 +82,6 @@ class HTTPProvider extends RemoteTileProvider {
         this.setParams(options.params || {});
         this.setHeaders(options.headers || {});
     }
-
 
     /**
      *  Get a specific request-header being added to all requests handled by provider.
@@ -213,7 +211,7 @@ class HTTPProvider extends RemoteTileProvider {
         this.params = params;
 
         // in case of url is defined as a function user needs to deal with params by himself.
-        if ( typeof url == 'string' ) {
+        if (typeof url == 'string') {
             params = JSUtils.extend(parseParams(url), params);
 
             let newUrl = url.split(/\?/)[0];
@@ -244,7 +242,7 @@ class HTTPProvider extends RemoteTileProvider {
      *      The value(s) of the parameter.
      *      If undefined is set parameter get's cleared/removed.
      */
-    setParam(name: string, value: string|string[]) {
+    setParam(name: string, value: string | string[]) {
         let params = {};
         params[name] = value;
         this.setParams(params);
@@ -258,6 +256,75 @@ class HTTPProvider extends RemoteTileProvider {
             this.setParams({});
         }
         return this;
+    }
+
+
+    /**
+     *  Commit modified features to the backend
+     *
+     *  @public
+     *  @expose
+     *  @function
+     *  @name here.xyz.maps.providers.HTTPProvider#commit
+     *  @param {Object} data the data to commit to the backend
+     *  @param {here.xyz.maps.providers.FeatureProvider.Feature|Array.<here.xyz.maps.providers.FeatureProvider.Feature>} data.put features that should be created or updated
+     *  @param {here.xyz.maps.providers.FeatureProvider.Feature|Array.<here.xyz.maps.providers.FeatureProvider.Feature>} data.remove features that should be removed
+     *  @param {Function=} onSuccess callback function on success
+     *  @param {Function=} onError callback function on error
+     */
+    commit(features, onSuccess, onError, transactionId?: string) {
+        throw new Error(METHOD_NOT_IMPLEMENTED);
+    }
+
+    /**
+     *  Get url feature requests.
+     *
+     *  @public
+     *  @expose
+     *  @function
+     *  @name here.xyz.maps.providers.HTTPProvider#getFeatureUrl
+     *  @param {Array.<String>} layer layer id
+     *  @param {Object=} feature feature id
+     *  @return {String} feature url
+     */
+    // abstract getFeatureUrl(layer, id): string;
+    getFeatureUrl(layer, id): string {
+        throw new Error(METHOD_NOT_IMPLEMENTED);
+    }
+
+    /**
+     *  Get url for layer requests.
+     *
+     *  @public
+     *  @expose
+     *  @function
+     *  @name here.xyz.maps.providers.HTTPProvider#getLayerUrl
+     *  @param {String} layer layer id
+     *  @return {String} url to layer
+     */
+    // abstract getLayerUrl(layer): string;
+    getLayerUrl(layer): string {
+        throw new Error(METHOD_NOT_IMPLEMENTED);
+    }
+
+    /**
+     *  Get url for tile requests.
+     *
+     *  @public
+     *  @expose
+     *  @function
+     *  @name here.xyz.maps.providers.HTTPProvider#getTileUrl
+     *  @param {String} layer layer id
+     *  @return {String} url to a tile in a layer
+     */
+    // abstract getTileUrl(layer): string;
+    getTileUrl(layer): string {
+        throw new Error(METHOD_NOT_IMPLEMENTED);
+    }
+
+    // request individual features from backend
+    _requestFeatures(ids, onSuccess, onError, opt?) {
+        throw new Error(METHOD_NOT_IMPLEMENTED);
     }
 }
 

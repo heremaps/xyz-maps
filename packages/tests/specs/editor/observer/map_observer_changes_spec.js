@@ -44,7 +44,6 @@ describe('map changes observers', function() {
     });
 
     after(async function() {
-        await clean(editor, idMaps);
         editor.destroy();
         display.destroy();
 

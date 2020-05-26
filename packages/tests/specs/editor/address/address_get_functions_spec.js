@@ -88,7 +88,7 @@ describe('Address get functions', function() {
     it('get correct geoCoordinates, pixel coordinate', async function() {
         expect(address.coord()).to.deep.almost([73.262911206, 19.210066027, 0]);
         expect(address.prop()).to.deep.include({
-            'routingLink': link.id,
+            'routingLink': link.id + '',
             'routingPoint': [73.26291, 19.20981, 0],
             'housenumber': '180a',
             'roadname': 'test street'

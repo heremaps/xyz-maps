@@ -4,7 +4,7 @@
         "name": "Link Layer",
         "provider": {
             "id": "linkProvider",
-            "type": "TestProvider",
+            "type": "LocalProvider",
             "name": "Links",
             "level": 15,
             "class": "NAVLINK"

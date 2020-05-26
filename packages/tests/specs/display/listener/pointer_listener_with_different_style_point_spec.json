@@ -4,7 +4,7 @@
         "name": "Link Layer",
         "provider": {
             "id": "linkProvider",
-            "type": "TestProvider",
+            "type": "LocalProvider",
             "name": "Links",
             "level": 15,
             "class": "NAVLINK"
@@ -12,7 +12,7 @@
         "min": 14,
         "max": 20,
         "data": {
-            "remote": [{
+            "local": [{
                 "type": "Feature",
                 "properties": {
                     "featureClass": "NAVLINK"
@@ -30,14 +30,14 @@
         "id": "placeLayer",
         "provider": {
             "id": "placeProvider",
-            "type": "TestProvider",
+            "type": "LocalProvider",
             "name": "Places",
             "level": 14
         },
         "min": 14,
         "max": 20,
         "data": {
-            "remote": [{
+            "local": [{
                 "geometry": {
                     "coordinates": [73.04472, 20.40721, 0.0],
                     "type": "Point"

@@ -20,5 +20,4 @@
 import './get_cancel_tiles/*';
 import './layer/*';
 import './provider/*/*';
-import './provider/*.js';
 

@@ -9,8 +9,10 @@ addons:
   chrome: stable
 jobs:
   include:
-    - name: "Build & Publish"
-      script: yarn run build-release
+    - name: "Build & Test"
+      script:
+        - yarn run build-release
+        - yarn test --browser ChromeHeadless
       deploy:
       - provider: script
         script: ./scripts/publish-npm.sh

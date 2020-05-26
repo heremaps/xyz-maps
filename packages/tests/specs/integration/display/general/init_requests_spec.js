@@ -25,12 +25,19 @@ import dataset from './init_requests_spec.json';
 describe('initial requests of display', function() {
     const expect = chai.expect;
 
+    let preparedData;
     let display;
     let requests;
 
     before(async function() {
-        let preparedData = await prepare(dataset);
+        preparedData = await prepare(dataset);
+    });
 
+    after(async function() {
+        display && display.destroy();
+    });
+
+    it('initialize display and validate there are 3 requests sent', async function() {
         let monitor = new MonitorXHR();
         monitor.start();
         display = new Map(document.getElementById('map'), {
@@ -45,13 +52,7 @@ describe('initial requests of display', function() {
         await waitForViewportReady(display);
 
         requests = monitor.stop({method: 'all'});
-    });
 
-    after(async function() {
-        display.destroy();
-    });
-
-    it('validate there are 3 requests sent', async function() {
         // two tile requests and one space request.
         expect(requests).to.have.lengthOf(3);
     });

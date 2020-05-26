@@ -50,7 +50,7 @@ describe('layer with background color', function() {
 
         expect(display.getLayers()).to.be.lengthOf(0);
 
-        let newLayer = preparedData.getLayers('spaceLayer1');
+        let newLayer = preparedData.getLayers('Layer1');
 
         await waitForViewportReady(display, [newLayer], ()=>{
             display.addLayer(newLayer);
@@ -79,7 +79,7 @@ describe('layer with background color', function() {
 
         expect(display.getLayers()).to.be.lengthOf(0);
 
-        let newLayer = preparedData.getLayers('spaceLayer2');
+        let newLayer = preparedData.getLayers('Layer2');
 
         await waitForViewportReady(display, [newLayer], ()=>{
             display.addLayer(newLayer);

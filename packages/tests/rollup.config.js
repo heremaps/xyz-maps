@@ -384,5 +384,93 @@ module.exports = function(config) {
         });
     }
 
+    if (compsToRun.indexOf('integration') > -1 ) {
+        let mochaSettings = {};
+
+        if (testFilter['integration']) {
+            mochaSettings = {grep: testFilter['integration']};
+        }
+
+        Object.assign(mochaSettings, config.mochaSettings);
+
+        bundles.push({
+            input: {
+                input: './src/main-integration.ts',
+                external: ['@here/xyz-maps-core', '@here/xyz-maps-editor'],
+                plugins: [
+                    typescript({
+                        typescript: require('typescript'),
+                        // only compileroptions are read from tsconfig.json
+                        include: ['src/**/*'],
+                        exclude: ['node_modules', 'dist']
+                    }),
+                    json(),
+                    del({targets: 'dist/integration'}),
+                    virtual({
+                        'settings': 'export default' + JSON.stringify(mochaSettings),
+                        'environments': 'export default' + JSON.stringify(environments),
+                        'credentials': 'export default' + JSON.stringify(credentials),
+                        'cleanupServer': 'export default' + JSON.stringify(cleanupServer)
+                    }),
+                    resolve(),
+                    commonjs(),
+                    postcss({
+                        plugins: []
+                    })
+                ]
+            },
+            output: {
+                file: 'dist/integration/integrationTests.js',
+                format: 'umd',
+                name: 'here.test',
+                sourcemap: true,
+                globals: {
+                    '@here/xyz-maps-core': 'here.xyz.maps',
+                    '@here/xyz-maps-editor': 'here.xyz.maps.editor'
+                }
+            }
+        }, {
+            input: {
+                input: 'specs/integration/main.ts',
+                external: ['coreUtils', 'displayUtils', 'editorUtils', 'utils', 'triggerEvents', '@here/xyz-maps-core', '@here/xyz-maps-display', '@here/xyz-maps-editor'],
+                plugins: [
+                    typescript({
+                        typescript: require('typescript'),
+                        // only compileroptions are read from tsconfig.json
+                        include: ['specs/main.ts'],
+                        exclude: ['node_modules', 'dist']
+                    }),
+                    json(),
+                    del({targets: 'dist/integration/specs*.js'}),
+                    globImport({
+                        format: 'import'
+                    }),
+                    resolve(),
+                    commonjs(),
+                    copy({
+                        targets: [
+                            {src: 'statics/runnerintegration.html', dest: 'dist/integration'}
+                        ]
+                    })
+                ]
+            },
+            output: {
+                file: 'dist/integration/'+specsFileName,
+                format: 'umd',
+                name: 'integrationTests',
+                sourcemap: true,
+                globals: {
+                    'coreUtils': 'here.test.coreUtils',
+                    'displayUtils': 'here.test.displayUtils',
+                    'editorUtils': 'here.test.editorUtils',
+                    'utils': 'here.test.utils',
+                    'triggerEvents': 'here.test.events',
+                    '@here/xyz-maps-core': 'here.xyz.maps',
+                    '@here/xyz-maps-editor': 'here.xyz.maps.editor'
+                }
+            }
+        });
+    }
+
     return bundles;
 };

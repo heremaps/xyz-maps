@@ -3,7 +3,7 @@
         "id": "linkLayer",
         "provider": {
             "id": "linkProvider",
-            "type": "TestProvider",
+            "type": "TestLocalProvider",
             "name": "Links",
             "level": 15,
             "class": "NAVLINK"
@@ -14,14 +14,14 @@
         "id": "placeLayer",
         "provider": {
             "id": "placeProvider",
-            "type": "TestProvider",
+            "type": "TestLocalProvider",
             "name": "Places",
             "level": 14
         },
         "min": 14,
         "max": 20,
         "data": {
-            "remote": [{
+            "local": [{
                 "id": -29493,
                 "geometry": {
                     "coordinates": [80.478081562, 16.476287616, 0],

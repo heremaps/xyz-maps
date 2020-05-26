@@ -136,18 +136,18 @@ describe('setStyleGroup Link', function() {
         // set link style
         linkLayer.setStyleGroup(
             feature, [
-                {'zIndex': 0, 'type': 'Line', 'stroke': '#000000', 'strokeWidth': 18},
-                {'zIndex': 1, 'type': 'Text', 'fill': '#ffffff', 'text': 'HERE', 'font': 'bold 30px Arial'}
+                {'zIndex': 0, 'type': 'Line', 'stroke': '#000000', 'strokeWidth': 38},
+                {'zIndex': 1, 'type': 'Text', 'fill': '#ffffff', 'text': 'HERE', 'font': 'bold 50px Arial,Helvetica,sans-serif'}
             ]);
 
         // validate new link style
         await new Promise((resolve) => {
             setTimeout(() => {
-                let color1 = getCanvasPixelColor(mapContainer, 448, 303); // get color of link
-                let color2 = getCanvasPixelColor(mapContainer, 454, 303); // get color of first character H (left side)
-                let color3 = getCanvasPixelColor(mapContainer, 462, 303); // get color between bars of character H
-                let color4 = getCanvasPixelColor(mapContainer, 467, 303); // get color of first character H (right side)
-                let color5 = getCanvasPixelColor(mapContainer, 472, 303); // get link color between first H and E
+                let color1 = getCanvasPixelColor(mapContainer, 420, 308); // get color of link
+                let color2 = getCanvasPixelColor(mapContainer, 431, 308); // get color of first character H (left side)
+                let color3 = getCanvasPixelColor(mapContainer, 443, 308); // get color between bars of character H
+                let color4 = getCanvasPixelColor(mapContainer, 452, 308); // get color of first character H (right side)
+                let color5 = getCanvasPixelColor(mapContainer, 461, 308); // get link color between first H and E
 
                 expect(color1).to.equal('#000000');
                 expect(color2).to.equal('#ffffff');

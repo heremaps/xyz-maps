@@ -3,7 +3,7 @@
         "id": "buildingLayer",
         "provider": {
             "id": "buildingProvider",
-            "type": "SpaceProvider",
+            "type": "LocalProvider",
             "name": "Buildings",
             "level": 13
         },
@@ -13,7 +13,7 @@
         "id": "linkLayer",
         "provider": {
             "id": "linkProvider",
-            "type": "SpaceProvider",
+            "type": "LocalProvider",
             "name": "Links",
             "level": 15
         },
@@ -24,7 +24,7 @@
         "name": "Address Layer",
         "provider": {
             "id": "paProvider",
-            "type": "SpaceProvider",
+            "type": "LocalProvider",
             "name": "Address",
             "level": 14
         },
@@ -32,7 +32,7 @@
         "max": 20,
         "data": {
             "local": [{
-                "id": -804,
+                "id": "-804",
                 "geometry": {
                     "coordinates": [79.926650912, 12.964113637, 0],
                     "type": "Point"
@@ -46,7 +46,7 @@
         "id": "placeLayer",
         "provider": {
             "id": "placeProvider",
-            "type": "SpaceProvider",
+            "type": "LocalProvider",
             "name": "Places",
             "level": 14
         },

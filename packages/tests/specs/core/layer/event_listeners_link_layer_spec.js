@@ -34,13 +34,9 @@ describe('event listeners in link layer', function() {
         linkLayer = preparedData.getLayers('linkLayer');
         linkProvider = linkLayer.getProvider();
 
-        let results = await new Promise((resolve) => {
-            linkLayer.search({
-                point: {longitude: 73.42605, latitude: 17.89042},
-                radius: 50,
-                remote: true,
-                onload: resolve
-            });
+        let results = linkLayer.search({
+            point: {longitude: 73.42605, latitude: 17.89042},
+            radius: 50
         });
         expect(results).to.have.lengthOf(4);
 

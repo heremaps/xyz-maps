@@ -52,19 +52,6 @@ describe('set features style and restore', function() {
         expect(placeLayer.getStyle().styleGroups['Point'][0]).to.deep.include({'zIndex': 0, 'type': 'Circle'});
     });
 
-    it('search by point and radius and validate object is returned', async function() {
-        await new Promise((resolve) => {
-            let objs = addrLayer.search({
-                point: {longitude: 80.01097, latitude: 13.00157},
-                radius: 50,
-                remote: true,
-                onload: resolve
-            });
-
-            expect(objs).to.equal(undefined);
-        });
-    });
-
     it('get address style and validate', function() {
         let styles = addrLayer.getStyle();
 

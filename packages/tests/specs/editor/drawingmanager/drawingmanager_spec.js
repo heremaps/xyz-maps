@@ -16,7 +16,7 @@
  * SPDX-License-Identifier: Apache-2.0
  * License-Filename: LICENSE
  */
-import {MonitorXHR, prepare} from 'utils';
+import {prepare} from 'utils';
 import {waitForEditorReady, submit} from 'editorUtils';
 import {click, mousemove} from 'triggerEvents';
 import {Map} from '@here/xyz-maps-core';
@@ -89,47 +89,15 @@ describe('Create new Links then remove by drawingmanager', function() {
         ]);
     });
 
-
-    it('submit the new link', async function() {
-        let monitor = new MonitorXHR();
-        monitor.start({method: 'post'});
-        let idMap;
-
+    it('submit and validate link again', async function() {
         await waitForEditorReady(editor, async ()=>{
             idMap = await submit(editor);
         });
-        let linkId = idMap.permanentIDMap[link.getProvider().id][link.id];
-        let reqs = monitor.stop();
-        expect(reqs).to.have.lengthOf(1);
-        let payload = reqs[0].payload;
+        link = editor.getFeature(link.id, linkLayer);
 
-        link = editor.getFeature(linkId, linkLayer);
-
-        expect(payload.features[0].geometry.coordinates).to.deep.almost([
-            [76.983987116, 12.888282928, 0],
-            [76.983718895, 12.888648976, 0]
-        ]);
-        expect(payload.features[0].properties).to.deep.include({
-            'featureClass': 'NAVLINK'
-        });
-    });
-
-    it('validate link after submission', async function() {
         expect(link.coord()).to.deep.almost([
             [76.983987116, 12.888282928, 0],
             [76.983718895, 12.888648976, 0]
         ]);
-    });
-
-
-    it('remove created link', async function() {
-        link.remove();
-
-        await waitForEditorReady(editor, async ()=>{
-            await submit(editor);
-        });
-
-        let objs = editor.search(display.getViewBounds());
-        expect(objs).to.have.lengthOf(0);
     });
 });

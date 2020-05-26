@@ -34,15 +34,6 @@ describe('event listeners in poi layer', function() {
         placeLayer = preparedData.getLayers('placeLayer');
         placeProvider = placeLayer.getProvider();
 
-        await new Promise((resolve) =>{
-            placeLayer.search({
-                point: {longitude: -88.77912, latitude: 36.16015},
-                radius: 500,
-                remote: true,
-                onload: resolve
-            });
-        });
-
         place1 = preparedData.getFeature('placeLayer', -9118);
         place2 = preparedData.getFeature('placeLayer', -9119);
     });

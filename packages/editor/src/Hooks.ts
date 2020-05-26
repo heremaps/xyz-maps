@@ -21,7 +21,7 @@ import {Listener} from '@here/xyz-maps-common';
 import {providers} from '@here/xyz-maps-core';
 import History from './features/History';
 
-type EditableProvider = providers.EditableProvider;
+type EditableProvider = providers.EditableRemoteTileProvider;
 
 const hookTypes = [
     'Navlink.split',

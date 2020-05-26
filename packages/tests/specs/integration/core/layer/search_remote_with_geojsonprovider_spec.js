@@ -18,7 +18,7 @@
  */
 
 import {prepare} from 'utils';
-import dataset from './search_remote_geojsonprovider_spec.json';
+import dataset from './search_remote_with_geojsonprovider_spec.json';
 
 // GeoJSonProvider actually does not support remote search......
 // search locally instead
