@@ -26,8 +26,6 @@ const KarmaServer = require('karma').Server;
 const cfg = require('karma').config;
 const http = require('http');
 const request = require('request');
-const spawn = require('cross-spawn');
-
 
 var karmaSettings = {
     browser: ['Chrome'],
@@ -57,7 +55,7 @@ var parallelTest = true;
 var cleanupServerPort = 8090;
 
 let apiComponents = ['editor', 'display', 'core', 'common'];
-let testComponents = ['editor', 'display', 'core', 'common', 'integration'];
+let testComponents = apiComponents.concat('integration');
 let compsToRun = [];
 
 function parseArgv(arg, dataPath, data) {
@@ -115,25 +113,13 @@ function getRollupConfig() {
     // run tests for editor, display, core, common by default
     if (compsToRun.length == 0) compsToRun = apiComponents;
 
-
-    try {
+    // only needed for integration tests..
+    if (compsToRun.indexOf('integration') >= 0) {
         // get credential in argument
         credentials = parseArgv(argv.credentials, credentialsPath, credentials);
-    } catch (e) {
-        // only needed for integration tests..
-        if (compsToRun.indexOf('integration') >= 0) {
-            process.exitCode = 1;
-            throw e;
-        }
     }
-
-    try {
-        // get environment in argument
-        environments = parseArgv(argv.environments, environmentsPath, environments);
-    } catch (e) {
-        process.exitCode = 1;
-        throw e;
-    }
+    // get environment in argument
+    environments = parseArgv(argv.environments, environmentsPath, environments);
 
     return require('./rollup.config')({
         mochaSettings,
@@ -179,48 +165,46 @@ async function buildTests(done) {
     return Promise.all(outputs);
 };
 
-async function test(done) {
-    // all test components are built here
-    await buildTests();
+async function test() {
+    return new Promise((resolve, reject) => {
+        // start server for listening to messages that test is cancelled manually(reload page, close browser)
+        // the server will clear the spaces that were created by these tests.
+        let cleanupServer = new CleanupServer(cleanupServerPort);
+        let testReport = {};
 
-    // start server for listening to messages that test is cancelled manually(reload page, close browser)
-    // the server will clear the spaces that were created by these tests.
-    let cleanupServer = new CleanupServer(cleanupServerPort);
+        startTests(compsToRun, (results) => {
+            let passed = true;
+            let success = 0;
+            let failed = 0;
 
-    let testReport = {};
+            cleanupServer.close();
 
-    startTests(compsToRun, function(results) {
-        for (let cmp in results) {
-            var file = 'dist/' + cmp + '/output/report.json';
-            var output = JSON.parse(fs.readFileSync(file));
+            console.log('************ TESTS DONE ************');
 
-            testReport[cmp] = output;
-            testReport[cmp + '-report-path'] = file;
-        }
-        cleanupServer.close();
-        if (done) done();
-    });
+            for (let cmp in results) {
+                let file = 'dist/' + cmp + '/output/report.json';
+                let output = JSON.parse(fs.readFileSync(file));
+                testReport[cmp] = output;
 
-    console.log('\x1b[32m%s\x1b[0m', 'All components finish!!');
-
-    let error = false;
-
-    for (let i in testReport) {
-        if (testReport[i].summary) {
-            console.log(i, testReport[i].summary, 'summary');
-
-            if (testReport[i].summary.failed || testReport[i].summary.exitCode || testReport[i].summary.error) {
-                error = true;
+                let summary = output.summary;
+                if (summary) {
+                    console.log(`${cmp}:`, summary);
+                    if (summary.failed || summary.exitCode || summary.error) {
+                        passed = false;
+                    }
+                    success += summary.success;
+                    failed += summary.failed;
+                }
             }
-        }
-    }
 
-    if (error) {
-        throw Error('tests failed');
-    }
+            console.log(`TOTAL: ${success + failed}, \x1b[32mSUCCESS: ${success}\x1b[0m, \x1b[31mFAILED: ${failed}\x1b[0m`);
 
-    return new Promise(function(resolve) {
-        resolve(testReport);
+            if (!passed) {
+                return reject(new Error('TESTS FAILED'));
+            }
+
+            resolve(testReport);
+        });
     });
 };
 
@@ -310,9 +294,9 @@ function startTests(comps, done) {
 
     if (parallel) {
         comps.forEach((comp) => {
-            function completed(result) {
+            function completed(exitCode) {
                 finishedTests++;
-                testResults[comp] = result;
+                testResults[comp] = exitCode;
 
                 if (finishedTests == comps.length) {
                     done(testResults);
@@ -367,14 +351,25 @@ function CleanupServer(port) {
     this.close = () => this.server.close();
 }
 
-if (argv.test) {
-    test();
-}
+(async () => {
+    if (argv.buildTests) {
+        buildTests();
+    }
 
-if (argv.buildTests) {
-    buildTests();
-}
+    if (argv.buildTestsWatch) {
+        buildTestsWatch();
+    }
 
-if (argv.buildTestsWatch) {
-    buildTestsWatch();
-}
+    if (argv.test) {
+        try {
+            // all test components are built here
+            await buildTests();
+            await test();
+        } catch (e) {
+            process.exitCode = 1;
+            console.log(e);
+        }
+    }
+})();
+
+
