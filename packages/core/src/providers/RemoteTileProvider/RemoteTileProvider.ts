@@ -44,7 +44,6 @@ type TileLoader = any;
  *  @constructor
  *  @extends here.xyz.maps.providers.FeatureProvider
  *  @param {here.xyz.maps.providers.RemoteTileProvider.Options} config configuration of the provider
- *  @param {Object} defaultConfig
  *  @name here.xyz.maps.providers.RemoteTileProvider
  */
 export class RemoteTileProvider extends FeatureProvider {
@@ -178,52 +177,6 @@ export class RemoteTileProvider extends FeatureProvider {
             }
         }
     };
-
-    /**
-     *  Search for feature in provider.
-     *
-     *  @public
-     *  @expose
-     *  @function
-     *  @name here.xyz.maps.providers.RemoteTileProvider#search
-     *  @param {Object} options
-     *  @param {String=} options.id Object id.
-     *  @param {Array.<String>=} options.ids Array of object ids.
-     *  @param {here.xyz.maps.geo.Point=} options.point Center point of the circle for search
-     *  @param {number=} options.radius Radius of the circle in meters, it is used in "point" search.
-     *  @param {(here.xyz.maps.geo.Rect|Array.<number>)=} options.rect Rect object is either an array: [minLon, minLat, maxLon, maxLat] or Rect object defining rectangle to search in.
-     *  @param {Boolean=} options.remote Force the provider to do remote search if objects are not found in cache.
-     *  @param {Function=} options.onload callback function of search.
-     *  @param {Function=} options.onerror callback function for errors.
-     *  @example
-     * //searching by id:
-     *provider.search({id: 1058507462})
-     * //or:
-     *provider.search({ids: [1058507462, 1058507464]})
-     *@example
-     * //searching by point and radius:
-     *provider.search({
-     *  point: {longitude: 72.84205, latitude: 18.97172},
-     *  radius: 100
-     *})
-     *@example
-     * //searching by Rect:
-     *provider.search({
-     *  rect:  {minLon: 72.83584, maxLat: 18.97299, maxLon: 72.84443, minLat: 18.96876}
-     *})
-     *@example
-     * //remote search:
-     *provider.search({
-     *  rect:  {minLon: 72.83584, maxLat: 18.97299, maxLon: 72.84443, minLat: 18.96876},
-     *  remote: true, // force provider to do remote search if feature/search area is not cached locally
-     *  onload: function(e){
-     *   // search result is only return in this callback function if no features is found in cache.
-     *  }
-     *})
-     *  @return {Array.<here.xyz.maps.providers.RemoteTileProvider.Feature>} array of features
-     */
-    // search( { rect: bbox || point: point || id: id || ids:[], radius: 1, onload: function(){}, remote: true } )
-    // search( bbox||point||objID, { radius: 1, onload: function(){}, remote: true } )
 
     getLoader() {
         return this.loader;

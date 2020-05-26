@@ -60,13 +60,13 @@ const METHOD_NOT_IMPLEMENTED = 'Method not implemented.';
  *  Remote tile provider.
  *
  *  @public
+ *  @abstract
  *  @class
  *  @expose
  *  @constructor
  *  @extends here.xyz.maps.providers.FeatureProvider
- *  @param {here.xyz.maps.providers.RemoteEditableTileProvider.Options} config configuration of the provider
- *  @param {Object} defaultConfig
- *  @name here.xyz.maps.providers.RemoteEditableTileProvider
+ *  @param {here.xyz.maps.providers.RemoteTileProvider.Options} config configuration of the provider
+ *  @name here.xyz.maps.providers.EditableRemoteTileProvider
  */
 export abstract class EditableRemoteTileProvider extends EditableFeatureProvider {
     sizeKB = 0;
@@ -84,54 +84,6 @@ export abstract class EditableRemoteTileProvider extends EditableFeatureProvider
     loader: TileLoader;
 
     private _pp: any;
-
-    /**
-     *  Commit modified features to the backend
-     *
-     *  @public
-     *  @expose
-     *  @function
-     *  @name here.xyz.maps.providers.RemoteEditableTileProvider#commit
-     *  @param {Object} data the data to commit to the backend
-     *  @param {here.xyz.maps.providers.FeatureProvider.Feature|Array.<here.xyz.maps.providers.FeatureProvider.Feature>} data.put features that should be created or updated
-     *  @param {here.xyz.maps.providers.FeatureProvider.Feature|Array.<here.xyz.maps.providers.FeatureProvider.Feature>} data.remove features that should be removed
-     *  @param {Function=} onSuccess callback function on success
-     *  @param {Function=} onError callback function on error
-     */
-
-    /**
-     *  Get url feature requests.
-     *
-     *  @public
-     *  @expose
-     *  @function
-     *  @name here.xyz.maps.providers.RemoteEditableTileProvider#getFeatureUrl
-     *  @param {Array.<String>} layer layer id
-     *  @param {Object=} feature feature id
-     *  @return {String} feature url
-     */
-
-    /**
-     *  Get url for layer requests.
-     *
-     *  @public
-     *  @expose
-     *  @function
-     *  @name here.xyz.maps.providers.RemoteEditableTileProvider#getLayerUrl
-     *  @param {String} layer layer id
-     *  @return {String} url to layer
-     */
-
-    /**
-     *  Get url for tile requests.
-     *
-     *  @public
-     *  @expose
-     *  @function
-     *  @name here.xyz.maps.here.xyz.maps.providers.RemoteEditableTileProvider#getTileUrl
-     *  @param {String} layer layer id
-     *  @return {String} url to a tile in a layer
-     */
 
     constructor(config, preprocessor?: (data: any) => boolean) {
         super({
@@ -181,7 +133,7 @@ export abstract class EditableRemoteTileProvider extends EditableFeatureProvider
      *  @public
      *  @expose
      *  @function
-     *  @name here.xyz.maps.providers.RemoteEditableTileProvider#getFeatures
+     *  @name here.xyz.maps.providers.EditableRemoteTileProvider#getFeatures
      *  @param {Array.<String>} ids Array of ids, which will be returned by the functions
      *  @param {Object=} options
      *  @param {Boolean=} options.remote force search function to do remote search.
@@ -194,7 +146,7 @@ export abstract class EditableRemoteTileProvider extends EditableFeatureProvider
      *  @public
      *  @expose
      *  @function
-     *  @name here.xyz.maps.providers.RemoteEditableTileProvider#getFeatures
+     *  @name here.xyz.maps.providers.EditableRemoteTileProvider#getFeatures
      *  @param {Object} options this option should contain at least one of "ids" or "id".
      *  @param {Array.<String>=} options.ids array of ids
      *  @param {String=} options.id a single object id
@@ -292,7 +244,7 @@ export abstract class EditableRemoteTileProvider extends EditableFeatureProvider
      *  @public
      *  @expose
      *  @function
-     *  @name here.xyz.maps.providers.RemoteEditableTileProvider#cancel
+     *  @name here.xyz.maps.providers.EditableRemoteTileProvider#cancel
      *  @param {string | here.xyz.maps.providers.TileProvider.Tile} quadkey
      *      quadkey of the tile or the tile to cancel request
      */
@@ -363,7 +315,7 @@ export abstract class EditableRemoteTileProvider extends EditableFeatureProvider
      *  @public
      *  @expose
      *  @function
-     *  @name here.xyz.maps.providers.RemoteEditableTileProvider#search
+     *  @name here.xyz.maps.providers.EditableRemoteTileProvider#search
      *  @param {Object} options
      *  @param {String=} options.id Object id.
      *  @param {Array.<String>=} options.ids Array of object ids.
@@ -398,7 +350,7 @@ export abstract class EditableRemoteTileProvider extends EditableFeatureProvider
      *   // search result is only return in this callback function if no features is found in cache.
      *  }
      *})
-     *  @return {Array.<here.xyz.maps.providers.RemoteEditableTileProvider.Feature>} array of features
+     *  @return {Array.<here.xyz.maps.providers.EditableRemoteTileProvider.Feature>} array of features
      */
 
     // search( { rect: bbox || point: point || id: id || ids:[], radius: 1, onload: function(){}, remote: true } )
@@ -829,17 +781,25 @@ export abstract class EditableRemoteTileProvider extends EditableFeatureProvider
         }
     };
 
-    abstract commit(features, onSuccess, onError, transactionId?: string);
-
-    abstract getFeatureUrl(layer, id);
-
-    abstract getLayerUrl(layer);
-
-    abstract getTileUrl(layer);
-
     // request individual features from backend
     protected abstract _requestFeatures(ids, onSuccess, onError, opt?);
 
+    abstract commit(features, onSuccess, onError, transactionId?: string);
+
+    /**
+     *  Commit modified features to the backend
+     *
+     *  @public
+     *  @expose
+     *  @abstract
+     *  @function
+     *  @name here.xyz.maps.providers.EditableRemoteTileProvider#commit
+     *  @param {Object} data the data to commit to the backend
+     *  @param {here.xyz.maps.providers.FeatureProvider.Feature|Array.<here.xyz.maps.providers.FeatureProvider.Feature>} data.put features that should be created or updated
+     *  @param {here.xyz.maps.providers.FeatureProvider.Feature|Array.<here.xyz.maps.providers.FeatureProvider.Feature>} data.remove features that should be removed
+     *  @param {Function=} onSuccess callback function on success
+     *  @param {Function=} onError callback function on error
+     */
     readDirection(link: Feature): 'BOTH' | 'START_TO_END' | 'END_TO_START' {
         throw new Error(METHOD_NOT_IMPLEMENTED);
         // return 'BOTH';

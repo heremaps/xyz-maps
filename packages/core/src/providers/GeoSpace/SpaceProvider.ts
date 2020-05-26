@@ -70,7 +70,7 @@ type ErrorEventHandler = (error) => void;
  *  @public
  *  @expose
  *  @constructor
- *  @extends here.xyz.maps.providers.EditableProvider
+ *  @extends here.xyz.maps.providers.HTTPProvider
  *  @param {here.xyz.maps.providers.SpaceProvider.Options} config configuration of the provider
  *  @param {Function} preprocessor function to be called after this provider is ready.
  *  @name here.xyz.maps.providers.SpaceProvider
@@ -108,9 +108,6 @@ export class SpaceProvider extends GeoJSONProvider {
      *  @param {here.xyz.maps.providers.SpaceProvider.Options} cfg
      *  @return {here.xyz.maps.providers.SpaceProvider}
      */
-    // config
-
-
     commit(features, onSuccess?, onError?) {
         const prov = this;
         const loaders = prov.loader.src;
