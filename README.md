@@ -1,4 +1,7 @@
 # XYZ Editor JS
+[![License](https://img.shields.io/badge/License-Apache%202.0-blue.svg)](https://opensource.org/licenses/Apache-2.0)
+[![Build Status](https://travis-ci.com/heremaps/xyz-editor.svg?branch=master)](https://travis-ci.com/heremaps/xyz-editor)
+![npm version](https://img.shields.io/npm/v/@here/xyz-maps-editor.svg)
 
 XYZ Editor is an experimental and work in progress open-source map editor written in TypeScript/JavaScript.
 
@@ -39,7 +42,7 @@ You can get a token by following the instructions in this [guide](https://www.he
 
 If you are using a [local XYZ Hub](https://github.com/heremaps/xyz-hub#getting-started) simply set `set-access-token` to an empty string.
 
-Running tests / playground and debug pages requires the XYZ token to be provided.
+Running integration tests / playground and debug pages requires the XYZ token to be provided.
 
 * Configure your XYZ token
     ```

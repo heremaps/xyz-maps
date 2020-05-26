@@ -30,13 +30,13 @@
 export default {
 
     /**
- * zoom level at which tiles are cached.
- *
- * @public
- * @expose
- * @name here.xyz.maps.providers.RemoteTileProvider.Options#level
- * @type {number}
- */
+     * zoom level at which tiles are cached.
+     *
+     * @public
+     * @expose
+     * @name here.xyz.maps.providers.RemoteTileProvider.Options#level
+     * @type {number}
+     */
     // level: null,
 
 };

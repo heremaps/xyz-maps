@@ -134,8 +134,9 @@ export class TileLayer {
          * @expose
          * @name here.xyz.maps.layers.TileLayer#min
          * @type {number}
+         */
 
-         /**
+        /**
          * maximum zoom level.
          *
          * @public
@@ -565,7 +566,7 @@ export class TileLayer {
      *})
      *  @return {Array.<here.xyz.maps.providers.FeatureProvider.Feature>}
      */
-    search(options:any) {
+    search(options: any) {
         const prov = <FeatureProvider> this._fp;
 
         if (prov && prov.search) {

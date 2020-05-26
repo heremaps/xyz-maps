@@ -42,10 +42,17 @@ const METHOD_NOT_IMPLEMENTED = 'Method not implemented.';
  *  @public
  *  @expose
  *  @name here.xyz.maps.providers.LocalProvider.Options#name
- *  @type {string}
+ *  @type {string=}
  */
-
-// name: null
+/**
+ *  Allow or prevent editing by Editor component.
+ *
+ *  @public
+ *  @expose
+ *  @default false
+ *  @name here.xyz.maps.providers.LocalProvider.Options#editable
+ *  @type {boolean}
+ */
 
 /**
  *  Local provider
