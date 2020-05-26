@@ -13,7 +13,6 @@ jobs:
       script:
         - yarn run build-release
         - yarn test --browser ChromeHeadless
-    - name: "Publish"
       deploy:
       - provider: script
         script: ./scripts/publish-npm.sh
