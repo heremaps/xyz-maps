@@ -27,7 +27,7 @@ const EVENT_MVC = 'mapviewchange';
 const EVENT_MVC_START = EVENT_MVC + 'start';
 const EVENT_MVC_END = EVENT_MVC + 'end';
 const MAPVIEWCHANGE_MS = 1e3 / 30;
-const MAPVIEWCHANGE_END_DELAY_MS = 100;
+let MAPVIEWCHANGE_END_DELAY_MS = 100;
 
 const SYNC = true;
 
@@ -64,6 +64,9 @@ class MVCRecognizer {
         this.map = map;
         this.trigger = triggerEventListeners;
         this.renderInfo = renderInfo;
+
+        // @ts-ignore (hidden used to speedup tests only)
+        MAPVIEWCHANGE_END_DELAY_MS = global.__XYZTST_MVCEDelayMs || MAPVIEWCHANGE_END_DELAY_MS;
 
         this.changeWatcher = this.changeWatcher.bind(this);
         this.readyWatcher = this.readyWatcher.bind(this);

@@ -17,13 +17,14 @@
  * License-Filename: LICENSE
  */
 export function dblclick(elem: HTMLElement, x: number, y: number): Promise<MouseEvent> {
-    return new Promise((resolve, reject)=>{
+    return new Promise((resolve, reject) => {
         let e = getElement(elem, x, y);
 
         function callback(evt: MouseEvent): void {
             resolve(evt);
             elem.removeEventListener('dblclick', callback);
         }
+
         elem.addEventListener('dblclick', callback);
 
         dispatchEvent(e.element, e.topleft, x, y, 'mousedown');
@@ -39,12 +40,14 @@ export function dblclick(elem: HTMLElement, x: number, y: number): Promise<Mouse
 };
 
 export function click(elem: HTMLElement, x: number, y: number): Promise<MouseEvent> {
-    return new Promise((resolve, reject)=>{
+    return new Promise((resolve, reject) => {
         let e = getElement(elem, x, y);
+
         function callback(evt: MouseEvent): void {
             resolve(evt);
             elem.removeEventListener('click', callback);
         }
+
         elem.addEventListener('click', callback);
 
         dispatchEvent(e.element, e.topleft, x, y, 'mousedown');
@@ -53,7 +56,7 @@ export function click(elem: HTMLElement, x: number, y: number): Promise<MouseEve
     });
 };
 
-export function drag(elem: HTMLElement, from: {x: number; y: number}, to: {x: number; y: number}, opts: {fps?: number;}={fps: 40}): Promise<MouseEvent> {
+export function drag(elem: HTMLElement, from: { x: number; y: number }, to: { x: number; y: number }, time: number = 60): Promise<MouseEvent> {
     return new Promise((resolve) => {
         let e = getElement(elem, from.x, from.y);
 
@@ -63,51 +66,46 @@ export function drag(elem: HTMLElement, from: {x: number; y: number}, to: {x: nu
         }
         elem.addEventListener('mouseup', callback);
 
-        dispatchEvent(e.element, e.topleft, from.x, from.y, 'mousedown' );
+        dispatchEvent(e.element, e.topleft, from.x, from.y, 'mousedown');
 
-        let v = Math.max(1, Math.floor(Math.max(Math.abs(to.x - from.x)/10, Math.abs(to.y-from.y)/10)));
-        let vx = (to.x - from.x)/v;
-        let vy = (to.y - from.y)/v;
-
+        let v = Math.max(1, Math.floor(Math.max(Math.abs(to.x - from.x) / 10, Math.abs(to.y - from.y) / 10)));
+        let vx = (to.x - from.x) / v;
+        let vy = (to.y - from.y) / v;
         let i = 0;
-        let t = Math.round(1000/opts.fps);
-
         let si = setInterval(function() {
-            if (i++ == v-1) {
-                dispatchEvent(e.element, e.topleft, to.x, to.y, 'mousemove' );
-                setTimeout(function() {
-                    dispatchEvent(e.element, e.topleft, to.x, to.y, 'mouseup' );
-                }, 1);
-
+            dispatchEvent(e.element, e.topleft, Math.floor(from.x + vx * i), Math.floor(from.y + vy * i), 'mousemove');
+            if (++i > v) {
+                dispatchEvent(e.element, e.topleft, to.x, to.y, 'mousemove');
+                dispatchEvent(e.element, e.topleft, to.x, to.y, 'mouseup');
                 clearInterval(si);
             }
-            dispatchEvent(e.element, e.topleft, Math.floor(from.x+vx*i), Math.floor(from.y+vy*i), 'mousemove' );
-        }, t);
+        }, time / v);
     });
 };
 
-export function mousemove(elem: HTMLElement, from: {x: number, y: number}, to: {x: number, y: number}): Promise<MouseEvent> {
-    return new Promise((resolve) =>{
+export function mousemove(elem: HTMLElement, from: { x: number, y: number }, to: { x: number, y: number }): Promise<MouseEvent> {
+    return new Promise((resolve) => {
         let e = getElement(elem, from.x, from.y);
-        let v = Math.max(Math.abs(to.x - from.x)/2, Math.abs(to.y-from.y)/2);
-        let vx = (to.x - from.x)/v;
-        let vy = (to.y - from.y)/v;
+        let v = Math.max(Math.abs(to.x - from.x) / 2, Math.abs(to.y - from.y) / 2);
+        let vx = (to.x - from.x) / v;
+        let vy = (to.y - from.y) / v;
         let evtNr = 0;
 
         function callback(evt: MouseEvent): void {
-            if (++evtNr == Math.floor(v)+1) {
+            if (++evtNr == Math.floor(v) + 1) {
                 setTimeout(function() {
                     resolve(evt);
                 }, 50);
                 elem.removeEventListener('mousemove', callback);
             }
         }
+
         elem.addEventListener('mousemove', callback);
 
-        for (let i = 0; i<v; i++) {
-            dispatchEvent(e.element, e.topleft, from.x+ Math.floor(vx*i), from.y+Math.floor(vy*i), 'mousemove' );
+        for (let i = 0; i < v; i++) {
+            dispatchEvent(e.element, e.topleft, from.x + Math.floor(vx * i), from.y + Math.floor(vy * i), 'mousemove');
         }
-        dispatchEvent(e.element, e.topleft, to.x, to.y, 'mousemove' );
+        dispatchEvent(e.element, e.topleft, to.x, to.y, 'mousemove');
     });
 };
 
@@ -117,12 +115,14 @@ export function mousewheel(elem: HTMLElement, x: number, y: number, d: number): 
 
     return new Promise((resolve) => {
         let e = getElement(elem, x, y);
+
         function callback(evt: MouseEvent): void {
             setTimeout(function() {
                 resolve(evt);
             }, 20);
             elem.removeEventListener(event, callback);
         }
+
         elem.addEventListener(event, callback);
 
         dispatchEvent(e.element, e.topleft, x, y, event, d * direction); // Gecko
@@ -134,20 +134,20 @@ export function triggerEvent(elem: HTMLElement, x: number, y: number, evt: strin
     dispatchEvent(e.element, e.topleft, x, y, evt, d);
 };
 
-function getElement(elem: HTMLElement, x: number, y: number): {element: Element; topleft: {left: number; top: number}} {
+function getElement(elem: HTMLElement, x: number, y: number): { element: Element; topleft: { left: number; top: number } } {
     function getPosition(div) {
-        var T= 0;
-        var L= 0;
+        var T = 0;
+        var L = 0;
 
         while (div) {
-            L+= div.offsetLeft;
-            T+= div.offsetTop;
-            div= div.offsetParent;
+            L += div.offsetLeft;
+            T += div.offsetTop;
+            div = div.offsetParent;
         }
         return {left: L, top: T};
     }
 
-    const tl: {left: number, top: number} = getPosition(elem);
+    const tl: { left: number, top: number } = getPosition(elem);
 
     return {
         element: document.elementFromPoint(x + tl.top, y + tl.left),
@@ -155,7 +155,7 @@ function getElement(elem: HTMLElement, x: number, y: number): {element: Element;
     };
 }
 
-function dispatchEvent(elem: Element, tl: {top: number; left: number}, x: number, y: number, evt: string, d?: number) {
+function dispatchEvent(elem: Element, tl: { top: number; left: number }, x: number, y: number, evt: string, d?: number) {
     let ev: any = new MouseEvent(evt, {
         altKey: true,
         bubbles: true,

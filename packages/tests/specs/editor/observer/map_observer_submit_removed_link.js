@@ -51,7 +51,6 @@ xdescribe('ready event is triggered once after submitting removed links', functi
 
         linkLayer = preparedData.getLayers('linkLayer');
         placeLayer = preparedData.getLayers('placeLayer');
-
     });
 
     after(async function() {
@@ -73,7 +72,7 @@ xdescribe('ready event is triggered once after submitting removed links', functi
         let idMap;
 
         let observer = new Observer(editor, ['ready']);
-        editor.addObserver('ready', (e,v)=>console.log(e, v));
+        editor.addObserver('ready', (e, v)=>console.log(e, v));
         await waitForEditorReady(editor, async ()=>{
             idMap = await submit(editor);
         });
@@ -83,7 +82,7 @@ xdescribe('ready event is triggered once after submitting removed links', functi
         // wait for a while for all ready events to be triggered
         display.setBehavior('drag', false);
         let mapContainer = display.getContainer();
-        await drag(mapContainer, {x: 200, y: 100}, {x: 500, y: 100}, {fps: 20});
+        await drag(mapContainer, {x: 200, y: 100}, {x: 500, y: 100}, 100);
 
         let results = observer.stop();
 
