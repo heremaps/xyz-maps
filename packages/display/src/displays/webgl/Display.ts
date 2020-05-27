@@ -212,7 +212,7 @@ class WebGlDisplay extends BasicDisplay {
 
         if (tile.type == 'image') {
             const renderData = createImageBuffer(data, gl, tileSize);
-            dTile.setData([renderData], layer);
+            dTile.preview(dTile.setData(layer, [renderData]), null);
             onDone(dTile, layer);
         } else {
             const displayLayer = this.layers.get(layer.id);
@@ -227,14 +227,14 @@ class WebGlDisplay extends BasicDisplay {
                         // if its not a fresh create but tile data is getting updated make sure to ..
                         // .. clear collision data before tile is updated / reprepared.
                         // otherwise collision data will directly be dropped after updating tile (onDrop(...)).
-                        dTile.setData(null, layer);
+                        dTile.setData(layer, null);
 
                         this.collision.init(quadkey, tile.x, tile.y, tile.z, displayLayer);
                     },
                     // on done
                     (buffer, allImgLoaded) => {
                         dTile.removeTask(task, layer);
-                        dTile.setData(buffer, layer);
+                        dTile.preview(dTile.setData(layer, buffer), null);
 
                         if (!allImgLoaded) {
                             display.tilesNotReady.push({
@@ -251,7 +251,7 @@ class WebGlDisplay extends BasicDisplay {
                     });
                 dTile.addTask(task, layer);
             } else {
-                dTile.setData([], layer);
+                dTile.preview(dTile.setData(layer, []), null);
                 onDone(dTile, layer);
             }
         }

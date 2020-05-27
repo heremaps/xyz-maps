@@ -45,7 +45,8 @@ class Bucket extends BasicBucket {
 
             if (dropTile && (dropData = dropTile.data)) {
                 for (let i = 0; i < dropData.length; i++) {
-                    dropTile.setData(null, i);
+                    dropTile.setData(i, null);
+                    dropTile.preview(i, null);
                 }
                 dropTile.data = null;
             }

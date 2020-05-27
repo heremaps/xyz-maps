@@ -41,7 +41,7 @@ class GLTile extends BasicTile {
     }
 
     clear(index: number) {
-        this.setData(UNDEF, index);
+        this.setData(index, UNDEF);
         this.ready(index, false);
         this.preview(index, false);
     };
@@ -52,12 +52,10 @@ class GLTile extends BasicTile {
         this.data.length = 0;
     }
 
-    setData(data: GeometryBuffer[], layer: number | TileLayer) {
+    setData(layer: number | TileLayer, data: GeometryBuffer[]): number {
         const index = typeof layer == 'number'
             ? layer
             : this.layers.indexOf(layer);
-
-        this.preview(index, UNDEF);
 
         const _data = this.data[index];
         if (_data && _data.length) {
@@ -66,6 +64,8 @@ class GLTile extends BasicTile {
             }
         }
         this.data[index] = data;
+
+        return index;
     };
 
 
@@ -81,7 +81,8 @@ class GLTile extends BasicTile {
 
     removeLayer(index) {
         super.removeLayer(index);
-        this.setData(UNDEF, index);
+        this.setData(index, UNDEF);
+        this.preview(index, UNDEF);
         this.data.splice(index, 1);
     };
 }
