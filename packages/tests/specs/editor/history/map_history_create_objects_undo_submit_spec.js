@@ -18,7 +18,7 @@
  */
 import {prepare} from 'utils';
 import {waitForEditorReady, submit} from 'editorUtils';
-import {Map} from '@here/xyz-maps-core';
+import {Map} from '@here/xyz-maps-display';
 import {features, Editor} from '@here/xyz-maps-editor';
 import dataset from './map_history_create_objects_undo_submit_spec.json';
 

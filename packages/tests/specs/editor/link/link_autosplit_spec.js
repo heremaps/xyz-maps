@@ -19,7 +19,7 @@
 import {prepare} from 'utils';
 import {waitForEditorReady} from 'editorUtils';
 import {drag} from 'triggerEvents';
-import {Map} from '@here/xyz-maps-core';
+import {Map} from '@here/xyz-maps-display';
 import {features, Editor} from '@here/xyz-maps-editor';
 import chaiAlmost from 'chai-almost';
 import dataset from './link_autosplit_spec.json';

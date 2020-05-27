@@ -18,7 +18,7 @@
  */
 
 import {prepare} from 'utils';
-import {Map} from '@here/xyz-maps-core';
+import {Map} from '@here/xyz-maps-display';
 import dataset from './map_destroy_spec.json';
 
 describe('destroy display', function() {

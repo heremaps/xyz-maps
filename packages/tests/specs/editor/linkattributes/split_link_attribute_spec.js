@@ -18,7 +18,7 @@
  */
 import {prepare} from 'utils';
 import {waitForEditorReady, editorClick} from 'editorUtils';
-import {Map} from '@here/xyz-maps-core';
+import {Map} from '@here/xyz-maps-display';
 import {features, Editor} from '@here/xyz-maps-editor';
 import dataset from './split_link_attribute_spec.json';
 

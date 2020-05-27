@@ -18,7 +18,7 @@
  */
 import {Observer, prepare} from 'utils';
 import {waitForEditorReady} from 'editorUtils';
-import {Map} from '@here/xyz-maps-core';
+import {Map} from '@here/xyz-maps-display';
 import {Editor} from '@here/xyz-maps-editor';
 import dataset from './map_observer_ready_addlayer_spec.json';
 

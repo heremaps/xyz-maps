@@ -20,7 +20,7 @@
 import {waitForViewportReady} from 'displayUtils';
 import {Listener, prepare} from 'utils';
 import {mousemove} from 'triggerEvents';
-import {Map} from '@here/xyz-maps-core';
+import {Map} from '@here/xyz-maps-display';
 import dataset from './pointer_enter_leave_listener_spec.json';
 
 describe('pointer enter and leave feature listener', function() {

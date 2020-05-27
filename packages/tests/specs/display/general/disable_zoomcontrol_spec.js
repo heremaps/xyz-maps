@@ -20,7 +20,7 @@
 import {waitForViewportReady} from 'displayUtils';
 import {prepare} from 'utils';
 import {click} from 'triggerEvents';
-import {Map} from '@here/xyz-maps-core';
+import {Map} from '@here/xyz-maps-display';
 import dataset from './disable_zoomcontrol_spec.json';
 
 describe('disable zoomcontrol component', function() {

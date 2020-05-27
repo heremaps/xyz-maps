@@ -19,7 +19,7 @@
 
 import {waitForViewportReady} from 'displayUtils';
 import {MonitorXHR, prepare} from 'utils';
-import {Map} from '@here/xyz-maps-core';
+import {Map} from '@here/xyz-maps-display';
 import dataset from './init_requests_spec.json';
 
 describe('initial requests of display', function() {

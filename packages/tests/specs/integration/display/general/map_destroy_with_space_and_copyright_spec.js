@@ -17,7 +17,7 @@
  * License-Filename: LICENSE
  */
 import {prepare} from 'utils';
-import {Map} from '@here/xyz-maps-core';
+import {Map} from '@here/xyz-maps-display';
 import dataset from './map_destroy_with_space_and_copyright_spec.json';
 
 describe('destroy display with space layer and copyright', function() {

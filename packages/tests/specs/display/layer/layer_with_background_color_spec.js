@@ -19,7 +19,7 @@
 
 import {waitForViewportReady} from 'displayUtils';
 import {getCanvasPixelColor, prepare} from 'utils';
-import {Map} from '@here/xyz-maps-core';
+import {Map} from '@here/xyz-maps-display';
 import dataset from './layer_with_background_color_spec.json';
 
 describe('layer with background color', function() {

@@ -19,7 +19,7 @@
 import {prepare} from 'utils';
 import {editorClick, waitForEditorReady} from 'editorUtils';
 import {Editor} from '@here/xyz-maps-editor';
-import {Map} from '@here/xyz-maps-core';
+import {Map} from '@here/xyz-maps-display';
 import dataset from './address_routingpoint_linksplit_spec.json';
 
 describe('Address routing point updates by link split', function() {

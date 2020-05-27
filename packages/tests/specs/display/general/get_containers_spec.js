@@ -19,7 +19,7 @@
 
 import {prepare} from 'utils';
 import {waitForViewportReady} from 'displayUtils';
-import {Map} from '@here/xyz-maps-core';
+import {Map} from '@here/xyz-maps-display';
 import dataset from './get_containers_spec.json';
 
 describe('validate map container', function() {

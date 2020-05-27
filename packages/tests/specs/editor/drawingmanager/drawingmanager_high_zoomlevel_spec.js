@@ -19,7 +19,7 @@
 import {prepare} from 'utils';
 import {waitForEditorReady} from 'editorUtils';
 import {click, mousemove} from 'triggerEvents';
-import {Map} from '@here/xyz-maps-core';
+import {Map} from '@here/xyz-maps-display';
 import {Editor} from '@here/xyz-maps-editor';
 import dataset from './drawingmanager_high_zoomlevel_spec.json';
 

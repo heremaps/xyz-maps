@@ -48,7 +48,32 @@ module.exports = function(config) {
 
     let bundles = [];
 
-    if (compsToRun.indexOf('common') > -1 ) {
+    const externals = [
+        '@here/xyz-maps-common',
+        '@here/xyz-maps-core',
+        '@here/xyz-maps-display',
+        '@here/xyz-maps-editor',
+        'coreUtils',
+        'displayUtils',
+        'editorUtils',
+        'utils',
+        'triggerEvents'
+    ];
+
+    const globals = {
+        '@here/xyz-maps-common': 'here.xyz.maps.common',
+        '@here/xyz-maps-core': 'here.xyz.maps',
+        '@here/xyz-maps-editor': 'here.xyz.maps.editor',
+        '@here/xyz-maps-display': 'here.xyz.maps',
+        'coreUtils': 'here.test.coreUtils',
+        'displayUtils': 'here.test.displayUtils',
+        'utils': 'here.test.utils',
+        'triggerEvents': 'here.test.events',
+        'editorUtils': 'here.test.editorUtils'
+    };
+
+
+    if (compsToRun.indexOf('common') > -1) {
         let mochaSettings = {};
 
         if (testFilter['common']) {
@@ -60,7 +85,7 @@ module.exports = function(config) {
         bundles.push({
             input: {
                 input: './src/main-common.ts',
-                external: ['@here/xyz-maps-core', '@here/xyz-maps-common'],
+                external: externals,
                 plugins: [
                     virtual({
                         'settings': 'export default' + JSON.stringify(mochaSettings),
@@ -88,10 +113,7 @@ module.exports = function(config) {
                 format: 'umd',
                 name: 'here.test',
                 sourcemap: true,
-                globals: {
-                    '@here/xyz-maps-core': 'here.xyz.maps',
-                    '@here/xyz-maps-common': 'here.xyz.maps.common'
-                }
+                globals: globals
             }
         }, {
             input: {
@@ -117,18 +139,16 @@ module.exports = function(config) {
                 ]
             },
             output: {
-                file: 'dist/common/'+specsFileName,
+                file: 'dist/common/' + specsFileName,
                 format: 'umd',
                 name: 'commonTests',
                 sourcemap: true,
-                globals: {
-                    '@here/xyz-maps-common': 'here.xyz.maps.common'
-                }
+                globals: globals
             }
         });
     }
 
-    if (compsToRun.indexOf('core') > -1 ) {
+    if (compsToRun.indexOf('core') > -1) {
         let mochaSettings = {};
 
         if (testFilter['core']) {
@@ -140,7 +160,7 @@ module.exports = function(config) {
         bundles.push({
             input: {
                 input: './src/main-core.ts',
-                external: ['@here/xyz-maps-core', '@here/xyz-maps-common'],
+                external: externals,
                 plugins: [
                     typescript({
                         typescript: require('typescript'),
@@ -168,15 +188,12 @@ module.exports = function(config) {
                 format: 'umd',
                 name: 'here.test',
                 sourcemap: true,
-                globals: {
-                    '@here/xyz-maps-core': 'here.xyz.maps',
-                    '@here/xyz-maps-common': 'here.xyz.maps.common'
-                }
+                globals: globals
             }
         }, {
             input: {
                 input: 'specs/core/main.ts',
-                external: ['coreUtils', 'utils', '@here/xyz-maps-common', '@here/xyz-maps-core', '@here/xyz-maps-editor'],
+                external: externals,
 
                 plugins: [
                     typescript({
@@ -198,19 +215,16 @@ module.exports = function(config) {
                 ]
             },
             output: {
-                file: 'dist/core/'+specsFileName,
+                file: 'dist/core/' + specsFileName,
                 format: 'umd',
                 name: 'coreTestSpecs',
                 sourcemap: true,
-                globals: {
-                    'coreUtils': 'here.test.coreUtils',
-                    'utils': 'here.test.utils'
-                }
+                globals: globals
             }
         });
     }
 
-    if (compsToRun.indexOf('display') > -1 ) {
+    if (compsToRun.indexOf('display') > -1) {
         let mochaSettings = {};
 
         if (testFilter['display']) {
@@ -222,7 +236,7 @@ module.exports = function(config) {
         bundles.push({
             input: {
                 input: './src/main-display.ts',
-                external: ['@here/xyz-maps-core', '@here/xyz-maps-common', '@here/xyz-maps-display'],
+                external: externals,
                 plugins: [
                     typescript({
                         typescript: require('typescript'),
@@ -250,16 +264,12 @@ module.exports = function(config) {
                 format: 'umd',
                 name: 'here.test',
                 sourcemap: true,
-                globals: {
-                    '@here/xyz-maps-core': 'here.xyz.maps',
-                    '@here/xyz-maps-common': 'here.xyz.maps.common',
-                    '@here/xyz-maps-display': 'here.xyz.maps.Map'
-                }
+                globals: globals
             }
         }, {
             input: {
                 input: 'specs/display/main.ts',
-                external: ['displayUtils', 'utils', 'triggerEvents', '@here/xyz-maps-core', '@here/xyz-maps-display', '@here/xyz-maps-editor'],
+                external: externals,
 
                 plugins: [
                     typescript({
@@ -283,21 +293,16 @@ module.exports = function(config) {
                 ]
             },
             output: {
-                file: 'dist/display/'+specsFileName,
+                file: 'dist/display/' + specsFileName,
                 format: 'umd',
                 name: 'displayTestSpecs',
                 sourcemap: true,
-                globals: {
-                    'displayUtils': 'here.test.displayUtils',
-                    'utils': 'here.test.utils',
-                    'triggerEvents': 'here.test.events',
-                    '@here/xyz-maps-core': 'here.xyz.maps'
-                }
+                globals: globals
             }
         });
     }
 
-    if (compsToRun.indexOf('editor') > -1 ) {
+    if (compsToRun.indexOf('editor') > -1) {
         let mochaSettings = {};
 
         if (testFilter['editor']) {
@@ -309,7 +314,7 @@ module.exports = function(config) {
         bundles.push({
             input: {
                 input: './src/main-editor.ts',
-                external: ['@here/xyz-maps-core', '@here/xyz-maps-editor'],
+                external: externals,
                 plugins: [
                     typescript({
                         typescript: require('typescript'),
@@ -337,15 +342,12 @@ module.exports = function(config) {
                 format: 'umd',
                 name: 'here.test',
                 sourcemap: true,
-                globals: {
-                    '@here/xyz-maps-core': 'here.xyz.maps',
-                    '@here/xyz-maps-editor': 'here.xyz.maps.editor'
-                }
+                globals: globals
             }
         }, {
             input: {
                 input: 'specs/editor/main.ts',
-                external: ['displayUtils', 'editorUtils', 'utils', 'triggerEvents', '@here/xyz-maps-core', '@here/xyz-maps-display', '@here/xyz-maps-editor'],
+                external: externals,
                 plugins: [
                     typescript({
                         typescript: require('typescript'),
@@ -368,23 +370,16 @@ module.exports = function(config) {
                 ]
             },
             output: {
-                file: 'dist/editor/'+specsFileName,
+                file: 'dist/editor/' + specsFileName,
                 format: 'umd',
                 name: 'editorTests',
                 sourcemap: true,
-                globals: {
-                    'displayUtils': 'here.test.displayUtils',
-                    'editorUtils': 'here.test.editorUtils',
-                    'utils': 'here.test.utils',
-                    'triggerEvents': 'here.test.events',
-                    '@here/xyz-maps-core': 'here.xyz.maps',
-                    '@here/xyz-maps-editor': 'here.xyz.maps.editor'
-                }
+                globals: globals
             }
         });
     }
 
-    if (compsToRun.indexOf('integration') > -1 ) {
+    if (compsToRun.indexOf('integration') > -1) {
         let mochaSettings = {};
 
         if (testFilter['integration']) {
@@ -396,7 +391,7 @@ module.exports = function(config) {
         bundles.push({
             input: {
                 input: './src/main-integration.ts',
-                external: ['@here/xyz-maps-core', '@here/xyz-maps-editor'],
+                external: externals,
                 plugins: [
                     typescript({
                         typescript: require('typescript'),
@@ -424,15 +419,12 @@ module.exports = function(config) {
                 format: 'umd',
                 name: 'here.test',
                 sourcemap: true,
-                globals: {
-                    '@here/xyz-maps-core': 'here.xyz.maps',
-                    '@here/xyz-maps-editor': 'here.xyz.maps.editor'
-                }
+                globals: globals
             }
         }, {
             input: {
                 input: 'specs/integration/main.ts',
-                external: ['coreUtils', 'displayUtils', 'editorUtils', 'utils', 'triggerEvents', '@here/xyz-maps-core', '@here/xyz-maps-display', '@here/xyz-maps-editor'],
+                external: externals,
                 plugins: [
                     typescript({
                         typescript: require('typescript'),
@@ -455,19 +447,11 @@ module.exports = function(config) {
                 ]
             },
             output: {
-                file: 'dist/integration/'+specsFileName,
+                file: 'dist/integration/' + specsFileName,
                 format: 'umd',
                 name: 'integrationTests',
                 sourcemap: true,
-                globals: {
-                    'coreUtils': 'here.test.coreUtils',
-                    'displayUtils': 'here.test.displayUtils',
-                    'editorUtils': 'here.test.editorUtils',
-                    'utils': 'here.test.utils',
-                    'triggerEvents': 'here.test.events',
-                    '@here/xyz-maps-core': 'here.xyz.maps',
-                    '@here/xyz-maps-editor': 'here.xyz.maps.editor'
-                }
+                globals: globals
             }
         });
     }

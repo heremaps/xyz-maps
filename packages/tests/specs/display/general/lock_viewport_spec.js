@@ -20,7 +20,7 @@
 import {waitForViewportReady} from 'displayUtils';
 import {prepare} from 'utils';
 import {drag, mousewheel} from 'triggerEvents';
-import {Map} from '@here/xyz-maps-core';
+import {Map} from '@here/xyz-maps-display';
 import chaiAlmost from 'chai-almost';
 import dataset from './lock_viewport_spec.json';
 

@@ -20,7 +20,7 @@
 import {waitForViewportReady} from 'displayUtils';
 import {Listener, prepare} from 'utils';
 import {click, mousemove} from 'triggerEvents';
-import {Map} from '@here/xyz-maps-core';
+import {Map} from '@here/xyz-maps-display';
 import dataset from './display_pointer_events_spec.json';
 
 describe('validate pointer events', function() {

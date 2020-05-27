@@ -19,7 +19,7 @@
 import {prepare} from 'utils';
 import {waitForEditorReady, editorClick} from 'editorUtils';
 import {click} from 'triggerEvents';
-import {Map} from '@here/xyz-maps-core';
+import {Map} from '@here/xyz-maps-display';
 import {Editor} from '@here/xyz-maps-editor';
 import dataset from './map_history_undo_split_restrictions_spec.json';
 

@@ -20,7 +20,7 @@ import {prepare} from 'utils';
 import {waitForEditorReady} from 'editorUtils';
 import {waitForViewportReady} from 'displayUtils';
 import {drag, click} from 'triggerEvents';
-import {Map} from '@here/xyz-maps-core';
+import {Map} from '@here/xyz-maps-display';
 import {features, Editor} from '@here/xyz-maps-editor';
 import dataset from './map_destroy_spec.json';
 

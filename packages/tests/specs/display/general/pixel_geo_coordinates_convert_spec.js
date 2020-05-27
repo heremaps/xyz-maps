@@ -19,7 +19,7 @@
 
 import {prepare} from 'utils';
 import {waitForViewportReady} from 'displayUtils';
-import {Map} from '@here/xyz-maps-core';
+import {Map} from '@here/xyz-maps-display';
 import chaiAlmost from 'chai-almost';
 import dataset from './pixel_geo_coordinates_convert_spec.json';
 

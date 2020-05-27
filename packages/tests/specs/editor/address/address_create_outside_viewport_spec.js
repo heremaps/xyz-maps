@@ -19,7 +19,7 @@
 import {prepare} from 'utils';
 import {waitForEditorReady} from 'editorUtils';
 import {features, Editor} from '@here/xyz-maps-editor';
-import {Map} from '@here/xyz-maps-core';
+import {Map} from '@here/xyz-maps-display';
 import dataset from './address_create_outside_viewport_spec.json';
 
 describe('create an address outside viewport, it connects to a link nearby', function() {

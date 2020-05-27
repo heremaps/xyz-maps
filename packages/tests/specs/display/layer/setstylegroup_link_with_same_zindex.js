@@ -19,7 +19,7 @@
 
 import {waitForViewportReady} from 'displayUtils';
 import {getCanvasPixelColor, prepare} from 'utils';
-import {Map} from '@here/xyz-maps-core';
+import {Map} from '@here/xyz-maps-display';
 import dataset from './setstylegroup_link_with_same_zindex.json';
 
 describe('setStyleGroup link with same zIndex', function() {

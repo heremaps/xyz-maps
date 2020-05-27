@@ -19,7 +19,7 @@
 import {prepare} from 'utils';
 import {waitForEditorReady, submit, clean} from 'editorUtils';
 import {features, Editor} from '@here/xyz-maps-editor';
-import {Map} from '@here/xyz-maps-core';
+import {Map} from '@here/xyz-maps-display';
 import dataset from './address_delete_new_connected_link_spec.json';
 
 xdescribe('New address connect to a new link and then remove the link', function() {

@@ -19,7 +19,7 @@
 import {prepare} from 'utils';
 import {waitForEditorReady} from 'editorUtils';
 import {drag, click} from 'triggerEvents';
-import {Map} from '@here/xyz-maps-core';
+import {Map} from '@here/xyz-maps-display';
 import {Editor} from '@here/xyz-maps-editor';
 import dataset from './poi_layer_add_remove_spec.json';
 

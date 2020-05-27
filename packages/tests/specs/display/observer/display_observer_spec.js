@@ -19,7 +19,7 @@
 
 import {waitForViewportReady} from 'displayUtils';
 import {Observer, prepare} from 'utils';
-import {Map} from '@here/xyz-maps-core';
+import {Map} from '@here/xyz-maps-display';
 import chaiAlmost from 'chai-almost';
 import dataset from './display_observer_spec.json';
 

@@ -19,7 +19,7 @@
 import {getCanvasPixelColor, prepare} from 'utils';
 import {waitForEditorReady} from 'editorUtils';
 import {click, mousemove} from 'triggerEvents';
-import {Map} from '@here/xyz-maps-core';
+import {Map} from '@here/xyz-maps-display';
 import {Editor} from '@here/xyz-maps-editor';
 import chaiAlmost from 'chai-almost';
 import dataset from './drawingmanager_styling_drawingboard_spec.json';

@@ -19,7 +19,7 @@
 
 import {waitForViewportReady} from 'displayUtils';
 import {getCanvasPixelColor, prepare} from 'utils';
-import {Map} from '@here/xyz-maps-core';
+import {Map} from '@here/xyz-maps-display';
 import dataset from './display_map_and_link_layer.json';
 
 describe('display image and link layers', function() {

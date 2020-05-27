@@ -19,7 +19,7 @@
 import {waitForEditorReady} from 'editorUtils';
 import {prepare} from 'utils';
 import {click, drag} from 'triggerEvents';
-import {Map} from '@here/xyz-maps-core';
+import {Map} from '@here/xyz-maps-display';
 import {Editor} from '@here/xyz-maps-editor';
 import chaiAlmost from 'chai-almost';
 import dataset from './area_transformer_multiple_objects_spec.json';

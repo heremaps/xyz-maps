@@ -20,7 +20,7 @@
 import {waitForViewportReady} from 'displayUtils';
 import {Listener, prepare} from 'utils';
 import {drag} from 'triggerEvents';
-import {Map} from '@here/xyz-maps-core';
+import {Map} from '@here/xyz-maps-display';
 import dataset from './parent_map_listener_spec.json';
 
 describe('display event listener', function() {

@@ -20,7 +20,7 @@
 import {waitForViewportReady} from 'displayUtils';
 import {Listener, prepare} from 'utils';
 import {click} from 'triggerEvents';
-import {Map} from '@here/xyz-maps-core';
+import {Map} from '@here/xyz-maps-display';
 import dataset from './pointer_down_up_listener_spec.json';
 
 describe('pointer down and pointer up listener', function() {

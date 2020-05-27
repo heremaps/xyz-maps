@@ -19,7 +19,7 @@
 
 import {waitForViewportReady} from 'displayUtils';
 import {getCanvasPixelColor, prepare} from 'utils';
-import {Map} from '@here/xyz-maps-core';
+import {Map} from '@here/xyz-maps-display';
 import dataset from './setstylegroup_point_image.json';
 
 describe('setStyleGroup Point with image', function() {

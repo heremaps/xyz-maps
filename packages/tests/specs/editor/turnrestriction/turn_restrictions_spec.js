@@ -20,7 +20,7 @@
 import {prepare} from 'utils';
 import {waitForEditorReady, editorClick, submit} from 'editorUtils';
 import {mousemove, click} from 'triggerEvents';
-import {Map} from '@here/xyz-maps-core';
+import {Map} from '@here/xyz-maps-display';
 import {Editor} from '@here/xyz-maps-editor';
 import dataset from './turn_restrictions_spec.json';
 

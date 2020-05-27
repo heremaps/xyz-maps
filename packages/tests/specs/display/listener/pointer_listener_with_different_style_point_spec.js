@@ -20,7 +20,7 @@
 import {waitForViewportReady} from 'displayUtils';
 import {Listener, getCanvasPixelColor, prepare} from 'utils';
 import {click} from 'triggerEvents';
-import {Map} from '@here/xyz-maps-core';
+import {Map} from '@here/xyz-maps-display';
 import dataset from './pointer_listener_with_different_style_point_spec.json';
 
 describe('pointer listener with different style point', function() {

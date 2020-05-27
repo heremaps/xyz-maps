@@ -20,7 +20,7 @@ import {prepare} from 'utils';
 import {waitForEditorReady} from 'editorUtils';
 import {drag, click} from 'triggerEvents';
 import {Editor} from '@here/xyz-maps-editor';
-import {Map} from '@here/xyz-maps-core';
+import {Map} from '@here/xyz-maps-display';
 import dataset from './address_layer_add_remove_spec.json';
 
 describe('Address layer add and remove', function() {
