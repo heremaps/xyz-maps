@@ -86,12 +86,8 @@ const createBuffer = (
     onInit: () => void,
     onDone: (data: GeometryBuffer[], imagesLoaded: boolean) => void
 ) => {
-// const createBuffer = (data: any[], renderLayer: Layer, tileSize: number, tile, gl: WebGLRenderingContext, iconManager: IconManager, onDone) => {
-    const layer = renderLayer.layer;
-    // const exclusiveTimeMS = this.ms;
-
+    const {layer} = renderLayer;
     const groups = {};
-
     let iconsLoaded = true;
 
     const task = taskManager.create({
@@ -128,34 +124,6 @@ const createBuffer = (
                 }
             }
 
-
-            // let provider = tile.provider;
-            // let overlaps: BBox[] = [];
-            //
-            // // console.time(tile.quadkey);
-            // for (let y = -1; y < 2; y++) {
-            //     for (let x = -1; x < 2; x++) {
-            //         if (x != 0 || y != 0) {
-            //             let qk = tileUtils.tileXYToQuadKey(tile.z, tile.y + y, tile.x + x);
-            //             let neighbour = provider.getCachedTile(qk);
-            //             if (neighbour && neighbour.collision) {
-            //                 let ren = neighbour.collision.rendered;
-            //                 for (let o of ren) {
-            //                     overlaps[overlaps.length] = o;
-            //                 }
-            //             }
-            //         }
-            //     }
-            // }
-            // // console.timeEnd(tile.quadkey);
-            //
-            //
-            // tile.collision = {
-            //     rendered: [],
-            //     overlaps: overlaps
-            // };
-            // console.log(tile.collision);
-
             if (onInit) {
                 onInit();
             }
@@ -164,22 +132,11 @@ const createBuffer = (
 
             return [
                 tile,
-                // {
-                //     x: tile.x,
-                //     y: tile.y,
-                //     z: tile.z,
-                //     lon2x: (x: number) => tile.lon2x(x, tileSize),
-                //     lat2y: (y: number) => tile.lat2y(y, tileSize),
-                //     isInside: (p: [number, number, number?]) => tile.isInside(p),
-                //     collision: tile.collision
-                // },
                 data,
                 lsZoomScale,
                 0, // featureIndex
                 PROCESS_FEATURE_BUNDLE_SIZE,
-                layer,
-                tileSize
-                // {}
+                layer
             ];
         },
 
@@ -347,7 +304,6 @@ const createBuffer = (
             let data = heap[1];
             const lsScale = heap[2];
             let displayLayer = heap[5];
-            let tileSize = heap[6];
             let dataLen = data.length;
 
             const level = tile.z;

@@ -100,8 +100,7 @@ export class FeatureFactory {
     create(feature, geomType, coordinates, styleGroups, strokeWidthScale/* , tile, groups, tileSize: number*/): boolean {
         const {tile, groups, tileSize} = this;
         const level = tile.z;
-        let extrudeDataAdded: FlatPolygon[];
-        let polygonDataAdded: FlatPolygon[];
+        let flatPolyStart: number;
         let flatPoly: FlatPolygon[];
         let triangles;
         let style;
@@ -493,29 +492,24 @@ export class FeatureFactory {
                         }
 
                         const groupBuffer = group.buffer;
-                        const index = groupBuffer.index();
+                        const vIndex = groupBuffer.index();
                         const {attributes} = groupBuffer;
                         const aPosition = attributes.a_position.data;
 
+                        flatPolyStart = aPosition.length;
+
                         if (type == 'Extrude') {
-                            // if (!extrudeDataAdded) {
-                            // debugger;
-                            extrudeDataAdded = addExtrude(
+                            flatPoly = addExtrude(
                                 aPosition,
                                 attributes.a_normal.data,
-                                index,
+                                vIndex,
                                 coordinates,
                                 tile,
                                 tileSize,
                                 extrude
                             );
-                            flatPoly = extrudeDataAdded;
-                            // }
                         } else if (type == 'Polygon') {
-                            // if (!polygonDataAdded) {
-                            polygonDataAdded = addPolygon(aPosition, coordinates, tile, tileSize);
-                            flatPoly = polygonDataAdded;
-                            // }
+                            flatPoly = addPolygon(aPosition, coordinates, tile, tileSize);
                         }
 
                         if (!triangles) {
@@ -524,22 +518,16 @@ export class FeatureFactory {
                             if (geom._xyz) {
                                 triangles = geom._xyz;
                             } else {
-                                let flatCnt = 0;
+                                triangles = [];
 
                                 for (let flat of flatPoly) {
-                                    let tri;
                                     let d = flat.dimensions;
-                                    let start = flat.start;
-                                    let coords = aPosition.data.subarray(start, flat.stop);
-                                    tri = earcut(coords, flat.holes, d);
+                                    let coords = aPosition.data.subarray(flat.start, flat.stop);
+                                    let tri = earcut(coords, flat.holes, d);
+                                    let i = (flat.start - flatPolyStart) / d;
 
-                                    if (flatCnt++) {
-                                        start /= 3;
-                                        for (let t of tri) {
-                                            triangles.push(start + t);
-                                        }
-                                    } else {
-                                        triangles = tri;
+                                    for (let t of tri) {
+                                        triangles.push(i + t);
                                     }
                                 }
 
@@ -550,10 +538,10 @@ export class FeatureFactory {
                             }
                         }
 
-                        for (let t = 0, s = flatPoly[0].start/flatPoly[0].dimensions, i; t < triangles.length; t++) {
+                        for (let t = 0, s = flatPolyStart / flatPoly[0].dimensions, i; t < triangles.length; t++) {
                             i = s + triangles[t];
                             groupBuffer.i32 = groupBuffer.i32 || i > 0xffff;
-                            index.push(i);
+                            vIndex.push(i);
                         }
                     }
                 }
