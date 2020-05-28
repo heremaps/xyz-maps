@@ -27,7 +27,9 @@ export type GeoJSONGeometryType =
 
 export type GeoJSONBBox = [number, number, number, number, number?, number?];
 
-export type GeoJSONCoordinate = [number, number, number?];
+export type Coordinate = [number, number, number?];
+
+export type GeoJSONCoordinates = Coordinate | Coordinate[] | Coordinate[][] | Coordinate[][][];
 
 export interface GeoJSONFeature {
     id?: string | number;
@@ -36,6 +38,11 @@ export interface GeoJSONFeature {
     type?: 'Feature';
     geometry: {
         type: GeoJSONGeometryType,
-        coordinates: GeoJSONCoordinate | GeoJSONCoordinate[] | GeoJSONCoordinate[][] | GeoJSONCoordinate[][][]
+        coordinates: GeoJSONCoordinates
     };
+}
+
+export interface GeoJSONFeatureCollection {
+    type: 'FeatureCollection';
+    features: GeoJSONFeature[]
 }

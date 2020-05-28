@@ -85,7 +85,7 @@ describe('event listeners in link layer', function() {
             }
         });
 
-        linkLayer.modifyFeatureCoordinates(
+        linkLayer.setFeatureCoordinates(
             {
                 id: link2.id,
                 geometry: {

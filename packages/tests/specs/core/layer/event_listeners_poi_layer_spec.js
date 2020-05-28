@@ -84,7 +84,7 @@ describe('event listeners in poi layer', function() {
             }
         });
 
-        placeLayer.modifyFeatureCoordinates(
+        placeLayer.setFeatureCoordinates(
             {
                 id: place2.id,
                 geometry: {

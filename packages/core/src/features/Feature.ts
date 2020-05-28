@@ -118,7 +118,10 @@ export class Feature implements GeoJSONFeature {
 
     type: 'Feature';
 
-    geometry: { type: GeoJSONGeometryType, coordinates: any[] };
+    geometry: {
+        type: GeoJSONGeometryType,
+        coordinates: any[]
+    };
 
     bbox: [number, number, number, number, number?, number?];
 
@@ -144,7 +147,10 @@ export class Feature implements GeoJSONFeature {
             type: this.type,
             bbox: this.bbox,
             properties: this.properties,
-            geometry: this.geometry
+            geometry: {
+                type: this.geometry.type,
+                coordinates: this.geometry.coordinates
+            }
         });
     };
 

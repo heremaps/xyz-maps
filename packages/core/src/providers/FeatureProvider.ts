@@ -17,12 +17,13 @@
  * License-Filename: LICENSE
  */
 
-import {Feature as GeoJsonFeature} from '../features/Feature';
+import {Feature} from '../features/Feature';
 import Provider from './TileProvider/TileProvider';
 import {geotools} from '@here/xyz-maps-common';
 import {Tile} from '../tile/Tile';
 import {updateBBox, prepareFeature} from '../data/prepare/GeoJSON';
 import RTree from '../features/RTree';
+import {GeoJSONFeature, GeoJSONCoordinates, GeoJSONFeatureCollection} from '../features/GeoJSON';
 
 
 const REMOVE_FEATURE_EVENT = 'featureRemove';
@@ -73,7 +74,7 @@ export class FeatureProvider extends Provider {
 
         this.tree = new RTree(9);
 
-        this.Feature = this.Feature || GeoJsonFeature;
+        this.Feature = this.Feature || Feature;
     }
 
 
@@ -95,16 +96,16 @@ export class FeatureProvider extends Provider {
      *  @param {here.xyz.maps.providers.FeatureProvider.Feature|Array.<here.xyz.maps.providers.FeatureProvider.Feature>} feature
      *  @return {here.xyz.maps.providers.FeatureProvider.Feature|Array.<here.xyz.maps.providers.FeatureProvider.Feature>} feature
      */
-    addFeature(feature) {
+    addFeature(feature: GeoJSONFeature | Feature | GeoJSONFeatureCollection | GeoJSONFeature[]) {
         const provider = this;
         let prepared;
         let inserted;
         let len;
 
-        if (feature.type == 'FeatureCollection') {
-            feature = feature.features;
+        if ((<GeoJSONFeatureCollection>feature).type == 'FeatureCollection') {
+            feature = (<GeoJSONFeatureCollection>feature).features;
         }
-        if (len = feature.length) {
+        if (len = (<GeoJSONFeature[]>feature).length) {
             const result = [];
 
             for (let f = 0; f < len; f++) {
@@ -113,13 +114,13 @@ export class FeatureProvider extends Provider {
             return result;
         }
 
-        if (provider.isFeatureInstance(feature, GeoJsonFeature)) {
-            if (feature._provider && (feature._provider != provider)) {
-                feature = feature.toJSON();
+        if (provider.isFeatureInstance(feature, Feature)) {
+            if ((<Feature>feature).getProvider() != provider) {
+                feature = (<Feature>feature).toJSON();
             }
         }
 
-        prepared = provider.prepareFeature(feature);
+        prepared = provider.prepareFeature(<Feature>feature);
 
         if (prepared !== false) {
             inserted = provider._insert(prepared);
@@ -164,8 +165,8 @@ export class FeatureProvider extends Provider {
                 }
             }
         } else {
-            // unkown feature
-            console.warn('unkown feature detected..', feature.geometry.type);
+            //  unkown feature
+            console.warn('unkown feature detected..', feature);
 
             feature = null;
         }
@@ -402,7 +403,7 @@ export class FeatureProvider extends Provider {
      *  @param {Object} feature Object literal containing "id" property.
      *  @return {here.xyz.maps.providers.FeatureProvider.Feature} return feature if it is found, otherwise undefined
      */
-    exists(feature) {
+    exists(feature: Feature) {
         return this.IDPOOL[feature.id];
     };
 
@@ -418,21 +419,25 @@ export class FeatureProvider extends Provider {
      *  @param {Array.<Array>|Array.<number>} coordinates new coordinates of the feature, it is either array of coordinates: [longitude, latitude, z] or
      *      array of coordinate arrays: [ [longitude, latitude, z], [longitude, latitude, z], , , , ].
      */
-    setFeatureCoordinates(feature, coordinates) {
+    setFeatureCoordinates(feature: Feature, coordinates: GeoJSONCoordinates) {
         const _feature = feature;
         // if( this.exists(feature) )
         if (feature = this.getFeature(feature.id)) {
             const prevBBox = feature.getBBox();
             // var prevBBox        = feature.bbox.slice();
-            const prevCoordinates = feature.geometry.coordinates;
-
+            const {geometry} = feature;
+            const prevCoordinates = geometry.coordinates;
 
             // make sure listeners are not getting triggered for remove+add of feature.
             this.ignore = true;
             // remove from provider to make sure tile data and tree is balanced correctly.
             this.removeFeature(feature);
+            if ((<any>geometry)._xyz) {
+                // clear cached triangulation data
+                delete (<any>geometry)._xyz;
+            }
             // set the new geometry
-            feature.geometry.coordinates = this.encCoord(feature.geometry.type, coordinates);
+            geometry.coordinates = this.encCoord(geometry.type, coordinates);
             // make sure correct bbox is set while getting added.
             feature.bbox = null;
             // ..
@@ -676,7 +681,7 @@ export class FeatureProvider extends Provider {
         // );
     };
 
-    _dropFeature(feature, qk, trigger) {
+    _dropFeature(feature: Feature, qk: string, trigger?: boolean) {
         const prov = this;
         const featureStoreInfo = prov.IDPOOL[feature.id];
 
@@ -768,11 +773,11 @@ export class FeatureProvider extends Provider {
 
     __type = 'FeatureProvider';
 
-    prepareFeature(feature: GeoJsonFeature): GeoJsonFeature | false {
+    prepareFeature(feature: Feature): Feature | false {
         return feature;
     };
 
-    updateBBox(feature: GeoJsonFeature): boolean {
+    updateBBox(feature: Feature): boolean {
         return true;
     };
 }
