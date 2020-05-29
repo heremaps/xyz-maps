@@ -19,6 +19,7 @@
 
 import {tile} from '@here/xyz-maps-core';
 import {PixelCoordinateCache} from './LineFactory';
+import {isInBox, intersectBBox} from '../../../geometry';
 
 type Tile = tile.Tile;
 type Cap = 'round' | 'butt' | 'square';
@@ -45,15 +46,6 @@ const normalize = (p) => {
     }
     return p;
 };
-
-const isInBox = (x, y, xmin, ymin, xmax, ymax) => {
-    return x > xmin && x < xmax && y > ymin && y < ymax;
-};
-
-const intersectBBox = (ax, ax2, ay, ay2, bx, bx2, by, by2) => {
-    return ax <= bx2 && bx <= ax2 && ay <= by2 && by <= ay2;
-};
-
 
 const addCap = (cap: Cap, x: number, y: number, nx: number, ny: number, vertex: number[], normal: number[]) => {
     if (cap == 'round') {

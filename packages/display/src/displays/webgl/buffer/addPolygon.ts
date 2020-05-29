@@ -17,15 +17,22 @@
  * License-Filename: LICENSE
  */
 
+import {tile} from '@here/xyz-maps-core';
+import {FlexArray} from './templates/FlexArray';
+
+type Tile = tile.Tile;
+
+type Coordinate = [number, number, number?];
+
 export type FlatPolygon = {
-    vertices: number[];
+    vertices: FlexArray;
     holes: number[];
     dimensions: number;
     start: number;
     stop: number;
 }
 
-const flatten = (vertices, data: number[][][], tile, tileSize: number, height?: number) => {
+const flatten = (vertices: FlexArray, data: Coordinate[][], tile: Tile, tileSize: number, height?: number) => {
     const start = vertices.length;
     const holes = [];
     let holeIndex = 0;
@@ -56,16 +63,22 @@ const flatten = (vertices, data: number[][][], tile, tileSize: number, height?: 
     };
 };
 
-const addPolygon = (vertex, coordinates, tile, tileSize: number, extrude?: number): FlatPolygon[] => {
+const addPolygon = (
+    vertex: FlexArray,
+    coordinates: Coordinate[][] | Coordinate[][][],
+    tile: Tile,
+    tileSize: number,
+    extrude?: number
+): FlatPolygon[] => {
     let flatPolygons;
     if (typeof coordinates[0][0][0] != 'number') {
         // MultiPolygon: only for already triangulated data (MVT)
         flatPolygons = [];
         for (let poly of coordinates) {
-            flatPolygons.push(flatten(vertex, poly, tile, tileSize, extrude));
+            flatPolygons.push(flatten(vertex, <Coordinate[][]>poly, tile, tileSize, extrude));
         }
     } else {
-        flatPolygons = [flatten(vertex, coordinates, tile, tileSize, extrude)];
+        flatPolygons = [flatten(vertex, <Coordinate[][]>coordinates, tile, tileSize, extrude)];
     }
     return flatPolygons;
 };

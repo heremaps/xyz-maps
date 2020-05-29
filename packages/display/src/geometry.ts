@@ -62,7 +62,6 @@ export const doPolygonsIntersect = (polyA: Point[], polyB: Point[]): boolean => 
     return true;
 };
 
-//* *************************************************************************************************
 export const rotate = (x: number, y: number, originX: number, originY: number, angle: number): Point => {
     let sin = Math.sin(angle);
     let cos = Math.cos(angle);
@@ -73,4 +72,13 @@ export const rotate = (x: number, y: number, originX: number, originY: number, a
         cos * dx - sin * dy + originX,
         sin * dx + cos * dy + originY
     ];
+};
+
+export const isInBox = (x: number, y: number, xmin: number, ymin: number, xmax: number, ymax: number): boolean => {
+    return x > xmin && x < xmax && y > ymin && y < ymax;
+};
+
+
+export const intersectBBox = (ax: number, ax2: number, ay: number, ay2: number, bx: number, bx2: number, by: number, by2: number): boolean => {
+    return ax <= bx2 && bx <= ax2 && ay <= by2 && by <= ay2;
 };

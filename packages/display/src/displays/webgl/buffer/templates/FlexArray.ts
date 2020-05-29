@@ -32,7 +32,8 @@ export class FlexArray {
         return this.data[index];
     }
 
-    push(value: number, v2?, v3?, v4?): number {
+    push(...args);
+    push(value: number): number {
         const values = arguments.length;
 
         this.reserve(values);

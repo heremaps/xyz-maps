@@ -1,8 +1,8 @@
 ## 0.12.0 (2020-5-22)
 ### display
 * added: control minimum distance of repeated text labels on line geometries via style.repeat=number
-* improved: optimised memory usage and performance improvement of geometry buffer creation
-* improved: optimised triangulation of polygons from unclipped source data
+* improved: optimized memory usage and performance improvement of geometry buffer creation
+* improved: optimized triangulation of polygons from unclipped source data
 * improved: reuse projected coordinates if line geometry is rendered multiple times
 * improved: major performance improvement of line triangulation of very large unclipped geometries
 * fixed: behaviour settings on mobile/touch have no effect
