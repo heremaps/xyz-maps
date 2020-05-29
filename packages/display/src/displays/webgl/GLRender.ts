@@ -462,10 +462,12 @@ export class GLRender implements BasicRender {
 
                 uLocation = program.uniforms;
 
+                dZoom = dZoom || 1;
+
                 gl.uniform1f(uLocation.u_rotate, this.rz);
                 gl.uniform2f(uLocation.u_resolution, this.w, this.h);
-                gl.uniform1f(uLocation.u_zIndex, -.05 * renderLayer.getAbsoluteZ(buffer.zIndex));
-                gl.uniform1f(uLocation.u_scale, this.scale * (dZoom || 1));
+                gl.uniform1f(uLocation.u_zIndex, -.05 * renderLayer.getAbsoluteZ(buffer.zIndex) / dZoom);
+                gl.uniform1f(uLocation.u_scale, this.scale * dZoom);
                 gl.uniform2f(uLocation.u_topLeft, x, y);
                 gl.uniform1f(uLocation.u_tileScale, tileScale || 1);
                 gl.uniformMatrix4fv(uLocation.u_matrix, false, pMat || this.pMat);
@@ -584,7 +586,6 @@ export class GLRender implements BasicRender {
 
                 if (!scissored) {
                     scissored = true;
-
                     this.initScissor(x, y, tileSize, tileSize);
                 }
 
