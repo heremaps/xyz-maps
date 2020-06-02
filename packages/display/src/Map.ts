@@ -135,7 +135,7 @@ class TigerMap {
 
     private _vp: geo.Rect; // viewport/viewbounds
 
-    private _ui: UI;
+    private ui: UI;
 
     private _cfg: MapOptions;// mapconfig
 
@@ -304,7 +304,7 @@ class TigerMap {
             uiOptions.Compass = behaviourOptions[BEHAVIOUR_ROTATE] || behaviourOptions[BEHAVIOUR_PITCH];
         }
 
-        this._ui = new UI(mapEl, mapConfig, tigerMap);
+        this.ui = new UI(mapEl, mapConfig, tigerMap);
 
         tigerMap.setCenter(mapConfig['center']);
         tigerMap.pitch(mapConfig['pitch']);
@@ -1172,7 +1172,7 @@ class TigerMap {
      */
     destroy() {
         const mapEl = this._el;
-        this._ui.destroy();
+        this.ui.destroy();
 
         this.layers.forEach((layer) => this.removeLayer(layer));
 

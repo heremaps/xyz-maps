@@ -18,6 +18,7 @@
  */
 
 import {JSUtils} from '@here/xyz-maps-common';
+import {Animation} from './Animation';
 
 const isFnc = JSUtils.isFunction;
 
@@ -27,12 +28,7 @@ interface ZoomAnimatorOptions {
 }
 
 class ZoomAnimator {
-    private duration: number;
-    private startTs: number = 0;
-    private zoomX: number;
-    private zoomY: number;
-    private zoomStart: number;
-    private zoomDelta: number;
+    private active: boolean;
     private map;
 
     constructor(map, options: ZoomAnimatorOptions) {
@@ -46,74 +42,28 @@ class ZoomAnimator {
         if (isFnc(options.onStop)) {
             handler.onStop = options.onStop;
         }
-
-        handler._animate = handler._animate.bind(handler);
-
-        // this.task = map.tasks.create({
-        //     delay: 1000 / 60,
-        //     // make sure next iteration is triggerd with delay!
-        //     time: -1,
-        //     priority: 1,
-        //     exec: ()=>handler.zoom(),
-        // });
     }
-
-    private zoom() {
-        const handler = this;
-        const dMS = +new Date - handler.startTs;
-        const percent = dMS / handler.duration;
-        let sublevel = percent % 1;
-
-        if (percent >= 1) {
-            sublevel = 1;
-        }
-
-        handler.map.setZoomlevel(handler.zoomStart + (sublevel * handler.zoomDelta), handler.zoomX, handler.zoomY);
-
-        if (dMS < handler.duration) {
-            return true; // task.CONTINUE;
-        }
-        // animation done
-        handler.startTs = 0;
-        handler.onStop();
-    }
-
-    private _animate() {
-        const handler = this;
-        if (handler.zoom()) {
-            requestAnimationFrame(handler._animate);
-        }
-    };
 
     private onStart() {
-
     }
 
     private onStop() {
-
     }
 
-
-    animate(zoomToLevel: number, zoomX: number, zoomY: number, duration: number) {
+    async animate(zoomTo: number, zoomX: number, zoomY: number, duration: number) {
         const handler = this;
+        const {map} = handler;
 
-        if (!handler.startTs) {
+        if (!handler.active) {
+            handler.active = true;
             handler.onStart();
 
-            handler.startTs = Date.now();
+            await (new Animation(map.getZoomlevel(), zoomTo, duration, 'easeOutCubic', (z) => {
+                map.setZoomlevel(z, zoomX, zoomY);
+            })).start();
 
-            handler.zoomX = zoomX;
-
-            handler.zoomY = zoomY;
-
-            handler.zoomStart = handler.map.getZoomlevel();
-
-            handler.duration = duration;
-
-            handler.zoomDelta = zoomToLevel - handler.zoomStart;
-
-            // handler.task.start();
-            requestAnimationFrame(handler._animate);
+            handler.onStop();
+            handler.active = false;
         }
     };
 }
