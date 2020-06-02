@@ -17,6 +17,7 @@
  * License-Filename: LICENSE
  */
 
+import Compass from './Compass';
 import ZoomControl from './ZoomControl';
 import Copyright from './copyright/Copyright';
 import Logo from './Logo';
@@ -25,7 +26,7 @@ import Display from '../Map';
 import {MapOptions} from '../Config';
 
 const Components = {
-
+    Compass: Compass,
     ZoomControl: ZoomControl,
     Copyright: Copyright,
     Logo: Logo
@@ -37,6 +38,10 @@ let UNDEF;
 class UI {
     components: { [name: string]: UIComponent };
     el: HTMLElement;
+
+    static initComponentOptions() {
+
+    }
 
     constructor(element: HTMLElement, mapfcg: MapOptions, display: Display) {
         const ui = this;
@@ -67,12 +72,16 @@ class UI {
         }
     }
 
+    get(component: string): UIComponent {
+        return this.components[component];
+    }
+
     destroy() {
-        const {el, components} = this;
+        const {components} = this;
         for (let name in components) {
-            components[name].disable();
+            components[name].destroy();
+            delete components[name];
         }
-        el.parentNode.removeChild(el);
     };
 };
 

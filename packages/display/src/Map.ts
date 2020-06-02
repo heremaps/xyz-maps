@@ -298,6 +298,12 @@ class TigerMap {
             maxLevel: mapConfig['maxLevel']
         };
 
+        const uiOptions = mapConfig['UI'] || mapConfig['ui'] || {};
+        if (uiOptions.Compass == UNDEF) {
+            // enable compass ui if pitch or rotate is enabled
+            uiOptions.Compass = behaviourOptions[BEHAVIOUR_ROTATE] || behaviourOptions[BEHAVIOUR_PITCH];
+        }
+
         this._ui = new UI(mapEl, mapConfig, tigerMap);
 
         tigerMap.setCenter(mapConfig['center']);
@@ -1165,11 +1171,14 @@ class TigerMap {
      * @name here.xyz.maps.Map#destroy
      */
     destroy() {
+        const mapEl = this._el;
         this._ui.destroy();
 
         this.layers.forEach((layer) => this.removeLayer(layer));
 
         this._display.destroy();
+
+        mapEl.parentNode.removeChild(mapEl);
 
         this._mvcRecognizer.watch(false);
 

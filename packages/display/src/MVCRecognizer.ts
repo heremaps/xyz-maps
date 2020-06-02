@@ -54,6 +54,7 @@ class MVCRecognizer {
     private viewport: geo.Rect;
     private center: geo.Point;
     private rz: number; // rotation z
+    private rx: number; // rotation z
     private endTriggered: boolean;
     private triggeredLayers: { [layerId: string]: boolean };
     private map;
@@ -77,12 +78,13 @@ class MVCRecognizer {
             this.center.latitude != center.latitude;
     }
 
-    private vpChanged(vp: geo.Rect, rotZ: number): boolean {
-        const {viewport, rz} = this;
+    private vpChanged(vp: geo.Rect, rotZ: number, rotX: number): boolean {
+        const {viewport, rz, rx} = this;
         return !(
             viewport.minLon != vp.minLon || viewport.maxLon != vp.maxLon ||
             viewport.minLat != vp.minLat || viewport.maxLat != vp.maxLat ||
-            rz != rotZ
+            rz != rotZ ||
+            rx != rotX
         );
     }
 
@@ -91,6 +93,7 @@ class MVCRecognizer {
         let curVP = map.getViewBounds();
         let curCenter = map.getCenter();
         let rotZ = map.rotate();
+        let rotX = map.pitch();
         let type = EVENT_MVC;
         let mvcevent = {
             changed: {
@@ -101,16 +104,18 @@ class MVCRecognizer {
         if (viewport) {
             mvcevent.changed.center = this.centerChanged(curCenter);
 
-            if (!this.vpChanged(curVP, rotZ)) {
+            if (!this.vpChanged(curVP, rotZ, rotX)) {
                 this.viewport = curVP;
                 this.rz = rotZ;
+                this.rx = rotX;
                 this.center = curCenter;
             } else {
                 clearInterval(watchTimer);
 
                 this.watchTimer =
                     this.viewport =
-                        this.rz = null;
+                        this.rz =
+                        this.rx = null;
 
                 if (readyTimer) {
                     clearTimeout(readyTimer);

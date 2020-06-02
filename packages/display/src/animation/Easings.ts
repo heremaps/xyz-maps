@@ -17,38 +17,16 @@
  * License-Filename: LICENSE
  */
 
-export const easeInSine = (t: number, b: number, c: number, d: number): number => {
-    return -c * Math.cos(t / d * (Math.PI / 2)) + c + b;
+export const linear = (t: number): number => {
+    return t;
 };
 
-export const easeOutSine = (t: number, b: number, c: number, d: number): number => {
-    return c * Math.sin(t / d * (Math.PI / 2)) + b;
+export const easeOutSine = (t: number): number => {
+    return Math.sin((Math.PI * t) * .5);
 };
 
-export const easeInQuint = (t: number, b: number, c: number, d: number): number => {
-    return c * (t /= d) * t * t * t * t + b;
-};
-
-export const easeOutQuint = (t: number, b: number, c: number, d: number): number => {
-    return c * ((t = t / d - 1) * t * t * t * t + 1) + b;
-};
-
-export const easeInCirc = (t: number, b: number, c: number, d: number): number => {
-    return -c * (Math.sqrt(1 - (t /= d) * t) - 1) + b;
-};
-
-export const easeOutCirc = (t: number, b: number, c: number, d: number): number => {
-    return c * Math.sqrt(1 - (t = t / d - 1) * t) + b;
-};
-
-export const easeInCubic = (t: number, b: number, c: number, d: number): number => {
-    t /= d;
-    return c * t * t * t + b;
-};
-
-export const easeOutCubic = (t: number, b: number, c: number, d: number): number => {
-    t /= d;
-    t--;
-    return c * (t * t * t + 1) + b;
+export const easeOutCubic = (t: number): number => {
+    t = 1 - t;
+    return 1 - t * t * t;
 };
 

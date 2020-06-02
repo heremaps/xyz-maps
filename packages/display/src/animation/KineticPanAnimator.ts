@@ -77,21 +77,14 @@ class KineticPanAnimator {
         const deltaY = panHandler.deltaY;
         const duration = panHandler.duration;
         const startTs = panHandler.startTs;
-
-        let dt = Date.now() - startTs;
-
-        if (dt > duration) {
-            dt = duration;
-        }
-
-        const cx = easeOutSine(dt, 0, deltaX, duration);
-        const cy = easeOutSine(dt, 0, deltaY, duration);
+        const t = Math.min(Date.now() - startTs, duration) / duration;
+        const cx = easeOutSine(t) * deltaX;
+        const cy = easeOutSine(t) * deltaY;
 
         panHandler.map.pan(
             cx - panHandler.lastDx || 0,
             cy - panHandler.lastDy || 0
         );
-
 
         if (cx != deltaX || cy != deltaY) {
             panHandler.lastDx = cx;

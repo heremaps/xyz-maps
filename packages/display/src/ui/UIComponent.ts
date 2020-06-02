@@ -79,17 +79,25 @@ class UIComponent {
         comp.toggleListeners(false);
     }
 
+    destroy() {
+        const comp = this;
+        comp.disable();
+        comp.parent.removeChild(comp.html);
+    };
+
     toggleListeners(toggle: boolean) {
         const comp = this;
-        let listeners = comp.listeners;
-        let toggleEventListener = (toggle ? 'add' : 'remove') + 'EventListener';
-
-        for (var selector in listeners) {
-            let elems = comp.querySelectorAll(selector);
-
-            for (var type in listeners[selector]) {
-                elems.forEach(function(el) {
-                    el[toggleEventListener](type, listeners[selector][type].bind(comp));
+        const {listeners} = comp;
+        for (let selector in listeners) {
+            const elems = comp.querySelectorAll(selector);
+            for (let type in listeners[selector]) {
+                elems.forEach((el) => {
+                    const listener = listeners[selector][type];
+                    if (toggle) {
+                        el.addEventListener(type, listeners[selector][type]._ = listener.bind(comp));
+                    } else {
+                        el.removeEventListener(type, listener._);
+                    }
                 });
             }
         }
