@@ -19,12 +19,24 @@
 
 import UIComponent from './UIComponent';
 import {Animation} from '../animation/Animation';
+import Display from '../Map';
+import {MapOptions} from '../Config';
 
 const ANIMATION_MS = 500;
+
+type CompassOptions = {
+    visible?: boolean
+}
 
 class Compass extends UIComponent {
     private _rl: (ev?: any) => void;
     private aip: boolean = false;
+    private maxPitch: number;
+
+    constructor(element: HTMLElement, options: CompassOptions, display: Display, mapOptions: MapOptions) {
+        super(element, options, display);
+        this.maxPitch = mapOptions.maxPitch;
+    };
 
     enable() {
         super.enable();
@@ -52,11 +64,21 @@ Compass.prototype.listeners = {
             'click': async function(ev) {
                 if (!this.aip) {
                     const {map} = this;
+                    const rotation = map.rotate();
+                    const pitch = map.pitch();
+                    let transform = [0, 0];
+
+                    if (!rotation && !pitch) {
+                        transform = [0, this.maxPitch];
+                    }
+
                     this.aip = true;
-                    await (new Animation([map.rotate(), map.pitch()], [0, 0], ANIMATION_MS, 'easeOutCubic', (values) => {
+
+                    await (new Animation([rotation, pitch], transform, ANIMATION_MS, 'easeOutCubic', (values) => {
                         map.rotate(values[0]);
                         map.pitch(values[1]);
                     })).start();
+
                     this.aip = false;
                 }
             }

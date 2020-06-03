@@ -19,6 +19,7 @@
 
 import UIComponent from './UIComponent';
 import Display from '../Map';
+import {MapOptions} from '../Config';
 
 type ZoomCtrlOptions = {
     visible?: boolean
@@ -27,13 +28,13 @@ type ZoomCtrlOptions = {
 class ZoomControl extends UIComponent {
     private _zll: (ev: any) => void;
 
-    constructor(element: HTMLElement, options: ZoomCtrlOptions, display: Display, mapCfg) {
+    constructor(element: HTMLElement, options: ZoomCtrlOptions, display: Display, mapOptions: MapOptions) {
         super(element, options, display);
 
         let zoomCtrl = this;
 
-        if (mapCfg && mapCfg.zoomAnimationMs) {
-            zoomCtrl.ams = mapCfg.zoomAnimationMs;
+        if (mapOptions && mapOptions.zoomAnimationMs) {
+            zoomCtrl.ams = mapOptions.zoomAnimationMs;
         }
     };
 
@@ -56,7 +57,7 @@ class ZoomControl extends UIComponent {
         this.map.removeEventListener('mapviewchangeend', this._zll);
     };
 
-    ams: 250;
+    ams: number = 250;
 };
 
 ZoomControl.prototype.listeners = {

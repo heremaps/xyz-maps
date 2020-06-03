@@ -19,6 +19,7 @@
 
 import {fromString} from '../DOMTools';
 import Map from '../Map';
+import {MapOptions} from '../Config';
 
 let styleEl;
 
@@ -37,7 +38,7 @@ class UIComponent {
 
     protected opt: {};
 
-    constructor(element: HTMLElement, options, map: Map) {
+    constructor(element: HTMLElement, options, map: Map, mapOptions?: MapOptions) {
         let uic = this;
         uic.map = map;
 
