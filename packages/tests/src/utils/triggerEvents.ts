@@ -64,6 +64,7 @@ export function drag(elem: HTMLElement, from: { x: number; y: number }, to: { x:
             resolve(evt);
             elem.removeEventListener('mouseup', callback);
         }
+
         elem.addEventListener('mouseup', callback);
 
         dispatchEvent(e.element, e.topleft, from.x, from.y, 'mousedown');
@@ -73,12 +74,12 @@ export function drag(elem: HTMLElement, from: { x: number; y: number }, to: { x:
         let vy = (to.y - from.y) / v;
         let i = 0;
         let si = setInterval(function() {
-            dispatchEvent(e.element, e.topleft, Math.floor(from.x + vx * i), Math.floor(from.y + vy * i), 'mousemove');
-            if (++i > v) {
+            if (i++ == v - 1) {
                 dispatchEvent(e.element, e.topleft, to.x, to.y, 'mousemove');
-                dispatchEvent(e.element, e.topleft, to.x, to.y, 'mouseup');
+                setTimeout(() => dispatchEvent(e.element, e.topleft, to.x, to.y, 'mouseup'), 1);
                 clearInterval(si);
             }
+            dispatchEvent(e.element, e.topleft, Math.floor(from.x + vx * i), Math.floor(from.y + vy * i), 'mousemove');
         }, time / v);
     });
 };

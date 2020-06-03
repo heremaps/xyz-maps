@@ -87,8 +87,8 @@ export let spacePool: SpacePool;
 export function run(component: string, apiBuild: {version: string; }): void {
     apiBuild = apiBuild || build;
 
-    // @ts-ignore (hidden: used to speedup tests only by setting mapviewchangeend trigger delay to 16ms)
-    window.__XYZTST_MVCEDelayMs = 16;
+    // @ts-ignore (hidden: used to speedup tests only by setting mapviewchangeend trigger delay to 1ms)
+    window.__XYZTST_MVCEDelayMs = 1;
 
     let startTime;
     let errors = new WeakMap<Mocha.Test, Mocha.Test[]>();
