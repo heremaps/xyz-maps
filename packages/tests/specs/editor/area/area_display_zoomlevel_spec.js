@@ -34,7 +34,7 @@ describe('Area object display and hide', function() {
         display = new Map(document.getElementById('map'), {
             center: {longitude: -95.341612, latitude: 40.330651},
             // center: {longitude: -95.510586, latitude: 40.333169},
-            zoomLevel: 18,
+            zoomlevel: 18,
             layers: preparedData.getLayers()
         });
         editor = new Editor(display, {

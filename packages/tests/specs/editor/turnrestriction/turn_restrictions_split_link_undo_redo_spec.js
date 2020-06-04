@@ -39,7 +39,7 @@ describe('edit turn restriction split link then undo and redo the change', funct
         preparedData = await prepare(dataset);
         display = new Map(document.getElementById('map'), {
             center: {longitude: 77.189374, latitude: 13.813399},
-            zoomLevel: 18,
+            zoomlevel: 18,
             layers: preparedData.getLayers()
         });
         editor = new Editor(display, {

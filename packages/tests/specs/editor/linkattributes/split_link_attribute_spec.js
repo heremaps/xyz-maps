@@ -33,7 +33,7 @@ describe('validate attributes after splitting a link', function() {
         preparedData = await prepare(dataset);
         display = new Map(document.getElementById('map'), {
             center: {longitude: 80.59799375789913, latitude: 16.650199051996044},
-            zoomLevel: 18,
+            zoomlevel: 18,
             layers: preparedData.getLayers()
         });
         editor = new Editor(display, {

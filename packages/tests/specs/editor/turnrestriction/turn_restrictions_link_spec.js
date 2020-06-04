@@ -37,7 +37,7 @@ describe('edit turn restrictions by function on link', function() {
         preparedData = await prepare(dataset);
         display = new Map(document.getElementById('map'), {
             center: {longitude: 77.878971, latitude: 13.042632},
-            zoomLevel: 18,
+            zoomlevel: 18,
             layers: preparedData.getLayers()
         });
         editor = new Editor(display, {

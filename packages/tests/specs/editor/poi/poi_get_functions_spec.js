@@ -38,7 +38,7 @@ describe('Place get functions', function() {
         preparedData = await prepare(dataset);
         display = new Map(document.getElementById('map'), {
             center: {longitude: 73.29398409, latitude: 19.27905288},
-            zoomLevel: 18,
+            zoomlevel: 18,
             layers: preparedData.getLayers()
         });
         editor = new Editor(display, {layers: preparedData.getLayers()});

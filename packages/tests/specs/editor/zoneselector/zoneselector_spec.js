@@ -40,7 +40,7 @@ describe('zone selector drag', function() {
         preparedData = await prepare(dataset);
         display = new Map(document.getElementById('map'), {
             center: {longitude: -105.145534, latitude: 35.374829},
-            zoomLevel: 18,
+            zoomlevel: 18,
             layers: preparedData.getLayers()
         });
         editor = new Editor(display, {

@@ -40,7 +40,7 @@ describe('address set routing point and link manually', function() {
         preparedData = await prepare(dataset);
         display = new Map(document.getElementById('map'), {
             center: {longitude: 76.16847, latitude: 14.150883},
-            zoomLevel: 19,
+            zoomlevel: 19,
             layers: preparedData.getLayers()
         });
         editor = new Editor(display, {layers: preparedData.getLayers()});

@@ -34,7 +34,7 @@ describe('add Address object when link is deactivated', function() {
 
         display = new Map(document.getElementById('map'), {
             center: {longitude: 79.436809, latitude: 16.538429},
-            zoomLevel: 18,
+            zoomlevel: 18,
             layers: preparedData.getLayers()
         });
         editor = new Editor(display, {layers: preparedData.getLayers()});

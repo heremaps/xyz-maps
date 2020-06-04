@@ -37,7 +37,7 @@ describe('drag a link shape point to the other one to split itself and then undo
         preparedData = await prepare(dataset);
         display = new Map(document.getElementById('map'), {
             center: {longitude: 76.256321, latitude: 15.31888},
-            zoomLevel: 18,
+            zoomlevel: 18,
             layers: preparedData.getLayers()
         });
         editor = new Editor(display, {

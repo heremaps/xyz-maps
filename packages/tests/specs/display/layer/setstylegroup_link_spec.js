@@ -39,7 +39,7 @@ describe('setStyleGroup Link', function() {
                 preserveDrawingBuffer: true
             },
             center: {longitude: 73.707821, latitude: 21.189023},
-            zoomLevel: 18,
+            zoomlevel: 18,
             layers: preparedData.getLayers()
         });
         await waitForViewportReady(display);

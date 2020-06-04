@@ -35,7 +35,7 @@ describe('create an address outside viewport, it connects to a link nearby', fun
         preparedData = await prepare(dataset);
         display = new Map(document.getElementById('map'), {
             center: {longitude: 75.55616842610328, latitude: 14.022611963396827},
-            zoomLevel: 18,
+            zoomlevel: 18,
             layers: preparedData.getLayers()
         });
         editor = new Editor(display, {layers: preparedData.getLayers()});

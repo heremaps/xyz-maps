@@ -38,7 +38,7 @@ describe('area transformer', function() {
         preparedData = await prepare(dataset);
         display = new Map(document.getElementById('map'), {
             center: {longitude: 74.82185256187489, latitude: 12.901112606690091},
-            zoomLevel: 19,
+            zoomlevel: 19,
             layers: preparedData.getLayers()
         });
         editor = new Editor(display, {

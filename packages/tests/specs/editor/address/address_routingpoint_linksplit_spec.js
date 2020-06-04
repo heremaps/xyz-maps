@@ -36,7 +36,7 @@ describe('Address routing point updates by link split', function() {
         preparedData = await prepare(dataset);
         display = new Map(document.getElementById('map'), {
             center: {longitude: 79.61337180560229, latitude: 11.875416530928291},
-            zoomLevel: 18,
+            zoomlevel: 18,
             layers: preparedData.getLayers()
         });
         editor = new Editor(display, {layers: preparedData.getLayers()});

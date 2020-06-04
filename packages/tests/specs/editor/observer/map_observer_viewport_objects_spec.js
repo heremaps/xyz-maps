@@ -34,7 +34,7 @@ describe('map changes observers validate object numbers in viewport', function()
         preparedData = await prepare(dataset);
         display = new Map(document.getElementById('map'), {
             center: {longitude: 73.01792013030266, latitude: 19.02744600666402},
-            zoomLevel: 18,
+            zoomlevel: 18,
             layers: preparedData.getLayers()
         });
         editor = new Editor(display, {

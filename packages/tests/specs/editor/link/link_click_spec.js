@@ -37,7 +37,7 @@ describe('link click events', function() {
         preparedData = await prepare(dataset);
         display = new Map(document.getElementById('map'), {
             center: {longitude: 76.79443, latitude: 12.94086},
-            zoomLevel: 17,
+            zoomlevel: 17,
             layers: preparedData.getLayers()
         });
         editor = new Editor(display, {

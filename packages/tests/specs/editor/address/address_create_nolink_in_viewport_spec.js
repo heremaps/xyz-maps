@@ -35,7 +35,7 @@ describe('create an address where no link exists within 1000 meters', function()
 
         display = new Map(document.getElementById('map'), {
             center: {longitude: 76.2627802276752, latitude: 15.212266301808356},
-            zoomLevel: 14,
+            zoomlevel: 14,
             layers: preparedData.getLayers()
         });
         editor = new Editor(display, {layers: preparedData.getLayers()});

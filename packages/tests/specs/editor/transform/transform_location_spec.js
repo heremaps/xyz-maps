@@ -38,7 +38,7 @@ describe('transform for poi and point address', function() {
         preparedData = await prepare(dataset);
         display = new Map(document.getElementById('map'), {
             center: {longitude: 76.03547451898947, latitude: 13.709170873282702},
-            zoomLevel: 19,
+            zoomlevel: 19,
             layers: preparedData.getLayers()
         });
         editor = new Editor(display, {

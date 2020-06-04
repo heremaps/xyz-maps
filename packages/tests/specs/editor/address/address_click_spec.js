@@ -41,7 +41,7 @@ describe('click on address to validate the coordinate', function() {
 
         display = new Map(document.getElementById('map'), {
             center: {longitude: 76.284222, latitude: 14.125044},
-            zoomLevel: 19,
+            zoomlevel: 19,
             layers: preparedData.getLayers()
         });
         editor = new Editor(display, {

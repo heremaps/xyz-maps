@@ -39,7 +39,7 @@ describe('turn restriction either start or end is set', function() {
         preparedData = await prepare(dataset);
         display = new Map(document.getElementById('map'), {
             center: {longitude: 77.15267063201952, latitude: 13.550232964474148},
-            zoomLevel: 18,
+            zoomlevel: 18,
             layers: preparedData.getLayers()
         });
         editor = new Editor(display, {

@@ -35,7 +35,7 @@ describe('validate lockviewport function', function() {
         let preparedData = await prepare(dataset);
         display = new Map(document.getElementById('map'), {
             center: {longitude: 77.79802, latitude: 12.62214},
-            zoomLevel: 18,
+            zoomlevel: 18,
             layers: preparedData.getLayers()
         });
         mapContainer = display.getContainer();
@@ -57,7 +57,6 @@ describe('validate lockviewport function', function() {
         expect(display.getZoomlevel()).to.equal(18);
     });
 
-
     it('validate map again after locking viewport for panning and drag', async function() {
         display.lockViewport({pan: true});
 
@@ -73,7 +72,6 @@ describe('validate lockviewport function', function() {
         });
         expect(display.getZoomlevel()).to.equal(18);
     });
-
 
     it('validate map is dragged after viewport for panning is unlocked', async function() {
         display.lockViewport({pan: false});
@@ -103,7 +101,6 @@ describe('validate lockviewport function', function() {
         expect(display.getZoomlevel()).to.equal(17);
     });
 
-
     it('validate zoomlevel is not locked', async function() {
         display.setZoomlevel(17);
 
@@ -128,7 +125,6 @@ describe('validate lockviewport function', function() {
 
         expect(display.getZoomlevel()).to.equal(18);
     });
-
 
     it('validate zoomlevel is locked with maxLevel to 20', async function() {
         display.setZoomlevel(18);

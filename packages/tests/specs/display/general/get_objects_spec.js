@@ -34,7 +34,7 @@ describe('get objects', function() {
 
         display = new Map(document.getElementById('map'), {
             center: {longitude: 77.79802, latitude: 12.62214},
-            zoomLevel: 18,
+            zoomlevel: 18,
             layers: preparedData.getLayers()
         });
         await waitForViewportReady(display);

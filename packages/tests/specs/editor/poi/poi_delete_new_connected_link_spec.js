@@ -40,7 +40,7 @@ xdescribe('New poi connect to a new link and then remove the link', function() {
 
         display = new Map(document.getElementById('map'), {
             center: {longitude: 78.34913, latitude: 17.31552},
-            zoomLevel: 18,
+            zoomlevel: 18,
             layers: preparedData.getLayers()
         });
         editor = new Editor(display, {

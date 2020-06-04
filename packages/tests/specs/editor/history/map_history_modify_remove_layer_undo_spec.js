@@ -36,7 +36,7 @@ describe('modify object and remove its layer, then undo the change', function() 
         preparedData = await prepare(dataset);
         display = new Map(document.getElementById('map'), {
             center: {longitude: 73.0516688844414, latitude: 18.895885641079214},
-            zoomLevel: 18,
+            zoomlevel: 18,
             layers: preparedData.getLayers()
         });
         editor = new Editor(display, {

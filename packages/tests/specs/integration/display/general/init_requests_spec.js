@@ -45,7 +45,7 @@ describe('initial requests of display', function() {
                 preserveDrawingBuffer: true
             },
             center: {longitude: 74.17035879069607, latitude: 15.482777312100069},
-            zoomLevel: 18,
+            zoomlevel: 18,
             layers: preparedData.getLayers()
         });
 

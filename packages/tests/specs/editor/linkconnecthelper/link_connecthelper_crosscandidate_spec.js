@@ -42,7 +42,7 @@ describe('link connect helper crosscandidate', function() {
                 preserveDrawingBuffer: true
             },
             center: {longitude: 80.56914, latitude: 16.726454},
-            zoomLevel: 19,
+            zoomlevel: 19,
             layers: preparedData.getLayers()
         });
         editor = new Editor(display, {

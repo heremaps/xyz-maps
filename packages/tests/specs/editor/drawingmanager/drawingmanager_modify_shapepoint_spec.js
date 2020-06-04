@@ -36,7 +36,7 @@ describe('Create new Link by drawing manager and remove some shape points', func
         preparedData = await prepare(dataset);
         display = new Map(document.getElementById('map'), {
             center: {longitude: 76.98670509884607, latitude: 12.88815358638164},
-            zoomLevel: 18,
+            zoomlevel: 18,
             layers: preparedData.getLayers()
         });
         editor = new Editor(display, {

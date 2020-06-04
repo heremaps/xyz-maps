@@ -32,7 +32,7 @@ describe('map history create objects and undo last changes, should create just o
         let preparedData = await prepare(dataset);
         display = new Map(document.getElementById('map'), {
             center: {longitude: 73.437315, latitude: 18.811783},
-            zoomLevel: 18,
+            zoomlevel: 18,
             layers: preparedData.getLayers()
         });
         editor = new Editor(display, {

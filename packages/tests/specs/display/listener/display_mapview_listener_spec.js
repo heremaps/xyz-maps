@@ -33,7 +33,7 @@ describe('mapview change listener', function() {
         let preparedData = await prepare(dataset);
         display = new Map(document.getElementById('map'), {
             center: {longitude: 73.00368500489765, latitude: 20.27239042522672},
-            zoomLevel: 18,
+            zoomlevel: 18,
             layers: preparedData.getLayers()
         });
 

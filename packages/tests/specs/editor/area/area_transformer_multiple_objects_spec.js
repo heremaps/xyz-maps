@@ -39,7 +39,7 @@ describe('area transform multiple objects', function() {
         preparedData = await prepare(dataset);
         display = new Map(document.getElementById('map'), {
             center: {longitude: 74.91579290930756, latitude: 12.968357297262258},
-            zoomLevel: 19,
+            zoomlevel: 19,
             layers: preparedData.getLayers()
         });
         editor = new Editor(display, {

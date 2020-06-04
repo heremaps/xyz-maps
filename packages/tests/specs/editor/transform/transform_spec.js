@@ -42,7 +42,7 @@ describe('transform objects', function() {
                 preserveDrawingBuffer: true
             },
             center: {longitude: 77.81426220901494, latitude: 12.651311987215792},
-            zoomLevel: 18,
+            zoomlevel: 18,
             layers: preparedData.getLayers()
         });
         editor = new Editor(display, {

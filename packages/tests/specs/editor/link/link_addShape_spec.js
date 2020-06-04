@@ -38,7 +38,7 @@ describe('link add shape point', function() {
         preparedData = await prepare(dataset);
         display = new Map(document.getElementById('map'), {
             center: {latitude: 12.94086, longitude: 76.99443},
-            zoomLevel: 17,
+            zoomlevel: 17,
             layers: preparedData.getLayers()
         });
         editor = new Editor(display, {

@@ -37,7 +37,7 @@ describe('display image and link layers', function() {
                 preserveDrawingBuffer: true
             },
             center: {longitude: 75.17035879069607, latitude: 15.482777312100069},
-            zoomLevel: 18,
+            zoomlevel: 18,
             layers: preparedData.getLayers()
         });
         await waitForViewportReady(display);

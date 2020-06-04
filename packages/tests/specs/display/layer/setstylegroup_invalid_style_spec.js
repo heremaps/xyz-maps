@@ -41,7 +41,7 @@ describe('setStyleGroup with invalid style', function() {
                 preserveDrawingBuffer: true
             },
             center: {longitude: 78.06609, latitude: 17.459677},
-            zoomLevel: 18,
+            zoomlevel: 18,
             layers: preparedData.getLayers()
         });
         await waitForViewportReady(display);

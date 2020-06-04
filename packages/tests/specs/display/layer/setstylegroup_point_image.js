@@ -38,7 +38,7 @@ describe('setStyleGroup Point with image', function() {
                 preserveDrawingBuffer: true
             },
             center: {longitude: 73.76268, latitude: 20.291689},
-            zoomLevel: 18,
+            zoomlevel: 18,
             layers: preparedData.getLayers()
         });
         await waitForViewportReady(display);

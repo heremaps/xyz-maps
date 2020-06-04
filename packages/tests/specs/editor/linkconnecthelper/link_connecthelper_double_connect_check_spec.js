@@ -37,7 +37,7 @@ describe('link connect helper connect crossing and then add new link and connect
         preparedData = await prepare(dataset);
         display = new Map(document.getElementById('map'), {
             center: {longitude: 80.5752066315913, latitude: 16.51980167657008},
-            zoomLevel: 18,
+            zoomlevel: 18,
             layers: preparedData.getLayers()
         });
         editor = new Editor(display, {

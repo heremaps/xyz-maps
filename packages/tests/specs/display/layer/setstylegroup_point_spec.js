@@ -38,7 +38,7 @@ describe('setStyleGroup Point', function() {
                 preserveDrawingBuffer: true
             },
             center: {longitude: 73.138138, latitude: 20.187398},
-            zoomLevel: 18,
+            zoomlevel: 18,
             layers: preparedData.getLayers()
         });
 

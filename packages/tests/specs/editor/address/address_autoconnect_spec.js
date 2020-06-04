@@ -37,7 +37,7 @@ describe('address routing point connects to links automatically', function() {
 
         display = new Map(document.getElementById('map'), {
             center: {longitude: 74.811511, latitude: 12.976344},
-            zoomLevel: 19,
+            zoomlevel: 19,
             layers: preparedData.getLayers()
         });
         editor = new Editor(display, {

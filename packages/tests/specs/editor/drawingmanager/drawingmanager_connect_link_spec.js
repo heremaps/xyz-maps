@@ -35,7 +35,7 @@ describe('Create new Links and drag connect point,original link is not split', f
         preparedData = await prepare(dataset);
         display = new Map(document.getElementById('map'), {
             center: {longitude: 77.26345, latitude: 13.24889},
-            zoomLevel: 18,
+            zoomlevel: 18,
             layers: preparedData.getLayers()
         });
         editor = new Editor(display, {

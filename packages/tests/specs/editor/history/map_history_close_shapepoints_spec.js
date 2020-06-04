@@ -36,7 +36,7 @@ describe('map history for undo, redo changes to shapepoints which are close to e
         preparedData = await prepare(dataset);
         display = new Map(document.getElementById('map'), {
             center: {latitude: 18.865855, longitude: 73.07682},
-            zoomLevel: 19,
+            zoomlevel: 19,
             layers: preparedData.getLayers()
         });
         editor = new Editor(display, {

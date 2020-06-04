@@ -35,7 +35,7 @@ describe('drawing board work at high zoomlevel', function() {
         preparedData = await prepare(dataset);
         display = new Map(document.getElementById('map'), {
             center: {longitude: 75.37269535085787, latitude: 11.87506940456375},
-            zoomLevel: 15,
+            zoomlevel: 15,
             layers: preparedData.getLayers()
         });
         editor = new Editor(display, {

@@ -38,7 +38,7 @@ describe('edit turn restriction by function on link then remove the link', funct
         preparedData = await prepare(dataset);
         display = new Map(document.getElementById('map'), {
             center: {longitude: 76.80573149474153, latitude: 13.1453125009397},
-            zoomLevel: 18,
+            zoomlevel: 18,
             layers: preparedData.getLayers()
         });
         editor = new Editor(display, {

@@ -34,7 +34,7 @@ describe('disable zoomcontrol component', function() {
         preparedData = await prepare(dataset);
         display = new Map(document.getElementById('map'), {
             center: {longitude: 77.79802, latitude: 12.62214},
-            zoomLevel: 18,
+            zoomlevel: 18,
             layers: preparedData.getLayers()
         });
         mapContainer = display.getContainer();
@@ -60,7 +60,7 @@ describe('disable zoomcontrol component', function() {
             UI: {
                 ZoomControl: false
             },
-            zoomLevel: 18,
+            zoomlevel: 18,
             layers: preparedData.getLayers()
         });
 
@@ -77,7 +77,7 @@ describe('disable zoomcontrol component', function() {
     it('re-initialize display with zoomcontrol enabled, validate zoomcontrol again', async function() {
         display.destroy();
         display = new Map(document.getElementById('map'), {
-            zoomLevel: 18,
+            zoomlevel: 18,
             layers: preparedData.getLayers()
         });
 

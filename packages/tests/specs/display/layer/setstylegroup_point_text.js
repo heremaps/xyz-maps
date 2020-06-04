@@ -37,7 +37,7 @@ describe('setStyleGroup Point with text', function() {
                 preserveDrawingBuffer: true
             },
             center: {longitude: 73.124442, latitude: 20.181623},
-            zoomLevel: 18,
+            zoomlevel: 18,
             layers: preparedData.getLayers()
         });
         await waitForViewportReady(display);

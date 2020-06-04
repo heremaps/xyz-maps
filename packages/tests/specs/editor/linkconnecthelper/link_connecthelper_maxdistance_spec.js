@@ -40,7 +40,7 @@ describe('link connect helper with maxdistance greater than 3', function() {
         preparedData = await prepare(dataset);
         display = new Map(document.getElementById('map'), {
             center: {longitude: 77.642761, latitude: 17.791314},
-            zoomLevel: 18,
+            zoomlevel: 18,
             layers: preparedData.getLayers()
         });
         editor = new Editor(display, {

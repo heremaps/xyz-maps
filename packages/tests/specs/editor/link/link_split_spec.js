@@ -36,7 +36,7 @@ describe('link splitting and set its properties correctly', function() {
         preparedData = await prepare(dataset);
         display = new Map(document.getElementById('map'), {
             center: {longitude: 77.47053701721183, latitude: 13.211750283939665},
-            zoomLevel: 18,
+            zoomlevel: 18,
             layers: preparedData.getLayers()
         });
         editor = new Editor(display, {

@@ -36,7 +36,7 @@ describe('link shape point snapping to delete link itself', function() {
         preparedData = await prepare(dataset);
         display = new Map(document.getElementById('map'), {
             center: {longitude: 8.322249883397774, latitude: 52.51320798105459},
-            zoomLevel: 19,
+            zoomlevel: 19,
             layers: preparedData.getLayers()
         });
         editor = new Editor(display, {

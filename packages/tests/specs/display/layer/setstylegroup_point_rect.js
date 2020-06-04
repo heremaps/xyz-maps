@@ -39,7 +39,7 @@ describe('setStyleGroup Point with rect', function() {
                 preserveDrawingBuffer: true
             },
             center: {longitude: 73.075272, latitude: 19.931463},
-            zoomLevel: 18,
+            zoomlevel: 18,
             layers: preparedData.getLayers()
         });
         await waitForViewportReady(display);

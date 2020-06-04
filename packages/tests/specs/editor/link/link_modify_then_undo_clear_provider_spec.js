@@ -38,7 +38,7 @@ describe('link modify two time and undo then clear provider', function() {
         preparedData = await prepare(dataset);
         display = new Map(document.getElementById('map'), {
             center: {longitude: 77.13201659362801, latitude: 13.660441367361372},
-            zoomLevel: 17,
+            zoomlevel: 17,
             layers: preparedData.getLayers()
         });
         editor = new Editor(display, {

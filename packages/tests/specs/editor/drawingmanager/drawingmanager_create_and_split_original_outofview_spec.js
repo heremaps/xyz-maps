@@ -37,7 +37,7 @@ describe('Create new Link and drag it outside of viewport before splitting the o
         preparedData = await prepare(dataset);
         display = new Map(document.getElementById('map'), {
             center: {longitude: 79.26345, latitude: 13.04889},
-            zoomLevel: 18,
+            zoomlevel: 18,
             layers: preparedData.getLayers()
         });
         editor = new Editor(display, {

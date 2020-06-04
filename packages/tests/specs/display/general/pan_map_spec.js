@@ -33,7 +33,7 @@ describe('pan the map', function() {
         let preparedData = await prepare(dataset);
         display = new Map(document.getElementById('map'), {
             center: {longitude: 77.99026323, latitude: 12.13576713},
-            zoomLevel: 18,
+            zoomlevel: 18,
             layers: preparedData.getLayers()
         });
     });

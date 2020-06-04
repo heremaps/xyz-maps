@@ -36,7 +36,7 @@ describe('link connect helper which has multiple overlapped shape points 1', fun
         preparedData = await prepare(dataset);
         display = new Map(document.getElementById('map'), {
             center: {longitude: 80.69297278785734, latitude: 16.799272986590253},
-            zoomLevel: 18,
+            zoomlevel: 18,
             layers: preparedData.getLayers()
         });
         editor = new Editor(display, {

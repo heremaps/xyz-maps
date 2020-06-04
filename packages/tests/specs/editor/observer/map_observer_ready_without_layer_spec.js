@@ -35,7 +35,7 @@ describe('editor triggers ready without adding layer to it', function() {
     it('observe ready is triggered', async function() {
         display = new Map(document.getElementById('map'), {
             center: {longitude: 77.02831, latitude: 12.9356},
-            zoomLevel: 18,
+            zoomlevel: 18,
             layers: [new layers.TileLayer({
                 min: 4,
                 max: 15,

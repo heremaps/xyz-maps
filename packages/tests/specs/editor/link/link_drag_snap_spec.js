@@ -39,7 +39,7 @@ describe('link shape point drag to snapping to other links', function() {
         preparedData = await prepare(dataset);
         display = new Map(document.getElementById('map'), {
             center: {latitude: 16.324926, longitude: 75.290762},
-            zoomLevel: 19,
+            zoomlevel: 19,
             layers: preparedData.getLayers()
         });
         editor = new Editor(display, {

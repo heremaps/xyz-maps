@@ -37,7 +37,7 @@ describe('get add and remove map layer', function() {
                 preserveDrawingBuffer: true
             },
             center: {longitude: 74.17035879069607, latitude: 15.482777312100069},
-            zoomLevel: 18,
+            zoomlevel: 18,
             layers: preparedData.getLayers()
         });
         await waitForViewportReady(display);

@@ -38,7 +38,7 @@ describe('map error listener', function() {
 
         display = new Map(document.getElementById('map'), {
             center: {longitude: 75.491019, latitude: 12.775706},
-            zoomLevel: 18,
+            zoomlevel: 18,
             layers: preparedData.getLayers()
         });
         editor = new Editor(display, {

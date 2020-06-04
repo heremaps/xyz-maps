@@ -39,7 +39,7 @@ describe('pointer listener with different style point', function() {
                 preserveDrawingBuffer: true
             },
             center: {longitude: 73.044927, latitude: 20.407239},
-            zoomLevel: 19,
+            zoomlevel: 19,
             layers: preparedData.getLayers()
         });
 

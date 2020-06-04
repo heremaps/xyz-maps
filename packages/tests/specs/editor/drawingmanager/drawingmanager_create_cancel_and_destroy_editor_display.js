@@ -31,7 +31,7 @@ describe('Drawing manager create or cancel drawing and then destroy editor and d
         let preparedData = await prepare(dataset);
         let display = new Map(document.getElementById('map'), {
             center: {longitude: 77.26345, latitude: 13.04889},
-            zoomLevel: 18,
+            zoomlevel: 18,
             layers: preparedData.getLayers()
         });
         let editor = new Editor(display, {
@@ -59,7 +59,7 @@ describe('Drawing manager create or cancel drawing and then destroy editor and d
         let preparedData = await prepare(dataset);
         let display = new Map(document.getElementById('map'), {
             center: {longitude: 77.26345, latitude: 13.04889},
-            zoomLevel: 18,
+            zoomlevel: 18,
             layers: preparedData.getLayers()
         });
         let editor = new Editor(display, {

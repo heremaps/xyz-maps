@@ -41,7 +41,7 @@ xdescribe('ready event is triggered once after submitting removed links', functi
 
         display = new Map(document.getElementById('map'), {
             center: {longitude: 77.75294, latitude: 17.97126},
-            zoomLevel: 18,
+            zoomlevel: 18,
             layers: preparedData.getLayers()
         });
         editor = new Editor(display, {

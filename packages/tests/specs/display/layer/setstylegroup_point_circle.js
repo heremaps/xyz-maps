@@ -37,7 +37,7 @@ describe('setStyleGroup Point with circle', function() {
                 preserveDrawingBuffer: true
             },
             center: {longitude: 73.549401, latitude: 19.815739},
-            zoomLevel: 18,
+            zoomlevel: 18,
             layers: preparedData.getLayers()
         });
         await waitForViewportReady(display);

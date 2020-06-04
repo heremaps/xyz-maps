@@ -30,7 +30,7 @@ describe('destroy display', function() {
         let preparedData = await prepare(dataset);
         display = new Map(document.getElementById('map'), {
             center: {longitude: 77.852437, latitude: 13.542848},
-            zoomLevel: 18,
+            zoomlevel: 18,
             layers: preparedData.getLayers()
         });
     });

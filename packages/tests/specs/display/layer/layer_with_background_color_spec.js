@@ -35,7 +35,7 @@ describe('layer with background color', function() {
                 preserveDrawingBuffer: true
             },
             center: {longitude: 70, latitude: 21},
-            zoomLevel: 18
+            zoomlevel: 18
         });
 
         mapContainer = display.getContainer();

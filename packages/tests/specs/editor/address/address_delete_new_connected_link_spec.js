@@ -41,7 +41,7 @@ xdescribe('New address connect to a new link and then remove the link', function
         preparedData = await prepare(dataset);
         display = new Map(document.getElementById('map'), {
             center: {longitude: 72.81168548744967, latitude: 19.44202601424145},
-            zoomLevel: 18,
+            zoomlevel: 18,
             layers: preparedData.getLayers()
         });
         editor = new Editor(display, {layers: preparedData.getLayers()});

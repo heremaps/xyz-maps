@@ -39,7 +39,7 @@ describe('Validate submit of creating new link, modifying and removing link', fu
         preparedData = await prepare(dataset);
         display = new Map(document.getElementById('map'), {
             center: {longitude: 76.98506, latitude: 12.88776},
-            zoomLevel: 18,
+            zoomlevel: 18,
             layers: preparedData.getLayers()
         });
         editor = new Editor(display, {

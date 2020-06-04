@@ -41,7 +41,7 @@ describe('map container highlight', function() {
                 preserveDrawingBuffer: true
             },
             center: {longitude: 80.47969088691707, latitude: 16.475773201014732},
-            zoomLevel: 18,
+            zoomlevel: 18,
             layers: preparedData.getLayers()
         });
         editor = new Editor(display, {

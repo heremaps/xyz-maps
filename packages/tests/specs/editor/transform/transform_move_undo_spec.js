@@ -39,7 +39,7 @@ describe('undo the link transforming, link should connect to its connected links
         preparedData = await prepare(dataset);
         display = new Map(document.getElementById('map'), {
             center: {longitude: 78.19335420161838, latitude: 12.548568361911578},
-            zoomLevel: 18,
+            zoomlevel: 18,
             layers: preparedData.getLayers()
         });
         editor = new Editor(display, {

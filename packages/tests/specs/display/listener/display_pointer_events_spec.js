@@ -35,7 +35,7 @@ describe('validate pointer events', function() {
         preparedData = await prepare(dataset);
         display = new Map(document.getElementById('map'), {
             center: {longitude: 73.01133868832176, latitude: 20.284701029331405},
-            zoomLevel: 19,
+            zoomlevel: 19,
             layers: preparedData.getLayers()
         });
 

@@ -35,7 +35,7 @@ describe('poi connects to a link which is outside of viewport', function() {
         preparedData = await prepare(dataset);
         display = new Map(document.getElementById('map'), {
             center: {longitude: 78.35537822414972, latitude: 17.31379770143876},
-            zoomLevel: 18,
+            zoomlevel: 18,
             layers: preparedData.getLayers()
         });
         editor = new Editor(display, {

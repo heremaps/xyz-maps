@@ -34,7 +34,7 @@ describe('pointer down and pointer up listener', function() {
         preparedData = await prepare(dataset);
         display = new Map(document.getElementById('map'), {
             center: {longitude: 73.02278439898076, latitude: 20.273712610318146},
-            zoomLevel: 19,
+            zoomlevel: 19,
             layers: preparedData.getLayers()
         });
 

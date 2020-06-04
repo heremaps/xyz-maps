@@ -35,7 +35,7 @@ describe('remove link shapepoints', function() {
         preparedData = await prepare(dataset);
         display = new Map(document.getElementById('map'), {
             center: {latitude: 12.263805526394263, longitude: 79.92293529639585},
-            zoomLevel: 18,
+            zoomlevel: 18,
             layers: preparedData.getLayers()
         });
         editor = new Editor(display, {

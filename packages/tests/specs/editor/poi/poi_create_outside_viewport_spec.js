@@ -35,7 +35,7 @@ describe('create a poi outside viewport, it connects to a link nearby', function
         preparedData = await prepare(dataset);
         display = new Map(document.getElementById('map'), {
             center: {longitude: 78.68822870649961, latitude: 17.065070322770552},
-            zoomLevel: 18,
+            zoomlevel: 18,
             layers: preparedData.getLayers()
         });
         editor = new Editor(display, {

@@ -38,7 +38,7 @@ describe('poi routing point connects to links automatically', function() {
         preparedData = await prepare(dataset);
         display = new Map(document.getElementById('map'), {
             center: {longitude: 77.07066531017313, latitude: 12.952694430251995},
-            zoomLevel: 18,
+            zoomlevel: 18,
             layers: preparedData.getLayers()
         });
         editor = new Editor(display, {

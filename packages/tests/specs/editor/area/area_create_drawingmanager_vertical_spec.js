@@ -37,7 +37,7 @@ describe('Area drawing manager points with same longitude', function() {
         preparedData = await prepare(dataset);
         display = new Map(document.getElementById('map'), {
             center: {longitude: 76.08312571088209, latitude: 13.214838342327566},
-            zoomLevel: 18,
+            zoomlevel: 18,
             layers: preparedData.getLayers()
         });
         editor = new Editor(display, {

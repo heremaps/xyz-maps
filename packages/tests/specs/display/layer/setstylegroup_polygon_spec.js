@@ -37,7 +37,7 @@ describe('setStyleGroup Polygon', function() {
                 preserveDrawingBuffer: true
             },
             center: {longitude: 73.472006, latitude: 21.404435},
-            zoomLevel: 18,
+            zoomlevel: 18,
             layers: preparedData.getLayers()
         });
         await waitForViewportReady(display);

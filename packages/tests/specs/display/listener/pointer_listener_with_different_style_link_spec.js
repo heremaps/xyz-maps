@@ -39,7 +39,7 @@ describe('pointer listener with different style link', function() {
                 preserveDrawingBuffer: true
             },
             center: {longitude: 73.02577646944563, latitude: 20.52517531632165},
-            zoomLevel: 19,
+            zoomlevel: 19,
             layers: preparedData.getLayers()
         });
 

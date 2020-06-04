@@ -39,7 +39,7 @@ describe('setStyleGroup point with same zIndex', function() {
                 preserveDrawingBuffer: true
             },
             center: {longitude: 73.123895, latitude: 20.181738},
-            zoomLevel: 18,
+            zoomlevel: 18,
             layers: preparedData.getLayers()
         });
         await waitForViewportReady(display);

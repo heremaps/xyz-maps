@@ -41,7 +41,7 @@ describe('Styling drawingboard', function() {
                 preserveDrawingBuffer: true
             },
             center: {longitude: 77.126032, latitude: 12.758817},
-            zoomLevel: 18,
+            zoomlevel: 18,
             layers: preparedData.getLayers()
         });
         editor = new Editor(display, {

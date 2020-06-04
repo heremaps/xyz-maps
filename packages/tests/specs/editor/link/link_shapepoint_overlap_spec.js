@@ -40,7 +40,7 @@ describe('verify Link overlapped shape point style', function() {
                 preserveDrawingBuffer: true
             },
             center: {longitude: 77.37037, latitude: 13.09307},
-            zoomLevel: 17,
+            zoomlevel: 17,
             layers: preparedData.getLayers()
         });
         editor = new Editor(display, {

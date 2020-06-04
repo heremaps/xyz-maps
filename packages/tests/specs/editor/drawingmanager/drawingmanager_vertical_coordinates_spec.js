@@ -36,7 +36,7 @@ describe('Create new Links whose start and end shape points have same longitude'
         preparedData = await prepare(dataset);
         display = new Map(document.getElementById('map'), {
             center: {longitude: 76.9860738750076, latitude: 12.891802202549211},
-            zoomLevel: 18,
+            zoomlevel: 18,
             layers: preparedData.getLayers()
         });
         editor = new Editor(display, {

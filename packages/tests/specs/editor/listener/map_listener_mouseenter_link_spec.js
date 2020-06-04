@@ -37,7 +37,7 @@ describe('map mouseenter link when link layer is removed', function() {
         preparedData = await prepare(dataset);
         display = new Map(document.getElementById('map'), {
             center: {longitude: 75.38670452269983, latitude: 11.927986024207911},
-            zoomLevel: 18,
+            zoomlevel: 18,
             layers: preparedData.getLayers()
         });
         editor = new Editor(display, {

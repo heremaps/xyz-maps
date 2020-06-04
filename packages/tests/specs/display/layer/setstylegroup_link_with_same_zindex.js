@@ -39,7 +39,7 @@ describe('setStyleGroup link with same zIndex', function() {
                 preserveDrawingBuffer: true
             },
             center: {longitude: 73.684292, latitude: 21.190383},
-            zoomLevel: 18,
+            zoomlevel: 18,
             layers: preparedData.getLayers()
         });
 

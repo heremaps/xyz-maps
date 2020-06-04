@@ -39,7 +39,7 @@ describe('routing point of address objects should always exists', function() {
 
         display = new Map(document.getElementById('map'), {
             center: {longitude: 77.030443, latitude: 12.943037},
-            zoomLevel: 18,
+            zoomlevel: 18,
             layers: preparedData.getLayers()
         });
         editor = new Editor(display, {layers: preparedData.getLayers()});

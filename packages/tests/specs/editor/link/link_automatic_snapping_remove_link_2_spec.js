@@ -35,7 +35,7 @@ describe('drag a link shape point to the other and removes the link automaticall
         preparedData = await prepare(dataset);
         display = new Map(document.getElementById('map'), {
             center: {longitude: 76.629901, latitude: 15.197356},
-            zoomLevel: 18,
+            zoomlevel: 18,
             layers: preparedData.getLayers()
         });
         editor = new Editor(display, {

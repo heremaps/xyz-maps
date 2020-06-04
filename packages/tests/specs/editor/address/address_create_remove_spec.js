@@ -40,7 +40,7 @@ describe('add Address object and then remove', function() {
 
         display = new Map(document.getElementById('map'), {
             center: {longitude: 77.32831, latitude: 12.9356},
-            zoomLevel: 18,
+            zoomlevel: 18,
             layers: preparedData.getLayers()
         });
         editor = new Editor(display, {layers: preparedData.getLayers()});

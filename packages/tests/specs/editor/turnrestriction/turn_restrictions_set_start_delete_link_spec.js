@@ -37,7 +37,7 @@ describe('edit turn restriction set turn restriction and delete link', function(
         preparedData = await prepare(dataset);
         display = new Map(document.getElementById('map'), {
             center: {longitude: 77.03466354414104, latitude: 13.037041278065471},
-            zoomLevel: 18,
+            zoomlevel: 18,
             layers: preparedData.getLayers()
         });
         editor = new Editor(display, {
