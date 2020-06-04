@@ -427,15 +427,9 @@ class TigerMap {
     pitch(angle?: number) {
         if (angle !== UNDEF) {
             const maxPitch = this._cfg.maxPitch;
+            const deg = Math.max(0, Math.min(maxPitch, Math.round(angle % 360 * 10) / 10));
 
-            if (angle < 0) {
-                angle = 0;
-            } else if (angle > maxPitch) {
-                angle = maxPitch;
-            }
-            let xdeg = -angle % 360 | 0;
-
-            this._rx = xdeg * Math.PI / 180;
+            this._rx = -deg * Math.PI / 180;
             this.updateGrid();
         }
         return -this._rx * 180 / Math.PI;
