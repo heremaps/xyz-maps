@@ -30,7 +30,7 @@ type CompassOptions = {
 
 class Compass extends UIComponent {
     private _rl: (ev?: any) => void;
-    private aip: boolean = false;
+    private a: Animation;
     private maxPitch: number;
 
     constructor(element: HTMLElement, options: CompassOptions, display: Display, mapOptions: MapOptions) {
@@ -54,6 +54,10 @@ class Compass extends UIComponent {
     disable() {
         super.disable();
         this.map.removeEventListener('mapviewchange', this._rl);
+        if (this.a) {
+            this.a.stop();
+            this.a = null;
+        }
     };
 };
 
@@ -72,14 +76,14 @@ Compass.prototype.listeners = {
                         transform = [0, this.maxPitch];
                     }
 
-                    this.aip = true;
-
-                    await (new Animation([rotation, pitch], transform, ANIMATION_MS, 'easeOutCubic', (values) => {
+                    this.a = new Animation([rotation, pitch], transform, ANIMATION_MS, 'easeOutCubic', (values) => {
                         map.rotate(values[0]);
                         map.pitch(values[1]);
-                    })).start();
+                    });
 
-                    this.aip = false;
+                    await this.a.start();
+
+                    this.a = null;
                 }
             }
         }

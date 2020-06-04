@@ -33,7 +33,8 @@ describe('ui component compass', function() {
 
     before(async function() {
         preparedData = await prepare(dataset);
-        display = new Map(document.getElementById('map'), {
+        mapContainer = document.getElementById('map');
+        display = new Map(mapContainer, {
             center: {longitude: 77.79802, latitude: 12.62214},
             zoomlevel: 18,
             layers: preparedData.getLayers(),
@@ -43,11 +44,12 @@ describe('ui component compass', function() {
             pitch: INITIAL_PITCH,
             maxPitch: MAX_PITCH
         });
-        mapContainer = display.getContainer();
     });
 
     after(async function() {
-        display.destroy();
+        if (display.destroy) {
+            display.destroy();
+        }
     });
 
     it('validate initial pitch is set', async function() {
@@ -119,5 +121,10 @@ describe('ui component compass', function() {
 
         expect(display.rotate()).to.equal(0);
         expect(display.pitch()).to.equal(0);
+    });
+
+    it('destroy display while animation is running', async () => {
+        await click(mapContainer, 765, 490);
+        display.destroy();
     });
 });
