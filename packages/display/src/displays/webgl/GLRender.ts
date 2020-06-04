@@ -411,7 +411,7 @@ export class GLRender implements BasicRender {
         this.grpFilter = filter;
     }
 
-    private drawBuffer(buffer: GeometryBuffer, x: number, y: number, pMat?: Float32Array, dZoom?: number/* , customGLStates?*/, tileScale?: number): void {
+    private drawBuffer(buffer: GeometryBuffer, x: number, y: number, pMat?: Float32Array, dZoom?: number/* , customGLStates?*/, stencilSize?: number): void {
         const gl = this.gl;
         const buffers = this.buffers;
         const renderLayer = this.dLayer;
@@ -469,7 +469,7 @@ export class GLRender implements BasicRender {
                 gl.uniform1f(uLocation.u_zIndex, -.05 * renderLayer.getAbsoluteZ(buffer.zIndex) / dZoom);
                 gl.uniform1f(uLocation.u_scale, this.scale * dZoom);
                 gl.uniform2f(uLocation.u_topLeft, x, y);
-                gl.uniform1f(uLocation.u_tileScale, tileScale || 1);
+                gl.uniform1f(uLocation.u_tileScale, stencilSize || 1);
                 gl.uniformMatrix4fv(uLocation.u_matrix, false, pMat || this.pMat);
 
                 program.draw(buffer, buffers);
@@ -506,7 +506,14 @@ export class GLRender implements BasicRender {
             const grpFilter = this.grpFilter;
             this.grpFilter = null;
 
-            this.drawBuffer(stencilTile, x, y, null, null, this.stencilSize);
+            this.drawBuffer(
+                stencilTile,
+                x, y,
+                null,
+                // layerZ / Infinity -> always draw stencil at z0 to avoid artifacts on tile boundaries
+                Infinity,
+                this.stencilSize
+            );
 
             this.grpFilter = grpFilter;
             gl.stencilFunc(gl.EQUAL, refVal, 0xff);
@@ -517,12 +524,11 @@ export class GLRender implements BasicRender {
     }
 
     private initScissor(x: number, y: number, width: number, height: number) {
-        const gl = this.gl;
-        const buf = this.pass == 'opaque' ? .5 : 0;
-        const x1 = x - buf;
-        const x2 = x + width + buf;
-        const y1 = y - buf;
-        const y2 = y + height + buf;
+        const {gl} = this;
+        const x1 = x;
+        const x2 = x + width;
+        const y1 = y;
+        const y2 = y + height;
         const lowerLeft = [x1, y2, 0];
         const lowerRight = [x2, y2, 0];
         const upperLeft = [x1, y1, 0];
