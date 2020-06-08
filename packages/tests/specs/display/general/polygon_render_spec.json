@@ -1,0 +1,14 @@
+{
+    "layers": [{
+        "id": "areaLayer",
+        "provider": {
+            "id": "areaProvider",
+            "type": "LocalProvider",
+            "name": "Links",
+            "level": 15,
+            "class": "NAVLINK"
+        },
+        "min": 14,
+        "max": 20
+    }]
+}
