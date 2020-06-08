@@ -100,7 +100,7 @@ module.exports = function(config) {
                         exclude: ['node_modules', 'dist']
                     }),
                     json(),
-                    del({targets: 'dist/common'}),
+                    del({targets: ['dist/common/common*', 'dist/common/output*']}),
                     resolve(),
                     commonjs(),
                     postcss({
@@ -127,7 +127,7 @@ module.exports = function(config) {
                         exclude: ['node_modules', 'dist']
                     }),
                     json(),
-                    del({targets: 'dist/common/specs*.js'}),
+                    del({targets: ['dist/common/specs*.js', 'dist/common/*.html']}),
                     globImport({
                         format: 'import'
                     }),
@@ -169,7 +169,7 @@ module.exports = function(config) {
                         exclude: ['node_modules', 'dist']
                     }),
                     json(),
-                    del({targets: 'dist/core'}),
+                    del({targets: ['dist/core/core*', 'dist/core/output*']}),
                     virtual({
                         'settings': 'export default' + JSON.stringify(mochaSettings),
                         'environments': 'export default' + JSON.stringify(environments),
@@ -203,7 +203,7 @@ module.exports = function(config) {
                         exclude: ['node_modules', 'dist']
                     }),
                     json(),
-                    del({targets: 'dist/core/specs*.js'}),
+                    del({targets: ['dist/core/specs*.js', 'dist/core/*.html']}),
                     globImport({
                         format: 'import'
                     }),
@@ -245,7 +245,7 @@ module.exports = function(config) {
                         exclude: ['node_modules', 'dist']
                     }),
                     json(),
-                    del({targets: 'dist/display'}),
+                    del({targets: ['dist/display/display*', 'dist/display/output*']}),
                     virtual({
                         'settings': 'export default' + JSON.stringify(mochaSettings),
                         'environments': 'export default' + JSON.stringify(environments),
@@ -279,7 +279,7 @@ module.exports = function(config) {
                         exclude: ['node_modules', 'dist']
                     }),
                     json(),
-                    del({targets: 'dist/display/specs*.js'}),
+                    del({targets: ['dist/display/specs*', 'dist/display/*.html']}),
                     globImport({
                         format: 'import'
                     }),
@@ -323,7 +323,7 @@ module.exports = function(config) {
                         exclude: ['node_modules', 'dist']
                     }),
                     json(),
-                    del({targets: 'dist/editor'}),
+                    del({targets: ['dist/editor/editor*', 'dist/editor/output*']}),
                     virtual({
                         'settings': 'export default' + JSON.stringify(mochaSettings),
                         'environments': 'export default' + JSON.stringify(environments),
@@ -356,7 +356,7 @@ module.exports = function(config) {
                         exclude: ['node_modules', 'dist']
                     }),
                     json(),
-                    del({targets: 'dist/editor/specs*.js'}),
+                    del({targets: ['dist/editor/specs*.js', 'dist/editor/*.html']}),
                     globImport({
                         format: 'import'
                     }),
@@ -400,7 +400,7 @@ module.exports = function(config) {
                         exclude: ['node_modules', 'dist']
                     }),
                     json(),
-                    del({targets: 'dist/integration'}),
+                    del({targets: ['dist/integration/integration*', 'dist/integration/output*']}),
                     virtual({
                         'settings': 'export default' + JSON.stringify(mochaSettings),
                         'environments': 'export default' + JSON.stringify(environments),
@@ -433,7 +433,7 @@ module.exports = function(config) {
                         exclude: ['node_modules', 'dist']
                     }),
                     json(),
-                    del({targets: 'dist/integration/specs*.js'}),
+                    del({targets: ['dist/integration/specs*.js', 'dist/integration/*.html']}),
                     globImport({
                         format: 'import'
                     }),
