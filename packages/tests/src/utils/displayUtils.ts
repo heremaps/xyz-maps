@@ -17,75 +17,17 @@
  * License-Filename: LICENSE
  */
 
-import {layers} from '@here/xyz-maps-core';
 import Map from '@here/xyz-maps-display';
 
-export function waitForViewportReady(display: Map, mapLayers?: layers.TileLayer[], fn?:Function): Promise<Map> {
+export function waitForViewportReady(display: Map, fn?:Function): Promise<Map> {
     return new Promise(async (resolve) => {
-        let elem = display.getContainer();
-        let buttonup = true;
-        let mapviewready = true;
-        if (!mapLayers) {
-            mapLayers = display.getLayers();
-        } else if (typeof mapLayers == 'function') {
-            fn = mapLayers;
-            mapLayers = display.getLayers();
-        }
-        let readyLayers = {};
-        let layerCb = (evt) => {
-            let layer = evt.detail.layer;
-            readyLayers[layer.id] = layer;
+        let readyTimer;
+        let mapviewchangestartcb = () => clearTimeout(readyTimer);
+        // wait for next mapviewchangestart event, if map is not ready (e.g. map is still dragging), timout will be cleared by next start event
+        let mapviewchangeendcb = () => readyTimer = setTimeout(()=>resolve(display), 50);
 
-
-            for (let i in readyLayers) {
-                if (!readyLayers[i]) return;
-            }
-
-            for (let i in readyLayers) {
-                readyLayers[i].removeEventListener('viewportReady', layerCb);
-            }
-
-            mapviewready = true;
-
-            if (buttonup) {
-                elem.removeEventListener('mousedown', mousedowncb);
-                elem.removeEventListener('mouseup', mouseupcb);
-                display.removeEventListener('mapviewchangestart', mapviewchangestartcb);
-                resolve(display);
-            }
-        };
-
-        let mouseupcb = (evt) => {
-            buttonup = true;
-
-            if (mapviewready) {
-                elem.removeEventListener('mouseup', mouseupcb);
-                display.removeEventListener('mapviewchangestart', mapviewchangestartcb);
-                resolve(display);
-            }
-        };
-
-        let mapviewchangestartcb = () => {
-            mapviewready = false;
-        };
-
-        let mousedowncb = (evt) => {
-            mapviewready = false;
-            buttonup = false;
-            display.addEventListener('mapviewchangestart', mapviewchangestartcb);
-            elem.addEventListener('mouseup', mouseupcb);
-            elem.removeEventListener('mousedown', mousedowncb);
-        };
-
-        elem.addEventListener('mousedown', mousedowncb);
-
-        mapLayers.forEach((layer) => {
-            if (!readyLayers[layer.id]) {
-                layer.addEventListener('viewportReady', layerCb);
-                readyLayers[layer.id] = false;
-            }
-        });
-
+        display.addEventListener('mapviewchangestart', mapviewchangestartcb);
+        display.addEventListener('mapviewchangeend', mapviewchangeendcb);
 
         if (fn) {
             await fn();

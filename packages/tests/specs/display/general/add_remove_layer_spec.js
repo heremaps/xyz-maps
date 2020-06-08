@@ -26,7 +26,6 @@ describe('get add and remove map layer', function() {
     const expect = chai.expect;
 
     let imageLayer;
-    let linkLayer;
     let display;
     let mapContainer;
 
@@ -41,10 +40,8 @@ describe('get add and remove map layer', function() {
             layers: preparedData.getLayers()
         });
         await waitForViewportReady(display);
-
         mapContainer = display.getContainer();
         imageLayer = preparedData.getLayers('imageLayer');
-        linkLayer = preparedData.getLayers('linkLayer');
     });
 
     after(async function() {
@@ -63,7 +60,7 @@ describe('get add and remove map layer', function() {
         expect(display.getLayers()).to.lengthOf(2);
 
 
-        await waitForViewportReady(display, [linkLayer], ()=>{
+        await waitForViewportReady(display, ()=>{
             display.removeLayer(imageLayer);
         });
 
@@ -77,7 +74,7 @@ describe('get add and remove map layer', function() {
     it('add image overlay and validate sat image', async function() {
         expect(display.getLayers()).to.lengthOf(1);
 
-        await waitForViewportReady(display, [imageLayer, linkLayer], ()=>{
+        await waitForViewportReady(display, ()=>{
             display.addLayer(imageLayer, 0);
         });
 

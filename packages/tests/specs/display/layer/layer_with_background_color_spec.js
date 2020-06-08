@@ -52,7 +52,7 @@ describe('layer with background color', function() {
 
         let newLayer = preparedData.getLayers('Layer1');
 
-        await waitForViewportReady(display, [newLayer], ()=>{
+        await waitForViewportReady(display, ()=>{
             display.addLayer(newLayer);
         });
 
@@ -81,7 +81,7 @@ describe('layer with background color', function() {
 
         let newLayer = preparedData.getLayers('Layer2');
 
-        await waitForViewportReady(display, [newLayer], ()=>{
+        await waitForViewportReady(display, ()=>{
             display.addLayer(newLayer);
         });
 
