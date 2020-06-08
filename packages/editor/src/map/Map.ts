@@ -252,7 +252,7 @@ class Map {
         return map.clipGeoCoord([coord.longitude, coord.latitude, z | 0]);
     };
 
-    getPixelCoord(lon: number | Point | PixelPoint | GeoPoint, lat?: number, z?: number) {
+    getPixelCoord(lon: number | Point | PixelPoint | GeoPoint, lat?: number, z?: number): Point {
         const display = this.display;
         if (arguments.length == 2) {
             lon = display.geoToPixel(lon, lat);

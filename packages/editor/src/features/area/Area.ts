@@ -46,7 +46,6 @@ const copyPolygon = (poly) => {
     return cpy;
 };
 
-
 /**
  *  @class
  *  @public
@@ -129,7 +128,7 @@ class Area extends BasicFeature {
      *    @name here.xyz.maps.editor.features.Area#addShape
      */
     addShape(mPos, polyIdx, index) {
-        let added: number|boolean = false;
+        let added: number | boolean = false;
 
         mPos = this._e().map.getGeoCoord(mPos);
 
@@ -150,7 +149,7 @@ class Area extends BasicFeature {
     };
 
 
-    addHole(position) {
+    addHole(position: { x: number, y: number, z?:number } | [number, number, number?]): boolean {
         if (position) {
             position = this._e().map.getPixelCoord(position);
 
@@ -167,31 +166,35 @@ class Area extends BasicFeature {
                 }
             }
 
-            width = Math.floor(width * .5);
+            if (width != Infinity) {
+                width = Math.floor(width * .5);
 
-            if (width > MIN_HOLE_SIZE) {
-                const x = position[0];
-                const y = position[1];
-                const hole = [
+                if (width > MIN_HOLE_SIZE) {
+                    const x = position[0];
+                    const y = position[1];
+                    const hole = [
 
-                    [x - width, y + width],
-                    [x + width, y + width],
-                    [x + width, y - width],
-                    [x - width, y - width],
-                    [x - width, y + width]
+                        [x - width, y + width],
+                        [x + width, y + width],
+                        [x + width, y - width],
+                        [x - width, y - width],
+                        [x - width, y + width]
 
-                ].map((p: [number, number]) => this._e().map.getGeoCoord(p));
+                    ].map((p: [number, number]) => this._e().map.getGeoCoord(p));
 
-                if (!oTools.isClockwise(polygon[0])) {
-                    hole.reverse();
+                    if (!oTools.isClockwise(polygon[0])) {
+                        hole.reverse();
+                    }
+
+                    polygon.push(hole);
+
+                    oTools._setCoords(area, coordinates, true);
+
+                    oTools.markAsModified(area);
+                    return true;
                 }
-
-                polygon.push(hole);
-
-                oTools._setCoords(area, coordinates, true);
-
-                oTools.markAsModified(area);
             }
+            return false;
         }
     };
 }

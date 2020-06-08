@@ -20,6 +20,7 @@
 import {getDistance, getSegmentIndex, intersectLineLine, Point} from '../../geometry';
 import AreaShape from './Shape';
 import VirtualShape from './VirtualShape';
+import Area from './Area';
 
 let UNDEF;
 
@@ -368,7 +369,7 @@ var tools = {
         return area < 0;
     },
 
-    getMaxSpace: function(area, point, coordinates) {
+    getMaxSpace: function(area: Area, point: Point, coordinates: Point[]): number {
         const iEdit = area._e();
         const x = point[0];
         const y = point[1];
@@ -389,7 +390,7 @@ var tools = {
             let r = 0;
 
             while (r < 4) {
-                const pi = intersectLineLine(rays[r++], rays[r++], p3, p4);
+                const pi = intersectLineLine(rays[r++], rays[r++], p3, p4, true);
 
                 if (pi) {
                     const d = getDistance(point, <Point>pi);
@@ -397,10 +398,6 @@ var tools = {
                     if (d < width) {
                         width = d ^ 0;
                     }
-                    // editor.getOverlay().addFeature({type:'Feature',
-                    //     properties:{type:''},
-                    //     geometry:{type:'Point',coordinates: iEdit.map.getGeoCoord(pi)}
-                    // });
                 }
             }
         }
