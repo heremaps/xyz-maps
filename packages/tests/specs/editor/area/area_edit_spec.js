@@ -24,7 +24,7 @@ import {Editor} from '@here/xyz-maps-editor';
 import chaiAlmost from 'chai-almost';
 import dataset from './area_edit_spec.json';
 
-describe('area add and remove shape point', function() {
+describe('modify area geometry', function() {
     const expect = chai.expect;
 
     let editor;
@@ -110,7 +110,7 @@ describe('area add and remove shape point', function() {
     });
 
     it('submit and validate coord', async function() {
-        await waitForEditorReady(editor, async ()=>{
+        await waitForEditorReady(editor, async () => {
             await submit(editor);
         });
 
@@ -123,6 +123,25 @@ describe('area add and remove shape point', function() {
             [-111.717194605, 40.211738323, 0],
             [-111.717731047, 40.211943153],
             [-111.718267489, 40.211738323, 0]
+        ]]]);
+    });
+
+    it('add a hole', async function() {
+        area.addHole({x: 360, y: 370});
+
+        expect(area.coord()).to.deep.almost([[[
+            [-111.718267489, 40.211738323, 0],
+            [-111.717194605, 40.210918996, 0],
+            [-111.716926385, 40.21132866],
+            [-111.717194605, 40.211738323, 0],
+            [-111.717731047, 40.211943153],
+            [-111.718267489, 40.211738323, 0]
+        ], [
+            [-111.717575873, 40.211324241, 0],
+            [-111.717575873, 40.211578232, 0],
+            [-111.717243279, 40.211578232, 0],
+            [-111.717243279, 40.211324241, 0],
+            [-111.717575873, 40.211324241, 0]
         ]]]);
     });
 });

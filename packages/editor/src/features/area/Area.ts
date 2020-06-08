@@ -149,7 +149,7 @@ class Area extends BasicFeature {
     };
 
 
-    addHole(position: { x: number, y: number, z?:number } | [number, number, number?]): boolean {
+    addHole(position: { x: number, y: number, z?:number } | { longitude: number, latitude: number, z?: number } | [number, number, number?]): boolean {
         if (position) {
             position = this._e().map.getPixelCoord(position);
 
