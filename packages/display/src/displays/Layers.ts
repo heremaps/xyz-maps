@@ -178,7 +178,7 @@ class Layers extends Array<Layer> {
                 tileSizes.add(layer.tileSize);
             } else {
                 // if layer not visible viewportReady should be triggered..
-                // changing this default behaviour might make sense for future release
+                // changing this default behavior might make sense for future release
                 dLayer.ready = true;
             }
         }

@@ -5,7 +5,7 @@
 * improved: optimised triangulation of polygons from unclipped source data
 * improved: reuse projected coordinates if line geometry is rendered multiple times
 * improved: major performance improvement of line triangulation of very large unclipped geometries
-* fixed: behaviour settings on mobile/touch have no effect
+* fixed: behavior settings on mobile/touch have no effect
 * fixed: set exact minimum/maximum configured zoomlevel by mouse/touch
 * fixed: default to configured "minLevel" when viewport lock gets reset
 * fixed: text labels are placed correctly on line geometries in all cases
@@ -31,7 +31,7 @@
 * added: control visibility of Text in case of label collision via style.priority=number
 * added: control alignment of Text if map is pitched/rotated via style.alignment="map"|"viewport"
 * added: set initial map pitch/rotate via options.pitch/options.rotate=number
-* added: initial behaviour settings can now be configured via options.behaviour
+* added: initial behavior settings can now be configured via options.behavior
 * added: pitch/rotate map via api by map.pitch(deg) or map.rotate(deg)
 * fixed: init map with float zoomlevel
 * fixed: show TAC UI even if no url is defined

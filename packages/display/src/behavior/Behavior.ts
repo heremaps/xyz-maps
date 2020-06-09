@@ -25,7 +25,7 @@ import Map from '@here/xyz-maps-display';
 const TWO_FINGER_PINCH_THRESHHOLD = 110;
 let UNDEF;
 
-type BehaviourOptions = {
+type BehaviorOptions = {
     zoom: boolean | 'fixed' | 'float';
     drag: boolean;
     rotate: boolean;
@@ -90,13 +90,13 @@ const getDistance = (p1x: number, p1y: number, p2x: number, p2y: number): number
 };
 
 
-class Behaviour {
+class Behavior {
     drag: (boolean) => void;
     scroll: (boolean) => void;
     scrollHandler: ScrollHandler;
-    getOptions: () => BehaviourOptions;
+    getOptions: () => BehaviorOptions;
 
-    constructor(mapEl: HTMLElement, map: Map, kinetic, settings: BehaviourOptions, mapCfg) {
+    constructor(mapEl: HTMLElement, map: Map, kinetic, settings: BehaviorOptions, mapCfg) {
         this.scrollHandler = new ScrollHandler(mapEl, map, settings, mapCfg.zoomAnimationMs);
         let that = this;
         let startX;
@@ -455,4 +455,4 @@ class Behaviour {
     }
 }
 
-export {Behaviour, BehaviourOptions};
+export {Behavior, BehaviorOptions};

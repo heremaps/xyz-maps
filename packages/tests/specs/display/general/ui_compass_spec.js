@@ -38,7 +38,7 @@ describe('ui component compass', function() {
             center: {longitude: 77.79802, latitude: 12.62214},
             zoomlevel: 18,
             layers: preparedData.getLayers(),
-            behaviour: {
+            behavior: {
                 pitch: true
             },
             pitch: INITIAL_PITCH,
@@ -80,7 +80,7 @@ describe('ui component compass', function() {
             },
             zoomlevel: 18,
             layers: preparedData.getLayers(),
-            behaviour: {
+            behavior: {
                 pitch: true
             },
             pitch: INITIAL_PITCH,
@@ -102,7 +102,7 @@ describe('ui component compass', function() {
             },
             zoomlevel: 18,
             layers: preparedData.getLayers(),
-            behaviour: {
+            behavior: {
                 pitch: true,
                 rotate: true
             },

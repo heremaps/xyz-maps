@@ -54,7 +54,7 @@ const PREVIEW_LOOK_AHEAD_LEVELS: [number, number] = [3, 9];
 
 
 class WebGlDisplay extends BasicDisplay {
-    static zoomBehaviour: 'fixed' | 'float' = 'float';
+    static zoomBehavior: 'fixed' | 'float' = 'float';
 
     private name: string = 'gl-test';
 
