@@ -17,17 +17,75 @@
  * License-Filename: LICENSE
  */
 
+import {layers} from '@here/xyz-maps-core';
 import Map from '@here/xyz-maps-display';
 
-export function waitForViewportReady(display: Map, fn?:Function): Promise<Map> {
+export function waitForViewportReady(display: Map, mapLayers?: layers.TileLayer[], fn?:Function): Promise<Map> {
     return new Promise(async (resolve) => {
+        let mapviewchangeend = true;
+        let mapviewready = true;
+        if (!mapLayers) {
+            mapLayers = display.getLayers();
+        } else if (typeof mapLayers == 'function') {
+            fn = mapLayers;
+            mapLayers = display.getLayers();
+        }
+        let layerAlwaysReady = !mapLayers.length;
+        let readyLayers = {};
+        let layerCb = (evt) => {
+            let layer = evt.detail.layer;
+            readyLayers[layer.id] = layer;
+
+
+            for (let i in readyLayers) {
+                if (!readyLayers[i]) return;
+            }
+
+            mapviewready = true;
+
+            if (mapviewchangeend) {
+                for (let i in readyLayers) {
+                    readyLayers[i].removeEventListener('viewportReady', layerCb);
+                }
+                display.removeEventListener('mapviewchangestart', mapviewchangestartcb);
+                display.removeEventListener('mapviewchangeend', mapviewchangeendcb);
+
+                resolve(display);
+            }
+        };
+
         let readyTimer;
-        let mapviewchangestartcb = () => clearTimeout(readyTimer);
-        // wait for next mapviewchangestart event, if map is not ready (e.g. map is still dragging), timout will be cleared by next start event
-        let mapviewchangeendcb = () => readyTimer = setTimeout(()=>resolve(display), 50);
+        let mapviewchangestartcb = () => {
+            mapviewready = layerAlwaysReady;
+            mapviewchangeend = false;
+            clearTimeout(readyTimer);
+        };
+        let mapviewchangeendcb = () => {
+            // wait for next mapviewchangestart event, if map is not ready (e.g. map is still dragging), timout will be cleared by next start event
+            readyTimer = setTimeout(()=>{
+                mapviewchangeend = true;
+                if (mapviewready) {
+                    for (let i in readyLayers) {
+                        readyLayers[i].removeEventListener('viewportReady', layerCb);
+                    }
+
+                    display.removeEventListener('mapviewchangestart', mapviewchangestartcb);
+                    display.removeEventListener('mapviewchangeend', mapviewchangeendcb);
+
+                    resolve(display);
+                }
+            }, 50);
+        };
 
         display.addEventListener('mapviewchangestart', mapviewchangestartcb);
         display.addEventListener('mapviewchangeend', mapviewchangeendcb);
+
+        mapLayers.forEach((layer) => {
+            if (!readyLayers[layer.id]) {
+                layer.addEventListener('viewportReady', layerCb);
+                readyLayers[layer.id] = false;
+            }
+        });
 
         if (fn) {
             await fn();
