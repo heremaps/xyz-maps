@@ -1,3 +1,18 @@
+## 0.13.0 (2020-6-10)
+### editor
+* added: Full editing support of LocalProvider data with Editor component. use providerOptions.editable=true to allow editing.
+* fixed: add hole(s) to polygon geometries works in all cases
+* removed: deprecated legacy API interface
+### display
+* added: show map Compass UI widget when rotate/pitch behaviour is activated. Mapview gets reset on click.
+* improved: optimized triangulation of extrudes from unclipped source data
+* fixed: visible tile boundaries for certain geometries using alpha when map is pitched/rotated
+* fixed: trigger "mapviewchange" event if map pitch is changing only.
+* fixed: correct drawing order for tile preview data in all cases
+* fixed: triangulation of polygon geometry from geojson 2d datasources
+* fixed: draw full polygon geometry when coordinates are modified/updated
+* fixed: visible tile flickering on zoom changes
+
 ## 0.12.0 (2020-5-22)
 ### display
 * added: control minimum distance of repeated text labels on line geometries via style.repeat=number
