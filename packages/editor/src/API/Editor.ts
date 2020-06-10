@@ -24,7 +24,6 @@ import {eChanges} from './EChanges';
 import {eFeatures} from './EFeatures';
 import {eLayers} from './ELayers';
 import DrawingManager from './MDrawingManager';
-import legacyAPI from './Legacy';
 import {eSearch, SearchOptions} from './ESearch';
 import {eListeners} from './EListeners';
 import {eObservers} from './EObservers';
@@ -337,12 +336,6 @@ class Editor {
         };
 
         JSUtils.extend(that, eSearch(HERE_WIKI));
-
-
-        // TODO: remove legacy api..
-        if (options.legacy) {
-            legacyAPI(that, display);
-        }
 
         that['active'](true);
 

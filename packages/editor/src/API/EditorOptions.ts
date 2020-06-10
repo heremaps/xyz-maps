@@ -60,9 +60,6 @@ type EditorOptions = {
     layers?: layers.TileLayer[];
 
     destination: string;
-
-    /** @internal */
-    legacy?: boolean
 };
 
 
