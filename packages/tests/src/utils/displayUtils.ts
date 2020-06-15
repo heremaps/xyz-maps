@@ -22,8 +22,6 @@ import Map from '@here/xyz-maps-display';
 
 export function waitForViewportReady(display: Map, mapLayers?: layers.TileLayer[], fn?:Function): Promise<Map> {
     return new Promise(async (resolve) => {
-        let mapviewchangeend = true;
-        let mapviewready = true;
         if (!mapLayers) {
             mapLayers = display.getLayers();
         } else if (typeof mapLayers == 'function') {
@@ -31,6 +29,8 @@ export function waitForViewportReady(display: Map, mapLayers?: layers.TileLayer[
             mapLayers = display.getLayers();
         }
         let layerAlwaysReady = !mapLayers.length;
+        let mapviewchangeend = false;
+        let mapviewready = layerAlwaysReady;
         let readyLayers = {};
         let layerCb = (evt) => {
             let layer = evt.detail.layer;
@@ -74,7 +74,7 @@ export function waitForViewportReady(display: Map, mapLayers?: layers.TileLayer[
 
                     resolve(display);
                 }
-            }, 50);
+            }, 10);
         };
 
         display.addEventListener('mapviewchangestart', mapviewchangestartcb);
