@@ -89,7 +89,7 @@ type zoomlevelRange = 1 | 2 | 3 | 4 | 5 | 6 | 7 | 8 | 9 | 10 | 11 | 12 | 13 | 14
  *  @name here.xyz.maps.layers.TileLayer
  */
 export class TileLayer {
-    private _p: TileProvider[] = [];
+    protected _p: TileProvider[] = [];
 
     private _fp: FeatureProvider;
 
@@ -110,6 +110,8 @@ export class TileLayer {
     public max: zoomlevelRange = 20;
 
     public tileSize: number = 256;
+
+    levelOffset: number = 0;
 
     constructor(cfg) {
         const layer = this;

@@ -203,7 +203,12 @@ export const parseRGBA = (color: string): RGBA => {
 export const toRGB = (color: string): RGBA => {
     let rgba;
     if (color) {
-        if (color[0] == '#') {
+        if (Array.isArray(color)) {
+            rgba = color;
+            if (rgba.length == 3) {
+                rgba[3] = 1;
+            }
+        } else if (color[0] == '#') {
             rgba = hexToRGBA(color);
         } else {
             rgba = HTML_COLOR_NAMES[color];

@@ -79,6 +79,7 @@ export class FeatureFactory {
     private tile: any;
     private groups: any;
     private tileSize: number;
+    z: number;
     private lineFactory: LineFactory;
 
     constructor(gl: WebGLRenderingContext, iconManager: IconManager, collisionHandler, devicePixelRatio: number) {
@@ -91,15 +92,16 @@ export class FeatureFactory {
         this.lineFactory = new LineFactory(gl);
     }
 
-    init(tile, groups, tileSize: number) {
+    init(tile, groups, tileSize: number, zoom: number) {
         this.tile = tile;
         this.groups = groups;
         this.tileSize = tileSize;
+        this.z = zoom;
     }
 
     create(feature, geomType, coordinates, styleGroups, strokeWidthScale/* , tile, groups, tileSize: number*/): boolean {
         const {tile, groups, tileSize} = this;
-        const level = tile.z;
+        const level = this.z;
         let flatPolyStart: number;
         let flatPoly: FlatPolygon[];
         let triangles;
