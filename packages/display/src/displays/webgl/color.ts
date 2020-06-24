@@ -189,8 +189,8 @@ for (let name in HTML_COLOR_NAMES) {
 }
 
 export const parseRGBA = (color: string): RGBA => {
-    const rgb = <number[]><unknown>color.match(/^rgba?\((\d+),\s*(\d+),\s*(\d+)(?:,\s*(\d+(?:\.\d+)?))?\)$/);
-    // const rgb = <number[]><unknown>color.match(/^rgba?[\s+]?\([\s+]?(\d+)[\s+]?,[\s+]?(\d+)[\s+]?,[\s+]?(\d+)[\s+]?/i);
+    const rgb = <number[]><unknown>color.match(/^rgba?\s*\((\d+),\s*(\d+),\s*(\d+)(?:,\s*(\d*(?:\.\d+)?))?\)$/);
+
     return rgb && rgb.length > 3 && [
         rgb[1] / 255,
         rgb[2] / 255,
