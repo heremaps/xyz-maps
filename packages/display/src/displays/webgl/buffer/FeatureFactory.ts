@@ -195,7 +195,7 @@ export class FeatureFactory {
                 strokeWidth = getValue('strokeWidth', style, feature, level);
 
                 if (type == 'Line') {
-                    if (!stroke) continue;
+                    if (!stroke||!strokeWidth) continue;
 
                     strokeLinecap = getValue('strokeLinecap', style, feature, level) || DEFAULT_LINE_CAP;
                     strokeLinejoin = getValue('strokeLinejoin', style, feature, level) || DEFAULT_LINE_JOIN;
