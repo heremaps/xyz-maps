@@ -267,12 +267,20 @@ export class FeatureFactory {
 
                 if (fill) {
                     fillRGBA = toRGB(fill);
-                    fillRGBA[3] *= opacity;
+                    if (fillRGBA) {
+                        fillRGBA[3] *= opacity;
+                    } else {
+                        fill = null;
+                    }
                 }
 
                 if (stroke) {
                     strokeRGBA = toRGB(stroke);
-                    strokeRGBA[3] *= opacity;
+                    if (strokeRGBA) {
+                        strokeRGBA[3] *= opacity;
+                    } else {
+                        stroke = null;
+                    }
 
                     if (type == 'Text') {
                         // don't apply stroke-scale to text rendering
