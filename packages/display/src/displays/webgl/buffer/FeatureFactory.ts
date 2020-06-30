@@ -99,7 +99,7 @@ export class FeatureFactory {
         this.z = zoom;
     }
 
-    create(feature, geomType, coordinates, styleGroups, strokeWidthScale/* , tile, groups, tileSize: number*/): boolean {
+    create(feature, geomType: string, coordinates, styleGroups, strokeWidthScale, removeTileBounds?: boolean): boolean {
         const {tile, groups, tileSize} = this;
         const level = this.z;
         let flatPolyStart: number;
@@ -448,6 +448,7 @@ export class FeatureFactory {
                             group,
                             tile,
                             tileSize,
+                            removeTileBounds,
                             strokeDasharray,
                             strokeLinecap,
                             strokeLinejoin,
@@ -479,22 +480,8 @@ export class FeatureFactory {
                         );
                     }
                 } else {
-                    if (type == 'Line') {
-                        for (let ls of coordinates) {
-                            this.lineFactory.init();
-                            this.lineFactory.createLine(
-                                ls,
-                                group,
-                                tile,
-                                tileSize,
-                                strokeDasharray,
-                                strokeLinecap,
-                                strokeLinejoin,
-                                strokeWidth
-                            );
-                        }
-                    } else {
-                        // Polygon geometry
+                    // Polygon geometry
+                    if (type == 'Polygon' || type == 'Extrude') {
                         if (!group.buffer) {
                             group.buffer = type == 'Polygon'
                                 ? new PolygonBuffer()

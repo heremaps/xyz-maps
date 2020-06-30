@@ -58,10 +58,10 @@ const handlePolygons = (factory: FeatureFactory, feature, coordinates, styleGrou
             if (cx >= tileBounds[0] && cy >= tileBounds[1] && cx < tileBounds[2] && cy < tileBounds[3]) {
                 factory.create(feature, 'Point', center, [style], lsScale);
             }
-        } else if ((type == 'Polygon'||type == 'Line') && getValue('stroke', style, feature, zoom)) {
+        } else if ((type == 'Polygon' || type == 'Line') && getValue('stroke', style, feature, zoom)) {
             style.type = 'Line';
             for (let linestring of coordinates) {
-                factory.create(feature, 'LineString', linestring, [style], lsScale);
+                factory.create(feature, 'LineString', linestring, [style], lsScale, tile.clipped);
             }
             style.type = styleType;
         }
