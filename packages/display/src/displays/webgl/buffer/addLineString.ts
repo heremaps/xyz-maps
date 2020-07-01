@@ -32,6 +32,20 @@ const JOIN_BEVEL = 'bevel';
 const SCALE = 8192;
 // const SCALE = 1;
 
+const isOnTileBounds = (x1: number, y1: number, x2: number, y2: number, tileSize: number, tolerance: number = 1): boolean => {
+    return !(
+        // onTileTop
+        Math.abs(y1) < tolerance && Math.abs(y2) < tolerance ||
+        // onTileRight
+        Math.abs(x1 - tileSize) < tolerance && Math.abs(x2 - tileSize) < tolerance ||
+        // onTileBottom
+        Math.abs(y1 - tileSize) < tolerance && Math.abs(y2 - tileSize) < tolerance ||
+        // onTileLeft
+        Math.abs(x1) < tolerance && Math.abs(x2) < tolerance
+    );
+};
+
+
 const normalize = (p) => {
     let x = p[0];
     let y = p[1];
@@ -89,6 +103,7 @@ const addLineString = (
     coordinates: PixelCoordinateCache,
     tile: Tile,
     tileSize: number,
+    removeTileBounds: boolean,
     cap: Cap,
     join: Join,
     strokeWidth: number,
@@ -139,16 +154,11 @@ const addLineString = (
                     maxY = y;
                 }
 
-                if (intersectBBox(minX, maxX, minY, maxY, 0, tileSize, 0, tileSize)/* && (
-                    // vertical left
-                    intersectLineLine(_x, _y, x, y, 0, 0, 0, tileSize) ||
-                    // vertical right
-                    intersectLineLine(_x, _y, x, y, tileSize, 0, 0, tileSize) ||
-                    // horizontal top
-                    intersectLineLine(_x, _y, x, y, 0, 0, tileSize, 0) ||
-                    // horizontal botton
-                    intersectLineLine(_x, _y, x, y, 0, tileSize, tileSize, tileSize)
-                )*/) {
+
+                if (
+                    intersectBBox(minX, maxX, minY, maxY, 0, tileSize, 0, tileSize) &&
+                    !removeTileBounds || isOnTileBounds(_x, _y, x, y, tileSize)
+                ) {
                     length = addSegments(vertex, normal, pixels, c - 2, c + 2, tile, tileSize, cap, cap, join, strokeWidth, lengthSoFar, length);
                     start = null;
                 } else if (lengthSoFar) {
@@ -276,6 +286,7 @@ const addSegments = (
         }
 
         let isEnd = last || first;
+
 
         length = Math.sqrt(dx * dx + dy * dy);
 

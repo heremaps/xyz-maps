@@ -170,20 +170,27 @@ const HTML_COLOR_NAMES = {
 };
 
 
-export const hexToRGBA = (hex: string): RGBA => [
-    parseInt(hex.slice(1, 3), 16) / 255,
-    parseInt(hex.slice(3, 5), 16) / 255,
-    parseInt(hex.slice(5, 7), 16) / 255,
-    1
-];
+export const hexToRGBA = (hex: string): RGBA => {
+    return hex.length < 5 ? [
+        parseInt(`${hex[1]}${hex[1]}`, 16) / 255,
+        parseInt(`${hex[2]}${hex[2]}`, 16) / 255,
+        parseInt(`${hex[3]}${hex[3]}`, 16) / 255,
+        1
+    ] : [
+        parseInt(hex.slice(1, 3), 16) / 255,
+        parseInt(hex.slice(3, 5), 16) / 255,
+        parseInt(hex.slice(5, 7), 16) / 255,
+        1
+    ];
+};
 
 for (let name in HTML_COLOR_NAMES) {
     HTML_COLOR_NAMES[name] = hexToRGBA('#' + HTML_COLOR_NAMES[name]);
 }
 
 export const parseRGBA = (color: string): RGBA => {
-    const rgb = <number[]><unknown>color.match(/^rgba?\((\d+),\s*(\d+),\s*(\d+)(?:,\s*(\d+(?:\.\d+)?))?\)$/);
-    // const rgb = <number[]><unknown>color.match(/^rgba?[\s+]?\([\s+]?(\d+)[\s+]?,[\s+]?(\d+)[\s+]?,[\s+]?(\d+)[\s+]?/i);
+    const rgb = <number[]><unknown>color.match(/^rgba?\s*\((\d+),\s*(\d+),\s*(\d+)(?:,\s*(\d*(?:\.\d+)?))?\)$/);
+
     return rgb && rgb.length > 3 && [
         rgb[1] / 255,
         rgb[2] / 255,
@@ -196,7 +203,12 @@ export const parseRGBA = (color: string): RGBA => {
 export const toRGB = (color: string): RGBA => {
     let rgba;
     if (color) {
-        if (color[0] == '#') {
+        if (Array.isArray(color)) {
+            rgba = color;
+            if (rgba.length == 3) {
+                rgba[3] = 1;
+            }
+        } else if (color[0] == '#') {
             rgba = hexToRGBA(color);
         } else {
             rgba = HTML_COLOR_NAMES[color];

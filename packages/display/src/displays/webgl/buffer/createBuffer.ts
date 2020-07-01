@@ -43,7 +43,8 @@ let UNDEF;
 type Tile = tile.Tile;
 
 const handlePolygons = (factory: FeatureFactory, feature, coordinates, styleGroups, lsScale, tile) => {
-    const zoom = tile.z;
+    const zoom = factory.z;
+
     for (let style of styleGroups) {
         const styleType = style.type;
         const type = getValue('type', style, feature, zoom);
@@ -57,10 +58,10 @@ const handlePolygons = (factory: FeatureFactory, feature, coordinates, styleGrou
             if (cx >= tileBounds[0] && cy >= tileBounds[1] && cx < tileBounds[2] && cy < tileBounds[3]) {
                 factory.create(feature, 'Point', center, [style], lsScale);
             }
-        } else if (type == 'Polygon' && getValue('stroke', style, feature, zoom)) {
+        } else if ((type == 'Polygon' || type == 'Line') && getValue('stroke', style, feature, zoom)) {
             style.type = 'Line';
             for (let linestring of coordinates) {
-                factory.create(feature, 'LineString', linestring, [style], lsScale);
+                factory.create(feature, 'LineString', linestring, [style], lsScale, tile.clipped);
             }
             style.type = styleType;
         }
@@ -113,6 +114,7 @@ const createBuffer = (
                 task.time = EXCLUSIVE_TIME_MS - (Date.now() - start);
             }
 
+            const zoomlevel = tile.z + layer.levelOffset;
             const layerStyles = layer.getStyle();
             let lsZoomScale = 1; // DEFAULT_STROKE_WIDTH_ZOOM_SCALE;
 
@@ -120,7 +122,7 @@ const createBuffer = (
                 const layerScale = layerStyles['strokeWidthZoomScale'] || layerStyles['LineStringZoomScale'];
 
                 if (layerScale) {
-                    lsZoomScale = layerScale(tile.z);
+                    lsZoomScale = layerScale(zoomlevel);
                 }
             }
 
@@ -128,7 +130,7 @@ const createBuffer = (
                 onInit();
             }
 
-            factory.init(tile, groups, tileSize);
+            factory.init(tile, groups, tileSize, zoomlevel);
 
             return [
                 tile,
@@ -136,14 +138,16 @@ const createBuffer = (
                 lsZoomScale,
                 0, // featureIndex
                 PROCESS_FEATURE_BUNDLE_SIZE,
-                layer
+                layer,
+                zoomlevel
             ];
         },
 
         name: 'createBuffer',
 
-        onDone: function() {
-            let extrudeScale = Math.pow(2, 17 - tile.z);
+        onDone: function(args) {
+            const z = args[6];
+            let extrudeScale = Math.pow(2, 17 - z);
             let buffers = [];
             let geoBuffer: GeometryBuffer;
             let grpBuffer: TemplateBuffer;
@@ -306,7 +310,7 @@ const createBuffer = (
             let displayLayer = heap[5];
             let dataLen = data.length;
 
-            const level = tile.z;
+            const level = heap[6];
             let styleGroups;
             let feature;
             // const pmap = heap[6];

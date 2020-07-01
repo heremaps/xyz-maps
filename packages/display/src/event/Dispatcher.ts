@@ -253,7 +253,7 @@ export class EventDispatcher {
                 let isMapDragged = startMapCenter.longitude != center.longitude ||
                     startMapCenter.latitude != center.latitude;
 
-                // currently pointerup is not getting triggered after drag to simulate SandwichMap's behaviour!
+                // currently pointerup is not getting triggered after drag to simulate SandwichMap's behavior!
                 // this is implemented to make sure objects are not getting selection after pan gesture.
                 // TODO: remove workaround and always trigger the pointerup event. Object selection needs to be prevented elsewhere
                 // if( !isDragged )

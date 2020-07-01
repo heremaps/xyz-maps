@@ -21,7 +21,7 @@ import {getElDimension} from './DOMTools';
 import WebglDisplay from './displays/webgl/Display';
 import CanvasDisplay from './displays/canvas/Display';
 import BasicDisplay from './displays/BasicDisplay';
-import {Behaviour, BehaviourOptions} from './behaviour/Behaviour';
+import {Behavior, BehaviorOptions} from './behavior/Behavior';
 import {EventDispatcher} from './event/Dispatcher';
 import {Search} from './search/Search';
 import {MapEvent} from './event/Event';
@@ -40,7 +40,7 @@ const PixelPoint = pixel.Point;
 const TileLayer = layers.TileLayer;
 
 const DEFAULT_ZOOM_ANIMATION_MS = 250;
-let DEFAULT_ZOOM_BEHAVIOUR: 'fixed' | 'float' | boolean = 'fixed';
+let DEFAULT_ZOOM_BEHAVIOR: 'fixed' | 'float' | boolean = 'fixed';
 
 const MAX_LONGITUDE = 180;
 const MIN_LONGITUDE = -MAX_LONGITUDE;
@@ -54,10 +54,10 @@ const LON = 'longitude';
 const LAT = 'latitude';
 const WIDTH = 'width';
 const HEIGHT = 'height';
-const BEHAVIOUR_ZOOM = 'zoom';
-const BEHAVIOUR_DRAG = 'drag';
-const BEHAVIOUR_PITCH = 'pitch';
-const BEHAVIOUR_ROTATE = 'rotate';
+const BEHAVIOR_ZOOM = 'zoom';
+const BEHAVIOR_DRAG = 'drag';
+const BEHAVIOR_PITCH = 'pitch';
+const BEHAVIOR_ROTATE = 'rotate';
 const ON_LAYER_ADD_EVENT = 'addLayer';
 const ON_LAYER_REMOVE_EVENT = 'removeLayer';
 
@@ -140,7 +140,7 @@ class TigerMap {
     private _cfg: MapOptions;// mapconfig
 
     private _evDispatcher: EventDispatcher;
-    private _b: Behaviour;
+    private _b: Behavior;
 
     // TODO: cleanup
     private _cw: pixel.Point = new PixelPoint(0, 0); // center world in pixel
@@ -216,8 +216,8 @@ class TigerMap {
 
         const Display = mapConfig['renderer'] == 'canvas' ? CanvasDisplay : WebglDisplay;
 
-        if (typeof Display.zoomBehaviour == 'string') {
-            DEFAULT_ZOOM_BEHAVIOUR = Display.zoomBehaviour;
+        if (typeof Display.zoomBehavior == 'string') {
+            DEFAULT_ZOOM_BEHAVIOR = Display.zoomBehavior;
         }
 
         // var display = new Display( tigerMap, mapEl );
@@ -260,13 +260,13 @@ class TigerMap {
             }
         });
 
-        const behaviourOptions = {...mapConfig['behaviour']};
+        const behaviorOptions = {...mapConfig['behavior'], ...mapConfig['behaviour']};
 
-        if (behaviourOptions[BEHAVIOUR_ZOOM] == UNDEF) {
-            behaviourOptions[BEHAVIOUR_ZOOM] = DEFAULT_ZOOM_BEHAVIOUR;
+        if (behaviorOptions[BEHAVIOR_ZOOM] == UNDEF) {
+            behaviorOptions[BEHAVIOR_ZOOM] = DEFAULT_ZOOM_BEHAVIOR;
         }
 
-        let behaviour = this._b = new Behaviour(
+        let behavior = this._b = new Behavior(
             mapEl,
             tigerMap,
             new KineticPanAnimator(tigerMap, {
@@ -284,13 +284,13 @@ class TigerMap {
                     }
                 }
             }),
-            <BehaviourOptions>behaviourOptions,
+            <BehaviorOptions>behaviorOptions,
             mapConfig
         );
         // just attach the eventlisteners..
-        // does not influence actual drag/zoom behaviour
-        behaviour.drag(true);
-        behaviour.scroll(true);
+        // does not influence actual drag/zoom behavior
+        behavior.drag(true);
+        behavior.scroll(true);
 
         this._vplock = {
             pan: false,
@@ -301,7 +301,7 @@ class TigerMap {
         const uiOptions = mapConfig['UI'] || mapConfig['ui'] || {};
         if (uiOptions.Compass == UNDEF) {
             // enable compass ui if pitch or rotate is enabled
-            uiOptions.Compass = behaviourOptions[BEHAVIOUR_ROTATE] || behaviourOptions[BEHAVIOUR_PITCH];
+            uiOptions.Compass = behaviorOptions[BEHAVIOR_ROTATE] || behaviorOptions[BEHAVIOR_PITCH];
         }
 
         this.ui = new UI(mapEl, mapConfig, tigerMap);
@@ -743,27 +743,27 @@ class TigerMap {
     setBehavior(key, value) {
         let type = typeof key;
         let options = type == 'object' ? key : {};
-        const behaviourOptions = this._b.getOptions();
+        const behaviorOptions = this._b.getOptions();
 
         if (type == 'string') {
             options[key] = value;
         }
 
-        let zoom = options[BEHAVIOUR_ZOOM];
+        let zoom = options[BEHAVIOR_ZOOM];
         if (zoom != UNDEF) {
-            // "backdoor" to change default zoom behaviour..
+            // "backdoor" to change default zoom behavior..
             if (zoom == 'fixed' || zoom == 'float') {
-                behaviourOptions[BEHAVIOUR_ZOOM] = zoom;
+                behaviorOptions[BEHAVIOR_ZOOM] = zoom;
             } else {
-                behaviourOptions[BEHAVIOUR_ZOOM] = zoom
-                    ? DEFAULT_ZOOM_BEHAVIOUR
+                behaviorOptions[BEHAVIOR_ZOOM] = zoom
+                    ? DEFAULT_ZOOM_BEHAVIOR
                     : false;
             }
         }
-        for (let option of [BEHAVIOUR_DRAG, BEHAVIOUR_PITCH, BEHAVIOUR_ROTATE]) {
+        for (let option of [BEHAVIOR_DRAG, BEHAVIOR_PITCH, BEHAVIOR_ROTATE]) {
             let val = options[option];
             if (val != UNDEF) {
-                behaviourOptions[option] = !!val;
+                behaviorOptions[option] = !!val;
             }
         }
     };

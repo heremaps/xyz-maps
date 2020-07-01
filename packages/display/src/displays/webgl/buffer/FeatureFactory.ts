@@ -79,6 +79,7 @@ export class FeatureFactory {
     private tile: any;
     private groups: any;
     private tileSize: number;
+    z: number;
     private lineFactory: LineFactory;
 
     constructor(gl: WebGLRenderingContext, iconManager: IconManager, collisionHandler, devicePixelRatio: number) {
@@ -91,15 +92,16 @@ export class FeatureFactory {
         this.lineFactory = new LineFactory(gl);
     }
 
-    init(tile, groups, tileSize: number) {
+    init(tile, groups, tileSize: number, zoom: number) {
         this.tile = tile;
         this.groups = groups;
         this.tileSize = tileSize;
+        this.z = zoom;
     }
 
-    create(feature, geomType, coordinates, styleGroups, strokeWidthScale/* , tile, groups, tileSize: number*/): boolean {
+    create(feature, geomType: string, coordinates, styleGroups, strokeWidthScale, removeTileBounds?: boolean): boolean {
         const {tile, groups, tileSize} = this;
-        const level = tile.z;
+        const level = this.z;
         let flatPolyStart: number;
         let flatPoly: FlatPolygon[];
         let triangles;
@@ -193,7 +195,7 @@ export class FeatureFactory {
                 strokeWidth = getValue('strokeWidth', style, feature, level);
 
                 if (type == 'Line') {
-                    if (!stroke) continue;
+                    if (!stroke||!strokeWidth) continue;
 
                     strokeLinecap = getValue('strokeLinecap', style, feature, level) || DEFAULT_LINE_CAP;
                     strokeLinejoin = getValue('strokeLinejoin', style, feature, level) || DEFAULT_LINE_JOIN;
@@ -265,12 +267,20 @@ export class FeatureFactory {
 
                 if (fill) {
                     fillRGBA = toRGB(fill);
-                    fillRGBA[3] *= opacity;
+                    if (fillRGBA) {
+                        fillRGBA[3] *= opacity;
+                    } else {
+                        fill = null;
+                    }
                 }
 
                 if (stroke) {
                     strokeRGBA = toRGB(stroke);
-                    strokeRGBA[3] *= opacity;
+                    if (strokeRGBA) {
+                        strokeRGBA[3] *= opacity;
+                    } else {
+                        stroke = null;
+                    }
 
                     if (type == 'Text') {
                         // don't apply stroke-scale to text rendering
@@ -438,6 +448,7 @@ export class FeatureFactory {
                             group,
                             tile,
                             tileSize,
+                            removeTileBounds,
                             strokeDasharray,
                             strokeLinecap,
                             strokeLinejoin,
@@ -469,22 +480,8 @@ export class FeatureFactory {
                         );
                     }
                 } else {
-                    if (type == 'Line') {
-                        for (let ls of coordinates) {
-                            this.lineFactory.init();
-                            this.lineFactory.createLine(
-                                ls,
-                                group,
-                                tile,
-                                tileSize,
-                                strokeDasharray,
-                                strokeLinecap,
-                                strokeLinejoin,
-                                strokeWidth
-                            );
-                        }
-                    } else {
-                        // Polygon geometry
+                    // Polygon geometry
+                    if (type == 'Polygon' || type == 'Extrude') {
                         if (!group.buffer) {
                             group.buffer = type == 'Polygon'
                                 ? new PolygonBuffer()

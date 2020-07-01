@@ -30,7 +30,7 @@ export type MapOptions = {
     minPanMapThreshold: number,
     zoomAnimationMs: number,
     maxPitch: number,
-    behaviour: {
+    behavior: {
         zoom?: true | false | 'fixed' | 'float',
         drag?: boolean;
         pitch?: boolean;
@@ -61,7 +61,7 @@ export const defaultOptions: MapOptions = {
 
 
     /**
-     *  Behaviour options of the map.
+     *  Behavior options of the map.
      *  Allow user to "drag" / "rotate" / "pitch" or "zoom" the map by mouse/touch interaction.
      *
      *  "drag" / "rotate" and "pitch" are booleans indicating if user interaction is possible or not.
@@ -73,11 +73,11 @@ export const defaultOptions: MapOptions = {
      *
      *  @public
      *  @expose
-     *  @name here.xyz.maps.Map.Config#bahaviour
+     *  @name here.xyz.maps.Map.Config#bahavior
      *  @optional
      *  @type {object}
      */
-    behaviour: {
+    behavior: {
         drag: true,
         pitch: false,
         rotate: false

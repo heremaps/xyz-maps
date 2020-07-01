@@ -37,6 +37,7 @@ const STYLEGROUP_CHANGE_EVENT = 'styleGroupChange';
 const STYLE_CHANGE_EVENT = 'styleChange';
 const VIEWPORT_READY_EVENT = 'viewportReady';
 const CLEAR_EVENT = 'clear';
+const DEFAULT_TILE_SIZE = 256;
 
 let UNDEF;
 
@@ -89,7 +90,7 @@ type zoomlevelRange = 1 | 2 | 3 | 4 | 5 | 6 | 7 | 8 | 9 | 10 | 11 | 12 | 13 | 14
  *  @name here.xyz.maps.layers.TileLayer
  */
 export class TileLayer {
-    private _p: TileProvider[] = [];
+    protected _p: TileProvider[] = [];
 
     private _fp: FeatureProvider;
 
@@ -109,7 +110,9 @@ export class TileLayer {
     public min: zoomlevelRange = 15;
     public max: zoomlevelRange = 20;
 
-    public tileSize: number = 256;
+    public tileSize: number;
+
+    levelOffset: number = 0;
 
     constructor(cfg) {
         const layer = this;
@@ -179,51 +182,51 @@ export class TileLayer {
             // ,'tap', 'pointerup', 'pointerenter', 'pointerleave', 'dbltap', 'pointerdown', 'pressmove', 'pointermove'
         ]);
 
-        const providerCfg = cfg.providers || cfg.provider;
 
+        const providerCfg = cfg.providers || cfg.provider;
+        let tileSize = DEFAULT_TILE_SIZE;
+
+
+        const setProvider = (min, max, provider) => {
+            for (let z = min; z <= max; z++) {
+                layer._p[z] = provider;
+            }
+        };
 
         if (providerCfg instanceof Array) {
-            for (let p = 0, prov; p < providerCfg.length; p++) {
-                prov = providerCfg[p];
-
-                for (let min = prov.min; min <= prov.max; min++) {
-                    layer._p[min] = prov.provider;
-                }
+            for (let prov of providerCfg) {
+                setProvider(prov.min, prov.max, prov.provider);
             }
         } else {
-            for (let l = layer.min; l <= layer.max; l++) {
-                layer._fp =
-                    layer._p[l] = providerCfg;
-
-                // TODO: remove =)
-                // currently used by edtior for automatic feature unselect..
-                // ..in case of layer is not visible anymore due to (zoomlevel range)
-                (<any>layer._fp).minLevel = layer.min;
-                (<any>layer._fp).maxLevel = layer.max;
-            }
+            tileSize = Math.max(tileSize, providerCfg._tsize||DEFAULT_TILE_SIZE);
+            let offset = Number(tileSize == 512);
+            let min = layer.min - offset;
+            let max = layer.max - offset;
+            setProvider(min, max, providerCfg);
+            layer._fp = providerCfg;
+            // TODO: remove =)
+            // currently used by edtior for automatic feature unselect..
+            // ..in case of layer is not visible anymore due to (zoomlevel range)
+            providerCfg.minLevel = min;
+            providerCfg.maxLevel = max;
         }
 
+        if (!this.tileSize && !(tileSize % 256)) {
+            this.tileSize = tileSize;
+        }
 
-        const providers = layer._p;
+        layer._p.forEach((provider, i) => {
+            if (provider) {
+                if (provider.__type == 'FeatureProvider') {
+                    provider.addEventListener(ADD_FEATURE_EVENT, layer._afl, layer);
 
-        providers.forEach((provider, i) => {
-            // layer.__type  = providers.__type;
+                    provider.addEventListener(REMOVE_FEATURE_EVENT, layer._rfl, layer);
 
-            if (provider.__type == 'FeatureProvider') {
-                provider.addEventListener(ADD_FEATURE_EVENT, layer._afl, layer);
-
-                provider.addEventListener(REMOVE_FEATURE_EVENT, layer._rfl, layer);
-
-                provider.addEventListener(MODIFY_FEATURE_COORDINATES_EVENT, layer._mfl, layer);
+                    provider.addEventListener(MODIFY_FEATURE_COORDINATES_EVENT, layer._mfl, layer);
+                }
+                provider.addEventListener(CLEAR_EVENT, layer._cpl, layer);
             }
-            provider.addEventListener(CLEAR_EVENT, layer._cpl, layer);
         });
-
-
-        // // hold feature's custom style data...
-        // layer._cs = {
-        //
-        // };
 
         layer.setMargin(layer.getMargin());
 

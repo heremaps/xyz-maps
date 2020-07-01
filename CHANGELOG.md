@@ -1,3 +1,18 @@
+## 0.13.0 (2020-6-10)
+### editor
+* added: Full editing support of LocalProvider data with Editor component. use providerOptions.editable=true to allow editing.
+* fixed: add hole(s) to polygon geometries works in all cases
+* removed: deprecated legacy API interface
+### display
+* added: show map Compass UI widget when rotate/pitch behaviour is activated. Mapview gets reset on click.
+* improved: optimized triangulation of extrudes from unclipped source data
+* fixed: visible tile boundaries for certain geometries using alpha when map is pitched/rotated
+* fixed: trigger "mapviewchange" event if map pitch is changing only.
+* fixed: correct drawing order for tile preview data in all cases
+* fixed: triangulation of polygon geometry from geojson 2d datasources
+* fixed: draw full polygon geometry when coordinates are modified/updated
+* fixed: visible tile flickering on zoom changes
+
 ## 0.12.0 (2020-5-22)
 ### display
 * added: control minimum distance of repeated text labels on line geometries via style.repeat=number
@@ -5,7 +20,7 @@
 * improved: optimised triangulation of polygons from unclipped source data
 * improved: reuse projected coordinates if line geometry is rendered multiple times
 * improved: major performance improvement of line triangulation of very large unclipped geometries
-* fixed: behaviour settings on mobile/touch have no effect
+* fixed: behavior settings on mobile/touch have no effect
 * fixed: set exact minimum/maximum configured zoomlevel by mouse/touch
 * fixed: default to configured "minLevel" when viewport lock gets reset
 * fixed: text labels are placed correctly on line geometries in all cases
@@ -31,7 +46,7 @@
 * added: control visibility of Text in case of label collision via style.priority=number
 * added: control alignment of Text if map is pitched/rotated via style.alignment="map"|"viewport"
 * added: set initial map pitch/rotate via options.pitch/options.rotate=number
-* added: initial behaviour settings can now be configured via options.behaviour
+* added: initial behavior settings can now be configured via options.behavior
 * added: pitch/rotate map via api by map.pitch(deg) or map.rotate(deg)
 * fixed: init map with float zoomlevel
 * fixed: show TAC UI even if no url is defined

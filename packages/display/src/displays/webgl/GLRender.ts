@@ -525,14 +525,18 @@ export class GLRender implements BasicRender {
 
     private initScissor(x: number, y: number, width: number, height: number) {
         const {gl} = this;
-        const x1 = x;
-        const x2 = x + width;
-        const y1 = y;
-        const y2 = y + height;
+        const buf = this.pass == 'opaque'
+            ? .5 // prevent flicker on tile boundaries
+            : 0;
+        const x1 = x - buf;
+        const x2 = x + width + buf;
+        const y1 = y - buf;
+        const y2 = y + height + buf;
         const lowerLeft = [x1, y2, 0];
         const lowerRight = [x2, y2, 0];
         const upperLeft = [x1, y1, 0];
         const upperRight = [x2, y1, 0];
+
         let xmin = Infinity;
         let xmax = -xmin;
         let ymin = xmin;
@@ -547,6 +551,7 @@ export class GLRender implements BasicRender {
             if (y < ymin) ymin = y;
             if (y > ymax) ymax = y;
         }
+
         // set the scissor rectangle.
         gl.scissor(xmin, ymin, xmax - xmin, ymax - ymin);
     }

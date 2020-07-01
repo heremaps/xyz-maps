@@ -75,7 +75,7 @@ class RenderBucket {
 
 
 class CanvasDisplay extends BasicDisplay {
-    static zoomBehaviour:'fixed'|'float' = 'fixed';
+    static zoomBehavior:'fixed'|'float' = 'fixed';
 
     buckets: DisplayTilePool;
     render: CanvasRenderer;
