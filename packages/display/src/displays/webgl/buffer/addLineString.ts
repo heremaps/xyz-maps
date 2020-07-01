@@ -33,11 +33,16 @@ const SCALE = 8192;
 // const SCALE = 1;
 
 const isOnTileBounds = (x1: number, y1: number, x2: number, y2: number, tileSize: number, tolerance: number = 1): boolean => {
-    const onTileTop = y1 < tolerance && y2 < tolerance;
-    const onTileRight = Math.abs(x1 - tileSize) < tolerance && Math.abs(x2 - tileSize) < tolerance;
-    const onTileBottom = Math.abs(y1 - tileSize) < tolerance && Math.abs(y2 - tileSize) < tolerance;
-    const onTileLeft = x1 < tolerance && x2 < tolerance;
-    return !(onTileTop || onTileRight || onTileBottom || onTileLeft);
+    return !(
+        // onTileTop
+        Math.abs(y1) < tolerance && Math.abs(y2) < tolerance ||
+        // onTileRight
+        Math.abs(x1 - tileSize) < tolerance && Math.abs(x2 - tileSize) < tolerance ||
+        // onTileBottom
+        Math.abs(y1 - tileSize) < tolerance && Math.abs(y2 - tileSize) < tolerance ||
+        // onTileLeft
+        Math.abs(x1) < tolerance && Math.abs(x2) < tolerance
+    );
 };
 
 
@@ -281,6 +286,7 @@ const addSegments = (
         }
 
         let isEnd = last || first;
+
 
         length = Math.sqrt(dx * dx + dy * dy);
 
