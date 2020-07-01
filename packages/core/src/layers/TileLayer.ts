@@ -37,6 +37,7 @@ const STYLEGROUP_CHANGE_EVENT = 'styleGroupChange';
 const STYLE_CHANGE_EVENT = 'styleChange';
 const VIEWPORT_READY_EVENT = 'viewportReady';
 const CLEAR_EVENT = 'clear';
+const DEFAULT_TILE_SIZE = 256;
 
 let UNDEF;
 
@@ -109,7 +110,7 @@ export class TileLayer {
     public min: zoomlevelRange = 15;
     public max: zoomlevelRange = 20;
 
-    public tileSize: number = 256;
+    public tileSize: number;
 
     levelOffset: number = 0;
 
@@ -208,24 +209,28 @@ export class TileLayer {
 
         const providers = layer._p;
 
+        let tileSize = DEFAULT_TILE_SIZE;
         providers.forEach((provider, i) => {
-            // layer.__type  = providers.__type;
+            if (provider) {
+                // check if provider suggests tilesize
+                if (i = (<any>provider)._tsize) {
+                    tileSize = Math.max(tileSize, i);
+                }
+                if (provider.__type == 'FeatureProvider') {
+                    provider.addEventListener(ADD_FEATURE_EVENT, layer._afl, layer);
 
-            if (provider.__type == 'FeatureProvider') {
-                provider.addEventListener(ADD_FEATURE_EVENT, layer._afl, layer);
+                    provider.addEventListener(REMOVE_FEATURE_EVENT, layer._rfl, layer);
 
-                provider.addEventListener(REMOVE_FEATURE_EVENT, layer._rfl, layer);
-
-                provider.addEventListener(MODIFY_FEATURE_COORDINATES_EVENT, layer._mfl, layer);
+                    provider.addEventListener(MODIFY_FEATURE_COORDINATES_EVENT, layer._mfl, layer);
+                }
+                provider.addEventListener(CLEAR_EVENT, layer._cpl, layer);
             }
-            provider.addEventListener(CLEAR_EVENT, layer._cpl, layer);
         });
 
+        if (!this.tileSize && !(tileSize % 256)) {
+            this.tileSize = tileSize;
+        }
 
-        // // hold feature's custom style data...
-        // layer._cs = {
-        //
-        // };
 
         layer.setMargin(layer.getMargin());
 

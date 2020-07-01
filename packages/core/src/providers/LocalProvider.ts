@@ -44,6 +44,7 @@ const METHOD_NOT_IMPLEMENTED = 'Method not implemented.';
  *  @name here.xyz.maps.providers.LocalProvider.Options#name
  *  @type {string=}
  */
+
 /**
  *  Allow or prevent editing by Editor component.
  *
@@ -71,7 +72,9 @@ export class LocalProvider extends EditableFeatureProvider {
             'minLevel': 8,
             'maxLevel': 20,
             'storage': new LRUStorage(512),
-            'editable': false
+            'editable': false,
+            // suggest default tile-size for layersetup
+            '_tsize': 512
         }, config);
 
         // TODO: remove tile marking on feature add in super provider
