@@ -182,40 +182,41 @@ export class TileLayer {
             // ,'tap', 'pointerup', 'pointerenter', 'pointerleave', 'dbltap', 'pointerdown', 'pressmove', 'pointermove'
         ]);
 
-        const providerCfg = cfg.providers || cfg.provider;
 
+        const providerCfg = cfg.providers || cfg.provider;
+        let tileSize = DEFAULT_TILE_SIZE;
+
+
+        const setProvider = (min, max, provider) => {
+            for (let z = min; z <= max; z++) {
+                layer._p[z] = provider;
+            }
+        };
 
         if (providerCfg instanceof Array) {
-            for (let p = 0, prov; p < providerCfg.length; p++) {
-                prov = providerCfg[p];
-
-                for (let min = prov.min; min <= prov.max; min++) {
-                    layer._p[min] = prov.provider;
-                }
+            for (let prov of providerCfg) {
+                setProvider(prov.min, prov.max, prov.provider);
             }
         } else {
-            for (let l = layer.min; l <= layer.max; l++) {
-                layer._fp =
-                    layer._p[l] = providerCfg;
-
-                // TODO: remove =)
-                // currently used by edtior for automatic feature unselect..
-                // ..in case of layer is not visible anymore due to (zoomlevel range)
-                (<any>layer._fp).minLevel = layer.min;
-                (<any>layer._fp).maxLevel = layer.max;
-            }
+            tileSize = Math.max(tileSize, providerCfg._tsize||DEFAULT_TILE_SIZE);
+            let offset = Number(tileSize == 512);
+            let min = layer.min - offset;
+            let max = layer.max - offset;
+            setProvider(min, max, providerCfg);
+            layer._fp = providerCfg;
+            // TODO: remove =)
+            // currently used by edtior for automatic feature unselect..
+            // ..in case of layer is not visible anymore due to (zoomlevel range)
+            providerCfg.minLevel = min;
+            providerCfg.maxLevel = max;
         }
 
+        if (!this.tileSize && !(tileSize % 256)) {
+            this.tileSize = tileSize;
+        }
 
-        const providers = layer._p;
-
-        let tileSize = DEFAULT_TILE_SIZE;
-        providers.forEach((provider, i) => {
+        layer._p.forEach((provider, i) => {
             if (provider) {
-                // check if provider suggests tilesize
-                if (i = (<any>provider)._tsize) {
-                    tileSize = Math.max(tileSize, i);
-                }
                 if (provider.__type == 'FeatureProvider') {
                     provider.addEventListener(ADD_FEATURE_EVENT, layer._afl, layer);
 
@@ -226,11 +227,6 @@ export class TileLayer {
                 provider.addEventListener(CLEAR_EVENT, layer._cpl, layer);
             }
         });
-
-        if (!this.tileSize && !(tileSize % 256)) {
-            this.tileSize = tileSize;
-        }
-
 
         layer.setMargin(layer.getMargin());
 
