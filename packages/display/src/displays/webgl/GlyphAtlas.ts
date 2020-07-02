@@ -21,7 +21,15 @@ const DEFAULT_STROKE_WIDTH = 1;
 const DEFAULT_FONT = 'normal 12px Arial';
 const DEFAULT_TEXT_ALIGN = 'start';
 
-const initFont = (ctx, style, fill?, stroke?) => {
+
+const toCSS = (rgb: number[]) => {
+    if (rgb instanceof Array) {
+        return `rgb(${Math.round(rgb[0] * 255)}, ${Math.round(rgb[1] * 255)}, ${Math.round(rgb[2] * 255)})`;
+    }
+    return rgb;
+};
+
+const initFont = (ctx, style,) => {
     ctx.font = style.font || DEFAULT_FONT;
 
     if (typeof style.strokeWidth == 'number') {
@@ -29,9 +37,8 @@ const initFont = (ctx, style, fill?, stroke?) => {
     } else {
         ctx.lineWidth = DEFAULT_STROKE_WIDTH;
     }
-
-    ctx.strokeStyle = fill || style.stroke;
-    ctx.fillStyle = stroke || style.fill;
+    ctx.strokeStyle = style.stroke;
+    ctx.fillStyle = style.fill;
     ctx.textAlign = style.textAlign || DEFAULT_TEXT_ALIGN;
     ctx.lineCap = 'round';
     ctx.lineJoin = 'round';
@@ -164,6 +171,9 @@ class GlyphAtlas {
     constructor(style, dpr: number, width: number, height: number, onExtend?: (w: number, h: number) => void, text?: string) {
         // dpr = Math.ceil(dpr);
 
+        style.stroke = toCSS(style.stroke);
+        style.fill = toCSS(style.fill);
+
         width *= dpr;
         height *= dpr;
 
@@ -201,7 +211,7 @@ class GlyphAtlas {
 
         this.style = style;
 
-        let sw = style.strokeWidth^0;
+        let sw = style.strokeWidth ^ 0;
 
         // this.spacing = 13.5*this.paddingX;
         // this.spacing = sw + this.paddingX * 3;
@@ -219,7 +229,7 @@ class GlyphAtlas {
 
         // this.baselineOffset = 0; // top
         // this.baselineOffset = (letterHeight - letterHeightBottom); // bottom
-        this.baselineOffset = (letterHeight - letterHeightBottom ) / 2 + this.paddingY; // middle
+        this.baselineOffset = (letterHeight - letterHeightBottom) / 2 + this.paddingY; // middle
 
         this.width = width;
         this.height = height;

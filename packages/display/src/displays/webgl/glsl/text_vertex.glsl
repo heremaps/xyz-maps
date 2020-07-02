@@ -12,7 +12,7 @@ uniform float u_scale;
 uniform float u_rotate;
 uniform bool u_alignMap;
 uniform highp float u_zIndex;
-uniform vec2 u_atlasScale;
+uniform float u_atlasScale;
 
 varying vec2 v_texcoord;
 varying vec4 vColor;

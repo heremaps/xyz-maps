@@ -24,6 +24,7 @@ import {tile} from '@here/xyz-maps-core';
 import {Layer} from '../../Layers';
 import {FeatureFactory} from './FeatureFactory';
 import {TemplateBuffer} from './templates/TemplateBuffer';
+import {GlyphTexture} from '../GlyphTexture';
 
 
 const tileUtils = tile.Utils;
@@ -177,7 +178,7 @@ const createBuffer = (
                         grpBuffer = grp.buffer;
 
                         if (vertexType == 'Text') {
-                            if (!grp.glyphs) { // TODO: CLEANUP!!
+                            if (!grp.texture) { // TODO: CLEANUP!!
                                 continue;
                             }
                         }
@@ -211,63 +212,52 @@ const createBuffer = (
 
                         buffers.push(geoBuffer);
 
-
-                        if (type == 'Text') {
-                            // geoGroup.alpha = true;
-                            geoBuffer.texture = grp.glyphs;
+                        if (type == 'Text' || type == 'Icon') {
                             geoBuffer.scissor = grpBuffer.scissor;
+                            geoBuffer.texture = grp.texture;
 
-                            grp.glyphs.sync();
-
-                            // factory.collisions.setAttribute(geoBuffer.attributes.a_point);
+                            if (type == 'Text') {
+                                (<GlyphTexture>geoBuffer.texture).sync();
+                            }
 
                             geoBuffer.addUniform('u_texture', 0);
-                            geoBuffer.addUniform('u_atlasScale', [1 / grp.glyphs.width, 1 / grp.glyphs.height]);
+                            geoBuffer.addUniform('u_atlasScale', 1 / geoBuffer.texture.width);
                             geoBuffer.addUniform('u_opacity', shared.opacity);
                             geoBuffer.addUniform('u_alignMap', shared.alignment == 'map');
-                        } else {
-                            if (type == 'Rect' || type == 'Circle') {
-                                geoBuffer.addUniform('u_fill', shared.fill || COLOR_UNDEFINED);
+                        } else if (type == 'Rect' || type == 'Circle') {
+                            geoBuffer.addUniform('u_fill', shared.fill || COLOR_UNDEFINED);
 
-                                if (stroke) {
-                                    geoBuffer.addUniform('u_stroke', stroke);
-                                    if (strokeWidth == UNDEF) strokeWidth = 1;
-                                }
+                            if (stroke) {
+                                geoBuffer.addUniform('u_stroke', stroke);
+                                if (strokeWidth == UNDEF) strokeWidth = 1;
+                            }
+                            geoBuffer.addUniform('u_strokeWidth', strokeWidth ^ 0);
 
-                                geoBuffer.addUniform('u_strokeWidth', strokeWidth ^ 0);
-
-                                if (type == 'Circle') {
-                                    geoBuffer.addUniform('u_radius', shared.radius);
-                                } else {
-                                    geoBuffer.addUniform('u_size', [shared.width, shared.height]);
-                                }
-                            } else if (type == 'Line') {
-                                if (shared.strokeDasharray) {
-                                    geoBuffer.type = 'DashedLine';
-                                    geoBuffer.texture = grp.texture;
-                                    geoBuffer.addUniform('u_texWidth', grp.texture.width);
-                                    geoBuffer.addUniform('u_pattern', 0);
-                                }
-                                geoBuffer.addUniform('u_fill', stroke);
-                                geoBuffer.addUniform('u_strokeWidth', strokeWidth * .5);
-
-                                geoBuffer.alpha = true;
-                                // geoBuffer.blend = true;
-                            } else if (type == 'Polygon' || type == 'Extrude') {
-                                geoBuffer.addUniform('u_fill', shared.fill);
-
-                                if (type == 'Extrude') {
-                                    geoBuffer.addUniform('u_zoom', extrudeScale);
-                                }
-                            } else if (type == 'Icon') {
+                            if (type == 'Circle') {
+                                geoBuffer.addUniform('u_radius', shared.radius);
+                            } else {
+                                geoBuffer.addUniform('u_size', [shared.width, shared.height]);
+                            }
+                        } else if (type == 'Line') {
+                            if (shared.strokeDasharray) {
+                                geoBuffer.type = 'DashedLine';
                                 geoBuffer.texture = grp.texture;
-                                geoBuffer.scissor = grp.buffer.scissor;
+                                geoBuffer.addUniform('u_texWidth', grp.texture.width);
+                                geoBuffer.addUniform('u_pattern', 0);
+                            }
+                            geoBuffer.addUniform('u_fill', stroke);
+                            geoBuffer.addUniform('u_strokeWidth', strokeWidth * .5);
 
-                                geoBuffer.addUniform('u_atlasScale', 1 / geoBuffer.texture.width);
-                                geoBuffer.addUniform('u_texture', 0);
-                                geoBuffer.addUniform('u_opacity', shared.opacity);
+                            geoBuffer.alpha = true;
+                            // geoBuffer.blend = true;
+                        } else if (type == 'Polygon' || type == 'Extrude') {
+                            geoBuffer.addUniform('u_fill', shared.fill);
+
+                            if (type == 'Extrude') {
+                                geoBuffer.addUniform('u_zoom', extrudeScale);
                             }
                         }
+
 
                         const fillOpacity = shared.fill && shared.fill[3];
                         const strokeOpacity = shared.stroke && shared.stroke[3];

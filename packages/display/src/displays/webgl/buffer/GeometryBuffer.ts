@@ -20,6 +20,7 @@
 import {Attribute} from './Attribute';
 import {glType} from './glType';
 import {Texture} from '../Texture';
+import {GlyphTexture} from '../GlyphTexture';
 
 type Uniform = number | number[] | boolean;
 
@@ -50,8 +51,7 @@ class GeometryBuffer {
 
     uniforms: { [name: string]: Uniform } = {};
 
-    texture?: Texture;
-
+    texture?: Texture | GlyphTexture;
 
     type: string;
     arrays?: Arrays;
@@ -62,7 +62,6 @@ class GeometryBuffer {
     scissor?: boolean;
     depth?: boolean;
     blend?: true;
-
 
     constructor(index?: Arrays | number[], type?: string, i32?: boolean) {
         if (index) {

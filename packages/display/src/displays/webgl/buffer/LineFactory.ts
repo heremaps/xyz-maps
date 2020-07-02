@@ -120,10 +120,10 @@ export class LineFactory {
         offsetY: number,
         style
     ) {
-        let {glyphs} = group;
+        let {texture} = group;
 
-        if (!glyphs) {
-            glyphs = group.glyphs = new GlyphTexture(this.gl, style);
+        if (!texture) {
+            texture = group.texture = new GlyphTexture(this.gl, style);
             group.buffer = new TextBuffer();
         }
 
@@ -135,7 +135,7 @@ export class LineFactory {
             attributes.a_position.data,
             attributes.a_texcoord.data,
             this.projectLine(coordinates, tile, tileSize),
-            glyphs,
+            texture,
             tile,
             tileSize,
             collisions,

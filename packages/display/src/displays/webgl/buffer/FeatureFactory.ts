@@ -195,7 +195,7 @@ export class FeatureFactory {
                 strokeWidth = getValue('strokeWidth', style, feature, level);
 
                 if (type == 'Line') {
-                    if (!stroke||!strokeWidth) continue;
+                    if (!stroke || !strokeWidth) continue;
 
                     strokeLinecap = getValue('strokeLinecap', style, feature, level) || DEFAULT_LINE_CAP;
                     strokeLinejoin = getValue('strokeLinejoin', style, feature, level) || DEFAULT_LINE_JOIN;
@@ -345,11 +345,11 @@ export class FeatureFactory {
 
             if (geomType == 'Point') {
                 if (type == 'Text') {
-                    let glyphs = group.glyphs;
+                    let {texture} = group;
 
-                    if (!glyphs) {
+                    if (!texture) {
                         // console.time('create Glyph Tex');
-                        glyphs = group.glyphs = new GlyphTexture(this.gl, style);
+                        texture = group.texture = new GlyphTexture(this.gl, group.shared);
                         // console.timeEnd('create Glyph Tex');
                         // group.first = 0;
                         // group.data = new SymbolData(false);
@@ -361,9 +361,9 @@ export class FeatureFactory {
                     const cx = tile.lon2x(coordinates[0], tileSize);
                     const cy = tile.lat2y(coordinates[1], tileSize);
 
-                    glyphs.addChars(text);
+                    texture.addChars(text);
 
-                    const fontInfo = glyphs.getAtlas();
+                    const fontInfo = texture.getAtlas();
                     const estimatedTextWidth = fontInfo.avgCharWidth * text.length / 2;
                     const ty = fontInfo.baselineOffset - offsetY;
                     // collides(cx,cy,width,height,tile, tileSize, fontInfo, bufferIndex: number) {
@@ -440,106 +440,104 @@ export class FeatureFactory {
                         }
                     }
                 }
-            } else {
-                if (geomType == 'LineString') {
-                    if (type == 'Line') {
-                        this.lineFactory.createLine(
-                            coordinates,
-                            group,
-                            tile,
-                            tileSize,
-                            removeTileBounds,
-                            strokeDasharray,
-                            strokeLinecap,
-                            strokeLinejoin,
-                            strokeWidth
-                        );
-                    } else if (type == 'Circle' || type == 'Rect') {
-                        if (!group.buffer) {
-                            group.buffer = new PointBuffer();
-                        }
-
-                        const positionBuffer = group.buffer.attributes.a_position.data;
-
-                        for (let coord of coordinates) {
-                            addPoint(positionBuffer, coord, tile, tileSize);
-                        }
-                    } else if (type == 'Text') {
-                        this.lineFactory.createText(
-                            text,
-                            coordinates,
-                            group,
-                            tile,
-                            tileSize,
-                            !style.collide && this.collisions,
-                            getValue('priority', style, feature, level),
-                            getValue('repeat', style, feature, level),
-                            offsetX,
-                            offsetY,
-                            style
-                        );
+            } else if (geomType == 'LineString') {
+                if (type == 'Line') {
+                    this.lineFactory.createLine(
+                        coordinates,
+                        group,
+                        tile,
+                        tileSize,
+                        removeTileBounds,
+                        strokeDasharray,
+                        strokeLinecap,
+                        strokeLinejoin,
+                        strokeWidth
+                    );
+                } else if (type == 'Circle' || type == 'Rect') {
+                    if (!group.buffer) {
+                        group.buffer = new PointBuffer();
                     }
-                } else {
-                    // Polygon geometry
-                    if (type == 'Polygon' || type == 'Extrude') {
-                        if (!group.buffer) {
-                            group.buffer = type == 'Polygon'
-                                ? new PolygonBuffer()
-                                : new ExtrudeBuffer();
-                        }
 
-                        const groupBuffer = group.buffer;
-                        const vIndex = groupBuffer.index();
-                        const {attributes} = groupBuffer;
-                        const aPosition = attributes.a_position.data;
+                    const positionBuffer = group.buffer.attributes.a_position.data;
 
-                        flatPolyStart = aPosition.length;
+                    for (let coord of coordinates) {
+                        addPoint(positionBuffer, coord, tile, tileSize);
+                    }
+                } else if (type == 'Text') {
+                    this.lineFactory.createText(
+                        text,
+                        coordinates,
+                        group,
+                        tile,
+                        tileSize,
+                        !style.collide && this.collisions,
+                        getValue('priority', style, feature, level),
+                        getValue('repeat', style, feature, level),
+                        offsetX,
+                        offsetY,
+                        style
+                    );
+                }
+            } else {
+                // Polygon geometry
+                if (type == 'Polygon' || type == 'Extrude') {
+                    if (!group.buffer) {
+                        group.buffer = type == 'Polygon'
+                            ? new PolygonBuffer()
+                            : new ExtrudeBuffer();
+                    }
 
-                        if (type == 'Extrude') {
-                            flatPoly = addExtrude(
-                                aPosition,
-                                attributes.a_normal.data,
-                                vIndex,
-                                coordinates,
-                                tile,
-                                tileSize,
-                                extrude
-                            );
-                        } else if (type == 'Polygon') {
-                            flatPoly = addPolygon(aPosition, coordinates, tile, tileSize);
-                        }
+                    const groupBuffer = group.buffer;
+                    const vIndex = groupBuffer.index();
+                    const {attributes} = groupBuffer;
+                    const aPosition = attributes.a_position.data;
 
-                        if (!triangles) {
-                            const geom = feature.geometry;
+                    flatPolyStart = aPosition.length;
 
-                            if (geom._xyz) {
-                                triangles = geom._xyz;
-                            } else {
-                                triangles = [];
+                    if (type == 'Extrude') {
+                        flatPoly = addExtrude(
+                            aPosition,
+                            attributes.a_normal.data,
+                            vIndex,
+                            coordinates,
+                            tile,
+                            tileSize,
+                            extrude
+                        );
+                    } else if (type == 'Polygon') {
+                        flatPoly = addPolygon(aPosition, coordinates, tile, tileSize);
+                    }
 
-                                for (let flat of flatPoly) {
-                                    let d = flat.dimensions;
-                                    let coords = aPosition.data.subarray(flat.start, flat.stop);
-                                    let tri = earcut(coords, flat.holes, d);
-                                    let i = (flat.start - flatPolyStart) / d;
+                    if (!triangles) {
+                        const geom = feature.geometry;
 
-                                    for (let t of tri) {
-                                        triangles.push(i + t);
-                                    }
-                                }
+                        if (geom._xyz) {
+                            triangles = geom._xyz;
+                        } else {
+                            triangles = [];
 
-                                if (!tile.clipped) {
-                                    // cache for reuse
-                                    geom._xyz = triangles;
+                            for (let flat of flatPoly) {
+                                let d = flat.dimensions;
+                                let coords = aPosition.data.subarray(flat.start, flat.stop);
+                                let tri = earcut(coords, flat.holes, d);
+                                let i = (flat.start - flatPolyStart) / d;
+
+                                for (let t of tri) {
+                                    triangles.push(i + t);
                                 }
                             }
-                        }
 
-                        for (let t = 0, s = flatPolyStart / flatPoly[0].dimensions, i; t < triangles.length; t++) {
-                            i = s + triangles[t];
-                            groupBuffer.i32 = groupBuffer.i32 || i > 0xffff;
-                            vIndex.push(i);
+                            if (!tile.clipped) {
+                                // cache for reuse
+                                geom._xyz = triangles;
+                            }
                         }
+                    }
+
+                    for (let t = 0, s = flatPolyStart / flatPoly[0].dimensions, i; t < triangles.length; t++) {
+                        i = s + triangles[t];
+                        groupBuffer.i32 = groupBuffer.i32 || i > 0xffff;
+                        vIndex.push(i);
                     }
                 }
             }
