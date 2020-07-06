@@ -22,7 +22,7 @@ import {FlexArray} from './FlexArray';
 
 export class PointBuffer extends TemplateBuffer {
     constructor() {
-        super(true);
+        super(false);
 
         this.attributes = {
             // vertex

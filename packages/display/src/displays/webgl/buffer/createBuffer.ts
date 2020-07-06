@@ -219,12 +219,12 @@ const createBuffer = (
                             if (type == 'Text') {
                                 (<GlyphTexture>geoBuffer.texture).sync();
                             }
-
                             geoBuffer.addUniform('u_texture', 0);
                             geoBuffer.addUniform('u_atlasScale', 1 / geoBuffer.texture.width);
                             geoBuffer.addUniform('u_opacity', shared.opacity);
                             geoBuffer.addUniform('u_alignMap', shared.alignment == 'map');
                         } else if (type == 'Rect' || type == 'Circle') {
+                            geoBuffer.scissor = grpBuffer.scissor;
                             geoBuffer.addUniform('u_fill', shared.fill || COLOR_UNDEFINED);
 
                             if (stroke) {
