@@ -255,14 +255,16 @@ const createBuffer = (
 
                             if (type == 'Extrude') {
                                 geoBuffer.addUniform('u_zoom', extrudeScale);
+                                geoBuffer.scissor = false;
                             }
                         }
 
 
                         const fillOpacity = shared.fill && shared.fill[3];
                         const strokeOpacity = shared.stroke && shared.stroke[3];
+                        const hasAlphaColor = fillOpacity < 1 || strokeOpacity < 1;
 
-                        if (fillOpacity < 1 || strokeOpacity < 1) {
+                        if (hasAlphaColor) {
                             geoBuffer.alpha = true;
                             geoBuffer.blend = true;
                             geoBuffer.depth = true;
@@ -282,6 +284,11 @@ const createBuffer = (
 
                         renderLayer.addZ(z);
                         geoBuffer.zIndex = z;
+
+                        if (geoBuffer.scissor == UNDEF) {
+                            // scissor is slow so no need for if source data is clipped already
+                            geoBuffer.scissor = !tile.clipped || hasAlphaColor;
+                        }
 
                         // TODO: order (+draw) groups by zIndex
                         // geoBuffer.groups.unshift(geoGroup);

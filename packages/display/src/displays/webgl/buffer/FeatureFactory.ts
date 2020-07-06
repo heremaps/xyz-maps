@@ -177,8 +177,8 @@ export class FeatureFactory {
             radius = UNDEF;
             width = UNDEF;
             height = UNDEF;
-            offsetX = UNDEF;
-            offsetY = UNDEF;
+            offsetX = 0;
+            offsetY = 0;
             text = UNDEF;
             alignment = UNDEF;
             strokeScale = strokeWidthScale;

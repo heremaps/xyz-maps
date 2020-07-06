@@ -523,37 +523,37 @@ export class GLRender implements BasicRender {
         }
     }
 
-    private initScissor(x: number, y: number, width: number, height: number) {
-        const {gl} = this;
-        const buf = this.pass == 'opaque'
-            ? .5 // prevent flicker on tile boundaries
-            : 0;
-        const x1 = x - buf;
-        const x2 = x + width + buf;
-        const y1 = y - buf;
-        const y2 = y + height + buf;
-        const lowerLeft = [x1, y2, 0];
-        const lowerRight = [x2, y2, 0];
-        const upperLeft = [x1, y1, 0];
-        const upperRight = [x2, y1, 0];
+    private initScissor(buffer, x: number, y: number, width: number, height: number): boolean {
+        if (buffer.scissor) {
+            const {gl} = this;
+            // prevent flicker on tile boundaries
+            const buf = this.pass == 'opaque' ? .5 : 0;
+            const x1 = x - buf;
+            const x2 = x + width + buf;
+            const y1 = y - buf;
+            const y2 = y + height + buf;
+            const lowerLeft = [x1, y2, 0];
+            const lowerRight = [x2, y2, 0];
+            const upperLeft = [x1, y1, 0];
+            const upperRight = [x2, y1, 0];
 
-        let xmin = Infinity;
-        let xmax = -xmin;
-        let ymin = xmin;
-        let ymax = xmax;
+            let xmin = Infinity;
+            let xmax = -xmin;
+            let ymin = xmin;
+            let ymax = xmax;
 
-        for (let p of [lowerLeft, lowerRight, upperLeft, upperRight]) {
-            p = transformMat4([], p, this.pMat);
-            let x = unclip(p[0], gl.canvas.width);
-            let y = unclip(p[1], gl.canvas.height);
-            if (x < xmin) xmin = x;
-            if (x > xmax) xmax = x;
-            if (y < ymin) ymin = y;
-            if (y > ymax) ymax = y;
+            for (let p of [lowerLeft, lowerRight, upperLeft, upperRight]) {
+                p = transformMat4([], p, this.pMat);
+                let x = unclip(p[0], gl.canvas.width);
+                let y = unclip(p[1], gl.canvas.height);
+                if (x < xmin) xmin = x;
+                if (x > xmax) xmax = x;
+                if (y < ymin) ymin = y;
+                if (y > ymax) ymax = y;
+            }
+            gl.scissor(xmin, ymin, xmax - xmin, ymax - ymin);
+            return true;
         }
-
-        // set the scissor rectangle.
-        gl.scissor(xmin, ymin, xmax - xmin, ymax - ymin);
     }
 
     layer(dTile: GLTile, x: number, y: number, renderLayer: Layer, tileBucket: Bucket): void {
@@ -596,8 +596,7 @@ export class GLRender implements BasicRender {
                 buffer = buffers[isAlphaPass ? length - b : b];
 
                 if (!scissored) {
-                    scissored = true;
-                    this.initScissor(x, y, tileSize, tileSize);
+                    scissored = this.initScissor(buffer, x, y, tileSize, tileSize);
                 }
 
                 if (!stenciled) {
@@ -642,7 +641,7 @@ export class GLRender implements BasicRender {
                             prevScale = tScale;
 
                             for (let buf of previewBuffers) {
-                                this.initScissor(x + dx, y + dy, dWidth, dWidth);
+                                this.initScissor(buf, x + dx, y + dy, dWidth, dWidth);
                                 // this.gl.scissor(0, 0, 4096, 4096);
 
                                 // this.gl.stencilFunc(this.gl.ALWAYS, 0, 0);
