@@ -215,6 +215,8 @@ export class TileLayer {
             this.tileSize = tileSize;
         }
 
+        this.levelOffset = Math.round(Math.log(this.tileSize) / Math.log(2) - 8);
+
         layer._p.forEach((provider, i) => {
             if (provider) {
                 if (provider.__type == 'FeatureProvider') {
@@ -256,9 +258,8 @@ export class TileLayer {
      */
     getProvider(level?: number): TileProvider {
         if (level) {
-            return this._p[level ^ 0];
+            return this._p[Math.floor(level) - this.levelOffset];
         }
-
         return this._fp;
     };
 
@@ -593,9 +594,8 @@ export class TileLayer {
      *  @return {here.xyz.maps.providers.TileProvider.Tile}
      */
     getTile(quadkey: string, cb) {
-        const layer = this;
         const level = quadkey.length;
-        const provider = layer._p[level];
+        const provider = this._p[level];
 
         if (provider) {
             return provider.getTile(quadkey, cb);

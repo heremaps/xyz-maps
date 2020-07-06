@@ -96,8 +96,6 @@ export class MVTLayer extends TileLayer {
             style: options['style'] || OSMStyle,
             tileSize: tileSize
         });
-
-        this.levelOffset = Math.round(Math.log(tileSize) / Math.log(2) - 8);
     }
 
 
