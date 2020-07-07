@@ -435,20 +435,23 @@ class LayerStyle implements ILayerStyle {
 
     constructor(styleCfg, customStyles?: StyleGroupMap) {
         const layerStyle = this;
-
-
-        if (styleCfg['assign']) {
-            layerStyle.assign = styleCfg.assign;
+        const deepCopy = (from, to?) => {
+            if (typeof from !== 'object' || from === null) {
+                return from;
+            }
+            to = to || (Array.isArray(from) ? [] : {});
+            for (let key in from) {
+                to[key] = deepCopy(from[key]);
+            }
+            return to;
+        };
+        for (let name in styleCfg) {
+            this[name] = name == 'styleGroups'
+                ? deepCopy(styleCfg.styleGroups, {})
+                : styleCfg[name];
         }
-
-        for (const cfg in styleCfg) {
-            layerStyle[cfg] = styleCfg[cfg];
-        }
-
-
         // custom styles
         layerStyle._c = customStyles || {};
-
         // layerStyle._l = layer;
     }
 

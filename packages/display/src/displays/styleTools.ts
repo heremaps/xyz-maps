@@ -19,6 +19,7 @@
 
 import {createTxtRef, measure, defaultFont} from './fontCache';
 import {features} from '@here/xyz-maps-core';
+import {toRGB} from './webgl/color';
 
 const INFINITY = Infinity;
 let UNDEF;
@@ -42,16 +43,41 @@ interface Style {
     textRef?: string;
     offsetX?: number | styleNumberFunction;
     offsetY?: number | styleNumberFunction;
+    alignment?: 'map' | 'viewport';
+    rotation?: number;
+    priority?: number;
+    repeat?: number;
+    collide?: boolean
 }
 
-type StyleGroup = Array<Style>;
+const allowedProperties = {
+    'type': 1,
+    'zIndex': 1,
+    'fill': 1,
+    'stroke': 1,
+    'strokeWidth': 1,
+    'radius': 1,
+    'width': 1,
+    'height': 1,
+    'font': 1,
+    'text': 1,
+    'textRef': 1,
+    'offsetX': 1,
+    'offsetY': 1,
+    'alignment': 1,
+    'rotation': 1,
+    'priority': 1,
+    'repeat': 1,
+    'collide': 1
+};
 
+type StyleGroup = Array<Style>;
 
 const getValue = (name: string, style: Style, feature: Feature, zoom: number) => {
     let value = style[name];
 
     return typeof value == 'function'
-        ? value(feature, zoom)
+        ? value(feature, zoom, style)
         : value;
 };
 
@@ -113,7 +139,7 @@ const getPixelSize = (groups: StyleGroup, feature: Feature, zoom: number): [numb
             type != 'Image' &&
             // .. and no fill is defined
             !getValue('fill', style, feature, zoom)
-        // !style.fill
+            // !style.fill
         ) {
             // -> it's not visible!
             continue;
@@ -249,4 +275,80 @@ const getMaxZLevel = (styles: StyleGroup, feature, level: number) => {
     return maxZ;
 };
 
-export {getValue, getStrokeWidth, getPixelSize, merge, isStyle, getMaxZLevel, StyleGroup, Style};
+
+const lerp = (x: number, y: number, a: number) => x * (1 - a) + y * a;
+const invlerp = (x: number, y: number, a: number) => clamp((a - x) / (y - x));
+const clamp = (a: number, min = 0, max = 1) => Math.min(max, Math.max(min, a));
+const range = (x1: number, y1: number, x2: number, y2: number, a: number) => lerp(x2, y2, invlerp(x1, y1, a));
+const searchLerp = (map, search) => {
+    let i = 0;
+    let v;
+    let _v;
+    let _z;
+    for (let z in map) {
+        v = map[z];
+        if (search <= z) {
+            if (i == 0) return v;
+            if (Array.isArray(v)) {
+                let a = [];
+                for (let j = 0; j < v.length; j++) {
+                    a[j] = range(_z, Number(z), _v[j], v[j], search);
+                }
+                return a;
+            }
+            return range(_z, Number(z), _v, v, search);
+        }
+        _z = z;
+        _v = v;
+        i++;
+    }
+    return v;
+};
+const fillMap = (map, searchMap) => {
+    for (let zoom = 1; zoom <= 20; zoom++) {
+        map[zoom] = searchLerp(searchMap, zoom);
+    }
+    return map;
+};
+
+
+const parseColors = (map) => {
+    for (let z in map) {
+        map[z] = toRGB(map[z]);
+    }
+};
+
+const createZoomrangeFunction = (map) => {
+    // const range = new Function('f,zoom', `return (${JSON.stringify(map)})[zoom];`);
+    const range = (feature, zoom: number) => {
+        return map[zoom];
+    };
+    range.map = map; // dbg
+
+    return range;
+};
+
+const parseStyleGroup = (styleGroup: Style[]) => {
+    if (!(<any>styleGroup).__p) {
+        (<any>styleGroup).__p = true;
+        for (let style of styleGroup) {
+            for (let name in style) {
+                if (name in allowedProperties) {
+                    let value = style[name];
+                    if (typeof value == 'object' && !Array.isArray(value)) {
+                        // "zoomrange" value detected
+                        if (name == 'stroke' || name == 'fill') {
+                            // convert to [r,g,b,a]
+                            parseColors(value);
+                        }
+                        let map = fillMap({}, value);
+                        style[name] = createZoomrangeFunction(map);
+                    }
+                }
+            }
+        }
+    }
+};
+
+
+export {getValue, getStrokeWidth, getPixelSize, merge, isStyle, getMaxZLevel, parseStyleGroup, StyleGroup, Style};

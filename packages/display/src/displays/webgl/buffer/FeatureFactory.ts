@@ -22,7 +22,7 @@ import {addPolygon, FlatPolygon} from './addPolygon';
 import {addExtrude} from './addExtrude';
 import {addIcon} from './addIcon';
 import earcut from 'earcut';
-import {getValue} from '../../styleTools';
+import {getValue, parseStyleGroup} from '../../styleTools';
 import {defaultFont} from '../../fontCache';
 import {GlyphTexture} from '../GlyphTexture';
 import {toRGB} from '../color';
@@ -138,8 +138,14 @@ export class FeatureFactory {
 
         this.lineFactory.init();
 
+        parseStyleGroup(styleGroups);
+
         for (let i = 0, iLen = styleGroups.length; i < iLen; i++) {
             style = styleGroups[i];
+
+            type = getValue('type', style, feature, level);
+
+            if (!type) continue;
 
             opacity = getValue('opacity', style, feature, level);
 
@@ -372,7 +378,6 @@ export class FeatureFactory {
                     for (let c of text) {
                         if (c != ' ') glyphCnt++;
                     }
-
 
                     if (style.collide || !this.collisions.collides(
                         cx, cy,
