@@ -239,35 +239,23 @@ export class Tile {
     // includes margin
     getContentBounds(): number[] {
         if (!this.cbnds) {
-            const bounds = this.bounds;
-            const margin = this.provider.margin;
-
+            const {bounds, provider} = this;
+            const {margin} = provider;
             if (margin) {
-                // var dLon   = (bounds[2] - bounds[0]) / TILESIZE * margin;
-                // var dLat   = (bounds[3] - bounds[1]) / TILESIZE * margin;
-                //
-                // this.cbnds = [
-                //  bounds[0] - dLon,
-                //  bounds[1] - dLat,
-                //  bounds[2] + dLon,
-                //  bounds[3] + dLat
-                // ];
-
-                const worldsize = TILESIZE << this.z;
+                const tileSize = provider.size;
+                const worldsize = tileSize << this.z;
                 const x = projection.lon2x(bounds[0], worldsize);
                 const y = projection.lat2y(bounds[1], worldsize);
-
                 this.cbnds = [
                     projection.x2lon(x - margin, worldsize),
                     projection.y2lat(y + margin, worldsize),
-                    projection.x2lon(x + margin + TILESIZE, worldsize),
-                    projection.y2lat(y - margin - TILESIZE, worldsize)
+                    projection.x2lon(x + margin + tileSize, worldsize),
+                    projection.y2lat(y - margin - tileSize, worldsize)
                 ];
             } else {
                 this.cbnds = this.bounds;
             }
         }
-
         return this.cbnds;
     };
 

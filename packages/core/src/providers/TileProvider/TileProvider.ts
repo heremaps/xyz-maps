@@ -73,6 +73,7 @@ abstract class TileProvider {
 
     abstract getTile(quadkey: string, cb: (tile: Tile, error?: any) => void);
 
+
     constructor(options, cfg) {
         const provider = this;
 

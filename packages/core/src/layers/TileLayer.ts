@@ -198,7 +198,7 @@ export class TileLayer {
                 setProvider(prov.min, prov.max, prov.provider);
             }
         } else {
-            tileSize = Math.max(tileSize, providerCfg._tsize||DEFAULT_TILE_SIZE);
+            tileSize = Math.max(tileSize, providerCfg.size||DEFAULT_TILE_SIZE);
             let offset = Number(tileSize == 512);
             let min = layer.min - offset;
             let max = layer.max - offset;

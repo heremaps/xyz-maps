@@ -74,7 +74,7 @@ export class LocalProvider extends EditableFeatureProvider {
             'storage': new LRUStorage(512),
             'editable': false,
             // suggest default tile-size for layersetup
-            '_tsize': 512
+            'size': 512
         }, config);
 
         // TODO: remove tile marking on feature add in super provider

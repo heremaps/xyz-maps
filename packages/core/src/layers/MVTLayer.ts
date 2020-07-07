@@ -76,10 +76,13 @@ export class MVTLayer extends TileLayer {
                 max: level == remoteMax ? layerMax : level,
 
                 provider: new MVTProvider({
+
                     name: name + '-L' + level,
+
                     url: url,
                     level: level - levelOffset,
                     loader: loader,
+                    size: tileSize,
                     // storage : tileStorage
                     // storage : new TileStorage( level - levelOffset, 16, 16 * 4 )
                     storage: new TileStorage(level - levelOffset, cache1, cache2)
