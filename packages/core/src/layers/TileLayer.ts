@@ -186,7 +186,6 @@ export class TileLayer {
         const providerCfg = cfg.providers || cfg.provider;
         let tileSize = DEFAULT_TILE_SIZE;
 
-
         const setProvider = (min, max, provider) => {
             for (let z = min; z <= max; z++) {
                 layer._p[z] = provider;
@@ -198,7 +197,11 @@ export class TileLayer {
                 setProvider(prov.min, prov.max, prov.provider);
             }
         } else {
-            tileSize = Math.max(tileSize, providerCfg.size||DEFAULT_TILE_SIZE);
+            if (this.tileSize) {
+                tileSize = providerCfg.size = this.tileSize;
+            } else {
+                tileSize = Math.max(tileSize, providerCfg.size);
+            }
             let offset = Number(tileSize == 512);
             let min = layer.min - offset;
             let max = layer.max - offset;
