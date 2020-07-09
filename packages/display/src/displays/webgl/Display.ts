@@ -209,51 +209,51 @@ class WebGlDisplay extends BasicDisplay {
         const renderer = display.render;
         const gl = renderer.gl;
         const tileSize = layer.tileSize;
+        const displayLayer = this.layers.get(layer.id);
 
         if (tile.type == 'image') {
-            const renderData = createImageBuffer(data, gl, tileSize);
-            dTile.preview(dTile.setData(layer, [renderData]), null);
+            const buffer = createImageBuffer(data, gl, tileSize);
+            // make sure image tiles are considered by global zIndex
+            displayLayer.addZ(buffer.zIndex);
+            dTile.preview(dTile.setData(layer, [buffer]), null);
             onDone(dTile, layer);
+        } else if (data.length) {
+            const task = createBuffer(data, displayLayer, tileSize, tile, this.factory,
+                // on init / start
+                () => {
+                    let {quadkey} = dTile;
+                    if (tileSize == 256) {
+                        quadkey = quadkey.slice(0, -1);
+                    }
+                    // if its not a fresh create but tile data is getting updated make sure to ..
+                    // .. clear collision data before tile is updated / reprepared.
+                    // otherwise collision data will directly be dropped after updating tile (onDrop(...)).
+                    dTile.setData(layer, null);
+
+                    this.collision.init(quadkey, tile.x, tile.y, tile.z, displayLayer);
+                },
+                // on done
+                (buffer, allImgLoaded) => {
+                    dTile.removeTask(task, layer);
+                    dTile.preview(dTile.setData(layer, buffer), null);
+
+                    if (!allImgLoaded) {
+                        display.tilesNotReady.push({
+                            quadkey: dTile.quadkey,
+                            layerId: layer.id
+                        });
+                    }
+
+                    this.dirty = true;
+                    this.collision.enforce();
+                    // this.collision.update(displayLayer.tiles);
+
+                    onDone(dTile, layer);
+                });
+            dTile.addTask(task, layer);
         } else {
-            const displayLayer = this.layers.get(layer.id);
-            if (data.length) {
-                const task = createBuffer(data, displayLayer, tileSize, tile, this.factory,
-                    // on init / start
-                    () => {
-                        let {quadkey} = dTile;
-                        if (tileSize == 256) {
-                            quadkey = quadkey.slice(0, -1);
-                        }
-                        // if its not a fresh create but tile data is getting updated make sure to ..
-                        // .. clear collision data before tile is updated / reprepared.
-                        // otherwise collision data will directly be dropped after updating tile (onDrop(...)).
-                        dTile.setData(layer, null);
-
-                        this.collision.init(quadkey, tile.x, tile.y, tile.z, displayLayer);
-                    },
-                    // on done
-                    (buffer, allImgLoaded) => {
-                        dTile.removeTask(task, layer);
-                        dTile.preview(dTile.setData(layer, buffer), null);
-
-                        if (!allImgLoaded) {
-                            display.tilesNotReady.push({
-                                quadkey: dTile.quadkey,
-                                layerId: layer.id
-                            });
-                        }
-
-                        this.dirty = true;
-                        this.collision.enforce();
-                        // this.collision.update(displayLayer.tiles);
-
-                        onDone(dTile, layer);
-                    });
-                dTile.addTask(task, layer);
-            } else {
-                dTile.preview(dTile.setData(layer, []), null);
-                onDone(dTile, layer);
-            }
+            dTile.preview(dTile.setData(layer, []), null);
+            onDone(dTile, layer);
         }
     }
 

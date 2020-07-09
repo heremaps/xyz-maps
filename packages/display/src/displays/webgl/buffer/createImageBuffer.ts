@@ -67,6 +67,8 @@ const createImageBuffer = (img: HTMLImageElement | HTMLCanvasElement, gl: WebGLR
 
     tileBuffer.texture = new Texture(gl, img);
     tileBuffer.addUniform('u_sampler', 0);
+    tileBuffer.zIndex = 0;
+    tileBuffer.scissor = true;
 
     return tileBuffer;
 };
