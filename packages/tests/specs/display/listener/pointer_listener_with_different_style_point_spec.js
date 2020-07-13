@@ -120,21 +120,12 @@ describe('pointer listener with different style point', function() {
             type: 'pointerup'
         });
 
-        await new Promise((resolve) => {
-            setTimeout(() => {
-                let color1 = getCanvasPixelColor(mapContainer, 282, 203);
-                let color2 = getCanvasPixelColor(mapContainer, 272, 203);
-                let color3 = getCanvasPixelColor(mapContainer, 248, 203);
-                let color4 = getCanvasPixelColor(mapContainer, 239, 203);
+        let colors = await getCanvasPixelColor(mapContainer, [{x: 282, y: 203}, {x: 272, y: 203}, {x: 248, y: 203}, {x: 239, y: 203}]);
 
-                expect(color1).to.equal('#ffffff');
-                expect(color2).to.equal('#be6b65');
-                expect(color3).to.equal('#be6b65');
-                expect(color4).to.equal('#ffffff');
-
-                resolve();
-            }, 100);
-        });
+        expect(colors[0]).to.equal('#ffffff');
+        expect(colors[1]).to.equal('#be6b65');
+        expect(colors[2]).to.equal('#be6b65');
+        expect(colors[3]).to.equal('#ffffff');
     });
 
 
@@ -143,12 +134,7 @@ describe('pointer listener with different style point', function() {
 
         display.refresh(poiLayer);
 
-        await new Promise((resolve) => {
-            setTimeout(() => {
-                let color = getCanvasPixelColor(mapContainer, 254, 205);
-                expect(color).to.equal('#ff0000');
-                resolve();
-            }, 100);
-        });
+        let color = await getCanvasPixelColor(mapContainer, {x: 254, y: 205});
+        expect(color).to.equal('#ff0000');
     });
 });

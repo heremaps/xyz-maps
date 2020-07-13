@@ -59,13 +59,8 @@ describe('layer with background color', function() {
         expect(display.getLayers()).to.be.lengthOf(1);
 
         // validate default background color is white
-        await new Promise((resolve) => {
-            setTimeout(() => {
-                let color = getCanvasPixelColor(mapContainer, 400, 300);
-                expect(color).to.equal('#ffffff');
-                resolve();
-            }, 100);
-        });
+        let color = await getCanvasPixelColor(mapContainer, {x: 400, y: 300});
+        expect(color).to.equal('#ffffff');
 
         display.removeLayer(newLayer);
     });
@@ -88,13 +83,8 @@ describe('layer with background color', function() {
         expect(display.getLayers()).to.be.lengthOf(1);
 
         // validate default background color is white
-        await new Promise((resolve) => {
-            setTimeout(() => {
-                let color = getCanvasPixelColor(mapContainer, 400, 300);
-                expect(color).to.equal('#345678');
-                resolve();
-            }, 100);
-        });
+        let color = await getCanvasPixelColor(mapContainer, {x: 400, y: 300});
+        expect(color).to.equal('#345678');
 
         display.removeLayer(newLayer);
     });

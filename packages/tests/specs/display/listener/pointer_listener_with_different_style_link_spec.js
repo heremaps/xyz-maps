@@ -114,23 +114,13 @@ describe('pointer listener with different style link', function() {
             type: 'pointerup'
         });
 
-        await new Promise((resolve) => {
-            setTimeout(() => {
-                let color1 = getCanvasPixelColor(mapContainer, 395, 294);
-                let color2 = getCanvasPixelColor(mapContainer, 395, 303);
-                let color3 = getCanvasPixelColor(mapContainer, 395, 310);
-                let color4 = getCanvasPixelColor(mapContainer, 395, 316);
-                let color5 = getCanvasPixelColor(mapContainer, 395, 322);
+        let colors = await getCanvasPixelColor(mapContainer, [{x: 395, y: 294}, {x: 395, y: 303}, {x: 395, y: 310}, {x: 395, y: 316}, {x: 395, y: 322}]);
 
-                expect(color1).to.equal('#ffffff');
-                expect(color2).to.equal('#ff0000');
-                expect(color3).to.equal('#ff00ff');
-                expect(color4).to.equal('#ff0000');
-                expect(color5).to.equal('#ffffff');
-
-                resolve();
-            }, 100);
-        });
+        expect(colors[0]).to.equal('#ffffff');
+        expect(colors[1]).to.equal('#ff0000');
+        expect(colors[2]).to.equal('#ff00ff');
+        expect(colors[3]).to.equal('#ff0000');
+        expect(colors[4]).to.equal('#ffffff');
     });
 
     it('reset layer style and validate', async function() {
@@ -138,12 +128,9 @@ describe('pointer listener with different style link', function() {
 
         display.refresh(linkLayer);
 
-        await new Promise((resolve) => {
-            setTimeout(() => {
-                let color = getCanvasPixelColor(mapContainer, 322, 309);
-                expect(color).to.equal('#ff0000');
-                resolve();
-            }, 100);
-        });
+
+        let color = await getCanvasPixelColor(mapContainer, {x: 322, y: 309});
+
+        expect(color).to.equal('#ff0000');
     });
 });
