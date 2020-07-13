@@ -32,8 +32,8 @@ const JOIN_BEVEL = 'bevel';
 const SCALE = 8192;
 // const SCALE = 1;
 
-const isOnTileBounds = (x1: number, y1: number, x2: number, y2: number, tileSize: number, tolerance: number = 1): boolean => {
-    return !(
+export const isOnTileBounds = (x1: number, y1: number, x2: number, y2: number, tileSize: number, tolerance: number = 1): boolean => {
+    return (
         // onTileTop
         Math.abs(y1) < tolerance && Math.abs(y2) < tolerance ||
         // onTileRight
@@ -157,7 +157,7 @@ const addLineString = (
 
                 if (
                     intersectBBox(minX, maxX, minY, maxY, 0, tileSize, 0, tileSize) &&
-                    !removeTileBounds || isOnTileBounds(_x, _y, x, y, tileSize)
+                    !removeTileBounds || !isOnTileBounds(_x, _y, x, y, tileSize)
                 ) {
                     length = addSegments(vertex, normal, pixels, c - 2, c + 2, tile, tileSize, cap, cap, join, strokeWidth, lengthSoFar, length);
                     start = null;
