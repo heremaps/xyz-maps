@@ -19,6 +19,7 @@
 
 import {easeOutSine} from './Easings';
 import {JSUtils} from '@here/xyz-maps-common';
+import Map from '../Map';
 
 const isFnc = JSUtils.isFunction;
 
@@ -41,7 +42,7 @@ class KineticPanAnimator {
     private lastDx: number;
     private lastDy: number;
 
-    constructor(map, options: KineticPanHandlerOptions) {
+    constructor(map: Map, options?: KineticPanHandlerOptions) {
         options = options || {};
 
         const handler = this;

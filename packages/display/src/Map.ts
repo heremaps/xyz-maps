@@ -243,22 +243,12 @@ class TigerMap {
 
         this._search = new Search(tigerMap);
 
-        let pointerEvents = this._evDispatcher = new EventDispatcher(mapEl, tigerMap, layers, mapConfig);
+        const pointerEvents = this._evDispatcher = new EventDispatcher(mapEl, tigerMap, layers, mapConfig);
 
-        let isInZoomAnimation = false;
-        let isInKineticPanAnimation = false;
-        this.zoomAnimator = new ZoomAnimator(tigerMap, {
-            onStart: () => {
-                isInZoomAnimation = true;
-                pointerEvents.disable('pointerenter');
-            },
-            onStop: () => {
-                isInZoomAnimation = false;
-                if (!isInKineticPanAnimation) {
-                    pointerEvents.enable('pointerenter');
-                }
-            }
-        });
+        listeners.add('mapviewchangestart', (e) => pointerEvents.disable('pointerenter'));
+        listeners.add('mapviewchangeend', (e) => pointerEvents.enable('pointerenter'));
+
+        this.zoomAnimator = new ZoomAnimator(tigerMap);
 
         const behaviorOptions = {...mapConfig['behavior'], ...mapConfig['behaviour']};
 
@@ -269,21 +259,7 @@ class TigerMap {
         let behavior = this._b = new Behavior(
             mapEl,
             tigerMap,
-            new KineticPanAnimator(tigerMap, {
-
-                // duration: 2000,
-
-                onStart: () => {
-                    isInKineticPanAnimation = true;
-                    pointerEvents.disable('pointerenter');
-                },
-                onStop: () => {
-                    isInKineticPanAnimation = false;
-                    if (!isInZoomAnimation) {
-                        pointerEvents.enable('pointerenter');
-                    }
-                }
-            }),
+            new KineticPanAnimator(tigerMap),
             <BehaviorOptions>behaviorOptions,
             mapConfig
         );

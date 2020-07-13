@@ -25,11 +25,13 @@ import TileStorage from '../storage/Level2Storage';
 import {LRU} from '@here/xyz-maps-common';
 import {TileLayer} from './TileLayer';
 import {Tile} from '../tile/Tile';
+import TileProvider from '../providers/TileProvider/TileProvider';
 
 let DEFAULT_TILE_SIZE = 512;
 
 export class MVTLayer extends TileLayer {
-    getProvider: (number) => MVTProvider;
+    // getProvider: (number) => MVTProvider;
+    protected _p: MVTProvider[];
 
     constructor(options) {
         // let tileStorage = new TileStorage( level - levelOffset, 16, 16 * 4 );
@@ -99,6 +101,11 @@ export class MVTLayer extends TileLayer {
             style: options['style'] || OSMStyle,
             tileSize: tileSize
         });
+    }
+
+    getProvider(zoom): MVTProvider {
+        const z = Math.floor(zoom) - this.levelOffset;
+        return this._p[z];
     }
 
 

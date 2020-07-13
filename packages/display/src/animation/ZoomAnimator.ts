@@ -19,6 +19,7 @@
 
 import {JSUtils} from '@here/xyz-maps-common';
 import {Animation} from './Animation';
+import Map from '../Map';
 
 const isFnc = JSUtils.isFunction;
 
@@ -29,9 +30,9 @@ interface ZoomAnimatorOptions {
 
 class ZoomAnimator {
     private active: boolean;
-    private map;
+    private map: Map;
 
-    constructor(map, options: ZoomAnimatorOptions) {
+    constructor(map: Map, options: ZoomAnimatorOptions={}) {
         let handler = this;
 
         handler.map = map;
@@ -59,7 +60,7 @@ class ZoomAnimator {
             handler.onStart();
 
             await (new Animation(map.getZoomlevel(), zoomTo, duration, 'easeOutCubic', (z) => {
-                map.setZoomlevel(z, zoomX, zoomY);
+                map.setZoomlevel(<number>z, zoomX, zoomY);
             })).start();
 
             handler.onStop();

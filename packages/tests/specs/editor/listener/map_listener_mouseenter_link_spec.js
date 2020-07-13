@@ -18,6 +18,7 @@
  */
 import {Listener, prepare} from 'utils';
 import {waitForEditorReady} from 'editorUtils';
+import {waitForViewportReady} from 'displayUtils';
 import {mousemove, click} from 'triggerEvents';
 import {Map} from '@here/xyz-maps-display';
 import {Editor} from '@here/xyz-maps-editor';
@@ -119,6 +120,8 @@ describe('map mouseenter link when link layer is removed', function() {
 
     it('add link layer, validate mouse hover events', async function() {
         editor.addLayer(linkLayer);
+
+        await waitForViewportReady(display);
 
         let listener = new Listener(editor, ['pointerenter', 'pointerleave']);
 

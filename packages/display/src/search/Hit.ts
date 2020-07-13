@@ -125,7 +125,8 @@ class Hit {
         return this.geometry(
             x,
             y,
-            feature.getProvider().decCoord(feature),
+            feature.geometry.coordinates,
+            // feature.getProvider().decCoord(feature),
             feature.geometry.type,
             featureStyle,
             feature,
