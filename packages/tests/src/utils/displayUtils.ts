@@ -22,15 +22,15 @@ import Map from '@here/xyz-maps-display';
 
 export function waitForViewportReady(display: Map, mapLayers?: layers.TileLayer[], fn?:Function): Promise<Map> {
     return new Promise(async (resolve) => {
-        let elem = display.getContainer();
-        let buttonup = true;
-        let mapviewready = true;
         if (!mapLayers) {
             mapLayers = display.getLayers();
         } else if (typeof mapLayers == 'function') {
             fn = mapLayers;
             mapLayers = display.getLayers();
         }
+        let layerAlwaysReady = !mapLayers.length;
+        let mapviewchangeend = false;
+        let mapviewready = layerAlwaysReady;
         let readyLayers = {};
         let layerCb = (evt) => {
             let layer = evt.detail.layer;
@@ -41,43 +41,44 @@ export function waitForViewportReady(display: Map, mapLayers?: layers.TileLayer[
                 if (!readyLayers[i]) return;
             }
 
-            for (let i in readyLayers) {
-                readyLayers[i].removeEventListener('viewportReady', layerCb);
-            }
-
             mapviewready = true;
 
-            if (buttonup) {
-                elem.removeEventListener('mousedown', mousedowncb);
-                elem.removeEventListener('mouseup', mouseupcb);
+            if (mapviewchangeend) {
+                for (let i in readyLayers) {
+                    readyLayers[i].removeEventListener('viewportReady', layerCb);
+                }
                 display.removeEventListener('mapviewchangestart', mapviewchangestartcb);
+                display.removeEventListener('mapviewchangeend', mapviewchangeendcb);
+
                 resolve(display);
             }
         };
 
-        let mouseupcb = (evt) => {
-            buttonup = true;
-
-            if (mapviewready) {
-                elem.removeEventListener('mouseup', mouseupcb);
-                display.removeEventListener('mapviewchangestart', mapviewchangestartcb);
-                resolve(display);
-            }
-        };
-
+        let readyTimer;
         let mapviewchangestartcb = () => {
-            mapviewready = false;
+            mapviewready = layerAlwaysReady;
+            mapviewchangeend = false;
+            clearTimeout(readyTimer);
+        };
+        let mapviewchangeendcb = () => {
+            // wait for next mapviewchangestart event, if map is not ready (e.g. map is still dragging), timout will be cleared by next start event
+            readyTimer = setTimeout(()=>{
+                mapviewchangeend = true;
+                if (mapviewready) {
+                    for (let i in readyLayers) {
+                        readyLayers[i].removeEventListener('viewportReady', layerCb);
+                    }
+
+                    display.removeEventListener('mapviewchangestart', mapviewchangestartcb);
+                    display.removeEventListener('mapviewchangeend', mapviewchangeendcb);
+
+                    resolve(display);
+                }
+            }, 10);
         };
 
-        let mousedowncb = (evt) => {
-            mapviewready = false;
-            buttonup = false;
-            display.addEventListener('mapviewchangestart', mapviewchangestartcb);
-            elem.addEventListener('mouseup', mouseupcb);
-            elem.removeEventListener('mousedown', mousedowncb);
-        };
-
-        elem.addEventListener('mousedown', mousedowncb);
+        display.addEventListener('mapviewchangestart', mapviewchangestartcb);
+        display.addEventListener('mapviewchangeend', mapviewchangeendcb);
 
         mapLayers.forEach((layer) => {
             if (!readyLayers[layer.id]) {
@@ -86,10 +87,8 @@ export function waitForViewportReady(display: Map, mapLayers?: layers.TileLayer[
             }
         });
 
-
         if (fn) {
             await fn();
         }
     });
 }
-
