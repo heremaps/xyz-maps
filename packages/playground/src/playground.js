@@ -23,6 +23,7 @@ import xyzmaps from '../examples/xyzmaps.json';
 
 import pgSettings from 'settings';
 import credentials from 'credentials';
+import timestamp from 'ts';
 
 export let injectCss = (css, doc) => {
     doc = doc || document;
@@ -70,7 +71,7 @@ export let pg = new (function Playground() {
     var examplecss;
 
     $.ajax({
-        url: 'assets/css/example.css',
+        url: 'assets/css/example.css?ts=' + timestamp,
         dataType: 'text',
         success: function(cssText) {
             examplecss = cssText;
@@ -700,11 +701,11 @@ export let pg = new (function Playground() {
 
                 $('.docs').attr('href', docPath + (t.data().docs || t.data().root.docs));
 
-                $.get(examplePath + t.data().file, function(data) {
+                $.get(examplePath + t.data().file + '?ts=' + timestamp, function(data) {
                     // untouched data
                     originalData = data;
 
-                    data = data.replace(apiPATHPlaceholderCommon, apiPath.common);
+                    data = data.replace(apiPATHPlaceholderCommon, apiPath.common );
                     data = data.replace(apiPATHPlaceholderCore, apiPath.core);
                     data = data.replace(apiPATHPlaceholderDisplay, apiPath.display);
                     data = data.replace(apiPATHPlaceholderEditor, apiPath.editor);
