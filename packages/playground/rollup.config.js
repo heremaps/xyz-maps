@@ -36,6 +36,8 @@ const SRC = env['resource'] || settings.path.resource;
 
 const exclude = env.exclude;
 const production = env.BUILD == 'production';
+
+const ts = (new Date()).getTime();
 let credentialsPath = join(SRC, 'credentials.json');
 let credential;
 
@@ -96,7 +98,8 @@ export default {
         virtual({
             'utag': env['utag-path'] ? fs.readFileSync(env['utag-path'], 'utf8') : 'export default ()=>{}',
             'settings': 'export default' + JSON.stringify(settings),
-            'credentials': 'export default' + JSON.stringify(credential)
+            'credentials': 'export default' + JSON.stringify(credential),
+            'ts': 'export default ' + ts
         }),
         json(),
         resolve(),
@@ -110,7 +113,7 @@ export default {
             targets: [{
                 src: 'examples', dest: DEST
             }, {
-                src: 'static/index.html', dest: DEST
+                src: 'static/index.html', dest: DEST, transform: (contents) => contents.toString().replace(/\$\{TIMESTAMP\}/g, ts)
             }, {
                 src: join(SRC, 'assets'), dest: DEST
             }]
