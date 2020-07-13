@@ -55,7 +55,7 @@ describe('get add and remove map layer', function() {
         expect(display.getLayers()).to.lengthOf(2);
 
         // validate map tile is displayed
-        let color = getCanvasPixelColor(mapContainer, 70, 119);
+        let color = await getCanvasPixelColor(mapContainer, {x: 70, y: 119});
         expect(color).to.not.equal('#ffffff');
     });
 
@@ -70,7 +70,7 @@ describe('get add and remove map layer', function() {
         expect(display.getLayers()).to.lengthOf(1);
 
         // validate map tile is not displayed
-        let color = getCanvasPixelColor(mapContainer, 70, 119);
+        let color = await getCanvasPixelColor(mapContainer, {x: 70, y: 119});
         expect(color).to.equal('#ffffff');
     });
 
@@ -84,7 +84,7 @@ describe('get add and remove map layer', function() {
         expect(display.getLayers()).to.lengthOf(2);
 
         // validate map tile is displayed
-        let color = getCanvasPixelColor(mapContainer, 70, 119);
+        let color = await getCanvasPixelColor(mapContainer, {x: 70, y: 119});
         expect(color).to.not.equal('#ffffff');
     });
 });

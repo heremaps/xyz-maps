@@ -64,23 +64,17 @@ describe('setStyleGroup Point with rect', function() {
             ]);
 
         // validate features have new style
-        await new Promise((resolve) => {
-            setTimeout(() => {
-                let color1 = getCanvasPixelColor(mapContainer, 400, 300); // get color of inner rect
-                let color2 = getCanvasPixelColor(mapContainer, 391, 300); // get color at left border
-                let color3 = getCanvasPixelColor(mapContainer, 409, 300); // get color at right border
-                let color4 = getCanvasPixelColor(mapContainer, 400, 291); // get color at top border
-                let color5 = getCanvasPixelColor(mapContainer, 400, 309); // get color of bottom border
+        // get color at left border
+        // get color at right border
+        // get color at top border
+        // get color of bottom border
+        let colors = await getCanvasPixelColor(mapContainer, [{x: 400, y: 300}, {x: 391, y: 300}, {x: 409, y: 300}, {x: 400, y: 291}, {x: 400, y: 309}]);
 
-                expect(color1).to.equal('#ff0000');
-                expect(color2).to.equal('#000000');
-                expect(color3).to.equal('#000000');
-                expect(color4).to.equal('#000000');
-                expect(color5).to.equal('#000000');
-
-                resolve();
-            }, 100);
-        });
+        expect(colors[0]).to.equal('#ff0000');
+        expect(colors[1]).to.equal('#000000');
+        expect(colors[2]).to.equal('#000000');
+        expect(colors[3]).to.equal('#000000');
+        expect(colors[4]).to.equal('#000000');
     });
 
     it('style feature with opacity, validate its style', async function() {
@@ -93,24 +87,17 @@ describe('setStyleGroup Point with rect', function() {
             ]);
 
         // validate features have new style
-        await new Promise((resolve) => {
-            setTimeout(() => {
-                let color1 = getCanvasPixelColor(mapContainer, 400, 300); // get color of inner rect
-                let color2 = getCanvasPixelColor(mapContainer, 391, 300); // get color at left border
-                let color3 = getCanvasPixelColor(mapContainer, 409, 300); // get color at right border
-                let color4 = getCanvasPixelColor(mapContainer, 400, 291); // get color at top border
-                let color5 = getCanvasPixelColor(mapContainer, 400, 309); // get color of bottom border
+        // get color at left border
+        // get color at right border
+        // get color at top border
+        // get color of bottom border
+        let colors = await getCanvasPixelColor(mapContainer, [{x: 400, y: 300}, {x: 391, y: 300}, {x: 409, y: 300}, {x: 400, y: 291}, {x: 400, y: 309}]);
 
-                // validate overlapped transparent color
-                expect(color1).to.equal('#990000');
-                expect(color2).to.equal('#000000');
-                expect(color3).to.equal('#000000');
-                expect(color4).to.equal('#000000');
-                expect(color5).to.equal('#000000');
-
-                resolve();
-            }, 100);
-        });
+        expect(colors[0]).to.equal('#990000');
+        expect(colors[1]).to.equal('#000000');
+        expect(colors[2]).to.equal('#000000');
+        expect(colors[3]).to.equal('#000000');
+        expect(colors[4]).to.equal('#000000');
     });
 
     it('style feature with rotation, validate its style', async function() {
@@ -122,23 +109,17 @@ describe('setStyleGroup Point with rect', function() {
             ]);
 
         // validate features have new style
-        await new Promise((resolve) => {
-            setTimeout(() => {
-                let color1 = getCanvasPixelColor(mapContainer, 400, 300); // get color of inner rect
-                let color2 = getCanvasPixelColor(mapContainer, 391, 300); // get color at left border
-                let color3 = getCanvasPixelColor(mapContainer, 409, 300); // get color at right border
-                let color4 = getCanvasPixelColor(mapContainer, 400, 291); // get color at top border
-                let color5 = getCanvasPixelColor(mapContainer, 400, 309); // get color of bottom border
+        // get color at left border
+        // get color at right border
+        // get color at top border
+        // get color of bottom border
+        let colors = await getCanvasPixelColor(mapContainer, [{x: 400, y: 300}, {x: 391, y: 300}, {x: 409, y: 300}, {x: 400, y: 291}, {x: 400, y: 309}]);
 
-                expect(color1).to.equal('#ff0000');
-                expect(color2).to.equal('#ff0000');
-                expect(color3).to.equal('#ff0000');
-                expect(color4).to.equal('#ff0000');
-                expect(color5).to.equal('#ff0000');
-
-                resolve();
-            }, 100);
-        });
+        expect(colors[0]).to.equal('#ff0000');
+        expect(colors[1]).to.equal('#ff0000');
+        expect(colors[2]).to.equal('#ff0000');
+        expect(colors[3]).to.equal('#ff0000');
+        expect(colors[4]).to.equal('#ff0000');
     });
 
     it('style feature with offsetX, validate its style', async function() {
@@ -150,23 +131,17 @@ describe('setStyleGroup Point with rect', function() {
             ]);
 
         // validate features have new style
-        await new Promise((resolve) => {
-            setTimeout(() => {
-                let color1 = getCanvasPixelColor(mapContainer, 400, 300); // get color of inner rect
-                let color2 = getCanvasPixelColor(mapContainer, 391, 300); // get color at left border
-                let color3 = getCanvasPixelColor(mapContainer, 409, 300); // get color at right border
-                let color4 = getCanvasPixelColor(mapContainer, 400, 291); // get color at top border
-                let color5 = getCanvasPixelColor(mapContainer, 400, 309); // get color of bottom border
+        // get color at left border
+        // get color at right border
+        // get color at top border
+        // get color of bottom border
+        let colors = await getCanvasPixelColor(mapContainer, [{x: 400, y: 300}, {x: 391, y: 300}, {x: 409, y: 300}, {x: 400, y: 291}, {x: 400, y: 309}]);
 
-                expect(color1).to.equal('#ff0000');
-                expect(color2).to.equal('#000000');
-                expect(color3).to.equal('#ff0000');
-                expect(color4).to.equal('#000000');
-                expect(color5).to.equal('#000000');
-
-                resolve();
-            }, 100);
-        });
+        expect(colors[0]).to.equal('#ff0000');
+        expect(colors[1]).to.equal('#000000');
+        expect(colors[2]).to.equal('#ff0000');
+        expect(colors[3]).to.equal('#000000');
+        expect(colors[4]).to.equal('#000000');
     });
 
     it('style feature with offsetX again, validate its style', async function() {
@@ -178,23 +153,17 @@ describe('setStyleGroup Point with rect', function() {
             ]);
 
         // validate features have new style
-        await new Promise((resolve) => {
-            setTimeout(() => {
-                let color1 = getCanvasPixelColor(mapContainer, 400, 300); // get color of inner rect
-                let color2 = getCanvasPixelColor(mapContainer, 391, 300); // get color at left border
-                let color3 = getCanvasPixelColor(mapContainer, 409, 300); // get color at right border
-                let color4 = getCanvasPixelColor(mapContainer, 400, 291); // get color at top border
-                let color5 = getCanvasPixelColor(mapContainer, 400, 309); // get color of bottom border
+        // get color at left border
+        // get color at right border
+        // get color at top border
+        // get color of bottom border
+        let colors = await getCanvasPixelColor(mapContainer, [{x: 400, y: 300}, {x: 391, y: 300}, {x: 409, y: 300}, {x: 400, y: 291}, {x: 400, y: 309}]);
 
-                expect(color1).to.equal('#ff0000');
-                expect(color2).to.equal('#ff0000');
-                expect(color3).to.equal('#000000');
-                expect(color4).to.equal('#000000');
-                expect(color5).to.equal('#000000');
-
-                resolve();
-            }, 100);
-        });
+        expect(colors[0]).to.equal('#ff0000');
+        expect(colors[1]).to.equal('#ff0000');
+        expect(colors[2]).to.equal('#000000');
+        expect(colors[3]).to.equal('#000000');
+        expect(colors[4]).to.equal('#000000');
     });
 
     it('style feature with offsetY, validate its style', async function() {
@@ -206,23 +175,17 @@ describe('setStyleGroup Point with rect', function() {
             ]);
 
         // validate features have new style
-        await new Promise((resolve) => {
-            setTimeout(() => {
-                let color1 = getCanvasPixelColor(mapContainer, 400, 300); // get color of inner rect
-                let color2 = getCanvasPixelColor(mapContainer, 391, 300); // get color at left border
-                let color3 = getCanvasPixelColor(mapContainer, 409, 300); // get color at right border
-                let color4 = getCanvasPixelColor(mapContainer, 400, 291); // get color at top border
-                let color5 = getCanvasPixelColor(mapContainer, 400, 309); // get color of bottom border
+        // get color at left border
+        // get color at right border
+        // get color at top border
+        // get color of bottom border
+        let colors = await getCanvasPixelColor(mapContainer, [{x: 400, y: 300}, {x: 391, y: 300}, {x: 409, y: 300}, {x: 400, y: 291}, {x: 400, y: 309}]);
 
-                expect(color1).to.equal('#ff0000');
-                expect(color2).to.equal('#000000');
-                expect(color3).to.equal('#000000');
-                expect(color4).to.equal('#000000');
-                expect(color5).to.equal('#ff0000');
-
-                resolve();
-            }, 100);
-        });
+        expect(colors[0]).to.equal('#ff0000');
+        expect(colors[1]).to.equal('#000000');
+        expect(colors[2]).to.equal('#000000');
+        expect(colors[3]).to.equal('#000000');
+        expect(colors[4]).to.equal('#ff0000');
     });
 
     it('style feature with offsetY again, validate its style', async function() {
@@ -234,22 +197,16 @@ describe('setStyleGroup Point with rect', function() {
             ]);
 
         // validate features have new style
-        await new Promise((resolve) => {
-            setTimeout(() => {
-                let color1 = getCanvasPixelColor(mapContainer, 400, 300); // get color of inner rect
-                let color2 = getCanvasPixelColor(mapContainer, 391, 300); // get color at left border
-                let color3 = getCanvasPixelColor(mapContainer, 409, 300); // get color at right border
-                let color4 = getCanvasPixelColor(mapContainer, 400, 291); // get color at top border
-                let color5 = getCanvasPixelColor(mapContainer, 400, 309); // get color of bottom border
+        // get color at left border
+        // get color at right border
+        // get color at top border
+        // get color of bottom border
+        let colors = await getCanvasPixelColor(mapContainer, [{x: 400, y: 300}, {x: 391, y: 300}, {x: 409, y: 300}, {x: 400, y: 291}, {x: 400, y: 309}]);
 
-                expect(color1).to.equal('#ff0000');
-                expect(color2).to.equal('#000000');
-                expect(color3).to.equal('#000000');
-                expect(color4).to.equal('#ff0000');
-                expect(color5).to.equal('#000000');
-
-                resolve();
-            }, 100);
-        });
+        expect(colors[0]).to.equal('#ff0000');
+        expect(colors[1]).to.equal('#000000');
+        expect(colors[2]).to.equal('#000000');
+        expect(colors[3]).to.equal('#ff0000');
+        expect(colors[4]).to.equal('#000000');
     });
 });

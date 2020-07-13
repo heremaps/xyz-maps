@@ -55,14 +55,9 @@ describe('setStyleGroup Link', function() {
 
     it('style feature, validate its new style', async function() {
         // validate link style
-        await new Promise((resolve) => {
-            setTimeout(() => {
-                let color = getCanvasPixelColor(mapContainer, 448, 300); // get link color
-                // default color is red
-                expect(color).to.equal('#ff0000');
-                resolve();
-            }, 100);
-        });
+        let color1 = await getCanvasPixelColor(mapContainer, {x: 448, y: 300}); // get link color
+        // default color is red
+        expect(color1).to.equal('#ff0000');
 
         // set link style
         linkLayer.setStyleGroup(
@@ -71,13 +66,8 @@ describe('setStyleGroup Link', function() {
         );
 
         // validate new link style
-        await new Promise((resolve) => {
-            setTimeout(() => {
-                let color = getCanvasPixelColor(mapContainer, 448, 300); // get link color
-                expect(color).to.equal('#be6b65');
-                resolve();
-            }, 100);
-        });
+        let color2 = await getCanvasPixelColor(mapContainer, {x: 448, y: 300}); // get link color
+        expect(color2).to.equal('#be6b65');
 
         // reset link style
         linkLayer.setStyleGroup(
@@ -85,13 +75,8 @@ describe('setStyleGroup Link', function() {
         );
 
         // validate link style is reset
-        await new Promise((resolve) => {
-            setTimeout(() => {
-                let color = getCanvasPixelColor(mapContainer, 448, 300); // get link color
-                expect(color).to.equal('#ff0000');
-                resolve();
-            }, 100);
-        });
+        let color3 = await getCanvasPixelColor(mapContainer, {x: 448, y: 300}); // get link color
+        expect(color3).to.equal('#ff0000');
     });
 
     it('style feature, validate its new style', async function() {
@@ -103,15 +88,11 @@ describe('setStyleGroup Link', function() {
             ]);
 
         // validate new link style
-        await new Promise((resolve) => {
-            setTimeout(() => {
-                let color1 = getCanvasPixelColor(mapContainer, 448, 300); // get color at position of inline
-                let color2 = getCanvasPixelColor(mapContainer, 448, 307); // get color at position of outline
-                expect(color1).to.equal('#ffffff');
-                expect(color2).to.equal('#ffffff');
-                resolve();
-            }, 100);
-        });
+        // get color at position of inline
+        // get color at position of outline
+        let colors1 = await getCanvasPixelColor(mapContainer, [{x: 448, y: 300}, {x: 448, y: 307}]);
+        expect(colors1[0]).to.equal('#ffffff');
+        expect(colors1[1]).to.equal('#ffffff');
 
         // set link style
         linkLayer.setStyleGroup(
@@ -121,15 +102,11 @@ describe('setStyleGroup Link', function() {
             ]);
 
         // validate new link style
-        await new Promise((resolve) => {
-            setTimeout(() => {
-                let color1 = getCanvasPixelColor(mapContainer, 448, 300); // get color of link inline
-                let color2 = getCanvasPixelColor(mapContainer, 448, 307); // get color of link outline
-                expect(color1).to.equal('#be6b65');
-                expect(color2).to.equal('#ffffff');
-                resolve();
-            }, 100);
-        });
+        // get color at position of inline
+        // get color at position of outline
+        let colors2 = await getCanvasPixelColor(mapContainer, [{x: 448, y: 300}, {x: 448, y: 307}]);
+        expect(colors2[0]).to.equal('#be6b65');
+        expect(colors2[1]).to.equal('#ffffff');
     });
 
     it('style feature with text, validate its new style', async function() {
@@ -141,23 +118,18 @@ describe('setStyleGroup Link', function() {
             ]);
 
         // validate new link style
-        await new Promise((resolve) => {
-            setTimeout(() => {
-                let color1 = getCanvasPixelColor(mapContainer, 420, 308); // get color of link
-                let color2 = getCanvasPixelColor(mapContainer, 431, 308); // get color of first character H (left side)
-                let color3 = getCanvasPixelColor(mapContainer, 443, 308); // get color between bars of character H
-                let color4 = getCanvasPixelColor(mapContainer, 452, 308); // get color of first character H (right side)
-                let color5 = getCanvasPixelColor(mapContainer, 461, 308); // get link color between first H and E
+        // get color of link
+        // get color of first character H (left side)
+        // get color between bars of character H
+        // get color of first character H (right side)
+        // get link color between first H and E
+        let colors = await getCanvasPixelColor(mapContainer, [{x: 420, y: 308}, {x: 431, y: 308}, {x: 443, y: 308}, {x: 452, y: 308}, {x: 461, y: 308}]);
 
-                expect(color1).to.equal('#000000');
-                expect(color2).to.equal('#ffffff');
-                expect(color3).to.equal('#000000');
-                expect(color4).to.equal('#ffffff');
-                expect(color5).to.equal('#000000');
-
-                resolve();
-            }, 100);
-        });
+        expect(colors[0]).to.equal('#000000');
+        expect(colors[1]).to.equal('#ffffff');
+        expect(colors[2]).to.equal('#000000');
+        expect(colors[3]).to.equal('#ffffff');
+        expect(colors[4]).to.equal('#000000');
     });
 });
 

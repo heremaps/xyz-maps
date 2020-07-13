@@ -84,22 +84,15 @@ describe('validate polygon rendering', function() {
     });
 
     it('validate polygon and multipolygon are rendered', async function() {
-        await new Promise((resolve) => {
-            setTimeout(()=>{
-                // validate polygon is displayed
-                let color = getCanvasPixelColor(mapContainer, 70, 170);
-                expect(color).to.equal('#000000');
-
-                // validate multipolygon is displayed
-                let color1 = getCanvasPixelColor(mapContainer, 170, 170);
-                expect(color1).to.equal('#00ffff');
-
-                // validate multipolygon is displayed
-                let color2 = getCanvasPixelColor(mapContainer, 270, 170);
-                expect(color2).to.equal('#00ffff');
-
-                resolve();
-            }, 100);
+        let colors = await getCanvasPixelColor(mapContainer, [{x: 70, y: 170}, {x: 170, y: 170}, {x: 270, y: 170}], {
+            retry: 4,
+            expect: ['#0100000', '#00ffff', '#00ffff']
         });
+        // validate polygon is displayed
+        expect(colors[0]).to.equal('#000000');
+        // validate multipolygon is displayed
+        expect(colors[1]).to.equal('#00ffff');
+        // validate multipolygon is displayed
+        expect(colors[2]).to.equal('#00ffff');
     });
 });
