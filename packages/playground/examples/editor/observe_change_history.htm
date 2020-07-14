@@ -76,6 +76,14 @@
 				readRoutingProvider(location, providers) {
 					return this.id;
 				}
+
+                readZLevels(navlink) {
+                    return navlink.prop('zLevels') || navlink.geometry.coordinates.map((c) => 0);
+                }
+
+                writeZLevels(navlink, zLevel) {
+                    navlink.prop('zLevels', zLevel);
+                }
 			}
 
 			var bgLayer = new here.xyz.maps.layers.MVTLayer({
