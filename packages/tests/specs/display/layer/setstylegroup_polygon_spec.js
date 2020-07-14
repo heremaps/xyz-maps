@@ -61,17 +61,12 @@ describe('setStyleGroup Polygon', function() {
             ]);
 
         // validate features have new style
-        await new Promise((resolve) => {
-            setTimeout(() => {
-                let color1 = getCanvasPixelColor(mapContainer, 380, 280); // get fill color
-                let color2 = getCanvasPixelColor(mapContainer, 247, 327); // get stroke color on first shape point
+        // get fill color
+        // get stroke color on first shape point
+        let colors = await getCanvasPixelColor(mapContainer, [{x: 380, y: 280}, {x: 247, y: 327}]);
 
-                expect(color1).to.equal('#9fe030');
-                expect(color2).to.equal('#906fff');
-
-                resolve();
-            }, 100);
-        });
+        expect(colors[0]).to.equal('#9fe030');
+        expect(colors[1]).to.equal('#906fff');
     });
 
     it('style feature with opacity, validate its new style', async function() {
@@ -83,17 +78,12 @@ describe('setStyleGroup Polygon', function() {
             ]);
 
         // validate features have new style
-        await new Promise((resolve) => {
-            setTimeout(() => {
-                let color1 = getCanvasPixelColor(mapContainer, 380, 280); // get fill color
-                let color2 = getCanvasPixelColor(mapContainer, 246, 328); // get stroke color on first shape point
+        // get fill color
+        // get stroke color on first shape point
+        let colors = await getCanvasPixelColor(mapContainer, [{x: 380, y: 280}, {x: 246, y: 328}]);
 
-                expect(color1).to.equal('#c3ed7e');
-                expect(color2).to.equal('#576cd5');
-
-                resolve();
-            }, 100);
-        });
+        expect(colors[0]).to.equal('#c3ed7e');
+        expect(colors[1]).to.equal('#576cd5');
     });
 
     it('style feature with opacity, validate its new style', async function() {
@@ -105,16 +95,11 @@ describe('setStyleGroup Polygon', function() {
             ]);
 
         // validate features have new style
-        await new Promise((resolve) => {
-            setTimeout(() => {
-                let color1 = getCanvasPixelColor(mapContainer, 380, 280); // get fill color
-                let color2 = getCanvasPixelColor(mapContainer, 247, 327); // get stroke color on first shape point
+        // get fill color
+        // get stroke color on first shape point
+        let colors = await getCanvasPixelColor(mapContainer, [{x: 380, y: 280}, {x: 247, y: 327}]);
 
-                expect(color1).to.equal('#ff0000');
-                expect(color2).to.equal('#906fff');
-
-                resolve();
-            }, 100);
-        });
+        expect(colors[0]).to.equal('#ff0000');
+        expect(colors[1]).to.equal('#906fff');
     });
 });

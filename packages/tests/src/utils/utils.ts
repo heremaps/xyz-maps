@@ -45,25 +45,62 @@ function backingScale() {
     return 1;
 }
 
-export function getCanvasPixelColor(elem: HTMLElement, x: number, y: number): string {
+
+export async function getCanvasPixelColor(
+    elem: HTMLElement,
+    pos: {x: number, y: number}|{x: number, y: number}[],
+    options:{expect?: string|string[], delay?:number, retry?:number, retryDelay?:number} = {}): Promise<string|string[]> {
+    const positions = Array.isArray(pos) ? pos : [pos];
+    const expect = options.expect ? (Array.isArray(options.expect) ? options.expect : [options.expect] ) : new Array(positions.length);
+    const delay = options.delay || 100;
+    const retryDelay = options.retryDelay || 10;
+    let retry = options.retry || 0;
     const scaleFactor = backingScale();
     let canvas = elem.getElementsByTagName('canvas')[0];
     let ctx = canvas.getContext('2d');
-    let pixel;
+    let resultColors = [];
+    let retryCounter = 0;
+    let expectedCounter = 0;
 
-    if (ctx) {
-        pixel = ctx.getImageData(x, y, 1, 1).data;
-    } else {
-        const gl = canvas.getContext('webgl');
-        pixel = new Uint8Array(4);
-        gl.readPixels(x * scaleFactor, canvas.height - y * scaleFactor, 1, 1, gl.RGBA, gl.UNSIGNED_BYTE, pixel);
+    function getColor(x, y) {
+        let pixel;
+
+        if (ctx) {
+            pixel = ctx.getImageData(x, y, 1, 1).data;
+        } else {
+            const gl = canvas.getContext('webgl');
+            pixel = new Uint8Array(4);
+            gl.readPixels(x * scaleFactor, canvas.height - y * scaleFactor, 1, 1, gl.RGBA, gl.UNSIGNED_BYTE, pixel);
+        }
+
+        let r = pixel[0];
+        let g = pixel[1];
+        let b = pixel[2];
+
+        return '#' + ('00000' + ((r << 16) | (g << 8) | b).toString(16)).slice(-6);
     }
 
-    let r = pixel[0];
-    let g = pixel[1];
-    let b = pixel[2];
+    function tryGetColor(timeout, cb) {
+        setTimeout(function() {
+            positions.forEach((v, i)=>{
+                if (!resultColors[i] || (resultColors[i] != expect[i] && expect[i])) {
+                    let color = getColor(v.x, v.y);
+                    resultColors[i] = color;
+                    if (!expect[i] || expect[i] == color) {
+                        expectedCounter++;
+                    }
+                }
+            });
 
-    return '#' + ('00000' + ((r << 16) | (g << 8) | b).toString(16)).slice(-6);
+            if (retryCounter++ < retry && expectedCounter < expect.length) {
+                tryGetColor(retryDelay, cb);
+            } else {
+                cb(Array.isArray(pos) ? resultColors : resultColors[0]);
+            }
+        }, timeout);
+    }
+
+    return new Promise((resolve) => tryGetColor(delay, resolve));
 };
 
 export class Observer {

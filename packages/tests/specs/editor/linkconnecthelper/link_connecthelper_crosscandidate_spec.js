@@ -80,15 +80,11 @@ describe('link connect helper crosscandidate', function() {
         crossings.forEach((c)=>{
             c.show();
         });
-        await new Promise((resolve) => {
-            setTimeout(() => {
-                let color1 = getCanvasPixelColor(mapContainer, 380, 247);
-                let color2 = getCanvasPixelColor(mapContainer, 532, 240);
-                expect(color1).to.equal('#ff0000');
-                expect(color2).to.equal('#ff0000');
-                resolve();
-            }, 100);
-        });
+
+        let colors = await getCanvasPixelColor(mapContainer, [{x: 380, y: 247}, {x: 532, y: 240}]);
+
+        expect(colors[0]).to.equal('#ff0000');
+        expect(colors[1]).to.equal('#ff0000');
 
         let crx = (await editorClick(editor, 536, 239)).target;
         crx.connect();
