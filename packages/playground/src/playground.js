@@ -45,6 +45,7 @@ export let pg = new (function Playground() {
     var ts = Math.round(Math.random() * 1000) + ('' + new Date().getTime()).substr(-4);
     var codeEditor = null;
     var speed = 500;
+    var tsAppendix = '?ts=' + timestamp;
     var visiblePH1 = '/*###visiblesource*/';
     var visiblePH2 = '/*visiblesource###*/';
     var visibleSrcRex = /^[\s\S]+\/\/###visiblesource([\s\S]*)\/\/visiblesource###[\s\S]*$/gi;
@@ -71,7 +72,7 @@ export let pg = new (function Playground() {
     var examplecss;
 
     $.ajax({
-        url: 'assets/css/example.css?ts=' + timestamp,
+        url: 'assets/css/example.css' + tsAppendix,
         dataType: 'text',
         success: function(cssText) {
             examplecss = cssText;
@@ -389,13 +390,21 @@ export let pg = new (function Playground() {
     }
 
     function hideVisiblePlaceholder() {
-        var cmMarkOptions = {collapsed: true, css: 'background-color:red', readOnly: true};
+        var cmMarkOptions1 = {collapsed: true, readOnly: true};
+        var cmMarkOptions2 = {collapsed: true, readOnly: false};
         var cValue = codeEditor.getValue();
         var pos1 = codeEditor.posFromIndex(cValue.indexOf(visiblePH1));
         var pos2 = codeEditor.posFromIndex(cValue.indexOf(visiblePH2));
 
-        codeEditor.markText(pos1, {line: pos1.line, ch: pos1.ch + visiblePH1.length}, cmMarkOptions);
-        codeEditor.markText(pos2, {line: pos2.line, ch: pos2.ch + visiblePH2.length}, cmMarkOptions);
+        codeEditor.markText(pos1, {line: pos1.line, ch: pos1.ch + visiblePH1.length}, cmMarkOptions1);
+        codeEditor.markText(pos2, {line: pos2.line, ch: pos2.ch + visiblePH2.length}, cmMarkOptions1);
+
+        let tsIdx = cValue.indexOf(tsAppendix, 0);
+        while ( tsIdx > 0 ) {
+            var tspos = codeEditor.posFromIndex(tsIdx);
+            codeEditor.markText(tspos, {line: tspos.line, ch: tspos.ch + tsAppendix.length}, cmMarkOptions2);
+            tsIdx = cValue.indexOf(tsAppendix, tsIdx + tsAppendix.length);
+        }
     }
 
     window.onresize = function() {
@@ -518,6 +527,7 @@ export let pg = new (function Playground() {
                 content = content.replace(apiPath.editor, absolutePath(apiPath.editor));
                 content = content.replace(visiblePH1, '');
                 content = content.replace(visiblePH2, '');
+                content = content.replace(new RegExp('\\'+tsAppendix, 'gi'), '');
 
                 let examplecsst = examplecss.replace(new RegExp('\n', 'g'), '\n\t\t\t');
                 content = content.replace('</style>', examplecsst + '\n\t\t</style>');
@@ -701,14 +711,14 @@ export let pg = new (function Playground() {
 
                 $('.docs').attr('href', docPath + (t.data().docs || t.data().root.docs));
 
-                $.get(examplePath + t.data().file + '?ts=' + timestamp, function(data) {
+                $.get(examplePath + t.data().file + tsAppendix, function(data) {
                     // untouched data
                     originalData = data;
 
-                    data = data.replace(apiPATHPlaceholderCommon, apiPath.common );
-                    data = data.replace(apiPATHPlaceholderCore, apiPath.core);
-                    data = data.replace(apiPATHPlaceholderDisplay, apiPath.display);
-                    data = data.replace(apiPATHPlaceholderEditor, apiPath.editor);
+                    data = data.replace(apiPATHPlaceholderCommon, apiPath.common + tsAppendix);
+                    data = data.replace(apiPATHPlaceholderCore, apiPath.core + tsAppendix);
+                    data = data.replace(apiPATHPlaceholderDisplay, apiPath.display + tsAppendix);
+                    data = data.replace(apiPATHPlaceholderEditor, apiPath.editor + tsAppendix);
 
                     currentData = data;
                     currentBlock = data.replace(visibleSrcRex, '$1');
