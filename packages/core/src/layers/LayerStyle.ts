@@ -361,7 +361,7 @@ import {ILayerStyle, StyleGroup, StyleGroupMap} from './ILayerStyle';
 /**
  *  Alignment for Text. Possible values are: "map" and "viewport".
  *  "map" aligns to the plane of the map and "viewport" aligns to the plane of the viewport/screen.
- *  Default alignment for Text based on point geometries is "map" while "viewport" is the default for line geometries.
+ *  Default alignment for Text based on point geometries is "viewport" while "map" is the default for line geometries.
  *
  *  @public
  *  @expose
