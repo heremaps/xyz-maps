@@ -294,7 +294,7 @@
 						"docs":"here.xyz.maps.layers.TileLayer.html#addFeature"
 					},
 					{
-						"title":"Style A Navlink",
+						"title":"Style a Navlink",
 						"description":"Style a navlink",
 						"file":"./layer/style_navlink.htm",
 						"docs":"here.xyz.maps.layers.TileLayer.html#setStyleGroup"
@@ -305,6 +305,12 @@
 						"file":"./layer/style_grouping.htm",
 						"docs":"here.xyz.maps.layers.TileLayer.TileLayerStyle.html"
 					},
+                    {
+                        "title":"Styles and zoomRanges",
+                        "description":"Styles and zoomRanges",
+                        "file":"./layer/style_zoomrange.htm",
+                        "docs":"here.xyz.maps.layers.TileLayer.html#setStyleGroup"
+                    },
 					{
 						"title":"Bounding box search",
 						"description":"Search features in layer in a bounding box",
