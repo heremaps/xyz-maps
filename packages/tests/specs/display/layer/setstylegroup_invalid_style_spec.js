@@ -75,14 +75,8 @@ describe('setStyleGroup with invalid style', function() {
         ]);
 
         // validate new link style
-        await new Promise((resolve) => {
-            setTimeout(() => {
-                let color = getCanvasPixelColor(mapContainer, 350, 300); // get link color
-
-                expect(color).to.equal('#be6b65');
-                resolve();
-            }, 100);
-        });
+        let color1 = await getCanvasPixelColor(mapContainer, {x: 350, y: 300}); // get link color
+        expect(color1).to.equal('#be6b65');
 
         // set link style again
         linkLayer.setStyleGroup(
@@ -101,14 +95,8 @@ describe('setStyleGroup with invalid style', function() {
         ]);
 
         // validate link style
-        await new Promise((resolve) => {
-            setTimeout(() => {
-                let color = getCanvasPixelColor(mapContainer, 350, 300); // get link color
-
-                expect(color).to.equal('#be6b65');
-                resolve();
-            }, 100);
-        });
+        let color2 = await getCanvasPixelColor(mapContainer, {x: 350, y: 300}); // get link color
+        expect(color2).to.equal('#be6b65');
     });
 
 
@@ -130,14 +118,8 @@ describe('setStyleGroup with invalid style', function() {
         ]);
 
         // validate new address style
-        await new Promise((resolve) => {
-            setTimeout(() => {
-                let color = getCanvasPixelColor(mapContainer, 300, 200); // get address color
-
-                expect(color).to.equal('#765432');
-                resolve();
-            }, 100);
-        });
+        let color1 = await getCanvasPixelColor(mapContainer, {x: 300, y: 200}); // get address color
+        expect(color1).to.equal('#765432');
 
         // set address style again
         addressLayer.setStyleGroup(
@@ -156,13 +138,7 @@ describe('setStyleGroup with invalid style', function() {
         ]);
 
         // validate address style
-        await new Promise((resolve) => {
-            setTimeout(() => {
-                let color = getCanvasPixelColor(mapContainer, 300, 200); // get address color
-
-                expect(color).to.equal('#765432');
-                resolve();
-            }, 100);
-        });
+        let color2 = await getCanvasPixelColor(mapContainer, {x: 300, y: 200}); // get address color
+        expect(color2).to.equal('#765432');
     });
 });

@@ -69,17 +69,12 @@ describe('setStyleGroup Point', function() {
         );
 
         // validate features have new style
-        await new Promise((resolve) => {
-            setTimeout(() => {
-                let color1 = getCanvasPixelColor(mapContainer, 400, 300); // get color of address 1
-                let color2 = getCanvasPixelColor(mapContainer, 217, 300); // get color of address 2
+        // get color of address 1
+        // get color of address 2
+        let colors1 = await getCanvasPixelColor(mapContainer, [{x: 400, y: 300}, {x: 217, y: 300}]);
 
-                expect(color1).to.equal('#be6b65');
-                expect(color2).to.equal('#be6b65');
-
-                resolve();
-            }, 100);
-        });
+        expect(colors1[0]).to.equal('#be6b65');
+        expect(colors1[1]).to.equal('#be6b65');
 
         // reset style
         paLayer.setStyleGroup(
@@ -91,17 +86,12 @@ describe('setStyleGroup Point', function() {
         );
 
         // validate features have style reset
-        await new Promise((resolve) => {
-            setTimeout(() => {
-                let color1 = getCanvasPixelColor(mapContainer, 400, 300); // get color of address 1 again
-                let color2 = getCanvasPixelColor(mapContainer, 217, 300); // get color of address 2 again
+        // get color of address 1 again
+        // get color of address 2 again
+        let colors2 = await getCanvasPixelColor(mapContainer, [{x: 400, y: 300}, {x: 217, y: 300}]);
 
-                expect(color1).to.equal('#ff0000');
-                expect(color2).to.equal('#ff0000');
-
-                resolve();
-            }, 100);
-        });
+        expect(colors2[0]).to.equal('#ff0000');
+        expect(colors2[1]).to.equal('#ff0000');
     });
 
     it('style feature with different zIndex, validate its style', async function() {
@@ -113,19 +103,14 @@ describe('setStyleGroup Point', function() {
             ]);
 
         // validate features have new style
-        await new Promise((resolve) => {
-            setTimeout(() => {
-                let color1 = getCanvasPixelColor(mapContainer, 400, 300); // get color in middle of address 1
-                let color2 = getCanvasPixelColor(mapContainer, 400, 305); // get color in mid bottom of address 1
-                let color3 = getCanvasPixelColor(mapContainer, 405, 300); // get color in mid right of address 1
+        // get color in middle of address 1
+        // get color in mid bottom of address 1
+        // get color in mid right of address 1
+        let colors1 = await getCanvasPixelColor(mapContainer, [{x: 400, y: 300}, {x: 400, y: 305}, {x: 405, y: 300}]);
 
-                expect(color1).to.equal('#ffffff');
-                expect(color2).to.equal('#be6b65');
-                expect(color3).to.equal('#ffffff');
-
-                resolve();
-            }, 100);
-        });
+        expect(colors1[0]).to.equal('#ffffff');
+        expect(colors1[1]).to.equal('#be6b65');
+        expect(colors1[2]).to.equal('#ffffff');
 
 
         // set style for the added feature
@@ -136,18 +121,13 @@ describe('setStyleGroup Point', function() {
             ]);
 
         // validate features have new style
-        await new Promise((resolve) => {
-            setTimeout(() => {
-                let color1 = getCanvasPixelColor(mapContainer, 400, 300); // get color in the middle of address 1
-                let color2 = getCanvasPixelColor(mapContainer, 400, 305); // get color in mid bottom of address 1
-                let color3 = getCanvasPixelColor(mapContainer, 405, 300); // get color in mid right of address 1
+        // get color in middle of address 1
+        // get color in mid bottom of address 1
+        // get color in mid right of address 1
+        let colors2 = await getCanvasPixelColor(mapContainer, [{x: 400, y: 300}, {x: 400, y: 305}, {x: 405, y: 300}]);
 
-                expect(color1).to.equal('#be6b65');
-                expect(color2).to.equal('#be6b65');
-                expect(color3).to.equal('#ffffff');
-
-                resolve();
-            }, 100);
-        });
+        expect(colors2[0]).to.equal('#be6b65');
+        expect(colors2[1]).to.equal('#be6b65');
+        expect(colors2[2]).to.equal('#ffffff');
     });
 });

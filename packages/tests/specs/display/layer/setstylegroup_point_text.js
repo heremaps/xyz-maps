@@ -62,23 +62,18 @@ describe('setStyleGroup Point with text', function() {
             ]);
 
         // validate features have new style
-        await new Promise((resolve) => {
-            setTimeout(() => {
-                let color1 = getCanvasPixelColor(mapContainer, 400, 275); // get color between bars of character H
-                let color2 = getCanvasPixelColor(mapContainer, 400, 292); // get color of H in middle
-                let color3 = getCanvasPixelColor(mapContainer, 400, 315); // get color between bars of character H
-                let color4 = getCanvasPixelColor(mapContainer, 380, 300); // get color of left bar of H
-                let color5 = getCanvasPixelColor(mapContainer, 420, 300); // get color of right bar of H
+        // get color between bars of character H
+        // get color of H in middle
+        // get color between bars of character H
+        // get color of left bar of H
+        // get color of right bar of H
+        let colors = await getCanvasPixelColor(mapContainer, [{x: 400, y: 275}, {x: 400, y: 292}, {x: 400, y: 315}, {x: 380, y: 300}, {x: 420, y: 300}]); // get color between bars of character H
 
-                expect(color1).to.equal('#ff0000');
-                expect(color2).to.equal('#000000');
-                expect(color3).to.equal('#ff0000');
-                expect(color4).to.equal('#000000');
-                expect(color5).to.equal('#000000');
-
-                resolve();
-            }, 100);
-        });
+        expect(colors[0]).to.equal('#ff0000');
+        expect(colors[1]).to.equal('#000000');
+        expect(colors[2]).to.equal('#ff0000');
+        expect(colors[3]).to.equal('#000000');
+        expect(colors[4]).to.equal('#000000');
     });
 
     it('style feature with text and opacity, validate its style', async function() {
@@ -90,23 +85,18 @@ describe('setStyleGroup Point with text', function() {
             ]);
 
         // validate features have new style
-        await new Promise((resolve) => {
-            setTimeout(() => {
-                let color1 = getCanvasPixelColor(mapContainer, 400, 275); // get color between bars of character H
-                let color2 = getCanvasPixelColor(mapContainer, 400, 292); // get color of H in middle
-                let color3 = getCanvasPixelColor(mapContainer, 400, 315); // get color between bars of character H
-                let color4 = getCanvasPixelColor(mapContainer, 380, 300); // get color of left bar of H
-                let color5 = getCanvasPixelColor(mapContainer, 420, 300); // get color of right bar of H
+        // get color between bars of character H
+        // get color of H in middle
+        // get color between bars of character H
+        // get color of left bar of H
+        // get color of right bar of H
+        let colors = await getCanvasPixelColor(mapContainer, [{x: 400, y: 275}, {x: 400, y: 292}, {x: 400, y: 315}, {x: 380, y: 300}, {x: 420, y: 300}]); // get color between bars of character H
 
-                expect(color1).to.equal('#ff0000');
-                expect(color2).to.equal('#800000');
-                expect(color3).to.equal('#ff0000');
-                expect(color4).to.equal('#800000');
-                expect(color5).to.equal('#800000');
-
-                resolve();
-            }, 100);
-        });
+        expect(colors[0]).to.equal('#ff0000');
+        expect(colors[1]).to.equal('#800000');
+        expect(colors[2]).to.equal('#ff0000');
+        expect(colors[3]).to.equal('#800000');
+        expect(colors[4]).to.equal('#800000');
     });
 
     it('style feature with textRef, validate its style', async function() {
@@ -118,21 +108,16 @@ describe('setStyleGroup Point with text', function() {
             ]);
 
         // validate features have new style
-        await new Promise((resolve) => {
-            setTimeout(() => {
-                let color1 = getCanvasPixelColor(mapContainer, 400, 280); // get color inside O(upper)
-                let color2 = getCanvasPixelColor(mapContainer, 400, 297); // get color inside O(middle)
-                let color3 = getCanvasPixelColor(mapContainer, 400, 307); // get color inside O(lower)
-                let color4 = getCanvasPixelColor(mapContainer, 425, 300); // get color on O
+        // get color inside O(upper)
+        // get color inside O(middle)
+        // get color inside O(lower)
+        // get color on O
+        let colors = await getCanvasPixelColor(mapContainer, [{x: 400, y: 280}, {x: 400, y: 297}, {x: 400, y: 307}, {x: 425, y: 300}]); // get color between bars of character H
 
-                expect(color1).to.equal('#ff0000');
-                expect(color2).to.equal('#ff0000');
-                expect(color3).to.equal('#ff0000');
-                expect(color4).to.equal('#000000');
-
-                resolve();
-            }, 100);
-        });
+        expect(colors[0]).to.equal('#ff0000');
+        expect(colors[1]).to.equal('#ff0000');
+        expect(colors[2]).to.equal('#ff0000');
+        expect(colors[3]).to.equal('#000000');
     });
 
     it('style feature with text and offsetX, validate its style', async function() {
@@ -144,23 +129,18 @@ describe('setStyleGroup Point with text', function() {
             ]);
 
         // validate features have new style
-        await new Promise((resolve) => {
-            setTimeout(() => {
-                let color1 = getCanvasPixelColor(mapContainer, 410, 275); // get color between bars of character H
-                let color2 = getCanvasPixelColor(mapContainer, 410, 292); // get color of H in middle
-                let color3 = getCanvasPixelColor(mapContainer, 410, 315); // get color between bars of character H
-                let color4 = getCanvasPixelColor(mapContainer, 390, 300); // get color of left bar of H
-                let color5 = getCanvasPixelColor(mapContainer, 430, 300); // get color of right bar of H
+        // get color between bars of character H
+        // get color of H in middle
+        // get color between bars of character H
+        // get color of left bar of H
+        // get color of right bar of H
+        let colors = await getCanvasPixelColor(mapContainer, [{x: 410, y: 275}, {x: 410, y: 292}, {x: 410, y: 315}, {x: 390, y: 300}, {x: 430, y: 300}]);
 
-                expect(color1).to.equal('#ff0000');
-                expect(color2).to.equal('#000000');
-                expect(color3).to.equal('#ff0000');
-                expect(color4).to.equal('#000000');
-                expect(color5).to.equal('#000000');
-
-                resolve();
-            }, 100);
-        });
+        expect(colors[0]).to.equal('#ff0000');
+        expect(colors[1]).to.equal('#000000');
+        expect(colors[2]).to.equal('#ff0000');
+        expect(colors[3]).to.equal('#000000');
+        expect(colors[4]).to.equal('#000000');
     });
 
     it('style feature with text and offsetX again, validate its style', async function() {
@@ -172,23 +152,18 @@ describe('setStyleGroup Point with text', function() {
             ]);
 
         // validate features have new style
-        await new Promise((resolve) => {
-            setTimeout(() => {
-                let color1 = getCanvasPixelColor(mapContainer, 390, 275); // get color between bars of character H
-                let color2 = getCanvasPixelColor(mapContainer, 390, 292); // get color of H in middle
-                let color3 = getCanvasPixelColor(mapContainer, 390, 315); // get color between bars of character H
-                let color4 = getCanvasPixelColor(mapContainer, 370, 300); // get color of left bar of H
-                let color5 = getCanvasPixelColor(mapContainer, 410, 300); // get color of right bar of H
+        // get color between bars of character H
+        // get color of H in middle
+        // get color between bars of character H
+        // get color of left bar of H
+        // get color of right bar of H
+        let colors = await getCanvasPixelColor(mapContainer, [{x: 390, y: 275}, {x: 390, y: 292}, {x: 390, y: 315}, {x: 370, y: 300}, {x: 410, y: 300}]);
 
-                expect(color1).to.equal('#ff0000');
-                expect(color2).to.equal('#000000');
-                expect(color3).to.equal('#ff0000');
-                expect(color4).to.equal('#000000');
-                expect(color5).to.equal('#000000');
-
-                resolve();
-            }, 100);
-        });
+        expect(colors[0]).to.equal('#ff0000');
+        expect(colors[1]).to.equal('#000000');
+        expect(colors[2]).to.equal('#ff0000');
+        expect(colors[3]).to.equal('#000000');
+        expect(colors[4]).to.equal('#000000');
     });
 
     it('style feature with text and offsetY, validate its style', async function() {
@@ -200,23 +175,18 @@ describe('setStyleGroup Point with text', function() {
             ]);
 
         // validate features have new style
-        await new Promise((resolve) => {
-            setTimeout(() => {
-                let color1 = getCanvasPixelColor(mapContainer, 400, 285); // get color between bars of character H
-                let color2 = getCanvasPixelColor(mapContainer, 400, 302); // get color of H in middle
-                let color3 = getCanvasPixelColor(mapContainer, 400, 325); // get color between bars of character H
-                let color4 = getCanvasPixelColor(mapContainer, 380, 310); // get color of left bar of H
-                let color5 = getCanvasPixelColor(mapContainer, 420, 310); // get color of right bar of H
+        // get color between bars of character H
+        // get color of H in middle
+        // get color between bars of character H
+        // get color of left bar of H
+        // get color of right bar of H
+        let colors = await getCanvasPixelColor(mapContainer, [{x: 400, y: 285}, {x: 400, y: 302}, {x: 400, y: 325}, {x: 380, y: 310}, {x: 420, y: 310}]);
 
-                expect(color1).to.equal('#ff0000');
-                expect(color2).to.equal('#000000');
-                expect(color3).to.equal('#ff0000');
-                expect(color4).to.equal('#000000');
-                expect(color5).to.equal('#000000');
-
-                resolve();
-            }, 100);
-        });
+        expect(colors[0]).to.equal('#ff0000');
+        expect(colors[1]).to.equal('#000000');
+        expect(colors[2]).to.equal('#ff0000');
+        expect(colors[3]).to.equal('#000000');
+        expect(colors[4]).to.equal('#000000');
     });
 
     it('style feature with text and offsetY again, validate its style', async function() {
@@ -228,23 +198,18 @@ describe('setStyleGroup Point with text', function() {
             ]);
 
         // validate features have new style
-        await new Promise((resolve) => {
-            setTimeout(() => {
-                let color1 = getCanvasPixelColor(mapContainer, 400, 265); // get color between bars of character H
-                let color2 = getCanvasPixelColor(mapContainer, 400, 282); // get color of H in middle
-                let color3 = getCanvasPixelColor(mapContainer, 400, 305); // get color between bars of character H
-                let color4 = getCanvasPixelColor(mapContainer, 380, 290); // get color of left bar of H
-                let color5 = getCanvasPixelColor(mapContainer, 420, 290); // get color of right bar of H
+        // get color between bars of character H
+        // get color of H in middle
+        // get color between bars of character H
+        // get color of left bar of H
+        // get color of right bar of H
+        let colors = await getCanvasPixelColor(mapContainer, [{x: 400, y: 265}, {x: 400, y: 282}, {x: 400, y: 305}, {x: 380, y: 290}, {x: 420, y: 290}]);
 
-                expect(color1).to.equal('#ff0000');
-                expect(color2).to.equal('#000000');
-                expect(color3).to.equal('#ff0000');
-                expect(color4).to.equal('#000000');
-                expect(color5).to.equal('#000000');
-
-                resolve();
-            }, 100);
-        });
+        expect(colors[0]).to.equal('#ff0000');
+        expect(colors[1]).to.equal('#000000');
+        expect(colors[2]).to.equal('#ff0000');
+        expect(colors[3]).to.equal('#000000');
+        expect(colors[4]).to.equal('#000000');
     });
 
     it('style feature with text and offsetX, offsetY, validate its style', async function() {
@@ -256,22 +221,17 @@ describe('setStyleGroup Point with text', function() {
             ]);
 
         // validate features have new style
-        await new Promise((resolve) => {
-            setTimeout(() => {
-                let color1 = getCanvasPixelColor(mapContainer, 410, 285); // get color between bars of character H
-                let color2 = getCanvasPixelColor(mapContainer, 410, 302); // get color of H in middle
-                let color3 = getCanvasPixelColor(mapContainer, 410, 325); // get color between bars of character H
-                let color4 = getCanvasPixelColor(mapContainer, 390, 310); // get color of left bar of H
-                let color5 = getCanvasPixelColor(mapContainer, 430, 310); // get color of right bar of H
+        // get color between bars of character H
+        // get color of H in middle
+        // get color between bars of character H
+        // get color of left bar of H
+        // get color of right bar of H
+        let colors = await getCanvasPixelColor(mapContainer, [{x: 410, y: 285}, {x: 410, y: 302}, {x: 410, y: 325}, {x: 390, y: 310}, {x: 430, y: 310}]);
 
-                expect(color1).to.equal('#ff0000');
-                expect(color2).to.equal('#000000');
-                expect(color3).to.equal('#ff0000');
-                expect(color4).to.equal('#000000');
-                expect(color5).to.equal('#000000');
-
-                resolve();
-            }, 100);
-        });
+        expect(colors[0]).to.equal('#ff0000');
+        expect(colors[1]).to.equal('#000000');
+        expect(colors[2]).to.equal('#ff0000');
+        expect(colors[3]).to.equal('#000000');
+        expect(colors[4]).to.equal('#000000');
     });
 });

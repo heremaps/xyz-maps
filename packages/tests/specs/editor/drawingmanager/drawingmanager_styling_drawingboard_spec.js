@@ -133,20 +133,12 @@ describe('Styling drawingboard', function() {
 
         expect(editor.getDrawingBoard().getLength()).to.be.equal(2);
 
-        await new Promise((resolve) => {
-            setTimeout(() => {
-                let color1 = getCanvasPixelColor(mapContainer, 200, 100);
-                let color2 = getCanvasPixelColor(mapContainer, 206, 106);
-                let color3 = getCanvasPixelColor(mapContainer, 200, 200);
-                let color4 = getCanvasPixelColor(mapContainer, 207, 200);
+        let colors = await getCanvasPixelColor(mapContainer, [{x: 200, y: 100}, {x: 206, y: 106}, {x: 200, y: 200}, {x: 207, y: 200}]);
 
-                expect(color1).to.equal('#ee9922');
-                expect(color2).to.equal('#2233ee');
-                expect(color3).to.equal('#c799e8');
-                expect(color4).to.equal('#aa84a4');
-                resolve();
-            }, 100);
-        });
+        expect(colors[0]).to.equal('#ee9922');
+        expect(colors[1]).to.equal('#2233ee');
+        expect(colors[2]).to.equal('#c799e8');
+        expect(colors[3]).to.equal('#aa84a4');
     });
 
     it('finish drawing the link and validate link is created', function() {

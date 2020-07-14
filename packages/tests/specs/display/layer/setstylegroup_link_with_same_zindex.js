@@ -65,17 +65,11 @@ describe('setStyleGroup link with same zIndex', function() {
             ]);
 
         // validate features have new style
-        await new Promise((resolve) => {
-            setTimeout(() => {
-                let color1 = getCanvasPixelColor(mapContainer, 450, 300); // get color of link inline
-                let color2 = getCanvasPixelColor(mapContainer, 450, 304); // get color of link outline
-
-                expect(color1).to.equal('#be6b65');
-                expect(color2).to.equal('#be6b65');
-
-                resolve();
-            }, 100);
-        });
+        // get color of link inline
+        // get color of link outline
+        let colors = await getCanvasPixelColor(mapContainer, [{x: 450, y: 300}, {x: 450, y: 304}]);
+        expect(colors[0]).to.equal('#be6b65');
+        expect(colors[1]).to.equal('#be6b65');
     });
 
     it('style feature with different stroke color, validate its style', async function() {
@@ -87,16 +81,11 @@ describe('setStyleGroup link with same zIndex', function() {
             ]);
 
         // validate features have new style
-        await new Promise((resolve) => {
-            setTimeout(() => {
-                let color1 = getCanvasPixelColor(mapContainer, 450, 300); // get color of link inline
-                let color2 = getCanvasPixelColor(mapContainer, 450, 306); // get color of link outline
+        // get color of link inline
+        // get color of link outline
+        let colors1 = await getCanvasPixelColor(mapContainer, [{x: 450, y: 300}, {x: 450, y: 306}]);
+        expect(colors1[1]).to.equal('#be6b65');
 
-                expect(color2).to.equal('#be6b65');
-
-                resolve();
-            }, 100);
-        });
 
         // set style for the added feature with same zIndex, different color
         linkLayer.setStyleGroup(
@@ -106,16 +95,10 @@ describe('setStyleGroup link with same zIndex', function() {
             ]);
 
         // validate features have new style
-        await new Promise((resolve) => {
-            setTimeout(() => {
-                let color1 = getCanvasPixelColor(mapContainer, 450, 300); // get color of link inline
-                let color2 = getCanvasPixelColor(mapContainer, 450, 306); // get color of link outline
-
-                expect(color2).to.equal('#be6b65');
-
-                resolve();
-            }, 100);
-        });
+        // get color of link inline
+        // get color of link outline
+        let colors2 = await getCanvasPixelColor(mapContainer, [{x: 450, y: 300}, {x: 450, y: 306}]);
+        expect(colors2[1]).to.equal('#be6b65');
     });
 
     it('style feature with different stroke width, validate its style', async function() {
@@ -127,17 +110,11 @@ describe('setStyleGroup link with same zIndex', function() {
             ]);
 
         // validate features have new style
-        await new Promise((resolve) => {
-            setTimeout(() => {
-                let color1 = getCanvasPixelColor(mapContainer, 450, 300); // get color of link inline
-                let color2 = getCanvasPixelColor(mapContainer, 450, 306); // get color of link outline
-
-                expect(color1).to.equal('#be6b65');
-                expect(color2).to.equal('#be6b65');
-
-                resolve();
-            }, 100);
-        });
+        // get color of link inline
+        // get color of link outline
+        let colors1 = await getCanvasPixelColor(mapContainer, [{x: 450, y: 300}, {x: 450, y: 306}]);
+        expect(colors1[0]).to.equal('#be6b65');
+        expect(colors1[1]).to.equal('#be6b65');
 
         // set style for the added feature with same zIndex, different strokewidth
         linkLayer.setStyleGroup(
@@ -147,17 +124,11 @@ describe('setStyleGroup link with same zIndex', function() {
             ]);
 
         // validate features have new style
-        await new Promise((resolve) => {
-            setTimeout(() => {
-                let color1 = getCanvasPixelColor(mapContainer, 450, 300); // get color of link inline
-                let color2 = getCanvasPixelColor(mapContainer, 450, 306); // get color of link outline
-
-                expect(color1).to.equal('#be6b65');
-                expect(color2).to.equal('#be6b65');
-
-                resolve();
-            }, 100);
-        });
+        // get color of link inline
+        // get color of link outline
+        let colors2 = await getCanvasPixelColor(mapContainer, [{x: 450, y: 300}, {x: 450, y: 306}]);
+        expect(colors2[0]).to.equal('#be6b65');
+        expect(colors2[1]).to.equal('#be6b65');
     });
 
     it('style feature with same zIndex and style, opacity set to 0.5, validate its style', async function() {
@@ -175,15 +146,9 @@ describe('setStyleGroup link with same zIndex', function() {
             ]);
 
         // validate features have new style
-        await new Promise((resolve) => {
-            setTimeout(() => {
-                let color = getCanvasPixelColor(mapContainer, 450, 300); // get color of link in the middle
-
-                expect(color).to.equal('#bfbfbf');
-
-                resolve();
-            }, 100);
-        });
+        // get color of link in the middle
+        let color = await getCanvasPixelColor(mapContainer, {x: 450, y: 300});
+        expect(color).to.equal('#bfbfbf');
     });
 
     it('style feature with different zIndex and style, validate its style', async function() {
@@ -195,15 +160,9 @@ describe('setStyleGroup link with same zIndex', function() {
             ]);
 
         // validate features have new style
-        await new Promise((resolve) => {
-            setTimeout(() => {
-                let color = getCanvasPixelColor(mapContainer, 450, 300); // get color of link in the middle
-
-                expect(color).to.equal('#bfbfbf');
-
-                resolve();
-            }, 100);
-        });
+        // get color of link in the middle
+        let color = await getCanvasPixelColor(mapContainer, {x: 450, y: 300});
+        expect(color).to.equal('#bfbfbf');
     });
 
     it('style feature with same zIndex 1 and style, validate its style', async function() {
@@ -215,14 +174,8 @@ describe('setStyleGroup link with same zIndex', function() {
             ]);
 
         // validate features have new style
-        await new Promise((resolve) => {
-            setTimeout(() => {
-                let color = getCanvasPixelColor(mapContainer, 450, 300); // get color of link in the middle
-
-                expect(color).to.equal('#bfbfbf');
-
-                resolve();
-            }, 100);
-        });
+        // get color of link in the middle
+        let color = await getCanvasPixelColor(mapContainer, {x: 450, y: 300});
+        expect(color).to.equal('#bfbfbf');
     });
 });
