@@ -57,31 +57,19 @@ var myLayer = new here.xyz.maps.layers.TileLayer({
                 // zoomRange <zoomlevel,value>
                 // for intermediate zoom levels will be interpolated linearly
                 strokeWidth: {
-                    // zoom 4px for zoomlevel 1 to 13
-                    14: 4,  // 4px at zoomlevel 14
-                    17: 20, // 20px at zoomlevel 17
+                    // zoom 1px for zoomlevel 1 to 13
+                    14: 2,  // 2px at zoomlevel 14
+                    17: 18, // 18px at zoomlevel 17
                     20: 44 // 44px at zoomlevel 20
                 },
                 // zoomRanges can also be applied to colors
                 stroke: {
-                    1: 'green',
+                    10: 'red',
                     20: 'blue'
-                }
-            },{
-                zIndex: 1,
-                type: 'Line',
-                stroke: 'red',
-                // zoomRange <zoomlevel,value>
-                // for intermediate zoom levels will be interpolated linearly
-                strokeWidth: {
-                    // zoom 1px for zoomlevel 1 to 13
-                    14: 1,  // 1px at zoomlevel 14
-                    17: 14, // 14px at zoomlevel 17
-                    20: 36 // 36px at zoomlevel 20
                 }
             }]
         },
-        assign: (feature, zoomlevel) => {
+        assign: function(feature, zoomlevel){
             return 'line';
         }
     }
