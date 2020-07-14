@@ -145,6 +145,16 @@ const createProvider = (provider) => {
             }
         }
 
+        readZLevels(link: Navlink) {
+            // return link.geometry.coordinates.map((c) => c[2] || 0);
+            return link.prop('zLevels') || link.geometry.coordinates.map((c) => 0);
+        }
+
+        writeZLevels(link: Navlink, zLevel: number[]) {
+            // for (let i = 0; i < zLevel.length; i++) link.geometry.coordinates[i][2] = zLevel[i];
+            link.prop('zLevels', zLevel);
+        }
+
         isDroppable(feature: Feature) {
             const editStates = feature.editState();
 

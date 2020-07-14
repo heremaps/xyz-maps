@@ -92,6 +92,10 @@ export abstract class EditableFeatureProvider extends FeatureTileProvider {
         return feature.properties;
     }
 
+    abstract readZLevels(link: Navlink): number[];
+
+    abstract writeZLevels(link: Navlink, zLevels: number[]);
+
     abstract readDirection(link: Navlink): 'BOTH' | 'START_TO_END' | 'END_TO_START';
 
     abstract readPedestrianOnly(link: Navlink): boolean;

@@ -381,7 +381,7 @@ class History {
                 const editStates = getEditStates(feature);
 
                 if (!editStates.removed) {
-                    feature = HERE_WIKI.objects.create(feature, provider, undefined, true);
+                    feature = HERE_WIKI.objects.create({feature: feature, provider: provider, history: true});
 
                     // copy over editstates because create new feature forces empty editstates
                     for (const e in editStates) {

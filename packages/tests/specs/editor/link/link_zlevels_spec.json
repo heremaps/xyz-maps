@@ -16,7 +16,8 @@
                 "type": "Feature",
                 "properties": {
                     "featureClass": "NAVLINK",
-                    "type": "residential"
+                    "type": "residential",
+                    "zLevels": [0,2]
                 },
                 "geometry": {
                     "type": "LineString",

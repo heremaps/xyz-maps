@@ -126,7 +126,7 @@ describe('link auto split', function() {
 
 
     it('add link object, drag a shape point to connect to the other one and validate new links', async function() {
-        let lnk6 = new features.Navlink([{x: 100, y: 100}, {x: 200, y: 100}, {x: 200, y: 200, z: 1}], {featureClass: 'NAVLINK'});
+        let lnk6 = new features.Navlink([{x: 100, y: 100}, {x: 200, y: 100}, {x: 200, y: 200, z: 1}], {featureClass: 'NAVLINK', zLevels: [0, 0, 1]});
         link6 = editor.addFeature(lnk6);
 
         expect(link6.getZLevels()).to.deep.equal([0, 0, 1]);
@@ -142,7 +142,7 @@ describe('link auto split', function() {
     });
 
     it('add link object, drag a shape point to connect to the other one, validate link is split automatically', async function() {
-        let lnk7 = new features.Navlink([{x: 100, y: 300, z: 1}, {x: 200, y: 300}, {x: 200, y: 400, z: 1}], {featureClass: 'NAVLINK'});
+        let lnk7 = new features.Navlink([{x: 100, y: 300, z: 1}, {x: 200, y: 300}, {x: 200, y: 400, z: 1}], {featureClass: 'NAVLINK', zLevels: [1, 0, 1]});
         link7 = editor.addFeature(lnk7);
 
         expect(link7.getZLevels()).to.deep.equal([1, 0, 1]);

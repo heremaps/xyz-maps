@@ -44,6 +44,7 @@ export const split = (HERE_WIKI: InternalEditor, options: SplitOptions): [Navlin
     let path = parentLink.coord();
     const lastIndex = path.length - 1;
     const parentLinkProperties = linkTools._props(parentLink);
+    const parentZLevels = parentLink.getProvider().readZLevels(parentLink);
     const snapTolerance = HERE_WIKI._config['minShapeDistance'];
     let x;
     let y;
@@ -84,7 +85,7 @@ export const split = (HERE_WIKI: InternalEditor, options: SplitOptions): [Navlin
 
     const provider = parentLink.getProvider();
 
-    const createSplitLink = (path, prefIdx) => {
+    const createSplitLink = (path, zlevels, prefIdx) => {
         // copy link properties to new link
         const props = JSUtils.extend(true, {}, parentLinkProperties);
         const objDef = {
@@ -97,15 +98,22 @@ export const split = (HERE_WIKI: InternalEditor, options: SplitOptions): [Navlin
         };
         delete props['@ns:com:here:editor'];
 
-        return HERE_WIKI.objects.create([objDef], provider, prefIdx, UNDEF);
+        return HERE_WIKI.objects.create({
+            feature: objDef,
+            provider: provider,
+            zLevels: zlevels,
+            preferIndex: prefIdx
+        });
     };
 
     const newLink1 = createSplitLink(
         path.slice(0, splitAtShpIndex + 1),
+        parentZLevels.slice(0, splitAtShpIndex + 1),
         avoidSplitPointSnapping && splitAtShpIndex
     );
     const newLink2 = createSplitLink(
         path.slice(splitAtShpIndex),
+        parentZLevels.slice(splitAtShpIndex),
         avoidSplitPointSnapping && 0
     );
 

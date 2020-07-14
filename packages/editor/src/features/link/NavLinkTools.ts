@@ -17,7 +17,7 @@
  * License-Filename: LICENSE
  */
 
-import {isCoordinateDuplicate, getPointAtLength, getTotalLength, getPntAt, getSegmentIndex} from '../../geometry';
+import {getPointAtLength, getTotalLength, getPntAt, getSegmentIndex} from '../../geometry';
 import {calcRelPosOfPoiAtLink} from '../../map/GeoMath';
 import locTools from '../location/LocationTools';
 import LinkShape from './Shape';
@@ -237,7 +237,6 @@ function onPointerLeave(ev) {
 
 var tools = {
 
-
     private: getPrivate,
 
     _evl: {
@@ -327,15 +326,13 @@ var tools = {
         tools._editable(line, false);
 
         const p = line.coord();
-        // use slice to drop and ignore zLevel to duplicate detection
-        const p1 = p[0].slice(0, 2);
-        const p2 = p[p.length - 1].slice(0, 2);
+        const p1 = p[0];
+        const p2 = p[p.length - 1];
 
         // is singlpoint geo just shift to prevent service from blocking with 409
-        if (isCoordinateDuplicate(p1, p2)) {
-            p[0][0] += .00001;
-            p[0][1] += .00001;
-
+        if (p1[0] == p2[0] && p1[1] == p2[1]) {
+            p[0][0] += 1e-5;
+            p[0][1] += 1e-5;
             changeGeometry(line, p);
         }
     },
@@ -657,9 +654,9 @@ var tools = {
 
     //* ********************************************** public **********************************************
 
-    addShp: function(line: Navlink, pos, index, newShapeIdxOnly, force, preferSegment?) {
-        const path = line.coord();
-        const EDITOR = line._e();
+    addShp: function(link: Navlink, pos, index, newShapeIdxOnly, force, preferSegment?) {
+        const path = link.coord();
+        const EDITOR = link._e();
         const intersec = EDITOR.map.calcCrossingAt(path, pos, EDITOR._config['minShapeDistance'], preferSegment);
 
         index = typeof index == 'number'
@@ -667,6 +664,8 @@ var tools = {
             : intersec.index;
 
         if (!intersec.existingShape || force) {
+            const zLevels = <number[]>link.getZLevels();
+
             // if existing shape is forced to get added,
             // index needs to be adjusted because
             // index for existing shapes represents shape index..
@@ -675,27 +674,29 @@ var tools = {
                 index = (<any>getSegmentIndex(path, pos)) + 1;
             }
 
-            // zLevels.splice( index, 0,
-            pos[2] = pos[2] || 0; // set Zlevel 0 if not defined
-            // );
-
             EDITOR.map.clipGeoCoord(pos);
 
             path.splice(index, 0, pos);
 
-            rearrangeBlockedNodes(line, index);
+            rearrangeBlockedNodes(link, index);
 
-            storeConnectedPoints(line);
+            storeConnectedPoints(link);
 
-            changeGeometry(line, path);
+            changeGeometry(link, path);
 
-            const shapes = getPrivate(line, 'shps');
+            zLevels.splice(index, 0, pos[2] || 0); // set Zlevel 0 if not defined
+            EDITOR.objects.history.ignore(() => {
+                link.getProvider().writeZLevels(link, zLevels);
+            });
+            // link.setZLevels(zLevels)
+
+            const shapes = getPrivate(link, 'shps');
 
             if (shapes.length) {
                 shapes.splice(
                     index,
                     0,
-                    tools.createLinkShape(line, pos, index)
+                    tools.createLinkShape(link, pos, index)
                 );
 
                 shapes.forEach((shp) => {// set new correct index
@@ -704,18 +705,17 @@ var tools = {
 
                 shapes.forEach((shp) => {// set new correct index
                     updateOverlapping(shp,
-                        tools.checkOverlapping(line, shp.getIndex())
+                        tools.checkOverlapping(link, shp.getIndex())
                     );
                 });
             }
 
-            tools.refreshGeometry(line);
+            tools.refreshGeometry(link);
         } else {
             // no shape added -> don't overwrite index by false, if newShapIdxOnly is true
             if (!newShapeIdxOnly) {
                 index = false;
             }
-            ;
         }
 
         return index;
@@ -756,7 +756,7 @@ var tools = {
         return autoFixGeometry(line, shapeToCheck, ignoreSplitChildren, preferShapeIndex);
     },
     // used by: crossing + shape
-    connectShpToLink: function(line, shpIndex, toLink, toPos, preferSegment, animate, ignoreZLevel): ConnectLinksResult {
+    connectShpToLink: function(line, shpIndex, toLink, toPos, preferSegment, ignoreZLevel: boolean): ConnectLinksResult {
         const splitInfo = new ConnectLinksResult();
         let newLinks;
         const objManager = line._e().objects;
@@ -768,7 +768,6 @@ var tools = {
                 toLink,
                 preferSegment,
                 toPos,
-                animate,
                 ignoreZLevel
             );
 
@@ -843,7 +842,7 @@ function autoFixGeometry(line: Navlink, shapeToCheck, ignoreSplitChildren, skipS
     const ignoreAllCLinks = ignoreSplitChildren === true;
     let k = shapeToCheck || 0;
     const zLevels = line.getZLevels();
-    const pLength = zLevels.length;
+    const pLength = (<number[]>zLevels).length;
     const stopAtShp = shapeToCheck === UNDEF ? pLength : k + 1;
     let AFInfo = true;
     const minShpDistance = HERE_WIKI._config['minShapeDistance'] || 2;
@@ -852,9 +851,8 @@ function autoFixGeometry(line: Navlink, shapeToCheck, ignoreSplitChildren, skipS
         return ignoreAllCLinks ? ignoreAllCLinks : ignoreSplitChildren.indexOf(c) != -1;
     }
 
-    function isCoordinateDuplicate(p1, p2, threshold) {
-        threshold = threshold || 1;
-        return p1[2] == p2[2] && HERE_WIKI.map.distance(p1, p2) <= threshold;
+    function isCoordinateDuplicate(p1, p2, z1: number, z2: number, thresholdMeters: number = 1) {
+        return Number(z1) == Number(z2) && HERE_WIKI.map.distance(p1, p2) <= thresholdMeters;
     }
 
     function validateShape(shpIndex) {
@@ -889,9 +887,9 @@ function autoFixGeometry(line: Navlink, shapeToCheck, ignoreSplitChildren, skipS
             if (shpIndex != duplicateIndex) {
                 const p1 = path[duplicateIndex];
                 const p2 = path[shpIndex];
+
                 // check if shp is close
-                if (isCoordinateDuplicate(p1, p2, minShpDistance /* , zLevels[duplicateIndex], zLevels[shpIndex]*/)) { // ***** UNCOMMENT FOR ZLEVEL CONSIDERATION ***** //
-                    //                     if( VectorHelpers.isCoordinateDuplicate( p1, p2, minShpDistance /*, zLevels[duplicateIndex], zLevels[shpIndex]*/ ) ){   // ***** UNCOMMENT FOR ZLEVEL CONSIDERATION ***** //
+                if (isCoordinateDuplicate(p1, p2, zLevels[duplicateIndex], zLevels[shpIndex], minShpDistance)) {
                     // identified duplicate candidate
                     shapesInBetween = Math.abs(shpIndex - duplicateIndex) - 1;
 
@@ -985,7 +983,7 @@ function autoFixGeometry(line: Navlink, shapeToCheck, ignoreSplitChildren, skipS
 
                             if (
                                 // make sure child asn't been removed in the meanwhile because of child's auto fixing
-                            // (additonal split could have been applied already).
+                                // (additonal split could have been applied already).
                                 !child.editState('removed') &&
                                 Math.abs(shpIndex - TDDetectedAt) >= 2
                             ) {
@@ -1094,7 +1092,7 @@ function isShpBlocked(line, index) {
 
 //* *************************************************************************
 
-function connectLinks(fromLink: Navlink, fromShpIndex, toLink, preferSegment, toPos, animate, ignoreZLevel): [Navlink, Navlink] {
+function connectLinks(fromLink: Navlink, fromShpIndex, toLink, preferSegment, toPos, ignoreZLevel: boolean): [Navlink, Navlink] {
     const HERE_WIKI = fromLink._e();
     const path = fromLink.coord();
     // get clinks before changing geo!

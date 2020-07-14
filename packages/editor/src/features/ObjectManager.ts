@@ -29,6 +29,8 @@ import {getPntOnLine, intersectBBox} from '../geometry';
 import Navlink from './link/NavLink';
 
 type FeatureProvider = providers.FeatureProvider;
+type EditableFeatureProvider = providers.EditableFeatureProvider;
+
 type TileLayer = layers.TileLayer;
 
 type Point = [number, number, number?];
@@ -334,9 +336,11 @@ class ObjectManager {
                 const inserted = id != UNDEF && layer.search(id);
 
                 if (id == UNDEF || !inserted) {
-                    return this.create(
-                        obj, layer.getProvider(), UNDEF, UNDEF, idmap
-                    );
+                    return this.create({
+                        feature: obj,
+                        provider: layer.getProvider(),
+                        idMap: idmap
+                    });
                 }
 
                 return inserted;
@@ -344,29 +348,49 @@ class ObjectManager {
         }
     };
 
-    create(objsDef, provider, prefIdx, historyRecovering, idMapping?: { [id: string]: string }) {
+    create(options: {
+        feature,
+        provider: EditableFeatureProvider,
+        preferIndex?: number,
+        history?: boolean,
+        zLevels?: number[],
+        idMap?: { [id: string]: string };
+    }) {
+        // create(objsDef, provider, prefIdx, historyRecovering, idMapping?: { [id: string]: string }) {
         const HERE_WIKI = this.iEdit;
+        const featureHistory = HERE_WIKI.objects.history;
         const objects = [];
 
-        objsDef = objsDef instanceof Array ? objsDef : [objsDef];
+        let objsDef = options.feature;
+        if (!Array.isArray(objsDef)) {
+            objsDef = [objsDef];
+        }
 
-        idMapping = idMapping || {};
-
+        const idMapping = options.idMap || {};
+        const {provider, preferIndex, history, zLevels} = options;
 
         const createFeature = (feature) => {
-            if (historyRecovering) {
+            if (history) {
                 provider.blockFeature(feature, false);
             }
             feature = provider.addFeature(feature);
             // make sure it's real provider feature in case reject because of double add with same id..
             feature = provider.search(feature.id);
 
-            if (!historyRecovering) { // make sure history is not creating objects for viewport recovering
+            if (!history) { // make sure history is not creating objects for viewport recovering
                 feature.editState('created', Date.now());
 
                 oTools.markAsModified(feature, false);
 
-                HERE_WIKI.objects.history.origin(feature, true);
+                // make sure feature is marked and gets initial flag before zlevels are written..
+                // because history is not ignoring origin-setting.
+                featureHistory.origin(feature, true);
+
+                if (zLevels) {
+                    featureHistory.ignore(() => {
+                        provider.writeZLevels(feature, zLevels);
+                    });
+                }
             }
             objects.push(feature);
 
@@ -378,7 +402,7 @@ class ObjectManager {
             let defId = feature.id;
             let featureClass;
 
-            if (!historyRecovering) {
+            if (!history) {
                 // make sure provider is creating new id (.prepareFeature) and can't be set from userspace...
                 // states are only set from provider if no id is present...
                 feature.id = UNDEF;
@@ -403,8 +427,8 @@ class ObjectManager {
                 });
 
                 // in case of history recovering disable autofix to guarantee geometry is created 1:1 and not modified!
-                if (!historyRecovering) {
-                    oTools.fixGeo(feature, UNDEF, UNDEF, prefIdx);
+                if (!history) {
+                    oTools.fixGeo(feature, UNDEF, UNDEF, preferIndex);
                 }
             } else if (featureClass === 'PLACE' || featureClass === 'ADDRESS') {
                 // let obj = createFeature(feature);
@@ -415,7 +439,7 @@ class ObjectManager {
                     const provider = oTools.getRoutingProvider(feature);
                     const routingLink = provider && provider.search(idMapping[cLinkId]);
 
-                    HERE_WIKI.objects.history.ignore(() => {
+                    featureHistory.ignore(() => {
                         feature.getProvider().writeRoutingPoint(feature, routingLink, routingPoint.position);
                     });
                 }
@@ -426,7 +450,7 @@ class ObjectManager {
                     if (!feature.getLink()) {
                         // no link could be found -> undo creation
                         // cleanup history
-                        HERE_WIKI.objects.history.remove(feature);
+                        featureHistory.remove(feature);
                         provider.removeFeature(objects.pop());
                         HERE_WIKI.dump('No Link found within ' + HERE_WIKI._config['maxRoutingPointDistance'] + ' meters', 'warn');
                     }

@@ -95,13 +95,15 @@ const connectShpToNearestLink = (line: NavLink, index: number) => {
     if (connectionCandidate != null) { // check for selfconnect
         foundPos = connectionCandidate.point;
 
-        foundPos[2] = coordinate[2] || 0;
+        foundPos[2] = line.getZLevels(index)||0;
+        // foundPos[2] = coordinate[2] || 0;
 
         if (linkTools.connectShpToLink(
             line,
             index,
             connectionCandidate = connectionCandidate.line,
             foundPos
+            // ,line.getZLevels(index)
         ) === null) {
             connectionCandidate = null;
         }

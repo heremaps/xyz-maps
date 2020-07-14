@@ -230,14 +230,9 @@ class ClickDraw {
             oCoords = link.geometry.coordinates;
 
             if (typeof pos === 'number') {
-                pos = [oCoords[pos][0], oCoords[pos][1], oCoords[pos][2]];
+                pos = oCoords[pos].slice(0);
             } else {
-                let crossing = iEdit.map.calcCrossingAt(
-                    oCoords,
-                    pos,
-                    iEdit._config['minShapeDistance']
-                );
-
+                let crossing = iEdit.map.calcCrossingAt(oCoords, pos, iEdit._config['minShapeDistance']);
                 // if shape point is start or end of the original link, don't split the link
                 if (crossing.existingShape && (crossing.index == 0 || crossing.index == oCoords.length - 1)
                 ) {
@@ -365,14 +360,13 @@ class ClickDraw {
             let created;
             if (geometry) {
                 created = iEdit.objects.create({
-                    type: 'Feature',
-                    geometry: geometry,
-                    properties: feature.properties
-                },
-                settings['layer'].getProvider(),
-                UNDEF,
-                UNDEF
-                );
+                    feature: {
+                        type: 'Feature',
+                        geometry: geometry,
+                        properties: feature.properties
+                    },
+                    provider: settings['layer'].getProvider()
+                });
                 iEdit.objects.history.saveChanges();
                 this.hide();
             }

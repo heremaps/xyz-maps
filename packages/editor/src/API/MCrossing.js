@@ -315,7 +315,6 @@ function CrossingsInterface(HERE_WIKI, crossingTester, crossing) {
                 croCandidate,
                 HERE_WIKI.map.clipGeoCoord([croFoundPnt.x, croFoundPnt.y]),
                 candidateIndexBeforeSplit,
-                false,
                 true
             );
 

@@ -241,22 +241,18 @@ class Navlink extends BasicFeature {
      *
      *  @public
      *  @expose
-     *  @return {Array.<number>}
-     *      The z-levels of the coordinates of this object.
+     *  @param {number=} shapeIndex
+     *      shapeindex for specific shape only
+     *  @return {Array.<number>|number}
+     *      The Array of z-levels for the coordinates of this object
+     *      or specific z-level if shape index is passed.
      *
      *  @function
      *  @name here.xyz.maps.editor.features.Navlink#getZLevels
      */
-    getZLevels() {
-        const coords = this.geometry.coordinates;
-        let len = coords.length;
-        const zLevels = [];
-
-        while (len--) {
-            zLevels[len] = coords[len][2] || 0;
-        }
-
-        return zLevels;
+    getZLevels(index?: number) {
+        let zLevels = this.getProvider().readZLevels(this);
+        return typeof index == 'number' ? zLevels[index] : zLevels.slice(0);
     };
 
 
@@ -278,8 +274,10 @@ class Navlink extends BasicFeature {
      *  @name here.xyz.maps.editor.features.Navlink#setZLevels
      */
     setZLevels(level) {
-        const zLevels = this.getZLevels();
-        const len = zLevels.length;
+        const link = this;
+        const zLevels = link.getZLevels();
+        const history = link._e().objects.history;
+        const len = link.geometry.coordinates.length;
 
         if (!(level instanceof Array)) {
             throwError('Invalid \'zlevel\' argument given, no array');
@@ -289,24 +287,24 @@ class Navlink extends BasicFeature {
             throwError('Given \'zlevel\' argument is of an invalid size, a length of ' + len + ' is required!');
         }
 
-        this._e().objects.history.origin(this);
-
-        const coords = this.geometry.coordinates;
+        history.origin(link);
+        // const coords = this.geometry.coordinates;
         let updated = false;
 
         for (let l = 0, z; l < level.length; l++) {
             z = level[l] ^ 0;
-
-            if (z != coords[l][2]) {
-                coords[l][2] = z;
+            if (z != zLevels[l]) {
+                level[l] = z;
                 updated = true;
             }
         }
 
         if (updated) {
+            history.ignore(() => {
+                link.getProvider().writeZLevels(link, level);
+            });
             // update zlevel visuals
             oTools.refreshGeometry(this);
-
             oTools.markAsModified(this);
         }
     };

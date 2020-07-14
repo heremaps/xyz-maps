@@ -171,7 +171,15 @@ export class LocalProvider extends EditableFeatureProvider {
     writeRoutingPoint(location, link: Navlink | null, position: Coordinate | null) {
         this.writeRoutingLink(location, link);
         this.writeRoutingPosition(location, position);
-    };
+    }
+
+    readZLevels(link: Feature): number[] {
+        throw new Error('Method not implemented.');
+    }
+
+    writeZLevels(link: Feature, zLevels: number[]) {
+        throw new Error('Method not implemented.');
+    }
 
     writeEditState(feature, editState: 'created' | 'modified' | 'removed' | 'split') {
     }

@@ -21,6 +21,7 @@ import {features} from '@here/xyz-maps-core';
 import {JSUtils} from '@here/xyz-maps-common';
 import GeoFence from './GeoFence';
 import Navlink from './NavLink';
+import navlinkTools from './NavLinkTools';
 
 let UNDEF;
 
@@ -42,7 +43,7 @@ class VirtualLinkShape extends features.Feature {
 
     properties: VirtualLinkShapeProperties;
 
-    constructor(line, pos, index, linkTools) {
+    constructor(line, pos, index, linkTools: typeof navlinkTools) {
         const EDITOR = line._e();
         const display = EDITOR.display;
         let geoFence;

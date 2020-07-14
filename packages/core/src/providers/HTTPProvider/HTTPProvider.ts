@@ -25,6 +25,7 @@ import {JSUtils} from '@here/xyz-maps-common';
 /* exported Options */
 
 import Options from './HTTPProviderOptions';
+import {Feature} from '../../features/Feature';
 
 const doc = Options; // doc only!
 
@@ -325,6 +326,14 @@ class HTTPProvider extends EditableRemoteTileProvider {
     // request individual features from backend
     _requestFeatures(ids, onSuccess, onError, opt?) {
         throw new Error(METHOD_NOT_IMPLEMENTED);
+    }
+
+    readZLevels(link: Feature): number[] {
+        throw new Error('Method not implemented.');
+    }
+
+    writeZLevels(link: Feature, zLevels: number[]) {
+        throw new Error('Method not implemented.');
     }
 }
 
