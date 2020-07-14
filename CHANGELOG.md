@@ -1,3 +1,20 @@
+## 0.14.0 (2020-7-14)
+### editor
+* added: attribute reader/writer interface to allow use of custom zLevel models
+### display
+* added: styling support of 3-digit hex color codes
+* added: styling now supports "zoomRanges" to define zoom dependant values. values for intermediate zoom levels will be interpolated linearly. e.g. radius
+* added: hide tile boundaries of polygon geometry from clipped datasources
+* improved: disable pointerevent triggering while mapview is changing
+* improved: more robust/tolerant parsing of invalid css rgb(a) color codes
+* fixed: trigger pointerevents for MVT datasources
+* fixed: artifacts when map is pitched and image tiles are placed below vector tiles
+* fixed: allow style functions for font stroke/fill colors
+* fixed: possible flicker of tile boundaries
+* fixed: call stylefunctions always with correct zoomlevel
+### core
+* fixed: consider tilesize for contentbounds determination when tilemargin is used
+
 ## 0.13.0 (2020-6-10)
 ### editor
 * added: Full editing support of LocalProvider data with Editor component. use providerOptions.editable=true to allow editing.
