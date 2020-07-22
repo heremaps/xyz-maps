@@ -53,8 +53,17 @@ type TurnNode = {
     index: number
 };
 
-
 const METHOD_NOT_IMPLEMENTED = 'Method not implemented.';
+
+class FeatureError extends Error {
+    feature: any;
+
+    constructor(message, feature) {
+        super(message);
+        this.name = 'FeatureError';
+        this.feature = feature;
+    }
+}
 
 /**
  *  Remote tile provider.
@@ -202,29 +211,31 @@ export abstract class EditableRemoteTileProvider extends EditableFeatureProvider
 
         if (!cached && remote) {
             ids = result.filter((a) => typeof a != 'object');
-
+            const onerror = (e) => {
+                const {onerror} = options;
+                if (onerror) {
+                    onerror(e);
+                }
+            };
             prov._requestFeatures(ids,
                 (data) => {
-                    let len = data.length;
-                    let o;
-
-                    while (len--) {
-                        o = data[len];
-
-                        result[result.indexOf(o.id)] = prov.addFeature(o);
+                    // QND geometry validation...
+                    for (let f of data) {
+                        let {geometry} = f;
+                        if (!geometry || !geometry.type || !geometry.coordinates) {
+                            onerror(new FeatureError(`Invalid geometry`, f));
+                            return;
+                        }
+                    }
+                    for (let f of data) {
+                        result[result.indexOf(f.id)] = prov.addFeature(f);
                     }
 
                     if (onload) {
                         onload(createResult());
                     }
                 },
-                (e) => {
-                    const onerror = options['onerror'];
-
-                    if (onerror) {
-                        onerror(e);
-                    }
-                },
+                onerror,
                 options
             );
         } else {
