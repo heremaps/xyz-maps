@@ -3,7 +3,7 @@
 * added: attribute reader/writer interface to allow use of custom zLevel models
 ### display
 * added: styling support of 3-digit hex color codes
-* added: styling now supports "zoomRanges" to define zoom dependant values. values for intermediate zoom levels will be interpolated linearly. e.g. radius
+* added: styling now supports "zoomRanges" to define zoom dependant values. values for intermediate zoom levels will be interpolated linearly. e.g. "radius": { "5": 10, "15": 20 }
 * added: hide tile boundaries of polygon geometry from clipped datasources
 * improved: disable pointerevent triggering while mapview is changing
 * improved: more robust/tolerant parsing of invalid css rgb(a) color codes
