@@ -1,3 +1,7 @@
+## 0.14.1 (2020-7-27)
+* fixed:  (virtual)shapes of simple LINE features are not draggable
+* fixed:  remote feature search by id errors in case of result feature geometry is missing
+
 ## 0.14.0 (2020-7-14)
 ### editor
 * added: attribute reader/writer interface to allow use of custom zLevel models
