@@ -115,7 +115,8 @@ export class FeatureProvider extends Provider {
         }
 
         if (provider.isFeatureInstance(feature, Feature)) {
-            if ((<Feature>feature).getProvider() != provider) {
+            const prov = (<Feature>feature).getProvider();
+            if ( prov && prov != provider) {
                 feature = (<Feature>feature).toJSON();
             }
         }
