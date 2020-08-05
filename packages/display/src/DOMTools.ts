@@ -58,7 +58,7 @@ export const appendElementAt = (parent: HTMLElement, element: HTMLElement, index
 };
 
 export const getElDimension = (el: HTMLElement, type: string): number => {
-    return parseInt(getElAttribute(el, type)) ^ 0;
+    return Math.round(parseFloat(getElAttribute(el, type)));
 };
 
 export const setElUserSelect = (el, select) => {
