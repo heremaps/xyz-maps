@@ -89,7 +89,7 @@ class Grid {
 
     getTiles(zoomLevel: number, tileSizePixel: number = this.size): GridTile[] {
         const {width, height} = this;
-        const worldSizePixel = tileSizePixel << zoomLevel;
+        const worldSizePixel = Math.pow(2, zoomLevel) * tileSizePixel;
         let bounds = this.bounds;
         let tiles = [];
 

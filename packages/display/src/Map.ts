@@ -50,6 +50,8 @@ const MIN_LATITUDE = -MAX_LATITUDE;
 const TILESIZE = 256;
 const RENDER_TILE_SIZE = 256;
 
+const MAX_GRID_ZOOM = 20;
+
 const LON = 'longitude';
 const LAT = 'latitude';
 const WIDTH = 'width';
@@ -65,7 +67,7 @@ let UNDEF;
 
 function calcZoomLevelForBounds(minLon, minLat, maxLon, maxLat, mapWidth, mapHeight) {
     let maxZoom = 20;
-    let maxWorldSize = TILESIZE << maxZoom;
+    let maxWorldSize = Math.pow(2, maxZoom) * TILESIZE;
     let zoomLevelWidth;
     let zoomLevelHeight;
     let toMap;
@@ -176,8 +178,7 @@ class TigerMap {
 
         this._z = zoomLevel ^ 0;
 
-        this._wSize = TILESIZE << this._z;
-
+        this._wSize = Math.pow(2, this._z) * TILESIZE;
         this._l = new Listener([
             'center',
             'rotation',
@@ -753,7 +754,7 @@ class TigerMap {
      * @return {number} zoomlevel
      */
     getZoomlevel() {
-        return this._z + (this._s % 1);
+        return this._z + Math.log(this._s) / Math.LN2;
     };
 
     /**
@@ -792,31 +793,31 @@ class TigerMap {
                         : DEFAULT_ZOOM_ANIMATION_MS
                 );
             } else {
-                const zFromFloat = zoomLevel + (currentScale % 1);
-                const deltaLevel = zoomLevel - (zoomTo ^ 0);
-                const deltaLevelScale = Math.pow(.5, deltaLevel);
+                const startZoom = this.getZoomlevel();
+                const _uFixed = this._display.unproject(fixedX, fixedY);
+                const gridZoom = Math.min(MAX_GRID_ZOOM, zoomTo) ^ 0;
+                const deltaFixedZoom = zoomLevel - gridZoom;
                 const worldSizePixel = this._wSize;
-                const _ufixed = this._display.unproject(fixedX, fixedY);
-                const scale = 1 + Math.round((zoomTo % 1) * 1e4) / 1e4;
+                const scale = Math.pow(2, zoomTo - gridZoom);
 
-                if (deltaLevel) {
-                    this._z = zoomTo ^ 0;
-                    this._wSize = TILESIZE << this._z;
+                if (deltaFixedZoom) {
+                    this._z = Math.min(MAX_GRID_ZOOM, zoomTo) ^ 0;
+                    this._wSize = Math.pow(2, this._z) * TILESIZE;
                 }
 
-                this._display.setTransform(scale * deltaLevelScale, this._rz, this._rx);
+                this._display.setTransform(scale * Math.pow(.5, deltaFixedZoom), this._rz, this._rx);
 
-                const ufixed = this._display.unproject(fixedX, fixedY);
+                const uFixed = this._display.unproject(fixedX, fixedY);
 
                 this._setCenter(
-                    project.x2lon(this._cw.x + _ufixed[0] - ufixed[0], worldSizePixel),
-                    project.y2lat(this._cw.y + _ufixed[1] - ufixed[1], worldSizePixel)
+                    project.x2lon(this._cw.x + _uFixed[0] - uFixed[0], worldSizePixel),
+                    project.y2lat(this._cw.y + _uFixed[1] - uFixed[1], worldSizePixel)
                 );
 
                 this._s = scale;
                 this.updateGrid();
 
-                this._l.trigger('zoomlevel', ['zoomlevel', this.getZoomlevel(), zFromFloat], true);
+                this._l.trigger('zoomlevel', ['zoomlevel', this.getZoomlevel(), startZoom], true);
             }
         }
     };
@@ -933,7 +934,7 @@ class TigerMap {
 
             this.setCenter(
                 project.x2lon(x, worldSizePixel),
-                project.y2lat(y, worldSizePixel),
+                project.y2lat(y, worldSizePixel)
             );
         }
     };
@@ -1274,3 +1275,4 @@ class TigerMap {
 }
 
 export default TigerMap;
+

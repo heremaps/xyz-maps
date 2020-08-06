@@ -321,11 +321,9 @@ abstract class Display {
         const screenTiles = [];
 
         for (let gridTile of gridTiles) {
-            const x1 = Math.round(gridTile.x);
-            const y1 = Math.round(gridTile.y);
-            const quadkey = gridTile.quadkey;
+            const {x, y, quadkey} = gridTile;
             const displayTile = display.getBucket(quadkey, CREATE_IF_NOT_EXISTS);
-            const tilePosition = new TilePosition(x1, y1, displayTile);
+            const tilePosition = new TilePosition(x, y, displayTile);
 
             displayTile.i = ++this.ti;
 
@@ -389,9 +387,8 @@ abstract class Display {
 
         grid.init(centerWorld, rotZRad, mapWidthPixel, mapHeightPixel, rotatedScreenPixels);
 
-
         const layers = this.layers;
-        const tileSizes = layers.reset(zoomlevel);
+        const tileSizes = layers.reset(zoomlevel + Math.log(this.s) / Math.LN2);
         this.ti = 0;
 
         for (let tileSize of tileSizes) {

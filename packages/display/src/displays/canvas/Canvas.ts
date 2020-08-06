@@ -169,6 +169,9 @@ class CanvasRenderer implements BasicRender {
     tile(dTile, x: number, y: number) {
         const renderer = this;
 
+        x = Math.round(x);
+        y = Math.round(y);
+
         renderer.ctx.drawImage(dTile.combine(), x, y, RENDER_TILE_SIZE, RENDER_TILE_SIZE);
 
         if (renderer.debug) {

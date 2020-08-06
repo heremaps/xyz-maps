@@ -20,7 +20,7 @@
 const PI = Math.PI;
 
 const mapSizePixel = (tileSize: number, zoomLevel: number): number => {
-    return tileSize << zoomLevel;
+    return Math.pow(2, zoomLevel) * tileSize;
 };
 
 const lon2x = (lon: number, mapSize: number): number => {

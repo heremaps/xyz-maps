@@ -20,16 +20,13 @@
 import {Listener as Listeners} from '@here/xyz-maps-common';
 import defaultStylesDef from '../styles/default';
 import LayerStyle from './LayerStyle';
-
 /* exported Options */
 import Options from './Options';
 import TileProvider from '../providers/TileProvider/TileProvider';
 import {RemoteTileProvider} from '../providers/RemoteTileProvider/RemoteTileProvider';
-import {Tile} from '../tile/Tile';
 import {FeatureProvider} from '../providers/FeatureProvider';
 
 const doc = Options; // doc only!
-
 const REMOVE_FEATURE_EVENT = 'featureRemove';
 const ADD_FEATURE_EVENT = 'featureAdd';
 const MODIFY_FEATURE_COORDINATES_EVENT = 'featureCoordinatesChange';
@@ -39,45 +36,10 @@ const VIEWPORT_READY_EVENT = 'viewportReady';
 const CLEAR_EVENT = 'clear';
 const DEFAULT_TILE_SIZE = 256;
 
+export const DEFAULT_LAYER_MIN_ZOOM = 15;
+export const DEFAULT_LAYER_MAX_ZOOM = 32;
+
 let UNDEF;
-
-
-// function mixin( to, from )
-// {
-//     for( var f in from )
-//     {
-//         to[f] = from[f];
-//     }
-//     return to;
-// }
-//
-// function mergeStyle( grp1, grp2 )
-// {
-//
-//     if( grp2 === null || grp2 === false )
-//     {
-//         return null;
-//     }
-//
-//     var mergedGroups = [],
-//         group;
-//
-//     for( var i = 0, len = grp1.length; i<len; i++ )
-//     {
-//         group = mixin( {}, grp1[i] );
-//
-//         if( grp2[i] )
-//         {
-//             mixin( group, grp2[i] );
-//         }
-//
-//         mergedGroups[i] = group;
-//     }
-//
-//     return mergedGroups;
-// }
-
-type zoomlevelRange = 1 | 2 | 3 | 4 | 5 | 6 | 7 | 8 | 9 | 10 | 11 | 12 | 13 | 14 | 15 | 16 | 17 | 18 | 19 | 20;
 
 /**
  *  Layers
@@ -107,8 +69,8 @@ export class TileLayer {
 
     public name: string = '';
 
-    public min: zoomlevelRange = 15;
-    public max: zoomlevelRange = 20;
+    public min: number = DEFAULT_LAYER_MIN_ZOOM;
+    public max: number = DEFAULT_LAYER_MAX_ZOOM;
 
     public tileSize: number;
 

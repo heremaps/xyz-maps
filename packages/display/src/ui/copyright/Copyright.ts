@@ -46,7 +46,8 @@ const isVisible = (src: CopyrightSource | { scopes: CopyrightSourceScope[] }, zo
     }
 
     while (scp = scopes[--s]) {
-        const level = scp.layer.getProvider(zoom).level || zoom;
+        const provider = scp.layer.getProvider(zoom);
+        const level = provider && provider.level || zoom;
 
         min = scp.minLevel || -Infinity;
         max = scp.maxLevel || Infinity;

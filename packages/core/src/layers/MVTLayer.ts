@@ -19,18 +19,16 @@
 
 import {MVTProvider} from '../providers/MVTProvider/MVTProvider';
 import OSMStyle from '../styles/OSMStyle';
-// import MVTTileLoader from '../loaders/MVTTileLoader';
 import MVTTileLoader from '../loaders/MVT/MVTWorkerLoader';
 import TileStorage from '../storage/Level2Storage';
 import {LRU} from '@here/xyz-maps-common';
-import {TileLayer} from './TileLayer';
+import {TileLayer, DEFAULT_LAYER_MAX_ZOOM} from './TileLayer';
 import {Tile} from '../tile/Tile';
-import TileProvider from '../providers/TileProvider/TileProvider';
 
-let DEFAULT_TILE_SIZE = 512;
+const DEFAULT_TILE_SIZE = 512;
+
 
 export class MVTLayer extends TileLayer {
-    // getProvider: (number) => MVTProvider;
     protected _p: MVTProvider[];
 
     constructor(options) {
@@ -44,8 +42,7 @@ export class MVTLayer extends TileLayer {
         let tileSize = remote['tileSize'];
 
         const name = options['name'] || '';
-        const layerMax = options['max'] || 20;
-
+        const layerMax = options['max'] || DEFAULT_LAYER_MAX_ZOOM;
         const loader = new MVTTileLoader(remote);
 
         const providers = [];
