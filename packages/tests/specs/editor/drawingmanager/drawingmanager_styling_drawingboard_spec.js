@@ -115,9 +115,9 @@ describe('Styling drawingboard', function() {
     it('start drawingmanager again with custom style', function() {
         editor.getDrawingBoard().start({
             styleGroup: [
-                {zIndex: 0, type: 'Line', stroke: '#AA84A4', strokeWidth: 18},
+                {zIndex: 0, type: 'Line', stroke: '#AA84A4', strokeWidth: 24},
                 {zIndex: 1, type: 'Line', stroke: '#C799E8', strokeWidth: 10},
-                {zIndex: 2, type: 'Rect', width: 14, height: 14, fill: '#2233ee'},
+                {zIndex: 2, type: 'Rect', width: 20, height: 20, fill: '#2233ee'},
                 {zIndex: 3, type: 'Circle', radius: 5, fill: '#ee9922'}
             ]
         });
@@ -133,7 +133,7 @@ describe('Styling drawingboard', function() {
 
         expect(editor.getDrawingBoard().getLength()).to.be.equal(2);
 
-        let colors = await getCanvasPixelColor(mapContainer, [{x: 200, y: 100}, {x: 206, y: 106}, {x: 200, y: 200}, {x: 207, y: 200}]);
+        let colors = await getCanvasPixelColor(mapContainer, [{x: 200, y: 100}, {x: 208, y: 108}, {x: 200, y: 250}, {x: 208, y: 250}]);
 
         expect(colors[0]).to.equal('#ee9922');
         expect(colors[1]).to.equal('#2233ee');
