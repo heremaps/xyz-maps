@@ -562,20 +562,20 @@ var tools = {
     },
 
     //* **************************************** public area/link only ****************************************
-    deleteShape: function(line: Navlink, shape: number | LinkShape, ignoreCheck?: boolean) {
+    deleteShape: function(navlink: Navlink, shape: number | LinkShape, ignoreCheck?: boolean) {
         const index = typeof shape == 'number'
             ? shape
             : shape.getIndex();
-        const path = line.coord();
+        const path = navlink.coord();
 
         if (path.length > 2) {
             path.splice(index, 1);
 
-            const prv = getPrivate(line);
+            const prv = getPrivate(navlink);
             const shapes = prv.shps;
 
             if (shapes.length) {
-                clearShp(line, shapes[index]);
+                clearShp(navlink, shapes[index]);
 
                 shapes.splice(index, 1);
 
@@ -584,16 +584,23 @@ var tools = {
                 });
             }
 
-            storeConnectedPoints(line);
+            storeConnectedPoints(navlink);
 
-            changeGeometry(line, path);
+            changeGeometry(navlink, path);
+
+            // update/remove zlevels
+            const zLevels = navlink.getZLevels();
+            zLevels.splice(index, 1);
+            navlink._e().objects.history.ignore(() => {
+                navlink.getProvider().writeZLevels(navlink, zLevels);
+            });
 
             if (!ignoreCheck) {
-                tools.markAsModified(line);
+                tools.markAsModified(navlink);
             }
 
             if (prv.isSelected) {
-                tools.refreshGeometry(line);
+                tools.refreshGeometry(navlink);
             }
         }
     },

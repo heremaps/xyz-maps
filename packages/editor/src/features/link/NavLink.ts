@@ -250,6 +250,7 @@ class Navlink extends BasicFeature {
      *  @function
      *  @name here.xyz.maps.editor.features.Navlink#getZLevels
      */
+    getZLevels(): number[];
     getZLevels(index?: number) {
         let zLevels = this.getProvider().readZLevels(this);
         return typeof index == 'number' ? zLevels[index] : zLevels.slice(0);

@@ -23,7 +23,7 @@ import {Map} from '@here/xyz-maps-display';
 import {features, Editor} from '@here/xyz-maps-editor';
 import dataset from './link_zlevels_spec.json';
 
-describe('link set zlevel', function() {
+describe('navlink zlevels', function() {
     const expect = chai.expect;
 
     let editor;
@@ -55,11 +55,18 @@ describe('link set zlevel', function() {
     });
 
     it('create a link and validate', function() {
-        expect(link.getZLevels()).to.deep.equal([0, 2]);
+        expect(link.getZLevels()).to.deep.equal([1, 2, 3]);
     });
 
     it('set zlevel and validate', function() {
-        link.setZLevels([1, 1]);
+        link.setZLevels([1, 1, 1]);
+        expect(link.getZLevels()).to.deep.equal([1, 1, 1]);
+    });
+
+    it('remove shape and validate zlevels', async () => {
+        link.select();
+        let shape = (await editorClick(editor, 200, 100)).target;
+        shape.remove();
         expect(link.getZLevels()).to.deep.equal([1, 1]);
     });
 
@@ -69,6 +76,7 @@ describe('link set zlevel', function() {
             y: 100,
             z: 2
         }, 0);
+
         expect(link.getZLevels()).to.deep.equal([2, 1, 1]);
     });
 
