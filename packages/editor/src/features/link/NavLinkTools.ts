@@ -134,15 +134,12 @@ function triggerDisplayRefresh(line: Navlink, editStates?: {}) {
     line._e().setStyle(line, UNDEF);
 }
 
-function storeConnectedPoints(line) {
+function storeConnectedPoints(line: Navlink) {
     const prv = getPrivate(line);
-    const prevBBox = prv.prevBBox = prv.prevBBox || line.bbox.slice();
-
     // store connected poi/addresses before geometry change to make sure they get modified after geo changed.
     // in case of link bbox and poi bbox doesn't intersect anymore...
-
     return tools.getConnectedObjects(line,
-        geotools.mergeBBoxes(prevBBox, line.bbox)
+        geotools.mergeBBoxes(prv.prevBBox = prv.prevBBox || line.bbox.slice(), line.bbox)
     );
 }
 
@@ -388,15 +385,16 @@ var tools = {
     _props: _props,
 
     getConnectedObjects: function(link: Navlink, extendedBBox?: BBox) {
-        // not working if poi is located ouside of link's bbox
-        return link._e().objects.getInBBox(extendedBBox || link.bbox)
-            .filter((el) => {
-                const featureClass = el.class;
-
-                if (featureClass == 'PLACE' || featureClass == 'ADDRESS') {
-                    return el.getLink() == link;
-                }
-            });
+        // not working if place/address is located outside of link's bbox
+        const iEdit = link._e();
+        return iEdit.objects.getInBBox(
+            geotools.extendBBox(extendedBBox || link.bbox, iEdit._config['maxRoutingPointDistance'])
+        ).filter((el) => {
+            const featureClass = el.class;
+            if (featureClass == 'PLACE' || featureClass == 'ADDRESS') {
+                return el.getLink() == link;
+            }
+        });
     },
 
     refreshGeometry: function(line: Navlink) {

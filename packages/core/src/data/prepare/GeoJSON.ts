@@ -94,17 +94,9 @@ function updateBBox(feature: Feature): boolean {
 };
 
 const prepareFeature = (feature: Feature): Feature | false => {
-    // var geoType = feature.geometry.type;
-
-    if (feature['id'] != UNDEF) {
-        feature['id'] = feature['id'];
-    } else {
+    if (feature['id'] == UNDEF) {
         feature['id'] = Math.random() * 1e8 ^ 0;
     }
-
-    // feature.id =  feature['id'] || feature.properties['mid'] || feature.properties['carto_id'] || Math.random()*1e8^0;
-    // feature.coordinates = feature.geometry.coordinates;
-
     // calculates object bbox's
     if (!feature.bbox) {
         // false -> unkown feature -> no success
@@ -112,9 +104,7 @@ const prepareFeature = (feature: Feature): Feature | false => {
     } else if (feature.bbox.length === 6) { // convert to 2D bbox
         feature.bbox = [feature.bbox[0], feature.bbox[1], feature.bbox[3], feature.bbox[4]];
     }
-    // not supported for now..
     return feature;
-    // return geoType !== 'MultiPolygon' && feature;
 };
 
 export {updateBBox, prepareFeature};

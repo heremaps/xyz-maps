@@ -19,7 +19,7 @@
 
 import {FeatureProvider as FeatureTileProvider} from './FeatureProvider';
 import {Feature} from '../features/Feature';
-import {prepareFeature, updateBBox} from '../data/prepare/EditableGeoJSON';
+import {JSUtils} from '@here/xyz-maps-common';
 
 type FeatureClass = 'LINE' | 'NAVLINK' | 'MARKER' | 'PLACE' | 'ADDRESS' | 'AREA';
 
@@ -153,9 +153,15 @@ export abstract class EditableFeatureProvider extends FeatureTileProvider {
     isoCC(feature, isocc?: string | number) {
         // isoCC always valid -> no reverse geoc
         return true;
+    };
+
+    prepareFeature(feature: Feature): Feature {
+        if (!feature.properties) {
+            feature.properties = {};
+        }
+        if (feature.id == undefined) {
+            feature.id = JSUtils.String.random();
+        }
+        return feature;
     }
 }
-
-
-EditableFeatureProvider.prototype.prepareFeature = prepareFeature;
-EditableFeatureProvider.prototype.updateBBox = updateBBox;
