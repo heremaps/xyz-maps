@@ -22,7 +22,6 @@ import vertexShader from '../glsl/rect_vertex.glsl';
 // @ts-ignore
 import fragmentShader from '../glsl/rect_fragment.glsl';
 
-import {JSUtils} from '@here/xyz-maps-common';
 import Program from './Program';
 import {GLStates} from './GLStates';
 
@@ -37,7 +36,7 @@ class RectProgram extends Program {
     })
 
     constructor(gl: WebGLRenderingContext, devicePixelRation: number) {
-        super(gl, gl.POINTS, vertexShader, fragmentShader, devicePixelRation);
+        super(gl, gl.TRIANGLES, vertexShader, fragmentShader, devicePixelRation);
     }
 }
 

@@ -63,6 +63,8 @@ class GeometryBuffer {
     depth?: boolean;
     blend?: true;
 
+    flat: boolean = true;
+
     constructor(index?: Arrays | number[], type?: string, i32?: boolean) {
         if (index) {
             if (index instanceof Array) {

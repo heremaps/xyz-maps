@@ -225,7 +225,10 @@ const createBuffer = (
                             geoBuffer.addUniform('u_alignMap', shared.alignment == 'map');
                         } else if (type == 'Rect' || type == 'Circle') {
                             geoBuffer.scissor = grpBuffer.scissor;
-                            geoBuffer.addUniform('u_fill', shared.fill || COLOR_UNDEFINED);
+
+                            const fill = shared.fill || COLOR_UNDEFINED;
+
+                            geoBuffer.addUniform('u_fill', fill);
 
                             if (stroke) {
                                 geoBuffer.addUniform('u_stroke', stroke);
@@ -236,8 +239,14 @@ const createBuffer = (
                             if (type == 'Circle') {
                                 geoBuffer.addUniform('u_radius', shared.radius);
                             } else {
+                                if (fill == COLOR_UNDEFINED) {
+                                    // use blend to enable shader to not use discard (faster)
+                                    geoBuffer.alpha = true;
+                                    geoBuffer.blend = true;
+                                }
                                 geoBuffer.addUniform('u_size', [shared.width, shared.height]);
                             }
+                            geoBuffer.addUniform('u_alignMap', shared.alignment == 'map');
                         } else if (type == 'Line') {
                             if (shared.strokeDasharray) {
                                 geoBuffer.type = 'DashedLine';
@@ -282,7 +291,9 @@ const createBuffer = (
 
                         z = Number(z);
 
-                        renderLayer.addZ(z);
+                        geoBuffer.flat = grpBuffer.isFlat();
+
+                        renderLayer.addZ(z, !geoBuffer.flat);
                         geoBuffer.zIndex = z;
 
                         if (geoBuffer.scissor == UNDEF) {

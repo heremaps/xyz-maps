@@ -67,6 +67,8 @@ class Layer {
             }
             this.zLength = c;
             this.zd = false;
+
+            this.z3d = zSorted[this._z3d];
         }
         return zSorted[z] || 0;
     }
@@ -84,13 +86,34 @@ class Layer {
         return z;
     }
 
-    addZ(z: number | string) {
+    addZ(z: number, is3d?: boolean) {
         const zSorted = this.z;
         if (zSorted[z] == undefined) {
             zSorted[z] = 0;
             this.zd = true;
+
+            if (is3d && z < this._z3d) {
+                this._z3d = z;
+            }
         }
     }
+
+    getZ3d() {
+        const {layers} = this;
+        let i = 0;
+        let z = 0;
+        let l;
+        while (l = layers[i++]) {
+            if (l._z3d>=0) {
+                return z + l.z3d;
+            }
+            z += l.zLength;
+        }
+        return z;
+    }
+
+    _z3d: number = Infinity;
+    z3d: number
 }
 
 class Layers extends Array<Layer> {

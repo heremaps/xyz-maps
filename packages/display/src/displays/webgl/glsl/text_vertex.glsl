@@ -11,7 +11,6 @@ uniform vec2 u_topLeft;
 uniform float u_scale;
 uniform float u_rotate;
 uniform bool u_alignMap;
-uniform highp float u_zIndex;
 uniform float u_atlasScale;
 
 varying vec2 v_texcoord;
@@ -47,13 +46,10 @@ void main(void){
             }
 
             vec2 offset = rotate(a_point.xy, -rotation) / u_scale / DEVICE_PIXEL_RATIO;
-            gl_Position = u_matrix * vec4(u_topLeft + a_position + offset, u_zIndex, 1.0);
+            gl_Position = u_matrix * vec4(u_topLeft + a_position + offset, 0.0, 1.0);
         }else{
-            vec4 cpos = u_matrix * vec4(u_topLeft + a_position, u_zIndex, 1.0);
-
+            vec4 cpos = u_matrix * vec4(u_topLeft + a_position, 0.0, 1.0);
             gl_Position = vec4( cpos.xy / cpos.w + vec2(a_point.x, -a_point.y) / DEVICE_PIXEL_RATIO / u_resolution * 2.0 , 0.0, 1.0);
-//            gl_Position = vec4(cpos.xy + rotate(vec2(a_point.x, -a_point.y), rotation) / u_resolution * 2.0 * cpos.w, cpos.z, cpos.w);
-//            gl_Position = vec4(cpos.xy + vec2(a_point.x, -a_point.y) / u_resolution * 2.0 * cpos.w, u_zIndex, cpos.w);
         }
     }
 }

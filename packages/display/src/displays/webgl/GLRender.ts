@@ -428,13 +428,15 @@ export class GLRender implements BasicRender {
         }
 
         if (program) {
-            let pass = program.pass(renderPass);
+            let pass = program.pass(renderPass, buffer);
 
-            if (buffer.alpha) {
+            dZoom = dZoom || 1;
+
+            const absZ = renderLayer.getAbsoluteZ(buffer.zIndex); // / dZoom;
+            const isOnTopOf3d = absZ > renderLayer.getZ3d();
+
+            if (buffer.alpha || isOnTopOf3d) {
                 pass = renderPass == 'alpha';
-                // customGLStates = customGLStates || {};
-                // customGLStates.blend = true;
-                // customGLStates.depth = true;
             }
 
             if (pass) {
@@ -451,10 +453,18 @@ export class GLRender implements BasicRender {
                 // initialise pass default
                 gl.depthFunc(this.depthFnc);
 
+                const depth = 1 - (1 + absZ) / (1 << 16);
+
+                gl.depthRange(buffer.flat ? depth : 0, depth);
+
                 program.init(<GLStates>buffer, renderPass,
                     // only use stencil when needed.. no need if map is untransformed
                     Boolean(this.rx || this.rz)
                 );
+
+                if (isOnTopOf3d) {
+                    gl.disable(this.gl.DEPTH_TEST);
+                }
 
                 program.initAttributes(bufAttributes, buffers);
 
@@ -462,11 +472,9 @@ export class GLRender implements BasicRender {
 
                 uLocation = program.uniforms;
 
-                dZoom = dZoom || 1;
 
                 gl.uniform1f(uLocation.u_rotate, this.rz);
                 gl.uniform2f(uLocation.u_resolution, this.w, this.h);
-                gl.uniform1f(uLocation.u_zIndex, -.05 * renderLayer.getAbsoluteZ(buffer.zIndex) / dZoom);
                 gl.uniform1f(uLocation.u_scale, this.scale * dZoom);
                 gl.uniform2f(uLocation.u_topLeft, x, y);
                 gl.uniform1f(uLocation.u_tileScale, stencilSize || 1);

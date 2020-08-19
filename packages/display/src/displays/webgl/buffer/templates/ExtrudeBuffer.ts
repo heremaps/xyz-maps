@@ -24,6 +24,8 @@ export class ExtrudeBuffer extends TemplateBuffer {
     constructor() {
         super(true);
 
+        this._flat = false;
+
         this.attributes = {
             // vertex
             a_position: {

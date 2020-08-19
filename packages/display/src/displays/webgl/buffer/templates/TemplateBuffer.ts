@@ -43,6 +43,8 @@ export class TemplateBuffer {
 
     private _index?: number[];
 
+    protected _flat: boolean = true;
+
     constructor(scissor: boolean) {
         this.scissor = scissor;
     }
@@ -68,5 +70,9 @@ export class TemplateBuffer {
         const attr = <any>flexAttr;
         attr.data = attr.data.trim();
         return attr;
+    }
+
+    isFlat() {
+        return this._flat;
     }
 }

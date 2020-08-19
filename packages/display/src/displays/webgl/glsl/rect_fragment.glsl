@@ -2,29 +2,25 @@ precision lowp float;
 
 uniform vec4 u_fill;
 uniform vec4 u_stroke;
+uniform float u_strokeWidth;
 
-varying float vStrokeWidth;
 varying vec2 vSize;
-varying mat2 vRotMatrix;
+varying vec2 vDir;
 
-const float COLOR_UNDEF = -1.0;
+#define COLOR_UNDEF -1.0
 
 void main(void){
+    float dx = distance(vDir.x, 0.0) * vSize.x;
+    float dy = distance(vDir.y, 0.0) * vSize.y;
 
-    vec2 center = vec2(0.5, 0.5);
-    vec2 rotPointCoord = (gl_PointCoord-center) * vRotMatrix + center;
-
-    float pointCoordX = rotPointCoord.x;
-    float pointCoordY = rotPointCoord.y;
-    float dx = distance( pointCoordX, 0.5 );
-    float dy = distance( pointCoordY, 0.5 );
-
-    if (dx > vSize.x || dy > vSize.y) discard;
-
-    if( dx > vSize.x-vStrokeWidth || dy > vSize.y-vStrokeWidth){
+    if (dx > vSize.x-u_strokeWidth || dy > vSize.y-u_strokeWidth){
         gl_FragColor = u_stroke;
-    }else{
-        if(u_fill[0] == COLOR_UNDEF) discard;
+    } else {
         gl_FragColor = u_fill;
+        if(u_fill[0] == COLOR_UNDEF){
+//            discard;
+            gl_FragColor.a = 0.0;
+        };
+
     }
 }

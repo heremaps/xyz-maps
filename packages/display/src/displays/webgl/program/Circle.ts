@@ -20,7 +20,7 @@
 // @ts-ignore
 import vertexShader from '../glsl/circle_vertex.glsl';
 // @ts-ignore
-import fragmentShaer from '../glsl/circle_fragment.glsl';
+import fragmentShader from '../glsl/circle_fragment.glsl';
 
 import Program from './Program';
 import {GLStates} from './GLStates';
@@ -35,8 +35,14 @@ class CircleProgram extends Program {
     })
 
     constructor(gl: WebGLRenderingContext, devicePixelRation: number) {
-        super(gl, gl.POINTS, vertexShader, fragmentShaer, devicePixelRation);
+        super(gl, gl.TRIANGLES, vertexShader, fragmentShader, devicePixelRation);
     }
+
+    // pass(pass: string) {
+    //     // circle using discard in shader is slow if used in combination with depth testing (DEPTH_WRITEMASK).
+    //     // If we use alpha pass that is pre ordered by zIndex we can skip DEPTH_WRITEMASK -> faster.
+    //     return pass == 'alpha';
+    // }
 }
 
 export default CircleProgram;

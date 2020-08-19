@@ -9,22 +9,30 @@ uniform vec2 u_topLeft;
 uniform float u_scale;
 uniform float u_atlasScale;
 uniform vec2 u_offset;
-uniform highp float u_zIndex;
 uniform float u_rotation;
-
+uniform bool u_alignMap;
+uniform vec2 u_resolution;
 
 varying float vOpacity;
 varying vec2 v_texcoord;
 
 void main(void){
+    float rotation = u_rotation;
 
-    float rotSin = sin(u_rotation);
-    float rotCos = cos(u_rotation);
-    mat2 rotation_matrix = mat2(rotCos, -rotSin, rotSin, rotCos);
+    if (!u_alignMap){
+        rotation *= -1.0;
+    }
 
-    vec2 pos = a_position + ( a_point + u_offset ) * rotation_matrix / u_scale;
+    float rotSin = sin(rotation);
+    float rotCos = cos(rotation);
+    mat2 mRotate = mat2(rotCos, -rotSin, rotSin, rotCos);
 
-    gl_Position = u_matrix * vec4( u_topLeft + pos, u_zIndex, 1.0 ) ;
-
+    if(u_alignMap){
+        vec2 pos = a_position + (a_point + u_offset) * mRotate / u_scale;
+        gl_Position = u_matrix * vec4(u_topLeft + pos, 0.0, 1.0);
+     }else{
+        vec4 cpos = u_matrix * vec4(u_topLeft + a_position + u_offset, 0.0, 1.0);
+        gl_Position = vec4( cpos.xy / cpos.w + vec2(a_point.x, -a_point.y) * mRotate / u_resolution * 2.0 , 0.0, 1.0);
+    }
     v_texcoord = a_texcoord * u_atlasScale;
 }

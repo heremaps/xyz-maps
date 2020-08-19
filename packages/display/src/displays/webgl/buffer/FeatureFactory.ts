@@ -194,6 +194,8 @@ export class FeatureFactory {
                 offsetX = getValue('offsetX', style, feature, level) ^ 0;
                 offsetY = getValue('offsetY', style, feature, level) ^ 0;
 
+                alignment = getValue('alignment', style, feature, level) || 'viewport';
+
                 groupId = 'I' + offsetX + offsetY;
             } else {
                 fill = getValue('fill', style, feature, level);
@@ -238,6 +240,8 @@ export class FeatureFactory {
                         continue;
                     }
 
+                    alignment = getValue('alignment', style, feature, level);
+
                     if (type == 'Text') {
                         text = getTextString(style, feature, level);
 
@@ -247,7 +251,6 @@ export class FeatureFactory {
 
                         font = getValue('font', style, feature, level) || defaultFont;
 
-                        alignment = getValue('alignment', style, feature, level);
                         if (alignment == UNDEF) {
                             alignment = geomType == 'Point' ? 'viewport' : 'map';
                         }

@@ -6,7 +6,6 @@ attribute float a_lengthSoFar;
 
 uniform mat4 u_matrix;
 uniform highp float u_strokeWidth;
-uniform highp float u_zIndex;
 uniform highp float u_scale;
 uniform vec2 u_topLeft;
 uniform float u_texWidth;
@@ -29,5 +28,5 @@ void main(void){
 
     v_lengthSoFar = a_lengthSoFar / u_texWidth;
 
-    gl_Position = u_matrix * vec4(u_topLeft + a_position + normal * width, u_zIndex, 1.0);
+    gl_Position = u_matrix * vec4(u_topLeft + a_position + normal * width, 0.0, 1.0);
 }
