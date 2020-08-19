@@ -534,6 +534,14 @@ export class GLRender implements BasicRender {
     private initScissor(buffer, x: number, y: number, width: number, height: number): boolean {
         if (buffer.scissor) {
             const {gl} = this;
+            const w = gl.canvas.width;
+            const h = gl.canvas.height;
+
+            if (this.scale > 4.0) {
+                // workaround: precision issues for 22+ zooms -> disable scissor
+                gl.scissor(0, 0, w, h);
+                return true;
+            }
             // prevent flicker on tile boundaries
             const buf = this.pass == 'opaque' ? .5 : 0;
             const x1 = x - buf;
@@ -552,8 +560,8 @@ export class GLRender implements BasicRender {
 
             for (let p of [lowerLeft, lowerRight, upperLeft, upperRight]) {
                 p = transformMat4([], p, this.pMat);
-                let x = unclip(p[0], gl.canvas.width);
-                let y = unclip(p[1], gl.canvas.height);
+                let x = unclip(p[0], w);
+                let y = unclip(p[1], h);
                 if (x < xmin) xmin = x;
                 if (x > xmax) xmax = x;
                 if (y < ymin) ymin = y;

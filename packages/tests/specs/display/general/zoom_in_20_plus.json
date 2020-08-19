@@ -1,0 +1,32 @@
+{
+    "layers": [{
+        "id": "imageLayer",
+        "provider": {
+            "id": "imageProvider",
+            "type": "ImageProvider",
+            "name": "image provider"
+        },
+        "min": 14,
+        "max": 32
+    },{
+        "id": "localLayer",
+        "provider": {
+            "id": "localProvider",
+            "type": "LocalProvider",
+            "name": "Links",
+            "level": 15
+        },
+        "min": 14,
+        "max": 32,
+        "data": {
+            "local": [{
+                "type": "Feature",
+                "properties": {},
+                "geometry": {
+                    "type": "Point",
+                    "coordinates": [74.17249, 15.47986]
+                }
+            }]
+        }
+    }]
+}
