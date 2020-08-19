@@ -1,4 +1,23 @@
+## 0.15.0 (2020-8-19)
+### editor
+* improved: Geometry editing when map is pitched or rotated
+* improved: indexing of Places and Addresses that are including routing points
+* fixed: update custom zlevels when a navlink shape gets removed
+### display
+* added: the map can now be zoomed in much closer to enable use cases like indoor editing. use: displayOptions.maxLevel=number to set max allowed zoomlevel
+* added: Support for alignment "map" for Rects and Circles
+* added: Support for alignment "viewport" for Icons/Images [default]
+* added: Polygons/Lines and Points(Rect/Circle/Image/Text) can be drawn in front or behind of extruded polygons (buildings) depending on "zIndex" property
+* improved: improved animation when zooming in/out
+* fixed: Image styles using rotation with negative angle is ignored
+* fixed: Circle and Rects are cut off on the plane when map is pitched
+* fixed: draw strokeWidth of rects with correct size in pixel
+* fixed: Possible rendering artifacts for polygon outlines when map is pitched
+* fixed: various issues when browser zoom is active
+* fixed: possible bright outlines for lines using stroke dasharray
+
 ## 0.14.1 (2020-7-27)
+### editor
 * fixed:  (virtual)shapes of simple LINE features are not draggable
 * fixed:  remote feature search by id errors in case of result feature geometry is missing
 
