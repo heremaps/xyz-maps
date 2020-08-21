@@ -51,6 +51,7 @@ const TILESIZE = 256;
 const RENDER_TILE_SIZE = 256;
 
 const MAX_GRID_ZOOM = 20;
+const MAX_POSSIBLE_ZOOMLEVEL = 28;
 
 const LON = 'longitude';
 const LAT = 'latitude';
@@ -175,6 +176,8 @@ class TigerMap {
 
         // init defaults
         const zoomLevel = mapConfig['zoomLevel'] || mapConfig['zoomlevel'];
+
+        mapConfig.maxLevel = Math.min(MAX_POSSIBLE_ZOOMLEVEL, mapConfig.maxLevel);
 
         this._z = zoomLevel ^ 0;
 

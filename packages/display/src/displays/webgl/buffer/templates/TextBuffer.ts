@@ -27,7 +27,7 @@ export class TextBuffer extends TemplateBuffer {
         this.attributes = {
             // vertex
             a_position: {
-                data: new FlexArray(Float32Array),
+                data: new FlexArray(Int16Array),
                 size: 2
             },
             // point

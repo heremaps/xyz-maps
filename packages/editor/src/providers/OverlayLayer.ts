@@ -40,7 +40,7 @@ export const createOverlayLayer = (iEdit: InternalEditor): layers.TileLayer => {
     return new layers.TileLayer({
         name: 'EditorOverlay',
         min: 1,
-        max: 32,
+        max: 28,
         styles: new OverlayStyles(),
         provider: provider
     });

@@ -18,6 +18,8 @@ varying vec4 vColor;
 
 #define M_PI 3.1415926535897932384626433832795
 
+const float EXTENT_SCALE = 1.0 / 64.0;// 8912 - >512
+
 const float PI_05 = M_PI * 0.5;
 const float PI_15 = M_PI * 1.5;
 const float TO_RAD = M_PI / 180.0;
@@ -46,9 +48,9 @@ void main(void){
             }
 
             vec2 offset = rotate(a_point.xy, -rotation) / u_scale / DEVICE_PIXEL_RATIO;
-            gl_Position = u_matrix * vec4(u_topLeft + a_position + offset, 0.0, 1.0);
+            gl_Position = u_matrix * vec4(u_topLeft + a_position * EXTENT_SCALE + offset, 0.0, 1.0);
         }else{
-            vec4 cpos = u_matrix * vec4(u_topLeft + a_position, 0.0, 1.0);
+            vec4 cpos = u_matrix * vec4(u_topLeft + a_position * EXTENT_SCALE, 0.0, 1.0);
             gl_Position = vec4( cpos.xy / cpos.w + vec2(a_point.x, -a_point.y) / DEVICE_PIXEL_RATIO / u_resolution * 2.0 , 0.0, 1.0);
         }
     }

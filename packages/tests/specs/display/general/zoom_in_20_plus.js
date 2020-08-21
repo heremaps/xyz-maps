@@ -30,7 +30,7 @@ describe('zoom in 20+', function() {
     let display;
     let mapContainer;
 
-    const MAX_ZOOM = 30;
+    const MAX_ZOOM = 28;
 
     before(async function() {
         let preparedData = await prepare(dataset);

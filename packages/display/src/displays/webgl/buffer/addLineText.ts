@@ -27,6 +27,8 @@ import {FlexAttribute} from './templates/TemplateBuffer';
 type Tile = tile.Tile;
 
 const TO_DEG = 180 / Math.PI;
+const extentScale = 64;
+
 
 const addLineText = (
     text: string,
@@ -177,7 +179,7 @@ const addLineText = (
                                 textData.texcoord[j + 1]
                             );
 
-                            vertex.push(cx, cy);
+                            vertex.push(cx * extentScale, cy * extentScale);
                         }
                     }
                 }

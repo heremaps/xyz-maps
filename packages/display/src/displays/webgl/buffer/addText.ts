@@ -19,6 +19,8 @@
 
 import {createTextData} from './createText';
 
+const extentScale = 64;
+
 const addText = (
     text: string,
     point: number[],
@@ -44,7 +46,7 @@ const addText = (
             0
         );
 
-        vertex.push(cx, cy);
+        vertex.push(cx * extentScale, cy * extentScale);
 
         texcoord.push(
             textTextCoords[v],
