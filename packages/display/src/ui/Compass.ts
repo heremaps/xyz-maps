@@ -104,7 +104,8 @@ Compass.prototype.style = {
         border-radius: 4px;\
         font-size: 12px;\
         width: 28px;\
-        margin: 2px;',
+        margin: 2px;\
+        overflow: hidden;',
 
     '.compass .needle': '\
         padding: 4px 0px;\
@@ -116,8 +117,9 @@ Compass.prototype.style = {
 };
 //
 Compass.prototype.templ =
-    '<div class="compass"> \
-        <div class="needle">&#9650;</br>&#9661;</div> \
+    '<div class="compass">\
+        <div class="needle">&#9650;<br>&#9661;</div>\
     </div>';
 
 export default Compass;
+
