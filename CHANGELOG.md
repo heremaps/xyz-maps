@@ -1,3 +1,9 @@
+## 0.15.1 (2020-8-21)
+### display
+* improved: Icon positioning precision when map is zoomed in very close (zoomlevel >22)
+* fixed: ZoomControl UI becomes invisible on safari when map is pitched and Compass UI is active
+* fixed: Circles/Rects are partially not visible on mobile (iOS/Android)
+
 ## 0.15.0 (2020-8-19)
 ### editor
 * improved: Geometry editing when map is pitched or rotated
