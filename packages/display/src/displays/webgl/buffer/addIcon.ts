@@ -19,6 +19,7 @@
 
 import {tile} from '@here/xyz-maps-core';
 import {ImageInfo} from '../Atlas';
+import {addPoint} from './addPoint';
 
 const addIcon = (
     atlas: ImageInfo,
@@ -29,57 +30,34 @@ const addIcon = (
     texcoord: number[],
     coordinates: [number, number, number?],
     tile: tile.Tile,
-    tileSize: number,
-    i: number = vertex.length
+    tileSize: number
 ) => {
-    const x = tile.lon2x(coordinates[0], tileSize);
-    const y = tile.lat2y(coordinates[1], tileSize);
+    if (addPoint(vertex, coordinates, tile, tileSize)) {
+        const u1 = atlas.u1;
+        const u2 = atlas.u2;
+        const v1 = atlas.v1;
+        const v2 = atlas.v2;
+        const halfWidth = width * .5;
+        const halfHeight = height * .5;
 
-    const y2 = height / 2;
-    const x2 = width / 2;
-    const x1 = -width / 2;
-    const y1 = -height / 2;
+        points.push(
+            halfWidth, halfHeight,
+            halfWidth, halfHeight,
+            halfWidth, halfHeight,
+            halfWidth, halfHeight,
+            halfWidth, halfHeight,
+            halfWidth, halfHeight
+        );
 
-    // const as = 1/32; //0.03125
-    // const sx = width/64 * as;
-    // const sy = height/64 * as;
-    // const s = 0.01171875; // 24/64 * 0.03125
-    // const u1 = atlas[1] * as;
-    // const v1 = atlas[2] * as;
-    // const u2 = u1 + sx;
-    // const v2 = v1 + sy;
-
-    const u1 = atlas.u1;
-    const u2 = atlas.u2;
-    const v1 = atlas.v1;
-    const v2 = atlas.v2;
-
-    vertex.push(
-        x, y,
-        x, y,
-        x, y,
-        x, y,
-        x, y,
-        x, y
-    );
-
-    points.push(
-        x1, y1,
-        x2, y1,
-        x1, y2,
-        x1, y2,
-        x2, y1,
-        x2, y2
-    );
-
-    texcoord.push(
-        u1, v1,
-        u2, v1,
-        u1, v2,
-        u1, v2,
-        u2, v1,
-        u2, v2
-    );
+        texcoord.push(
+            u1, v2,
+            u1, v1,
+            u2, v1,
+            u1, v2,
+            u2, v1,
+            u2, v2
+        );
+    }
 };
 
 export {addIcon};

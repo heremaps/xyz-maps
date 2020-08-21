@@ -55,14 +55,14 @@ export const addPoint = (vertex: number[], coordinates: Point, tile: tile.Tile, 
         const y3 = y2; // down
 
         vertex.push(
-            // 0 -> 1 -> 3
+            // 0 -> 2 -> 3
             x0, y0,
-            x1, y1,
+            x2, y2,
             x3, y3,
-            // 0 -> 3 -> 2
+            // 0 -> 3 -> 1
             x0, y0,
             x3, y3,
-            x2, y2
+            x1, y1
         );
 
         return v + 12;

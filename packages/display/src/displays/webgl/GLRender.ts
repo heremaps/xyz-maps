@@ -428,7 +428,7 @@ export class GLRender implements BasicRender {
         }
 
         if (program) {
-            let pass = program.pass(renderPass, buffer);
+            let pass = program.pass(renderPass);
 
             dZoom = dZoom || 1;
 
