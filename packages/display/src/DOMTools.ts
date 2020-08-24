@@ -34,20 +34,20 @@ export const fromString = (string: string): Node => {
     return parser.parseFromString(string, 'text/html').body.childNodes[0];
 };
 
-export const addEventListener = (el: HTMLElement|Window, ev: string | string[], fnc: EventListener, options?: { passive?: boolean, capture?: boolean } | boolean) => {
+export const addEventListener = (el: HTMLElement | Window, ev: string | string[], fnc: EventListener, options?: { passive?: boolean, capture?: boolean } | boolean) => {
     (typeof ev === 'string' ? [ev] : ev).forEach((e) => {
         el.addEventListener(e, fnc, options);
     });
 };
 
-export const removeEventListener = (el: HTMLElement|Window, ev: string | string[], fnc: EventListener, options?: { passive?: boolean, capture?: boolean } | boolean) => {
+export const removeEventListener = (el: HTMLElement | Window, ev: string | string[], fnc: EventListener, options?: { passive?: boolean, capture?: boolean } | boolean) => {
     (typeof ev === 'string' ? [ev] : ev).forEach((e) => {
         el.removeEventListener(e, fnc, options);
     });
 };
 
 
-export const setElDimension = (el: HTMLElement, w: string|number, h: string|number) => {
+export const setElDimension = (el: HTMLElement, w: string | number, h: string | number) => {
     el.setAttribute('width', <string>w);
     el.setAttribute('height', <string>h);
 };
@@ -58,7 +58,7 @@ export const appendElementAt = (parent: HTMLElement, element: HTMLElement, index
 };
 
 export const getElDimension = (el: HTMLElement, type: string): number => {
-    return Math.round(parseFloat(getElAttribute(el, type)));
+    return Math.round(parseFloat(getElAttribute(el, type))) || 0;
 };
 
 export const setElUserSelect = (el, select) => {
