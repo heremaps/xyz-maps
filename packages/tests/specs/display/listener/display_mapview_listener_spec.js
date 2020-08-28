@@ -57,7 +57,7 @@ describe('mapview change listener', function() {
         expect(results.mapviewchangeend).to.have.lengthOf.above(0);
     });
 
-    xit('validate mapview events numbers after dragging map', async function() {
+    it('validate mapview events numbers after dragging map', async function() {
         // mapviewchangestart and mapviewchangeend are expected to be triggered in pairs
         let listener = new Listener(display, ['mapviewchangestart', 'mapviewchangeend']);
 
@@ -70,7 +70,7 @@ describe('mapview change listener', function() {
         expect(results.mapviewchangeend.length).to.be.equal(results.mapviewchangestart.length);
     });
 
-    xit('validate mapview events after dragging map slowly', async function() {
+    it('validate mapview events after dragging map slowly', async function() {
         // mapviewchangestart and mapviewchangeend are expected to be triggered in pairs
         let listener = new Listener(display, ['mapviewchangestart', 'mapviewchangeend']);
 
