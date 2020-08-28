@@ -135,6 +135,10 @@ class CanvasRenderer implements BasicRender {
         // no clear required because "cleared" tile canvases are blitted immediately
     }
 
+    convertColor(color) {
+        return color;
+    }
+
     setBackgroundColor(color: string) {
         this.buckets.bgColor(color);
     }

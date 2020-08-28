@@ -29,7 +29,9 @@ describe('layer with background color', function() {
     let mapContainer;
     let preparedData;
 
-    before(async function() {
+    let globalBackgroundcolor = '#ff0000';
+
+    before(async () => {
         display = new Map(document.getElementById('map'), {
             renderOptions: {
                 preserveDrawingBuffer: true
@@ -41,18 +43,30 @@ describe('layer with background color', function() {
         mapContainer = display.getContainer();
     });
 
-    after(async function() {
+    after(async () => {
         display.destroy();
     });
 
-    it('add a layer without background color', async function() {
+    it('validate default background color', async () => {
+        let color = await getCanvasPixelColor(mapContainer, {x: 400, y: 300});
+        expect(color).to.equal('#ffffff');
+    });
+
+    it('change display background color', async () => {
+        display.setBackgroundColor(globalBackgroundcolor);
+
+        let color = await getCanvasPixelColor(mapContainer, {x: 400, y: 300});
+        expect(color).to.equal(globalBackgroundcolor);
+    });
+
+    it('add a layer without background color', async () => {
         preparedData = await prepare(dataset);
 
         expect(display.getLayers()).to.be.lengthOf(0);
 
         let newLayer = preparedData.getLayers('Layer1');
 
-        await waitForViewportReady(display, [newLayer], ()=>{
+        await waitForViewportReady(display, [newLayer], () => {
             display.addLayer(newLayer);
         });
 
@@ -60,14 +74,14 @@ describe('layer with background color', function() {
 
         // validate default background color is white
         let color = await getCanvasPixelColor(mapContainer, {x: 400, y: 300});
-        expect(color).to.equal('#ffffff');
+        expect(color).to.equal(globalBackgroundcolor);
 
         display.removeLayer(newLayer);
     });
 
-    it('add a layer with background color', async function() {
+    it('add a layer with background color', async () => {
         dataset.layers[1].style = {
-            backgroundColor: '#345678'
+            backgroundColor: '#0000ff'
         };
 
         preparedData = await prepare(dataset);
@@ -76,7 +90,7 @@ describe('layer with background color', function() {
 
         let newLayer = preparedData.getLayers('Layer2');
 
-        await waitForViewportReady(display, [newLayer], ()=>{
+        await waitForViewportReady(display, [newLayer], () => {
             display.addLayer(newLayer);
         });
 
@@ -84,8 +98,28 @@ describe('layer with background color', function() {
 
         // validate default background color is white
         let color = await getCanvasPixelColor(mapContainer, {x: 400, y: 300});
-        expect(color).to.equal('#345678');
+        expect(color).to.equal('#0000ff');
+    });
 
-        display.removeLayer(newLayer);
+    it('change layers background color', async () => {
+        let layer = display.getLayers(0);
+        let style = layer.getStyle();
+
+        style.backgroundColor = '#00ff00';
+
+        await waitForViewportReady(display, () => {
+            layer.setStyle(style);
+            display.refresh();
+        });
+
+        let color = await getCanvasPixelColor(mapContainer, {x: 400, y: 300});
+        expect(color).to.equal('#00ff00');
+    });
+
+    it('remove Layer and validate global background color is set', async () => {
+        display.removeLayer(display.getLayers(0));
+
+        let color = await getCanvasPixelColor(mapContainer, {x: 400, y: 300});
+        expect(color).to.equal(globalBackgroundcolor);
     });
 });

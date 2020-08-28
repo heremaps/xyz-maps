@@ -51,6 +51,7 @@ class Layer {
 
     private layers: Layers;
     private zd: boolean = false; // dirty
+    bgColor: any;
 
     constructor(layer: TileLayer, layers: Layers) {
         this.layer = layer;

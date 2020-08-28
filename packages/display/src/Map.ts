@@ -451,7 +451,8 @@ class TigerMap {
     };
 
     setBackgroundColor(bgc: string) {
-        this._display.setBGColor && this._display.setBGColor(bgc);
+        this._display.setBGColor(bgc);
+        this.refresh();
     };
 
     /**
@@ -1030,7 +1031,7 @@ class TigerMap {
      * @param {(here.xyz.maps.layers.TileLayer|Array.<here.xyz.maps.layers.TileLayer>)=} layer
      *      Refresh the given layer in map, all layers in map are refreshed if layer is not given.
      */
-    refresh(refreshlayer) {
+    refresh(refreshlayer?) {
         if (!(refreshlayer instanceof Array)) {
             refreshlayer = [refreshlayer];
         }

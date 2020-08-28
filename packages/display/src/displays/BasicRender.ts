@@ -28,7 +28,9 @@ interface BasicRender {
 
     init(canvas: HTMLCanvasElement, devicePixelRation: number): void;
 
-    setBackgroundColor(color: string): void;
+    convertColor(color: string | [number, number, number, number?]): any;
+
+    setBackgroundColor(color: string| [number, number, number, number?]): void;
 
     setScale(scale: number, sx: number, sy: number): void;
 

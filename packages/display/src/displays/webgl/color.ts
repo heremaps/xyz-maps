@@ -17,7 +17,7 @@
  * License-Filename: LICENSE
  */
 
-type RGBA = [number, number, number, number];
+export type RGBA = [number, number, number, number];
 
 const HTML_COLOR_NAMES = {
     aliceblue: 'f0f8ff',
@@ -200,7 +200,7 @@ export const parseRGBA = (color: string): RGBA => {
 };
 
 
-export const toRGB = (color: string): RGBA => {
+export const toRGB = (color: string | RGBA): RGBA => {
     let rgba;
     if (color) {
         if (Array.isArray(color)) {

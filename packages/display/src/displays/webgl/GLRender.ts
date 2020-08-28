@@ -21,7 +21,7 @@ import BasicRender from '../BasicRender';
 import {layers} from '@here/xyz-maps-core';
 import GLTile from './GLTile';
 import {IconManager} from './IconManager';
-import {toRGB} from './color';
+import {toRGB, RGBA} from './color';
 
 import RectProgram from './program/Rect';
 import CircleProgram from './program/Circle';
@@ -94,7 +94,6 @@ export class GLRender implements BasicRender {
     private rx: number;
     private programs: { [name: string]: Program };
     private gridTextBuf = new WeakMap();
-    private clearColor: string;
     private dLayer: Layer;
 
     tileGrid: boolean = false;
@@ -154,12 +153,14 @@ export class GLRender implements BasicRender {
             : gl.LESS;
     }
 
-    setBackgroundColor(color: string) {
-        this.clearColor = color;
+    convertColor(color: string | RGBA) {
+        return toRGB(color);
+    }
 
+    setBackgroundColor(color: RGBA) {
+        // this.clearColor = color;
         if (this.gl) {
-            const rgb = toRGB(color);
-            this.gl.clearColor(rgb[0], rgb[1], rgb[2], 1.0);
+            this.gl.clearColor(color[0], color[1], color[2], 1.0);
         }
     }
 
@@ -174,8 +175,12 @@ export class GLRender implements BasicRender {
         console.log('prepare!');
     }
 
-    clear(): void {
+    clear(clearColor?): void {
         const {gl} = this;
+
+        if (clearColor) {
+            this.setBackgroundColor(clearColor);
+        }
         // gl.clearDepth(1.0);
         gl.colorMask(true, true, true, true);
         gl.disable(gl.SCISSOR_TEST);
@@ -227,7 +232,6 @@ export class GLRender implements BasicRender {
         // gl.blendFuncSeparate(gl.SRC_ALPHA, gl.ONE_MINUS_SRC_ALPHA, gl.ONE, gl.ONE_MINUS_SRC_ALPHA)
 
         this.gl = gl;
-        this.setBackgroundColor(this.clearColor);
     }
 
     grid(show: boolean): void {

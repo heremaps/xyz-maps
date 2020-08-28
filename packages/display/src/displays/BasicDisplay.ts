@@ -121,8 +121,8 @@ abstract class Display {
             'styleGroupChange': featureModifier.repaint.bind(featureModifier),
 
             'styleChange': (layerStyle, layer) => {
-                display.setLayerBgColor(layer);
                 const index = display.layers.indexOf(layer);
+                display.setLayerBgColor(layer.getStyle(), display.layers[index]);
                 display.buckets.tiles.forEach((t) => t.clear(index));
             }
         };
@@ -146,7 +146,7 @@ abstract class Display {
             toggleLayerEventListener('add', layer, display.listeners);
 
             if (index == 0) {
-                display.setLayerBgColor(layer);
+                display.setLayerBgColor(layer.getStyle(), dLayer);
             }
 
             display.buckets.forEach((dTile) => {
@@ -248,13 +248,12 @@ abstract class Display {
 
     abstract project(x: number, y: number): [number, number];
 
-    private setLayerBgColor(layer: TileLayer) {
-        const style = layer.getStyle();
-        const layerBgc = style.backgroundColor;
+    private setLayerBgColor(style, dLayer: Layer) {
+        const {backgroundColor} = style;
         const display = this;
-        // only set background color of layer if no global bg color has been defined on display.
-        if (!display.globalBgc && layerBgc) {
-            display.render.setBackgroundColor(layerBgc);
+
+        if (backgroundColor) {
+            dLayer.bgColor = display.render.convertColor(backgroundColor);
         }
     }
 
@@ -445,19 +444,15 @@ abstract class Display {
         }
     }
 
-    globalBgc: boolean = false;
+    globalBgc: boolean | string | [number, number, number, number?] = false;
 
-    setBGColor(bgColor?: string) {
-        var displ = this;
+    setBGColor(color?: string) {
+        const displ = this;
+        const {render} = displ;
 
-        if (bgColor) {
-            displ.globalBgc = true;
-        }
-
-        bgColor = bgColor ||
+        let bgColor = color ||
             global.getComputedStyle(displ.canvas.parentElement, null)
                 .getPropertyValue('background-color');
-
         if (
             !bgColor ||
             bgColor == 'rgba(0, 0, 0, 0)' || // webkit
@@ -466,7 +461,11 @@ abstract class Display {
             bgColor = '#ffffff';
         }
 
-        displ.render.setBackgroundColor(bgColor);
+        bgColor = render.convertColor(bgColor);
+
+        displ.globalBgc = bgColor;
+
+        render.setBackgroundColor(bgColor);
     }
 
     showGrid(show) {

@@ -270,13 +270,14 @@ class WebGlDisplay extends BasicDisplay {
         let length;
         let tiles;
 
-        if (this.dirty || dirty) {
+        if (display.dirty || dirty) {
             // this.render.clear();
-            this.dirty = false;
-            this.collision.update(display.grid.tiles[512], this.rx, this.rz, this.s,);
+            display.dirty = false;
+            display.collision.update(display.grid.tiles[512], this.rx, this.rz, this.s,);
         }
 
-        render.clear();
+        render.clear(l && layers[0].bgColor || display.globalBgc);
+
 
         render.setPass('opaque');
 
