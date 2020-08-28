@@ -450,6 +450,14 @@ class TigerMap {
         return this._rz / Math.PI * 180;
     };
 
+    /**
+     * Set the background color of the map
+     *
+     * @expose
+     * @function
+     * @param {string} color
+     * @name here.xyz.maps.Map#setBackgroundColor
+     */
     setBackgroundColor(bgc: string) {
         this._display.setBGColor(bgc);
         this.refresh();
