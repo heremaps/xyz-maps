@@ -77,10 +77,9 @@ class Polygon {
 
     isValid(path?: Coordinate[]): boolean {
         if (path) {
-            const newCoord = path[path.length - 1];
             // close LineString
             path.push(<any>path[0].slice());
-            return !polygonTools.willSelfIntersect(path, newCoord, path.length - 2);
+            return path.length<4 || polygonTools.validateGeometry(path);
         }
 
         return this.path.length > 2;

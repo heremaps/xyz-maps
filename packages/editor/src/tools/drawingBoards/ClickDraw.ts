@@ -140,7 +140,9 @@ class ClickDraw {
     private active: boolean;
 
     private mousedown: boolean;
-    private shpStyle: any;
+    private style: any;
+
+    private inValid: false | { fill: string }[];
 
     overlay: Overlay;
 
@@ -156,10 +158,22 @@ class ClickDraw {
             const geo = shapes.map((f) => f.geometry.coordinates);
             geo.push(geoMouse);
 
-            if (feature.isValid(geo)) {
-                feature.update(shapes.length, geoMouse);
-                overlay.setFeatureCoordinates(cursor, geoMouse);
+            const valid = feature.isValid(geo);
+
+            if (valid != !this.inValid) {
+                let styleGroup = this.style.feature;
+                if (valid) {
+                    styleGroup = this.inValid;
+                    this.inValid = false;
+                } else {
+                    this.inValid = styleGroup;
+                    styleGroup = [{...styleGroup[0], fill: 'rgba(0,0,0,0)'}];
+                }
+                iEdit.setStyle(feature.geojson, styleGroup);
             }
+
+            feature.update(shapes.length, geoMouse);
+            overlay.setFeatureCoordinates(cursor, geoMouse);
         } else {
             const pos = iEdit.map.getEventsMapXY(ev);
 
@@ -205,6 +219,8 @@ class ClickDraw {
 
         this.cursor = cursor;
 
+        this.inValid = false;
+
         global.addEventListener('mousemove', this.updateCursor);
         global.addEventListener('mouseup', this.onBoardUp);
     };
@@ -247,7 +263,7 @@ class ClickDraw {
 
         const shp = this.overlay.addFeature(
             new DrawingShape(this, iEdit, shapes.length, pos, settings['mode']),
-            createShapeStyle(this.shpStyle, 9)
+            createShapeStyle(this.style.shape, 9)
         );
 
         feature.update(shapes.length, pos);
@@ -304,18 +320,18 @@ class ClickDraw {
         if (attributes) {
             JSUtils.extend(feature.properties, attributes);
 
-            const styles = setupStyleGroups(settings, feature.geojson);
+            const style = setupStyleGroups(settings, feature.geojson);
 
-            this.shpStyle = styles.shape;
+            this.style = style;
 
             // prevent generic AREA/NAVLINK pointereventlisteners being triggered.
             // TODO: refactor and handle in generic feature class listener
             feature.geojson.class = UNDEF;
 
-            iEdit.setStyle(feature.geojson, styles.feature);
+            iEdit.setStyle(feature.geojson, style.feature);
 
             shapes.concat(cursor).forEach((shp) => {
-                iEdit.setStyle(shp, createShapeStyle(styles.shape, iEdit.getStyle(shp)[0].zIndex));
+                iEdit.setStyle(shp, createShapeStyle(style.shape, iEdit.getStyle(shp)[0].zIndex));
             });
         }
     };
@@ -372,6 +388,8 @@ class ClickDraw {
             }
 
             return created;
+        } else {
+            throw new Error('Invalid Geometry');
         }
     };
 

@@ -607,6 +607,15 @@ var tools = {
             }
         }
         return false;
+    },
+
+    validateGeometry: (polygon: Point[]): boolean => {
+        for (let i = 1; i < polygon.length - 1; i += 1) {
+            if (tools.willSelfIntersect(polygon, polygon[i], i)) {
+                return false;
+            }
+        }
+        return true;
     }
 
 };
