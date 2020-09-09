@@ -59,6 +59,13 @@ export class ScrollHandler {
             e = e || WIN.event;
             let delta = -e.deltaY;
 
+            if (e.deltaMode === e.DOM_DELTA_LINE) {
+                // --> mouse (not trackpad) in ff
+                // align delta with webkit
+                delta *= 4.000244140625 // single webkit wheel-tick delta
+                    * 8; // roughly estimated avg mousewheel speed delta
+            }
+
             if (delta) {
                 const curZoomlevel = map.getZoomlevel();
                 let zoomTo;
