@@ -1,3 +1,11 @@
+## 0.15.2 (2020-9-11)
+### editor
+* improved: Area drawing with drawingBoard. invalid geometry (self-intersections) are temporarily allowed and highlighted.
+### display
+* fixed: Zoom steps using the mousewheel in Firefox are very small [fixes #36]
+* fixed: layerStyles backgroundColor is ignored in case of default backgroundColor is set via display.setBackgroundColor(..) [fixes #35]
+* fixed: invisible viewport in case of map is initialized with element that`s not inserted into DOM
+
 ## 0.15.1 (2020-8-21)
 ### display
 * improved: Icon positioning precision when map is zoomed in very close (zoomlevel >22)

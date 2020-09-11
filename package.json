@@ -1,6 +1,6 @@
 {
     "name": "@here/xyz-maps",
-    "version": "0.15.1",
+    "version": "0.15.2",
     "description": "XYZ Editor is an experimental and work in progress open-source map editor written in TypeScript/JavaScript",
     "author": {
         "name": "HERE Europe B.V.",
@@ -13,7 +13,7 @@
     },
     "scripts": {
         "test": "lerna run --stream --no-prefix --scope @here/xyz-maps-test test -- ",
-        "preversion": "yarn run test",
+        "preversion": "yarn run build-release && yarn run test",
         "postversion": "yarn run bundle-release",
         "watch-dev": "lerna run watch-dev --parallel",
         "build-dev": "lerna run build-dev --parallel",
