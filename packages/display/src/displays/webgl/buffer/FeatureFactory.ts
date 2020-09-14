@@ -22,7 +22,7 @@ import {addPolygon, FlatPolygon} from './addPolygon';
 import {addExtrude} from './addExtrude';
 import {addIcon} from './addIcon';
 import earcut from 'earcut';
-import {getValue, parseStyleGroup} from '../../styleTools';
+import {getValue} from '../../styleTools';
 import {defaultFont} from '../../fontCache';
 import {GlyphTexture} from '../GlyphTexture';
 import {toRGB} from '../color';
@@ -82,13 +82,15 @@ export class FeatureFactory {
     z: number;
     private lineFactory: LineFactory;
 
+    pendingCollisions: { feature: any, style: any, priority: number, geomType: string, coordinates: any }[] = [];
+
+
     constructor(gl: WebGLRenderingContext, iconManager: IconManager, collisionHandler, devicePixelRatio: number) {
         this.gl = gl;
         this.icons = iconManager;
         this.dpr = devicePixelRatio;
         this.dashes = new DashAtlas(gl);
         this.collisions = collisionHandler;
-
         this.lineFactory = new LineFactory(gl);
     }
 
@@ -97,9 +99,11 @@ export class FeatureFactory {
         this.groups = groups;
         this.tileSize = tileSize;
         this.z = zoom;
+
+        this.pendingCollisions.length = 0;
     }
 
-    create(feature, geomType: string, coordinates, styleGroups, strokeWidthScale, removeTileBounds?: boolean): boolean {
+    create(feature, geomType: string, coordinates, styleGroups, strokeWidthScale, removeTileBounds?: boolean, priority?: number): boolean {
         const {tile, groups, tileSize} = this;
         const level = this.z;
         let flatPolyStart: number;
@@ -138,8 +142,6 @@ export class FeatureFactory {
 
         this.lineFactory.init();
 
-        parseStyleGroup(styleGroups);
-
         for (let i = 0, iLen = styleGroups.length; i < iLen; i++) {
             style = styleGroups[i];
 
@@ -151,13 +153,23 @@ export class FeatureFactory {
 
             if (opacity === 0) continue;
 
+
+            if (priority == UNDEF && type == 'Text' && (style.collide || style.collide == UNDEF)) {
+                this.pendingCollisions.push({
+                    feature: feature,
+                    style: style,
+                    geomType: geomType,
+                    coordinates: coordinates,
+                    priority: getValue('priority', style, feature, level) || Number.MAX_SAFE_INTEGER
+                });
+                continue;
+            }
+
             if (opacity == UNDEF ||
                 opacity >= .98 // no alpha visible -> no need to use more expensive alpha pass
             ) {
                 opacity = 1;
             }
-
-            type = getValue('type', style, feature, level);
 
             if (type == 'Image') {
                 type = 'Icon';
@@ -388,15 +400,13 @@ export class FeatureFactory {
                         tile, tileSize,
                         bufferStart, bufferStart + glyphCnt * 6 * 3,
                         attributes.a_point,
-                        // style.priority
-                        getValue('priority', style, feature, level)
+                        priority
                     )) {
                         addText(
                             text,
                             attributes.a_point.data,
                             attributes.a_position.data,
                             attributes.a_texcoord.data,
-                            coordinates,
                             fontInfo,
                             cx,
                             cy,
@@ -479,7 +489,7 @@ export class FeatureFactory {
                         tile,
                         tileSize,
                         !style.collide && this.collisions,
-                        getValue('priority', style, feature, level),
+                        priority,
                         getValue('repeat', style, feature, level),
                         offsetX,
                         offsetY,

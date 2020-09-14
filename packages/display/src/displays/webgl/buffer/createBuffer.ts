@@ -19,15 +19,12 @@
 
 import {TaskManager} from '@here/xyz-maps-common';
 import {GeometryBuffer} from './GeometryBuffer';
-import {getValue} from '../../styleTools';
+import {getValue, parseStyleGroup} from '../../styleTools';
 import {tile} from '@here/xyz-maps-core';
 import {Layer} from '../../Layers';
 import {FeatureFactory} from './FeatureFactory';
 import {TemplateBuffer} from './templates/TemplateBuffer';
 import {GlyphTexture} from '../GlyphTexture';
-
-
-const tileUtils = tile.Utils;
 
 // const DEFAULT_STROKE_WIDTH_ZOOM_SCALE = () => 1;
 const PROCESS_FEATURE_BUNDLE_SIZE = 16;
@@ -69,16 +66,6 @@ const handlePolygons = (factory: FeatureFactory, feature, coordinates, styleGrou
     }
 };
 
-
-const typeArray = (TypedArray, arr: any[], typedCache: any) => {
-    let typedArr = typedCache.get(arr);
-    if (!typedArr) {
-        typedArr = new TypedArray(arr);
-        typedCache.set(arr, typedArr);
-    }
-    return typedArr;
-};
-
 const createBuffer = (
     data: any[],
     renderLayer: Layer,
@@ -99,31 +86,14 @@ const createBuffer = (
         priority: PRIORITY,
 
         init: function() {
-            // tile.isPreparing = task;
-            // const layerStyles = layer.getStyle();
-
-            if (data) {
-                let len = data.length;
-                let feature;
-                let start = Date.now();
-
-                while (len--) {
-                    feature = data[len];
-                }
-
-                // adjust remaining runtime of task
-                task.time = EXCLUSIVE_TIME_MS - (Date.now() - start);
-            }
-
-            const zoomlevel = tile.z + layer.levelOffset;
+            const zoom = tile.z + layer.levelOffset;
             const layerStyles = layer.getStyle();
             let lsZoomScale = 1; // DEFAULT_STROKE_WIDTH_ZOOM_SCALE;
 
             if (layerStyles) {
                 const layerScale = layerStyles['strokeWidthZoomScale'] || layerStyles['LineStringZoomScale'];
-
                 if (layerScale) {
-                    lsZoomScale = layerScale(zoomlevel);
+                    lsZoomScale = layerScale(zoom);
                 }
             }
 
@@ -131,7 +101,7 @@ const createBuffer = (
                 onInit();
             }
 
-            factory.init(tile, groups, tileSize, zoomlevel);
+            factory.init(tile, groups, tileSize, zoom);
 
             return [
                 tile,
@@ -140,7 +110,8 @@ const createBuffer = (
                 0, // featureIndex
                 PROCESS_FEATURE_BUNDLE_SIZE,
                 layer,
-                zoomlevel
+                zoom,
+                false
             ];
         },
 
@@ -199,7 +170,6 @@ const createBuffer = (
                                 count: grpBuffer.count()
                             }, type);
                         }
-
 
                         const {attributes} = grpBuffer;
 
@@ -321,63 +291,89 @@ const createBuffer = (
             const level = heap[6];
             let styleGroups;
             let feature;
-            // const pmap = heap[6];
             let geom;
             let geomType;
+            let notDone = false;
 
-            // window.prevFeature = null;
+            if (!heap[7]) {
+                while (heap[4]--) {
+                    if (feature = data[heap[3]++]) {
+                        styleGroups = displayLayer.getStyleGroup(feature, level);
 
-            while (heap[4]--) {
-                if (feature = data[heap[3]++]) {
-                    styleGroups = displayLayer.getStyleGroup(feature, level);
+                        if (styleGroups) {
+                            geom = feature.geometry;
+                            geomType = geom.type;
 
+                            if (!styleGroups.length) {
+                                styleGroups = [styleGroups];
+                            }
 
-                    if (styleGroups) {
-                        geom = feature.geometry;
-                        geomType = geom.type;
+                            parseStyleGroup(styleGroups);
 
-                        if (!styleGroups.length) {
-                            styleGroups = [styleGroups];
+                            // const coordinates = geom.coordinates;
+                            const coordinates = feature.getProvider().decCoord(feature);
+
+                            if (geomType == 'MultiLineString' || geomType == 'MultiPoint') {
+                                let simpleType = geomType == 'MultiPoint' ? 'Point' : 'LineString';
+
+                                for (let coords of coordinates) {
+                                    factory.create(feature, simpleType, coords, styleGroups, lsScale);
+                                }
+                            } else if (geomType == 'MultiPolygon') {
+                                factory.create(feature, 'Polygon', coordinates, styleGroups, lsScale);
+
+                                for (let polygon of coordinates) {
+                                    handlePolygons(factory, feature, polygon, styleGroups, lsScale, tile);
+                                }
+                            } else {
+                                let ready = factory.create(feature, geomType, coordinates, styleGroups, lsScale);
+
+                                if (!ready) {
+                                    iconsLoaded = false;
+                                }
+
+                                if (geomType == 'Polygon') {
+                                    handlePolygons(factory, feature, coordinates, styleGroups, lsScale, tile);
+                                }
+                            }
                         }
+                    } else {
+                        // feature count < bundle size -> next
+                        break;
+                    }
+                }
 
-                        // const coordinates = geom.coordinates;
-                        const coordinates = feature.getProvider().decCoord(feature);
+                notDone = heap[3] < dataLen;
+            }
 
-                        if (geomType == 'MultiLineString' || geomType == 'MultiPoint') {
-                            let simpleType = geomType == 'MultiPoint' ? 'Point' : 'LineString';
+            // handle pending collisions...
+            if (!notDone && factory.pendingCollisions.length) {
+                if (!heap[7]) {
+                    // sort collision data by priority
+                    heap[7] = factory.pendingCollisions.sort((a, b) => a.priority - b.priority);
+                    // reset/reuse feature index
+                    heap[3] = 0;
+                }
+                let cData = heap[7];
+                let c;
 
-                            for (let coords of coordinates) {
-                                factory.create(feature, simpleType, coords, styleGroups, lsScale);
-                            }
-                        } else if (geomType == 'MultiPolygon') {
-                            factory.create(feature, 'Polygon', coordinates, styleGroups, lsScale);
-
-                            for (let polygon of coordinates) {
-                                handlePolygons(factory, feature, polygon, styleGroups, lsScale, tile);
-                            }
+                if (heap[4] >= 0) {
+                    const styleGrp = [];
+                    while (heap[4]--) {
+                        if (c = cData[heap[3]++]) {
+                            styleGrp[0] = c.style;
+                            factory.create(c.feature, c.geomType, c.coordinates, styleGrp, lsScale, false, c.priority);
                         } else {
-                            let ready = factory.create(feature, geomType, coordinates, styleGroups, lsScale);
-
-                            if (!ready) {
-                                iconsLoaded = false;
-                            }
-
-                            if (geomType == 'Polygon') {
-                                handlePolygons(factory, feature, coordinates, styleGroups, lsScale, tile);
-                            }
+                            break;
                         }
                     }
-
-                    // else console.log('render dupl!', link, tile);
-                } else {
-                    // feature count < bundle size -> next
-                    break;
                 }
+                notDone = heap[3] < cData.length;
             }
 
             heap[4] = PROCESS_FEATURE_BUNDLE_SIZE;
 
-            return heap[3] < dataLen;
+            return notDone;
         }
         // icb(groups);
     });

@@ -26,7 +26,6 @@ const addText = (
     point: number[],
     vertex: number[],
     texcoord: number[],
-    coordinates: number[],
     fontInfo,
     cx: number,
     cy: number,

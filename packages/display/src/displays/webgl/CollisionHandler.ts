@@ -103,6 +103,8 @@ export class CollisionHandler {
             });
         }
 
+        // this.pending.length;
+
         this.tileCollision = collisionData;
 
         this.layerIndex = layer.index;
@@ -120,7 +122,7 @@ export class CollisionHandler {
         bufferOffsetStart: number,
         bufferOffsetEnd: number,
         attributeBuffer: Attribute | FlexAttribute,
-        priority: number = 0xffff
+        priority: number = Number.MAX_SAFE_INTEGER
     ) {
         // const estimatedTextWidth = fontInfo.getTextWidth(text);
         // const estimatedTextWidth = fontInfo.avgCharWidth * text.length / 2;
