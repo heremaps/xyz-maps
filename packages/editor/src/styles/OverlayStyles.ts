@@ -46,57 +46,58 @@ const getValue = (val, feature, zoomlevel: number) => {
 
 
 const createHighlightLineStyle = () => [{
-    'zIndex': 0,
-    'type': 'Line',
-    'strokeWidth': 2,
-    'stroke': '#FF0000'
+    zIndex: 0,
+    type: 'Line',
+    strokeWidth: 2,
+    stroke: '#FF0000'
 }];
 
 const createSelectorStyle = () => [{
-    'zIndex': 0,
-    'type': 'Circle',
-    'strokeWidth': 2,
-    'stroke': '#FF0F00',
-    'radius': 20
+    zIndex: 0,
+    type: 'Circle',
+    strokeWidth: 2,
+    stroke: '#FF0F00',
+    radius: 20
 }];
 
 const createRoutingPointStyle = () => [{
-    'zIndex': 0,
-    'type': 'Circle',
-    'radius': 8,
-    'fill': '#FF0000',
-    'stroke': '#FF0000'
+    zIndex: 0,
+    type: 'Circle',
+    radius: 8,
+    fill: '#FF0000',
+    stroke: '#FF0000'
 }, {
-    'zIndex': 1,
-    'type': 'Circle',
-    'radius': 5,
-    'fill': '#FF0000',
-    'stroke': '#FFFFFF',
-    'strokeWidth': 2
+    zIndex: 1,
+    type: 'Circle',
+    radius: 5,
+    fill: '#FF0000',
+    stroke: '#FFFFFF',
+    strokeWidth: 2
 }];
 
 const createDirectionHintStyle = (dir) => [{
-    'zIndex': 0,
-    'type': 'Circle',
-    'radius': 13,
-    'fill': '#ffffff',
-    'stroke': BLACK,
-    'strokeWidth': 1.5
+    zIndex: 0,
+    type: 'Circle',
+    radius: 13,
+    fill: '#ffffff',
+    stroke: BLACK,
+    strokeWidth: 1.5
 }, {
-    'zIndex': 1,
-    'type': 'Text',
-    'fill': BLACK,
-    'font': 'normal 16px Arial',
-    'text': dir
+    zIndex: 1,
+    type: 'Text',
+    fill: BLACK,
+    font: 'normal 16px Arial',
+    text: dir
 }];
 
 const createTurnrestrictionSign = (src) => [{
-    'zIndex': 1,
-    'type': 'Image',
-    'src': src,
-    'width': 24,
-    'height': 24,
-    'rotation': (feature) => feature.properties.rotation
+    zIndex: 1,
+    type: 'Image',
+    src: src,
+    width: 24,
+    height: 24,
+    alignment: 'map',
+    rotation: (feature) => feature.properties.rotation
 }];
 
 class OverlayStyles {
@@ -113,23 +114,23 @@ class OverlayStyles {
         'PLACE_ROUTING_POINT': createRoutingPointStyle(),
 
         'AREA_SHAPE': [{
-            'zIndex': 0,
-            'type': 'Circle',
-            'strokeWidth': 2,
-            'stroke': BLACK,
-            'radius': (feature) => isHovered(feature) ? 6 : 4,
-            'fill': (feature, zoom) => isHovered(feature)
+            zIndex: 0,
+            type: 'Circle',
+            strokeWidth: 2,
+            stroke: BLACK,
+            radius: (feature) => isHovered(feature) ? 6 : 4,
+            fill: (feature, zoom) => isHovered(feature)
                 ? BLACK
                 : getValue(feature.properties['AREA'].style[0].fill, feature, zoom)
         }],
 
         'AREA_VIRTUAL_SHAPE': [{
-            'zIndex': 0,
-            'type': 'Circle',
-            'strokeWidth': 1,
-            'fill': BLACK,
-            'stroke': BLACK,
-            'radius': (feature) => isHovered(feature) ? 5 : 3
+            zIndex: 0,
+            type: 'Circle',
+            strokeWidth: 1,
+            fill: BLACK,
+            stroke: BLACK,
+            radius: (feature) => isHovered(feature) ? 5 : 3
         }],
 
         'LINE_SHAPE': [{
@@ -166,59 +167,62 @@ class OverlayStyles {
         'PLACE_SELECTOR': createSelectorStyle(),
 
         'NAVLINK_SHAPE': [{
-            'zIndex': 0,
-            'type': (feature) => feature.properties.isConnected
+            zIndex: 0,
+            type: (feature) => feature.properties.isConnected
                 ? 'Rect'
                 : 'Circle',
-            'width': (feature) => isHovered(feature) ? 18 : 12,
-            'rotation': 45,
-            'radius': (feature) => isHovered(feature) ? 9 : 6,
-            'strokeWidth': 2,
+            width: (feature) => isHovered(feature) ? 18 : 12,
+            rotation: 45,
+            radius: (feature) => isHovered(feature) ? 9 : 6,
+            strokeWidth: 2,
 
-            'fill': (feature, zoom) => feature.isOverlapping()
+            fill: (feature, zoom) => feature.isOverlapping()
                 ? '#FFFFFF'
                 : getValue(feature.properties.NAVLINK.style[0].stroke, feature, zoom),
 
-            'stroke': (feature) => feature.isOverlapping()
+            stroke: (feature) => feature.isOverlapping()
                 ? '#FF0000'
                 : '#FFFFFF'
         }],
 
         'NAVLINK_VIRTUAL_SHAPE': [{
-            'zIndex': 1,
-            'type': 'Circle',
-            'radius': (feature) => feature.properties.NAVLINK.style[0]['strokeWidth'] / 5,
-            'opacity': .7,
-            'fill': BLACK,
-            'stroke': BLACK,
-            'strokeWidth': 2
+            zIndex: 1,
+            type: 'Circle',
+            radius: (feature) => feature.properties.NAVLINK.style[0]['strokeWidth'] / 5,
+            opacity: .7,
+            fill: BLACK,
+            stroke: BLACK,
+            strokeWidth: 2
         }],
 
         'NAVLINK_DIRECTION_HINT_1WAY': [{
-            'zIndex': 1,
-            'type': 'Image',
-            'src': iconArrowHint,
-            'rotation': (feature) => feature.properties.bearing,
-            'width': 31,
-            'height': 12
+            zIndex: 1,
+            type: 'Image',
+            src: iconArrowHint,
+            rotation: (feature) => feature.properties.bearing,
+            width: 31,
+            height: 12,
+            alignment: 'map'
         }],
 
         'NAVLINK_DIRECTION_HINT_2WAY': [{
-            'zIndex': 1,
-            'type': 'Image',
-            'src': iconArrowDirHint,
-            'rotation': (feature) => feature.properties.bearing,
-            'width': 31,
-            'height': 12
+            zIndex: 1,
+            type: 'Image',
+            src: iconArrowDirHint,
+            rotation: (feature) => feature.properties.bearing,
+            width: 31,
+            height: 12,
+            alignment: 'map'
         }],
 
         'NAVLINK_DIRECTION_HINT_BLOCKED': [{
-            'zIndex': 1,
-            'type': 'Image',
-            'src': iconOneway,
-            'rotation': 90,
-            'width': 24,
-            'height': 24
+            zIndex: 1,
+            type: 'Image',
+            src: iconOneway,
+            rotation: 90,
+            width: 24,
+            height: 24,
+            alignment: 'map'
         }],
 
         'NAVLINK_DIRECTION_HINT_A': createDirectionHintStyle('A'),
@@ -226,39 +230,42 @@ class OverlayStyles {
         'NAVLINK_DIRECTION_HINT_B': createDirectionHintStyle('B'),
 
         'NAVLINK_DIRECTION': [{
-            'zIndex': 0,
-            'type': 'Image',
-            'src': iconArrow,
-            'width': 16,
-            'height': 28,
-            'rotation': (feature) => -feature.properties.bearing,
-            'opacity': 0.7
+            zIndex: 0,
+            type: 'Image',
+            src: iconArrow,
+            width: 16,
+            height: 28,
+            rotation: (feature) => -feature.properties.bearing,
+            opacity: 0.7,
+            alignment: 'map'
         }],
 
         'NAVLINK_DIRECTION_NONE': [{
-            'zIndex': 0,
-            'type': 'Image',
-            'src': iconOneway,
-            'width': 24,
-            'height': 24,
-            'rotation': 90
+            zIndex: 0,
+            type: 'Image',
+            src: iconOneway,
+            width: 24,
+            height: 24,
+            rotation: 90,
+            alignment: 'map'
         }],
 
         'TURN_RESTRICTION_START': [{
-            'type': 'Image',
-            'zIndex': 1,
-            'src': iconCar,
-            'width': 36,
-            'height': 20,
-            'rotation': (feature) => feature.properties.rotation
+            type: 'Image',
+            zIndex: 1,
+            src: iconCar,
+            width: 36,
+            height: 20,
+            rotation: (feature) => feature.properties.rotation,
+            alignment: 'map'
         }],
 
         'TURN_RESTRICTION_LINE': [{
-            'type': 'Line',
-            'zIndex': 0,
-            'strokeWidth': 5,
-            'strokeLinecap': 'round',
-            'stroke': (feature) => feature.properties.sign == 'TURN_RESTRICTION_ALLOWED'
+            type: 'Line',
+            zIndex: 0,
+            strokeWidth: 5,
+            strokeLinecap: 'round',
+            stroke: (feature) => feature.properties.sign == 'TURN_RESTRICTION_ALLOWED'
                 ? '#0000ff'
                 : '#ff0000'
         }],
@@ -269,12 +276,12 @@ class OverlayStyles {
         'TURN_RESTRICTION_PEDESTRIAN': createTurnrestrictionSign(iconPedestrian),
 
         'UNKNOWN': [{
-            'zIndex': 0,
-            'type': 'Circle',
-            'strokeWidth': 1,
-            'stroke': '#FF0000',
-            'fill': '#0000FF',
-            'radius': 10
+            zIndex: 0,
+            type: 'Circle',
+            strokeWidth: 1,
+            stroke: '#FF0000',
+            fill: '#0000FF',
+            radius: 10
         }]
     }
 
