@@ -154,7 +154,7 @@ export class FeatureFactory {
             if (opacity === 0) continue;
 
 
-            if (priority == UNDEF && type == 'Text' && (style.collide || style.collide == UNDEF)) {
+            if (priority == UNDEF && type == 'Text' && !style.collide) {
                 this.pendingCollisions.push({
                     feature: feature,
                     style: style,
@@ -366,6 +366,8 @@ export class FeatureFactory {
 
             if (geomType == 'Point') {
                 if (type == 'Text') {
+                    if (!tile.isInside(coordinates)) continue;
+
                     let {texture} = group;
 
                     if (!texture) {

@@ -1,0 +1,11 @@
+{
+    "layers": [{
+        "id": "testLayer",
+        "provider": {
+            "id": "testProvider",
+            "type": "LocalProvider"
+        },
+        "min": 2,
+        "max": 20
+    }]
+}
