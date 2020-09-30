@@ -3,10 +3,8 @@ precision lowp float;
 attribute vec2 a_position;
 attribute vec2 a_textureCoord;
 
-uniform mat4 u_matrix;
-uniform vec2 u_topLeft;
-uniform vec2 u_textureAtlasOffset;
-uniform float u_textureAtlasScale;
+uniform highp mat4 u_matrix;
+uniform highp vec2 u_topLeft;
 
 varying vec2 v_textureCoord;
 
