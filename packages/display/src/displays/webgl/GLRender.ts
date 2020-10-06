@@ -50,13 +50,14 @@ import {
     translate,
     scale,
     clone,
+    copy,
     invert,
     identity
 } from 'gl-matrix/mat4';
 import {Layer} from '../Layers';
 import {GLStates} from './program/GLStates';
 
-const mat4 = {create, lookAt, multiply, perspective, rotateX, rotateZ, translate, scale, clone, invert, identity};
+const mat4 = {create, lookAt, multiply, perspective, rotateX, rotateZ, translate, scale, clone, copy, invert, identity};
 
 type TileLayer = layers.TileLayer;
 type Tile = any;
@@ -89,12 +90,20 @@ export class GLRender implements BasicRender {
     private invPMat: Float32Array; // inverse projection matrix
     screenMat: Float32Array;
     invScreenMat: Float32Array;
+
+    private tilePreviewTransform: {
+        m: Float32Array; // tile transformation matrix,
+        tx: number; // translate x
+        ty: number; // translate y
+        s: number; // scale
+    }
+
     private scale: number;
     private rz: number;
     private rx: number;
     private programs: { [name: string]: Program };
     private gridTextBuf = new WeakMap();
-    private dLayer: Layer;
+    private dLayer: { z: number, z3d: number };
 
     tileGrid: boolean = false;
     tileSize: number = 256;
@@ -134,6 +143,13 @@ export class GLRender implements BasicRender {
         this.invPMat = mat4.create();
         this.screenMat = mat4.create();
         this.invScreenMat = mat4.create();
+
+        this.tilePreviewTransform = {
+            m: mat4.create(),
+            tx: 0,
+            ty: 0,
+            s: 0
+        };
 
         const stencilTile = createTileBuffer(1);
         // will only draw in alpha pass!
@@ -276,6 +292,11 @@ export class GLRender implements BasicRender {
         // avoid precision issues...
         zFar *= 1.005;
 
+        // clear tile preview matrix cache
+        this.tilePreviewTransform.tx = null;
+        this.tilePreviewTransform.ty = null;
+        this.tilePreviewTransform.s = null;
+
         this.w = pixelWidth;
         this.h = pixelHeight;
         this.rz = rotZ;
@@ -409,13 +430,20 @@ export class GLRender implements BasicRender {
         }
     }
 
-    private grpFilter: (group: GeometryBuffer) => boolean;
+    private zFilter: (z: number) => boolean;
 
-    setGroupFilter(filter?: (group: GeometryBuffer) => boolean) {
-        this.grpFilter = filter;
+    setZFilter(filter?: (z: number) => boolean) {
+        this.zFilter = filter;
     }
 
-    private drawBuffer(buffer: GeometryBuffer, x: number, y: number, pMat?: Float32Array, dZoom?: number/* , customGLStates?*/, stencilSize?: number): void {
+    private drawBuffer(
+        buffer: GeometryBuffer,
+        x: number,
+        y: number,
+        pMat?: Float32Array,
+        dZoom?: number,
+        stencilSize?: number
+    ): void {
         const gl = this.gl;
         const buffers = this.buffers;
         const renderLayer = this.dLayer;
@@ -427,17 +455,16 @@ export class GLRender implements BasicRender {
 
         program = this.programs[buffer.type];
 
-        if (this.grpFilter && !this.grpFilter(buffer)) {
-            return;
-        }
-
         if (program) {
             let pass = program.pass(renderPass);
 
             dZoom = dZoom || 1;
 
-            const absZ = renderLayer.getAbsoluteZ(buffer.zIndex); // / dZoom;
-            const isOnTopOf3d = absZ > renderLayer.getZ3d();
+            const absZ = renderLayer.z;
+            const isOnTopOf3d = absZ > renderLayer.z3d;
+
+            // const absZ = renderLayer.getAbsoluteZ(buffer.zIndex); // / dZoom;
+            // const isOnTopOf3d = absZ > renderLayer.getZ3d();
 
             if (buffer.alpha || isOnTopOf3d) {
                 pass = renderPass == 'alpha';
@@ -515,8 +542,8 @@ export class GLRender implements BasicRender {
             // disable color buffer
             gl.colorMask(false, false, false, false);
 
-            const grpFilter = this.grpFilter;
-            this.grpFilter = null;
+            const grpFilter = this.zFilter;
+            this.zFilter = null;
 
             this.drawBuffer(
                 stencilTile,
@@ -527,13 +554,18 @@ export class GLRender implements BasicRender {
                 this.stencilSize
             );
 
-            this.grpFilter = grpFilter;
+            this.zFilter = grpFilter;
             gl.stencilFunc(gl.EQUAL, refVal, 0xff);
             gl.stencilOp(gl.KEEP, gl.KEEP, gl.KEEP);
             // enable color buffer again
             gl.colorMask(true, true, true, false);
         }
     }
+
+
+    private scissorX: number;
+    private scissorY: number;
+    private scissorSize: number;
 
     private initScissor(buffer, x: number, y: number, width: number, height: number): boolean {
         if (buffer.scissor) {
@@ -544,77 +576,119 @@ export class GLRender implements BasicRender {
             if (this.scale > 4.0) {
                 // workaround: precision issues for 22+ zooms -> disable scissor
                 gl.scissor(0, 0, w, h);
+                this.scissorX = null;
                 return true;
             }
-            // prevent flicker on tile boundaries
-            const buf = this.pass == 'opaque' ? .5 : 0;
-            const x1 = x - buf;
-            const x2 = x + width + buf;
-            const y1 = y - buf;
-            const y2 = y + height + buf;
-            const lowerLeft = [x1, y2, 0];
-            const lowerRight = [x2, y2, 0];
-            const upperLeft = [x1, y1, 0];
-            const upperRight = [x2, y1, 0];
 
-            let xmin = Infinity;
-            let xmax = -xmin;
-            let ymin = xmin;
-            let ymax = xmax;
+            if (this.scissorX != x || this.scissorY != y || this.scissorSize != width) {
+                this.scissorX = x;
+                this.scissorY = y;
+                this.scissorSize = width;
 
-            for (let p of [lowerLeft, lowerRight, upperLeft, upperRight]) {
-                p = transformMat4([], p, this.pMat);
-                let x = unclip(p[0], w);
-                let y = unclip(p[1], h);
-                if (x < xmin) xmin = x;
-                if (x > xmax) xmax = x;
-                if (y < ymin) ymin = y;
-                if (y > ymax) ymax = y;
+                // prevent flicker on tile boundaries
+                const buf = this.pass == 'opaque' ? .5 : 0;
+                const x1 = x - buf;
+                const x2 = x + width + buf;
+                const y1 = y - buf;
+                const y2 = y + height + buf;
+                const lowerLeft = [x1, y2, 0];
+                const lowerRight = [x2, y2, 0];
+                const upperLeft = [x1, y1, 0];
+                const upperRight = [x2, y1, 0];
+
+                let xmin = Infinity;
+                let xmax = -xmin;
+                let ymin = xmin;
+                let ymax = xmax;
+
+                for (let p of [lowerLeft, lowerRight, upperLeft, upperRight]) {
+                    p = transformMat4([], p, this.pMat);
+                    let x = unclip(p[0], w);
+                    let y = unclip(p[1], h);
+                    if (x < xmin) xmin = x;
+                    if (x > xmax) xmax = x;
+                    if (y < ymin) ymin = y;
+                    if (y > ymax) ymax = y;
+                }
+                gl.scissor(xmin, ymin, xmax - xmin, ymax - ymin);
             }
-            gl.scissor(xmin, ymin, xmax - xmin, ymax - ymin);
             return true;
         }
     }
 
-    layer(dTile: GLTile, x: number, y: number, renderLayer: Layer, tileBucket: Bucket): void {
-        const data = dTile.data;
+    draw(x: number, y: number, data, dTile: GLTile): void {
         const z = dTile.quadkey.length;
-        const layerIndex = renderLayer.index;
-        const tileSize = renderLayer.layer.tileSize;
-        this.dLayer = renderLayer;
-
-        let previewData;
-        let buffers;
-        let buffer;
         let qk;
-        let previewTile;
-        let previewBuffers;
-        let prevScale;
-        let tileScaleMatrix;
         let sx;
         let sy;
         let sWidth;
         let dx;
         let dy;
         let dWidth;
-        let tScale;
         let scale;
         let dZoom;
         let px;
         let py;
-
         let scissored = false;
         let stenciled = false;
+        const isAlphaPass = this.pass == 'alpha';
+
+        for (let b = 0, length = data.length - 1; b <= length; b++) {
+            // let bufferData = data[b];
+            // in case of alpha pass reverse drawing order to allow alpha blending using depthfunc LEQUAL
+            let bufferData = data[isAlphaPass ? length - b : b];
+            let buffer = bufferData.b;
+            let {layer, preview} = bufferData;
+            let {tileSize} = layer;
+
+            if (this.zFilter && !this.zFilter(bufferData.absZ)) continue;
+
+            this.dLayer = {
+                z: bufferData.absZ,
+                z3d: layer.getZ3d()
+            };
+
+            if (preview) {
+                let previewTile = bufferData.previewTile;
+
+                qk = preview[0];
+                sx = preview[1];
+                sy = preview[2];
+                sWidth = preview[3];
+                dx = preview[5];
+                dy = preview[6];
+                dWidth = preview[7];
+                scale = dWidth / sWidth; // Math.pow(2, dTile.quadkey.length - qk.length);
+                dZoom = Math.pow(2, z - qk.length);
+                px = dx / scale - sx;
+                py = dy / scale - sy;
 
 
-        if (buffers = data[layerIndex]) {
-            const length = buffers.length - 1;
-            const isAlphaPass = this.pass == 'alpha';
+                const previewTransformMatrix = this.initPreviewMatrix(x, y, scale);
 
-            for (let b = 0; b <= length; b++) {
-                // in case of alpha pass reverse drawing order to allow alpha blending using depthfunc LEQUAL
-                buffer = buffers[isAlphaPass ? length - b : b];
 
+                this.initScissor(buffer, x + dx, y + dy, dWidth, dWidth);
+                // this.gl.scissor(0, 0, 4096, 4096);
+
+                // this.gl.stencilFunc(this.gl.ALWAYS, 0, 0);
+                // this.initStencil(px,py, tileSize, Math.random()*255 +1 ^0 );
+                // this.initStencil( px -  (x + dx), py - (y + dy), tileSize, previewTile.i, tileScaleMatrix);
+                // mat4.scale(tileScaleMatrix, tileScaleMatrix, [1, 1, 1]);
+                // this.initStencil(0,0, tileSize, Math.random()*255 +1 ^0, tileScaleMatrix );
+                // works for zoom in preview // this.initStencil(x, y, tileSize, dTile.i); //this.drawBuffer(buf, px, py, tileScaleMatrix, dZoom);
+                // this.initStencil(x,y, tileSize, dTile.i);
+
+                if (dZoom < 1) {
+                    // this.gl.clear(this.gl.STENCIL_BUFFER_BIT);
+                    this.initStencil(previewTile.i, x + dx, y + dy, tileSize * dZoom);
+                    // this.gl.stencilFunc(this.gl.ALWAYS, 0, 0);
+                } else if (!stenciled) {
+                    stenciled = true;
+                    this.initStencil(dTile.i, x, y, tileSize);
+                }
+
+                this.drawBuffer(buffer, px, py, previewTransformMatrix, dZoom);
+            } else {
                 if (!scissored) {
                     scissored = this.initScissor(buffer, x, y, tileSize, tileSize);
                 }
@@ -626,68 +700,26 @@ export class GLRender implements BasicRender {
 
                 this.drawBuffer(buffer, x, y);
             }
-        } else if (previewData = dTile.preview(layerIndex)) {
-            if (previewData.length) {
-                prevScale = 1;
-                tileScaleMatrix = mat4.clone(this.pMat);
-                mat4.translate(tileScaleMatrix, tileScaleMatrix, [x, y, 0]);
-                // mat4.scale(tileScaleMatrix, tileScaleMatrix, [pScale, pScale, pScale]);
-
-                for (let preview of previewData) {
-                    qk = preview[0];
-                    previewTile = tileBucket.get(qk, true /* SKIP TRACK*/);
-
-                    if (previewTile) {
-                        if (previewBuffers = previewTile.getData(layerIndex)) {
-                            // let ordererd = this._test(previewBuffers);
-
-                            sx = preview[1];
-                            sy = preview[2];
-                            sWidth = preview[3];
-                            dx = preview[5];
-                            dy = preview[6];
-                            dWidth = preview[7];
-                            tScale = dWidth / sWidth; // Math.pow(2, dTile.quadkey.length - qk.length);
-
-                            // prevScale = prevScale || tScale;
-
-                            scale = tScale / prevScale;
-                            dZoom = Math.pow(2, z - qk.length);
-                            px = dx / tScale - sx;
-                            py = dy / tScale - sy;
-
-                            mat4.scale(tileScaleMatrix, tileScaleMatrix, [scale, scale, scale]);
-                            // mat4.scale(tileScaleMatrix, tileScaleMatrix, [1/scale, 1/scale, 1/scale]);
-                            prevScale = tScale;
-
-                            for (let buf of previewBuffers) {
-                                this.initScissor(buf, x + dx, y + dy, dWidth, dWidth);
-                                // this.gl.scissor(0, 0, 4096, 4096);
-
-                                // this.gl.stencilFunc(this.gl.ALWAYS, 0, 0);
-                                // this.initStencil(px,py, tileSize, Math.random()*255 +1 ^0 );
-                                // this.initStencil( px -  (x + dx), py - (y + dy), tileSize, previewTile.i, tileScaleMatrix);
-                                // mat4.scale(tileScaleMatrix, tileScaleMatrix, [1, 1, 1]);
-                                // this.initStencil(0,0, tileSize, Math.random()*255 +1 ^0, tileScaleMatrix );
-                                // works for zoom in preview // this.initStencil(x, y, tileSize, dTile.i); //this.drawBuffer(buf, px, py, tileScaleMatrix, dZoom);
-                                // this.initStencil(x,y, tileSize, dTile.i);
-
-                                if (dZoom < 1) {
-                                    // this.gl.clear(this.gl.STENCIL_BUFFER_BIT);
-                                    this.initStencil(previewTile.i, x + dx, y + dy, tileSize * dZoom);
-                                    // this.gl.stencilFunc(this.gl.ALWAYS, 0, 0);
-                                } else if (!stenciled) {
-                                    stenciled = true;
-                                    this.initStencil(dTile.i, x, y, tileSize);
-                                }
-
-                                this.drawBuffer(buf, px, py, tileScaleMatrix, dZoom);
-                            }
-                        }
-                    }
-                }
-            }
         }
+    }
+
+    private initPreviewMatrix(tx: number, ty: number, s: number): Float32Array {
+        const {tilePreviewTransform} = this;
+        const {m} = tilePreviewTransform;
+        if (
+            tilePreviewTransform.tx != tx ||
+            tilePreviewTransform.ty != ty ||
+            tilePreviewTransform.s != s
+        ) {
+            mat4.copy(m, this.pMat);
+            mat4.translate(m, m, [tx, ty, 0]);
+            mat4.scale(m, m, [s, s, s]);
+
+            tilePreviewTransform.tx = tx;
+            tilePreviewTransform.ty = ty;
+            tilePreviewTransform.s = s;
+        }
+        return m;
     }
 
     destroy(): void {

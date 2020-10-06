@@ -252,28 +252,28 @@ const createBuffer = (
                         geoBuffer.addUniform('u_rotation', shared.rotation * TO_RAD);
                         geoBuffer.addUniform('u_offset', [shared.offsetX, shared.offsetY]);
 
-                        if (z == 'top') {
-                            z = Infinity;
-                            geoBuffer.alpha = true;
-                            // make sure opaque items are rendered in alpha pass
-                            geoBuffer.depth = false;
+                        let {zLayer} = grp;
+                        let zIndex: string | number = z;
+
+                        // convert zIndex:'top' (deprecated) to zLayer
+                        if (zIndex == 'top') {
+                            zLayer = Infinity;
+                            zIndex = 0;
                         }
 
-                        z = Number(z);
+                        zIndex = Number(zIndex);
 
                         geoBuffer.flat = grpBuffer.isFlat();
 
-                        renderLayer.addZ(z, !geoBuffer.flat);
-                        geoBuffer.zIndex = z;
+                        renderLayer.addZ(zIndex, !geoBuffer.flat);
+                        geoBuffer.zIndex = zIndex;
+
+                        geoBuffer.zLayer = typeof zLayer == 'number' ? Math.ceil(zLayer) : null;
 
                         if (geoBuffer.scissor == UNDEF) {
                             // scissor is slow so no need for if source data is clipped already
                             geoBuffer.scissor = !tile.clipped || hasAlphaColor;
                         }
-
-                        // TODO: order (+draw) groups by zIndex
-                        // geoBuffer.groups.unshift(geoGroup);
-                        // geoBuffer.addGroup(geoGroup);
                     }
                 }
             }

@@ -257,6 +257,33 @@ class WebGlDisplay extends BasicDisplay {
         }
     }
 
+
+    private orderBuffers(screenTile, buffers, layer, z3d, absZOrder, zSorted, preview?, previewTile?) {
+        for (let buffer of buffers) {
+            let {zLayer, zIndex} = buffer;
+
+            if (zLayer == null) {
+                zLayer = layer.index + 1;
+            }
+
+            let z = zLayer * 1e6 + zIndex;
+
+            absZOrder[z] = true;
+
+            zSorted[zSorted.length] = {
+                z3d: z3d,
+                zIndex: zIndex,
+                z: z,
+                b: buffer,
+                tile: screenTile,
+                layer: layer,
+                absZ: 0,
+                preview: preview,
+                previewTile: previewTile
+            };
+        }
+    }
+
     protected viewport(dirty?: boolean) {
         const display = this;
         const {buckets, layers, render} = display;
@@ -297,7 +324,7 @@ class WebGlDisplay extends BasicDisplay {
                     screenTile = tiles[i++];
                     // if (dTile.lrTs != dTile.luTs || dirty) {
                     let dTile = screenTile.tile;
-                    render.layer(dTile, screenTile.x, screenTile.y, layer, buckets);
+                    // render.layer(dTile, screenTile.x, screenTile.y, layer, buckets);
                     // }
 
                     if (!layer.ready && dTile.ready(l)) {
@@ -309,50 +336,95 @@ class WebGlDisplay extends BasicDisplay {
             }
         }
 
+
+        console.time('order');
+
+        let zSortedTiles = [];
+
+        let absZOrder = {};
+
+        for (let layer of layers) {
+            let tiles = layer.tiles;
+            if (tiles) {
+                let layerIndex = layer.index;
+                let z3d = layer.getZ3d();
+                let length = tiles.length;
+                let i = 0;
+                while (i < length) {
+                    let screenTile = tiles[i++];
+                    let dTile = <GLTile>screenTile.tile;
+                    let buffers = dTile.data[layer.index];
+                    if (!buffers) {
+                        let previewData;
+                        if (previewData = dTile.preview(layer.index)) {
+                            if (previewData.length) {
+                                for (let preview of previewData) {
+                                    let qk = preview[0];
+                                    let previewTile = buckets.get(qk, true /* SKIP TRACK */);
+                                    let previewBuffers;
+                                    previewBuffers = previewTile?.getData(layerIndex);
+                                    if (previewBuffers?.length) {
+                                        let zSorted = zSortedTiles[i] = zSortedTiles[i] || [];
+                                        this.orderBuffers(screenTile, previewBuffers, layer, z3d, absZOrder, zSorted, preview, previewTile);
+                                    }
+                                }
+                            }
+                        }
+                    } else if (buffers.length) {
+                        let zSorted = zSortedTiles[i] = zSortedTiles[i] || [];
+                        this.orderBuffers(screenTile, buffers, layer, z3d, absZOrder, zSorted);
+                    }
+                }
+            }
+        }
+
+
+        let maxZIndex = -1;
+        for (let i in absZOrder) {
+            absZOrder[i] = ++maxZIndex;
+        }
+
+        for (let i = 0; i < zSortedTiles.length; i++) {
+            let zTile = zSortedTiles[i];
+            if (zTile) {
+                // zTile = zSortedTiles[i] = zTile.sort((a, b) => b.z - a.z);
+                let l = zTile.length;
+                while (l--) {
+                    let a = zTile[l];
+                    a.absZ = absZOrder[a.z];
+                }
+            }
+        }
+
+        console.timeEnd('order');
+
+
+        let b = zSortedTiles.length;
+        while (b--) {
+            let data = zSortedTiles[b];
+            if (data) {
+                let screenTile = data[0].tile;
+                render.draw(screenTile.x, screenTile.y, data, screenTile.tile);
+            }
+        }
+
+
         render.setPass('alpha');
 
-        let layerZIndex;
-        render.setGroupFilter((group) => {
-            let {zIndex} = group;
-            // return zIndex == layerZIndex || zIndex == Infinity;
-            return zIndex == layerZIndex;
-        });
+        let layerZIndex = -1;
+        render.setZFilter((z: number) => z == layerZIndex);
 
-        for (l = 0; l < layerLength; l++) {
-            layer = layers[l];
-            tiles = layer.tiles;
-            if (tiles) {
-                length = tiles.length;
-                for (layerZIndex in layer.z) {
-                    if (layerZIndex == Infinity) continue;
-                    i = 0;
-                    while (i < length) {
-                        screenTile = tiles[i++];
-                        render.layer(screenTile.tile, screenTile.x, screenTile.y, layer, buckets);
-                    }
+        while (++layerZIndex <= maxZIndex) {
+            for (b = 0, length = zSortedTiles.length; b < length; b++) {
+                let data = zSortedTiles[b];
+                if (data) {
+                    let screenTile = data[0].tile;
+                    render.draw(screenTile.x, screenTile.y, data, screenTile.tile);
                 }
             }
         }
 
-        // TODO: REFACTOR drawing hierarchy handling/styling
-        // just a workaround for now
-        for (l = 0; l < layerLength; l++) {
-            layer = layers[l];
-            tiles = layer.tiles;
-            if (tiles) {
-                length = tiles.length;
-                for (layerZIndex in layer.z) {
-                    if (layerZIndex != Infinity) continue;
-                    i = 0;
-                    while (i < length) {
-                        screenTile = tiles[i++];
-                        render.layer(screenTile.tile, screenTile.x, screenTile.y, layer, buckets);
-                    }
-                }
-            }
-        }
-
-        render.setGroupFilter();
+        render.setZFilter();
 
         if (render.tileGrid) {
             for (let tileSize in display.tiles) {

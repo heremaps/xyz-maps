@@ -332,15 +332,20 @@ export class FeatureFactory {
 
             zIndex = getValue('zIndex', style, feature, level);
 
+            const zLayer = getValue('zLayer', style, feature, level);
+
+            if (zLayer != undefined) {
+                groupId = zLayer + ':' + groupId;
+            }
+
             zGrouped = groups[zIndex] = groups[zIndex] || [];
             index = zGrouped[groupId];
-
-            // console.log(groups);
 
             if (index == UNDEF) {
                 index = zGrouped[groupId] = zGrouped.length;
                 group = zGrouped[index] = {
                     type: type,
+                    zLayer: zLayer,
                     shared: {
                         font: font,
                         fill: fillRGBA, // && fillRGBA.slice(0, 3),

@@ -59,6 +59,7 @@ class GeometryBuffer {
 
     alpha: boolean;
     zIndex?: number;
+    zLayer?: number;
     scissor?: boolean;
     depth?: boolean;
     blend?: true;
