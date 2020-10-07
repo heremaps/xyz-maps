@@ -384,8 +384,7 @@ class WebGlDisplay extends BasicDisplay {
         while (b--) {
             let data = zSortedTiles[b];
             if (data) {
-                let screenTile = data[0].tile;
-                render.draw(screenTile.x, screenTile.y, screenTile.size, data, <GLTile>screenTile.tile);
+                render.draw(data);
             }
         }
 
@@ -398,8 +397,7 @@ class WebGlDisplay extends BasicDisplay {
             for (b = 0, length = zSortedTiles.length; b < length; b++) {
                 let data = zSortedTiles[b];
                 if (data) {
-                    let screenTile = data[0].tile;
-                    render.draw(screenTile.x, screenTile.y, screenTile.size, data, <GLTile>screenTile.tile);
+                    render.draw(data);
                 }
             }
         }

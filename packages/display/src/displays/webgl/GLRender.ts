@@ -614,8 +614,8 @@ export class GLRender implements BasicRender {
         }
     }
 
-    draw(x: number, y: number, tileSize: number, data: zTile[], dTile: GLTile): void {
-        const z = dTile.quadkey.length;
+    draw(data: zTile[]): void {
+        // const z = dTile.quadkey.length;
         const isAlphaPass = this.pass == 'alpha';
         let scissored = false;
         let stenciled = false;
@@ -635,6 +635,12 @@ export class GLRender implements BasicRender {
             // let bufferData = data[b];
             // in case of alpha pass reverse drawing order to allow alpha blending using depthfunc LEQUAL
             let bufferData = data[isAlphaPass ? length - b : b];
+
+            let screenTile = bufferData.tile;
+            let dTile = <GLTile>screenTile.tile;
+            let tileSize = screenTile.size;
+            let x = screenTile.x;
+            let y = screenTile.y;
             let buffer = bufferData.b;
             let {preview} = bufferData;
 
@@ -655,8 +661,8 @@ export class GLRender implements BasicRender {
                 dx = preview[5];
                 dy = preview[6];
                 dWidth = preview[7];
-                scale = dWidth / sWidth; // Math.pow(2, dTile.quadkey.length - qk.length);
-                dZoom = Math.pow(2, z - qk.length);
+                scale = dWidth / sWidth;
+                dZoom = Math.pow(2, dTile.quadkey.length - qk.length);
                 px = dx / scale - sx;
                 py = dy / scale - sy;
 
