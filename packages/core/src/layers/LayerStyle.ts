@@ -145,7 +145,10 @@ import {ILayerStyle, StyleGroup, StyleGroupMap} from './ILayerStyle';
 // type: null,
 
 /**
- *  Indecates rending hierarchy, symbolizer with bigger value is rendered above those with smaller values.
+ *  Indicates the drawing order within a layer.
+ *  Styles with larger zIndex value are rendered above those with smaller values.
+ *  The zIndex is defined relative to the "zLayer" property.
+ *  If "zLayer" is defined all zIndex values are relative to the "zLayer" value.
  *
  *  @public
  *  @expose
@@ -153,6 +156,21 @@ import {ILayerStyle, StyleGroup, StyleGroupMap} from './ILayerStyle';
  *  @type {number}
  */
 // zIndex: null,
+
+/**
+ *  Indicates drawing order across multiple layers.
+ *  Styles using zLayer with a high value are rendered on top of zLayers with a low value.
+ *  If no zLayer is defined the zLayer depends on the display layer order.
+ *  The first (lowest) layer has a zLayer value of 1.
+ *
+ *  example: {...zLayer:2, zIndex:5} will be rendered on top of {...zLayer:1, zIndex:10}
+ *
+ *  @public
+ *  @expose
+ *  @name here.xyz.maps.layers.TileLayer.Style#zLayer
+ *  @type {number=}
+ */
+// zLayer: null,
 
 /**
  *  Sets the color inside the symbolizer. This attribute is valid for Circle, Rect and Polygon.

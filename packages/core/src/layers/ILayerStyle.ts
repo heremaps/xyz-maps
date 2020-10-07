@@ -25,6 +25,7 @@ type styleNumberFunction = (feature: Feature, zoom: number) => number | null | u
 interface LayerStyle {
     type: 'Circle' | 'Rect' | 'Image' | 'Text' | 'Line' | 'Polygon';
     zIndex: number | styleNumberFunction;
+    zLayer?: number | styleNumberFunction;
     fill?: string | styleStringFunction;
     stroke?: string | styleStringFunction;
     strokeWidth?: number | styleNumberFunction;
