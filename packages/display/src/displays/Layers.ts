@@ -23,15 +23,17 @@ import BasicTile from './BasicTile';
 type Tile = tile.Tile;
 type TileLayer = layers.TileLayer;
 
-class TilePosition {
+class ScreenTile {
     x: number;
     y: number;
+    size: number;
     tile: BasicTile;
     lrTs: number | false = false;
 
-    constructor(x, y, tile) {
+    constructor(x:number, y:number, size:number, tile) {
         this.x = x;
         this.y = y;
+        this.size = size;
         this.tile = tile;
     }
 }
@@ -43,7 +45,7 @@ class Layer {
     error: boolean;
     index: number;
     visible: boolean;
-    tiles: TilePosition[];
+    tiles: ScreenTile[];
     tileSize: number;
     handleTile: (tile: Tile) => void;
     z: { [zIndex: string]: number } = {};
@@ -215,4 +217,4 @@ class Layers extends Array<Layer> {
     }
 }
 
-export {Layers, Layer, TilePosition};
+export {Layers, Layer, ScreenTile};

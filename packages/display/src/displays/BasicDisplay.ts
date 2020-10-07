@@ -20,7 +20,7 @@
 import {global, TaskManager} from '@here/xyz-maps-common';
 import {geo, tile, layers} from '@here/xyz-maps-core';
 import {getElDimension, createCanvas} from '../DOMTools';
-import {Layers, Layer, TilePosition} from './Layers';
+import {Layers, Layer, ScreenTile} from './Layers';
 import FeatureModifier from './FeatureModifier';
 import BasicRender from './BasicRender';
 import BasicTile from './BasicTile';
@@ -77,7 +77,7 @@ abstract class Display {
     render: BasicRender;
     buckets: BasicBucket;
     listeners: { [event: string]: (a1?, a2?) => void };
-    tiles: { [tilesize: string]: TilePosition[] };
+    tiles: { [tilesize: string]: ScreenTile[] };
     cluster: LayerClusterer;
     grid: Grid;
 
@@ -322,7 +322,7 @@ abstract class Display {
         for (let gridTile of gridTiles) {
             const {x, y, quadkey} = gridTile;
             const displayTile = display.getBucket(quadkey, CREATE_IF_NOT_EXISTS);
-            const tilePosition = new TilePosition(x, y, displayTile);
+            const tilePosition = new ScreenTile(x, y, gridTileSize, displayTile);
 
             displayTile.i = ++this.ti;
 

@@ -25,7 +25,7 @@ import {createBuffer} from './buffer/createBuffer';
 import {createImageBuffer} from './buffer/createImageBuffer';
 
 import {transformMat4} from 'gl-matrix/vec3';
-import {Layer} from '../Layers';
+import {Layer, ScreenTile} from '../Layers';
 import GLTile from './GLTile';
 import {FeatureFactory} from './buffer/FeatureFactory';
 import {CollisionHandler} from './CollisionHandler';
@@ -51,6 +51,16 @@ const PREVIEW_LOOK_AHEAD_LEVELS: [number, number] = [3, 9];
 //     -2 * y / height + 1,
 //     z || 0
 // ];
+
+
+export type zTile = {
+    z3d: number,
+    z: number,
+    b: GeometryBuffer,
+    tile: ScreenTile,
+    preview: number[],
+    previewTile: GLTile
+};
 
 
 class WebGlDisplay extends BasicDisplay {
@@ -258,7 +268,16 @@ class WebGlDisplay extends BasicDisplay {
     }
 
 
-    private orderBuffers(screenTile, buffers, layer, z3d, absZOrder, zSorted, preview?, previewTile?) {
+    private orderBuffers(
+        screenTile: ScreenTile,
+        buffers: GeometryBuffer[],
+        layer: Layer,
+        z3d: number,
+        absZOrder: { [intZ: string]: number },
+        zSorted: zTile[],
+        preview?: number[],
+        previewTile?: GLTile
+    ) {
         for (let buffer of buffers) {
             let {zLayer, zIndex} = buffer;
 
@@ -268,16 +287,13 @@ class WebGlDisplay extends BasicDisplay {
 
             let z = zLayer * 1e6 + zIndex;
 
-            absZOrder[z] = true;
+            absZOrder[z] = 0;
 
             zSorted[zSorted.length] = {
-                z3d: z3d,
-                zIndex: zIndex,
-                z: z,
                 b: buffer,
+                z: z,
+                z3d: z3d,
                 tile: screenTile,
-                layer: layer,
-                absZ: 0,
                 preview: preview,
                 previewTile: previewTile
             };
@@ -288,14 +304,8 @@ class WebGlDisplay extends BasicDisplay {
         const display = this;
         const {buckets, layers, render} = display;
         const layerLength = layers.length;
-
-        let l = layerLength;
-        let i = 0;
-        let screenTile;
-        // let quad; // [ quadkey, x, y, lastUpdateTimestamp ]
-        let layer: Layer;
         let length;
-        let tiles;
+
 
         if (display.dirty || dirty) {
             // this.render.clear();
@@ -303,48 +313,16 @@ class WebGlDisplay extends BasicDisplay {
             display.collision.update(display.grid.tiles[512], this.rx, this.rz, this.s,);
         }
 
-        render.clear(l && layers[0].bgColor || display.globalBgc);
+        render.clear(layerLength && layers[0].bgColor || display.globalBgc);
 
-
-        render.setPass('opaque');
-
-        while (l--) {
-            // for (let l = 0; l < layerCount; l++) {
-            layer = layers[l]; // {ready: false, layer: Layer, cnt: 0, visible: true}
-
-            tiles = layer.tiles;
-            // reset tile ready count
-            layer.cnt = 0;
-
-            if (tiles) {
-                length = tiles.length;
-                i = 0;
-
-                while (i < length) {
-                    screenTile = tiles[i++];
-                    // if (dTile.lrTs != dTile.luTs || dirty) {
-                    let dTile = screenTile.tile;
-                    // render.layer(dTile, screenTile.x, screenTile.y, layer, buckets);
-                    // }
-
-                    if (!layer.ready && dTile.ready(l)) {
-                        if (++layer.cnt == length) {
-                            layer.ready = true;
-                        }
-                    }
-                }
-            }
-        }
-
-
-        console.time('order');
-
-        let zSortedTiles = [];
-
+        let zSortedTiles: zTile[][] = [];
         let absZOrder = {};
 
         for (let layer of layers) {
             let tiles = layer.tiles;
+            // reset tile ready count
+            layer.cnt = 0;
+
             if (tiles) {
                 let layerIndex = layer.index;
                 let z3d = layer.getZ3d();
@@ -354,13 +332,18 @@ class WebGlDisplay extends BasicDisplay {
                     let screenTile = tiles[i++];
                     let dTile = <GLTile>screenTile.tile;
                     let buffers = dTile.data[layer.index];
+
+                    if (!layer.ready && dTile.ready(layerIndex) && ++layer.cnt == length) {
+                        layer.ready = true;
+                    }
+
                     if (!buffers) {
                         let previewData;
-                        if (previewData = dTile.preview(layer.index)) {
+                        if (previewData = dTile.preview(layerIndex)) {
                             if (previewData.length) {
                                 for (let preview of previewData) {
                                     let qk = preview[0];
-                                    let previewTile = buckets.get(qk, true /* SKIP TRACK */);
+                                    let previewTile = <GLTile>buckets.get(qk, true /* SKIP TRACK */);
                                     let previewBuffers;
                                     previewBuffers = previewTile?.getData(layerIndex);
                                     if (previewBuffers?.length) {
@@ -384,30 +367,27 @@ class WebGlDisplay extends BasicDisplay {
             absZOrder[i] = ++maxZIndex;
         }
 
-        for (let i = 0; i < zSortedTiles.length; i++) {
-            let zTile = zSortedTiles[i];
-            if (zTile) {
+        for (let i = 0, l, zTile; i < zSortedTiles.length; i++) {
+            if (zTile = zSortedTiles[i]) {
                 // zTile = zSortedTiles[i] = zTile.sort((a, b) => b.z - a.z);
-                let l = zTile.length;
+                l = zTile.length;
                 while (l--) {
                     let a = zTile[l];
-                    a.absZ = absZOrder[a.z];
+                    a.z = absZOrder[a.z];
                 }
             }
         }
 
-        console.timeEnd('order');
-
+        render.setPass('opaque');
 
         let b = zSortedTiles.length;
         while (b--) {
             let data = zSortedTiles[b];
             if (data) {
                 let screenTile = data[0].tile;
-                render.draw(screenTile.x, screenTile.y, data, screenTile.tile);
+                render.draw(screenTile.x, screenTile.y, screenTile.size, data, <GLTile>screenTile.tile);
             }
         }
-
 
         render.setPass('alpha');
 
@@ -419,7 +399,7 @@ class WebGlDisplay extends BasicDisplay {
                 let data = zSortedTiles[b];
                 if (data) {
                     let screenTile = data[0].tile;
-                    render.draw(screenTile.x, screenTile.y, data, screenTile.tile);
+                    render.draw(screenTile.x, screenTile.y, screenTile.size, data, <GLTile>screenTile.tile);
                 }
             }
         }

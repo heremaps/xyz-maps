@@ -37,7 +37,8 @@ import Program from './program/Program';
 import {createGridTextBuffer, createGridTileBuffer, createTileBuffer} from './buffer/debugTileBuffer';
 import {GeometryBuffer} from './buffer/GeometryBuffer';
 
-import Bucket from './Bucket';
+import {GLStates} from './program/GLStates';
+import {zTile} from './Display';
 
 import {transformMat4} from 'gl-matrix/vec3';
 import {
@@ -54,8 +55,6 @@ import {
     invert,
     identity
 } from 'gl-matrix/mat4';
-import {Layer} from '../Layers';
-import {GLStates} from './program/GLStates';
 
 const mat4 = {create, lookAt, multiply, perspective, rotateX, rotateZ, translate, scale, clone, copy, invert, identity};
 
@@ -188,7 +187,6 @@ export class GLRender implements BasicRender {
     }
 
     prepare(index: number, glTile: GLTile, tile: Tile, layer: TileLayer) {
-        console.log('prepare!');
     }
 
     clear(clearColor?): void {
@@ -616,8 +614,11 @@ export class GLRender implements BasicRender {
         }
     }
 
-    draw(x: number, y: number, data, dTile: GLTile): void {
+    draw(x: number, y: number, tileSize: number, data: zTile[], dTile: GLTile): void {
         const z = dTile.quadkey.length;
+        const isAlphaPass = this.pass == 'alpha';
+        let scissored = false;
+        let stenciled = false;
         let qk;
         let sx;
         let sy;
@@ -629,23 +630,19 @@ export class GLRender implements BasicRender {
         let dZoom;
         let px;
         let py;
-        let scissored = false;
-        let stenciled = false;
-        const isAlphaPass = this.pass == 'alpha';
 
         for (let b = 0, length = data.length - 1; b <= length; b++) {
             // let bufferData = data[b];
             // in case of alpha pass reverse drawing order to allow alpha blending using depthfunc LEQUAL
             let bufferData = data[isAlphaPass ? length - b : b];
             let buffer = bufferData.b;
-            let {layer, preview} = bufferData;
-            let {tileSize} = layer;
+            let {preview} = bufferData;
 
-            if (this.zFilter && !this.zFilter(bufferData.absZ)) continue;
+            if (this.zFilter && !this.zFilter(bufferData.z)) continue;
 
             this.dLayer = {
-                z: bufferData.absZ,
-                z3d: layer.getZ3d()
+                z: bufferData.z,
+                z3d: bufferData.z3d // layer.getZ3d()
             };
 
             if (preview) {
@@ -662,10 +659,6 @@ export class GLRender implements BasicRender {
                 dZoom = Math.pow(2, z - qk.length);
                 px = dx / scale - sx;
                 py = dy / scale - sy;
-
-
-                const previewTransformMatrix = this.initPreviewMatrix(x, y, scale);
-
 
                 this.initScissor(buffer, x + dx, y + dy, dWidth, dWidth);
                 // this.gl.scissor(0, 0, 4096, 4096);
@@ -686,6 +679,7 @@ export class GLRender implements BasicRender {
                     stenciled = true;
                     this.initStencil(dTile.i, x, y, tileSize);
                 }
+                const previewTransformMatrix = this.initPreviewMatrix(x, y, scale);
 
                 this.drawBuffer(buffer, px, py, previewTransformMatrix, dZoom);
             } else {
