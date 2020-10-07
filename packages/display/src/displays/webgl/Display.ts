@@ -53,11 +53,10 @@ const PREVIEW_LOOK_AHEAD_LEVELS: [number, number] = [3, 9];
 // ];
 
 
-export type zTile = {
-    z3d: number,
+export type TileBufferData = {
     z: number,
     b: GeometryBuffer,
-    tile: ScreenTile,
+    tile: ScreenTile, // [x,y,size, tile[quadkey,i]]
     preview: number[],
     previewTile: GLTile
 };
@@ -272,9 +271,8 @@ class WebGlDisplay extends BasicDisplay {
         screenTile: ScreenTile,
         buffers: GeometryBuffer[],
         layer: Layer,
-        z3d: number,
         absZOrder: { [intZ: string]: number },
-        zSorted: zTile[],
+        zSorted: TileBufferData[],
         preview?: number[],
         previewTile?: GLTile
     ) {
@@ -292,7 +290,6 @@ class WebGlDisplay extends BasicDisplay {
             zSorted[zSorted.length] = {
                 b: buffer,
                 z: z,
-                z3d: z3d,
                 tile: screenTile,
                 preview: preview,
                 previewTile: previewTile
@@ -315,7 +312,7 @@ class WebGlDisplay extends BasicDisplay {
 
         render.clear(layerLength && layers[0].bgColor || display.globalBgc);
 
-        let zSortedTiles: zTile[][] = [];
+        let zSortedTiles: TileBufferData[] = [];
         let absZOrder = {};
 
         for (let layer of layers) {
@@ -325,7 +322,6 @@ class WebGlDisplay extends BasicDisplay {
 
             if (tiles) {
                 let layerIndex = layer.index;
-                let z3d = layer.getZ3d();
                 let length = tiles.length;
                 let i = 0;
                 while (i < length) {
@@ -347,15 +343,13 @@ class WebGlDisplay extends BasicDisplay {
                                     let previewBuffers;
                                     previewBuffers = previewTile?.getData(layerIndex);
                                     if (previewBuffers?.length) {
-                                        let zSorted = zSortedTiles[i] = zSortedTiles[i] || [];
-                                        this.orderBuffers(screenTile, previewBuffers, layer, z3d, absZOrder, zSorted, preview, previewTile);
+                                        this.orderBuffers(screenTile, previewBuffers, layer, absZOrder, zSortedTiles, preview, previewTile);
                                     }
                                 }
                             }
                         }
                     } else if (buffers.length) {
-                        let zSorted = zSortedTiles[i] = zSortedTiles[i] || [];
-                        this.orderBuffers(screenTile, buffers, layer, z3d, absZOrder, zSorted);
+                        this.orderBuffers(screenTile, buffers, layer, absZOrder, zSortedTiles);
                     }
                 }
             }
@@ -367,16 +361,19 @@ class WebGlDisplay extends BasicDisplay {
             absZOrder[i] = ++maxZIndex;
         }
 
-        for (let i = 0, l, zTile; i < zSortedTiles.length; i++) {
-            if (zTile = zSortedTiles[i]) {
-                // zTile = zSortedTiles[i] = zTile.sort((a, b) => b.z - a.z);
-                l = zTile.length;
-                while (l--) {
-                    let a = zTile[l];
-                    a.z = absZOrder[a.z];
-                }
+        let min3dZIndex = Infinity;
+
+        for (let i = 0, l, z, zTile; i < zSortedTiles.length; i++) {
+            zTile = zSortedTiles[i];
+            z = zTile.z = absZOrder[zTile.z];
+
+            if (!zTile.b.flat && z < min3dZIndex) {
+                min3dZIndex = z;
             }
         }
+
+        // console.log('z3d', min3dZIndex, zSortedTiles);
+
 
         render.setPass('opaque');
 
@@ -384,7 +381,7 @@ class WebGlDisplay extends BasicDisplay {
         while (b--) {
             let data = zSortedTiles[b];
             if (data) {
-                render.draw(data);
+                render.draw(data, min3dZIndex);
             }
         }
 
@@ -397,7 +394,7 @@ class WebGlDisplay extends BasicDisplay {
             for (b = 0, length = zSortedTiles.length; b < length; b++) {
                 let data = zSortedTiles[b];
                 if (data) {
-                    render.draw(data);
+                    render.draw(data, min3dZIndex);
                 }
             }
         }
