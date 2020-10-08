@@ -311,6 +311,12 @@
                         "file":"./layer/style_zoomrange.htm",
                         "docs":"here.xyz.maps.layers.TileLayer.html#setStyleGroup"
                     },
+                    {
+                        "title":"Drawing Order",
+                        "description":"Styles and feature drawing order",
+                        "file":"./layer/style_drawingorder.htm",
+                        "docs":"https://xyz.api.here.com/maps/latest/documentation/here.xyz.maps.layers.TileLayer.Style.html#zLayer"
+                    },
 					{
 						"title":"Bounding box search",
 						"description":"Search features in layer in a bounding box",
