@@ -1,0 +1,50 @@
+{
+    "layers": [{
+        "id": "layer1",
+        "name": "layer1",
+        "provider": {
+            "id": "provider1",
+            "type": "LocalProvider",
+            "level": 15
+        },
+        "min": 14,
+        "max": 20,
+        "data": {
+            "local": [{
+                "id": "layer1-f1",
+                "type": "Feature",
+                "geometry":{
+                    "type": "Point",
+                    "coordinates": [-122.254528, 37.796249]
+                }
+            },{
+                "id": "layer1-f2",
+                "type": "Feature",
+                "geometry":{
+                    "type": "Point",
+                    "coordinates": [-122.2542, 37.796249]
+                }
+            }]
+        }
+    },{
+        "id": "layer2",
+        "name": "layer2",
+        "provider": {
+            "id": "provider2",
+            "type": "LocalProvider",
+            "level": 15
+        },
+        "min": 14,
+        "max": 20,
+        "data": {
+            "local": [{
+                "id": "layer2-f1",
+                "type": "Feature",
+                "geometry":{
+                    "type": "Point",
+                    "coordinates": [-122.2544, 37.7965]
+                }
+            }]
+        }
+    }]
+}

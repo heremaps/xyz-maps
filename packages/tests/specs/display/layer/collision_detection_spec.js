@@ -188,7 +188,11 @@ describe('collision detection', function() {
 
         testLayer.setFeatureCoordinates(feature1, [longitude, latitude]);
 
-        let color = await getCanvasPixelColor(mapContainer, {x: x1 + 100, y: y1});
+        let color = await getCanvasPixelColor(mapContainer, {x: x1 + 100, y: y1}, {
+            retry: 5,
+            retryDelay: 50,
+            expect: color1
+        });
 
         expect(color).to.equal(color1);
     });

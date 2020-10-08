@@ -41,6 +41,8 @@ describe('layer with background color', function() {
         });
 
         mapContainer = display.getContainer();
+
+        await waitForViewportReady(display);
     });
 
     after(async () => {
