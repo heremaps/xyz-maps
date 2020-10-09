@@ -56,9 +56,9 @@ export class Search {
         let viewbounds;
         let provider;
         let layer;
-        let f;
+        let feature;
         let features;
-        let fLen;
+        let length;
         let featureStyle;
         let dimensions;
 
@@ -70,15 +70,12 @@ export class Search {
             if (lon < minLon) {
                 minLon = lon;
             }
-
             if (lon > maxLon) {
                 maxLon = lon;
             }
-
             if (lat < minLat) {
                 minLat = lat;
             }
-
             if (lat > maxLat) {
                 maxLat = lat;
             }
@@ -86,64 +83,54 @@ export class Search {
 
         viewbounds = [minLon, minLat, maxLon, maxLat];
 
-        let l = layers.length;
-        while (l--) {
-            layer = layers[l];
-            provider = layer.getProvider(zoomlevel);
+        let layerIndex = layers.length;
+        let results = {};
 
-            let result = [];
+        while (layerIndex--) {
+            layer = layers[layerIndex];
+            provider = layer.getProvider(zoomlevel);
             let maxZ = 0;
 
-            if (
-                zoomlevel <= layer.max &&
-                zoomlevel >= layer.min &&
-                // layer.__type == 'FeatureProvider' // layer instanceof JsonProvider
-                provider.search
-            ) {
+            if (zoomlevel <= layer.max && zoomlevel >= layer.min && provider.search) {
                 features = provider.search(viewbounds);
-
-                fLen = features && features.length;
-
-                let zlSorted = {};
-
-                while (f = features[--fLen]) {
-                    if (featureStyle = layer.getStyleGroup(f, zoomlevel)) {
-                        if (dimensions = hit.feature(x, y, f, featureStyle, zoomlevel)) {
-                            let zIndex = dimensions.pop();
+                length = features.length;
+                while (length--) {
+                    feature = features[length];
+                    if (featureStyle = layer.getStyleGroup(feature, zoomlevel)) {
+                        if (dimensions = hit.feature(x, y, feature, featureStyle, layerIndex, zoomlevel)) {
+                            let zIndex = dimensions[dimensions.length - 1];
+                            let zOrdered = results[zIndex] = results[zIndex] || [];
+                            let zOrderedLayer = zOrdered[layerIndex] = zOrdered[layerIndex] || [];
 
                             if (zIndex > maxZ) {
                                 maxZ = zIndex;
                             }
-
-                            if (!zlSorted[zIndex]) {
-                                zlSorted[zIndex] = [f];
-                            } else if (!mostTopFeatureOnly) {
-                                zlSorted[zIndex].push(f);
-                            }
+                            zOrderedLayer.push(feature);
                         }
                     }
                 }
+            }
+        }
 
-                if (mostTopFeatureOnly && zlSorted[maxZ]) {
-                    return [{
-                        layer: layer,
-                        features: zlSorted[maxZ]
-                    }];
-                }
+        let prevResult = {layer: null, features: null};
 
-                for (let zl in zlSorted) {
-                    result = result.concat(zlSorted[zl]);
-                }
-
-                if (result.length) {
-                    found.push({
-                        layer: layer,
-                        features: result
-                    });
+        for (let z in results) {
+            let zResults = results[z];
+            for (let layerIndex = 0, zLayerResults; layerIndex < zResults.length; layerIndex++) {
+                if (zLayerResults = zResults[layerIndex]) {
+                    let layer = layers[layerIndex];
+                    if (prevResult.layer == layer) {
+                        prevResult.features = prevResult.features.concat(zLayerResults);
+                    } else {
+                        found.push({
+                            layer: layer,
+                            features: zLayerResults
+                        });
+                    }
                 }
             }
         }
-        return found.reverse();
+        return found;
     }
 
     search(x: number, y: number, x2: number, y2: number, layers: layers.TileLayer[], mostTopFeatureOnly?: boolean) {

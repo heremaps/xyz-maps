@@ -106,7 +106,7 @@ const getStrokeWidth = (groups: StyleGroup, feature: Feature, zoom: number): [nu
     return [width, maxZ];
 };
 // uses for point geometries only
-const getPixelSize = (groups: StyleGroup, feature: Feature, zoom: number): [number, number, number, number, number?] => {
+const getPixelSize = (groups: StyleGroup, feature: Feature, zoom: number, layerIndex: number): [number, number, number, number, number?] => {
     let maxZ = 0;
     let minX = INFINITY;
     let maxX = -INFINITY;
@@ -124,9 +124,16 @@ const getPixelSize = (groups: StyleGroup, feature: Feature, zoom: number): [numb
     let z;
     let text;
     let a;
+    let zLayer;
 
     for (let s = 0; s < groups.length; s++) {
         z = getValue('zIndex', groups[s], feature, zoom);
+        zLayer = getValue('zLayer', groups[s], feature, zoom);
+
+        if (typeof zLayer != 'number') {
+            zLayer = layerIndex + 1;
+        }
+        z = zLayer * 1e6 + z;
 
         if (z > maxZ) {
             maxZ = z;

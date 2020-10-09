@@ -121,7 +121,7 @@ class Hit {
         this.map = map;
     }
 
-    feature(x: number, y: number, feature, featureStyle: StyleGroup, zoomlevel: number) {
+    feature(x: number, y: number, feature, featureStyle: StyleGroup, layerIndex: number, zoomlevel: number) {
         return this.geometry(
             x,
             y,
@@ -129,18 +129,20 @@ class Hit {
             // feature.getProvider().decCoord(feature),
             feature.geometry.type,
             featureStyle,
+            layerIndex,
             feature,
             zoomlevel
         );
     };
 
 
-    geometry(
+    private geometry(
         x: number,
         y: number,
         coordinates: Coordinates,
         geoType: string,
         featureStyle: StyleGroup,
+        layerIndex: number,
         feature,
         zoomlevel: number,
         dimensions?: number[]
@@ -149,7 +151,7 @@ class Hit {
         const map = this.map;
 
         if (geoType == 'Point') {
-            dimensions = dimensions || getPixelSize(featureStyle, feature, zoomlevel);
+            dimensions = dimensions || getPixelSize(featureStyle, feature, zoomlevel, layerIndex);
 
             if (dimensions) {
                 // coordinates = feature.getProvider().decCoord( feature );
@@ -164,25 +166,6 @@ class Hit {
                     x, y,
                     x1, x2, y1, y2
                 );
-
-                // *** DBG ONLY BEGIN ***
-                // var topLeft2    = map.pixelToGeo( x1, y1 ),
-                //    bottomRight2 = map.pixelToGeo( x2, y2 );
-                // therects[therects.length] = editor.getOverlay().addFeature({
-                //    type:'Feature',
-                //    geometry:{
-                //        type:'LineString',
-                //        coordinates:[
-                //            [topLeft2.longitude,topLeft2.latitude],
-                //            [bottomRight2.longitude,topLeft2.latitude],
-                //            [bottomRight2.longitude,bottomRight2.latitude],
-                //            [topLeft2.longitude,bottomRight2.latitude],
-                //            [topLeft2.longitude,topLeft2.latitude]
-                //        ]
-                //    },
-                //    properties:{}
-                // },[[300,{stroke: hit ? '#FF0000':'#00FF00',"strokeWidth":4}]]);
-                // *** DBG ONLY END ***
             }
         } else if (geoType == 'LineString') {
             dimensions = dimensions || getStrokeWidth(featureStyle, feature, zoomlevel);
@@ -211,12 +194,9 @@ class Hit {
             let exterior = coordinates[0];
             let pointGeo = map.pixelToGeo(x, y);
 
-            // console.time('pointInPolygon');
-            // hit = pointInPolygon( x, y, exterior, map  );
             if (hit = pointInPolygon(pointGeo.longitude, pointGeo.latitude, <Point[][]>exterior)) {
                 dimensions = dimensions || [getMaxZLevel(featureStyle, feature, zoomlevel)];
             }
-            // console.timeEnd('pointInPolygon');
         } else {
             let baseType;
             let baseHit;
@@ -226,7 +206,7 @@ class Hit {
                 dimensions = [getMaxZLevel(featureStyle, feature, zoomlevel)];
             } else if (geoType == 'MultiPoint') {
                 baseType = 'Point';
-                dimensions = getPixelSize(featureStyle, feature, zoomlevel);
+                dimensions = getPixelSize(featureStyle, feature, zoomlevel, layerIndex);
             } else if (geoType == 'MultiLineString') {
                 baseType = 'LineString';
                 dimensions = getStrokeWidth(featureStyle, feature, zoomlevel);
@@ -235,7 +215,7 @@ class Hit {
             if (baseType) {
                 for (let p = 0, l = coordinates.length; p < l; p++) {
                     baseHit = this.geometry(
-                        x, y, <Point[]>coordinates[p], baseType, featureStyle, feature, zoomlevel, dimensions
+                        x, y, <Point[]>coordinates[p], baseType, featureStyle, layerIndex, feature, zoomlevel, dimensions
                     );
 
                     if (baseHit) {

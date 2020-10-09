@@ -205,7 +205,6 @@ class WebGlDisplay extends BasicDisplay {
             this.rz = rotZ;
             this.rx = rotX;
 
-            // console.log('set rotZ', rotZ);
             const PI2 = 2 * Math.PI;
             rotZ = (rotZ + PI2) % PI2;
             this.render.initView(this.w, this.h, scale, rotX, rotZ);
@@ -303,7 +302,6 @@ class WebGlDisplay extends BasicDisplay {
         const layerLength = layers.length;
         let length;
 
-
         if (display.dirty || dirty) {
             // this.render.clear();
             display.dirty = false;
@@ -312,7 +310,7 @@ class WebGlDisplay extends BasicDisplay {
 
         render.clear(layerLength && layers[0].bgColor || display.globalBgc);
 
-        let zSortedTiles: TileBufferData[] = [];
+        let tileBuffers: TileBufferData[] = [];
         let absZOrder = {};
 
         for (let layer of layers) {
@@ -343,13 +341,13 @@ class WebGlDisplay extends BasicDisplay {
                                     let previewBuffers;
                                     previewBuffers = previewTile?.getData(layerIndex);
                                     if (previewBuffers?.length) {
-                                        this.orderBuffers(screenTile, previewBuffers, layer, absZOrder, zSortedTiles, preview, previewTile);
+                                        this.orderBuffers(screenTile, previewBuffers, layer, absZOrder, tileBuffers, preview, previewTile);
                                     }
                                 }
                             }
                         }
                     } else if (buffers.length) {
-                        this.orderBuffers(screenTile, buffers, layer, absZOrder, zSortedTiles);
+                        this.orderBuffers(screenTile, buffers, layer, absZOrder, tileBuffers);
                     }
                 }
             }
@@ -363,8 +361,8 @@ class WebGlDisplay extends BasicDisplay {
 
         let min3dZIndex = Infinity;
 
-        for (let i = 0, l, z, zTile; i < zSortedTiles.length; i++) {
-            zTile = zSortedTiles[i];
+        for (let i = 0, z, zTile; i < tileBuffers.length; i++) {
+            zTile = tileBuffers[i];
             z = zTile.z = absZOrder[zTile.z];
 
             if (!zTile.b.flat && z < min3dZIndex) {
@@ -372,14 +370,12 @@ class WebGlDisplay extends BasicDisplay {
             }
         }
 
-        // console.log('z3d', min3dZIndex, zSortedTiles);
-
 
         render.setPass('opaque');
 
-        let b = zSortedTiles.length;
+        let b = tileBuffers.length;
         while (b--) {
-            let data = zSortedTiles[b];
+            let data = tileBuffers[b];
             if (data) {
                 render.draw(data, min3dZIndex);
             }
@@ -387,12 +383,14 @@ class WebGlDisplay extends BasicDisplay {
 
         render.setPass('alpha');
 
+        // tileBuffers = tileBuffers.sort((a,b)=>a.z-b.z);
+
         let layerZIndex = -1;
         render.setZFilter((z: number) => z == layerZIndex);
 
         while (++layerZIndex <= maxZIndex) {
-            for (b = 0, length = zSortedTiles.length; b < length; b++) {
-                let data = zSortedTiles[b];
+            for (b = 0, length = tileBuffers.length; b < length; b++) {
+                let data = tileBuffers[b];
                 if (data) {
                     render.draw(data, min3dZIndex);
                 }
