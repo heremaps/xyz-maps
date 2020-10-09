@@ -156,17 +156,22 @@ function NvtRoutingPoint(location, locTools, lnkTools) {
         if (cLink && !car) {
             const editorType = location.class;
 
+            let zLayer = EDITOR.display.getLayers().indexOf(EDITOR.getLayer(this.getLink()));
+
+            zLayer = zLayer == -1 ? UNDEF : zLayer + 1;
+
             streetLine = EDITOR.objects.overlay.addPath([
                 location.coord().slice(),
                 routingPoint.slice()
             ],
             UNDEF, {
-                type: editorType + '_LINE'
+                type: editorType + '_LINE',
+                zLayer: zLayer
             });
 
-
             car = EDITOR.objects.overlay.addPoint(routingPoint.slice(), {
-                type: editorType + '_ROUTING_POINT'
+                type: editorType + '_ROUTING_POINT',
+                zLayer: zLayer
             });
 
             car.pointerdown = clickCar;

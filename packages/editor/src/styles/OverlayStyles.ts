@@ -46,6 +46,7 @@ const getValue = (val, feature, zoomlevel: number) => {
 
 
 const createHighlightLineStyle = () => [{
+    // zLayer: 2,
     zIndex: 0,
     type: 'Line',
     strokeWidth: 2,
@@ -61,13 +62,15 @@ const createSelectorStyle = () => [{
 }];
 
 const createRoutingPointStyle = () => [{
-    zIndex: 0,
+    zLayer: (feature) => feature.properties.zLayer,
+    zIndex: 999990,
     type: 'Circle',
     radius: 8,
     fill: '#FF0000',
     stroke: '#FF0000'
 }, {
-    zIndex: 1,
+    zLayer: (feature) => feature.properties.zLayer,
+    zIndex: 999991,
     type: 'Circle',
     radius: 5,
     fill: '#FF0000',
