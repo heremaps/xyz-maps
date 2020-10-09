@@ -315,7 +315,7 @@
                         "title":"Drawing Order",
                         "description":"Styles and feature drawing order",
                         "file":"./layer/style_drawingorder.htm",
-                        "docs":"https://xyz.api.here.com/maps/latest/documentation/here.xyz.maps.layers.TileLayer.Style.html#zLayer"
+                        "docs":"here.xyz.maps.layers.TileLayer.Style.html#zLayer"
                     },
 					{
 						"title":"Bounding box search",
@@ -365,7 +365,6 @@
                         "file":"./layer/label_collision_detection.htm",
                         "docs":"here.xyz.maps.layers.TileLayer.html"
                     }
-
 				]
 			}
 		]
