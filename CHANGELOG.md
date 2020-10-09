@@ -1,3 +1,13 @@
+## 0.16.0 (2020-10-9)
+### display
+* added: Support for global style-based feature drawing order across all layers. usage: style.zLayer=number
+* improved: Drawing order doesn't affect label priority handling in collision detection
+* fixed: slight flickering at image tile boundaries/edges on iOS devices
+* fixed: possible invisible labels that are colliding and placed very close to tile boundaries
+### editor
+* improved: use cross layer styling to ensure routing-point is always rendered below display-point
+* fixed: navlink direction/turn-restriction icons are aligned incorrectly when map is pitched/rotated [fix #40]
+
 ## 0.15.2 (2020-9-11)
 ### editor
 * improved: Area drawing with drawingBoard. invalid geometry (self-intersections) are temporarily allowed and highlighted.
