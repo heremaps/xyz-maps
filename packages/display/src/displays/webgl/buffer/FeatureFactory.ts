@@ -343,6 +343,7 @@ export class FeatureFactory {
 
             if (index == UNDEF) {
                 index = zGrouped[groupId] = zGrouped.length;
+
                 group = zGrouped[index] = {
                     type: type,
                     zLayer: zLayer,
@@ -500,7 +501,7 @@ export class FeatureFactory {
                         getValue('repeat', style, feature, level),
                         offsetX,
                         offsetY,
-                        style
+                        group.shared
                     );
                 }
             } else {

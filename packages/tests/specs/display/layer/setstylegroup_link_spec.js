@@ -109,12 +109,18 @@ describe('setStyleGroup Link', function() {
         expect(colors2[1]).to.equal('#ffffff');
     });
 
-    it('style feature with text, validate its new style', async function() {
+    it('style line with text, validate its new style', async function() {
         // set link style
         linkLayer.setStyleGroup(
             feature, [
                 {'zIndex': 0, 'type': 'Line', 'stroke': '#000000', 'strokeWidth': 38},
-                {'zIndex': 1, 'type': 'Text', 'fill': '#ffffff', 'text': 'HERE', 'font': 'bold 50px Arial,Helvetica,sans-serif'}
+                {
+                    'zIndex': 1,
+                    'type': 'Text',
+                    'fill': '#ffffff',
+                    'text': 'HERE',
+                    'font': 'bold 50px Arial,Helvetica,sans-serif'
+                }
             ]);
 
         // validate new link style
@@ -123,13 +129,32 @@ describe('setStyleGroup Link', function() {
         // get color between bars of character H
         // get color of first character H (right side)
         // get link color between first H and E
-        let colors = await getCanvasPixelColor(mapContainer, [{x: 420, y: 308}, {x: 431, y: 308}, {x: 443, y: 308}, {x: 452, y: 308}, {x: 461, y: 308}]);
+        let colors = await getCanvasPixelColor(mapContainer, [{x: 420, y: 308}, {x: 431, y: 308}, {
+            x: 443,
+            y: 308
+        }, {x: 452, y: 308}, {x: 461, y: 308}]);
 
         expect(colors[0]).to.equal('#000000');
         expect(colors[1]).to.equal('#ffffff');
         expect(colors[2]).to.equal('#000000');
         expect(colors[3]).to.equal('#ffffff');
         expect(colors[4]).to.equal('#000000');
+    });
+
+    it('validate style-function support for text', async function() {
+        // set link style
+        linkLayer.setStyleGroup(
+            feature, [{
+                'zIndex': 1,
+                'type': 'Text',
+                'fill': () => '#ff0000',
+                'text': () => 'HERE',
+                'font': () => 'bold 50px Arial,Helvetica,sans-serif'
+            }]);
+
+        // H character
+        const color = await getCanvasPixelColor(mapContainer, {x: 431, y: 308});
+        expect(color).to.equal('#ff0000');
     });
 });
 

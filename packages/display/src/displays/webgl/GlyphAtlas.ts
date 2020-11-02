@@ -21,15 +21,22 @@ const DEFAULT_STROKE_WIDTH = 1;
 const DEFAULT_FONT = 'normal 12px Arial';
 const DEFAULT_TEXT_ALIGN = 'start';
 
+type FontStyle = {
+    font?: string;
+    textAlign?: string;
+    strokeWidth?: number;
+    stroke?: string;
+    fill?: string;
+}
 
-const toCSS = (rgb: number[]) => {
+const toCSS = (rgb: number[] | string): string => {
     if (rgb instanceof Array) {
         return `rgb(${Math.round(rgb[0] * 255)}, ${Math.round(rgb[1] * 255)}, ${Math.round(rgb[2] * 255)})`;
     }
     return rgb;
 };
 
-const initFont = (ctx, style,) => {
+const initFont = (ctx, style: FontStyle) => {
     ctx.font = style.font || DEFAULT_FONT;
 
     if (typeof style.strokeWidth == 'number') {
@@ -57,7 +64,7 @@ const drawCharacter = (ctx: CanvasRenderingContext2D, c: string, x: number, y: n
     }
 };
 
-const determineFontHeight = (ctx: CanvasRenderingContext2D, style, text: string, width?: number, height?: number) => {
+const determineFontHeight = (ctx: CanvasRenderingContext2D, style: FontStyle, text: string, width?: number, height?: number) => {
     width = width || 128;
     height = height || 128;
 
@@ -146,7 +153,7 @@ class GlyphAtlas {
     private ax = 0;
     private ay = 0;
     private onExtend: (w: number, h: number) => void;
-    private style: {};
+    private style: FontStyle;
     private avgGlyphHeight: number;
     private marginX = 2;
     private marginY = 2;
@@ -168,25 +175,29 @@ class GlyphAtlas {
     spaceWidth: number;
     length: number = 0;
 
-    constructor(style, dpr: number, width: number, height: number, onExtend?: (w: number, h: number) => void, text?: string) {
-        // dpr = Math.ceil(dpr);
-
+    constructor(
+        style: FontStyle,
+        dpr: number,
+        width: number,
+        height: number,
+        onExtend?: (w: number, h: number) => void,
+        text?: string
+    ) {
         style.stroke = toCSS(style.stroke);
         style.fill = toCSS(style.fill);
 
         width *= dpr;
         height *= dpr;
 
-        let canvas = createCanvas(width, height);
+        const canvas = createCanvas(width, height);
         const ctx = (canvas).getContext('2d');
+        const styleId = (style.strokeWidth || DEFAULT_STROKE_WIDTH) + (style.font || DEFAULT_FONT) + (style.textAlign || DEFAULT_TEXT_ALIGN);
+        const fontHeightInfo = fontHeightCache.get(styleId);
+        let letterHeightBottom;
+        let letterHeight;
 
         this.scale = dpr;
 
-
-        let styleId = (style.strokeWidth || DEFAULT_STROKE_WIDTH) + (style.font || DEFAULT_FONT) + (style.textAlign || DEFAULT_TEXT_ALIGN);
-        let fontHeightInfo = fontHeightCache.get(styleId);
-        let letterHeightBottom;
-        let letterHeight;
 
         if (fontHeightInfo) {
             letterHeightBottom = fontHeightInfo[0];
