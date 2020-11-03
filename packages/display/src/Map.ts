@@ -179,7 +179,7 @@ class TigerMap {
 
         mapConfig.maxLevel = Math.min(MAX_POSSIBLE_ZOOMLEVEL, mapConfig.maxLevel);
 
-        this._z = zoomLevel ^ 0;
+        this._z = Math.min(MAX_GRID_ZOOM, zoomLevel) ^ 0;
 
         this._wSize = Math.pow(2, this._z) * TILESIZE;
         this._l = new Listener([
