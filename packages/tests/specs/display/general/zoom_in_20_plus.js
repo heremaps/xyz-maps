@@ -32,7 +32,7 @@ describe('zoom in 20+', function() {
 
     const MAX_ZOOM = 28;
 
-    before(async function() {
+    before(async () => {
         let preparedData = await prepare(dataset);
         display = new Map(document.getElementById('map'), {
             renderOptions: {
@@ -54,9 +54,7 @@ describe('zoom in 20+', function() {
         localLayer = preparedData.getLayers('localLayer');
     });
 
-    after(async function() {
-        display.destroy();
-    });
+    after(async () => display.destroy());
 
     it('validate inital zoom', async () => {
         expect(display.getZoomlevel()).to.equal(22.7);
@@ -115,5 +113,34 @@ describe('zoom in 20+', function() {
     it('set invalid max zooom', async () => {
         display.setZoomlevel(MAX_ZOOM + 1);
         expect(display.getZoomlevel()).to.equal(MAX_ZOOM);
+    });
+
+
+    it('validate line in cm precision range', async () => {
+        display.rotate(0);
+        display.pitch(0);
+
+        localLayer.addFeature({
+            'type': 'Feature',
+            'properties': {},
+            'geometry': {
+                'type': 'LineString',
+                'coordinates': [
+                    [-77.0077689, 38.9011324],
+                    [-77.0077689, 38.9011329],
+                    [-77.0077688, 38.9011329]
+                ]
+            }
+        }, {
+            zIndex: 1,
+            type: 'Line',
+            stroke: '#0000ff',
+            strokeWidth: 14
+        });
+
+        display.setCenter(-77.0077688, 38.9011329);
+
+        const color = await getCanvasPixelColor(mapContainer, {x: 400, y: 300});
+        expect(color).to.equal('#0000ff');
     });
 });

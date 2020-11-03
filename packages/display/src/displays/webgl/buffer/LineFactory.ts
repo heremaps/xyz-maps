@@ -36,6 +36,7 @@ export class LineFactory {
     private gl: WebGLRenderingContext;
     private prjCoords: PixelCoordinateCache = null; // coordinate cache
     private pixels: Float32Array;
+    private decimals: number; // increase precision for tile scaling
 
     constructor(gl: WebGLRenderingContext) {
         this.dashes = new DashAtlas(gl);
@@ -45,14 +46,17 @@ export class LineFactory {
     }
 
     private projectLine(coordinates: [number, number, number?][], tile: Tile, tileSize: number): PixelCoordinateCache {
-        const {pixels} = this;
+        const {pixels, decimals} = this;
         if (!this.prjCoords) {
             let t = 0;
             for (let c = 0, length = coordinates.length, x, y, _x, _y; c < length; c++) {
                 x = tile.lon2x(coordinates[c][0], tileSize);
                 y = tile.lat2y(coordinates[c][1], tileSize);
 
-                if (!c || (Math.round(_x) - Math.round(x)) || (Math.round(_y) - Math.round(y))) {
+                if (!c ||
+                    (Math.round(_x * decimals) - Math.round(x * decimals)) ||
+                    (Math.round(_y * decimals) - Math.round(y * decimals))
+                ) {
                     pixels[t++] = x;
                     pixels[t++] = y;
                 }
@@ -67,7 +71,9 @@ export class LineFactory {
         return this.prjCoords;
     }
 
-    init() {
+    init(zoom: number, tileSize: number) {
+        // allow more precision in case tiles are getting zoomed very close (zoomlevel 20+)
+        this.decimals = zoom >= 20 - Number(tileSize == 512) ? 1e2 : 1;
         // clear projected coordinate cache
         this.prjCoords = null;
     }

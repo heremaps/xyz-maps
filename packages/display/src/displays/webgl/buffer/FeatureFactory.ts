@@ -140,7 +140,7 @@ export class FeatureFactory {
         let alignment;
         let allReady = true;
 
-        this.lineFactory.init();
+        this.lineFactory.init(level, tileSize);
 
         for (let i = 0, iLen = styleGroups.length; i < iLen; i++) {
             style = styleGroups[i];
