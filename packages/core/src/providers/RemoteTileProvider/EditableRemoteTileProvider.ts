@@ -28,6 +28,7 @@ import {Tile} from '../../tile/Tile';
 import Options from './RemoteTileProviderOptions';
 import {EditableFeatureProvider} from '../EditableFeatureProvider';
 import {Feature} from '../../features/Feature';
+import {CommitData, createProviderPreprocessor, PostProcessor, isPostprocessor} from './processors';
 
 const doc = Options; // doc only!
 
@@ -94,7 +95,9 @@ export abstract class EditableRemoteTileProvider extends EditableFeatureProvider
 
     private _pp: any;
 
-    constructor(config, preprocessor?: (data: any) => boolean) {
+    protected postProcessor: PostProcessor;
+
+    constructor(config) {
         super({
             'minLevel': 8,
             'maxLevel': 20,
@@ -129,10 +132,41 @@ export abstract class EditableRemoteTileProvider extends EditableFeatureProvider
 
         provider.loader = loader;
 
-        // preprocessor = preprocessor || config.preprocessor;
+        const {preProcessor} = config;
+        provider._pp = createProviderPreprocessor(preProcessor);
 
-        if (typeof preprocessor == 'function') {
-            provider._pp = preprocessor;
+
+        if (provider.commit) {
+            provider.commit = ((commit) => function(features: CommitData, onSuccess?, onError?) {
+                const {postProcessor} = this;
+                const prepareFeatures = (features) => {
+                    if (!Array.isArray(features)) {
+                        features = [features];
+                    }
+                    let len = features.length;
+                    let feature;
+                    let props;
+
+                    while (len--) {
+                        feature = features[len] = Feature.prototype.toJSON.call(features[len]);
+                        if (props = feature.properties) {
+                            delete props['@ns:com:here:editor'];
+                        }
+                    }
+                    return features;
+                };
+
+                if (typeof features == 'object') {
+                    features.put = prepareFeatures(features.put || []);
+                    features.remove = prepareFeatures(features.remove || []);
+
+                    if (isPostprocessor(postProcessor)) {
+                        features = postProcessor(features) || {};
+                    }
+                }
+
+                return commit.call(this, features, onSuccess, onError);
+            })(provider.commit);
         }
     }
 
@@ -524,38 +558,6 @@ export abstract class EditableRemoteTileProvider extends EditableFeatureProvider
         return utils.getTilesOfLevel(quadkey, this.level);
     };
 
-    // isTileVisible( tile ){
-    //
-    //     var lvl = tile.z;
-    //
-    //     return lvl <= this.maxLevel && lvl >= this.minLevel;
-    // }
-
-
-    preprocess(tile, data, allDone) {
-        const provider = this;
-        const preprocessor = provider._pp;
-        let processedData;
-
-        if (typeof preprocessor == 'function') {
-            processedData = preprocessor({
-                data: data,
-                quadkey: tile.quadkey,
-                x: tile.x,
-                y: tile.y,
-                z: tile.z,
-                provider: provider,
-                ready: allDone
-            });
-        } else {
-            processedData = data;
-        }
-
-        if (processedData) {
-            allDone(processedData);
-        }
-    };
-
     /**
      *  create tile.
      *
@@ -762,7 +764,9 @@ export abstract class EditableRemoteTileProvider extends EditableFeatureProvider
 
                     provider.sizeKB += stringByteSize / 1024;
 
-                    provider.preprocess(tile, data, (data) => provider.attachData(tile, data));
+                    // provider.preprocess(tile, data, (data) => provider.attachData(tile, data));
+
+                    provider._pp(data, tile, (data) => provider.attachData(tile, data));
                 },
                 (errormsg) => {
                     tile.loadStopTs = Date.now();

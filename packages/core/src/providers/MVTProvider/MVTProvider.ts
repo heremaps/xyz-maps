@@ -82,10 +82,9 @@ export class MVTProvider extends RemoteTileProvider {
             'loader': config.loader || new MVTTileLoader(config),
             'margin': 0,
             'Tile': MVTTile,
-            'Feature': MvtFeature
-        }, config),
-        mvtToGeoJSON
-        );
+            'Feature': MvtFeature,
+            'preProcessor': mvtToGeoJSON
+        }, config));
     };
 
     decCoord(feature) {
