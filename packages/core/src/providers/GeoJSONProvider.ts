@@ -30,17 +30,16 @@ export class GeoJSONProvider extends HTTPProvider {
      *  @constructor
      *  @extends here.xyz.maps.providers.HTTPProvider
      *  @param {here.xyz.maps.providers.HTTPProvider.Options} config configuration of the provider
-     *  @param {Function} preprocessor function to be called after this provider is ready.
      *  @name here.xyz.maps.providers.GeoJSONProvider
      */
-    constructor( config, preprocessor? ) {
+    constructor(config) {
         config.level = config.level || 13;
 
         config.headers = JSUtils.extend({
             'Accept': 'application/geo+json'
-        }, config.headers||{});
+        }, config.headers || {});
 
-        super( config, preprocessor );
+        super(config);
     }
 
     // delete( feature ) {

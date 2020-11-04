@@ -24,6 +24,7 @@ import {JSUtils, Queue} from '@here/xyz-maps-common';
 
 import SpaceProviderOptions from './SpaceOptions';
 import {GeoJSONProvider} from '../GeoJSONProvider';
+import {PostProcessor, CommitData, isPreprocessor} from '../RemoteTileProvider/processors';
 
 type FeatureId = string | number;
 
@@ -45,13 +46,18 @@ const addUrlParams = (url: string, params: { [key: string]: string }, p: '?' | '
     return url;
 };
 
-const createOptions = (options) => {
+const createOptions = (options, preProcessor?) => {
     options = JSUtils.extend(JSUtils.clone(SpaceProviderOptions), options);
 
     // credentials are send as url parameters...
     options.params = JSUtils.extend(options.params || {}, options.credentials);
 
     delete options.credentials;
+
+    // support for deprecated "hidden preprocessors"
+    if (isPreprocessor(preProcessor)) {
+        options.preProcessor = preProcessor;
+    }
 
     if (!options.url) {
         options.url = ENDPOINT[options['environment']];
@@ -81,9 +87,8 @@ export class SpaceProvider extends GeoJSONProvider {
     private clip: boolean;
     private psf: string; // property search filter
 
-    constructor(options, preprocessor) {
-        super(createOptions(options), preprocessor);
-
+    constructor(options) {
+        super(createOptions(options, arguments[1]));
         /**
          *  url of the provider, it points to end point of geospace service.
          *
@@ -93,6 +98,7 @@ export class SpaceProvider extends GeoJSONProvider {
          *  @name here.xyz.maps.providers.SpaceProvider#url
          */
         this.setUrl(this.getTileUrl(this.space));
+
         if (options.propertySearch) {
             this.setPropertySearch(options.propertySearch);
         }
@@ -108,67 +114,71 @@ export class SpaceProvider extends GeoJSONProvider {
      *  @param {here.xyz.maps.providers.SpaceProvider.Options} cfg
      *  @return {here.xyz.maps.providers.SpaceProvider}
      */
-    commit(features, onSuccess?, onError?) {
+    commit(features: CommitData, onSuccess?, onError?) {
         const prov = this;
         const loaders = prov.loader.src;
         const loader = loaders[loaders.length - 1];
+        // const {postProcessor} = prov;
+        let total = 0;
+        let error = 0;
 
         const url = prov._addUrlCredentials(
             prov.getLayerUrl(prov.space) + '/features', '?'
         );
 
         const bundleSuccess = (data) => {
-            if (!--total) {
-                onSuccess && onSuccess(data);
+            if (!--total && onSuccess) {
+                onSuccess(data);
             }
         };
 
         const bundleError = (err) => {
             error = error + 1;
-            onError && onError(err);
+            if (onError) {
+                onError(err);
+            }
         };
 
-        let total = 0;
-        let error = 0;
 
-        function prepareFeatures(features) {
-            if (!(features instanceof Array)) {
-                features = [features];
-            }
+        // function prepareFeatures(features) {
+        //     if (!Array.isArray(features)) {
+        //         features = [features];
+        //     }
+        //
+        //     let len = features.length;
+        //     let feature;
+        //     let props;
+        //
+        //     while (len--) {
+        //         feature = features[len] = Feature.prototype.toJSON.call(features[len]);
+        //
+        //         if (props = feature.properties) {
+        //             delete props['@ns:com:here:editor'];
+        //         }
+        //     }
+        //
+        //     return features;
+        // }
 
-            let len = features.length;
-            let feature;
-            let props;
+        if (typeof features == 'object') {
+            // features.put = prepareFeatures(features.put || []);
+            // features.remove = prepareFeatures(features.remove || []);
 
-            while (len--) {
-                feature = features[len] = Feature.prototype.toJSON.call(features[len]);
+            // if (typeof postProcessor == 'function') {
+            //     features = postProcessor(features) || {};
+            // }
 
-                if (props = feature.properties) {
-                    delete props['@ns:com:here:editor'];
-                }
-            }
-
-            return features;
-        }
-
-
-        if (features) {
-            const putFeatures = prepareFeatures(features.put || []);
+            const putFeatures = features.put || [];
+            const removeFeatures = features.remove || [];
 
             if (putFeatures.length) {
                 total++;
                 loader.send({
-
-                    url: url,
-
-                    success: bundleSuccess,
-
-                    error: bundleError,
-
                     type: 'POST',
-
+                    url: url,
                     headers: {...prov.headers, 'Content-Type': 'application/geo+json'},
-
+                    success: bundleSuccess,
+                    error: bundleError,
                     data: JSON.stringify({
                         type: 'FeatureCollection',
                         features: putFeatures
@@ -176,21 +186,14 @@ export class SpaceProvider extends GeoJSONProvider {
                 });
             }
 
-            const removeFeatures = prepareFeatures(features.remove || []);
-
             if (removeFeatures.length) {
                 total++;
                 loader.send({
-
+                    type: 'DELETE',
                     url: url + '&id=' + removeFeatures.map((f) => f.id).join(','),
-
-                    success: bundleSuccess,
-
-                    error: bundleError,
-
                     headers: {...prov.headers, 'Accept': 'application/json'},
-
-                    type: 'DELETE'
+                    success: bundleSuccess,
+                    error: bundleError
                 });
             }
         }

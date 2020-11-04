@@ -27,6 +27,7 @@ import {Tile} from '../../tile/Tile';
 /* exported Options */
 
 import Options from './RemoteTileProviderOptions';
+import {createProviderPreprocessor, isPreprocessor} from './processors';
 
 const doc = Options; // doc only!
 
@@ -100,11 +101,8 @@ export class RemoteTileProvider extends FeatureProvider {
 
         provider.loader = loader;
 
-        // preprocessor = preprocessor || config.preprocessor;
-
-        if (typeof preprocessor == 'function') {
-            provider._pp = preprocessor;
-        }
+        const {preProcessor} = config;
+        provider._pp = createProviderPreprocessor(preProcessor);
     }
 
     /**
@@ -209,31 +207,6 @@ export class RemoteTileProvider extends FeatureProvider {
     //
     //     return lvl <= this.maxLevel && lvl >= this.minLevel;
     // }
-
-
-    preprocess(tile, data, allDone) {
-        const provider = this;
-        const preprocessor = provider._pp;
-        let processedData;
-
-        if (typeof preprocessor == 'function') {
-            processedData = preprocessor({
-                data: data,
-                quadkey: tile.quadkey,
-                x: tile.x,
-                y: tile.y,
-                z: tile.z,
-                provider: provider,
-                ready: allDone
-            });
-        } else {
-            processedData = data;
-        }
-
-        if (processedData) {
-            allDone(processedData);
-        }
-    };
 
     /**
      *  create tile.
@@ -441,7 +414,7 @@ export class RemoteTileProvider extends FeatureProvider {
 
                     provider.sizeKB += stringByteSize / 1024;
 
-                    provider.preprocess(tile, data, (data) => provider.attachData(tile, data));
+                    provider._pp(data, tile, (data) => provider.attachData(tile, data));
                 },
                 (errormsg) => {
                     tile.loadStopTs = Date.now();
