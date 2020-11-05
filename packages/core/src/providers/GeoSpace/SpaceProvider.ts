@@ -118,7 +118,6 @@ export class SpaceProvider extends GeoJSONProvider {
         const prov = this;
         const loaders = prov.loader.src;
         const loader = loaders[loaders.length - 1];
-        // const {postProcessor} = prov;
         let total = 0;
         let error = 0;
 
@@ -139,35 +138,7 @@ export class SpaceProvider extends GeoJSONProvider {
             }
         };
 
-
-        // function prepareFeatures(features) {
-        //     if (!Array.isArray(features)) {
-        //         features = [features];
-        //     }
-        //
-        //     let len = features.length;
-        //     let feature;
-        //     let props;
-        //
-        //     while (len--) {
-        //         feature = features[len] = Feature.prototype.toJSON.call(features[len]);
-        //
-        //         if (props = feature.properties) {
-        //             delete props['@ns:com:here:editor'];
-        //         }
-        //     }
-        //
-        //     return features;
-        // }
-
         if (typeof features == 'object') {
-            // features.put = prepareFeatures(features.put || []);
-            // features.remove = prepareFeatures(features.remove || []);
-
-            // if (typeof postProcessor == 'function') {
-            //     features = postProcessor(features) || {};
-            // }
-
             const putFeatures = features.put || [];
             const removeFeatures = features.remove || [];
 

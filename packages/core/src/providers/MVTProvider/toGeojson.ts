@@ -380,6 +380,4 @@ export default function mvtPreProcessor(prep) {
         }
 
     }).start();
-
-    return false;
 };

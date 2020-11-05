@@ -28,7 +28,7 @@ import {Tile} from '../../tile/Tile';
 import Options from './RemoteTileProviderOptions';
 import {EditableFeatureProvider} from '../EditableFeatureProvider';
 import {Feature} from '../../features/Feature';
-import {CommitData, createProviderPreprocessor, PostProcessor, isPostprocessor} from './processors';
+import {CommitData, createProviderPreprocessor, PostProcessor, isPostprocessor, executeProcessor} from './processors';
 
 const doc = Options; // doc only!
 
@@ -161,7 +161,9 @@ export abstract class EditableRemoteTileProvider extends EditableFeatureProvider
                     features.remove = prepareFeatures(features.remove || []);
 
                     if (isPostprocessor(postProcessor)) {
-                        features = postProcessor(features) || {};
+                        return executeProcessor(postProcessor, {
+                            data: features
+                        }, (data) => commit.call(this, data, onSuccess, onError));
                     }
                 }
 
