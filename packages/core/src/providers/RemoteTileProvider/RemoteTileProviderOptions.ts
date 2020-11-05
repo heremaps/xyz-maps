@@ -28,7 +28,6 @@
  */
 
 export default {
-
     /**
      * zoom level at which tiles are cached.
      *
@@ -39,4 +38,39 @@ export default {
      */
     // level: null,
 
+    /**
+     * PreProcessor for remote data sources.
+     * The PreProcessor will be executed just after Features are received from remote backend.
+     * If the processor function is returning the processed data then its treated as a synchronous processor.
+     * If the processor function does not return any value (undefined) or a Promise then its treated as asynchronous processor.
+     * An asynchronous processor that's not using a Promise MUST call the input.ready(..) callback when data processing is finished.
+     *
+     * PreProcessor:
+     * ({data: any[], ready: (GeoJsonFeature[]) => void, tile?:{x:number,y:number,z:number}) => GeoJsonFeature[] | Promise
+     *
+     * @public
+     * @expose
+     * @name here.xyz.maps.providers.RemoteTileProvider.Options#preProcessor
+     * @type {Function=}
+     */
+    // PreProcessor: null,
+
+    /**
+     * PostProcessor for remote data sources.
+     * The PostProcessor will be executed just before created/modified or removed Features will be sent to the remote backend.
+     * If the processor function is returning the processed data then its treated as a synchronous processor.
+     * If the processor function does not return any value (undefined) or a Promise then its treated as asynchronous processor.
+     * An asynchronous processor that's not using a Promise MUST call the input.ready(..) callback when data processing is finished.
+     *
+     * PostProcessorData:
+     *  {put: GeoJsonFeature[],remove: GeoJsonFeature[]}
+     * PostProcessor:
+     *  ({data: PostProcessorData, ready: (data) => void) => PostProcessorData | Promise
+     *
+     * @public
+     * @expose
+     * @name here.xyz.maps.providers.RemoteTileProvider.Options#postProcessor
+     * @type {Function=} postProcessor
+     */
+    // postProcessor: null,
 };

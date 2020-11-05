@@ -28,32 +28,20 @@ import {Tile} from '../../tile/Tile';
 import Options from './RemoteTileProviderOptions';
 import {EditableFeatureProvider} from '../EditableFeatureProvider';
 import {Feature} from '../../features/Feature';
-import {CommitData, createProviderPreprocessor, PostProcessor, isPostprocessor, executeProcessor} from './processors';
+import {PostProcesserInput, createRemoteProcessor, isPostprocessor} from './processors';
 import {GeoJSONFeature} from '../../features/GeoJSON';
 
 const doc = Options; // doc only!
 
-const DEFAULT_JSON_PARSER = 'native';
 let UNDEF;
 
 type TileLoader = any;
-
-type FeatureClass = 'LINE' | 'NAVLINK' | 'MARKER' | 'PLACE' | 'ADDRESS' | 'AREA';
-
-type NavlinkId = string | number;
 
 type Navlink = Feature;
 
 type Coordinate = [number, number, number?];
 
 type EditorFeature = { editState: (state?: string, value?) => any };
-
-// const METHOD_NOT_IMPLEMENTED = 'Method not implemented.';
-
-type TurnNode = {
-    link: Navlink,
-    index: number
-};
 
 const METHOD_NOT_IMPLEMENTED = 'Method not implemented.';
 
@@ -94,9 +82,8 @@ export abstract class EditableRemoteTileProvider extends EditableFeatureProvider
 
     loader: TileLoader;
 
-    private preprocess: (data: any[], cb?: (data: GeoJSONFeature[]) => void, tile?: Tile) => void;
-
-    protected postProcessor: PostProcessor;
+    private preprocess: (data: any[], cb: (data: GeoJSONFeature[]) => void, tile?: Tile) => void;
+    private postprocess: (data: PostProcesserInput, cb: (data: PostProcesserInput) => void) => void;
 
     constructor(config) {
         super({
@@ -119,26 +106,15 @@ export abstract class EditableRemoteTileProvider extends EditableFeatureProvider
         } else {
             throw (new Error('no tile loader defined.'));
         }
-        // else {
-        //     loader = new LoaderManager(
-        //         // new IndexDBLoader( config['url'] ),
-        //         new HTTPLoader({
-        //             url: config['url'],
-        //             withCredentials: config['withCredentials'],
-        //             headers: config['headers']
-        //             // parser: config['parser'] || DEFAULT_JSON_PARSER,
-        //         })
-        //     );
-        // }
 
         provider.loader = loader;
 
         const {preProcessor} = config;
-        provider.preprocess = createProviderPreprocessor(preProcessor);
-
+        provider.preprocess = createRemoteProcessor(preProcessor);
+        provider.postprocess = createRemoteProcessor(config.postProcessor);
 
         if (provider.commit) {
-            provider.commit = ((commit) => function(features: CommitData, onSuccess?, onError?) {
+            provider.commit = ((commit) => function(features: PostProcesserInput, onSuccess?, onError?) {
                 const {postProcessor} = this;
                 const prepareFeatures = (features) => {
                     if (!Array.isArray(features)) {
@@ -162,9 +138,7 @@ export abstract class EditableRemoteTileProvider extends EditableFeatureProvider
                     features.remove = prepareFeatures(features.remove || []);
 
                     if (isPostprocessor(postProcessor)) {
-                        return executeProcessor(postProcessor, {
-                            data: features
-                        }, (data) => commit.call(this, data, onSuccess, onError));
+                        provider.postprocess(features, (data) => commit.call(this, data, onSuccess, onError));
                     }
                 }
 

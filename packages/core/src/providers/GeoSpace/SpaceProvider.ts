@@ -24,7 +24,7 @@ import {JSUtils, Queue} from '@here/xyz-maps-common';
 
 import SpaceProviderOptions from './SpaceOptions';
 import {GeoJSONProvider} from '../GeoJSONProvider';
-import {PostProcessor, CommitData, isPreprocessor} from '../RemoteTileProvider/processors';
+import {PostProcessor, PostProcesserInput, isPreprocessor} from '../RemoteTileProvider/processors';
 
 type FeatureId = string | number;
 
@@ -78,7 +78,6 @@ type ErrorEventHandler = (error) => void;
  *  @constructor
  *  @extends here.xyz.maps.providers.HTTPProvider
  *  @param {here.xyz.maps.providers.SpaceProvider.Options} config configuration of the provider
- *  @param {Function} preprocessor function to be called after this provider is ready.
  *  @name here.xyz.maps.providers.SpaceProvider
  */
 export class SpaceProvider extends GeoJSONProvider {
@@ -114,7 +113,7 @@ export class SpaceProvider extends GeoJSONProvider {
      *  @param {here.xyz.maps.providers.SpaceProvider.Options} cfg
      *  @return {here.xyz.maps.providers.SpaceProvider}
      */
-    commit(features: CommitData, onSuccess?, onError?) {
+    commit(features: PostProcesserInput, onSuccess?, onError?) {
         const prov = this;
         const loaders = prov.loader.src;
         const loader = loaders[loaders.length - 1];

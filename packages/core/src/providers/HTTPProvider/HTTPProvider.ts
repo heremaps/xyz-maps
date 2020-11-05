@@ -47,7 +47,7 @@ const parseParams = (url: string, params?: { [key: string]: string }) => {
  *  @class
  *  @expose
  *  @constructor
- *  @extends here.xyz.maps.providers.RemoteTileProvider
+ *  @extends here.xyz.maps.providers.EditableRemoteTileProvider
  *  @param {here.xyz.maps.providers.HTTPProvider.Options} config configuration of the provider
  *  @name here.xyz.maps.providers.HTTPProvider
  */
