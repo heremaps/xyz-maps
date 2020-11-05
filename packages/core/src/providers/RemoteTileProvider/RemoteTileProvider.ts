@@ -17,7 +17,7 @@
  * License-Filename: LICENSE
  */
 
-import {JSUtils, geotools} from '@here/xyz-maps-common';
+
 import utils from '../../tile/TileUtils';
 import {FeatureProvider} from '../FeatureProvider';
 import LoaderManager from '../../loaders/Manager';
@@ -25,9 +25,8 @@ import TileReceiver from './TileReceiver';
 import tileUtils from '../../tile/TileUtils';
 import {Tile} from '../../tile/Tile';
 /* exported Options */
-
 import Options from './RemoteTileProviderOptions';
-import {createProviderPreprocessor, isPreprocessor} from './processors';
+import {createRemoteProcessor} from './processors';
 import {GeoJSONFeature} from '../../features/GeoJSON';
 
 const doc = Options; // doc only!
@@ -101,7 +100,7 @@ export class RemoteTileProvider extends FeatureProvider {
         provider.loader = loader;
 
         const {preProcessor} = config;
-        provider.preprocess = createProviderPreprocessor(preProcessor);
+        provider.preprocess = createRemoteProcessor(preProcessor);
     }
 
     /**

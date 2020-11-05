@@ -27,14 +27,14 @@ const isFnc = (fnc) => typeof fnc === 'function';
 
 const isPromise = (p) => p && (typeof p == 'object' || typeof p == 'function') && typeof p.then == 'function';
 
-export type CommitData = { put?: GeoJSONFeature[], remove?: GeoJSONFeature[] };
+export type PostProcesserInput = { put?: GeoJSONFeature[], remove?: GeoJSONFeature[] };
 
-export type PostProcessor = (CommitData) => CommitData;
+export type PostProcessor = (CommitData) => PostProcesserInput;
 
-export type PreProcessorData = {
-    data: any[];
+export type ProcessorInput = {
+    data: any[] | PostProcesserInput;
     provider: TileProvider;
-    ready?: (data: GeoJSONFeature[]) => void;
+    ready: (data: GeoJSONFeature[]) => void;
     tile?: {
         x: number;
         y: number;
@@ -42,7 +42,7 @@ export type PreProcessorData = {
     }
 }
 
-export type PreProcessor = (data: PreProcessorData) => GeoJSONFeature[];
+export type PreProcessor = (data: ProcessorInput) => GeoJSONFeature[];
 
 export const isPreprocessor = (preprocessor) => {
     return isFnc(preprocessor);
@@ -52,10 +52,9 @@ export const isPostprocessor = (postprocessor) => {
     return isFnc(postprocessor);
 };
 
-export const executeProcessor = (processor, data: any = {}, callback) => {
+export const executeProcessor = (processor, data: any = {}) => {
+    let callback = data.ready;
     let processedData;
-
-    data.ready = callback;
 
     if (isPreprocessor(processor)) {
         processedData = processor(data);
@@ -70,14 +69,15 @@ export const executeProcessor = (processor, data: any = {}, callback) => {
     }
 };
 
-export const createProviderPreprocessor = (preprocessor: PreProcessor) => function(
-    data: GeoJSONFeature[],
-    readyCallback,
-    tile: Tile,
+export const createRemoteProcessor = (preprocessor: PreProcessor) => function(
+    data: any[] | PostProcesserInput,
+    ready,
+    tile?: Tile,
 ) {
-    const processorInput: PreProcessorData = {
+    const processorInput: ProcessorInput = {
         data: data,
-        provider: <TileProvider> this
+        provider: <TileProvider> this,
+        ready: ready
     };
 
     if (tile) {
@@ -87,5 +87,5 @@ export const createProviderPreprocessor = (preprocessor: PreProcessor) => functi
             z: tile.z
         };
     }
-    executeProcessor(preprocessor, processorInput, readyCallback);
+    executeProcessor(preprocessor, processorInput);
 };
