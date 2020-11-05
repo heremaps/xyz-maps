@@ -78,11 +78,6 @@ class HTTPProvider extends EditableRemoteTileProvider {
         }
         options.loader = loader;
 
-        // fallback for deprecated "hidden" preprocessors
-        if (arguments[1] && !options.preprocessor) {
-            options.preprocessor = arguments[1];
-        }
-
         super(options);
 
         this.setParams(options.params || {});
