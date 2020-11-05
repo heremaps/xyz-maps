@@ -300,15 +300,16 @@ export default function mvtPreProcessor(prep) {
         init: function() {
             const layers = [];
             let mvt = new VectorTile(new Protobuf(prep.data.mvt));
+            const {tile} = prep;
 
             for (var l in mvt.layers) {
                 layers.push(l);
             }
             return {
                 xyz: {
-                    x: prep.x,
-                    y: prep.y,
-                    z: prep.z
+                    x: tile.x,
+                    y: tile.y,
+                    z: tile.z
                 },
                 mvt: mvt,
                 xyzLayers: prep.data.xyz,
