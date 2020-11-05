@@ -29,6 +29,7 @@ import Options from './RemoteTileProviderOptions';
 import {EditableFeatureProvider} from '../EditableFeatureProvider';
 import {Feature} from '../../features/Feature';
 import {CommitData, createProviderPreprocessor, PostProcessor, isPostprocessor, executeProcessor} from './processors';
+import {GeoJSONFeature} from '../../features/GeoJSON';
 
 const doc = Options; // doc only!
 
@@ -93,7 +94,7 @@ export abstract class EditableRemoteTileProvider extends EditableFeatureProvider
 
     loader: TileLoader;
 
-    private _pp: any;
+    private preprocess: (data: any[], cb?: (data: GeoJSONFeature[]) => void, tile?: Tile) => void;
 
     protected postProcessor: PostProcessor;
 
@@ -133,7 +134,7 @@ export abstract class EditableRemoteTileProvider extends EditableFeatureProvider
         provider.loader = loader;
 
         const {preProcessor} = config;
-        provider._pp = createProviderPreprocessor(preProcessor);
+        provider.preprocess = createProviderPreprocessor(preProcessor);
 
 
         if (provider.commit) {
@@ -263,13 +264,15 @@ export abstract class EditableRemoteTileProvider extends EditableFeatureProvider
                             return;
                         }
                     }
-                    for (let f of data) {
-                        result[result.indexOf(f.id)] = prov.addFeature(f);
-                    }
 
-                    if (onload) {
-                        onload(createResult());
-                    }
+                    this.preprocess(data, (data) => {
+                        for (let f of data) {
+                            result[result.indexOf(f.id)] = prov.addFeature(f);
+                        }
+                        if (onload) {
+                            onload(createResult());
+                        }
+                    });
                 },
                 onerror,
                 options
@@ -768,7 +771,7 @@ export abstract class EditableRemoteTileProvider extends EditableFeatureProvider
 
                     // provider.preprocess(tile, data, (data) => provider.attachData(tile, data));
 
-                    provider._pp(data, tile, (data) => provider.attachData(tile, data));
+                    provider.preprocess(data, (data) => provider.attachData(tile, data), tile);
                 },
                 (errormsg) => {
                     tile.loadStopTs = Date.now();

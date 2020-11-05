@@ -28,6 +28,7 @@ import {Tile} from '../../tile/Tile';
 
 import Options from './RemoteTileProviderOptions';
 import {createProviderPreprocessor, isPreprocessor} from './processors';
+import {GeoJSONFeature} from '../../features/GeoJSON';
 
 const doc = Options; // doc only!
 
@@ -62,9 +63,7 @@ export class RemoteTileProvider extends FeatureProvider {
 
     loader: TileLoader;
 
-    private _pp: any;
-
-    // protected url: string;
+    private preprocess: (data: any[], cb?: (data: GeoJSONFeature[]) => void, tile?: Tile) => void;
 
     constructor(config, preprocessor?: (data: any) => boolean) {
         super({
@@ -102,7 +101,7 @@ export class RemoteTileProvider extends FeatureProvider {
         provider.loader = loader;
 
         const {preProcessor} = config;
-        provider._pp = createProviderPreprocessor(preProcessor);
+        provider.preprocess = createProviderPreprocessor(preProcessor);
     }
 
     /**
@@ -414,7 +413,7 @@ export class RemoteTileProvider extends FeatureProvider {
 
                     provider.sizeKB += stringByteSize / 1024;
 
-                    provider._pp(data, tile, (data) => provider.attachData(tile, data));
+                    provider.preprocess(data, (data) => provider.attachData(tile, data), tile);
                 },
                 (errormsg) => {
                     tile.loadStopTs = Date.now();

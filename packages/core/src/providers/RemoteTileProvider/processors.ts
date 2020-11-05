@@ -34,11 +34,12 @@ export type PostProcessor = (CommitData) => CommitData;
 export type PreProcessorData = {
     data: any[];
     provider: TileProvider;
-    quadkey?: string;
-    x?: number;
-    y?: number;
-    z?: number;
-    ready: (data: GeoJSONFeature[]) => void
+    ready?: (data: GeoJSONFeature[]) => void;
+    tile?: {
+        x: number;
+        y: number;
+        z: number;
+    }
 }
 
 export type PreProcessor = (data: PreProcessorData) => GeoJSONFeature[];
@@ -71,15 +72,20 @@ export const executeProcessor = (processor, data: any = {}, callback) => {
 
 export const createProviderPreprocessor = (preprocessor: PreProcessor) => function(
     data: GeoJSONFeature[],
+    readyCallback,
     tile: Tile,
-    readyCallback
 ) {
-    executeProcessor(preprocessor, {
+    const processorInput: PreProcessorData = {
         data: data,
-        quadkey: tile.quadkey,
-        x: tile.x,
-        y: tile.y,
-        z: tile.z,
         provider: <TileProvider> this
-    }, readyCallback);
+    };
+
+    if (tile) {
+        processorInput.tile = {
+            x: tile.x,
+            y: tile.y,
+            z: tile.z
+        };
+    }
+    executeProcessor(preprocessor, processorInput, readyCallback);
 };
