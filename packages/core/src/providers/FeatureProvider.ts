@@ -100,15 +100,15 @@ export class FeatureProvider extends Provider {
         const provider = this;
         let prepared;
         let inserted;
-        let len;
 
         if ((<GeoJSONFeatureCollection>feature).type == 'FeatureCollection') {
             feature = (<GeoJSONFeatureCollection>feature).features;
         }
-        if (len = (<GeoJSONFeature[]>feature).length) {
+
+        if (Array.isArray(feature)) {
             const result = [];
 
-            for (let f = 0; f < len; f++) {
+            for (let f = 0, len = feature.length; f < len; f++) {
                 result[f] = provider.addFeature(feature[f]);
             }
             return result;
@@ -116,7 +116,7 @@ export class FeatureProvider extends Provider {
 
         if (provider.isFeatureInstance(feature, Feature)) {
             const prov = (<Feature>feature).getProvider();
-            if ( prov && prov != provider) {
+            if (prov && prov != provider) {
                 feature = (<Feature>feature).toJSON();
             }
         }
@@ -129,37 +129,21 @@ export class FeatureProvider extends Provider {
             if (inserted != UNDEF) {
                 feature = inserted;
 
-
-                // var tiles = provider.getCachedTilesOfBBox( feature.bbox );
                 const tiles = provider.getCachedTilesOfBBox(provider.decBBox(feature));
-                // var tiles = provider.getCachedTilesOfBBox( provider._decBBox( feature ) );
 
                 for (let t = 0, tile; t < tiles.length; t++) {
-                    // // if not in already -> ADD!
-                    // if( tiles[t].data.indexOf(feature) == -1 )
-                    // {
-                    //     tiles[t].data.push( feature );
-                    //
                     tile = tiles[t];
 
                     tile.add(feature);
 
                     if (tile.z == provider.level) {
                         this._mark(feature, tile);
-
-                        // if( !provider.IDPOOL[feature.id][tile.quadkey] )
-                        // {
-                        //     provider.IDPOOL[feature.id].cnt++;
-                        // }
-                        //
-                        // provider.IDPOOL[feature.id][tile.quadkey] = tile;
                     }
                 }
 
                 if (provider.tree) {
                     provider.tree.insert(feature);
                 }
-
 
                 if (!provider.ignore) {
                     provider.listeners.trigger(ADD_FEATURE_EVENT, [feature, tiles], true);
