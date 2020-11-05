@@ -21,6 +21,8 @@ import {GeoJSONFeature} from '../../features/GeoJSON';
 import TileProvider from '../TileProvider/TileProvider';
 import Tile from '../../tile/Tile';
 
+let UNDEF;
+
 const isFnc = (fnc) => typeof fnc === 'function';
 
 const isPromise = (p) => p && (typeof p == 'object' || typeof p == 'function') && typeof p.then == 'function';
@@ -49,26 +51,35 @@ export const isPostprocessor = (postprocessor) => {
     return isFnc(postprocessor);
 };
 
-export const createProviderPreprocessor = (preprocessor: PreProcessor) => function(data: GeoJSONFeature[], tile: Tile, allDone) {
+export const executeProcessor = (processor, data: any = {}, callback) => {
     let processedData;
 
-    if (isPreprocessor(preprocessor)) {
-        processedData = preprocessor({
-            data: data,
-            quadkey: tile.quadkey,
-            x: tile.x,
-            y: tile.y,
-            z: tile.z,
-            provider: <TileProvider> this,
-            ready: allDone
-        });
+    data.ready = callback;
+
+    if (isPreprocessor(processor)) {
+        processedData = processor(data);
     } else {
         processedData = data;
     }
 
     if (isPromise(processedData)) {
-        processedData.then(allDone);
-    } else if (processedData) {
-        allDone(processedData);
+        processedData.then(callback);
+    } else if (processedData !== UNDEF) {
+        callback(processedData);
     }
+};
+
+export const createProviderPreprocessor = (preprocessor: PreProcessor) => function(
+    data: GeoJSONFeature[],
+    tile: Tile,
+    readyCallback
+) {
+    executeProcessor(preprocessor, {
+        data: data,
+        quadkey: tile.quadkey,
+        x: tile.x,
+        y: tile.y,
+        z: tile.z,
+        provider: <TileProvider> this
+    }, readyCallback);
 };
