@@ -20,43 +20,54 @@
 import {prepare} from 'utils';
 import dataset from './remote_filtering.json';
 
-describe('remote filtering in spaceprovider', function() {
+describe('remote filtering in spaceprovider', () => {
     const expect = chai.expect;
     var preparedData;
     var spaceLayer;
     var spaceProvider;
 
-    before(async function() {
+    before(async () => {
         preparedData = await prepare(dataset);
         spaceLayer = preparedData.getLayers('spaceLayer');
         spaceProvider = spaceLayer.getProvider();
     });
 
-    after(async function() {
+    after(async () => {
         await preparedData.clear();
     });
 
-    it('validate search result without filter', async function() {
-        var objs; var robjs;
-        await new Promise(function(resolve) {
-            objs = spaceProvider.search({
+    it('validate search feature by id remotely', async () => {
+        let featureId = preparedData.features['spaceLayer'].remote[0];
+        let result = await new Promise((resolve) => {
+            spaceProvider.search({
+                id: featureId,
+                remote: true,
+                onload: (result) => {
+                    resolve(result);
+                }
+            });
+        });
+        expect(result.id).to.equal(featureId);
+        spaceProvider.clear();
+    });
+
+    it('validate search result without filter', async () => {
+        let result = await new Promise((resolve) => {
+            spaceProvider.search({
                 rect: {minLon: 4.3825, minLat: 45.422019, maxLon: 4.9825, maxLat: 45.773889},
                 remote: true,
-                onload: function(e) {
-                    robjs = e;
-                    resolve();
+                onload: (result) => {
+                    resolve(result);
                 }
             });
         });
 
-        expect(robjs).to.have.lengthOf(3);
+        expect(result).to.have.lengthOf(3);
     });
 
-    it('validate search result with filter 1', async function() {
-        var robjs;
-
+    it('validate search result with filter 1', async () => {
         // nothing is found
-        await new Promise(function(resolve) {
+        let result = await new Promise((resolve) => {
             spaceProvider.setPropertySearch({
                 'name': {
                     operator: '=',
@@ -66,21 +77,18 @@ describe('remote filtering in spaceprovider', function() {
             spaceProvider.search({
                 rect: {minLon: 4.3825, minLat: 45.422019, maxLon: 4.9825, maxLat: 45.773889},
                 remote: true,
-                onload: function(e) {
-                    robjs = e;
-                    resolve();
+                onload: (result) => {
+                    resolve(result);
                 }
             });
         });
-        expect(robjs).to.have.lengthOf(0);
+        expect(result).to.have.lengthOf(0);
     });
 
 
-    it('validate search result with filter 2', async function() {
-        var robjs;
-
+    it('validate search result with filter 2', async () => {
         // one feature is found
-        await new Promise(function(resolve) {
+        let result = await new Promise((resolve) => {
             spaceProvider.setPropertySearch({
                 'name': {
                     operator: '=',
@@ -91,21 +99,18 @@ describe('remote filtering in spaceprovider', function() {
             spaceProvider.search({
                 rect: {minLon: 4.3825, minLat: 45.422019, maxLon: 4.9825, maxLat: 45.773889},
                 remote: true,
-                onload: function(e) {
-                    robjs = e;
-                    resolve();
+                onload: (result) => {
+                    resolve(result);
                 }
             });
         });
-        expect(robjs).to.have.lengthOf(1);
+        expect(result).to.have.lengthOf(1);
     });
 
 
-    it('validate search result with filter 3', async function() {
-        var robjs;
-
+    it('validate search result with filter 3', async () => {
         // multiple features are found
-        await new Promise(function(resolve) {
+        let result = await new Promise((resolve) => {
             spaceProvider.setPropertySearch({
                 'name': {
                     operator: '=',
@@ -116,21 +121,18 @@ describe('remote filtering in spaceprovider', function() {
             spaceProvider.search({
                 rect: {minLon: 4.3825, minLat: 45.422019, maxLon: 4.9825, maxLat: 45.773889},
                 remote: true,
-                onload: function(e) {
-                    robjs = e;
-                    resolve();
+                onload: (result) => {
+                    resolve(result);
                 }
             });
         });
-        expect(robjs).to.have.lengthOf(3);
+        expect(result).to.have.lengthOf(3);
     });
 
 
-    it('validate search result with filter 4', async function() {
-        var robjs;
-
+    it('validate search result with filter 4', async () => {
         // multiple features are found
-        await new Promise(function(resolve) {
+        let result = await new Promise((resolve) => {
             spaceProvider.setPropertySearch({
                 'name': {
                     operator: '=',
@@ -141,20 +143,17 @@ describe('remote filtering in spaceprovider', function() {
             spaceProvider.search({
                 rect: {minLon: 4.3825, minLat: 45.422019, maxLon: 4.9825, maxLat: 45.773889},
                 remote: true,
-                onload: function(e) {
-                    robjs = e;
-                    resolve();
+                onload: (result) => {
+                    resolve(result);
                 }
             });
         });
-        expect(robjs).to.have.lengthOf(2);
+        expect(result).to.have.lengthOf(2);
     });
 
-    it('validate search result with filter 5', async function() {
-        var robjs;
-
+    it('validate search result with filter 5', async () => {
         // multiple filter, multiple features are found
-        await new Promise(function(resolve) {
+        let result = await new Promise((resolve) => {
             spaceProvider.setPropertySearch({
                 'name': {
                     operator: '=',
@@ -169,21 +168,18 @@ describe('remote filtering in spaceprovider', function() {
             spaceProvider.search({
                 rect: {minLon: 4.3825, minLat: 45.422019, maxLon: 4.9825, maxLat: 45.773889},
                 remote: true,
-                onload: function(e) {
-                    robjs = e;
-                    resolve();
+                onload: (result) => {
+                    resolve(result);
                 }
             });
         });
-        expect(robjs).to.have.lengthOf(2);
+        expect(result).to.have.lengthOf(2);
     });
 
 
-    it('validate search result with filter 6', async function() {
-        var robjs;
-
+    it('validate search result with filter 6', async () => {
         // multiple filter, one feature is found
-        await new Promise(function(resolve) {
+        let result = await new Promise((resolve) => {
             spaceProvider.setPropertySearch({
                 'name': {
                     operator: '=',
@@ -198,66 +194,58 @@ describe('remote filtering in spaceprovider', function() {
             spaceProvider.search({
                 rect: {minLon: 4.3825, minLat: 45.422019, maxLon: 4.9825, maxLat: 45.773889},
                 remote: true,
-                onload: function(e) {
-                    robjs = e;
-                    resolve();
+                onload: (result) => {
+                    resolve(result);
                 }
             });
         });
-        expect(robjs).to.have.lengthOf(1);
+        expect(result).to.have.lengthOf(1);
     });
 
 
-    it('validate search result with filter 7', async function() {
-        var robjs;
-
+    it('validate search result with filter 7', async () => {
         // set filter with individual property
-        await new Promise(function(resolve) {
+        let result = await new Promise((resolve) => {
             spaceProvider.setPropertySearch('capacity', '>', 30000);
 
             spaceProvider.search({
                 rect: {minLon: 4.3825, minLat: 45.422019, maxLon: 4.9825, maxLat: 45.773889},
                 remote: true,
-                onload: function(e) {
-                    robjs = e;
-                    resolve();
+                onload: (result) => {
+                    resolve(result);
                 }
             });
         });
-        expect(robjs).to.have.lengthOf(3);
+        expect(result).to.have.lengthOf(3);
     });
 
 
-    it('clear filter and validate search', async function() {
-        var robjs;
-
+    it('clear filter and validate search', async () => {
         // set filter with individual property
-        await new Promise(function(resolve) {
+        let result = await new Promise((resolve) => {
             spaceProvider.setPropertySearch('capacity', '>', 40000);
 
             spaceProvider.search({
                 rect: {minLon: 4.3825, minLat: 45.422019, maxLon: 4.9825, maxLat: 45.773889},
                 remote: true,
-                onload: function(e) {
-                    robjs = e;
-                    resolve();
+                onload: (result) => {
+                    resolve(result);
                 }
             });
         });
-        expect(robjs).to.have.lengthOf(2);
+        expect(result).to.have.lengthOf(2);
 
-        await new Promise(function(resolve) {
+        result = await new Promise((resolve) => {
             spaceProvider.setPropertySearch();
 
             spaceProvider.search({
                 rect: {minLon: 4.3825, minLat: 45.422019, maxLon: 4.9825, maxLat: 45.773889},
                 remote: true,
-                onload: function(e) {
-                    robjs = e;
-                    resolve();
+                onload: (result) => {
+                    resolve(result);
                 }
             });
         });
-        expect(robjs).to.have.lengthOf(3);
+        expect(result).to.have.lengthOf(3);
     });
 });

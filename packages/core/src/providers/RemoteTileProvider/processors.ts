@@ -59,7 +59,7 @@ export const executeProcessor = (processor, data: any = {}, callback) => {
     if (isPreprocessor(processor)) {
         processedData = processor(data);
     } else {
-        processedData = data;
+        processedData = data.data;
     }
 
     if (isPromise(processedData)) {
