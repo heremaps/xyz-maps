@@ -40,6 +40,10 @@ describe('add and remove features in layer', function() {
         expect(objs).to.have.lengthOf(0);
     });
 
+    it('add invalid feature (undefined)', async () => {
+        let removed = addrLayer.addFeature(undefined);
+        expect(removed).to.be.an('undefined');
+    });
 
     it('add an address feature', async function() {
         addrLayer.addFeature({
@@ -79,5 +83,32 @@ describe('add and remove features in layer', function() {
         });
 
         expect(objs).to.have.lengthOf(2);
+    });
+
+    it('remove feature', async () => {
+        let area = {
+            point: {longitude: 79.94419050205374, latitude: 12.957261773733392},
+            radius: 100
+        };
+        let obj = addrLayer.search(area);
+        let removed = addrLayer.removeFeature(obj[0]);
+
+        expect(removed.type).to.equal('Feature');
+
+        let result = addrLayer.search(area);
+
+        expect(result).to.have.lengthOf(1);
+    });
+
+    it('remove empty feature ({})', async () => {
+        let removed = addrLayer.removeFeature({});
+
+        expect(removed).to.be.an('undefined');
+    });
+
+    it('remove invalid feature (undefined)', async () => {
+        let removed = addrLayer.removeFeature(undefined);
+
+        expect(removed).to.be.an('undefined');
     });
 });

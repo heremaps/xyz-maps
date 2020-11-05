@@ -101,8 +101,10 @@ export class FeatureProvider extends Provider {
         let prepared;
         let inserted;
 
+        if (typeof feature != 'object') return;
+
         if ((<GeoJSONFeatureCollection>feature).type == 'FeatureCollection') {
-            feature = (<GeoJSONFeatureCollection>feature).features;
+            feature = (<GeoJSONFeatureCollection>feature).features || [];
         }
 
         if (Array.isArray(feature)) {
@@ -458,51 +460,51 @@ export class FeatureProvider extends Provider {
      *  @param {here.xyz.maps.providers.FeatureProvider.Feature|Array.<here.xyz.maps.providers.FeatureProvider.Feature>} feature
      */
     removeFeature(feature) {
-        let len;
-        if (feature.type == 'FeatureCollection') {
-            feature = feature.features;
-        }
-        if (len = feature.length) {
-            const result = [];
-
-            for (let f = 0; f < len; f++) {
-                result[f] = this.removeFeature(feature[f]);
+        if (feature) {
+            if (feature.type == 'FeatureCollection') {
+                feature = feature.features;
             }
-            return result;
-        }
-
-
-        if (feature = this.getFeature(feature.id)) {
-            const tiles = this.getCachedTilesOfBBox(this.decBBox(feature));
-            let tile;
-
-            for (let t = 0; t < tiles.length; t++) {
-                tile = tiles[t];
-
-                if (tile.isLoaded()) {
-                    tile.remove(feature);
-
-                    // tileIndex = tile.data.indexOf(feature);
-                    //
-                    // if( tileIndex !== -1 )
-                    // {
-                    //     tile.data.splice(tileIndex,1);
-                    // }
+            if (Array.isArray(feature)) {
+                const result = [];
+                for (let f = 0, len = feature.length; f < len; f++) {
+                    result[f] = this.removeFeature(feature[f]);
                 }
+                return result;
             }
 
-            this.cnt--;
 
-            delete this.IDPOOL[feature.id];
+            if (feature = this.getFeature(feature.id)) {
+                const tiles = this.getCachedTilesOfBBox(this.decBBox(feature));
+                let tile;
 
-            if (this.tree) {
-                this.tree.remove(feature);
-            }
+                for (let t = 0; t < tiles.length; t++) {
+                    tile = tiles[t];
 
-            // delete feature._provider;
+                    if (tile.isLoaded()) {
+                        tile.remove(feature);
 
-            if (!this.ignore) {
-                this.listeners.trigger(REMOVE_FEATURE_EVENT, [feature, tiles], true);
+                        // tileIndex = tile.data.indexOf(feature);
+                        //
+                        // if( tileIndex !== -1 )
+                        // {
+                        //     tile.data.splice(tileIndex,1);
+                        // }
+                    }
+                }
+
+                this.cnt--;
+
+                delete this.IDPOOL[feature.id];
+
+                if (this.tree) {
+                    this.tree.remove(feature);
+                }
+
+                // delete feature._provider;
+
+                if (!this.ignore) {
+                    this.listeners.trigger(REMOVE_FEATURE_EVENT, [feature, tiles], true);
+                }
             }
         }
 
