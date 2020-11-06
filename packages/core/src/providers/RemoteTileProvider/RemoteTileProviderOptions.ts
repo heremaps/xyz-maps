@@ -45,6 +45,10 @@ export default {
      * If the processor function does not return any value (undefined) or a Promise then its treated as asynchronous processor.
      * An asynchronous processor that's not using a Promise MUST call the input.ready(..) callback when data processing is finished.
      *
+     * Due to the execution of the processor in a separate worker thread the processor function must be scope independent.
+     * The processor must be a "standalone function/class" that only depends on its own scope and only accesses its own local variables.
+     * No references to the outer scope of the processor function are allowed.
+     *
      * PreProcessor:
      * ({data: any[], ready: (GeoJsonFeature[]) => void, tile?:{x:number,y:number,z:number}) => GeoJsonFeature[] | Promise
      *
@@ -61,6 +65,10 @@ export default {
      * If the processor function is returning the processed data then its treated as a synchronous processor.
      * If the processor function does not return any value (undefined) or a Promise then its treated as asynchronous processor.
      * An asynchronous processor that's not using a Promise MUST call the input.ready(..) callback when data processing is finished.
+     *
+     * Due to the execution of the processor in a separate worker thread the processor function must be scope independent.
+     * The processor must be a "standalone function/class" that only depends on its own scope and only accesses its own local variables.
+     * No references to the outer scope of the processor function are allowed.
      *
      * PostProcessorData:
      *  {put: GeoJsonFeature[],remove: GeoJsonFeature[]}
