@@ -68,10 +68,7 @@ describe('zone selector drag', function() {
             from: 0.1,
             to: 0.4,
             side: 'B',
-            style: {stroke: 'blue'},
-            onChange: function(e) {
-                results1 = e;
-            }
+            style: {stroke: 'blue'}
         }, {
             from: 0.5,
             to: 0.8,
@@ -119,7 +116,8 @@ describe('zone selector drag', function() {
         await drag(mapContainer, {x: 350, y: 217}, {x: 350, y: 250});
 
         expect(results2[0]).to.deep.include({
-            from: 0.44694291493948723, to: 0.7212504779966603,
+            from: 0.4469427945920623,
+            to: 0.7212504779966603,
             reversed: false
         });
 
@@ -154,7 +152,7 @@ describe('zone selector drag', function() {
             to: 0.8
         });
         expect(info[1].segments[0]).to.deep.include({
-            from: 0.44694291493948723,
+            from: 0.4469427945920623,
             to: 0.7212504779966603,
             reversed: false
         });

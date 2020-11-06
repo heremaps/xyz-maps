@@ -16,23 +16,27 @@
  * SPDX-License-Identifier: Apache-2.0
  * License-Filename: LICENSE
  */
+
 import {prepare} from 'utils';
 import {waitForEditorReady} from 'editorUtils';
 import {drag} from 'triggerEvents';
 import {Map} from '@here/xyz-maps-display';
 import {Editor} from '@here/xyz-maps-editor';
 import dataset from './zoneselector_show_hide_spec.json';
+import chaiAlmost from 'chai-almost';
 
-describe('zone selector show and hide', function() {
+describe('zone selector util', function() {
     const expect = chai.expect;
-
     let editor;
     let display;
     let preparedData;
     let mapContainer;
-    let link1; let link2; let link4;
+    let link1;
+    let link2;
+    let link4;
 
     before(async function() {
+        chai.use(chaiAlmost(0.001));
         preparedData = await prepare(dataset);
         display = new Map(document.getElementById('map'), {
             center: {longitude: -107.791617, latitude: 37.247926},
@@ -47,9 +51,11 @@ describe('zone selector show and hide', function() {
         link1 = preparedData.getFeature('linkLayer', '-18254');
         link2 = preparedData.getFeature('linkLayer', '-18255');
         link4 = preparedData.getFeature('linkLayer', '-18257');
+
+        display.addEventListener('pointermove', (e)=>console.log(e.mapX, e.mapY));
     });
 
-    after(async function() {
+    after(async ()=>{
         editor.destroy();
         display.destroy();
         await preparedData.clear();
@@ -71,9 +77,9 @@ describe('zone selector show and hide', function() {
 
         await drag(mapContainer, {x: 120, y: 185}, {x: 120, y: 200});
 
+        expect(results[0].from).to.deep.almost(0.1);
+        expect(results[0].to).to.deep.almost(0.512);
         expect(results[0]).to.deep.include({
-            from: 0.10000000000200623,
-            to: 0.5117070589236838,
             reversed: false
         });
 
@@ -99,11 +105,11 @@ describe('zone selector show and hide', function() {
             }
         });
 
-        await drag(mapContainer, {x: 140, y: 296}, {x: 140, y: 280});
+        await drag(mapContainer, {x: 133, y: 301}, {x: 131, y: 285});
 
+        expect(results[0].from).to.deep.almost(0.1);
+        expect(results[0].to).to.deep.almost(0.473);
         expect(results[0]).to.deep.include({
-            from: 0.09999999998970112,
-            to: 0.44124056157397223,
             reversed: false
         });
 
