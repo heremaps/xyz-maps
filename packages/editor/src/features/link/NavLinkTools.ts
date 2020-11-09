@@ -587,7 +587,7 @@ var tools = {
             changeGeometry(navlink, path);
 
             // update/remove zlevels
-            const zLevels = navlink.getZLevels();
+            const zLevels = <number[]>navlink.getZLevels();
             zLevels.splice(index, 1);
             navlink._e().objects.history.ignore(() => {
                 navlink.getProvider().writeZLevels(navlink, zLevels);

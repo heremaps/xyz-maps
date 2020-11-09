@@ -50,7 +50,7 @@ export default {
      * No references to the outer scope of the processor function are allowed.
      *
      * PreProcessor:
-     * ({data: any[], ready: (GeoJsonFeature[]) => void, tile?:{x:number,y:number,z:number}) => GeoJsonFeature[] | Promise
+     *  ({data: any[], ready: (GeoJsonFeature[]) => void, tile?:{x:number,y:number,z:number}) => GeoJsonFeature[] | Promise
      *
      * @public
      * @expose

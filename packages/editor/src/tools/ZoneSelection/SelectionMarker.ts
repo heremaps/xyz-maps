@@ -21,7 +21,7 @@ import {getPointAtLength, getTotalLength, getSegmentIndex} from '../../geometry'
 import {calcRelPosOfPoiAtLink, getRelPosOfPointOnLine} from '../../map/GeoMath';
 import {geotools} from '@here/xyz-maps-common';
 import {features} from '@here/xyz-maps-core';
-import {TileLayer} from '@here/xyz-maps-core/src/layers/TileLayer';
+import {layers} from '@here/xyz-maps-core/';
 
 function getPointAtLink(line, relPos) {
     const coords = line.coord();
@@ -41,7 +41,7 @@ class Marker extends features.Feature {
         relPos: number;
     }
 
-    constructor(overlay: TileLayer, multiLink, side: string, relPos: number, color: string, isLocked, onDrag, onDragEnd) {
+    constructor(overlay: layers.TileLayer, multiLink, side: string, relPos: number, style, isLocked, onDrag, onDragEnd) {
         super({
             properties: {
                 relPos: relPos,
@@ -50,7 +50,8 @@ class Marker extends features.Feature {
                 style: [{
                     zIndex: 110,
                     type: 'Rect',
-                    fill: color,
+                    fill: style.stroke,
+                    opacity: style.opacity,
                     width: 10,
                     height: 30
                 }]

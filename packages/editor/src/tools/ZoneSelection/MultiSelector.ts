@@ -19,14 +19,28 @@
 
 import oTools from '../../features/link/NavLinkTools';
 import MultiLink from './MultiLink';
+import InternalEditor from '../../IEditor';
+import Map from '@here/xyz-maps-display';
+import {Zone} from '../../API/EZoneSelector';
+import Navlink from '../../features/link/NavLink';
 
-function MultiSelector(HERE_WIKI, overlay) {
-    let multiLink = null;
-    let candidates = {
+class MultiSelector {
+    private multiLink: MultiLink = null;
+    private candidates = {
         ref: null,
         nref: null
     };
-    const isCandidate = (line) => {
+    private parents = [];
+
+    private onMvcStart: () => void;
+    private display: Map;
+
+    constructor(iEdit: InternalEditor) {
+        this.display = iEdit.display;
+    }
+
+    private isCandidate(line) {
+        const {candidates} = this;
         for (const n in candidates) {
             for (const i in candidates[n]) {
                 if (line.id === candidates[n][i].link.id) {
@@ -36,33 +50,44 @@ function MultiSelector(HERE_WIKI, overlay) {
         }
         return null;
     };
-    let parents = [];
-    const multiSelector = this;
 
-    this.getCollection = () => multiLink;
+    getCollection(): MultiLink {
+        return this.multiLink;
+    }
 
-    this.show = (zones) => {
-        multiLink && multiLink.show(zones);
+    show(zones: Zone[]) {
+        if (!this.onMvcStart) {
+            this.display.addEventListener('mapviewchangestart', this.onMvcStart = this.hide.bind(this));
+        }
+        if (this.multiLink) {
+            this.multiLink.show(zones);
+        }
     };
 
-    this.hide = () => {
+    hide() {
+        this.display.removeEventListener('mapviewchangestart', this.onMvcStart);
+        this.onMvcStart = null;
+
+        const {multiLink, parents} = this;
         for (let i = 0; i < parents.length; i++) {
             oTools.defaults(parents[i]);
         }
 
-        parents = [];
-        candidates = {
+        this.parents = [];
+        this.candidates = {
             ref: null,
             nref: null
         };
 
         if (multiLink) {
             multiLink.destroy();
-            multiLink = null;
+            this.multiLink = null;
         }
     };
 
-    this.addLink = (line) => {
+    addLink(line: Navlink) {
+        let {multiLink, parents, candidates} = this;
+
         let candidateNode;
         let isFirstLine;
         let lastNodeIndex;
@@ -77,16 +102,13 @@ function MultiSelector(HERE_WIKI, overlay) {
             if (isFirstLine) {
                 candidates.ref = line.getConnectedLinks(0, true);
                 candidates.nref = line.getConnectedLinks(lastNodeIndex, true);
-
-                // line._editable( false );
-
                 parents.push(oTools.deHighlight(line));
 
-                multiLink = new MultiLink(HERE_WIKI, overlay, line, 'B');
+                this.multiLink = multiLink = new MultiLink(line._e(), line);
             }
 
             // handling of candidates
-            candidateNode = isCandidate(line);
+            candidateNode = this.isCandidate(line);
 
             if (candidateNode) {
                 const curParent = parents[parents.length - 1];
@@ -116,9 +138,6 @@ function MultiSelector(HERE_WIKI, overlay) {
 
         return !!(candidateNode || isFirstLine);
     };
-
-
-    HERE_WIKI.display.addEventListener('mapviewchangestart', multiSelector.hide);
 }
 
 export default MultiSelector;

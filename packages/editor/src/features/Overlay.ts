@@ -21,6 +21,7 @@ import FeatureEditStates from './feature/EditorProperties';
 import FeatureContainer from './Container';
 import {geotools} from '@here/xyz-maps-common';
 import {layers, providers} from '@here/xyz-maps-core';
+import {Coordinate} from '@here/xyz-maps-core/src/features/GeoJSON';
 
 let UNDEF;
 
@@ -205,7 +206,7 @@ class Overlay {
     }
 
 
-    addPath(coordinates, style, props) {
+    addPath(coordinates: Coordinate[], style, props?: {}) {
         return this.addFeature({
             geometry: {
                 coordinates: coordinates,

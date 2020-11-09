@@ -33,7 +33,7 @@ type ZoneSegment = {
     reversed: boolean;
 }
 
-type Zone = {
+export type Zone = {
     side: 'L' | 'R' | 'B';
     from: number;
     to: number;
@@ -52,12 +52,12 @@ type Zone = {
  *  @constructor
  *  @name here.xyz.maps.editor.Editor.zoneSelector
  */
-class ZoneSelector {
+export class ZoneSelector {
     private links: MultiSelector;
     private zones: [];
 
     constructor(iEditor: InternalEditor) {
-        this.links = new MultiSelector(iEditor, iEditor.objects.overlay);
+        this.links = new MultiSelector(iEditor);
 
         /**
          *  The interface for parameter of zones/sides tool at links.
@@ -191,7 +191,6 @@ class ZoneSelector {
 
             if (onChange) {
                 zone['onChange'] = (zone) => {
-                    console.log(this.generateZoneSegments(zone));
                     onChange(this.generateZoneSegments(zone));
                 };
             }
@@ -237,7 +236,3 @@ class ZoneSelector {
         return zoneInfos;
     };
 }
-
-export default ZoneSelector;
-
-
