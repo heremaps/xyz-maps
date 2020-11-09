@@ -1,3 +1,15 @@
+## 0.17.0 (2020-11-9)
+### core
+* added: introduced provider postprocessors and preprocessors to enable custom data processing for remote data sources.
+* improved: add/remove Feature is more robust for invalid input
+* fixed: adding an empty FeatureCollection/Array via provider.addFeature(..) throws an exception. [fix #43]
+### editor
+* fixed: zoneSelector util does not display side of zone [fix #44]
+### display
+* fixed: tiny lines (centimeter range) might only be partially rendered [fix #42]
+* fixed: mapdata can be invisible if map is initialized with zoomlevel greater than 20
+* fixed: text-style properties for line geometries are ignored if defined as style-functions. [fix #41]
+
 ## 0.16.0 (2020-10-9)
 ### display
 * added: Support for global style-based feature drawing order across all layers. usage: style.zLayer=number
