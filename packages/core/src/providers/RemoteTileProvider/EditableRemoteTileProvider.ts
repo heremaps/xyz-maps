@@ -110,7 +110,7 @@ export abstract class EditableRemoteTileProvider extends EditableFeatureProvider
         provider.loader = loader;
 
         const {preProcessor} = config;
-        provider.preprocess = createRemoteProcessor(preProcessor);
+        provider.preprocess = createRemoteProcessor(preProcessor||config.preprocessor);
         provider.postprocess = createRemoteProcessor(config.postProcessor);
 
         if (provider.commit) {

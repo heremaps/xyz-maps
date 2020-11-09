@@ -255,8 +255,14 @@
 						"title":"Custom Style",
 						"description":"Add a layer with custom style",
 						"file":"./layer/custom_style.htm",
-						"docs":"here.xyz.maps.layers.TileLayer.html"
+						"docs":"here.xyz.maps.providers.RemoteTileProvider.Options.html#preProcessor"
 					},
+                    {
+                        "title":"Remote Preprocessor",
+                        "description":"Use a custom remote preprocessor to modify remote data",
+                        "file":"./layer/preprocessor.htm",
+                        "docs":"here.xyz.maps.layers.TileLayer.html"
+                    },
 					{
 						"title":"Set Tag in Space Layer",
 						"description":"Display Space Provider and set tags to filter",
