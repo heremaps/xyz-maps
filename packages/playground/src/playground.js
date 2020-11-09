@@ -62,6 +62,8 @@ export let pg = new (function Playground() {
     var dragObj;
     var activateNode;
     var examplePath = 'examples/';
+    var exampleTitlePrefix = 'XYZ Maps Example: ';
+    var exampleTitle = '${EXAMPLE_TITLE}';
     var apiPATHPlaceholderCommon = '${XYZ_COMMON_PATH}';
     var apiPATHPlaceholderCore = '${XYZ_CORE_PATH}';
     var apiPATHPlaceholderDisplay = '${XYZ_DISPLAY_PATH}';
@@ -521,6 +523,7 @@ export let pg = new (function Playground() {
                 var anchor = document.createElement('a');
                 var content = $('a.tohtml').hasClass('disabled') ? codeEditor.getValue() : currentChangedData.replace(visibleSrcRex2, codeEditor.getValue());
 
+                content = content.replace(exampleTitle, exampleTitlePrefix + gt.data().title);
                 content = content.replace(apiPath.common, absolutePath(apiPath.common));
                 content = content.replace(apiPath.core, absolutePath(apiPath.core));
                 content = content.replace(apiPath.display, absolutePath(apiPath.display));
@@ -715,6 +718,7 @@ export let pg = new (function Playground() {
                     // untouched data
                     originalData = data;
 
+                    data = data.replace(exampleTitle, exampleTitlePrefix + gt.data().title);
                     data = data.replace(apiPATHPlaceholderCommon, apiPath.common + tsAppendix);
                     data = data.replace(apiPATHPlaceholderCore, apiPath.core + tsAppendix);
                     data = data.replace(apiPATHPlaceholderDisplay, apiPath.display + tsAppendix);
