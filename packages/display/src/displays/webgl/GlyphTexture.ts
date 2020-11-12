@@ -26,11 +26,12 @@ class GlyphTexture extends Texture {
     private dirty: boolean = false;
 
     constructor(gl: WebGLRenderingContext, style, blockSize: number = 256) {
-        // blockSize *= window.devicePixelRatio;
         super(gl);
+
         const {dpr} = <any>gl;
         this.atlas = new GlyphAtlas(style, dpr, blockSize, blockSize);
-        // this.format = gl.LUMINANCE_ALPHA;
+
+        this.format = gl.LUMINANCE_ALPHA;
     }
 
     addChars(text: string) {

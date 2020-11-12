@@ -21,6 +21,7 @@ import {GeometryBuffer} from './GeometryBuffer';
 import {normalize} from './addLineString';
 import {createTextData} from './createText';
 import {GlyphTexture} from '../GlyphTexture';
+import {toRGB} from '../color';
 
 const TILE_SIZE = 512;
 // const TILE_SIZE = 256;
@@ -161,6 +162,8 @@ const createGridTextBuffer = (quadkey: string, gl: WebGLRenderingContext, font: 
     textBuffer.addUniform('u_atlasScale', 1 / glyphs.width);
     textBuffer.addUniform('u_opacity', 1.0);
     textBuffer.addUniform('u_alignMap', true);
+    textBuffer.addUniform('u_fillColor', toRGB(font.fill));
+    textBuffer.addUniform('u_strokeColor', toRGB(font.stroke));
 
     return textBuffer;
 };

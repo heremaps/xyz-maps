@@ -54,6 +54,16 @@ class TextProgram extends Program {
         // gl.depthFunc(gl.LESS);
         gl.blendFunc(gl.ONE, gl.ONE_MINUS_SRC_ALPHA);
     }
+
+    draw(group, buffers) {
+        const {gl, uniforms} = this;
+
+        gl.uniform1f(uniforms.u_strokeOnly, 1);
+        super.draw(group, buffers);
+
+        gl.uniform1f(uniforms.u_strokeOnly, 0);
+        super.draw(group, buffers);
+    }
 }
 
 export default TextProgram;

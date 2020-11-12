@@ -37,7 +37,6 @@ const COLOR_UNDEFINED = new Float32Array([-1.0, -1.0, -1.0, -1.0]);
 
 let UNDEF;
 
-
 type Tile = tile.Tile;
 
 const handlePolygons = (factory: FeatureFactory, feature, coordinates, styleGroups, lsScale, tile) => {
@@ -188,6 +187,9 @@ const createBuffer = (
 
                             if (type == 'Text') {
                                 (<GlyphTexture>geoBuffer.texture).sync();
+
+                                geoBuffer.addUniform('u_fillColor', shared.fill);
+                                geoBuffer.addUniform('u_strokeColor', shared.stroke);
                             }
                             geoBuffer.addUniform('u_texture', 0);
                             geoBuffer.addUniform('u_atlasScale', 1 / geoBuffer.texture.width);

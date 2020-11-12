@@ -16,10 +16,28 @@
  * SPDX-License-Identifier: Apache-2.0
  * License-Filename: LICENSE
  */
-
 const DEFAULT_STROKE_WIDTH = 1;
 const DEFAULT_FONT = 'normal 12px Arial';
 const DEFAULT_TEXT_ALIGN = 'start';
+
+const GLYPH_FILL = '#ff0000';
+const GLYPH_STROKE = '#00ff00';
+
+// export const isArabic = (text: string) => {
+//     const cc = text.charCodeAt(0);
+//     //            arabic                            Arabic Supplement
+//     return (cc >= 0x0600 && cc <= 0x06ff) || (cc >= 0x0750 && cc <= 0x077F);
+// };
+//
+// function isRTL(s) {
+//     var ltrChars = 'A-Za-z\u00C0-\u00D6\u00D8-\u00F6\u00F8-\u02B8\u0300-\u0590\u0800-\u1FFF\u2C00-\uFB1C\uFDFE-\uFE6F\uFEFD-\uFFFF';
+//     var rtlChars = '\u0591-\u07FF\uFB1D-\uFDFD\uFE70-\uFEFC';
+//     var rtlDirCheck = new RegExp('^[^' + ltrChars + ']*[' + rtlChars + ']');
+//     return rtlDirCheck.test(s);
+// };
+
+export const isArabicOrHebrew = (text: string) => /[\u0590-\u06FF]/.test(text);
+
 
 type FontStyle = {
     font?: string;
@@ -29,14 +47,15 @@ type FontStyle = {
     fill?: string;
 }
 
-const toCSS = (rgb: number[] | string): string => {
-    if (rgb instanceof Array) {
-        return `rgb(${Math.round(rgb[0] * 255)}, ${Math.round(rgb[1] * 255)}, ${Math.round(rgb[2] * 255)})`;
-    }
-    return rgb;
-};
 
-const initFont = (ctx, style: FontStyle) => {
+// const toCSS = (rgb: number[] | string): string => {
+//     if (rgb instanceof Array) {
+//         return `rgb(${Math.round(rgb[0] * 255)}, ${Math.round(rgb[1] * 255)}, ${Math.round(rgb[2] * 255)})`;
+//     }
+//     return rgb;
+// };
+
+const initFont = (ctx, style: FontStyle, fill = GLYPH_FILL, stroke= GLYPH_STROKE) => {
     ctx.font = style.font || DEFAULT_FONT;
 
     if (typeof style.strokeWidth == 'number') {
@@ -44,8 +63,9 @@ const initFont = (ctx, style: FontStyle) => {
     } else {
         ctx.lineWidth = DEFAULT_STROKE_WIDTH;
     }
-    ctx.strokeStyle = style.stroke;
-    ctx.fillStyle = style.fill;
+
+    ctx.strokeStyle = stroke;
+    ctx.fillStyle = fill;
     ctx.textAlign = style.textAlign || DEFAULT_TEXT_ALIGN;
     ctx.lineCap = 'round';
     ctx.lineJoin = 'round';
@@ -71,10 +91,10 @@ const determineFontHeight = (ctx: CanvasRenderingContext2D, style: FontStyle, te
     ctx.fillStyle = '#000';
     ctx.fillRect(0, 0, width, height);
 
-    initFont(ctx, style);
+    initFont(ctx, style, '#fff', '#fff');
 
-    ctx.strokeStyle = '#fff';
-    ctx.fillStyle = '#fff';
+    // ctx.strokeStyle = '#fff';
+    // ctx.fillStyle = '#fff';
 
     // ctx.textBaseline = 'top';
 
@@ -183,8 +203,8 @@ class GlyphAtlas {
         onExtend?: (w: number, h: number) => void,
         text?: string
     ) {
-        style.stroke = toCSS(style.stroke);
-        style.fill = toCSS(style.fill);
+        // style._stroke = toCSS(style._stroke||style.stroke);
+        // style._fill = toCSS(style._fill||style.fill);
 
         width *= dpr;
         height *= dpr;
@@ -218,7 +238,7 @@ class GlyphAtlas {
 
         this.avgGlyphHeight = letterHeight;
 
-        initFont(ctx, style, /* '#ff0000', '#00ff00' */);
+        initFont(ctx, style);
 
         this.style = style;
 
@@ -296,7 +316,7 @@ class GlyphAtlas {
             this.canvas = flipAndCopyCanvas(this.canvas, 0, 0, width, height);
             this.ctx = this.canvas.getContext('2d');
             this.ctx.textBaseline = 'top';
-            initFont(this.ctx, this.style, /* '#ff0000', '#00ff00' */);
+            initFont(this.ctx, this.style);
         }
 
         this.ax = ax;
@@ -309,7 +329,6 @@ class GlyphAtlas {
 
     addChars(text: string): boolean {// false | [number, number, number, number] {
         const {glyphInfos, paddingX, paddingY, marginY, scale} = this;
-
         const avgGlyphHeight = this.avgGlyphHeight + 2 * paddingY;
         const rowHeight = this.letterHeight / scale + marginY + 2 * paddingY;
         const orgW = this.orgW / scale;
