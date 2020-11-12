@@ -33,6 +33,7 @@ import fs from 'fs';
 const env = process.env;
 const DEST = env['destination'] || settings.path.destination;
 const SRC = env['resource'] || settings.path.resource;
+const examplesdir = 'examples';
 
 const exclude = env.exclude;
 const production = env.BUILD == 'production';
@@ -83,6 +84,29 @@ if (exclude !== undefined) {
     }
 }
 
+let exampleList = {};
+let xyzmapsExampleList = JSON.parse(fs.readFileSync(examplesdir + '/xyzmaps.json', 'utf8'));
+
+const dirs = fs.readdirSync(examplesdir);
+dirs.forEach(dir=>{
+    if(dir.indexOf('.') == -1) {
+        const examples = fs.readdirSync(examplesdir + '/' + dir);
+        if(examples) examples.forEach(example=>{
+            const content = fs.readFileSync(examplesdir + '/' + dir + '/' + example, 'utf8');
+            const title = content.match(/<title>(.*)<\/title>/)[1];
+            exampleList['./' + dir + '/' + example] = title;
+        })
+    }
+})
+
+xyzmapsExampleList.forEach(comp=>{
+    comp.samples.forEach(seclevsample=>{
+        seclevsample.samples.forEach(example=>{
+            example.title = example.title || exampleList[example.file].replace(/XYZ Maps Example: ?/, '');
+        })
+    })
+})
+
 export default {
     input: './src/main.js',
     output: {
@@ -99,6 +123,7 @@ export default {
             'utag': env['utag-path'] ? fs.readFileSync(env['utag-path'], 'utf8') : 'export default ()=>{}',
             'settings': 'export default' + JSON.stringify(settings),
             'credentials': 'export default' + JSON.stringify(credential),
+            'exampleslist': 'export default ' + JSON.stringify(xyzmapsExampleList),
             'ts': 'export default ' + ts
         }),
         json(),

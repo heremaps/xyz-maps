@@ -19,7 +19,7 @@
 
 import $ from 'jquery';
 import CodeMirror from 'codemirror';
-import xyzmaps from '../examples/xyzmaps.json';
+import xyzmaps from 'exampleslist';
 
 import pgSettings from 'settings';
 import credentials from 'credentials';
