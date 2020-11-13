@@ -55,7 +55,7 @@ type FontStyle = {
 //     return rgb;
 // };
 
-const initFont = (ctx, style: FontStyle, fill = GLYPH_FILL, stroke= GLYPH_STROKE) => {
+const initFont = (ctx, style: FontStyle, fill = GLYPH_FILL, stroke = GLYPH_STROKE) => {
     ctx.font = style.font || DEFAULT_FONT;
 
     if (typeof style.strokeWidth == 'number') {
@@ -172,7 +172,6 @@ class GlyphAtlas {
     private orgH: number;
     private ax = 0;
     private ay = 0;
-    private onExtend: (w: number, h: number) => void;
     private style: FontStyle;
     private avgGlyphHeight: number;
     private marginX = 2;
@@ -194,30 +193,36 @@ class GlyphAtlas {
     avgCharWidth: number = 0;
     spaceWidth: number;
     length: number = 0;
+    private rowHeight: number;
 
     constructor(
         style: FontStyle,
         dpr: number,
-        width: number,
-        height: number,
-        onExtend?: (w: number, h: number) => void,
+        size?: number,
         text?: string
     ) {
-        // style._stroke = toCSS(style._stroke||style.stroke);
-        // style._fill = toCSS(style._fill||style.fill);
+        const scale = dpr;
+        let optimizedSize = 0;
 
-        width *= dpr;
-        height *= dpr;
+        size = 64;
 
-        const canvas = createCanvas(width, height);
+        if (size) {
+            optimizedSize = size;
+        } else {
+            size = 128;
+        }
+
+        size *= scale;
+
+        const canvas = createCanvas(size, size);
         const ctx = (canvas).getContext('2d');
         const styleId = (style.strokeWidth || DEFAULT_STROKE_WIDTH) + (style.font || DEFAULT_FONT) + (style.textAlign || DEFAULT_TEXT_ALIGN);
         const fontHeightInfo = fontHeightCache.get(styleId);
+
         let letterHeightBottom;
         let letterHeight;
 
-        this.scale = dpr;
-
+        this.scale = scale;
 
         if (fontHeightInfo) {
             letterHeightBottom = fontHeightInfo[0];
@@ -225,48 +230,32 @@ class GlyphAtlas {
             ctx.textBaseline = 'top';
         } else {
             ctx.textBaseline = 'bottom';
-            letterHeightBottom = determineFontHeight(ctx, style, 'gM').height * dpr;
+            letterHeightBottom = determineFontHeight(ctx, style, 'gM').height * scale;
 
             ctx.textBaseline = 'top';
-            letterHeight = determineFontHeight(ctx, style, 'gM').height * dpr;
+            letterHeight = determineFontHeight(ctx, style, 'gM').height * scale;
 
             fontHeightCache.set(styleId, [letterHeightBottom, letterHeight]);
         }
-        // determine font height on scaled canvas is less precise
-        // so we determine unscaled and scale afterwards
-        ctx.transform(dpr, 0, 0, dpr, 0, 0);
+
 
         this.avgGlyphHeight = letterHeight;
-
-        initFont(ctx, style);
-
         this.style = style;
 
         let sw = style.strokeWidth ^ 0;
 
-        // this.spacing = 13.5*this.paddingX;
-        // this.spacing = sw + this.paddingX * 3;
-
-
         this.spacing = sw * 1.05;
-        // this.spacing = sw * (1+letterHeight/220); // letterHeight 35 ->  14% contraction
-
         this.paddingX += sw * 1.25 * .5;
         this.paddingY += sw * .5;
 
-        this.spaceWidth = (ctx.measureText(' ').width * dpr);
+        this.spaceWidth = (ctx.measureText(' ').width * scale);
 
+        const rowHeight = letterHeight / scale + this.marginY + 2 * this.paddingY;
+        this.rowHeight = rowHeight;
         this.letterHeight = letterHeight;
-
         // this.baselineOffset = 0; // top
         // this.baselineOffset = (letterHeight - letterHeightBottom); // bottom
         this.baselineOffset = (letterHeight - letterHeightBottom) / 2 + this.paddingY; // middle
-
-        this.width = width;
-        this.height = height;
-
-        this.orgW = width;
-        this.orgH = height;
 
         this.canvas = canvas;
         this.ctx = ctx;
@@ -275,11 +264,37 @@ class GlyphAtlas {
         this.x = this.marginX + this.paddingX;
         this.y = this.marginY + this.paddingY;
 
+
+        if (!optimizedSize) {
+            // find optimal size for glyph packing
+            for (let size2 = 64, minLoss = Infinity; size2 <= 256; size2 *= 2) {
+                let loss = size2 / rowHeight % 1;
+                if (size2 > rowHeight && loss < minLoss) {
+                    optimizedSize = size2;
+                    minLoss = loss;
+                }
+            }
+        }
+
+        size = optimizedSize * scale;
+        canvas.width = size;
+        canvas.height = size;
+        // determine font height on scaled canvas is less precise
+        // so we determine unscaled and scale afterwards
+        ctx.transform(scale, 0, 0, scale, 0, 0);
+        ctx.textBaseline = 'top';
+
+        this.width = size;
+        this.height = size;
+
+        this.orgW = size;
+        this.orgH = size;
+
+        initFont(ctx, style);
+
         if (text) {
             this.addChars(text);
         }
-
-        this.onExtend = onExtend;
     };
 
     getTextWidth(text: string) {
@@ -298,18 +313,17 @@ class GlyphAtlas {
         if (ax < aw) {
             ax++;
         } else if (ay < ah) {
+            const i = aw / 2 ^ 0;
+
+            if (ay < i) {
+                ax -= i;
+            } else {
+                ax = 0;
+            }
             ay++;
-            ax = 0;
         } else {
             width *= 2;
             height *= 2;
-
-            // if (width < 2048) {
-            //     width *= 2;
-            // } else {
-            //     height *= 2;
-            // }
-
             ax++;
             ay = 0;
 
@@ -328,9 +342,8 @@ class GlyphAtlas {
     }
 
     addChars(text: string): boolean {// false | [number, number, number, number] {
-        const {glyphInfos, paddingX, paddingY, marginY, scale} = this;
+        const {glyphInfos, paddingX, paddingY, marginY, rowHeight, scale} = this;
         const avgGlyphHeight = this.avgGlyphHeight + 2 * paddingY;
-        const rowHeight = this.letterHeight / scale + marginY + 2 * paddingY;
         const orgW = this.orgW / scale;
         const orgH = this.orgH / scale;
         let maxHeight = orgH - rowHeight;
