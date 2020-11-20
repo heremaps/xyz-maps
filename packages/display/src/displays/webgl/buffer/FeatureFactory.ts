@@ -36,6 +36,8 @@ import {SymbolBuffer} from './templates/SymbolBuffer';
 import {PointBuffer} from './templates/PointBuffer';
 import {PolygonBuffer} from './templates/PolygonBuffer';
 import {ExtrudeBuffer} from './templates/ExtrudeBuffer';
+import {toPresentationFormB} from '../arabic';
+
 
 const DEFAULT_STROKE_WIDTH = 1;
 const DEFAULT_LINE_CAP = 'round';
@@ -261,6 +263,8 @@ export class FeatureFactory {
                             continue;
                         }
 
+                        text = toPresentationFormB(text);
+
                         font = getValue('font', style, feature, level) || defaultFont;
 
                         if (alignment == UNDEF) {
@@ -343,7 +347,6 @@ export class FeatureFactory {
 
             if (index == UNDEF) {
                 index = zGrouped[groupId] = zGrouped.length;
-
                 group = zGrouped[index] = {
                     type: type,
                     zLayer: zLayer,
@@ -378,7 +381,9 @@ export class FeatureFactory {
 
                     if (!texture) {
                         // console.time('create Glyph Tex');
-                        texture = group.texture = new GlyphTexture(this.gl, group.shared);
+
+
+                        texture = group.texture = /* window._glt = window._glt ||*/ new GlyphTexture(this.gl, group.shared);
                         // console.timeEnd('create Glyph Tex');
                         // group.first = 0;
                         // group.data = new SymbolData(false);

@@ -17,112 +17,233 @@
  * License-Filename: LICENSE
  */
 
-import {GlyphAtlas} from '../GlyphAtlas';
+import {createCanvas, drawCharacter, GlyphAtlas, initFont} from '../GlyphAtlas';
+import {Texture} from '../Texture';
+import {TypedArray, TypedArrayConstructor} from './glType';
+import {isDigit} from '../unicode';
 
-const isArabic = (text: string) => {
-    const cc = text.charCodeAt(0);
-    //            arabic                            Arabic Supplement
-    return (cc >= 0x0600 && cc <= 0x06ff) || (cc >= 0x0750 && cc <= 0x077F);
+const SPACE_CHAR = ' ';
+const LEFT_TO_RIGHT = 1;
+const RIGHT_TO_LEFT = -1;
+
+let labelCanvas;
+let labelCtx;
+export const createTextTexture = (gl, text, style) => {
+    if (!labelCtx) {
+        labelCanvas = createCanvas(256, 256);
+        labelCtx = labelCanvas.getContext('2d');
+    } else {
+        labelCtx.clearRect(0, 0, 256, 256);
+    }
+
+    initFont(labelCtx, style, style.fill, style.font);
+
+    drawCharacter(labelCtx, text, 0, 30, style);
+
+    let texture = new Texture(gl);
+
+    texture.set(labelCanvas);
+
+    return texture;
 };
 
+const findNextDir = (text, i, glyphAtlas) => {
+    while (++i < text.length) {
+        let char = text.charAt(i);
+        let glyph = glyphAtlas.glyphInfos[char];
+        if (glyph?.dir) return glyph?.dir;
+    }
+};
 
-export const createTextData = (text: string, fontInfo: GlyphAtlas, positions?, texcoords?) => {
-    const {spacing, spaceWidth, letterHeight} = fontInfo;
-    const len = text.length;
-    let y = letterHeight;
-    let x = 0;
+type TextData = { x: number; x2: number; offset: number; }
+
+const addGlyph = (c: string, glyphAtlas: GlyphAtlas, positions: TypedArray, texcoords: TypedArray, data: TextData) => {
+    let {x, offset} = data;
+    let {spacing, spaceWidth} = glyphAtlas;
+    let glyph = glyphAtlas.glyphInfos[c];
     let x2 = 0;
-    let u1;
-    let v1;
-    let u2;
-    let v2;
-    let glyph;
-    let offset;
 
-    if (!positions) {
-        positions = new Float32Array(len * 12);
-        texcoords = new Float32Array(len * 12);
-        offset = 0;
-    } else {
-        offset = positions.length;
-    }
+    if (glyph) {
+        let offsetX = glyph.width - spacing;
 
-    // let c;
-    // const u, arabic = false; //isArabic(text);
-    // for (let i = 0; i < len; i++) {
-    //     c = text.charAt(arabic?(len-1-i):i);
-    for (let c of text) {
-        glyph = fontInfo.glyphInfos[c];
-
-        if (glyph) {
-            y = glyph.height;
-
-            x2 = x + glyph.width;
-            u1 = (glyph.x);
-            v1 = (glyph.y + glyph.height);
-            // v1 = (glyph.y + letterHeight - 1) / maxY;
-            u2 = (glyph.x + glyph.width);
-            v2 = glyph.y;
-
-            // if(arabic){
-            //     u = u1;
-            //     u1 = u2;
-            //     u2 = u;
-            // }
-
-            // 6 vertices per letter
-            positions[offset + 0] = x;
-            positions[offset + 1] = 0;
-
-            texcoords[offset + 0] = u1;
-            texcoords[offset + 1] = v2;
-
-            positions[offset + 2] = x2;
-            positions[offset + 3] = y;
-
-            texcoords[offset + 2] = u2;
-            texcoords[offset + 3] = v1;
-
-            positions[offset + 4] = x;
-            positions[offset + 5] = y;
-
-            texcoords[offset + 4] = u1;
-            texcoords[offset + 5] = v1;
-
-            positions[offset + 6] = x2;
-            positions[offset + 7] = 0;
-
-            texcoords[offset + 6] = u2;
-            texcoords[offset + 7] = v2;
-
-            positions[offset + 8] = x2;
-            positions[offset + 9] = y;
-
-            texcoords[offset + 8] = u2;
-            texcoords[offset + 9] = v1;
-
-            positions[offset + 10] = x;
-            positions[offset + 11] = 0;
-
-            texcoords[offset + 10] = u1;
-            texcoords[offset + 11] = v2;
-
-
-            x += glyph.width - spacing;
-
-            offset += 12;
-        } else {
-            x += spaceWidth;
+        if (!glyph.width) {
+            offsetX = 0;
         }
+
+        let {u1, v1, u2, v2, height} = glyph;
+        x2 = x + (u2 - u1);
+
+        // u1 = (glyph.x);
+        // v1 = (glyph.y + glyph.height);
+        // // v1 = (glyph.y + letterHeight - 1) / maxY;
+        // u2 = glyph.x + glyph.width;
+        // // u2 = (glyph.x + glyph.width);
+        // v2 = glyph.y;
+
+        // 6 vertices per letter
+        positions[offset + 0] = x;
+        positions[offset + 1] = 0;
+
+        texcoords[offset + 0] = u1;
+        texcoords[offset + 1] = v2;
+
+        positions[offset + 2] = x2;
+        positions[offset + 3] = height;
+
+        texcoords[offset + 2] = u2;
+        texcoords[offset + 3] = v1;
+
+        positions[offset + 4] = x;
+        positions[offset + 5] = height;
+
+        texcoords[offset + 4] = u1;
+        texcoords[offset + 5] = v1;
+
+        positions[offset + 6] = x2;
+        positions[offset + 7] = 0;
+
+        texcoords[offset + 6] = u2;
+        texcoords[offset + 7] = v2;
+
+        positions[offset + 8] = x2;
+        positions[offset + 9] = height;
+
+        texcoords[offset + 8] = u2;
+        texcoords[offset + 9] = v1;
+
+        positions[offset + 10] = x;
+        positions[offset + 11] = 0;
+
+        texcoords[offset + 10] = u1;
+        texcoords[offset + 11] = v2;
+
+        if (offsetX) {
+            x += offsetX;
+        }
+        offset += 12;
+    } else if (c == ' ') {
+        x += spaceWidth;
     }
+
+    data.x = x;
+    data.offset = offset;
+    data.x2 = x2;
+};
+
+const addText = (
+    text: string,
+    start: number,
+    stop: number,
+    isRTL: boolean,
+    glyphAtlas: GlyphAtlas,
+    positions: TypedArray,
+    texcoords: TypedArray,
+    txtData: TextData,
+) => {
+    for (let i = start, len = stop, j, c; i < len; i++) {
+        j = isRTL ? start + (len - 1 - i) : i;
+        c = text.charAt(j);
+        // render numbers in reverse order inside RTL text blocks
+        if (isRTL) {
+            if (isDigit(text.charCodeAt(j))) {
+                let k = j;
+                let flipped = 0;
+                while (--k >= 0) {
+                    if (!isDigit(text.charCodeAt(k))) {
+                        while (++k <= j) {
+                            addGlyph(text.charAt(k), glyphAtlas, positions, texcoords, txtData);
+                            flipped++;
+                        }
+                        break;
+                    }
+                }
+                if (flipped) {
+                    i += flipped - 1;
+                    continue;
+                }
+            }
+        }
+        addGlyph(c, glyphAtlas, positions, texcoords, txtData);
+    }
+};
+
+export const createTextData = (text: string, glyphAtlas: GlyphAtlas) => {
+    const len = text.length;
+    const positions = new Float32Array(len * 12);
+    const texcoords = new Float32Array(len * 12);
+    const txtData = {
+        x: 0,
+        x2: 0,
+        offset: 0
+    };
+    let baseDirection;
+    let prevDirection;
+    let startIndex = 0;
+    let prevChar;
+
+    // BIDI text is considered as experimental and has known issues
+    for (let i = 0; i < len; i++) {
+        let char = text.charAt(i);
+        let glyph = glyphAtlas.glyphInfos[char];
+        let isLast = i == len - 1;
+        let curDirection = glyph?.dir || 0; // -1,0,+1
+
+        if (!baseDirection) {
+            if (char == ' ') { // neutral
+                continue;
+            }
+            // neutral start -> LTR base direction
+            curDirection = curDirection || 1;
+            baseDirection = curDirection;
+        }
+
+        if (prevDirection !== undefined) {
+            let flip = true;
+            if (!curDirection) {
+                let nextDir = findNextDir(text, i, glyphAtlas);
+                flip = nextDir && nextDir != prevDirection;
+            }
+            // if (!curDirection){}else
+            if (flip && curDirection != prevDirection) {
+                let end = i - 1;
+                if (prevChar == SPACE_CHAR) {
+                    if (curDirection == LEFT_TO_RIGHT) {
+                        end--;
+                    }
+                }
+                end++;
+                addText(text, startIndex, end, prevDirection == RIGHT_TO_LEFT, glyphAtlas, positions, texcoords, txtData);
+                startIndex = end;
+            }
+        }
+
+        if (isLast && startIndex <= i) {
+            // cut last white char
+            let end = i + Number(char != ' ');
+            let rtl;
+            if (curDirection) {
+                rtl = curDirection == -1;
+            } else {
+                // neutral -> take previous direction
+                rtl = prevDirection != baseDirection;
+            }
+
+            addText(text, startIndex, end, rtl, glyphAtlas, positions, texcoords, txtData);
+        }
+
+        if (curDirection) {
+            prevDirection = curDirection;
+        }
+        prevChar = char;
+    }
+
+    const {offset, x2} = txtData;
 
     return {
-        position: new positions.constructor(positions.buffer, 0, offset),
-        texcoord: new texcoords.constructor(texcoords.buffer, 0, offset),
-        // position: positions,
-        // texcoord: texcoords,
+        position: new (<TypedArrayConstructor>positions.constructor)(positions.buffer, 0, offset),
+        texcoord: new (<TypedArrayConstructor>texcoords.constructor)(texcoords.buffer, 0, offset),
         numVertices: offset / 2,
-        width: x2 / fontInfo.scale,
-        height: letterHeight
+        width: x2 / glyphAtlas.scale,
+        height: glyphAtlas.letterHeight
     };
 };

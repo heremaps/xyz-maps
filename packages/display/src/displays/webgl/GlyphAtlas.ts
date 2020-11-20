@@ -16,6 +16,8 @@
  * SPDX-License-Identifier: Apache-2.0
  * License-Filename: LICENSE
  */
+import {isNeutralDirection, isRTL, isDigit} from './unicode';
+
 const DEFAULT_STROKE_WIDTH = 1;
 const DEFAULT_FONT = 'normal 12px Arial';
 const DEFAULT_TEXT_ALIGN = 'start';
@@ -23,20 +25,9 @@ const DEFAULT_TEXT_ALIGN = 'start';
 const GLYPH_FILL = '#ff0000';
 const GLYPH_STROKE = '#00ff00';
 
-// export const isArabic = (text: string) => {
-//     const cc = text.charCodeAt(0);
-//     //            arabic                            Arabic Supplement
-//     return (cc >= 0x0600 && cc <= 0x06ff) || (cc >= 0x0750 && cc <= 0x077F);
-// };
-//
-// function isRTL(s) {
-//     var ltrChars = 'A-Za-z\u00C0-\u00D6\u00D8-\u00F6\u00F8-\u02B8\u0300-\u0590\u0800-\u1FFF\u2C00-\uFB1C\uFDFE-\uFE6F\uFEFD-\uFFFF';
-//     var rtlChars = '\u0591-\u07FF\uFB1D-\uFDFD\uFE70-\uFEFC';
-//     var rtlDirCheck = new RegExp('^[^' + ltrChars + ']*[' + rtlChars + ']');
-//     return rtlDirCheck.test(s);
-// };
-
-export const isArabicOrHebrew = (text: string) => /[\u0590-\u06FF]/.test(text);
+const getDirection = (cc: number): number => {
+    return (isNeutralDirection(cc) || isDigit(cc)) ? 0 : isRTL(cc) ? -1 : 1;
+};
 
 
 type FontStyle = {
@@ -47,15 +38,7 @@ type FontStyle = {
     fill?: string;
 }
 
-
-// const toCSS = (rgb: number[] | string): string => {
-//     if (rgb instanceof Array) {
-//         return `rgb(${Math.round(rgb[0] * 255)}, ${Math.round(rgb[1] * 255)}, ${Math.round(rgb[2] * 255)})`;
-//     }
-//     return rgb;
-// };
-
-const initFont = (ctx, style: FontStyle, fill = GLYPH_FILL, stroke = GLYPH_STROKE) => {
+export const initFont = (ctx, style: FontStyle, fill = GLYPH_FILL, stroke = GLYPH_STROKE) => {
     ctx.font = style.font || DEFAULT_FONT;
 
     if (typeof style.strokeWidth == 'number') {
@@ -71,7 +54,7 @@ const initFont = (ctx, style: FontStyle, fill = GLYPH_FILL, stroke = GLYPH_STROK
     ctx.lineJoin = 'round';
 };
 
-const drawCharacter = (ctx: CanvasRenderingContext2D, c: string, x: number, y: number, style) => {
+export const drawCharacter = (ctx: CanvasRenderingContext2D, c: string, x: number, y: number, style) => {
     const fill = style.fill;
     const stroke = style.stroke;
     const strokeWidth = style.strokeWidth;
@@ -132,7 +115,7 @@ const determineFontHeight = (ctx: CanvasRenderingContext2D, style: FontStyle, te
     };
 };
 
-const createCanvas = (width: number, height: number): HTMLCanvasElement => {
+export const createCanvas = (width: number, height: number): HTMLCanvasElement => {
     const canvas = document.createElement('canvas');
     canvas.width = width;
     canvas.height = height;
@@ -157,10 +140,13 @@ const flipAndCopyCanvas = (canvas, x, y, w, h) => {
 };
 
 type GlyphInfo = {
-    x: number;
-    y: number;
+    v1: number;
+    v2: number;
+    u1: number;
+    u2: number;
     width: number;
     height: number;
+    dir: number; // 1|0|-1
 }
 let fontHeightCache = new Map<string, [number, number]>();
 
@@ -204,12 +190,10 @@ class GlyphAtlas {
         const scale = dpr;
         let optimizedSize = 0;
 
-        size = 64;
-
         if (size) {
             optimizedSize = size;
         } else {
-            size = 128;
+            size = 64;
         }
 
         size *= scale;
@@ -244,11 +228,12 @@ class GlyphAtlas {
 
         let sw = style.strokeWidth ^ 0;
 
-        this.spacing = sw * 1.05;
-        this.paddingX += sw * 1.25 * .5;
-        this.paddingY += sw * .5;
+        // this.spacing = 13.5*this.paddingX;
+        // this.spacing = sw + this.paddingX * 3;
 
-        this.spaceWidth = (ctx.measureText(' ').width * scale);
+        this.spacing = sw * 1.25; //* 1.05;
+        this.paddingX += this.spacing / 2;
+        this.paddingY += sw * .5;
 
         const rowHeight = letterHeight / scale + this.marginY + 2 * this.paddingY;
         this.rowHeight = rowHeight;
@@ -292,6 +277,8 @@ class GlyphAtlas {
 
         initFont(ctx, style);
 
+        this.spaceWidth = (ctx.measureText(' ').width * scale);
+
         if (text) {
             this.addChars(text);
         }
@@ -303,8 +290,13 @@ class GlyphAtlas {
         return ctx.measureText(text).width + 2 * ctx.lineWidth;
     }
 
-    extendSize() {
+    extendSize(c) {
+        // if (c == 'g') debugger;
+        // if (c == 'u') debugger;
+        // if (c == '0') debugger;
+        // if (c == '?') debugger;
         let {width, height, orgW, orgH, ax, ay, scale} = this;
+
         let aw = width / orgW - 1;
         let ah = height / orgH - 1;
 
@@ -338,10 +330,16 @@ class GlyphAtlas {
         this.width = width;
         this.height = height;
 
+        // console.log('EXTENT ATLAS SIZE', _w, _h, '->', width, height);
+        //
+        // console.log('ax', ax, 'ay', ay);
+        // console.log('aw', aw, 'ah', ah);
+        // console.log('--------');
+
         this.ctx.transform(scale, 0, 0, scale, ax * orgW, ay * orgH);
     }
 
-    addChars(text: string): boolean {// false | [number, number, number, number] {
+    addChars(text: string): boolean {
         const {glyphInfos, paddingX, paddingY, marginY, rowHeight, scale} = this;
         const avgGlyphHeight = this.avgGlyphHeight + 2 * paddingY;
         const orgW = this.orgW / scale;
@@ -354,18 +352,22 @@ class GlyphAtlas {
         let added = false;
         let charWidth;
 
+        // for (let i = 0, c, len = text.length; i < len; i++) {
+        //     c = text.charAt(isRTL ? (len - 1 - i) : i);
         for (let c of text) {
             if (c != ' ' && !glyphInfos[c]) {
                 charWidth = this.ctx.measureText(c).width;
 
-                if (charWidth) {
+                let code = c.charCodeAt(0);
+
+                if (code) {
                     avgCharWidth = (avgCharWidth * this.length + charWidth) / ++this.length;
 
                     if (this.x + charWidth + paddingX > orgW) {
                         this.y += rowHeight;
 
                         if (this.y > maxHeight) {
-                            this.extendSize();
+                            this.extendSize(c);
 
                             // this.ctx.save();
                             // this.ctx.lineWidth = 2;
@@ -384,21 +386,32 @@ class GlyphAtlas {
                     }
                     added = true;
 
+                    let _cw = charWidth;
+
+                    charWidth = charWidth || avgCharWidth;
+
+                    const glyphWidth = charWidth * scale;
+
                     drawCharacter(this.ctx, c, this.x, this.y, this.style);
 
-                    let x = (this.x + charOffsetX) * scale;
+                    let x = (this.x + charOffsetX) * scale - paddingX;
                     let y = (this.y + charOffsetY) * scale;
+                    let w = glyphWidth ? glyphWidth + 2 * paddingX : 0;
+                    let v = y - paddingY;
 
                     glyphInfos[c] = {
-                        x: x - paddingX,
-                        y: y - paddingY,
-                        width: charWidth * scale + 2 * paddingX,
-                        height: avgGlyphHeight
+                        u1: x,
+                        v2: v,
+                        u2: x + w,
+                        v1: v + avgGlyphHeight,
+                        width: _cw ? w : 0,
+                        height: avgGlyphHeight,
+                        dir: getDirection(code)
                     };
 
                     this.x += charWidth + this.marginX + 2 / scale * paddingX;
 
-                    // console.log(c, 'x', this.x, 'y', this.y, 'width', charWidth, 'charOffsetX', charOffsetX, glyphInfos[c]);
+                    // console.log(c, 'x', this.x, 'y', this.y, 'width', charWidth, 'charOffsetX', charOffsetX, glyphInfos[c], text.codePointAt(i));
                     //
                     // let ctx = this.ctx;
                     // ctx.save();
@@ -419,19 +432,6 @@ class GlyphAtlas {
         this.avgCharWidth = avgCharWidth;
 
         return added;
-
-        // const rowAdded = startY != this.y;
-        //
-        // return updated && [
-        //     rowAdded
-        //         ? 0
-        //         : startX - paddingX,
-        //     startY - paddingY,
-        //     rowAdded
-        //         ? width
-        //         : this.x,
-        //     this.y + rowHeight
-        // ];
     }
 
     hasSpace(text: string): boolean {
