@@ -193,7 +193,7 @@ class GlyphAtlas {
         if (size) {
             optimizedSize = size;
         } else {
-            size = 64;
+            size = 128;
         }
 
         size *= scale;
@@ -262,6 +262,9 @@ class GlyphAtlas {
         }
 
         size = optimizedSize * scale;
+
+        console.log('SIZE!!!', size);
+
         canvas.width = size;
         canvas.height = size;
         // determine font height on scaled canvas is less precise
