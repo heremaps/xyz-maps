@@ -141,7 +141,7 @@ class GlyphManager {
         const styleId = this.getFontId(style);
 
         if (!fonts[styleId]) {
-            const size = 64 * scale;
+            const size = 96 * scale;
             const canvas = createCanvas(size, size);
             const ctx = canvas.getContext('2d');
 
