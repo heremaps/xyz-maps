@@ -46,7 +46,7 @@ const addLineText = (
     offsetY?: number
 ) => {
     const point = pointAttr.data;
-    const fontInfo = glyphs.getAtlas();
+    const glyphAtlas = glyphs.getAtlas();
     const vLength = prjCoordinates.length / 2;
     let coordinates = prjCoordinates.data;
     let distancePrevLabel = Infinity;
@@ -97,11 +97,11 @@ const addLineText = (
             lineWidth = Math.sqrt(dx * dx + dy * dy);
 
             if (labelWidth == null) {
-                labelWidth = fontInfo.getTextWidth(text);
+                labelWidth = glyphAtlas.getTextWidth(text);
             }
 
             if (Math.floor(lineWidth / labelWidth) > 0) {
-                ty = fontInfo.baselineOffset - offsetY;
+                ty = glyphAtlas.baselineOffset - offsetY;
 
                 let halfLabelWidth = labelWidth * .25;
                 let f = halfLabelWidth / lineWidth;
@@ -150,10 +150,10 @@ const addLineText = (
 
                         if (!textData) {
                             glyphs.addChars(text);
-                            textData = createTextData(text, fontInfo/* , vertex, texcoord*/);
+                            textData = createTextData(text, glyphAtlas/* , vertex, texcoord*/);
                             position = textData.position;
                             numVertices = textData.numVertices;
-                            tx = textData.width * fontInfo.scale / 2 - offsetX;
+                            tx = textData.width * glyphAtlas.scale / 2 - offsetX;
                             // ty = fontInfo.baselineOffset - offsetY;
                         }
 

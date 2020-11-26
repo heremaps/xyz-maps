@@ -36,7 +36,7 @@ export class TextBuffer extends TemplateBuffer {
                 size: 3
             },
             a_texcoord: {
-                data: new FlexArray(Float32Array),
+                data: new FlexArray(Uint16Array),
                 size: 2
             }
         };

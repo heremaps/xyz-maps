@@ -122,10 +122,8 @@ class GlyphAtlas {
         }
     };
 
-    getTextWidth(text: string) {
-        const {ctx} = this;
-        // 2x linewidth is roughly estimated but good enough
-        return ctx.measureText(text).width + 2 * ctx.lineWidth;
+    getTextWidth(text: string): number {
+        return glyphManager.getTextWidth(text, this.font);
     }
 
     extendSize() {

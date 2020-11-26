@@ -231,6 +231,12 @@ class GlyphManager {
 
         return glyph;
     }
+
+    getTextWidth(text: string, font) {
+        const {ctx} = font;
+        // 2x linewidth is roughly estimated but good enough
+        return ctx.measureText(text).width + 2 * ctx.lineWidth;
+    }
 }
 
 export {GlyphManager};
