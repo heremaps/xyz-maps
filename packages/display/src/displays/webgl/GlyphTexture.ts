@@ -20,12 +20,19 @@
 import {Texture} from './Texture';
 import {GlyphAtlas} from './GlyphAtlas';
 
+export type FontStyle = {
+    font?: string;
+    textAlign?: string;
+    strokeWidth?: number;
+    stroke?: string;
+    fill?: string;
+}
 
 class GlyphTexture extends Texture {
     private atlas: GlyphAtlas;
     private dirty: boolean = false;
 
-    constructor(gl: WebGLRenderingContext, style, size?: number) {
+    constructor(gl: WebGLRenderingContext, style: FontStyle, size?: number) {
         super(gl);
 
         const {dpr} = <any>gl;
@@ -44,14 +51,15 @@ class GlyphTexture extends Texture {
 
     sync() {
         if (this.dirty) {
-            this.set(this.atlas.canvas);
-            delete this.atlas.canvas;
-        }
-    }
+            const {atlas} = this;
+            const glyphs = atlas.glyphInfos;
 
-    bind() {
-        // this.sync();
-        super.bind();
+            this.set({width: atlas.width, height: atlas.height});
+            for (let c in glyphs) {
+                let glyphInfo = glyphs[c];
+                this.set(glyphInfo.glyph.data, glyphInfo.u1, glyphInfo.v1);
+            }
+        }
     }
 
     destroy() {

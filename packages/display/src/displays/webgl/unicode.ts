@@ -45,3 +45,7 @@ export const isRTL = (cc: number) => {
 export const isDigit = (cc: number) => {
     return cc > 47 && cc < 58;
 };
+
+export const getDirection = (cc: number): number => {
+    return (isNeutralDirection(cc) || isDigit(cc)) ? 0 : isRTL(cc) ? -1 : 1;
+};

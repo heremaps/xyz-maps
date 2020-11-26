@@ -17,8 +17,8 @@
  * License-Filename: LICENSE
  */
 
-import {createCanvas, drawCharacter, GlyphAtlas, initFont} from '../GlyphAtlas';
-import {Texture} from '../Texture';
+import {GlyphAtlas} from '../GlyphAtlas';
+
 import {TypedArray, TypedArrayConstructor} from './glType';
 import {isDigit} from '../unicode';
 
@@ -26,32 +26,16 @@ const SPACE_CHAR = ' ';
 const LEFT_TO_RIGHT = 1;
 const RIGHT_TO_LEFT = -1;
 
-let labelCanvas;
-let labelCtx;
-export const createTextTexture = (gl, text, style) => {
-    if (!labelCtx) {
-        labelCanvas = createCanvas(256, 256);
-        labelCtx = labelCanvas.getContext('2d');
-    } else {
-        labelCtx.clearRect(0, 0, 256, 256);
-    }
-
-    initFont(labelCtx, style, style.fill, style.font);
-
-    drawCharacter(labelCtx, text, 0, 30, style);
-
-    let texture = new Texture(gl);
-
-    texture.set(labelCanvas);
-
-    return texture;
-};
-
 const findNextDir = (text, i, glyphAtlas) => {
     while (++i < text.length) {
         let char = text.charAt(i);
-        let glyph = glyphAtlas.glyphInfos[char];
-        if (glyph?.dir) return glyph?.dir;
+        let glyph = glyphAtlas.glyphInfos[char]?.glyph;
+        if (glyph) {
+            let {direction} = glyph;
+            if (direction) {
+                return direction;
+            }
+        }
     }
 };
 
@@ -59,67 +43,56 @@ type TextData = { x: number; x2: number; offset: number; }
 
 const addGlyph = (c: string, glyphAtlas: GlyphAtlas, positions: TypedArray, texcoords: TypedArray, data: TextData) => {
     let {x, offset} = data;
-    let {spacing, spaceWidth} = glyphAtlas;
-    let glyph = glyphAtlas.glyphInfos[c];
+    let {spaceWidth} = glyphAtlas;
+    let glyphInfo = glyphAtlas.glyphInfos[c];
     let x2 = 0;
 
-    if (glyph) {
-        let offsetX = glyph.width - spacing;
+    if (glyphInfo) {
+        let {u1, v1, u2, v2, glyph} = glyphInfo;
+        let {advanceX} = glyph;
+        let {width, height} = glyph.data;
 
-        if (!glyph.width) {
-            offsetX = 0;
-        }
-
-        let {u1, v1, u2, v2, height} = glyph;
-        x2 = x + (u2 - u1);
-
-        // u1 = (glyph.x);
-        // v1 = (glyph.y + glyph.height);
-        // // v1 = (glyph.y + letterHeight - 1) / maxY;
-        // u2 = glyph.x + glyph.width;
-        // // u2 = (glyph.x + glyph.width);
-        // v2 = glyph.y;
+        x2 = x + width;
 
         // 6 vertices per letter
         positions[offset + 0] = x;
         positions[offset + 1] = 0;
 
         texcoords[offset + 0] = u1;
-        texcoords[offset + 1] = v2;
+        texcoords[offset + 1] = v1;
 
         positions[offset + 2] = x2;
         positions[offset + 3] = height;
 
         texcoords[offset + 2] = u2;
-        texcoords[offset + 3] = v1;
+        texcoords[offset + 3] = v2;
 
         positions[offset + 4] = x;
         positions[offset + 5] = height;
 
         texcoords[offset + 4] = u1;
-        texcoords[offset + 5] = v1;
+        texcoords[offset + 5] = v2;
 
         positions[offset + 6] = x2;
         positions[offset + 7] = 0;
 
         texcoords[offset + 6] = u2;
-        texcoords[offset + 7] = v2;
+        texcoords[offset + 7] = v1;
 
         positions[offset + 8] = x2;
         positions[offset + 9] = height;
 
         texcoords[offset + 8] = u2;
-        texcoords[offset + 9] = v1;
+        texcoords[offset + 9] = v2;
 
         positions[offset + 10] = x;
         positions[offset + 11] = 0;
 
         texcoords[offset + 10] = u1;
-        texcoords[offset + 11] = v2;
+        texcoords[offset + 11] = v1;
 
-        if (offsetX) {
-            x += offsetX;
-        }
+        x += advanceX;
+
         offset += 12;
     } else if (c == ' ') {
         x += spaceWidth;
@@ -168,6 +141,8 @@ const addText = (
 };
 
 export const createTextData = (text: string, glyphAtlas: GlyphAtlas) => {
+    // console.log(glyphAtlas);
+
     const len = text.length;
     const positions = new Float32Array(len * 12);
     const texcoords = new Float32Array(len * 12);
@@ -184,9 +159,9 @@ export const createTextData = (text: string, glyphAtlas: GlyphAtlas) => {
     // BIDI text is considered as experimental and has known issues
     for (let i = 0; i < len; i++) {
         let char = text.charAt(i);
-        let glyph = glyphAtlas.glyphInfos[char];
+        let glyphInfo = glyphAtlas.glyphInfos[char];
         let isLast = i == len - 1;
-        let curDirection = glyph?.dir || 0; // -1,0,+1
+        let curDirection = glyphInfo?.glyph?.direction || 0; // -1,0,+1
 
         if (!baseDirection) {
             if (char == ' ') { // neutral
@@ -239,11 +214,17 @@ export const createTextData = (text: string, glyphAtlas: GlyphAtlas) => {
 
     const {offset, x2} = txtData;
 
-    return {
+
+    let result = {
         position: new (<TypedArrayConstructor>positions.constructor)(positions.buffer, 0, offset),
         texcoord: new (<TypedArrayConstructor>texcoords.constructor)(texcoords.buffer, 0, offset),
         numVertices: offset / 2,
         width: x2 / glyphAtlas.scale,
         height: glyphAtlas.letterHeight
     };
+
+    // console.log(result);
+    // //
+    // debugger;
+    return result;
 };

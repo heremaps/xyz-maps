@@ -124,7 +124,7 @@ export {createGridTileBuffer};
 
 let glyphs;
 
-const createGridTextBuffer = (quadkey: string, gl: WebGLRenderingContext, font: {}) => {
+const createGridTextBuffer = (quadkey: string, gl: WebGLRenderingContext, font) => {
     if (!glyphs) {
         glyphs = new GlyphTexture(gl, font);
         glyphs.addChars('L0123456789');
