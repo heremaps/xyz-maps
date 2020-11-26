@@ -123,8 +123,6 @@ class GlyphManager {
     fonts = {};
 
     static instance: GlyphManager;
-    private scale: any;
-    private offsetX: any;
 
     static getInstance() {
         return this.instance = this.instance || new GlyphManager();
@@ -166,9 +164,6 @@ class GlyphManager {
             const paddingY = Math.floor(/* 2* */lineWidth);
             const rowHeight = (letterHeight + 2 * paddingY);
 
-            this.scale = scale;
-            this.offsetX = 2 * lineWidth * scale;
-
             fonts[styleId] = {
                 name: styleId,
                 size: 0,
@@ -178,7 +173,8 @@ class GlyphManager {
                 canvas,
                 ctx,
                 width: size,
-                // height: rowHeight,
+                offsetX: 2 * lineWidth * scale,
+                scale: scale,
                 style,
                 rowHeight: rowHeight * scale,
                 letterHeightBottom: letterHeightBottom,
@@ -198,7 +194,7 @@ class GlyphManager {
 
         if (!glyph) {
             let size = font.canvas.width;
-            let {scale, offsetX} = this;
+            let {offsetX, scale} = font;
 
             font.ctx.clearRect(0, 0, size, size);
 
