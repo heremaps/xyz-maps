@@ -179,7 +179,10 @@ class GlyphManager {
                 rowHeight: rowHeight * scale,
                 letterHeightBottom: letterHeightBottom,
                 letterHeight: letterHeight,
-                spaceWidth: ctx.measureText(' ').width * scale
+                spaceWidth: ctx.measureText(' ').width * scale,
+                baselineOffset: scale * ((letterHeight - letterHeightBottom) / 2 + paddingY) // middle
+                // this.baselineOffset = 0; // top
+                // this.baselineOffset = (letterHeight - letterHeightBottom); // bottom
             };
         }
         return fonts[styleId];
@@ -204,12 +207,12 @@ class GlyphManager {
             let width = Math.round((charWidth || 0) + 2 * font.paddingX) * scale;
 
             // debug only
-            // let lw = font.ctx.lineWidth;
-            // font.ctx.lineWidth = 2;
-            // font.ctx.strokeStyle = 'black';
-            // font.ctx.strokeRect(0, 0,width/scale, font.rowHeight/scale);
-            // font.ctx.lineWidth = lw;
-            // font.ctx.strokeStyle = GLYPH_STROKE;
+            let lw = font.ctx.lineWidth;
+            font.ctx.lineWidth = 2;
+            font.ctx.strokeStyle = 'black';
+            font.ctx.strokeRect(0, 0, width / scale, font.rowHeight / scale);
+            font.ctx.lineWidth = lw;
+            font.ctx.strokeStyle = GLYPH_STROKE;
 
             let imgData = font.ctx.getImageData(0, 0, width, font.rowHeight);
 

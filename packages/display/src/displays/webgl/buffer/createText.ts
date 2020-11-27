@@ -141,8 +141,6 @@ const addText = (
 };
 
 export const createTextData = (text: string, glyphAtlas: GlyphAtlas) => {
-    // console.log(glyphAtlas);
-
     const len = text.length;
     const positions = new Float32Array(len * 12);
     const texcoords = new Float32Array(len * 12);
@@ -214,17 +212,11 @@ export const createTextData = (text: string, glyphAtlas: GlyphAtlas) => {
 
     const {offset, x2} = txtData;
 
-
-    let result = {
+    return {
         position: new (<TypedArrayConstructor>positions.constructor)(positions.buffer, 0, offset),
         texcoord: new (<TypedArrayConstructor>texcoords.constructor)(texcoords.buffer, 0, offset),
         numVertices: offset / 2,
         width: x2 / glyphAtlas.scale,
         height: glyphAtlas.letterHeight
     };
-
-    // console.log(result);
-    // //
-    // debugger;
-    return result;
 };

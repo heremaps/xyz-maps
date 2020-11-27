@@ -30,19 +30,12 @@ type GlyphInfo = {
 }
 
 class GlyphAtlas {
-    private ctx: CanvasRenderingContext2D;
-    private x: number;
-    private y: number;
-    private orgW: number;
-    private orgH: number;
-    private ax = 0;
-    private ay = 0;
+    private x: number = 0;
+    private y: number = 0;
     private style: FontStyle;
-    private marginX = 0; // 2;
-    private marginY = 0; // 2;
+    private rowHeight: number;
 
     scale: number;
-    canvas: HTMLCanvasElement;
     width: number;
     height: number;
     letterHeight: number;
@@ -50,72 +43,37 @@ class GlyphAtlas {
     baselineOffset: number;
     avgCharWidth: number = 0;
     spaceWidth: number;
-    length: number = 0;
-    private rowHeight: number;
     glyphs: number = 0;
-
+    maxWidth;
+    maxHeight;
     font;
 
     constructor(
         style: FontStyle,
-        dpr: number,
+        devicePixelRation: number,
         size?: number,
         text?: string
     ) {
-        const scale = dpr;
-        let optimizedSize = 0;
-
-        if (size) {
-            optimizedSize = size;
-        } else {
-            size = 128;
-        }
-
-
-        this.font = glyphManager.initFont(style, dpr);
-
-
-        const letterHeight = this.font.letterHeight;
-        const letterHeightBottom = this.font.letterHeightBottom;
-        const rowHeight = this.font.rowHeight;
-
-        this.scale = scale;
-        this.style = style;
-        this.letterHeight = letterHeight;
-        // this.baselineOffset = 0; // top
-        // this.baselineOffset = (letterHeight - letterHeightBottom); // bottom
-        this.baselineOffset = (letterHeight - letterHeightBottom) / 2 + this.font.paddingY; // middle
-        this.baselineOffset *= scale;
+        const font = glyphManager.initFont(style, devicePixelRation);
 
         this.style = style;
+        this.letterHeight = font.letterHeight;
+        this.baselineOffset = font.baselineOffset;
+        this.rowHeight = font.rowHeight;
+        this.spaceWidth = font.spaceWidth;
 
-        this.x = this.marginX;
-        this.y = this.marginY;
-
-
-        if (!optimizedSize) {
-            let height = rowHeight / scale;
-            // find optimal size for glyph packing
-            for (let size2 = 64, minLoss = Infinity; size2 <= 256; size2 *= 2) {
-                let loss = size2 / height % 1;
-                if (size2 > height && loss < minLoss) {
-                    optimizedSize = size2;
-                    minLoss = loss;
-                }
-            }
-        }
-
-        this.rowHeight = rowHeight;
-
-        size = optimizedSize * scale;
+        // size = 64;
+        // while (size < rowHeight) size *= 2;
+        size = 64 * devicePixelRation;
 
         this.width = size;
         this.height = size;
+        this.maxWidth = size;
+        this.maxHeight = size;
 
-        this.orgW = size;
-        this.orgH = size;
-
-        this.spaceWidth = this.font.spaceWidth;
+        this.style = style;
+        this.scale = devicePixelRation;
+        this.font = font;
 
         if (text) {
             this.addChars(text);
@@ -126,48 +84,55 @@ class GlyphAtlas {
         return glyphManager.getTextWidth(text, this.font);
     }
 
-    extendSize() {
-        let {width, height, orgW, orgH, ax, ay} = this;
-        let aw = width / orgW - 1;
-        let ah = height / orgH - 1;
+    private placeGlyph(glyph) {
+        const {rowHeight} = this;
 
-        if (ax < aw) {
-            ax++;
-        } else if (ay < ah) {
-            const i = aw / 2 ^ 0;
+        let maxX = this.x + glyph.data.width;
+        // if(c=='n')debugger;
 
-            if (ay < i) {
-                ax -= i;
+        if (maxX > this.width) {
+            this.y += rowHeight;
+
+            let maxY = this.y + glyph.data.height;
+
+            if (maxY > this.maxHeight) {
+                if (maxY > this.height) {
+                    this.y = 0;
+                    this.x = this.width;
+
+                    this.maxWidth = this.width;
+                    // debugger;
+                    this.height *= 2;
+                    this.width *= 2;
+                    // this.maxHeight =
+                } else {
+                    // 2
+                    // debugger
+                    if (maxX >= this.height) {
+                        this.x = 0;
+                        this.maxHeight = this.height;
+                    } else {
+                        this.x = this.maxWidth;
+                    }
+                    // this.x = maxX >= this.height ? 0: this.maxWidth;
+                }
             } else {
-                ax = 0;
+                if (maxY <= this.height) {
+                    this.x = this.maxWidth == this.width ? 0 : this.maxWidth;
+                } else {
+                    this.x = 0;
+                    // this.maxWidth = this.width;
+                    // this.maxHeight = this.height;
+                }
+                this.maxWidth = this.width;
+                this.maxHeight = this.height;
             }
-            ay++;
-        } else {
-            width *= 2;
-            height *= 2;
-            ax++;
-            ay = 0;
         }
-
-        this.ax = ax;
-        this.ay = ay;
-        this.width = width;
-        this.height = height;
-
-        // console.log('EXTENT ATLAS SIZE', _w, _h, '->', width, height);
     }
 
     addChars(text: string): boolean {
-        const {glyphInfos, marginY, rowHeight, scale} = this;
-        const orgW = this.orgW;
-        const orgH = this.orgH;
-        let maxHeight = orgH - rowHeight;
-
-        let charOffsetX = (this.ax * orgW);
-        let charOffsetY = (this.ay * orgH);
-        let avgCharWidth = this.avgCharWidth;
+        const {glyphInfos, rowHeight} = this;
         let added = false;
-        let charWidth;
 
         // for (let i = 0, c, len = text.length; i < len; i++) {
         //     c = text.charAt(isRTL ? (len - 1 - i) : i);
@@ -175,86 +140,33 @@ class GlyphAtlas {
             if (c != ' ' && !glyphInfos[c]) {
                 let glyph = glyphManager.getGlyph(c, this.font);
                 let code = c.charCodeAt(0);
-                let w = glyph.data.width;
-
-                charWidth = glyph.width;
+                let glyphWidth = glyph.data.width;
+                let charWidth = glyph.width;
 
                 if (code) {
-                    avgCharWidth = (avgCharWidth * this.length + charWidth) / ++this.length;
+                    this.avgCharWidth = (this.avgCharWidth * this.glyphs + charWidth) / ++this.glyphs;
 
-                    if (this.x + glyph.data.width > orgW) {
-                        this.y += rowHeight;
-
-                        if (this.y > maxHeight) {
-                            this.extendSize();
-                            this.y = this.marginY; // + this.paddingY;
-                            charOffsetX = (this.ax * orgW);
-                            charOffsetY = (this.ay * orgH);
-                        }
-                        this.x = this.marginX; // + this.paddingX;
-                    }
                     added = true;
 
-                    let x = (this.x + charOffsetX); // - paddingX;
-                    let y = (this.y + charOffsetY);
-                    let u2 = x + w;
-                    let v1 = y;
-                    let v2 = v1 + rowHeight;
+                    this.placeGlyph(glyph);
 
-                    u2 = Math.round(u2);
+                    const {x, y} = this;
 
                     glyphInfos[c] = {
-                        u1: Math.floor(x),
-                        v1: v1,
-                        u2: u2,
-                        v2: v2,
+                        u1: x,
+                        v1: y,
+                        u2: x + glyphWidth,
+                        v2: y + rowHeight,
                         glyph: glyph
                     };
 
-                    this.glyphs++;
-
-                    this.x += Math.round(glyph.data.width + this.marginX);
+                    this.x += glyphWidth;
                 }
             }
         }
 
-        this.avgCharWidth = avgCharWidth;
-
         return added;
     }
-
-    // hasSpace(text: string): boolean {
-    //     const ctx = this.ctx;
-    //     const width = this.width;
-    //     let marginX = this.marginX;
-    //     let marginY = this.marginY;
-    //     let paddingX = this.paddingX;
-    //     let paddingY = this.paddingY;
-    //     let x = this.x;
-    //     let y = this.y;
-    //     let charWidth;
-    //     const glyphInfos = this.glyphInfos;
-    //     const rowHeight = this.letterHeight + marginY + 2 * paddingY;
-    //     const lastRowY = this.height - rowHeight;
-    //
-    //     for (let c of text) {
-    //         if (!glyphInfos[c]) {
-    //             if (charWidth = ctx.measureText(c).width) {
-    //                 if (x + charWidth > width) {
-    //                     x = marginX;
-    //                     y += rowHeight;
-    //
-    //                     if (y > lastRowY) {
-    //                         return false;
-    //                     }
-    //                 }
-    //                 x += charWidth + marginX + 2 * paddingX;
-    //             }
-    //         }
-    //     }
-    //
-    //     return true;
-    // }
 }
 
 export {GlyphAtlas};
