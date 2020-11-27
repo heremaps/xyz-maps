@@ -44,9 +44,10 @@ class GlyphAtlas {
     avgCharWidth: number = 0;
     spaceWidth: number;
     glyphs: number = 0;
-    maxWidth;
-    maxHeight;
+    maxWidth: number;
+    maxHeight: number;
     font;
+    fontScale: number;
 
     constructor(
         style: FontStyle,
@@ -61,10 +62,16 @@ class GlyphAtlas {
         this.baselineOffset = font.baselineOffset;
         this.rowHeight = font.rowHeight;
         this.spaceWidth = font.spaceWidth;
+        this.fontScale = font.fontScale;
 
-        // size = 64;
-        // while (size < rowHeight) size *= 2;
-        size = 64 * devicePixelRation;
+        if (!size) {
+            size = 1;
+            // set starting size to closest power of 2 of rowheight
+            while (size < font.rowHeight) {
+                size *= 2;
+            }
+        }
+        size = size * devicePixelRation;
 
         this.width = size;
         this.height = size;
@@ -84,48 +91,44 @@ class GlyphAtlas {
         return glyphManager.getTextWidth(text, this.font);
     }
 
-    private placeGlyph(glyph) {
+    private placeGlyph(glyphWidth: number) {
         const {rowHeight} = this;
-
-        let maxX = this.x + glyph.data.width;
-        // if(c=='n')debugger;
-
+        const maxX = this.x + glyphWidth;
+        // -----------
+        // |  0 | 1  |
+        // ___________
+        // |    2    |
+        // |         |
+        // -----------
         if (maxX > this.width) {
-            this.y += rowHeight;
-
-            let maxY = this.y + glyph.data.height;
-
+            let maxY = this.y + 2 * rowHeight;
             if (maxY > this.maxHeight) {
                 if (maxY > this.height) {
-                    this.y = 0;
-                    this.x = this.width;
-
-                    this.maxWidth = this.width;
-                    // debugger;
                     this.height *= 2;
                     this.width *= 2;
-                    // this.maxHeight =
-                } else {
-                    // 2
-                    // debugger
-                    if (maxX >= this.height) {
-                        this.x = 0;
-                        this.maxHeight = this.height;
+
+                    if (this.x == 0) {
+                        this.maxWidth = this.maxWidth = this.width;
                     } else {
+                        // block 1
                         this.x = this.maxWidth;
+                        this.y = 0;
                     }
-                    // this.x = maxX >= this.height ? 0: this.maxWidth;
+                } else {
+                    // block 1 end
+                    this.x = 0;
+                    this.y += rowHeight;
+                    this.maxHeight = this.height;
+                    this.maxWidth = this.width;
                 }
             } else {
-                if (maxY <= this.height) {
-                    this.x = this.maxWidth == this.width ? 0 : this.maxWidth;
+                this.y += rowHeight;
+                if (this.maxHeight < this.height) {
+                    // block 1
+                    this.x = this.maxWidth;
                 } else {
                     this.x = 0;
-                    // this.maxWidth = this.width;
-                    // this.maxHeight = this.height;
                 }
-                this.maxWidth = this.width;
-                this.maxHeight = this.height;
             }
         }
     }
@@ -148,7 +151,7 @@ class GlyphAtlas {
 
                     added = true;
 
-                    this.placeGlyph(glyph);
+                    this.placeGlyph(glyphWidth);
 
                     const {x, y} = this;
 
