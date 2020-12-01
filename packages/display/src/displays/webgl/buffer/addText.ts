@@ -18,39 +18,90 @@
  */
 
 import {createTextData} from './createText';
+import {GlyphAtlas} from '../GlyphAtlas';
 
 const extentScale = 64;
 
+const DEFAULT_LINE_WRAP = 14;
+
+
+export const wrapText = (text: string, textWrap?: number) => {
+    textWrap = textWrap || DEFAULT_LINE_WRAP;
+
+    const lines = [];
+    let lineStartIndex = 0;
+    let lastSpaceIndex = -1;
+
+    for (let i = 0, line, length = text.length; i < length; i++) {
+        let c = text.charAt(i);
+        if (c == ' ') {
+            lastSpaceIndex = i;
+        }
+        let lineLength = i - lineStartIndex;
+
+        if (lineLength >= textWrap) {
+            if (lineStartIndex <= lastSpaceIndex) {
+                line = text.substring(lineStartIndex, lastSpaceIndex);
+                lineStartIndex = lastSpaceIndex + 1;
+                lines.push(line);
+            }
+        }
+        // is last character
+        if (i == length - 1) {
+            if (lineStartIndex <= i) {
+                line = text.substring(lineStartIndex, i + 1);
+                lines.push(line);
+            }
+        }
+    }
+    return lines;
+};
+
+
 const addText = (
-    text: string,
+    text: string | string[],
     point: number[],
     vertex: number[],
     texcoord: number[],
-    fontInfo,
+    glyphAtlas: GlyphAtlas,
     cx: number,
     cy: number,
     offsetX?: number,
-    offsetY?: number
+    offsetY?: number,
+    textWrap?: number
 ) => {
-    const ty = fontInfo.baselineOffset - offsetY;
-    const textData = createTextData(text, fontInfo);
-    const textVertex = textData.position;
-    const textTextCoords = textData.texcoord;
-    const tx = textData.width * fontInfo.scale / 2 - offsetX;
+    const lines = typeof text == 'string'
+        ? wrapText(text, textWrap)
+        : text;
 
-    for (let v = 0; v < textVertex.length; v += 2) {
-        point.push(
-            textVertex[v] - tx,
-            textVertex[v + 1] - ty,
-            0
-        );
+    const lineCnt = lines.length;
+    const lineHeight = glyphAtlas.letterHeight;
 
-        vertex.push(cx * extentScale, cy * extentScale);
+    let ty = glyphAtlas.baselineOffset - offsetY;
 
-        texcoord.push(
-            textTextCoords[v],
-            textTextCoords[v + 1]
-        );
+    ty += (lineCnt - 1) * lineHeight * .5;
+
+    for (let text of lines) {
+        const textData = createTextData(text, glyphAtlas);
+        const textVertex = textData.position;
+        const textTextCoords = textData.texcoord;
+        const tx = textData.width * glyphAtlas.scale / 2 - offsetX;
+
+        for (let v = 0; v < textVertex.length; v += 2) {
+            point.push(
+                textVertex[v] - tx,
+                textVertex[v + 1] - ty,
+                0
+            );
+            vertex.push(
+                cx * extentScale,
+                cy * extentScale
+            );
+
+            texcoord.push(textTextCoords[v], textTextCoords[v + 1]);
+        }
+
+        ty -= lineHeight;
     }
 };
 

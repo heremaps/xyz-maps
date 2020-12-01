@@ -124,17 +124,14 @@ const addLineText = (
                 let labeldx = Math.abs(labelx2 - labelx1);
                 let labeldy = Math.abs(labely2 - labely1);
 
-                let glyphCnt = 0;
-                for (let c of text) {
-                    if (c != ' ') glyphCnt++;
-                }
+                const bufferLength = glyphs.bufferLength(text);
                 const bufferStart = point.length;
 
                 if (!collisions || !collisions.collides(
                     cx, cy,
                     labeldx, labeldy,
                     tile, tileSize,
-                    bufferStart, bufferStart + glyphCnt * 6 * 3,
+                    bufferStart, bufferStart + bufferLength,
                     pointAttr,
                     priority
                 )) {

@@ -45,13 +45,21 @@ class GlyphTexture extends Texture {
         this.dirty = this.atlas.addChars(text) || this.dirty;
     }
 
+    bufferLength(text: string): number {
+        let cnt = 0;
+        for (let c of text) {
+            if (c != ' ') cnt++;
+        }
+        return cnt * 6 * 3;
+    }
+
     getAtlas() {
         return this.atlas;
     }
 
     sync() {
         if (this.dirty) {
-            const {atlas} = this;
+            const {atlas, gl} = this;
             const glyphs = atlas.glyphInfos;
 
             this.set({width: atlas.width, height: atlas.height});
@@ -59,6 +67,9 @@ class GlyphTexture extends Texture {
                 let glyphInfo = glyphs[c];
                 this.set(glyphInfo.glyph.data, glyphInfo.u1, glyphInfo.v1);
             }
+            // gl.texParameteri(gl.TEXTURE_2D, gl.TEXTURE_MIN_FILTER, gl.LINEAR_MIPMAP_NEAREST);
+            // gl.texParameteri(gl.TEXTURE_2D, gl.TEXTURE_MAG_FILTER, gl.LINEAR);
+            // gl.generateMipmap(gl.TEXTURE_2D);
         }
     }
 

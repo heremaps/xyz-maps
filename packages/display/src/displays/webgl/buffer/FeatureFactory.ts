@@ -16,7 +16,7 @@
  * SPDX-License-Identifier: Apache-2.0
  * License-Filename: LICENSE
  */
-import {addText} from './addText';
+import {addText, wrapText} from './addText';
 import {addPoint} from './addPoint';
 import {addPolygon, FlatPolygon} from './addPolygon';
 import {addExtrude} from './addExtrude';
@@ -398,25 +398,33 @@ export class FeatureFactory {
                     texture.addChars(text);
 
                     const fontInfo = texture.getAtlas();
-                    const estimatedTextWidth = fontInfo.avgCharWidth * text.length / 2;
-                    const ty = fontInfo.baselineOffset - offsetY;
-                    // collides(cx,cy,width,height,tile, tileSize, fontInfo, bufferIndex: number) {
-                    const bufferStart = attributes.a_point.data.length;
-                    let glyphCnt = 0;
-                    for (let c of text) {
-                        if (c != ' ') glyphCnt++;
+                    const lineWrap = getValue('lineWrap', style, feature, level);
+                    const lines = wrapText(text, lineWrap);
+
+                    let maxLineLength = 0;
+                    for (let {length} of lines) {
+                        if (length > maxLineLength) {
+                            maxLineLength = length;
+                        }
                     }
+
+                    const estimatedTextWidth = fontInfo.avgCharWidth * (maxLineLength + 1);
+                    const estimatedTextHeight = lines.length * fontInfo.letterHeight;
+
+                    const bufferStart = attributes.a_point.data.length;
+                    const bufferLength = texture.bufferLength(text);
 
                     if (style.collide || !this.collisions.collides(
                         cx, cy,
-                        estimatedTextWidth, ty,
+                        estimatedTextWidth / 2,
+                        estimatedTextHeight / 2, // ty,
                         tile, tileSize,
-                        bufferStart, bufferStart + glyphCnt * 6 * 3,
+                        bufferStart, bufferStart + bufferLength,
                         attributes.a_point,
                         priority
                     )) {
                         addText(
-                            text,
+                            lines,
                             attributes.a_point.data,
                             attributes.a_position.data,
                             attributes.a_texcoord.data,
@@ -424,7 +432,8 @@ export class FeatureFactory {
                             cx,
                             cy,
                             offsetX * dpr,
-                            offsetY * dpr
+                            offsetY * dpr,
+                            lineWrap
                         );
                     }
                 } else {
