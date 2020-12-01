@@ -268,4 +268,69 @@ describe('setStyleGroup Point with text', function() {
         expect(colors[3]).to.equal('#000000');
         expect(colors[4]).to.equal('#000000');
     });
+
+    it('validate text is not wrapped by default', async () => {
+        paLayer.setStyleGroup(
+            feature, [{
+                zIndex: 0,
+                type: 'Text',
+                fill: '#ff0000',
+                font: 'bold 48px Arial,Helvetica,sans-serif',
+                text: '\u2588 \u2588 \u2588',
+                collide: false,
+                priority: 1
+            }]);
+
+        // O O O
+        let colors = await getCanvasPixelColor(mapContainer, [{x: 350, y: 300}, {x: 400, y: 300}, {x: 450, y: 300}]);
+
+        for (let color of colors) {
+            expect(color).to.equal('#ff0000');
+        }
+    });
+
+    it('validate text wrap 1 char', async () => {
+        paLayer.setStyleGroup(
+            feature, [{
+                zIndex: 0,
+                type: 'Text',
+                fill: '#ff0000',
+                font: 'bold 48px Arial,Helvetica,sans-serif',
+                text: '\u2588 \u2588 \u2588',
+                collide: false,
+                priority: 1,
+                lineWrap: 1
+            }]);
+
+        //   O
+        //   O
+        //   O
+        let colors = await getCanvasPixelColor(mapContainer, [{x: 400, y: 250}, {x: 400, y: 300}, {x: 400, y: 350}]);
+
+        for (let color of colors) {
+            expect(color).to.equal('#ff0000');
+        }
+    });
+
+    it('validate text wrap 3 chars', async () => {
+        paLayer.setStyleGroup(
+            feature, [{
+                zIndex: 0,
+                type: 'Text',
+                fill: '#ff0000',
+                font: 'bold 48px Arial,Helvetica,sans-serif',
+                text: '\u2588 \u2588 \u2588',
+                collide: false,
+                priority: 1,
+                lineWrap: 3
+            }]);
+
+        //  O O
+        //   O
+        let colors = await getCanvasPixelColor(mapContainer, [{x: 375, y: 275}, {x: 425, y: 275}, {x: 400, y: 325}]);
+
+        for (let color of colors) {
+            expect(color).to.equal('#ff0000');
+        }
+    });
 });
