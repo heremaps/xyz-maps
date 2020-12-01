@@ -340,6 +340,21 @@ import {ILayerStyle, StyleGroup, StyleGroupMap} from './ILayerStyle';
 // "textRef": ’properties.name’,
 
 /**
+ *  Enable oder Disable line wrapping for labels based on "Point" geometries.
+ *  number - Maximum number of characters per line [Default 14 characters]
+ *  false - disable line wrapping
+ *  true - enable line wrapping [Default 14 characters]
+ *
+ *  @public
+ *  @expose
+ *  @optional
+ *  @name here.xyz.maps.layers.TileLayer.Style#lineWrap
+ *  @type {number|boolean}
+ */
+// "lineWrap": number,
+
+
+/**
  *  Enable or disable collision detection. Works for "Text" only.
  *  true - collision detection is enabled [default]
  *  false - collision is disabled
