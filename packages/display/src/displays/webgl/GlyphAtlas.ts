@@ -34,11 +34,11 @@ class GlyphAtlas {
     private y: number = 0;
     private style: FontStyle;
     private rowHeight: number;
-
+    private letterHeight: number;
     scale: number;
     width: number;
     height: number;
-    letterHeight: number;
+    lineHeight: number;
     glyphInfos: { [glyph: string]: GlyphInfo } = {};
     baselineOffset: number;
     avgCharWidth: number = 0;
@@ -59,6 +59,7 @@ class GlyphAtlas {
 
         this.style = style;
         this.letterHeight = font.letterHeight;
+        this.lineHeight = font.letterHeight * devicePixelRation;
         this.baselineOffset = font.baselineOffset;
         this.rowHeight = font.rowHeight;
         this.spaceWidth = font.spaceWidth;

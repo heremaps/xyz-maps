@@ -195,5 +195,55 @@ describe('collision detection', function() {
         });
 
         expect(color).to.equal(color1);
+        display.debug(0);
+    });
+
+    it('check line wrapping 1 char', async () => {
+        testLayer.setStyleGroup(feature1, [{
+            zIndex: 1,
+            type: 'Text',
+            fill: color1,
+            font: 'bold 48px Arial,Helvetica,sans-serif',
+            text: '\u2588 \u2588 \u2588',
+            collide: false,
+            priority: 2,
+            lineWrap: 1
+        }]);
+
+        let color = await getCanvasPixelColor(mapContainer, {x: 400, y: 250});
+        expect(color).to.equal(color1);
+    });
+
+    it('set line wrapping to 13(default) chars and validate its hidden', async () => {
+        testLayer.setStyleGroup(feature1, [{
+            zIndex: 1,
+            type: 'Text',
+            fill: color1,
+            font: 'bold 48px Arial,Helvetica,sans-serif',
+            text: '\u2588 \u2588 \u2588',
+            collide: false,
+            priority: 2
+        }]);
+
+        let color = await getCanvasPixelColor(mapContainer, {x: 400, y: 250});
+        expect(color).to.equal('#ffffff');
+    });
+
+    it('flip collision priorities back', async () => {
+        let style1 = testLayer.getStyleGroup(feature1);
+        style1[0].priority = 1;
+        testLayer.setStyleGroup(feature1, style1);
+
+        let style2 = testLayer.getStyleGroup(feature2);
+        style2[0].priority = 2;
+        testLayer.setStyleGroup(feature2, style2);
+
+        let colors = await getCanvasPixelColor(mapContainer, [{x: 330, y: 335}, {x: 355, y: 300}, {x: 450, y: 300}]);
+
+        expect(colors[0]).to.equal('#ffffff'); // invisible
+        expect(colors[1]).to.equal(color1);
+        expect(colors[2]).to.equal(color1);
     });
 });
+
+// document.querySelector('#map > div > canvas').addEventListener('click',(e)=>console.log(e.layerX,e.layerY))

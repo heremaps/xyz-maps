@@ -75,7 +75,7 @@ const addText = (
         : text;
 
     const lineCnt = lines.length;
-    const lineHeight = glyphAtlas.letterHeight;
+    const lineHeight = glyphAtlas.lineHeight;
 
     let ty = glyphAtlas.baselineOffset - offsetY;
 
