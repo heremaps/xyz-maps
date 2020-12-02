@@ -32,7 +32,7 @@ export class SymbolBuffer extends TemplateBuffer {
             },
             // point
             a_point: {
-                data: new FlexArray(Int8Array),
+                data: new FlexArray(Uint8Array),
                 size: 2
             },
             a_texcoord: {

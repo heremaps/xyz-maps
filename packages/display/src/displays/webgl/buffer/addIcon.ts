@@ -37,16 +37,14 @@ const addIcon = (
         const u2 = atlas.u2;
         const v1 = atlas.v1;
         const v2 = atlas.v2;
-        const halfWidth = width * .5;
-        const halfHeight = height * .5;
 
         points.push(
-            halfWidth, halfHeight,
-            halfWidth, halfHeight,
-            halfWidth, halfHeight,
-            halfWidth, halfHeight,
-            halfWidth, halfHeight,
-            halfWidth, halfHeight
+            width, height,
+            width, height,
+            width, height,
+            width, height,
+            width, height,
+            width, height
         );
 
         texcoord.push(
