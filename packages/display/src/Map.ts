@@ -251,6 +251,8 @@ class TigerMap {
 
         listeners.add('mapviewchangestart', (e) => pointerEvents.disable('pointerenter'));
         listeners.add('mapviewchangeend', (e) => pointerEvents.enable('pointerenter'));
+        listeners.add('mapviewchangeend', (e) => display.viewChangeDone());
+
 
         this.zoomAnimator = new ZoomAnimator(tigerMap);
 

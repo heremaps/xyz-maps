@@ -21,8 +21,8 @@ import {createTextData} from './createText';
 import {GlyphAtlas} from '../GlyphAtlas';
 
 const EXTENT_SCALE = 64;
+const OFFSET_SCALE = 32;
 const DEFAULT_LINE_WRAP = 14;
-
 
 export const wrapText = (text: string, textWrap?: number): string[] => {
     textWrap = textWrap || DEFAULT_LINE_WRAP;
@@ -63,7 +63,7 @@ export const wrapText = (text: string, textWrap?: number): string[] => {
 
 const addText = (
     text: string | string[],
-    point: number[],
+    offsets: number[],
     vertex: number[],
     texcoord: number[],
     glyphAtlas: GlyphAtlas,
@@ -89,11 +89,10 @@ const addText = (
         const textVertex = textData.position;
         const textTextCoords = textData.texcoord;
         const tx = textData.width * glyphAtlas.scale / 2 - offsetX;
-
         for (let v = 0; v < textVertex.length; v += 2) {
-            point.push(
-                textVertex[v] - tx,
-                textVertex[v + 1] - ty,
+            offsets.push(
+                OFFSET_SCALE * (textVertex[v] - tx),
+                OFFSET_SCALE * (textVertex[v + 1] - ty),
                 0
             );
             vertex.push(

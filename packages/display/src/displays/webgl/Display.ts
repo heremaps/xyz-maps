@@ -310,6 +310,8 @@ class WebGlDisplay extends BasicDisplay {
 
         render.clear(layerLength && layers[0].bgColor || display.globalBgc);
 
+        render.fixedView = Number(!this.viewChange);
+
         let tileBuffers: TileBufferData[] = [];
         let absZOrder = {};
 
@@ -414,6 +416,11 @@ class WebGlDisplay extends BasicDisplay {
 
     destroy() {
         super.destroy();
+    }
+
+    viewChangeDone() {
+        this.viewChange = false;
+        this.update();
     }
 }
 

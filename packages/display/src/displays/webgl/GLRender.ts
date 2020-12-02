@@ -126,6 +126,7 @@ export class GLRender implements BasicRender {
     buffers = new WeakMap();
     gl: WebGLRenderingContext;
     private ctxAttr: WebGLContextAttributes;
+    fixedView: number;
 
     constructor(renderOptions: RenderOptions) {
         this.ctxAttr = {
@@ -499,6 +500,7 @@ export class GLRender implements BasicRender {
                 uLocation = program.uniforms;
 
 
+                gl.uniform1i(uLocation.u_fixedView, this.fixedView);
                 gl.uniform1f(uLocation.u_rotate, this.rz);
                 gl.uniform2f(uLocation.u_resolution, this.w, this.h);
                 gl.uniform1f(uLocation.u_scale, this.scale * dZoom);

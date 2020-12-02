@@ -364,7 +364,10 @@ abstract class Display {
         });
     }
 
+    protected viewChange: boolean;
     updateGrid(centerWorld: [number, number], zoomlevel: number, screenOffsetX: number, screenOffsetY: number) {
+        this.viewChange = true;
+
         this.sx = screenOffsetX;
         this.sy = screenOffsetY;
 
@@ -496,6 +499,10 @@ abstract class Display {
             dTile.ready(index, false);
         });
     };
+
+    viewChangeDone() {
+        this.viewChange = false;
+    }
 }
 
 
