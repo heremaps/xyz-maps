@@ -20,34 +20,37 @@
 import {createTextData} from './createText';
 import {GlyphAtlas} from '../GlyphAtlas';
 
-const extentScale = 64;
-
+const EXTENT_SCALE = 64;
 const DEFAULT_LINE_WRAP = 14;
 
 
-export const wrapText = (text: string, textWrap?: number) => {
+export const wrapText = (text: string, textWrap?: number): string[] => {
     textWrap = textWrap || DEFAULT_LINE_WRAP;
 
     const lines = [];
     let lineStartIndex = 0;
-    let lastSpaceIndex = -1;
+    let wrapIndex = -1;
 
-    for (let i = 0, line, length = text.length; i < length; i++) {
-        let c = text.charAt(i);
+    for (let i = 0, line, length = text.length, c, lineLength; i < length; i++) {
+        c = text.charAt(i);
+        lineLength = i - lineStartIndex;
+
         if (c == ' ') {
-            lastSpaceIndex = i;
+            wrapIndex = i;
+        } else if (c == '\n') {
+            // force line break
+            lineLength = Infinity;
+            wrapIndex = i;
         }
-        let lineLength = i - lineStartIndex;
 
         if (lineLength >= textWrap) {
-            if (lineStartIndex <= lastSpaceIndex) {
-                line = text.substring(lineStartIndex, lastSpaceIndex);
-                lineStartIndex = lastSpaceIndex + 1;
+            if (lineStartIndex <= wrapIndex) {
+                line = text.substring(lineStartIndex, wrapIndex);
+                lineStartIndex = wrapIndex + 1;
                 lines.push(line);
             }
         }
-        // is last character
-        if (i == length - 1) {
+        if (i == length - 1) { // is last character
             if (lineStartIndex <= i) {
                 line = text.substring(lineStartIndex, i + 1);
                 lines.push(line);
@@ -94,8 +97,8 @@ const addText = (
                 0
             );
             vertex.push(
-                cx * extentScale,
-                cy * extentScale
+                cx * EXTENT_SCALE,
+                cy * EXTENT_SCALE
             );
 
             texcoord.push(textTextCoords[v], textTextCoords[v + 1]);

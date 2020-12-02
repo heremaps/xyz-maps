@@ -333,4 +333,27 @@ describe('setStyleGroup Point with text', function() {
             expect(color).to.equal('#ff0000');
         }
     });
+
+    it('validate explicit line break', async () => {
+        paLayer.setStyleGroup(
+            feature, [{
+                zIndex: 0,
+                type: 'Text',
+                fill: '#ff0000',
+                font: 'bold 48px Arial,Helvetica,sans-serif',
+                text: '\u2588\n\u2588\n\u2588',
+                collide: false,
+                priority: 1,
+                lineWrap: 13
+            }]);
+
+        //   O
+        //   O
+        //   O
+        let colors = await getCanvasPixelColor(mapContainer, [{x: 400, y: 250}, {x: 400, y: 300}, {x: 400, y: 350}]);
+
+        for (let color of colors) {
+            expect(color).to.equal('#ff0000');
+        }
+    });
 });
