@@ -95,14 +95,14 @@ describe('Area drawing manager and pan map', function() {
         await waitForEditorReady(editor, async ()=>{
             await drag(mapContainer, {x: 500, y: 100}, {x: 100, y: 100});
         });
-
-        await waitForEditorReady(editor, async ()=>{
-            editor.getDrawingBoard().create({featureClass: 'AREA'});
-        });
     });
 
 
-    it('drag map and validate created area', async function() {
+    it('creat area and then drag map back, validate created area', async function() {
+        await waitForEditorReady(editor, async ()=>{
+            editor.getDrawingBoard().create({featureClass: 'AREA'});
+        });
+
         // drag map to move area back to viewport
         await waitForEditorReady(editor, async ()=>{
             await drag(mapContainer, {x: 100, y: 100}, {x: 500, y: 100});
