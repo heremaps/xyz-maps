@@ -50,24 +50,15 @@ export function waitForEditorReady(editor: Editor, fn?:Function): Promise<Editor
     let elem = editor.container;
 
     return new Promise(async (resolve, reject) => {
-        let buttonup = true;
-        let mapviewready = true;
+        let functionDone = false;
         let readyCb = (ob: string, newValue: boolean) => {
-            if (newValue) {
+            if (newValue && functionDone) {
                 editor.removeObserver('ready', readyCb);
                 editor.removeEventListener('error', errorCb);
-                mapviewready = true;
 
-                if (buttonup) {
-                    elem.removeEventListener('mousedown', mousedowncb);
-                    elem.removeEventListener('mouseup', mouseupcb);
-                    resolve(editor);
-                }
-            } else {
-                mapviewready = false;
+                resolve(editor);
             }
         };
-
 
         let errorCb = (err: Error) => {
             editor.removeObserver('ready', readyCb);
@@ -76,31 +67,13 @@ export function waitForEditorReady(editor: Editor, fn?:Function): Promise<Editor
             reject(err);
         };
 
-
-        let mouseupcb = (evt) => {
-            buttonup = true;
-
-            if (mapviewready) {
-                elem.removeEventListener('mouseup', mouseupcb);
-                resolve(editor);
-            }
-        };
-
-        let mousedowncb = (evt) => {
-            mapviewready = false;
-            buttonup = false;
-            elem.addEventListener('mouseup', mouseupcb);
-            elem.removeEventListener('mousedown', mousedowncb);
-        };
-
-        elem.addEventListener('mousedown', mousedowncb);
-
         editor.addObserver('ready', readyCb);
         editor.addEventListener('error', errorCb);
 
         if (fn) {
             await fn();
         }
+        functionDone = true;
     });
 }
 

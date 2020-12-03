@@ -91,7 +91,7 @@ describe('Create new Links then remove by drawingmanager', function() {
 
     it('submit and validate link again', async function() {
         await waitForEditorReady(editor, async ()=>{
-            idMap = await submit(editor);
+            await submit(editor);
         });
         link = editor.getFeature(link.id, linkLayer);
 
