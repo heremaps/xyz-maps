@@ -108,9 +108,10 @@ describe('Area drawing manager and pan map', function() {
             await drag(mapContainer, {x: 100, y: 100}, {x: 500, y: 100});
         });
 
-        let area = (await editorClick(editor, 271, 266)).target;
+        let objs = editor.search({rect: display.getViewBounds()});
+        expect(objs).to.have.lengthOf(1);
 
-        expect(area.coord()).to.deep.almost([[[
+        expect(objs[0].coord()).to.deep.almost([[[
             [76.081516385, 13.215360578, 0],
             [76.082589269, 13.215099461, 0],
             [76.083125711, 13.214577224, 0],
