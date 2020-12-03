@@ -127,6 +127,7 @@ const addLineText = (
                 const bufferLength = glyphs.bufferLength(text);
                 const bufferStart = point.length;
 
+
                 if (!collisions || !collisions.collides(
                     cx, cy,
                     labeldx, labeldy,
@@ -162,12 +163,12 @@ const addLineText = (
                             alpha -= 180;
                         }
 
-                        for (let i = 0, j; i < numVertices; i++) {
+                        for (let i = 0, j, offsetScale = 32; i < numVertices; i++) {
                             j = i * 2;
 
                             point.push(
-                                position[j] - tx, // + (i*8);
-                                position[j + 1] - ty, // + (i*8);
+                                offsetScale * (position[j] - tx),
+                                offsetScale * (position[j + 1] - ty),
                                 alpha
                             );
 
