@@ -17,24 +17,23 @@
  * License-Filename: LICENSE
  */
 
-import {createTextData} from './createText';
 import {GlyphTexture} from '../GlyphTexture';
 import {CollisionHandler} from '../CollisionHandler';
 import {tile} from '@here/xyz-maps-core';
 import {PixelCoordinateCache} from './LineFactory';
 import {FlexAttribute} from './templates/TemplateBuffer';
+import {addText} from './addText';
+import {FlexArray} from './templates/FlexArray';
 
 type Tile = tile.Tile;
 
 const TO_DEG = 180 / Math.PI;
-const extentScale = 64;
-
 
 const addLineText = (
     text: string,
     pointAttr: FlexAttribute,
-    vertex: number[],
-    texcoord: number[],
+    vertex: FlexArray,
+    texcoord: FlexArray,
     prjCoordinates: PixelCoordinateCache,
     glyphs: GlyphTexture,
     tile: Tile,
@@ -48,21 +47,19 @@ const addLineText = (
     const point = pointAttr.data;
     const glyphAtlas = glyphs.getAtlas();
     const vLength = prjCoordinates.length / 2;
+    const ty = glyphAtlas.baselineOffset - offsetY;
     let coordinates = prjCoordinates.data;
     let distancePrevLabel = Infinity;
+    let textLines;
     let labelWidth = null;
+    let bufferLength;
     let lineWidth;
-    let textData;
-    let position;
-    let numVertices;
     let x2;
     let y2;
     let dx;
     let dy;
     let cx;
     let cy;
-    let tx;
-    let ty;
     // for optimal repeat distance the first label gets placed in the middle of the linestring.
     let offset = Math.floor(vLength / 2) - 1;
     // we move to the end of the linestring..
@@ -72,6 +69,7 @@ const addLineText = (
     let startX = x1;
     let startY = y1;
     let startDistance = distancePrevLabel;
+
 
     for (let i = 1; i < vLength; i++) {
         let c = offset + dir * i;
@@ -101,8 +99,6 @@ const addLineText = (
             }
 
             if (Math.floor(lineWidth / labelWidth) > 0) {
-                ty = glyphAtlas.baselineOffset - offsetY;
-
                 let halfLabelWidth = labelWidth * .25;
                 let f = halfLabelWidth / lineWidth;
                 let fh = (.5 * ty) / lineWidth;
@@ -123,10 +119,9 @@ const addLineText = (
 
                 let labeldx = Math.abs(labelx2 - labelx1);
                 let labeldy = Math.abs(labely2 - labely1);
-
-                const bufferLength = glyphs.bufferLength(text);
                 const bufferStart = point.length;
 
+                bufferLength = bufferLength || glyphs.bufferLength(text);
 
                 if (!collisions || !collisions.collides(
                     cx, cy,
@@ -146,13 +141,9 @@ const addLineText = (
                         }
                         distancePrevLabel = d;
 
-                        if (!textData) {
+                        if (!textLines) {
                             glyphs.addChars(text);
-                            textData = createTextData(text, glyphAtlas/* , vertex, texcoord*/);
-                            position = textData.position;
-                            numVertices = textData.numVertices;
-                            tx = textData.width * glyphAtlas.scale / 2 - offsetX;
-                            // ty = fontInfo.baselineOffset - offsetY;
+                            textLines = [text];
                         }
 
                         let alpha = Math.atan2(dy, dx) * TO_DEG;
@@ -163,22 +154,7 @@ const addLineText = (
                             alpha -= 180;
                         }
 
-                        for (let i = 0, j, offsetScale = 32; i < numVertices; i++) {
-                            j = i * 2;
-
-                            point.push(
-                                offsetScale * (position[j] - tx),
-                                offsetScale * (position[j + 1] - ty),
-                                alpha
-                            );
-
-                            texcoord.push(
-                                textData.texcoord[j],
-                                textData.texcoord[j + 1]
-                            );
-
-                            vertex.push(cx * extentScale, cy * extentScale);
-                        }
+                        addText(textLines, point, vertex, texcoord, glyphAtlas, cx, cy, offsetX, offsetY, 0, alpha);
                     }
                 }
             } else {

@@ -216,7 +216,7 @@ export const createTextData = (text: string, glyphAtlas: GlyphAtlas) => {
         position: new (<TypedArrayConstructor>positions.constructor)(positions.buffer, 0, offset),
         texcoord: new (<TypedArrayConstructor>texcoords.constructor)(texcoords.buffer, 0, offset),
         numVertices: offset / 2,
-        width: x2 / glyphAtlas.scale,
-        height: glyphAtlas.letterHeight
+        width: x2 / glyphAtlas.scale
+        // height: glyphAtlas.letterHeight
     };
 };

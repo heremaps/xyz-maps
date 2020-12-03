@@ -19,6 +19,7 @@
 
 import {createTextData} from './createText';
 import {GlyphAtlas} from '../GlyphAtlas';
+import {FlexArray} from './templates/FlexArray';
 
 const EXTENT_SCALE = 64;
 const OFFSET_SCALE = 32;
@@ -63,15 +64,16 @@ export const wrapText = (text: string, textWrap?: number): string[] => {
 
 const addText = (
     text: string | string[],
-    offsets: number[],
-    vertex: number[],
-    texcoord: number[],
+    offsets: FlexArray,
+    vertex: FlexArray,
+    texcoord: FlexArray,
     glyphAtlas: GlyphAtlas,
     cx: number,
     cy: number,
     offsetX?: number,
     offsetY?: number,
-    textWrap?: number
+    textWrap?: number,
+    rotation = 0,
 ) => {
     const lines = typeof text == 'string'
         ? wrapText(text, textWrap)
@@ -93,8 +95,9 @@ const addText = (
             offsets.push(
                 OFFSET_SCALE * (textVertex[v] - tx),
                 OFFSET_SCALE * (textVertex[v + 1] - ty),
-                0
+                rotation
             );
+
             vertex.push(
                 cx * EXTENT_SCALE,
                 cy * EXTENT_SCALE
