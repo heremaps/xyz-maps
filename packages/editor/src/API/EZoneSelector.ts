@@ -33,7 +33,15 @@ type ZoneSegment = {
     reversed: boolean;
 }
 
-export type Zone = {
+/**
+ *  The interface for parameter of zones/sides tool at links.
+ *
+ *  @public
+ *  @class
+ *  @expose
+ *  @name here.xyz.maps.editor.features.Zone
+ */
+export class Zone {
     side: 'L' | 'R' | 'B';
     from: number;
     to: number;
@@ -41,6 +49,90 @@ export type Zone = {
     style?: any;
     onChange?: (ZoneSegments: ZoneSegment[]) => void;
     segments: ZoneSegment[]
+
+    constructor() {
+        /**
+         *  Side of Zone on Link.
+         *  "L" | "R" | "B" -> Left, Right or Both sides.
+         *
+         *  @type {string}
+         *
+         *  @public
+         *  @expose
+         *  @name here.xyz.maps.editor.features.Zone#side
+         */
+        // side: 'L' | 'R' | 'B';
+
+        /**
+         *  Start position in decimal % at link of the zone.
+         *
+         *  @type {Number}
+         *
+         *  @public
+         *  @expose
+         *  @name here.xyz.maps.editor.features.Zone#from
+         */
+        // from: number;
+
+        /**
+         *  End position in decimal % at link of the zone.
+         *
+         *  @type {Number}
+         *
+         *  @public
+         *  @expose
+         *  @name here.xyz.maps.editor.features.Zone#to
+         */
+        // to: number;
+
+        /**
+         *  Ability to lock the zone and prevent dragging.
+         *
+         *  @type {Boolean}
+         *
+         *  @public
+         *  @expose
+         *  @name here.xyz.maps.editor.features.Zone#locked
+         */
+        // locked?: boolean;
+
+        /**
+         *  Apply custom styling of Zone.
+         *  Objects of key value pairs.
+         *
+         *  @public
+         *  @expose
+         *  @type object
+         *  @name here.xyz.maps.editor.features.Zone#style
+         */
+        // style?: any;
+
+        /**
+         *  onChange callback providing detailed information about current state of zone.
+         *
+         *  @public
+         *  @expose
+         *  @function
+         *  @param {function} callback
+         *  @name here.xyz.maps.editor.features.Zone#onChange
+         */
+        // onChange?: (ZoneSegments: ZoneSegment[]) => void;
+
+        /**
+         *  A zone can consist of several segments.
+         *  A Segment provides detailed information on the affected Navlinks:
+         *  {
+         *   link: Navlink
+         *   from: number;
+         *   to: number;
+         *   reversed: boolean;
+         *  }
+         *  @public
+         *  @expose
+         *  @type {Array.<Object>} segments
+         *  @name here.xyz.maps.editor.features.Zone#segments
+         */
+    }
 }
 
 
@@ -58,82 +150,6 @@ export class ZoneSelector {
 
     constructor(iEditor: InternalEditor) {
         this.links = new MultiSelector(iEditor);
-
-        /**
-         *  The interface for parameter of zones/sides tool at links.
-         *  @public
-         *  @class
-         *  @expose
-         *  @name here.xyz.maps.editor.features.Zone
-         */
-        // var zone = function(){
-        /**
-         *  Side of Zone on Link.
-         *  "L" | "R" | "B" -> Left, Right or Both sides.
-         *
-         *  @type {string}
-         *
-         *  @public
-         *  @expose
-         *  @name here.xyz.maps.editor.features.Zone#side
-         */
-        // this.side = 0;
-
-        /**
-         *  Start position in decimal % at link of the zone.
-         *
-         *  @type {Number}
-         *
-         *  @public
-         *  @expose
-         *  @name here.xyz.maps.editor.features.Zone#from
-         */
-        // this.from = 0.0;
-
-        /**
-         *  End position in decimal % at link of the zone.
-         *
-         *  @type {Number}
-         *
-         *  @public
-         *  @expose
-         *  @name here.xyz.maps.editor.features.Zone#to
-         */
-        // this.to = 1.0;
-
-        /**
-         *  Ability to lock the zone and prevent dragging.
-         *
-         *  @type {Boolean}
-         *
-         *  @public
-         *  @expose
-         *  @name here.xyz.maps.editor.features.Zone#locked
-         */
-        // this.locked = false;
-
-        /**
-         *  Apply custom styling of Zone.
-         *  Objects of key value pairs.
-         *
-         *  @public
-         *  @expose
-         *  @type object
-         *  @name here.xyz.maps.editor.features.Zone#style
-         */
-        // this.style = {};
-
-        /**
-         *  onChange callback providing detailed information about current state of zone.
-         *
-         *  @public
-         *  @expose
-         *  @function
-         *  @param {function} callback
-         *  @name here.xyz.maps.editor.features.Zone#onChange
-         */
-        // this.onChange = function(){}
-        // };
     }
 
     private generateZoneSegments(zone) {
@@ -159,7 +175,7 @@ export class ZoneSelector {
      *      single or multiple links to add
      *  @name here.xyz.maps.editor.Editor.zoneSelector#add
      */
-    add(link: Navlink|Navlink[]) {
+    add(link: Navlink | Navlink[]) {
         const links = link instanceof Array ? link : [].slice.call(arguments);
 
         for (let i = 0; i < links.length; i++) {
@@ -212,13 +228,13 @@ export class ZoneSelector {
     }
 
     /**
-     *  detailed information about all zones and segments.
+     *  detailed information about all zones and its segments.
      *
      *  @public
      *  @expose
      *  @function
      *  @name here.xyz.maps.editor.Editor.zoneSelector#info
-     *  @return {Array.<Object>} zone information
+     *  @return {Array.<here.xyz.maps.editor.features.Zone>} zone information
      */
     info(): Zone[] {
         const zoneInfos = [];

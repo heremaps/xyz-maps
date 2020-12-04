@@ -356,8 +356,8 @@ import {ILayerStyle, StyleGroup, StyleGroupMap} from './ILayerStyle';
 
 /**
  *  Enable or disable collision detection. Works for "Text" only.
- *  true - collision detection is enabled [default]
- *  false - collision is disabled
+ *  true - collision are allowed, Collision detection is disabled.
+ *  false - avoid collisions, Collision detection is enabled. [default]
  *
  *  @public
  *  @expose
