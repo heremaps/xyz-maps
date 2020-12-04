@@ -23,6 +23,7 @@ const float OFFSET_SCALE = 1.0 / 32.0;
 
 const float PI_05 = M_PI * 0.5;
 const float PI_15 = M_PI * 1.5;
+const float PI_20 = M_PI * 2.0;
 const float TO_RAD = M_PI / 180.0;
 
 vec2 rotate(vec2 point, float rad){
@@ -48,7 +49,7 @@ void main(void){
         if (u_alignMap){
             rotation *= TO_RAD;
 
-            float aRotation = u_rotate + rotation;
+            float aRotation = mod(u_rotate + rotation, PI_20);
 
             if (aRotation > PI_05 && aRotation < PI_15){
                 rotation += M_PI;

@@ -28,6 +28,7 @@ import {tile} from '@here/xyz-maps-core';
 type Tile = tile.Tile;
 
 const DEFAULT_MIN_TEXT_REPEAT = 256;
+let UNDEF;
 
 export type PixelCoordinateCache = { data: Float32Array, length: number };
 
@@ -146,7 +147,7 @@ export class LineFactory {
             tileSize,
             collisions,
             priority,
-            repeat || DEFAULT_MIN_TEXT_REPEAT,
+            repeat == UNDEF ? DEFAULT_MIN_TEXT_REPEAT : repeat,
             offsetX,
             offsetY
         );
