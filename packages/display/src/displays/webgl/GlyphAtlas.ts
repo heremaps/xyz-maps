@@ -35,6 +35,8 @@ class GlyphAtlas {
     private style: FontStyle;
     private rowHeight: number;
     private letterHeight: number;
+    private maxWidth: number;
+    private maxHeight: number;
     scale: number;
     width: number;
     height: number;
@@ -44,8 +46,6 @@ class GlyphAtlas {
     avgCharWidth: number = 0;
     spaceWidth: number;
     glyphs: number = 0;
-    maxWidth: number;
-    maxHeight: number;
     font;
     fontScale: number;
 
@@ -74,6 +74,9 @@ class GlyphAtlas {
         }
         size = size * devicePixelRation;
 
+        // size = this.rowHeight;
+        // this.width = 0;
+
         this.width = size;
         this.height = size;
         this.maxWidth = size;
@@ -94,7 +97,17 @@ class GlyphAtlas {
 
     private placeGlyph(glyphWidth: number) {
         const {rowHeight} = this;
-        const maxX = this.x + glyphWidth;
+        let maxX = this.x + glyphWidth;
+
+        // const MAX_TEXTURE_SIZE = 2048;
+        // if (maxX > MAX_TEXTURE_SIZE) {
+        //     maxX = MAX_TEXTURE_SIZE;
+        //     this.x = 0;
+        //     this.y += rowHeight;
+        //     this.height += rowHeight;
+        // }
+        // this.width = Math.max(this.width, maxX);
+
         // -----------
         // |  0 | 1  |
         // ___________

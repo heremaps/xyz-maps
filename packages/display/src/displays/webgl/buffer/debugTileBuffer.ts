@@ -136,7 +136,7 @@ const createGridTextBuffer = (quadkey: string, gl: WebGLRenderingContext, font) 
 
     let textBuffer = new GeometryBuffer({
         first: 0,
-        count: vertices.numVertices
+        count: vertices.count
     }, 'Text');
     // textBuffer.addAttribute('a_position', {
     //     data: new Int8Array(position.length),
@@ -145,7 +145,7 @@ const createGridTextBuffer = (quadkey: string, gl: WebGLRenderingContext, font) 
     // });
     textBuffer.addAttribute('a_point', {
         data: position,
-        size: 2,
+        size: 3,
         stride: 0
     });
     textBuffer.addAttribute('a_texcoord', {

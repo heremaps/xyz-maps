@@ -17,12 +17,11 @@
  * License-Filename: LICENSE
  */
 
-import {createTextData} from './createText';
+import {createTextData, OFFSET_SCALE} from './createText';
 import {GlyphAtlas} from '../GlyphAtlas';
 import {FlexArray} from './templates/FlexArray';
 
 const EXTENT_SCALE = 64;
-const OFFSET_SCALE = 32;
 const DEFAULT_LINE_WRAP = 14;
 
 export const wrapText = (text: string, textWrap?: number): string[] => {
@@ -61,7 +60,6 @@ export const wrapText = (text: string, textWrap?: number): string[] => {
     return lines;
 };
 
-
 const addText = (
     text: string | string[],
     offsets: FlexArray,
@@ -82,33 +80,30 @@ const addText = (
     const lineCnt = lines.length;
     const lineHeight = glyphAtlas.lineHeight;
 
-    let ty = glyphAtlas.baselineOffset - offsetY;
+    let ty = ((glyphAtlas.baselineOffset - offsetY) + (lineCnt - 1) * lineHeight * .5) * OFFSET_SCALE;
 
-    ty += (lineCnt - 1) * lineHeight * .5;
+    cx *= EXTENT_SCALE;
+    cy *= EXTENT_SCALE;
 
     for (let text of lines) {
-        const textData = createTextData(text, glyphAtlas);
-        const textVertex = textData.position;
-        const textTextCoords = textData.texcoord;
-        const tx = textData.width * glyphAtlas.scale / 2 - offsetX;
-        for (let v = 0; v < textVertex.length; v += 2) {
-            offsets.push(
-                OFFSET_SCALE * (textVertex[v] - tx),
-                OFFSET_SCALE * (textVertex[v + 1] - ty),
-                rotation
-            );
+        const i = vertex.length / 2;
+        const textData = createTextData(text, glyphAtlas, rotation, offsets, texcoord);
+        const tx = (textData.width * glyphAtlas.scale / 2 - offsetX) * OFFSET_SCALE;
 
-            vertex.push(
-                cx * EXTENT_SCALE,
-                cy * EXTENT_SCALE
-            );
+        vertex.reserve(text.length * 12);
 
-            texcoord.push(textTextCoords[v], textTextCoords[v + 1]);
+        for (let j = i, offsetData = offsets.data, vertexData = vertex.data, len = i + textData.count; j < len; j++) {
+            offsetData[3 * j] -= tx;
+            offsetData[3 * j + 1] -= ty;
+
+            vertexData[2 * j] = cx;
+            vertexData[2 * j + 1] = cy;
         }
 
-        ty -= lineHeight;
+        vertex.length += textData.count * 2;
+
+        ty -= lineHeight * OFFSET_SCALE;
     }
 };
-
 
 export {addText};

@@ -18,13 +18,14 @@
  */
 
 import {GlyphAtlas} from '../GlyphAtlas';
-
-import {TypedArray, TypedArrayConstructor} from './glType';
 import {isDigit} from '../unicode';
+import {FlexArray} from './templates/FlexArray';
 
 const SPACE_CHAR = ' ';
 const LEFT_TO_RIGHT = 1;
 const RIGHT_TO_LEFT = -1;
+
+export const OFFSET_SCALE = 32;
 
 const findNextDir = (text, i, glyphAtlas) => {
     while (++i < text.length) {
@@ -41,11 +42,16 @@ const findNextDir = (text, i, glyphAtlas) => {
 
 type TextData = { x: number; x2: number; offset: number; }
 
-const addGlyph = (c: string, glyphAtlas: GlyphAtlas, positions: TypedArray, texcoords: TypedArray, data: TextData) => {
+const addGlyph = (c: string, glyphAtlas: GlyphAtlas, rotation: number, positions: FlexArray, texcoords: FlexArray, data: TextData) => {
     let {x, offset} = data;
     let {spaceWidth} = glyphAtlas;
     let glyphInfo = glyphAtlas.glyphInfos[c];
     let x2 = 0;
+
+    const positionData = positions.data;
+    let p = positions.length;
+    const texcoordData = texcoords.data;
+    let t = texcoords.length;
 
     if (glyphInfo) {
         let {u1, v1, u2, v2, glyph} = glyphInfo;
@@ -54,49 +60,56 @@ const addGlyph = (c: string, glyphAtlas: GlyphAtlas, positions: TypedArray, texc
 
         x2 = x + width;
 
-        // 6 vertices per letter
-        positions[offset + 0] = x;
-        positions[offset + 1] = 0;
+        positionData[p++] = OFFSET_SCALE * x;
+        positionData[p++] = 0;
+        positionData[p++] = rotation;
 
-        texcoords[offset + 0] = u1;
-        texcoords[offset + 1] = v1;
+        positionData[p++] = OFFSET_SCALE * x2;
+        positionData[p++] = OFFSET_SCALE * height;
+        positionData[p++] = rotation;
 
-        positions[offset + 2] = x2;
-        positions[offset + 3] = height;
+        positionData[p++] = OFFSET_SCALE * x;
+        positionData[p++] = OFFSET_SCALE * height;
+        positionData[p++] = rotation;
 
-        texcoords[offset + 2] = u2;
-        texcoords[offset + 3] = v2;
+        positionData[p++] = OFFSET_SCALE * x2;
+        positionData[p++] = 0;
+        positionData[p++] = rotation;
 
-        positions[offset + 4] = x;
-        positions[offset + 5] = height;
+        positionData[p++] = OFFSET_SCALE * x2;
+        positionData[p++] = OFFSET_SCALE * height;
+        positionData[p++] = rotation;
 
-        texcoords[offset + 4] = u1;
-        texcoords[offset + 5] = v2;
+        positionData[p++] = OFFSET_SCALE * x;
+        positionData[p++] = 0;
+        positionData[p++] = rotation;
 
-        positions[offset + 6] = x2;
-        positions[offset + 7] = 0;
+        texcoordData[t++] = u1;
+        texcoordData[t++] = v1;
 
-        texcoords[offset + 6] = u2;
-        texcoords[offset + 7] = v1;
+        texcoordData[t++] = u2;
+        texcoordData[t++] = v2;
 
-        positions[offset + 8] = x2;
-        positions[offset + 9] = height;
+        texcoordData[t++] = u1;
+        texcoordData[t++] = v2;
 
-        texcoords[offset + 8] = u2;
-        texcoords[offset + 9] = v2;
+        texcoordData[t++] = u2;
+        texcoordData[t++] = v1;
 
-        positions[offset + 10] = x;
-        positions[offset + 11] = 0;
+        texcoordData[t++] = u2;
+        texcoordData[t++] = v2;
 
-        texcoords[offset + 10] = u1;
-        texcoords[offset + 11] = v1;
+        texcoordData[t++] = u1;
+        texcoordData[t++] = v1;
 
         x += advanceX;
-
         offset += 12;
     } else if (c == ' ') {
         x += spaceWidth;
     }
+
+    positions.length = p;
+    texcoords.length = t;
 
     data.x = x;
     data.offset = offset;
@@ -109,8 +122,9 @@ const addText = (
     stop: number,
     isRTL: boolean,
     glyphAtlas: GlyphAtlas,
-    positions: TypedArray,
-    texcoords: TypedArray,
+    rotation: number,
+    positions: FlexArray,
+    texcoords: FlexArray,
     txtData: TextData,
 ) => {
     for (let i = start, len = stop, j, c; i < len; i++) {
@@ -124,7 +138,7 @@ const addText = (
                 while (--k >= 0) {
                     if (!isDigit(text.charCodeAt(k))) {
                         while (++k <= j) {
-                            addGlyph(text.charAt(k), glyphAtlas, positions, texcoords, txtData);
+                            addGlyph(text.charAt(k), glyphAtlas, rotation, positions, texcoords, txtData);
                             flipped++;
                         }
                         break;
@@ -136,14 +150,31 @@ const addText = (
                 }
             }
         }
-        addGlyph(c, glyphAtlas, positions, texcoords, txtData);
+        addGlyph(c, glyphAtlas, rotation, positions, texcoords, txtData);
     }
 };
 
-export const createTextData = (text: string, glyphAtlas: GlyphAtlas) => {
+export const createTextData = (
+    text: string,
+    glyphAtlas: GlyphAtlas,
+    rotation: number = 0,
+    positions?: FlexArray,
+    texcoords?: FlexArray
+) => {
     const len = text.length;
-    const positions = new Float32Array(len * 12);
-    const texcoords = new Float32Array(len * 12);
+
+    if (!positions) {
+        positions = new FlexArray(Int16Array, len * 18);
+    } else {
+        positions.reserve(len * 18);
+    }
+
+    if (!texcoords) {
+        texcoords = new FlexArray(Uint16Array, len * 12);
+    } else {
+        texcoords.reserve(len * 12);
+    }
+
     const txtData = {
         x: 0,
         x2: 0,
@@ -185,7 +216,7 @@ export const createTextData = (text: string, glyphAtlas: GlyphAtlas) => {
                     }
                 }
                 end++;
-                addText(text, startIndex, end, prevDirection == RIGHT_TO_LEFT, glyphAtlas, positions, texcoords, txtData);
+                addText(text, startIndex, end, prevDirection == RIGHT_TO_LEFT, glyphAtlas, rotation, positions, texcoords, txtData);
                 startIndex = end;
             }
         }
@@ -201,7 +232,7 @@ export const createTextData = (text: string, glyphAtlas: GlyphAtlas) => {
                 rtl = prevDirection != baseDirection;
             }
 
-            addText(text, startIndex, end, rtl, glyphAtlas, positions, texcoords, txtData);
+            addText(text, startIndex, end, rtl, glyphAtlas, rotation, positions, texcoords, txtData);
         }
 
         if (curDirection) {
@@ -213,9 +244,9 @@ export const createTextData = (text: string, glyphAtlas: GlyphAtlas) => {
     const {offset, x2} = txtData;
 
     return {
-        position: new (<TypedArrayConstructor>positions.constructor)(positions.buffer, 0, offset),
-        texcoord: new (<TypedArrayConstructor>texcoords.constructor)(texcoords.buffer, 0, offset),
-        numVertices: offset / 2,
+        position: positions.data,
+        texcoord: texcoords.data,
+        count: offset / 2,
         width: x2 / glyphAtlas.scale
         // height: glyphAtlas.letterHeight
     };
