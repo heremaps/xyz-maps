@@ -1,6 +1,6 @@
 precision highp float;
 
-attribute vec3 a_point;
+attribute vec2 a_point;
 attribute vec2 a_position;
 attribute vec2 a_texcoord;
 
@@ -39,12 +39,12 @@ vec2 round(vec2 point){
 }
 
 void main(void){
-
-    float rotation = a_point.z;
-
-    if (rotation <= 360.0){
-
-        v_texcoord = a_texcoord * u_atlasScale;
+    if (mod(a_texcoord.x, 2.0) == 1.0)
+    {
+        vec2 rotLowHi = mod(a_texcoord, 32.0);
+        float rotation = rotLowHi.x - 1.0 + floor(rotLowHi.y * 32.0);
+        // texture coodrinates bit6->bit16
+        v_texcoord = floor(a_texcoord / 32.0) * u_atlasScale;
 
         if (u_alignMap){
             rotation *= TO_RAD;

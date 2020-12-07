@@ -43,9 +43,10 @@ const findNextDir = (text, i, glyphAtlas) => {
 type TextData = { x: number; x2: number; offset: number; }
 
 const addGlyph = (c: string, glyphAtlas: GlyphAtlas, rotation: number, positions: FlexArray, texcoords: FlexArray, data: TextData) => {
-    let {x, offset} = data;
+    let {offset} = data;
     let {spaceWidth} = glyphAtlas;
     let glyphInfo = glyphAtlas.glyphInfos[c];
+    let x = data.x;
     let x2 = 0;
 
     const positionData = positions.data;
@@ -53,36 +54,41 @@ const addGlyph = (c: string, glyphAtlas: GlyphAtlas, rotation: number, positions
     const texcoordData = texcoords.data;
     let t = texcoords.length;
 
+
+    let rotationHi = rotation >> 5;
+    let rotationLow = (rotation & 31);
+
     if (glyphInfo) {
-        let {u1, v1, u2, v2, glyph} = glyphInfo;
+        // let {u1, v1, u2, v2, glyph} = glyphInfo;
+        let {glyph} = glyphInfo;
+        let u1 = glyphInfo.u1 << 5 | rotationLow;
+        let u2 = glyphInfo.u2 << 5 | rotationLow;
+        let v1 = glyphInfo.v1 << 5 | rotationHi;
+        let v2 = glyphInfo.v2 << 5 | rotationHi;
         let {advanceX} = glyph;
         let {width, height} = glyph.data;
+        let sx = x * OFFSET_SCALE;
 
-        x2 = x + width;
+        height *= OFFSET_SCALE;
+        x2 = sx + OFFSET_SCALE * width;
 
-        positionData[p++] = OFFSET_SCALE * x;
+        positionData[p++] = sx;
         positionData[p++] = 0;
-        positionData[p++] = rotation;
 
-        positionData[p++] = OFFSET_SCALE * x2;
-        positionData[p++] = OFFSET_SCALE * height;
-        positionData[p++] = rotation;
+        positionData[p++] = x2;
+        positionData[p++] = height;
 
-        positionData[p++] = OFFSET_SCALE * x;
-        positionData[p++] = OFFSET_SCALE * height;
-        positionData[p++] = rotation;
+        positionData[p++] = sx;
+        positionData[p++] = height;
 
-        positionData[p++] = OFFSET_SCALE * x2;
+        positionData[p++] = x2;
         positionData[p++] = 0;
-        positionData[p++] = rotation;
 
-        positionData[p++] = OFFSET_SCALE * x2;
-        positionData[p++] = OFFSET_SCALE * height;
-        positionData[p++] = rotation;
+        positionData[p++] = x2;
+        positionData[p++] = height;
 
-        positionData[p++] = OFFSET_SCALE * x;
+        positionData[p++] = sx;
         positionData[p++] = 0;
-        positionData[p++] = rotation;
 
         texcoordData[t++] = u1;
         texcoordData[t++] = v1;
@@ -185,6 +191,9 @@ export const createTextData = (
     let startIndex = 0;
     let prevChar;
 
+    // first bit of rotation defines visibility
+    rotation = Math.round(rotation + 1); // visible by default
+
     // BIDI text is considered as experimental and has known issues
     for (let i = 0; i < len; i++) {
         let char = text.charAt(i);
@@ -244,10 +253,10 @@ export const createTextData = (
     const {offset, x2} = txtData;
 
     return {
+        count: offset / 2,
         position: positions.data,
         texcoord: texcoords.data,
-        count: offset / 2,
-        width: x2 / glyphAtlas.scale
+        width: x2 / OFFSET_SCALE / glyphAtlas.scale
         // height: glyphAtlas.letterHeight
     };
 };

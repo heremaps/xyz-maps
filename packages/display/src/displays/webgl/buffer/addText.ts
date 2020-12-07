@@ -86,21 +86,22 @@ const addText = (
     cy *= EXTENT_SCALE;
 
     for (let text of lines) {
-        const i = vertex.length / 2;
+        let i = vertex.length;
         const textData = createTextData(text, glyphAtlas, rotation, offsets, texcoord);
         const tx = (textData.width * glyphAtlas.scale / 2 - offsetX) * OFFSET_SCALE;
+        const vertexCnt = textData.count * 2;
 
-        vertex.reserve(text.length * 12);
+        vertex.reserve(vertexCnt);
 
-        for (let j = i, offsetData = offsets.data, vertexData = vertex.data, len = i + textData.count; j < len; j++) {
-            offsetData[3 * j] -= tx;
-            offsetData[3 * j + 1] -= ty;
+        for (let offsetData = offsets.data, vertexData = vertex.data, len = i + vertexCnt; i < len; i += 2) {
+            offsetData[i] -= tx;
+            offsetData[i + 1] -= ty;
 
-            vertexData[2 * j] = cx;
-            vertexData[2 * j + 1] = cy;
+            vertexData[i] = cx;
+            vertexData[i + 1] = cy;
         }
 
-        vertex.length += textData.count * 2;
+        vertex.length += vertexCnt;
 
         ty -= lineHeight * OFFSET_SCALE;
     }

@@ -50,7 +50,7 @@ class GlyphTexture extends Texture {
         for (let c of text) {
             if (c != ' ') cnt++;
         }
-        return cnt * 6 * 3;
+        return cnt * 6 * 2;
     }
 
     getAtlas() {

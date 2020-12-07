@@ -411,7 +411,7 @@ export class FeatureFactory {
                     const estimatedTextWidth = fontInfo.avgCharWidth * (maxLineLength + 1);
                     const estimatedTextHeight = lines.length * fontInfo.letterHeight;
 
-                    const bufferStart = attributes.a_point.data.length;
+                    const bufferStart = attributes.a_texcoord.data.length;
                     const bufferLength = texture.bufferLength(text);
 
                     if (style.collide || !this.collisions.collides(
@@ -420,7 +420,7 @@ export class FeatureFactory {
                         estimatedTextHeight / 2, // ty,
                         tile, tileSize,
                         bufferStart, bufferStart + bufferLength,
-                        attributes.a_point,
+                        attributes.a_texcoord,
                         priority
                     )) {
                         addText(

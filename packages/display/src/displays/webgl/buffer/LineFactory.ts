@@ -138,9 +138,9 @@ export class LineFactory {
 
         addLineText(
             text,
-            attributes.a_point,
+            attributes.a_point.data,
             attributes.a_position.data,
-            attributes.a_texcoord.data,
+            attributes.a_texcoord,
             this.projectLine(coordinates, tile, tileSize),
             texture,
             tile,

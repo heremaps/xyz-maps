@@ -262,30 +262,23 @@ export class CollisionHandler {
         while (r < rendered.length) {
             let bbox = rendered[r];
             let attribute = bbox.attr;
-            let data = attribute.data;
-            let start = bbox.bos;
+            let {data, size} = attribute;
+            let i = bbox.bos;
             let stop = bbox.boe;
+            let visible = (data[i] & 1) == 1;
+            let intersects = this.intersects(bbox, rendered, ++r);
 
-            if (this.intersects(bbox, rendered, ++r)) {
-                // is visible?
-                if (data[start + 2] < 720) {
-                    // hide all glyphs
-                    while (start < stop) {
-                        data[start + 2] += 720;
-                        start += 3;
-                    }
-                    attribute.dirty = true;
+            if (
+                // hide all glyphs
+                (intersects && visible) ||
+                // show all glyphs again (previously hidden)..
+                (!intersects && !visible)
+            ) {
+                while (i < stop) {
+                    data[i] ^= 1; // toggle LSB
+                    i += size;
                 }
-            } else {
-                // is invisible ?
-                if (data[start + 2] >= 720) {
-                    // show all glyphs again..
-                    while (start < stop) {
-                        data[start + 2] -= 720;
-                        start += 3;
-                    }
-                    attribute.dirty = true;
-                }
+                attribute.dirty = true;
             }
         }
 

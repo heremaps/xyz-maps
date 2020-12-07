@@ -31,9 +31,9 @@ const TO_DEG = 180 / Math.PI;
 
 const addLineText = (
     text: string,
-    pointAttr: FlexAttribute,
+    point: FlexArray,
     vertex: FlexArray,
-    texcoord: FlexArray,
+    texcoordAttr: FlexAttribute,
     prjCoordinates: PixelCoordinateCache,
     glyphs: GlyphTexture,
     tile: Tile,
@@ -44,7 +44,7 @@ const addLineText = (
     offsetX?: number,
     offsetY?: number
 ) => {
-    const point = pointAttr.data;
+    const texcoord = texcoordAttr.data;
     const glyphAtlas = glyphs.getAtlas();
     const vLength = prjCoordinates.length / 2;
     const ty = glyphAtlas.baselineOffset - offsetY;
@@ -128,7 +128,7 @@ const addLineText = (
                     labeldx, labeldy,
                     tile, tileSize,
                     bufferStart, bufferStart + bufferLength,
-                    pointAttr,
+                    texcoordAttr,
                     priority
                 )) {
                     let d = (lineWidth - labelWidth) / 2;

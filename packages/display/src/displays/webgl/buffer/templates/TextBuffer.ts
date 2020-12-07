@@ -33,8 +33,13 @@ export class TextBuffer extends TemplateBuffer {
             // point
             a_point: {
                 data: new FlexArray(Int16Array),
-                size: 3
+                size: 2
             },
+            // bit1 -> bit5  - rotation low [bit1 defines visibility] (x), rotation height (y)
+            // bit6 -> bit16 - texture coordinate
+            // 1bit visibility, 9 bit rotation, 2 * 11 bit texture coordinate
+            // |VISI|ROTL|ROTL|ROTL|ROTL|TCX|TCX|TCX|TCX|TCX|TCX|TCX|TCX|TCX|TCX|TCX|
+            // |ROTH|ROTH|ROTH|ROTH|ROTH|TCY|TCY|TCY|TCY|TCY|TCY|TCY|TCY|TCY|TCY|TCY|
             a_texcoord: {
                 data: new FlexArray(Uint16Array),
                 size: 2
