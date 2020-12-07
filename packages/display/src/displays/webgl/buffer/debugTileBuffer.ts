@@ -145,7 +145,7 @@ const createGridTextBuffer = (quadkey: string, gl: WebGLRenderingContext, font) 
     // });
     textBuffer.addAttribute('a_point', {
         data: position,
-        size: 3,
+        size: 2,
         stride: 0
     });
     textBuffer.addAttribute('a_texcoord', {
