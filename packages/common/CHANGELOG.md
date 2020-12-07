@@ -1,3 +1,14 @@
+## 0.18.0 (2020-12-7)
+### display
+* added: support for right to left text and arabic contextual forms
+* added: Automatic line wrapping for Text on Point geometries. use
+* added: support explicit line breaks '\n' for text on Point geometries
+* improved: Correctly render font outlines in case of text characters are overlapping/nested
+* improved: sharper text rendering
+* improved: text rendering performance and memory usage.
+* fixed: font opacity is ignored if the style is using alpha in fill or stroke colors
+* fixed: text on line geometry can be upside down if map is rotated
+
 ## 0.17.0 (2020-11-9)
 ### core
 * added: introduced provider postprocessors and preprocessors to enable custom data processing for remote data sources.
