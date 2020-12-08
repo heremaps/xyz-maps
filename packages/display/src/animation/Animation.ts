@@ -27,7 +27,7 @@ export class Animation {
     private ts: number = 0;
     private duration: number;
 
-    private af: number;
+    private af: number = null;
     private animator: Animator;
     private done;
     private easing;
@@ -63,6 +63,7 @@ export class Animation {
         if (current < duration) {
             this.af = requestAnimationFrame(this.animate);
         } else {
+            this.af = null;
             this.done();
         }
     }
@@ -80,8 +81,10 @@ export class Animation {
     }
 
     stop() {
-        cancelAnimationFrame(this.af);
-        this.af = null;
+        if (this.af != null) {
+            cancelAnimationFrame(this.af);
+            this.af = null;
+        }
     }
 }
 

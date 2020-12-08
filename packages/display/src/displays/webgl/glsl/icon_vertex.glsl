@@ -18,8 +18,6 @@ varying vec2 v_texcoord;
 
 const float EXTENT_SCALE = 1.0 / 32.0;// 8912 - >512
 
-#define PI 3.141592653589793
-
 void main(void){
     // LSB is direction/normal vector [-1,+1]
     vec2 dir = mod(a_position, 2.0) * 2.0 - 1.0;

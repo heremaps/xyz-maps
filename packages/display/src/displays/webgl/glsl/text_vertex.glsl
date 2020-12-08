@@ -16,8 +16,6 @@ uniform float u_atlasScale;
 varying vec2 v_texcoord;
 varying vec4 vColor;
 
-#define M_PI 3.1415926535897932384626433832795
-
 const float EXTENT_SCALE = 1.0 / 64.0;// 8912 - >512
 const float OFFSET_SCALE = 1.0 / 32.0;
 
@@ -30,12 +28,6 @@ vec2 rotate(vec2 point, float rad){
     float s = sin(rad);
     float c = cos(rad);
     return vec2(point.x * c + point.y * s, point.y * c - point.x * s);
-}
-
-vec2 round(vec2 point){
-    vec2 fractPoint = fract(point);
-    point += step(0.5, fractPoint) - fractPoint;
-    return point;
 }
 
 void main(void){
@@ -64,8 +56,7 @@ void main(void){
 
         if (u_fixedView){
             // round/snap to pixelgrid if mapview is static -> crisp
-            vec2 screenPixel = ((gl_Position.xy / gl_Position.w + 1.0) / 2.0) * u_resolution;
-            gl_Position.xy = (round(screenPixel) / u_resolution * 2.0 - 1.0) * gl_Position.w;
+            gl_Position = snapToScreenPixel(gl_Position, u_resolution);
         }
     }
 }

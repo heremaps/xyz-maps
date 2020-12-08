@@ -21,8 +21,10 @@ import {addEventListener, removeEventListener} from '../DOMTools';
 import {global as WIN} from '@here/xyz-maps-common';
 import {ScrollHandler} from './ScrollHandler';
 import Map from '@here/xyz-maps-display';
+import {Animation} from '../animation/Animation';
 
-const TWO_FINGER_PINCH_THRESHHOLD = 110;
+const MIN_ROTATION = 5;
+const TWO_FINGER_PINCH_THRESHOLD = 110;
 let UNDEF;
 
 type BehaviorOptions = {
@@ -95,6 +97,8 @@ class Behavior {
     scroll: (boolean) => void;
     scrollHandler: ScrollHandler;
     getOptions: () => BehaviorOptions;
+
+    private resetAnimation: Animation;
 
     constructor(mapEl: HTMLElement, map: Map, kinetic, settings: BehaviorOptions, mapCfg) {
         this.scrollHandler = new ScrollHandler(mapEl, map, settings, mapCfg.zoomAnimationMs);
@@ -291,7 +295,7 @@ class Behavior {
 
                     if (
                         pitch || pitch != false &&
-                        Math.abs(t2.clientY - t1.clientY) < TWO_FINGER_PINCH_THRESHHOLD &&
+                        Math.abs(t2.clientY - t1.clientY) < TWO_FINGER_PINCH_THRESHOLD &&
                         Math.sign(dy1) == Math.sign(dy2)
                     ) {
                         pitch = true;
@@ -391,6 +395,8 @@ class Behavior {
         }
 
         function onMouseMove(ev) {
+            that.resetAnimation?.stop();
+
             if (mouseButtonPressed == 0) {
                 panMap(ev.clientX, ev.clientY);
             } else if (mouseButtonPressed == 2) {
@@ -410,6 +416,12 @@ class Behavior {
 
             if (dragged) {
                 kineticPan(ev);
+            } else if (settings['rotate']) {
+                const rotation = map.rotate();
+                if (startMapRotation != rotation && Math.abs(rotation) <= MIN_ROTATION) {
+                    that.resetAnimation = new Animation(rotation, 0, 500, 'easeOutSine', (a: number) => map.rotate(a));
+                    that.resetAnimation.start();
+                }
             }
         }
 

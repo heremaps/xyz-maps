@@ -17,86 +17,45 @@
  * License-Filename: LICENSE
  */
 
-let error = window.console.error;
+const dumpError = window.console.error;
 
-const loadShader = (gl, shaderSource, shaderType, optErrorCallback?) => {
-    let errFn = optErrorCallback || error;
-    let shader = gl.createShader(shaderType);
+const loadShader = (gl: WebGLRenderingContext, shaderSource: string, shaderType: number, onError?: (error) => void) => {
+    onError = onError || dumpError;
+    const shader = gl.createShader(shaderType);
     gl.shaderSource(shader, shaderSource);
     gl.compileShader(shader);
     let compiled = gl.getShaderParameter(shader, gl.COMPILE_STATUS);
     if (!compiled) {
-        // Something went wrong during compilation; get the error
         let lastError = gl.getShaderInfoLog(shader);
-        // errFn("*** Error compiling shader '" + shader + "':" + lastError);
-        console.log('*** Error compiling shader \'' + shader + '\':' + lastError);
+        onError('compileShader ' + lastError);
         gl.deleteShader(shader);
         return null;
     }
     return shader;
 };
 
-const loadProgram = (gl, shaders, optAttribs?, optLocations?, optErrorCallback?) => {
-    let errFn = optErrorCallback || error;
-    let program = gl.createProgram();
-    for (var ii = 0; ii < shaders.length; ++ii) {
-        gl.attachShader(program, shaders[ii]);
-    }
-    if (optAttribs) {
-        for (var ii = 0; ii < optAttribs.length; ++ii) {
-            gl.bindAttribLocation(
-                program,
-                optLocations ? optLocations[ii] : ii,
-                optAttribs[ii]);
-        }
+const loadProgram = (gl: WebGLRenderingContext, shaders: WebGLShader[], onError?: (error) => void) => {
+    onError = onError || dumpError;
+    const program = gl.createProgram();
+    for (let shader of shaders) {
+        gl.attachShader(program, shader);
     }
     gl.linkProgram(program);
-    let linked = gl.getProgramParameter(program, gl.LINK_STATUS);
+    const linked = gl.getProgramParameter(program, gl.LINK_STATUS);
     if (!linked) {
-        let lastError = gl.getProgramInfoLog(program);
-        errFn('Error in program linking:' + lastError);
+        const lastError = gl.getProgramInfoLog(program);
+        onError('linkProgram ' + lastError);
         gl.deleteProgram(program);
         return null;
     }
     return program;
 };
 
-const createProgram = (
-    gl: WebGLRenderingContext,
-    vertexShader: string,
-    fragmentShader: string
-) => {
+const createProgram = (gl: WebGLRenderingContext, vertexShader: string, fragmentShader: string) => {
     return loadProgram(gl, [
         loadShader(gl, vertexShader, gl.VERTEX_SHADER),
         loadShader(gl, fragmentShader, gl.FRAGMENT_SHADER)
     ]);
 };
 
-const switchPrograms = (gl, currentProgram, newProgram) => {
-    // Gets the number of attributes in the current and new programs
-    // var currentAttributes = gl.getProgramParameter(currentProgram, gl.ACTIVE_ATTRIBUTES);
-    // var newAttributes     = gl.getProgramParameter(newProgram, gl.ACTIVE_ATTRIBUTES);
-
-    let currentAttributes = currentProgram ? currentProgram.attribute_count : 0;
-    let newAttributes = newProgram.attribute_count;
-    // Fortunately, in OpenGL, attribute index values are always assigned in the
-    // range [0, ..., NUMBER_OF_VERTEX_ATTRIBUTES - 1], so we can use that to
-    // enable or disable attributes
-    if (newAttributes > currentAttributes) {
-        // We need to enable the missing attributes
-        for (var i = currentAttributes; i < newAttributes; i++) {
-            gl.enableVertexAttribArray(i);
-        }
-    } else if (newAttributes < currentAttributes) {
-        // We need to disable the extra attributes
-        for (var i = newAttributes; i < currentAttributes; i++) {
-            gl.disableVertexAttribArray(i);
-        }
-    }
-
-    // With all the attributes now enabled/disabled as they need to be, let's switch!
-    gl.useProgram(newProgram);
-};
-
-
-export {loadProgram, loadShader, createProgram, switchPrograms};
+export {loadProgram, loadShader, createProgram};

@@ -17,8 +17,10 @@
  * License-Filename: LICENSE
  */
 
-import {createProgram, switchPrograms} from '../glTools';
+import {createProgram} from '../glTools';
 import {GLStates} from './GLStates';
+// @ts-ignore
+import introVertex from '../glsl/intro_vertex.glsl';
 
 let UNDEF;
 
@@ -69,13 +71,18 @@ class Program {
         return () => console.warn('setting uniform not supported', uInfo, location);
     }
 
-    macros: string[] = [];
+    private macros: string[] = [
+        '#define M_PI 3.1415927410125732'
+    ];
 
     constructor(gl: WebGLRenderingContext, mode: number, vertexShader: string, fragmentShader: string, devicePixelRation: number) {
         const render = this;
-        const macros = render.macros.concat('#define DEVICE_PIXEL_RATIO ' + devicePixelRation.toFixed(1), '').join('\n');
+        const macros = render.macros.concat(`#define DEVICE_PIXEL_RATIO ${devicePixelRation.toFixed(1)}\n`).join('\n');
 
-        const glProg = createProgram(gl, macros + vertexShader, macros + fragmentShader);
+        const glProg = createProgram(gl,
+            macros + introVertex + vertexShader,
+            macros + fragmentShader
+        );
 
         this.mode = mode;
         this.usage = gl.STATIC_DRAW;
@@ -115,10 +122,6 @@ class Program {
             // gl.getUniformLocation(program, uniformInfo.name);
             this.uniformSetters[uInfo.name] = this.createUniformSetter(uInfo, location);
         }
-
-
-        // const currentProg = null;
-        // switchPrograms(gl, currentProg, glProg);
     }
 
     getUniformLocation(name: string): WebGLUniformLocation {

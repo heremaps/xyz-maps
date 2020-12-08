@@ -365,7 +365,6 @@ export class GLRender implements BasicRender {
         const activeProgam = this.prog;
 
         if (activeProgam != prog) {
-            // prog.use();
             const gl = this.gl;
 
             if (activeProgam) {
