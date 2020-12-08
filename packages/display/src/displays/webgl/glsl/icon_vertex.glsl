@@ -12,6 +12,7 @@ uniform vec2 u_offset;
 uniform float u_rotation;
 uniform bool u_alignMap;
 uniform vec2 u_resolution;
+uniform bool u_fixedView;
 
 varying float vOpacity;
 varying vec2 v_texcoord;
@@ -42,5 +43,10 @@ void main(void){
         vec2 offset = vec2(u_offset.x, -u_offset.y);
         gl_Position = vec4(cpos.xy / cpos.w + (offset + shift) / u_resolution * 2.0, 0.0, 1.0);
     }
+
+    if (u_fixedView){
+        gl_Position = snapToScreenPixel(gl_Position, u_resolution);
+    }
+
     v_texcoord = a_texcoord * u_atlasScale;
 }
