@@ -63,13 +63,6 @@ const normalize = (p) => {
 };
 
 const addCap = (cap: Cap, x: number, y: number, nx: number, ny: number, vertex: number[], normal: number[], dir = 1) => {
-    nx = nx >> 1 - 1;
-    ny = ny >> 1 - 1;
-
-    // clear first bit
-    // nx &= ~1;
-    // ny &= ~1;
-
     if (cap == CAP_JOIN_ROUND) {
         vertex.push(x, y, x, y, x, y);
 
@@ -320,8 +313,8 @@ const addSegments = (
         if (bisectorLength == Infinity) {
             // parallel
             bisectorExceeds = true;
-            ex = 2 * SCALE;
-            ey = 2 * SCALE;
+            ex = 2;
+            ey = 2;
         } else {
             // if angle is to sharp and bisector length goes to infinity we cut the cone
             // bisectorLength > 10 behaves exactly like canvas2d..
@@ -343,10 +336,10 @@ const addSegments = (
                 ex /= b;
                 ey /= b;
             }
-
-            ex *= -SCALE;
-            ey *= -SCALE;
         }
+
+        ex *= -SCALE;
+        ey *= -SCALE;
 
         nx *= SCALE;
         ny *= SCALE;
