@@ -416,6 +416,20 @@ import {ILayerStyle, StyleGroup, StyleGroupMap} from './ILayerStyle';
 // src: null,
 
 /**
+ *  Offset a line to the left or right side in pixel.
+ *  A positive values offsets to the left side, a negative value offsets to the right.
+ *  The side is defined relative to the direction of the line geometry.
+ *  Applies to Line style only.
+ *
+ *  @public
+ *  @expose
+ *  @optional
+ *  @name here.xyz.maps.layers.TileLayer.Style#offset
+ *  @type number
+ */
+// offset: null,
+
+/**
  *  Offset value on X axis. It is valid for Circle, Rect, Text and Image.
  *
  *  @public

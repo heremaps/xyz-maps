@@ -37,6 +37,7 @@ interface LayerStyle {
     textRef?: string;
     offsetX?: number | styleNumberFunction;
     offsetY?: number | styleNumberFunction;
+    offset?: number | styleNumberFunction;
     alignment?: 'map' | 'viewport';
     rotation?: number;
     priority?: number;
