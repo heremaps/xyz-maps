@@ -81,13 +81,13 @@ const createGridTileBuffer = (tileSize: 256 | 512, color: number[] = [1.0, 0.0, 
         let x2 = vertex[i2];
         let y2 = vertex[i2 + 1];
         let vecAB = normalize([x2 - x1, y2 - y1]);
-        vecAB[0] *= 8192;
-        vecAB[1] *= 8192;
+        let ny = (vecAB[0] * 8192) << 1;
+        let nx = (vecAB[1] * 8192) << 1;
         normal.push(
-            vecAB[1], -vecAB[0], // p11
-            -vecAB[1], vecAB[0], // p12
-            vecAB[1], -vecAB[0], // p12
-            -vecAB[1], vecAB[0] // p22
+            nx, ny ^ 1, // p11
+            nx ^ 1, ny, // p12
+            nx, ny ^ 1, // p12
+            nx ^ 1, ny // p22
         );
         vIndex.push(
             c, c + 2, c + 1,
@@ -109,6 +109,7 @@ const createGridTileBuffer = (tileSize: 256 | 512, color: number[] = [1.0, 0.0, 
     });
     gridTileBuffer.addUniform('u_fill', color);
     gridTileBuffer.addUniform('u_strokeWidth', strokeWidth);
+    gridTileBuffer.addUniform('u_offset', [0, 0]);
 
     gridTileBuffer.scissor = false;
     gridTileBuffer.depth = false;

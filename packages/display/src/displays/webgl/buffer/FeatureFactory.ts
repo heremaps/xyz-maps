@@ -203,7 +203,6 @@ export class FeatureFactory {
             alignment = UNDEF;
             strokeScale = strokeWidthScale;
 
-
             if (type == 'Icon') {
                 offsetX = getValue('offsetX', style, feature, level) ^ 0;
                 offsetY = getValue('offsetY', style, feature, level) ^ 0;
@@ -212,7 +211,6 @@ export class FeatureFactory {
 
                 groupId = 'I' + offsetX + offsetY;
             } else {
-                fill = getValue('fill', style, feature, level);
                 stroke = getValue('stroke', style, feature, level);
                 strokeWidth = getValue('strokeWidth', style, feature, level);
 
@@ -231,65 +229,66 @@ export class FeatureFactory {
                         strokeDasharray = UNDEF;
                     }
 
-                    groupId = 'L' + strokeLinecap + strokeLinejoin + (strokeDasharray || NONE);
-                } else if (type == 'Polygon') {
-                    if (!fill || geomType != 'Polygon' && geomType != 'MultiPolygon') {
-                        continue;
-                    }
-                    extrude = getValue('extrude', style, feature, level);
+                    // store line offset in shared offsetXY
+                    offsetX = offsetY = getValue('offset', style, feature, level) ^ 0;
 
-                    if (extrude) {
-                        groupId = 'E';
-                        type = 'Extrude';
-                    } else {
-                        // if (stroke) {
-                        // groupId = 'PS';
-                        // } else
-                        {
+                    groupId = 'L' + strokeLinecap + strokeLinejoin + (strokeDasharray || NONE);
+                } else {
+                    fill = getValue('fill', style, feature, level);
+
+                    if (type == 'Polygon') {
+                        if (!fill || geomType != 'Polygon' && geomType != 'MultiPolygon') {
+                            continue;
+                        }
+                        extrude = getValue('extrude', style, feature, level);
+
+                        if (extrude) {
+                            groupId = 'E';
+                            type = 'Extrude';
+                        } else {
                             groupId = 'P';
                         }
-                    }
-                } else {
-                    if (geomType == 'Polygon' || geomType == 'MultiPolygon') {
-                        continue;
-                    }
-
-                    alignment = getValue('alignment', style, feature, level);
-
-                    if (type == 'Text') {
-                        text = getTextString(style, feature, level);
-
-                        if (!text) {
+                    } else {
+                        if (geomType == 'Polygon' || geomType == 'MultiPolygon') {
                             continue;
                         }
 
-                        text = toPresentationFormB(text);
+                        alignment = getValue('alignment', style, feature, level);
 
-                        font = getValue('font', style, feature, level) || defaultFont;
+                        if (type == 'Text') {
+                            text = getTextString(style, feature, level);
 
-                        if (alignment == UNDEF) {
-                            alignment = geomType == 'Point' ? 'viewport' : 'map';
+                            if (!text) {
+                                continue;
+                            }
+
+                            text = toPresentationFormB(text);
+
+                            font = getValue('font', style, feature, level) || defaultFont;
+
+                            if (alignment == UNDEF) {
+                                alignment = geomType == 'Point' ? 'viewport' : 'map';
+                            }
+
+                            groupId = 'T' + (font || NONE);
+                        } else if (type == 'Circle') {
+                            radius = getValue('radius', style, feature, level);
+                            groupId = 'C' + radius || NONE;
+                        } else if (type == 'Rect') {
+                            width = getValue('width', style, feature, level);
+                            height = getValue('height', style, feature, level) || width;
+
+                            groupId = 'R' + width + height;
+                        } else {
+                            continue;
                         }
 
-                        groupId = 'T' + (font || NONE);
-                    } else if (type == 'Circle') {
-                        radius = getValue('radius', style, feature, level);
-                        groupId = 'C' + radius || NONE;
-                    } else if (type == 'Rect') {
-                        width = getValue('width', style, feature, level);
-                        height = getValue('height', style, feature, level) || width;
+                        offsetX = getValue('offsetX', style, feature, level) ^ 0;
+                        offsetY = getValue('offsetY', style, feature, level) ^ 0;
 
-                        groupId = 'R' + width + height;
-                    } else {
-                        continue;
+                        groupId += offsetX + offsetY;
                     }
-
-                    offsetX = getValue('offsetX', style, feature, level) ^ 0;
-                    offsetY = getValue('offsetY', style, feature, level) ^ 0;
-
-                    groupId += offsetX + offsetY;
                 }
-
                 if (fill) {
                     fillRGBA = toRGB(fill);
                     if (fillRGBA) {
@@ -491,7 +490,8 @@ export class FeatureFactory {
                         strokeDasharray,
                         strokeLinecap,
                         strokeLinejoin,
-                        strokeWidth
+                        strokeWidth,
+                        offsetY
                     );
                 } else if (type == 'Circle' || type == 'Rect') {
                     if (!group.buffer) {

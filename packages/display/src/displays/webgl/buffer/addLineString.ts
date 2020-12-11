@@ -22,9 +22,10 @@ import {PixelCoordinateCache} from './LineFactory';
 import {isInBox, intersectBBox} from '../../../geometry';
 
 type Tile = tile.Tile;
-type Cap = 'round' | 'butt' | 'square';
-type Join = 'round' | 'bevel' | 'miter' | 'none';
+export type Cap = 'round' | 'butt' | 'square';
+export type Join = 'round' | 'bevel' | 'miter' | 'none';
 
+const CAP_JOIN_ROUND = 'round';
 const CAP_BUTT = 'butt';
 const CAP_SQUARE = 'square';
 const JOIN_MITER = 'miter';
@@ -61,17 +62,31 @@ const normalize = (p) => {
     return p;
 };
 
-const addCap = (cap: Cap, x: number, y: number, nx: number, ny: number, vertex: number[], normal: number[]) => {
-    if (cap == 'round') {
+const addCap = (cap: Cap, x: number, y: number, nx: number, ny: number, vertex: number[], normal: number[], dir = 1) => {
+    // console.log(nx,'-nx->',nx >> 1 - 1);
+    // console.log(ny,'-ny->',ny >> 1 - 1);
+
+
+    nx = nx >> 1 - 1;
+    ny = ny >> 1 - 1;
+
+    // clear first bit
+    // nx &= ~1;
+    // ny &= ~1;
+
+    if (cap == CAP_JOIN_ROUND) {
         vertex.push(x, y, x, y, x, y);
 
-        nx *= Math.SQRT2;
-        ny *= Math.SQRT2;
+        nx *= Math.SQRT2 * dir;
+        ny *= Math.SQRT2 * dir;
 
         normal.push(
-            -nx, ny, -nx, ny, // p1.1
-            nx, -ny, nx, -ny, // p1.2
-            ny, nx, ny, nx // p1.0
+            nx << 1 | 0, ny << 1 | 1, nx << 1 | 0, ny << 1 | 1, // p1.1
+            nx << 1 | 1, ny << 1 | 0, nx << 1 | 1, ny << 1 | 0, // p1.2
+            ny << 1 | 1, nx << 1 | 1, ny << 1 | 1, nx << 1 | 1 // p1.0
+            // -nx, ny, -nx, ny, // p1.1
+            // nx, -ny, nx, -ny, // p1.2
+            // ny, nx, ny, nx // p1.0
         );
     } else if (cap == CAP_SQUARE) {
         // -----------
@@ -86,13 +101,21 @@ const addCap = (cap: Cap, x: number, y: number, nx: number, ny: number, vertex: 
         let sqNy = nx + ny;
 
         normal.push(
-            -nx, ny, 0, 0, // p1.2
-            sqNy, -sqNx, 0, 0, // p1.0
-            nx, -ny, 0, 0, // p1.1
+            nx << 1 | 0, ny << 1 | 1, 0, 0, // p1.2
+            sqNy << 1 | 1, sqNx << 1 | 0, 0, 0, // p1.0
+            nx << 1 | 1, ny << 1 | 0, 0, 0, // p1.1
 
-            sqNx, sqNy, nx, ny, // p1.0
-            sqNy, -sqNx, nx, ny, // p1.0
-            -nx, ny, 0, 0, // p1.2
+            // -nx, ny, 0, 0, // p1.2
+            // sqNy, -sqNx, 0, 0, // p1.0
+            // nx, -ny, 0, 0, // p1.1
+
+            sqNx << 1 | 1, sqNy << 1 | 1, nx << 1 | 1, ny << 1 | 1, // p1.0
+            sqNy << 1 | 1, sqNx << 1 | 0, nx << 1 | 1, ny << 1 | 1, // p1.0
+            nx << 1 | 0, ny << 1 | 1, 0, 0, // p1.2
+
+            // sqNx, sqNy, nx, ny, // p1.0
+            // sqNy, -sqNx, nx, ny, // p1.0
+            // -nx, ny, 0, 0, // p1.2
         );
     }
 };
@@ -107,7 +130,8 @@ const addLineString = (
     cap: Cap,
     join: Join,
     strokeWidth: number,
-    lengthSoFar?: number[]
+    lengthSoFar?: number[],
+    offset?: number
 ) => {
     strokeWidth *= .5;
 
@@ -119,6 +143,16 @@ const addLineString = (
     let _x;
     let _y;
     let c;
+
+    if (offset) {
+        cap = CAP_BUTT;
+        // line offset only works with none or meter joins
+        if (join != 'none') {
+            join = JOIN_MITER;
+            addSegments(vertex, normal, pixels, 0, vLength, tile, tileSize, cap, cap, join, strokeWidth, lengthSoFar, length);
+            return;
+        }
+    }
 
 
     for (c = 0; c < vLength; c += 2) {
@@ -233,14 +267,10 @@ const addSegments = (
     let n;
 
     if (lengthSoFar) {
-        // cap = 'butt';
         capStart = 'butt';
         capStop = 'butt';
         join = 'none';
     }
-
-    // vertex.reserve((end-start)*8);
-    // normal.reserve((end-start)*16);
 
     for (let c = start + 2; c < vLength; c += 2) {
         x2 = coordinates[c];
@@ -254,29 +284,13 @@ const addSegments = (
 
         curJoin = join;
 
-        if (!last || first == null) {
-            dx = x1 - x2;
-            dy = y1 - y2;
+        dx = x1 - x2;
+        dy = y1 - y2;
 
-            n = normalize([dx, dy]);
-            nx = n[1];
-            ny = n[0];
-        } else {
-            dx = nextDx;
-            dy = nextDy;
-            prevBisectorLength = 0;
-            x2 = x1;
-            y2 = y1;
-            x1 = x3;
-            y1 = y3;
-            nx = -nextNx;
-            ny = -nextNy;
-            ex = -prevEx;
-            ey = -prevEy;
-            left = !prevLeft;
-            bisectorExceeds = prevBisectorExceeds;
-            curJoin = prevJoin;
-        }
+        n = normalize([dx, dy]);
+        nx = n[1];
+        ny = n[0];
+
 
         first = first == null;
 
@@ -284,9 +298,6 @@ const addSegments = (
             // single segment line -> we can skip joins
             join = 'none';
         }
-
-        let isEnd = last || first;
-
 
         length = Math.sqrt(dx * dx + dy * dy);
 
@@ -302,62 +313,61 @@ const addSegments = (
         //         \ *---------------------------* /
         //          p1.2                        p2.2
 
-        if (!last) {
-            x3 = coordinates[c + 2];
-            y3 = coordinates[c + 3];
-            nextDx = x2 - x3;
-            nextDy = y2 - y3;
-            nextNormal = normalize([nextDx, nextDy]);
-            nextNx = nextNormal[1];
-            nextNy = nextNormal[0];
 
-            ex = nextNx + nx;
-            ey = -nextNy - ny;
+        x3 = coordinates[c + 2];
+        y3 = coordinates[c + 3];
+        nextDx = x2 - x3;
+        nextDy = y2 - y3;
+        nextNormal = normalize([nextDx, nextDy]);
+        nextNx = nextNormal[1];
+        nextNy = nextNormal[0];
 
-            left = dx * nextDy - dy * nextDx < 0;
-            // left = -nx * nextDx + ny * nextDy <0;
+        ex = nextNx + nx;
+        ey = -nextNy - ny;
 
-            const bisector = [ex, ey];
-            // dot product
-            bisectorLength = 1 / (bisector[0] * nx - bisector[1] * ny);
+        left = dx * nextDy - dy * nextDx < 0;
+        // left = -nx * nextDx + ny * nextDy <0;
 
-            if (bisectorLength == Infinity) {
-                // parallel
-                bisectorExceeds = true;
-                ex = 2 * SCALE;
-                ey = 2 * SCALE;
-            } else {
-                // if angle is to sharp and bisector length goes to infinity we cut the cone
-                // bisectorLength > 10 behaves exactly like canvas2d..
-                // ..but we cut earlier to prevent "cone explosion"
-                if (join == JOIN_MITER) {
-                    if (bisectorLength > 2) {
-                        curJoin = JOIN_BEVEL;
-                    }
+        const bisector = [ex, ey];
+        // dot product
+        bisectorLength = 1 / (bisector[0] * nx - bisector[1] * ny);
+
+        if (bisectorLength == Infinity) {
+            // parallel
+            bisectorExceeds = true;
+            ex = 2 * SCALE;
+            ey = 2 * SCALE;
+        } else {
+            // if angle is to sharp and bisector length goes to infinity we cut the cone
+            // bisectorLength > 10 behaves exactly like canvas2d..
+            // ..but we cut earlier to prevent "cone explosion"
+            if (join == JOIN_MITER) {
+                if (bisectorLength > 2) {
+                    curJoin = JOIN_BEVEL;
                 }
-
-                ex = bisector[0] * bisectorLength;
-                ey = bisector[1] * bisectorLength;
-
-                // >2 -> >90deg
-                let b = Math.sqrt(ex * ex + ey * ey) / 2;
-                bisectorExceeds = b > 1;
-
-                if (bisectorExceeds) {
-                    ex /= b;
-                    ey /= b;
-                }
-
-                ex *= SCALE;
-                ey *= SCALE;
             }
+
+            ex = bisector[0] * bisectorLength;
+            ey = bisector[1] * bisectorLength;
+
+            // >2 -> >90deg
+            let b = Math.sqrt(ex * ex + ey * ey) / 2;
+            bisectorExceeds = b > 1;
+
+            if (bisectorExceeds) {
+                ex /= b;
+                ey /= b;
+            }
+
+            ex *= -SCALE;
+            ey *= -SCALE;
         }
 
         nx *= SCALE;
         ny *= SCALE;
 
-        nUp = [-nx, ny];
-        nDown = [nx, -ny];
+        nUp = [-nx << 1 | 1, ny << 1 | 1];
+        nDown = [nUp[0] ^ 1, nUp[1] ^ 1];
 
         p1Down = nDown;
         p2Down = nDown;
@@ -365,31 +375,25 @@ const addSegments = (
         p2Up = nUp;
 
         if (join != 'none') {
-            if (curJoin == JOIN_MITER && vLength > 4) {
-                if (left) {
-                    p2Up = [-ex, -ey];
-                    p2Down = [ex, ey];
-                } else {
-                    p2Up = [-ex, -ey];
-                    p2Down = [ex, ey];
-                }
+            if (!last && curJoin == JOIN_MITER && vLength > 4) {
+                p2Down = [ex << 1 | 0, ey << 1 | 0];
+                p2Up = [ex << 1 | 1, ey << 1 | 1];
             }
 
-            if (!isEnd && !prevBisectorExceeds) {
+            if (!first && !prevBisectorExceeds) {
                 if (!prevLeft) {
-                    p1Down = [prevEx, prevEy];
+                    p1Down = [prevEx << 1 | 0, prevEy << 1 | 0];
                     if (join == 'miter') {
-                        p1Up = [-prevEx, -prevEy]; // miter
+                        p1Up = [prevEx << 1 | 1, prevEy << 1 | 1]; // miter
                     }
                 } else {
-                    p1Up = [-prevEx, -prevEy];
+                    p1Up = [prevEx << 1 | 1, prevEy << 1 | 1];
                     if (join == 'miter') {
-                        p1Down = [prevEx, prevEy]; // miter
+                        p1Down = [prevEx << 1 | 0, prevEy << 1 | 0]; // miter
                     }
                 }
             }
 
-            // if (!bisectorExceeds && totalLength ) {
             if (!bisectorExceeds && vLength > 4) {
                 if (join != JOIN_MITER) {
                     let aEx = strokeWidth * ex / SCALE;
@@ -401,13 +405,14 @@ const addSegments = (
                     } else {
                         s = n[0] * aEx + n[1] * aEy;
                     }
+
                     if (length < s) {
                         bisectorExceeds = true;
-                    } else {
+                    } else if (!last) {
                         if (left) {
-                            p2Up = [-ex, -ey];
+                            p2Up = [ex << 1 | 1, ey << 1 | 1];
                         } else {
-                            p2Down = [ex, ey];
+                            p2Down = [ex << 1 | 0, ey << 1 | 0];
                         }
                     }
                 }
@@ -415,40 +420,25 @@ const addSegments = (
 
 
             if ((!first || last) && totalLength) {
-                // if ((!first || last) && vLength > 2 ) {
-                if (join == 'round') {
+                if (join == CAP_JOIN_ROUND) {
                     if (prevLeft) {
                         // Cone
                         // 1---2
                         //  \ /
                         //   3
-                        let p3x = p1Down[0];
-                        let p3y = p1Down[1];
-
-                        if (last) { // reverse order
-                            p3x = p2Up[0];
-                            p3y = p2Up[1];
-                        }
                         normal.push(
                             prevNDown[0], prevNDown[1], prevNDown[0], prevNDown[1],
-                            p3x, p3y, p3x, p3y,
-                            prevEx, prevEy, prevEx, prevEy
+                            p1Down[0], p1Down[1], p1Down[0], p1Down[1],
+                            prevEx << 1 | 0, prevEy << 1 | 0, prevEx << 1 | 0, prevEy << 1 | 0
                         );
                     } else {
                         // Cone
                         //   1
                         //  / \
                         // 3---2
-                        let p3x = p1Up[0];
-                        let p3y = p1Up[1];
-
-                        if (last) { // reverse order
-                            p3x = p2Down[0];
-                            p3y = p2Down[1];
-                        }
                         normal.push(
-                            -prevEx, -prevEy, -prevEx, -prevEy,
-                            p3x, p3y, p3x, p3y,
+                            prevEx << 1 | 1, prevEy << 1 | 1, prevEx << 1 | 1, prevEy << 1 | 1,
+                            p1Up[0], p1Up[1], p1Up[0], p1Up[1],
                             prevNUp[0], prevNUp[1], prevNUp[0], prevNUp[1]
                         );
                     }
@@ -456,10 +446,8 @@ const addSegments = (
                     vertex.push(prevX2, prevY2, prevX2, prevY2, prevX2, prevY2);
                 }
 
-
                 if (!first && !prevBisectorExceeds) {
                     if (join != JOIN_MITER) {
-                        // if (join != JOIN_MITER && !(prevEvil) ) {
                         let an = normalize([prevEx, prevEy]); // alias normal
                         an[0] *= SCALE;
                         an[1] *= SCALE;
@@ -471,21 +459,16 @@ const addSegments = (
                             let p3x = p1Down[0];
                             let p3y = p1Down[1];
 
-                            if (last) { // reverse order
-                                p3x = p2Up[0];
-                                p3y = p2Up[1];
-                            }
-
                             if (join == JOIN_BEVEL) {
                                 // allow antialias for bevel join
                                 normal.push(
-                                    -prevEx, -prevEy, -an[0], -an[1],
-                                    p3x, p3y, an[0], an[1],
-                                    prevNDown[0], prevNDown[1], an[0], an[1]
+                                    prevEx << 1 | 1, prevEy << 1 | 1, an[0] << 1 | 1, an[1] << 1 | 1,
+                                    p3x, p3y, an[0] << 1 | 0, an[1] << 1 | 0,
+                                    prevNDown[0], prevNDown[1], an[0] << 1 | 0, an[1] << 1 | 0
                                 );
                             } else {
                                 normal.push(
-                                    -prevEx, -prevEy, -an[0], -an[1],
+                                    prevEx << 1 | 1, prevEy << 1 | 1, an[0] << 1 | 1, an[1] << 1 | 1,
                                     p3x, p3y, p3x, p3y,
                                     prevNDown[0], prevNDown[1], prevNDown[0], prevNDown[1]
                                 );
@@ -494,25 +477,17 @@ const addSegments = (
                             // 3---1
                             //  \ /
                             //   2
-                            let p3x = p1Up[0];
-                            let p3y = p1Up[1];
-
-                            if (last) { // reverse order
-                                p3x = p1Down[0];
-                                p3y = p1Down[1];
-                            }
-
                             if (join == JOIN_BEVEL) {
                                 // allow antialias for bevel join
                                 normal.push(
-                                    p3x, p3y, -an[0], -an[1],
-                                    prevEx, prevEy, an[0], an[1],
-                                    prevNUp[0], prevNUp[1], -an[0], -an[1]
+                                    p1Up[0], p1Up[1], an[0] << 1 | 1, an[1] << 1 | 1,
+                                    prevEx << 1 | 0, prevEy << 1 | 0, an[0] << 1 | 0, an[1] << 1 | 0,
+                                    prevNUp[0], prevNUp[1], an[0] << 1 | 1, an[1] << 1 | 1
                                 );
                             } else {
                                 normal.push(
-                                    p3x, p3y, p3x, p3y,
-                                    prevEx, prevEy, an[0], an[1],
+                                    p1Up[0], p1Up[1], p1Up[0], p1Up[1],
+                                    prevEx << 1 | 0, prevEy << 1 | 0, an[0] << 1 | 0, an[1] << 1 | 0,
                                     prevNUp[0], prevNUp[1], prevNUp[0], prevNUp[1]
                                 );
                             }
@@ -525,21 +500,28 @@ const addSegments = (
                         // alias normal: no alias for round joins
                         let anX = 0;
                         let anY = 0;
-                        if (join != 'round') {
+
+
+                        if (join != CAP_JOIN_ROUND) {
                             let an = normalize([ex, ey]);
                             anX = an[0] * SCALE;
                             anY = an[1] * SCALE;
                         }
 
+                        anX = anX << 1 | 1;
+                        anY = anY << 1 | 1;
+
                         if (prevLeft) {
-                            let down = last ? nUp : nDown;
+                            let down = nDown;
+                            // let down = last ? nUp : nDown;
                             normal.push(
                                 0, 0, 0, 0,
                                 down[0], down[1], anX, anY,
                                 prevNDown[0], prevNDown[1], anX, anY
                             );
                         } else {
-                            let up = last ? nDown : nUp;
+                            let up = nUp;
+                            // let up = last ? nDown : nUp;
                             normal.push(
                                 0, 0, 0, 0,
                                 up[0], up[1], anX, anY,
@@ -583,12 +565,12 @@ const addSegments = (
             x2, y2
         );
 
-        if (first || last) {
+        if (first) {
             addCap(capStart, x1, y1, nx, ny, vertex, normal);
         }
 
-        if (first && last) {
-            addCap(capStop, x2, y2, -nx, -ny, vertex, normal);
+        if (last) {
+            addCap(capStart, x2, y2, -nx, -ny, vertex, normal);
         }
 
         if (lengthSoFar) {

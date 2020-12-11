@@ -18,7 +18,7 @@
  */
 
 import {LineBuffer} from './templates/LineBuffer';
-import {addLineString} from './addLineString';
+import {addLineString, Cap, Join} from './addLineString';
 import {DashAtlas} from '../DashAtlas';
 import {GlyphTexture} from '../GlyphTexture';
 import {TextBuffer} from './templates/TextBuffer';
@@ -85,10 +85,11 @@ export class LineFactory {
         tile: Tile,
         tileSize: number,
         removeTileBounds: boolean,
-        strokeDasharray,
-        strokeLinecap,
-        strokeLinejoin,
-        strokeWidth
+        strokeDasharray: [number, number],
+        strokeLinecap: Cap,
+        strokeLinejoin: Join,
+        strokeWidth: number,
+        offset?: number
     ) {
         if (strokeDasharray) {
             group.texture = this.dashes.get(strokeDasharray);
@@ -110,7 +111,8 @@ export class LineFactory {
             strokeLinecap,
             strokeLinejoin,
             strokeWidth,
-            strokeDasharray && groupBuffer.attributes.a_lengthSoFar.data
+            strokeDasharray && groupBuffer.attributes.a_lengthSoFar.data,
+            offset
         );
     }
 

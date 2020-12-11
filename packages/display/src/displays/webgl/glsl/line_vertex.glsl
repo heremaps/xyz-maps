@@ -13,20 +13,26 @@ varying vec2 v_normal;
 varying float v_lengthSoFar;
 varying vec2 v_width;
 
-#define N_SCALE 8192.0
-//#define N_SCALE 1.0
+uniform float u_offset;
+
+const float N_SCALE = 1.0 / 8192.0;
 
 void main(void){
-
     float alias = u_strokeWidth<1. ? .65 : 1.;
     float width = (u_strokeWidth+alias) / u_scale;
     v_width = vec2(u_strokeWidth, alias * .5);
-
-    vec2 normal = a_normal.xy / N_SCALE;
-
-    v_normal = a_normal.zw / N_SCALE;
+    // LSB is direction/normal vector [-1,+1]
+    vec2 dir2 = mod(a_normal.zw, 2.0) * 2.0 - 1.0;
+    vec2 aliasNormal = floor(a_normal.zw * .5) * N_SCALE;
+    v_normal = dir2 * aliasNormal;
+    // LSB is direction/normal vector [-1,+1]
+    vec2 dir = mod(a_normal.xy, 2.0) * 2.0 - 1.0;
+    vec2 normal = floor(a_normal.xy * .5) * N_SCALE;
 
     v_lengthSoFar = a_lengthSoFar / u_texWidth;
 
-    gl_Position = u_matrix * vec4(u_topLeft + a_position + normal * width, 0.0, 1.0);
+    vec2 position = a_position + normal * -u_offset / u_scale;
+
+    gl_Position = u_matrix * vec4(u_topLeft + position + dir * normal * width, 0.0, 1.0);
 }
+

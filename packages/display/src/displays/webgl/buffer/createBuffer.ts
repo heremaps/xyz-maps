@@ -181,44 +181,7 @@ const createBuffer = (
 
                         buffers.push(geoBuffer);
 
-                        if (type == 'Text' || type == 'Icon') {
-                            geoBuffer.scissor = grpBuffer.scissor;
-                            geoBuffer.texture = grp.texture;
-
-                            if (type == 'Text') {
-                                (<GlyphTexture>geoBuffer.texture).sync();
-                                geoBuffer.addUniform('u_fillColor', shared.fill||COLOR_UNDEFINED);
-                                geoBuffer.addUniform('u_strokeColor', shared.stroke||COLOR_UNDEFINED);
-                            }
-                            geoBuffer.addUniform('u_texture', 0);
-                            geoBuffer.addUniform('u_atlasScale', 1 / geoBuffer.texture.width);
-                            geoBuffer.addUniform('u_opacity', shared.opacity);
-                            geoBuffer.addUniform('u_alignMap', shared.alignment == 'map');
-                        } else if (type == 'Rect' || type == 'Circle') {
-                            geoBuffer.scissor = grpBuffer.scissor;
-
-                            const fill = shared.fill || COLOR_UNDEFINED;
-
-                            geoBuffer.addUniform('u_fill', fill);
-
-                            if (stroke) {
-                                geoBuffer.addUniform('u_stroke', stroke);
-                                if (strokeWidth == UNDEF) strokeWidth = 1;
-                            }
-                            geoBuffer.addUniform('u_strokeWidth', strokeWidth ^ 0);
-
-                            if (type == 'Circle') {
-                                geoBuffer.addUniform('u_radius', shared.radius);
-                            } else {
-                                if (fill == COLOR_UNDEFINED) {
-                                    // use blend to enable shader to not use discard (faster)
-                                    geoBuffer.alpha = true;
-                                    geoBuffer.blend = true;
-                                }
-                                geoBuffer.addUniform('u_size', [shared.width, shared.height]);
-                            }
-                            geoBuffer.addUniform('u_alignMap', shared.alignment == 'map');
-                        } else if (type == 'Line') {
+                        if (type == 'Line') {
                             if (shared.strokeDasharray) {
                                 geoBuffer.type = 'DashedLine';
                                 geoBuffer.texture = grp.texture;
@@ -227,6 +190,8 @@ const createBuffer = (
                             }
                             geoBuffer.addUniform('u_fill', stroke);
                             geoBuffer.addUniform('u_strokeWidth', strokeWidth * .5);
+
+                            geoBuffer.addUniform('u_offset', shared.offsetY);
 
                             geoBuffer.alpha = true;
                             // geoBuffer.blend = true;
@@ -237,6 +202,47 @@ const createBuffer = (
                                 geoBuffer.addUniform('u_zoom', extrudeScale);
                                 geoBuffer.scissor = false;
                             }
+                        } else {
+                            if (type == 'Text' || type == 'Icon') {
+                                geoBuffer.scissor = grpBuffer.scissor;
+                                geoBuffer.texture = grp.texture;
+
+                                if (type == 'Text') {
+                                    (<GlyphTexture>geoBuffer.texture).sync();
+                                    geoBuffer.addUniform('u_fillColor', shared.fill || COLOR_UNDEFINED);
+                                    geoBuffer.addUniform('u_strokeColor', shared.stroke || COLOR_UNDEFINED);
+                                }
+                                geoBuffer.addUniform('u_texture', 0);
+                                geoBuffer.addUniform('u_atlasScale', 1 / geoBuffer.texture.width);
+                                geoBuffer.addUniform('u_opacity', shared.opacity);
+                                geoBuffer.addUniform('u_alignMap', shared.alignment == 'map');
+                            } else if (type == 'Rect' || type == 'Circle') {
+                                geoBuffer.scissor = grpBuffer.scissor;
+
+                                const fill = shared.fill || COLOR_UNDEFINED;
+
+                                geoBuffer.addUniform('u_fill', fill);
+
+                                if (stroke) {
+                                    geoBuffer.addUniform('u_stroke', stroke);
+                                    if (strokeWidth == UNDEF) strokeWidth = 1;
+                                }
+                                geoBuffer.addUniform('u_strokeWidth', strokeWidth ^ 0);
+
+                                if (type == 'Circle') {
+                                    geoBuffer.addUniform('u_radius', shared.radius);
+                                } else {
+                                    if (fill == COLOR_UNDEFINED) {
+                                        // use blend to enable shader to not use discard (faster)
+                                        geoBuffer.alpha = true;
+                                        geoBuffer.blend = true;
+                                    }
+                                    geoBuffer.addUniform('u_size', [shared.width, shared.height]);
+                                }
+                                geoBuffer.addUniform('u_alignMap', shared.alignment == 'map');
+                            }
+
+                            geoBuffer.addUniform('u_offset', [shared.offsetX, shared.offsetY]);
                         }
 
 
@@ -251,7 +257,7 @@ const createBuffer = (
                         }
 
                         geoBuffer.addUniform('u_rotation', shared.rotation * TO_RAD);
-                        geoBuffer.addUniform('u_offset', [shared.offsetX, shared.offsetY]);
+
 
                         let {zLayer} = grp;
                         let zIndex: string | number = z;
