@@ -63,10 +63,6 @@ const normalize = (p) => {
 };
 
 const addCap = (cap: Cap, x: number, y: number, nx: number, ny: number, vertex: number[], normal: number[], dir = 1) => {
-    // console.log(nx,'-nx->',nx >> 1 - 1);
-    // console.log(ny,'-ny->',ny >> 1 - 1);
-
-
     nx = nx >> 1 - 1;
     ny = ny >> 1 - 1;
 
@@ -84,9 +80,6 @@ const addCap = (cap: Cap, x: number, y: number, nx: number, ny: number, vertex: 
             nx << 1 | 0, ny << 1 | 1, nx << 1 | 0, ny << 1 | 1, // p1.1
             nx << 1 | 1, ny << 1 | 0, nx << 1 | 1, ny << 1 | 0, // p1.2
             ny << 1 | 1, nx << 1 | 1, ny << 1 | 1, nx << 1 | 1 // p1.0
-            // -nx, ny, -nx, ny, // p1.1
-            // nx, -ny, nx, -ny, // p1.2
-            // ny, nx, ny, nx // p1.0
         );
     } else if (cap == CAP_SQUARE) {
         // -----------
@@ -105,17 +98,9 @@ const addCap = (cap: Cap, x: number, y: number, nx: number, ny: number, vertex: 
             sqNy << 1 | 1, sqNx << 1 | 0, 0, 0, // p1.0
             nx << 1 | 1, ny << 1 | 0, 0, 0, // p1.1
 
-            // -nx, ny, 0, 0, // p1.2
-            // sqNy, -sqNx, 0, 0, // p1.0
-            // nx, -ny, 0, 0, // p1.1
-
             sqNx << 1 | 1, sqNy << 1 | 1, nx << 1 | 1, ny << 1 | 1, // p1.0
             sqNy << 1 | 1, sqNx << 1 | 0, nx << 1 | 1, ny << 1 | 1, // p1.0
             nx << 1 | 0, ny << 1 | 1, 0, 0, // p1.2
-
-            // sqNx, sqNy, nx, ny, // p1.0
-            // sqNy, -sqNx, nx, ny, // p1.0
-            // -nx, ny, 0, 0, // p1.2
         );
     }
 };
@@ -456,20 +441,17 @@ const addSegments = (
                             //   1
                             //  / \
                             // 3---2
-                            let p3x = p1Down[0];
-                            let p3y = p1Down[1];
-
                             if (join == JOIN_BEVEL) {
                                 // allow antialias for bevel join
                                 normal.push(
                                     prevEx << 1 | 1, prevEy << 1 | 1, an[0] << 1 | 1, an[1] << 1 | 1,
-                                    p3x, p3y, an[0] << 1 | 0, an[1] << 1 | 0,
+                                    p1Down[0], p1Down[1], an[0] << 1 | 0, an[1] << 1 | 0,
                                     prevNDown[0], prevNDown[1], an[0] << 1 | 0, an[1] << 1 | 0
                                 );
                             } else {
                                 normal.push(
                                     prevEx << 1 | 1, prevEy << 1 | 1, an[0] << 1 | 1, an[1] << 1 | 1,
-                                    p3x, p3y, p3x, p3y,
+                                    p1Down[0], p1Down[1], p1Down[0], p1Down[1],
                                     prevNDown[0], prevNDown[1], prevNDown[0], prevNDown[1]
                                 );
                             }
@@ -512,19 +494,15 @@ const addSegments = (
                         anY = anY << 1 | 1;
 
                         if (prevLeft) {
-                            let down = nDown;
-                            // let down = last ? nUp : nDown;
                             normal.push(
                                 0, 0, 0, 0,
-                                down[0], down[1], anX, anY,
+                                nDown[0], nDown[1], anX, anY,
                                 prevNDown[0], prevNDown[1], anX, anY
                             );
                         } else {
-                            let up = nUp;
-                            // let up = last ? nDown : nUp;
                             normal.push(
                                 0, 0, 0, 0,
-                                up[0], up[1], anX, anY,
+                                nUp[0], nUp[1], anX, anY,
                                 prevNUp[0], prevNUp[1], anX, anY
                             );
                         }
