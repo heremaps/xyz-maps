@@ -192,7 +192,7 @@ export const createTextData = (
     let prevChar;
 
     // first bit of rotation defines visibility
-    rotation = Math.round(rotation + 1); // visible by default
+    rotation = Math.round(rotation|1); // visible by default
 
     // BIDI text is considered as experimental and has known issues
     for (let i = 0; i < len; i++) {
