@@ -414,10 +414,10 @@ export class FeatureFactory {
                     const bufferLength = texture.bufferLength(text);
 
                     if (style.collide || !this.collisions.collides(
-                        cx + offsetX,
-                        cy + offsetY,
+                        cx + offsetX * dpr,
+                        cy + offsetY * dpr,
                         estimatedTextWidth / 2,
-                        estimatedTextHeight / 2, // ty,
+                        estimatedTextHeight / 2,
                         tile, tileSize,
                         bufferStart, bufferStart + bufferLength,
                         attributes.a_texcoord,
