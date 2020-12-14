@@ -24,6 +24,7 @@ import {PixelCoordinateCache} from './LineFactory';
 import {FlexAttribute} from './templates/TemplateBuffer';
 import {addText} from './addText';
 import {FlexArray} from './templates/FlexArray';
+import {rotate} from '../../../geometry';
 
 type Tile = tile.Tile;
 
@@ -47,7 +48,6 @@ const addLineText = (
     const texcoord = texcoordAttr.data;
     const glyphAtlas = glyphs.getAtlas();
     const vLength = prjCoordinates.length / 2;
-    const ty = glyphAtlas.baselineOffset - offsetY;
     let coordinates = prjCoordinates.data;
     let distancePrevLabel = Infinity;
     let textLines;
@@ -70,7 +70,6 @@ const addLineText = (
     let startY = y1;
     let startDistance = distancePrevLabel;
 
-
     for (let i = 1; i < vLength; i++) {
         let c = offset + dir * i;
         if (c >= vLength) {
@@ -87,6 +86,7 @@ const addLineText = (
         y2 = coordinates[c * 2 + 1];
         dx = x2 - x1;
         dy = y2 - y1;
+
         cx = dx * .5 + x1;
         cy = dy * .5 + y1;
 
@@ -97,35 +97,36 @@ const addLineText = (
             if (labelWidth == null) {
                 labelWidth = glyphAtlas.getTextWidth(text);
             }
-
             if (Math.floor(lineWidth / labelWidth) > 0) {
-                let halfLabelWidth = labelWidth * .25;
-                let f = halfLabelWidth / lineWidth;
-                let fh = (.5 * ty) / lineWidth;
-                let labelx1 = cx - (dx * f);
-                let labely1 = cy + (dy * f);
-                let labelx2 = cx + (dx * f);
-                let labely2 = cy - (dy * f);
+                let alpha = Math.atan2(dy, dx);
+                const halfLabelWidth = labelWidth * .5;
+                const halfLabelHeight = glyphAtlas.lineHeight * .5;
 
-                if (dy < 0 && dx > 0 || (dx < 0 && dy > 0)) {
-                    dy *= -1;
-                    dx *= -1;
+                const r1 = rotate(-halfLabelWidth, -halfLabelHeight, cx, cy, alpha);
+                const r2 = rotate(halfLabelWidth, halfLabelHeight, cx, cy, alpha);
+                const r3 = rotate(-halfLabelWidth, halfLabelHeight, cx, cy, alpha);
+                const r4 = rotate(halfLabelWidth, -halfLabelHeight, cx, cy, alpha);
+
+                const minX = Math.min(r1[0], r2[0], r3[0], r4[0]);
+                const maxX = Math.max(r1[0], r2[0], r3[0], r4[0]);
+                const minY = Math.min(r1[1], r2[1], r3[1], r4[1]);
+                const maxY = Math.max(r1[1], r2[1], r3[1], r4[1]);
+
+                const labelDx = (maxX - minX) * .5;
+                const labelDy = (maxY - minY) * .5;
+
+                if (dir == -1) {
+                    alpha += Math.PI;
                 }
 
-                labelx1 += fh * -dy;
-                labely1 += fh * dx;
-                labelx2 += fh * dy;
-                labely2 += fh * -dx;
+                const center = rotate(cx + offsetX, cy + offsetY, cx, cy, alpha);
 
-                let labeldx = Math.abs(labelx2 - labelx1);
-                let labeldy = Math.abs(labely2 - labely1);
                 const bufferStart = point.length;
-
                 bufferLength = bufferLength || glyphs.bufferLength(text);
 
                 if (!collisions || !collisions.collides(
-                    cx, cy,
-                    labeldx, labeldy,
+                    center[0], center[1],
+                    labelDx, labelDy,
                     tile, tileSize,
                     bufferStart, bufferStart + bufferLength,
                     texcoordAttr,
@@ -146,15 +147,7 @@ const addLineText = (
                             textLines = [text];
                         }
 
-                        let alpha = Math.atan2(dy, dx) * TO_DEG;
-                        // make sure angle is 0->360 deg
-                        alpha = (alpha + 360) % 360;
-
-                        if (alpha >= 180) {
-                            alpha -= 180;
-                        }
-
-                        addText(textLines, point, vertex, texcoord, glyphAtlas, cx, cy, offsetX, offsetY, 0, alpha);
+                        addText(textLines, point, vertex, texcoord, glyphAtlas, cx, cy, 0, alpha * TO_DEG);
                     }
                 }
             } else {

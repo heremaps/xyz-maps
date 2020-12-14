@@ -68,8 +68,6 @@ const addText = (
     glyphAtlas: GlyphAtlas,
     cx: number,
     cy: number,
-    offsetX?: number,
-    offsetY?: number,
     textWrap?: number,
     rotation = 0,
 ) => {
@@ -80,15 +78,18 @@ const addText = (
     const lineCnt = lines.length;
     const lineHeight = glyphAtlas.lineHeight;
 
-    let ty = ((glyphAtlas.baselineOffset - offsetY) + (lineCnt - 1) * lineHeight * .5) * OFFSET_SCALE;
+    let ty = (glyphAtlas.baselineOffset + (lineCnt - 1) * lineHeight * .5) * OFFSET_SCALE;
 
     cx *= EXTENT_SCALE;
     cy *= EXTENT_SCALE;
 
+    // make sure rotation is 0->360 deg
+    rotation = (rotation + 360) % 360;
+
     for (let text of lines) {
         let i = vertex.length;
         const textData = createTextData(text, glyphAtlas, rotation, offsets, texcoord);
-        const tx = (textData.width * glyphAtlas.scale / 2 - offsetX) * OFFSET_SCALE;
+        const tx = textData.width * glyphAtlas.scale / 2 * OFFSET_SCALE;
         const vertexCnt = textData.count * 2;
 
         vertex.reserve(vertexCnt);
