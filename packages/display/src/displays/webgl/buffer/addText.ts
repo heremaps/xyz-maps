@@ -21,7 +21,7 @@ import {createTextData, OFFSET_SCALE} from './createText';
 import {GlyphAtlas} from '../GlyphAtlas';
 import {FlexArray} from './templates/FlexArray';
 
-const EXTENT_SCALE = 32;
+const EXTENT_SCALE = 64;
 const DEFAULT_LINE_WRAP = 14;
 
 export const wrapText = (text: string, textWrap?: number): string[] => {

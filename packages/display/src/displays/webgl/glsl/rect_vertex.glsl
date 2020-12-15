@@ -15,7 +15,7 @@ uniform vec2 u_resolution;
 varying vec2 vSize;
 varying vec2 vDir;
 
-const float EXTENT_SCALE = 1.0 / 16.0; // 8912 ->512
+const float EXTENT_SCALE = 1.0 / 32.0; // 8912->512
 
 void main(void){
     // LSB is direction/normal vector [-1,+1]

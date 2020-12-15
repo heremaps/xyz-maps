@@ -18,14 +18,13 @@
  */
 
 import MVTTileLoader from '../../loaders/MVT/MVTWorkerLoader';
-// import MVTTileLoader from '../../loaders/MVTTileLoader';
 import {Feature} from '../../features/Feature';
 import {GeoJSONGeometryType} from '../../features/GeoJSON';
 
 import mvtToGeoJSON from './toGeojson';
 import {JSUtils, Queue} from '@here/xyz-maps-common';
 
-import {Tile} from '../../tile/Tile';
+import {MVTTile} from './MVTTile';
 import {RemoteTileProvider} from '../RemoteTileProvider/RemoteTileProvider'; // => no global tree (tile-tree)!
 // import GeoJsonProvider from '../GeoJSONProvider'; // global tree!
 
@@ -38,37 +37,6 @@ class MvtFeature extends Feature {
     }
 }
 
-// @ts-ignore
-window.prjTimeTotal = 0;
-
-class MVTTile extends Tile {
-    private s: number;
-
-    constructor(quadkey: string, type: string, clipped: boolean, expire?: number) {
-        super(quadkey, type, clipped, expire);
-        this.s = (1 << this.z);
-    }
-
-    lon2x(x: number, width: number = 256) {
-        // const size = 1 << this.z;
-        // const tileX = this.x / size;
-        // return (x-tileX) * 512 * size;
-        return Math.round((x * this.s - this.x) * width);
-
-        // if(x==0.25)console.log(x,'->',_x,this.x);
-    }
-
-    lat2y(y: number, height: number = 256) {
-        // const size = 1 << this.z;
-        // const tileY = this.y / size;
-        // return (y - tileY) * 512 * size;
-        return Math.round((y * this.s - this.y) * height);
-    }
-
-    isInside(point) {
-        return true;
-    }
-}
 
 export class MVTProvider extends RemoteTileProvider {
     private c = null; // cached copyright data
