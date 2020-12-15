@@ -21,7 +21,7 @@ import {tile} from '@here/xyz-maps-core';
 
 type Point = [number, number, number?];
 
-const extentScale = 32;
+const extentScale = 16;
 
 export const addPoint = (vertex: number[], coordinates: Point, tile: tile.Tile, tileSize: number): number => {
     const v = vertex.length;
