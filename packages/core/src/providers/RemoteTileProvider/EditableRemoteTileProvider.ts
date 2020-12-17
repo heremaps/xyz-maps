@@ -110,7 +110,7 @@ export abstract class EditableRemoteTileProvider extends EditableFeatureProvider
         provider.loader = loader;
 
         const {preProcessor} = config;
-        provider.preprocess = createRemoteProcessor(preProcessor||config.preprocessor);
+        provider.preprocess = createRemoteProcessor(preProcessor || config.preprocessor);
         provider.postprocess = createRemoteProcessor(config.postProcessor);
 
         if (provider.commit) {
@@ -138,7 +138,11 @@ export abstract class EditableRemoteTileProvider extends EditableFeatureProvider
                     features.remove = prepareFeatures(features.remove || []);
 
                     if (isPostprocessor(postProcessor)) {
-                        provider.postprocess(features, (data) => commit.call(this, data, onSuccess, onError));
+                        let send;
+                        provider.postprocess(features, (data) => {
+                            send = commit.call(this, data, onSuccess, onError);
+                        });
+                        return send;
                     }
                 }
 
