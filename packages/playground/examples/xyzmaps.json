@@ -179,7 +179,7 @@
 						"docs":"here.xyz.maps.editor.features.Navlink.html#prop"
 					},
 					{
-						"description":"Transform a Navlink",
+						"description":"Transform a Line",
 						"file":"./editor/transform_road.htm",
 						"docs": "here.xyz.maps.editor.features.Feature.html#transform"
 					},
@@ -263,6 +263,11 @@
 						"file":"./layer/style_navlink.htm",
 						"docs":"here.xyz.maps.layers.TileLayer.html#setStyleGroup"
 					},
+                    {
+                        "description":"Display lines with offset",
+                        "file":"./layer/offset_line.htm",
+                        "docs":"here.xyz.maps.layers.TileLayer.Style.html#offset"
+                    },
 					{
 						"description":"Display links by different style groups",
 						"file":"./layer/style_grouping.htm",

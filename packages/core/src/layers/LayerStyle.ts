@@ -417,7 +417,7 @@ import {ILayerStyle, StyleGroup, StyleGroupMap} from './ILayerStyle';
 
 /**
  *  Offset a line to the left or right side in pixel.
- *  A positive values offsets to the left side, a negative value offsets to the right.
+ *  A positive values offsets to the right side, a negative value offsets to the left.
  *  The side is defined relative to the direction of the line geometry.
  *  Applies to Line style only.
  *
