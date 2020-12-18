@@ -430,6 +430,44 @@ import {ILayerStyle, StyleGroup, StyleGroupMap} from './ILayerStyle';
 // offset: null,
 
 /**
+ *  Define the start position of a segment of the entire line in %.
+ *  A Segment allows to display and style parts of the entire line individually.
+ *  The value must be between 0 and 1.
+ *  The Default is 0.
+ *  Applies to Line style only.
+ *
+ *  eg:
+ *     0.0 -> 0%, the segment has the same starting point as the entire line
+ *     0.5 -> 50%, the segment starts in the middle of the entire line
+ *
+ *  @public
+ *  @expose
+ *  @optional
+ *  @name here.xyz.maps.layers.TileLayer.Style#start
+ *  @type number
+ */
+// start: null,
+
+/**
+ *  Define the stop position of a segment of the entire line in %.
+ *  A Segment allows to display and style parts of the entire line individually.
+ *  The value must be between 0 and 1.
+ *  The Default is 1.
+ *  Applies to Line style only.
+ *
+ *  eg:
+ *     0.5 -> 50%, the segment ends in the middle of the entire line
+ *     1.0 -> 100%, the segment has the same end point as the entire line
+ *
+ *  @public
+ *  @expose
+ *  @optional
+ *  @name here.xyz.maps.layers.TileLayer.Style#stop
+ *  @type number
+ */
+// stop: null,
+
+/**
  *  Offset value on X axis. It is valid for Circle, Rect, Text and Image.
  *
  *  @public
