@@ -168,4 +168,49 @@ describe('get objects', function() {
 
         expect(o.feature).to.deep.include({id: 'Line'});
     });
+
+    it('validate drawing order Polygon (zLayer)', () => {
+        // move line to top
+        testLayer.setStyleGroup(testLayer.search('Polygon'), [{
+            type: 'Polygon',
+            zIndex: 2,
+            zLayer: 10,
+            fill: 'black',
+            opacity: .5
+        }]);
+
+        let o = display.getFeatureAt({x: 300, y: 300});
+
+        expect(o.feature).to.deep.include({id: 'Polygon'});
+    });
+
+    it('validate drawing order Point (zLayer)', () => {
+        // move point to top
+        testLayer.setStyleGroup(testLayer.search('Point'), [{
+            type: 'Circle',
+            zIndex: 1,
+            fill: 'blue',
+            zLayer: 11,
+            radius: 20
+        }]);
+
+        let o = display.getFeatureAt({x: 300, y: 300});
+
+        expect(o.feature).to.deep.include({id: 'Point'});
+    });
+
+    it('validate drawing order Line (zLayer)', () => {
+        // move line to top
+        testLayer.setStyleGroup(testLayer.search('Line'), [{
+            type: 'Line',
+            zIndex: 0,
+            zLayer: 12,
+            stroke: 'green',
+            strokeWidth: 16
+        }]);
+
+        let o = display.getFeatureAt({x: 300, y: 300});
+
+        expect(o.feature).to.deep.include({id: 'Line'});
+    });
 });
