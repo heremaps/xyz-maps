@@ -17,7 +17,7 @@
  * License-Filename: LICENSE
  */
 
-import {getMaxZLevel, getPixelSize, getStrokeWidth, StyleGroup} from '../displays/styleTools';
+import {getMaxZoom, getPixelSize, getStrokeWidth, StyleGroup} from '../displays/styleTools';
 
 
 type Point = [number, number, number?];
@@ -168,7 +168,7 @@ class Hit {
                 );
             }
         } else if (geoType == 'LineString') {
-            dimensions = dimensions || getStrokeWidth(featureStyle, feature, zoomlevel);
+            dimensions = dimensions || getStrokeWidth(featureStyle, feature, zoomlevel, layerIndex);
 
             let width = dimensions[0];
             let cLen = coordinates.length;
@@ -195,7 +195,7 @@ class Hit {
             let pointGeo = map.pixelToGeo(x, y);
 
             if (hit = pointInPolygon(pointGeo.longitude, pointGeo.latitude, <Point[][]>exterior)) {
-                dimensions = dimensions || [getMaxZLevel(featureStyle, feature, zoomlevel)];
+                dimensions = dimensions || [getMaxZoom(featureStyle, feature, zoomlevel, layerIndex)];
             }
         } else {
             let baseType;
@@ -203,13 +203,13 @@ class Hit {
 
             if (geoType == 'MultiPolygon') {
                 baseType = 'Polygon';
-                dimensions = [getMaxZLevel(featureStyle, feature, zoomlevel)];
+                dimensions = [getMaxZoom(featureStyle, feature, zoomlevel, layerIndex)];
             } else if (geoType == 'MultiPoint') {
                 baseType = 'Point';
                 dimensions = getPixelSize(featureStyle, feature, zoomlevel, layerIndex);
             } else if (geoType == 'MultiLineString') {
                 baseType = 'LineString';
-                dimensions = getStrokeWidth(featureStyle, feature, zoomlevel);
+                dimensions = getStrokeWidth(featureStyle, feature, zoomlevel, layerIndex);
             }
 
             if (baseType) {

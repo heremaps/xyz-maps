@@ -47,7 +47,9 @@ interface Style {
     rotation?: number;
     priority?: number;
     repeat?: number;
-    collide?: boolean
+    offset?: number | styleNumberFunction;
+    start?: number | styleNumberFunction;
+    stop?: number | styleNumberFunction;
 }
 
 const allowedProperties = {
@@ -68,7 +70,10 @@ const allowedProperties = {
     'rotation': 1,
     'priority': 1,
     'repeat': 1,
-    'collide': 1
+    'collide': 1,
+    'offset': 1,
+    'start': 1,
+    'stop': 1
 };
 
 type StyleGroup = Array<Style>;
@@ -81,28 +86,46 @@ const getValue = (name: string, style: Style, feature: Feature, zoom: number) =>
         : value;
 };
 
-const getStrokeWidth = (groups: StyleGroup, feature: Feature, zoom: number): [number, number] => {
+const getAbsZ = (style: Style, feature: Feature, zoom: number, layerIndex: number) => {
+    let z = getValue('zIndex', style, feature, zoom);
+    let zLayer = getValue('zLayer', style, feature, zoom);
+
+    if (typeof zLayer != 'number') {
+        zLayer = layerIndex + 1;
+    }
+    return zLayer * 1e6 + z;
+};
+
+const getMaxZoom = (styles: StyleGroup, feature, zoom: number, layerIndex: number) => {
+    let maxZ = 0;
+    for (let style of styles) {
+        let z = getAbsZ(style, feature, zoom, layerIndex);
+        if (z > maxZ) {
+            maxZ = z;
+        }
+    }
+    return maxZ;
+};
+
+
+const getStrokeWidth = (groups: StyleGroup, feature: Feature, zoom: number, layerIndex: number): [number, number] => {
     let width = 0;
     let maxZ = 0;
-    let w;
-    let z;
     let grp;
 
     for (let s = 0; s < groups.length; s++) {
         grp = groups[s];
 
-        z = getValue('zIndex', grp, feature, zoom);
+        let z = getAbsZ(grp, feature, zoom, layerIndex);
         if (z > maxZ) {
             maxZ = z;
         }
 
-        w = getValue('strokeWidth', grp, feature, zoom) || 1;
-
+        let w = getValue('strokeWidth', grp, feature, zoom) || 1;
         if (w > width) {
             width = w;
         }
     }
-
     return [width, maxZ];
 };
 // uses for point geometries only
@@ -121,25 +144,19 @@ const getPixelSize = (groups: StyleGroup, feature: Feature, zoom: number, layerI
     let x2;
     let y1;
     let y2;
-    let z;
     let text;
     let a;
-    let zLayer;
+
 
     for (let s = 0; s < groups.length; s++) {
-        z = getValue('zIndex', groups[s], feature, zoom);
-        zLayer = getValue('zLayer', groups[s], feature, zoom);
+        style = groups[s];
 
-        if (typeof zLayer != 'number') {
-            zLayer = layerIndex + 1;
-        }
-        z = zLayer * 1e6 + z;
+        let z = getAbsZ(style, feature, zoom, layerIndex);
 
         if (z > maxZ) {
             maxZ = z;
         }
 
-        style = groups[s];
         type = getValue('type', style, feature, zoom);
 
         if ( // it's not a picture..
@@ -164,14 +181,8 @@ const getPixelSize = (groups: StyleGroup, feature: Feature, zoom: number, layerI
                 continue;
             }
 
-
             a = measure(style.font || defaultFont);
-
-            // var a = 6.678;
-
-            // w = 16;
             w = a * text.length;
-
             h = 14;
         } else {
             sw = getValue('strokeWidth', style, feature, zoom) || 1;
@@ -181,22 +192,16 @@ const getPixelSize = (groups: StyleGroup, feature: Feature, zoom: number, layerI
                 h = w;
             } else {
                 w = getValue('width', style, feature, zoom) ^ 0;
-
                 h = getValue('height', style, feature, zoom);
-
                 h = h == UNDEF ? w : h ^ 0;
             }
 
-
             h = h + sw;
-
             w += sw;
         }
 
         x1 = (getValue('offsetX', style, feature, zoom) ^ 0) - (w * .5);
-        // x1 = (style['offsetX'] ^ 0) - (w * .5);
         x2 = x1 + w;
-
 
         if (x1 < minX) {
             minX = x1;
@@ -205,11 +210,8 @@ const getPixelSize = (groups: StyleGroup, feature: Feature, zoom: number, layerI
             maxX = x2;
         }
 
-
         y1 = (getValue('offsetY', style, feature, zoom) ^ 0) - (h * .5);
-        // y1 = (style['offsetY'] ^ 0) - (h * .5);
         y2 = y1 + h;
-
 
         if (y1 < minY) {
             minY = y1;
@@ -265,21 +267,6 @@ const merge = (style0: StyleGroup, style: StyleGroup): StyleGroup | null => {
 
 const isStyle = (style: Style): Boolean => {
     return style.type && style.zIndex != UNDEF;
-};
-
-const getMaxZLevel = (styles: StyleGroup, feature, level: number) => {
-    let maxZ = 0;
-    let z;
-
-    for (let s = 0; s < styles.length; s++) {
-        z = getValue('zIndex', styles[s], feature, level);
-
-        if (z > maxZ) {
-            maxZ = z;
-        }
-    }
-
-    return maxZ;
 };
 
 
@@ -358,4 +345,4 @@ const parseStyleGroup = (styleGroup: Style[]) => {
 };
 
 
-export {getValue, getStrokeWidth, getPixelSize, merge, isStyle, getMaxZLevel, parseStyleGroup, StyleGroup, Style};
+export {getValue, getStrokeWidth, getPixelSize, merge, isStyle, getMaxZoom, parseStyleGroup, StyleGroup, Style};
