@@ -490,7 +490,9 @@ export class FeatureFactory {
                         strokeLinecap,
                         strokeLinejoin,
                         strokeWidth,
-                        offsetY
+                        offsetY,
+                        getValue('start', style, feature, level),
+                        getValue('stop', style, feature, level)
                     );
                 } else if (type == 'Circle' || type == 'Rect') {
                     if (!group.buffer) {

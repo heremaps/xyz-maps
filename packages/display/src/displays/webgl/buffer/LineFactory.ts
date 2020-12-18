@@ -30,7 +30,7 @@ type Tile = tile.Tile;
 const DEFAULT_MIN_TEXT_REPEAT = 256;
 let UNDEF;
 
-export type PixelCoordinateCache = { data: Float32Array, length: number };
+export type PixelCoordinateCache = { data: Float32Array, length: number, lineLength: number };
 
 export class LineFactory {
     private dashes: DashAtlas;
@@ -50,6 +50,7 @@ export class LineFactory {
         const {pixels, decimals} = this;
         if (!this.prjCoords) {
             let t = 0;
+            let lineLength = 0;
             for (let c = 0, length = coordinates.length, x, y, _x, _y; c < length; c++) {
                 x = tile.lon2x(coordinates[c][0], tileSize);
                 y = tile.lat2y(coordinates[c][1], tileSize);
@@ -60,13 +61,21 @@ export class LineFactory {
                 ) {
                     pixels[t++] = x;
                     pixels[t++] = y;
+
+                    if (t > 2) {
+                        const dx = _x - x;
+                        const dy = _y - y;
+                        lineLength += Math.sqrt(dx * dx + dy * dy);
+                    }
                 }
                 _x = x;
                 _y = y;
             }
+
             this.prjCoords = {
                 data: pixels,
-                length: t
+                length: t,
+                lineLength: lineLength
             };
         }
         return this.prjCoords;
@@ -89,7 +98,9 @@ export class LineFactory {
         strokeLinecap: Cap,
         strokeLinejoin: Join,
         strokeWidth: number,
-        offset?: number
+        offset?: number,
+        start?: number,
+        stop?: number
     ) {
         if (strokeDasharray) {
             group.texture = this.dashes.get(strokeDasharray);
@@ -112,7 +123,9 @@ export class LineFactory {
             strokeLinejoin,
             strokeWidth,
             strokeDasharray && groupBuffer.attributes.a_lengthSoFar.data,
-            offset
+            offset,
+            start,
+            stop
         );
     }
 
