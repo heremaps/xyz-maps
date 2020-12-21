@@ -24,7 +24,7 @@ import {PixelCoordinateCache} from './LineFactory';
 import {FlexAttribute} from './templates/TemplateBuffer';
 import {addText} from './addText';
 import {FlexArray} from './templates/FlexArray';
-import {rotate} from '../../../geometry';
+import {getRotatedBBox, rotate} from '../../../geometry';
 
 type Tile = tile.Tile;
 
@@ -99,26 +99,14 @@ const addLineText = (
             }
             if (Math.floor(lineWidth / labelWidth) > 0) {
                 let alpha = Math.atan2(dy, dx);
-                const halfLabelWidth = labelWidth * .5;
-                const halfLabelHeight = glyphAtlas.lineHeight * .5;
-
-                const r1 = rotate(-halfLabelWidth, -halfLabelHeight, cx, cy, alpha);
-                const r2 = rotate(halfLabelWidth, halfLabelHeight, cx, cy, alpha);
-                const r3 = rotate(-halfLabelWidth, halfLabelHeight, cx, cy, alpha);
-                const r4 = rotate(halfLabelWidth, -halfLabelHeight, cx, cy, alpha);
-
-                const minX = Math.min(r1[0], r2[0], r3[0], r4[0]);
-                const maxX = Math.max(r1[0], r2[0], r3[0], r4[0]);
-                const minY = Math.min(r1[1], r2[1], r3[1], r4[1]);
-                const maxY = Math.max(r1[1], r2[1], r3[1], r4[1]);
-
-                const labelDx = (maxX - minX) * .5;
-                const labelDy = (maxY - minY) * .5;
 
                 if (dir == -1) {
                     alpha += Math.PI;
                 }
 
+                const bbox = getRotatedBBox(alpha, labelWidth, glyphAtlas.lineHeight, cx, cy);
+                const labelDx = (bbox[2] - bbox[0]) * .5;
+                const labelDy = (bbox[3] - bbox[1]) * .5;
                 const center = rotate(cx + offsetX, cy + offsetY, cx, cy, alpha);
 
                 const bufferStart = point.length;

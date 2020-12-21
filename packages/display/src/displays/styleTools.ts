@@ -20,6 +20,7 @@
 import {createTxtRef, measure, defaultFont} from './fontCache';
 import {features} from '@here/xyz-maps-core';
 import {toRGB} from './webgl/color';
+import {getRotatedBBox} from '../geometry';
 
 const INFINITY = Infinity;
 let UNDEF;
@@ -161,9 +162,9 @@ const getPixelSize = (groups: StyleGroup, feature: Feature, zoom: number, layerI
 
         if ( // it's not a picture..
             type != 'Image' &&
-            // .. and no fill is defined
-            !getValue('fill', style, feature, zoom)
-            // !style.fill
+                // .. and no fill is defined
+                !getValue('fill', style, feature, zoom)
+                // !style.fill
         ) {
             // -> it's not visible!
             continue;
@@ -200,24 +201,36 @@ const getPixelSize = (groups: StyleGroup, feature: Feature, zoom: number, layerI
             w += sw;
         }
 
-        x1 = (getValue('offsetX', style, feature, zoom) ^ 0) - (w * .5);
-        x2 = x1 + w;
+        let offsetX = getValue('offsetX', style, feature, zoom) ^ 0;
+        let offsetY = getValue('offsetY', style, feature, zoom) ^ 0;
+        let rotation = type != 'Circle' && getValue('rotation', style, feature, zoom) ^ 0;
 
-        if (x1 < minX) {
-            minX = x1;
-        }
-        if (x2 > maxX) {
-            maxX = x2;
-        }
+        if (rotation) {
+            const bbox = getRotatedBBox(rotation, w, h, offsetX, offsetY);
+            minX = bbox[0];
+            minY = bbox[1];
+            maxX = bbox[2];
+            maxY = bbox[3];
+        } else {
+            x1 = offsetX - (w * .5);
+            x2 = x1 + w;
 
-        y1 = (getValue('offsetY', style, feature, zoom) ^ 0) - (h * .5);
-        y2 = y1 + h;
+            if (x1 < minX) {
+                minX = x1;
+            }
+            if (x2 > maxX) {
+                maxX = x2;
+            }
 
-        if (y1 < minY) {
-            minY = y1;
-        }
-        if (y2 > maxY) {
-            maxY = y2;
+            y1 = offsetY - (h * .5);
+            y2 = y1 + h;
+
+            if (y1 < minY) {
+                minY = y1;
+            }
+            if (y2 > maxY) {
+                maxY = y2;
+            }
         }
     }
 
@@ -234,7 +247,8 @@ const getPixelSize = (groups: StyleGroup, feature: Feature, zoom: number, layerI
             maxZ
         ];
     }
-};
+}
+;
 
 
 const merge = (style0: StyleGroup, style: StyleGroup): StyleGroup | null => {

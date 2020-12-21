@@ -19,10 +19,8 @@
 
 import {getMaxZoom, getPixelSize, getStrokeWidth, StyleGroup} from '../displays/styleTools';
 
-
 type Point = [number, number, number?];
 type Coordinates = Point | Point[] | Point[][] | Point[][][];
-
 
 const isPointInBox = (ax: number, ay: number, bx: number, bx2: number, by: number, by2: number): boolean => {
     return (
@@ -71,47 +69,24 @@ const pointToLineDistance = (x: number, y: number, x1: number, y1: number, x2: n
 const pointInPolygon = (x: number, y: number, poly: Point[][]): boolean => {
     // ray-casting algorithm based on
     // http://www.ecse.rpi.edu/Homepages/wrf/Research/Short_Notes/pnpoly.html
-
-    // var x = point[0],
-    //     y = point[1];
-
     let inside = false;
     let xi;
     let xj;
     let yi;
     let yj;
 
-    for (
-        let i = 0,
-            j = poly.length - 1;
-
-        i < poly.length;
-
-        j = i++
-    ) {
-        // var pi = map.geoToPixel( poly[i][0], poly[i][1] );
-        // var pj = map.geoToPixel( poly[j][0], poly[j][1] );
-        // xi = pi.x;
-        // yi = pi.y;
-        // xj = pj.x;
-        // yj = pj.y;
-
+    for (let i = 0, j = poly.length - 1; i < poly.length; j = i++) {
         xi = poly[i][0];
         yi = poly[i][1];
         xj = poly[j][0];
         yj = poly[j][1];
 
-
-        if (
-            ((yi > y) != (yj > y)) && (x < (xj - xi) * (y - yi) / (yj - yi) + xi)
-        ) {
+        if (((yi > y) != (yj > y)) && (x < (xj - xi) * (y - yi) / (yj - yi) + xi)) {
             inside = !inside;
         }
     }
     return inside;
 };
-
-//* *********************************************************************************************************************
 
 
 class Hit {
@@ -162,10 +137,7 @@ class Hit {
                 let x2 = Math.round(pixel.x + dimensions[2]);
                 let y2 = Math.round(pixel.y + dimensions[3]);
 
-                hit = isPointInBox(
-                    x, y,
-                    x1, x2, y1, y2
-                );
+                hit = isPointInBox(x, y, x1, x2, y1, y2);
             }
         } else if (geoType == 'LineString') {
             dimensions = dimensions || getStrokeWidth(featureStyle, feature, zoomlevel, layerIndex);

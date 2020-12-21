@@ -74,6 +74,31 @@ export const rotate = (x: number, y: number, originX: number, originY: number, a
     ];
 };
 
+export const getRotatedBBox = (
+    rotation: number,
+    width: number,
+    height: number,
+    cx = 0,
+    cy = 0
+): [number, number, number, number] => {
+    width *= .5;
+    height *= .5;
+    const minX = cx - width;
+    const maxX = cx + width;
+    const minY = cy - height;
+    const maxY = cy + height;
+    const r1 = rotate(minX, minY, cx, cy, rotation);
+    const r2 = rotate(maxX, maxY, cx, cy, rotation);
+    const r3 = rotate(minX, maxY, cx, cy, rotation);
+    const r4 = rotate(maxX, minY, cx, cy, rotation);
+    return [
+        Math.min(r1[0], r2[0], r3[0], r4[0]),
+        Math.min(r1[1], r2[1], r3[1], r4[1]),
+        Math.max(r1[0], r2[0], r3[0], r4[0]),
+        Math.max(r1[1], r2[1], r3[1], r4[1])
+    ];
+};
+
 export const isInBox = (x: number, y: number, xmin: number, ymin: number, xmax: number, ymax: number): boolean => {
     return x > xmin && x < xmax && y > ymin && y < ymax;
 };
