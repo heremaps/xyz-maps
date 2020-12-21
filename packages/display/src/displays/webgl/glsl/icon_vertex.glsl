@@ -1,6 +1,6 @@
 precision lowp float;
 
-attribute vec2 a_point;
+attribute vec2 a_size;
 attribute highp vec2 a_position;
 attribute vec2 a_texcoord;
 
@@ -35,11 +35,11 @@ void main(void){
     mat2 mRotate = mat2(rotCos, -rotSin, rotSin, rotCos);
 
     if (u_alignMap){
-        vec2 shift = (u_offset + dir * vec2(a_point.x, -a_point.y) * mRotate) / u_scale;
+        vec2 shift = (u_offset + dir * vec2(a_size.x, -a_size.y) * 0.5 * mRotate) / u_scale;
         gl_Position = u_matrix * vec4(u_topLeft + pos + shift, 0.0, 1.0);
     } else {
         vec4 cpos = u_matrix * vec4(u_topLeft + pos, 0.0, 1.0);
-        vec2 shift = dir * a_point / 2.0 * mRotate;
+        vec2 shift = dir * a_size * 0.5 * mRotate;
         vec2 offset = vec2(u_offset.x, -u_offset.y);
         gl_Position = vec4(cpos.xy / cpos.w + (offset + shift) / u_resolution * 2.0, 0.0, 1.0);
     }

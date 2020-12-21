@@ -456,7 +456,7 @@ export class FeatureFactory {
                             img,
                             width,
                             height,
-                            attributes.a_point.data,
+                            attributes.a_size.data,
                             attributes.a_position.data,
                             attributes.a_texcoord.data,
                             coordinates,

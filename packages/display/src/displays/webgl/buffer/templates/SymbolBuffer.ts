@@ -25,13 +25,11 @@ export class SymbolBuffer extends TemplateBuffer {
         super(false);
 
         this.attributes = {
-            // vertex
             a_position: {
                 data: new FlexArray(Int16Array),
                 size: 2
             },
-            // point
-            a_point: {
+            a_size: {
                 data: new FlexArray(Uint8Array),
                 size: 2
             },
