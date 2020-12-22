@@ -148,7 +148,6 @@ const getPixelSize = (groups: StyleGroup, feature: Feature, zoom: number, layerI
     let text;
     let a;
 
-
     for (let s = 0; s < groups.length; s++) {
         style = groups[s];
 
@@ -207,30 +206,29 @@ const getPixelSize = (groups: StyleGroup, feature: Feature, zoom: number, layerI
 
         if (rotation) {
             const bbox = getRotatedBBox(rotation, w, h, offsetX, offsetY);
-            minX = bbox[0];
-            minY = bbox[1];
-            maxX = bbox[2];
-            maxY = bbox[3];
+            x1 = bbox[0];
+            y1 = bbox[1];
+            x2 = bbox[2];
+            y2 = bbox[3];
         } else {
             x1 = offsetX - (w * .5);
             x2 = x1 + w;
 
-            if (x1 < minX) {
-                minX = x1;
-            }
-            if (x2 > maxX) {
-                maxX = x2;
-            }
-
             y1 = offsetY - (h * .5);
             y2 = y1 + h;
+        }
 
-            if (y1 < minY) {
-                minY = y1;
-            }
-            if (y2 > maxY) {
-                maxY = y2;
-            }
+        if (x1 < minX) {
+            minX = x1;
+        }
+        if (x2 > maxX) {
+            maxX = x2;
+        }
+        if (y1 < minY) {
+            minY = y1;
+        }
+        if (y2 > maxY) {
+            maxY = y2;
         }
     }
 
