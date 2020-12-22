@@ -491,8 +491,8 @@ export class FeatureFactory {
                         strokeLinejoin,
                         strokeWidth,
                         offsetY,
-                        getValue('start', style, feature, level),
-                        getValue('stop', style, feature, level)
+                        getValue('from', style, feature, level),
+                        getValue('to', style, feature, level)
                     );
                 } else if (type == 'Circle' || type == 'Rect') {
                     if (!group.buffer) {

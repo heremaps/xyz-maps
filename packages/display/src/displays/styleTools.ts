@@ -73,8 +73,8 @@ const allowedProperties = {
     'repeat': 1,
     'collide': 1,
     'offset': 1,
-    'start': 1,
-    'stop': 1
+    'from': 1,
+    'to': 1
 };
 
 type StyleGroup = Array<Style>;
