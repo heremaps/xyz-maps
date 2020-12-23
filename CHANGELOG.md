@@ -1,3 +1,24 @@
+## 0.19.0 (2020-12-23)
+### editor
+* improved: zoneSelector is still active and visible after mapview change
+* improved: updated zoneSelector styling and improved customization
+* fixed: display correct Zone offset positions in all cases
+* fixed: Zone Markers are not draggable in some cases
+### core
+* fixed: data will be send twice if a remote postProcessor is used.
+### display
+* added: line geometries can now be split into several segments and styled individually. usage: style.from/to=number[0-1] (0-100%)
+* added: Support to display lines offset to the left or right side. use: style.offset=number. positive/negative values offsets in pixel to the left/right side (relative to line direction)
+* improved: crisp icon rendering
+* improved: Image tiles are rendered more sharply
+* fixed: proper pointer-event triggering for offset point-styles
+* fixed: map aligned icons are displayed with double size
+* fixed: trigger pointer-events for lines and polygons correctly in all cases
+* fixed: point data of MVT datasources that`s located outside of the actual tile boundaries might be placed incorrectly
+* fixed: rotated text can be invisible
+* fixed: offset text can be placed incorrectly if map is rotated
+* fixed: label collision detection for offset text
+
 ## 0.18.0 (2020-12-7)
 ### display
 * added: support for right to left text and arabic contextual forms
