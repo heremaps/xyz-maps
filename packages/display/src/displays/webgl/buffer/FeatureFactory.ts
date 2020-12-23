@@ -232,7 +232,7 @@ export class FeatureFactory {
                     // store line offset in shared offsetXY
                     offsetX = offsetY = getValue('offset', style, feature, level) ^ 0;
 
-                    groupId = 'L' + strokeLinecap + strokeLinejoin + (strokeDasharray || NONE);
+                    groupId = 'L' + offsetX + strokeLinecap + strokeLinejoin + (strokeDasharray || NONE);
                 } else {
                     fill = getValue('fill', style, feature, level);
 
