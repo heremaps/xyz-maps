@@ -19,20 +19,45 @@
 
 import {getPointAtLength, getTotalLength, getSegmentIndex} from '../../geometry';
 import {calcRelPosOfPoiAtLink, getRelPosOfPointOnLine} from '../../map/GeoMath';
-import {geotools} from '@here/xyz-maps-common';
-import {features} from '@here/xyz-maps-core';
-import {layers} from '@here/xyz-maps-core/';
+import {features, layers, projection} from '@here/xyz-maps-core';
+import {JSUtils} from '@here/xyz-maps-common';
+import MultiLink from './MultiLink';
 
-function getPointAtLink(line, relPos) {
-    const coords = line.coord();
-    return getPointAtLength(coords, getTotalLength(coords) * relPos);
+const {webMercator} = projection;
+
+
+function getPointAtLine(
+    line: MultiLink,
+    position: number | { longitude: number, latitude: number }
+): { coordinate: [number, number], offset: number } {
+    const prjCoords = line.coord().map((c) => {
+        let pixel = webMercator.geoToPixel(c[0], c[1], 1);
+        return [pixel.x, pixel.y];
+    });
+    let offset;
+
+    if (typeof position == 'number') {
+        offset = position;
+    } else {
+        // absolute projected position
+        let wgsPixel = webMercator.geoToPixel(position.longitude, position.latitude, 1);
+        offset = calcRelPosOfPoiAtLink(prjCoords, [wgsPixel.x, wgsPixel.y]).offset;
+    }
+
+    const point = getPointAtLength(prjCoords, getTotalLength(prjCoords) * offset);
+    const geo = webMercator.pixelToGeo(point[0], point[1], 1);
+
+    return {
+        coordinate: [geo.longitude, geo.latitude],
+        offset: offset
+    };
 }
 
-class Marker extends features.Feature {
+class ZoneMarker extends features.Feature {
     private isLocked: () => boolean;
     private onDrag: () => void;
     private onDragEnd: () => void;
-    private ml: any;
+    private ml: MultiLink;
 
     properties: {
         style: any;
@@ -41,24 +66,25 @@ class Marker extends features.Feature {
         relPos: number;
     }
 
-    constructor(overlay: layers.TileLayer, multiLink, side: string, relPos: number, style, isLocked, onDrag, onDragEnd) {
+    constructor(overlay: layers.TileLayer, multiLink, side: string, relPos: number, styleGroup, isLocked, onDrag, onDragEnd) {
+        styleGroup = JSUtils.clone(styleGroup);
+
+        for (let style of styleGroup) {
+            style._offsetX = style.offsetX || 0;
+            style._offsetY = style.offsetY || 0;
+        }
+        const {coordinate} = getPointAtLine(multiLink, relPos);
+
         super({
             properties: {
                 relPos: relPos,
                 side: side.toUpperCase(),
                 dragged: false,
-                style: [{
-                    zIndex: 110,
-                    type: 'Rect',
-                    fill: style.stroke,
-                    opacity: style.opacity,
-                    width: 10,
-                    height: 30
-                }]
+                style: styleGroup
             },
             geometry: {
                 type: 'Point',
-                coordinates: getPointAtLink(multiLink, relPos)
+                coordinates: coordinate
             }
         });
 
@@ -69,49 +95,57 @@ class Marker extends features.Feature {
 
         overlay.addFeature(this, this.properties.style);
 
-        this.updatePosition(this.geometry.coordinates);
+        this.updatePosition(coordinate);
     }
 
-    updatePosition(pos) {
+    updatePosition(pos: [number, number]): [number, number] {
         const marker = this;
         const styleGroup = this.properties.style;
         const coords = this.ml.coord();
-        const style = styleGroup[0];
         const segment = <number>getSegmentIndex(coords, pos);
         const {properties} = marker;
         const {side} = properties;
-        let alpha = -geotools.calcBearing(coords[segment], coords[segment + 1]);
+        const p0 = coords[segment];
+        const p1 = coords[segment + 1];
+        const dx = p1[0] - p0[0];
+        const dy = p1[1] - p0[1];
+        const rotation = -Math.atan2(dy, dx) * 180 / Math.PI;
+        const len = Math.sqrt(dx * dx + dy * dy);
+        let nx = dy;
+        let ny = dx;
 
-        if (side == 'L') {
-            alpha += 180;
+        if (len) {
+            nx /= len;
+            ny /= len;
         }
-        style.rotation = alpha;
+        // if (side == 'L') alpha += 180;
 
-        if (side != 'B') {
-            alpha = Math.PI / 2 + alpha * Math.PI / 180.0;
+        for (let style of styleGroup) {
+            style.rotation = rotation;
 
-            style.offsetX = style.height / 2 * Math.cos(alpha);
-            style.offsetY = style.height / 2 * Math.sin(alpha);
+            if (side != 'B') {
+                let {_offsetX, _offsetY, lineOffset} = style;
+                _offsetY += lineOffset;
+
+                style.offsetX = nx * _offsetY + ny * _offsetX;
+                style.offsetY = ny * _offsetY + -nx * _offsetX;
+            }
         }
-
-        return pos.slice();
+        return <[number, number]>pos.slice();
     };
 
     pressmove(e) {
         const marker = this;
         if (!marker.isLocked()) {
-            const line = marker.ml.coord();
             const display = e.detail.display;
-            const geoPos = display.pixelToGeo(e.mapX, e.mapY);
-            const relPosAtLink = calcRelPosOfPoiAtLink(line, [geoPos.longitude, geoPos.latitude]);
-            const p = getPointAtLink(marker.ml, relPosAtLink.offset);
+            const position = getPointAtLine(marker.ml, display.pixelToGeo(e.mapX, e.mapY));
 
-            marker.properties.relPos = relPosAtLink.offset;
+            marker.properties.relPos = position.offset;
 
-            marker.getProvider().setFeatureCoordinates(marker, marker.updatePosition(p));
+            const coordinate = marker.updatePosition(position.coordinate);
+            marker.getProvider().setFeatureCoordinates(marker, coordinate);
 
             marker.onDrag();
-
             marker.properties.dragged = true;
         }
     };
@@ -150,4 +184,4 @@ class Marker extends features.Feature {
     };
 }
 
-export default Marker;
+export default ZoneMarker;

@@ -17,26 +17,73 @@
  * License-Filename: LICENSE
  */
 
-import SelectionMarker from './SelectionMarker';
+import ZoneMarker from './ZoneMarker';
 import {getSubpath, getTotalLength} from '../../geometry';
 import MultiLink from './MultiLink';
 import {Zone} from '../../API/EZoneSelector';
 import {features} from '@here/xyz-maps-core/';
 import Overlay from '../../features/Overlay';
 
+let UNDEF;
+const DEFAULT_STROKE = '#fff';
+const DEFAULT_FILL = {
+    L: '#ff4040',
+    R: '#4cdd4c',
+    B: '#35b2ee'
+};
+
+const createDefaultMarkerStyle = (stroke: string, fill: string, opacity: number, side: string) => {
+    let offsetY = side == 'R' ? 8 : side == 'L' ? -8 : 0;
+    return [{
+        zIndex: 110,
+        type: 'Rect',
+        fill: fill,
+        width: 2,
+        height: 20,
+        alignment: 'map',
+        offsetY: offsetY
+    }, {
+        zIndex: 111,
+        type: 'Circle',
+        fill: stroke,
+        radius: 7,
+        alignment: 'map',
+        stroke: fill,
+        strokeWidth: 1,
+        offsetY: 2.5 * offsetY
+    }, {
+        zIndex: 110,
+        type: 'Circle',
+        stroke: fill,
+        radius: 5,
+        alignment: 'map'
+    }];
+};
+
+const createDefaultLineStyle = (stroke: string, opacity: number = 0.75, side: string) => [{
+    'zIndex': 4,
+    'type': 'Line',
+    'strokeWidth': 9,
+    'opacity': opacity,
+    'stroke': stroke
+    // 'offset': side == 'R' ? 32 : side == 'L' ? -32 : 0,
+    // strokeLinejoin: 'bevel',
+    // strokeLinecap: 'butt'
+}];
+
 export class MultiZone {
     private _zone: Zone;
     private line: features.Feature;
-    private markers: SelectionMarker[];
+    private markers: ZoneMarker[];
     private overlay: Overlay;
     private ml: MultiLink;
+
+    private style;
 
     constructor(multiLink: MultiLink, overlay, _zone: Zone) {
         this._zone = _zone;
 
         const style = JSON.parse(JSON.stringify(_zone.style || {}));
-        const color = style.stroke = style.stroke || '#ff4040';
-        const opacity = style.opacity = style.opacity || 0.6;
 
         this.ml = multiLink;
 
@@ -47,37 +94,48 @@ export class MultiZone {
         };
 
         let side = _zone.side;
+        let {opacity, fill, stroke} = style;
 
-        this.line = overlay.addPath([[0, 0], [0, 0]], [{
-            'zIndex': 4,
-            'type': 'Line',
-            'strokeWidth': 9,
-            'opacity': opacity,
-            'stroke': color
-        }]);
 
-        this.markers = [
-            new SelectionMarker(
-                overlay,
-                multiLink,
-                side,
-                _zone['from'],
-                style,
-                () => this.locked(),
-                () => this.draw(),
-                onDragged
-            ),
-            new SelectionMarker(
-                overlay,
-                multiLink,
-                side,
-                _zone['to'],
-                style,
-                () => this.locked(),
-                () => this.draw(),
-                onDragged
-            )
-        ];
+        if (fill && !stroke) {
+            stroke = fill;
+            fill = false;
+        }
+        if (!fill) {
+            fill = stroke;
+            stroke = DEFAULT_STROKE;
+        }
+
+        fill = fill || DEFAULT_FILL[side];
+
+        let lineStyle = _zone.lineStyle || createDefaultLineStyle(fill, opacity, side);
+
+        this.line = overlay.addPath(multiLink.coord(), this.style = lineStyle);
+
+        let lineOffset = 0;
+        for (let style of lineStyle) {
+            lineOffset = style.offset || lineOffset;
+        }
+
+        let markerStyle = _zone.markerStyle || createDefaultMarkerStyle(fill, stroke, opacity, side);
+
+        for (let style of markerStyle) {
+            if (style.lineOffset == UNDEF) {
+                style.lineOffset = lineOffset;
+            }
+        }
+
+        this.markers = ['from', 'to'].map((pos) => new ZoneMarker(
+            overlay,
+            multiLink,
+            side,
+            _zone[pos],
+            markerStyle,
+            () => this.locked(),
+            () => this.draw(),
+            onDragged
+        ));
+
         this.overlay = overlay;
     }
 
@@ -94,8 +152,6 @@ export class MultiZone {
     draw() {
         let posM1 = this.markers[0].getRelPos();
         let posM2 = this.markers[1].getRelPos();
-        const coordinates = this.ml.coord();
-        const lenTotal = getTotalLength(coordinates);
 
         if (posM1 > posM2) {
             // flip
@@ -104,8 +160,11 @@ export class MultiZone {
             posM2 = lb;
         }
 
-        this.overlay.setFeatureCoordinates(this.line,
-            getSubpath(coordinates, posM1 * lenTotal, posM2 * lenTotal)
-        );
+        for (let style of this.style) {
+            style.from = posM1;
+            style.to = posM2;
+        }
+
+        this.overlay.layer.setStyleGroup(this.line, this.style);
     }
 }

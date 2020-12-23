@@ -88,11 +88,12 @@ describe('zone selector drag', function() {
         expect(info[0].segments[0]).to.deep.include({
             from: 0,
             reversed: false,
-            to: 0.16375143398281522
+            to: 0.1637100452467124
         });
+
         expect(info[0].segments[0].Link).to.deep.include({id: link2.id});
         expect(info[0].segments[1]).to.deep.include({
-            from: 0.35396979551181995,
+            from: 0.3539256586908887,
             reversed: false,
             to: 1
         });
@@ -105,9 +106,9 @@ describe('zone selector drag', function() {
             to: 0.8
         });
         expect(info[1].segments[0]).to.deep.include({
-            from: 0.30312619498806787,
+            from: 0.3030911095089283,
             reversed: false,
-            to: 0.7212504779966603
+            to: 0.7212357299650521
         });
         expect(info[1].segments[0].Link).to.deep.include({id: link2.id});
     });
@@ -116,8 +117,8 @@ describe('zone selector drag', function() {
         await drag(mapContainer, {x: 350, y: 217}, {x: 350, y: 250});
 
         expect(results2[0]).to.deep.include({
-            from: 0.4469427945920623,
-            to: 0.7212504779966603,
+            from: 0.4468834556921099,
+            to: 0.7212357299650521,
             reversed: false
         });
 
@@ -135,11 +136,11 @@ describe('zone selector drag', function() {
         expect(info[0].segments[0]).to.deep.include({
             from: 0,
             reversed: false,
-            to: 0.16375143398281522
+            to: 0.1637100452467124
         });
         expect(info[0].segments[0].Link).to.deep.include({id: link2.id});
         expect(info[0].segments[1]).to.deep.include({
-            from: 0.35396979551181995,
+            from: 0.3539256586908887,
             reversed: false,
             to: 1
         });
@@ -152,8 +153,8 @@ describe('zone selector drag', function() {
             to: 0.8
         });
         expect(info[1].segments[0]).to.deep.include({
-            from: 0.4469427945920623,
-            to: 0.7212504779966603,
+            from: 0.4468834556921099,
+            to: 0.7212357299650521,
             reversed: false
         });
         expect(info[1].segments[0].Link).to.deep.include({id: link2.id});

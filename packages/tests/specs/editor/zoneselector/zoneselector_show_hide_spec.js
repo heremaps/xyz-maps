@@ -61,7 +61,35 @@ describe('zone selector util', function() {
         await preparedData.clear();
     });
 
+    it('validate zone is initialized correctly', async ()=>{
+        editor.getZoneSelector().add(link1);
+
+        let results;
+        editor.getZoneSelector().show({
+            from: 0.1,
+            to: 0.4,
+            side: 'B',
+            onChange: function(e) {
+                results = e;
+            }
+        });
+
+        let info = editor.getZoneSelector().info();
+
+        expect(info[0].from).to.deep.almost(0.1);
+        expect(info[0].to).to.deep.almost(0.4);
+        expect(info[0].segments[0]).to.deep.include({
+            reversed: false
+        });
+
+        expect(info[0].segments[0].Link).to.deep.include({
+            id: link1.id
+        });
+    });
+
     it('validate selected zone info after dragging zone selector', async function() {
+        editor.getZoneSelector().hide();
+
         editor.getZoneSelector().add(link2);
 
         let results;
@@ -69,7 +97,6 @@ describe('zone selector util', function() {
             from: 0.1,
             to: 0.4,
             side: 'B',
-            style: {stroke: 'blue'},
             onChange: function(e) {
                 results = e;
             }
@@ -78,7 +105,7 @@ describe('zone selector util', function() {
         await drag(mapContainer, {x: 120, y: 185}, {x: 120, y: 200});
 
         expect(results[0].from).to.deep.almost(0.1);
-        expect(results[0].to).to.deep.almost(0.512);
+        expect(results[0].to).to.deep.almost(0.517);
         expect(results[0]).to.deep.include({
             reversed: false
         });
@@ -99,7 +126,6 @@ describe('zone selector util', function() {
             from: 0.1,
             to: 0.7,
             side: 'R',
-            style: {stroke: 'blue'},
             onChange: function(e) {
                 results = e;
             }
@@ -108,7 +134,7 @@ describe('zone selector util', function() {
         await drag(mapContainer, {x: 133, y: 301}, {x: 131, y: 285});
 
         expect(results[0].from).to.deep.almost(0.1);
-        expect(results[0].to).to.deep.almost(0.473);
+        expect(results[0].to).to.deep.almost(0.488);
         expect(results[0]).to.deep.include({
             reversed: false
         });

@@ -35,6 +35,8 @@ class MultiSelector {
     private onMvcStart: () => void;
     private display: Map;
 
+    private mlStyle;
+
     constructor(iEdit: InternalEditor) {
         this.display = iEdit.display;
     }
@@ -56,17 +58,17 @@ class MultiSelector {
     }
 
     show(zones: Zone[]) {
-        if (!this.onMvcStart) {
-            this.display.addEventListener('mapviewchangestart', this.onMvcStart = this.hide.bind(this));
-        }
+        // if (!this.onMvcStart) {
+        // this.display.addEventListener('mapviewchangestart', this.onMvcStart = this.hide.bind(this));
+        // }
         if (this.multiLink) {
             this.multiLink.show(zones);
         }
     };
 
     hide() {
-        this.display.removeEventListener('mapviewchangestart', this.onMvcStart);
-        this.onMvcStart = null;
+        // this.display.removeEventListener('mapviewchangestart', this.onMvcStart);
+        // this.onMvcStart = null;
 
         const {multiLink, parents} = this;
         for (let i = 0; i < parents.length; i++) {
@@ -104,7 +106,7 @@ class MultiSelector {
                 candidates.nref = line.getConnectedLinks(lastNodeIndex, true);
                 parents.push(oTools.deHighlight(line));
 
-                this.multiLink = multiLink = new MultiLink(line._e(), line);
+                this.multiLink = multiLink = new MultiLink(line._e(), line, this.mlStyle);
             }
 
             // handling of candidates
@@ -138,6 +140,13 @@ class MultiSelector {
 
         return !!(candidateNode || isFirstLine);
     };
+
+    setMLStyle(style) {
+        this.mlStyle = style;
+        if (this.multiLink) {
+            this.multiLink.updateStyle(style);
+        }
+    }
 }
 
 export default MultiSelector;

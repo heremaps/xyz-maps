@@ -50,6 +50,9 @@ export class Zone {
     onChange?: (ZoneSegments: ZoneSegment[]) => void;
     segments: ZoneSegment[]
 
+    markerStyle?;
+    lineStyle?;
+
     constructor() {
         /**
          *  Side of Zone on Link.
@@ -205,6 +208,14 @@ export class ZoneSelector {
 
             zone['to'] = (zone['to'] == UNDEF ? 1 : zone['to']) || 0;
 
+
+            for (let name of ['markerStyle', 'lineStyle']) {
+                let style = zone[name];
+                if (style && !Array.isArray(style)) {
+                    zone[name] = [style];
+                }
+            }
+
             if (onChange) {
                 zone['onChange'] = (zone) => {
                     onChange(this.generateZoneSegments(zone));
@@ -251,4 +262,9 @@ export class ZoneSelector {
 
         return zoneInfos;
     };
+
+
+    setStyleGroup(styleGroup) {
+        this.links.setMLStyle(styleGroup);
+    }
 }

@@ -307,12 +307,27 @@ const addSegments = (
         if (absStop) {
             if (absStop < lengthSoFar) {
                 if (absStop > prevLengthSoFar) {
-                    let relStopSegment = (absStop - prevLengthSoFar) / totalSegmentLength;
+                    const relStopSegment = (absStop - prevLengthSoFar) / totalSegmentLength;
 
                     x2 = x1 - dx * relStopSegment;
                     y2 = y1 - dy * relStopSegment;
 
                     length *= relStopSegment;
+
+                    // if (offset) {
+                    //     // optimize if relative stop position is located in dead section of offset line..
+                    //     // ..and line would run in opposite direction
+                    //     const relStartSegment = (absStart - prevLengthSoFar) / totalSegmentLength;
+                    //     // start is not on same segment
+                    //     if (relStartSegment < 0) {
+                    //         if (prevLeft) {
+                    //             if (length + offset < 0) return prevLengthSoFar;
+                    //         } else {
+                    //             if (length + offset > 0) return prevLengthSoFar;
+                    //         }
+                    //     }
+                    // }
+
                     last = true;
                     // we can skip the following coordinates
                     vLength = 0;
@@ -324,8 +339,7 @@ const addSegments = (
         if (absStart) {
             if (absStart < lengthSoFar) {
                 if (absStart > prevLengthSoFar) {
-                    let relStartSegment = (absStart - prevLengthSoFar) / totalSegmentLength;
-
+                    const relStartSegment = (absStart - prevLengthSoFar) / totalSegmentLength;
                     x1 = x1 - dx * relStartSegment;
                     y1 = y1 - dy * relStartSegment;
 

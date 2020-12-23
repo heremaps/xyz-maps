@@ -23,6 +23,8 @@ import Navlink from '../../features/link/NavLink';
 import Line from '../../features/line/Line';
 import InternalEditor from '../../IEditor';
 import {MultiZone} from './Zone';
+import ObjectOverlay from '../../features/Overlay';
+
 
 let UNDEF;
 
@@ -42,6 +44,12 @@ function createStyle(zIndex, color, sw, sda?) {
     };
 }
 
+const createDefaultStyle = () => [
+    createStyle(0, 'white', 23),
+    createStyle(1, 'grey', 20),
+    createStyle(2, 'white', 3, [5, 4])
+];
+
 type MultiLinkSegment = {
     from: number,
     to: number,
@@ -53,13 +61,18 @@ type MultiLinkSegment = {
 class MultiLink {
     private zones = [];
     private feature: any;
-    private overlay: any;
+    private overlay: ObjectOverlay;
     private completePath: any;
-    private mlStyle: { strokeWidth: any; strokeLinejoin: string; strokeLinecap: string; type: string; stroke: any; zIndex: any; strokeDasharray: any }[];
+    private style: { strokeWidth: any; strokeLinejoin: string; strokeLinecap: string; type: string; stroke: any; zIndex: any; strokeDasharray: any }[];
     private links: MultiLinkSegment[] = [];
 
-    constructor(iEditor: InternalEditor, link: Navlink | Line) {
+    private iEdit: InternalEditor;
+
+    constructor(iEditor: InternalEditor, link: Navlink | Line, style?) {
         const overlay = iEditor.objects.overlay;
+
+        this.iEdit = iEditor;
+
         let completePath;
 
         if (link === UNDEF) {
@@ -68,11 +81,7 @@ class MultiLink {
 
         completePath = this.completePath = link.coord();
 
-        const mlStyle = this.mlStyle = [
-            createStyle(0, 'white', 23),
-            createStyle(1, 'grey', 20),
-            createStyle(2, 'white', 3, [5, 4])
-        ];
+        const mlStyle = this.style = style || createDefaultStyle();
 
         this.overlay = overlay;
         this.feature = overlay.addPath(completePath, mlStyle);
@@ -88,6 +97,12 @@ class MultiLink {
 
         // refreshGeometry
         overlay.setFeatureCoordinates(this.feature, this.completePath);
+    }
+
+    updateStyle(style) {
+        style = style || createDefaultStyle();
+        this.style = style;
+        this.overlay.layer.setStyleGroup(this.feature, style);
     }
 
     private removeZones() {
@@ -110,7 +125,7 @@ class MultiLink {
 
         this.removeZones();
 
-        overlay.addFeature(this.feature, this.mlStyle);
+        overlay.addFeature(this.feature, this.style);
 
         zones.forEach((zone) => {
             if (['L', 'R', 'B'].indexOf(zone.side) != -1) {
@@ -121,7 +136,7 @@ class MultiLink {
         });
     };
 
-    addLink(link) {
+    addLink(link: Navlink) {
         const newPath = link.coord();
         const {links} = this;
 
