@@ -22,7 +22,7 @@ import {addPolygon, FlatPolygon} from './addPolygon';
 import {addExtrude} from './addExtrude';
 import {addIcon} from './addIcon';
 import earcut from 'earcut';
-import {getValue} from '../../styleTools';
+import {getValue, StyleGroup} from '../../styleTools';
 import {defaultFont} from '../../fontCache';
 import {GlyphTexture} from '../GlyphTexture';
 import {toRGB} from '../color';
@@ -37,7 +37,11 @@ import {PointBuffer} from './templates/PointBuffer';
 import {PolygonBuffer} from './templates/PolygonBuffer';
 import {ExtrudeBuffer} from './templates/ExtrudeBuffer';
 import {toPresentationFormB} from '../arabic';
+import {features} from '@here/xyz-maps-core';
 
+type Feature = features.Feature;
+
+type Coordinate = [number, number, number?];
 
 const DEFAULT_STROKE_WIDTH = 1;
 const DEFAULT_LINE_CAP = 'round';
@@ -45,12 +49,9 @@ const DEFAULT_LINE_JOIN = 'round';
 const NONE = '*';
 let UNDEF;
 
-type BBox = [number, number, number, number];
-
 const textRefCache = new Map();
 
-
-const getTextString = (style, feature, level: number) => {
+const getTextString = (style, feature: Feature, level: number) => {
     let text = getValue('text', style, feature, level);
 
     if (!text && style.textRef) {
@@ -86,7 +87,6 @@ export class FeatureFactory {
 
     pendingCollisions: { feature: any, style: any, priority: number, geomType: string, coordinates: any }[] = [];
 
-
     constructor(gl: WebGLRenderingContext, iconManager: IconManager, collisionHandler, devicePixelRatio: number) {
         this.gl = gl;
         this.icons = iconManager;
@@ -105,7 +105,15 @@ export class FeatureFactory {
         this.pendingCollisions.length = 0;
     }
 
-    create(feature, geomType: string, coordinates, styleGroups, strokeWidthScale, removeTileBounds?: boolean, priority?: number): boolean {
+    create(
+        feature: Feature,
+        geomType: string,
+        coordinates: Coordinate | Coordinate[] | Coordinate[][],
+        styleGroups: StyleGroup,
+        strokeWidthScale: number,
+        removeTileBounds?: boolean,
+        priority?: number
+    ): boolean {
         const {tile, groups, tileSize} = this;
         const level = this.z;
         let flatPolyStart: number;
@@ -316,7 +324,7 @@ export class FeatureFactory {
                     } else {
                         strokeWidth *= strokeScale;
 
-                        if (strokeWidth <= 0) {
+                        if (strokeWidth < 0) {
                             strokeWidth = DEFAULT_STROKE_WIDTH;
                         }
                     }
@@ -390,7 +398,6 @@ export class FeatureFactory {
                     }
 
                     const {attributes} = group.buffer;
-                    const {dpr} = this;
                     const cx = tile.lon2x(coordinates[0], tileSize);
                     const cy = tile.lat2y(coordinates[1], tileSize);
 
@@ -459,7 +466,7 @@ export class FeatureFactory {
                             attributes.a_size.data,
                             attributes.a_position.data,
                             attributes.a_texcoord.data,
-                            coordinates,
+                            <Coordinate>coordinates,
                             tile,
                             tileSize
                         );
@@ -471,7 +478,7 @@ export class FeatureFactory {
 
                         const groupBuffer = group.buffer;
 
-                        if (!addPoint(groupBuffer.attributes.a_position.data, coordinates, tile, tileSize)) {
+                        if (!addPoint(groupBuffer.attributes.a_position.data, <Coordinate>coordinates, tile, tileSize)) {
                             // in case of point has not been added because it's not inside tile
                             // -> we can skip it.
                             return allReady;
@@ -481,7 +488,7 @@ export class FeatureFactory {
             } else if (geomType == 'LineString') {
                 if (type == 'Line') {
                     this.lineFactory.createLine(
-                        coordinates,
+                        <Coordinate[]>coordinates,
                         group,
                         tile,
                         tileSize,
@@ -501,13 +508,13 @@ export class FeatureFactory {
 
                     const positionBuffer = group.buffer.attributes.a_position.data;
 
-                    for (let coord of coordinates) {
+                    for (let coord of <Coordinate[]>coordinates) {
                         addPoint(positionBuffer, coord, tile, tileSize);
                     }
                 } else if (type == 'Text') {
                     this.lineFactory.createText(
                         text,
-                        coordinates,
+                        <Coordinate[]>coordinates,
                         group,
                         tile,
                         tileSize,
@@ -540,17 +547,17 @@ export class FeatureFactory {
                             aPosition,
                             attributes.a_normal.data,
                             vIndex,
-                            coordinates,
+                            <Coordinate[][]>coordinates,
                             tile,
                             tileSize,
                             extrude
                         );
                     } else if (type == 'Polygon') {
-                        flatPoly = addPolygon(aPosition, coordinates, tile, tileSize);
+                        flatPoly = addPolygon(aPosition, <Coordinate[][]>coordinates, tile, tileSize);
                     }
 
                     if (!triangles) {
-                        const geom = feature.geometry;
+                        const geom = <any>feature.geometry;
 
                         if (geom._xyz) {
                             triangles = geom._xyz;
