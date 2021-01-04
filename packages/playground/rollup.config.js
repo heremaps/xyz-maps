@@ -1,5 +1,5 @@
 /*
- * Copyright (C) 2019-2020 HERE Europe B.V.
+ * Copyright (C) 2019-2021 HERE Europe B.V.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -88,24 +88,26 @@ let exampleList = {};
 let xyzmapsExampleList = JSON.parse(fs.readFileSync(examplesdir + '/xyzmaps.json', 'utf8'));
 
 const dirs = fs.readdirSync(examplesdir);
-dirs.forEach(dir=>{
-    if(dir.indexOf('.') == -1) {
+dirs.forEach((dir)=>{
+    if (dir.indexOf('.') == -1) {
         const examples = fs.readdirSync(examplesdir + '/' + dir);
-        if(examples) examples.forEach(example=>{
-            const content = fs.readFileSync(examplesdir + '/' + dir + '/' + example, 'utf8');
-            const title = content.match(/<title>(.*)<\/title>/)[1];
-            exampleList['./' + dir + '/' + example] = title;
-        })
+        if (examples) {
+            examples.forEach((example)=>{
+                const content = fs.readFileSync(examplesdir + '/' + dir + '/' + example, 'utf8');
+                const title = content.match(/<title>(.*)<\/title>/)[1];
+                exampleList['./' + dir + '/' + example] = title;
+            });
+        }
     }
-})
+});
 
-xyzmapsExampleList.forEach(comp=>{
-    comp.samples.forEach(seclevsample=>{
-        seclevsample.samples.forEach(example=>{
+xyzmapsExampleList.forEach((comp)=>{
+    comp.samples.forEach((seclevsample)=>{
+        seclevsample.samples.forEach((example)=>{
             example.title = example.title || exampleList[example.file].replace(/XYZ Maps Example: ?/, '');
-        })
-    })
-})
+        });
+    });
+});
 
 export default {
     input: './src/main.js',
