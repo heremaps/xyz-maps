@@ -31,11 +31,9 @@ class Texture {
     protected texture: WebGLTexture;
     protected gl: WebGLRenderingContext;
 
-    constructor(gl: WebGLRenderingContext, image?: Image) {
+    constructor(gl: WebGLRenderingContext, image?: Image, format?: GLenum) {
         this.gl = gl;
-        // this.texture = gl.createTexture();
-
-        this.format = gl.RGBA;
+        this.format = format || gl.RGBA;
 
         if (image) {
             this.set(image);

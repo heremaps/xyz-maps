@@ -30,23 +30,21 @@ class DashAtlas {
     }
 
     create(dashArray: DashArray) {
-        const size = 4 * dashArray.reduce((a, b) => a + b)
+        let size = dashArray.reduce((a, b) => a + b)
             // double size for odd dasharray size to get repeating pattern
             * (dashArray.length % 2 + 1);
+
+        // repeat pattern to roughly fit a complete tile to improve antialiasing of long lines
+        size *= Math.ceil(512 / size);
+
         const pixels = new Uint8Array(size);
         let fill = true;
         let offset = 0;
 
         while (offset < size) {
-            for (let length of dashArray) {
-                let bytes = 4 * length;
+            for (let bytes of dashArray) {
                 if (fill) {
                     pixels.fill(255, offset, offset + bytes);
-                    // let o = offset;
-                    // while (length--) {
-                    //     pixels.set([255, 255, 255, (!length || o == offset)? 127 : 255], o);
-                    //     o += 4;
-                    // }
                 }
                 offset += bytes;
                 fill = !fill;
@@ -54,10 +52,10 @@ class DashAtlas {
         }
 
         return new SharedTexture(this.gl, {
-            width: pixels.length / 4,
+            width: pixels.length,
             height: 1,
             pixels: pixels
-        });
+        }, this.gl.LUMINANCE);
     }
 
     get(dashArray: DashArray): SharedTexture {
