@@ -9,12 +9,13 @@ on:
             - '*'
 jobs:
     build:
-
+        name: Test (${{ matrix.browser }})
         runs-on: ubuntu-latest
 
         strategy:
             matrix:
                 node-version: [ 12.x ]
+                browser: ['ChromeHeadless', 'FirefoxHeadless']
 
         steps:
             - uses: actions/checkout@v2
@@ -27,4 +28,4 @@ jobs:
             - name: Build release package
               run: yarn run build-release
             - name: Run tests
-              run: yarn test --browser ChromeHeadless
+              run: yarn test --browser ${{ matrix.browser }}
