@@ -22,7 +22,9 @@ import {getCanvasPixelColor, prepare} from 'utils';
 import {Map} from '@here/xyz-maps-display';
 import dataset from './setstylegroup_point_text.json';
 
-let FONT = 'bold 96px Arial,Helvetica,sans-serif';
+let FONT = 'bold 48px Arial,Helvetica,sans-serif';
+
+const FULL_BLOCK_CHAR = '\u2588';
 
 describe('setStyleGroup Point with text', function() {
     const expect = chai.expect;
@@ -55,59 +57,44 @@ describe('setStyleGroup Point with text', function() {
         display.destroy();
     });
 
-    it('style feature with text, validate its style', async () => {
+    it('style basic text', async () => {
         // set style for the added feature
         paLayer.setStyleGroup(
             feature, [
-                {'zIndex': 0, 'type': 'Rect', 'width': 96, 'height': 96, 'opacity': 1, 'fill': '#ff0000'},
-                {'zIndex': 1, 'type': 'Text', 'fill': '#000000', 'text': 'H', 'font': FONT}
+                {'zIndex': 0, 'type': 'Rect', 'width': 128, 'height': 96, 'opacity': 1, 'fill': '#ff0000'},
+                {'zIndex': 1, 'type': 'Text', 'fill': '#000000', 'text': '\u2588 \u2588', 'font': FONT}
             ]);
 
-        // validate features have new style
-        // get color between bars of character H
-        // get color of H in middle
-        // get color between bars of character H
-        // get color of left bar of H
-        // get color of right bar of H
-        let colors = await getCanvasPixelColor(mapContainer, [{x: 400, y: 275}, {x: 400, y: 292}, {
-            x: 400,
-            y: 315
-        }, {x: 380, y: 300}, {x: 420, y: 300}]); // get color between bars of character H
+        //     #     #
+        // c1 c2 c2 c3 c4
+        let colors = await getCanvasPixelColor(mapContainer, [
+            {x: 350, y: 300}, {x: 375, y: 300}, {x: 400, y: 300}, {x: 425, y: 300}, {x: 450, y: 300}
+        ]);
 
         expect(colors[0]).to.equal('#ff0000');
         expect(colors[1]).to.equal('#000000');
         expect(colors[2]).to.equal('#ff0000');
         expect(colors[3]).to.equal('#000000');
-        expect(colors[4]).to.equal('#000000');
+        expect(colors[4]).to.equal('#ff0000');
     });
 
-    it('style feature with text and opacity, validate its style', async () => {
+    it('style text with opacity', async () => {
         // set style for the added feature
         paLayer.setStyleGroup(
             feature, [
-                {'zIndex': 0, 'type': 'Rect', 'width': 96, 'height': 96, 'opacity': 1, 'fill': '#ff0000'},
-                {'zIndex': 1, 'type': 'Text', 'fill': '#000000', 'text': 'H', 'opacity': 0.5, 'font': FONT}
+                {'zIndex': 0, 'type': 'Rect', 'width': 128, 'height': 96, 'opacity': 1, 'fill': '#ff0000'},
+                {'zIndex': 1, 'type': 'Text', 'fill': '#000000', 'text': FULL_BLOCK_CHAR, 'opacity': 0.5, 'font': FONT}
             ]);
 
-        // validate features have new style
-        // get color between bars of character H
-        // get color of H in middle
-        // get color between bars of character H
-        // get color of left bar of H
-        // get color of right bar of H
-        let colors = await getCanvasPixelColor(mapContainer, [{x: 400, y: 275}, {x: 400, y: 292}, {
-            x: 400,
-            y: 315
-        }, {x: 380, y: 300}, {x: 420, y: 300}]); // get color between bars of character H
+
+        let colors = await getCanvasPixelColor(mapContainer, [{x: 375, y: 300}, {x: 400, y: 300}, {x: 425, y: 300}]);
 
         expect(colors[0]).to.equal('#ff0000');
         expect(colors[1]).to.equal('#bf0000');
         expect(colors[2]).to.equal('#ff0000');
-        expect(colors[3]).to.equal('#bf0000');
-        expect(colors[4]).to.equal('#bf0000');
     });
 
-    it('style feature with textRef, validate its style', async () => {
+    it('style text with textRef', async () => {
         // set style for the added feature
         paLayer.setStyleGroup(
             feature, [
@@ -115,157 +102,96 @@ describe('setStyleGroup Point with text', function() {
                 {'zIndex': 1, 'type': 'Text', 'fill': '#000000', 'textRef': 'properties.address', 'font': FONT}
             ]);
 
-        // validate features have new style
-        // get color inside O(upper)
-        // get color inside O(middle)
-        // get color inside O(lower)
-        // get color on O
-        let colors = await getCanvasPixelColor(mapContainer, [{x: 400, y: 280}, {x: 400, y: 297}, {
-            x: 400,
-            y: 307
-        }, {x: 425, y: 300}]); // get color between bars of character H
+        let colors = await getCanvasPixelColor(mapContainer, [
+            {x: 375, y: 300}, {x: 388, y: 300}, {x: 400, y: 300}, {x: 414, y: 300}, {x: 425, y: 300}
+        ]);
 
-        expect(colors[0]).to.equal('#ff0000');
-        expect(colors[1]).to.equal('#ff0000');
-        expect(colors[2]).to.equal('#ff0000');
-        expect(colors[3]).to.equal('#000000');
+        expect(colors[0]).to.equal('#ff0000'); // color left of "O"
+        expect(colors[1]).to.equal('#000000'); // color on left arc of "O"
+        expect(colors[2]).to.equal('#ff0000'); // color center "O"
+        expect(colors[3]).to.equal('#000000'); // color on right arc of "O"
+        expect(colors[4]).to.equal('#ff0000'); // color right of "O"
     });
 
-    it('style feature with text and offsetX, validate its style', async () => {
-        // set style for the added feature, offsetX is set to 5
+    it('style text with positive offsetX', async () => {
         paLayer.setStyleGroup(
             feature, [
-                {'zIndex': 0, 'type': 'Rect', 'width': 96, 'height': 96, 'opacity': 1, 'fill': '#ff0000'},
-                {'zIndex': 1, 'type': 'Text', 'fill': '#000000', 'text': 'H', 'font': FONT, 'offsetX': 10}
+                {'zIndex': 0, 'type': 'Rect', 'width': 128, 'height': 128, 'opacity': 1, 'fill': '#ff0000'},
+                {'zIndex': 1, 'type': 'Text', 'fill': '#000000', 'text': FULL_BLOCK_CHAR, 'font': FONT, 'offsetX': 24}
             ]);
 
-        // validate features have new style
-        // get color between bars of character H
-        // get color of H in middle
-        // get color between bars of character H
-        // get color of left bar of H
-        // get color of right bar of H
-        let colors = await getCanvasPixelColor(mapContainer, [{x: 410, y: 275}, {x: 410, y: 292}, {
-            x: 410,
-            y: 315
-        }, {x: 390, y: 300}, {x: 430, y: 300}]);
+        let colors = await getCanvasPixelColor(mapContainer, [{x: 400, y: 300}, {x: 425, y: 300}, {x: 450, y: 300}]);
 
         expect(colors[0]).to.equal('#ff0000');
         expect(colors[1]).to.equal('#000000');
         expect(colors[2]).to.equal('#ff0000');
-        expect(colors[3]).to.equal('#000000');
-        expect(colors[4]).to.equal('#000000');
     });
 
-    it('style feature with text and offsetX again, validate its style', async () => {
-        // set style for the added feature, offsetX is set to -5
+    it('style text with negative offsetX', async () => {
         paLayer.setStyleGroup(
             feature, [
                 {'zIndex': 0, 'type': 'Rect', 'width': 96, 'height': 96, 'opacity': 1, 'fill': '#ff0000'},
-                {'zIndex': 1, 'type': 'Text', 'fill': '#000000', 'text': 'H', 'font': FONT, 'offsetX': -10}
+                {'zIndex': 1, 'type': 'Text', 'fill': '#000000', 'text': FULL_BLOCK_CHAR, 'font': FONT, 'offsetX': -24}
             ]);
 
-        // validate features have new style
-        // get color between bars of character H
-        // get color of H in middle
-        // get color between bars of character H
-        // get color of left bar of H
-        // get color of right bar of H
-        let colors = await getCanvasPixelColor(mapContainer, [{x: 390, y: 275}, {x: 390, y: 292}, {
-            x: 390,
-            y: 315
-        }, {x: 370, y: 300}, {x: 410, y: 300}]);
+        let colors = await getCanvasPixelColor(mapContainer, [{x: 355, y: 300}, {x: 375, y: 300}, {x: 400, y: 300}]);
 
         expect(colors[0]).to.equal('#ff0000');
         expect(colors[1]).to.equal('#000000');
         expect(colors[2]).to.equal('#ff0000');
-        expect(colors[3]).to.equal('#000000');
-        expect(colors[4]).to.equal('#000000');
     });
 
-    it('style feature with text and offsetY, validate its style', async () => {
-        // set style for the added feature, offsetY is set to 5
+    it('style text with positive offsetY', async () => {
         paLayer.setStyleGroup(
             feature, [
-                {'zIndex': 0, 'type': 'Rect', 'width': 96, 'height': 96, 'opacity': 1, 'fill': '#ff0000'},
-                {'zIndex': 1, 'type': 'Text', 'fill': '#000000', 'text': 'H', 'font': FONT, 'offsetY': 10}
+                {'zIndex': 0, 'type': 'Rect', 'width': 96, 'height': 128, 'opacity': 1, 'fill': '#ff0000'},
+                {'zIndex': 1, 'type': 'Text', 'fill': '#000000', 'text': FULL_BLOCK_CHAR, 'font': FONT, 'offsetY': 24}
             ]);
 
-        // validate features have new style
-        // get color between bars of character H
-        // get color of H in middle
-        // get color between bars of character H
-        // get color of left bar of H
-        // get color of right bar of H
-        let colors = await getCanvasPixelColor(mapContainer, [{x: 400, y: 285}, {x: 400, y: 302}, {
-            x: 400,
-            y: 325
-        }, {x: 380, y: 310}, {x: 420, y: 310}]);
+        let colors = await getCanvasPixelColor(mapContainer, [{x: 400, y: 350}, {x: 400, y: 325}, {x: 400, y: 295}]);
 
         expect(colors[0]).to.equal('#ff0000');
         expect(colors[1]).to.equal('#000000');
         expect(colors[2]).to.equal('#ff0000');
-        expect(colors[3]).to.equal('#000000');
-        expect(colors[4]).to.equal('#000000');
     });
 
-    it('style feature with text and offsetY again, validate its style', async () => {
-        // set style for the added feature, offsetY is set to -5
+    it('style text with offsetY', async () => {
         paLayer.setStyleGroup(
             feature, [
-                {'zIndex': 0, 'type': 'Rect', 'width': 96, 'height': 96, 'opacity': 1, 'fill': '#ff0000'},
-                {'zIndex': 1, 'type': 'Text', 'fill': '#000000', 'text': 'H', 'font': FONT, 'offsetY': -10}
+                {'zIndex': 0, 'type': 'Rect', 'width': 96, 'height': 128, 'opacity': 1, 'fill': '#ff0000'},
+                {'zIndex': 1, 'type': 'Text', 'fill': '#000000', 'text': FULL_BLOCK_CHAR, 'font': FONT, 'offsetY': -24}
             ]);
 
-        // validate features have new style
-        // get color between bars of character H
-        // get color of H in middle
-        // get color between bars of character H
-        // get color of left bar of H
-        // get color of right bar of H
-        let colors = await getCanvasPixelColor(mapContainer, [{x: 400, y: 265}, {x: 400, y: 282}, {
-            x: 400,
-            y: 305
-        }, {x: 380, y: 290}, {x: 420, y: 290}]);
+        let colors = await getCanvasPixelColor(mapContainer, [{x: 400, y: 250}, {x: 400, y: 280}, {x: 400, y: 305}]);
 
         expect(colors[0]).to.equal('#ff0000');
         expect(colors[1]).to.equal('#000000');
         expect(colors[2]).to.equal('#ff0000');
-        expect(colors[3]).to.equal('#000000');
-        expect(colors[4]).to.equal('#000000');
     });
 
-    it('style feature with text and offsetX, offsetY, validate its style', async () => {
-        // set style for the added feature, both offsetX and offsetY are set to 5
+    it('style text with offsetX and offsetY', async () => {
         paLayer.setStyleGroup(
             feature, [
-                {'zIndex': 0, 'type': 'Rect', 'width': 96, 'height': 96, 'opacity': 1, 'fill': '#ff0000'},
+                {'zIndex': 0, 'type': 'Rect', 'width': 128, 'height': 128, 'opacity': 1, 'fill': '#ff0000'},
                 {
                     'zIndex': 1,
                     'type': 'Text',
                     'fill': '#000000',
-                    'text': 'H',
+                    'text': FULL_BLOCK_CHAR,
                     'font': FONT,
-                    'offsetX': 10,
-                    'offsetY': 10
+                    'offsetX': 24,
+                    'offsetY': 24
                 }
             ]);
 
-        // validate features have new style
-        // get color between bars of character H
-        // get color of H in middle
-        // get color between bars of character H
-        // get color of left bar of H
-        // get color of right bar of H
-        let colors = await getCanvasPixelColor(mapContainer, [{x: 410, y: 285}, {x: 410, y: 302}, {
-            x: 410,
-            y: 325
-        }, {x: 390, y: 310}, {x: 430, y: 310}]);
+        let colors = await getCanvasPixelColor(mapContainer, [
+            {x: 400, y: 325}, {x: 425, y: 355}, {x: 445, y: 325}, {x: 425, y: 300}, {x: 425, y: 325}
+        ]);
 
         expect(colors[0]).to.equal('#ff0000');
-        expect(colors[1]).to.equal('#000000');
+        expect(colors[1]).to.equal('#ff0000');
         expect(colors[2]).to.equal('#ff0000');
-        expect(colors[3]).to.equal('#000000');
+        expect(colors[3]).to.equal('#ff0000');
         expect(colors[4]).to.equal('#000000');
     });
 
