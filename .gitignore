@@ -4,3 +4,8 @@ credentials.json
 .awspublish-*
 .idea/
 debug/token.js
+.yarn/*
+!.yarn/releases
+!.yarn/plugins
+!.yarn/sdks
+!.yarn/versions
