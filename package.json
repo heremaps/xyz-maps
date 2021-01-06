@@ -12,7 +12,7 @@
         "url": "https://github.com/heremaps/xyz-editor.git"
     },
     "scripts": {
-        "test": "yarn workspace @here/xyz-maps-test run test -- ",
+        "test": "yarn workspace @here/xyz-maps-test run test",
         "preversion": "yarn run build-release && yarn run test",
         "postversion": "yarn run bundle-release",
         "watch-dev": "yarn workspaces foreach -pvi run watch-dev",
