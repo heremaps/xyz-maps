@@ -3,7 +3,7 @@ name: Build & Test
 on:
     push:
         branches:
-            - master
+            - yarn2
     pull_request:
         branches:
             - '*'
@@ -39,7 +39,7 @@ jobs:
                 with:
                     node-version: ${{ matrix.node-version }}
             -   name: Install dependencies
-                run: yarn install --network-timeout ${{ env.yarn-network-timeout }}
+                run: yarn
             -   name: Build release package
                 run: yarn run build-release
             -   name: Run tests
