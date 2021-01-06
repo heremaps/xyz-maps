@@ -35,7 +35,7 @@ jobs:
                 with:
                     node-version: ${{ matrix.node-version }}
             -   name: Install dependencies
-                run: yarn
+                run: yarn install --network-timeout 1000000
             -   name: Build release package
                 run: yarn run build-release
             -   name: Run tests
