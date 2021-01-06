@@ -7,6 +7,8 @@ on:
     pull_request:
         branches:
             - '*'
+env:
+    yarn-network-timeout: 1000000
 jobs:
     build:
         name: Test ${{ matrix.browser }} (${{ matrix.os }})
@@ -35,7 +37,7 @@ jobs:
                 with:
                     node-version: ${{ matrix.node-version }}
             -   name: Install dependencies
-                run: yarn install --network-timeout 1000000
+                run: yarn install --network-timeout ${{ env.yarn-network-timeout }}
             -   name: Build release package
                 run: yarn run build-release
             -   name: Run tests
