@@ -44,4 +44,4 @@ jobs:
             -   name: Build release package
                 run: yarn run build-release
             -   name: Run tests
-                run: yarn test --browser ${{ matrix.browser }}
+                run: yarn workspace @here/xyz-maps-test run test --browser ${{ matrix.browser }}
