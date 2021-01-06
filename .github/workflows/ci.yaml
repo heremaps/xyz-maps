@@ -3,7 +3,7 @@ name: Build & Test
 on:
     push:
         branches:
-            - gh-actions
+            - master
     pull_request:
         branches:
             - '*'
