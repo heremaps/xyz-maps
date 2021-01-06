@@ -1,4 +1,4 @@
-name: CI
+name: Build & Test
 
 on:
     push:
@@ -7,8 +7,10 @@ on:
     pull_request:
         branches:
             - '*'
+
 env:
     yarn-network-timeout: 1000000
+
 jobs:
     build:
         name: Test ${{ matrix.browser }} (${{ matrix.os }})
@@ -18,7 +20,7 @@ jobs:
             matrix:
                 node-version: [ 12.x ]
                 browser: [ ChromeHeadless ]
-                os: [ ubuntu-latest, windows-latest, macOS-latest ]
+                os: [ ubuntu-latest ]
 
         steps:
             -   uses: actions/checkout@v2
