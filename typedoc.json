@@ -1,0 +1,15 @@
+{
+    "name": "XYZ Maps",
+    "mode": "modules",
+    "out": "doc",
+    "theme": "default",
+    "ignoreCompilerErrors": "false",
+    "preserveConstEnums": "true",
+    "exclude": "*.spec.ts",
+    "excludePrivate": "true",
+    "excludeExternals": "true",
+    "excludeNotExported": "true",
+    "excludeNotDocumented": "true",
+    "external-modulemap": ".*packages\/([^\/]+)\/.*",
+    "stripInternal": "false"
+}

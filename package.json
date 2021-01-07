@@ -12,16 +12,16 @@
         "url": "https://github.com/heremaps/xyz-editor.git"
     },
     "scripts": {
-        "test": "lerna run --stream --no-prefix --scope @here/xyz-maps-test test -- ",
+        "test": "yarn workspace @here/xyz-maps-test run test",
         "preversion": "yarn run build-release && yarn run test",
         "postversion": "yarn run bundle-release",
-        "watch-dev": "lerna run watch-dev --parallel",
-        "build-dev": "lerna run build-dev --parallel",
-        "build-doc": "yarn run build-dev && lerna run --scope @here/xyz-maps-docs build",
-        "build-release": "lerna run build-release --parallel",
+        "watch-dev": "yarn workspaces foreach -pvi run watch-dev",
+        "build-dev": "yarn workspaces foreach -pvi run build-dev",
+        "build-doc": "yarn run build-dev && yarn workspace @here/xyz-maps-docs run build",
+        "build-release": "yarn workspaces foreach -pvi run build-release",
         "bundle-release": "yarn run build-doc && yarn run build-playground && yarn run build-release",
         "playground": "yarn run build-playground && npx http-server . -d -c-1 -p 8081 -o ./packages/playground/dist",
-        "build-playground": "lerna run --scope @here/xyz-maps-playground build --stream --no-prefix",
+        "build-playground": "yarn workspace @here/xyz-maps-playground run build",
         "eslint:fix": "eslint **/packages/*/src/**/*.{js,ts} --fix",
         "precommit": "lint-staged",
         "server": "npx http-server . -d -c-1 -p 8080 -o ./debug",
@@ -34,6 +34,8 @@
     },
     "private": true,
     "devDependencies": {
+        "@strictsoftware/typedoc-plugin-monorepo": "^0.3.1",
+        "@typescript-eslint/parser": "^3.6.1",
         "eslint": "7.4.0",
         "eslint-config-google": "^0.14.0",
         "http-server": "^0.12.3",
@@ -42,7 +44,9 @@
         "lint-staged": "^10.2.11",
         "ts-node": "^8.10.2",
         "typescript": "^3.9.6",
-        "@typescript-eslint/parser": "^3.6.1"
+        "typedoc": "^0.20.13",
+        "typedoc-plugin-remove-references": "^0.0.5",
+        "typescript": "^3.9.6"
     },
     "workspaces": [
         "packages/*"
