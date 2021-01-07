@@ -49,10 +49,19 @@ const throwError = (msg) => {
  *  @param {here.xyz.maps.editor.features.Feature.Properties=} properties
  *      Properties of the navlink.
  */
-class Navlink extends BasicFeature {
+export default class Navlink extends BasicFeature {
     id: string | number;
 
-    class: 'NAVLINK';
+    /**
+     *  Feature class of this feature, the value is "NAVLINK".
+     *
+     *  @public
+     *  @expose
+     *  @readonly
+     *  @name here.xyz.maps.editor.features.Navlink#class
+     *  @type string
+     */
+    class= 'NAVLINK';
 
     // constructor(feature) {
     //     BasicFeature.apply(this, arguments);
@@ -519,4 +528,4 @@ class Navlink extends BasicFeature {
 Navlink.prototype.class = 'NAVLINK';
 
 
-export default Navlink;
+// export default Navlink;

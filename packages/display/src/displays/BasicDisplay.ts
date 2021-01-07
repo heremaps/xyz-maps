@@ -18,7 +18,7 @@
  */
 
 import {global, TaskManager} from '@here/xyz-maps-common';
-import {geo, tile, layers} from '@here/xyz-maps-core';
+import {tile, layers} from '@here/xyz-maps-core';
 import {getElDimension, createCanvas} from '../DOMTools';
 import {Layers, Layer, ScreenTile} from './Layers';
 import FeatureModifier from './FeatureModifier';

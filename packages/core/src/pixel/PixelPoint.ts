@@ -17,41 +17,41 @@
  * License-Filename: LICENSE
  */
 
-export class Point {
-    /**
-     *  An interface representing a point in pixel.
-     *
-     *  @class
-     *  @public
-     *  @expose
-     *  @constructor
-     *  @param x {number} pixel coordinate on x axis
-     *  @param y {number} pixel coordinate on y axis
-     *  @name here.xyz.maps.pixel.Point
-     */
+/**
+ *  A class representing a point in pixel.
+ *
+ *  @class
+ *  @public
+ *  @expose
+ *  @constructor
+ *  @param x {number} pixel coordinate on x axis
+ *  @param y {number} pixel coordinate on y axis
+ *  @name here.xyz.maps.pixel.Point
+ */
+export class PixelPoint {
     constructor(x: number, y: number) {
-        /**
-         *  x coordinate in pixel.
-         *
-         *  @public
-         *  @expose
-         *  @type {number}
-         *  @name here.xyz.maps.pixel.Point#x
-         */
         this.x = x;
 
-        /**
-         *  y coordinate in pixel.
-         *
-         *  @public
-         *  @expose
-         *  @type {number}
-         *  @name here.xyz.maps.pixel.Point#y
-         */
         this.y = y;
     }
 
+    /**
+     *  x coordinate in pixel.
+     *
+     *  @public
+     *  @expose
+     *  @type {number}
+     *  @name here.xyz.maps.pixel.Point#x
+     */
     x: number;
 
+    /**
+     *  y coordinate in pixel.
+     *
+     *  @public
+     *  @expose
+     *  @type {number}
+     *  @name here.xyz.maps.pixel.Point#y
+     */
     y: number;
 }

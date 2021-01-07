@@ -17,9 +17,20 @@
  * License-Filename: LICENSE
  */
 
-export class Point {
+/**
+ *  A class representing a geographical point.
+ *
+ *  @class
+ *  @public
+ *  @expose
+ *  @constructor
+ *  @param lon {number} longitude
+ *  @param lat {number} latitude
+ *  @name here.xyz.maps.geo.Point
+ */
+export class GeoPoint {
     /**
-     *  An interface representing a geographical point.
+     *  A class representing a geographical point.
      *
      *  @class
      *  @public
@@ -55,3 +66,4 @@ export class Point {
 
     latitude: number;
 }
+

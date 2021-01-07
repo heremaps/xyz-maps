@@ -17,9 +17,23 @@
  * License-Filename: LICENSE
  */
 
-export class Rect {
+/**
+ *  An class representing a rectangular geographic area.
+ *  The area is defined by four geographical coordinates two (left, right) longitudes and two (top, bottom) latitudes.
+ *
+ *  @class
+ *  @public
+ *  @expose
+ *  @constructor
+ *  @param minLon {number} min longitude
+ *  @param minLat {number} min latitude
+ *  @param maxLon {number} max longitude
+ *  @param maxLat {number} max latitude
+ *  @name here.xyz.maps.geo.Rect
+ */
+export class GeoRect {
     /**
-     *  An interface representing a rectangular geographic area.
+     *  A class representing a rectangular geographic area.
      *  The area is defined by four geographical coordinates two (left, right) longitudes and two (top, bottom) latitudes.
      *
      *  @class

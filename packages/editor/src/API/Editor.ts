@@ -78,7 +78,7 @@ const NULL = null;
  */
 
 
-class Editor {
+export default class Editor {
     active: (on?: boolean) => boolean;
 
     getOverlay: () => TileLayer;
@@ -355,5 +355,3 @@ class Editor {
         }, 0);
     };
 }
-
-export default Editor;

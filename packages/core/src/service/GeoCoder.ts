@@ -17,7 +17,7 @@
  * License-Filename: LICENSE
  */
 
-import {Point as GeoPoint} from '../geo/Point';
+import {GeoPoint} from '../geo/GeoPoint';
 
 /* eslint camelcase: ["error", {"allow": ["app_id","app_code"]}]*/
 export interface GeoCoderOptions{

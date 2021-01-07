@@ -19,7 +19,7 @@
 
 import UIComponent from './UIComponent';
 import Display from '../Map';
-import {MapOptions} from '../Config';
+import {MapOptions} from '../MapOptions';
 
 type ZoomCtrlOptions = {
     visible?: boolean
