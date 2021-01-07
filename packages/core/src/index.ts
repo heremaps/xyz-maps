@@ -17,10 +17,16 @@
  * License-Filename: LICENSE
  */
 
+
+import {GeoPoint} from './geo/GeoPoint';
+import {GeoRect} from './geo/GeoRect';
+import {PixelPoint} from './pixel/PixelPoint';
+import {PixelRect} from './pixel/PixelRect';
+
+import {TileLayer} from './layers/TileLayer';
+import {MVTLayer} from './layers/MVTLayer';
+
 // TODO: remove namespaces
-import * as geo from './geo/geo';
-import * as pixel from './pixel/pixel';
-import * as layers from './layers/layers';
 import * as tile from './tile/ns';
 import * as providers from './providers/providers';
 import * as features from './features/features';
@@ -37,19 +43,41 @@ import GeoCoder from './service/GeoCoder';
 // @ts-ignore
 import buildInfo from 'buildInfo';
 
+export * from './pixel/PixelPoint';
+export * from './pixel/PixelRect';
+export * from './geo/GeoPoint';
+export * from './geo/GeoRect';
+
+export * from './layers/TileLayer';
+export * from './layers/MVTLayer';
+
 
 // WORKAROUND IF BUNDELED BY WEBPACK (UMD REMOVAL)
 // make sure global ns is also available for webpack users.
 const XYZMAPS = common.global.here.xyz.maps;
 XYZMAPS.common = common;
-XYZMAPS.geo = geo;
+const geo = XYZMAPS.geo = {
+    Point: GeoPoint,
+    Rect: GeoRect
+};
+const pixel = XYZMAPS.pixel = {
+    Point: PixelPoint,
+    Rect: PixelRect
+};
+
+const layers = XYZMAPS.layers = {
+    TileLayer: TileLayer,
+    MVTLayer: MVTLayer
+};
+
+
 XYZMAPS.tile = tile;
 XYZMAPS.layers = layers;
 XYZMAPS.features = features;
 XYZMAPS.providers = providers;
 
 
-export {geo, pixel, tile, layers, features, providers};
+export {pixel, tile, layers, features, providers};
 
 export const storage = XYZMAPS.storage = {
     'Level2Storage': L2Storage,

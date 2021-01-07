@@ -18,7 +18,7 @@
  */
 
 import {global} from '@here/xyz-maps-common';
-import {geo} from '@here/xyz-maps-core';
+import {GeoPoint, GeoRect} from '@here/xyz-maps-core';
 
 const setTimeout = global.setTimeout;
 const setInterval = global.setInterval;
@@ -51,8 +51,8 @@ const createEvent = (eventName: string, map, layer): Event => {
 class MVCRecognizer {
     private readyTimer: number;
     private watchTimer: number = null;
-    private viewport: geo.Rect;
-    private center: geo.Point;
+    private viewport: GeoRect;
+    private center: GeoPoint;
     private rz: number; // rotation z
     private rx: number; // rotation z
     private endTriggered: boolean;
@@ -73,12 +73,12 @@ class MVCRecognizer {
         this.readyWatcher = this.readyWatcher.bind(this);
     }
 
-    private centerChanged(center: geo.Point): boolean {
+    private centerChanged(center: GeoPoint): boolean {
         return this.center.longitude != center.longitude ||
             this.center.latitude != center.latitude;
     }
 
-    private vpChanged(vp: geo.Rect, rotZ: number, rotX: number): boolean {
+    private vpChanged(vp: GeoRect, rotZ: number, rotX: number): boolean {
         const {viewport, rz, rx} = this;
         return !(
             viewport.minLon != vp.minLon || viewport.maxLon != vp.maxLon ||
@@ -115,7 +115,7 @@ class MVCRecognizer {
                 this.watchTimer =
                     this.viewport =
                         this.rz =
-                        this.rx = null;
+                            this.rx = null;
 
                 if (readyTimer) {
                     clearTimeout(readyTimer);

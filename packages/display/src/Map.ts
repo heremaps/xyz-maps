@@ -30,13 +30,10 @@ import UI from './ui/UI';
 import {JSUtils, Listener} from '@here/xyz-maps-common';
 import {ZoomAnimator} from './animation/ZoomAnimator';
 import {KineticPanAnimator} from './animation/KineticPanAnimator';
-import {defaultOptions, MapOptions} from './Config';
-import {layers, projection, geo, pixel} from '@here/xyz-maps-core';
+import {defaultOptions, MapOptions} from './MapOptions';
+import {layers, projection, PixelPoint, PixelRect, GeoPoint, GeoRect} from '@here/xyz-maps-core';
 
 const project = projection.webMercator;
-const GeoRect = geo.Rect;
-const GeoPoint = geo.Point;
-const PixelPoint = pixel.Point;
 const TileLayer = layers.TileLayer;
 
 const DEFAULT_ZOOM_ANIMATION_MS = 250;
@@ -93,27 +90,8 @@ function calcZoomLevelForBounds(minLon, minLat, maxLon, maxLat, mapWidth, mapHei
 
 /**
  *  XYZ Map is a map display with support for dynamically changing vector data.
- *
- *  @public
- *  @expose
- *  @constructor
- *  @param {Element} mapElement
- *      HTML element
- *  @param {here.xyz.maps.Map.Config} config
- *  @name here.xyz.maps.Map
- *
- *  @example
- *  //create Map display
- *  var display = new  here.xyz.maps.Map( mapDiv, {
- *      zoomLevel : 19,
- *      center: {
- *          latitude: 50.10905256955773, longitude: 8.657339975607162
- *      },
- *      // add layers to display
- *      layers: layers
- *  });
  */
-class TigerMap {
+export default class Map {
     id: number;
 
     private _el: HTMLElement;
@@ -136,7 +114,7 @@ class TigerMap {
 
     private _wSize: number; // world size pixel
 
-    private _vp: geo.Rect; // viewport/viewbounds
+    private _vp: GeoRect; // viewport/viewbounds
 
     private ui: UI;
 
@@ -146,9 +124,9 @@ class TigerMap {
     private _b: Behavior;
 
     // TODO: cleanup
-    private _cw: pixel.Point = new PixelPoint(0, 0); // center world in pixel
-    private _c: geo.Point = new GeoPoint(0, 0); // center geo
-    private _pc: geo.Point = new GeoPoint(0, 0); // previous center geo
+    private _cw: PixelPoint = new PixelPoint(0, 0); // center world in pixel
+    private _c: GeoPoint = new GeoPoint(0, 0); // center geo
+    private _pc: GeoPoint = new GeoPoint(0, 0); // previous center geo
 
     // TODO: remove screenOffset
     private _ox = 0; // screenOffsetY
@@ -160,10 +138,28 @@ class TigerMap {
     private zoomAnimator: ZoomAnimator;
     private _search: Search;
 
-    constructor(mapEl, mapConfig) {
-        this._cfg = mapConfig = JSUtils.extend(true,
+    /**
+     *  XYZ Map is a map display with support for dynamically changing vector data.
+     *
+     *  @param mapEl - HTMLElement used to create the map display
+     *  @param mapOptions - configuration for the map
+     *
+     *  ```javascript
+     *  //create Map display
+     *  var display = new here.xyz.maps.Map( mapDiv, {
+     *      zoomLevel : 19,
+     *      center: {
+     *          latitude: 50.10905256955773, longitude: 8.657339975607162
+     *      },
+     *      // add layers to display
+     *      layers: layers
+     *  });
+     *  ```
+     */
+    constructor(mapEl: HTMLElement, mapOptions: MapOptions) {
+        this._cfg = mapOptions = JSUtils.extend(true,
             JSUtils.extend(true, {}, defaultOptions),
-            mapConfig || {}
+            mapOptions || {}
         );
 
         let tigerMap = this;
@@ -175,9 +171,9 @@ class TigerMap {
         this._cy = this._h / 2;
 
         // init defaults
-        const zoomLevel = mapConfig['zoomLevel'] || mapConfig['zoomlevel'];
+        const zoomLevel = mapOptions['zoomLevel'] || mapOptions['zoomlevel'];
 
-        mapConfig.maxLevel = Math.min(MAX_POSSIBLE_ZOOMLEVEL, mapConfig.maxLevel);
+        mapOptions.maxLevel = Math.min(MAX_POSSIBLE_ZOOMLEVEL, mapOptions.maxLevel);
 
         this._z = Math.min(MAX_GRID_ZOOM, zoomLevel) ^ 0;
 
@@ -218,7 +214,7 @@ class TigerMap {
 
         console.log('TM', this._w, 'x', this._h);
 
-        const Display = mapConfig['renderer'] == 'canvas' ? CanvasDisplay : WebglDisplay;
+        const Display = mapOptions['renderer'] == 'canvas' ? CanvasDisplay : WebglDisplay;
 
         if (typeof Display.zoomBehavior == 'string') {
             DEFAULT_ZOOM_BEHAVIOR = Display.zoomBehavior;
@@ -228,8 +224,8 @@ class TigerMap {
         const display = new Display(
             mapEl,
             RENDER_TILE_SIZE,
-            mapConfig['devicePixelRatio'],
-            mapConfig['renderOptions'] || {}
+            mapOptions['devicePixelRatio'],
+            mapOptions['renderOptions'] || {}
         );
 
         tigerMap._mvcRecognizer = new MVCRecognizer(tigerMap,
@@ -247,7 +243,7 @@ class TigerMap {
 
         this._search = new Search(tigerMap);
 
-        const pointerEvents = this._evDispatcher = new EventDispatcher(mapEl, tigerMap, layers, mapConfig);
+        const pointerEvents = this._evDispatcher = new EventDispatcher(mapEl, tigerMap, layers, mapOptions);
 
         listeners.add('mapviewchangestart', (e) => pointerEvents.disable('pointerenter'));
         listeners.add('mapviewchangeend', (e) => pointerEvents.enable('pointerenter'));
@@ -256,7 +252,7 @@ class TigerMap {
 
         this.zoomAnimator = new ZoomAnimator(tigerMap);
 
-        const behaviorOptions = {...mapConfig['behavior'], ...mapConfig['behaviour']};
+        const behaviorOptions = {...mapOptions['behavior'], ...mapOptions['behaviour']};
 
         if (behaviorOptions[BEHAVIOR_ZOOM] == UNDEF) {
             behaviorOptions[BEHAVIOR_ZOOM] = DEFAULT_ZOOM_BEHAVIOR;
@@ -267,7 +263,7 @@ class TigerMap {
             tigerMap,
             new KineticPanAnimator(tigerMap),
             <BehaviorOptions>behaviorOptions,
-            mapConfig
+            mapOptions
         );
         // just attach the eventlisteners..
         // does not influence actual drag/zoom behavior
@@ -276,25 +272,25 @@ class TigerMap {
 
         this._vplock = {
             pan: false,
-            minLevel: mapConfig['minLevel'],
-            maxLevel: mapConfig['maxLevel']
+            minLevel: mapOptions['minLevel'],
+            maxLevel: mapOptions['maxLevel']
         };
 
-        const uiOptions = mapConfig['UI'] || mapConfig['ui'] || {};
+        const uiOptions = mapOptions['UI'] || mapOptions['ui'] || {};
         if (uiOptions.Compass == UNDEF) {
             // enable compass ui if pitch or rotate is enabled
             uiOptions.Compass = behaviorOptions[BEHAVIOR_ROTATE] || behaviorOptions[BEHAVIOR_PITCH];
         }
 
-        this.ui = new UI(mapEl, mapConfig, tigerMap);
+        this.ui = new UI(mapEl, mapOptions, tigerMap);
 
-        tigerMap.setCenter(mapConfig['center']);
-        tigerMap.pitch(mapConfig['pitch']);
-        tigerMap.rotate(mapConfig['rotate']);
+        tigerMap.setCenter(mapOptions['center']);
+        tigerMap.pitch(mapOptions['pitch']);
+        tigerMap.rotate(mapOptions['rotate']);
 
         tigerMap.setZoomlevel(zoomLevel);
 
-        (mapConfig['layers'] || []).forEach((layer) => this.addLayer(layer));
+        (mapOptions['layers'] || []).forEach((layer) => this.addLayer(layer));
     }
 
     private initViewPort(): [number, number] {
@@ -379,7 +375,7 @@ class TigerMap {
             lat = MAX_LATITUDE;
         }
 
-        this._c = new geo.Point(lon, lat);
+        this._c = new GeoPoint(lon, lat);
 
         this._cw = new PixelPoint(
             project.lon2x(lon, worldSizePixel),
@@ -401,15 +397,12 @@ class TigerMap {
     /**
      * Set or get map pitch (tilt) in degrees
      *
-     * @expose
-     * @function
-     * @param {number=} pitch in degrees
-     * @name here.xyz.maps.Map#pitch
+     * @param pitch - pitch in degrees
      */
-    pitch(angle?: number) {
-        if (angle !== UNDEF) {
+    pitch(pitch?: number) {
+        if (pitch !== UNDEF) {
             const maxPitch = this._cfg.maxPitch;
-            const deg = Math.max(0, Math.min(maxPitch, Math.round(angle % 360 * 10) / 10));
+            const deg = Math.max(0, Math.min(maxPitch, Math.round(pitch % 360 * 10) / 10));
 
             this._rx = -deg * Math.PI / 180;
             this.updateGrid();
@@ -420,14 +413,13 @@ class TigerMap {
     /**
      * Set or get map rotation along z-axis
      *
-     * @expose
-     * @function
-     * @param {number=} rotation of map in degrees
-     * @name here.xyz.maps.Map#rotate
+     * @param rotation - set absolute map rotation in degrees
+     *
+     * @returns current applied rotation in degrees
      */
-    rotate(deg?: number): number {
-        if (deg !== UNDEF) {
-            const rad = Math.round(10 * deg || 0) * Math.PI / 1800;
+    rotate(rotation?: number): number {
+        if (rotation !== UNDEF) {
+            const rad = Math.round(10 * rotation || 0) * Math.PI / 1800;
             const rotZRad = this._rz;
 
             if (rad !== rotZRad) {
@@ -455,13 +447,10 @@ class TigerMap {
     /**
      * Set the background color of the map
      *
-     * @expose
-     * @function
-     * @param {string} color
-     * @name here.xyz.maps.Map#setBackgroundColor
+     * @param color - the background color to set
      */
-    setBackgroundColor(bgc: string) {
-        this._display.setBGColor(bgc);
+    setBackgroundColor(color: string) {
+        this._display.setBGColor(color);
         this.refresh();
     };
 
@@ -470,54 +459,41 @@ class TigerMap {
      * supported events: 'mapviewchangestart', 'mapviewchange', 'mapviewchangeend', 'resize',
      * 'tap', 'dbltap', 'pointerup', 'pointerenter', 'pointerleave', 'pointerdown', 'pointermove', 'pressmove'
      *
-     * @expose
-     * @function
-     * @param {string} type event name
-     * @param {Function} callback callback function
-     // * @param {Object=} Context
-     // * @param {Array.<here.xyz.maps.layers.TileLayer>=} layers
-     * @name here.xyz.maps.Map#addEventListener
+     * @param type - event name
+     * @param callback - callback function
      */
-    addEventListener(type: string, cb) {
+    addEventListener(type: string, callback) {
         const listeners = this._l;
         type.split(' ').forEach((type) => {
             if (listeners.isDefined(type)) { // normal event listeners.
-                return listeners.add(type, cb);
+                return listeners.add(type, callback);
             }
-            this._evDispatcher.addEventListener(type, cb);
+            this._evDispatcher.addEventListener(type, callback);
         });
     };
 
     /**
      * Removes an event listener.
      *
-     * @expose
-     * @function
-     * @param {string} type event name
-     * @param {Function} callback callback function
-     // * @param {Object=} Context
-     // * @param {Array.<here.xyz.maps.layers.TileLayer>=} layers
-     * @name here.xyz.maps.Map#removeEventListener
+     * @param type event name
+     * @param callback callback function
      */
-    removeEventListener(type: string, cb) {
+    removeEventListener(type: string, callback) {
         const listeners = this._l;
         type.split(' ').forEach((type) => {
             if (listeners.isDefined(type)) { // normal event listeners.
-                return listeners.remove(type, cb);
+                return listeners.remove(type, callback);
             }
-            this._evDispatcher.removeEventListener(type, cb);
+            this._evDispatcher.removeEventListener(type, callback);
         });
     };
 
     /**
-     * Gets current view bounds of view port.
+     * Gets the current view bounds of the view port.
      *
-     * @expose
-     * @function
-     * @name here.xyz.maps.Map#getViewBounds
-     * @return {here.xyz.maps.geo.Rect}
+     * @return {here.xyz.maps.GeoRect}
      */
-    getViewBounds() {
+    getViewBounds(): GeoRect {
         let viewport = this._vp;
         let minLon = viewport.minLon;
         let maxLon = viewport.maxLon;
@@ -549,7 +525,7 @@ class TigerMap {
      * @expose
      * @function
      * @name here.xyz.maps.Map#setViewBounds
-     * @param {here.xyz.maps.geo.Rect|Array.<number>} bounds is either an geojson bbox array [minLon, minLat, maxLon, maxLat] or geo.Rect defining the viewbounds.
+     * @param {here.xyz.maps.GeoRect|Array.<number>} bounds is either an geojson bbox array [minLon, minLat, maxLon, maxLat] or GeoRect defining the viewbounds.
      *
      * @also
      *
@@ -619,7 +595,7 @@ class TigerMap {
      * @function
      *
 
-     * @param {here.xyz.maps.pixel.Point|here.xyz.maps.pixel.Rect=} point or rect in pixel
+     * @param {here.xyz.maps.PixelPoint|here.xyz.maps.pixel.Rect=} point or rect in pixel
      * @param {Object=} options
      * @param {number=} options.width width in pixel of rectangle if point geometry is used.
      * @param {number=} options.height height in pixel of rectangle if point geometry is used.
@@ -648,7 +624,7 @@ class TigerMap {
      * @function
      *
 
-     * @param {here.xyz.maps.pixel.Point|here.xyz.maps.pixel.Rect=} point or rect in pixel
+     * @param {here.xyz.maps.PixelPoint|here.xyz.maps.pixel.Rect=} point or rect in pixel
      * @param {Object=} options
      * @param {number=} options.width width in pixel of rectangle if point geometry is used.
      * @param {number=} options.height height in pixel of rectangle if point geometry is used.
@@ -841,7 +817,7 @@ class TigerMap {
      *
      * @expose
      * @function
-     * @param {here.xyz.maps.geo.Point} center center point
+     * @param {here.xyz.maps.GeoPoint} center center point
      * @name here.xyz.maps.Map#setCenter
      *
      * @example
@@ -860,7 +836,7 @@ class TigerMap {
      * @example
      * display.setCenter(80.10282, 12.91696);
      */
-    setCenter(lon: number | geo.Point, lat?: number) {
+    setCenter(lon: number | GeoPoint, lat?: number) {
         if (this._setCenter.apply(this, arguments)) {
             this.updateGrid();
         }
@@ -873,7 +849,7 @@ class TigerMap {
      *  @expose
      *  @function
      *  @name here.xyz.maps.Map#getCenter
-     *  @return {here.xyz.maps.geo.Point}
+     *  @return {here.xyz.maps.GeoPoint}
      *      map center
      */
     getCenter() {
@@ -1063,7 +1039,7 @@ class TigerMap {
      * @param {number} x
      * @param {number} y
      * @name here.xyz.maps.Map#pixelToGeo
-     * @return {here.xyz.maps.geo.Point} geo coordinate
+     * @return {here.xyz.maps.GeoPoint} geo coordinate
      *
      * @also
      *
@@ -1071,17 +1047,17 @@ class TigerMap {
      *
      * @expose
      * @function
-     * @param {here.xyz.maps.pixel.Point} pixel coordinate
+     * @param {here.xyz.maps.PixelPoint} pixel coordinate
      * @name here.xyz.maps.Map#pixelToGeo
-     * @return {here.xyz.maps.geo.Point} geo coordinate
+     * @return {here.xyz.maps.GeoPoint} geo coordinate
      *
      */
-    pixelToGeo(x: number | pixel.Point, y?: number) {
+    pixelToGeo(x: number | PixelPoint, y?: number) {
         const worldSizePixel = this._wSize;
 
         if (arguments.length == 1) {
-            y = (<pixel.Point>x).y;
-            x = (<pixel.Point>x).x;
+            y = (<PixelPoint>x).y;
+            x = (<PixelPoint>x).x;
         }
         const screenOffsetX = this._ox;
         const screenOffsetY = this._oy;
@@ -1116,21 +1092,21 @@ class TigerMap {
      * @param {number} lon longitude
      * @param {number} lat latitude
      * @name here.xyz.maps.Map#geoToPixel
-     * @return {here.xyz.maps.pixel.Point} pixel coordinate
+     * @return {here.xyz.maps.PixelPoint} pixel coordinate
      *
      * @also
      * Converts from geo to screen pixel coordinate.
      *
      * @expose
      * @function
-     * @param {here.xyz.maps.geo.Point} geo coordinate
+     * @param {here.xyz.maps.GeoPoint} geo coordinate
      * @name here.xyz.maps.Map#geoToPixel
-     * @return {here.xyz.maps.pixel.Point} pixel coordinate
+     * @return {here.xyz.maps.PixelPoint} pixel coordinate
      */
-    geoToPixel(lon: number | geo.Point, lat?: number) {
+    geoToPixel(lon: number | GeoPoint, lat?: number) {
         if (lat == UNDEF) {
-            lat = (<geo.Point>lon).latitude;
-            lon = (<geo.Point>lon).longitude;
+            lat = (<GeoPoint>lon).latitude;
+            lon = (<GeoPoint>lon).longitude;
         }
 
         if (lat < MIN_LATITUDE) {
@@ -1287,6 +1263,3 @@ class TigerMap {
         return this._el.parentNode;
     };
 }
-
-export default TigerMap;
-

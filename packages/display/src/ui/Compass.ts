@@ -20,7 +20,7 @@
 import UIComponent from './UIComponent';
 import {Animation} from '../animation/Animation';
 import Display from '../Map';
-import {MapOptions} from '../Config';
+import {MapOptions} from '../MapOptions';
 
 const ANIMATION_MS = 500;
 

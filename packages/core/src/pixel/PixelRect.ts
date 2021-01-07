@@ -17,7 +17,20 @@
  * License-Filename: LICENSE
  */
 
-export class Rect {
+/**
+ *  A class representing a rectangular area in pixel.
+ *
+ *  @class
+ *  @public
+ *  @expose
+ *  @constructor
+ *  @param minX {number} min x position in pixel
+ *  @param minY {number} min y position in pixel
+ *  @param maxX {number} max x position in pixel
+ *  @param maxY {number} max y position in pixel
+ *  @name here.xyz.maps.pixel.Rect
+ */
+export class PixelRect {
     /**
      *  An interface representing a rectangular area in pixel.
      *
