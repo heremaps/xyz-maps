@@ -44,7 +44,7 @@ const intersectBBox = (ax, ax2, ay, ay2, bx, bx2, by, by2) => {
  *  @param {here.xyz.maps.providers.TileProvider.Options} options
  *  @name here.xyz.maps.providers.TileProvider
  */
-abstract class TileProvider {
+export default abstract class TileProvider {
     __type: string;
 
     margin = 0;
@@ -305,5 +305,3 @@ abstract class TileProvider {
 }
 
 TileProvider.prototype.__type = 'Provider';
-
-export default TileProvider;
