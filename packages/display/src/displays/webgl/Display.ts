@@ -30,9 +30,7 @@ import GLTile from './GLTile';
 import {FeatureFactory} from './buffer/FeatureFactory';
 import {CollisionHandler} from './CollisionHandler';
 import {GeometryBuffer} from './buffer/GeometryBuffer';
-import {layers} from '@here/xyz-maps-core';
-
-type TileLayer = layers.TileLayer;
+import {TileLayer} from '@here/xyz-maps-core';
 
 const PREVIEW_LOOK_AHEAD_LEVELS: [number, number] = [3, 9];
 

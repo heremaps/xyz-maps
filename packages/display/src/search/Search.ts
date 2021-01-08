@@ -18,7 +18,7 @@
  */
 
 import Hit from './Hit';
-import {layers} from '@here/xyz-maps-core';
+import {TileLayer} from '@here/xyz-maps-core';
 
 // increase to make sure points (no bbox) are in hitbox of spatial check.
 // assumed default imagesize of 24x24 pixel
@@ -37,7 +37,7 @@ export class Search {
         this.hit = new Hit(map);
     }
 
-    private getFeaturesInRect(x1: number, y1: number, x2: number, y2: number, layers: layers.TileLayer[], zoomlevel: number, mostTopFeatureOnly?: boolean) {
+    private getFeaturesInRect(x1: number, y1: number, x2: number, y2: number, layers: TileLayer | TileLayer[], zoomlevel: number, mostTopFeatureOnly?: boolean) {
         const {map, hit} = this;
         let x = x1 + (x2 - x1) / 2;
         let y = y1 + (y2 - y1) / 2;
@@ -83,7 +83,11 @@ export class Search {
 
         viewbounds = [minLon, minLat, maxLon, maxLat];
 
-        let layerIndex = layers.length;
+        if (layers && !Array.isArray(layers)) {
+            layers = [];
+        }
+
+        let layerIndex = (<TileLayer[]>layers).length;
         let results = {};
 
         while (layerIndex--) {
@@ -133,7 +137,7 @@ export class Search {
         return found;
     }
 
-    search(x: number, y: number, x2: number, y2: number, layers: layers.TileLayer|layers.TileLayer[], mostTopFeatureOnly?: boolean) {
+    search(x: number, y: number, x2: number, y2: number, layers: TileLayer | TileLayer[], mostTopFeatureOnly?: boolean) {
         const {map} = this;
         let zl = map.getZoomlevel();
         let defaultLayers = map.layers;

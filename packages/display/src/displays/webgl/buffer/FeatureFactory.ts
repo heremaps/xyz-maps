@@ -37,9 +37,7 @@ import {PointBuffer} from './templates/PointBuffer';
 import {PolygonBuffer} from './templates/PolygonBuffer';
 import {ExtrudeBuffer} from './templates/ExtrudeBuffer';
 import {toPresentationFormB} from '../arabic';
-import {features} from '@here/xyz-maps-core';
-
-type Feature = features.Feature;
+import {Feature} from '@here/xyz-maps-core';
 
 type Coordinate = [number, number, number?];
 

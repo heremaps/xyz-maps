@@ -17,11 +17,8 @@
  * License-Filename: LICENSE
  */
 
-import {layers, tile} from '@here/xyz-maps-core';
+import {Tile, TileLayer} from '@here/xyz-maps-core';
 import BasicTile from './BasicTile';
-
-type Tile = tile.Tile;
-type TileLayer = layers.TileLayer;
 
 class ScreenTile {
     x: number;

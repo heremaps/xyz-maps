@@ -18,14 +18,13 @@
  */
 
 import {createTxtRef, measure, defaultFont} from './fontCache';
-import {features} from '@here/xyz-maps-core';
+import {Feature} from '@here/xyz-maps-core';
 import {toRGB} from './webgl/color';
 import {getRotatedBBox} from '../geometry';
 
 const INFINITY = Infinity;
 let UNDEF;
 
-type Feature = features.Feature;
 type styleStringFunction = (feature, zoom: number) => string | null | undefined;
 type styleNumberFunction = (feature, zoom: number) => number | null | undefined;
 

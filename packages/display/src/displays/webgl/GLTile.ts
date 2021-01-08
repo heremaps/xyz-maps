@@ -19,10 +19,9 @@
 
 import BasicTile from '../BasicTile';
 
-import {layers} from '@here/xyz-maps-core';
+import {TileLayer} from '@here/xyz-maps-core';
 import {GeometryBuffer} from './buffer/GeometryBuffer';
 
-type TileLayer = layers.TileLayer;
 
 let UNDEF;
 
