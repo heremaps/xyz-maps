@@ -101,8 +101,8 @@ const prepareFeature = (feature: Feature): Feature | false => {
     if (!feature.bbox) {
         // false -> unkown feature -> no success
         return updateBBox(feature) && feature;
-    } else if (feature.bbox.length === 6) { // convert to 2D bbox
-        feature.bbox = [feature.bbox[0], feature.bbox[1], feature.bbox[3], feature.bbox[4]];
+    } else if ((<number[]>feature.bbox).length === 6) { // convert to 2D bbox
+        feature.bbox = [feature.bbox[0], feature.bbox[1], feature.bbox[3], (<number[]>feature.bbox)[4]];
     }
     return feature;
 };
