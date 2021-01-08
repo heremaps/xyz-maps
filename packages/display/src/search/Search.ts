@@ -133,7 +133,7 @@ export class Search {
         return found;
     }
 
-    search(x: number, y: number, x2: number, y2: number, layers: layers.TileLayer[], mostTopFeatureOnly?: boolean) {
+    search(x: number, y: number, x2: number, y2: number, layers: layers.TileLayer|layers.TileLayer[], mostTopFeatureOnly?: boolean) {
         const {map} = this;
         let zl = map.getZoomlevel();
         let defaultLayers = map.layers;

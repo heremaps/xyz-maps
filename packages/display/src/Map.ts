@@ -31,10 +31,10 @@ import {JSUtils, Listener} from '@here/xyz-maps-common';
 import {ZoomAnimator} from './animation/ZoomAnimator';
 import {KineticPanAnimator} from './animation/KineticPanAnimator';
 import {defaultOptions, MapOptions} from './MapOptions';
-import {layers, projection, PixelPoint, PixelRect, GeoPoint, GeoRect} from '@here/xyz-maps-core';
+import {Feature, TileLayer, projection, PixelPoint, PixelRect, GeoPoint, GeoRect} from '@here/xyz-maps-core';
+import Tile from '@here/xyz-maps-core/src/tile/Tile';
 
 const project = projection.webMercator;
-const TileLayer = layers.TileLayer;
 
 const DEFAULT_ZOOM_ANIMATION_MS = 250;
 let DEFAULT_ZOOM_BEHAVIOR: 'fixed' | 'float' | boolean = 'fixed';
@@ -133,7 +133,7 @@ export default class Map {
     private _oy = 0; // screenOffsetX
 
     // TODO: remove
-    private layers: layers.TileLayer[];
+    private layers: TileLayer[];
     private _vplock: any; // current viewport lock state
     private zoomAnimator: ZoomAnimator;
     private _search: Search;
@@ -144,6 +144,7 @@ export default class Map {
      *  @param mapEl - HTMLElement used to create the map display
      *  @param mapOptions - configuration for the map
      *
+     * @example
      *  ```javascript
      *  //create Map display
      *  var display = new here.xyz.maps.Map( mapDiv, {
@@ -490,8 +491,6 @@ export default class Map {
 
     /**
      * Gets the current view bounds of the view port.
-     *
-     * @return {here.xyz.maps.GeoRect}
      */
     getViewBounds(): GeoRect {
         let viewport = this._vp;
@@ -522,22 +521,9 @@ export default class Map {
     /**
      * Set view bounds for the map to display.
      *
-     * @expose
-     * @function
-     * @name here.xyz.maps.Map#setViewBounds
-     * @param {here.xyz.maps.GeoRect|Array.<number>} bounds is either an geojson bbox array [minLon, minLat, maxLon, maxLat] or GeoRect defining the viewbounds.
-     *
-     * @also
-     *
-     * Set view bounds for the map to display.
-     *
-     * @expose
-     * @function
-     * @name here.xyz.maps.Map#setViewBounds
-     * @param {here.xyz.maps.providers.FeatureProvider.Feature} view bounds will be set to fit feature on screen.
-     *
+     * @param bounds - GeoRect, GeoJson Feature or an GeoJson bbox [minLon, minLat, maxLon, maxLat] defining the view bounds.
      */
-    setViewBounds(bounds) {
+    setViewBounds(bounds: GeoRect | [number, number, number, number] | Feature) {
         const args = arguments;
         let minLon;
         let minLat;
@@ -552,8 +538,8 @@ export default class Map {
             maxLon = args[2];
             maxLat = args[3];
         } else {
-            if (bounds.bbox) {
-                bounds = bounds.bbox;
+            if ((<Feature>bounds).bbox) {
+                bounds = (<Feature>bounds).bbox;
             }
             if (bounds instanceof Array) {
                 minLon = bounds[0];
@@ -591,28 +577,31 @@ export default class Map {
     /**
      * Get most top rendered feature within the given area of map
      *
-     * @expose
-     * @function
+     * @param position - Point or Rect in pixel to define search area.
+     * If a Point is used, width and height must be passed in options parameter.
      *
+     * @param options - Describing the options param
+     * @param options.width - width in pixel of rectangle if point geometry is used.
+     * @param options.height - height in pixel of rectangle if point geometry is used.
+     * @param options.layers - defines the layer(s) to search in.
 
-     * @param {here.xyz.maps.PixelPoint|here.xyz.maps.pixel.Rect=} point or rect in pixel
-     * @param {Object=} options
-     * @param {number=} options.width width in pixel of rectangle if point geometry is used.
-     * @param {number=} options.height height in pixel of rectangle if point geometry is used.
-     * @param {Array.<here.xyz.maps.layers.TileLayer>=} options.layers defines the layer(s) to search in.
-     * @name here.xyz.maps.Map#getFeatureAt
-     * @return {Object} result object providing {@link here.xyz.maps.layers.TileLayer|"layer"} and
-     *  {@link here.xyz.maps.providers.FeatureProvider.Feature|"feature"}.
+     * @returns The result providing found feature and layer.
+     * undefined is returned if nothing is found.
      */
-    getFeatureAt(geo, opt?) {
-        opt = opt || {};
-        opt.topOnly = true;
+    getFeatureAt(position: PixelPoint | PixelRect, options?: {
+        width?: number;
+        height?: number;
+        layers?: TileLayer | TileLayer[],
+        topOnly?: boolean
+    }): { feature: Feature, layer: TileLayer } | undefined {
+        options = options || {};
+        options.topOnly = true;
 
-        let result = this.getFeaturesAt(geo, opt);
+        const results = this.getFeaturesAt(position, options);
 
-        if (result.length) {
-            result = result[result.length - 1];
-            (<any>result).feature = (<any>result).features[0];
+        if (results.length) {
+            const result = results[results.length - 1];
+            result.feature = result.features[0];
             return result;
         }
     };
@@ -620,94 +609,86 @@ export default class Map {
     /**
      * Get rendered features within the given area of map
      *
-     * @expose
-     * @function
+     * @param position - Point or Rect in pixel to define search area.
+     * If a Point is used, width and height must be passed in options parameter.
      *
-
-     * @param {here.xyz.maps.PixelPoint|here.xyz.maps.pixel.Rect=} point or rect in pixel
-     * @param {Object=} options
-     * @param {number=} options.width width in pixel of rectangle if point geometry is used.
-     * @param {number=} options.height height in pixel of rectangle if point geometry is used.
-     * @param {Boolean=} [options.topOnly=false] if set to true only the top most feature will be returned.
-     * @param {Array.<here.xyz.maps.layers.TileLayer>=} options.layers defines the layer(s) to search in.
-     * @name here.xyz.maps.Map#getFeaturesAt
-     * @return {Array.<Object>} zIndex ordered Array of result objects providing:
-     *  {@link here.xyz.maps.layers.TileLayer|"layer"} and {@link here.xyz.maps.providers.FeatureProvider.Feature|"features"}.
+     * @param options - Describing the options param
+     * @param options.width - width in pixel of rectangle if point geometry is used.
+     * @param options.height - height in pixel of rectangle if point geometry is used.
+     * @param options.layers - defines the layer(s) to search in.
+     * @param options.topOnly - if set to true only the top most feature will be returned. [default: false]
+     *
+     * @returns zIndex ordered results array
      */
-    getFeaturesAt(geo, opt) {
+    getFeaturesAt(position: PixelPoint | PixelRect, options?: {
+        width?: number;
+        height?: number;
+        layers?: TileLayer | TileLayer[],
+        topOnly?: boolean
+    }): { features: Feature[], layer: TileLayer }[] {
         let x1;
         let x2;
         let y1;
         let y2;
 
-        opt = opt || {};
+        options = options || {};
 
         // its a point
-        if (geo.x != UNDEF && geo.y != UNDEF) {
-            let x = geo.x;
-            let y = geo.y;
-            let w = opt.width ^ 0;
-            let h = opt.height || w;
+        if ((<PixelPoint>position).x != UNDEF && (<PixelPoint>position).y != UNDEF) {
+            let x = (<PixelPoint>position).x;
+            let y = (<PixelPoint>position).y;
+            let w = options.width ^ 0;
+            let h = options.height || w;
 
             x1 = x - w / 2;
             x2 = x + w / 2;
 
             y1 = y - h / 2;
             y2 = y + h / 2;
-        } else if (geo.minX != UNDEF && geo.maxX != UNDEF) {
+        } else if ((<PixelRect>position).minX != UNDEF && (<PixelRect>position).maxX != UNDEF) {
             // its a  rect point
-            x1 = geo.minX;
-            y1 = geo.minY;
-            x2 = geo.maxX;
-            y2 = geo.maxY;
+            x1 = (<PixelRect>position).minX;
+            y1 = (<PixelRect>position).minY;
+            x2 = (<PixelRect>position).maxX;
+            y2 = (<PixelRect>position).maxY;
         }
 
         return x1 != UNDEF && this._search.search(
             x1, y1, x2, y2,
-            opt.layers,
-            opt.topOnly
+            options.layers,
+            options.topOnly
         );
     };
 
     /**
-     * Get map behavior.
-     *
-     * @public
-     * @expose
-     * @function
-     * @name here.xyz.maps.Map#getBehavior
-     * @return {Object} behavior
-     *  an object containg two properties: "zoom" and "drag", its boolean value indicates if
-     *  map zooming and dragging are activated or not.
+     * Get current active map behavior options.
      */
-    getBehavior() {
+    getBehavior(): { zoom: boolean, drag: boolean, pitch: boolean, rotate: boolean } {
         const settings = {};
         const options = this._b.getOptions();
         for (let b in options) {
             settings[b] = !!options[b];
         }
-        return settings;
-        // return JSUtils.clone(options);
+        return <any>settings;
     };
 
     /**
      * Set map behavior.
      *
      * @example
-     *  //to deactivate zooming map:
-     *setBehavior({zoom: false, drag: true})
+     * ```
+     * // to deactivate zooming map:
+     * setBehavior({zoom: false, drag: true});
+     * ```
      *
-     * @public
-     * @expose
-     * @function
-     * @param {Object} behavior
-     * @param {Boolean=} behavior.zoom true to enable map zooming, false to disable.
-     * @param {Boolean=} behavior.drag true to enable map dragging, false to disable.
-     // * @param {Boolean=} behavior.pitch true to enable map pitching, false to disable.
-     // * @param {Boolean=} behavior.rotate true to enable map rotation, false to disable.
-     * @name here.xyz.maps.Map#setBehavior
+     * @param options - Behavior options
+     * @param options.zoom - true to enable map zooming, false to disable.
+     * @param options.drag - true to enable map dragging, false to disable.
+     * @param options.pitch - true to enable map pitching, false to disable.
+     * @param options.rotate - true to enable map rotation, false to disable.
      */
-    setBehavior(key, value) {
+    setBehavior(options): void;
+    setBehavior(key, value?) {
         let type = typeof key;
         let options = type == 'object' ? key : {};
         const behaviorOptions = this._b.getOptions();
@@ -736,27 +717,21 @@ export default class Map {
     };
 
     /**
-     * Gets current zoomlevel
+     * Get the current zoom level
      *
-     * @expose
-     * @function
-     * @name here.xyz.maps.Map#getZoomlevel
-     * @return {number} zoomlevel
+     * @returns the current zoom level of the map
      */
-    getZoomlevel() {
+    getZoomlevel(): number {
         return this._z + Math.log(this._s) / Math.LN2;
     };
 
     /**
-     * Sets zoomlevel with an optional anchor point
+     * Set zoomlevel with an optional anchor point.
      *
-     * @expose
-     * @function
-     * @param {number} toLevel new zoomlevel
-     * @param {number=} toX new center in pixel
-     * @param {number=} toY new center in pixel
-     * @param {number=} [animation=0] zoom transition animation time in ms
-     * @name here.xyz.maps.Map#setZoomlevel
+     * @param zoomTo - new zoomlevel
+     * @param fixedX - x coordinate of fixed anchor point on screen in pixels
+     * @param fixedY - y coordinate of fixed anchor point on screen in pixels
+     * @param animate - zoom transition animation time in milliseconds [default: 0]
      */
     setZoomlevel(zoomTo: number, fixedX?: number, fixedY?: number, animate?: number) {
         const vplock = this._vplock;
@@ -812,30 +787,31 @@ export default class Map {
         }
     };
 
+
     /**
-     * Set new map center.
+     * Set new geographical center for the map.
      *
-     * @expose
-     * @function
-     * @param {here.xyz.maps.GeoPoint} center center point
-     * @name here.xyz.maps.Map#setCenter
+     * @param center - the geographical coordinate to center the map
      *
      * @example
+     * ```
      * display.setCenter({longitude: 80.10282, latitude: 12.91696});
+     * ```
+     */
+    setCenter(center: GeoPoint);
+    /**
+     * Set new geographical center for the map.
      *
-     * @also
-     *
-     * Set new map center.
-     *
-     * @expose
-     * @function
-     * @param {number} log longitude of the center
-     * @param {number} lat latitude of the center
-     * @name here.xyz.maps.Map#setCenter
+     * @param logitude - longitude to center the map
+     * @param latitude - latitude to center the map
      *
      * @example
+     * ```
      * display.setCenter(80.10282, 12.91696);
+     * ```
      */
+    setCenter(longitude: number | GeoPoint, latitude: number);
+
     setCenter(lon: number | GeoPoint, lat?: number) {
         if (this._setCenter.apply(this, arguments)) {
             this.updateGrid();
@@ -843,41 +819,48 @@ export default class Map {
     };
 
     /**
-     *  Get map center.
+     *  Get the current geographical center of the map.
      *
-     *  @public
-     *  @expose
-     *  @function
-     *  @name here.xyz.maps.Map#getCenter
-     *  @return {here.xyz.maps.GeoPoint}
-     *      map center
+     *  @returns the map's geographical center point.
      */
-    getCenter() {
+    getCenter(): GeoPoint {
         return new GeoPoint(
             this._c.longitude,
             this._c.latitude
         );
     };
 
+
     /**
-     * lock view port by indicating if pan, minLevel and maxLevel are locked
+     * get the current applied lock status of the map.
      *
-     * @expose
-     * @function
-     * @param {Object} lock
-     * @param {Boolean=} lock.pan true to enable panning, false to disable panning.
-     * @param {number=} lock.minLevel minimum zoomlevel to which the map could zoom.
-     * @param {number=} lock.maxLevel maximum zoomlevel to which the map could zoom.
-     * @name here.xyz.maps.Map#lockViewport
-     * @return {Object} an object literal including "pan", "minLevel" and "maxLevel" values.
+     * @returns the current applied lock options.
      */
-    lockViewport(lock?): { pan: boolean, minLevel: number, maxLevel: number } {
+    lockViewport(): { pan: boolean, minLevel: number, maxLevel: number };
+    /**
+     * set lock the viewport of the map.
+     * by indicating if panning, minLevel and maxLevel should be locked.
+     *
+     * @param options - the lock options.
+     * @param options.pan - true to enable panning, false to disable panning.
+     * @param options.minLevel - the minimum allowed zoom level that can be zoomed to.
+     * @param options.maxLevel - the maximum allowed zoom level that can be zoomed to.
+     *
+     * @returns the current applied lock options.
+     */
+    lockViewport(options: {
+        pan: boolean,
+        minLevel: number,
+        maxLevel: number
+    }): { pan: boolean, minLevel: number, maxLevel: number };
+
+    lockViewport(options?): { pan: boolean, minLevel: number, maxLevel: number } {
         const lockState = this._vplock;
 
-        if (lock) {
-            let pan = lock['pan'];
-            let minLevel = lock['minLevel'];
-            let maxLevel = lock['maxLevel'];
+        if (options) {
+            let pan = options['pan'];
+            let minLevel = options['minLevel'];
+            let maxLevel = options['maxLevel'];
 
             // resest to default
             minLevel = minLevel === false ? this._cfg['minLevel'] : minLevel;
@@ -901,17 +884,12 @@ export default class Map {
 
 
     /**
-     * Moves the map
+     * Shift the geographical center of the map in pixels.
      *
-     * @expose
-     * @function
-     * @param {number} dx distance in pixels to pan on x axis
-     * @param {number} dy distance in pixels to pn on y axis
-     * @param {number=} ax anchor point on x axis
-     * @param {number=} ay anchor point on y axis
-     * @name here.xyz.maps.Map#pan
+     * @param dx - distance in pixels to pan the map on x axis
+     * @param dy - distance in pixels to pan the map on y axis
      */
-    pan(dx: number, dy: number, _dx?: number, _dy?: number) {
+    pan(dx: number, dy: number) {
         // make sure dx or dy results in real viewport change...
         if (dx != 0 || dy != 0) {
             const worldSizePixel = this._wSize;
@@ -930,15 +908,12 @@ export default class Map {
     };
 
     /**
-     * Gets layers in map display
+     * Get the current added layer(s) of the map.
      *
-     * @expose
-     * @function
-     * @param {number=} index
-     * @name here.xyz.maps.Map#getLayers
-     * @return {Array.<here.xyz.maps.layers.TileLayer>|here.xyz.maps.layers.TileLayer} layers that added to map display
+     * @param index - get a specific layer at index in the layer hierarchy
+     * @return the layer(s) that are added to the map
      */
-    getLayers(index?: number) {
+    getLayers(index?: number): TileLayer | TileLayer[] {
         const layers = this.layers;
         if (index != UNDEF) {
             return layers[index];
@@ -948,17 +923,14 @@ export default class Map {
 
 
     /**
-     * Adds a layer to the map display.
-     * If index is defined the layer will be placed at respective index in drawing hierarchy.
-     * otherwise it's added on top.
+     * Adds a layer to the map.
+     * If index is defined the layer will be placed at respective index in the layer hierarchy.
+     * Otherwise it's added on top (last).
      *
-     * @expose
-     * @function
-     * @param {here.xyz.maps.layers.TileLayer} layer layer
-     * @param {number=} index layer-index in drawing hierarchy
-     * @name here.xyz.maps.Map#addLayer
+     * @param layer - the layer to add
+     * @param index - the index in layer hierarchy where the layer should be inserted.
      */
-    addLayer(layer: layers.TileLayer, index?: number) {
+    addLayer(layer: TileLayer, index?: number) {
         const layers = this.layers;
         // make sure layer isn't active already
         if (layers.indexOf(layer) == -1) {
@@ -981,14 +953,11 @@ export default class Map {
 
 
     /**
-     * Removes a layer provider from the map overlay
+     * Remove a layer from the map.
      *
-     * @expose
-     * @function
-     * @param {here.xyz.maps.layers.TileLayer} layer layer
-     * @name here.xyz.maps.Map#removeLayer
+     * @param layer - the layer to remove
      */
-    removeLayer(layer: layers.TileLayer) {
+    removeLayer(layer: TileLayer) {
         const layers = this.layers;
         const index = layers.indexOf(layer);
 
@@ -1009,50 +978,41 @@ export default class Map {
 
 
     /**
-     * Refreshes the map
+     * Refresh the map view.
+     * Manually trigger re-rendering of specific layer(s) of the map.
      *
-     * @expose
-     * @function
-     * @name here.xyz.maps.Map#refresh
-     * @param {(here.xyz.maps.layers.TileLayer|Array.<here.xyz.maps.layers.TileLayer>)=} layer
-     *      Refresh the given layer in map, all layers in map are refreshed if layer is not given.
+     * @param layers - the layer(s) that should be refreshed/re-rendered.
      */
-    refresh(refreshlayer?) {
-        if (!(refreshlayer instanceof Array)) {
-            refreshlayer = [refreshlayer];
+    refresh(layers?: TileLayer | TileLayer[]) {
+        if (!(layers instanceof Array)) {
+            layers = [layers];
         }
-        let len = refreshlayer.length;
-        while (len--) {
-            if (refreshlayer[len] instanceof TileLayer) {
-                this._display.clearLayer(refreshlayer[len]);
+        for (let layer of layers) {
+            if (layer instanceof TileLayer) {
+                this._display.clearLayer(layer);
             }
         }
         this.updateGrid();
     };
 
-
     /**
      * Converts from screen pixel to geo coordinate
      *
-     * @expose
-     * @function
-     * @param {number} x
-     * @param {number} y
-     * @name here.xyz.maps.Map#pixelToGeo
-     * @return {here.xyz.maps.GeoPoint} geo coordinate
+     * @param x - the x position on screen in pixel
+     * @param y - the y position on screen in pixel
      *
-     * @also
-     *
+     * @returns the geographical coordinate
+     */
+    pixelToGeo(x: number, y: number): GeoPoint;
+    /**
      * Converts from screen pixel to geo coordinate
      *
-     * @expose
-     * @function
-     * @param {here.xyz.maps.PixelPoint} pixel coordinate
-     * @name here.xyz.maps.Map#pixelToGeo
-     * @return {here.xyz.maps.GeoPoint} geo coordinate
+     * @param position - the pixel coordinate on screen
      *
+     * @returns the geographical coordinate
      */
-    pixelToGeo(x: number | PixelPoint, y?: number) {
+    pixelToGeo(position: PixelPoint): GeoPoint;
+    pixelToGeo(x: number | PixelPoint, y?: number): GeoPoint {
         const worldSizePixel = this._wSize;
 
         if (arguments.length == 1) {
@@ -1085,25 +1045,24 @@ export default class Map {
     };
 
     /**
-     * Converts from geo to screen pixel coordinate.
+     * Convert a geographical coordinate to a pixel coordinate relative to the current viewport of the map.
      *
-     * @expose
-     * @function
-     * @param {number} lon longitude
-     * @param {number} lat latitude
-     * @name here.xyz.maps.Map#geoToPixel
-     * @return {here.xyz.maps.PixelPoint} pixel coordinate
+     * @param longitude - the longitude
+     * @param latitude -  lat latitude
      *
-     * @also
-     * Converts from geo to screen pixel coordinate.
-     *
-     * @expose
-     * @function
-     * @param {here.xyz.maps.GeoPoint} geo coordinate
-     * @name here.xyz.maps.Map#geoToPixel
-     * @return {here.xyz.maps.PixelPoint} pixel coordinate
+     * @return the pixel coordinate relative to the current viewport.
      */
-    geoToPixel(lon: number | GeoPoint, lat?: number) {
+    geoToPixel(longitude: number, latitude?: number): PixelPoint;
+    /**
+     * Convert a geographical coordinate to a pixel coordinate relative to the current viewport of the map.
+     *
+     * @param coordinate - the geographical coordinate
+     *
+     * @return the pixel coordinate relative to the current viewport.
+     */
+    geoToPixel(coordinate: GeoPoint): PixelPoint;
+
+    geoToPixel(lon: number | GeoPoint, lat?: number): PixelPoint {
         if (lat == UNDEF) {
             lat = (<GeoPoint>lon).latitude;
             lon = (<GeoPoint>lon).longitude;
@@ -1125,11 +1084,7 @@ export default class Map {
     };
 
     /**
-     * Destroys the map
-     *
-     * @expose
-     * @function
-     * @name here.xyz.maps.Map#destroy
+     * Destroy the the map.
      */
     destroy() {
         const mapEl = this._el;
@@ -1155,111 +1110,91 @@ export default class Map {
     };
 
     /**
-     * Resize the map with new width and height, take width and height of map contain by default.
+     * Resize the map view.
+     * If no width/height is passed the map will resize automatically to the maximum possible size defined by the HTMLElement.
      *
-     * @expose
-     * @function
-     * @param {number=} w new width of map display
-     * @param {number=} h new height of map display
-     * @name here.xyz.maps.Map#resize
+     * @param width - new width in pixels
+     * @param height - new height in pixels
      */
-    resize(w: number, h: number) {
+    resize(width?: number, height?: number) {
         const mapEl = this._el;
 
-        if (w == UNDEF || h == UNDEF) {
-            w = getElDimension(<HTMLElement>mapEl.parentNode, WIDTH);
-            h = getElDimension(<HTMLElement>mapEl.parentNode, HEIGHT);
+        if (width == UNDEF || height == UNDEF) {
+            width = getElDimension(<HTMLElement>mapEl.parentNode, WIDTH);
+            height = getElDimension(<HTMLElement>mapEl.parentNode, HEIGHT);
         }
 
         const {_w, _h} = this;
 
-        if (_w !== w || _h !== h) {
-            mapEl.style.width = w + 'px';
-            mapEl.style.height = h + 'px';
+        if (_w !== width || _h !== height) {
+            mapEl.style.width = width + 'px';
+            mapEl.style.height = height + 'px';
 
-            this._display.setSize(w, h);
+            this._display.setSize(width, height);
 
-            this._w = w;
-            this._h = h;
+            this._w = width;
+            this._h = height;
 
-            this._cx = w / 2;
-            this._cy = h / 2;
+            this._cx = width / 2;
+            this._cy = height / 2;
 
             this.updateGrid();
 
-            this._l.trigger('resize', [new MapEvent('resize', {width: w, height: h})]);
+            this._l.trigger('resize', [new MapEvent('resize', {width: width, height: height})]);
         }
     };
 
     /**
-     * Gets current width of view port.
+     * Get the current width in pixels of map.
      *
-     * @expose
-     * @function
-     * @name here.xyz.maps.Map#getWidth
-     * @return {number} width of view port
      */
     getWidth(): number {
         return this._w;
     };
 
     /**
-     * Gets current height of view port.
+     * Get the current height in pixels of map.
      *
-     * @expose
-     * @function
-     * @name here.xyz.maps.Map#getHeight
-     * @return {number} height of view port
      */
     getHeight(): number {
         return this._h;
     };
 
     /**
-     * Adds an observer, supported observers: "zoomlevel", "center"
+     * Add an observer to the map.
+     * Supported observer types are: "zoomlevel" and "center".
      *
-     * @expose
-     * @function
-     * @param {string} key
-     * @param {Function} callback
-     // * @param {Object=} context
-     * @name here.xyz.maps.Map#addObserver
+     * name - the name of the value to observe
+     * observer - the observer that will be executed on value changes.
+     *
+     * @returns boolean that's indicating if observer was added.
      */
-    addObserver(key: string, callback/* , context*/) {
-        if (key == 'zoomLevel') {
-            key = 'zoomlevel';
+    addObserver(name: string, observer: (name: string, newValue: any, prevValue: any) => void): boolean {
+        if (name == 'zoomLevel') {
+            name = 'zoomlevel';
         }
-        return this._l.add(key, callback/* , context*/);
+        return this._l.add(name, observer);
     };
 
     /**
-     * Removes an observer
+     * Removes an observer from the map.
      *
-     * @expose
-     * @function
-     * @param {string} key
-     * @param {Function} callback
-     // * @param {Object=} context
-     * @name here.xyz.maps.Map#removeObserver
+     * name - the name of the value to observe
+     * observer - the observer that should be removed.
+     *
+     * @returns boolean that's indicating if observer was removed.
      */
-    removeObserver(key: string, callback/* , context*/) {
-        if (key == 'zoomLevel') {
-            key = 'zoomlevel';
+    removeObserver(name: string, observer: (name: string, newValue: any, prevValue: any) => void): boolean {
+        if (name == 'zoomLevel') {
+            name = 'zoomlevel';
         }
-        return this._l.remove(key, callback/* , context*/);
+        return this._l.remove(name, observer);
     };
 
     /**
-     *  Get DOM element of the map.
-     *
-     *  @public
-     *  @expose
-     *  @function
-     *  @name here.xyz.maps.Map#getContainer
-     *  @return {Node}
-     *      map container
+     *  Get the HTMLElement used by the map.
      */
-    getContainer() {
-        return this._el.parentNode;
+    getContainer(): HTMLElement {
+        return <HTMLElement>(this._el.parentNode);
     };
 }

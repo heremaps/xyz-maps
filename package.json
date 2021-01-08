@@ -18,6 +18,7 @@
         "watch-dev": "lerna run watch-dev --parallel",
         "build-dev": "lerna run build-dev --parallel",
         "build-doc": "yarn run build-dev && lerna run --scope @here/xyz-maps-docs build",
+        "doc": "npx typedoc ./packages/display/ ./packages/core",
         "build-release": "lerna run build-release --parallel",
         "bundle-release": "yarn run build-doc && yarn run build-playground && yarn run build-release",
         "playground": "yarn run build-playground && npx http-server . -d -c-1 -p 8081 -o ./packages/playground/dist",
@@ -44,7 +45,7 @@
         "lint-staged": "^10.2.11",
         "ts-node": "^8.10.2",
         "typescript": "^3.9.6",
-        "typedoc": "^0.20.13",
+        "typedoc": "^0.19.2",
         "typedoc-plugin-remove-references": "^0.0.5",
         "typescript": "^3.9.6"
     },

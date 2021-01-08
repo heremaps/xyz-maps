@@ -26,10 +26,12 @@ import {PixelRect} from './pixel/PixelRect';
 import {TileLayer} from './layers/TileLayer';
 import {MVTLayer} from './layers/MVTLayer';
 
+import {Feature} from './features/Feature';
+
 // TODO: remove namespaces
 import * as tile from './tile/ns';
 import * as providers from './providers/providers';
-import * as features from './features/features';
+// import * as features from './features/features';
 import * as GeoJSON from './data/prepare/GeoJSON';
 import * as common from '@here/xyz-maps-common';
 
@@ -51,6 +53,8 @@ export * from './geo/GeoRect';
 export * from './layers/TileLayer';
 export * from './layers/MVTLayer';
 
+export * from './features/Feature';
+
 
 // WORKAROUND IF BUNDELED BY WEBPACK (UMD REMOVAL)
 // make sure global ns is also available for webpack users.
@@ -70,10 +74,12 @@ const layers = XYZMAPS.layers = {
     MVTLayer: MVTLayer
 };
 
+const features = XYZMAPS.features = {
+    Feature: Feature
+};
+
 
 XYZMAPS.tile = tile;
-XYZMAPS.layers = layers;
-XYZMAPS.features = features;
 XYZMAPS.providers = providers;
 
 

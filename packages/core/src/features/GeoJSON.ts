@@ -25,7 +25,7 @@ export type GeoJSONGeometryType =
     | 'Polygon'
     | 'MultiPolygon';
 
-export type GeoJSONBBox = [number, number, number, number, number?, number?];
+export type GeoJSONBBox = [number, number, number, number];
 
 export type Coordinate = [number, number, number?];
 
