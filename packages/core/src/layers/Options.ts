@@ -17,71 +17,40 @@
  * License-Filename: LICENSE
  */
 
-export default {
+import TileProvider from '../providers/TileProvider/TileProvider';
+import {LayerStyle} from './LayerStyle';
+
+
+/**
+ *  Configuration options for a TileLayer.
+ */
+export interface TileLayerOptions {
     /**
-     *  Configuration of layers.
-     *
-     *  @public
-     *  @class
-     *  @interface
-     *  @expose
-     *  @constructor
-     *  @name here.xyz.maps.layers.TileLayer.Options
+     * Name of the TileLayer.
      */
+    name?: string;
 
     /**
-     * Layer name.
-     *
-     * @public
-     * @expose
-     * @optional
-     * @name here.xyz.maps.layers.TileLayer.Options#name
-     * @type {string}
+     * minimum zoom level at which data from the TileLayer will be displayed.
      */
-    // name: null,
+    min?: number;
 
     /**
-     * minimum zoom level at which features from the layer's provider are displayed.
-     *
-     * @public
-     * @expose
-     * @optional
-     * @name here.xyz.maps.layers.TileLayer.Options#min
-     * @type {number}
+     * maximum zoom level at which data from the TileLayer will be displayed.
      */
-    // min: null,
+    max?: number;
 
     /**
-     * maximum zoom level at which features from the layer's provider are displayed.
-     *
-     * @public
-     * @expose
-     * @optional
-     * @name here.xyz.maps.layers.TileLayer.Options#max
-     * @type {number}
+     * The data provider for the TileLayer.
      */
-    // max: null,
-
-    /**
-     * The providers that provide data for this layer.
-     *
-     * @public
-     * @expose
-     * @optional
-     * @name here.xyz.maps.layers.TileLayer.Options#provider
-     * @type {Array.<here.xyz.maps.providers.TileProvider>|here.xyz.maps.providers.TileProvider}
-     *
-     */
-    // provider: null,
+    provider?: TileProvider;
+    providers?: any;
 
     /**
      * Style for rendering features in this layer.
-     *
-     * @public
-     * @expose
-     * @optional
-     * @name here.xyz.maps.layers.TileLayer.Options#style
-     * @type {here.xyz.maps.layers.TileLayer.TileLayerStyle}
      */
-    // style: null
-};
+    style?: LayerStyle;
+
+    margin?: number;
+    tileSize?: number;
+}

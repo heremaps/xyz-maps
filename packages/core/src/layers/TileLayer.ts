@@ -5,7 +5,7 @@
  * you may not use this file except in compliance with the License.
  * You may obtain a copy of the License at
  *
- *     http://www.apache.org/licenses/LICENSE-2.0
+ *    http://www.apache.org/licenses/LICENSE-2.0
  *
  * Unless required by applicable law or agreed to in writing, software
  * distributed under the License is distributed on an "AS IS" BASIS,
@@ -19,14 +19,18 @@
 
 import {Listener as Listeners} from '@here/xyz-maps-common';
 import defaultStylesDef from '../styles/default';
-import LayerStyle from './LayerStyle';
+import LayerStyleImpl from './LayerStyleImpl';
+
+import {LayerStyle, Style} from './LayerStyle';
+
 /* exported Options */
-import Options from './Options';
+import {TileLayerOptions} from './Options';
 import TileProvider from '../providers/TileProvider/TileProvider';
 import {RemoteTileProvider} from '../providers/RemoteTileProvider/RemoteTileProvider';
 import {FeatureProvider} from '../providers/FeatureProvider';
+import {Tile, Feature, GeoPoint, GeoRect} from '@here/xyz-maps-core';
+import {GeoJSONBBox, GeoJSONCoordinates, GeoJSONFeature, GeoJSONFeatureCollection} from '../features/GeoJSON';
 
-const doc = Options; // doc only!
 const REMOVE_FEATURE_EVENT = 'featureRemove';
 const ADD_FEATURE_EVENT = 'featureAdd';
 const MODIFY_FEATURE_COORDINATES_EVENT = 'featureCoordinatesChange';
@@ -42,14 +46,7 @@ export const DEFAULT_LAYER_MAX_ZOOM = 32;
 let UNDEF;
 
 /**
- *  Layers
- *
- *  @public
- *  @class
- *  @expose
- *  @constructor
- *  @param {here.xyz.maps.layers.TileLayer.Options}
- *  @name here.xyz.maps.layers.TileLayer
+ * TileLayer
  */
 export class TileLayer {
     protected _p: TileProvider[] = [];
@@ -63,73 +60,49 @@ export class TileLayer {
     private _l: Listeners;
 
     protected __type = 'Layer';
+
+    /**
+     * default tile margin in pixel
+     */
     protected margin: number = 20;
 
-    public id: string;
+    /**
+     * id of the Layer.
+     */
+    public readonly id: string;
 
+    /**
+     * Name of the Layer
+     */
     public name: string = '';
 
+    /**
+     * minimum zoom level at which data from the Layer is displayed.
+     */
     public min: number = DEFAULT_LAYER_MIN_ZOOM;
+
+    /**
+     * maximum zoom level at which data from the Layer will be displayed.
+     */
     public max: number = DEFAULT_LAYER_MAX_ZOOM;
 
     public tileSize: number;
 
     levelOffset: number = 0;
 
-    constructor(cfg) {
+    /**
+     * TileLayer
+     * @param
+     */
+    constructor(options: TileLayerOptions) {
         const layer = this;
 
-        for (const c in cfg) {
-            layer[c] = cfg[c];
+        for (const c in options) {
+            layer[c] = options[c];
         }
 
-        /**
-         * Layer name
-         *
-         * @public
-         * @expose
-         * @name here.xyz.maps.layers.TileLayer#name
-         * @type {string}
-         */
-
-        /**
-         * minimum zoom level.
-         *
-         * @public
-         * @expose
-         * @name here.xyz.maps.layers.TileLayer#min
-         * @type {number}
-         */
-
-        /**
-         * maximum zoom level.
-         *
-         * @public
-         * @expose
-         * @name here.xyz.maps.layers.TileLayer#max
-         * @type {number}
-         */
-
-        /**
-         *  default tile margin in pixel
-         *
-         *  @public
-         *  @expose
-         *  @type {number}
-         *  @name here.xyz.maps.layers.TileLayer#margin
-         */
-
-        /**
-         * Layer id, identifier of the Layer.
-         *
-         * @public
-         * @readonly
-         * @expose
-         * @name here.xyz.maps.layers.TileLayer#id
-         * @type {string}
-         */
         if (layer.id == UNDEF) {
-            layer.id = 'L-' + (Math.random() * 1e8 ^ 0);
+            (<any>layer).id = 'L-' + (Math.random() * 1e8 ^ 0);
         }
 
 
@@ -145,7 +118,7 @@ export class TileLayer {
         ]);
 
 
-        const providerCfg = cfg.providers || cfg.provider;
+        const providerCfg = options.providers || options.provider;
         let tileSize = DEFAULT_TILE_SIZE;
 
         const setProvider = (min, max, provider) => {
@@ -202,7 +175,7 @@ export class TileLayer {
         // deprecated fallback
         const deprecatedProviderStyles = this._fp && (<any> this._fp).styles;
 
-        if (style = cfg.style || cfg.styles || deprecatedProviderStyles || defaultStylesDef) {
+        if (style = options.style || (<any>options).styles || deprecatedProviderStyles || defaultStylesDef) {
             layer.setStyle(style);
         }
 
@@ -213,13 +186,7 @@ export class TileLayer {
     }
 
     /**
-     *  Get provider of this layer.
-     *
-     *  @public
-     *  @expose
-     *  @function
-     *  @name here.xyz.maps.layers.TileLayer#getProvider
-     *  @return {here.xyz.maps.providers.TileProvider}
+     * Get provider(s) of this layer.
      */
     getProvider(level?: number): TileProvider {
         if (level) {
@@ -229,16 +196,14 @@ export class TileLayer {
     };
 
     /**
-     *  add event listener to layer, valid events: "featureAdd", "featureRemove", "featureCoordinatesChange", "clear", "styleGroupChange", "styleChange", and "viewportReady"
+     * Add an EventListener to the layer.
+     * Valid events: "featureAdd", "featureRemove", "featureCoordinatesChange", "clear", "styleGroupChange", "styleChange", and "viewportReady"
      *
-     *  @public
-     *  @expose
-     *  @function
-     *  @name here.xyz.maps.layers.TileLayer#addEventListener
-     *  @param {String} type
-     *  @param {Function} callback
-     *  @param {Object=} context
+     * @param type - A string representing the event type to listen for
+     * @param eventListener - the listener function that will be called when an event of the specific type occurs
      */
+    addEventListener(type: string, listener: (event: any) => void);
+
     addEventListener(type: string, cb, scp?) {
         const listeners = this._l;
 
@@ -250,16 +215,14 @@ export class TileLayer {
     };
 
     /**
-     *  remove event listener to layer, valid events: "featureAdd", "featureRemove", "featureCoordinatesChange", "clear", "styleGroupChange", "styleChange", and "viewportReady"
+     * Remove an EventListener from the layer.
+     * Valid events: "featureAdd", "featureRemove", "featureCoordinatesChange", "clear", "styleGroupChange", "styleChange", and "viewportReady"
      *
-     *  @public
-     *  @expose
-     *  @function
-     *  @name here.xyz.maps.layers.TileLayer#removeEventListener
-     *  @param {String} type
-     *  @param {Function} callback
-     *  @param {Object=} context
+     * @param {String} type - A string which specifies the type of event for which to remove an event listener.
+     * @param {Function} listener - The EventListener function of the event handler to remove from the event target.
      */
+    removeEventListener(type: string, listener: (event: any) => void);
+
     removeEventListener(type: string, cb, scp?) {
         const listeners = this._l;
 
@@ -302,49 +265,56 @@ export class TileLayer {
 
 
     /**
-     *  Modify coordinates of a feature in layer.
+     * Modify coordinates of a feature in the layer.
      *
-     *  @public
-     *  @expose
-     *  @function
-     *  @name here.xyz.maps.layers.TileLayer#setFeatureCoordinates
-     *  @param {here.xyz.maps.providers.FeatureProvider.Feature} feature
-     *  @param {Array.<Array>|Array.<number>} coordinates new coordinates of the feature, it is either array of coordinates: [longitude, latitude, z] or
-     *      array of coordinate arrays: [ [longitude, latitude, z], [longitude, latitude, z], , , , ].
+     * @param feature - the Feature whose coordinates should be modified
+     * @param coordinates - the modified coordinates to set
      */
-    setFeatureCoordinates(feature, coordinates) {
+    setFeatureCoordinates(feature: Feature, coordinates: GeoJSONCoordinates) {
         return this._fp.setFeatureCoordinates(feature, coordinates);
     };
 
     /**
-     *  Add a feature to layer.
+     * Add a feature to the layer.
      *
-     *  @public
-     *  @expose
-     *  @function
-     *  @name here.xyz.maps.layers.TileLayer#addFeature
-     *  @param {here.xyz.maps.providers.FeatureProvider.Feature} feature the feature to be added to layer
-     *  @param {Array.<here.xyz.maps.layers.TileLayer.Style>=} stylegroup
+     * @param feature - the feature(s) to be added to the layer
+     * @param style - optional style the feature should be displayed with.
+     *
      * @example
-     *layer.addFeature({
-     *  geometry: {
-     *      coordinates: [[-122.49373, 37.78202, 0], [-122.49263, 37.78602, 0]],
-     *      type: "LineString"
-     *      },
-     *      type: "Feature"
-     *  },[
-     *      {zIndex:0, type:"Line", stroke:"#DDCB97", "strokeWidth":18}
-     *  ])
-     *  @return {here.xyz.maps.providers.FeatureProvider.Feature} feature
+     * ```
+     * # add a feature that will be displayed with the default style of the layer.
+     * layer.addFeature({
+     *    type: "Feature"
+     *    geometry: {
+     *        coordinates: [[-122.49373, 37.78202, 0], [-122.49263, 37.78602, 0]],
+     *        type: "LineString"
+     *    }
+     * });
+     * ```
+     * @example
+     * ```
+     * # add a feature that will be displayed with a specific style.
+     * layer.addFeature({
+     *    type: "Feature"
+     *    geometry: {
+     *        coordinates: [[-122.49373, 37.78202, 0], [-122.49263, 37.78602, 0]],
+     *        type: "LineString"
+     *    }
+     * }, [{
+     *    zIndex: 0, type: "Line", stroke: "#DDCB97", "strokeWidth": 18
+     * }]);
+     * ```
+     *
+     * @return {here.xyz.maps.providers.FeatureProvider.Feature} feature
      */
-    addFeature(feature, style) {
+    addFeature(feature: GeoJSONFeature | Feature | GeoJSONFeatureCollection | GeoJSONFeature[], style?) {
         const prov = <FeatureProvider> this._fp;
 
         if (prov.addFeature) {
             feature = prov.addFeature(feature);
 
             if (style) {
-                this.setStyleGroup(feature, style);
+                this.setStyleGroup(<Feature>feature, style);
             }
             return feature;
         }
@@ -352,15 +322,11 @@ export class TileLayer {
 
 
     /**
-     *  Remove feature from layer.
+     * Remove feature(s) from the layer.
      *
-     *  @public
-     *  @expose
-     *  @function
-     *  @name here.xyz.maps.layers.TileLayer#removeFeature
-     *  @param {here.xyz.maps.providers.FeatureProvider.Feature} feature the feature to be removed from layer
+     * @param feature - features that should be removed from the layer
      */
-    removeFeature(feature) {
+    removeFeature(feature: GeoJSONFeature | Feature | GeoJSONFeatureCollection | GeoJSONFeature[]) {
         const prov = <FeatureProvider> this._fp;
         if (prov.removeFeature) {
             return prov.removeFeature(feature);
@@ -372,12 +338,11 @@ export class TileLayer {
      * Pass styleGroup = false|null to hide the feature.
      * If no styleGroup is passed, custom feature style will be cleared and layer default style will be set.
      *
-     * @expose
-     * @function
-     * @param {here.xyz.maps.providers.FeatureProvider.Feature} feature the feature to set style
-     * @param {Array.<here.xyz.maps.layers.TileLayer.Style>|false|null=} styleGroup
-     * @name here.xyz.maps.layers.TileLayer#setStyleGroup
+     * @param feature - the feature that's styleGroup should be set
+     * @param styleGroup - the styleGroup that feature should be displayed with
      */
+    setStyleGroup(feature: Feature, styleGroup?: Style[] | false | null): void;
+
     setStyleGroup(feature, style?, merge?) {
         if (this._sd) {
             this._l.trigger(STYLEGROUP_CHANGE_EVENT, [
@@ -386,156 +351,166 @@ export class TileLayer {
                 this
             ], true);
         }
-
-        // var id           = feature.id;
-        // var customStyles = this._cs;
-        //
-        // if( style && (
-        //     merge // || merge == UNDEF
-        // )){
-        //
-        //     style = mergeStyle( this.getStyleGroup( feature ), style )
-        // }
-        //
-        // if( style || customStyles[id] )
-        // {
-        //     customStyles[id] = style;
-        // }
-        //
-        // this._l.trigger( 'style', [ feature, style, this ], true );
     };
 
     /**
-     * Get style of the feature.
+     * Get styleGroup for the feature.
      *
-     * @expose
-     * @function
-     * @param {here.xyz.maps.providers.FeatureProvider.Feature} feature the feature to get style
-     * @param {number=} level feature style at this specific zoomlevel
-     * @name here.xyz.maps.layers.TileLayer#getStyleGroup
-     * @return {Array.<here.xyz.maps.layers.TileLayer.Style>}
-     *  style group for rendering this feature.
+     * @param feature - the feature to get style
+     * @param zoomlevel - specify the zoomlevel for the feature style
+     *
      */
-    getStyleGroup(feature, level?: number, getDefault?: boolean) {
-        return this._sd && this._sd.getStyleGroup(feature, level, getDefault);
+    getStyleGroup(feature, zoomlevel?: number, layerDefault?: boolean): Style[] {
+        return this._sd && this._sd.getStyleGroup(feature, zoomlevel, layerDefault);
     };
 
     /**
-     *  Search for feature in layer.
+     * Search for feature(s) in layer(s).
      *
-     *  @public
-     *  @expose
-     *  @function
-     *  @name here.xyz.maps.layers.TileLayer#search
-     *  @param {Object} options
-     *  @param {String=} options.id Object id.
-     *  @param {Array.<String>=} options.ids Array of object ids.
-     *  @param {here.xyz.maps.geo.Point=} options.point Center point of the circle for search
-     *  @param {number=} options.radius Raduis of the circle in meters, it is used in "point" search.
-     *  @param {(here.xyz.maps.geo.Rect|Array.<number>)=} options.rect Rect object is either an array: [minLon, minLat, maxLon, maxLat] or Rect object defining rectangle to search in.
-     *  @param {Boolean=} options.remote Force the provider to do remote search if objects are not found in cache.
-     *  @param {Function=} options.onload Callback function of search.
-     *  @example
-     * //searching by id:
-     *layer.search({id: 1058507462})
-     * //or:
-     *layer.search({ids: [1058507462, 1058507464]})
-     *@example
-     * //searching by point and radius:
-     *layer.search({
-     *  point: {longitude: 72.84205, latitude: 18.97172},
-     *  radius: 100
-     *})
-     *@example
-     * //searching by Rect:
-     *layer.search({
+     * @param options - configure the search
+     * @param options.id - search feature by id.
+     * @param options.ids - Array of feature ids to search.
+     * @param options.point - Geographical center point of the circle to search in. options.radius must be defined.
+     * @param options.radius - Radius of the circle in meters, it is used in "point" search.
+     * @param options.rect - Geographical Rectangle to search in. [minLon, minLat, maxLon, maxLat] | GeoRect.
+     * @param options.remote - Force the data provider(s) to do remote search if no result is found in local cache.
+     * @param options.onload - Callback function for "remote" search.
+     * @example
+     * ```
+     * // searching by id:
+     * layer.search({id: 1058507462})
+     * // or:
+     * layer.search({ids: [1058507462, 1058507464]})
+     *
+     * // searching by point and radius:
+     * layer.search({
+     * point: {longitude: 72.84205, latitude: 18.97172},
+     * radius: 100
+     * })
+     *
+     * // searching by Rect:
+     * layer.search({
      *  rect:  {minLon: 72.83584, maxLat: 18.97299, maxLon: 72.84443, minLat: 18.96876}
-     *})
-     *@example
-     * //remote search:
-     *layer.search({
-     *  rect:  {minLon: 72.83584, maxLat: 18.97299, maxLon: 72.84443, minLat: 18.96876},
-     *  remote: true, // force layer to do remote search if feature/search area is not cached locally
-     *  onload: function(e){
-     *   // search result is only return in this callback function if features are not found in cache.
-     *  }
-     *})
-     *  @return {Array.<here.xyz.maps.providers.FeatureProvider.Feature>} array of features
+     * })
+     *
+     * // remote search:
+     * layer.search({
+     * rect:  {minLon: 72.83584, maxLat: 18.97299, maxLon: 72.84443, minLat: 18.96876},
+     * remote: true, // force layer to do remote search if feature/search area is not cached locally
+     * onload: function(result){
+     *  // search result is only return in this callback function if features are not found in cache.
+     * }
+     * })
+     * @return {Array.<here.xyz.maps.providers.FeatureProvider.Feature>} array of features
      */
+    search(options: {
+        id?: number | string,
+        ids?: number[] | string[],
+        point?: GeoPoint,
+        radius?: number,
+        rect?: GeoRect | GeoJSONBBox,
+        remote?: boolean,
+        onload?: (result: Feature[] | null) => void
+    }): Feature[];
 
     /**
-     *  @param {Array<number>|here.xyz.maps.geo.Rect} bbox
-     *      bounding box can be either an array: [minLon, minLat, maxLon, maxLat] or {@link here.xyz.maps.geo.Rect|Rect object}
-     *  @param {here.xyz.maps.providers.FeatureProvider.ISearchParam=} options
-     *      "onload" and "remote" properties in options specify callback function in remote search
+     * Rectangle Search for feature(s) in layer(s).
+     * @param rect - Geographical Rectangle to search in. [minLon, minLat, maxLon, maxLat] | GeoRect.
+     * @param options - configure the search
+     * @param options.remote - Force the data provider(s) to do remote search if no result is found in local cache.
+     * @param options.onload - Callback function for "remote" search.
      *
-     *@example
-     *layer.search({minLon: 72.83584, maxLat: 18.97299, maxLon: 72.84443, minLat: 18.96876})
-     * //or:
-     *layer.search([72.83584, 18.96876, 72.84443,18.97299])
-     *@example
-     * //remote search:
-     *layer.search(
-     *  {minLon: 72.83584, maxLat: 18.97299, maxLon: 72.84443, minLat: 18.96876},
-     *  {
-     *  remote: true, // force layer to do remote search if search area is not cached locally
-     *  onload: function(e){
-     *   // search result is only return in this callback function if features are not found in cache.
-     *  }
-     *})
-     *  @return {Array.<here.xyz.maps.providers.FeatureProvider.Feature>}
+     * @example
+     * ```
+     * layer.search({minLon: 72.83584, maxLat: 18.97299, maxLon: 72.84443, minLat: 18.96876})
+     * // or:
+     * layer.search([72.83584, 18.96876, 72.84443,18.97299])
+     *
+     * // remote search:
+     * layer.search(
+     * {minLon: 72.83584, maxLat: 18.97299, maxLon: 72.84443, minLat: 18.96876},
+     * {
+     * remote: true, // force layer to do remote search if search area is not cached locally
+     * onload: function(e){
+     *  // search result is only return in this callback function if features are not found in cache.
+     * }
+     * })
+     * ```
      */
+    search(rect: GeoRect | GeoJSONBBox, options?: {
+        remote?: boolean,
+        onload?: (result: Feature[] | null) => void
+    }): Feature[];
 
     /**
-     *  @param {Array<number>|here.xyz.maps.geo.Point} point
-     *      point can be either an array: [longitude, latitude] or {@link here.xyz.maps.geo.Point|coordinate object}.
+     * Circle Search for feature(s) in layer(s).
+     * @param point - Geographical center point of the circle to search in. options.radius must be defined.
+     * @param options - configure the search
+     * @param options.radius - "radius" is mandatory for circle search.
+     * @param options.remote - Force the data provider(s) to do remote search if no result is found in local cache.
+     * @param options.onload - Callback function for "remote" search.
      *
-     *  @param {here.xyz.maps.providers.FeatureProvider.ISearchParam} options
-     *       "radius" is mandatory for searching in a circle. "onload" and "remote" properties in options specify callback function in remote search.
-     *@example
-     *layer.search(
-     *  {longitude: 72.84205, latitude: 18.97172},
-     *  {radius: 100}
-     *)
-     * //or:
-     *layer.search(
-     *  [72.84205, 18.97172],
-     *  {radius: 100}
-     *)
-     *@example
-     * //remote search:
-     *layer.search(
-     *  [72.84205, 18.97172],
-     *  {
+     * @example
+     * ```
+     * layer.search({longitude: 72.84205, latitude: 18.97172},{
+     *  radius: 100
+     * })
+     * // or:
+     * layer.search([72.84205, 18.97172], {
+     *  radius: 100
+     * })
+     *
+     * // remote search:
+     * layer.search([72.84205, 18.97172], {
      *  radius: 100,
      *  remote: true, // force layer to do remote search if search area is not cached locally
-     *  onload: function(e){
+     *  onload: function(result){
      *   // search result is only return in this callback function if features are not found in cache.
      *  }
-     *})
-     *  @return {Array.<here.xyz.maps.providers.FeatureProvider.Feature>}
+     * })
+     * ```
+     */
+    search(point: GeoPoint, options: {
+        radius?: number,
+        remote?: boolean,
+        onload?: (result: Feature) => void
+    }): Feature[];
+
+    /**
+     * Search for feature by id in layer(s).
+     *
+     * @param id - id of the feature to search for
+     * @param options - configure the search
+     * @param options.remote - Force the data provider(s) to do remote search if no result is found in local cache.
+     * @param options.onload - Callback function for "remote" search.
+     *
+     * @example
+     * ```
+     * layer.search(1058507462)
+     *
+     * // remote search:
+     * layer.search(1058507462,{
+     * remote: true, // force layer to do remote search if search area is not cached locally
+     * onload: function(feature){
+     *  // search result is only return in this callback function if features are not found in cache.
+     * }
+     * })
      *
      */
-    /**
-     *  @param {number|string} Id
-     *      Object id
-     *  @param {here.xyz.maps.providers.FeatureProvider.ISearchParam=} options
-     *      "onload" and "remote" properties in options specify callback function in remote search
-     *@example
-     *layer.search(1058507462)
-     *@example
-     * //remote search:
-     *layer.search(
-     *  1058507462,
-     *  {
-     *  remote: true, // force layer to do remote search if search area is not cached locally
-     *  onload: function(e){
-     *   // search result is only return in this callback function if features are not found in cache.
-     *  }
-     *})
-     *  @return {Array.<here.xyz.maps.providers.FeatureProvider.Feature>}
-     */
-    search(options: any) {
+    search(id: string | number, options: {
+        remote?: boolean,
+        onload?: (result: Feature) => void
+    }): Feature[];
+
+    search(options: GeoRect | GeoJSONBBox | GeoPoint | string | number | {
+        id?: number | string,
+        ids?: number[] | string[],
+        point?: GeoPoint,
+        radius?: number,
+        rect?: GeoRect | GeoJSONBBox,
+        remote?: boolean,
+        onload?: (result: Feature[] | null) => void
+    }, _options?): Feature[] {
         const prov = <FeatureProvider> this._fp;
 
         if (prov && prov.search) {
@@ -543,27 +518,19 @@ export class TileLayer {
         }
     };
 
-
-    // ++++++
-
-
     /**
-     *  Get a tile by quad key. tile and layer itself are returned in callback function if it is given.
+     * Get a tile by quadkey.
      *
-     *  @public
-     *  @expose
-     *  @function
-     *  @name here.xyz.maps.layers.TileLayer#getTile
-     *  @param {number} quadkey
-     *  @param {Function=} cb callback function
-     *  @return {here.xyz.maps.providers.TileProvider.Tile}
+     * @param quadkey - quadkey of the tile
+     * @param callback - callback function
+     * @returns the Tile is returned if its already cached locally
      */
-    getTile(quadkey: string, cb) {
+    getTile(quadkey: string, callback: (tile: Tile) => void): Tile | undefined {
         const level = quadkey.length;
         const provider = this._p[level];
 
         if (provider) {
-            return provider.getTile(quadkey, cb);
+            return provider.getTile(quadkey, callback);
         }
     };
 
@@ -579,16 +546,12 @@ export class TileLayer {
     };
 
     /**
-     *  get cached tile by quadkey.
+     * Get a cached tile by quadkey.
      *
-     *  @public
-     *  @expose
-     *  @function
-     *  @name here.xyz.maps.layers.TileLayer#getCachedTile
-     *  @param {String} quadkey
-     *  @return {here.xyz.maps.providers.TileProvider.Tile}
+     * @param quadkey - the quadkey of the tile
+     * @return {here.xyz.maps.providers.TileProvider.Tile}
      */
-    getCachedTile(quadkey) {
+    getCachedTile(quadkey: string): Tile {
         const level = quadkey.length;
         const prov = this._p[level];
 
@@ -599,42 +562,28 @@ export class TileLayer {
 
 
     /**
-     *  Set layer with given style.
+     * Set layer with given style.
      *
-     *  @public
-     *  @expose
-     *  @function
-     *  @name here.xyz.maps.layers.TileLayer#setStyle
-     *  @param {here.xyz.maps.layers.TileLayer.TileLayerStyle} layerstyle
-     *  @param {boolean=} [keepCustomStyles=false] keep and reuse custom set styles via layer.setStyleGroup(...)
+     * @param layerStyle - the layerStyle
+     * @param keepCustom - keep and reuse custom set feature styles that have been set via layer.setStyleGroup(...)
      */
-    setStyle(style, keepCustoms?: boolean) {
-        function isFunction(fnc) {
-            return typeof fnc == 'function';
+    setStyle(layerStyle: LayerStyleImpl, keepCustom: boolean = false) {
+        const isFnc = (fnc) => typeof fnc == 'function';
+
+        // @ts-ignore
+        if (!isFnc(layerStyle.getStyleGroup) || !isFnc(layerStyle.setStyleGroup)) {
+            layerStyle = new LayerStyleImpl(layerStyle, keepCustom && this._sd && this._sd._c);
         }
 
-        if (
-            !isFunction(style.getStyleGroup) ||
-            !isFunction(style.setStyleGroup)
-        ) {
-            style = new LayerStyle(style, keepCustoms && this._sd && this._sd._c);
-        }
+        this._sd = layerStyle;
 
-        this._sd = style;
-
-        this._l.trigger(STYLE_CHANGE_EVENT, [style, this], true);
+        this._l.trigger(STYLE_CHANGE_EVENT, [layerStyle, this], true);
     };
 
     /**
-     *  Get current layer style.
-     *
-     *  @public
-     *  @expose
-     *  @function
-     *  @name here.xyz.maps.layers.TileLayer#getStyle
-     *  @return {here.xyz.maps.layers.TileLayer.TileLayerStyle}
+     * Get the current layerStyle.
      */
-    getStyle() {
+    getStyle(): LayerStyleImpl {
         return this._sd;
     };
 
@@ -644,41 +593,34 @@ export class TileLayer {
     };
 
     /**
-     *  Set tile margin in pixel.
+     * Set the tile margin in pixel.
      *
-     *  @public
-     *  @expose
-     *  @function
-     *  @name here.xyz.maps.layers.TileLayer#setMargin
-     *  @param {Integer} margin
+     * @param tileMargin - the tileMargin
      */
-    setMargin(marginPixel) {
-        marginPixel = Number(marginPixel || 0);
+    setMargin(tileMargin: number = 0) {
+        tileMargin = Number(tileMargin);
 
         const providers = this._p;
         let p = providers.length;
 
         while (p--) {
             if (providers[p]) {
-                providers[p].setMargin(marginPixel);
+                providers[p].setMargin(tileMargin);
             }
         }
 
-        return this.margin = marginPixel;
+        return this.margin = tileMargin;
     };
 
 
     /**
-     *  enable or disable pointer events for all features of layer.
+     * enable or disable pointer-event triggering for all features of all layers.
      *
-     *  @public
-     *  @expose
-     *  @param {Boolean=} active
-     *  @function
-     *  @name here.xyz.maps.layers.TileLayer#pointerEvents
-     *  @return {Boolean} active
+     * @param active - boolean to enable or disable posinter-events.
+     *
+     * @return boolean indicating if pointer-event triggering is active or disabled.
      */
-    pointerEvents(active) {
+    pointerEvents(active?: boolean): boolean {
         if (active != UNDEF) {
             this._pev = !!active;
         }
@@ -695,13 +637,13 @@ export class TileLayer {
     //  */
     //
     // /**
-    //  *  get copyright information of all providers used by the layer.
+    //  * get copyright information of all providers used by the layer.
     //  *
-    //  *  @public
-    //  *  @expose
-    //  *  @param {here.xyz.maps.layers.TileLayer~copyrightCallback} callback that handles copyright response
-    //  *  @function
-    //  *  @name here.xyz.maps.layers.TileLayer#getCopyright
+    //  * @public
+    //  * @expose
+    //  * @param {here.xyz.maps.layers.TileLayer~copyrightCallback} callback that handles copyright response
+    //  * @function
+    //  * @name here.xyz.maps.layers.TileLayer#getCopyright
     //  *
     //  */
     getCopyright(cb) {
