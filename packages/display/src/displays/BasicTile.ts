@@ -17,9 +17,7 @@
  * License-Filename: LICENSE
  */
 
-import {layers} from '@here/xyz-maps-core';
-
-type TileLayer = layers.TileLayer;
+import {TileLayer} from '@here/xyz-maps-core';
 
 let UNDEF;
 

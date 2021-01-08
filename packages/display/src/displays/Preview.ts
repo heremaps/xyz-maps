@@ -17,11 +17,9 @@
  * License-Filename: LICENSE
  */
 
-import {tile, layers} from '@here/xyz-maps-core';
+import {tile, TileLayer} from '@here/xyz-maps-core';
 import BasicDisplay from './BasicDisplay';
 import BasicTile from './BasicTile';
-
-type TileLayer = layers.TileLayer;
 
 const tileUtils = tile['Utils'];
 

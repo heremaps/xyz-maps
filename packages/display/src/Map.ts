@@ -32,7 +32,6 @@ import {ZoomAnimator} from './animation/ZoomAnimator';
 import {KineticPanAnimator} from './animation/KineticPanAnimator';
 import {defaultOptions, MapOptions} from './MapOptions';
 import {Feature, TileLayer, projection, PixelPoint, PixelRect, GeoPoint, GeoRect} from '@here/xyz-maps-core';
-import Tile from '@here/xyz-maps-core/src/tile/Tile';
 
 const project = projection.webMercator;
 
@@ -600,7 +599,7 @@ export default class Map {
         const results = this.getFeaturesAt(position, options);
 
         if (results.length) {
-            const result = results[results.length - 1];
+            const result = <any>results[results.length - 1];
             result.feature = result.features[0];
             return result;
         }
@@ -862,7 +861,7 @@ export default class Map {
             let minLevel = options['minLevel'];
             let maxLevel = options['maxLevel'];
 
-            // resest to default
+            // reset to default
             minLevel = minLevel === false ? this._cfg['minLevel'] : minLevel;
             maxLevel = maxLevel === false ? this._cfg['maxLevel'] : maxLevel;
 

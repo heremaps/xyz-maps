@@ -18,7 +18,7 @@
  */
 
 import {global, TaskManager} from '@here/xyz-maps-common';
-import {tile, layers} from '@here/xyz-maps-core';
+import {Tile, TileLayer} from '@here/xyz-maps-core';
 import {getElDimension, createCanvas} from '../DOMTools';
 import {Layers, Layer, ScreenTile} from './Layers';
 import FeatureModifier from './FeatureModifier';
@@ -28,10 +28,6 @@ import BasicBucket from './BasicBucket';
 import Preview from './Preview';
 import LayerClusterer from './LayerClusterer';
 import Grid from '../Grid';
-
-type Tile = tile.Tile;
-type TileLayer = layers.TileLayer;
-
 
 const CREATE_IF_NOT_EXISTS = true;
 

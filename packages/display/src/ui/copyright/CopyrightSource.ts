@@ -17,12 +17,12 @@
  * License-Filename: LICENSE
  */
 
-import {layers} from '@here/xyz-maps-core';
+import {TileLayer} from '@here/xyz-maps-core';
 
 export type CopyrightSourceScope = {
     minLevel: number,
     maxLevel: number,
-    layer: layers.TileLayer
+    layer: TileLayer
 };
 
 export type CopyrightSource = {

@@ -20,11 +20,9 @@
 import Renderer from './Canvas';
 import DisplayTilePool from './CanvasTileBucket';
 import BasicDisplay from '../BasicDisplay';
-import {layers} from '@here/xyz-maps-core';
+import {TileLayer} from '@here/xyz-maps-core';
 import CanvasTile from './CanvasTile';
 import CanvasRenderer from './Canvas';
-
-type TileLayer = layers.TileLayer;
 
 let DISPLAY_CFG_PR = {
     '1': [

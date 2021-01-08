@@ -18,11 +18,7 @@
  */
 
 import BasicTile from './BasicTile';
-import {layers} from '@here/xyz-maps-core';
-import BasicBucket from './BasicBucket';
-
-type TileLayer = layers.TileLayer;
-type Tile = any;
+import {TileLayer, Tile} from '@here/xyz-maps-core';
 
 interface BasicRender {
 

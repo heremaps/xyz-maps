@@ -49,7 +49,7 @@ export * from './pixel/PixelPoint';
 export * from './pixel/PixelRect';
 export * from './geo/GeoPoint';
 export * from './geo/GeoRect';
-
+export * from './tile/Tile';
 export * from './layers/TileLayer';
 export * from './layers/MVTLayer';
 

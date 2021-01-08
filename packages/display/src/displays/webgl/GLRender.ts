@@ -18,7 +18,7 @@
  */
 
 import BasicRender from '../BasicRender';
-import {layers} from '@here/xyz-maps-core';
+import {TileLayer, Tile} from '@here/xyz-maps-core';
 import GLTile from './GLTile';
 import {IconManager} from './IconManager';
 import {toRGB, RGBA} from './color';
@@ -55,11 +55,9 @@ import {
     invert,
     identity
 } from 'gl-matrix/mat4';
+import BasicTile from '../BasicTile';
 
 const mat4 = {create, lookAt, multiply, perspective, rotateX, rotateZ, translate, scale, clone, copy, invert, identity};
-
-type TileLayer = layers.TileLayer;
-type Tile = any;
 
 
 const FIELD_OF_VIEW = 45 * Math.PI / 180;
@@ -187,9 +185,6 @@ export class GLRender implements BasicRender {
     }
 
     setRotation(rz: number, rx: number) {
-    }
-
-    prepare(index: number, glTile: GLTile, tile: Tile, layer: TileLayer) {
     }
 
     clear(clearColor?): void {
@@ -708,5 +703,8 @@ export class GLRender implements BasicRender {
 
     destroy(): void {
         this.icons.destroy();
+    }
+
+    prepare(INSTRUCTIONS: any, tile: Tile, layer: TileLayer, display: any, dTile: BasicTile, cb: () => void): void {
     }
 }
