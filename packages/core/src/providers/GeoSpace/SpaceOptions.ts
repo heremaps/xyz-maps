@@ -17,6 +17,8 @@
  * License-Filename: LICENSE
  */
 
+import {HTTPProviderOptions} from '../HTTPProvider/HTTPProviderOptions';
+
 /**
  *  Configuration of geospace provider.
  *
@@ -26,125 +28,76 @@
  *  @extends here.xyz.maps.providers.RemoteTileProvider.Options
  *  @class here.xyz.maps.providers.SpaceProvider.Options
  */
-const SpaceProviderOptions = {
+interface SpaceProviderOptions extends HTTPProviderOptions {
 
     // /**
     //  * There are 3 environments available: 'prd'.
     //  *
-    //  * @public
-    //  * @expose
-    //  * @optional
     //  * @default 'prd'
-    //  * @name here.xyz.maps.providers.SpaceProvider.Options#environment
-    //  * @type {string}
     //  */
-    'environment': 'prd',
+    environment?: string
 
     /**
-     * Space name.
-     *
-     * @public
-     * @expose
-     * @name here.xyz.maps.providers.SpaceProvider.Options#space
-     * @type {string}
+     * Name of the XYZ-Hub Space.
+     * {@link https://xyz.api.here.com/hub/static/swagger/#/Read%20Spaces/getSpace}
      */
-    'space': '',
+    space: string;
 
     /**
-     * User credential of the provider, a valid credential needs to contain the "access_code".
-     *
-     * @public
-     * @expose
-     * @name here.xyz.maps.providers.SpaceProvider.Options#credentials
-     * @type {Object}
+     * User credential of the provider, a valid credential needs to contain the "access_token".
      */
-    'credentials': {},
+    credentials: {
+        // eslint-disable-next-line camelcase
+        access_token: string;
+    },
 
     /**
-     * Indicates if request is made with credentials.
+     * Indicates the tag(s) that should be set in the requests.
      *
-     * @public
-     * @expose
-     * @optional
      * @default false
-     * @name here.xyz.maps.providers.SpaceProvider.Options#withCredentials
-     * @type {Boolean}
      */
-    'withCredentials': false,
+    tags?: false | string | string[],
 
     /**
-     * Indicates which tag is set in requests.
+     * Indicates if result geometry of tile requests should be clipped.
      *
-     * @public
-     * @expose
-     * @optional
      * @default false
-     * @name here.xyz.maps.providers.SpaceProvider.Options#tags
-     * @type {Boolean}
      */
-    'tags': false,
+    clip?: boolean;
 
     /**
-     * Indicates if request is made with https.
+     * Base URL of the SpaceProvider.
+     * It should point to a XYZ-Hub space endpoint.
      *
-     * @public
-     * @expose
-     * @optional
-     * @default true
-     * @name here.xyz.maps.providers.SpaceProvider.Options#https
-     * @type {Boolean}
+     * @default "https://xyz.api.here.com/hub/spaces"
      */
-    'https': true,
+    url: string;
 
     /**
-     * Indicates if return clip features in request.
+     * define property search query to enable remote filtering by property search.
      *
-     * @public
-     * @expose
-     * @optional
-     * @default false
-     * @name here.xyz.maps.providers.SpaceProvider.Options#clip
-     * @type {Boolean}
-     */
-    'clip': false,
-
-    /**
-     * url of the provider, it points to xyz-hub space endpoint.
+     * @see https://www.here.xyz/api/devguide/propertiessearch/
      *
-     * @public
-     * @expose
-     * @optional
      * @default null
-     * @name here.xyz.maps.providers.SpaceProvider.Options#url
-     * @type {string}
      */
-    'url': null,
-
-    /**
-     * set custom url service headers.
-     * custom headers will be applied to all request done by provider
-     *
-     * @public
-     * @expose
-     * @optional
-     * @default null
-     * @name here.xyz.maps.providers.SpaceProvider.Options#headers
-     * @type {Object}
-     */
-    'headers': null,
-
-    /**
-     * define property search query to enable remote filtering by property search
-     * {@link https://www.here.xyz/api/devguide/propertiessearch/}
-     *
-     * @public
-     * @expose
-     * @optional
-     * @default null
-     * @name here.xyz.maps.providers.SpaceProvider.Options#propertySearch
-     * @type {Object}
-     */
-    'propertySearch': null
+    propertySearch?: object
 };
 
-export default SpaceProviderOptions;
+const defaultOptions: SpaceProviderOptions = {
+    environment: 'prd',
+    space: '',
+    credentials: {
+        access_token: ''
+    },
+    withCredentials: false,
+    tags: false,
+    https: true,
+    clip: false,
+    url: null,
+    headers: null,
+    propertySearch: null,
+    editable: true,
+    level: 0
+};
+
+export {SpaceProviderOptions, defaultOptions};

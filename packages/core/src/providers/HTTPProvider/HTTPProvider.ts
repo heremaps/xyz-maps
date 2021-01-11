@@ -198,10 +198,15 @@ abstract class HTTPProvider extends EditableRemoteTileProvider {
         this.setParams(params);
     }
 
-    config(cfg) {
-        super.config(cfg);
+    /**
+     * update config options of the provider.
+     *
+     * @param options - options to configure the provider
+     */
+    config(options: HTTPProviderOptions) {
+        super.config(options);
 
-        if (cfg && cfg.url) {
+        if (options && options.url) {
             // also updated tile loader url
             this.setParams({});
         }

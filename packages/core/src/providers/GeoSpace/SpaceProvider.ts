@@ -16,15 +16,14 @@
  * SPDX-License-Identifier: Apache-2.0
  * License-Filename: LICENSE
  */
-
-import {Feature} from '../../features/Feature';
+;
 import {JSUtils, Queue} from '@here/xyz-maps-common';
 
-/* exported SpaceProviderOptions */
 
-import SpaceProviderOptions from './SpaceOptions';
+import {SpaceProviderOptions, defaultOptions} from './SpaceOptions';
 import {GeoJSONProvider} from '../GeoJSONProvider';
 import {PostProcessor, PostProcesserInput, isPreprocessor} from '../RemoteTileProvider/processors';
+
 
 type FeatureId = string | number;
 
@@ -47,7 +46,7 @@ const addUrlParams = (url: string, params: { [key: string]: string }, p: '?' | '
 };
 
 const createOptions = (options, preProcessor?) => {
-    options = JSUtils.extend(JSUtils.clone(SpaceProviderOptions), options);
+    options = JSUtils.extend(JSUtils.clone(defaultOptions), options);
 
     // credentials are send as url parameters...
     options.params = JSUtils.extend(options.params || {}, options.credentials);
@@ -71,14 +70,8 @@ const createOptions = (options, preProcessor?) => {
 type ErrorEventHandler = (error) => void;
 
 /**
- *  GeoSpace provider
- *
- *  @public
- *  @expose
- *  @constructor
- *  @extends here.xyz.maps.providers.HTTPProvider
- *  @param {here.xyz.maps.providers.SpaceProvider.Options} config configuration of the provider
- *  @name here.xyz.maps.providers.SpaceProvider
+ *  SpaceProvider is a remote HTTPProvider designed to work with XYZ-Hub remote backend.
+ *  @see https://xyz.api.here.com/hub/static/redoc/
  */
 export class SpaceProvider extends GeoJSONProvider {
     private tags: string[];
@@ -86,16 +79,20 @@ export class SpaceProvider extends GeoJSONProvider {
     private clip: boolean;
     private psf: string; // property search filter
 
-    constructor(options) {
+    /**
+     * Base URL of the SpaceProvider.
+     * It points to a XYZ-Hub space endpoint.
+     *
+     * @default "https://xyz.api.here.com/hub/spaces"
+     */
+    readonly url: string;
+
+    /**
+     * @param options - options to configure the provider
+     */
+    constructor(options: SpaceProviderOptions) {
         super(createOptions(options, arguments[1]));
-        /**
-         *  url of the provider, it points to end point of geospace service.
-         *
-         *  @public
-         *  @expose
-         *  @type {String}
-         *  @name here.xyz.maps.providers.SpaceProvider#url
-         */
+
         this.setUrl(this.getTileUrl(this.space));
 
         if (options.propertySearch) {
@@ -104,15 +101,14 @@ export class SpaceProvider extends GeoJSONProvider {
     }
 
     /**
-     *  set config for provider.
+     * update config options of the provider.
      *
-     *  @public
-     *  @expose
-     *  @function
-     *  @name here.xyz.maps.providers.SpaceProvider#config
-     *  @param {here.xyz.maps.providers.SpaceProvider.Options} cfg
-     *  @return {here.xyz.maps.providers.SpaceProvider}
+     * @param options - options to configure the provider
      */
+    config(options: SpaceProviderOptions) {
+        return super.config(options);
+    };
+
     commit(features: PostProcesserInput, onSuccess?, onError?) {
         const prov = this;
         const loaders = prov.loader.src;
@@ -214,11 +210,7 @@ export class SpaceProvider extends GeoJSONProvider {
      *  After setting tags, provider will clear all features and data will be
      *  requested from hub including the new tag filter.
      *
-     *  @public
-     *  @expose
-     *  @function
-     *  @name here.xyz.maps.providers.SpaceProvider#setTags
-     *  @param {string|Array.<string>} tags
+     *  @param tags - the tag(s) that will be send to xyz-hub endpoint
      */
     setTags(tags: string | string[]) {
         if (typeof tags == 'string') {
@@ -235,24 +227,30 @@ export class SpaceProvider extends GeoJSONProvider {
     /**
      *  Sets result filtering based on properties search in Hub backend.
      *  {@link https://www.here.xyz/api/devguide/propertiessearch/}
+     *
      *  After setting the property search, the provider will clear all features and data will be
      *  requested from hub using the property search filter.
      *  The response will contain only the features matching all conditions in the query.
      *  If function is called without arguments all filters will be cleared.
      *
      *
-     *  @public
-     *  @expose
-     *  @function
-     *  @name here.xyz.maps.providers.SpaceProvider#setPropertySearch
-     *  @param {string} property the name of property
-     *  @param {string} operator the operator used
-     *  @param {string|number|boolean} value the value to be matched
+     *  @param key - the name of property
+     *  @param operator - the operator used
+     *  @param value - value the value to be matched
      *
      *  @example
+     * ``` javascript
      *  // response will only contain features that have a property called 'name' with 'FirstName' as it's value
      *  provider.setPropertySearch('name','=','FirstName')
-     *  @also
+     * ```
+     *
+     */
+    setPropertySearch(
+        key: string,
+        operator: '=' | '!=' | '>' | '>=' | '<' | '<=',
+        value: string | number | boolean | string[] | number[] | boolean[]
+    ): void;
+    /**
      *
      *  Sets result filtering based on properties search in Hub backend.
      *  {@link https://www.here.xyz/api/devguide/propertiessearch/}
@@ -261,14 +259,11 @@ export class SpaceProvider extends GeoJSONProvider {
      *  The response will contain only the features matching all conditions in the query.
      *  If propertySearchMap is set to null or none is passed all previous set filters will be cleared.
      *
-     *  @public
-     *  @expose
-     *  @function
-     *  @name here.xyz.maps.providers.SpaceProvider#setPropertySearch
-     *  @param {string=} propertySearchMap A Map of which the keys are the property names and its values are Objects
+     *  @param propertySearchMap - A Map of which the keys are the property names and its values are Objects
      *  defining the operator ( '=', '!=', '>', '>=', '<', '<=' ) and the value to be matched.
      *
      *  @example
+     *  ``` javascript
      *  // set multiple conditions
      *  // provider will only contain features that have a property called name with the value Max OR Peter
      *  // AND a property called age with value less than 32
@@ -282,12 +277,25 @@ export class SpaceProvider extends GeoJSONProvider {
      *          value: 32
      *      }
      *  })
-     *
+     * ```
      *  @example
+     * ``` javascript
      *  // clear previous set filters
      *  provider.setPropertySearch(null)
+     *  ```
      */
-    setPropertySearch(key?: string | {}, operator?: string, value?: any | any[]) {
+    setPropertySearch(propertySearchMap: {
+        [name: string]: {
+            operator: '=' | '!=' | '>' | '>=' | '<' | '<=',
+            value: any | any[]
+        }
+    }): void;
+
+    setPropertySearch(
+        key?: string | {},
+        operator?: string,
+        value?: any | any[]
+    ): void {
         let filterParamString = '';
         let filters;
 
