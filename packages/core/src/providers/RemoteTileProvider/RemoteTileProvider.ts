@@ -90,7 +90,7 @@ export class RemoteTileProvider extends FeatureProvider {
         provider.loader = loader;
 
         const {preProcessor} = options;
-        provider.preprocess = createRemoteProcessor(preProcessor);
+        provider.preprocess = createRemoteProcessor(<any>preProcessor);
     }
 
     /**
@@ -99,7 +99,7 @@ export class RemoteTileProvider extends FeatureProvider {
      *
      * @param quadkey - the quadkey of the tile that should be canceled and removed.
      */
-    cancel(quadkey: string ): void;
+    cancel(quadkey: string): void;
     /**
      * Cancel ongoing request(s) of a tile.
      * The tile will be dropped.
@@ -107,6 +107,7 @@ export class RemoteTileProvider extends FeatureProvider {
      * @param tile - the tile that should be canceled and removed.
      */
     cancel(tile: Tile): void;
+    cancel(tile: Tile | string, cb?): void;
     cancel(quadkey: string | Tile, cb?: () => void) {
         const prov = this;
         const storage = prov.storage;
@@ -365,7 +366,7 @@ export class RemoteTileProvider extends FeatureProvider {
                 receiver = tile.onLoaded[0];
             }
 
-            receiver.add(cb);
+            receiver.add(callback);
 
             for (let l = 0; l < loaderTiles.length; l++) {
                 loaderTile = storage.get(loaderTiles[l]);
@@ -383,9 +384,9 @@ export class RemoteTileProvider extends FeatureProvider {
             }
         } else {
             // attach the callback
-            if (cb) {
-                if (tile.onLoaded.indexOf(cb) == -1) {
-                    tile.onLoaded.push(cb);
+            if (callback) {
+                if (tile.onLoaded.indexOf(callback) == -1) {
+                    tile.onLoaded.push(callback);
                 }
             }
 

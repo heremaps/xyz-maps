@@ -535,7 +535,7 @@ export class TileLayer {
         }
     };
 
-    cancelTile(tile, cb) {
+    cancelTile(tile: Tile|string, cb?) {
         const level = typeof tile == 'string'
             ? tile.length
             : tile.quadkey.length;

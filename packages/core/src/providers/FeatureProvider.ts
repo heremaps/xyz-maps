@@ -223,7 +223,7 @@ export class FeatureProvider extends Provider {
      * @param callback - the callback function
      * @returns the Tile
      */
-    getTile(quadkey: string, callback?:(tile:Tile)=>void): Tile|undefined {
+    getTile(quadkey: string, callback?: (tile: Tile) => void): Tile | undefined {
         const provider = this;
         const storage = provider.storage;
         let tile = storage.get(quadkey);
@@ -283,8 +283,8 @@ export class FeatureProvider extends Provider {
      * @param options - configure the search
      * @param options.id - search feature by id.
      * @param options.ids - Array of feature ids to search.
-     * @param options.point - Geographical center point of the circle to search in. options.radius must be defined.
-     * @param options.radius - Radius of the circle in meters, it is used in "point" search.
+     * @param options.point - Geographical center point of the point to search in. options.radius must be defined.
+     * @param options.radius - Radius of the point in meters, it is used in "point" search.
      * @param options.rect - Geographical Rectangle to search in. [minLon, minLat, maxLon, maxLat] | GeoRect.
      * @example
      * ```
@@ -312,9 +312,26 @@ export class FeatureProvider extends Provider {
         point?: GeoPoint,
         radius?: number,
         rect?: GeoRect | GeoJSONBBox
-        remote?: boolean,
-        onload?: (result: Feature[] | null) => void
     }): Feature[];
+
+    /**
+     * Point Search for feature(s) in provider.
+     * @param point - Geographical center point of the point to search in. options.radius must be defined.
+     * @param options - configure the search
+     * @param options.radius - "radius" is mandatory for point search.
+     *
+     * @example
+     * ```
+     * layer.search({longitude: 72.84205, latitude: 18.97172},{
+     *  radius: 100
+     * })
+     * // or:
+     * layer.search([72.84205, 18.97172], {
+     *  radius: 100
+     * })
+     * ```
+     */
+    search(point: GeoPoint, options?: { radius: number }): Feature[];
 
     /**
      * Rectangle Search for feature(s) in provider.
@@ -330,25 +347,6 @@ export class FeatureProvider extends Provider {
     search(rect: GeoRect | GeoJSONBBox): Feature[];
 
     /**
-     * Circle Search for feature(s) in provider.
-     * @param point - Geographical center point of the circle to search in. options.radius must be defined.
-     * @param options - configure the search
-     * @param options.radius - "radius" is mandatory for circle search.
-     *
-     * @example
-     * ```
-     * layer.search({longitude: 72.84205, latitude: 18.97172},{
-     *  radius: 100
-     * })
-     * // or:
-     * layer.search([72.84205, 18.97172], {
-     *  radius: 100
-     * })
-     * ```
-     */
-    search(point: GeoPoint, options: { radius: number }): Feature[];
-
-    /**
      * Search for feature by id in the provider.
      *
      * @param id - id of the feature to search for
@@ -360,7 +358,7 @@ export class FeatureProvider extends Provider {
      */
     search(id: string | number): Feature[];
 
-    search(bbox, options?) {
+    search(bbox, options?): Feature|Feature[] {
         const provider = this;
         let geo;
         let searchBBox;
@@ -426,7 +424,7 @@ export class FeatureProvider extends Provider {
      *  @param feature - Object literal containing "id" property.
      *  @return the {@link:Feature} if it is found, otherwise undefined
      */
-    exists(feature: {id:number|string} ): Feature {
+    exists(feature: { id: number | string }): Feature {
         return this.IDPOOL[feature.id];
     };
 

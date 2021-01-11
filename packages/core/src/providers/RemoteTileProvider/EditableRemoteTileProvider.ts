@@ -77,7 +77,7 @@ export abstract class EditableRemoteTileProvider extends EditableFeatureProvider
     /**
      * @param options - options to configure the provider
      */
-    constructor(options: EditableRemoteTileProviderOptions) {
+    protected constructor(options: EditableRemoteTileProviderOptions) {
         super({
             'minLevel': 8,
             'maxLevel': 20,
@@ -102,8 +102,8 @@ export abstract class EditableRemoteTileProvider extends EditableFeatureProvider
         provider.loader = loader;
 
         const {preProcessor} = options;
-        provider.preprocess = createRemoteProcessor(preProcessor || options.preprocessor);
-        provider.postprocess = createRemoteProcessor(options.postProcessor);
+        provider.preprocess = createRemoteProcessor(preProcessor || (<any>options).preprocessor);
+        provider.postprocess = createRemoteProcessor((<any>options).postProcessor);
 
         if (provider.commit) {
             provider.commit = ((commit) => function(features: PostProcesserInput, onSuccess?, onError?) {
@@ -378,15 +378,40 @@ export abstract class EditableRemoteTileProvider extends EditableFeatureProvider
      * ```
      * @return array containing the searched features
      */
-    search(options?: {
+    search(options: {
         id?: number | string,
         ids?: number[] | string[],
         point?: GeoPoint,
         radius?: number,
-        rect?: GeoRect | GeoJSONBBox,
+        rect?: GeoRect | GeoJSONBBox
         remote?: boolean,
         onload?: (result: Feature[] | null) => void
     }): Feature[];
+
+    /**
+     * Point Search for feature(s) in provider.
+     * @param point - Geographical center point of the point to search in. options.radius must be defined.
+     * @param options - configure the search
+     * @param options.radius - "radius" is mandatory for point search.
+     * @param options.remote - Force the data provider(s) to do remote search if no result is found in local cache.
+     * @param options.onload - Callback function for "remote" search.
+     *
+     * @example
+     * ```
+     * layer.search({longitude: 72.84205, latitude: 18.97172},{
+     *  radius: 100
+     * })
+     * // or:
+     * layer.search([72.84205, 18.97172], {
+     *  radius: 100
+     * })
+     * ```
+     */
+    search(point: GeoPoint, options?: {
+        radius: number,
+        remote?: boolean,
+        onload?: (result: Feature[] | null) => void
+     }): Feature[];
 
     /**
      * Rectangle Search for feature(s) in the provider.
@@ -413,8 +438,8 @@ export abstract class EditableRemoteTileProvider extends EditableFeatureProvider
      * ```
      */
     search(rect: GeoRect | GeoJSONBBox, options?: {
-        remote?: boolean,
-        onload?: (result: Feature[] | null) => void
+         remote?: boolean,
+         onload?: (result: Feature[] | null) => void
     }): Feature[];
 
     /**
@@ -438,12 +463,14 @@ export abstract class EditableRemoteTileProvider extends EditableFeatureProvider
      * })
      *
      */
-    search(id: string | number, options: {
+    // @ts-ignore
+    search(id: string | number, options?: {
+        radius: number,
         remote?: boolean,
         onload?: (result: Feature) => void
     }): Feature[];
 
-    search(bbox, options?) {
+    search(bbox, options?): Feature[] {
         // TODO: cleanup and split search and implement remote part here
         const provider = this;
         let geo;
@@ -853,7 +880,7 @@ export abstract class EditableRemoteTileProvider extends EditableFeatureProvider
      *  @param onSuccess - callback function that will be called when data has been commit successfully
      *  @param onError - callback function that will be called when an error occurs
      */
-    abstract commit(data:{put?: Feature|Feature[], remove?: Feature|Feature[]}, onSuccess?, onError?, transactionId?: string);
+    abstract commit(data: { put?: GeoJSONFeature[], remove?: GeoJSONFeature[] }, onSuccess?, onError?, transactionId?: string);
 
     readDirection(link: Feature): 'BOTH' | 'START_TO_END' | 'END_TO_START' {
         throw new Error(METHOD_NOT_IMPLEMENTED);
