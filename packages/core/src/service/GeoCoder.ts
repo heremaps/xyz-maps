@@ -20,72 +20,48 @@
 import {GeoPoint} from '../geo/GeoPoint';
 
 /* eslint camelcase: ["error", {"allow": ["app_id","app_code"]}]*/
-export interface GeoCoderOptions{
-    app_id: string;
-    app_code: string;
-    host: string;
-    version: string;
-}
-/**
- *  Configuration of Geocoder.
- *
- *  @public
- *  @interface
- *  @class
- *  @expose
- *  @name here.xyz.maps.service.Geocoder.Options
- */
-/**
- * app id.
- *
- * @public
- * @expose
- * @name here.xyz.maps.service.Geocoder.Options#app_id
- * @type {string}
- */
-/**
- * app code.
- *
- * @public
- * @expose
- * @name here.xyz.maps.service.Geocoder.Options#app_code
- * @type {string}
- */
-/**
- * url to geo coder host.
- *
- * @public
- * @expose
- * @optional
- * @default 'geocoder.api.here.com'
- * @name here.xyz.maps.service.Geocoder.Options#host
- * @type {string}
- */
-/**
- * geo coder version.
- *
- * @public
- * @expose
- * @optional
- * @default '6.2'
- * @name here.xyz.maps.service.Geocoder.Options#version
- * @type {string}
- */
 
-function createXHR( url, onSuccess, onError ) {
+/**
+ *  Options to configure the GeoCoder.
+ */
+export interface GeoCoderOptions {
+    /**
+     * the app id required for authentication.
+     *
+     */
+    app_id: string;
+    /**
+     * the app code required for authentication.
+     */
+    app_code: string;
+    /**
+     * The url to the Geocoder host.
+     *
+     * @default 'geocoder.api.here.com'
+     */
+    host?: string;
+    /**
+     * the used Geocoder version.
+     *
+     * @default '6.2'
+     */
+    version?: string;
+}
+
+function createXHR(url, onSuccess, onError) {
     const req = new XMLHttpRequest();
 
     req.onload = function() {
-        onSuccess( JSON.parse( this.responseText ) );
+        onSuccess(JSON.parse(this.responseText));
     };
 
     req.onreadystatechange = function() {
         // error but not timeout
         const status = this.status;
 
-        if ( this.readyState == 4 && (status<200||status>=300) && status !== 0 ) {
-            if ( onError ) {
-                onError( this );
+        if (this.readyState == 4 && (status < 200 || status >= 300) && status !== 0) {
+            if (onError) {
+                onError(this);
             }
         }
     };
@@ -98,79 +74,62 @@ function createXHR( url, onSuccess, onError ) {
 }
 
 /**
- *  providers geocode and reverse geocode services.
+ * Provides basic geocode and reverse geocode functionality that allows you to:
+ * - Obtain geocoordinates for addresses
+ * - Obtain addresses or administrative areas for locations
+ * - Obtain geocoordinates for known landmarks
  *
- *  @class
- *  @expose
- *  @public
- *
- *  @param {here.xyz.maps.service.Geocoder.Options} config configurations for geocoder
- *  @name here.xyz.maps.service.Geocoder
+ * Uses the HERE Geocoder API.
+ * @see https://developer.here.com/documentation/geocoder/dev_guide/topics/what-is.html
  */
 class GeoCoder {
-    private url: string;
-    private reverseUrl: string;
+    /**
+     *  the url to the geocode service.
+     */
+    private readonly url: string;
+    /**
+     *  the url to the reverse geocode service.
+     */
+    private readonly reverseUrl: string;
+    /**
+     *  Current set config of the Geocoder.
+     */
     private cfg: GeoCoderOptions;
 
-    constructor( cfg: GeoCoderOptions ) {
+    /**
+     *  @param options - Options to configure the GeoCoder.
+     */
+    constructor(options: GeoCoderOptions) {
         const format = '.json';
 
-        cfg = cfg || <GeoCoderOptions>{};
+        options = options || <GeoCoderOptions>{};
 
-        cfg['host'] = cfg['host'] || 'geocoder.api.here.com';
+        options['host'] = options['host'] || 'geocoder.api.here.com';
 
-        cfg['version'] = cfg['version'] || '6.2';
-
-        /**
-         *  the url to the geocode service.
-         *
-         *  @expose
-         *  @public
-         *  @type {String}
-         *  @name here.xyz.maps.service.Geocoder#url
-         */
-        this.url = 'https://' + cfg['host'] + '/' + cfg['version'] + '/geocode' + format;
-
-        /**
-         *  the url to the reverse geocode service.
-         *
-         *  @expose
-         *  @public
-         *  @type {String}
-         *  @name here.xyz.maps.service.Geocoder#reverseUrl
-         */
-        this.reverseUrl = 'https://reverse.' + cfg['host'] + '/' + cfg['version'] + '/reversegeocode' + format;
+        options['version'] = options['version'] || '6.2';
 
 
-        /**
-         *  Current config of the Geocoder.
-         *
-         *  @expose
-         *  @public
-         *  @type {Object}
-         *  @name here.xyz.maps.service.Geocoder#config
-         */
-        this.cfg = cfg;
+        this.url = 'https://' + options['host'] + '/' + options['version'] + '/geocode' + format;
+
+        this.reverseUrl = 'https://reverse.' + options['host'] + '/' + options['version'] + '/reversegeocode' + format;
+
+        this.cfg = options;
     }
 
     /**
-     *  create request url.
+     *  create the request url.
      *
-     *  @expose
-     *  @function
-     *  @public
-     *  @name here.xyz.maps.service.Geocoder#createUrl
-     *  @param {String} baseUrl
-     *  @param {Object} params additional params for request url
-     *  @return {string} return request url
+     *  @param baseUrl - the url to geocoder service (normal or reverse)
+     *  @param params - additional params for request url
+     *  @return the request url
      */
-    createUrl( baseUrl, params ) {
+    private createUrl(baseUrl, params) {
         let pStr = '';
 
         params = params || {};
 
-        for ( const p in params ) {
-            pStr += '&' + p + '=' + encodeURIComponent( params[p] );
+        for (const p in params) {
+            pStr += '&' + p + '=' + encodeURIComponent(params[p]);
         }
 
         return this.reverseUrl +
@@ -182,19 +141,19 @@ class GeoCoder {
 
 
     /**
-     *  make geocode request.
+     *  Reuquest the Geocoder Resource.
+     *  {@link https://developer.here.com/documentation/geocoder/dev_guide/topics/resource-geocode.html}
      *
-     *  @expose
-     *  @function
-     *  @public
-     *  @name here.xyz.maps.service.Geocoder#geocode
-     *  @param {Object} params additional params for request url
-     *  @param {Function} onSuccess success callback
-     *  @param {Function} onError error callback
+     *  @param params - additional parameters for geocode request
+     *  @param onSuccess - success callback
+     *  @param onError - error callback
      */
-    geocode( params, onSuccess, onError ) {
+    geocode(params: { [name: string]: string | string[] | number | number[] },
+        onSuccess: (data: any) => void,
+        onError?: (error: any) => void
+    ) {
         createXHR(
-            this.createUrl( this.url, params ),
+            this.createUrl(this.url, params),
             onSuccess,
             onError
         );
@@ -202,19 +161,19 @@ class GeoCoder {
 
 
     /**
-     *  make reverse geocode request.
+     *  Request the reverse Geocode Resource.
+     *  {@link https://developer.here.com/documentation/geocoder/dev_guide/topics/resource-reverse-geocode.html}
      *
-     *  @expose
-     *  @function
-     *  @public
-     *  @name here.xyz.maps.service.Geocoder#reverseGeocode
-     *  @param {Object} params additional params for request url
+     *  @param params - additional parameters for reverse geocode request
      *  @param {Function} onSuccess success callback
      *  @param {Function} onError error callback
      */
-    reverseGeocode( params, onSuccess:(data:any)=>void, onError:(error:any)=>void ) {
+    reverseGeocode(params: { [name: string]: string | string[] | number | number[] },
+        onSuccess: (data: any) => void,
+        onError: (error: any) => void
+    ) {
         createXHR(
-            this.createUrl( this.reverseUrl, params ),
+            this.createUrl(this.reverseUrl, params),
             onSuccess,
             onError
         );
@@ -222,30 +181,26 @@ class GeoCoder {
 
 
     /**
-     *  make reverse geocode request for ISO country code.
+     *  Request reverse geocode request to receive ISO country code for a geographical position.
      *
-     *  @expose
-     *  @function
-     *  @public
-     *  @name here.xyz.maps.service.Geocoder#getIsoCountryCode
-     *  @param {Object} location it is either an array [longitude, latitude] or an object literal {longitude: number, latitude: number}
-     *  @param {Function} onSuccess success callback which contains iso country code
-     *  @param {Function} onError error callback
+     *  @param position - it is either an array [longitude, latitude] or an object literal {longitude: number, latitude: number}
+     *  @param onSuccess - success callback which contains the iso country code.
+     *  @param onError - error callback
      */
-    getIsoCountryCode( location: number[]|GeoPoint, onSuccess: (isocc:string, data:any)=>void, onError:(error:any)=>void ) {
+    getIsoCountryCode(position: number[] | GeoPoint, onSuccess: (isocc: string, data: any) => void, onError: (error: any) => void) {
         const params = {
             'mode': 'retrieveAddresses',
             'maxresults': 1,
             'jsonattributes': 1
         };
 
-        if ( location instanceof Array ) {
-            params['prox'] = location[1] + ',' + location[0];
+        if (position instanceof Array) {
+            params['prox'] = position[1] + ',' + position[0];
         } else {
-            params['prox'] = location['latitude'] + ',' + location['longitude'];
+            params['prox'] = position['latitude'] + ',' + position['longitude'];
         }
 
-        this.reverseGeocode( params, (data) => {
+        this.reverseGeocode(params, (data) => {
             let isocc = null;
 
             try {
@@ -254,12 +209,12 @@ class GeoCoder {
 
             }
 
-            if ( onSuccess ) {
-                onSuccess( isocc, data );
+            if (onSuccess) {
+                onSuccess(isocc, data);
             }
-        }, onError );
+        }, onError);
     };
 }
 
 
-export default GeoCoder;
+export {GeoCoder};
