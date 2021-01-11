@@ -18,28 +18,23 @@
  */
 
 import {JSUtils} from '@here/xyz-maps-common';
-import HTTPProvider from './HTTPProvider/HTTPProvider';
+import {HTTPProvider} from './HTTPProvider/HTTPProvider';
 
-
-export class GeoJSONProvider extends HTTPProvider {
+/**
+ *  GeoJSONProvider is a remote HTTPProvider designed to work with GeoJSON data.
+ */
+export abstract class GeoJSONProvider extends HTTPProvider {
     /**
-     *  GeoJSON provider
-     *
-     *  @public
-     *  @expose
-     *  @constructor
-     *  @extends here.xyz.maps.providers.HTTPProvider
-     *  @param {here.xyz.maps.providers.HTTPProvider.Options} config configuration of the provider
-     *  @name here.xyz.maps.providers.GeoJSONProvider
+     * @param options - options to configure the provider
      */
-    constructor(config) {
-        config.level = config.level || 13;
+    constructor(options) {
+        options.level = options.level || 13;
 
-        config.headers = JSUtils.extend({
+        options.headers = JSUtils.extend({
             'Accept': 'application/geo+json'
-        }, config.headers || {});
+        }, options.headers || {});
 
-        super(config);
+        super(options);
     }
 
     // delete( feature ) {

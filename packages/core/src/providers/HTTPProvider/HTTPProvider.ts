@@ -21,13 +21,9 @@ import {EditableRemoteTileProvider} from '../RemoteTileProvider/EditableRemoteTi
 import LoaderManager from '../../loaders/Manager';
 import {HTTPLoader} from '../../loaders/HTTPLoader';
 import {JSUtils} from '@here/xyz-maps-common';
-
-/* exported Options */
-
-import Options from './HTTPProviderOptions';
+import {HTTPProviderOptions} from './HTTPProviderOptions';
 import {Feature} from '../../features/Feature';
 
-const doc = Options; // doc only!
 
 const METHOD_NOT_IMPLEMENTED = 'Method not implemented.';
 
@@ -41,24 +37,17 @@ const parseParams = (url: string, params?: { [key: string]: string }) => {
 };
 
 /**
- *  Remote HTTP tile provider.
- *
- *  @public
- *  @class
- *  @expose
- *  @constructor
- *  @extends here.xyz.maps.providers.EditableRemoteTileProvider
- *  @param {here.xyz.maps.providers.HTTPProvider.Options} config configuration of the provider
- *  @name here.xyz.maps.providers.HTTPProvider
+ *  The HTTPProvider fetches data from remote HTTP data-sources.
  */
-class HTTPProvider extends EditableRemoteTileProvider {
+abstract class HTTPProvider extends EditableRemoteTileProvider {
     protected url: string;
     protected params;
     protected headers: { [name: string]: string };
 
-    constructor(options) {
-        options = options || {};
-
+    /**
+     * @param options - options to configure the provider
+     */
+    constructor(options: HTTPProviderOptions) {
         let loader = options.loader;
 
         if (loader) {
@@ -85,14 +74,10 @@ class HTTPProvider extends EditableRemoteTileProvider {
     }
 
     /**
-     *  Get a specific request-header being added to all requests handled by provider.
+     *  Get a specific request-header being added to all requests handled by the provider.
      *
-     *  @public
-     *  @expose
-     *  @function
-     *  @name here.xyz.maps.providers.HTTPProvider#getHeader
-     *  @param {string} name
-     *      The name of header to retrieve
+     *  @param name - The name of header to retrieve
+     *
      *  @return value of the request header or null if the header does not exist
      */
     getHeader(name: string): string | null {
@@ -101,13 +86,9 @@ class HTTPProvider extends EditableRemoteTileProvider {
     }
 
     /**
-     *  Get the request-headers being added to all requests handled by provider.
+     *  Get the request-headers being added to all requests handled by the provider.
      *
-     *  @public
-     *  @expose
-     *  @function
-     *  @name here.xyz.maps.providers.HTTPProvider#getHeaders
-     *  @return map of key value pairs. the key represents the header name
+     *  @return Map of key value pairs. the key represents the header name
      */
     getHeaders(): { [name: string]: string } {
         const loaders = this.loader.src;
@@ -115,16 +96,10 @@ class HTTPProvider extends EditableRemoteTileProvider {
     }
 
     /**
-     *  Set request-header that should be added to all request handled by provider.
+     *  Set request-header that should be added to all request handled by the provider.
      *
-     *  @public
-     *  @expose
-     *  @function
-     *  @name here.xyz.maps.providers.HTTPProvider#setHeader
-     *  @param {string} name
-     *      The name of the header whose value is to be set.
-     *  @param {string} value
-     *      The value to set as the body of the header.
+     *  @param name - The name of the header whose value is to be set.
+     *  @param value - The value to set as the body of the header.
      */
     setHeader(name: string, value: string) {
         const loaders = this.loader.src;
@@ -137,14 +112,9 @@ class HTTPProvider extends EditableRemoteTileProvider {
     }
 
     /**
-     *  Set request-headers that should be added to all request handled by provider.
+     *  Set request-headers that should be added to all request handled by the provider.
      *
-     *  @public
-     *  @expose
-     *  @function
-     *  @name here.xyz.maps.providers.HTTPProvider#setHeaders
-     *  @param {string} map
-     *      Map of key value pairs. the key represents the header name
+     *  @param map - Map of key value pairs. the key represents the header name.
      */
     setHeaders(headers: { [name: string]: string }) {
         const loaders = this.loader.src;
@@ -157,13 +127,9 @@ class HTTPProvider extends EditableRemoteTileProvider {
     }
 
     /**
-     *  Get the request-parameter being added by provider to all requests.
+     *  Get the request-parameters that are being added by the provider to all requests.
      *
-     *  @public
-     *  @expose
-     *  @function
-     *  @name here.xyz.maps.providers.HTTPProvider#getParams
-     *  @return map of key value pairs. the key represents the parameter name
+     *  @return Map of key value pairs. the key represents the parameter name.
      */
     getParams(): { [name: string]: string } {
         // const params = {};
@@ -176,14 +142,10 @@ class HTTPProvider extends EditableRemoteTileProvider {
     }
 
     /**
-     *  Get a specific request-parameter that's being added by provider to all requests.
+     *  Get a specific request-parameter that's being added by the provider to all requests.
      *
-     *  @public
-     *  @expose
-     *  @function
-     *  @name here.xyz.maps.providers.HTTPProvider#getParam
-     *  @param {string} name
-     *      The name of parameter to retrieve
+     *  @param name - The name of parameter to retrieve
+     *
      *  @return value of the request parameter or null if the parameter does not exist
      */
     getParam(name: string): string | null {
@@ -193,16 +155,9 @@ class HTTPProvider extends EditableRemoteTileProvider {
     /**
      *  Set request-parameters that should be added to all request handled by provider.
      *
-     *  @public
-     *  @expose
-     *  @function
-     *  @name here.xyz.maps.providers.HTTPProvider#setParams
-     *  @param {string} map
-     *      A map of key value pairs. the key represents the parameter name.
-     *      Possible value types are string, string[] or undefined.
-     *      If undefined is used parameter get's cleared/removed.
+     *  @param map - A map of key value pairs. the key represents the parameter name. Possible value types are string, string[] or undefined. If undefined is used parameter get's cleared/removed.
      */
-    setParams(parameters: { [name: string]: string }) {
+    setParams(parameters: { [name: string]: string | string[] | undefined }) {
         const loaders = this.loader.src;
         const loader = loaders[loaders.length - 1];
         const url = loader.baseUrl;
@@ -231,19 +186,13 @@ class HTTPProvider extends EditableRemoteTileProvider {
     }
 
     /**
-     *  Set a specific request-parameter that should be added to all request handled by provider.
+     * Set a specific request-parameter that should be added to all request handled by provider.
+     * If undefined is set the parameter get's cleared/removed.
      *
-     *  @public
-     *  @expose
-     *  @function
-     *  @name here.xyz.maps.providers.HTTPProvider#setParam
-     *  @param {string} name
-     *      The name of the parameter whose value is to be set.
-     *  @param {string|string[]|undefined} value
-     *      The value(s) of the parameter.
-     *      If undefined is set parameter get's cleared/removed.
+     * @param name - The name of the parameter whose value is to be set.
+     * @param {string|string[]|undefined} value - The value(s) of the parameter.
      */
-    setParam(name: string, value: string | string[]) {
+    setParam(name: string, value: string | string[] | undefined) {
         let params = {};
         params[name] = value;
         this.setParams(params);
@@ -259,69 +208,37 @@ class HTTPProvider extends EditableRemoteTileProvider {
         return this;
     }
 
-
-    /**
-     *  Commit modified features to the backend
-     *
-     *  @public
-     *  @expose
-     *  @function
-     *  @name here.xyz.maps.providers.HTTPProvider#commit
-     *  @param {Object} data the data to commit to the backend
-     *  @param {here.xyz.maps.providers.FeatureProvider.Feature|Array.<here.xyz.maps.providers.FeatureProvider.Feature>} data.put features that should be created or updated
-     *  @param {here.xyz.maps.providers.FeatureProvider.Feature|Array.<here.xyz.maps.providers.FeatureProvider.Feature>} data.remove features that should be removed
-     *  @param {Function=} onSuccess callback function on success
-     *  @param {Function=} onError callback function on error
-     */
     commit(features, onSuccess, onError, transactionId?: string) {
         throw new Error(METHOD_NOT_IMPLEMENTED);
     }
 
     /**
-     *  Get url feature requests.
+     *  Get URL feature specific requests.
      *
-     *  @public
-     *  @expose
-     *  @function
-     *  @name here.xyz.maps.providers.HTTPProvider#getFeatureUrl
-     *  @param {Array.<String>} layer layer id
-     *  @param {Object=} feature feature id
-     *  @return {String} feature url
+     *  @param layer - the id of the layer
+     *  @param featureId - id of the feature the provider want's to request
+     *
+     *  @return url string to receive the feature resource of the remote http backend
      */
-    // abstract getFeatureUrl(layer, id): string;
-    getFeatureUrl(layer, id): string {
-        throw new Error(METHOD_NOT_IMPLEMENTED);
-    }
+    abstract getFeatureUrl(layer:string, featureId: string|number): string;
+
 
     /**
-     *  Get url for layer requests.
+     *  Get URL for layer specific requests.
      *
-     *  @public
-     *  @expose
-     *  @function
-     *  @name here.xyz.maps.providers.HTTPProvider#getLayerUrl
-     *  @param {String} layer layer id
-     *  @return {String} url to layer
+     *  @param layer - the id of the layer
+     *  @return url string to receive a layer resource of the remote http backend
      */
-    // abstract getLayerUrl(layer): string;
-    getLayerUrl(layer): string {
-        throw new Error(METHOD_NOT_IMPLEMENTED);
-    }
+    abstract getLayerUrl(layer:string): string;
+
 
     /**
-     *  Get url for tile requests.
+     *  Get URL for tile specific requests.
      *
-     *  @public
-     *  @expose
-     *  @function
-     *  @name here.xyz.maps.providers.HTTPProvider#getTileUrl
-     *  @param {String} layer layer id
-     *  @return {String} url to a tile in a layer
+     *  @param layer - the id of the layer
+     *  @return url string to receive a tile resource of the remote http backend
      */
-    // abstract getTileUrl(layer): string;
-    getTileUrl(layer): string {
-        throw new Error(METHOD_NOT_IMPLEMENTED);
-    }
+    abstract getTileUrl(layer:string): string;
 
     // request individual features from backend
     _requestFeatures(ids, onSuccess, onError, opt?) {
@@ -337,4 +254,10 @@ class HTTPProvider extends EditableRemoteTileProvider {
     }
 }
 
-export default HTTPProvider;
+HTTPProvider.prototype.getFeatureUrl =
+    HTTPProvider.prototype.getLayerUrl =
+        HTTPProvider.prototype.getTileUrl = function() {
+            throw new Error(METHOD_NOT_IMPLEMENTED);
+        };
+
+export {HTTPProvider};
