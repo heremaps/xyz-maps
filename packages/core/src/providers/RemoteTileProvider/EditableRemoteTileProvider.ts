@@ -411,7 +411,7 @@ export abstract class EditableRemoteTileProvider extends EditableFeatureProvider
         radius: number,
         remote?: boolean,
         onload?: (result: Feature[] | null) => void
-     }): Feature[];
+    }): Feature[];
 
     /**
      * Rectangle Search for feature(s) in the provider.
@@ -438,8 +438,8 @@ export abstract class EditableRemoteTileProvider extends EditableFeatureProvider
      * ```
      */
     search(rect: GeoRect | GeoJSONBBox, options?: {
-         remote?: boolean,
-         onload?: (result: Feature[] | null) => void
+        remote?: boolean,
+        onload?: (result: Feature[] | null) => void
     }): Feature[];
 
     /**
@@ -463,14 +463,13 @@ export abstract class EditableRemoteTileProvider extends EditableFeatureProvider
      * })
      *
      */
-    // @ts-ignore
     search(id: string | number, options?: {
         radius: number,
         remote?: boolean,
         onload?: (result: Feature) => void
     }): Feature[];
 
-    search(bbox, options?): Feature[] {
+    search(bbox, options?): Feature | Feature[] {
         // TODO: cleanup and split search and implement remote part here
         const provider = this;
         let geo;
@@ -876,7 +875,7 @@ export abstract class EditableRemoteTileProvider extends EditableFeatureProvider
      *
      *  @param data - the data that should be commit to the remote.
      *  @param data.put - features that should be created or updated
-     *  @param  data.remove - features that should be removed
+     *  @param data.remove - features that should be removed
      *  @param onSuccess - callback function that will be called when data has been commit successfully
      *  @param onError - callback function that will be called when an error occurs
      */

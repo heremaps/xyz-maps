@@ -17,18 +17,12 @@
  * License-Filename: LICENSE
  */
 
+import {EditableRemoteTileProviderOptions} from '../RemoteTileProvider/EditableRemoteTileProviderOptions';
+
 /**
- *  Configuration of providers.
- *
- *  @expose
- *  @public
- *  @interface
- *  @extends here.xyz.maps.providers.RemoteTileProvider.Options
- *  @class here.xyz.maps.providers.HTTPProvider.Options
+ *  Options to configuration of HTTPProvider.
  */
-
-export default {
-
+export interface HTTPProviderOptions extends EditableRemoteTileProviderOptions {
     /**
      * url for requesting tiles.
      *
@@ -44,39 +38,27 @@ export default {
      * or a callback function that's called with the following parameters x,y,z,quadkey and need to returns the url for requesting tiles.
      * The callback function needs to handle custom parameters by its own.
      *
-     * @public
-     * @expose
-     * @name here.xyz.maps.providers.HTTPProvider.Options#url
-     * @type {string|Function}
      * @example
+     * ```
      * // string
      * url: 'https://xyz.api.here.com/hub/spaces/mySpace/tile/quadkey/{QUADKEY}?access_token=myAccessToken'
      * // callback function
      * url: (z, y, x, quadkey) => {
      *     return 'https://xyz.api.here.com/hub/spaces/mySpace/tile/quadkey/' + quadkey + '?access_token=myAccessToken';
      * }
+     * ```
      */
-    // url: null,
+    url: string | ((z: number, y: number, x: number, quadkey: string) => string);
 
     /**
-     * set custom url service headers.
-     * custom headers will be applied to all request done by provider
-     *
-     * @public
-     * @expose
-     * @name here.xyz.maps.providers.HTTPProvider.Options#headers
-     * @type {number}
+     * Set custom url service headers.
+     * Custom headers will be applied to all request done by provider.
      */
-    // headers: null,
+    headers?: { [header: string]: string }
 
     /**
-     * set custom url parameters.
-     * custom parameters will be applied to all request done by provider
-     *
-     * @public
-     * @expose
-     * @name here.xyz.maps.providers.HTTPProvider.Options#params
-     * @type {number}
+     * Set custom url parameters.
+     * Custom parameters will be applied to all request done by provider.
      */
-    // params: null
+    params?: { [paramter: string]: string }
 };
