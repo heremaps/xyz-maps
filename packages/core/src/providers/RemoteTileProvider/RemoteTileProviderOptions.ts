@@ -18,16 +18,14 @@
  */
 
 import {TileProviderOptions} from '../TileProvider/TileProviderOptions';
-// import {GeoJSONFeature} from '../../features/GeoJSON';
-// import TileLoader from "../../loaders/TileLoader";
+import {GeoJSONFeature} from '../../features/GeoJSON';
 
 /**
  *  Configuration options of a RemoteTileProvider.
- *
  */
 export interface RemoteTileProviderOptions extends TileProviderOptions {
     /**
-     * zoomlevel at which tiles should be loaded from remote and a local cache gets build.
+     * The zoomlevel at which tiles should be loaded from remote and a local index gets created.
      */
     level: number;
 
@@ -43,11 +41,17 @@ export interface RemoteTileProviderOptions extends TileProviderOptions {
      * No references to the outer scope of the processor function are allowed.
      *
      * @example
-     * PreProcessor:
-     *  ({data: any[], ready: (GeoJsonFeature[]) => void, tile?:{x:number,y:number,z:number}) => GeoJsonFeature[] | Promise
+     * ```
+     * // PreProcessor:
+     *  ({data: any[], ready: (GeoJsonFeature[]) => void, tile?:{x:number,y:number,z:number}) => GeoJsonFeature[] | Promise<GeoJsonFeature[]>
+     * ```
      */
-    preProcessor?: () => void;
-    // preProcessor?: ({ data: any[], ready: (GeoJSONFeature[] => void, tile?: { x: number, y: number, z: number }}) => GeoJSONFeature[] | Promise;
+    // preProcessor?: () => void;
+    preProcessor?(input: {
+        data: any[],
+        ready: (features: GeoJSONFeature[]) => void,
+        tile?: { x: number, y: number, z: number }
+    }): GeoJSONFeature[] | Promise<GeoJSONFeature[]>;
 
     /**
      * PostProcessor for remote data sources.
@@ -60,15 +64,18 @@ export interface RemoteTileProviderOptions extends TileProviderOptions {
      * The processor must be a "standalone function/class" that only depends on its own scope and only accesses its own local variables.
      * No references to the outer scope of the processor function are allowed.
      *
-     * PostProcessorData:
+     *  @example
+     * ```
+     * // PostProcessorData:
      *  {put: GeoJsonFeature[],remove: GeoJsonFeature[]}
-     * PostProcessor:
-     *  ({data: PostProcessorData, ready: (data) => void) => PostProcessorData | Promise
-     *
+     * // PostProcessor:
+     *  ({data: PostProcessorData, ready: (data) => void}) => PostProcessorData | Promise<GeoJsonFeature[]>
+     * ```
      */
-    postProcessor?: () => void;
-    // postProcessor: ({data: any, ready: (data) => void}) => ({put: GeoJSONFeature[],remove: GeoJSONFeature[]}) | Promise;
-
+    postProcessor?(input: {
+        data: { put: GeoJSONFeature[], remove: GeoJSONFeature[] },
+        ready: (data) => void
+    }): { put: GeoJSONFeature[], remove: GeoJSONFeature[] } | Promise<{ put: GeoJSONFeature[], remove: GeoJSONFeature[] }>;
 
     loader?: any;
 };
