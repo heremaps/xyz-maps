@@ -18,7 +18,7 @@
  */
 
 import oTools from './PolygonTools';
-import BasicFeature from '../feature/Feature';
+import {Feature} from '../feature/Feature';
 
 const MIN_HOLE_SIZE = 8;
 
@@ -61,7 +61,7 @@ const copyPolygon = (poly) => {
  *  @param {here.xyz.maps.editor.features.Feature.Properties=} properties
  *      Properties of the area feature.
  */
-class Area extends BasicFeature {
+class Area extends Feature {
     class: 'AREA';
 
     /**

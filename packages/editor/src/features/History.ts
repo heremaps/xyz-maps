@@ -18,7 +18,7 @@
  */
 
 import {JSUtils} from '@here/xyz-maps-common';
-import Feature from './feature/Feature';
+import {Feature} from './feature/Feature';
 
 const EDITOR_NS = '@ns:com:here:editor';
 

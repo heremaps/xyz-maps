@@ -17,8 +17,7 @@
  * License-Filename: LICENSE
  */
 
-import BasicFeature from '../feature/Feature';
-// import EDITOR from '../../editor';
+import {Feature} from '../feature/Feature';
 import tools from './LineTools';
 
 const throwError = (msg) => {
@@ -39,7 +38,7 @@ const throwError = (msg) => {
  *  @param {here.xyz.maps.editor.features.Feature.Properties=} properties
  *      Properties of the line.
  */
-class Line extends BasicFeature {
+class Line extends Feature {
     /**
      *  Add a new shape point to the link.
      *

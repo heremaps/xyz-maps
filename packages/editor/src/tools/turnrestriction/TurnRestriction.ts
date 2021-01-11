@@ -22,7 +22,7 @@ import {movePointOnPath} from '../../geometry';
 import linkTools from '../../features/link/NavLinkTools';
 import {isTurnAllowed, isPedestrianOnly, getProperty, setProperty} from './utils';
 import Overlay from '../../features/Overlay';
-import NavLink from '../../features/link/NavLink';
+import {Navlink} from '../../features/link/NavLink';
 
 const DISTANCE_METER = 8 * 1e-5;
 
@@ -46,8 +46,8 @@ class TurnRestriction {
     sign;
     line;
 
-    from: NavLink;
-    to: NavLink;
+    from: Navlink;
+    to: Navlink;
 
     constructor(HERE_WIKI, fromLink, fromShape, toLink, toShape, carPosition) {
         const overlay = HERE_WIKI.objects.overlay;

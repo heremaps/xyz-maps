@@ -20,9 +20,9 @@
 import {getPntAt} from '../geometry';
 import {geotools} from '@here/xyz-maps-common';
 import Overlay from '../features/Overlay';
-import NavLink from '../features/link/NavLink';
+import {Navlink} from '../features/link/NavLink';
 import Line from '../features/line/Line';
-import Feature from '../features/feature/Feature';
+import {Feature} from '../features/feature/Feature';
 
 const NAVLINK_DIRECTION_HINT = 'NAVLINK_DIRECTION_HINT_';
 const NAVLINK_DIRECTION_HINT_A = NAVLINK_DIRECTION_HINT + 'A';
@@ -35,7 +35,7 @@ class LinkDirectionHint {
     private points: Feature[];
     private overlay: Overlay;
 
-    constructor(overlay: Overlay, link: NavLink | Line, dir: string, hideShapes?: boolean) {
+    constructor(overlay: Overlay, link: Navlink | Line, dir: string, hideShapes?: boolean) {
         const path = link.coord();
         const rotation = dir == 'END_TO_START' ? 180 : 0;
         const points = [];

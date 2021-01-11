@@ -18,7 +18,7 @@
  */
 
 import oTools from './LocationTools';
-import Location from './Location';
+import {Location} from './Location';
 import {JSUtils} from '@here/xyz-maps-common';
 
 /**
@@ -172,7 +172,11 @@ class Address extends Location {
     // TODO: cleanup doc + real inheritance chain..
 
 
-    prop(props) {
+    prop(): { [name: string]: any };
+    prop(property: string): any;
+    prop(property: string, value: any): void;
+    prop(properties: { [name: string]: any }): void;
+    prop(props?, p?): { [name: string]: any } | void {
         const feature = this;
         let isModified = false;
         const aLen = arguments.length;

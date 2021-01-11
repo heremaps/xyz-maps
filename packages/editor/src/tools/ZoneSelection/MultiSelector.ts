@@ -22,7 +22,7 @@ import MultiLink from './MultiLink';
 import InternalEditor from '../../IEditor';
 import Map from '@here/xyz-maps-display';
 import {Zone} from '../../API/EZoneSelector';
-import Navlink from '../../features/link/NavLink';
+import {Navlink} from '../../features/link/NavLink';
 
 class MultiSelector {
     private multiLink: MultiLink = null;

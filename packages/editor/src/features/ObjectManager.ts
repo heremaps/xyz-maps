@@ -26,7 +26,7 @@ import {split, SplitOptions} from './LinkSplitter';
 import {layers, providers} from '@here/xyz-maps-core';
 import {Map, JSUtils, geotools} from '@here/xyz-maps-common';
 import {getPntOnLine, intersectBBox} from '../geometry';
-import Navlink from './link/NavLink';
+import {Navlink} from './link/NavLink';
 
 type FeatureProvider = providers.FeatureProvider;
 type EditableFeatureProvider = providers.EditableFeatureProvider;

@@ -18,10 +18,8 @@
  */
 
 import InternalEditor from '../IEditor';
-import {geo, layers} from '@here/xyz-maps-core';
-import EditFeature from '../features/feature/Feature';
-
-type TileLayer = layers.TileLayer;
+import {geo, TileLayer} from '@here/xyz-maps-core';
+import {Feature} from '../features/feature/Feature';
 
 export interface SearchOptions {
     id?: string | number;
@@ -30,11 +28,55 @@ export interface SearchOptions {
     radius?: number;
     rect?: geo.Rect | [number, number, number, number];
     remote?: boolean;
-    onload?: (features: EditFeature[]) => void;
-    filter?: (feature: EditFeature) => boolean;
+    onload?: (features: Feature[]) => void;
+    filter?: (feature: Feature) => boolean;
     layers?: TileLayer[];
 }
 
+/**
+ *  Search for editable object(s).
+ *
+ *  @public
+ *  @expose
+ *  @function
+ *  @name here.xyz.maps.editor.Editor#search
+ *  @param {Object} options
+ *  @param {String=} options.id Object id.
+ *  @param {Array.<String>=} options.ids Array of object ids.
+ *  @param {here.xyz.maps.geo.Point=} options.point Center point of the circle for search
+ *  @param {number=} options.radius Search radius in meters, if "point" search is performed.
+ *  @param {(here.xyz.maps.geo.Rect|Array.<number>)=} options.rect Rect object is either an array: [minLon, minLat, maxLon, maxLat] or Rect object defining rectangle to search in.
+ *  @param {Boolean=} options.remote Force the provider to do remote search if objects are not found in cache.
+ *  @param {Function=} options.onload Callback function of search if remote search is performed.
+ *  @param {Function=} options.filter function for optional result filtering.
+ *  @param {Array.<here.xyz.maps.layers.TileLayer>=} options.layers Layers to search in.
+ *  @example
+ * //searching by id:
+ *editor.search({id: 1058507462})
+ * //or:
+ *editor.search({ids: [1058507462, 1058507464]})
+ *@example
+ * //searching by point and radius:
+ *editor.search({
+ *  point: {longitude: 72.84205, latitude: 18.97172},
+ *  radius: 100
+ *})
+ *@example
+ * //searching by Rect:
+ *editor.search({
+ *  rect:  {minLon: 72.83584, maxLat: 18.97299, maxLon: 72.84443, minLat: 18.96876}
+ *})
+ *@example
+ * //remote search:
+ *editor.search({
+ *  rect:  {minLon: 72.83584, maxLat: 18.97299, maxLon: 72.84443, minLat: 18.96876},
+ *  remote: true, // force provider to do remote search if feature/search area is not cached locally
+ *  onload: function(e){
+ *   // search result is only return in this callback function if no feature is not found in cache.
+ *  }
+ *})
+ *  @return {Array.<here.xyz.maps.editor.features.Feature>} array of features
+ */
 export const eSearch = function(HERE_WIKI: InternalEditor) {
     return {
         /**
@@ -81,7 +123,7 @@ export const eSearch = function(HERE_WIKI: InternalEditor) {
          *})
          *  @return {Array.<here.xyz.maps.editor.features.Feature>} array of features
          */
-        search: (options: SearchOptions): EditFeature[] => {
+        search: (options: SearchOptions): Feature[] => {
             const result = [];
             let feature;
 

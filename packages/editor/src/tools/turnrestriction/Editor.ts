@@ -21,7 +21,7 @@ import {movePointOnPath} from '../../geometry';
 import TurnRestriction from './TurnRestriction';
 import {getDirection, isPedestrianOnly} from './utils';
 import {geotools} from '@here/xyz-maps-common';
-import Navlink from '../../features/link/NavLink';
+import {Navlink} from '../../features/link/NavLink';
 
 const DIRECTION_BOTH = 'BOTH';
 const DIRECTION_FROM_RN = 'START_TO_END';

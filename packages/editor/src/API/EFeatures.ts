@@ -18,7 +18,7 @@
  */
 
 import SimpleContainer from '../features/Container';
-import SObj from '../features/feature/Feature';
+import {Feature} from '../features/feature/Feature';
 
 let UNDEF;
 
@@ -97,7 +97,7 @@ export const eFeatures = (HERE_WIKI) => {
                 features.push(f);
             };
 
-            if (feature instanceof SObj) {
+            if (feature instanceof Feature) {
                 addFeature(feature, layer);
             } else if (feature instanceof Array) {
                 feature.forEach((f) => addFeature(f, layer));

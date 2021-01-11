@@ -17,11 +17,11 @@
  * License-Filename: LICENSE
  */
 
-import MapObject from '../features/feature/Feature';
+import {Feature} from '../features/feature/Feature';
 import MultiSelector from '../tools/ZoneSelection/MultiSelector';
 import InternalEditor from '../IEditor';
 
-import Navlink from '../features/link/NavLink';
+import {Navlink} from '../features/link/NavLink';
 
 let UNDEF;
 
@@ -34,118 +34,68 @@ type ZoneSegment = {
 }
 
 /**
- *  The interface for parameter of zones/sides tool at links.
- *
- *  @public
- *  @class
- *  @expose
- *  @name here.xyz.maps.editor.features.Zone
+ * A zone represents a part/subsegment on a line geometry or multiple line geometries.
+ * Its used by the ZoneSelector utility. {@link editor.ZoneSelector}
  */
 export class Zone {
-    side: 'L' | 'R' | 'B';
+    /**
+     * Side of the Zone. Relative to the direction of travel of the line geometry.
+     * "L" | "R" | "B" -> Left, Right or Both sides.
+     *
+     * @default "B"
+     */
+    side?: 'L' | 'R' | 'B';
+    /**
+     * Relative start position on the line geometry.
+     * 0 -> 0% -> start, 0.5 -> 50% -> middle, 1 -> 100% -> end
+     * @default 0.0
+     */
     from: number;
+    /**
+     * Relative end position on the line geometry.
+     * 0.5 -> 50% -> middle, 1 -> 100% -> end
+     * @default 1.0
+     */
     to: number;
+    /**
+     * lock the zone and prevent dragging/editing of the Zone.
+     */
     locked?: boolean;
+    /**
+     * Apply custom styling of Zone.
+     * Objects of key value pairs.
+     */
     style?: any;
+    /**
+     * onChange callback providing detailed information about current state of the Zone.
+     */
     onChange?: (ZoneSegments: ZoneSegment[]) => void;
+    /**
+     * A zone can consist of several segments.
+     * A Segment provides detailed information on the affected Navlinks:
+     * @example
+     * ```
+     * {
+     *  link: Navlink
+     *  from: number;
+     *  to: number;
+     *  reversed: boolean;
+     * }
+     * ```
+     */
     segments: ZoneSegment[]
 
     markerStyle?;
     lineStyle?;
 
     constructor() {
-        /**
-         *  Side of Zone on Link.
-         *  "L" | "R" | "B" -> Left, Right or Both sides.
-         *
-         *  @type {string}
-         *
-         *  @public
-         *  @expose
-         *  @name here.xyz.maps.editor.features.Zone#side
-         */
-        // side: 'L' | 'R' | 'B';
-
-        /**
-         *  Start position in decimal % at link of the zone.
-         *
-         *  @type {Number}
-         *
-         *  @public
-         *  @expose
-         *  @name here.xyz.maps.editor.features.Zone#from
-         */
-        // from: number;
-
-        /**
-         *  End position in decimal % at link of the zone.
-         *
-         *  @type {Number}
-         *
-         *  @public
-         *  @expose
-         *  @name here.xyz.maps.editor.features.Zone#to
-         */
-        // to: number;
-
-        /**
-         *  Ability to lock the zone and prevent dragging.
-         *
-         *  @type {Boolean}
-         *
-         *  @public
-         *  @expose
-         *  @name here.xyz.maps.editor.features.Zone#locked
-         */
-        // locked?: boolean;
-
-        /**
-         *  Apply custom styling of Zone.
-         *  Objects of key value pairs.
-         *
-         *  @public
-         *  @expose
-         *  @type object
-         *  @name here.xyz.maps.editor.features.Zone#style
-         */
-        // style?: any;
-
-        /**
-         *  onChange callback providing detailed information about current state of zone.
-         *
-         *  @public
-         *  @expose
-         *  @function
-         *  @param {function} callback
-         *  @name here.xyz.maps.editor.features.Zone#onChange
-         */
-        // onChange?: (ZoneSegments: ZoneSegment[]) => void;
-
-        /**
-         *  A zone can consist of several segments.
-         *  A Segment provides detailed information on the affected Navlinks:
-         *  {
-         *   link: Navlink
-         *   from: number;
-         *   to: number;
-         *   reversed: boolean;
-         *  }
-         *  @public
-         *  @expose
-         *  @type {Array.<Object>} segments
-         *  @name here.xyz.maps.editor.features.Zone#segments
-         */
     }
 }
 
 
 /**
- *  The interface to the tool for selecting zones/sides at links.
- *
- *  @expose
- *  @public
- *  @constructor
- *  @name here.xyz.maps.editor.Editor.zoneSelector
+ * The ZoneSelector is a tool to create and modify Zones on a single geometry or multiple line geometries.
+ * A Zone represents a part/subsegment on a line geometry or multiple line geometries and allows separate attribution.
  */
 export class ZoneSelector {
     private links: MultiSelector;
@@ -169,37 +119,28 @@ export class ZoneSelector {
     }
 
     /**
-     *  Add link(s) to zoneselector tool.
+     * Add Navlink(s) to ZoneSelector tool.
      *
-     *  @public
-     *  @expose
-     *  @function
-     *  @param {here.xyz.maps.editor.features.Navlink} links
-     *      single or multiple links to add
-     *  @name here.xyz.maps.editor.Editor.zoneSelector#add
+     * @param links - a single or multiple Navlinks to add. Multiple Navlinks must be linked.
+     *
      */
-    add(link: Navlink | Navlink[]) {
-        const links = link instanceof Array ? link : [].slice.call(arguments);
+    add(navlink: Navlink | Navlink[]) {
+        const links = navlink instanceof Array ? navlink : [].slice.call(arguments);
 
         for (let i = 0; i < links.length; i++) {
-            if (links[i] instanceof MapObject) {
+            if (links[i] instanceof Feature) {
                 this.links.addLink(links[i]);
             }
         }
     };
 
     /**
-     *  Adds and displays zones for editing.
+     * Adds and displays zones for editing.
      *
-     *  @public
-     *  @expose
-     *  @function
-     *  @param {here.xyz.maps.editor.features.Zone} zones
-     *      display single or multiple zones at link(s).
-     *  @name here.xyz.maps.editor.Editor.zoneSelector#show
+     * @param zone - display single or multiple zones at the geometry of the Navlink(s).
      */
-    show(_zones: Zone) {
-        const zones = this.zones = _zones instanceof Array ? _zones : [].slice.call(arguments);
+    show(zone: Zone) {
+        const zones = this.zones = zone instanceof Array ? zone : [].slice.call(arguments);
 
         zones.forEach((zone) => {
             const onChange = zone['onChange'];
@@ -227,25 +168,16 @@ export class ZoneSelector {
     };
 
     /**
-     *  hides all zones and links.
-     *
-     *  @public
-     *  @expose
-     *  @function
-     *  @name here.xyz.maps.editor.Editor.zoneSelector#hide
+     * hides all Zones and the Zoneselecor tool itself.
      */
     hide() {
         return this.links.hide();
     }
 
     /**
-     *  detailed information about all zones and its segments.
+     * detailed information about all zones and its segments.
      *
-     *  @public
-     *  @expose
-     *  @function
-     *  @name here.xyz.maps.editor.Editor.zoneSelector#info
-     *  @return {Array.<here.xyz.maps.editor.features.Zone>} zone information
+     * @return  Array of Zones providing detailed information for each Zone.
      */
     info(): Zone[] {
         const zoneInfos = [];

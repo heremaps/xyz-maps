@@ -20,7 +20,7 @@
 import {geotools} from '@here/xyz-maps-common';
 import {getPntOnLine} from '../geometry';
 import oTools from '../features/oTools';
-import Feature from '../features/feature/Feature';
+import {Feature} from '../features/feature/Feature';
 
 // var MAX_DECIMAL_PRECISION = 1e8; // ⁓1.1mm
 const MAX_DECIMAL_PRECISION = 1e9; // ⁓110microns

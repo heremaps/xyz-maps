@@ -19,7 +19,7 @@
 
 // @ts-ignore
 import logo from '../../assets/icons/default.gif';
-import EditFeature from '../features/feature/Feature';
+import {Feature} from '../features/feature/Feature';
 
 class PlaceStyles {
     styleGroups = {
@@ -32,7 +32,7 @@ class PlaceStyles {
         }]
     };
 
-    assign(feature: EditFeature) {
+    assign(feature: Feature) {
         return 'default';
     }
 }

@@ -18,7 +18,7 @@
  */
 
 import oTools from './LocationTools';
-import BasicFeature from './Location';
+import {Location} from './Location';
 import {JSUtils} from '@here/xyz-maps-common';
 
 /**
@@ -36,8 +36,11 @@ import {JSUtils} from '@here/xyz-maps-common';
  *  @param {here.xyz.maps.editor.features.Feature.Properties=} properties
  *      Properties of the Place feature.
  */
-class Place extends BasicFeature {
-    class: string;
+class Place extends Location {
+    /**
+     *  The feature class of a Place is "PLACE".
+     */
+    readonly class: 'PLACE';
 
     constructor(feature, provider) {
         super(feature, provider);
@@ -54,6 +57,7 @@ class Place extends BasicFeature {
      *  @function
      *  @name here.xyz.maps.editor.features.Place#getLink
      */
+
     // TODO: cleanup doc + real inheritance chain..
 
     /**
@@ -97,7 +101,11 @@ class Place extends BasicFeature {
     };
 
 
-    prop(props) {
+    prop(): { [name: string]: any };
+    prop(property: string): any;
+    prop(property: string, value: any): void;
+    prop(properties: { [name: string]: any }): void;
+    prop(props?, p?): { [name: string]: any } | void {
         const feature = this;
         const aLen = arguments.length;
         const properties = feature.getProvider().getFeatureProperties(feature);
@@ -153,82 +161,7 @@ class Place extends BasicFeature {
     };
 }
 
-// JSUtils.inheritClass(BasicFeature, POI);
-
-const POI_PROTOTYPE = Place.prototype;
-
-/**
- *  Feature class of this feature, the value is "PLACE".
- *
- *  @public
- *  @expose
- *  @readonly
- *  @name here.xyz.maps.editor.features.Place#class
- *  @type string
- */
-POI_PROTOTYPE.class = 'PLACE';
-
-
-/**
- *  Properties of place feature.
- *
- *  @public
- *  @expose
- *  @type {here.xyz.maps.editor.features.Place.Properties}
- *  @name here.xyz.maps.editor.features.Place#properties
- */
-
-
-/**
- *  Get deep copy of all properties of the feature
- *
- *  @public
- *  @expose
- *  @return {here.xyz.maps.editor.features.Place.Properties}
- *      return properties of the object
- *  @function
- *  @name here.xyz.maps.editor.features.Place#prop
- *
- *
- * @also
- *
- *  Get the value of an specific property
- *
- *  @public
- *  @expose
- *  @param {string} property
- *      property name
- *  @return {number|string|Array.<string>|object}
- *      value of the specific property
- *  @function
- *  @name here.xyz.maps.editor.features.Place#prop
- *
- * @also
- *
- *  Set the value for an specific property
- *
- *  @public
- *  @expose
- *  @param {string} property
- *      property name
- *  @param {number|string|Array.<string>|object} value
- *      value of the specific property
- *  @function
- *  @name here.xyz.maps.editor.features.Place#prop
- *
- *
- * @also
- *
- *  Set one or more properties of the object.
- *
- *  @public
- *  @expose
- *  @param {here.xyz.maps.editor.features.Place.Properties} properties
- *      properties of the feature
- *  @function
- *  @name here.xyz.maps.editor.features.Place#prop
- *
- */
+(<any>Place.prototype).class = 'PLACE';
 
 /**
  *  Get default or current style of the feature.
@@ -275,4 +208,4 @@ POI_PROTOTYPE.class = 'PLACE';
  *  @name here.xyz.maps.editor.features.Place#coord
  */
 
-export default Place;
+export {Place};

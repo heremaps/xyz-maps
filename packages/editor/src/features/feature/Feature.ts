@@ -19,14 +19,15 @@
 
 import oTools from '../oTools';
 import {JSUtils} from '@here/xyz-maps-common';
-import {features, providers} from '@here/xyz-maps-core';
+import {Feature as GeoJSONFeature, providers} from '@here/xyz-maps-core';
 import EditorProperties from './EditorProperties';
 import Properties from './Properties';
 import InternalEditor from '../../IEditor';
+import {Style} from '@here/xyz-maps-core';
 
 const doc = Properties; // doc only!
 
-const {Feature} = features;
+
 type EditableProvider = providers.EditableRemoteTileProvider;
 let UNDEF;
 
@@ -40,34 +41,23 @@ export type EditStates = 'created' | 'modified' | 'removed' | 'split' | 'hovered
 
 type Coordinate = [number, number, number?];
 
-/**
- *  @class
- *  @expose
- *  @public
- *
- *  @extends here.xyz.maps.providers.FeatureProvider.Feature
- *  @name here.xyz.maps.editor.features.Feature
- *
- *  @constructor
- *  @param {(String|Number)=} id
- *      id of the feature
- *  @param {Array.<here.xyz.maps.editor.GeoCoordinate>|Array.<here.xyz.maps.editor.PixelCoordinate>} coordinates
- *      Coordinates of the feature.
- *  @param {here.xyz.maps.editor.features.Feature.Properties=} properties
- *      Properties of the feature.
- */
-class EditFeature extends Feature {
+
+class Feature extends GeoJSONFeature {
     bbox: [number, number, number, number];
 
     id: number | string;
 
-    properties: {};
+    readonly properties: { [name: string]: any };
 
     geometry: {
         type: 'Point' | 'MultiPoint' | 'LineString' | 'MultiLineString' | 'Polygon' | 'MultiPolygon',
         coordinates: Coordinate | Coordinate[] | Coordinate[][] | Coordinate[][][]
     };
 
+    /**
+     *  The Feature class of the feature.
+     *  The value must be one of "NAVLINK", "ADDRESS", "PLACE", "AREA" or "MARKER".
+     */
     class: string;
 
     constructor(geojsonFeature, provider: EditableProvider) {
@@ -129,42 +119,27 @@ class EditFeature extends Feature {
         return estates[state];
     };
 
-    /**
-     *  Feature class of this feature, the value could be one of "NAVLINK", "ADDRESS", "PLACE", "AREA" or "MARKER".
-     *
-     *  @public
-     *  @expose
-     *  @readonly
-     *  @name here.xyz.maps.editor.features.Feature#class
-     *  @type string
-     */
-
     // class: null
 
     /**
      *  Get default or current style of the feature.
      *
-     *  @public
-     *  @expose
      *  @deprecated
-     *  @param {string=} [style="default"]
-     *      a string indicating which style to return, either "default" or "current".
-     *  @return {Array<here.xyz.maps.layers.TileLayer.Style>} styles
-     *      style of this feature
-     *  @function
-     *  @name here.xyz.maps.editor.features.Feature#style
+     *  @default "default"
+     *  @param type - indicates which style to return. "default" -> layer default style for the feature or the "current" applied style.
      *
-     * @also
+     *  @return the style of the feature
+     */
+    style(type: 'default' | 'current'): Style[];
+    /**
      *  Apply style to the feature.
      *
-     *  @public
-     *  @expose
-     *  @param {Array<here.xyz.maps.layers.TileLayer.Style>} style
-     *      the style to set for the feature
-     *  @function
-     *  @name here.xyz.maps.editor.features.Feature#style
+     *  @deprecated
+     *  @param style - the style to set for the feature
      */
-    style(styles) {
+    style(style: Style[]);
+
+    style(styles?: Style[] | 'default' | 'current') {
         const feature = this;
 
         // act as getter!
@@ -255,56 +230,32 @@ class EditFeature extends Feature {
 
 
     /**
-     *  Get deep copy of all properties of the feature
+     * Get a deep copy of the properties of the feature
+     */
+    prop(): { [name: string]: any };
+    /**
+     * Get the value of an specific property
      *
-     *  @public
-     *  @expose
-     *  @return {here.xyz.maps.editor.features.Feature.Properties}
-     *      return properties of the object
-     *  @function
-     *  @name here.xyz.maps.editor.features.Feature#prop
+     * @param property - name of the property
      *
-     *
-     * @also
-     *
-     *  Get the value of an specific property
-     *
-     *  @public
-     *  @expose
-     *  @param {string} property
-     *      property name
-     *  @return {number|string|Array.<string>|object}
-     *      value of the specific property
-     *  @function
-     *  @name here.xyz.maps.editor.features.Feature#prop
-     *
-     * @also
-     *
+     * @return the value of the specific property
+     */
+    prop(property: string): any;
+
+    /**
      *  Set the value for an specific property
      *
-     *  @public
-     *  @expose
-     *  @param {string} property
-     *      property name
-     *  @param {number|string|Array.<string>|object} value
-     *      value of the specific property
-     *  @function
-     *  @name here.xyz.maps.editor.features.Feature#prop
-     *
-     *
-     * @also
-     *
-     *  Set one or more properties of the object.
-     *
-     *  @public
-     *  @expose
-     *  @param {here.xyz.maps.editor.features.Feature.Properties} properties
-     *      properties of the feature
-     *  @function
-     *  @name here.xyz.maps.editor.features.Feature#prop
-     *
+     * @param property - name of the property
+     * @param value - the value that should be set for the property
      */
-    prop(props?) {
+    prop(property: string, value: any): void;
+    /**
+     *  Set one or more properties of the object.
+     *  @param properties - the properties object literal that should be merged with the existing properties.
+     */
+    prop(properties: { [name: string]: any }): void;
+
+    prop(props?, p?): { [name: string]: any } | void {
         const feature = this;
         let isModified = false;
         const aLen = arguments.length;
@@ -357,52 +308,39 @@ class EditFeature extends Feature {
     };
 
     /**
-     *  Get coordinate(s) of the feature.
-     *
-     *  @public
-     *  @expose
-     *  @return {Array.<Array>|Array.<number>}
-     *      coordinates of the feature, it is either array of coordinates: [longitude, latitude, z] or
-     *      array of coordinate arrays: [ [longitude, latitude, z], [longitude, latitude, z], , , , ] depending on the type of feature.
-     *  @function
-     *  @name here.xyz.maps.editor.features.Feature#coord
-     *
-     * @also
-     *  Set coordinate(s) of the feature.
-     *
-     *  @public
-     *  @param {Array.<Array>|Array.<number>} coords
-     * coordinates of the feature, it is either array of coordinates: [longitude, latitude, z] or
-     *      array of coordinate arrays: [ [longitude, latitude, z], [longitude, latitude, z], , , , ] depending on the type of feature.
-     *  @expose
-     *
-     *  @function
-     *  @name here.xyz.maps.editor.features.Feature#coord
+     *  Get the coordinate(s) of the feature.
      */
-    coord(coords?) {
+    coord(): Coordinate[] | Coordinate[][] | Coordinate[][][] | Coordinate[][][][];
+    /**
+     *  Set the coordinate(s) of the feature.
+     *
+     *  @param coordinates - the coordinates that should be set. The coordinates must match features geometry type.
+     */
+    coord(coordinates: Coordinate[] | Coordinate[][] | Coordinate[][][] | Coordinate[][][][]);
+
+    coord(coordinates?: Coordinate[] | Coordinate[][] | Coordinate[][][] | Coordinate[][][][]) {
         const feature = this;
         const geoType = feature.geometry.type;
-        let coordinates;
 
-        if (coords instanceof Array) {
+        if (coordinates instanceof Array) {
             oTools.deHighlight(feature);
 
-            oTools._setCoords(feature, coords);
+            oTools._setCoords(feature, coordinates);
 
             oTools.markAsModified(feature);
         } else {
             // coords = feature.geometry.coordinates;
-            coords = feature.getProvider().decCoord(feature);
+            coordinates = feature.getProvider().decCoord(feature);
 
             if (geoType == 'Point') {
-                coordinates = cpyCoord(coords);
+                coordinates = cpyCoord(coordinates);
             } else {
                 coordinates = [];
 
-                const len = coords.length;
+                const len = coordinates.length;
 
                 for (let c = 0; c < len; c++) {
-                    coordinates[c] = cpyCoord(coords[c]);
+                    coordinates[c] = cpyCoord(coordinates[c]);
                 }
             }
         }
@@ -414,16 +352,14 @@ class EditFeature extends Feature {
     /**
      *  Set the object editable or read only.
      *
-     *  @public
-     *  @expose
-     *  @param {Boolean} editable
-     *      True, the object is editable. false, the object is read only.
+     * @param editable - True, the feature can be edited, otherwise false.
      *
-     *  @example
-     *  object.editable(false); // set the object read only
-     *
-     *  @function
-     *  @name here.xyz.maps.editor.features.Feature#editable
+     * @deprecated
+     * @example
+     * ```
+     * // prevent the feature from being modified by the editor module
+     * object.editable(false);
+     * ```
      */
     editable(editable: boolean) {
         oTools._editable(this, editable);
@@ -434,68 +370,31 @@ class EditFeature extends Feature {
 
 
     /**
-     *  Highlight and selects this object.
-     *
-     *  @public
-     *  @expose
-     *
-     *  @function
-     *  @name here.xyz.maps.editor.features.Feature#select
+     *  Select and highlight the feature.
+     *  Selected features geometry is displayed and can easily be modified by mouse/touch interaction.
      */
     select() {
         oTools._select(this);
-
-        // if( obj._select )
-        // {
-        //    obj._select();
-        // }
     };
 
     /**
-     *  Unselect the object, unhightlight it.
-     *
-     *  @public
-     *  @expose
-     *
-     *  @function
-     *  @name here.xyz.maps.editor.features.Feature#unselect
+     *  Unselect the feature.
      */
     unselect() {
-        // oTools.deHighlight(this, true);
         if (oTools.private(this, 'isSelected')) {
             this._e().objects.selection.clearSelected();
-
-            // if( this.deHighlight )s
-            // {
-            //     this.deHighlight( true );
-            // }
-
-            // clear multi selected links if exists
-            // this._e().map.multiSelector.hide();
         }
     };
 
     /**
-     *  Helper function to transform the object (move/scale/rotate)
-     *
-     *  @public
-     *  @expose
-     *
-     *  @function
-     *  @name here.xyz.maps.editor.features.Feature#transform
+     *  Enable Transform Utility to allow easy geometry transformation of the feature (move/scale/rotate) by mouse/touch interaction.
      */
     transform() {
         this._e().transformer.show(this);
     };
 
     /**
-     *  Remove the object.
-     *
-     *  @public
-     *  @expose
-     *
-     *  @function
-     *  @name here.xyz.maps.editor.features.Feature#remove
+     *  Remove the feature.
      */
     remove() {
         this._e().objects.remove(this, {
@@ -504,6 +403,6 @@ class EditFeature extends Feature {
     };
 }
 
-EditFeature.prototype.id = null;
+Feature.prototype.id = null;
 
-export default EditFeature;
+export {Feature};
