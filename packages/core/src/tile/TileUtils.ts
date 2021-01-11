@@ -194,7 +194,7 @@ export const getTilesInRect =
 // return [ level, col, row ];
 // }
 
-export default {
+export const tileUtils = {
     geoToGrid,
     pixelToGrid,
     quadToGrid,

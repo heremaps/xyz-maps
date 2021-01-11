@@ -22,7 +22,6 @@ import {Tile} from '../tile/Tile';
 
 interface TileLoader {
 
-
     load: (tile: Tile, success, error)=>void;
 
     abort: (tile: Tile)=>void;

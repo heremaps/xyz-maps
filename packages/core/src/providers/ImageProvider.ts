@@ -18,7 +18,6 @@
  */
 
 import TileProvider from './TileProvider/TileProvider';
-import {JSUtils} from '@here/xyz-maps-common';
 import {Tile} from '../tile/Tile';
 import LRUStorage from '../storage/LRUStorage';
 import GenericLoader from '../loaders/Manager';
@@ -26,54 +25,27 @@ import {HTTPLoader} from '../loaders/HTTPLoader';
 
 let UNDEF;
 
-//    function RingBuffer(length){
-//        var pointer = 0,
-//            buffer = [];
-//
-//        var getPointer = 0;
-//
-//        this.get  = function(key){
-//            return buffer[key]
-//        }
-//        this.next = function(){
-//            var p = getPointer;
-//            getPointer = (length + getPointer +1) % length;
-//            return buffer[p];
-//        }
-//        this.push = function(item){
-//            buffer[pointer] = item;
-//            pointer = (length + pointer +1) % length;
-//        }
-//        this.increase = function(){
-//            length++;
-//        }
-//    };
-
-
-function timestamp() {
-    return +new Date;
-}
+const timestamp = () => +new Date;
 
 
 /**
- *  Image provider
- *
- *  @public
- *  @class
- *  @expose
- *  @constructor
- *  @extends here.xyz.maps.providers.TileProvider
- *  @param {here.xyz.maps.providers.RemoteTileProvider.Options} config configuration of the provider
- *  @name here.xyz.maps.providers.ImageProvider
+ *  Tile Provider for Image/Raster data.
+ *  eg: Satellite Tiles.
  */
 export class ImageProvider extends TileProvider {
     private loader: GenericLoader;
-    private name = '';
-    private opacity = 1;
+    name = '';
+    /**
+     *  The opacity with which the image data should be displayed.
+     */
+    private opacity: number = 1;
     dataType = 'image';
 
-    constructor(config, tileLoader) {
-        super(config, {
+    /**
+     *  @param options - options to configure the provider
+     */
+    constructor(options) {
+        super(options, {
             'storage': new LRUStorage(512)
         });
 
@@ -82,50 +54,22 @@ export class ImageProvider extends TileProvider {
         if (!provider.loader) {
             provider.loader = new GenericLoader(
                 new HTTPLoader({
-                    url: config['url'],
+                    url: options['url'],
                     headers: {
                         'Accept': '*/*'
                     }
                 })
             );
         }
-
-        // provider.renderer = config.renderer;
-
-        /**
-         *  Name of this image provider
-         *
-         *  @public
-         *  @expose
-         *  @type {string}
-         *  @name here.xyz.maps.providers.ImageProvider#name
-         */
-        // provider.name = config.name || '';
-
-        /**
-         *  Opacity of images rendered in this layer
-         *
-         *  @public
-         *  @expose
-         *  @type {number}
-         *  @name here.xyz.maps.providers.ImageProvider#opacity
-         */
-        // provider.opacity = config.opacity || 1;
     }
 
-
     /**
-     *  Get a tile by quad key.
+     * Get a tile by quadkey.
      *
-     *  @public
-     *  @expose
-     *  @function
-     *  @name here.xyz.maps.providers.ImageProvider#getTile
-     *  @param {number} quadkey
-     *  @param {Function} cb
-     *  @return {here.xyz.maps.providers.TileProvider.Tile}
+     * @param quadkey - quadkey of the tile
+     * @param callback - the callback function
+     * @returns the Tile is returned if its already cached locally
      */
-
     getTile(quadkey: string, cb: (tile: Tile) => void) {
         const provider = this;
         const loader = provider.loader;
@@ -191,13 +135,9 @@ export class ImageProvider extends TileProvider {
     };
 
     /**
-     *  Clear tiles in bounding box, clear all if parameter is not given
+     *  Clear tiles in a given bounding box or all tiles called without parameter.
      *
-     *  @public
-     *  @expose
-     *  @function
-     *  @name here.xyz.maps.providers.ImageProvider#clear
-     *  @param {Array.<Number>=} tile bbox array of coordinates in order: [minLon, minLat, maxLon, maxLat]
+     *  @param bbox - array of geographical coordinates [minLon, minLat, maxLon, maxLat] defining the area to clear.
      */
     clear(bbox?: number[]) {
         const provider = this;
@@ -223,14 +163,17 @@ export class ImageProvider extends TileProvider {
     };
 
     /**
-     *  Cancel request of a tile.
+     * Cancel ongoing request(s) and drop the tile.
      *
-     *  @public
-     *  @expose
-     *  @function
-     *  @name here.xyz.maps.providers.ImageProvider#cancel
-     *  @param {here.xyz.maps.providers.TileProvider.Tile|string} quadkey quad key of a tile or a tile instance
+     * @param quadkey - the quadkey of the tile that should be canceled and removed.
      */
+    cancel(quadkey: string ): void;
+    /**
+     * Cancel ongoing request(s) and drop the tile.
+     *
+     * @param tile - the tile that should be canceled and removed.
+     */
+    cancel(tile: Tile): void;
     cancel(quadkey: string | Tile) {
         let tile;
 

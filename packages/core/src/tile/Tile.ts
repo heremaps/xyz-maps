@@ -20,6 +20,7 @@
 import {quadToGrid, getGeoBounds} from './TileUtils';
 import RTree from '../features/RTree';
 import projection from '../projection/webMercator';
+import {Feature} from '@here/xyz-maps-core';
 
 
 const TILESIZE = 256;
@@ -29,96 +30,34 @@ const NULL = null;
 type Bounds = [number, number, number, number];
 
 /**
- *  Tile.
- *
- *  @class
- *  @expose
- *  @public
- *
- *  @param {String} quadkey
- *  @param {String} type type of tile
- *  @name here.xyz.maps.providers.TileProvider.Tile
+ *  This Class represents a WebMercator Tile.
  */
 export class Tile {
     clipped: boolean;
-
-    constructor(quadkey: string, type: string, clipped: boolean, expire?: number) {
-        const grid = quadToGrid(quadkey);
-
-        /**
-         *  quadkey of this tile.
-         *
-         *  @public
-         *  @expose
-         *  @type {String}
-         *  @name here.xyz.maps.providers.TileProvider.Tile#quadkey
-         */
-        this.quadkey = quadkey;
-        /**
-         *  z of the tile. (level)
-         *
-         *  @public
-         *  @expose
-         *  @type {Integer}
-         *  @name here.xyz.maps.providers.TileProvider.Tile#z
-         */
-        this.z = grid[0];
-        /**
-         *  y of the tile.
-         *
-         *  @public
-         *  @expose
-         *  @type {Integer}
-         *  @name here.xyz.maps.providers.TileProvider.Tile#y
-         */
-        this.y = grid[1];
-        /**
-         *  x of the tile.
-         *
-         *  @public
-         *  @expose
-         *  @type {Integer}
-         *  @name here.xyz.maps.providers.TileProvider.Tile#x
-         */
-        this.x = grid[2];
-
-        /**
-         *  type of the tile.
-         *
-         *  @public
-         *  @expose
-         *  @type {String}
-         *  @name here.xyz.maps.providers.TileProvider.Tile#type
-         */
-        this.type = type;
-
-        /**
-         *  Bounding box has the coordinates in order: [minLon, minLat, maxLon, maxLat].
-         *
-         *  @public
-         *  @expose
-         *  @type {Array<Integer>}
-         *  @name here.xyz.maps.providers.TileProvider.Tile#bounds
-         */
-        this.bounds = getGeoBounds(grid[0], grid[1], grid[2]);
-
-        this.expire = expire;
-        this.clipped = clipped;
-    }
-
-
+    /**
+     *  quadkey of the tile.
+     */
     quadkey: string;
-
+    /**
+     *  z (zoonlevel) of the tile.
+     */
     z: number;
-
+    /**
+     *  y of the tile.
+     */
     y: number;
-
+    /**
+     *  x of the tile.
+     */
     x: number;
-
+    /**
+     *  type of the tile.
+     */
     type: string;
-
+    /**
+     *  Geographical Bounding box has the coordinates in order: [minLon, minLat, maxLon, maxLat].
+     */
     bounds: Bounds;
-
 
     data: any;
     loadStartTs: number;
@@ -134,14 +73,32 @@ export class Tile {
 
     private expire: number;
 
+    constructor(quadkey: string, type: string, clipped: boolean, expire?: number) {
+        const grid = quadToGrid(quadkey);
+
+
+        this.quadkey = quadkey;
+
+        this.z = grid[0];
+
+        this.y = grid[1];
+
+        this.x = grid[2];
+
+
+        this.type = type;
+
+
+        this.bounds = getGeoBounds(grid[0], grid[1], grid[2]);
+
+        this.expire = expire;
+        this.clipped = clipped;
+    }
+
     /**
-     *  Checks if tile expires at given time point. by default, check if the tile expires at the time point when this function is called.
+     *  Checks if tile expires at given point of time.
      *
-     *  @public
-     *  @expose
-     *  @param {Date=} ts
-     *  @name here.xyz.maps.providers.TileProvider.Tile#expired
-     *  @return {boolean} tile expires returns true, otherwise false.
+     *  @return true when tile has expired, otherwise false.
      */
     expired(ts: number) {
         ts = ts || Date.now();
@@ -150,15 +107,11 @@ export class Tile {
 
 
     /**
-     *  add feature to tile.
+     *  add a feature to the tile.
      *
-     *  @public
-     *  @expose
-     *  @function
-     *  @name here.xyz.maps.providers.TileProvider.Tile#add
-     *  @param {here.xyz.maps.providers.FeatureProvider.Feature} feature
+     *  @param feature - the Feature to add
      */
-    add(feature: any) {
+    add(feature: Feature) {
         const data = this.data;
 
         if (data && data.indexOf(feature) == -1) {
@@ -171,15 +124,11 @@ export class Tile {
     };
 
     /**
-     *  remove feature to tile.
+     *  remove feature to the tile.
      *
-     *  @public
-     *  @expose
-     *  @function
-     *  @name here.xyz.maps.providers.TileProvider.Tile#remove
-     *  @param {here.xyz.maps.providers.FeatureProvider.Feature} feature
+     *  @param feature - the Feature to remove
      */
-    remove(feature: any) {
+    remove(feature: Feature) {
         const tileIndex = this.data.indexOf(feature);
 
         if (tileIndex !== -1) {
@@ -214,13 +163,7 @@ export class Tile {
     };
 
     /**
-     *  validate if the tile is loaded
-     *
-     *  @public
-     *  @expose
-     *  @function
-     *  @name here.xyz.maps.providers.TileProvider.Tile#isLoaded
-     *  @return {Boolean}
+     *  check if the tile  has been fully loaded
      */
     isLoaded(): boolean {
         return typeof this.loadStopTs == 'number';
@@ -229,15 +172,9 @@ export class Tile {
 
     /**
      *  get tile bound including margin.
-     *
-     *  @public
-     *  @expose
-     *  @function
-     *  @name here.xyz.maps.providers.TileProvider.Tile#getContentBounds
-     *  @return {Array.<Number>} the bounding box has the coordinates in the order: [minLon, minLat, maxLon, maxLat]
+     *  @returns the bounding box with geographical coordinates [minLon, minLat, maxLon, maxLat]
      */
-    // includes margin
-    getContentBounds(): number[] {
+    getContentBounds(): [number, number, number, number] {
         if (!this.cbnds) {
             const {bounds, provider} = this;
             const {margin} = provider;

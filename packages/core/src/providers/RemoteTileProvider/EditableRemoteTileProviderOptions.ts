@@ -17,8 +17,17 @@
  * License-Filename: LICENSE
  */
 
-// TODO: remove namespace
-import * as Utils from './TileUtils';
+import {RemoteTileProviderOptions} from './RemoteTileProviderOptions';
 
-export {Tile} from './Tile';
-export {Utils};
+/**
+ *  Configuration options of a EditableRemoteTileProvider.
+ *
+ */
+export interface EditableRemoteTileProviderOptions extends RemoteTileProviderOptions {
+    /**
+     *  Allow or prevent editing by the {@link editor.Editor} module.
+     *
+     *  @default false
+     */
+    editable: boolean;
+};

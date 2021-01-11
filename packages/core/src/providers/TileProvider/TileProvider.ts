@@ -18,13 +18,10 @@
  */
 
 import {Tile} from '../../tile/Tile';
-import TileStorage from '../../storage/Level2Storage';
+import {TileStorage} from '../../storage/TileStorage';
+import Level2TileStorage from '../../storage/Level2Storage';
 import {Listener} from '@here/xyz-maps-common';
-/* exported Options */
-
-import Options from './TileProviderOptions';
-
-const doc = Options; // doc only!
+import {TileProviderOptions} from './TileProviderOptions';
 
 const TILESIZE = 256;
 const DEFAULT_EXPIRE_SECONDS = Infinity;
@@ -35,21 +32,24 @@ const intersectBBox = (ax, ax2, ay, ay2, bx, bx2, by, by2) => {
 };
 
 /**
- *  Provider.
- *
- *  @public
- *  @class
- *  @expose
- *  @constructor
- *  @param {here.xyz.maps.providers.TileProvider.Options} options
- *  @name here.xyz.maps.providers.TileProvider
+ *  Abstract Provider serving map-data partitioned in {@link:Tiles};
  */
 export default abstract class TileProvider {
     __type: string;
-
-    margin = 0;
-
+    /**
+     * The id of the Provider
+     */
     id: string;
+
+    /**
+     *  The name of the Provider.
+     */
+    name?: string;
+
+    /**
+     *  default tile margin.
+     */
+    margin: number = 0;
 
     dep = {};
 
@@ -71,10 +71,20 @@ export default abstract class TileProvider {
 
     abstract _removeTile(tile: Tile, triggerEvent: boolean);
 
-    abstract getTile(quadkey: string, cb: (tile: Tile, error?: any) => void);
+    /**
+     * Get a tile by quadkey.
+     *
+     * @param quadkey - quadkey of the tile
+     * @param callback - the callback function
+     * @returns the Tile is returned if its already cached locally
+     */
+    abstract getTile(quadkey: string, callback: (tile: Tile, error?: any) => void);
 
 
-    constructor(options, cfg) {
+    /**
+     *  @param options - options to configure the provider
+     */
+    constructor(options: TileProviderOptions, cfg?) {
         const provider = this;
 
         options = options || {};
@@ -83,56 +93,17 @@ export default abstract class TileProvider {
             options[c] = cfg[c];
         }
 
-        /**
-         *  default tile margin.
-         *
-         *  @public
-         *  @expose
-         *  @type {Integer}
-         *  @name here.xyz.maps.providers.TileProvider#margin
-         */
-        /**
-         *  Provider name.
-         *
-         *  @public
-         *  @expose
-         *  @type {String}
-         *  @name here.xyz.maps.providers.TileProvider#name
-         */
-        /**
-         *  url for requesting tiles.
-         *
-         *  @public
-         *  @expose
-         *  @type {String}
-         *  @name here.xyz.maps.providers.TileProvider#url
-         */
-        /**
-         *  provider request tiles at this zoomlevel.
-         *
-         *  @public
-         *  @expose
-         *  @type {Integer}
-         *  @name here.xyz.maps.providers.TileProvider#level
-         */
 
         for (var c in options) {
             this[c] = options[c];
         }
 
-        /**
-         *  Provider id.
-         *
-         *  @public
-         *  @expose
-         *  @type {String}
-         *  @name here.xyz.maps.providers.TileProvider#id
-         */
+
         if (this.id == UNDEF) {
-            this.id = 'TP-' + (Math.random() * 1e6 ^ 0);
+            (<any> this).id = 'TP-' + (Math.random() * 1e6 ^ 0);
         }
 
-        provider.storage = options.storage || new TileStorage(provider.level);
+        provider.storage = options.storage || new Level2TileStorage(provider.level);
 
         provider.initStorage(provider.storage);
 
@@ -156,50 +127,39 @@ export default abstract class TileProvider {
     };
 
     /**
-     *  Add event listener to provider, valid events: "featureAdd", "featureRemove", "featureCoordinatesChange", "clear" and "error"
+     *  Add an event listener to the provider.
+     *  Valid events: "featureAdd", "featureRemove", "featureCoordinatesChange", "clear" and "error"
      *
-     *  @public
-     *  @expose
-     *  @function
-     *  @name here.xyz.maps.providers.TileProvider#addEventListener
+     * @param type - type of the event
+     * @param listener - the eventListener to add
+     *
      */
-    addEventListener(key: string, callback: (...args: any[]) => void, context: any) {
-        return this.listeners.add(key, callback, context);
+    addEventListener(type: string, listener: (...args: any[]) => void, context?: any) {
+        return this.listeners.add(type, listener, context);
     }
 
     /**
-     *  Remove event listener from provider, valid events: "featureadd", "featureRemove", "featureCoordinatesChange", "clear" and "error"
+     *  Remove an event listener from the provider.
+     *  Valid events: "featureadd", "featureRemove", "featureCoordinatesChange", "clear" and "error"
      *
-     *  @public
-     *  @expose
-     *  @function
-     *  @name here.xyz.maps.providers.TileProvider#removeEventListener
+     * @param type - type of the event
+     * @param listener - the eventListener to remove
      */
-    removeEventListener(key: string, callback: (...args: any[]) => void, context: any) {
-        return this.listeners.remove(key, callback, context);
+    removeEventListener(type: string, listener: (...args: any[]) => void, context?: any) {
+        return this.listeners.remove(type, listener, context);
     }
 
     /**
-     *  Clear all features.
-     *
-     *  @public
-     *  @expose
-     *  @function
-     *  @name here.xyz.maps.providers.TileProvider#clear
+     *  Clear all features in.
      */
     clear(bbox?) {
         this.storage.clear();
     };
 
     /**
-     *  get cached tile by quadkey.
+     * Get a locally cached tile by quadkey.
      *
-     *  @public
-     *  @expose
-     *  @function
-     *  @name here.xyz.maps.providers.TileProvider#getCachedTile
-     *  @param {String} quadkey
-     *  @return {here.xyz.maps.providers.TileProvider.Tile}
+     * @param quadkey - the quadkey of the tile
      */
     getCachedTile(quadkey: string): Tile {
         return this.storage.get(quadkey);
@@ -207,17 +167,12 @@ export default abstract class TileProvider {
 
 
     /**
-     *  set tile margin.
+     * Set the tile margin in pixel.
      *
-     *  @public
-     *  @expose
-     *  @function
-     *  @name here.xyz.maps.providers.TileProvider#setMargin
-     *  @param {Integer} margin in pixel
+     * @param tileMargin - the tileMargin
      */
-    setMargin(margin) {
-        this.margin = Number(margin);
-
+    setMargin(tileMargin: number = 0) {
+        this.margin = Number(tileMargin);
         // clear cached content bounds of tile to allow margin update
         this.storage.forEach((tile) => tile.cbnds = null);
     };
@@ -225,22 +180,18 @@ export default abstract class TileProvider {
     /**
      *  get cached tile by bounding box.
      *
-     *  @public
-     *  @expose
-     *  @function
-     *  @name here.xyz.maps.providers.TileProvider#getCachedTilesOfBBox
-     *  @param {Array.<Number>} bbox array of coordinates in order: [minLon, minLat, maxLon, maxLat]
-     *  @param {Integer=} level get tiles at specified level
-     *  @return {Array.<here.xyz.maps.providers.TileProvider.Tile>} array of tiles
+     *  @param bbox - array of coordinates in order: [minLon, minLat, maxLon, maxLat]
+     *  @param zoomlevel - get tiles at specified tileMargin
+     *  @returns array of {@link: Tiles}
      */
-    getCachedTilesOfBBox(bbox, level?: number) {
+    getCachedTilesOfBBox(bbox: number[], zoomlevel?: number): Tile[] {
         const minLon = bbox[0];
         const minLat = bbox[1];
         const maxLon = bbox[2];
         const maxLat = bbox[3];
         const tiles = [];
 
-        level = level ^ 0;
+        zoomlevel = zoomlevel ^ 0;
 
         this.storage.forEach((tile) => {
             const tBounds = tile.getContentBounds();
@@ -249,7 +200,7 @@ export default abstract class TileProvider {
                     tBounds[0], tBounds[2], tBounds[1], tBounds[3],
                     minLon, maxLon, minLat, maxLat
                 )
-                && (!level || tile.z == level)
+                && (!zoomlevel || tile.z == zoomlevel)
             ) {
                 tiles[tiles.length] = tile;
             }
@@ -259,38 +210,25 @@ export default abstract class TileProvider {
     };
 
     /**
-     *  set config for provider.
+     *  Set config for provider.
      *
-     *  @public
-     *  @expose
-     *  @function
-     *  @name here.xyz.maps.providers.TileProvider#config
-     *  @param {here.xyz.maps.providers.TileProvider.Options} cfg
-     *  @return {here.xyz.maps.providers.TileProvider}
+     *  @param options - options to set
      */
-    config(cfg) {
-        cfg = cfg || {};
+    config(options: TileProviderOptions) {
+        options = options || {};
 
-        for (const c in cfg) {
-            this.config[c] = cfg[c];
+        for (const c in options) {
+            this.config[c] = options[c];
         }
-
         return this;
-        // return JSON.parse(JSON.stringify(config));
     };
 
     /**
-     *  create tile.
+     *  Create a new Tile.
      *
-     *  @public
-     *  @expose
-     *  @function
-     *  @name here.xyz.maps.providers.TileProvider#createTile
-     *  @param {String} quadkey
-     *  @__param {String} dataType datatype can be "json" or "image" etc.
-     *  @return {here.xyz.maps.providers.TileProvider.Tile} created tile
+     *  @param quadkey - the quadkey of the tile to create
      */
-    createTile(quadkey: string /* ,dataType*/) {
+    createTile(quadkey: string ): Tile {
         const tile = new this.Tile(
             quadkey,
             this.dataType,

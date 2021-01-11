@@ -17,19 +17,14 @@
  * License-Filename: LICENSE
  */
 
-
-import utils from '../../tile/TileUtils';
 import {FeatureProvider} from '../FeatureProvider';
 import LoaderManager from '../../loaders/Manager';
 import TileReceiver from './TileReceiver';
-import tileUtils from '../../tile/TileUtils';
+import {tileUtils} from '../../tile/TileUtils';
 import {Tile} from '../../tile/Tile';
-/* exported Options */
-import Options from './RemoteTileProviderOptions';
 import {createRemoteProcessor} from './processors';
 import {GeoJSONFeature} from '../../features/GeoJSON';
-
-const doc = Options; // doc only!
+import {RemoteTileProviderOptions} from './RemoteTileProviderOptions';
 
 const DEFAULT_JSON_PARSER = 'native';
 let UNDEF;
@@ -37,15 +32,7 @@ let UNDEF;
 type TileLoader = any;
 
 /**
- *  Remote tile provider.
- *
- *  @public
- *  @class
- *  @expose
- *  @constructor
- *  @extends here.xyz.maps.providers.FeatureProvider
- *  @param {here.xyz.maps.providers.RemoteTileProvider.Options} config configuration of the provider
- *  @name here.xyz.maps.providers.RemoteTileProvider
+ *  A remote tile provider fetches data from remote data-sources.
  */
 export class RemoteTileProvider extends FeatureProvider {
     sizeKB = 0;
@@ -64,19 +51,22 @@ export class RemoteTileProvider extends FeatureProvider {
 
     private preprocess: (data: any[], cb?: (data: GeoJSONFeature[]) => void, tile?: Tile) => void;
 
-    constructor(config, preprocessor?: (data: any) => boolean) {
-        super({
+    /**
+     * @param options - options to configure the provider
+     */
+    constructor(options: RemoteTileProviderOptions, preprocessor?: (data: any) => boolean) {
+        super(<any>{
             'minLevel': 8,
             'maxLevel': 20,
             'staticData': false
             // ,'indexed' : config.indexed != UNDEF
             //     ? config.indexed
             //     : true
-        }, config);
+        }, options);
 
         const provider = this;
 
-        let loader = config.loader;
+        let loader = options.loader;
 
         if (loader) {
             if (!(loader instanceof LoaderManager)) {
@@ -99,21 +89,25 @@ export class RemoteTileProvider extends FeatureProvider {
 
         provider.loader = loader;
 
-        const {preProcessor} = config;
+        const {preProcessor} = options;
         provider.preprocess = createRemoteProcessor(preProcessor);
     }
 
     /**
-     *  Cancel a tile request.
+     * Cancel ongoing request(s) of a tile.
+     * The tile will be dropped.
      *
-     *  @public
-     *  @expose
-     *  @function
-     *  @name here.xyz.maps.providers.RemoteTileProvider#cancel
-     *  @param {string | here.xyz.maps.providers.TileProvider.Tile} quadkey
-     *      quadkey of the tile or the tile to cancel request
+     * @param quadkey - the quadkey of the tile that should be canceled and removed.
      */
-    cancel(quadkey: string | Tile, cb: () => void) {
+    cancel(quadkey: string ): void;
+    /**
+     * Cancel ongoing request(s) of a tile.
+     * The tile will be dropped.
+     *
+     * @param tile - the tile that should be canceled and removed.
+     */
+    cancel(tile: Tile): void;
+    cancel(quadkey: string | Tile, cb?: () => void) {
         const prov = this;
         const storage = prov.storage;
         const strict = cb == UNDEF;
@@ -190,34 +184,16 @@ export class RemoteTileProvider extends FeatureProvider {
         super.clear.apply(this, arguments);
     };
 
-    // reset(qk) {
-    //     this.storage.resetData(qk);
-    // };
-
-
     calcStorageQuads(quadkey: string) {
-        return utils.getTilesOfLevel(quadkey, this.level);
+        return tileUtils.getTilesOfLevel(quadkey, this.level);
     };
 
-    // isTileVisible( tile ){
-    //
-    //     var lvl = tile.z;
-    //
-    //     return lvl <= this.maxLevel && lvl >= this.minLevel;
-    // }
-
     /**
-     *  create tile.
+     *  Create a new Tile.
      *
-     *  @public
-     *  @expose
-     *  @function
-     *  @name here.xyz.maps.providers.TileProvider#createTile
-     *  @param {String} quadkey
-     *  @__param {String} dataType datatype can be "json" or "image" etc.
-     *  @return {here.xyz.maps.providers.TileProvider.Tile} created tile
+     *  @param quadkey - the quadkey of the tile to create
      */
-    createTile(quadkey: string /* ,dataType*/) {
+    createTile(quadkey: string): Tile {
         const tile = super.createTile(quadkey);
         const tileLevel = tile.z;
         const cacheLevel = this.level;
@@ -335,7 +311,16 @@ export class RemoteTileProvider extends FeatureProvider {
         provider.execTile(tile);
     }
 
-    getTile(quadkey: string, cb: (tile: Tile, error?: any) => void) {
+    /**
+     * Get a tile by quadkey.
+     * If the tile is not cached already, it will be created and stored automatically.
+     * Data will be fetched from remote data-sources and attached to tile automatically
+     *
+     * @param quadkey - quadkey of the tile
+     * @param callback - will be called as soon as tile is ready for consumption
+     * @returns the Tile
+     */
+    getTile(quadkey: string, callback: (tile: Tile, error?: any) => void) {
         const provider = this;
         const storage = provider.storage;
         const storageLevel = provider.level;
@@ -357,8 +342,8 @@ export class RemoteTileProvider extends FeatureProvider {
                 //     tile.loadStopTs  = null;
                 //     tile.loadStartTs = null;
                 // }else{
-                if (cb) {
-                    cb(tile, tile.error);
+                if (callback) {
+                    callback(tile, tile.error);
                 }
                 return tile;
                 // }

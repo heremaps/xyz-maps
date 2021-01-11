@@ -20,6 +20,7 @@
 import {EditableFeatureProvider} from './EditableFeatureProvider';
 import LRUStorage from '../storage/LRUStorage';
 import {Feature} from '../features/Feature';
+import {TileStorage} from '../storage/TileStorage';
 
 type Navlink = Feature;
 type Coordinate = [number, number, number?];
@@ -27,47 +28,36 @@ type Coordinate = [number, number, number?];
 
 const METHOD_NOT_IMPLEMENTED = 'Method not implemented.';
 
+/**
+ *  Options to configure the Provider.
+ */
+export interface LocalProviderOptions {
+    /**
+     * Name of the provider.
+     */
+    name?: string;
+    /**
+     * Tile margin of the provider.
+     */
+    margin?: number;
+    /**
+     *  Allow or prevent editing by the {@link editor.Editor} module.
+     *
+     *  @default false
+     */
+    editable?: boolean;
+
+    storage?: TileStorage;
+};
 
 /**
- *  Configuration of local provider.
- *
- *  @public
- *  @expose
- *  @interface
- *  @class here.xyz.maps.providers.LocalProvider.Options
- */
-/**
- *  Name of the provider
- *
- *  @public
- *  @expose
- *  @name here.xyz.maps.providers.LocalProvider.Options#name
- *  @type {string=}
- */
-
-/**
- *  Allow or prevent editing by Editor component.
- *
- *  @public
- *  @expose
- *  @default false
- *  @name here.xyz.maps.providers.LocalProvider.Options#editable
- *  @type {boolean}
- */
-
-/**
- *  Local provider
- *
- *  @public
- *  @class
- *  @expose
- *  @constructor
- *  @extends here.xyz.maps.providers.FeatureProvider
- *  @param {here.xyz.maps.providers.LocalProvider.Options} config configuration of the provider
- *  @name here.xyz.maps.providers.LocalProvider
+ *  Local feature tile provider.
  */
 export class LocalProvider extends EditableFeatureProvider {
-    constructor(config) {
+    /**
+     * @param options - options to configure the provider
+     */
+    constructor(options: LocalProviderOptions) {
         super({
             'minLevel': 8,
             'maxLevel': 20,
@@ -75,7 +65,7 @@ export class LocalProvider extends EditableFeatureProvider {
             'editable': false,
             // suggest default tile-size for layersetup
             'size': 512
-        }, config);
+        }, options);
 
         // TODO: remove tile marking on feature add in super provider
         delete (<any> this).level;
@@ -93,13 +83,9 @@ export class LocalProvider extends EditableFeatureProvider {
         this.tree.remove(feature);
     };
 
-    /**
-     *  @public
-     *  @expose
-     *  @param
-     *  @name here.xyz.maps.providers.LocalProvider#import
-     *  @type {string}
-     */
+    // /**
+    //  *  @param data
+    //  */
     import(data) {
         const provider = this;
 

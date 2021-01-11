@@ -23,7 +23,9 @@ import {geotools} from '@here/xyz-maps-common';
 import {Tile} from '../tile/Tile';
 import {updateBBox, prepareFeature} from '../data/prepare/GeoJSON';
 import RTree from '../features/RTree';
-import {GeoJSONFeature, GeoJSONCoordinates, GeoJSONFeatureCollection} from '../features/GeoJSON';
+import {GeoJSONFeature, GeoJSONCoordinates, GeoJSONFeatureCollection, GeoJSONBBox} from '../features/GeoJSON';
+import {TileProviderOptions} from './TileProvider/TileProviderOptions';
+import {GeoPoint, GeoRect} from '@here/xyz-maps-core';
 
 
 const REMOVE_FEATURE_EVENT = 'featureRemove';
@@ -41,14 +43,6 @@ FeatureStorageInfo.prototype.cnt = 0;
 
 /**
  *  Feature provider.
- *
- *  @public
- *  @class
- *  @expose
- *  @constructor
- *  @extends here.xyz.maps.providers.TileProvider
- *  @param {here.xyz.maps.providers.TileProvider.Options} config configuration of the provider
- *  @name here.xyz.maps.providers.FeatureProvider
  *
  */
 export class FeatureProvider extends Provider {
@@ -68,9 +62,11 @@ export class FeatureProvider extends Provider {
         return true;
     }
 
-
-    constructor(defaultConfig, config) {
-        super(defaultConfig, config);
+    /**
+     *  @param options - options to configure the provider
+     */
+    constructor(options: TileProviderOptions, _c?) {
+        super(options, _c);
 
         this.tree = new RTree(9);
 
@@ -79,22 +75,21 @@ export class FeatureProvider extends Provider {
 
 
     /**
-     *  Adds a feature to layer.
+     * Add feature(s) to the provider.
      *
-     *  @public
-     *  @expose
-     *  @function
-     *  @name here.xyz.maps.providers.FeatureProvider#addFeature
+     * @param feature - the feature(s) to be added to the layer
+     *
      * @example
-     * provider.addFeature({
-     *  geometry: {
-     *      coordinates: [[-122.159958,37.76620, 0],[-122.169958,37.76620, 0]],
-     *      type: "LineString"
-     *  },
-     *  type: "Feature"
-     * })
-     *  @param {here.xyz.maps.providers.FeatureProvider.Feature|Array.<here.xyz.maps.providers.FeatureProvider.Feature>} feature
-     *  @return {here.xyz.maps.providers.FeatureProvider.Feature|Array.<here.xyz.maps.providers.FeatureProvider.Feature>} feature
+     * ```
+     * # add a feature that will be displayed with the default style of the layer.
+     * layer.addFeature({
+     *    type: "Feature"
+     *    geometry: {
+     *        coordinates: [[-122.49373, 37.78202, 0], [-122.49263, 37.78602, 0]],
+     *        type: "LineString"
+     *    }
+     * });
+     * ```
      */
     addFeature(feature: GeoJSONFeature | Feature | GeoJSONFeatureCollection | GeoJSONFeature[]) {
         const provider = this;
@@ -162,15 +157,9 @@ export class FeatureProvider extends Provider {
     };
 
     /**
-     *  Gets all features currently stored in provider.
-     *
-     *  @public
-     *  @expose
-     *  @function
-     *  @name here.xyz.maps.providers.FeatureProvider#all
-     *  @return {Array.<here.xyz.maps.providers.FeatureProvider.Feature>}
+     *  Get all the features that are currently present in the provider.
      */
-    all() {
+    all(): Feature[] {
         const prov = this;
 
         if (prov.tree) {
@@ -192,32 +181,25 @@ export class FeatureProvider extends Provider {
     };
 
     /**
-     *  Gets a feature from provider.
+     *  Gets a feature from the provider by id.
      *
-     *  @public
-     *  @expose
-     *  @function
-     *  @name here.xyz.maps.providers.FeatureProvider#getFeature
-     *  @param {string} id object id
-     *  @return {here.xyz.maps.providers.FeatureProvider.Feature}
+     *  @param id - the id of the feature
+     *
+     *  @returns the found feature or undefined if feature is not present.
      */
-    getFeature(id) {
+    getFeature(id: string | number): Feature | undefined {
         if (this.IDPOOL[id]) {
             return this.IDPOOL[id].feature;
         }
     };
 
     /**
-     *  Gets features from provider layer.
+     *  Gets features from provider by id.
      *
-     *  @public
-     *  @expose
-     *  @function
-     *  @name here.xyz.maps.providers.FeatureProvider#getFeatures
-     *  @param {Array.<string>|string} ids array of object ids
-     *  @return {Array.<here.xyz.maps.providers.FeatureProvider.Feature>}
+     *  @param ids - array of feature ids to search for.
+     *  @return if just a single feature is found its getting returned otherwise an array of features or undefined if none is found.
      */
-    getFeatures(ids, options?) {
+    getFeatures(ids: string[] | number[]): Feature[] | Feature | undefined {
         if (!(ids instanceof Array)) {
             ids = [ids];
         }
@@ -233,7 +215,15 @@ export class FeatureProvider extends Provider {
             : result;
     };
 
-    getTile(quadkey: string, cb) {
+    /**
+     * Get a tile by quadkey.
+     * If the tile is not cached already, it will be created and stored automatically.
+     *
+     * @param quadkey - quadkey of the tile
+     * @param callback - the callback function
+     * @returns the Tile
+     */
+    getTile(quadkey: string, callback?:(tile:Tile)=>void): Tile|undefined {
         const provider = this;
         const storage = provider.storage;
         let tile = storage.get(quadkey);
@@ -254,7 +244,7 @@ export class FeatureProvider extends Provider {
             // tile.data = this.tree.search.call( this.tree, tile.getContentBounds() )
         }
 
-        cb && cb(tile);
+        callback && callback(tile);
 
         return tile;
     };
@@ -288,38 +278,88 @@ export class FeatureProvider extends Provider {
     };
 
     /**
-     *  Search for feature in provider.
+     * Search for feature(s) in the provider.
      *
-     *  @public
-     *  @expose
-     *  @function
-     *  @name here.xyz.maps.providers.FeatureProvider#search
-     *  @param {Object} options
-     *  @param {String=} options.id Object id.
-     *  @param {Array.<String>=} options.ids Array of object ids.
-     *  @param {here.xyz.maps.geo.Point=} options.point Center point of the circle for search
-     *  @param {number=} options.radius Radius of the circle in meters, it is used in "point" search.
-     *  @param {(here.xyz.maps.geo.Rect|Array.<number>)=} options.rect Rect object is either an array: [minLon, minLat, maxLon, maxLat] or Rect object defining rectangle to search in.
-     *  @example
-     * //searching by id:
-     *provider.search({id: 1058507462})
-     * //or:
-     *provider.search({ids: [1058507462, 1058507464]})
-     *@example
-     * //searching by point and radius:
-     *provider.search({
-     *  point: {longitude: 72.84205, latitude: 18.97172},
+     * @param options - configure the search
+     * @param options.id - search feature by id.
+     * @param options.ids - Array of feature ids to search.
+     * @param options.point - Geographical center point of the circle to search in. options.radius must be defined.
+     * @param options.radius - Radius of the circle in meters, it is used in "point" search.
+     * @param options.rect - Geographical Rectangle to search in. [minLon, minLat, maxLon, maxLat] | GeoRect.
+     * @example
+     * ```
+     * // searching by id:
+     * layer.search({id: 1058507462})
+     * // or:
+     * layer.search({ids: [1058507462, 1058507464]})
+     *
+     * // searching by point and radius:
+     * layer.search({
+     *  point: { longitude: 72.84205, latitude: 18.97172 },
      *  radius: 100
-     *})
-     *@example
-     * //searching by Rect:
-     *provider.search({
-     *  rect:  {minLon: 72.83584, maxLat: 18.97299, maxLon: 72.84443, minLat: 18.96876}
-     *})
-     *  @return {Array.<here.xyz.maps.providers.FeatureProvider.Feature>} array of features
+     * })
+     *
+     * // searching by Rect:
+     * layer.search({
+     *  rect:  { minLon: 72.83584, maxLat: 18.97299, maxLon: 72.84443, minLat: 18.96876 }
+     * })
+     * ```
+     * @return {Array.<here.xyz.maps.providers.FeatureProvider.Feature>} array of features
      */
-    // FeatureProvider.prototype.search = function( { rect: bbox || point: point || id: id || ids:[], radius: 1, onload: function(){}, remote: true } )
-    // FeatureProvider.prototype.search = function( bbox||point||objID, { radius: 1, onload: function(){}, remote: true } )
+    search(options: {
+        id?: number | string,
+        ids?: number[] | string[],
+        point?: GeoPoint,
+        radius?: number,
+        rect?: GeoRect | GeoJSONBBox
+        remote?: boolean,
+        onload?: (result: Feature[] | null) => void
+    }): Feature[];
+
+    /**
+     * Rectangle Search for feature(s) in provider.
+     * @param rect - Geographical Rectangle to search in. [minLon, minLat, maxLon, maxLat] | GeoRect.
+     *
+     * @example
+     * ```
+     * layer.search({minLon: 72.83584, maxLat: 18.97299, maxLon: 72.84443, minLat: 18.96876})
+     * // or:
+     * layer.search([72.83584, 18.96876, 72.84443,18.97299])
+     * ```
+     */
+    search(rect: GeoRect | GeoJSONBBox): Feature[];
+
+    /**
+     * Circle Search for feature(s) in provider.
+     * @param point - Geographical center point of the circle to search in. options.radius must be defined.
+     * @param options - configure the search
+     * @param options.radius - "radius" is mandatory for circle search.
+     *
+     * @example
+     * ```
+     * layer.search({longitude: 72.84205, latitude: 18.97172},{
+     *  radius: 100
+     * })
+     * // or:
+     * layer.search([72.84205, 18.97172], {
+     *  radius: 100
+     * })
+     * ```
+     */
+    search(point: GeoPoint, options: { radius: number }): Feature[];
+
+    /**
+     * Search for feature by id in the provider.
+     *
+     * @param id - id of the feature to search for
+     *
+     * @example
+     * ```
+     * layer.search(1058507462)
+     * ```
+     */
+    search(id: string | number): Feature[];
+
     search(bbox, options?) {
         const provider = this;
         let geo;
@@ -381,30 +421,21 @@ export class FeatureProvider extends Provider {
 
 
     /**
-     *  Validate if a feature is in cache, returns true if the object exists.
+     *  Validate if a feature is stored in the local provider cache.
      *
-     *  @public
-     *  @expose
-     *  @function
-     *  @name here.xyz.maps.providers.FeatureProvider#exists
-     *  @param {Object} feature Object literal containing "id" property.
-     *  @return {here.xyz.maps.providers.FeatureProvider.Feature} return feature if it is found, otherwise undefined
+     *  @param feature - Object literal containing "id" property.
+     *  @return the {@link:Feature} if it is found, otherwise undefined
      */
-    exists(feature: Feature) {
+    exists(feature: {id:number|string} ): Feature {
         return this.IDPOOL[feature.id];
     };
 
 
     /**
-     *  Modify coordinates of a feature.
+     * Modify coordinates of a feature in the provider.
      *
-     *  @public
-     *  @expose
-     *  @function
-     *  @name here.xyz.maps.providers.FeatureProvider#setFeatureCoordinates
-     *  @param {here.xyz.maps.providers.FeatureProvider.Feature} feature
-     *  @param {Array.<Array>|Array.<number>} coordinates new coordinates of the feature, it is either array of coordinates: [longitude, latitude, z] or
-     *      array of coordinate arrays: [ [longitude, latitude, z], [longitude, latitude, z], , , , ].
+     * @param feature - the Feature whose coordinates should be modified/updated
+     * @param coordinates - the modified coordinates to set. The coordinates must match features geometry type.
      */
     setFeatureCoordinates(feature: Feature, coordinates: GeoJSONCoordinates) {
         const _feature = feature;
@@ -451,18 +482,14 @@ export class FeatureProvider extends Provider {
     };
 
     /**
-     *  Remove feature from layer provider.
+     * Remove feature(s) from the provider.
      *
-     *  @public
-     *  @expose
-     *  @function
-     *  @name here.xyz.maps.providers.FeatureProvider#removeFeature
-     *  @param {here.xyz.maps.providers.FeatureProvider.Feature|Array.<here.xyz.maps.providers.FeatureProvider.Feature>} feature
+     * @param feature - features that should be removed from the provider
      */
-    removeFeature(feature) {
+    removeFeature(feature: GeoJSONFeature | Feature | GeoJSONFeatureCollection | GeoJSONFeature[]) {
         if (feature) {
-            if (feature.type == 'FeatureCollection') {
-                feature = feature.features;
+            if ((<GeoJSONFeatureCollection>feature).type == 'FeatureCollection') {
+                feature = (<GeoJSONFeatureCollection>feature).features;
             }
             if (Array.isArray(feature)) {
                 const result = [];
@@ -473,7 +500,7 @@ export class FeatureProvider extends Provider {
             }
 
 
-            if (feature = this.getFeature(feature.id)) {
+            if (feature = this.getFeature((<GeoJSONFeature>feature).id)) {
                 const tiles = this.getCachedTilesOfBBox(this.decBBox(feature));
                 let tile;
 
@@ -511,17 +538,12 @@ export class FeatureProvider extends Provider {
         return feature;
     };
 
-
     /**
-     *  Clear features in bounding box. clear all if bounding box is not given.
+     *  Clear all tiles and features of a given bounding box or do a full wipe if no parameter is given.
      *
-     *  @public
-     *  @expose
-     *  @function
-     *  @name here.xyz.maps.providers.FeatureProvider#clear
-     *  @param {Array<number>=} bbox bounding box array: [minLon, minLat, maxLon, maxLat]
+     *  @param bbox - array of geographical coordinates [minLon, minLat, maxLon, maxLat] defining the area to clear.
      */
-    clear(bbox?) {
+    clear(bbox?: number[]) {
         const provider = this;
         let dataQuads = null;
         let feature;
@@ -529,11 +551,6 @@ export class FeatureProvider extends Provider {
         if (arguments.length == 4) {
             bbox = Array.prototype.slice.call(arguments);
         }
-
-        // if( !bbox )
-        // {
-        //     bbox = [ -180, -90, 180, 90 ];
-        // }
 
         if ( // wipe all cached tiles containing provided bbox
             bbox instanceof Array
