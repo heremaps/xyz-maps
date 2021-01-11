@@ -17,23 +17,34 @@
  * License-Filename: LICENSE
  */
 
+export * from './pixel/PixelPoint';
+export * from './pixel/PixelRect';
+export * from './geo/GeoPoint';
+export * from './geo/GeoRect';
+export * from './layers/TileLayer';
+export * from './layers/MVTLayer';
+export * from './features/Feature';
+export * from './tile/Tile';
+export {tileUtils} from './tile/TileUtils';
+
+// support for legacy deprecated namespace based API.
 
 import {GeoPoint} from './geo/GeoPoint';
 import {GeoRect} from './geo/GeoRect';
 import {PixelPoint} from './pixel/PixelPoint';
 import {PixelRect} from './pixel/PixelRect';
-
 import {TileLayer} from './layers/TileLayer';
 import {MVTLayer} from './layers/MVTLayer';
-
 import {Feature} from './features/Feature';
 
+import {Tile} from './tile/Tile';
+import {tileUtils} from './tile/TileUtils';
+
 // TODO: remove namespaces
-import * as tile from './tile/ns';
+// import * as tile from './tile/ns';
 import * as providers from './providers/providers';
-// import * as features from './features/features';
 import * as GeoJSON from './data/prepare/GeoJSON';
-import * as common from '@here/xyz-maps-common';
+
 
 import L2Storage from './storage/Level2Storage';
 import LRUStorage from './storage/LRUStorage';
@@ -45,17 +56,7 @@ import GeoCoder from './service/GeoCoder';
 // @ts-ignore
 import buildInfo from 'buildInfo';
 
-export * from './pixel/PixelPoint';
-export * from './pixel/PixelRect';
-export * from './geo/GeoPoint';
-export * from './geo/GeoRect';
-export * from './tile/Tile';
-export * from './layers/TileLayer';
-export * from './layers/MVTLayer';
-
-export * from './features/Feature';
-
-
+import * as common from '@here/xyz-maps-common';
 // WORKAROUND IF BUNDELED BY WEBPACK (UMD REMOVAL)
 // make sure global ns is also available for webpack users.
 const XYZMAPS = common.global.here.xyz.maps;
@@ -76,6 +77,11 @@ const layers = XYZMAPS.layers = {
 
 const features = XYZMAPS.features = {
     Feature: Feature
+};
+
+const tile = {
+    Tile: Tile,
+    Utils: tileUtils
 };
 
 

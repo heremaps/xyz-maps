@@ -268,14 +268,14 @@ export class TileLayer {
      * Modify coordinates of a feature in the layer.
      *
      * @param feature - the Feature whose coordinates should be modified
-     * @param coordinates - the modified coordinates to set
+     * @param coordinates - the modified coordinates to set. The coordinates must match features geometry type.
      */
     setFeatureCoordinates(feature: Feature, coordinates: GeoJSONCoordinates) {
         return this._fp.setFeatureCoordinates(feature, coordinates);
     };
 
     /**
-     * Add a feature to the layer.
+     * Add feature(s) to the layer.
      *
      * @param feature - the feature(s) to be added to the layer
      * @param style - optional style the feature should be displayed with.
@@ -365,7 +365,7 @@ export class TileLayer {
     };
 
     /**
-     * Search for feature(s) in layer(s).
+     * Search for feature(s) in the layer.
      *
      * @param options - configure the search
      * @param options.id - search feature by id.
@@ -401,7 +401,8 @@ export class TileLayer {
      *  // search result is only return in this callback function if features are not found in cache.
      * }
      * })
-     * @return {Array.<here.xyz.maps.providers.FeatureProvider.Feature>} array of features
+     * ```
+     * @return array of features
      */
     search(options: {
         id?: number | string,
@@ -414,7 +415,7 @@ export class TileLayer {
     }): Feature[];
 
     /**
-     * Rectangle Search for feature(s) in layer(s).
+     * Rectangle Search for feature(s) in the layer.
      * @param rect - Geographical Rectangle to search in. [minLon, minLat, maxLon, maxLat] | GeoRect.
      * @param options - configure the search
      * @param options.remote - Force the data provider(s) to do remote search if no result is found in local cache.
@@ -443,7 +444,7 @@ export class TileLayer {
     }): Feature[];
 
     /**
-     * Circle Search for feature(s) in layer(s).
+     * Circle Search for feature(s) in the layer.
      * @param point - Geographical center point of the circle to search in. options.radius must be defined.
      * @param options - configure the search
      * @param options.radius - "radius" is mandatory for circle search.
@@ -477,7 +478,7 @@ export class TileLayer {
     }): Feature[];
 
     /**
-     * Search for feature by id in layer(s).
+     * Search for feature by id in the layer.
      *
      * @param id - id of the feature to search for
      * @param options - configure the search
@@ -546,10 +547,9 @@ export class TileLayer {
     };
 
     /**
-     * Get a cached tile by quadkey.
+     * Get a locally cached tile by quadkey.
      *
      * @param quadkey - the quadkey of the tile
-     * @return {here.xyz.maps.providers.TileProvider.Tile}
      */
     getCachedTile(quadkey: string): Tile {
         const level = quadkey.length;

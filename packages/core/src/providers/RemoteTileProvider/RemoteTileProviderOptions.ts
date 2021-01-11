@@ -17,26 +17,19 @@
  * License-Filename: LICENSE
  */
 
-/**
- *  Configuration of providers.
- *
- *  @expose
- *  @public
- *  @interface
- *  @extends here.xyz.maps.providers.TileProvider.Options
- *  @class here.xyz.maps.providers.RemoteTileProvider.Options
- */
+import {TileProviderOptions} from '../TileProvider/TileProviderOptions';
+// import {GeoJSONFeature} from '../../features/GeoJSON';
+// import TileLoader from "../../loaders/TileLoader";
 
-export default {
+/**
+ *  Configuration options of a RemoteTileProvider.
+ *
+ */
+export interface RemoteTileProviderOptions extends TileProviderOptions {
     /**
-     * zoom level at which tiles are cached.
-     *
-     * @public
-     * @expose
-     * @name here.xyz.maps.providers.RemoteTileProvider.Options#level
-     * @type {number}
+     * zoomlevel at which tiles should be loaded from remote and a local cache gets build.
      */
-    // level: null,
+    level: number;
 
     /**
      * PreProcessor for remote data sources.
@@ -49,15 +42,12 @@ export default {
      * The processor must be a "standalone function/class" that only depends on its own scope and only accesses its own local variables.
      * No references to the outer scope of the processor function are allowed.
      *
+     * @example
      * PreProcessor:
      *  ({data: any[], ready: (GeoJsonFeature[]) => void, tile?:{x:number,y:number,z:number}) => GeoJsonFeature[] | Promise
-     *
-     * @public
-     * @expose
-     * @name here.xyz.maps.providers.RemoteTileProvider.Options#preProcessor
-     * @type {Function=}
      */
-    // PreProcessor: null,
+    preProcessor?: () => void;
+    // preProcessor?: ({ data: any[], ready: (GeoJSONFeature[] => void, tile?: { x: number, y: number, z: number }}) => GeoJSONFeature[] | Promise;
 
     /**
      * PostProcessor for remote data sources.
@@ -75,10 +65,10 @@ export default {
      * PostProcessor:
      *  ({data: PostProcessorData, ready: (data) => void) => PostProcessorData | Promise
      *
-     * @public
-     * @expose
-     * @name here.xyz.maps.providers.RemoteTileProvider.Options#postProcessor
-     * @type {Function=} postProcessor
      */
-    // postProcessor: null,
+    postProcessor?: () => void;
+    // postProcessor: ({data: any, ready: (data) => void}) => ({put: GeoJSONFeature[],remove: GeoJSONFeature[]}) | Promise;
+
+
+    loader?: any;
 };

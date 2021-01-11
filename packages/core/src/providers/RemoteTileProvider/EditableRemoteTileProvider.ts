@@ -18,20 +18,18 @@
  */
 
 import {geotools, JSUtils} from '@here/xyz-maps-common';
-import utils from '../../tile/TileUtils';
 import LoaderManager from '../../loaders/Manager';
 import TileReceiver from './TileReceiver';
-import tileUtils from '../../tile/TileUtils';
+import {tileUtils} from '../../tile/TileUtils';
 import {Tile} from '../../tile/Tile';
 /* exported Options */
 
-import Options from './RemoteTileProviderOptions';
+import {EditableRemoteTileProviderOptions} from './EditableRemoteTileProviderOptions';
 import {EditableFeatureProvider} from '../EditableFeatureProvider';
 import {Feature} from '../../features/Feature';
 import {PostProcesserInput, createRemoteProcessor, isPostprocessor} from './processors';
-import {GeoJSONFeature} from '../../features/GeoJSON';
-
-const doc = Options; // doc only!
+import {GeoJSONBBox, GeoJSONFeature} from '../../features/GeoJSON';
+import {GeoPoint, GeoRect} from '@here/xyz-maps-core';
 
 let UNDEF;
 
@@ -56,16 +54,7 @@ class FeatureError extends Error {
 }
 
 /**
- *  Remote tile provider.
- *
- *  @public
- *  @abstract
- *  @class
- *  @expose
- *  @constructor
- *  @extends here.xyz.maps.providers.FeatureProvider
- *  @param {here.xyz.maps.providers.RemoteTileProvider.Options} config configuration of the provider
- *  @name here.xyz.maps.providers.EditableRemoteTileProvider
+ *  EditableRemoteTileProvider is a remote tile provider that can be edited using the {@link editor.Editor} module.
  */
 export abstract class EditableRemoteTileProvider extends EditableFeatureProvider {
     sizeKB = 0;
@@ -85,7 +74,10 @@ export abstract class EditableRemoteTileProvider extends EditableFeatureProvider
     private preprocess: (data: any[], cb: (data: GeoJSONFeature[]) => void, tile?: Tile) => void;
     private postprocess: (data: PostProcesserInput, cb: (data: PostProcesserInput) => void) => void;
 
-    constructor(config) {
+    /**
+     * @param options - options to configure the provider
+     */
+    constructor(options: EditableRemoteTileProviderOptions) {
         super({
             'minLevel': 8,
             'maxLevel': 20,
@@ -93,11 +85,11 @@ export abstract class EditableRemoteTileProvider extends EditableFeatureProvider
             // ,'indexed' : config.indexed != UNDEF
             //     ? config.indexed
             //     : true
-        }, config);
+        }, options);
 
         const provider = this;
 
-        let loader = config.loader;
+        let loader = options.loader;
 
         if (loader) {
             if (!(loader instanceof LoaderManager)) {
@@ -109,9 +101,9 @@ export abstract class EditableRemoteTileProvider extends EditableFeatureProvider
 
         provider.loader = loader;
 
-        const {preProcessor} = config;
-        provider.preprocess = createRemoteProcessor(preProcessor || config.preprocessor);
-        provider.postprocess = createRemoteProcessor(config.postProcessor);
+        const {preProcessor} = options;
+        provider.preprocess = createRemoteProcessor(preProcessor || options.preprocessor);
+        provider.postprocess = createRemoteProcessor(options.postProcessor);
 
         if (provider.commit) {
             provider.commit = ((commit) => function(features: PostProcesserInput, onSuccess?, onError?) {
@@ -151,36 +143,40 @@ export abstract class EditableRemoteTileProvider extends EditableFeatureProvider
         }
     }
 
+
     /**
-     *  Get features from provider.
+     *  Gets features from provider by id.
      *
-     *  @public
-     *  @expose
-     *  @function
-     *  @name here.xyz.maps.providers.EditableRemoteTileProvider#getFeatures
-     *  @param {Array.<String>} ids Array of ids, which will be returned by the functions
-     *  @param {Object=} options
-     *  @param {Boolean=} options.remote force search function to do remote search.
-     *  @param {Funtion=} options.onload callback function to return objects.
-     *  @return {Array.<here.xyz.maps.providers.FeatureProvider.Feature>} array of features
+     *  @param ids - array of feature ids to search for.
+     *  @param options - search options
+     *  @param options.remote -  Force the provider to do remote search if no result is found in local cache.
+     *  @param options.onload - Callback function for "remote" search.
      *
-     *
-     *  @also
-     *
-     *  @public
-     *  @expose
-     *  @function
-     *  @name here.xyz.maps.providers.EditableRemoteTileProvider#getFeatures
-     *  @param {Object} options this option should contain at least one of "ids" or "id".
-     *  @param {Array.<String>=} options.ids array of ids
-     *  @param {String=} options.id a single object id
-     *  @param {Boolean=} options.remote force search function to do remote search
-     *  @param {Function=} options.onload callback function to return objects
-     *  @param {Function=} options.onerror callback function for errors
-     *
-     *  @return {Array.<here.xyz.maps.providers.FeatureProvider.Feature>} array of features
+     *  @return if just a single feature is found its getting returned otherwise an array of features or undefined if none is found.
      */
-    getFeatures(ids, options) {
+    getFeatures(ids: number[] | string[], options?: {
+        remote?: boolean,
+        onload?: (result: Feature[] | null) => void
+    });
+    /**
+     *  Gets features from provider by id.
+     *
+     *  @param ids - array of feature ids to search for.
+     *  @param options - search options
+     *  @param options.id - search for a single feature by id
+     *  @param options.ids - array of ids to search for multiple features
+     *  @param options.remote -  Force the provider to do remote search if no result is found in local cache.
+     *  @param options.onload - Callback function for "remote" search.
+     *
+     *  @return if just a single feature is found its getting returned otherwise an array of features or undefined if none is found.
+     */
+    getFeatures(options: {
+        id?: number | string,
+        ids?: number[] | string[],
+        remote?: boolean,
+        onload?: (result: Feature[] | null) => void
+    });
+    getFeatures(ids, options?) {
         options = options || {};
 
         if (!(ids instanceof Array)) {
@@ -216,7 +212,7 @@ export abstract class EditableRemoteTileProvider extends EditableFeatureProvider
         }
 
         function createResult() {
-            result = result.map((e) => typeof e == 'object' ? e : UNDEF);
+            result = (<any[]>result).map((e) => typeof e == 'object' ? e : UNDEF);
 
             return result.length == 1
                 ? result[0]
@@ -245,7 +241,7 @@ export abstract class EditableRemoteTileProvider extends EditableFeatureProvider
 
                     this.preprocess(data, (data) => {
                         for (let f of data) {
-                            result[result.indexOf(f.id)] = prov.addFeature(f);
+                            result[(<any[]>result).indexOf(f.id)] = prov.addFeature(f);
                         }
                         if (onload) {
                             onload(createResult());
@@ -267,16 +263,21 @@ export abstract class EditableRemoteTileProvider extends EditableFeatureProvider
     };
 
     /**
-     *  Cancel a tile request.
+     * Cancel ongoing request(s) of a tile.
+     * The tile will be dropped.
      *
-     *  @public
-     *  @expose
-     *  @function
-     *  @name here.xyz.maps.providers.EditableRemoteTileProvider#cancel
-     *  @param {string | here.xyz.maps.providers.TileProvider.Tile} quadkey
-     *      quadkey of the tile or the tile to cancel request
+     * @param quadkey - the quadkey of the tile that should be canceled and removed.
      */
-    cancel(quadkey: string | Tile, cb: () => void) {
+    cancel(quadkey: string): void;
+    /**
+     * Cancel ongoing request(s) of a tile.
+     * The tile will be dropped.
+     *
+     * @param tile - the tile that should be canceled and removed.
+     */
+    cancel(tile: Tile): void;
+
+    cancel(quadkey: string | Tile, cb?: () => void) {
         const prov = this;
         const storage = prov.storage;
         const strict = cb == UNDEF;
@@ -338,54 +339,112 @@ export abstract class EditableRemoteTileProvider extends EditableFeatureProvider
     };
 
     /**
-     *  Search for feature in provider.
+     * Search for feature(s) in the provider.
      *
-     *  @public
-     *  @expose
-     *  @function
-     *  @name here.xyz.maps.providers.EditableRemoteTileProvider#search
-     *  @param {Object} options
-     *  @param {String=} options.id Object id.
-     *  @param {Array.<String>=} options.ids Array of object ids.
-     *  @param {here.xyz.maps.geo.Point=} options.point Center point of the circle for search
-     *  @param {number=} options.radius Radius of the circle in meters, it is used in "point" search.
-     *  @param {(here.xyz.maps.geo.Rect|Array.<number>)=} options.rect Rect object is either an array: [minLon, minLat, maxLon, maxLat] or Rect object defining rectangle to search in.
-     *  @param {Boolean=} options.remote Force the provider to do remote search if objects are not found in cache.
-     *  @param {Function=} options.onload callback function of search.
-     *  @param {Function=} options.onerror callback function for errors.
-     *  @example
-     * //searching by id:
-     *provider.search({id: 1058507462})
-     * //or:
-     *provider.search({ids: [1058507462, 1058507464]})
-     *@example
-     * //searching by point and radius:
-     *provider.search({
-     *  point: {longitude: 72.84205, latitude: 18.97172},
-     *  radius: 100
-     *})
-     *@example
-     * //searching by Rect:
-     *provider.search({
+     * @param options - configure the search
+     * @param options.id - search feature by id.
+     * @param options.ids - Array of feature ids to search.
+     * @param options.point - Geographical center point of the circle to search in. options.radius must be defined.
+     * @param options.radius - Radius of the circle in meters, it is used in "point" search.
+     * @param options.rect - Geographical Rectangle to search in. [minLon, minLat, maxLon, maxLat] | GeoRect.
+     * @param options.remote - Force the data provider(s) to do remote search if no result is found in local cache.
+     * @param options.onload - Callback function for "remote" search.
+     * @example
+     * ```
+     * // searching by id:
+     * provider.search({id: 1058507462})
+     * // or:
+     * provider.search({ids: [1058507462, 1058507464]})
+     *
+     * // searching by point and radius:
+     * provider.search({
+     * point: {longitude: 72.84205, latitude: 18.97172},
+     * radius: 100
+     * })
+     *
+     * // searching by Rect:
+     * provider.search({
      *  rect:  {minLon: 72.83584, maxLat: 18.97299, maxLon: 72.84443, minLat: 18.96876}
-     *})
-     *@example
-     * //remote search:
-     *provider.search({
-     *  rect:  {minLon: 72.83584, maxLat: 18.97299, maxLon: 72.84443, minLat: 18.96876},
-     *  remote: true, // force provider to do remote search if feature/search area is not cached locally
-     *  onload: function(e){
-     *   // search result is only return in this callback function if no features is found in cache.
-     *  }
-     *})
-     *  @return {Array.<here.xyz.maps.providers.EditableRemoteTileProvider.Feature>} array of features
+     * })
+     *
+     * // remote search:
+     * provider.search({
+     * rect:  {minLon: 72.83584, maxLat: 18.97299, maxLon: 72.84443, minLat: 18.96876},
+     * remote: true, // force provider to do remote search if feature/search area is not cached locally
+     * onload: function(result){
+     *  // search result is only return in this callback function if features are not found in cache.
+     * }
+     * })
+     * ```
+     * @return array containing the searched features
      */
+    search(options?: {
+        id?: number | string,
+        ids?: number[] | string[],
+        point?: GeoPoint,
+        radius?: number,
+        rect?: GeoRect | GeoJSONBBox,
+        remote?: boolean,
+        onload?: (result: Feature[] | null) => void
+    }): Feature[];
 
-    // search( { rect: bbox || point: point || id: id || ids:[], radius: 1, onload: function(){}, remote: true } )
-    // search( bbox||point||objID, { radius: 1, onload: function(){}, remote: true } )
+    /**
+     * Rectangle Search for feature(s) in the provider.
+     * @param rect - Geographical Rectangle to search in. [minLon, minLat, maxLon, maxLat] | GeoRect.
+     * @param options - configure the search
+     * @param options.remote - Force the data provider(s) to do remote search if no result is found in local cache.
+     * @param options.onload - Callback function for "remote" search.
+     *
+     * @example
+     * ```
+     * provider.search({minLon: 72.83584, maxLat: 18.97299, maxLon: 72.84443, minLat: 18.96876})
+     * // or:
+     * provider.search([72.83584, 18.96876, 72.84443,18.97299])
+     *
+     * // remote search:
+     * provider.search(
+     * {minLon: 72.83584, maxLat: 18.97299, maxLon: 72.84443, minLat: 18.96876},
+     * {
+     * remote: true, // force provider to do remote search if search area is not cached locally
+     * onload: function(e){
+     *  // search result is only return in this callback function if features are not found in cache.
+     * }
+     * })
+     * ```
+     */
+    search(rect: GeoRect | GeoJSONBBox, options?: {
+        remote?: boolean,
+        onload?: (result: Feature[] | null) => void
+    }): Feature[];
 
-    // TODO: cleanup and split search and implement remote part here
+    /**
+     * Search for feature by id in the provider.
+     *
+     * @param id - id of the feature to search for
+     * @param options - configure the search
+     * @param options.remote - Force the data provider(s) to do remote search if no result is found in local cache.
+     * @param options.onload - Callback function for "remote" search.
+     *
+     * @example
+     * ```
+     * provider.search(1058507462)
+     *
+     * // remote search:
+     * provider.search(1058507462,{
+     * remote: true, // force provider to do remote search if search area is not cached locally
+     * onload: function(feature){
+     *  // search result is only return in this callback function if features are not found in cache.
+     * }
+     * })
+     *
+     */
+    search(id: string | number, options: {
+        remote?: boolean,
+        onload?: (result: Feature) => void
+    }): Feature[];
+
     search(bbox, options?) {
+        // TODO: cleanup and split search and implement remote part here
         const provider = this;
         let geo;
         let searchBBox;
@@ -448,11 +507,11 @@ export abstract class EditableRemoteTileProvider extends EditableFeatureProvider
         };
 
         if (remote) {
-            // var tiles = utils.getTilesInRect.apply(
+            // var tiles = tileUtils.getTilesInRect.apply(
             //     tileUtils,
             //     searchBBox.concat( provider.level )
             // );
-            const tiles = utils.getTilesInRect(
+            const tiles = tileUtils.getTilesInRect(
                 searchBBox.minX,
                 searchBBox.minY,
                 searchBBox.maxX,
@@ -538,21 +597,15 @@ export abstract class EditableRemoteTileProvider extends EditableFeatureProvider
 
 
     calcStorageQuads(quadkey: string) {
-        return utils.getTilesOfLevel(quadkey, this.level);
+        return tileUtils.getTilesOfLevel(quadkey, this.level);
     };
 
     /**
-     *  create tile.
+     *  Create a new Tile.
      *
-     *  @public
-     *  @expose
-     *  @function
-     *  @name here.xyz.maps.providers.TileProvider#createTile
-     *  @param {String} quadkey
-     *  @__param {String} dataType datatype can be "json" or "image" etc.
-     *  @return {here.xyz.maps.providers.TileProvider.Tile} created tile
+     *  @param quadkey - the quadkey of the tile to create
      */
-    createTile(quadkey: string /* ,dataType*/) {
+    createTile(quadkey: string) {
         const tile = super.createTile(quadkey);
         const tileLevel = tile.z;
         const cacheLevel = this.level;
@@ -670,7 +723,16 @@ export abstract class EditableRemoteTileProvider extends EditableFeatureProvider
         provider.execTile(tile);
     }
 
-    getTile(quadkey: string, cb: (tile: Tile, error?: any) => void) {
+    /**
+     * Get a tile by quadkey.
+     * If the tile is not cached already, it will be created and stored automatically.
+     * Data will be fetched from remote data-sources and attached to tile automatically
+     *
+     * @param quadkey - quadkey of the tile
+     * @param callback - will be called as soon as tile is ready for consumption
+     * @returns the Tile
+     */
+    getTile(quadkey: string, callback: (tile: Tile, error?: any) => void) {
         const provider = this;
         const storage = provider.storage;
         const storageLevel = provider.level;
@@ -692,8 +754,8 @@ export abstract class EditableRemoteTileProvider extends EditableFeatureProvider
                 //     tile.loadStopTs  = null;
                 //     tile.loadStartTs = null;
                 // }else{
-                if (cb) {
-                    cb(tile, tile.error);
+                if (callback) {
+                    callback(tile, tile.error);
                 }
                 return tile;
                 // }
@@ -715,7 +777,7 @@ export abstract class EditableRemoteTileProvider extends EditableFeatureProvider
                 receiver = tile.onLoaded[0];
             }
 
-            receiver.add(cb);
+            receiver.add(callback);
 
             for (let l = 0; l < loaderTiles.length; l++) {
                 loaderTile = storage.get(loaderTiles[l]);
@@ -733,9 +795,9 @@ export abstract class EditableRemoteTileProvider extends EditableFeatureProvider
             }
         } else {
             // attach the callback
-            if (cb) {
-                if (tile.onLoaded.indexOf(cb) == -1) {
-                    tile.onLoaded.push(cb);
+            if (callback) {
+                if (tile.onLoaded.indexOf(callback) == -1) {
+                    tile.onLoaded.push(callback);
                 }
             }
 
@@ -782,22 +844,17 @@ export abstract class EditableRemoteTileProvider extends EditableFeatureProvider
     // request individual features from backend
     protected abstract _requestFeatures(ids, onSuccess, onError, opt?);
 
-    abstract commit(features, onSuccess, onError, transactionId?: string);
-
     /**
-     *  Commit modified features to the backend
+     *  Commit modified/removed features to the remote backend.
      *
-     *  @public
-     *  @expose
-     *  @abstract
-     *  @function
-     *  @name here.xyz.maps.providers.EditableRemoteTileProvider#commit
-     *  @param {Object} data the data to commit to the backend
-     *  @param {here.xyz.maps.providers.FeatureProvider.Feature|Array.<here.xyz.maps.providers.FeatureProvider.Feature>} data.put features that should be created or updated
-     *  @param {here.xyz.maps.providers.FeatureProvider.Feature|Array.<here.xyz.maps.providers.FeatureProvider.Feature>} data.remove features that should be removed
-     *  @param {Function=} onSuccess callback function on success
-     *  @param {Function=} onError callback function on error
+     *  @param data - the data that should be commit to the remote.
+     *  @param data.put - features that should be created or updated
+     *  @param  data.remove - features that should be removed
+     *  @param onSuccess - callback function that will be called when data has been commit successfully
+     *  @param onError - callback function that will be called when an error occurs
      */
+    abstract commit(data:{put?: Feature|Feature[], remove?: Feature|Feature[]}, onSuccess?, onError?, transactionId?: string);
+
     readDirection(link: Feature): 'BOTH' | 'START_TO_END' | 'END_TO_START' {
         throw new Error(METHOD_NOT_IMPLEMENTED);
         // return 'BOTH';

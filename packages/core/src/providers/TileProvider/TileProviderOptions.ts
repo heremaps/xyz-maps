@@ -17,23 +17,23 @@
  * License-Filename: LICENSE
  */
 
+import {TileStorage} from '../../storage/TileStorage';
+
 /**
- *  Configuration of providers.
- *
- *  @expose
- *  @public
- *  @interface
- *  @class here.xyz.maps.providers.TileProvider.Options
+ *  Options to configure the Provider.
  */
-export default {
-/**
- * Provider name
- *
- * @public
- * @expose
- * @optional
- * @name here.xyz.maps.providers.TileProvider.Options#name
- * @type {string}
- */
-// name: null,
+interface TileProviderOptions {
+    /**
+     * Name of the provider.
+     */
+    name?: string;
+
+    /**
+     * Tile margin of the provider.
+     */
+    margin?: number;
+
+    storage?: TileStorage;
 };
+
+export {TileProviderOptions};

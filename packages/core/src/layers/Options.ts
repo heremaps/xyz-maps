@@ -51,6 +51,10 @@ export interface TileLayerOptions {
      */
     style?: LayerStyle;
 
+    /**
+     * tileMargin that should be applied to all providers of the layer.
+     */
     margin?: number;
+
     tileSize?: number;
 }
