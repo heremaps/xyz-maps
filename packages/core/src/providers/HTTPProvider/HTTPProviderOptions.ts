@@ -51,14 +51,28 @@ export interface HTTPProviderOptions extends EditableRemoteTileProviderOptions {
     url: string | ((z: number, y: number, x: number, quadkey: string) => string);
 
     /**
+     * Indicates if requests are made with credentials.
+     *
+     * @default false
+     */
+    withCredentials?: boolean;
+
+    /**
+     * Indicates if the requests should be made with https.
+     *
+     * @default true
+     */
+    https?: boolean;
+
+    /**
      * Set custom url service headers.
      * Custom headers will be applied to all request done by provider.
      */
-    headers?: { [header: string]: string }
+    headers?: { [header: string]: string };
 
     /**
      * Set custom url parameters.
      * Custom parameters will be applied to all request done by provider.
      */
-    params?: { [paramter: string]: string }
+    params?: { [paramter: string]: string };
 };
