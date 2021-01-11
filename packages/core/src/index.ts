@@ -25,6 +25,7 @@ export * from './layers/TileLayer';
 export * from './layers/MVTLayer';
 export * from './features/Feature';
 export * from './tile/Tile';
+export * from './service/GeoCoder';
 export {tileUtils} from './tile/TileUtils';
 
 // support for legacy deprecated namespace based API.
@@ -51,7 +52,7 @@ import LRUStorage from './storage/LRUStorage';
 import webMercator from './projection/webMercator';
 import {HTTPLoader} from './loaders/HTTPLoader';
 import Manager from './loaders/Manager';
-import GeoCoder from './service/GeoCoder';
+import {GeoCoder} from './service/GeoCoder';
 
 // @ts-ignore
 import buildInfo from 'buildInfo';
