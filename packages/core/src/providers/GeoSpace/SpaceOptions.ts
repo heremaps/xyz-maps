@@ -80,7 +80,12 @@ interface SpaceProviderOptions extends HTTPProviderOptions {
      *
      * @default null
      */
-    propertySearch?: object
+    propertySearch?: {
+        [name: string]: {
+            operator: '=' | '!=' | '>' | '>=' | '<' | '<=',
+            value: any | any[]
+        }
+    }
 };
 
 const defaultOptions: SpaceProviderOptions = {
