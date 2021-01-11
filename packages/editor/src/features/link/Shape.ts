@@ -20,7 +20,7 @@
 import {JSUtils, geotools} from '@here/xyz-maps-common';
 import {providers, features} from '@here/xyz-maps-core';
 import GeoFence from './GeoFence';
-import NavLink from './NavLink';
+import {Navlink} from './NavLink';
 
 type FeatureProvider = providers.FeatureProvider;
 
@@ -35,7 +35,7 @@ type GeoJSONFeature = {
 type LinkShapeProperties = {
     isNode: boolean;
     isConnected: boolean;
-    parent: NavLink;
+    parent: Navlink;
 };
 
 let linkTools;
@@ -43,13 +43,13 @@ let geoFence;
 let UNDEF;
 
 
-type ConnectedLinkDetails = { link: NavLink, index: number };
+type ConnectedLinkDetails = { link: Navlink, index: number };
 
 type EventHandler = (e, dx?: number, dy?: number) => void;
 
 type PrivateData = {
-    line: NavLink,
-    _cls: NavLink[],
+    line: Navlink,
+    _cls: Navlink[],
     cLinks: ConnectedLinkDetails[],
     drg: boolean,
     x: number,
@@ -76,9 +76,9 @@ const toggleFillStrokeColors = (obj) => {
     // obj.attr({ fill: attrs.stroke, stroke: attrs.fill });
 };
 
-const connectShpToNearestLink = (line: NavLink, index: number) => {
+const connectShpToNearestLink = (line: Navlink, index: number) => {
     const coordinate = line.coord()[index];
-    const ignore = <NavLink[]>line.getConnectedLinks(index);
+    const ignore = <Navlink[]>line.getConnectedLinks(index);
     const EDITOR = line._e();
     let connectionCandidate;
     let foundPos;
@@ -359,7 +359,7 @@ class LinkShape extends features.Feature {
 
     private __: PrivateData;
 
-    constructor(line: NavLink, pos, i, lnkTools) {
+    constructor(line: Navlink, pos, i, lnkTools) {
         linkTools = lnkTools;
 
         // const connectedLinks = EDITOR.objects.tools.getCLinksForShape(line, i);

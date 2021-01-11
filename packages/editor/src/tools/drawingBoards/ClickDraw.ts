@@ -25,7 +25,7 @@ import Polygon from './Polygon';
 import {simplifyPath} from '../../geometry';
 import InternalEditor from '../../IEditor';
 import Overlay from '../../features/Overlay';
-import Navlink from '../../features/link/NavLink';
+import {Navlink} from '../../features/link/NavLink';
 
 const DEFAULT_SHAPE_STYLE = [{
     'type': 'Circle',

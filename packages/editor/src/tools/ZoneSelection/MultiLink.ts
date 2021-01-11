@@ -19,7 +19,7 @@
 
 import oTools from '../../features/link/NavLinkTools';
 import {Zone} from '../../API/EZoneSelector';
-import Navlink from '../../features/link/NavLink';
+import {Navlink} from '../../features/link/NavLink';
 import Line from '../../features/line/Line';
 import InternalEditor from '../../IEditor';
 import {MultiZone} from './Zone';

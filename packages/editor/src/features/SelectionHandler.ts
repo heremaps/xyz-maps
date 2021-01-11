@@ -19,22 +19,22 @@
 
 import oTools from './oTools';
 import InternalEditor from '../IEditor';
-import EditFeature from './feature/Feature';
+import {Feature} from './feature/Feature';
 
 export default class SelectionHandler {
-    private s: EditFeature[] = [];
+    private s: Feature[] = [];
     private ie: InternalEditor;
     private display;
 
     // stores feature that got cleared because of provider's visibilty changed (zoomlevel config)
     // will lead to automatic reselect if provider gets visible again.
-    private zClearFeat: EditFeature = null;
+    private zClearFeat: Feature = null;
 
-    private add(feature: EditFeature) {
+    private add(feature: Feature) {
         oTools.private(feature).isSelected = true;
         this.s.push(feature);
     }
-    private remove(feature: EditFeature) {
+    private remove(feature: Feature) {
         const {s} = this;
         oTools.private(feature).isSelected = false;
         s.splice(s.indexOf(feature), 1);
@@ -82,7 +82,7 @@ export default class SelectionHandler {
         }
     };
 
-    select(feature: EditFeature) {
+    select(feature: Feature) {
         const that = this;
         const curzl = that.display.getZoomlevel();
         const prov = <any>feature.getProvider();
@@ -97,7 +97,7 @@ export default class SelectionHandler {
         that.zClearFeat = feature;
     };
 
-    getCurSelObj(): EditFeature {
+    getCurSelObj(): Feature {
         return this.s[0];
     }
 
@@ -123,7 +123,7 @@ export default class SelectionHandler {
         }
     };
 
-    clearSelected(): EditFeature {
+    clearSelected(): Feature {
         let sel;
         let selected = this.s;
         const iEditor = this.ie;

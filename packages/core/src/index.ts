@@ -22,6 +22,7 @@ export * from './pixel/PixelRect';
 export * from './geo/GeoPoint';
 export * from './geo/GeoRect';
 export * from './layers/TileLayer';
+export * from './layers/LayerStyle';
 export * from './layers/MVTLayer';
 export * from './features/Feature';
 export * from './tile/Tile';

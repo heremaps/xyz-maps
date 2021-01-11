@@ -24,7 +24,7 @@ import LinkShape from './Shape';
 import VirtualLinkShape from './VirtualShape';
 import {geotools} from '@here/xyz-maps-common';
 import {JSUtils} from '@here/xyz-maps-common';
-import Navlink from './Navlink';
+import {Navlink} from './Navlink';
 import {EditStates} from '../feature/Feature';
 
 type BBox = [number, number, number, number];

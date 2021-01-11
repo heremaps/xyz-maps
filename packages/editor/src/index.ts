@@ -18,16 +18,22 @@
  */
 
 import {JSUtils, global} from '@here/xyz-maps-common';
-import SObj from './features/feature/Feature';
+import {Feature as SObj} from './features/feature/Feature';
 import Editor from './API/Editor';
 import FeatureEditStates from './features/feature/EditorProperties';
 
-import Place from './features/location/Place';
+import {Place} from './features/location/Place';
 import Address from './features/location/Address';
-import Link from './features/link/NavLink';
+import {Navlink} from './features/link/NavLink';
 import Line from './features/line/Line';
 import Area from './features/area/Area';
-import Marker from './features/marker/Marker';
+import {Marker} from './features/marker/Marker';
+
+
+export * from './features/location/Place';
+export * from './features/marker/Marker';
+export * from './features/feature/Feature';
+
 
 const NAVLINK = 'NAVLINK';
 const AREA = 'AREA';
@@ -51,9 +57,7 @@ objectTypeMapping[MARKER] = 'Marker';
 objectTypeMapping[LINE] = 'Line';
 
 
-/**
- *    A class representing map objects, including 'Link', 'Area', 'POI', 'Address' and 'Marker'.
- */
+// support for legacy api
 export const features = ((() => {
     function createObjDef(objType) {
         const toGeojsonCoordinates = (coordinates) => {
@@ -254,7 +258,7 @@ const providers = global.here['xyz']['maps']['providers'];
 providers.EditableFeatureProvider.prototype.getFeatureClass = function(feature) {
     switch (this.detectFeatureClass(feature)) {
     case 'NAVLINK':
-        return Link;
+        return Navlink;
     case 'PLACE':
         return Place;
     case 'ADDRESS':

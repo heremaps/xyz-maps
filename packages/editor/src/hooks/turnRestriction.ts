@@ -17,7 +17,7 @@
  * License-Filename: LICENSE
  */
 
-import Navlink from '../features/link/NavLink';
+import {Navlink} from '../features/link/NavLink';
 
 type SplitHookData = { link: Navlink, children: Navlink[] };
 type DisconnectHookData = { link: Navlink, index: number };

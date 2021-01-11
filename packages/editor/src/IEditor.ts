@@ -28,7 +28,7 @@ import DisplayListener from './DisplayListener';
 import Hooks from './Hooks';
 import Map from './map/Map';
 import Display from '@here/xyz-maps-display';
-import Feature from './features/feature/Feature';
+import {Feature} from './features/feature/Feature';
 
 type TileLayer = layers.TileLayer;
 type EditableProvider = providers.EditableRemoteTileProvider;

@@ -20,7 +20,7 @@
 import {features} from '@here/xyz-maps-core';
 import {JSUtils} from '@here/xyz-maps-common';
 import GeoFence from './GeoFence';
-import Navlink from './NavLink';
+import {Navlink} from './NavLink';
 import navlinkTools from './NavLinkTools';
 
 let UNDEF;

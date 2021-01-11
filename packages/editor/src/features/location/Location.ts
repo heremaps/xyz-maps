@@ -17,10 +17,13 @@
  * License-Filename: LICENSE
  */
 
-import Marker from '../marker/Marker';
+import {Feature} from '../feature/Feature';
 import oTools from './LocationTools';
+import {Navlink} from '../link/NavLink';
 
-class Location extends Marker {
+export class Location extends Feature {
+    readonly class: 'PLACE' | 'ADDRESS';
+
     constructor(feature, provider) {
         super(feature, provider);
     }
@@ -43,7 +46,7 @@ class Location extends Marker {
      *  @function
      *  @name here.xyz.maps.editor.features.Location#getLink
      */
-    getLink() {
+    getLink(): Navlink {
         const data = oTools.getRoutingData(this);
         let link = data.link;
 
@@ -55,6 +58,3 @@ class Location extends Marker {
         return link || null;
     };
 }
-
-
-export default Location;

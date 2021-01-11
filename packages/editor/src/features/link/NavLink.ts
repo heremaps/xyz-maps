@@ -22,7 +22,7 @@ import TurnRestriction from './TurnRestriction';
 import TurnRestrictionEditor from '../../tools/turnrestriction/Editor';
 import DirectionHint from '../../tools/DirectionHint';
 import oTools from './NavLinkTools';
-import BasicFeature from '../feature/Feature';
+import {Feature} from '../feature/Feature';
 import {JSUtils} from '@here/xyz-maps-common';
 
 let UNDEF;
@@ -49,7 +49,7 @@ const throwError = (msg) => {
  *  @param {here.xyz.maps.editor.features.Feature.Properties=} properties
  *      Properties of the navlink.
  */
-export default class Navlink extends BasicFeature {
+export class Navlink extends Feature {
     id: string | number;
 
     /**
@@ -355,7 +355,11 @@ export default class Navlink extends BasicFeature {
         return publicTR;
     };
 
-    prop(name?: string | {}, value?) {
+    prop(): { [name: string]: any };
+    prop(property: string): any;
+    prop(property: string, value: any): void;
+    prop(properties: { [name: string]: any }): void;
+    prop(name?, value?): { [name: string]: any } | void {
         const feature = this;
         const EDITOR = feature._e();
         let isModified = false;
