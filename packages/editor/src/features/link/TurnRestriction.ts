@@ -18,13 +18,7 @@
  */
 
 /**
- *  The interface for link turn restriction editor.
- *
- *  @class
- *  @expose
- *  @public
- *  @name here.xyz.maps.editor.features.TurnRestriction
- *
+ *  A TurnRestriction sucks.
  */
 class TurnRestriction {
     constructor(internal) {
@@ -34,12 +28,6 @@ class TurnRestriction {
 
     /**
      *  Hide the turn restriction editor.
-     *
-     *  @public
-     *  @expose
-     *  @expose
-     *  @function
-     *  @name here.xyz.maps.editor.features.TurnRestriction#hide
      */
     hide() {
 
@@ -47,12 +35,6 @@ class TurnRestriction {
 
     /**
      *  Get current state of the turn restriction editor.
-     *
-     *  @public
-     *  @expose
-     *  @function
-     *  @name here.xyz.maps.editor.features.TurnRestriction#isActive
-     *  @return {Boolean}
      */
     isActive(): boolean {
         return false;

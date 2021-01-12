@@ -25,11 +25,6 @@ const NAVLINK = 'NAVLINK';
 
 /**
  *  Tool to manage drawing links or areas.
- *
- *  @expose
- *  @public
- *  @interface
- *  @class here.xyz.maps.editor.Editor.drawingBoard
  */
 function MDrawingManager(HERE_WIKI, map, WIKI) {
     const that = this;

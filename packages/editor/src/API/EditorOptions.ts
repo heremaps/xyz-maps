@@ -5,7 +5,7 @@
  * you may not use this file except in compliance with the License.
  * You may obtain a copy of the License at
  *
- *     http://www.apache.org/licenses/LICENSE-2.0
+ *    http://www.apache.org/licenses/LICENSE-2.0
  *
  * Unless required by applicable law or agreed to in writing, software
  * distributed under the License is distributed on an "AS IS" BASIS,
@@ -18,122 +18,158 @@
  */
 
 import {JSUtils} from '@here/xyz-maps-common';
-import {layers} from '@here/xyz-maps-core';
-
-
-type EditorOptions = {
-
-    debug: boolean;
-
-    editRestrictions: (feature, restrictionMask: number) => boolean;
-
-    geoFence: number | false;
-
-    minShapeDistance: number;
-
-    autoConnectShapeDistance: number;
-
-    intersectionScale: number;
-
-    XTestMaxDistance: number;
-
-    disconnectShapeDistance: number;
-
-    keepFeatureSelection: string | boolean;
-
-    featureSelectionByDefault: boolean;
-
-    enableHover: boolean;
-
-    maxRoutingPointDistance: number;
-
-    autoSnapShape: boolean;
-
-    services: {
-        reverseGeocoder: {
-            //  'getISOCC': function(lon, lat, callback){
-            //      return 'ISOCC';
-            //  }
-        }
-    };
-
-    layers?: layers.TileLayer[];
-
-    destination: string;
-};
+import {TileLayer} from '@here/xyz-maps-core';
+import {Feature} from '@here/xyz-maps-editor';
 
 
 /**
- *  Configuration of map edit engine.
- *
- *  @public
- *  @interface
- *  @class
- *  @expose
- *
- *  @example
- *  var config = {
- *      services: {
- *          reverseGeocoder: {
- *              'getISOCC': function(lon, lat, callback){
- *                  // do reverse geocode request to get isocc value
- *                  callback && callback(isocc);
- *              }
- *          }
- *      }
- *  };
- *
- *  @name here.xyz.maps.editor.Editor.Config
+ * Options to configure the map editor ({@link editor.Editor}).
  */
-const defaultOptions: EditorOptions = {
-
-    'debug': true,
+interface EditorOptions {
+    /**
+     * define the TileLayers that should be edited with the {@link editor.Editor}
+     */
+    layers?: TileLayer[];
+    /**
+     * Callback that's being called before certain edit-operations are executed.
+     * A operation can be restricted or allowed, controlled by the respective return value.
+     *
+     * @param feature - the map feature
+     * @param restrictionMask - restrictionMask represents a bitmask for the desired edit operations.
+     *     1  -> GEOMETRY CHANGE
+     *     2  -> REMOVE
+     *
+     * @returns true -> Allow operation(s) and execute edits. false -> forbid operation(s). No edit gets executed.
+     *
+     * @default
+     */
+    editRestrictions?: (feature: Feature, restrictionMask: number) => boolean;
 
     /**
-     *  Callback for editRestriction validation.
+     * Define the pixel radius of the area within a shape point of a Navlink Feature can be moved by mouse/touch interaction.
      *
-     *  @public
-     *  @expose
-     *  @function
-     *  @param {here.xyz.maps.editor.features.Feature} feature
-     *      the map feature
-     *  @param {number} restriction
-     *     restriction number representing a bitmask for the desired edit operations.
-     *      1  -> GEOMETRY CHANGE
-     *      2  -> REMOVE
-     *  @name here.xyz.maps.editor.Editor.Config#editRestrictions
-     *  @return {Boolean}
-     *      true  -> yes. allow edit.
-     *      false -> no. edit won't be executed
+     * @deprecated
+     * @default false - deactivated by default.
      */
+    geoFence?: number | false;
+
+    /**
+     * Minimum distance in meters between two shape points for creating new Navlink Features.
+     *
+     * @default 2
+     */
+    minShapeDistance?: number;
+
+    /**
+     * If the distance (meters) between two shape-points of two separate Navlink features is smaller or equal than the "autoConnectShapeDistance",
+     * the shape-points will be connected automatically.
+     *
+     * @optional
+     * @default 2
+     */
+    autoConnectShapeDistance?: number;
+
+    /**
+     * Defines the coordinate precision for the automatic intersection detection.
+     * Number of decimal points of the WGS coordinates that must match.
+     *
+     * @default 5
+     */
+    intersectionScale?: number;
+
+    /**
+     * Maximum variance for crossing candidate detection of Navlink Features in meters.
+     *
+     * @default 2
+     */
+    XTestMaxDistance?: number;
+
+
+    /**
+     * The distance in meters between the two shape-points when two Navlink Features get disconnected.
+     *
+     * @default 3
+     */
+    disconnectShapeDistance?: number;
+
+    /**
+     * Keep features selected after mapview-change or click on the "ground" of the map.
+     * if set to false -> will be cleared after viewport change and click on ground.
+     * if set to "viewportChange" -> will only be cleared on ground click.
+     * if set to true -> no clear at all.
+     *
+     * @default "viewportChange"
+     */
+    keepFeatureSelection?: string | boolean;
+
+    /**
+     * Select a feature by default on tap/pointerup event.
+     *
+     * @default true
+     */
+    featureSelectionByDefault?: boolean;
+
+    /**
+     * The maximum allowed distance of the "Routing Point" to the Address/Place itself in meters.
+     *
+     * @default 1000 - 1000 meters
+     */
+    maxRoutingPointDistance?: number;
+
+    /**
+     * Enable or disable "auto snap" to the existing Navlink network when a shape of a Navlink Feature has been dragged.
+     *
+     * @default false
+     */
+    autoSnapShape?: boolean;
+
+    /**
+     * Optional service settings.
+     */
+    services?: {
+        /**
+         * define reverseGeocoder service/functionality to request the address for a geographical position.
+         */
+        reverseGeocoder?: {
+            /**
+             * Get the iso country code for a geographical position.
+             * If "getISOCC" is defined, the iso country code will be attached to all newly created features before sending to remote datasource.
+             *
+             * @example
+             * ```
+             * {
+             *     reverseGeocoder:
+             *     {
+             *         getISOCC(lon: number, lat: number, callback:(isocc:string)=>void){
+             *             // do a reverse geocode request to get the isocc value
+             *             const isocc = "theIsoCountryCode";
+             *
+             *             callback(isocc);
+             *         }
+             *     }
+             * }
+             * ```
+             */
+            getISOCC?(longitude: number, latitude: number, callback: (isoCC: string) => void): string | undefined;
+        }
+    };
+
+    enableHover: boolean;
+
+    destination: string;
+
+    debug: boolean;
+};
+
+
+const defaultOptions: EditorOptions = {
+    'debug': true,
     'editRestrictions': function() {
         // NO RESTRICTIONS PER DEFAULT FOR NOW
         return false;
         //    var restrictions = properties['protected'] ? 3 : 0;
         //    return !!(restrictions & checkMask);
     },
-
-    /**
-     *  Object specifies setting for backend service.
-     *      -reverseGeocoder: define function for accessing 'isocc'.
-     *
-     *  @public
-     *  @expose
-     *  @name here.xyz.maps.editor.Editor.Config#services
-     *  @optional
-     *  @type Object
-     *
-     *  @example
-     *  {
-     *      reverseGeocoder:
-     *      {
-     *          'getISOCC': function(lon, lat, callback){
-     *              // do reverse geocode request to get isocc value
-     *              callback && callback(isocc);
-     *          }
-     *      }
-     *  }
-     */
     'services': {
         'reverseGeocoder':
             {
@@ -143,19 +179,6 @@ const defaultOptions: EditorOptions = {
             }
 
     },
-
-    // /**
-    //  *  object with 'max' and 'min' properties defining the active zoomlevels.
-    //  *
-    //  *  @public
-    //  *  @name here.xyz.maps.editor.Editor.Config.zoomLevel
-    //  *  @type Object
-    //  */
-    // 'zoomLevel': {
-    //  'max': 20,
-    //  'min': 15
-    // },
-
     'destination': (function getBasePath(name) {
         if (!(name instanceof Array)) name = [name];
         const scripts = document.getElementsByTagName('script');
@@ -174,135 +197,18 @@ const defaultOptions: EditorOptions = {
         return path;
     })(['mapedit.js']),
 
-    /**
-     *  The area a link shape point can be dragged. turn off geoFence by default.
-     *
-     *  @public
-     *  @expose
-     *  @name here.xyz.maps.editor.Editor.Config#geoFence
-     *  @optional
-     *  @default false
-     *  @type Boolean
-     */
     'geoFence': false,
-
-    /**
-     *  Minimum distance in meters between two shape points for creating new links.
-     *
-     *  @public
-     *  @expose
-     *  @name here.xyz.maps.editor.Editor.Config#minShapeDistance
-     *  @optional
-     *  @default 2
-     *  @type number
-     */
     'minShapeDistance': 2, // 4meters
     // 'minShapeDistance': 4e-5, // 4meters
-
-    /**
-     *  If distance (meters) below value. auto connect shape to existing geometry will be executed.
-     *
-     *  @public
-     *  @expose
-     *  @name here.xyz.maps.editor.Editor.Config#autoConnectShapeDistance
-     *  @optional
-     *  @default 2
-     *  @type number
-     */
     'autoConnectShapeDistance': 2,
-
     // 'ShapeSnapTolerance': 4e-5, //8
-
-
-    /**
-     *  Numeric scale of WGS coordinates for detecting an intersection.
-     *
-     *  @public
-     *  @expose
-     *  @name here.xyz.maps.editor.Editor.Config#intersectionScale
-     *  @optional
-     *  @default 5
-     *  @type number
-     */
     'intersectionScale': 5,
-
-
-    /**
-     *  Maximum variance for crossing candidate detection in meter
-     *
-     *  @public
-     *  @expose
-     *  @name here.xyz.maps.editor.Editor.Config#XTestMaxDistance
-     *  @optional
-     *  @default 2
-     *  @type number
-     */
     'XTestMaxDistance': 2,
-
-    /**
-     *
-     *  @public
-     *  @expose
-     *  @name here.xyz.maps.editor.Editor.Config#disconnectShapeDistance
-     *  @optional
-     *  @default 3
-     *  @type number
-     */
     'disconnectShapeDistance': 3,
-
-    /**
-     *  Keep features selected after mapviewchange or click on ground.
-     *  if set to false -> will be cleared after viewport change and click on ground.
-     *  if set to "viewportChange" -> will only be cleared on ground click.
-     *  if set to true -> no clear at all.
-     *
-     *  @public
-     *  @expose
-     *  @name here.xyz.maps.editor.Editor.Config#keepFeatureSelection
-     *  @optional
-     *  @default "viewportChange"
-     *  @type {Boolean|string}
-     */
     'keepFeatureSelection': 'viewportChange',
-
-
-    /**
-     *  Select feature by default on tap/pointerup event
-     *
-     *  @public
-     *  @expose
-     *  @name here.xyz.maps.editor.Editor.Config#featureSelectionByDefault
-     *  @optional
-     *  @default true
-     *  @type Boolean
-     */
     'featureSelectionByDefault': true,
-
-
     'enableHover': true,
-
-    /**
-     *  maximum distance of Routing Point in meters
-     *
-     *  @public
-     *  @expose
-     *  @name here.xyz.maps.editor.Editor.Config#maxRoutingPointDistance
-     *  @optional
-     *  @default 1000
-     *  @type number
-     */
     'maxRoutingPointDistance': 1000,
-
-    /**
-     *  Enable/disable auto snap to existing link network while dragging link shapes.
-     *
-     *  @public
-     *  @expose
-     *  @name here.xyz.maps.editor.Editor.Config#autoSnapShape
-     *  @optional
-     *  @default false
-     *  @type Boolean
-     */
     'autoSnapShape': false
 };
 
