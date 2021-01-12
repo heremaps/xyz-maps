@@ -24,19 +24,18 @@ import {eChanges} from './EChanges';
 import {eFeatures} from './EFeatures';
 import {eLayers} from './ELayers';
 import DrawingManager from './MDrawingManager';
-import {eSearch, SearchOptions} from './ESearch';
+import {eSearch, zearch, SearchOptions} from './ESearch';
 import {eListeners} from './EListeners';
 import {eObservers} from './EObservers';
 import {ZoneSelector} from './EZoneSelector';
 import InternalEditor from './../IEditor';
 import {mergeOptions, EditorOptions} from './EditorOptions';
 import {initHooks} from './../hooks/init';
-import EditFeature from './../features/feature/Feature';
+import {Feature} from './../features/feature/Feature';
 
 type TileLayer = layers.TileLayer;
 
 const NULL = null;
-
 
 //* *******************************************************************************************************
 
@@ -96,9 +95,14 @@ export default class Editor {
 
     get: (key: string) => any;
 
-    search: (options: SearchOptions) => EditFeature[];
+    search: (options: SearchOptions) => Feature[];
 
     private _i: () => InternalEditor;
+
+    /**
+     * The HTMLElement used by the Map Editor.
+     */
+    container: HTMLElement;
 
     constructor(display: Map, options: EditorOptions) {
         const that: Editor = this;
@@ -128,15 +132,6 @@ export default class Editor {
 
         JSUtils.extend(that, eChanges(HERE_WIKI));
 
-        /**
-         *  The DIV container for the Map Editor.
-         *
-         *  @public
-         *  @expose
-         *  @readonly
-         *  @type Node
-         *  @name here.xyz.maps.editor.Editor#container
-         */
         that['container'] = display.getContainer();
 
 

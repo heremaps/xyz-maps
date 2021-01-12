@@ -18,22 +18,27 @@
  */
 
 import {JSUtils, global} from '@here/xyz-maps-common';
-import {Feature as SObj} from './features/feature/Feature';
+import {Feature} from './features/feature/Feature';
 import Editor from './API/Editor';
-import FeatureEditStates from './features/feature/EditorProperties';
+import {EditorProperties, DefaultEditorProperties} from './features/feature/EditorProperties';
 
 import {Place} from './features/location/Place';
-import Address from './features/location/Address';
+import {Address} from './features/location/Address';
 import {Navlink} from './features/link/NavLink';
-import Line from './features/line/Line';
-import Area from './features/area/Area';
+import {Line} from './features/line/Line';
+import {Area} from './features/area/Area';
 import {Marker} from './features/marker/Marker';
 
 
-export * from './features/location/Place';
-export * from './features/marker/Marker';
 export * from './features/feature/Feature';
+export * from './features/marker/Marker';
+export * from './features/line/Line';
+export * from './features/area/Area';
+export * from './features/location/Place';
+export * from './features/location/Address';
+export * from './features/link/NavLink';
 
+export * from './features/feature/EditorProperties';
 
 const NAVLINK = 'NAVLINK';
 const AREA = 'AREA';
@@ -91,7 +96,7 @@ export const features = ((() => {
             that.class = objType;
 
             that.properties = JSUtils.extend({
-                '@ns:com:here:editor': new FeatureEditStates()
+                '@ns:com:here:editor': new DefaultEditorProperties()
             }, properties || {});
 
             that.geometry = {
@@ -106,7 +111,7 @@ export const features = ((() => {
             };
         }
 
-        Obj.prototype = SObj.prototype;
+        Obj.prototype = Feature.prototype;
 
         return Obj;
     };

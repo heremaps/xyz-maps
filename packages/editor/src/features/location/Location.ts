@@ -35,18 +35,13 @@ export class Location extends Feature {
         return [geo[0], geo[1], geo[0], geo[1]];
     };
 
+
     /**
-     *  Get the link to which the feature is attached.
+     *  Get the Navlink Feature that the feature is linked to/ associated with.
      *
-     *  @public
-     *  @expose
-     *  @return {here.xyz.maps.editor.features.Navlink}
-     *      The link to which the POI is attached.
-     *
-     *  @function
-     *  @name here.xyz.maps.editor.features.Location#getLink
+     *  @return The Navlink Feature or null if the feature is not linked to a Navlink (floating).
      */
-    getLink(): Navlink {
+    getLink(): Navlink | null {
         const data = oTools.getRoutingData(this);
         let link = data.link;
 

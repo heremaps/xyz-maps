@@ -20,138 +20,15 @@
 import oTools from './LocationTools';
 import {Location} from './Location';
 import {JSUtils} from '@here/xyz-maps-common';
+import {Navlink} from '@here/xyz-maps-editor';
 
 /**
- *  Get deep copy of all properties of the feature
- *
- *  @public
- *  @expose
- *  @return {here.xyz.maps.editor.features.Address.Properties}
- *      return properties of the object
- *  @function
- *  @name here.xyz.maps.editor.features.Address#prop
- *
- *
- * @also
- *
- *  Get the value of an specific property
- *
- *  @public
- *  @expose
- *  @param {string} property
- *      property name
- *  @return {number|string|Array.<string>|object}
- *      value of the specific property
- *  @function
- *  @name here.xyz.maps.editor.features.Address#prop
- *
- * @also
- *
- *  Set the value for an specific property
- *
- *  @public
- *  @expose
- *  @param {string} property
- *      property name
- *  @param {number|string|Array.<string>|object} value
- *      value of the specific property
- *  @function
- *  @name here.xyz.maps.editor.features.Address#prop
- *
- *
- * @also
- *
- *  Set one or more properties of the object.
- *
- *  @public
- *  @expose
- *  @param {here.xyz.maps.editor.features.Address.Properties} properties
- *      properties of the feature
- *  @function
- *  @name here.xyz.maps.editor.features.Address#prop
- *
- */
-
-/**
- *  Get default or current style of the feature.
- *
- *  @public
- *  @expose
- *  @param {string=} [style="default"]
- *      a string indicating which style to return, either "default" or "current".
- *  @return {Array<here.xyz.maps.layers.TileLayer.Style>} styles
- *      style of this feature
- *  @function
- *  @name here.xyz.maps.editor.features.Address#style
- *
- * @also
- *  Apply style to the feature.
- *
- *  @public
- *  @expose
- *  @param {Array<here.xyz.maps.layers.TileLayer.Style>} style
- *      the style to set for the feature
- *  @function
- *  @name here.xyz.maps.editor.features.Address#style
- */
-
-/**
- *  Get coordinate of the feature.
- *
- *  @public
- *  @expose
- *  @return {Array.<number>}
- *      coordinate of the feature: [longitude, latitude, z]
- *  @function
- *  @name here.xyz.maps.editor.features.Address#coord
- *
- * @also
- *  Set coordinate of the feature.
- *
- *  @public
- *  @param {Array.<number>} coords
- *  coordinate of the feature: [longitude, latitude, z]
- *  @expose
- *
- *  @function
- *  @name here.xyz.maps.editor.features.Address#coord
- */
-
-/**
- *  Properties of address feature.
- *
- *  @public
- *  @expose
- *  @type {here.xyz.maps.editor.features.Address.Properties}
- *  @name here.xyz.maps.editor.features.Address#properties
- */
-
-/**
- *  Feature class of this feature, the value is "ADDRESS".
- *
- *  @public
- *  @expose
- *  @readonly
- *  @name here.xyz.maps.editor.features.Address#class
- *  @type string
- */
-
-/**
- *  @class
- *  @expose
- *  @public
- *
- *  @extends here.xyz.maps.editor.features.Marker
- *  @name here.xyz.maps.editor.features.Address
- *  @constructor
- *  @param {(String|Number)=} id of the Address
- *  @param {here.xyz.maps.editor.GeoCoordinate|here.xyz.maps.editor.PixelCoordinate} coordinate
- *      Coordinate of the feature.
- *  @param {here.xyz.maps.editor.features.Feature.Properties=} properties
- *      Properties of the address feature.
+ * The Address Feature is a generic editable Feature with "Point" geometry.
+ * In addition to the Marker Feature, the Place feature must have a "routing point" located on a Navlink geometry.
+ * A Address must be linked/associated with a Navlink Feature.
  */
 class Address extends Location {
-    class: 'ADDRESS';
+    readonly class: 'ADDRESS';
 
     // constructor(feature, provider) {
     //     super(feature, provider);
@@ -159,17 +36,12 @@ class Address extends Location {
 
 
     /**
-     *  Get the link to which the point address is attached.
+     *  Get the Navlink Feature that the Address is linked to/ associated with.
      *
-     *  @public
-     *  @expose
-     *  @return {here.xyz.maps.editor.features.Navlink}
-     *      The link to which the point address is attached.
-     *
-     *  @function
-     *  @name here.xyz.maps.editor.features.Address#getLink
+     *  @return The Navlink Feature.
      */
-    // TODO: cleanup doc + real inheritance chain..
+    // @ts-ignore
+    getLink(): Navlink;
 
 
     prop(): { [name: string]: any };
@@ -229,6 +101,6 @@ class Address extends Location {
     };
 }
 
-Address.prototype.class = 'ADDRESS';
+(<any>Address).prototype.class = 'ADDRESS';
 
-export default Address;
+export {Address};

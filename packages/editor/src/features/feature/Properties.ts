@@ -17,25 +17,20 @@
  * License-Filename: LICENSE
  */
 
-import FeatureEditStates from './EditorProperties';
-const doc = FeatureEditStates; // doc only!
+import {EditorProperties} from './EditorProperties';
+
 /**
- *  This is an interface to represent properties in Features.
- *
- *  @expose
- *  @public
- *  @interface
- *  @class
- *  @name here.xyz.maps.editor.features.Feature.Properties
+ *  The properties of a editable Features.
  */
-export default {
+export interface FeatureProperties {
+
+    /**
+     * generic key - value map / object literal.
+     */
+    [name: string]: any;
+
     /**
      *  Properties to indicate current state of this feature.
-     *
-     *  @public
-     *  @expose
-     *  @name here.xyz.maps.editor.features.Feature.Properties#@ns:com:here:editor
-     *  @type {here.xyz.maps.editor.features.Feature.Properties.EditorProperties}
      */
-    // '@ns:com:here:editor': null
+    readonly '@ns:com:here:editor': EditorProperties
 };

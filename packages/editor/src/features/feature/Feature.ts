@@ -19,13 +19,11 @@
 
 import oTools from '../oTools';
 import {JSUtils} from '@here/xyz-maps-common';
-import {Feature as GeoJSONFeature, providers} from '@here/xyz-maps-core';
-import EditorProperties from './EditorProperties';
-import Properties from './Properties';
+import {Feature as GeoJSONFeature, GeoPoint, providers} from '@here/xyz-maps-core';
+import {EditorProperties, DefaultEditorProperties} from './EditorProperties';
+import {FeatureProperties} from './Properties';
 import InternalEditor from '../../IEditor';
 import {Style} from '@here/xyz-maps-core';
-
-const doc = Properties; // doc only!
 
 
 type EditableProvider = providers.EditableRemoteTileProvider;
@@ -47,7 +45,12 @@ class Feature extends GeoJSONFeature {
 
     id: number | string;
 
-    readonly properties: { [name: string]: any };
+    /**
+     * The Properties of the feature
+     */
+    properties: FeatureProperties;
+
+    // readonly properties: { [name: string]: any };
 
     geometry: {
         type: 'Point' | 'MultiPoint' | 'LineString' | 'MultiLineString' | 'Polygon' | 'MultiPolygon',
@@ -63,7 +66,7 @@ class Feature extends GeoJSONFeature {
     constructor(geojsonFeature, provider: EditableProvider) {
         super(geojsonFeature, provider);
 
-        this.properties['@ns:com:here:editor'] = new EditorProperties();
+        (<any> this).properties['@ns:com:here:editor'] = new DefaultEditorProperties();
     }
 
     toString() {
@@ -150,89 +153,10 @@ class Feature extends GeoJSONFeature {
     };
 
     /**
-     *  properties of this feature.
-     *
-     *  @public
-     *  @expose
-     *  @name here.xyz.maps.editor.features.Feature#properties
-     *  @type {here.xyz.maps.editor.features.Feature.Properties}
-     */
-    // properties: null
-
-    /**
-     *  The type of the object, 'NAVLINK', 'ADDRESS', 'PLACE', 'AREA', 'MARKER' or 'LINE'.
-     *
-     *  @public
-     *  @expose
-     *  @readonly
-     *  @type string
-     */
-    // type = null;
-
-    /**
-     *  Id of the Object
-     *
-     *  @public
-     *  @expose
-     *  @readonly
-     *  @type string|number
-     */
-
-    /**
-     *  Guid of the Object
-     *
-     *  @public
-     *  @expose
-     *  @readonly
-     *  @type string
-     */
-    // guid = null;
-    /**
-     *  Id of the layer the Object belongs to
-     *
-     *  @public
-     *  @expose
-     *  @readonly
-     *  @type string
-     */
-    // layerId = null;
-    /**
-     *  Timestamp of last update
-     *
-     *  @public
-     *  @expose
-     *  @readonly
-     *  @type number
-     */
-    // lastUpdateTS = null;
-    /**
-     *
-     *  Initial state information of the Object.
-     *  An array representing 4 main states: Changing, Moderating, Publishing and Merging.
-     *  Changing-State can be one of: "CREATED", "UPDATED", "REMOVED" and "SPLIT".
-     *
-     *  @public
-     *  @expose
-     *  @readonly
-     *  @type array
-     */
-    // states = null;
-    /**
-     *  Timestamp of creation
-     *
-     *  @public
-     *  @expose
-     *  @readonly
-     *  @type number
-     */
-
-    // createdTS = null;
-
-
-    /**
      * Get a deep copy of the properties of the feature
      */
     prop(): { [name: string]: any };
+
     /**
      * Get the value of an specific property
      *
@@ -249,6 +173,7 @@ class Feature extends GeoJSONFeature {
      * @param value - the value that should be set for the property
      */
     prop(property: string, value: any): void;
+
     /**
      *  Set one or more properties of the object.
      *  @param properties - the properties object literal that should be merged with the existing properties.
@@ -310,15 +235,15 @@ class Feature extends GeoJSONFeature {
     /**
      *  Get the coordinate(s) of the feature.
      */
-    coord(): Coordinate[] | Coordinate[][] | Coordinate[][][] | Coordinate[][][][];
+    coord(): GeoPoint[] | GeoPoint[][] | GeoPoint[][][] | GeoPoint[][][][];
     /**
      *  Set the coordinate(s) of the feature.
      *
      *  @param coordinates - the coordinates that should be set. The coordinates must match features geometry type.
      */
-    coord(coordinates: Coordinate[] | Coordinate[][] | Coordinate[][][] | Coordinate[][][][]);
+    coord(coordinates: GeoPoint[] | GeoPoint[][] | GeoPoint[][][] | GeoPoint[][][][]);
 
-    coord(coordinates?: Coordinate[] | Coordinate[][] | Coordinate[][][] | Coordinate[][][][]) {
+    coord(coordinates?: GeoPoint[] | GeoPoint[][] | GeoPoint[][][] | GeoPoint[][][][]) {
         const feature = this;
         const geoType = feature.geometry.type;
 
@@ -348,9 +273,8 @@ class Feature extends GeoJSONFeature {
         return coordinates;
     };
 
-
     /**
-     *  Set the object editable or read only.
+     *  Define if the feature should be editable by the Editor module or not.
      *
      * @param editable - True, the feature can be edited, otherwise false.
      *
@@ -367,7 +291,6 @@ class Feature extends GeoJSONFeature {
         this.unselect();
         return this;
     };
-
 
     /**
      *  Select and highlight the feature.

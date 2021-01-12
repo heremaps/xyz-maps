@@ -20,25 +20,16 @@
 import oTools from './LocationTools';
 import {Location} from './Location';
 import {JSUtils} from '@here/xyz-maps-common';
+import {Navlink} from '@here/xyz-maps-editor';
 
 /**
- *  @class
- *  @expose
- *  @public
- *
- *  @extends here.xyz.maps.editor.features.Marker
- *  @name here.xyz.maps.editor.features.Place
- *
- *  @constructor
- *  @param {(String|Number)=} id of the Place
- *  @param {here.xyz.maps.editor.GeoCoordinate|here.xyz.maps.editor.PixelCoordinate} coordinate
- *      Coordinate of the feature
- *  @param {here.xyz.maps.editor.features.Feature.Properties=} properties
- *      Properties of the Place feature.
+ * The Place Feature is a generic editable Feature with "Point" geometry.
+ * In addition to the Marker Feature, the Place feature can have a "routing point" located on a Navlink geometry.
+ * A Place can be linked/associated with a Navlink Feature.
  */
 class Place extends Location {
     /**
-     *  The feature class of a Place is "PLACE".
+     *  The feature class of a Place Feature is "PLACE".
      */
     readonly class: 'PLACE';
 
@@ -47,27 +38,7 @@ class Place extends Location {
     }
 
     /**
-     *  Get the link to which the POI is attached.
-     *
-     *  @public
-     *  @expose
-     *  @return {here.xyz.maps.editor.features.Navlink}
-     *      The link to which the POI is attached.
-     *
-     *  @function
-     *  @name here.xyz.maps.editor.features.Place#getLink
-     */
-
-    // TODO: cleanup doc + real inheritance chain..
-
-    /**
-     *  Find the nearest routing point and assign it to this POI.
-     *
-     *  @public
-     *  @expose
-     *
-     *  @function
-     *  @name here.xyz.maps.editor.features.Place#createRoutingPoint
+     *  Find the nearest routing point and assign it to the Place Feature.
      */
     createRoutingPoint() {
         const obj = this;
@@ -82,13 +53,7 @@ class Place extends Location {
     };
 
     /**
-     *  Remove the existing routing point for this POI
-     *
-     *  @public
-     *  @expose
-     *
-     *  @function
-     *  @name here.xyz.maps.editor.features.Place#removeRoutingPoint
+     *  Remove the existing routing point from the Place Feature.
      */
     removeRoutingPoint() {
         const obj = this;
@@ -99,7 +64,6 @@ class Place extends Location {
             oTools.markAsModified(obj);
         }
     };
-
 
     prop(): { [name: string]: any };
     prop(property: string): any;
@@ -161,51 +125,6 @@ class Place extends Location {
     };
 }
 
-(<any>Place.prototype).class = 'PLACE';
-
-/**
- *  Get default or current style of the feature.
- *
- *  @public
- *  @expose
- *  @param {string=} [style="default"]
- *      a string indicating which style to return, either "default" or "current".
- *  @return {Array<here.xyz.maps.layers.TileLayer.Style>} styles
- *      style of this feature
- *  @function
- *  @name here.xyz.maps.editor.features.Place#style
- *
- * @also
- *  Apply style to the feature.
- *
- *  @public
- *  @expose
- *  @param {Array<here.xyz.maps.layers.TileLayer.Style>} style
- *      the style to set for the feature
- *  @function
- *  @name here.xyz.maps.editor.features.Place#style
- */
-
-/**
- *  Get coordinate of the feature.
- *
- *  @public
- *  @expose
- *  @return {Array.<number>}
- *      coordinate of the feature: [longitude, latitude, z]
- *  @function
- *  @name here.xyz.maps.editor.features.Place#coord
- *
- * @also
- *  Set coordinate of the feature.
- *
- *  @public
- *  @param {Array.<number>} coords
- *  coordinate of the feature: [longitude, latitude, z]
- *  @expose
- *
- *  @function
- *  @name here.xyz.maps.editor.features.Place#coord
- */
+(<any>Place).prototype.class = 'PLACE';
 
 export {Place};

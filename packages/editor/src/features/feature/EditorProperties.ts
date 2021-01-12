@@ -18,81 +18,59 @@
  */
 
 /**
- *  @expose
- *  @public
- *  @interface
- *  @class here.xyz.maps.editor.features.Feature.Properties.EditorProperties
+ * The Editor Properties give a more detailed insight into the current state of the feature.
  */
-class EditorProperties {
-    created: boolean;
-    modified: boolean;
-    removed: boolean;
-    split: boolean;
-
+interface EditorProperties {
+    /**
+     *  Creation timestamp of the feature, in milliseconds.
+     */
+    created: number | boolean;
+    /**
+     *  Timestamp when the feature has been modified/updated, otherwise false.
+     */
+    modified: number | boolean;
+    /**
+     *  Timestamp when the feature has been removed, otherwise false.
+     */
+    removed: number | boolean;
+    /**
+     *  Timestamp when the feature has been split, otherwise false.
+     *  The property is on relevant for "Navlink" features.
+     */
+    split: number | boolean;
+    /**
+     *  True if this feature is currently selected, otherwise false.
+     */
     selected: boolean;
+    /**
+     *  True if this feature is currently hovered, otherwise false.
+     */
     hovered: boolean;
 };
 
-const EditorNsPrototype = EditorProperties.prototype;
+class DefaultEditorProperties implements EditorProperties {
+    created;
+    modified;
+    removed;
+    split;
+    selected;
+    hovered;
+};
 
-/**
- *  Creation timestamp of object, in Millis.
- *
- *  @public
- *  @expose
- *  @name here.xyz.maps.editor.features.Feature.Properties.EditorProperties#created
- *  @type {number}
- */
+// debugger dude;
+
+const EditorNsPrototype = DefaultEditorProperties.prototype;
+
 EditorNsPrototype.created = false;
 
-/**
- *  True if this object is modified.
- *
- *  @public
- *  @expose
- *  @name here.xyz.maps.editor.features.Feature.Properties.EditorProperties#modified
- *  @type {boolean}
- */
 EditorNsPrototype.modified = false;
 
-/**
- *  Removed timestamp of object, in Millis.
- *
- *  @public
- *  @expose
- *  @name here.xyz.maps.editor.features.Feature.Properties.EditorProperties#removed
- *  @type {number}
- */
 EditorNsPrototype.removed = false;
 
-/**
- *  Split timestamp of object, in Millis.
- *
- *  @public
- *  @expose
- *  @name here.xyz.maps.editor.features.Feature.Properties.EditorProperties#split
- *  @type {number}
- */
 EditorNsPrototype.split = false;
 
-/**
- *  True if this object is selected.
- *
- *  @public
- *  @expose
- *  @name here.xyz.maps.editor.features.Feature.Properties.EditorProperties#selected
- *  @type {number}
- */
 EditorNsPrototype.selected = false;
 
-/**
- *  True if this object is hovered.
- *
- *  @public
- *  @expose
- *  @name here.xyz.maps.editor.features.Feature.Properties.EditorProperties#hovered
- *  @type {number}
- */
 EditorNsPrototype.hovered = false;
 
-export default EditorProperties;
+export {EditorProperties, DefaultEditorProperties};
