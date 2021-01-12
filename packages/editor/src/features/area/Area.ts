@@ -19,6 +19,7 @@
 
 import oTools from './PolygonTools';
 import {Feature} from '../feature/Feature';
+import {GeoPoint, PixelPoint} from '@here/xyz-maps-core';
 
 const MIN_HOLE_SIZE = 8;
 
@@ -47,44 +48,25 @@ const copyPolygon = (poly) => {
 };
 
 /**
- *  @class
- *  @public
- *  @expose
- *
- *  @extends here.xyz.maps.editor.features.Feature
- *  @name here.xyz.maps.editor.features.Area
- *
- *  @constructor
- *  @param {(String|Number)=} id of the Area
- *  @param {Array.<here.xyz.maps.editor.GeoCoordinate>|Array.<here.xyz.maps.editor.PixelCoordinate>} coordinates
- *      Coordinates of the feature
- *  @param {here.xyz.maps.editor.features.Feature.Properties=} properties
- *      Properties of the area feature.
+ * The Area Feature is a generic editable Feature with "Polygon" or "MultiPolygon" geometry.
  */
 class Area extends Feature {
-    class: 'AREA';
+    /**
+     *  The feature class of an Area Feature is "AREA".
+     */
+    readonly class: 'AREA';
 
     /**
-     *  Get coordinates of the feature.
-     *
-     *  @public
-     *  @expose
-     *  @return {Array.<Array>}
-     *      coordinates of the feature:[ [ [ [longitude, latitude, z], [longitude, latitude, z], , , , ] ] ].
-     *  @function
-     *  @name here.xyz.maps.editor.features.Area#coord
-     *
-     * @also
-     *  Set coordinates of the feature.
-     *
-     *  @public
-     *  @param {Array.<Array>} coords
-     *      coordinates of the feature:[ [ [ [longitude, latitude, z], [longitude, latitude, z], , , , ] ] ].
-     *  @expose
-     *
-     *  @function
-     *  @name here.xyz.maps.editor.features.Area#coord
+     *  Get the coordinate(s) of the Area feature.
      */
+    coord(): GeoPoint[][][] | GeoPoint[][][][];
+    /**
+     *  Set the coordinate(s) of the Area feature.
+     *
+     *  @param coordinates - the coordinates that should be set.
+     */
+    coord(coordinates: GeoPoint[][][] | GeoPoint[][][][]);
+
     coord(coords?) {
         const feature = this;
         const geoType = feature.geometry.type;
@@ -111,45 +93,36 @@ class Area extends Feature {
         return coordinates;
     };
 
+
     /**
-     *    Add a new shape point to the area.
+     * Add a new shape point / coordinate to the area.
      *
-     *    @public
-     *    @expose
-     *    @param {here.xyz.maps.editor.PixelCoordinate} point
-     *        the coordinate of the new shape.
-     *    @param {Number=} polygon index
-     *        the index of the polygon to add the shape.
-     *    @param {Number=} index
-     *        the index of the polygon shapes to insert.
-     *    @return {boolean|number}
-     *        shape index of polygon or false if could not be added
-     *    @function
-     *    @name here.xyz.maps.editor.features.Area#addShape
+     * @param point - the coordinate of the new shape to add
+     * @param polygonIndex - the index of the polygon where the new shape/coordinate should be inserted.
+     * @param index - the index position in the coordinate array of the polygon where the new shape point should be inserted.
+     *
+     * @return index of the shape or false if shape could not be added
      */
-    addShape(mPos, polyIdx, index) {
+    addShape(point: GeoPoint | PixelPoint, polygonIndex?: number, index?: number) {
         let added: number | boolean = false;
+        const coordinate = this._e().map.getGeoCoord(point);
 
-        mPos = this._e().map.getGeoCoord(mPos);
-
-        if (!mPos) {
-            throwError('missing coordinate');
+        if (!point) {
+            throwError('Invalid coordinate');
         } else {
             if (arguments.length == 1) {
-                polyIdx = oTools.getPoly(this, mPos);
+                polygonIndex = oTools.getPoly(this, coordinate);
             }
 
-            if ((added = oTools.addShp(this, mPos, polyIdx ^ 0, 0, index)) !== false) {
+            if ((added = oTools.addShp(this, coordinate, polygonIndex ^ 0, 0, index)) !== false) {
                 oTools.markAsModified(this);
             }
         }
-
-
         return added;
     };
 
 
-    addHole(position: { x: number, y: number, z?:number } | { longitude: number, latitude: number, z?: number } | [number, number, number?]): boolean {
+    addHole(position: { x: number, y: number, z?: number } | { longitude: number, latitude: number, z?: number } | [number, number, number?]): boolean {
         if (position) {
             position = this._e().map.getPixelCoord(position);
 
@@ -199,93 +172,6 @@ class Area extends Feature {
     };
 }
 
-const AREA_PROTOTYPE = Area.prototype;
+(<any>Area).prototype.class = 'AREA';
 
-/**
- *  Get deep copy of all properties of the feature
- *
- *  @public
- *  @expose
- *  @return {here.xyz.maps.editor.features.Area.Properties}
- *      return properties of the object
- *  @function
- *  @name here.xyz.maps.editor.features.Area#prop
- *
- *
- *  @also
- *
- *  Get the value of an specific property
- *
- *  @public
- *  @expose
- *  @param {string} property
- *      property name
- *  @return {number|string|Array.<string>|object}
- *      value of the specific property
- *  @function
- *  @name here.xyz.maps.editor.features.Area#prop
- *
- *  @also
- *
- *  Set the value for an specific property
- *
- *  @public
- *  @expose
- *  @param {string} property
- *      property name
- *  @param {number|string|Array.<string>|object} value
- *      value of the specific property
- *  @function
- *  @name here.xyz.maps.editor.features.Area#prop
- *
- *
- *  @also
- *
- *  Set one or more properties of the object.
- *
- *  @public
- *  @expose
- *  @param {here.xyz.maps.editor.features.Area.Properties} properties
- *      properties of the feature
- *  @function
- *  @name here.xyz.maps.editor.features.Area#prop
- *
- */
-
-
-/**
- *  Get default or current style of the feature.
- *
- *  @public
- *  @expose
- *  @param {string=} [style="default"]
- *      a string indicating which style to return, either "default" or "current".
- *  @return {Array<here.xyz.maps.layers.TileLayer.Style>} styles
- *      style of this feature
- *  @function
- *  @name here.xyz.maps.editor.features.Area#style
- *
- *  @also
- *  Apply style to the feature.
- *
- *  @public
- *  @expose
- *  @param {Array<here.xyz.maps.layers.TileLayer.Style>} style
- *      the style to set for the feature
- *  @function
- *  @name here.xyz.maps.editor.features.Area#style
- */
-
-/**
- *  Feature class of this feature, the value is "AREA".
- *
- *  @public
- *  @expose
- *  @readonly
- *  @name here.xyz.maps.editor.features.Area#class
- *  @type string
- */
-AREA_PROTOTYPE.class = 'AREA';
-
-
-export default Area;
+export {Area};

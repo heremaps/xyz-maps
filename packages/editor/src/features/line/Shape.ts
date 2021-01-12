@@ -18,7 +18,7 @@
  */
 
 import {features} from '@here/xyz-maps-core';
-import Line from './Line';
+import {Line} from './Line';
 // const Feature = features.Feature;
 
 let lineTools;

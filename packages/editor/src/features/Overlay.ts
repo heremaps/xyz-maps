@@ -17,7 +17,7 @@
  * License-Filename: LICENSE
  */
 
-import FeatureEditStates from './feature/EditorProperties';
+import {DefaultEditorProperties} from './feature/EditorProperties';
 import FeatureContainer from './Container';
 import {geotools} from '@here/xyz-maps-common';
 import {layers, providers} from '@here/xyz-maps-core';
@@ -130,7 +130,7 @@ class Overlay {
         feature = this.layer.addFeature(feature, prepareStyle(style));
 
         feature.properties['@ns:com:here:editor'] =
-            feature.properties['@ns:com:here:editor'] || new FeatureEditStates();
+            feature.properties['@ns:com:here:editor'] || new DefaultEditorProperties();
 
         return feature;
     };

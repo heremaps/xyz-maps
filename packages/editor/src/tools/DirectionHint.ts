@@ -21,7 +21,7 @@ import {getPntAt} from '../geometry';
 import {geotools} from '@here/xyz-maps-common';
 import Overlay from '../features/Overlay';
 import {Navlink} from '../features/link/NavLink';
-import Line from '../features/line/Line';
+import {Line} from '../features/line/Line';
 import {Feature} from '../features/feature/Feature';
 
 const NAVLINK_DIRECTION_HINT = 'NAVLINK_DIRECTION_HINT_';

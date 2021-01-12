@@ -5,7 +5,7 @@
  * you may not use this file except in compliance with the License.
  * You may obtain a copy of the License at
  *
- *     http://www.apache.org/licenses/LICENSE-2.0
+ *    http://www.apache.org/licenses/LICENSE-2.0
  *
  * Unless required by applicable law or agreed to in writing, software
  * distributed under the License is distributed on an "AS IS" BASIS,
@@ -24,6 +24,7 @@ import DirectionHint from '../../tools/DirectionHint';
 import oTools from './NavLinkTools';
 import {Feature} from '../feature/Feature';
 import {JSUtils} from '@here/xyz-maps-common';
+import {GeoPoint, PixelPoint, Style} from '@here/xyz-maps-core';
 
 let UNDEF;
 
@@ -35,62 +36,67 @@ const throwError = (msg) => {
 
 
 /**
- *  @class
- *  @expose
- *  @public
- *
- *  @extends here.xyz.maps.editor.features.Feature
- *  @name here.xyz.maps.editor.features.Navlink
- *
- *  @constructor
- *  @param {(String|Number)=} id of the navlink
- *  @param {Array.<here.xyz.maps.editor.GeoCoordinate>|Array.<here.xyz.maps.editor.PixelCoordinate>} coordinates
- *      Coordinates of the navlink.
- *  @param {here.xyz.maps.editor.features.Feature.Properties=} properties
- *      Properties of the navlink.
+ * The Navlink Feature is a generic editable Feature with "LineString" geometry.
+ * In addition to the Line Feature, the Navlink feature can be linked/associated with other Navlink Features.
+ * A Navlink Feature also can be referenced by Addresses and Places.
+ * A Navlink is part of a "road nertwork".
  */
 export class Navlink extends Feature {
-    id: string | number;
-
     /**
-     *  Feature class of this feature, the value is "NAVLINK".
-     *
-     *  @public
-     *  @expose
-     *  @readonly
-     *  @name here.xyz.maps.editor.features.Navlink#class
-     *  @type string
+     * The feature class of an Navlink Feature is "NAVLINK".
      */
-    class= 'NAVLINK';
+    readonly class: 'NAVLINK';
 
     // constructor(feature) {
     //     BasicFeature.apply(this, arguments);
     // }
 
     /**
-     *  Checks for possible crossings with other links.
-     *
-     *  @public
-     *  @expose
-     *  @function
-     *  @param {Object=} option
-     *  @param {String=} option.class Class of crossing (CROSSING|CROSSING_CANDIDATE) to check for
-     *  @param {Object=} option.styles display style of crossings. 6 configurable styling objects('connector1', 'connector2', 'connector3', 'search1', 'search2', 'found') comprise a crossing
-     *
-     *  @return {Array<here.xyz.maps.editor.features.Crossing>}
-     *      array of found crossings
-     *  @name here.xyz.maps.editor.features.Navlink#checkCrossings
-     *
-     *  @example
-     *      crossing.checkCrossings({
-     *          type: "CROSSING",
-     *          styles: {
-     *              'connector1': {fill: 'black'},
-     *              'connector2': {stroke: '#FBF'}
-     *          }
-     *      })
+     * Get the coordinate(s) of the Navlink feature.
      */
-    checkCrossings(option) {
+    coord(): GeoPoint[][];
+    /**
+     * Set the coordinate(s) of the Navlink feature.
+     *
+     * @param coordinates - the coordinates that should be set.
+     */
+    coord(coordinates: GeoPoint[][]);
+
+    coord(coordinates?: GeoPoint[][]) {
+        return super.coord(coordinates);
+    }
+
+    /**
+     * Checks for possible crossing geometry with other Navlink features.
+     *
+     * @param option - options to configure the crossing check.
+     * @param option.class - Class of crossing (CROSSING|CROSSING_CANDIDATE) to check for
+     * @param option.styles - Style of the crossings they should be displayed with. 6 configurable styling objects('connector1', 'connector2', 'connector3', 'search1', 'search2', 'found') comprise a crossing.
+     *
+     * @return array of found crossings
+     *
+     * @example
+     * ```
+     * crossing.checkCrossings({
+     *    type: "CROSSING",
+     *        styles: {
+     *            connector1: {fill: 'black'},
+     *            connector2: {stroke: '#FBF'}
+     *        }
+     * })
+     * ```
+     */
+    checkCrossings(option: {
+        class?: 'CROSSING' | 'CROSSING_CANDIDATE',
+        styles?: {
+            connector1?: Style
+            connector2?: Style,
+            connector3?: Style,
+            search1?: Style,
+            search2?: Style,
+            found?: Style
+        }
+    }) {
         const obj = this;
         const prv = oTools.private(obj);
         const xTester = prv.xt || new CrossingTester(obj._e(), obj);
@@ -102,19 +108,13 @@ export class Navlink extends Feature {
 
 
     /**
-     *  Show or hide the direction hint on this navlink.
-     *  If no direction argument is passed the hint will be hidden.
+     * Show or hide the direction hint on the Navlink feature.
+     * If the function is called without arguments, the hint will be hidden.
      *
-     *  @public
-     *  @expose
-     *  @param {String=} dir
-     *      direction of the link, possible value: "BOTH"|"START_TO_END"|"END_TO_START"
-     *  @param {Boolean=} hideShapes
-     *      indicates if the shapes are hidden
-     *  @function
-     *  @name here.xyz.maps.editor.features.Navlink#showDirectionHint
+     * @param dir - direction of the Navlink, possible value: "BOTH"|"START_TO_END"|"END_TO_START"
+     * @param hideShapes - indicates if the Start and End shapepoints of the Navlink should be displayed or not
      */
-    showDirectionHint(dir?: string, hideShapes?: boolean) {
+    showDirectionHint(dir?: 'BOTH' | 'START_TO_END' | 'END_TO_START', hideShapes?: boolean) {
         // support/fallback for deprecated dir
         dir = {
             'B': 'BOTH',
@@ -136,71 +136,60 @@ export class Navlink extends Feature {
     };
 
     /**
-     *  Sets geofence radius, it takes an integer as parameter.
+     * Sets the radius of the geofence.
      *
-     *  @public
-     *  @expose
-     *  @param {number} radius
-     *      The geofence radius.
+     * @deprecated
+     * @param radius - The geofence radius in pixel.
      *
-     *  @function
-     *  @name here.xyz.maps.editor.features.Navlink#setGeoFence
      */
-    setGeoFence = (r) => {
-        if (isNaN(r) || r < 0) {
+    setGeoFence = (radius: number) => {
+        if (isNaN(radius) || radius < 0) {
             throwError('Geofence radius should be a positive Number');
         }
-
-        this._e()._config['geoFence'] = +r;
+        this._e()._config['geoFence'] = +radius;
     };
 
     /**
-     *  Add a new shape point to the link.
+     * Add a new shape-point / coordinate to the Navlink.
      *
-     *  @public
-     *  @expose
-     *  @param {here.xyz.maps.editor.PixelCoordinate} p
-     *      the object containing a coordinate.
-     *  @param {Number=} index
-     *      the position where new shape point should be inserted.
-     *  @return {boolean|number} isAdded
-     *      index of shape or false if could not be added
-     *  @function
-     *  @name here.xyz.maps.editor.features.Navlink#addShape
+     * @param point - the coordinate of the new shape to add.
+     * @param index - the index position in the coordinate array of the LineString where the new shape point should be inserted.
+     *
+     * @return index of the shape or false if shape could not be added
      */
-    addShape(mPos, index?: number) {
+    addShape(point: GeoPoint | PixelPoint, index?: number) {
         let added = false;
         const link = this;
+        const coordinate = this._e().map.getGeoCoord(point);
 
-        mPos = this._e().map.getGeoCoord(mPos);
-
-        if (!mPos) {
-            throwError('missing pixel coordinate');
-        } else if ((added = oTools.addShp(link, mPos, index, UNDEF, true)) !== false) {
+        if (!coordinate) {
+            throwError('Invalid coordinate');
+        } else if ((added = oTools.addShp(link, coordinate, index, UNDEF, true)) !== false) {
             oTools.markAsModified(link);
         }
-
-
         return added;
     };
 
-    getConnectedLinks(index: number, details?: false): Navlink[];
-    getConnectedLinks(index: number, details: true): { link: Navlink, index: number }[];
     /**
-     *  Get connected links of node.
+     * Get connected Navlink Features for the node.
+     * A node is either the Start or End coordinate of the Navlink (LineString) geometry.
      *
-     *  @public
-     *  @expose
-     *  @param {number} index
-     *      coordinate index of shape/node
-     *  @param {boolean=} details
-     *      flag to enable detailed connected link information.
-     *  @return {Array.<here.xyz.maps.editor.features.Navlink>|Array.<{link: here.xyz.maps.editor.features.Navlink, index: number}>}
-     *      Array of connected navlink features or Array of detailed connected link information including the shape/node index of connected link.
+     * @param index - coordinate index for shape/node. 0 -> "start node", or index of last coordinate for the "end node".
      *
-     *  @function
-     *  @name here.xyz.maps.editor.features.Navlink#getConnectedLinks
+     * @return Array that's containing the connected Navlink Features.
      */
+    getConnectedLinks(index: number): Navlink[];
+    /**
+     * Get connected Navlink Features for the node.
+     * A node is either the Start or End coordinate of the Navlink (LineString) geometry.
+     *
+     * @param index - coordinate index for shape/node. 0 -> "start node", or index of last coordinate for the "end node".
+     * @param details - flag to enable detailed information of the connected Navlinks.
+     *
+     * @return Array of detailed connected Navlink information including the shape/node index of connected link.
+     */
+    getConnectedLinks(index: number, details: true): { link: Navlink, index: number }[];
+
     getConnectedLinks(index: number, details: boolean = false) {
         const line = this;
         const EDITOR = line._e();
@@ -211,7 +200,7 @@ export class Navlink extends Feature {
         let lastIndex;
         const isNode = index == 0 || index == path.length - 1;
 
-        if (isNode /*  &&!line.editState('removed')*/) {
+        if (isNode /* &&!line.editState('removed')*/) {
             for (let feature of EDITOR.objects.getInBBox(line.bbox, line.getProvider())) {
                 if (feature.id != line.id && feature.class == 'NAVLINK') {
                     elPath = feature.coord();
@@ -233,67 +222,47 @@ export class Navlink extends Feature {
             }
         }
         return cLinks;
-
-
-        // const connections = oTools.getCLinksForShape(this, index);
-        // if (details) {
-        //     return connections.map((clink) => {
-        //         return {link: clink.link, index: clink.shp};
-        //     });
-        // } else {
-        //     return connections.map((clink) => clink.link);
-        // }
     };
 
     /**
-     *  Get the z-levels of the coordinates of this object.
+     * Get the z-levels for the coordinates of the Navlink feature.
      *
-     *  @public
-     *  @expose
-     *  @param {number=} shapeIndex
-     *      shapeindex for specific shape only
-     *  @return {Array.<number>|number}
-     *      The Array of z-levels for the coordinates of this object
-     *      or specific z-level if shape index is passed.
+     * @param index - the index of the shape to get z-level for the specific shape only
      *
-     *  @function
-     *  @name here.xyz.maps.editor.features.Navlink#getZLevels
+     * @return The Array of z-levels for the coordinates of the Navlink or the specific z-level at shape index.
+     *
      */
-    // getZLevels(): number[];
-    getZLevels(index?: number): number[]|number {
+    getZLevels(index?: number): number[] | number {
         let zLevels = this.getProvider().readZLevels(this);
         return typeof index == 'number' ? zLevels[index] : zLevels.slice(0);
     };
 
 
     /**
-     *  Set the z-levels of the coordinates of this object. For each coordinate the levels array must contain one
-     *  integer between -4 and +5.
+     * Set the z-levels for the coordinates of the Navlink Feature.
+     * For each coordinate of the Navlink, the respective z-level must be provided.
      *
-     *  @public
-     *  @expose
-     *  @param {Array.<number>} levels
-     *      The z-levels to be set for the coordinates of this object.
+     * @param zLevels - The z-levels to be set for the coordinates of the Navlink.
      *
-     *  @example
-     *  var zlevels = navlink.getZLevels();
-     *  zlevels[1] = -4;
-     *  navlink.setZLevels(zlevels);
-     *
-     *  @function
-     *  @name here.xyz.maps.editor.features.Navlink#setZLevels
+     * @example
+     * ```
+     * // modify the zLevel of the second coordinate.
+     * let zlevels = navlink.getZLevels();
+     * zlevels[1] = -4;
+     * navlink.setZLevels(zlevels);
+     * ```
      */
-    setZLevels(level) {
+    setZLevels(zLevels: number[]) {
         const link = this;
-        const zLevels = link.getZLevels();
+        const _zLevels = link.getZLevels();
         const history = link._e().objects.history;
         const len = link.geometry.coordinates.length;
 
-        if (!(level instanceof Array)) {
+        if (!(zLevels instanceof Array)) {
             throwError('Invalid \'zlevel\' argument given, no array');
         }
 
-        if (level.length !== len) {
+        if (zLevels.length !== len) {
             throwError('Given \'zlevel\' argument is of an invalid size, a length of ' + len + ' is required!');
         }
 
@@ -301,17 +270,17 @@ export class Navlink extends Feature {
         // const coords = this.geometry.coordinates;
         let updated = false;
 
-        for (let l = 0, z; l < level.length; l++) {
-            z = level[l] ^ 0;
-            if (z != zLevels[l]) {
-                level[l] = z;
+        for (let l = 0, z; l < zLevels.length; l++) {
+            z = zLevels[l] ^ 0;
+            if (z != _zLevels[l]) {
+                zLevels[l] = z;
                 updated = true;
             }
         }
 
         if (updated) {
             history.ignore(() => {
-                link.getProvider().writeZLevels(link, level);
+                link.getProvider().writeZLevels(link, zLevels);
             });
             // update zlevel visuals
             oTools.refreshGeometry(this);
@@ -320,25 +289,19 @@ export class Navlink extends Feature {
     };
 
     /**
-     *  Show turn restrictions of shape points on selected link.
+     * Show the "turn restrictions" for the nodes/shape-points of the Navlink feature.
+     * If no index is provided, the turn restrictions for the start and end node will be displayed.
      *
-     *  @public
-     *  @expose
+     * @param {number=} index - the index of the node to display turn restrictions for.
      *
-     *  @function
-     *  @param {number=} shapeIndex
-     *      shapeindex of node to display turn restrictions.
-     *      if no index is defined turn restrictions for start and end node will be displayed.
-     *  @name here.xyz.maps.editor.features.Navlink#editTurnRestrictions
-     *  @return {Array<here.xyz.maps.editor.features.TurnRestriction>}
-     *      Array of turn restrictions for start and end shape points (nodes) respectively.
+     * @return Array containing the TurnRestriction for start and end shape points (nodes) respectively.
      */
-    editTurnRestrictions(idx) {
+    editTurnRestrictions(index?: number): TurnRestriction[] {
         const link = this;
         const p = link.coord();
-        const idxs = (idx == 0 || idx == p.length - 1)
-            ? [idx]
-            : idx === UNDEF
+        const idxs = (index == 0 || index == p.length - 1)
+            ? [index]
+            : index === UNDEF
                 ? [0, p.length - 1]
                 : [];
         const publicTR = [];
@@ -413,123 +376,6 @@ export class Navlink extends Feature {
             oTools.markAsModified(feature);
         }
     };
-
-    /**
-     *  Properties of link feature.
-     *
-     *  @public
-     *  @expose
-     *  @type {here.xyz.maps.editor.features.Navlink.Properties}
-     *  @name here.xyz.maps.editor.features.Navlink#properties
-     */
-
-    /**
-     *  Get deep copy of all properties of the feature
-     *
-     *  @public
-     *  @expose
-     *  @return {here.xyz.maps.editor.features.Navlink.Properties}
-     *      return properties of the object
-     *  @function
-     *  @name here.xyz.maps.editor.features.Navlink#prop
-     *
-     *
-     * @also
-     *
-     *  Get the value of an specific property
-     *
-     *  @public
-     *  @expose
-     *  @param {string} property
-     *      property name
-     *  @return {number|string|Array.<string>|object}
-     *      value of the specific property
-     *  @function
-     *  @name here.xyz.maps.editor.features.Navlink#prop
-     *
-     * @also
-     *
-     *  Set the value for an specific property
-     *
-     *  @public
-     *  @expose
-     *  @param {string} property
-     *      property name
-     *  @param {number|string|Array.<string>|object} value
-     *      value of the specific property
-     *  @function
-     *  @name here.xyz.maps.editor.features.Navlink#prop
-     *
-     *
-     * @also
-     *
-     *  Set one or more properties of the object.
-     *
-     *  @public
-     *  @expose
-     *  @param {here.xyz.maps.editor.features.Navlink.Properties} properties
-     *      properties of the feature
-     *  @function
-     *  @name here.xyz.maps.editor.features.Navlink#prop
-     *
-     */
-
-    /**
-     *  Get default or current style of the feature.
-     *
-     *  @public
-     *  @expose
-     *  @param {string=} [style="default"]
-     *      a string indicating which style to return, either "default" or "current".
-     *  @return {Array<here.xyz.maps.layers.TileLayer.Style>} styles
-     *      style of this feature
-     *  @function
-     *  @name here.xyz.maps.editor.features.Navlink#style
-     *
-     * @also
-     *  Apply style to the feature.
-     *
-     *  @public
-     *  @expose
-     *  @param {Array<here.xyz.maps.layers.TileLayer.Style>} style
-     *      the style to set for the feature
-     *  @function
-     *  @name here.xyz.maps.editor.features.Navlink#style
-     */
-
-    /**
-     *  Get coordinates of the feature.
-     *
-     *  @public
-     *  @expose
-     *  @return {Array.<Array>}
-     *      coordinates of the feature:[ [longitude, latitude, z], [longitude, latitude, z], , , , ].
-     *  @function
-     *  @name here.xyz.maps.editor.features.Navlink#coord
-     *
-     * @also
-     *  Set coordinates of the feature.
-     *
-     *  @public
-     *  @param {Array.<Array>} coords
-     *      coordinates of the feature:[ [longitude, latitude, z], [longitude, latitude, z], , , , ].
-     *  @expose
-     *
-     *  @function
-     *  @name here.xyz.maps.editor.features.Navlink#coord
-     */
 }
 
-/**
- *  Feature class of this feature, the value is "NAVLINK".
- *
- *  @public
- *  @expose
- *  @readonly
- *  @name here.xyz.maps.editor.features.Navlink#class
- *  @type string
- */
-Navlink.prototype.class = 'NAVLINK';
-
-
-// export default Navlink;
+(<any>Navlink).prototype.class = 'NAVLINK';

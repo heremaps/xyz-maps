@@ -18,27 +18,16 @@
  */
 
 import {Feature} from '../feature/Feature';
-import {Coordinate} from '@here/xyz-maps-core/src/features/GeoJSON';
 
 /**
- *  @class
- *  @expose
- *  @public
- *  @extends here.xyz.maps.editor.features.Feature
- *  @name here.xyz.maps.editor.features.Marker
- *
- *  @constructor
- *  @param {(String|Number)=} id of the Marker
- *  @param {here.xyz.maps.editor.GeoCoordinate|here.xyz.maps.editor.PixelCoordinate} coord
- *      Coordinate of the object
- *  @param {here.xyz.maps.editor.features.Feature.Properties=} properties
- *      Properties of the marker feature.
+ * The Marker Feature is a generic editable Feature with "Point" geometry.
  */
 export class Marker extends Feature {
     /**
-     *  The feature class of a Marker is "MARKER".
+     *  The feature class of a Marker Feature is "MARKER".
      */
     readonly class: 'MARKER';
+
 
     // /**
     //  *  Get the current position/coordinate of the feature.

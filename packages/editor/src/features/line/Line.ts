@@ -19,47 +19,36 @@
 
 import {Feature} from '../feature/Feature';
 import tools from './LineTools';
+import {GeoPoint, PixelPoint} from '@here/xyz-maps-core';
 
 const throwError = (msg) => {
     throw new Error(msg);
 };
 
 /**
- *  @class
- *  @expose
- *  @public
- *  @extends here.xyz.maps.editor.features.Feature
- *  @name here.xyz.maps.editor.features.Line
- *
- *  @constructor
- *  @param {(String|Number)=} id of the line
- *  @param {Array.<here.xyz.maps.editor.GeoCoordinate>|Array.<here.xyz.maps.editor.PixelCoordinate>} coordinates
- *      Coordinates of the line.
- *  @param {here.xyz.maps.editor.features.Feature.Properties=} properties
- *      Properties of the line.
+ * The Line Feature is a generic editable Feature with "LineString" geometry.
  */
 class Line extends Feature {
     /**
-     *  Add a new shape point to the link.
-     *
-     *  @public
-     *  @expose
-     *  @param {here.xyz.maps.editor.PixelCoordinate|here.xyz.maps.editor.GeoCoordinate} coordinate
-     *      the coordinate to add
-     *  @param {Number=} index
-     *      the position where new shape point should be inserted.
-     *  @return {boolean|number} isAdded
-     *      index of shape or false if could not be added
-     *  @function
-     *  @name here.xyz.maps.editor.features.Line#addShape
+     *  The feature class of a Line Feature is "LINE".
      */
-    addShape(coordinate, index) {
+    readonly class: 'LINE';
+
+    /**
+     * Add a new shape point / coordinate to the line.
+     *
+     * @param point - the coordinate to add
+     * @param index - the index position in the coordinate array where the new shape point should be inserted.
+     *
+     * @return index of the shape or false if shape could not be added
+     */
+    addShape(point: PixelPoint | GeoPoint, index?: number): boolean | number {
         const line = this;
-        coordinate = line._e().map.getGeoCoord(coordinate);
+        const coordinate = line._e().map.getGeoCoord(point);
 
         if (!coordinate) {
-            throwError('missing pixel coordinate');
-            index = false;
+            throwError('Invalid coordinate');
+            return false;
         } else if (index = tools.addCoord(line, coordinate, index)) {
             tools.markAsModified(line);
         }
@@ -67,15 +56,6 @@ class Line extends Feature {
     }
 }
 
-/**
- *  Feature class of a Line feature is "LINE".
- *
- *  @public
- *  @expose
- *  @readonly
- *  @name here.xyz.maps.editor.features.Line#class
- *  @type string
- */
-Line.prototype.class = 'LINE';
+(<any>Line).prototype.class = 'LINE';
 
-export default Line;
+export {Line};
