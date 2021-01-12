@@ -29,6 +29,16 @@ export * from './tile/Tile';
 export * from './service/GeoCoder';
 export {tileUtils} from './tile/TileUtils';
 
+export {ImageProvider} from './providers/ImageProvider';
+export {GeoJSONProvider} from './providers/GeoJSONProvider';
+export {FeatureProvider} from './providers/FeatureProvider';
+export {LocalProvider} from './providers/LocalProvider';
+export {RemoteTileProvider} from './providers/RemoteTileProvider/RemoteTileProvider';
+export {EditableRemoteTileProvider} from './providers/RemoteTileProvider/EditableRemoteTileProvider';
+export {SpaceProvider} from './providers/GeoSpace/SpaceProvider';
+export {MVTProvider} from './providers/MVTProvider/MVTProvider';
+export {EditableFeatureProvider} from './providers/EditableFeatureProvider';
+
 // support for legacy deprecated namespace based API.
 
 import {GeoPoint} from './geo/GeoPoint';
@@ -42,9 +52,30 @@ import {Feature} from './features/Feature';
 import {Tile} from './tile/Tile';
 import {tileUtils} from './tile/TileUtils';
 
+
+import {ImageProvider} from './providers/ImageProvider';
+import {GeoJSONProvider} from './providers/GeoJSONProvider';
+import {FeatureProvider} from './providers/FeatureProvider';
+import {LocalProvider} from './providers/LocalProvider';
+import {RemoteTileProvider} from './providers/RemoteTileProvider/RemoteTileProvider';
+import {EditableRemoteTileProvider} from './providers/RemoteTileProvider/EditableRemoteTileProvider';
+import {SpaceProvider} from './providers/GeoSpace/SpaceProvider';
+import {MVTProvider} from './providers/MVTProvider/MVTProvider';
+import {EditableFeatureProvider} from './providers/EditableFeatureProvider';
+
+const providers = {
+    ImageProvider,
+    GeoJSONProvider,
+    FeatureProvider,
+    LocalProvider,
+    RemoteTileProvider,
+    EditableRemoteTileProvider,
+    SpaceProvider,
+    MVTProvider,
+    EditableFeatureProvider
+};
+
 // TODO: remove namespaces
-// import * as tile from './tile/ns';
-import * as providers from './providers/providers';
 import * as GeoJSON from './data/prepare/GeoJSON';
 
 

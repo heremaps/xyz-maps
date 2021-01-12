@@ -18,7 +18,7 @@
  */
 
 import {JSUtils, global} from '@here/xyz-maps-common';
-import Event from '../../API/Event';
+import {EditorEvent} from '../../API/EditorEvent';
 import DrawingShape from './DrawingShape';
 import LineString from './LineString';
 import Polygon from './Polygon';
@@ -271,7 +271,7 @@ class ClickDraw {
         shapes.push(shp);
 
         if (settings['onShapeAdd']) {
-            settings['onShapeAdd'](new Event('onShapeAdd', pos[0], pos[1], ev, ev && ev.button, shp, {
+            settings['onShapeAdd'](new EditorEvent('onShapeAdd', pos[0], pos[1], ev, ev && ev.button, shp, {
                 index: shp.properties.index
             }));
         }
@@ -300,7 +300,7 @@ class ClickDraw {
         feature.update();
 
         if (settings['onShapeRemove']) {
-            settings['onShapeRemove'](new Event('onShapeRemove', pos[0], pos[1], UNDEF, UNDEF, UNDEF, {
+            settings['onShapeRemove'](new EditorEvent('onShapeRemove', pos[0], pos[1], UNDEF, UNDEF, UNDEF, {
                 index: index
             }));
         }

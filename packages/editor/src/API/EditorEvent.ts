@@ -17,7 +17,7 @@
  * License-Filename: LICENSE
  */
 
-import {layers} from '@here/xyz-maps-core';
+import {TileLayer} from '@here/xyz-maps-core';
 
 const NULL = null;
 
@@ -29,7 +29,7 @@ const NULL = null;
  *  @public
  *  @name mapedit.API.Event
  */
-class EditorEvent {
+export class EditorEvent {
     type: string;
 
     timeStamp: DOMTimeStamp;
@@ -44,7 +44,7 @@ class EditorEvent {
     target: any;
 
     detail: {
-        layer?: layers.TileLayer;
+        layer?: TileLayer;
     };
 
     constructor(type: string, mapX, mapY, nativeEvent, button, target, detail) {
@@ -157,7 +157,3 @@ EvProto.toString = function() {
     return 'EditorEvent ' + this.type;
 };
 
-/** @expose */
-// EvProto.pointerID    =       NULL;
-
-export default EditorEvent;

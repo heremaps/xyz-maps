@@ -17,7 +17,7 @@
  * License-Filename: LICENSE
  */
 
-import EditorEvent from '../API/Event';
+import {EditorEvent} from '../API/EditorEvent';
 import {Listener} from '@here/xyz-maps-common';
 
 function isInternalEvent(type) {

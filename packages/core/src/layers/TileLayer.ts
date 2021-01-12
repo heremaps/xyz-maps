@@ -200,7 +200,7 @@ export class TileLayer {
      * Valid events: "featureAdd", "featureRemove", "featureCoordinatesChange", "clear", "styleGroupChange", "styleChange", and "viewportReady"
      *
      * @param type - A string representing the event type to listen for
-     * @param eventListener - the listener function that will be called when an event of the specific type occurs
+     * @param listener - the listener function that will be called when an event of the specific type occurs
      */
     addEventListener(type: string, listener: (event: any) => void);
 
@@ -219,7 +219,7 @@ export class TileLayer {
      * Valid events: "featureAdd", "featureRemove", "featureCoordinatesChange", "clear", "styleGroupChange", "styleChange", and "viewportReady"
      *
      * @param {String} type - A string which specifies the type of event for which to remove an event listener.
-     * @param {Function} listener - The EventListener function of the event handler to remove from the event target.
+     * @param {Function} listener - The EventListener function of the event handler to remove from the TileLayer.
      */
     removeEventListener(type: string, listener: (event: any) => void);
 

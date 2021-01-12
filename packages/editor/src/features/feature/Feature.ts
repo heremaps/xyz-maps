@@ -246,6 +246,7 @@ class Feature extends GeoJSONFeature {
     coord(coordinates?: GeoPoint[] | GeoPoint[][] | GeoPoint[][][] | GeoPoint[][][][]) {
         const feature = this;
         const geoType = feature.geometry.type;
+        let coords;
 
         if (coordinates instanceof Array) {
             oTools.deHighlight(feature);
@@ -258,19 +259,19 @@ class Feature extends GeoJSONFeature {
             coordinates = feature.getProvider().decCoord(feature);
 
             if (geoType == 'Point') {
-                coordinates = cpyCoord(coordinates);
+                coords = cpyCoord(coordinates);
             } else {
-                coordinates = [];
+                coords = [];
 
                 const len = coordinates.length;
 
                 for (let c = 0; c < len; c++) {
-                    coordinates[c] = cpyCoord(coordinates[c]);
+                    coords[c] = cpyCoord(coordinates[c]);
                 }
             }
         }
 
-        return coordinates;
+        return coords;
     };
 
     /**

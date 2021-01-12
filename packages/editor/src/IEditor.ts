@@ -19,7 +19,7 @@
 
 import {JSUtils} from '@here/xyz-maps-common';
 import Transformer from './tools/transformer/Transformer';
-import {layers, providers} from '@here/xyz-maps-core';
+import Tile, {layers, providers} from '@here/xyz-maps-core';
 import {EditorOptions} from './API/EditorOptions';
 import ObserverHandler from './handlers/ObserverHandler';
 import EventHandler from './handlers/EventHandler';
@@ -29,6 +29,8 @@ import Hooks from './Hooks';
 import Map from './map/Map';
 import Display from '@here/xyz-maps-display';
 import {Feature} from './features/feature/Feature';
+import {ZoneSelector} from './API/EZoneSelector';
+import DrawingManager from './API/MDrawingManager';
 
 type TileLayer = layers.TileLayer;
 type EditableProvider = providers.EditableRemoteTileProvider;
@@ -41,6 +43,10 @@ let UNDEF;
 export default class InternalEditor {
     _config: EditorOptions;
 
+    isCommitInProcess: boolean = false;
+    _zs: ZoneSelector;
+    _db: DrawingManager;
+
     display: Display;
     objects: ObjectManager;
     hooks: Hooks;
@@ -49,6 +55,7 @@ export default class InternalEditor {
     map: Map;
     transformer: Transformer;
     layers: TileLayer[];
+    layerMap: { [id: string]: TileLayer };
 
     destroy: () => void;
 
@@ -67,6 +74,9 @@ export default class InternalEditor {
         this._config = config;
 
         const HERE_WIKI = this;
+
+        HERE_WIKI.layers = [];
+        HERE_WIKI.layerMap = {};
 
         HERE_WIKI.observers = new ObserverHandler();
 
