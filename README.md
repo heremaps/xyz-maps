@@ -6,7 +6,7 @@
 
 XYZ Editor is an experimental and work in progress open-source map editor written in TypeScript/JavaScript.
 
-![edit buildings with xyz-editor](packages/docs/xyz-maps.png)
+![edit buildings with xyz-editor](packages/display/assets/xyz-maps.png)
 
 ## Prerequisites
 
