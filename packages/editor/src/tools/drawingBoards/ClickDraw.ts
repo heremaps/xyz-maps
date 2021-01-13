@@ -19,13 +19,14 @@
 
 import {JSUtils, global} from '@here/xyz-maps-common';
 import {EditorEvent} from '../../API/EditorEvent';
-import DrawingShape from './DrawingShape';
+import {DrawingShape} from './DrawingShape';
 import LineString from './LineString';
 import Polygon from './Polygon';
 import {simplifyPath} from '../../geometry';
 import InternalEditor from '../../IEditor';
 import Overlay from '../../features/Overlay';
 import {Navlink} from '../../features/link/NavLink';
+import {Style, TileLayer} from '@here/xyz-maps-core';
 
 const DEFAULT_SHAPE_STYLE = [{
     'type': 'Circle',
@@ -61,14 +62,14 @@ const setupStyleGroups = (settings: Settings, feature) => {
     if (settings['styleGroup']) {
         styles = settings['styleGroup'];
     } else {
-        if (mode == 'NAVLINK' || mode == 'AREA') {
+        if (mode == 'Navlink' || mode == 'Area') {
             // add dummy for being used in style classes
             feature.editState = () => ({});
             feature.class = mode;
         }
         styles = settings['layer'].getStyleGroup(feature);
 
-        if (mode != 'AREA') {
+        if (mode != 'Area') {
             // in case of line/navlink -> take "inline" style only as stroke by default
             shapeStyle = JSUtils.clone(DEFAULT_SHAPE_STYLE);
             shapeStyle[0].fill = styles[0].stroke;
@@ -98,7 +99,7 @@ const setupStyleGroups = (settings: Settings, feature) => {
         stroke = style.stroke;
         let fill;
 
-        if (mode == 'AREA') {
+        if (mode == 'Area') {
             fill = style.fill;
             if (stroke) {
                 shapeStyle[0].stroke = stroke;
@@ -120,9 +121,9 @@ const setupStyleGroups = (settings: Settings, feature) => {
 let UNDEF;
 
 type Settings = {
-    mode: 'AREA' | 'NAVLINK' | 'LINE',
-    styleGroup: any,
-    layer: any
+    mode?: 'Area' | 'Line' | 'Navlink',
+    styleGroup?: Style[],
+    layer?: TileLayer
 }
 
 class ClickDraw {
@@ -236,7 +237,7 @@ class ClickDraw {
         clickDraw.updateCursor = clickDraw.updateCursor.bind(clickDraw);
     }
 
-    addShape(pos, link?: Navlink, ev?: MouseEvent) {
+    addShape(pos, link?: Navlink, ev?: MouseEvent): DrawingShape {
         const {iEdit, settings, shapes, feature} = this;
 
         let oCoords;
@@ -275,6 +276,8 @@ class ClickDraw {
                 index: shp.properties.index
             }));
         }
+
+        return shp;
     };
 
     removeShape(index?: number) {
@@ -340,7 +343,7 @@ class ClickDraw {
         const {feature, shapes, settings} = this;
         let coordinates = shapes.map((s) => s.geometry.coordinates);
 
-        if (settings.mode != 'AREA') {
+        if (settings.mode != 'Area') {
             coordinates = simplifyPath(coordinates, settings['generalization'] || 1 * 0.00001);
         }
 
@@ -411,7 +414,7 @@ class ClickDraw {
 
             this.settings = settings;
 
-            if (settings.mode == 'AREA') {
+            if (settings.mode == 'Area') {
                 this.FeatureClass = Polygon;
             } else {
                 this.FeatureClass = LineString;
