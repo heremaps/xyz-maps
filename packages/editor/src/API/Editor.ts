@@ -20,7 +20,7 @@
 import {JSUtils, global} from '@here/xyz-maps-common';
 import {GeoPoint, TileLayer, PixelPoint, EditableRemoteTileProvider, GeoRect, layers} from '@here/xyz-maps-core';
 import {Map} from '@here/xyz-maps-display';
-import DrawingManager from './MDrawingManager';
+import {DrawingBoard} from './DrawingBoard';
 import {Zone, ZoneSelector} from './EZoneSelector';
 import InternalEditor from './../IEditor';
 import {mergeOptions, EditorOptions} from './EditorOptions';
@@ -123,9 +123,6 @@ const commitChanges = (internalEditor: InternalEditor, modobjs, onSuccess, onErr
         );
     }
 };
-
-
-const GLOBAL_NAMESPACE = global.here.xyz.maps.editor; // HERE_WIKI.editorNS;
 
 /**
  * The Editor is a Map Editor API that allows to easily add, modify, delete and work with different kind of map data.
@@ -731,9 +728,9 @@ export default class Editor {
     /**
      * get the DrawingBoard to enable mouse/touch based drawing of the geometry for Line, Navlink or Area features.
      */
-    getDrawingBoard(): DrawingManager {
+    getDrawingBoard(): DrawingBoard {
         const iEdit = this._i();
-        const drawingBoard = iEdit._db = iEdit._db || new DrawingManager(iEdit, iEdit.map, GLOBAL_NAMESPACE);
+        const drawingBoard = iEdit._db = iEdit._db || new DrawingBoard(iEdit);
         return drawingBoard;
     }
 

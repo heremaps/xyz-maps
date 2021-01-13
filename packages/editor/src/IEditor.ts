@@ -19,7 +19,7 @@
 
 import {JSUtils} from '@here/xyz-maps-common';
 import Transformer from './tools/transformer/Transformer';
-import Tile, {layers, providers} from '@here/xyz-maps-core';
+import {TileLayer, EditableRemoteTileProvider} from '@here/xyz-maps-core';
 import {EditorOptions} from './API/EditorOptions';
 import ObserverHandler from './handlers/ObserverHandler';
 import EventHandler from './handlers/EventHandler';
@@ -30,10 +30,7 @@ import Map from './map/Map';
 import Display from '@here/xyz-maps-display';
 import {Feature} from './features/feature/Feature';
 import {ZoneSelector} from './API/EZoneSelector';
-import DrawingManager from './API/MDrawingManager';
-
-type TileLayer = layers.TileLayer;
-type EditableProvider = providers.EditableRemoteTileProvider;
+import {DrawingBoard} from './API/DrawingBoard';
 
 const ERROR_EVENT = 'error';
 
@@ -45,7 +42,7 @@ export default class InternalEditor {
 
     isCommitInProcess: boolean = false;
     _zs: ZoneSelector;
-    _db: DrawingManager;
+    _db: DrawingBoard;
 
     display: Display;
     objects: ObjectManager;
@@ -63,7 +60,7 @@ export default class InternalEditor {
     setStyle: (feature, style?: any[], merge?: boolean) => any;
 
     getLayerForClass: (featureClass: string) => TileLayer;
-    getProviderById: (providerId: string) => EditableProvider;
+    getProviderById: (providerId: string) => EditableRemoteTileProvider;
     getLayerById: (layerId: string) => TileLayer;
     getLayer: (providerId: string | Feature) => TileLayer;
 
