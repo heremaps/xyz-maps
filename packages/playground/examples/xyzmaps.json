@@ -4,7 +4,7 @@
 		"id":"display",
 		"description": "Examples of Display",
 		"order": 0,
-		"docs": "here.xyz.maps.html",
+		"docs": "index.html",
 		"samples":[
 			{
 				"title":"Tutorials",
@@ -13,13 +13,13 @@
 					{
 						"description":"Hello World",
 						"file":"./display/hello_world.htm",
-						"docs":"here.xyz.maps.Map.html",
+						"docs":"classes/display.map.html",
 						"default":true
 					},
 					{
 						"description":"Visualize Space Layer",
 						"file":"./display/visualize_space_layer.htm",
-						"docs":"here.xyz.maps.providers.SpaceProvider.html"
+						"docs":"classes/core.spaceprovider.html"
 					}
 				]
 			},
@@ -30,57 +30,57 @@
 					{
 						"description":"Click on a feature and display feature property",
 						"file":"./display/click_feature_show_properties.htm",
-						"docs":"here.xyz.maps.Map.html#addLayer"
+						"docs":"classes/display.map.html#addlayer"
 					},
 					{
 						"description":"Click Feature To Center The Map",
 						"file":"./display/click_feature_to_center_map.htm",
-						"docs":"here.xyz.maps.Map.html#setCenter"
+						"docs":"classes/display.map.html#setcenter"
 					},
 					{
 						"description":"Hover navlink to highlight",
 						"file":"./display/hover_hightlight_navlink.htm",
-						"docs":"here.xyz.maps.Map.html#addEventListener"
+						"docs":"classes/display.map.html#addeventlistener"
 					},
 					{
 						"description":"Click navlink to highlight",
 						"file":"./display/click_highlight_navlink.htm",
-						"docs":"here.xyz.maps.Map.html#addEventListener"
+						"docs":"classes/display.map.html#addeventlistener"
 					},
 					{
 						"description":"Add listeners to pointer events",
 						"file":"./display/pointer_listener.htm",
-						"docs":"here.xyz.maps.Map.html#addEventListener"
+						"docs":"classes/display.map.html#addeventlistener"
 					},
 					{
 						"description":"Add listeners to mapview events",
 						"file":"./display/mapview_listener.htm",
-						"docs":"here.xyz.maps.Map.html#addEventListener"
+						"docs":"classes/display.map.html#addeventlistener"
 					},
 					{
 						"description":"Add Observer to zoomlevel and center",
 						"file":"./display/observer.htm",
-						"docs":"here.xyz.maps.Map.html#addObserver"
+						"docs":"classes/display.map.html#addobserver"
 					},
 					{
 						"description":"Add and remove custom layers",
 						"file":"./display/add_remove_layer.htm",
-						"docs":"here.xyz.maps.Map.html#addLayer"
+						"docs":"classes/display.map.html#addlayer"
 					},
 					{
 						"description":"Switch Layers display order",
 						"file":"./display/switch_layers_display_order.htm",
-						"docs":"here.xyz.maps.Map.html#addLayer"
+						"docs":"classes/display.map.html#addlayer"
 					},
 					{
 						"description":"Set and get behavior",
 						"file":"./display/behavior_set.htm",
-						"docs":"here.xyz.maps.Map.html#setBehavior"
+						"docs":"classes/display.map.html#setbehavior"
 					},
                     {
                         "description":"Allow map pitch/rotation by user interaction",
                         "file":"./display/pitch_rotate_map.htm",
-                        "docs":"here.xyz.maps.Map.html#pitch"
+                        "docs":"classes/display.map.html#pitch"
                     }
 				]
 			}
@@ -91,7 +91,7 @@
 		"id":"editor",
 		"description": "Examples of Editor",
 		"order": 0,
-		"docs": "here.xyz.maps.html",
+		"docs": "classes/editor.html",
 		"samples":[
 			{
 				"title":"Tutorials",
@@ -100,17 +100,17 @@
 					{
 						"description":"Hello World",
 						"file":"./editor/hello_world.htm",
-						"docs":"here.xyz.maps.editor.html"
+                        "docs":"classes/editor.html"
 					},
 					{
 						"description":"Create custom provider using XYZ Hub",
 						"file":"./editor/custom_provider.htm",
-						"docs":"here.xyz.maps.editor.html"
+						"docs":"classes/editor.html"
 					},
 					{
 						"description":"Display a context menu",
 						"file":"./editor/add_contextmenu.htm",
-						"docs":"here.xyz.maps.editor.Editor.html"
+						"docs":"classes/editor.editor-1.html"
 					}
 				]
 			},
@@ -121,82 +121,82 @@
 					{
 						"description":"Add and Remove Object Layer",
 						"file":"./editor/add_remove_object_layer.htm",
-						"docs":"here.xyz.maps.editor.Editor.html#addLayer"
+						"docs":"classes/editor.editor-1.html#addlayer"
 					},
 					{
 						"description":"Select highways",
 						"file":"./editor/select_specific_navlink.htm",
-						"docs":"here.xyz.maps.editor.Editor.Config.html#featureSelectionByDefault"
+						"docs":"interfaces/editor.editoroptions.html#featureselectionbydefault"
 					},
 					{
 						"description":"Display changes history of editor",
 						"file":"./editor/observe_change_history.htm",
-						"docs":"here.xyz.maps.editor.Editor.html#addObserver"
+						"docs":"classes/editor.editor-1.html#addobserver"
 					},
 					{
 						"description":"Display pointer events of editor",
 						"file":"./editor/pointer_listener.htm",
-						"docs":"here.xyz.maps.editor.Editor.html#addEventListener"
+						"docs":"classes/editor.editor-1.html#addeventlistener"
 					},
 					{
 						"description":"Hover Place to Highlight Connected Navlink",
 						"file":"./editor/hover_highlight_connected_navlink.htm",
-						"docs":"here.xyz.maps.editor.features.Navlink.html#style"
+						"docs":"classes/core.tilelayer.html#setstylegroup"
 					},
 					{
 						"description":"Drag Place into a building",
 						"file":"./editor/drag_place_to_building.htm",
-						"docs":"here.xyz.maps.Map.html#getFeatureAt"
+						"docs":"classes/display.map.html#getfeatureat"
 					},
 					{
 						"description":"Create navlinks by geo coordinates and pixel coordinates",
 						"file":"./editor/create_navlink.htm",
-						"docs":"here.xyz.maps.editor.Editor.html#addFeature"
+						"docs":"classes/editor.editor-1.html#addfeature"
 					},
 					{
 						"description":"Add a new road",
 						"file":"./editor/add_road.htm",
-						"docs": "here.xyz.maps.editor.Editor.html#getDrawingBoard"
+						"docs": "classes/editor.editor-1.html#getdrawingboard"
 					},
 					{
 						"description":"Add Places to map",
 						"file":"./editor/create_place.htm",
-						"docs":"here.xyz.maps.editor.Editor.html#addFeature"
+						"docs":"classes/editor.editor-1.html#addfeature"
 					},
 					{
 						"description":"Add Addresses to map",
 						"file":"./editor/create_address.htm",
-						"docs":"here.xyz.maps.editor.Editor.html#addFeature"
+						"docs":"classes/editor.editor-1.html#addfeature"
 					},
 					{
 						"description":"Animate a Navlink",
 						"file":"./editor/navlink_animation.htm",
-						"docs":"here.xyz.maps.editor.Editor.html#addFeature"
+						"docs":"classes/editor.editor-1.html#addfeature"
 					},
 					{
 						"description":"Change road name",
 						"file":"./editor/change_road_name.htm",
-						"docs":"here.xyz.maps.editor.features.Navlink.html#prop"
+						"docs":"classes/editor.navlink.html#prop"
 					},
 					{
 						"description":"Transform a Line",
 						"file":"./editor/transform_road.htm",
-						"docs": "here.xyz.maps.editor.features.Feature.html#transform"
+						"docs": "classes/editor.line.html#transform"
 					},
 					{
 						"description":"Detect crossings on a navlink",
 						"file":"./editor/crossing_detect.htm",
-						"docs": "here.xyz.maps.editor.features.Navlink.html#checkCrossings"
+						"docs": "classes/editor.navlink.html#checkCrossings"
 					},
 					{
 						"description":"Select navlink zone",
 						"file":"./editor/zone_selector.htm",
-						"docs": "here.xyz.maps.editor.Editor.html#getZoneSelector"
+						"docs": "classes/editor.editor-1.html#getZoneSelector"
 					},
 					{
 						"description":"Edit turn restrictions",
 						"file":"./editor/turn_restriction_editor.htm",
-						"docs":"here.xyz.maps.editor.features.Navlink.html#editTurnRestrictions"
+						"docs":"classes/editor.navlink.html#editTurnRestrictions"
 					}
 				]
 			}
@@ -207,7 +207,7 @@
 		"id":"core",
 		"description": "Examples of Layer/Provider",
 		"order": 0,
-		"docs": "here.xyz.maps.layers.TileLayer.html",
+		"docs": "classes/core.tilelayer.html",
 		"samples":[
 			{
 				"title":"Samples",
@@ -216,112 +216,112 @@
 					{
 						"description":"Add a Image layer with Satellite Images",
 						"file":"./layer/visualize_sat_image.htm",
-						"docs":"here.xyz.maps.providers.ImageProvider.html"
+						"docs":"classes/core.imageprovider.html"
 					},
 					{
 						"description":"Add a layer with custom style",
 						"file":"./layer/custom_style.htm",
-						"docs":"here.xyz.maps.layers.TileLayer.html"
+						"docs":"classes/core.tilelayer.html"
 					},
                     {
                         "description":"Use a custom remote preprocessor to modify remote data",
                         "file":"./layer/preprocessor.htm",
-                        "docs":"here.xyz.maps.providers.RemoteTileProvider.Options.html#preProcessor"
+                        "docs":"interfaces/core.remotetileprovideroptions.html#preprocessor"
                     },
 					{
 						"description":"Display Space Provider and set tags to filter",
 						"file":"./layer/settag_space_provider.htm",
-						"docs":"here.xyz.maps.providers.SpaceProvider.html"
+						"docs":"classes/core.spaceprovider.html"
 					},
 					{
 						"description":"Set Layer Color",
 						"file":"./layer/set_layer_color.htm",
-						"docs":"here.xyz.maps.layers.TileLayer.html#setStyle"
+						"docs":"classes/core.tilelayer.html#setstyle"
 					},
 					{
 						"description":"Set Layer Opacity",
 						"file":"./layer/set_layer_opacity.htm",
-						"docs":"here.xyz.maps.layers.TileLayer.html#setStyle"
+						"docs":"classes/core.tilelayer.html#setstyle"
 					},
 					{
 						"description":"Add and remove Line",
 						"file":"./layer/add_remove_line.htm",
-						"docs":"here.xyz.maps.layers.TileLayer.html#addFeature"
+						"docs":"classes/core.tilelayer.html#addfeature"
 					},
 					{
 						"description":"Add and remove point feature",
 						"file":"./layer/add_remove_point.htm",
-						"docs":"here.xyz.maps.layers.TileLayer.html#addFeature"
+						"docs":"classes/core.tilelayer.html#addfeature"
 					},
 					{
 						"description":"Add and remove building feature",
 						"file":"./layer/add_remove_building_feature.htm",
-						"docs":"here.xyz.maps.layers.TileLayer.html#addFeature"
+						"docs":"classes/core.tilelayer.html#addfeature"
 					},
 					{
 						"description":"Style a navlink",
 						"file":"./layer/style_navlink.htm",
-						"docs":"here.xyz.maps.layers.TileLayer.html#setStyleGroup"
+						"docs":"classes/core.tilelayer.html#setstylegroup"
 					},
                     {
                         "description":"Display lines with offset",
                         "file":"./layer/offset_line.htm",
-                        "docs":"here.xyz.maps.layers.TileLayer.Style.html#offset"
+                        "docs":"interfaces/core.style.html#offset"
                     },
 					{
 						"description":"Display links by different style groups",
 						"file":"./layer/style_grouping.htm",
-						"docs":"here.xyz.maps.layers.TileLayer.TileLayerStyle.html"
+						"docs":"interfaces/core.layerstyle.html"
 					},
                     {
                         "description":"Styles and zoomRanges",
                         "file":"./layer/style_zoomrange.htm",
-                        "docs":"here.xyz.maps.layers.TileLayer.html#setStyleGroup"
+                        "docs":"classes/core.tilelayer.html#setstylegroup"
                     },
                     {
                         "description":"Styles and feature drawing order",
                         "file":"./layer/style_drawingorder.htm",
-                        "docs":"here.xyz.maps.layers.TileLayer.Style.html#zLayer"
+                        "docs":"interfaces/core.style.html#zlayer"
                     },
 					{
 						"description":"Search features in layer in a bounding box",
 						"file":"./layer/search_boundingbox.htm",
-						"docs":"here.xyz.maps.layers.TileLayer.html#search"
+						"docs":"classes/core.tilelayer.html#search"
 					},
 					{
 						"description":"Search features in layer in a circle",
 						"file":"./layer/search_circle.htm",
-						"docs":"here.xyz.maps.layers.TileLayer.html#search"
+						"docs":"classes/core.tilelayer.html#search"
 					},
 					{
 						"description":"Search features in layer by feature id",
 						"file":"./layer/search_id.htm",
-						"docs":"here.xyz.maps.layers.TileLayer.html#search"
+						"docs":"classes/core.tilelayer.html#search"
 					},
 					{
 						"description":"Search features in layer in a bounding box",
 						"file":"./layer/remote_search_boundingbox.htm",
-						"docs":"here.xyz.maps.layers.TileLayer.html#search"
+						"docs":"classes/core.tilelayer.html#search"
 					},
 					{
 						"description":"Search features in layer in a circle",
 						"file":"./layer/remote_search_circle.htm",
-						"docs":"here.xyz.maps.layers.TileLayer.html#search"
+						"docs":"classes/core.tilelayer.html#search"
 					},
 					{
 						"description": "Use the MVTLayer as a full vector basemap",
 						"file":"./layer/MVTLayer.htm",
-						"docs":"here.xyz.maps.layers.TileLayer.html"
+						"docs":"classes/core.tilelayer.html"
 					},
                     {
                         "description": "Use style.extrude to display 3d buildings",
                         "file":"./layer/3d_buildings.htm",
-                        "docs":"here.xyz.maps.layers.TileLayer.html"
+                        "docs":"classes/core.tilelayer.html"
                     },
                     {
                         "description": "Use style.collide to enable label collision detection",
                         "file":"./layer/label_collision_detection.htm",
-                        "docs":"here.xyz.maps.layers.TileLayer.html"
+                        "docs":"classes/core.tilelayer.html"
                     }
 				]
 			}

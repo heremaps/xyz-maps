@@ -151,17 +151,30 @@ export const data = XYZMAPS.data || {
     }
 };
 
-
 /**
- *    Contains build information {"name", "date", "revision", "version"}.
- *
- *    @public
- *    @expose
- *    @readonly
- *    @name here.xyz.maps.build
- *    @type Object
+ *  Detailed Information about the build.
  */
-export const build = XYZMAPS.build = {
+export const build: {
+    /**
+     * the name of the api
+     */
+    readonly name: string;
+    /**
+     * the date when the build was created
+     */
+    readonly date: DOMTimeStamp;
+
+    /**
+     * the git version used for the build.
+     */
+    readonly revision: string;
+    /**
+     * the version of the build.
+     * uses: Semantic Versioning
+     */
+    readonly version: string;
+
+} = XYZMAPS.build = {
     name: 'xyz-maps',
     ...buildInfo
 };

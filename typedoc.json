@@ -1,7 +1,7 @@
 {
   "name": "XYZ Maps",
   "mode": "modules",
-  "out": "doc",
+  "out": "docs",
   "theme": "default",
   "ignoreCompilerErrors": "false",
   "preserveConstEnums": "true",

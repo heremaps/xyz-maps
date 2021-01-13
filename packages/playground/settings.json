@@ -6,7 +6,7 @@
             "display": "../../display/dist/xyz-maps-display.js",
             "editor": "../../editor/dist/xyz-maps-editor.js"
         },
-        "doc": "../../docs/dist/",
+        "doc": "/docs/",
         "destination": "dist",
         "resource": "./"
     },

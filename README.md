@@ -73,7 +73,7 @@ Running integration tests / playground and debug pages requires the XYZ token to
 
 * Run tests on release build `yarn run test`
 
-* Build development version `yarn run build-dev` (located in packages/*/dist/)
+* Build development version `yarn run build-dev` (located in docs/)
 
 * Build release version only `yarn run build-release` (minified...)
 
