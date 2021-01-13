@@ -208,6 +208,7 @@ export default class Editor {
         }, 0);
     }
 
+
     /**
      * enable or disable the editor.
      *
@@ -294,7 +295,7 @@ export default class Editor {
      *
      *  @return the feature(s) that were successfully added to map
      */
-    addFeature(layerMap: {[layerId:string]:Feature | Feature[]}, layer?: TileLayer, origin?: GeoPoint | PixelPoint): Feature | SimpleContainer;
+    addFeature(layerMap: { [layerId: string]: Feature | Feature[] }, layer?: TileLayer, origin?: GeoPoint | PixelPoint): Feature | SimpleContainer;
 
     // editor['addFeature'] = function( feature,[origin] ) {
     // editor['addFeature'] = function( {feature}, layer,[origin] ) {
@@ -384,7 +385,7 @@ export default class Editor {
         }
 
 
-        return added.length > 1 ? this.createFeatureContainer(added) : added[0];
+        return added.length > 1 ? this.createFeatureContainer.apply(this, added) : added[0];
     }
 
     /**
@@ -655,9 +656,9 @@ export default class Editor {
      */
     destroy(): void {
         const that = this;
-        let iEditor = this._i();
+        let iEditor = that._i();
         // make sure all layer listeners are removed
-        (<TileLayer[]>that.getLayers()).forEach(that.removeLayer);
+        (<TileLayer[]>that.getLayers()).forEach((layer) => that.removeLayer(layer));
 
         that.active(false);
 
@@ -665,6 +666,8 @@ export default class Editor {
 
         // clear/null Editor's instance
         for (var i in that) delete that[i];
+        // @ts-ignore
+        that.__proto__ = {};
 
         return null;
     };
@@ -808,18 +811,17 @@ export default class Editor {
         let modified = false;
         const markerLayers = [];
         let unsubmitted = false;
-        var param = param || {};
-        const ignoreEventBlock = param['ignoreEventBlock'];
-        let layer = param['layer'];
-        const onError = param['onError'];
-        const onSuccess = param['onSuccess'];
-        const transactionID = param['transactionId'];
+        options = options || {};
+        const ignoreEventBlock = options['ignoreEventBlock'];
+        let layer = options['layer'];
+        const onError = options['onError'];
+        const onSuccess = options['onSuccess'];
+        const transactionID = options['transactionId'];
         const iEditor = this._i();
 
         function cbCommitChange(idMap) {
             // show current view
             commitCallback(iEditor);
-
             onSuccess && onSuccess({
                 'permanentIDMap': idMap
             });
