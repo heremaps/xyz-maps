@@ -18,9 +18,10 @@
  */
 
 import {getDistance, getSegmentIndex, intersectLineLine, Point} from '../../geometry';
-import AreaShape from './Shape';
+import {AreaShape} from './AreaShape';
 import VirtualShape from './VirtualShape';
-import Area from './Area';
+import {Area} from './Area';
+import {NavlinkShape} from '../link/NavlinkShape';
 
 let UNDEF;
 
@@ -106,15 +107,11 @@ function addShapes(area) {
     const shapePnts = getPrivate(area, 'shapePnts');
     const coordinates = tools.getCoords(area);
 
+
     for (let p = 0; p < coordinates.length; p++) {
-        createShapes(shapePnts, coordinates, p, (p1, p2, idxData) => new AreaShape(
-            area._e(),
-            area,
-            p1[0],
-            p1[1],
-            idxData,
-            tools
-        ));
+        createShapes(shapePnts, coordinates, p, (p1, p2, idxData) => {
+            return area._e().objects.overlay.addFeature(new AreaShape(area, p1[0], p1[1], idxData, tools));
+        });
     }
 }
 
@@ -125,7 +122,6 @@ function addVShapes(area) {
 
     for (let p = 0; p < coordinates.length; p++) {
         createShapes(shapePnts, coordinates, p, (p1, p2, idxData) => new VirtualShape(
-            area._e(),
             area,
             (p1[0] + p2[0]) / 2,
             (p1[1] + p2[1]) / 2,

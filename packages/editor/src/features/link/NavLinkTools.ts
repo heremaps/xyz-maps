@@ -20,7 +20,7 @@
 import {getPointAtLength, getTotalLength, getPntAt, getSegmentIndex} from '../../geometry';
 import {calcRelPosOfPoiAtLink} from '../../map/GeoMath';
 import locTools from '../location/LocationTools';
-import LinkShape from './Shape';
+import {NavlinkShape} from './NavlinkShape';
 import VirtualLinkShape from './VirtualShape';
 import {geotools} from '@here/xyz-maps-common';
 import {JSUtils} from '@here/xyz-maps-common';
@@ -448,7 +448,7 @@ var tools = {
 
     createLinkShape: function(line: Navlink, coordinate, i) {
         return line._e().objects.overlay.addFeature(
-            new LinkShape(line, coordinate, i, tools)
+            new NavlinkShape(line, coordinate, i, tools)
         );
     },
 
@@ -464,7 +464,7 @@ var tools = {
 
             if (!shapePnts.length) {
                 for (let i = 0; i < length; i++) {
-                    // const shp = new LinkShape(line, [path[i][0], path[i][1]], i, tools);
+                    // const shp = new NavlinkShape(line, [path[i][0], path[i][1]], i, tools);
 
                     const shp = tools.createLinkShape(line, [path[i][0], path[i][1]], i);
 
@@ -560,7 +560,7 @@ var tools = {
     },
 
     //* **************************************** public area/link only ****************************************
-    deleteShape: function(navlink: Navlink, shape: number | LinkShape, ignoreCheck?: boolean) {
+    deleteShape: function(navlink: Navlink, shape: number | NavlinkShape, ignoreCheck?: boolean) {
         const index = typeof shape == 'number'
             ? shape
             : shape.getIndex();

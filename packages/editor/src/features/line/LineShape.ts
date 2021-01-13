@@ -24,6 +24,11 @@ import {Line} from './Line';
 let lineTools;
 let UNDEF;
 
+/**
+ * The LineShape represents a shape-point / coordinate of a Line feature.
+ * The LineShape is only existing if the corresponding Line feature is "selected" and user based geometry editing with touch/mouse interaction is activated.
+ * @see {@link Line.select}
+ */
 class LineShape extends features.Feature {
     private _l: Line;
     class: string;
@@ -61,8 +66,29 @@ class LineShape extends features.Feature {
         this._l = line;
     }
 
-    getLine() {
+    /**
+     * Get the Line feature to which the LineShape belongs.
+     *
+     * @return the Line feature
+     */
+    getLine(): Line {
         return this._l;
+    }
+
+    /**
+     * Get the index of the shape point in the coordinates array of the respective Line feature.
+     *
+     * @return The index of the shape point.
+     */
+    getIndex(): number {
+        return this.properties.index;
+    };
+
+    /**
+     * Removes the shape point from the geometry of the Line feature.
+     */
+    remove() {
+        lineTools.removeCoord(this.getLine(), this.properties.index);
     }
 
     pointerdown(ev) {
@@ -115,12 +141,8 @@ class LineShape extends features.Feature {
 
         line._e().listeners.trigger(ev, this, moved ? 'dragStop' : UNDEF);
     }
-
-    remove() {
-        lineTools.removeCoord(this.getLine(), this.properties.index);
-    }
 }
 
 LineShape.prototype.class = 'LINE_SHAPE';
 
-export default LineShape;
+export {LineShape};

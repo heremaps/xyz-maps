@@ -23,15 +23,11 @@ import History from './History';
 import ObjectOverlay from './Overlay';
 import {createOverlayLayer, OverlayProvider} from '../providers/OverlayLayer';
 import {split, SplitOptions} from './LinkSplitter';
-import {layers, providers} from '@here/xyz-maps-core';
+import {TileLayer, FeatureProvider, EditableFeatureProvider, EditableRemoteTileProvider} from '@here/xyz-maps-core';
 import {Map, JSUtils, geotools} from '@here/xyz-maps-common';
 import {getPntOnLine, intersectBBox} from '../geometry';
 import {Navlink} from './link/NavLink';
 
-type FeatureProvider = providers.FeatureProvider;
-type EditableFeatureProvider = providers.EditableFeatureProvider;
-
-type TileLayer = layers.TileLayer;
 
 type Point = [number, number, number?];
 
@@ -76,7 +72,7 @@ class ObjectManager {
     private iEdit;
     private display;
     private listen: boolean = false;
-    private layers: Map<layers.TileLayer>;
+    private layers: Map<TileLayer>;
 
     history: History;
 
@@ -98,7 +94,7 @@ class ObjectManager {
 
         objManager.overlay = new ObjectOverlay(overlayLayer);
 
-        let layers: Map<layers.TileLayer> = new Map([[overlayLayer.id, overlayLayer]]);
+        let layers: Map<TileLayer> = new Map([[overlayLayer.id, overlayLayer]]);
 
         this.layers = layers;
 
@@ -461,7 +457,7 @@ class ObjectManager {
         return objects.length > 1 ? objects : objects[0];
     };
 
-    getNearestLine(point: Point, data: providers.EditableRemoteTileProvider | Navlink[], options?: Options) {
+    getNearestLine(point: Point, data: EditableRemoteTileProvider | Navlink[], options?: Options) {
         const HERE_WIKI = this.iEdit;
         // overwrite default configuration
         options = JSUtils.extend({
@@ -489,7 +485,7 @@ class ObjectManager {
             ? geotools.getPointBBox(geopos, maxDistance)
             : null;
 
-        if (data instanceof providers.EditableFeatureProvider) {
+        if (data instanceof EditableFeatureProvider) {
             data = this.getInBBox(searchBBox, data);
         }
 

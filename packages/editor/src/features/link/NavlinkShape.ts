@@ -5,7 +5,7 @@
  * you may not use this file except in compliance with the License.
  * You may obtain a copy of the License at
  *
- *     http://www.apache.org/licenses/LICENSE-2.0
+ *    http://www.apache.org/licenses/LICENSE-2.0
  *
  * Unless required by applicable law or agreed to in writing, software
  * distributed under the License is distributed on an "AS IS" BASIS,
@@ -18,11 +18,12 @@
  */
 
 import {JSUtils, geotools} from '@here/xyz-maps-common';
-import {providers, features} from '@here/xyz-maps-core';
+import {FeatureProvider, features} from '@here/xyz-maps-core';
 import GeoFence from './GeoFence';
 import {Navlink} from './NavLink';
+import TurnRestriction from './TurnRestriction';
+import {Feature} from '@here/xyz-maps-editor';
 
-type FeatureProvider = providers.FeatureProvider;
 
 const NS_EDITOR = '@ns:com:here:editor';
 
@@ -95,7 +96,7 @@ const connectShpToNearestLink = (line: Navlink, index: number) => {
     if (connectionCandidate != null) { // check for selfconnect
         foundPos = connectionCandidate.point;
 
-        foundPos[2] = line.getZLevels(index)||0;
+        foundPos[2] = line.getZLevels(index) || 0;
 
         if (linkTools.connectShpToLink(
             line,
@@ -343,17 +344,15 @@ function mouseInHandler() {
 }
 
 
-//* *************************************************************************
-
 /**
- *  The interface represents link shape point.
- *  @class
- *  @public
- *  @expose
- *
- *  @name here.xyz.maps.editor.features.Navlink.Shape
+ * The NavlinkShape represents a shape-point / coordinate of a Navlink feature.
+ * The NavlinkShape is only existing if the corresponding Navlink feature is "selected" and user based geometry editing with touch/mouse interaction is activated.
+ * @see {@link Navlink.select}
  */
-class LinkShape extends features.Feature {
+class NavlinkShape extends features.Feature {
+    /**
+     * The feature class of an NavlinkShape Feature is "NAVLINK_SHAPE".
+     */
     class: 'NAVLINK_SHAPE';
     properties: LinkShapeProperties;
 
@@ -423,45 +422,27 @@ class LinkShape extends features.Feature {
 
 
     /**
-     *  Get the link to which this object belongs.
+     * Get the Navlink feature to which the NavlinkShape belongs.
      *
-     *  @public
-     *  @expose
-     *  @return {here.xyz.maps.editor.features.Navlink}
-     *      link
-     *
-     *  @function
-     *  @name here.xyz.maps.editor.features.Navlink.Shape#getLink
+     * @return the Navlink
      */
-    getLink() {
+    getLink(): Navlink {
         return this.properties.parent;
     }
 
     /**
-     *  Checks if shape is start or end shape (Node) of the link
+     * Checks if shape is start or end shape (Node) of the Navlink feature.
      *
-     *  @public
-     *  @expose
-     *  @return {boolean}
-     *      true if node
-     *
-     *  @function
-     *  @name here.xyz.maps.editor.features.Navlink.Shape#isNode
+     * @return true if its start or end shape (Node), otherwise false
      */
-    isNode() {
+    isNode(): boolean {
         return this.properties.isNode;
     };
 
     /**
-     *  Checks if shape is overlapping with shape of other link.
+     * Checks if shape is overlapping with an existing shape/coordinate of another Navlink feature.
      *
-     *  @public
-     *  @expose
-     *  @return {boolean}
-     *      true if it overlapps with another shape, false otherwise.
-     *
-     *  @function
-     *  @name here.xyz.maps.editor.features.Navlink.Shape#isOverlapping
+     * @return true if it overlaps with another shape, false otherwise.
      */
     isOverlapping() {
         return linkTools.checkOverlapping(
@@ -471,77 +452,51 @@ class LinkShape extends features.Feature {
     };
 
     /**
-     *  Get the index of the shape point.
+     * Get the index of the shape point in the coordinates array of the respective Navlink feature.
      *
-     *  @public
-     *  @expose
-     *  @return {number}
-     *      The index of the shape point.
-     *
-     *  @function
-     *  @name here.xyz.maps.editor.features.Navlink.Shape#getIndex
+     * @return The index of the shape point.
      */
-    getIndex() {
+    getIndex(): number {
         return getPrivate(this).index;
     };
 
     /**
-     *  Show turn restrictions of the selected link shape point.
-     *
-     *  @public
-     *  @expose
-     *
-     *  @function
-     *  @name here.xyz.maps.editor.features.Navlink.Shape#editTurnRestrictions
-     *  @return {here.xyz.maps.editor.features.TurnRestriction}
+     * Show the turn restrictions of the shape and enable editing of the turn-restrictions.
+     * Turn restrictions are only available if the shape is a node (start or end point) and part of an intersection with other Navlink features involved.
      */
-    editTurnRestrictions() {
+    editTurnRestrictions(): TurnRestriction {
         if (this.isNode()) {
             return this.getLink().editTurnRestrictions(this.getIndex())[0];
         }
     };
 
     /**
-     *  Get an array of NAVLINKs representing the links which are connected to this shape point.
+     * Get an array of Navlink features that are connected to this shape point.
+     * Navlinks are "connected" with each other if they share the same coordinate location of start or end shape-point.
      *
-     *  @public
-     *  @expose
-     *  @return {Array.<here.xyz.maps.editor.features.Navlink>}
-     *      An array of link objects.
-     *
-     *  @function
-     *  @name here.xyz.maps.editor.features.Navlink.Shape#getConnectedLinks
+     * @return An array of Navlink Features with coordinates located at the same position as the shape.
      */
-    getConnectedLinks() {
+    getConnectedLinks(): Navlink[] {
         return this.getLink().getConnectedLinks(this.getIndex());
     };
 
 
     /**
-     *  Remove this object.
-     *
-     *  @public
-     *  @expose
-     *
-     *  @function
-     *  @name here.xyz.maps.editor.features.Navlink.Shape#remove
+     * Removes the shape point from the geometry of the Navlink feature.
      */
     remove() {
         const link = this.getLink();
 
-        if (!link._e()._config.editRestrictions(link || this, 2)) {
+        if (!link._e()._config.editRestrictions(<Feature>(link || this), 2)) {
             linkTools.deleteShape(link, this);
         }
     };
 
     /**
-     *  Disconnect the selected link from the other connected links at this shape point.
+     * Disconnect the Navlink from other connected Navlink features at this shape point.
+     * The Intersection is resolved by moving the position of the shape(node).
      *
-     *  @public
-     *  @expose
-     *
-     *  @function
-     *  @name here.xyz.maps.editor.features.Navlink.Shape#disconnect
+     * @see {@link EditorOptions.disconnectShapeDistance} to configure the default offset used for offsetting the shape in meters.
      */
     disconnect() {
         const shape = this;
@@ -579,21 +534,18 @@ class LinkShape extends features.Feature {
 
 
     /**
-     *  Splits the link. The selected shape will become ref/nref node of the newly created links. Only available
-     *  if possible.
+     * Splits the Navlink at the position of the NavlinkShape into two new "child" Navlinks.
+     * The coordinate of the NavlinkShape will be the start and end positions of the resulting Navlinks.
+     * The "parent" Navlink itself gets deleted after the split operation is done.
      *
-     *  @public
-     *  @expose
-     *  @return {Array.<here.xyz.maps.editor.features.Navlink>}
-     *      An array of link objects.
+     * ```
+     * @example
+     * let links = shapePoint.splitLink();
+     * ```
      *
-     *  @example
-     *  var links = shapePoint.splitLink();
-     *
-     *  @function
-     *  @name here.xyz.maps.editor.features.Navlink.Shape#splitLink
+     * @return An array containing the two newly created Navlink features.
      */
-    splitLink() {
+    splitLink(): [Navlink, Navlink] {
         let childs;
         const link = this.getLink();
         const EDITOR = link._e();
@@ -640,17 +592,6 @@ class LinkShape extends features.Feature {
 }
 
 
-/**
- *  identify the feature class: "NAVLINK_SHAPE"
- *
- *  @readonly
- *  @public
- *  @expose
- *  @type {String}
- *
- *  @name here.xyz.maps.editor.features.Navlink.Shape#class
- */
+NavlinkShape.prototype.class = 'NAVLINK_SHAPE';
 
-LinkShape.prototype.class = 'NAVLINK_SHAPE';
-
-export default LinkShape;
+export {NavlinkShape};

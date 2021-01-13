@@ -52,17 +52,17 @@ export class Navlink extends Feature {
     // }
 
     /**
-     * Get the coordinate(s) of the Navlink feature.
+     * Get the geographical coordinate(s) of the Navlink feature.
      */
-    coord(): GeoPoint[][];
+    coord(): [number, number, number?][];
     /**
-     * Set the coordinate(s) of the Navlink feature.
+     * Set the geographical coordinate(s) of the Navlink feature.
      *
-     * @param coordinates - the coordinates that should be set.
+     * @param coordinates - the geographical coordinates that should be set.
      */
-    coord(coordinates: GeoPoint[][]);
+    coord(coordinates: [number, number, number?][]);
 
-    coord(coordinates?: GeoPoint[][]) {
+    coord(coordinates?: [number, number, number?][]): [number, number, number?][] {
         return super.coord(coordinates);
     }
 
