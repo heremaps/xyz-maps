@@ -65,8 +65,8 @@ export class FeatureProvider extends Provider {
     /**
      *  @param options - options to configure the provider
      */
-    constructor(options: TileProviderOptions, _c?) {
-        super(options, _c);
+    constructor(options: TileProviderOptions) {
+        super(options);
 
         this.tree = new RTree(9);
 
@@ -358,7 +358,7 @@ export class FeatureProvider extends Provider {
      */
     search(id: string | number): Feature[];
 
-    search(bbox, options?): Feature|Feature[] {
+    search(bbox, options?): Feature | Feature[] {
         const provider = this;
         let geo;
         let searchBBox;

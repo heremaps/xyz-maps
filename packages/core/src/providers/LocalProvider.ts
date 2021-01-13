@@ -59,13 +59,14 @@ export class LocalProvider extends EditableFeatureProvider {
      */
     constructor(options: LocalProviderOptions) {
         super({
-            'minLevel': 8,
-            'maxLevel': 20,
-            'storage': new LRUStorage(512),
-            'editable': false,
+            minLevel: 8,
+            maxLevel: 20,
+            storage: new LRUStorage(512),
+            editable: false,
             // suggest default tile-size for layersetup
-            'size': 512
-        }, options);
+            size: 512,
+            ...options
+        });
 
         // TODO: remove tile marking on feature add in super provider
         delete (<any> this).level;

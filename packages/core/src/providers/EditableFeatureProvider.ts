@@ -71,8 +71,8 @@ export abstract class EditableFeatureProvider extends FeatureTileProvider {
 
     private blocked = {};
 
-    constructor(cfg, options) {
-        super({editable: true, ...cfg}, options);
+    constructor(options) {
+        super({editable: true, ...options});
     }
 
 

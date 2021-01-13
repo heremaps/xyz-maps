@@ -84,20 +84,14 @@ export default abstract class TileProvider {
     /**
      *  @param options - options to configure the provider
      */
-    constructor(options: TileProviderOptions, cfg?) {
+    constructor(options: TileProviderOptions) {
         const provider = this;
 
         options = options || {};
 
-        for (var c in cfg) {
-            options[c] = cfg[c];
-        }
-
-
         for (var c in options) {
             this[c] = options[c];
         }
-
 
         if (this.id == UNDEF) {
             (<any> this).id = 'TP-' + (Math.random() * 1e6 ^ 0);

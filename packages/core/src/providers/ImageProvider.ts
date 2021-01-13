@@ -45,8 +45,9 @@ export class ImageProvider extends TileProvider {
      *  @param options - options to configure the provider
      */
     constructor(options) {
-        super(options, {
-            'storage': new LRUStorage(512)
+        super({
+            storage: new LRUStorage(512),
+            ...options
         });
 
         const provider = this;
@@ -167,7 +168,7 @@ export class ImageProvider extends TileProvider {
      *
      * @param quadkey - the quadkey of the tile that should be canceled and removed.
      */
-    cancel(quadkey: string ): void;
+    cancel(quadkey: string): void;
     /**
      * Cancel ongoing request(s) and drop the tile.
      *
