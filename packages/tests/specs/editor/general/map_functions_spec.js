@@ -49,11 +49,11 @@ describe('convert pixel and geo coordinates', function() {
     });
 
     it('validate geotopixel function', function() {
-        expect(editor.geoToPixel({longitude: 77.79802, latitude: 12.62214})).to.deep.equal({x: 400, y: 300, z: 0});
+        expect(editor.geoToPixel({longitude: 77.79802, latitude: 12.62214})).to.deep.equal({x: 400, y: 300});
     });
 
     it('validate pixelToGeo function', function() {
-        expect(editor.pixelToGeo({x: 400, y: 300})).to.deep.equal({longitude: 77.79802, latitude: 12.62214, z: 0});
+        expect(editor.pixelToGeo({x: 400, y: 300})).to.deep.equal({longitude: 77.79802, latitude: 12.62214});
     });
 
     it('move map to a new area', async function() {
@@ -63,7 +63,7 @@ describe('convert pixel and geo coordinates', function() {
     });
 
     it('validate geotopixel function after dragging', function() {
-        expect(editor.geoToPixel({longitude: 8.71902, latitude: 50.1109})).to.deep.equal({x: 400, y: 300, z: 0});
-        expect(editor.pixelToGeo({x: 400, y: 300})).to.deep.equal({longitude: 8.71902, latitude: 50.1109, z: 0});
+        expect(editor.geoToPixel({longitude: 8.71902, latitude: 50.1109})).to.deep.equal({x: 400, y: 300});
+        expect(editor.pixelToGeo({x: 400, y: 300})).to.deep.equal({longitude: 8.71902, latitude: 50.1109});
     });
 });
