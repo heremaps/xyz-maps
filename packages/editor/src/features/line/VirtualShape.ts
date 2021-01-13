@@ -17,12 +17,12 @@
  * License-Filename: LICENSE
  */
 
-import Shape from './Shape';
+import {LineShape} from './LineShape';
 
 const DO_NOT_REFRESH_SHAPES = true;
 let lineTools;
 
-class VirtualShape extends Shape {
+class VirtualShape extends LineShape {
     constructor(line, coordinate, index, lTools) {
         lineTools = lTools;
         super(line, coordinate, index, lTools);
