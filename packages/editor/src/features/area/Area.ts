@@ -57,15 +57,15 @@ class Area extends Feature {
     readonly class: 'AREA';
 
     /**
-     *  Get the coordinate(s) of the Area feature.
+     *  Get the geographical coordinate(s) of the Area feature.
      */
-    coord(): GeoPoint[][][] | GeoPoint[][][][];
+    coord(): [number, number, number?][][][] | [number, number, number?][][][][];
     /**
-     *  Set the coordinate(s) of the Area feature.
+     *  Set the geographical coordinate(s) of the Area feature.
      *
-     *  @param coordinates - the coordinates that should be set.
+     *  @param coordinates - the geographical coordinates that should be set.
      */
-    coord(coordinates: GeoPoint[][][] | GeoPoint[][][][]);
+    coord(coordinates: [number, number, number?][][][] | [number, number, number?][][][][]);
 
     coord(coords?) {
         const feature = this;

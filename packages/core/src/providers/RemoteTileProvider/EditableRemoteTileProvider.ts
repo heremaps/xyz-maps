@@ -381,7 +381,7 @@ export abstract class EditableRemoteTileProvider extends EditableFeatureProvider
     search(options: {
         id?: number | string,
         ids?: number[] | string[],
-        point?: GeoPoint,
+        point?: GeoPoint | [number, number, number?],
         radius?: number,
         rect?: GeoRect | GeoJSONBBox
         remote?: boolean,

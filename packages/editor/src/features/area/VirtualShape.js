@@ -19,8 +19,9 @@
 
 // TODO: merge public and internal code and remove circle dep!
 
-function AreaShape(HERE_WIKI, area, x, y, pIndex, polygonTools) {
+function AreaShape( area, x, y, pIndex, polygonTools) {
     let isMoved;
+    let HERE_WIKI = area._e();
 
     function hoverShapePnt(e) {
         let cursor;

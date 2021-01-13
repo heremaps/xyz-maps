@@ -19,14 +19,14 @@
 
 import oTools from '../oTools';
 import {JSUtils} from '@here/xyz-maps-common';
-import {Feature as GeoJSONFeature, GeoPoint, providers} from '@here/xyz-maps-core';
+import {Feature as GeoJSONFeature, GeoPoint, EditableRemoteTileProvider} from '@here/xyz-maps-core';
 import {EditorProperties, DefaultEditorProperties} from './EditorProperties';
 import {FeatureProperties} from './Properties';
 import InternalEditor from '../../IEditor';
 import {Style} from '@here/xyz-maps-core';
 
 
-type EditableProvider = providers.EditableRemoteTileProvider;
+type EditableProvider = EditableRemoteTileProvider;
 let UNDEF;
 
 const cpyCoord = (c) => {
@@ -73,7 +73,7 @@ class Feature extends GeoJSONFeature {
         return this.class + ' 🌎 ' + this.id;
     };
 
-    getProvider(): providers.EditableRemoteTileProvider {
+    getProvider(): EditableRemoteTileProvider {
         // return super.getProvider();
         return <EditableProvider> this._provider;
     }
@@ -235,15 +235,15 @@ class Feature extends GeoJSONFeature {
     /**
      *  Get the coordinate(s) of the feature.
      */
-    coord(): GeoPoint[] | GeoPoint[][] | GeoPoint[][][] | GeoPoint[][][][];
+    coord(): Coordinate[] | Coordinate[][] | Coordinate[][][] | Coordinate[][][][];
     /**
      *  Set the coordinate(s) of the feature.
      *
      *  @param coordinates - the coordinates that should be set. The coordinates must match features geometry type.
      */
-    coord(coordinates: GeoPoint[] | GeoPoint[][] | GeoPoint[][][] | GeoPoint[][][][]);
+    coord(coordinates: Coordinate[] | Coordinate[][] | Coordinate[][][] | Coordinate[][][][]);
 
-    coord(coordinates?: GeoPoint[] | GeoPoint[][] | GeoPoint[][][] | GeoPoint[][][][]) {
+    coord(coordinates?: Coordinate[] | Coordinate[][] | Coordinate[][][] | Coordinate[][][][]) {
         const feature = this;
         const geoType = feature.geometry.type;
         let coords;

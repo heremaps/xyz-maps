@@ -125,120 +125,6 @@ export const features = ((() => {
     return objects;
 }))();
 
-
-/**
- *    A class representing a pixel coordinate.
- *    Pass in x, y coordinates in pixel.
- *
- *    @public
- *    @class
- *    @expose
- *    @constructor
- *    @param {Number} x
- *        pixel coordinate in x axis.
- *    @param {Number} y
- *        pixel coordinate in y axis.
- *    @param {Number=} z
- *        ZLevel
- *
- *    @name here.xyz.maps.editor.PixelCoordinate
- */
-export const PixelCoordinate = function(x, y, z) {
-    /**
-     *    pixel coordinate in x axis.
-     *
-     *    @public
-     *    @expose
-     *    @readonly
-     *
-     *  @type {number}
-     *
-     *  @name here.xyz.maps.editor.PixelCoordinate#x
-     */
-    this['x'] = x;
-
-    /**
-     *    pixel coordinate in y axis.
-     *
-     *    @public
-     *    @expose
-     *    @readonly
-     *
-     *    @type {number}
-     *
-     *  @name here.xyz.maps.editor.PixelCoordinate#y
-     */
-    this['y'] = y;
-
-    /**
-     *    ZLevel
-     *
-     *    @public
-     *    @expose
-     *    @readonly
-     *
-     *    @type {number}
-     *
-     *  @name here.xyz.maps.editor.PixelCoordinate#z
-     */
-    this['z'] = z || 0;
-};
-
-/**
- *    A class representing a WGS coordinate.
- *    Pass in longitude and latitude.
- *
- *    @class
- *    @public
- *    @expose
- *    @constructor
- *    @param {Number} lon
- *        longitude.
- *    @param {Number} lat
- *        latitude.
- *    @param {Number=} z
- *        ZLevel
- *
- *    @name here.xyz.maps.editor.GeoCoordinate
- */
-export const GeoCoordinate = function(lon, lat, z) {
-    /**
-     *    longitude coordinate.
-     *
-     *    @public
-     *    @expose
-     *    @readonly
-     *    @type {Number}
-     *  @name here.xyz.maps.editor.GeoCoordinate.prototype.longitude
-     */
-    this[LONGITUDE] = lon;
-
-    /**
-     *    latitude coordinate.
-     *
-     *    @public
-     *    @expose
-     *    @readonly
-     *    @type {Number}
-     *  @name here.xyz.maps.editor.GeoCoordinate.prototype.latitude
-     */
-    this[LATITUDE] = lat;
-
-    /**
-     *    ZLevel
-     *
-     *    @public
-     *    @expose
-     *    @readonly
-     *
-     *
-     *    @type {Number}
-     *
-     *  @name here.xyz.maps.editor.GeoCoordinate.prototype.z
-     */
-    this['z'] = z || 0;
-};
-
 export {Editor};
 
 
@@ -248,12 +134,20 @@ let scp = global;
 for (let i = 0; i < dns.length - 1; i++) {
     scp = scp[dns[i]] = scp[dns[i]] || {};
 }
-
+// support for deprecated legacy (namespace based) api interface
 const editor = scp[dns.pop()] = {
     Editor: Editor,
     features: features,
-    PixelCoordinate: PixelCoordinate,
-    GeoCoordinate: GeoCoordinate
+    PixelCoordinate: function(x: number, y: number, z: number) {
+        this.y = x;
+        this.x = y;
+        this.z = z || 0;
+    },
+    GeoCoordinate: function(lon: number, lat: number, z: number) {
+        this.longitude = lon;
+        this.latitude = lat;
+        this.z = z || 0;
+    }
 };
 
 

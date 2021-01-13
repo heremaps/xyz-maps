@@ -20,7 +20,7 @@
 import {DefaultEditorProperties} from './feature/EditorProperties';
 import FeatureContainer from './Container';
 import {geotools} from '@here/xyz-maps-common';
-import {layers, providers} from '@here/xyz-maps-core';
+import {FeatureProvider, TileLayer} from '@here/xyz-maps-core';
 import {Coordinate} from '@here/xyz-maps-core/src/features/GeoJSON';
 
 let UNDEF;
@@ -72,14 +72,14 @@ const createRect = (minLon: number, minLat: number, maxLon: number, maxLat: numb
 };
 
 class Overlay {
-    layer: layers.TileLayer;
+    layer: TileLayer;
 
-    constructor(layer: layers.TileLayer) {
+    constructor(layer: TileLayer) {
         this.layer = layer;
     }
 
-    getProvider(): providers.FeatureProvider {
-        return <providers.FeatureProvider> this.layer.getProvider();
+    getProvider(): FeatureProvider {
+        return <FeatureProvider> this.layer.getProvider();
     }
 
     hideFeature() {

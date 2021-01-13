@@ -18,7 +18,7 @@
  */
 
 // import EDITOR from '../../editor';
-import Shape from './Shape';
+import {LineShape} from './LineShape';
 import {getSegmentIndex, getPntAt} from '../../geometry';
 import VirtualShape from './VirtualShape';
 
@@ -147,7 +147,7 @@ const tools = {
     displayShapes: (line) => {
         if (getPrivate(line, 'isSelected')) {
             const path = line.geometry.coordinates;
-            tools.createShapes(line, path, 'shps', Shape);
+            tools.createShapes(line, path, 'shps', LineShape);
             tools.createVShapes(line);
         }
     },
