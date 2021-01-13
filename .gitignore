@@ -4,3 +4,4 @@ credentials.json
 .awspublish-*
 .idea/
 debug/token.js
+docs/
