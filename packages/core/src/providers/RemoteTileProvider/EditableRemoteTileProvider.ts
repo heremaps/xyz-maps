@@ -79,13 +79,11 @@ export abstract class EditableRemoteTileProvider extends EditableFeatureProvider
      */
     protected constructor(options: EditableRemoteTileProviderOptions) {
         super({
-            'minLevel': 8,
-            'maxLevel': 20,
-            'staticData': false
-            // ,'indexed' : config.indexed != UNDEF
-            //     ? config.indexed
-            //     : true
-        }, options);
+            minLevel: 8,
+            maxLevel: 20,
+            staticData: false,
+            ...options
+        });
 
         const provider = this;
 

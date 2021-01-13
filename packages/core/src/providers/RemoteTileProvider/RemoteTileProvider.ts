@@ -54,15 +54,13 @@ export class RemoteTileProvider extends FeatureProvider {
     /**
      * @param options - options to configure the provider
      */
-    constructor(options: RemoteTileProviderOptions, preprocessor?: (data: any) => boolean) {
+    constructor(options: RemoteTileProviderOptions) {
         super(<any>{
-            'minLevel': 8,
-            'maxLevel': 20,
-            'staticData': false
-            // ,'indexed' : config.indexed != UNDEF
-            //     ? config.indexed
-            //     : true
-        }, options);
+            minLevel: 8,
+            maxLevel: 20,
+            staticData: false,
+            ...options
+        });
 
         const provider = this;
 
