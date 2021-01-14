@@ -19,7 +19,7 @@
 
 import {getPointAtLength, getTotalLength, getSegmentIndex} from '../../geometry';
 import {calcRelPosOfPoiAtLink, getRelPosOfPointOnLine} from '../../map/GeoMath';
-import {features, layers, projection} from '@here/xyz-maps-core';
+import {Feature, TileLayer, projection} from '@here/xyz-maps-core';
 import {JSUtils} from '@here/xyz-maps-common';
 import MultiLink from './MultiLink';
 
@@ -53,7 +53,7 @@ function getPointAtLine(
     };
 }
 
-class ZoneMarker extends features.Feature {
+class ZoneMarker extends Feature {
     private isLocked: () => boolean;
     private onDrag: () => void;
     private onDragEnd: () => void;
@@ -66,7 +66,7 @@ class ZoneMarker extends features.Feature {
         relPos: number;
     }
 
-    constructor(overlay: layers.TileLayer, multiLink, side: string, relPos: number, styleGroup, isLocked, onDrag, onDragEnd) {
+    constructor(overlay: TileLayer, multiLink, side: string, relPos: number, styleGroup, isLocked, onDrag, onDragEnd) {
         styleGroup = JSUtils.clone(styleGroup);
 
         for (let style of styleGroup) {

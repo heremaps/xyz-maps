@@ -17,7 +17,7 @@
  * License-Filename: LICENSE
  */
 
-import {features} from '@here/xyz-maps-core';
+import {Feature} from '@here/xyz-maps-core';
 import {Line} from './Line';
 // const Feature = features.Feature;
 
@@ -29,7 +29,7 @@ let UNDEF;
  * The LineShape is only existing if the corresponding Line feature is "selected" and user based geometry editing with touch/mouse interaction is activated.
  * @see {@link Line.select}
  */
-class LineShape extends features.Feature {
+class LineShape extends Feature {
     private _l: Line;
     class: string;
     properties: {

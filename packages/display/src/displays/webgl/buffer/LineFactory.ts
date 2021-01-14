@@ -23,9 +23,7 @@ import {DashAtlas} from '../DashAtlas';
 import {GlyphTexture} from '../GlyphTexture';
 import {TextBuffer} from './templates/TextBuffer';
 import {addLineText} from './addLineText';
-import {tile} from '@here/xyz-maps-core';
-
-type Tile = tile.Tile;
+import {Tile} from '@here/xyz-maps-core';
 
 const DEFAULT_MIN_TEXT_REPEAT = 256;
 let UNDEF;

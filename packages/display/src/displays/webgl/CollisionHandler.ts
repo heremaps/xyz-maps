@@ -17,14 +17,11 @@
  * License-Filename: LICENSE
  */
 
-import {tile} from '@here/xyz-maps-core';
+import {Tile, tileUtils} from '@here/xyz-maps-core';
 import Display from './Display';
 import {Attribute} from './buffer/Attribute';
 import {Layer} from '../Layers';
 import {FlexAttribute} from './buffer/templates/TemplateBuffer';
-
-const tileUtils = tile.Utils;
-type Tile = tile.Tile;
 
 type BBox = { minX: number, maxX: number, minY: number, maxY: number };
 type Collision = { rendered: any[]; neighbours: BBox[] }

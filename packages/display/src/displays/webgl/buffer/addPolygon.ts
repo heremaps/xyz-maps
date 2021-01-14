@@ -17,10 +17,8 @@
  * License-Filename: LICENSE
  */
 
-import {tile} from '@here/xyz-maps-core';
+import {Tile} from '@here/xyz-maps-core';
 import {FlexArray} from './templates/FlexArray';
-
-type Tile = tile.Tile;
 
 type Coordinate = [number, number, number?];
 

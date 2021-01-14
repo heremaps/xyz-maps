@@ -20,7 +20,7 @@
 import {TaskManager} from '@here/xyz-maps-common';
 import {GeometryBuffer} from './GeometryBuffer';
 import {getValue, parseStyleGroup} from '../../styleTools';
-import {tile} from '@here/xyz-maps-core';
+import {Tile} from '@here/xyz-maps-core';
 import {Layer} from '../../Layers';
 import {FeatureFactory} from './FeatureFactory';
 import {TemplateBuffer} from './templates/TemplateBuffer';
@@ -36,8 +36,6 @@ const TO_RAD = Math.PI / 180;
 const COLOR_UNDEFINED = new Float32Array([-1.0, -1.0, -1.0, -1.0]);
 
 let UNDEF;
-
-type Tile = tile.Tile;
 
 const handlePolygons = (factory: FeatureFactory, feature, coordinates, styleGroups, lsScale, tile) => {
     const zoom = factory.z;
