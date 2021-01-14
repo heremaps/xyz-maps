@@ -21,6 +21,7 @@ import {Feature} from '../feature/Feature';
 
 /**
  * The Marker Feature is a generic editable Feature with "Point" geometry.
+ * The Feature can be edited with the {@link Editor}.
  */
 export class Marker extends Feature {
     /**

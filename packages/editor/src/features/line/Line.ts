@@ -27,6 +27,7 @@ const throwError = (msg) => {
 
 /**
  * The Line Feature is a generic editable Feature with "LineString" geometry.
+ * The Feature can be edited with the {@link Editor}.
  */
 class Line extends Feature {
     /**

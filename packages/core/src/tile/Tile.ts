@@ -20,7 +20,8 @@
 import {quadToGrid, getGeoBounds} from './TileUtils';
 import RTree from '../features/RTree';
 import projection from '../projection/webMercator';
-import {Feature} from '@here/xyz-maps-core';
+import {Feature} from '../features/Feature';
+import {GeoJSONCoordinate} from '../features/GeoJSON';
 
 
 const TILESIZE = 256;
@@ -219,7 +220,7 @@ export class Tile {
         return projection.lat2y(lat, worldsize) - tileY; // +.5^0;
     };
 
-    isInside(point: [number, number, number?]) {
+    isInside(point: GeoJSONCoordinate) {
         const rect = this.bounds;
         const x = point[0];
         const y = point[1];

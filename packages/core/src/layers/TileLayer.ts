@@ -28,8 +28,11 @@ import {TileLayerOptions} from './Options';
 import TileProvider from '../providers/TileProvider/TileProvider';
 import {RemoteTileProvider} from '../providers/RemoteTileProvider/RemoteTileProvider';
 import {FeatureProvider} from '../providers/FeatureProvider';
-import {Tile, Feature, GeoPoint, GeoRect} from '@here/xyz-maps-core';
-import {GeoJSONBBox, GeoJSONCoordinates, GeoJSONFeature, GeoJSONFeatureCollection} from '../features/GeoJSON';
+import {Tile} from '../tile/Tile';
+import {Feature} from '../features/Feature';
+import {GeoPoint} from '../geo/GeoPoint';
+import {GeoRect} from '../geo/GeoRect';
+import {GeoJSONBBox, GeoJSONCoordinate, GeoJSONFeature, GeoJSONFeatureCollection} from '../features/GeoJSON';
 
 const REMOVE_FEATURE_EVENT = 'featureRemove';
 const ADD_FEATURE_EVENT = 'featureAdd';
@@ -270,7 +273,7 @@ export class TileLayer {
      * @param feature - the Feature whose coordinates should be modified
      * @param coordinates - the modified coordinates to set. The coordinates must match features geometry type.
      */
-    setFeatureCoordinates(feature: Feature, coordinates: GeoJSONCoordinates) {
+    setFeatureCoordinates(feature: Feature, coordinates: GeoJSONCoordinate | GeoJSONCoordinate[] | GeoJSONCoordinate[][] | GeoJSONCoordinate[][][]) {
         return this._fp.setFeatureCoordinates(feature, coordinates);
     };
 
@@ -535,7 +538,7 @@ export class TileLayer {
         }
     };
 
-    cancelTile(tile: Tile|string, cb?) {
+    cancelTile(tile: Tile | string, cb?) {
         const level = typeof tile == 'string'
             ? tile.length
             : tile.quadkey.length;

@@ -22,13 +22,11 @@ import LoaderManager from '../../loaders/Manager';
 import TileReceiver from './TileReceiver';
 import {tileUtils} from '../../tile/TileUtils';
 import {Tile} from '../../tile/Tile';
-/* exported Options */
-
 import {EditableRemoteTileProviderOptions} from './EditableRemoteTileProviderOptions';
 import {EditableFeatureProvider} from '../EditableFeatureProvider';
 import {Feature} from '../../features/Feature';
 import {PostProcesserInput, createRemoteProcessor, isPostprocessor} from './processors';
-import {GeoJSONBBox, GeoJSONFeature} from '../../features/GeoJSON';
+import {GeoJSONCoordinate, GeoJSONBBox, GeoJSONFeature} from '../../features/GeoJSON';
 import {GeoPoint, GeoRect} from '@here/xyz-maps-core';
 
 let UNDEF;
@@ -36,8 +34,6 @@ let UNDEF;
 type TileLoader = any;
 
 type Navlink = Feature;
-
-type Coordinate = [number, number, number?];
 
 type EditorFeature = { editState: (state?: string, value?) => any };
 
@@ -379,7 +375,7 @@ export abstract class EditableRemoteTileProvider extends EditableFeatureProvider
     search(options: {
         id?: number | string,
         ids?: number[] | string[],
-        point?: GeoPoint | [number, number, number?],
+        point?: GeoPoint | GeoJSONCoordinate,
         radius?: number,
         rect?: GeoRect | GeoJSONBBox
         remote?: boolean,
@@ -896,7 +892,7 @@ export abstract class EditableRemoteTileProvider extends EditableFeatureProvider
         return this.id;
     }
 
-    readRoutingPosition(feature: any): [number, number, number?] {
+    readRoutingPosition(feature: any): GeoJSONCoordinate {
         throw new Error(METHOD_NOT_IMPLEMENTED);
     }
 
@@ -904,7 +900,7 @@ export abstract class EditableRemoteTileProvider extends EditableFeatureProvider
         throw new Error(METHOD_NOT_IMPLEMENTED);
     }
 
-    writeRoutingPosition(feature: any, position: [number, number, number?]) {
+    writeRoutingPosition(feature: any, position: GeoJSONCoordinate) {
         throw new Error(METHOD_NOT_IMPLEMENTED);
     }
 
@@ -916,7 +912,7 @@ export abstract class EditableRemoteTileProvider extends EditableFeatureProvider
         throw new Error(METHOD_NOT_IMPLEMENTED);
     }
 
-    writeRoutingPoint(location, link: Navlink | null, position: Coordinate | null) {
+    writeRoutingPoint(location, link: Navlink | null, position: GeoJSONCoordinate | null) {
         this.writeRoutingLink(location, link);
         this.writeRoutingPosition(location, position);
     };

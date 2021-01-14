@@ -21,9 +21,9 @@ import {EditableFeatureProvider} from './EditableFeatureProvider';
 import LRUStorage from '../storage/LRUStorage';
 import {Feature} from '../features/Feature';
 import {TileStorage} from '../storage/TileStorage';
+import {GeoJSONCoordinate} from '../features/GeoJSON';
 
 type Navlink = Feature;
-type Coordinate = [number, number, number?];
 
 
 const METHOD_NOT_IMPLEMENTED = 'Method not implemented.';
@@ -135,7 +135,7 @@ export class LocalProvider extends EditableFeatureProvider {
         return this.id;
     }
 
-    readRoutingPosition(feature: any): [number, number, number?] {
+    readRoutingPosition(feature: any): GeoJSONCoordinate {
         throw new Error(METHOD_NOT_IMPLEMENTED);
     }
 
@@ -143,7 +143,7 @@ export class LocalProvider extends EditableFeatureProvider {
         throw new Error(METHOD_NOT_IMPLEMENTED);
     }
 
-    writeRoutingPosition(feature: any, position: [number, number, number?]) {
+    writeRoutingPosition(feature: any, position: GeoJSONCoordinate) {
         throw new Error(METHOD_NOT_IMPLEMENTED);
     }
 
@@ -155,7 +155,7 @@ export class LocalProvider extends EditableFeatureProvider {
         throw new Error(METHOD_NOT_IMPLEMENTED);
     }
 
-    writeRoutingPoint(location, link: Navlink | null, position: Coordinate | null) {
+    writeRoutingPoint(location, link: Navlink | null, position: GeoJSONCoordinate | null) {
         this.writeRoutingLink(location, link);
         this.writeRoutingPosition(location, position);
     }

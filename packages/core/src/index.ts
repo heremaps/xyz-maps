@@ -28,6 +28,8 @@ export * from './features/Feature';
 export * from './tile/Tile';
 export * from './service/GeoCoder';
 export {tileUtils} from './tile/TileUtils';
+export * from './features/GeoJSON';
+
 
 export {ImageProvider} from './providers/ImageProvider';
 export {GeoJSONProvider} from './providers/GeoJSONProvider';

@@ -27,18 +27,82 @@ export type GeoJSONGeometryType =
 
 export type GeoJSONBBox = [number, number, number, number];
 
-export type Coordinate = [number, number, number?];
+/**
+ * A GeoJSON Geometry coordinate is a array of coordinates.
+ * The array must contain two or three elements [longitude, latitude, altitude?] / [x, y, z?].
+ */
+export type GeoJSONCoordinate = [number, number] | [number, number, number];
 
-export type GeoJSONCoordinates = Coordinate | Coordinate[] | Coordinate[][] | Coordinate[][][];
-
+/**
+ * A GeoJSON Feature object.
+ */
 export interface GeoJSONFeature {
+    /**
+     *  id of the feature.
+     */
     id?: string | number;
-    bbox?: GeoJSONBBox;
-    properties?: { [name: string]: any };
+
+    /**
+     * Type of a GeoJSONFeature is 'Feature'
+     */
     type?: 'Feature';
+
+    /*
+     * The bounding box includes information on the coordinate range of the Features.
+     * The values of a bbox array are "[west: number, south: number, east: number, north: number]"
+     */
+    bbox?: GeoJSONBBox;
+
+    /**
+     *  The properties associated with the feature.
+     */
+    properties: { [name: string]: any; } | null;
+
+    /**
+     *  A geometry is a object where the type member's value is one of: "Point", "MultiPoint", "LineString", "MultiLineString", "Polygon" or "MultiPolygon".
+     *  A geometry object must have a member with the name "coordinates".
+     *  The value of the coordinates member is always an array (referred to as the coordinates array below).
+     *  The structure for the elements in this array are determined by the type of geometry.
+     *
+     *  For type "Point", each element in the coordinates array is a number representing the point coordinate in one dimension.
+     *      There must be at least two elements, and may be more.
+     *      The order of elements must follow x, y, z order (or longitude, latitude, altitude for coordinates in a geographic coordinate reference system).
+     *
+     *  For type "MultiPoint", each element in the coordinates array is a coordinates array as described for type "Point".
+     *
+     *  For type "LineString", each element in the coordinates array is a coordinates array as described for type "Point".
+     *      The coordinates array for a LineString must have two or more elements.
+     *      A LinearRing is a special case of type LineString where the first and last elements in the coordinates array are equivalent (they represent equivalent points).
+     *      Though a LinearRing is not explicitly represented as a geometry type, it is referred to in the Polygon geometry type definition.
+     *
+     *  For type "MultiLineString", each element in the coordinates array is a coordinates array as described for type "LineString".
+     *
+     *  For type "Polygon", each element in the coordinates array is a coordinates array as described for type "LineString".
+     *      Furthermore, each LineString in the coordinates array must be a LinearRing.
+     *      For Polygons with multiple LinearRings, the first must be the exterior ring and any others must be interior rings or holes.
+     *
+     *  For type "MultiPolygon", each element in the coordinates array is a coordinates array as described for type "Polygon".
+     *
+     *
+     * ```
+     * Point:
+     * {
+     *     "type": "Point",
+     *     "coordinates": [100.0, 0.0]
+     * }
+     *
+     * Polygon:
+     * {
+     *     "type": "Polygon",
+     *     "coordinates": [
+     *         [ [100.0, 0.0], [101.0, 0.0], [101.0, 1.0], [100.0, 1.0], [100.0, 0.0] ]
+     *     ]
+     * }
+     *```
+     */
     geometry: {
         type: GeoJSONGeometryType,
-        coordinates: GeoJSONCoordinates
+        coordinates: GeoJSONCoordinate | GeoJSONCoordinate[] | GeoJSONCoordinate[][] | GeoJSONCoordinate[][][]
     };
 }
 

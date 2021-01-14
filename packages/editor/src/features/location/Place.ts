@@ -26,6 +26,8 @@ import {Navlink} from '@here/xyz-maps-editor';
  * The Place Feature is a generic editable Feature with "Point" geometry.
  * In addition to the Marker Feature, the Place feature can have a "routing point" located on a Navlink geometry.
  * A Place can be linked/associated with a Navlink Feature.
+ *
+ * The Feature can be edited with the {@link Editor}.
  */
 class Place extends Location {
     /**

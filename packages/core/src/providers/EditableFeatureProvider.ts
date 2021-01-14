@@ -20,6 +20,7 @@
 import {FeatureProvider as FeatureTileProvider} from './FeatureProvider';
 import {Feature} from '../features/Feature';
 import {JSUtils} from '@here/xyz-maps-common';
+import {GeoJSONCoordinate} from '../features/GeoJSON';
 
 type FeatureClass = 'LINE' | 'NAVLINK' | 'MARKER' | 'PLACE' | 'ADDRESS' | 'AREA';
 
@@ -28,8 +29,6 @@ type FeatureClass = 'LINE' | 'NAVLINK' | 'MARKER' | 'PLACE' | 'ADDRESS' | 'AREA'
 type NavlinkId = string | number;
 
 type Navlink = Feature;
-
-type Coordinate = [number, number, number?];
 
 // const METHOD_NOT_IMPLEMENTED = 'Method not implemented.';
 
@@ -106,11 +105,11 @@ export abstract class EditableFeatureProvider extends FeatureTileProvider {
 
     abstract readRoutingProvider(location: Feature): string; // return undefined -> provider itself acts as routing provider
 
-    abstract readRoutingPosition(feature): Coordinate;
+    abstract readRoutingPosition(feature): GeoJSONCoordinate;
 
     abstract readRoutingLink(feature): NavlinkId;
 
-    abstract writeRoutingPosition(feature, position: Coordinate | null);
+    abstract writeRoutingPosition(feature, position: GeoJSONCoordinate | null);
 
     abstract writeRoutingLink(location, link: Navlink | null);
 
@@ -118,7 +117,7 @@ export abstract class EditableFeatureProvider extends FeatureTileProvider {
     abstract writeEditState(feature, editState: 'created' | 'modified' | 'removed' | 'split');
 
 
-    readRoutingPoint(location): { link: NavlinkId, position: Coordinate } {
+    readRoutingPoint(location): { link: NavlinkId, position: GeoJSONCoordinate } {
         return {
             link: this.readRoutingLink(location),
             position: this.readRoutingPosition(location)

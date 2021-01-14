@@ -26,6 +26,8 @@ import {Navlink} from '@here/xyz-maps-editor';
  * The Address Feature is a generic editable Feature with "Point" geometry.
  * In addition to the Marker Feature, the Place feature must have a "routing point" located on a Navlink geometry.
  * A Address must be linked/associated with a Navlink Feature.
+ *
+ * The Feature can be edited with the {@link Editor}.
  */
 class Address extends Location {
     readonly class: 'ADDRESS';
