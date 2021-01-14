@@ -20,7 +20,7 @@
 import {intersectLineLine} from '../../geometry';
 import InternalEditor from '../../IEditor';
 import {Area} from './Area';
-import {FeatureProvider, features} from '@here/xyz-maps-core';
+import {FeatureProvider, Feature} from '@here/xyz-maps-core';
 import {GeoJSONFeature} from '@here/xyz-maps-core/src/features/GeoJSON';
 
 function intersectLinePoly(l1, l2, poly) {
@@ -90,7 +90,7 @@ type PrivateData = {
  * The AreaShape is only existing if the corresponding Area feature is "selected" and user based geometry editing with touch/mouse interaction is activated.
  * @see {@link Area.select}
  */
-class AreaShape extends features.Feature {
+class AreaShape extends Feature {
     /**
      * The feature class of an AreaShape Feature is "AREA_SHAPE".
      */

@@ -17,11 +17,10 @@
  * License-Filename: LICENSE
  */
 
-import {tile} from '@here/xyz-maps-core';
+import {Tile} from '@here/xyz-maps-core';
 import {PixelCoordinateCache} from './LineFactory';
 import {isInBox, intersectBBox} from '../../../geometry';
 
-type Tile = tile.Tile;
 export type Cap = 'round' | 'butt' | 'square';
 export type Join = 'round' | 'bevel' | 'miter' | 'none';
 

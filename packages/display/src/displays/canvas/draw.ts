@@ -25,7 +25,7 @@ import CanvasTile from './CanvasTile';
 import drawLine from './drawLine';
 import drawPoint from './drawPoint';
 
-import {tile} from '@here/xyz-maps-core';
+import {Tile} from '@here/xyz-maps-core';
 
 const DEFAULT_LINE_JOIN_CAP = 'round';
 const DEFAULT_TEXT_ALIGN = 'center';
@@ -105,7 +105,7 @@ const init = (tileCtx: CanvasRenderingContext2D, renderStyle, zoomLevelScaling: 
     return true;
 };
 
-const feature = (tile: tile.Tile, tileCtx: CanvasRenderingContext2D, feature, text: string, renderStyle, displayTile: CanvasTile, layer, pmap: {}, display, devicePixelRatio: number) => {
+const feature = (tile: Tile, tileCtx: CanvasRenderingContext2D, feature, text: string, renderStyle, displayTile: CanvasTile, layer, pmap: {}, display, devicePixelRatio: number) => {
     // let coords = feature.geometry.coordinates;
     let coords = feature.getProvider().decCoord(feature);
     let geometryType = feature.geometry.type;

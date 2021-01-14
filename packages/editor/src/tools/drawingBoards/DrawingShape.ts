@@ -18,7 +18,7 @@
  */
 
 import {JSUtils} from '@here/xyz-maps-common';
-import {features} from '@here/xyz-maps-core';
+import {Feature} from '@here/xyz-maps-core';
 import ClickDraw from './ClickDraw';
 import InternalEditor from '../../IEditor';
 
@@ -28,7 +28,7 @@ type FeatureShapeClass = 'LINE_SHAPE' | 'NAVLINK_SHAPE' | 'AREA_SHAPE';
  * The DrawingShape represents a coordinate (shape-point) of the geometry that's drawn in the current drawing operation of the DrawingBoard utility.
  * {@link editor.DrawingBoard}
  */
-class DrawingShape extends features.Feature {
+class DrawingShape extends Feature {
     properties: { [name: string]: any };
 
     /**

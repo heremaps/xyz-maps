@@ -18,7 +18,7 @@
  */
 
 import {JSUtils, global} from '@here/xyz-maps-common';
-import {GeoPoint, TileLayer, PixelPoint, EditableRemoteTileProvider, GeoRect, layers} from '@here/xyz-maps-core';
+import {GeoPoint, TileLayer, PixelPoint, EditableRemoteTileProvider, GeoRect} from '@here/xyz-maps-core';
 import {Map} from '@here/xyz-maps-display';
 import {DrawingBoard} from './DrawingBoard';
 import {Zone, ZoneSelector} from './EZoneSelector';
@@ -837,7 +837,7 @@ export default class Editor {
             layer = layer instanceof Array ? layer : [layer];
             for (const i in layer) {
                 const l = layer[i];
-                if (l && l instanceof layers.TileLayer && l['type'] == 'MARKER') {
+                if (l && l instanceof TileLayer && l['type'] == 'MARKER') {
                     l['base'] && markerLayers.push(l['base']);
                     l['delta'] && markerLayers.push(l['delta']);
                     l['src'] && markerLayers.push(l['src']);

@@ -17,14 +17,10 @@
  * License-Filename: LICENSE
  */
 
-// import LayerClusterer from '../LayerClusterer';
 import Painter from './Painter';
 import {TaskManager} from '@here/xyz-maps-common';
-// import Preview from '../Preview';
-import {tile} from '@here/xyz-maps-core';
 import BasicRender from '../BasicRender';
 import CanvasTile from './CanvasTile';
-// type Tile = tile.Tile;
 
 const RENDER_TILE_SIZE = 256;
 const exclusiveTimeMS = 4;

@@ -17,12 +17,12 @@
  * License-Filename: LICENSE
  */
 
-import {providers, layers} from '@here/xyz-maps-core';
+import {LocalProvider, TileLayer} from '@here/xyz-maps-core';
 import OverlayStyles from '../styles/OverlayStyles';
 import InternalEditor from '../IEditor';
 
 
-export class OverlayProvider extends providers.LocalProvider {
+export class OverlayProvider extends LocalProvider {
     id: string;
     _e: () => InternalEditor;
     constructor(options = {}) {
@@ -32,12 +32,12 @@ export class OverlayProvider extends providers.LocalProvider {
     }
 };
 
-export const createOverlayLayer = (iEdit: InternalEditor): layers.TileLayer => {
+export const createOverlayLayer = (iEdit: InternalEditor): TileLayer => {
     const provider = new OverlayProvider();
 
     provider._e = () => iEdit;
 
-    return new layers.TileLayer({
+    return new TileLayer({
         name: 'EditorOverlay',
         min: 1,
         max: 28,

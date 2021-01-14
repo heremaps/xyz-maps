@@ -17,7 +17,7 @@
  * License-Filename: LICENSE
  */
 
-import {tile} from '@here/xyz-maps-core';
+import {Tile} from '@here/xyz-maps-core';
 import {ImageInfo} from '../Atlas';
 import {addPoint} from './addPoint';
 
@@ -29,7 +29,7 @@ const addIcon = (
     vertex: number[],
     texcoord: number[],
     coordinates: [number, number, number?],
-    tile: tile.Tile,
+    tile: Tile,
     tileSize: number
 ) => {
     if (addPoint(vertex, coordinates, tile, tileSize)) {

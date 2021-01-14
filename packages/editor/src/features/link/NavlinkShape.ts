@@ -18,16 +18,16 @@
  */
 
 import {JSUtils, geotools} from '@here/xyz-maps-common';
-import {FeatureProvider, features} from '@here/xyz-maps-core';
+import {FeatureProvider, Feature} from '@here/xyz-maps-core';
 import GeoFence from './GeoFence';
 import {Navlink} from './NavLink';
 import TurnRestriction from './TurnRestriction';
-import {Feature} from '@here/xyz-maps-editor';
+import {Feature as EditableFeature} from '@here/xyz-maps-editor';
 
 
 const NS_EDITOR = '@ns:com:here:editor';
 
-type GeoJSONFeature = {
+type GeoJonFeature = {
     type: 'Feature',
     geometry: any,
     properties?: {}
@@ -349,7 +349,7 @@ function mouseInHandler() {
  * The NavlinkShape is only existing if the corresponding Navlink feature is "selected" and user based geometry editing with touch/mouse interaction is activated.
  * @see {@link Navlink.select}
  */
-class NavlinkShape extends features.Feature {
+class NavlinkShape extends Feature {
     /**
      * The feature class of an NavlinkShape Feature is "NAVLINK_SHAPE".
      */
@@ -368,7 +368,7 @@ class NavlinkShape extends features.Feature {
         // const overlay = EDITOR.objects.overlay;
         const isNode = (i == 0 || i == line.geometry.coordinates.length - 1);
 
-        const shapePnt: GeoJSONFeature = {
+        const shapePnt: GeoJonFeature = {
 
             type: 'Feature',
 
@@ -487,7 +487,7 @@ class NavlinkShape extends features.Feature {
     remove() {
         const link = this.getLink();
 
-        if (!link._e()._config.editRestrictions(<Feature>(link || this), 2)) {
+        if (!link._e()._config.editRestrictions(<EditableFeature>(link || this), 2)) {
             linkTools.deleteShape(link, this);
         }
     };

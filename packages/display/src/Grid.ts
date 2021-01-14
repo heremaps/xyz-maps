@@ -17,10 +17,9 @@
  * License-Filename: LICENSE
  */
 
-import {tile} from '@here/xyz-maps-core';
+import {tileUtils} from '@here/xyz-maps-core';
 import {doPolygonsIntersect} from './geometry';
 
-const tileUtils = tile.Utils;
 const INFINITY = Infinity;
 
 

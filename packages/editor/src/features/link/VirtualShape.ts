@@ -17,7 +17,7 @@
  * License-Filename: LICENSE
  */
 
-import {features} from '@here/xyz-maps-core';
+import {Feature} from '@here/xyz-maps-core';
 import {JSUtils} from '@here/xyz-maps-common';
 import GeoFence from './GeoFence';
 import {Navlink} from './NavLink';
@@ -29,7 +29,7 @@ type VirtualLinkShapeProperties = {
     parent: Navlink
 };
 
-class VirtualLinkShape extends features.Feature {
+class VirtualLinkShape extends Feature {
     id: string;
     private x: number;
     private y: number;

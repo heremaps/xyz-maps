@@ -19,14 +19,13 @@
 
 import {GlyphTexture} from '../GlyphTexture';
 import {CollisionHandler} from '../CollisionHandler';
-import {tile} from '@here/xyz-maps-core';
+import {Tile} from '@here/xyz-maps-core';
 import {PixelCoordinateCache} from './LineFactory';
 import {FlexAttribute} from './templates/TemplateBuffer';
 import {addText} from './addText';
 import {FlexArray} from './templates/FlexArray';
 import {getRotatedBBox, rotate} from '../../../geometry';
 
-type Tile = tile.Tile;
 
 const TO_DEG = 180 / Math.PI;
 

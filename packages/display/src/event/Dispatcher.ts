@@ -126,17 +126,14 @@ export class EventDispatcher {
         }
 
         function createMapEvent(type, nativeEvent, mapX, mapY, detail) {
-            let tigerEvent = new MapEvent(type, detail);
-            tigerEvent.mapX = mapX;
-            tigerEvent.mapY = mapY;
-            tigerEvent.nativeEvent = nativeEvent;
+            let tigerEvent = new MapEvent(type, detail, nativeEvent, mapX, mapY);
 
             if (detail) {
-                tigerEvent.target = detail.feature;
+                (<any>tigerEvent).target = detail.feature;
                 tigerEvent.detail.display = map;
             }
 
-            tigerEvent.button = nativeEvent.button;
+            // tigerEvent.button = nativeEvent.button;
 
             return tigerEvent;
         }
