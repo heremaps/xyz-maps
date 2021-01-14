@@ -142,19 +142,25 @@ export default class Editor {
      *
      * @example
      * ```
-     * // create Map display
-     * let display = new here.xyz.maps.Map( mapDiv, {
-     *    zoomlevel : 19,
-     *    center: {
-     *        latitude: 50.10905,
-     *        longitude: 8.65734
-     *    },
-     *    // add layers to display
-     *    layers: layers
-     * });
+     *  import {Map} from '@here/xyz-maps-display';
+     *  import {Editor} from '@here/xyz-maps-editor';
      *
-     * // create the editor instance
-     * editor = new MapEditor( display, config);
+     *  //create map display
+     *  const display = new Map( mapDiv, {
+     *      zoomLevel : 19,
+     *      center: {
+     *          longitude: 8.53422,
+     *          latitude: 50.16212
+     *      },
+     *      // add layers to display
+     *      layers: layers
+     *  });
+     *
+     * // create the map editor
+     * editor = new Editor( display, {
+     *      // add the layers that should be edited
+     *     layers: layers
+     * });
      * ```
      */
     constructor(display: Map, options: EditorOptions) {

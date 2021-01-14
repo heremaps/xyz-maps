@@ -128,7 +128,9 @@ export default abstract class TileProvider {
      * @param listener - the eventListener to add
      *
      */
-    addEventListener(type: string, listener: (...args: any[]) => void, context?: any) {
+    addEventListener(type: string, listener: (e: Event) => void);
+
+    addEventListener(type: string, listener: (e: Event) => void, context?: any) {
         return this.listeners.add(type, listener, context);
     }
 
@@ -139,7 +141,9 @@ export default abstract class TileProvider {
      * @param type - type of the event
      * @param listener - the eventListener to remove
      */
-    removeEventListener(type: string, listener: (...args: any[]) => void, context?: any) {
+    removeEventListener(type: string, listener: (e: Event) => void);
+
+    removeEventListener(type: string, listener: (e: Event) => void, context?: any) {
         return this.listeners.remove(type, listener, context);
     }
 
@@ -222,7 +226,7 @@ export default abstract class TileProvider {
      *
      *  @param quadkey - the quadkey of the tile to create
      */
-    createTile(quadkey: string ): Tile {
+    createTile(quadkey: string): Tile {
         const tile = new this.Tile(
             quadkey,
             this.dataType,

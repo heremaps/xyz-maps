@@ -20,7 +20,7 @@
 import {GeoPoint, TileLayer} from '@here/xyz-maps-core';
 
 /**
- *  Configuration of map display.
+ *  Options to configure the map display.
  */
 export interface MapOptions {
     /**
@@ -133,7 +133,10 @@ export const defaultOptions: MapOptions = {
     rotate: 0,
     pitch: 0,
     zoomlevel: 18,
-    center: {longitude: 8.534, latitude: 50.162},
+    center: {
+        longitude: 8.534,
+        latitude: 50.162
+    },
     layers: null,
     maxLevel: 20,
     minLevel: 2,

@@ -88,13 +88,13 @@ function calcZoomLevelForBounds(minLon, minLat, maxLon, maxLat, mapWidth, mapHei
 
 
 /**
- *  XYZ Map is a map display with support for dynamically changing vector data.
+ * XYZ Map is a vector map display optimized for map editing and frequently changing map data.
  */
 export default class Map {
     id: number;
 
-    private _el: HTMLElement;
-    private _l: Listener;
+    private readonly _el: HTMLElement;
+    private readonly _l: Listener;
     private _w: number; // map width in pixel
     private _h: number; // map height in pixel
     private _cx: number; // center screen in pixel
@@ -117,7 +117,7 @@ export default class Map {
 
     private ui: UI;
 
-    private _cfg: MapOptions;// mapconfig
+    private readonly _cfg: MapOptions;// mapconfig
 
     private _evDispatcher: EventDispatcher;
     private _b: Behavior;
@@ -133,33 +133,34 @@ export default class Map {
 
     // TODO: remove
     private layers: TileLayer[];
-    private _vplock: any; // current viewport lock state
+    private readonly _vplock: any; // current viewport lock state
     private zoomAnimator: ZoomAnimator;
     private _search: Search;
 
     /**
-     *  XYZ Map is a map display with support for dynamically changing vector data.
-     *
      *  @param mapEl - HTMLElement used to create the map display
-     *  @param mapOptions - configuration for the map
+     *  @param options - options to configure for the map
      *
      * @example
      *  ```javascript
-     *  //create Map display
-     *  var display = new here.xyz.maps.Map( mapDiv, {
+     *  import {Map} from '@here/xyz-maps-display';
+     *
+     *  //create map display
+     *  const display = new Map( mapDiv, {
      *      zoomLevel : 19,
      *      center: {
-     *          latitude: 50.10905256955773, longitude: 8.657339975607162
+     *          longitude: 8.53422,
+     *          latitude: 50.16212
      *      },
      *      // add layers to display
      *      layers: layers
      *  });
      *  ```
      */
-    constructor(mapEl: HTMLElement, mapOptions: MapOptions) {
-        this._cfg = mapOptions = JSUtils.extend(true,
+    constructor(mapEl: HTMLElement, options: MapOptions) {
+        this._cfg = options = JSUtils.extend(true,
             JSUtils.extend(true, {}, defaultOptions),
-            mapOptions || {}
+            options || {}
         );
 
         let tigerMap = this;
@@ -171,9 +172,9 @@ export default class Map {
         this._cy = this._h / 2;
 
         // init defaults
-        const zoomLevel = mapOptions['zoomLevel'] || mapOptions['zoomlevel'];
+        const zoomLevel = options['zoomLevel'] || options['zoomlevel'];
 
-        mapOptions.maxLevel = Math.min(MAX_POSSIBLE_ZOOMLEVEL, mapOptions.maxLevel);
+        options.maxLevel = Math.min(MAX_POSSIBLE_ZOOMLEVEL, options.maxLevel);
 
         this._z = Math.min(MAX_GRID_ZOOM, zoomLevel) ^ 0;
 
@@ -214,7 +215,7 @@ export default class Map {
 
         console.log('TM', this._w, 'x', this._h);
 
-        const Display = mapOptions['renderer'] == 'canvas' ? CanvasDisplay : WebglDisplay;
+        const Display = options['renderer'] == 'canvas' ? CanvasDisplay : WebglDisplay;
 
         if (typeof Display.zoomBehavior == 'string') {
             DEFAULT_ZOOM_BEHAVIOR = Display.zoomBehavior;
@@ -224,8 +225,8 @@ export default class Map {
         const display = new Display(
             mapEl,
             RENDER_TILE_SIZE,
-            mapOptions['devicePixelRatio'],
-            mapOptions['renderOptions'] || {}
+            options['devicePixelRatio'],
+            options['renderOptions'] || {}
         );
 
         tigerMap._mvcRecognizer = new MVCRecognizer(tigerMap,
@@ -243,7 +244,7 @@ export default class Map {
 
         this._search = new Search(tigerMap);
 
-        const pointerEvents = this._evDispatcher = new EventDispatcher(mapEl, tigerMap, layers, mapOptions);
+        const pointerEvents = this._evDispatcher = new EventDispatcher(mapEl, tigerMap, layers, options);
 
         listeners.add('mapviewchangestart', (e) => pointerEvents.disable('pointerenter'));
         listeners.add('mapviewchangeend', (e) => pointerEvents.enable('pointerenter'));
@@ -252,7 +253,7 @@ export default class Map {
 
         this.zoomAnimator = new ZoomAnimator(tigerMap);
 
-        const behaviorOptions = {...mapOptions['behavior'], ...mapOptions['behaviour']};
+        const behaviorOptions = {...options['behavior'], ...options['behaviour']};
 
         if (behaviorOptions[BEHAVIOR_ZOOM] == UNDEF) {
             behaviorOptions[BEHAVIOR_ZOOM] = DEFAULT_ZOOM_BEHAVIOR;
@@ -263,7 +264,7 @@ export default class Map {
             tigerMap,
             new KineticPanAnimator(tigerMap),
             <BehaviorOptions>behaviorOptions,
-            mapOptions
+            options
         );
         // just attach the eventlisteners..
         // does not influence actual drag/zoom behavior
@@ -272,25 +273,25 @@ export default class Map {
 
         this._vplock = {
             pan: false,
-            minLevel: mapOptions['minLevel'],
-            maxLevel: mapOptions['maxLevel']
+            minLevel: options['minLevel'],
+            maxLevel: options['maxLevel']
         };
 
-        const uiOptions = mapOptions['UI'] || mapOptions['ui'] || {};
+        const uiOptions = options['UI'] || options['ui'] || {};
         if (uiOptions.Compass == UNDEF) {
             // enable compass ui if pitch or rotate is enabled
             uiOptions.Compass = behaviorOptions[BEHAVIOR_ROTATE] || behaviorOptions[BEHAVIOR_PITCH];
         }
 
-        this.ui = new UI(mapEl, mapOptions, tigerMap);
+        this.ui = new UI(mapEl, options, tigerMap);
 
-        tigerMap.setCenter(mapOptions['center']);
-        tigerMap.pitch(mapOptions['pitch']);
-        tigerMap.rotate(mapOptions['rotate']);
+        tigerMap.setCenter(options['center']);
+        tigerMap.pitch(options['pitch']);
+        tigerMap.rotate(options['rotate']);
 
         tigerMap.setZoomlevel(zoomLevel);
 
-        (mapOptions['layers'] || []).forEach((layer) => this.addLayer(layer));
+        (options['layers'] || []).forEach((layer) => this.addLayer(layer));
     }
 
     private initViewPort(): [number, number] {
@@ -460,15 +461,15 @@ export default class Map {
      * 'tap', 'dbltap', 'pointerup', 'pointerenter', 'pointerleave', 'pointerdown', 'pointermove', 'pressmove'
      *
      * @param type - event name
-     * @param callback - callback function
+     * @param listener - callback function
      */
-    addEventListener(type: string, callback) {
+    addEventListener(type: string, listener: (e: MapEvent) => void) {
         const listeners = this._l;
         type.split(' ').forEach((type) => {
             if (listeners.isDefined(type)) { // normal event listeners.
-                return listeners.add(type, callback);
+                return listeners.add(type, listener);
             }
-            this._evDispatcher.addEventListener(type, callback);
+            this._evDispatcher.addEventListener(type, listener);
         });
     };
 
@@ -476,15 +477,15 @@ export default class Map {
      * Removes an event listener.
      *
      * @param type event name
-     * @param callback callback function
+     * @param listener callback function
      */
-    removeEventListener(type: string, callback) {
+    removeEventListener(type: string, listener: (e: MapEvent) => void) {
         const listeners = this._l;
         type.split(' ').forEach((type) => {
             if (listeners.isDefined(type)) { // normal event listeners.
-                return listeners.remove(type, callback);
+                return listeners.remove(type, listener);
             }
-            this._evDispatcher.removeEventListener(type, callback);
+            this._evDispatcher.removeEventListener(type, listener);
         });
     };
 
@@ -794,7 +795,7 @@ export default class Map {
      *
      * @example
      * ```
-     * display.setCenter({longitude: 80.10282, latitude: 12.91696});
+     * display.setCenter({longitude: 8.53422, latitude: 50.16212});
      * ```
      */
     setCenter(center: GeoPoint);
@@ -806,7 +807,7 @@ export default class Map {
      *
      * @example
      * ```
-     * display.setCenter(80.10282, 12.91696);
+     * display.setCenter(8.53422, 50.16212);
      * ```
      */
     setCenter(longitude: number | GeoPoint, latitude: number);

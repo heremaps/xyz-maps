@@ -70,7 +70,7 @@ const createOptions = (options, preProcessor?) => {
 type ErrorEventHandler = (error) => void;
 
 /**
- *  SpaceProvider is a remote HTTPProvider designed to work with XYZ-Hub remote backend.
+ *  A SpaceProvider is a remote HTTPProvider designed to work with XYZ-Hub remote backend.
  *  @see https://xyz.api.here.com/hub/static/redoc/
  */
 export class SpaceProvider extends GeoJSONProvider {

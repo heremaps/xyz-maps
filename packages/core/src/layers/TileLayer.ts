@@ -205,16 +205,16 @@ export class TileLayer {
      * @param type - A string representing the event type to listen for
      * @param listener - the listener function that will be called when an event of the specific type occurs
      */
-    addEventListener(type: string, listener: (event: any) => void);
+    addEventListener(type: string, listener: (event: Event) => void);
 
-    addEventListener(type: string, cb, scp?) {
+    addEventListener(type: string, listener: (event: Event) => void, scp?) {
         const listeners = this._l;
 
         if (listeners.isDefined(type)) {
-            return listeners.add(type, cb, scp);
+            return listeners.add(type, listener, scp);
         }
 
-        return this._fp && this._fp.addEventListener(type, cb, scp);
+        return this._fp && this._fp.addEventListener(type, listener, scp);
     };
 
     /**
@@ -224,16 +224,16 @@ export class TileLayer {
      * @param {String} type - A string which specifies the type of event for which to remove an event listener.
      * @param {Function} listener - The EventListener function of the event handler to remove from the TileLayer.
      */
-    removeEventListener(type: string, listener: (event: any) => void);
+    removeEventListener(type: string, listener: (event: Event) => void);
 
-    removeEventListener(type: string, cb, scp?) {
+    removeEventListener(type: string, listener: (event: Event) => void, scp?) {
         const listeners = this._l;
 
         if (listeners.isDefined(type)) {
-            return listeners.remove(type, cb, scp);
+            return listeners.remove(type, listener, scp);
         }
 
-        return this._fp.removeEventListener(type, cb, scp);
+        return this._fp.removeEventListener(type, listener, scp);
     };
 
 

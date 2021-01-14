@@ -22,6 +22,7 @@ import {MapEvent} from './Event';
 import {Listener, TaskManager} from '@here/xyz-maps-common';
 
 type EventHandler = (e: Event) => void;
+type MapEventListener = (e: MapEvent) => void;
 
 const DOUBLE_CLICK_DETECT_MS = 250;
 const POINTER_UP = 'pointerup';
@@ -307,7 +308,7 @@ export class EventDispatcher {
         }
     };
 
-    addEventListener(type: string, cb: EventHandler, scope?) {
+    addEventListener(type: string, cb: MapEventListener, scope?) {
         if (isSupported(type) && this.cbs.add(type, cb, scope)) {
             this.cnt++;
 
@@ -335,7 +336,7 @@ export class EventDispatcher {
         }
     };
 
-    removeEventListener(type: string, cb: EventHandler, scope?: any) {
+    removeEventListener(type: string, cb: MapEventListener, scope?: any) {
         const {cbs, el} = this;
         if (isSupported(type) && cbs.remove(type, cb, scope)) {
             if (!--this.cnt && this.hActive) {

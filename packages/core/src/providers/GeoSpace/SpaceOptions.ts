@@ -20,13 +20,7 @@
 import {HTTPProviderOptions} from '../HTTPProvider/HTTPProviderOptions';
 
 /**
- *  Configuration of geospace provider.
- *
- *  @expose
- *  @public
- *  @interface
- *  @extends here.xyz.maps.providers.RemoteTileProvider.Options
- *  @class here.xyz.maps.providers.SpaceProvider.Options
+ *  Options to configure the XYZ SpaceProvider.
  */
 interface SpaceProviderOptions extends HTTPProviderOptions {
 
