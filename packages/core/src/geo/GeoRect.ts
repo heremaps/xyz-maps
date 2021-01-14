@@ -18,83 +18,37 @@
  */
 
 /**
- *  An class representing a rectangular geographic area.
- *  The area is defined by four geographical coordinates two (left, right) longitudes and two (top, bottom) latitudes.
- *
- *  @class
- *  @public
- *  @expose
- *  @constructor
- *  @param minLon {number} min longitude
- *  @param minLat {number} min latitude
- *  @param maxLon {number} max longitude
- *  @param maxLat {number} max latitude
- *  @name here.xyz.maps.geo.Rect
+ *  A GeoRect represents a rectangular geographical area.
+ *  The area is defined by two longitudes (west, east) and two latitudes (north, south).
  */
 export class GeoRect {
     /**
-     *  A class representing a rectangular geographic area.
-     *  The area is defined by four geographical coordinates two (left, right) longitudes and two (top, bottom) latitudes.
-     *
-     *  @class
-     *  @public
-     *  @expose
-     *  @constructor
-     *  @param minLon {number} min longitude
-     *  @param minLat {number} min latitude
-     *  @param maxLon {number} max longitude
-     *  @param maxLat {number} max latitude
-     *  @name here.xyz.maps.geo.Rect
+     *  minimum longitude, the west-most longitude in degrees of the rectangular area
+     */
+    minLon: number;
+    /**
+     *  minimum latitude, the south-most latitude in degrees of the rectangular area
+     */
+    minLat: number;
+    /**
+     *  maximum longitude, the east-most longitude in degrees of the rectangular area
+     */
+    maxLon: number;
+    /**
+     *  maximum latitude, the north-most latitude in degrees of the rectangular area
+     */
+    maxLat: number;
+
+    /**
+     *  @param minLon - minimum longitude (west)
+     *  @param minLat - minimum latitude (south)
+     *  @param maxLon - maximum longitude (east)
+     *  @param maxLat - maximum latitude (north)
      */
     constructor(minLon: number, minLat: number, maxLon: number, maxLat: number) {
-        /**
-         *  min longitude, the left-most longitude of this rectangular area.
-         *
-         *  @public
-         *  @expose
-         *  @type {number}
-         *  @name here.xyz.maps.geo.Rect#minLon
-         */
         this.minLon = minLon;
-
-        /**
-         *  min latitude, the south-most latitude of this rectangular area
-         *
-         *  @public
-         *  @expose
-         *  @type {number}
-         *  @name here.xyz.maps.geo.Rect#minLat
-         */
         this.minLat = minLat;
-
-        /**
-         *  max longitude, the right-most longitude of this rectangular area.
-         *
-         *  @public
-         *  @expose
-         *  @type {number}
-         *
-         *  @name here.xyz.maps.geo.Rect#maxLon
-         */
         this.maxLon = maxLon;
-
-        /**
-         *  max latitude, the north-most latitude of this rectangular area
-         *
-         *  @public
-         *  @expose
-         *  @type {number}
-         *
-         *  @name here.xyz.maps.geo.Rect#maxLat
-         */
         this.maxLat = maxLat;
     }
-
-    minLon: number;
-
-    minLat: number;
-
-    maxLon: number;
-
-    maxLat: number;
 }

@@ -18,52 +18,25 @@
  */
 
 /**
- *  A class representing a geographical point.
- *
- *  @class
- *  @public
- *  @expose
- *  @constructor
- *  @param lon {number} longitude
- *  @param lat {number} latitude
- *  @name here.xyz.maps.geo.Point
+ *  A GeoPoint represents a geographical point.
  */
 export class GeoPoint {
     /**
-     *  A class representing a geographical point.
-     *
-     *  @class
-     *  @public
-     *  @expose
-     *  @constructor
-     *  @param lon {number} longitude
-     *  @param lat {number} latitude
-     *  @name here.xyz.maps.geo.Point
+     *  the longitude in degrees
+     */
+    longitude: number;
+    /**
+     *  the latitude in degrees
+     */
+    latitude: number;
+    /**
+     *  @param longitude - the longitude in degrees
+     *  @param latitude - the latitude in degrees
      */
     constructor(longitude: number, latitude: number) {
-        /**
-         *  point longitude.
-         *
-         *  @public
-         *  @expose
-         *  @type {number}
-         *  @name here.xyz.maps.geo.Point#longitude
-         */
         this.longitude = longitude;
 
-        /**
-         *  point latitude.
-         *
-         *  @public
-         *  @expose
-         *  @type {number}
-         *  @name here.xyz.maps.geo.Point#latitude
-         */
         this.latitude = latitude;
     }
-
-    longitude: number;
-
-    latitude: number;
 }
 

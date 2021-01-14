@@ -18,81 +18,39 @@
  */
 
 /**
- *  A class representing a rectangular area in pixel.
- *
- *  @class
- *  @public
- *  @expose
- *  @constructor
- *  @param minX {number} min x position in pixel
- *  @param minY {number} min y position in pixel
- *  @param maxX {number} max x position in pixel
- *  @param maxY {number} max y position in pixel
- *  @name here.xyz.maps.pixel.Rect
+ *  A PixelRect represents a rectangular area in pixels.
  */
 export class PixelRect {
     /**
-     *  An interface representing a rectangular area in pixel.
-     *
-     *  @class
-     *  @public
-     *  @expose
-     *  @constructor
-     *  @param minX {number} min x position in pixel
-     *  @param minY {number} min y position in pixel
-     *  @param maxX {number} max x position in pixel
-     *  @param maxY {number} max y position in pixel
-     *  @name here.xyz.maps.pixel.Rect
+     *  minimum x, the left-most x coordinate of the rectangular area.
+     */
+    minX: number;
+    /**
+     *  maximum y, the top-most y coordinate of the rectangular area.
+     */
+    minY: number;
+    /**
+     *  max x, the right-most x coordinate of the rectangular area.
+     */
+    maxX: number;
+    /**
+     *  max y, the bottom-most y coordinate of the rectangular area.
+     */
+    maxY: number;
+
+    /**
+     *  @param minX - minimum x coordinate
+     *  @param minY - minimum y coordinate
+     *  @param maxX - maximum x coordinate
+     *  @param maxY - maximum y coordinate
      */
     constructor(minX: number, minY: number, maxX: number, maxY: number) {
-        /**
-         *  min x, the left-most x position of this rectangular area.
-         *
-         *  @public
-         *  @expose
-         *  @type {number}
-         *  @name here.xyz.maps.pixel.Rect#minX
-         */
         this.minX = minX;
 
-        /**
-         *  min y, the south-most y position of this rectangular area
-         *
-         *  @public
-         *  @expose
-         *  @type {number}
-         *  @name here.xyz.maps.pixel.Rect#minY
-         */
         this.minY = minY;
 
-        /**
-         *  max x, the right-most x position of this rectangular area.
-         *
-         *  @public
-         *  @expose
-         *  @type {number}
-         *
-         *  @name here.xyz.maps.pixel.Rect#maxX
-         */
         this.maxX = maxX;
 
-        /**
-         *  max y, the north-most y position of this rectangular area
-         *
-         *  @public
-         *  @expose
-         *  @type {number}
-         *
-         *  @name here.xyz.maps.pixel.Rect#maxY
-         */
         this.maxY = maxY;
     }
-
-    minX: number;
-
-    minY: number;
-
-    maxX: number;
-
-    maxY: number;
 }

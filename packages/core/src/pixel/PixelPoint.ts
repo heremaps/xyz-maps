@@ -18,40 +18,26 @@
  */
 
 /**
- *  A class representing a point in pixel.
- *
- *  @class
- *  @public
- *  @expose
- *  @constructor
- *  @param x {number} pixel coordinate on x axis
- *  @param y {number} pixel coordinate on y axis
- *  @name here.xyz.maps.pixel.Point
+ *  A PixelPoint represents a point in pixel.
  */
 export class PixelPoint {
-    constructor(x: number, y: number) {
-        this.x = x;
-
-        this.y = y;
-    }
-
     /**
-     *  x coordinate in pixel.
-     *
-     *  @public
-     *  @expose
-     *  @type {number}
-     *  @name here.xyz.maps.pixel.Point#x
+     *  x coordinate of the point in pixel.
      */
     x: number;
 
     /**
-     *  y coordinate in pixel.
-     *
-     *  @public
-     *  @expose
-     *  @type {number}
-     *  @name here.xyz.maps.pixel.Point#y
+     *  y coordinate of the point in pixel.
      */
     y: number;
+
+    /**
+     *
+     *  @param x - the x coordinate of the point
+     *  @param y - the y coordinate of the point
+     */
+    constructor(x: number, y: number) {
+        this.x = x;
+        this.y = y;
+    }
 }
