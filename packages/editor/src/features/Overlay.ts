@@ -21,7 +21,7 @@ import {DefaultEditorProperties} from './feature/EditorProperties';
 import FeatureContainer from './Container';
 import {geotools} from '@here/xyz-maps-common';
 import {FeatureProvider, TileLayer} from '@here/xyz-maps-core';
-import {Coordinate} from '@here/xyz-maps-core/src/features/GeoJSON';
+import {GeoJSONCoordinate} from '@here/xyz-maps-core/src/features/GeoJSON';
 
 let UNDEF;
 
@@ -206,7 +206,7 @@ class Overlay {
     }
 
 
-    addPath(coordinates: Coordinate[], style, props?: {}) {
+    addPath(coordinates: GeoJSONCoordinate[], style, props?: {}) {
         return this.addFeature({
             geometry: {
                 coordinates: coordinates,

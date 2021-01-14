@@ -31,12 +31,12 @@ export class Feature implements GeoJSONFeature {
     id: string | number;
 
     /**
-     *  properties of the feature.
+     *  The properties associated with the feature.
      */
-    properties: {};
+    properties: { [name: string]: any; } | null;
 
     /*
-     * type of the feature is 'Feature'
+     * The type of the feature is 'Feature'
      */
     type: 'Feature';
 
@@ -112,6 +112,9 @@ export class Feature implements GeoJSONFeature {
         this._provider = prov;
     }
 
+    /**
+     * Get the Feature as a JSON Object.
+     */
     toJSON(): GeoJSONFeature {
         return JSUtils.clone({
             id: this.id,
@@ -125,7 +128,10 @@ export class Feature implements GeoJSONFeature {
         });
     };
 
-    getProvider() {
+    /**
+     * Get The FeatureProvider where the Feature is stored in.
+     */
+    getProvider():FeatureProvider {
         return this._provider;
     };
 

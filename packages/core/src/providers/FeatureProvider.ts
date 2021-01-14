@@ -23,7 +23,12 @@ import {geotools} from '@here/xyz-maps-common';
 import {Tile} from '../tile/Tile';
 import {updateBBox, prepareFeature} from '../data/prepare/GeoJSON';
 import RTree from '../features/RTree';
-import {GeoJSONFeature, GeoJSONCoordinates, GeoJSONFeatureCollection, GeoJSONBBox} from '../features/GeoJSON';
+import {
+    GeoJSONFeature,
+    GeoJSONFeatureCollection,
+    GeoJSONBBox,
+    GeoJSONCoordinate
+} from '../features/GeoJSON';
 import {TileProviderOptions} from './TileProvider/TileProviderOptions';
 import {GeoPoint, GeoRect} from '@here/xyz-maps-core';
 
@@ -435,7 +440,7 @@ export class FeatureProvider extends Provider {
      * @param feature - the Feature whose coordinates should be modified/updated
      * @param coordinates - the modified coordinates to set. The coordinates must match features geometry type.
      */
-    setFeatureCoordinates(feature: Feature, coordinates: GeoJSONCoordinates) {
+    setFeatureCoordinates(feature: Feature, coordinates: GeoJSONCoordinate | GeoJSONCoordinate[] | GeoJSONCoordinate[][] | GeoJSONCoordinate[][][]) {
         const _feature = feature;
         // if( this.exists(feature) )
         if (feature = this.getFeature(feature.id)) {

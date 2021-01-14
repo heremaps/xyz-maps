@@ -40,6 +40,8 @@ const throwError = (msg) => {
  * In addition to the Line Feature, the Navlink feature can be linked/associated with other Navlink Features.
  * A Navlink Feature also can be referenced by Addresses and Places.
  * A Navlink is part of a "road nertwork".
+ *
+ * The Feature can be edited with the {@link Editor}.
  */
 export class Navlink extends Feature {
     /**

@@ -39,7 +39,10 @@ export type EditStates = 'created' | 'modified' | 'removed' | 'split' | 'hovered
 
 type Coordinate = [number, number, number?];
 
-
+/**
+ * A generic editable map feature with one of the following geometry types: 'Point', 'MultiPoint', 'LineString', 'MultiLineString', 'Polygon', 'MultiPolygon'.
+ * The Feature can be edited with the {@link Editor}.
+ */
 class Feature extends GeoJSONFeature {
     bbox: [number, number, number, number];
 
