@@ -66,7 +66,7 @@ class Feature extends GeoJSONFeature {
      */
     class: string;
 
-    constructor(geojsonFeature, provider: EditableProvider) {
+    constructor(geojsonFeature, provider?: EditableProvider) {
         super(geojsonFeature, provider);
 
         (<any> this).properties['@ns:com:here:editor'] = new DefaultEditorProperties();

@@ -18,7 +18,14 @@
  */
 
 import {JSUtils, global} from '@here/xyz-maps-common';
-import {GeoPoint, TileLayer, PixelPoint, EditableRemoteTileProvider, GeoRect} from '@here/xyz-maps-core';
+import {
+    GeoPoint,
+    TileLayer,
+    PixelPoint,
+    EditableRemoteTileProvider,
+    GeoRect,
+    GeoJSONFeature
+} from '@here/xyz-maps-core';
 import {Map} from '@here/xyz-maps-display';
 import {DrawingBoard} from './DrawingBoard';
 import {Zone, ZoneSelector} from './EZoneSelector';
@@ -288,7 +295,11 @@ export default class Editor {
      *
      *  @return the feature(s) that were successfully added to map
      */
-    addFeature(feature: Feature | Feature[], layer?: TileLayer, origin?: GeoPoint | PixelPoint): Feature | SimpleContainer;
+    addFeature(
+        feature: GeoJSONFeature | Feature | (GeoJSONFeature | Feature)[],
+        layer?: TileLayer,
+        origin?: GeoPoint | PixelPoint
+    ): Feature | SimpleContainer;
 
     /**
      *  Add features to map editor.
@@ -298,12 +309,15 @@ export default class Editor {
      *
      *  @return the feature(s) that were successfully added to map
      */
-    addFeature(layerMap: { [layerId: string]: Feature | Feature[] }, layer?: TileLayer, origin?: GeoPoint | PixelPoint): Feature | SimpleContainer;
+    addFeature(
+        layerMap: {
+            [layerId: string]: GeoJSONFeature | Feature | (GeoJSONFeature | Feature)[]
+        },
+        layer?: TileLayer,
+        origin?: GeoPoint | PixelPoint
+    ): Feature | SimpleContainer;
 
-    // editor['addFeature'] = function( feature,[origin] ) {
-    // editor['addFeature'] = function( {feature}, layer,[origin] ) {
-    // editor['addFeature'] = function( feature, layer, [origin] ) {
-    addFeature(feature, layer, origin) {
+    addFeature(feature, layer?, origin?) {
         const iEdit = this._i();
         const args = arguments;
         const added = [];
@@ -334,13 +348,13 @@ export default class Editor {
         };
 
 
-        const addFeature = (f, layer) => {
+        const addFeature = (feature, layer) => {
             const layerid = layer && layer.id;
             const features = layermap[layerid] = layermap[layerid] || [];
-            features.push(f);
+            features.push(feature);
         };
 
-        if (feature instanceof Feature) {
+        if (feature.type == 'Feature') {
             addFeature(feature, layer);
         } else if (feature instanceof Array) {
             feature.forEach((f) => addFeature(f, layer));
@@ -372,13 +386,17 @@ export default class Editor {
         for (let layerId in layermap) {
             let features = layermap[layerId];
 
-            features.forEach((f) => {
-                const geom = f.geometry;
+            features.forEach((feature) => {
+                const geom = feature.geometry;
                 geom.coordinates = prepareCoordinates(geom.coordinates, offset);
 
-                if (f = iEdit.objects.add(f, layerId == 'undefined' ? UNDEF : layerId, idmap)) {
+                if (feature.type == 'Feature' && !(feature instanceof Feature)) {
+                    feature = new Feature(feature);
+                }
+
+                if (feature = iEdit.objects.add(feature, layerId == 'undefined' ? UNDEF : layerId, idmap)) {
                     created = true;
-                    added.push(f);
+                    added.push(feature);
                 }
             });
         }
