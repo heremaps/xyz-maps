@@ -19,7 +19,7 @@
 
 import {JSUtils} from '@here/xyz-maps-common';
 import {FeatureProvider} from '../providers/FeatureProvider';
-import {GeoJSONFeature, GeoJSONGeometryType, GeoJSONBBox} from './GeoJSON';
+import {GeoJSONFeature, GeoJSONBBox} from './GeoJSON';
 
 /**
  *  represents a Feature in GeoJSON Feature format.
@@ -83,7 +83,7 @@ export class Feature implements GeoJSONFeature {
      *```
      */
     geometry: {
-        type: GeoJSONGeometryType,
+        type: 'Point' | 'MultiPoint' | 'LineString' | 'MultiLineString' | 'Polygon' | 'MultiPolygon',
         coordinates: any[]
     };
 

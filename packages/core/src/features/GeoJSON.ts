@@ -101,7 +101,7 @@ export interface GeoJSONFeature {
      *```
      */
     geometry: {
-        type: GeoJSONGeometryType,
+        type: 'Point' | 'MultiPoint' | 'LineString' | 'MultiLineString' | 'Polygon' | 'MultiPolygon',
         coordinates: GeoJSONCoordinate | GeoJSONCoordinate[] | GeoJSONCoordinate[][] | GeoJSONCoordinate[][][]
     };
 }

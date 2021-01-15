@@ -24,7 +24,7 @@ import {
     PixelPoint,
     EditableRemoteTileProvider,
     GeoRect,
-    GeoJSONFeature
+    GeoJSONFeature, GeoJSONCoordinate
 } from '@here/xyz-maps-core';
 import {Map} from '@here/xyz-maps-display';
 import {DrawingBoard} from './DrawingBoard';
@@ -360,7 +360,7 @@ export default class Editor {
             feature.forEach((f) => addFeature(f, layer));
         } else {
             layermap = feature;
-            for (var id in layermap) {
+            for (let id in layermap) {
                 feature = layermap[id];
                 if (feature.type == 'Feature') {
                     layermap[id] = [feature];
@@ -686,7 +686,7 @@ export default class Editor {
         iEditor.destroy();
 
         // clear/null Editor's instance
-        for (var i in that) delete that[i];
+        for (let i in that) delete that[i];
         // @ts-ignore
         that.__proto__ = {};
 
@@ -933,6 +933,101 @@ export default class Editor {
         }
         return iEditor.objects.history.import(json);
     }
+
+
+    /**
+     * Convert a PixelPoint on the screen or a GeoPoint to a geographical Coordinate in GeoJSON format [number,number,number?].
+     *
+     * @example
+     * ```
+     * // create a Feature at a specific position of the current mapview on the screen.
+     * editor.addFeature({
+     *     type: 'Feature',
+     *     geometry: {
+     *         type: 'Point',
+     *         coordinates: editor.toGeoJSONCoordinates({x: 300, y:300})
+     *     }
+     * })
+     * ```
+     * @param coordinates the pixel and/or geographical coordinate(s) to convert.
+     */
+    toGeoJSONCoordinates(coordinates: PixelPoint | GeoPoint | GeoJSONCoordinate): GeoJSONCoordinate;
+    /**
+     * Convert PixelPoints or a GeoPoints to a geographical Coordinates in GeoJSON format [number,number,number?].
+     *
+     * @example
+     * ```
+     * // create a Feature at a specific position of the current mapview on the screen.
+     * editor.addFeature({
+     *     type: 'Feature',
+     *     geometry: {
+     *         type: 'LineString',
+     *         coordinates: editor.toGeoJSONCoordinates([{x: 300, y:300},{longitude:50.1, latitude:8.5}])
+     *     }
+     * })
+     * ```
+     * @param coordinates the pixel and/or geographical coordinate(s) to convert.
+     */
+    toGeoJSONCoordinates(coordinates: (PixelPoint | GeoPoint | GeoJSONCoordinate)[]): GeoJSONCoordinate[];
+    /**
+     * Convert PixelPoints or a GeoPoints to a geographical Coordinates in GeoJSON format [number,number,number?].
+     *
+     * @example
+     * ```
+     * // create a Feature at a specific position of the current mapview on the screen.
+     * editor.addFeature({
+     *   type: 'Feature',
+     *     geometry: {
+     *       type: 'Polygon',
+     *         coordinates: editor.toGeoJSONCoordinates([
+     *           [{x:10, y:10}, {longitude:50.1, latitude:8.5}, {x:90, y:90}, {x:10,y:90}, {x:10, y:10}]
+     *         ])
+     *     }
+     * })
+     * ```
+     * @param coordinates the pixel and/or geographical coordinate(s) to convert.
+     */
+    toGeoJSONCoordinates(coordinates: (PixelPoint | GeoPoint | GeoJSONCoordinate)[][]): GeoJSONCoordinate[][];
+    /**
+     * Convert PixelPoints or a GeoPoints to a geographical Coordinates in GeoJSON format [number,number,number?].
+     *
+     * @example
+     * ```
+     * // create a Feature at a specific position of the current mapview on the screen.
+     * editor.addFeature({
+     *     type: 'Feature',
+     *     geometry: {
+     *         type: 'MultiPolygon',
+     *         coordinates: editor.toGeoJSONCoordinates([
+     *           [
+     *             [{x:10, y:10}, {longitude:50.1, latitude:8.5}, {x:90, y:90}, {x:10,y:90}, {x:10, y:10}]
+     *           ]
+     *         ])
+     *     }
+     * })
+     * ```
+     * @param coordinates the pixel and/or geographical coordinate(s) to convert.
+     */
+    toGeoJSONCoordinates(coordinates: (PixelPoint | GeoPoint | GeoJSONCoordinate)[][][]): GeoJSONCoordinate[][][];
+
+    toGeoJSONCoordinates(
+        coordinates: PixelPoint | GeoPoint | GeoJSONCoordinate |
+            (PixelPoint | GeoPoint | GeoJSONCoordinate)[] |
+            (PixelPoint | GeoPoint | GeoJSONCoordinate)[][] |
+            (PixelPoint | GeoPoint | GeoJSONCoordinate)[][][]
+    ): GeoJSONCoordinate | GeoJSONCoordinate[] | GeoJSONCoordinate[][] | GeoJSONCoordinate[][][] {
+        if (Array.isArray(coordinates) && typeof coordinates[0] != 'number') {
+            let geojsonCoordinates = [];
+            for (let coordinate of <(PixelPoint | GeoPoint | GeoJSONCoordinate)[]>coordinates) {
+                geojsonCoordinates.push(this.toGeoJSONCoordinates(coordinate));
+            }
+            return geojsonCoordinates;
+        } else {
+            return this._i().map.getGeoCoord(<PixelPoint | GeoPoint | GeoJSONCoordinate>coordinates);
+        }
+    }
 }
+
+
 // support for legacy/deprecated api
 Editor.prototype.clearObjectSelection = Editor.prototype.clearFeatureSelection;

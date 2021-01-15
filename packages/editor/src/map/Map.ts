@@ -18,9 +18,11 @@
  */
 
 import {geotools} from '@here/xyz-maps-common';
+import {Map as MapDisplay} from '@here/xyz-maps-display';
 import {getPntOnLine} from '../geometry';
 import oTools from '../features/oTools';
 import {Feature} from '../features/feature/Feature';
+
 
 // var MAX_DECIMAL_PRECISION = 1e8; // ⁓1.1mm
 const MAX_DECIMAL_PRECISION = 1e9; // ⁓110microns
@@ -75,9 +77,9 @@ function forEachCoord(coordinates, transform) {
 // *****************************************************************************************************************
 
 class Map {
-    private display;
+    private display: MapDisplay;
 
-    constructor(display) {
+    constructor(display: MapDisplay) {
         this.display = display;
     }
 
@@ -232,13 +234,13 @@ class Map {
         return c;
     };
 
-    getGeoCoord(x: number | Point | PixelPoint | GeoPoint, y?: number, z?: number) {
+    getGeoCoord(x: number | Point | PixelPoint | GeoPoint, y?: number, z?: number): [number, number, number] {
         const map = this;
         const display = map.display;
         let coord;
 
         if (arguments.length > 1) {
-            coord = display.pixelToGeo(x, y);
+            coord = display.pixelToGeo(<number>x, <number>y);
         } else {
             coord = x;
             if (coord.x != UNDEF && coord.y != UNDEF) {
@@ -249,13 +251,13 @@ class Map {
                 coord = display.pixelToGeo(coord[0], coord[1]);
             }
         }
-        return map.clipGeoCoord([coord.longitude, coord.latitude, z | 0]);
+        return <[number, number, number]>map.clipGeoCoord([coord.longitude, coord.latitude, z | 0]);
     };
 
     getPixelCoord(lon: number | Point | PixelPoint | GeoPoint, lat?: number, z?: number): Point {
         const display = this.display;
         if (arguments.length == 2) {
-            lon = display.geoToPixel(lon, lat);
+            lon = display.geoToPixel(<number>lon, <number>lat);
         } else if ((<GeoPoint>lon).longitude != UNDEF && (<GeoPoint>lon).latitude != UNDEF) {
             lon = display.geoToPixel((<GeoPoint>lon).longitude, (<GeoPoint>lon).latitude);
         } else if (lon[0] != UNDEF && lon[1] != UNDEF) {

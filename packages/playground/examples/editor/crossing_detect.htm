@@ -162,26 +162,38 @@ var crossings = [];
  */
 document.querySelector("#crossing").onclick = function(){
 	// clear existing crossings
-	for( var i in crossings )
-		crossings[i].hide();
-
+	for( var i in crossings ) crossings[i].hide();
 
 	var width = display.getWidth();
 	var height = display.getHeight();
-	var pointspixel = [
-		new here.xyz.maps.editor.PixelCoordinate(width * Math.random() , height * Math.random()),
-		new here.xyz.maps.editor.PixelCoordinate(width * Math.random() , height * Math.random())
-	];
 
-	// add navlink to editor
-	var lnk = editor.addFeature( new here.xyz.maps.editor.features.Navlink(pointspixel, {featureClass: 'NAVLINK'}) );
+	// add a navlink Feature to editor
+	var navlink = navlinkLayer.addFeature({
+            type:'Feature',
+            geometry:{
+                type:'LineString',
+                coordinates: editor.toGeoJSONCoordinates([
+                    {x: width * Math.random() , y: height * Math.random()},
+                    {x: width * Math.random() , y: height * Math.random()}
+                ])
+            },
+            properties: {featureClass: 'NAVLINK'}
+        },
+        // display the feature with a custom styleGroup
+        [{
+	        zIndex: 10,
+            type: 'Line',
+            stroke: 'blue',
+            strokeWidth: 12
+    }])
 
-	//detect and get the array of crossings and crossing candidates
-	crossings = lnk.checkCrossings();
+	//detect and get an array containing the found crossings and crossing candidates with other navlink geometries.
+	crossings = navlink.checkCrossings();
 
-	//show the crossings and crossing candidates on the map
-	for( var i in crossings )
-		crossings[i].show();
+	//display al crossings on the map
+	for( var i in crossings ){
+        crossings[i].show();
+    }
 }
 
 document.querySelector("#revert").onclick = function(){

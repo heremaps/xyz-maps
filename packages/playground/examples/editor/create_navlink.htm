@@ -166,42 +166,54 @@
  *  This example shows how to create navlink by an array of geo and pixel coordinates with editor API.
  */
 
-// Coordinates of the navlink to create
-const geoCoords = [
-	new here.xyz.maps.editor.GeoCoordinate(13.278050, 52.504436),
-	new here.xyz.maps.editor.GeoCoordinate(13.277975, 52.504583),
-	new here.xyz.maps.editor.GeoCoordinate(13.277803, 52.504675),
-	new here.xyz.maps.editor.GeoCoordinate(13.277374, 52.504799),
-	new here.xyz.maps.editor.GeoCoordinate(13.277229, 52.504871),
-	new here.xyz.maps.editor.GeoCoordinate(13.277455, 52.505635),
-	new here.xyz.maps.editor.GeoCoordinate(13.277621, 52.505716),
-	new here.xyz.maps.editor.GeoCoordinate(13.278662, 52.505759),
-	new here.xyz.maps.editor.GeoCoordinate(13.278780, 52.505648)
-];
-const pixelCoords = [
-	new here.xyz.maps.editor.PixelCoordinate(404, 76),
-	new here.xyz.maps.editor.PixelCoordinate(489, 118),
-	new here.xyz.maps.editor.PixelCoordinate(437, 248),
-	new here.xyz.maps.editor.PixelCoordinate(359, 251),
-	new here.xyz.maps.editor.PixelCoordinate(295, 350)
-];
-
 document.querySelector("#createbuttongeo").onclick = function(){
-	// create navlink with road type 'path'
-	// set featureClass to 'NAVLINK' to indicate this is navlink
-	var navlink = new here.xyz.maps.editor.features.Navlink(geoCoords, { featureClass: 'NAVLINK', type : 'path' });
-
-	// add navlink to editor
-	editor.addFeature( navlink );
+	// create a Navlink feature with geographical coordinates
+    var navlink = editor.addFeature({
+        type: 'Feature',
+        geometry:{
+            type: 'LineString',
+            // Geographical Coordinates in GeoJSON format
+            coordinates: [
+                [13.278050, 52.504436],
+                [13.277975, 52.504583],
+                [13.277803, 52.504675],
+                [13.277374, 52.504799],
+                [13.277229, 52.504871],
+                [13.277455, 52.505635],
+                [13.277621, 52.505716],
+                [13.278662, 52.505759],
+                [13.278780, 52.505648]
+            ]
+        },
+        properties: {
+            // The featureClass needs to be set to 'NAVLINK' to indicate that we want to create a Navlink.
+            // (The feature class detection can be configured in the provider setup).
+            featureClass: 'NAVLINK',
+            type : 'path'
+        }
+    });
 };
 
 document.querySelector("#createbuttonpixel").onclick = function(){
-	// create navlink with road type 'path'
-	// set featureClass to 'NAVLINK' to indicate this is navlink
-	var navlink = new here.xyz.maps.editor.features.Navlink(pixelCoords, { featureClass: 'NAVLINK', type : 'path' });
-
-	// add navlink to editor
-	editor.addFeature( navlink );
+    // create a Navlink feature with pixel coordinates
+	editor.addFeature( {
+        type: 'Feature',
+        geometry:{
+            type: 'LineString',
+            // converts pixelCoordinates on screen to geographical coordinates in GeoJSON format
+            coordinates: editor.toGeoJSONCoordinates([
+                {x:404, y:76},
+                {x:489, y:118},
+                {x:437, y:248},
+                {x:359, y:251},
+                {x:295, y:350}
+            ])
+        },
+        properties: {
+            featureClass: 'NAVLINK',
+            type : 'path'
+        }
+    } );
 };
 
 /*visiblesource###*/

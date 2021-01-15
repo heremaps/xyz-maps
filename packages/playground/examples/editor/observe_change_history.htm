@@ -109,7 +109,6 @@
 				})
 			});
 
-
 	        // setup the Map Display
 			const display = new here.xyz.maps.Map( document.getElementById("map"), {
 	                zoomLevel : 17,
@@ -147,10 +146,23 @@ editor.addObserver("history.current", function(ob, currentStep, lastStep){
 document.querySelector("#add").onclick = function(){
 	var width = display.getWidth();
 	var height = display.getHeight();
-	var point = new here.xyz.maps.editor.PixelCoordinate(width * Math.random() , height * Math.random());
+	// convert from pixels on screen to a geographical coordinate.
+	var geoJSONCoordinate = editor.toGeoJSONCoordinates({
+        x:width * Math.random() ,
+        y:height * Math.random()
+	});
 
-	// add Place to editor
-	var Place = editor.addFeature( new here.xyz.maps.editor.features.Place(point), {featureClass: 'PLACE'} );
+    // Add a Place feature to the editor
+    var place = editor.addFeature({
+        type: 'Feature',
+        geometry: {
+            type: 'Point',
+            coordinates: geoJSONCoordinate
+        },
+        properties:{
+            featureClass: 'PLACE',
+        }
+    });
 }
 
 document.querySelector("#undo").onclick = function(){
@@ -165,6 +177,7 @@ document.querySelector("#revert").onclick = function(){
 	editor.revert();
 }
 /*visiblesource###*/
+
             // used by playground to automatically resize the map on size change
             window.display = display;
 		</script>

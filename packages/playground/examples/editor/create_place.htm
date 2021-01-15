@@ -233,15 +233,22 @@
 var createbuttonpixel = document.querySelector("#createbuttonpixel");
 var createbuttongeo = document.querySelector("#createbuttongeo");
 
-function createPlace(coodinate){
-	// create Place
-	var place = new here.xyz.maps.editor.features.Place(coodinate, { featureClass: 'PLACE', type : 'hotel' });
+function createPlace(coordinate){
+    // Add a Place feature to the editor
+    place = editor.addFeature({
+        type: 'Feature',
+        geometry: {
+            type: 'Point',
+            coordinates: editor.toGeoJSONCoordinates(coordinate)
+        },
+        properties:{
+            featureClass: 'PLACE',
+            type : 'hotel'
+        }
+    });
+	// A Place does not connect to a Navlink by default.
 
-	// add place to editor
-	place = editor.addFeature( place );
-
-	// place does not connect to navlink by default
-	// create routing point for place, which will connect itself to a navlink nearby.
+	// Automatically "Connect" to a Navlink nearby and create a routing point for the Place.
 	place.createRoutingPoint();
 
 	place.select();
@@ -253,7 +260,7 @@ createbuttonpixel.onclick = function(){
 	var y = display.getHeight() * Math.random();
 
 	// create Place
-	createPlace(new here.xyz.maps.editor.PixelCoordinate(x, y));
+	createPlace({x:x, y:y});
 }
 
 // onclick handler to createbutton
@@ -263,7 +270,7 @@ createbuttongeo.onclick = function(){
 	var lat = viewBounds.minLat + (viewBounds.maxLat-viewBounds.minLat) * Math.random();
 
 	// create Place
-	createPlace(new here.xyz.maps.editor.GeoCoordinate(lon,lat));
+	createPlace({longitude:lon,latitude:lat});
 }
 /*visiblesource###*/
 
