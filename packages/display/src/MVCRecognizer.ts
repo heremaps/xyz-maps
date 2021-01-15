@@ -165,7 +165,7 @@ class MVCRecognizer {
                     if (!layerInfo.error) {
                         let ev = createEvent('viewportReady', map, layer);
 
-                        layer._l.trigger('viewportReady', [ev], true);
+                        layer._l.trigger('viewportReady', ev, true);
                     }
                 }
             } else {

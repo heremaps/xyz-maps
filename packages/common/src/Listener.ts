@@ -119,13 +119,12 @@ class Listener {
     };
 
 
-    trigger(key: string, args: any[], sync?: boolean, check?: (cb: any) => boolean) {
+    trigger(key: string, args: any | any[], sync?: boolean, check?: (cb: any) => boolean) {
         let triggered = false;
         let listener;
 
         if (this._l[key]) {
             const length = this._l[key].length;
-
 
             for (this._exec[key] = 0;
                 this._exec[key] < length;
@@ -140,26 +139,26 @@ class Listener {
                         continue;
                     }
 
+                    const callback = listener[0];
+                    const context = listener[1];
+
                     if (sync || this._sync) {
                         // exec(listener,args);
-                        listener[0].apply(listener[1], args);
+                        if (Array.isArray(args)) {
+                            callback.apply(context, args);
+                        } else {
+                            callback.call(context, args);
+                        }
                     } else {
-                        // args.push((function getStackTrace() {
-                        //    var obj = {};
-                        //    Error.captureStackTrace(obj, getStackTrace);
-                        //    return obj.stack;
-                        // })());
-                        // setTimeout(function(){listener[0].apply(listener[1],args)},0);
-
                         (((cb, scp, args) => {
                             setTimeout(() => {
-                                cb.apply(scp, args);
+                                if (Array.isArray(args)) {
+                                    cb.apply(scp, args);
+                                } else {
+                                    cb.call(scp, args);
+                                }
                             }, 0);
-                        }))(
-                            listener[0],
-                            listener[1],
-                            args
-                        );
+                        }))(callback, context, args);
                     }
                 }
             }

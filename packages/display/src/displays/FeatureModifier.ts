@@ -19,10 +19,11 @@
 
 import BasicDisplay from './BasicDisplay';
 import BasicRender from './BasicRender';
+import {Tile, Feature, TileLayer, GeoJSONBBox, GeoJSONCoordinate, Style} from '@here/xyz-maps-core';
 
 let UNDEF;
 
-const isDependent = (qk, clearedQuadkeys) => {
+const isDependent = (qk: string, clearedQuadkeys: string[]) => {
     let qkLen = qk.length;
 
     for (var c = 0, cQk, sQk; c < clearedQuadkeys.length; c++) {
@@ -49,17 +50,17 @@ class FeatureModifier {
         this.render = renderer;
     }
 
-    forEachTile(feature, cb) {
-        feature._provider.getCachedTilesOfBBox(feature.getBBox()).forEach(cb);
+    forEachTile(feature: Feature, cb) {
+        feature.getProvider().getCachedTilesOfBBox(feature.getBBox()).forEach(cb);
     }
 
-    remove(feature, tiles, layer) {
-        for (let t = 0; t < tiles.length; t++) {
-            this.removeFromTile(feature, tiles[t], layer);
+    remove(feature: Feature, tiles: Tile[], layer: TileLayer) {
+        for (let tile of tiles) {
+            this.removeFromTile(feature, tile, layer);
         }
     }
 
-    modifyInTile(feature, tile, prevCoordinates, layer) {
+    modifyInTile(feature: Feature, tile: Tile, prevCoordinates, layer: TileLayer) {
         let dData = this.isVertexDataInitialized(tile);
 
         if (dData) {
@@ -70,20 +71,20 @@ class FeatureModifier {
         return false;
     }
 
-    isVertexDataInitialized(tile) {
+    isVertexDataInitialized(tile: Tile) {
         // const SKIP_TRACK = true;
         // return this.display.buckets.get(tile.quadkey, SKIP_TRACK);
         return this.display.getBucket(tile.quadkey);
     }
 
-    addToTile(feature, tile, layer) {
+    addToTile(feature: Feature, tile: Tile, layer: TileLayer) {
         const dTile = this.isVertexDataInitialized(tile);
         if (dTile) {
             this.display.updateTile(tile, dTile, layer, feature);
         }
     }
 
-    removeFromTile(feature, tile, layer) {
+    removeFromTile(feature: Feature, tile: Tile, layer: TileLayer) {
         let dData = this.isVertexDataInitialized(tile);
 
         if (dData) {
@@ -93,16 +94,18 @@ class FeatureModifier {
         }
     }
 
-    add(feature, tiles, layer) {
-        if (tiles) {
-            for (let t = 0; t < tiles.length; t++) {
-                this.addToTile(feature, tiles[t], layer);
-                // this.addToTile( feature, tiles[t], tiles[t].level == currentZoomlevel );
-            }
+    add(feature: Feature, tiles: Tile[], layer: TileLayer) {
+        for (let tile of tiles) {
+            this.addToTile(feature, tile, layer);
         }
     }
 
-    updateGeometry(feature, prevBBox, prevCoordinates, layer) {
+    updateGeometry(
+        feature: Feature,
+        prevBBox: GeoJSONBBox,
+        prevCoordinates: GeoJSONCoordinate | GeoJSONCoordinate[] | GeoJSONCoordinate[][] | GeoJSONCoordinate[][][],
+        layer: TileLayer
+    ) {
         let prov = layer.getProvider();
         let prevTiles = prov.getCachedTilesOfBBox(prevBBox);
         let curTiles = prov.getCachedTilesOfBBox(feature.getBBox());
@@ -125,7 +128,7 @@ class FeatureModifier {
     }
 
     // only used by display.setStyleGroup...
-    repaint(feature, styles, layer) {
+    repaint(feature: Feature, styleGroup: Style[], layer: TileLayer) {
         let fMod = this;
 
         fMod.forEachTile(feature, function(tile) {
@@ -141,7 +144,7 @@ class FeatureModifier {
         });
     }
 
-    clear(layer, clearedQuadkeys) {
+    clear(layer: TileLayer, clearedQuadkeys?: string[]) {
         clearedQuadkeys = clearedQuadkeys || [];
 
         const display = this.display;

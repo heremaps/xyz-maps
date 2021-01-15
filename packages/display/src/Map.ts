@@ -291,7 +291,16 @@ export default class Map {
 
         tigerMap.setZoomlevel(zoomLevel);
 
-        (options['layers'] || []).forEach((layer) => this.addLayer(layer));
+        tigerMap._layerClearListener = tigerMap._layerClearListener.bind(tigerMap);
+
+        for (let layer of (options['layers'] || [])) {
+            tigerMap.addLayer(layer);
+        }
+    }
+
+    private _layerClearListener(ev) {
+        // refresh(re-fetch) data if layer get's cleared
+        this.refresh(ev.detail.layer);
     }
 
     private initViewPort(): [number, number] {
@@ -456,12 +465,12 @@ export default class Map {
     };
 
     /**
-     * Adds an event listener.
+     * Adds an event listener to the map.
      * supported events: 'mapviewchangestart', 'mapviewchange', 'mapviewchangeend', 'resize',
      * 'tap', 'dbltap', 'pointerup', 'pointerenter', 'pointerleave', 'pointerdown', 'pointermove', 'pressmove'
      *
-     * @param type - event name
-     * @param listener - callback function
+     * @param type - A string representing the event type to listen for.
+     * @param listener - the listener function that will be called when an event of the specific type occurs
      */
     addEventListener(type: string, listener: (e: MapEvent) => void) {
         const listeners = this._l;
@@ -474,10 +483,10 @@ export default class Map {
     };
 
     /**
-     * Removes an event listener.
+     * Removes an event listener to the map.
      *
-     * @param type event name
-     * @param listener callback function
+     * @param type - A string representing the event type to listen for.
+     * @param {Function} listener - The EventListener function of the event handler to remove from the editor.
      */
     removeEventListener(type: string, listener: (e: MapEvent) => void) {
         const listeners = this._l;
@@ -937,11 +946,11 @@ export default class Map {
             if (index == UNDEF) {
                 index = layers.length;
             }
-
             // initLayer(layer, index);
             this._display.addLayer(layer, layer.getStyle(), index);
-            // if layer get's cleared -> refresh/refetch data
-            layer.addEventListener('clear', (l) => this.refresh(l));
+            // if layer get's cleared -> refresh/re-fetch data
+            // layer.addEventListener('clear', (ev)=>this.refresh(ev.detail.layer));
+            layer.addEventListener('clear', this._layerClearListener);
             this._l.trigger(ON_LAYER_ADD_EVENT,
                 [new MapEvent(ON_LAYER_ADD_EVENT, {index: index, layer: layer})]
             );
@@ -963,7 +972,8 @@ export default class Map {
 
         if (index >= 0) {
             this._display.removeLayer(layer);
-            layer.removeEventListener('clear', (l) => this.refresh(l));
+            // layer.removeEventListener('clear', (ev)=>this.refresh(ev.detail.layer));
+            layer.removeEventListener('clear', this._layerClearListener);
 
             layers.splice(index, 1);
 

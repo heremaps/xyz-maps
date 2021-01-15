@@ -161,13 +161,13 @@ export class TileLayer {
         layer._p.forEach((provider, i) => {
             if (provider) {
                 if (provider.__type == 'FeatureProvider') {
-                    provider.addEventListener(ADD_FEATURE_EVENT, layer._afl, layer);
+                    provider.addEventListener(ADD_FEATURE_EVENT, layer._eventProxy, layer);
 
-                    provider.addEventListener(REMOVE_FEATURE_EVENT, layer._rfl, layer);
+                    provider.addEventListener(REMOVE_FEATURE_EVENT, layer._eventProxy, layer);
 
-                    provider.addEventListener(MODIFY_FEATURE_COORDINATES_EVENT, layer._mfl, layer);
+                    provider.addEventListener(MODIFY_FEATURE_COORDINATES_EVENT, layer._eventProxy, layer);
                 }
-                provider.addEventListener(CLEAR_EVENT, layer._cpl, layer);
+                provider.addEventListener(CLEAR_EVENT, layer._eventProxy, layer);
             }
         });
 
@@ -202,19 +202,22 @@ export class TileLayer {
      * Add an EventListener to the layer.
      * Valid events: "featureAdd", "featureRemove", "featureCoordinatesChange", "clear", "styleGroupChange", "styleChange", and "viewportReady"
      *
+     * The detail property of the Event gives additional information about the event.
+     * detail.layer is a reference to the layer onto which the event was dispatched and is set for all events.
+     *
      * @param type - A string representing the event type to listen for
      * @param listener - the listener function that will be called when an event of the specific type occurs
      */
-    addEventListener(type: string, listener: (event: Event) => void);
+    addEventListener(type: string, listener: (event: CustomEvent) => void)
 
-    addEventListener(type: string, listener: (event: Event) => void, scp?) {
+    addEventListener(type: string, listener: (event: CustomEvent) => void, _c?) {
         const listeners = this._l;
 
         if (listeners.isDefined(type)) {
-            return listeners.add(type, listener, scp);
+            return listeners.add(type, listener, _c);
         }
 
-        return this._fp && this._fp.addEventListener(type, listener, scp);
+        return this._fp && this._fp.addEventListener(type, listener, _c);
     };
 
     /**
@@ -222,49 +225,39 @@ export class TileLayer {
      * Valid events: "featureAdd", "featureRemove", "featureCoordinatesChange", "clear", "styleGroupChange", "styleChange", and "viewportReady"
      *
      * @param {String} type - A string which specifies the type of event for which to remove an event listener.
-     * @param {Function} listener - The EventListener function of the event handler to remove from the TileLayer.
+     * @param {Function} listener - The listener function of the event handler to remove from the TileLayer.
      */
-    removeEventListener(type: string, listener: (event: Event) => void);
+    removeEventListener(type: string, listener: (event: CustomEvent) => void)
 
-    removeEventListener(type: string, listener: (event: Event) => void, scp?) {
+    removeEventListener(type: string, listener: (event: CustomEvent) => void, _c?) {
         const listeners = this._l;
 
         if (listeners.isDefined(type)) {
-            return listeners.remove(type, listener, scp);
+            return listeners.remove(type, listener, _c);
         }
 
-        return this._fp.removeEventListener(type, listener, scp);
+        return this._fp.removeEventListener(type, listener, _c);
     };
 
+    private _eventProxy(ev: CustomEvent) {
+        const {type, detail} = ev;
+        detail.layer = this;
 
-    private _mfl(feature, prevBBox, prevCoordinates, provider) {
-        this._l.trigger(MODIFY_FEATURE_COORDINATES_EVENT, [feature, prevBBox, prevCoordinates, this], true);
-    };
+        if (type == REMOVE_FEATURE_EVENT) {
+            // cleanup styles
+            // delete this._cs[id];
+            this.setStyleGroup(detail.feature);
+        }
+        this._l.trigger(type, ev, true);
+    }
 
-    private _cpl(provider, quadkeys) {
-        // full provider clear!
-        // if( !quadkeys )
-        // {
-        //     // clear custom styles..
-        //     this._cs = {};
-        // }
-
-        this._l.trigger(CLEAR_EVENT, [this, quadkeys], true);
-    };
-
-
-    private _afl(feature, tiles) {
-        this._l.trigger(ADD_FEATURE_EVENT, [feature, tiles, this], true);
-    };
-
-
-    private _rfl(feature, tiles) {
-        // cleanup styles
-        // delete this._cs[id];
-        this.setStyleGroup(feature);
-
-        this._l.trigger(REMOVE_FEATURE_EVENT, [feature, tiles, this], true);
-    };
+    protected dispatchEvent(type: string, detail: { [name: string]: any, layer?: TileLayer }) {
+        detail.layer = this;
+        const event = new CustomEvent(type, {
+            detail: detail
+        });
+        this._l.trigger(type, event, true);
+    }
 
 
     /**
@@ -348,11 +341,10 @@ export class TileLayer {
 
     setStyleGroup(feature, style?, merge?) {
         if (this._sd) {
-            this._l.trigger(STYLEGROUP_CHANGE_EVENT, [
+            this.dispatchEvent(STYLEGROUP_CHANGE_EVENT, {
                 feature,
-                this._sd.setStyleGroup(feature, style, merge),
-                this
-            ], true);
+                styleGroup: this._sd.setStyleGroup(feature, style, merge)
+            });
         }
     };
 
@@ -580,7 +572,7 @@ export class TileLayer {
 
         this._sd = layerStyle;
 
-        this._l.trigger(STYLE_CHANGE_EVENT, [layerStyle, this], true);
+        this.dispatchEvent(STYLE_CHANGE_EVENT, {style: layerStyle});
     };
 
     /**

@@ -61,7 +61,7 @@ describe('event listeners in poi layer', function() {
 
         let results = listener.stop();
 
-        expect(results.featureRemove[0]).to.deep.include({
+        expect(results.featureRemove[0].detail.feature).to.deep.include({
             id: place1.id,
             type: 'Feature'
         });
@@ -100,12 +100,12 @@ describe('event listeners in poi layer', function() {
         expect(results.featureRemove).to.have.lengthOf(0);
         expect(results.featureCoordinatesChange).to.have.lengthOf(1);
 
-        expect(results.featureAdd[0]).to.deep.include({
+        expect(results.featureAdd[0].detail.feature).to.deep.include({
             id: 'abcpoi',
             type: 'Feature'
         });
 
-        expect(results.featureCoordinatesChange[0]).to.deep.include({
+        expect(results.featureCoordinatesChange[0].detail.feature).to.deep.include({
             id: place2.id,
             type: 'Feature'
         });

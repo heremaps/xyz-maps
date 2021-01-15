@@ -106,19 +106,39 @@ abstract class Display {
         const featureModifier = new FeatureModifier(display, tileRenderer);
 
         display.listeners = {
-            'clear': featureModifier.clear.bind(featureModifier),
+            'clear': (ev) => {
+                const {tiles, layer} = ev.detail;
+                featureModifier.clear(layer, tiles);
+            },
 
-            'featureAdd': featureModifier.add.bind(featureModifier),
+            'featureAdd': (ev) => {
+                const {feature, tiles, layer} = ev.detail;
+                if (tiles) {
+                    featureModifier.add(feature, tiles, layer);
+                }
+            },
 
-            'featureRemove': featureModifier.remove.bind(featureModifier),
+            'featureRemove': (ev) => {
+                const {feature, tiles, layer} = ev.detail;
+                if (tiles) {
+                    featureModifier.remove(feature, tiles, layer);
+                }
+            },
 
-            'featureCoordinatesChange': featureModifier.updateGeometry.bind(featureModifier),
+            'featureCoordinatesChange': (ev) => {
+                const {feature, prevBBox, prevCoordinates, layer} = ev.detail;
+                featureModifier.updateGeometry(feature, prevBBox, prevCoordinates, layer);
+            },
 
-            'styleGroupChange': featureModifier.repaint.bind(featureModifier),
+            'styleGroupChange': (ev) => {
+                const {feature, styleGroup, layer} = ev.detail;
+                featureModifier.repaint(feature, styleGroup, layer);
+            },
 
-            'styleChange': (layerStyle, layer) => {
+            'styleChange': (ev) => {
+                const {layer, style} = ev.detail;
                 const index = display.layers.indexOf(layer);
-                display.setLayerBgColor(layer.getStyle(), display.layers[index]);
+                display.setLayerBgColor(style, display.layers[index]);
                 display.buckets.tiles.forEach((t) => t.clear(index));
             }
         };
@@ -361,6 +381,7 @@ abstract class Display {
     }
 
     protected viewChange: boolean;
+
     updateGrid(centerWorld: [number, number], zoomlevel: number, screenOffsetX: number, screenOffsetY: number) {
         this.viewChange = true;
 

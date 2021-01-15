@@ -135,11 +135,13 @@ export interface Style {
     /**
      * Width of the style in pixels.
      * It is only required by Rect and Image.
+     * The maximum support width for "Image" is 64 pixels.
      */
     width?: number | styleNumberFunction;
     /**
      * Height of the style in pixels.
      * It is only required by Rect and Image.
+     * The maximum support height for "Image" is 64 pixels.
      */
     height?: number | styleNumberFunction;
     /**

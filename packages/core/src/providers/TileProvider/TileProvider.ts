@@ -32,7 +32,7 @@ const intersectBBox = (ax, ax2, ay, ay2, bx, bx2, by, by2) => {
 };
 
 /**
- *  Abstract Provider serving map-data partitioned in {@link:Tiles};
+ *  The TileProvider is an abstract Provider that serves map-data partitioned in {@link:Tiles};
  */
 export default abstract class TileProvider {
     __type: string;
@@ -103,14 +103,16 @@ export default abstract class TileProvider {
 
         // this.storage = new TileStorage( this['minLevel'], this['level'] );
 
-        this.listeners = new Listener([
-            'featureAdd',
-            'featureRemove',
-            'featureCoordinatesChange',
-            'clear',
-            'error'
-        ]);
+        this.listeners = new Listener(['clear', 'error']);
     };
+
+    protected dispatchEvent(type: string, detail: { [name: string]: any, provider?: TileProvider }) {
+        detail.provider = this;
+        const event = new CustomEvent(type, {
+            detail: detail
+        });
+        this.listeners.trigger(type, event, true);
+    }
 
     initStorage(storage: TileStorage) {
         // if cachelevel/loadinglevel is defined we need to make sure all respective subtiles get cleared.
@@ -121,30 +123,28 @@ export default abstract class TileProvider {
     };
 
     /**
-     *  Add an event listener to the provider.
-     *  Valid events: "featureAdd", "featureRemove", "featureCoordinatesChange", "clear" and "error"
+     * Add an EventListener to the provider.
+     * Valid events: "clear" and "error"
      *
-     * @param type - type of the event
-     * @param listener - the eventListener to add
+     * The detail property of the Event gives additional information about the event.
+     * detail.provider is a reference to the provider onto which the event was dispatched and is set for all events.
      *
+     * @param type - A string representing the event type to listen for
+     * @param listener - the listener function that will be called when an event of the specific type occurs
      */
-    addEventListener(type: string, listener: (e: Event) => void);
-
-    addEventListener(type: string, listener: (e: Event) => void, context?: any) {
-        return this.listeners.add(type, listener, context);
+    addEventListener(type: string, listener: (e: CustomEvent) => void, _c?) {
+        return this.listeners.add(type, listener, _c);
     }
 
     /**
-     *  Remove an event listener from the provider.
-     *  Valid events: "featureadd", "featureRemove", "featureCoordinatesChange", "clear" and "error"
+     * Remove an EventListener from the provider.
+     * Valid events:  "clear" and "error"
      *
-     * @param type - type of the event
-     * @param listener - the eventListener to remove
+     * @param {String} type - A string which specifies the type of event for which to remove an event listener.
+     * @param {Function} listener - The listener function of the event handler to remove from the provider.
      */
-    removeEventListener(type: string, listener: (e: Event) => void);
-
-    removeEventListener(type: string, listener: (e: Event) => void, context?: any) {
-        return this.listeners.remove(type, listener, context);
+    removeEventListener(type: string, listener: (e: CustomEvent) => void, _c?) {
+        return this.listeners.remove(type, listener, _c);
     }
 
     /**

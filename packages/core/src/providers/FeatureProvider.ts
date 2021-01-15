@@ -76,6 +76,12 @@ export class FeatureProvider extends Provider {
         this.tree = new RTree(9);
 
         this.Feature = this.Feature || Feature;
+
+        [
+            ADD_FEATURE_EVENT,
+            REMOVE_FEATURE_EVENT,
+            MODIFY_FEATURE_COORDINATES_EVENT
+        ].forEach((type) => this.listeners.addEvent(type));
     }
 
 
@@ -148,7 +154,7 @@ export class FeatureProvider extends Provider {
                 }
 
                 if (!provider.ignore) {
-                    provider.listeners.trigger(ADD_FEATURE_EVENT, [feature, tiles], true);
+                    provider.dispatchEvent(ADD_FEATURE_EVENT, {feature: feature, tiles: tiles});
                 }
             }
         } else {
@@ -159,6 +165,33 @@ export class FeatureProvider extends Provider {
         }
 
         return feature;
+    };
+
+    /**
+     * Add an EventListener to the provider.
+     * Valid events: "featureAdd", "featureRemove", "featureCoordinatesChange", "clear" and "error"
+     *
+     * The detail property of the Event gives additional information about the event.
+     * detail.provider is a reference to the provider onto which the event was dispatched and is set for all events.
+     *
+     * @param type - A string representing the event type to listen for
+     * @param listener - the listener function that will be called when an event of the specific type occurs
+     */
+    addEventListener(type: string, listener: (e: CustomEvent) => void, _c?) {
+        // @ts-ignore
+        return super.addEventListener(type, listener, _c);
+    }
+
+    /**
+     * Remove an EventListener from the provider.
+     * Valid events: "featureAdd", "featureRemove", "featureCoordinatesChange", "clear" and "error"
+     *
+     * @param {String} type - A string which specifies the type of event for which to remove an event listener.
+     * @param {Function} listener - The listener function of the event handler to remove from the provider.
+     */
+    removeEventListener(type: string, listener: (event: CustomEvent) => void, _c?) {
+        // @ts-ignore
+        return super.removeEventListener(type, listener, _c);
     };
 
     /**
@@ -475,7 +508,12 @@ export class FeatureProvider extends Provider {
             // this.tree.insert( feature );
 
 
-            this.listeners.trigger(MODIFY_FEATURE_COORDINATES_EVENT, [feature, prevBBox, prevCoordinates, this], true);
+            this.dispatchEvent(MODIFY_FEATURE_COORDINATES_EVENT, {
+                feature,
+                prevBBox,
+                prevCoordinates,
+                provider: this
+            });
         } else {
             // update geometry/bbox although object isn't registered..
             _feature.geometry.coordinates = coordinates;
@@ -533,7 +571,7 @@ export class FeatureProvider extends Provider {
                 // delete feature._provider;
 
                 if (!this.ignore) {
-                    this.listeners.trigger(REMOVE_FEATURE_EVENT, [feature, tiles], true);
+                    this.dispatchEvent(REMOVE_FEATURE_EVENT, {feature, tiles});
                 }
             }
         }
@@ -599,7 +637,7 @@ export class FeatureProvider extends Provider {
             Provider.prototype.clear.call(this, bbox);
         }
 
-        provider.listeners.trigger('clear', [this, dataQuads], true);
+        provider.dispatchEvent('clear', {tiles: dataQuads});
     };
 
     _insert(o, tile?: Tile) {
@@ -689,8 +727,8 @@ export class FeatureProvider extends Provider {
     };
 
     _dropFeature(feature: Feature, qk: string, trigger?: boolean) {
-        const prov = this;
-        const featureStoreInfo = prov.IDPOOL[feature.id];
+        const provider = this;
+        const featureStoreInfo = provider.IDPOOL[feature.id];
 
         if (featureStoreInfo) {
             if (featureStoreInfo[qk]) {
@@ -699,17 +737,17 @@ export class FeatureProvider extends Provider {
                 featureStoreInfo.cnt--;
             }
 
-            if (prov.isDroppable(feature)) {
+            if (provider.isDroppable(feature)) {
                 if (!featureStoreInfo.cnt) {
-                    prov.cnt--;
-                    delete prov.IDPOOL[feature.id];
+                    provider.cnt--;
+                    delete provider.IDPOOL[feature.id];
 
-                    if (prov.tree) {
-                        prov.tree.remove(feature);
+                    if (provider.tree) {
+                        provider.tree.remove(feature);
                     }
 
                     if (trigger) {
-                        prov.listeners.trigger(REMOVE_FEATURE_EVENT, [feature, prov], true);
+                        provider.dispatchEvent(REMOVE_FEATURE_EVENT, {feature});
                     }
                 }
             }

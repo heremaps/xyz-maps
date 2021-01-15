@@ -49,7 +49,7 @@ describe('event listeners in provider layer', function() {
 
         let evts = listener.stop();
 
-        expect(evts.featureAdd[0]).to.deep.include({id: 'abc'});
+        expect(evts.featureAdd[0].detail.feature).to.deep.include({id: 'abc'});
         expect(evts.featureRemove).to.have.lengthOf(0);
 
 
@@ -63,7 +63,7 @@ describe('event listeners in provider layer', function() {
 
         let evt = listener2.stop();
 
-        expect(evt.featureRemove[0]).to.deep.include({id: 'abc'});
+        expect(evt.featureRemove[0].detail.feature).to.deep.include({id: 'abc'});
         expect(evt.featureAdd).to.have.lengthOf(0);
     });
 });

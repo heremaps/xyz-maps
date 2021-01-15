@@ -160,7 +160,7 @@ export class ImageProvider extends TileProvider {
             this.storage.clear();
         }
 
-        provider.listeners.trigger('clear', [provider, dataQuads], true);
+        provider.dispatchEvent('clear', {tiles: dataQuads});
     };
 
     /**

@@ -272,7 +272,7 @@ export default class Editor {
      * Valid Events are: "tap", "dbltap", "pointerup", "pointerenter", "pointerleave", "featureUnselected", "error", "dragStart", "dragStop".
      *
      * @param {String} type - A string which specifies the type of event for which to remove an event listener.
-     * @param {Function} listener - The EventListener function of the event handler to remove from the editor.
+     * @param {Function} listener - The listener function of the event handler to remove from the editor.
      */
     removeEventListener(type: string, listener: (event: EditorEvent) => void) {
         const {listeners} = this._i();
@@ -426,7 +426,7 @@ export default class Editor {
     }
 
     // support for legacy/deprecated api
-    clearObjectSelection(): Feature | null ;
+    clearObjectSelection: () => Feature | null;
 
     /**
      * Search for feature(s) in the provider.
