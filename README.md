@@ -1,10 +1,15 @@
-# XYZ Editor JS
+# XYZ Maps JS
 [![License](https://img.shields.io/badge/License-Apache%202.0-blue.svg)](https://opensource.org/licenses/Apache-2.0)
 [![Build Status](https://travis-ci.com/heremaps/xyz-editor.svg?branch=master)](https://travis-ci.com/heremaps/xyz-editor)
 ![Actions Status](https://github.com/heremaps/xyz-editor/workflows/Build%20&%20Test/badge.svg)
 ![npm version](https://img.shields.io/npm/v/@here/xyz-maps-editor.svg)
 
-XYZ Editor is an experimental and work in progress open-source map editor written in TypeScript/JavaScript.
+XYZ Maps is an experimental and work in progress open-source map editor written in TypeScript/JavaScript.
+It consists of the following main modules:
+* [@here/xyz-maps-common](packages/common) : The Common module provides commonly used javascript functionality that is required by all other modules of XYZ Maps.
+* [@here/xyz-maps-core](packages/core) : The Core module of xyz-maps provides the most basic functionality. Main functionalities of the module are: DataProviders, TileLayers, Geometric Classes and Styling definitions.
+* [@here/xyz-maps-display](packages/display) : The Display module of xyz-maps is a highly customizable vector map display that's optimized for map editing, larger raw datasets and frequently changing data.
+* [@here/xyz-maps-editor](packages/editor) : The Editor module provides an API for editing map data that can be used to easily access, add, remove and edit various types of map data.
 
 ![edit buildings with xyz-editor](packages/display/assets/xyz-maps.png)
 

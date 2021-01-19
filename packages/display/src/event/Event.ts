@@ -23,7 +23,7 @@ let UNDEF;
 
 /**
  * The MapEvent represents an event which takes place in the map.
- * An event can be triggered by user interaction e.g. tapping on the map, or generated to represent the progress of an asynchronous task.
+ * An event can be triggered by user interaction e.g. tapping on the map, or being generated to represent the progress of an asynchronous task.
  */
 class MapEvent {
     /**

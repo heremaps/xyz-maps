@@ -1,6 +1,8 @@
-# XYZ Editor JS: Core
+# XYZ Maps JS: Core
 
-XYZ Editor is an experimental and work in progress open-source map editor written in TypeScript/JavaScript.
+XYZ Maps is an experimental and work in progress open-source map editor written in TypeScript/JavaScript.
+The core module of xyz-maps provides the most basic functionality and is used by all other modules of xyz-maps.
+Main functionalities of the module are: DataProviders, TileLayers, Geometric Classes and Styling definitions.
 
 ## Start developing
 

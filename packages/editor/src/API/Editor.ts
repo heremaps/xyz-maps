@@ -132,8 +132,9 @@ const commitChanges = (internalEditor: InternalEditor, modobjs, onSuccess, onErr
 };
 
 /**
- * The Editor is a Map Editor API that allows to easily add, modify, delete and work with different kind of map data.
- * Changes can be synchronized automatically with various different remote backends services.
+ * The Editor is an API for editing map data that can be used to easily access, add, remove and edit various types of map data.
+ * Changes can be automatically synchronized with various remote backends services.
+ * It offers various tools for manipulating map-data through user interaction.
  */
 export default class Editor {
     private _i: () => InternalEditor;

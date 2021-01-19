@@ -88,7 +88,7 @@ function calcZoomLevelForBounds(minLon, minLat, maxLon, maxLat, mapWidth, mapHei
 
 
 /**
- * XYZ Map is a vector map display optimized for map editing and frequently changing map data.
+ * XYZ Map is a highly customizable vector map display that's optimized for map editing, larger raw datasets and frequently changing data.
  */
 export default class Map {
     id: number;

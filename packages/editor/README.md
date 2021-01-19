@@ -1,6 +1,8 @@
-# XYZ Editor JS: Editor
+# XYZ Maps JS: Editor
 
-XYZ Editor is an experimental and work in progress open-source map editor written in TypeScript/JavaScript.
+XYZ Maps is an experimental and work in progress open-source map editor written in TypeScript/JavaScript.
+The editor module provides an API for editing map data that can be used to easily access, add, remove and edit various types of map data.
+Changes can be automatically synchronized with various remote backends services.
 
 ## Start developing
 

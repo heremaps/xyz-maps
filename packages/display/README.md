@@ -1,6 +1,7 @@
-# XYZ Editor JS: Display
+# XYZ Maps JS: Display
 
-XYZ Editor is an experimental and work in progress open-source map editor written in TypeScript/JavaScript.
+XYZ Maps is an experimental and work in progress open-source map editor written in TypeScript/JavaScript.
+The display module of xyz-maps is a highly customizable vector map display that's optimized for map editing, larger raw datasets and frequently changing data.
 
 ## Start developing
 
