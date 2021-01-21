@@ -1,6 +1,6 @@
 # XYZ Maps JS: Common
 
-XYZ Editor is an experimental and work in progress open-source map editor written in TypeScript/JavaScript.
+XYZ Maps is an experimental and work in progress open-source map editor written in TypeScript/JavaScript.
 The Common module provides commonly used javascript functionality that are required by all other modules of XYZ Maps.
 
 ## Start developing

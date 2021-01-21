@@ -57,8 +57,9 @@ void main(void){
             vec2 posOffset = rotate(a_point.xy * OFFSET_SCALE + labelOffset, -rotation) / u_scale / DEVICE_PIXEL_RATIO;
             gl_Position = u_matrix * vec4(u_topLeft + a_position * EXTENT_SCALE + posOffset, 0.0, 1.0);
         } else {
-            vec4 cpos = u_matrix * vec4(labelOffset + u_topLeft + a_position * EXTENT_SCALE, 0.0, 1.0);
-            gl_Position = vec4(cpos.xy / cpos.w + vec2(a_point.x, -a_point.y) * OFFSET_SCALE / DEVICE_PIXEL_RATIO / u_resolution * 2.0, 0.0, 1.0);
+            vec4 cpos = u_matrix * vec4((u_topLeft + a_position * EXTENT_SCALE), 0.0, 1.0);
+            vec2 offset = a_point * OFFSET_SCALE + labelOffset;
+            gl_Position = vec4(cpos.xy / cpos.w + vec2(1, -1) * offset / DEVICE_PIXEL_RATIO / u_resolution * 2.0, 0.0, 1.0);
         }
 
         if (u_fixedView){
