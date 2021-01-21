@@ -117,7 +117,7 @@ export interface Zone {
      * @example
      * ```
      * {
-     *  link: Navlink;
+     *  navlink: Navlink;
      *  from: number;
      *  to: number;
      *  reversed: boolean;
