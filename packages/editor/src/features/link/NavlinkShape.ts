@@ -18,7 +18,7 @@
  */
 
 import {JSUtils, geotools} from '@here/xyz-maps-common';
-import {FeatureProvider, Feature} from '@here/xyz-maps-core';
+import {FeatureProvider, Feature, GeoJSONFeature} from '@here/xyz-maps-core';
 import GeoFence from './GeoFence';
 import {Navlink} from './NavLink';
 import TurnRestriction from './TurnRestriction';
@@ -26,12 +26,6 @@ import {Feature as EditableFeature} from '@here/xyz-maps-editor';
 
 
 const NS_EDITOR = '@ns:com:here:editor';
-
-type GeoJonFeature = {
-    type: 'Feature',
-    geometry: any,
-    properties?: {}
-}
 
 type LinkShapeProperties = {
     isNode: boolean;
@@ -368,28 +362,20 @@ class NavlinkShape extends Feature {
         // const overlay = EDITOR.objects.overlay;
         const isNode = (i == 0 || i == line.geometry.coordinates.length - 1);
 
-        const shapePnt: GeoJonFeature = {
-
+        const shapePnt: GeoJSONFeature = {
             type: 'Feature',
-
             geometry: {
                 type: 'Point',
-
                 coordinates: pos.slice()
             },
             properties: {
-
                 'isNode': isNode,
-
                 'isConnected': !!connectedLinks.length,
-
                 '@ns:com:here:editor': {},
-
                 'NAVLINK': {
                     'properties': JSUtils.extend(true, {}, line.properties),
                     'style': EDITOR.getStyle(line)
                 },
-
                 'parent': line
             }
         };

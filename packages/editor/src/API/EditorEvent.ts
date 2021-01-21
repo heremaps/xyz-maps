@@ -73,7 +73,7 @@ export class EditorEvent {
     readonly target?: any;
 
     /**
-     * optional event detail data.
+     * optional event detail data depending on the type of the event.
      */
     readonly detail: {
         /**

@@ -64,14 +64,10 @@ describe('zone selector util', function() {
     it('validate zone is initialized correctly', async ()=>{
         editor.getZoneSelector().add(link1);
 
-        let results;
         editor.getZoneSelector().show({
             from: 0.1,
             to: 0.4,
-            side: 'B',
-            onChange: function(e) {
-                results = e;
-            }
+            side: 'B'
         });
 
         let info = editor.getZoneSelector().info();
@@ -82,7 +78,7 @@ describe('zone selector util', function() {
             reversed: false
         });
 
-        expect(info[0].segments[0].Link).to.deep.include({
+        expect(info[0].segments[0].navlink).to.deep.include({
             id: link1.id
         });
     });
@@ -92,25 +88,25 @@ describe('zone selector util', function() {
 
         editor.getZoneSelector().add(link2);
 
-        let results;
+        let zone;
         editor.getZoneSelector().show({
             from: 0.1,
             to: 0.4,
             side: 'B',
-            onChange: function(e) {
-                results = e;
+            dragStop: function(e) {
+                zone = e.detail.zone;
             }
         });
 
         await drag(mapContainer, {x: 120, y: 185}, {x: 120, y: 200});
 
-        expect(results[0].from).to.deep.almost(0.1);
-        expect(results[0].to).to.deep.almost(0.517);
-        expect(results[0]).to.deep.include({
+        expect(zone.segments[0].from).to.deep.almost(0.1);
+        expect(zone.segments[0].to).to.deep.almost(0.517);
+        expect(zone.segments[0]).to.deep.include({
             reversed: false
         });
 
-        expect(results[0].Link).to.deep.include({
+        expect(zone.segments[0].navlink).to.deep.include({
             id: link2.id
         });
     });
@@ -121,25 +117,25 @@ describe('zone selector util', function() {
 
         editor.getZoneSelector().add(link1);
 
-        let results;
+        let zone;
         editor.getZoneSelector().show({
             from: 0.1,
             to: 0.7,
             side: 'R',
-            onChange: function(e) {
-                results = e;
+            dragStop: function(e) {
+                zone = e.detail.zone;
             }
         });
 
         await drag(mapContainer, {x: 133, y: 301}, {x: 131, y: 285});
 
-        expect(results[0].from).to.deep.almost(0.1);
-        expect(results[0].to).to.deep.almost(0.488);
-        expect(results[0]).to.deep.include({
+        expect(zone.segments[0].from).to.deep.almost(0.1);
+        expect(zone.segments[0].to).to.deep.almost(0.488);
+        expect(zone.segments[0]).to.deep.include({
             reversed: false
         });
 
-        expect(results[0].Link).to.deep.include({
+        expect(zone.segments[0].navlink).to.deep.include({
             id: link1.id
         });
     });

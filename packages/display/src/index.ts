@@ -25,4 +25,6 @@ import {global} from '@here/xyz-maps-common';
 global.here.xyz.maps.Map = Map;
 
 export {Map};
+export {MapEvent} from './event/Event';
+
 export default Map;

@@ -21,7 +21,9 @@ import {getPointAtLength, getTotalLength, getSegmentIndex} from '../../geometry'
 import {calcRelPosOfPoiAtLink, getRelPosOfPointOnLine} from '../../map/GeoMath';
 import {Feature, TileLayer, projection} from '@here/xyz-maps-core';
 import {JSUtils} from '@here/xyz-maps-common';
+import {MapEvent} from '@here/xyz-maps-display';
 import MultiLink from './MultiLink';
+
 
 const {webMercator} = projection;
 
@@ -55,8 +57,9 @@ function getPointAtLine(
 
 class ZoneMarker extends Feature {
     private isLocked: () => boolean;
-    private onDrag: () => void;
-    private onDragEnd: () => void;
+    private dragStart: (e: MapEvent) => void;
+    private dragMove: (e: MapEvent) => void;
+    private dragEnd: (e: MapEvent) => void;
     private ml: MultiLink;
 
     properties: {
@@ -66,7 +69,9 @@ class ZoneMarker extends Feature {
         relPos: number;
     }
 
-    constructor(overlay: TileLayer, multiLink, side: string, relPos: number, styleGroup, isLocked, onDrag, onDragEnd) {
+    constructor(overlay: TileLayer, multiLink, side: string, relPos: number, styleGroup, isLocked,
+        dragStart, dragMove, dragEnd
+    ) {
         styleGroup = JSUtils.clone(styleGroup);
 
         for (let style of styleGroup) {
@@ -90,8 +95,9 @@ class ZoneMarker extends Feature {
 
         this.isLocked = isLocked;
         this.ml = multiLink;
-        this.onDrag = onDrag;
-        this.onDragEnd = onDragEnd;
+        this.dragStart = dragStart;
+        this.dragMove = dragMove;
+        this.dragEnd = dragEnd;
 
         overlay.addFeature(this, this.properties.style);
 
@@ -145,18 +151,19 @@ class ZoneMarker extends Feature {
             const coordinate = marker.updatePosition(position.coordinate);
             marker.getProvider().setFeatureCoordinates(marker, coordinate);
 
-            marker.onDrag();
+            marker.dragMove(e);
             marker.properties.dragged = true;
         }
     };
 
-    pointerdown() {
+    pointerdown(e) {
+        this.dragStart(e);
         this.properties.dragged = false;
     };
 
-    pointerup() {
+    pointerup(e: MapEvent) {
         if (this.properties.dragged) {
-            this.onDragEnd();
+            this.dragEnd(e);
         }
     };
 
@@ -168,19 +175,21 @@ class ZoneMarker extends Feature {
         return this.properties.relPos;
     }
 
-    getRelPosOfSubLink(link) {
+    getRelPosOfSubLink(sublink) {
         const markerPos = <[number, number, number?]> this.geometry.coordinates;
-        const curSegNr = getSegmentIndex(this.ml.coord(), markerPos);
+        const iEditor = sublink.link._e();
+        const position = iEditor.map.getPixelCoord(markerPos);
+        const curSegNr = getSegmentIndex(
+            this.ml.coord().map((c) => iEditor.map.getPixelCoord(c)),
+            position
+        );
 
-        if (curSegNr >= link.from && curSegNr < link.to) {
-            const coords = link.link.coord();
-            const relPos = getRelPosOfPointOnLine(
-                markerPos,
-                link.reversed ? coords.reverse() : coords
-            );
-            return relPos > .995 ? 1 : relPos;
+        if (curSegNr >= sublink.from && curSegNr < sublink.to) {
+            const coords = sublink.link.coord().map((c) => iEditor.map.getPixelCoord(c));
+            const relPos = getRelPosOfPointOnLine(position, sublink.reversed ? coords.reverse() : coords);
+            return relPos > .995 ? 1 : Math.round(relPos * 1e6) / 1e6;
         }
-        return curSegNr < link.from ? 0 : 1;
+        return curSegNr < sublink.from ? 0 : 1;
     };
 }
 

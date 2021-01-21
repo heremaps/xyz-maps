@@ -18,11 +18,10 @@
  */
 
 import ZoneMarker from './ZoneMarker';
-import {getSubpath, getTotalLength} from '../../geometry';
 import MultiLink from './MultiLink';
-import {Zone} from '../../API/EZoneSelector';
-import {features} from '@here/xyz-maps-core/';
+import {Feature} from '@here/xyz-maps-core/';
 import Overlay from '../../features/Overlay';
+import {MapEvent} from '@here/xyz-maps-display';
 
 let UNDEF;
 const DEFAULT_STROKE = '#fff';
@@ -71,29 +70,71 @@ const createDefaultLineStyle = (stroke: string, opacity: number = 0.75, side: st
     // strokeLinecap: 'butt'
 }];
 
-export class MultiZone {
-    private _zone: Zone;
-    private line: features.Feature;
-    private markers: ZoneMarker[];
+export interface InternalZoneOptions {
+    id?: string | number;
+    side?: 'L' | 'R' | 'B';
+    from?: number;
+    to?: number;
+    locked?: boolean;
+    style?: any;
+    dragStart?: (e: MapEvent, zone: Zone) => void;
+    dragMove?: (e: MapEvent, zone: Zone) => void;
+    dragStop?: (e: MapEvent, zone: Zone) => void;
+    markerStyle?;
+    lineStyle?;
+}
+
+export class Zone {
+    id?: string | number;
+    options: InternalZoneOptions;
+    private line: Feature;
+    markers: ZoneMarker[];
     private overlay: Overlay;
     private ml: MultiLink;
 
     private style;
 
-    constructor(multiLink: MultiLink, overlay, _zone: Zone) {
-        this._zone = _zone;
+    segments;
 
-        const style = JSON.parse(JSON.stringify(_zone.style || {}));
+    // private generateZoneSegments(zone: InternalZone): ZoneSegment[] {
+    //     // const info = [];
+    //     return this.ml.links.slice()
+    //
+    //     // this.ml.getCollection().getZoneSegments(zone).forEach((segment) => {
+    //     //     const zoneSegment: ZoneSegment = {
+    //     //         navlink: segment[0],
+    //     //         from: segment[1],
+    //     //         to: segment[2],
+    //     //         reversed: segment[3]
+    //     //     };
+    //     //     info.push(zoneSegment);
+    //     // });
+    //     // return info;
+    // }
+
+    private updateSegments() {
+        this.segments = this.ml.getZoneSegments(this);
+    }
+
+
+    constructor(multiLink: MultiLink, overlay, options: InternalZoneOptions) {
+        this.options = {
+            dragStart: (z, e) => {
+            }, dragMove: (z, e) => {
+            }, dragStop: (z, e) => {
+            }, ...options
+        };
+
+        const {id} = options;
+
+        if (id != UNDEF) {
+            this.id = id;
+        }
+        const style = JSON.parse(JSON.stringify(options.style || {}));
 
         this.ml = multiLink;
 
-        const onDragged = () => {
-            if (_zone['onChange']) {
-                _zone['onChange'](<any> this);
-            }
-        };
-
-        let side = _zone.side;
+        let side = options.side;
         let {opacity, fill, stroke} = style;
 
 
@@ -108,7 +149,7 @@ export class MultiZone {
 
         fill = fill || DEFAULT_FILL[side];
 
-        let lineStyle = _zone.lineStyle || createDefaultLineStyle(fill, opacity, side);
+        let lineStyle = options.lineStyle || createDefaultLineStyle(fill, opacity, side);
 
         this.line = overlay.addPath(multiLink.coord(), this.style = lineStyle);
 
@@ -117,7 +158,7 @@ export class MultiZone {
             lineOffset = style.offset || lineOffset;
         }
 
-        let markerStyle = _zone.markerStyle || createDefaultMarkerStyle(fill, stroke, opacity, side);
+        let markerStyle = options.markerStyle || createDefaultMarkerStyle(fill, stroke, opacity, side);
 
         for (let style of markerStyle) {
             if (style.lineOffset == UNDEF) {
@@ -129,14 +170,27 @@ export class MultiZone {
             overlay,
             multiLink,
             side,
-            _zone[pos],
+            options[pos],
             markerStyle,
-            () => this.locked(),
-            () => this.draw(),
-            onDragged
+            (e) => {
+                this.locked();
+            },
+            (e: MapEvent) => {
+                this.options.dragStart(e, this);
+            },
+            (e: MapEvent) => {
+                this.draw();
+                this.updateSegments();
+                this.options.dragMove(e, this);
+            },
+            (e: MapEvent) => {
+                this.options.dragStop(e, this);
+            }
         ));
 
         this.overlay = overlay;
+
+        this.updateSegments();
     }
 
     remove() {
@@ -146,7 +200,7 @@ export class MultiZone {
     }
 
     locked(): boolean {
-        return !!this._zone.locked;
+        return !!this.options.locked;
     }
 
     draw() {

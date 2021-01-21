@@ -22,14 +22,34 @@ import MultiSelector from '../tools/ZoneSelection/MultiSelector';
 import InternalEditor from '../IEditor';
 
 import {Navlink} from '../features/link/NavLink';
+import {Zone as InternalZone} from '../tools/ZoneSelection/Zone';
+import {MapEvent} from '@here/xyz-maps-display';
+import EventHandler from '../handlers/EventHandler';
+import {EditorEvent} from './EditorEvent';
 
 let UNDEF;
 
-
-type ZoneSegment = {
-    link: Navlink
+/**
+ * A ZoneSegment is the part of a "Zone" that`s located at a specific Navlink.
+ */
+export type ZoneSegment = {
+    /**
+     * The Navlink the ZoneSegment is located at.
+     */
+    navlink: Navlink
+    /**
+     * Relative start position on the geometry of the Navlink.
+     * 0 -> 0% -> start, 0.5 -> 50% -> middle, 1 -> 100% -> end
+     */
     from: number;
+    /**
+     * Relative end position on the geometry of the Navlink.
+     * 0.5 -> 50% -> middle, 1 -> 100% -> end
+     */
     to: number;
+    /**
+     * The indicates if the direction of travel of the Navlink is in reverse order, compared to the direction of travel of the first Navlink that's has been added of the ZoneSelector.
+     */
     reversed: boolean;
 }
 
@@ -37,7 +57,11 @@ type ZoneSegment = {
  * A zone represents a part/subsegment on a line geometry or multiple line geometries.
  * Its used by the ZoneSelector utility. {@link editor.ZoneSelector}
  */
-export class Zone {
+export interface Zone {
+    /**
+     * Optional identifier of the Zone
+     */
+    id?: string | number;
     /**
      * Side of the Zone. Relative to the direction of travel of the line geometry.
      * "L" | "R" | "B" -> Left, Right or Both sides.
@@ -50,13 +74,13 @@ export class Zone {
      * 0 -> 0% -> start, 0.5 -> 50% -> middle, 1 -> 100% -> end
      * @default 0.0
      */
-    from: number;
+    from?: number;
     /**
      * Relative end position on the line geometry.
      * 0.5 -> 50% -> middle, 1 -> 100% -> end
      * @default 1.0
      */
-    to: number;
+    to?: number;
     /**
      * lock the zone and prevent dragging/editing of the Zone.
      */
@@ -67,31 +91,49 @@ export class Zone {
      */
     style?: any;
     /**
-     * onChange callback providing detailed information about current state of the Zone.
+     * Set an event listener that will be called when a zone drag starts.
+     *
+     * @param event The respective event.
+     * The {@link Zone} is provided in the detail property of the event. (event.detail.zone)
      */
-    onChange?: (ZoneSegments: ZoneSegment[]) => void;
+    dragStart?: (event: EditorEvent) => void;
+    /**
+     * Set an event listener that will be called when a zone is dragged.
+     *
+     * @param event The respective event.
+     * The {@link Zone} is provided in the detail property of the event. (event.detail.zone)
+     */
+    dragMove?: (event: EditorEvent) => void;
+    /**
+     * Set an event listener that will be called when a zone drag has been finished.
+     *
+     * @param event The respective event.
+     * The {@link Zone} is provided in the detail property of the event. (event.detail.zone)
+     */
+    dragStop?: (event: EditorEvent) => void;
     /**
      * A zone can consist of several segments.
      * A Segment provides detailed information on the affected Navlinks:
      * @example
      * ```
      * {
-     *  link: Navlink
+     *  link: Navlink;
      *  from: number;
      *  to: number;
      *  reversed: boolean;
      * }
      * ```
      */
-    segments: ZoneSegment[]
+    readonly segments: ZoneSegment[]
 
     markerStyle?;
     lineStyle?;
-
-    constructor() {
-    }
 }
 
+const convertZone = (zone: InternalZone): Zone => {
+    const {id, from, to, side, style} = zone.options;
+    return {id, from, to, side, style, segments: zone.segments};
+};
 
 /**
  * The ZoneSelector is a tool to create and modify Zones on a single geometry or multiple line geometries.
@@ -103,19 +145,6 @@ export class ZoneSelector {
 
     constructor(iEditor: InternalEditor) {
         this.links = new MultiSelector(iEditor);
-    }
-
-    private generateZoneSegments(zone) {
-        const info = [];
-        this.links.getCollection().getZoneSegments(zone).forEach((segment) => {
-            info.push({
-                'Link': segment[0],
-                'from': segment[1],
-                'to': segment[2],
-                'reversed': segment[3]
-            });
-        });
-        return info;
     }
 
     /**
@@ -135,20 +164,16 @@ export class ZoneSelector {
     };
 
     /**
-     * Adds and displays zones for editing.
+     * Add and show a Zone. A Zone can be located on a single or multiple Navlink(s).
      *
-     * @param zone - display single or multiple zones at the geometry of the Navlink(s).
+     * @param zone - The zone that should be displayed.
      */
     show(zone: Zone) {
         const zones = this.zones = zone instanceof Array ? zone : [].slice.call(arguments);
 
         zones.forEach((zone) => {
-            const onChange = zone['onChange'];
-
             zone['from'] = zone['from'] || 0;
-
             zone['to'] = (zone['to'] == UNDEF ? 1 : zone['to']) || 0;
-
 
             for (let name of ['markerStyle', 'lineStyle']) {
                 let style = zone[name];
@@ -157,10 +182,14 @@ export class ZoneSelector {
                 }
             }
 
-            if (onChange) {
-                zone['onChange'] = (zone) => {
-                    onChange(this.generateZoneSegments(zone));
-                };
+            for (let type of ['dragStart', 'dragMove', 'dragStop']) {
+                const listener = zone[type];
+                if (listener) {
+                    zone[type] = (e: MapEvent, zone: InternalZone) => {
+                        e.detail.zone = convertZone(zone);
+                        listener(EventHandler.createEditorEvent(e, e.target, type));
+                    };
+                }
             }
         });
 
@@ -177,21 +206,18 @@ export class ZoneSelector {
     /**
      * detailed information about all zones and its segments.
      *
-     * @return  Array of Zones providing detailed information for each Zone.
+     * @return An array of Zones providing detailed information for each Zone.
      */
     info(): Zone[] {
         const zoneInfos = [];
         const multilink = this.links.getCollection();
 
         if (multilink) {
-            const _zones = multilink.getZones();
-            _zones.forEach((zone) => {
-                const publicZone = zone._zone;
-                publicZone['segments'] = this.generateZoneSegments(zone);
-                zoneInfos.push(publicZone);
+            const zones = multilink.getZones();
+            zones.forEach((zone) => {
+                zoneInfos.push(convertZone(zone));
             });
         }
-
         return zoneInfos;
     };
 

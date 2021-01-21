@@ -18,11 +18,10 @@
  */
 
 import oTools from '../../features/link/NavLinkTools';
-import {Zone} from '../../API/EZoneSelector';
 import {Navlink} from '../../features/link/NavLink';
 import {Line} from '../../features/line/Line';
 import InternalEditor from '../../IEditor';
-import {MultiZone} from './Zone';
+import {InternalZoneOptions, Zone} from './Zone';
 import ObjectOverlay from '../../features/Overlay';
 
 
@@ -64,7 +63,7 @@ class MultiLink {
     private overlay: ObjectOverlay;
     private completePath: any;
     private style: { strokeWidth: any; strokeLinejoin: string; strokeLinecap: string; type: string; stroke: any; zIndex: any; strokeDasharray: any }[];
-    private links: MultiLinkSegment[] = [];
+    links: MultiLinkSegment[] = [];
 
     private iEdit: InternalEditor;
 
@@ -120,7 +119,7 @@ class MultiLink {
         this.overlay.remove(this.feature);
     }
 
-    show(zones: Zone[]) {
+    show(zones: InternalZoneOptions[]) {
         const {overlay} = this;
 
         this.removeZones();
@@ -129,7 +128,7 @@ class MultiLink {
 
         zones.forEach((zone) => {
             if (['L', 'R', 'B'].indexOf(zone.side) != -1) {
-                let multiZone = new MultiZone(this, overlay, zone);
+                let multiZone = new Zone(this, overlay, zone);
                 this.zones.push(multiZone);
                 multiZone.draw();
             }
@@ -210,7 +209,7 @@ class MultiLink {
         return this.zones;
     }
 
-    getZoneSegments(zone) {
+    getZoneSegments(zone: Zone): MultiLinkSegment[] {
         const m1 = zone.markers[0];
         const m2 = zone.markers[1];
         const segments = [];
@@ -234,12 +233,12 @@ class MultiLink {
 
             // 0 0 or 1 1 -> not on segment
             if (mPos[0] !== mPos[1]) {
-                segments.push([
-                    child.link,
-                    mPos[0],
-                    mPos[1],
-                    child.reversed
-                ]);
+                segments.push({
+                    navlink: child.link,
+                    from: mPos[0],
+                    to: mPos[1],
+                    reversed: child.reversed
+                });
             }
         });
         return segments;

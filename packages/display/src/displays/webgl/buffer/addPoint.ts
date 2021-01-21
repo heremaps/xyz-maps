@@ -17,13 +17,12 @@
  * License-Filename: LICENSE
  */
 
-import {Tile} from '@here/xyz-maps-core';
+import {Tile, GeoJSONCoordinate} from '@here/xyz-maps-core';
 
-type Point = [number, number, number?];
 
 const extentScale = 32;
 
-export const addPoint = (vertex: number[], coordinates: Point, tile: Tile, tileSize: number): number => {
+export const addPoint = (vertex: number[], coordinates: GeoJSONCoordinate, tile: Tile, tileSize: number): number => {
     const v = vertex.length;
     // only add Point data if its really inside tile (ignore tile margin)
     // to prevent alpha blending in case if opacity is used for rendering and point is close to boundaries.

@@ -31,9 +31,11 @@ describe('zone selector drag', function() {
     let display;
     let preparedData;
     let mapContainer;
-    let results2;
+    let draggedZone;
 
-    let link1; let link2; let link3;
+    let link1;
+    let link2;
+    let link3;
 
     before(async function() {
         chai.use(chaiAlmost());
@@ -73,8 +75,8 @@ describe('zone selector drag', function() {
             from: 0.5,
             to: 0.8,
             side: 'B',
-            onChange: function(e) {
-                results2 = e;
+            dragStop: function(e) {
+                draggedZone = e.detail.zone;
             }
         });
 
@@ -88,16 +90,16 @@ describe('zone selector drag', function() {
         expect(info[0].segments[0]).to.deep.include({
             from: 0,
             reversed: false,
-            to: 0.1637100452467124
+            to: 0.163711
         });
 
-        expect(info[0].segments[0].Link).to.deep.include({id: link2.id});
+        expect(info[0].segments[0].navlink).to.deep.include({id: link2.id});
         expect(info[0].segments[1]).to.deep.include({
-            from: 0.3539256586908887,
+            from: 0.353926,
             reversed: false,
             to: 1
         });
-        expect(info[0].segments[1].Link).to.deep.include({id: link1.id});
+        expect(info[0].segments[1].navlink).to.deep.include({id: link1.id});
 
 
         expect(info[1]).to.deep.include({
@@ -106,23 +108,23 @@ describe('zone selector drag', function() {
             to: 0.8
         });
         expect(info[1].segments[0]).to.deep.include({
-            from: 0.3030911095089283,
+            from: 0.303092,
             reversed: false,
-            to: 0.7212357299650521
+            to: 0.721237
         });
-        expect(info[1].segments[0].Link).to.deep.include({id: link2.id});
+        expect(info[1].segments[0].navlink).to.deep.include({id: link2.id});
     });
 
     it('drag zone selector and validate again', async function() {
         await drag(mapContainer, {x: 350, y: 217}, {x: 350, y: 250});
 
-        expect(results2[0]).to.deep.include({
-            from: 0.4468834556921099,
-            to: 0.7212357299650521,
+        expect(draggedZone.segments[0]).to.deep.include({
+            from: 0.446885,
+            to: 0.721237,
             reversed: false
         });
 
-        expect(results2[0].Link).to.deep.include({
+        expect(draggedZone.segments[0].navlink).to.deep.include({
             id: link2.id
         });
 
@@ -136,15 +138,15 @@ describe('zone selector drag', function() {
         expect(info[0].segments[0]).to.deep.include({
             from: 0,
             reversed: false,
-            to: 0.1637100452467124
+            to: 0.163711
         });
-        expect(info[0].segments[0].Link).to.deep.include({id: link2.id});
+        expect(info[0].segments[0].navlink).to.deep.include({id: link2.id});
         expect(info[0].segments[1]).to.deep.include({
-            from: 0.3539256586908887,
+            from: 0.353926,
             reversed: false,
             to: 1
         });
-        expect(info[0].segments[1].Link).to.deep.include({id: link1.id});
+        expect(info[0].segments[1].navlink).to.deep.include({id: link1.id});
 
 
         expect(info[1]).to.deep.include({
@@ -153,18 +155,18 @@ describe('zone selector drag', function() {
             to: 0.8
         });
         expect(info[1].segments[0]).to.deep.include({
-            from: 0.4468834556921099,
-            to: 0.7212357299650521,
+            from: 0.446885,
+            to: 0.721237,
             reversed: false
         });
-        expect(info[1].segments[0].Link).to.deep.include({id: link2.id});
+        expect(info[1].segments[0].navlink).to.deep.include({id: link2.id});
     });
 
 
     it('hide zoneselector, drag the map to validate the zone selector is deactivated, validate map is dragged', async function() {
         editor.getZoneSelector().hide();
 
-        await waitForEditorReady(editor, async ()=>{
+        await waitForEditorReady(editor, async () => {
             await drag(mapContainer, {x: 350, y: 185}, {x: 360, y: 250});
         });
 
@@ -172,7 +174,7 @@ describe('zone selector drag', function() {
     });
 
     it('move map to a new area and validate a link can be dragged', async function() {
-        await waitForEditorReady(editor, ()=>{
+        await waitForEditorReady(editor, () => {
             display.setCenter({longitude: -105.14442356546784, latitude: 35.37463216746484});
         });
 

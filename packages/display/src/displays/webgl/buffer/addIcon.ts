@@ -17,7 +17,7 @@
  * License-Filename: LICENSE
  */
 
-import {Tile} from '@here/xyz-maps-core';
+import {Tile, GeoJSONCoordinate} from '@here/xyz-maps-core';
 import {ImageInfo} from '../Atlas';
 import {addPoint} from './addPoint';
 
@@ -28,7 +28,7 @@ const addIcon = (
     points: number[],
     vertex: number[],
     texcoord: number[],
-    coordinates: [number, number, number?],
+    coordinates: GeoJSONCoordinate,
     tile: Tile,
     tileSize: number
 ) => {

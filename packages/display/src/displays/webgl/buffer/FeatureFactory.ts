@@ -37,9 +37,8 @@ import {PointBuffer} from './templates/PointBuffer';
 import {PolygonBuffer} from './templates/PolygonBuffer';
 import {ExtrudeBuffer} from './templates/ExtrudeBuffer';
 import {toPresentationFormB} from '../arabic';
-import {Feature} from '@here/xyz-maps-core';
+import {Feature, GeoJSONCoordinate} from '@here/xyz-maps-core';
 
-type Coordinate = [number, number, number?];
 
 const DEFAULT_STROKE_WIDTH = 1;
 const DEFAULT_LINE_CAP = 'round';
@@ -106,7 +105,7 @@ export class FeatureFactory {
     create(
         feature: Feature,
         geomType: string,
-        coordinates: Coordinate | Coordinate[] | Coordinate[][],
+        coordinates: GeoJSONCoordinate | GeoJSONCoordinate[] | GeoJSONCoordinate[][],
         styleGroups: StyleGroup,
         strokeWidthScale: number,
         removeTileBounds?: boolean,
@@ -464,7 +463,7 @@ export class FeatureFactory {
                             attributes.a_size.data,
                             attributes.a_position.data,
                             attributes.a_texcoord.data,
-                            <Coordinate>coordinates,
+                            <GeoJSONCoordinate>coordinates,
                             tile,
                             tileSize
                         );
@@ -476,7 +475,7 @@ export class FeatureFactory {
 
                         const groupBuffer = group.buffer;
 
-                        if (!addPoint(groupBuffer.attributes.a_position.data, <Coordinate>coordinates, tile, tileSize)) {
+                        if (!addPoint(groupBuffer.attributes.a_position.data, <GeoJSONCoordinate>coordinates, tile, tileSize)) {
                             // in case of point has not been added because it's not inside tile
                             // -> we can skip it.
                             return allReady;
@@ -486,7 +485,7 @@ export class FeatureFactory {
             } else if (geomType == 'LineString') {
                 if (type == 'Line') {
                     this.lineFactory.createLine(
-                        <Coordinate[]>coordinates,
+                        <GeoJSONCoordinate[]>coordinates,
                         group,
                         tile,
                         tileSize,
@@ -506,13 +505,13 @@ export class FeatureFactory {
 
                     const positionBuffer = group.buffer.attributes.a_position.data;
 
-                    for (let coord of <Coordinate[]>coordinates) {
+                    for (let coord of <GeoJSONCoordinate[]>coordinates) {
                         addPoint(positionBuffer, coord, tile, tileSize);
                     }
                 } else if (type == 'Text') {
                     this.lineFactory.createText(
                         text,
-                        <Coordinate[]>coordinates,
+                        <GeoJSONCoordinate[]>coordinates,
                         group,
                         tile,
                         tileSize,
@@ -545,13 +544,13 @@ export class FeatureFactory {
                             aPosition,
                             attributes.a_normal.data,
                             vIndex,
-                            <Coordinate[][]>coordinates,
+                            <GeoJSONCoordinate[][]>coordinates,
                             tile,
                             tileSize,
                             extrude
                         );
                     } else if (type == 'Polygon') {
-                        flatPoly = addPolygon(aPosition, <Coordinate[][]>coordinates, tile, tileSize);
+                        flatPoly = addPolygon(aPosition, <GeoJSONCoordinate[][]>coordinates, tile, tileSize);
                     }
 
                     if (!triangles) {

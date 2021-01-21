@@ -19,6 +19,8 @@
 
 import {EditorEvent} from '../API/EditorEvent';
 import {Listener} from '@here/xyz-maps-common';
+import {Feature as EditFeature} from '@here/xyz-maps-editor';
+import {Feature} from '@here/xyz-maps-core';
 
 function isInternalEvent(type) {
     return type[0] == '_';
@@ -37,6 +39,18 @@ type DisplayEvent = any;
 type EventCallback = (event: EditorEvent) => void;
 
 class EventHandler {
+    static createEditorEvent(ev: DisplayEvent, target?: EditFeature | Feature, type?: string, detail?: { [name: string]: any }) {
+        return new EditorEvent(
+            type || ev.type,
+            ev.mapX,
+            ev.mapY,
+            ev.nativeEvent,
+            ev.button,
+            target,
+            detail || ev.detail
+        );
+    }
+
     private listeners = new Listener([
         'tap', 'dbltap',
 
@@ -83,15 +97,7 @@ class EventHandler {
         }
 
         triggered = that.listeners.trigger(type,
-            [new EditorEvent(
-                type,
-                ev.mapX,
-                ev.mapY,
-                ev.nativeEvent,
-                ev.button,
-                target,
-                detail
-            )],
+            EventHandler.createEditorEvent(ev, target, type, detail),
             isInternalEvent(type)
         );
 
