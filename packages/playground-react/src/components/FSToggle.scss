@@ -22,26 +22,44 @@
 
 .fs-toggle {
     position: absolute;
-    background-color: #E0E0E0;
-    top: 4px;
-    right: 4px;
-    padding: 0;
+    background-color: #0F1621;
+    background-repeat: no-repeat;
+    top: 10px;
+    right: 10px;
+    padding: 0px;
     margin: 0;
+    border-radius: 4px;
 
-    //font: sans-serif;
+    width: 28px;
+    height: 28px;
 
+    font-size: 30px;
+    color: white;
 
-
-    width: 25px;
-    height: 25px;
-
-    font-size: 22px;
-    color: black;
-
-    .row1{
+    :first-child{
+        float: left;
+        margin: 5px;
+        border: 2px solid white;
+        box-sizing: border-box;
+        width: 18px;
+        height: 18px;
+    }
+    :nth-child(2){
         position: absolute;
-        top: -7px;
-        left: 1px;
+        background-color: #0F1621;
+        top: 10px;
+        width: 28px;
+        height: 8px;
+    }
+    :last-child{
+        position: absolute;
+        background-color: #0F1621;
+        left: 10px;
+        width: 8px;
+        height: 28px;
     }
 }
 
+.fs-toggle:hover, .fs-toggle:hover div{
+    background-color: #383c45;
+}

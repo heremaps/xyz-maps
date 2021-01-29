@@ -106,9 +106,8 @@ export const Preview: React.FC = React.forwardRef((props: {
     });
 
     return (
-        <div ref={ref} className={'preview'}
-            style={{display: props.active ? '' : 'none', pointerEvents: props.pointerEvents ? 'auto' : 'none'}}>
-            {/* <FSToggle></FSToggle>*/}
+        <div ref={ref} className={'preview'} style={{display: props.active ? '' : 'none', pointerEvents: props.pointerEvents ? 'auto' : 'none'}}>
+            <FSToggle></FSToggle>
             <iframe className={'iframe'} ref={iframeRef} srcDoc={iFrameSrc}></iframe>
         </div>
     );

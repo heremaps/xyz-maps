@@ -157,7 +157,7 @@ export const App: React.FC = (props: { examples: any }) => {
                 <Editor language={'js'} value={exampleSrc} onChange={updateSource} onDownload={onDownload}
                     active={visibility.editor}/>
                 <Slider onDragStart={() => setPreviewPointerEvents(false)} onDrag={updateColumnSize}
-                    onDragStop={() => setPreviewPointerEvents(true)}/>
+                    onDragStop={() => setPreviewPointerEvents(true)} containerRef={containerRef}/>
                 <Preview src={exampleSrc} width={previewWidth} pointerEvents={previewPointerEvents}
                     active={visibility.preview} ref={previewRef}/>
                 {/* <Preview src={exampleSrc} pointerEvents={previewPointerEvents} ref={previewRef}/>*/}

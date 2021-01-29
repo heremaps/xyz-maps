@@ -21,10 +21,12 @@ import React from 'react';
 import './FSToggle.scss';
 
 
+
 export const FSToggle: React.FC = (props: { title: string }) => {
     return (<div className={'fs-toggle'}>
-            <div className={'row1'}>{'\u21f1'}</div>
-            {/*<div className={'row2'}>{'\u21f2'}</div>*/}
-        </div>
+        <div></div>
+        <div></div>
+        <div></div>
+    </div>
     );
 };

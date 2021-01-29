@@ -22,15 +22,15 @@ import './Slider.scss';
 export const Slider: React.FC = (props: {
     onDragStart: () => void,
     onDragStop: () => void,
-    onDrag: (dx: number) => void
+    onDrag: (dx: number) => void,
+    containerRef: React.Ref<HTMLElement>
 }) => {
+    const {containerRef} = props;
     let prevX;
-    let containerElement;
 
     const handlePointerUp = (e: PointerEvent) => {
-
-        containerElement.removeEventListener('pointermove', handlePointerMove);
-        containerElement.removeEventListener('pointerup', handlePointerUp);
+        containerRef.current.removeEventListener('pointermove', handlePointerMove);
+        containerRef.current.removeEventListener('pointerup', handlePointerUp);
         if (props.onDragStop) {
             props.onDragStop();
         }
@@ -48,19 +48,14 @@ export const Slider: React.FC = (props: {
 
     const handlePointerDown = (e: PointerEvent) => {
         prevX = e.clientX;
-        containerElement = e.target.parentNode;
-        containerElement.addEventListener('pointermove', handlePointerMove);
-        containerElement.addEventListener('pointerup', handlePointerUp);
+        containerRef.current.addEventListener('pointermove', handlePointerMove);
+        containerRef.current.addEventListener('pointerup', handlePointerUp);
         if (props.onDragStart) {
             props.onDragStart();
         }
     };
 
     return (
-        <div
-            className={'slider'}
-            onPointerDown={handlePointerDown}
-            style={{}}>
-        </div>
+        <div className={'slider'} onPointerDown={handlePointerDown} style={{}}/>
     );
 };
