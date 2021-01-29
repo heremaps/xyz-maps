@@ -1,0 +1,49 @@
+{
+  "name": "@here/xyz-maps-playground-react",
+  "version": "0.19.0",
+  "description": "Playground for XYZ editor.",
+  "author": {
+    "name": "HERE Europe B.V.",
+    "url": "https://here.com"
+  },
+  "license": "Apache-2.0",
+  "repository": {
+    "type": "git",
+    "url": "https://github.com/heremaps/xyz-editor.git",
+    "directory": "packages/playground"
+  },
+  "main": "index.html",
+  "private": true,
+  "scripts": {
+    "build": "rollup -c",
+    "dev": "rollup -c -w"
+  },
+  "dependencies": {
+    "@here/xyz-maps-common": "^0.19.0",
+    "@here/xyz-maps-core": "^0.19.0",
+    "@here/xyz-maps-display": "^0.19.0",
+    "@here/xyz-maps-editor": "^0.19.0",
+    "@monaco-editor/react": "^4.0.7",
+    "monaco-editor": "^0.21.3",
+    "react": "^17.0.1",
+    "react-dom": "^17.0.1"
+  },
+  "devDependencies": {
+    "@rollup/plugin-replace": "^2.3.4",
+    "@rollup/plugin-commonjs": "^12.0.0",
+    "@rollup/plugin-json": "^4.0.3",
+    "@rollup/plugin-node-resolve": "^8.0.0",
+    "@rollup/plugin-typescript": "^2.1.0",
+    "@rollup/plugin-virtual": "^2.0.2",
+    "rollup": "^2.36.2",
+    "rollup-plugin-copy": "^3.3.0",
+    "rollup-plugin-delete": "^1.2.0",
+    "rollup-plugin-postcss": "^3.1.1",
+    "rollup-plugin-uglify": "^6.0.4",
+    "@rollup/plugin-html": "^0.2.0",
+    "sass": "^1.32.5",
+    "tslib": "^2.0.0",
+    "typescript": "^3.9.3",
+    "yargs": "^15.3.1"
+  }
+}

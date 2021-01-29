@@ -1,0 +1,82 @@
+/*
+ * Copyright (C) 2019-2021 HERE Europe B.V.
+ *
+ * Licensed under the Apache License, Version 2.0 (the "License");
+ * you may not use this file except in compliance with the License.
+ * You may obtain a copy of the License at
+ *
+ *     http://www.apache.org/licenses/LICENSE-2.0
+ *
+ * Unless required by applicable law or agreed to in writing, software
+ * distributed under the License is distributed on an "AS IS" BASIS,
+ * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+ * See the License for the specific language governing permissions and
+ * limitations under the License.
+ *
+ * SPDX-License-Identifier: Apache-2.0
+ * License-Filename: LICENSE
+ */
+
+//@import 'colors.scss';
+//@import './components/Colors.scss';
+
+$headerHeight: 50px;
+$bgColor: #E0E0E0 !default;
+
+html, body, #app, .Playground {
+    margin: 0;
+    padding: 0;
+    width: 100%;
+    height: 100%;
+    overflow: hidden;
+    font-family: Arial, Helvetica, sans-serif;
+}
+
+.Playground{
+    display: flex;
+    flex-direction: column;
+    height: 100%;
+    //flex-direction: column;
+    //align-items: stretch;
+}
+
+.content {
+    display: flex;
+    flex-grow: 1;
+    flex-direction: row;
+
+    //position: absolute;
+    //top: $headerHeight;
+    //bottom: 0;
+    height: 100%;
+    align-items: stretch;
+
+    box-sizing: border-box;
+    //width: 100%;
+    //height: auto;
+    //padding: 8px;
+    background-color: $bgColor;
+    margin: 8px;
+    //background-color: red;
+}
+
+.container {
+    position: relative;
+    display: grid;
+    grid-template-columns: auto 8px 50%;
+    //flex-direction: column;
+
+
+    //float: right;
+    //width: calc(100% - 300px - 8px);
+    flex-grow: 1;
+    //width: 100%;
+    //height: 100%;
+    //background-color: red;
+}
+
+@media screen and (max-width: 768px) {
+    .container {
+        grid-template-columns: none;
+    }
+}

@@ -1,0 +1,50 @@
+/*
+ * Copyright (C) 2019-2021 HERE Europe B.V.
+ *
+ * Licensed under the Apache License, Version 2.0 (the "License");
+ * you may not use this file except in compliance with the License.
+ * You may obtain a copy of the License at
+ *
+ *     http://www.apache.org/licenses/LICENSE-2.0
+ *
+ * Unless required by applicable law or agreed to in writing, software
+ * distributed under the License is distributed on an "AS IS" BASIS,
+ * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+ * See the License for the specific language governing permissions and
+ * limitations under the License.
+ *
+ * SPDX-License-Identifier: Apache-2.0
+ * License-Filename: LICENSE
+ */
+.mobilePanel {
+    width: 100%;
+    background-color: #E0E0E0;
+    display: flex;
+    color: white;
+    padding-bottom: 2px;
+
+    > div {
+        flex-grow: 1;
+        box-sizing: border-box;
+        border-right: 2px solid #E0E0E0;
+        padding: 4px;
+        text-align: center;
+        background-color: #0A94DE;
+    }
+
+    > div:last-child {
+        border-right: none;
+    }
+
+    > div.active, > div:hover {
+        background-color: #0457D4;
+    }
+}
+
+
+@media screen and (min-width: 769px) {
+    .mobilePanel {
+        display: none;
+    }
+}
+
