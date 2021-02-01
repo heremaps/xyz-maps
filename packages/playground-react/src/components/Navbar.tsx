@@ -20,12 +20,12 @@
 import React from 'react';
 import './Navbar.scss';
 
-const Navbar: React.FC = (props: { title: string }) => {
+const Navbar: React.FC = (props: { title: string, version: string }) => {
     return (
         <nav className={'navbar'} role={'navigation'}>
             <img className={'logo'}></img>
             <div className={'title'}>{props.title}</div>
-            <div id={'version'} className={'version'}>0.0.0</div>
+            <div id={'version'} className={'version'}>{props.version}</div>
         </nav>
     );
 };

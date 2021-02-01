@@ -17,7 +17,7 @@
  * License-Filename: LICENSE
  */
 
-import React, {useEffect} from 'react';
+import React, {useEffect, useLayoutEffect} from 'react';
 import './Preview.scss';
 import {convertImport} from '../convertImport';
 // @ts-ignore
@@ -77,13 +77,13 @@ export const createIframeSrc = (exampleSource, includePgSpecifics: boolean = fal
     return data;
 };
 
-
 export const Preview: React.FC = React.forwardRef((props: {
     src: { html: string, js: string, title: string },
     width: string,
     pointerEvents: boolean,
     active: boolean,
-    onToggleFullscreen: (active: boolean)=>void
+    setApiVersion?: (string) => void,
+    onToggleFullscreen: (active: boolean) => void
 }, ref) => {
     const {src} = props;
     const iFrameSrc = createIframeSrc(src, true);
@@ -91,7 +91,7 @@ export const Preview: React.FC = React.forwardRef((props: {
     const [size, setSize] = React.useState([0, 0]);
 
     // refresh display size on window size changes..
-    React.useLayoutEffect(() => {
+    useLayoutEffect(() => {
         const updateSize = () => setSize([window.innerWidth, window.innerHeight]);
         updateSize();
         window.addEventListener('resize', updateSize);
@@ -99,11 +99,19 @@ export const Preview: React.FC = React.forwardRef((props: {
     }, []);
 
     useEffect(() => {
-        const display = iframeRef.current.contentWindow.__map;
-        if (display) {
-            display.resize();
-        }
+        const {contentWindow} = iframeRef.current;
+        const display = contentWindow.__map;
+        display && display.resize();
     });
+
+    useEffect(() => {
+        iframeRef.current.onload = () => {
+            try {
+                props.setApiVersion(iframeRef.current.contentWindow.here.xyz.maps.build.version);
+            } catch (e) {
+            }
+        };
+    }, []);
 
     return (
         <div ref={ref} className={'preview'}

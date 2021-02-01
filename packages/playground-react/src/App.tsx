@@ -69,6 +69,7 @@ export const App: React.FC = (props: { examples: any }) => {
     });
 
     let [previewPointerEvents, setPreviewPointerEvents] = React.useState(true);
+    let [apiVersion, setApiVersion] = React.useState('0.0.0');
     let [previewWidth, setPreviewWidth] = React.useState('calc( 50% - 4px )');
     let [editorWidth, setEditorWidth] = React.useState('calc( 50% - 4px )');
 
@@ -162,7 +163,7 @@ export const App: React.FC = (props: { examples: any }) => {
     };
 
     return (<div className={'Playground'}>
-        <Navbar title={'XYZ Maps Playground'}></Navbar>
+        <Navbar title={'XYZ Maps Playground'} version={apiVersion}></Navbar>
         <MobilePanel active={'preview'} onChange={handleVisibility} visibility={visibility}/>
 
         <div className={'content'}>
@@ -174,8 +175,9 @@ export const App: React.FC = (props: { examples: any }) => {
                 <Slider onDragStart={() => setPreviewPointerEvents(false)} onDrag={updateColumnSize}
                     onDragStop={() => setPreviewPointerEvents(true)} containerRef={containerRef}
                     active={visibility.editor}/>
-                <Preview src={exampleSrc} width={previewWidth} pointerEvents={previewPointerEvents}
-                    active={visibility.preview} onToggleFullscreen={toggleFullscreen} ref={previewRef}/>
+                <Preview src={exampleSrc} width={previewWidth} ref={previewRef} setApiVersion={setApiVersion}
+                    pointerEvents={previewPointerEvents} active={visibility.preview}
+                    onToggleFullscreen={toggleFullscreen}/>
             </div>
         </div>
     </div>);
