@@ -164,7 +164,7 @@ export const App: React.FC = (props: { examples: any }) => {
 
     return (<div className={'Playground'}>
         <Navbar title={'XYZ Maps Playground'} version={apiVersion}></Navbar>
-        <MobilePanel active={'preview'} onChange={handleVisibility} visibility={visibility}/>
+        <MobilePanel defaultActive={'editor'} onChange={handleVisibility} visibility={visibility}/>
 
         <div className={'content'}>
             <ExampleList examples={props.examples} onSelect={selectExample} onResize={updateColumnSize}

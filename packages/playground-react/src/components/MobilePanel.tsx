@@ -20,15 +20,17 @@ import React from 'react';
 import './MobilePanel.scss';
 
 const MobilePanel: React.FC = (props: {
-    active: string,
+    defaultActive: string,
     onChange?: (mode: string) => void,
     visibility: { examples: boolean, editor: boolean, preview: boolean }
 }) => {
-    const [active, setActive] = React.useState(props.active);
+    const [active, setActive] = React.useState(props.defaultActive);
+    const {visibility} = props;
 
     const onChange = (e) => {
         const {id} = e.target;
         const {onChange} = props;
+
         if (id != active) {
             setActive(id);
             if (onChange) {
@@ -39,9 +41,9 @@ const MobilePanel: React.FC = (props: {
 
     return (
         <div className={'mobilePanel'} onClick={onChange}>
-            <div id={'examples'} className={props.visibility.examples ? 'active' : ''}>Samples</div>
-            <div id={'editor'} className={props.visibility.editor ? 'active' : ''}>Source</div>
-            <div id={'preview'} className={props.visibility.preview ? 'active' : ''}>Preview</div>
+            <div id={'examples'} className={visibility.examples ? 'active' : ''}>Samples</div>
+            <div id={'editor'} className={visibility.editor ? 'active' : ''}>Source</div>
+            <div id={'preview'} className={visibility.preview ? 'active' : ''}>Preview</div>
             {/*<div id={'examples'} className={active == 'examples' ? 'active' : ''}>Samples</div>*/}
             {/*<div id={'editor'} className={active == 'editor' ? 'active' : ''}>Source</div>*/}
             {/*<div id={'preview'} className={active == 'preview' ? 'active' : ''}>Preview</div>*/}
