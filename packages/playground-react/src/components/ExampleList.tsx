@@ -20,7 +20,7 @@ import React, {useEffect, useLayoutEffect} from 'react';
 import './ExampleList.scss';
 
 
-export type Example = { title: string, file: string, docs: string, description: string };
+export type Example = { title: string, file: string, docs: string, description: string, section: string };
 
 const ListItem: React.FC = (props: {
     section: number,
@@ -45,32 +45,35 @@ export const ExampleList: React.FC = (props: {
     active: boolean
 }) => {
     const examples = props.examples;
+
     const list = [];
 
-    let [selected, setSelected] = React.useState({index: 0, section: 0});
+    let [selected, setSelected] = React.useState({index: 0, section: 'Display'});
 
     const selectExample = (index: number, section: number) => {
         if (index != selected.index || section != selected.section) {
             setSelected({index: index, section: section});
+
             if (props.onSelect) {
-                props.onSelect(examples[section].samples[index]);
+                props.onSelect(examples[section][index]);
             }
         }
     };
 
-    let sectionIndex = 0;
-    for (let {title, samples} of examples) {
-        list.push(<li className={'section'}>{title}</li>);
+
+    for (let module in examples) {
+        const samples = examples[module];
+
+        list.push(<li className={'section'}>{module}</li>);
         let i = 0;
         list.push.apply(list, samples.map(({title}) => <ListItem
-            selected={sectionIndex == selected.section && i == selected.index}
+            selected={module == selected.section && i == selected.index}
             index={i++}
-            section={sectionIndex}
+            section={module}
             onClick={selectExample}
             title={title}
         />
         ));
-        sectionIndex++;
     }
 
 

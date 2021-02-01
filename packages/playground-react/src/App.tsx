@@ -69,7 +69,7 @@ export const App: React.FC = (props: { examples: any }) => {
     });
 
     let [previewPointerEvents, setPreviewPointerEvents] = React.useState(true);
-    let [apiVersion, setApiVersion] = React.useState('0.0.0');
+    let [apiVersion, setApiVersion] = React.useState('');
     let [previewWidth, setPreviewWidth] = React.useState('calc( 50% - 4px )');
     let [editorWidth, setEditorWidth] = React.useState('calc( 50% - 4px )');
 
@@ -78,6 +78,8 @@ export const App: React.FC = (props: { examples: any }) => {
         let exampleSources = await fetchExample(example);
         const {html, js, title} = exampleSources;
         setExampleSrc({title, html, js, org: {html, js}, docs: example.docs});
+
+        window.location.hash = example.section + '-' + title;
     };
 
     const updateSource = (source: Value | null) => {
@@ -127,11 +129,18 @@ export const App: React.FC = (props: { examples: any }) => {
     };
 
     useEffect(() => {
-        selectExample(props.examples[0].samples[0]);
+        let hash = window.location.hash.substr(1);
+        let initialExample;
+        if (hash) {
+            let inital = hash.split('-');
+            initialExample = props.examples[inital[0]].filter((e) => encodeURI(e.title) == inital[1])[0];
+        }
+        selectExample(initialExample || props.examples.Display[1]);
     }, []);
 
     useLayoutEffect(() => {
         !isMobileMode && updateColumnSize();
+        // window.location.hash
     }, []);
 
     let [visibility, setVisibility] = React.useState(isMobileMode
