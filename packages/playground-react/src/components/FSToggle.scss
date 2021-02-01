@@ -71,3 +71,9 @@ $border: 2px solid white;
 .fs-toggle:hover, .fs-toggle:hover div {
     background-color: #383c45;
 }
+
+@media screen and (max-width: 768px) {
+    .fs-toggle {
+        display: none
+    }
+}
