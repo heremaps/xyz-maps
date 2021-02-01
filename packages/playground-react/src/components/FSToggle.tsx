@@ -20,13 +20,21 @@
 import React from 'react';
 import './FSToggle.scss';
 
+export const FSToggle: React.FC = (props: { title: string, onClick?: (fs: boolean) => void }) => {
+    const ref = React.useRef(null);
 
+    const handleClick = (e) => {
+        ref.current.childNodes.forEach((c) => c.classList.toggle('active'));
 
-export const FSToggle: React.FC = (props: { title: string }) => {
-    return (<div className={'fs-toggle'}>
-        <div></div>
-        <div></div>
-        <div></div>
-    </div>
-    );
+        if (props.onClick) {
+            props.onClick(!!ref.current.firstChild.classList.length);
+        }
+    };
+
+    return (<div className={'fs-toggle'} onClick={handleClick} ref={ref}>
+        <div/>
+        <div/>
+        <div/>
+        <div/>
+    </div>);
 };

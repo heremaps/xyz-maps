@@ -30,7 +30,6 @@ export const Editor = (props: {
     onChange?: (value: Value) => void,
     onDownload?: () => void
     value?: Value,
-    width: string,
     active?: boolean
 }) => {
     const editorRef = useRef(null);
@@ -50,8 +49,6 @@ export const Editor = (props: {
 
     const handleEditorDidMount = (editor, monaco) => {
         editorRef.current = editor;
-
-        window.editor = editor;
         // updateEditorDimensions();
 
         monaco.languages.registerFoldingRangeProvider('javascript', {
@@ -118,12 +115,10 @@ export const Editor = (props: {
     //     updateEditorDimensions();
     // });
 
-    console.log('editor!!!!!!', props.width);
-
     const containerRef = React.useRef(null);
 
     // return (<div className={'editorContainer'}>
-    return (<div className={'editorContainer'} style={{width: props.width, display: props.active ? '' : 'none'}}>
+    return (<div className={'editorContainer'} style={{display: props.active ? '' : 'none'}}>
         <ButtonPanel language={language} onClick={onClick} docs={props.value.docs}></ButtonPanel>
 
         <div className={'monacoEditor'} ref={containerRef}>

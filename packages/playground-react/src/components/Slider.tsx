@@ -23,6 +23,7 @@ export const Slider: React.FC = (props: {
     onDragStart: () => void,
     onDragStop: () => void,
     onDrag: (dx: number) => void,
+    active: boolean
     containerRef: React.Ref<HTMLElement>
 }) => {
     const {containerRef} = props;
@@ -56,6 +57,6 @@ export const Slider: React.FC = (props: {
     };
 
     return (
-        <div className={'slider'} onPointerDown={handlePointerDown} style={{}}/>
+        <div className={'slider'} onPointerDown={handlePointerDown} style={{display: props.active?'block':'none'}}/>
     );
 };

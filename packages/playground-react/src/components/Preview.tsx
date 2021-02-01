@@ -82,7 +82,8 @@ export const Preview: React.FC = React.forwardRef((props: {
     src: { html: string, js: string, title: string },
     width: string,
     pointerEvents: boolean,
-    active: boolean
+    active: boolean,
+    onToggleFullscreen: (active: boolean)=>void
 }, ref) => {
     const {src} = props;
     const iFrameSrc = createIframeSrc(src, true);
@@ -99,15 +100,15 @@ export const Preview: React.FC = React.forwardRef((props: {
 
     useEffect(() => {
         const display = iframeRef.current.contentWindow.__map;
-
         if (display) {
             display.resize();
         }
     });
 
     return (
-        <div ref={ref} className={'preview'} style={{display: props.active ? '' : 'none', pointerEvents: props.pointerEvents ? 'auto' : 'none'}}>
-            <FSToggle></FSToggle>
+        <div ref={ref} className={'preview'}
+            style={{display: props.active ? '' : 'none', pointerEvents: props.pointerEvents ? 'auto' : 'none'}}>
+            <FSToggle onClick={props.onToggleFullscreen}></FSToggle>
             <iframe className={'iframe'} ref={iframeRef} srcDoc={iFrameSrc}></iframe>
         </div>
     );

@@ -50,12 +50,12 @@ const fetchExample = async (example) => {
 };
 
 
-let init = false;
-
 export const App: React.FC = (props: { examples: any }) => {
     const containerRef = React.useRef(null);
     const previewRef = React.useRef(null);
+    const prevGridTemplateColumns = React.useRef(null);
     const isMobileMode = window.innerWidth <= 768;
+
 
     let [exampleSrc, setExampleSrc] = React.useState({
         html: '',
@@ -125,10 +125,9 @@ export const App: React.FC = (props: { examples: any }) => {
         setEditorWidth(previewWidth);
     };
 
-    if (!init) {
-        init = true;
+    useEffect(() => {
         selectExample(props.examples[0].samples[0]);
-    }
+    }, []);
 
     useLayoutEffect(() => {
         !isMobileMode && updateColumnSize();
@@ -142,8 +141,24 @@ export const App: React.FC = (props: { examples: any }) => {
     const handleVisibility = (type: string) => {
         const visibility = {examples: false, editor: false, preview: false};
         visibility[type] = true;
-        console.log(visibility);
         setVisibility(visibility);
+    };
+
+    const toggleFullscreen = (active: boolean) => {
+        let gridTemplateColumns;
+        if (active) {
+            prevGridTemplateColumns.current = containerRef.current.style.gridTemplateColumns;
+            gridTemplateColumns = 'none';
+        } else {
+            gridTemplateColumns = prevGridTemplateColumns.current;
+        }
+
+        containerRef.current.style.gridTemplateColumns = gridTemplateColumns;
+
+        setVisibility(active
+            ? {examples: false, editor: false, preview: true}
+            : {examples: true, editor: true, preview: true}
+        );
     };
 
     return (<div className={'Playground'}>
@@ -157,10 +172,10 @@ export const App: React.FC = (props: { examples: any }) => {
                 <Editor language={'js'} value={exampleSrc} onChange={updateSource} onDownload={onDownload}
                     active={visibility.editor}/>
                 <Slider onDragStart={() => setPreviewPointerEvents(false)} onDrag={updateColumnSize}
-                    onDragStop={() => setPreviewPointerEvents(true)} containerRef={containerRef}/>
+                    onDragStop={() => setPreviewPointerEvents(true)} containerRef={containerRef}
+                    active={visibility.editor}/>
                 <Preview src={exampleSrc} width={previewWidth} pointerEvents={previewPointerEvents}
-                    active={visibility.preview} ref={previewRef}/>
-                {/* <Preview src={exampleSrc} pointerEvents={previewPointerEvents} ref={previewRef}/>*/}
+                    active={visibility.preview} onToggleFullscreen={toggleFullscreen} ref={previewRef}/>
             </div>
         </div>
     </div>);
