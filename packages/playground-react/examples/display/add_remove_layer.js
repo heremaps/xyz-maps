@@ -25,7 +25,6 @@ const display = new Map(document.getElementById('map'), {
 });
 /** **/
 
-
 // Create a data layer for navlink
 var myNavlinkLayer = new TileLayer({
     name: 'myNavlinkLayer',

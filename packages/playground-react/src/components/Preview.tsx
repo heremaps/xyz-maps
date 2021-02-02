@@ -65,7 +65,7 @@ export const createIframeSrc = (exampleSource, includePgSpecifics: boolean = fal
     }
 
     let data = html.replace('</body>',
-        `\t<script>(()=>{${includePgSpecifics ? tokenInject : ''}\n${lines.join('\n')}\n\t\twindow.__map=(display);console.log('maap',map)})();</script>\n\t</body>`
+        `\t<script>(()=>{${includePgSpecifics ? tokenInject : ''}\n${lines.join('\n')}\n\t\twindow.__map=(window.display||window.map);})();</script>\n\t</body>`
     );
     if (modules.length && modules.indexOf('@here/xyz-maps-common') != 1) {
         modules.unshift('@here/xyz-maps-common');
