@@ -42,13 +42,13 @@ export const ExampleList: React.FC = (props: {
     examples: any,
     onSelect: (example: Example) => void,
     onResize?: () => void,
-    active: boolean
+    active: boolean,
+    defaultSelected: [number, string]
 }) => {
-    const examples = props.examples;
-
+    const {examples, defaultSelected} = props;
     const list = [];
 
-    let [selected, setSelected] = React.useState({index: 0, section: 'Display'});
+    let [selected, setSelected] = React.useState({index: defaultSelected[0], section: defaultSelected[1]});
 
     const selectExample = (index: number, section: number) => {
         if (index != selected.index || section != selected.section) {

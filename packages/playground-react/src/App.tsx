@@ -54,9 +54,8 @@ export const App: React.FC = (props: { examples: any }) => {
     const containerRef = React.useRef(null);
     const previewRef = React.useRef(null);
     const prevGridTemplateColumns = React.useRef(null);
+    const initialExample = React.useRef(null);
     const isMobileMode = window.innerWidth <= 768;
-
-
     let [exampleSrc, setExampleSrc] = React.useState({
         html: '',
         js: '// Welcome to the XYZ Maps Playground',
@@ -67,11 +66,12 @@ export const App: React.FC = (props: { examples: any }) => {
         },
         docs: ''
     });
-
     let [previewPointerEvents, setPreviewPointerEvents] = React.useState(true);
     let [apiVersion, setApiVersion] = React.useState('');
     let [previewWidth, setPreviewWidth] = React.useState('calc( 50% - 4px )');
     let [editorWidth, setEditorWidth] = React.useState('calc( 50% - 4px )');
+
+
 
 
     const selectExample = async (example: Example) => {
@@ -128,14 +128,25 @@ export const App: React.FC = (props: { examples: any }) => {
         setEditorWidth(previewWidth);
     };
 
-    useEffect(() => {
-        let hash = window.location.hash.substr(1);
-        let initialExample;
+    if (!initialExample.current) {
+        let initExample = [0, 'Display'];
+        const hash = window.location.hash.substr(1);
         if (hash) {
-            let inital = hash.split('-');
-            initialExample = props.examples[inital[0]].filter((e) => encodeURI(e.title) == inital[1])[0];
+            const [c, title] = hash.split('-');
+            for (let i = 0, examples = props.examples[c]; i < examples.length; i++) {
+                if (encodeURI(examples[i].title) == title) {
+                    initExample = [i, c];
+                    break;
+                }
+            }
         }
-        selectExample(initialExample || props.examples.Display[1]);
+        initialExample.current = initExample;
+    }
+
+
+    useEffect(() => {
+        const [index, section] = initialExample.current;
+        selectExample(props.examples[section][index]);
     }, []);
 
     useLayoutEffect(() => {
@@ -177,7 +188,7 @@ export const App: React.FC = (props: { examples: any }) => {
 
         <div className={'content'}>
             <ExampleList examples={props.examples} onSelect={selectExample} onResize={updateColumnSize}
-                active={visibility.examples}></ExampleList>
+                active={visibility.examples} defaultSelected={initialExample.current}></ExampleList>
             <div className={'container'} ref={containerRef}>
                 <Editor language={'js'} value={exampleSrc} onChange={updateSource} onDownload={onDownload}
                     active={visibility.editor}/>
