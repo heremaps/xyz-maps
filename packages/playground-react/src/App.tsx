@@ -151,7 +151,6 @@ export const App: React.FC = (props: { examples: any }) => {
 
     useLayoutEffect(() => {
         !isMobileMode && updateColumnSize();
-        // window.location.hash
     }, []);
 
     let [visibility, setVisibility] = React.useState(isMobileMode

@@ -23,8 +23,6 @@ import './Editor.scss';
 
 export type Value = { html: string, js: string, docs: string };
 
-let foldRegions: boolean;
-
 export const Editor = (props: {
     language: 'js' | 'html',
     onChange?: (value: Value) => void,
@@ -35,6 +33,7 @@ export const Editor = (props: {
     const editorRef = useRef(null);
     const [language, setLanguage] = React.useState(props.language);
 
+    const foldRegions = useRef(false);
 
     // const updateEditorDimensions = ()=>{
     //     if (editorRef.current) {
@@ -67,14 +66,14 @@ export const Editor = (props: {
                         }
                     }
                 }
-                if (foldRegions) {
+
+                if (foldRegions.current) {
                     editor.getAction('editor.foldAllMarkerRegions').run();
-                    foldRegions = false;
+                    foldRegions.current = false;
                 }
                 return ranges;
             }
         });
-        editorRef.current.getAction('editor.foldAllMarkerRegions').run();
     };
 
     const onClick = (id) => {
@@ -105,11 +104,7 @@ export const Editor = (props: {
         }
     };
 
-    foldRegions = true;
-    if (editorRef.current) {
-        editorRef.current.getAction('editor.unfoldAllMarkerRegions').run();
-        // editorRef.current.layout({});
-    }
+    foldRegions.current = true;
 
     // React.useEffect(() => {
     //     updateEditorDimensions();
