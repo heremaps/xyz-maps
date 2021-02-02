@@ -60,6 +60,7 @@ const BEHAVIOR_ROTATE = 'rotate';
 const ON_LAYER_ADD_EVENT = 'addLayer';
 const ON_LAYER_REMOVE_EVENT = 'removeLayer';
 
+let instances = [];
 let UNDEF;
 
 function calcZoomLevelForBounds(minLon, minLat, maxLon, maxLat, mapWidth, mapHeight) {
@@ -88,9 +89,13 @@ function calcZoomLevelForBounds(minLon, minLat, maxLon, maxLat, mapWidth, mapHei
 
 
 /**
- * XYZ Map is a highly customizable vector map display that's optimized for map editing, larger raw datasets and frequently changing data.
+ * XYZ Map is a highly customizable WebGL based vector map display that's optimized for map editing, larger raw datasets and frequently changing data.
  */
 export default class Map {
+    static getInstances() {
+        return instances.slice();
+    }
+
     id: number;
 
     private readonly _el: HTMLElement;
@@ -296,6 +301,8 @@ export default class Map {
         for (let layer of (options['layers'] || [])) {
             tigerMap.addLayer(layer);
         }
+
+        instances.push(this);
     }
 
     private _layerClearListener(ev) {
@@ -1117,6 +1124,9 @@ export default class Map {
         const map = this;
         (<any>map).__proto__ = null;
         Object.keys(map).forEach((key) => delete map[key]);
+
+        // remove stored map instance
+        instances.splice(instances.indexOf(map), 1);
     };
 
     /**
