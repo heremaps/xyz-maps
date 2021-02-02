@@ -52,7 +52,7 @@ export const Editor = (props: {
         // updateEditorDimensions();
 
         monaco.languages.registerFoldingRangeProvider('javascript', {
-            provideFoldingRanges: function(model, context, token) {
+            provideFoldingRanges: (model, context, token) => {
                 let ranges = [];
                 for (let i = 1, start; i <= model.getLineCount(); i++) {
                     if (model.getLineContent(i).match(/\/\*\*.*\*\*\//)) {
@@ -69,8 +69,9 @@ export const Editor = (props: {
                 }
 
                 if (foldRegions.current) {
-                    editor.getAction('editor.foldAllMarkerRegions').run();
                     foldRegions.current = false;
+                    editor.getAction('editor.foldAllMarkerRegions').run()
+                        .then(() => editorRef.current.revealLine(0));
                 }
                 return ranges;
             }
@@ -106,6 +107,8 @@ export const Editor = (props: {
     };
 
     foldRegions.current = true;
+
+    // editorRef.current && editorRef.current.revealLine(0);
 
     // React.useEffect(() => {
     //     updateEditorDimensions();
