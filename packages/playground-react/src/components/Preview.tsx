@@ -65,7 +65,7 @@ export const createIframeSrc = (exampleSource, includePgSpecifics: boolean = fal
     }
 
     let data = html.replace('</body>',
-        `\t<script>(()=>{${includePgSpecifics ? tokenInject : ''}\n${lines.join('\n')}\n\t\twindow.__map=(window.display||window.map);})();</script>\n\t</body>`
+        `\t<script>(()=>{${includePgSpecifics ? tokenInject : ''}\n${lines.join('\n')}\n\t\t})();</script>\n\t</body>`
     );
     if (modules.length && modules.indexOf('@here/xyz-maps-common') != 1) {
         modules.unshift('@here/xyz-maps-common');
@@ -99,8 +99,10 @@ export const Preview: React.FC = React.forwardRef((props: {
 
     useEffect(() => {
         const {contentWindow} = iframeRef.current;
-        const display = contentWindow.__map;
-        display && display.resize();
+        try {
+            contentWindow.here.xyz.maps.Map.getInstances()[0].resize();
+        } catch (e) {
+        }
     });
 
     useEffect(() => {
