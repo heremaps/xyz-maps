@@ -17,19 +17,27 @@
  * License-Filename: LICENSE
  */
 
-import React from 'react';
+import React, {useEffect} from 'react';
 import './FSToggle.scss';
 
 export const FSToggle: React.FC = (props: { title: string, onClick?: (fs: boolean) => void }) => {
     const ref = React.useRef(null);
 
-    const handleClick = (e) => {
-        ref.current.childNodes.forEach((c) => c.classList.toggle('active'));
-
+    const handleClick = () => {
+        ref.current.classList.toggle('active');
         if (props.onClick) {
-            props.onClick(!!ref.current.firstChild.classList.length);
+            const isActive = ref.current.classList.length == 2;
+            const param = isActive ? '?fullscreen' : '';
+            window.history.replaceState({}, document.title, location.pathname + param + location.hash);
+            props.onClick(isActive);
         }
     };
+
+    useEffect(() => {
+        if ((new URLSearchParams(window.location.search)).has('fullscreen')) {
+            handleClick();
+        }
+    }, []);
 
     return (<div className={'fs-toggle'} onClick={handleClick} ref={ref}>
         <div/>
