@@ -24,6 +24,8 @@ import {Slider} from './components/Slider';
 import {createIframeSrc, Preview} from './components/Preview';
 import {Example, ExampleList} from './components/ExampleList';
 // @ts-ignore
+import settings from 'settings';
+// @ts-ignore
 import ts from 'ts';
 import {MobilePanel} from './components/MobilePanel';
 
@@ -70,8 +72,6 @@ export const App: React.FC = (props: { examples: any }) => {
     let [apiVersion, setApiVersion] = React.useState('');
     let [previewWidth, setPreviewWidth] = React.useState('calc( 50% - 4px )');
     let [editorWidth, setEditorWidth] = React.useState('calc( 50% - 4px )');
-
-
 
 
     const selectExample = async (example: Example) => {
@@ -187,16 +187,16 @@ export const App: React.FC = (props: { examples: any }) => {
 
         <div className={'content'}>
             <ExampleList examples={props.examples} onSelect={selectExample} onResize={updateColumnSize}
-                active={visibility.examples} defaultSelected={initialExample.current}></ExampleList>
+                         active={visibility.examples} defaultSelected={initialExample.current}></ExampleList>
             <div className={'container'} ref={containerRef}>
                 <Editor language={'js'} value={exampleSrc} onChange={updateSource} onDownload={onDownload}
-                    active={visibility.editor}/>
+                        active={visibility.editor} theme={settings.monaco.theme}/>
                 <Slider onDragStart={() => setPreviewPointerEvents(false)} onDrag={updateColumnSize}
-                    onDragStop={() => setPreviewPointerEvents(true)} containerRef={containerRef}
-                    active={visibility.editor}/>
+                        onDragStop={() => setPreviewPointerEvents(true)} containerRef={containerRef}
+                        active={visibility.editor}/>
                 <Preview src={exampleSrc} width={previewWidth} ref={previewRef} setApiVersion={setApiVersion}
-                    pointerEvents={previewPointerEvents} active={visibility.preview}
-                    onToggleFullscreen={toggleFullscreen}/>
+                         pointerEvents={previewPointerEvents} active={visibility.preview}
+                         onToggleFullscreen={toggleFullscreen}/>
             </div>
         </div>
     </div>);

@@ -18,5 +18,6 @@
  */
 // @ts-ignore
 import token from 'access_token';
+
 // @ts-ignore
-window.getAccessToken = () => token;
+window._TKN = token;

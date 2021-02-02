@@ -21,15 +21,14 @@ import React, {useEffect, useLayoutEffect} from 'react';
 import './Preview.scss';
 import {convertImport} from '../convertImport';
 // @ts-ignore
-import pgSettings from 'settings';
+import settings from 'settings';
 // @ts-ignore
 import ts from 'ts';
 import {FSToggle} from './FSToggle';
 
 const TS_PARAM = '?ts=' + ts;
-
 // @ts-ignore
-const TOKEN = window.getAccessToken();
+const TOKEN = window._TKN;
 
 const globalImportMap = {
     '@here/xyz-maps-common': {ns: 'here.xyz.maps'},
@@ -72,7 +71,7 @@ export const createIframeSrc = (exampleSource, includePgSpecifics: boolean = fal
         modules.unshift('@here/xyz-maps-common');
     }
     for (let name of modules) {
-        data = injectScript(data, pgSettings.path['xyz-maps'][name.split('-').pop()] + TS_PARAM);
+        data = injectScript(data, settings.path['xyz-maps'][name.split('-').pop()] + TS_PARAM);
     }
     return data;
 };

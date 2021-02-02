@@ -50,8 +50,6 @@ try {
     throw Error(e);
 }
 
-// fs.writeFileSync(join(DEST, 'token.js'), 'this.getToken()=>' + credential.access_token);
-
 credential = {
     'YOUR_APP_ID': credential.app_id,
     'YOUR_APP_CODE': credential.app_code,
@@ -75,8 +73,8 @@ for (let module in pathCfg) {
 }
 
 settings.path.doc = env['doc-path'] || settings.path.doc;
-settings.codeMirror.theme = env['theme'] || settings.codeMirror.theme;
-
+settings.monaco.theme = env['theme'] || settings.monaco.theme;
+settings.path.token = env['token-path'] || settings.path.token;
 
 if (exclude !== undefined) {
     let value = exclude.split('=');
@@ -167,24 +165,22 @@ export default [{
         html({
             fileName: 'index.html',
             title: 'XYZ Maps Playground',
-            template: ({title}) => {
-                return `
+            template: ({title}) => `
 <!DOCTYPE html>
 <html lang="en">
 <meta name="viewport" content="width=device-width, initial-scale=1.0, minimum-scale=1.0, user-scalable=no">
 <head>
   <meta charset="utf-8">
   <title>${title}</title>
-  <script src="./token.js"></script>
-<!--  <link rel="stylesheet" href="index.css">-->
+  <script src="${settings.path.token}"></script>
 </head>
 <body>
   <div id="app"></div>
   <script src="index.js"></script>
 </body>
 </html>
-`;
-            }
+`
+
         })
 
 

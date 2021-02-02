@@ -28,6 +28,7 @@ export const Editor = (props: {
     onChange?: (value: Value) => void,
     onDownload?: () => void
     value?: Value,
+    theme?: string
     active?: boolean
 }) => {
     const editorRef = useRef(null);
@@ -121,7 +122,7 @@ export const Editor = (props: {
                 language={language == 'js' ? 'javascript' : language}
                 value={props.value[language]}
                 onMount={handleEditorDidMount}
-                theme={'vs-dark'}
+                theme={props.theme}
                 // width='300px'
                 // height="300px"
                 options={{
