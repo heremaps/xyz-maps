@@ -17,11 +17,9 @@
  * License-Filename: LICENSE
  */
 
-//@import 'colors.scss';
-//@import './components/Colors.scss';
+@import './components/Theme.scss';
 
 $headerHeight: 50px;
-$bgColor: #E0E0E0 !default;
 
 html, body, #app, .Playground {
     margin: 0;
@@ -29,7 +27,7 @@ html, body, #app, .Playground {
     width: 100%;
     height: 100%;
     overflow: hidden;
-    font-family: Arial, Helvetica, sans-serif;
+    font-family: $fontFamily;
 }
 
 .Playground{
@@ -55,7 +53,7 @@ html, body, #app, .Playground {
     //width: 100%;
     //height: auto;
     //padding: 8px;
-    background-color: $bgColor;
+    background-color: $backgroundColor;
     margin: 8px;
     //background-color: red;
 }

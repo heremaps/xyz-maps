@@ -16,8 +16,11 @@
  * SPDX-License-Identifier: Apache-2.0
  * License-Filename: LICENSE
  */
+@import 'Theme';
+
 .button, a {
-    background-color: #0A94DE;
+    outline: none;
+    background-color: $primaryColor;
     border: none;
     color: white;
     padding: 5px;
@@ -25,10 +28,11 @@
     text-decoration: none;
     display: inline-block;
     font-size: 14px;
+    font-family: $fontFamily;
     box-sizing: border-box;
     float: left;
 }
 
-.button:hover, .button.active, a:hover, #dl:hover{
-    background-color: #0757D4;
+.button:hover, .button.active, a:hover, #dl:hover {
+    background-color: $secondaryColor;
 }

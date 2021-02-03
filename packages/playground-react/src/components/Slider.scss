@@ -16,11 +16,11 @@
  * SPDX-License-Identifier: Apache-2.0
  * License-Filename: LICENSE
  */
+@import "Theme";
+
 .slider {
-    //position: relative;
-    //float: left;
     cursor: col-resize;
-    background-color: #E0E0E0;
+    background-color: $backgroundColor;
     border-left: 2px solid #8A8888;
     border-right: 2px solid #8A8888;
     box-sizing: border-box;

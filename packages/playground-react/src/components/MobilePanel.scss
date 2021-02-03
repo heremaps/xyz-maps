@@ -16,9 +16,11 @@
  * SPDX-License-Identifier: Apache-2.0
  * License-Filename: LICENSE
  */
+@import "Theme";
+
 .mobilePanel {
     width: 100%;
-    background-color: #E0E0E0;
+    background-color: $backgroundColor;
     display: flex;
     color: white;
     padding-bottom: 2px;
@@ -26,10 +28,10 @@
     > div {
         flex-grow: 1;
         box-sizing: border-box;
-        border-right: 2px solid #E0E0E0;
+        border-right: 2px solid $backgroundColor;
         padding: 4px;
         text-align: center;
-        background-color: #0A94DE;
+        background-color: $primaryColor;
     }
 
     > div:last-child {
@@ -37,7 +39,7 @@
     }
 
     > div.active, > div:hover {
-        background-color: #0457D4;
+        background-color: $secondaryColor;
     }
 }
 

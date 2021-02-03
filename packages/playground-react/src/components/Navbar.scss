@@ -16,15 +16,15 @@
  * SPDX-License-Identifier: Apache-2.0
  * License-Filename: LICENSE
  */
-$color: #3a3d45;
+
+@import "Theme";
 
 .navbar {
     position: relative;
     height: 50px;
     width: 100%;
-    background-color: $color;
+    background-color: $navbarColor;
     margin: 0;
-    font-family: Arial, Helvetica, sans-serif;
     color: white;
 }
 .navbar .title{
