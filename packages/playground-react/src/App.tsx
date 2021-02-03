@@ -187,16 +187,20 @@ export const App: React.FC = (props: { examples: any }) => {
 
         <div className={'content'}>
             <ExampleList examples={props.examples} onSelect={selectExample} onResize={updateColumnSize}
-                         active={visibility.examples} defaultSelected={initialExample.current}></ExampleList>
+                active={visibility.examples} defaultSelected={initialExample.current}>
+            </ExampleList>
             <div className={'container'} ref={containerRef}>
                 <Editor language={'js'} value={exampleSrc} onChange={updateSource} onDownload={onDownload}
-                        active={visibility.editor} theme={settings.monaco.theme}/>
-                <Slider onDragStart={() => setPreviewPointerEvents(false)} onDrag={updateColumnSize}
-                        onDragStop={() => setPreviewPointerEvents(true)} containerRef={containerRef}
-                        active={visibility.editor}/>
+                    active={visibility.editor} theme={settings.monaco.theme}
+                />
+                <Slider onPointerDown={() => setPreviewPointerEvents(false)} onPointerMove={updateColumnSize}
+                    onPointerUp={() => setPreviewPointerEvents(true)} containerRef={containerRef}
+                    active={visibility.editor}
+                />
                 <Preview src={exampleSrc} width={previewWidth} ref={previewRef} setApiVersion={setApiVersion}
-                         pointerEvents={previewPointerEvents} active={visibility.preview}
-                         onToggleFullscreen={toggleFullscreen}/>
+                    pointerEvents={previewPointerEvents} active={visibility.preview}
+                    onToggleFullscreen={toggleFullscreen}
+                />
             </div>
         </div>
     </div>);

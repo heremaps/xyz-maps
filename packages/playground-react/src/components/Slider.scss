@@ -19,13 +19,22 @@
 @import "Theme";
 
 .slider {
+    box-sizing: border-box;
     cursor: col-resize;
     background-color: $backgroundColor;
-    border-left: 2px solid #8A8888;
-    border-right: 2px solid #8A8888;
-    box-sizing: border-box;
+    border-left: 1px solid #222;
+    border-right: 1px solid #222;
     width: 8px;
     height: 100%;
+
+    div {
+        box-sizing: border-box;
+        background-color: #414650;
+        border-left: 1px solid $secondaryColor;
+        border-right: 1px solid $secondaryColor;
+        width: 100%;
+        height: 100%;
+    }
 }
 
 @media screen and (max-width: 768px) {

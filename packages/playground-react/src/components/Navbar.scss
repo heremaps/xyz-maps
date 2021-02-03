@@ -34,7 +34,7 @@
 }
 
 .navbar .logo {
-    content: url("assets/icon/xyz.svg");
+    content: $logoUrl;
     background-size: 100%;
     height: 38px;
     width: 35px;

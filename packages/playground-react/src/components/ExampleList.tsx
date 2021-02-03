@@ -18,6 +18,7 @@
  */
 import React, {useEffect, useLayoutEffect} from 'react';
 import './ExampleList.scss';
+import {Slider} from "./Slider";
 
 
 export type Example = { title: string, file: string, docs: string, description: string, section: string };
@@ -100,9 +101,9 @@ export const ExampleList: React.FC = (props: {
         exampleRef.current.addEventListener('transitionend', () => animationDone = true);
     }, []);
 
-
     return (<div className={'exampleList'} ref={exampleRef} style={{display: props.active ? '' : 'none'}}>
         <ul ref={listRef}>{list}</ul>
-        <div className={'gutter'} onClick={onGutterClick} ref={gutterRef}></div>
+        <Slider onPointerDown={onGutterClick} ref={gutterRef}></Slider>
+        {/*<div className={'gutter'} onClick={onGutterClick} ref={gutterRef}></div>*/}
     </div>);
 };

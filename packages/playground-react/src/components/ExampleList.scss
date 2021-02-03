@@ -28,7 +28,7 @@
     position: relative;
     width: 300px;
     height: 100%;
-
+    color: $primaryFontColor;
     transition: width 500ms ease-out;
 
     ul {
@@ -50,13 +50,13 @@
     }
 
     li.selected {
-        background-color: $secondaryColor;
-        color: white;
+        background-color: $primaryColor;
+        color: $fontHighlightColor;
     }
 
     li:not(.section):hover {
-        color: white;
-        background-color: $primaryColor;
+        color: $fontHighlightColor;
+        background-color: $secondaryColor;
     }
 
     li:not(.section) {
@@ -73,27 +73,21 @@
         margin: 0 0 10px 0;
     }
 
-    .gutter {
+    .slider {
         position: relative;
         float: right;
         cursor: w-resize;
-        background-color: $backgroundColor;
-        border-left: 2px solid #8A8888;
-        border-right: 2px solid #8A8888;
-        box-sizing: border-box;
-        width: 8px;
-        height: 100%;
     }
-
-    .gutter.toggle {
+    .slider.toggle {
         cursor: e-resize;
     }
+
 
 }
 
 @media screen and (max-width: 768px) {
-    .gutter {
-        display: none;
+    .slider {
+        display: none !important;
     }
 
     .exampleList {

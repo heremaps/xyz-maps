@@ -19,21 +19,23 @@
 import React from 'react';
 import './Slider.scss';
 
-export const Slider: React.FC = (props: {
-    onDragStart: () => void,
-    onDragStop: () => void,
-    onDrag: (dx: number) => void,
-    active: boolean
-    containerRef: React.Ref<HTMLElement>
-}) => {
+export const Slider: React.FC = React.forwardRef((props: {
+    active?: boolean,
+    onPointerDown?: () => void,
+    onPointerUp?: () => void,
+    onPointerMove?: (dx: number) => void,
+    containerRef?: React.Ref<HTMLElement>,
+}, ref) => {
     const {containerRef} = props;
     let prevX;
 
     const handlePointerUp = (e: PointerEvent) => {
-        containerRef.current.removeEventListener('pointermove', handlePointerMove);
-        containerRef.current.removeEventListener('pointerup', handlePointerUp);
-        if (props.onDragStop) {
-            props.onDragStop();
+        if (containerRef) {
+            containerRef.current.removeEventListener('pointermove', handlePointerMove);
+            containerRef.current.removeEventListener('pointerup', handlePointerUp);
+        }
+        if (props.onPointerUp) {
+            props.onPointerUp();
         }
     };
 
@@ -41,22 +43,32 @@ export const Slider: React.FC = (props: {
         const {clientX} = e;
         const dx = Math.round(clientX - prevX);
         prevX = clientX;
-        if (dx && props.onDrag) {
-            props.onDrag(dx);
+        if (dx && props.onPointerMove) {
+            props.onPointerMove(dx);
         }
     };
 
 
     const handlePointerDown = (e: PointerEvent) => {
         prevX = e.clientX;
-        containerRef.current.addEventListener('pointermove', handlePointerMove);
-        containerRef.current.addEventListener('pointerup', handlePointerUp);
-        if (props.onDragStart) {
-            props.onDragStart();
+        if (containerRef) {
+            containerRef.current.addEventListener('pointermove', handlePointerMove);
+            containerRef.current.addEventListener('pointerup', handlePointerUp);
+        }
+        if (props.onPointerDown) {
+            props.onPointerDown();
         }
     };
 
+    let {active} = props;
+
+    if (active == undefined) {
+        active = true;
+    }
+
     return (
-        <div className={'slider'} onPointerDown={handlePointerDown} style={{display: props.active?'block':'none'}}/>
+        <div ref={ref} className={'slider'} onPointerDown={handlePointerDown} style={{display: active ? 'block' : 'none'}}>
+            <div></div>
+        </div>
     );
-};
+});
