@@ -21,16 +21,15 @@ const display = new Map(document.getElementById('map'), {
 });
 /** **/
 
-// This example shows how to add observer to zoomLevel and center.
-var infoTag = document.querySelector('#info');
 
-// Add observer to zoomlevel
-display.addObserver('zoomlevel', function(name, newValue, oldValue) {
-    infoTag.innerText = name + ' new: ' + newValue + ' old:' + oldValue;
-});
+let infoTag = document.querySelector('#info');
 
-// Add observer to center
-display.addObserver('center', function(name, newValue, oldValue) {
+// add an center observer to the map
+display.addObserver('center', (name, newValue, oldValue) => {
     infoTag.innerText = name + ' new: ' + JSON.stringify(newValue, null, 4) + ' old:' + JSON.stringify(oldValue, null, 4);
 });
 
+// add an zoomlevel observer to the map
+display.addObserver('zoomlevel', (name, newValue, oldValue) => {
+    infoTag.innerText = name + ' new: ' + newValue + ' old:' + oldValue;
+});

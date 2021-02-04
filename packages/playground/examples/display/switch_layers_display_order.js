@@ -5,7 +5,7 @@ import {Map} from '@here/xyz-maps-display';
 // configure layers
 var layers = [
     new MVTLayer({
-        name: 'background layer',
+        name: 'BackgroundLayer',
         min: 1,
         max: 20,
         remote: {
@@ -13,11 +13,10 @@ var layers = [
         }
     }),
     new TileLayer({
-        name: 'Building Layer',
+        name: 'MyBuildingLayer',
         min: 15,
         max: 20,
         provider: new SpaceProvider({
-            name: 'BuildingProvider',
             level: 15,
             space: 'XhxKLZGL',
             credentials: {
@@ -36,11 +35,10 @@ var layers = [
         }
     }),
     new TileLayer({
-        name: 'Place Layer',
+        name: 'MyPlaceLayer',
         min: 14,
         max: 20,
         provider: new SpaceProvider({
-            id: 'PlaceProvider',
             level: 14,
             space: '6CkeaGLg',
             credentials: {
@@ -77,16 +75,24 @@ const display = new Map(document.getElementById('map'), {
 });
 /** **/
 
-document.querySelector('#switchlayerbutton').onclick = function() {
-    // Get layer to switch display order
-    var addedLayer = display.getLayers(1);
-    // remove this layer from current map display
-    display.removeLayer(addedLayer);
-    // add this layer to map display, this layer is above all other layers
-    display.addLayer(addedLayer);
-
-
-    // Get current top layer
-    var topLayer = display.getLayers(2);
-    document.querySelector('#info').innerText = 'Top layer: ' + topLayer.name;
+const updateLayerInfo = () => {
+    document.querySelector('#info').innerText = 'layer order:\n\n' +
+        display.getLayers().map((layer, i) => i + ': ' + layer.name).join('\n');
 };
+// show the current layer order
+updateLayerInfo();
+
+// add a onclick event handler to the switchlayerbutton
+document.querySelector('#switchlayerbutton').onclick = function() {
+    // Get the layer at layer index 1 (middle layer in this layer configuration)
+    let layer = display.getLayers(1);
+    // remove this layer from current map
+    display.removeLayer(layer);
+    // add the layer to the map again to add and display it on top of all other layers
+    display.addLayer(layer);
+
+    // show updated layer order
+    updateLayerInfo();
+};
+
+

@@ -69,12 +69,12 @@
     {
       "description": "Hello World",
       "file": "./editor/hello_world.html",
-      "docs": "classes/editor.html"
+      "docs": "modules/editor.html"
     },
     {
       "description": "Create custom provider using XYZ Hub",
       "file": "./editor/custom_provider.html",
-      "docs": "classes/editor.html"
+      "docs": "modules/editor.html"
     },
     {
       "description": "Display a context menu",

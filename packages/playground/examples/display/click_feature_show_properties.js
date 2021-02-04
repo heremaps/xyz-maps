@@ -16,7 +16,6 @@ var layers = [
         min: 14,
         max: 20,
         provider: new SpaceProvider({
-            id: 'NavlinkProvider',
             level: 14,
             space: '6HMU19KY',
             credentials: {
@@ -29,7 +28,6 @@ var layers = [
         min: 14,
         max: 20,
         provider: new SpaceProvider({
-            id: 'PlaceProvider',
             level: 14,
             space: '6CkeaGLg',
             credentials: {
@@ -51,21 +49,18 @@ const display = new Map(document.getElementById('map'), {
 });
 /** **/
 
-var infoTag = document.querySelector('#info');
+const infoElement = document.querySelector('#info');
 
-// Add a event listener to pointerup
-function eventHandler(evt) {
+// create a pointerup event listener and add it to the display
+display.addEventListener('pointerup', function(ev) {
     // Click on a feature
-    if (evt.target) {
-        var properties = evt.target.properties;
+    if (ev.target) {
+        var properties = ev.target.properties;
 
-        // Display feature user properties
-        infoTag.innerText = JSON.stringify(properties, undefined, 4);
+        // update the info element with the properties of the feature
+        infoElement.innerText = JSON.stringify(properties, undefined, 4);
     } else {
-        // Feature is not clicked
-        infoTag.innerText = 'No feature is clicked!';
+        // in case no feature hast been clicked, we clear the info element
+        infoElement.innerText = 'No feature is clicked!';
     }
-}
-
-// add event listener to pointerup
-display.addEventListener('pointerup', eventHandler);
+});

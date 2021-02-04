@@ -79,7 +79,7 @@ export const App: React.FC = (props: { examples: any }) => {
         const {html, js, title} = exampleSources;
         setExampleSrc({title, html, js, org: {html, js}, docs: example.docs});
 
-        window.location.hash = example.section + '-' + title;
+        window.location.hash = example.section + '-' + title.replace(/\ /g, '_');
     };
 
     const updateSource = (source: Value | null) => {
@@ -123,9 +123,10 @@ export const App: React.FC = (props: { examples: any }) => {
         let initExample = [0, 'Display'];
         const hash = window.location.hash.substr(1);
         if (hash) {
-            const [c, title] = hash.split('-');
+            let [c, title] = hash.split('-');
+            title = title.replace(/_/g, ' ');
             for (let i = 0, examples = props.examples[c]; i < examples.length; i++) {
-                if (encodeURI(examples[i].title) == title) {
+                if (examples[i].title == title) {
                     initExample = [i, c];
                     break;
                 }

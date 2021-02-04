@@ -22,21 +22,23 @@ const display = new Map(document.getElementById('map'), {
 });
 /** **/
 
-// This example shows how to add listeners to mapview events in display.
-// Supported mapview events are mapviewchange, mapviewchangestart and mapviewchangeend.
+let eventHistory = [];
 
-// Event handler to mapview events.
-// It shows the current mapview event
-function eventHandler(evt) {
-    document.querySelector('#info').innerText = evt.type + ':' + JSON.stringify(evt.data, undefined, 4);
+// create an event handler to display the last 16 mapviewchagnge events
+function eventHandler(ev) {
+    eventHistory.push(ev.type);
+    // just keep the last 16 events
+    eventHistory = eventHistory.slice(-16);
+
+    document.querySelector('#info').innerText = JSON.stringify(eventHistory, undefined, 4);
 }
 
-// add event listener to mapviewchange
+// add mapviewchange event listener to the map
 display.addEventListener('mapviewchange', eventHandler);
 
-// add event listener to mapviewchangestart
+// add mapviewchangestart event listener to the map
 display.addEventListener('mapviewchangestart', eventHandler);
 
-// add event listener to mapviewchangeend
+// add mapviewchangeend event listener to the map
 display.addEventListener('mapviewchangeend', eventHandler);
 

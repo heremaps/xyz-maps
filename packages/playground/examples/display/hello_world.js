@@ -12,7 +12,9 @@ const display = new Map(document.getElementById('map'), {
     layers: [
         new MVTLayer({
             name: 'background layer',
+            // the minimum zoom level the layer is displayed
             min: 1,
+            // the maximum zoom level the layer is displayed
             max: 20,
             remote: {
                 url: 'https://xyz.api.here.com/tiles/osmbase/512/all/{z}/{x}/{y}.mvt?access_token=' + YOUR_ACCESS_TOKEN

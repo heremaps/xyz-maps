@@ -10,19 +10,16 @@ var bgLayer = new MVTLayer({
         url: 'https://xyz.api.here.com/tiles/osmbase/512/all/{z}/{x}/{y}.mvt?access_token=' + YOUR_ACCESS_TOKEN
     }
 });
-var navlinkLayer = new TileLayer({
-    name: 'my Navlink Layer',
+var lineLayer = new TileLayer({
     min: 14,
     max: 20,
     provider: new SpaceProvider({
-        id: 'navlinks',
         level: 14,
         space: '6HMU19KY',
         credentials: {
             access_token: YOUR_ACCESS_TOKEN
         }
     }),
-
     style: {
         styleGroups: {
             myStyle: [
@@ -43,32 +40,32 @@ const display = new Map(document.getElementById('map'), {
     center: {
         longitude: -122.254537, latitude: 37.796982
     },
-    // add layers to display
-    layers: [bgLayer, navlinkLayer]
+    // add the layers to the display
+    layers: [bgLayer, lineLayer]
 });
 /** **/
 
 
-// new feature style
+// the style to highlight a currently hovered line
 var hoverStyle = [
-    {zIndex: 1, type: 'Line', stroke: '#CB668E', strokeWidth: 34},
-    {zIndex: 2, type: 'Line', stroke: '#F090B3', strokeWidth: 14},
-    {zIndex: 3, type: 'Text', fill: '#000000', text: 'Playground Road'}
+    {zIndex: 3, type: 'Line', stroke: '#CB668E', strokeWidth: 24},
+    {zIndex: 4, type: 'Line', stroke: '#F090B3', strokeWidth: 18},
+    {zIndex: 5, type: 'Text', fill: '#000000', text: 'hovered'}
 ];
 
-// add event listener to pointerenter
+// add a pointerenter event-listener to the display
 display.addEventListener('pointerenter', function(evt) {
-    // set feature style when pointer enters feature in space layer
-    if (evt.target && evt.target.getProvider().id == 'navlinks') {
-        navlinkLayer.setStyleGroup(evt.target, hoverStyle);
+    if (evt.target) {
+        // set the highlight style for the feature
+        lineLayer.setStyleGroup(evt.target, hoverStyle);
     }
 });
 
-// add event listener to pointerleave
+// add a pointerleave event-listener to the display
 display.addEventListener('pointerleave', function(evt) {
-    // restore feature style when pointer leaves feature in space layer
-    if (evt.target && evt.target.getProvider().id == 'navlinks') {
-        navlinkLayer.setStyleGroup(evt.target);
+    if (evt.target) {
+        // restore the default style of the feature
+        lineLayer.setStyleGroup(evt.target);
     }
 });
 

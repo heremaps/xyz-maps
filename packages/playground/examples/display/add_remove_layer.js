@@ -25,13 +25,11 @@ const display = new Map(document.getElementById('map'), {
 });
 /** **/
 
-// Create a data layer for navlink
+// Create a TileLayer with my line data
 var myNavlinkLayer = new TileLayer({
-    name: 'myNavlinkLayer',
     min: 14,
     max: 20,
     provider: new SpaceProvider({
-        id: 'NavlinkProvider',
         level: 14,
         space: '6HMU19KY',
         credentials: {
@@ -40,13 +38,11 @@ var myNavlinkLayer = new TileLayer({
     })
 });
 
-// Create another data layer for Place
+// Create a TileLayer with my place data
 var myPlaceLayer = new TileLayer({
-    name: 'myPlaceLayer',
     min: 14,
     max: 20,
     provider: new SpaceProvider({
-        id: 'PlaceProvider',
         level: 14,
         space: '6CkeaGLg',
         credentials: {
@@ -55,37 +51,34 @@ var myPlaceLayer = new TileLayer({
     })
 });
 
-var navlinkLayerAdded = false;
-// add/remove navlink layer in button handler
-document.querySelector('#navlinklayerbutton').onclick = function() {
+let navlinkLayerAdded = false;
+
+// add a onclick event handler to the myLinesButton
+document.querySelector('#myLinesButton').onclick = function() {
     if (!navlinkLayerAdded) {
         display.addLayer(myNavlinkLayer);
-
-        this.innerText = 'Remove Navlink Layer';
-
+        this.innerText = 'Remove MyLines';
         navlinkLayerAdded = true;
     } else {
         display.removeLayer(myNavlinkLayer);
-
-        this.innerText = 'Add Navlink Layer';
-
+        this.innerText = 'Add MyLines';
         navlinkLayerAdded = false;
     }
 };
 
 var placeLayerAdded = false;
-// add/remove place layer in button handler
-document.querySelector('#placelayerbutton').onclick = function() {
+// add a onclick event handler to the myPlacesButton
+document.querySelector('#myPlacesButton').onclick = function() {
     if (!placeLayerAdded) {
         display.addLayer(myPlaceLayer);
 
-        this.innerText = 'Remove Place Layer';
+        this.innerText = 'Remove MyPlaces';
 
         placeLayerAdded = true;
     } else {
         display.removeLayer(myPlaceLayer);
 
-        this.innerText = 'Add Place Layer';
+        this.innerText = 'Add MyPlaces';
 
         placeLayerAdded = false;
     }

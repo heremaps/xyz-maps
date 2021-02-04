@@ -9,9 +9,8 @@ const display = new Map(document.getElementById('map'), {
     },
     // add layers to the display
     layers: [
-        // create a MVTLayer to act as the "basemap"
+        // create a MVTLayer to act as the "basemap" (background layer)
         new MVTLayer({
-            min: 1, max: 20,
             remote: {
                 url: 'https://xyz.api.here.com/tiles/osmbase/512/all/{z}/{x}/{y}.mvt?access_token=' + YOUR_ACCESS_TOKEN
             }
@@ -20,24 +19,24 @@ const display = new Map(document.getElementById('map'), {
 });
 /** done **/
 
-// Create data layer with Space provider
+// create a TileLayer using a SpaceProvider that's providing the map-data we want to display
 var myLayer = new TileLayer({
     // the minimum zoom level the layer should be visible
     min: 14,
     // the maximum zoom level the layer should be visible
     max: 20,
-    // Create a SpaceProvider
+    // create the SpaceProvider
     provider: new SpaceProvider({
-        // Zoom level at which tiles are loaded and a local tile index gets created
+        // zoom level at which tiles are loaded and a local tile index gets created
         level: 14,
-        // Space ID
+        // id of the space
         space: '6HMU19KY',
-        // User credentials required by the provider
+        // user credentials required by the xyz-hub remote service
         credentials: {
             access_token: YOUR_ACCESS_TOKEN
         }
     })
 });
 
-// Add the layer to display
+// Add the layer to the display
 display.addLayer(myLayer);

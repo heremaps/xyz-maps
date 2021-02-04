@@ -21,36 +21,60 @@ const display = new Map(document.getElementById('map'), {
 });
 /** **/
 
-// This example shows how to get and set display behavior: zoom and drag.
-// zoom or drag behavior set to false means zooming and dragging the map display
-// with MOUSE is disabled.
+var dragButton = document.querySelector('#drag');
+var zoomButton = document.querySelector('#zoom');
+var pitchButton = document.querySelector('#pitch');
+var infoElement = document.querySelector('#info');
 
-var switchdrag = document.querySelector('#switchdrag');
-var switchzoom = document.querySelector('#switchzoom');
-var infotag = document.querySelector('#info');
 
-// Get current behavior
-var currentbehavior = display.getBehavior();
-infotag.innerText = 'Current Behavior:' + JSON.stringify(currentbehavior, undefined, 4);
+let currentBehavior;
 
-switchdrag.onclick = function() {
-    display.setBehavior('drag', !currentbehavior.drag);
-
-    // update current display behavior in info tag
-    currentbehavior = display.getBehavior();
-    infotag.innerText = 'Current Behavior:' + JSON.stringify(currentbehavior, undefined, 4);
-
-    // update button text
-    this.innerText = currentbehavior.drag ? 'Disable Drag' : 'Enable Drag';
+const showMapBehavior = () => {
+    // get the current behavior settings.
+    currentBehavior = display.getBehavior();
+    // and display it in the infoElement
+    infoElement.innerText = 'Current Behavior settings:' + JSON.stringify(currentBehavior, undefined, 4);
 };
 
-switchzoom.onclick = function() {
-    display.setBehavior('zoom', !currentbehavior.zoom);
+showMapBehavior();
 
-    // update current display behavior in info tag
-    currentbehavior = display.getBehavior();
-    infotag.innerText = 'Current Behavior:' + JSON.stringify(currentbehavior, undefined, 4);
 
-    // update button text
-    this.innerText = currentbehavior.zoom ? 'Disable Zoom' : 'Enable Zoom';
+// click the drag button to toggle the "drag" behavior setting.
+// when drag is set to true, dragging the map by user interaction is allowed, otherwise false.
+dragButton.onclick = function() {
+    // toggle drag behavior setting
+    display.setBehavior('drag', !currentBehavior.drag);
+
+    // display the updated behavior settings
+    showMapBehavior();
+
+    // update the button text
+    this.innerText = currentBehavior.drag ? 'Disable Drag' : 'Enable Drag';
+};
+
+// click the zoom button to toggle the "zoom" behavior setting.
+// when zoom is set to true, changing the map zoom by user interaction is allowed, otherwise false.
+zoomButton.onclick = function() {
+    // toggle zoom behavior setting
+    display.setBehavior('zoom', !currentBehavior.zoom);
+
+    // display the updated behavior settings
+    showMapBehavior();
+
+    // update the button text
+    this.innerText = currentBehavior.zoom ? 'Disable Zoom' : 'Enable Zoom';
+};
+
+
+// click the zoom button to toggle the "pitch" behavior setting.
+// when pitch is set to true, pitching the map zoom by user interaction is allowed, otherwise false.
+pitchButton.onclick = function() {
+    // toggle pitch behavior setting
+    display.setBehavior('pitch', !currentBehavior.pitch);
+
+    // display the updated behavior settings
+    showMapBehavior();
+
+    // update the button text
+    this.innerText = currentBehavior.pitch ? 'Disable Pitch' : 'Enable Pitch';
 };

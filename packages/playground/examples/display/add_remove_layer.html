@@ -2,7 +2,7 @@
 <html>
     <head>
         <meta name="viewport" content="width=device-width, initial-scale=1.0, minimum-scale=1.0, user-scalable=no">
-        <title>XYZ Maps Example: Add and remove Layer</title>
+        <title>XYZ Maps Example: Add and remove Layers</title>
         <style type="text/css">
             #map {
                 position: absolute;
@@ -13,14 +13,27 @@
                 height: 100%;
             }
 
-            .button {
-                width: 200px;
+            a.button {
+                position: relative;
+                display: block;
+                color: #FFFFFF;
+                cursor: pointer;
+                left: 20px;
+                height: 23px;
+                padding: 5px 6px 0px;
+                width: 150px;
+                text-align: center;
+                margin: 12px 0 0 0;
+                background-color: #333;
+            }
+            a.button:hover{
+                background-color: #555;
             }
         </style>
     </head>
     <body>
         <div id="map"></div>
-        <a id="navlinklayerbutton" class="button">Add Navlink Layer</a>
-        <a id="placelayerbutton" class="button">Add Place Layer</a>
+        <a id="myLinesButton" class="button">Add MyLines</a>
+        <a id="myPlacesButton" class="button">Add MyPlaces</a>
     </body>
 </html>
