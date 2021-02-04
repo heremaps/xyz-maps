@@ -39,23 +39,9 @@ const exclude = env.exclude;
 const production = env.BUILD == 'production';
 
 const ts = (new Date()).getTime();
-let credentialsPath = join(SRC, 'credentials.json');
-let credential;
-
-try {
-    credential = JSON.parse(fs.readFileSync(credentialsPath));
-} catch (e) {
-    // throw Error(credentialsPath + ' not found! Please refer to README.md for details');
-    throw Error(e);
-}
-
-credential = {
-    'YOUR_APP_ID': credential.app_id,
-    'YOUR_APP_CODE': credential.app_code,
-    'YOUR_ACCESS_TOKEN': credential.access_token
-};
 
 const pathCfg = settings.path['xyz-maps'];
+
 
 for (let module in pathCfg) {
     if (production) {
@@ -117,7 +103,6 @@ const rollupConfig = [{
         }),
         virtual({
             'settings': 'export default' + JSON.stringify(settings),
-            'credentials': 'export default' + JSON.stringify(credential),
             'exampleslist': 'export default ' + JSON.stringify(exampleList),
             'ts': 'export default ' + ts
         }),
@@ -164,6 +149,16 @@ const rollupConfig = [{
 
 // do not create token.js if custom(remote) path is used
 if (!env['token-path']) {
+    let credentialsPath = join(SRC, 'credentials.json');
+    let credentials;
+
+    try {
+        credentials = JSON.parse(fs.readFileSync(credentialsPath));
+    } catch (e) {
+        throw Error(credentialsPath + ' not found! Please refer to README.md for details');
+        // throw Error(e);
+    }
+
     rollupConfig.unshift({
         input: './src/token.ts',
         output: {
@@ -173,7 +168,7 @@ if (!env['token-path']) {
         },
         plugins: [
             virtual({
-                'access_token': `export default "${credential.YOUR_ACCESS_TOKEN}"`
+                'access_token': `export default "${credentials.access_token}"`
             }),
             typescript(),
             uglify()
