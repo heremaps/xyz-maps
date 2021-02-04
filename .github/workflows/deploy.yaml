@@ -1,4 +1,4 @@
-name: Deploy doc to gh-pages
+name: Documentation & Playground
 
 on:
     workflow_dispatch:
@@ -27,10 +27,16 @@ jobs:
                     node-version: '12'
             -   name: Install dependencies
                 run: yarn install --network-timeout ${{ env.yarn-network-timeout }}
-            -   name: Build the documentation
+            -   name: Build documentation
                 run: yarn run build-doc
+            -   name: Build release
+                run: yarn run build-release
+            -   name: Build playgorund
+                run: yarn run build-playground -- -- --environment doc-path:../docs/ --environment api-path:../ --environment token-path:${{ secrets.TOKEN_PATH }}
+            -   name: Preapre deployment
+                run: node scripts/prepare-pages.js
             -   name: Deploy to gh-pages
                 uses: peaceiris/actions-gh-pages@v3
                 with:
                     github_token: ${{ secrets.GITHUB_TOKEN }}
-                    publish_dir: ./docs
+                    publish_dir: ./

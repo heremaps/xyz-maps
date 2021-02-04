@@ -1,66 +1,67 @@
 {
-    "name": "@here/xyz-maps",
-    "version": "0.19.0",
-    "description": "XYZ Editor is an experimental and work in progress open-source map editor written in TypeScript/JavaScript",
-    "author": {
-        "name": "HERE Europe B.V.",
-        "url": "https://here.com"
-    },
-    "license": "Apache-2.0",
-    "repository": {
-        "type": "git",
-        "url": "https://github.com/heremaps/xyz-editor.git"
-    },
-    "scripts": {
-        "test": "lerna run --stream --no-prefix --scope @here/xyz-maps-test test -- ",
-        "preversion": "yarn run build-release && yarn run test",
-        "postversion": "yarn run bundle-release",
-        "watch-dev": "lerna run watch-dev --parallel",
-        "build-dev": "lerna run build-dev --parallel",
-        "build-doc": "npx typedoc ./packages/display/ ./packages/core ./packages/editor",
-        "build-release": "lerna run build-release --parallel",
-        "bundle-release": "yarn run build-doc && yarn run build-playground && yarn run build-release",
-        "playground": "yarn run build-playground && npx http-server . -d -c-1 -p 8081 -o ./packages/playground-react/dist",
-        "build-playground": "lerna run --scope @here/xyz-maps-playground-react build --stream --no-prefix",
-        "eslint:fix": "eslint **/packages/*/src/**/*.{js,ts} --fix",
-        "precommit": "lint-staged",
-        "server": "npx http-server . -d -c-1 -p 8080 -o ./debug",
-        "set-access-token": "ts-node build/createToken --token"
-    },
-    "files": [
-        "dist/*.min.js"
-    ],
-    "publishConfig": {
-    },
-    "private": true,
-    "devDependencies": {
-        "@strictsoftware/typedoc-plugin-monorepo": "^0.3.1",
-        "@typescript-eslint/parser": "^3.6.1",
-        "eslint": "7.4.0",
-        "eslint-config-google": "^0.14.0",
-        "http-server": "^0.12.3",
-        "husky": "4.2.5",
-        "lerna": "^3.22.1",
-        "lint-staged": "^10.2.11",
-        "ts-node": "^8.10.2",
-        "typescript": "^3.9.6",
-        "typedoc": "^0.19.2",
-        "typedoc-plugin-remove-references": "^0.0.5",
-        "typescript": "^3.9.6"
-    },
-    "workspaces": [
-        "packages/*"
-    ],
-    "engines": {
-        "node": ">=8.16.0",
-        "yarn": ">=1.11.0"
-    },
-    "lint-staged": {
-        "*.{js,ts}": "eslint --fix"
-    },
-    "husky": {
-        "hooks": {
-            "pre-commit": "lint-staged"
-        }
+  "name": "@here/xyz-maps",
+  "version": "0.19.0",
+  "description": "XYZ Editor is an experimental and work in progress open-source map editor written in TypeScript/JavaScript",
+  "author": {
+    "name": "HERE Europe B.V.",
+    "url": "https://here.com"
+  },
+  "license": "Apache-2.0",
+  "repository": {
+    "type": "git",
+    "url": "https://github.com/heremaps/xyz-editor.git"
+  },
+  "scripts": {
+    "test": "lerna run --stream --no-prefix --scope @here/xyz-maps-test test -- ",
+    "preversion": "yarn run build-release && yarn run test",
+    "postversion": "yarn run bundle-release",
+    "watch-dev": "lerna run watch-dev --parallel",
+    "build-dev": "lerna run build-dev --parallel",
+    "build-doc": "npx typedoc ./packages/display/ ./packages/core ./packages/editor",
+    "build-release": "lerna run build-release --parallel",
+    "bundle-release": "yarn run build-doc && yarn run build-playground && yarn run build-release",
+    "playground": "yarn run build-playground && npx http-server . -d -c-1 -p 8081 -o ./packages/playground/dist",
+    "build-playground": "lerna run --scope @here/xyz-maps-playground build --stream --no-prefix",
+    "eslint:fix": "eslint **/packages/*/src/**/*.{js,ts} --fix",
+    "precommit": "lint-staged",
+    "server": "npx http-server . -d -c-1 -p 8080 -o ./debug",
+    "set-access-token": "ts-node build/createToken --token"
+  },
+  "files": [
+    "dist/*.min.js"
+  ],
+  "publishConfig": {
+  },
+  "private": true,
+  "devDependencies": {
+    "@strictsoftware/typedoc-plugin-monorepo": "^0.3.1",
+    "@typescript-eslint/parser": "^3.6.1",
+    "eslint": "7.4.0",
+    "eslint-config-google": "^0.14.0",
+    "http-server": "^0.12.3",
+    "husky": "4.2.5",
+    "lerna": "^3.22.1",
+    "lint-staged": "^10.2.11",
+    "ts-node": "^8.10.2",
+    "typescript": "^3.9.6",
+    "typedoc": "^0.19.2",
+    "typedoc-plugin-remove-references": "^0.0.5",
+    "typescript": "^3.9.6",
+    "fs-extra": "^9.1.0"
+  },
+  "workspaces": [
+    "packages/*"
+  ],
+  "engines": {
+    "node": ">=8.16.0",
+    "yarn": ">=1.11.0"
+  },
+  "lint-staged": {
+    "*.{js,ts}": "eslint --fix"
+  },
+  "husky": {
+    "hooks": {
+      "pre-commit": "lint-staged"
     }
+  }
 }
