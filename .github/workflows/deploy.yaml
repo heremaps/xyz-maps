@@ -32,7 +32,7 @@ jobs:
             -   name: Build release
                 run: yarn run build-release
             -   name: Build playgorund
-                run: yarn run build-playground -- -- --environment doc-path:../docs/ --environment api-path:../ --environment token-path:${{ secrets.TOKEN_PATH }}
+                run: yarn run build-playground -- -- --environment BUILD:production --environment doc-path:../docs/ --environment api-path:../ --environment token-path:${{ secrets.TOKEN_PATH }}
             -   name: Preapre deployment
                 run: node scripts/prepare-pages.js
             -   name: Deploy to gh-pages
