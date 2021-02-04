@@ -131,18 +131,11 @@ const rollupConfig = [{
         typescript(),
         production && uglify(),
         copy({
-            targets: [
-                {
-                    src: './examples', dest: DEST
-                },
-                // {
-                //     src: 'static/index.html',
-                //     dest: DEST,
-                //     transform: (contents) => contents.toString().replace(/\$\{TIMESTAMP\}/g, ts)
-                // },
-                {
-                    src: join(SRC, 'assets'), dest: DEST
-                }]
+            targets: [{
+                src: './examples', dest: DEST
+            }, {
+                src: join(SRC, 'assets'), dest: DEST
+            }]
         }),
         html({
             fileName: 'index.html',
@@ -155,7 +148,7 @@ const rollupConfig = [{
 <head>
   <meta charset="utf-8">
   <title>${title}</title>
-  ${env['html-metadata']||''}
+  ${env['html-metadata'] || ''}
   <script src="${settings.path.token}"></script>
 </head>
 <body>
