@@ -150,11 +150,12 @@ const rollupConfig = [{
             template: ({title}) => `
 <!DOCTYPE html>
 <html lang="en">
-<link rel="icon" type="image/x-icon" href="assets/icon/favicon.png">
+<link rel="icon" type="image/x-icon" href="./assets/icon/favicon.png">
 <meta name="viewport" content="width=device-width, initial-scale=1.0, minimum-scale=1.0, user-scalable=no">
 <head>
   <meta charset="utf-8">
   <title>${title}</title>
+  ${env['html-metadata']||''}
   <script src="${settings.path.token}"></script>
 </head>
 <body>

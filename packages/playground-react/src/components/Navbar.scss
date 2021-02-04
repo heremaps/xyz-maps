@@ -19,9 +19,11 @@
 
 @import "Theme";
 
+$navbarHeight: 50px;
+
 .navbar {
     position: relative;
-    height: 50px;
+    height: $navbarHeight;
     width: 100%;
     background-color: $navbarColor;
     margin: 0;
@@ -30,7 +32,8 @@
 .navbar .title{
     float: left;
     font-size: 20px;
-    margin-top: 12px;
+    line-height: $navbarHeight;
+    //margin-top: 12px;
 }
 
 .navbar .logo {
@@ -38,7 +41,7 @@
     background-size: 100%;
     height: 38px;
     width: 35px;
-    padding: 5px 12px;
+    padding: 6px 12px 0;
     float: left;
 }
 
