@@ -28,7 +28,6 @@ import json from '@rollup/plugin-json';
 import settings from './settings.json';
 import {join} from 'path';
 import {uglify} from 'rollup-plugin-uglify';
-import del from 'rollup-plugin-delete';
 import fs from 'fs';
 
 const env = process.env;
@@ -96,26 +95,12 @@ for (let section in exampleList) {
     });
 }
 
-export default [{
-    input: './src/token.ts',
-    output: {
-        file: join(DEST, 'token.js'),
-        format: 'iife',
-        strict: false
-    },
-    plugins: [
-        del({
-            targets: DEST,
-            runOnce: true
-        }),
-        virtual({
-            'access_token': `export default "${credential.YOUR_ACCESS_TOKEN}"`
-        }),
-        typescript(),
-        uglify()
-    ],
-    treeshake: production
-}, {
+// cleanup dist dir
+if (fs.existsSync(DEST)) {
+    fs.rmdirSync(DEST, {recursive: true});
+}
+
+const rollupConfig = [{
     input: './src/index.tsx',
     output: {
         file: join(DEST, 'index.js'),
@@ -136,15 +121,12 @@ export default [{
             'exampleslist': 'export default ' + JSON.stringify(exampleList),
             'ts': 'export default ' + ts
         }),
-        // del({
-        //     targets: DEST,
-        //     force: true
-        // }),
         json(),
         resolve(),
         commonjs(),
         postcss({
-            inject: true
+            inject: true,
+            minimize: production
         }),
         typescript(),
         production && uglify(),
@@ -168,6 +150,7 @@ export default [{
             template: ({title}) => `
 <!DOCTYPE html>
 <html lang="en">
+<link rel="icon" type="image/x-icon" href="assets/icon/favicon.png">
 <meta name="viewport" content="width=device-width, initial-scale=1.0, minimum-scale=1.0, user-scalable=no">
 <head>
   <meta charset="utf-8">
@@ -180,10 +163,29 @@ export default [{
 </body>
 </html>
 `
-
         })
-
-
     ],
     treeshake: production
 }];
+
+// do not create token.js if custom(remote) path is used
+if (!env['token-path']) {
+    rollupConfig.unshift({
+        input: './src/token.ts',
+        output: {
+            file: join(DEST, 'token.js'),
+            format: 'iife',
+            strict: false
+        },
+        plugins: [
+            virtual({
+                'access_token': `export default "${credential.YOUR_ACCESS_TOKEN}"`
+            }),
+            typescript(),
+            uglify()
+        ],
+        treeshake: production
+    });
+}
+
+export default rollupConfig;
