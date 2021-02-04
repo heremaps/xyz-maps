@@ -104,7 +104,6 @@ export const App: React.FC = (props: { examples: any }) => {
             a.download = title + '.html';
             a.click();
         }
-        // this.utag(idx);
     };
 
 
@@ -113,17 +112,9 @@ export const App: React.FC = (props: { examples: any }) => {
         const containerWidth = containerRef.current.offsetWidth - gutterWidth;
         const newPreviewWidth = previewRef.current.offsetWidth - dx;
         const newEditorWidth = containerWidth - newPreviewWidth;
-
-        // const gridTemplateColumns = [newEditorWidth, gutterWidth, newPreviewWidth];
-        // containerRef.current.style.gridTemplateColumns = gridTemplateColumns.map((w)=>`${w}px`).join(' ');
-
         const gridTemplateColumns = [`${newEditorWidth}px`, `${gutterWidth}px`, 'auto'];
         containerRef.current.style.gridTemplateColumns = gridTemplateColumns.join(' ');
-
-        console.log(gridTemplateColumns);
-
         setPreviewWidth(`${newPreviewWidth}px`);
-
         // force editor refresh
         setEditorWidth(previewWidth);
     };
@@ -142,7 +133,6 @@ export const App: React.FC = (props: { examples: any }) => {
         }
         initialExample.current = initExample;
     }
-
 
     useEffect(() => {
         const [index, section] = initialExample.current;
