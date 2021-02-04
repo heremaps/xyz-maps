@@ -1,0 +1,20 @@
+{
+  "path": {
+    "xyz-maps": {
+      "common": "../../common/dist/xyz-maps-common.js",
+      "core": "../../core/dist/xyz-maps-core.js",
+      "display": "../../display/dist/xyz-maps-display.js",
+      "editor": "../../editor/dist/xyz-maps-editor.js"
+    },
+    "doc": "/docs/",
+    "destination": "dist",
+    "resource": "./",
+    "token": "./token.js"
+  },
+  "exclude": {
+    "editor": "${EXCLUDE_EDITOR}"
+  },
+  "monaco": {
+    "theme": "vs-dark"
+  }
+}
