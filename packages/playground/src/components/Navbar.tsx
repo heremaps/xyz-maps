@@ -23,7 +23,7 @@ import './Navbar.scss';
 const Navbar: React.FC = (props: { title: string, version: string }) => {
     return (
         <nav className={'navbar'} role={'navigation'}>
-            <img className={'logo'}></img>
+            <img className={'logo'} alt={'XYZ'}></img>
             <div className={'title'}>{props.title}</div>
             <div id={'version'} className={'version'}>{props.version}</div>
         </nav>
