@@ -10,14 +10,11 @@ class MyProvider extends SpaceProvider {
         return feature.properties.featureClass;
     }
 
-
     // ########################       Navlink      ########################
     // Following functions are only necessary if you want to edit Navlink.
 
-
     // In addition to Lines, Navlinks have navigation information and are connected to each other to form a road network.
     // Implementing following functions enables you to easily edit Navlinks.
-
 
     // This function returns a boolean value to indicate if turn from from-link's shape point to to-link's shape point
     // is restricted.
@@ -145,40 +142,26 @@ const display = new Map(document.getElementById('map'), {
 });
 
 // setup the editor
-const editor = new Editor(display);
-
-// add navlink layer to editor, make layers editable
-editor.addLayer(navlinkLayer);
+const editor = new Editor(display, {layers: [navlinkLayer]});
 /** **/
 
-// Click on a navlink to activate turn restrictions.
-// Info Tag displays turn restrictions value of each modified navlink.
-
-// info tag
-var infoTag = document.querySelector('#info');
-
-// Add event listener
+// add a pointerup event listener
 editor.addEventListener('pointerup', function(e) {
-    // Get feature in event
-    var feature = e.target;
-    // Activate turn restriction editor when mouse clicks on navlink or navlink shape point
-    if (feature && feature.class.indexOf('NAVLINK') > -1) {
+    let feature = e.target;
+    // make sure a Navlink feature has been clicked
+    if (feature && feature.class == 'NAVLINK') {
+        // show the turn restriction editor for the navlink
         feature.editTurnRestrictions();
     }
 });
 
-// Add observer to display changes
+// observer for user edits to update infobox with the modified turn restriction data
 editor.addObserver('history.current', function(ob, currentStep, lastStep) {
-    var info = editor.info();
-    var cInfo = {};
-    for (var i = 0; i < info.length; i++) {
-        cInfo[info[i].id] = info[i].properties.turnRestriction;
-    }
+    let info = {};
+    editor.info().forEach((feature) => {
+        info[feature.id] = feature.properties.turnRestriction;
+    });
 
-    // show attribute 'myTurn' of modified navlinks
-    infoTag.innerText = JSON.stringify(cInfo, null, 4);
+    // update the infobox with the updated turn restrictions
+    document.querySelector('#info').innerText = JSON.stringify(cInfo, null, 4);
 });
-
-document.querySelector('#revert').onclick = function() {
-    editor.revert();
-};

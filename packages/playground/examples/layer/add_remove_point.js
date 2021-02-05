@@ -18,12 +18,13 @@ var pointLayer = new TileLayer({
             style: [
                 {zIndex: 0, type: 'Circle', stroke: '#FFFFFF', fill: '#6B6B6B', radius: 3},
                 {
-                    zIndex: 1,
+                    zIndex: 2,
                     type: 'Text',
-                    textRef: 'properties.name',
-                    fill: '#111',
-                    offsetY: 12,
-                    font: 'bold 13px ariel'
+                    fill: '#fa8548',
+                    stroke: '#260704',
+                    strokeWidth: 6,
+                    font: '18px sans-serif',
+                    textRef: 'properties.name'
                 }
             ]
         },
@@ -45,27 +46,25 @@ const display = new Map(document.getElementById('map'), {
 });
 /** **/
 
-var AddedPoints = [];
+var addedPoints = [];
 
-// click "Add Points"to add point features, click "Remove Points" to remove the added points
+// click button to add/remove points to the TileLayer
 document.querySelector('#pointbutton').onclick = function() {
-    if (!AddedPoints.length) {
-        // Add point Feature
-        AddedPoints = pointLayer.addFeature(Points);
+    if (!addedPoints.length) {
+        // add the point features if they have not been added already
+        addedPoints = pointLayer.addFeature(Points);
 
         this.innerText = 'Remove Points';
     } else {
-        // Remove the added point Feature
-        AddedPoints.forEach(function(point) {
-            pointLayer.removeFeature(point);
-        });
-        AddedPoints = [];
+        // Remove the point features
+        pointLayer.removeFeature(addedPoints);
 
+        addedPoints = [];
         this.innerText = 'Add Points';
     }
 };
 
-// collection of points
+// the points that should be added to the layer
 var Points = {
     'features': [{
         geometry: {

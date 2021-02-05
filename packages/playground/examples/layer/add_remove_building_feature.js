@@ -39,40 +39,39 @@ const display = new Map(document.getElementById('map'), {
 });
 /** **/
 
-var addedBuilding;
+var addedPolygon;
 
-// click "Add Building"to add building, click "Remove Building" to remove the added building
+// click the button to add/remove a polygon to the TileLayer
 document.querySelector('#buildingbutton').onclick = function() {
-    if (!addedBuilding) {
-        // Add point Feature
-        addedBuilding = buildingLayer.addFeature(building);
+    if (!addedPolygon) {
+        // add the polygon to the layer
+        addedPolygon = buildingLayer.addFeature({
+            geometry: {
+                coordinates: [[[
+                    [-122.1621648, 37.4348761, 0],
+                    [-122.1613924, 37.4354213, 0],
+                    [-122.1610061, 37.4354086, 0],
+                    [-122.1598635, 37.4343905, 0],
+                    [-122.1598796, 37.4340796, 0],
+                    [-122.1606413, 37.4335301, 0],
+                    [-122.1610383, 37.4335428, 0],
+                    [-122.1621809, 37.4345694, 0],
+                    [-122.1621648, 37.4348761, 0]
+                ]]],
+                type: 'MultiPolygon'
+            },
+            type: 'Feature'
+        });
 
         this.innerText = 'Remove Building';
     } else {
-        // Remove the added building
-        buildingLayer.removeFeature(addedBuilding);
+        // Remove the polygon from the TileLayer
+        buildingLayer.removeFeature(addedPolygon);
 
-        addedBuilding = null;
+        addedPolygon = null;
 
         this.innerText = 'Add Building';
     }
 };
 
-// building feature
-var building = {
-    geometry: {
-        coordinates: [[[
-            [-122.1621648, 37.4348761, 0],
-            [-122.1613924, 37.4354213, 0],
-            [-122.1610061, 37.4354086, 0],
-            [-122.1598635, 37.4343905, 0],
-            [-122.1598796, 37.4340796, 0],
-            [-122.1606413, 37.4335301, 0],
-            [-122.1610383, 37.4335428, 0],
-            [-122.1621809, 37.4345694, 0],
-            [-122.1621648, 37.4348761, 0]
-        ]]],
-        type: 'MultiPolygon'
-    },
-    type: 'Feature'
-};
+

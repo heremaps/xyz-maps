@@ -9,14 +9,14 @@ let backgroundLayer = new MVTLayer({
     }
 });
 let myLayer = new TileLayer({
-    min: 14,
+    min: 2,
     max: 20,
     provider: new SpaceProvider({
         space: '6HMU19KY',
         credentials: {
             access_token: YOUR_ACCESS_TOKEN
         },
-        level: 14
+        level: 2
     })
 });
 

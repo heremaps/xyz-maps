@@ -2,14 +2,35 @@ import {MVTLayer, TileLayer, SpaceProvider, LocalProvider} from '@here/xyz-maps-
 import {Map} from '@here/xyz-maps-display';
 
 /** setup the Map **/
-let backgroundLayer = new MVTLayer({
+const backgroundLayer = new MVTLayer({
     min: 1,
     max: 20,
     remote: {
         url: 'https://xyz.api.here.com/tiles/osmbase/512/all/{z}/{x}/{y}.mvt?access_token=' + YOUR_ACCESS_TOKEN
     }
 });
-var placeLayer = new TileLayer({
+
+// setup the Map Display
+const display = new Map(document.getElementById('map'), {
+    zoomLevel: 17,
+    center: {
+        longitude: -122.253324, latitude: 37.795146
+    },
+
+    // add layers to display
+    layers: [backgroundLayer]
+});
+
+// A Display tag shows search area
+let searcharea = document.createElement('div');
+searcharea.id = 'searcharea';
+display.getContainer().appendChild(searcharea);
+/** **/
+
+// create a TileLayer using a SpaceProvider with a remote datasource
+// By intention the remoteLayer is not added to the display, because we just us it for remote searches.
+// The remote search result will be added to the localLayer to display the result.
+const remoteLayer = new TileLayer({
     min: 14,
     max: 20,
     provider: new SpaceProvider({
@@ -20,7 +41,8 @@ var placeLayer = new TileLayer({
         }
     })
 });
-var myLayer = new TileLayer({
+
+const localLayer = new TileLayer({
     min: 14,
     max: 20,
     provider: new LocalProvider(),
@@ -41,83 +63,32 @@ var myLayer = new TileLayer({
     }
 });
 
-// setup the Map Display
-const display = new Map(document.getElementById('map'), {
-    zoomLevel: 17,
-    center: {
-        longitude: -122.253324, latitude: 37.795146
-    },
+display.addLayer(localLayer);
 
-    // add layers to display
-    layers: [backgroundLayer, myLayer]
-});
-
-// A Display tag shows search area
-var searcharea = document.createElement('div');
-searcharea.id = 'searcharea';
-display.getContainer().appendChild(searcharea);
-/** **/
-
-var infoTag = document.querySelector('#info');
-
-var searchResult = [];
-
-// Add features to local overlay
-function addFeatures(features) {
-    for (var i in features) {
-        var feature = features[i];
-        myLayer.addFeature(feature);
-    }
-}
-
-// Remove features from local overlay
-function removeFeatures(features) {
-    for (var i in features) {
-        var feature = features[i];
-        myLayer.removeFeature(feature);
-    }
-}
-
-// add event listener to mapviewchangeend
+// listen for "mapviewchangeend" event
 display.addEventListener('mapviewchangeend', function(evt) {
-    // Calculate viewbound for search
-    var topLeft = display.pixelToGeo(display.getWidth() / 2 - 150, display.getHeight() / 2 - 150);
-    var bottomRight = display.pixelToGeo(display.getWidth() / 2 + 150, display.getHeight() / 2 + 150);
+    // define the geographical area to search in
+    let topLeft = display.pixelToGeo(display.getWidth() / 2 - 150, display.getHeight() / 2 - 150);
+    let bottomRight = display.pixelToGeo(display.getWidth() / 2 + 150, display.getHeight() / 2 + 150);
 
-    // Remove features that are added to local layer
-    removeFeatures(searchResult);
+    // clear the localLayer to just show the result of the remoteLayer search
+    localLayer.getProvider().clear();
 
-    // Search for features by viewbound in Place layer
-    searchResult = placeLayer.search({
+    // search for features in the geographical rectangle
+    remoteLayer.search({
         rect: {
             minLon: topLeft.longitude,
             minLat: bottomRight.latitude,
             maxLon: bottomRight.longitude,
             maxLat: topLeft.latitude
         },
-
-        // force function to do remote search
+        // perform a remote search in the remote datasource,
+        // if the data is not already available in the local cache of the provider
         remote: true,
-
-        // callback function to return result from remote server
-        onload: function(e) {
-            // Add result features to local layer
-            if (!searchResult) {
-                addFeatures(e);
-
-                // Indicate search result comes from remote server
-                infoTag.innerText = 'Remote results';
-            }
-
-            searchResult = e;
+        // when data has been fetched from the remote datasource the onload callback will be called with the result
+        onload: (features)=>{
+            // Add result to the local layer
+            localLayer.addFeature(features);
         }
     });
-
-    // Add result features to local layer
-    if (searchResult) {
-        addFeatures(searchResult);
-
-        // Indicate search result comes from local cache
-        infoTag.innerText = 'Local results';
-    }
 });

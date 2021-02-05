@@ -35,24 +35,21 @@ var display = new Map(document.getElementById('map'), {
 });
 
 // setup the editor
-var editor = new Editor(display);
-
-// add navlink layer to editor, make layers editable
-editor.addLayer(navlinkLayer);
+const editor = new Editor(display, {layers: [navlinkLayer]});
 /** **/
 
 editor.addEventListener('pointerup', function(e) {
     // get the clicked feature
-    var feature = e.target;
-    // start the transform tool if it's "LINE" feature
+    let feature = e.target;
+    // check if we clicked a Line feature
     if (feature && feature.class == 'LINE') {
+        // start the transformer utility
         feature.transform();
     }
 });
 
-var revertbutton = document.querySelector('#revert');
 
-revertbutton.onclick = function() {
-    // revert all changes
+// click the revert button to revert all changes that have been done
+document.querySelector('#revert').onclick = function() {
     editor.revert();
 };

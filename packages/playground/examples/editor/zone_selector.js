@@ -1,6 +1,7 @@
 import {MVTLayer, TileLayer, SpaceProvider} from '@here/xyz-maps-core';
 import {Map} from '@here/xyz-maps-display';
 import {Editor} from '@here/xyz-maps-editor';
+
 /** setup the Map **/
 // Create a custom provider.
 class MyProvider extends SpaceProvider {
@@ -9,14 +10,11 @@ class MyProvider extends SpaceProvider {
         return feature.properties.featureClass;
     }
 
-
     // ########################       Navlink      ########################
     // Following functions are only necessary if you want to edit Navlink.
 
-
     // In addition to Lines, Navlinks have navigation information and are connected to each other to form a road network.
     // Implementing following functions enables you to easily edit Navlinks.
-
 
     // This function returns a boolean value to indicate if turn from from-link's shape point to to-link's shape point
     // is restricted.
@@ -116,7 +114,6 @@ const display = new Map(document.getElementById('map'), {
     center: {
         longitude: -122.283766, latitude: 37.818477
     },
-
     // add layers to display
     layers: [backgroundLayer, navlinkLayer]
 });
@@ -124,66 +121,60 @@ const display = new Map(document.getElementById('map'), {
 // setup the editor
 const editor = new Editor(display);
 
-// add navlink layer to editor, make layers editable
+// add the navlink layer to the editor to enable editing for the layer
 editor.addLayer(navlinkLayer);
 /** **/
 
-/**
- * This example shows how to add navlinks to zone selecotr and show it in map edit API.
- */
-// info tag
-var infoTag = document.querySelector('#info');
+// click the button to add multiple navlinks to the zoneselector utility.
+document.querySelector('#showButton').onclick = function() {
+    let navlink1 = editor.getFeature('9ndDAW9aucl1in0U', navlinkLayer);
+    let navlink2 = editor.getFeature('ti6x4OFInG69Hg6Q', navlinkLayer);
+    let navlink3 = editor.getFeature('7IYfa7jAHsDv5oK7', navlinkLayer);
+    let navlink4 = editor.getFeature('iOU1RzXGb2UZitda', navlinkLayer);
 
-// Callback function of zone selector for changing the state of zone
-var onChangeHandler = function(zones) {
-    // There is just one zone in this selector
-    var zone = zones[0];
-
-    // Not to display navlink info in info tag
-    delete zone.Link;
-
-    // Display zone info
-    infoTag.innerText = JSON.stringify(zone, undefined, 4);
-};
-
-// create the show button
-document.querySelector('#showbtn').onclick = function() {
-    var navlink1 = editor.getFeature('9ndDAW9aucl1in0U', navlinkLayer);
-    var navlink2 = editor.getFeature('ti6x4OFInG69Hg6Q', navlinkLayer);
-    var navlink3 = editor.getFeature('7IYfa7jAHsDv5oK7', navlinkLayer);
-    var navlink4 = editor.getFeature('iOU1RzXGb2UZitda', navlinkLayer);
-
-    // Add navlink to zone Selector
-    var zoneSelector = editor.getZoneSelector();
+    // Add Navlinks to the zone Selector
+    let zoneSelector = editor.getZoneSelector();
     zoneSelector.add([navlink1, navlink2, navlink3, navlink4]);
 
-    // show zone Selector with two zones
+    // define 3 Zones with 3 diffrent sides and display them
     zoneSelector.show({
         from: 0.1,
         to: 0.3,
-        side: 'L',
+        side: 'L', // left
         style: {stroke: '#ff4040'},
-        onChange: onChangeHandler
+        dragStop: onDragEndHandler
     }, {
         from: 0.45,
         to: 0.65,
-        side: 'B',
+        side: 'B', // both
         style: {stroke: '#35b2ee'},
-        onChange: onChangeHandler
+        dragStop: onDragEndHandler
     }, {
         from: 0.75,
         to: 0.9,
-        side: 'R',
+        side: 'R', // right
         style: {stroke: '#4cdd4c'},
-        onChange: onChangeHandler
+        dragStop: onDragEndHandler
     });
 };
 
+// update the info box with updated zone information when a zone marker gets dragged
+const onDragEndHandler = (ev) => {
+    // the modified zone
+    let zone = ev.detail.zone;
+    // simplify for displaying in the infobox
+    zone.segments = zone.segments.map((seg) => {
+        let simpleSegment = {...seg};
+        simpleSegment.navlink = simpleSegment.navlink.id;
+        return simpleSegment;
+    });
 
-document.querySelector('#hidebtn').onclick = function() {
-    // Hide zone selector
-    var zoneSelector = editor.getZoneSelector();
+    document.querySelector('#info').innerText = JSON.stringify(zone, undefined, 4);
+};
+
+// hide the zone selector utility
+document.querySelector('#hideButton').onclick = function() {
+    let zoneSelector = editor.getZoneSelector();
     zoneSelector.hide();
-
-    infoTag.innerText = 'Zone Info';
+    document.querySelector('#info').innerText = 'Zone Info';
 };

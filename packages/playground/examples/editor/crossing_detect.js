@@ -1,6 +1,7 @@
 import {MVTLayer, TileLayer, SpaceProvider} from '@here/xyz-maps-core';
 import {Map} from '@here/xyz-maps-display';
 import {Editor} from '@here/xyz-maps-editor';
+
 /** setup the Map **/
 // Create a custom provider.
 class MyProvider extends SpaceProvider {
@@ -114,91 +115,81 @@ const display = new Map(document.getElementById('map'), {
     zoomLevel: 17,
     center: {longitude: -122.286912, latitude: 37.816305},
 
-    // add layers to display
+    // add layers to the display
     layers: [backgroundLayer, navlinkLayer]
 });
 
 // setup the editor
-const editor = new Editor(display);
-
-// add navlink layer to editor, make layers editable
-editor.addLayer(navlinkLayer);
+const editor = new Editor(display, {layers: [navlinkLayer]});
 /** **/
 
-var crossings = [];
+let crossings = [];
 
-/**
- * Click button to add a navlink and show crossings with other navlinks
- */
-document.querySelector('#crossing').onclick = function() {
+let createdNavlink;
+
+// click button to create a navlink with random geometry
+document.querySelector('#createRoad').onclick = function() {
     // clear existing crossings
-    for (var i in crossings) crossings[i].hide();
+    for (let i in crossings) crossings[i].hide();
 
-    var width = display.getWidth();
-    var height = display.getHeight();
+    let width = display.getWidth();
+    let height = display.getHeight();
 
-    // add a navlink Feature to editor
-    var navlink = navlinkLayer.addFeature({
-        type: 'Feature',
-        geometry: {
-            type: 'LineString',
-            coordinates: editor.toGeoJSONCoordinates([
-                {x: width * Math.random(), y: height * Math.random()},
-                {x: width * Math.random(), y: height * Math.random()}
-            ])
+    // add the navlink feature
+    createdNavlink = navlinkLayer.addFeature(
+        {
+            type: 'Feature',
+            geometry: {
+                type: 'LineString',
+                coordinates: editor.toGeoJSONCoordinates([
+                    {x: width * Math.random(), y: height * Math.random()},
+                    {x: width * Math.random(), y: height * Math.random()}
+                ])
+            },
+            properties: {featureClass: 'NAVLINK'}
         },
-        properties: {featureClass: 'NAVLINK'}
-    },
-    // display the feature with a custom styleGroup
-    [{
-        zIndex: 10,
-        type: 'Line',
-        stroke: 'blue',
-        strokeWidth: 12
-    }]);
-
-    // detect and get an array containing the found crossings and crossing candidates with other navlink geometries.
-    crossings = navlink.checkCrossings();
-
-    // display al crossings on the map
-    for (var i in crossings) {
-        crossings[i].show();
-    }
+        // define a custom style
+        [{
+            zIndex: 10,
+            type: 'Line',
+            stroke: 'blue',
+            strokeWidth: 12
+        }]
+    );
 };
 
-document.querySelector('#revert').onclick = function() {
+// show all crossings of the just created road with all other roads
+document.querySelector('#showCrossings').onclick = function() {
     // hide the crossings and revert all changes
     for (var i in crossings) {
         crossings[i].hide();
     }
 
-    editor.revert();
+    // get all crossings with other geometries
+    crossings = createdNavlink.checkCrossings();
+
+    // display all crossings
+    for (var i in crossings) {
+        crossings[i].show();
+    }
 };
 
-// add click listener to connect or hide crossing
+// add a pointerup event listener to show a UI hint and ask
+// if all roads of a crossing should be connected (creates a road-intersection) when a crosssing is clicked
 editor.addEventListener('pointerup', function(event) {
-    if (event.button == 0) {
-        var feature = event.target;
-
-        if (feature && feature.class.indexOf('CROSSING') > -1) {
-            // ask the user if the crossing should become connected
-            var usersChoice = confirm('Do you want to connect this ' + feature.class +
-                ' between navlink: ' + feature.getLink().id +
-                ' and navlink: ' + feature.getRelatedLink().id + '?');
-
-            if (usersChoice) {
-                // if the user's choice was "yes", connect the crossing and update/refresh the other crossings
-                // because the navlink shape could be changed
-                feature.connect();
-
-                // refresh the crossings and crossing candidates on the map
-                for (var i = 0; i < crossings.length; i++) {
-                    crossings[i].show();
-                }
-            } else {
-                // if the user's choice was "no", hide the selected crossing or crossing candidate
-                feature.hide();
-            }
+    let crossing = event.target;
+    // make sure a crossing is clicked
+    if (crossing && crossing.class.indexOf('CROSSING') > -1) {
+        // create the UI hint
+        let usersChoice = confirm('Do you want to connect navlink ' + crossing.getLink().id +
+            ' and navlink ' + crossing.getRelatedLink().id + '?'
+        );
+        if (usersChoice) {
+            // if user's choice is "yes", connect the crossing navlinks and create a road-intersection automatically
+            crossing.connect();
+        } else {
+            // hide the crossing if user's choice is "no"
+            feature.hide();
         }
     }
 });

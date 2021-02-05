@@ -9,17 +9,7 @@ let backgroundLayer = new MVTLayer({
         url: 'https://xyz.api.here.com/tiles/osmbase/512/all/{z}/{x}/{y}.mvt?access_token=' + YOUR_ACCESS_TOKEN
     }
 });
-let navlinkLayer = new TileLayer({
-    min: 14,
-    max: 20,
-    provider: new SpaceProvider({
-        level: 14,
-        space: '6HMU19KY',
-        credentials: {
-            access_token: YOUR_ACCESS_TOKEN
-        }
-    })
-});
+
 
 // setup the Map Display
 const display = new Map(document.getElementById('map'), {
@@ -29,39 +19,57 @@ const display = new Map(document.getElementById('map'), {
     },
 
     // add layers to display
-    layers: [backgroundLayer, navlinkLayer]
+    layers: [backgroundLayer]
 });
 /** **/
 
-var swatches = document.querySelector('#swatches');
-var colors = ['#ffffcc', '#a1dab4', '#41b6c4', '#2c7fb8', '#253494', '#fed976', '#feb24c', '#fd8d3c', '#f03b20', '#bd0026'];
-
-// new layer style
-var style = {
-    styleGroups: {
-        newStyle: [
-            {zIndex: 0, type: 'Line', opacity: 0.7, strokeWidth: 8, stroke: '#FFFFFF'}
-        ]
-    },
-    assign: function() {
-        return 'newStyle';
+let lineLayer = new TileLayer({
+    min: 14,
+    max: 20,
+    provider: new SpaceProvider({
+        level: 14,
+        space: '6HMU19KY',
+        credentials: {
+            access_token: YOUR_ACCESS_TOKEN
+        }
+    }),
+    // by default all features of a TileLayer will be displayed with the assign style of the layer.style
+    style: {
+        styleGroups: {
+            lineStyle: [
+                {zIndex: 0, type: 'Line', opacity: 0.7, strokeWidth: 8, stroke: '#bd0026'}
+            ]
+        },
+        assign: function() {
+            return 'lineStyle';
+        }
     }
-};
+});
+
+const colors = ['#ffffcc', '#a1dab4', '#41b6c4', '#2c7fb8', '#253494', '#fed976', '#feb24c', '#fd8d3c', '#f03b20', '#bd0026'];
 
 colors.forEach(function(color) {
     // create color swatches
     var swatch = document.createElement('button');
     swatch.style.backgroundColor = color;
 
-    swatch.addEventListener('click', function() {
-        // customize style
-        style.styleGroups.newStyle[0].stroke = color;
+    // update set the new layer style on click
+    swatch.addEventListener('click', () => {
+        let style = lineLayer.getStyle();
+
+        // update the style
+        style.styleGroups.lineStyle[0].stroke = color;
 
         // set layer style
-        navlinkLayer.setStyle(style);
+        lineLayer.setStyle(style);
 
-        // refresh layer
-        display.refresh(navlinkLayer);
+        // refresh the layer
+        display.refresh(lineLayer);
     });
-    swatches.appendChild(swatch);
+
+    document.querySelector('#swatches').appendChild(swatch);
 });
+
+
+// add the layer to the display
+display.addLayer(lineLayer);

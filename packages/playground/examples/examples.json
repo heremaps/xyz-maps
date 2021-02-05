@@ -189,11 +189,6 @@
       "docs": "classes/core.tilelayer.html#setstyle"
     },
     {
-      "description": "Set Layer Opacity",
-      "file": "./layer/set_layer_opacity.html",
-      "docs": "classes/core.tilelayer.html#setstyle"
-    },
-    {
       "description": "Add and remove Line",
       "file": "./layer/add_remove_line.html",
       "docs": "classes/core.tilelayer.html#addfeature"
@@ -217,11 +212,6 @@
       "description": "Display lines with offset",
       "file": "./layer/offset_line.html",
       "docs": "interfaces/core.style.html#offset"
-    },
-    {
-      "description": "Display links by different style groups",
-      "file": "./layer/style_grouping.html",
-      "docs": "interfaces/core.layerstyle.html"
     },
     {
       "description": "Styles and zoomRanges",
@@ -251,11 +241,6 @@
     {
       "description": "Search features in layer in a bounding box",
       "file": "./layer/remote_search_boundingbox.html",
-      "docs": "classes/core.tilelayer.html#search"
-    },
-    {
-      "description": "Search features in layer in a circle",
-      "file": "./layer/remote_search_circle.html",
       "docs": "classes/core.tilelayer.html#search"
     },
     {

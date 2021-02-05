@@ -33,26 +33,24 @@ const display = new Map(document.getElementById('map'), {
 });
 /** **/
 
-var selectedNavlink;
-// new style for selected navlink
-var selectedStyle = [
-    {zIndex: 0, type: 'Line', stroke: '#AA84A4', strokeWidth: 18, opacity: 0.9},
-    {zIndex: 1, type: 'Line', stroke: '#C799E8', strokeWidth: 14, opacity: 0.9},
-    {zIndex: 2, type: 'Text', textRef: 'properties.name', fill: '#3D272B'}
-];
+let highlightedFeature;
 
+// click the button to pick a random line in current viewport and highlight it
 document.querySelector('#style').onclick = function() {
-    // restore default feature style
-    if (selectedNavlink) {
-        myLayer.setStyleGroup(selectedNavlink);
+    if (highlightedFeature) {
+        // restore the default style of the previous highlighted line feature
+        myLayer.setStyleGroup(highlightedFeature);
     }
+    // get all line in the current viewport
+    let lines = myLayer.search({rect: display.getViewBounds()});
 
-    // get navlinks in viewport
-    let navlinks = myLayer.search({rect: display.getViewBounds()});
+    // pick a random line
+    highlightedFeature = lines[Math.floor(lines.length * Math.random())];
 
-    // select one navlink to style
-    selectedNavlink = navlinks[Math.floor(navlinks.length * Math.random())];
-
-    // set new style for selected navlink
-    myLayer.setStyleGroup(selectedNavlink, selectedStyle);
+    // highlight the line
+    myLayer.setStyleGroup(highlightedFeature, [
+        {zIndex: 4, type: 'Line', stroke: '#AA84A4', strokeWidth: 18, opacity: 0.9},
+        {zIndex: 5, type: 'Line', stroke: '#C799E8', strokeWidth: 14, opacity: 0.9},
+        {zIndex: 6, type: 'Text', textRef: 'properties.name', fill: '#3D272B', stroke: 'white', strokeWidth: 5}
+    ]);
 };
