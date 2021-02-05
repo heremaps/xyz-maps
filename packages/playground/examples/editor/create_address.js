@@ -3,7 +3,7 @@ import {Map} from '@here/xyz-maps-display';
 import {Editor} from '@here/xyz-maps-editor';
 
 /** setup the Map **/
-// Create a custom provider that work with your data model.
+// Create a custom provider.
 class MyProvider extends SpaceProvider {
     // In this exmaple, all data does already contain desired feature class in the property 'featureClass'.
     detectFeatureClass(feature) {
@@ -14,14 +14,13 @@ class MyProvider extends SpaceProvider {
     // ########################   Address, Place   ########################
     // Following functions are only necessary if you want to edit Address or Place.
 
-    // Marker, Place and Address are based on point geometry.
     // In addition to a simple Marker, a Place CAN, while an Address MUST have a routing point.
-    // Routing point consists of 'routingPoint' and 'routingLink'(at the path 'properties.routingPoint' and
-    // 'properties.rourintLink'), these two properties show at which postion(coordinate) the feature connects to which
-    // Navlink(Navlink id).
+    // A routing point of a Place or Address is a geo position (routingPosition) intended for routing purposes and references
+    // to a navlink (routingLink).
+    // In this example, we get routingPosition from features's properties 'routingPoint' and routingLink from 'routingLink'.
 
     // Get coordinate of routing point, its format is: [longitude, latitude, altitude].
-    // This coordinate is always on the geometry of connected Navlink.
+    // This position should always be on the geometry of referenced Navlink.
     readRoutingPosition(feature) {
         return feature.prop('routingPoint');
     }
@@ -44,18 +43,16 @@ class MyProvider extends SpaceProvider {
         feature.prop('routingLink', navlink ? navlink.id : navlink);
     }
 
-    // In this examle, all Navlinks are provided by provider "navlinkProvider"
+    // In this example places, addresses and navlinks are stored in the same provider.
     readRoutingProvider(location, providers) {
-        return 'navlinkProvider';
+        return this.id;
     }
 
     // ########################       Navlink      ########################
     // Following functions are only necessary if you want to edit Navlink.
 
-
     // In addition to Lines, Navlinks have navigation information and are connected to each other to form a road network.
     // Implementing following functions enables you to easily edit Navlinks.
-
 
     // This function returns a boolean value to indicate if turn from from-link's shape point to to-link's shape point
     // is restricted.
@@ -129,8 +126,7 @@ class MyProvider extends SpaceProvider {
     }
 }
 
-var bgLayer = new MVTLayer({
-    name: 'background layer',
+let backgroundLayer = new MVTLayer({
     min: 1,
     max: 20,
     remote: {
@@ -138,46 +134,47 @@ var bgLayer = new MVTLayer({
     }
 });
 
-var myNavlinkLayer = new TileLayer({
-    name: 'My Layer',
+var myLayer = new TileLayer({
     min: 14,
     max: 20,
-    // Customized provider to provide navlinks
     provider: new MyProvider({
-        id: 'navlinkProvider',
         space: '6HMU19KY',
-        credentials: {
-            access_token: YOUR_ACCESS_TOKEN
-        },
-        level: 14,
-        class: 'NAVLINK'
-    })
-});
-
-var myAddressLayer = new TileLayer({
-    name: 'Address Layer',
-    min: 14,
-    max: 20,
-    // Customized provider to provide addresses
-    provider: new MyProvider({
-        id: 'addressProvider',
-        space: 'KjZI17j2',
         credentials: {
             access_token: YOUR_ACCESS_TOKEN
         },
         level: 14
     }),
-
     style: {
         styleGroups: {
-            address: [
-                {'zIndex': 3, 'type': 'Circle', 'radius': 12, 'strokeWidth': 2, 'stroke': '#FFFFFF', 'fill': '#1188DD'}
-            ]
+            Point: [{
+                zIndex: 2, type: 'Rect', width: 32, height: 16, strokeWidth: 1, stroke: '#FFFFFF', fill: '#1188DD'
+            }, {
+                zIndex: 2, type: 'Text', fill: 'white', font: '14px sans-serif', text: (feature) => feature.properties.houseNumber
+            }],
+            LineString: [{
+                zIndex: 0, type: 'Line', strokeWidth: 14, stroke: '#660808'
+            }, {
+                zIndex: 1, type: 'Line', strokeWidth: 10, stroke: '#ef683e'
+            }]
         },
         assign: function(feature, zoomlevel) {
-            return 'address';
+            return feature.geometry.type;
         }
     }
+});
+
+var myPlaceLayer = new TileLayer({
+    min: 14,
+    max: 20,
+    provider: new MyProvider({
+        space: '6CkeaGLg',
+        credentials: {
+            access_token: YOUR_ACCESS_TOKEN
+        },
+        level: 14
+    })
+
+
 });
 
 // setup the Map Display
@@ -186,62 +183,46 @@ const display = new Map(document.getElementById('map'), {
     center: {
         longitude: -122.214304, latitude: 37.798005
     },
-    // add layers to display
-    layers: [bgLayer, myNavlinkLayer, myAddressLayer]
+    // add layers to the display
+    layers: [backgroundLayer, myLayer]
 });
 
 // setup the editor
-const editor = new Editor(display);
-
-// add layer to editor, make it editable
-editor.addLayer(myNavlinkLayer);
-editor.addLayer(myAddressLayer);
+const editor = new Editor(display, {layers: [myLayer]});
 /** **/
 
-/**
- * This example shows how to create Addresses.
- */
-var createbuttonpixel = document.querySelector('#createbuttonpixel');
-var createbuttongeo = document.querySelector('#createbuttongeo');
-
-let address;
-
-function createAddress(coordinate) {
-    // Add a Address to the editor
-    // The Address automatically connects to a Navlink nearby.
-    // Creating the create routing point manually is not needed.
-    address = editor.addFeature({
-        type: 'Feature',
-        geometry: {
-            type: 'Point',
-            // make sure coordinates are in GeoJSON format.
-            // pixel coordinates are converted to geographical coordinates automatically.
-            coordinates: editor.toGeoJSONCoordinates(coordinate)
-        },
-        properties: {
-            featureClass: 'ADDRESS',
-            roadName: 'example road'
-        }
-    });
-
-    address.select();
-}
-
-// add onclick handler to createbutton
-createbuttonpixel.onclick = function() {
+// add points to random position within the current screen
+document.querySelector('#createButtonPixel').onclick = function() {
     var x = display.getWidth() * Math.random();
     var y = display.getHeight() * Math.random();
 
-    // create Address with pixel coordinate
+    // create the Address feature using a pixel coordinate
     createAddress({x: x, y: y});
 };
 
-// onclick handler to createbutton
-createbuttongeo.onclick = function() {
+// add points to random position within the current screen
+document.querySelector('#createButtonGeo').onclick = function() {
     var viewBounds = display.getViewBounds();
     var lon = viewBounds.minLon + (viewBounds.maxLon - viewBounds.minLon) * Math.random();
     var lat = viewBounds.minLat + (viewBounds.maxLat - viewBounds.minLat) * Math.random();
 
-    // create Address with geo coordinate
+    // create the Address feature using a geographical coordinate
     createAddress({longitude: lon, latitude: lat});
 };
+
+function createAddress(coordinate) {
+    // Add an Address feature to the editor
+    let address = editor.addFeature({
+        type: 'Feature',
+        geometry: {
+            type: 'Point',
+            coordinates: editor.toGeoJSONCoordinates(coordinate)
+        },
+        properties: {
+            featureClass: 'ADDRESS',
+            houseNumber: Math.random() * 100 ^ 0
+        }
+    });
+    // select the address
+    address.select();
+}

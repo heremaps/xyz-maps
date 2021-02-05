@@ -4,7 +4,6 @@ import {Map} from '@here/xyz-maps-display';
 // configure layers
 var layers = [
     new MVTLayer({
-        name: 'background layer',
         min: 1,
         max: 20,
         remote: {

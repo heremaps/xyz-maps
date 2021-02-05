@@ -2,7 +2,7 @@ import {MVTLayer, TileLayer, SpaceProvider} from '@here/xyz-maps-core';
 import {Map} from '@here/xyz-maps-display';
 
 /** setup the Map **/
-var bgLayer = new MVTLayer({
+let backgroundLayer = new MVTLayer({
     name: 'background layer',
     min: 1,
     max: 20,
@@ -41,7 +41,7 @@ const display = new Map(document.getElementById('map'), {
         longitude: -122.254537, latitude: 37.796982
     },
     // add the layers to the display
-    layers: [bgLayer, lineLayer]
+    layers: [backgroundLayer, lineLayer]
 });
 /** **/
 

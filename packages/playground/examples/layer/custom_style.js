@@ -4,7 +4,6 @@ import {Map} from '@here/xyz-maps-display';
 // configure layers
 var layers = [
     new MVTLayer({
-        name: 'background layer',
         min: 1,
         max: 20,
         remote: {
@@ -26,11 +25,9 @@ const display = new Map(document.getElementById('map'), {
 
 // Create data layer
 var myLayer = new TileLayer({
-    name: 'myLayer',
     min: 14,
     max: 20,
     provider: new SpaceProvider({
-        name: 'SpaceProvider',
         level: 14,
         space: '6HMU19KY',
         credentials: {

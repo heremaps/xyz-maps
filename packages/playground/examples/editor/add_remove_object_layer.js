@@ -117,7 +117,6 @@ class MyProvider extends SpaceProvider {
 }
 
 let backgroundLayer = new MVTLayer({
-    name: 'background layer',
     min: 1,
     max: 20,
     remote: {
@@ -135,8 +134,7 @@ let myNavlinkLayer = new TileLayer({
         credentials: {
             access_token: YOUR_ACCESS_TOKEN
         },
-        level: 14,
-        class: 'NAVLINK'
+        level: 14
     })
 });
 

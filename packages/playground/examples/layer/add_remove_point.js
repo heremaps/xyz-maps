@@ -2,8 +2,7 @@ import {MVTLayer, TileLayer, LocalProvider} from '@here/xyz-maps-core';
 import {Map} from '@here/xyz-maps-display';
 
 /** setup the Map **/
-var bgLayer = new MVTLayer({
-    name: 'background layer',
+let backgroundLayer = new MVTLayer({
     min: 1,
     max: 20,
     remote: {
@@ -11,12 +10,9 @@ var bgLayer = new MVTLayer({
     }
 });
 var pointLayer = new TileLayer({
-    name: 'my Point Layer',
     min: 4,
     max: 15,
-    provider: new LocalProvider({
-        name: 'my Point Provider'
-    }),
+    provider: new LocalProvider({}),
     style: {
         styleGroups: {
             style: [
@@ -45,7 +41,7 @@ const display = new Map(document.getElementById('map'), {
     },
 
     // add layers to display
-    layers: [bgLayer, pointLayer]
+    layers: [backgroundLayer, pointLayer]
 });
 /** **/
 

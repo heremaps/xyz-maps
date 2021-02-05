@@ -42,19 +42,15 @@ class MyProvider extends SpaceProvider {
     writeRoutingLink(feature, navlink) {
         feature.prop('routingLink', navlink ? navlink.id : navlink);
     }
-
-    // In this examle, all Navlinks are provided by provider "navlinkProvider"
+    // In this example places, addresses and navlinks are stored in the same provider.
     readRoutingProvider(location, providers) {
-        return 'navlinkProvider';
+        return this.id;
     }
-
     // ########################       Navlink      ########################
     // Following functions are only necessary if you want to edit Navlink.
 
-
     // In addition to Lines, Navlinks have navigation information and are connected to each other to form a road network.
     // Implementing following functions enables you to easily edit Navlinks.
-
 
     // This function returns a boolean value to indicate if turn from from-link's shape point to to-link's shape point
     // is restricted.
@@ -128,8 +124,7 @@ class MyProvider extends SpaceProvider {
     }
 }
 
-var bgLayer = new MVTLayer({
-    name: 'background layer',
+let backgroundLayer = new MVTLayer({
     min: 1,
     max: 20,
     remote: {
@@ -137,46 +132,45 @@ var bgLayer = new MVTLayer({
     }
 });
 
-var myNavlinkLayer = new TileLayer({
-    name: 'My Layer',
+var myLayer = new TileLayer({
     min: 14,
     max: 20,
-    // Customized provider to provide navlinks
     provider: new MyProvider({
-        id: 'navlinkProvider',
         space: '6HMU19KY',
-        credentials: {
-            access_token: YOUR_ACCESS_TOKEN
-        },
-        level: 14,
-        class: 'NAVLINK'
-    })
-});
-
-var myPlaceLayer = new TileLayer({
-    name: 'Place Layer',
-    min: 14,
-    max: 20,
-    // Customized provider to provide places
-    provider: new MyProvider({
-        id: 'places',
-        space: '6CkeaGLg',
         credentials: {
             access_token: YOUR_ACCESS_TOKEN
         },
         level: 14
     }),
-
     style: {
         styleGroups: {
-            place: [
-                {'zIndex': 3, 'type': 'Circle', 'radius': 12, 'strokeWidth': 2, 'stroke': '#FFFFFF', 'fill': '#1188DD'}
-            ]
+            Point: [{
+                zIndex: 2, type: 'Circle', radius: 12, strokeWidth: 2, stroke: '#FFFFFF', fill: '#1188DD'
+            }],
+            LineString: [{
+                zIndex: 0, type: 'Line', strokeWidth: 14, stroke: '#660808'
+            }, {
+                zIndex: 1, type: 'Line', strokeWidth: 10, stroke: '#ef683e'
+            }]
         },
         assign: function(feature, zoomlevel) {
-            return 'place';
+            return feature.geometry.type;
         }
     }
+});
+
+var myPlaceLayer = new TileLayer({
+    min: 14,
+    max: 20,
+    provider: new MyProvider({
+        space: '6CkeaGLg',
+        credentials: {
+            access_token: YOUR_ACCESS_TOKEN
+        },
+        level: 14
+    })
+
+
 });
 
 // setup the Map Display
@@ -185,29 +179,36 @@ const display = new Map(document.getElementById('map'), {
     center: {
         longitude: -122.214304, latitude: 37.798005
     },
-
-    // add layers to display
-    layers: [bgLayer, myNavlinkLayer, myPlaceLayer]
+    // add layers to the display
+    layers: [backgroundLayer, myLayer]
 });
 
 // setup the editor
-const editor = new Editor(display);
-
-// add layer to editor, make it editable
-editor.addLayer(myNavlinkLayer);
-editor.addLayer(myPlaceLayer);
+const editor = new Editor(display, {layers: [myLayer]});
 /** **/
 
-/**
- * This example shows how to create Places.
- */
-var createbuttonpixel = document.querySelector('#createbuttonpixel');
-var createbuttongeo = document.querySelector('#createbuttongeo');
-let place;
+// add points to random position within the current screen
+document.querySelector('#createButtonPixel').onclick = function() {
+    var x = display.getWidth() * Math.random();
+    var y = display.getHeight() * Math.random();
+
+    // create the Place feature using a pixel coordinate
+    createPlace({x: x, y: y});
+};
+
+// add points to random position within the current screen
+document.querySelector('#createButtonGeo').onclick = function() {
+    var viewBounds = display.getViewBounds();
+    var lon = viewBounds.minLon + (viewBounds.maxLon - viewBounds.minLon) * Math.random();
+    var lat = viewBounds.minLat + (viewBounds.maxLat - viewBounds.minLat) * Math.random();
+
+    // create the Place feature using a geographical coordinate
+    createPlace({longitude: lon, latitude: lat});
+};
 
 function createPlace(coordinate) {
     // Add a Place feature to the editor
-    place = editor.addFeature({
+    let place = editor.addFeature({
         type: 'Feature',
         geometry: {
             type: 'Point',
@@ -218,29 +219,10 @@ function createPlace(coordinate) {
             type: 'hotel'
         }
     });
-    // A Place does not connect to a Navlink by default.
-
-    // Automatically "Connect" to a Navlink nearby and create a routing point for the Place.
+    // A Place does not connect to a Navlink feature by default.
+    // "Connect" the place to a Navlink nearby and create a routing point for the Place automatically.
     place.createRoutingPoint();
 
+    // select the place
     place.select();
 }
-
-// add onclick handler to createbutton
-createbuttonpixel.onclick = function() {
-    var x = display.getWidth() * Math.random();
-    var y = display.getHeight() * Math.random();
-
-    // create Place
-    createPlace({x: x, y: y});
-};
-
-// onclick handler to createbutton
-createbuttongeo.onclick = function() {
-    var viewBounds = display.getViewBounds();
-    var lon = viewBounds.minLon + (viewBounds.maxLon - viewBounds.minLon) * Math.random();
-    var lat = viewBounds.minLat + (viewBounds.maxLat - viewBounds.minLat) * Math.random();
-
-    // create Place
-    createPlace({longitude: lon, latitude: lat});
-};

@@ -91,28 +91,24 @@ class MyProvider extends SpaceProvider {
     }
 }
 
-var bgLayer = new MVTLayer({
-    name: 'background layer',
+let backgroundLayer = new MVTLayer({
     min: 1,
     max: 20,
     remote: {
         url: 'https://xyz.api.here.com/tiles/osmbase/512/all/{z}/{x}/{y}.mvt?access_token=' + YOUR_ACCESS_TOKEN
     }
 });
-var navlinkLayer = new TileLayer({
-    name: 'Navlink Layer',
+let navlinkLayer = new TileLayer({
     min: 14,
     max: 20,
     // Customized provider to provide features
     provider: new MyProvider({
-        id: 'navlinkProvider',
         space: '6HMU19KY',
         credentials: {
             access_token: YOUR_ACCESS_TOKEN
         },
         level: 14
     }),
-
     // customize layer style
     style: {
         // define a set of styles by navlink feature attributes
@@ -121,27 +117,56 @@ var navlinkLayer = new TileLayer({
             highway: [
                 {zIndex: 0, type: 'Line', stroke: '#AA84A4', strokeWidth: 18},
                 {zIndex: 1, type: 'Line', stroke: '#C799E8', strokeWidth: 16},
-                {zIndex: 2, type: 'Text', textRef: 'properties.name', fill: '#3D272B'}
+                {
+                    zIndex: 2,
+                    type: 'Text',
+                    textRef: 'properties.name',
+                    fill: '#d6abf5',
+                    strokeWidth: 5,
+                    stroke: '#51414f',
+                    font: '14px sans-serif'
+                }
             ],
-
             // primary road
             primary: [
                 {zIndex: 0, type: 'Line', stroke: '#AA84A4', strokeWidth: 18},
                 {zIndex: 1, type: 'Line', stroke: '#C799E8', strokeWidth: 14},
-                {zIndex: 2, type: 'Text', textRef: 'properties.name', fill: '#3D272B'}
+                {
+                    zIndex: 2,
+                    type: 'Text',
+                    textRef: 'properties.name',
+                    fill: '#d6abf5',
+                    strokeWidth: 5,
+                    stroke: '#51414f',
+                    font: '14px sans-serif'
+                }
             ],
-
             // Residential road
             residential: [
                 {zIndex: 0, type: 'Line', stroke: '#F4F288', strokeWidth: 11},
                 {zIndex: 1, type: 'Line', stroke: '#CD8353', strokeWidth: 8},
-                {zIndex: 2, type: 'Text', textRef: 'properties.name', fill: '#3D272B'}
+                {
+                    zIndex: 2,
+                    type: 'Text',
+                    textRef: 'properties.name',
+                    fill: '#CD8353',
+                    strokeWidth: 5,
+                    stroke: '#F4F288',
+                    font: '14px sans-serif'
+                }
             ],
-
             // Trail
             path: [
                 {zIndex: 0, type: 'Line', stroke: '#FFFFFF', strokeWidth: 8},
-                {zIndex: 2, type: 'Text', textRef: 'properties.name', fill: '#3D272B'}
+                {
+                    zIndex: 2,
+                    type: 'Text',
+                    textRef: 'properties.name',
+                    fill: 'black',
+                    strokeWidth: 5,
+                    stroke: 'white',
+                    font: '14px sans-serif'
+                }
             ]
         },
 
@@ -156,54 +181,34 @@ var navlinkLayer = new TileLayer({
 const display = new Map(document.getElementById('map'), {
     zoomLevel: 18,
     center: {longitude: -122.2281, latitude: 37.778747},
-
-    // add layers to display
-    layers: [bgLayer, navlinkLayer]
+    // add layers to the display
+    layers: [backgroundLayer, navlinkLayer]
 });
 
 // setup the editor
-const editor = new Editor(display);
-
-// add navlink layer to editor, make layers editable
-editor.addLayer(navlinkLayer);
+const editor = new Editor(display, {layers: [navlinkLayer]});
 /** **/
 
-/**
- * This example shows how to get and set the name of a road.
- *
- * User could click on a road to display a tag with name of this road. name is not committed
- */
-var roadnameTag = document.querySelector('#roadname');
-var setnameButton = document.querySelector('#setname');
-var submitButton = document.querySelector('#submitchange');
-var navlink;
 
-setnameButton.onclick = function() {
-    var attr = {'name': roadnameTag.value};
-    // set new road name
-    navlink && navlink.prop(attr);
-};
+let roadNameInput = document.querySelector('#roadname');
+let navlink;
 
-submitButton.onclick = function() {
-    navlink = null;
-    // submit changes
-    editor.submit();
-};
-
-/**
- * Add a listener for the click-event
- */
+// add a pointerup event listener to initialize the input field when a navlink gets clicked
 editor.addEventListener('pointerup', function(event) {
-    // leftclick!
-    if (event.button == 0) {
-        var feature = event.target;
+    let feature = event.target;
 
-        if (feature && feature.geometry.type == 'LineString') {
-            var attrs = feature.prop();
+    if (feature && feature.geometry.type == 'LineString') {
+        // update the input field with the roadname
+        roadNameInput.value = feature.prop('name');
 
-            roadnameTag.value = attrs.name;
+        navlink = feature;
+    }
+});
 
-            navlink = feature;
-        }
+// update the name of the feature on input change
+roadNameInput.addEventListener('input', function() {
+    if (navlink) {
+        // update the name property of the feature
+        navlink.prop('name', this.value);
     }
 });

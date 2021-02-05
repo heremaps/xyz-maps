@@ -63,6 +63,11 @@
       "description": "Allow map pitch/rotation by user interaction",
       "file": "./display/pitch_rotate_map.html",
       "docs": "classes/display.map.html#pitch"
+    },
+    {
+      "description": "Animate a Road",
+      "file": "./display/animate_road.html",
+      "docs": "interfaces/core.style.html#to"
     }
   ],
   "Editor": [
@@ -129,11 +134,6 @@
     {
       "description": "Add Addresses to map",
       "file": "./editor/create_address.html",
-      "docs": "classes/editor.editor-1.html#addfeature"
-    },
-    {
-      "description": "Animate a Navlink",
-      "file": "./editor/navlink_animation.html",
       "docs": "classes/editor.editor-1.html#addfeature"
     },
     {

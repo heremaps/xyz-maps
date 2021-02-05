@@ -9,15 +9,11 @@ class MyProvider extends SpaceProvider {
     detectFeatureClass(feature) {
         return feature.properties.featureClass;
     }
-
-
     // ########################       Navlink      ########################
     // Following functions are only necessary if you want to edit Navlink.
 
-
     // In addition to Lines, Navlinks have navigation information and are connected to each other to form a road network.
     // Implementing following functions enables you to easily edit Navlinks.
-
 
     // This function returns a boolean value to indicate if turn from from-link's shape point to to-link's shape point
     // is restricted.
@@ -37,7 +33,6 @@ class MyProvider extends SpaceProvider {
 
         return restrictions.indexOf(to.link.id) >= 0;
     };
-
     // This function stores turn restriction information for turn from from-link to to-link.
     // It takes arguments ('restricted', 'from' and 'to' in this example) similar to that of above function, but its first
     // argument is a boolean value for indicating the turn is (or is not) restricted.
@@ -65,12 +60,10 @@ class MyProvider extends SpaceProvider {
 
         from.link.prop('turnRestriction', turn);
     }
-
     // Indicate if the Navlink is pedestrian only, it's not allowed to turn into a pedestrian only Navlink.
     readPedestrianOnly(feature) {
         return Boolean(feature.prop('pedestrianOnly'));
     }
-
     // Navlink's direction indicates if the Navlink is a one-way road.
     // Valid values are:
     // 'BOTH': the Navlink is a two-way road.
@@ -91,21 +84,17 @@ class MyProvider extends SpaceProvider {
     }
 }
 
-var bgLayer = new MVTLayer({
-    name: 'background layer',
+let backgroundLayer = new MVTLayer({
     min: 1,
     max: 20,
     remote: {
         url: 'https://xyz.api.here.com/tiles/osmbase/512/all/{z}/{x}/{y}.mvt?access_token=' + YOUR_ACCESS_TOKEN
     }
 });
-var navlinkLayer = new TileLayer({
-    name: 'Navlink Layer',
+let navlinkLayer = new TileLayer({
     min: 14,
     max: 20,
-    // Customized provider to provide navlinks
     provider: new MyProvider({
-        id: 'navlinkProvider',
         space: '6HMU19KY',
         credentials: {
             access_token: YOUR_ACCESS_TOKEN
@@ -122,7 +111,7 @@ const display = new Map(document.getElementById('map'), {
     },
 
     // add layers to display
-    layers: [bgLayer, navlinkLayer]
+    layers: [backgroundLayer, navlinkLayer]
 });
 
 // setup the editor
@@ -132,13 +121,10 @@ const editor = new Editor(display);
 editor.addLayer(navlinkLayer);
 /** **/
 
-/**
- *  This example shows how to create navlink by an array of geo and pixel coordinates with editor API.
- */
 
-document.querySelector('#createbuttongeo').onclick = function() {
+document.querySelector('#createButtonGeo').onclick = function() {
     // create a Navlink feature with geographical coordinates
-    var navlink = editor.addFeature({
+    let navlink = editor.addFeature({
         type: 'Feature',
         geometry: {
             type: 'LineString',
@@ -164,8 +150,9 @@ document.querySelector('#createbuttongeo').onclick = function() {
     });
 };
 
-document.querySelector('#createbuttonpixel').onclick = function() {
-    // create a Navlink feature with pixel coordinates
+
+document.querySelector('#createButtonPixel').onclick = function() {
+// create a Navlink feature with pixel coordinates
     editor.addFeature({
         type: 'Feature',
         geometry: {

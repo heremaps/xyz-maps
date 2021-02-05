@@ -2,8 +2,7 @@ import {MVTLayer, TileLayer, SpaceProvider} from '@here/xyz-maps-core';
 import {Map} from '@here/xyz-maps-display';
 
 /** setup the Map **/
-var bgLayer = new MVTLayer({
-    name: 'background layer',
+let backgroundLayer = new MVTLayer({
     min: 1,
     max: 20,
     remote: {
@@ -11,11 +10,9 @@ var bgLayer = new MVTLayer({
     }
 });
 var myLayer = new TileLayer({
-    name: 'myLayer',
     min: 14,
     max: 20,
     provider: new SpaceProvider({
-        id: 'SpaceProvider',
         level: 14,
         space: '6HMU19KY',
         credentials: {
@@ -32,7 +29,7 @@ const display = new Map(document.getElementById('map'), {
     },
 
     // add layers to display
-    layers: [bgLayer, myLayer]
+    layers: [backgroundLayer, myLayer]
 });
 /** **/
 

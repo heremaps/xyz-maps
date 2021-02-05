@@ -10,7 +10,6 @@ const display = new Map(document.getElementById('map'), {
     },
     // add layers to display
     layers: [new MVTLayer({
-        name: 'background layer',
         min: 1,
         max: 20,
         remote: {
@@ -21,11 +20,9 @@ const display = new Map(document.getElementById('map'), {
 /** **/
 
 const myLayer = new TileLayer({
-    name: 'myLayer',
     min: 2,
     max: 20,
     provider: new SpaceProvider({
-        id: 'SpaceProvider',
         level: 2,
         space: '6HMU19KY',
         credentials: {

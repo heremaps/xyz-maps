@@ -21,11 +21,9 @@ const display = new Map(document.getElementById('map'), {
 /** **/
 
 const placeLayer = new TileLayer({
-    name: 'Place Layer',
     min: 14,
     max: 20,
     provider: new SpaceProvider({
-        name: 'SpaceProvider',
         level: 14,
         space: '6CkeaGLg',
         credentials: {

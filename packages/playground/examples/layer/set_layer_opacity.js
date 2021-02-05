@@ -2,20 +2,17 @@ import {MVTLayer, TileLayer, SpaceProvider} from '@here/xyz-maps-core';
 import {Map} from '@here/xyz-maps-display';
 
 /** setup the Map **/
-var bgLayer = new MVTLayer({
-    name: 'background layer',
+let backgroundLayer = new MVTLayer({
     min: 1,
     max: 20,
     remote: {
         url: 'https://xyz.api.here.com/tiles/osmbase/512/all/{z}/{x}/{y}.mvt?access_token=' + YOUR_ACCESS_TOKEN
     }
 });
-var navlinkLayer = new TileLayer({
-    name: 'myLayer',
+let navlinkLayer = new TileLayer({
     min: 14,
     max: 20,
     provider: new SpaceProvider({
-        name: 'SpaceProvider',
         level: 14,
         space: '6HMU19KY',
         credentials: {
@@ -42,7 +39,7 @@ const display = new Map(document.getElementById('map'), {
     },
 
     // add layers to display
-    layers: [bgLayer, navlinkLayer]
+    layers: [backgroundLayer, navlinkLayer]
 });
 
 

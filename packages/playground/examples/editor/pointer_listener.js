@@ -10,7 +10,6 @@ class MyProvider extends SpaceProvider {
         return feature.properties.featureClass;
     }
 
-
     // ########################   Address, Place   ########################
     // Following functions are only necessary if you want to edit Address or Place.
 
@@ -51,10 +50,8 @@ class MyProvider extends SpaceProvider {
     // ########################       Navlink      ########################
     // Following functions are only necessary if you want to edit Navlink.
 
-
     // In addition to Lines, Navlinks have navigation information and are connected to each other to form a road network.
     // Implementing following functions enables you to easily edit Navlinks.
-
 
     // This function returns a boolean value to indicate if turn from from-link's shape point to to-link's shape point
     // is restricted.
@@ -128,8 +125,7 @@ class MyProvider extends SpaceProvider {
     }
 }
 
-var bgLayer = new MVTLayer({
-    name: 'background layer',
+let backgroundLayer = new MVTLayer({
     min: 1,
     max: 20,
     remote: {
@@ -137,29 +133,22 @@ var bgLayer = new MVTLayer({
     }
 });
 
-var navlinkLayer = new TileLayer({
-    name: 'Navlink Layer',
+let navlinkLayer = new TileLayer({
     min: 14,
     max: 20,
-    // Customized provider to provide navlinks
     provider: new MyProvider({
-        id: 'navlinkProvider',
         space: '6HMU19KY',
         credentials: {
             access_token: YOUR_ACCESS_TOKEN
         },
-        level: 14,
-        class: 'NAVLINK'
+        level: 14
     })
 });
 
-var placeLayer = new TileLayer({
-    name: 'Place Layer',
+let placeLayer = new TileLayer({
     min: 14,
     max: 20,
-    // Customized provider to provide places
     provider: new MyProvider({
-        id: 'Places',
         space: '6CkeaGLg',
         credentials: {
             access_token: YOUR_ACCESS_TOKEN
@@ -173,36 +162,27 @@ const display = new Map(document.getElementById('map'), {
     center: {
         longitude: -122.254805, latitude: 37.799515
     },
-
     // add layers to display
-    layers: [bgLayer, navlinkLayer, placeLayer]
+    layers: [backgroundLayer, navlinkLayer, placeLayer]
 });
 
 // setup the editor
-const editor = new Editor(display);
-
-// add navlink place layer to editor, make them editable
-editor.addLayer(navlinkLayer);
-editor.addLayer(placeLayer);
+const editor = new Editor(display, {
+    layers: [navlinkLayer, placeLayer]
+});
 /** **/
 
-// This example shows how to add listeners to pointer events in editor.
-// Supported pointer events are 'tap', 'dbltap', 'pointerup', 'pointerenter', 'pointerleave' and 'dragStart', 'dragStop'
-// dragStart and dragStop are triggered for dragging Place or shape point of navlinks
-
-var evtInfo = {};
-// Event handler to pointer events.
-// It shows the current pointer event
-function eventHandler(evt) {
-    evtInfo = {};
-    evtInfo[evt.type] = {
-        x: evt.mapX,
-        y: evt.mapY
+// A Simple event handler that dumps basic information of the pointerevent
+const eventHandler = (ev) => {
+    const evtInfo = {
+        type: ev.type,
+        mapX: ev.mapX,
+        mapY: ev.mapY
     };
-
     document.querySelector('#info').innerText = 'Pointer event: ' + JSON.stringify(evtInfo, null, 4);
-}
+};
 
+// Supported pointer events are 'tap', 'dbltap', 'pointerup', 'pointerenter', 'pointerleave' and 'dragStart', 'dragStop'
 editor.addEventListener('dbltap', eventHandler);
 
 editor.addEventListener('tap', eventHandler);
@@ -213,6 +193,7 @@ editor.addEventListener('pointerenter', eventHandler);
 
 editor.addEventListener('pointerleave', eventHandler);
 
+// dragStart and dragStop are triggered when Marker, Places, Addresses or ShapePoints are being dragged.
 editor.addEventListener('dragStart', eventHandler);
 
 editor.addEventListener('dragStop', eventHandler);

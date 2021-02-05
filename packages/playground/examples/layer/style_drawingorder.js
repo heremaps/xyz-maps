@@ -3,7 +3,6 @@ import {Map} from '@here/xyz-maps-display';
 
 /** setup the Map **/
 const backgroundLayer = new MVTLayer({
-    name: 'background layer',
     min: 1,
     max: 20,
     remote: {

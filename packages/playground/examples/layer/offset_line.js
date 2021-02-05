@@ -4,7 +4,6 @@ import {Map} from '@here/xyz-maps-display';
 /** setup the Map **/
 // Create TileLayer using a LocalProvider
 var myLayer = new TileLayer({
-    name: 'myLayer',
     min: 2,
     max: 20,
     provider: new LocalProvider()

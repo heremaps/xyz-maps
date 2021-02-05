@@ -3,21 +3,18 @@ import {Map} from '@here/xyz-maps-display';
 import {Editor} from '@here/xyz-maps-editor';
 
 /** setup the Map **/
-var bgLayer = new MVTLayer({
-    name: 'background layer',
+let backgroundLayer = new MVTLayer({
     min: 1,
     max: 20,
     remote: {
         url: 'https://xyz.api.here.com/tiles/osmbase/512/all/{z}/{x}/{y}.mvt?access_token=' + YOUR_ACCESS_TOKEN
     }
 });
-var navlinkLayer = new TileLayer({
-    name: 'Navlink Layer',
+let navlinkLayer = new TileLayer({
     min: 14,
     max: 20,
     // Customized provider to provide navlinks
     provider: new SpaceProvider({
-        id: 'navlinkProvider',
         space: '6HMU19KY',
         credentials: {
             access_token: YOUR_ACCESS_TOKEN
@@ -34,7 +31,7 @@ var display = new Map(document.getElementById('map'), {
     },
 
     // add layers to display
-    layers: [bgLayer, navlinkLayer]
+    layers: [backgroundLayer, navlinkLayer]
 });
 
 // setup the editor

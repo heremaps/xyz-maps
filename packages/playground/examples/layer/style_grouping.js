@@ -10,7 +10,6 @@ const display = new Map(document.getElementById('map'), {
     },
     layers: [
         new MVTLayer({
-            name: 'background layer',
             min: 1,
             max: 20,
             remote: {

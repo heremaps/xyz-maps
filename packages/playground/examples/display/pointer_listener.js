@@ -2,7 +2,7 @@ import {MVTLayer, TileLayer, SpaceProvider} from '@here/xyz-maps-core';
 import {Map} from '@here/xyz-maps-display';
 
 /** setup the Map **/
-var backgroundLayer = new MVTLayer({
+let backgroundLayer = new MVTLayer({
     name: 'background layer',
     min: 1,
     max: 20,

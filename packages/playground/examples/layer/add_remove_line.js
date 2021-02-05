@@ -2,8 +2,7 @@ import {MVTLayer, TileLayer, LocalProvider} from '@here/xyz-maps-core';
 import {Map} from '@here/xyz-maps-display';
 
 /** setup the Map **/
-var bgLayer = new MVTLayer({
-    name: 'background layer',
+let backgroundLayer = new MVTLayer({
     min: 1,
     max: 20,
     remote: {
@@ -11,12 +10,9 @@ var bgLayer = new MVTLayer({
     }
 });
 var myLayer = new TileLayer({
-    name: 'my Layer',
     min: 15,
     max: 20,
-    provider: new LocalProvider({
-        name: 'my Provider'
-    }),
+    provider: new LocalProvider({}),
     style: {
         styleGroups: {
             navlinkStyle: [
@@ -37,7 +33,7 @@ const display = new Map(document.getElementById('map'), {
     },
 
     // add layers to display
-    layers: [bgLayer, myLayer]
+    layers: [backgroundLayer, myLayer]
 });
 /** **/
 
