@@ -11,14 +11,11 @@ class MyProvider extends SpaceProvider {
         return 'NAVLINK';
     }
 
-
     // ########################       Navlink      ########################
     // Following functions are only necessary if you want to edit Navlink.
 
-
     // In addition to Lines, Navlinks have navigation information and are connected to each other to form a road network.
     // Implementing following functions enables you to easily edit Navlinks.
-
 
     // This function returns a boolean value to indicate if turn from from-link's shape point to to-link's shape point
     // is restricted.
@@ -92,15 +89,14 @@ class MyProvider extends SpaceProvider {
     }
 }
 
-var bgLayer = new MVTLayer({
-    name: 'background layer',
+let backgroundLayer = new MVTLayer({
     min: 1,
     max: 20,
     remote: {
         url: 'https://xyz.api.here.com/tiles/osmbase/512/all/{z}/{x}/{y}.mvt?access_token=' + YOUR_ACCESS_TOKEN
     }
 });
-var navlinkLayer = new TileLayer({
+let navlinkLayer = new TileLayer({
     name: 'Navlink Layer',
     min: 14,
     max: 20,
@@ -124,72 +120,78 @@ const display = new Map(document.getElementById('map'), {
         longitude: -122.25392
     },
     // add layers to display
-    layers: [bgLayer, navlinkLayer]
+    layers: [backgroundLayer, navlinkLayer]
 });
 
 // setup the editor
-const editor = new Editor(display);
+const editor = new Editor(display, {
+    // enable editing of the navlink layer
+    layers: [navlinkLayer]
+});
 
-// add navlink layer to editor, make it editable
-editor.addLayer(navlinkLayer);
+// listen for pointerup events to update and display or hide the context menu on map click.
+editor.addEventListener('pointerup', (event) => {
+    const contextMenuContainer = document.querySelector('.contextmenu');
 
-/**
- * Add a listener for the click-event
- */
-editor.addEventListener('pointerup', function(event) {
-    $('.contextmenu').remove();
+    // hide, in case context menu is already displayed
+    contextMenuContainer.style.display = 'none';
 
-    // react only on right click!
+    // check if left mouse button is pressed
     if (event.button == 2) {
-        // supported methods of the features.
-        // if the value is null, it will be ignored
-        var feature = event.target;
-        var contextMenuHtml = '<ul class="contextmenu">';
-        var labels = {
-            remove: 'Delete Feature',
-            splitLink: 'Split...',
-            disconnect: 'Disconnect',
-            addShape: 'Add shape point'
-        };
+        // the target of the event is the clicked feature.
+        let feature = event.target;
 
-        // iterate methods in feature and add them into contextmenu
-        for (var i in labels) {
-            if (feature && feature[i] && i != 'constructor') {
-                contextMenuHtml += '<li rel="' + i + '">' + labels[i] + '</li>';
+        // if a feature is clicked we update and display the context menu
+        if (feature) {
+            // display the context menu
+            contextMenuContainer.style.display = 'block';
+
+            let contextMenuHtml = '';
+            let labels = {
+                remove: 'Delete Feature',
+                splitLink: 'Split...',
+                disconnect: 'Disconnect',
+                addShape: 'Add shape point'
+            };
+
+            // create the contextmenu entries
+            for (var i in labels) {
+                if (feature && feature[i] && i != 'constructor') {
+                    contextMenuHtml += '<li rel="' + i + '">' + labels[i] + '</li>';
+                }
             }
+            // add a "Show coordinates" entry to the contextmenu
+            contextMenuHtml += '<li rel="showCoords">Show Coordinates</li>';
+
+            // update the context menu
+            contextMenuContainer.innerHTML = contextMenuHtml;
+
+            // position the context menu to the clicked position
+            contextMenuContainer.style.left = event.mapX + 'px';
+            contextMenuContainer.style.top = event.mapY + 'px';
+
+            // add eventlisteners to list entries to execute the respective action on click
+            contextMenuContainer.childNodes.forEach((entry) => {
+                entry.addEventListener('click', (e) => {
+                    const methodName = e.target.attributes.rel.value;
+
+                    switch (methodName) {
+                    case 'showCoords':
+                        // display the geographical position of the click
+                        alert(JSON.stringify(editor.pixelToGeo({x: event.mapX, y: event.mapY})));
+                        break;
+                    case 'addShape':
+                        // add the clicked position as a shape point to the line geometry
+                        feature[methodName]({x: event.mapX, y: event.mapY});
+                        break;
+                    default:
+                        // by default we call the method of the feature
+                        feature[methodName]();
+                    }
+                    // hide the context menu
+                    contextMenuContainer.style.display = 'none';
+                });
+            });
         }
-        // add Show coordinates method to contextmenu
-        contextMenuHtml += '<li rel="showCoords">Show Coordinates</li>';
-        // universal method independent from the feature
-        contextMenuHtml += '</ul>';
-        $(editor.container).append(contextMenuHtml);
-
-        // set offset of the contextmenu
-        $('.contextmenu').css({
-            left: event.mapX,
-            top: event.mapY
-        });
-
-        // add the clickevent for the items of the menu
-        $('.contextmenu li').click(function() {
-            var id = $(this).attr('rel');
-
-            // remove existing contextmenu
-            $('.contextmenu').remove();
-
-            switch (id) {
-            // showCoords is not a method of the features. So we implement it manually.
-            case 'showCoords':
-                var coord = editor.pixelToGeo({x: event.mapX, y: event.mapY});
-                alert('Longitude: ' + coord.longitude + ', Latitude: ' + coord.latitude);
-                break;
-            case 'addShape':
-                feature[id]({x: event.mapX, y: event.mapY});
-                break;
-                // all other methods are methods of the feature. call them.
-            default:
-                feature[id]();
-            }
-        });
     }
 });

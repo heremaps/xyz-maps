@@ -10,14 +10,11 @@ class MyProvider extends SpaceProvider {
         return feature.properties.featureClass;
     }
 
-
     // ########################       Navlink      ########################
     // Following functions are only necessary if you want to edit Navlink.
 
-
     // In addition to Lines, Navlinks have navigation information and are connected to each other to form a road network.
     // Implementing following functions enables you to easily edit Navlinks.
-
 
     // This function returns a boolean value to indicate if turn from from-link's shape point to to-link's shape point
     // is restricted.
@@ -91,50 +88,42 @@ class MyProvider extends SpaceProvider {
     }
 }
 
-var bgLayer = new MVTLayer({
-    name: 'background layer',
+let backgroundLayer = new MVTLayer({
     min: 1,
     max: 20,
     remote: {
         url: 'https://xyz.api.here.com/tiles/osmbase/512/all/{z}/{x}/{y}.mvt?access_token=' + YOUR_ACCESS_TOKEN
     }
 });
-var myLayer = new TileLayer({
-    name: 'Navlink Layer',
+let myLayer = new TileLayer({
     min: 14,
     max: 20,
     provider: new MyProvider({
-        id: 'Navlinks',
         space: '6HMU19KY',
         credentials: {
             access_token: YOUR_ACCESS_TOKEN
         },
         level: 14
     }),
-
-    // customize layer style
+    // the default style the data of the should be displayed with
     style: {
         // Define a set of styles for different road types
         styleGroups: {
-            // Motorway
+            // display highways differently than any other road type
             'highway': [
                 {zIndex: 0, type: 'Line', stroke: '#AA84A4', strokeWidth: 18},
                 {zIndex: 1, type: 'Line', stroke: '#C799E8', strokeWidth: 16},
                 {zIndex: 2, type: 'Text', textRef: 'properties.name', fill: '#3D272B'}
             ],
-
-            // Style rest of the road with white color
-            'rest': [
+            // default road style
+            'road': [
                 {zIndex: 1, type: 'Line', stroke: '#FFFFFF', strokeWidth: 10},
                 {zIndex: 2, type: 'Text', textRef: 'properties.name', fill: '#3D272B'}
             ]
-
         },
-
         assign: function(feature, zoomlevel) {
-            var prop = feature.properties;
-
-            return prop.type == 'highway' ? prop.type : 'rest';
+            const properties = feature.properties;
+            return properties.type == 'highway' ? properties.type : 'road';
         }
     }
 });
@@ -145,30 +134,27 @@ const display = new Map(document.getElementById('map'), {
     center: {
         longitude: -122.247048, latitude: 37.809426
     },
-
     // add layers to display
-    layers: [bgLayer, myLayer]
+    layers: [backgroundLayer, myLayer]
 });
 /** **/
 
 // setup the editor
 const editor = new Editor(display, {
-    // Set features to not selectable by mouse clicks
+    // disable the inbuilt feature selection click handler
     featureSelectionByDefault: false
 });
 
-// add navlink layer to editor, make it editable
+// add myLayer to the editor to enable editing
 editor.addLayer(myLayer);
 
-// register pointerup listener
+// add an own pointerup event listener to the editor which selects only Navlink features of type Highway.
 editor.addEventListener('pointerup', function(e) {
-    var feature = e.target;
-
-    // mouse clicks a navlink
-    if (feature && feature.class == 'NAVLINK') {
-        // Checks if the clicked navlink is a highway
-        if (feature.prop('type') == 'highway') {
-            // select the navlink if it is a highway
+    const feature = e.target;
+    if (feature) {
+        // filter for highways
+        if (feature.class == 'NAVLINK' && feature.prop('type') == 'highway') {
+            // select the highway
             feature.select();
         }
     }

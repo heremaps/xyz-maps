@@ -9,8 +9,6 @@ class MyProvider extends SpaceProvider {
     detectFeatureClass(feature) {
         return feature.properties.featureClass;
     }
-
-
     // ########################   Address, Place   ########################
     // Following functions are only necessary if you want to edit Address or Place.
 
@@ -24,38 +22,30 @@ class MyProvider extends SpaceProvider {
     readRoutingPosition(feature) {
         return feature.prop('routingPoint');
     }
-
     // Get id of referenced Navlink for Address or Place. Place becomes floating if this function does not return a Navlink id properly.
     readRoutingLink(feature) {
         return feature.prop('routingLink');
     }
-
     // This function is called to write updated coordinate on referenced Navlink when routing position is changed.
     // Format of routing position: [longitude, latitude, altitude].
     writeRoutingPosition(feature, position) {
         feature.prop('routingPoint', position);
     }
-
     // This function is called to write new Navlink reference when routingLink is changed.
     // For example, drag routing point from one Navlink to another will change routingLink.
     // In this example, Navlink id is updated when routingLink changes.
     writeRoutingLink(feature, navlink) {
         feature.prop('routingLink', navlink ? navlink.id : navlink);
     }
-
     // In this examle, all Navlinks are provided by provider "navlinkProvider"
     readRoutingProvider(location, providers) {
         return 'navlinkProvider';
     }
-
-
     // ########################       Navlink      ########################
     // Following functions are only necessary if you want to edit Navlink.
 
-
     // In addition to Lines, Navlinks have navigation information and are connected to each other to form a road network.
     // Implementing following functions enables you to easily edit Navlinks.
-
 
     // This function returns a boolean value to indicate if turn from from-link's shape point to to-link's shape point
     // is restricted.
@@ -75,7 +65,6 @@ class MyProvider extends SpaceProvider {
 
         return restrictions.indexOf(to.link.id) >= 0;
     };
-
     // This function stores turn restriction information for turn from from-link to to-link.
     // It takes arguments ('restricted', 'from' and 'to' in this example) similar to that of above function, but its first
     // argument is a boolean value for indicating the turn is (or is not) restricted.
@@ -103,12 +92,10 @@ class MyProvider extends SpaceProvider {
 
         from.link.prop('turnRestriction', turn);
     }
-
     // Indicate if the Navlink is pedestrian only, it's not allowed to turn into a pedestrian only Navlink.
     readPedestrianOnly(feature) {
         return Boolean(feature.prop('pedestrianOnly'));
     }
-
     // Navlink's direction indicates if the Navlink is a one-way road.
     // Valid values are:
     // 'BOTH': the Navlink is a two-way road.
@@ -129,7 +116,7 @@ class MyProvider extends SpaceProvider {
     }
 }
 
-var bgLayer = new MVTLayer({
+let backgroundLayer = new MVTLayer({
     name: 'background layer',
     min: 1,
     max: 20,
@@ -138,8 +125,7 @@ var bgLayer = new MVTLayer({
     }
 });
 
-var myNavlinkLayer = new TileLayer({
-    name: 'My Layer',
+let myNavlinkLayer = new TileLayer({
     min: 14,
     max: 20,
     // Customized provider to provide Navlinks
@@ -161,18 +147,17 @@ const display = new Map(document.getElementById('map'), {
         longitude: -122.37451, latitude: 37.823067
     },
     // add layers to display
-    layers: [bgLayer, myNavlinkLayer]
+    layers: [backgroundLayer, myNavlinkLayer]
 });
 
 // setup the editor
 const editor = new Editor(display);
 
-// add navlink layer to editor, makes it editable
+// add the navlink layer to enable editing by default
 editor.addLayer(myNavlinkLayer);
 /** **/
 
-var myPlaceLayer = new TileLayer({
-    name: 'Place Layer',
+let myPlaceLayer = new TileLayer({
     min: 14,
     max: 20,
     // Customized provider to provide Places
@@ -189,7 +174,7 @@ var myPlaceLayer = new TileLayer({
 // Add place layer to display, makes it visible
 display.addLayer(myPlaceLayer);
 
-var infoTag = document.querySelector('#info');
+let infoTag = document.querySelector('#info');
 
 document.querySelector('#addlayer').onclick = function() {
     // if there is no layer
@@ -197,13 +182,13 @@ document.querySelector('#addlayer').onclick = function() {
         // make place layer editable
         editor.addLayer(myPlaceLayer);
 
-        this.innerText = 'Remove Place Layer';
-        infoTag.innerText = 'Places are editable now!';
+        this.innerText = 'Disable Editing';
+        infoTag.innerText = 'MyPlaceLayer is editable.';
     } else {
         // make place layer not editable
         editor.removeLayer(myPlaceLayer);
 
-        this.innerText = 'Add Place Layer';
-        infoTag.innerText = 'Places are not editable!';
+        this.innerText = 'Enable Editing';
+        infoTag.innerText = 'MyPlaceLayer is NOT editable.';
     }
 };
