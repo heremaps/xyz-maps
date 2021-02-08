@@ -9,9 +9,9 @@ let backgroundLayer = new MVTLayer({
         url: 'https://xyz.api.here.com/tiles/osmbase/512/all/{z}/{x}/{y}.mvt?access_token=' + YOUR_ACCESS_TOKEN
     }
 });
-var buildingLayer = new TileLayer({
+let buildingLayer = new TileLayer({
     min: 14,
-    max: 19,
+    max: 20,
     provider: new LocalProvider({
         name: 'my Provider'
     }),
@@ -48,15 +48,15 @@ document.querySelector('#buildingbutton').onclick = function() {
         addedPolygon = buildingLayer.addFeature({
             geometry: {
                 coordinates: [[[
-                    [-122.1621648, 37.4348761, 0],
-                    [-122.1613924, 37.4354213, 0],
-                    [-122.1610061, 37.4354086, 0],
-                    [-122.1598635, 37.4343905, 0],
-                    [-122.1598796, 37.4340796, 0],
-                    [-122.1606413, 37.4335301, 0],
-                    [-122.1610383, 37.4335428, 0],
-                    [-122.1621809, 37.4345694, 0],
-                    [-122.1621648, 37.4348761, 0]
+                    [-122.1621648, 37.4348761],
+                    [-122.1613924, 37.4354213],
+                    [-122.1610061, 37.4354086],
+                    [-122.1598635, 37.4343905],
+                    [-122.1598796, 37.4340796],
+                    [-122.1606413, 37.4335301],
+                    [-122.1610383, 37.4335428],
+                    [-122.1621809, 37.4345694],
+                    [-122.1621648, 37.4348761]
                 ]]],
                 type: 'MultiPolygon'
             },
