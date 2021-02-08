@@ -49,12 +49,7 @@ const localLayer = new TileLayer({
     style: {
         styleGroups: {
             style: [
-                {zIndex: 0, type: 'Rect', fill: '#000', width: 24, height: 14},
-                {zIndex: 0, type: 'Circle', radius: 7, fill: '#000', offsetX: -12},
-                {zIndex: 0, type: 'Circle', radius: 7, fill: '#000', offsetX: 12},
-                {zIndex: 1, type: 'Circle', radius: 5, fill: 'yellow'},
-                {zIndex: 1, type: 'Circle', radius: 5, fill: 'green', offsetX: 11},
-                {zIndex: 1, type: 'Circle', radius: 5, fill: 'red', offsetX: -11}
+                {zIndex: 1, type: 'Circle', radius: 8, fill: '#ff9e33', stroke: '#ff5600', strokeWidth: 2}
             ]
         },
         assign: function(feature, zoomlevel) {
@@ -66,13 +61,13 @@ const localLayer = new TileLayer({
 display.addLayer(localLayer);
 
 // listen for "mapviewchangeend" event
-display.addEventListener('mapviewchangeend', function(evt) {
+display.addEventListener('mapviewchangeend', (ev) => {
     // define the geographical area to search in
     let topLeft = display.pixelToGeo(display.getWidth() / 2 - 150, display.getHeight() / 2 - 150);
     let bottomRight = display.pixelToGeo(display.getWidth() / 2 + 150, display.getHeight() / 2 + 150);
 
     // clear the localLayer to just show the result of the remoteLayer search
-    localLayer.getProvider().clear();
+    localLayer.removeFeature(localLayer.getProvider().all());
 
     // search for features in the geographical rectangle
     remoteLayer.search({
@@ -86,7 +81,7 @@ display.addEventListener('mapviewchangeend', function(evt) {
         // if the data is not already available in the local cache of the provider
         remote: true,
         // when data has been fetched from the remote datasource the onload callback will be called with the result
-        onload: (features)=>{
+        onload: (features) => {
             // Add result to the local layer
             localLayer.addFeature(features);
         }

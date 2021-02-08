@@ -18,7 +18,29 @@ var placeLayer = new TileLayer({
         credentials: {
             access_token: YOUR_ACCESS_TOKEN
         }
-    })
+    }),
+    style: {
+        styleGroups: {
+            myPlace: [{
+                zIndex: 0,
+                type: 'Circle',
+                radius: 8,
+                fill: '#2eb4ff',
+                stroke: '#0050b0',
+                strokeWidth: 2
+            }, {
+                zIndex: 0,
+                type: 'Text',
+                fill: '#fff',
+                stroke: '#0050b0',
+                strokeWidth: 5,
+                font: '13px sans-serif',
+                text: (feature) => feature.id,
+                priority: 5
+            }]
+        },
+        assign: (feature) => 'myPlace'
+    }
 });
 
 // setup the Map Display
@@ -28,40 +50,23 @@ const display = new Map(document.getElementById('map'), {
         longitude: -122.253324, latitude: 37.795146
     },
 
-    // add layers to display
+    // add layers to the display
     layers: [backgroundLayer, placeLayer]
 });
 /** **/
 
-// add event listener to viewportReady
-placeLayer.addEventListener('viewportReady', function(evt) {
-    // Reset feature style group
-    setStyleGroup(searchResult);
-    // Search for features by ids
-    searchResult = placeLayer.search({
-        ids: ['oLJD9RjPsWwHlYVt', 'ecjJSg1QTwI0ZVoi']
-    });
-    // Highlight features
-    setStyleGroup(searchResult, styleGroup);
+placeLayer.addEventListener('viewportReady', function(ev) {
+    // Search a specific feature by id
+    const feature = placeLayer.search({id: 'yzTilZp7Z3VqlCNO'});
+    // Set style to highlight the feature
+    placeLayer.setStyleGroup(feature, [{
+        zIndex: 0,
+        type: 'Text',
+        fill: '#ffffff',
+        stroke: '#ff5a30',
+        font: '18px sans-serif',
+        strokeWidth: 5,
+        text: (feature) => feature.id,
+        priority: 1
+    }]);
 });
-
-var searchResult = [];
-var styleGroup = [
-    {zIndex: 0, type: 'Rect', fill: '#000', width: 24, height: 14},
-    {zIndex: 0, type: 'Circle', radius: 7, fill: '#000', offsetX: -12},
-    {zIndex: 0, type: 'Circle', radius: 7, fill: '#000', offsetX: 12},
-    {zIndex: 1, type: 'Circle', radius: 5, fill: 'yellow'},
-    {zIndex: 1, type: 'Circle', radius: 5, fill: 'green', offsetX: 11},
-    {zIndex: 1, type: 'Circle', radius: 5, fill: 'red', offsetX: -11}
-];
-
-
-// Set feature style group
-function setStyleGroup(features, style) {
-    if (features.length) {
-        for (var i in features) {
-            var feature = features[i];
-            placeLayer.setStyleGroup(feature, style);
-        }
-    }
-}

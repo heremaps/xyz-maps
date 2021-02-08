@@ -28,24 +28,26 @@ const display = new Map(document.getElementById('map'), {
         longitude: -122.253324,
         latitude: 37.795146
     },
-    // add layers to display
+    // add layers to the display
     layers: [backgroundLayer, placeLayer]
 });
 
-// A Display tag shows search area
-var searcharea = document.createElement('div');
-searcharea.id = 'searcharea';
-display.getContainer().appendChild(searcharea);
+// visualize the search area
+const searchAreaElement = document.createElement('div');
+searchAreaElement.id = 'searcharea';
+display.getContainer().appendChild(searchAreaElement);
 /** **/
 
-// add event listener to viewportReady
-placeLayer.addEventListener('viewportReady', function(evt) {
-    // Calculate viewbound for search
-    var topLeft = display.pixelToGeo(display.getWidth() / 2 - 150, display.getHeight() / 2 - 150);
-    var bottomRight = display.pixelToGeo(display.getWidth() / 2 + 150, display.getHeight() / 2 + 150);
+let searchResult = [];
 
-    // Reset feature style group
-    setStyleGroup(searchResult);
+// wait until the current viewport is ready and all data is initialized
+placeLayer.addEventListener('viewportReady', function(ev) {
+    // define the geographical area to search in
+    const topLeft = display.pixelToGeo(display.getWidth() / 2 - 150, display.getHeight() / 2 - 150);
+    const bottomRight = display.pixelToGeo(display.getWidth() / 2 + 150, display.getHeight() / 2 + 150);
+
+    // Reset the style of the previous search result
+    searchResult.forEach((feature) => placeLayer.setStyleGroup(feature));
 
     // Search for features by viewbound in place layer
     searchResult = placeLayer.search({
@@ -57,26 +59,9 @@ placeLayer.addEventListener('viewportReady', function(evt) {
         }
     });
 
-    // Highlight features
-    setStyleGroup(searchResult, styleGroup);
+    // highlight the search result
+    searchResult.forEach((feature) => placeLayer.setStyleGroup(feature, [{
+        zIndex: 1, type: 'Circle', radius: 8, fill: '#fff', stroke: '#000', strokeWidth: 2
+    }]));
 });
 
-var searchResult = [];
-var styleGroup =
-    [
-        {zIndex: 0, type: 'Rect', fill: '#000', width: 24, height: 14},
-        {zIndex: 0, type: 'Circle', radius: 7, fill: '#000', offsetX: -12},
-        {zIndex: 0, type: 'Circle', radius: 7, fill: '#000', offsetX: 12},
-        {zIndex: 1, type: 'Circle', radius: 5, fill: 'yellow'},
-        {zIndex: 1, type: 'Circle', radius: 5, fill: 'green', offsetX: 11},
-        {zIndex: 1, type: 'Circle', radius: 5, fill: 'red', offsetX: -11}
-    ];
-
-
-// Set feature style group
-function setStyleGroup(features, style) {
-    for (var i in features) {
-        var feature = features[i];
-        placeLayer.setStyleGroup(feature, style);
-    }
-}
