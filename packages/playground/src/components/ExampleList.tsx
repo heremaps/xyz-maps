@@ -18,7 +18,7 @@
  */
 import React, {useEffect, useLayoutEffect} from 'react';
 import './ExampleList.scss';
-import {Slider} from "./Slider";
+import {Slider} from './Slider';
 
 
 export type Example = { title: string, file: string, docs: string, description: string, section: string };
@@ -87,7 +87,6 @@ export const ExampleList: React.FC = (props: {
         gutterRef.current.classList.toggle('toggle');
     };
 
-
     useLayoutEffect(() => {
         let animationDone = false;
         const updateSize = () => {
@@ -99,11 +98,14 @@ export const ExampleList: React.FC = (props: {
         };
         exampleRef.current.addEventListener('transitionstart', updateSize);
         exampleRef.current.addEventListener('transitionend', () => animationDone = true);
+
+        const target = exampleRef.current.querySelector('.selected');
+        target.parentNode.scrollTop = target.offsetTop;
     }, []);
 
     return (<div className={'exampleList'} ref={exampleRef} style={{display: props.active ? '' : 'none'}}>
         <ul ref={listRef}>{list}</ul>
         <Slider onPointerDown={onGutterClick} ref={gutterRef}></Slider>
-        {/*<div className={'gutter'} onClick={onGutterClick} ref={gutterRef}></div>*/}
+        {/* <div className={'gutter'} onClick={onGutterClick} ref={gutterRef}></div>*/}
     </div>);
 };

@@ -229,11 +229,6 @@
       "docs": "classes/core.tilelayer.html#search"
     },
     {
-      "description": "Search features in layer in a circle",
-      "file": "./layer/search_circle.html",
-      "docs": "classes/core.tilelayer.html#search"
-    },
-    {
       "description": "Search features in layer by feature id",
       "file": "./layer/search_id.html",
       "docs": "classes/core.tilelayer.html#search"
