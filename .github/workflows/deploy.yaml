@@ -1,4 +1,4 @@
-name: Documentation & Playground
+name: Docs & Playground
 
 on:
     workflow_dispatch:
