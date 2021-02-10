@@ -38,6 +38,7 @@ export {LocalProvider} from './providers/LocalProvider';
 export {RemoteTileProvider} from './providers/RemoteTileProvider/RemoteTileProvider';
 export {EditableRemoteTileProvider} from './providers/RemoteTileProvider/EditableRemoteTileProvider';
 export {SpaceProvider} from './providers/GeoSpace/SpaceProvider';
+export {IMLProvider} from './providers/IMLProvider/IMLProvider';
 export {MVTProvider} from './providers/MVTProvider/MVTProvider';
 export {EditableFeatureProvider} from './providers/EditableFeatureProvider';
 
@@ -62,6 +63,7 @@ import {LocalProvider} from './providers/LocalProvider';
 import {RemoteTileProvider} from './providers/RemoteTileProvider/RemoteTileProvider';
 import {EditableRemoteTileProvider} from './providers/RemoteTileProvider/EditableRemoteTileProvider';
 import {SpaceProvider} from './providers/GeoSpace/SpaceProvider';
+import {IMLProvider} from './providers/IMLProvider/IMLProvider';
 import {MVTProvider} from './providers/MVTProvider/MVTProvider';
 import {EditableFeatureProvider} from './providers/EditableFeatureProvider';
 
@@ -73,6 +75,7 @@ const providers = {
     RemoteTileProvider,
     EditableRemoteTileProvider,
     SpaceProvider,
+    IMLProvider,
     MVTProvider,
     EditableFeatureProvider
 };
