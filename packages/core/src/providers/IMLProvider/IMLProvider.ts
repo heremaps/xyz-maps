@@ -23,7 +23,7 @@ import {SpaceProviderOptions} from '../GeoSpace/SpaceOptions';
 const IML_ENDPOINT = 'http://interactive.data.api.platform.here.com/interactive/v1';
 
 const createOptions = (options: IMLProviderOptions): SpaceProviderOptions => {
-    let o = {
+    const opt = {
         url: IML_ENDPOINT,
         https: true,
         space: options.layer,
@@ -31,9 +31,9 @@ const createOptions = (options: IMLProviderOptions): SpaceProviderOptions => {
         credentials: {...options.credentials}
     };
     // remove the token
-    delete o.credentials.token;
+    delete opt.credentials.token;
 
-    return <SpaceProviderOptions><unknown>o;
+    return <SpaceProviderOptions><unknown>opt;
 };
 
 /**
@@ -89,7 +89,7 @@ export class IMLProvider extends SpaceProvider {
         return this.addRequestToken(super.createRemoveFeatureRequest(features, callbacks));
     }
 
-    getLayerUrl(layer) {
+    getLayerUrl(layer: string) {
         return this.url + '/catalogs/' + this.catalog + '/layers/' + layer;
     }
 }
