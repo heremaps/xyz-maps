@@ -116,9 +116,9 @@ export class SpaceProvider extends GeoJSONProvider {
         let total = 0;
         let error = 0;
 
-        const url = prov._addUrlCredentials(
-            prov.getLayerUrl(prov.space) + '/features', '?'
-        );
+        // const url = prov._addUrlCredentials(
+        //     prov.getLayerUrl(prov.space) + '/features', '?'
+        // );
 
         const bundleSuccess = (data) => {
             if (!--total && onSuccess) {
@@ -139,31 +139,79 @@ export class SpaceProvider extends GeoJSONProvider {
 
             if (putFeatures.length) {
                 total++;
-                loader.send({
-                    type: 'POST',
-                    url: url,
-                    headers: {...prov.headers, 'Content-Type': 'application/geo+json'},
+
+                loader.send(this.createUpdateFeatureRequest(putFeatures, {
                     success: bundleSuccess,
-                    error: bundleError,
-                    data: JSON.stringify({
-                        type: 'FeatureCollection',
-                        features: putFeatures
-                    })
-                });
+                    error: bundleError
+                }));
+                // loader.send({
+                //     type: 'POST',
+                //     url: url,
+                //     headers: {...prov.headers, 'Content-Type': 'application/geo+json'},
+                //     success: bundleSuccess,
+                //     error: bundleError,
+                //     data: JSON.stringify({
+                //         type: 'FeatureCollection',
+                //         features: putFeatures
+                //     })
+                // });
             }
 
             if (removeFeatures.length) {
                 total++;
-                loader.send({
-                    type: 'DELETE',
-                    url: url + '&id=' + removeFeatures.map((f) => f.id).join(','),
-                    headers: {...prov.headers, 'Accept': 'application/json'},
+                loader.send(this.createRemoveFeatureRequest(removeFeatures, {
                     success: bundleSuccess,
                     error: bundleError
-                });
+                }));
+                // loader.send({
+                //     type: 'DELETE',
+                //     url: url + '&id=' + removeFeatures.map((f) => f.id).join(','),
+                //     headers: {...prov.headers, 'Accept': 'application/json'},
+                //     success: bundleSuccess,
+                //     error: bundleError
+                // });
             }
         }
     };
+
+    protected createUpdateFeatureRequest(features, callbacks: {
+        success?: (resp: any) => void,
+        error?: (error: any) => void
+    } = {}) {
+        const prov = this;
+        const url = prov._addUrlCredentials(
+            prov.getLayerUrl(prov.space) + '/features', '?'
+        );
+        return {
+            type: 'POST',
+            url: url,
+            headers: {...prov.headers, 'Content-Type': 'application/geo+json'},
+            data: JSON.stringify({
+                type: 'FeatureCollection',
+                features: features
+            }),
+            ...callbacks
+        };
+    }
+
+    protected createRemoveFeatureRequest(features, callbacks: {
+        success?: (resp: any) => void,
+        error?: (error: any) => void
+    } = {}) {
+        const prov = this;
+        const url = prov._addUrlCredentials(
+            prov.getLayerUrl(prov.space) + '/features', '?'
+        );
+        return {
+            type: 'DELETE',
+            url: url + '&id=' + features.map((f) => f.id).join(','),
+            headers: {
+                ...prov.headers,
+                'Accept': 'application/json'
+            },
+            ...callbacks
+        };
+    }
 
 
     prepareFeature(feature) {
