@@ -45,13 +45,13 @@ export interface MapOptions {
      */
     layers?: TileLayer[]
     /**
-     * maximum zoomlevel of displaying the map overlay
+     * the maximum zoom level the map can be zoomed in
      *
      * @default 20
      */
     maxLevel?: number
     /**
-     * minimum zoomlevel of displaying the map overlay
+     * the minimum zoom level the map can be zoomed out
      *
      * @default 2
      */
