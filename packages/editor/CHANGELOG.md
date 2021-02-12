@@ -1,3 +1,22 @@
+## 0.20.0 (2021-2-12)
+### editor
+* added: Convert mixed geographical and pixel coordinates of various formats to GEOJSONCoordinates.
+* added: "dragStart", "dragMove" and "dragStop" events can be listened when a Zone of the ZoneSelector utility is dragged.
+* fixed: tiles can flicker when features are hovered, selected or modified
+* fixed: adding a feature without properties
+### core
+* added: New editable remote TileProvider "IMLProvider" with support for "HERE Interactive Map Layer" remote data sources
+### display
+* improved: dashed lines are now antialiased and free of double contours
+* fixed: several edge cases can lead to unintended label collisions
+* fixed: correct positioning of screen aligned text with offset when the map is scaled
+* fixed: possible cutoff Lines on tile boundaries for unclipped datasources
+* fixed: strokeWidth is used to determine the correct size of Circles
+* fixed: stroke is visible even though style.strokeWidth is set to 0 explicitly
+* fixed: offset text can collide on retina devices
+### general
+* improved: new api playground and documentation
+
 ## 0.19.0 (2020-12-23)
 ### editor
 * improved: zoneSelector is still active and visible after mapview change

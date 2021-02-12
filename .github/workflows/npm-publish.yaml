@@ -24,10 +24,10 @@ jobs:
                 with:
                     node-version: '12'
             -   name: Install dependencies
-                run: yarn install --network-timeout ${{ env.yarn-network-timeout }}
+                run: yarn install
             -   name: Build release
                 run: yarn run build-release
             -   name: Publish
                 run: ./scripts/publish-npm.sh
                 env:
-                    NODE_AUTH_TOKEN: ${{secrets.NPM_TOKEN}}
+                    NODE_AUTH_TOKEN: ${{ secrets.NPM_TOKEN }}
