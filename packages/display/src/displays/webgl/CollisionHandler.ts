@@ -23,93 +23,105 @@ import {Attribute} from './buffer/Attribute';
 import {Layer} from '../Layers';
 import {FlexAttribute} from './buffer/templates/TemplateBuffer';
 
-type BBox = { minX: number, maxX: number, minY: number, maxY: number };
-type Collision = { rendered: any[]; neighbours: BBox[] }
+type Data = {
+    minX: number,
+    maxX: number,
+    minY: number,
+    maxY: number,
+    bos: number,
+    boe: number,
+    attr: Attribute | FlexAttribute,
+    priority: number,
+    cx?: number,
+    cy?: number,
+};
+type CollisionDataMap = { [dataKey: string]: Data[] }
 
+type LayerTileCollision = {
+    tileKey: string,
+    data: Data[],
+    dataKey: string,
+    existing: {
+        [dataKey: string]: Data[]
+    }
+}
 
 export class CollisionHandler {
-    tiles: Map<string, Collision>;
-
-    tileCollision: Collision;
-    updated: boolean;
-
+    private tiles: Map<string, CollisionDataMap>;
+    private curLayerTileCollision: LayerTileCollision;
     private display: Display;
-    private layerIndex: number;
+    private updated: boolean;
+    private rx: number;
+    private rz: number;
+    private s: number;
 
-    constructor(display) {
-        this.tiles = new Map();
+    constructor(display: Display) {
+        this.tiles = new Map<string, CollisionDataMap>();
         this.display = display;
     }
 
-    private intersects(box1: BBox, data: BBox[], i: number = 0) {
-        // for (let bbox2 of data) {
+    private getTileCacheKey(quadkey: string, layer: Layer) {
+        return layer.tileSize == 256 ? quadkey.slice(0, -1) : quadkey;
+    }
+
+    private getDataKey(quadkey: string, layer: Layer) {
+        return `${layer.id}-${quadkey}`;
+    }
+
+    private intersects(box1: Data, data: Data[], i: number = 0) {
         for (let len = data.length, bbox2; i < len; i++) {
             bbox2 = data[i];
-            if (bbox2 != null &&
-                box1.minX <= bbox2.maxX && bbox2.minX <= box1.maxX && box1.minY <= bbox2.maxY && bbox2.minY <= box1.maxY) {
+            if (box1.minX <= bbox2.maxX && bbox2.minX <= box1.maxX && box1.minY <= bbox2.maxY && bbox2.minY <= box1.maxY) {
                 return true;
             }
         }
     }
 
-    removeLayer(index: number) {
-        this.tiles.forEach((collisionTile) => {
-            const {rendered} = collisionTile;
-            let i = rendered.length;
-            let r;
+    initTile(tile: Tile, layer: Layer) {
+        const neighbours = [];
+        let {quadkey, x, y, z} = tile;
 
-            while (r = rendered[--i]) {
-                if (r.li > index) {
-                    r.li--;
-                }
-            }
-        });
-    }
+        this.clearTile(quadkey, layer);
 
-    init(quadkey: string, tileX: number, tileY: number, tileZ: number, layer: Layer) {
-        // console.time(quadkey);
+        if (layer.tileSize == 256) {
+            z--;
+            y = y * .5 ^ 0;
+            x = x * .5 ^ 0;
+        }
 
-        let collisionData = this.tiles.get(quadkey);
-
-        if (!collisionData) {
-            const neighbours = [];
-
-            for (let y = -1; y < 2; y++) {
-                for (let x = -1; x < 2; x++) {
-                    if (x != 0 || y != 0) {
-                        let qk = tileUtils.tileXYToQuadKey(tileZ, tileY + y, tileX + x);
-                        // let dtile = <GLTile> this.display.buckets.get(qk, true);
-                        // let qk = tileUtils.tileXYToQuadKey(tile.z, tile.y + y, tile.x + x);
-                        // let neighbour = provider.getCachedTile(qk);
-                        // if (neighbour && neighbour.collision) {
-                        //     let ren = neighbour.collision.rendered;
-                        let collisions = this.tiles.get(qk);
-                        if (collisions) {
-                            let ren = collisions.rendered;
-                            for (let o of ren) {
+        for (let ty = -1; ty < 2; ty++) {
+            for (let tx = -1; tx < 2; tx++) {
+                if (tx != 0 || ty != 0) {
+                    let qk = tileUtils.tileXYToQuadKey(z, y + ty, x + tx);
+                    let collisionData = this.tiles.get(qk);
+                    if (collisionData) {
+                        for (let qk in collisionData) {
+                            let collisions = collisionData[qk];
+                            for (let o of collisions) {
                                 neighbours[neighbours.length] = o;
                             }
                         }
                     }
                 }
             }
-
-            this.tiles.set(quadkey, collisionData = {
-                rendered: [],
-                neighbours: neighbours
-            });
         }
 
-        // this.pending.length;
+        const tileKey = this.getTileCacheKey(quadkey, layer);
 
-        this.tileCollision = collisionData;
-
-        this.layerIndex = layer.index;
+        this.curLayerTileCollision = {
+            tileKey: tileKey,
+            data: [],
+            dataKey: this.getDataKey(quadkey, layer),
+            existing: {
+                neighbours: neighbours,
+                ...this.tiles.get(tileKey) || {}
+            }
+        };
 
         this.updated = false;
     }
 
-    collides(
+    insert(
         cx: number,
         cy: number,
         width: number,
@@ -120,13 +132,9 @@ export class CollisionHandler {
         bufferOffsetEnd: number,
         attributeBuffer: Attribute | FlexAttribute,
         priority: number = Number.MAX_SAFE_INTEGER
-    ) {
-        // const estimatedTextWidth = fontInfo.getTextWidth(text);
-        // const estimatedTextWidth = fontInfo.avgCharWidth * text.length / 2;
-        let tileX = tile.x * tileSize;
-        let tileY = tile.y * tileSize;
-        const collisionInfo = this.tileCollision;
-        const rendered = collisionInfo.rendered;
+    ): boolean {
+        const tileX = tile.x * tileSize;
+        const tileY = tile.y * tileSize;
         const x1 = tileX + cx - width;
         const x2 = tileX + cx + width;
         const y1 = tileY + cy - height;
@@ -134,67 +142,80 @@ export class CollisionHandler {
 
         // align to 512er tile-grid
         if (tileSize == 256) {
-            cx -= (tile.x * .5 ^ 0) * 512 - tileX;
-            cy -= (tile.y * .5 ^ 0) * 512 - tileY;
             // tileX = (tile.x * .5 ^ 0) * 512;
             // tileY = (tile.y * .5 ^ 0) * 512;
+            cx -= (tile.x * .5 ^ 0) * 512 - tileX;
+            cy -= (tile.y * .5 ^ 0) * 512 - tileY;
         }
 
-        const bbox = {
-            minX: x1,
-            maxX: x2,
-            minY: y1,
-            maxY: y2,
+        const bbox: Data = {
             // tileX: tileX,
             // tileY: tileY,
             cx: cx,
             cy: cy,
+            minX: x1,
+            maxX: x2,
+            minY: y1,
+            maxY: y2,
             bos: bufferOffsetStart,
             boe: bufferOffsetEnd,
-            li: this.layerIndex,
             attr: attributeBuffer,
             priority: priority
         };
 
-        this.updated = true;
+        const {data, existing} = this.curLayerTileCollision;
 
-        if (this.intersects(bbox, rendered) || this.intersects(bbox, collisionInfo.neighbours)) {
-            return true;
+        if (this.intersects(bbox, data)) {
+            return false;
+        }
+        for (let name in existing) {
+            if (this.intersects(bbox, existing[name])) {
+                return false;
+            }
         }
 
-        rendered.push(bbox);
+        this.updated = true;
+        data.push(bbox);
+
+        return true;
     }
 
-    private rx: number;
-    private rz: number;
-    private s: number;
-
-    enforce() {
+    completeTile() {
         if (this.updated) {
             // force next update
             this.rx = this.rz = this.s = null;
         }
+
+        const {tileKey, dataKey, data} = this.curLayerTileCollision;
+        const tileCollisionData = this.tiles.get(tileKey) || {};
+
+        tileCollisionData[dataKey] = data;
+
+        this.tiles.set(tileKey, tileCollisionData);
+
+        this.curLayerTileCollision = null;
     }
 
-    clear(quadkey: string, layerIndex: number) {
-        const cInfo = this.tiles.get(quadkey);
+    clearTile(quadkey: string, layer: Layer) {
+        const collisionTileKey = this.getTileCacheKey(quadkey, layer);
+        const dataKey = this.getDataKey(quadkey, layer);
 
-        if (cInfo) {
-            let empty = true;
-            for (let i = 0; i < cInfo.rendered.length; i++) {
-                let r = cInfo.rendered[i];
-                if (r) {
-                    if (r.li == layerIndex) {
-                        cInfo.rendered[i] = null;
-                    } else {
-                        empty = false;
-                    }
-                }
-            }
+        if (this.curLayerTileCollision?.dataKey == dataKey) {
+            // make sure curLayerTileCollision data does not get dropped when data is attached to an updated tile..
+            // (previous tile.data overwrite would lead to drop of updated layerTileCollision)
+            return;
+        }
 
-            if (empty) {
-                this.tiles.delete(quadkey);
+        const collisionTile = this.tiles.get(collisionTileKey);
+
+        if (collisionTile) {
+            delete collisionTile[dataKey];
+
+            for (let id in collisionTile) {
+                // not empty;
+                return;
             }
+            this.tiles.delete(collisionTileKey);
         }
     }
 
@@ -203,67 +224,64 @@ export class CollisionHandler {
             // no view changes.. no need to recalculate collision
             return;
         }
-
         this.rx = rotX;
         this.rz = rotZ;
         this.s = scale;
 
-        console.time('update-collisions');
-
         const {display} = this;
-        let rendered = [];
+        const collisionData: Data[] = [];
 
         for (let screentile of tiles) {
             let quadkey = screentile.quadkey;
 
-            let collisions = this.tiles.get(quadkey);
+            let tileCollisionData = this.tiles.get(quadkey);
 
-            if (collisions) {
-                for (let i = 0, _rendered = collisions.rendered; i < _rendered.length; i++) {
-                    let bbox = _rendered[i];
+            if (tileCollisionData) {
+                for (let segment in tileCollisionData) {
+                    const collisions = tileCollisionData[segment];
 
-                    // could have been cleared because of LRU drop or layer removed
-                    if (!bbox) continue;
+                    for (let i = 0; i < collisions.length; i++) {
+                        const bbox = collisions[i];
+                        const attribute = bbox.attr;
 
-                    let attribute = bbox.attr;
+                        if (attribute) {
+                            let {minX, maxX, minY, maxY} = bbox;
+                            let halfWidth = (maxX - minX) * .5;
+                            let halfHeight = (maxY - minY) * .5;
+                            let screenX = screentile.x + bbox.cx;
+                            let screenY = screentile.y + bbox.cy;
+                            // let screenX = screentile.x + minX - bbox.tileX + halfWidth;
+                            // let screenY = screentile.y + minY - bbox.tileY + halfHeight;
+                            let ac = display.project(screenX, screenY, 0, 0); // 0,0 for unscaled world pixels
 
-                    if (attribute) {
-                        let {minX, maxX, minY, maxY} = bbox;
-                        let halfWidth = (maxX - minX) * .5;
-                        let halfHeight = (maxY - minY) * .5;
-                        let screenX = screentile.x + bbox.cx;
-                        let screenY = screentile.y + bbox.cy;
-                        // let screenX = screentile.x + minX - bbox.tileX + halfWidth;
-                        // let screenY = screentile.y + minY - bbox.tileY + halfHeight;
-                        let ac = display.project(screenX, screenY, 0, 0); // 0,0 for unscaled world pixels
-
-                        rendered.push({
-                            minX: ac[0] - halfWidth, // minX
-                            maxX: ac[0] + halfWidth, // maxX
-                            minY: ac[1] - halfHeight, // minY
-                            maxY: ac[1] + halfHeight, // maxY
-                            bos: bbox.bos,
-                            boe: bbox.boe,
-                            attr: attribute,
-                            priority: bbox.priority
-                        });
+                            collisionData.push({
+                                minX: ac[0] - halfWidth, // minX
+                                maxX: ac[0] + halfWidth, // maxX
+                                minY: ac[1] - halfHeight, // minY
+                                maxY: ac[1] + halfHeight, // maxY
+                                bos: bbox.bos,
+                                boe: bbox.boe,
+                                attr: attribute,
+                                priority: bbox.priority
+                            });
+                        }
                     }
                 }
             }
         }
 
-        let r = 0;
+        let d = 0;
         // sort by collision priority
-        rendered.sort((a, b) => b.priority - a.priority);
+        collisionData.sort((a, b) => b.priority - a.priority);
 
-        while (r < rendered.length) {
-            let bbox = rendered[r];
+        while (d < collisionData.length) {
+            let bbox = collisionData[d];
             let attribute = bbox.attr;
             let {data, size} = attribute;
             let i = bbox.bos;
             let stop = bbox.boe;
             let visible = (data[i] & 1) == 1;
-            let intersects = this.intersects(bbox, rendered, ++r);
+            let intersects = this.intersects(bbox, collisionData, ++d);
 
             if (
                 // hide all glyphs
@@ -275,10 +293,20 @@ export class CollisionHandler {
                     data[i] ^= 1; // toggle LSB
                     i += size;
                 }
-                attribute.dirty = true;
+
+                (<Attribute>attribute).dirty = true;
             }
         }
+    }
 
-        console.timeEnd('update-collisions');
+    removeTiles(layer: Layer) {
+        const {id} = layer;
+        this.tiles.forEach((collisionTile) => {
+            for (let key in collisionTile) {
+                if (Number(key.split('-')[0]) == id) {
+                    delete collisionTile[key];
+                }
+            }
+        });
     }
 }

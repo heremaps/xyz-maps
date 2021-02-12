@@ -90,13 +90,9 @@ class WebGlDisplay extends BasicDisplay {
         this.collision = new CollisionHandler(display);
 
         this.buckets.onDrop = function(buffers, index) {
-            let {quadkey, layers} = this;
+            const {quadkey, layers} = this;
 
-            if (layers[index].tileSize == 256) {
-                quadkey = quadkey.slice(0, -1);
-            }
-
-            display.collision.clear(quadkey, index);
+            display.collision.clearTile(quadkey, layers[index]);
 
             display.releaseBuffers(buffers);
         };
@@ -140,7 +136,7 @@ class WebGlDisplay extends BasicDisplay {
     }
 
     removeLayer(layer: TileLayer): number {
-        this.collision.removeLayer(this.layers.indexOf(layer));
+        this.collision.removeTiles(this.layers.get(layer));
         return super.removeLayer(layer);
     }
 
@@ -225,22 +221,14 @@ class WebGlDisplay extends BasicDisplay {
             onDone(dTile, layer);
         } else if (data.length) {
             const task = createBuffer(data, displayLayer, tileSize, tile, this.factory,
-                // on init / start
+                // on initTile / start
                 () => {
-                    let {quadkey} = dTile;
-                    if (tileSize == 256) {
-                        quadkey = quadkey.slice(0, -1);
-                    }
-                    // if its not a fresh create but tile data is getting updated make sure to ..
-                    // .. clear collision data before tile is updated / reprepared.
-                    // otherwise collision data will directly be dropped after updating tile (onDrop(...)).
-                    dTile.setData(layer, null);
-
-                    this.collision.init(quadkey, tile.x, tile.y, tile.z, displayLayer);
+                    display.collision.initTile(tile, displayLayer);
                 },
                 // on done
                 (buffer, allImgLoaded) => {
                     dTile.removeTask(task, layer);
+
                     dTile.preview(dTile.setData(layer, buffer), null);
 
                     if (!allImgLoaded) {
@@ -251,8 +239,7 @@ class WebGlDisplay extends BasicDisplay {
                     }
 
                     this.dirty = true;
-                    this.collision.enforce();
-                    // this.collision.update(displayLayer.tiles);
+                    display.collision.completeTile();
 
                     onDone(dTile, layer);
                 });
@@ -301,7 +288,6 @@ class WebGlDisplay extends BasicDisplay {
         let length;
 
         if (display.dirty || dirty) {
-            // this.render.clear();
             display.dirty = false;
             display.collision.update(display.grid.tiles[512], this.rx, this.rz, this.s,);
         }

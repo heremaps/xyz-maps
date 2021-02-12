@@ -36,6 +36,7 @@ class ScreenTile {
 }
 
 class Layer {
+    id: number;
     ready: boolean = false;
     cnt: number = 0;
     layer: TileLayer;
@@ -56,6 +57,7 @@ class Layer {
         this.layer = layer;
         this.tileSize = layer.tileSize;
         this.layers = layers;
+        this.id = Math.floor(Math.random()*1e16);
     }
 
     getZ(z: number | string): number {

@@ -417,7 +417,7 @@ export class FeatureFactory {
                     const bufferStart = attributes.a_texcoord.data.length;
                     const bufferLength = texture.bufferLength(text);
 
-                    if (style.collide || !this.collisions.collides(
+                    if (style.collide || this.collisions.insert(
                         cx + offsetX,
                         cy + offsetY,
                         estimatedTextWidth / 2,

@@ -111,7 +111,7 @@ const addLineText = (
                 const bufferStart = point.length;
                 bufferLength = bufferLength || glyphs.bufferLength(text);
 
-                if (!collisions || !collisions.collides(
+                if (!collisions || collisions.insert(
                     center[0], center[1],
                     labelDx, labelDy,
                     tile, tileSize,
