@@ -12,6 +12,7 @@
     "node_modules",
     "dist"
   ],
+  "files": [],
   "references": [
     { "path": "packages/common" },
     { "path": "packages/core" },

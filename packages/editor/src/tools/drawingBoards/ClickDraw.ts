@@ -26,7 +26,7 @@ import {simplifyPath} from '../../geometry';
 import InternalEditor from '../../IEditor';
 import Overlay from '../../features/Overlay';
 import {Navlink} from '../../features/link/NavLink';
-import {Style, TileLayer} from '@here/xyz-maps-core';
+import {EditableFeatureProvider, Style, TileLayer} from '@here/xyz-maps-core';
 
 const DEFAULT_SHAPE_STYLE = [{
     'type': 'Circle',
@@ -384,7 +384,7 @@ class ClickDraw {
                         geometry: geometry,
                         properties: feature.properties
                     },
-                    provider: settings['layer'].getProvider()
+                    provider: <EditableFeatureProvider>settings.layer.getProvider()
                 });
                 iEdit.objects.history.saveChanges();
                 this.hide();

@@ -17,7 +17,7 @@
  * License-Filename: LICENSE
  */
 
-import {LocalProvider, TileLayer} from '@here/xyz-maps-core';
+import {LayerStyle, LocalProvider, TileLayer} from '@here/xyz-maps-core';
 import OverlayStyles from '../styles/OverlayStyles';
 import InternalEditor from '../IEditor';
 
@@ -25,6 +25,7 @@ import InternalEditor from '../IEditor';
 export class OverlayProvider extends LocalProvider {
     id: string;
     _e: () => InternalEditor;
+
     constructor(options = {}) {
         (<any>options).name = 'EOP';
         super(options);
@@ -41,7 +42,7 @@ export const createOverlayLayer = (iEdit: InternalEditor): TileLayer => {
         name: 'EditorOverlay',
         min: 1,
         max: 28,
-        styles: new OverlayStyles(),
+        style: <LayerStyle><unknown> new OverlayStyles(),
         provider: provider
     });
 };

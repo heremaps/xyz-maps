@@ -1,17 +1,12 @@
 {
   "name": "XYZ Maps Documentation",
-  "mode": "modules",
   "out": "docs",
   "theme": "default",
-  "ignoreCompilerErrors": "false",
-  "preserveConstEnums": "true",
   "exclude": "*.spec.ts",
   "disableSources": "true",
   "excludePrivate": "true",
   "excludeExternals": "true",
-  "excludeNotExported": "true",
   "excludeNotDocumented": "true",
   "external-modulemap": ".*packages\/([^\/]+)\/.*",
-  "stripInternal": "false",
   "plugin": ["@strictsoftware/typedoc-plugin-monorepo","typedoc-plugin-remove-references"]
 }

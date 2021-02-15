@@ -55,6 +55,21 @@ class Line extends Feature {
         }
         return index;
     }
+
+    /**
+     * Get the geographical coordinate(s) of the Line feature.
+     */
+    coord(): [number, number, number?][];
+    /**
+     * Set the geographical coordinate(s) of the Line feature.
+     *
+     * @param coordinates - the geographical coordinates that should be set.
+     */
+    coord(coordinates: [number, number, number?][]);
+
+    coord(coordinates?: [number, number, number?][]): [number, number, number?][] {
+        return super.coord(coordinates);
+    }
 }
 
 (<any>Line).prototype.class = 'LINE';
