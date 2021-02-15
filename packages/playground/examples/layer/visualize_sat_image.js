@@ -14,7 +14,7 @@ var myLayer = new TileLayer({
         // Name of the provider
         name: 'myImageProvider',
         // URL of image tiles
-        url: 'https://{SUBDOMAIN_INT_1_4}.mapcreator.tilehub.api.here.com/tilehub/wv_livemap_bc/png/sat/256/{QUADKEY}?access_token=' + YOUR_ACCESS_TOKEN
+        url: 'https://maphub.api.here.com/satellite/{QUADKEY}?access_token=' + YOUR_ACCESS_TOKEN
     })
 });
 
