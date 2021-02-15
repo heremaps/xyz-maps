@@ -1,6 +1,5 @@
 # XYZ Maps JS
 [![License](https://img.shields.io/badge/License-Apache%202.0-blue.svg)](https://opensource.org/licenses/Apache-2.0)
-[![Build Status](https://travis-ci.com/heremaps/xyz-editor.svg?branch=master)](https://travis-ci.com/heremaps/xyz-editor)
 ![Actions Status](https://github.com/heremaps/xyz-editor/workflows/Build%20&%20Test/badge.svg)
 ![Actions Status](https://github.com/heremaps/xyz-editor/workflows/Docs%20&%20Playground/badge.svg)
 ![npm version](https://img.shields.io/npm/v/@here/xyz-maps-editor.svg)
