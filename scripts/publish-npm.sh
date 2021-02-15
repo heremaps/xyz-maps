@@ -22,8 +22,6 @@
 
 set -ex
 
-echo "//registry.npmjs.org/:_authToken=$NODE_AUTH_TOKEN" > ~/.npmrc
-
 # packages that should be published
 declare -a packages=("common" "core" "display" "editor")
 
