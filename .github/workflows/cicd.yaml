@@ -46,6 +46,11 @@ jobs:
                 run: yarn run build-release
             -   name: Run tests
                 run: yarn test --browser ${{ matrix.browser }}
+            -   name: Get npm dist-tag
+                id: get-dist-tag
+                run: |
+                    distTag=$(jq -r '.version | match(".*-([^.]*)").captures[0].string' package.json)
+                    echo "::set-output name=dist-tag::${distTag:-latest}"
             -   name: npm publish
                 if: matrix.os == 'ubuntu-latest'
                 uses: pascalgn/npm-publish-action@1.3.6
@@ -55,7 +60,7 @@ jobs:
                     commit_pattern: "^Release (\\S+)"
                     workspace: "."
                     publish_command: "npx lerna"
-                    publish_args: "publish from-package --no-git-tag-version --yes"
+                    publish_args: "publish from-package --no-git-tag-version --yes --dist-tag ${{ steps.get-dist-tag.outputs.dist-tag }}"
                 env:
                     GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
                     NPM_AUTH_TOKEN: ${{ secrets.NPM_TOKEN }}
