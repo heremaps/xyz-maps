@@ -124,12 +124,14 @@ export const App: React.FC = (props: { examples: any }) => {
         const hash = window.location.hash.substr(1);
         if (hash) {
             let [c, title] = hash.split('-');
-            c = decodeURI(c);
-            title = title.replace(/_/g, ' ');
-            for (let i = 0, examples = props.examples[c]; i < examples.length; i++) {
-                if (examples[i].title == title) {
-                    initExample = [i, c];
-                    break;
+            if (title){
+                c = decodeURI(c);
+                title = title.replace(/_/g, ' ');
+                for (let i = 0, examples = props.examples[c]; i < examples.length; i++) {
+                    if (examples[i].title == title) {
+                        initExample = [i, c];
+                        break;
+                    }
                 }
             }
         }
@@ -138,6 +140,9 @@ export const App: React.FC = (props: { examples: any }) => {
 
     useEffect(() => {
         const [index, section] = initialExample.current;
+
+        debugger;
+
         selectExample(props.examples[section][index]);
     }, []);
 
