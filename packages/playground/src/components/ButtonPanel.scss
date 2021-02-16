@@ -23,13 +23,13 @@
     height: 26px;
     background-color: $backgroundColor;
 
-    .button {
-        margin: 0;
-    }
-
-    .button#run, .button#reset, .button#dl, a {
+    .button#run, .button#reset, .button#dl, .button#docs {
         float: right;
         margin-left: 2px;
+    }
+
+    .button {
+        margin: 0;
     }
 
     #dl {

@@ -43,7 +43,7 @@ const ButtonPanel: React.FC = (props: {
         <Button active={active == 'html'} id={'html'} name={'HTML/CSS'} onClick={handleClick}></Button>
         <Button id={'run'} name={'Run'} onClick={handleClick}></Button>
         <Button id={'reset'} name={'Reset'} onClick={handleClick}></Button>
-        <a target={'_blank'} href={settings.path.doc + props.docs}>{'Docs'}</a>
+        <a id={'docs'} className={'button'} target={'_blank'} href={settings.path.doc + props.docs}>{'Docs'}</a>
         <Button id={'dl'} name={'\u2191'} onClick={handleClick}></Button>
     </div>);
 };

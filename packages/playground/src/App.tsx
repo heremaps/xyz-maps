@@ -140,9 +140,6 @@ export const App: React.FC = (props: { examples: any }) => {
 
     useEffect(() => {
         const [index, section] = initialExample.current;
-
-        debugger;
-
         selectExample(props.examples[section][index]);
     }, []);
 

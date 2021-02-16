@@ -18,7 +18,7 @@
  */
 @import 'Theme';
 
-.button, a {
+.button {
     outline: none;
     background-color: $primaryColor;
     border: none;
@@ -33,6 +33,6 @@
     float: left;
 }
 
-.button:hover, .button.active, a:hover, #dl:hover {
+.button:hover, .button.active, #dl:hover {
     background-color: $secondaryColor;
 }
