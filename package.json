@@ -44,7 +44,7 @@
     "lint-staged": "^10.2.11",
     "ts-node": "^8.10.2",
     "typescript": "^3.9.6",
-    "typedoc": "^0.20.23",
+    "typedoc": "^0.19.2",
     "typedoc-plugin-remove-references": "^0.0.5",
     "typescript": "^3.9.6",
     "fs-extra": "^9.1.0"
