@@ -35,6 +35,8 @@ $border: 2px solid white;
     font-size: 30px;
     color: white;
 
+    cursor: pointer;
+
     div {
         float: left;
         margin: 4px;
@@ -68,7 +70,7 @@ $border: 2px solid white;
     border-right: $border;
 }
 
-.fs-toggle :hover, .fs-toggle:hover div {
+.fs-toggle:hover, .fs-toggle :hover div  {
     background-color: #383c45;
 }
 

@@ -31,6 +31,7 @@
     font-family: $fontFamily;
     box-sizing: border-box;
     float: left;
+    cursor: pointer
 }
 
 .button:hover, .button.active, #dl:hover {
