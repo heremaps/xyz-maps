@@ -20,7 +20,7 @@
 import oTools from '../../features/link/NavLinkTools';
 import MultiLink from './MultiLink';
 import InternalEditor from '../../IEditor';
-import Map from '@here/xyz-maps-display';
+import {Map} from '@here/xyz-maps-display';
 import {Navlink} from '../../features/link/NavLink';
 import {InternalZoneOptions} from './Zone';
 

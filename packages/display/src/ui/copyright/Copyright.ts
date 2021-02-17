@@ -21,7 +21,7 @@ import UIComponent from '../UIComponent';
 import Details from './CopyrightDetails';
 import {CopyrightSource, CopyrightSourceScope} from './CopyrightSource';
 import {global, Map, JSUtils} from '@here/xyz-maps-common';
-import Display from '../../Map';
+import {Map as Display} from '../../Map';
 // @ts-ignore
 import defaultOwner from 'ui-default-cOwner';
 // @ts-ignore

@@ -27,7 +27,7 @@ import ObjectManager from './features/ObjectManager';
 import DisplayListener from './DisplayListener';
 import Hooks from './Hooks';
 import Map from './map/Map';
-import Display from '@here/xyz-maps-display';
+import {Map as Display} from '@here/xyz-maps-display';
 import {Feature} from './features/feature/Feature';
 import {ZoneSelector} from './API/EZoneSelector';
 import {DrawingBoard} from './API/DrawingBoard';

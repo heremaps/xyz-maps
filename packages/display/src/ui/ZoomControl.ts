@@ -18,7 +18,7 @@
  */
 
 import UIComponent from './UIComponent';
-import Display from '../Map';
+import {Map as Display} from '../Map';
 import {MapOptions} from '../MapOptions';
 
 type ZoomCtrlOptions = {

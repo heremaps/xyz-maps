@@ -18,7 +18,7 @@
  */
 
 import {fromString} from '../DOMTools';
-import Map from '../Map';
+import {Map} from '../Map';
 import {MapOptions} from '../MapOptions';
 
 let styleEl;

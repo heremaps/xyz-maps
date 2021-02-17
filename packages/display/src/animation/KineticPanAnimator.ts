@@ -19,7 +19,7 @@
 
 import {easeOutSine} from './Easings';
 import {JSUtils} from '@here/xyz-maps-common';
-import Map from '../Map';
+import {Map} from '../Map';
 
 const isFnc = JSUtils.isFunction;
 

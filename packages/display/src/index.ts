@@ -17,12 +17,13 @@
  * License-Filename: LICENSE
  */
 
-import Map from './Map';
+import {Map} from './Map';
 import {global} from '@here/xyz-maps-common';
 
 // WORKAROUND IF BUNDELED BY WEBPACK (UMD REMOVAL)
 // make sure global ns is also available for webpack users.
 global.here.xyz.maps.Map = Map;
+
 
 export {Map};
 export {MapEvent} from './event/Event';

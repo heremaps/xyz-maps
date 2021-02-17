@@ -19,7 +19,7 @@
 
 import {JSUtils} from '@here/xyz-maps-common';
 import {Animation} from './Animation';
-import Map from '../Map';
+import {Map} from '../Map';
 
 const isFnc = JSUtils.isFunction;
 

@@ -69,7 +69,7 @@ export class Animation {
     }
 
     async start() {
-        return new Promise((resolve) => {
+        return new Promise<void>((resolve) => {
             this.done = resolve;
             if (!this.ts) {
                 this.ts = Date.now();

@@ -91,7 +91,7 @@ function calcZoomLevelForBounds(minLon, minLat, maxLon, maxLat, mapWidth, mapHei
 /**
  * XYZ Map is a highly customizable WebGL based vector map display that's optimized for map editing, larger raw datasets and frequently changing data.
  */
-export default class Map {
+export class Map {
     static getInstances() {
         return instances.slice();
     }

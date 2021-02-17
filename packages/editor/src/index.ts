@@ -37,7 +37,7 @@ export * from './features/area/Area';
 export * from './features/location/Place';
 export * from './features/location/Address';
 export * from './features/link/NavLink';
-
+export * from './features/area/AreaShape';
 export * from './features/feature/EditorProperties';
 
 const NAVLINK = 'NAVLINK';
@@ -46,12 +46,7 @@ const MARKER = 'MARKER';
 const PLACE = 'PLACE';
 const ADDRESS = 'ADDRESS';
 const LINE = 'LINE';
-const LONGITUDE = 'longitude';
-const LATITUDE = 'latitude';
-
 const objectTypeMapping = {};
-
-let CONFIG;
 let UNDEF;
 
 objectTypeMapping[NAVLINK] = 'Navlink';
