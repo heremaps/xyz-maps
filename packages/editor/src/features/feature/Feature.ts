@@ -19,11 +19,10 @@
 
 import oTools from '../oTools';
 import {JSUtils} from '@here/xyz-maps-common';
-import {Feature as GeoJSONFeature, GeoPoint, EditableRemoteTileProvider} from '@here/xyz-maps-core';
+import {Feature as GeoJSONFeature, GeoPoint, EditableRemoteTileProvider, Style} from '@here/xyz-maps-core';
 import {EditorProperties, DefaultEditorProperties} from './EditorProperties';
 import {FeatureProperties} from './Properties';
 import InternalEditor from '../../IEditor';
-import {Style} from '@here/xyz-maps-core';
 
 
 type EditableProvider = EditableRemoteTileProvider;

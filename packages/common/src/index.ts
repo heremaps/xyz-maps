@@ -22,7 +22,7 @@ import Listener from './Listener';
 import LRU from './LRU';
 import parseJSONArray from './parseJSONArray';
 import JSUtils from './JSUtils';
-import * as geotools from './geotools';
+import geotools from './geotools';
 import global from './global';
 import Set from './Set';
 import Map from './Map';

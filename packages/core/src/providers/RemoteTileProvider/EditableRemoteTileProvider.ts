@@ -27,7 +27,8 @@ import {EditableFeatureProvider} from '../EditableFeatureProvider';
 import {Feature} from '../../features/Feature';
 import {PostProcesserInput, createRemoteProcessor, isPostprocessor} from './processors';
 import {GeoJSONCoordinate, GeoJSONBBox, GeoJSONFeature} from '../../features/GeoJSON';
-import {GeoPoint, GeoRect} from '@here/xyz-maps-core';
+import {GeoPoint} from '../../geo/GeoPoint';
+import {GeoRect} from '../../geo/GeoRect';
 
 let UNDEF;
 
@@ -494,7 +495,7 @@ export abstract class EditableRemoteTileProvider extends EditableFeatureProvider
             if (bbox.length == 4) { // it's just a point
                 searchBBox = bbox; // [ bbox[1], bbox[2], bbox[3], bbox[0] ];
             } else {
-                searchBBox = geotools.getPointBBox(<geotools.Point>bbox, radius);
+                searchBBox = geotools.getPointBBox(<GeoJSONCoordinate>bbox, radius);
             }
         } else if (typeof bbox == 'number' || typeof bbox == 'string' || !bbox) { // search per ID
             return provider.getFeatures(bbox, options);

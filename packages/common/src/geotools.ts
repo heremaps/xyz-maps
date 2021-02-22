@@ -44,7 +44,7 @@ export const calcBearing = (c1: Point, c2: Point) => {
 };
 
 // based on www.movable-type.co.uk/scripts/latlong.html
-export const movePoint = (position: Point, distance: number, bearing: number, radius?: number) : Point => {
+export const movePoint = (position: Point, distance: number, bearing: number, radius?: number): Point => {
     radius = (radius === undefined) ? earthRadius : radius;
     // see http://williams.best.vwh.net/avform.htm#LL
     const d = distance / radius; // angular distance in radians
@@ -107,3 +107,5 @@ export const distance = (p1: Point, p2: Point) => {
     const dist = earthRadius * c;
     return dist;
 };
+
+export default {calcBearing, movePoint, getPointBBox, mergeBBoxes, extendBBox, distance};

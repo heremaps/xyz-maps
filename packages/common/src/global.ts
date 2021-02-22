@@ -20,7 +20,7 @@
 declare const global: any;
 // TODO: create own gloabl that provides required functionality instead of just using window for now.
 // required: postMessage, setTimeout, clearTimeout, Math, XMLHTTPRequest...
-interface Global extends Window {
+export interface Global extends Window {
     Math: typeof Math;
     // global namespace
     here: { xyz: { maps: any } };
