@@ -14,14 +14,17 @@
   },
   "main": "dist/xyz-maps-editor.min.js",
   "module": "dist/xyz-maps-editor.esm.min.js",
+  "types": "xyz-maps-editor.d.ts",
   "files": [
-    "dist/xyz*.min.js"
+    "dist/xyz*.min.js",
+    "dist/xyz-maps-editor.d.ts"
   ],
   "publishConfig": {},
   "scripts": {
     "watch-dev": "rollup -c --watch --environment BUILD:dev",
     "build-dev": "rollup -c --environment BUILD:dev",
-    "build-release": "rollup -c --environment BUILD:production"
+    "build-release": "rollup -c --environment BUILD:production",
+    "build-dts": "npx buildDts -p ."
   },
   "dependencies": {
     "@here/xyz-maps-common": "^0.20.0",

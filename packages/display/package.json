@@ -14,13 +14,16 @@
   },
   "main": "dist/xyz-maps-display.min.js",
   "module": "dist/xyz-maps-display.esm.min.js",
+  "types": "xyz-maps-display.d.ts",
   "files": [
-    "dist/xyz*.min.js"
+    "dist/xyz*.min.js",
+    "dist/xyz-maps-display.d.ts"
   ],
   "scripts": {
     "watch-dev": "rollup -c --watch --environment BUILD:dev",
     "build-dev": "rollup -c --environment BUILD:dev",
-    "build-release": "rollup -c --environment BUILD:production"
+    "build-release": "rollup -c --environment BUILD:production",
+    "build-dts": "npx buildDts -p ."
   },
   "publishConfig": {},
   "dependencies": {

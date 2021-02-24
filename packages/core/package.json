@@ -13,14 +13,16 @@
     "directory": "packages/core"
   },
   "main": "dist/xyz-maps-core.min.js",
+  "types": "xyz-maps-core.d.ts",
   "files": [
-    "dist/xyz*.min.js"
+    "dist/xyz*.min.js",
+    "dist/xyz-maps-core.d.ts"
   ],
   "scripts": {
-    "decleration": "tsc --allowJs false --emitDeclarationOnly --declaration --module amd --outFile ./dist/test.js",
     "watch-dev": "rollup -c --watch --environment BUILD:dev",
     "build-dev": "rollup -c --environment BUILD:dev",
-    "build-release": "rollup -c --environment BUILD:production"
+    "build-release": "rollup -c --environment BUILD:production",
+    "build-dts": "npx buildDts -p ."
   },
   "publishConfig": {},
   "dependencies": {

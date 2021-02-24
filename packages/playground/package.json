@@ -42,7 +42,6 @@
     "rollup-plugin-uglify": "^6.0.4",
     "sass": "^1.32.5",
     "tslib": "^2.0.0",
-    "typescript": "^3.9.3",
-    "yargs": "^15.3.1"
+    "typescript": "^3.9.3"
   }
 }
