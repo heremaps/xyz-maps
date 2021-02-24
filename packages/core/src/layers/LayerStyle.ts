@@ -123,8 +123,10 @@ export interface Style {
      */
     strokeDasharray?: number[] | styleNumberArrayFunction,
     /**
-     * Opacity of the style.
+     * Defines the opacity of the style.
+     * The value must be between 0.0 (fully transparent) and 1.0 (fully opaque).
      * It is valid for all style types.
+     * @default 1
      */
     opacity?: number | styleNumberFunction;
     /**
