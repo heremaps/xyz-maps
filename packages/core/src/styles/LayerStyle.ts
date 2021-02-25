@@ -299,6 +299,13 @@ export type StyleGroup = Array<Style>;
  * ```
  */
 export interface LayerStyle {
+
+    /**
+     * @deprecated define strokeWidth style property using a "zoomRange" value instead.
+     * @hidden
+     */
+    strokeWidthZoomScale?: (level: number) => number;
+
     /**
      * the color for the background of the layer
      */

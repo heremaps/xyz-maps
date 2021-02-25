@@ -926,9 +926,17 @@ export class Map {
     /**
      * Get the current added layer(s) of the map.
      *
-     * @param index - get a specific layer at index in the layer hierarchy
      * @returns the layer(s) that are added to the map
      */
+    getLayers(): TileLayer[];
+    /**
+     * Get a specific Layer of the map.
+     *
+     * @param index - get a specific layer at index in the layer hierarchy
+     * @returns the layer that is added to the map
+     */
+    getLayers(index: number): TileLayer;
+
     getLayers(index?: number): TileLayer | TileLayer[] {
         const layers = this.layers;
         if (index != UNDEF) {

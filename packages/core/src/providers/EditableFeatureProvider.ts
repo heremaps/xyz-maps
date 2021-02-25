@@ -61,6 +61,9 @@ type Hooks = {
     'Feature.remove'?: RemoveHook | RemoveHook[]
 };
 
+/**
+ * EditableFeatureProvider is an abstract FeatureTileProvider that can be edited using the {@link Editor} module.
+ */
 export abstract class EditableFeatureProvider extends FeatureTileProvider {
     _e: any;
 

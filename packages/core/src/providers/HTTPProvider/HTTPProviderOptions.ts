@@ -48,7 +48,7 @@ export interface HTTPProviderOptions extends EditableRemoteTileProviderOptions {
      * }
      * ```
      */
-    url: string | ((z: number, y: number, x: number, quadkey: string) => string);
+    url?: string | ((z: number, y: number, x: number, quadkey: string) => string);
 
     /**
      * Indicates if requests are made with credentials.

@@ -29,5 +29,5 @@ export interface EditableRemoteTileProviderOptions extends RemoteTileProviderOpt
      *
      *  @default false
      */
-    editable: boolean;
+    editable?: boolean;
 };

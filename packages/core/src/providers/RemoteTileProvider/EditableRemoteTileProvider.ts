@@ -51,7 +51,7 @@ class FeatureError extends Error {
 }
 
 /**
- *  EditableRemoteTileProvider is a remote tile provider that can be edited using the {@link editor.Editor} module.
+ *  EditableRemoteTileProvider is a remote tile provider that can be edited using the {@link Editor} module.
  */
 export abstract class EditableRemoteTileProvider extends EditableFeatureProvider {
     sizeKB = 0;

@@ -64,7 +64,7 @@ interface SpaceProviderOptions extends HTTPProviderOptions {
      *
      * @default "https://xyz.api.here.com/hub/spaces"
      */
-    url: string;
+    url?: string;
 
     /**
      * define property search query to enable remote filtering by property search.
