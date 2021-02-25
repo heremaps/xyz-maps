@@ -362,13 +362,6 @@ export class TileLayer {
      * Search for feature(s) in the layer.
      *
      * @param options - configure the search
-     * @param options.id - search feature by id.
-     * @param options.ids - Array of feature ids to search.
-     * @param options.point - Geographical center point of the circle to search in. options.radius must be defined.
-     * @param options.radius - Radius of the circle in meters, it is used in "point" search.
-     * @param options.rect - Geographical Rectangle to search in. [minLon, minLat, maxLon, maxLat] | GeoRect.
-     * @param options.remote - Force the data provider(s) to do remote search if no result is found in local cache.
-     * @param options.onload - Callback function for "remote" search.
      * @example
      * ```
      * // searching by id:
@@ -399,12 +392,33 @@ export class TileLayer {
      * @returns array of features
      */
     search(options: {
+        /**
+         * search a feature by id.
+         */
         id?: number | string,
+        /**
+         * Array of feature ids to search.
+         */
         ids?: number[] | string[],
+        /**
+         * Geographical center point of the circle to search in. options.radius must be defined.
+         */
         point?: GeoPoint,
+        /**
+         * Radius of the circle in meters, it is used in "point" search.
+         */
         radius?: number,
+        /**
+         * Geographical Rectangle to search in. [minLon, minLat, maxLon, maxLat] | GeoRect.
+         */
         rect?: GeoRect | GeoJSONBBox,
+        /**
+         * Force the data provider(s) to do remote search if no result is found in local cache.
+         */
         remote?: boolean,
+        /**
+         * Callback function for "remote" search.
+         */
         onload?: (result: Feature[] | null) => void
     }): Feature[];
 
@@ -492,10 +506,10 @@ export class TileLayer {
      * })
      *
      */
-    search(id: string | number, options: {
+    search(id: string | number, options?: {
         remote?: boolean,
         onload?: (result: Feature) => void
-    }): Feature[];
+    }): Feature;
 
     search(options: GeoRect | GeoJSONBBox | GeoPoint | string | number | {
         id?: number | string,
@@ -505,7 +519,7 @@ export class TileLayer {
         rect?: GeoRect | GeoJSONBBox,
         remote?: boolean,
         onload?: (result: Feature[] | null) => void
-    }, _options?): Feature[] {
+    }, _options?): Feature | Feature[] {
         const prov = <FeatureProvider> this._fp;
 
         if (prov && prov.search) {

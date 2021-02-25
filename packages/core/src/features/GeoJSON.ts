@@ -25,6 +25,10 @@ export type GeoJSONGeometryType =
     | 'Polygon'
     | 'MultiPolygon';
 
+/**
+ * Defines a geographical rectangle.
+ * The values of a GeoJSONBBox array are "[west: number, south: number, east: number, north: number]"
+ */
 export type GeoJSONBBox = [number, number, number, number];
 
 /**
@@ -48,7 +52,7 @@ export interface GeoJSONFeature {
     type?: 'Feature';
 
     /*
-     * The bounding box includes information on the coordinate range of the Features.
+     * The bounding box includes information on the coordinate range of the Feature.
      * The values of a bbox array are "[west: number, south: number, east: number, north: number]"
      */
     bbox?: GeoJSONBBox;

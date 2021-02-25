@@ -61,7 +61,7 @@ export interface Style {
      * Indicates type of the shape to render.
      * Its value must be one of the following: "Circle", "Rect", "Text", "Image", "Line" or "Polygon".
      */
-    type: 'Circle' | 'Rect' | 'Image' | 'Text' | 'Line' | 'Polygon';
+    type: 'Circle' | 'Rect' | 'Image' | 'Text' | 'Line' | 'Polygon' | string;
     /**
      * Indicates the drawing order within a layer.
      * Styles with larger zIndex value are rendered above those with smaller values.
