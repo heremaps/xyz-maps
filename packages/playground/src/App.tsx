@@ -52,11 +52,14 @@ const fetchExample = async (example) => {
 };
 
 
+
 export const App: React.FC = (props: { examples: any }) => {
     const containerRef = React.useRef(null);
     const previewRef = React.useRef(null);
     const prevGridTemplateColumns = React.useRef(null);
     const initialExample = React.useRef(null);
+    const dtsPaths = React.useRef(null);
+
     const isMobileMode = window.innerWidth <= 768;
     let [exampleSrc, setExampleSrc] = React.useState({
         html: '',
@@ -72,7 +75,6 @@ export const App: React.FC = (props: { examples: any }) => {
     let [apiVersion, setApiVersion] = React.useState('');
     let [previewWidth, setPreviewWidth] = React.useState('calc( 50% - 4px )');
     let [editorWidth, setEditorWidth] = React.useState('calc( 50% - 4px )');
-
 
     const selectExample = async (example: Example) => {
         let exampleSources = await fetchExample(example);
@@ -124,7 +126,7 @@ export const App: React.FC = (props: { examples: any }) => {
         const hash = window.location.hash.substr(1);
         if (hash) {
             let [c, title] = hash.split('-');
-            if (title){
+            if (title) {
                 c = decodeURI(c);
                 title = title.replace(/_/g, ' ');
                 for (let i = 0, examples = props.examples[c]; i < examples.length; i++) {
@@ -146,6 +148,15 @@ export const App: React.FC = (props: { examples: any }) => {
     useLayoutEffect(() => {
         !isMobileMode && updateColumnSize();
     }, []);
+
+    if (!dtsPaths.current) {
+        // create declaration-path-map
+        dtsPaths.current = {};
+        const libs = settings.path['xyz-maps'];
+        for (let name in libs) {
+            dtsPaths.current[`@here/xyz-maps-${name}`] = libs[name].replace('.js', '.d.ts');
+        }
+    }
 
     let [visibility, setVisibility] = React.useState(isMobileMode
         ? {examples: false, editor: true, preview: false} // mobile
@@ -185,7 +196,7 @@ export const App: React.FC = (props: { examples: any }) => {
             </ExampleList>
             <div className={'container'} ref={containerRef}>
                 <Editor language={'js'} value={exampleSrc} onChange={updateSource} onDownload={onDownload}
-                    active={visibility.editor} theme={settings.monaco.theme}
+                    active={visibility.editor} theme={settings.monaco.theme} dtsPaths={dtsPaths.current}
                 />
                 <Slider onPointerDown={() => setPreviewPointerEvents(false)} onPointerMove={updateColumnSize}
                     onPointerUp={() => setPreviewPointerEvents(true)} containerRef={containerRef}

@@ -17,11 +17,42 @@
  * License-Filename: LICENSE
  */
 import React, {useRef} from 'react';
-import MonacoEditor from '@monaco-editor/react';
+import MonacoEditor, {useMonaco} from '@monaco-editor/react';
 import {ButtonPanel} from './ButtonPanel';
 import './Editor.scss';
 
 export type Value = { html: string, js: string, docs: string };
+
+const fetchDeclarations = (
+    dtsPaths: { [module: string]: string },
+    onLoad: (declarations: { [module: string]: string }) => void
+) => {
+    let cnt = 0;
+    const declarations = {};
+    const ready = () => {
+        if (!--cnt) {
+            onLoad(declarations);
+        }
+    };
+    for (let name in dtsPaths) {
+        cnt++;
+        fetch(dtsPaths[name])
+            .then((response) => {
+                if (response.status != 200) {
+                    throw new TypeError(`Declaration not found for module ${name}`);
+                }
+                return response.text();
+            })
+            .then((data) => {
+                declarations[name] = data;
+                ready();
+            }).catch((e) => {
+                delete declarations[name];
+                ready();
+            });
+    }
+};
+
 
 export const Editor = (props: {
     language: 'js' | 'html',
@@ -29,12 +60,42 @@ export const Editor = (props: {
     onDownload?: () => void
     value?: Value,
     theme?: string
-    active?: boolean
+    active?: boolean,
+    dtsPaths?: { [module: string]: string }
 }) => {
     const editorRef = useRef(null);
+    const modelPath = useRef(null);
     const [language, setLanguage] = React.useState(props.language);
-
+    const [declarations, setDeclarations] = React.useState(false);
+    const declarationsAdded = useRef(false);
     const foldRegions = useRef(false);
+
+    // triggers reinitialization after the first initialization so we can create the modelPath
+    const monaco = useMonaco();
+    if (monaco) {
+        if (declarations && !declarationsAdded.current) {
+            // add the declaration files to monaco
+            declarationsAdded.current = true;
+            for (let module in declarations) {
+                const libSource = declarations[module];
+                const libUri = `file:///${module}.d.ts`;
+                monaco.languages.typescript.typescriptDefaults.addExtraLib(libSource, libUri);
+            }
+        }
+        if (!modelPath.current) {
+            modelPath.current = monaco.Uri.parse('file:///example.ts');
+            monaco.languages.typescript.typescriptDefaults.addExtraLib(`declare const YOUR_ACCESS_TOKEN: string;`);
+        }
+    }
+
+
+    React.useEffect(() => {
+        const {dtsPaths} = props;
+        if (dtsPaths) {
+            fetchDeclarations(dtsPaths, setDeclarations);
+        }
+    }, []);
+
 
     // const updateEditorDimensions = ()=>{
     //     if (editorRef.current) {
@@ -49,9 +110,7 @@ export const Editor = (props: {
 
     const handleEditorDidMount = (editor, monaco) => {
         editorRef.current = editor;
-        // updateEditorDimensions();
-
-        monaco.languages.registerFoldingRangeProvider('javascript', {
+        monaco.languages.registerFoldingRangeProvider('typescript', {
             provideFoldingRanges: (model, context, token) => {
                 let ranges = [];
                 for (let i = 1, start; i <= model.getLineCount(); i++) {
@@ -122,8 +181,9 @@ export const Editor = (props: {
 
         <div className={'monacoEditor'} ref={containerRef}>
             <MonacoEditor
-                language={language == 'js' ? 'javascript' : language}
+                language={language == 'js' ? 'typescript' : language}
                 value={props.value[language]}
+                path={modelPath.current}
                 onMount={handleEditorDidMount}
                 theme={props.theme}
                 // width='300px'
@@ -133,7 +193,6 @@ export const Editor = (props: {
                         enabled: false
                     },
                     automaticLayout: true
-                    // automaticLayout: false
                 }}
             />
         </div>
