@@ -19,12 +19,12 @@
 
 import {Listener as Listeners} from '@here/xyz-maps-common';
 import defaultStylesDef from '../styles/default';
-import LayerStyleImpl from './LayerStyleImpl';
+import LayerStyleImpl from '../styles/LayerStyleImpl';
 
-import {LayerStyle, Style} from './LayerStyle';
+import {Style} from '../styles/LayerStyle';
 
 /* exported Options */
-import {TileLayerOptions} from './Options';
+import {TileLayerOptions} from './TileLayerOptions';
 import TileProvider from '../providers/TileProvider/TileProvider';
 import {RemoteTileProvider} from '../providers/RemoteTileProvider/RemoteTileProvider';
 import {FeatureProvider} from '../providers/FeatureProvider';
@@ -94,8 +94,7 @@ export class TileLayer {
     levelOffset: number = 0;
 
     /**
-     * TileLayer
-     * @param
+     * @param options - options to configure the TileLayer
      */
     constructor(options: TileLayerOptions) {
         const layer = this;

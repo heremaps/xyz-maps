@@ -24,14 +24,20 @@ import TileStorage from '../storage/Level2Storage';
 import {LRU} from '@here/xyz-maps-common';
 import {TileLayer, DEFAULT_LAYER_MAX_ZOOM} from './TileLayer';
 import {Tile} from '../tile/Tile';
+import {MVTLayerOptions} from './MVTLayerOptions';
 
 const DEFAULT_TILE_SIZE = 512;
 
-
+/**
+ * The MVTLayer is a TileLayer designed to work with remote datasources that are delivering {@link https://github.com/mapbox/vector-tile-spec | MVT encoded} vector tiles.
+ */
 export class MVTLayer extends TileLayer {
     protected _p: MVTProvider[];
 
-    constructor(options) {
+    /**
+     * @param options - options to configure the TileLayer
+     */
+    constructor(options: MVTLayerOptions) {
         // let tileStorage = new TileStorage( level - levelOffset, 16, 16 * 4 );
 
         const remote = options['remote'];
@@ -50,9 +56,9 @@ export class MVTLayer extends TileLayer {
 
         if (!tileSize) {
             // check if tilesize is defined in url..
-            tileSize = url.match(/256|512|1024|2048|4096/);
+            const ts = url.match(/256|512|1024|2048|4096/);
 
-            if (tileSize) {
+            if (ts) {
                 tileSize = Number(tileSize[0]);
             } else {
                 tileSize = DEFAULT_TILE_SIZE;

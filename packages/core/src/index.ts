@@ -22,14 +22,13 @@ export * from './pixel/PixelRect';
 export * from './geo/GeoPoint';
 export * from './geo/GeoRect';
 export * from './layers/TileLayer';
-export * from './layers/LayerStyle';
+export * from './styles/LayerStyle';
 export * from './layers/MVTLayer';
 export * from './features/Feature';
 export * from './tile/Tile';
 export * from './service/GeoCoder';
 export {tileUtils} from './tile/TileUtils';
 export * from './features/GeoJSON';
-
 
 export {ImageProvider} from './providers/ImageProvider';
 export {GeoJSONProvider} from './providers/GeoJSONProvider';

@@ -17,10 +17,14 @@
  * License-Filename: LICENSE
  */
 
-export default {
+import {LayerStyle} from './LayerStyle';
+
+const OSMStyle: LayerStyle = {
 
     backgroundColor: '#555555',
 
+
+    // @ts-ignore deprecated!
     strokeWidthZoomScale: (level: number) => {
         return level > 17 ? 1 : level > 14 ? .5 : .25;
     },
@@ -56,3 +60,5 @@ export default {
         return layer;
     }
 };
+
+export default OSMStyle;

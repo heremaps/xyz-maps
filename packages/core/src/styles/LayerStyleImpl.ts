@@ -18,7 +18,7 @@
  */
 
 import {Feature} from '../features/Feature';
-import {LayerStyle, StyleGroup, StyleGroupMap} from './LayerStyle';
+import {StyleGroup, StyleGroupMap} from '../styles/LayerStyle';
 
 function mixin(to, from) {
     for (const f in from) {

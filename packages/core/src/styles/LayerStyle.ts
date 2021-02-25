@@ -300,6 +300,11 @@ export type StyleGroup = Array<Style>;
  */
 export interface LayerStyle {
     /**
+     * the color for the background of the layer
+     */
+    backgroundColor?: string;
+
+    /**
      *  This object contains key/styleGroup pairs.
      *  A styleGroup is an array of {@link Style}, that exactly defines how a feature should be rendered.
      */

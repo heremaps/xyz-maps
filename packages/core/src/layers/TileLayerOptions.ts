@@ -18,7 +18,7 @@
  */
 
 import TileProvider from '../providers/TileProvider/TileProvider';
-import {LayerStyle} from './LayerStyle';
+import {LayerStyle} from '../styles/LayerStyle';
 
 
 /**
@@ -55,6 +55,9 @@ export interface TileLayerOptions {
      * tileMargin that should be applied to all providers of the layer.
      */
     margin?: number;
-
+    /**
+     * the size of the tile data in pixel.
+     * @defaultValue 512
+     */
     tileSize?: number;
 }
