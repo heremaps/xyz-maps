@@ -13,7 +13,7 @@
     "directory": "packages/core"
   },
   "main": "dist/xyz-maps-core.min.js",
-  "types": "xyz-maps-core.d.ts",
+  "types": "dist/xyz-maps-core.d.ts",
   "files": [
     "dist/xyz*.min.js",
     "dist/xyz-maps-core.d.ts"

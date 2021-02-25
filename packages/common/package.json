@@ -1,7 +1,7 @@
 {
   "name": "@here/xyz-maps-common",
   "version": "0.20.0",
-  "description": "Common libs of XYZ Editor.",
+  "description": "Commonly used libraries of XYZ Maps.",
   "author": {
     "name": "HERE Europe B.V.",
     "url": "https://here.com"
