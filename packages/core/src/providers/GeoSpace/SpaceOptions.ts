@@ -23,7 +23,6 @@ import {HTTPProviderOptions} from '../HTTPProvider/HTTPProviderOptions';
  *  Options to configure the XYZ SpaceProvider.
  */
 interface SpaceProviderOptions extends HTTPProviderOptions {
-
     // /**
     //  * There are 3 environments available: 'prd'.
     //  *

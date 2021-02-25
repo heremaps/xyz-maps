@@ -71,7 +71,7 @@ class Container {
      *      layer the feature(s) should be added.
      *  @function
      *  @name here.xyz.maps.editor.features.Container#push
-     *  @return {number}
+     *  @returns {number}
      *      length of the containing features
      *
      */
@@ -239,7 +239,7 @@ class Container {
      *  @public
      *  @expose
      *  @function
-     *  @return {here.xyz.maps.editor.features.Feature} object
+     *  @returns {here.xyz.maps.editor.features.Feature} object
      *      the last object in the container
      *  @name here.xyz.maps.editor.features.Container#pop
      */

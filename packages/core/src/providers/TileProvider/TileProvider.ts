@@ -39,7 +39,7 @@ export default abstract class TileProvider {
     /**
      * The id of the Provider
      */
-    id: string;
+    id?: string;
 
     /**
      *  The name of the Provider.
@@ -49,7 +49,7 @@ export default abstract class TileProvider {
     /**
      *  default tile margin.
      */
-    margin: number = 0;
+    margin?: number = 0;
 
     dep = {};
 

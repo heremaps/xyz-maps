@@ -410,7 +410,7 @@ class NavlinkShape extends Feature {
     /**
      * Get the Navlink feature to which the NavlinkShape belongs.
      *
-     * @return the Navlink
+     * @returns the Navlink
      */
     getLink(): Navlink {
         return this.properties.parent;
@@ -419,7 +419,7 @@ class NavlinkShape extends Feature {
     /**
      * Checks if shape is start or end shape (Node) of the Navlink feature.
      *
-     * @return true if its start or end shape (Node), otherwise false
+     * @returns true if its start or end shape (Node), otherwise false
      */
     isNode(): boolean {
         return this.properties.isNode;
@@ -428,7 +428,7 @@ class NavlinkShape extends Feature {
     /**
      * Checks if shape is overlapping with an existing shape/coordinate of another Navlink feature.
      *
-     * @return true if it overlaps with another shape, false otherwise.
+     * @returns true if it overlaps with another shape, false otherwise.
      */
     isOverlapping() {
         return linkTools.checkOverlapping(
@@ -440,7 +440,7 @@ class NavlinkShape extends Feature {
     /**
      * Get the index of the shape point in the coordinates array of the respective Navlink feature.
      *
-     * @return The index of the shape point.
+     * @returns The index of the shape point.
      */
     getIndex(): number {
         return getPrivate(this).index;
@@ -460,7 +460,7 @@ class NavlinkShape extends Feature {
      * Get an array of Navlink features that are connected to this shape point.
      * Navlinks are "connected" with each other if they share the same coordinate location of start or end shape-point.
      *
-     * @return An array of Navlink Features with coordinates located at the same position as the shape.
+     * @returns An array of Navlink Features with coordinates located at the same position as the shape.
      */
     getConnectedLinks(): Navlink[] {
         return this.getLink().getConnectedLinks(this.getIndex());
@@ -529,7 +529,7 @@ class NavlinkShape extends Feature {
      * let links = shapePoint.splitLink();
      * ```
      *
-     * @return An array containing the two newly created Navlink features.
+     * @returns An array containing the two newly created Navlink features.
      */
     splitLink(): [Navlink, Navlink] {
         let childs;

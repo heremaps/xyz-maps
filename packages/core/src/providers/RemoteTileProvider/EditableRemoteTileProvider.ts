@@ -147,7 +147,7 @@ export abstract class EditableRemoteTileProvider extends EditableFeatureProvider
      *  @param options.remote -  Force the provider to do remote search if no result is found in local cache.
      *  @param options.onload - Callback function for "remote" search.
      *
-     *  @return if just a single feature is found its getting returned otherwise an array of features or undefined if none is found.
+     *  @returns if just a single feature is found its getting returned otherwise an array of features or undefined if none is found.
      */
     getFeatures(ids: number[] | string[], options?: {
         remote?: boolean,
@@ -163,7 +163,7 @@ export abstract class EditableRemoteTileProvider extends EditableFeatureProvider
      *  @param options.remote -  Force the provider to do remote search if no result is found in local cache.
      *  @param options.onload - Callback function for "remote" search.
      *
-     *  @return if just a single feature is found its getting returned otherwise an array of features or undefined if none is found.
+     *  @returns if just a single feature is found its getting returned otherwise an array of features or undefined if none is found.
      */
     getFeatures(options: {
         id?: number | string,
@@ -371,7 +371,7 @@ export abstract class EditableRemoteTileProvider extends EditableFeatureProvider
      * }
      * })
      * ```
-     * @return array containing the searched features
+     * @returns array containing the searched features
      */
     search(options: {
         id?: number | string,

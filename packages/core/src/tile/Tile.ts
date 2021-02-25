@@ -99,7 +99,7 @@ export class Tile {
     /**
      *  Checks if tile expires at given point of time.
      *
-     *  @return true when tile has expired, otherwise false.
+     *  @returns true when tile has expired, otherwise false.
      */
     expired(ts: number) {
         ts = ts || Date.now();
@@ -149,7 +149,7 @@ export class Tile {
     //  *  @function
     //  *  @name here.xyz.maps.providers.TileProvider.Tile#search
     //  *  @param {Array.<Integer>} bbox the bounding box has the coordinates in the order: [minX, minY, maxX, maxY]
-    //  *  @return {here.xyz.maps.providers.FeatureProvider.Feature}
+    //  *  @returns {here.xyz.maps.providers.FeatureProvider.Feature}
     //  */
     search(bbox: number[]): any[] {
         if (this.data) {

@@ -69,7 +69,7 @@ class LineShape extends Feature {
     /**
      * Get the Line feature to which the LineShape belongs.
      *
-     * @return the Line feature
+     * @returns the Line feature
      */
     getLine(): Line {
         return this._l;
@@ -78,7 +78,7 @@ class LineShape extends Feature {
     /**
      * Get the index of the shape point in the coordinates array of the respective Line feature.
      *
-     * @return The index of the shape point.
+     * @returns The index of the shape point.
      */
     getIndex(): number {
         return this.properties.index;

@@ -134,7 +134,7 @@ class Feature extends GeoJSONFeature {
      *  @default "default"
      *  @param type - indicates which style to return. "default" -> layer default style for the feature or the "current" applied style.
      *
-     *  @return the style of the feature
+     *  @returns the style of the feature
      */
     style(type: 'default' | 'current'): Style[];
     /**
@@ -165,7 +165,7 @@ class Feature extends GeoJSONFeature {
      *
      * @param property - name of the property
      *
-     * @return the value of the specific property
+     * @returns the value of the specific property
      */
     prop(property: string): any;
 

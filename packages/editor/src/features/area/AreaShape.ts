@@ -244,7 +244,7 @@ class AreaShape extends Feature {
     /**
      * Get the Area feature to which the ShapeShape belongs.
      *
-     * @return the Area feature
+     * @returns the Area feature
      */
     getArea(): Area {
         return this.__.area;
@@ -260,7 +260,7 @@ class AreaShape extends Feature {
     /**
      * Get the index of the shape point in the coordinates array of the polygon of respective Area feature.
      *
-     * @return The index of the shape point.
+     * @returns The index of the shape point.
      */
     getIndex() {
         return this.properties.index;

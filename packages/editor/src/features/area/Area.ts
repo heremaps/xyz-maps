@@ -101,7 +101,7 @@ class Area extends Feature {
      * @param polygonIndex - the index of the polygon where the new shape/coordinate should be inserted.
      * @param index - the index position in the coordinate array of the polygon where the new shape point should be inserted.
      *
-     * @return index of the shape or false if shape could not be added
+     * @returns index of the shape or false if shape could not be added
      */
     addShape(point: GeoPoint | PixelPoint, polygonIndex?: number, index?: number) {
         let added: number | boolean = false;

@@ -225,7 +225,7 @@ export default class Editor {
      *
      * @param active - true to enable or false to disable the editor
      *
-     * @return the current active state
+     * @returns the current active state
      */
     active(active?: boolean): boolean {
         let iEditor = this._i();
@@ -294,7 +294,7 @@ export default class Editor {
      *  @param layer - the layer the feature(s) should be added to.
      *  @param origin - allows to translate features by origin offset.
      *
-     *  @return the feature(s) that were successfully added to map
+     *  @returns the feature(s) that were successfully added to map
      */
     addFeature(
         feature: GeoJSONFeature | Feature | (GeoJSONFeature | Feature)[],
@@ -308,7 +308,7 @@ export default class Editor {
      *  @param layerMap - a map where the layerId is the key and the value are the feature(s) that should be added to the respective layer.
      *  @param origin - allows to translate features by origin offset.
      *
-     *  @return the feature(s) that were successfully added to map
+     *  @returns the feature(s) that were successfully added to map
      */
     addFeature(
         layerMap: {
@@ -416,7 +416,7 @@ export default class Editor {
      *  @param featureId - the id of the feature
      *  @param layerId - the id of the layer or the layer itself to which the feature belongs.
      *
-     *  @return the found feature in the map, otherwise null.
+     *  @returns the found feature in the map, otherwise null.
      */
     getFeature(featureId: string | number, layerId: string | TileLayer) {
         const obj = this._i().objects.get(featureId, layerId);
@@ -426,7 +426,7 @@ export default class Editor {
     /**
      *  Create a FeatureContainer.
      *
-     *  @return feature container
+     *  @returns feature container
      */
     createFeatureContainer(...features: Feature[]) {
         const container = new SimpleContainer(this._i());
@@ -437,7 +437,7 @@ export default class Editor {
     /**
      *  Clears the current selected feature.
      *
-     *  @return the cleared Feature or null of none is selected.
+     *  @returns the cleared Feature or null of none is selected.
      */
     clearFeatureSelection(): Feature | null {
         const cleared = this._i().objects.selection.clearSelected();
@@ -492,7 +492,7 @@ export default class Editor {
      *  }
      * })
      * ```
-     * @return array containing the found features
+     * @returns array containing the found features
      */
     search(options: {
         id?: number | string,
@@ -536,7 +536,7 @@ export default class Editor {
      * add a TileLayer to the editor and enable editing of its map data.
      * @param layer - the layer to be added to editor.
      *
-     * @return true indicates layer has been added successfully, otherwise false.
+     * @returns true indicates layer has been added successfully, otherwise false.
      */
     addLayer(layer: TileLayer): boolean {
         if (layer) {
@@ -581,7 +581,7 @@ export default class Editor {
      * Get all layers that are added to the editor.
      * If a index is defined the respective Layer at the index in the layer list is returned.
      *
-     * @return all layers or the respective layer at index
+     * @returns all layers or the respective layer at index
      */
     getLayers(index?: number): TileLayer | TileLayer[] {
         const {layers} = this._i();
@@ -594,7 +594,7 @@ export default class Editor {
      * layer - the layer to be removed from the map editor.
      * Editing get disabled for the layer.
      *
-     * @return true indicates layer is removed successfully, otherwise false.
+     * @returns true indicates layer is removed successfully, otherwise false.
      */
     removeLayer(layer: TileLayer): boolean {
         if (layer) {
@@ -649,7 +649,7 @@ export default class Editor {
      * This method retrieves the current value of a observable property.
      *
      * @param key - The name of the property whose value is to be retrieved
-     * @return value - The retrieved value of the property or undefined if no such property exists
+     * @returns value - The retrieved value of the property or undefined if no such property exists
      */
     get(key: 'active' | 'ready' | 'history.current' | 'history.length' | 'changes.length'): any {
         return this._i().observers.get(key);
@@ -708,7 +708,7 @@ export default class Editor {
      * Get the current zoomLevel.
      *
      * @deprecated - use the map display directly {@link display.Map.getZoomlevel}
-     * @return The current zoomLevel of the map.
+     * @returns The current zoomLevel of the map.
      */
     getZoomLevel(): number {
         return this._i().display.getZoomlevel();
@@ -718,7 +718,7 @@ export default class Editor {
      * Convert a pixel position relative to the current mapview on screen to a geographical coordinate.
      *
      * @param coordinate - The coordinate on screen in pixels.
-     * @return the geographical coordinate
+     * @returns the geographical coordinate
      */
 
     pixelToGeo(coordinate: PixelPoint | [number, number, number?]): GeoPoint {
@@ -730,7 +730,7 @@ export default class Editor {
      * Convert geographical coordinate to a pixel coordinate relative to the current mapview on screen.
      *
      * @param coordinate - the geographical coordinate
-     * @return The pixel coordinate.
+     * @returns The pixel coordinate.
      */
     geoToPixel(coordinate: GeoPoint | [number, number, number?]): PixelPoint {
         const c = this._i().map.getPixelCoord(coordinate);
@@ -771,7 +771,7 @@ export default class Editor {
     /**
      * Returns the overlay TileLayer used for user interaction with the editable map features.
      *
-     * @return the TileLayer containing all "UI" features used for user interaction with the map features.
+     * @returns the TileLayer containing all "UI" features used for user interaction with the map features.
      */
     getOverlay(): TileLayer {
         return this._i().objects.overlay.layer;
@@ -821,7 +821,7 @@ export default class Editor {
      * @param options.transactionId - transactionId that will be attached to all features of the submit operation.
      * //@param options.ignoreEventBlock - In some special cases when events are blocked(sync is triggered), set this to true to force commiting objects.
      *
-     * @return true, if there are changes to be submitted, false otherwise.
+     * @returns true, if there are changes to be submitted, false otherwise.
      */
     submit(options: {
         onSuccess?: (data) => void,
@@ -895,7 +895,7 @@ export default class Editor {
     /**
      *  Get information of all modified Features of the editor.
      *
-     *  @return Array of modified objects.
+     *  @returns Array of modified objects.
      */
     info(): Feature[] {
         const iEditor = this._i();
@@ -913,7 +913,7 @@ export default class Editor {
     /**
      *  Export data of all modified features.
      *
-     *  @return A JSON encoded string containing all modified features and its respective layer information.
+     *  @returns A JSON encoded string containing all modified features and its respective layer information.
      */
     export(): string {
         const iEditor = this._i();

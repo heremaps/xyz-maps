@@ -301,7 +301,7 @@ export class TileLayer {
      * }]);
      * ```
      *
-     * @return {here.xyz.maps.providers.FeatureProvider.Feature} feature
+     * @returns {here.xyz.maps.providers.FeatureProvider.Feature} feature
      */
     addFeature(feature: GeoJSONFeature | Feature | GeoJSONFeatureCollection | GeoJSONFeature[], style?) {
         const prov = <FeatureProvider> this._fp;
@@ -397,7 +397,7 @@ export class TileLayer {
      * }
      * })
      * ```
-     * @return array of features
+     * @returns array of features
      */
     search(options: {
         id?: number | string,
@@ -613,7 +613,7 @@ export class TileLayer {
      *
      * @param active - boolean to enable or disable posinter-events.
      *
-     * @return boolean indicating if pointer-event triggering is active or disabled.
+     * @returns boolean indicating if pointer-event triggering is active or disabled.
      */
     pointerEvents(active?: boolean): boolean {
         if (active != UNDEF) {

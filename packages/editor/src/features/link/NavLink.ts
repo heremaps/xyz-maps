@@ -75,7 +75,7 @@ export class Navlink extends Feature {
      * @param option.class - Class of crossing (CROSSING|CROSSING_CANDIDATE) to check for
      * @param option.styles - Style of the crossings they should be displayed with. 6 configurable styling objects('connector1', 'connector2', 'connector3', 'search1', 'search2', 'found') comprise a crossing.
      *
-     * @return array of found crossings
+     * @returns array of found crossings
      *
      * @example
      * ```
@@ -157,7 +157,7 @@ export class Navlink extends Feature {
      * @param point - the coordinate of the new shape to add.
      * @param index - the index position in the coordinate array of the LineString where the new shape point should be inserted.
      *
-     * @return index of the shape or false if shape could not be added
+     * @returns index of the shape or false if shape could not be added
      */
     addShape(point: GeoPoint | PixelPoint, index?: number) {
         let added = false;
@@ -178,7 +178,7 @@ export class Navlink extends Feature {
      *
      * @param index - coordinate index for shape/node. 0 -> "start node", or index of last coordinate for the "end node".
      *
-     * @return Array that's containing the connected Navlink Features.
+     * @returns Array that's containing the connected Navlink Features.
      */
     getConnectedLinks(index: number): Navlink[];
     /**
@@ -188,7 +188,7 @@ export class Navlink extends Feature {
      * @param index - coordinate index for shape/node. 0 -> "start node", or index of last coordinate for the "end node".
      * @param details - flag to enable detailed information of the connected Navlinks.
      *
-     * @return Array of detailed connected Navlink information including the shape/node index of connected link.
+     * @returns Array of detailed connected Navlink information including the shape/node index of connected link.
      */
     getConnectedLinks(index: number, details: true): { link: Navlink, index: number }[];
 
@@ -231,7 +231,7 @@ export class Navlink extends Feature {
      *
      * @param index - the index of the shape to get z-level for the specific shape only
      *
-     * @return The Array of z-levels for the coordinates of the Navlink or the specific z-level at shape index.
+     * @returns The Array of z-levels for the coordinates of the Navlink or the specific z-level at shape index.
      *
      */
     getZLevels(index?: number): number[] | number {
@@ -296,7 +296,7 @@ export class Navlink extends Feature {
      *
      * @param {number=} index - the index of the node to display turn restrictions for.
      *
-     * @return Array containing the TurnRestriction for start and end shape points (nodes) respectively.
+     * @returns Array containing the TurnRestriction for start and end shape points (nodes) respectively.
      */
     editTurnRestrictions(index?: number): TurnRestriction[] {
         const link = this;

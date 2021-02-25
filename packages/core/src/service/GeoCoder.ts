@@ -121,7 +121,7 @@ class GeoCoder {
      *
      *  @param baseUrl - the url to geocoder service (normal or reverse)
      *  @param params - additional params for request url
-     *  @return the request url
+     *  @returns the request url
      */
     private createUrl(baseUrl, params) {
         let pStr = '';

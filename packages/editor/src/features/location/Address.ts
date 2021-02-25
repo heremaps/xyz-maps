@@ -40,7 +40,7 @@ class Address extends Location {
     /**
      *  Get the Navlink Feature that the Address is linked to/ associated with.
      *
-     *  @return The Navlink Feature.
+     *  @returns The Navlink Feature.
      */
     // @ts-ignore
     getLink(): Navlink;

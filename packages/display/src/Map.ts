@@ -927,7 +927,7 @@ export class Map {
      * Get the current added layer(s) of the map.
      *
      * @param index - get a specific layer at index in the layer hierarchy
-     * @return the layer(s) that are added to the map
+     * @returns the layer(s) that are added to the map
      */
     getLayers(index?: number): TileLayer | TileLayer[] {
         const layers = this.layers;
@@ -1067,7 +1067,7 @@ export class Map {
      * @param longitude - the longitude
      * @param latitude -  lat latitude
      *
-     * @return the pixel coordinate relative to the current viewport.
+     * @returns the pixel coordinate relative to the current viewport.
      */
     geoToPixel(longitude: number, latitude?: number): PixelPoint;
     /**
@@ -1075,7 +1075,7 @@ export class Map {
      *
      * @param coordinate - the geographical coordinate
      *
-     * @return the pixel coordinate relative to the current viewport.
+     * @returns the pixel coordinate relative to the current viewport.
      */
     geoToPixel(coordinate: GeoPoint): PixelPoint;
 

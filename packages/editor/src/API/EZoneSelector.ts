@@ -206,7 +206,7 @@ export class ZoneSelector {
     /**
      * detailed information about all zones and its segments.
      *
-     * @return An array of Zones providing detailed information for each Zone.
+     * @returns An array of Zones providing detailed information for each Zone.
      */
     info(): Zone[] {
         const zoneInfos = [];

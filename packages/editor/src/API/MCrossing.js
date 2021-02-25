@@ -225,7 +225,7 @@ function CrossingsInterface(HERE_WIKI, crossingTester, crossing) {
      *  Get the NAVLINK object which is representing the link the current link will be connected to.
      *
      *  @function
-     *  @return {here.xyz.maps.editor.features.Navlink}
+     *  @returns {here.xyz.maps.editor.features.Navlink}
      *
      *  @public
      *  @expose
@@ -265,7 +265,7 @@ function CrossingsInterface(HERE_WIKI, crossingTester, crossing) {
      *  crossing, it will also recalculate crossings.
      *
      *  @function
-     *  @return {Array<here.xyz.maps.editor.features.Crossing>}
+     *  @returns {Array<here.xyz.maps.editor.features.Crossing>}
      *
      *  @public
      *  @expose
@@ -381,7 +381,7 @@ function CrossingsInterface(HERE_WIKI, crossingTester, crossing) {
      *  Get the NAVLINK object which is representing the link this crossing or crossing candidate is located on.
      *
      *  @function
-     *  @return {here.xyz.maps.editor.features.Navlink}
+     *  @returns {here.xyz.maps.editor.features.Navlink}
      *
      *  @public
      *  @expose
@@ -394,7 +394,7 @@ function CrossingsInterface(HERE_WIKI, crossingTester, crossing) {
      *  Get NAVLINK objects which connect to this crossing or crossing candidate.
      *
      *  @function
-     *  @return {Array<here.xyz.maps.editor.features.Navlink>}
+     *  @returns {Array<here.xyz.maps.editor.features.Navlink>}
      *
      *  @public
      *  @expose

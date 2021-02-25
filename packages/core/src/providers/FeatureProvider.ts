@@ -236,7 +236,7 @@ export class FeatureProvider extends Provider {
      *  Gets features from provider by id.
      *
      *  @param ids - array of feature ids to search for.
-     *  @return if just a single feature is found its getting returned otherwise an array of features or undefined if none is found.
+     *  @returns if just a single feature is found its getting returned otherwise an array of features or undefined if none is found.
      */
     getFeatures(ids: string[] | number[]): Feature[] | Feature | undefined {
         if (!(ids instanceof Array)) {
@@ -343,7 +343,7 @@ export class FeatureProvider extends Provider {
      *  rect:  { minLon: 72.83584, maxLat: 18.97299, maxLon: 72.84443, minLat: 18.96876 }
      * })
      * ```
-     * @return {Array.<here.xyz.maps.providers.FeatureProvider.Feature>} array of features
+     * @returns {Array.<here.xyz.maps.providers.FeatureProvider.Feature>} array of features
      */
     search(options: {
         id?: number | string,
@@ -461,7 +461,7 @@ export class FeatureProvider extends Provider {
      *  Validate if a feature is stored in the local provider cache.
      *
      *  @param feature - Object literal containing "id" property.
-     *  @return the {@link:Feature} if it is found, otherwise undefined
+     *  @returns the {@link:Feature} if it is found, otherwise undefined
      */
     exists(feature: { id: number | string }): Feature {
         return this.IDPOOL[feature.id];

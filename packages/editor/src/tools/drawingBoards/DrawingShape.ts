@@ -109,7 +109,7 @@ class DrawingShape extends Feature {
     /**
      * Get the total number of coordinates / shape-points of the currently drawn feature.
      *
-     * @return Number of coordinates
+     * @returns Number of coordinates
      */
     getLength(): number {
         return this._b.getLength();
@@ -118,7 +118,7 @@ class DrawingShape extends Feature {
     /**
      * Returns the index of the shape point in the coordinate array of the currently drawn feature.
      *
-     * @return the index position in the coordinate array.
+     * @returns the index position in the coordinate array.
      */
     getIndex() {
         return this.properties.index;

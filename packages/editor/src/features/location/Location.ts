@@ -39,7 +39,7 @@ export class Location extends Feature {
     /**
      *  Get the Navlink Feature that the feature is linked to/ associated with.
      *
-     *  @return The Navlink Feature or null if the feature is not linked to a Navlink (floating).
+     *  @returns The Navlink Feature or null if the feature is not linked to a Navlink (floating).
      */
     getLink(): Navlink | null {
         const data = oTools.getRoutingData(this);

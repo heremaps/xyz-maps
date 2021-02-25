@@ -41,7 +41,7 @@ class Line extends Feature {
      * @param point - the coordinate to add
      * @param index - the index position in the coordinate array where the new shape point should be inserted.
      *
-     * @return index of the shape or false if shape could not be added
+     * @returns index of the shape or false if shape could not be added
      */
     addShape(point: PixelPoint | GeoPoint, index?: number): boolean | number {
         const line = this;

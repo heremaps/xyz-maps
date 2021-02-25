@@ -78,7 +78,7 @@ abstract class HTTPProvider extends EditableRemoteTileProvider {
      *
      *  @param name - The name of header to retrieve
      *
-     *  @return value of the request header or null if the header does not exist
+     *  @returns value of the request header or null if the header does not exist
      */
     getHeader(name: string): string | null {
         const loaders = this.loader.src;
@@ -88,7 +88,7 @@ abstract class HTTPProvider extends EditableRemoteTileProvider {
     /**
      *  Get the request-headers being added to all requests handled by the provider.
      *
-     *  @return Map of key value pairs. the key represents the header name
+     *  @returns Map of key value pairs. the key represents the header name
      */
     getHeaders(): { [name: string]: string } {
         const loaders = this.loader.src;
@@ -129,7 +129,7 @@ abstract class HTTPProvider extends EditableRemoteTileProvider {
     /**
      *  Get the request-parameters that are being added by the provider to all requests.
      *
-     *  @return Map of key value pairs. the key represents the parameter name.
+     *  @returns Map of key value pairs. the key represents the parameter name.
      */
     getParams(): { [name: string]: string } {
         // const params = {};
@@ -146,7 +146,7 @@ abstract class HTTPProvider extends EditableRemoteTileProvider {
      *
      *  @param name - The name of parameter to retrieve
      *
-     *  @return value of the request parameter or null if the parameter does not exist
+     *  @returns value of the request parameter or null if the parameter does not exist
      */
     getParam(name: string): string | null {
         return this.params[name] || null;
@@ -223,7 +223,7 @@ abstract class HTTPProvider extends EditableRemoteTileProvider {
      *  @param layer - the id of the layer
      *  @param featureId - id of the feature the provider want's to request
      *
-     *  @return url string to receive the feature resource of the remote http backend
+     *  @returns url string to receive the feature resource of the remote http backend
      */
     abstract getFeatureUrl(layer:string, featureId: string|number): string;
 
@@ -232,7 +232,7 @@ abstract class HTTPProvider extends EditableRemoteTileProvider {
      *  Get URL for layer specific requests.
      *
      *  @param layer - the id of the layer
-     *  @return url string to receive a layer resource of the remote http backend
+     *  @returns url string to receive a layer resource of the remote http backend
      */
     abstract getLayerUrl(layer:string): string;
 
@@ -241,7 +241,7 @@ abstract class HTTPProvider extends EditableRemoteTileProvider {
      *  Get URL for tile specific requests.
      *
      *  @param layer - the id of the layer
-     *  @return url string to receive a tile resource of the remote http backend
+     *  @returns url string to receive a tile resource of the remote http backend
      */
     abstract getTileUrl(layer:string): string;
 

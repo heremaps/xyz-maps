@@ -72,7 +72,7 @@ class DrawingBoard {
     /**
      *  Get the total number of coordinates / shape-points of the currently drawn feature.
      *
-     *  @return Number of coordinates
+     *  @returns Number of coordinates
      */
     getLength(): number {
         return this._b.getLength();
@@ -110,7 +110,7 @@ class DrawingBoard {
      *
      *  @param properties - properties the feature will be created with.
      *
-     *  @return the create Feature including the drawn geometry/coordinates
+     *  @returns the create Feature including the drawn geometry/coordinates
      */
     create(properties?): Line | Navlink | Area {
         if (this._a) {
@@ -186,7 +186,7 @@ class DrawingBoard {
     /**
      *  Get the active state of the drawing board.
      *
-     *  @return true when acitve, otherwise false
+     *  @returns true when acitve, otherwise false
      */
     isActive(): boolean {
         return this._a;
