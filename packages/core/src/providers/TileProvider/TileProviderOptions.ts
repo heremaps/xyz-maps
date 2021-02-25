@@ -24,6 +24,11 @@ import {TileStorage} from '../../storage/TileStorage';
  */
 interface TileProviderOptions {
     /**
+     * optional id to identify the provider.
+     */
+    id?: string;
+
+    /**
      * Name of the provider.
      */
     name?: string;

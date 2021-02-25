@@ -426,8 +426,6 @@ export class TileLayer {
      * Rectangle Search for feature(s) in the layer.
      * @param rect - Geographical Rectangle to search in. [minLon, minLat, maxLon, maxLat] | GeoRect.
      * @param options - configure the search
-     * @param options.remote - Force the data provider(s) to do remote search if no result is found in local cache.
-     * @param options.onload - Callback function for "remote" search.
      *
      * @example
      * ```
@@ -447,7 +445,13 @@ export class TileLayer {
      * ```
      */
     search(rect: GeoRect | GeoJSONBBox, options?: {
+        /**
+         * Force the data provider(s) to do remote search if no result is found in local cache.
+         */
         remote?: boolean,
+        /**
+         * Callback function for "remote" search.
+         */
         onload?: (result: Feature[] | null) => void
     }): Feature[];
 
@@ -455,9 +459,6 @@ export class TileLayer {
      * Circle Search for feature(s) in the layer.
      * @param point - Geographical center point of the circle to search in. options.radius must be defined.
      * @param options - configure the search
-     * @param options.radius - "radius" is mandatory for circle search.
-     * @param options.remote - Force the data provider(s) to do remote search if no result is found in local cache.
-     * @param options.onload - Callback function for "remote" search.
      *
      * @example
      * ```
@@ -480,8 +481,17 @@ export class TileLayer {
      * ```
      */
     search(point: GeoPoint, options: {
+        /**
+         * the radius is mandatory for circle search.
+         */
         radius?: number,
+        /**
+         * Force the data provider(s) to do remote search if no result is found in local cache.
+         */
         remote?: boolean,
+        /**
+         * Callback function for "remote" search.
+         */
         onload?: (result: Feature) => void
     }): Feature[];
 
@@ -490,8 +500,6 @@ export class TileLayer {
      *
      * @param id - id of the feature to search for
      * @param options - configure the search
-     * @param options.remote - Force the data provider(s) to do remote search if no result is found in local cache.
-     * @param options.onload - Callback function for "remote" search.
      *
      * @example
      * ```
@@ -507,7 +515,13 @@ export class TileLayer {
      *
      */
     search(id: string | number, options?: {
+        /**
+         * Force the data provider(s) to do remote search if no result is found in local cache.
+         */
         remote?: boolean,
+        /**
+         * Callback function for "remote" search.
+         */
         onload?: (result: Feature) => void
     }): Feature;
 

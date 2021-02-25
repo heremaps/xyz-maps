@@ -597,17 +597,23 @@ export class Map {
      * If a Point is used, width and height must be passed in options parameter.
      *
      * @param options - Describing the options param
-     * @param options.width - width in pixel of rectangle if point geometry is used.
-     * @param options.height - height in pixel of rectangle if point geometry is used.
-     * @param options.layers - defines the layer(s) to search in.
-
      * @returns The result providing found feature and layer.
      * undefined is returned if nothing is found.
      */
     getFeatureAt(position: PixelPoint | PixelRect, options?: {
+        /**
+         * width in pixel of rectangle if point geometry is used.
+         */
         width?: number;
+        /**
+         * height in pixel of rectangle if point geometry is used.
+         */
         height?: number;
+        /**
+         * defines the layer(s) to search in.
+         */
         layers?: TileLayer | TileLayer[],
+
         topOnly?: boolean
     }): { feature: Feature, layer: TileLayer } | undefined {
         options = options || {};
@@ -629,17 +635,25 @@ export class Map {
      * If a Point is used, width and height must be passed in options parameter.
      *
      * @param options - Describing the options param
-     * @param options.width - width in pixel of rectangle if point geometry is used.
-     * @param options.height - height in pixel of rectangle if point geometry is used.
-     * @param options.layers - defines the layer(s) to search in.
-     * @param options.topOnly - if set to true only the top most feature will be returned. [default: false]
      *
      * @returns zIndex ordered results array
      */
     getFeaturesAt(position: PixelPoint | PixelRect, options?: {
+        /**
+         * width in pixel of rectangle if point geometry is used.
+         */
         width?: number;
+        /**
+         * height in pixel of rectangle if point geometry is used.
+         */
         height?: number;
+        /**
+         * defines the layer(s) to search in.
+         */
         layers?: TileLayer | TileLayer[],
+        /**
+         * if set to true only the top most feature will be returned. [default: false]
+         */
         topOnly?: boolean
     }): { features: Feature[], layer: TileLayer }[] {
         let x1;
@@ -679,7 +693,24 @@ export class Map {
     /**
      * Get current active map behavior options.
      */
-    getBehavior(): { zoom: boolean, drag: boolean, pitch: boolean, rotate: boolean } {
+    getBehavior(): {
+        /**
+         * indicates if map zooming is enabled or disabled.
+         */
+        zoom: boolean;
+        /**
+         * indicates if map dragging is enabled or disabled.
+         */
+        drag: boolean;
+        /**
+         * indicates if map pitching is enabled or disabled.
+         */
+        pitch: boolean;
+        /**
+         * indicates if map rotation is enabled or disabled.
+         */
+        rotate: boolean;
+        } {
         const settings = {};
         const options = this._b.getOptions();
         for (let b in options) {
@@ -698,12 +729,26 @@ export class Map {
      * ```
      *
      * @param options - Behavior options
-     * @param options.zoom - true to enable map zooming, false to disable.
-     * @param options.drag - true to enable map dragging, false to disable.
-     * @param options.pitch - true to enable map pitching, false to disable.
-     * @param options.rotate - true to enable map rotation, false to disable.
      */
-    setBehavior(options): void;
+    setBehavior(options:{
+        /**
+         * true to enable map zooming, false to disable.
+         */
+        zoom?: boolean;
+        /**
+         * true to enable map dragging, false to disable.
+         */
+        drag?: boolean;
+        /**
+         * true to enable map pitching, false to disable.
+         */
+        pitch?: boolean;
+        /**
+         * true to enable map rotation, false to disable.
+         */
+        rotate?: boolean;
+    }): void;
+
     setBehavior(key, value?) {
         let type = typeof key;
         let options = type == 'object' ? key : {};

@@ -171,7 +171,7 @@ export default class Editor {
      * });
      * ```
      */
-    constructor(display: Map, options: EditorOptions) {
+    constructor(display: Map, options?: EditorOptions) {
         const that: Editor = this;
 
         options = mergeOptions(options || {});
@@ -259,9 +259,16 @@ export default class Editor {
      * @param listener - the listener function that will be called when an event of the specific type occurs
      * //@param {Object=} context The object to which "this" should refer to if the callback method is called.
      */
-    addEventListener(type: string, listener: (event: EditorEvent|Error) => void);
+    addEventListener(type: string, listener: (event: EditorEvent) => void);
 
-    addEventListener(type: string, listener: (event: EditorEvent|Error) => void, context?) {
+    /**
+     * Add an Error EventListener to the editor.
+     * @param type - the EventListener type is "error"
+     * @param listener - the listener function that will be called when an Error occurs
+     */
+    addEventListener(type: 'error', listener: (event: Error) => void);
+
+    addEventListener(type: string, listener: (event: any) => void, context?) {
         const {listeners} = this._i();
         // filter internal events (_internalEventName)
         const supported = listeners.supported().filter((ev) => ev[0] != '_');
@@ -282,7 +289,7 @@ export default class Editor {
      * @param {String} type - A string which specifies the type of event for which to remove an event listener.
      * @param {Function} listener - The listener function of the event handler to remove from the editor.
      */
-    removeEventListener(type: string, listener: (event: EditorEvent|Error) => void) {
+    removeEventListener(type: string, listener: (event: EditorEvent | Error) => void) {
         const {listeners} = this._i();
         listeners.remove.apply(listeners, arguments);
     }
