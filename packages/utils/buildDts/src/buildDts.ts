@@ -18,9 +18,8 @@
  */
 import {rmdirSync, existsSync, mkdirSync} from 'fs';
 import * as path from 'path';
-import {markInternals} from './markInternals';
+import {setReleaseTags} from './setReleaseTags';
 import {spawn} from 'cross-spawn';
-// @ts-ignore
 import {Extractor, ExtractorConfig, ExtractorResult, IConfigFile} from '@microsoft/api-extractor';
 
 const run = async (cwd: string, cmd: string, args: string[]) => {
@@ -43,7 +42,7 @@ export const build = async (moduleDirectory: string, apiExtractorJsonPath: strin
     ]);
 
     // set release-tag to @internal for undocumented code to exclude from public dts build
-    await markInternals(path.join(moduleDirectory, dtsFolder));
+    await setReleaseTags(path.join(moduleDirectory, dtsFolder), 'internal');
 
     // load default template config
     let cfg: IConfigFile = ExtractorConfig.loadFile(apiExtractorJsonPath);
