@@ -18,12 +18,12 @@
  */
 
 import {click} from './triggerEvents';
-import {Editor} from '@here/xyz-maps-editor';
+import {Editor, EditorEvent} from '@here/xyz-maps-editor';
 
-export async function editorClick(editor: Editor, x: number, y: number): Promise<MouseEvent|void> {
+export async function editorClick(editor: Editor, x: number, y: number): Promise<EditorEvent|void> {
     return new Promise(async (resolve) => {
         var mapContainer = editor.container;
-        var eventHandler = function(e: MouseEvent) {
+        var eventHandler = function(e: EditorEvent) {
             editor.removeEventListener('pointerup', eventHandler);
             resolve(e);
         };
@@ -47,8 +47,6 @@ export function submit(editor: Editor): Promise<{permanentIDMap: any}> {
 }
 
 export function waitForEditorReady(editor: Editor, fn?:Function): Promise<Editor> {
-    let elem = editor.container;
-
     return new Promise(async (resolve, reject) => {
         let functionDone = false;
         let readyCb = (ob: string, newValue: boolean) => {

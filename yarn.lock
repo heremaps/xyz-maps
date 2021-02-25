@@ -1074,14 +1074,6 @@
     "@rollup/pluginutils" "^3.0.0"
     resolve "^1.13.1"
 
-"@rollup/plugin-typescript@^3.0.0":
-  version "3.1.1"
-  resolved "https://registry.npmjs.org/@rollup/plugin-typescript/-/plugin-typescript-3.1.1.tgz#a39175a552ed82a3e424862e6bb403bf9da451ee"
-  integrity sha512-VPY1MbzIJT+obpav9Kns4MlipVJ1FuefwzO4s1uCVXAzVWya+bhhNauOmmqR/hy1zj7tePfh3t9iBN+HbIzyRA==
-  dependencies:
-    "@rollup/pluginutils" "^3.0.1"
-    resolve "^1.14.1"
-
 "@rollup/plugin-typescript@^4.1.2":
   version "4.1.2"
   resolved "https://registry.npmjs.org/@rollup/plugin-typescript/-/plugin-typescript-4.1.2.tgz#6f910430276ae3e53a47a12ad65820627e7b6ad9"
@@ -1089,6 +1081,14 @@
   dependencies:
     "@rollup/pluginutils" "^3.0.1"
     resolve "^1.14.1"
+
+"@rollup/plugin-typescript@^8.2.0":
+  version "8.2.0"
+  resolved "https://registry.npmjs.org/@rollup/plugin-typescript/-/plugin-typescript-8.2.0.tgz#3e2059cbcae916785d8d7bf07816210c829f817c"
+  integrity sha512-5DyVsb7L+ehLfNPu/nat8Gq3uJGzku4bMFPt90XahtgiSBf7z9YKPLqFUJKMT41W/mJ98SVGDPOhzikGrr/Lhg==
+  dependencies:
+    "@rollup/pluginutils" "^3.1.0"
+    resolve "^1.17.0"
 
 "@rollup/plugin-virtual@^2.0.1", "@rollup/plugin-virtual@^2.0.2":
   version "2.0.3"
@@ -8591,7 +8591,7 @@ typedoc@^0.19.2:
     shelljs "^0.8.4"
     typedoc-default-themes "^0.11.4"
 
-typescript@^3.8.3, typescript@^3.9.3, typescript@^3.9.6:
+typescript@^3.9.3, typescript@^3.9.6:
   version "3.9.9"
   resolved "https://registry.npmjs.org/typescript/-/typescript-3.9.9.tgz#e69905c54bc0681d0518bd4d587cc6f2d0b1a674"
   integrity sha512-kdMjTiekY+z/ubJCATUPlRDl39vXYiMV9iyeMuEuXZh2we6zz80uovNN2WlAxmmdE/Z/YQe+EbOEXB5RHEED3w==

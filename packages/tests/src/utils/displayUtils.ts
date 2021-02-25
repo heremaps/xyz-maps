@@ -17,10 +17,10 @@
  * License-Filename: LICENSE
  */
 
-import {layers} from '@here/xyz-maps-core';
+import {TileLayer} from '@here/xyz-maps-core';
 import Map from '@here/xyz-maps-display';
 
-export function waitForViewportReady(display: Map, mapLayers?: layers.TileLayer[], fn?:Function): Promise<Map> {
+export function waitForViewportReady(display: Map, mapLayers?: TileLayer[], fn?:Function): Promise<Map> {
     return new Promise(async (resolve) => {
         if (!mapLayers) {
             mapLayers = display.getLayers();

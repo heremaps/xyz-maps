@@ -39,6 +39,7 @@ export * from './features/location/Address';
 export * from './features/link/NavLink';
 export * from './features/area/AreaShape';
 export * from './features/feature/EditorProperties';
+export * from './API/EditorEvent';
 
 const NAVLINK = 'NAVLINK';
 const AREA = 'AREA';

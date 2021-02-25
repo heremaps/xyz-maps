@@ -20,7 +20,8 @@
 import environments from 'environments';
 // @ts-ignore
 import credentials from 'credentials';
-import {providers, layers as mLayers} from '@here/xyz-maps-core';
+import {TileLayer, FeatureProvider} from '@here/xyz-maps-core';
+import * as providers from '@here/xyz-maps-core';
 import {TestLocalProvider, TestProvider} from '../TestProvider';
 import {spacePool} from '../runner';
 
@@ -120,7 +121,7 @@ export default async function prepare(dataset) {
             delete layerConfig['data'];
             delete layerConfig['clear'];
 
-            let layer = new mLayers.TileLayer(layerConfig);
+            let layer = new TileLayer(layerConfig);
 
             preparedData.addLayer(layer);
 
@@ -208,7 +209,7 @@ export default async function prepare(dataset) {
 
 
 class PreparedData {
-    private layers: mLayers.TileLayer[] = [];
+    private layers: TileLayer[] = [];
     // {
     //     "layerId1": {
     //         "remote": [
@@ -244,7 +245,7 @@ class PreparedData {
         this._provider[layerId] = {provider, spaceId};
     }
 
-    addLayer(layer: mLayers.TileLayer) {
+    addLayer(layer: TileLayer) {
         this.layers.push(layer);
     };
 
@@ -255,7 +256,7 @@ class PreparedData {
         }
     };
 
-    getLayers(id?: string): mLayers.TileLayer|mLayers.TileLayer[] {
+    getLayers(id?: string): TileLayer|TileLayer[] {
         if (id) {
             let layer;
             this.layers.forEach((l)=>{
@@ -285,8 +286,8 @@ class PreparedData {
 
         if (!Array.isArray(layer)) {
             let provider = layer.getProvider();
-            if ( provider instanceof providers.FeatureProvider) {
-                return provider.getFeatures(id);
+            if ( provider instanceof FeatureProvider) {
+                return provider.getFeature(id);
             }
         }
     };

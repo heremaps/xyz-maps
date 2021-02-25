@@ -17,7 +17,7 @@
  * License-Filename: LICENSE
  */
 
-import {providers} from '@here/xyz-maps-core';
+import {LocalProvider, SpaceProvider} from '@here/xyz-maps-core';
 
 type Feature = any;
 type Navlink = any;
@@ -178,7 +178,7 @@ const createProvider = (provider) => {
     return NewProvider;
 };
 
-const TestLocalProvider = createProvider(providers.LocalProvider);
-const TestProvider = createProvider(providers.SpaceProvider);
+const TestLocalProvider = createProvider(LocalProvider);
+const TestProvider = createProvider(SpaceProvider);
 
 export {TestLocalProvider, TestProvider};

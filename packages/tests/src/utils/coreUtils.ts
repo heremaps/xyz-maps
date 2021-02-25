@@ -17,7 +17,7 @@
  * License-Filename: LICENSE
  */
 
-import {providers, layers} from '@here/xyz-maps-core';
+import {FeatureProvider, TileLayer, GeoJSONProvider} from '@here/xyz-maps-core';
 import {MonitorXHR, RequestSummary} from './utils';
 
 export function getTileOnProvider(opts: {
@@ -25,8 +25,8 @@ export function getTileOnProvider(opts: {
     onFinish?: (req: RequestSummary[], cb: {tile: object}[])=>void;
     quadkeys: number[];
     sameCallback?: boolean;
-    provider?: providers.FeatureProvider;
-    layer?: layers.TileLayer;
+    provider?: FeatureProvider;
+    layer?: TileLayer;
     cancel: {quadkeys?: number[]; withCallback?: boolean; timeout?:number;};
 }): {tile: object}[] {
     var timeout = opts.timeout || 20; // wait for 20 ms for possible coming requests
@@ -83,9 +83,11 @@ export function getTileOnProvider(opts: {
             if (cQks[i]) {
                 var callback = cWithCB ? callbacks[qk+'i'+i] : undefined;
 
-                if (requester instanceof layers.TileLayer) {
+                if (requester instanceof TileLayer) {
+                    // @ts-ignore (private interface)
                     requester.cancelTile(qk, callback);
-                } else if (requester instanceof providers.GeoJSONProvider) {
+                } else if (requester instanceof GeoJSONProvider) {
+                    // @ts-ignore (private interface)
                     requester.cancel(qk.toString(), callback);
                 }
 
@@ -111,7 +113,7 @@ export function getTileOnLayer(opts: {
     onFinish?: (req: RequestSummary[], cb: {tile: object}[])=>void;
     quadkeys: number[];
     sameCallback?: boolean;
-    layer: layers.TileLayer;
+    layer: TileLayer;
     cancel: {quadkeys?: number[]; withCallback?: boolean; timeout?:number;};
 }): {tile: object}[] {
     return getTileOnProvider(opts);
