@@ -132,7 +132,7 @@ let navlinkLayer = new TileLayer({
 
 // setup the Map Display
 const display = new Map(document.getElementById('map'), {
-    zoomLevel: 18,
+    zoomlevel: 18,
     center: {
         longitude: -122.249878, latitude: 37.810195
     },

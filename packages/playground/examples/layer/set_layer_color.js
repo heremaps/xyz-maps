@@ -13,7 +13,7 @@ let backgroundLayer = new MVTLayer({
 
 // setup the Map Display
 const display = new Map(document.getElementById('map'), {
-    zoomLevel: 16,
+    zoomlevel: 16,
     center: {
         longitude: -122.285482, latitude: 37.819649
     },

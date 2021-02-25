@@ -60,7 +60,7 @@ let pointLayer = new TileLayer({
 
 // setup the Map Display
 const display = new Map(document.getElementById('map'), {
-    zoomLevel: 19,
+    zoomlevel: 19,
     center: {
         longitude: 76.59078, latitude: 8.87959
     },

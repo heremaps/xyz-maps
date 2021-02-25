@@ -13,7 +13,7 @@ var layers = [
 ];
 // setup the Map Display
 const display = new Map(document.getElementById('map'), {
-    zoomLevel: 2,
+    zoomlevel: 2,
     center: {
         longitude: -96.76883, latitude: 39.6104
     },

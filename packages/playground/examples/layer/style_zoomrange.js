@@ -3,7 +3,7 @@ import {Map} from '@here/xyz-maps-display';
 
 /** setup the Map **/
 const display = new Map(document.getElementById('map'), {
-    zoomLevel: 17,
+    zoomlevel: 17,
     center: {
         longitude: -122.254528,
         latitude: 37.796249

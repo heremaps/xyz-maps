@@ -45,7 +45,7 @@ var placeLayer = new TileLayer({
 
 // setup the Map Display
 const display = new Map(document.getElementById('map'), {
-    zoomLevel: 17,
+    zoomlevel: 17,
     center: {
         longitude: -122.253324, latitude: 37.795146
     },

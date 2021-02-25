@@ -36,7 +36,7 @@ var lineLayer = new TileLayer({
 
 // setup the Map Display
 const display = new Map(document.getElementById('map'), {
-    zoomLevel: 17,
+    zoomlevel: 17,
     center: {
         longitude: -122.254537, latitude: 37.796982
     },
