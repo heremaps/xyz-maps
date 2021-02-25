@@ -59,7 +59,7 @@ export class MVTLayer extends TileLayer {
             const ts = url.match(/256|512|1024|2048|4096/);
 
             if (ts) {
-                tileSize = Number(tileSize[0]);
+                tileSize = Number(ts[0]);
             } else {
                 tileSize = DEFAULT_TILE_SIZE;
             }
