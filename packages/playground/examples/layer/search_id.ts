@@ -1,4 +1,4 @@
-import {MVTLayer, TileLayer, SpaceProvider} from '@here/xyz-maps-core';
+import {MVTLayer, TileLayer, SpaceProvider, Feature} from '@here/xyz-maps-core';
 import {Map} from '@here/xyz-maps-display';
 
 /** setup the Map **/
@@ -57,7 +57,7 @@ const display = new Map(document.getElementById('map'), {
 
 placeLayer.addEventListener('viewportReady', function(ev) {
     // Search a specific feature by id
-    const feature = placeLayer.search({id: 'yzTilZp7Z3VqlCNO'});
+    const feature = <Feature>placeLayer.search({id: 'yzTilZp7Z3VqlCNO'});
     // Set style to highlight the feature
     placeLayer.setStyleGroup(feature, [{
         zIndex: 0,

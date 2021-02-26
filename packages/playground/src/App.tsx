@@ -29,28 +29,22 @@ import settings from 'settings';
 import ts from 'ts';
 import {MobilePanel} from './components/MobilePanel';
 
-const exampleSource = {
-    title: '',
-    html: '',
-    js: ''
-};
-
-const fetchExample = async (example) => {
+const fetchExample = async (example): Promise<{ title: string, html: string, ts: string }> => {
     let {file, title, description} = example;
     file = 'examples/' + file + '?ts=' + ts;
     let response = await fetch(file);
     let htmlSource = await response.text();
 
-    response = await fetch(file.replace('.html', '.js'));
-    let jsSource = await response.text();
+    response = await fetch(file.replace('.html', '.ts'));
 
-    exampleSource.html = htmlSource;
-    exampleSource.js = jsSource;
-    exampleSource.title = title;
+    let tsSource = await response.text();
 
-    return exampleSource;
+    return {
+        title: title,
+        html: htmlSource,
+        ts: tsSource
+    };
 };
-
 
 
 export const App: React.FC = (props: { examples: any }) => {
@@ -63,11 +57,11 @@ export const App: React.FC = (props: { examples: any }) => {
     const isMobileMode = window.innerWidth <= 768;
     let [exampleSrc, setExampleSrc] = React.useState({
         html: '',
-        js: '// Welcome to the XYZ Maps Playground',
+        ts: '// Welcome to the XYZ Maps Playground',
         title: '',
         org: {
             html: '',
-            js: ''
+            ts: ''
         },
         docs: ''
     });
@@ -78,22 +72,22 @@ export const App: React.FC = (props: { examples: any }) => {
 
     const selectExample = async (example: Example) => {
         let exampleSources = await fetchExample(example);
-        const {html, js, title} = exampleSources;
-        setExampleSrc({title, html, js, org: {html, js}, docs: example.docs});
+        const {html, ts, title} = exampleSources;
+        setExampleSrc({title, html, ts, org: {html, ts}, docs: example.docs});
 
         window.location.hash = example.section + '-' + title.replace(/\ /g, '_');
     };
 
     const updateSource = (source: Value | null) => {
-        let {html, js, title, org, docs} = exampleSrc;
+        let {html, ts, title, org, docs} = exampleSrc;
         if (source) {
             html = source.html;
-            js = source.js;
+            ts = source.ts;
         } else {
             html = org.html;
-            js = org.js;
+            ts = org.ts;
         }
-        setExampleSrc({title, html, js, org, docs});
+        setExampleSrc({title, html, ts, org, docs});
     };
 
     const onDownload = () => {
@@ -195,7 +189,7 @@ export const App: React.FC = (props: { examples: any }) => {
                 active={visibility.examples} defaultSelected={initialExample.current}>
             </ExampleList>
             <div className={'container'} ref={containerRef}>
-                <Editor language={'js'} value={exampleSrc} onChange={updateSource} onDownload={onDownload}
+                <Editor language={'ts'} value={exampleSrc} onChange={updateSource} onDownload={onDownload}
                     active={visibility.editor} theme={settings.monaco.theme} dtsPaths={dtsPaths.current}
                 />
                 <Slider onPointerDown={() => setPreviewPointerEvents(false)} onPointerMove={updateColumnSize}

@@ -39,7 +39,7 @@ const globalImportMap = {
 
 export const createIframeSrc = (exampleSource, includePgSpecifics: boolean = false): string => {
     const tokenInject = `var YOUR_ACCESS_TOKEN='${TOKEN}';`;
-    const {html, js} = exampleSource;
+    const {html, ts} = exampleSource;
     const injectScript = (html, src) => {
         const absolutePath = (href) => {
             let linkForPath = document.createElement('a');
@@ -49,7 +49,7 @@ export const createIframeSrc = (exampleSource, includePgSpecifics: boolean = fal
         return html.replace('</head>', `\t<script src="${absolutePath(src)}"></script>\n\t</head>`);
     };
 
-    let lines = js.split('\n');
+    let lines = ts.split('\n');
     let modules = [];
     let bodyIndention = '\t\t\t';
 
@@ -64,8 +64,16 @@ export const createIframeSrc = (exampleSource, includePgSpecifics: boolean = fal
         lines[i] = bodyIndention + lines[i];
     }
 
+    let jsSrc = '';
+    try {
+        // @ts-ignore
+        jsSrc = window.ts.transpile(lines.join('\n'));
+    } catch (e) {
+        console.error(e);
+    }
+
     let data = html.replace('</body>',
-        `\t<script>(()=>{${includePgSpecifics ? tokenInject : ''}\n${lines.join('\n')}\n\t\t})();</script>\n\t</body>`
+        `\t<script>(()=>{${includePgSpecifics ? tokenInject : ''}\n${jsSrc}\n\t\t})();</script>\n\t</body>`
     );
     if (modules.length && modules.indexOf('@here/xyz-maps-common') != 1) {
         modules.unshift('@here/xyz-maps-common');
@@ -77,7 +85,7 @@ export const createIframeSrc = (exampleSource, includePgSpecifics: boolean = fal
 };
 
 export const Preview: React.FC = React.forwardRef((props: {
-    src: { html: string, js: string, title: string },
+    src: { html: string, ts: string, title: string },
     width: string,
     pointerEvents: boolean,
     active: boolean,

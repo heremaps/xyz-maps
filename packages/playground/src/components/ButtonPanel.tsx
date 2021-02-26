@@ -23,14 +23,14 @@ import {Button} from './Button';
 import settings from 'settings';
 
 const ButtonPanel: React.FC = (props: {
-    language: 'js' | 'html',
+    language: 'ts' | 'html',
     docs: string,
     onClick?: (id: string) => void,
 }) => {
     const [active, setActive] = React.useState(props.language);
 
     const handleClick = (id: string) => {
-        if (id === 'js' || id === 'html') {
+        if (id === 'ts' || id === 'html') {
             setActive(id);
         }
         if (props.onClick) {
@@ -39,7 +39,7 @@ const ButtonPanel: React.FC = (props: {
     };
 
     return (<div className={'buttonPanel'}>
-        <Button active={active == 'js'} id={'js'} name={'Javascript'} onClick={handleClick}></Button>
+        <Button active={active == 'ts'} id={'ts'} name={'Typescript'} onClick={handleClick}></Button>
         <Button active={active == 'html'} id={'html'} name={'HTML/CSS'} onClick={handleClick}></Button>
         <Button id={'run'} name={'Run'} onClick={handleClick}></Button>
         <Button id={'reset'} name={'Reset'} onClick={handleClick}></Button>

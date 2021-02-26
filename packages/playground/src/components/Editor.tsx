@@ -21,7 +21,7 @@ import MonacoEditor, {useMonaco} from '@monaco-editor/react';
 import {ButtonPanel} from './ButtonPanel';
 import './Editor.scss';
 
-export type Value = { html: string, js: string, docs: string };
+export type Value = { html: string, ts: string, docs: string };
 
 const fetchDeclarations = (
     dtsPaths: { [module: string]: string },
@@ -55,7 +55,7 @@ const fetchDeclarations = (
 
 
 export const Editor = (props: {
-    language: 'js' | 'html',
+    language: 'ts' | 'html',
     onChange?: (value: Value) => void,
     onDownload?: () => void
     value?: Value,
@@ -139,7 +139,7 @@ export const Editor = (props: {
 
     const onClick = (id) => {
         switch (id) {
-        case 'js':
+        case 'ts':
         case 'html':
             setLanguage(id);
             break;
@@ -181,7 +181,7 @@ export const Editor = (props: {
 
         <div className={'monacoEditor'} ref={containerRef}>
             <MonacoEditor
-                language={language == 'js' ? 'typescript' : language}
+                language={language == 'ts' ? 'typescript' : language}
                 value={props.value[language]}
                 path={modelPath.current}
                 onMount={handleEditorDidMount}

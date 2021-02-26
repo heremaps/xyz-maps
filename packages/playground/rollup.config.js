@@ -29,6 +29,8 @@ import settings from './settings.json';
 import {join} from 'path';
 import {uglify} from 'rollup-plugin-uglify';
 import fs from 'fs';
+import nodeResolve from 'resolve';
+const tsServicePath = nodeResolve.sync('typescript/lib/typescriptServices.js');
 
 const env = process.env;
 const DEST = env['destination'] || settings.path.destination;
@@ -120,6 +122,8 @@ const rollupConfig = [{
                 src: './examples', dest: DEST
             }, {
                 src: join(SRC, 'assets'), dest: DEST
+            }, {
+                src: join(tsServicePath), dest: DEST
             }]
         }),
         html({
@@ -135,6 +139,7 @@ const rollupConfig = [{
   <title>${title}</title>
   ${env['html-metadata'] || ''}
   <script src="${settings.path.token}"></script>
+  <script src="./typescriptServices.js"></script>
 </head>
 <body>
   <div id="app"></div>

@@ -64,8 +64,6 @@ editor.addEventListener('pointerup', function(event) {
     if (drawingBoard.isActive() && event.button == 0) {
         let feature = event.target;
 
-        console.log(feature.class);
-
         if (feature.class == 'LINE_SHAPE') {
             // get the number of shape points
             let length = feature.getLength();
