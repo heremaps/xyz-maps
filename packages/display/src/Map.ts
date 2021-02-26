@@ -612,12 +612,10 @@ export class Map {
         /**
          * defines the layer(s) to search in.
          */
-        layers?: TileLayer | TileLayer[],
-
-        topOnly?: boolean
+        layers?: TileLayer | TileLayer[]
     }): { feature: Feature, layer: TileLayer } | undefined {
         options = options || {};
-        options.topOnly = true;
+        (<any>options).topOnly = true;
 
         const results = this.getFeaturesAt(position, options);
 
@@ -720,11 +718,11 @@ export class Map {
     };
 
     /**
-     * Set map behavior.
+     * Set the map behavior on user interaction.
      *
      * @example
      * ```
-     * // to deactivate zooming map:
+     * // to deactivate map zoom on mouse scroll:
      * setBehavior({zoom: false, drag: true});
      * ```
      *
@@ -748,6 +746,21 @@ export class Map {
          */
         rotate?: boolean;
     }): void;
+
+    /**
+     * Enable/Disable a specific map behavior on user interaction.
+     * Possible behavior are: "zoom", "drag", "pitch" and "rotate
+     *
+     * @example
+     * ```
+     * // to deactivate map zoom on mouse scroll:
+     * setBehavior('zoom',true);
+     * ```
+     *
+     * @param behavior - the behavior that should be disabled or enabled.
+     * @param active - true to enable, false to disable
+     */
+    setBehavior(behavior: string, active: boolean);
 
     setBehavior(key, value?) {
         let type = typeof key;

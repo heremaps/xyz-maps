@@ -23,11 +23,12 @@ import {HTTPProviderOptions} from '../HTTPProvider/HTTPProviderOptions';
  *  Options to configure the XYZ SpaceProvider.
  */
 interface SpaceProviderOptions extends HTTPProviderOptions {
-    // /**
-    //  * There are 3 environments available: 'prd'.
-    //  *
-    //  * @default 'prd'
-    //  */
+    /**
+     * The XYZ Hub environment.
+     *
+     * @default "prd"
+     * @internal
+     */
     environment?: string
 
     /**
@@ -40,6 +41,10 @@ interface SpaceProviderOptions extends HTTPProviderOptions {
      * User credential of the provider, a valid credential needs to contain the "access_token".
      */
     credentials: {
+        /**
+         * the token to access the space of XYZ Hub endpoint.
+         * You can get a token by following the instructions in this {@link https://www.here.xyz/api/getting-token/ | guide}.
+         */
         // eslint-disable-next-line camelcase
         access_token: string;
     },

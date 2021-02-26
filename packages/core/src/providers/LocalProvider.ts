@@ -46,7 +46,9 @@ export interface LocalProviderOptions {
      *  @default false
      */
     editable?: boolean;
-
+    /**
+     * @internal
+     */
     storage?: TileStorage;
 };
 

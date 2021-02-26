@@ -114,9 +114,14 @@ export interface MapOptions {
      * @default 0
      */
     pitch?: number
-
+    /**
+     * duration of a zoom level change animation in milliseconds.
+     * @default 100
+     */
     zoomAnimationMs?: number
-
+    /**
+     * @internal
+     */
     maxPitch?: number
 };
 

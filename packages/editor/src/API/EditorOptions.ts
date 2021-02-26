@@ -153,11 +153,11 @@ interface EditorOptions {
             getISOCC?(longitude: number, latitude: number, callback: (isoCC: string) => void): string | undefined;
         }
     };
-
-    enableHover: boolean;
-
-    destination: string;
-
+    /**
+     * Enable/Disable debug logs
+     *
+     * @internal
+     */
     debug: boolean;
 };
 
@@ -179,24 +179,6 @@ const defaultOptions: EditorOptions = {
             }
 
     },
-    'destination': (function getBasePath(name) {
-        if (!(name instanceof Array)) name = [name];
-        const scripts = document.getElementsByTagName('script');
-        const tlc = 'toLowerCase';
-        let path = '';
-        for (let k = 0; k < name.length; k++) {
-            for (let i = scripts.length - 1; i >= 0; --i) {
-                const src = scripts[i].src[tlc]();
-                const index = src.indexOf(name[k][tlc]());
-                if (index >= 0) {
-                    path = src.substr(0, index);
-                    return path;
-                }
-            }
-        }
-        return path;
-    })(['mapedit.js']),
-
     'geoFence': false,
     'minShapeDistance': 2, // 4meters
     // 'minShapeDistance': 4e-5, // 4meters
@@ -207,7 +189,6 @@ const defaultOptions: EditorOptions = {
     'disconnectShapeDistance': 3,
     'keepFeatureSelection': 'viewportChange',
     'featureSelectionByDefault': true,
-    'enableHover': true,
     'maxRoutingPointDistance': 1000,
     'autoSnapShape': false
 };

@@ -44,6 +44,9 @@ export interface TileLayerOptions {
      * The data provider for the TileLayer.
      */
     provider?: TileProvider;
+    /**
+     * @internal
+     */
     providers?: any;
 
     /**
