@@ -109,6 +109,15 @@ export class SpaceProvider extends GeoJSONProvider {
         return super.config(options);
     };
 
+    /**
+     *  Commit modified/removed features to the remote backend.
+     *
+     *  @param data - the data that should be commit to the remote.
+     *  @param data.put - features that should be created or updated
+     *  @param data.remove - features that should be removed
+     *  @param onSuccess - callback function that will be called when data has been commit successfully
+     *  @param onError - callback function that will be called when an error occurs
+     */
     commit(features: PostProcesserInput, onSuccess?, onError?) {
         const prov = this;
         const loaders = prov.loader.src;
@@ -149,6 +158,45 @@ export class SpaceProvider extends GeoJSONProvider {
                 }));
             }
         }
+    };
+
+    /**
+     *  Get URL for layer specific requests.
+     *
+     *  @param space - Name of the XYZ-Hub Space.
+     *  @returns url string to receive a layer resource of the remote http backend
+     */
+    getLayerUrl(space: string) {
+        return this.url + '/' + space;
+    };
+
+    /**
+     *  Get URL for tile specific requests.
+     *
+     *  @param space - Name of the XYZ-Hub Space.
+     *  @returns url string to receive a tile resource of the remote http backend
+     */
+    getTileUrl(space: string) {
+        return this._addUrlFilters(
+            this.getLayerUrl(space)
+            + '/tile/quadkey/{QUADKEY}?margin=' + this.margin
+            + '&clip=' + !!this.clip
+        );
+    };
+
+    /**
+     *  Get the URL for feature specific requests.
+     *
+     *  @param space - Name of the XYZ-Hub Space.
+     *  @param ids - id(s) of the feature(s) the provider want's to request
+     *
+     *  @returns url string to receive the feature resource of the remote http backend
+     */
+    getFeatureUrl(space: string, ids: FeatureId | FeatureId[]) {
+        if (!(ids instanceof Array)) {
+            ids = [ids];
+        }
+        return this.getLayerUrl(space) + '/features?id=' + ids.join('&id=');
     };
 
     protected createUpdateFeatureRequest(features, callbacks: {
@@ -208,27 +256,11 @@ export class SpaceProvider extends GeoJSONProvider {
         this.setUrl(this.getTileUrl(this.space));
     };
 
-
-    getLayerUrl(layer: string) {
-        return this.url + '/' + layer;
-    };
-
-
     setUrl(url: string) {
         this.loader.setUrl(
             this._addUrlCredentials(url)
         );
     };
-
-
-    getTileUrl(layer: string) {
-        return this._addUrlFilters(
-            this.getLayerUrl(layer)
-            + '/tile/quadkey/{QUADKEY}?margin=' + this.margin
-            + '&clip=' + !!this.clip
-        );
-    };
-
 
     /**
      *  Set tags to filtering results based on tags in Hub backend.
@@ -375,15 +407,6 @@ export class SpaceProvider extends GeoJSONProvider {
         this.clear();
     };
 
-
-    getFeatureUrl(layer: string, ids: FeatureId | FeatureId[], opt?) {
-        if (!(ids instanceof Array)) {
-            ids = [ids];
-        }
-        return this.getLayerUrl(layer) + '/features?id=' + ids.join('&id=');
-    };
-
-
     getCopyright(success?: (copyright: any) => void, error?: ErrorEventHandler) {
         this.getDefinition((def) => {
             success && success(def.copyright || []);
@@ -438,7 +461,7 @@ export class SpaceProvider extends GeoJSONProvider {
             key: ids.join('&'),
 
             url: this._addUrlCredentials(
-                this.getFeatureUrl(this.space, ids, opt)
+                this.getFeatureUrl(this.space, ids)
             ),
 
             success: (data) => {

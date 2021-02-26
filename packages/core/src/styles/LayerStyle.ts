@@ -19,10 +19,10 @@
 
 import {Feature} from '../features/Feature';
 
-type styleStringFunction = (feature: Feature, zoom: number) => string | null | undefined;
-type styleNumberFunction = (feature: Feature, zoom: number) => number | null | undefined;
-type styleBooleanFunction = (feature: Feature, zoom: number) => boolean | null | undefined;
-type styleNumberArrayFunction = (feature: Feature, zoom: number) => number[] | null | undefined;
+type styleStringFunction = (feature: Feature, zoom?: number) => string | null | undefined;
+type styleNumberFunction = (feature: Feature, zoom?: number) => number | null | undefined;
+type styleBooleanFunction = (feature: Feature, zoom?: number) => boolean | null | undefined;
+type styleNumberArrayFunction = (feature: Feature, zoom?: number) => number[] | null | undefined;
 
 /**
  * Style object represents supported style attributes of Features. It indicates how a symbolizer in feature should be rendered.
@@ -133,7 +133,7 @@ export interface Style {
      *  Radius of the Circle in pixel.
      *  It is only required by Circle.
      */
-    radius?: string | styleNumberFunction;
+    radius?: number | styleNumberFunction;
     /**
      * Width of the style in pixels.
      * It is only required by Rect and Image.
@@ -273,6 +273,12 @@ export interface Style {
      * @defaultValue false
      */
     collide?: boolean | styleBooleanFunction;
+
+    /**
+     * Extrude a Polygon or MultiPolygon geometry in meters.
+     * This attribute is validate for Polygon only.
+     */
+    extrude?: number | styleNumberFunction;
 }
 
 export type StyleGroupMap = { [id: string]: StyleGroup }

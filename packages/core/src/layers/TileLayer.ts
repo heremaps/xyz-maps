@@ -420,7 +420,7 @@ export class TileLayer {
          * Callback function for "remote" search.
          */
         onload?: (result: Feature[] | null) => void
-    }): Feature[];
+    }): Feature | Feature[];
 
     /**
      * Rectangle Search for feature(s) in the layer.

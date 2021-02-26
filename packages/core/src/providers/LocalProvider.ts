@@ -59,7 +59,7 @@ export class LocalProvider extends EditableFeatureProvider {
     /**
      * @param options - options to configure the provider
      */
-    constructor(options: LocalProviderOptions) {
+    constructor(options?: LocalProviderOptions) {
         super({
             minLevel: 8,
             maxLevel: 20,

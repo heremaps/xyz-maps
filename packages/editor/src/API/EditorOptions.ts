@@ -158,7 +158,7 @@ interface EditorOptions {
      *
      * @internal
      */
-    debug: boolean;
+    debug?: boolean;
 };
 
 
