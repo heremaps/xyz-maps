@@ -37,13 +37,13 @@ export interface GeoCoderOptions {
     /**
      * The url to the Geocoder host.
      *
-     * @default 'geocoder.api.here.com'
+     * @defaultValue 'geocoder.api.here.com'
      */
     host?: string;
     /**
      * the used Geocoder version.
      *
-     * @default '6.2'
+     * @defaultValue '6.2'
      */
     version?: string;
 }
@@ -165,8 +165,8 @@ class GeoCoder {
      *  {@link https://developer.here.com/documentation/geocoder/dev_guide/topics/resource-reverse-geocode.html}
      *
      *  @param params - additional parameters for reverse geocode request
-     *  @param {Function} onSuccess success callback
-     *  @param {Function} onError error callback
+     *  @param onSuccess - success callback
+     *  @param onError - error callback
      */
     reverseGeocode(params: { [name: string]: string | string[] | number | number[] },
         onSuccess: (data: any) => void,
@@ -183,7 +183,7 @@ class GeoCoder {
     /**
      *  Request reverse geocode request to receive ISO country code for a geographical position.
      *
-     *  @param position - it is either an array [longitude, latitude] or an object literal {longitude: number, latitude: number}
+     *  @param position - it is either an array [longitude, latitude] or an object literal \{longitude: number, latitude: number\}
      *  @param onSuccess - success callback which contains the iso country code.
      *  @param onError - error callback
      */

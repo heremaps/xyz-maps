@@ -30,13 +30,13 @@ export interface MapOptions {
     /**
      * zoomlevel of the map.
      *
-     * @default 18
+     * @defaultValue 18
      */
     zoomlevel?: number
     /**
      * Center coordinate of the map.
      *
-     * @default {longitude: 8.534, latitude: 50.162}
+     * @defaultValue \{longitude: 8.534, latitude: 50.162\}
      */
     center?: GeoPoint
     /**
@@ -47,25 +47,25 @@ export interface MapOptions {
     /**
      * the maximum zoom level the map can be zoomed in
      *
-     * @default 20
+     * @defaultValue 20
      */
     maxLevel?: number
     /**
      * the minimum zoom level the map can be zoomed out
      *
-     * @default 2
+     * @defaultValue 2
      */
     minLevel?: number
     /**
      * enable or disable debug tile grid
      *
-     * @default false
+     * @defaultValue false
      */
     debug?: boolean
     /**
      * minimum threshold in pixel for enabling pan map gesture
      *
-     * @default 4
+     * @defaultValue 4
      */
     minPanMapThreshold?: number
 
@@ -83,40 +83,40 @@ export interface MapOptions {
          *  - true: enable zoom ("float")
          *  - "fixed": fixed zoom animation to next integer zoomlevel. floating zoomlevels are not allowed (eg 14.4)
          *  - "float": allow floating zoomlevels [default]
-         * @default 'float'
+         * @defaultValue 'float'
          */
         zoom?: true | false | 'fixed' | 'float',
         /**
          * enable or disable dragging the map
-         * @default true
+         * @defaultValue true
          */
         drag?: boolean;
         /**
          * enable or disable pitching the map
-         * @default false
+         * @defaultValue false
          */
         pitch?: boolean;
         /**
          * enable or disable rotating the map
-         * @default falses
+         * @defaultValue falses
          */
         rotate?: boolean;
     }
     /**
      * initial rotation of the map in degree.
      *
-     * @default 0
+     * @defaultValue 0
      */
     rotate?: number
     /**
      * initial pitch (tilt) of the map in degree.
      *
-     * @default 0
+     * @defaultValue 0
      */
     pitch?: number
     /**
      * duration of a zoom level change animation in milliseconds.
-     * @default 100
+     * @defaultValue 100
      */
     zoomAnimationMs?: number
     /**

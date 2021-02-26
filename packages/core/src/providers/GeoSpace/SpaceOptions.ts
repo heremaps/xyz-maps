@@ -26,7 +26,7 @@ interface SpaceProviderOptions extends HTTPProviderOptions {
     /**
      * The XYZ Hub environment.
      *
-     * @default "prd"
+     * @defaultValue "prd"
      * @internal
      */
     environment?: string
@@ -52,14 +52,14 @@ interface SpaceProviderOptions extends HTTPProviderOptions {
     /**
      * Indicates the tag(s) that should be set in the requests.
      *
-     * @default false
+     * @defaultValue false
      */
     tags?: false | string | string[],
 
     /**
      * Indicates if result geometry of tile requests should be clipped.
      *
-     * @default false
+     * @defaultValue false
      */
     clip?: boolean;
 
@@ -67,7 +67,7 @@ interface SpaceProviderOptions extends HTTPProviderOptions {
      * Base URL of the SpaceProvider.
      * It should point to a XYZ-Hub space endpoint.
      *
-     * @default "https://xyz.api.here.com/hub/spaces"
+     * @defaultValue "https://xyz.api.here.com/hub/spaces"
      */
     url?: string;
 
@@ -76,7 +76,7 @@ interface SpaceProviderOptions extends HTTPProviderOptions {
      *
      * @see https://www.here.xyz/api/devguide/propertiessearch/
      *
-     * @default null
+     * @defaultValue null
      */
     propertySearch?: {
         [name: string]: {

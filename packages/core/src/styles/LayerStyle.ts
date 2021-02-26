@@ -126,7 +126,7 @@ export interface Style {
      * Defines the opacity of the style.
      * The value must be between 0.0 (fully transparent) and 1.0 (fully opaque).
      * It is valid for all style types.
-     * @default 1
+     * @defaultValue 1
      */
     opacity?: number | styleNumberFunction;
     /**
@@ -150,7 +150,7 @@ export interface Style {
      * CSS font string for texts.
      * It is only valid for Text.
      *
-     * @default “normal 12px Arial”
+     * @defaultValue “normal 12px Arial”
      */
     font?: string | styleStringFunction;
 
@@ -249,7 +249,7 @@ export interface Style {
      * Minimum distance in pixels between repeated text labels on line geometries.
      * Applies per tile only.
 
-     * @default 256 (pixels)
+     * @defaultValue 256 (pixels)
      */
     repeat?: number | styleNumberFunction;
     /**
@@ -260,7 +260,7 @@ export interface Style {
      * - false: disable line wrapping
      * - true: enable line wrapping [Default 14 characters]
      *
-     * @default 14
+     * @defaultValue 14
      */
     lineWrap?: number | styleNumberFunction;
 
@@ -270,7 +270,7 @@ export interface Style {
      * true - collision are allowed, Collision detection is disabled.
      * false - avoid collisions, Collision detection is enabled. [default]
      *
-     * @default false
+     * @defaultValue false
      */
     collide?: boolean | styleBooleanFunction;
 }

@@ -131,7 +131,7 @@ class Feature extends GeoJSONFeature {
      *  Get default or current style of the feature.
      *
      *  @deprecated
-     *  @default "default"
+     *  @defaultValue "default"
      *  @param type - indicates which style to return. "default" -> layer default style for the feature or the "current" applied style.
      *
      *  @returns the style of the feature

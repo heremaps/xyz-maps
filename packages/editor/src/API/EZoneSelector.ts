@@ -66,19 +66,19 @@ export interface Zone {
      * Side of the Zone. Relative to the direction of travel of the line geometry.
      * "L" | "R" | "B" -> Left, Right or Both sides.
      *
-     * @default "B"
+     * @defaultValue "B"
      */
     side?: 'L' | 'R' | 'B';
     /**
      * Relative start position on the line geometry.
      * 0 -> 0% -> start, 0.5 -> 50% -> middle, 1 -> 100% -> end
-     * @default 0.0
+     * @defaultValue 0.0
      */
     from?: number;
     /**
      * Relative end position on the line geometry.
      * 0.5 -> 50% -> middle, 1 -> 100% -> end
-     * @default 1.0
+     * @defaultValue 1.0
      */
     to?: number;
     /**

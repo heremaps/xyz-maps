@@ -51,21 +51,21 @@ interface IMLProviderOptions extends HTTPProviderOptions {
     /**
      * Indicates the tag(s) that should be set in the requests.
      *
-     * @default false
+     * @defaultValue false
      */
     tags?: false | string | string[],
 
     /**
      * Indicates if result geometry of tile requests should be clipped.
      *
-     * @default false
+     * @defaultValue false
      */
     clip?: boolean;
 
     /**
      * URL of the Interactive Map Layer endpoint.
      *
-     * @default "https://interactive.data.api.platform.here.com/interactive/v1"
+     * @defaultValue "https://interactive.data.api.platform.here.com/interactive/v1"
      */
     url: string;
 
@@ -74,7 +74,7 @@ interface IMLProviderOptions extends HTTPProviderOptions {
      *
      * @see https://interactive.data.api.platform.here.com/openapi/#/Read%20Features
      *
-     * @default null
+     * @defaultValue null
      */
     propertySearch?: {
         [name: string]: {

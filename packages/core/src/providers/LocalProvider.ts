@@ -43,7 +43,7 @@ export interface LocalProviderOptions {
     /**
      *  Allow or prevent editing by the {@link editor.Editor} module.
      *
-     *  @default false
+     *  @defaultValue false
      */
     editable?: boolean;
     /**

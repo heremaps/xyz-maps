@@ -143,24 +143,24 @@ export class Map {
     private _search: Search;
 
     /**
-     *  @param mapEl - HTMLElement used to create the map display
-     *  @param options - options to configure for the map
+     * @param mapEl - HTMLElement used to create the map display
+     * @param options - options to configure for the map
      *
      * @example
-     *  ```javascript
-     *  import {Map} from '@here/xyz-maps-display';
+     * ```javascript
+     * import {Map} from '@here/xyz-maps-display';
      *
-     *  //create map display
-     *  const display = new Map( mapDiv, {
-     *      zoomLevel : 19,
-     *      center: {
-     *          longitude: 8.53422,
-     *          latitude: 50.16212
-     *      },
-     *      // add layers to display
-     *      layers: layers
-     *  });
-     *  ```
+     * //create map display
+     * const display = new Map( mapDiv, {
+     *     zoomLevel : 19,
+     *     center: {
+     *         longitude: 8.53422,
+     *         latitude: 50.16212
+     *     },
+     *     // add layers to display
+     *     layers: layers
+     * });
+     * ```
      */
     constructor(mapEl: HTMLElement, options: MapOptions) {
         this._cfg = options = JSUtils.extend(true,
@@ -493,7 +493,7 @@ export class Map {
      * Removes an event listener to the map.
      *
      * @param type - A string representing the event type to listen for.
-     * @param {Function} listener - The EventListener function of the event handler to remove from the editor.
+     * @param listener - The EventListener function of the event handler to remove from the editor.
      */
     removeEventListener(type: string, listener: (e: MapEvent) => void) {
         const listeners = this._l;
@@ -597,6 +597,7 @@ export class Map {
      * If a Point is used, width and height must be passed in options parameter.
      *
      * @param options - Describing the options param
+     *
      * @returns The result providing found feature and layer.
      * undefined is returned if nothing is found.
      */
@@ -893,9 +894,9 @@ export class Map {
     };
 
     /**
-     *  Get the current geographical center of the map.
+     * Get the current geographical center of the map.
      *
-     *  @returns the map's geographical center point.
+     * @returns the map's geographical center point.
      */
     getCenter(): GeoPoint {
         return new GeoPoint(
@@ -991,6 +992,7 @@ export class Map {
      * Get a specific Layer of the map.
      *
      * @param index - get a specific layer at index in the layer hierarchy
+     *
      * @returns the layer that is added to the map
      */
     getLayers(index: number): TileLayer;
@@ -1278,7 +1280,7 @@ export class Map {
     };
 
     /**
-     *  Get the HTMLElement used by the map.
+     * Get the HTMLElement used by the map.
      */
     getContainer(): HTMLElement {
         return <HTMLElement>(this._el.parentNode);

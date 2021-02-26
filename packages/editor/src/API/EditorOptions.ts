@@ -41,7 +41,7 @@ interface EditorOptions {
      *
      * @returns true -> Allow operation(s) and execute edits. false -> forbid operation(s). No edit gets executed.
      *
-     * @default
+     * @defaultValue
      */
     editRestrictions?: (feature: Feature, restrictionMask: number) => boolean;
 
@@ -49,14 +49,14 @@ interface EditorOptions {
      * Define the pixel radius of the area within a shape point of a Navlink Feature can be moved by mouse/touch interaction.
      *
      * @deprecated
-     * @default false - deactivated by default.
+     * @defaultValue false - deactivated by default.
      */
     geoFence?: number | false;
 
     /**
      * Minimum distance in meters between two shape points for creating new Navlink Features.
      *
-     * @default 2
+     * @defaultValue 2
      */
     minShapeDistance?: number;
 
@@ -65,7 +65,7 @@ interface EditorOptions {
      * the shape-points will be connected automatically.
      *
      * @optional
-     * @default 2
+     * @defaultValue 2
      */
     autoConnectShapeDistance?: number;
 
@@ -73,14 +73,14 @@ interface EditorOptions {
      * Defines the coordinate precision for the automatic intersection detection.
      * Number of decimal points of the WGS coordinates that must match.
      *
-     * @default 5
+     * @defaultValue 5
      */
     intersectionScale?: number;
 
     /**
      * Maximum variance for crossing candidate detection of Navlink Features in meters.
      *
-     * @default 2
+     * @defaultValue 2
      */
     XTestMaxDistance?: number;
 
@@ -88,7 +88,7 @@ interface EditorOptions {
     /**
      * The distance in meters between the two shape-points when two Navlink Features get disconnected.
      *
-     * @default 3
+     * @defaultValue 3
      */
     disconnectShapeDistance?: number;
 
@@ -98,28 +98,28 @@ interface EditorOptions {
      * if set to "viewportChange" -> will only be cleared on ground click.
      * if set to true -> no clear at all.
      *
-     * @default "viewportChange"
+     * @defaultValue "viewportChange"
      */
     keepFeatureSelection?: string | boolean;
 
     /**
      * Select a feature by default on tap/pointerup event.
      *
-     * @default true
+     * @defaultValue true
      */
     featureSelectionByDefault?: boolean;
 
     /**
      * The maximum allowed distance of the "Routing Point" to the Address/Place itself in meters.
      *
-     * @default 1000 - 1000 meters
+     * @defaultValue 1000 - 1000 meters
      */
     maxRoutingPointDistance?: number;
 
     /**
      * Enable or disable "auto snap" to the existing Navlink network when a shape of a Navlink Feature has been dragged.
      *
-     * @default false
+     * @defaultValue false
      */
     autoSnapShape?: boolean;
 

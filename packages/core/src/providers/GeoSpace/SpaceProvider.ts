@@ -83,7 +83,7 @@ export class SpaceProvider extends GeoJSONProvider {
      * Base URL of the SpaceProvider.
      * It points to a XYZ-Hub space endpoint.
      *
-     * @default "https://xyz.api.here.com/hub/spaces"
+     * @defaultValue "https://xyz.api.here.com/hub/spaces"
      */
     readonly url: string;
 

@@ -61,7 +61,7 @@ export class EditorEvent {
      * - 0: Main button pressed, usually the left button or the un-initialized state
      * - 2: Secondary button pressed, usually the right button
      *
-     * @default 0
+     * @defaultValue 0
      */
     readonly button: number;
 

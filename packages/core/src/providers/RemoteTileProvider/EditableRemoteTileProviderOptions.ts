@@ -27,7 +27,7 @@ export interface EditableRemoteTileProviderOptions extends RemoteTileProviderOpt
     /**
      *  Allow or prevent editing by the {@link editor.Editor} module.
      *
-     *  @default false
+     *  @defaultValue false
      */
     editable?: boolean;
 };
