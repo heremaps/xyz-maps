@@ -41,8 +41,8 @@ const editor = new Editor(display, {layers: [lineLayer]});
 /**
  * add a new navlink by clicking on map, double click to finish drawing
  */
-let infoTag = document.querySelector('#info');
-let createButton = document.querySelector('#newroad');
+let infoTag = <HTMLElement>document.querySelector('#info');
+let createButton = <HTMLElement>document.querySelector('#newroad');
 
 // get the drawing board util of the editor
 let drawingBoard = editor.getDrawingBoard();
@@ -53,7 +53,7 @@ createButton.onclick = function() {
         mode: 'Line' // we want to draw a "Line" Feature.
     });
     // hide this button
-    this.style.display = 'none';
+    createButton.style.display = 'none';
     infoTag.innerText = 'Click map to add shape points, double click to finish drawing';
 };
 

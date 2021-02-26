@@ -190,7 +190,7 @@ const editor = new Editor(display, {layers: [navlinkLayer]});
 /** **/
 
 
-let roadNameInput = document.querySelector('#roadname');
+let roadNameInput = <HTMLInputElement>document.querySelector('#roadname');
 let navlink;
 
 // add a pointerup event listener to initialize the input field when a navlink gets clicked
