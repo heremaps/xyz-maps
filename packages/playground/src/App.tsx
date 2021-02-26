@@ -148,7 +148,7 @@ export const App: React.FC = (props: { examples: any }) => {
         dtsPaths.current = {};
         const libs = settings.path['xyz-maps'];
         for (let name in libs) {
-            dtsPaths.current[`@here/xyz-maps-${name}`] = libs[name].replace('.js', '.d.ts');
+            dtsPaths.current[`@here/xyz-maps-${name}`] = libs[name].replace(/\.min\.js|\.js/, '.d.ts');
         }
     }
 
