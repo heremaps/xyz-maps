@@ -32,8 +32,9 @@ export const setReleaseTags = async (dtsPath: string, releaseTag: 'internal' | '
             if (comment?.getText().match(JS_DOCTAG_REGEX)) {
                 return;
             }
+
             switch (node.getKind()) {
-            case SyntaxKind.PropertySignature:
+            // case SyntaxKind.PropertySignature:
             case SyntaxKind.PropertyDeclaration:
             case SyntaxKind.ClassDeclaration:
             case SyntaxKind.MethodDeclaration:

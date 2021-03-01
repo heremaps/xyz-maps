@@ -7,7 +7,7 @@
     "skipLibCheck": true
   },
   "include": [
-    "./*/*"
+    "lib/**/*.ts"
   ],
   "exclude": [
     "node_modules",

@@ -23,11 +23,12 @@
 const {join} = require('path');
 const build = require('./index');
 
-const argv = require('yargs/yargs')(process.argv.slice(2))
+
+const argv = require('yargs')(process.argv.slice(2))
     .options({
         path: {
             alias: 'p',
-            describe: 'root path of the module',
+            describe: 'the path to the module to build declarations for.',
             demandOption: true,
             type: 'string'
         }
