@@ -121,6 +121,7 @@ function addVShapes(area) {
     const coordinates = tools.getCoords(area);
 
     for (let p = 0; p < coordinates.length; p++) {
+        // @ts-ignore
         createShapes(shapePnts, coordinates, p, (p1, p2, idxData) => new VirtualShape(
             area,
             (p1[0] + p2[0]) / 2,

@@ -24,7 +24,9 @@ import {
     PixelPoint,
     EditableRemoteTileProvider,
     GeoRect,
-    GeoJSONFeature, GeoJSONCoordinate
+    GeoJSONFeature,
+    GeoJSONCoordinate,
+    GeoJSONBBox
 } from '@here/xyz-maps-core';
 import {Map} from '@here/xyz-maps-display';
 import {DrawingBoard} from './DrawingBoard';
@@ -33,7 +35,6 @@ import InternalEditor from './../IEditor';
 import {mergeOptions, EditorOptions} from './EditorOptions';
 import {initHooks} from './../hooks/init';
 import {Feature} from './../features/feature/Feature';
-import {GeoJSONBBox} from '@here/xyz-maps-core/src/features/GeoJSON';
 import {EditorEvent} from './EditorEvent';
 import FeatureSubmitter from '../providers/FeatureSubmitter';
 import SimpleContainer from '../features/Container';

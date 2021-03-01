@@ -20,8 +20,7 @@
 import {DefaultEditorProperties} from './feature/EditorProperties';
 import FeatureContainer from './Container';
 import {geotools} from '@here/xyz-maps-common';
-import {FeatureProvider, TileLayer} from '@here/xyz-maps-core';
-import {GeoJSONCoordinate} from '@here/xyz-maps-core/src/features/GeoJSON';
+import {FeatureProvider, TileLayer, GeoJSONCoordinate, Style} from '@here/xyz-maps-core';
 
 let UNDEF;
 
@@ -164,7 +163,7 @@ class Overlay {
     }
 
 
-    getStyles(obj) {
+    getStyles(obj): Style[] {
         return this.layer.getStyleGroup(obj);
     }
 

@@ -55,7 +55,7 @@ const getBBox = (features) => {
     return bbox;
 };
 
-function Transformer(HERE_WIKI, editor) {
+function Transformer(HERE_WIKI) {
     const overlay = HERE_WIKI.objects.overlay;
     const that = this;
     let scaleRect = null;

@@ -20,8 +20,7 @@
 import {intersectLineLine} from '../../geometry';
 import InternalEditor from '../../IEditor';
 import {Area} from './Area';
-import {FeatureProvider, Feature} from '@here/xyz-maps-core';
-import {GeoJSONFeature} from '@here/xyz-maps-core/src/features/GeoJSON';
+import {FeatureProvider, Feature, GeoJSONFeature} from '@here/xyz-maps-core';
 
 function intersectLinePoly(l1, l2, poly) {
     for (let p = 0, len = poly.length - 1; p < len; p++) {
