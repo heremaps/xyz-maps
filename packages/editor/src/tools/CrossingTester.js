@@ -20,7 +20,7 @@
 import MCrossing from '../API/MCrossing';
 import {getDistance, intersectLineLine} from '../geometry';
 import {geotools as geoTools} from '@here/xyz-maps-common';
-import linkTools from '../features/link/NavLinkTools';
+import linkTools from '../features/link/NavlinkTools';
 
 // TODO: REFACTOR!
 function CrossingTester( HERE_WIKI, linkOrig ) {
@@ -358,7 +358,7 @@ export default CrossingTester;
 // import MCrossing from '../API/MCrossing';
 // import {getDistance, intersectLineLine} from '../geometry';
 // import {geotools as geoTools} from '@here/xyz-maps-common';
-// import linkTools from '../features/link/NavLinkTools';
+// import linkTools from '../features/link/NavlinkTools';
 //
 // const HERE_CROSSING = 'CROSSING';
 // const HERE_CROSSING_CANDIDATE = HERE_CROSSING + '_CANDIDATE';

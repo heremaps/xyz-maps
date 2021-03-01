@@ -26,7 +26,7 @@ import {split, SplitOptions} from './LinkSplitter';
 import {TileLayer, FeatureProvider, EditableFeatureProvider, EditableRemoteTileProvider} from '@here/xyz-maps-core';
 import {Map, JSUtils, geotools} from '@here/xyz-maps-common';
 import {getPntOnLine, intersectBBox} from '../geometry';
-import {Navlink} from './link/NavLink';
+import {Navlink} from './link/Navlink';
 
 
 type Point = [number, number, number?];

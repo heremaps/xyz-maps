@@ -19,8 +19,8 @@
 
 import {JSUtils} from '@here/xyz-maps-common';
 import locTools from './location/LocationTools';
-import linkTools from './link/NavLinkTools';
-import {Navlink} from './link/NavLink';
+import linkTools from './link/NavlinkTools';
+import {Navlink} from './link/Navlink';
 import {getRelPosOfPointOnLine, calcRelPosOfPoiAtLink} from '../map/GeoMath';
 import InternalEditor from '../IEditor';
 

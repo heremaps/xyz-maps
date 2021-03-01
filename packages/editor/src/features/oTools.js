@@ -21,7 +21,7 @@ import MTOOLS from './marker/MarkerTools';
 
 import ATOOLS from './area/PolygonTools';
 import LINETOOLS from './line/LineTools';
-import LINKTOOLS from './link/NavLinkTools';
+import LINKTOOLS from './link/NavlinkTools';
 import LOCATIONTOOLS from './location/LocationTools';
 const tools = {};
 

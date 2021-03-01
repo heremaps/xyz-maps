@@ -19,10 +19,10 @@
 
 import {JSUtils, geotools} from '@here/xyz-maps-common';
 import {movePointOnPath} from '../../geometry';
-import linkTools from '../../features/link/NavLinkTools';
+import linkTools from '../../features/link/NavlinkTools';
 import {isTurnAllowed, isPedestrianOnly, getProperty, setProperty} from './utils';
 import Overlay from '../../features/Overlay';
-import {Navlink} from '../../features/link/NavLink';
+import {Navlink} from '../../features/link/Navlink';
 
 const DISTANCE_METER = 8 * 1e-5;
 

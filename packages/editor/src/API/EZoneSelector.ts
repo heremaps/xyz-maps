@@ -21,7 +21,7 @@ import {Feature} from '../features/feature/Feature';
 import MultiSelector from '../tools/ZoneSelection/MultiSelector';
 import InternalEditor from '../IEditor';
 
-import {Navlink} from '../features/link/NavLink';
+import {Navlink} from '../features/link/Navlink';
 import {Zone as InternalZone} from '../tools/ZoneSelection/Zone';
 import {MapEvent} from '@here/xyz-maps-display';
 import EventHandler from '../handlers/EventHandler';

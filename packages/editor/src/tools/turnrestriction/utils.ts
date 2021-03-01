@@ -17,7 +17,7 @@
  * License-Filename: LICENSE
  */
 
-import {Navlink} from '../../features/link/NavLink';
+import {Navlink} from '../../features/link/Navlink';
 
 const DIRECTION_BOTH = 'BOTH';
 const DIRECTION_FROM_RN = 'START_TO_END';

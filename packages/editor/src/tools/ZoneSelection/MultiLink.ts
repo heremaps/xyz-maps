@@ -17,8 +17,8 @@
  * License-Filename: LICENSE
  */
 
-import oTools from '../../features/link/NavLinkTools';
-import {Navlink} from '../../features/link/NavLink';
+import oTools from '../../features/link/NavlinkTools';
+import {Navlink} from '../../features/link/Navlink';
 import {Line} from '../../features/line/Line';
 import InternalEditor from '../../IEditor';
 import {InternalZoneOptions, Zone} from './Zone';

@@ -17,11 +17,11 @@
  * License-Filename: LICENSE
  */
 
-import oTools from '../../features/link/NavLinkTools';
+import oTools from '../../features/link/NavlinkTools';
 import MultiLink from './MultiLink';
 import InternalEditor from '../../IEditor';
 import {Map} from '@here/xyz-maps-display';
-import {Navlink} from '../../features/link/NavLink';
+import {Navlink} from '../../features/link/Navlink';
 import {InternalZoneOptions} from './Zone';
 
 class MultiSelector {

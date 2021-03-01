@@ -19,7 +19,7 @@
 
 import {Feature} from '../feature/Feature';
 import oTools from './LocationTools';
-import {Navlink} from '../link/NavLink';
+import {Navlink} from '../link/Navlink';
 
 export class Location extends Feature {
     readonly class: 'PLACE' | 'ADDRESS';

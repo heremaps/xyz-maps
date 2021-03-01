@@ -21,7 +21,7 @@ import CrossingTester from '../../tools/CrossingTester';
 import TurnRestriction from './TurnRestriction';
 import TurnRestrictionEditor from '../../tools/turnrestriction/Editor';
 import DirectionHint from '../../tools/DirectionHint';
-import oTools from './NavLinkTools';
+import oTools from './NavlinkTools';
 import {Feature} from '../feature/Feature';
 import {JSUtils} from '@here/xyz-maps-common';
 import {GeoPoint, PixelPoint, Style} from '@here/xyz-maps-core';

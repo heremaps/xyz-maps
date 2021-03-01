@@ -20,7 +20,7 @@
 import {JSUtils, geotools} from '@here/xyz-maps-common';
 import {FeatureProvider, Feature, GeoJSONFeature} from '@here/xyz-maps-core';
 import GeoFence from './GeoFence';
-import {Navlink} from './NavLink';
+import {Navlink} from './Navlink';
 import TurnRestriction from './TurnRestriction';
 import {Feature as EditableFeature} from '@here/xyz-maps-editor';
 

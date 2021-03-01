@@ -20,7 +20,7 @@
 import {getPntAt} from '../geometry';
 import {geotools} from '@here/xyz-maps-common';
 import Overlay from '../features/Overlay';
-import {Navlink} from '../features/link/NavLink';
+import {Navlink} from '../features/link/Navlink';
 import {Line} from '../features/line/Line';
 import {Feature} from '../features/feature/Feature';
 
