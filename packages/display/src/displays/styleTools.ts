@@ -21,40 +21,13 @@ import {createTxtRef, measure, defaultFont} from './fontCache';
 import {Feature} from '@here/xyz-maps-core';
 import {toRGB} from './webgl/color';
 import {getRotatedBBox} from '../geometry';
-import {webMercator} from '@here/xyz-maps-core';
+import {webMercator, Style, StyleGroup} from '@here/xyz-maps-core';
 
 const {meterToPixel, pixelToMeter} = webMercator;
 
 const getTileGridZoom = (zoom) => Math.min(zoom, 20) ^ 0;
 const INFINITY = Infinity;
 let UNDEF;
-
-type styleStringFunction = (feature, zoom: number) => string | null | undefined;
-type styleNumberFunction = (feature, zoom: number) => number | null | undefined;
-
-// TODO: MOVE TO CORE WITH FULL SWITCH TO TS.
-interface Style {
-    type: 'Circle' | 'Rect' | 'Image' | 'Text' | 'Line' | 'Polygon';
-    zIndex: number | styleNumberFunction;
-    fill?: string | styleStringFunction;
-    stroke?: string | styleStringFunction;
-    strokeWidth?: number | styleNumberFunction;
-    radius?: string | styleNumberFunction;
-    width?: number | styleNumberFunction;
-    height?: number | styleNumberFunction;
-    font?: string | styleStringFunction;
-    text?: string | number | boolean | styleStringFunction | styleNumberFunction;
-    textRef?: string;
-    offsetX?: number | styleNumberFunction;
-    offsetY?: number | styleNumberFunction;
-    alignment?: 'map' | 'viewport';
-    rotation?: number;
-    priority?: number;
-    repeat?: number;
-    offset?: number | styleNumberFunction;
-    from?: number | styleNumberFunction;
-    to?: number | styleNumberFunction;
-}
 
 const allowedProperties = {
     'type': 1,
@@ -79,8 +52,6 @@ const allowedProperties = {
     'from': 1,
     'to': 1
 };
-
-type StyleGroup = Array<Style>;
 
 const getValue = (name: string, style: Style, feature: Feature, tileGridZoom: number) => {
     let value = style[name];

@@ -19,10 +19,37 @@
 
 import {Feature} from '../features/Feature';
 
-type styleStringFunction = (feature: Feature, zoom?: number) => string | null | undefined;
-type styleNumberFunction = (feature: Feature, zoom?: number) => number | null | undefined;
-type styleBooleanFunction = (feature: Feature, zoom?: number) => boolean | null | undefined;
-type styleNumberArrayFunction = (feature: Feature, zoom?: number) => number[] | null | undefined;
+/**
+ * A StyleValueFunction is a function that returns the desired value for the respective style property.
+ * It's especially useful for data driven styling.
+ *
+ * @param feature - the feature for which the style is to be obtained
+ * @param zoom - the zoomlevel of the style
+ *
+ * @example
+ * ```
+ * text: (feature, zoom) => feature.properties.name
+ * ```
+ */
+export type StyleValueFunction<TYPE> = (feature: Feature, zoom?: number) => TYPE | undefined;
+
+/**
+ * A StyleZoomRange is a Map<number,any> with zoomlevel as its keys and the value for the respective style property at the respective zoomlevel.
+ * Values for intermediate zoom levels are interpolated linearly.
+ * @example
+ * ```
+ * strokeWidth: {
+ *     // 2px for zoomlevel 1 to 12
+ *     13: 2,  // 2px at zoomlevel 13
+ *     // 10px for zoomlevel 14 (linear interpolation)
+ *     15: 18, // 18px at zoomlevel 15
+ *     // 27px for zoomlevel 16 (linear interpolation)
+ *     17: 36  // 36px at zoomlevel 20
+ *     // 44px for zoomlevels 18 to 20
+ * }
+ * ```
+ */
+export type StyleZoomRange<TYPE> = { [zoom: number]: TYPE }
 
 /**
  * Style object represents supported style attributes of Features. It indicates how a symbolizer in feature should be rendered.
@@ -68,7 +95,7 @@ export interface Style {
      * The zIndex is defined relative to the "zLayer" property.
      * If "zLayer" is defined all zIndex values are relative to the "zLayer" value.
      */
-    zIndex: number | styleNumberFunction;
+    zIndex: number | StyleValueFunction<number> | StyleZoomRange<number>;
     /**
      * Indicates drawing order across multiple layers.
      * Styles using zLayer with a high value are rendered on top of zLayers with a low value.
@@ -77,28 +104,59 @@ export interface Style {
      *
      * @example {...zLayer:2, zIndex:5} will be rendered on top of {...zLayer:1, zIndex:10}
      */
-    zLayer?: number | styleNumberFunction;
+    zLayer?: number | StyleValueFunction<number>;
     /**
      * Specifies the URL of an image.
      * It can be either absolute or relative path.
      * It is only required by "Image".
      */
-    src?: string | styleStringFunction;
+    src?: string | StyleValueFunction<string> | StyleZoomRange<string>;
     /**
      * Sets the color to fill the shape.
      * This attribute is valid for Circle, Rect, Text and Polygon.
      */
-    fill?: string | styleStringFunction;
+    fill?: string | StyleValueFunction<string> | StyleZoomRange<string>;
     /**
      * Sets the stroke color of the shape.
      * This attribute is valid for Circle, Rect, Line, Text and Polygon.
      */
-    stroke?: string | styleStringFunction;
+    stroke?: string | StyleValueFunction<string> | StyleZoomRange<string>;
     /**
-     * Sets the width of thw stroke.
+     * Sets the width of the stroke.
      * This attribute is valid for Circle, Rect, Line, Text and Polygon.
+     * The unit of strokeWidth is defined in pixels.
+     * For Styles of type Line the strokeWidth can also be defined in meters by using a string: "${width}m".
+     * @example
+     * ```
+     * // define a Line that has a with of 1 meter
+     * {
+     *     zIndex: 0,
+     *     type: "Line",
+     *     stroke: "blue",
+     *     strokeWidth: "1m"
+     * }
+     * // define a Line that has a with of 16 pixel
+     * {
+     *     zIndex: 0,
+     *     type: "Line",
+     *     stroke: "green",
+     *     strokeWidth: "16
+     * }
+     * ```
+     * @example
+     * ```
+     * // define a Text style with a strokeWidth of 8px
+     * {
+     *     zIndex: 0,
+     *     type: "Text",
+     *     text: "doc",
+     *     fill: "white",
+     *     stroke: "black,
+     *     strokeWidth: 8
+     * }
+     * ```
      */
-    strokeWidth?: number | styleNumberFunction;
+    strokeWidth?: number | string | StyleValueFunction<number | number> | StyleZoomRange<string | number>;
     /**
      * This controls the shape of the ends of lines. there are three possible values for strokeLinecap:
      * - "butt" closes the line off with a straight edge that's normal (at 90 degrees) to the direction of the stroke and crosses its end.
@@ -106,7 +164,7 @@ export interface Style {
      * - "round" produces a rounded effect on the end of the stroke. The radius of this curve is also controlled by the strokeWidth.
      * This attribute is valid for Line styles only.
      */
-    strokeLinecap?: string | styleStringFunction;
+    strokeLinecap?: string | StyleValueFunction<string> | StyleZoomRange<string>;
     /**
      * The joint where the two segments in a line meet is controlled by the strokeLinejoin attribute, There are three possible values for this attribute:
      * - "miter" extends the line slightly beyond its normal width to create a square corner where only one angle is used.
@@ -114,45 +172,120 @@ export interface Style {
      * - "bevel" creates a new angle to aid in the transition between the two segments.
      * This attribute is valid for Line styles only.
      */
-    strokeLinejoin?: string | styleStringFunction;
+    strokeLinejoin?: string | StyleValueFunction<string> | StyleZoomRange<string>;
     /**
      * The strokeDasharray attribute controls the pattern of dashes and gaps used to stroke paths.
      * It's an array of <length> that specify the lengths of alternating dashes and gaps. If an odd number of values is provided,
      * then the list of values is repeated to yield an even number of values. Thus, 5,3,2 is equivalent to 5,3,2,5,3,2.
      * This attribute is valid for Line styles only.
      */
-    strokeDasharray?: number[] | styleNumberArrayFunction,
+    strokeDasharray?: number[] | StyleValueFunction<number[]> | StyleZoomRange<number[]>,
     /**
      * Defines the opacity of the style.
      * The value must be between 0.0 (fully transparent) and 1.0 (fully opaque).
      * It is valid for all style types.
      * @defaultValue 1
      */
-    opacity?: number | styleNumberFunction;
+    opacity?: number | StyleValueFunction<number> | StyleZoomRange<number>;
     /**
-     *  Radius of the Circle in pixel.
-     *  It is only required by Circle.
+     * The Radius of the Circle.
+     * It is required by styles of type "Circle".
+     * The default unit is pixels.
+     * To define the radius in meters a string can be used: "${width}m".
+     * @example
+     * ```
+     * // define a Circle with a radius of 1 meter
+     * {
+     *     zIndex: 0,
+     *     type: "Circle",
+     *     stroke: "red",
+     *     strokeWidth: "1m"
+     * }
+     * // define a Circle with a radius of 16 pixel
+     * {
+     *     zIndex: 0,
+     *     type: "Circle",
+     *     stroke: "red",
+     *     strokeWidth: 16
+     * }
+     * ```
      */
-    radius?: number | styleNumberFunction;
+    radius?: number | StyleValueFunction<number> | StyleZoomRange<number>;
     /**
      * Width of the style in pixels.
      * It is only required by Rect and Image.
-     * The maximum support width for "Image" is 64 pixels.
+     * The maximum supported width for "Image" is 64 pixels.
+     * The unit of width is defined in pixels.
+     * For styles of type "Rect" the width can also be defined in meters by using a string: "${width}m".
+     * @example
+     * ```
+     * // define a Rect that has a width (and height) of 2.2 meter
+     * {
+     *     zIndex: 0,
+     *     type: "Line",
+     *     stroke: "blue",
+     *     width: "2.2m"
+     * }
+     * ```
+     * @example
+     * ```
+     * // define a Rect that has a width (and height) of 16 pixel
+     * {
+     *     zIndex: 0,
+     *     type: "Line",
+     *     stroke: "green",
+     *     width: 16
+     * }
+     * ```
      */
-    width?: number | styleNumberFunction;
+    width?: number | StyleValueFunction<number> | StyleZoomRange<number>;
     /**
      * Height of the style in pixels.
      * It is only required by Rect and Image.
-     * The maximum support height for "Image" is 64 pixels.
+     * The maximum supported height for "Image" is 64 pixels.
+     * The unit of height is defined in pixels.
+     * For styles of type "Rect" the height can also be defined in meters by using a string: "${width}m".
+     * @example
+     * ```
+     * // define a Rect that has a width of 2 meter and a height of 1 meter.
+     * {
+     *     zIndex: 0,
+     *     type: "Line",
+     *     stroke: "blue",
+     *     width: "2m",
+     *     height: "1m"
+     * }
+     * ```
+     * @example
+     * ```
+     * // define a Rect that has a width of 20 pixel and a height of 28 pixel.
+     * {
+     *     zIndex: 0,
+     *     type: "Line",
+     *     stroke: "green",
+     *     width: 20,
+     *     height: 28
+     * }
+     * ```
+     * @example
+     * ```
+     * // define a Image/Icon style with/height of 32pixel
+     * {
+     *     zIndex: 0,
+     *     type: "Image",
+     *     src: "urlToMyImageResource",
+     *     width: 32
+     * }
+     * ```
      */
-    height?: number | styleNumberFunction;
+    height?: number | StyleValueFunction<number> | StyleZoomRange<number>;
     /**
      * CSS font string for texts.
      * It is only valid for Text.
      *
      * @defaultValue “normal 12px Arial”
      */
-    font?: string | styleStringFunction;
+    font?: string | StyleValueFunction<string> | StyleZoomRange<string>;
 
     /**
      * Text is either a string or a function that generates the string that should be displayed.
@@ -167,7 +300,7 @@ export interface Style {
      * }
      * ```
      */
-    text?: string | number | boolean | styleStringFunction | styleNumberFunction;
+    text?: string | number | boolean | StyleValueFunction<string | number | boolean> | StyleZoomRange<string | number | boolean>;
     /**
      * "textRef" Reference to an attribute of an feature that's value should be displayed as text.
      * If both "text" and "textRef" are set, "text" prevails.
@@ -185,7 +318,7 @@ export interface Style {
      * textRef: "id"
      * ```
      */
-    textRef?: string | styleStringFunction;
+    textRef?: string | StyleValueFunction<string> | StyleZoomRange<string>;
     /**
      * Define the starting position of a segment of the entire line in %.
      * A Segment allows to display and style parts of the entire line individually.
@@ -197,7 +330,7 @@ export interface Style {
      * from: 0.0 // -> 0%, the segment has the same starting point as the entire line
      * from:  0.5 // -> 50%, the segment starts in the middle of the entire line
      */
-    from?: number | styleNumberFunction;
+    from?: number | StyleValueFunction<number> | StyleZoomRange<number>;
 
     /**
      * Define the end position of a segment of the entire line in %.
@@ -210,48 +343,48 @@ export interface Style {
      * to: 0.5 // -> 50%, the segment ends in the middle of the entire line
      * to: 1.0 // -> 100%, the segment has the same end point as the entire line
      */
-    to?: number | styleNumberFunction;
+    to?: number | StyleValueFunction<number> | StyleZoomRange<number>;
 
     /**
      *  Offset the shape in pixels on x-axis.
      *  It is valid for Circle, Rect, Text and Image.
      */
-    offsetX?: number | styleNumberFunction;
+    offsetX?: number | StyleValueFunction<number> | StyleZoomRange<number>;
     /**
      *  Offset the shape in pixels on y-axis.
      *  It is valid for Circle, Rect, Text and Image.
      */
-    offsetY?: number | styleNumberFunction;
+    offsetY?: number | StyleValueFunction<number> | StyleZoomRange<number>;
     /**
      * Offset a line to the left or right side in pixel.
      * A positive values offsets to the right side, a negative value offsets to the left.
      * The side is defined relative to the direction of the line geometry.
      * Applies to Line style only.
      */
-    offset?: number | styleNumberFunction;
+    offset?: number | StyleValueFunction<number> | StyleZoomRange<number>;
     /**
      * Alignment for Text. Possible values are: "map" and "viewport".
      * "map" aligns to the plane of the map and "viewport" aligns to the plane of the viewport/screen.
      * Default alignment for Text based on point geometries is "viewport" while "map" is the default for line geometries.
      */
-    alignment?: 'map' | 'viewport' | styleStringFunction;
+    alignment?: 'map' | 'viewport' | StyleValueFunction<string> | StyleZoomRange<string>;
     /**
      * Rotate the shape of the style to the angle in degrees.
      * This attribute is validate for Rect and Image.
      */
-    rotation?: number | styleNumberFunction;
+    rotation?: number | StyleValueFunction<number> | StyleZoomRange<number>;
     /**
      * In case of label collision, Text with a higher priority (lower value) will be drawn before lower priorities (higher value).
      * "priority" applies to Text only.
      */
-    priority?: number | styleNumberFunction;
+    priority?: number | StyleValueFunction<number> | StyleZoomRange<number>;
     /**
      * Minimum distance in pixels between repeated text labels on line geometries.
      * Applies per tile only.
 
      * @defaultValue 256 (pixels)
      */
-    repeat?: number | styleNumberFunction;
+    repeat?: number | StyleValueFunction<number> | StyleZoomRange<number>;
     /**
      * Enable oder Disable line wrapping for labels based on "Point" geometries.
      * Works for "Text" only.
@@ -262,7 +395,7 @@ export interface Style {
      *
      * @defaultValue 14
      */
-    lineWrap?: number | styleNumberFunction;
+    lineWrap?: number | StyleValueFunction<number> | StyleZoomRange<number>;
 
     /**
      * Enable or disable collision detection.
@@ -272,13 +405,13 @@ export interface Style {
      *
      * @defaultValue false
      */
-    collide?: boolean | styleBooleanFunction;
+    collide?: boolean | StyleValueFunction<boolean> | StyleZoomRange<boolean>;
 
     /**
      * Extrude a Polygon or MultiPolygon geometry in meters.
      * This attribute is validate for Polygon only.
      */
-    extrude?: number | styleNumberFunction;
+    extrude?: number | StyleValueFunction<number> | StyleZoomRange<number>;
 }
 
 export type StyleGroupMap = { [id: string]: StyleGroup }
@@ -307,7 +440,7 @@ export type StyleGroup = Array<Style>;
 export interface LayerStyle {
 
     /**
-     * @deprecated define strokeWidth style property using a "zoomRange" value instead.
+     * @deprecated define strokeWidth style property using a "StyleZoomRange" value instead.
      * @hidden
      */
     strokeWidthZoomScale?: (level: number) => number;
@@ -321,7 +454,8 @@ export interface LayerStyle {
      *  This object contains key/styleGroup pairs.
      *  A styleGroup is an array of {@link Style}, that exactly defines how a feature should be rendered.
      */
-    styleGroups: StyleGroupMap;
+    styleGroups: { [key: string]: Array<Style> };
+
     /**
      *  The function returns a key that is defined in the styleGroups map.
      *  This function will be called for each feature being rendered by the display.
@@ -333,4 +467,4 @@ export interface LayerStyle {
      *  @returns the key/identifier of the styleGroup in the styleGroupMap
      */
     assign: (feature: Feature, zoomlevel: number) => string;
-};
+}
