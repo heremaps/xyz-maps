@@ -110,7 +110,7 @@ export const features = ((() => {
         Obj.prototype = Feature.prototype;
 
         return Obj;
-    };
+    }
 
     const objects = {};
 
@@ -135,8 +135,9 @@ const editor = scp[dns.pop()] = {
     Editor: Editor,
     features: features,
     PixelCoordinate: function(x: number, y: number, z: number) {
-        this.y = x;
-        this.x = y;
+        this.x = x;
+
+        this.y = y;
         this.z = z || 0;
     },
     GeoCoordinate: function(lon: number, lat: number, z: number) {
