@@ -14,14 +14,13 @@ const display = new Map(document.getElementById('map'), {
             },
             style: {
                 backgroundColor: '#555555',
-                strokeWidthZoomScale: (level) => level > 17 ? 1 : level > 14 ? .5 : .25,
 
                 styleGroups: {
                     'earth': [{zIndex: 1, type: 'Polygon', fill: '#555555'}],
                     'landuse': [{zIndex: 2, type: 'Polygon', fill: '#666666'}],
                     'water': [{zIndex: 3, type: 'Polygon', fill: '#353535'}],
-                    'roads': [{zIndex: 4, type: 'Line', stroke: '#ffffff', strokeWidth: 4}],
-                    'roadshighway': [{zIndex: 5, type: 'Line', stroke: '#ffffff', strokeWidth: 6}],
+                    'roads': [{zIndex: 4, type: 'Line', stroke: '#ffffff', strokeWidth: {14: 1, 15: '4m'}}],
+                    'roadshighway': [{zIndex: 5, type: 'Line', stroke: '#ffffff', strokeWidth: {14: 1.5, 15: '8m'}}],
                     'buildings': [{
                         zIndex: 6,
                         type: 'Polygon',

@@ -9,7 +9,6 @@ const baseMapLayer = new MVTLayer({
     },
     style: {
         backgroundColor: '#ECE0CA',
-        strokeWidthZoomScale: (level) => level > 17 ? 1 : level > 14 ? .5 : level > 9 ? .25 : .1,
 
         styleGroups: {
             'landuse': [{zIndex: 0, type: 'Polygon', fill: '#ECE0CA'}],
@@ -18,17 +17,17 @@ const baseMapLayer = new MVTLayer({
             'nature_reserve': [{zIndex: 1, type: 'Polygon', fill: '#dadeb0'}],
             'hospital': [{zIndex: 1, type: 'Polygon', fill: '#f3d3d3'}],
             'water': [{zIndex: 2, type: 'Polygon', fill: 'rgb(120,188,237)'}],
-            'path': [{zIndex: 3, type: 'Line', stroke: '#c8b89d', strokeWidth: 2}],
-            'tunnel': [{zIndex: 3, type: 'Line', stroke: '#ffffff', strokeWidth: 14, strokeDasharray: [4, 4]}],
+            'path': [{zIndex: 3, type: 'Line', stroke: '#c8b89d', strokeWidth: '1m'}],
+            'tunnel': [{zIndex: 3, type: 'Line', stroke: '#ffffff', strokeWidth: {15: 4, 20: 16}, strokeDasharray: [4, 4]}],
             'ferry': [{zIndex: 4, type: 'Line', stroke: '#164ac8', strokeWidth: 1}],
-            'highway': [{zIndex: 5, type: 'Line', stroke: '#ffffff', strokeWidth: 16}],
-            'boundaries': [{zIndex: 6, type: 'Line', stroke: '#b3b1ad', strokeWidth: 2}],
+            'highway': [{zIndex: 5, type: 'Line', stroke: 'white', strokeWidth: {10: 1.5, 15: 4, 16: '12m'}}],
+            'boundaries': [{zIndex: 6, type: 'Line', stroke: '#b3b1ad', strokeWidth: {10: 0.5, 20: 2}}],
             'buildings': [{
                 zIndex: 7, type: 'Polygon', fill: 'rgb(155,175,196)',
                 // define extrude in meters to display polygons with extrusion
                 extrude: (feature) => feature.properties.height || 25
             }],
-            'roads': [{zIndex: 4, type: 'Line', stroke: '#ffffff', strokeWidth: 4}, {
+            'roads': [{zIndex: 4, type: 'Line', stroke: '#ffffff', strokeWidth: {15: 1, 16: '5m'}}, {
                 zIndex: 6, type: 'Text', fill: '#222222',
                 font: '12px sans-serif',
                 strokeWidth: 4,
