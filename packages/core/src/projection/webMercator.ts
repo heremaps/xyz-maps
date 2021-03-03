@@ -19,6 +19,15 @@
 
 const PI = Math.PI;
 
+// ground resolution measured at the equator (earthCircumferenceMeters: 40075017 meters)
+const METER_PER_PIXEL_AT_ZOOM = Array.from({length: 33}, (v, zoom) => 40075017 / 256 / (1 << zoom));
+
+const meterToPixel = (val: number, zoom: number) => val / METER_PER_PIXEL_AT_ZOOM[zoom];
+
+const pixelToMeter = (val: number, zoom: number) => val * METER_PER_PIXEL_AT_ZOOM[zoom];
+
+const getGroundResolution = (zoom: number) => METER_PER_PIXEL_AT_ZOOM[zoom];
+
 const mapSizePixel = (tileSize: number, zoomLevel: number): number => {
     return Math.pow(2, zoomLevel) * tileSize;
 };
@@ -55,4 +64,15 @@ const pixelToGeo = (x: number, y: number, mapSize: number) => {
     };
 };
 
-export default {mapSizePixel, lon2x, lat2y, x2lon, y2lat, pixelToGeo, geoToPixel};
+export default {
+    mapSizePixel,
+    lon2x,
+    lat2y,
+    x2lon,
+    y2lat,
+    pixelToGeo,
+    geoToPixel,
+    meterToPixel,
+    pixelToMeter,
+    getGroundResolution
+};

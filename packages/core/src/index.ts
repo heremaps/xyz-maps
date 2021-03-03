@@ -41,6 +41,10 @@ export {IMLProvider} from './providers/IMLProvider/IMLProvider';
 export {MVTProvider} from './providers/MVTProvider/MVTProvider';
 export {EditableFeatureProvider} from './providers/EditableFeatureProvider';
 
+import webMercatorPrj from './projection/webMercator';
+
+export const webMercator = webMercatorPrj;
+
 // support for legacy deprecated namespace based API.
 
 import {GeoPoint} from './geo/GeoPoint';
@@ -85,7 +89,6 @@ import * as GeoJSON from './data/prepare/GeoJSON';
 
 import L2Storage from './storage/Level2Storage';
 import LRUStorage from './storage/LRUStorage';
-import webMercator from './projection/webMercator';
 import {HTTPLoader} from './loaders/HTTPLoader';
 import Manager from './loaders/Manager';
 import {GeoCoder} from './service/GeoCoder';
