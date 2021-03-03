@@ -9,6 +9,7 @@ uniform float u_scale;
 uniform vec2 u_resolution;
 uniform bool u_alignMap;
 uniform float u_strokeWidth;
+uniform float u_meterToPixel;
 
 varying vec2 v_position;
 varying float v_radius;
@@ -20,7 +21,13 @@ void main(void){
     vec2 dir = mod(a_position, 2.0) * 2.0 - 1.0;
     vec2 pos = floor(a_position * .5) * EXTENT_SCALE;
 
-    float radius = u_radius + u_strokeWidth / 2.0;
+    float radius = u_radius;
+    if (u_meterToPixel > 0.0){
+        // radius is defined in meters -> convert to pixels at current zoom
+        radius = u_scale * radius * u_meterToPixel;
+    }
+
+    radius = radius + u_strokeWidth / 2.0;
 
     v_position = dir * radius;
     v_radius = radius;

@@ -20,7 +20,7 @@
 import {TaskManager} from '@here/xyz-maps-common';
 import {GeometryBuffer} from './GeometryBuffer';
 import {getValue, parseStyleGroup} from '../../styleTools';
-import {Tile} from '@here/xyz-maps-core';
+import {Tile, webMercator} from '@here/xyz-maps-core';
 import {Layer} from '../../Layers';
 import {FeatureFactory} from './FeatureFactory';
 import {TemplateBuffer} from './templates/TemplateBuffer';
@@ -115,8 +115,8 @@ const createBuffer = (
         name: 'createBuffer',
 
         onDone: function(args) {
-            const z = args[6];
-            let extrudeScale = Math.pow(2, 17 - z);
+            const zoomLevel = args[6];
+            let extrudeScale = Math.pow(2, 17 - zoomLevel);
             let buffers = [];
             let geoBuffer: GeometryBuffer;
             let grpBuffer: TemplateBuffer;
@@ -131,9 +131,9 @@ const createBuffer = (
             // let z = groups.length;
             // for (let z = 0; z < groups.length; z++) {
             // while (z--) {
-            for (let zoom in groups) {
-                let z: string | number = zoom;
-                zGroup = groups[z];
+            let zIndex: string | number;
+            for (zIndex in groups) {
+                zGroup = groups[zIndex];
 
                 if (zGroup) {
                     for (let g = 0; g < zGroup.length; g++) {
@@ -187,6 +187,7 @@ const createBuffer = (
                                 geoBuffer.addUniform('u_pattern', 0);
                             }
                             geoBuffer.addUniform('u_fill', stroke);
+
                             geoBuffer.addUniform('u_strokeWidth', strokeWidth * .5);
 
                             geoBuffer.addUniform('u_offset', shared.offsetY);
@@ -243,6 +244,10 @@ const createBuffer = (
                             geoBuffer.addUniform('u_offset', [shared.offsetX, shared.offsetY]);
                         }
 
+                        geoBuffer.addUniform('u_meterToPixel', shared.unit == 'm'
+                            ? 1 / webMercator.getGroundResolution(zoomLevel)
+                            : 0
+                        );
 
                         const fillOpacity = shared.fill && shared.fill[3];
                         const strokeOpacity = shared.stroke && shared.stroke[3];
@@ -258,7 +263,6 @@ const createBuffer = (
 
 
                         let {zLayer} = grp;
-                        let zIndex: string | number = z;
 
                         // convert zIndex:'top' (deprecated) to zLayer
                         if (zIndex == 'top') {

@@ -21,7 +21,11 @@ import {createTxtRef, measure, defaultFont} from './fontCache';
 import {Feature} from '@here/xyz-maps-core';
 import {toRGB} from './webgl/color';
 import {getRotatedBBox} from '../geometry';
+import {webMercator} from '@here/xyz-maps-core';
 
+const {meterToPixel, pixelToMeter} = webMercator;
+
+const getTileGridZoom = (zoom) => Math.min(zoom, 20) ^ 0;
 const INFINITY = Infinity;
 let UNDEF;
 
@@ -48,8 +52,8 @@ interface Style {
     priority?: number;
     repeat?: number;
     offset?: number | styleNumberFunction;
-    start?: number | styleNumberFunction;
-    stop?: number | styleNumberFunction;
+    from?: number | styleNumberFunction;
+    to?: number | styleNumberFunction;
 }
 
 const allowedProperties = {
@@ -78,17 +82,41 @@ const allowedProperties = {
 
 type StyleGroup = Array<Style>;
 
-const getValue = (name: string, style: Style, feature: Feature, zoom: number) => {
+const getValue = (name: string, style: Style, feature: Feature, tileGridZoom: number) => {
     let value = style[name];
 
     return typeof value == 'function'
-        ? value(feature, zoom, style)
+        ? value(feature, tileGridZoom, style)
         : value;
 };
 
-const getAbsZ = (style: Style, feature: Feature, zoom: number, layerIndex: number) => {
-    let z = getValue('zIndex', style, feature, zoom);
-    let zLayer = getValue('zLayer', style, feature, zoom);
+const parseSizeValue = (value: string | number) => {
+    let unit = 'px';
+    if (typeof value == 'string') {
+        if (value.charAt(value.length - 1) == 'm') {
+            unit = 'm';
+        }
+        value = parseFloat(value);
+    }
+    return {value, unit};
+};
+
+const getSizeInPixel = (property: string, style: Style, feature: Feature, zoom: number) => {
+    const rawValue = getValue(property, style, feature, zoom);
+    let {value, unit} = parseSizeValue(rawValue);
+
+    if (unit == 'm') {
+        const tileGridZoom = getTileGridZoom(zoom);
+        const dZoomScale = Math.pow(2, zoom % tileGridZoom);
+        value = dZoomScale * meterToPixel(value, tileGridZoom);
+    }
+    return value;
+};
+
+
+const getAbsZ = (style: Style, feature: Feature, tileGridZoom: number, layerIndex: number) => {
+    let z = getValue('zIndex', style, feature, tileGridZoom);
+    let zLayer = getValue('zLayer', style, feature, tileGridZoom);
 
     if (typeof zLayer != 'number') {
         zLayer = layerIndex + 1;
@@ -98,8 +126,9 @@ const getAbsZ = (style: Style, feature: Feature, zoom: number, layerIndex: numbe
 
 const getMaxZoom = (styles: StyleGroup, feature, zoom: number, layerIndex: number) => {
     let maxZ = 0;
+    const tileGridZoom = getTileGridZoom(zoom);
     for (let style of styles) {
-        let z = getAbsZ(style, feature, zoom, layerIndex);
+        let z = getAbsZ(style, feature, tileGridZoom, layerIndex);
         if (z > maxZ) {
             maxZ = z;
         }
@@ -108,28 +137,38 @@ const getMaxZoom = (styles: StyleGroup, feature, zoom: number, layerIndex: numbe
 };
 
 
-const getStrokeWidth = (groups: StyleGroup, feature: Feature, zoom: number, layerIndex: number): [number, number] => {
+const getLineWidth = (groups: StyleGroup, feature: Feature, zoom: number, layerIndex: number): [number, number] => {
     let width = 0;
     let maxZ = 0;
     let grp;
+    const tileGridZoom = getTileGridZoom(zoom);
 
     for (let s = 0; s < groups.length; s++) {
         grp = groups[s];
 
-        let z = getAbsZ(grp, feature, zoom, layerIndex);
+        let z = getAbsZ(grp, feature, tileGridZoom, layerIndex);
         if (z > maxZ) {
             maxZ = z;
         }
 
-        let w = getValue('strokeWidth', grp, feature, zoom) || 1;
-        if (w > width) {
-            width = w;
+        const swVal = getValue('strokeWidth', grp, feature, tileGridZoom) || 1;
+        let {value, unit} = parseSizeValue(swVal);
+
+        if (unit == 'm') {
+            const dZoomScale = Math.pow(2, zoom % tileGridZoom);
+            value = dZoomScale * meterToPixel(value, tileGridZoom);
+        }
+
+        if (value > width) {
+            width = value;
         }
     }
+
     return [width, maxZ];
 };
 // uses for point geometries only
 const getPixelSize = (groups: StyleGroup, feature: Feature, zoom: number, layerIndex: number): [number, number, number, number, number?] => {
+    const tileGridZoom = getTileGridZoom(zoom);
     let maxZ = 0;
     let minX = INFINITY;
     let maxX = -INFINITY;
@@ -150,19 +189,19 @@ const getPixelSize = (groups: StyleGroup, feature: Feature, zoom: number, layerI
     for (let s = 0; s < groups.length; s++) {
         style = groups[s];
 
-        let z = getAbsZ(style, feature, zoom, layerIndex);
+        let z = getAbsZ(style, feature, tileGridZoom, layerIndex);
 
         if (z > maxZ) {
             maxZ = z;
         }
 
-        type = getValue('type', style, feature, zoom);
+        type = getValue('type', style, feature, tileGridZoom);
 
         if ( // it's not a picture..
             type != 'Image' &&
-                // .. and no fill is defined
-                !getValue('fill', style, feature, zoom)
-                // !style.fill
+            // .. and no fill is defined
+            !getValue('fill', style, feature, tileGridZoom)
+            // !style.fill
         ) {
             // -> it's not visible!
             continue;
@@ -187,11 +226,13 @@ const getPixelSize = (groups: StyleGroup, feature: Feature, zoom: number, layerI
             sw = getValue('strokeWidth', style, feature, zoom) || 1;
 
             if (type == 'Circle') {
-                w = 2 * getValue('radius', style, feature, zoom) ^ 0;
+                w = 2 * getSizeInPixel('radius', style, feature, zoom) ^ 0;
                 h = w;
             } else {
-                w = getValue('width', style, feature, zoom) ^ 0;
-                h = getValue('height', style, feature, zoom);
+                w = getSizeInPixel('width', style, feature, zoom) ^ 0;
+                h = getSizeInPixel('height', style, feature, zoom);
+                // w = getValue('width', style, feature, zoom) ^ 0;
+                // h = getValue('height', style, feature, zoom);
                 h = h == UNDEF ? w : h ^ 0;
             }
 
@@ -199,9 +240,9 @@ const getPixelSize = (groups: StyleGroup, feature: Feature, zoom: number, layerI
             w += sw;
         }
 
-        let offsetX = getValue('offsetX', style, feature, zoom) ^ 0;
-        let offsetY = getValue('offsetY', style, feature, zoom) ^ 0;
-        let rotation = type != 'Circle' && getValue('rotation', style, feature, zoom) ^ 0;
+        let offsetX = getValue('offsetX', style, feature, tileGridZoom) ^ 0;
+        let offsetY = getValue('offsetY', style, feature, tileGridZoom) ^ 0;
+        let rotation = type != 'Circle' && getValue('rotation', style, feature, tileGridZoom) ^ 0;
 
         if (rotation) {
             const bbox = getRotatedBBox(rotation, w, h, offsetX, offsetY);
@@ -244,8 +285,7 @@ const getPixelSize = (groups: StyleGroup, feature: Feature, zoom: number, layerI
             maxZ
         ];
     }
-}
-;
+};
 
 
 const merge = (style0: StyleGroup, style: StyleGroup): StyleGroup | null => {
@@ -285,29 +325,56 @@ const lerp = (x: number, y: number, a: number) => x * (1 - a) + y * a;
 const invlerp = (x: number, y: number, a: number) => clamp((a - x) / (y - x));
 const clamp = (a: number, min = 0, max = 1) => Math.min(max, Math.max(min, a));
 const range = (x1: number, y1: number, x2: number, y2: number, a: number) => lerp(x2, y2, invlerp(x1, y1, a));
-const searchLerp = (map, search) => {
+const searchLerp = (map, search: number) => {
     let i = 0;
-    let v;
+    let rawVal;
     let _v;
-    let _z;
-    for (let z in map) {
-        v = map[z];
+    let _unit;
+    let _z: number;
+    for (let zoom in map) {
+        const z = Number(zoom);
+        rawVal = map[z];
+        const {value, unit} = parseSizeValue(rawVal);
+
+        if (unit == 'px') {
+            rawVal = value;
+        }
+
         if (search <= z) {
-            if (i == 0) return v;
-            if (Array.isArray(v)) {
+            if (i == 0) return unit == 'm' ? map[z] : value;
+            // rgba color ?
+            if (Array.isArray(value)) {
                 let a = [];
-                for (let j = 0; j < v.length; j++) {
-                    a[j] = range(_z, Number(z), _v[j], v[j], search);
+                for (let j = 0; j < value.length; j++) {
+                    a[j] = range(_z, z, _v[j], value[j], search);
                 }
                 return a;
             }
-            return range(_z, Number(z), _v, v, search);
+
+            if (z - _z > 1) {
+                let v1 = _v;
+                let v2 = value;
+                let mixedUnits = unit != _unit;
+                let isCurrentUnitInMeter = unit == 'm';
+                if (mixedUnits) {
+                    // mix meter and pixel units -> convert to meters
+                    if (isCurrentUnitInMeter) {
+                        v1 = pixelToMeter(v1, _z);
+                    } else {
+                        v2 = pixelToMeter(v2, z);
+                    }
+                }
+                const interpolatedValue = range(_z, z, v1, v2, search);
+                return <any>interpolatedValue + (mixedUnits || isCurrentUnitInMeter ? 'm' : 0);
+            }
+            return rawVal;
         }
         _z = z;
-        _v = v;
+        _v = value;
+        _unit = unit;
         i++;
     }
-    return v;
+    return rawVal;
 };
 const fillMap = (map, searchMap) => {
     for (let zoom = 1; zoom <= 20; zoom++) {
@@ -323,7 +390,7 @@ const parseColors = (map) => {
     }
 };
 
-const createZoomrangeFunction = (map) => {
+const createZoomRangeFunction = (map) => {
     // const range = new Function('f,zoom', `return (${JSON.stringify(map)})[zoom];`);
     const range = (feature, zoom: number) => {
         return map[zoom];
@@ -347,7 +414,7 @@ const parseStyleGroup = (styleGroup: Style[]) => {
                             parseColors(value);
                         }
                         let map = fillMap({}, value);
-                        style[name] = createZoomrangeFunction(map);
+                        style[name] = createZoomRangeFunction(map);
                     }
                 }
             }
@@ -356,4 +423,15 @@ const parseStyleGroup = (styleGroup: Style[]) => {
 };
 
 
-export {getValue, getStrokeWidth, getPixelSize, merge, isStyle, getMaxZoom, parseStyleGroup, StyleGroup, Style};
+export {
+    getValue,
+    parseSizeValue,
+    getLineWidth,
+    getPixelSize,
+    merge,
+    isStyle,
+    getMaxZoom,
+    parseStyleGroup,
+    StyleGroup,
+    Style
+};

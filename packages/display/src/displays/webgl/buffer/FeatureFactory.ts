@@ -22,7 +22,7 @@ import {addPolygon, FlatPolygon} from './addPolygon';
 import {addExtrude} from './addExtrude';
 import {addIcon} from './addIcon';
 import earcut from 'earcut';
-import {getValue, StyleGroup} from '../../styleTools';
+import {getValue, parseSizeValue, StyleGroup} from '../../styleTools';
 import {defaultFont} from '../../fontCache';
 import {GlyphTexture} from '../GlyphTexture';
 import {toRGB} from '../color';
@@ -145,6 +145,7 @@ export class FeatureFactory {
         let text;
         let strokeScale;
         let alignment;
+        let sizeUnit;
         let allReady = true;
 
         this.lineFactory.init(level, tileSize);
@@ -207,6 +208,7 @@ export class FeatureFactory {
             text = UNDEF;
             alignment = UNDEF;
             strokeScale = strokeWidthScale;
+            sizeUnit = 'px';
 
             if (type == 'Icon') {
                 offsetX = getValue('offsetX', style, feature, level) ^ 0;
@@ -221,6 +223,10 @@ export class FeatureFactory {
 
                 if (type == 'Line') {
                     if (!stroke || !strokeWidth) continue;
+
+                    const {value, unit} = parseSizeValue(strokeWidth);
+                    strokeWidth = value;
+                    sizeUnit = unit;
 
                     strokeLinecap = getValue('strokeLinecap', style, feature, level) || DEFAULT_LINE_CAP;
                     strokeLinejoin = getValue('strokeLinejoin', style, feature, level) || DEFAULT_LINE_JOIN;
@@ -237,7 +243,7 @@ export class FeatureFactory {
                     // store line offset in shared offsetXY
                     offsetX = offsetY = getValue('offset', style, feature, level) ^ 0;
 
-                    groupId = 'L' + offsetX + strokeLinecap + strokeLinejoin + (strokeDasharray || NONE);
+                    groupId = 'L' + sizeUnit + offsetX + strokeLinecap + strokeLinejoin + (strokeDasharray || NONE);
                 } else {
                     fill = getValue('fill', style, feature, level);
 
@@ -278,12 +284,20 @@ export class FeatureFactory {
                             groupId = 'T' + (font || NONE);
                         } else if (type == 'Circle') {
                             radius = getValue('radius', style, feature, level);
-                            groupId = 'C' + radius || NONE;
+                            const {value, unit} = parseSizeValue(radius);
+                            radius = value;
+                            sizeUnit = unit;
+
+                            groupId = 'C' + sizeUnit + radius || NONE;
                         } else if (type == 'Rect') {
                             width = getValue('width', style, feature, level);
-                            height = getValue('height', style, feature, level) || width;
+                            const {value, unit} = parseSizeValue(width);
+                            width = value;
+                            sizeUnit = unit;
+                            height = getValue('height', style, feature, level);
+                            height = !height ? width : parseSizeValue(height).value;
 
-                            groupId = 'R' + width + height;
+                            groupId = 'R' + sizeUnit + width + height;
                         } else {
                             continue;
                         }
@@ -355,6 +369,7 @@ export class FeatureFactory {
                     type: type,
                     zLayer: zLayer,
                     shared: {
+                        unit: sizeUnit,
                         font: font,
                         fill: fillRGBA, // && fillRGBA.slice(0, 3),
                         opacity: opacity,

@@ -17,7 +17,7 @@
  * License-Filename: LICENSE
  */
 
-import {getMaxZoom, getPixelSize, getStrokeWidth, StyleGroup} from '../displays/styleTools';
+import {getMaxZoom, getPixelSize, getLineWidth, StyleGroup} from '../displays/styleTools';
 
 type Point = [number, number, number?];
 type Coordinates = Point | Point[] | Point[][] | Point[][][];
@@ -140,7 +140,7 @@ class Hit {
                 hit = isPointInBox(x, y, x1, x2, y1, y2);
             }
         } else if (geoType == 'LineString') {
-            dimensions = dimensions || getStrokeWidth(featureStyle, feature, zoomlevel, layerIndex);
+            dimensions = dimensions || getLineWidth(featureStyle, feature, zoomlevel, layerIndex);
 
             let width = dimensions[0];
             let cLen = coordinates.length;
@@ -181,7 +181,7 @@ class Hit {
                 dimensions = getPixelSize(featureStyle, feature, zoomlevel, layerIndex);
             } else if (geoType == 'MultiLineString') {
                 baseType = 'LineString';
-                dimensions = getStrokeWidth(featureStyle, feature, zoomlevel, layerIndex);
+                dimensions = getLineWidth(featureStyle, feature, zoomlevel, layerIndex);
             }
 
             if (baseType) {

@@ -382,9 +382,8 @@ abstract class Display {
 
     protected viewChange: boolean;
 
-    updateGrid(centerWorld: [number, number], zoomlevel: number, screenOffsetX: number, screenOffsetY: number) {
+    updateGrid(centerWorld: [number, number], tileGridZoom: number, screenOffsetX: number, screenOffsetY: number) {
         this.viewChange = true;
-
         this.sx = screenOffsetX;
         this.sy = screenOffsetY;
 
@@ -407,18 +406,18 @@ abstract class Display {
         grid.init(centerWorld, rotZRad, mapWidthPixel, mapHeightPixel, rotatedScreenPixels);
 
         const layers = this.layers;
-        const tileSizes = layers.reset(zoomlevel + Math.log(this.s) / Math.LN2);
+        const tileSizes = layers.reset(tileGridZoom + Math.log(this.s) / Math.LN2);
         this.ti = 0;
 
         for (let tileSize of tileSizes) {
-            const gridTiles = display.grid.getTiles(zoomlevel - Number(tileSize == 512), tileSize);
-            this.initVpTiles(gridTiles, zoomlevel, tileSize);
+            const gridTiles = display.grid.getTiles(tileGridZoom - Number(tileSize == 512), tileSize);
+            this.initVpTiles(gridTiles, tileGridZoom, tileSize);
         }
 
         if (tileSizes.indexOf(512) == -1) {
             // 512er tile-grid is used for collision detection.
             // so we need to make sure grid is initialised with 512er tiles.
-            display.grid.getTiles(zoomlevel - 1, 512);
+            display.grid.getTiles(tileGridZoom - 1, 512);
         }
 
         this.dirty = true;

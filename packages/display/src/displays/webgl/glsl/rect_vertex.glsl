@@ -11,17 +11,25 @@ uniform vec2 u_offset;
 uniform float u_scale;
 uniform bool u_alignMap;
 uniform vec2 u_resolution;
+uniform float u_meterToPixel;
 
 varying vec2 vSize;
 varying vec2 vDir;
 
-const float EXTENT_SCALE = 1.0 / 32.0; // 8912->512
+const float EXTENT_SCALE = 1.0 / 32.0;// 8912->512
 
 void main(void){
     // LSB is direction/normal vector [-1,+1]
     vec2 dir = mod(a_position, 2.0) * 2.0 - 1.0;
     vec2 pos = floor(a_position * .5) * EXTENT_SCALE;
-    vec2 size = (u_size + u_strokeWidth) * .5;
+
+    vec2 size = u_size;
+    if (u_meterToPixel > 0.0){
+        // width/height is defined in meters -> convert to pixels at current zoom
+        size = u_scale * size * u_meterToPixel;
+    }
+
+    size = (size + u_strokeWidth) * .5;
 
     float rotation = u_rotation;
 
