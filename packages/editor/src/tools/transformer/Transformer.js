@@ -147,11 +147,12 @@ function Transformer(HERE_WIKI) {
                 overlay,
                 that,
                 {
-                    'type': 'Line',
-                    'zIndex': 0,
-                    'strokeDasharray': [4, 4],
-                    'strokeWidth': 2,
-                    'stroke': STROKE_COLOR
+                    type: 'Line',
+                    zIndex: 0,
+                    zLayer: Infinity,
+                    strokeDasharray: [4, 4],
+                    strokeWidth: 2,
+                    stroke: STROKE_COLOR
                 }
             );
 
@@ -161,25 +162,28 @@ function Transformer(HERE_WIKI) {
                 overlay,
                 that,
                 {
-                    'type': 'Circle',
-                    'zIndex': 0,
-                    'stroke': '#FFFFFF',
-                    'fill': STROKE_COLOR,
-                    'strokeWidth': 3,
-                    'opacity': 0.3,
-                    'radius': 9
+                    type: 'Circle',
+                    zIndex: 0,
+                    zLayer: Infinity,
+                    stroke: '#FFFFFF',
+                    fill: STROKE_COLOR,
+                    strokeWidth: 3,
+                    opacity: 0.3,
+                    radius: 9
                 }
             );
 
             rotateCursor = new RotateCursor(HERE_WIKI, [maxLon, minLat], overlay, that, [{
                 type: 'Image',
                 zIndex: 4,
+                zLayer: Infinity,
                 src: iconRotateBlack,
                 width: ICON_SIZE,
                 height: ICON_SIZE
             }], [{
                 type: 'Image',
                 zIndex: 4,
+                zLayer: Infinity,
                 src: iconRotateWhite,
                 width: ICON_SIZE,
                 height: ICON_SIZE

@@ -38,10 +38,11 @@ function ScaleSelector( HERE_WIKI, minLon, minLat, maxLon, maxLat, overlay, tran
         const isVertical = i%2;
 
         selectors.push( overlay.addPath( path[i], [{
-            'zIndex': 0,
-            'type': 'Line',
-            'opacity': .02,
-            'strokeWidth': 4
+            zIndex: 0,
+            zLayer: Infinity,
+            type: 'Line',
+            opacity: .02,
+            strokeWidth: 4
         }], {
             orientation: isVertical ? 'V' : 'H',
             index: i,
