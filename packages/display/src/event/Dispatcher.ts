@@ -20,6 +20,7 @@
 import {addEventListener, removeEventListener} from '../DOMTools';
 import {MapEvent} from './Event';
 import {Listener, TaskManager} from '@here/xyz-maps-common';
+import {Map} from '../Map';
 
 type EventHandler = (e: Event) => void;
 type MapEventListener = (e: MapEvent) => void;
@@ -72,7 +73,7 @@ export class EventDispatcher {
     private cnt: number = 0; // cnt
     private el: HTMLElement;
 
-    constructor(domEl, map, searchLayers, config) {
+    constructor(domEl, map: Map, searchLayers, config) {
         this.el = domEl;
         this.cbs = new Listener(['click']);
 
@@ -162,7 +163,7 @@ export class EventDispatcher {
                 x: pos[0],
                 y: pos[1]
             }, {
-                layers: map.layers.filter(function(l) {
+                layers: map._layers.filter(function(l) {
                     return l.pointerEvents();
                 })
             });

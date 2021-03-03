@@ -19,14 +19,10 @@
 
 import {getPointAtLength, getTotalLength, getSegmentIndex} from '../../geometry';
 import {calcRelPosOfPoiAtLink, getRelPosOfPointOnLine} from '../../map/GeoMath';
-import {Feature, TileLayer, projection} from '@here/xyz-maps-core';
+import {Feature, TileLayer, webMercator} from '@here/xyz-maps-core';
 import {JSUtils} from '@here/xyz-maps-common';
 import {MapEvent} from '@here/xyz-maps-display';
 import MultiLink from './MultiLink';
-
-
-const {webMercator} = projection;
-
 
 function getPointAtLine(
     line: MultiLink,

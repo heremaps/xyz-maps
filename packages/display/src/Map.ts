@@ -31,9 +31,9 @@ import {JSUtils, Listener} from '@here/xyz-maps-common';
 import {ZoomAnimator} from './animation/ZoomAnimator';
 import {KineticPanAnimator} from './animation/KineticPanAnimator';
 import {defaultOptions, MapOptions} from './MapOptions';
-import {Feature, TileLayer, projection, PixelPoint, PixelRect, GeoPoint, GeoRect} from '@here/xyz-maps-core';
+import {Feature, TileLayer, webMercator, PixelPoint, PixelRect, GeoPoint, GeoRect} from '@here/xyz-maps-core';
 
-const project = projection.webMercator;
+const project = webMercator;
 
 const DEFAULT_ZOOM_ANIMATION_MS = 250;
 let DEFAULT_ZOOM_BEHAVIOR: 'fixed' | 'float' | boolean = 'fixed';
@@ -137,7 +137,7 @@ export class Map {
     private _oy = 0; // screenOffsetX
 
     // TODO: remove
-    private layers: TileLayer[];
+    _layers: TileLayer[];
     private readonly _vplock: any; // current viewport lock state
     private zoomAnimator: ZoomAnimator;
     private _search: Search;
@@ -204,7 +204,7 @@ export class Map {
         let parent = mapEl;
 
 
-        tigerMap.layers = layers;
+        tigerMap._layers = layers;
         tigerMap.id = Math.random() * 1e6 ^ 0;
 
         mapEl = document.createElement('div');
@@ -998,7 +998,7 @@ export class Map {
     getLayers(index: number): TileLayer;
 
     getLayers(index?: number): TileLayer | TileLayer[] {
-        const layers = this.layers;
+        const layers = this._layers;
         if (index != UNDEF) {
             return layers[index];
         }
@@ -1015,7 +1015,7 @@ export class Map {
      * @param index - the index in layer hierarchy where the layer should be inserted.
      */
     addLayer(layer: TileLayer, index?: number) {
-        const layers = this.layers;
+        const layers = this._layers;
         // make sure layer isn't active already
         if (layers.indexOf(layer) == -1) {
             if (index == UNDEF) {
@@ -1042,7 +1042,7 @@ export class Map {
      * @param layer - the layer to remove
      */
     removeLayer(layer: TileLayer) {
-        const layers = this.layers;
+        const layers = this._layers;
         const index = layers.indexOf(layer);
 
         if (index >= 0) {
@@ -1175,7 +1175,7 @@ export class Map {
         const mapEl = this._el;
         this.ui.destroy();
 
-        this.layers.forEach((layer) => this.removeLayer(layer));
+        this._layers.forEach((layer) => this.removeLayer(layer));
 
         this._display.destroy();
 
