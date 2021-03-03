@@ -136,7 +136,6 @@ const editor = scp[dns.pop()] = {
     features: features,
     PixelCoordinate: function(x: number, y: number, z: number) {
         this.x = x;
-
         this.y = y;
         this.z = z || 0;
     },

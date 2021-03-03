@@ -34,7 +34,7 @@ const myLayer = new TileLayer({
             'line': [{
                 zIndex: 0,
                 type: 'Line',
-                // zoomRange <zoomlevel,value>
+                // StyleZoomRange <zoomlevel,value>
                 // for intermediate zoom levels will be interpolated linearly
                 strokeWidth: {
                     // zoom 2px for zoomlevel 1 to 13
