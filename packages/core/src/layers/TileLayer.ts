@@ -21,7 +21,7 @@ import {Listener as Listeners} from '@here/xyz-maps-common';
 import defaultStylesDef from '../styles/default';
 import LayerStyleImpl from '../styles/LayerStyleImpl';
 
-import {Style} from '../styles/LayerStyle';
+import {Style, StyleGroup} from '../styles/LayerStyle';
 
 /* exported Options */
 import {TileLayerOptions} from './TileLayerOptions';
@@ -270,14 +270,14 @@ export class TileLayer {
     };
 
     /**
-     * Add feature(s) to the layer.
+     * Add a feature to the layer.
      *
-     * @param feature - the feature(s) to be added to the layer
+     * @param feature - the feature to be added to the layer
      * @param style - optional style the feature should be displayed with.
      *
      * @example
      * ```
-     * # add a feature that will be displayed with the default style of the layer.
+     * // add a feature that will be displayed with the default style of the layer.
      * layer.addFeature({
      *    type: "Feature"
      *    geometry: {
@@ -288,7 +288,7 @@ export class TileLayer {
      * ```
      * @example
      * ```
-     * # add a feature that will be displayed with a specific style.
+     * // add a feature that will be displayed with a specific style.
      * layer.addFeature({
      *    type: "Feature"
      *    geometry: {
@@ -299,19 +299,44 @@ export class TileLayer {
      *    zIndex: 0, type: "Line", stroke: "#DDCB97", "strokeWidth": 18
      * }]);
      * ```
-     *
-     * @returns {here.xyz.maps.providers.FeatureProvider.Feature} feature
      */
-    addFeature(feature: GeoJSONFeature | Feature | GeoJSONFeatureCollection | GeoJSONFeature[], style?) {
+    addFeature(feature: GeoJSONFeature | Feature, style?: Style[]): Feature;
+    /**
+     * Add features to the layer.
+     *
+     * @param feature - the features to be added to the layer
+     * @param style - optional style the features should be displayed with.
+     *
+     * @example
+     * ```
+     * // add multiple features to the layer.
+     * layer.addFeature([{
+     *    type: "Feature"
+     *    geometry: {
+     *        coordinates: [[-122.49373, 37.78202], [-122.49263, 37.78602]],
+     *        type: "LineString"
+     *    }
+     * },{
+     *    type: "Feature"
+     *    geometry: {
+     *        coordinates: [[-122.49375, 37.78203], [-122.49265, 37.78604]],
+     *        type: "LineString"
+     *    }
+     * }]);
+     * ```
+     */
+    addFeature(feature: GeoJSONFeatureCollection | GeoJSONFeature[], style?: Style[]): Feature[];
+
+    addFeature(feature: GeoJSONFeature | Feature | GeoJSONFeatureCollection | GeoJSONFeature[], style?: Style[]): Feature| Feature[] {
         const prov = <FeatureProvider> this._fp;
 
         if (prov.addFeature) {
-            feature = prov.addFeature(feature);
+            const providerFeature = prov.addFeature(<Feature>feature);
 
             if (style) {
-                this.setStyleGroup(<Feature>feature, style);
+                this.setStyleGroup(providerFeature, style);
             }
-            return feature;
+            return providerFeature;
         }
     };
 

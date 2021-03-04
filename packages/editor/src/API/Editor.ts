@@ -296,16 +296,30 @@ export default class Editor {
     }
 
     /**
-     *  Add features to map editor.
+     *  Add a feature to the editor.
      *
-     *  @param feature - the feature(s) to be added to the map.
-     *  @param layer - the layer the feature(s) should be added to.
-     *  @param origin - allows to translate features by origin offset.
+     *  @param feature - the feature to be added to the map.
+     *  @param layer - the layer the feature should be added to.
+     *  @param origin - offsets the geometry of the feature.
      *
-     *  @returns the feature(s) that were successfully added to map
+     *  @returns the feature that was successfully added to the map
      */
     addFeature(
-        feature: GeoJSONFeature | Feature | (GeoJSONFeature | Feature)[],
+        feature: GeoJSONFeature | Feature,
+        layer?: TileLayer,
+        origin?: GeoPoint | PixelPoint
+    ): Feature;
+    /**
+     *  Add features to the editor.
+     *
+     *  @param features - the features to be added to the map.
+     *  @param layer - the layer the features should be added to.
+     *  @param origin - offsets the geometry of the features.
+     *
+     *  @returns the features that were successfully added to the map
+     */
+    addFeature(
+        features: GeoJSONFeature | Feature | (GeoJSONFeature | Feature)[],
         layer?: TileLayer,
         origin?: GeoPoint | PixelPoint
     ): Feature | SimpleContainer;
@@ -587,10 +601,17 @@ export default class Editor {
 
     /**
      * Get all layers that are added to the editor.
-     * If a index is defined the respective Layer at the index in the layer list is returned.
      *
-     * @returns all layers or the respective layer at index
+     * @returns Array if layers that are added to the editor.
      */
+    getLayers(): TileLayer[];
+    /**
+     * Get a specific Layer at the index in the layer list of the editor.
+     *
+     * @returns the respective layer at index
+     */
+    getLayers(index: number): TileLayer;
+
     getLayers(index?: number): TileLayer | TileLayer[] {
         const {layers} = this._i();
         return index ? layers[index] : layers.slice();
@@ -855,13 +876,13 @@ export default class Editor {
             onSuccess && onSuccess({
                 'permanentIDMap': idMap
             });
-        };
+        }
 
 
         function cbCommitChangeError(e) {
             // show current view including changes
             onError && onError(e);
-        };
+        }
 
         if (typeof ignoreEventBlock == 'function') throw new Error('Invalid parameter!');
 

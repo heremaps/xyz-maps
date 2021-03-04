@@ -87,23 +87,50 @@ export class FeatureProvider extends Provider {
 
 
     /**
-     * Add feature(s) to the provider.
+     * Add a feature to the provider.
      *
-     * @param feature - the feature(s) to be added to the layer
+     * @param feature - the feature to be added to the provider
      *
      * @example
      * ```
-     * # add a feature that will be displayed with the default style of the layer.
-     * layer.addFeature({
+     * // add a feature to the provider.
+     * provider.addFeature({
      *    type: "Feature"
      *    geometry: {
-     *        coordinates: [[-122.49373, 37.78202, 0], [-122.49263, 37.78602, 0]],
+     *        coordinates: [[-122.49373, 37.78202], [-122.49263, 37.78602]],
      *        type: "LineString"
      *    }
      * });
      * ```
      */
-    addFeature(feature: GeoJSONFeature | Feature | GeoJSONFeatureCollection | GeoJSONFeature[]) {
+    addFeature(feature: GeoJSONFeature | Feature): Feature;
+
+    /**
+     * Add multiple features to the provider.
+     *
+     * @param feature - the features to be added to the provider
+     *
+     * @example
+     * ```
+     * // add multiple features to the provider.
+     * provider.addFeature([{
+     *    type: "Feature"
+     *    geometry: {
+     *        coordinates: [[-122.49373, 37.78202], [-122.49263, 37.78602]],
+     *        type: "LineString"
+     *    }
+     * },{
+     *    type: "Feature"
+     *    geometry: {
+     *        coordinates: [[-122.49375, 37.78203], [-122.49265, 37.78604]],
+     *        type: "LineString"
+     *    }
+     * }]);
+     * ```
+     */
+    addFeature(feature: GeoJSONFeatureCollection | GeoJSONFeature[]): Feature[];
+
+    addFeature(feature: GeoJSONFeature | Feature | GeoJSONFeatureCollection | GeoJSONFeature[]): Feature | Feature[] {
         const provider = this;
         let prepared;
         let inserted;
@@ -115,7 +142,7 @@ export class FeatureProvider extends Provider {
         }
 
         if (Array.isArray(feature)) {
-            const result = [];
+            const result: Feature[] = [];
 
             for (let f = 0, len = feature.length; f < len; f++) {
                 result[f] = provider.addFeature(feature[f]);
@@ -165,7 +192,7 @@ export class FeatureProvider extends Provider {
             feature = null;
         }
 
-        return feature;
+        return <Feature>feature;
     };
 
     /**

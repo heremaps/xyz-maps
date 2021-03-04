@@ -179,7 +179,7 @@ export interface Style {
      * then the list of values is repeated to yield an even number of values. Thus, 5,3,2 is equivalent to 5,3,2,5,3,2.
      * This attribute is valid for Line styles only.
      */
-    strokeDasharray?: number[] | StyleValueFunction<number[]> | StyleZoomRange<number[]>,
+    strokeDasharray?: number[] | StyleValueFunction<number[]> | StyleZoomRange<number[]> | 'none',
     /**
      * Defines the opacity of the style.
      * The value must be between 0.0 (fully transparent) and 1.0 (fully opaque).

@@ -124,7 +124,7 @@ export interface Zone {
      * }
      * ```
      */
-    readonly segments: ZoneSegment[]
+    readonly segments?: ZoneSegment[]
 
     markerStyle?;
     lineStyle?;
@@ -168,6 +168,8 @@ export class ZoneSelector {
      *
      * @param zone - The zone that should be displayed.
      */
+    show(...zones: Zone[]);
+
     show(zone: Zone) {
         const zones = this.zones = zone instanceof Array ? zone : [].slice.call(arguments);
 
