@@ -27,7 +27,7 @@ import {Feature} from '../features/Feature';
  * @param zoom - the zoomlevel of the style
  *
  * @example
- * ```
+ * ```typescript
  * text: (feature, zoom) => feature.properties.name
  * ```
  */
@@ -37,7 +37,7 @@ export type StyleValueFunction<TYPE> = (feature: Feature, zoom?: number) => TYPE
  * A StyleZoomRange is a Map<number,any> with zoomlevel as its keys and the value for the respective style property at the respective zoomlevel.
  * Values for intermediate zoom levels are interpolated linearly.
  * @example
- * ```
+ * ```typescript
  * strokeWidth: {
  *     // 2px for zoomlevel 1 to 12
  *     13: 2,  // 2px at zoomlevel 13
@@ -63,7 +63,7 @@ export type StyleZoomRange<TYPE> = { [zoom: number]: TYPE }
  * - Polygon: "fill" or "stroke" must be included.
  *
  * @example
- * ```
+ * ```typescript
  * // example of Circle:
  * {zIndex:0, type:"Circle", radius:16, fill:"#FFFF00"}
  *
@@ -127,7 +127,7 @@ export interface Style {
      * The unit of strokeWidth is defined in pixels.
      * For Styles of type Line the strokeWidth can also be defined in meters by using a string: "${width}m".
      * @example
-     * ```
+     * ```typescript
      * // define a Line that has a with of 1 meter
      * {
      *     zIndex: 0,
@@ -144,7 +144,7 @@ export interface Style {
      * }
      * ```
      * @example
-     * ```
+     * ```typescript
      * // define a Text style with a strokeWidth of 8px
      * {
      *     zIndex: 0,
@@ -193,7 +193,7 @@ export interface Style {
      * The default unit is pixels.
      * To define the radius in meters a string can be used: "${width}m".
      * @example
-     * ```
+     * ```typescript
      * // define a Circle with a radius of 1 meter
      * {
      *     zIndex: 0,
@@ -218,7 +218,7 @@ export interface Style {
      * The unit of width is defined in pixels.
      * For styles of type "Rect" the width can also be defined in meters by using a string: "${width}m".
      * @example
-     * ```
+     * ```typescript
      * // define a Rect that has a width (and height) of 2.2 meter
      * {
      *     zIndex: 0,
@@ -228,7 +228,7 @@ export interface Style {
      * }
      * ```
      * @example
-     * ```
+     * ```typescript
      * // define a Rect that has a width (and height) of 16 pixel
      * {
      *     zIndex: 0,
@@ -246,7 +246,7 @@ export interface Style {
      * The unit of height is defined in pixels.
      * For styles of type "Rect" the height can also be defined in meters by using a string: "${width}m".
      * @example
-     * ```
+     * ```typescript
      * // define a Rect that has a width of 2 meter and a height of 1 meter.
      * {
      *     zIndex: 0,
@@ -257,7 +257,7 @@ export interface Style {
      * }
      * ```
      * @example
-     * ```
+     * ```typescript
      * // define a Rect that has a width of 20 pixel and a height of 28 pixel.
      * {
      *     zIndex: 0,
@@ -268,7 +268,7 @@ export interface Style {
      * }
      * ```
      * @example
-     * ```
+     * ```typescript
      * // define a Image/Icon style with/height of 32pixel
      * {
      *     zIndex: 0,
@@ -292,7 +292,7 @@ export interface Style {
      * It is valid for Text style only.
      *
      * @example
-     * ```
+     * ```typescript
      * // display the name property of a feature in uppercase
      * ...
      * text: function(feature){
@@ -306,13 +306,13 @@ export interface Style {
      * If both "text" and "textRef" are set, "text" prevails.
      * It is only required by Text.
      * @example
-     * ```
+     * ```typescript
      * // display the property "name" of the feature's properties
      * ...
      * textRef: "properties.name"
      * ```
      * @example
-     * ```
+     * ```typescript
      * // display the id of the featurre
      * ...
      * textRef: "id"
@@ -356,12 +356,22 @@ export interface Style {
      */
     offsetY?: number | StyleValueFunction<number> | StyleZoomRange<number>;
     /**
-     * Offset a line to the left or right side in pixel.
+     * Offset a line to the left or right side in pixel or meter.
      * A positive values offsets to the right side, a negative value offsets to the left.
      * The side is defined relative to the direction of the line geometry.
+     * The default unit is pixels.
+     * To define the offset in meters a string that contains the offset value and ends with "m" must be used.
      * Applies to Line style only.
+     * @example
+     * ```typescript
+     * // offset line by 8px
+     * { type: "Line", zIndex: 0, stroke:'blue', strokeWidth: 4, offset: 8}
+     *
+     * // offset line by 2m
+     * { type: "Line", zIndex: 0, stroke:'blue', strokeWidth: 4, offset: "2m"}
+     * ```
      */
-    offset?: number | StyleValueFunction<number> | StyleZoomRange<number>;
+    offset?: number | string | StyleValueFunction<number | string> | StyleZoomRange<number | string>;
     /**
      * Alignment for Text. Possible values are: "map" and "viewport".
      * "map" aligns to the plane of the map and "viewport" aligns to the plane of the viewport/screen.
@@ -422,7 +432,7 @@ export type StyleGroup = Array<Style>;
 /**
  * This is an interface to describe how certain features should be rendered within a layer.
  * @example
- * ```
+ * ```typescript
  * {
  *  styleGroups: {
  *    "myLineStyle": [

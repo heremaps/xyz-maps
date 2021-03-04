@@ -1,8 +1,6 @@
 precision lowp float;
 
 uniform vec4 u_fill;
-uniform highp float u_strokeWidth;
-
 varying vec2 v_normal;
 varying vec2 v_width;
 varying float v_lengthSoFar;

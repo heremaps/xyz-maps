@@ -188,9 +188,13 @@ const createBuffer = (
                             }
                             geoBuffer.addUniform('u_fill', stroke);
 
-                            geoBuffer.addUniform('u_strokeWidth', strokeWidth * .5);
+                            const meterToPixel = 1 / webMercator.getGroundResolution(zoomLevel);
 
-                            geoBuffer.addUniform('u_offset', shared.offsetY);
+                            geoBuffer.addUniform('u_strokeWidth', [strokeWidth * .5, shared.unit == 'm' ? meterToPixel : 0]);
+
+                            geoBuffer.addUniform('u_offset', [shared.offsetX,
+                                shared.offsetY == 'm' ? meterToPixel : 0
+                            ]);
 
                             geoBuffer.alpha = true;
                             // geoBuffer.blend = true;
@@ -239,15 +243,15 @@ const createBuffer = (
                                     geoBuffer.addUniform('u_size', [shared.width, shared.height]);
                                 }
                                 geoBuffer.addUniform('u_alignMap', shared.alignment == 'map');
+
+                                geoBuffer.addUniform('u_meterToPixel', shared.unit == 'm'
+                                    ? 1 / webMercator.getGroundResolution(zoomLevel)
+                                    : 0
+                                );
                             }
 
                             geoBuffer.addUniform('u_offset', [shared.offsetX, shared.offsetY]);
                         }
-
-                        geoBuffer.addUniform('u_meterToPixel', shared.unit == 'm'
-                            ? 1 / webMercator.getGroundResolution(zoomLevel)
-                            : 0
-                        );
 
                         const fillOpacity = shared.fill && shared.fill[3];
                         const strokeOpacity = shared.stroke && shared.stroke[3];

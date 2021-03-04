@@ -108,8 +108,8 @@ const createGridTileBuffer = (tileSize: 256 | 512, color: number[] = [1.0, 0.0, 
         size: 2
     });
     gridTileBuffer.addUniform('u_fill', color);
-    gridTileBuffer.addUniform('u_strokeWidth', strokeWidth);
-    gridTileBuffer.addUniform('u_offset', 0);
+    gridTileBuffer.addUniform('u_strokeWidth', [strokeWidth, 0]);
+    gridTileBuffer.addUniform('u_offset', [0, 0]);
     gridTileBuffer.addUniform('u_meterToPixel', 0);
 
     gridTileBuffer.scissor = false;

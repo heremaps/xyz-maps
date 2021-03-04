@@ -240,10 +240,13 @@ export class FeatureFactory {
                         strokeDasharray = UNDEF;
                     }
 
-                    // store line offset in shared offsetXY
-                    offsetX = offsetY = getValue('offset', style, feature, level) ^ 0;
+                    let offset = getValue('offset', style, feature, level);
+                    offset = parseSizeValue(offset);
+                    // store line offset/unit in shared offsetXY
+                    offsetX = Math.round((offset.value || 0) * 10) / 10;
+                    offsetY = offset.unit;
 
-                    groupId = 'L' + sizeUnit + offsetX + strokeLinecap + strokeLinejoin + (strokeDasharray || NONE);
+                    groupId = 'L' + sizeUnit + offsetX + offsetY + strokeLinecap + strokeLinejoin + (strokeDasharray || NONE);
                 } else {
                     fill = getValue('fill', style, feature, level);
 
@@ -509,7 +512,7 @@ export class FeatureFactory {
                         strokeLinecap,
                         strokeLinejoin,
                         strokeWidth,
-                        offsetY,
+                        offsetX,
                         getValue('from', style, feature, level),
                         getValue('to', style, feature, level)
                     );

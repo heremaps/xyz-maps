@@ -144,12 +144,7 @@ export class Tile {
     // /**
     //  *  search for features by bounding box in the tile.
     //  *
-    //  *  @public
-    //  *  @expose
-    //  *  @function
-    //  *  @name here.xyz.maps.providers.TileProvider.Tile#search
-    //  *  @param {Array.<Integer>} bbox the bounding box has the coordinates in the order: [minX, minY, maxX, maxY]
-    //  *  @returns {here.xyz.maps.providers.FeatureProvider.Feature}
+    //  *  @param bbox -  the bounding box has the coordinates in the order: [minX, minY, maxX, maxY]
     //  */
     search(bbox: number[]): any[] {
         if (this.data) {
