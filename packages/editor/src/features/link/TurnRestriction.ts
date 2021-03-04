@@ -17,28 +17,61 @@
  * License-Filename: LICENSE
  */
 
+import TurnRestrictionEditor from '../../tools/turnrestriction/Editor';
+import {Navlink} from '@here/xyz-maps-editor';
+
 /**
- *  A TurnRestriction sucks.
+ * The TurnRestrictions represents all turn-restrictions of a road intersection.
+ * It provides editing capabilities by user-interaction and offers a basic interface.
  */
-class TurnRestriction {
-    constructor(internal) {
-        this.hide = () => internal.hideRestrictions();
-        this.isActive = () => internal.isActive();
-    }
+export interface TurnRestrictions {
+    // /**
+    //  * Get all related Navlink features of the intersection.
+    //  */
+    // getLinks(): Navlink[];
 
     /**
-     *  Hide the turn restriction editor.
+     *  Show all turn restrictions of the road intersection.
      */
+    show();
+
+    /**
+     *  Hide all turn restrictions of the road intersection.
+     */
+    hide();
+
+    /**
+     *  Indicates if TurnRestrictions are displayed and editing by user interaction is enabled.
+     */
+    isActive(): boolean;
+}
+
+class TurnRestriction implements TurnRestrictions {
+    private _e: TurnRestrictionEditor;
+    private _l: Navlink;
+    private _i: number;
+
+    constructor(internal: TurnRestrictionEditor, navlink: Navlink, index: number) {
+        this._e = internal;
+        this._l = navlink;
+        this._i = index;
+    }
+
+    show() {
+        this._e.showRestrictions(this._l, this._i);
+    }
+
+    // getLinks() {
+    //     return this._l.getConnectedLinks(this._i);
+    // }
+
     hide() {
-
+        return this._e.hideRestrictions();
     }
 
-    /**
-     *  Get current state of the turn restriction editor.
-     */
     isActive(): boolean {
-        return false;
+        return this._e.isActive();
     }
 }
 
-export default TurnRestriction;
+export {TurnRestriction};

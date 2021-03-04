@@ -19,7 +19,7 @@
 
 import CrossingTester from '../../tools/CrossingTester';
 import {Crossing} from '../../API/MCrossing';
-import TurnRestriction from './TurnRestriction';
+import {TurnRestriction, TurnRestrictions} from './TurnRestriction';
 import TurnRestrictionEditor from '../../tools/turnrestriction/Editor';
 import DirectionHint from '../../tools/DirectionHint';
 import oTools from './NavlinkTools';
@@ -292,14 +292,22 @@ export class Navlink extends Feature {
     };
 
     /**
-     * Show the "turn restrictions" for the nodes/shape-points of the Navlink feature.
-     * If no index is provided, the turn restrictions for the start and end node will be displayed.
+     * Displays and allows editing of the "turn restrictions" for the node/shape-point at the "index" of the Navlink feature.
+     * The index must be the respective index in the coordinates array of the first (0) or last coordinate of the Navlink.
      *
-     * @param {number=} index - the index of the node to display turn restrictions for.
+     * @param index - the index of the node to display the turn restrictions for.
      *
-     * @returns Array containing the TurnRestriction for start and end shape points (nodes) respectively.
+     * @returns the TurnRestrictions for the respective shape/node.
      */
-    editTurnRestrictions(index?: number): TurnRestriction[] {
+    editTurnRestrictions(index: number): TurnRestrictions;
+    /**
+     * Displays and allows editing of all "turn restrictions" for the start and end node of the Navlink feature.
+     *
+     * @returns Array containing the TurnRestrictions for the start-node and end-node (shape-points).
+     */
+    editTurnRestrictions(): TurnRestrictions[];
+
+    editTurnRestrictions(index?: number): TurnRestrictions | TurnRestrictions[] {
         const link = this;
         const p = link.coord();
         const idxs = (index == 0 || index == p.length - 1)
@@ -312,13 +320,14 @@ export class Navlink extends Feature {
 
         EDITOR.listeners.trigger('_clearOverlay');
 
+        // TODO: Refactor TurnRestriction mess
         for (var i = 0; i < idxs.length; i++) {
             let turnResEditor = new TurnRestrictionEditor(EDITOR);
             turnResEditor.showRestrictions(link, idxs[i]);
-            publicTR.push(new TurnRestriction(turnResEditor));
+            publicTR.push(new TurnRestriction(turnResEditor, link, idxs[i]));
         }
 
-        return publicTR;
+        return index === UNDEF ? publicTR : publicTR[0];
     };
 
     prop(): { [name: string]: any };

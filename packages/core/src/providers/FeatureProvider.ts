@@ -370,7 +370,7 @@ export class FeatureProvider extends Provider {
      *  rect:  { minLon: 72.83584, maxLat: 18.97299, maxLon: 72.84443, minLat: 18.96876 }
      * })
      * ```
-     * @returns {Array.<here.xyz.maps.providers.FeatureProvider.Feature>} array of features
+     * @returns array of features
      */
     search(options: {
         id?: number | string,
@@ -488,7 +488,7 @@ export class FeatureProvider extends Provider {
      *  Validate if a feature is stored in the local provider cache.
      *
      *  @param feature - Object literal containing "id" property.
-     *  @returns the {@link:Feature} if it is found, otherwise undefined
+     *  @returns the {@link Feature} if it is found, otherwise undefined
      */
     exists(feature: { id: number | string }): Feature {
         return this.IDPOOL[feature.id];

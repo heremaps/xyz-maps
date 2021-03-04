@@ -46,7 +46,7 @@ interface EditorProperties {
      *  True if this feature is currently hovered, otherwise false.
      */
     hovered: boolean;
-};
+}
 
 class DefaultEditorProperties implements EditorProperties {
     created;
@@ -55,9 +55,7 @@ class DefaultEditorProperties implements EditorProperties {
     split;
     selected;
     hovered;
-};
-
-// debugger dude;
+}
 
 const EditorNsPrototype = DefaultEditorProperties.prototype;
 

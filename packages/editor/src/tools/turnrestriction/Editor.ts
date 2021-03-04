@@ -33,7 +33,6 @@ class TurnRestrictionEditor {
     private overlay;
     private trs;
 
-
     constructor(internalEditor) {
         this.editor = internalEditor;
         this.overlay = internalEditor.objects.overlay;

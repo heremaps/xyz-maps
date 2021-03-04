@@ -30,6 +30,17 @@ const DEFAULT_TILE_SIZE = 512;
 
 /**
  * The MVTLayer is a TileLayer designed to work with remote datasources that are delivering {@link https://github.com/mapbox/vector-tile-spec | MVT encoded} vector tiles.
+ * @example
+ * ```
+ * const myLayer = new MVTLayer({
+ *     remote: {
+ *         url: 'https://xyz.api.here.com/tiles/osmbase/512/all/{z}/{x}/{y}.mvt?access_token=' + YOUR_ACCESS_TOKEN
+ *         tileSize : 512
+ *     },
+ *     min: 1,
+ *     max: 20
+ * })
+ * ```
  */
 export class MVTLayer extends TileLayer {
     protected _p: MVTProvider[];

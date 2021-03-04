@@ -23,7 +23,7 @@ var layers = [
             }
         })
     }),
-    new here.xyz.maps.layers.TileLayer({
+    new TileLayer({
         name: 'mySecondLayer',
         min: 14,
         max: 20,
