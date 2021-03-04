@@ -163,5 +163,5 @@ editor.addObserver('history.current', function(ob, currentStep, lastStep) {
     });
 
     // update the infobox with the updated turn restrictions
-    document.querySelector('#info').innerText = JSON.stringify(cInfo, null, 4);
+    (<HTMLDivElement>document.querySelector('#info')).innerText = JSON.stringify(info, null, 4);
 });

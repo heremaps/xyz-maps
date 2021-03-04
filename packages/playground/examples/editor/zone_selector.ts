@@ -126,7 +126,7 @@ editor.addLayer(navlinkLayer);
 /** **/
 
 // click the button to add multiple navlinks to the zoneselector utility.
-document.querySelector('#showButton').onclick = function() {
+(<HTMLButtonElement>document.querySelector('#showButton')).onclick = function() {
     let navlink1 = editor.getFeature('9ndDAW9aucl1in0U', navlinkLayer);
     let navlink2 = editor.getFeature('ti6x4OFInG69Hg6Q', navlinkLayer);
     let navlink3 = editor.getFeature('7IYfa7jAHsDv5oK7', navlinkLayer);
@@ -158,6 +158,7 @@ document.querySelector('#showButton').onclick = function() {
     });
 };
 
+const infoElement = <HTMLDivElement>document.querySelector('#info');
 // update the info box with updated zone information when a zone marker gets dragged
 const onDragEndHandler = (ev) => {
     // the modified zone
@@ -169,12 +170,12 @@ const onDragEndHandler = (ev) => {
         return simpleSegment;
     });
 
-    document.querySelector('#info').innerText = JSON.stringify(zone, undefined, 4);
+    infoElement.innerText = JSON.stringify(zone, undefined, 4);
 };
 
 // hide the zone selector utility
-document.querySelector('#hideButton').onclick = function() {
+(<HTMLDivElement>document.querySelector('#hideButton')).onclick = function() {
     let zoneSelector = editor.getZoneSelector();
     zoneSelector.hide();
-    document.querySelector('#info').innerText = 'Zone Info';
+    infoElement.innerText = 'Zone Info';
 };

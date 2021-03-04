@@ -40,19 +40,20 @@ const display = new Map(document.getElementById('map'), {
 let addedLines;
 
 // click button to add/remove lines to the TileLayer
-document.querySelector('#linebutton').onclick = function() {
+const button = <HTMLButtonElement>document.querySelector('#linebutton');
+button.onclick = function() {
     if (!addedLines) {
         // add the line features if they have not been added already
         addedLines = myLayer.addFeature(lineData);
 
-        this.innerText = 'Remove Lines';
+        button.innerText = 'Remove Lines';
     } else {
         // Remove the line features
         myLayer.removeFeature(addedLines);
 
         addedLines = null;
 
-        this.innerText = 'Add Lines';
+        button.innerText = 'Add Lines';
     }
 };
 
@@ -60,55 +61,55 @@ document.querySelector('#linebutton').onclick = function() {
 const lineData = {
     'features': [{
         geometry: {
-            coordinates: [[-117.14666, 32.70627, 0], [-117.1458, 32.70628, 0]],
+            coordinates: [[-117.14666, 32.70627], [-117.1458, 32.70628]],
             type: 'LineString'
         },
         type: 'Feature'
     }, {
         geometry: {
-            coordinates: [[-117.1458, 32.70628, 0], [-117.1458, 32.70732, 0]],
+            coordinates: [[-117.1458, 32.70628], [-117.1458, 32.70732]],
             type: 'LineString'
         },
         type: 'Feature'
     }, {
         geometry: {
-            coordinates: [[-117.14486, 32.70628, 0], [-117.14486, 32.70731, 0]],
+            coordinates: [[-117.14486, 32.70628], [-117.14486, 32.70731]],
             type: 'LineString'
         },
         type: 'Feature'
     }, {
         geometry: {
-            coordinates: [[-117.1458, 32.70732, 0], [-117.1458, 32.70836, 0]],
+            coordinates: [[-117.1458, 32.70732], [-117.1458, 32.70836]],
             type: 'LineString'
         },
         type: 'Feature'
     }, {
         geometry: {
-            coordinates: [[-117.14486, 32.70731, 0], [-117.14488, 32.70836, 0]],
+            coordinates: [[-117.14486, 32.70731], [-117.14488, 32.70836]],
             type: 'LineString'
         },
         type: 'Feature'
     }, {
         geometry: {
-            coordinates: [[-117.14486, 32.70731, 0], [-117.1458, 32.70732, 0]],
+            coordinates: [[-117.14486, 32.70731], [-117.1458, 32.70732]],
             type: 'LineString'
         },
         type: 'Feature'
     }, {
         geometry: {
-            coordinates: [[-117.14667, 32.70732, 0], [-117.1458, 32.70732, 0]],
+            coordinates: [[-117.14667, 32.70732], [-117.1458, 32.70732]],
             type: 'LineString'
         },
         type: 'Feature'
     }, {
         geometry: {
-            coordinates: [[-117.14486, 32.70731, 0], [-117.14397, 32.70732, 0]],
+            coordinates: [[-117.14486, 32.70731], [-117.14397, 32.70732]],
             type: 'LineString'
         },
         type: 'Feature'
     }, {
         geometry: {
-            coordinates: [[-117.1458, 32.70628, 0], [-117.14551, 32.70628, 0], [-117.14526, 32.70628, 0], [-117.14486, 32.70628, 0]],
+            coordinates: [[-117.1458, 32.70628], [-117.14551, 32.70628], [-117.14526, 32.70628], [-117.14486, 32.70628]],
             type: 'LineString'
         },
         type: 'Feature'

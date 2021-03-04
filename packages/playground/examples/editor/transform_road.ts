@@ -38,7 +38,7 @@ var display = new Map(document.getElementById('map'), {
 const editor = new Editor(display, {layers: [navlinkLayer]});
 /** **/
 
-editor.addEventListener('pointerup', function(e) {
+editor.addEventListener('pointerup', (e) => {
     // get the clicked feature
     let feature = e.target;
     // check if we clicked a Line feature
@@ -50,6 +50,6 @@ editor.addEventListener('pointerup', function(e) {
 
 
 // click the revert button to revert all changes that have been done
-document.querySelector('#revert').onclick = function() {
+(<HTMLButtonElement>document.querySelector('#revert')).onclick = () => {
     editor.revert();
 };

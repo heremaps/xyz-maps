@@ -54,31 +54,33 @@ var myPlaceLayer = new TileLayer({
 let navlinkLayerAdded = false;
 
 // add a onclick event handler to the myLinesButton
-document.querySelector('#myLinesButton').onclick = function() {
+let lineButton = <HTMLButtonElement>document.querySelector('#myLinesButton');
+lineButton.onclick = function() {
     if (!navlinkLayerAdded) {
         display.addLayer(myNavlinkLayer);
-        this.innerText = 'Remove MyLines';
+        lineButton.innerText = 'Remove MyLines';
         navlinkLayerAdded = true;
     } else {
         display.removeLayer(myNavlinkLayer);
-        this.innerText = 'Add MyLines';
+        lineButton.innerText = 'Add MyLines';
         navlinkLayerAdded = false;
     }
 };
 
-var placeLayerAdded = false;
+let placeLayerAdded = false;
 // add a onclick event handler to the myPlacesButton
-document.querySelector('#myPlacesButton').onclick = function() {
+let placeButton = <HTMLButtonElement>document.querySelector('#myPlacesButton');
+placeButton.onclick = function() {
     if (!placeLayerAdded) {
         display.addLayer(myPlaceLayer);
 
-        this.innerText = 'Remove MyPlaces';
+        placeButton.innerText = 'Remove MyPlaces';
 
         placeLayerAdded = true;
     } else {
         display.removeLayer(myPlaceLayer);
 
-        this.innerText = 'Add MyPlaces';
+        placeButton.innerText = 'Add MyPlaces';
 
         placeLayerAdded = false;
     }

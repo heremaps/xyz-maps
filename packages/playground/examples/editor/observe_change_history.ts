@@ -43,11 +43,11 @@ editor.addObserver('history.current', function(name, currentStep, lastStep) {
         'Total Steps': editor.get('history.length'),
         'Modified Features': editor.get('changes.length')
     };
-    document.querySelector('#info').innerText = JSON.stringify(historyInfo, undefined, 4);
+    (<HTMLDivElement>document.querySelector('#info')).innerText = JSON.stringify(historyInfo, undefined, 4);
 });
 
 // add points to random position within the current screen
-document.querySelector('#add').onclick = function() {
+(<HTMLButtonElement>document.querySelector('#add')).onclick = function() {
     // convert from pixels on screen to a geographical coordinate.
     let geoJSONCoordinate = editor.toGeoJSONCoordinates({
         x: display.getWidth() * Math.random(),
@@ -63,9 +63,9 @@ document.querySelector('#add').onclick = function() {
     });
 };
 
-document.querySelector('#undo').onclick = () => editor.undo();
+(<HTMLButtonElement>document.querySelector('#undo')).onclick = () => editor.undo();
 
-document.querySelector('#redo').onclick = () => editor.redo();
+(<HTMLButtonElement>document.querySelector('#redo')).onclick = () => editor.redo();
 
-document.querySelector('#revert').onclick = () => editor.revert();
+(<HTMLButtonElement>document.querySelector('#revert')).onclick = () => editor.revert();
 

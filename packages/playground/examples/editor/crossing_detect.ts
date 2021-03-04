@@ -124,11 +124,10 @@ const editor = new Editor(display, {layers: [navlinkLayer]});
 /** **/
 
 let crossings = [];
-
 let createdNavlink;
 
 // click button to create a navlink with random geometry
-document.querySelector('#createRoad').onclick = function() {
+(<HTMLButtonElement>document.querySelector('#createRoad')).onclick = ()=>{
     // clear existing crossings
     for (let i in crossings) crossings[i].hide();
 
@@ -159,7 +158,7 @@ document.querySelector('#createRoad').onclick = function() {
 };
 
 // show all crossings of the just created road with all other roads
-document.querySelector('#showCrossings').onclick = function() {
+(<HTMLButtonElement>document.querySelector('#showCrossings')).onclick = ()=>{
     // hide the crossings and revert all changes
     for (var i in crossings) {
         crossings[i].hide();
@@ -189,7 +188,7 @@ editor.addEventListener('pointerup', function(event) {
             crossing.connect();
         } else {
             // hide the crossing if user's choice is "no"
-            feature.hide();
+            crossing.hide();
         }
     }
 });

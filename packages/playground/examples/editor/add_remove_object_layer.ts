@@ -172,21 +172,22 @@ let myPlaceLayer = new TileLayer({
 // Add place layer to display, makes it visible
 display.addLayer(myPlaceLayer);
 
-let infoTag = document.querySelector('#info');
 
-document.querySelector('#addlayer').onclick = function() {
+const button = <HTMLButtonElement>document.querySelector('#addlayer');
+button.onclick = function() {
+    const infoTag = <HTMLDivElement>document.querySelector('#info');
     // if there is no layer
     if (editor.getLayers().length == 1) {
         // make place layer editable
         editor.addLayer(myPlaceLayer);
 
-        this.innerText = 'Disable Editing';
+        button.innerText = 'Disable Editing';
         infoTag.innerText = 'MyPlaceLayer is editable.';
     } else {
         // make place layer not editable
         editor.removeLayer(myPlaceLayer);
 
-        this.innerText = 'Enable Editing';
+        button.innerText = 'Enable Editing';
         infoTag.innerText = 'MyPlaceLayer is NOT editable.';
     }
 };

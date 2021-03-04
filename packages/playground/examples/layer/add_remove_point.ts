@@ -49,18 +49,19 @@ const display = new Map(document.getElementById('map'), {
 let addedPoints;
 
 // click button to add/remove points to the TileLayer
-document.querySelector('#pointbutton').onclick = function() {
+const button = <HTMLButtonElement>document.querySelector('#pointbutton');
+button.onclick = function() {
     if (!addedPoints) {
         // add the point features if they have not been added already
         addedPoints = pointLayer.addFeature(pointData);
 
-        this.innerText = 'Remove Points';
+        button.innerText = 'Remove Points';
     } else {
         // Remove the point features
         pointLayer.removeFeature(addedPoints);
 
         addedPoints = null;
-        this.innerText = 'Add Points';
+        button.innerText = 'Add Points';
     }
 };
 
@@ -68,7 +69,7 @@ document.querySelector('#pointbutton').onclick = function() {
 let pointData = {
     'features': [{
         geometry: {
-            coordinates: [13.404954, 52.520008, 0],
+            coordinates: [13.404954, 52.520008],
             type: 'Point'
         },
         properties: {
@@ -77,7 +78,7 @@ let pointData = {
         type: 'Feature'
     }, {
         geometry: {
-            coordinates: [11.576124, 48.137154, 0],
+            coordinates: [11.576124, 48.137154],
             type: 'Point'
         },
         properties: {
@@ -86,7 +87,7 @@ let pointData = {
         type: 'Feature'
     }, {
         geometry: {
-            coordinates: [8.806422, 53.073635, 0],
+            coordinates: [8.806422, 53.073635],
             type: 'Point'
         },
         properties: {
@@ -95,7 +96,7 @@ let pointData = {
         type: 'Feature'
     }, {
         geometry: {
-            coordinates: [11.061859, 49.460983, 0],
+            coordinates: [11.061859, 49.460983],
             type: 'Point'
         },
         properties: {
@@ -104,7 +105,7 @@ let pointData = {
         type: 'Feature'
     }, {
         geometry: {
-            coordinates: [9.993682, 53.551086, 0],
+            coordinates: [9.993682, 53.551086],
             type: 'Point'
         },
         properties: {
@@ -113,7 +114,7 @@ let pointData = {
         type: 'Feature'
     }, {
         geometry: {
-            coordinates: [7.589907, 50.360023, 0],
+            coordinates: [7.589907, 50.360023],
             type: 'Point'
         },
         properties: {
@@ -122,7 +123,7 @@ let pointData = {
         type: 'Feature'
     }, {
         geometry: {
-            coordinates: [9.735603, 52.373920, 0],
+            coordinates: [9.735603, 52.373920],
             type: 'Point'
         },
         properties: {
@@ -131,7 +132,7 @@ let pointData = {
         type: 'Feature'
     }, {
         geometry: {
-            coordinates: [8.682127, 50.110924, 0],
+            coordinates: [8.682127, 50.110924],
             type: 'Point'
         },
         properties: {
@@ -140,7 +141,7 @@ let pointData = {
         type: 'Feature'
     }, {
         geometry: {
-            coordinates: [13.737262, 51.050407, 0],
+            coordinates: [13.737262, 51.050407],
             type: 'Point'
         },
         properties: {
@@ -149,7 +150,7 @@ let pointData = {
         type: 'Feature'
     }, {
         geometry: {
-            coordinates: [6.953101, 50.935173, 0],
+            coordinates: [6.953101, 50.935173],
             type: 'Point'
         },
         properties: {
@@ -158,7 +159,7 @@ let pointData = {
         type: 'Feature'
     }, {
         geometry: {
-            coordinates: [8.672434, 49.398750, 0],
+            coordinates: [8.672434, 49.398750],
             type: 'Point'
         },
         properties: {
@@ -167,7 +168,7 @@ let pointData = {
         type: 'Feature'
     }, {
         geometry: {
-            coordinates: [7.468429, 51.514244, 0],
+            coordinates: [7.468429, 51.514244],
             type: 'Point'
         },
         properties: {
@@ -176,7 +177,7 @@ let pointData = {
         type: 'Feature'
     }, {
         geometry: {
-            coordinates: [8.403653, 49.006889, 0],
+            coordinates: [8.403653, 49.006889],
             type: 'Point'
         },
         properties: {
@@ -185,7 +186,7 @@ let pointData = {
         type: 'Feature'
     }, {
         geometry: {
-            coordinates: [9.177023, 48.782321, , 0],
+            coordinates: [9.177023, 48.782321],
             type: 'Point'
         },
         properties: {
@@ -194,7 +195,7 @@ let pointData = {
         type: 'Feature'
     }, {
         geometry: {
-            coordinates: [12.387772, 51.343479, 0],
+            coordinates: [12.387772, 51.343479],
             type: 'Point'
         },
         properties: {
@@ -203,7 +204,7 @@ let pointData = {
         type: 'Feature'
     }, {
         geometry: {
-            coordinates: [9.680845, 50.555809, 0],
+            coordinates: [9.680845, 50.555809],
             type: 'Point'
         },
         properties: {
@@ -212,7 +213,7 @@ let pointData = {
         type: 'Feature'
     }, {
         geometry: {
-            coordinates: [12.101624, 49.013432, 0],
+            coordinates: [12.101624, 49.013432],
             type: 'Point'
         },
         properties: {
@@ -221,7 +222,7 @@ let pointData = {
         type: 'Feature'
     }, {
         geometry: {
-            coordinates: [11.323544, 50.979492, 0],
+            coordinates: [11.323544, 50.979492],
             type: 'Point'
         },
         properties: {

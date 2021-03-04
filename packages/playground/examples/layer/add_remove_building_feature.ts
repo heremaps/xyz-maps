@@ -42,7 +42,8 @@ const display = new Map(document.getElementById('map'), {
 let addedPolygon;
 
 // click the button to add/remove a polygon to the TileLayer
-document.querySelector('#buildingbutton').onclick = function() {
+const button = <HTMLButtonElement>document.querySelector('#buildingbutton');
+button.onclick = function() {
     if (!addedPolygon) {
         // add the polygon to the layer
         addedPolygon = buildingLayer.addFeature({
@@ -63,14 +64,14 @@ document.querySelector('#buildingbutton').onclick = function() {
             type: 'Feature'
         });
 
-        this.innerText = 'Remove Building';
+        button.innerText = 'Remove Building';
     } else {
         // Remove the polygon from the TileLayer
         buildingLayer.removeFeature(addedPolygon);
 
         addedPolygon = null;
 
-        this.innerText = 'Add Building';
+        button.innerText = 'Add Building';
     }
 };
 

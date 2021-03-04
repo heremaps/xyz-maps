@@ -21,10 +21,10 @@ const display = new Map(document.getElementById('map'), {
 });
 /** **/
 
-var dragButton = document.querySelector('#drag');
-var zoomButton = document.querySelector('#zoom');
-var pitchButton = document.querySelector('#pitch');
-var infoElement = document.querySelector('#info');
+let dragButton = <HTMLButtonElement>document.querySelector('#drag');
+let zoomButton = <HTMLButtonElement>document.querySelector('#zoom');
+let pitchButton = <HTMLButtonElement>document.querySelector('#pitch');
+let infoElement = <HTMLDivElement>document.querySelector('#info');
 
 
 let currentBehavior;
@@ -49,7 +49,7 @@ dragButton.onclick = function() {
     showMapBehavior();
 
     // update the button text
-    this.innerText = currentBehavior.drag ? 'Disable Drag' : 'Enable Drag';
+    dragButton.innerText = currentBehavior.drag ? 'Disable Drag' : 'Enable Drag';
 };
 
 // click the zoom button to toggle the "zoom" behavior setting.
@@ -62,7 +62,7 @@ zoomButton.onclick = function() {
     showMapBehavior();
 
     // update the button text
-    this.innerText = currentBehavior.zoom ? 'Disable Zoom' : 'Enable Zoom';
+    zoomButton.innerText = currentBehavior.zoom ? 'Disable Zoom' : 'Enable Zoom';
 };
 
 
@@ -76,5 +76,5 @@ pitchButton.onclick = function() {
     showMapBehavior();
 
     // update the button text
-    this.innerText = currentBehavior.pitch ? 'Disable Pitch' : 'Enable Pitch';
+    pitchButton.innerText = currentBehavior.pitch ? 'Disable Pitch' : 'Enable Pitch';
 };

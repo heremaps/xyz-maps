@@ -49,7 +49,7 @@ const display = new Map(document.getElementById('map'), {
 });
 /** **/
 
-const infoElement = document.querySelector('#info');
+const infoElement = <HTMLDivElement>document.querySelector('#info');
 
 // create a pointerup event listener and add it to the display
 display.addEventListener('pointerup', function(ev) {

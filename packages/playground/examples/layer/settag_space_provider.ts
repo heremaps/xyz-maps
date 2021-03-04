@@ -23,12 +23,8 @@ const display = new Map(document.getElementById('map'), {
 });
 /** **/
 
-// This example shows how to show SpaceProvider and set its tags.
-var taginput = document.querySelector('input');
-var settagbtn = document.querySelector('#settagbtn');
-
 // Create Space provider
-var mySpaceProvider = new SpaceProvider({
+let mySpaceProvider = new SpaceProvider({
     name: 'SpaceProvider',
     level: 1,
     space: 'KjZI17j2',
@@ -37,7 +33,7 @@ var mySpaceProvider = new SpaceProvider({
     }
 });
 // Create data layer with Space provider
-var myLayer = new TileLayer({
+let myLayer = new TileLayer({
     name: 'SpaceLayer',
     provider: mySpaceProvider,
     min: 2,
@@ -47,8 +43,8 @@ var myLayer = new TileLayer({
 // Add the layer to display
 display.addLayer(myLayer);
 
-settagbtn.onclick = function() {
+(<HTMLButtonElement>document.querySelector('#settagbtn')).onclick = function() {
     // set tag for SpaceProvider
     // this example displays different kind of Stadium around the world, you could set tags: baseball, soccer, football to filter these stadiums
-    mySpaceProvider.setTags(taginput.value);
+    mySpaceProvider.setTags(document.querySelector('input').value);
 };

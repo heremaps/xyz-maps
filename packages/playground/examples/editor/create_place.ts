@@ -1,6 +1,6 @@
 import {MVTLayer, TileLayer, SpaceProvider} from '@here/xyz-maps-core';
 import {Map} from '@here/xyz-maps-display';
-import {Editor} from '@here/xyz-maps-editor';
+import {Editor, Place} from '@here/xyz-maps-editor';
 
 /** setup the Map **/
 // Create a custom provider.
@@ -188,19 +188,19 @@ const editor = new Editor(display, {layers: [myLayer]});
 /** **/
 
 // add points to random position within the current screen
-document.querySelector('#createButtonPixel').onclick = function() {
-    var x = display.getWidth() * Math.random();
-    var y = display.getHeight() * Math.random();
+(<HTMLButtonElement>document.querySelector('#createButtonPixel')).onclick = function() {
+    let x = display.getWidth() * Math.random();
+    let y = display.getHeight() * Math.random();
 
     // create the Place feature using a pixel coordinate
     createPlace({x: x, y: y});
 };
 
 // add points to random position within the current screen
-document.querySelector('#createButtonGeo').onclick = function() {
-    var viewBounds = display.getViewBounds();
-    var lon = viewBounds.minLon + (viewBounds.maxLon - viewBounds.minLon) * Math.random();
-    var lat = viewBounds.minLat + (viewBounds.maxLat - viewBounds.minLat) * Math.random();
+(<HTMLButtonElement>document.querySelector('#createButtonGeo')).onclick = function() {
+    let viewBounds = display.getViewBounds();
+    let lon = viewBounds.minLon + (viewBounds.maxLon - viewBounds.minLon) * Math.random();
+    let lat = viewBounds.minLat + (viewBounds.maxLat - viewBounds.minLat) * Math.random();
 
     // create the Place feature using a geographical coordinate
     createPlace({longitude: lon, latitude: lat});
@@ -208,7 +208,7 @@ document.querySelector('#createButtonGeo').onclick = function() {
 
 function createPlace(coordinate) {
     // Add a Place feature to the editor
-    let place = editor.addFeature({
+    let place = <Place>editor.addFeature({
         type: 'Feature',
         geometry: {
             type: 'Point',

@@ -1,4 +1,4 @@
-import {MVTLayer, TileLayer, SpaceProvider} from '@here/xyz-maps-core';
+import {MVTLayer, TileLayer, SpaceProvider, Feature} from '@here/xyz-maps-core';
 import {Map} from '@here/xyz-maps-display';
 
 /** setup the Map **/
@@ -36,13 +36,13 @@ const display = new Map(document.getElementById('map'), {
 let highlightedFeature;
 
 // click the button to pick a random line in current viewport and highlight it
-document.querySelector('#style').onclick = function() {
+(<HTMLButtonElement>document.querySelector('#style')).onclick = function() {
     if (highlightedFeature) {
         // restore the default style of the previous highlighted line feature
         myLayer.setStyleGroup(highlightedFeature);
     }
     // get all line in the current viewport
-    let lines = myLayer.search({rect: display.getViewBounds()});
+    let lines = <Feature[]>myLayer.search({rect: display.getViewBounds()});
 
     // pick a random line
     highlightedFeature = lines[Math.floor(lines.length * Math.random())];

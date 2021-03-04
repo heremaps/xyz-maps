@@ -38,7 +38,7 @@ searchAreaElement.id = 'searcharea';
 display.getContainer().appendChild(searchAreaElement);
 /** **/
 
-let searchResult = [];
+let searchResult;
 
 // wait until the current viewport is ready and all data is initialized
 placeLayer.addEventListener('viewportReady', function(ev) {
@@ -47,7 +47,7 @@ placeLayer.addEventListener('viewportReady', function(ev) {
     const bottomRight = display.pixelToGeo(display.getWidth() / 2 + 150, display.getHeight() / 2 + 150);
 
     // Reset the style of the previous search result
-    searchResult.forEach((feature) => placeLayer.setStyleGroup(feature));
+    searchResult && searchResult.forEach((feature) => placeLayer.setStyleGroup(feature));
 
     // Search for features by viewbound in place layer
     searchResult = placeLayer.search({

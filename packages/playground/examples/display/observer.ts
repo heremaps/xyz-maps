@@ -22,7 +22,7 @@ const display = new Map(document.getElementById('map'), {
 /** **/
 
 
-let infoTag = document.querySelector('#info');
+let infoTag = <HTMLDivElement>document.querySelector('#info');
 
 // add an center observer to the map
 display.addObserver('center', (name, newValue, oldValue) => {

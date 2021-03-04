@@ -131,7 +131,7 @@ const editor = new Editor(display, {
 
 // listen for pointerup events to update and display or hide the context menu on map click.
 editor.addEventListener('pointerup', (event) => {
-    const contextMenuContainer = document.querySelector('.contextmenu');
+    const contextMenuContainer = <HTMLUListElement>document.querySelector('.contextmenu');
 
     // hide, in case context menu is already displayed
     contextMenuContainer.style.display = 'none';
