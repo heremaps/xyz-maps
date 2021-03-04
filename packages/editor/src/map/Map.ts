@@ -16,7 +16,7 @@
  * SPDX-License-Identifier: Apache-2.0
  * License-Filename: LICENSE
  */
-
+import {GeoJSONCoordinate as Point} from '@here/xyz-maps-core';
 import {geotools} from '@here/xyz-maps-common';
 import {Map as MapDisplay} from '@here/xyz-maps-display';
 import {getPntOnLine} from '../geometry';
@@ -30,7 +30,6 @@ const MAX_DECIMAL_PRECISION = 1e9; // ⁓110microns
 const TO_RAD = Math.PI / 180;
 let UNDEF;
 
-type Point = [number, number, number?];
 type PixelPoint = { x: number, y: number, z?: number };
 type GeoPoint = { longitude: number, latitude: number, z?: number };
 

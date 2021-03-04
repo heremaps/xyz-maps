@@ -21,7 +21,7 @@ const TORAD = Math.PI / 180;
 const TODEG = 180 / Math.PI;
 const earthRadius = 6371000; // meters
 
-export type Point = [number, number, number?];
+export type Point = number[] | [number, number] | [number, number, number];
 type BBox = [number, number, number, number];
 
 export const calcBearing = (c1: Point, c2: Point) => {

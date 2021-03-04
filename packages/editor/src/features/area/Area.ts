@@ -19,7 +19,7 @@
 
 import oTools from './PolygonTools';
 import {Feature} from '../feature/Feature';
-import {GeoPoint, PixelPoint} from '@here/xyz-maps-core';
+import {GeoJSONCoordinate, GeoPoint, PixelPoint} from '@here/xyz-maps-core';
 
 const MIN_HOLE_SIZE = 8;
 
@@ -122,7 +122,7 @@ class Area extends Feature {
     };
 
 
-    addHole(position: { x: number, y: number, z?: number } | { longitude: number, latitude: number, z?: number } | [number, number, number?]): boolean {
+    addHole(position: { x: number, y: number, z?: number } | { longitude: number, latitude: number, z?: number } | GeoJSONCoordinate): boolean {
         if (position) {
             position = this._e().map.getPixelCoord(position);
 

@@ -17,25 +17,22 @@
  * License-Filename: LICENSE
  */
 
+import {GeoJSONCoordinate as Coordinate, GeoJSONBBox as BBox} from '@here/xyz-maps-core';
+import {geotools, JSUtils} from '@here/xyz-maps-common';
 import {getPointAtLength, getTotalLength, getPntAt, getSegmentIndex} from '../../geometry';
 import {calcRelPosOfPoiAtLink} from '../../map/GeoMath';
 import locTools from '../location/LocationTools';
 import {NavlinkShape} from './NavlinkShape';
 import VirtualLinkShape from './VirtualShape';
-import {geotools} from '@here/xyz-maps-common';
-import {JSUtils} from '@here/xyz-maps-common';
 import {Navlink} from './Navlink';
 import {EditStates} from '../feature/Feature';
-
-type BBox = [number, number, number, number];
-type Coordinate = [number, number, number?];
 
 type LocationId = string | number;
 
 class ConnectLinksResult {
     targetSplittedInto?: [Navlink, Navlink];
     splittedInto?: [Navlink, Navlink];
-};
+}
 
 let UNDEF;
 

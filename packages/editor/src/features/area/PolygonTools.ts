@@ -21,7 +21,6 @@ import {getDistance, getSegmentIndex, intersectLineLine, Point} from '../../geom
 import {AreaShape} from './AreaShape';
 import VirtualShape from './VirtualShape';
 import {Area} from './Area';
-import {NavlinkShape} from '../link/NavlinkShape';
 
 let UNDEF;
 

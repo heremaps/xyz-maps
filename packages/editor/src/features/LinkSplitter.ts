@@ -17,6 +17,7 @@
  * License-Filename: LICENSE
  */
 
+import {GeoJSONCoordinate} from '@here/xyz-maps-core';
 import {JSUtils} from '@here/xyz-maps-common';
 import locTools from './location/LocationTools';
 import linkTools from './link/NavlinkTools';
@@ -30,11 +31,11 @@ export interface SplitOptions {
     link: Navlink;
     index?: number;
     preferSegment?: number;
-    point?: [number, number, number?];
+    point?: GeoJSONCoordinate,
     avoidSnapping?: boolean;
 }
 
-// split at exsiting shape
+// split at a existing shape
 // or split at existing shape and keep the position of existing shape
 export const split = (HERE_WIKI: InternalEditor, options: SplitOptions): [Navlink, Navlink] | false => {
     const parentLink = options.link;

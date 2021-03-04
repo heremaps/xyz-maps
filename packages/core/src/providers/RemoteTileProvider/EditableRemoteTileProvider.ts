@@ -495,7 +495,7 @@ export abstract class EditableRemoteTileProvider extends EditableFeatureProvider
             if (bbox.length == 4) { // it's just a point
                 searchBBox = bbox; // [ bbox[1], bbox[2], bbox[3], bbox[0] ];
             } else {
-                searchBBox = geotools.getPointBBox(<GeoJSONCoordinate>bbox, radius);
+                searchBBox = geotools.getPointBBox(<[number, number]>bbox, radius);
             }
         } else if (typeof bbox == 'number' || typeof bbox == 'string' || !bbox) { // search per ID
             return provider.getFeatures(bbox, options);

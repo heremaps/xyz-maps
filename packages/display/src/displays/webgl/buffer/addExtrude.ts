@@ -19,10 +19,8 @@
 
 import {addPolygon, FlatPolygon} from './addPolygon';
 import {isInBox} from '../../../geometry';
-import {Tile} from '@here/xyz-maps-core';
+import {Tile, GeoJSONCoordinate as Coordinate} from '@here/xyz-maps-core';
 import {FlexArray} from './templates/FlexArray';
-
-type Coordinate = [number, number, number?];
 
 const addExterior = (
     flatPolygon: FlatPolygon,

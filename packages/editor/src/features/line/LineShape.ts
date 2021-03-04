@@ -49,13 +49,13 @@ class LineShape extends Feature {
         let style = line._e().getStyle(line);
 
         super({
+            type: 'Feature',
             properties: {
                 'index': index,
                 'LINE': {
                     properties: line.prop(),
                     style: style
                 }
-
             },
             geometry: {
                 type: 'Point',

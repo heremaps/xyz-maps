@@ -17,13 +17,14 @@
  * License-Filename: LICENSE
  */
 
+import {GeoJSONCoordinate as Point} from '@here/xyz-maps-core';
+
 const MATH = Math;
 const PI = MATH.PI;
 const pow = MATH.pow;
 const sqrt = MATH.sqrt;
 
-export type Point = [number, number, number?];
-
+export {Point};
 
 export const distancePointLine = (g1: Point, g2: Point, point: Point) => {
     const m = (g2[1] - g1[1]) / (g2[0] - g1[0]);

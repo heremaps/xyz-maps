@@ -39,7 +39,7 @@ const display = new Map(document.getElementById('map'), {
 });
 /** **/
 
-var addedPolygon;
+let addedPolygon;
 
 // click the button to add/remove a polygon to the TileLayer
 document.querySelector('#buildingbutton').onclick = function() {

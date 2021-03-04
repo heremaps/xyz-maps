@@ -17,10 +17,8 @@
  * License-Filename: LICENSE
  */
 
-import {Tile} from '@here/xyz-maps-core';
+import {Tile, GeoJSONCoordinate as Coordinate} from '@here/xyz-maps-core';
 import {FlexArray} from './templates/FlexArray';
-
-type Coordinate = [number, number, number?];
 
 export type FlatPolygon = {
     vertices: FlexArray;

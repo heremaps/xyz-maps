@@ -35,7 +35,7 @@ export type GeoJSONBBox = [number, number, number, number];
  * A GeoJSON Geometry coordinate is a array of coordinates.
  * The array must contain two or three elements [longitude, latitude, altitude?] / [x, y, z?].
  */
-export type GeoJSONCoordinate = [number, number] | [number, number, number];
+export type GeoJSONCoordinate = number[]; // [number, number] | [number, number, number];
 
 /**
  * A GeoJSON Feature object.
@@ -49,7 +49,7 @@ export interface GeoJSONFeature {
     /**
      * Type of a GeoJSONFeature is 'Feature'
      */
-    type?: 'Feature';
+    type: 'Feature' | string;
 
     /*
      * The bounding box includes information on the coordinate range of the Feature.
@@ -60,7 +60,7 @@ export interface GeoJSONFeature {
     /**
      *  The properties associated with the feature.
      */
-    properties: { [name: string]: any; } | null;
+    properties?: { [name: string]: any; } | null;
 
     /**
      *  A geometry is a object where the type member's value is one of: "Point", "MultiPoint", "LineString", "MultiLineString", "Polygon" or "MultiPolygon".
@@ -105,12 +105,21 @@ export interface GeoJSONFeature {
      *```
      */
     geometry: {
-        type: 'Point' | 'MultiPoint' | 'LineString' | 'MultiLineString' | 'Polygon' | 'MultiPolygon',
+        type: 'Point' | 'MultiPoint' | 'LineString' | 'MultiLineString' | 'Polygon' | 'MultiPolygon' | string,
         coordinates: GeoJSONCoordinate | GeoJSONCoordinate[] | GeoJSONCoordinate[][] | GeoJSONCoordinate[][][]
     };
 }
 
+/**
+ * A GeoJSONFeatureCollection is a collection of {@link GeoJSONFeature | GeoJSONFeatures}.
+ */
 export interface GeoJSONFeatureCollection {
-    type: 'FeatureCollection';
+    /**
+     * The type of a GeoJSONFeatureCollection must be a string "FeatureCollection".
+     */
+    type: 'FeatureCollection' | string;
+    /**
+     * An array of {@link GeoJSONFeature | GeoJSONFeatures}.
+     */
     features: GeoJSONFeature[]
 }

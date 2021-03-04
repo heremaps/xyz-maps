@@ -23,7 +23,7 @@ import {DashAtlas} from '../DashAtlas';
 import {GlyphTexture} from '../GlyphTexture';
 import {TextBuffer} from './templates/TextBuffer';
 import {addLineText} from './addLineText';
-import {Tile} from '@here/xyz-maps-core';
+import {GeoJSONCoordinate as Coordinate, Tile} from '@here/xyz-maps-core';
 
 const DEFAULT_MIN_TEXT_REPEAT = 256;
 let UNDEF;
@@ -44,7 +44,7 @@ export class LineFactory {
         this.pixels = new Float32Array(262144); // -> 1MB;
     }
 
-    private projectLine(coordinates: [number, number, number?][], tile: Tile, tileSize: number): PixelCoordinateCache {
+    private projectLine(coordinates: Coordinate[], tile: Tile, tileSize: number): PixelCoordinateCache {
         const {pixels, decimals} = this;
         if (!this.prjCoords) {
             let t = 0;
@@ -87,7 +87,7 @@ export class LineFactory {
     }
 
     createLine(
-        coordinates: [number, number, number?][],
+        coordinates: Coordinate[],
         group,
         tile: Tile,
         tileSize: number,
@@ -129,7 +129,7 @@ export class LineFactory {
 
     createText(
         text: string,
-        coordinates: [number, number, number?][],
+        coordinates: Coordinate[],
         group,
         tile: Tile,
         tileSize: number,

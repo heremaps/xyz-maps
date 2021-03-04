@@ -46,26 +46,26 @@ const display = new Map(document.getElementById('map'), {
 });
 /** **/
 
-var addedPoints = [];
+let addedPoints;
 
 // click button to add/remove points to the TileLayer
 document.querySelector('#pointbutton').onclick = function() {
-    if (!addedPoints.length) {
+    if (!addedPoints) {
         // add the point features if they have not been added already
-        addedPoints = pointLayer.addFeature(Points);
+        addedPoints = pointLayer.addFeature(pointData);
 
         this.innerText = 'Remove Points';
     } else {
         // Remove the point features
         pointLayer.removeFeature(addedPoints);
 
-        addedPoints = [];
+        addedPoints = null;
         this.innerText = 'Add Points';
     }
 };
 
 // the points that should be added to the layer
-var Points = {
+let pointData = {
     'features': [{
         geometry: {
             coordinates: [13.404954, 52.520008, 0],

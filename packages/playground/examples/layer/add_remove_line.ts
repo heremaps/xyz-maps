@@ -37,27 +37,27 @@ const display = new Map(document.getElementById('map'), {
 });
 /** **/
 
-let addedLines = [];
+let addedLines;
 
 // click button to add/remove lines to the TileLayer
 document.querySelector('#linebutton').onclick = function() {
-    if (!addedLines.length) {
+    if (!addedLines) {
         // add the line features if they have not been added already
-        addedLines = myLayer.addFeature(Lines);
+        addedLines = myLayer.addFeature(lineData);
 
         this.innerText = 'Remove Lines';
     } else {
         // Remove the line features
         myLayer.removeFeature(addedLines);
 
-        addedLines = [];
+        addedLines = null;
 
         this.innerText = 'Add Lines';
     }
 };
 
 // the lines that should be added to the TileLayer
-var Lines = {
+const lineData = {
     'features': [{
         geometry: {
             coordinates: [[-117.14666, 32.70627, 0], [-117.1458, 32.70628, 0]],

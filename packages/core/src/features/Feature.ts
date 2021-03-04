@@ -83,7 +83,7 @@ export class Feature implements GeoJSONFeature {
      *```
      */
     geometry: {
-        type: 'Point' | 'MultiPoint' | 'LineString' | 'MultiLineString' | 'Polygon' | 'MultiPolygon',
+        type: 'Point' | 'MultiPoint' | 'LineString' | 'MultiLineString' | 'Polygon' | 'MultiPolygon' | string,
         coordinates: any[]
     };
 
@@ -91,10 +91,8 @@ export class Feature implements GeoJSONFeature {
      *  Bounding box of the feature.
      *  The value of the bbox member is an array of length 4, with all axes of the most southwesterly point followed by all axes of the more northeasterly point.
      *  The "bbox" values define shapes with edges that follow lines of constant longitude and latitude.
-     *
-     *  @optional
      */
-    bbox: [number, number, number, number];
+    bbox?: [number, number, number, number];
 
     protected _provider: FeatureProvider;
     // need for quick data merge across multiple tile searches

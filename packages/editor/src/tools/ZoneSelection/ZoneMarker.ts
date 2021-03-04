@@ -77,6 +77,7 @@ class ZoneMarker extends Feature {
         const {coordinate} = getPointAtLine(multiLink, relPos);
 
         super({
+            type: 'Feature',
             properties: {
                 relPos: relPos,
                 side: side.toUpperCase(),
