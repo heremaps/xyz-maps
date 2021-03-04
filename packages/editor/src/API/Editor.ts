@@ -811,7 +811,7 @@ export default class Editor {
      * One change operation can contain multiple feature modifications.
      * The changes are stored and managed locally.
      *
-     * Submitting {@link here.xyz.maps.editor.Editor#submit} modified Feature(s) to the remote will clear the local change history.
+     * Submitting {@link Editor.submit} modified Feature(s) to the remote will clear the local change history.
      *
      * @param steps - the number of change operations to undo.
      */
@@ -828,7 +828,7 @@ export default class Editor {
      * One change operation can contain multiple feature modifications.
      *
      * The changes are stored and managed locally.
-     * Submitting {@link here.xyz.maps.editor.Editor#submit} modified Feature(s) to the remote will clear the local change history.
+     * Submitting {@link Editor.submit} modified Feature(s) to the remote will clear the local change history.
      *
      * @param steps - the number of change operations to redo.
      */

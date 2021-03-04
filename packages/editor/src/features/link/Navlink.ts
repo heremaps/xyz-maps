@@ -18,6 +18,7 @@
  */
 
 import CrossingTester from '../../tools/CrossingTester';
+import {Crossing} from '../../API/MCrossing';
 import TurnRestriction from './TurnRestriction';
 import TurnRestrictionEditor from '../../tools/turnrestriction/Editor';
 import DirectionHint from '../../tools/DirectionHint';
@@ -98,7 +99,7 @@ export class Navlink extends Feature {
             search2?: Style,
             found?: Style
         }
-    }) {
+    }): Crossing[] {
         const obj = this;
         const prv = oTools.private(obj);
         const xTester = prv.xt || new CrossingTester(obj._e(), obj);
