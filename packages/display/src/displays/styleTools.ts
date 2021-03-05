@@ -61,14 +61,18 @@ const getValue = (name: string, style: Style, feature: Feature, tileGridZoom: nu
         : value;
 };
 
-const parseSizeValue = (value: string | number) => {
+const parseSizeValue = (size: string | number) => {
     let unit = 'px';
-    if (typeof value == 'string') {
-        if (value.charAt(value.length - 1) == 'm') {
+    let value = size;
+    if (typeof size == 'string') {
+        value = parseFloat(size) || 0;
+        if (size.charAt(size.length - 1) == 'm') {
             unit = 'm';
+            value = Math.round(value * 10) / 10;
+            return {value, unit};
         }
-        value = parseFloat(value);
     }
+    value = <number>value ^ 0; // no "float pixels"
     return {value, unit};
 };
 

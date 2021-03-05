@@ -25,9 +25,8 @@ import {Feature} from './feature/Feature';
 let UNDEF;
 
 /**
- *  A FeatureContainer is a array-like collection of Features.
- *  It enables editing operations to be carried out for all features of the FeatureContainer at the same time.
- *  @deprecated
+ * A FeatureContainer is a array-like collection of Features.
+ * It enables editing operations to be carried out for all features of the FeatureContainer at the same time.
  */
 export interface FeatureContainer {
     /**
@@ -79,9 +78,9 @@ export interface FeatureContainer {
     transform();
 
     /**
-     * Unhighlight all features of the container
+     * UnHighlight all features of the container
      */
-    unhighlight()
+    unHighlight()
 
     /**
      * Pops out the last feature that has been added to the container
@@ -195,7 +194,7 @@ export class Container implements FeatureContainer {
         }
     };
 
-    unhighlight() {
+    unHighlight() {
         const container = this;
         let len = container.length;
         let obj;
@@ -204,6 +203,10 @@ export class Container implements FeatureContainer {
             oTools.deHighlight(obj);
         }
     };
+
+    unhighlight() {
+        return this.unHighlight();
+    }
 
     pop() {
         const container = this;

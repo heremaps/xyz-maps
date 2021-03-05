@@ -442,10 +442,10 @@ export default class Editor {
     /**
      * Get a feature by id and layer.
      *
-     *  @param featureId - the id of the feature
-     *  @param layerId - the id of the layer or the layer itself to which the feature belongs.
+     * @param featureId - the id of the feature
+     * @param layerId - the id of the layer or the layer itself to which the feature belongs.
      *
-     *  @returns the found feature in the map, otherwise null.
+     * @returns the found feature in the map, otherwise null.
      */
     getFeature(featureId: string | number, layerId: string | TileLayer) {
         const obj = this._i().objects.get(featureId, layerId);

@@ -117,6 +117,7 @@ const createBuffer = (
         onDone: function(args) {
             const zoomLevel = args[6];
             let extrudeScale = Math.pow(2, 17 - zoomLevel);
+            const meterToPixel = 1 / webMercator.getGroundResolution(zoomLevel);
             let buffers = [];
             let geoBuffer: GeometryBuffer;
             let grpBuffer: TemplateBuffer;
@@ -128,9 +129,6 @@ const createBuffer = (
             let strokeWidth;
             let vertexType;
 
-            // let z = groups.length;
-            // for (let z = 0; z < groups.length; z++) {
-            // while (z--) {
             let zIndex: string | number;
             for (zIndex in groups) {
                 zGroup = groups[zIndex];
@@ -188,12 +186,10 @@ const createBuffer = (
                             }
                             geoBuffer.addUniform('u_fill', stroke);
 
-                            const meterToPixel = 1 / webMercator.getGroundResolution(zoomLevel);
-
                             geoBuffer.addUniform('u_strokeWidth', [strokeWidth * .5, shared.unit == 'm' ? meterToPixel : 0]);
 
                             geoBuffer.addUniform('u_offset', [shared.offsetX,
-                                shared.offsetY == 'm' ? meterToPixel : 0
+                                shared.offsetUnit == 'm' ? meterToPixel : 0
                             ]);
 
                             geoBuffer.alpha = true;
@@ -219,6 +215,8 @@ const createBuffer = (
                                 geoBuffer.addUniform('u_atlasScale', 1 / geoBuffer.texture.width);
                                 geoBuffer.addUniform('u_opacity', shared.opacity);
                                 geoBuffer.addUniform('u_alignMap', shared.alignment == 'map');
+
+                                geoBuffer.addUniform('u_offset', [shared.offsetX, shared.offsetY]);
                             } else if (type == 'Rect' || type == 'Circle') {
                                 geoBuffer.scissor = grpBuffer.scissor;
 
@@ -232,25 +230,27 @@ const createBuffer = (
                                 }
                                 geoBuffer.addUniform('u_strokeWidth', strokeWidth ^ 0);
 
+                                const toPixel = shared.unit == 'm' ? meterToPixel : 0;
+
                                 if (type == 'Circle') {
-                                    geoBuffer.addUniform('u_radius', shared.radius);
+                                    // geoBuffer.addUniform('u_radius', shared.radius);
+                                    geoBuffer.addUniform('u_radius', [shared.radius, toPixel]);
                                 } else {
                                     if (fill == COLOR_UNDEFINED) {
                                         // use blend to enable shader to not use discard (faster)
                                         geoBuffer.alpha = true;
                                         geoBuffer.blend = true;
                                     }
-                                    geoBuffer.addUniform('u_size', [shared.width, shared.height]);
+
+                                    geoBuffer.addUniform('u_size', [shared.width, toPixel, shared.height, toPixel]);
                                 }
                                 geoBuffer.addUniform('u_alignMap', shared.alignment == 'map');
 
-                                geoBuffer.addUniform('u_meterToPixel', shared.unit == 'm'
-                                    ? 1 / webMercator.getGroundResolution(zoomLevel)
-                                    : 0
-                                );
+                                geoBuffer.addUniform('u_offset', [
+                                    shared.offsetX, shared.offsetUnit[0] == 'm' ? meterToPixel : 0,
+                                    shared.offsetY, shared.offsetUnit[1] == 'm' ? meterToPixel : 0
+                                ]);
                             }
-
-                            geoBuffer.addUniform('u_offset', [shared.offsetX, shared.offsetY]);
                         }
 
                         const fillOpacity = shared.fill && shared.fill[3];

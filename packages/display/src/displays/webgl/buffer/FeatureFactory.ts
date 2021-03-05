@@ -146,6 +146,7 @@ export class FeatureFactory {
         let strokeScale;
         let alignment;
         let sizeUnit;
+        let offsetUnit;
         let allReady = true;
 
         this.lineFactory.init(level, tileSize);
@@ -189,6 +190,7 @@ export class FeatureFactory {
             // // }
             // // pmap[posId] = 1;
             //
+
             font = UNDEF;
             fill = UNDEF;
             stroke = UNDEF;
@@ -209,6 +211,7 @@ export class FeatureFactory {
             alignment = UNDEF;
             strokeScale = strokeWidthScale;
             sizeUnit = 'px';
+            offsetUnit = UNDEF;
 
             if (type == 'Icon') {
                 offsetX = getValue('offsetX', style, feature, level) ^ 0;
@@ -241,12 +244,13 @@ export class FeatureFactory {
                     }
 
                     let offset = getValue('offset', style, feature, level);
+
                     offset = parseSizeValue(offset);
                     // store line offset/unit in shared offsetXY
-                    offsetX = Math.round((offset.value || 0) * 10) / 10;
-                    offsetY = offset.unit;
+                    offsetX = offset.value;
+                    offsetUnit = offset.unit;
 
-                    groupId = 'L' + sizeUnit + offsetX + offsetY + strokeLinecap + strokeLinejoin + (strokeDasharray || NONE);
+                    groupId = 'L' + sizeUnit + offsetX + offsetUnit + strokeLinecap + strokeLinejoin + (strokeDasharray || NONE);
                 } else {
                     fill = getValue('fill', style, feature, level);
 
@@ -305,10 +309,16 @@ export class FeatureFactory {
                             continue;
                         }
 
-                        offsetX = getValue('offsetX', style, feature, level) ^ 0;
-                        offsetY = getValue('offsetY', style, feature, level) ^ 0;
+                        offsetX = getValue('offsetX', style, feature, level);
+                        offsetY = getValue('offsetY', style, feature, level);
+                        let ox = parseSizeValue(offsetX);
+                        let oy = parseSizeValue(offsetY);
 
-                        groupId += offsetX + offsetY;
+                        offsetX = ox.value;
+                        offsetY = oy.value;
+
+                        offsetUnit = [ox.unit, oy.unit];
+                        groupId += offsetX + ox.unit + offsetY + oy.unit;
                     }
                 }
                 if (fill) {
@@ -387,6 +397,7 @@ export class FeatureFactory {
                         rotation: rotation,
                         offsetX: offsetX,
                         offsetY: offsetY,
+                        offsetUnit: offsetUnit,
                         alignment: alignment
                     }
                     // ,index: []
