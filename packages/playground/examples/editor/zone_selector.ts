@@ -126,7 +126,7 @@ editor.addLayer(navlinkLayer);
 /** **/
 
 // click the button to add multiple navlinks to the zoneselector utility.
-(<HTMLButtonElement>document.querySelector('#showButton')).onclick = function() {
+document.querySelector<HTMLButtonElement>('#showButton').onclick = function() {
     let navlink1 = editor.getFeature('9ndDAW9aucl1in0U', navlinkLayer);
     let navlink2 = editor.getFeature('ti6x4OFInG69Hg6Q', navlinkLayer);
     let navlink3 = editor.getFeature('7IYfa7jAHsDv5oK7', navlinkLayer);
@@ -174,7 +174,7 @@ const onDragEndHandler = (ev) => {
 };
 
 // hide the zone selector utility
-(<HTMLDivElement>document.querySelector('#hideButton')).onclick = function() {
+document.querySelector<HTMLDivElement>('#hideButton').onclick = function() {
     let zoneSelector = editor.getZoneSelector();
     zoneSelector.hide();
     infoElement.innerText = 'Zone Info';

@@ -30,7 +30,7 @@ function eventHandler(ev) {
     // just keep the last 16 events
     eventHistory = eventHistory.slice(-16);
 
-    (<HTMLDivElement>document.querySelector('#info')).innerText = JSON.stringify(eventHistory, undefined, 4);
+    document.querySelector<HTMLDivElement>('#info').innerText = JSON.stringify(eventHistory, undefined, 4);
 }
 
 // add mapviewchange event listener to the map

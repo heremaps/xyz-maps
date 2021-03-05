@@ -43,7 +43,7 @@ let myLayer = new TileLayer({
 // Add the layer to display
 display.addLayer(myLayer);
 
-(<HTMLButtonElement>document.querySelector('#settagbtn')).onclick = function() {
+document.querySelector<HTMLButtonElement>('#settagbtn').onclick = function() {
     // set tag for SpaceProvider
     // this example displays different kind of Stadium around the world, you could set tags: baseball, soccer, football to filter these stadiums
     mySpaceProvider.setTags(document.querySelector('input').value);

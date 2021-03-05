@@ -122,7 +122,7 @@ editor.addLayer(navlinkLayer);
 /** **/
 
 
-(<HTMLButtonElement>document.querySelector('#createButtonGeo')).onclick = function() {
+document.querySelector<HTMLButtonElement>('#createButtonGeo').onclick = function() {
     // create a Navlink feature with geographical coordinates
     let navlink = editor.addFeature({
         type: 'Feature',
@@ -151,7 +151,7 @@ editor.addLayer(navlinkLayer);
 };
 
 
-(<HTMLButtonElement>document.querySelector('#createButtonPixel')).onclick = function() {
+document.querySelector<HTMLButtonElement>('#createButtonPixel').onclick = function() {
 // create a Navlink feature with pixel coordinates
     editor.addFeature({
         type: 'Feature',

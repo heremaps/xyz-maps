@@ -1,6 +1,6 @@
 import {MVTLayer, TileLayer, SpaceProvider} from '@here/xyz-maps-core';
 import {Map} from '@here/xyz-maps-display';
-import {Editor} from '@here/xyz-maps-editor';
+import {Editor, Navlink} from '@here/xyz-maps-editor';
 
 /** setup the Map **/
 // Create a custom provider.
@@ -147,7 +147,7 @@ const editor = new Editor(display, {layers: [navlinkLayer]});
 
 // add a pointerup event listener
 editor.addEventListener('pointerup', function(e) {
-    let feature = e.target;
+    let feature = <Navlink>e.target;
     // make sure a Navlink feature has been clicked
     if (feature && feature.class == 'NAVLINK') {
         // show the turn restriction editor for the navlink
@@ -163,5 +163,5 @@ editor.addObserver('history.current', function(ob, currentStep, lastStep) {
     });
 
     // update the infobox with the updated turn restrictions
-    (<HTMLDivElement>document.querySelector('#info')).innerText = JSON.stringify(info, null, 4);
+    document.querySelector<HTMLDivElement>('#info').innerText = JSON.stringify(info, null, 4);
 });

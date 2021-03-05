@@ -1,6 +1,6 @@
 import {MVTLayer, TileLayer, SpaceProvider} from '@here/xyz-maps-core';
 import {Map} from '@here/xyz-maps-display';
-import {Editor} from '@here/xyz-maps-editor';
+import {Editor, Line} from '@here/xyz-maps-editor';
 
 /** setup the Map **/
 let backgroundLayer = new MVTLayer({
@@ -40,7 +40,7 @@ const editor = new Editor(display, {layers: [navlinkLayer]});
 
 editor.addEventListener('pointerup', (e) => {
     // get the clicked feature
-    let feature = e.target;
+    let feature = <Line>e.target;
     // check if we clicked a Line feature
     if (feature && feature.class == 'LINE') {
         // start the transformer utility
@@ -50,6 +50,6 @@ editor.addEventListener('pointerup', (e) => {
 
 
 // click the revert button to revert all changes that have been done
-(<HTMLButtonElement>document.querySelector('#revert')).onclick = () => {
+document.querySelector<HTMLButtonElement>('#revert').onclick = () => {
     editor.revert();
 };

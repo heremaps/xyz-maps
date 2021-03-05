@@ -52,7 +52,7 @@ function eventHandler(ev) {
         mapY: ev.mapY
     };
     // display basic event information
-    (<HTMLDivElement>document.querySelector('#info')).innerText = 'Event: ' + JSON.stringify(evtInfo, null, 4);
+    document.querySelector<HTMLDivElement>('#info').innerText = 'Event: ' + JSON.stringify(evtInfo, null, 4);
 }
 
 // add a pointerdown event listener to the map

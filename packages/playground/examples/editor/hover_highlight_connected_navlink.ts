@@ -1,6 +1,6 @@
 import {MVTLayer, TileLayer, SpaceProvider} from '@here/xyz-maps-core';
 import {Map} from '@here/xyz-maps-display';
-import {Editor} from '@here/xyz-maps-editor';
+import {Editor, Marker} from '@here/xyz-maps-editor';
 
 /** setup the Map **/
 
@@ -80,7 +80,7 @@ let hoveredLine;
 
 // add a pointerenter event listener to highlight the "routing link"
 editor.addEventListener('pointerenter', (e) => {
-    const feature = e.target;
+    const feature = <Marker>e.target;
     // check if a point feature has been entered
     if (feature && feature.geometry.type == 'Point') {
         // get the "routing link"

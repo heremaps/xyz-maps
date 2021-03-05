@@ -1,6 +1,6 @@
 import {MVTLayer, TileLayer, SpaceProvider} from '@here/xyz-maps-core';
 import {Map} from '@here/xyz-maps-display';
-import {Editor} from '@here/xyz-maps-editor';
+import {Editor, Navlink} from '@here/xyz-maps-editor';
 
 /** setup the Map **/
 // Create a custom provider.
@@ -195,7 +195,7 @@ let navlink;
 
 // add a pointerup event listener to initialize the input field when a navlink gets clicked
 editor.addEventListener('pointerup', function(event) {
-    let feature = event.target;
+    let feature = <Navlink>event.target;
 
     if (feature && feature.geometry.type == 'LineString') {
         // update the input field with the roadname

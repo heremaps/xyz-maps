@@ -179,7 +179,7 @@ const eventHandler = (ev) => {
         mapX: ev.mapX,
         mapY: ev.mapY
     };
-    (<HTMLDivElement>document.querySelector('#info')).innerText = 'Pointer event: ' + JSON.stringify(evtInfo, null, 4);
+    document.querySelector<HTMLDivElement>('#info').innerText = 'Pointer event: ' + JSON.stringify(evtInfo, null, 4);
 };
 
 // Supported pointer events are 'tap', 'dbltap', 'pointerup', 'pointerenter', 'pointerleave' and 'dragStart', 'dragStop'

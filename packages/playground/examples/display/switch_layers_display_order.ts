@@ -76,14 +76,14 @@ const display = new Map(document.getElementById('map'), {
 /** **/
 
 const updateLayerInfo = () => {
-    (<HTMLDivElement>document.querySelector('#info')).innerText = 'layer order:\n\n' +
+    document.querySelector<HTMLDivElement>('#info').innerText = 'layer order:\n\n' +
         display.getLayers().map((layer, i) => i + ': ' + layer.name).join('\n');
 };
 // show the current layer order
 updateLayerInfo();
 
 // add a onclick event handler to the switchlayerbutton
-(<HTMLButtonElement>document.querySelector('#switchlayerbutton')).onclick = function() {
+document.querySelector<HTMLButtonElement>('#switchlayerbutton').onclick = function() {
     // Get the layer at layer index 1 (middle layer in this layer configuration)
     let layer = display.getLayers(1);
     // remove this layer from current map

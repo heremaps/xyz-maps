@@ -1,6 +1,6 @@
 import {MVTLayer, TileLayer, SpaceProvider} from '@here/xyz-maps-core';
 import {Map} from '@here/xyz-maps-display';
-import {Editor} from '@here/xyz-maps-editor';
+import {Editor, LineShape} from '@here/xyz-maps-editor';
 
 /** setup the Map **/
 let backgroundLayer = new MVTLayer({
@@ -62,7 +62,7 @@ createButton.onclick = function() {
 editor.addEventListener('pointerup', function(event) {
     // make sure its a left click
     if (drawingBoard.isActive() && event.button == 0) {
-        let feature = event.target;
+        let feature = <LineShape>event.target;
 
         if (feature.class == 'LINE_SHAPE') {
             // get the number of shape points

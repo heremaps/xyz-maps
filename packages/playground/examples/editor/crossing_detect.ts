@@ -1,6 +1,6 @@
 import {MVTLayer, TileLayer, SpaceProvider} from '@here/xyz-maps-core';
 import {Map} from '@here/xyz-maps-display';
-import {Editor} from '@here/xyz-maps-editor';
+import {Editor, Crossing} from '@here/xyz-maps-editor';
 
 /** setup the Map **/
 // Create a custom provider.
@@ -127,7 +127,7 @@ let crossings = [];
 let createdNavlink;
 
 // click button to create a navlink with random geometry
-(<HTMLButtonElement>document.querySelector('#createRoad')).onclick = ()=>{
+document.querySelector<HTMLButtonElement>('#createRoad').onclick = () => {
     // clear existing crossings
     for (let i in crossings) crossings[i].hide();
 
@@ -158,7 +158,7 @@ let createdNavlink;
 };
 
 // show all crossings of the just created road with all other roads
-(<HTMLButtonElement>document.querySelector('#showCrossings')).onclick = ()=>{
+document.querySelector<HTMLButtonElement>('#showCrossings').onclick = () => {
     // hide the crossings and revert all changes
     for (var i in crossings) {
         crossings[i].hide();
@@ -176,7 +176,7 @@ let createdNavlink;
 // add a pointerup event listener to show a UI hint and ask
 // if all roads of a crossing should be connected (creates a road-intersection) when a crosssing is clicked
 editor.addEventListener('pointerup', function(event) {
-    let crossing = event.target;
+    let crossing = <Crossing>event.target;
     // make sure a crossing is clicked
     if (crossing && crossing.class.indexOf('CROSSING') > -1) {
         // create the UI hint

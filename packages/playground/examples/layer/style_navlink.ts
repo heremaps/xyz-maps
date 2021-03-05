@@ -36,7 +36,7 @@ const display = new Map(document.getElementById('map'), {
 let highlightedFeature;
 
 // click the button to pick a random line in current viewport and highlight it
-(<HTMLButtonElement>document.querySelector('#style')).onclick = function() {
+document.querySelector<HTMLButtonElement>('#style').onclick = function() {
     if (highlightedFeature) {
         // restore the default style of the previous highlighted line feature
         myLayer.setStyleGroup(highlightedFeature);

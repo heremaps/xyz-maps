@@ -1,6 +1,6 @@
 import {MVTLayer, TileLayer, SpaceProvider} from '@here/xyz-maps-core';
 import {Map} from '@here/xyz-maps-display';
-import {Editor} from '@here/xyz-maps-editor';
+import {Editor, Place} from '@here/xyz-maps-editor';
 
 /** setup the Map **/
 let backgroundLayer = new MVTLayer({
@@ -71,12 +71,12 @@ editor.addEventListener('dragStop', (e)=>{
         buildingLayer.setStyleGroup(highlightedBuilding);
         highlightedBuilding = null;
     }
-
-    let gCoord = e.target.coord();
-    let pCoord = display.geoToPixel(gCoord[0], gCoord[1]);
+    const place = <Place>e.target;
+    const position = place.coord();
+    const screenPosition = display.geoToPixel(position[0], position[1]);
 
     // search for buildings that are located below the current position of the place
-    let searchResults = display.getFeatureAt(pCoord, {layers: [buildingLayer]});
+    const searchResults = display.getFeatureAt(screenPosition, {layers: [buildingLayer]});
 
     if (searchResults) {
         highlightedBuilding = searchResults.feature;

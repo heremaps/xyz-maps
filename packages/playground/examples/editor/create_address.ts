@@ -192,7 +192,7 @@ const editor = new Editor(display, {layers: [myLayer]});
 /** **/
 
 // add points to random position within the current screen
-(<HTMLButtonElement>document.querySelector('#createButtonPixel')).onclick = function() {
+document.querySelector<HTMLButtonElement>('#createButtonPixel').onclick = function() {
     var x = display.getWidth() * Math.random();
     var y = display.getHeight() * Math.random();
 
@@ -201,7 +201,7 @@ const editor = new Editor(display, {layers: [myLayer]});
 };
 
 // add points to random position within the current screen
-(<HTMLButtonElement>document.querySelector('#createButtonGeo')).onclick = function() {
+document.querySelector<HTMLButtonElement>('#createButtonGeo').onclick = function() {
     var viewBounds = display.getViewBounds();
     var lon = viewBounds.minLon + (viewBounds.maxLon - viewBounds.minLon) * Math.random();
     var lat = viewBounds.minLat + (viewBounds.maxLat - viewBounds.minLat) * Math.random();
