@@ -18,7 +18,7 @@
  */
 
 import {DefaultEditorProperties} from './feature/EditorProperties';
-import FeatureContainer from './Container';
+import {Container} from './Container';
 import {geotools} from '@here/xyz-maps-common';
 import {Feature, FeatureProvider, TileLayer, GeoJSONCoordinate, Style, GeoJSONFeature} from '@here/xyz-maps-core';
 
@@ -89,7 +89,7 @@ class Overlay {
         for (let f = 0; f < arguments.length; f++) {
             feature = arguments[f];
 
-            if (feature instanceof FeatureContainer) {
+            if (feature instanceof Container) {
                 feature = feature.toArray();
             }
 
@@ -111,7 +111,7 @@ class Overlay {
         for (let f = 0; f < arguments.length; f++) {
             feature = arguments[f];
 
-            if (feature instanceof FeatureContainer) {
+            if (feature instanceof Container) {
                 feature = feature.toArray();
             }
 
@@ -147,7 +147,7 @@ class Overlay {
     remove(feature) {
         const layer = this.layer;
 
-        if (feature instanceof FeatureContainer) {
+        if (feature instanceof Container) {
             for (let f = 0; f < feature.length; f++) {
                 layer.removeFeature(feature[f]);
             }

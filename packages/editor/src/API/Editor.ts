@@ -37,7 +37,7 @@ import {initHooks} from '../hooks/init';
 import {Feature} from '../features/feature/Feature';
 import {EditorEvent} from './EditorEvent';
 import FeatureSubmitter from '../providers/FeatureSubmitter';
-import FeatureContainer from '../features/Container';
+import {FeatureContainer, Container} from '../features/Container';
 
 import {Address} from '../features/location/Address';
 import {Area} from '../features/area/Area';
@@ -457,8 +457,8 @@ export default class Editor {
      *
      *  @returns feature container
      */
-    createFeatureContainer(...features: Feature[]) {
-        const container = new FeatureContainer(this._i());
+    createFeatureContainer(...features: Feature[]): FeatureContainer {
+        const container = new Container(this._i());
         container.push(features);
         return container;
     }
