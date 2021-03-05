@@ -18,6 +18,18 @@
  */
 
 import {TileLayer} from '@here/xyz-maps-core';
+import {Feature} from '../features/feature/Feature';
+import {Place} from '../features/location/Place';
+import {Address} from '../features/location/Address';
+import {Marker} from '../features/marker/Marker';
+import {Area} from '../features/area/Area';
+import {AreaShape} from '../features/area/AreaShape';
+import {Line} from '../features/line/Line';
+import {LineShape} from '../features/line/LineShape';
+import {Navlink} from '../features/link/Navlink';
+import {NavlinkShape} from '../features/link/NavlinkShape';
+import {Crossing} from '../API/MCrossing';
+
 
 const NULL = null;
 
@@ -70,7 +82,7 @@ export class EditorEvent {
      * e.g. User clicks/taps on a specific Feature on the map.
      * If the event does not refer to any feature, the property is null.
      */
-    readonly target?: any;
+    readonly target?: Place | Address | Marker | Area | AreaShape | Line | LineShape | Navlink | NavlinkShape | Crossing | Feature | null;
 
     /**
      * optional event detail data depending on the type of the event.

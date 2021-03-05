@@ -129,7 +129,7 @@ export class Feature implements GeoJSONFeature {
     /**
      * Get The FeatureProvider where the Feature is stored in.
      */
-    getProvider():FeatureProvider {
+    getProvider(): FeatureProvider {
         return this._provider;
     };
 

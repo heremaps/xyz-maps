@@ -23,6 +23,7 @@ import {Feature as GeoJSONFeature, GeoPoint, EditableRemoteTileProvider, Style} 
 import {EditorProperties, DefaultEditorProperties} from './EditorProperties';
 import {FeatureProperties} from './Properties';
 import InternalEditor from '../../IEditor';
+import {GeoJSONCoordinate} from '@here/xyz-maps-core';
 
 
 type EditableProvider = EditableRemoteTileProvider;
@@ -35,8 +36,6 @@ const cpyCoord = (c) => {
 };
 
 export type EditStates = 'created' | 'modified' | 'removed' | 'split' | 'hovered' | 'selected';
-
-type Coordinate = [number, number, number?];
 
 /**
  * A generic editable map feature with one of the following geometry types: 'Point', 'MultiPoint', 'LineString', 'MultiLineString', 'Polygon', 'MultiPolygon'.
@@ -56,7 +55,7 @@ class Feature extends GeoJSONFeature {
 
     geometry: {
         type: 'Point' | 'MultiPoint' | 'LineString' | 'MultiLineString' | 'Polygon' | 'MultiPolygon',
-        coordinates: Coordinate | Coordinate[] | Coordinate[][] | Coordinate[][][]
+        coordinates: GeoJSONCoordinate | GeoJSONCoordinate[] | GeoJSONCoordinate[][] | GeoJSONCoordinate[][][]
     };
 
     /**
@@ -238,15 +237,15 @@ class Feature extends GeoJSONFeature {
     /**
      *  Get the coordinate(s) of the feature.
      */
-    coord(): Coordinate[] | Coordinate[][] | Coordinate[][][] | Coordinate[][][][];
+    coord(): GeoJSONCoordinate | GeoJSONCoordinate[] | GeoJSONCoordinate[][] | GeoJSONCoordinate[][][] | GeoJSONCoordinate[][][][];
     /**
      *  Set the coordinate(s) of the feature.
      *
      *  @param coordinates - the coordinates that should be set. The coordinates must match features geometry type.
      */
-    coord(coordinates: Coordinate[] | Coordinate[][] | Coordinate[][][] | Coordinate[][][][]);
+    coord(coordinates: GeoJSONCoordinate | GeoJSONCoordinate[] | GeoJSONCoordinate[][] | GeoJSONCoordinate[][][] | GeoJSONCoordinate[][][][]);
 
-    coord(coordinates?: Coordinate[] | Coordinate[][] | Coordinate[][][] | Coordinate[][][][]) {
+    coord(coordinates?: GeoJSONCoordinate | GeoJSONCoordinate[] | GeoJSONCoordinate[][] | GeoJSONCoordinate[][][] | GeoJSONCoordinate[][][][]) {
         const feature = this;
         const geoType = feature.geometry.type;
         let coords;

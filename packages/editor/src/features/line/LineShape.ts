@@ -31,18 +31,29 @@ let UNDEF;
  */
 class LineShape extends Feature {
     private _l: Line;
+
+    /**
+     * The feature class of a LineShape Feature is "LINE_SHAPE".
+     */
     class: string;
+
+    /** @inheritdoc */
     properties: {
         moved: boolean;
         index: number;
         x: number;
         y: number
     };
+
+    /** @inheritdoc */
     geometry: {
+        /** @inheritdoc */
         type: 'Point',
+        /** @inheritdoc */
         coordinates: [number, number, number?]
     };
-    getProvider: () => any;
+
+    // getProvider: () => any;
 
     constructor(line, coordinate, index, lTools) {
         lineTools = lTools;
@@ -73,6 +84,15 @@ class LineShape extends Feature {
      */
     getLine(): Line {
         return this._l;
+    }
+
+    /**
+     *  Get the total number of coordinates of the line
+     *
+     *  @returns Number of coordinates
+     */
+    getLength() {
+        return this._l.geometry.coordinates.length;
     }
 
     /**

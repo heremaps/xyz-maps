@@ -33,6 +33,7 @@ import {Marker} from './features/marker/Marker';
 export * from './features/feature/Feature';
 export * from './features/marker/Marker';
 export * from './features/line/Line';
+export * from './features/line/LineShape';
 export * from './features/area/Area';
 export * from './features/location/Place';
 export * from './features/location/Address';
@@ -40,6 +41,8 @@ export * from './features/link/Navlink';
 export * from './features/area/AreaShape';
 export * from './features/feature/EditorProperties';
 export * from './API/EditorEvent';
+
+export {Crossing} from './API/MCrossing';
 
 const NAVLINK = 'NAVLINK';
 const AREA = 'AREA';

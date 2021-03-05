@@ -20,7 +20,11 @@
 import {Feature} from '../feature/Feature';
 import oTools from './LocationTools';
 import {Navlink} from '../link/Navlink';
+import {GeoJSONCoordinate} from '@here/xyz-maps-core';
 
+/**
+ * @hidden
+ */
 export class Location extends Feature {
     readonly class: 'PLACE' | 'ADDRESS';
 
@@ -28,13 +32,28 @@ export class Location extends Feature {
         super(feature, provider);
     }
 
+    /**
+     *  Get the coordinate(s) of the feature.
+     */
+    coord(): GeoJSONCoordinate;
+    /**
+     *  Set the coordinate(s) of the feature.
+     *
+     *  @param coordinates - the coordinates that should be set.
+     */
+    coord(coordinate: GeoJSONCoordinate);
+
+    coord(ccoordinate?: GeoJSONCoordinate): GeoJSONCoordinate {
+        return super.coord(ccoordinate);
+    }
+
+
     getBBox(): [number, number, number, number] {
         // because poi has display and routing point it's indexed as a line in r-tree for better search..
         // so the real bbox hast to be restored
         const geo = <[number, number]> this.geometry.coordinates;
         return [geo[0], geo[1], geo[0], geo[1]];
     };
-
 
     /**
      *  Get the Navlink Feature that the feature is linked to/ associated with.

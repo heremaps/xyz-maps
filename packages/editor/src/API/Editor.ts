@@ -31,13 +31,20 @@ import {
 import {Map} from '@here/xyz-maps-display';
 import {DrawingBoard} from './DrawingBoard';
 import {Zone, ZoneSelector} from './EZoneSelector';
-import InternalEditor from './../IEditor';
+import InternalEditor from '../IEditor';
 import {mergeOptions, EditorOptions} from './EditorOptions';
-import {initHooks} from './../hooks/init';
-import {Feature} from './../features/feature/Feature';
+import {initHooks} from '../hooks/init';
+import {Feature} from '../features/feature/Feature';
 import {EditorEvent} from './EditorEvent';
 import FeatureSubmitter from '../providers/FeatureSubmitter';
-import SimpleContainer from '../features/Container';
+import FeatureContainer from '../features/Container';
+
+import {Address} from '../features/location/Address';
+import {Area} from '../features/area/Area';
+import {Marker} from '../features/marker/Marker';
+import {Place} from '../features/location/Place';
+import {Line} from '../features/line/Line';
+import {Navlink} from '../features/link/Navlink';
 
 
 type EditableProvider = EditableRemoteTileProvider;
@@ -308,7 +315,7 @@ export default class Editor {
         feature: GeoJSONFeature | Feature,
         layer?: TileLayer,
         origin?: GeoPoint | PixelPoint
-    ): Feature;
+    ): Address | Area | Marker | Place | Line | Navlink;
     /**
      *  Add features to the editor.
      *
@@ -322,7 +329,7 @@ export default class Editor {
         features: GeoJSONFeature | Feature | (GeoJSONFeature | Feature)[],
         layer?: TileLayer,
         origin?: GeoPoint | PixelPoint
-    ): Feature | SimpleContainer;
+    ): Address | Area | Marker | Place | Line | Navlink | FeatureContainer;
 
     /**
      *  Add features to map editor.
@@ -338,7 +345,7 @@ export default class Editor {
         },
         layer?: TileLayer,
         origin?: GeoPoint | PixelPoint
-    ): Feature | SimpleContainer;
+    ): Address | Area | Marker | Place | Line | Navlink | FeatureContainer;
 
     addFeature(feature, layer?, origin?) {
         const iEdit = this._i();
@@ -451,7 +458,7 @@ export default class Editor {
      *  @returns feature container
      */
     createFeatureContainer(...features: Feature[]) {
-        const container = new SimpleContainer(this._i());
+        const container = new FeatureContainer(this._i());
         container.push(features);
         return container;
     }

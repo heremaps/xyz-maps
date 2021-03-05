@@ -30,21 +30,10 @@ import {Navlink} from '@here/xyz-maps-editor';
  * The Feature can be edited with the {@link Editor}.
  */
 class Address extends Location {
-    readonly class: 'ADDRESS';
-
-    // constructor(feature, provider) {
-    //     super(feature, provider);
-    // }
-
-
     /**
-     *  Get the Navlink Feature that the Address is linked to/ associated with.
-     *
-     *  @returns The Navlink Feature.
+     *  The feature class of an Address Feature is "ADDRESS".
      */
-    // @ts-ignore
-    getLink(): Navlink;
-
+    readonly class: 'ADDRESS';
 
     prop(): { [name: string]: any };
     prop(property: string): any;

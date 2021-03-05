@@ -28,6 +28,7 @@ import {Navlink} from '@here/xyz-maps-editor';
  * A Place can be linked/associated with a Navlink Feature.
  *
  * The Feature can be edited with the {@link Editor}.
+ *
  */
 class Place extends Location {
     /**
