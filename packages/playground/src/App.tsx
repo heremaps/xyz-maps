@@ -30,7 +30,7 @@ import ts from 'ts';
 import {MobilePanel} from './components/MobilePanel';
 
 const fetchExample = async (example): Promise<{ title: string, html: string, ts: string }> => {
-    let {file, title, description} = example;
+    let {file, title} = example;
     file = 'examples/' + file + '?ts=' + ts;
     let response = await fetch(file);
     let htmlSource = await response.text();

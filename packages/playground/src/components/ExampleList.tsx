@@ -21,7 +21,7 @@ import './ExampleList.scss';
 import {Slider} from './Slider';
 
 
-export type Example = { title: string, file: string, docs: string, description: string, section: string };
+export type Example = { title: string, file: string, docs: string, section: string };
 
 const ListItem: React.FC = (props: {
     section: number,
