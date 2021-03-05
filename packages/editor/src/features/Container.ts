@@ -27,6 +27,7 @@ let UNDEF;
 /**
  *  A FeatureContainer is a array-like collection of Features.
  *  It enables editing operations to be carried out for all features of the FeatureContainer at the same time.
+ *  @deprecated
  */
 export interface FeatureContainer {
     /**

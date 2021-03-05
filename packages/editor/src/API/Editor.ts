@@ -440,7 +440,7 @@ export default class Editor {
     }
 
     /**
-     *  Get a feature by id and layer.
+     * Get a feature by id and layer.
      *
      *  @param featureId - the id of the feature
      *  @param layerId - the id of the layer or the layer itself to which the feature belongs.
@@ -453,9 +453,10 @@ export default class Editor {
     }
 
     /**
-     *  Create a FeatureContainer.
+     * Create a FeatureContainer.
      *
-     *  @returns feature container
+     * @deprecated
+     * @returns feature container
      */
     createFeatureContainer(...features: Feature[]): FeatureContainer {
         const container = new Container(this._i());
@@ -464,9 +465,9 @@ export default class Editor {
     }
 
     /**
-     *  Clears the current selected feature.
+     * Clears the current selected feature.
      *
-     *  @returns the cleared Feature or null of none is selected.
+     * @returns the cleared Feature or null of none is selected.
      */
     clearFeatureSelection(): Feature | null {
         const cleared = this._i().objects.selection.clearSelected();
@@ -949,7 +950,7 @@ export default class Editor {
     /**
      *  Export data of all modified features.
      *
-     *  @returns A JSON encoded string containing all modified features and its respective layer information.
+     * @returns A JSON encoded string containing all modified features and its respective layer information.
      */
     export(): string {
         const iEditor = this._i();
@@ -959,9 +960,9 @@ export default class Editor {
     }
 
     /**
-     *  Import Features to the editor that have previously been exported with {@link: editor.export}.
+     * Import Features to the editor that have previously been exported with {@link: editor.export}.
      *
-     *  @param json - A JSON encoded string containing all modified features and its respective layer information.
+     * @param json - A JSON encoded string containing all modified features and its respective layer information.
      */
     import(json: string) {
         const iEditor = this._i();

@@ -31,11 +31,12 @@ import {Feature} from '../features/Feature';
  * text: (feature, zoom) => feature.properties.name
  * ```
  */
-export type StyleValueFunction<TYPE> = (feature: Feature, zoom?: number) => TYPE | undefined;
+export type StyleValueFunction<Type> = (feature: Feature, zoom?: number) => Type | undefined;
 
 /**
- * A StyleZoomRange is a Map<number,any> with zoomlevel as its keys and the value for the respective style property at the respective zoomlevel.
+ * A StyleZoomRange is a Map<number,any> with zoomlevel as its keys and the value for the respective {@link Style | Style Property} at the respective zoomlevel.
  * Values for intermediate zoom levels are interpolated linearly.
+ *
  * @example
  * ```typescript
  * strokeWidth: {
@@ -49,7 +50,7 @@ export type StyleValueFunction<TYPE> = (feature: Feature, zoom?: number) => TYPE
  * }
  * ```
  */
-export type StyleZoomRange<TYPE> = { [zoom: number]: TYPE }
+export type StyleZoomRange<Type> = { [zoom: number]: Type }
 
 /**
  * Style object represents supported style attributes of Features. It indicates how a symbolizer in feature should be rendered.
