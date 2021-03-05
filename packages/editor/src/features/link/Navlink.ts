@@ -19,8 +19,7 @@
 
 import CrossingTester from '../../tools/CrossingTester';
 import {Crossing} from '../../API/MCrossing';
-import {TurnRestriction, TurnRestrictions} from './TurnRestriction';
-import TurnRestrictionEditor from '../../tools/turnrestriction/Editor';
+import {TrEditor, TurnRestrictionEditor} from '../../tools/turnrestriction/TrEditor';
 import DirectionHint from '../../tools/DirectionHint';
 import oTools from './NavlinkTools';
 import {Feature} from '../feature/Feature';
@@ -297,37 +296,31 @@ export class Navlink extends Feature {
      *
      * @param index - the index of the node to display the turn restrictions for.
      *
-     * @returns the TurnRestrictions for the respective shape/node.
+     * @returns the TurnRestrictionEditor for the respective shape/node.
      */
-    editTurnRestrictions(index: number): TurnRestrictions;
+    editTurnRestrictions(index: number): TurnRestrictionEditor;
     /**
      * Displays and allows editing of all "turn restrictions" for the start and end node of the Navlink feature.
      *
-     * @returns Array containing the TurnRestrictions for the start-node and end-node (shape-points).
+     * @returns Array containing the TurnRestrictionEditor for the start-node and end-node (shape-points).
      */
-    editTurnRestrictions(): TurnRestrictions[];
+    editTurnRestrictions(): TurnRestrictionEditor[];
 
-    editTurnRestrictions(index?: number): TurnRestrictions | TurnRestrictions[] {
+    editTurnRestrictions(index?: number): TurnRestrictionEditor | TurnRestrictionEditor[] {
         const link = this;
         const p = link.coord();
+        const EDITOR = link._e();
         const idxs = (index == 0 || index == p.length - 1)
             ? [index]
             : index === UNDEF
                 ? [0, p.length - 1]
                 : [];
-        const publicTR = [];
-        const EDITOR = link._e();
 
         EDITOR.listeners.trigger('_clearOverlay');
 
-        // TODO: Refactor TurnRestriction mess
-        for (var i = 0; i < idxs.length; i++) {
-            let turnResEditor = new TurnRestrictionEditor(EDITOR);
-            turnResEditor.showRestrictions(link, idxs[i]);
-            publicTR.push(new TurnRestriction(turnResEditor, link, idxs[i]));
-        }
+        const trEditors = idxs.map((i) => new TrEditor(link, i));
 
-        return index === UNDEF ? publicTR : publicTR[0];
+        return index === UNDEF ? trEditors : trEditors[0];
     };
 
     prop(): { [name: string]: any };

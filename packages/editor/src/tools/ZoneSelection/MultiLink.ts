@@ -23,6 +23,7 @@ import {Line} from '../../features/line/Line';
 import InternalEditor from '../../IEditor';
 import {InternalZoneOptions, Zone} from './Zone';
 import ObjectOverlay from '../../features/Overlay';
+import {Style} from '@here/xyz-maps-core';
 
 
 let UNDEF;
@@ -62,7 +63,7 @@ class MultiLink {
     private feature: any;
     private overlay: ObjectOverlay;
     private completePath: any;
-    private style: { strokeWidth: any; strokeLinejoin: string; strokeLinecap: string; type: string; stroke: any; zIndex: any; strokeDasharray: any }[];
+    private style: Style[];
     links: MultiLinkSegment[] = [];
 
     private iEdit: InternalEditor;

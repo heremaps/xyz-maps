@@ -21,7 +21,7 @@ import {JSUtils, geotools} from '@here/xyz-maps-common';
 import {FeatureProvider, Feature, GeoJSONFeature} from '@here/xyz-maps-core';
 import GeoFence from './GeoFence';
 import {Navlink} from './Navlink';
-import {TurnRestrictions} from './TurnRestriction';
+import {TurnRestrictionEditor} from '../../tools/turnrestriction/TrEditor';
 import {Feature as EditableFeature} from '@here/xyz-maps-editor';
 
 
@@ -450,7 +450,7 @@ class NavlinkShape extends Feature {
      * Show the turn restrictions of the shape and enable editing of the turn-restrictions.
      * Turn restrictions are only available if the shape is a node (start or end point) and part of an intersection with other Navlink features involved.
      */
-    editTurnRestrictions(): TurnRestrictions {
+    editTurnRestrictions(): TurnRestrictionEditor {
         if (this.isNode()) {
             return this.getLink().editTurnRestrictions(this.getIndex())[0];
         }

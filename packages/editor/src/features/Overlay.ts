@@ -20,7 +20,7 @@
 import {DefaultEditorProperties} from './feature/EditorProperties';
 import FeatureContainer from './Container';
 import {geotools} from '@here/xyz-maps-common';
-import {FeatureProvider, TileLayer, GeoJSONCoordinate, Style} from '@here/xyz-maps-core';
+import {Feature, FeatureProvider, TileLayer, GeoJSONCoordinate, Style, GeoJSONFeature} from '@here/xyz-maps-core';
 
 let UNDEF;
 
@@ -125,17 +125,17 @@ class Overlay {
         }
     };
 
-    addFeature(feature, style?) {
-        feature = this.layer.addFeature(feature, prepareStyle(style));
+    addFeature(feature: GeoJSONFeature, style?: Style[]): Feature {
+        const oFeature = this.layer.addFeature(feature, prepareStyle(style));
 
-        feature.properties['@ns:com:here:editor'] =
-            feature.properties['@ns:com:here:editor'] || new DefaultEditorProperties();
+        oFeature.properties['@ns:com:here:editor'] =
+            oFeature.properties['@ns:com:here:editor'] || new DefaultEditorProperties();
 
-        return feature;
+        return oFeature;
     };
 
 
-    addCircle(center, style, props?) {
+    addCircle(center: GeoJSONCoordinate, style: Style[], props?) {
         // style = null -> invisible for display
         return this.addFeature(
             createFeature('Point', center, props),
@@ -168,12 +168,12 @@ class Overlay {
     }
 
 
-    modifyRect(feature, minLon, minLat, maxLon, maxLat) {
+    modifyRect(feature: Feature, minLon: number, minLat: number, maxLon: number, maxLat: number) {
         this.setFeatureCoordinates(feature, createRect(minLon, minLat, maxLon, maxLat));
     }
 
 
-    addRect(minLon, minLat, maxLon, maxLat, style) {
+    addRect(minLon: number, minLat: number, maxLon: number, maxLat: number, style: Style[]) {
         return this.addFeature(
             createFeature('Polygon', createRect(minLon, minLat, maxLon, maxLat)),
             style

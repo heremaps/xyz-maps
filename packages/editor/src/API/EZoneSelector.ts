@@ -39,12 +39,12 @@ export type ZoneSegment = {
     navlink: Navlink
     /**
      * Relative start position on the geometry of the Navlink.
-     * 0 -> 0% -> start, 0.5 -> 50% -> middle, 1 -> 100% -> end
+     * 0 -\> 0% -\> start, 0.5 -\> 50% -\> middle, 1 -\> 100% -\> end
      */
     from: number;
     /**
      * Relative end position on the geometry of the Navlink.
-     * 0.5 -> 50% -> middle, 1 -> 100% -> end
+     * 0.5 -\> 50% -\> middle, 1 -\> 100% -\> end
      */
     to: number;
     /**
@@ -64,20 +64,20 @@ export interface Zone {
     id?: string | number;
     /**
      * Side of the Zone. Relative to the direction of travel of the line geometry.
-     * "L" | "R" | "B" -> Left, Right or Both sides.
+     * "L" | "R" | "B" -\> Left, Right or Both sides.
      *
      * @defaultValue "B"
      */
     side?: 'L' | 'R' | 'B';
     /**
      * Relative start position on the line geometry.
-     * 0 -> 0% -> start, 0.5 -> 50% -> middle, 1 -> 100% -> end
+     * 0 -\> 0% -\> start, 0.5 -\> 50% -\> middle, 1 -\> 100% -\> end
      * @defaultValue 0.0
      */
     from?: number;
     /**
      * Relative end position on the line geometry.
-     * 0.5 -> 50% -> middle, 1 -> 100% -> end
+     * 0.5 -\> 50% -\> middle, 1 -\> 100% -\> end
      * @defaultValue 1.0
      */
     to?: number;
@@ -93,21 +93,21 @@ export interface Zone {
     /**
      * Set an event listener that will be called when a zone drag starts.
      *
-     * @param event The respective event.
+     * @param event - The respective event.
      * The {@link Zone} is provided in the detail property of the event. (event.detail.zone)
      */
     dragStart?: (event: EditorEvent) => void;
     /**
      * Set an event listener that will be called when a zone is dragged.
      *
-     * @param event The respective event.
+     * @param event - The respective event.
      * The {@link Zone} is provided in the detail property of the event. (event.detail.zone)
      */
     dragMove?: (event: EditorEvent) => void;
     /**
      * Set an event listener that will be called when a zone drag has been finished.
      *
-     * @param event The respective event.
+     * @param event - The respective event.
      * The {@link Zone} is provided in the detail property of the event. (event.detail.zone)
      */
     dragStop?: (event: EditorEvent) => void;

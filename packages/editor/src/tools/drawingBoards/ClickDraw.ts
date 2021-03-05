@@ -199,17 +199,19 @@ class ClickDraw {
         this.feature = new this.FeatureClass(overlay, topLeft);
 
         const cursor = overlay.addCircle(topLeft, createShapeStyle(DEFAULT_SHAPE_STYLE, 1));
-
-        cursor.pointerdown = (ev, x, y) => {
+        // @ts-ignore
+        cursor.pointerdown = (ev) => {
             const {properties} = cursor;
             properties.prevPos = iEdit.map.getEventsMapXY(ev);
             board.mousedown = true;
             properties.panned = false;
         };
-        cursor.pressmove = (ev, dx, dy, ax, ay) => {
+        // @ts-ignore
+        cursor.pressmove = (ev) => {
             updateCursor(ev);
             cursor.properties.panned = true;
         };
+        // @ts-ignore
         cursor.pointerup = (ev) => {
             if (!cursor.properties.panned) {
                 board.addShape(iEdit.map.getGeoCoord(ev.mapX, ev.mapY), UNDEF, ev);
@@ -277,7 +279,7 @@ class ClickDraw {
             }));
         }
 
-        return shp;
+        return <DrawingShape>shp;
     };
 
     removeShape(index?: number) {
