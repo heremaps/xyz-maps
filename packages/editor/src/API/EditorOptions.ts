@@ -36,10 +36,10 @@ interface EditorOptions {
      *
      * @param feature - the map feature
      * @param restrictionMask - restrictionMask represents a bitmask for the desired edit operations.
-     *     1  -> GEOMETRY CHANGE
-     *     2  -> REMOVE
+     *     1  -\> GEOMETRY CHANGE
+     *     2  -\> REMOVE
      *
-     * @returns true -> Allow operation(s) and execute edits. false -> forbid operation(s). No edit gets executed.
+     * @returns true -\> Allow operation(s) and execute edits. false -\> forbid operation(s). No edit gets executed.
      *
      * @defaultValue
      */
@@ -48,7 +48,7 @@ interface EditorOptions {
     /**
      * Define the pixel radius of the area within a shape point of a Navlink Feature can be moved by mouse/touch interaction.
      *
-     * @deprecated
+     * @deprecated geoFence not supported.
      * @defaultValue false - deactivated by default.
      */
     geoFence?: number | false;
@@ -64,7 +64,6 @@ interface EditorOptions {
      * If the distance (meters) between two shape-points of two separate Navlink features is smaller or equal than the "autoConnectShapeDistance",
      * the shape-points will be connected automatically.
      *
-     * @optional
      * @defaultValue 2
      */
     autoConnectShapeDistance?: number;
@@ -94,9 +93,9 @@ interface EditorOptions {
 
     /**
      * Keep features selected after mapview-change or click on the "ground" of the map.
-     * if set to false -> will be cleared after viewport change and click on ground.
-     * if set to "viewportChange" -> will only be cleared on ground click.
-     * if set to true -> no clear at all.
+     * if set to false -\> will be cleared after viewport change and click on ground.
+     * if set to "viewportChange" -\> will only be cleared on ground click.
+     * if set to true -\> no clear at all.
      *
      * @defaultValue "viewportChange"
      */
@@ -136,7 +135,7 @@ interface EditorOptions {
              * If "getISOCC" is defined, the iso country code will be attached to all newly created features before sending to remote datasource.
              *
              * @example
-             * ```
+             * ```typescript
              * {
              *     reverseGeocoder:
              *     {
@@ -159,7 +158,7 @@ interface EditorOptions {
      * @internal
      */
     debug?: boolean;
-};
+}
 
 
 const defaultOptions: EditorOptions = {

@@ -37,7 +37,7 @@ class LineShape extends Feature {
      */
     class: string;
 
-    /** @inheritdoc */
+    /** {@inheritdoc} */
     properties: {
         moved: boolean;
         index: number;
@@ -45,11 +45,11 @@ class LineShape extends Feature {
         y: number
     };
 
-    /** @inheritdoc */
+    /** {@inheritdoc} */
     geometry: {
-        /** @inheritdoc */
+        /** {@inheritdoc} */
         type: 'Point',
-        /** @inheritdoc */
+        /** {@inheritdoc} */
         coordinates: [number, number, number?]
     };
 

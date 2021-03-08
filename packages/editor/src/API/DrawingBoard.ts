@@ -61,18 +61,18 @@ class DrawingBoard {
 
     /**
      *  Remove a shape-point.
-     *  If no index is defined, the last added shape-point will be removed.
+     * If no index is defined, the last added shape-point will be removed.
      *
-     *  @param index - the index of the shape-point to be removed.
+     * @param index - the index of the shape-point to be removed.
      */
     removeShape(index?: number) {
         this._a && this._b.removeShape(index);
     };
 
     /**
-     *  Get the total number of coordinates / shape-points of the currently drawn feature.
+     * Get the total number of coordinates / shape-points of the currently drawn feature.
      *
-     *  @returns Number of coordinates
+     * @returns Number of coordinates
      */
     getLength(): number {
         return this._b.getLength();
@@ -80,7 +80,7 @@ class DrawingBoard {
 
 
     /**
-     *  Cancel the current drawing operation.
+     * Cancel the current drawing operation.
      */
     cancel() {
         this._b.hide();
@@ -89,16 +89,16 @@ class DrawingBoard {
 
 
     /**
-     *  Set properties of the feature.
+     * Set properties of the feature.
      *
-     *  @param properties - properties the feature will be created with.
+     * @param properties - properties the feature will be created with.
      */
     setProperties(properties) {
         this._a && this._b.setAttributes(properties);
     };
 
     /**
-     * @deprecated
+     * @deprecated - use setProperties instead.
      */
     setAttributes(p) {
         return this.setProperties(p);
@@ -106,11 +106,11 @@ class DrawingBoard {
 
 
     /**
-     *  Finish current drawing operation and create the drawn feature.
+     * Finish current drawing operation and create the drawn feature.
      *
-     *  @param properties - properties the feature will be created with.
+     * @param properties - properties the feature will be created with.
      *
-     *  @returns the create Feature including the drawn geometry/coordinates
+     * @returns the create Feature including the drawn geometry/coordinates
      */
     create(properties?): Line | Navlink | Area {
         if (this._a) {
@@ -124,24 +124,38 @@ class DrawingBoard {
     };
 
     /**
-     *  Start a new drawing operation to shape/draw the geometry a feature by user interaction with mouse/touch "taps" on the screen.
+     * Start a new drawing operation to shape/draw the geometry a feature by user interaction with mouse/touch "taps" on the screen.
      *
-     *  @param options - options to configure the drawing operation
-     *  @param options.mode - the type of feature that should be drawn.
-     *  @param options.styleGroup - for custom draw styling.
-     *  @param options.position - defines the first coordinate /the starting position.
-     *  @param options.connectTo - the Navlink feature to which the drawn Navlink should connect.
-     *  @param options.layer - the layer where the feature should be created in.
-     *  @param options.onShapeAdd - event listener that's called for each shape-point that's being added by user interaction. The target of the event is the drawn shape-point {@link: editor.DrawingShape}
-     *  @param options.onShapeRemove - function that's called for each shape-point that's being removed by user interaction. The target of the event is the drawn shape-point {@link: editor.DrawingShape}
+     * @param options - options to configure the drawing operation
      */
     start(options: {
+        /**
+         * the type of feature that should be drawn.
+         */
         mode?: 'Area' | 'Line' | 'Navlink', // | Area | Navlink| Line
+        /**
+         * for custom draw styling.
+         */
         styleGroup?: Style[],
+        /**
+         * defines the first coordinate /the starting position.
+         */
         position?: PixelPoint | GeoPoint,
+        /**
+         * the Navlink feature to which the drawn Navlink should connect.
+         */
         connectTo?: Navlink,
+        /**
+         * the layer where the feature should be created in.
+         */
         layer?: TileLayer,
+        /**
+         * event listener that's called for each shape-point that's being added by user interaction. The target of the event is the drawn shape-point {@link DrawingShape}
+         */
         onShapeAdd?: (event:EditorEvent) => void,
+        /**
+         * function that's called for each shape-point that's being removed by user interaction. The target of the event is the drawn shape-point {@link DrawingShape}
+         */
         onShapeRemove?: (event:EditorEvent) => void,
     }) {
         options = options || {};
@@ -184,9 +198,9 @@ class DrawingBoard {
     };
 
     /**
-     *  Get the active state of the drawing board.
+     * Get the active state of the drawing board.
      *
-     *  @returns true when acitve, otherwise false
+     * @returns true when acitve, otherwise false
      */
     isActive(): boolean {
         return this._a;

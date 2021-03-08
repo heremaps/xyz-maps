@@ -74,7 +74,7 @@ interface SpaceProviderOptions extends HTTPProviderOptions {
     /**
      * define property search query to enable remote filtering by property search.
      *
-     * @see https://www.here.xyz/api/devguide/propertiessearch/
+     * @see {@link https://www.here.xyz/api/devguide/propertiessearch/}
      *
      * @defaultValue null
      */
@@ -84,7 +84,7 @@ interface SpaceProviderOptions extends HTTPProviderOptions {
             value: any | any[]
         }
     }
-};
+}
 
 const defaultOptions: SpaceProviderOptions = {
     environment: 'prd',

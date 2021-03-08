@@ -190,7 +190,7 @@ abstract class HTTPProvider extends EditableRemoteTileProvider {
      * If undefined is set the parameter get's cleared/removed.
      *
      * @param name - The name of the parameter whose value is to be set.
-     * @param {string|string[]|undefined} value - The value(s) of the parameter.
+     * @param value - The value(s) of the parameter.
      */
     setParam(name: string, value: string | string[] | undefined) {
         let params = {};

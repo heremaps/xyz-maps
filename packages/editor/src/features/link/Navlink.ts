@@ -72,13 +72,11 @@ export class Navlink extends Feature {
      * Checks for possible crossing geometry with other Navlink features.
      *
      * @param option - options to configure the crossing check.
-     * @param option.class - Class of crossing (CROSSING|CROSSING_CANDIDATE) to check for
-     * @param option.styles - Style of the crossings they should be displayed with. 6 configurable styling objects('connector1', 'connector2', 'connector3', 'search1', 'search2', 'found') comprise a crossing.
      *
      * @returns array of found crossings
      *
      * @example
-     * ```
+     * ```typescript
      * crossing.checkCrossings({
      *    type: "CROSSING",
      *        styles: {
@@ -89,7 +87,13 @@ export class Navlink extends Feature {
      * ```
      */
     checkCrossings(option: {
+        /**
+         * Class of the crossing to check for. If no class is defined 'CROSSING' and 'CROSSING_CANDIDATE' is checked for.
+         */
         class?: 'CROSSING' | 'CROSSING_CANDIDATE',
+        /**
+         * Style of the crossings they should be displayed with. 6 configurable styling objects('connector1', 'connector2', 'connector3', 'search1', 'search2', 'found') comprise a crossing.
+         */
         styles?: {
             connector1?: Style
             connector2?: Style,
@@ -140,7 +144,7 @@ export class Navlink extends Feature {
     /**
      * Sets the radius of the geofence.
      *
-     * @deprecated
+     * @deprecated - geofence not supported
      * @param radius - The geofence radius in pixel.
      *
      */
@@ -176,7 +180,7 @@ export class Navlink extends Feature {
      * Get connected Navlink Features for the node.
      * A node is either the Start or End coordinate of the Navlink (LineString) geometry.
      *
-     * @param index - coordinate index for shape/node. 0 -> "start node", or index of last coordinate for the "end node".
+     * @param index - coordinate index for shape/node. 0 -\> "start node", or index of last coordinate for the "end node".
      *
      * @returns Array that's containing the connected Navlink Features.
      */
@@ -185,7 +189,7 @@ export class Navlink extends Feature {
      * Get connected Navlink Features for the node.
      * A node is either the Start or End coordinate of the Navlink (LineString) geometry.
      *
-     * @param index - coordinate index for shape/node. 0 -> "start node", or index of last coordinate for the "end node".
+     * @param index - coordinate index for shape/node. 0 -\> "start node", or index of last coordinate for the "end node".
      * @param details - flag to enable detailed information of the connected Navlinks.
      *
      * @returns Array of detailed connected Navlink information including the shape/node index of connected link.

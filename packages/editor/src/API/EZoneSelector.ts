@@ -30,7 +30,7 @@ import {EditorEvent} from './EditorEvent';
 let UNDEF;
 
 /**
- * A ZoneSegment is the part of a "Zone" that`s located at a specific Navlink.
+ * A ZoneSegment is the part of a "Zone" that's located at a specific Navlink.
  */
 export type ZoneSegment = {
     /**

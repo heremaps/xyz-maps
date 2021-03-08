@@ -223,8 +223,8 @@ export class TileLayer {
      * Remove an EventListener from the layer.
      * Valid events: "featureAdd", "featureRemove", "featureCoordinatesChange", "clear", "styleGroupChange", "styleChange", and "viewportReady"
      *
-     * @param {String} type - A string which specifies the type of event for which to remove an event listener.
-     * @param {Function} listener - The listener function of the event handler to remove from the TileLayer.
+     * @param type - A string which specifies the type of event for which to remove an event listener.
+     * @param listener - The listener function of the event handler to remove from the TileLayer.
      */
     removeEventListener(type: string, listener: (event: CustomEvent) => void)
 
@@ -527,7 +527,7 @@ export class TileLayer {
      * @param options - configure the search
      *
      * @example
-     * ```
+     * ```typescript
      * layer.search(1058507462)
      *
      * // remote search:
@@ -537,7 +537,7 @@ export class TileLayer {
      *  // search result is only return in this callback function if features are not found in cache.
      * }
      * })
-     *
+     * ```
      */
     search(id: string | number, options?: {
         /**

@@ -140,35 +140,48 @@ export abstract class EditableRemoteTileProvider extends EditableFeatureProvider
 
 
     /**
-     *  Gets features from provider by id.
+     * Gets features from provider by id.
      *
-     *  @param ids - array of feature ids to search for.
-     *  @param options - search options
-     *  @param options.remote -  Force the provider to do remote search if no result is found in local cache.
-     *  @param options.onload - Callback function for "remote" search.
+     * @param ids - array of feature ids to search for.
+     * @param options - search options
      *
-     *  @returns if just a single feature is found its getting returned otherwise an array of features or undefined if none is found.
+     * @returns if just a single feature is found its getting returned otherwise an array of features or undefined if none is found.
      */
     getFeatures(ids: number[] | string[], options?: {
+        /**
+         * Force the provider to do remote search if no result is found in local cache.
+         */
         remote?: boolean,
+        /**
+         * Callback function for "remote" search.
+         * @param result - array of Features containing the search result.
+         */
         onload?: (result: Feature[] | null) => void
     });
     /**
-     *  Gets features from provider by id.
+     * Gets features from provider by id.
      *
-     *  @param ids - array of feature ids to search for.
-     *  @param options - search options
-     *  @param options.id - search for a single feature by id
-     *  @param options.ids - array of ids to search for multiple features
-     *  @param options.remote -  Force the provider to do remote search if no result is found in local cache.
-     *  @param options.onload - Callback function for "remote" search.
+     * @param options - search options
      *
-     *  @returns if just a single feature is found its getting returned otherwise an array of features or undefined if none is found.
+     * @returns if just a single feature is found its getting returned otherwise an array of features or undefined if none is found.
      */
     getFeatures(options: {
+        /**
+         * search for a single feature by id
+         */
         id?: number | string,
+        /**
+         * array of ids to search for multiple features
+         */
         ids?: number[] | string[],
+        /**
+         * Force the provider to do remote search if no result is found in local cache
+         */
         remote?: boolean,
+        /**
+         * Callback function for "remote" search
+         * @param result - Result array of features
+         */
         onload?: (result: Feature[] | null) => void
     });
     getFeatures(ids, options?) {
@@ -337,13 +350,7 @@ export abstract class EditableRemoteTileProvider extends EditableFeatureProvider
      * Search for feature(s) in the provider.
      *
      * @param options - configure the search
-     * @param options.id - search feature by id.
-     * @param options.ids - Array of feature ids to search.
-     * @param options.point - Geographical center point of the circle to search in. options.radius must be defined.
-     * @param options.radius - Radius of the circle in meters, it is used in "point" search.
-     * @param options.rect - Geographical Rectangle to search in. [minLon, minLat, maxLon, maxLat] | GeoRect.
-     * @param options.remote - Force the data provider(s) to do remote search if no result is found in local cache.
-     * @param options.onload - Callback function for "remote" search.
+     *
      * @example
      * ```
      * // searching by id:
@@ -374,12 +381,34 @@ export abstract class EditableRemoteTileProvider extends EditableFeatureProvider
      * @returns array containing the searched features
      */
     search(options: {
+        /**
+         * search feature by id.
+         */
         id?: number | string,
+        /**
+         * Array of feature ids to search.
+         */
         ids?: number[] | string[],
+        /**
+         * Geographical center point of the circle to search in. options.radius must be defined.
+         */
         point?: GeoPoint | GeoJSONCoordinate,
+        /**
+         * Radius of the circle in meters, it is used in "point" search.
+         */
         radius?: number,
+        /**
+         * Geographical Rectangle to search in. [minLon, minLat, maxLon, maxLat] | GeoRect.
+         */
         rect?: GeoRect | GeoJSONBBox
+        /**
+         * Force the data provider(s) to do remote search if no result is found in local cache.
+         */
         remote?: boolean,
+        /**
+         * Callback function for "remote" search.
+         * @param result - Array of Features containing the search results.
+         */
         onload?: (result: Feature[] | null) => void
     }): Feature[];
 
@@ -387,9 +416,6 @@ export abstract class EditableRemoteTileProvider extends EditableFeatureProvider
      * Point Search for feature(s) in provider.
      * @param point - Geographical center point of the point to search in. options.radius must be defined.
      * @param options - configure the search
-     * @param options.radius - "radius" is mandatory for point search.
-     * @param options.remote - Force the data provider(s) to do remote search if no result is found in local cache.
-     * @param options.onload - Callback function for "remote" search.
      *
      * @example
      * ```
@@ -403,8 +429,18 @@ export abstract class EditableRemoteTileProvider extends EditableFeatureProvider
      * ```
      */
     search(point: GeoPoint, options?: {
+        /**
+         * the radius of the circular area in meters to search in
+         */
         radius: number,
+        /**
+         * Force the data provider(s) to do remote search if no result is found in local cache.
+         */
         remote?: boolean,
+        /**
+         * Callback function for "remote" search.
+         * @param result - Array of Features containing the search results.
+         */
         onload?: (result: Feature[] | null) => void
     }): Feature[];
 
@@ -412,8 +448,6 @@ export abstract class EditableRemoteTileProvider extends EditableFeatureProvider
      * Rectangle Search for feature(s) in the provider.
      * @param rect - Geographical Rectangle to search in. [minLon, minLat, maxLon, maxLat] | GeoRect.
      * @param options - configure the search
-     * @param options.remote - Force the data provider(s) to do remote search if no result is found in local cache.
-     * @param options.onload - Callback function for "remote" search.
      *
      * @example
      * ```
@@ -433,7 +467,14 @@ export abstract class EditableRemoteTileProvider extends EditableFeatureProvider
      * ```
      */
     search(rect: GeoRect | GeoJSONBBox, options?: {
+        /**
+         * Force the data provider(s) to do remote search if no result is found in local cache.
+         */
         remote?: boolean,
+        /**
+         * Callback function for "remote" search.
+         * @param result - Array of Features containing the search results.
+         */
         onload?: (result: Feature[] | null) => void
     }): Feature[];
 
@@ -442,8 +483,6 @@ export abstract class EditableRemoteTileProvider extends EditableFeatureProvider
      *
      * @param id - id of the feature to search for
      * @param options - configure the search
-     * @param options.remote - Force the data provider(s) to do remote search if no result is found in local cache.
-     * @param options.onload - Callback function for "remote" search.
      *
      * @example
      * ```
@@ -456,11 +495,17 @@ export abstract class EditableRemoteTileProvider extends EditableFeatureProvider
      *  // search result is only return in this callback function if features are not found in cache.
      * }
      * })
-     *
+     * ```
      */
     search(id: string | number, options?: {
-        radius: number,
+        /**
+         * Force the data provider(s) to do remote search if no result is found in local cache.
+         */
         remote?: boolean,
+        /**
+         * Callback function for "remote" search.
+         * @param result - Array of Features containing the search results.
+         */
         onload?: (result: Feature) => void
     }): Feature[];
 
@@ -869,12 +914,19 @@ export abstract class EditableRemoteTileProvider extends EditableFeatureProvider
      *  Commit modified/removed features to the remote backend.
      *
      *  @param data - the data that should be commit to the remote.
-     *  @param data.put - features that should be created or updated
-     *  @param data.remove - features that should be removed
      *  @param onSuccess - callback function that will be called when data has been commit successfully
      *  @param onError - callback function that will be called when an error occurs
      */
-    abstract commit(data: { put?: GeoJSONFeature[], remove?: GeoJSONFeature[] }, onSuccess?, onError?, transactionId?: string);
+    abstract commit(data: {
+        /**
+         * features that should be created or updated
+         */
+        put?: GeoJSONFeature[],
+        /**
+         * features that should be removed
+         */
+        remove?: GeoJSONFeature[]
+    }, onSuccess?, onError?, transactionId?: string);
 
     readDirection(link: Feature): 'BOTH' | 'START_TO_END' | 'END_TO_START' {
         throw new Error(METHOD_NOT_IMPLEMENTED);

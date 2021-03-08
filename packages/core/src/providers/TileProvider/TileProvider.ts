@@ -32,7 +32,7 @@ const intersectBBox = (ax, ax2, ay, ay2, bx, bx2, by, by2) => {
 };
 
 /**
- *  The TileProvider is an abstract Provider that serves map-data partitioned in {@link:Tiles};
+ * The TileProvider is an abstract Provider that serves map-data partitioned in {@link Tiles}.
  */
 export default abstract class TileProvider {
     __type: string;
@@ -42,12 +42,12 @@ export default abstract class TileProvider {
     id?: string;
 
     /**
-     *  The name of the Provider.
+     * The name of the Provider.
      */
     name?: string;
 
     /**
-     *  default tile margin.
+     * default tile margin.
      */
     margin?: number = 0;
 
@@ -82,7 +82,7 @@ export default abstract class TileProvider {
 
 
     /**
-     *  @param options - options to configure the provider
+     * @param options - options to configure the provider
      */
     constructor(options: TileProviderOptions) {
         const provider = this;
@@ -140,15 +140,15 @@ export default abstract class TileProvider {
      * Remove an EventListener from the provider.
      * Valid events:  "clear" and "error"
      *
-     * @param {String} type - A string which specifies the type of event for which to remove an event listener.
-     * @param {Function} listener - The listener function of the event handler to remove from the provider.
+     * @param type - A string which specifies the type of event for which to remove an event listener.
+     * @param listener - The listener function of the event handler to remove from the provider.
      */
     removeEventListener(type: string, listener: (e: CustomEvent) => void, _c?) {
         return this.listeners.remove(type, listener, _c);
     }
 
     /**
-     *  Clear all features in.
+     * Clear all features in.
      */
     clear(bbox?) {
         this.storage.clear();
@@ -176,11 +176,11 @@ export default abstract class TileProvider {
     };
 
     /**
-     *  get cached tile by bounding box.
+     * get cached tile by bounding box.
      *
-     *  @param bbox - array of coordinates in order: [minLon, minLat, maxLon, maxLat]
-     *  @param zoomlevel - get tiles at specified tileMargin
-     *  @returns array of {@link: Tiles}
+     * @param bbox - array of coordinates in order: [minLon, minLat, maxLon, maxLat]
+     * @param zoomlevel - get tiles at specified tileMargin
+     * @returns array of {@link Tiles}
      */
     getCachedTilesOfBBox(bbox: number[], zoomlevel?: number): Tile[] {
         const minLon = bbox[0];
@@ -208,9 +208,9 @@ export default abstract class TileProvider {
     };
 
     /**
-     *  Set config for provider.
+     * Set config for provider.
      *
-     *  @param options - options to set
+     * @param options - options to set
      */
     config(options: TileProviderOptions) {
         options = options || {};
@@ -222,9 +222,9 @@ export default abstract class TileProvider {
     };
 
     /**
-     *  Create a new Tile.
+     * Create a new Tile.
      *
-     *  @param quadkey - the quadkey of the tile to create
+     * @param quadkey - the quadkey of the tile to create
      */
     createTile(quadkey: string): Tile {
         const tile = new this.Tile(

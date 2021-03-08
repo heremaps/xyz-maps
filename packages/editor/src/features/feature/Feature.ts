@@ -59,8 +59,8 @@ class Feature extends GeoJSONFeature {
     };
 
     /**
-     *  The Feature class of the feature.
-     *  The value must be one of "NAVLINK", "ADDRESS", "PLACE", "AREA" or "MARKER".
+     * The Feature class of the feature.
+     * The value must be one of "NAVLINK", "ADDRESS", "PLACE", "AREA" or "MARKER".
      */
     class: string;
 
@@ -127,20 +127,20 @@ class Feature extends GeoJSONFeature {
     // class: null
 
     /**
-     *  Get default or current style of the feature.
+     * Get default or current style of the feature.
      *
-     *  @deprecated
-     *  @defaultValue "default"
-     *  @param type - indicates which style to return. "default" -> layer default style for the feature or the "current" applied style.
+     * @deprecated - use layer.setStyleGroup instead
+     * @defaultValue "default"
+     * @param type - indicates which style to return. "default" -\> layer default style for the feature or the "current" applied style.
      *
-     *  @returns the style of the feature
+     * @returns the style of the feature
      */
     style(type: 'default' | 'current'): Style[];
     /**
-     *  Apply style to the feature.
+     * Apply style to the feature.
      *
-     *  @deprecated
-     *  @param style - the style to set for the feature
+     * @deprecated - use layer.setStyleGroup instead
+     * @param style - the style to set for the feature
      */
     style(style: Style[]);
 
@@ -169,7 +169,7 @@ class Feature extends GeoJSONFeature {
     prop(property: string): any;
 
     /**
-     *  Set the value for an specific property
+     * Set the value for an specific property
      *
      * @param property - name of the property
      * @param value - the value that should be set for the property
@@ -177,8 +177,8 @@ class Feature extends GeoJSONFeature {
     prop(property: string, value: any): void;
 
     /**
-     *  Set one or more properties of the object.
-     *  @param properties - the properties object literal that should be merged with the existing properties.
+     * Set one or more properties of the object.
+     * @param properties - the properties object literal that should be merged with the existing properties.
      */
     prop(properties: { [name: string]: any }): void;
 
@@ -235,13 +235,13 @@ class Feature extends GeoJSONFeature {
     };
 
     /**
-     *  Get the coordinate(s) of the feature.
+     * Get the coordinate(s) of the feature.
      */
     coord(): GeoJSONCoordinate | GeoJSONCoordinate[] | GeoJSONCoordinate[][] | GeoJSONCoordinate[][][] | GeoJSONCoordinate[][][][];
     /**
-     *  Set the coordinate(s) of the feature.
+     * Set the coordinate(s) of the feature.
      *
-     *  @param coordinates - the coordinates that should be set. The coordinates must match features geometry type.
+     * @param coordinates - the coordinates that should be set. The coordinates must match features geometry type.
      */
     coord(coordinates: GeoJSONCoordinate | GeoJSONCoordinate[] | GeoJSONCoordinate[][] | GeoJSONCoordinate[][][] | GeoJSONCoordinate[][][][]);
 
@@ -277,7 +277,7 @@ class Feature extends GeoJSONFeature {
     };
 
     /**
-     *  Define if the feature should be editable by the Editor module or not.
+     * Define if the feature should be editable by the Editor module or not.
      *
      * @param editable - True, the feature can be edited, otherwise false.
      *
@@ -296,15 +296,15 @@ class Feature extends GeoJSONFeature {
     };
 
     /**
-     *  Select and highlight the feature.
-     *  Selected features geometry is displayed and can easily be modified by mouse/touch interaction.
+     * Select and highlight the feature.
+     * Selected features geometry is displayed and can easily be modified by mouse/touch interaction.
      */
     select() {
         oTools._select(this);
     };
 
     /**
-     *  Unselect the feature.
+     * Unselect the feature.
      */
     unselect() {
         if (oTools.private(this, 'isSelected')) {
@@ -313,14 +313,14 @@ class Feature extends GeoJSONFeature {
     };
 
     /**
-     *  Enable Transform Utility to allow easy geometry transformation of the feature (move/scale/rotate) by mouse/touch interaction.
+     * Enable Transform Utility to allow easy geometry transformation of the feature (move/scale/rotate) by mouse/touch interaction.
      */
     transform() {
         this._e().transformer.show(this);
     };
 
     /**
-     *  Remove the feature.
+     * Remove the feature.
      */
     remove() {
         this._e().objects.remove(this, {

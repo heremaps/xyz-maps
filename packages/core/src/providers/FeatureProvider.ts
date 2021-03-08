@@ -214,8 +214,8 @@ export class FeatureProvider extends Provider {
      * Remove an EventListener from the provider.
      * Valid events: "featureAdd", "featureRemove", "featureCoordinatesChange", "clear" and "error"
      *
-     * @param {String} type - A string which specifies the type of event for which to remove an event listener.
-     * @param {Function} listener - The listener function of the event handler to remove from the provider.
+     * @param type - A string which specifies the type of event for which to remove an event listener.
+     * @param listener - The listener function of the event handler to remove from the provider.
      */
     removeEventListener(type: string, listener: (event: CustomEvent) => void, _c?) {
         // @ts-ignore
@@ -223,7 +223,7 @@ export class FeatureProvider extends Provider {
     };
 
     /**
-     *  Get all the features that are currently present in the provider.
+     * Get all the features that are currently present in the provider.
      */
     all(): Feature[] {
         const prov = this;
@@ -347,13 +347,9 @@ export class FeatureProvider extends Provider {
      * Search for feature(s) in the provider.
      *
      * @param options - configure the search
-     * @param options.id - search feature by id.
-     * @param options.ids - Array of feature ids to search.
-     * @param options.point - Geographical center point of the point to search in. options.radius must be defined.
-     * @param options.radius - Radius of the point in meters, it is used in "point" search.
-     * @param options.rect - Geographical Rectangle to search in. [minLon, minLat, maxLon, maxLat] | GeoRect.
+     *
      * @example
-     * ```
+     * ```typescript
      * // searching by id:
      * layer.search({id: 1058507462})
      * // or:
@@ -373,10 +369,25 @@ export class FeatureProvider extends Provider {
      * @returns array of features
      */
     search(options: {
+        /**
+         * search feature by id.
+         */
         id?: number | string,
+        /**
+         * Array of feature ids to search.
+         */
         ids?: number[] | string[],
+        /**
+         * Geographical center point of the point to search in. options.radius must be defined.
+         */
         point?: GeoPoint,
+        /**
+         * Radius of the point in meters, it is used in "point" search.
+         */
         radius?: number,
+        /**
+         * Geographical Rectangle to search in. [minLon, minLat, maxLon, maxLat] | GeoRect.
+         */
         rect?: GeoRect | GeoJSONBBox
     }): Feature[];
 
@@ -384,10 +395,9 @@ export class FeatureProvider extends Provider {
      * Point Search for feature(s) in provider.
      * @param point - Geographical center point of the point to search in. options.radius must be defined.
      * @param options - configure the search
-     * @param options.radius - "radius" is mandatory for point search.
      *
      * @example
-     * ```
+     * ```typescript
      * layer.search({longitude: 72.84205, latitude: 18.97172},{
      *  radius: 100
      * })
@@ -397,7 +407,12 @@ export class FeatureProvider extends Provider {
      * })
      * ```
      */
-    search(point: GeoPoint, options?: { radius: number }): Feature[];
+    search(point: GeoPoint, options?: {
+        /**
+         * The radius of the circular area in meters to search in.
+         */
+        radius: number
+    }): Feature[];
 
     /**
      * Rectangle Search for feature(s) in provider.

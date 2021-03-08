@@ -5,7 +5,7 @@
  * you may not use this file except in compliance with the License.
  * You may obtain a copy of the License at
  *
- *     http://www.apache.org/licenses/LICENSE-2.0
+ *    http://www.apache.org/licenses/LICENSE-2.0
  *
  * Unless required by applicable law or agreed to in writing, software
  * distributed under the License is distributed on an "AS IS" BASIS,
@@ -16,7 +16,9 @@
  * SPDX-License-Identifier: Apache-2.0
  * License-Filename: LICENSE
  */
-;
+import {GeoJSONFeature} from '@here/xyz-maps-core';
+
+
 import {JSUtils, Queue} from '@here/xyz-maps-common';
 
 
@@ -70,8 +72,8 @@ const createOptions = (options, preProcessor?) => {
 type ErrorEventHandler = (error) => void;
 
 /**
- *  A SpaceProvider is a remote HTTPProvider designed to work with XYZ-Hub remote backend.
- *  @see https://xyz.api.here.com/hub/static/redoc/
+ * A SpaceProvider is a remote HTTPProvider designed to work with XYZ-Hub remote backend.
+ * @see {@link https://xyz.api.here.com/hub/static/redoc/}
  */
 export class SpaceProvider extends GeoJSONProvider {
     private tags: string[];
@@ -110,15 +112,22 @@ export class SpaceProvider extends GeoJSONProvider {
     };
 
     /**
-     *  Commit modified/removed features to the remote backend.
+     * Commit modified/removed features to the remote backend.
      *
-     *  @param data - the data that should be commit to the remote.
-     *  @param data.put - features that should be created or updated
-     *  @param data.remove - features that should be removed
-     *  @param onSuccess - callback function that will be called when data has been commit successfully
-     *  @param onError - callback function that will be called when an error occurs
+     * @param data - the data that should be commit to the remote.
+     * @param onSuccess - callback function that will be called when data has been commit successfully
+     * @param onError - callback function that will be called when an error occurs
      */
-    commit(features: PostProcesserInput, onSuccess?, onError?) {
+    commit(data: {
+        /**
+         * features that should be created or updated
+         */
+        put?: GeoJSONFeature[],
+        /**
+         * features that should be removed
+         */
+        remove?: GeoJSONFeature[]
+    }, onSuccess?, onError?) {
         const prov = this;
         const loaders = prov.loader.src;
         const loader = loaders[loaders.length - 1];
@@ -138,9 +147,9 @@ export class SpaceProvider extends GeoJSONProvider {
             }
         };
 
-        if (typeof features == 'object') {
-            const putFeatures = features.put || [];
-            const removeFeatures = features.remove || [];
+        if (typeof data == 'object') {
+            const putFeatures = data.put || [];
+            const removeFeatures = data.remove || [];
 
             if (putFeatures.length) {
                 total++;
@@ -161,20 +170,20 @@ export class SpaceProvider extends GeoJSONProvider {
     };
 
     /**
-     *  Get URL for layer specific requests.
+     * Get URL for layer specific requests.
      *
-     *  @param space - Name of the XYZ-Hub Space.
-     *  @returns url string to receive a layer resource of the remote http backend
+     * @param space - Name of the XYZ-Hub Space.
+     * @returns url string to receive a layer resource of the remote http backend
      */
     getLayerUrl(space: string) {
         return this.url + '/' + space;
     };
 
     /**
-     *  Get URL for tile specific requests.
+     * Get URL for tile specific requests.
      *
-     *  @param space - Name of the XYZ-Hub Space.
-     *  @returns url string to receive a tile resource of the remote http backend
+     * @param space - Name of the XYZ-Hub Space.
+     * @returns url string to receive a tile resource of the remote http backend
      */
     getTileUrl(space: string) {
         return this._addUrlFilters(
@@ -185,12 +194,12 @@ export class SpaceProvider extends GeoJSONProvider {
     };
 
     /**
-     *  Get the URL for feature specific requests.
+     * Get the URL for feature specific requests.
      *
-     *  @param space - Name of the XYZ-Hub Space.
-     *  @param ids - id(s) of the feature(s) the provider want's to request
+     * @param space - Name of the XYZ-Hub Space.
+     * @param ids - id(s) of the feature(s) the provider want's to request
      *
-     *  @returns url string to receive the feature resource of the remote http backend
+     * @returns url string to receive the feature resource of the remote http backend
      */
     getFeatureUrl(space: string, ids: FeatureId | FeatureId[]) {
         if (!(ids instanceof Array)) {
@@ -263,11 +272,11 @@ export class SpaceProvider extends GeoJSONProvider {
     };
 
     /**
-     *  Set tags to filtering results based on tags in Hub backend.
-     *  After setting tags, provider will clear all features and data will be
-     *  requested from hub including the new tag filter.
+     * Set tags to filtering results based on tags in Hub backend.
+     * After setting tags, provider will clear all features and data will be
+     * requested from hub including the new tag filter.
      *
-     *  @param tags - the tag(s) that will be send to xyz-hub endpoint
+     * @param tags - the tag(s) that will be send to xyz-hub endpoint
      */
     setTags(tags: string | string[]) {
         if (typeof tags == 'string') {
@@ -282,23 +291,23 @@ export class SpaceProvider extends GeoJSONProvider {
     };
 
     /**
-     *  Sets result filtering based on properties search in Hub backend.
-     *  {@link https://www.here.xyz/api/devguide/propertiessearch/}
+     * Sets result filtering based on properties search in Hub backend.
+     * {@link https://www.here.xyz/api/devguide/propertiessearch/}
      *
-     *  After setting the property search, the provider will clear all features and data will be
-     *  requested from hub using the property search filter.
-     *  The response will contain only the features matching all conditions in the query.
-     *  If function is called without arguments all filters will be cleared.
+     * After setting the property search, the provider will clear all features and data will be
+     * requested from hub using the property search filter.
+     * The response will contain only the features matching all conditions in the query.
+     * If function is called without arguments all filters will be cleared.
      *
      *
-     *  @param key - the name of property
-     *  @param operator - the operator used
-     *  @param value - value the value to be matched
+     * @param key - the name of property
+     * @param operator - the operator used
+     * @param value - value the value to be matched
      *
-     *  @example
+     * @example
      * ``` javascript
-     *  // response will only contain features that have a property called 'name' with 'FirstName' as it's value
-     *  provider.setPropertySearch('name','=','FirstName')
+     * // response will only contain features that have a property called 'name' with 'FirstName' as it's value
+     * provider.setPropertySearch('name','=','FirstName')
      * ```
      *
      */
@@ -309,37 +318,38 @@ export class SpaceProvider extends GeoJSONProvider {
     ): void;
     /**
      *
-     *  Sets result filtering based on properties search in Hub backend.
-     *  {@link https://www.here.xyz/api/devguide/propertiessearch/}
-     *  After setting the property search, the provider will clear all features and data will be
-     *  requested from hub using the property search filter.
-     *  The response will contain only the features matching all conditions in the query.
-     *  If propertySearchMap is set to null or none is passed all previous set filters will be cleared.
+     * Sets result filtering based on properties search in Hub backend.
+     * {@link https://www.here.xyz/api/devguide/propertiessearch/}
+     * After setting the property search, the provider will clear all features and data will be
+     * requested from hub using the property search filter.
+     * The response will contain only the features matching all conditions in the query.
+     * If propertySearchMap is set to null or none is passed all previous set filters will be cleared.
      *
-     *  @param propertySearchMap - A Map of which the keys are the property names and its values are Objects
-     *  defining the operator ( '=', '!=', '>', '>=', '<', '<=' ) and the value to be matched.
+     * @param propertySearchMap - A Map of which the keys are the property names and its values are Objects
+     * defining the operator ( '=', '!=', '\>', '\>=', '\<', '\<=' ) and the value to be matched.
      *
-     *  @example
-     *  ``` javascript
-     *  // set multiple conditions
-     *  // provider will only contain features that have a property called name with the value Max OR Peter
-     *  // AND a property called age with value less than 32
-     *  provider.setPropertySearch({
-     *      'name': {
-     *          operator: '=',
-     *          value: ['Max','Petra']
-     *      },
-     *      'age': {
-     *          operator: '<',
-     *          value: 32
-     *      }
-     *  })
-     * ```
-     *  @example
+     * @example
      * ``` javascript
-     *  // clear previous set filters
-     *  provider.setPropertySearch(null)
-     *  ```
+     * // set multiple conditions
+     * // provider will only contain features that have a property called name with the value Max OR Peter
+     * // AND a property called age with value less than 32
+     * provider.setPropertySearch({
+     *     'name': {
+     *         operator: '=',
+     *         value: ['Max','Petra']
+     *     },
+     *    'age': {
+     *         operator: '<',
+     *         value: 32
+     *    }
+     * })
+     * ```
+     *
+     * @example
+     * ``` javascript
+     * // clear previous set filters
+     * provider.setPropertySearch(null)
+     * ```
      */
     setPropertySearch(propertySearchMap: {
         [name: string]: {
@@ -399,8 +409,6 @@ export class SpaceProvider extends GeoJSONProvider {
         }
 
         this.psf = filterParamString.slice(0, -1); // slice last '&' character
-
-        console.log(this.psf);
 
         this.setUrl(this.getTileUrl(this.space));
 

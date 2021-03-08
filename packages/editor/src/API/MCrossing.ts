@@ -111,19 +111,19 @@ class Crossing implements GeoJSONFeature {
     readonly class: xClass.CROSSING | xClass.CROSSING_CANDIDATE
 
     /**
-     *  the x coordinate of the crossing on screen in pixel.
-     *  @deprecated
+     * the x coordinate of the crossing on screen in pixel.
+     * @deprecated use display.geoToPixel to project the geographical coordinates of the crossing to pixels on screen.
      */
     readonly x: number;
 
     /**
-     *  the y coordinate of the crossing on screen in pixel.
-     *  @deprecated
+     * the y coordinate of the crossing on screen in pixel.
+     * @deprecated use display.geoToPixel to project the geographical coordinates of the crossing to pixels on screen.
      */
     readonly y: number;
 
     /**
-     *  The distance between two points which will be connected on current and related links.
+     * The distance between two points which will be connected on current and related links.
      */
     readonly distance: number;
 
@@ -286,7 +286,7 @@ class Crossing implements GeoJSONFeature {
     };
 
     /**
-     *  Show the crossing on the map.
+     * Show the crossing on the map.
      */
     show() {
         const crossing = this;

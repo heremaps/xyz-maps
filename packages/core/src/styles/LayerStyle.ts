@@ -34,7 +34,7 @@ import {Feature} from '../features/Feature';
 export type StyleValueFunction<Type> = (feature: Feature, zoom?: number) => Type | undefined;
 
 /**
- * A StyleZoomRange is a Map<number,any> with zoomlevel as its keys and the value for the respective {@link Style | Style Property} at the respective zoomlevel.
+ * A StyleZoomRange is a Map\<number,any\> with zoomlevel as its keys and the value for the respective {@link Style | Style Property} at the respective zoomlevel.
  * Values for intermediate zoom levels are interpolated linearly.
  *
  * @example
@@ -103,7 +103,7 @@ export interface Style {
      * If no zLayer is defined the zLayer depends on the display layer order.
      * The first (lowest) layer has a zLayer value of 1.
      *
-     * @example {...zLayer:2, zIndex:5} will be rendered on top of {...zLayer:1, zIndex:10}
+     * @example \{...zLayer: 2, zIndex: 5\} will be rendered on top of \{...zLayer: 1, zIndex: 10\}
      */
     zLayer?: number | StyleValueFunction<number>;
     /**
@@ -126,7 +126,7 @@ export interface Style {
      * Sets the width of the stroke.
      * This attribute is valid for Circle, Rect, Line, Text and Polygon.
      * The unit of strokeWidth is defined in pixels.
-     * For Styles of type Line the strokeWidth can also be defined in meters by using a string: "${width}m".
+     * For Styles of type Line the strokeWidth can also be defined in meters by using a string: "$\{width\}m".
      * @example
      * ```typescript
      * // define a Line that has a with of 1 meter
@@ -192,7 +192,7 @@ export interface Style {
      * The Radius of the Circle.
      * It is required by styles of type "Circle".
      * The default unit is pixels.
-     * To define the radius in meters a string can be used: "${width}m".
+     * To define the radius in meters a string can be used: "$\{width\}m".
      * @example
      * ```typescript
      * // define a Circle with a radius of 1 meter
@@ -217,7 +217,7 @@ export interface Style {
      * It is only required by Rect and Image.
      * The maximum supported width for "Image" is 64 pixels.
      * The unit of width is defined in pixels.
-     * For styles of type "Rect" the width can also be defined in meters by using a string: "${width}m".
+     * For styles of type "Rect" the width can also be defined in meters by using a string: "$\{width\}m".
      * @example
      * ```typescript
      * // define a Rect that has a width (and height) of 2.2 meter
@@ -245,7 +245,7 @@ export interface Style {
      * It is only required by Rect and Image.
      * The maximum supported height for "Image" is 64 pixels.
      * The unit of height is defined in pixels.
-     * For styles of type "Rect" the height can also be defined in meters by using a string: "${width}m".
+     * For styles of type "Rect" the height can also be defined in meters by using a string: "$\{width\}m".
      * @example
      * ```typescript
      * // define a Rect that has a width of 2 meter and a height of 1 meter.
@@ -328,8 +328,8 @@ export interface Style {
      * Applies to Line style only.
      *
      * @example
-     * from: 0.0 // -> 0%, the segment has the same starting point as the entire line
-     * from:  0.5 // -> 50%, the segment starts in the middle of the entire line
+     * from: 0.0 // -\> 0%, the segment has the same starting point as the entire line
+     * from:  0.5 // -\> 50%, the segment starts in the middle of the entire line
      */
     from?: number | StyleValueFunction<number> | StyleZoomRange<number>;
 
@@ -341,19 +341,45 @@ export interface Style {
      * Applies to Line style only.
      *
      * @example
-     * to: 0.5 // -> 50%, the segment ends in the middle of the entire line
-     * to: 1.0 // -> 100%, the segment has the same end point as the entire line
+     * to: 0.5 // -\> 50%, the segment ends in the middle of the entire line
+     * to: 1.0 // -\> 100%, the segment has the same end point as the entire line
      */
     to?: number | StyleValueFunction<number> | StyleZoomRange<number>;
 
     /**
-     *  Offset the shape in pixels on x-axis.
-     *  It is valid for Circle, Rect, Text and Image.
+     * Offset the shape in pixels on x-axis.
+     * It is valid for Circle, Rect, Text and Image.
+     * A positive value offsets to the right, a negative value to the left.
+     * The default unit is pixels.
+     *
+     * Style of type Circle and Rect also support an offset in meters. e.g offsetX: "1m"
+     *
+     * @example
+     * ```typescript
+     * // offset Image by 8px to the right.
+     * { type: "Image", zIndex: 0, src: '...', offsetX: 8}
+     *
+     * // offset Circle by 1m to the left
+     * { type: "Circle", zIndex: 0, fill:'blue', radius: 4, offsetX: "-1m"}
+     * ```
      */
-    offsetX?: number | StyleValueFunction<number> | StyleZoomRange<number>;
+    offsetX?: number | string | StyleValueFunction<number | string> | StyleZoomRange<number | string>;
     /**
-     *  Offset the shape in pixels on y-axis.
-     *  It is valid for Circle, Rect, Text and Image.
+     * Offset the shape in pixels on y-axis.
+     * It is valid for Circle, Rect, Text and Image.
+     * A positive value offsetY offsets downwards, a negative value upwards.
+     * The default unit is pixels.
+     *
+     * Style of type Circle and Rect also support an offset in meters. e.g offsetY: "1m"
+     *
+     * @example
+     * ```typescript
+     * // offset Image by 8px to the bottom
+     * { type: "Image", zIndex: 0, src: '...', offsetY: 8}
+     *
+     * // offset Circle by 1m to the top
+     * { type: "Circle", zIndex: 0, fill:'blue', radius: 4, offsetY: "-1m"}
+     * ```
      */
     offsetY?: number | StyleValueFunction<number> | StyleZoomRange<number>;
     /**

@@ -77,8 +77,6 @@ const toggleProviderHooks = (toggle: 'add' | 'remove', provider, HERE_WIKI) => {
     }
 };
 
-
-//* *******************************************************************************************************
 const clearTiles = (internalEditor: InternalEditor) => {
     const commited = internalEditor.objects.history.getChanges();
     const clearBBoxes = [];
@@ -265,7 +263,6 @@ export default class Editor {
      *
      * @param type - A string representing the event type to listen for.
      * @param listener - the listener function that will be called when an event of the specific type occurs
-     * //@param {Object=} context The object to which "this" should refer to if the callback method is called.
      */
     addEventListener(type: string, listener: (event: EditorEvent) => void);
 
@@ -294,8 +291,8 @@ export default class Editor {
      * Remove an EventListener from the layer.
      * Valid Events are: "tap", "dbltap", "pointerup", "pointerenter", "pointerleave", "featureUnselected", "error", "dragStart", "dragStop".
      *
-     * @param {String} type - A string which specifies the type of event for which to remove an event listener.
-     * @param {Function} listener - The listener function of the event handler to remove from the editor.
+     * @param type - A string which specifies the type of event for which to remove an event listener.
+     * @param listener - The listener function of the event handler to remove from the editor.
      */
     removeEventListener(type: string, listener: (event: EditorEvent | Error) => void) {
         const {listeners} = this._i();
@@ -455,7 +452,6 @@ export default class Editor {
     /**
      * Create a FeatureContainer.
      *
-     * @deprecated
      * @returns feature container
      */
     createFeatureContainer(...features: Feature[]): FeatureContainer {
@@ -481,17 +477,9 @@ export default class Editor {
      * Search for feature(s) in the provider.
      *
      * @param options - configure the search
-     * @param options.id - search feature by id.
-     * @param options.ids - Array of feature ids to search.
-     * @param options.point - Geographical center point of the circle to search in. options.radius must be defined.
-     * @param options.radius - Radius of the circle in meters, it is used in "point" search.
-     * @param options.rect - Geographical Rectangle to search in. [minLon, minLat, maxLon, maxLat] | GeoRect.
-     * @param options.remote - Force the data provider(s) to do remote search if no result is found in local cache.
-     * @param options.onload - Callback function for "remote" search.
-     * @param options.filter - function for optional result filtering.
-     * @param options.layers - Layers to search in.
+     *
      * @example
-     * ```
+     * ```typescript
      * // searching by id:
      * provider.search({id: 1058507462})
      * // or:
@@ -525,14 +513,41 @@ export default class Editor {
      * @returns array containing the found features
      */
     search(options: {
+        /**
+         * search feature by id.
+         */
         id?: number | string,
+        /**
+         * Array of feature ids to search.
+         */
         ids?: number[] | string[],
+        /**
+         * Geographical center point of the circle to search in. options.radius must be defined.
+         */
         point?: GeoPoint,
+        /**
+         * Radius of the circle in meters, it is used in "point" search.
+         */
         radius?: number,
+        /**
+         * Geographical Rectangle to search in. [minLon, minLat, maxLon, maxLat] | GeoRect.
+         */
         rect?: GeoRect | GeoJSONBBox
+        /**
+         * Force the data provider(s) to do remote search if no result is found in local cache.
+         */
         remote?: boolean,
+        /**
+         * Callback function for "remote" search.
+         */
         onload?: (result: Feature[] | null) => void,
+        /**
+         * function for optional result filtering.
+         */
         filter?: (feature: Feature[]) => boolean,
+        /**
+         * Layers to search in.
+         */
         layers?: TileLayer[]
     }): Feature[] {
         const iEditor = this._i();
@@ -664,22 +679,28 @@ export default class Editor {
      * This method registers an observer for the property named by the caller.
      * Supported observables: 'active', 'ready', 'history.current', 'history.length', 'changes.length'
      *
-     * @param  key - The name of the property to observe.
+     * @param name - The name of the property to observe.
      *
      * @param observer - the observer function that is called when the value of the observable changes.
-     * @param observer.key - the name of the property that was modified, created or deleted
-     * @param observer.value - the new value of the observable property
-     * @param observer.prevValue - the old/previous value of the observable property
      */
     addObserver(
-        key: 'active' | 'ready' | 'history.current' | 'history.length' | 'changes.length',
+        name: 'active' | 'ready' | 'history.current' | 'history.length' | 'changes.length',
         observer: (
-            type: 'active' | 'ready' | 'history.current' | 'history.length' | 'changes.length',
+            /**
+             * the name of the property that was modified, created or deleted
+             */
+            name: 'active' | 'ready' | 'history.current' | 'history.length' | 'changes.length',
+            /**
+             * the new value of the observable property
+             */
             value: any,
+            /**
+             * the old/previous value of the observable property
+             */
             prevValue: any
         ) => void
     ) {
-        this._i().observers.addObserver(key, observer, arguments[2]/* context? */);
+        this._i().observers.addObserver(name, observer, arguments[2]/* context? */);
     }
 
     /**
@@ -696,18 +717,27 @@ export default class Editor {
      * This method removes the observer for the property.
      * Supported observables: 'active', 'ready', 'history.current', 'history.length', 'changes.length'
      *
-     * @param key - The name of the property that should no longer be observed
+     * @param name - The name of the property that should no longer be observed
      * @param observer - The observer function to be removed
      */
     removeObserver(
-        key: 'active' | 'ready' | 'history.current' | 'history.length' | 'changes.length',
+        name: 'active' | 'ready' | 'history.current' | 'history.length' | 'changes.length',
         observer: (
-            type: 'active' | 'ready' | 'history.current' | 'history.length' | 'changes.length',
+            /**
+             * the name of the property that was modified, created or deleted
+             */
+            name: 'active' | 'ready' | 'history.current' | 'history.length' | 'changes.length',
+            /**
+             * the new value of the observable property
+             */
             value: any,
-            oldValue: any
+            /**
+             * the old/previous value of the observable property
+             */
+            prevValue: any
         ) => void
     ) {
-        this._i().observers.removeObserver(key, observer, arguments[2]/* context? */);
+        this._i().observers.removeObserver(name, observer, arguments[2]/* context? */);
     }
 
     /**
@@ -852,17 +882,22 @@ export default class Editor {
     /**
      * Submit changes, return object Ids of submitted objects. Reload and render objects.
      *
-     * @param options
-     * @param options.onSuccess - callback function which returns additional information about the commit process.
-     * @param options.onError - callback function that gets called in case of an error.
-     * @param options.transactionId - transactionId that will be attached to all features of the submit operation.
-     * //@param options.ignoreEventBlock - In some special cases when events are blocked(sync is triggered), set this to true to force commiting objects.
+     * @param options - submit options
      *
      * @returns true, if there are changes to be submitted, false otherwise.
      */
     submit(options: {
+        /**
+         * callback function which returns additional information about the commit process.
+         */
         onSuccess?: (data) => void,
+        /**
+         * callback function that gets called in case of an error.
+         */
         onError?: (Error) => void,
+        /**
+         * transactionId that will be attached to all features of the submit operation.
+         */
         transactionId?: string,
     }): boolean {
         // callback is only called when submitted
@@ -930,9 +965,9 @@ export default class Editor {
     }
 
     /**
-     *  Get information of all modified Features of the editor.
+     * Get information of all modified Features of the editor.
      *
-     *  @returns Array of modified objects.
+     * @returns Array of modified objects.
      */
     info(): Feature[] {
         const iEditor = this._i();
@@ -948,7 +983,7 @@ export default class Editor {
     }
 
     /**
-     *  Export data of all modified features.
+     * Export data of all modified features.
      *
      * @returns A JSON encoded string containing all modified features and its respective layer information.
      */
@@ -960,7 +995,7 @@ export default class Editor {
     }
 
     /**
-     * Import Features to the editor that have previously been exported with {@link: editor.export}.
+     * Import Features to the editor that have previously been exported with {@link Editor.export}.
      *
      * @param json - A JSON encoded string containing all modified features and its respective layer information.
      */
@@ -977,7 +1012,7 @@ export default class Editor {
      * Convert a PixelPoint on the screen or a GeoPoint to a geographical Coordinate in GeoJSON format [number,number,number?].
      *
      * @example
-     * ```
+     * ```typescript
      * // create a Feature at a specific position of the current mapview on the screen.
      * editor.addFeature({
      *     type: 'Feature',
@@ -987,14 +1022,15 @@ export default class Editor {
      *     }
      * })
      * ```
-     * @param coordinates the pixel and/or geographical coordinate(s) to convert.
+     *
+     * @param coordinates - the pixel and/or geographical coordinate(s) to convert.
      */
     toGeoJSONCoordinates(coordinates: PixelPoint | GeoPoint | GeoJSONCoordinate): GeoJSONCoordinate;
     /**
      * Convert PixelPoints or a GeoPoints to a geographical Coordinates in GeoJSON format [number,number,number?].
      *
      * @example
-     * ```
+     * ```typescript
      * // create a Feature at a specific position of the current mapview on the screen.
      * editor.addFeature({
      *     type: 'Feature',
@@ -1004,7 +1040,8 @@ export default class Editor {
      *     }
      * })
      * ```
-     * @param coordinates the pixel and/or geographical coordinate(s) to convert.
+     *
+     * @param coordinates - the pixel and/or geographical coordinate(s) to convert.
      */
     toGeoJSONCoordinates(coordinates: (PixelPoint | GeoPoint | GeoJSONCoordinate)[]): GeoJSONCoordinate[];
     /**
@@ -1023,14 +1060,14 @@ export default class Editor {
      *     }
      * })
      * ```
-     * @param coordinates the pixel and/or geographical coordinate(s) to convert.
+     * @param coordinates - the pixel and/or geographical coordinate(s) to convert.
      */
     toGeoJSONCoordinates(coordinates: (PixelPoint | GeoPoint | GeoJSONCoordinate)[][]): GeoJSONCoordinate[][];
     /**
      * Convert PixelPoints or a GeoPoints to a geographical Coordinates in GeoJSON format [number,number,number?].
      *
      * @example
-     * ```
+     * ```typescript
      * // create a Feature at a specific position of the current mapview on the screen.
      * editor.addFeature({
      *     type: 'Feature',
@@ -1044,7 +1081,7 @@ export default class Editor {
      *     }
      * })
      * ```
-     * @param coordinates the pixel and/or geographical coordinate(s) to convert.
+     * @param coordinates - the pixel and/or geographical coordinate(s) to convert.
      */
     toGeoJSONCoordinates(coordinates: (PixelPoint | GeoPoint | GeoJSONCoordinate)[][][]): GeoJSONCoordinate[][][];
 

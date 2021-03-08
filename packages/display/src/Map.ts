@@ -85,7 +85,7 @@ function calcZoomLevelForBounds(minLon, minLat, maxLon, maxLat, mapWidth, mapHei
     }
 
     return 0;
-};
+}
 
 
 /**
@@ -1133,7 +1133,7 @@ export class Map {
      * Convert a geographical coordinate to a pixel coordinate relative to the current viewport of the map.
      *
      * @param longitude - the longitude
-     * @param latitude -  lat latitude
+     * @param latitude - lat latitude
      *
      * @returns the pixel coordinate relative to the current viewport.
      */
@@ -1252,8 +1252,8 @@ export class Map {
      * Add an observer to the map.
      * Supported observer types are: "zoomlevel" and "center".
      *
-     * name - the name of the value to observe
-     * observer - the observer that will be executed on value changes.
+     * @param name - the name of the value to observe
+     * @param observer - the observer that will be executed on value changes.
      *
      * @returns boolean that's indicating if observer was added.
      */
@@ -1267,8 +1267,8 @@ export class Map {
     /**
      * Removes an observer from the map.
      *
-     * name - the name of the value to observe
-     * observer - the observer that should be removed.
+     * @param name - the name of the value to observe
+     * @param observer - the observer that should be removed.
      *
      * @returns boolean that's indicating if observer was removed.
      */
