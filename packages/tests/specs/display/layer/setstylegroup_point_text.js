@@ -90,7 +90,7 @@ describe('setStyleGroup Point with text', function() {
         let colors = await getCanvasPixelColor(mapContainer, [{x: 375, y: 300}, {x: 400, y: 300}, {x: 425, y: 300}]);
 
         expect(colors[0]).to.equal('#ff0000');
-        expect(colors[1]).to.equal('#bf0000');
+        expect(colors[1]).to.equal('#808080');
         expect(colors[2]).to.equal('#ff0000');
     });
 
