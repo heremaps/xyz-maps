@@ -210,6 +210,8 @@ const createBuffer = (
                                     (<GlyphTexture>geoBuffer.texture).sync();
                                     geoBuffer.addUniform('u_fillColor', shared.fill || COLOR_UNDEFINED);
                                     geoBuffer.addUniform('u_strokeColor', shared.stroke || COLOR_UNDEFINED);
+                                } else {
+                                    geoBuffer.addUniform('u_opacity', shared.opacity);
                                 }
                                 geoBuffer.addUniform('u_texture', 0);
                                 geoBuffer.addUniform('u_atlasScale', 1 / geoBuffer.texture.width);
