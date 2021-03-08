@@ -213,7 +213,6 @@ const createBuffer = (
                                 }
                                 geoBuffer.addUniform('u_texture', 0);
                                 geoBuffer.addUniform('u_atlasScale', 1 / geoBuffer.texture.width);
-                                geoBuffer.addUniform('u_opacity', shared.opacity);
                                 geoBuffer.addUniform('u_alignMap', shared.alignment == 'map');
 
                                 geoBuffer.addUniform('u_offset', [shared.offsetX, shared.offsetY]);

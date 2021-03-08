@@ -23,8 +23,8 @@ const DEFAULT_STROKE_WIDTH = 1;
 const DEFAULT_FONT = 'normal 12px Arial';
 const DEFAULT_TEXT_ALIGN = 'start';
 
-const GLYPH_FILL = '#ff0000';
-const GLYPH_STROKE = '#00ff00';
+const GLYPH_FILL = '#fff';
+const GLYPH_STROKE = '#000';
 
 export const initFont = (ctx, style: FontStyle, fill = GLYPH_FILL, stroke = GLYPH_STROKE) => {
     ctx.font = style.font || DEFAULT_FONT;
@@ -84,7 +84,6 @@ const determineFontHeight = (ctx: CanvasRenderingContext2D, style: FontStyle, te
                     row = height;
                     break;
                 }
-                continue;
             } else {
                 if (start == -1) {
                     start = row;
@@ -143,7 +142,7 @@ class GlyphManager {
         if (!fonts[styleId]) {
             const size = 96 * scale;
             const canvas = createCanvas(size, size);
-            const ctx = canvas.getContext('2d');
+            const ctx = canvas.getContext('2d', {alpha: false});
 
             ctx.textBaseline = 'bottom';
             const letterHeightBottom = determineFontHeight(ctx, style, 'gM').height;
