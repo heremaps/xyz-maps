@@ -1,3 +1,24 @@
+## 0.21.0 (2021-3-9)
+### editor
+* added: typescript declarations for the public api interface
+* fixed: extruded areas / Buildings can't be translated by user-interaction with the transformer utility in certain layer configurations
+* fixed: x,y coordinates are flipped in deprecated "editor.PixelCoordinate" of legacy api interface
+### display
+* added: typescript declarations for the public api interface
+* added: Lines, Circles and Rectangles can now be defined and displayed with dimensions in meters. e.g. style.radius = "1m"
+* added: Support to offset Circles and Rects in meters e.g. style.offsetX = "1m"
+* added: Lines can now be offset in meters to the left or right. e.g. lineStyle.offset = "1m"
+* improved: pointer event triggering now supports a larger position offset for point styles
+* fixed: broken event triggering of features that are styled using "zoomRange" values.
+* fixed: invoke "styleValueFunctions" with the correct zoomlevel in any case
+* fixed: text that uses stroke and alpha is displayed opaque
+* fixed: missing pointer-events when the map is zoomed in very close (zoomlevel >22)
+### core
+* added: typescript declarations for the public api interface
+### general
+* added: typescript support in the api playground
+* added: the playground now supports code completion/suggestions using the api type declarations.
+
 ## 0.20.0 (2021-2-12)
 ### editor
 * added: Convert mixed geographical and pixel coordinates of various formats to GEOJSONCoordinates.

@@ -1,6 +1,6 @@
 {
   "name": "@here/xyz-maps-utils",
-  "version": "0.20.0",
+  "version": "0.21.0",
   "description": "Development utilities used to build XYZ Maps modules",
   "author": {
     "name": "HERE Europe B.V.",
@@ -13,14 +13,13 @@
     "directory": "packages/utils"
   },
   "private": true,
-  "scripts": {
-  },
+  "scripts": {},
   "devDependencies": {
     "@microsoft/api-extractor": "^7.13.1",
-    "typescript": "^3.9.6",
+    "cross-spawn": "^7.0.3",
     "ts-morph": "^9.1.0",
-    "yargs": "^16.2.0",
-    "cross-spawn": "^7.0.3"
+    "typescript": "^3.9.6",
+    "yargs": "^16.2.0"
   },
   "bin": {
     "buildDts": "./lib/buildDts/cli.js"
