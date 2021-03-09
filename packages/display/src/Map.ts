@@ -47,7 +47,7 @@ const TILESIZE = 256;
 const RENDER_TILE_SIZE = 256;
 
 const MAX_GRID_ZOOM = 20;
-const MAX_POSSIBLE_ZOOMLEVEL = 28;
+const MAX_ALLOWED_ZOOM = 28;
 
 const LON = 'longitude';
 const LAT = 'latitude';
@@ -179,7 +179,7 @@ export class Map {
         // init defaults
         const zoomLevel = options['zoomLevel'] || options['zoomlevel'];
 
-        options.maxLevel = Math.min(MAX_POSSIBLE_ZOOMLEVEL, options.maxLevel);
+        options.maxLevel = Math.min(MAX_ALLOWED_ZOOM, options.maxLevel);
 
         this._z = Math.min(MAX_GRID_ZOOM, zoomLevel) ^ 0;
 
