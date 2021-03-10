@@ -1,7 +1,11 @@
 name: NPM Publish
 
 on:
-    workflow_dispatch:
+    push:
+        branches:
+            - "!*"
+        tags:
+            - "v[0-9]+.[0-9]+.[0-9]+*"
 
 env:
     yarn-network-timeout: 1000000
@@ -30,8 +34,6 @@ jobs:
                     NODE_AUTH_TOKEN: ${{ secrets.NPM_TOKEN }}
             -   name: Install dependencies
                 run: yarn install --network-timeout ${{ env.yarn-network-timeout }}
-            -   name: Build documentation
-                run: yarn run build-doc
             -   name: Build release
                 run: yarn run build-release
             -   name: Get npm dist-tag
@@ -40,7 +42,6 @@ jobs:
                     distTag=$(jq -r '.version | match(".*-([^.]*)").captures[0].string' package.json)
                     echo "::set-output name=dist-tag::${distTag:-latest}"
             -   name: npm publish
-                if: github.ref == 'refs/heads/master'
                 run: lerna publish from-package --no-git-tag-version --yes --dist-tag ${{ steps.get-dist-tag.outputs.dist-tag }}
                 env:
                     NODE_AUTH_TOKEN: ${{ secrets.NPM_TOKEN }}
