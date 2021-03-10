@@ -61,7 +61,7 @@ const getValue = (name: string, style: Style, feature: Feature, tileGridZoom: nu
         : value;
 };
 
-const parseSizeValue = (size: string | number) => {
+const parseSizeValue = (size: string | number): [number, string] => {
     let unit = 'px';
     let value = size;
     if (typeof size == 'string') {
@@ -69,16 +69,16 @@ const parseSizeValue = (size: string | number) => {
         if (size.charAt(size.length - 1) == 'm') {
             unit = 'm';
             value = Math.round(value * 10) / 10;
-            return {value, unit};
+            return [value, unit];
         }
     }
     value = <number>value ^ 0; // no "float pixels"
-    return {value, unit};
+    return [value, unit];
 };
 
 const getSizeInPixel = (property: string, style: Style, feature: Feature, zoom: number) => {
     const rawValue = getValue(property, style, feature, zoom);
-    let {value, unit} = parseSizeValue(rawValue);
+    let [value, unit] = parseSizeValue(rawValue);
 
     if (unit == 'm') {
         const tileGridZoom = getTileGridZoom(zoom);
@@ -127,7 +127,7 @@ const getLineWidth = (groups: StyleGroup, feature: Feature, zoom: number, layerI
         }
 
         const swVal = getValue('strokeWidth', grp, feature, tileGridZoom) || 1;
-        let {value, unit} = parseSizeValue(swVal);
+        let [value, unit] = parseSizeValue(swVal);
 
         if (unit == 'm') {
             const dZoomScale = Math.pow(2, zoom % tileGridZoom);
@@ -309,7 +309,16 @@ const searchLerp = (map, search: number) => {
     for (let zoom in map) {
         const z = Number(zoom);
         rawVal = map[z];
-        const {value, unit} = parseSizeValue(rawVal);
+
+        const isColorValue = Array.isArray(rawVal);
+        let value;
+        let unit;
+
+        if (isColorValue) {
+            value = rawVal;
+        } else {
+            [value, unit] = parseSizeValue(rawVal);
+        }
 
         if (unit == 'px') {
             rawVal = value;
@@ -318,7 +327,7 @@ const searchLerp = (map, search: number) => {
         if (search <= z) {
             if (i == 0) return unit == 'm' ? map[z] : value;
             // rgba color ?
-            if (Array.isArray(value)) {
+            if (isColorValue) {
                 let a = [];
                 for (let j = 0; j < value.length; j++) {
                     a[j] = range(_z, z, _v[j], value[j], search);

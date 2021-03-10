@@ -227,7 +227,7 @@ export class FeatureFactory {
                 if (type == 'Line') {
                     if (!stroke || !strokeWidth) continue;
 
-                    const {value, unit} = parseSizeValue(strokeWidth);
+                    const [value, unit] = parseSizeValue(strokeWidth);
                     strokeWidth = value;
                     sizeUnit = unit;
 
@@ -243,12 +243,9 @@ export class FeatureFactory {
                         strokeDasharray = UNDEF;
                     }
 
-                    let offset = getValue('offset', style, feature, level);
-
-                    offset = parseSizeValue(offset);
+                    const offset = getValue('offset', style, feature, level);
                     // store line offset/unit in shared offsetXY
-                    offsetX = offset.value;
-                    offsetUnit = offset.unit;
+                    [offsetX, offsetUnit] = parseSizeValue(offset);
 
                     groupId = 'L' + sizeUnit + offsetX + offsetUnit + strokeLinecap + strokeLinejoin + (strokeDasharray || NONE);
                 } else {
@@ -291,18 +288,15 @@ export class FeatureFactory {
                             groupId = 'T' + (font || NONE);
                         } else if (type == 'Circle') {
                             radius = getValue('radius', style, feature, level);
-                            const {value, unit} = parseSizeValue(radius);
-                            radius = value;
-                            sizeUnit = unit;
+                            [radius, sizeUnit] = parseSizeValue(radius);
 
                             groupId = 'C' + sizeUnit + radius || NONE;
                         } else if (type == 'Rect') {
                             width = getValue('width', style, feature, level);
-                            const {value, unit} = parseSizeValue(width);
-                            width = value;
-                            sizeUnit = unit;
+                            [width, sizeUnit] = parseSizeValue(width);
+
                             height = getValue('height', style, feature, level);
-                            height = !height ? width : parseSizeValue(height).value;
+                            height = !height ? width : parseSizeValue(height)[0];
 
                             groupId = 'R' + sizeUnit + width + height;
                         } else {
@@ -311,14 +305,13 @@ export class FeatureFactory {
 
                         offsetX = getValue('offsetX', style, feature, level);
                         offsetY = getValue('offsetY', style, feature, level);
-                        let ox = parseSizeValue(offsetX);
-                        let oy = parseSizeValue(offsetY);
 
-                        offsetX = ox.value;
-                        offsetY = oy.value;
+                        offsetUnit = new Array(2);
 
-                        offsetUnit = [ox.unit, oy.unit];
-                        groupId += offsetX + ox.unit + offsetY + oy.unit;
+                        [offsetX, offsetUnit[0]] = parseSizeValue(offsetX);
+                        [offsetY, offsetUnit[1]] = parseSizeValue(offsetY);
+
+                        groupId += offsetX + offsetUnit[0] + offsetY + offsetUnit[1];
                     }
                 }
                 if (fill) {
