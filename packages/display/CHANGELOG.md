@@ -1,3 +1,9 @@
+## 0.21.1 (2021-3-11)
+###display
+* fixed: text that uses offsetX/offsetY is incorrectly offset on retina devices
+* fixed: text stroke rendering artifacts in Firefox
+* fixed: styles that are using colors with StyleZoomRanges are invisible
+
 ## 0.21.0 (2021-3-9)
 ### editor
 * added: typescript declarations for the public api interface
