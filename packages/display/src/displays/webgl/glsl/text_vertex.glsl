@@ -41,6 +41,8 @@ void main(void){
 
         vec2 labelOffset = u_offset;
 
+        labelOffset *= DEVICE_PIXEL_RATIO;
+
         if (u_alignMap){
 
             rotation *= TO_RAD;
@@ -51,8 +53,6 @@ void main(void){
                 rotation += M_PI;
                 labelOffset *= -1.0;
             }
-
-            labelOffset *= DEVICE_PIXEL_RATIO;
 
             vec2 posOffset = rotate(a_point.xy * OFFSET_SCALE + labelOffset, -rotation) / u_scale / DEVICE_PIXEL_RATIO;
             gl_Position = u_matrix * vec4(u_topLeft + a_position * EXTENT_SCALE + posOffset, 0.0, 1.0);
