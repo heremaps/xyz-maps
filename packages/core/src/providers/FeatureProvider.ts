@@ -21,7 +21,7 @@ import {Feature} from '../features/Feature';
 import Provider from './TileProvider/TileProvider';
 import {geotools} from '@here/xyz-maps-common';
 import {Tile} from '../tile/Tile';
-import {updateBBox, prepareFeature} from '../data/prepare/GeoJSON';
+import {calcBBox} from '../features/utils';
 import RTree from '../features/RTree';
 import {
     GeoJSONFeature,
@@ -862,16 +862,31 @@ export class FeatureProvider extends Provider {
     __type = 'FeatureProvider';
 
     prepareFeature(feature: Feature): Feature | false {
+        if (feature['id'] == UNDEF) {
+            feature['id'] = Math.random() * 1e8 ^ 0;
+        }
+        // calculates object bbox's
+        if (!feature.bbox) {
+            // false -> unkown feature -> no success
+            return this.updateBBox(feature) && feature;
+        } else if ((<number[]>feature.bbox).length === 6) { // convert to 2D bbox
+            feature.bbox = [feature.bbox[0], feature.bbox[1], feature.bbox[3], (<number[]>feature.bbox)[4]];
+        }
         return feature;
     };
 
     updateBBox(feature: Feature): boolean {
+        if (!feature.bbox) {
+            const bbox = calcBBox(feature);
+            if (bbox) {
+                feature.bbox = <GeoJSONBBox>bbox;
+            } else {
+                return false;
+            }
+        }
         return true;
     };
 }
-
-FeatureProvider.prototype.prepareFeature = prepareFeature;
-FeatureProvider.prototype.updateBBox = updateBBox;
 
 // deprecated fallback..
 (<any>FeatureProvider.prototype).modifyFeatureCoordinates = FeatureProvider.prototype.setFeatureCoordinates;

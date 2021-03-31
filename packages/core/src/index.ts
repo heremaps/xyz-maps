@@ -42,121 +42,10 @@ export {MVTProvider} from './providers/MVTProvider/MVTProvider';
 export {EditableFeatureProvider} from './providers/EditableFeatureProvider';
 
 import webMercatorPrj from './projection/webMercator';
-
-export const webMercator = webMercatorPrj;
-
-// support for legacy deprecated namespace based API.
-
-import {GeoPoint} from './geo/GeoPoint';
-import {GeoRect} from './geo/GeoRect';
-import {PixelPoint} from './pixel/PixelPoint';
-import {PixelRect} from './pixel/PixelRect';
-import {TileLayer} from './layers/TileLayer';
-import {MVTLayer} from './layers/MVTLayer';
-import {Feature} from './features/Feature';
-
-import {Tile} from './tile/Tile';
-import {tileUtils} from './tile/TileUtils';
-
-
-import {ImageProvider} from './providers/ImageProvider';
-import {GeoJSONProvider} from './providers/GeoJSONProvider';
-import {FeatureProvider} from './providers/FeatureProvider';
-import {LocalProvider} from './providers/LocalProvider';
-import {RemoteTileProvider} from './providers/RemoteTileProvider/RemoteTileProvider';
-import {EditableRemoteTileProvider} from './providers/RemoteTileProvider/EditableRemoteTileProvider';
-import {SpaceProvider} from './providers/GeoSpace/SpaceProvider';
-import {IMLProvider} from './providers/IMLProvider/IMLProvider';
-import {MVTProvider} from './providers/MVTProvider/MVTProvider';
-import {EditableFeatureProvider} from './providers/EditableFeatureProvider';
-
-const providers = {
-    ImageProvider,
-    GeoJSONProvider,
-    FeatureProvider,
-    LocalProvider,
-    RemoteTileProvider,
-    EditableRemoteTileProvider,
-    SpaceProvider,
-    IMLProvider,
-    MVTProvider,
-    EditableFeatureProvider
-};
-
-// TODO: remove namespaces
-import * as GeoJSON from './data/prepare/GeoJSON';
-
-
-import L2Storage from './storage/Level2Storage';
-import LRUStorage from './storage/LRUStorage';
-import {HTTPLoader} from './loaders/HTTPLoader';
-import Manager from './loaders/Manager';
-import {GeoCoder} from './service/GeoCoder';
-
 // @ts-ignore
 import buildInfo from 'buildInfo';
 
-import * as common from '@here/xyz-maps-common';
-// WORKAROUND IF BUNDELED BY WEBPACK (UMD REMOVAL)
-// make sure global ns is also available for webpack users.
-const XYZMAPS = common.global.here.xyz.maps;
-XYZMAPS.common = common;
-const geo = XYZMAPS.geo = {
-    Point: GeoPoint,
-    Rect: GeoRect
-};
-const pixel = XYZMAPS.pixel = {
-    Point: PixelPoint,
-    Rect: PixelRect
-};
-
-const layers = XYZMAPS.layers = {
-    TileLayer: TileLayer,
-    MVTLayer: MVTLayer
-};
-
-const features = XYZMAPS.features = {
-    Feature: Feature
-};
-
-const tile = {
-    Tile: Tile,
-    Utils: tileUtils
-};
-
-
-XYZMAPS.tile = tile;
-XYZMAPS.providers = providers;
-
-
-export {pixel, tile, layers, features, providers};
-
-export const storage = XYZMAPS.storage = {
-    'Level2Storage': L2Storage,
-    'LRUStorage': LRUStorage
-};
-
-export const projection = XYZMAPS.projection = {
-    'webMercator': webMercator
-};
-
-
-export const loaders = XYZMAPS.loaders = {
-    'HTTPLoader': HTTPLoader,
-    'Manager': Manager
-};
-
-
-export const service = XYZMAPS.service || {
-    'Geocoder': GeoCoder
-};
-
-
-export const data = XYZMAPS.data || {
-    'prepare': {
-        'GeoJSON': GeoJSON
-    }
-};
+export const webMercator = webMercatorPrj;
 
 /**
  *  Detailed Information about the build.
@@ -181,9 +70,99 @@ export const build: {
      */
     readonly version: string;
 
-} = XYZMAPS.build = {
+} = {
     name: 'xyz-maps',
     ...buildInfo
+};
+
+
+import utils from './features/utils';
+// private interface
+export {utils};
+
+
+// support for legacy deprecated namespace based API.
+// TODO: remove namespaces / legacy API
+import {GeoPoint} from './geo/GeoPoint';
+import {GeoRect} from './geo/GeoRect';
+import {PixelPoint} from './pixel/PixelPoint';
+import {PixelRect} from './pixel/PixelRect';
+import {TileLayer} from './layers/TileLayer';
+import {MVTLayer} from './layers/MVTLayer';
+import {Feature} from './features/Feature';
+import {Tile} from './tile/Tile';
+import {tileUtils} from './tile/TileUtils';
+import {ImageProvider} from './providers/ImageProvider';
+import {GeoJSONProvider} from './providers/GeoJSONProvider';
+import {FeatureProvider} from './providers/FeatureProvider';
+import {LocalProvider} from './providers/LocalProvider';
+import {RemoteTileProvider} from './providers/RemoteTileProvider/RemoteTileProvider';
+import {EditableRemoteTileProvider} from './providers/RemoteTileProvider/EditableRemoteTileProvider';
+import {SpaceProvider} from './providers/GeoSpace/SpaceProvider';
+import {IMLProvider} from './providers/IMLProvider/IMLProvider';
+import {MVTProvider} from './providers/MVTProvider/MVTProvider';
+import {EditableFeatureProvider} from './providers/EditableFeatureProvider';
+import {HTTPLoader} from './loaders/HTTPLoader';
+import Manager from './loaders/Manager';
+import {GeoCoder} from './service/GeoCoder';
+import * as common from '@here/xyz-maps-common';
+// WORKAROUND IF BUNDELED BY WEBPACK (UMD REMOVAL)
+// make sure global ns is also available for webpack users.
+const XYZMAPS = common.global.here.xyz.maps;
+XYZMAPS.common = common;
+
+const geo = XYZMAPS.geo = {
+    Point: GeoPoint,
+    Rect: GeoRect
+};
+const pixel = XYZMAPS.pixel = {
+    Point: PixelPoint,
+    Rect: PixelRect
+};
+
+const layers = XYZMAPS.layers = {
+    TileLayer: TileLayer,
+    MVTLayer: MVTLayer
+};
+
+const features = XYZMAPS.features = {
+    Feature: Feature
+};
+
+const tile = XYZMAPS.tile = {
+    Tile: Tile,
+    Utils: tileUtils
+};
+
+XYZMAPS.build = build;
+
+const providers = XYZMAPS.providers = {
+    ImageProvider,
+    GeoJSONProvider,
+    FeatureProvider,
+    LocalProvider,
+    RemoteTileProvider,
+    EditableRemoteTileProvider,
+    SpaceProvider,
+    IMLProvider,
+    MVTProvider,
+    EditableFeatureProvider
+};
+
+export {pixel, tile, layers, features, providers};
+
+export const projection = XYZMAPS.projection = {
+    'webMercator': webMercator
+};
+
+
+export const loaders = XYZMAPS.loaders = {
+    'HTTPLoader': HTTPLoader,
+    'Manager': Manager
+};
+
+export const service = XYZMAPS.service || {
+    'Geocoder': GeoCoder
 };
 
 export default {
@@ -192,12 +171,10 @@ export default {
     geo,
     pixel,
     features,
-    storage,
     providers,
     projection,
     loaders,
     service,
-    data,
     build,
     common
 };

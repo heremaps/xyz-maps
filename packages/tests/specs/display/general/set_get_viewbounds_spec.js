@@ -52,8 +52,13 @@ describe('set and get viewbounds', function() {
     });
 
     it('set new viewbounds and validate', async function() {
-        await waitForViewportReady(display, ()=>{
-            display.setViewBounds({minLon: 77.793739194, minLat: 12.620344457, maxLon: 77.798030729, maxLat: 12.623485323});
+        await waitForViewportReady(display, () => {
+            display.setViewBounds({
+                minLon: 77.793739194,
+                minLat: 12.620344457,
+                maxLon: 77.798030729,
+                maxLat: 12.623485323
+            });
         });
         expect(display.getViewBounds()).to.deep.almost({
             minLon: 77.793739194,
@@ -63,30 +68,83 @@ describe('set and get viewbounds', function() {
         });
     });
 
-    it('set new viewbounds and validate map center and zoomlevel', async function() {
-        await waitForViewportReady(display, ()=>{
-            display.setViewBounds({minLon: 77.596065467, maxLat: 12.7210192045, maxLon: 77.598211234, minLat: 12.719449377});
+    it('set viewbounds (GeoRect) and validate map center and zoomlevel', async function() {
+        await waitForViewportReady(display, () => {
+            display.setViewBounds([77.596065467, 12.719449377, 77.598211234, 12.7210192045]);
+            // display.setViewBounds({minLon: 77.596065467, maxLat: 12.7210192045, maxLon: 77.598211234, minLat: 12.719449377});
         });
 
         expect(display.getCenter()).to.deep.almost({longitude: 77.5971383505, latitude: 12.72023429075});
         expect(display.getZoomlevel()).to.equal(19);
     });
 
-    it('set new viewbounds again and validate map center and zoomlevel', async function() {
-        await waitForViewportReady(display, ()=>{
-            display.setViewBounds({minLon: 76.447934159, maxLat: 14.177960381, maxLon: 76.51659871, minLat: 14.1280251379});
+    it('set viewbounds (Feature) and validate map center and zoomlevel', async function() {
+        let feature = {
+            type: 'Feature',
+            geometry: {
+                type: 'LineString',
+                coordinates: [
+                    [76.447934159, 14.1280251379],
+                    [76.51659871, 14.177960381]
+                ]
+            }
+        };
+
+        await waitForViewportReady(display, () => {
+            display.setViewBounds(feature);
         });
 
         expect(display.getCenter()).to.deep.almost({longitude: 76.4822664345, latitude: 14.15299275945});
         expect(display.getZoomlevel()).to.equal(14);
     });
 
-    it('set new viewbounds again and validate map center and zoomlevel', async function() {
-        await waitForViewportReady(display, ()=>{
-            display.setViewBounds({minLon: 76.475896931, maxLat: 14.201168294, maxLon: 76.478042698, minLat: 14.199608139});
+    it('set viewbounds (Feature[]) and validate map center and zoomlevel', async function() {
+        let features = [{
+            type: 'Feature',
+            geometry: {
+                type: 'Point',
+                coordinates: [76.475896931, 14.201168294]
+            }
+        }, {
+            type: 'Feature',
+            geometry: {
+                type: 'Point',
+                coordinates: [76.478042698, 14.199608139]
+            }
+        }];
+
+
+        await waitForViewportReady(display, () => {
+            display.setViewBounds(features);
         });
+
 
         expect(display.getCenter()).to.deep.almost({longitude: 76.4769698145, latitude: 14.2003882165});
         expect(display.getZoomlevel()).to.equal(19);
     });
-});
+
+    it('set viewbounds (FeatureCollection) and validate map center and zoomlevel', async function() {
+        const features = [{
+            type: 'Feature',
+            geometry: {
+                type: 'Point',
+                coordinates: [76.447934159, 14.1280251379]
+            }
+        }, {
+            type: 'Feature',
+            geometry: {
+                type: 'Point',
+                coordinates: [76.51659871, 14.177960381]
+            }
+        }];
+
+
+        await waitForViewportReady(display, () => {
+            display.setViewBounds({type: 'FeatureCollection', features: features});
+        });
+
+        expect(display.getCenter()).to.deep.almost({longitude: 76.4822664345, latitude: 14.15299275945});
+        expect(display.getZoomlevel()).to.equal(14);
+    });
+})
+;

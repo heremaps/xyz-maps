@@ -31,7 +31,17 @@ import {JSUtils, Listener} from '@here/xyz-maps-common';
 import {ZoomAnimator} from './animation/ZoomAnimator';
 import {KineticPanAnimator} from './animation/KineticPanAnimator';
 import {defaultOptions, MapOptions} from './MapOptions';
-import {Feature, TileLayer, webMercator, PixelPoint, PixelRect, GeoPoint, GeoRect} from '@here/xyz-maps-core';
+import {
+    Feature,
+    TileLayer,
+    webMercator,
+    PixelPoint,
+    PixelRect,
+    GeoPoint,
+    GeoRect,
+    utils,
+    GeoJSONFeatureCollection, GeoJSONFeature, GeoJSONBBox
+} from '@here/xyz-maps-core';
 
 const project = webMercator;
 
@@ -539,39 +549,42 @@ export class Map {
      *
      * @param bounds - GeoRect, GeoJson Feature or an GeoJson bbox [minLon, minLat, maxLon, maxLat] defining the view bounds.
      */
-    setViewBounds(bounds: GeoRect | [number, number, number, number] | Feature) {
+    setViewBounds(bounds: GeoRect | [number, number, number, number] | GeoJSONFeature | GeoJSONFeature[] | GeoJSONFeatureCollection) {
         const args = arguments;
         let minLon;
         let minLat;
         let maxLon;
         let maxLat;
-        let dLon;
-        let dLat;
 
-        if (args.length == 4) {
-            minLon = args[0];
-            minLat = args[1];
-            maxLon = args[2];
-            maxLat = args[3];
-        } else {
-            if ((<Feature>bounds).bbox) {
-                bounds = (<Feature>bounds).bbox;
-            }
-            if (bounds instanceof Array) {
-                minLon = bounds[0];
-                minLat = bounds[1];
-                maxLon = bounds[2];
-                maxLat = bounds[3];
-            } else {
-                minLon = bounds['minLon'];
-                minLat = bounds['minLat'];
-                maxLon = bounds['maxLon'];
-                maxLat = bounds['maxLat'];
-            }
+        if (typeof bounds == 'number') {
+            bounds = [args[0], args[1], args[2], args[3]];
+        } else if ((<GeoJSONFeatureCollection>bounds).type == 'FeatureCollection') {
+            bounds = (<GeoJSONFeatureCollection>bounds).features;
+        } else if ((<Feature>bounds).type == 'Feature') {
+            bounds = [<Feature>bounds];
         }
 
-        dLon = maxLon - minLon;
-        dLat = maxLat - minLat;
+        if (Array.isArray(bounds)) {
+            if (typeof bounds[0] == 'object') {
+                // convert/merge Feature[] to bbox
+                const bbox: GeoJSONBBox = [Infinity, Infinity, -Infinity, -Infinity];
+                // calc merged bbox
+                for (let feature of <Feature[]>bounds) {
+                    utils.calcBBox(feature, bbox);
+                }
+                bounds = bbox;
+            }
+            minLon = bounds[0];
+            minLat = bounds[1];
+            maxLon = bounds[2];
+            maxLat = bounds[3];
+        } else {
+            const rect = <GeoRect>bounds;
+            minLon = rect.minLon;
+            minLat = rect.minLat;
+            maxLon = rect.maxLon;
+            maxLat = rect.maxLat;
+        }
 
         this.setZoomlevel(
             calcZoomLevelForBounds(
@@ -585,8 +598,8 @@ export class Map {
         );
 
         this.setCenter(
-            minLon + dLon / 2,
-            minLat + dLat / 2
+            minLon + (maxLon - minLon) / 2,
+            minLat + (maxLat - minLat) / 2
         );
     };
 
@@ -729,7 +742,7 @@ export class Map {
      *
      * @param options - Behavior options
      */
-    setBehavior(options:{
+    setBehavior(options: {
         /**
          * true to enable map zooming, false to disable.
          */
@@ -917,16 +930,22 @@ export class Map {
      * by indicating if panning, minLevel and maxLevel should be locked.
      *
      * @param options - the lock options.
-     * @param options.pan - true to enable panning, false to disable panning.
-     * @param options.minLevel - the minimum allowed zoom level that can be zoomed to.
-     * @param options.maxLevel - the maximum allowed zoom level that can be zoomed to.
      *
      * @returns the current applied lock options.
      */
     lockViewport(options: {
-        pan: boolean,
-        minLevel: number,
-        maxLevel: number
+        /**
+         * true to enable panning, false to disable panning.
+         */
+        pan?: boolean,
+        /**
+         * the minimum allowed zoom level that can be zoomed to.
+         */
+        minLevel?: number,
+        /**
+         * the maximum allowed zoom level that can be zoomed to.
+         */
+        maxLevel?: number
     }): { pan: boolean, minLevel: number, maxLevel: number };
 
     lockViewport(options?): { pan: boolean, minLevel: number, maxLevel: number } {

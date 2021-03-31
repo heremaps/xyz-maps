@@ -17,12 +17,9 @@
  * License-Filename: LICENSE
  */
 
-import {Feature} from '../../features/Feature';
-
-let UNDEF;
-
+import {Feature} from '../features/Feature';
 type Point = [number, number, number?];
-type BBox = [number, number, number, number];
+type BBox = number[];
 type Coordinates = Array<Point>;
 
 
@@ -58,20 +55,18 @@ const updateLineStringBBox = (lineString: Coordinates, bbox?: BBox) => {
     }
 };
 
-
-function updateBBox(feature: Feature): boolean {
+const calcBBox = (feature: Feature, bbox?: BBox): BBox | false => {
     const geoType = feature.geometry.type;
-    let updated = true;
-    let bbox;
-
-    if (feature.bbox) return updated;
-
     const coordinates = feature.geometry.coordinates;
 
     if (geoType == 'Point') {
-        feature.bbox = [coordinates[0], coordinates[1], coordinates[0], coordinates[1]];
+        if (bbox) {
+            updatePointBBox(<[number, number]>coordinates, bbox);
+        } else {
+            bbox = [coordinates[0], coordinates[1], coordinates[0], coordinates[1]];
+        }
     } else {
-        bbox = feature.bbox = [Infinity, Infinity, -Infinity, -Infinity];
+        bbox = bbox || [Infinity, Infinity, -Infinity, -Infinity];
 
         if (geoType == 'MultiLineString') {
             for (let ls = 0; ls < coordinates.length; ls++) {
@@ -86,25 +81,13 @@ function updateBBox(feature: Feature): boolean {
         } else if (geoType == 'Polygon') {
             updateLineStringBBox(coordinates[0], bbox);
         } else {
-            updated = false;
+            return false;
         }
     }
 
-    return updated;
+    return bbox;
 };
 
-const prepareFeature = (feature: Feature): Feature | false => {
-    if (feature['id'] == UNDEF) {
-        feature['id'] = Math.random() * 1e8 ^ 0;
-    }
-    // calculates object bbox's
-    if (!feature.bbox) {
-        // false -> unkown feature -> no success
-        return updateBBox(feature) && feature;
-    } else if ((<number[]>feature.bbox).length === 6) { // convert to 2D bbox
-        feature.bbox = [feature.bbox[0], feature.bbox[1], feature.bbox[3], (<number[]>feature.bbox)[4]];
-    }
-    return feature;
-};
+export {calcBBox};
 
-export {updateBBox, prepareFeature};
+export default {calcBBox};
