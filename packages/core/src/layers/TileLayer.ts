@@ -21,7 +21,7 @@ import {Listener as Listeners} from '@here/xyz-maps-common';
 import defaultStylesDef from '../styles/default';
 import LayerStyleImpl from '../styles/LayerStyleImpl';
 
-import {Style, StyleGroup} from '../styles/LayerStyle';
+import {LayerStyle, Style, StyleGroup} from '../styles/LayerStyle';
 
 /* exported Options */
 import {TileLayerOptions} from './TileLayerOptions';
@@ -614,7 +614,7 @@ export class TileLayer {
      * @param layerStyle - the layerStyle
      * @param keepCustom - keep and reuse custom set feature styles that have been set via layer.setStyleGroup(...)
      */
-    setStyle(layerStyle: LayerStyleImpl, keepCustom: boolean = false) {
+    setStyle(layerStyle: LayerStyle, keepCustom: boolean = false) {
         const isFnc = (fnc) => typeof fnc == 'function';
 
         // @ts-ignore
@@ -630,7 +630,7 @@ export class TileLayer {
     /**
      * Get the current layerStyle.
      */
-    getStyle(): LayerStyleImpl {
+    getStyle(): LayerStyle {
         return this._sd;
     };
 
