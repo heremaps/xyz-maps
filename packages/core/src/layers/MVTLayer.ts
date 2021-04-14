@@ -107,13 +107,13 @@ export class MVTLayer extends TileLayer {
         }
 
         super({
-            name: options['name'],
-            providers: providers,
-            min: options['min'] || remoteMin,
+            min: remoteMin,
             max: layerMax,
+            style: OSMStyle,
             margin: 0,
-            style: options['style'] || OSMStyle,
-            tileSize: tileSize
+            ...options,
+            tileSize,
+            providers
         });
     }
 
