@@ -285,8 +285,8 @@ const createBuffer = (
                         geoBuffer.zLayer = typeof zLayer == 'number' ? Math.ceil(zLayer) : null;
 
                         if (geoBuffer.scissor == UNDEF) {
-                            // scissor is slow so no need for if source data is clipped already
-                            geoBuffer.scissor = !tile.clipped || hasAlphaColor;
+                            // scissoring is slow. we can skip if source data is already clipped on tile edges.
+                            geoBuffer.scissor = !tile.clipped || layer.getMargin()>0 || hasAlphaColor;
                         }
                     }
                 }
