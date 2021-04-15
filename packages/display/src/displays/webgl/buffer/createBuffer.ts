@@ -20,9 +20,9 @@
 import {TaskManager} from '@here/xyz-maps-common';
 import {GeometryBuffer} from './GeometryBuffer';
 import {getValue, parseStyleGroup} from '../../styleTools';
-import {Tile, webMercator} from '@here/xyz-maps-core';
+import {Tile, webMercator, StyleGroup, Feature, TileLayer} from '@here/xyz-maps-core';
 import {Layer} from '../../Layers';
-import {FeatureFactory} from './FeatureFactory';
+import {FeatureFactory, CollisionCandidate} from './FeatureFactory';
 import {TemplateBuffer} from './templates/TemplateBuffer';
 import {GlyphTexture} from '../GlyphTexture';
 
@@ -37,34 +37,47 @@ const COLOR_UNDEFINED = new Float32Array([-1.0, -1.0, -1.0, -1.0]);
 
 let UNDEF;
 
-const handlePolygons = (factory: FeatureFactory, feature, coordinates, styleGroups, lsScale, tile) => {
+const handlePolygons = (
+    factory: FeatureFactory,
+    feature: Feature,
+    coordinates: number[][],
+    styleGroup: StyleGroup,
+    lsScale: number,
+    tile: Tile,
+    multiIndex: number = 0
+): boolean => {
     const zoom = factory.z;
+    let ready = true;
 
-    for (let style of styleGroups) {
+    for (let style of styleGroup) {
         const styleType = style.type;
         const type = getValue('type', style, feature, zoom);
-
-        if (type == 'Text') {
-            const bbox = feature.bbox;
+        if (type == 'Polygon' || type == 'Line') {
+            if (getValue('stroke', style, feature, zoom)) {
+                style.type = 'Line';
+                for (let linestring of coordinates) {
+                    ready = ready && factory.create(feature, 'LineString', linestring, [style], lsScale, tile.clipped);
+                }
+                style.type = styleType;
+            }
+        } else if (multiIndex == 0) {
+            const {bounds} = tile;
+            const {bbox} = feature;
             const center = [bbox[0] + (bbox[2] - bbox[0]) / 2, bbox[1] + (bbox[3] - bbox[1]) / 2];
-            const cx = center[0];
-            const cy = center[1];
-            const tileBounds = tile.bounds;
-            if (cx >= tileBounds[0] && cy >= tileBounds[1] && cx < tileBounds[2] && cy < tileBounds[3]) {
-                factory.create(feature, 'Point', center, [style], lsScale);
+            const [cx, cy] = center;
+
+            if (cx >= bounds[0] && cy >= bounds[1] && cx < bounds[2] && cy < bounds[3]) {
+                ready = ready && factory.create(feature, 'Point', center, [style], lsScale);
             }
-        } else if ((type == 'Polygon' || type == 'Line') && getValue('stroke', style, feature, zoom)) {
-            style.type = 'Line';
-            for (let linestring of coordinates) {
-                factory.create(feature, 'LineString', linestring, [style], lsScale, tile.clipped);
-            }
-            style.type = styleType;
         }
     }
+    return ready;
 };
 
+type TaskData = [Tile, Feature[], number, number, number, TileLayer, number, boolean | CollisionCandidate[]];
+
 const createBuffer = (
-    data: any[],
+    data: Feature[],
     renderLayer: Layer,
     tileSize: number,
     tile: Tile,
@@ -74,7 +87,7 @@ const createBuffer = (
 ) => {
     const {layer} = renderLayer;
     const groups = {};
-    let iconsLoaded = true;
+    let allIconsReady = true;
 
     const task = taskManager.create({
 
@@ -82,7 +95,7 @@ const createBuffer = (
 
         priority: PRIORITY,
 
-        init: function() {
+        init: function(): TaskData {
             const zoom = tile.z + layer.levelOffset;
             const layerStyles = layer.getStyle();
             let lsZoomScale = 1; // DEFAULT_STROKE_WIDTH_ZOOM_SCALE;
@@ -100,6 +113,7 @@ const createBuffer = (
 
             factory.init(tile, groups, tileSize, zoom);
 
+
             return [
                 tile,
                 data,
@@ -114,8 +128,8 @@ const createBuffer = (
 
         name: 'createBuffer',
 
-        onDone: function(args) {
-            const zoomLevel = args[6];
+        onDone: function(taskData: TaskData) {
+            const zoomLevel = taskData[6];
             let extrudeScale = Math.pow(2, 17 - zoomLevel);
             const meterToPixel = 1 / webMercator.getGroundResolution(zoomLevel);
             let buffers = [];
@@ -286,32 +300,32 @@ const createBuffer = (
 
                         if (geoBuffer.scissor == UNDEF) {
                             // scissoring is slow. we can skip if source data is already clipped on tile edges.
-                            geoBuffer.scissor = !tile.clipped || layer.getMargin()>0 || hasAlphaColor;
+                            geoBuffer.scissor = !tile.clipped || layer.getMargin() > 0 || hasAlphaColor;
                         }
                     }
                 }
             }
 
-            onDone(buffers.reverse(), iconsLoaded);
+            onDone(buffers.reverse(), allIconsReady);
         },
 
-        exec: function(heap) {
-            let tile = heap[0];
-            let data = heap[1];
-            const lsScale = heap[2];
-            let displayLayer = heap[5];
+        exec: function(taskData: TaskData) {
+            let tile = taskData[0];
+            let data = taskData[1];
+            const lsScale = taskData[2];
+            let displayLayer = taskData[5];
             let dataLen = data.length;
 
-            const level = heap[6];
+            const level = taskData[6];
             let styleGroups;
             let feature;
             let geom;
             let geomType;
             let notDone = false;
 
-            if (!heap[7]) {
-                while (heap[4]--) {
-                    if (feature = data[heap[3]++]) {
+            if (!taskData[7]) {
+                while (taskData[4]--) {
+                    if (feature = data[taskData[3]++]) {
                         styleGroups = displayLayer.getStyleGroup(feature, level);
 
                         if (styleGroups) {
@@ -327,28 +341,32 @@ const createBuffer = (
                             // const coordinates = geom.coordinates;
                             const coordinates = feature.getProvider().decCoord(feature);
 
+                            let imgReady = true;
+
                             if (geomType == 'MultiLineString' || geomType == 'MultiPoint') {
-                                let simpleType = geomType == 'MultiPoint' ? 'Point' : 'LineString';
+                                const simpleType = geomType == 'MultiPoint' ? 'Point' : 'LineString';
 
                                 for (let coords of coordinates) {
-                                    factory.create(feature, simpleType, coords, styleGroups, lsScale);
+                                    imgReady = imgReady && factory.create(feature, simpleType, coords, styleGroups, lsScale);
                                 }
                             } else if (geomType == 'MultiPolygon') {
-                                factory.create(feature, 'Polygon', coordinates, styleGroups, lsScale);
+                                imgReady = factory.create(feature, 'Polygon', coordinates, styleGroups, lsScale);
 
-                                for (let polygon of coordinates) {
-                                    handlePolygons(factory, feature, polygon, styleGroups, lsScale, tile);
+                                for (let p = 0; p < coordinates.length; p++) {
+                                    let polygon = coordinates[p];
+                                    // for (let polygon of coordinates) {
+                                    imgReady = imgReady && handlePolygons(factory, feature, polygon, styleGroups, lsScale, tile, p);
                                 }
                             } else {
-                                let ready = factory.create(feature, geomType, coordinates, styleGroups, lsScale);
-
-                                if (!ready) {
-                                    iconsLoaded = false;
-                                }
+                                imgReady = factory.create(feature, geomType, coordinates, styleGroups, lsScale);
 
                                 if (geomType == 'Polygon') {
-                                    handlePolygons(factory, feature, coordinates, styleGroups, lsScale, tile);
+                                    imgReady = imgReady && handlePolygons(factory, feature, coordinates, styleGroups, lsScale, tile);
                                 }
+                            }
+
+                            if (!imgReady) {
+                                allIconsReady = false;
                             }
                         }
                     } else {
@@ -357,24 +375,24 @@ const createBuffer = (
                     }
                 }
 
-                notDone = heap[3] < dataLen;
+                notDone = taskData[3] < dataLen;
             }
 
             // handle pending collisions...
             if (!notDone && factory.pendingCollisions.length) {
-                if (!heap[7]) {
+                if (!taskData[7]) {
                     // sort collision data by priority
-                    heap[7] = factory.pendingCollisions.sort((a, b) => a.priority - b.priority);
+                    taskData[7] = factory.pendingCollisions.sort((a, b) => a.priority - b.priority);
                     // reset/reuse feature index
-                    heap[3] = 0;
+                    taskData[3] = 0;
                 }
-                let cData = heap[7];
+                let cData = taskData[7];
                 let c;
 
-                if (heap[4] >= 0) {
+                if (taskData[4] >= 0) {
                     const styleGrp = [];
-                    while (heap[4]--) {
-                        if (c = cData[heap[3]++]) {
+                    while (taskData[4]--) {
+                        if (c = cData[taskData[3]++]) {
                             styleGrp[0] = c.style;
                             factory.create(c.feature, c.geomType, c.coordinates, styleGrp, lsScale, false, c.priority);
                         } else {
@@ -382,10 +400,10 @@ const createBuffer = (
                         }
                     }
                 }
-                notDone = heap[3] < cData.length;
+                notDone = taskData[3] < (<CollisionCandidate[]>cData).length;
             }
 
-            heap[4] = PROCESS_FEATURE_BUNDLE_SIZE;
+            taskData[4] = PROCESS_FEATURE_BUNDLE_SIZE;
 
             return notDone;
         }

@@ -68,6 +68,8 @@ const getTextString = (style, feature: Feature, level: number) => {
     }
 };
 
+export type CollisionCandidate = { feature: any, style: any, priority: number, geomType: string, coordinates: any };
+
 export class FeatureFactory {
     private gl: WebGLRenderingContext;
     private icons: IconManager;
@@ -82,7 +84,7 @@ export class FeatureFactory {
     z: number;
     private lineFactory: LineFactory;
 
-    pendingCollisions: { feature: any, style: any, priority: number, geomType: string, coordinates: any }[] = [];
+    pendingCollisions: CollisionCandidate[] = [];
 
     constructor(gl: WebGLRenderingContext, iconManager: IconManager, collisionHandler, devicePixelRatio: number) {
         this.gl = gl;
