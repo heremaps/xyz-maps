@@ -46,7 +46,7 @@ export type StyleValueFunction<Type> = (feature: Feature, zoom?: number) => Type
  *     15: 18, // 18px at zoomlevel 15
  *     // 27px for zoomlevel 16 (linear interpolation)
  *     17: 36  // 36px at zoomlevel 20
- *     // 44px for zoomlevels 18 to 20
+ *     // 36px for zoomlevels 18 to 20
  * }
  * ```
  */
@@ -199,15 +199,15 @@ export interface Style {
      * {
      *     zIndex: 0,
      *     type: "Circle",
-     *     stroke: "red",
-     *     strokeWidth: "1m"
+     *     fill: "red",
+     *     radius: "1m"
      * }
      * // define a Circle with a radius of 16 pixel
      * {
      *     zIndex: 0,
      *     type: "Circle",
-     *     stroke: "red",
-     *     strokeWidth: 16
+     *     fill: "red",
+     *     radius: 16
      * }
      * ```
      */
