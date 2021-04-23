@@ -20,45 +20,9 @@
 import {createTextData, OFFSET_SCALE} from './createText';
 import {GlyphAtlas} from '../GlyphAtlas';
 import {FlexArray} from './templates/FlexArray';
+import {wrapText} from '../../textUtils';
 
 const EXTENT_SCALE = 64;
-const DEFAULT_LINE_WRAP = 14;
-
-export const wrapText = (text: string, textWrap?: number): string[] => {
-    textWrap = textWrap || DEFAULT_LINE_WRAP;
-
-    const lines = [];
-    let lineStartIndex = 0;
-    let wrapIndex = -1;
-
-    for (let i = 0, line, length = text.length, c, lineLength; i < length; i++) {
-        c = text.charAt(i);
-        lineLength = i - lineStartIndex;
-
-        if (c == ' ') {
-            wrapIndex = i;
-        } else if (c == '\n') {
-            // force line break
-            lineLength = Infinity;
-            wrapIndex = i;
-        }
-
-        if (lineLength >= textWrap) {
-            if (lineStartIndex <= wrapIndex) {
-                line = text.substring(lineStartIndex, wrapIndex);
-                lineStartIndex = wrapIndex + 1;
-                lines.push(line);
-            }
-        }
-        if (i == length - 1) { // is last character
-            if (lineStartIndex <= i) {
-                line = text.substring(lineStartIndex, i + 1);
-                lines.push(line);
-            }
-        }
-    }
-    return lines;
-};
 
 const addText = (
     text: string | string[],

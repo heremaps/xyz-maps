@@ -17,7 +17,7 @@
  * License-Filename: LICENSE
  */
 
-import {createTxtRef, measure, defaultFont} from './fontCache';
+import {getAvgCharDimensions, defaultFont, wrapText} from './textUtils';
 import {Feature} from '@here/xyz-maps-core';
 import {toRGB} from './webgl/color';
 import {getRotatedBBox} from '../geometry';
@@ -51,6 +51,28 @@ const allowedProperties = {
     'offset': 1,
     'from': 1,
     'to': 1
+};
+
+const textRefCache = new Map();
+
+export const getTextString = (style, feature: Feature, level: number) => {
+    let text = getValue('text', style, feature, level);
+
+    if (!text && style.textRef) {
+        text = textRefCache.get(style.textRef);
+        if (text == UNDEF) {
+            text = new Function('f', 'return f.' + style.textRef);
+            textRefCache.set(style.textRef, text);
+        }
+        text = text(feature, level);
+    }
+
+    if (text != '') {
+        if (text !== UNDEF && typeof text != 'string') {
+            text = String(text);
+        }
+        return text;
+    }
 };
 
 const getValue = (name: string, style: Style, feature: Feature, tileGridZoom: number) => {
@@ -99,7 +121,7 @@ const getAbsZ = (style: Style, feature: Feature, tileGridZoom: number, layerInde
     return zLayer * 1e6 + z;
 };
 
-const getMaxZoom = (styles: StyleGroup, feature, zoom: number, layerIndex: number) => {
+const getMaxZoom = (styles: StyleGroup, feature: Feature, zoom: number, layerIndex: number) => {
     let maxZ = 0;
     const tileGridZoom = getTileGridZoom(zoom);
     for (let style of styles) {
@@ -126,7 +148,9 @@ const getLineWidth = (groups: StyleGroup, feature: Feature, zoom: number, layerI
             maxZ = z;
         }
 
-        const swVal = getValue('strokeWidth', grp, feature, tileGridZoom) || 1;
+        let swVal = getValue('strokeWidth', grp, feature, tileGridZoom); // || 1;
+        if (isNaN(swVal)) swVal = 1;
+
         let [value, unit] = parseSizeValue(swVal);
 
         if (unit == 'm') {
@@ -141,124 +165,128 @@ const getLineWidth = (groups: StyleGroup, feature: Feature, zoom: number, layerI
 
     return [width, maxZ];
 };
-// uses for point geometries only
-const getPixelSize = (groups: StyleGroup, feature: Feature, zoom: number, layerIndex: number): [number, number, number, number, number?] => {
+
+export const getBBox = (style: Style, feature: Feature, zoom: number, bbox?: number[]) => {
     const tileGridZoom = getTileGridZoom(zoom);
-    let maxZ = 0;
-    let minX = INFINITY;
-    let maxX = -INFINITY;
-    let minY = INFINITY;
-    let maxY = -INFINITY;
-    let sw;
-    let style;
-    let type;
-    let w;
-    let h;
+    const type = getValue('type', style, feature, tileGridZoom);
     let x1;
     let x2;
     let y1;
     let y2;
-    let text;
-    let a;
+    let w;
+    let h;
 
-    for (let s = 0; s < groups.length; s++) {
-        style = groups[s];
+    bbox = bbox || [INFINITY, INFINITY, -INFINITY, -INFINITY];
 
-        let z = getAbsZ(style, feature, tileGridZoom, layerIndex);
+    if ( // it's not a picture..
+        type != 'Image' &&
+        // .. and no fill is defined
+        !getValue('fill', style, feature, tileGridZoom)
+        // !style.fill
+    ) {
+        // -> it's not visible!
+        return bbox;
+    }
+
+
+    if (type == 'Text') {
+        const text = getTextString(style, feature, tileGridZoom);
+
+        if (!text) {
+            return bbox;
+        }
+
+        const strokeWidth = getValue('strokeWidth', style, feature, tileGridZoom);
+        const dimensions = getAvgCharDimensions({
+            font: getValue('font', style, feature, tileGridZoom) || defaultFont,
+            // textAlign: getValue('textAlign', style, feature, tileGridZoom),
+            strokeWidth,
+            fill: getValue('fill', style, feature, tileGridZoom),
+            stroke: getValue('stroke', style, feature, tileGridZoom)
+        });
+
+        const lineWrap = getValue('lineWrap', style, feature, tileGridZoom);
+        const lines = wrapText(text, lineWrap);
+
+        let maxLineLength = 0;
+        for (let {length} of lines) {
+            if (length > maxLineLength) {
+                maxLineLength = length;
+            }
+        }
+        w = dimensions.width * (maxLineLength + 1);
+        h = lines.length * dimensions.height;
+    } else {
+        let sw = getValue('strokeWidth', style, feature, tileGridZoom); // || 1;
+
+        if (isNaN(sw)) sw = 1;
+
+        if (type == 'Circle') {
+            w = 2 * getSizeInPixel('radius', style, feature, tileGridZoom) ^ 0;
+            h = w;
+        } else {
+            w = getSizeInPixel('width', style, feature, tileGridZoom) ^ 0;
+            h = getSizeInPixel('height', style, feature, tileGridZoom);
+            h = (h || w) ^ 0;
+        }
+
+        h = h + sw;
+        w += sw;
+    }
+
+    let offsetX = getValue('offsetX', style, feature, tileGridZoom) ^ 0;
+    let offsetY = getValue('offsetY', style, feature, tileGridZoom) ^ 0;
+    let rotation = type != 'Circle' && getValue('rotation', style, feature, tileGridZoom) ^ 0;
+
+    if (rotation) {
+        const bbox = getRotatedBBox(rotation, w, h, offsetX, offsetY);
+        x1 = bbox[0];
+        y1 = bbox[1];
+        x2 = bbox[2];
+        y2 = bbox[3];
+    } else {
+        x1 = offsetX - (w * .5);
+        x2 = x1 + w;
+
+        y1 = offsetY - (h * .5);
+        y2 = y1 + h;
+    }
+
+    if (x1 < bbox[0]) {
+        bbox[0] = x1;
+    }
+    if (x2 > bbox[2]) {
+        bbox[2] = x2;
+    }
+    if (y1 < bbox[1]) {
+        bbox[1] = y1;
+    }
+    if (y2 > bbox[3]) {
+        bbox[3] = y2;
+    }
+
+    return bbox;
+};
+
+
+// uses for point geometries only
+const getPixelSize = (groups: StyleGroup, feature: Feature, zoom: number, layerIndex: number): [number, number, number, number, number?] => {
+    const tileGridZoom = getTileGridZoom(zoom);
+    let maxZ = 0;
+    let z;
+
+    let bbox;
+    for (let style of groups) {
+        bbox = getBBox(style, feature, zoom, bbox);
+        z = getAbsZ(style, feature, tileGridZoom, layerIndex);
 
         if (z > maxZ) {
             maxZ = z;
         }
-
-        type = getValue('type', style, feature, tileGridZoom);
-
-        if ( // it's not a picture..
-            type != 'Image' &&
-            // .. and no fill is defined
-            !getValue('fill', style, feature, tileGridZoom)
-            // !style.fill
-        ) {
-            // -> it's not visible!
-            continue;
-        }
-
-
-        if (type == 'Text') {
-            text = style['text'];
-
-            if (text == UNDEF) {
-                text = createTxtRef(style['textRef'])(feature);
-            }
-
-            if (text == null) {
-                continue;
-            }
-
-            a = measure(style.font || defaultFont);
-            w = a * text.length;
-            h = 14;
-        } else {
-            sw = getValue('strokeWidth', style, feature, zoom) || 1;
-
-            if (type == 'Circle') {
-                w = 2 * getSizeInPixel('radius', style, feature, zoom) ^ 0;
-                h = w;
-            } else {
-                w = getSizeInPixel('width', style, feature, zoom) ^ 0;
-                h = getSizeInPixel('height', style, feature, zoom);
-                // w = getValue('width', style, feature, zoom) ^ 0;
-                // h = getValue('height', style, feature, zoom);
-                h = h == UNDEF ? w : h ^ 0;
-            }
-
-            h = h + sw;
-            w += sw;
-        }
-
-        let offsetX = getValue('offsetX', style, feature, tileGridZoom) ^ 0;
-        let offsetY = getValue('offsetY', style, feature, tileGridZoom) ^ 0;
-        let rotation = type != 'Circle' && getValue('rotation', style, feature, tileGridZoom) ^ 0;
-
-        if (rotation) {
-            const bbox = getRotatedBBox(rotation, w, h, offsetX, offsetY);
-            x1 = bbox[0];
-            y1 = bbox[1];
-            x2 = bbox[2];
-            y2 = bbox[3];
-        } else {
-            x1 = offsetX - (w * .5);
-            x2 = x1 + w;
-
-            y1 = offsetY - (h * .5);
-            y2 = y1 + h;
-        }
-
-        if (x1 < minX) {
-            minX = x1;
-        }
-        if (x2 > maxX) {
-            maxX = x2;
-        }
-        if (y1 < minY) {
-            minY = y1;
-        }
-        if (y2 > maxY) {
-            maxY = y2;
-        }
     }
-
-
-    if (maxX != -INFINITY) {
-        return [
-            // offset-bottom-left
-            minX,
-            minY,
-            // offset-top-right
-            maxX,
-            maxY,
-
-            maxZ
-        ];
+    if (bbox[0] != INFINITY) {
+        bbox[4] = maxZ;
+        return bbox;
     }
 };
 
@@ -412,6 +440,7 @@ export {
     parseSizeValue,
     getLineWidth,
     getPixelSize,
+    getSizeInPixel,
     merge,
     isStyle,
     getMaxZoom,

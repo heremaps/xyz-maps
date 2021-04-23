@@ -23,26 +23,26 @@ import {Attribute} from './buffer/Attribute';
 import {Layer} from '../Layers';
 import {FlexAttribute} from './buffer/templates/TemplateBuffer';
 
-type Data = {
+export type CollisionData = {
     minX: number,
     maxX: number,
     minY: number,
     maxY: number,
-    bos: number,
-    boe: number,
-    attr: Attribute | FlexAttribute,
+    attrs: { start: number, stop: number, buffer: Attribute | FlexAttribute }[],
     priority: number,
     cx?: number,
     cy?: number,
+    offsetX?: number,
+    offsetY?: number
 };
-type CollisionDataMap = { [dataKey: string]: Data[] }
+type CollisionDataMap = { [dataKey: string]: CollisionData[] }
 
 type LayerTileCollision = {
     tileKey: string,
-    data: Data[],
+    data: CollisionData[],
     dataKey: string,
     existing: {
-        [dataKey: string]: Data[]
+        [dataKey: string]: CollisionData[]
     }
 }
 
@@ -68,11 +68,11 @@ export class CollisionHandler {
         return `${layer.id}-${quadkey}`;
     }
 
-    private intersects(box1: Data, data: Data[], i: number = 0) {
+    private intersects(box1: CollisionData, data: CollisionData[], i: number = 0): boolean {
         for (let len = data.length, bbox2; i < len; i++) {
             bbox2 = data[i];
             if (box1.minX <= bbox2.maxX && bbox2.minX <= box1.maxX && box1.minY <= bbox2.maxY && bbox2.minY <= box1.maxY) {
-                return true;
+                return bbox2;
             }
         }
     }
@@ -117,22 +117,20 @@ export class CollisionHandler {
                 ...this.tiles.get(tileKey) || {}
             }
         };
-
         this.updated = false;
     }
 
     insert(
         cx: number,
         cy: number,
+        offsetX: number,
+        offsetY: number,
         width: number,
         height: number,
         tile: Tile,
         tileSize: number,
-        bufferOffsetStart: number,
-        bufferOffsetEnd: number,
-        attributeBuffer: Attribute | FlexAttribute,
         priority: number = Number.MAX_SAFE_INTEGER
-    ): boolean {
+    ): CollisionData | false {
         const tileX = tile.x * tileSize;
         const tileY = tile.y * tileSize;
         const x1 = tileX + cx - width;
@@ -148,19 +146,19 @@ export class CollisionHandler {
             cy -= (tile.y * .5 ^ 0) * 512 - tileY;
         }
 
-        const bbox: Data = {
+        const bbox: CollisionData = {
             // tileX: tileX,
             // tileY: tileY,
-            cx: cx,
-            cy: cy,
+            cx: cx + offsetX,
+            cy: cy + offsetY,
+            offsetX: offsetX,
+            offsetY: offsetY,
             minX: x1,
             maxX: x2,
             minY: y1,
             maxY: y2,
-            bos: bufferOffsetStart,
-            boe: bufferOffsetEnd,
-            attr: attributeBuffer,
-            priority: priority
+            priority: priority,
+            attrs: []
         };
 
         const {data, existing} = this.curLayerTileCollision;
@@ -174,10 +172,13 @@ export class CollisionHandler {
             }
         }
 
+        bbox.cx -= offsetX;
+        bbox.cy -= offsetY;
+
         this.updated = true;
         data.push(bbox);
 
-        return true;
+        return bbox;
     }
 
     completeTile() {
@@ -224,12 +225,13 @@ export class CollisionHandler {
             // no view changes.. no need to recalculate collision
             return;
         }
+
         this.rx = rotX;
         this.rz = rotZ;
         this.s = scale;
 
         const {display} = this;
-        const collisionData: Data[] = [];
+        const collisionData: CollisionData[] = [];
 
         for (let screentile of tiles) {
             let quadkey = screentile.quadkey;
@@ -242,59 +244,62 @@ export class CollisionHandler {
 
                     for (let i = 0; i < collisions.length; i++) {
                         const bbox = collisions[i];
-                        const attribute = bbox.attr;
+                        const {attrs} = bbox;
 
-                        if (attribute) {
-                            let {minX, maxX, minY, maxY} = bbox;
-                            let halfWidth = (maxX - minX) * .5;
-                            let halfHeight = (maxY - minY) * .5;
-                            let screenX = screentile.x + bbox.cx;
-                            let screenY = screentile.y + bbox.cy;
-                            // let screenX = screentile.x + minX - bbox.tileX + halfWidth;
-                            // let screenY = screentile.y + minY - bbox.tileY + halfHeight;
-                            let ac = display.project(screenX, screenY, 0, 0); // 0,0 for unscaled world pixels
+                        let {minX, maxX, minY, maxY} = bbox;
+                        let halfWidth = (maxX - minX) * .5;
+                        let halfHeight = (maxY - minY) * .5;
+                        let screenX = screentile.x + bbox.cx;
+                        let screenY = screentile.y + bbox.cy;
+                        // let screenX = screentile.x + minX - bbox.tileX + halfWidth;
+                        // let screenY = screentile.y + minY - bbox.tileY + halfHeight;
+                        let ac = display.project(screenX, screenY, 0, 0); // 0,0 for unscaled world pixels
 
-                            collisionData.push({
-                                minX: ac[0] - halfWidth, // minX
-                                maxX: ac[0] + halfWidth, // maxX
-                                minY: ac[1] - halfHeight, // minY
-                                maxY: ac[1] + halfHeight, // maxY
-                                bos: bbox.bos,
-                                boe: bbox.boe,
-                                attr: attribute,
-                                priority: bbox.priority
-                            });
-                        }
+                        ac[0] += bbox.offsetX;
+                        ac[1] += bbox.offsetY;
+
+                        collisionData.push({
+                            minX: ac[0] - halfWidth,
+                            maxX: ac[0] + halfWidth,
+                            minY: ac[1] - halfHeight,
+                            maxY: ac[1] + halfHeight,
+                            attrs,
+                            priority: bbox.priority
+                        });
                     }
                 }
             }
         }
 
-        let d = 0;
         // sort by collision priority
-        collisionData.sort((a, b) => b.priority - a.priority);
+        collisionData.sort((a, b) => a.priority - b.priority);
 
-        while (d < collisionData.length) {
-            let bbox = collisionData[d];
-            let attribute = bbox.attr;
-            let {data, size} = attribute;
-            let i = bbox.bos;
-            let stop = bbox.boe;
-            let visible = (data[i] & 1) == 1;
-            let intersects = this.intersects(bbox, collisionData, ++d);
+        const visibleItems = [];
 
-            if (
-                // hide all glyphs
-                (intersects && visible) ||
-                // show all glyphs again (previously hidden)..
-                (!intersects && !visible)
-            ) {
-                while (i < stop) {
-                    data[i] ^= 1; // toggle LSB
-                    i += size;
+        for (let bbox of collisionData) {
+            let intersects = this.intersects(bbox, visibleItems);
+
+            if (!intersects) {
+                visibleItems.push(bbox);
+            }
+
+            for (let {buffer, start, stop} of bbox.attrs) {
+                let {data, size} = buffer;
+                let visible = (data[start] & 1) == 1;
+
+                if (
+                    // hide all glyphs
+                    (intersects && visible) ||
+                    // show all glyphs again (previously hidden)..
+                    (!intersects && !visible)
+                ) {
+                    while (start < stop) {
+                        data[start] ^= 1; // toggle LSB
+                        start += size;
+                    }
+
+                    (<Attribute>buffer).dirty = true;
                 }
-
-                (<Attribute>attribute).dirty = true;
             }
         }
     }

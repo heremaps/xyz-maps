@@ -18,14 +18,13 @@
  */
 
 import {GlyphTexture} from '../GlyphTexture';
-import {CollisionHandler} from '../CollisionHandler';
+import {CollisionData, CollisionHandler} from '../CollisionHandler';
 import {Tile} from '@here/xyz-maps-core';
 import {PixelCoordinateCache} from './LineFactory';
 import {FlexAttribute} from './templates/TemplateBuffer';
 import {addText} from './addText';
 import {FlexArray} from './templates/FlexArray';
 import {getRotatedBBox, rotate} from '../../../geometry';
-
 
 const TO_DEG = 180 / Math.PI;
 
@@ -108,22 +107,22 @@ const addLineText = (
                 const labelDy = (bbox[3] - bbox[1]) * .5;
                 const center = rotate(cx + offsetX, cy + offsetY, cx, cy, alpha);
 
-                const bufferStart = point.length;
+                const bufferStart = texcoord.length;
                 bufferLength = bufferLength || glyphs.bufferLength(text);
 
-                if (!collisions || collisions.insert(
-                    center[0], center[1],
-                    labelDx, labelDy,
-                    tile, tileSize,
-                    bufferStart, bufferStart + bufferLength,
-                    texcoordAttr,
-                    priority
-                )) {
-                    let d = (lineWidth - labelWidth) / 2;
+                let d = (lineWidth - labelWidth) / 2;
 
-                    if (distancePrevLabel + d < minRepeatDistance) {
-                        distancePrevLabel += lineWidth;
-                    } else {
+                if (distancePrevLabel + d < minRepeatDistance) {
+                    distancePrevLabel += lineWidth;
+                } else {
+                    let collisionData = !collisions || collisions.insert(
+                        center[0], center[1],
+                        0, 0,
+                        labelDx, labelDy,
+                        tile, tileSize,
+                        priority
+                    );
+                    if (collisionData) {
                         if (startDistance == Infinity) {
                             startDistance = d;
                         }
@@ -135,6 +134,12 @@ const addLineText = (
                         }
 
                         addText(textLines, point, vertex, texcoord, glyphAtlas, cx, cy, 0, alpha * TO_DEG);
+
+                        (<CollisionData>collisionData).attrs?.push({
+                            buffer: texcoordAttr,
+                            start: bufferStart,
+                            stop: bufferStart + bufferLength
+                        });
                     }
                 }
             } else {

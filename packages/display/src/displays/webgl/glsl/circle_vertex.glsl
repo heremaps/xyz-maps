@@ -13,7 +13,7 @@ uniform float u_strokeWidth;
 varying vec2 v_position;
 varying float v_radius;
 
-const float EXTENT_SCALE = 1.0 / 32.0; // 8912->512
+const float EXTENT_SCALE = 1.0 / 16.0;// 8912->512
 
 float toPixel(vec2 size){
     float value = size.x;
@@ -25,25 +25,29 @@ float toPixel(vec2 size){
 }
 
 void main(void){
-    // LSB is direction/normal vector
-    vec2 dir = mod(a_position, 2.0) * 2.0 - 1.0;
-    vec2 pos = floor(a_position * .5) * EXTENT_SCALE;
 
-    float radius = toPixel(u_radius);
+    if (mod(a_position.x, 2.0) == 1.0)
+    {
+        // LSB is direction/normal vector [-1,+1]
+        vec2 dir = mod(floor(a_position / 2.0), 2.0) * 2.0 - 1.0;
+        vec2 pos = floor(a_position / 4.0) * EXTENT_SCALE;
 
-    radius = radius + u_strokeWidth / 2.0;
+        float radius = toPixel(u_radius);
 
-    v_position = dir * radius;
-    v_radius = radius;
+        radius = radius + u_strokeWidth / 2.0;
 
-    vec2 pixel_offset = vec2(toPixel(u_offset.xy),toPixel(u_offset.zw));
+        v_position = dir * radius;
+        v_radius = radius;
 
-    if (u_alignMap){
-        vec2 shift = (pixel_offset + v_position) / u_scale;
-        gl_Position = u_matrix * vec4(u_topLeft + pos + shift, 0.0, 1.0);
-    } else {
-        vec4 cpos = u_matrix * vec4(u_topLeft + pos, 0.0, 1.0);
-        vec2 offset = pixel_offset * vec2(1.0, -1.0);
-        gl_Position = vec4(cpos.xy / cpos.w + (offset + v_position) / u_resolution * 2.0, 0.0, 1.0);
+        vec2 pixel_offset = vec2(toPixel(u_offset.xy), toPixel(u_offset.zw));
+
+        if (u_alignMap){
+            vec2 shift = (pixel_offset + v_position) / u_scale;
+            gl_Position = u_matrix * vec4(u_topLeft + pos + shift, 0.0, 1.0);
+        } else {
+            vec4 cpos = u_matrix * vec4(u_topLeft + pos, 0.0, 1.0);
+            vec2 offset = pixel_offset * vec2(1.0, -1.0);
+            gl_Position = vec4(cpos.xy / cpos.w + (offset + v_position) / u_resolution * 2.0, 0.0, 1.0);
+        }
     }
 }

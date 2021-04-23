@@ -16,14 +16,14 @@
  * SPDX-License-Identifier: Apache-2.0
  * License-Filename: LICENSE
  */
-import {addText, wrapText} from './addText';
+import {addText} from './addText';
 import {addPoint} from './addPoint';
 import {addPolygon, FlatPolygon} from './addPolygon';
 import {addExtrude} from './addExtrude';
 import {addIcon} from './addIcon';
 import earcut from 'earcut';
-import {getValue, parseSizeValue, StyleGroup} from '../../styleTools';
-import {defaultFont} from '../../fontCache';
+import {getBBox, getPixelSize, getTextString, getValue, parseSizeValue, Style, StyleGroup} from '../../styleTools';
+import {defaultFont, wrapText} from '../../textUtils';
 import {GlyphTexture} from '../GlyphTexture';
 import {toRGB} from '../color';
 import {IconManager} from '../IconManager';
@@ -46,29 +46,17 @@ const DEFAULT_LINE_JOIN = 'round';
 const NONE = '*';
 let UNDEF;
 
-const textRefCache = new Map();
-
-const getTextString = (style, feature: Feature, level: number) => {
-    let text = getValue('text', style, feature, level);
-
-    if (!text && style.textRef) {
-        text = textRefCache.get(style.textRef);
-        if (text == UNDEF) {
-            text = new Function('f', 'return f.' + style.textRef);
-            textRefCache.set(style.textRef, text);
-        }
-        text = text(feature, level);
-    }
-
-    if (text != '') {
-        if (text !== UNDEF && typeof text != 'string') {
-            text = String(text);
-        }
-        return text;
-    }
+export type CollisionCandidate = {
+    feature: Feature,
+    styleGrp: Style,
+    priority: number,
+    geomType: string,
+    coordinates: any,
+    offsetX: number;
+    offsetY: number;
+    width: number;
+    height: number;
 };
-
-export type CollisionCandidate = { feature: any, style: any, priority: number, geomType: string, coordinates: any };
 
 export class FeatureFactory {
     private gl: WebGLRenderingContext;
@@ -111,7 +99,8 @@ export class FeatureFactory {
         styleGroups: StyleGroup,
         strokeWidthScale: number,
         removeTileBounds?: boolean,
-        priority?: number
+        priority?: number,
+        collisionData?: any
     ): boolean {
         const {tile, groups, tileSize} = this;
         const level = this.z;
@@ -135,7 +124,6 @@ export class FeatureFactory {
         let strokeLinecap;
         let strokeLinejoin;
         let extrude;
-        let radius;
         let width;
         let height;
         let zGrouped;
@@ -153,6 +141,10 @@ export class FeatureFactory {
 
         this.lineFactory.init(level, tileSize);
 
+        let collisionPriority = Number.MAX_SAFE_INTEGER;
+        let collisionStyleGroup;
+        let collisionBox;
+
         for (let i = 0, iLen = styleGroups.length; i < iLen; i++) {
             style = styleGroups[i];
 
@@ -164,15 +156,21 @@ export class FeatureFactory {
 
             if (opacity === 0) continue;
 
+            if (
+                priority == UNDEF && (
+                    (type == 'Text' && !style.collide) ||
+                (geomType == 'Point' && style.collide === false))
+            ) {
+                let priority = getValue('priority', style, feature, level);
 
-            if (priority == UNDEF && type == 'Text' && !style.collide) {
-                this.pendingCollisions.push({
-                    feature: feature,
-                    style: style,
-                    geomType: geomType,
-                    coordinates: coordinates,
-                    priority: getValue('priority', style, feature, level) || Number.MAX_SAFE_INTEGER
-                });
+                collisionBox = getBBox(style, feature, level, collisionBox);
+
+                collisionStyleGroup = collisionStyleGroup || [];
+                collisionStyleGroup.push(style);
+
+                if (priority < collisionPriority) {
+                    collisionPriority = priority;
+                }
                 continue;
             }
 
@@ -186,13 +184,6 @@ export class FeatureFactory {
                 type = 'Icon';
             }
 
-            // // posId = (x/4)<<16 | (y/4);
-            // // if(pmap[posId]){
-            // //     continue;
-            // // }
-            // // pmap[posId] = 1;
-            //
-
             font = UNDEF;
             fill = UNDEF;
             stroke = UNDEF;
@@ -204,7 +195,6 @@ export class FeatureFactory {
             strokeDasharray = UNDEF;
             strokeLinecap = UNDEF;
             strokeLinejoin = UNDEF;
-            radius = UNDEF;
             width = UNDEF;
             height = UNDEF;
             offsetX = 0;
@@ -289,10 +279,10 @@ export class FeatureFactory {
 
                             groupId = 'T' + (font || NONE);
                         } else if (type == 'Circle') {
-                            radius = getValue('radius', style, feature, level);
-                            [radius, sizeUnit] = parseSizeValue(radius);
+                            width = height = getValue('radius', style, feature, level);
+                            [width, sizeUnit] = parseSizeValue(width);
 
-                            groupId = 'C' + sizeUnit + radius || NONE;
+                            groupId = 'C' + sizeUnit + width || NONE;
                         } else if (type == 'Rect') {
                             width = getValue('width', style, feature, level);
                             [width, sizeUnit] = parseSizeValue(width);
@@ -388,7 +378,6 @@ export class FeatureFactory {
                         strokeDasharray: strokeDasharray,
                         width: width,
                         height: height,
-                        radius: radius,
                         rotation: rotation,
                         offsetX: offsetX,
                         offsetY: offsetY,
@@ -402,19 +391,21 @@ export class FeatureFactory {
             }
 
             if (geomType == 'Point') {
-                if (type == 'Text') {
-                    if (!tile.isInside(coordinates)) continue;
+                let positionBuffer;
+                let collisionBufferStart;
+                let collisionBufferStop;
 
+                // collision detection already tested if the coordinates are inside the tile.
+                if (!collisionData && !tile.isInside(coordinates)) {
+                    continue;
+                }
+
+                if (type == 'Text') {
                     let {texture} = group;
 
                     if (!texture) {
-                        // console.time('create Glyph Tex');
-
-
-                        texture = group.texture = /* window._glt = window._glt ||*/ new GlyphTexture(this.gl, group.shared);
-                        // console.timeEnd('create Glyph Tex');
-                        // group.first = 0;
-                        // group.data = new SymbolData(false);
+                        texture =
+                            group.texture = new GlyphTexture(this.gl, group.shared);
                         group.buffer = new TextBuffer();
                     }
 
@@ -428,51 +419,32 @@ export class FeatureFactory {
                     const lineWrap = getValue('lineWrap', style, feature, level);
                     const lines = wrapText(text, lineWrap);
 
-                    let maxLineLength = 0;
-                    for (let {length} of lines) {
-                        if (length > maxLineLength) {
-                            maxLineLength = length;
-                        }
-                    }
+                    positionBuffer = attributes.a_texcoord;
+                    collisionBufferStart = attributes.a_texcoord.data.length;
+                    collisionBufferStop = collisionBufferStart + texture.bufferLength(text);
 
-                    const estimatedTextWidth = fontInfo.avgCharWidth * (maxLineLength + 1);
-                    const estimatedTextHeight = lines.length * fontInfo.letterHeight;
-
-                    const bufferStart = attributes.a_texcoord.data.length;
-                    const bufferLength = texture.bufferLength(text);
-
-                    if (style.collide || this.collisions.insert(
-                        cx + offsetX,
-                        cy + offsetY,
-                        estimatedTextWidth / 2,
-                        estimatedTextHeight / 2,
-                        tile, tileSize,
-                        bufferStart, bufferStart + bufferLength,
-                        attributes.a_texcoord,
-                        priority
-                    )) {
-                        addText(
-                            lines,
-                            attributes.a_point.data,
-                            attributes.a_position.data,
-                            attributes.a_texcoord.data,
-                            fontInfo,
-                            cx,
-                            cy,
-                            lineWrap
-                        );
-                    }
+                    addText(
+                        lines,
+                        attributes.a_point.data,
+                        attributes.a_position.data,
+                        attributes.a_texcoord.data,
+                        fontInfo,
+                        cx,
+                        cy,
+                        lineWrap
+                    );
                 } else {
                     if (type == 'Icon') {
                         if (!group.buffer) {
                             group.buffer = new SymbolBuffer();
                         }
-
+                        positionBuffer = group.buffer.attributes.a_position;
                         const src = getValue('src', style, feature, level);
                         const width = getValue('width', style, feature, level);
                         const height = getValue('height', style, feature, level) || width;
                         const groupBuffer = group.buffer;
                         const {attributes} = groupBuffer;
+
                         const img = this.icons.get(src, width, height);
 
                         if (!img) {
@@ -485,7 +457,7 @@ export class FeatureFactory {
                             width,
                             height,
                             attributes.a_size.data,
-                            attributes.a_position.data,
+                            positionBuffer.data,
                             attributes.a_texcoord.data,
                             <GeoJSONCoordinate>coordinates,
                             tile,
@@ -496,15 +468,28 @@ export class FeatureFactory {
                         if (!group.buffer) {
                             group.buffer = new PointBuffer();
                         }
+                        positionBuffer = group.buffer.attributes.a_position;
 
-                        const groupBuffer = group.buffer;
-
-                        if (!addPoint(groupBuffer.attributes.a_position.data, <GeoJSONCoordinate>coordinates, tile, tileSize)) {
+                        if (!addPoint(positionBuffer.data, <GeoJSONCoordinate>coordinates, tile, tileSize)) {
                             // in case of point has not been added because it's not inside tile
                             // -> we can skip it.
-                            return allReady;
+                            allReady;
+                            break;
                         }
+                    } else {
+                        continue;
                     }
+
+                    collisionBufferStop = positionBuffer.data.length;
+                    collisionBufferStart = collisionBufferStop - 12;
+                }
+
+                if (collisionData && positionBuffer) {
+                    collisionData.attrs.push({
+                        buffer: positionBuffer,
+                        start: collisionBufferStart,
+                        stop: collisionBufferStop
+                    });
                 }
             } else if (geomType == 'LineString') {
                 if (type == 'Line') {
@@ -530,7 +515,9 @@ export class FeatureFactory {
                     const positionBuffer = group.buffer.attributes.a_position.data;
 
                     for (let coord of <GeoJSONCoordinate[]>coordinates) {
-                        addPoint(positionBuffer, coord, tile, tileSize);
+                        if (tile.isInside(coord)) {
+                            addPoint(positionBuffer, coord, tile, tileSize);
+                        }
                     }
                 } else if (type == 'Text') {
                     this.lineFactory.createText(
@@ -611,6 +598,25 @@ export class FeatureFactory {
                 }
             }
         }
+
+        if (collisionBox && collisionBox[0] != Infinity) {
+            const [x1, y1, x2, y2] = collisionBox;
+            const halfWidth = (x2 - x1) * .5;
+            const halfHeight = (y2 - y1) * .5;
+
+            this.pendingCollisions.push({
+                offsetX: x1 + halfWidth,
+                offsetY: y1 + halfHeight,
+                width: halfWidth,
+                height: halfHeight,
+                styleGrp: collisionStyleGroup,
+                feature,
+                geomType,
+                coordinates,
+                priority: collisionPriority
+            });
+        }
+
         return allReady;
     }
 }

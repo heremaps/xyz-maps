@@ -26,7 +26,6 @@ import {FeatureFactory, CollisionCandidate} from './FeatureFactory';
 import {TemplateBuffer} from './templates/TemplateBuffer';
 import {GlyphTexture} from '../GlyphTexture';
 
-// const DEFAULT_STROKE_WIDTH_ZOOM_SCALE = () => 1;
 const PROCESS_FEATURE_BUNDLE_SIZE = 16;
 const EXCLUSIVE_TIME_MS = 4;
 const PRIORITY = 4;
@@ -219,7 +218,6 @@ const createBuffer = (
                             if (type == 'Text' || type == 'Icon') {
                                 geoBuffer.scissor = grpBuffer.scissor;
                                 geoBuffer.texture = grp.texture;
-
                                 if (type == 'Text') {
                                     (<GlyphTexture>geoBuffer.texture).sync();
                                     geoBuffer.addUniform('u_fillColor', shared.fill || COLOR_UNDEFINED);
@@ -249,7 +247,7 @@ const createBuffer = (
 
                                 if (type == 'Circle') {
                                     // geoBuffer.addUniform('u_radius', shared.radius);
-                                    geoBuffer.addUniform('u_radius', [shared.radius, toPixel]);
+                                    geoBuffer.addUniform('u_radius', [shared.width, toPixel]);
                                 } else {
                                     if (fill == COLOR_UNDEFINED) {
                                         // use blend to enable shader to not use discard (faster)
@@ -365,9 +363,7 @@ const createBuffer = (
                                 }
                             }
 
-                            if (!imgReady) {
-                                allIconsReady = false;
-                            }
+                            allIconsReady = allIconsReady && imgReady;
                         }
                     } else {
                         // feature count < bundle size -> next
@@ -387,14 +383,43 @@ const createBuffer = (
                     taskData[3] = 0;
                 }
                 let cData = taskData[7];
-                let c;
+                let candidate;
 
                 if (taskData[4] >= 0) {
-                    const styleGrp = [];
+                    // const styleGrp = [];
                     while (taskData[4]--) {
-                        if (c = cData[taskData[3]++]) {
-                            styleGrp[0] = c.style;
-                            factory.create(c.feature, c.geomType, c.coordinates, styleGrp, lsScale, false, c.priority);
+                        if (candidate = cData[taskData[3]++]) {
+                            const {coordinates, offsetX, offsetY, width, height, priority, geomType} = candidate;
+                            let bbox;
+
+                            if (geomType == 'Point') {
+                                const cx = tile.lon2x(coordinates[0], tileSize);
+                                const cy = tile.lat2y(coordinates[1], tileSize);
+
+                                bbox = tile.isInside(coordinates) && factory.collisions.insert(
+                                    cx, cy,
+                                    offsetX, offsetY,
+                                    width, height,
+                                    tile, tileSize,
+                                    priority
+                                );
+
+                                if (!bbox) continue;
+                            } else if (geomType != 'LineString') {
+                                continue;
+                            }
+
+                            const iconsReady = factory.create(
+                                candidate.feature,
+                                geomType,
+                                coordinates,
+                                candidate.styleGrp,
+                                lsScale,
+                                false,
+                                priority,
+                                bbox
+                            );
+                            allIconsReady = allIconsReady && iconsReady;
                         } else {
                             break;
                         }

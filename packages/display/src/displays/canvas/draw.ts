@@ -19,7 +19,7 @@
 
 import LineTextDrawer from './LineTextDrawer';
 import LineSymbolDrawer from './LineSymbolDrawer';
-import {measure, defaultFont} from '../fontCache';
+import {getAvgCharDimensions, defaultFont} from '../textUtils';
 import {getValue} from '../styleTools';
 import CanvasTile from './CanvasTile';
 import drawLine from './drawLine';
@@ -36,7 +36,7 @@ let UNDEF;
 
 
 let labeler = new LineTextDrawer(
-    measure(defaultFont)
+    getAvgCharDimensions({font: defaultFont}).width
 );
 
 let drawOnLine = new LineSymbolDrawer();
@@ -76,7 +76,7 @@ const init = (tileCtx: CanvasRenderingContext2D, renderStyle, zoomLevelScaling: 
         let font = renderStyle['font'] || defaultFont;
 
         labeler.setCharWidth(
-            measure(font)
+            getAvgCharDimensions(renderStyle).width
         );
 
         tileCtx.font = font;

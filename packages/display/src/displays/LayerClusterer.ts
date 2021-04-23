@@ -26,7 +26,7 @@
 
 import {getValue, isStyle} from './styleTools';
 
-import {defaultFont} from './fontCache';
+import {defaultFont} from './textUtils';
 
 const DEFAULT_FONT = defaultFont;
 const DEFAULT_STROKE_WIDTH_ZOOM_SCALE = () => 1;

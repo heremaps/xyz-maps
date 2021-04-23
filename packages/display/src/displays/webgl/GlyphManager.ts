@@ -18,6 +18,7 @@
  */
 import {getDirection} from './unicode';
 import {FontStyle} from './GlyphTexture';
+import {initFont, determineFontHeight, drawCharacter} from '../textUtils';
 
 const DEFAULT_STROKE_WIDTH = 1;
 const DEFAULT_FONT = 'normal 12px Arial';
@@ -25,82 +26,6 @@ const DEFAULT_TEXT_ALIGN = 'start';
 
 const GLYPH_FILL = '#fff';
 const GLYPH_STROKE = '#000';
-
-export const initFont = (ctx, style: FontStyle, fill = GLYPH_FILL, stroke = GLYPH_STROKE) => {
-    ctx.font = style.font || DEFAULT_FONT;
-
-    if (typeof style.strokeWidth == 'number') {
-        ctx.lineWidth = style.strokeWidth;
-    } else {
-        ctx.lineWidth = DEFAULT_STROKE_WIDTH;
-    }
-
-    ctx.strokeStyle = stroke;
-    ctx.fillStyle = fill;
-    ctx.textAlign = style.textAlign || DEFAULT_TEXT_ALIGN;
-    ctx.lineCap = 'round';
-    ctx.lineJoin = 'round';
-};
-
-const drawCharacter = (ctx: CanvasRenderingContext2D, c: string, x: number, y: number, style) => {
-    const fill = style.fill;
-    const stroke = style.stroke;
-    const strokeWidth = style.strokeWidth;
-
-    if (stroke && strokeWidth != 0) {
-        ctx.strokeText(c, x, y);
-    }
-    if (fill) {
-        ctx.fillText(c, x, y);
-    }
-};
-
-const determineFontHeight = (ctx: CanvasRenderingContext2D, style: FontStyle, text: string, width?: number, height?: number) => {
-    width = width || 128;
-    height = height || 128;
-
-    ctx.fillStyle = '#000';
-    ctx.fillRect(0, 0, width, height);
-
-    initFont(ctx, style, '#fff', '#fff');
-
-    // ctx.strokeStyle = '#fff';
-    // ctx.fillStyle = '#fff';
-
-    // ctx.textBaseline = 'top';
-
-    drawCharacter(ctx, text, 0, 0, style);
-
-    const pixels = ctx.getImageData(0, 0, width, height).data;
-    let start = -1;
-    let end = -1;
-
-    for (let row = 0; row < height; row++) {
-        for (let column = 0; column < width; column++) {
-            let index = (row * width + column) * 4;
-            if (pixels[index] == 0) {
-                if (column == width - 1 && start !== -1) {
-                    end = row;
-                    row = height;
-                    break;
-                }
-            } else {
-                if (start == -1) {
-                    start = row;
-                }
-                break;
-            }
-        }
-    }
-
-    ctx.clearRect(0, 0, width, height);
-
-    return {
-        height: end - start,
-        min: start,
-        max: end
-    };
-};
 
 export const createCanvas = (width: number, height: number): HTMLCanvasElement => {
     const canvas = document.createElement('canvas');

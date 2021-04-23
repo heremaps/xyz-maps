@@ -19,7 +19,7 @@
 
 import draw from './draw';
 
-import {createTxtRef} from '../fontCache';
+import {getTextString} from '../styleTools';
 
 // var MAX_CANVAS_SIZE = 512;
 // var MAX_BIT         = Math.log(MAX_CANVAS_SIZE) / Math.log(2);
@@ -44,7 +44,7 @@ class Painter {
     constructor(taskManager, devicePixelRatio, exclusiveTimeMS) {
         this.tm = taskManager;
         this.exclusiveTimeMS = exclusiveTimeMS;
-        this.dpr= devicePixelRatio;
+        this.dpr = devicePixelRatio;
     };
 
     spawn(priority: number, display, tile, layer, displayTile, INSTRUCTIONS, onDone, skipClear, delay) {
@@ -149,25 +149,15 @@ class Painter {
                                 let i = heap.fI++;
                                 const data = group.data;
                                 let feature = data.features[i];
-                                // let feature = group.features[i];
 
                                 if (feature) {
                                     let fstyle = data.styles[i];
-                                    // let fstyle = group.styles[i];
                                     let text;
-                                    let txt;
 
                                     if (isTextStyle) {
-                                        if (fstyle['textRef']) {
-                                            txt = createTxtRef(fstyle['textRef']);
-                                        } else {
-                                            txt = fstyle['text'];
-                                        }
-                                        text = typeof txt == 'function'
-                                            ? txt(feature)
-                                            : txt;
+                                        text = getTextString(fstyle, feature, tile.z);
 
-                                        if (text === UNDEF || text === EMPTY_STRING) {
+                                        if (!text) {
                                             continue;
                                         }
                                     }
