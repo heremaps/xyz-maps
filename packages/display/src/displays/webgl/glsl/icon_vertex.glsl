@@ -17,7 +17,7 @@ uniform bool u_fixedView;
 varying float vOpacity;
 varying vec2 v_texcoord;
 
-const float EXTENT_SCALE = 1.0 / 16.0;// 8912->512
+const float EXTENT_SCALE = 1.0 / 32.0;// 8912->512
 
 void main(void){
 
