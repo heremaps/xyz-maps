@@ -26,7 +26,7 @@ export class SymbolBuffer extends TemplateBuffer {
 
         this.attributes = {
             a_position: {
-                data: new FlexArray(Int16Array),
+                data: new FlexArray(Uint16Array),
                 size: 2
             },
             a_size: {

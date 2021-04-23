@@ -17,7 +17,7 @@ uniform float u_atlasScale;
 varying vec2 v_texcoord;
 varying vec4 vColor;
 
-const float EXTENT_SCALE = 1.0 / 64.0;// 16384->512
+const float EXTENT_SCALE = 1.0 / 128.0;// 32768->512
 const float OFFSET_SCALE = 1.0 / 32.0;
 
 const float PI_05 = M_PI * 0.5;

@@ -13,7 +13,7 @@ uniform float u_strokeWidth;
 varying vec2 v_position;
 varying float v_radius;
 
-const float EXTENT_SCALE = 1.0 / 16.0;// 8912->512
+const float EXTENT_SCALE = 1.0 / 32.0;// 8912->512
 
 float toPixel(vec2 size){
     float value = size.x;

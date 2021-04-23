@@ -19,7 +19,8 @@
 
 import {Tile, GeoJSONCoordinate} from '@here/xyz-maps-core';
 
-const extentScale = 16;
+const extentScale = 32;
+
 
 export const addPoint = (vertex: number[], coordinates: GeoJSONCoordinate, tile: Tile, tileSize: number): number => {
     const v = vertex.length;

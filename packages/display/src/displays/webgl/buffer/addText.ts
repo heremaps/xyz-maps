@@ -22,7 +22,7 @@ import {GlyphAtlas} from '../GlyphAtlas';
 import {FlexArray} from './templates/FlexArray';
 import {wrapText} from '../../textUtils';
 
-const EXTENT_SCALE = 64;
+const EXTENT_SCALE = 128;
 
 const addText = (
     text: string | string[],
