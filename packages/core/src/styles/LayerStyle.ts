@@ -412,7 +412,8 @@ export interface Style {
     rotation?: number | StyleValueFunction<number> | StyleZoomRange<number>;
     /**
      * In case of label collision, Text with a higher priority (lower value) will be drawn before lower priorities (higher value).
-     * "priority" applies to Text only.
+     * If the collision detection is enabled for multiple Styles within the same StyleGroup, the highest priority (lowest value)
+     * is used.
      */
     priority?: number | StyleValueFunction<number> | StyleZoomRange<number>;
     /**
@@ -436,11 +437,14 @@ export interface Style {
 
     /**
      * Enable or disable collision detection.
-     * Works for "Text" only.
-     * true - collision are allowed, Collision detection is disabled.
-     * false - avoid collisions, Collision detection is enabled. [default]
+     * Works for styles of type "Circle", "Rect", "Image" and "Text".
+     * If the collision detection is enabled for multiple Styles within the same StyleGroup, the respective Styles are
+     * handled as a single Object ("CollisionGroup") where the combined bounding-box is determined automatically.
      *
-     * @defaultValue false
+     * true - collision are allowed, Collision detection is disabled.
+     * false - avoid collisions, Collision detection is enabled.
+     *
+     * @defaultValue: false for "Text", true for all other.
      */
     collide?: boolean | StyleValueFunction<boolean> | StyleZoomRange<boolean>;
 

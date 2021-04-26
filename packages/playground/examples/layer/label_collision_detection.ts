@@ -59,7 +59,7 @@ const display = new Map(document.getElementById('map'), {
                         fill: 'black',
                         font: '18px sans-serif',
                         strokeWidth: 4,
-                        // set collide property to false to enable label collision detection [default]
+                        // set collide property to false to enable label collision detection [default for "Text"]
                         collide: false,
                         // Alignment for Text. "viewport" aligns to the plane of the viewport/screen.
                         alignment: 'viewport',
