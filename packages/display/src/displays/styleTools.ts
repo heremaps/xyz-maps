@@ -178,11 +178,13 @@ export const getBBox = (style: Style, feature: Feature, zoom: number, bbox?: num
 
     bbox = bbox || [INFINITY, INFINITY, -INFINITY, -INFINITY];
 
-    if ( // it's not a picture..
+    const fill = getValue('fill', style, feature, tileGridZoom);
+    const stroke = getValue('stroke', style, feature, tileGridZoom);
+
+    if ( // it's not a icon..
         type != 'Image' &&
-        // .. and no fill is defined
-        !getValue('fill', style, feature, tileGridZoom)
-        // !style.fill
+        // .. and no fill/stroke is defined
+        !fill && !stroke
     ) {
         // -> it's not visible!
         return bbox;
@@ -200,9 +202,7 @@ export const getBBox = (style: Style, feature: Feature, zoom: number, bbox?: num
         const dimensions = getAvgCharDimensions({
             font: getValue('font', style, feature, tileGridZoom) || defaultFont,
             // textAlign: getValue('textAlign', style, feature, tileGridZoom),
-            strokeWidth,
-            fill: getValue('fill', style, feature, tileGridZoom),
-            stroke: getValue('stroke', style, feature, tileGridZoom)
+            strokeWidth, fill, stroke
         });
 
         const lineWrap = getValue('lineWrap', style, feature, tileGridZoom);
@@ -217,9 +217,9 @@ export const getBBox = (style: Style, feature: Feature, zoom: number, bbox?: num
         w = dimensions.width * (maxLineLength + 1);
         h = lines.length * dimensions.height;
     } else {
-        let sw = getValue('strokeWidth', style, feature, tileGridZoom); // || 1;
+        let strokeWidth = getValue('strokeWidth', style, feature, tileGridZoom); // || 1;
 
-        if (isNaN(sw)) sw = 1;
+        if (isNaN(strokeWidth)) strokeWidth = 1;
 
         if (type == 'Circle') {
             w = 2 * getSizeInPixel('radius', style, feature, tileGridZoom) ^ 0;
@@ -230,8 +230,8 @@ export const getBBox = (style: Style, feature: Feature, zoom: number, bbox?: num
             h = (h || w) ^ 0;
         }
 
-        h = h + sw;
-        w += sw;
+        h = h + strokeWidth;
+        w += strokeWidth;
     }
 
     let offsetX = getValue('offsetX', style, feature, tileGridZoom) ^ 0;
