@@ -1,8 +1,38 @@
 # XYZ Maps JS: Core
 
-XYZ Maps is an experimental and work in progress open-source map editor written in TypeScript/JavaScript.
-The core module of XYZ Maps provides the most basic functionality and is used by all other modules of xyz-maps.
+[XYZ Maps](README.md) is an experimental and work in progress open-source map editor written in TypeScript/JavaScript.
+The core module of [XYZ Maps](README.md) provides the most basic functionality and is used by all other modules of xyz-maps.
 Main functionalities of the module are: DataProviders, TileLayers, Geometric Classes and Styling definitions.
+
+## Installation
+Install XYZ Map Core by using
+```sh
+# install using npm
+npm install @here/xyz-maps-core
+```
+or
+```sh
+# install using yarn
+yarn add @here/xyz-maps-core
+```
+
+## Example Usage:
+Create a MVTLayer
+```ts
+import {MVTLayer} from '@here/xyz-maps-core';
+
+// create a MVT Layer
+const myLayer = new MVTLayer({
+    remote: {
+        url: 'https://xyz.api.here.com/tiles/osmbase/512/all/{z}/{x}/{y}.mvt?access_token=' + YOUR_ACCESS_TOKEN
+        tileSize : 512
+    },
+    min: 1,
+    max: 20
+})
+// and add it to the map display
+display.addLayer(myLayer);
+```
 
 ## Start developing
 

@@ -1,8 +1,42 @@
 # XYZ Maps JS: Editor
 
-XYZ Maps is an experimental and work in progress open-source map editor written in TypeScript/JavaScript.
+[XYZ Maps](README.md) is an experimental and work in progress open-source map editor written in TypeScript/JavaScript.
 The editor module provides an API for editing map data that can be used to easily access, add, remove and edit various types of map data.
 Changes can be automatically synchronized with various remote backends services.
+
+## Installation
+Install XYZ Map Editor by using
+```sh
+# install using npm
+npm install @here/xyz-maps-editor
+```
+or
+```sh
+# install using yarn
+yarn add @here/xyz-maps-editor
+```
+
+## Example Usage:
+Create a map editor
+```ts
+import MapDisplay from '@here/xyz-maps-display';
+import {Editor} from '@here/xyz-maps-editor';
+
+const map = new MapDisplay( display, {
+    zoomLevel : 18,
+    center: {
+        longitude: 8.53422,
+        latitude: 50.16212
+    },
+    // add layers to the display
+    layers: layerSetup
+});
+
+const editor = new Editor( map, {
+    // add the layers that should be edited
+    layers: layerSetup
+});
+```
 
 ## Start developing
 

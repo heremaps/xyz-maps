@@ -55,7 +55,7 @@ const display = new Map(document.getElementById('map'), {
                         type: 'Circle',
                         radius: 5,
                         fill: '#fff',
-                        // allow collision and disable the collision detection
+                        // allow collisions and disable the collision detection
                         collide: true
                     }]
                 },
