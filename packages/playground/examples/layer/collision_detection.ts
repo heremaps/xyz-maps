@@ -20,7 +20,7 @@ const display = new Map(document.getElementById('map'), {
                     'earth': [{zIndex: 1, type: 'Polygon', fill: '#555555'}],
                     'water': [{zIndex: 2, type: 'Polygon', fill: '#353535'}],
                     'landuse': [{zIndex: 3, type: 'Polygon', fill: '#666666'}],
-                    'roads': [{zIndex: 4, type: 'Line', stroke: '#93939366', strokeWidth: {14: 0.5, 15: '4m'}}],
+                    'roads': [{zIndex: 4, type: 'Line', stroke: '#93939366', strokeWidth: {14: 1, 15: '4m'}}],
                     'roadshighway': [{zIndex: 5, type: 'Line', stroke: '#93939366', strokeWidth: {14: 1, 15: '8m'}}],
                     'buildings': [{zIndex: 7, type: 'Polygon', fill: '#999999'}],
                     'places': [{
