@@ -20,14 +20,14 @@ const display = new Map(document.getElementById('map'), {
                     'earth': [{zIndex: 1, type: 'Polygon', fill: '#555555'}],
                     'water': [{zIndex: 2, type: 'Polygon', fill: '#353535'}],
                     'landuse': [{zIndex: 3, type: 'Polygon', fill: '#666666'}],
-                    'roads': [{zIndex: 4, type: 'Line', stroke: '#93939366', strokeWidth: {14: 1, 15: '4m'}}],
-                    'roadshighway': [{zIndex: 5, type: 'Line', stroke: '#93939366', strokeWidth: {14: 1, 15: '8m'}}],
+                    'roads': [{zIndex: 4, type: 'Line', stroke: '#939393', strokeWidth: {14: 1, 15: '4m'}}],
+                    'roadshighway': [{zIndex: 5, type: 'Line', stroke: '#939393', strokeWidth: {14: 1, 15: '8m'}}],
                     'buildings': [{zIndex: 7, type: 'Polygon', fill: '#999999'}],
                     'places': [{
                         zIndex: 8,
                         type: 'Rect',
                         width: 20,
-                        fill: '#AEEF45FF',
+                        fill: '#AEEF45',
                         // set collide property to false to enable the collision detection.
                         collide: false,
                         priority: 2
@@ -35,7 +35,7 @@ const display = new Map(document.getElementById('map'), {
                         zIndex: 8,
                         type: 'Rect',
                         width: 20,
-                        fill: '#AEEF45FF',
+                        fill: '#AEEF45',
                         rotation: 45,
                         // If the collision detection is enabled for multiple Styles within the same StyleGroup, the respective Styles are
                         // handled as a single Object ("CollisionGroup") where the combined bounding-box is determined automatically.
@@ -44,7 +44,7 @@ const display = new Map(document.getElementById('map'), {
                         zIndex: 8,
                         type: 'Circle',
                         radius: 18,
-                        stroke: '#AEEF45FF',
+                        stroke: '#AEEF45',
                         strokeWidth: 2,
                         collide: false,
                         // If the collision detection is enabled for multiple Styles within the same StyleGroup,
