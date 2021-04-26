@@ -197,6 +197,10 @@
       "docs": "classes/core.mvtlayer.html"
     },
     {
+      "file": "./layer/collision_detection.html",
+      "docs": "interfaces/core.style.html#collide"
+    },
+    {
       "file": "./layer/3d_buildings.html",
       "docs": "interfaces/core.style.html#extrude"
     },
