@@ -22,7 +22,7 @@ import {getCanvasPixelColor, prepare} from 'utils';
 import {Map} from '@here/xyz-maps-display';
 import dataset from './collision_detection_spec.json';
 
-describe('collision detection', function() {
+describe('collision detection - Text', function() {
     const expect = chai.expect;
 
     const color1 = '#ff0000';

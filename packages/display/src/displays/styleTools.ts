@@ -166,7 +166,7 @@ const getLineWidth = (groups: StyleGroup, feature: Feature, zoom: number, layerI
     return [width, maxZ];
 };
 
-export const getBBox = (style: Style, feature: Feature, zoom: number, bbox?: number[]) => {
+export const getBBox = (style: Style, feature: Feature, zoom: number, bbox?: number[], skipStrokeColor?: boolean ) => {
     const tileGridZoom = getTileGridZoom(zoom);
     const type = getValue('type', style, feature, tileGridZoom);
     let x1;
@@ -179,7 +179,7 @@ export const getBBox = (style: Style, feature: Feature, zoom: number, bbox?: num
     bbox = bbox || [INFINITY, INFINITY, -INFINITY, -INFINITY];
 
     const fill = getValue('fill', style, feature, tileGridZoom);
-    const stroke = getValue('stroke', style, feature, tileGridZoom);
+    const stroke = skipStrokeColor ? false : getValue('stroke', style, feature, tileGridZoom);
 
     if ( // it's not a icon..
         type != 'Image' &&
@@ -277,7 +277,7 @@ const getPixelSize = (groups: StyleGroup, feature: Feature, zoom: number, layerI
 
     let bbox;
     for (let style of groups) {
-        bbox = getBBox(style, feature, zoom, bbox);
+        bbox = getBBox(style, feature, zoom, bbox, true);
         z = getAbsZ(style, feature, tileGridZoom, layerIndex);
 
         if (z > maxZ) {
