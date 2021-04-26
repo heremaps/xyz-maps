@@ -121,19 +121,27 @@ class Area extends Feature {
         return added;
     };
 
-
-    addHole(position: { x: number, y: number, z?: number } | { longitude: number, latitude: number, z?: number } | GeoJSONCoordinate): boolean {
-        if (position) {
-            position = this._e().map.getPixelCoord(position);
+    /**
+     * Add a rectangular hole to the polygon geometry at the provided position.
+     * The position must be located in the exterior of the polygon.
+     * The size of the hole is calculated with respect to the polygon geometry.
+     *
+     * @param point - the center of the rectangular hole to be created
+     *
+     * @returns boolean that indicates if the hole has been added successfully.
+     */
+    addHole(point: GeoPoint | PixelPoint | GeoJSONCoordinate): boolean {
+        if (point) {
+            point = this._e().map.getPixelCoord(point);
 
             const area = this;
-            const polyIdx = oTools.getPoly(area, position);
+            const polyIdx = oTools.getPoly(area, point);
             const coordinates = oTools.getCoords(area);
             const polygon = coordinates[polyIdx];
             let width = Infinity;
 
             for (let p = 0; p < polygon.length; p++) {
-                const w = oTools.getMaxSpace(area, position, polygon[p]);
+                const w = oTools.getMaxSpace(area, point, polygon[p]);
                 if (w < width) {
                     width = w;
                 }
@@ -143,8 +151,8 @@ class Area extends Feature {
                 width = Math.floor(width * .5);
 
                 if (width > MIN_HOLE_SIZE) {
-                    const x = position[0];
-                    const y = position[1];
+                    const x = point[0];
+                    const y = point[1];
                     const hole = [
 
                         [x - width, y + width],
