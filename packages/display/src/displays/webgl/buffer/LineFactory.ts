@@ -32,7 +32,7 @@ export type PixelCoordinateCache = { data: Float32Array, length: number, lineLen
 
 export class LineFactory {
     private dashes: DashAtlas;
-    private gl: WebGLRenderingContext;
+    private readonly gl: WebGLRenderingContext;
     private prjCoords: PixelCoordinateCache = null; // coordinate cache
     private pixels: Float32Array;
     private decimals: number; // increase precision for tile scaling

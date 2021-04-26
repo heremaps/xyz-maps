@@ -22,7 +22,7 @@ import {addPolygon, FlatPolygon} from './addPolygon';
 import {addExtrude} from './addExtrude';
 import {addIcon} from './addIcon';
 import earcut from 'earcut';
-import {getBBox, getPixelSize, getTextString, getValue, parseSizeValue, Style, StyleGroup} from '../../styleTools';
+import {getBBox, getTextString, getValue, parseSizeValue, Style, StyleGroup} from '../../styleTools';
 import {defaultFont, wrapText} from '../../textUtils';
 import {GlyphTexture} from '../GlyphTexture';
 import {toRGB} from '../color';
@@ -59,7 +59,7 @@ export type CollisionCandidate = {
 };
 
 export class FeatureFactory {
-    private gl: WebGLRenderingContext;
+    private readonly gl: WebGLRenderingContext;
     private icons: IconManager;
     private dpr: number;
 
@@ -470,12 +470,7 @@ export class FeatureFactory {
                         }
                         positionBuffer = group.buffer.attributes.a_position;
 
-                        if (!addPoint(positionBuffer.data, <GeoJSONCoordinate>coordinates, tile, tileSize)) {
-                            // in case of point has not been added because it's not inside tile
-                            // -> we can skip it.
-                            allReady;
-                            break;
-                        }
+                        addPoint(positionBuffer.data, <GeoJSONCoordinate>coordinates, tile, tileSize);
                     } else {
                         continue;
                     }
@@ -533,6 +528,35 @@ export class FeatureFactory {
                         offsetY,
                         group.shared
                     );
+                } else if (type == 'Icon') {
+                    if (!group.buffer) {
+                        group.buffer = new SymbolBuffer();
+                    }
+                    const src = getValue('src', style, feature, level);
+                    const width = getValue('width', style, feature, level);
+                    const height = getValue('height', style, feature, level) || width;
+                    const groupBuffer = group.buffer;
+                    const {attributes} = groupBuffer;
+
+                    const img = this.icons.get(src, width, height);
+
+                    if (!img) {
+                        allReady = false;
+                        continue;
+                    }
+                    for (let coord of <GeoJSONCoordinate[]>coordinates) {
+                        if (tile.isInside(coord)) {
+                            addIcon(img,
+                                width, height,
+                                attributes.a_size.data,
+                                attributes.a_position.data,
+                                attributes.a_texcoord.data,
+                                coord,
+                                tile, tileSize
+                            );
+                        }
+                    }
+                    group.texture = this.icons.getTexture();
                 }
             } else {
                 // Polygon geometry
