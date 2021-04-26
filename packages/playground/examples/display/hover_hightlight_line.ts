@@ -2,7 +2,7 @@ import {MVTLayer, TileLayer, SpaceProvider} from '@here/xyz-maps-core';
 import {Map} from '@here/xyz-maps-display';
 
 /** setup the Map **/
-let backgroundLayer = new MVTLayer({
+const backgroundLayer = new MVTLayer({
     name: 'background layer',
     min: 1,
     max: 20,
@@ -10,7 +10,7 @@ let backgroundLayer = new MVTLayer({
         url: 'https://xyz.api.here.com/tiles/osmbase/512/all/{z}/{x}/{y}.mvt?access_token=' + YOUR_ACCESS_TOKEN
     }
 });
-var lineLayer = new TileLayer({
+const lineLayer = new TileLayer({
     min: 14,
     max: 20,
     provider: new SpaceProvider({
@@ -47,7 +47,7 @@ const display = new Map(document.getElementById('map'), {
 
 
 // the style to highlight a currently hovered line
-var hoverStyle = [
+const hoverStyle = [
     {zIndex: 3, type: 'Line', stroke: '#CB668E', strokeWidth: 24},
     {zIndex: 4, type: 'Line', stroke: '#F090B3', strokeWidth: 18},
     {zIndex: 5, type: 'Text', fill: '#000000', text: 'hovered'}

@@ -111,6 +111,7 @@ export class MVTLayer extends TileLayer {
             max: layerMax,
             style: OSMStyle,
             margin: 0,
+            pointerEvents: false,
             ...options,
             tileSize,
             providers

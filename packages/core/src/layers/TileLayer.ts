@@ -57,7 +57,7 @@ export class TileLayer {
     private _fp: FeatureProvider;
 
     private _sd = null;
-    // pointer events actice
+    // pointer events active
     private _pev = true;
 
     private _l: Listeners;
@@ -98,6 +98,9 @@ export class TileLayer {
      */
     constructor(options: TileLayerOptions) {
         const layer = this;
+        const {pointerEvents} = options;
+        delete options.pointerEvents;
+
 
         for (const c in options) {
             layer[c] = options[c];
@@ -118,6 +121,10 @@ export class TileLayer {
             STYLE_CHANGE_EVENT
             // ,'tap', 'pointerup', 'pointerenter', 'pointerleave', 'dbltap', 'pointerdown', 'pressmove', 'pointermove'
         ]);
+
+        if (typeof pointerEvents == 'boolean') {
+            this.pointerEvents(pointerEvents);
+        }
 
 
         const providerCfg = options.providers || options.provider;
@@ -327,7 +334,7 @@ export class TileLayer {
      */
     addFeature(feature: GeoJSONFeatureCollection | GeoJSONFeature[], style?: Style[]): Feature[];
 
-    addFeature(feature: GeoJSONFeature | Feature | GeoJSONFeatureCollection | GeoJSONFeature[], style?: Style[]): Feature| Feature[] {
+    addFeature(feature: GeoJSONFeature | Feature | GeoJSONFeatureCollection | GeoJSONFeature[], style?: Style[]): Feature | Feature[] {
         const prov = <FeatureProvider> this._fp;
 
         if (prov.addFeature) {

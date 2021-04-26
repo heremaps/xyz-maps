@@ -63,4 +63,10 @@ export interface TileLayerOptions {
      * @defaultValue 512
      */
     tileSize?: number;
+
+    /**
+     * enable or disable pointer-event triggering for all features of all layers.
+     * @defaultValue true
+     */
+    pointerEvents?: boolean
 }
