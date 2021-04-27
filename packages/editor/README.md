@@ -1,8 +1,12 @@
 # XYZ Maps JS: Editor
 
-[XYZ Maps](README.md) is an experimental and work in progress open-source map editor written in TypeScript/JavaScript.
+[XYZ Maps](https://github.com/heremaps/xyz-editor) is an experimental and work in progress open-source map editor written in TypeScript/JavaScript.
 The editor module provides an API for editing map data that can be used to easily access, add, remove and edit various types of map data.
 Changes can be automatically synchronized with various remote backends services.
+
+### Links
+* [API Playground](https://heremaps.github.io/xyz-editor/playground/#Display-Pitch_and_Rotate_Map)
+* [Documentation](https://heremaps.github.io/xyz-editor/docs/)
 
 ## Installation
 Install XYZ Map Editor by using
