@@ -1,8 +1,12 @@
 # XYZ Maps JS: Core
 
-[XYZ Maps](README.md) is an experimental and work in progress open-source map editor written in TypeScript/JavaScript.
-The core module of [XYZ Maps](README.md) provides the most basic functionality and is used by all other modules of xyz-maps.
+[XYZ Maps](https://github.com/heremaps/xyz-editor) is an experimental and work in progress open-source map editor written in TypeScript/JavaScript.
+The core module of [XYZ Maps](https://github.com/heremaps/xyz-editor) provides the most basic functionality and is used by all other modules of xyz-maps.
 Main functionalities of the module are: DataProviders, TileLayers, Geometric Classes and Styling definitions.
+
+### Links
+* [API Playground](https://heremaps.github.io/xyz-editor/playground/#Display-Pitch_and_Rotate_Map)
+* [Documentation](https://heremaps.github.io/xyz-editor/docs/)
 
 ## Installation
 Install XYZ Map Core by using

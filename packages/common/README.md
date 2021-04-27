@@ -1,7 +1,11 @@
 # XYZ Maps JS: Common
 
-[XYZ Maps](README.md) is an experimental and work in progress open-source map editor written in TypeScript/JavaScript.
-The Common module provides commonly used javascript functionality that are required by all other modules of [XYZ Maps](README.md).
+[XYZ Maps](https://github.com/heremaps/xyz-editor) is an experimental and work in progress open-source map editor written in TypeScript/JavaScript.
+The Common module provides commonly used javascript functionality that are required by all other modules of [XYZ Maps](https://github.com/heremaps/xyz-editor).
+
+### Links
+* [API Playground](https://heremaps.github.io/xyz-editor/playground/#Display-Pitch_and_Rotate_Map)
+* [Documentation](https://heremaps.github.io/xyz-editor/docs/)
 
 ## Start developing
 
