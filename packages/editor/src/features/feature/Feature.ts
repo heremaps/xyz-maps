@@ -85,12 +85,6 @@ class Feature extends GeoJSONFeature {
         return (<EditableProvider> this._provider)._e;
     }
 
-
-    // getBBox = function()
-    // {
-    //     return this.bbox;
-    // };
-
     private _esu: boolean;
 
     editState(state: EditStates, value?) {

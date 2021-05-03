@@ -22,13 +22,13 @@ import {addPolygon, FlatPolygon} from './addPolygon';
 import {addExtrude} from './addExtrude';
 import {addIcon} from './addIcon';
 import earcut from 'earcut';
-import {getBBox, getTextString, getValue, parseSizeValue, Style, StyleGroup} from '../../styleTools';
+import {calcBBox, getTextString, getValue, parseSizeValue, Style, StyleGroup} from '../../styleTools';
 import {defaultFont, wrapText} from '../../textUtils';
 import {GlyphTexture} from '../GlyphTexture';
 import {toRGB} from '../color';
 import {IconManager} from '../IconManager';
 import {DashAtlas} from '../DashAtlas';
-import {CollisionHandler} from '../CollisionHandler';
+import {CollisionData, CollisionHandler} from '../CollisionHandler';
 import {LineFactory} from './LineFactory';
 
 import {TextBuffer} from './templates/TextBuffer';
@@ -52,10 +52,10 @@ export type CollisionCandidate = {
     priority: number,
     geomType: string,
     coordinates: any,
-    offsetX: number;
-    offsetY: number;
-    width: number;
-    height: number;
+    offsetX?: number;
+    offsetY?: number;
+    width?: number;
+    height?: number;
 };
 
 export class FeatureFactory {
@@ -100,7 +100,7 @@ export class FeatureFactory {
         strokeWidthScale: number,
         removeTileBounds?: boolean,
         priority?: number,
-        collisionData?: any
+        collisionCandidate?: CollisionCandidate
     ): boolean {
         const {tile, groups, tileSize} = this;
         const level = this.z;
@@ -138,6 +138,9 @@ export class FeatureFactory {
         let sizeUnit;
         let offsetUnit;
         let allReady = true;
+        let collisionData = null;
+        let cx;
+        let cy;
 
         this.lineFactory.init(level, tileSize);
 
@@ -156,20 +159,34 @@ export class FeatureFactory {
 
             if (opacity === 0) continue;
 
+            let collide = geomType == 'Polygon'
+                ? true // no collision detection support for polygons
+                : getValue('collide', style, feature, level);
+
             if (
                 priority == UNDEF && (
-                    (type == 'Text' && !style.collide) ||
-                (geomType == 'Point' && style.collide === false))
-            ) {
-                let priority = getValue('priority', style, feature, level);
+                    type == 'Text' && !collide ||
+                    collide === false
+                )) {
+                let bbox;
 
-                collisionBox = getBBox(style, feature, level, collisionBox);
 
-                collisionStyleGroup = collisionStyleGroup || [];
-                collisionStyleGroup.push(style);
+                // if (geomType == 'LineString') {
+                //     bbox = true;
+                // } else {
+                bbox = calcBBox(style, feature, level, collisionBox);
+                // }
 
-                if (priority < collisionPriority) {
-                    collisionPriority = priority;
+                if (bbox) {
+                    collisionBox = bbox || collisionBox;
+                    collisionStyleGroup = collisionStyleGroup || [];
+                    collisionStyleGroup.push(style);
+
+                    let priority = getValue('priority', style, feature, level);
+
+                    if (priority < collisionPriority) {
+                        collisionPriority = priority;
+                    }
                 }
                 continue;
             }
@@ -244,7 +261,7 @@ export class FeatureFactory {
                     fill = getValue('fill', style, feature, level);
 
                     if (type == 'Polygon') {
-                        if (!fill || geomType != 'Polygon' && geomType != 'MultiPolygon') {
+                        if (!fill || geomType != 'Polygon') {
                             continue;
                         }
                         extrude = getValue('extrude', style, feature, level);
@@ -256,7 +273,7 @@ export class FeatureFactory {
                             groupId = 'P';
                         }
                     } else {
-                        if (geomType == 'Polygon' || geomType == 'MultiPolygon') {
+                        if (geomType == 'Polygon') {
                             continue;
                         }
 
@@ -342,9 +359,7 @@ export class FeatureFactory {
                 groupId += (stroke || NONE) + (strokeWidth || NONE) + (fill || NONE);
             }
 
-
             groupId += opacity * 100 ^ 0;
-
 
             if (rotation = getValue('rotation', style, feature, level) ^ 0) {
                 groupId += 'R' + rotation;
@@ -395,10 +410,33 @@ export class FeatureFactory {
                 let collisionBufferStart;
                 let collisionBufferStop;
 
-                // collision detection already tested if the coordinates are inside the tile.
-                if (!collisionData && !tile.isInside(coordinates)) {
-                    continue;
+
+                if (!tile.isInside(coordinates)) {
+                    return allReady;
                 }
+
+                if (collisionCandidate && collisionData === null) {
+                    cx = tile.lon2x(coordinates[0], tileSize);
+                    cy = tile.lat2y(coordinates[1], tileSize);
+                    collisionData = this.collisions.insert(
+                        cx, cy,
+                        collisionCandidate.offsetX,
+                        collisionCandidate.offsetY,
+                        collisionCandidate.width,
+                        collisionCandidate.height,
+                        tile, tileSize,
+                        collisionCandidate.priority
+                    );
+
+                    if (!collisionData) {
+                        return;
+                    }
+                }
+
+                // collision detection already tested if the coordinates are inside the tile.
+                // if (!collisionData && !tile.isInside(coordinates)) {
+                //     continue;
+                // }
 
                 if (type == 'Text') {
                     let {texture} = group;
@@ -410,8 +448,11 @@ export class FeatureFactory {
                     }
 
                     const {attributes} = group.buffer;
-                    const cx = tile.lon2x(coordinates[0], tileSize);
-                    const cy = tile.lat2y(coordinates[1], tileSize);
+
+                    if (cx == UNDEF) {
+                        cx = tile.lon2x(coordinates[0], tileSize);
+                        cy = tile.lat2y(coordinates[1], tileSize);
+                    }
 
                     texture.addChars(text);
 
@@ -479,6 +520,7 @@ export class FeatureFactory {
                     collisionBufferStart = collisionBufferStop - 12;
                 }
 
+
                 if (collisionData && positionBuffer) {
                     collisionData.attrs.push({
                         buffer: positionBuffer,
@@ -503,30 +545,50 @@ export class FeatureFactory {
                         getValue('to', style, feature, level)
                     );
                 } else if (type == 'Circle' || type == 'Rect') {
-                    if (!group.buffer) {
-                        group.buffer = new PointBuffer();
-                    }
+                    const anchor = getValue('anchor', style, feature, level);
 
-                    const positionBuffer = group.buffer.attributes.a_position.data;
-
-                    for (let coord of <GeoJSONCoordinate[]>coordinates) {
-                        if (tile.isInside(coord)) {
-                            addPoint(positionBuffer, coord, tile, tileSize);
+                    if (!anchor || anchor == 'Coordinates') {
+                        if (!group.buffer) {
+                            group.buffer = new PointBuffer();
                         }
+
+                        const positionBuffer = group.buffer.attributes.a_position.data;
+
+                        for (let coord of <GeoJSONCoordinate[]>coordinates) {
+                            if (tile.isInside(coord)) {
+                                addPoint(positionBuffer, coord, tile, tileSize);
+                            }
+                        }
+                    } else if (anchor == 'Line') {
+                        group.buffer = this.lineFactory.placePoint(
+                            <GeoJSONCoordinate[]>coordinates,
+                            group.buffer,
+                            tile,
+                            tileSize,
+                            collide === false && this.collisions,
+                            priority,
+                            getValue('repeat', style, feature, level),
+                            offsetX,
+                            offsetY,
+                            width,
+                            height,
+                            collisionCandidate
+                        );
                     }
                 } else if (type == 'Text') {
-                    this.lineFactory.createText(
+                    this.lineFactory.placeText(
                         text,
                         <GeoJSONCoordinate[]>coordinates,
                         group,
                         tile,
                         tileSize,
-                        !style.collide && this.collisions,
+                        !collide && this.collisions,
                         priority,
                         getValue('repeat', style, feature, level),
                         offsetX,
                         offsetY,
-                        group.shared
+                        group.shared,
+                        collisionCandidate
                     );
                 } else if (type == 'Icon') {
                     if (!group.buffer) {
@@ -623,24 +685,30 @@ export class FeatureFactory {
             }
         }
 
-        if (collisionBox && collisionBox[0] != Infinity) {
+        if (collisionStyleGroup) {
+            let cData: CollisionCandidate = {
+                priority: collisionPriority,
+                styleGrp: collisionStyleGroup,
+                feature,
+                geomType,
+                coordinates
+            };
+
+            // if (Array.isArray(collisionBox)) {
             const [x1, y1, x2, y2] = collisionBox;
             const halfWidth = (x2 - x1) * .5;
             const halfHeight = (y2 - y1) * .5;
 
-            this.pendingCollisions.push({
-                offsetX: x1 + halfWidth,
-                offsetY: y1 + halfHeight,
-                width: halfWidth,
-                height: halfHeight,
-                styleGrp: collisionStyleGroup,
-                feature,
-                geomType,
-                coordinates,
-                priority: collisionPriority
-            });
+            cData.offsetX = x1 + halfWidth;
+            cData.offsetY = y1 + halfHeight;
+            cData.width = halfWidth;
+            cData.height = halfHeight;
+            // }
+
+            this.pendingCollisions.push(cData);
         }
 
         return allReady;
     }
 }
+
