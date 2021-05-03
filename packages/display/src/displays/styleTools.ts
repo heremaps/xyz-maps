@@ -23,6 +23,11 @@ import {toRGB} from './webgl/color';
 import {getRotatedBBox} from '../geometry';
 import {webMercator, Style, StyleGroup} from '@here/xyz-maps-core';
 
+import {GlyphManager} from './webgl/GlyphManager';
+
+const glyphManager = GlyphManager.getInstance();
+
+
 const {meterToPixel, pixelToMeter} = webMercator;
 
 const getTileGridZoom = (zoom) => Math.min(zoom, 20) ^ 0;
@@ -166,7 +171,7 @@ const getLineWidth = (groups: StyleGroup, feature: Feature, zoom: number, layerI
     return [width, maxZ];
 };
 
-export const getBBox = (style: Style, feature: Feature, zoom: number, bbox?: number[], skipStrokeColor?: boolean ) => {
+export const calcBBox = (style: Style, feature: Feature, zoom: number, bbox?: number[], skipStrokeColor?: boolean): number[] | null => {
     const tileGridZoom = getTileGridZoom(zoom);
     const type = getValue('type', style, feature, tileGridZoom);
     let x1;
@@ -187,7 +192,7 @@ export const getBBox = (style: Style, feature: Feature, zoom: number, bbox?: num
         !fill && !stroke
     ) {
         // -> it's not visible!
-        return bbox;
+        return null;
     }
 
 
@@ -195,27 +200,42 @@ export const getBBox = (style: Style, feature: Feature, zoom: number, bbox?: num
         const text = getTextString(style, feature, tileGridZoom);
 
         if (!text) {
-            return bbox;
+            return null;
         }
 
-        const strokeWidth = getValue('strokeWidth', style, feature, tileGridZoom);
-        const dimensions = getAvgCharDimensions({
-            font: getValue('font', style, feature, tileGridZoom) || defaultFont,
-            // textAlign: getValue('textAlign', style, feature, tileGridZoom),
-            strokeWidth, fill, stroke
-        });
+        // if(text == 'Brooklyn Bridge')debugger;
+        // if(text == 'Manhattan Bridge')debugger;
+        // const strokeWidth = getValue('strokeWidth', style, feature, tileGridZoom);
+        // const dimensions = getAvgCharDimensions({
+        //     font: getValue('font', style, feature, tileGridZoom) || defaultFont,
+        //     // textAlign: getValue('textAlign', style, feature, tileGridZoom),
+        //     strokeWidth, fill, stroke
+        // });
+        //
 
-        const lineWrap = getValue('lineWrap', style, feature, tileGridZoom);
-        const lines = wrapText(text, lineWrap);
+        let lines;
 
-        let maxLineLength = 0;
-        for (let {length} of lines) {
-            if (length > maxLineLength) {
-                maxLineLength = length;
+        let strokeWidth = getValue('strokeWidth', style, feature, tileGridZoom);
+        let font = getValue('font', style, feature, tileGridZoom);
+        const _font = glyphManager.initFont({font, strokeWidth, fill, stroke /* textAlign */});
+
+        w = 0;
+
+        if (feature.geometry.type == 'LineString' ||feature.geometry.type == 'MultiLineString') {
+            w = glyphManager.getTextWidth(text, _font);
+            h = _font.letterHeight;
+        } else {
+            const lineWrap = getValue('lineWrap', style, feature, tileGridZoom);
+            lines = wrapText(text, lineWrap);
+
+            for (let line of lines) {
+                let _w = glyphManager.getTextWidth(line, _font);
+                if (_w > w) {
+                    w = _w;
+                }
             }
+            h = lines.length * _font.letterHeight;
         }
-        w = dimensions.width * (maxLineLength + 1);
-        h = lines.length * dimensions.height;
     } else {
         let strokeWidth = getValue('strokeWidth', style, feature, tileGridZoom); // || 1;
 
@@ -275,18 +295,20 @@ const getPixelSize = (groups: StyleGroup, feature: Feature, zoom: number, layerI
     let maxZ = 0;
     let z;
 
-    let bbox;
+    let combinedBBox;
     for (let style of groups) {
-        bbox = getBBox(style, feature, zoom, bbox, true);
+        const bbox = calcBBox(style, feature, zoom, combinedBBox, true);
+        combinedBBox = bbox || combinedBBox;
+
         z = getAbsZ(style, feature, tileGridZoom, layerIndex);
 
         if (z > maxZ) {
             maxZ = z;
         }
     }
-    if (bbox[0] != INFINITY) {
-        bbox[4] = maxZ;
-        return bbox;
+    if (combinedBBox) {
+        combinedBBox[4] = maxZ;
+        return combinedBBox;
     }
 };
 

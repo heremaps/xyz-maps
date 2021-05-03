@@ -34,7 +34,6 @@ export const createCanvas = (width: number, height: number): HTMLCanvasElement =
     return canvas;
 };
 
-
 export type Glyph = {
     width: number;
     char: string,
@@ -65,6 +64,7 @@ class GlyphManager {
         const styleId = this.getFontId(style);
 
         if (!fonts[styleId]) {
+            console.log('init font', styleId);
             const size = 96 * scale;
             const canvas = createCanvas(size, size);
             const ctx = canvas.getContext('2d');
@@ -100,6 +100,7 @@ class GlyphManager {
                 offsetX: 2 * lineWidth * scale,
                 scale: scale,
                 style,
+                charWidthCache: new Map<string, number>(),
                 rowHeight: rowHeight * scale,
                 letterHeightBottom: letterHeightBottom,
                 letterHeight: letterHeight,
@@ -127,7 +128,14 @@ class GlyphManager {
 
             drawCharacter(font.ctx, char, font.paddingX, font.paddingY, font.style);
 
-            let charWidth = font.ctx.measureText(char).width;
+            let charWidth = font.charWidthCache.get(char);
+            if (charWidth == undefined) {
+                charWidth = font.ctx.measureText(char).width;
+            } else {
+                font.charWidthCache.delete(char);
+            }
+
+
             let width = Math.round((charWidth || 0) + 2 * font.paddingX) * scale;
 
             // debug only
@@ -155,10 +163,29 @@ class GlyphManager {
         return glyph;
     }
 
+    // getTextWidth(text: string, font) {
+    //     const {ctx} = font;
+    //     // 2x linewidth is roughly estimated but good enough
+    //     return ctx.measureText(text).width; // + 2 * ctx.lineWidth;
+    // }
+
     getTextWidth(text: string, font) {
         const {ctx} = font;
-        // 2x linewidth is roughly estimated but good enough
-        return ctx.measureText(text).width + 2 * ctx.lineWidth;
+        let width = 0;
+        for (let char of text) {
+            let glyph = font.glyphs.get(char);
+            if (glyph) {
+                width += glyph.width;
+            } else {
+                let w = font.charWidthCache.get(char);
+                if (w == undefined) {
+                    w = ctx.measureText(char).width;
+                    font.charWidthCache.set(char, w);
+                }
+                width += w;
+            }
+        }
+        return width; // + 2 * ctx.lineWidth;
     }
 }
 

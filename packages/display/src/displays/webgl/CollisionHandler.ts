@@ -72,7 +72,7 @@ export class CollisionHandler {
         for (let len = data.length, bbox2; i < len; i++) {
             bbox2 = data[i];
             if (box1.minX <= bbox2.maxX && bbox2.minX <= box1.maxX && box1.minY <= bbox2.maxY && bbox2.minY <= box1.maxY) {
-                return bbox2;
+                return true;
             }
         }
     }
@@ -146,6 +146,8 @@ export class CollisionHandler {
             cy -= (tile.y * .5 ^ 0) * 512 - tileY;
         }
 
+        const boxBuffer = 3;
+
         const bbox: CollisionData = {
             // tileX: tileX,
             // tileY: tileY,
@@ -153,10 +155,10 @@ export class CollisionHandler {
             cy: cy + offsetY,
             offsetX: offsetX,
             offsetY: offsetY,
-            minX: x1,
-            maxX: x2,
-            minY: y1,
-            maxY: y2,
+            minX: x1 - boxBuffer,
+            maxX: x2 + boxBuffer,
+            minY: y1 - boxBuffer,
+            maxY: y2 + boxBuffer,
             priority: priority,
             attrs: []
         };
@@ -233,6 +235,8 @@ export class CollisionHandler {
         const {display} = this;
         const collisionData: CollisionData[] = [];
 
+        window._dbgLayer?.getProvider().clear();
+
         for (let screentile of tiles) {
             let quadkey = screentile.quadkey;
 
@@ -257,6 +261,28 @@ export class CollisionHandler {
 
                         ac[0] += bbox.offsetX;
                         ac[1] += bbox.offsetY;
+
+                        if (window._dbgLayer) {
+                            // console.log('halfWdith', halfWidth);
+                            let geo = window.display.pixelToGeo(ac[0], ac[1]);
+                            //
+                            window._dbgLayer.addFeature({
+                                type: 'Feature',
+                                geometry: {
+                                    type: 'Point',
+                                    coordinates: [geo.longitude, geo.latitude]
+                                }
+                            }, [{
+                                zLayer: 1e5,
+                                zIndex: 1e5,
+                                type: 'Rect',
+                                stroke: 'black',
+                                strokeWidth: 2,
+                                width: halfWidth * 2,
+                                height: halfHeight * 2,
+                                collide: true
+                            }]);
+                        }
 
                         collisionData.push({
                             minX: ac[0] - halfWidth,
