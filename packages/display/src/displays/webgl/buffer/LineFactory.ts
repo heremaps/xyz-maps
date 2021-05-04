@@ -136,9 +136,61 @@ export class LineFactory {
         );
     }
 
-    placePoint(
+    // placePoint(
+    //     coordinates: Coordinate[],
+    //     buffer: PointBuffer,
+    //     tile: Tile,
+    //     tileSize: number,
+    //     collisions: CollisionHandler,
+    //     priority: number,
+    //     repeat: number,
+    //     offsetX: number,
+    //     offsetY: number,
+    //     width: number,
+    //     height: number,
+    //     collisionCandidate?: CollisionCandidate
+    // ): PointBuffer {
+    //     if (collisionCandidate) {
+    //         width = collisionCandidate.width * 2;
+    //         height = collisionCandidate.height * 2;
+    //     }
+    //
+    //     this.projectLine(coordinates, tile, tileSize);
+    //
+    //     this.placeAlongLine(
+    //         tile,
+    //         tileSize,
+    //         collisions,
+    //         priority,
+    //         repeat == UNDEF ? DEFAULT_MIN_TEXT_REPEAT : repeat,
+    //         offsetX,
+    //         offsetY,
+    //         width,
+    //         height,
+    //         (x: number, y: number, alpha: number, collisionData?: CollisionData) => {
+    //             if (!buffer) {
+    //                 buffer = new PointBuffer();
+    //             }
+    //             const positionAttribute = buffer.attributes.a_position;
+    //             const positionData = positionAttribute.data;
+    //             const bufferStart = positionData.length;
+    //
+    //             addPoint(<any>positionAttribute.data, x, y);
+    //
+    //             collisionData?.attrs.push({
+    //                 buffer: positionAttribute,
+    //                 start: bufferStart,
+    //                 stop: positionData.length
+    //             });
+    //         }
+    //     );
+    //
+    //     return buffer;
+    // }
+
+    placeAtSegments(
         coordinates: Coordinate[],
-        buffer: PointBuffer,
+        // buffer: PointBuffer,
         tile: Tile,
         tileSize: number,
         collisions: CollisionHandler,
@@ -148,12 +200,13 @@ export class LineFactory {
         offsetY: number,
         width: number,
         height: number,
+        placeFunc: any,
         collisionCandidate?: CollisionCandidate
-    ): PointBuffer {
-        if (collisionCandidate) {
-            width = collisionCandidate.width * 2;
-            height = collisionCandidate.height * 2;
-        }
+    ) {
+        // if (collisionCandidate) {
+        //     width = collisionCandidate.width * 2;
+        //     height = collisionCandidate.height * 2;
+        // }
 
         this.projectLine(coordinates, tile, tileSize);
 
@@ -167,77 +220,26 @@ export class LineFactory {
             offsetY,
             width,
             height,
-            (x: number, y: number, alpha: number, collisionData?: CollisionData) => {
-                if (!buffer) {
-                    buffer = new PointBuffer();
-                }
-                const positionAttribute = buffer.attributes.a_position;
-                const positionData = positionAttribute.data;
-                const bufferStart = positionData.length;
-
-                addPoint(<any>positionAttribute.data, x, y);
-
-                collisionData?.attrs.push({
-                    buffer: positionAttribute,
-                    start: bufferStart,
-                    stop: positionData.length
-                });
-            }
+            placeFunc
+            // (x: number, y: number, alpha: number, collisionData?: CollisionData) => {
+            //     if (!buffer) {
+            //         buffer = new PointBuffer();
+            //     }
+            //     const positionAttribute = buffer.attributes.a_position;
+            //     const positionData = positionAttribute.data;
+            //     const bufferStart = positionData.length;
+            //
+            //     addPoint(<any>positionAttribute.data, x, y);
+            //
+            //     collisionData?.attrs.push({
+            //         buffer: positionAttribute,
+            //         start: bufferStart,
+            //         stop: positionData.length
+            //     });
+            // }
         );
 
-        return buffer;
-    }
-
-    placeIcon(
-        coordinates: Coordinate[],
-        buffer: PointBuffer,
-        tile: Tile,
-        tileSize: number,
-        collisions: CollisionHandler,
-        priority: number,
-        repeat: number,
-        offsetX: number,
-        offsetY: number,
-        width: number,
-        height: number,
-        collisionCandidate?: CollisionCandidate
-    ): PointBuffer {
-        if (collisionCandidate) {
-            width = collisionCandidate.width * 2;
-            height = collisionCandidate.height * 2;
-        }
-
-        this.projectLine(coordinates, tile, tileSize);
-
-        this.placeAlongLine(
-            tile,
-            tileSize,
-            collisions,
-            priority,
-            repeat == UNDEF ? DEFAULT_MIN_TEXT_REPEAT : repeat,
-            offsetX,
-            offsetY,
-            width,
-            height,
-            (x: number, y: number, alpha: number, collisionData?: CollisionData) => {
-                if (!buffer) {
-                    buffer = new PointBuffer();
-                }
-                const positionAttribute = buffer.attributes.a_position;
-                const positionData = positionAttribute.data;
-                const bufferStart = positionData.length;
-
-                addPoint(<any>positionAttribute.data, x, y);
-
-                collisionData?.attrs.push({
-                    buffer: positionAttribute,
-                    start: bufferStart,
-                    stop: positionData.length
-                });
-            }
-        );
-
-        return buffer;
+        // return buffer;
     }
 
 
