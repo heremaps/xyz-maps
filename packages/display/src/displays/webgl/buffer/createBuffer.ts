@@ -388,6 +388,8 @@ const createBuffer = (
                 let candidate;
 
                 if (taskData[4] >= 0) {
+                    console.log('--------- handle collisions ---------');
+
                     // const styleGrp = [];
                     while (taskData[4]--) {
                         if (candidate = cData[taskData[3]++]) {

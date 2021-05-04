@@ -131,6 +131,8 @@ export class CollisionHandler {
         tileSize: number,
         priority: number = Number.MAX_SAFE_INTEGER
     ): CollisionData | false {
+        console.log('insert?');
+
         const tileX = tile.x * tileSize;
         const tileY = tile.y * tileSize;
         const x1 = tileX + cx - width;
@@ -262,27 +264,27 @@ export class CollisionHandler {
                         ac[0] += bbox.offsetX;
                         ac[1] += bbox.offsetY;
 
-                        if (window._dbgLayer) {
-                            // console.log('halfWdith', halfWidth);
-                            let geo = window.display.pixelToGeo(ac[0], ac[1]);
-                            //
-                            window._dbgLayer.addFeature({
-                                type: 'Feature',
-                                geometry: {
-                                    type: 'Point',
-                                    coordinates: [geo.longitude, geo.latitude]
-                                }
-                            }, [{
-                                zLayer: 1e5,
-                                zIndex: 1e5,
-                                type: 'Rect',
-                                stroke: 'black',
-                                strokeWidth: 2,
-                                width: halfWidth * 2,
-                                height: halfHeight * 2,
-                                collide: true
-                            }]);
-                        }
+                        // if (window._dbgLayer) {
+                        //     // console.log('halfWdith', halfWidth);
+                        //     let geo = window.display.pixelToGeo(ac[0], ac[1]);
+                        //     //
+                        //     window._dbgLayer.addFeature({
+                        //         type: 'Feature',
+                        //         geometry: {
+                        //             type: 'Point',
+                        //             coordinates: [geo.longitude, geo.latitude]
+                        //         }
+                        //     }, [{
+                        //         zLayer: 1e5,
+                        //         zIndex: 1e5,
+                        //         type: 'Rect',
+                        //         stroke: 'black',
+                        //         strokeWidth: 2,
+                        //         width: halfWidth * 2,
+                        //         height: halfHeight * 2,
+                        //         collide: true
+                        //     }]);
+                        // }
 
                         collisionData.push({
                             minX: ac[0] - halfWidth,

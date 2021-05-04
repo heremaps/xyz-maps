@@ -22,15 +22,16 @@ import {Tile, GeoJSONCoordinate} from '@here/xyz-maps-core';
 const extentScale = 32;
 
 
-export const addPoint = (vertex: number[], coordinates: GeoJSONCoordinate, tile?: Tile, tileSize?: number): number => {
+export const addPoint = (vertex: number[], x: number, y: number): number => {
+// export const addPoint = (vertex: number[], coordinates: GeoJSONCoordinate, tile?: Tile, tileSize?: number): number => {
     const v = vertex.length;
-    let x = coordinates[0];
-    let y = coordinates[1];
+    // let x = coordinates[0];
+    // let y = coordinates[1];
 
-    if (tile) {
-        x = tile.lon2x(x, tileSize);
-        y = tile.lat2y(y, tileSize);
-    }
+    // if (tile) {
+    //     x = tile.lon2x(x, tileSize);
+    //     y = tile.lat2y(y, tileSize);
+    // }
 
     // make room for direction vector bit1 and visibility bit0 (LSB)
     x = x * extentScale << 2 | 1;

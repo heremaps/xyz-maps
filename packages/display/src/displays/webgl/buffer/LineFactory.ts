@@ -23,7 +23,7 @@ import {DashAtlas} from '../DashAtlas';
 import {GlyphTexture} from '../GlyphTexture';
 import {TextBuffer} from './templates/TextBuffer';
 import {addLineText} from './addLineText';
-import {GeoJSONCoordinate as Coordinate, Tile} from '@here/xyz-maps-core';
+import {GeoJSONCoordinate, GeoJSONCoordinate as Coordinate, Tile} from '@here/xyz-maps-core';
 import {FlexArray} from './templates/FlexArray';
 import {FlexAttribute} from './templates/TemplateBuffer';
 import {CollisionData, CollisionHandler} from '../CollisionHandler';
@@ -155,8 +155,9 @@ export class LineFactory {
             height = collisionCandidate.height * 2;
         }
 
+        this.projectLine(coordinates, tile, tileSize);
+
         this.placeAlongLine(
-            this.projectLine(coordinates, tile, tileSize),
             tile,
             tileSize,
             collisions,
@@ -174,7 +175,7 @@ export class LineFactory {
                 const positionData = positionAttribute.data;
                 const bufferStart = positionData.length;
 
-                addPoint(<any>positionAttribute.data, [x, y]);
+                addPoint(<any>positionAttribute.data, x, y);
 
                 collisionData?.attrs.push({
                     buffer: positionAttribute,
@@ -186,6 +187,59 @@ export class LineFactory {
 
         return buffer;
     }
+
+    placeIcon(
+        coordinates: Coordinate[],
+        buffer: PointBuffer,
+        tile: Tile,
+        tileSize: number,
+        collisions: CollisionHandler,
+        priority: number,
+        repeat: number,
+        offsetX: number,
+        offsetY: number,
+        width: number,
+        height: number,
+        collisionCandidate?: CollisionCandidate
+    ): PointBuffer {
+        if (collisionCandidate) {
+            width = collisionCandidate.width * 2;
+            height = collisionCandidate.height * 2;
+        }
+
+        this.projectLine(coordinates, tile, tileSize);
+
+        this.placeAlongLine(
+            tile,
+            tileSize,
+            collisions,
+            priority,
+            repeat == UNDEF ? DEFAULT_MIN_TEXT_REPEAT : repeat,
+            offsetX,
+            offsetY,
+            width,
+            height,
+            (x: number, y: number, alpha: number, collisionData?: CollisionData) => {
+                if (!buffer) {
+                    buffer = new PointBuffer();
+                }
+                const positionAttribute = buffer.attributes.a_position;
+                const positionData = positionAttribute.data;
+                const bufferStart = positionData.length;
+
+                addPoint(<any>positionAttribute.data, x, y);
+
+                collisionData?.attrs.push({
+                    buffer: positionAttribute,
+                    start: bufferStart,
+                    stop: positionData.length
+                });
+            }
+        );
+
+        return buffer;
+    }
+
 
     placeText(
         text: string,
@@ -223,8 +277,9 @@ export class LineFactory {
             height = glyphAtlas.letterHeight;
         }
 
+        this.projectLine(coordinates, tile, tileSize);
+
         this.placeAlongLine(
-            this.projectLine(coordinates, tile, tileSize),
             tile,
             tileSize,
             collisions,
@@ -261,8 +316,61 @@ export class LineFactory {
         );
     }
 
+    placeAtPoints(
+        coordinates: Coordinate[],
+        tile: Tile,
+        tileSize: number,
+        collisions: CollisionHandler,
+        priority: number,
+        halfWidth: number,
+        halfHeight: number,
+        offsetX: number,
+        offsetY: number,
+        place: (x: number, y: number, collisionData?: CollisionData) => void
+    ) {
+        const prjCoords = this.projectLine(coordinates, tile, tileSize);
+
+        if (prjCoords.collisionData) {
+            for (let cData of prjCoords.collisionData) {
+                place(cData.cx, cData.cy, 0, cData);
+            }
+            return;
+        }
+
+        const checkCollisions = collisions && [];
+
+        for (let i = 0, {data, length} = prjCoords; i < length; i++) {
+            let x = data[i];
+            let y = data[++i];
+            let collisionData;
+
+            if (x >= 0 && y >= 0 && x < tileSize && y < tileSize) {
+                if (checkCollisions) {
+                    collisionData = collisions.insert(
+                        x, y,
+                        offsetX, offsetY,
+                        halfWidth, halfHeight,
+                        tile, tileSize,
+                        priority
+                    );
+
+                    if (collisionData) {
+                        checkCollisions.push(collisionData);
+                    }
+                }
+
+                if (!checkCollisions || collisionData) {
+                    place(x, y, collisionData);
+                }
+            }
+        }
+
+        if (checkCollisions?.length) {
+            prjCoords.collisionData = checkCollisions;
+        }
+    }
+
     private placeAlongLine(
-        prjCoordinates: PixelCoordinateCache,
         tile: Tile,
         tileSize: number,
         collisions: CollisionHandler,
@@ -274,16 +382,18 @@ export class LineFactory {
         height: number,
         place: (x: number, y: number, alpha: number, collisionData?: CollisionData) => void
     ) {
-        if (prjCoordinates.collisionData) {
-            for (let cData of prjCoordinates.collisionData) {
+        const {prjCoords} = this;
+
+        if (prjCoords.collisionData) {
+            for (let cData of prjCoords.collisionData) {
                 place(cData.cx, cData.cy, 0, cData);
             }
             return;
         }
 
 
-        const vLength = prjCoordinates.length / 2;
-        let coordinates = prjCoordinates.data;
+        const vLength = prjCoords.length / 2;
+        let coordinates = prjCoords.data;
         let prevDistance = Infinity;
         const checkCollisions = collisions && [];
         let lineWidth;
@@ -378,7 +488,7 @@ export class LineFactory {
         }
 
         if (checkCollisions?.length) {
-            prjCoordinates.collisionData = checkCollisions;
+            prjCoords.collisionData = checkCollisions;
         }
     }
 }

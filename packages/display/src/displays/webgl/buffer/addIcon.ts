@@ -22,17 +22,19 @@ import {ImageInfo} from '../Atlas';
 import {addPoint} from './addPoint';
 
 const addIcon = (
+    x: number,
+    y: number,
     atlas: ImageInfo,
     width: number,
     height: number,
     points: number[],
     vertex: number[],
-    texcoord: number[],
-    coordinates: GeoJSONCoordinate,
-    tile: Tile,
-    tileSize: number
+    texcoord: number[]
+    // coordinates: GeoJSONCoordinate,
+    // tile: Tile,
+    // tileSize: number
 ) => {
-    if (addPoint(vertex, coordinates, tile, tileSize)) {
+    if (addPoint(vertex, x, y)) {
         const u1 = atlas.u1;
         const u2 = atlas.u2;
         const v1 = atlas.v1;
