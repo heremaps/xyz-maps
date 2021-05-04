@@ -37,7 +37,7 @@ import {PointBuffer} from './templates/PointBuffer';
 import {PolygonBuffer} from './templates/PolygonBuffer';
 import {ExtrudeBuffer} from './templates/ExtrudeBuffer';
 import {toPresentationFormB} from '../arabic';
-import {Feature, GeoJSONCoordinate, Tile} from '@here/xyz-maps-core';
+import {Feature, GeoJSONCoordinate as Coordinate, GeoJSONCoordinate, Tile} from '@here/xyz-maps-core';
 
 
 const DEFAULT_STROKE_WIDTH = 1;
@@ -618,22 +618,7 @@ export class FeatureFactory {
                     }
 
                     if (anchor == 'Line') {
-                        if (type == 'Circle' || type == 'Rect') {
-                            group.buffer = this.lineFactory.placePoint(
-                                <GeoJSONCoordinate[]>coordinates,
-                                group.buffer,
-                                tile,
-                                tileSize,
-                                collide === false && this.collisions,
-                                priority,
-                                getValue('repeat', style, feature, level),
-                                offsetX,
-                                offsetY,
-                                width,
-                                height,
-                                collisionCandidate
-                            );
-                        } else if (type == 'Text') {
+                        if (type == 'Text') {
                             this.lineFactory.placeText(
                                 text,
                                 <GeoJSONCoordinate[]>coordinates,
@@ -646,6 +631,37 @@ export class FeatureFactory {
                                 offsetX,
                                 offsetY,
                                 group.shared,
+                                collisionCandidate
+                            );
+                        } else {
+                            let w;
+                            let h;
+                            if (collisionCandidate) {
+                                w = collisionCandidate.width * 2;
+                                h = collisionCandidate.height * 2;
+                            } else if (type == 'Icon') {
+                                w = getValue('width', style, feature, level);
+                                h = getValue('height', style, feature, level) || width;
+                            } else {
+                                w = width;
+                                h = height;
+                                if (type == 'Circle') {
+                                    w *= 2;
+                                    h *= 2;
+                                }
+                            }
+
+                            this.lineFactory.placeAtSegments(
+                                <GeoJSONCoordinate[]>coordinates,
+                                tile, tileSize,
+                                collide === false && this.collisions,
+                                priority,
+                                getValue('repeat', style, feature, level),
+                                offsetX, offsetY,
+                                w, h,
+                                (x, y, collisionData) => {
+                                    this.createPoint(type, group, x, y, style, feature, text);
+                                },
                                 collisionCandidate
                             );
                         }
