@@ -308,8 +308,6 @@ const createBuffer = (
         },
 
         exec: function(taskData: TaskData) {
-            const timeStart = performance.now();
-
             let tile = taskData[0];
             let data = taskData[1];
             const lsScale = taskData[2];
@@ -388,14 +386,10 @@ const createBuffer = (
                 let candidate;
 
                 if (taskData[4] >= 0) {
-                    console.log('--------- handle collisions ---------');
-
-                    // const styleGrp = [];
                     while (taskData[4]--) {
                         if (candidate = cData[taskData[3]++]) {
-                            const {coordinates, offsetX, offsetY, width, height, priority, geomType} = candidate;
+                            const {coordinates, priority, geomType} = candidate;
 
-                            // collisionBox = (4) [-94.728515625, -13, 94.728515625, 13]
                             if (geomType == 'Point' || geomType == 'LineString') {
                                 const iconsReady = factory.create(
                                     candidate.feature,
@@ -409,42 +403,6 @@ const createBuffer = (
                                 );
                                 allIconsReady = allIconsReady && iconsReady;
                             }
-
-                            // const {coordinates, offsetX, offsetY, width, height, priority, geomType} = candidate;
-                            // let bbox;
-                            //
-                            // if (geomType == 'Point') {
-                            //     const cx = tile.lon2x(coordinates[0], tileSize);
-                            //     const cy = tile.lat2y(coordinates[1], tileSize);
-                            //
-                            //     bbox = tile.isInside(coordinates) && factory.collisions.insert(
-                            //         cx, cy,
-                            //         offsetX, offsetY,
-                            //         width, height,
-                            //         tile, tileSize,
-                            //         priority
-                            //     );
-                            //
-                            //     if (!bbox) continue;
-                            // } else if (geomType != 'LineString') {
-                            //     continue;
-                            // }else{
-                            //
-                            // }
-                            //
-                            // console.log(width,height,candidate);
-                            //
-                            // const iconsReady = factory.create(
-                            //     candidate.feature,
-                            //     geomType,
-                            //     coordinates,
-                            //     candidate.styleGrp,
-                            //     lsScale,
-                            //     false,
-                            //     priority,
-                            //     bbox
-                            // );
-                            // allIconsReady = allIconsReady && iconsReady;
                         } else {
                             break;
                         }
@@ -454,9 +412,6 @@ const createBuffer = (
             }
 
             taskData[4] = PROCESS_FEATURE_BUNDLE_SIZE;
-
-
-            window._totalTileProcessTime = (window._totalTileProcessTime || 0) + performance.now() - timeStart;
 
             return notDone;
         }

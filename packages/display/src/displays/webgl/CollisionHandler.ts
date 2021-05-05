@@ -235,8 +235,6 @@ export class CollisionHandler {
         const {display} = this;
         const collisionData: CollisionData[] = [];
 
-        window._dbgLayer?.getProvider().clear();
-
         for (let screentile of tiles) {
             let quadkey = screentile.quadkey;
 
@@ -261,28 +259,6 @@ export class CollisionHandler {
 
                         ac[0] += bbox.offsetX;
                         ac[1] += bbox.offsetY;
-
-                        if (window._dbgLayer) {
-                            // console.log('halfWdith', halfWidth);
-                            let geo = window.display.pixelToGeo(ac[0], ac[1]);
-                            //
-                            window._dbgLayer.addFeature({
-                                type: 'Feature',
-                                geometry: {
-                                    type: 'Point',
-                                    coordinates: [geo.longitude, geo.latitude]
-                                }
-                            }, [{
-                                zLayer: 1e5,
-                                zIndex: 1e5,
-                                type: 'Rect',
-                                stroke: 'black',
-                                strokeWidth: 2,
-                                width: halfWidth * 2,
-                                height: halfHeight * 2,
-                                collide: true
-                            }]);
-                        }
 
                         collisionData.push({
                             minX: ac[0] - halfWidth,
