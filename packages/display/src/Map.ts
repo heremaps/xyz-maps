@@ -157,7 +157,7 @@ export class Map {
      * @param options - options to configure for the map
      *
      * @example
-     * ```javascript
+     * ```typescript
      * import {Map} from '@here/xyz-maps-display';
      *
      * //create map display
@@ -735,7 +735,7 @@ export class Map {
      * Set the map behavior on user interaction.
      *
      * @example
-     * ```
+     * ```typescript
      * // to deactivate map zoom on mouse scroll:
      * setBehavior({zoom: false, drag: true});
      * ```
@@ -766,7 +766,7 @@ export class Map {
      * Possible behavior are: "zoom", "drag", "pitch" and "rotate
      *
      * @example
-     * ```
+     * ```typescript
      * // to deactivate map zoom on mouse scroll:
      * setBehavior('zoom',true);
      * ```
@@ -882,7 +882,7 @@ export class Map {
      * @param center - the geographical coordinate to center the map
      *
      * @example
-     * ```
+     * ```typescript
      * display.setCenter({longitude: 8.53422, latitude: 50.16212});
      * ```
      */
@@ -894,7 +894,7 @@ export class Map {
      * @param latitude - latitude to center the map
      *
      * @example
-     * ```
+     * ```typescript
      * display.setCenter(8.53422, 50.16212);
      * ```
      */

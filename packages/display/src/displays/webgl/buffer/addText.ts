@@ -25,13 +25,13 @@ import {wrapText} from '../../textUtils';
 const EXTENT_SCALE = 128;
 
 const addText = (
+    cx: number,
+    cy: number,
     text: string | string[],
     offsets: FlexArray,
     vertex: FlexArray,
     texcoord: FlexArray,
     glyphAtlas: GlyphAtlas,
-    cx: number,
-    cy: number,
     textWrap?: number,
     rotation = 0,
 ) => {

@@ -31,7 +31,7 @@ const addIcon = (
     vertex: number[],
     texcoord: number[]
 ) => {
-    if (addPoint(vertex, x, y)) {
+    if (addPoint(x, y, vertex)) {
         const u1 = atlas.u1;
         const u2 = atlas.u2;
         const v1 = atlas.v1;

@@ -94,7 +94,17 @@ export class FeatureFactory {
     }
 
 
-    createPoint(type: string, group, cx, cy, style, feature, collisionData: CollisionData, alpha: number = 0, text?: string) {
+    createPoint(
+        type: string,
+        group,
+        x: number,
+        y: number,
+        style: Style,
+        feature: Feature,
+        collisionData: CollisionData,
+        alpha: number = 0,
+        text?: string
+    ) {
         const level = this.z;
         let positionBuffer;
         let collisionBufferStart;
@@ -119,13 +129,12 @@ export class FeatureFactory {
             collisionBufferStop = collisionBufferStart + texture.bufferLength(text);
 
             addText(
+                x, y,
                 lines,
                 attributes.a_point.data,
                 attributes.a_position.data,
                 attributes.a_texcoord.data,
                 fontInfo,
-                cx,
-                cy,
                 lineWrap,
                 alpha
             );
@@ -149,11 +158,9 @@ export class FeatureFactory {
                 }
 
                 addIcon(
-                    cx,
-                    cy,
+                    x, y,
                     img,
-                    width,
-                    height,
+                    width, height,
                     attributes.a_size.data,
                     positionBuffer.data,
                     attributes.a_texcoord.data,
@@ -165,7 +172,7 @@ export class FeatureFactory {
                 }
                 positionBuffer = group.buffer.attributes.a_position;
 
-                addPoint(positionBuffer.data, cx, cy);
+                addPoint(x, y, positionBuffer.data);
             } else {
                 // unknown style-type
                 return;
@@ -451,7 +458,9 @@ export class FeatureFactory {
 
             groupId += opacity * 100 ^ 0;
 
-            if (rotation = getValue('rotation', style, feature, level) ^ 0) {
+            rotation = getValue('rotation', style, feature, level) ^ 0;
+
+            if (type != 'Text' && rotation) {
                 groupId += 'R' + rotation;
             }
 
@@ -496,13 +505,13 @@ export class FeatureFactory {
             }
 
             if (geomType == 'Point') {
-                const cx = tile.lon2x(coordinates[0], tileSize);
-                const cy = tile.lat2y(coordinates[1], tileSize);
+                const x = tile.lon2x(coordinates[0], tileSize);
+                const y = tile.lat2y(coordinates[1], tileSize);
                 let collisionData;
 
                 if (collisionCandidate) {
                     collisionData = this.collisions.insert(
-                        cx, cy,
+                        x, y,
                         collisionCandidate.offsetX,
                         collisionCandidate.offsetY,
                         collisionCandidate.width,
@@ -517,8 +526,7 @@ export class FeatureFactory {
                     // make sure collision is not check for following styles of stylegroup
                     collisionCandidate = null;
                 }
-
-                this.createPoint(type, group, cx, cy, style, feature, collisionData, 0, text);
+                this.createPoint(type, group, x, y, style, feature, collisionData, rotation, text);
             } else if (geomType == 'LineString') {
                 if (type == 'Line') {
                     this.lineFactory.createLine(
@@ -582,7 +590,7 @@ export class FeatureFactory {
                             offsetX, offsetY,
                             w, h,
                             (x, y, alpha, collisionData) => {
-                                this.createPoint(type, group, x, y, style, feature, collisionData, alpha, text);
+                                this.createPoint(type, group, x, y, style, feature, collisionData, alpha + rotation, text);
                             }
                         );
                     } else {
@@ -602,7 +610,7 @@ export class FeatureFactory {
                             w, h,
                             offsetX, offsetY,
                             (x, y, alpha, collisionData) => {
-                                this.createPoint(type, group, x, y, style, feature, collisionData, alpha, text);
+                                this.createPoint(type, group, x, y, style, feature, collisionData, alpha + rotation, text);
                             }
                         );
                     }
