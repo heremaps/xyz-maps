@@ -5,8 +5,8 @@ The display module of [XYZ Maps](https://github.com/heremaps/xyz-maps) is a high
 editing, larger raw datasets and frequently changing data.
 
 ### Links
-* [API Playground](https://heremaps.github.io/xyz-editor/playground/#Display-Pitch_and_Rotate_Map)
-* [Documentation](https://heremaps.github.io/xyz-editor/docs/)
+* [API Playground](https://heremaps.github.io/xyz-maps/playground/#Display-Pitch_and_Rotate_Map)
+* [Documentation](https://heremaps.github.io/xyz-maps/docs/)
 
 ## Installation
 Install XYZ Map Display by using

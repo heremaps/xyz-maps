@@ -6,10 +6,10 @@
 
 XYZ Maps is an experimental and work in progress open-source map editor written in TypeScript/JavaScript.
 
-[![edit buildings with xyz-editor](packages/display/assets/xyz-maps.png)](https://heremaps.github.io/xyz-editor/playground/#Display-Pitch_and_Rotate_Map)
+[![edit buildings with xyz-editor](packages/display/assets/xyz-maps.png)](https://heremaps.github.io/xyz-maps/playground/#Display-Pitch_and_Rotate_Map)
 
-* [API Playground](https://heremaps.github.io/xyz-editor/playground/#Display-Pitch_and_Rotate_Map)
-* [Documentation](https://heremaps.github.io/xyz-editor/docs/)
+* [API Playground](https://heremaps.github.io/xyz-maps/playground/#Display-Pitch_and_Rotate_Map)
+* [Documentation](https://heremaps.github.io/xyz-maps/docs/)
 
 ## Overview
 XYZ Maps consists of the following main modules:
@@ -31,7 +31,7 @@ XYZ Maps consists of the following main modules:
     ```
     git clone https://github.com/heremaps/xyz-maps.git
 
-    cd xyz-editor
+    cd xyz-maps
     ```
 
 2. Install node module dependencies

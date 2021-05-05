@@ -5,8 +5,8 @@ The editor module provides an API for editing map data that can be used to easil
 Changes can be automatically synchronized with various remote backends services.
 
 ### Links
-* [API Playground](https://heremaps.github.io/xyz-editor/playground/#Display-Pitch_and_Rotate_Map)
-* [Documentation](https://heremaps.github.io/xyz-editor/docs/)
+* [API Playground](https://heremaps.github.io/xyz-maps/playground/#Display-Pitch_and_Rotate_Map)
+* [Documentation](https://heremaps.github.io/xyz-maps/docs/)
 
 ## Installation
 Install XYZ Map Editor by using

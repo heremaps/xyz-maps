@@ -4,8 +4,8 @@
 The Common module provides commonly used javascript functionality that are required by all other modules of [XYZ Maps](https://github.com/heremaps/xyz-maps).
 
 ### Links
-* [API Playground](https://heremaps.github.io/xyz-editor/playground/#Display-Pitch_and_Rotate_Map)
-* [Documentation](https://heremaps.github.io/xyz-editor/docs/)
+* [API Playground](https://heremaps.github.io/xyz-maps/playground/#Display-Pitch_and_Rotate_Map)
+* [Documentation](https://heremaps.github.io/xyz-maps/docs/)
 
 ## Start developing
 
