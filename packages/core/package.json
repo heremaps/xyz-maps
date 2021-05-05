@@ -9,7 +9,7 @@
   "license": "Apache-2.0",
   "repository": {
     "type": "git",
-    "url": "https://github.com/heremaps/xyz-editor.git",
+    "url": "https://github.com/heremaps/xyz-maps.git",
     "directory": "packages/core"
   },
   "main": "dist/xyz-maps-core.min.js",

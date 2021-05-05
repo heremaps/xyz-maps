@@ -1,7 +1,7 @@
 # XYZ Maps JS: Display
 
-[XYZ Maps](https://github.com/heremaps/xyz-editor) is an experimental and work in progress open-source map editor written in TypeScript/JavaScript.
-The display module of [XYZ Maps](https://github.com/heremaps/xyz-editor) is a highly customizable vector map display that's optimized for map
+[XYZ Maps](https://github.com/heremaps/xyz-maps) is an experimental and work in progress open-source map editor written in TypeScript/JavaScript.
+The display module of [XYZ Maps](https://github.com/heremaps/xyz-maps) is a highly customizable vector map display that's optimized for map
 editing, larger raw datasets and frequently changing data.
 
 ### Links

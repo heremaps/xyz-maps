@@ -1,7 +1,7 @@
 # XYZ Maps JS
 [![License](https://img.shields.io/badge/License-Apache%202.0-blue.svg)](https://opensource.org/licenses/Apache-2.0)
-![Actions Status](https://github.com/heremaps/xyz-editor/workflows/Build%20&%20Test/badge.svg)
-![Actions Status](https://github.com/heremaps/xyz-editor/workflows/Docs%20&%20Playground/badge.svg)
+![Actions Status](https://github.com/heremaps/xyz-maps/workflows/Build%20&%20Test/badge.svg)
+![Actions Status](https://github.com/heremaps/xyz-maps/workflows/Docs%20&%20Playground/badge.svg)
 ![npm version](https://img.shields.io/npm/v/@here/xyz-maps-editor.svg)
 
 XYZ Maps is an experimental and work in progress open-source map editor written in TypeScript/JavaScript.
@@ -29,7 +29,7 @@ XYZ Maps consists of the following main modules:
 1. Clone this repository
 
     ```
-    git clone https://github.com/heremaps/xyz-editor.git
+    git clone https://github.com/heremaps/xyz-maps.git
 
     cd xyz-editor
     ```
@@ -96,10 +96,10 @@ Running integration tests / playground and debug pages requires the XYZ token to
 
 ## Guides
 
-* [Getting started](https://github.com/heremaps/xyz-editor/wiki/Getting-started)
-* [Display your space](https://github.com/heremaps/xyz-editor/wiki/Display-your-space)
-* [Style your data](https://github.com/heremaps/xyz-editor/wiki/Style-your-data)
-* [Add interactivity](https://github.com/heremaps/xyz-editor/wiki/Add-interactivity)
+* [Getting started](https://github.com/heremaps/xyz-maps/wiki/Getting-started)
+* [Display your space](https://github.com/heremaps/xyz-maps/wiki/Display-your-space)
+* [Style your data](https://github.com/heremaps/xyz-maps/wiki/Style-your-data)
+* [Add interactivity](https://github.com/heremaps/xyz-maps/wiki/Add-interactivity)
 
 
 ## License

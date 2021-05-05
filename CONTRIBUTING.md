@@ -1,8 +1,8 @@
 # Introduction
 
-The team behind the [XYZ Editor JS](https://github.com/heremaps/xyz-editor) gratefully accepts contributions via
+The team behind the [XYZ Maps JS](https://github.com/heremaps/xyz-maps) gratefully accepts contributions via
 [pull requests](https://help.github.com/articles/about-pull-requests/) filed against the
-[GitHub project](https://github.com/heremaps/xyz-editor/pulls).
+[GitHub project](https://github.com/heremaps/xyz-maps/pulls).
 
 We use [conventional commit messages](https://conventionalcommits.org/) so we can easy create a changelog for each release.
 
