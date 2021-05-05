@@ -64,7 +64,6 @@ class GlyphManager {
         const styleId = this.getFontId(style);
 
         if (!fonts[styleId]) {
-            console.log('init font', styleId);
             const size = 96 * scale;
             const canvas = createCanvas(size, size);
             const ctx = canvas.getContext('2d');
@@ -163,12 +162,6 @@ class GlyphManager {
         return glyph;
     }
 
-    // getTextWidth(text: string, font) {
-    //     const {ctx} = font;
-    //     // 2x linewidth is roughly estimated but good enough
-    //     return ctx.measureText(text).width; // + 2 * ctx.lineWidth;
-    // }
-
     getTextWidth(text: string, font) {
         const {ctx} = font;
         let width = 0;
@@ -185,7 +178,7 @@ class GlyphManager {
                 width += w;
             }
         }
-        return width; // + 2 * ctx.lineWidth;
+        return width;
     }
 }
 

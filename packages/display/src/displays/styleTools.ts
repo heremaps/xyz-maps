@@ -203,21 +203,10 @@ export const calcBBox = (style: Style, feature: Feature, zoom: number, bbox?: nu
             return null;
         }
 
-        // if(text == 'Brooklyn Bridge')debugger;
-        // if(text == 'Manhattan Bridge')debugger;
-        // const strokeWidth = getValue('strokeWidth', style, feature, tileGridZoom);
-        // const dimensions = getAvgCharDimensions({
-        //     font: getValue('font', style, feature, tileGridZoom) || defaultFont,
-        //     // textAlign: getValue('textAlign', style, feature, tileGridZoom),
-        //     strokeWidth, fill, stroke
-        // });
-        //
-
-        let lines;
-
-        let strokeWidth = getValue('strokeWidth', style, feature, tileGridZoom);
+        const strokeWidth = getValue('strokeWidth', style, feature, tileGridZoom);
         let font = getValue('font', style, feature, tileGridZoom);
         const _font = glyphManager.initFont({font, strokeWidth, fill, stroke /* textAlign */});
+        let lines;
 
         w = 0;
 

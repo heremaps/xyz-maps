@@ -94,7 +94,7 @@ export class FeatureFactory {
     }
 
 
-    createPoint(type: string, group, cx, cy, style, feature, collisionData, alpha: number = 0, text?: string) {
+    createPoint(type: string, group, cx, cy, style, feature, collisionData: CollisionData, alpha: number = 0, text?: string) {
         const level = this.z;
         let positionBuffer;
         let collisionBufferStart;

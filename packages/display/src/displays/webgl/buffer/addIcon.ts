@@ -30,9 +30,6 @@ const addIcon = (
     points: number[],
     vertex: number[],
     texcoord: number[]
-    // coordinates: GeoJSONCoordinate,
-    // tile: Tile,
-    // tileSize: number
 ) => {
     if (addPoint(vertex, x, y)) {
         const u1 = atlas.u1;

@@ -90,6 +90,7 @@ export interface Style {
      * Its value must be one of the following: "Circle", "Rect", "Text", "Image", "Line" or "Polygon".
      */
     type: 'Circle' | 'Rect' | 'Image' | 'Text' | 'Line' | 'Polygon' | string;
+
     /**
      * Indicates the drawing order within a layer.
      * Styles with larger zIndex value are rendered above those with smaller values.
@@ -97,6 +98,7 @@ export interface Style {
      * If "zLayer" is defined all zIndex values are relative to the "zLayer" value.
      */
     zIndex: number | StyleValueFunction<number> | StyleZoomRange<number>;
+
     /**
      * Indicates drawing order across multiple layers.
      * Styles using zLayer with a high value are rendered on top of zLayers with a low value.
@@ -106,22 +108,26 @@ export interface Style {
      * @example \{...zLayer: 2, zIndex: 5\} will be rendered on top of \{...zLayer: 1, zIndex: 10\}
      */
     zLayer?: number | StyleValueFunction<number>;
+
     /**
      * Specifies the URL of an image.
      * It can be either absolute or relative path.
      * It is only required by "Image".
      */
     src?: string | StyleValueFunction<string> | StyleZoomRange<string>;
+
     /**
      * Sets the color to fill the shape.
      * This attribute is valid for Circle, Rect, Text and Polygon.
      */
     fill?: string | StyleValueFunction<string> | StyleZoomRange<string>;
+
     /**
      * Sets the stroke color of the shape.
      * This attribute is valid for Circle, Rect, Line, Text and Polygon.
      */
     stroke?: string | StyleValueFunction<string> | StyleZoomRange<string>;
+
     /**
      * Sets the width of the stroke.
      * This attribute is valid for Circle, Rect, Line, Text and Polygon.
@@ -158,6 +164,7 @@ export interface Style {
      * ```
      */
     strokeWidth?: number | string | StyleValueFunction<number | number> | StyleZoomRange<string | number>;
+
     /**
      * This controls the shape of the ends of lines. there are three possible values for strokeLinecap:
      * - "butt" closes the line off with a straight edge that's normal (at 90 degrees) to the direction of the stroke and crosses its end.
@@ -166,6 +173,7 @@ export interface Style {
      * This attribute is valid for Line styles only.
      */
     strokeLinecap?: string | StyleValueFunction<string> | StyleZoomRange<string>;
+
     /**
      * The joint where the two segments in a line meet is controlled by the strokeLinejoin attribute, There are three possible values for this attribute:
      * - "miter" extends the line slightly beyond its normal width to create a square corner where only one angle is used.
@@ -174,13 +182,15 @@ export interface Style {
      * This attribute is valid for Line styles only.
      */
     strokeLinejoin?: string | StyleValueFunction<string> | StyleZoomRange<string>;
+
     /**
      * The strokeDasharray attribute controls the pattern of dashes and gaps used to stroke paths.
      * It's an array of <length> that specify the lengths of alternating dashes and gaps. If an odd number of values is provided,
      * then the list of values is repeated to yield an even number of values. Thus, 5,3,2 is equivalent to 5,3,2,5,3,2.
      * This attribute is valid for Line styles only.
      */
-    strokeDasharray?: number[] | StyleValueFunction<number[]> | StyleZoomRange<number[]> | 'none',
+    strokeDasharray?: number[] | StyleValueFunction<number[]> | StyleZoomRange<number[]> | 'none';
+
     /**
      * Defines the opacity of the style.
      * The value must be between 0.0 (fully transparent) and 1.0 (fully opaque).
@@ -188,6 +198,7 @@ export interface Style {
      * @defaultValue 1
      */
     opacity?: number | StyleValueFunction<number> | StyleZoomRange<number>;
+
     /**
      * The Radius of the Circle.
      * It is required by styles of type "Circle".
@@ -212,6 +223,7 @@ export interface Style {
      * ```
      */
     radius?: number | StyleValueFunction<number> | StyleZoomRange<number>;
+
     /**
      * Width of the style in pixels.
      * It is only required by Rect and Image.
@@ -240,6 +252,7 @@ export interface Style {
      * ```
      */
     width?: number | StyleValueFunction<number> | StyleZoomRange<number>;
+
     /**
      * Height of the style in pixels.
      * It is only required by Rect and Image.
@@ -280,6 +293,7 @@ export interface Style {
      * ```
      */
     height?: number | StyleValueFunction<number> | StyleZoomRange<number>;
+
     /**
      * CSS font string for texts.
      * It is only valid for Text.
@@ -302,6 +316,7 @@ export interface Style {
      * ```
      */
     text?: string | number | boolean | StyleValueFunction<string | number | boolean> | StyleZoomRange<string | number | boolean>;
+
     /**
      * "textRef" Reference to an attribute of an feature that's value should be displayed as text.
      * If both "text" and "textRef" are set, "text" prevails.
@@ -320,6 +335,7 @@ export interface Style {
      * ```
      */
     textRef?: string | StyleValueFunction<string> | StyleZoomRange<string>;
+
     /**
      * Define the starting position of a segment of the entire line in %.
      * A Segment allows to display and style parts of the entire line individually.
@@ -364,6 +380,7 @@ export interface Style {
      * ```
      */
     offsetX?: number | string | StyleValueFunction<number | string> | StyleZoomRange<number | string>;
+
     /**
      * Offset the shape in pixels on y-axis.
      * It is valid for Circle, Rect, Text and Image.
@@ -382,6 +399,7 @@ export interface Style {
      * ```
      */
     offsetY?: number | StyleValueFunction<number> | StyleZoomRange<number>;
+
     /**
      * Offset a line to the left or right side in pixel or meter.
      * A positive values offsets to the right side, a negative value offsets to the left.
@@ -399,30 +417,36 @@ export interface Style {
      * ```
      */
     offset?: number | string | StyleValueFunction<number | string> | StyleZoomRange<number | string>;
+
     /**
-     * Alignment for Text. Possible values are: "map" and "viewport".
+     * Alignment for styles of type "Circle", "Rect", "Image" and "Text".
+     * Possible values are: "map" and "viewport".
      * "map" aligns to the plane of the map and "viewport" aligns to the plane of the viewport/screen.
      * Default alignment for Text based on point geometries is "viewport" while "map" is the default for line geometries.
      */
     alignment?: 'map' | 'viewport' | StyleValueFunction<string> | StyleZoomRange<string>;
+
     /**
      * Rotate the shape of the style to the angle in degrees.
      * This attribute is validate for Rect and Image.
      */
     rotation?: number | StyleValueFunction<number> | StyleZoomRange<number>;
+
     /**
      * In case of label collision, Text with a higher priority (lower value) will be drawn before lower priorities (higher value).
      * If the collision detection is enabled for multiple Styles within the same StyleGroup, the highest priority (lowest value)
      * is used.
      */
     priority?: number | StyleValueFunction<number> | StyleZoomRange<number>;
+
     /**
      * Minimum distance in pixels between repeated text labels on line geometries.
      * Applies per tile only.
-
+     *
      * @defaultValue 256 (pixels)
      */
     repeat?: number | StyleValueFunction<number> | StyleZoomRange<number>;
+
     /**
      * Enable oder Disable line wrapping for labels based on "Point" geometries.
      * Works for "Text" only.
@@ -434,6 +458,17 @@ export interface Style {
      * @defaultValue 14
      */
     lineWrap?: number | StyleValueFunction<number> | StyleZoomRange<number>;
+
+    /**
+     * Sets the anchor point for styles of type "Circle", "Rect", "Image" and "Text" used with Line geometry.
+     * Possible values are "Coordinate" and "Line".
+     *
+     * "Coordinate" - the respective style is displayed at each coordinate of the polyline.
+     * "Line" - the respective style is displayed on the shape of the polyline when there is enough space.
+     *
+     * @defaultValue: "Line" for styles of type "Text", "Coordinate" for styles of type "Circle", "Rect" or "Image".
+     */
+    anchor?: 'Line' | 'Coordinate'
 
     /**
      * Enable or disable collision detection.
