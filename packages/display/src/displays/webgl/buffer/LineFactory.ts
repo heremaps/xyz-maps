@@ -20,24 +20,20 @@
 import {LineBuffer} from './templates/LineBuffer';
 import {addLineString, Cap, Join} from './addLineString';
 import {DashAtlas} from '../DashAtlas';
-import {GlyphTexture} from '../GlyphTexture';
-import {TextBuffer} from './templates/TextBuffer';
-import {addLineText} from './addLineText';
-import {GeoJSONCoordinate, GeoJSONCoordinate as Coordinate, Tile} from '@here/xyz-maps-core';
-import {FlexArray} from './templates/FlexArray';
-import {FlexAttribute} from './templates/TemplateBuffer';
+import {GeoJSONCoordinate as Coordinate, Tile} from '@here/xyz-maps-core';
 import {CollisionData, CollisionHandler} from '../CollisionHandler';
 import {getRotatedBBox, rotate} from '../../../geometry';
-import {addText} from './addText';
-import {CollisionCandidate} from './FeatureFactory';
-import {addPoint} from './addPoint';
-import {PointBuffer} from './templates/PointBuffer';
 
 const TO_DEG = 180 / Math.PI;
 const DEFAULT_MIN_TEXT_REPEAT = 256;
 let UNDEF;
 
-export type PixelCoordinateCache = { data: Float32Array, length: number, lineLength: number };
+export type PixelCoordinateCache = {
+    data: Float32Array,
+    length: number,
+    lineLength: number
+    collisions?: CollisionData[];
+};
 
 export class LineFactory {
     private dashes: DashAtlas;
@@ -136,61 +132,8 @@ export class LineFactory {
         );
     }
 
-    // placePoint(
-    //     coordinates: Coordinate[],
-    //     buffer: PointBuffer,
-    //     tile: Tile,
-    //     tileSize: number,
-    //     collisions: CollisionHandler,
-    //     priority: number,
-    //     repeat: number,
-    //     offsetX: number,
-    //     offsetY: number,
-    //     width: number,
-    //     height: number,
-    //     collisionCandidate?: CollisionCandidate
-    // ): PointBuffer {
-    //     if (collisionCandidate) {
-    //         width = collisionCandidate.width * 2;
-    //         height = collisionCandidate.height * 2;
-    //     }
-    //
-    //     this.projectLine(coordinates, tile, tileSize);
-    //
-    //     this.placeAlongLine(
-    //         tile,
-    //         tileSize,
-    //         collisions,
-    //         priority,
-    //         repeat == UNDEF ? DEFAULT_MIN_TEXT_REPEAT : repeat,
-    //         offsetX,
-    //         offsetY,
-    //         width,
-    //         height,
-    //         (x: number, y: number, alpha: number, collisionData?: CollisionData) => {
-    //             if (!buffer) {
-    //                 buffer = new PointBuffer();
-    //             }
-    //             const positionAttribute = buffer.attributes.a_position;
-    //             const positionData = positionAttribute.data;
-    //             const bufferStart = positionData.length;
-    //
-    //             addPoint(<any>positionAttribute.data, x, y);
-    //
-    //             collisionData?.attrs.push({
-    //                 buffer: positionAttribute,
-    //                 start: bufferStart,
-    //                 stop: positionData.length
-    //             });
-    //         }
-    //     );
-    //
-    //     return buffer;
-    // }
-
     placeAtSegments(
         coordinates: Coordinate[],
-        // buffer: PointBuffer,
         tile: Tile,
         tileSize: number,
         collisions: CollisionHandler,
@@ -200,14 +143,8 @@ export class LineFactory {
         offsetY: number,
         width: number,
         height: number,
-        placeFunc: any,
-        collisionCandidate?: CollisionCandidate
+        placeFunc: any
     ) {
-        // if (collisionCandidate) {
-        //     width = collisionCandidate.width * 2;
-        //     height = collisionCandidate.height * 2;
-        // }
-
         this.projectLine(coordinates, tile, tileSize);
 
         this.placeAlongLine(
@@ -221,100 +158,6 @@ export class LineFactory {
             width,
             height,
             placeFunc
-            // (x: number, y: number, alpha: number, collisionData?: CollisionData) => {
-            //     if (!buffer) {
-            //         buffer = new PointBuffer();
-            //     }
-            //     const positionAttribute = buffer.attributes.a_position;
-            //     const positionData = positionAttribute.data;
-            //     const bufferStart = positionData.length;
-            //
-            //     addPoint(<any>positionAttribute.data, x, y);
-            //
-            //     collisionData?.attrs.push({
-            //         buffer: positionAttribute,
-            //         start: bufferStart,
-            //         stop: positionData.length
-            //     });
-            // }
-        );
-
-        // return buffer;
-    }
-
-
-    placeText(
-        text: string,
-        coordinates: Coordinate[],
-        group,
-        tile: Tile,
-        tileSize: number,
-        collisions: CollisionHandler,
-        priority: number,
-        repeat: number,
-        offsetX: number,
-        offsetY: number,
-        style,
-        collisionCandidate?: CollisionCandidate
-    ) {
-        let {texture} = group;
-
-        if (!texture) {
-            texture = group.texture = new GlyphTexture(this.gl, style);
-            group.buffer = new TextBuffer();
-        }
-
-        const {attributes} = group.buffer;
-        let glyphAtlas = texture.getAtlas();
-        let bufferLength;
-        let textLines;
-        let width;
-        let height;
-
-        if (collisionCandidate) {
-            width = collisionCandidate.width * 2;
-            height = collisionCandidate.height * 2;
-        } else {
-            width = glyphAtlas.getTextWidth(text);
-            height = glyphAtlas.letterHeight;
-        }
-
-        this.projectLine(coordinates, tile, tileSize);
-
-        this.placeAlongLine(
-            tile,
-            tileSize,
-            collisions,
-            priority,
-            repeat == UNDEF ? DEFAULT_MIN_TEXT_REPEAT : repeat,
-            offsetX,
-            offsetY,
-            width,
-            height,
-            (x: number, y: number, alpha: number, collisionData?: CollisionData) => {
-                const bufferStart = attributes.a_texcoord.data.length;
-                bufferLength = bufferLength || texture.bufferLength(text);
-
-                if (!textLines) {
-                    texture.addChars(text);
-                    textLines = [text];
-                }
-                addText(
-                    textLines,
-                    attributes.a_point.data,
-                    attributes.a_position.data,
-                    attributes.a_texcoord.data,
-                    glyphAtlas,
-                    x, y,
-                    0, alpha * TO_DEG
-                );
-
-                collisionData?.attrs.push({
-                    buffer: attributes.a_texcoord,
-                    start: bufferStart,
-                    stop: bufferStart + bufferLength
-                });
-            }
         );
     }
 
@@ -328,12 +171,12 @@ export class LineFactory {
         halfHeight: number,
         offsetX: number,
         offsetY: number,
-        place: (x: number, y: number, collisionData?: CollisionData) => void
+        place: (x: number, y: number, alpha: number, collisionData?: CollisionData) => void
     ) {
         const prjCoords = this.projectLine(coordinates, tile, tileSize);
 
-        if (prjCoords.collisionData) {
-            for (let cData of prjCoords.collisionData) {
+        if (prjCoords.collisions) {
+            for (let cData of prjCoords.collisions) {
                 place(cData.cx, cData.cy, 0, cData);
             }
             return;
@@ -362,13 +205,13 @@ export class LineFactory {
                 }
 
                 if (!checkCollisions || collisionData) {
-                    place(x, y, collisionData);
+                    place(x, y, 0, collisionData);
                 }
             }
         }
 
         if (checkCollisions?.length) {
-            prjCoords.collisionData = checkCollisions;
+            prjCoords.collisions = checkCollisions;
         }
     }
 
@@ -386,13 +229,12 @@ export class LineFactory {
     ) {
         const {prjCoords} = this;
 
-        if (prjCoords.collisionData) {
-            for (let cData of prjCoords.collisionData) {
+        if (prjCoords.collisions) {
+            for (let cData of prjCoords.collisions) {
                 place(cData.cx, cData.cy, 0, cData);
             }
             return;
         }
-
 
         const vLength = prjCoords.length / 2;
         let coordinates = prjCoords.data;
@@ -477,7 +319,7 @@ export class LineFactory {
                             }
                             prevDistance = d;
 
-                            place(cx, cy, alpha, collisionData);
+                            place(cx, cy, alpha * TO_DEG, collisionData);
                         }
                     }
                 } else {
@@ -490,7 +332,7 @@ export class LineFactory {
         }
 
         if (checkCollisions?.length) {
-            prjCoords.collisionData = checkCollisions;
+            prjCoords.collisions = checkCollisions;
         }
     }
 }

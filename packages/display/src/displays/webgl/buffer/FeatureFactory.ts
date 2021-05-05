@@ -94,77 +94,19 @@ export class FeatureFactory {
     }
 
 
-    // createPoint(type: string, group, coordinates, collisionCandidate);
-    createPoint(type: string, group, cx, cy, style, feature, text?: string) {
-        const {tile, tileSize, collisionData, z} = this;
-        const level = z;
-
+    createPoint(type: string, group, cx, cy, style, feature, collisionData, alpha: number = 0, text?: string) {
+        const level = this.z;
         let positionBuffer;
         let collisionBufferStart;
         let collisionBufferStop;
 
-        // if (!tile.isInside(coordinates)) {
-        //     return;
-        //     return allReady;
-        // }
-
-
-        // if (this.cx == null) {
-        //     this.cx = tile.lon2x(coordinates[0], tileSize);
-        //     this.cy = tile.lat2y(coordinates[1], tileSize);
-        // }
-
-        // const {cx, cy} = this;
-
-        // coordinates = [cx,cy];
-
-        console.log('createPoint', type, collisionData);
-
-        // if(collisionData==null)
-        //     debugger;
-
-
-        // // if (collisionCandidate && collisionData === null) {
-        // if (collisionCandidate) {
-        //     debugger;
-        //     collisionData = this.collisionData = this.collisions.insert(
-        //         // collisionData = this.collisions.insert(
-        //         cx, cy,
-        //         collisionCandidate.offsetX,
-        //         collisionCandidate.offsetY,
-        //         collisionCandidate.width,
-        //         collisionCandidate.height,
-        //         tile, tileSize,
-        //         collisionCandidate.priority
-        //     );
-        //
-        //     console.log('insert?', collisionData);
-        //
-        //     if (!collisionData) {
-        //         return;
-        //     }
-        // }
-
-        // collision detection already tested if the coordinates are inside the tile.
-        // if (!collisionData && !tile.isInside(coordinates)) {
-        //     continue;
-        // }
-
         if (type == 'Text') {
-            let {texture} = group;
-
-            if (!texture) {
-                texture =
-                    group.texture = new GlyphTexture(this.gl, group.shared);
+            if (!group.texture) {
+                group.texture = new GlyphTexture(this.gl, group.shared);
                 group.buffer = new TextBuffer();
             }
-
+            let {texture} = group;
             const {attributes} = group.buffer;
-
-            // if (cx == UNDEF) {
-            //     cx = tile.lon2x(coordinates[0], tileSize);
-            //     cy = tile.lat2y(coordinates[1], tileSize);
-            // }
 
             texture.addChars(text);
 
@@ -184,7 +126,8 @@ export class FeatureFactory {
                 fontInfo,
                 cx,
                 cy,
-                lineWrap
+                lineWrap,
+                alpha
             );
         } else {
             if (type == 'Icon') {
@@ -288,23 +231,14 @@ export class FeatureFactory {
         let alignment;
         let sizeUnit;
         let offsetUnit;
-
-        this.iconsLoaded = true;
-
-        // let cx;
-        // let cy;
-
-        // let collisionData = null;
-        this.collisionData = null;
-        this.cx = null;
-        this.cy = null;
-
-
-        this.lineFactory.init(level, tileSize);
-
         let collisionPriority = Number.MAX_SAFE_INTEGER;
         let collisionStyleGroup;
         let collisionBox;
+
+        this.iconsLoaded = true;
+
+        this.lineFactory.init(level, tileSize);
+
 
         if (priority === UNDEF && geomType === 'Point' && !tile.isInside(coordinates)) {
             return this.iconsLoaded;
@@ -562,18 +496,12 @@ export class FeatureFactory {
             }
 
             if (geomType == 'Point') {
-                // console.log('insideTile??');
-                // if (!tile.isInside(coordinates)) {
-                //     return this.iconsLoaded;
-                // }
-
-
                 const cx = tile.lon2x(coordinates[0], tileSize);
                 const cy = tile.lat2y(coordinates[1], tileSize);
+                let collisionData;
 
                 if (collisionCandidate) {
-                    const collisionData = this.collisionData = this.collisions.insert(
-                        // collisionData = this.collisions.insert(
+                    collisionData = this.collisions.insert(
                         cx, cy,
                         collisionCandidate.offsetX,
                         collisionCandidate.offsetY,
@@ -590,7 +518,7 @@ export class FeatureFactory {
                     collisionCandidate = null;
                 }
 
-                this.createPoint(type, group, cx, cy, style, feature, text);
+                this.createPoint(type, group, cx, cy, style, feature, collisionData, 0, text);
             } else if (geomType == 'LineString') {
                 if (type == 'Line') {
                     this.lineFactory.createLine(
@@ -608,66 +536,56 @@ export class FeatureFactory {
                         getValue('to', style, feature, level)
                     );
                 } else {
-                    // this.createPoint(type, group, coordinates, collisionCandidate, style, feature, text);
-
                     let anchor = getValue('anchor', style, feature, level);
-
-
                     if (anchor == UNDEF) {
                         anchor = type == 'Text' ? 'Line' : 'Coordinate';
                     }
 
-                    if (anchor == 'Line') {
-                        if (type == 'Text') {
-                            this.lineFactory.placeText(
-                                text,
-                                <GeoJSONCoordinate[]>coordinates,
-                                group,
-                                tile,
-                                tileSize,
-                                !collide && this.collisions,
-                                priority,
-                                getValue('repeat', style, feature, level),
-                                offsetX,
-                                offsetY,
-                                group.shared,
-                                collisionCandidate
-                            );
-                        } else {
-                            let w;
-                            let h;
-                            if (collisionCandidate) {
-                                w = collisionCandidate.width * 2;
-                                h = collisionCandidate.height * 2;
-                            } else if (type == 'Icon') {
-                                w = getValue('width', style, feature, level);
-                                h = getValue('height', style, feature, level) || width;
-                            } else {
-                                w = width;
-                                h = height;
-                                if (type == 'Circle') {
-                                    w *= 2;
-                                    h *= 2;
-                                }
-                            }
+                    const checkCollisions = type == 'Text'
+                        ? !collide
+                        : collide === false;
 
-                            this.lineFactory.placeAtSegments(
-                                <GeoJSONCoordinate[]>coordinates,
-                                tile, tileSize,
-                                collide === false && this.collisions,
-                                priority,
-                                getValue('repeat', style, feature, level),
-                                offsetX, offsetY,
-                                w, h,
-                                (x, y, collisionData) => {
-                                    this.createPoint(type, group, x, y, style, feature, text);
-                                },
-                                collisionCandidate
-                            );
+                    let w;
+                    let h;
+
+                    if (anchor == 'Line') {
+                        if (collisionCandidate) {
+                            w = collisionCandidate.width * 2;
+                            h = collisionCandidate.height * 2;
+                        } else if (type == 'Icon') {
+                            w = getValue('width', style, feature, level);
+                            h = getValue('height', style, feature, level) || width;
+                        } else if (type == 'Text') {
+                            let {texture} = group;
+                            if (!texture) {
+                                texture = group.texture = new GlyphTexture(this.gl, style);
+                                group.buffer = new TextBuffer();
+                            }
+                            const glyphAtlas = texture.getAtlas();
+                            w = glyphAtlas.getTextWidth(text);
+                            h = glyphAtlas.letterHeight;
+                        } else {
+                            w = width;
+                            h = height;
+                            if (type == 'Circle') {
+                                w *= 2;
+                                h *= 2;
+                            }
                         }
+
+                        this.lineFactory.placeAtSegments(
+                            <GeoJSONCoordinate[]>coordinates,
+                            tile, tileSize,
+                            checkCollisions && this.collisions,
+                            priority,
+                            getValue('repeat', style, feature, level),
+                            offsetX, offsetY,
+                            w, h,
+                            (x, y, alpha, collisionData) => {
+                                this.createPoint(type, group, x, y, style, feature, collisionData, alpha, text);
+                            }
+                        );
                     } else {
-                        let w;
-                        let h;
                         if (collisionCandidate) {
                             w = collisionCandidate.width;
                             h = collisionCandidate.height;
@@ -676,10 +594,6 @@ export class FeatureFactory {
                             h = height / 2;
                         }
 
-                        const checkCollisions = type == 'Text'
-                            ? !collide
-                            : collide === false;
-
                         this.lineFactory.placeAtPoints(
                             <GeoJSONCoordinate[]>coordinates,
                             tile, tileSize,
@@ -687,8 +601,8 @@ export class FeatureFactory {
                             priority,
                             w, h,
                             offsetX, offsetY,
-                            (x, y, collisionData) => {
-                                this.createPoint(type, group, x, y, style, feature, text);
+                            (x, y, alpha, collisionData) => {
+                                this.createPoint(type, group, x, y, style, feature, collisionData, alpha, text);
                             }
                         );
                     }
@@ -766,8 +680,6 @@ export class FeatureFactory {
                 geomType,
                 coordinates
             };
-
-            // if (Array.isArray(collisionBox)) {
             const [x1, y1, x2, y2] = collisionBox;
             const halfWidth = (x2 - x1) * .5;
             const halfHeight = (y2 - y1) * .5;
@@ -776,7 +688,6 @@ export class FeatureFactory {
             cData.offsetY = y1 + halfHeight;
             cData.width = halfWidth;
             cData.height = halfHeight;
-            // }
 
             this.pendingCollisions.push(cData);
         }
