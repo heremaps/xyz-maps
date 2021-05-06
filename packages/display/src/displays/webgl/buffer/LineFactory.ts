@@ -285,11 +285,16 @@ export class LineFactory {
                 lineWidth = Math.sqrt(dx * dx + dy * dy);
 
                 if (Math.floor(lineWidth / width) > 0) {
-                    let alpha = Math.atan2(dy, dx);
+                    let alpha = 0;
 
-                    if (dir == -1) {
-                        alpha += Math.PI;
+                    if (applyRotation) {
+                        alpha = Math.atan2(dy, dx);
+
+                        if (dir == -1) {
+                            alpha += Math.PI;
+                        }
                     }
+
 
                     let d = (lineWidth - width) / 2;
 
@@ -303,7 +308,7 @@ export class LineFactory {
                             let w = width;
                             let h = height;
 
-                            if (applyRotation) {
+                            if (alpha) {
                                 const bbox = getRotatedBBox(alpha, width, height, cx, cy);
                                 [x, y] = rotate(cx + offsetX, cy + offsetY, cx, cy, alpha);
                                 w = bbox[2] - bbox[0];
