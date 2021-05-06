@@ -143,6 +143,7 @@ export class LineFactory {
         offsetY: number,
         width: number,
         height: number,
+        applyRotation: boolean,
         placeFunc: any
     ) {
         this.projectLine(coordinates, tile, tileSize);
@@ -157,6 +158,7 @@ export class LineFactory {
             offsetY,
             width,
             height,
+            applyRotation,
             placeFunc
         );
     }
@@ -225,6 +227,7 @@ export class LineFactory {
         offsetY: number,
         width: number,
         height: number,
+        applyRotation: boolean,
         place: (x: number, y: number, alpha: number, collisionData?: CollisionData) => void
     ) {
         const {prjCoords} = this;
@@ -295,15 +298,21 @@ export class LineFactory {
                     } else {
                         let collisionData;
                         if (checkCollisions) {
-                            const bbox = getRotatedBBox(alpha, width, height, cx, cy);
-                            const halfWidth = (bbox[2] - bbox[0]) * .5;
-                            const halfHeight = (bbox[3] - bbox[1]) * .5;
-                            const center = rotate(cx + offsetX, cy + offsetY, cx, cy, alpha);
+                            let x = cx;
+                            let y = cy;
+                            let w = width;
+                            let h = height;
 
+                            if (applyRotation) {
+                                const bbox = getRotatedBBox(alpha, width, height, cx, cy);
+                                [x, y] = rotate(cx + offsetX, cy + offsetY, cx, cy, alpha);
+                                w = bbox[2] - bbox[0];
+                                h = bbox[3] - bbox[1];
+                            }
                             collisionData = collisions.insert(
-                                center[0], center[1],
+                                x, y,
                                 0, 0,
-                                halfWidth, halfHeight,
+                                w / 2, h / 2,
                                 tile, tileSize,
                                 priority
                             );

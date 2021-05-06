@@ -557,6 +557,8 @@ export class FeatureFactory {
                     let h;
 
                     if (anchor == 'Line') {
+                        const applyRotation = type == 'Text';
+
                         if (collisionCandidate) {
                             w = collisionCandidate.width * 2;
                             h = collisionCandidate.height * 2;
@@ -589,6 +591,7 @@ export class FeatureFactory {
                             getValue('repeat', style, feature, level),
                             offsetX, offsetY,
                             w, h,
+                            applyRotation,
                             (x, y, alpha, collisionData) => {
                                 this.createPoint(type, group, x, y, style, feature, collisionData, alpha + rotation, text);
                             }
