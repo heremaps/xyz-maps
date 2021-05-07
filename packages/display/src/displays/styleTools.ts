@@ -17,7 +17,7 @@
  * License-Filename: LICENSE
  */
 
-import {getAvgCharDimensions, defaultFont, wrapText} from './textUtils';
+import {wrapText} from './textUtils';
 import {Feature} from '@here/xyz-maps-core';
 import {toRGB} from './webgl/color';
 import {getRotatedBBox} from '../geometry';
@@ -171,7 +171,7 @@ const getLineWidth = (groups: StyleGroup, feature: Feature, zoom: number, layerI
     return [width, maxZ];
 };
 
-export const calcBBox = (style: Style, feature: Feature, zoom: number, bbox?: number[], skipStrokeColor?: boolean): number[] | null => {
+export const calcBBox = (style: Style, feature: Feature, zoom: number, dpr: number, bbox?: number[], skipStrokeColor?: boolean): number[] | null => {
     const tileGridZoom = getTileGridZoom(zoom);
     const type = getValue('type', style, feature, tileGridZoom);
     let x1;
@@ -205,7 +205,7 @@ export const calcBBox = (style: Style, feature: Feature, zoom: number, bbox?: nu
 
         const strokeWidth = getValue('strokeWidth', style, feature, tileGridZoom);
         let font = getValue('font', style, feature, tileGridZoom);
-        const _font = glyphManager.initFont({font, strokeWidth, fill, stroke /* textAlign */});
+        const _font = glyphManager.initFont({font, strokeWidth, fill, stroke /* textAlign */}, dpr);
         let lines;
 
         w = 0;
@@ -279,14 +279,14 @@ export const calcBBox = (style: Style, feature: Feature, zoom: number, bbox?: nu
 
 
 // uses for point geometries only
-const getPixelSize = (groups: StyleGroup, feature: Feature, zoom: number, layerIndex: number): [number, number, number, number, number?] => {
+const getPixelSize = (groups: StyleGroup, feature: Feature, zoom: number, dpr: number, layerIndex: number): [number, number, number, number, number?] => {
     const tileGridZoom = getTileGridZoom(zoom);
     let maxZ = 0;
     let z;
 
     let combinedBBox;
     for (let style of groups) {
-        const bbox = calcBBox(style, feature, zoom, combinedBBox, true);
+        const bbox = calcBBox(style, feature, zoom, dpr, combinedBBox, true);
         combinedBBox = bbox || combinedBBox;
 
         z = getAbsZ(style, feature, tileGridZoom, layerIndex);

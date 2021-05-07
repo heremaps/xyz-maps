@@ -18,6 +18,8 @@
  */
 
 import {getMaxZoom, getPixelSize, getLineWidth, StyleGroup} from '../displays/styleTools';
+import {Map} from '../Map';
+import {Feature} from '@here/xyz-maps-core';
 
 type Point = [number, number, number?];
 type Coordinates = Point | Point[] | Point[][] | Point[][][];
@@ -90,13 +92,15 @@ const pointInPolygon = (x: number, y: number, poly: Point[][]): boolean => {
 
 
 class Hit {
-    private map: any;
+    private map: Map;
+    private dpr: number;
 
-    constructor(map) {
+    constructor(map, dpr: number) {
         this.map = map;
+        this.dpr = dpr;
     }
 
-    feature(x: number, y: number, feature, featureStyle: StyleGroup, layerIndex: number, zoomlevel: number) {
+    feature(x: number, y: number, feature: Feature, featureStyle: StyleGroup, layerIndex: number, zoomlevel: number) {
         return this.geometry(
             x,
             y,
@@ -118,20 +122,19 @@ class Hit {
         geoType: string,
         featureStyle: StyleGroup,
         layerIndex: number,
-        feature,
+        feature: Feature,
         zoomlevel: number,
         dimensions?: number[]
     ) {
         let hit = false;
-        const map = this.map;
+        const {dpr, map} = this;
 
         if (geoType == 'Point') {
-            dimensions = dimensions || getPixelSize(featureStyle, feature, zoomlevel, layerIndex);
+            dimensions = dimensions || getPixelSize(featureStyle, feature, zoomlevel, dpr, layerIndex);
 
             if (dimensions) {
                 // coordinates = feature.getProvider().decCoord( feature );
-
-                let pixel = map.geoToPixel(coordinates[0], coordinates[1]);
+                let pixel = map.geoToPixel((<Point>coordinates)[0], (<Point>coordinates)[1]);
                 let x1 = Math.round(pixel.x + dimensions[0]);
                 let y1 = Math.round(pixel.y + dimensions[1]);
                 let x2 = Math.round(pixel.x + dimensions[2]);
@@ -178,7 +181,7 @@ class Hit {
                 dimensions = [getMaxZoom(featureStyle, feature, zoomlevel, layerIndex)];
             } else if (geoType == 'MultiPoint') {
                 baseType = 'Point';
-                dimensions = getPixelSize(featureStyle, feature, zoomlevel, layerIndex);
+                dimensions = getPixelSize(featureStyle, feature, zoomlevel, dpr, layerIndex);
             } else if (geoType == 'MultiLineString') {
                 baseType = 'LineString';
                 dimensions = getLineWidth(featureStyle, feature, zoomlevel, layerIndex);

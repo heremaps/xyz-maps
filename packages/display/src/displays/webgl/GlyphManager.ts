@@ -55,13 +55,14 @@ class GlyphManager {
 
     }
 
-    private getFontId(style: FontStyle) {
-        return `${style.font || DEFAULT_FONT}${style.strokeWidth || DEFAULT_STROKE_WIDTH}${style.textAlign || DEFAULT_TEXT_ALIGN}`;
+    private getFontId(style: FontStyle, scale: number) {
+        return `${style.font || DEFAULT_FONT}${style.strokeWidth || DEFAULT_STROKE_WIDTH}${scale}`;
+        // return `${style.font || DEFAULT_FONT}${style.strokeWidth || DEFAULT_STROKE_WIDTH}${style.textAlign || DEFAULT_TEXT_ALIGN}${scale}`;
     }
 
     initFont(style: FontStyle, scale: number = 1) {
         const {fonts} = this;
-        const styleId = this.getFontId(style);
+        const styleId = this.getFontId(style, scale);
 
         if (!fonts[styleId]) {
             const size = 96 * scale;
@@ -97,7 +98,7 @@ class GlyphManager {
                 ctx,
                 width: size,
                 offsetX: 2 * lineWidth * scale,
-                scale: scale,
+                scale,
                 style,
                 charWidthCache: new Map<string, number>(),
                 rowHeight: rowHeight * scale,

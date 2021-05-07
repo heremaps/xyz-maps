@@ -38,10 +38,9 @@ export class Search {
     private map: Map;
     private hit: Hit;
 
-
-    constructor(map) {
+    constructor(map: Map, dpr: number) {
         this.map = map;
-        this.hit = new Hit(map);
+        this.hit = new Hit(map, dpr);
     }
 
     private getFeaturesInRect(x1: number, y1: number, x2: number, y2: number, layers: TileLayer | TileLayer[], zoomlevel: number, mostTopFeatureOnly?: boolean) {

@@ -272,7 +272,7 @@ export class FeatureFactory {
                     type == 'Text' && !collide ||
                     collide === false
                 )) {
-                let bbox = calcBBox(style, feature, level, collisionBox);
+                let bbox = calcBBox(style, feature, level, this.dpr, collisionBox);
 
                 if (bbox) {
                     collisionBox = bbox || collisionBox;

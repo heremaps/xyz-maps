@@ -257,7 +257,7 @@ export class Map {
 
         tigerMap._display = display;
 
-        this._search = new Search(tigerMap);
+        this._search = new Search(tigerMap, display.dpr);
 
         const pointerEvents = this._evDispatcher = new EventDispatcher(mapEl, tigerMap, layers, options);
 
