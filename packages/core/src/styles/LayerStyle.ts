@@ -440,7 +440,7 @@ export interface Style {
     priority?: number | StyleValueFunction<number> | StyleZoomRange<number>;
 
     /**
-     * Minimum distance in pixels between repeated text labels on line geometries.
+     * Minimum distance in pixels between repeated style-groups on line geometries.
      * Applies per tile only.
      *
      * @defaultValue 256 (pixels)

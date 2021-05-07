@@ -107,3 +107,9 @@ export const isInBox = (x: number, y: number, xmin: number, ymin: number, xmax: 
 export const intersectBBox = (ax: number, ax2: number, ay: number, ay2: number, bx: number, bx2: number, by: number, by2: number): boolean => {
     return ax <= bx2 && bx <= ax2 && ay <= by2 && by <= ay2;
 };
+
+export const getDistance = (p1x: number, p1y: number, p2x: number, p2y: number): number => {
+    const dx = p1x - p2x;
+    const dy = p1y - p2y;
+    return Math.sqrt(dx * dx + dy * dy);
+};

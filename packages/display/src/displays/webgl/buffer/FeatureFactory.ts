@@ -37,7 +37,7 @@ import {PointBuffer} from './templates/PointBuffer';
 import {PolygonBuffer} from './templates/PolygonBuffer';
 import {ExtrudeBuffer} from './templates/ExtrudeBuffer';
 import {toPresentationFormB} from '../arabic';
-import {Feature, GeoJSONCoordinate as Coordinate, GeoJSONCoordinate, Tile} from '@here/xyz-maps-core';
+import {Feature, GeoJSONCoordinate as Coordinate, GeoJSONCoordinate} from '@here/xyz-maps-core';
 
 
 const DEFAULT_STROKE_WIDTH = 1;
@@ -46,10 +46,12 @@ const DEFAULT_LINE_JOIN = 'round';
 const NONE = '*';
 let UNDEF;
 
-export type CollisionCandidate = {
+export type CollisionGroup = {
+    id: string,
     feature: Feature,
     styleGrp: Style,
     priority: number,
+    repeat: number,
     geomType: string,
     coordinates: any,
     offsetX?: number;
@@ -62,18 +64,16 @@ export class FeatureFactory {
     private readonly gl: WebGLRenderingContext;
     private icons: IconManager;
     private dpr: number;
-
     private dashes: DashAtlas;
-
-    collisions: CollisionHandler;
     private tile: any;
     private groups: any;
     private tileSize: number;
-    z: number;
     private lineFactory: LineFactory;
     private iconsLoaded: boolean;
 
-    pendingCollisions: CollisionCandidate[] = [];
+    collisions: CollisionHandler;
+    pendingCollisions: CollisionGroup[] = [];
+    z: number;
 
     constructor(gl: WebGLRenderingContext, iconManager: IconManager, collisionHandler, devicePixelRatio: number) {
         this.gl = gl;
@@ -89,7 +89,7 @@ export class FeatureFactory {
         this.groups = groups;
         this.tileSize = tileSize;
         this.z = zoom;
-
+        this.lineFactory.initTile();
         this.pendingCollisions.length = 0;
     }
 
@@ -201,7 +201,7 @@ export class FeatureFactory {
         strokeWidthScale: number,
         removeTileBounds?: boolean,
         priority?: number,
-        collisionCandidate?: CollisionCandidate
+        collisionGroup?: CollisionGroup
     ): boolean {
         const {tile, groups, tileSize} = this;
         const level = this.z;
@@ -239,18 +239,18 @@ export class FeatureFactory {
         let sizeUnit;
         let offsetUnit;
         let collisionPriority = Number.MAX_SAFE_INTEGER;
+        let collisionRepeat = -Number.MAX_SAFE_INTEGER;
         let collisionStyleGroup;
+        let collisionGroupId = '';
         let collisionBox;
 
         this.iconsLoaded = true;
 
-        this.lineFactory.init(level, tileSize);
-
+        this.lineFactory.initFeature(level, tileSize, collisionGroup?.id);
 
         if (priority === UNDEF && geomType === 'Point' && !tile.isInside(coordinates)) {
             return this.iconsLoaded;
         }
-
 
         for (let i = 0, iLen = styleGroups.length; i < iLen; i++) {
             style = styleGroups[i];
@@ -279,11 +279,18 @@ export class FeatureFactory {
                     collisionStyleGroup = collisionStyleGroup || [];
                     collisionStyleGroup.push(style);
 
-                    let priority = getValue('priority', style, feature, level);
+                    const priority = getValue('priority', style, feature, level);
 
                     if (priority < collisionPriority) {
                         collisionPriority = priority;
                     }
+
+                    const repeat = getValue('repeat', style, feature, level);
+
+                    if (repeat > collisionRepeat) {
+                        collisionRepeat = repeat;
+                    }
+                    collisionGroupId += type + (priority || '?') + (repeat || '?');
                 }
                 continue;
             }
@@ -509,22 +516,22 @@ export class FeatureFactory {
                 const y = tile.lat2y(coordinates[1], tileSize);
                 let collisionData;
 
-                if (collisionCandidate) {
+                if (collisionGroup) {
                     collisionData = this.collisions.insert(
                         x, y,
-                        collisionCandidate.offsetX,
-                        collisionCandidate.offsetY,
-                        collisionCandidate.width,
-                        collisionCandidate.height,
+                        collisionGroup.offsetX,
+                        collisionGroup.offsetY,
+                        collisionGroup.width,
+                        collisionGroup.height,
                         tile, tileSize,
-                        collisionCandidate.priority
+                        collisionGroup.priority
                     );
 
                     if (!collisionData) {
                         return this.iconsLoaded;
                     }
                     // make sure collision is not check for following styles of stylegroup
-                    collisionCandidate = null;
+                    collisionGroup = null;
                 }
                 this.createPoint(type, group, x, y, style, feature, collisionData, rotation, text);
             } else if (geomType == 'LineString') {
@@ -560,9 +567,9 @@ export class FeatureFactory {
                         // const applyRotation = false;
                         const applyRotation = type == 'Text' && alignment == 'map';
 
-                        if (collisionCandidate) {
-                            w = collisionCandidate.width * 2;
-                            h = collisionCandidate.height * 2;
+                        if (collisionGroup) {
+                            w = collisionGroup.width * 2;
+                            h = collisionGroup.height * 2;
                         } else if (type == 'Icon') {
                             w = getValue('width', style, feature, level);
                             h = getValue('height', style, feature, level) || width;
@@ -598,9 +605,9 @@ export class FeatureFactory {
                             }
                         );
                     } else {
-                        if (collisionCandidate) {
-                            w = collisionCandidate.width;
-                            h = collisionCandidate.height;
+                        if (collisionGroup) {
+                            w = collisionGroup.width;
+                            h = collisionGroup.height;
                         } else {
                             w = width / 2;
                             h = height / 2;
@@ -685,13 +692,18 @@ export class FeatureFactory {
         }
 
         if (collisionStyleGroup) {
-            let cData: CollisionCandidate = {
+            const id = collisionGroupId;
+            let cData: CollisionGroup = {
+                id,
                 priority: collisionPriority,
+                repeat: collisionRepeat,
                 styleGrp: collisionStyleGroup,
                 feature,
                 geomType,
                 coordinates
             };
+
+
             const [x1, y1, x2, y2] = collisionBox;
             const halfWidth = (x2 - x1) * .5;
             const halfHeight = (y2 - y1) * .5;

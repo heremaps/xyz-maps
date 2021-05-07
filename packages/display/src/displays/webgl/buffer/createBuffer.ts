@@ -22,7 +22,7 @@ import {GeometryBuffer} from './GeometryBuffer';
 import {getValue, parseStyleGroup} from '../../styleTools';
 import {Tile, webMercator, StyleGroup, Feature, TileLayer} from '@here/xyz-maps-core';
 import {Layer} from '../../Layers';
-import {FeatureFactory, CollisionCandidate} from './FeatureFactory';
+import {FeatureFactory, CollisionGroup} from './FeatureFactory';
 import {TemplateBuffer} from './templates/TemplateBuffer';
 import {GlyphTexture} from '../GlyphTexture';
 
@@ -73,7 +73,7 @@ const handlePolygons = (
     return ready;
 };
 
-type TaskData = [Tile, Feature[], number, number, number, TileLayer, number, boolean | CollisionCandidate[]];
+type TaskData = [Tile, Feature[], number, number, number, TileLayer, number, boolean | CollisionGroup[]];
 
 const createBuffer = (
     data: Feature[],
@@ -111,7 +111,6 @@ const createBuffer = (
             }
 
             factory.init(tile, groups, tileSize, zoom);
-
 
             return [
                 tile,
@@ -408,7 +407,7 @@ const createBuffer = (
                         }
                     }
                 }
-                notDone = taskData[3] < (<CollisionCandidate[]>cData).length;
+                notDone = taskData[3] < (<CollisionGroup[]>cData).length;
             }
 
             taskData[4] = PROCESS_FEATURE_BUNDLE_SIZE;

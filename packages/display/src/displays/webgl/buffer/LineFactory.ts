@@ -23,9 +23,10 @@ import {DashAtlas} from '../DashAtlas';
 import {GeoJSONCoordinate as Coordinate, Tile} from '@here/xyz-maps-core';
 import {CollisionData, CollisionHandler} from '../CollisionHandler';
 import {getRotatedBBox, rotate} from '../../../geometry';
+import {DistanceGroup} from './DistanceGroup';
 
 const TO_DEG = 180 / Math.PI;
-const DEFAULT_MIN_TEXT_REPEAT = 256;
+const DEFAULT_MIN_REPEAT = 256;
 let UNDEF;
 
 export type PixelCoordinateCache = {
@@ -42,11 +43,20 @@ export class LineFactory {
     private pixels: Float32Array;
     private decimals: number; // increase precision for tile scaling
 
+    private repeat: { [groupId: string]: DistanceGroup };
+    private dId: string;
+
     constructor(gl: WebGLRenderingContext) {
         this.dashes = new DashAtlas(gl);
         this.gl = gl;
         // reused pixel coordinate cache
         this.pixels = new Float32Array(262144); // -> 1MB;
+
+        this.repeat = {};
+    }
+
+    private getDistanceGrp() {
+        return this.repeat[this.dId];
     }
 
     private projectLine(coordinates: Coordinate[], tile: Tile, tileSize: number): PixelCoordinateCache {
@@ -84,11 +94,27 @@ export class LineFactory {
         return this.prjCoords;
     }
 
-    init(zoom: number, tileSize: number) {
+    initTile() {
+        const {repeat} = this;
+        for (let id in repeat) {
+            repeat[id].clear();
+        }
+        // this.repeat.clear();
+    }
+
+    initFeature(zoom: number, tileSize: number, distanceGroup?: string) {
         // allow more precision in case tiles are getting zoomed very close (zoomlevel 20+)
         this.decimals = zoom >= 20 - Number(tileSize == 512) ? 1e2 : 1;
         // clear projected coordinate cache
         this.prjCoords = null;
+
+
+        const {repeat} = this;
+        this.dId = distanceGroup;
+
+        if (distanceGroup && !repeat[distanceGroup]) {
+            repeat[distanceGroup] = new DistanceGroup();
+        }
     }
 
     createLine(
@@ -148,12 +174,14 @@ export class LineFactory {
     ) {
         this.projectLine(coordinates, tile, tileSize);
 
+        this.getDistanceGrp().setMinDistance(repeat == UNDEF ? DEFAULT_MIN_REPEAT : repeat);
+
         this.placeAlongLine(
             tile,
             tileSize,
             collisions,
             priority,
-            repeat == UNDEF ? DEFAULT_MIN_TEXT_REPEAT : repeat,
+            // repeat * repeat,
             offsetX,
             offsetY,
             width,
@@ -222,7 +250,6 @@ export class LineFactory {
         tileSize: number,
         collisions: CollisionHandler,
         priority: number,
-        minRepeatDistance: number,
         offsetX: number,
         offsetY: number,
         width: number,
@@ -238,11 +265,10 @@ export class LineFactory {
             }
             return;
         }
-
+        const checkCollisions = collisions && [];
         const vLength = prjCoords.length / 2;
         let coordinates = prjCoords.data;
         let prevDistance = Infinity;
-        const checkCollisions = collisions && [];
         let lineWidth;
         let x2;
         let y2;
@@ -295,9 +321,137 @@ export class LineFactory {
                         }
                     }
 
+                    let collisionData;
+                    const keepDistance = this.getDistanceGrp().hasSpace(cx, cy);
+                    if (checkCollisions && keepDistance) {
+                        let x = cx;
+                        let y = cy;
+                        let w = width;
+                        let h = height;
+
+                        if (alpha) {
+                            const bbox = getRotatedBBox(alpha, width, height, cx, cy);
+                            [x, y] = rotate(cx + offsetX, cy + offsetY, cx, cy, alpha);
+                            w = bbox[2] - bbox[0];
+                            h = bbox[3] - bbox[1];
+                        }
+                        collisionData = collisions.insert(
+                            x, y,
+                            0, 0,
+                            w / 2, h / 2,
+                            tile, tileSize,
+                            priority
+                        );
+
+                        if (collisionData) {
+                            checkCollisions.push(collisionData);
+                        }
+                    }
+
+                    if (keepDistance && (!checkCollisions || collisionData)) {
+                        place(cx, cy, alpha * TO_DEG, collisionData);
+
+                        this.getDistanceGrp().add(cx, cy);
+                    }
+                }
+            }
+
+            x1 = x2;
+            y1 = y2;
+        }
+
+        if (checkCollisions?.length) {
+            prjCoords.collisions = checkCollisions;
+        }
+    }
+
+    private __placeAlongLine(
+        tile: Tile,
+        tileSize: number,
+        collisions: CollisionHandler,
+        priority: number,
+        minRepeatDistance: number,
+        offsetX: number,
+        offsetY: number,
+        width: number,
+        height: number,
+        applyRotation: boolean,
+        place: (x: number, y: number, alpha: number, collisionData?: CollisionData) => void
+    ) {
+        const {prjCoords} = this;
+
+        if (prjCoords.collisions) {
+            for (let cData of prjCoords.collisions) {
+                place(cData.cx, cData.cy, 0, cData);
+            }
+            return;
+        }
+        const checkCollisions = collisions && [];
+        const vLength = prjCoords.length / 2;
+        let coordinates = prjCoords.data;
+        let prevDistance = Infinity;
+        let lineWidth;
+        let x2;
+        let y2;
+        let dx;
+        let dy;
+        let cx;
+        let cy;
+        // for optimal repeat distance the first label gets placed in the middle of the linestring.
+        let offset = Math.floor(vLength / 2) - 1;
+        // we move to the end of the linestring..
+        let dir = 1;
+        let x1 = coordinates[offset * 2];
+        let y1 = coordinates[offset * 2 + 1];
+        let startX = x1;
+        let startY = y1;
+        let startDistance = prevDistance;
+        let prevX;
+        let prevY;
+
+        let firstX;
+        let firstY;
+
+        for (let i = 1; i < vLength; i++) {
+            let c = offset + dir * i;
+            if (c >= vLength) {
+                // from now on we move from middle to beginning of linestring
+                dir = -1;
+                c = offset - 1;
+                offset = vLength - 1;
+                x1 = startX;
+                y1 = startY;
+                prevDistance = startDistance;
+
+                prevX = firstX;
+                prevY = firstY;
+            }
+
+            x2 = coordinates[c * 2];
+            y2 = coordinates[c * 2 + 1];
+            dx = x2 - x1;
+            dy = y2 - y1;
+
+            cx = dx * .5 + x1;
+            cy = dy * .5 + y1;
+
+            // not inside tile -> skip!
+            if (cx >= 0 && cy >= 0 && cx < tileSize && cy < tileSize) {
+                lineWidth = Math.sqrt(dx * dx + dy * dy);
+
+                if (Math.floor(lineWidth / width) > 0) {
+                    let alpha = 0;
+
+                    if (applyRotation) {
+                        alpha = Math.atan2(dy, dx);
+
+                        if (dir == -1) {
+                            alpha += Math.PI;
+                        }
+                    }
+
 
                     let d = (lineWidth - width) / 2;
-
                     if (prevDistance + d < minRepeatDistance) {
                         prevDistance += lineWidth;
                     } else {

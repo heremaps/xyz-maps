@@ -22,6 +22,7 @@ import {global as WIN} from '@here/xyz-maps-common';
 import {ScrollHandler} from './ScrollHandler';
 import {Map} from '../Map';
 import {Animation} from '../animation/Animation';
+import {getDistance} from '../geometry';
 
 const MIN_ROTATION = 5;
 const TWO_FINGER_PINCH_THRESHOLD = 110;
@@ -86,11 +87,6 @@ const getAngle = (ev: TouchEvent): number => {
         return Math.atan2(dy, dx) * 180 / Math.PI;
     }
 };
-
-const getDistance = (p1x: number, p1y: number, p2x: number, p2y: number): number => {
-    return Math.sqrt(Math.pow((p1x - p2x), 2) + Math.pow((p1y - p2y), 2));
-};
-
 
 class Behavior {
     drag: (boolean) => void;
