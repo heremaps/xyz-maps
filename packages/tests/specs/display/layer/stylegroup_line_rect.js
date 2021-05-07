@@ -375,4 +375,28 @@ describe('StyleGroup Rect and Line geometry', () => {
         expect(colors[1]).to.equal('#00ff00');
         expect(colors[2]).to.equal('#ffffff');
     });
+
+    it('set minimum repeat distance - anchor Coordinate', async () => {
+        layer.setStyleGroup(line1, null);
+
+        layer.setStyleGroup(line2, [{
+            zIndex: 1,
+            type: 'Rect',
+            width: 20,
+            opacity: 1,
+            fill: '#00ff00',
+            anchor: 'Coordinate',
+            collide: false,
+            repeat: 256
+        }]);
+
+        const colors = await getCanvasPixelColor(mapContainer, [
+            {x: 300, y: 500}, {x: 300, y: 100}, {x: 500, y: 100}, {x: 500, y: 500}
+        ]);
+
+        expect(colors[0]).to.equal('#00ff00');
+        expect(colors[1]).to.equal('#00ff00');
+        expect(colors[2]).to.equal('#ffffff');
+        expect(colors[3]).to.equal('#ffffff');
+    });
 });
