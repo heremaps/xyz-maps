@@ -174,7 +174,7 @@ export class LineFactory {
     ) {
         this.projectLine(coordinates, tile, tileSize);
 
-        this.getDistanceGrp().setMinDistance(repeat == UNDEF ? DEFAULT_MIN_REPEAT : repeat);
+        this.getDistanceGrp()?.setMinDistance(repeat == UNDEF ? DEFAULT_MIN_REPEAT : repeat);
 
         this.placeAlongLine(
             tile,
