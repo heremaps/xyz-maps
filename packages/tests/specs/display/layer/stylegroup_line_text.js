@@ -99,7 +99,12 @@ describe('StyleGroup Text and Line geometry', () => {
 
     it('style text and validate', async () => {
         layer.setStyleGroup(line1, [{
-            'zIndex': 1, 'type': 'Text', 'font': FONT, 'text': FULL_BLOCK_CHAR, 'fill': '#0000ff', 'anchor': 'Coordinate'
+            'zIndex': 1,
+            'type': 'Text',
+            'font': FONT,
+            'text': FULL_BLOCK_CHAR,
+            'fill': '#0000ff',
+            'anchor': 'Coordinate'
         }]);
 
         const colors = await getCanvasPixelColor(mapContainer, [px1, px2]);
@@ -110,7 +115,13 @@ describe('StyleGroup Text and Line geometry', () => {
 
     it('set anchor to Line', async () => {
         layer.setStyleGroup(line1, [{
-            'zIndex': 1, 'type': 'Text', 'font': FONT, 'text': FULL_BLOCK_CHAR, 'fill': '#0000ff', 'anchor': 'Line', 'collide': true
+            'zIndex': 1,
+            'type': 'Text',
+            'font': FONT,
+            'text': FULL_BLOCK_CHAR,
+            'fill': '#0000ff',
+            'anchor': 'Line',
+            'collide': true
         }]);
 
         const colors = await getCanvasPixelColor(mapContainer, [px1, px2, {x: 400, y: 300}]);
@@ -122,7 +133,13 @@ describe('StyleGroup Text and Line geometry', () => {
 
     it('style line 2', async () => {
         layer.setStyleGroup(line2, [{
-            'zIndex': 1, 'type': 'Text', 'font': FONT, 'text': FULL_BLOCK_CHAR, 'fill': '#00ff00', 'anchor': 'Coordinate', 'collide': true
+            zIndex: 1,
+            type: 'Text',
+            font: FONT,
+            text: FULL_BLOCK_CHAR,
+            fill: '#00ff00',
+            anchor: 'Coordinate',
+            collide: true
         }]);
 
         const colors = await getCanvasPixelColor(mapContainer, [px1, px2, px3, px4]);
@@ -133,7 +150,14 @@ describe('StyleGroup Text and Line geometry', () => {
 
     it('set anchor2 to Line', async () => {
         layer.setStyleGroup(line2, [{
-            'zIndex': 2, 'type': 'Text', 'font': FONT, 'text': FULL_BLOCK_CHAR, 'width': 12, 'fill': '#00ff00', 'anchor': 'Line'
+            'zIndex': 2,
+            'type': 'Text',
+            'font': FONT,
+            'text': FULL_BLOCK_CHAR,
+            'width': 12,
+            'fill': '#00ff00',
+            'anchor': 'Line',
+            'repeat': 0
         }]);
 
         const colors = await getCanvasPixelColor(mapContainer, [{x: 300, y: 300}, {x: 400, y: 300}, {x: 500, y: 300}]);
@@ -145,12 +169,14 @@ describe('StyleGroup Text and Line geometry', () => {
     it('enable collision detection', async () => {
         layer.setStyleGroup(line2, [{
             'zIndex': 2,
-            'type': 'Text', 'font': FONT, 'text': FULL_BLOCK_CHAR,
+            'type': 'Text',
+            'font': FONT,
+            'text': FULL_BLOCK_CHAR,
             'width': 12,
-
             'fill': '#00ff00',
             'anchor': 'Line',
-            'collide': false
+            'collide': false,
+            'repeat': 0
         }]);
         layer.setStyleGroup(line1, [{
             zIndex: 1,
@@ -161,7 +187,8 @@ describe('StyleGroup Text and Line geometry', () => {
             opacity: 1,
             fill: '#0000ff',
             anchor: 'Line',
-            collide: false
+            collide: false,
+            repeat: 0
         }]);
 
         const colors = await getCanvasPixelColor(mapContainer, [{x: 300, y: 300}, {x: 400, y: 300}, {x: 500, y: 300}]);
@@ -173,14 +200,16 @@ describe('StyleGroup Text and Line geometry', () => {
 
     it('change priority', async () => {
         layer.setStyleGroup(line2, [{
-            'zIndex': 2,
-            'type': 'Text', 'font': FONT, 'text': FULL_BLOCK_CHAR,
-            'width': 12,
-
-            'fill': '#00ff00',
-            'anchor': 'Line',
-            'collide': false,
-            'priority': 1
+            zIndex: 2,
+            type: 'Text',
+            font: FONT,
+            text: FULL_BLOCK_CHAR,
+            width: 12,
+            fill: '#00ff00',
+            anchor: 'Line',
+            collide: false,
+            priority: 1,
+            repeat: 0
         }]);
         layer.setStyleGroup(line1, [{
             zIndex: 1,
@@ -191,7 +220,8 @@ describe('StyleGroup Text and Line geometry', () => {
             opacity: 1,
             fill: '#0000ff',
             anchor: 'Line',
-            collide: false
+            collide: false,
+            repeat: 0
         }]);
 
         const colors = await getCanvasPixelColor(mapContainer, [{x: 300, y: 300}, {x: 400, y: 300}, {x: 500, y: 300}]);
@@ -203,14 +233,16 @@ describe('StyleGroup Text and Line geometry', () => {
 
     it('set anchor2 to Coordinates', async () => {
         layer.setStyleGroup(line2, [{
-            'zIndex': 2,
-            'type': 'Text', 'font': FONT, 'text': FULL_BLOCK_CHAR,
-            'width': 12,
-
-            'fill': '#00ff00',
-            'anchor': 'Coordinate',
-            'collide': false,
-            'priority': 1
+            zIndex: 2,
+            type: 'Text',
+            font: FONT,
+            text: FULL_BLOCK_CHAR,
+            width: 12,
+            fill: '#00ff00',
+            anchor: 'Coordinate',
+            collide: false,
+            priority: 1,
+            repeat: 0
         }]);
         layer.setStyleGroup(line1, [{
             zIndex: 1,
@@ -221,7 +253,8 @@ describe('StyleGroup Text and Line geometry', () => {
             opacity: 1,
             fill: '#0000ff',
             anchor: 'Line',
-            collide: false
+            collide: false,
+            repeat: 0
         }]);
 
         const colors = await getCanvasPixelColor(mapContainer, [{x: 400, y: 300}, px1, px2, px3, px4]);
@@ -235,14 +268,15 @@ describe('StyleGroup Text and Line geometry', () => {
 
     it('set anchor1 to Coordinates', async () => {
         layer.setStyleGroup(line2, [{
-            'zIndex': 2,
-            'type': 'Text', 'font': FONT, 'text': FULL_BLOCK_CHAR,
-            'width': 12,
-
-            'fill': '#00ff00',
-            'anchor': 'Coordinate',
-            'collide': false,
-            'priority': 1
+            zIndex: 2,
+            type: 'Text',
+            font: FONT,
+            text: FULL_BLOCK_CHAR,
+            width: 12,
+            fill: '#00ff00',
+            anchor: 'Coordinate',
+            collide: false,
+            priority: 1
         }]);
         layer.setStyleGroup(line1, [{
             zIndex: 1, type: 'Circle', width: 14, opacity: 1, fill: '#0000ff', anchor: 'Coordinate', collide: false
@@ -259,17 +293,20 @@ describe('StyleGroup Text and Line geometry', () => {
 
     it('change prio1', async () => {
         layer.setStyleGroup(line2, [{
-            'zIndex': 2,
-            'type': 'Text', 'font': FONT, 'text': FULL_BLOCK_CHAR,
-            'width': 12,
-
-            'fill': '#00ff00',
-            'anchor': 'Coordinate',
-            'collide': false
+            zIndex: 2,
+            type: 'Text',
+            font: FONT,
+            text: FULL_BLOCK_CHAR,
+            width: 12,
+            fill: '#00ff00',
+            anchor: 'Coordinate',
+            collide: false
         }]);
         layer.setStyleGroup(line1, [{
             zIndex: 1,
-            type: 'Text', font: FONT, text: FULL_BLOCK_CHAR,
+            type: 'Text',
+            font: FONT,
+            text: FULL_BLOCK_CHAR,
             width: 28,
             opacity: 1,
             fill: '#0000ff',
@@ -290,24 +327,28 @@ describe('StyleGroup Text and Line geometry', () => {
     it('check collision-groups', async () => {
         layer.setStyleGroup(line2, [{
             'zIndex': 1,
-            'type': 'Text', 'font': FONT, 'text': FULL_BLOCK_CHAR,
+            'type': 'Text',
+            'font': FONT,
+            'text': FULL_BLOCK_CHAR,
             'width': 20,
-
             'fill': '#00ff00',
             'anchor': 'Coordinate',
             'collide': false
         }, {
             'zIndex': 2,
-            'type': 'Text', 'font': FONT, 'text': FULL_BLOCK_CHAR,
+            'type': 'Text',
+            'font': FONT,
+            'text': FULL_BLOCK_CHAR,
             'width': 12,
-
             'fill': '#ff0000',
             'anchor': 'Coordinate',
             'collide': false
         }]);
         layer.setStyleGroup(line1, [{
             zIndex: 0,
-            type: 'Text', font: FONT, text: FULL_BLOCK_CHAR,
+            type: 'Text',
+            font: FONT,
+            text: FULL_BLOCK_CHAR,
             width: 28,
             opacity: 1,
             fill: '#0000ff',
@@ -316,7 +357,9 @@ describe('StyleGroup Text and Line geometry', () => {
             priority: 1
         }, {
             zIndex: 1,
-            type: 'Text', font: FONT, text: FULL_BLOCK_CHAR,
+            type: 'Text',
+            font: FONT,
+            text: FULL_BLOCK_CHAR,
             width: 20,
             opacity: 1,
             fill: '#ff0000',
@@ -337,24 +380,28 @@ describe('StyleGroup Text and Line geometry', () => {
     it('check partial collision-groups', async () => {
         layer.setStyleGroup(line2, [{
             'zIndex': 1,
-            'type': 'Text', 'font': FONT, 'text': FULL_BLOCK_CHAR,
+            'type': 'Text',
+            'font': FONT,
+            'text': FULL_BLOCK_CHAR,
             'width': 20,
-
             'fill': '#00ff00',
             'anchor': 'Coordinate',
             'collide': false
         }, {
             'zIndex': 2,
-            'type': 'Text', 'font': FONT, 'text': FULL_BLOCK_CHAR,
+            'type': 'Text',
+            'font': FONT,
+            'text': FULL_BLOCK_CHAR,
             'width': 12,
-
             'fill': '#ff0000',
             'anchor': 'Coordinate',
             'collide': false
         }]);
         layer.setStyleGroup(line1, [{
             zIndex: 0,
-            type: 'Text', font: FONT, text: FULL_BLOCK_CHAR,
+            type: 'Text',
+            font: FONT,
+            text: FULL_BLOCK_CHAR,
             width: 28,
             opacity: 1,
             fill: '#0000ff',
@@ -363,7 +410,9 @@ describe('StyleGroup Text and Line geometry', () => {
             priority: 1
         }, {
             zIndex: 9,
-            type: 'Text', font: FONT, text: FULL_BLOCK_CHAR,
+            type: 'Text',
+            font: FONT,
+            text: FULL_BLOCK_CHAR,
             width: 20,
             opacity: 1,
             fill: '#ff00ff',
@@ -379,5 +428,25 @@ describe('StyleGroup Text and Line geometry', () => {
         expect(colors[2]).to.equal('#ff00ff');
         expect(colors[3]).to.equal('#ff0000');
         expect(colors[4]).to.equal('#ff0000');
+    });
+
+    it('set minimum repeat distance - anchor Line', async () => {
+        layer.setStyleGroup(line2, [{
+            zIndex: 1,
+            type: 'Text',
+            font: FONT,
+            text: FULL_BLOCK_CHAR,
+            width: 20,
+            fill: '#00ff00',
+            anchor: 'Line',
+            collide: false,
+            repeat: 256
+        }]);
+
+        const colors = await getCanvasPixelColor(mapContainer, [{x: 300, y: 300}, {x: 400, y: 300}, {x: 500, y: 300}]);
+
+        expect(colors[0]).to.equal('#ffffff');
+        expect(colors[1]).to.equal('#00ff00');
+        expect(colors[2]).to.equal('#ffffff');
     });
 });

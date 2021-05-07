@@ -60,6 +60,7 @@ describe('StyleGroup Circle and Line geometry', () => {
 
 
         line1 = layer.addFeature({
+            id: 'line1',
             type: 'Feature',
             geometry: {
                 type: 'LineString',
@@ -71,6 +72,7 @@ describe('StyleGroup Circle and Line geometry', () => {
         });
 
         line2 = layer.addFeature({
+            id: 'line2',
             type: 'Feature',
             geometry: {
                 type: 'LineString',
@@ -96,7 +98,7 @@ describe('StyleGroup Circle and Line geometry', () => {
 
     it('style circles and validate', async () => {
         layer.setStyleGroup(line1, [{
-            'zIndex': 1, 'type': 'Circle', 'radius': 14, 'opacity': 1, 'fill': '#0000ff'
+            'zIndex': 1, 'type': 'Circle', 'radius': 14, 'opacity': 1, 'fill': '#0000ff', 'repeat': 0
         }]);
 
         const colors = await getCanvasPixelColor(mapContainer, [px1, px2]);
@@ -107,7 +109,7 @@ describe('StyleGroup Circle and Line geometry', () => {
 
     it('set anchor to Line', async () => {
         layer.setStyleGroup(line1, [{
-            'zIndex': 1, 'type': 'Circle', 'radius': 14, 'opacity': 1, 'fill': '#0000ff', 'anchor': 'Line'
+            'zIndex': 1, 'type': 'Circle', 'radius': 14, 'opacity': 1, 'fill': '#0000ff', 'anchor': 'Line', 'repeat': 0
         }]);
 
         const colors = await getCanvasPixelColor(mapContainer, [px1, px2, {x: 400, y: 300}]);
@@ -130,7 +132,7 @@ describe('StyleGroup Circle and Line geometry', () => {
 
     it('set anchor2 to Line', async () => {
         layer.setStyleGroup(line2, [{
-            'zIndex': 2, 'type': 'Circle', 'radius': 6, 'opacity': 1, 'fill': '#00ff00', 'anchor': 'Line'
+            'zIndex': 2, 'type': 'Circle', 'radius': 6, 'opacity': 1, 'fill': '#00ff00', 'anchor': 'Line', 'repeat': 0
         }]);
 
         const colors = await getCanvasPixelColor(mapContainer, [{x: 300, y: 300}, {x: 400, y: 300}, {x: 500, y: 300}]);
@@ -142,16 +144,24 @@ describe('StyleGroup Circle and Line geometry', () => {
 
     it('enable collision detection', async () => {
         layer.setStyleGroup(line2, [{
-            'zIndex': 2,
-            'type': 'Circle',
-            'radius': 6,
-            'opacity': 1,
-            'fill': '#00ff00',
-            'anchor': 'Line',
-            'collide': false
+            zIndex: 2,
+            type: 'Circle',
+            radius: 6,
+            opacity: 1,
+            fill: '#00ff00',
+            anchor: 'Line',
+            collide: false,
+            repeat: 0
         }]);
         layer.setStyleGroup(line1, [{
-            zIndex: 1, type: 'Circle', radius: 14, opacity: 1, fill: '#0000ff', anchor: 'Line', collide: false
+            zIndex: 2,
+            type: 'Circle',
+            radius: 14,
+            opacity: 1,
+            fill: '#0000ff',
+            anchor: 'Line',
+            collide: false,
+            repeat: 0
         }]);
 
         const colors = await getCanvasPixelColor(mapContainer, [{x: 300, y: 300}, {x: 400, y: 300}, {x: 500, y: 300}]);
@@ -163,17 +173,25 @@ describe('StyleGroup Circle and Line geometry', () => {
 
     it('change priority', async () => {
         layer.setStyleGroup(line2, [{
-            'zIndex': 2,
-            'type': 'Circle',
-            'radius': 6,
-            'opacity': 1,
-            'fill': '#00ff00',
-            'anchor': 'Line',
-            'collide': false,
-            'priority': 1
+            zIndex: 2,
+            type: 'Circle',
+            radius: 6,
+            opacity: 1,
+            fill: '#00ff00',
+            anchor: 'Line',
+            collide: false,
+            priority: 1,
+            repeat: 0
         }]);
         layer.setStyleGroup(line1, [{
-            zIndex: 1, type: 'Circle', radius: 14, opacity: 1, fill: '#0000ff', anchor: 'Line', collide: false
+            zIndex: 2,
+            type: 'Circle',
+            radius: 14,
+            opacity: 1,
+            fill: '#0000ff',
+            anchor: 'Line',
+            collide: false,
+            repeat: 0
         }]);
 
         const colors = await getCanvasPixelColor(mapContainer, [{x: 300, y: 300}, {x: 400, y: 300}, {x: 500, y: 300}]);
@@ -185,14 +203,14 @@ describe('StyleGroup Circle and Line geometry', () => {
 
     it('set anchor2 to Coordinates', async () => {
         layer.setStyleGroup(line2, [{
-            'zIndex': 2,
-            'type': 'Circle',
-            'radius': 6,
-            'opacity': 1,
-            'fill': '#00ff00',
-            'anchor': 'Coordinate',
-            'collide': false,
-            'priority': 1
+            zIndex: 2,
+            type: 'Circle',
+            radius: 6,
+            opacity: 1,
+            fill: '#00ff00',
+            anchor: 'Coordinate',
+            collide: false,
+            priority: 1
         }]);
         layer.setStyleGroup(line1, [{
             zIndex: 1, type: 'Circle', radius: 14, opacity: 1, fill: '#0000ff', anchor: 'Line', collide: false
@@ -209,14 +227,14 @@ describe('StyleGroup Circle and Line geometry', () => {
 
     it('set anchor1 to Coordinates', async () => {
         layer.setStyleGroup(line2, [{
-            'zIndex': 2,
-            'type': 'Circle',
-            'radius': 6,
-            'opacity': 1,
-            'fill': '#00ff00',
-            'anchor': 'Coordinate',
-            'collide': false,
-            'priority': 1
+            zIndex: 2,
+            type: 'Circle',
+            radius: 6,
+            opacity: 1,
+            fill: '#00ff00',
+            anchor: 'Coordinate',
+            collide: false,
+            priority: 1
         }]);
         layer.setStyleGroup(line1, [{
             zIndex: 1, type: 'Circle', radius: 14, opacity: 1, fill: '#0000ff', anchor: 'Coordinate', collide: false
@@ -233,13 +251,13 @@ describe('StyleGroup Circle and Line geometry', () => {
 
     it('change prio1', async () => {
         layer.setStyleGroup(line2, [{
-            'zIndex': 2,
-            'type': 'Circle',
-            'radius': 6,
-            'opacity': 1,
-            'fill': '#00ff00',
-            'anchor': 'Coordinate',
-            'collide': false
+            zIndex: 2,
+            type: 'Circle',
+            radius: 6,
+            opacity: 1,
+            fill: '#00ff00',
+            anchor: 'Coordinate',
+            collide: false
         }]);
         layer.setStyleGroup(line1, [{
             zIndex: 1,
@@ -263,21 +281,21 @@ describe('StyleGroup Circle and Line geometry', () => {
 
     it('check collision-groups', async () => {
         layer.setStyleGroup(line2, [{
-            'zIndex': 1,
-            'type': 'Circle',
-            'radius': 10,
-            'opacity': 1,
-            'fill': '#00ff00',
-            'anchor': 'Coordinate',
-            'collide': false
+            zIndex: 1,
+            type: 'Circle',
+            radius: 10,
+            opacity: 1,
+            fill: '#00ff00',
+            anchor: 'Coordinate',
+            collide: false
         }, {
-            'zIndex': 2,
-            'type': 'Circle',
-            'radius': 6,
-            'opacity': 1,
-            'fill': '#ff0000',
-            'anchor': 'Coordinate',
-            'collide': false
+            zIndex: 2,
+            type: 'Circle',
+            radius: 6,
+            opacity: 1,
+            fill: '#ff0000',
+            anchor: 'Coordinate',
+            collide: false
         }]);
         layer.setStyleGroup(line1, [{
             zIndex: 0,
@@ -310,21 +328,21 @@ describe('StyleGroup Circle and Line geometry', () => {
 
     it('check partial collision-groups', async () => {
         layer.setStyleGroup(line2, [{
-            'zIndex': 1,
-            'type': 'Circle',
-            'radius': 10,
-            'opacity': 1,
-            'fill': '#00ff00',
-            'anchor': 'Coordinate',
-            'collide': false
+            zIndex: 1,
+            type: 'Circle',
+            radius: 10,
+            opacity: 1,
+            fill: '#00ff00',
+            anchor: 'Coordinate',
+            collide: false
         }, {
-            'zIndex': 2,
-            'type': 'Circle',
-            'radius': 6,
-            'opacity': 1,
-            'fill': '#ff0000',
-            'anchor': 'Coordinate',
-            'collide': false
+            zIndex: 2,
+            type: 'Circle',
+            radius: 6,
+            opacity: 1,
+            fill: '#ff0000',
+            anchor: 'Coordinate',
+            collide: false
         }]);
         layer.setStyleGroup(line1, [{
             zIndex: 0,
@@ -353,5 +371,24 @@ describe('StyleGroup Circle and Line geometry', () => {
         expect(colors[2]).to.equal('#ff00ff');
         expect(colors[3]).to.equal('#ff0000');
         expect(colors[4]).to.equal('#ff0000');
+    });
+
+    it('set minimum repeat distance - anchor Line', async () => {
+        layer.setStyleGroup(line2, [{
+            zIndex: 1,
+            type: 'Circle',
+            radius: 10,
+            opacity: 1,
+            fill: '#00ff00',
+            anchor: 'Line',
+            collide: false,
+            repeat: 256
+        }]);
+
+        const colors = await getCanvasPixelColor(mapContainer, [{x: 300, y: 300}, {x: 400, y: 300}, {x: 500, y: 300}]);
+
+        expect(colors[0]).to.equal('#ffffff');
+        expect(colors[1]).to.equal('#00ff00');
+        expect(colors[2]).to.equal('#ffffff');
     });
 });

@@ -245,5 +245,3 @@ describe('collision detection - Text', function() {
         expect(colors[2]).to.equal(color1);
     });
 });
-
-// document.querySelector('#map > div > canvas').addEventListener('click',(e)=>console.log(e.layerX,e.layerY))

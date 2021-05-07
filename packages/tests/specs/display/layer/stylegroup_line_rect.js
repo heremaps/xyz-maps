@@ -148,10 +148,11 @@ describe('StyleGroup Rect and Line geometry', () => {
             'opacity': 1,
             'fill': '#00ff00',
             'anchor': 'Line',
-            'collide': false
+            'collide': false,
+            'repeat': 0
         }]);
         layer.setStyleGroup(line1, [{
-            zIndex: 1, type: 'Rect', width: 28, fill: '#0000ff', anchor: 'Line', collide: false
+            zIndex: 1, type: 'Rect', width: 28, fill: '#0000ff', anchor: 'Line', collide: false, repeat: 0
         }]);
 
         const colors = await getCanvasPixelColor(mapContainer, [{x: 300, y: 300}, {x: 400, y: 300}, {x: 500, y: 300}]);
@@ -170,10 +171,11 @@ describe('StyleGroup Rect and Line geometry', () => {
             'fill': '#00ff00',
             'anchor': 'Line',
             'collide': false,
-            'priority': 1
+            'priority': 1,
+            'repeat': 0
         }]);
         layer.setStyleGroup(line1, [{
-            zIndex: 1, type: 'Rect', width: 28, fill: '#0000ff', anchor: 'Line', collide: false
+            zIndex: 1, type: 'Rect', width: 28, fill: '#0000ff', anchor: 'Line', collide: false, repeat: 0
         }]);
 
         const colors = await getCanvasPixelColor(mapContainer, [{x: 300, y: 300}, {x: 400, y: 300}, {x: 500, y: 300}]);
@@ -353,5 +355,24 @@ describe('StyleGroup Rect and Line geometry', () => {
         expect(colors[2]).to.equal('#ff00ff');
         expect(colors[3]).to.equal('#ff0000');
         expect(colors[4]).to.equal('#ff0000');
+    });
+
+    it('set minimum repeat distance - anchor Line', async () => {
+        layer.setStyleGroup(line2, [{
+            zIndex: 1,
+            type: 'Rect',
+            width: 20,
+            opacity: 1,
+            fill: '#00ff00',
+            anchor: 'Line',
+            collide: false,
+            repeat: 256
+        }]);
+
+        const colors = await getCanvasPixelColor(mapContainer, [{x: 300, y: 300}, {x: 400, y: 300}, {x: 500, y: 300}]);
+
+        expect(colors[0]).to.equal('#ffffff');
+        expect(colors[1]).to.equal('#00ff00');
+        expect(colors[2]).to.equal('#ffffff');
     });
 });
