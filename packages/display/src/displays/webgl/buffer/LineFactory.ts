@@ -322,36 +322,39 @@ export class LineFactory {
                     }
 
                     let collisionData;
-                    const keepDistance = this.getDistanceGrp().hasSpace(cx, cy);
-                    if (checkCollisions && keepDistance) {
-                        let x = cx;
-                        let y = cy;
-                        let w = width;
-                        let h = height;
+                    let distanceGrp;
+                    if (checkCollisions) {
+                        distanceGrp = this.getDistanceGrp();
+                        if (!distanceGrp || distanceGrp.hasSpace(cx, cy)) {
+                            let x = cx;
+                            let y = cy;
+                            let w = width;
+                            let h = height;
 
-                        if (alpha) {
-                            const bbox = getRotatedBBox(alpha, width, height, cx, cy);
-                            [x, y] = rotate(cx + offsetX, cy + offsetY, cx, cy, alpha);
-                            w = bbox[2] - bbox[0];
-                            h = bbox[3] - bbox[1];
-                        }
-                        collisionData = collisions.insert(
-                            x, y,
-                            0, 0,
-                            w / 2, h / 2,
-                            tile, tileSize,
-                            priority
-                        );
+                            if (alpha) {
+                                const bbox = getRotatedBBox(alpha, width, height, cx, cy);
+                                [x, y] = rotate(cx + offsetX, cy + offsetY, cx, cy, alpha);
+                                w = bbox[2] - bbox[0];
+                                h = bbox[3] - bbox[1];
+                            }
+                            collisionData = collisions.insert(
+                                x, y,
+                                0, 0,
+                                w / 2, h / 2,
+                                tile, tileSize,
+                                priority
+                            );
 
-                        if (collisionData) {
-                            checkCollisions.push(collisionData);
+                            if (collisionData) {
+                                checkCollisions.push(collisionData);
+                            }
                         }
                     }
 
-                    if (keepDistance && (!checkCollisions || collisionData)) {
+                    if ((!checkCollisions || collisionData)) {
                         place(cx, cy, alpha * TO_DEG, collisionData);
 
-                        this.getDistanceGrp().add(cx, cy);
+                        distanceGrp?.add(cx, cy);
                     }
                 }
             }
