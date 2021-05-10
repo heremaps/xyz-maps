@@ -1,3 +1,28 @@
+## 0.22.0 (2021-5-10)
+### display
+* improved: optimised text placement on line geometries.
+* improved: distancing of repeated StyleGroups.
+* improved: space utilization of collision detection.
+* added: style.repeat can now be used with all Point styles and collision-groups.
+* added: support for collision detection based on the combined bounding-boxes of entire StyleGroups.
+* added: In addition to Text, now also Circles, Rectangles, and Images can be displayed using (Multi)LineString geometry.
+* added: Support for "CollisionGroups" based on (Multi)LineString geometries.
+* added: The "anchor" of Text, Circles, Rectangles and Images can now be defined for LineString geometries. usage: style.anchor = 'Line' | 'Coordinate'.
+* added: support for "Image" styles using (Multi)LineString geometry.
+* added: support for collision detection of Circle, Rect and Image styles based on point geometry.
+* added: support for Circle/Rect/Image styles using (Multi)Polygon geometry.
+* added: set the map's center and zoomlevel to fully contain the visible area of several features. e.g. display.setViewBounds(Feature[]|FeatureCollection)
+* added: support for line wrapping of text on line geometry. (disabled by default)
+* fixed: text on line geometry flickered or was cut off in rare cases.
+* fixed: trigger pointer-evens for offset points or Text.
+* fixed: rotation was ignored for Text styles that are using "viewport" alignment.
+* fixed: collision detection is ignored if collide property is defined as a StyleFunction.
+* fixed: missing pointer-events for Rects and Images without an explicitly defined "height" property.
+* fixed: "clipping geometry" of clipped data sources that use a tile margin/buffer may be visible.
+### core
+* added: pointerEvents can now be enabled or disabled in TileLayer constructor. (deactivated for MVTLayer by default)
+* fixed: optional margin option was ignored for MVTLayers.
+
 ## 0.21.1 (2021-3-11)
 ###display
 * fixed: text that uses offsetX/offsetY is incorrectly offset on retina devices
