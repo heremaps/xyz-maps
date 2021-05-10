@@ -103,7 +103,8 @@ export class FeatureFactory {
         feature: Feature,
         collisionData: CollisionData,
         alpha: number = 0,
-        text?: string
+        text?: string,
+        defaultLineWrap?: number | boolean
     ) {
         const level = this.z;
         let positionBuffer;
@@ -115,13 +116,17 @@ export class FeatureFactory {
                 group.texture = new GlyphTexture(this.gl, group.shared);
                 group.buffer = new TextBuffer();
             }
-            let {texture} = group;
+            const {texture} = group;
             const {attributes} = group.buffer;
 
             texture.addChars(text);
 
             const fontInfo = texture.getAtlas();
-            const lineWrap = getValue('lineWrap', style, feature, level);
+            let lineWrap = getValue('lineWrap', style, feature, level);
+
+            if (lineWrap == UNDEF) {
+                lineWrap = defaultLineWrap;
+            }
             const lines = wrapText(text, lineWrap);
 
             positionBuffer = attributes.a_texcoord;
@@ -135,7 +140,6 @@ export class FeatureFactory {
                 attributes.a_position.data,
                 attributes.a_texcoord.data,
                 fontInfo,
-                lineWrap,
                 alpha
             );
         } else {
@@ -601,7 +605,7 @@ export class FeatureFactory {
                             w, h,
                             applyRotation,
                             (x, y, alpha, collisionData) => {
-                                this.createPoint(type, group, x, y, style, feature, collisionData, alpha + rotation, text);
+                                this.createPoint(type, group, x, y, style, feature, collisionData, alpha + rotation, text, false);
                             }
                         );
                     } else {

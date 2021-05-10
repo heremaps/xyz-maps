@@ -448,8 +448,9 @@ export interface Style {
     repeat?: number | StyleValueFunction<number> | StyleZoomRange<number>;
 
     /**
-     * Enable oder Disable line wrapping for labels based on "Point" geometries.
-     * Works for "Text" only.
+     * Enable oder Disable line wrapping for styles of type "Text".
+     * The line wrapping for text on (Multi)Linestring geometry with anchor set to "Line" is disabled by default,
+     * otherwise it's 14 characters.
      *
      * - number: Maximum number of characters per line [Default 14 characters]
      * - false: disable line wrapping

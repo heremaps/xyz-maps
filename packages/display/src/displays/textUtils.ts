@@ -28,6 +28,7 @@ let defaultStrLen = defaultStr.length;
 let size = {};
 
 const DEFAULT_LINE_WRAP = 14;
+let UNDEF;
 
 export const defaultFont = 'normal 12px Arial';
 
@@ -130,14 +131,17 @@ export const getAvgCharDimensions = (style: FontStyle = {}) => {
     return size[fontId];
 };
 
-export const wrapText = (text: string, textWrap?: number): string[] => {
-    textWrap = textWrap || DEFAULT_LINE_WRAP;
-
+export const wrapText = (text: string, textWrap?: number | boolean): string[] => {
+    if (textWrap === false) {
+        return [text];
+    } else if (textWrap == UNDEF || textWrap === true) {
+        textWrap = DEFAULT_LINE_WRAP;
+    }
     const lines = [];
     let lineStartIndex = 0;
     let wrapIndex = -1;
 
-    for (let i = 0, line, length = text.length, c, lineLength; i < length; i++) {
+    for (let i = 0, line, c, lineLength, length = text.length; i < length; i++) {
         c = text.charAt(i);
         lineLength = i - lineStartIndex;
 

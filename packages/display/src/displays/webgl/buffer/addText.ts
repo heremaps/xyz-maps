@@ -27,18 +27,13 @@ const EXTENT_SCALE = 128;
 const addText = (
     cx: number,
     cy: number,
-    text: string | string[],
+    lines: string[],
     offsets: FlexArray,
     vertex: FlexArray,
     texcoord: FlexArray,
     glyphAtlas: GlyphAtlas,
-    textWrap?: number,
     rotation = 0,
 ) => {
-    const lines = typeof text == 'string'
-        ? wrapText(text, textWrap)
-        : text;
-
     const lineCnt = lines.length;
     const lineHeight = glyphAtlas.lineHeight;
 
