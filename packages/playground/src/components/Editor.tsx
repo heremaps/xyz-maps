@@ -21,7 +21,7 @@ import MonacoEditor, {useMonaco} from '@monaco-editor/react';
 import {ButtonPanel} from './ButtonPanel';
 import './Editor.scss';
 
-export type Value = { html: string, ts: string, docs: string };
+export type Value = { html: string, ts: string, docs: string, title?: string };
 
 const fetchDeclarations = (
     dtsPaths: { [module: string]: string },
@@ -69,6 +69,7 @@ export const Editor = (props: {
     const [declarations, setDeclarations] = React.useState(false);
     const declarationsAdded = useRef(false);
     const foldRegions = useRef(false);
+    const valueIdRef = useRef(null);
 
     // triggers reinitialization after the first initialization so we can create the modelPath
     const monaco = useMonaco();
@@ -95,18 +96,6 @@ export const Editor = (props: {
             fetchDeclarations(dtsPaths, setDeclarations);
         }
     }, []);
-
-
-    // const updateEditorDimensions = ()=>{
-    //     if (editorRef.current) {
-    //         const dimensions = {
-    //             width: containerRef.current.offsetWidth,
-    //             height: containerRef.current.offsetHeight
-    //         };
-    //         console.log(dimensions);
-    //         editorRef.current.layout(dimensions)
-    //     }
-    // }
 
     const handleEditorDidMount = (editor, monaco) => {
         editorRef.current = editor;
@@ -165,17 +154,16 @@ export const Editor = (props: {
         }
     };
 
-    foldRegions.current = true;
-
-    // editorRef.current && editorRef.current.revealLine(0);
-
-    // React.useEffect(() => {
-    //     updateEditorDimensions();
-    // });
+    const valId = language + props.value.title;
+    // only trigger fold when example or language changes.
+    if (valueIdRef.current != valId) {
+        valueIdRef.current = valId;
+        // make sure examples are getting folded by default.
+        foldRegions.current = true;
+    }
 
     const containerRef = React.useRef(null);
 
-    // return (<div className={'editorContainer'}>
     return (<div className={'editorContainer'} style={{display: props.active ? '' : 'none'}}>
         <ButtonPanel language={language} onClick={onClick} docs={props.value.docs}></ButtonPanel>
 
@@ -186,8 +174,6 @@ export const Editor = (props: {
                 path={modelPath.current}
                 onMount={handleEditorDidMount}
                 theme={props.theme}
-                // width='300px'
-                // height="300px"
                 options={{
                     minimap: {
                         enabled: false
