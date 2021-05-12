@@ -568,8 +568,7 @@ export class FeatureFactory {
                     let h;
 
                     if (anchor == 'Line') {
-                        // const applyRotation = false;
-                        const applyRotation = type == 'Text' && alignment == 'map';
+                        const applyRotation = alignment == 'map';
 
                         if (collisionGroup) {
                             w = collisionGroup.width * 2;
