@@ -265,7 +265,7 @@ export class LineFactory {
         if (this.collisions) {
             for (let i = 0, cData; i < this.collisions.length; i++) {
                 cData = this.collisions[i];
-                place(cData.cx, cData.cy, this.alpha[i], cData);
+                place(cData.cx, cData.cy, applyRotation ? this.alpha[i] : 0, cData);
             }
             return;
         }
@@ -353,7 +353,7 @@ export class LineFactory {
                     }
 
                     if ((!checkCollisions || collisionData)) {
-                        place(cx, cy, alpha * TO_DEG, collisionData);
+                        place(cx, cy, applyRotation ? alpha * TO_DEG : 0, collisionData);
 
                         distanceGrp?.add(cx, cy);
                     }
