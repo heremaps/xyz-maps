@@ -17,7 +17,6 @@
  * License-Filename: LICENSE
  */
 
-import {Tile, GeoJSONCoordinate} from '@here/xyz-maps-core';
 import {ImageInfo} from '../Atlas';
 import {addPoint} from './addPoint';
 
@@ -29,32 +28,42 @@ const addIcon = (
     height: number,
     points: number[],
     vertex: number[],
-    texcoord: number[]
+    texcoord: number[],
+    rotation: number = 0
 ) => {
-    if (addPoint(x, y, vertex)) {
-        const u1 = atlas.u1;
-        const u2 = atlas.u2;
-        const v1 = atlas.v1;
-        const v2 = atlas.v2;
+    let {u1, u2, v1, v2} = atlas;
 
-        points.push(
-            width, height,
-            width, height,
-            width, height,
-            width, height,
-            width, height,
-            width, height
-        );
+    addPoint(x, y, vertex);
 
-        texcoord.push(
-            u1, v2,
-            u1, v1,
-            u2, v1,
-            u1, v2,
-            u2, v1,
-            u2, v2
-        );
-    }
+    // 10 bit rotation precision
+    rotation = Math.round(rotation * 1024 / 360);
+
+    const rotationHi = rotation >> 5;
+    const rotationLow = (rotation & 31);
+
+    u1 = u1 << 5 | rotationLow;
+    u2 = u2 << 5 | rotationLow;
+    v1 = v1 << 5 | rotationHi;
+    v2 = v2 << 5 | rotationHi;
+
+    points.push(
+        width, height,
+        width, height,
+        width, height,
+        width, height,
+        width, height,
+        width, height
+    );
+
+
+    texcoord.push(
+        u1, v2,
+        u1, v1,
+        u2, v1,
+        u1, v2,
+        u2, v1,
+        u2, v2
+    );
 };
 
 export {addIcon};

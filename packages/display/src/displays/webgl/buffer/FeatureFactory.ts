@@ -111,6 +111,9 @@ export class FeatureFactory {
         let collisionBufferStart;
         let collisionBufferStop;
 
+        // make sure rotation is 0->360 deg
+        alpha = (alpha + 360) % 360;
+
         if (type == 'Text') {
             if (!group.texture) {
                 group.texture = new GlyphTexture(this.gl, group.shared);
@@ -168,6 +171,7 @@ export class FeatureFactory {
                     attributes.a_size.data,
                     positionBuffer.data,
                     attributes.a_texcoord.data,
+                    alpha
                 );
                 group.texture = this.icons.getTexture();
             } else if (type == 'Circle' || type == 'Rect') {
@@ -330,6 +334,8 @@ export class FeatureFactory {
             sizeUnit = 'px';
             offsetUnit = UNDEF;
 
+            rotation = getValue('rotation', style, feature, level) ^ 0;
+
             if (type == 'Icon') {
                 offsetX = getValue('offsetX', style, feature, level) ^ 0;
                 offsetY = getValue('offsetY', style, feature, level) ^ 0;
@@ -415,7 +421,7 @@ export class FeatureFactory {
                             height = getValue('height', style, feature, level);
                             height = !height ? width : parseSizeValue(height)[0];
 
-                            groupId = 'R' + sizeUnit + width + height;
+                            groupId = 'R' + rotation + sizeUnit + width + height;
                         } else {
                             continue;
                         }
@@ -468,12 +474,6 @@ export class FeatureFactory {
             }
 
             groupId += opacity * 100 ^ 0;
-
-            rotation = getValue('rotation', style, feature, level) ^ 0;
-
-            if (type != 'Text' && rotation) {
-                groupId += 'R' + rotation;
-            }
 
             zIndex = getValue('zIndex', style, feature, level);
 

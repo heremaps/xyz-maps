@@ -42,8 +42,8 @@ const addText = (
     cx *= EXTENT_SCALE;
     cy *= EXTENT_SCALE;
 
-    // make sure rotation is 0->360 deg
-    rotation = (rotation + 360) % 360;
+    // 9 bit rotation precision
+    rotation = Math.round(rotation * 512 / 360);
 
     for (let text of lines) {
         let i = vertex.length;

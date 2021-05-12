@@ -9,7 +9,6 @@ uniform vec2 u_topLeft;
 uniform float u_scale;
 uniform float u_atlasScale;
 uniform vec2 u_offset;
-uniform float u_rotation;
 uniform bool u_alignMap;
 uniform vec2 u_resolution;
 uniform bool u_fixedView;
@@ -24,11 +23,15 @@ void main(void){
     // LSB defines visibility
     if (mod(a_position.x, 2.0) == 1.0)
     {
+        vec2 rotLowHi = mod(a_texcoord, 32.0);
+        float rotation = rotLowHi.x + floor(rotLowHi.y * 32.0);
+
+        rotation = rotation / 1024.0 * 2.0 * M_PI;// 10bit -> 2PI;
+
         // bit1 is direction/normal vector [-1,+1]
         vec2 dir = mod(floor(a_position / 2.0), 2.0) * 2.0 - 1.0;
         vec2 pos = floor(a_position / 4.0) * EXTENT_SCALE;
 
-        float rotation = u_rotation;
 
         if (!u_alignMap){
             rotation *= -1.0;
@@ -52,6 +55,7 @@ void main(void){
             gl_Position = snapToScreenPixel(gl_Position, u_resolution);
         }
 
-        v_texcoord = a_texcoord * u_atlasScale;
+        // textcoords bit6->bit16
+        v_texcoord = floor(a_texcoord / 32.0) * u_atlasScale;
     }
 }
