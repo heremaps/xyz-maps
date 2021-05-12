@@ -18,7 +18,6 @@
  */
 
 import {Tile} from '@here/xyz-maps-core';
-import {PixelCoordinateCache} from './LineFactory';
 import {isInBox, intersectBBox} from '../../../geometry';
 
 export type Cap = 'round' | 'butt' | 'square';
@@ -102,7 +101,9 @@ const addCap = (cap: Cap, x: number, y: number, nx: number, ny: number, vertex: 
 const addLineString = (
     vertex: number[],
     normal: number[],
-    coordinates: PixelCoordinateCache,
+    coordinates: Float32Array,
+    vLength: number,
+    totalLineLength: number,
     tile: Tile,
     tileSize: number,
     removeTileBounds: boolean,
@@ -116,13 +117,10 @@ const addLineString = (
 ) => {
     strokeWidth *= .5;
 
-    const totalLineLength = coordinates.lineLength;
     let absStart = relStart * totalLineLength;
     let absStop = relStop * totalLineLength;
     let _inside = true;
     let length = 0;
-    let pixels = coordinates.data;
-    let vLength = coordinates.length;
     let cuSegIndex = null;
     let _x;
     let _y;
@@ -153,8 +151,8 @@ const addLineString = (
     }
 
     for (c = 0; c < vLength; c += 2) {
-        let x = pixels[c];
-        let y = pixels[c + 1];
+        let x = coordinates[c];
+        let y = coordinates[c + 1];
         let inside = isInBox(x, y, 0, 0, tileSize, tileSize);
 
         if (inside) {
@@ -167,7 +165,7 @@ const addLineString = (
             }
         } else if (c) {
             if (_inside) {
-                length = addSegments(vertex, normal, pixels, cuSegIndex, c + 2, tile, tileSize,
+                length = addSegments(vertex, normal, coordinates, cuSegIndex, c + 2, tile, tileSize,
                     cap, join, strokeWidth, lengthToVertex, length, absStart, absStop, offset
                 );
                 cuSegIndex = null;
@@ -193,7 +191,7 @@ const addLineString = (
                     !removeTileBounds &&
                     intersectBBox(minX, maxX, minY, maxY, -TILE_CLIP_MARGIN, size, -TILE_CLIP_MARGIN, size))
                 ) {
-                    length = addSegments(vertex, normal, pixels, c - 2, c + 2, tile, tileSize,
+                    length = addSegments(vertex, normal, coordinates, c - 2, c + 2, tile, tileSize,
                         cap, join, strokeWidth, lengthToVertex, length, absStart, absStop, offset
                     );
 
@@ -211,7 +209,7 @@ const addLineString = (
     }
 
     if (cuSegIndex != null) {
-        addSegments(vertex, normal, pixels, cuSegIndex, c, tile, tileSize,
+        addSegments(vertex, normal, coordinates, cuSegIndex, c, tile, tileSize,
             cap, join, strokeWidth, lengthToVertex, length, absStart, absStop, offset
         );
     }

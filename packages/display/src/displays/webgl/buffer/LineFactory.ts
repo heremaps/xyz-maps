@@ -29,21 +29,19 @@ const TO_DEG = 180 / Math.PI;
 const DEFAULT_MIN_REPEAT = 256;
 let UNDEF;
 
-export type PixelCoordinateCache = {
-    data: Float32Array,
-    length: number,
-    lineLength: number
-    collisions?: CollisionData[];
-};
-
 export class LineFactory {
     private dashes: DashAtlas;
     private readonly gl: WebGLRenderingContext;
-    private prjCoords: PixelCoordinateCache = null; // coordinate cache
-    private pixels: Float32Array;
+
+    private readonly pixels: Float32Array; // projected coordinate cache
+    private length: number = 0; // length of coordinate cache
+    private readonly alpha: Float32Array; // segment angle cache
+    private lineLength: number; // length of current projected line in pixels
+    private collisions: CollisionData[];
+
     private decimals: number; // increase precision for tile scaling
 
-    private repeat: { [groupId: string]: DistanceGroup };
+    private readonly repeat: { [groupId: string]: DistanceGroup };
     private dId: string;
 
     constructor(gl: WebGLRenderingContext) {
@@ -51,7 +49,7 @@ export class LineFactory {
         this.gl = gl;
         // reused pixel coordinate cache
         this.pixels = new Float32Array(262144); // -> 1MB;
-
+        this.alpha = new Float32Array(131072);
         this.repeat = {};
     }
 
@@ -59,9 +57,9 @@ export class LineFactory {
         return this.repeat[this.dId];
     }
 
-    private projectLine(coordinates: Coordinate[], tile: Tile, tileSize: number): PixelCoordinateCache {
+    private projectLine(coordinates: Coordinate[], tile: Tile, tileSize: number): number {
         const {pixels, decimals} = this;
-        if (!this.prjCoords) {
+        if (!this.length) {
             let t = 0;
             let lineLength = 0;
             for (let c = 0, length = coordinates.length, x, y, _x, _y; c < length; c++) {
@@ -85,13 +83,10 @@ export class LineFactory {
                 _y = y;
             }
 
-            this.prjCoords = {
-                data: pixels,
-                length: t,
-                lineLength: lineLength
-            };
+            this.length = t;
+            this.lineLength = lineLength;
         }
-        return this.prjCoords;
+        return this.length;
     }
 
     initTile() {
@@ -106,7 +101,8 @@ export class LineFactory {
         // allow more precision in case tiles are getting zoomed very close (zoomlevel 20+)
         this.decimals = zoom >= 20 - Number(tileSize == 512) ? 1e2 : 1;
         // clear projected coordinate cache
-        this.prjCoords = null;
+        this.length = 0;
+        this.collisions = null;
 
 
         const {repeat} = this;
@@ -141,10 +137,14 @@ export class LineFactory {
 
         const groupBuffer = group.buffer;
 
+        this.projectLine(coordinates, tile, tileSize);
+
         addLineString(
             groupBuffer.attributes.a_position.data,
             groupBuffer.attributes.a_normal.data,
-            this.projectLine(coordinates, tile, tileSize),
+            this.pixels,
+            this.length,
+            this.lineLength,
             tile,
             tileSize,
             removeTileBounds,
@@ -203,10 +203,10 @@ export class LineFactory {
         offsetY: number,
         place: (x: number, y: number, alpha: number, collisionData?: CollisionData) => void
     ) {
-        const prjCoords = this.projectLine(coordinates, tile, tileSize);
+        this.projectLine(coordinates, tile, tileSize);
 
-        if (prjCoords.collisions) {
-            for (let cData of prjCoords.collisions) {
+        if (this.collisions) {
+            for (let cData of this.collisions) {
                 place(cData.cx, cData.cy, 0, cData);
             }
             return;
@@ -214,7 +214,7 @@ export class LineFactory {
 
         const checkCollisions = collisions && [];
 
-        for (let i = 0, {data, length} = prjCoords; i < length; i++) {
+        for (let i = 0, data = this.pixels, length = this.length; i < length; i++) {
             let x = data[i];
             let y = data[++i];
             let collisionData;
@@ -246,7 +246,7 @@ export class LineFactory {
         }
 
         if (checkCollisions?.length) {
-            prjCoords.collisions = checkCollisions;
+            this.collisions = checkCollisions;
         }
     }
 
@@ -262,17 +262,16 @@ export class LineFactory {
         applyRotation: boolean,
         place: (x: number, y: number, alpha: number, collisionData?: CollisionData) => void
     ) {
-        const {prjCoords} = this;
-
-        if (prjCoords.collisions) {
-            for (let cData of prjCoords.collisions) {
-                place(cData.cx, cData.cy, 0, cData);
+        if (this.collisions) {
+            for (let i = 0, cData; i < this.collisions.length; i++) {
+                cData = this.collisions[i];
+                place(cData.cx, cData.cy, this.alpha[i], cData);
             }
             return;
         }
         const checkCollisions = collisions && [];
-        const vLength = prjCoords.length / 2;
-        let coordinates = prjCoords.data;
+        const vLength = this.length / 2;
+        let coordinates = this.pixels;
         let prevDistance = Infinity;
         let lineWidth;
         let x2;
@@ -316,14 +315,10 @@ export class LineFactory {
                 lineWidth = Math.sqrt(dx * dx + dy * dy);
 
                 if (Math.floor(lineWidth / width) > 0) {
-                    let alpha = 0;
+                    let alpha = Math.atan2(dy, dx);
 
-                    if (applyRotation) {
-                        alpha = Math.atan2(dy, dx);
-
-                        if (dir == -1) {
-                            alpha += Math.PI;
-                        }
+                    if (dir == -1) {
+                        alpha += Math.PI;
                     }
 
                     let collisionData;
@@ -336,7 +331,7 @@ export class LineFactory {
                             let w = width;
                             let h = height;
 
-                            if (alpha) {
+                            if (applyRotation && alpha) {
                                 const bbox = getRotatedBBox(alpha, width, height, cx, cy);
                                 [x, y] = rotate(cx + offsetX, cy + offsetY, cx, cy, alpha);
                                 w = bbox[2] - bbox[0];
@@ -351,6 +346,7 @@ export class LineFactory {
                             );
 
                             if (collisionData) {
+                                this.alpha[checkCollisions.length] = alpha * TO_DEG;
                                 checkCollisions.push(collisionData);
                             }
                         }
@@ -369,7 +365,7 @@ export class LineFactory {
         }
 
         if (checkCollisions?.length) {
-            prjCoords.collisions = checkCollisions;
+            this.collisions = checkCollisions;
         }
     }
 }
