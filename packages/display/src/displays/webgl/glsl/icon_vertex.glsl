@@ -42,7 +42,7 @@ void main(void){
         mat2 mRotate = mat2(rotCos, -rotSin, rotSin, rotCos);
 
         if (u_alignMap){
-            vec2 shift = (u_offset + dir * vec2(a_size.x, -a_size.y) * 0.5 * mRotate) / u_scale;
+            vec2 shift = ((u_offset + dir * vec2(a_size.x, -a_size.y) * 0.5) * mRotate) / u_scale;
             gl_Position = u_matrix * vec4(u_topLeft + pos + shift, 0.0, 1.0);
         } else {
             vec4 cpos = u_matrix * vec4(u_topLeft + pos, 0.0, 1.0);
