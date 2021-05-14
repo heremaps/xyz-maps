@@ -71,6 +71,7 @@ export class CollisionHandler {
     private intersects(box1: CollisionData, data: CollisionData[], i: number = 0): boolean {
         for (let len = data.length, bbox2; i < len; i++) {
             bbox2 = data[i];
+
             if (box1.minX <= bbox2.maxX && bbox2.minX <= box1.maxX && box1.minY <= bbox2.maxY && bbox2.minY <= box1.maxY) {
                 return true;
             }
@@ -88,7 +89,6 @@ export class CollisionHandler {
             y = y * .5 ^ 0;
             x = x * .5 ^ 0;
         }
-
         for (let ty = -1; ty < 2; ty++) {
             for (let tx = -1; tx < 2; tx++) {
                 if (tx != 0 || ty != 0) {
@@ -237,7 +237,6 @@ export class CollisionHandler {
 
         for (let screentile of tiles) {
             let quadkey = screentile.quadkey;
-
             let tileCollisionData = this.tiles.get(quadkey);
 
             if (tileCollisionData) {
@@ -247,18 +246,16 @@ export class CollisionHandler {
                     for (let i = 0; i < collisions.length; i++) {
                         const bbox = collisions[i];
                         const {attrs} = bbox;
-
                         let {minX, maxX, minY, maxY} = bbox;
                         let halfWidth = (maxX - minX) * .5;
                         let halfHeight = (maxY - minY) * .5;
                         let screenX = screentile.x + bbox.cx;
                         let screenY = screentile.y + bbox.cy;
-                        // let screenX = screentile.x + minX - bbox.tileX + halfWidth;
-                        // let screenY = screentile.y + minY - bbox.tileY + halfHeight;
-                        let ac = display.project(screenX, screenY, 0, 0); // 0,0 for unscaled world pixels
-
-                        ac[0] += bbox.offsetX;
-                        ac[1] += bbox.offsetY;
+                        let ac = display.project(
+                            screenX + bbox.offsetX / scale,
+                            screenY + bbox.offsetY / scale,
+                            0, 0// -> unscaled world pixels
+                        );
 
                         collisionData.push({
                             minX: ac[0] - halfWidth,

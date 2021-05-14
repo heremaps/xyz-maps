@@ -181,7 +181,6 @@ export class LineFactory {
             tileSize,
             collisions,
             priority,
-            // repeat * repeat,
             offsetX,
             offsetY,
             width,
@@ -273,7 +272,7 @@ export class LineFactory {
         const vLength = this.length / 2;
         let coordinates = this.pixels;
         let prevDistance = Infinity;
-        let lineWidth;
+        let sqWidth = Math.pow(2 * offsetX + width, 2);
         let x2;
         let y2;
         let dx;
@@ -312,11 +311,10 @@ export class LineFactory {
 
             // not inside tile -> skip!
             if (cx >= 0 && cy >= 0 && cx < tileSize && cy < tileSize) {
-                lineWidth = Math.sqrt(dx * dx + dy * dy);
+                let sqLineWidth = dx * dx + dy * dy;
 
-                if (Math.floor(lineWidth / width) > 0) {
+                if (sqLineWidth > sqWidth) {
                     let alpha = Math.atan2(dy, dx);
-
                     if (dir == -1) {
                         alpha += Math.PI;
                     }
@@ -326,24 +324,31 @@ export class LineFactory {
                     if (checkCollisions) {
                         distanceGrp = this.getDistanceGrp();
                         if (!distanceGrp || distanceGrp.hasSpace(cx, cy)) {
-                            let x = cx;
-                            let y = cy;
                             let w = width;
                             let h = height;
+                            let ox = offsetX;
+                            let oy = offsetY;
 
                             if (applyRotation && alpha) {
                                 const bbox = getRotatedBBox(alpha, width, height, cx, cy);
-                                [x, y] = rotate(cx + offsetX, cy + offsetY, cx, cy, alpha);
                                 w = bbox[2] - bbox[0];
                                 h = bbox[3] - bbox[1];
+
+                                if (offsetX) {
+                                    // ox = Math.cos(alpha) * offsetX;
+                                    oy = Math.sin(alpha) * offsetX;
+                                    // oy = offsetX * dy / Math.sqrt(sqLineWidth);
+                                    ox = oy * dx / dy;
+                                }
+
+                                if (offsetY) {
+                                    const beta = Math.PI - alpha;
+                                    ox = ox + Math.sin(beta) * -offsetY;
+                                    oy = oy + Math.cos(beta) * -offsetY;
+                                }
                             }
-                            collisionData = collisions.insert(
-                                x, y,
-                                0, 0,
-                                w / 2, h / 2,
-                                tile, tileSize,
-                                priority
-                            );
+
+                            collisionData = collisions.insert(cx, cy, ox, oy, w / 2, h / 2, tile, tileSize, priority);
 
                             if (collisionData) {
                                 this.alpha[checkCollisions.length] = alpha * TO_DEG;
