@@ -1,7 +1,7 @@
 precision lowp float;
 
 attribute vec2 a_position;
-attribute vec4 a_normal;
+attribute highp vec4 a_normal;
 attribute float a_lengthSoFar;
 
 uniform mat4 u_matrix;
