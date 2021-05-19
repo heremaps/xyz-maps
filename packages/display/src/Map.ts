@@ -313,6 +313,10 @@ export class Map {
         }
 
         instances.push(this);
+
+        if (options.debug) {
+            this.debug(options.debug);
+        }
     }
 
     private _layerClearListener(ev) {
