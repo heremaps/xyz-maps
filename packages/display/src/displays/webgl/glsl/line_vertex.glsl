@@ -48,6 +48,6 @@ void main(void){
 
     vec2 position = a_position + normal * -lineOffset / u_scale;
 
-    gl_Position = u_matrix * vec4(u_topLeft + position * u_tileScale + dir * normal * width * 1.0, 0.0, 1.0);
+    gl_Position = u_matrix * vec4(u_topLeft + position * u_tileScale + dir * normal * width, 0.0, 1.0);
 }
 

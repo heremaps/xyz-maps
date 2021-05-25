@@ -17,8 +17,8 @@
  * License-Filename: LICENSE
  */
 
-import {Tile} from '@here/xyz-maps-core';
 import {isInBox, intersectBBox} from '../../../geometry';
+import {FlexArray} from './templates/FlexArray';
 
 export type Cap = 'round' | 'butt' | 'square';
 export type Join = 'round' | 'bevel' | 'miter' | 'none';
@@ -62,7 +62,7 @@ const normalize = (p) => {
     return p;
 };
 
-const addCap = (cap: Cap, x: number, y: number, nx: number, ny: number, vertex: number[], normal: number[], dir = 1) => {
+const addCap = (cap: Cap, x: number, y: number, nx: number, ny: number, vertex: FlexArray, normal: FlexArray, dir = 1) => {
     if (cap == CAP_JOIN_ROUND) {
         vertex.push(x, y, x, y, x, y);
 
@@ -99,8 +99,8 @@ const addCap = (cap: Cap, x: number, y: number, nx: number, ny: number, vertex: 
 };
 
 const addLineString = (
-    vertex: number[],
-    normal: number[],
+    vertex: FlexArray,
+    normal: FlexArray,
     coordinates: Float32Array,
     vLength: number,
     totalLineLength: number,
@@ -215,8 +215,8 @@ const addLineString = (
 };
 
 const addSegments = (
-    vertex: number[],
-    normal: number[],
+    vertex: FlexArray,
+    normal: FlexArray,
     coordinates: Float32Array,
     start,
     end,

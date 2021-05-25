@@ -18,7 +18,7 @@
  */
 
 import {GeometryBuffer} from './GeometryBuffer';
-import {addLineString, normalize} from './addLineString';
+import {addLineString} from './addLineString';
 import {createTextData} from './createText';
 import {GlyphTexture} from '../GlyphTexture';
 import {toRGB} from '../color';
@@ -65,8 +65,8 @@ const createGridTileBuffer = (color: number[] = [1.0, 0.0, 0.0, 1.0], strokeWidt
     const tileSize = 1;
 
     addLineString(
-        <any>attributes.a_position.data,
-        <any>attributes.a_normal.data,
+        attributes.a_position.data,
+        attributes.a_normal.data,
         new Float32Array([0, 0, tileSize, 0, tileSize, tileSize, 0, tileSize, 0, 0]),
         10,
         4 * tileSize,
