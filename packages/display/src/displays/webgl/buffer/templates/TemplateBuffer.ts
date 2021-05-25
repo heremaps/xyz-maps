@@ -19,6 +19,7 @@
 
 import {Attribute} from '../Attribute';
 import {FlexArray} from './FlexArray';
+import {GeometryBuffer} from '../GeometryBuffer';
 
 export type FlexAttribute = {
     data: FlexArray;
@@ -74,5 +75,33 @@ export class TemplateBuffer {
 
     isFlat() {
         return this._flat;
+    }
+
+    finalize(type: string): GeometryBuffer | null {
+        const buffer = this;
+        const {attributes} = buffer;
+        let geoBuffer;
+
+        if (buffer.hasIndex()) {
+            const index = buffer.index();
+
+            if (!index.length) {
+                return null;
+            }
+            geoBuffer = new GeometryBuffer(index, type, buffer.i32);
+        } else {
+            geoBuffer = new GeometryBuffer({
+                first: buffer.first,
+                count: buffer.count()
+            }, type);
+        }
+
+        for (let name in attributes) {
+            let attr = attributes[name];
+            if (attr.data.length) {
+                geoBuffer.addAttribute(name, buffer.trimAttribute(attr));
+            }
+        }
+        return geoBuffer;
     }
 }

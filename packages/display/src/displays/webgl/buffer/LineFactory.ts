@@ -145,7 +145,6 @@ export class LineFactory {
             this.pixels,
             this.length,
             this.lineLength,
-            tile,
             tileSize,
             removeTileBounds,
             strokeLinecap,

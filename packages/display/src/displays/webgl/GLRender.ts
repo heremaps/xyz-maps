@@ -111,11 +111,7 @@ export class GLRender implements BasicRender {
     private w: number;
     private h: number;
 
-    private dbgTile = {
-        256: createGridTileBuffer(256),
-        512: createGridTileBuffer(512)
-    };
-
+    private dbgTile = createGridTileBuffer();
     private stencilTile: GeometryBuffer;
 
     private depthFnc: GLenum;
@@ -382,7 +378,7 @@ export class GLRender implements BasicRender {
 
         this.pass = 'alpha';
         // this.pass = 'opaque';
-        this.drawBuffer(this.dbgTile[tileSize], x, y, null, null); // , {depth: false, scissor: false});
+        this.drawBuffer(this.dbgTile, x, y, null, null, <number>tileSize); // , {depth: false, scissor: false});
 
         let textBuffer: GeometryBuffer = this.gridTextBuf.get(dTile);
 
@@ -437,7 +433,7 @@ export class GLRender implements BasicRender {
         y: number,
         pMat?: Float32Array,
         dZoom?: number,
-        stencilSize?: number
+        tileScale?: number
     ): void {
         const gl = this.gl;
         const buffers = this.buffers;
@@ -499,7 +495,7 @@ export class GLRender implements BasicRender {
                 gl.uniform2f(uLocation.u_resolution, this.w, this.h);
                 gl.uniform1f(uLocation.u_scale, this.scale * dZoom);
                 gl.uniform2f(uLocation.u_topLeft, x, y);
-                gl.uniform1f(uLocation.u_tileScale, stencilSize || 1);
+                gl.uniform1f(uLocation.u_tileScale, tileScale || 1);
                 gl.uniformMatrix4fv(uLocation.u_matrix, false, pMat || this.pMat);
 
                 program.draw(buffer, buffers);

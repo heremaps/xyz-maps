@@ -166,26 +166,10 @@ const createBuffer = (
                             continue;
                         }
 
-                        if (grpBuffer.hasIndex()) {
-                            const index = grpBuffer.index();
-                            if (!index.length) continue;
 
-                            geoBuffer = new GeometryBuffer(index, type, grpBuffer.i32);
-                        } else {
-                            geoBuffer = new GeometryBuffer({
-                                first: grpBuffer.first,
-                                count: grpBuffer.count()
-                            }, type);
-                        }
+                        geoBuffer = grpBuffer.finalize(type);
 
-                        const {attributes} = grpBuffer;
-
-                        for (let name in attributes) {
-                            let attr = attributes[name];
-                            if (attr.data.length) {
-                                geoBuffer.addAttribute(name, grpBuffer.trimAttribute(attr));
-                            }
-                        }
+                        if (geoBuffer == null) continue;
 
                         buffers.push(geoBuffer);
 

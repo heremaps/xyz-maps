@@ -14,6 +14,7 @@ varying float v_lengthSoFar;
 varying vec2 v_width;
 
 uniform vec2 u_offset;
+uniform float u_tileScale;
 
 const float N_SCALE = 1.0 / 8192.0;
 
@@ -47,6 +48,6 @@ void main(void){
 
     vec2 position = a_position + normal * -lineOffset / u_scale;
 
-    gl_Position = u_matrix * vec4(u_topLeft + position + dir * normal * width, 0.0, 1.0);
+    gl_Position = u_matrix * vec4(u_topLeft + position * u_tileScale + dir * normal * width * 1.0, 0.0, 1.0);
 }
 

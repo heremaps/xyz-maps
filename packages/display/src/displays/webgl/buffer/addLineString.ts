@@ -104,7 +104,6 @@ const addLineString = (
     coordinates: Float32Array,
     vLength: number,
     totalLineLength: number,
-    tile: Tile,
     tileSize: number,
     removeTileBounds: boolean,
     cap: Cap,
@@ -165,7 +164,7 @@ const addLineString = (
             }
         } else if (c) {
             if (_inside) {
-                length = addSegments(vertex, normal, coordinates, cuSegIndex, c + 2, tile, tileSize,
+                length = addSegments(vertex, normal, coordinates, cuSegIndex, c + 2, tileSize,
                     cap, join, strokeWidth, lengthToVertex, length, absStart, absStop, offset
                 );
                 cuSegIndex = null;
@@ -191,7 +190,7 @@ const addLineString = (
                     !removeTileBounds &&
                     intersectBBox(minX, maxX, minY, maxY, -TILE_CLIP_MARGIN, size, -TILE_CLIP_MARGIN, size))
                 ) {
-                    length = addSegments(vertex, normal, coordinates, c - 2, c + 2, tile, tileSize,
+                    length = addSegments(vertex, normal, coordinates, c - 2, c + 2, tileSize,
                         cap, join, strokeWidth, lengthToVertex, length, absStart, absStop, offset
                     );
 
@@ -209,7 +208,7 @@ const addLineString = (
     }
 
     if (cuSegIndex != null) {
-        addSegments(vertex, normal, coordinates, cuSegIndex, c, tile, tileSize,
+        addSegments(vertex, normal, coordinates, cuSegIndex, c, tileSize,
             cap, join, strokeWidth, lengthToVertex, length, absStart, absStop, offset
         );
     }
@@ -221,7 +220,6 @@ const addSegments = (
     coordinates: Float32Array,
     start,
     end,
-    tile: Tile,
     tileSize: number,
     cap: Cap,
     join: Join,
