@@ -22,10 +22,10 @@ const mkdirp = require('mkdirp');
 const argv = require('yargs').argv;
 const path = require('path');
 const rollup = require('rollup');
-const KarmaServer = require('karma').Server;
-const cfg = require('karma').config;
+const karma = require('karma');
 const http = require('http');
 const request = require('request');
+
 
 var karmaSettings = {
     browser: ['Chrome'],
@@ -129,7 +129,7 @@ function getRollupConfig() {
         credentials,
         cleanupServerPort
     });
-};
+}
 
 function buildTestsWatch() {
     var rollupConfigs = getRollupConfig();
@@ -143,7 +143,7 @@ function buildTestsWatch() {
             console.log('Bundle status:', event.code);
         });
     });
-};
+}
 
 async function buildTests(done) {
     let bundles = [];
@@ -163,7 +163,7 @@ async function buildTests(done) {
     });
 
     return Promise.all(outputs);
-};
+}
 
 async function test() {
     return new Promise((resolve, reject) => {
@@ -206,21 +206,19 @@ async function test() {
             resolve(testReport);
         });
     });
-};
+}
 
 function validateFile(id, filePath, karmaBasePath) {
     const p = path.isAbsolute(filePath) ? filePath : path.join(__dirname, karmaBasePath, filePath);
 
     if (!fs.existsSync(p)) {
         throw Error('File not found for "' + id + '": "' + filePath + '" with basePath: "' + karmaBasePath + '"');
-        return;
     }
-};
+}
 
 function getKarmaConfig(comp) {
     const karmaConfigPath = './karma.' + comp + '.conf.js';
     const karmaConfig = require(karmaConfigPath).karmaConfig;
-
 
     karmaConfig.files.forEach((file) => {
         if (file.id) {
@@ -257,7 +255,7 @@ function getKarmaConfig(comp) {
         karmaSettings.browser = karmaSettings.browser.split(',');
     }
 
-    return cfg.parseConfig(path.resolve(karmaConfigPath), {
+    return karma.config.parseConfig(path.resolve(karmaConfigPath), {
         'browsers': karmaSettings.browser,
         'singleRun': (karmaSettings.singlerun === 'true' || karmaSettings.singlerun === true),
         'files': karmaConfig.files
@@ -287,7 +285,7 @@ function startTests(comps, done) {
         // get configure
         let config = getKarmaConfig(comp);
 
-        let server = new KarmaServer(config, callback);
+        let server = new karma.Server(config, callback);
         server.start();
     }
 
