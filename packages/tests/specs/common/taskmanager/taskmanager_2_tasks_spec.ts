@@ -19,9 +19,6 @@
 
 import {TaskManager} from '@here/xyz-maps-common';
 
-const MALAGA: string = 'MALAGA';
-
-
 describe('task manager run 2 tasks', function() {
     const expect = chai.expect;
 
