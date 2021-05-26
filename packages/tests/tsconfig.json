@@ -7,7 +7,7 @@
     "types" : ["mocha", "chai"]
   },
   "include": [
-    "src/**/*"
+    "specs/**/*", "src/**/*"
   ],
   "exclude": [
     "node_modules",

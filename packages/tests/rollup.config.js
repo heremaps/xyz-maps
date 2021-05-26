@@ -73,6 +73,23 @@ module.exports = function(config) {
     };
 
 
+    const createSpecPlugins = (module) => {
+        return [
+            typescript(),
+            json(),
+            del({targets: [`dist/${module}/specs*.js`, `dist/${module}/*.html`]}),
+            globImport({
+                format: 'import'
+            }),
+            resolve(),
+            commonjs(),
+            copy({
+                targets: [{src: `statics/runner${module}.html`, dest: `dist/${module}`}]
+            })
+        ];
+    };
+
+
     if (compsToRun.indexOf('common') > -1) {
         let mochaSettings = {};
 
@@ -119,24 +136,7 @@ module.exports = function(config) {
             input: {
                 input: 'specs/common/main.ts',
                 external: ['@here/xyz-maps-common'],
-                plugins: [
-                    typescript({
-                        typescript: require('typescript'),
-                        // only compileroptions are read from tsconfig.json
-                        include: ['specs/main.ts'],
-                        exclude: ['node_modules', 'dist']
-                    }),
-                    json(),
-                    del({targets: ['dist/common/specs*.js', 'dist/common/*.html']}),
-                    globImport({
-                        format: 'import'
-                    }),
-                    resolve(),
-                    commonjs(),
-                    copy({
-                        targets: [{src: 'statics/runnercommon.html', dest: 'dist/common'}]
-                    })
-                ]
+                plugins: createSpecPlugins('common')
             },
             output: {
                 file: 'dist/common/' + specsFileName,
@@ -195,24 +195,7 @@ module.exports = function(config) {
                 input: 'specs/core/main.ts',
                 external: externals,
 
-                plugins: [
-                    typescript({
-                        typescript: require('typescript'),
-                        // only compileroptions are read from tsconfig.json
-                        include: ['specs/main.ts'],
-                        exclude: ['node_modules', 'dist']
-                    }),
-                    json(),
-                    del({targets: ['dist/core/specs*.js', 'dist/core/*.html']}),
-                    globImport({
-                        format: 'import'
-                    }),
-                    resolve(),
-                    commonjs(),
-                    copy({
-                        targets: [{src: 'statics/runnercore.html', dest: 'dist/core'}]
-                    })
-                ]
+                plugins: createSpecPlugins('core')
             },
             output: {
                 file: 'dist/core/' + specsFileName,
@@ -271,26 +254,7 @@ module.exports = function(config) {
                 input: 'specs/display/main.ts',
                 external: externals,
 
-                plugins: [
-                    typescript({
-                        typescript: require('typescript'),
-                        // only compileroptions are read from tsconfig.json
-                        include: ['specs/main.ts'],
-                        exclude: ['node_modules', 'dist']
-                    }),
-                    json(),
-                    del({targets: ['dist/display/specs*', 'dist/display/*.html']}),
-                    globImport({
-                        format: 'import'
-                    }),
-                    resolve(),
-                    commonjs(),
-                    copy({
-                        targets: [
-                            {src: 'statics/runnerdisplay.html', dest: 'dist/display'}
-                        ]
-                    })
-                ]
+                plugins: createSpecPlugins('display')
             },
             output: {
                 file: 'dist/display/' + specsFileName,
@@ -348,26 +312,7 @@ module.exports = function(config) {
             input: {
                 input: 'specs/editor/main.ts',
                 external: externals,
-                plugins: [
-                    typescript({
-                        typescript: require('typescript'),
-                        // only compileroptions are read from tsconfig.json
-                        include: ['specs/main.ts'],
-                        exclude: ['node_modules', 'dist']
-                    }),
-                    json(),
-                    del({targets: ['dist/editor/specs*.js', 'dist/editor/*.html']}),
-                    globImport({
-                        format: 'import'
-                    }),
-                    resolve(),
-                    commonjs(),
-                    copy({
-                        targets: [
-                            {src: 'statics/runnereditor.html', dest: 'dist/editor'}
-                        ]
-                    })
-                ]
+                plugins: createSpecPlugins('editor')
             },
             output: {
                 file: 'dist/editor/' + specsFileName,
@@ -425,26 +370,7 @@ module.exports = function(config) {
             input: {
                 input: 'specs/integration/main.ts',
                 external: externals,
-                plugins: [
-                    typescript({
-                        typescript: require('typescript'),
-                        // only compileroptions are read from tsconfig.json
-                        include: ['specs/main.ts'],
-                        exclude: ['node_modules', 'dist']
-                    }),
-                    json(),
-                    del({targets: ['dist/integration/specs*.js', 'dist/integration/*.html']}),
-                    globImport({
-                        format: 'import'
-                    }),
-                    resolve(),
-                    commonjs(),
-                    copy({
-                        targets: [
-                            {src: 'statics/runnerintegration.html', dest: 'dist/integration'}
-                        ]
-                    })
-                ]
+                plugins: createSpecPlugins('integration')
             },
             output: {
                 file: 'dist/integration/' + specsFileName,
