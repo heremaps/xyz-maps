@@ -16,9 +16,9 @@
  * SPDX-License-Identifier: Apache-2.0
  * License-Filename: LICENSE
  */
-const karmaBaseConfig = require('./karma.base.conf').karmaBaseConfig;
+const baseCfg = require('./karma.base.conf');
 
-export const karmaConfig = Object.assign(karmaBaseConfig, {
+const cfg = Object.assign(baseCfg, {
     files: [
         {id: 'common-src', pattern: 'common/dist/xyz-maps-common.min.js', watched: true, served: true, included: true},
         {id: 'core-src', pattern: 'core/dist/xyz-maps-core.min.js', watched: true, served: true, included: true},
@@ -38,6 +38,8 @@ export const karmaConfig = Object.assign(karmaBaseConfig, {
     }
 });
 
-export default function(config) {
-    config.set(karmaConfig);
+module.exports = (config) => {
+    config.set(cfg);
 };
+
+module.exports.cfg = cfg;

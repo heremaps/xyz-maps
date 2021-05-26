@@ -17,7 +17,7 @@
  * License-Filename: LICENSE
  */
 
-export const karmaBaseConfig = {
+module.exports = {
     browsers: ['Chrome'],
 
     customLaunchers: {

@@ -20,10 +20,10 @@
 import {click} from './triggerEvents';
 import {Editor, EditorEvent} from '@here/xyz-maps-editor';
 
-export async function editorClick(editor: Editor, x: number, y: number): Promise<EditorEvent|void> {
+export async function editorClick(editor: Editor, x: number, y: number): Promise<EditorEvent | void> {
     return new Promise(async (resolve) => {
-        var mapContainer = editor.container;
-        var eventHandler = function(e: EditorEvent) {
+        let mapContainer = editor.container;
+        let eventHandler = function(e: EditorEvent) {
             editor.removeEventListener('pointerup', eventHandler);
             resolve(e);
         };
@@ -37,7 +37,7 @@ export async function editorClick(editor: Editor, x: number, y: number): Promise
     });
 }
 
-export function submit(editor: Editor): Promise<{permanentIDMap: any}> {
+export function submit(editor: Editor): Promise<{ permanentIDMap: any }> {
     return new Promise((resolve, reject) => {
         editor.submit({
             onSuccess: resolve,
@@ -46,7 +46,7 @@ export function submit(editor: Editor): Promise<{permanentIDMap: any}> {
     });
 }
 
-export function waitForEditorReady(editor: Editor, fn?:Function): Promise<Editor> {
+export function waitForEditorReady(editor: Editor, fn?: Function): Promise<Editor> {
     return new Promise(async (resolve, reject) => {
         let functionDone = false;
         let readyCb = (ob: string, newValue: boolean) => {
@@ -75,35 +75,38 @@ export function waitForEditorReady(editor: Editor, fn?:Function): Promise<Editor
     });
 }
 
+const getProviderById = (provId: string, editor: Editor) => {
+    const layers = editor.getLayers();
+    let provider;
+    for (let l in layers) {
+        if (layers[l].getProvider().id == provId) {
+            provider = layers[l];
+            break;
+        }
+    }
+    return provider;
+};
+
 export async function clean(editor: Editor, idMapStack) {
-    if (editor.get('history.length') !=0) {
-        await waitForEditorReady(editor, ()=>{
+    if (editor.get('history.length') != 0) {
+        await waitForEditorReady(editor, () => {
             editor.revert();
         });
     }
 
-    let layers = editor.getLayers();
-    for (var i in idMapStack) {
+    for (let i in idMapStack) {
         let idMaps = idMapStack[i];
-        for (var j in idMaps['permanentIDMap']) {
-            let idMap = idMaps['permanentIDMap'][j];
-            var provider = j;
+        for (let id in idMaps['permanentIDMap']) {
+            const idMap = idMaps['permanentIDMap'][id];
+            const provider = getProviderById(id, editor) || id;
 
-            for (var l in layers) {
-                if (layers[l].getProvider().id == provider) {
-                    provider = layers[l];
-                    break;
-                }
-            }
-
-            for (var k in idMap) {
-                let o = editor.getFeature(idMap[k], provider);
-                if (o) o.remove();
+            for (let k in idMap) {
+                editor.getFeature(idMap[k], provider)?.remove();
             }
         }
     }
 
-    await waitForEditorReady(editor, async ()=>{
+    await waitForEditorReady(editor, async () => {
         await submit(editor);
     });
 }
