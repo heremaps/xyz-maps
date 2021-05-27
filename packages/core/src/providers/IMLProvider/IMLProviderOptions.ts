@@ -67,7 +67,7 @@ interface IMLProviderOptions extends HTTPProviderOptions {
      *
      * @defaultValue "https://interactive.data.api.platform.here.com/interactive/v1"
      */
-    url: string;
+    url?: string;
 
     /**
      * define property search query to enable remote filtering by property search.
@@ -82,6 +82,6 @@ interface IMLProviderOptions extends HTTPProviderOptions {
             value: any | any[]
         }
     }
-};
+}
 
 export {IMLProviderOptions};
