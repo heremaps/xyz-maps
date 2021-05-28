@@ -4,7 +4,13 @@
     "lib": ["es5", "es2015", "dom"],
     "sourceMap": true,
     "allowJs": true,
-    "types" : ["mocha", "chai"]
+    "types" : ["mocha", "chai"],
+    "baseUrl": ".",
+    "paths": {
+      "*": ["src/utils/*"]
+    },
+    "resolveJsonModule": true,
+    "esModuleInterop": true
   },
   "include": [
     "specs/**/*", "src/**/*"
