@@ -20,7 +20,9 @@ import {prepare} from 'utils';
 import {waitForEditorReady} from 'editorUtils';
 import {drag, click} from 'triggerEvents';
 import {Map} from '@here/xyz-maps-display';
-import {features, Editor} from '@here/xyz-maps-editor';
+import {Editor} from '@here/xyz-maps-editor';
+// @ts-ignore @deprecated
+import {features} from '@here/xyz-maps-editor';
 import dataset from './map_history_modify_remove_layer_undo_spec.json';
 
 describe('modify object and remove its layer, then undo the change', function() {

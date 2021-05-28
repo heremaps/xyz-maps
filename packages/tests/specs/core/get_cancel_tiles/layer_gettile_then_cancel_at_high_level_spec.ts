@@ -101,7 +101,6 @@ describe('layer get and cancel requesting with high level', function() {
             quadkeys: [qk21, qk22],
             sameCallback: false,
             cancel: {
-                layer: placeLayer,
                 quadkeys: [null, qk22],
                 withCallback: true
             },
@@ -134,7 +133,6 @@ describe('layer get and cancel requesting with high level', function() {
             quadkeys: [qk31, qk32],
             sameCallback: false,
             cancel: {
-                layer: placeLayer,
                 quadkeys: [qk31],
                 withCallback: true
             },
@@ -193,7 +191,6 @@ describe('layer get and cancel requesting with high level', function() {
             quadkeys: [qk51, qk52],
             sameCallback: false,
             cancel: {
-                layer: placeLayer,
                 quadkeys: [qk51],
                 withCallback: true
             },

@@ -120,7 +120,6 @@ describe('layer get and cancel requesting with different level', function() {
             quadkeys: [qk21, qk22],
             sameCallback: false,
             cancel: {
-                layer: placeLayer,
                 quadkeys: [null, qk22],
                 withCallback: true
             },
@@ -153,7 +152,6 @@ describe('layer get and cancel requesting with different level', function() {
             quadkeys: [qk31, qk32],
             sameCallback: false,
             cancel: {
-                layer: placeLayer,
                 quadkeys: [qk31],
                 withCallback: true
             },
@@ -187,7 +185,6 @@ describe('layer get and cancel requesting with different level', function() {
             quadkeys: [qk41, qk42],
             sameCallback: false,
             cancel: {
-                layer: placeLayer,
                 quadkeys: [qk41, qk42],
                 withCallback: true
             },
@@ -247,7 +244,6 @@ describe('layer get and cancel requesting with different level', function() {
             quadkeys: [qk61, qk62],
             sameCallback: false,
             cancel: {
-                layer: placeLayer,
                 quadkeys: [qk61],
                 withCallback: true
             },
@@ -280,7 +276,6 @@ describe('layer get and cancel requesting with different level', function() {
             quadkeys: [qk71, qk72],
             sameCallback: false,
             cancel: {
-                layer: placeLayer,
                 quadkeys: [null, qk72],
                 withCallback: true
             },
@@ -313,7 +308,6 @@ describe('layer get and cancel requesting with different level', function() {
             quadkeys: [qk81, qk82],
             sameCallback: false,
             cancel: {
-                layer: placeLayer,
                 quadkeys: [qk81, qk82],
                 withCallback: true
             },
@@ -372,7 +366,6 @@ describe('layer get and cancel requesting with different level', function() {
             quadkeys: [qk11, qk12],
             sameCallback: false,
             cancel: {
-                layer: placeLayer,
                 quadkeys: [qk11, null],
                 withCallback: true
             },
@@ -405,7 +398,6 @@ describe('layer get and cancel requesting with different level', function() {
             quadkeys: [qk11, qk12],
             sameCallback: false,
             cancel: {
-                layer: placeLayer,
                 quadkeys: [null, qk12],
                 withCallback: true
             },
@@ -438,7 +430,6 @@ describe('layer get and cancel requesting with different level', function() {
             quadkeys: [qk21, qk22],
             sameCallback: false,
             cancel: {
-                layer: placeLayer,
                 quadkeys: [null, qk22],
                 withCallback: true
             },
@@ -471,7 +462,6 @@ describe('layer get and cancel requesting with different level', function() {
             quadkeys: [qk31, qk32],
             sameCallback: false,
             cancel: {
-                layer: placeLayer,
                 quadkeys: [qk31],
                 withCallback: true
             },
@@ -504,7 +494,6 @@ describe('layer get and cancel requesting with different level', function() {
             quadkeys: [qk31, qk32],
             sameCallback: false,
             cancel: {
-                layer: placeLayer,
                 quadkeys: [null, qk32],
                 withCallback: true
             },
@@ -536,7 +525,6 @@ describe('layer get and cancel requesting with different level', function() {
             quadkeys: [qk41, qk42],
             sameCallback: false,
             cancel: {
-                layer: placeLayer,
                 quadkeys: [qk41, qk42],
                 withCallback: true
             },

@@ -19,7 +19,9 @@
 import {prepare} from 'utils';
 import {waitForEditorReady} from 'editorUtils';
 import {Map} from '@here/xyz-maps-display';
-import {features, Editor} from '@here/xyz-maps-editor';
+import {Editor} from '@here/xyz-maps-editor';
+// @ts-ignore @deprecated
+import {features} from '@here/xyz-maps-editor';
 import dataset from './poi_create_outside_viewport_spec.json';
 
 describe('create a poi outside viewport, it connects to a link nearby', function() {

@@ -67,7 +67,7 @@ async function prepareProviderConfig(config, ts) {
         }
     }
     return {providerConfig, spaceId};
-};
+}
 
 
 function prepareFeatures(dataset): Promise<{[key: string]: object[]}> {
@@ -95,7 +95,7 @@ function prepareFeatures(dataset): Promise<{[key: string]: object[]}> {
         }
         resolve(response);
     });
-};
+}
 
 
 export default async function prepare(dataset) {
@@ -256,6 +256,8 @@ class PreparedData {
         }
     };
 
+    getLayers(): TileLayer[];
+    getLayers(id: string): TileLayer;
     getLayers(id?: string): TileLayer|TileLayer[] {
         if (id) {
             let layer;

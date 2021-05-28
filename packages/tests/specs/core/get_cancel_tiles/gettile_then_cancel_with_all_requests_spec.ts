@@ -69,7 +69,6 @@ xdescribe('get and cancel requesting all other related requests', function() {
             quadkeys: [qk11, qk12],
             sameCallback: false,
             cancel: {
-                provider: placeProvider,
                 quadkeys: [qk11],
                 withCallback: false
             },
@@ -100,7 +99,6 @@ xdescribe('get and cancel requesting all other related requests', function() {
             quadkeys: [qk21, qk22],
             sameCallback: false,
             cancel: {
-                provider: placeProvider,
                 quadkeys: [qk21],
                 withCallback: false
             },
@@ -133,7 +131,6 @@ xdescribe('get and cancel requesting all other related requests', function() {
             quadkeys: [qk31, qk32],
             sameCallback: false,
             cancel: {
-                provider: placeProvider,
                 quadkeys: [null, qk32],
                 withCallback: false
             },
@@ -166,7 +163,6 @@ xdescribe('get and cancel requesting all other related requests', function() {
             quadkeys: [qk41, qk42],
             sameCallback: false,
             cancel: {
-                provider: placeProvider,
                 quadkeys: [null, qk42],
                 withCallback: false
             },

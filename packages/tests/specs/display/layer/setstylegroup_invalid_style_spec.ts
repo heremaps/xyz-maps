@@ -37,6 +37,7 @@ describe('setStyleGroup with invalid style', function() {
         let preparedData = await prepare(dataset);
 
         display = new Map(document.getElementById('map'), {
+            // @ts-ignore
             renderOptions: {
                 preserveDrawingBuffer: true
             },

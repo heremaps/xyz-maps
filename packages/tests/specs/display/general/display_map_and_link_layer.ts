@@ -33,6 +33,7 @@ describe('display image and link layers', function() {
     before(async function() {
         let preparedData = await prepare(dataset);
         display = new Map(document.getElementById('map'), {
+            // @ts-ignore
             renderOptions: {
                 preserveDrawingBuffer: true
             },

@@ -18,7 +18,9 @@
  */
 import {prepare} from 'utils';
 import {waitForEditorReady, submit, clean} from 'editorUtils';
-import {features, Editor} from '@here/xyz-maps-editor';
+import {Editor} from '@here/xyz-maps-editor';
+// @ts-ignore @deprecated
+import {features} from '@here/xyz-maps-editor';
 import {Map} from '@here/xyz-maps-display';
 import dataset from './address_delete_new_connected_link_spec.json';
 

@@ -25,6 +25,7 @@
     "@rollup/plugin-typescript": "^8.2.0",
     "@rollup/plugin-virtual": "^2.0.1",
     "@types/chai": "^4.2.10",
+    "@types/chai-almost": "^1.0.1",
     "@types/mocha": "^7.0.2",
     "chai": "~4.2.0",
     "chai-almost": "^1.0.1",

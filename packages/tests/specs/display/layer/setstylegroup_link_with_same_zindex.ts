@@ -35,6 +35,7 @@ describe('setStyleGroup link with same zIndex', function() {
     before(async function() {
         let preparedData = await prepare(dataset);
         display = new Map(document.getElementById('map'), {
+            // @ts-ignore
             renderOptions: {
                 preserveDrawingBuffer: true
             },

@@ -23,11 +23,11 @@ import {MonitorXHR, RequestSummary} from './utils';
 export function getTileOnProvider(opts: {
     timeout?: number;
     onFinish?: (req: RequestSummary[], cb: {tile: object}[])=>void;
-    quadkeys: number[];
+    quadkeys: string[];
     sameCallback?: boolean;
     provider?: FeatureProvider;
     layer?: TileLayer;
-    cancel: {quadkeys?: number[]; withCallback?: boolean; timeout?:number;};
+    cancel?: {quadkeys?: number[]; withCallback?: boolean; timeout?:number;};
 }): {tile: object}[] {
     var timeout = opts.timeout || 20; // wait for 20 ms for possible coming requests
     var requestMonitoredCount = 0;
@@ -79,7 +79,7 @@ export function getTileOnProvider(opts: {
         // setTimeout(()=>
         // {
         // console.timeEnd("getTileOnProvider");
-        qks.forEach((qk: number, i: number)=>{
+        qks.forEach((qk: string, i: number)=>{
             if (cQks[i]) {
                 var callback = cWithCB ? callbacks[qk+'i'+i] : undefined;
 
@@ -106,16 +106,16 @@ export function getTileOnProvider(opts: {
     }, timeout);
 
     return callbackResults;
-};
+}
 
 export function getTileOnLayer(opts: {
     timeout?: number;
     onFinish?: (req: RequestSummary[], cb: {tile: object}[])=>void;
-    quadkeys: number[];
+    quadkeys: string[];
     sameCallback?: boolean;
     layer: TileLayer;
-    cancel: {quadkeys?: number[]; withCallback?: boolean; timeout?:number;};
+    cancel?: {quadkeys?: number[]; withCallback?: boolean; timeout?:number;};
 }): {tile: object}[] {
     return getTileOnProvider(opts);
-};
+}
 

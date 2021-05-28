@@ -116,7 +116,6 @@ describe('layer basic get and cancel tiles', function() {
             quadkeys: [qk2],
             sameCallback: false,
             cancel: {
-                layer: placeLayer,
                 quadkeys: [qk2],
                 withCallback: true
             },
@@ -173,7 +172,6 @@ describe('layer basic get and cancel tiles', function() {
             quadkeys: [qk41, qk42],
             sameCallback: false,
             cancel: {
-                layer: placeLayer,
                 quadkeys: [qk41],
                 withCallback: true
             },
@@ -209,7 +207,6 @@ describe('layer basic get and cancel tiles', function() {
             quadkeys: [qk51, qk52],
             sameCallback: false,
             cancel: {
-                layer: placeLayer,
                 quadkeys: [qk51, qk52],
                 withCallback: true
             },
@@ -278,7 +275,6 @@ describe('layer basic get and cancel tiles', function() {
             quadkeys: [qk71, qk72, qk73],
             sameCallback: false,
             cancel: {
-                layer: placeLayer,
                 quadkeys: [qk71, qk72],
                 withCallback: true
             },
@@ -313,7 +309,6 @@ describe('layer basic get and cancel tiles', function() {
             quadkeys: [qk81, qk82, qk83],
             sameCallback: false,
             cancel: {
-                layer: placeLayer,
                 quadkeys: [qk81, qk82, qk83],
                 withCallback: true
             },

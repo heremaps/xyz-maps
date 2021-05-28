@@ -20,7 +20,7 @@
 import {click} from './triggerEvents';
 import {Editor, EditorEvent} from '@here/xyz-maps-editor';
 
-export async function editorClick(editor: Editor, x: number, y: number): Promise<EditorEvent | void> {
+export async function editorClick(editor: Editor, x: number, y: number): Promise<EditorEvent> {
     return new Promise(async (resolve) => {
         let mapContainer = editor.container;
         let eventHandler = function(e: EditorEvent) {

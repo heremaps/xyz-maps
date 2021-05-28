@@ -18,7 +18,9 @@
  */
 import {prepare} from 'utils';
 import {waitForEditorReady, submit} from 'editorUtils';
-import {features, Editor} from '@here/xyz-maps-editor';
+import {Editor} from '@here/xyz-maps-editor';
+// @ts-ignore @deprecated
+import {features} from '@here/xyz-maps-editor';
 import {Map} from '@here/xyz-maps-display';
 import chaiAlmost from 'chai-almost';
 import dataset from './address_create_remove_spec.json';

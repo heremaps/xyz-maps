@@ -43,6 +43,7 @@ describe('collision detection - Text', function() {
     before(async function() {
         let data = await prepare(dataset);
         display = new Map(document.getElementById('map'), {
+            // @ts-ignore
             renderOptions: {
                 preserveDrawingBuffer: true
             },

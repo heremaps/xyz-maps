@@ -35,6 +35,7 @@ describe('zoom in 20+', function() {
     before(async () => {
         let preparedData = await prepare(dataset);
         display = new Map(document.getElementById('map'), {
+            // @ts-ignore
             renderOptions: {
                 preserveDrawingBuffer: true
             },

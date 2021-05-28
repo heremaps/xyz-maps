@@ -47,6 +47,7 @@ describe('StyleGroup Text and Line geometry', () => {
         });
 
         display = new Map(document.getElementById('map'), {
+            // @ts-ignore
             renderOptions: {
                 preserveDrawingBuffer: true
             },

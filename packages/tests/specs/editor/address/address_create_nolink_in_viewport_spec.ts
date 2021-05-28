@@ -19,7 +19,9 @@
 import {prepare} from 'utils';
 import {waitForEditorReady} from 'editorUtils';
 import {Map} from '@here/xyz-maps-display';
-import {features, Editor} from '@here/xyz-maps-editor';
+import {Editor} from '@here/xyz-maps-editor';
+// @ts-ignore @deprecated
+import {features} from '@here/xyz-maps-editor';
 import dataset from './address_create_nolink_in_viewport_spec.json';
 
 describe('create an address where no link exists within 1000 meters', function() {

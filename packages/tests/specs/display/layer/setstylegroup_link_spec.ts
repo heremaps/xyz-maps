@@ -35,6 +35,7 @@ describe('setStyleGroup Link', function() {
         preparedData = await prepare(dataset);
 
         display = new Map(document.getElementById('map'), {
+            // @ts-ignore
             renderOptions: {
                 preserveDrawingBuffer: true
             },

@@ -76,7 +76,6 @@ describe('get one tile multiple times and cancel', function() {
             quadkeys: [qk2, qk2, qk2],
             sameCallback: false,
             cancel: {
-                provider: placeProvider,
                 quadkeys: [qk2],
                 withCallback: true
             },
@@ -108,7 +107,6 @@ describe('get one tile multiple times and cancel', function() {
             quadkeys: [qk3, qk3, qk3],
             sameCallback: false,
             cancel: {
-                provider: placeProvider,
                 quadkeys: [qk3, qk3],
                 withCallback: true
             },
@@ -140,7 +138,6 @@ describe('get one tile multiple times and cancel', function() {
             quadkeys: [qk4, qk4, qk4],
             sameCallback: false,
             cancel: {
-                provider: placeProvider,
                 quadkeys: [qk4, qk4, qk4],
                 withCallback: true
             },

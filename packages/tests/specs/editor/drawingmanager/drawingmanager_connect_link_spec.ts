@@ -20,7 +20,9 @@ import {prepare} from 'utils';
 import {waitForEditorReady} from 'editorUtils';
 import {click, drag, mousemove} from 'triggerEvents';
 import {Map} from '@here/xyz-maps-display';
-import {features, Editor} from '@here/xyz-maps-editor';
+import {Editor} from '@here/xyz-maps-editor';
+// @ts-ignore @deprecated
+import {features} from '@here/xyz-maps-editor';
 import dataset from './drawingmanager_connect_link_spec.json';
 
 describe('Create new Links and drag connect point,original link is not split', function() {

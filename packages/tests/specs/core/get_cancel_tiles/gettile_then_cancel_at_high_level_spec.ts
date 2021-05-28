@@ -124,7 +124,6 @@ describe('get and cancel requesting with high level', function() {
                 done();
             },
             cancel: {
-                provider: placeProvider,
                 quadkeys: [null, qk22],
                 withCallback: true
             }
@@ -157,7 +156,6 @@ describe('get and cancel requesting with high level', function() {
                 done();
             },
             cancel: {
-                provider: placeProvider,
                 quadkeys: [qk31],
                 withCallback: true
             }
@@ -216,7 +214,6 @@ describe('get and cancel requesting with high level', function() {
                 done();
             },
             cancel: {
-                provider: placeProvider,
                 quadkeys: [qk51],
                 withCallback: true
             }

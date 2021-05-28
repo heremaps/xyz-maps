@@ -119,7 +119,6 @@ describe('get and cancel requesting with different level', function() {
             quadkeys: [qk21, qk22],
             sameCallback: false,
             cancel: {
-                provider: placeProvider,
                 quadkeys: [null, qk22],
                 withCallback: true
             },
@@ -152,7 +151,6 @@ describe('get and cancel requesting with different level', function() {
             quadkeys: [qk31, qk32],
             sameCallback: false,
             cancel: {
-                provider: placeProvider,
                 quadkeys: [qk31],
                 withCallback: true
             },
@@ -186,7 +184,6 @@ describe('get and cancel requesting with different level', function() {
             quadkeys: [qk41, qk42],
             sameCallback: false,
             cancel: {
-                provider: placeProvider,
                 quadkeys: [qk41, qk42],
                 withCallback: true
             },
@@ -246,7 +243,6 @@ describe('get and cancel requesting with different level', function() {
             quadkeys: [qk61, qk62],
             sameCallback: false,
             cancel: {
-                provider: placeProvider,
                 quadkeys: [qk61],
                 withCallback: true
             },
@@ -279,7 +275,6 @@ describe('get and cancel requesting with different level', function() {
             quadkeys: [qk71, qk72],
             sameCallback: false,
             cancel: {
-                provider: placeProvider,
                 quadkeys: [null, qk72],
                 withCallback: true
             },
@@ -312,7 +307,6 @@ describe('get and cancel requesting with different level', function() {
             quadkeys: [qk81, qk82],
             sameCallback: false,
             cancel: {
-                provider: placeProvider,
                 quadkeys: [qk81, qk82],
                 withCallback: true
             },
@@ -371,7 +365,6 @@ describe('get and cancel requesting with different level', function() {
             quadkeys: [qk11, qk12],
             sameCallback: false,
             cancel: {
-                provider: placeProvider,
                 quadkeys: [qk11, null],
                 withCallback: true
             },
@@ -404,7 +397,6 @@ describe('get and cancel requesting with different level', function() {
             quadkeys: [qk11, qk12],
             sameCallback: false,
             cancel: {
-                provider: placeProvider,
                 quadkeys: [null, qk12],
                 withCallback: true
             },
@@ -437,7 +429,6 @@ describe('get and cancel requesting with different level', function() {
             quadkeys: [qk21, qk22],
             sameCallback: false,
             cancel: {
-                provider: placeProvider,
                 quadkeys: [null, qk22],
                 withCallback: true
             },
@@ -470,7 +461,6 @@ describe('get and cancel requesting with different level', function() {
             quadkeys: [qk31, qk32],
             sameCallback: false,
             cancel: {
-                provider: placeProvider,
                 quadkeys: [qk31],
                 withCallback: true
             },
@@ -503,7 +493,6 @@ describe('get and cancel requesting with different level', function() {
             quadkeys: [qk31, qk32],
             sameCallback: false,
             cancel: {
-                provider: placeProvider,
                 quadkeys: [null, qk32],
                 withCallback: true
             },
@@ -535,7 +524,6 @@ describe('get and cancel requesting with different level', function() {
             quadkeys: [qk41, qk42],
             sameCallback: false,
             cancel: {
-                provider: placeProvider,
                 quadkeys: [qk41, qk42],
                 withCallback: true
             },

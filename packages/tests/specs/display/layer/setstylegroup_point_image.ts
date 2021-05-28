@@ -36,6 +36,7 @@ describe('setStyleGroup Point with image', function() {
     before(async function() {
         let preparedData = await prepare(dataset);
         display = new Map(document.getElementById('map'), {
+            // @ts-ignore
             renderOptions: {
                 preserveDrawingBuffer: true
             },

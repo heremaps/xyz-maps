@@ -19,6 +19,7 @@
 
 import {prepare} from 'utils';
 import dataset from './remote_filtering.json';
+import {Feature} from '@here/xyz-maps-core';
 
 describe('remote filtering in spaceprovider', () => {
     const expect = chai.expect;
@@ -38,7 +39,7 @@ describe('remote filtering in spaceprovider', () => {
 
     it('validate search feature by id remotely', async () => {
         let featureId = preparedData.features['spaceLayer'].remote[0];
-        let result = await new Promise((resolve) => {
+        let result = await new Promise<Feature>((resolve) => {
             spaceProvider.search({
                 id: featureId,
                 remote: true,

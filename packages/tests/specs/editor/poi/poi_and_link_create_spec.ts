@@ -19,7 +19,9 @@
 import {Listener, prepare} from 'utils';
 import {waitForEditorReady, clean, submit} from 'editorUtils';
 import {Map} from '@here/xyz-maps-display';
-import {features, Editor} from '@here/xyz-maps-editor';
+import {Editor} from '@here/xyz-maps-editor';
+// @ts-ignore @deprecated
+import {features} from '@here/xyz-maps-editor';
 import dataset from './poi_and_link_create_spec.json';
 
 describe('poi and link create', function() {

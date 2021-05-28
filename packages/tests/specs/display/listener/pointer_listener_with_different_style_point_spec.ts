@@ -35,6 +35,7 @@ describe('pointer listener with different style point', function() {
     before(async function() {
         preparedData = await prepare(dataset);
         display = new Map(document.getElementById('map'), {
+            // @ts-ignore
             renderOptions: {
                 preserveDrawingBuffer: true
             },

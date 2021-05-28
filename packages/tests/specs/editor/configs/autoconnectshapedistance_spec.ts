@@ -20,7 +20,9 @@ import {prepare} from 'utils';
 import {waitForEditorReady} from 'editorUtils';
 import {drag} from 'triggerEvents';
 import {Map} from '@here/xyz-maps-display';
-import {features, Editor} from '@here/xyz-maps-editor';
+import {Editor} from '@here/xyz-maps-editor';
+// @ts-ignore @deprecated
+import {features} from '@here/xyz-maps-editor';
 import dataset from './autoconnectshapedistance_spec.json';
 
 describe('set autoConnectShapeDistance', function() {

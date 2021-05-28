@@ -33,6 +33,7 @@ describe('layer with background color', function() {
 
     before(async () => {
         display = new Map(document.getElementById('map'), {
+            // @ts-ignore
             renderOptions: {
                 preserveDrawingBuffer: true
             },

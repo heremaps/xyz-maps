@@ -57,7 +57,7 @@ describe('disable zoomcontrol component', function() {
     it('re-initialize display with zoomcontrol disabled, validate zoomcontrol again', async function() {
         display.destroy();
         display = new Map(document.getElementById('map'), {
-            UI: {
+            ui: {
                 ZoomControl: false
             },
             zoomlevel: 18,

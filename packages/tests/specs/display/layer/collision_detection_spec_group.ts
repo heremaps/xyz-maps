@@ -43,6 +43,7 @@ describe('collision detection - Group', function() {
     before(async () => {
         let data = await prepare(dataset);
         display = new Map(document.getElementById('map'), {
+            // @ts-ignore
             renderOptions: {
                 preserveDrawingBuffer: true
             },

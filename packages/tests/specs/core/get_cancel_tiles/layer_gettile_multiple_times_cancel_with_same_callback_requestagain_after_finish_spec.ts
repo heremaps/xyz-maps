@@ -106,7 +106,6 @@ describe('layer get one tile multiple times and cancel with same callback', func
             quadkeys: [qk2, qk2, qk2],
             sameCallback: true,
             cancel: {
-                layer: placeLayer,
                 quadkeys: [qk2],
                 withCallback: true
             },
@@ -139,7 +138,6 @@ describe('layer get one tile multiple times and cancel with same callback', func
             quadkeys: [qk2, qk2, qk2],
             sameCallback: true,
             cancel: {
-                layer: placeLayer,
                 quadkeys: [qk2],
                 withCallback: true
             },
@@ -170,7 +168,6 @@ describe('layer get one tile multiple times and cancel with same callback', func
             quadkeys: [qk3, qk3, qk3],
             sameCallback: true,
             cancel: {
-                layer: placeLayer,
                 quadkeys: [qk3, qk3],
                 withCallback: true
             },
@@ -202,7 +199,6 @@ describe('layer get one tile multiple times and cancel with same callback', func
             quadkeys: [qk3, qk3, qk3],
             sameCallback: true,
             cancel: {
-                layer: placeLayer,
                 quadkeys: [qk3, qk3],
                 withCallback: true
             },
@@ -233,7 +229,6 @@ describe('layer get one tile multiple times and cancel with same callback', func
             quadkeys: [qk4, qk4, qk4],
             sameCallback: true,
             cancel: {
-                layer: placeLayer,
                 quadkeys: [qk4, qk4, qk4],
                 withCallback: true
             },

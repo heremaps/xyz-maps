@@ -20,7 +20,9 @@ import {Observer, prepare} from 'utils';
 import {waitForEditorReady, clean, submit} from 'editorUtils';
 import dataset from './map_observer_changes_spec.json';
 import {Map} from '@here/xyz-maps-display';
-import {features, Editor} from '@here/xyz-maps-editor';
+import {Editor} from '@here/xyz-maps-editor';
+// @ts-ignore @deprecated
+import {features} from '@here/xyz-maps-editor';
 
 describe('map changes observers', function() {
     const expect = chai.expect;

@@ -20,7 +20,9 @@ import {Observer, prepare} from 'utils';
 import {waitForEditorReady, submit} from 'editorUtils';
 import {drag} from 'triggerEvents';
 import {Map} from '@here/xyz-maps-display';
-import {features, Editor} from '@here/xyz-maps-editor';
+import {Editor} from '@here/xyz-maps-editor';
+// @ts-ignore @deprecated
+import {features} from '@here/xyz-maps-editor';
 import dataset from './map_observer_ready_spec.json';
 
 describe('map ready observer', function() {

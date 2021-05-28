@@ -30,6 +30,7 @@ describe('validate polygon rendering', function() {
     before(async function() {
         let preparedData = await prepare(dataset);
         window.display = new Map(document.getElementById('map'), {
+            // @ts-ignore
             renderOptions: {
                 preserveDrawingBuffer: true
             },

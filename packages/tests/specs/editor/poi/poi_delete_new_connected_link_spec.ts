@@ -19,7 +19,9 @@
 import {prepare} from 'utils';
 import {waitForEditorReady, submit, clean} from 'editorUtils';
 import {Map} from '@here/xyz-maps-display';
-import {features, Editor} from '@here/xyz-maps-editor';
+import {Editor} from '@here/xyz-maps-editor';
+// @ts-ignore @deprecated
+import {features} from '@here/xyz-maps-editor';
 import dataset from './poi_delete_new_connected_link_spec.json';
 
 xdescribe('New poi connect to a new link and then remove the link', function() {

@@ -75,7 +75,7 @@ describe('ui component compass', function() {
     it('re-initialize display with compass disabled and validate', async function() {
         display.destroy();
         display = new Map(document.getElementById('map'), {
-            UI: {
+            ui: {
                 Compass: false
             },
             zoomlevel: 18,
@@ -97,7 +97,7 @@ describe('ui component compass', function() {
     it('re-initialize display with compass enabled, check initial rotation and pitch again', async function() {
         display.destroy();
         display = new Map(document.getElementById('map'), {
-            UI: {
+            ui: {
                 Compass: true
             },
             zoomlevel: 18,

@@ -35,6 +35,7 @@ describe('setStyleGroup Point with rect', function() {
         chai.use(chaiAlmost(1));
         let preparedData = await prepare(dataset);
         display = new Map(document.getElementById('map'), {
+            // @ts-ignore
             renderOptions: {
                 preserveDrawingBuffer: true
             },

@@ -20,7 +20,9 @@ import {Observer, prepare} from 'utils';
 import {drag} from 'triggerEvents';
 import {waitForEditorReady, submit, clean} from 'editorUtils';
 import {Map} from '@here/xyz-maps-display';
-import {features, Editor} from '@here/xyz-maps-editor';
+import {Editor} from '@here/xyz-maps-editor';
+// @ts-ignore @deprecated
+import {features} from '@here/xyz-maps-editor';
 import dataset from './map_observer_submit_removed_link.json';
 
 xdescribe('ready event is triggered once after submitting removed links', function() {

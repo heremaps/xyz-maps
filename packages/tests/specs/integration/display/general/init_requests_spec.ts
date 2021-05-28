@@ -41,6 +41,7 @@ describe('initial requests of display', function() {
         let monitor = new MonitorXHR();
         monitor.start();
         display = new Map(document.getElementById('map'), {
+            // @ts-ignore
             renderOptions: {
                 preserveDrawingBuffer: true
             },

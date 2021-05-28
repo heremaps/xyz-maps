@@ -127,7 +127,6 @@ describe('basic get and cancel tiles', function() {
                 done();
             },
             cancel: {
-                provider: placeProvider,
                 quadkeys: [qk2],
                 withCallback: true
             }
@@ -191,7 +190,6 @@ describe('basic get and cancel tiles', function() {
                 done();
             },
             cancel: {
-                provider: placeProvider,
                 quadkeys: [qk41],
                 withCallback: true
             }
@@ -225,7 +223,6 @@ describe('basic get and cancel tiles', function() {
                 done();
             },
             cancel: {
-                provider: placeProvider,
                 quadkeys: [qk51, qk52],
                 withCallback: true
             }
@@ -295,7 +292,6 @@ describe('basic get and cancel tiles', function() {
                 done();
             },
             cancel: {
-                provider: placeProvider,
                 quadkeys: [qk71, qk72],
                 withCallback: true
             }
@@ -329,7 +325,6 @@ describe('basic get and cancel tiles', function() {
                 done();
             },
             cancel: {
-                provider: placeProvider,
                 quadkeys: [qk81, qk82, qk83],
                 withCallback: true
             }
