@@ -18,7 +18,7 @@
  */
 
 import BasicDisplay from '../BasicDisplay';
-import {RenderOptions, GLRender} from './GLRender';
+import {GLRender, PASS, RenderOptions} from './GLRender';
 import GLBucket from './Bucket';
 
 import {createBuffer} from './buffer/createBuffer';
@@ -356,8 +356,7 @@ class WebGlDisplay extends BasicDisplay {
             }
         }
 
-
-        render.setPass('opaque');
+        render.setPass(PASS.OPAQUE);
 
         let b = tileBuffers.length;
         while (b--) {
@@ -367,24 +366,37 @@ class WebGlDisplay extends BasicDisplay {
             }
         }
 
-        render.setPass('alpha');
+        render.setPass(PASS.ALPHA);
+        tileBuffers = tileBuffers.sort((a, b) => a.z - b.z);
+        let layerZIndex = 0;
 
-        // tileBuffers = tileBuffers.sort((a,b)=>a.z-b.z);
+        do {
+            let secondAlphaPass = false;
 
-        let layerZIndex = -1;
-        render.setZFilter((z: number) => z == layerZIndex);
-
-        while (++layerZIndex <= maxZIndex) {
             for (b = 0, length = tileBuffers.length; b < length; b++) {
                 let data = tileBuffers[b];
-                if (data) {
+                let buffer = data.b;
+
+                if (buffer.alpha == 2) {
+                    // do stencil in this pass and "real" drawing in an additional pass
+                    secondAlphaPass = true;
+                }
+                if (data && data.z == layerZIndex) {
                     render.draw(data, min3dZIndex);
                 }
             }
-        }
 
-        render.setZFilter();
+            if (render.pass == PASS.POST_ALPHA) {
+                render.setPass(PASS.ALPHA);
+            } else if (secondAlphaPass) {
+                render.setPass(PASS.POST_ALPHA);
+                // draw again.. first alpha pass was used to stencil.
+                layerZIndex--;
+            }
+        } while (++layerZIndex <= maxZIndex);
 
+
+        // display the tilegrid if enabled
         if (render.tileGrid) {
             for (let tileSize in display.tiles) {
                 const tiles = display.tiles[tileSize];

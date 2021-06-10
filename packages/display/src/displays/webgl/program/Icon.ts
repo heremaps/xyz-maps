@@ -22,9 +22,9 @@ import vertexShader from '../glsl/icon_vertex.glsl';
 // @ts-ignore
 import fragmentShader from '../glsl/icon_fragment.glsl';
 
-import {JSUtils} from '@here/xyz-maps-common';
 import Program from './Program';
 import {GLStates} from './GLStates';
+import {PASS} from '../GLRender';
 
 
 class TextProgram extends Program {
@@ -41,11 +41,11 @@ class TextProgram extends Program {
         super(gl, gl.TRIANGLES, vertexShader, fragmentShader, devicePixelRation);
     }
 
-    pass(pass: string) {
-        return pass == 'alpha';
+    pass(pass: PASS) {
+        return pass == PASS.ALPHA;
     }
 
-    init(options: GLStates, pass, stencil: boolean) {
+    init(options: GLStates, pass: PASS, stencil: boolean) {
         const {gl} = this;
         super.init(options, pass, stencil);
         gl.blendFunc(gl.ONE, gl.ONE_MINUS_SRC_ALPHA);

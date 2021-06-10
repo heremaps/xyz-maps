@@ -21,6 +21,7 @@ import {createProgram} from '../glTools';
 import {GLStates} from './GLStates';
 // @ts-ignore
 import introVertex from '../glsl/intro_vertex.glsl';
+import {PASS} from '../GLRender';
 
 let UNDEF;
 
@@ -193,9 +194,9 @@ class Program {
         }
     }
 
-    pass(pass: string) {
+    pass(pass: PASS) {
         // draw in opaque pass only by default.
-        return pass == 'opaque';
+        return pass == PASS.OPAQUE;
     }
 
     draw(group, buffers) {
@@ -251,10 +252,10 @@ class Program {
         }
     }
 
-    init(options: GLStates, pass: 'alpha' | 'opaque', stencil: boolean) {
+    init(options: GLStates, pass: PASS, stencil: boolean) {
         const prog = this;
         const {gl} = prog;
-        const opaquePass = pass == 'opaque';
+        const opaquePass = pass == PASS.OPAQUE;
         let {blend, scissor, depth} = this.glStates;
 
         // overwrite with custom gl-states
@@ -281,6 +282,6 @@ class Program {
     //     gl.useProgram(this.prog);
     //     // this.init(options);
     // }
-};
+}
 
 export default Program;

@@ -22,9 +22,9 @@ import vertexShader from '../glsl/extrude_vertex.glsl';
 // @ts-ignore
 import fragmentShader from '../glsl/extrude_fragment.glsl';
 
-import {JSUtils} from '@here/xyz-maps-common';
 import Program from './Program';
 import {GLStates} from './GLStates';
+import {PASS} from '../GLRender';
 
 
 class ExtrudeProgram extends Program {
@@ -36,16 +36,41 @@ class ExtrudeProgram extends Program {
         depth: true
     });
 
+    private _pass;
 
     constructor(gl: WebGLRenderingContext, devicePixelRation: number) {
         super(gl, gl.TRIANGLES, vertexShader, fragmentShader, devicePixelRation);
     }
 
-    init(options: GLStates, pass, stencil: boolean) {
+    init(options: GLStates, pass: PASS, stencil: boolean) {
         const {gl} = this;
+
+        this._pass = pass;
+
         super.init(options, pass, stencil);
         // extrudes always need depth testing (alpha pass)
         gl.depthMask(true);
+
+        if (pass == PASS.POST_ALPHA) {
+            // use additional pass with stencil buffer to avoid "overlapping alpha" of unclipped geometry
+            gl.enable(gl.STENCIL_TEST);
+            gl.stencilFunc(gl.GREATER, 1, 0xff);
+            gl.stencilOp(gl.KEEP, gl.KEEP, gl.REPLACE);
+            // gl.stencilFunc(gl.EQUAL, 0, 0xff);
+            // gl.stencilOp(gl.KEEP, gl.KEEP, gl.INCR);
+        }
+    }
+
+    draw(group, buffers) {
+        const {gl} = this;
+        if (this._pass == PASS.ALPHA) {
+            // depth pass only
+            gl.colorMask(false, false, false, false);
+            super.draw(group, buffers);
+            gl.colorMask(true, true, true, false);
+        } else {
+            super.draw(group, buffers);
+        }
     }
 }
 

@@ -24,6 +24,7 @@ import fragmentShader from '../glsl/line_fragment.glsl';
 
 import Program from './Program';
 import {GLStates} from './GLStates';
+import {PASS} from '../GLRender';
 
 
 class LineProgram extends Program {
@@ -35,15 +36,15 @@ class LineProgram extends Program {
         depth: true
     })
 
-    pass(pass: string) {
-        return pass == 'alpha';
+    pass(pass: PASS) {
+        return pass == PASS.ALPHA;
     }
 
     constructor(gl: WebGLRenderingContext, devicePixelRation: number) {
         super(gl, gl.TRIANGLES, vertexShader, fragmentShader, devicePixelRation);
     }
 
-    init(options: GLStates, pass, stencil: boolean) {
+    init(options: GLStates, pass: PASS, stencil: boolean) {
         super.init(options, pass, stencil);
         this.gl.depthMask(false);
     }

@@ -57,7 +57,7 @@ class GeometryBuffer {
     arrays?: Arrays;
     index?: Index;
 
-    alpha: boolean;
+    alpha: number;
     zIndex?: number;
     zLayer?: number;
     scissor?: boolean;

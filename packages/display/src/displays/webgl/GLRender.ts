@@ -75,7 +75,11 @@ const DEBUG_GRID_FONT = {
     // textBaseline : 'alphabetic'
 };
 
-// const DEBUG_GRID_FONT = {fill:'#ff0000', stroke:'#ffff00', strokeWidth: 2 };
+export enum PASS {
+    OPAQUE = 0,
+    ALPHA = 1,
+    POST_ALPHA = 2
+}
 
 export type RenderOptions = WebGLContextAttributes;
 
@@ -115,7 +119,7 @@ export class GLRender implements BasicRender {
     private stencilTile: GeometryBuffer;
 
     private depthFnc: GLenum;
-    private pass: 'opaque' | 'alpha';
+    pass: PASS;
 
     buffers = new WeakMap();
     gl: WebGLRenderingContext;
@@ -149,20 +153,26 @@ export class GLRender implements BasicRender {
 
         const stencilTile = createTileBuffer(1);
         // will only draw in alpha pass!
-        stencilTile.alpha = true; // this.pass == 'alpha';
+        stencilTile.alpha = PASS.ALPHA;
         // need to be set to enable stencil test in program init.
         stencilTile.blend = true;
         this.stencilTile = stencilTile;
     }
 
-    setPass(pass: 'opaque' | 'alpha') {
+    setPass(pass: PASS) {
         // console.log(`-------- ${pass} pass --------`);
         const {gl} = this;
         this.pass = pass;
 
-        this.depthFnc = pass == 'alpha'
+        this.depthFnc = pass != PASS.OPAQUE
             ? gl.LEQUAL // enable alpha blending within same z-level.
             : gl.LESS;
+
+        if (pass == PASS.POST_ALPHA) {
+            // clear the stencil buffer.
+            // first alpha pass was used as depth only.
+            gl.clear(gl.STENCIL_BUFFER_BIT);
+        }
     }
 
     convertColor(color: string | RGBA) {
@@ -194,6 +204,7 @@ export class GLRender implements BasicRender {
         gl.disable(gl.SCISSOR_TEST);
         gl.depthMask(true);
         gl.clear(gl.COLOR_BUFFER_BIT | gl.DEPTH_BUFFER_BIT | gl.STENCIL_BUFFER_BIT);
+
         gl.colorMask(true, true, true, false);
     }
 
@@ -376,7 +387,7 @@ export class GLRender implements BasicRender {
     drawGrid(x: number, y: number, dTile: GLTile, tileSize: number | string) {
         const curPass = this.pass;
 
-        this.pass = 'alpha';
+        this.pass = PASS.ALPHA;
         // this.pass = 'opaque';
         this.drawBuffer(this.dbgTile, x, y, null, null, <number>tileSize); // , {depth: false, scissor: false});
 
@@ -421,12 +432,6 @@ export class GLRender implements BasicRender {
         }
     }
 
-    private zFilter: (z: number) => boolean;
-
-    setZFilter(filter?: (z: number) => boolean) {
-        this.zFilter = filter;
-    }
-
     private drawBuffer(
         buffer: GeometryBuffer,
         x: number,
@@ -451,10 +456,12 @@ export class GLRender implements BasicRender {
 
             const zIndex = this.zIndex;
             const isOnTopOf3d = zIndex > this.min3dZIndex;
+            const isSecondAlphaPass = buffer.alpha == PASS.POST_ALPHA && renderPass == PASS.POST_ALPHA;
 
             if (buffer.alpha || isOnTopOf3d) {
-                pass = renderPass == 'alpha';
+                pass = renderPass == PASS.ALPHA || isSecondAlphaPass;
             }
+
 
             if (pass) {
                 if (this.stencilVal && buffer.alpha) {
@@ -529,9 +536,6 @@ export class GLRender implements BasicRender {
             // disable color buffer
             gl.colorMask(false, false, false, false);
 
-            const grpFilter = this.zFilter;
-            this.zFilter = null;
-
             this.drawBuffer(
                 stencilTile,
                 x, y,
@@ -541,8 +545,8 @@ export class GLRender implements BasicRender {
                 this.stencilSize
             );
 
-            this.zFilter = grpFilter;
             gl.stencilFunc(gl.EQUAL, refVal, 0xff);
+            // disable writing to stencil buffer
             gl.stencilOp(gl.KEEP, gl.KEEP, gl.KEEP);
             // enable color buffer again
             gl.colorMask(true, true, true, false);
@@ -621,8 +625,6 @@ export class GLRender implements BasicRender {
         let dZoom;
         let px;
         let py;
-
-        if (this.zFilter && !this.zFilter(bufferData.z)) return;
 
         this.zIndex = bufferData.z;
         this.min3dZIndex = min3dZIndex;

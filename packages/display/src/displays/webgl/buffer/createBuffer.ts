@@ -188,7 +188,7 @@ const createBuffer = (
                                 shared.offsetUnit == 'm' ? meterToPixel : 0
                             ]);
 
-                            geoBuffer.alpha = true;
+                            geoBuffer.alpha = 1;
                             // geoBuffer.blend = true;
                         } else if (type == 'Polygon' || type == 'Extrude') {
                             geoBuffer.addUniform('u_fill', shared.fill);
@@ -234,7 +234,7 @@ const createBuffer = (
                                 } else {
                                     if (fill == COLOR_UNDEFINED) {
                                         // use blend to enable shader to not use discard (faster)
-                                        geoBuffer.alpha = true;
+                                        geoBuffer.alpha = 1;
                                         geoBuffer.blend = true;
                                     }
 
@@ -253,10 +253,14 @@ const createBuffer = (
 
                         const fillOpacity = shared.fill && shared.fill[3];
                         const strokeOpacity = shared.stroke && shared.stroke[3];
-                        const hasAlphaColor = fillOpacity < 1 || strokeOpacity < 1;
+                        const hasFillAlpha = fillOpacity < 1;
+
+                        const hasAlphaColor = hasFillAlpha || strokeOpacity < 1;
 
                         if (hasAlphaColor) {
-                            geoBuffer.alpha = true;
+                            geoBuffer.alpha = hasFillAlpha && type == 'Extrude'
+                                ? 2 // two alpha passes are required for extrudes with alpha
+                                : 1;
                             geoBuffer.blend = true;
                             geoBuffer.depth = true;
                         }

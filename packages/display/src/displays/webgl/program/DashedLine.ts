@@ -24,6 +24,7 @@ import fragmentShader from '../glsl/line_dash_fragment.glsl';
 
 import Program from './Program';
 import {GLStates} from './GLStates';
+import {PASS} from '../GLRender';
 
 
 class DashedLineProgram extends Program {
@@ -35,8 +36,8 @@ class DashedLineProgram extends Program {
         depth: true
     })
 
-    pass(pass: string) {
-        return pass == 'alpha';
+    pass(pass: PASS) {
+        return pass == PASS.ALPHA;
     }
 
     constructor(gl: WebGLRenderingContext, devicePixelRation: number) {

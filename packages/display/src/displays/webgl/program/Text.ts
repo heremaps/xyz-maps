@@ -22,9 +22,9 @@ import vertexShader from '../glsl/text_vertex.glsl';
 // @ts-ignore
 import fragmentShader from '../glsl/text_fragment.glsl';
 
-import {JSUtils} from '@here/xyz-maps-common';
 import Program from './Program';
 import {GLStates} from './GLStates';
+import {PASS} from '../GLRender';
 
 class TextProgram extends Program {
     name = 'Text';
@@ -39,12 +39,12 @@ class TextProgram extends Program {
         super(gl, gl.TRIANGLES, vertexShader, fragmentShader, devicePixelRation);
     }
 
-    pass(pass: string) {
+    pass(pass: PASS) {
         // draw text in alpha pass only
-        return pass == 'alpha';
+        return pass == PASS.ALPHA;
     }
 
-    init(options: GLStates, pass, stencil: boolean) {
+    init(options: GLStates, pass: PASS, stencil: boolean) {
         const {gl} = this;
         super.init(options, pass, stencil);
         // using LEQUAL and write to depthbuffer used as default in alpha pass will
