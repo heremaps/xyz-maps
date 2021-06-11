@@ -213,8 +213,8 @@ export class GLRender implements BasicRender {
         if (!gl.getExtension(EXTENSION_OES_ELEMENT_INDEX_UINT)) {
             console.warn(EXTENSION_OES_ELEMENT_INDEX_UINT + ' not supported!');
         }
-        // gl.frontFace(gl.CCW);
-        // gl.enable(gl.CULL_FACE);
+        // gl.frontFace(gl.CW);
+        gl.enable(gl.CULL_FACE);
         gl.cullFace(gl.FRONT);
         gl.enable(gl.DEPTH_TEST);
         gl.enable(gl.SCISSOR_TEST);

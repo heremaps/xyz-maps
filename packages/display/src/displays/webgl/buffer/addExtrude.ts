@@ -21,6 +21,19 @@ import {addPolygon, FlatPolygon} from './addPolygon';
 import {isInBox} from '../../../geometry';
 import {Tile, GeoJSONCoordinate as Coordinate} from '@here/xyz-maps-core';
 import {FlexArray} from './templates/FlexArray';
+import {TypedArray} from './glType';
+
+const signedArea = (lineString: TypedArray, start: number, stop: number) => {
+    let sum = 0;
+    for (let i = start, len = stop - 1; i < len; i += 3) {
+        let p1x = lineString[i];
+        let p1y = lineString[i + 1];
+        let p2x = lineString[i + 3];
+        let p2y = lineString[i + 4];
+        sum += (p2x - p1x) * (p1y + p2y);
+    }
+    return sum;
+};
 
 const addExterior = (
     flatPolygon: FlatPolygon,
@@ -36,21 +49,32 @@ const addExterior = (
     let start = flatPolygon.start;
     let holeIndex = 0;
     let nextHole = start + holes[holeIndex] * 3 - 6;
+    let clockwise = signedArea(vertex.data, start, nextHole ? nextHole + 3 : stop) >= 0;
 
     while (start < stop) {
-        // x1 = verts[start];
-        // y1 = verts[start + 1];
-        // x2 = verts[start + 3];
-        // y2 = verts[start + 4];
+        let x1;
+        let x2;
+        let y1;
+        let y2;
 
-        let x1 = verts.get(start);
-        let y1 = verts.get(start + 1);
-        let x2 = verts.get(start + 3);
-        let y2 = verts.get(start + 4);
+        if (clockwise) {
+            let i = flatPolygon.start + stop - start;
+            x1 = verts.get(i);
+            y1 = verts.get(i + 1);
+            x2 = verts.get(i - 3);
+            y2 = verts.get(i - 2);
+        } else {
+            x1 = verts.get(start);
+            y1 = verts.get(start + 1);
+            x2 = verts.get(start + 3);
+            y2 = verts.get(start + 4);
+        }
+
         let dx = Math.round(x1) - Math.round(x2);
         let dy = Math.round(y1) - Math.round(y2);
 
-        if ((Math.abs(dx) || Math.abs(dy)) &&
+        if (
+            (dx || dy) &&
             (isInBox(x1, y1, 0, 0, tileSize, tileSize) || isInBox(x2, y2, 0, 0, tileSize, tileSize))
         ) {
             let vi = vertex.length / 3;
@@ -71,19 +95,12 @@ const addExterior = (
             );
 
             // normalize + cross
-            // let x = x1 - x2;
-            // let y = y1 - y2;
-            // let len = x * x + y * y;
-            // let nx = y;
-            // let ny = -x;
             let len = dx * dx + dy * dy;
             let nx = dy;
             let ny = -dx;
-            if (len > 0) {
-                len = 127 / Math.sqrt(len);
-                nx *= len;
-                ny *= len;
-            }
+            len = 127 / Math.sqrt(len);
+            nx *= len;
+            ny *= len;
 
             normals.push(
                 nx, ny,
@@ -110,6 +127,8 @@ const addExterior = (
         if (start == nextHole) {
             start += 6;
             nextHole = flatPolygon.start + holes[++holeIndex] * 3 - 6;
+            // invert winding order for holes
+            clockwise = signedArea(vertex.data, start, nextHole ? nextHole + 3 : stop) < 0;
         } else {
             start += 3;
         }
