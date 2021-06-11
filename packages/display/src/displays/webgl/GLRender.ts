@@ -18,10 +18,10 @@
  */
 
 import BasicRender from '../BasicRender';
-import {TileLayer, Tile} from '@here/xyz-maps-core';
+import {Tile, TileLayer} from '@here/xyz-maps-core';
 import GLTile from './GLTile';
 import {IconManager} from './IconManager';
-import {toRGB, RGBA} from './color';
+import {RGBA, toRGB} from './color';
 
 import RectProgram from './program/Rect';
 import CircleProgram from './program/Circle';
@@ -37,23 +37,23 @@ import Program from './program/Program';
 import {createGridTextBuffer, createGridTileBuffer, createTileBuffer} from './buffer/debugTileBuffer';
 import {GeometryBuffer} from './buffer/GeometryBuffer';
 
-import {GLStates} from './program/GLStates';
+import {GLStates, PASS} from './program/GLStates';
 import {TileBufferData} from './Display';
 
 import {transformMat4} from 'gl-matrix/vec3';
 import {
+    clone,
+    copy,
     create,
+    identity,
+    invert,
     lookAt,
     multiply,
     perspective,
     rotateX,
     rotateZ,
-    translate,
     scale,
-    clone,
-    copy,
-    invert,
-    identity
+    translate
 } from 'gl-matrix/mat4';
 import BasicTile from '../BasicTile';
 
@@ -74,12 +74,6 @@ const DEBUG_GRID_FONT = {
     // textAlign : 'start',
     // textBaseline : 'alphabetic'
 };
-
-export enum PASS {
-    OPAQUE = 0,
-    ALPHA = 1,
-    POST_ALPHA = 2
-}
 
 export type RenderOptions = WebGLContextAttributes;
 

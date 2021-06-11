@@ -18,10 +18,9 @@
  */
 
 import {createProgram} from '../glTools';
-import {GLStates} from './GLStates';
+import {GLStates, PASS} from './GLStates';
 // @ts-ignore
 import introVertex from '../glsl/intro_vertex.glsl';
-import {PASS} from '../GLRender';
 
 let UNDEF;
 

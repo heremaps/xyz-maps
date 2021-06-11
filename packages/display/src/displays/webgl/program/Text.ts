@@ -23,8 +23,7 @@ import vertexShader from '../glsl/text_vertex.glsl';
 import fragmentShader from '../glsl/text_fragment.glsl';
 
 import Program from './Program';
-import {GLStates} from './GLStates';
-import {PASS} from '../GLRender';
+import {GLStates, PASS} from './GLStates';
 
 class TextProgram extends Program {
     name = 'Text';

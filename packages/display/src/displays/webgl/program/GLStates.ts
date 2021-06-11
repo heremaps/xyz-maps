@@ -35,3 +35,8 @@ export class GLStates {
     }
 }
 
+export enum PASS {
+    OPAQUE = 0,
+    ALPHA = 1,
+    POST_ALPHA = 2
+}

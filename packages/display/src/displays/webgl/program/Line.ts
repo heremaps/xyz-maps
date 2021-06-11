@@ -23,8 +23,7 @@ import vertexShader from '../glsl/line_vertex.glsl';
 import fragmentShader from '../glsl/line_fragment.glsl';
 
 import Program from './Program';
-import {GLStates} from './GLStates';
-import {PASS} from '../GLRender';
+import {GLStates, PASS} from './GLStates';
 
 
 class LineProgram extends Program {

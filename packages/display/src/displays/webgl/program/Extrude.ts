@@ -23,8 +23,7 @@ import vertexShader from '../glsl/extrude_vertex.glsl';
 import fragmentShader from '../glsl/extrude_fragment.glsl';
 
 import Program from './Program';
-import {GLStates} from './GLStates';
-import {PASS} from '../GLRender';
+import {GLStates, PASS} from './GLStates';
 
 
 class ExtrudeProgram extends Program {

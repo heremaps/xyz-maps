@@ -18,7 +18,7 @@
  */
 
 import BasicDisplay from '../BasicDisplay';
-import {GLRender, PASS, RenderOptions} from './GLRender';
+import {GLRender, RenderOptions} from './GLRender';
 import GLBucket from './Bucket';
 
 import {createBuffer} from './buffer/createBuffer';
@@ -31,6 +31,7 @@ import {FeatureFactory} from './buffer/FeatureFactory';
 import {CollisionHandler} from './CollisionHandler';
 import {GeometryBuffer} from './buffer/GeometryBuffer';
 import {TileLayer} from '@here/xyz-maps-core';
+import {PASS} from './program/GLStates';
 
 const PREVIEW_LOOK_AHEAD_LEVELS: [number, number] = [3, 9];
 
@@ -378,7 +379,7 @@ class WebGlDisplay extends BasicDisplay {
                 let buffer = data.b;
 
                 if (buffer.alpha == 2) {
-                    // do stencil in this pass and "real" drawing in an additional pass
+                    // do depth in this pass only and "main" drawing in an additional pass
                     secondAlphaPass = true;
                 }
                 if (data && data.z == layerZIndex) {
