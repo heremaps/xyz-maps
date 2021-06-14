@@ -20,7 +20,9 @@
 import {TileLayer} from '@here/xyz-maps-core';
 import Map from '@here/xyz-maps-display';
 
-export function waitForViewportReady(display: Map, mapLayers?: TileLayer[], fn?:Function): Promise<Map> {
+export function waitForViewportReady(display: Map, mapLayers: TileLayer[]): Promise<Map>;
+export function waitForViewportReady(display: Map, fn?:Function): Promise<Map>;
+export function waitForViewportReady(display: Map, mapLayers?: TileLayer[]| Function, fn?:Function): Promise<Map> {
     return new Promise(async (resolve) => {
         if (!mapLayers) {
             mapLayers = display.getLayers();

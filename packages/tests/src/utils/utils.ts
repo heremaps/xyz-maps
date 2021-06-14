@@ -101,7 +101,7 @@ export async function getCanvasPixelColor(
     }
 
     return new Promise((resolve) => tryGetColor(delay, resolve));
-};
+}
 
 export class Observer {
     private results: {[key:string]: (string|number)[]};
@@ -135,10 +135,10 @@ export class Observer {
 
         return this.results;
     }
-};
+}
 
 export class Listener {
-    private results: {[key:string]: MouseEvent[]};
+    private results: {[key:string]: MouseEvent[] };
     private cbs: {[key:string]: (ev:MouseEvent)=>void};
     private obj: any;
 
@@ -169,7 +169,7 @@ export class Listener {
 
         return this.results;
     }
-};
+}
 
 type MonitoredXHRRequest = any;
 type MonitorStartOpt = {
@@ -290,4 +290,4 @@ export class MonitorXHR {
 
         return reqs;
     }
-};
+}

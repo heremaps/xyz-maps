@@ -38,6 +38,7 @@ export * from './features/area/Area';
 export * from './features/location/Place';
 export * from './features/location/Address';
 export * from './features/link/Navlink';
+export * from './features/link/NavlinkShape';
 export * from './features/area/AreaShape';
 export * from './features/feature/EditorProperties';
 export * from './API/EditorEvent';

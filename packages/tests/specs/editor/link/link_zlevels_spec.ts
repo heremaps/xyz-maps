@@ -22,8 +22,8 @@ import {drag, click} from 'triggerEvents';
 import {Map} from '@here/xyz-maps-display';
 import {Editor} from '@here/xyz-maps-editor';
 // @ts-ignore @deprecated
-import {features} from '@here/xyz-maps-editor';
 import dataset from './link_zlevels_spec.json';
+import {NavlinkShape} from '@here/xyz-maps-editor';
 
 describe('navlink zlevels', function() {
     const expect = chai.expect;
@@ -67,7 +67,7 @@ describe('navlink zlevels', function() {
 
     it('remove shape and validate zlevels', async () => {
         link.select();
-        let shape = (await editorClick(editor, 200, 100)).target;
+        let shape = <NavlinkShape>(await editorClick(editor, 200, 100)).target;
         shape.remove();
         expect(link.getZLevels()).to.deep.equal([1, 1]);
     });
@@ -107,7 +107,7 @@ describe('navlink zlevels', function() {
     });
 
     it('split link and validate', async function() {
-        let shape = (await editorClick(editor, 100, 300)).target;
+        let shape = <NavlinkShape>(await editorClick(editor, 100, 300)).target;
 
         let splitLinks = shape.splitLink();
 
