@@ -1,85 +1,157 @@
 {
-    "layers": [{
-        "id": "linkLayer",
-        "name": "Link Layer",
-        "provider": {
-            "id": "linkProvider",
-            "type": "LocalProvider",
-            "name": "Links",
-            "level": 15,
-            "class": "NAVLINK"
-        },
-        "min": 14,
-        "max": 20,
-        "data": {
-            "local": [{
-                "type": "Feature",
-                "properties": {
-                    "featureClass": "NAVLINK"
-                },
-                "geometry": {
-                    "type": "LineString",
-                    "coordinates": [
-                        [73.0231, 20.27379, 0.0],
-                        [73.02338, 20.27398, 0.0]
-                    ]
-                }
-            }, {
-                "type": "Feature",
-                "properties": {
-                    "featureClass": "NAVLINK"
-                },
-                "geometry": {
-                    "type": "LineString",
-                    "coordinates": [
-                        [73.02245, 20.27374, 0.0],
-                        [73.02271, 20.27374, 0.0]
-                    ]
-                }
-            }, {
-                "type": "Feature",
-                "properties": {
-                    "featureClass": "NAVLINK"
-                },
-                "geometry": {
-                    "type": "LineString",
-                    "coordinates": [
-                        [73.02275, 20.27347, 0.0],
-                        [73.02288, 20.27374, 0.0]
-                    ]
-                }
-            }]
-        }
-    },{
-        "id": "placeLayer",
-        "provider": {
-            "id": "placeProvider",
-            "type": "LocalProvider",
-            "name": "Places",
-            "level": 14
-        },
-        "min": 14,
-        "max": 20,
-        "data": {
-            "local": [{
-                "geometry": {
-                    "coordinates": [73.02272, 20.27385, 0.0],
-                    "type": "Point"
-                },
-                "type": "Feature",
-                "properties": {
-                    "featureClass": "PLACE"
-                }
-            }, {
-                "geometry": {
-                    "coordinates": [73.02337, 20.27386, 0.0],
-                    "type": "Point"
-                },
-                "type": "Feature",
-                "properties": {
-                    "featureClass": "PLACE"
-                }
-            }]
-        }
-    }]
+  "layers": [
+    {
+      "id": "testLayer",
+      "provider": {
+        "id": "testProvider",
+        "type": "LocalProvider",
+        "level": 14
+      },
+      "min": 14,
+      "max": 20,
+      "data": {
+        "local": [
+          {
+            "type": "Feature",
+            "geometry": {
+              "type": "LineString",
+              "coordinates": [
+                [
+                  73.0231,
+                  20.27379,
+                  0.0
+                ],
+                [
+                  73.02338,
+                  20.27398,
+                  0.0
+                ]
+              ]
+            }
+          },
+          {
+            "type": "Feature",
+            "geometry": {
+              "type": "LineString",
+              "coordinates": [
+                [
+                  73.02245,
+                  20.27374,
+                  0.0
+                ],
+                [
+                  73.02271,
+                  20.27374,
+                  0.0
+                ]
+              ]
+            }
+          },
+          {
+            "type": "Feature",
+            "geometry": {
+              "type": "LineString",
+              "coordinates": [
+                [
+                  73.02275,
+                  20.27347,
+                  0.0
+                ],
+                [
+                  73.02288,
+                  20.27374,
+                  0.0
+                ]
+              ]
+            }
+          },
+          {
+            "geometry": {
+              "coordinates": [
+                73.02272,
+                20.27385,
+                0.0
+              ],
+              "type": "Point"
+            },
+            "type": "Feature"
+          },
+          {
+            "geometry": {
+              "coordinates": [
+                73.02337,
+                20.27386,
+                0.0
+              ],
+              "type": "Point"
+            },
+            "type": "Feature"
+          },
+          {
+            "type": "Feature",
+            "geometry": {
+              "type": "LineString",
+              "coordinates": [
+                [
+                  -74.01208179100888,
+                  40.70162819303181
+                ],
+                [
+                  -74.0067173729875,
+                  40.70065214195145
+                ]
+              ]
+            }
+          },
+          {
+            "type": "Feature",
+            "geometry": {
+              "type": "Polygon",
+              "coordinates": [
+                [
+                  [
+                    -74.00886314019604,
+                    40.70195354021362
+                  ],
+                  [
+                    -74.00457160577893,
+                    40.70195354021362
+                  ],
+                  [
+                    -74.0067173729875,
+                    40.69869999688399
+                  ],
+                  [
+                    -74.00886314019604,
+                    40.70195354021362
+                  ]
+                ],
+                [
+                  [
+                    -74.00757567987091,
+                    40.70146551884497
+                  ],
+                  [
+                    -74.00564448938322,
+                    40.70146551884497
+                  ],
+                  [
+                    -74.00714652642921,
+                    40.700001433285536
+                  ],
+                  [
+                    -74.00757567987091,
+                    40.70146551884497
+                  ]
+                ]
+              ]
+            }
+          }
+        ]
+      }
+    }
+  ]
 }
+
+
+

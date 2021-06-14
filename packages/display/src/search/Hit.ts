@@ -166,12 +166,16 @@ class Hit {
 
             hit = minDistance <= width / 2;
         } else if (geoType == 'Polygon') {
-            let exterior = coordinates[0];
-            let pointGeo = map.pixelToGeo(x, y);
-
-            if (hit = pointInPolygon(pointGeo.longitude, pointGeo.latitude, <Point[][]>exterior)) {
-                dimensions = dimensions || [getMaxZoom(featureStyle, feature, zoomlevel, layerIndex)];
+            const {longitude, latitude} = map.pixelToGeo(x, y);
+            for (let p = 0; p < coordinates.length; p++) {
+                if (pointInPolygon(longitude, latitude, <Point[][]>coordinates[p]) != !p) {
+                    // point must be located inside exterior..
+                    // ..and outside of all interiors
+                    return false;
+                }
             }
+            hit = true;
+            dimensions = dimensions || [getMaxZoom(featureStyle, feature, zoomlevel, layerIndex)];
         } else {
             let baseType;
             let baseHit;

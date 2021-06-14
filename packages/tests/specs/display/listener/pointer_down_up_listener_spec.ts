@@ -23,14 +23,14 @@ import {click} from 'triggerEvents';
 import {Map} from '@here/xyz-maps-display';
 import dataset from './pointer_down_up_listener_spec.json';
 
-describe('pointer down and pointer up listener', function() {
+describe('pointer down and pointer up listener', () => {
     const expect = chai.expect;
 
     let preparedData;
     let display;
     let mapContainer;
 
-    before(async function() {
+    before(async () => {
         preparedData = await prepare(dataset);
         display = new Map(document.getElementById('map'), {
             center: {longitude: 73.02278439898076, latitude: 20.273712610318146},
@@ -47,7 +47,7 @@ describe('pointer down and pointer up listener', function() {
         await preparedData.clear();
     });
 
-    it('validate pointer down and up events on link', async function() {
+    it('validate pointer down and up events on line', async () => {
         let listener = new Listener(display, ['pointerdown', 'pointerup']);
 
         await click(mapContainer, 554, 243);
@@ -68,12 +68,14 @@ describe('pointer down and pointer up listener', function() {
             mapY: 243,
             type: 'pointerup'
         });
-        expect(results.pointerup[0].target.geometry).to.deep.include({
+
+        const {geometry} = (<any>results.pointerup[0]).target;
+        expect(geometry).to.deep.include({
             type: 'LineString'
         });
     });
 
-    it('validate pointer down and up events on poi', async function() {
+    it('validate pointer down and up events on point', async function() {
         let listener = new Listener(display, ['pointerdown', 'pointerup']);
 
         await click(mapContainer, 616, 240);
@@ -94,7 +96,8 @@ describe('pointer down and pointer up listener', function() {
             mapY: 240,
             type: 'pointerup'
         });
-        expect(results.pointerup[0].target.geometry).to.deep.include({
+        const {geometry} = (<any>results.pointerup[0]).target;
+        expect(geometry).to.deep.include({
             type: 'Point'
         });
     });
@@ -110,4 +113,70 @@ describe('pointer down and pointer up listener', function() {
         expect(results.pointerdown).to.have.lengthOf(1);
         expect(results.pointerup).to.have.lengthOf(1);
     });
+
+    it('validate pointer event target on polygon', async () => {
+        await waitForViewportReady(display, () => {
+            display.setCenter(-74.0067173729875, 40.70065214195145);
+            display.setZoomlevel(16);
+        });
+
+        let listener = new Listener(display, ['pointerup']);
+
+        await click(mapContainer, 430, 300);
+
+        let results = listener.stop();
+
+        expect(results.pointerup).to.have.lengthOf(1);
+        expect(results.pointerup[0]).to.deep.include({
+            button: 0,
+            mapX: 430,
+            mapY: 300,
+            type: 'pointerup'
+        });
+        const geometry = (<any>results.pointerup[0]).target.geometry;
+        expect(geometry).to.deep.include({
+            type: 'Polygon'
+        });
+    });
+
+    it('validate pointer event target on polygon with hole', async () => {
+        let listener = new Listener(display, ['pointerup']);
+
+        await click(mapContainer, 400, 280);
+
+        let results = listener.stop();
+
+        expect(results.pointerup).to.have.lengthOf(1);
+
+        expect(results.pointerup[0]).to.deep.include({
+            button: 0,
+            mapX: 400,
+            mapY: 280,
+            type: 'pointerup'
+        });
+
+        expect(results.pointerup[0].target).to.equal(undefined);
+    });
+
+    it('validate pointer event target on linestring "inside" a polygon hole', async () => {
+        let listener = new Listener(display, ['pointerup']);
+
+        await click(mapContainer, 400, 300);
+
+        let results = listener.stop();
+
+        expect(results.pointerup).to.have.lengthOf(1);
+        expect(results.pointerup[0]).to.deep.include({
+            button: 0,
+            mapX: 400,
+            mapY: 300,
+            type: 'pointerup'
+        });
+        const geometry = (<any>results.pointerup[0]).target.geometry;
+        expect(geometry).to.deep.include({
+            type: 'LineString'
+        });
+    });
 });
+
+
