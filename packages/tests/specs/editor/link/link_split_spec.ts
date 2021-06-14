@@ -24,6 +24,7 @@ import {Editor} from '@here/xyz-maps-editor';
 import {features} from '@here/xyz-maps-editor';
 import chaiAlmost from 'chai-almost';
 import dataset from './link_split_spec.json';
+import {NavlinkShape} from '@here/xyz-maps-editor';
 
 describe('link splitting and set its properties correctly', function() {
     const expect = chai.expect;
@@ -56,15 +57,28 @@ describe('link splitting and set its properties correctly', function() {
     });
 
     it('add link object and split it, validate address property', async function() {
-        let lnk1 = new features.Navlink([{x: 100, y: 100}, {x: 100, y: 200}, {x: 200, y: 200}], {'featureClass': 'NAVLINK', 'type': 'residential', 'name': 'test street'});
+        let lnk1 = new features.Navlink([{x: 100, y: 100}, {x: 100, y: 200}, {
+            x: 200,
+            y: 200
+        }], {'featureClass': 'NAVLINK', 'type': 'residential', 'name': 'test street'});
         let link1 = editor.addFeature(lnk1, linkLayer);
 
         link1.select();
-        let shape = (await editorClick(editor, 100, 200)).target;
+        let shape = <NavlinkShape>(await editorClick(editor, 100, 200)).target;
         let splitLinks = shape.splitLink();
 
-        expect(splitLinks[0].prop()).to.deep.include({'type': 'residential', 'name': 'test street', 'originLink': link1.id, 'parentLink': link1.id});
-        expect(splitLinks[1].prop()).to.deep.include({'type': 'residential', 'name': 'test street', 'originLink': link1.id, 'parentLink': link1.id});
+        expect(splitLinks[0].prop()).to.deep.include({
+            'type': 'residential',
+            'name': 'test street',
+            'originLink': link1.id,
+            'parentLink': link1.id
+        });
+        expect(splitLinks[1].prop()).to.deep.include({
+            'type': 'residential',
+            'name': 'test street',
+            'originLink': link1.id,
+            'parentLink': link1.id
+        });
         expect(link1.prop('splittedInto')).to.deep.equal([splitLinks[0].id, splitLinks[1].id]);
         expect(link1.prop('splitted')).to.deep.equal('HOOK');
         expect(link1.prop('estate')).to.be.equal('REMOVED');
@@ -81,7 +95,7 @@ describe('link splitting and set its properties correctly', function() {
         let link2 = editor.addFeature(lnk2, linkLayer);
 
         link2.select();
-        let shape = (await editorClick(editor, 100, 200)).target;
+        let shape = <NavlinkShape>(await editorClick(editor, 100, 200)).target;
         let splitLinks = shape.splitLink();
 
         expect(splitLinks[0].prop().turnRestrition).to.deep.equal({start: ['abc'], end: 'efg'});
@@ -99,12 +113,15 @@ describe('link splitting and set its properties correctly', function() {
 
     // origin link
     it('get link to split and validate origin link properties', async function() {
-        let lnk = new features.Navlink([{x: 100, y: 100}, {x: 100, y: 200}, {x: 200, y: 200}], {featureClass: 'NAVLINK', originLink: 'testOrigin'});
+        let lnk = new features.Navlink([{x: 100, y: 100}, {x: 100, y: 200}, {x: 200, y: 200}], {
+            featureClass: 'NAVLINK',
+            originLink: 'testOrigin'
+        });
         let link = editor.addFeature(lnk, linkLayer);
 
         let idMap;
 
-        await waitForEditorReady(editor, async ()=>{
+        await waitForEditorReady(editor, async () => {
             idMap = await submit(editor);
         });
 
@@ -113,7 +130,7 @@ describe('link splitting and set its properties correctly', function() {
         link = editor.getFeature(linkId, linkLayer);
         link.select();
 
-        let shape = (await editorClick(editor, 100, 200)).target;
+        let shape = <NavlinkShape>(await editorClick(editor, 100, 200)).target;
         let splitLinks = shape.splitLink();
 
         expect(splitLinks[0].prop('originLink')).to.equal('testOrigin');
@@ -125,7 +142,10 @@ describe('link splitting and set its properties correctly', function() {
 
     // parent link
     it('add link to split and set its attribute: originLink, validate parent link properties', async function() {
-        let lnk3 = new features.Navlink([{x: 100, y: 100}, {x: 300, y: 200}, {x: 400, y: 200}], {featureClass: 'NAVLINK'});
+        let lnk3 = new features.Navlink([{x: 100, y: 100}, {x: 300, y: 200}, {
+            x: 400,
+            y: 200
+        }], {featureClass: 'NAVLINK'});
 
         let link3 = editor.addFeature(lnk3, linkLayer);
         link3.prop({originLink: -8092793});
@@ -133,7 +153,7 @@ describe('link splitting and set its properties correctly', function() {
 
         let idMap;
 
-        await waitForEditorReady(editor, async ()=>{
+        await waitForEditorReady(editor, async () => {
             idMap = await submit(editor);
         });
 
@@ -142,7 +162,7 @@ describe('link splitting and set its properties correctly', function() {
         lnk3 = editor.getFeature(linkId, linkLayer);
         lnk3.select();
 
-        let shape = (await editorClick(editor, 300, 200)).target;
+        let shape = <NavlinkShape>(await editorClick(editor, 300, 200)).target;
         let splitLinks = shape.splitLink();
 
         expect(splitLinks[0].prop('parentLink')).to.equal(lnk3.id);
@@ -152,12 +172,16 @@ describe('link splitting and set its properties correctly', function() {
 
     // origin and parent link
     it('get link to split and validate origin link properties', async function() {
-        let lnk = new features.Navlink([{x: 100, y: 100}, {x: 100, y: 200}, {x: 200, y: 200}], {featureClass: 'NAVLINK', originLink: 'testOrigin', parentLink: 'testParent'});
+        let lnk = new features.Navlink([{x: 100, y: 100}, {x: 100, y: 200}, {x: 200, y: 200}], {
+            featureClass: 'NAVLINK',
+            originLink: 'testOrigin',
+            parentLink: 'testParent'
+        });
         let link = editor.addFeature(lnk, linkLayer);
 
         let idMap;
 
-        await waitForEditorReady(editor, async ()=>{
+        await waitForEditorReady(editor, async () => {
             idMap = await submit(editor);
         });
 
@@ -166,7 +190,7 @@ describe('link splitting and set its properties correctly', function() {
         link = editor.getFeature(linkId, linkLayer);
         link.select();
 
-        let shape = (await editorClick(editor, 100, 200)).target;
+        let shape = <NavlinkShape>(await editorClick(editor, 100, 200)).target;
         let splitLinks = shape.splitLink();
 
         expect(splitLinks[0].prop('originLink')).to.equal('testOrigin');

@@ -22,6 +22,7 @@ import {click} from 'triggerEvents';
 import {Map} from '@here/xyz-maps-display';
 import {Editor} from '@here/xyz-maps-editor';
 import dataset from './turn_restrictions_split_link_undo_redo_spec.json';
+import {NavlinkShape} from '@here/xyz-maps-editor';
 
 describe('edit turn restriction split link then undo and redo the change', function() {
     const expect = chai.expect;
@@ -76,7 +77,7 @@ describe('edit turn restriction split link then undo and redo the change', funct
 
     it('get link to split and then validate link', async function() {
         link1.select();
-        let shape = (await editorClick(editor, 300, 100)).target;
+        let shape = <NavlinkShape>(await editorClick(editor, 300, 100)).target;
         splitLinks = shape.splitLink();
 
         expect(splitLinks[0].prop('originLink')).to.be.equal(link1.id);

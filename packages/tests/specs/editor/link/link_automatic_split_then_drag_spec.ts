@@ -23,6 +23,7 @@ import {Map} from '@here/xyz-maps-display';
 import {Editor} from '@here/xyz-maps-editor';
 import chaiAlmost from 'chai-almost';
 import dataset from './link_automatic_split_then_drag_spec.json';
+import {Navlink} from '@here/xyz-maps-editor';
 
 describe('drag a link shape point to the other one to split itself and then drag it crossing', function() {
     const expect = chai.expect;
@@ -84,25 +85,25 @@ describe('drag a link shape point to the other one to split itself and then drag
         await drag(mapContainer, {x: 250, y: 100}, {x: 500, y: 200});
 
         // click to get dragged link
-        let link1 = (await editorClick(editor, 200, 125)).target;
+        let link1 = <Navlink>(await editorClick(editor, 200, 125)).target;
         let coords1 = link1.coord();
 
         expect(coords1).to.be.deep.almost([[76.314630721, 15.84204812, 0], [76.316776488, 15.841532053, 0]]);
 
         // click to get dragged link
-        let link2 = (await editorClick(editor, 423, 125)).target;
+        let link2 = <Navlink>(await editorClick(editor, 423, 125)).target;
         let coords2 = link2.coord();
         expect(coords2).to.be.deep.almost([[76.316776488, 15.841532053, 0], [76.316240046, 15.84204812, 0]]);
 
 
         // click to get dragged link
-        let link3 = (await editorClick(editor, 200, 275)).target;
+        let link3 = <Navlink>(await editorClick(editor, 200, 275)).target;
         let coords3 = link3.coord();
         expect(coords3).to.be.deep.almost([[76.314630721, 15.841012974, 0], [76.316776488, 15.841532053, 0]]);
 
 
         // click to get dragged link
-        let link4 = (await editorClick(editor, 425, 275)).target;
+        let link4 = <Navlink>(await editorClick(editor, 425, 275)).target;
         let coords4 = link4.coord();
         expect(coords4).to.be.deep.almost([[76.316776488, 15.841532053, 0], [76.316240046, 15.841012974, 0]]);
     });

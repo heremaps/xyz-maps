@@ -20,9 +20,13 @@
 import {TileLayer} from '@here/xyz-maps-core';
 import Map from '@here/xyz-maps-display';
 
+
+type VpReadyCallback = Function | (() => void);
+
+
 export function waitForViewportReady(display: Map, mapLayers: TileLayer[]): Promise<Map>;
-export function waitForViewportReady(display: Map, fn?:Function): Promise<Map>;
-export function waitForViewportReady(display: Map, mapLayers?: TileLayer[]| Function, fn?:Function): Promise<Map> {
+export function waitForViewportReady(display: Map, fn?: VpReadyCallback): Promise<Map>;
+export function waitForViewportReady(display: Map, mapLayers?: TileLayer[] | VpReadyCallback, fn?: VpReadyCallback): Promise<Map> {
     return new Promise(async (resolve) => {
         if (!mapLayers) {
             mapLayers = display.getLayers();
@@ -64,7 +68,7 @@ export function waitForViewportReady(display: Map, mapLayers?: TileLayer[]| Func
         };
         let mapviewchangeendcb = () => {
             // wait for next mapviewchangestart event, if map is not ready (e.g. map is still dragging), timout will be cleared by next start event
-            readyTimer = setTimeout(()=>{
+            readyTimer = setTimeout(() => {
                 mapviewchangeend = true;
                 if (mapviewready) {
                     for (let i in readyLayers) {

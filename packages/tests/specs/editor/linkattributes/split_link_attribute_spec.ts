@@ -18,15 +18,18 @@
  */
 import {prepare} from 'utils';
 import {waitForEditorReady, editorClick} from 'editorUtils';
+import dataset from './split_link_attribute_spec.json';
+import chaiAlmost from 'chai-almost';
 import {Map} from '@here/xyz-maps-display';
 import {Editor} from '@here/xyz-maps-editor';
 // @ts-ignore @deprecated
 import {features} from '@here/xyz-maps-editor';
-import dataset from './split_link_attribute_spec.json';
+import {NavlinkShape} from '@here/xyz-maps-editor';
+
 
 describe('validate attributes after splitting a link', function() {
     const expect = chai.expect;
-
+    chai.use(chaiAlmost());
     let editor;
     let display;
     var preparedData;
@@ -62,11 +65,12 @@ describe('validate attributes after splitting a link', function() {
         let link0 = editor.addFeature(l);
         link0.select();
 
-        let shape = (await editorClick(editor, 300, 50)).target;
+        let shape = <NavlinkShape>(await editorClick(editor, 300, 50)).target;
 
         let splitLinks = shape.splitLink();
 
-        expect(splitLinks[0].coord(), [[80.596384432, 16.651483922, 0], [80.597457316, 16.651483922, 0]]);
+
+        expect(splitLinks[0].coord()).to.deep.almost([[80.596384432, 16.651483922, 0], [80.597457316, 16.651483922, 0]]);
         expect(splitLinks[0].prop()).to.be.deep.include({
             featureClass: 'NAVLINK',
             type: 'highway',
@@ -75,8 +79,8 @@ describe('validate attributes after splitting a link', function() {
             direction: 'START_TO_END',
             pedestrianOnly: false
         });
-        //
-        expect(splitLinks[1].coord(), [[80.597457316, 16.651483922, 0], [80.5985302, 16.651226949, 0]]);
+
+        expect(splitLinks[1].coord()).to.deep.almost([[80.597457316, 16.651483922, 0], [80.5985302, 16.651226949, 0]]);
         expect(splitLinks[1].prop()).to.be.deep.include({
             featureClass: 'NAVLINK',
             type: 'highway',
