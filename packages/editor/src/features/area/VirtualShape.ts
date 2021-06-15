@@ -25,7 +25,7 @@ import {Area} from './Area';
 export class VirtualAreaShape extends Feature {
     private __: { [name: string]: any };
 
-    constructor(area: Area, x: number, y: number, indexData: number, polygonTools) {
+    constructor(area: Area, x: number, y: number, indexData: number[], polygonTools) {
         const internalEditor: InternalEditor = area._e();
         const overlay = internalEditor.objects.overlay;
 
