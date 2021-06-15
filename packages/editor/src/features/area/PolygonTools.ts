@@ -17,50 +17,13 @@
  * License-Filename: LICENSE
  */
 
-import {getDistance, getSegmentIndex, intersectLineLine, Point} from '../../geometry';
+import {getDistance, distanceToPolygon, getSegmentIndex, intersectLineLine, Point} from '../../geometry';
 import {AreaShape} from './AreaShape';
-import VirtualShape from './VirtualShape';
+import {VirtualAreaShape} from './VirtualShape';
 import {Area} from './Area';
+import {Feature, GeoJSONCoordinate} from '@here/xyz-maps-core';
 
 let UNDEF;
-
-
-function distanceToLine(p, l1, l2) {
-    const px = p[0];
-    const py = p[1];
-    const l1x = l1[0];
-    const l1y = l1[1];
-    const l2x = l2[0];
-    const l2y = l2[1];
-    const xD = l2x - l1x;
-    const yD = l2y - l1y;
-    const u = ((px - l1x) * xD + (py - l1y) * yD) / (xD * xD + yD * yD);
-    let closestLine;
-
-    if (u < 0) {
-        closestLine = [l1x, l1y];
-    } else if (u > 1) {
-        closestLine = [l2x, l2y];
-    } else {
-        closestLine = [l1x + u * xD, l1y + u * yD];
-    }
-
-    return getDistance([px, py], closestLine);
-}
-
-function distanceToPolygon(p, poly) {
-    let dist = Infinity;
-    const len = poly.length - 1;
-
-    for (let i = 0; i < len; i++) {
-        const currDist = distanceToLine(p, poly[i], poly[i + 1]);
-
-        if (currDist < dist) {
-            dist = currDist;
-        }
-    }
-    return dist;
-}
 
 function getPrivate(feature, name?: string) {
     let prv = feature.__;
@@ -80,7 +43,7 @@ function getPrivate(feature, name?: string) {
 
 //* ***************************************************** PRIVATE ******************************************************
 
-function removeShapes(area) {
+function removeShapes(area: Area) {
     const prv = getPrivate(area);
     const overlay = area._e().objects.overlay;
 
@@ -89,65 +52,53 @@ function removeShapes(area) {
 }
 
 
-function createShapes(shapePnts, polys, pi, creator) {
-    let poly;
+function createShapes(
+    area: Area,
+    shapePnts: Feature[],
+    polygons: GeoJSONCoordinate[][],
+    creator: (p1: GeoJSONCoordinate, p2: GeoJSONCoordinate, polyIndex: number, shpIndex: number) => Feature
+) {
+    const overlay = area._e().objects.overlay;
 
-    for (let p = 0; p < polys[pi].length; p++) {
-        poly = polys[pi][p];
+    for (let p = 0; p < polygons.length; p++) {
+        let poly = polygons[p];
 
         for (let i = 0; i < poly.length - 1; i++) {
-            shapePnts.push(creator(poly[i], poly[i + 1], [pi, i, p]));
+            let shp = creator(poly[i], poly[i + 1], i, p);
+            overlay.addFeature(shp);
+            shapePnts.push(shp);
         }
     }
 }
 
 
-function addShapes(area) {
+function addShapes(area: Area) {
     const shapePnts = getPrivate(area, 'shapePnts');
     const coordinates = tools.getCoords(area);
 
 
     for (let p = 0; p < coordinates.length; p++) {
-        createShapes(shapePnts, coordinates, p, (p1, p2, idxData) => {
-            return area._e().objects.overlay.addFeature(new AreaShape(area, p1[0], p1[1], idxData, tools));
-        });
+        createShapes(area, shapePnts, coordinates[p],
+            (p1, p2, pi, ci) => new AreaShape(area, p1[0], p1[1], [p, pi, ci], tools)
+        );
     }
 }
 
 
-function addVShapes(area) {
+function addVShapes(area: Area) {
     const shapePnts = getPrivate(area, 'midShapePnts');
     const coordinates = tools.getCoords(area);
 
     for (let p = 0; p < coordinates.length; p++) {
         // @ts-ignore
-        createShapes(shapePnts, coordinates, p, (p1, p2, idxData) => new VirtualShape(
+        createShapes(area, shapePnts, coordinates[p], (p1, p2, pi, ci) => new VirtualAreaShape(
             area,
             (p1[0] + p2[0]) / 2,
             (p1[1] + p2[1]) / 2,
-            idxData,
+            [p, pi, ci],
             tools
         ));
     }
-
-    // var midShapePnts = getPrivate( area, 'midShapePnts' );
-    //
-    // var  polys = area.geometry.coordinates;
-    //
-    // var p1, p2;
-    //
-    // for( var p  = 0; p < polys.length; p++ )
-    // {
-    //     var poly = polys[p][0];
-    //
-    //     for(var i = 0; i < poly.length - 1 ; i++ )
-    //     {
-    //         p1 = poly[  i  ];
-    //         p2 = poly[ i+1 ];
-    //
-    //         midShapePnts.push( new VirtualShape( EDITOR, area, (p1[0]+p2[0])/2, (p1[1]+p2[1])/2, [p,i,0] ) );
-    //     }
-    // }
 }
 
 function refreshGeometry(area) {
@@ -190,7 +141,6 @@ function onPointerUp(ev) {
 
 
 var tools = {
-
 
     private: getPrivate,
 
