@@ -64,7 +64,7 @@ describe('get add and remove map layer', function() {
         expect(display.getLayers()).to.lengthOf(2);
 
 
-        await waitForViewportReady(display, [linkLayer], ()=>{
+        await waitForViewportReady(display, [linkLayer], () => {
             display.removeLayer(imageLayer);
         });
 
@@ -78,7 +78,7 @@ describe('get add and remove map layer', function() {
     it('add image overlay and validate sat image', async function() {
         expect(display.getLayers()).to.lengthOf(1);
 
-        await waitForViewportReady(display, [imageLayer, linkLayer], ()=>{
+        await waitForViewportReady(display, [imageLayer, linkLayer], () => {
             display.addLayer(imageLayer, 0);
         });
 

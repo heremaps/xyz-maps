@@ -272,7 +272,7 @@ class PreparedData {
         return this.layers;
     };
 
-    getId(layerId: string, id: string): string {
+    getId(layerId: string, id: string|number): string|number {
         if (this._idMap[layerId] && this._idMap[layerId].hasOwnProperty(id)) {
             let idx = this._idMap[layerId][id];
             id = this.features[layerId]['remote'][idx];
@@ -281,7 +281,7 @@ class PreparedData {
         return id;
     }
 
-    getFeature(layerId: string, id: string) {
+    getFeature(layerId: string, id: string|number) {
         let layer = this.getLayers(layerId);
 
         id = this.getId(layerId, id);

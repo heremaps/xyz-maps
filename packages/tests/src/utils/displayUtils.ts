@@ -24,8 +24,8 @@ import Map from '@here/xyz-maps-display';
 type VpReadyCallback = Function | (() => void);
 
 
-export function waitForViewportReady(display: Map, mapLayers: TileLayer[]): Promise<Map>;
-export function waitForViewportReady(display: Map, fn?: VpReadyCallback): Promise<Map>;
+// export function waitForViewportReady(display: Map, mapLayers: TileLayer[]): Promise<Map>;
+// export function waitForViewportReady(display: Map, fn?: VpReadyCallback): Promise<Map>;
 export function waitForViewportReady(display: Map, mapLayers?: TileLayer[] | VpReadyCallback, fn?: VpReadyCallback): Promise<Map> {
     return new Promise(async (resolve) => {
         if (!mapLayers) {

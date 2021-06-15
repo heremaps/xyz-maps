@@ -19,7 +19,7 @@
 import {prepare} from 'utils';
 import {waitForEditorReady, editorClick} from 'editorUtils';
 import {Map} from '@here/xyz-maps-display';
-import {Editor} from '@here/xyz-maps-editor';
+import {Editor, NavlinkShape} from '@here/xyz-maps-editor';
 // @ts-ignore @deprecated
 import {features} from '@here/xyz-maps-editor';
 import dataset from './link_remove_shapepoint_spec.json';
@@ -54,7 +54,10 @@ describe('remove link shapepoints', function() {
     });
 
     it('validate the link is added', function() {
-        let lnk = new features.Navlink([{x: 100, y: 100}, {x: 100, y: 200}, {x: 200, y: 200}], {featureClass: 'NAVLINK'});
+        let lnk = new features.Navlink([{x: 100, y: 100}, {x: 100, y: 200}, {
+            x: 200,
+            y: 200
+        }], {featureClass: 'NAVLINK'});
         link = editor.addFeature(lnk);
 
         expect(editor.get('changes.length')).to.equal(1);
@@ -63,14 +66,14 @@ describe('remove link shapepoints', function() {
     it('remove a shape point and validate the coord', async function() {
         link.select();
 
-        let shape = (await editorClick(editor, 200, 200)).target;
+        let shape = <NavlinkShape>(await editorClick(editor, 200, 200)).target;
         shape.remove();
 
         expect(link.coord()).to.have.lengthOf(2);
     });
 
     it('click another link shape point to remove', async function() {
-        let shape = (await editorClick(editor, 100, 200)).target;
+        let shape = <NavlinkShape>(await editorClick(editor, 100, 200)).target;
         shape.remove();
 
         expect(link.coord()).to.have.lengthOf(2);

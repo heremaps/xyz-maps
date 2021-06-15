@@ -75,7 +75,7 @@ describe('mapview change listener', function() {
         let listener = new Listener(display, ['mapviewchangestart', 'mapviewchangeend']);
 
         await waitForViewportReady(display, async ()=>{
-            await drag(mapContainer, {x: 200, y: 100}, {x: 100, y: 100}, {fps: 20});
+            await drag(mapContainer, {x: 200, y: 100}, {x: 100, y: 100}, 240);
         });
 
         let results = listener.stop();

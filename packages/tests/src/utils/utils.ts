@@ -20,10 +20,10 @@ import prepare from './prepareData';
 
 declare global {
     interface XMLHttpRequest {
-        origOpen: (method: string, url: string, async?: boolean, username?: string, password?: string)=>void,
-        origSend: (payload: string)=>void,
-        origAbort: ()=>void,
-        origSetRequestHeader: (n: string, v: string)=>void
+        origOpen: (method: string, url: string, async?: boolean, username?: string, password?: string) => void,
+        origSend: (payload: string) => void,
+        origAbort: () => void,
+        origSetRequestHeader: (n: string, v: string) => void
     }
 }
 
@@ -48,10 +48,10 @@ function backingScale() {
 
 export async function getCanvasPixelColor(
     elem: HTMLElement,
-    pos: {x: number, y: number}|{x: number, y: number}[],
-    options:{expect?: string|string[], delay?:number, retry?:number, retryDelay?:number} = {}): Promise<string|string[]> {
+    pos: { x: number, y: number } | { x: number, y: number }[],
+    options: { expect?: string | string[], delay?: number, retry?: number, retryDelay?: number } = {}): Promise<string | string[]> {
     const positions = Array.isArray(pos) ? pos : [pos];
-    const expect = options.expect ? (Array.isArray(options.expect) ? options.expect : [options.expect] ) : new Array(positions.length);
+    const expect = options.expect ? (Array.isArray(options.expect) ? options.expect : [options.expect]) : new Array(positions.length);
     const delay = options.delay || 100;
     const retryDelay = options.retryDelay || 10;
     let retry = options.retry || 0;
@@ -82,7 +82,7 @@ export async function getCanvasPixelColor(
 
     function tryGetColor(timeout, cb) {
         setTimeout(function() {
-            positions.forEach((v, i)=>{
+            positions.forEach((v, i) => {
                 if (!resultColors[i] || (resultColors[i] != expect[i] && expect[i])) {
                     let color = getColor(v.x, v.y);
                     resultColors[i] = color;
@@ -104,11 +104,11 @@ export async function getCanvasPixelColor(
 }
 
 export class Observer {
-    private results: {[key:string]: (string|number)[]};
-    private cbs: {[key:string]: (ev:string, v:string|number)=>void};
+    private results: { [key: string]: (string | number)[] };
+    private cbs: { [key: string]: (ev: string, v: string | number) => void };
     private obj: any;
 
-    constructor(obj: any, evts: string|string[]) {
+    constructor(obj: any, evts: string | string[]) {
         let that = this;
         evts = Array.isArray(evts) ? evts : [evts];
 
@@ -128,7 +128,7 @@ export class Observer {
         });
     }
 
-    stop(): {[key:string]: any[]} {
+    stop(): { [key: string]: any[] } {
         for (let o in this.cbs) {
             this.obj.removeObserver(o, this.cbs[o]);
         }
@@ -137,12 +137,15 @@ export class Observer {
     }
 }
 
+
+type Events = any;
+
 export class Listener {
-    private results: {[key:string]: MouseEvent[] };
-    private cbs: {[key:string]: (ev:MouseEvent)=>void};
+    private results: { [key: string]: Events[] };
+    private cbs: { [key: string]: (ev: Events) => void };
     private obj: any;
 
-    constructor(obj: any, evts: string|string[]) {
+    constructor(obj: any, evts: string | string[]) {
         let that = this;
         evts = Array.isArray(evts) ? evts : [evts];
 
@@ -162,7 +165,7 @@ export class Listener {
         });
     }
 
-    stop(): {[key:string]: MouseEvent[]} {
+    stop(): { [key: string]: Events[] } {
         for (let o in this.cbs) {
             this.obj.removeEventListener(o, this.cbs[o]);
         }
@@ -174,7 +177,7 @@ export class Listener {
 type MonitoredXHRRequest = any;
 type MonitorStartOpt = {
     method?: string,
-    onReady?: (req: RequestSummary)=>void
+    onReady?: (req: RequestSummary) => void
 };
 
 export class MonitorXHR {
@@ -185,6 +188,7 @@ export class MonitorXHR {
     private requests = new Map<XMLHttpRequest, MonitoredXHRRequest>();
 
     private filter: RegExp;
+
     /**
      * @param filter {RegExp=} filter for requests
      */
@@ -214,7 +218,7 @@ export class MonitorXHR {
             XMLHttpRequest.prototype.origAbort = XMLHttpRequest.prototype.abort;
             XMLHttpRequest.prototype.origSetRequestHeader = XMLHttpRequest.prototype.setRequestHeader;
         } else {
-            monitor.requests.forEach((req)=>req.origXHR.onreadystatechange = null);
+            monitor.requests.forEach((req) => req.origXHR.onreadystatechange = null);
             monitor.requests.clear();
         }
 
@@ -285,7 +289,7 @@ export class MonitorXHR {
         }
 
         let reqs = [];
-        this.requests.forEach((req)=>reqs.push(req));
+        this.requests.forEach((req) => reqs.push(req));
         this.requests.clear();
 
         return reqs;

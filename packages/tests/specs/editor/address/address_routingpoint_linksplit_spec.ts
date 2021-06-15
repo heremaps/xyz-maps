@@ -18,7 +18,7 @@
  */
 import {prepare} from 'utils';
 import {editorClick, waitForEditorReady} from 'editorUtils';
-import {Editor} from '@here/xyz-maps-editor';
+import {Editor, NavlinkShape} from '@here/xyz-maps-editor';
 import {Map} from '@here/xyz-maps-display';
 import dataset from './address_routingpoint_linksplit_spec.json';
 
@@ -67,7 +67,7 @@ describe('Address routing point updates by link split', function() {
     it('split the link, validate address connects to a new link', async function() {
         link.select();
 
-        let linkShape = (await editorClick(editor, 400, 150)).target;
+        let linkShape = <NavlinkShape>(await editorClick(editor, 400, 150)).target;
         let newLinks = linkShape.splitLink();
 
         address.select();

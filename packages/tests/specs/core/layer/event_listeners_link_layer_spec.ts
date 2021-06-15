@@ -63,8 +63,8 @@ describe('event listeners in link layer', function() {
         linkLayer.removeFeature({id: link1.id});
 
         let results = test.stop();
-
-        expect(results.featureRemove[0].detail.feature).to.deep.include({
+        let feature = results.featureRemove[0].detail.feature;
+        expect(feature).to.deep.include({
             id: link1.id,
             type: 'Feature'
         });
@@ -101,12 +101,15 @@ describe('event listeners in link layer', function() {
         expect(results.featureRemove).to.have.lengthOf(0);
         expect(results.featureCoordinatesChange).to.have.lengthOf(1);
 
-        expect(results.featureAdd[0].detail.feature).to.deep.include({
+        // @ts-ignore
+        let feature = results.featureAdd[0].detail.feature;
+        expect(feature).to.deep.include({
             id: 'abc',
             type: 'Feature'
         });
-
-        expect(results.featureCoordinatesChange[0].detail.feature).to.deep.include({
+        // @ts-ignore
+        feature = results.featureCoordinatesChange[0].detail.feature;
+        expect(feature).to.deep.include({
             id: link2.id,
             type: 'Feature'
         });
