@@ -200,13 +200,13 @@ class Area extends Feature {
     /**
      *  Get the geographical coordinate(s) of the Area feature.
      */
-    coord(): [number, number, number?][][][] | [number, number, number?][][][][];
+    coord(): [number, number, number?][][] | [number, number, number?][][][];
     /**
      *  Set the geographical coordinate(s) of the Area feature.
      *
      *  @param coordinates - the geographical coordinates that should be set.
      */
-    coord(coordinates: [number, number, number?][][][] | [number, number, number?][][][][]);
+    coord(coordinates: [number, number, number?][][] | [number, number, number?][][][]);
 
     coord(coords?) {
         const feature = this;

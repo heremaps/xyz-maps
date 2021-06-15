@@ -303,9 +303,9 @@ var tools = {
 
     // **************************************** only used by area shape ****************************************
 
-    getCoords: (area) => {
+    getCoords: (area: Area): number[][][][] => {
         let coords = area.coord();
-        return area.geometry.type == 'Polygon' ? [coords] : coords;
+        return area.geometry.type == 'Polygon' ? [<number[][][]>coords] : <number[][][][]>coords;
     },
 
     isClockwise: (poly) => {
@@ -357,13 +357,11 @@ var tools = {
     },
 
 
-    forEachAt: function(area: Area, point: GeoJSONCoordinate, forEach) {
-        const EDITOR = area._e();
+    forEachAt: (point: GeoJSONCoordinate, layer, EDITOR, forEach) => {
         const round = (c) => Math.round(c * 1e9);
         const lon = round(point[0]);
         const lat = round(point[1]);
-        const areas = EDITOR.objects.getInBBox([point[0], point[1], point[0], point[1]], EDITOR.getLayer(area));
-        const snapCoordinates = area.behavior('snapCoordinates');
+        const areas = EDITOR.objects.getInBBox([point[0], point[1], point[0], point[1]], layer);
         let len = areas.length;
 
         while (len--) {
@@ -380,51 +378,13 @@ var tools = {
 
                     while (c--) {
                         if (round(exterior[c][0]) == lon && round(exterior[c][1]) == lat) {
-                            if (cArea == area || snapCoordinates && cArea.behavior('snapCoordinates')) {
-                                forEach(cArea, poly, e, c, coords);
-                            }
+                            forEach(cArea, poly, e, c, coords);
                         }
                     }
                 }
             }
         }
     },
-
-    // getConnectedAreas: function( area, poly, ring, index  )
-    // {
-    //
-    //     function round( c ){
-    //         return c * 1e9 +.5^0;
-    //     }
-    //
-    //     var pnt  = area.coord()[poly][ring][index];
-    //     var lon  = round( pnt[0] );
-    //     var lat  = round( pnt[1] );
-    //
-    //     return EDITOR.objects.getInBBox( area.bbox, EDITOR.getLayer(area) ).filter(function( cArea ){
-    //
-    //         var coords = cArea.coord();
-    //         var poly   = coords.length;
-    //
-    //         while(poly--)
-    //         {
-    //             var exterior = coords[poly][0];
-    //             var c        = exterior.length;
-    //
-    //             while( c-- )
-    //             {
-    //                 if( round(exterior[c][0]) == lon && round(exterior[c][1]) == lat )
-    //                 {
-    //                     console.log('pass');
-    //                     return cArea;
-    //                 }
-    //             }
-    //
-    //         }
-    //
-    //     })
-    //
-    // },
 
     getPoly: function(area, point) {
         let coords = tools.getCoords(area);
@@ -571,8 +531,30 @@ var tools = {
             }
         }
         return true;
+    },
+
+
+    getConnectedAreas: (area: Area, position: GeoJSONCoordinate) => {
+        let cAreas = [];
+        const iEditor = area._e();
+        const layer = iEditor.getLayer(area);
+
+        tools.forEachAt(position, layer, iEditor, (cArea, poly, ring, index, coordinates) => {
+            if (cArea != area) {
+                cAreas.push({
+                    area: cArea,
+                    polygonIndex: poly,
+                    lineStringIndex: ring,
+                    coordinateIndex: index,
+                    coordinates
+                });
+            }
+        });
+
+        return cAreas;
     }
 
 };
+
 
 export default tools;

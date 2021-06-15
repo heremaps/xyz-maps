@@ -157,13 +157,11 @@ class AreaShape extends Feature {
         let previousDx = 0;
         let previousDy = 0;
 
-
         function onMouseDown() {
             isMoved = false;
             previousDx = 0;
             previousDy = 0;
         }
-
 
         function moveShape(e, dx, dy, cx, cy) {
             if (!isMoved) {// first move ?
@@ -175,45 +173,79 @@ class AreaShape extends Feature {
             const index = shapePnt.getIndex();
             const polyIndex = shapePnt.properties.poly;
             const holeIndex = shapePnt.properties.hole;
-            // const coordinates = area.coord(); // deepcopy!
             const coordinates = polygonTools.getCoords(area); // deepcopy!
             const poly = coordinates[polyIndex];
-            const interior = poly[holeIndex];
-            const orgPos = interior[index]; // .slice();//shapePnt.geometry.coordinates.slice();
+            const lineString = poly[holeIndex];
+            const orgPos = lineString[index]; // .slice();//shapePnt.geometry.coordinates.slice();
             const shpPos = internalEditor.map.translateGeo(
-                interior[index],
+                lineString[index],
                 dx - previousDx,
                 dy - previousDy
             );
 
-            if (!polygonTools.willSelfIntersect(interior, shpPos, index)) {
-                interior[index] = shpPos;
+            if (!polygonTools.willSelfIntersect(lineString, shpPos, index)) {
+                lineString[index] = shpPos;
 
                 if (!index) {
-                    interior[interior.length - 1] = shpPos;
+                    lineString[lineString.length - 1] = shpPos;
                 }
 
-                if (!intersectPolyPolys(interior, poly, holeIndex) && polysInPoly(poly, poly[0], 1)) {
+                if (
+                    // make sure holes are not colliding with each other
+                    !intersectPolyPolys(lineString, poly, holeIndex) &&
+                    // make sure all interiors are inside exterior
+                    polysInPoly(poly, poly[0], 1)
+                ) {
                     const shapes = polygonTools.private(area, 'shapePnts');
+                    let allValid = true;
 
-                    polygonTools.forEachAt(area, orgPos, (area, poly, ring, index, coordinates) => {
-                        coordinates[poly][ring][index][0] = shpPos[0];
-                        coordinates[poly][ring][index][1] = shpPos[1];
+                    const connectedAreas = polygonTools.getConnectedAreas(area, orgPos);
 
+                    if (area.behavior('snapCoordinates')) {
+                        for (let i = 0; i < connectedAreas.length; i++) {
+                            let cAreaData = connectedAreas[i];
+                            const {coordinates, polygonIndex, lineStringIndex, coordinateIndex} = cAreaData;
+                            const poly = coordinates[polygonIndex];
+                            const lineString = poly[lineStringIndex];
+
+                            if (cAreaData.area.behavior('snapCoordinates')) {
+                                lineString[coordinateIndex][0] = shpPos[0];
+                                lineString[coordinateIndex][1] = shpPos[1];
+
+                                if (!coordinateIndex) {
+                                    lineString[lineString.length - 1] = shpPos;
+                                }
+
+                                const valid = !polygonTools.willSelfIntersect(lineString, shpPos, coordinateIndex) &&
+                                    polysInPoly(poly, poly[0], 1);
+
+                                if (!valid) {
+                                    allValid = false;
+                                    break;
+                                }
+                            }
+                        }
+                    }
+
+                    if (allValid) {
+                        // update geometry of connected areas
+                        for (let {area, coordinates} of connectedAreas) {
+                            polygonTools._setCoords(area, coordinates, false);
+                        }
+
+                        // set geometry of area itself
                         polygonTools._setCoords(area, coordinates, false);
 
-                        for (let i = 0, shp, coord; i < shapes.length; i++) {
-                            shp = shapes[i];
-                            coord = shp.geometry.coordinates;
-
-                            if (coord[0] == orgPos[0] && coord[1] == orgPos[1]) {
+                        for (let shp of shapes) {
+                            const {coordinates} = shp.geometry;
+                            if (coordinates[0] == orgPos[0] && coordinates[1] == orgPos[1]) {
                                 shp.getProvider().setFeatureCoordinates(shp, shpPos.slice());
                             }
                         }
-                    });
 
-                    previousDx = dx;
-                    previousDy = dy;
+                        previousDx = dx;
+                        previousDy = dy;
+                    }
                 }
             }
         }
