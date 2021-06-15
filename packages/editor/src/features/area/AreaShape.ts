@@ -103,7 +103,7 @@ class AreaShape extends Feature {
         poly: number;
     }
 
-    constructor(area: Area, x: number, y: number, pIndex, polyTools) {
+    constructor(area: Area, x: number, y: number, indexData: number[], polyTools) {
         polygonTools = polyTools;
 
         const internalEditor: InternalEditor = area._e();
@@ -115,9 +115,9 @@ class AreaShape extends Feature {
             },
             properties: {
                 type: 'AREA_SHAPE',
-                poly: pIndex[0],
-                index: pIndex[1],
-                hole: pIndex[2],
+                poly: indexData[0],
+                index: indexData[1],
+                hole: indexData[2],
                 AREA: {
                     style: internalEditor.getStyle(area)
                 }
@@ -216,7 +216,7 @@ class AreaShape extends Feature {
                     previousDy = dy;
                 }
             }
-        };
+        }
 
         function releaseShape(e) {
             if (isMoved) {
@@ -226,7 +226,7 @@ class AreaShape extends Feature {
             polygonTools.addVShapes(area);
 
             triggerEvents(e, isMoved ? 'dragStop' : UNDEF);
-        };
+        }
 
         this.__ = {
             area: area,

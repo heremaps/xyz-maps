@@ -79,7 +79,13 @@ function addShapes(area: Area) {
 
     for (let p = 0; p < coordinates.length; p++) {
         createShapes(area, shapePnts, coordinates[p],
-            (p1, p2, pi, ci) => new AreaShape(area, p1[0], p1[1], [p, pi, ci], tools)
+            (p1, p2, pi, ci) => new AreaShape(
+                area,
+                p1[0],
+                p1[1],
+                [p, pi, ci],
+                tools
+            )
         );
     }
 }
@@ -90,14 +96,15 @@ function addVShapes(area: Area) {
     const coordinates = tools.getCoords(area);
 
     for (let p = 0; p < coordinates.length; p++) {
-        // @ts-ignore
-        createShapes(area, shapePnts, coordinates[p], (p1, p2, pi, ci) => new VirtualAreaShape(
-            area,
-            (p1[0] + p2[0]) / 2,
-            (p1[1] + p2[1]) / 2,
-            [p, pi, ci],
-            tools
-        ));
+        createShapes(area, shapePnts, coordinates[p],
+            (p1, p2, pi, ci) => new VirtualAreaShape(
+                area,
+                (p1[0] + p2[0]) / 2,
+                (p1[1] + p2[1]) / 2,
+                [p, pi, ci],
+                tools
+            )
+        );
     }
 }
 
@@ -301,14 +308,13 @@ var tools = {
         return area.geometry.type == 'Polygon' ? [coords] : coords;
     },
 
-    isClockwise: function(poly) {
+    isClockwise: (poly) => {
         let area = 0;
 
         for (let i = 0, j, len = poly.length - 1; i < len; i++) {
             j = (i + 1) % len;
 
             area += poly[i][0] * poly[j][1];
-
             area -= poly[j][0] * poly[i][1];
         }
 
@@ -351,12 +357,13 @@ var tools = {
     },
 
 
-    forEachAt: function(area, point, forEach) {
+    forEachAt: function(area: Area, point: GeoJSONCoordinate, forEach) {
         const EDITOR = area._e();
         const round = (c) => Math.round(c * 1e9);
         const lon = round(point[0]);
         const lat = round(point[1]);
         const areas = EDITOR.objects.getInBBox([point[0], point[1], point[0], point[1]], EDITOR.getLayer(area));
+        const snapCoordinates = area.behavior('snapCoordinates');
         let len = areas.length;
 
         while (len--) {
@@ -373,7 +380,9 @@ var tools = {
 
                     while (c--) {
                         if (round(exterior[c][0]) == lon && round(exterior[c][1]) == lat) {
-                            forEach(cArea, poly, e, c, coords);
+                            if (cArea == area || snapCoordinates && cArea.behavior('snapCoordinates')) {
+                                forEach(cArea, poly, e, c, coords);
+                            }
                         }
                     }
                 }

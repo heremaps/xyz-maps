@@ -47,6 +47,11 @@ const copyPolygon = (poly) => {
     return cpy;
 };
 
+const defaultBehavior = {
+    snapCoordinates: true
+};
+
+
 /**
  * The Area Feature is a generic editable Feature with "Polygon" or "MultiPolygon" geometry.
  */
@@ -56,43 +61,7 @@ class Area extends Feature {
      */
     readonly class: 'AREA';
 
-    /**
-     *  Get the geographical coordinate(s) of the Area feature.
-     */
-    coord(): [number, number, number?][][][] | [number, number, number?][][][][];
-    /**
-     *  Set the geographical coordinate(s) of the Area feature.
-     *
-     *  @param coordinates - the geographical coordinates that should be set.
-     */
-    coord(coordinates: [number, number, number?][][][] | [number, number, number?][][][][]);
-
-    coord(coords?) {
-        const feature = this;
-        const geoType = feature.geometry.type;
-        let coordinates;
-
-        if (coords instanceof Array) {
-            oTools.deHighlight(feature);
-
-            oTools._setCoords(feature, coords);
-
-            oTools.markAsModified(feature);
-        } else {
-            coords = feature.getProvider().decCoord(feature);
-
-            if (geoType == 'Polygon') {
-                coordinates = copyPolygon(coords);
-            } else {
-                coordinates = [];
-                for (let p = 0; p < coords.length; p++) {
-                    coordinates[p] = copyPolygon(coords[p]);
-                }
-            }
-        }
-        return coordinates;
-    };
-
+    private __: { b: { [behavior: string]: boolean } }
 
     /**
      * Add a new shape point / coordinate to the area.
@@ -177,6 +146,92 @@ class Area extends Feature {
             }
             return false;
         }
+    };
+
+    /**
+     * Set the behavior options.
+     */
+    behavior(options: {
+        /**
+         * Snap coordinates to polygon geometry nearby.
+         */
+        snapCoordinates?: boolean
+    }): void;
+    /**
+     * Set the value of a specific behavior option.
+     */
+    behavior(name: string, value: boolean): void;
+    /**
+     * Get the value of a specific behavior option.
+     */
+    behavior(option: string): any;
+    /**
+     * Get the behavior options.
+     */
+    behavior(): {
+        /**
+         * Snap coordinates to polygon geometry nearby.
+         */
+        snapCoordinates: boolean
+    };
+
+    behavior(options?: any, value?: boolean) {
+        let behavior = oTools.private(this, 'b') || {...defaultBehavior};
+
+        switch (arguments.length) {
+        case 0:
+            return behavior;
+        case 1:
+            if (typeof options == 'string') {
+                // getter
+                return behavior[options];
+            } else {
+                // setter
+                behavior = {...behavior, ...options};
+                break;
+            }
+        case 2:
+            behavior[options] = value;
+        }
+
+        this.__.b = behavior;
+    }
+
+    /**
+     *  Get the geographical coordinate(s) of the Area feature.
+     */
+    coord(): [number, number, number?][][][] | [number, number, number?][][][][];
+    /**
+     *  Set the geographical coordinate(s) of the Area feature.
+     *
+     *  @param coordinates - the geographical coordinates that should be set.
+     */
+    coord(coordinates: [number, number, number?][][][] | [number, number, number?][][][][]);
+
+    coord(coords?) {
+        const feature = this;
+        const geoType = feature.geometry.type;
+        let coordinates;
+
+        if (coords instanceof Array) {
+            oTools.deHighlight(feature);
+
+            oTools._setCoords(feature, coords);
+
+            oTools.markAsModified(feature);
+        } else {
+            coords = feature.getProvider().decCoord(feature);
+
+            if (geoType == 'Polygon') {
+                coordinates = copyPolygon(coords);
+            } else {
+                coordinates = [];
+                for (let p = 0; p < coords.length; p++) {
+                    coordinates[p] = copyPolygon(coords[p]);
+                }
+            }
+        }
+        return coordinates;
     };
 }
 
