@@ -88,7 +88,7 @@ const getValue = (name: string, style: Style, feature: Feature, tileGridZoom: nu
         : value;
 };
 
-const parseSizeValue = (size: string | number): [number, string] => {
+const parseSizeValue = (size: string | number, float: boolean = false): [number, string] => {
     let unit = 'px';
     let value = size;
     if (typeof size == 'string') {
@@ -99,8 +99,10 @@ const parseSizeValue = (size: string | number): [number, string] => {
             return [value, unit];
         }
     }
-    value = <number>value ^ 0; // no "float pixels"
-    return [value, unit];
+    if (!float) {
+        value = <number>value ^ 0; // no "float pixels"
+    }
+    return [<number>value, unit];
 };
 
 const getSizeInPixel = (property: string, style: Style, feature: Feature, zoom: number) => {
@@ -156,7 +158,7 @@ const getLineWidth = (groups: StyleGroup, feature: Feature, zoom: number, layerI
         let swVal = getValue('strokeWidth', grp, feature, tileGridZoom); // || 1;
         if (isNaN(swVal)) swVal = 1;
 
-        let [value, unit] = parseSizeValue(swVal);
+        let [value, unit] = parseSizeValue(swVal, true);
 
         if (unit == 'm') {
             const dZoomScale = Math.pow(2, zoom % tileGridZoom);
@@ -210,7 +212,7 @@ export const calcBBox = (style: Style, feature: Feature, zoom: number, dpr: numb
 
         w = 0;
 
-        if (feature.geometry.type == 'LineString' ||feature.geometry.type == 'MultiLineString') {
+        if (feature.geometry.type == 'LineString' || feature.geometry.type == 'MultiLineString') {
             w = glyphManager.getTextWidth(text, _font);
             h = _font.letterHeight;
         } else {

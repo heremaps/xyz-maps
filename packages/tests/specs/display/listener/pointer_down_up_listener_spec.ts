@@ -42,7 +42,7 @@ describe('pointer down and pointer up listener', () => {
         mapContainer = display.getContainer();
     });
 
-    after(async function() {
+    after(async () => {
         display.destroy();
         await preparedData.clear();
     });
@@ -75,7 +75,7 @@ describe('pointer down and pointer up listener', () => {
         });
     });
 
-    it('validate pointer down and up events on point', async function() {
+    it('validate pointer down and up events on point', async () => {
         let listener = new Listener(display, ['pointerdown', 'pointerup']);
 
         await click(mapContainer, 616, 240);
@@ -103,7 +103,7 @@ describe('pointer down and pointer up listener', () => {
     });
 
 
-    it('validate pointer down and up events on the ground', async function() {
+    it('validate pointer down and up events on the ground', async () => {
         let listener = new Listener(display, ['pointerdown', 'pointerup']);
 
         await click(mapContainer, 253, 204);
@@ -160,6 +160,30 @@ describe('pointer down and pointer up listener', () => {
 
     it('validate pointer event target on linestring "inside" a polygon hole', async () => {
         let listener = new Listener(display, ['pointerup']);
+
+        await click(mapContainer, 400, 300);
+
+        let results = listener.stop();
+
+        expect(results.pointerup).to.have.lengthOf(1);
+        expect(results.pointerup[0]).to.deep.include({
+            button: 0,
+            mapX: 400,
+            mapY: 300,
+            type: 'pointerup'
+        });
+        const geometry = (<any>results.pointerup[0]).target.geometry;
+        expect(geometry).to.deep.include({
+            type: 'LineString'
+        });
+    });
+
+
+    it('validate pointer-events on linestring with strokeWidth <1', async () => {
+        let listener = new Listener(display, ['pointerup']);
+        let layer = display.getLayers(0);
+
+        layer.setStyleGroup(layer.search('testLine'), [{type: 'Line', zIndex: 12, stroke: 'red', strokeWidth: .9}]);
 
         await click(mapContainer, 400, 300);
 
