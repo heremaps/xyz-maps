@@ -120,10 +120,11 @@ export interface MapOptions {
      */
     zoomAnimationMs?: number
     /**
-     * @internal
+     * The maximum angle in degrees the map can be pitched
+     * @defaultValue 50
      */
     maxPitch?: number
-};
+}
 
 export const defaultOptions: MapOptions = {
 
