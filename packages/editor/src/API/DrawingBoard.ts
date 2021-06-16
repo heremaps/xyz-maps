@@ -22,7 +22,7 @@ import InternalEditor from '../IEditor';
 import {global} from '@here/xyz-maps-common';
 
 import {Area, Line, Navlink} from '@here/xyz-maps-editor';
-import {GeoPoint, PixelPoint, Style, TileLayer} from '@here/xyz-maps-core';
+import {GeoJSONCoordinate, GeoPoint, PixelPoint, Style, TileLayer} from '@here/xyz-maps-core';
 import {EditorEvent} from './EditorEvent';
 import {DrawingShape} from '../tools/drawingBoards/DrawingShape';
 
@@ -48,10 +48,10 @@ class DrawingBoard {
     }
 
     /**
-     *  Add a shape-point to the feature.
+     * Add a shape-point to the feature.
      *
-     *  @param position - the coordinate in pixels relative to the screen that should be added to the coordinates of the feature.
-     *  @param Navlink - pass this parameter in case of a Navlink feature is drawn that should start on the geometry of another Navlink, to split it's geometry automatically.
+     * @param position - the coordinate in pixels relative to the screen that should be added to the coordinates of the feature.
+     * @param Navlink - pass this parameter in case of a Navlink feature is drawn that should start on the geometry of another Navlink, to split it's geometry automatically.
      */
     addShape(position: PixelPoint | GeoPoint, navlink?: Navlink): DrawingShape {
         if (this._a) {
@@ -60,7 +60,7 @@ class DrawingBoard {
     };
 
     /**
-     *  Remove a shape-point.
+     * Remove a shape-point.
      * If no index is defined, the last added shape-point will be removed.
      *
      * @param index - the index of the shape-point to be removed.
@@ -152,11 +152,11 @@ class DrawingBoard {
         /**
          * event listener that's called for each shape-point that's being added by user interaction. The target of the event is the drawn shape-point {@link DrawingShape}
          */
-        onShapeAdd?: (event:EditorEvent) => void,
+        onShapeAdd?: (event: EditorEvent) => void,
         /**
          * function that's called for each shape-point that's being removed by user interaction. The target of the event is the drawn shape-point {@link DrawingShape}
          */
-        onShapeRemove?: (event:EditorEvent) => void,
+        onShapeRemove?: (event: EditorEvent) => void,
     }) {
         options = options || {};
         // options conversation to support legacy api
@@ -200,15 +200,32 @@ class DrawingBoard {
     /**
      * Get the active state of the drawing board.
      *
-     * @returns true when acitve, otherwise false
+     * @returns true when active, otherwise false
      */
     isActive(): boolean {
         return this._a;
     }
 
+    /**
+     * Get the geometry of the currently drawn feature.
+     */
+    getGeometry(): ({
+        type: 'LineString' | 'MultiPolygon' | string,
+        coordinates: GeoJSONCoordinate[] | GeoJSONCoordinate[][][]
+    }) {
+        return this._b.createGeom();
+    }
 
-    getGeometry() {
-        this._b.createGeom();
+    /**
+     * Set the geometry of the currently drawn feature.
+     *
+     * If the geometry of an area (MultiPolygon) is specified, only the first exterior is processed.
+     */
+    setGeometry(geomtry: {
+        type: 'LineString' | 'MultiPolygon' | string,
+        coordinates: GeoJSONCoordinate[] | GeoJSONCoordinate[][][]
+    }) {
+        this._b.setGeom(geomtry.type, geomtry.coordinates);
     }
 }
 

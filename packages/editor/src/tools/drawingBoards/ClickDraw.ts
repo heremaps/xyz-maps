@@ -123,7 +123,9 @@ let UNDEF;
 type Settings = {
     mode?: 'Area' | 'Line' | 'Navlink',
     styleGroup?: Style[],
-    layer?: TileLayer
+    layer?: TileLayer,
+    onShapeAdd?: (event: EditorEvent) => void,
+    onShapeRemove?: (event: EditorEvent) => void,
 }
 
 class ClickDraw {
@@ -282,6 +284,30 @@ class ClickDraw {
         return <DrawingShape>shp;
     };
 
+    setGeom(type: string, coordinates: number[][] | number[][][][]) {
+        const {settings} = this;
+
+        if (type != this.feature.type) return;
+
+        this.hide();
+        this.show(settings);
+
+        let lineString = type == 'LineString'
+            ? coordinates
+            : (<number[][][][]>coordinates)[0][0].slice(0, -1);
+
+        const {onShapeAdd} = settings;
+        // clear listeners to prevent triggering
+        settings.onShapeAdd = null;
+
+        for (let coordinate of lineString) {
+            this.addShape(coordinate);
+        }
+        // re-add the listener
+        settings.onShapeAdd = onShapeAdd;
+    };
+
+
     removeShape(index?: number) {
         const {shapes, iEdit, overlay, feature, settings} = this;
 
@@ -349,10 +375,12 @@ class ClickDraw {
             coordinates = simplifyPath(coordinates, settings['generalization'] || 1 * 0.00001);
         }
 
-        if (coordinates = feature.createGeo(coordinates)) {
+        let geojsonCoordinates = feature.createGeo(coordinates);
+
+        if (geojsonCoordinates) {
             return {
                 type: feature.type,
-                coordinates: coordinates
+                coordinates: geojsonCoordinates
             };
         }
     };

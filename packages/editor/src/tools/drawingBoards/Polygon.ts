@@ -79,11 +79,16 @@ class Polygon {
         if (path) {
             // close LineString
             path.push(<any>path[0].slice());
-            return path.length<4 || polygonTools.validateGeometry(path);
+            return path.length < 4 || polygonTools.validateGeometry(path);
         }
 
         return this.path.length > 2;
     }
+
+    // clear() {
+    //     this.path.length = 0;
+    //     this.overlay.setFeatureCoordinates(this.geojson, []);
+    // }
 }
 
 
