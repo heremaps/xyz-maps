@@ -395,4 +395,48 @@ describe('StyleGroup Image and Line geometry', () => {
         expect(colors[2]).to.equal('#ffffff');
         expect(colors[3]).to.equal('#ffffff');
     });
+
+    it('enable checkLineSpace', async () => {
+        await waitForViewportReady(display, () => {
+            display.setZoomlevel(15);
+        });
+
+        layer.setStyleGroup(line2, [{
+            type: 'Line',
+            zIndex: 0,
+            stroke: '#ff0000',
+            strokeWidth: 8
+        }, {
+            zIndex: 1,
+            type: 'Image',
+            width: 64,
+            src: greenImg,
+            anchor: 'Line',
+            checkLineSpace: true,
+            collide: false
+        }]);
+
+        const color = await getCanvasPixelColor(mapContainer, {x: 400, y: 300});
+        expect(color).to.equal('#ff0000');
+    });
+
+    it('disable checkLineSpace', async () => {
+        layer.setStyleGroup(line2, [{
+            type: 'Line',
+            zIndex: 0,
+            stroke: '#ff0000',
+            strokeWidth: 8
+        }, {
+            zIndex: 1,
+            type: 'Image',
+            width: 64,
+            src: greenImg,
+            anchor: 'Line',
+            checkLineSpace: false,
+            collide: false
+        }]);
+
+        const color = await getCanvasPixelColor(mapContainer, {x: 400, y: 300});
+        expect(color).to.equal('#00ff00');
+    });
 });

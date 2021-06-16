@@ -20,9 +20,9 @@
 import {waitForViewportReady} from 'displayUtils';
 import {getCanvasPixelColor, prepare} from 'utils';
 import {Map} from '@here/xyz-maps-display';
-import dataset from './setstylegroup_link_spec.json';
+import dataset from './stylegroup_line_spec.json';
 
-describe('setStyleGroup Link', function() {
+describe('setStyleGroup Line', function() {
     const expect = chai.expect;
 
     let preparedData;
