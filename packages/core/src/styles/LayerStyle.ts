@@ -464,12 +464,23 @@ export interface Style {
      * Sets the anchor point for styles of type "Circle", "Rect", "Image" and "Text" used with Line geometry.
      * Possible values are "Coordinate" and "Line".
      *
-     * "Coordinate" - the respective style is displayed at each coordinate of the polyline.
-     * "Line" - the respective style is displayed on the shape of the polyline when there is enough space.
+     * - "Coordinate": the respective style is displayed at each coordinate of the polyline.
+     * - "Line": the respective style is displayed on the shape of the polyline when there is enough space. See {@link checkLineSpace} to disable the space ckeck.
+     *
      *
      * @defaultValue: "Line" for styles of type "Text", "Coordinate" for styles of type "Circle", "Rect" or "Image".
      */
     anchor?: 'Line' | 'Coordinate'
+
+    /**
+     * Enable or disable the space check for point styles on line geometries.
+     * Only applies to "Circle", "Rect", "Image" and "Text" styles with {@link anchor} set to "Line".
+     * If check checkLineSpace is enabled the respective style is only displayed if there is enough space on the line,
+     * otherwise it is not displayed.
+     *
+     * @defaultValue: true
+     */
+    checkLineSpace?: boolean
 
     /**
      * Enable or disable collision detection.
@@ -477,8 +488,8 @@ export interface Style {
      * If the collision detection is enabled for multiple Styles within the same StyleGroup, the respective Styles are
      * handled as a single Object ("CollisionGroup") where the combined bounding-box is determined automatically.
      *
-     * true - collision are allowed, Collision detection is disabled.
-     * false - avoid collisions, Collision detection is enabled.
+     * - true: collision are allowed, Collision detection is disabled.
+     * - false: avoid collisions, Collision detection is enabled.
      *
      * @defaultValue: false for "Text", true for all other.
      */

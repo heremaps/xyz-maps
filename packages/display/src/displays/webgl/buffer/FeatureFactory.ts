@@ -594,6 +594,13 @@ export class FeatureFactory {
                             }
                         }
 
+                        let checkLineSpace = getValue('checkLineSpace', style, feature, level);
+
+                        if (checkLineSpace == UNDEF) {
+                            // checkLineSpace is active by default
+                            checkLineSpace = true;
+                        }
+
                         this.lineFactory.placeAtSegments(
                             <GeoJSONCoordinate[]>coordinates,
                             tile, tileSize,
@@ -603,6 +610,7 @@ export class FeatureFactory {
                             offsetX, offsetY,
                             w, h,
                             applyRotation,
+                            checkLineSpace,
                             (x, y, alpha, collisionData) => {
                                 this.createPoint(type, group, x, y, style, feature, collisionData, alpha + rotation, text, false);
                             }

@@ -24,6 +24,7 @@ import {GeoJSONCoordinate as Coordinate, Tile} from '@here/xyz-maps-core';
 import {CollisionData, CollisionHandler} from '../CollisionHandler';
 import {getRotatedBBox, rotate} from '../../../geometry';
 import {DistanceGroup} from './DistanceGroup';
+import {getValue} from '../../styleTools';
 
 const TO_DEG = 180 / Math.PI;
 const DEFAULT_MIN_REPEAT = 256;
@@ -169,6 +170,7 @@ export class LineFactory {
         width: number,
         height: number,
         applyRotation: boolean,
+        checkLineSpace: boolean,
         placeFunc: any
     ) {
         this.projectLine(coordinates, tile, tileSize);
@@ -185,6 +187,7 @@ export class LineFactory {
             width,
             height,
             applyRotation,
+            checkLineSpace,
             placeFunc
         );
     }
@@ -258,6 +261,7 @@ export class LineFactory {
         width: number,
         height: number,
         applyRotation: boolean,
+        checkLineSpace: boolean,
         place: (x: number, y: number, alpha: number, collisionData?: CollisionData) => void
     ) {
         if (this.collisions) {
@@ -310,7 +314,7 @@ export class LineFactory {
 
             // not inside tile -> skip!
             if (cx >= 0 && cy >= 0 && cx < tileSize && cy < tileSize) {
-                let sqLineWidth = dx * dx + dy * dy;
+                let sqLineWidth = checkLineSpace ? dx * dx + dy * dy : Infinity;
 
                 if (sqLineWidth > sqWidth) {
                     let alpha = Math.atan2(dy, dx);
