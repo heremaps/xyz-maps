@@ -356,36 +356,6 @@ var tools = {
         return width;
     },
 
-
-    forEachAt: (point: GeoJSONCoordinate, layer, EDITOR, forEach) => {
-        const round = (c) => Math.round(c * 1e9);
-        const lon = round(point[0]);
-        const lat = round(point[1]);
-        const areas = EDITOR.objects.getInBBox([point[0], point[1], point[0], point[1]], layer);
-        let len = areas.length;
-
-        while (len--) {
-            const cArea = areas[len];
-            const coords = tools.getCoords(cArea);
-            let poly = coords.length;
-
-            while (poly--) {
-                let e = coords[poly].length;
-
-                while (e--) {
-                    const exterior = coords[poly][e];
-                    let c = exterior.length - 1;
-
-                    while (c--) {
-                        if (round(exterior[c][0]) == lon && round(exterior[c][1]) == lat) {
-                            forEach(cArea, poly, e, c, coords);
-                        }
-                    }
-                }
-            }
-        }
-    },
-
     getPoly: function(area, point) {
         let coords = tools.getCoords(area);
         let min = Infinity;
@@ -533,23 +503,44 @@ var tools = {
         return true;
     },
 
-
-    getConnectedAreas: (area: Area, position: GeoJSONCoordinate) => {
+    getConnectedAreas: (area: Area, position: GeoJSONCoordinate): ({
+        area: Area,
+        polyIndex: number,
+        lineIndex: number,
+        coordIndex: number,
+        coordinates
+    })[] => {
         let cAreas = [];
         const iEditor = area._e();
         const layer = iEditor.getLayer(area);
+        const round = (c) => Math.round(c * 1e9);
+        const lon = round(position[0]);
+        const lat = round(position[1]);
+        const areas = iEditor.objects.getInBBox([position[0], position[1], position[0], position[1]], layer);
+        let len = areas.length;
 
-        tools.forEachAt(position, layer, iEditor, (cArea, poly, ring, index, coordinates) => {
-            if (cArea != area) {
-                cAreas.push({
-                    area: cArea,
-                    polygonIndex: poly,
-                    lineStringIndex: ring,
-                    coordinateIndex: index,
-                    coordinates
-                });
+        while (len--) {
+            const cArea = areas[len];
+            const coordinates = tools.getCoords(cArea);
+            let polyIndex = coordinates.length;
+
+            while (polyIndex--) {
+                let lineIndex = coordinates[polyIndex].length;
+
+                while (lineIndex--) {
+                    const exterior = coordinates[polyIndex][lineIndex];
+                    let coordIndex = exterior.length - 1;
+
+                    while (coordIndex--) {
+                        if (round(exterior[coordIndex][0]) == lon && round(exterior[coordIndex][1]) == lat) {
+                            if (cArea != area) {
+                                cAreas.push({area: cArea, polyIndex, lineIndex, coordIndex, coordinates});
+                            }
+                        }
+                    }
+                }
             }
-        });
+        }
 
         return cAreas;
     }

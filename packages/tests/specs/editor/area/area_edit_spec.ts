@@ -24,7 +24,7 @@ import {Editor} from '@here/xyz-maps-editor';
 import chaiAlmost from 'chai-almost';
 import dataset from './area_edit_spec.json';
 
-describe('modify area geometry', function() {
+describe('modify area geometry', () => {
     const expect = chai.expect;
 
     let editor;
@@ -35,7 +35,7 @@ describe('modify area geometry', function() {
     let area;
     let areashp;
 
-    before(async function() {
+    before(async () => {
         chai.use(chaiAlmost());
         preparedData = await prepare(dataset);
         display = new Map(document.getElementById('map'), {
@@ -55,20 +55,20 @@ describe('modify area geometry', function() {
         areaLayer = preparedData.getLayers('buildingLayer');
     });
 
-    after(async function() {
+    after(async () => {
         editor.destroy();
         display.destroy();
 
         await preparedData.clear();
     });
 
-    it('get an area object and select', function() {
+    it('get an area object and select', () => {
         area.select();
 
         expect(area.coord()[0][0]).to.have.lengthOf(5);
     });
 
-    it('drag a middle point to add shape point and validate', async function() {
+    it('drag a middle point to add shape point and validate', async () => {
         area.select();
 
         await drag(mapContainer, {x: 300, y: 300}, {x: 300, y: 250});
@@ -78,12 +78,12 @@ describe('modify area geometry', function() {
             [-111.718267489, 40.210918996, 0],
             [-111.717194605, 40.210918996, 0],
             [-111.717194605, 40.211738323, 0],
-            [-111.717731047, 40.211943153],
+            [-111.717731047, 40.211943153, 0],
             [-111.718267489, 40.211738323, 0]
         ]]]);
     });
 
-    it('click to remove a shape point and validate', async function() {
+    it('click to remove a shape point and validate', async () => {
         areashp = (await editorClick(editor, 200, 500)).target;
         areashp.remove();
 
@@ -91,25 +91,25 @@ describe('modify area geometry', function() {
             [-111.718267489, 40.211738323, 0],
             [-111.717194605, 40.210918996, 0],
             [-111.717194605, 40.211738323, 0],
-            [-111.717731047, 40.211943153],
+            [-111.717731047, 40.211943153, 0],
             [-111.718267489, 40.211738323, 0]
         ]]]);
     });
 
-    it('drag middle point to add shape point again', async function() {
+    it('drag middle point to add shape point again', async () => {
         await drag(mapContainer, {x: 400, y: 400}, {x: 450, y: 400});
 
         expect(area.coord()).to.deep.almost([[[
             [-111.718267489, 40.211738323, 0],
             [-111.717194605, 40.210918996, 0],
-            [-111.716926385, 40.21132866],
+            [-111.716926385, 40.21132866, 0],
             [-111.717194605, 40.211738323, 0],
-            [-111.717731047, 40.211943153],
+            [-111.717731047, 40.211943153, 0],
             [-111.718267489, 40.211738323, 0]
         ]]]);
     });
 
-    it('submit and validate coord', async function() {
+    it('submit and validate coord', async () => {
         await waitForEditorReady(editor, async () => {
             await submit(editor);
         });
@@ -119,22 +119,22 @@ describe('modify area geometry', function() {
         expect(a.coord()).to.deep.almost([[[
             [-111.718267489, 40.211738323, 0],
             [-111.717194605, 40.210918996, 0],
-            [-111.716926385, 40.21132866],
+            [-111.716926385, 40.21132866, 0],
             [-111.717194605, 40.211738323, 0],
-            [-111.717731047, 40.211943153],
+            [-111.717731047, 40.211943153, 0],
             [-111.718267489, 40.211738323, 0]
         ]]]);
     });
 
-    it('add a hole', async function() {
+    it('add a hole', async () => {
         area.addHole({x: 360, y: 370});
 
         expect(area.coord()).to.deep.almost([[[
             [-111.718267489, 40.211738323, 0],
             [-111.717194605, 40.210918996, 0],
-            [-111.716926385, 40.21132866],
+            [-111.716926385, 40.21132866, 0],
             [-111.717194605, 40.211738323, 0],
-            [-111.717731047, 40.211943153],
+            [-111.717731047, 40.211943153, 0],
             [-111.718267489, 40.211738323, 0]
         ], [
             [-111.717575873, 40.211324241, 0],

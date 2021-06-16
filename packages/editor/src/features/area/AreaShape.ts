@@ -198,25 +198,24 @@ class AreaShape extends Feature {
                 ) {
                     const shapes = polygonTools.private(area, 'shapePnts');
                     let allValid = true;
-
                     const connectedAreas = polygonTools.getConnectedAreas(area, orgPos);
 
                     if (area.behavior('snapCoordinates')) {
                         for (let i = 0; i < connectedAreas.length; i++) {
                             let cAreaData = connectedAreas[i];
-                            const {coordinates, polygonIndex, lineStringIndex, coordinateIndex} = cAreaData;
-                            const poly = coordinates[polygonIndex];
-                            const lineString = poly[lineStringIndex];
+                            const {coordinates, polyIndex, lineIndex, coordIndex} = cAreaData;
+                            const poly = coordinates[polyIndex];
+                            const lineString = poly[lineIndex];
 
                             if (cAreaData.area.behavior('snapCoordinates')) {
-                                lineString[coordinateIndex][0] = shpPos[0];
-                                lineString[coordinateIndex][1] = shpPos[1];
+                                lineString[coordIndex][0] = shpPos[0];
+                                lineString[coordIndex][1] = shpPos[1];
 
-                                if (!coordinateIndex) {
+                                if (!coordIndex) {
                                     lineString[lineString.length - 1] = shpPos;
                                 }
 
-                                const valid = !polygonTools.willSelfIntersect(lineString, shpPos, coordinateIndex) &&
+                                const valid = !polygonTools.willSelfIntersect(lineString, shpPos, coordIndex) &&
                                     polysInPoly(poly, poly[0], 1);
 
                                 if (!valid) {

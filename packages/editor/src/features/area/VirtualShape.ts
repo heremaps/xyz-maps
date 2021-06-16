@@ -81,7 +81,6 @@ export class VirtualAreaShape extends Feature {
             const polyIdx = props.poly;
             const pos = shapePnt.geometry.coordinates;
 
-
             if (!isMoved) {// first move ?
                 isMoved = true;
 
@@ -92,7 +91,6 @@ export class VirtualAreaShape extends Feature {
 
                     if (coord[0] == pos[0] && coord[1] == pos[1]) {
                         p = shp.properties;
-
                         polygonTools.addShp(area, pos.slice(), p.poly, p.hole, p.index + 1);
                     }
                 }
@@ -110,7 +108,6 @@ export class VirtualAreaShape extends Feature {
                 shp.__.pointerup.call(shp, e);
             }
         }
-
 
         shapePnt.__ = {
 
