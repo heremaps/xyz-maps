@@ -19,9 +19,11 @@
     "cross-spawn": "^7.0.3",
     "ts-morph": "^9.1.0",
     "typescript": "^3.9.6",
-    "yargs": "^16.2.0"
+    "yargs": "^16.2.0",
+    "simple-git": "^1.132.0"
   },
   "bin": {
-    "buildDts": "./lib/buildDts/cli.js"
+    "build-dts": "./lib/buildDts/cli.js",
+    "build-changelog": "./lib/changelog/cli.js"
   }
 }

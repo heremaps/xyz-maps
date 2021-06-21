@@ -23,7 +23,7 @@
     "watch-dev": "rollup -c --watch --environment BUILD:dev",
     "build-dev": "rollup -c --environment BUILD:dev",
     "build-release": "rollup -c --environment BUILD:production",
-    "build-dts": "npx buildDts -p ."
+    "build-dts": "npx build-dts -p ."
   },
   "publishConfig": {},
   "dependencies": {

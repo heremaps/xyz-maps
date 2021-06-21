@@ -1,3 +1,91 @@
+## 0.22.0 (2021-6-21)
+### playground
+* fixed: The code editor might jump to another line while editing an example.
+### editor
+* added: The DrawingBoard now provides getters and setters to retrieve and modify the geometry of the currently drawn feature.
+* fixed: Holes of connected polygons are included in the geometry validation
+* added: Snap coordinates to polygon geometry nearby can now be controlled by using area.behavior('snapCoordinates', boolean)
+### display
+* added: Control the space check for point styles on line geometries by using style.checkLineSpace=boolean.
+* fixed: pointer-events were missing for lines with a strokeWidth below 1
+* fixed: Polygon holes were ignored for pointer-event triggering
+* fixed: the lighting of certain polygons with extrusion was not correct in some cases
+* fixed: Possible rendering artifacts on the outer edges of buildings
+* added: Improved visuals for extruded polygons / buildings that are using alpha.
+* fixed: polylines were not displayed on some android mobile devices
+* fixed: Point-styles using offsetX/offsetY can collide when the map is zoomed.
+* fixed: Possible collision of Point-styles that are offset and anchored on line geometry when the map is pitched.
+* fixed: Offset Images anchored on the line geometry were placed incorrectly
+* added: Images are rotated based on line geometry when the anchor is set to "Line" and alignment is set to "map".
+* improved: Rotation precision of text based on line geometry.
+* fixed: The rotation was possibly missing for CollisionGroups with text style and anchor set to "Line".
+
+## 0.22.0 (2021-6-21)
+### playground
+* fixed: The code editor might jump to another line while editing an example.
+### editor
+* added: The DrawingBoard now provides getters and setters to retrieve and modify the geometry of the currently drawn feature.
+* fixed: Holes of connected polygons are included in the geometry validation
+* added: Snap coordinates to polygon geometry nearby can now be controlled by using area.behavior('snapCoordinates', boolean)
+### display
+* added: Control the space check for point styles on line geometries by using style.checkLineSpace=boolean.
+* fixed: pointer-events were missing for lines with a strokeWidth below 1
+* fixed: Polygon holes were ignored for pointer-event triggering
+* fixed: the lighting of certain polygons with extrusion was not correct in some cases
+* fixed: Possible rendering artifacts on the outer edges of buildings
+* added: Improved visuals for extruded polygons / buildings that are using alpha.
+* fixed: polylines were not displayed on some android mobile devices
+* fixed: Point-styles using offsetX/offsetY can collide when the map is zoomed.
+* fixed: Possible collision of Point-styles that are offset and anchored on line geometry when the map is pitched.
+* fixed: Offset Images anchored on the line geometry were placed incorrectly
+* added: Images are rotated based on line geometry when the anchor is set to "Line" and alignment is set to "map".
+* improved: Rotation precision of text based on line geometry.
+* fixed: The rotation was possibly missing for CollisionGroups with text style and anchor set to "Line".
+
+## 0.22.0 (2021-6-21)
+### playground
+* fixed: The code editor might jump to another line while editing an example.
+### editor
+* added: The DrawingBoard now provides getters and setters to retrieve and modify the geometry of the currently drawn feature.
+* fixed: Holes of connected polygons are included in the geometry validation
+* added: Snap coordinates to polygon geometry nearby can now be controlled by using area.behavior('snapCoordinates', boolean)
+### display
+* added: Control the space check for point styles on line geometries by using style.checkLineSpace=boolean.
+* fixed: pointer-events were missing for lines with a strokeWidth below 1
+* fixed: Polygon holes were ignored for pointer-event triggering
+* fixed: the lighting of certain polygons with extrusion was not correct in some cases
+* fixed: Possible rendering artifacts on the outer edges of buildings
+* added: Improved visuals for extruded polygons / buildings that are using alpha.
+* fixed: polylines were not displayed on some android mobile devices
+* fixed: Point-styles using offsetX/offsetY can collide when the map is zoomed.
+* fixed: Possible collision of Point-styles that are offset and anchored on line geometry when the map is pitched.
+* fixed: Offset Images anchored on the line geometry were placed incorrectly
+* added: Images are rotated based on line geometry when the anchor is set to "Line" and alignment is set to "map".
+* improved: Rotation precision of text based on line geometry.
+* fixed: The rotation was possibly missing for CollisionGroups with text style and anchor set to "Line".
+
+## 0.22.0 (2021-6-21)
+### playground
+* fixed:  The code editor might jump to another line while editing an example.
+### editor
+* added:  The DrawingBoard now provides getters and setters to retrieve and modify the geometry of the currently drawn feature.
+* fixed:  Holes of connected polygons are included in the geometry validation
+* added:  Snap coordinates to polygon geometry nearby can now be controlled by using area.behavior('snapCoordinates', boolean)
+### display
+* added:  Control the space check for point styles on line geometries by using style.checkLineSpace=boolean.
+* fixed:  pointer-events were missing for lines with a strokeWidth below 1
+* fixed:  Polygon holes were ignored for pointer-event triggering
+* fixed:  the lighting of certain polygons with extrusion was not correct in some cases
+* fixed:  Possible rendering artifacts on the outer edges of buildings
+* added:  Improved visuals for extruded polygons / buildings that are using alpha.
+* fixed:  polylines were not displayed on some android mobile devices
+* fixed:  Point-styles using offsetX/offsetY can collide when the map is zoomed.
+* fixed:  Possible collision of Point-styles that are offset and anchored on line geometry when the map is pitched.
+* fixed:  Offset Images anchored on the line geometry were placed incorrectly
+* added:  Images are rotated based on line geometry when the anchor is set to "Line" and alignment is set to "map".
+* improved:  Rotation precision of text based on line geometry.
+* fixed:  The rotation was possibly missing for CollisionGroups with text style and anchor set to "Line".
+
 ## 0.22.0 (2021-5-10)
 ### display
 * improved: optimised text placement on line geometries.
