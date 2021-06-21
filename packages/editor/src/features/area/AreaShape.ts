@@ -17,10 +17,12 @@
  * License-Filename: LICENSE
  */
 
-import {intersectLineLine} from '../../geometry';
+import {intersectLineLine, simplifyPath} from '../../geometry';
 import InternalEditor from '../../IEditor';
 import {Area} from './Area';
-import {FeatureProvider, Feature, GeoJSONFeature} from '@here/xyz-maps-core';
+import {FeatureProvider, Feature, GeoJSONCoordinate, GeoJSONFeature} from '@here/xyz-maps-core';
+import {geotools} from '@here/xyz-maps-common';
+import {Feature as EditorFeature} from '../feature/Feature';
 
 function intersectLinePoly(l1, l2, poly) {
     for (let p = 0, len = poly.length - 1; p < len; p++) {
@@ -83,6 +85,84 @@ type PrivateData = {
     area: Area;
     [name: string]: any;
 }
+
+
+const setShapePosition = (
+    area: Area,
+    position: GeoJSONCoordinate,
+    coordIndex: number,
+    holeIndex: number = 0,
+    polyIndex: number = 0
+): boolean => {
+    const coordinates = polygonTools.getCoords(area); // deepcopy!
+    const poly = coordinates[polyIndex];
+    const lineString = poly[holeIndex];
+    const orgPos = lineString[coordIndex];
+
+
+    if (!polygonTools.willSelfIntersect(lineString, position, coordIndex)) {
+        lineString[coordIndex] = position;
+
+        if (!coordIndex) {
+            lineString[lineString.length - 1] = position;
+        }
+
+        if (
+            // make sure holes are not colliding with each other
+            !intersectPolyPolys(lineString, poly, holeIndex) &&
+            // make sure all interiors are inside exterior
+            polysInPoly(poly, poly[0], 1)
+        ) {
+            const shapes = polygonTools.private(area, 'shapePnts');
+            const connectedAreas = polygonTools.getConnectedAreas(area, orgPos);
+
+            if (area.behavior('snapCoordinates')) {
+                for (let i = 0; i < connectedAreas.length; i++) {
+                    let cAreaData = connectedAreas[i];
+                    const {coordinates, polyIndex, lineIndex, coordIndex} = cAreaData;
+                    const poly = coordinates[polyIndex];
+                    const lineString = poly[lineIndex];
+
+                    if (cAreaData.area.behavior('snapCoordinates')) {
+                        lineString[coordIndex][0] = position[0];
+                        lineString[coordIndex][1] = position[1];
+
+                        if (!coordIndex) {
+                            lineString[lineString.length - 1] = position;
+                        }
+
+                        const valid = !polygonTools.willSelfIntersect(lineString, position, coordIndex) &&
+                            polysInPoly(poly, poly[0], 1);
+
+                        if (!valid) {
+                            return false;
+                        }
+                    } else {
+                        coordinates.splice(i, 1);
+                    }
+                }
+            }
+
+
+            // update geometry of connected areas
+            for (let {area, coordinates} of connectedAreas) {
+                polygonTools._setCoords(area, coordinates, false);
+            }
+
+            // set geometry of area itself
+            polygonTools._setCoords(area, coordinates, false);
+
+            for (let shp of shapes) {
+                const {coordinates} = shp.geometry;
+                if (coordinates[0] == orgPos[0] && coordinates[1] == orgPos[1]) {
+                    shp.getProvider().setFeatureCoordinates(shp, position.slice());
+                }
+            }
+        }
+        return true;
+    }
+};
+
 
 /**
  * The AreaShape represents a shape-point / coordinate of a Area feature.
@@ -173,84 +253,50 @@ class AreaShape extends Feature {
             const index = shapePnt.getIndex();
             const polyIndex = shapePnt.properties.poly;
             const holeIndex = shapePnt.properties.hole;
-            const coordinates = polygonTools.getCoords(area); // deepcopy!
-            const poly = coordinates[polyIndex];
-            const lineString = poly[holeIndex];
-            const orgPos = lineString[index]; // .slice();//shapePnt.geometry.coordinates.slice();
             const shpPos = internalEditor.map.translateGeo(
-                lineString[index],
+                this.geometry.coordinates,
                 dx - previousDx,
                 dy - previousDy
             );
 
-            if (!polygonTools.willSelfIntersect(lineString, shpPos, index)) {
-                lineString[index] = shpPos;
 
-                if (!index) {
-                    lineString[lineString.length - 1] = shpPos;
-                }
-
-                if (
-                    // make sure holes are not colliding with each other
-                    !intersectPolyPolys(lineString, poly, holeIndex) &&
-                    // make sure all interiors are inside exterior
-                    polysInPoly(poly, poly[0], 1)
-                ) {
-                    const shapes = polygonTools.private(area, 'shapePnts');
-                    let allValid = true;
-                    const connectedAreas = polygonTools.getConnectedAreas(area, orgPos);
-
-                    if (area.behavior('snapCoordinates')) {
-                        for (let i = 0; i < connectedAreas.length; i++) {
-                            let cAreaData = connectedAreas[i];
-                            const {coordinates, polyIndex, lineIndex, coordIndex} = cAreaData;
-                            const poly = coordinates[polyIndex];
-                            const lineString = poly[lineIndex];
-
-                            if (cAreaData.area.behavior('snapCoordinates')) {
-                                lineString[coordIndex][0] = shpPos[0];
-                                lineString[coordIndex][1] = shpPos[1];
-
-                                if (!coordIndex) {
-                                    lineString[lineString.length - 1] = shpPos;
-                                }
-
-                                const valid = !polygonTools.willSelfIntersect(lineString, shpPos, coordIndex) &&
-                                    polysInPoly(poly, poly[0], 1);
-
-                                if (!valid) {
-                                    allValid = false;
-                                    break;
-                                }
-                            }
-                        }
-                    }
-
-                    if (allValid) {
-                        // update geometry of connected areas
-                        for (let {area, coordinates} of connectedAreas) {
-                            polygonTools._setCoords(area, coordinates, false);
-                        }
-
-                        // set geometry of area itself
-                        polygonTools._setCoords(area, coordinates, false);
-
-                        for (let shp of shapes) {
-                            const {coordinates} = shp.geometry;
-                            if (coordinates[0] == orgPos[0] && coordinates[1] == orgPos[1]) {
-                                shp.getProvider().setFeatureCoordinates(shp, shpPos.slice());
-                            }
-                        }
-
-                        previousDx = dx;
-                        previousDy = dy;
-                    }
-                }
+            if (setShapePosition(area, shpPos, index, holeIndex, polyIndex)) {
+                previousDx = dx;
+                previousDy = dy;
             }
         }
 
         function releaseShape(e) {
             if (isMoved) {
+                if (area.behavior('snapCoordinates')) {
+                    let distanceMeter = internalEditor.cfg('autoConnectShapeDistance');
+                    const bbox = geotools.extendBBox(this.bbox, distanceMeter);
+                    const layer = internalEditor.getLayer(area);
+                    const features = <EditorFeature[]>layer.search({rect: bbox});
+                    let snapToPosition;
+
+                    for (let feature of features) {
+                        if (feature.class == 'AREA' && feature != area) {
+                            for (let [exterior] of <GeoJSONCoordinate[][][]>polygonTools.getCoords(feature)) {
+                                for (let coordinate of exterior) {
+                                    const d = geotools.distance(this.geometry.coordinates, coordinate);
+                                    if (d < distanceMeter) {
+                                        snapToPosition = coordinate;
+                                        distanceMeter = d;
+                                    }
+                                }
+                            }
+                        }
+                    }
+
+                    if (snapToPosition) {
+                        const index = shapePnt.getIndex();
+                        const polyIndex = shapePnt.properties.poly;
+                        const holeIndex = shapePnt.properties.hole;
+                        setShapePosition(area, snapToPosition.slice(), index, holeIndex, polyIndex);
+                    }
+                }
+
                 polygonTools.markAsModified(area);
             }
 

@@ -150,6 +150,7 @@ class Area extends Feature {
 
     /**
      * Set the behavior options.
+     * @experimental
      */
     behavior(options: {
         /**
@@ -159,14 +160,17 @@ class Area extends Feature {
     }): void;
     /**
      * Set the value of a specific behavior option.
+     * @experimental
      */
     behavior(name: string, value: boolean): void;
     /**
      * Get the value of a specific behavior option.
+     * @experimental
      */
     behavior(option: string): any;
     /**
      * Get the behavior options.
+     * @experimental
      */
     behavior(): {
         /**
