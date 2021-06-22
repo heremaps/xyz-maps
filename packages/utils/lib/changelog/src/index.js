@@ -48,6 +48,16 @@ const getLastReleaseTag = async () => {
     });
 };
 
+const orderByType = (scopes) => {
+    const typeOrder = ['improved', 'improve', 'added', 'add', 'fixed', 'fix'];
+
+    for (let scope in scopes) {
+        scopes[scope].sort((a, b) => typeOrder.indexOf(a.type) - typeOrder.indexOf(b.type));
+    }
+
+    return scopes;
+};
+
 const parseCommitLogs = async (from, to) => {
     let logs = await getCommitlogs(from, to);
 
@@ -86,8 +96,9 @@ const parseCommitLogs = async (from, to) => {
         });
     }
 
+
     return {
-        scopes: scopes,
+        scopes: orderByType(scopes),
         length: length
     };
 };
