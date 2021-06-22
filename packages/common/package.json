@@ -20,7 +20,8 @@
   "scripts": {
     "watch-dev": "rollup -c --watch --environment BUILD:dev",
     "build-dev": "rollup -c --environment BUILD:dev",
-    "build-release": "rollup -c --environment BUILD:production"
+    "build-release": "rollup -c --environment BUILD:production",
+    "update-changelog": "npx build-changelog"
   },
   "browser": {},
   "publishConfig": {},

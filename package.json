@@ -14,6 +14,7 @@
   "scripts": {
     "test": "lerna run --stream --no-prefix --scope @here/xyz-maps-test test -- ",
     "preversion": "yarn run build-release && yarn run test",
+    "version": "lerna run update-changelog --parallel",
     "postversion": "yarn run bundle-release",
     "watch-dev": "lerna run watch-dev --parallel",
     "build-dev": "lerna run build-dev --parallel",
