@@ -23,7 +23,7 @@ const baseMapLayer = new MVTLayer({
             'highway': [{zIndex: 5, type: 'Line', stroke: 'white', strokeWidth: {10: 1.5, 15: 4, 16: '12m'}}],
             'boundaries': [{zIndex: 6, type: 'Line', stroke: '#b3b1ad', strokeWidth: {10: 0.5, 20: 2}}],
             'buildings': [{
-                zIndex: 7, type: 'Polygon', fill: 'rgb(155,175,196)',
+                zIndex: 7, type: 'Polygon', fill: 'rgba(155,175,196,0.8)',
                 // define extrude in meters to display polygons with extrusion
                 extrude: (feature) => feature.properties.height || 25
             }],
