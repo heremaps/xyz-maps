@@ -154,7 +154,7 @@ function CrossingTester( HERE_WIKI, linkOrig ) {
             return results;
         }
 
-        function getCrossings( l2 ) {
+        function getCrossings( l2, cLinks ) {
             let isCLink = false;
             const pcons = [];
             const intersections = calcPathIntersections( linkPath, l2.coord() );
@@ -223,7 +223,7 @@ function CrossingTester( HERE_WIKI, linkOrig ) {
 
             // check for real crossings
             objs.forEach((el) => {
-                pCons = pCons.concat( getCrossings(el) );
+                pCons = pCons.concat( getCrossings(el, cLinks) );
             });
         }
         return pCons;
