@@ -63,9 +63,6 @@ export const build = async (moduleDirectory: string, apiExtractorJsonPath: strin
             showVerboseMessages: true
         });
 
-        console.log(`Cleanup temporary declaration files`);
-        rmdirSync(path.join(moduleDirectory, dtsFolder), {recursive: true});
-
         if (extractorResult.succeeded) {
             console.log(`API Extractor completed successfully`);
             process.exitCode = 0;
@@ -77,5 +74,8 @@ export const build = async (moduleDirectory: string, apiExtractorJsonPath: strin
     } catch (e) {
         console.error(e);
         process.exitCode = 1;
+    } finally {
+        console.log(`Cleanup temporary declaration files`);
+        rmdirSync(path.join(moduleDirectory, dtsFolder), {recursive: true});
     }
 };
