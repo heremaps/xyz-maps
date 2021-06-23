@@ -55,9 +55,9 @@ const restoreOpacity = (styles) => {
     return styles;
 };
 
-const prepareStyle = (style) => {
+const prepareStyle = (style: Style | Style[]): Style[] => {
     style = style ? style instanceof Array ? style : [style] : UNDEF;
-    return style;
+    return <Style[]>style;
 };
 
 const createRect = (minLon: number, minLat: number, maxLon: number, maxLat: number): Point[][] => {
@@ -81,6 +81,7 @@ class Overlay {
         return <FeatureProvider> this.layer.getProvider();
     }
 
+    hideFeature(...args);
     hideFeature() {
         const overlay = this;
         const layer = overlay.layer;
@@ -103,6 +104,7 @@ class Overlay {
         }
     };
 
+    showFeature(...args);
     showFeature() {
         const overlay = this;
         const layer = overlay.layer;
@@ -125,7 +127,7 @@ class Overlay {
         }
     };
 
-    addFeature(feature: GeoJSONFeature, style?: Style[]): Feature {
+    addFeature(feature: GeoJSONFeature, style?: Style | Style[]): Feature {
         const oFeature = this.layer.addFeature(feature, prepareStyle(style));
 
         oFeature.properties['@ns:com:here:editor'] =
@@ -173,7 +175,7 @@ class Overlay {
     }
 
 
-    addRect(minLon: number, minLat: number, maxLon: number, maxLat: number, style: Style[]) {
+    addRect(minLon: number, minLat: number, maxLon: number, maxLat: number, style: Style | Style[]) {
         return this.addFeature(
             createFeature('Polygon', createRect(minLon, minLat, maxLon, maxLat)),
             style
