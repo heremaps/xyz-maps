@@ -468,7 +468,7 @@ export interface Style {
      * - "Line": the respective style is displayed on the shape of the polyline when there is enough space. See {@link checkLineSpace} to disable the space ckeck.
      *
      *
-     * @defaultValue: "Line" for styles of type "Text", "Coordinate" for styles of type "Circle", "Rect" or "Image".
+     * @defaultValue "Line" for styles of type "Text", "Coordinate" for styles of type "Circle", "Rect" or "Image".
      */
     anchor?: 'Line' | 'Coordinate'
 
@@ -478,7 +478,7 @@ export interface Style {
      * If check checkLineSpace is enabled the respective style is only displayed if there is enough space on the line,
      * otherwise it is not displayed.
      *
-     * @defaultValue: true
+     * @defaultValue true
      */
     checkLineSpace?: boolean
 
@@ -491,7 +491,7 @@ export interface Style {
      * - true: collision are allowed, Collision detection is disabled.
      * - false: avoid collisions, Collision detection is enabled.
      *
-     * @defaultValue: false for "Text", true for all other.
+     * @defaultValue false for "Text", true for all other.
      */
     collide?: boolean | StyleValueFunction<boolean> | StyleZoomRange<boolean>;
 
