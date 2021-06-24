@@ -21,6 +21,7 @@ import {getSegmentIndex, getDistance} from '../geometry';
 import oTools from '../features/oTools';
 import {GeoJSONCoordinate, GeoJSONFeature} from '@here/xyz-maps-core';
 import {Navlink} from '@here/xyz-maps-editor';
+import CrossingTester from '../tools/CrossingTester';
 import InternalEditor from '../IEditor';
 
 
@@ -85,15 +86,15 @@ const found = {
 
 let UNDEF;
 
-function getIndex(lnk, pnt) {
-    const path = lnk.coord();
+function getIndex(line: Navlink, point: GeoJSONCoordinate) {
+    const path = line.coord();
 
     for (let i = 0; i < path.length; i++) {
-        if (pnt.x == path[i][0] && pnt.y == path[i][1]) {
+        if (point[0] == path[i][0] && point[1] == path[i][1]) {
             return i;
         }
     }
-    return getSegmentIndex(path, [pnt.x, pnt.y]);
+    return getSegmentIndex(path, point);
 }
 
 /**
@@ -142,42 +143,55 @@ class Crossing implements GeoJSONFeature {
         coordinates: GeoJSONCoordinate | GeoJSONCoordinate[]
     }
 
-    private _: {
+    private readonly _: {
         set?: any,
-        iEdit: any,
-        xTest: any,
-        x: any;
+        iEditor: InternalEditor,
+        xTester: CrossingTester,
+        link: Navlink,
+        searchPnt: GeoJSONCoordinate,
+        foundPnt: GeoJSONCoordinate,
+        candidate: Navlink
     }
 
     private getLinkIndex() {
-        let {x} = this._;
-        return getIndex(x.link, x.searchPnt);
+        let prv = this._;
+        return getIndex(prv.link, prv.searchPnt);
     }
 
     private getCandidateIndex() {
-        let {x} = this._;
-        return getIndex(x.candidate, x.foundPnt || x.searchPnt);
+        let prv = this._;
+        return getIndex(prv.candidate, prv.foundPnt || prv.searchPnt);
     }
 
-    constructor(HERE_WIKI: InternalEditor, crossingTester, crossing) {
+    constructor(xTester: CrossingTester, link: Navlink, candidate: Navlink, searchPnt: GeoJSONCoordinate, foundPnt?: GeoJSONCoordinate) {
         const that = this;
+        const {iEditor} = xTester;
+        const fPnt: GeoJSONCoordinate = foundPnt || searchPnt;
+        const centerGeo = [
+            (fPnt[0] - searchPnt[0]) / 2 + searchPnt[0],
+            (fPnt[1] - searchPnt[1]) / 2 + searchPnt[1]
+        ];
+        const centerPixel = iEditor.map.getPixelCoord(centerGeo);
+
         this._ = {
-            iEdit: HERE_WIKI,
-            xTest: crossingTester,
-            x: crossing
+            iEditor,
+            xTester,
+            link,
+            candidate,
+            searchPnt,
+            foundPnt
         };
-        const pixelCenter = HERE_WIKI.map.getPixelCoord(crossing.cx, crossing.cy);
 
-        this.x = pixelCenter[0];
-        this.y = pixelCenter[1];
+        this.x = centerPixel[0];
+        this.y = centerPixel[1];
 
-        const croSearchPnt = crossing.searchPnt;
-        const croFoundPnt = crossing.foundPnt || croSearchPnt;
-        const isCandidate = !!crossing.foundPnt;
+        const isCandidate = !!foundPnt;
 
+        foundPnt = foundPnt || searchPnt;
 
-        const croSearchPntPixel = HERE_WIKI.display.geoToPixel(croSearchPnt.x, croSearchPnt.y);
-        const croFoundPntPixel = HERE_WIKI.display.geoToPixel(croFoundPnt.x, croFoundPnt.y);
+        const croSearchPntPixel = iEditor.display.geoToPixel(searchPnt[0], searchPnt[1]);
+        const croFoundPntPixel = iEditor.display.geoToPixel(foundPnt[0], foundPnt[1]);
+
         this.distance = getDistance(
             [croSearchPntPixel.x, croSearchPntPixel.y],
             [croFoundPntPixel.x, croFoundPntPixel.y]
@@ -189,13 +203,10 @@ class Crossing implements GeoJSONFeature {
 
         that.geometry = isCandidate ? {
             type: 'LineString',
-            coordinates: [
-                [croSearchPnt.x, croSearchPnt.y],
-                [croFoundPnt.x, croFoundPnt.y]
-            ]
+            coordinates: [searchPnt, foundPnt]
         } : {
             type: 'Point',
-            coordinates: [crossing.cx, crossing.cy]
+            coordinates: centerGeo
         };
     }
 
@@ -204,7 +215,7 @@ class Crossing implements GeoJSONFeature {
      */
     getRelatedLink(): Navlink {
         // related link means the link to which the selected link could be connected on crossing indicator
-        return this._.x.candidate;
+        return this._.candidate;
     }
 
     /**
@@ -216,19 +227,19 @@ class Crossing implements GeoJSONFeature {
         // if the candidate or link is deleted or modified after the crossing is created, return, do nothing
         const croCandidate = this.getRelatedLink();
         const prv = this._;
-        const {iEdit, xTest} = prv;
+        const {iEditor, xTester} = prv;
         const croLink = this.getLink();
 
         if (
             !croCandidate.id || !croLink.id || croCandidate.editState('removed') ||
-            croCandidate.editState('modified') > xTest.createTS ||
-            croLink.editState('removed') || croLink.editState('modified') > xTest.createTS
+            croCandidate.editState('modified') > xTester.createTS ||
+            croLink.editState('removed') || croLink.editState('modified') > xTester.createTS
         ) {
             return false;
         }
         const isCandidate = this.class == xClass.CROSSING_CANDIDATE;
         const candidateIndexBeforeSplit = this.getCandidateIndex();
-        const croFoundPnt = prv.x.foundPnt || prv.x.searchPnt;
+        const croFoundPnt = (prv.foundPnt || prv.searchPnt).slice();
         const newLinks = [];
         let shpIndex;
         let shp;
@@ -237,11 +248,12 @@ class Crossing implements GeoJSONFeature {
         if (!isCandidate) {
             shp = oTools.addShp(
                 croLink,
-                iEdit.map.clipGeoCoord([croFoundPnt.x, croFoundPnt.y]),
+                iEditor.map.clipGeoCoord(croFoundPnt),
                 null,
                 true
             );
         }
+
 
         shpIndex = isCandidate ? this.getLinkIndex() : shp;
 
@@ -258,7 +270,7 @@ class Crossing implements GeoJSONFeature {
                 croLink,
                 shpIndex,
                 croCandidate,
-                iEdit.map.clipGeoCoord([croFoundPnt.x, croFoundPnt.y]),
+                iEditor.map.clipGeoCoord(croFoundPnt),
                 candidateIndexBeforeSplit,
                 true
             );
@@ -282,7 +294,7 @@ class Crossing implements GeoJSONFeature {
         // @ts-ignore
         // this.isDeleted = true;
 
-        return xTest.getCrossings({links: newLinks, croLink: croLink});
+        return xTester.getCrossings({links: newLinks, croLink: croLink});
     };
 
     /**
@@ -291,16 +303,16 @@ class Crossing implements GeoJSONFeature {
     show() {
         const crossing = this;
         const prv = crossing._;
-        const {iEdit, xTest} = prv;
-        const overlay = iEdit.objects.overlay;
+        const {iEditor, xTester} = prv;
+        const overlay = iEditor.objects.overlay;
 
         const createSet = (searchPnt, foundPnt, searchLine, foundLine) => {
-            const cs = xTest.cStyles;
-            const searchStroke = this._.iEdit.getStyle(searchLine)[0].stroke;
-            const foundStroke = this._.iEdit.getStyle(foundLine)[0].stroke;
-            const createPath = (style) => overlay.addPath([[searchPnt.x, searchPnt.y], [foundPnt.x, foundPnt.y]], style);
-            const createCircle = (p, style) => overlay.addCircle([p.x, p.y], style);
-            const mouseUpTrigger = (ev) => iEdit.listeners.trigger(ev, crossing);
+            const cs = xTester.getStyle();
+            const searchStroke = iEditor.getStyle(searchLine)[0].stroke;
+            const foundStroke = iEditor.getStyle(foundLine)[0].stroke;
+            const createPath = (style) => overlay.addPath([searchPnt, foundPnt], style);
+            const createCircle = (p, style) => overlay.addCircle(p, style);
+            const mouseUpTrigger = (ev) => iEditor.listeners.trigger(ev, crossing);
 
             // if the search or found link is not found, return UNDEF
             if (searchStroke && foundStroke) {
@@ -312,13 +324,13 @@ class Crossing implements GeoJSONFeature {
                     createCircle(searchPnt, {...search2, fill: searchStroke, ...cs['search2']}),
                     createCircle(foundPnt, {...found, fill: foundStroke, stroke: foundStroke, ...cs['found']})
                 ];
-                container.forEach((el) => el.pointerup = mouseUpTrigger);
+                container.forEach((el) => (<any>el).pointerup = mouseUpTrigger);
                 return container;
             }
         };
-        const croFoundPnt = prv.x.foundPnt || prv.x.searchPnt;
-        const set = prv.set = prv.set || createSet(prv.x.searchPnt, croFoundPnt, this.getLink(), this.getRelatedLink());
-        iEdit.objects.overlay.showFeature(set);
+        const croFoundPnt = prv.foundPnt || prv.searchPnt;
+        const set = prv.set = prv.set || createSet(prv.searchPnt, croFoundPnt, this.getLink(), this.getRelatedLink());
+        iEditor.objects.overlay.showFeature(set);
     };
 
     /**
@@ -337,7 +349,7 @@ class Crossing implements GeoJSONFeature {
      * Get the Navlink feature of which the crossing belongs to.
      */
     getLink(): Navlink {
-        return this._.x.link;
+        return this._.link;
     }
 
     /**
