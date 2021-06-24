@@ -30,7 +30,9 @@ describe('address routing point connects to links automatically', function() {
     let editor;
     let display;
     let mapContainer;
-    let link1; let link2; let address;
+    let link1;
+    let link2;
+    let address;
 
     before(async function() {
         preparedData = await prepare(dataset);
@@ -53,36 +55,46 @@ describe('address routing point connects to links automatically', function() {
         address = preparedData.getFeature('paLayer', -47932);
     });
 
-    after(async function() {
+    after(async () => {
         editor.destroy();
         display.destroy();
-
         await preparedData.clear();
     });
 
-    it('get an Address object which connects to a link', async function() {
-        let props = address.prop();
+    it('get an Address object which connects to a link', async () => {
+        const props = address.prop();
 
         expect(props.routingLink).to.equal(link1.id);
         expect(props).to.deep.include({'routingPoint': [74.81124, 12.97608, 0]});
     });
 
-    it('select the address object, drag its routing point and validate', async function() {
+    it('select the address object, drag its routing point and validate', async () => {
         address.select();
 
         // drag routing point of address
         await drag(mapContainer, {x: 300, y: 400}, {x: 400, y: 500});
 
-        var props = address.prop();
+        const props = address.prop();
         expect(props.routingLink).to.equal(link1.id + '');
         expect(props).to.deep.include({'routingPoint': [74.81151, 12.97608, 0]});
+    });
 
+    it('drag again', async () => {
         // drag routing point of address
         await drag(mapContainer, {x: 400, y: 400}, {x: 420, y: 370});
 
-        var props = address.prop();
+        const props = address.prop();
         expect(props.routingLink).to.equal(link2.id + '');
         expect(props).to.deep.include({'routingPoint': [74.81158, 12.97615, 0]});
+    });
+
+    it('drag to end of road', async () => {
+        // drag routing point of address
+        await drag(mapContainer, {x: 420, y: 370}, {x: 450, y: 350});
+
+        const props = address.prop();
+        expect(props.routingLink).to.equal(link2.id + '');
+        expect(props).to.deep.include({'routingPoint': [74.81165, 12.97621, 0]});
 
         address.unselect();
     });
