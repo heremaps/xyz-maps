@@ -28,9 +28,6 @@ import {Map, JSUtils, geotools} from '@here/xyz-maps-common';
 import {getPntOnLine, intersectBBox} from '../geometry';
 import {Navlink} from './link/Navlink';
 
-
-type Point = [number, number, number?];
-
 type NavlinkIds = String | Number;
 
 type Options = {
@@ -457,7 +454,7 @@ class ObjectManager {
         return objects.length > 1 ? objects : objects[0];
     };
 
-    getNearestLine(point: Point, data: EditableRemoteTileProvider | Navlink[], options?: Options) {
+    getNearestLine(point: number[], data: EditableRemoteTileProvider | Navlink[], options?: Options) {
         const HERE_WIKI = this.iEdit;
         // overwrite default configuration
         options = JSUtils.extend({
@@ -498,7 +495,7 @@ class ObjectManager {
             return (p1[2] === UNDEF || geopos[2] === UNDEF || p1[2] === geopos[2])
                 ? geotools.distance(p1, geopos)
                 : Infinity;
-        };
+        }
 
         for (let line of <Navlink[]>data) {
             if (

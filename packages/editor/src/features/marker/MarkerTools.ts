@@ -27,7 +27,7 @@ function triggerEvent(marker, ev, type) {
     marker._e().listeners.trigger(ev, marker, type);
 }
 
-function getPrivate(feature, name) {
+function getPrivate(feature, name?: string) {
     let prv = feature.__;
 
     if (!prv) {
@@ -78,11 +78,6 @@ const tools = {
             pointerleave: function(e) {
                 this._e().listeners.trigger(e, this);
             }
-
-            // ,tap: function(e)
-            // {
-            //     EDITOR.listeners.trigger( e, this );
-            // }
 
         },
 
@@ -143,7 +138,6 @@ const tools = {
                 }
             };
 
-
             if (!prv.selector) {
                 prv.selector = EDITOR.objects.overlay.addCircle(obj.coord(), UNDEF, {
                     'type': 'MARKER_SELECTOR'
@@ -161,41 +155,6 @@ const tools = {
             selector._provider.setFeatureCoordinates(selector, pos);
         }
 
-        // // window.PMAP = {};
-        // var coords = this.geometry.coordinates;
-        // var pid    = coords[0]+'|'+coords[1];
-        // var stacks = PMAP[pid];
-        //
-        // console.log(pid,stacks);
-        //
-        // if( stacks )
-        // {
-        //     // stacks.splice( stacks.indexOf(this), 1 )[0]._style = UNDEF;
-        //
-        //     delete stacks[this.id];
-        //
-        //     stacks.length--;
-        //
-        //     // if( !stacks.length )
-        //     {
-        //         delete PMAP[pid];
-        //     }
-        //
-        //
-        //     for( var id in stacks )
-        //     {
-        //         if( id != 'length' )
-        //         {
-        //             stacks[id]._style = UNDEF;
-        //             // HERE_WIKI.display.setStyleGroup( stacks[id] );
-        //         }
-        //
-        //
-        //     }
-        //
-        // }
-        // this._style = UNDEF;
-
         obj._provider.setFeatureCoordinates(obj, pos.slice());
     },
 
@@ -204,11 +163,9 @@ const tools = {
         obj.editState('removed', Date.now());
 
         tools.deHighlight(obj);
-
-        // obj._provider.removeFeature( obj );
     },
 
-    markAsModified: function(obj, saveView) {
+    markAsModified: function(obj, saveView?: boolean) {
         obj.editState('modified', Date.now());
 
         if (saveView == UNDEF || saveView) {
@@ -216,8 +173,6 @@ const tools = {
         }
         return obj;
     }
-
-
 };
 
 

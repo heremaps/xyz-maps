@@ -17,29 +17,22 @@
  * License-Filename: LICENSE
  */
 
-export default function GeoFence( EDITOR, x, y ) {
-    // var geoFenceRadius = EDITOR._config['geoFence'];
-    //
-    // if( !geoFenceRadius )
-    // {
+import InternalEditor from '../../IEditor';
 
-    const geoFence = this;
+export default class GeoFence {
+    constructor(iEditor: InternalEditor, x: number, y: number) {
+    }
 
-    geoFence.isPntInFence = () => true;
-    geoFence.isHidden = () => true;
-    geoFence.remove = () => {
+    isPntInFence(): boolean {
+        // return !( VectorHelpers.getDistance( p, [x,y] ) > geoFenceRadius);
+        return true;
+    }
+
+    isHidden(): boolean {
+        return true;
+    }
+
+    remove() {
 
     };
-
-    // }
-
-    // var fence = EDITOR.map.paper.circle(x, y, geoFenceRadius+5)
-    //     .attr(attrGeoFence)
-    //     .toBack()
-    //     .hide();
-    //
-    // fence.isPntInFence = function(p){
-    //     return !( VectorHelpers.getDistance( p, [x,y] ) > geoFenceRadius);
-    // };
-    // return fence;
 };

@@ -19,7 +19,7 @@
 
 import {getDistance, isOnLine, getPntOnLine} from '../geometry';
 
-type Point = [number, number, number?];
+type Point = number[]; // [number, number, number?];
 type Path = Point[];
 
 class RelativePosition {

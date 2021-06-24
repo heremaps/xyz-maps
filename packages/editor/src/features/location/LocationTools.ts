@@ -25,7 +25,6 @@ import {triggerEvent} from './triggerEvent';
 let linkTools;
 let UNDEF;
 
-
 const getPrivate = (feature, name?: string) => {
     let prv = feature.__;
 
@@ -68,7 +67,7 @@ function _props(line, props) {
     }
 
     return userProps;
-};
+}
 
 
 const toNTU = (c) => Math.round(c * 1e5) / 1e5;
@@ -76,7 +75,7 @@ const toNTU = (c) => Math.round(c * 1e5) / 1e5;
 
 const isPOI = (obj) => obj.class == 'PLACE';
 
-const getRPoint = (obj) => {
+const getRPoint = (obj): RoutingPoint => {
     const prv = getPrivate(obj);
 
     if (prv._rp == null) {
