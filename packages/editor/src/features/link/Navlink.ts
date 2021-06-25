@@ -164,7 +164,7 @@ export class Navlink extends Feature {
      * @returns index of the shape or false if shape could not be added
      */
     addShape(point: GeoPoint | PixelPoint, index?: number) {
-        let added = false;
+        let added: number | boolean = false;
         const link = this;
         const coordinate = this._e().map.getGeoCoord(point);
 

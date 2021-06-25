@@ -18,6 +18,8 @@
  */
 
 import oTools from './oTools';
+import linkTools from './link/NavlinkTools';
+import locationTools from './location/LocationTools';
 import SelectionHandler from './SelectionHandler';
 import History from './History';
 import ObjectOverlay from './Overlay';
@@ -421,15 +423,15 @@ class ObjectManager {
 
                 // in case of history recovering disable autofix to guarantee geometry is created 1:1 and not modified!
                 if (!history) {
-                    oTools.fixGeo(feature, UNDEF, UNDEF, preferIndex);
+                    linkTools.fixGeo(feature, UNDEF, UNDEF, preferIndex);
                 }
             } else if (featureClass === 'PLACE' || featureClass === 'ADDRESS') {
                 // let obj = createFeature(feature);
-                let routingPoint = oTools.getRoutingData(feature);
+                let routingPoint = locationTools.getRoutingData(feature);
                 let cLinkId = routingPoint.link;
 
                 if (idMapping[cLinkId]) {
-                    const provider = oTools.getRoutingProvider(feature);
+                    const provider = locationTools.getRoutingProvider(feature);
                     const routingLink = provider && provider.search(idMapping[cLinkId]);
 
                     featureHistory.ignore(() => {
@@ -439,7 +441,7 @@ class ObjectManager {
                 // Address needs to be connected to link.
                 // so if no link is defined automaticly get the next one..
                 if (featureClass === 'ADDRESS') {
-                    oTools.connect(feature);
+                    locationTools.connect(feature);
                     if (!feature.getLink()) {
                         // no link could be found -> undo creation
                         // cleanup history

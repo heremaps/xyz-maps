@@ -656,7 +656,14 @@ var tools = {
 
     //* ********************************************** public **********************************************
 
-    addShp: function(link: Navlink, pos, index, newShapeIdxOnly, force, preferSegment?) {
+    addShp: (
+        link: Navlink,
+        pos: [number, number, number?] | number[],
+        index: number | null,
+        newShapeIdxOnly: boolean,
+        force?: boolean,
+        preferSegment?: number
+    ): number | false => {
         const path = link.coord();
         const EDITOR = link._e();
         const intersec = EDITOR.map.calcCrossingAt(path, pos, EDITOR._config['minShapeDistance'], preferSegment);
@@ -678,7 +685,7 @@ var tools = {
 
             EDITOR.map.clipGeoCoord(pos);
 
-            path.splice(index, 0, pos);
+            path.splice(index, 0, <[number, number, number?]>pos);
 
             rearrangeBlockedNodes(link, index);
 
@@ -716,7 +723,7 @@ var tools = {
         } else {
             // no shape added -> don't overwrite index by false, if newShapIdxOnly is true
             if (!newShapeIdxOnly) {
-                index = false;
+                return false;
             }
         }
 

@@ -77,7 +77,7 @@ export const split = (HERE_WIKI: InternalEditor, options: SplitOptions): [Navlin
             return false;
         }
         // addNewShape request index of the shape point regardless it is new or existing
-        splitAtShpIndex = linkTools.addShp(parentLink, [x, y], null, true, null, preferSegment);
+        splitAtShpIndex = <number>linkTools.addShp(parentLink, [x, y], null, true, null, preferSegment);
 
         path = parentLink.coord();
     }

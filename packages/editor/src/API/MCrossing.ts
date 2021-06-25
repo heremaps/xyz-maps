@@ -18,7 +18,7 @@
  */
 
 import {getSegmentIndex, getDistance} from '../geometry';
-import oTools from '../features/oTools';
+import oTools from '../features/link/NavlinkTools';
 import {GeoJSONCoordinate, GeoJSONFeature} from '@here/xyz-maps-core';
 import {Navlink} from '@here/xyz-maps-editor';
 import CrossingTester from '../tools/CrossingTester';
