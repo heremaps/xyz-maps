@@ -248,7 +248,7 @@ var tools = {
 
     //* ************************************************** Internal only **************************************************
 
-    deHighlight: function(line) {
+    deHighlight: function(line: Navlink) {
         if (getPrivate(line, 'isSelected')) {
             // line.toggleHover( line.allowEdit );
 
@@ -730,7 +730,7 @@ var tools = {
         return index;
     },
 
-    defaults: function(line, selected?) {
+    defaults: function(line: Navlink, selected?: boolean) {
         const prv = getPrivate(line);
 
         if (selected && selected != prv._cPnt) {
@@ -748,7 +748,7 @@ var tools = {
     },
 
     // used by: tr-editor
-    hideDirection: function(line) {
+    hideDirection: function(line: Navlink) {
         const arrows = getPrivate(line, 'arrows');
 
         if (arrows) {
@@ -761,7 +761,12 @@ var tools = {
         return line;
     },
 
-    fixGeo: function(line, shapeToCheck, ignoreSplitChildren, preferShapeIndex?: number) {
+    fixGeo: function(
+        line: Navlink,
+        shapeToCheck: number,
+        ignoreSplitChildren?: Navlink[],
+        preferShapeIndex?: number,
+    ) {
         return autoFixGeometry(line, shapeToCheck, ignoreSplitChildren, preferShapeIndex);
     },
     // used by: crossing + shape
@@ -845,10 +850,10 @@ const moveShapeAtIndexTo = tools.moveShapeAtIndexTo;
 // ********************************************** PRIVATE **********************************************
 
 
-function autoFixGeometry(line: Navlink, shapeToCheck, ignoreSplitChildren, skipShapeIndex?: number) {
+function autoFixGeometry(line: Navlink, shapeToCheck: number, ignoreSplitChildren?: Navlink[], skipShapeIndex?: number) {
     const HERE_WIKI = line._e();
     const objManager = HERE_WIKI.objects;
-    const ignoreAllCLinks = ignoreSplitChildren === true;
+    const ignoreAllCLinks = !ignoreSplitChildren;
     let k = shapeToCheck || 0;
     const zLevels = line.getZLevels();
     const pLength = (<number[]>zLevels).length;
@@ -857,7 +862,7 @@ function autoFixGeometry(line: Navlink, shapeToCheck, ignoreSplitChildren, skipS
     const minShpDistance = HERE_WIKI._config['minShapeDistance'] || 2;
 
     function ignoreChild(c) {
-        return ignoreAllCLinks ? ignoreAllCLinks : ignoreSplitChildren.indexOf(c) != -1;
+        return ignoreAllCLinks || ignoreSplitChildren.indexOf(c) != -1;
     }
 
     function isCoordinateDuplicate(p1, p2, z1: number, z2: number, thresholdMeters: number = 1) {
@@ -964,7 +969,7 @@ function autoFixGeometry(line: Navlink, shapeToCheck, ignoreSplitChildren, skipS
 
                             clinks.forEach((cl) => {
                                 if (!ignoreAllCLinks) {
-                                    autoFixGeometry(cl.link, cl.index, true);
+                                    autoFixGeometry(cl.link, cl.index);
                                 }
                             });
                         } else { // Performing Teardrop split
@@ -1181,7 +1186,7 @@ function connectLinks(fromLink: Navlink, fromShpIndex, toLink, preferSegment, to
 
             moveShapeAtIndexTo(link, connection.index, pnt[0], pnt[1]);
 
-            autoFixGeometry(link, connection.index, true);
+            autoFixGeometry(link, connection.index);
 
             // if (blockShape) {
             //     objectFactory.blockShapeAtIndex(link, connection.index);

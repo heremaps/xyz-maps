@@ -64,6 +64,13 @@ class Feature extends GeoJSONFeature {
      */
     class: string;
 
+    /**
+     * private data storage for internal api
+     * @hidden
+     * @internal
+     */
+    __: { [privateProperty: string]: any }
+
     constructor(geojsonFeature, provider?: EditableProvider) {
         super(geojsonFeature, provider);
         // @ts-ignore
@@ -80,10 +87,26 @@ class Feature extends GeoJSONFeature {
         return <EditableProvider> this._provider;
     }
 
-
+    /**
+     * Get the internal editor api.
+     * @internal
+     * @hidden
+     */
     _e(): InternalEditor {
         return (<EditableProvider> this._provider)._e;
     }
+
+    /**
+     * get internal feature tools.
+     * @internal
+     * @hidden
+     */
+    _t(tool?: string) {
+        return tool
+            ? oTools.getTool(this, tool)
+            : oTools.getTools(this);
+    }
+
 
     private _esu: boolean;
 

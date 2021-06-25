@@ -21,6 +21,7 @@ import {Feature} from '../feature/Feature';
 import oTools from './LocationTools';
 import {Navlink} from '../link/Navlink';
 import {GeoJSONCoordinate} from '@here/xyz-maps-core';
+import {Marker} from '../marker/Marker';
 
 /**
  * @hidden
@@ -62,9 +63,10 @@ export class Location extends Feature {
      */
     getLink(): Navlink | null {
         const data = oTools.getRoutingData(this);
-        let link = data.link;
+        let linkId = data.link;
+        let link;
 
-        if (link) {
+        if (linkId) {
             const provider = oTools.getRoutingProvider(this);
             link = provider && provider.search(data.link);
         }

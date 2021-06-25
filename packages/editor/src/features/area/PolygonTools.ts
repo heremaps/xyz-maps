@@ -108,10 +108,9 @@ function addVShapes(area: Area) {
     }
 }
 
-function refreshGeometry(area) {
+function refreshGeometry(area: Area) {
     if (getPrivate(area, 'isSelected')) {
         removeShapes(area);
-
         addShapes(area);
         addVShapes(area);
     }
@@ -163,15 +162,12 @@ var tools = {
 
     },
 
-    // deHighlight: function( obj )
-    deHighlight: function(area) {
+    deHighlight: function(area: Area) {
         const prv = getPrivate(area);
 
         if (prv.isSelected) {
             removeShapes(area);
-
             // area.toggleHover( true );
-
             area.editState('hovered', false);
             area.editState('selected', false);
             // display.setStyleGroup( feature );
@@ -181,8 +177,7 @@ var tools = {
         }
     },
 
-    // _editable: function( obj, e )
-    _editable: function(area, editable) {
+    _editable: function(area: Area, editable: boolean) {
         const prv = getPrivate(area);
 
         if (editable && editable != prv.allowEdit) {
@@ -196,23 +191,16 @@ var tools = {
         prv.allowEdit = editable;
     },
 
-
-    // _select: function( obj ){
-    _select: function(area) {
+    _select: function(area: Area) {
         const prv = getPrivate(area);
 
         if (!prv.isSelected) {
             area._e().objects.selection.select(area);
-
             area._e().dump(area, 'info');
-
             // area.toggleHover(false);
-
             // setOrgiginalStyle();
             prv.isSelected = true;
-
             area.editState('selected', true);
-
             // display.setStyleGroup( feature );
             area._e().setStyle(area);
 
@@ -220,10 +208,7 @@ var tools = {
         }
     },
 
-    // _setCoords: function( obj, pos )
-
-
-    _setCoords: function(feature, coords, refresh?: boolean) {
+    _setCoords: function(feature: Area, coords, refresh?: boolean) {
         // convert to MultiPolygon geometry in any case.
         if (typeof coords[0][0][0] == 'number') {
             coords = [coords];
@@ -250,25 +235,21 @@ var tools = {
                 feature.geometry.type = 'MultiPolygon';
             }
         }
-        feature._provider.setFeatureCoordinates(feature, coords);
+        feature.getProvider().setFeatureCoordinates(feature, coords);
 
         if (refresh) {
             refreshGeometry(feature);
         }
     },
 
-
-    // markAsRemoved: function( obj )
-    markAsRemoved: function(area) {
+    markAsRemoved: function(area: Area) {
         area._e().hooks.trigger('Feature.remove', {feature: area}, area.getProvider());
         area.editState('removed', Date.now());
 
         tools.deHighlight(area);
     },
 
-
-    // markAsModified: function( obj, saveView )
-    markAsModified: function(area, saveView?: boolean) {
+    markAsModified: function(area: Area, saveView?: boolean) {
         area.editState('modified', Date.now());
         // feature.properties.editStates.modified = Date.now();
         // feature.__.isModified = Date.now();
@@ -279,9 +260,8 @@ var tools = {
         return area;
     },
 
-
     //* *************************************** public area/link only ****************************************
-    deleteShape: function(area, shape) {
+    deleteShape: function(area: Area, shape: AreaShape) {
         const props = shape.properties;
         const coords = tools.getCoords(area);
         const path = coords[props.poly][props.hole];
@@ -356,7 +336,7 @@ var tools = {
         return width;
     },
 
-    getPoly: function(area, point) {
+    getPoly: function(area: Area, point) {
         let coords = tools.getCoords(area);
         let min = Infinity;
         let pi = null;
@@ -374,7 +354,7 @@ var tools = {
 
     addVShapes: addVShapes,
 
-    getShp: function(area, polyIdx, holeIdx, index) {
+    getShp: function(area: Area, polyIdx: number, holeIdx: number, index: number) {
         const shapes = getPrivate(area, 'shapePnts');
 
         for (let i = 0, props; i < shapes.length; i++) {
@@ -390,7 +370,7 @@ var tools = {
         }
     },
 
-    addShp: function(area, pos, polyIdx, holeIdx, index) {
+    addShp: function(area: Area, pos: Point, polyIdx: number, holeIdx: number, index: number) {
         const coords = tools.getCoords(area);
         const poly = coords[polyIdx][holeIdx];
         const idx = typeof index == 'number'
@@ -445,8 +425,8 @@ var tools = {
         return idx;
     },
 
-    hideShape: function(shp, overlay) {
-        if (!(shp instanceof Array)) {
+    hideShape: function(shp: AreaShape | AreaShape[], overlay) {
+        if (!Array.isArray(shp)) {
             shp = [shp];
         }
 
@@ -507,8 +487,7 @@ var tools = {
         area: Area,
         polyIndex: number,
         lineIndex: number,
-        coordIndex: number,
-        coordinates
+        coordIndex: number
     })[] => {
         let cAreas = [];
         const iEditor = area._e();

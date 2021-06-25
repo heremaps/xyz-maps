@@ -21,7 +21,7 @@ import {Crossing} from '../API/MCrossing';
 import {intersectLineLine} from '../geometry';
 import {geotools as geoTools} from '@here/xyz-maps-common';
 import linkTools from '../features/link/NavlinkTools';
-import {Navlink} from '@here/xyz-maps-editor';
+import {Navlink} from '../features/link/Navlink';
 import InternalEditor from '../IEditor';
 import {GeoJSONCoordinate, Style} from '@here/xyz-maps-core';
 

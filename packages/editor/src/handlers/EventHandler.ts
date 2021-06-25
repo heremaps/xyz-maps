@@ -19,7 +19,7 @@
 
 import {EditorEvent} from '../API/EditorEvent';
 import {Listener} from '@here/xyz-maps-common';
-import {Feature as EditFeature} from '@here/xyz-maps-editor';
+import {Feature as EditFeature} from '../features/feature/Feature';
 import {Feature} from '@here/xyz-maps-core';
 
 function isInternalEvent(type) {

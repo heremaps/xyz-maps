@@ -26,7 +26,7 @@ import {
 import {calcRelPosOfPoiAtLink} from '../../map/GeoMath';
 import {triggerEvent} from './triggerEvent';
 import InternalEditor from '../../IEditor';
-import {Navlink} from '@here/xyz-maps-editor';
+import {Navlink} from '../link/Navlink';
 import {Location} from './Location';
 import {Feature, GeoJSONCoordinate} from '@here/xyz-maps-core';
 // import locTools from './LocationTools';

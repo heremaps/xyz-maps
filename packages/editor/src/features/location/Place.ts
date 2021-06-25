@@ -20,7 +20,6 @@
 import oTools from './LocationTools';
 import {Location} from './Location';
 import {JSUtils} from '@here/xyz-maps-common';
-import {Navlink} from '@here/xyz-maps-editor';
 
 /**
  * The Place Feature is a generic editable Feature with "Point" geometry.

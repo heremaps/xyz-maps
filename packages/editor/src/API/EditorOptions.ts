@@ -19,8 +19,7 @@
 
 import {JSUtils} from '@here/xyz-maps-common';
 import {TileLayer} from '@here/xyz-maps-core';
-import {Feature} from '@here/xyz-maps-editor';
-
+import {Feature} from '../features/feature/Feature';
 
 /**
  * Options to configure the map editor ({@link editor.Editor}).

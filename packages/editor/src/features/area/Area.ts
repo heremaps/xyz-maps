@@ -61,7 +61,12 @@ class Area extends Feature {
      */
     readonly class: 'AREA';
 
-    private __: { b: { [behavior: string]: boolean } }
+    /**
+     * private data storage for internal api
+     * @hidden
+     * @internal
+     */
+    __: { b: { [behavior: string]: boolean } }
 
     /**
      * Add a new shape point / coordinate to the area.

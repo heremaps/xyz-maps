@@ -19,11 +19,19 @@
 
 import RoutingPoint from './RoutingPoint';
 import markerTools from '../marker/MarkerTools';
-import {JSUtils} from '@here/xyz-maps-common';
 import {triggerEvent} from './triggerEvent';
+import {Address} from './Address';
+import {Place} from './Place';
+import {Navlink} from '../link/Navlink';
+import {EditableFeatureProvider, GeoJSONCoordinate} from '@here/xyz-maps-core';
+import {JSUtils} from '@here/xyz-maps-common';
+import {Location} from './Location';
+import {Feature, Marker} from '@here/xyz-maps-editor';
 
 let linkTools;
 let UNDEF;
+
+type PlaceAddress = Place | Address;
 
 const getPrivate = (feature, name?: string) => {
     let prv = feature.__;
@@ -260,43 +268,42 @@ const tools = {
     //* ************************************************** Internal only **************************************************
 
     // deHighlight: function( obj )
-    deHighlight: function(obj) {
-        const prv = getPrivate(obj);
+    deHighlight: function(feature: PlaceAddress) {
+        const prv = getPrivate(feature);
 
         if (prv.selector) {
-            obj._e().objects.overlay.remove(prv.selector);
+            feature._e().objects.overlay.remove(prv.selector);
         }
         prv.selector = null;
 
         if (prv.isSelected) {
-            hideRoutingPoint(obj);
+            hideRoutingPoint(feature);
 
             prv.pressmove = null;
 
             prv.isSelected = false;
             // check for this.cLink as it's possible that there is no connected link on the map
-            obj.editState('selected', false);
+            feature.editState('selected', false);
 
             if (prv.cLink) {
-                linkTools.defaults(prv.cLink, obj.id);
+                linkTools.defaults(prv.cLink, feature.id);
             }
         }
 
-        return obj;
+        return feature;
     },
 
-    // _editable: function( obj, e )
-    _editable: function(obj, editable) {
-        const prv = getPrivate(obj);
+    _editable: function(feature: PlaceAddress, editable: boolean) {
+        const prv = getPrivate(feature);
 
         if (editable != prv.allowEdit) {
             if (!editable) {
                 // first dehighlight because it adds hoverevents!
-                tools.deHighlight(obj);
+                tools.deHighlight(feature);
 
                 if (prv.isHovered) {
                     prv.isHovered.type = 'mouseout';
-                    hideRoutingPoint(obj, prv.isHovered);
+                    hideRoutingPoint(feature, prv.isHovered);
                 }
             }
 
@@ -304,61 +311,57 @@ const tools = {
         }
     },
 
+    _select: function(feature: PlaceAddress) {
+        if (feature._e().objects.selection.select(feature)) {
+            feature.editState('selected', true);
 
-    // _select: function( obj ){
-    _select: function(obj) {
-        if (obj._e().objects.selection.select(obj)) {
-            obj.editState('selected', true);
+            getPrivate(feature).pressmove = onPressmove;
 
-            getPrivate(obj).pressmove = onPressmove;
+            tools.highlight(feature);
 
-            tools.highlight(obj);
-
-            showRoutingPoint(obj);
+            showRoutingPoint(feature);
         }
     },
 
+    _setCoords: function(feature: Feature, position: GeoJSONCoordinate) {
+        return markerTools._setCoords(feature, position);
+    },
 
-    // _setCoords: function( obj, pos )
-    _setCoords: markerTools._setCoords,
-
-
-    // markAsRemoved: function( obj )
     markAsRemoved: markerTools.markAsRemoved,
 
-
-    // markAsModified: function( obj, saveView )
-    markAsModified: markerTools.markAsModified,
-
+    markAsModified: (feature: PlaceAddress, saveView?: boolean) => {
+        markerTools.markAsModified(feature, saveView);
+    },
 
     _props: _props,
 
     //* ********************* internal link,loc only (used by container.highlight) **********************
 
-    highlight: function(obj) {
-        const prv = getPrivate(obj);
+    highlight: function(feature: PlaceAddress) {
+        const prv = getPrivate(feature);
 
         if (!prv.selector) {
-            prv.selector = obj._e().objects.overlay.addCircle(obj.geometry.coordinates, UNDEF, {
-                'type': obj.class + '_SELECTOR'
-            });
+            prv.selector = feature._e().objects.overlay.addCircle(
+                <GeoJSONCoordinate>feature.geometry.coordinates,
+                UNDEF, {
+                    'type': feature.class + '_SELECTOR'
+                });
         }
-
         // this.show_routing_point();
     },
 
     //* *************************************** protected (rp) ****************************************
 
-    getRoutingProvider: (feature) => {
+    getRoutingProvider: (feature: PlaceAddress | Location) => {
         const EDITOR = feature._e();
         const providerId = feature.getProvider().readRoutingProvider(feature,
             // deprecated fallback for MaphubProvider..
-            EDITOR.layers.map((l) => l.getProvider())
+            EDITOR.layers.map((l) => <EditableFeatureProvider>l.getProvider())
         );
         return EDITOR.getProviderById(providerId);
     },
 
-    getRoutingData: function(feature) {
+    getRoutingData: function(feature: PlaceAddress | Location) {
         const rp = feature.getProvider().readRoutingPoint(feature);
 
         // if (!rp.provider) {
@@ -370,7 +373,7 @@ const tools = {
         return rp;
     },
 
-    setRoutingData: function(feature) {
+    setRoutingData: function(feature: PlaceAddress) {
         const rPoint = getRPoint(feature);
         // get current link and routing point value and set the data
         const link = rPoint.getLink();
@@ -415,22 +418,22 @@ const tools = {
             // point coordinates are getting changed and
             // correct new bbox for point is calculated.
             // Provider is taking care of bbox calculation.
-            tools._setCoords(feature, feature.geometry.coordinates);
+            tools._setCoords(feature, <GeoJSONCoordinate>feature.geometry.coordinates);
         }
     },
 
     //* ********************************* location specific internal **********************************
-    connect: function(obj, link?, rp?) {
-        const prv = getPrivate(obj);
+    connect: function(feature: PlaceAddress, link?: Navlink | false, rp?: GeoJSONCoordinate) {
+        const prv = getPrivate(feature);
 
         if (prv.writeProp) {
             // currently in write routingpoint execution -> jump out!
             return;
         }
 
-        const rPnt = getRPoint(obj);
+        const rPnt = getRPoint(feature);
         const currentLink = rPnt.getLink();
-        const currentRP = (tools.getRoutingData(obj).position || []).slice();
+        const currentRP = (tools.getRoutingData(feature).position || []).slice();
 
         if (currentLink) {
             linkTools.defaults(currentLink);
@@ -446,55 +449,55 @@ const tools = {
         }
 
         // pntaddr are not allowed to be set as floated!
-        if (isPOI(obj) || prv.cLink) {
-            tools.setRoutingData(obj);
+        if (isPOI(feature) || prv.cLink) {
+            tools.setRoutingData(feature);
         }
 
         if (prv.isSelected) {
             if (prv.cLink) {
-                showRoutingPoint(obj);
+                showRoutingPoint(feature);
             } else {
-                hideRoutingPoint(obj);
+                hideRoutingPoint(feature);
             }
         }
 
-        const newRP = tools.getRoutingData(obj).position || [];
+        const newRP = tools.getRoutingData(feature).position || [];
         // make sure routingpoint has really changed before being marked as modified
         if (
             currentLink != prv.cLink ||
             currentRP[0] != newRP[0] ||
             currentRP[1] != newRP[1]
         ) {
-            tools.markAsModified(obj, false);
+            tools.markAsModified(feature, false);
         }
     },
 
-    disconnect: function(obj) {
-        let prv = getPrivate(obj);
+    disconnect: function(feature: PlaceAddress) {
+        let prv = getPrivate(feature);
 
         if (prv.writeProp) {
             // currently in write routingpoint execution -> jump out!
             return;
         }
 
-        hideRoutingPoint(obj);
+        hideRoutingPoint(feature);
 
-        getRPoint(obj).clearRoutingPoint();
+        getRPoint(feature).clearRoutingPoint();
 
         prv.cLink = null;
 
         // set pois to floating!
-        if (!isPOI(obj)) {
-            getRPoint(obj).setRoutingPoint();
+        if (!isPOI(feature)) {
+            getRPoint(feature).setRoutingPoint();
         }
 
-        tools.setRoutingData(obj);
+        tools.setRoutingData(feature);
 
-        tools.markAsModified(obj, false);
+        tools.markAsModified(feature, false);
     },
 
-    getRoutingPosition: function(obj) {
-        const rPnt = getRPoint(obj);
+    getRoutingPosition: function(feature: PlaceAddress) {
+        const rPnt = getRPoint(feature);
         let rpPos = rPnt.coord();
 
         if (!rpPos) {

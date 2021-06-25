@@ -22,7 +22,7 @@ import {FeatureProvider, Feature, GeoJSONFeature} from '@here/xyz-maps-core';
 import GeoFence from './GeoFence';
 import {Navlink} from './Navlink';
 import {TurnRestrictionEditor} from '../../tools/turnrestriction/TrEditor';
-import {Feature as EditableFeature} from '@here/xyz-maps-editor';
+import {Feature as EditableFeature} from '../feature/Feature';
 
 
 const NS_EDITOR = '@ns:com:here:editor';

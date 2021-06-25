@@ -37,11 +37,6 @@ const tools = {
 LocationTools.setLinkTools(NavlinkTools);
 
 
-const getObjectTools = (feature: Feature) => {
-    return tools[feature.class];
-};
-
-
 const createProxy = (p: string) => {
     return function(feature: Feature) {
         const featureClass = feature.class;
@@ -55,6 +50,7 @@ const createProxy = (p: string) => {
 
 
 type FeatureTools = {
+    getTools(feature: Feature): any;
     getTool(feature: Feature, name: string): (...args) => any;
     private(...args): any;
     getEventListener(feature: Feature, type: string);
@@ -71,8 +67,12 @@ type FeatureTools = {
 
 const oTools: FeatureTools = {
 
+    getTools: function(feature: Feature) {
+        return tools[feature.class];
+    },
+
     getTool: function(obj, name) {
-        const tools = getObjectTools(obj);
+        const tools = this.getTools(obj);
 
         return tools && name ? tools[name] : tools;
     },
@@ -80,7 +80,7 @@ const oTools: FeatureTools = {
     private: createProxy('private'),
 
     getEventListener: function(obj, type) {
-        const tools = getObjectTools(obj);
+        const tools = this.getTools(obj);
 
         if (tools) {
             return tools._evl[type] || tools.private(obj, type);

@@ -17,17 +17,21 @@
  * License-Filename: LICENSE
  */
 
+import {Marker} from './Marker';
+import {GeoJSONCoordinate} from '@here/xyz-maps-core';
+import {Feature} from '../feature/Feature';
+
 const DRAG_STOP = 'dragStop';
 const DRAG_MOVE = 'dragMove';
 const DRAG_START = 'dragStart';
 const POINTER_UP = 'pointerup';
 let UNDEF;
 
-function triggerEvent(marker, ev, type) {
+function triggerEvent(marker: Marker, ev, type: string) {
     marker._e().listeners.trigger(ev, marker, type);
 }
 
-function getPrivate(feature, name?: string) {
+function getPrivate(feature: Marker|Feature, name?: string) {
     let prv = feature.__;
 
     if (!prv) {
@@ -81,12 +85,12 @@ const tools = {
 
         },
 
-    deHighlight: function(obj) {
-        const prv = getPrivate(obj);
+    deHighlight: function(feature: Marker) {
+        const prv = getPrivate(feature);
 
 
         if (prv.selector) {
-            obj._e().objects.overlay.remove(prv.selector);
+            feature._e().objects.overlay.remove(prv.selector);
 
             prv.selector = null;
 
@@ -95,32 +99,32 @@ const tools = {
         }
     },
 
-    _editable: function(obj, e) {
-        const prv = getPrivate(obj);
+    _editable: function(feture: Marker, e) {
+        const prv = getPrivate(feture);
 
         if (e != UNDEF) {
             prv.isEditable = !!e;
         }
 
-        tools.deHighlight(obj);
+        tools.deHighlight(feture);
 
         return prv.isEditable;
     },
 
 
-    _select: function(obj) {
-        const EDITOR = obj._e();
-        if (EDITOR.objects.selection.select(obj)) {
-            const prv = getPrivate(obj);
+    _select: function(feature: Marker) {
+        const EDITOR = feature._e();
+        if (EDITOR.objects.selection.select(feature)) {
+            const prv = getPrivate(feature);
 
             prv.pressmove = (ev, dx, dy, ax, ay) => {
                 if (
                     prv.isEditable &&
                     prv.isSelected &&
-                    !EDITOR._config.editRestrictions(obj/* this.getSimplified()*/, 1)
+                    !EDITOR._config.editRestrictions(feature/* this.getSimplified()*/, 1)
                 ) {
                     EDITOR.map.pixelMove(
-                        obj,
+                        feature,
                         dx - prv.pdm[0],
                         dy - prv.pdm[1]
                     );
@@ -128,7 +132,7 @@ const tools = {
                     prv.pdm[0] = dx;
                     prv.pdm[1] = dy;
 
-                    triggerEvent(obj, ev,
+                    triggerEvent(feature, ev,
                         prv.moved
                             ? DRAG_MOVE
                             : DRAG_START
@@ -139,39 +143,39 @@ const tools = {
             };
 
             if (!prv.selector) {
-                prv.selector = EDITOR.objects.overlay.addCircle(obj.coord(), UNDEF, {
+                prv.selector = EDITOR.objects.overlay.addCircle(<GeoJSONCoordinate>feature.coord(), UNDEF, {
                     'type': 'MARKER_SELECTOR'
                 });
             }
         }
     },
 
-    _setCoords: function(obj, pos) {
-        obj._e().objects.history.origin(obj);
+    _setCoords: function(feature: Feature, pos: GeoJSONCoordinate) {
+        feature._e().objects.history.origin(feature);
 
-        const selector = getPrivate(obj, 'selector');
+        const selector = getPrivate(feature, 'selector');
 
         if (selector) {
             selector._provider.setFeatureCoordinates(selector, pos);
         }
 
-        obj._provider.setFeatureCoordinates(obj, pos.slice());
+        feature.getProvider().setFeatureCoordinates(feature, pos.slice());
     },
 
-    markAsRemoved: function(obj) {
-        obj._e().hooks.trigger('Feature.remove', {feature: obj}, obj.getProvider());
-        obj.editState('removed', Date.now());
+    markAsRemoved: function(feature: Marker) {
+        feature._e().hooks.trigger('Feature.remove', {feature: feature}, feature.getProvider());
+        feature.editState('removed', Date.now());
 
-        tools.deHighlight(obj);
+        tools.deHighlight(feature);
     },
 
-    markAsModified: function(obj, saveView?: boolean) {
-        obj.editState('modified', Date.now());
+    markAsModified: function(feature: Feature, saveView?: boolean) {
+        feature.editState('modified', Date.now());
 
         if (saveView == UNDEF || saveView) {
-            obj._e().objects.history.saveChanges();
+            feature._e().objects.history.saveChanges();
         }
-        return obj;
+        return feature;
     }
 };
 
