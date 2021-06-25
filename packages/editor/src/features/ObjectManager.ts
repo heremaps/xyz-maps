@@ -438,9 +438,13 @@ class ObjectManager {
                         feature.getProvider().writeRoutingPoint(feature, routingLink, routingPoint.position);
                     });
                 }
+
                 // Address needs to be connected to link.
-                // so if no link is defined automaticly get the next one..
-                if (featureClass === 'ADDRESS') {
+                // If no link is defined -> automatically get the nearest available.
+                if (
+                    featureClass === 'ADDRESS'
+                    && !history // in case of history recovering make sure the address is created untouched.
+                ) {
                     locationTools.connect(feature);
                     if (!feature.getLink()) {
                         // no link could be found -> undo creation

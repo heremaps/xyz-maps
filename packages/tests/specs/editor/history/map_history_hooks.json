@@ -1,0 +1,65 @@
+{
+    "layers": [{
+        "id": "linkLayer",
+        "provider": {
+            "id": "linkProvider",
+            "type": "TestLocalProvider",
+            "name": "Links",
+            "level": 15
+        },
+        "min": 14,
+        "max": 20,
+        "data": {
+            "local": [{
+                "type": "Feature",
+                "id": -110,
+                "properties": {
+                    "featureClass": "NAVLINK",
+                    "type": "residential"
+                },
+                "geometry": {
+                    "type": "LineString",
+                    "coordinates": [
+                        [73.192367766, 18.917034239, 0],
+                        [73.191026661, 18.91652677, 0]
+                    ]
+                }
+            }]
+        }
+    }, {
+        "id": "paLayer",
+        "provider": {
+            "id": "paProvider",
+            "type": "TestLocalProvider",
+            "name": "address",
+            "level": 14
+        },
+        "min": 14,
+        "max": 20,
+        "data": {
+            "local": [{
+                "type": "Feature",
+                "id": "testAddress",
+                "properties": {
+                    "featureClass": "ADDRESS",
+                    "routingLink": "-110",
+                    "routingPoint": [73.19172, 18.91679, 0]
+                },
+                "geometry": {
+                    "type": "Point",
+                    "coordinates": [73.191831324, 18.91652677, 0]
+                }
+            }]
+        }
+    }, {
+        "id": "placeLayer",
+        "provider": {
+            "id": "placeProvider",
+            "type": "TestLocalProvider",
+            "name": "Places",
+            "level": 14
+        },
+        "min": 14,
+        "max": 20
+    }]
+}
