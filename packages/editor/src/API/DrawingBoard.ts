@@ -130,7 +130,7 @@ class DrawingBoard {
      *
      * @param options - options to configure the drawing operation
      */
-    start(options: {
+    start(options?: {
         /**
          * the type of feature that should be drawn.
          */

@@ -105,7 +105,7 @@ function getIndex(line: Navlink, point: GeoJSONCoordinate) {
  * The threshold for the candidate detection can be configured with {@link EditorOptions.intersectionScale}
  */
 class Crossing implements GeoJSONFeature {
-    type: 'Feature';
+    type: string = 'Feature';
     /**
      *  the feature class of the crossing. Can be either CROSSING or CROSSING_CANDIDATE.
      */
