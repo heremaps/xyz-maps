@@ -20,15 +20,13 @@
 import {JSUtils, global} from '@here/xyz-maps-common';
 import {Feature} from './features/feature/Feature';
 import Editor from './API/Editor';
-import {EditorProperties, DefaultEditorProperties} from './features/feature/EditorProperties';
-
+import {DefaultEditorProperties} from './features/feature/EditorProperties';
 import {Place} from './features/location/Place';
 import {Address} from './features/location/Address';
 import {Navlink} from './features/link/Navlink';
 import {Line} from './features/line/Line';
 import {Area} from './features/area/Area';
 import {Marker} from './features/marker/Marker';
-
 
 export * from './features/feature/Feature';
 export * from './features/marker/Marker';
@@ -44,6 +42,8 @@ export * from './features/feature/EditorProperties';
 export * from './API/EditorEvent';
 
 export {Crossing} from './API/MCrossing';
+
+export {DrawingShape} from './tools/drawingBoards/DrawingShape';
 
 const NAVLINK = 'NAVLINK';
 const AREA = 'AREA';

@@ -22,8 +22,6 @@ import {Feature} from '@here/xyz-maps-core';
 import ClickDraw from './ClickDraw';
 import InternalEditor from '../../IEditor';
 
-type FeatureShapeClass = 'LINE_SHAPE' | 'NAVLINK_SHAPE' | 'AREA_SHAPE';
-
 /**
  * The DrawingShape represents a coordinate (shape-point) of the geometry that's drawn in the current drawing operation of the DrawingBoard utility.
  * {@link editor.DrawingBoard}
@@ -34,7 +32,7 @@ class DrawingShape extends Feature {
     /**
      * the feature class of the drawing shape point, either LINE_SHAPE, NAVLINK_SHAPE or AREA_SHAPE
      */
-    readonly class: FeatureShapeClass;
+    readonly class: 'LINE_SHAPE' | 'NAVLINK_SHAPE' | 'AREA_SHAPE';
 
     private _b: ClickDraw;
     private __: {};
@@ -94,7 +92,7 @@ class DrawingShape extends Feature {
             }
         };
 
-        this.class = <FeatureShapeClass>(_featureClass + '_SHAPE');
+        this.class = <'LINE_SHAPE' | 'NAVLINK_SHAPE' | 'AREA_SHAPE'>(_featureClass + '_SHAPE');
     }
 
     /**
