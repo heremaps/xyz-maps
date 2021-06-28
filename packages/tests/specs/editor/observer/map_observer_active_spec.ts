@@ -25,9 +25,9 @@ import dataset from './map_observer_active_spec.json';
 describe('map active observer', function() {
     const expect = chai.expect;
 
-    var editor;
-    var display;
-    var preparedData;
+    let editor;
+    let display;
+    let preparedData;
 
     before(async function() {
         preparedData = await prepare(dataset);

@@ -32,7 +32,7 @@ describe('validate attributes after splitting a link', function() {
     chai.use(chaiAlmost());
     let editor;
     let display;
-    var preparedData;
+    let preparedData;
 
     before(async function() {
         preparedData = await prepare(dataset);

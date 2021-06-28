@@ -20,7 +20,7 @@ import {prepare} from 'utils';
 import {waitForEditorReady, editorClick} from 'editorUtils';
 import {click, drag, mousemove} from 'triggerEvents';
 import {Map} from '@here/xyz-maps-display';
-import {Editor} from '@here/xyz-maps-editor';
+import {Editor, DrawingShape, Line} from '@here/xyz-maps-editor';
 // @ts-ignore @deprecated
 import {features} from '@here/xyz-maps-editor';
 import chaiAlmost from 'chai-almost';
@@ -69,7 +69,7 @@ describe('basic line tests', function() {
         await mousemove(mapContainer, {x: 200, y: 100}, {x: 300, y: 200});
         await click(mapContainer, 300, 200);
 
-        let point = (await editorClick(editor, 200, 100)).target;
+        let point = <DrawingShape>(await editorClick(editor, 200, 100)).target;
         point.remove();
 
         await mousemove(mapContainer, {x: 200, y: 100}, {x: 200, y: 300});
@@ -77,7 +77,7 @@ describe('basic line tests', function() {
 
         await drag(mapContainer, {x: 100, y: 200}, {x: 400, y: 300});
 
-        let shape = (await editorClick(editor, 400, 300)).target;
+        let shape = <DrawingShape>(await editorClick(editor, 400, 300)).target;
 
         expect(shape.getIndex()).to.equal(0);
         expect(shape.getLength()).to.equal(3);
@@ -87,7 +87,7 @@ describe('basic line tests', function() {
 
     // 1204.25 366.7
     it('validate line geometry', async function() {
-        let selected = (await editorClick(editor, 400, 300)).target;
+        let selected = <Line>(await editorClick(editor, 400, 300)).target;
         expect(selected.coord()).to.deep.almost([
             [76.083125712, 13.214838342, 0],
             [76.082589269, 13.215360578, 0],
@@ -107,7 +107,7 @@ describe('basic line tests', function() {
 
 
     it('remove shape', async function() {
-        let shape = (await editorClick(editor, 300, 400)).target;
+        let shape = <DrawingShape>(await editorClick(editor, 300, 400)).target;
 
         shape.remove();
 

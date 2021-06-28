@@ -27,11 +27,11 @@ import dataset from './link_split_property_spec.json';
 
 describe('link splitting basic', function() {
     const expect = chai.expect;
-
-    let link; let link1; let link2;
+    let link;
+    let link1;
+    let link2;
     let shape;
     let splitLinks;
-
     let editor;
     let display;
     let preparedData;

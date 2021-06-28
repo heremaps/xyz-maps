@@ -26,11 +26,10 @@ import dataset from './link_snap_delete_self_spec.json';
 describe('link shape point snapping to delete link itself', function() {
     const expect = chai.expect;
 
-    var editor;
-    var display;
-    var preparedData;
-
-    var link;
+    let editor;
+    let display;
+    let preparedData;
+    let link;
 
     before(async function() {
         preparedData = await prepare(dataset);

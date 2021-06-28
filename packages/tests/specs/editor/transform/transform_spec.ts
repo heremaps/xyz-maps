@@ -26,13 +26,13 @@ import dataset from './transform_spec.json';
 
 describe('transform objects', function() {
     const expect = chai.expect;
-
     let editor;
     let display;
     let preparedData;
     let container;
     let mapContainer;
-    let link; let address;
+    let link;
+    let address;
 
     before(async function() {
         chai.use(chaiAlmost());

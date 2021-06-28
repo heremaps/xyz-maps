@@ -20,9 +20,7 @@ import {prepare} from 'utils';
 import {waitForEditorReady, editorClick} from 'editorUtils';
 import {drag, click, mousemove} from 'triggerEvents';
 import {Map} from '@here/xyz-maps-display';
-import {Editor} from '@here/xyz-maps-editor';
-// @ts-ignore @deprecated
-import {features} from '@here/xyz-maps-editor';
+import {Editor, DrawingShape, Area} from '@here/xyz-maps-editor';
 import chaiAlmost from 'chai-almost';
 import dataset from './area_create_drawingmanager_pan_map_spec.json';
 
@@ -57,7 +55,7 @@ describe('Area drawing manager and pan map', function() {
     });
 
     it('draw area with drawing manager and validate', async function() {
-        editor.getDrawingBoard().start({mode: features.Area});
+        editor.getDrawingBoard().start({mode: Area});
 
 
         // add a shape point
@@ -76,7 +74,7 @@ describe('Area drawing manager and pan map', function() {
 
 
         // click on shape point and remove
-        let shape = (await editorClick(editor, 200, 100)).target;
+        let shape = <DrawingShape>(await editorClick(editor, 200, 100)).target;
         shape.remove();
 
 
@@ -88,7 +86,7 @@ describe('Area drawing manager and pan map', function() {
         await drag(mapContainer, {x: 200, y: 350}, {x: 400, y: 350});
 
         // click on a shape point
-        shape = (await editorClick(editor, 300, 250)).target;
+        shape = <DrawingShape>(await editorClick(editor, 300, 250)).target;
 
         expect(shape.getIndex()).to.equal(1);
         expect(shape.getLength()).to.equal(3);

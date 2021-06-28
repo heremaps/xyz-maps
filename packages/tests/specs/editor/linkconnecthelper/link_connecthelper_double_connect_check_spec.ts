@@ -28,11 +28,10 @@ import dataset from './link_connecthelper_double_connect_check_spec.json';
 describe('link connect helper connect crossing and then add new link and connect crossing again', function() {
     const expect = chai.expect;
 
-    var editor;
+    let editor;
     let display;
     let preparedData;
-
-    var link2;
+    let link2;
 
     before(async function() {
         chai.use(chaiAlmost(1e-1));

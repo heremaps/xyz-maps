@@ -25,11 +25,11 @@ import dataset from './link_connecthelper_all_connect_spec.json';
 describe('link connect helper connect all crossings one by one', function() {
     const expect = chai.expect;
 
-    var editor;
+    let editor;
     let display;
     let preparedData;
-
-    var link1; var link2;
+    let link1;
+    let link2;
 
     before(async function() {
         preparedData = await prepare(dataset);

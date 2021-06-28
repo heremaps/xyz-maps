@@ -26,13 +26,11 @@ import dataset from './transform_move_undo_spec.json';
 
 describe('undo the link transforming, link should connect to its connected links', function() {
     const expect = chai.expect;
-
     let editor;
     let display;
     let preparedData;
-
-    var link1;
-    var linkLayer;
+    let link1;
+    let linkLayer;
 
     before(async function() {
         chai.use(chaiAlmost());

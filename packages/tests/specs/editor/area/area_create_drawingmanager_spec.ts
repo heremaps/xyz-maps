@@ -20,9 +20,7 @@ import {prepare} from 'utils';
 import {waitForEditorReady, editorClick} from 'editorUtils';
 import {click, drag, mousemove} from 'triggerEvents';
 import {Map} from '@here/xyz-maps-display';
-import {Editor} from '@here/xyz-maps-editor';
-// @ts-ignore @deprecated
-import {features} from '@here/xyz-maps-editor';
+import {Editor, DrawingShape, Area} from '@here/xyz-maps-editor';
 import chaiAlmost from 'chai-almost';
 import dataset from './area_create_drawingmanager_spec.json';
 
@@ -57,7 +55,7 @@ describe('Area drawing manager without panning the map', function() {
     });
 
     it('create area by drawing manager', async function() {
-        editor.getDrawingBoard().start({mode: features.Area});
+        editor.getDrawingBoard().start({mode: Area});
 
 
         await mousemove(mapContainer, {x: 100, y: 100}, {x: 100, y: 200});
@@ -71,7 +69,7 @@ describe('Area drawing manager without panning the map', function() {
         await mousemove(mapContainer, {x: 200, y: 100}, {x: 300, y: 200});
         await click(mapContainer, 300, 200);
 
-        let point = (await editorClick(editor, 200, 100)).target;
+        let point = <DrawingShape>(await editorClick(editor, 200, 100)).target;
         point.remove();
 
         await mousemove(mapContainer, {x: 200, y: 100}, {x: 200, y: 300});
@@ -81,7 +79,7 @@ describe('Area drawing manager without panning the map', function() {
         await drag(mapContainer, {x: 100, y: 200}, {x: 400, y: 300});
 
 
-        let shape = (await editorClick(editor, 400, 300)).target;
+        let shape = <DrawingShape>(await editorClick(editor, 400, 300)).target;
 
         expect(shape.getIndex()).to.equal(0);
         expect(shape.getLength()).to.equal(3);
@@ -92,7 +90,7 @@ describe('Area drawing manager without panning the map', function() {
 
     // 1204.25 366.7
     it('validate created area', async function() {
-        let area = (await editorClick(editor, 271, 266)).target;
+        let area = <Area>(await editorClick(editor, 271, 266)).target;
 
         expect(area.coord()).to.deep.almost([[[
             [76.08312571, 13.214838342, 0],

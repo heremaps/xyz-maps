@@ -28,12 +28,11 @@ import dataset from './link_addShape_spec.json';
 describe('link add shape point', function() {
     const expect = chai.expect;
 
-    var editor;
-    var display;
-    var preparedData;
-
-    var link;
-    var linkLayer;
+    let editor;
+    let display;
+    let preparedData;
+    let link;
+    let linkLayer;
 
     before(async function() {
         chai.use(chaiAlmost());

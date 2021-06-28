@@ -20,9 +20,7 @@ import {prepare} from 'utils';
 import {waitForEditorReady, editorClick} from 'editorUtils';
 import {click, mousemove} from 'triggerEvents';
 import {Map} from '@here/xyz-maps-display';
-import {Editor} from '@here/xyz-maps-editor';
-// @ts-ignore @deprecated
-import {features} from '@here/xyz-maps-editor';
+import {Editor, Area} from '@here/xyz-maps-editor';
 import chaiAlmost from 'chai-almost';
 import dataset from './area_create_drawingmanager_vertical_spec.json';
 
@@ -57,7 +55,7 @@ describe('Area drawing manager points with same longitude', function() {
     });
 
     it('create area by drawing manager and validate', async function() {
-        editor.getDrawingBoard().start({mode: features.Area});
+        editor.getDrawingBoard().start({mode: Area});
 
         // 1st shape point
         await mousemove(mapContainer, {x: 100, y: 100}, {x: 100, y: 200});
@@ -81,7 +79,7 @@ describe('Area drawing manager points with same longitude', function() {
 
         editor.getDrawingBoard().create({featureClass: 'AREA'});
 
-        let area = (await editorClick(editor, 250, 150)).target;
+        let area = <Area>(await editorClick(editor, 250, 150)).target;
 
         expect(area.prop()).to.include({
             featureClass: 'AREA'

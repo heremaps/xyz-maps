@@ -19,7 +19,7 @@
 import {prepare} from 'utils';
 import {waitForEditorReady, editorClick} from 'editorUtils';
 import {Map} from '@here/xyz-maps-display';
-import {Editor} from '@here/xyz-maps-editor';
+import {Editor, Area} from '@here/xyz-maps-editor';
 import dataset from './area_display_zoomlevel_spec.json';
 
 describe('Area object display and hide', function() {
@@ -83,7 +83,7 @@ describe('Area object display and hide', function() {
             display.setZoomlevel(18);
         });
 
-        let obj = (await editorClick(editor, 242, 146)).target;
+        let obj = <Area>(await editorClick(editor, 242, 146)).target;
 
         expect(obj.properties).to.deep.include({
             type: 'building',

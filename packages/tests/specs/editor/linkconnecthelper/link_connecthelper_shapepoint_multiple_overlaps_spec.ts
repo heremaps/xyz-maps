@@ -24,8 +24,7 @@ import dataset from './link_connecthelper_shapepoint_multiple_overlaps_spec.json
 
 describe('link connect helper which has multiple overlapped shape points 1', function() {
     const expect = chai.expect;
-
-    var editor;
+    let editor;
     let display;
     let preparedData;
     let link2;

@@ -26,12 +26,13 @@ import dataset from './poi_routingpoint_outside_viewport.json';
 
 describe('poi connects to a link which is outside of viewport', function() {
     const expect = chai.expect;
-
-    var editor;
-    var display;
-    var preparedData;
-    var link1; var poi1; var poi2;
-    var linkLayer;
+    let editor;
+    let display;
+    let preparedData;
+    let link1;
+    let poi1;
+    let poi2;
+    let linkLayer;
 
     before(async function() {
         preparedData = await prepare(dataset);

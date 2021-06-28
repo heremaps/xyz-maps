@@ -24,7 +24,6 @@ import dataset from './poi_set_routing_point_and_link_spec.json';
 
 describe('poi set routing point and link manually', function() {
     const expect = chai.expect;
-
     let editor;
     let display;
     let preparedData;

@@ -19,7 +19,7 @@
 import {prepare} from 'utils';
 import {waitForEditorReady, editorClick} from 'editorUtils';
 import {Map} from '@here/xyz-maps-display';
-import {Editor} from '@here/xyz-maps-editor';
+import {Editor, NavlinkShape} from '@here/xyz-maps-editor';
 // @ts-ignore @deprecated
 import {features} from '@here/xyz-maps-editor';
 import chaiAlmost from 'chai-almost';
@@ -69,7 +69,7 @@ describe('set disconnectShapeDistance', function() {
         let links = editor.addFeature([l1, l2]);
 
         links[1].select();
-        let shape = (await editorClick(editor, 100, 300)).target;
+        let shape = <NavlinkShape>(await editorClick(editor, 100, 300)).target;
         shape.disconnect();
 
         expect(links[1].coord()).to.deep.almost([[77.840920613, 17.451065932, 0], [77.840920613, 17.451487751, 0]]);
@@ -91,7 +91,7 @@ describe('set disconnectShapeDistance', function() {
         let links = editor.addFeature([l1, l2]);
 
         links[1].select();
-        let shape = (await editorClick(editor, 100, 300)).target;
+        let shape = <NavlinkShape>(await editorClick(editor, 100, 300)).target;
         shape.disconnect();
 
         expect(links[1].coord()).to.deep.almost([[77.840920613, 17.45100298, 0], [77.840920613, 17.451487751, 0]]);

@@ -26,11 +26,10 @@ import dataset from './link_get_functions_spec.json';
 describe('Link getters return correct value', function() {
     const expect = chai.expect;
 
-    var editor;
-    var display;
-    var preparedData;
-
-    var link;
+    let editor;
+    let display;
+    let preparedData;
+    let link;
 
     before(async function() {
         chai.use(chaiAlmost());

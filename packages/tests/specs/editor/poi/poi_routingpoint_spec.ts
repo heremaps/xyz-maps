@@ -20,18 +20,18 @@ import {prepare} from 'utils';
 import {waitForEditorReady, editorClick} from 'editorUtils';
 import {drag, click} from 'triggerEvents';
 import {Map} from '@here/xyz-maps-display';
-import {Editor} from '@here/xyz-maps-editor';
+import {Editor, NavlinkShape} from '@here/xyz-maps-editor';
 import chaiAlmost from 'chai-almost';
 import dataset from './poi_routingpoint_spec.json';
 
 describe('set POI routing point', function() {
     const expect = chai.expect;
-
     let editor;
     let display;
     let preparedData;
     let mapContainer;
-    let poi; let link;
+    let poi;
+    let link;
 
     before(async function() {
         chai.use(chaiAlmost(1e-4));
@@ -79,7 +79,7 @@ describe('set POI routing point', function() {
     it('split link, validate poi connects to split link', async function() {
         link.select();
 
-        let shape = (await editorClick(editor, 100, 300)).target;
+        let shape = <NavlinkShape>(await editorClick(editor, 100, 300)).target;
 
         let splitLinks = shape.splitLink();
 
