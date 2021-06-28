@@ -20,7 +20,7 @@ import {prepare} from 'utils';
 import {waitForEditorReady, editorClick} from 'editorUtils';
 import {drag, click, mousemove} from 'triggerEvents';
 import {Map} from '@here/xyz-maps-display';
-import {Editor, DrawingShape, Area} from '@here/xyz-maps-editor';
+import {Editor, DrawingShape} from '@here/xyz-maps-editor';
 import chaiAlmost from 'chai-almost';
 import dataset from './area_create_drawingmanager_pan_map_spec.json';
 
@@ -55,7 +55,7 @@ describe('Area drawing manager and pan map', function() {
     });
 
     it('draw area with drawing manager and validate', async function() {
-        editor.getDrawingBoard().start({mode: Area});
+        editor.getDrawingBoard().start({mode: 'Area'});
 
 
         // add a shape point

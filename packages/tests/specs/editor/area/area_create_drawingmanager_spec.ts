@@ -55,7 +55,7 @@ describe('Area drawing manager without panning the map', function() {
     });
 
     it('create area by drawing manager', async function() {
-        editor.getDrawingBoard().start({mode: Area});
+        editor.getDrawingBoard().start({mode: 'Area'});
 
 
         await mousemove(mapContainer, {x: 100, y: 100}, {x: 100, y: 200});

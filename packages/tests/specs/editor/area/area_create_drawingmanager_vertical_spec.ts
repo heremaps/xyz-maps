@@ -55,7 +55,7 @@ describe('Area drawing manager points with same longitude', function() {
     });
 
     it('create area by drawing manager and validate', async function() {
-        editor.getDrawingBoard().start({mode: Area});
+        editor.getDrawingBoard().start({mode: 'Area'});
 
         // 1st shape point
         await mousemove(mapContainer, {x: 100, y: 100}, {x: 100, y: 200});
