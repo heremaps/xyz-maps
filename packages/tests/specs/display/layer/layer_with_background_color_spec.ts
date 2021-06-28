@@ -83,6 +83,7 @@ describe('layer with background color', function() {
     });
 
     it('add a layer with background color', async () => {
+        // @ts-ignore
         dataset.layers[1].style = {
             backgroundColor: '#0000ff'
         };

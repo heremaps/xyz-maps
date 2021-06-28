@@ -52,7 +52,7 @@ describe('initial requests of display', function() {
 
         await waitForViewportReady(display);
 
-        requests = monitor.stop({method: 'all'});
+        requests = monitor.stop();
 
         // two tile requests and one space request.
         expect(requests).to.have.lengthOf(3);

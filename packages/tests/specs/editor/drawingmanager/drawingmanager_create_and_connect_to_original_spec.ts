@@ -20,7 +20,7 @@ import {prepare} from 'utils';
 import {waitForEditorReady, editorClick, submit} from 'editorUtils';
 import {click, mousemove} from 'triggerEvents';
 import {Map} from '@here/xyz-maps-display';
-import {Editor} from '@here/xyz-maps-editor';
+import {Editor, NavlinkShape} from '@here/xyz-maps-editor';
 import chaiAlmost from 'chai-almost';
 import dataset from './drawingmanager_create_and_connect_to_original_spec.json';
 
@@ -67,7 +67,7 @@ describe('Create new Links and connect to original link', function() {
         await click(mapContainer, 200, 200);
 
         let lnk;
-        await waitForEditorReady(editor, async ()=>{
+        await waitForEditorReady(editor, async () => {
             lnk = editor.getDrawingBoard().create({featureClass: 'NAVLINK'});
         });
 
@@ -80,14 +80,14 @@ describe('Create new Links and connect to original link', function() {
 
     it('validate the connect shape point then submit', async function() {
         await click(mapContainer, 200, 120);
-        let linkshape = (await editorClick(editor, 200, 100)).target;
+        let linkshape = <NavlinkShape>(await editorClick(editor, 200, 100)).target;
 
         let lnk = linkshape.getConnectedLinks();
 
         expect(lnk).to.have.lengthOf(1);
         expect(lnk[0].id).to.equal(link.id);
 
-        await waitForEditorReady(editor, async ()=>{
+        await waitForEditorReady(editor, async () => {
             await submit(editor);
         });
     });
@@ -95,7 +95,7 @@ describe('Create new Links and connect to original link', function() {
 
     it('validate the connect shape point again after submit', async function() {
         await click(mapContainer, 200, 120);
-        let linkshape = (await editorClick(editor, 200, 100)).target;
+        let linkshape = <NavlinkShape>(await editorClick(editor, 200, 100)).target;
 
         let lnk = linkshape.getConnectedLinks();
 

@@ -20,7 +20,9 @@ import {MonitorXHR, prepare} from 'utils';
 import {waitForEditorReady, submit} from 'editorUtils';
 import {Map} from '@here/xyz-maps-display';
 import {drag} from 'triggerEvents';
-import {features, Editor} from '@here/xyz-maps-editor';
+// @ts-ignore @deprecated
+import {features} from '@here/xyz-maps-editor';
+import {Editor} from '@here/xyz-maps-editor';
 import chaiAlmost from 'chai-almost';
 import dataset from './link_create_modify_remove_spec.json';
 
@@ -69,7 +71,7 @@ describe('Validate submit of creating new link, modifying and removing link', fu
         monitor.start({method: 'post'});
         let idMap;
 
-        await waitForEditorReady(editor, async ()=>{
+        await waitForEditorReady(editor, async () => {
             idMap = await submit(editor);
         });
         let linkId = idMap.permanentIDMap[link.getProvider().id][link.id];
@@ -101,7 +103,7 @@ describe('Validate submit of creating new link, modifying and removing link', fu
         let monitor = new MonitorXHR();
         monitor.start({method: 'post'});
 
-        await waitForEditorReady(editor, async ()=>{
+        await waitForEditorReady(editor, async () => {
             await submit(editor);
         });
 
@@ -135,13 +137,13 @@ describe('Validate submit of creating new link, modifying and removing link', fu
 
         let monitor = new MonitorXHR(/&id=/);
         monitor.start({method: 'delete'});
-        await waitForEditorReady(editor, async ()=>{
+        await waitForEditorReady(editor, async () => {
             await submit(editor);
         });
         let request = monitor.stop()[0];
 
         expect(request.payload).to.equal(null);
         expect(request.method).to.equal('DELETE');
-        expect(request.url.indexOf(link.id)>-1).to.be.true;
+        expect(request.url.indexOf(link.id) > -1).to.be.true;
     });
 });

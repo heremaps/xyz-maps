@@ -26,10 +26,11 @@ describe('validate polygon rendering', function() {
 
     let mapContainer;
     let layer;
+    let display;
 
     before(async function() {
         let preparedData = await prepare(dataset);
-        window.display = new Map(document.getElementById('map'), {
+        display = new Map(document.getElementById('map'), {
             // @ts-ignore
             renderOptions: {
                 preserveDrawingBuffer: true

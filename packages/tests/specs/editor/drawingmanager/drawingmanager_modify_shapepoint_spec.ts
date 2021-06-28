@@ -20,7 +20,7 @@ import {prepare} from 'utils';
 import {waitForEditorReady, editorClick} from 'editorUtils';
 import {click, drag, mousemove} from 'triggerEvents';
 import {Map} from '@here/xyz-maps-display';
-import {Editor} from '@here/xyz-maps-editor';
+import {Editor, DrawingShape} from '@here/xyz-maps-editor';
 import chaiAlmost from 'chai-almost';
 import dataset from './drawingmanager_modify_shapepoint_spec.json';
 
@@ -67,7 +67,7 @@ describe('Create new Link by drawing manager and remove some shape points', func
         await drag(mapContainer, {x: 100, y: 100}, {x: 200, y: 100});
 
 
-        var shape = (await editorClick(editor, 100, 300)).target;
+        var shape = <DrawingShape>(await editorClick(editor, 100, 300)).target;
         shape.remove();
 
         expect(editor.getDrawingBoard().getLength()).to.equal(2);
@@ -80,10 +80,10 @@ describe('Create new Link by drawing manager and remove some shape points', func
 
         expect(editor.getDrawingBoard().getLength()).to.equal(5);
 
-        shape = (await editorClick(editor, 200, 200)).target;
+        shape = <DrawingShape>(await editorClick(editor, 200, 200)).target;
         shape.remove();
 
-        shape = (await editorClick(editor, 100, 200)).target;
+        shape = <DrawingShape>(await editorClick(editor, 100, 200)).target;
         shape.remove();
 
         editor.getDrawingBoard().removeShape(0);

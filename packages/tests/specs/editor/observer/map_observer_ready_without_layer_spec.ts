@@ -18,7 +18,9 @@
  */
 import {Observer} from 'utils';
 import {waitForEditorReady} from 'editorUtils';
-import {Map, providers, layers} from '@here/xyz-maps-core';
+// @ts-ignore @deprecated
+import {providers, layers} from '@here/xyz-maps-core';
+import {Map} from '@here/xyz-maps-display';
 import {Editor} from '@here/xyz-maps-editor';
 
 describe('editor triggers ready without adding layer to it', function() {
