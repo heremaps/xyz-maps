@@ -21,14 +21,12 @@ import {quadToGrid, getGeoBounds} from './TileUtils';
 import RTree from '../features/RTree';
 import projection from '../projection/webMercator';
 import {Feature} from '../features/Feature';
-import {GeoJSONCoordinate} from '../features/GeoJSON';
+import {GeoJSONCoordinate, GeoJSONBBox} from '../features/GeoJSON';
 
 
 const TILESIZE = 256;
 
 const NULL = null;
-
-type Bounds = [number, number, number, number];
 
 /**
  *  This Class represents a WebMercator Tile.
@@ -58,7 +56,7 @@ export class Tile {
     /**
      *  Geographical Bounding box has the coordinates in order: [minLon, minLat, maxLon, maxLat].
      */
-    bounds: Bounds;
+    bounds: GeoJSONBBox;
 
     data: any;
     loadStartTs: number;
@@ -67,7 +65,7 @@ export class Tile {
     provider: any;
     onLoaded: any;
 
-    cbnds: Bounds;
+    cbnds: GeoJSONBBox;
 
     private tree: any;
 

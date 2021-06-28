@@ -26,9 +26,6 @@ import {SpaceProviderOptions, defaultOptions} from './SpaceOptions';
 import {GeoJSONProvider} from '../GeoJSONProvider';
 import {PostProcessor, PostProcesserInput, isPreprocessor} from '../RemoteTileProvider/processors';
 
-
-type FeatureId = string | number;
-
 const NS_XYZ = '@ns:com:here:xyz';
 
 const HTTP = 'http://';
@@ -201,7 +198,7 @@ export class SpaceProvider extends GeoJSONProvider {
      *
      * @returns url string to receive the feature resource of the remote http backend
      */
-    getFeatureUrl(space: string, ids: FeatureId | FeatureId[]) {
+    getFeatureUrl(space: string, ids: (string | number) | (string | number)[]) {
         if (!(ids instanceof Array)) {
             ids = [ids];
         }
@@ -460,7 +457,7 @@ export class SpaceProvider extends GeoJSONProvider {
     };
 
 
-    _requestFeatures(ids: FeatureId[], onsuccess: (features: any[]) => void, onerror?: ErrorEventHandler, opt?) {
+    _requestFeatures(ids: (string | number)[], onsuccess: (features: any[]) => void, onerror?: ErrorEventHandler, opt?) {
         const loaders = this.loader.src;
 
 
