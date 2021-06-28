@@ -20,20 +20,21 @@ import {prepare} from 'utils';
 import {waitForEditorReady, editorClick} from 'editorUtils';
 import {drag, click} from 'triggerEvents';
 import {Map} from '@here/xyz-maps-display';
-import {Editor} from '@here/xyz-maps-editor';
+import {Editor, Crossing, NavlinkShape} from '@here/xyz-maps-editor';
 import dataset from './link_connecthelper_spec.json';
 
-describe('link connect helper with undos', function() {
+describe('link connect helper with undo', () => {
     const expect = chai.expect;
 
     let editor;
     let display;
-    var preparedData;
+    let preparedData;
     let mapContainer;
 
-    let link2; let link4;
+    let link2;
+    let link4;
 
-    before(async function() {
+    before(async () => {
         preparedData = await prepare(dataset);
         display = new Map(document.getElementById('map'), {
             center: {longitude: 80.56502522286314, latitude: 16.527722476232878},
@@ -57,50 +58,50 @@ describe('link connect helper with undos', function() {
         await preparedData.clear();
     });
 
-    it('connect two crossings and validate a shape point connects to 3 links', async function() {
+    it('connect two crossings and validate a shape point connects to 3 links', async () => {
         let crossings = link4.checkCrossings();
 
-        crossings.forEach((c)=>{
+        crossings.forEach((c) => {
             c.show();
         });
         link2.remove();
 
         // click on a crossing
-        let crx = (await editorClick(editor, 133, 200)).target;
-        crx.connect(false);
+        let crx = <Crossing>(await editorClick(editor, 133, 200)).target;
+        crx.connect();
 
         // click on a crossing
-        crx = (await editorClick(editor, 116, 300)).target;
+        crx = <Crossing>(await editorClick(editor, 116, 300)).target;
         crx.connect();
 
         // click to select a link
         await click(mapContainer, 169, 300);
 
-        let shape = (await editorClick(editor, 116, 300)).target;
+        let shape = <NavlinkShape>(await editorClick(editor, 116, 300)).target;
         let links = shape.getConnectedLinks();
 
         expect(links).to.have.lengthOf(3);
     });
 
 
-    it('undo connects and connect crossing again', async function() {
+    it('undo connects and connect crossing again', async () => {
         editor.undo();
 
         editor.undo();
 
         let crossings = link4.checkCrossings();
-        crossings.forEach((c)=>{
+        crossings.forEach((c) => {
             c.show();
         });
 
         // click on a crossing
-        let crx = (await editorClick(editor, 133, 200)).target;
+        let crx = <Crossing>(await editorClick(editor, 133, 200)).target;
         crx.connect();
 
         // click on a link
         await click(mapContainer, 172, 200);
 
-        let shape = (await editorClick(editor, 133, 200)).target;
+        let shape = <Crossing>(await editorClick(editor, 133, 200)).target;
         let links = shape.getConnectedLinks();
 
         expect(links).to.have.lengthOf(3);

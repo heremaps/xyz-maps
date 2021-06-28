@@ -33,7 +33,7 @@ describe('setStyleGroup Point with image', function() {
     let mapContainer;
     let feature;
 
-    before(async function() {
+    before(async () => {
         let preparedData = await prepare(dataset);
         display = new Map(document.getElementById('map'), {
             // @ts-ignore
@@ -53,11 +53,11 @@ describe('setStyleGroup Point with image', function() {
         feature = preparedData.getFeature('paLayer', '123');
     });
 
-    after(async function() {
+    after(async () => {
         display.destroy();
     });
 
-    it('style feature with image and opacity, validate its style', async function() {
+    it('style feature with image and opacity, validate its style', async () => {
         // set style for the added feature
         paLayer.setStyleGroup(feature, [{
             'zIndex': 0, 'type': 'Image', 'width': 30, 'height': 30, 'src': IMAGE_SRC
@@ -69,10 +69,9 @@ describe('setStyleGroup Point with image', function() {
         // get color mid right
         // get color mid top
         // get color mid bottom
-        let colors = await getCanvasPixelColor(mapContainer, [{x: 400, y: 300}, {x: 390, y: 300}, {
-            x: 410,
-            y: 300
-        }, {x: 400, y: 290}, {x: 400, y: 310}]);
+        let colors = await getCanvasPixelColor(mapContainer, [
+            {x: 400, y: 300}, {x: 390, y: 300}, {x: 410, y: 300}, {x: 400, y: 290}, {x: 400, y: 310}
+        ]);
 
         expect(colors[0]).to.not.equal('#ffffff');
         expect(colors[1]).to.not.equal('#ffffff');
@@ -93,10 +92,9 @@ describe('setStyleGroup Point with image', function() {
         // get color mid right
         // get color mid top
         // get color mid bottom
-        let opacolors = await getCanvasPixelColor(mapContainer, [{x: 400, y: 300}, {x: 390, y: 300}, {
-            x: 410,
-            y: 300
-        }, {x: 400, y: 290}, {x: 400, y: 310}]);
+        let opacolors = await getCanvasPixelColor(mapContainer, [
+            {x: 400, y: 300}, {x: 390, y: 300}, {x: 410, y: 300}, {x: 400, y: 290}, {x: 400, y: 310}
+        ]);
 
         expect(colors[0]).to.not.equal(opacolors[0]);
         expect(colors[1]).to.not.equal(opacolors[1]);
@@ -105,7 +103,7 @@ describe('setStyleGroup Point with image', function() {
         expect(colors[4]).to.not.equal(opacolors[4]);
     });
 
-    it('style feature with image and offsetX, validate its style', async function() {
+    it('style feature with image and offsetX, validate its style', async () => {
         // set style for the added feature
         paLayer.setStyleGroup(feature, [{
             'zIndex': 1, 'type': 'Image', 'width': 30, 'height': 30,
@@ -119,10 +117,9 @@ describe('setStyleGroup Point with image', function() {
         // get color mid right
         // get color mid top
         // get color mid bottom
-        let colors = await getCanvasPixelColor(mapContainer, [{x: 400, y: 300}, {x: 390, y: 300}, {
-            x: 410,
-            y: 300
-        }, {x: 400, y: 290}, {x: 400, y: 310}]);
+        let colors = await getCanvasPixelColor(mapContainer, [
+            {x: 400, y: 300}, {x: 390, y: 300}, {x: 410, y: 300}, {x: 400, y: 290}, {x: 400, y: 310}
+        ]);
 
         expect(colors[0]).to.not.equal('#ffffff');
         expect(colors[1]).to.equal('#ffffff');
@@ -131,7 +128,7 @@ describe('setStyleGroup Point with image', function() {
         expect(colors[4]).to.equal('#ffffff');
     });
 
-    it('style feature with image and offsetX again, validate its style', async function() {
+    it('style feature with image and offsetX again, validate its style', async () => {
         // set style for the added feature
         paLayer.setStyleGroup(feature, [{
             'zIndex': 0, 'type': 'Image', 'width': 30, 'height': 30,
@@ -145,10 +142,9 @@ describe('setStyleGroup Point with image', function() {
         // get color mid right
         // get color mid top
         // get color mid bottom
-        let colors = await getCanvasPixelColor(mapContainer, [{x: 400, y: 300}, {x: 390, y: 300}, {
-            x: 410,
-            y: 300
-        }, {x: 400, y: 290}, {x: 400, y: 310}]);
+        let colors = await getCanvasPixelColor(mapContainer, [
+            {x: 400, y: 300}, {x: 390, y: 300}, {x: 410, y: 300}, {x: 400, y: 290}, {x: 400, y: 310}
+        ]);
 
         expect(colors[0]).to.not.equal('#ffffff');
         expect(colors[1]).to.not.equal('#ffffff');
@@ -157,7 +153,7 @@ describe('setStyleGroup Point with image', function() {
         expect(colors[4]).to.equal('#ffffff');
     });
 
-    it('style feature with image and offsetY, validate its style', async function() {
+    it('style feature with image and offsetY, validate its style', async () => {
         // set style for the added feature
         paLayer.setStyleGroup(feature, [{
             'zIndex': 0, 'type': 'Image', 'width': 30, 'height': 30,
@@ -171,10 +167,9 @@ describe('setStyleGroup Point with image', function() {
         // get color mid right
         // get color mid top
         // get color mid bottom
-        let colors = await getCanvasPixelColor(mapContainer, [{x: 400, y: 300}, {x: 390, y: 300}, {
-            x: 410,
-            y: 300
-        }, {x: 400, y: 290}, {x: 400, y: 310}]);
+        let colors = await getCanvasPixelColor(mapContainer, [
+            {x: 400, y: 300}, {x: 390, y: 300}, {x: 410, y: 300}, {x: 400, y: 290}, {x: 400, y: 310}
+        ]);
 
         expect(colors[0]).to.not.equal('#ffffff');
         expect(colors[1]).to.equal('#ffffff');
@@ -183,7 +178,7 @@ describe('setStyleGroup Point with image', function() {
         expect(colors[4]).to.not.equal('#ffffff');
     });
 
-    it('style feature with image and offsetY again, validate its style', async function() {
+    it('style feature with image and offsetY again, validate its style', async () => {
         // set style for the added feature
         paLayer.setStyleGroup(feature, [{
             'zIndex': 0, 'type': 'Image', 'width': 30, 'height': 30,
@@ -197,10 +192,9 @@ describe('setStyleGroup Point with image', function() {
         // get color mid right
         // get color mid top
         // get color mid bottom
-        let colors = await getCanvasPixelColor(mapContainer, [{x: 400, y: 300}, {x: 390, y: 300}, {
-            x: 410,
-            y: 300
-        }, {x: 400, y: 290}, {x: 400, y: 310}]);
+        let colors = await getCanvasPixelColor(mapContainer, [
+            {x: 400, y: 300}, {x: 390, y: 300}, {x: 410, y: 300}, {x: 400, y: 290}, {x: 400, y: 310}
+        ]);
 
         expect(colors[0]).to.not.equal('#ffffff');
         expect(colors[1]).to.equal('#ffffff');
@@ -209,7 +203,7 @@ describe('setStyleGroup Point with image', function() {
         expect(colors[4]).to.equal('#ffffff');
     });
 
-    it('style feature with image and offsetX and offsetY, validate its style', async function() {
+    it('style feature with image and offsetX and offsetY, validate its style', async () => {
         // set style for the added feature
         paLayer.setStyleGroup(feature, [{
             'zIndex': 0, 'type': 'Image', 'width': 30, 'height': 30,
@@ -224,10 +218,9 @@ describe('setStyleGroup Point with image', function() {
         // get color mid right
         // get color mid top
         // get color mid bottom
-        let colors = await getCanvasPixelColor(mapContainer, [{x: 400, y: 300}, {x: 390, y: 300}, {
-            x: 410,
-            y: 300
-        }, {x: 400, y: 290}, {x: 400, y: 310}]);
+        let colors = await getCanvasPixelColor(mapContainer, [
+            {x: 400, y: 300}, {x: 390, y: 300}, {x: 410, y: 300}, {x: 400, y: 290}, {x: 400, y: 310}
+        ]);
 
         expect(colors[0]).to.equal('#ffffff');
         expect(colors[1]).to.equal('#ffffff');

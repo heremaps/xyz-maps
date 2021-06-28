@@ -27,10 +27,10 @@ import {features} from '@here/xyz-maps-editor';
 describe('map changes observers', function() {
     const expect = chai.expect;
 
-    var preparedData;
-    var editor;
-    var display;
-    var idMaps = [];
+    let preparedData;
+    let editor;
+    let display;
+    let idMaps = [];
 
     before(async function() {
         preparedData = await prepare(dataset);

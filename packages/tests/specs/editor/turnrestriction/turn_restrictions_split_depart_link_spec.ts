@@ -20,10 +20,10 @@ import {prepare} from 'utils';
 import {waitForEditorReady, editorClick} from 'editorUtils';
 import {click} from 'triggerEvents';
 import {Map} from '@here/xyz-maps-display';
-import {Editor} from '@here/xyz-maps-editor';
+import {Editor, NavlinkShape} from '@here/xyz-maps-editor';
 import dataset from './turn_restrictions_split_depart_link_spec.json';
 
-describe('turn restriction test split the depart link', function() {
+describe('turn restriction test split the depart link', () => {
     const expect = chai.expect;
 
     let editor;
@@ -31,7 +31,8 @@ describe('turn restriction test split the depart link', function() {
     let preparedData;
     let mapContainer;
 
-    let link1; let link2;
+    let link1;
+    let link2;
 
     before(async function() {
         preparedData = await prepare(dataset);
@@ -63,7 +64,7 @@ describe('turn restriction test split the depart link', function() {
     it('set turn restriction and validate', async function() {
         await click(mapContainer, 200, 100);
 
-        let shape = (await editorClick(editor, 200, 200)).target;
+        let shape = <NavlinkShape>(await editorClick(editor, 200, 200)).target;
         shape.editTurnRestrictions();
 
         // click on traffic sign
@@ -74,7 +75,7 @@ describe('turn restriction test split the depart link', function() {
 
     it('split the link, verify links after splitting', async function() {
         link2.select();
-        let shape = (await editorClick(editor, 200, 100)).target;
+        let shape = <NavlinkShape>(await editorClick(editor, 200, 100)).target;
         let newLinks = shape.splitLink();
 
         expect(newLinks[0].prop('originLink')).to.be.equal(link2.id);

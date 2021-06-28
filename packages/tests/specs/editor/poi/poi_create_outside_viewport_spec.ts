@@ -27,11 +27,10 @@ import dataset from './poi_create_outside_viewport_spec.json';
 describe('create a poi outside viewport, it connects to a link nearby', function() {
     const expect = chai.expect;
 
-    var editor;
-    var display;
-    var preparedData;
-
-    var link;
+    let editor;
+    let display;
+    let preparedData;
+    let link;
 
     before(async function() {
         preparedData = await prepare(dataset);

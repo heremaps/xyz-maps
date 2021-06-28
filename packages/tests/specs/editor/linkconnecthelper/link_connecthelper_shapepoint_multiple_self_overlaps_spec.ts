@@ -25,11 +25,10 @@ import dataset from './link_connecthelper_shapepoint_multiple_self_overlaps_spec
 describe('link connect helper which has multiple overlapped shape points and crossing from one link', function() {
     const expect = chai.expect;
 
-    var editor;
+    let editor;
     let display;
     let preparedData;
-
-    var link1;
+    let link1;
 
     before(async function() {
         preparedData = await prepare(dataset);

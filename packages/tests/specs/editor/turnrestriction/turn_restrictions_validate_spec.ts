@@ -30,7 +30,8 @@ describe('turn restriction validate', function() {
     let display;
     let preparedData;
     let mapContainer;
-    var link1; var link3;
+    let link1;
+    let link3;
     let linkLayer;
 
     before(async function() {

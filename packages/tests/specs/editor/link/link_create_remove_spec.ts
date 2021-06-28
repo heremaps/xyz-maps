@@ -27,12 +27,11 @@ import dataset from './link_create_remove_spec.json';
 describe('Create new Link then remove', function() {
     const expect = chai.expect;
 
-    var editor;
-    var display;
-    var preparedData;
-
-    var link1;
-    var linkLayer;
+    let editor;
+    let display;
+    let preparedData;
+    let link1;
+    let linkLayer;
 
     before(async function() {
         preparedData = await prepare(dataset);

@@ -20,7 +20,7 @@ import {prepare} from 'utils';
 import {waitForEditorReady, editorClick} from 'editorUtils';
 import {drag} from 'triggerEvents';
 import {Map} from '@here/xyz-maps-display';
-import {Editor} from '@here/xyz-maps-editor';
+import {Editor, NavlinkShape} from '@here/xyz-maps-editor';
 import chaiAlmost from 'chai-almost';
 import dataset from './transform_move_undo_spec.json';
 
@@ -59,7 +59,7 @@ describe('undo the link transforming, link should connect to its connected links
 
     it('validate connected links on the shape point', async function() {
         link1.select();
-        let shp = (await editorClick(editor, 200, 200)).target;
+        let shp = <NavlinkShape>(await editorClick(editor, 200, 200)).target;
 
         expect(shp.getConnectedLinks()).to.have.lengthOf(2);
 
@@ -82,7 +82,7 @@ describe('undo the link transforming, link should connect to its connected links
         editor.undo();
         let lnk = editor.getFeature(link1.id, linkLayer);
         lnk.select();
-        let shp = (await editorClick(editor, 200, 200)).target;
+        let shp = <NavlinkShape>(await editorClick(editor, 200, 200)).target;
 
         expect(shp.getConnectedLinks()).to.have.lengthOf(2);
 

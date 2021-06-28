@@ -26,12 +26,10 @@ import dataset from './link_remove_shapepoint_spec.json';
 
 describe('remove link shapepoints', function() {
     const expect = chai.expect;
-
-    var editor;
-    var display;
-    var preparedData;
-
-    var link;
+    let editor;
+    let display;
+    let preparedData;
+    let link;
 
     before(async function() {
         preparedData = await prepare(dataset);

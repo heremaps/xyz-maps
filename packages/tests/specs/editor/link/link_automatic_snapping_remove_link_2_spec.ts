@@ -26,10 +26,10 @@ import dataset from './link_automatic_snapping_remove_link_2_spec.json';
 describe('drag a link shape point to the other and removes the link automatically', function() {
     const expect = chai.expect;
 
-    var editor;
-    var display;
-    var preparedData;
-    var link1;
+    let editor;
+    let display;
+    let preparedData;
+    let link1;
 
     before(async function() {
         preparedData = await prepare(dataset);

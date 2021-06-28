@@ -28,14 +28,16 @@ import dataset from './poi_create_remove_spec.json';
 describe('add POI object and then remove', function() {
     const expect = chai.expect;
 
-    var editor;
-    var display;
-    var preparedData;
-    var idMaps = [];
-    var link1; var poi1;
-    var link2; var poi2;
-    var linkLayer;
-    var placeLayer;
+    let editor;
+    let display;
+    let preparedData;
+    let idMaps = [];
+    let link1;
+    let poi1;
+    let link2;
+    let poi2;
+    let linkLayer;
+    let placeLayer;
 
     before(async function() {
         chai.use(chaiAlmost());

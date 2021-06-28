@@ -31,10 +31,10 @@ describe('edit turn restriction split link then undo and redo the change', funct
     let display;
     let preparedData;
     let mapContainer;
-
-    var link1; var link2;
+    let link1;
+    let link2;
     let linkLayer;
-    var splitLinks;
+    let splitLinks;
 
     before(async function() {
         preparedData = await prepare(dataset);

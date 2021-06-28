@@ -21,7 +21,7 @@ import {prepare} from 'utils';
 import {waitForEditorReady, editorClick, submit} from 'editorUtils';
 import {mousemove, click} from 'triggerEvents';
 import {Map} from '@here/xyz-maps-display';
-import {Editor} from '@here/xyz-maps-editor';
+import {Editor, Navlink, NavlinkShape} from '@here/xyz-maps-editor';
 import dataset from './turn_restrictions_spec.json';
 
 describe('turn restriction test basic', function() {
@@ -31,10 +31,11 @@ describe('turn restriction test basic', function() {
     let display;
     let preparedData;
     let mapContainer;
-    var link1; var link2;
-    var linkLayer;
+    let link1;
+    let link2;
+    let linkLayer;
 
-    before(async function() {
+    before(async () => {
         preparedData = await prepare(dataset);
         display = new Map(document.getElementById('map'), {
             center: {longitude: 76.735086, latitude: 12.894254},
@@ -60,8 +61,8 @@ describe('turn restriction test basic', function() {
         await preparedData.clear();
     });
 
-    it('edit turn restriction, validate its value', async function() {
-        let link = (await editorClick(editor, 320, 100)).target;
+    it('edit turn restriction, validate its value', async () => {
+        let link = <Navlink>(await editorClick(editor, 320, 100)).target;
 
         link.editTurnRestrictions();
 
@@ -71,10 +72,10 @@ describe('turn restriction test basic', function() {
     });
 
 
-    it('submit, validate link has correct value', async function() {
+    it('submit, validate link has correct value', async () => {
         let idMap;
 
-        await waitForEditorReady(editor, async ()=>{
+        await waitForEditorReady(editor, async () => {
             idMap = await submit(editor);
         });
 
@@ -86,11 +87,11 @@ describe('turn restriction test basic', function() {
 
     it('edit turn restriction again and revert, after that move mouse and submit', async function() {
         await click(mapContainer, 320, 100);
-        let shape = (await editorClick(editor, 300, 115)).target;
+        let shape = <NavlinkShape>(await editorClick(editor, 300, 115)).target;
         shape.editTurnRestrictions();
         await click(mapContainer, 300, 115);
 
-        await waitForEditorReady(editor, ()=>{
+        await waitForEditorReady(editor, () => {
             editor.revert();
         });
 

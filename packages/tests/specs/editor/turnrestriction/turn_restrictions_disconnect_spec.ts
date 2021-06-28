@@ -20,7 +20,7 @@ import {prepare} from 'utils';
 import {waitForEditorReady, editorClick} from 'editorUtils';
 import {click} from 'triggerEvents';
 import {Map} from '@here/xyz-maps-display';
-import {Editor} from '@here/xyz-maps-editor';
+import {Editor, NavlinkShape} from '@here/xyz-maps-editor';
 import dataset from './turn_restrictions_disconnect_spec.json';
 
 describe('edit turn restriction disconnect link, link is marked as disconnected', function() {
@@ -31,7 +31,10 @@ describe('edit turn restriction disconnect link, link is marked as disconnected'
     let preparedData;
     let mapContainer;
 
-    let link1; let link2; let link3; let link4;
+    let link1;
+    let link2;
+    let link3;
+    let link4;
     let linkLayer;
 
     before(async function() {
@@ -75,7 +78,7 @@ describe('edit turn restriction disconnect link, link is marked as disconnected'
 
         link1.select();
 
-        let shape = (await editorClick(editor, 200, 100)).target;
+        let shape = <NavlinkShape>(await editorClick(editor, 200, 100)).target;
         shape.disconnect();
 
         expect(link1.prop('disconnected')).to.be.equal('HOOK');
@@ -94,7 +97,7 @@ describe('edit turn restriction disconnect link, link is marked as disconnected'
 
     it('disconnect and validate disconnected attribute again', async function() {
         link2.select();
-        let shape = (await editorClick(editor, 200, 100)).target;
+        let shape = <NavlinkShape>(await editorClick(editor, 200, 100)).target;
 
         shape.disconnect();
 
@@ -135,7 +138,7 @@ describe('edit turn restriction disconnect link, link is marked as disconnected'
         link3.select();
 
         // get link shape point to disconnect
-        let shape = (await editorClick(editor, 300, 200)).target;
+        let shape = <NavlinkShape>(await editorClick(editor, 300, 200)).target;
         shape.disconnect();
 
         expect(link3.prop('disconnected')).to.be.equal('HOOK');
@@ -149,7 +152,7 @@ describe('edit turn restriction disconnect link, link is marked as disconnected'
         link2.select();
 
         // get link shape point to disconnect
-        let shape = (await editorClick(editor, 300, 200)).target;
+        let shape = <NavlinkShape>(await editorClick(editor, 300, 200)).target;
         shape.disconnect();
 
         link1 = editor.getFeature(link1.id, linkLayer);

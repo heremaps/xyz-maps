@@ -56,12 +56,13 @@ describe('map error listener', function() {
     });
 
     xit('submit a link with invalid token', function(done) {
-        XMLHttpRequest.prototype.realOpen = XMLHttpRequest.prototype.open;
+        const _open = XMLHttpRequest.prototype.open;
 
-        XMLHttpRequest.prototype.open = function(t, u, s) {
-            u += 'invalidtoken';
-            this.realOpen(t, u, s);
-            XMLHttpRequest.prototype.open = XMLHttpRequest.prototype.realOpen;
+        XMLHttpRequest.prototype.open = function(
+            method: string, url: string, async?: boolean, username?: string, password?: string
+        ) {
+            _open.call(this, method, url + 'invalidtoken', async);
+            XMLHttpRequest.prototype.open = _open;
         };
 
         listener = new Listener(editor, ['error']);

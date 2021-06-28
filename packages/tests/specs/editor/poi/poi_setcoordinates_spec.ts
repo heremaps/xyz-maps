@@ -26,12 +26,11 @@ import dataset from './poi_setcoordinates_spec.json';
 describe('set POI coordinates', function() {
     const expect = chai.expect;
 
-    var editor;
-    var display;
-    var preparedData;
-
-    var poi;
-    var poiLayer;
+    let editor;
+    let display;
+    let preparedData;
+    let poi;
+    let poiLayer;
 
     before(async function() {
         chai.use(chaiAlmost());

@@ -29,7 +29,7 @@ import dataset from './link_autosplit_spec.json';
 describe('link auto split', function() {
     const expect = chai.expect;
 
-    let editor;
+    let editor: Editor;
     let display;
     let preparedData;
     let mapContainer;

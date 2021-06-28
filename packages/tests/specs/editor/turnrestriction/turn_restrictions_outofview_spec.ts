@@ -20,7 +20,7 @@ import {prepare} from 'utils';
 import {waitForEditorReady, editorClick} from 'editorUtils';
 import {drag, click} from 'triggerEvents';
 import {Map} from '@here/xyz-maps-display';
-import {Editor} from '@here/xyz-maps-editor';
+import {Editor, NavlinkShape} from '@here/xyz-maps-editor';
 import dataset from './turn_restrictions_outofview_spec.json';
 
 describe('turn restriction test move link outside of viewport', function() {
@@ -30,7 +30,8 @@ describe('turn restriction test move link outside of viewport', function() {
     let display;
     let preparedData;
     let mapContainer;
-    let link1; let link2;
+    let link1;
+    let link2;
 
     before(async function() {
         preparedData = await prepare(dataset);
@@ -58,7 +59,7 @@ describe('turn restriction test move link outside of viewport', function() {
     it('edit turn restriction and validate it is set', async function() {
         await click(mapContainer, 150, 100);
 
-        let shape = (await editorClick(editor, 300, 100)).target;
+        let shape = <NavlinkShape>(await editorClick(editor, 300, 100)).target;
 
         shape.editTurnRestrictions();
 
@@ -69,11 +70,11 @@ describe('turn restriction test move link outside of viewport', function() {
 
 
     it('drag map to move link outside of viewport and move back into viewport, validate its value', async function() {
-        await waitForEditorReady(editor, async ()=>{
+        await waitForEditorReady(editor, async () => {
             await drag(mapContainer, {x: 50, y: 210}, {x: 650, y: 210});
         });
 
-        await waitForEditorReady(editor, async ()=>{
+        await waitForEditorReady(editor, async () => {
             await drag(mapContainer, {x: 650, y: 210}, {x: 50, y: 210});
         });
 

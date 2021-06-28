@@ -27,11 +27,11 @@ import dataset from './poi_get_functions_spec.json';
 describe('Place get functions', function() {
     const expect = chai.expect;
 
-    var editor;
-    var display;
-    var preparedData;
-    var place;
-    var mapContainer;
+    let editor;
+    let display;
+    let preparedData;
+    let place;
+    let mapContainer;
 
     before(async function() {
         chai.use(chaiAlmost());

@@ -25,9 +25,9 @@ import dataset from './map_observer_viewport_objects_spec.json';
 describe('map changes observers validate object numbers in viewport', function() {
     const expect = chai.expect;
 
-    var editor;
-    var display;
-    var preparedData;
+    let editor;
+    let display;
+    let preparedData;
 
 
     before(async function() {

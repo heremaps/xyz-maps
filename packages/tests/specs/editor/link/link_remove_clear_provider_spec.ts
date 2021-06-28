@@ -26,11 +26,10 @@ import dataset from './link_remove_clear_provider_spec.json';
 describe('link remove and clear provider', function() {
     const expect = chai.expect;
 
-    var editor;
-    var display;
-    var preparedData;
-
-    var linkProvider;
+    let editor;
+    let display;
+    let preparedData;
+    let linkProvider;
 
     before(async function() {
         preparedData = await prepare(dataset);

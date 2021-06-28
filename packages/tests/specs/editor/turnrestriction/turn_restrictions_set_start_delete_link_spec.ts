@@ -30,8 +30,8 @@ describe('edit turn restriction set turn restriction and delete link', function(
     let display;
     let preparedData;
     let mapContainer;
-
-    var link1; var link2;
+    let link1;
+    let link2;
 
     before(async function() {
         preparedData = await prepare(dataset);

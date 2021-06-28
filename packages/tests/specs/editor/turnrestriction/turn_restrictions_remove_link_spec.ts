@@ -30,9 +30,9 @@ describe('edit turn restriction by function on link then remove the link', funct
     let display;
     let preparedData;
     let mapContainer;
-
-    var link1; var link2;
-    var linkLayer;
+    let link1;
+    let link2;
+    let linkLayer;
 
     before(async function() {
         preparedData = await prepare(dataset);

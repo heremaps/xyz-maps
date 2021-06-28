@@ -20,7 +20,7 @@ import {prepare} from 'utils';
 import {waitForEditorReady, editorClick, clean, submit} from 'editorUtils';
 import {click} from 'triggerEvents';
 import {Map} from '@here/xyz-maps-display';
-import {Editor} from '@here/xyz-maps-editor';
+import {Editor, NavlinkShape} from '@here/xyz-maps-editor';
 import dataset from './turn_restrictions_split_link_spec.json';
 
 describe('turn restriction test split a link', function() {
@@ -30,12 +30,12 @@ describe('turn restriction test split a link', function() {
     let display;
     let preparedData;
     let mapContainer;
+    let link1;
+    let link3;
+    let linkLayer;
+    let idMaps = [];
 
-    var link1; var link3;
-    var linkLayer;
-    var idMaps = [];
-
-    before(async function() {
+    before(async ()=>{
         preparedData = await prepare(dataset);
         display = new Map(document.getElementById('map'), {
             center: {longitude: 77.29973, latitude: 12.98805},
@@ -66,7 +66,7 @@ describe('turn restriction test split a link', function() {
 
     it('set turn restrictions, validate value', async function() {
         await click(mapContainer, 120, 100);
-        let shape = (await editorClick(editor, 200, 100)).target;
+        let shape = <NavlinkShape>(await editorClick(editor, 200, 100)).target;
         shape.editTurnRestrictions();
 
         // click on traffic sign
@@ -78,7 +78,7 @@ describe('turn restriction test split a link', function() {
 
     it('get the shapepoint to split the link, validate link again', async function() {
         link1.select();
-        let shape = (await editorClick(editor, 300, 100)).target;
+        let shape = <NavlinkShape>(await editorClick(editor, 300, 100)).target;
 
         let splitLinks = shape.splitLink();
         let sLink1 = splitLinks[0];

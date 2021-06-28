@@ -29,8 +29,10 @@ import dataset from './link_edit_restrictions_spec.json';
 describe('link edit restrictions', function() {
     const expect = chai.expect;
 
-    let link1; let link2; let links;
-    let editor;
+    let link1;
+    let link2;
+    let links;
+    let editor: Editor;
     let display;
     let preparedData;
     let mapContainer;
@@ -103,7 +105,10 @@ describe('link edit restrictions', function() {
 
         await waitForEditorReady(editor);
 
-        let l1 = new features.Navlink([{x: 400, y: 200}, {x: 300, y: 200}, {x: 100, y: 200}, {x: 100, y: 100}], {featureClass: 'NAVLINK', protected: 35});
+        let l1 = new features.Navlink([{x: 400, y: 200}, {x: 300, y: 200}, {x: 100, y: 200}, {
+            x: 100,
+            y: 100
+        }], {featureClass: 'NAVLINK', protected: 35});
         let l2 = new features.Navlink([{x: 300, y: 100}, {x: 100, y: 100}], {featureClass: 'NAVLINK'});
 
         links = editor.addFeature([l1, l2]);
@@ -148,12 +153,15 @@ describe('link edit restrictions', function() {
             layers: preparedData.getLayers()
         });
 
-        await waitForEditorReady(editor, ()=>{
+        await waitForEditorReady(editor, () => {
             display.setCenter({longitude: 77.25004908649441, latitude: 13.107718606505642});
             display.setZoomlevel(18);
         });
 
-        let l1 = new features.Navlink([{x: 400, y: 200}, {x: 300, y: 200}, {x: 100, y: 200}, {x: 100, y: 100}], {featureClass: 'NAVLINK', protected: 35});
+        let l1 = new features.Navlink([{x: 400, y: 200}, {x: 300, y: 200}, {x: 100, y: 200}, {
+            x: 100,
+            y: 100
+        }], {featureClass: 'NAVLINK', protected: 35});
         let l2 = new features.Navlink([{x: 300, y: 100}, {x: 100, y: 100}], {featureClass: 'NAVLINK'});
         links = editor.addFeature([l1, l2]);
 

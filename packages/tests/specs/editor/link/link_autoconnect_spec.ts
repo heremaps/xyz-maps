@@ -20,7 +20,7 @@ import {prepare} from 'utils';
 import {waitForEditorReady, editorClick} from 'editorUtils';
 import {drag} from 'triggerEvents';
 import {Map} from '@here/xyz-maps-display';
-import {Editor} from '@here/xyz-maps-editor';
+import {Editor, NavlinkShape} from '@here/xyz-maps-editor';
 import chaiAlmost from 'chai-almost';
 import dataset from './link_autoconnect_spec.json';
 
@@ -124,7 +124,7 @@ describe('link auto connect', function() {
         lnk.select();
 
         await drag(mapContainer, {x: 200, y: 300}, {x: 300, y: 308});
-        let shape = (await editorClick(editor, 300, 308)).target;
+        let shape = <NavlinkShape>(await editorClick(editor, 300, 308)).target;
 
         expect(shape.getConnectedLinks()).to.have.lengthOf(0);
     });

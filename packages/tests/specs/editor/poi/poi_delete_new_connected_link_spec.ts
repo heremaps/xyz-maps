@@ -27,15 +27,14 @@ import dataset from './poi_delete_new_connected_link_spec.json';
 xdescribe('New poi connect to a new link and then remove the link', function() {
     const expect = chai.expect;
 
-    var editor;
-    var display;
-    var preparedData;
-
-    var link;
-    var poi;
-    var linkLayer;
-    var placeLayer;
-    var idMaps = [];
+    let editor;
+    let display;
+    let preparedData;
+    let link;
+    let poi;
+    let linkLayer;
+    let placeLayer;
+    let idMaps = [];
 
     before(async function() {
         preparedData = await prepare(dataset);

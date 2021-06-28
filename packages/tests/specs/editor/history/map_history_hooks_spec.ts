@@ -18,11 +18,9 @@
  */
 import {prepare} from 'utils';
 import {waitForEditorReady} from 'editorUtils';
+import dataset from './map_history_hooks.json';
 import {Map} from '@here/xyz-maps-display';
 import {Editor} from '@here/xyz-maps-editor';
-// @ts-ignore @deprecated
-import {features} from '@here/xyz-maps-editor';
-import dataset from './map_history_hooks.json';
 
 describe('map history hooks', function() {
     const expect = chai.expect;
@@ -32,7 +30,7 @@ describe('map history hooks', function() {
     var preparedData;
     let addressLayer;
 
-    before(async function() {
+    before(async () => {
         preparedData = await prepare(dataset);
 
         addressLayer = preparedData.getLayers('paLayer');
@@ -56,7 +54,7 @@ describe('map history hooks', function() {
     });
 
 
-    it('validate initial address', async () => {
+    it('validate initial address', () => {
         let address = addressLayer.search('testAddress');
         expect(address.prop('estate')).to.equal(undefined);
     });
@@ -67,7 +65,7 @@ describe('map history hooks', function() {
         expect(address.prop('estate')).to.equal('UPDATED');
     });
 
-    it('undo change and validate address is in initial state', async () => {
+    it('undo change and validate address is in initial state', () => {
         editor.undo();
         let address = addressLayer.search('testAddress');
         expect(address.prop('estate')).to.equal(undefined);

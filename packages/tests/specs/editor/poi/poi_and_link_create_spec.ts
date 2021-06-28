@@ -27,10 +27,10 @@ import dataset from './poi_and_link_create_spec.json';
 describe('poi and link create', function() {
     const expect = chai.expect;
 
-    var editor;
-    var display;
-    var preparedData;
-    var idMaps = [];
+    let editor;
+    let display;
+    let preparedData;
+    let idMaps = [];
 
     before(async function() {
         preparedData = await prepare(dataset);

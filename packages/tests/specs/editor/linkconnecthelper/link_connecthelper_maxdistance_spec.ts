@@ -26,14 +26,13 @@ import dataset from './link_connecthelper_maxdistance_spec.json';
 describe('link connect helper with maxdistance greater than 3', function() {
     const expect = chai.expect;
 
-    var editor;
+    let editor;
     let display;
     let preparedData;
-
-    var link1;
-    var link2;
-    var link3;
-    var crossings;
+    let link1;
+    let link2;
+    let link3;
+    let crossings;
 
     before(async function() {
         chai.use(chaiAlmost());

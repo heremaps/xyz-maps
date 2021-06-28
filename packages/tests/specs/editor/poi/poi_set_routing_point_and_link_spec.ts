@@ -25,13 +25,14 @@ import dataset from './poi_set_routing_point_and_link_spec.json';
 describe('poi set routing point and link manually', function() {
     const expect = chai.expect;
 
-    var editor;
-    var display;
-    var preparedData;
-
-    var link1; var link2; var poi;
-    var linkLayer;
-    var placeLayer;
+    let editor;
+    let display;
+    let preparedData;
+    let link1;
+    let link2;
+    let poi;
+    let linkLayer;
+    let placeLayer;
 
     before(async function() {
         preparedData = await prepare(dataset);

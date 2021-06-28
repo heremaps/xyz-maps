@@ -28,9 +28,9 @@ describe('link connect helper which has multiple overlapped shape points 1', fun
     var editor;
     let display;
     let preparedData;
-
-    var link2; var link3;
-    var crossings;
+    let link2;
+    let link3;
+    let crossings;
 
     before(async function() {
         preparedData = await prepare(dataset);
