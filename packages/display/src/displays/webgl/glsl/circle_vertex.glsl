@@ -43,7 +43,7 @@ void main(void){
 
         if (u_alignMap){
             vec2 shift = (pixel_offset + v_position) / u_scale;
-            gl_Position = u_matrix * vec4(u_topLeft + pos + shift, 0.0, 1.0);
+            gl_Position = u_matrix * vec4(u_topLeft + pos + vec2(shift.x, -shift.y), 0.0, 1.0);
         } else {
             vec4 cpos = u_matrix * vec4(u_topLeft + pos, 0.0, 1.0);
             vec2 offset = pixel_offset * vec2(1.0, -1.0);
