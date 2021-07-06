@@ -17,55 +17,24 @@
  * License-Filename: LICENSE
  */
 
-import {JSUtils} from '@here/xyz-maps-common';
-import {Animation} from './Animation';
 import {Map} from '../Map';
+import {Animator, AnimatorOptions} from './Animator';
 
-const isFnc = JSUtils.isFunction;
-
-interface ZoomAnimatorOptions {
-    onStart?: () => void;
-    onStop?: () => void;
-}
-
-class ZoomAnimator {
-    private active: boolean;
+class ZoomAnimator extends Animator {
     private map: Map;
 
-    constructor(map: Map, options: ZoomAnimatorOptions={}) {
-        let handler = this;
-
-        handler.map = map;
-
-        if (isFnc(options.onStart)) {
-            handler.onStart = options.onStart;
-        }
-        if (isFnc(options.onStop)) {
-            handler.onStop = options.onStop;
-        }
+    constructor(map: Map, options: AnimatorOptions = {}) {
+        options.easing = options.easing || 'easeOutCubic';
+        super(options);
+        this.map = map;
     }
 
-    private onStart() {
-    }
+    async start(zoomTo: number, zoomX: number, zoomY: number, duration: number) {
+        const {map} = this;
 
-    private onStop() {
-    }
-
-    async animate(zoomTo: number, zoomX: number, zoomY: number, duration: number) {
-        const handler = this;
-        const {map} = handler;
-
-        if (!handler.active) {
-            handler.active = true;
-            handler.onStart();
-
-            await (new Animation(map.getZoomlevel(), zoomTo, duration, 'easeOutCubic', (z) => {
-                map.setZoomlevel(<number>z, zoomX, zoomY);
-            })).start();
-
-            handler.onStop();
-            handler.active = false;
-        }
+        this.animate(map.getZoomlevel(), zoomTo, duration, (z) => {
+            map.setZoomlevel(<number>z, zoomX, zoomY);
+        });
     };
 }
 

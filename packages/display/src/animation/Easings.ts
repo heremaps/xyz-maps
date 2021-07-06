@@ -21,6 +21,10 @@ export const linear = (t: number): number => {
     return t;
 };
 
+export const easeOut = (t: number): number => {
+    return 1 - Math.pow(1 - t, 1.5);
+};
+
 export const easeOutSine = (t: number): number => {
     return Math.sin((Math.PI * t) * .5);
 };

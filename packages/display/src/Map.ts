@@ -42,6 +42,7 @@ import {
     utils,
     GeoJSONFeatureCollection, GeoJSONFeature, GeoJSONBBox
 } from '@here/xyz-maps-core';
+import {FlightAnimator} from './animation/FlightAnimator';
 
 const project = webMercator;
 
@@ -126,7 +127,7 @@ export class Map {
     private _tlwx: number;
     private _tlwy: number;
 
-    private _wSize: number; // world size pixel
+    _wSize: number; // world size pixel
 
     private _vp: GeoRect; // viewport/viewbounds
 
@@ -149,7 +150,8 @@ export class Map {
     // TODO: remove
     _layers: TileLayer[];
     private readonly _vplock: any; // current viewport lock state
-    private zoomAnimator: ZoomAnimator;
+    private _zoomAnimator: ZoomAnimator;
+    private _flightAnimator: FlightAnimator;
     private _search: Search;
 
     /**
@@ -266,7 +268,9 @@ export class Map {
         listeners.add('mapviewchangeend', (e) => display.viewChangeDone());
 
 
-        this.zoomAnimator = new ZoomAnimator(tigerMap);
+        this._zoomAnimator = new ZoomAnimator(tigerMap);
+
+        this._flightAnimator = new FlightAnimator(tigerMap);
 
         const behaviorOptions = {...options['behavior'], ...options['behaviour']};
 
@@ -844,7 +848,7 @@ export class Map {
 
         if (zoomLevel != zoomTo || currentScale != 1) {
             if (animate) {
-                this.zoomAnimator.animate(zoomTo, fixedX, fixedY,
+                this._zoomAnimator.start(zoomTo, fixedX, fixedY,
                     typeof animate === 'number'
                         ? animate
                         : DEFAULT_ZOOM_ANIMATION_MS
@@ -922,6 +926,40 @@ export class Map {
         );
     };
 
+
+    /**
+     * Set the map center using a bow animation combining pan and zoom operations.
+     *
+     * @param center - the geographical coordinate to center the map.
+     * @param options - options to configure the bow animation
+     */
+    flyTo(center: GeoPoint, options?: {
+        /**
+         * the duration of the bow animation in milliseconds
+         */
+        duration?: number
+    });
+    /**
+     * Set the map center and zoomlevel using a bow animation combining pan and zoom operations.
+     *
+     * @param center -  the geographical coordinate to center the map.
+     * @param zoomTo - the zoomlevel the map should be zoomed to.
+     * @param options - options to configure the bow animation
+     */
+    flyTo(center: GeoPoint, zoomTo: number, options?: {
+        /**
+         * the duration of the bow animation in milliseconds
+         */
+        duration?: number
+    });
+
+    flyTo(center: GeoPoint, zoomTo?: number | { duration?: number }, options?: { duration?: number }) {
+        if (!zoomTo || typeof zoomTo == 'object') {
+            zoomTo = this.getZoomlevel();
+        }
+        this._flightAnimator.stop();
+        this._flightAnimator.start(center, zoomTo, options?.duration);
+    }
 
     /**
      * get the current applied lock status of the map.
