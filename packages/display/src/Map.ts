@@ -556,8 +556,32 @@ export class Map {
      * Set view bounds for the map to display.
      *
      * @param bounds - GeoRect, GeoJson Feature or an GeoJson bbox [minLon, minLat, maxLon, maxLat] defining the view bounds.
+     * @param animate - animate using a bow animation @see {@link Map.flyTo}. true to enable, false to disable.
      */
-    setViewBounds(bounds: GeoRect | [number, number, number, number] | GeoJSONFeature | GeoJSONFeature[] | GeoJSONFeatureCollection) {
+    setViewBounds(
+        bounds: GeoRect | [number, number, number, number] | GeoJSONFeature | GeoJSONFeature[] | GeoJSONFeatureCollection,
+        animate?: boolean
+    );
+    /**
+     * Set view bounds for the map to display.
+     *
+     * @param bounds - GeoRect, GeoJson Feature or an GeoJson bbox [minLon, minLat, maxLon, maxLat] defining the view bounds.
+     * @param animationOptions - options to configure the bow animation @see {@link Map.flyTo}.
+     */
+    setViewBounds(
+        bounds: GeoRect | [number, number, number, number] | GeoJSONFeature | GeoJSONFeature[] | GeoJSONFeatureCollection,
+        animationOptions?: {
+            /**
+             * the duration of the bow animation in milliseconds
+             */
+            duration?: number
+        }
+    );
+
+    setViewBounds(
+        bounds: GeoRect | [number, number, number, number] | GeoJSONFeature | GeoJSONFeature[] | GeoJSONFeatureCollection,
+        animate?: { duration?: number } | boolean
+    ) {
         const args = arguments;
         let minLon;
         let minLat;
@@ -594,21 +618,18 @@ export class Map {
             maxLat = rect.maxLat;
         }
 
-        this.setZoomlevel(
-            calcZoomLevelForBounds(
-                minLon,
-                minLat,
-                maxLon,
-                maxLat,
-                this.getWidth(),
-                this.getHeight()
-            )
-        );
-
-        this.setCenter(
+        const zoom = calcZoomLevelForBounds(minLon, minLat, maxLon, maxLat, this.getWidth(), this.getHeight());
+        const center = new GeoPoint(
             minLon + (maxLon - minLon) / 2,
             minLat + (maxLat - minLat) / 2
         );
+
+        if (!animate) {
+            this.setZoomlevel(zoom);
+            this.setCenter(center);
+        } else {
+            this.flyTo(center, zoom, animate === true ? {} : animate);
+        }
     };
 
     /**
