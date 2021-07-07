@@ -23,12 +23,12 @@ import {Map} from '@here/xyz-maps-display';
 import chaiAlmost from 'chai-almost';
 import dataset from './set_get_viewbounds_spec.json';
 
-describe('set and get viewbounds', function() {
+describe('set and get viewbounds', () => {
     const expect = chai.expect;
 
     let display;
 
-    before(async function() {
+    before(async () => {
         chai.use(chaiAlmost(1e-7));
         let preparedData = await prepare(dataset);
         display = new Map(document.getElementById('map'), {
@@ -38,11 +38,11 @@ describe('set and get viewbounds', function() {
         });
     });
 
-    after(async function() {
+    after(async () => {
         display.destroy();
     });
 
-    it('validate viewbounds', function() {
+    it('validate viewbounds', () => {
         expect(display.getViewBounds()).to.deep.almost({
             minLon: 77.7958742327881,
             minLat: 12.620569563312458,
@@ -51,7 +51,7 @@ describe('set and get viewbounds', function() {
         });
     });
 
-    it('set new viewbounds and validate', async function() {
+    it('set new viewbounds and validate', async () => {
         await waitForViewportReady(display, () => {
             display.setViewBounds({
                 minLon: 77.793739194,
@@ -68,7 +68,7 @@ describe('set and get viewbounds', function() {
         });
     });
 
-    it('set viewbounds (GeoRect) and validate map center and zoomlevel', async function() {
+    it('set viewbounds (GeoRect) and validate map center and zoomlevel', async () => {
         await waitForViewportReady(display, () => {
             display.setViewBounds([77.596065467, 12.719449377, 77.598211234, 12.7210192045]);
             // display.setViewBounds({minLon: 77.596065467, maxLat: 12.7210192045, maxLon: 77.598211234, minLat: 12.719449377});
@@ -78,7 +78,7 @@ describe('set and get viewbounds', function() {
         expect(display.getZoomlevel()).to.equal(19);
     });
 
-    it('set viewbounds (Feature) and validate map center and zoomlevel', async function() {
+    it('set viewbounds (Feature) and validate map center and zoomlevel', async () => {
         let feature = {
             type: 'Feature',
             geometry: {
@@ -98,7 +98,7 @@ describe('set and get viewbounds', function() {
         expect(display.getZoomlevel()).to.equal(14);
     });
 
-    it('set viewbounds (Feature[]) and validate map center and zoomlevel', async function() {
+    it('set viewbounds (Feature[]) and validate map center and zoomlevel', async () => {
         let features = [{
             type: 'Feature',
             geometry: {
@@ -123,7 +123,7 @@ describe('set and get viewbounds', function() {
         expect(display.getZoomlevel()).to.equal(19);
     });
 
-    it('set viewbounds (FeatureCollection) and validate map center and zoomlevel', async function() {
+    it('set viewbounds (FeatureCollection) and validate map center and zoomlevel', async () => {
         const features = [{
             type: 'Feature',
             geometry: {
@@ -146,5 +146,21 @@ describe('set and get viewbounds', function() {
         expect(display.getCenter()).to.deep.almost({longitude: 76.4822664345, latitude: 14.15299275945});
         expect(display.getZoomlevel()).to.equal(14);
     });
-})
-;
+
+    it('set the viewbounds with animation', async () => {
+        await waitForViewportReady(display, () => {
+            display.setViewBounds({
+                minLon: 77.793739194,
+                minLat: 12.620344457,
+                maxLon: 77.798030729,
+                maxLat: 12.623485323
+            }, {duration: 100});
+        });
+        expect(display.getViewBounds()).to.deep.almost({
+            minLon: 77.793739194,
+            minLat: 12.620344457,
+            maxLon: 77.798030729,
+            maxLat: 12.623485323
+        });
+    });
+});

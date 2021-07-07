@@ -976,6 +976,7 @@ export class Map {
 
     flyTo(center: GeoPoint, zoomTo?: number | { duration?: number }, options?: { duration?: number }) {
         if (!zoomTo || typeof zoomTo == 'object') {
+            options = <{ duration?: number }>zoomTo;
             zoomTo = this.getZoomlevel();
         }
         this._flightAnimator.stop();

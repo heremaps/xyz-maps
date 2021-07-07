@@ -20,7 +20,7 @@
 import {Map} from '../Map';
 import {Animator, AnimatorOptions} from './Animator';
 import {getDistance} from '../geometry';
-import {webMercator as project} from '@here/xyz-maps-core';
+import {GeoPoint, webMercator as project} from '@here/xyz-maps-core';
 
 class FlightAnimator extends Animator {
     private map: Map;
@@ -32,15 +32,15 @@ class FlightAnimator extends Animator {
     }
 
     // animation is based on https://www.win.tue.nl/~vanwijk/zoompan.pdf
-    async start(targetCenter, zoomTo: number, duration?: number) {
+    async start(centerTo, zoomTo: number, duration?: number) {
         const {map} = this;
         const zoomFrom = map.getZoomlevel();
         const worldSizePixel = map._wSize;
         const centerFrom = map.getCenter();
         const centerFromX = project.lon2x(centerFrom.longitude, worldSizePixel);
         const centerFromY = project.lat2y(centerFrom.latitude, worldSizePixel);
-        const centerToX = project.lon2x(targetCenter.longitude, worldSizePixel);
-        const centerToY = project.lat2y(targetCenter.latitude, worldSizePixel);
+        const centerToX = project.lon2x(centerTo.longitude, worldSizePixel);
+        const centerToY = project.lat2y(centerTo.latitude, worldSizePixel);
 
         const w0 = Math.max(map.getWidth(), map.getHeight());
         const w1 = w0 / Math.pow(2, zoomTo - zoomFrom);
@@ -66,9 +66,20 @@ class FlightAnimator extends Animator {
             const U = u(s) / u1;
             const x = centerFromX + (centerToX - centerFromX) * U;
             const y = centerFromY + (centerToY - centerFromY) * U;
-            map.setCenter(project.x2lon(x, worldSizePixel), project.y2lat(y, worldSizePixel));
-            const zoom = Math.log(W / w(s)) / Math.LN2;
-            map.setZoomlevel(isNaN(zoom) ? zoomFrom : zoom);
+            let center;
+            let zoom;
+
+            if (s >= S) {
+                center = centerTo;
+                zoom = zoomTo;
+            } else {
+                center = new GeoPoint(project.x2lon(x, worldSizePixel), project.y2lat(y, worldSizePixel));
+                zoom = Math.log(W / w(s)) / Math.LN2;
+                zoom = isNaN(zoom) ? zoomFrom : zoom;
+            }
+
+            map.setZoomlevel(zoom);
+            map.setCenter(center);
         });
     }
 }

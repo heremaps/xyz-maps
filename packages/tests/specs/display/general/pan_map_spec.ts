@@ -23,12 +23,12 @@ import {Map} from '@here/xyz-maps-display';
 import chaiAlmost from 'chai-almost';
 import dataset from './pan_map_spec.json';
 
-describe('pan the map', function() {
+describe('pan the map', () => {
     const expect = chai.expect;
 
     let display;
 
-    before(async function() {
+    before(async () => {
         chai.use(chaiAlmost(1e-8));
         let preparedData = await prepare(dataset);
         display = new Map(document.getElementById('map'), {
@@ -38,16 +38,16 @@ describe('pan the map', function() {
         });
     });
 
-    after(async function() {
+    after(async () => {
         display.destroy();
     });
 
-    it('validate map center', async function() {
+    it('validate map center', async () => {
         expect(display.getCenter()).to.deep.equal({longitude: 77.99026323, latitude: 12.13576713});
     });
 
-    it('pan the map and validate', async function() {
-        await waitForViewportReady(display, ()=>{
+    it('pan the map and validate', async () => {
+        await waitForViewportReady(display, () => {
             display.pan(100, 100, 0, 0);
         });
 
@@ -61,5 +61,29 @@ describe('pan the map', function() {
             maxLat: 12.13786494
         });
         expect(display.getZoomlevel()).to.equal(18);
+    });
+
+    it('pan using flyTo', async () => {
+        const center = {longitude: 50.1, latitude: 8.5};
+        const zoom = display.getZoomlevel();
+
+        await waitForViewportReady(display, () => {
+            display.flyTo(center, {duration: 100});
+        });
+
+        expect(display.getCenter()).to.deep.almost(center);
+        expect(display.getZoomlevel()).to.equal(zoom);
+    });
+
+    it('pan & zoom using flyTo', async () => {
+        const center = {longitude: 8.5, latitude: 50.1};
+        const zoom = 18;
+
+        await waitForViewportReady(display, () => {
+            display.flyTo(center, {duration: 100});
+        });
+
+        expect(display.getCenter()).to.deep.almost(center);
+        expect(display.getZoomlevel()).to.equal(zoom);
     });
 });
