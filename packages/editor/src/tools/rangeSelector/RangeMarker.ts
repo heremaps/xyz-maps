@@ -51,7 +51,7 @@ function getPointAtLine(
     };
 }
 
-class ZoneMarker extends Feature {
+class RangeMarker extends Feature {
     private isLocked: () => boolean;
     private dragStart: (e: MapEvent) => void;
     private dragMove: (e: MapEvent) => void;
@@ -190,4 +190,4 @@ class ZoneMarker extends Feature {
     };
 }
 
-export default ZoneMarker;
+export default RangeMarker;

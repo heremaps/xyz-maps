@@ -22,9 +22,9 @@ import {drag} from 'triggerEvents';
 import {Map} from '@here/xyz-maps-display';
 import {Editor} from '@here/xyz-maps-editor';
 import chaiAlmost from 'chai-almost';
-import dataset from './zoneselector_spec.json';
+import dataset from './rangeselector_spec.json';
 
-describe('zone selector drag', function() {
+describe('range selector drag', function() {
     const expect = chai.expect;
 
     let editor;
@@ -63,7 +63,7 @@ describe('zone selector drag', function() {
         await preparedData.clear();
     });
 
-    it('add links to zoneselector, show and validate zoneselector info ', function() {
+    it('add links to rangeselector, show and validate rangeselector info ', function() {
         editor.getZoneSelector().add(link1, link2);
 
         editor.getZoneSelector().show({
@@ -76,7 +76,7 @@ describe('zone selector drag', function() {
             to: 0.8,
             side: 'B',
             dragStop: function(e) {
-                draggedZone = e.detail.zone;
+                draggedZone = e.detail.range;
             }
         });
 
@@ -115,7 +115,7 @@ describe('zone selector drag', function() {
         expect(info[1].segments[0].navlink).to.deep.include({id: link2.id});
     });
 
-    it('drag zone selector and validate again', async function() {
+    it('drag range selector and validate again', async function() {
         await drag(mapContainer, {x: 350, y: 217}, {x: 350, y: 250});
 
         expect(draggedZone.segments[0]).to.deep.include({
@@ -163,7 +163,7 @@ describe('zone selector drag', function() {
     });
 
 
-    it('hide zoneselector, drag the map to validate the zone selector is deactivated, validate map is dragged', async function() {
+    it('hide rangeselector, drag the map to validate the range selector is deactivated, validate map is dragged', async function() {
         editor.getZoneSelector().hide();
 
         await waitForEditorReady(editor, async () => {

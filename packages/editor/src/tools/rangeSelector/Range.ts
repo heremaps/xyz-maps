@@ -17,7 +17,7 @@
  * License-Filename: LICENSE
  */
 
-import ZoneMarker from './ZoneMarker';
+import RangeMarker from './RangeMarker';
 import MultiLink from './MultiLink';
 import {Feature} from '@here/xyz-maps-core/';
 import Overlay from '../../features/Overlay';
@@ -70,25 +70,25 @@ const createDefaultLineStyle = (stroke: string, opacity: number = 0.75, side: st
     // strokeLinecap: 'butt'
 }];
 
-export interface InternalZoneOptions {
+export interface InternalRangeOptions {
     id?: string | number;
     side?: 'L' | 'R' | 'B';
     from?: number;
     to?: number;
     locked?: boolean;
     style?: any;
-    dragStart?: (e: MapEvent, zone: Zone) => void;
-    dragMove?: (e: MapEvent, zone: Zone) => void;
-    dragStop?: (e: MapEvent, zone: Zone) => void;
+    dragStart?: (e: MapEvent, range: Range) => void;
+    dragMove?: (e: MapEvent, range: Range) => void;
+    dragStop?: (e: MapEvent, range: Range) => void;
     markerStyle?;
     lineStyle?;
 }
 
-export class Zone {
+export class Range {
     id?: string | number;
-    options: InternalZoneOptions;
+    options: InternalRangeOptions;
     private line: Feature;
-    markers: ZoneMarker[];
+    markers: RangeMarker[];
     private overlay: Overlay;
     private ml: MultiLink;
 
@@ -96,12 +96,12 @@ export class Zone {
 
     segments;
 
-    // private generateZoneSegments(zone: InternalZone): ZoneSegment[] {
+    // private generateZoneSegments(zone: InternalZone): RangeSegment[] {
     //     // const info = [];
     //     return this.ml.links.slice()
     //
     //     // this.ml.getCollection().getZoneSegments(zone).forEach((segment) => {
-    //     //     const zoneSegment: ZoneSegment = {
+    //     //     const zoneSegment: RangeSegment = {
     //     //         navlink: segment[0],
     //     //         from: segment[1],
     //     //         to: segment[2],
@@ -117,7 +117,7 @@ export class Zone {
     }
 
 
-    constructor(multiLink: MultiLink, overlay, options: InternalZoneOptions) {
+    constructor(multiLink: MultiLink, overlay, options: InternalRangeOptions) {
         this.options = {
             dragStart: (z, e) => {
             }, dragMove: (z, e) => {
@@ -166,7 +166,7 @@ export class Zone {
             }
         }
 
-        this.markers = ['from', 'to'].map((pos) => new ZoneMarker(
+        this.markers = ['from', 'to'].map((pos) => new RangeMarker(
             overlay,
             multiLink,
             side,

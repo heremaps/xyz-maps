@@ -30,7 +30,7 @@ import {
 } from '@here/xyz-maps-core';
 import {Map} from '@here/xyz-maps-display';
 import {DrawingBoard} from './DrawingBoard';
-import {Zone, ZoneSelector} from './EZoneSelector';
+import {RangeSelector} from './ERangeSelector';
 import InternalEditor from '../IEditor';
 import {mergeOptions, EditorOptions} from './EditorOptions';
 import {initHooks} from '../hooks/init';
@@ -826,13 +826,20 @@ export default class Editor {
         return drawingBoard;
     }
 
+
     /**
-     * get the tool for selecting zones/sides on Navlink features.
+     * @hidden
+     * @deprecated Use editor.getRangeSelector();
      */
-    getZoneSelector(): ZoneSelector {
+    getZoneSelector(): RangeSelector {
+        return this.getRangeSelector();
+    }
+    /**
+     * get the tool for selecting ranges on Navlink features.
+     */
+    getRangeSelector(): RangeSelector {
         const iEdit = this._i();
-        const zoneSelector = iEdit._zs = iEdit._zs || new ZoneSelector(iEdit);
-        return zoneSelector;
+        return iEdit._zs = iEdit._zs || new RangeSelector(iEdit);
     }
 
     /**

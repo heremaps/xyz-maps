@@ -133,7 +133,7 @@ document.querySelector<HTMLButtonElement>('#showButton').onclick = function() {
     let navlink4 = editor.getFeature('iOU1RzXGb2UZitda', navlinkLayer);
 
     // Add Navlinks to the zone Selector
-    let zoneSelector = editor.getZoneSelector();
+    let zoneSelector = editor.getRangeSelector();
     zoneSelector.add([navlink1, navlink2, navlink3, navlink4]);
 
     // define 3 Zones with 3 diffrent sides and display them
@@ -173,9 +173,9 @@ const onDragEndHandler = (ev) => {
     infoElement.innerText = JSON.stringify(zone, undefined, 4);
 };
 
-// hide the zone selector utility
+// hide the range selector utility
 document.querySelector<HTMLDivElement>('#hideButton').onclick = function() {
-    let zoneSelector = editor.getZoneSelector();
+    let zoneSelector = editor.getRangeSelector();
     zoneSelector.hide();
-    infoElement.innerText = 'Zone Info';
+    infoElement.innerText = 'Range Info';
 };

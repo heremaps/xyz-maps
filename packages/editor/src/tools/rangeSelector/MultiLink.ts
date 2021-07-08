@@ -21,7 +21,7 @@ import oTools from '../../features/link/NavlinkTools';
 import {Navlink} from '../../features/link/Navlink';
 import {Line} from '../../features/line/Line';
 import InternalEditor from '../../IEditor';
-import {InternalZoneOptions, Zone} from './Zone';
+import {InternalRangeOptions, Range} from './Range';
 import ObjectOverlay from '../../features/Overlay';
 import {Style} from '@here/xyz-maps-core';
 
@@ -59,7 +59,7 @@ type MultiLinkSegment = {
 
 
 class MultiLink {
-    private zones = [];
+    private ranges = [];
     private feature: any;
     private overlay: ObjectOverlay;
     private completePath: any;
@@ -106,10 +106,10 @@ class MultiLink {
     }
 
     private removeZones() {
-        this.zones.forEach((zone) => {
+        this.ranges.forEach((zone) => {
             zone.remove();
         });
-        this.zones.length = 0;
+        this.ranges.length = 0;
     }
 
     coord() {
@@ -120,7 +120,7 @@ class MultiLink {
         this.overlay.remove(this.feature);
     }
 
-    show(zones: InternalZoneOptions[]) {
+    show(zones: InternalRangeOptions[]) {
         const {overlay} = this;
 
         this.removeZones();
@@ -129,8 +129,8 @@ class MultiLink {
 
         zones.forEach((zone) => {
             if (['L', 'R', 'B'].indexOf(zone.side) != -1) {
-                let multiZone = new Zone(this, overlay, zone);
-                this.zones.push(multiZone);
+                let multiZone = new Range(this, overlay, zone);
+                this.ranges.push(multiZone);
                 multiZone.draw();
             }
         });
@@ -206,11 +206,11 @@ class MultiLink {
     //* **************************************************************************************
 
 
-    getZones() {
-        return this.zones;
+    getRanges() {
+        return this.ranges;
     }
 
-    getZoneSegments(zone: Zone): MultiLinkSegment[] {
+    getZoneSegments(zone: Range): MultiLinkSegment[] {
         const m1 = zone.markers[0];
         const m2 = zone.markers[1];
         const segments = [];

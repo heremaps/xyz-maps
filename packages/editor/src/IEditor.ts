@@ -29,7 +29,7 @@ import Hooks from './Hooks';
 import Map from './map/Map';
 import {Map as Display} from '@here/xyz-maps-display';
 import {Feature} from './features/feature/Feature';
-import {ZoneSelector} from './API/EZoneSelector';
+import {RangeSelector} from './API/ERangeSelector';
 import {DrawingBoard} from './API/DrawingBoard';
 
 const ERROR_EVENT = 'error';
@@ -41,7 +41,7 @@ export default class InternalEditor {
     _config: EditorOptions;
 
     isCommitInProcess: boolean = false;
-    _zs: ZoneSelector;
+    _zs: RangeSelector;
     _db: DrawingBoard;
 
     display: Display;

@@ -22,10 +22,10 @@ import {waitForEditorReady} from 'editorUtils';
 import {drag} from 'triggerEvents';
 import {Map} from '@here/xyz-maps-display';
 import {Editor} from '@here/xyz-maps-editor';
-import dataset from './zoneselector_show_hide_spec.json';
+import dataset from './rangeselector_show_hide_spec.json';
 import chaiAlmost from 'chai-almost';
 
-describe('zone selector util', function() {
+describe('range selector util', function() {
     const expect = chai.expect;
     let editor;
     let display;
@@ -61,16 +61,16 @@ describe('zone selector util', function() {
         await preparedData.clear();
     });
 
-    it('validate zone is initialized correctly', async ()=>{
-        editor.getZoneSelector().add(link1);
+    it('validate range is initialized correctly', async ()=>{
+        editor.getRangeSelector().add(link1);
 
-        editor.getZoneSelector().show({
+        editor.getRangeSelector().show({
             from: 0.1,
             to: 0.4,
             side: 'B'
         });
 
-        let info = editor.getZoneSelector().info();
+        let info = editor.getRangeSelector().info();
 
         expect(info[0].from).to.deep.almost(0.1);
         expect(info[0].to).to.deep.almost(0.4);
@@ -83,65 +83,65 @@ describe('zone selector util', function() {
         });
     });
 
-    it('validate selected zone info after dragging zone selector', async function() {
-        editor.getZoneSelector().hide();
+    it('validate selected range info after dragging range selector', async function() {
+        editor.getRangeSelector().hide();
 
-        editor.getZoneSelector().add(link2);
+        editor.getRangeSelector().add(link2);
 
-        let zone;
-        editor.getZoneSelector().show({
+        let range;
+        editor.getRangeSelector().show({
             from: 0.1,
             to: 0.4,
             side: 'B',
             dragStop: function(e) {
-                zone = e.detail.zone;
+                range = e.detail.range;
             }
         });
 
         await drag(mapContainer, {x: 120, y: 185}, {x: 120, y: 200});
 
-        expect(zone.segments[0].from).to.deep.almost(0.1);
-        expect(zone.segments[0].to).to.deep.almost(0.517);
-        expect(zone.segments[0]).to.deep.include({
+        expect(range.segments[0].from).to.deep.almost(0.1);
+        expect(range.segments[0].to).to.deep.almost(0.517);
+        expect(range.segments[0]).to.deep.include({
             reversed: false
         });
 
-        expect(zone.segments[0].navlink).to.deep.include({
+        expect(range.segments[0].navlink).to.deep.include({
             id: link2.id
         });
     });
 
 
-    it('hide zoneselector and add another link to zone select, validate selected zone info after dragging', async function() {
-        editor.getZoneSelector().hide();
+    it('hide rangeselector and add another link to range select, validate selected range info after dragging', async function() {
+        editor.getRangeSelector().hide();
 
-        editor.getZoneSelector().add(link1);
+        editor.getRangeSelector().add(link1);
 
-        let zone;
-        editor.getZoneSelector().show({
+        let range;
+        editor.getRangeSelector().show({
             from: 0.1,
             to: 0.7,
             side: 'R',
             dragStop: function(e) {
-                zone = e.detail.zone;
+                range = e.detail.range;
             }
         });
 
         await drag(mapContainer, {x: 133, y: 301}, {x: 131, y: 285});
 
-        expect(zone.segments[0].from).to.deep.almost(0.1);
-        expect(zone.segments[0].to).to.deep.almost(0.488);
-        expect(zone.segments[0]).to.deep.include({
+        expect(range.segments[0].from).to.deep.almost(0.1);
+        expect(range.segments[0].to).to.deep.almost(0.488);
+        expect(range.segments[0]).to.deep.include({
             reversed: false
         });
 
-        expect(zone.segments[0].navlink).to.deep.include({
+        expect(range.segments[0].navlink).to.deep.include({
             id: link1.id
         });
     });
 
-    it('hide zoneselector and drag a link, validate the selected zone info', async function() {
-        editor.getZoneSelector().hide();
+    it('hide rangeselector and drag a link, validate the selected range info', async function() {
+        editor.getRangeSelector().hide();
 
         link4.select();
 

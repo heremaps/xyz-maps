@@ -18,11 +18,11 @@
  */
 
 import {Feature} from '../features/feature/Feature';
-import MultiSelector from '../tools/ZoneSelection/MultiSelector';
+import MultiSelector from '../tools/RangeSelector/MultiSelector';
 import InternalEditor from '../IEditor';
 
 import {Navlink} from '../features/link/Navlink';
-import {Zone as InternalZone} from '../tools/ZoneSelection/Zone';
+import {Range as InternalZone} from '../tools/RangeSelector/Range';
 import {MapEvent} from '@here/xyz-maps-display';
 import EventHandler from '../handlers/EventHandler';
 import {EditorEvent} from './EditorEvent';
@@ -30,11 +30,11 @@ import {EditorEvent} from './EditorEvent';
 let UNDEF;
 
 /**
- * A ZoneSegment is the part of a "Zone" that's located at a specific Navlink.
+ * A RangeSegment is the part of a "Range" that's located at a specific Navlink.
  */
-export type ZoneSegment = {
+export type RangeSegment = {
     /**
-     * The Navlink the ZoneSegment is located at.
+     * The Navlink the RangeSegment is located at.
      */
     navlink: Navlink
     /**
@@ -48,22 +48,22 @@ export type ZoneSegment = {
      */
     to: number;
     /**
-     * The indicates if the direction of travel of the Navlink is in reverse order, compared to the direction of travel of the first Navlink that's has been added of the ZoneSelector.
+     * The indicates if the direction of travel of the Navlink is in reverse order, compared to the direction of travel of the first Navlink that's has been added of the RangeSelector.
      */
     reversed: boolean;
 }
 
 /**
- * A zone represents a part/subsegment on a line geometry or multiple line geometries.
- * Its used by the ZoneSelector utility. {@link editor.ZoneSelector}
+ * A Range represents a part/subsegment on a line geometry or multiple line geometries.
+ * Its used by the RangeSelector utility. {@link editor.RangeSelector}
  */
-export interface Zone {
+export interface Range {
     /**
-     * Optional identifier of the Zone
+     * Optional identifier of the Range
      */
     id?: string | number;
     /**
-     * Side of the Zone. Relative to the direction of travel of the line geometry.
+     * Side of the Range. Relative to the direction of travel of the line geometry.
      * "L" | "R" | "B" -\> Left, Right or Both sides.
      *
      * @defaultValue "B"
@@ -82,37 +82,37 @@ export interface Zone {
      */
     to?: number;
     /**
-     * lock the zone and prevent dragging/editing of the Zone.
+     * lock the range and prevent dragging/editing of the Range.
      */
     locked?: boolean;
     /**
-     * Apply custom styling of Zone.
+     * Apply custom styling of Range.
      * Objects of key value pairs.
      */
     style?: any;
     /**
-     * Set an event listener that will be called when a zone drag starts.
+     * Set an event listener that will be called when a range drag starts.
      *
      * @param event - The respective event.
-     * The {@link Zone} is provided in the detail property of the event. (event.detail.zone)
+     * The {@link Range} is provided in the detail property of the event. (event.detail.range)
      */
     dragStart?: (event: EditorEvent) => void;
     /**
-     * Set an event listener that will be called when a zone is dragged.
+     * Set an event listener that will be called when a range is dragged.
      *
      * @param event - The respective event.
-     * The {@link Zone} is provided in the detail property of the event. (event.detail.zone)
+     * The {@link Range} is provided in the detail property of the event. (event.detail.range)
      */
     dragMove?: (event: EditorEvent) => void;
     /**
-     * Set an event listener that will be called when a zone drag has been finished.
+     * Set an event listener that will be called when a range drag has been finished.
      *
      * @param event - The respective event.
-     * The {@link Zone} is provided in the detail property of the event. (event.detail.zone)
+     * The {@link Range} is provided in the detail property of the event. (event.detail.range)
      */
     dragStop?: (event: EditorEvent) => void;
     /**
-     * A zone can consist of several segments.
+     * A range can consist of several segments.
      * A Segment provides detailed information on the affected Navlinks:
      * @example
      * ```
@@ -124,33 +124,33 @@ export interface Zone {
      * }
      * ```
      */
-    readonly segments?: ZoneSegment[]
+    readonly segments?: RangeSegment[]
 
     markerStyle?;
     lineStyle?;
 }
 
-const convertZone = (zone: InternalZone): Zone => {
-    const {id, from, to, side, style} = zone.options;
-    return {id, from, to, side, style, segments: zone.segments};
+const convertZone = (range: InternalZone): Range => {
+    const {id, from, to, side, style} = range.options;
+    return {id, from, to, side, style, segments: range.segments};
 };
 
 /**
- * The ZoneSelector is a tool to create and modify Zones on a single geometry or multiple line geometries.
- * A Zone represents a part/subsegment on a line geometry or multiple line geometries and allows separate attribution.
+ * The RangeSelector is a tool to create and modify Ranges on a single geometry or multiple line geometries.
+ * A Range represents a part/subsegment on a line geometry or multiple line geometries and allows separate attribution.
  */
-export class ZoneSelector {
+export class RangeSelector {
     private links: MultiSelector;
-    private zones: [];
+    private ranges: [];
 
     constructor(iEditor: InternalEditor) {
         this.links = new MultiSelector(iEditor);
     }
 
     /**
-     * Add Navlink(s) to ZoneSelector tool.
+     * Add Navlink(s) to RangeSelector tool.
      *
-     * @param links - a single or multiple Navlinks to add. Multiple Navlinks must be linked.
+     * @param navlink - a single or multiple Navlinks to add. Multiple Navlinks must be linked.
      *
      */
     add(navlink: Navlink | Navlink[]) {
@@ -164,63 +164,64 @@ export class ZoneSelector {
     };
 
     /**
-     * Add and show a Zone. A Zone can be located on a single or multiple Navlink(s).
+     * Add and show a Range. A Range can be located on a single or multiple Navlink(s).
      *
-     * @param zone - The zone that should be displayed.
+     * @param range - The Range that should be displayed.
      */
-    show(...zones: Zone[]);
+    show(...ranges: Range[]);
 
-    show(zone: Zone) {
-        const zones = this.zones = zone instanceof Array ? zone : [].slice.call(arguments);
+    show(range: Range) {
+        const ranges = this.ranges = range instanceof Array ? range : [].slice.call(arguments);
 
-        zones.forEach((zone) => {
-            zone['from'] = zone['from'] || 0;
-            zone['to'] = (zone['to'] == UNDEF ? 1 : zone['to']) || 0;
+        ranges.forEach((range) => {
+            range['from'] = range['from'] || 0;
+            range['to'] = (range['to'] == UNDEF ? 1 : range['to']) || 0;
 
             for (let name of ['markerStyle', 'lineStyle']) {
-                let style = zone[name];
+                let style = range[name];
                 if (style && !Array.isArray(style)) {
-                    zone[name] = [style];
+                    range[name] = [style];
                 }
             }
 
             for (let type of ['dragStart', 'dragMove', 'dragStop']) {
-                const listener = zone[type];
+                const listener = range[type];
                 if (listener) {
-                    zone[type] = (e: MapEvent, zone: InternalZone) => {
-                        e.detail.zone = convertZone(zone);
+                    range[type] = (e: MapEvent, range: InternalZone) => {
+                        /* detail.zone is deprecated */
+                        e.detail.range = e.detail.zone = convertZone(range);
                         listener(EventHandler.createEditorEvent(e, e.target, type));
                     };
                 }
             }
         });
 
-        this.links.show(zones);
+        this.links.show(ranges);
     };
 
     /**
-     * hides all Zones and the Zoneselecor tool itself.
+     * hides all Ranges and the RangeSelector tool itself.
      */
     hide() {
         return this.links.hide();
     }
 
     /**
-     * detailed information about all zones and its segments.
+     * detailed information about all ranges and its segments.
      *
-     * @returns An array of Zones providing detailed information for each Zone.
+     * @returns An array of Ranges providing detailed information for each Range.
      */
-    info(): Zone[] {
-        const zoneInfos = [];
+    info(): Range[] {
+        const rangeInfos = [];
         const multilink = this.links.getCollection();
 
         if (multilink) {
-            const zones = multilink.getZones();
-            zones.forEach((zone) => {
-                zoneInfos.push(convertZone(zone));
+            const ranges = multilink.getRanges();
+            ranges.forEach((range) => {
+                rangeInfos.push(convertZone(range));
             });
         }
-        return zoneInfos;
+        return rangeInfos;
     };
 
 

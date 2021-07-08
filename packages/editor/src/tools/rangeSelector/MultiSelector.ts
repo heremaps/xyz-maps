@@ -22,7 +22,7 @@ import MultiLink from './MultiLink';
 import InternalEditor from '../../IEditor';
 import {Map} from '@here/xyz-maps-display';
 import {Navlink} from '../../features/link/Navlink';
-import {InternalZoneOptions} from './Zone';
+import {InternalRangeOptions} from './Range';
 
 class MultiSelector {
     private multiLink: MultiLink = null;
@@ -57,7 +57,7 @@ class MultiSelector {
         return this.multiLink;
     }
 
-    show(zones: InternalZoneOptions[]) {
+    show(zones: InternalRangeOptions[]) {
         // if (!this.onMvcStart) {
         // this.display.addEventListener('mapviewchangestart', this.onMvcStart = this.hide.bind(this));
         // }
