@@ -67,7 +67,7 @@ export class MVTLayer extends TileLayer {
 
         if (!tileSize) {
             // check if tilesize is defined in url..
-            const ts = url.match(/256|512|1024|2048|4096/);
+            const ts = typeof url == 'string' && url.match(/256|512|1024|2048|4096/);
 
             if (ts) {
                 tileSize = Number(ts[0]);

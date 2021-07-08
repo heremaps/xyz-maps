@@ -27,9 +27,32 @@ export interface MVTLayerOptions extends TileLayerOptions {
      */
     remote: {
         /**
-         * url to the remote mvt endpoint
+         * URL to the remote MVT endpoint.
+         *
+         * It is either a string which may contain the following flags that will be replaced:
+         * - \{SUBDOMAIN_CHAR\}: subdomain id(a, b, c and d) for balancing the load
+         * - \{SUBDOMAIN_INT\}: subdomain id(0, 1, 2 and 3) for balancing the load
+         * - \{SUBDOMAIN_INT_1_4\}: subdomain id(1, 2, 3 and 4) for balancing the load
+         * - \{QUADKEY\}: quadkey of the tile to be requested
+         * - \{Z\}: z of the tile to be requested
+         * - \{X\}: x of the tile to be requested
+         * - \{Y\}: y of the tile to be requested
+         *
+         * or a callback function that's called with the following parameters z,y,x,quadkey and needs to returns the url for the respective tile.
+         * The callback function needs to handle custom parameters by its own.
+         *
+         * @example
+         * ```
+         * // string
+         * url: 'https://xyz.api.here.com/tiles/osmbase/512/all/{z}/{x}/{y}.mvt?access_token=YOUR_ACCESS_TOKEN'
+         *
+         * // callback function
+         * url: (z, y, x, quadkey) => {
+         *     return `https://xyz.api.here.com/tiles/osmbase/512/all/${z}/${x}/${y}.mvt?access_token=YOUR_ACCESS_TOKEN`
+         * }
+         * ```
          */
-        url: string
+        url: string | ((z: number, y: number, x: number, quadkey: string) => string)
         /**
          * The maximum zoom level for loading map tiles
          * @defaultValue 16

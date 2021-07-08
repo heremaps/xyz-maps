@@ -24,7 +24,7 @@ import {EditableRemoteTileProviderOptions} from '../RemoteTileProvider/EditableR
  */
 export interface HTTPProviderOptions extends EditableRemoteTileProviderOptions {
     /**
-     * url for requesting tiles.
+     * URL for requesting tiles.
      *
      * It is either a string which may contain following flags that will be replaced by provider:
      * - \{SUBDOMAIN_CHAR\}: subdomain id(a, b, c and d) for balancing the load
@@ -35,7 +35,7 @@ export interface HTTPProviderOptions extends EditableRemoteTileProviderOptions {
      * - \{X\}:  x of the tile to be requested
      * - \{Y\}:  y of the tile to be requested
      *
-     * or a callback function that's called with the following parameters x,y,z,quadkey and need to returns the url for requesting tiles.
+     * or a callback function that's called with the following parameters z,y,x,quadkey and needs to returns the url for the respective tile.
      * The callback function needs to handle custom parameters by its own.
      *
      * @example
@@ -75,4 +75,4 @@ export interface HTTPProviderOptions extends EditableRemoteTileProviderOptions {
      * Custom parameters will be applied to all request done by provider.
      */
     params?: { [paramter: string]: string };
-};
+}

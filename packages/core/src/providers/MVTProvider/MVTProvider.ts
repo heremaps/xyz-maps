@@ -43,7 +43,7 @@ export class MVTProvider extends RemoteTileProvider {
 
     clipped = true;
     tree = null;
-    url: string;
+    url: string | ((z: number, y: number, x: number, quadkey: string) => string);
 
     constructor(config) {
         super(JSUtils.extend({
@@ -62,7 +62,12 @@ export class MVTProvider extends RemoteTileProvider {
     getCopyright(cb) {
         let prov = this;
         let url = prov.url;
-        let xyz = url.match(/.*xyz+.*here\.com\/tiles\/[a-zA-Z]+[\.\d]*\//);
+
+        if (typeof url == 'function') {
+            url = url(0, 0, 0, '');
+        }
+
+        let xyz = url?.match && url.match(/.*xyz+.*here\.com\/tiles\/[a-zA-Z]+[\.\d]*\//);
         let cdata = prov.c;
 
         if (cb) {
@@ -90,4 +95,4 @@ export class MVTProvider extends RemoteTileProvider {
             }
         }
     }
-};
+}
