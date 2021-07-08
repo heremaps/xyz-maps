@@ -18,11 +18,11 @@
  */
 
 import {Feature} from '../features/feature/Feature';
-import MultiSelector from '../tools/RangeSelector/MultiSelector';
+import MultiSelector from '../tools/rangeSelector/MultiSelector';
 import InternalEditor from '../IEditor';
 
 import {Navlink} from '../features/link/Navlink';
-import {Range as InternalZone} from '../tools/RangeSelector/Range';
+import {Range as InternalZone} from '../tools/rangeSelector/Range';
 import {MapEvent} from '@here/xyz-maps-display';
 import EventHandler from '../handlers/EventHandler';
 import {EditorEvent} from './EditorEvent';
