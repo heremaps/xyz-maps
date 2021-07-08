@@ -38,7 +38,7 @@ export interface MVTLayerOptions extends TileLayerOptions {
          * - \{X\}: x of the tile to be requested
          * - \{Y\}: y of the tile to be requested
          *
-         * or a callback function that's called with the following parameters z,y,x,quadkey and needs to returns the url for the respective tile.
+         * or a callback function that's called with the following parameters z,y,x,quadkey and needs to return the url for the respective tile.
          * The callback function needs to handle custom parameters by its own.
          *
          * @example
