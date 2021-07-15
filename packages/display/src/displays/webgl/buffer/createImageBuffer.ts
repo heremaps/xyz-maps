@@ -19,6 +19,7 @@
 
 import {GeometryBuffer} from './GeometryBuffer';
 import {Texture} from '../Texture';
+import {PASS} from '../program/GLStates';
 
 const textureCoordinates = [
     0, 0,
@@ -29,7 +30,7 @@ const textureCoordinates = [
     0, 1
 ];
 
-const createImageBuffer = (img: HTMLImageElement | HTMLCanvasElement, gl: WebGLRenderingContext, size: number) => {
+const createImageBuffer = (img: HTMLImageElement | HTMLCanvasElement, gl: WebGLRenderingContext, size: number, alpha: boolean) => {
     // const id = (<any>img)._id || ((<any>img)._id = String(Math.random()));
     // const texInfo = atlas.get(id) || atlas.set(id, img); // [UNIT,X,Y]
 
@@ -69,6 +70,8 @@ const createImageBuffer = (img: HTMLImageElement | HTMLCanvasElement, gl: WebGLR
     tileBuffer.addUniform('u_sampler', 0);
     tileBuffer.zIndex = 0;
     tileBuffer.scissor = true;
+    tileBuffer.blend = alpha;
+    tileBuffer.alpha = alpha ? PASS.ALPHA : PASS.OPAQUE;
 
     return tileBuffer;
 };

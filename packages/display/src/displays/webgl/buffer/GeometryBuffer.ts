@@ -62,7 +62,7 @@ class GeometryBuffer {
     zLayer?: number;
     scissor?: boolean;
     depth?: boolean;
-    blend?: true;
+    blend?: boolean;
 
     flat: boolean = true;
 
