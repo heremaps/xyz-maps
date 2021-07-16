@@ -781,14 +781,14 @@ var tools = {
 
     fixGeo: function(
         line: Navlink,
-        shapeToCheck: number,
+        shapeToCheck?: number,
         ignoreSplitChildren?: Navlink[],
         preferShapeIndex?: number,
     ) {
         return autoFixGeometry(line, shapeToCheck, ignoreSplitChildren, preferShapeIndex);
     },
     // used by: crossing + shape
-    connectShpToLink: function(line, shpIndex, toLink, toPos, preferSegment, ignoreZLevel: boolean): ConnectLinksResult {
+    connectShpToLink: function(line, shpIndex, toLink, toPos, preferSegment?, ignoreZLevel?: boolean): ConnectLinksResult {
         const splitInfo = new ConnectLinksResult();
         let newLinks;
         const objManager = line._e().objects;
@@ -798,8 +798,8 @@ var tools = {
                 line,
                 shpIndex,
                 toLink,
-                preferSegment,
                 toPos,
+                preferSegment,
                 ignoreZLevel
             );
 
@@ -868,7 +868,7 @@ const moveShapeAtIndexTo = tools.moveShapeAtIndexTo;
 // ********************************************** PRIVATE **********************************************
 
 
-function autoFixGeometry(line: Navlink, shapeToCheck: number, ignoreSplitChildren?: Navlink[], skipShapeIndex?: number) {
+function autoFixGeometry(line: Navlink, shapeToCheck?: number, ignoreSplitChildren?: Navlink[], skipShapeIndex?: number) {
     const HERE_WIKI = line._e();
     const objManager = HERE_WIKI.objects;
     const ignoreAllCLinks = !ignoreSplitChildren;
@@ -1124,7 +1124,14 @@ function isShpBlocked(line, index) {
 
 //* *************************************************************************
 
-function connectLinks(fromLink: Navlink, fromShpIndex, toLink, preferSegment, toPos, ignoreZLevel: boolean): [Navlink, Navlink] {
+function connectLinks(
+    fromLink: Navlink,
+    fromShpIndex: number,
+    toLink: Navlink,
+    toPos: GeoJSONCoordinate,
+    preferSegment?: number,
+    ignoreZLevel?: boolean
+): [Navlink, Navlink] {
     const HERE_WIKI = fromLink._e();
     const path = fromLink.coord();
     let splittedLinks = null;

@@ -23,6 +23,7 @@ import GeoFence from './GeoFence';
 import {Navlink} from './Navlink';
 import {TurnRestrictionEditor} from '../../tools/turnrestriction/TrEditor';
 import {Feature as EditableFeature} from '../feature/Feature';
+import NavlinkTools from './NavlinkTools';
 
 
 const NS_EDITOR = '@ns:com:here:editor';
@@ -33,9 +34,8 @@ type LinkShapeProperties = {
     parent: Navlink;
 };
 
-let linkTools;
+let linkTools: typeof NavlinkTools;
 let geoFence;
-let UNDEF;
 
 
 type ConnectedLinkDetails = { link: Navlink, index: number };
