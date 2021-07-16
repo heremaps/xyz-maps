@@ -115,11 +115,17 @@ interface EditorOptions {
     maxRoutingPointDistance?: number;
 
     /**
-     * Enable or disable "auto snap" to the existing Navlink network when a shape of a Navlink Feature has been dragged.
      *
-     * @defaultValue false
+     * Configure "automatic coordinates snapping" to nearby geometries when a shape of a Navlink or Area Feature is dragged.
+     * - 'true' : coordinates are snapped during the drag operation. [DEFAULT]
+     * - 'false': coordinates are snapped after the drag operation is complete.
+     *
+     * @defaultValue 'drag'
+     *
+     * @hidden
+     * @internal
      */
-    autoSnapShape?: boolean;
+    snapOnDrag?: boolean;
 
     /**
      * Optional service settings.
@@ -188,7 +194,7 @@ const defaultOptions: EditorOptions = {
     'keepFeatureSelection': 'viewportChange',
     'featureSelectionByDefault': true,
     'maxRoutingPointDistance': 1000,
-    'autoSnapShape': false
+    'snapOnDrag': true
 };
 
 

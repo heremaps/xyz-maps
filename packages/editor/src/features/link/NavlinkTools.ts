@@ -17,7 +17,7 @@
  * License-Filename: LICENSE
  */
 
-import {GeoJSONCoordinate as Coordinate, GeoJSONBBox as BBox} from '@here/xyz-maps-core';
+import {GeoJSONBBox as BBox, GeoJSONCoordinate} from '@here/xyz-maps-core';
 import {geotools, JSUtils} from '@here/xyz-maps-common';
 import {getPointAtLength, getTotalLength, getPntAt, getSegmentIndex} from '../../geometry';
 import {calcRelPosOfPoiAtLink} from '../../map/GeoMath';
@@ -140,7 +140,7 @@ function storeConnectedPoints(line: Navlink) {
     );
 }
 
-function changeGeometry(line, path: Coordinate[]) {
+function changeGeometry(line, path: GeoJSONCoordinate[]) {
     getPrivate(line).isGeoMod = true;
 
     line._e().objects.history.origin(line);
@@ -350,8 +350,7 @@ var tools = {
             storeConnectedPoints(line).forEach((cObj) => {
                 const nrp = getPointAtLength(
                     coordinates,
-                    getTotalLength(coordinates) *
-                    calcRelPosOfPoiAtLink(coordinates, locTools.getRoutingPosition(cObj)).offset
+                    getTotalLength(coordinates) * calcRelPosOfPoiAtLink(coordinates, locTools.getRoutingPosition(cObj)).offset
                 );
 
                 // connect to the line with new routing point when the link geometry is changed
@@ -523,9 +522,10 @@ var tools = {
         return line;
     },
 
-    moveShapeAtIndexTo: function(line: Navlink, index: number, x: number, y: number, skipCLinks?: boolean) {
+    moveShapeAtIndexTo: function(line: Navlink, index: number, x: number, y: number, skipCLinks?: boolean): boolean {
         const path = line.coord();
         const shapePnts = getPrivate(line, 'shps');
+        const positionHasChanged = path[index][0] != x || path[index][1] != y;
 
         path[index][0] = x;
         path[index][1] = y;
@@ -553,7 +553,7 @@ var tools = {
             updateOverlapping(shp, tools.checkOverlapping(line, index));
         }
 
-        return path;
+        return positionHasChanged;
     },
 
     //* **************************************** public area/link only ****************************************
@@ -670,16 +670,16 @@ var tools = {
 
         index = typeof index == 'number'
             ? index
-            : intersec.index;
+            : intersec?.index;
 
-        if (!intersec.existingShape || force) {
+        if (!intersec?.existingShape || force) {
             const zLevels = <number[]>link.getZLevels();
 
             // if existing shape is forced to get added,
             // index needs to be adjusted because
             // index for existing shapes represents shape index..
             // ..while index for non existing shapes represents segment index
-            if (intersec.existingShape) {
+            if (intersec?.existingShape) {
                 index = (<any>getSegmentIndex(path, pos)) + 1;
             }
 
@@ -728,6 +728,24 @@ var tools = {
         }
 
         return index;
+    },
+
+    snapShape: (linkShape: NavlinkShape, position: GeoJSONCoordinate, minShpDistance?: number): GeoJSONCoordinate => {
+        const link = linkShape.getLink();
+        const prv = getPrivate(linkShape);
+        const internalEditor = link._e();
+        const closeLinks = link.getProvider().search({point: position, radius: minShpDistance});
+        let cLen = closeLinks.length;
+        let cl;
+
+        while (cl = closeLinks[--cLen]) {
+            if (cl.id != link.id && prv._cls.indexOf(cl) == -1) {
+                const x = internalEditor.map.calcCrossingAt(cl.geometry.coordinates, position, minShpDistance, UNDEF, minShpDistance);
+                if (x) {
+                    return x.point;
+                }
+            }
+        }
     },
 
     defaults: function(line: Navlink, selected?: boolean) {
@@ -879,14 +897,14 @@ function autoFixGeometry(line: Navlink, shapeToCheck: number, ignoreSplitChildre
         }
 
         function moveCLinksToTeardrop(shp: number) {
-            const clnks = line.getConnectedLinks(shp, true);
-            clnks.forEach((connection) => {
-                const link = connection.link;
-                tools.markAsModified(link, false);
-                moveShapeAtIndexTo(link, connection.index, TDCoord[0], TDCoord[1], true);
-            });
-
-            return clnks;
+            const connectedLinks = line.getConnectedLinks(shp, true);
+            for (let {link, index} of connectedLinks) {
+                const positionHasChanged = moveShapeAtIndexTo(link, index, TDCoord[0], TDCoord[1], true);
+                if (positionHasChanged) {
+                    tools.markAsModified(link, false);
+                }
+            }
+            return connectedLinks;
         }
 
         const path = line.coord();
@@ -1109,30 +1127,28 @@ function isShpBlocked(line, index) {
 function connectLinks(fromLink: Navlink, fromShpIndex, toLink, preferSegment, toPos, ignoreZLevel: boolean): [Navlink, Navlink] {
     const HERE_WIKI = fromLink._e();
     const path = fromLink.coord();
+    let splittedLinks = null;
     // get clinks before changing geo!
     const connectedLinks = fromLink.getConnectedLinks(fromShpIndex, true);
     const x = toPos[0];
     const y = toPos[1];
     // var considerZlevel = toPos[2] !== UNDEF; // ***** UNCOMMENT FOR ZLEVEL CONSIDERATION *****
     const snapTolerance = HERE_WIKI._config['minShapeDistance'];
-
     const crossing = HERE_WIKI.map.calcCrossingAt(toLink.coord(), toPos, snapTolerance, preferSegment);
-    const pnt = HERE_WIKI.map.clipGeoCoord(crossing.point);
-    let splittedLinks = null;
-    const isExistingShape = crossing.existingShape;
-    const blockShape = isExistingShape && isShpBlocked(toLink, crossing.index);
 
     path[fromShpIndex][0] = x;
     path[fromShpIndex][1] = y;
 
-
     tools._setCoords(fromLink, path);
 
-    // if (blockShape) {
-    //     objectFactory.blockShapeAtIndex(fromLink, fromShpIndex);
-    // }
+    if (crossing) {
+        const pnt = HERE_WIKI.map.clipGeoCoord(crossing.point);
+        const isExistingShape = crossing.existingShape;
+        // const blockShape = isExistingShape && isShpBlocked(toLink, crossing.index);
+        // if (blockShape) {
+        //     objectFactory.blockShapeAtIndex(fromLink, fromShpIndex);
+        // }
 
-    if (crossing.index !== null) {
         // TODO: wait for MC to allow zlevels SUPPORT
         // ***** UNCOMMENT FOR ZLEVEL CONSIDERATION ***** //
         //            var toZLevel = isExistingShape ? toLink.zLevels[pnt.index] : determineZLevelForSegment(toLink, pnt.index);
@@ -1153,20 +1169,18 @@ function connectLinks(fromLink: Navlink, fromShpIndex, toLink, preferSegment, to
         //                fromLink.zLevels[fromShpIndex] = isExistingShape ? toPos.z : 0;
         //            }
 
-
         // splittedLinks = this._h.objects.factory.splitLinkAt.call( objectFactory,
         splittedLinks = HERE_WIKI.objects.splitLinkAt(
-            isExistingShape ?
-                {
-                    link: toLink,
-                    index: crossing.index,
-                    avoidSnapping: true
-                } : {
-                    link: toLink,
-                    point: pnt,
-                    preferSegment: preferSegment,
-                    avoidSnapping: true
-                }
+            isExistingShape ? {
+                link: toLink,
+                index: crossing.index,
+                avoidSnapping: true
+            } : {
+                link: toLink,
+                point: pnt,
+                preferSegment: preferSegment,
+                avoidSnapping: true
+            }
         );
 
         moveShapeAtIndexTo(fromLink, fromShpIndex, pnt[0], pnt[1]);

@@ -254,13 +254,14 @@ class ClickDraw {
                 pos = oCoords[pos].slice(0);
             } else {
                 let crossing = iEdit.map.calcCrossingAt(oCoords, pos, iEdit._config['minShapeDistance']);
+
                 // if shape point is start or end of the original link, don't split the link
-                if (crossing.existingShape && (crossing.index == 0 || crossing.index == oCoords.length - 1)
+                if (crossing?.existingShape && (crossing.index == 0 || crossing.index == oCoords.length - 1)
                 ) {
                     this.originLink = null;
                 }
 
-                pos = crossing.point;
+                pos = crossing?.point;
             }
 
             this.originPos = pos;

@@ -23,7 +23,7 @@ import {Map} from '@here/xyz-maps-display';
 import {Editor} from '@here/xyz-maps-editor';
 import dataset from './link_automatic_snapping_remove_link_commit_spec.json';
 
-describe('link auto remove link then commit', function() {
+describe('link auto remove and commit', function() {
     const expect = chai.expect;
 
     let editor;

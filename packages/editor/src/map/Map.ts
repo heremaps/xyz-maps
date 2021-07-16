@@ -126,29 +126,28 @@ class Map {
         return [x * zinv, y * zinv];
     };
 
-
-    calcCrossingAt(path: Point[], pos: Point, snapTolerance: number, idx?: number, maxDistance?: number) {
+    calcCrossingAt(path: Point[], pos: Point, snapTolerance: number, idx?: number, maxDistance?: number): Crossing {
         const map = this;
         let index = null;
         let minDistance = maxDistance || Infinity;
         let foundExistingShape = false;
         let foundX = null;
         let foundY = null;
-        let p1;
-        let iPnt;
         let distance;
-
+        let iPnt;
+        let p1;
 
         if (idx != UNDEF) {
             const result = map.calcCrossingAt(path.slice(idx, idx + 2), pos, snapTolerance, UNDEF, maxDistance);
-            result.index += idx;
+            if (result) {
+                result.index += idx;
+            }
             return result;
         }
 
         // calculate index of line for new Shape to add
         for (var i = 0; i < path.length; i++) {
             p1 = path[i];
-
             // check if a existing pnt is in range
             distance = map.distance(p1, pos);
 
@@ -161,7 +160,6 @@ class Map {
             }
         }
 
-
         if (minDistance > snapTolerance || !foundExistingShape) {
             for (var i = 0; i < path.length; i++) {
                 // calc related segment of line for new Shape
@@ -169,14 +167,11 @@ class Map {
                     if (iPnt = getPntOnLine(path[i], path[i + 1], pos)) {
                         distance = map.distance(iPnt, pos);
 
-                        if (
-                            distance < minDistance
-                        ) {
+                        if (distance < minDistance) {
                             minDistance = distance;
                             index = i + 1;
                             foundX = iPnt[0];
                             foundY = iPnt[1];
-
                             foundExistingShape = false;
                         }
                     }
@@ -184,7 +179,7 @@ class Map {
             }
         }
 
-        return new Crossing(foundX, foundY, index, foundExistingShape);
+        return index === null ? index : new Crossing(foundX, foundY, index, foundExistingShape);
     };
 
 

@@ -17,12 +17,14 @@
  * License-Filename: LICENSE
  */
 
-import {intersectLineLine, simplifyPath} from '../../geometry';
+import {intersectLineLine} from '../../geometry';
 import InternalEditor from '../../IEditor';
 import {Area} from './Area';
 import {FeatureProvider, Feature, GeoJSONCoordinate, GeoJSONFeature} from '@here/xyz-maps-core';
 import {geotools} from '@here/xyz-maps-common';
-import {Feature as EditorFeature} from '../feature/Feature';
+import PolyTools, {ConnectedArea} from './PolygonTools';
+
+type PolygonTools = typeof PolyTools;
 
 function intersectLinePoly(l1, l2, poly) {
     for (let p = 0, len = poly.length - 1; p < len; p++) {
@@ -79,11 +81,12 @@ function polysInPoly(polys, poly, start) {
     return 1;
 }
 
-let polygonTools;
+let polygonTools: PolygonTools;
 
 type PrivateData = {
     area: Area;
     [name: string]: any;
+    cAreas?: ConnectedArea[];
 }
 
 
@@ -92,7 +95,8 @@ const setShapePosition = (
     position: GeoJSONCoordinate,
     coordIndex: number,
     holeIndex: number = 0,
-    polyIndex: number = 0
+    polyIndex: number = 0,
+    connectedAreas?: ConnectedArea[]
 ): boolean => {
     const coordinates = polygonTools.getCoords(area); // deepcopy!
     const poly = coordinates[polyIndex];
@@ -114,7 +118,7 @@ const setShapePosition = (
             polysInPoly(poly, poly[0], 1)
         ) {
             const shapes = polygonTools.private(area, 'shapePnts');
-            const connectedAreas = polygonTools.getConnectedAreas(area, orgPos);
+            connectedAreas = connectedAreas || polygonTools.getConnectedAreas(area, orgPos);
 
             if (area.behavior('snapCoordinates')) {
                 for (let i = 0; i < connectedAreas.length; i++) {
@@ -131,8 +135,7 @@ const setShapePosition = (
                             lineString[lineString.length - 1] = position;
                         }
 
-                        const valid = !polygonTools.willSelfIntersect(lineString, position, coordIndex) &&
-                            polysInPoly(poly, poly[0], 1);
+                        const valid = !polygonTools.willSelfIntersect(lineString, position, coordIndex) && polysInPoly(poly, poly[0], 1);
 
                         if (!valid) {
                             return false;
@@ -163,6 +166,7 @@ const setShapePosition = (
     }
 };
 
+let UNDEF;
 
 /**
  * The AreaShape represents a shape-point / coordinate of a Area feature.
@@ -175,7 +179,7 @@ class AreaShape extends Feature {
      */
     readonly class: 'AREA_SHAPE';
 
-    private __: PrivateData;
+    __: PrivateData;
 
     properties: {
         index: number;
@@ -208,9 +212,8 @@ class AreaShape extends Feature {
         super(geojson, <FeatureProvider>internalEditor.objects.overlay.layer.getProvider());
 
         const shapePnt = this;
-
         const overlay = internalEditor.objects.overlay;
-        let UNDEF;
+
 
         function hoverShapePnt(e) {
             let cursor;
@@ -225,7 +228,6 @@ class AreaShape extends Feature {
             }
 
             document.body.style.cursor = cursor;
-
             internalEditor.setStyle(this);
         }
 
@@ -234,13 +236,10 @@ class AreaShape extends Feature {
         }
 
         let isMoved = false;
-        let previousDx = 0;
-        let previousDy = 0;
 
         function onMouseDown() {
             isMoved = false;
-            previousDx = 0;
-            previousDy = 0;
+            shapePnt.__.cAreas = polygonTools.getConnectedAreas(area, shapePnt.geometry.coordinates);
         }
 
         function moveShape(e, dx, dy, cx, cy) {
@@ -250,53 +249,22 @@ class AreaShape extends Feature {
                 triggerEvents(e, 'dragStart');
             }
 
+            const cfg = internalEditor._config;
             const index = shapePnt.getIndex();
             const polyIndex = shapePnt.properties.poly;
             const holeIndex = shapePnt.properties.hole;
-            const shpPos = internalEditor.map.translateGeo(
-                this.geometry.coordinates,
-                dx - previousDx,
-                dy - previousDy
-            );
 
+            let position = <GeoJSONCoordinate>internalEditor.map.getGeoCoord(e.mapX, e.mapY);
 
-            if (setShapePosition(area, shpPos, index, holeIndex, polyIndex)) {
-                previousDx = dx;
-                previousDy = dy;
+            if (area.behavior('snapCoordinates')) {
+                position = polygonTools.snapShape(shapePnt, position, cfg['minShapeDistance']) || position;
             }
+
+            setShapePosition(area, position, index, holeIndex, polyIndex, shapePnt.__.cAreas);
         }
 
         function releaseShape(e) {
             if (isMoved) {
-                if (area.behavior('snapCoordinates')) {
-                    let distanceMeter = internalEditor.cfg('autoConnectShapeDistance');
-                    const bbox = geotools.extendBBox(this.bbox, distanceMeter);
-                    const layer = internalEditor.getLayer(area);
-                    const features = <EditorFeature[]>layer.search({rect: bbox});
-                    let snapToPosition;
-
-                    for (let feature of features) {
-                        if (feature.class == 'AREA' && feature != area) {
-                            for (let [exterior] of <GeoJSONCoordinate[][][]>polygonTools.getCoords(feature)) {
-                                for (let coordinate of exterior) {
-                                    const d = geotools.distance(this.geometry.coordinates, coordinate);
-                                    if (d < distanceMeter) {
-                                        snapToPosition = coordinate;
-                                        distanceMeter = d;
-                                    }
-                                }
-                            }
-                        }
-                    }
-
-                    if (snapToPosition) {
-                        const index = shapePnt.getIndex();
-                        const polyIndex = shapePnt.properties.poly;
-                        const holeIndex = shapePnt.properties.hole;
-                        setShapePosition(area, snapToPosition.slice(), index, holeIndex, polyIndex);
-                    }
-                }
-
                 polygonTools.markAsModified(area);
             }
 

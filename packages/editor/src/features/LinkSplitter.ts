@@ -71,9 +71,9 @@ export const split = (HERE_WIKI: InternalEditor, options: SplitOptions): [Navlin
     if (splitAtShpIndex === UNDEF) {
         const crossing = HERE_WIKI.map.calcCrossingAt(path, options.point, snapTolerance, preferSegment);
 
-        splitAtShpIndex = crossing.index;
+        splitAtShpIndex = crossing?.index;
 
-        if (crossing.existingShape && (splitAtShpIndex === 0 || splitAtShpIndex === lastIndex)) {
+        if ((splitAtShpIndex === 0 || splitAtShpIndex === lastIndex) && crossing.existingShape) {
             return false;
         }
         // addNewShape request index of the shape point regardless it is new or existing

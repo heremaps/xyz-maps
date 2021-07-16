@@ -61,9 +61,10 @@ describe('drag a link shape point to the other one and then undo', function() {
 
     it('get a link to select and drag', async function() {
         link2.select();
+
         await drag(mapContainer, {x: 462, y: 389}, {x: 275, y: 228});
 
-        expect(editor.info()).to.have.lengthOf(2);
+        expect(editor.info()).to.have.lengthOf(1);
 
         let objs = editor.search(display.getViewBounds());
         expect(objs).to.have.lengthOf(1);

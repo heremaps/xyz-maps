@@ -41,6 +41,15 @@ function getPrivate(feature, name?: string) {
 }
 
 
+export type ConnectedArea = {
+    area: Area,
+    polyIndex: number,
+    lineIndex: number,
+    coordIndex: number,
+    coordinates: GeoJSONCoordinate[][][]
+};
+
+
 //* ***************************************************** PRIVATE ******************************************************
 
 function removeShapes(area: Area) {
@@ -146,7 +155,7 @@ function onPointerUp(ev) {
 }
 
 
-var tools = {
+const tools = {
 
     private: getPrivate,
 
@@ -437,6 +446,45 @@ var tools = {
         shp.length = 0;
     },
 
+    snapShape: (
+        areaShape: AreaShape,
+        position: GeoJSONCoordinate,
+        snapDistanceMeters?: number
+    ): GeoJSONCoordinate => {
+        const area = areaShape.getArea();
+        const {cAreas} = areaShape.__;
+        const internalEditor = area._e();
+        const searchSnapDistanceMeter = snapDistanceMeters;
+        const nearbyAreas = <Area[]>area.getProvider().search({point: position, radius: searchSnapDistanceMeter});
+
+        for (let nearbyArea of nearbyAreas) {
+            if (nearbyArea.id != area.id && nearbyArea.class == 'AREA') {
+                let polyIndex = 0;
+                for (let polygon of tools.getCoords(nearbyArea)) {
+                    const exterior = polygon[0]; // exterior only
+
+                    const x = internalEditor.map.calcCrossingAt(
+                        exterior,
+                        position,
+                        searchSnapDistanceMeter,
+                        UNDEF,
+                        searchSnapDistanceMeter
+                    );
+
+                    if (x) {
+                        // if (x.existingShape && cAreas.find((cArea) => (
+                        //     cArea.area == nearbyArea &&cArea.lineIndex == 0 &&cArea.polyIndex == polyIndex && cArea.coordIndex == x.index%exterior.length
+                        // ))) {
+                        if (!cAreas.find(({area}) => area == nearbyArea)) {
+                            return x.point;
+                        }
+                    }
+                    polyIndex++;
+                }
+            }
+        }
+    },
+
     willSelfIntersect: (polygon: Point[], shpPos: Point, index: number): boolean => {
         let i0 = index == 0 ? polygon.length - 2 : index - 1;
         let i1 = index + 1;
@@ -483,12 +531,7 @@ var tools = {
         return true;
     },
 
-    getConnectedAreas: (area: Area, position: GeoJSONCoordinate): ({
-        area: Area,
-        polyIndex: number,
-        lineIndex: number,
-        coordIndex: number
-    })[] => {
+    getConnectedAreas: (area: Area, position: GeoJSONCoordinate): ConnectedArea[] => {
         let cAreas = [];
         const iEditor = area._e();
         const layer = iEditor.getLayer(area);

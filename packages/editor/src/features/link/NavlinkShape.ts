@@ -18,7 +18,7 @@
  */
 
 import {JSUtils, geotools} from '@here/xyz-maps-common';
-import {FeatureProvider, Feature, GeoJSONFeature} from '@here/xyz-maps-core';
+import {FeatureProvider, Feature, GeoJSONFeature, GeoJSONCoordinate} from '@here/xyz-maps-core';
 import GeoFence from './GeoFence';
 import {Navlink} from './Navlink';
 import {TurnRestrictionEditor} from '../../tools/turnrestriction/TrEditor';
@@ -157,7 +157,7 @@ function onMouseMoveShape(ev, dx, dy) {
     const EDITOR = link._e();
     const cfg = EDITOR._config;
 
-    let curPos = EDITOR.map.getGeoCoord(
+    let curPos: GeoJSONCoordinate = EDITOR.map.getGeoCoord(
         prv.x + dx,
         prv.y + dy
     );
@@ -167,30 +167,8 @@ function onMouseMoveShape(ev, dx, dy) {
         if (geoFence.isPntInFence(curPos)) {
             !geoFence.isHidden() && geoFence.hide();
 
-            if (cfg['autoSnapShape']) {
-                const searchSnapDistanceMeter = (21 - EDITOR.display.getZoomlevel()) * 2;
-                // var searchSnapDistanceMeter = 4;
-                const closeLinks = link.getProvider().search({point: curPos, radius: searchSnapDistanceMeter});
-
-                let cLen = closeLinks.length;
-                let cl;
-
-                while (cl = closeLinks[--cLen]) {
-                    if (cl.id != link.id && prv._cls.indexOf(cl) == -1) {
-                        const f = EDITOR.map.calcCrossingAt(
-                            cl.geometry.coordinates,
-                            curPos,
-                            cfg['minShapeDistance'],
-                            UNDEF,
-                            searchSnapDistanceMeter
-                        );
-
-                        if (f && f.index != UNDEF) {
-                            curPos = f;
-                            break;
-                        }
-                    }
-                }
+            if (cfg['snapOnDrag']) {
+                curPos = linkTools.snapShape(shp, curPos, cfg['minShapeDistance']) || curPos;
             }
 
             linkTools.moveShapeAtIndexTo(link, prv.index, curPos[0], curPos[1]);
