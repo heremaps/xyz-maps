@@ -53,19 +53,13 @@ interface EditorOptions {
     geoFence?: number | false;
 
     /**
-     * Minimum distance in meters between two shape points for creating new Navlink Features.
+     *
+     * The distance in meters between each of two coordinates/shape-points where snapping occurs.
+     * Two coordinates/shape-points closer than this parameter will be joined to a single point.
      *
      * @defaultValue 2
      */
-    minShapeDistance?: number;
-
-    /**
-     * If the distance (meters) between two shape-points of two separate Navlink features is smaller or equal than the "autoConnectShapeDistance",
-     * the shape-points will be connected automatically.
-     *
-     * @defaultValue 2
-     */
-    autoConnectShapeDistance?: number;
+    snapTolerance?: number;
 
     /**
      * Defines the coordinate precision for the automatic intersection detection.
@@ -184,10 +178,7 @@ const defaultOptions: EditorOptions = {
 
     },
     'geoFence': false,
-    'minShapeDistance': 2, // 4meters
-    // 'minShapeDistance': 4e-5, // 4meters
-    'autoConnectShapeDistance': 2,
-    // 'ShapeSnapTolerance': 4e-5, //8
+    'snapTolerance': 2, // 2 meter
     'intersectionScale': 5,
     'XTestMaxDistance': 2,
     'disconnectShapeDistance': 3,

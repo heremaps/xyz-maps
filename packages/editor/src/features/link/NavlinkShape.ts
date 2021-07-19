@@ -82,7 +82,7 @@ const connectShpToNearestLink = (line: Navlink, index: number) => {
 
     // coordinate.slice(0,2), // do not pass zlevel to skip zlevel check..
     connectionCandidate = EDITOR.objects.getNearestLine(coordinate, line.getProvider(), {
-        maxDistance: EDITOR._config['autoConnectShapeDistance'],
+        maxDistance: EDITOR._config['snapTolerance'],
         ignore: ignore.map((link) => link.id)
     });
 
@@ -168,7 +168,7 @@ function onMouseMoveShape(ev, dx, dy) {
             !geoFence.isHidden() && geoFence.hide();
 
             if (cfg['snapOnDrag']) {
-                curPos = linkTools.snapShape(shp, curPos, cfg['minShapeDistance']) || curPos;
+                curPos = linkTools.snapShape(shp, curPos, cfg['snapTolerance']) || curPos;
             }
 
             linkTools.moveShapeAtIndexTo(link, prv.index, curPos[0], curPos[1]);

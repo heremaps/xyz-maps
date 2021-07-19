@@ -666,7 +666,7 @@ var tools = {
     ): number | false => {
         const path = link.coord();
         const EDITOR = link._e();
-        const intersec = EDITOR.map.calcCrossingAt(path, pos, EDITOR._config['minShapeDistance'], preferSegment);
+        const intersec = EDITOR.map.calcCrossingAt(path, pos, EDITOR._config['snapTolerance'], preferSegment);
 
         index = typeof index == 'number'
             ? index
@@ -877,7 +877,7 @@ function autoFixGeometry(line: Navlink, shapeToCheck?: number, ignoreSplitChildr
     const pLength = (<number[]>zLevels).length;
     const stopAtShp = shapeToCheck === UNDEF ? pLength : k + 1;
     let AFInfo = true;
-    const minShpDistance = HERE_WIKI._config['minShapeDistance'] || 2;
+    const minShpDistance = HERE_WIKI._config['snapTolerance'] || 2;
 
     function ignoreChild(c) {
         return ignoreAllCLinks || ignoreSplitChildren.indexOf(c) != -1;
@@ -1140,7 +1140,7 @@ function connectLinks(
     const x = toPos[0];
     const y = toPos[1];
     // var considerZlevel = toPos[2] !== UNDEF; // ***** UNCOMMENT FOR ZLEVEL CONSIDERATION *****
-    const snapTolerance = HERE_WIKI._config['minShapeDistance'];
+    const snapTolerance = HERE_WIKI._config['snapTolerance'];
     const crossing = HERE_WIKI.map.calcCrossingAt(toLink.coord(), toPos, snapTolerance, preferSegment);
 
     path[fromShpIndex][0] = x;

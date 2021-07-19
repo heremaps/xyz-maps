@@ -25,7 +25,7 @@ import {Editor} from '@here/xyz-maps-editor';
 import {features} from '@here/xyz-maps-editor';
 import dataset from './autoconnectshapedistance_spec.json';
 
-describe('set autoConnectShapeDistance', function() {
+describe('set snapTolerance', function() {
     const expect = chai.expect;
 
     let preparedData;
@@ -54,11 +54,11 @@ describe('set autoConnectShapeDistance', function() {
         display.destroy();
     });
 
-    it('set autoConnectShapeDistance, drag a shape and it auto connects to another shape', async function() {
+    it('set snapTolerance, drag a shape and it auto connects to another shape', async function() {
         editor.destroy();
         editor = new Editor(display, {
             layers: preparedData.getLayers(),
-            autoConnectShapeDistance: 10
+            snapTolerance: 10
         });
 
 
@@ -81,7 +81,7 @@ describe('set autoConnectShapeDistance', function() {
         });
     });
 
-    it('reset autoConnectShapeDistance, drag a shape and it auto connects to another shape again', async function() {
+    it('reset snapTolerance, drag a shape and it auto connects to another shape again', async function() {
         editor.destroy();
         editor = new Editor(display, {
             layers: preparedData.getLayers()

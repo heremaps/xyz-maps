@@ -257,7 +257,7 @@ class AreaShape extends Feature {
             let position = <GeoJSONCoordinate>internalEditor.map.getGeoCoord(e.mapX, e.mapY);
 
             if (area.behavior('snapCoordinates')) {
-                position = polygonTools.snapShape(shapePnt, position, cfg['minShapeDistance']) || position;
+                position = polygonTools.snapShape(shapePnt, position, cfg['snapTolerance']) || position;
             }
 
             setShapePosition(area, position, index, holeIndex, polyIndex, shapePnt.__.cAreas);

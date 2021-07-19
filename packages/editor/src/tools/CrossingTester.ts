@@ -294,7 +294,7 @@ class CrossingTester {
         }
 
         this.maxDistance = option['maxDistance'] || this.iEditor._config['XTestMaxDistance'] || 3;
-        this.shapeThreshold = this.iEditor._config['minShapeDistance'];
+        this.shapeThreshold = this.iEditor._config['snapTolerance'];
 
         // calculate crossings if it is never calculated or link is modified after the calculation
         // if links is given, then force to do a calculating with the given links

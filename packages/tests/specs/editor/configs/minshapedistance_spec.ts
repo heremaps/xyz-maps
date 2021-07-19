@@ -24,7 +24,7 @@ import {Editor} from '@here/xyz-maps-editor';
 import {features} from '@here/xyz-maps-editor';
 import dataset from './minshapedistance_spec.json';
 
-describe('set minShapeDistance', function() {
+describe('set snapTolerance', function() {
     const expect = chai.expect;
 
     let editor;
@@ -50,11 +50,11 @@ describe('set minShapeDistance', function() {
         display.destroy();
     });
 
-    it('set minShapeDistance, validate new link created', async function() {
+    it('set snapTolerance, validate new link created', async function() {
         editor.destroy();
         editor = new Editor(display, {
             layers: preparedData.getLayers(),
-            minShapeDistance: 5
+            snapTolerance: 5
         });
 
         await waitForEditorReady(editor, ()=>{
@@ -72,7 +72,7 @@ describe('set minShapeDistance', function() {
         expect(link2.coord()).to.have.lengthOf(3);
     });
 
-    it('reset minShapeDistance, validate new link created again', async function() {
+    it('reset snapTolerance, validate new link created again', async function() {
         editor.destroy();
         editor = new Editor(display, {
             layers: preparedData.getLayers()

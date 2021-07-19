@@ -46,7 +46,7 @@ export const split = (HERE_WIKI: InternalEditor, options: SplitOptions): [Navlin
     const lastIndex = path.length - 1;
     const parentLinkProperties = linkTools._props(parentLink);
     const parentZLevels = parentLink.getProvider().readZLevels(parentLink);
-    const snapTolerance = HERE_WIKI._config['minShapeDistance'];
+    const snapTolerance = HERE_WIKI._config['snapTolerance'];
     let x;
     let y;
 
