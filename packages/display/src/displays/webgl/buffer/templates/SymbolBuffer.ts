@@ -36,8 +36,9 @@ export class SymbolBuffer extends TemplateBuffer {
             // bit1 -> bit5  - rotation low (x), rotation height (y)
             // bit6 -> bit16 - texture coordinate
             // 10 bit rotation, 2 * 12 bit texture coordinate
-            // ROTL|ROTL|ROTL|ROTL|ROTL|TCX|TCX|TCX|TCX|TCX|TCX|TCX|TCX|TCX|TCX|TCX|
-            // ROTH|ROTH|ROTH|ROTH|ROTH|TCY|TCY|TCY|TCY|TCY|TCY|TCY|TCY|TCY|TCY|TCY|
+            //  MSB                                                              LSB
+            // |TCX|TCX|TCX|TCX|TCX|TCX|TCX|TCX|TCX|TCX|TCX|ROTL|ROTL|ROTL|ROTL|ROTL|
+            // |TCY|TCY|TCY|TCY|TCY|TCY|TCY|TCY|TCY|TCY|TCY|ROTH|ROTH|ROTH|ROTH|ROTH|
             a_texcoord: {
                 data: new FlexArray(Uint16Array),
                 size: 2

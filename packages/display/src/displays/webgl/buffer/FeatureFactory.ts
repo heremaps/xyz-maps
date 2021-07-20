@@ -132,7 +132,7 @@ export class FeatureFactory {
             }
             const lines = wrapText(text, lineWrap);
 
-            positionBuffer = attributes.a_texcoord;
+            positionBuffer = attributes.a_position;
             collisionBufferStart = attributes.a_texcoord.data.length;
             collisionBufferStop = collisionBufferStart + texture.bufferLength(text);
 

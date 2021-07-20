@@ -20,9 +20,8 @@
 import {createTextData, OFFSET_SCALE} from './createText';
 import {GlyphAtlas} from '../GlyphAtlas';
 import {FlexArray} from './templates/FlexArray';
-import {wrapText} from '../../textUtils';
 
-const EXTENT_SCALE = 128;
+const EXTENT_SCALE = 64;
 
 const addText = (
     cx: number,
@@ -39,11 +38,12 @@ const addText = (
 
     let ty = (glyphAtlas.baselineOffset + (lineCnt - 1) * lineHeight * .5) * OFFSET_SCALE;
 
-    cx *= EXTENT_SCALE;
-    cy *= EXTENT_SCALE;
+    // LSB defines visibility, visible by default
+    cx = cx * EXTENT_SCALE << 1 | 1;
+    cy = cy * EXTENT_SCALE << 1 | 1;
 
-    // 9 bit rotation precision
-    rotation = Math.round(rotation * 512 / 360);
+    // 10 bit rotation precision
+    rotation = Math.round(rotation * 1024 / 360);
 
     for (let text of lines) {
         let i = vertex.length;

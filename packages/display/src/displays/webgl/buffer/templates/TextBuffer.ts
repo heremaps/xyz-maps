@@ -25,21 +25,21 @@ export class TextBuffer extends TemplateBuffer {
         super(false);
 
         this.attributes = {
-            // vertex
+            // LSB x,y defines visibility -> 14bit position precision (use LSB:x only to increase to 15bit)
             a_position: {
                 data: new FlexArray(Uint16Array),
                 size: 2
             },
-            // point
             a_point: {
                 data: new FlexArray(Int16Array),
                 size: 2
             },
-            // bit1 -> bit5  - rotation low [bit1 defines visibility] (x), rotation height (y)
+            // bit1 -> bit5  - rotation low  (x), rotation height (y)
             // bit6 -> bit16 - texture coordinate
-            // 1bit visibility, 9 bit rotation, 2 * 11 bit texture coordinate
-            // |VISI|ROTL|ROTL|ROTL|ROTL|TCX|TCX|TCX|TCX|TCX|TCX|TCX|TCX|TCX|TCX|TCX|
-            // |ROTH|ROTH|ROTH|ROTH|ROTH|TCY|TCY|TCY|TCY|TCY|TCY|TCY|TCY|TCY|TCY|TCY|
+            // 10 bit rotation, 2 * 11 bit texture coordinate
+            //  MSB                                                              LSB
+            // |TCX|TCX|TCX|TCX|TCX|TCX|TCX|TCX|TCX|TCX|TCX|ROTL|ROTL|ROTL|ROTL|ROTL|
+            // |TCY|TCY|TCY|TCY|TCY|TCY|TCY|TCY|TCY|TCY|TCY|ROTH|ROTH|ROTH|ROTH|ROTH|
             a_texcoord: {
                 data: new FlexArray(Uint16Array),
                 size: 2

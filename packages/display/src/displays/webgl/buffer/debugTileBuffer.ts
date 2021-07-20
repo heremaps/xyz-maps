@@ -102,25 +102,26 @@ const createGridTextBuffer = (quadkey: string, gl: WebGLRenderingContext, font) 
         glyphs.sync();
     }
 
-    const vertices = createTextData(quadkey + ' L' + quadkey.length, glyphs.atlas);
-    const position = vertices.position;
+    const {position, count, texcoord} = createTextData(quadkey + ' L' + quadkey.length, glyphs.atlas);
 
     let textBuffer = new GeometryBuffer({
         first: 0,
-        count: vertices.count
+        count
     }, 'Text');
-    // textBuffer.addAttribute('a_position', {
-    //     data: new Int8Array(position.length),
-    //     size: 2,
-    //     stride: 0
-    // });
+    //
+    textBuffer.addAttribute('a_position', {
+        // set visibility bit
+        data: new Int8Array(position.length).fill(1),
+        size: 2,
+        stride: 0
+    });
     textBuffer.addAttribute('a_point', {
         data: position,
         size: 2,
         stride: 0
     });
     textBuffer.addAttribute('a_texcoord', {
-        data: vertices.texcoord,
+        data: texcoord,
         size: 2,
         stride: 0
     });

@@ -22,9 +22,8 @@ import {addLineString, Cap, Join} from './addLineString';
 import {DashAtlas} from '../DashAtlas';
 import {GeoJSONCoordinate as Coordinate, Tile} from '@here/xyz-maps-core';
 import {CollisionData, CollisionHandler} from '../CollisionHandler';
-import {getRotatedBBox, rotate} from '../../../geometry';
+import {getRotatedBBox} from '../../../geometry';
 import {DistanceGroup} from './DistanceGroup';
-import {getValue} from '../../styleTools';
 
 const TO_DEG = 180 / Math.PI;
 const DEFAULT_MIN_REPEAT = 256;
