@@ -125,6 +125,36 @@ export interface Range {
      * ```
      */
     readonly segments?: RangeSegment[]
+    /**
+     * Automatically snap to Markers of Ranges on the desired side(s) within a given threshold.
+     *
+     * - 'L' : snap to RangeMarkers on the left side
+     * - 'R' : snap to RangeMarkers on the right side
+     * - 'B' : snap to RangeMarkers on both sides.
+     * - true : snap to RangeMarkers regardless of its side, equals: ['L','R','B']
+     * - false : disabled, do not snap automatically.
+     *
+     *  @defaultValue false
+     */
+    snap?: 'L' | 'R' | 'B' | ('L' | 'R' | 'B')[] | true | false
+    /**
+     * The threshold in meters for automatic range snapping.
+     *
+     * @default 1 (meter)
+     */
+    snapTolerance?: number;
+    /**
+     * Allow overlapping of ranges on the desired side(s).
+     *
+     * - 'L' : allow overlapping with all Ranges on the left side.
+     * - 'R' : allow overlapping with all Ranges on the right side.
+     * - 'B' : allow overlapping with all Ranges on the both side.
+     * - true : allow overlapping with all Ranges regardless of its side, equals: ['L','R','B']
+     * - false : disabled, do not allow overlapping at all.
+     *
+     * @defaultValue true
+     */
+    allowOverlap?: 'L' | 'R' | 'B' | ('L' | 'R' | 'B')[] | true | false;
 
     markerStyle?;
     lineStyle?;
@@ -187,7 +217,7 @@ export class RangeSelector {
             for (let type of ['dragStart', 'dragMove', 'dragStop']) {
                 const listener = range[type];
                 if (listener) {
-                    range[type] = (e: MapEvent, range: InternalZone) => {
+                    range['_'+type] = (e: MapEvent, range: InternalZone) => {
                         /* detail.zone is deprecated */
                         e.detail.range = e.detail.zone = convertZone(range);
                         listener(EventHandler.createEditorEvent(e, e.target, type));

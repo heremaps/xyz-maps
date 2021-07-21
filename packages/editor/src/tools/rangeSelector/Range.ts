@@ -22,14 +22,23 @@ import MultiLink from './MultiLink';
 import {Feature} from '@here/xyz-maps-core/';
 import Overlay from '../../features/Overlay';
 import {MapEvent} from '@here/xyz-maps-display';
+import {Range as RangeOptions} from '../../API/ERangeSelector';
+
 
 let UNDEF;
 const DEFAULT_STROKE = '#fff';
-const DEFAULT_FILL = {
-    L: '#ff4040',
-    R: '#4cdd4c',
-    B: '#35b2ee'
-};
+
+enum DEFAULT_FILL {
+    L = '#ff4040',
+    R = '#4cdd4c',
+    B = '#35b2ee'
+}
+
+export enum OVERLAP {
+    NONE = 0,
+    PARTIAL = 1,
+    FULL = 2
+}
 
 const createDefaultMarkerStyle = (stroke: string, fill: string, opacity: number, side: string) => {
     let offsetY = side == 'R' ? 8 : side == 'L' ? -8 : 0;
@@ -70,18 +79,10 @@ const createDefaultLineStyle = (stroke: string, opacity: number = 0.75, side: st
     // strokeLinecap: 'butt'
 }];
 
-export interface InternalRangeOptions {
-    id?: string | number;
-    side?: 'L' | 'R' | 'B';
-    from?: number;
-    to?: number;
-    locked?: boolean;
-    style?: any;
-    dragStart?: (e: MapEvent, range: Range) => void;
-    dragMove?: (e: MapEvent, range: Range) => void;
-    dragStop?: (e: MapEvent, range: Range) => void;
-    markerStyle?;
-    lineStyle?;
+export interface InternalRangeOptions extends RangeOptions {
+    _dragStart?: (e: MapEvent, range: Range) => void;
+    _dragMove?: (e: MapEvent, range: Range) => void;
+    _dragStop?: (e: MapEvent, range: Range) => void;
 }
 
 export class Range {
@@ -96,32 +97,16 @@ export class Range {
 
     segments;
 
-    // private generateZoneSegments(zone: InternalZone): RangeSegment[] {
-    //     // const info = [];
-    //     return this.ml.links.slice()
-    //
-    //     // this.ml.getCollection().getZoneSegments(zone).forEach((segment) => {
-    //     //     const zoneSegment: RangeSegment = {
-    //     //         navlink: segment[0],
-    //     //         from: segment[1],
-    //     //         to: segment[2],
-    //     //         reversed: segment[3]
-    //     //     };
-    //     //     info.push(zoneSegment);
-    //     // });
-    //     // return info;
-    // }
-
     private updateSegments() {
         this.segments = this.ml.getZoneSegments(this);
     }
 
 
-    constructor(multiLink: MultiLink, overlay, options: InternalRangeOptions) {
+    constructor(multiLink: MultiLink, overlay, options: RangeOptions) {
         this.options = {
-            dragStart: (z, e) => {
-            }, dragMove: (z, e) => {
-            }, dragStop: (z, e) => {
+            _dragStart: (z, e) => {
+            }, _dragMove: (z, e) => {
+            }, _dragStop: (z, e) => {
             }, ...options
         };
 
@@ -134,7 +119,7 @@ export class Range {
 
         this.ml = multiLink;
 
-        let side = options.side;
+        let side = this.getSide();
         let {opacity, fill, stroke} = style;
 
 
@@ -168,29 +153,55 @@ export class Range {
 
         this.markers = ['from', 'to'].map((pos) => new RangeMarker(
             overlay,
-            multiLink,
-            side,
+            this,
             options[pos],
             markerStyle,
-            (e) => {
-                this.locked();
-            },
+            () => this.locked(),
             (e: MapEvent) => {
-                this.options.dragStart(e, this);
+                this.options._dragStart(e, this);
             },
             (e: MapEvent) => {
                 this.draw();
                 this.updateSegments();
-                this.options.dragMove(e, this);
+                this.options._dragMove(e, this);
             },
             (e: MapEvent) => {
-                this.options.dragStop(e, this);
+                this.options._dragStop(e, this);
             }
         ));
 
         this.overlay = overlay;
-
         this.updateSegments();
+    }
+
+    getSide(): string | 'L' | 'R' | 'B' {
+        return this.options.side.toUpperCase();
+    }
+
+    getOffsets(): [number, number] {
+        let p1 = this.markers[0].getRelPos();
+        let p2 = this.markers[1].getRelPos();
+
+        if (p1 > p2) {
+            // flip
+            const lb = p1;
+            p1 = p2;
+            p2 = lb;
+        }
+
+        return [p1, p2];
+    }
+
+    getFromMarker(): RangeMarker {
+        const {markers} = this;
+        const p1 = markers[0].getRelPos();
+        const p2 = markers[1].getRelPos();
+
+        return markers[Number(p1 < p2)];
+    }
+
+    getMultiLink(): MultiLink {
+        return this.ml;
     }
 
     remove() {
@@ -203,22 +214,19 @@ export class Range {
         return !!this.options.locked;
     }
 
-    draw() {
-        let posM1 = this.markers[0].getRelPos();
-        let posM2 = this.markers[1].getRelPos();
+    overlaps(range: Range | [number, number]) {
+        const [from, to] = this.getOffsets();
+        const [from2, to2] = Array.isArray(range) ? range : range.getOffsets();
+        return Math.max(0, Math.min(to, to2) - Math.max(from, from2)) > 0;
+    }
 
-        if (posM1 > posM2) {
-            // flip
-            const lb = posM1;
-            posM1 = posM2;
-            posM2 = lb;
-        }
+    draw() {
+        const [from, to] = this.getOffsets();
 
         for (let style of this.style) {
-            style.from = posM1;
-            style.to = posM2;
+            style.from = from;
+            style.to = to;
         }
-
         this.overlay.layer.setStyleGroup(this.line, this.style);
     }
 }
