@@ -131,7 +131,7 @@ class MultiLink {
             if (['L', 'R', 'B'].indexOf(zone.side) != -1) {
                 let multiZone = new Range(this, overlay, zone);
                 this.ranges.push(multiZone);
-                multiZone.draw();
+                multiZone.update();
             }
         });
     };

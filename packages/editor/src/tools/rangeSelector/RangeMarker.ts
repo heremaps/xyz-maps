@@ -207,7 +207,7 @@ class RangeMarker extends Feature {
 
         for (let snappedMarker of this.snapped) {
             snappedMarker.updatePosition([pos[0], pos[1]], relPos);
-            snappedMarker.range.draw();
+            snappedMarker.range.update();
         }
 
         return <[number, number]>pos.slice();
@@ -258,7 +258,6 @@ class RangeMarker extends Feature {
         return false;
     }
 
-
     pressmove(e) {
         const marker = this;
         if (!marker.isLocked()) {
@@ -273,7 +272,6 @@ class RangeMarker extends Feature {
 
             if (this.updateSnapped(coordinate)) {
                 marker.properties.relPos = prevRelPos;
-                console.log('byby!');
                 return;
             }
 

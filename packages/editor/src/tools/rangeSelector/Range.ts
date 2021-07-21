@@ -161,7 +161,7 @@ export class Range {
                 this.options._dragStart(e, this);
             },
             (e: MapEvent) => {
-                this.draw();
+                this.update();
                 this.updateSegments();
                 this.options._dragMove(e, this);
             },
@@ -220,7 +220,7 @@ export class Range {
         return Math.max(0, Math.min(to, to2) - Math.max(from, from2)) > 0;
     }
 
-    draw() {
+    update() {
         const [from, to] = this.getOffsets();
 
         for (let style of this.style) {
@@ -228,5 +228,6 @@ export class Range {
             style.to = to;
         }
         this.overlay.layer.setStyleGroup(this.line, this.style);
+        this.updateSegments();
     }
 }
