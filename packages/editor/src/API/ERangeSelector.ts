@@ -207,6 +207,10 @@ export class RangeSelector {
             range['from'] = range['from'] || 0;
             range['to'] = (range['to'] == UNDEF ? 1 : range['to']) || 0;
 
+            if (range.allowOverlap == UNDEF) {
+                range.allowOverlap = true;
+            }
+
             for (let name of ['markerStyle', 'lineStyle']) {
                 let style = range[name];
                 if (style && !Array.isArray(style)) {
@@ -217,7 +221,7 @@ export class RangeSelector {
             for (let type of ['dragStart', 'dragMove', 'dragStop']) {
                 const listener = range[type];
                 if (listener) {
-                    range['_'+type] = (e: MapEvent, range: InternalZone) => {
+                    range['_' + type] = (e: MapEvent, range: InternalZone) => {
                         /* detail.zone is deprecated */
                         e.detail.range = e.detail.zone = convertZone(range);
                         listener(EventHandler.createEditorEvent(e, e.target, type));
