@@ -16,6 +16,7 @@
  * SPDX-License-Identifier: Apache-2.0
  * License-Filename: LICENSE
  */
+const MAX_IMAGE_SIZE = 64;
 
 let UNDEF;
 
@@ -32,12 +33,21 @@ function onLoad() {
     // is send to texture with incorrect size.
     _ctx.drawImage(img, 0, 0);
 
-
     img.ready = true;
+
+    const size = Math.max(img.width, img.height);
+
+    if (size > MAX_IMAGE_SIZE) {
+        // rescale image to fit max allowed source size
+        const scale = MAX_IMAGE_SIZE / size;
+        img.width *= scale;
+        img.height *= scale;
+    }
+
     for (let cbID in cbs) {
         cbs[cbID][0](img, cbs[cbID][1]);
     }
-};
+}
 
 
 declare global {
