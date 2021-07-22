@@ -86,7 +86,7 @@ const parseCommitLogs = async (from, to) => {
                     scopes[scope] = [];
                 }
 
-                log = log.split(':');
+                log = log.split(/:(.+)/);
 
                 scopes[scope].push({
                     type: log[0],
