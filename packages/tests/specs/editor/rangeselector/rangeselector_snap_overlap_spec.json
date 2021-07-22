@@ -1,0 +1,33 @@
+{
+  "layers": [
+    {
+      "id": "linkLayer",
+      "provider": {
+        "id": "linkProvider",
+        "type": "TestLocalProvider",
+        "name": "Links",
+        "level": 15
+      },
+      "min": 1,
+      "max": 20,
+      "data": {
+        "local": [
+          {
+            "id": 1,
+            "type": "Feature",
+            "properties": {
+              "featureClass": "NAVLINK"
+            },
+            "geometry": {
+              "type": "LineString",
+              "coordinates": [
+                 [-122.286678879, 37.818121035, 0],
+                 [-122.280241576, 37.818121035, 0]
+              ]
+            }
+          }
+        ]
+      }
+    }
+  ]
+}
