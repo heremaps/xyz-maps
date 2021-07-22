@@ -35,7 +35,7 @@ type DragListener = (e: MapEvent) => void;
 function getPointAtLine(
     line: MultiLink,
     position: number | { longitude: number, latitude: number }
-): { coordinate: [number, number], offset: number } {
+): { coordinate: GeoJSONCoordinate, offset: number } {
     const prjCoords = line.coord().map((c) => {
         let pixel = webMercator.geoToPixel(c[0], c[1], 1);
         return [pixel.x, pixel.y];
@@ -54,7 +54,7 @@ function getPointAtLine(
     const geo = webMercator.pixelToGeo(point[0], point[1], 1);
 
     return {
-        coordinate: [geo.longitude, geo.latitude],
+        coordinate: <number[]>[geo.longitude, geo.latitude],
         offset: offset
     };
 }
@@ -81,8 +81,7 @@ class RangeMarker extends Feature {
     properties: {
         style: any;
         dragged: boolean;
-        relPos: number;
-        isFromMarker: boolean;
+        relPos: number
     }
 
     constructor(
@@ -169,7 +168,51 @@ class RangeMarker extends Feature {
         }
     }
 
-    updatePosition(pos: [number, number], relPos: number): [number, number] {
+    private updateSnapped(coordinate?: GeoJSONCoordinate): RangeMarker | false {
+        const marker = this;
+        const multiLink = marker.range.getMultiLink();
+        const rangeOptions = marker.range.options;
+        const snapTolerance = rangeOptions.snapTolerance || DEFAULT_SNAP_TOLERANCE;
+
+        coordinate = coordinate || marker.geometry.coordinates;
+
+        for (let range of multiLink.getRanges()) {
+            if (range != marker.range) {
+                const [fromMarker, toMarker] = range.getMarkers();
+                const side = range.getSide();
+                const d1 = geotools.distance(coordinate, fromMarker.geometry.coordinates);
+                const d2 = geotools.distance(coordinate, toMarker.geometry.coordinates);
+                const dMin = Math.min(d1, d2);
+                const closestMarker = d1 < d2 ? fromMarker : toMarker;
+
+                const _relPos = closestMarker.properties.relPos;
+
+                if (marker.allowSnap(side)) {
+                    const isInSnapDistance = dMin < snapTolerance;
+                    if (isInSnapDistance || this.isSnapped(closestMarker)) {
+                        closestMarker.properties.relPos = marker.properties.relPos;
+                    }
+
+                    if (!this.isSnapped(fromMarker) && !this.isSnapped(toMarker)) {
+                        if (isInSnapDistance) {
+                            this.snap(closestMarker);
+                        }
+                    }
+                }
+
+                const forbiddenOverlap = !marker.allowOverlap(side) && marker.overlaps();
+
+                closestMarker.properties.relPos = _relPos;
+                if (forbiddenOverlap) {
+                    return this.range.getFromMarker() == this ? toMarker : fromMarker;
+                }
+            }
+        }
+
+        return false;
+    }
+
+    updatePosition(pos: GeoJSONCoordinate, relPos: number): [number, number] {
         const marker = this;
         const styleGroup = marker.properties.style;
         const coords = marker.range.getMultiLink().coord();
@@ -213,66 +256,25 @@ class RangeMarker extends Feature {
         return <[number, number]>pos.slice();
     };
 
-    private updateSnapped(coordinate?: GeoJSONCoordinate): boolean {
-        const marker = this;
-        const multiLink = marker.range.getMultiLink();
-        const rangeOptions = marker.range.options;
-        const snapTolerance = rangeOptions.snapTolerance || DEFAULT_SNAP_TOLERANCE;
-
-        coordinate = coordinate || marker.geometry.coordinates;
-
-        for (let range of multiLink.getRanges()) {
-            if (range != marker.range) {
-                const [marker1, marker2] = range.markers;
-                const side = range.getSide();
-                const d1 = geotools.distance(coordinate, marker1.geometry.coordinates);
-                const d2 = geotools.distance(coordinate, marker2.geometry.coordinates);
-                const dMin = Math.min(d1, d2);
-                const closestMarker = d1 < d2 ? marker1 : marker2;
-
-                const _relPos = closestMarker.properties.relPos;
-
-                if (marker.allowSnap(side)) {
-                    const isInSnapDistance = dMin < snapTolerance;
-                    if (isInSnapDistance || this.isSnapped(closestMarker)) {
-                        closestMarker.properties.relPos = marker.properties.relPos;
-                    }
-
-                    if (!this.isSnapped(marker1) && !this.isSnapped(marker2)) {
-                        if (isInSnapDistance) {
-                            this.snap(closestMarker);
-                        }
-                    }
-                }
-
-                const forbiddenOverlap = !marker.allowOverlap(side) && marker.overlaps();
-
-                closestMarker.properties.relPos = _relPos;
-
-                if (forbiddenOverlap) {
-                    return true;
-                }
-            }
-        }
-
-        return false;
-    }
-
     pressmove(e) {
         const marker = this;
         if (!marker.isLocked()) {
             const display = e.detail.display;
             const multiLink = marker.range.getMultiLink();
             const position = getPointAtLine(multiLink, display.pixelToGeo(e.mapX, e.mapY));
-            const {offset, coordinate} = position;
+            let {offset, coordinate} = position;
             const prevRelPos = marker.properties.relPos;
 
             // set relative position for overlap checking
             marker.properties.relPos = offset;
 
-            if (this.updateSnapped(coordinate)) {
-                marker.properties.relPos = prevRelPos;
-                return;
+            const snappedMarker = this.updateSnapped(coordinate);
+
+            if (snappedMarker) {
+                offset = snappedMarker.getRelPos();
+                coordinate = snappedMarker.geometry.coordinates;
+                // marker.properties.relPos = prevRelPos;
+                // return;
             }
 
             marker.updatePosition(coordinate, offset);
@@ -285,7 +287,6 @@ class RangeMarker extends Feature {
     pointerdown(e) {
         this.dragStart(e);
         this.properties.dragged = false;
-        this.properties.isFromMarker = this.range.getFromMarker() == this;
         this.updateSnapped();
     }
 

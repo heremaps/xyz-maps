@@ -192,12 +192,17 @@ export class Range {
         return [p1, p2];
     }
 
+
+    getMarkers(): RangeMarker[] {
+        return this.markers.sort((m1, m2) => m1.getRelPos() - m2.getRelPos());
+    }
+
     getFromMarker(): RangeMarker {
         const {markers} = this;
         const p1 = markers[0].getRelPos();
         const p2 = markers[1].getRelPos();
 
-        return markers[Number(p1 < p2)];
+        return markers[Number(p1 > p2)];
     }
 
     getMultiLink(): MultiLink {
