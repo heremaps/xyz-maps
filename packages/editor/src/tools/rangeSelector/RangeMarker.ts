@@ -118,8 +118,16 @@ class RangeMarker extends Feature {
         this.updatePosition(<[number, number]>(this.geometry.coordinates), relPos);
     }
 
-    private isSnapped(marker: RangeMarker) {
-        return this.snapped.indexOf(marker) >= 0;
+    private isSnapped(marker?: RangeMarker): boolean {
+        if (marker) {
+            return this.snapped.indexOf(marker) >= 0;
+        } else {
+            return Boolean(this.snapped.length);
+        }
+    }
+
+    private getSnapped(range: Range) {
+        return this.snapped.find((marker) => marker.range == range);
     }
 
     private snap(marker: RangeMarker): boolean {
@@ -135,81 +143,66 @@ class RangeMarker extends Feature {
         }
     }
 
-    private allowSide(side: 'L' | 'R' | 'B', allow: any): boolean {
-        allow = allow || [];
-        let allowedSides = [];
-
-        if (typeof allow == 'boolean') {
-            return allow;
-        } else if (typeof allow == 'string') {
-            allowedSides.push(allow);
-        } else if (Array.isArray(allow)) {
-            allowedSides = allow;
-        }
-
-        return allowedSides.indexOf(side) != -1;
-    }
-
-    private allowOverlap(side: 'L' | 'R' | 'B'): boolean {
-        return this.allowSide(side, this.range.options.allowOverlap);
-    }
-
-    private allowSnap(side: 'L' | 'R' | 'B'): boolean {
-        return this.allowSide(side, this.range.options.snap);
-    }
-
-    private overlaps(): boolean {
-        for (let range of this.range.getMultiLink().getRanges()) {
-            if (range != this.range) {
-                if (this.range.overlaps(range)) {
-                    return true;
-                }
-            }
-        }
-    }
-
-    private updateSnapped(coordinate?: GeoJSONCoordinate): RangeMarker | false {
+    private validatePosition(coordinate: GeoJSONCoordinate, newOffset: number): { coordinate: GeoJSONCoordinate, offset: number, adjusted: boolean } {
         const marker = this;
-        const multiLink = marker.range.getMultiLink();
-        const rangeOptions = marker.range.options;
-        const snapTolerance = rangeOptions.snapTolerance || DEFAULT_SNAP_TOLERANCE;
+        const markerRange = marker.range;
+        const snapTolerance = markerRange.options.snapTolerance || DEFAULT_SNAP_TOLERANCE;
 
         coordinate = coordinate || marker.geometry.coordinates;
 
-        for (let range of multiLink.getRanges()) {
-            if (range != marker.range) {
-                const [fromMarker, toMarker] = range.getMarkers();
-                const side = range.getSide();
-                const d1 = geotools.distance(coordinate, fromMarker.geometry.coordinates);
-                const d2 = geotools.distance(coordinate, toMarker.geometry.coordinates);
-                const dMin = Math.min(d1, d2);
-                const closestMarker = d1 < d2 ? fromMarker : toMarker;
+        let validPosition = {coordinate, offset: newOffset, adjusted: false};
+        let offsets = markerRange.getOffsets();
+        const from = markerRange.getFromMarker() == this;
 
-                const _relPos = closestMarker.properties.relPos;
+        offsets[Number(!from)] = newOffset;
+        offsets = offsets.sort((f, t) => f - t);
 
-                if (marker.allowSnap(side)) {
+
+        let conflictRange;
+
+        for (let range of marker.range.getMultiLink().getRanges()) {
+            if (range == marker.range) continue;
+
+            let rangeOffsets = range.getOffsets();
+            const [fromMarker, toMarker] = range.getMarkers();
+            const side = range.getSide();
+
+
+            if (markerRange.allowSnap(side)) {
+                if (!this.isSnapped(fromMarker) && !this.isSnapped(toMarker)) {
+                    const d1 = geotools.distance(coordinate, fromMarker.geometry.coordinates);
+                    const d2 = geotools.distance(coordinate, toMarker.geometry.coordinates);
+                    const dMin = Math.min(d1, d2);
                     const isInSnapDistance = dMin < snapTolerance;
-                    if (isInSnapDistance || this.isSnapped(closestMarker)) {
-                        closestMarker.properties.relPos = marker.properties.relPos;
-                    }
-
-                    if (!this.isSnapped(fromMarker) && !this.isSnapped(toMarker)) {
-                        if (isInSnapDistance) {
-                            this.snap(closestMarker);
-                        }
+                    if (isInSnapDistance || markerRange.overlaps(rangeOffsets, offsets)) {
+                        const closestMarker = d1 < d2 ? fromMarker : toMarker;
+                        this.snap(closestMarker);
                     }
                 }
+            }
 
-                const forbiddenOverlap = !marker.allowOverlap(side) && marker.overlaps();
+            const snappedMarker = this.getSnapped(range);
+            if (snappedMarker) {
+                // update the offsets of snapped marker's range
+                const i = rangeOffsets.indexOf(snappedMarker.getRelPos());
+                rangeOffsets[i] = newOffset;
+                rangeOffsets = rangeOffsets.sort((f, t) => f - t);
+            }
 
-                closestMarker.properties.relPos = _relPos;
-                if (forbiddenOverlap) {
-                    return this.range.getFromMarker() == this ? toMarker : fromMarker;
-                }
+            if (!markerRange.allowOverlap(range.side) && markerRange.overlaps(rangeOffsets, offsets)) {
+                conflictRange = range;
+                break;
             }
         }
 
-        return false;
+        if (conflictRange) {
+            const [fromMarker, toMarker] = conflictRange.getMarkers();
+            const snapMarker = this.range.getFromMarker() == this ? toMarker : fromMarker;
+            validPosition.offset = snapMarker.getRelPos();
+            validPosition.coordinate = snapMarker.geometry.coordinates;
+            validPosition.adjusted = true;
+        }
+        return validPosition;
     }
 
     updatePosition(pos: GeoJSONCoordinate, relPos: number): [number, number] {
@@ -261,33 +254,22 @@ class RangeMarker extends Feature {
         if (!marker.isLocked()) {
             const display = e.detail.display;
             const multiLink = marker.range.getMultiLink();
-            const position = getPointAtLine(multiLink, display.pixelToGeo(e.mapX, e.mapY));
-            let {offset, coordinate} = position;
-            const prevRelPos = marker.properties.relPos;
-
-            // set relative position for overlap checking
-            marker.properties.relPos = offset;
-
-            const snappedMarker = this.updateSnapped(coordinate);
-
-            if (snappedMarker) {
-                offset = snappedMarker.getRelPos();
-                coordinate = snappedMarker.geometry.coordinates;
-                // marker.properties.relPos = prevRelPos;
-                // return;
-            }
-
-            marker.updatePosition(coordinate, offset);
-
+            const {offset, coordinate} = getPointAtLine(multiLink, display.pixelToGeo(e.mapX, e.mapY));
+            const valid = this.validatePosition(coordinate, offset);
+            // if (valid.adjusted){
+            marker.updatePosition(valid.coordinate, valid.offset);
+            // }
             marker.dragMove(e);
             marker.properties.dragged = true;
         }
     }
 
+
     pointerdown(e) {
         this.dragStart(e);
         this.properties.dragged = false;
-        this.updateSnapped();
+        // just used for handle snaps
+        this.validatePosition(this.geometry.coordinates, this.getRelPos());
     }
 
     pointerup(e: MapEvent) {

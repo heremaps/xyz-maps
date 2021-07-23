@@ -34,12 +34,6 @@ enum DEFAULT_FILL {
     B = '#35b2ee'
 }
 
-export enum OVERLAP {
-    NONE = 0,
-    PARTIAL = 1,
-    FULL = 2
-}
-
 const createDefaultMarkerStyle = (stroke: string, fill: string, opacity: number, side: string) => {
     let offsetY = side == 'R' ? 8 : side == 'L' ? -8 : 0;
     return [{
@@ -192,6 +186,28 @@ export class Range {
         return [p1, p2];
     }
 
+    private allowSide(side: 'L' | 'R' | 'B', allow: any): boolean {
+        allow = allow || [];
+        let allowedSides = [];
+
+        if (typeof allow == 'boolean') {
+            return allow;
+        } else if (typeof allow == 'string') {
+            allowedSides.push(allow);
+        } else if (Array.isArray(allow)) {
+            allowedSides = allow;
+        }
+
+        return allowedSides.indexOf(side) != -1;
+    }
+
+    allowOverlap(side: 'L' | 'R' | 'B'): boolean {
+        return this.allowSide(side, this.options.allowOverlap);
+    }
+
+    allowSnap(side: 'L' | 'R' | 'B'): boolean {
+        return this.allowSide(side, this.options.snap);
+    }
 
     getMarkers(): RangeMarker[] {
         return this.markers.sort((m1, m2) => m1.getRelPos() - m2.getRelPos());
@@ -219,9 +235,12 @@ export class Range {
         return !!this.options.locked;
     }
 
-    overlaps(range: Range | [number, number]) {
-        const [from, to] = this.getOffsets();
-        const [from2, to2] = Array.isArray(range) ? range : range.getOffsets();
+    overlaps(range2: [number, number] | Range, range1?: [number, number] | Range): boolean {
+        range1 = Array.isArray(range1) ? range1 : this.getOffsets();
+        range2 = Array.isArray(range2) ? range2 : range2.getOffsets();
+        const [from, to] = range1.sort((f, t) => f - t);
+        const [from2, to2] = range2.sort((f, t) => f - t);
+
         return Math.max(0, Math.min(to, to2) - Math.max(from, from2)) > 0;
     }
 
