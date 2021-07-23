@@ -1,3 +1,20 @@
+## 0.24.0 (2021-7-23)
+### core
+* added: the remote URL of an MVTLayer can now also be defined as a function with which the URL can be configured on a tile basis
+### editor
+* added: The RangeSelector now supports to snap Ranges automatically. see [Range.snap](https://github.com/heremaps/xyz-maps/docs/interfaces/editor.range.html#snap), [Range.snapTolerance](https://github.com/heremaps/xyz-maps/docs/interfaces/editor.range.html#snaptolerance)
+* added: The overlapping of Ranges can now be allowed or prevented. see [Range.allowOverlap](https://github.com/heremaps/xyz-maps/docs/interfaces/editor.range.html#allowOverlap)
+* added: As soon as you drag a NavlinkShape or AreaShape, it is now automatically snapped to nearby geometries.
+* fixed: Navlink features were erroneously marked as modified in very rare cases.
+* fixed: Undoing changes of Address features triggered the execution of the "writeEditState hook", which could lead to an incorrect restore
+### display
+* improved: Support for image sources larger than 64 pixels through automatic downscaling
+* improved: the view bounds of the map can now be set using a bow animation. usage: display.setViewbounds( bounds, animate?: boolean|options )
+* added: the map center/zoomlevel can now be set using a bow animation combining pan and zoom operations. usage: map.flyTo(center, zoomlevel?, options?)
+* fixed: very long text placed on line geometry may have been misaligned
+* fixed: TileLayers with semi-transparent image tile data were covering underlying layers.
+* fixed: Circles and Rectangles were not displayed when the alignment was set to "map"
+
 ## 0.23.0 (2021-6-22)
 ### editor
 * added: Snap coordinates to polygon geometry nearby can now be controlled by using area.behavior('snapCoordinates', boolean)
