@@ -20,7 +20,7 @@
 import commonjs from '@rollup/plugin-commonjs';
 import nodeResolve from '@rollup/plugin-node-resolve';
 import typescript from '@rollup/plugin-typescript';
-import {uglify} from 'rollup-plugin-uglify';
+import {terser} from 'rollup-plugin-terser';
 import virtual from '@rollup/plugin-virtual';
 import sourcemaps from 'rollup-plugin-sourcemaps';
 import git from 'git-rev-sync';
@@ -45,7 +45,7 @@ if (production) {
 
 const banner = '/*\n * ' + pkg.name + '\n * (c) 2019-2021 HERE\n */\n';
 
-const createPlugins = (uglify) => {
+const createPlugins = () => {
     return [
         nodeResolve(),
         commonjs(),
@@ -55,7 +55,7 @@ const createPlugins = (uglify) => {
             include: ['src/**/*'],
             exclude: ['node_modules', 'dist']
         }),
-        production ? uglify({
+        production ? terser({
             output: {
                 comments: /\(c\)/
             },
@@ -94,7 +94,7 @@ const rollupConfig = [{
         indent: false
     },
     external: external,
-    plugins: createPlugins(uglify),
+    plugins: createPlugins(),
     treeshake: production
 }, {
     input: 'build/bundle.js',

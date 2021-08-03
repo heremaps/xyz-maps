@@ -27,7 +27,7 @@ import virtual from '@rollup/plugin-virtual';
 import json from '@rollup/plugin-json';
 import settings from './settings.json';
 import {join} from 'path';
-import {uglify} from 'rollup-plugin-uglify';
+import {terser} from 'rollup-plugin-terser';
 import fs from 'fs';
 import nodeResolve from 'resolve';
 const tsServicePath = nodeResolve.sync('typescript/lib/typescriptServices.js');
@@ -116,7 +116,7 @@ const rollupConfig = [{
             minimize: production
         }),
         typescript(),
-        production && uglify(),
+        production && terser(),
         copy({
             targets: [{
                 src: './examples', dest: DEST
@@ -176,7 +176,7 @@ if (!env['token-path']) {
                 'access_token': `export default "${credentials.access_token}"`
             }),
             typescript(),
-            uglify()
+            terser()
         ],
         treeshake: production
     });

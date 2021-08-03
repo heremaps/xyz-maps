@@ -18,16 +18,11 @@
  */
 
 import typescript from '@rollup/plugin-typescript';
-import {uglify} from 'rollup-plugin-uglify';
 import {terser} from 'rollup-plugin-terser';
 import commonjs from '@rollup/plugin-commonjs';
 import nodeResolve from '@rollup/plugin-node-resolve';
 import {string} from 'rollup-plugin-string';
 import virtual from '@rollup/plugin-virtual';
-
-
-console.log(nodeResolve);
-
 
 const fs = require('fs');
 const pkg = require('./package.json');
@@ -51,7 +46,7 @@ if (production) {
     console.info(`Use logo: ${logoSrc} cOwner: ${cOwner}`);
 }
 
-const createPlugins = (uglify) => {
+const createPlugins = () => {
     return [
         virtual({
             'ui-logo-src': `export default "data:image/svg+xml;base64,${fs.readFileSync(logoSrc, 'base64')}"`,
@@ -64,7 +59,7 @@ const createPlugins = (uglify) => {
         nodeResolve(),
         commonjs(),
         typescript(),
-        production ? uglify({
+        production ? terser({
             output: {
                 comments: /\(c\)/
             },
@@ -92,7 +87,7 @@ const rollupConfig = [{
         banner: banner
     },
     external: ['@here/xyz-maps-core', '@here/xyz-maps-common'],
-    plugins: createPlugins(uglify),
+    plugins: createPlugins(),
     treeshake: production
 }];
 
@@ -113,7 +108,7 @@ if (production) {
             banner: banner
         },
         external: ['@here/xyz-maps-core', '@here/xyz-maps-common'],
-        plugins: createPlugins(terser),
+        plugins: createPlugins(),
         treeshake: production
     });
 }

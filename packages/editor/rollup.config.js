@@ -18,7 +18,6 @@
  */
 
 import typescript from '@rollup/plugin-typescript';
-import {uglify} from 'rollup-plugin-uglify';
 import {terser} from 'rollup-plugin-terser';
 import image from 'rollup-plugin-img';
 
@@ -39,7 +38,7 @@ if (production) {
 
 const banner = '/*\n * ' + pkg.name + '\n * (c) 2019-2021 HERE\n */\n';
 
-const createPlugins = (uglify) => {
+const createPlugins = () => {
     return [
         typescript({
             typescript: require('typescript'),
@@ -47,7 +46,7 @@ const createPlugins = (uglify) => {
             include: ['src/**/*'],
             exclude: ['node_modules', 'dist']
         }),
-        production ? uglify({
+        production ? terser({
             output: {
                 comments: /\(c\)/
             },
@@ -75,7 +74,7 @@ const rollupConfig = [{
         banner: banner
     },
     external: ['@here/xyz-maps-core', '@here/xyz-maps-common'],
-    plugins: createPlugins(uglify),
+    plugins: createPlugins(),
     treeshake: production
 }];
 
@@ -95,7 +94,7 @@ if (production) {
             banner: banner
         },
         external: ['@here/xyz-maps-core', '@here/xyz-maps-common'],
-        plugins: createPlugins(terser),
+        plugins: createPlugins(),
         treeshake: production
     });
 }

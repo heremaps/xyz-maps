@@ -18,7 +18,6 @@
  */
 
 import typescript from '@rollup/plugin-typescript';
-import {uglify} from 'rollup-plugin-uglify';
 import {terser} from 'rollup-plugin-terser';
 
 const pkg = require('./package.json');
@@ -36,7 +35,7 @@ if (production) {
 
 const banner = '/*\n * ' + pkg.name + '\n * (c) 2019-2021 HERE\n */\n';
 
-const createPlugins = (uglify) => {
+const createPlugins = () => {
     return [
         typescript({
             typescript: require('typescript'),
@@ -44,7 +43,7 @@ const createPlugins = (uglify) => {
             include: ['src/**/*'],
             exclude: ['node_modules', 'dist']
         }),
-        production ? uglify({
+        production ? terser({
             output: {
                 comments: /\(c\)/
             },
@@ -66,7 +65,7 @@ const rollupConfig = [{
         strict: true,
         banner: banner
     },
-    plugins: createPlugins(terser),
+    plugins: createPlugins(),
     treeshake: production
 }];
 
@@ -81,7 +80,7 @@ if (production) {
             strict: true,
             banner: banner
         },
-        plugins: createPlugins(terser),
+        plugins: createPlugins(),
         treeshake: production
     });
 }
