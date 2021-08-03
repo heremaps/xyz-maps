@@ -35,7 +35,7 @@ describe('search in layers remotely', function() {
     });
 
     it('search by point and radius and rectangle remotely at same area and validate 1 object is returned', async function() {
-        let results = await new Promise((resolve) => {
+        let results = await new Promise<void>((resolve) => {
             let objs = addressLayer.search({
                 point: {longitude: 78.903642, latitude: 14.307483},
                 radius: 25,
@@ -51,7 +51,7 @@ describe('search in layers remotely', function() {
         expect(results).to.have.lengthOf(1);
         expect(results[0]).to.deep.include({id: pa.id});
 
-        results = await new Promise((resolve) => {
+        results = await new Promise<void>((resolve) => {
             let objs = addressLayer.search({
                 rect: {minLon: 78.903069, minLat: 14.307089, maxLon: 78.904142, maxLat: 14.307869},
                 remote: true,
@@ -64,7 +64,7 @@ describe('search in layers remotely', function() {
     });
 
     it('search by point and radius 3 times remotely and same area then validate no object is returned directly', async function() {
-        let results = await new Promise((resolve) => {
+        let results = await new Promise<void>((resolve) => {
             let objs = addressLayer.search({
                 point: {longitude: 78.943626, latitude: 14.59739},
                 radius: 30,
@@ -76,7 +76,7 @@ describe('search in layers remotely', function() {
 
         expect(results).to.have.lengthOf(3);
 
-        results = await new Promise((resolve) => {
+        results = await new Promise<void>((resolve) => {
             let objs = addressLayer.search({
                 point: {longitude: 78.943626, latitude: 14.59739},
                 radius: 30,
@@ -88,7 +88,7 @@ describe('search in layers remotely', function() {
 
         expect(results).to.have.lengthOf(3);
 
-        results = await new Promise((resolve) => {
+        results = await new Promise<void>((resolve) => {
             let objs = addressLayer.search({
                 point: {longitude: 78.943626, latitude: 14.59739},
                 radius: 40,
@@ -103,7 +103,7 @@ describe('search in layers remotely', function() {
 
 
     it('search by rect two times and validate remotely', async function() {
-        let results = await new Promise((resolve) => {
+        let results = await new Promise<void>((resolve) => {
             let obj = addressLayer.search({
                 rect: {minLon: 78.868647, minLat: 14.287684, maxLon: 78.872938, maxLat: 14.289753},
                 remote: true,
@@ -114,7 +114,7 @@ describe('search in layers remotely', function() {
 
         expect(results).to.have.lengthOf(2);
 
-        results = await new Promise((resolve) => {
+        results = await new Promise<void>((resolve) => {
             let objs = addressLayer.search({
                 rect: {minLon: 78.868647, minLat: 14.287684, maxLon: 78.872938, maxLat: 14.289753},
                 remote: true,

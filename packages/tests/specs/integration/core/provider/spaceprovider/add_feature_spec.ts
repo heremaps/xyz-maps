@@ -38,7 +38,7 @@ describe('add feature to spaceprovider', function() {
 
     it('validate objects in an area where new feature is added', async function() {
         var objs; var robjs;
-        await new Promise(function(resolve) {
+        await new Promise<void>(function(resolve) {
             objs = spaceProvider.search({
                 rect: {minLon: 20.409930789222955, minLat: 44.72414884267181, maxLon: 20.51515921329522, maxLat: 44.81676867415251},
                 remote: true,
@@ -51,7 +51,7 @@ describe('add feature to spaceprovider', function() {
         expect(objs).to.equal(undefined);
         expect(robjs).to.have.lengthOf(2);
 
-        await new Promise(function(resolve) {
+        await new Promise<void>(function(resolve) {
             objs = spaceProvider.search({
                 rect: {minLon: 20.409930789222955, minLat: 44.72414884267181, maxLon: 20.51515921329522, maxLat: 44.81676867415251},
                 remote: true,
@@ -71,7 +71,7 @@ describe('add feature to spaceprovider', function() {
         // expect search function to return 2 features
         spaceProvider.clear();
         var objs; var robjs;
-        await new Promise(function(resolve) {
+        await new Promise<void>(function(resolve) {
             spaceProvider.setTags('stadium');
 
             objs = spaceProvider.search({
@@ -87,7 +87,7 @@ describe('add feature to spaceprovider', function() {
         expect(objs).to.equal(undefined);
         expect(robjs).to.have.lengthOf(2);
 
-        await new Promise(function(resolve) {
+        await new Promise<void>(function(resolve) {
             objs = spaceProvider.search({
                 rect: {minLon: 20.409930789222955, minLat: 44.72414884267181, maxLon: 20.51515921329522, maxLat: 44.81676867415251},
                 remote: true,

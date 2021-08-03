@@ -72,7 +72,7 @@ describe('get and cancel requesting with high level', function() {
         let reqs;
         let cbResults;
         let cancelledRequests = 0;
-        await new Promise((resolve)=>{
+        await new Promise<void>((resolve)=>{
             getTileOnProvider({
                 provider: placeProvider,
                 quadkeys: [qk11, qk12],

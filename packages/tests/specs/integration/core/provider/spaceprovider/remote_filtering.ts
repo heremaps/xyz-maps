@@ -53,7 +53,7 @@ describe('remote filtering in spaceprovider', () => {
     });
 
     it('validate search result without filter', async () => {
-        let result = await new Promise((resolve) => {
+        let result = await new Promise<void>((resolve) => {
             spaceProvider.search({
                 rect: {minLon: 4.3825, minLat: 45.422019, maxLon: 4.9825, maxLat: 45.773889},
                 remote: true,
@@ -68,7 +68,7 @@ describe('remote filtering in spaceprovider', () => {
 
     it('validate search result with filter 1', async () => {
         // nothing is found
-        let result = await new Promise((resolve) => {
+        let result = await new Promise<void>((resolve) => {
             spaceProvider.setPropertySearch({
                 'name': {
                     operator: '=',
@@ -89,7 +89,7 @@ describe('remote filtering in spaceprovider', () => {
 
     it('validate search result with filter 2', async () => {
         // one feature is found
-        let result = await new Promise((resolve) => {
+        let result = await new Promise<void>((resolve) => {
             spaceProvider.setPropertySearch({
                 'name': {
                     operator: '=',
@@ -111,7 +111,7 @@ describe('remote filtering in spaceprovider', () => {
 
     it('validate search result with filter 3', async () => {
         // multiple features are found
-        let result = await new Promise((resolve) => {
+        let result = await new Promise<void>((resolve) => {
             spaceProvider.setPropertySearch({
                 'name': {
                     operator: '=',
@@ -133,7 +133,7 @@ describe('remote filtering in spaceprovider', () => {
 
     it('validate search result with filter 4', async () => {
         // multiple features are found
-        let result = await new Promise((resolve) => {
+        let result = await new Promise<void>((resolve) => {
             spaceProvider.setPropertySearch({
                 'name': {
                     operator: '=',
@@ -154,7 +154,7 @@ describe('remote filtering in spaceprovider', () => {
 
     it('validate search result with filter 5', async () => {
         // multiple filter, multiple features are found
-        let result = await new Promise((resolve) => {
+        let result = await new Promise<void>((resolve) => {
             spaceProvider.setPropertySearch({
                 'name': {
                     operator: '=',
@@ -180,7 +180,7 @@ describe('remote filtering in spaceprovider', () => {
 
     it('validate search result with filter 6', async () => {
         // multiple filter, one feature is found
-        let result = await new Promise((resolve) => {
+        let result = await new Promise<void>((resolve) => {
             spaceProvider.setPropertySearch({
                 'name': {
                     operator: '=',
@@ -206,7 +206,7 @@ describe('remote filtering in spaceprovider', () => {
 
     it('validate search result with filter 7', async () => {
         // set filter with individual property
-        let result = await new Promise((resolve) => {
+        let result = await new Promise<void>((resolve) => {
             spaceProvider.setPropertySearch('capacity', '>', 30000);
 
             spaceProvider.search({
@@ -223,7 +223,7 @@ describe('remote filtering in spaceprovider', () => {
 
     it('clear filter and validate search', async () => {
         // set filter with individual property
-        let result = await new Promise((resolve) => {
+        let result = await new Promise<void>((resolve) => {
             spaceProvider.setPropertySearch('capacity', '>', 40000);
 
             spaceProvider.search({
@@ -236,7 +236,7 @@ describe('remote filtering in spaceprovider', () => {
         });
         expect(result).to.have.lengthOf(2);
 
-        result = await new Promise((resolve) => {
+        result = await new Promise<void>((resolve) => {
             spaceProvider.setPropertySearch();
 
             spaceProvider.search({

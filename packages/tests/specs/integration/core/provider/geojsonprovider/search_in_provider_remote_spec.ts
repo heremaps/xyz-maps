@@ -35,7 +35,7 @@ describe('search in providers remotely', function() {
     });
 
     it('search in provider by point and radius and validate 2 objects are returned', async function() {
-        let results = await new Promise((resolve) => {
+        let results = await new Promise<void>((resolve) => {
             let objs = poiProvider.search({
                 point: {longitude: -95.92996223081991, latitude: 28.531008534187464},
                 radius: 80,
@@ -49,7 +49,7 @@ describe('search in providers remotely', function() {
     });
 
     it('search in provider by point and radius at same place for 3 times remotely ', async function() {
-        let results = await new Promise((resolve) => {
+        let results = await new Promise<void>((resolve) => {
             let objs = poiProvider.search({
                 point: {longitude: -95.927074290413, latitude: 28.794165759127793},
                 radius: 100,
@@ -61,7 +61,7 @@ describe('search in providers remotely', function() {
 
         expect(results).to.have.lengthOf(4);
 
-        results = await new Promise((resolve) => {
+        results = await new Promise<void>((resolve) => {
             let objs = poiProvider.search({
                 point: {longitude: -95.927074290413, latitude: 28.794165759127793},
                 radius: 30,
@@ -73,7 +73,7 @@ describe('search in providers remotely', function() {
 
         expect(results).to.have.lengthOf(2);
 
-        results = await new Promise((resolve) => {
+        results = await new Promise<void>((resolve) => {
             let objs = poiProvider.search({
                 point: {longitude: -95.927074290413, latitude: 28.794165759127793},
                 radius: 180,
@@ -87,7 +87,7 @@ describe('search in providers remotely', function() {
     });
 
     it('search in provider by viewport and validate at same place for 2 times', async function() {
-        await new Promise((resolve) => {
+        await new Promise<void>((resolve) => {
             let objs = poiProvider.search({
                 rect: {minLon: -95.936362, minLat: 28.885083, maxLon: -95.932071, maxLat: 28.887901},
                 remote: true,
@@ -95,7 +95,7 @@ describe('search in providers remotely', function() {
             });
         });
 
-        let results = await new Promise((resolve) => {
+        let results = await new Promise<void>((resolve) => {
             let objs = poiProvider.search({
                 rect: {minLon: -95.936362, minLat: 28.885083, maxLon: -95.932071, maxLat: 28.887901},
                 remote: true,
@@ -109,7 +109,7 @@ describe('search in providers remotely', function() {
 
 
     it('search in provider by viewport and validate at same place for 2 times', async function() {
-        let results = await new Promise((resolve) => {
+        let results = await new Promise<void>((resolve) => {
             let objs = poiProvider.search({
                 rect: {minLon: -95.579384, minLat: 28.882135, maxLon: -95.575093, maxLat: 28.884926},
                 remote: true,
@@ -120,7 +120,7 @@ describe('search in providers remotely', function() {
 
         expect(results).to.have.lengthOf(5);
 
-        results = await new Promise((resolve) => {
+        results = await new Promise<void>((resolve) => {
             let objs = poiProvider.search({
                 rect: {minLon: -95.579384, minLat: 28.882135, maxLon: -95.575093, maxLat: 28.884926},
                 remote: true,

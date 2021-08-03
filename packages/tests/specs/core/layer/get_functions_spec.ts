@@ -31,7 +31,7 @@ describe('get functions', function() {
         preparedData = await prepare(dataset);
         addrLayer = preparedData.getLayers('addressLayer');
 
-        await new Promise((resolve) =>{
+        await new Promise<void>((resolve) =>{
             addrLayer.search({
                 point: {longitude: -121.213991, latitude: 37.646223},
                 radius: 50,

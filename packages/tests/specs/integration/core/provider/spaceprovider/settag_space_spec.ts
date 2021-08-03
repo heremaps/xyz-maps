@@ -39,7 +39,7 @@ describe('settag in spaceprovider', function() {
 
     it('validate objects in a rectangle', async function() {
         var objs;
-        results = await new Promise(function(resolve) {
+        results = await new Promise<void>(function(resolve) {
             objs = spaceProvider.search({
                 rect: {minLon: 4.718062700195333, minLat: 45.54142036819957, maxLon: 5.138976396484395, maxLat: 45.905733172453694},
                 remote: true,
@@ -49,7 +49,7 @@ describe('settag in spaceprovider', function() {
         expect(objs).to.equal(undefined);
         expect(results).to.have.lengthOf(2);
 
-        results = await new Promise(function(resolve) {
+        results = await new Promise<void>(function(resolve) {
             objs = spaceProvider.search({
                 rect: {minLon: 4.718062700195333, minLat: 45.54142036819957, maxLon: 5.138976396484395, maxLat: 45.905733172453694},
                 remote: true,
@@ -62,7 +62,7 @@ describe('settag in spaceprovider', function() {
 
     it('set tag and validate objects in a rectangle', async function() {
         var objs;
-        results = await new Promise(function(resolve) {
+        results = await new Promise<void>(function(resolve) {
             spaceProvider.setTags('football');
 
             objs = spaceProvider.search({
@@ -74,7 +74,7 @@ describe('settag in spaceprovider', function() {
         expect(objs).to.equal(undefined);
         expect(results).to.have.lengthOf(0);
 
-        results = await new Promise(function(resolve) {
+        results = await new Promise<void>(function(resolve) {
             objs = spaceProvider.search({
                 rect: {minLon: 4.718062700195333, minLat: 45.54142036819957, maxLon: 5.138976396484395, maxLat: 45.905733172453694},
                 remote: true,
@@ -87,7 +87,7 @@ describe('settag in spaceprovider', function() {
 
     it('set another tag and validate objects in a rectangle again', async function() {
         var objs;
-        results = await new Promise(function(resolve) {
+        results = await new Promise<void>(function(resolve) {
             spaceProvider.setTags('soccer');
 
             objs = spaceProvider.search({
@@ -99,7 +99,7 @@ describe('settag in spaceprovider', function() {
         expect(objs).to.equal(undefined);
         expect(results).to.have.lengthOf(2);
 
-        results = await new Promise(function(resolve) {
+        results = await new Promise<void>(function(resolve) {
             objs = spaceProvider.search({
                 rect: {minLon: 4.718062700195333, minLat: 45.54142036819957, maxLon: 5.138976396484395, maxLat: 45.905733172453694},
                 remote: true,

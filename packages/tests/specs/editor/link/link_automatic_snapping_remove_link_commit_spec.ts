@@ -70,7 +70,7 @@ describe('link auto remove and commit', function() {
         let result;
 
         await waitForEditorReady(editor, async ()=>{
-            await new Promise((resolve)=>{
+            await new Promise<void>((resolve)=>{
                 result = editor.submit({
                     onSuccess: function(idMap) {
                         resolve();

@@ -40,7 +40,7 @@ xdescribe('commit add and remove feature to spaceprovider', function() {
 
     it('add feature and validate', async function() {
         var objs; var robjs;
-        await new Promise(function(resolve) {
+        await new Promise<void>(function(resolve) {
             objs = spaceProvider.search({
                 rect: {minLon: 76.90515666069302, minLat: 10.384625823443457, maxLon: 76.92232279838834, maxLat: 10.3934269819065},
                 remote: true,
@@ -52,7 +52,7 @@ xdescribe('commit add and remove feature to spaceprovider', function() {
         });
         expect(robjs).to.have.lengthOf(0);
 
-        await new Promise(function(resolve, reject) {
+        await new Promise<void>(function(resolve, reject) {
             spaceProvider.commit(
                 {
                     put: {
@@ -71,7 +71,7 @@ xdescribe('commit add and remove feature to spaceprovider', function() {
             );
         });
 
-        await new Promise(function(resolve) {
+        await new Promise<void>(function(resolve) {
             objs = spaceProvider.search({
                 rect: {minLon: 76.90515666069302, minLat: 10.384625823443457, maxLon: 76.92232279838834, maxLat: 10.3934269819065},
                 remote: true,

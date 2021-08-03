@@ -34,7 +34,7 @@ describe('search in geojson providers remotely', function() {
     });
 
     it('search by point and radius and validate object is returned', async function() {
-        results = await new Promise((resolve) => {
+        results = await new Promise<void>((resolve) => {
             poiLayer.search({
                 point: {longitude: -99.672185, latitude: 29.76752899999997},
                 radius: 50,
@@ -48,7 +48,7 @@ describe('search in geojson providers remotely', function() {
 
 
     it('search by point and rect for 4 times remotely and validate', async function() {
-        results = await new Promise((resolve) => {
+        results = await new Promise<void>((resolve) => {
             let objs = poiLayer.search({
                 point: {longitude: -99.88524449814317, latitude: 29.682423714345788},
                 radius: 50,
@@ -71,7 +71,7 @@ describe('search in geojson providers remotely', function() {
         });
         expect(objs).to.have.lengthOf(3);
 
-        results = await new Promise((resolve) => {
+        results = await new Promise<void>((resolve) => {
             let objs = poiLayer.search({
                 point: {longitude: -99.88524449814317, latitude: 29.682423714345788},
                 radius: 80,
@@ -84,7 +84,7 @@ describe('search in geojson providers remotely', function() {
 
         expect(results).to.have.lengthOf(5);
 
-        results = await new Promise((resolve) => {
+        results = await new Promise<void>((resolve) => {
             let objs = poiLayer.search({
                 rect: {minLon: -99.887272, minLat: 29.681191, maxLon: -99.882981, maxLat: 29.683987},
                 radius: 80,
@@ -99,7 +99,7 @@ describe('search in geojson providers remotely', function() {
 
 
     it('search by rect and validate', async function() {
-        results = await new Promise((resolve) => {
+        results = await new Promise<void>((resolve) => {
             let objs = poiLayer.search({
                 rect: {minLon: -99.398368, minLat: 29.408905, maxLon: -99.395016, maxLat: 29.411138},
                 remote: true,
@@ -110,7 +110,7 @@ describe('search in geojson providers remotely', function() {
 
         expect(results).to.have.lengthOf(4);
 
-        results = await new Promise((resolve) => {
+        results = await new Promise<void>((resolve) => {
             let objs = poiLayer.search({
                 rect: {minLon: -99.398368, minLat: 29.408905, maxLon: -99.395016, maxLat: 29.411138},
                 remote: true,
