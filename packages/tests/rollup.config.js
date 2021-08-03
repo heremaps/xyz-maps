@@ -17,7 +17,7 @@
  * License-Filename: LICENSE
  */
 
-const resolve = require('@rollup/plugin-node-resolve');
+const nodeResolve = require('@rollup/plugin-node-resolve').nodeResolve;
 const commonjs = require('@rollup/plugin-commonjs');
 const postcss = require('rollup-plugin-postcss');
 const typescript = require('@rollup/plugin-typescript');
@@ -33,7 +33,6 @@ module.exports = function(config) {
     // env.grep
     // env.fgrep
     // env.invert
-
     const environments = config.environments;
 
     const credentials = config.credentials;
@@ -81,7 +80,7 @@ module.exports = function(config) {
             globImport({
                 format: 'import'
             }),
-            resolve(),
+            nodeResolve(),
             commonjs(),
             copy({
                 targets: [{src: `statics/runner${module}.html`, dest: `dist/${module}`}]
@@ -118,7 +117,7 @@ module.exports = function(config) {
                     }),
                     json(),
                     del({targets: ['dist/common/common*', 'dist/common/output*']}),
-                    resolve(),
+                    nodeResolve(),
                     commonjs(),
                     postcss({
                         plugins: []
@@ -176,7 +175,7 @@ module.exports = function(config) {
                         'credentials': 'export default' + JSON.stringify(credentials),
                         'cleanupServer': 'export default' + JSON.stringify(cleanupServer)
                     }),
-                    resolve(),
+                    nodeResolve(),
                     commonjs(),
                     postcss({
                         plugins: []
@@ -235,7 +234,7 @@ module.exports = function(config) {
                         'credentials': 'export default' + JSON.stringify(credentials),
                         'cleanupServer': 'export default' + JSON.stringify(cleanupServer)
                     }),
-                    resolve(),
+                    nodeResolve(),
                     commonjs(),
                     postcss({
                         plugins: []
@@ -294,7 +293,7 @@ module.exports = function(config) {
                         'credentials': 'export default' + JSON.stringify(credentials),
                         'cleanupServer': 'export default' + JSON.stringify(cleanupServer)
                     }),
-                    resolve(),
+                    nodeResolve(),
                     commonjs(),
                     postcss({
                         plugins: []
@@ -352,7 +351,7 @@ module.exports = function(config) {
                         'credentials': 'export default' + JSON.stringify(credentials),
                         'cleanupServer': 'export default' + JSON.stringify(cleanupServer)
                     }),
-                    resolve(),
+                    nodeResolve(),
                     commonjs(),
                     postcss({
                         plugins: []

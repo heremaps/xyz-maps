@@ -32,7 +32,7 @@ describe('task manager', function() {
         let results3 = [];
         let current = 0;
 
-        await new Promise((resolve)=>{
+        await new Promise<void>((resolve)=>{
             let task = taskmanager.create({
                 name: 'task',
 

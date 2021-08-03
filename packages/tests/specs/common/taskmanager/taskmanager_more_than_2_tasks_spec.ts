@@ -30,7 +30,7 @@ describe('task manager run more than 2 tasks', function() {
         let taskFinish = 1;
 
         // create tasks
-        await new Promise((resolve)=>{
+        await new Promise<void>((resolve)=>{
             let task1 = taskmanager.create({
                 name: 'task1',
 
@@ -153,7 +153,7 @@ describe('task manager run more than 2 tasks', function() {
 
 
         // create tasks
-        await new Promise((resolve)=>{
+        await new Promise<void>((resolve)=>{
             let task1 = taskmanager.create({
                 name: 'task1',
 
@@ -275,7 +275,7 @@ describe('task manager run more than 2 tasks', function() {
 
 
         // create tasks
-        await new Promise((resolve)=>{
+        await new Promise<void>((resolve)=>{
             let task1 = taskmanager.create({
                 name: 'task1',
 

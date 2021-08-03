@@ -32,7 +32,7 @@ class FlightAnimator extends Animator {
     }
 
     // animation is based on https://www.win.tue.nl/~vanwijk/zoompan.pdf
-    async start(centerTo, zoomTo: number, duration?: number) {
+    start(centerTo, zoomTo: number, duration?: number) {
         const {map} = this;
         const zoomFrom = map.getZoomlevel();
         const worldSizePixel = map._wSize;

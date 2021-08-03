@@ -79,7 +79,7 @@ abstract class Animator {
         }
     };
 
-    abstract async start(...args: any);
+    abstract start(...args: any);
 
     stop() {
         this.animation?.stop();

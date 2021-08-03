@@ -25,6 +25,10 @@ import nodeResolve from '@rollup/plugin-node-resolve';
 import {string} from 'rollup-plugin-string';
 import virtual from '@rollup/plugin-virtual';
 
+
+console.log(nodeResolve);
+
+
 const fs = require('fs');
 const pkg = require('./package.json');
 
@@ -59,12 +63,7 @@ const createPlugins = (uglify) => {
         }),
         nodeResolve(),
         commonjs(),
-        typescript({
-            typescript: require('typescript'),
-            // only compileroptions are read from tsconfig.json
-            include: ['src/**/*'],
-            exclude: ['node_modules', 'dist']
-        }),
+        typescript(),
         production ? uglify({
             output: {
                 comments: /\(c\)/

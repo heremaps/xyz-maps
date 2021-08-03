@@ -29,7 +29,7 @@ class ZoomAnimator extends Animator {
         this.map = map;
     }
 
-    async start(zoomTo: number, zoomX: number, zoomY: number, duration: number) {
+    start(zoomTo: number, zoomX: number, zoomY: number, duration: number) {
         const {map} = this;
 
         this.animate(map.getZoomlevel(), zoomTo, duration, (z) => {

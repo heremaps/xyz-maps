@@ -66,7 +66,7 @@ const rollupConfig = [{
         strict: true,
         banner: banner
     },
-    plugins: createPlugins(uglify),
+    plugins: createPlugins(terser),
     treeshake: production
 }];
 

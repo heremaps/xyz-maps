@@ -31,7 +31,7 @@ describe('task manager run 2 tasks', function() {
         let taskFinish = 1;
 
         // create tasks
-        await new Promise((resolve)=>{
+        await new Promise<void>((resolve)=>{
             let task1 = taskmanager.create({
                 name: 'task1',
 
@@ -115,7 +115,7 @@ describe('task manager run 2 tasks', function() {
         let taskFinish = 1;
 
         // create tasks
-        await new Promise((resolve)=>{
+        await new Promise<void>((resolve)=>{
             let task1 = taskmanager.create({
                 name: 'task1',
 
@@ -198,7 +198,7 @@ describe('task manager run 2 tasks', function() {
         let taskFinish = 1;
 
         // create tasks
-        await new Promise((resolve)=>{
+        await new Promise<void>((resolve)=>{
             let task1 = taskmanager.create({
                 name: 'task1',
 
@@ -281,7 +281,7 @@ describe('task manager run 2 tasks', function() {
         let current = 0;
         let taskFinish = 1;
 
-        await new Promise((resolve)=>{
+        await new Promise<void>((resolve)=>{
             let task1 = taskmanager.create({
                 name: 'task1',
 
@@ -361,7 +361,7 @@ describe('task manager run 2 tasks', function() {
         let current = 0;
         let taskFinish = 1;
 
-        await new Promise((resolve)=>{
+        await new Promise<void>((resolve)=>{
             let task1 = taskmanager.create({
                 name: 'task1',
 
@@ -440,7 +440,7 @@ describe('task manager run 2 tasks', function() {
         let current = 0;
         let taskFinish = 1;
 
-        await new Promise((resolve)=>{
+        await new Promise<void>((resolve)=>{
             let task1 = taskmanager.create({
                 name: 'task1',
 
