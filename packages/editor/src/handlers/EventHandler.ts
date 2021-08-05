@@ -22,17 +22,11 @@ import {Listener} from '@here/xyz-maps-common';
 import {Feature as EditFeature} from '../features/feature/Feature';
 import {Feature} from '@here/xyz-maps-core';
 
-function isInternalEvent(type) {
-    return type[0] == '_';
-    // return String(type).indexOf('_') == 0;
-}
+const isInternalEvent = (type: string) => type[0] == '_';
 
-function isEditorFeature(o) {
-    return o && o.class; // || (o.properties && o.properties['@ns:com:here:editor'].type) || o.objType;
+const isEditorFeature = (o: EditFeature | Feature| EvDetails) => o && (<EditFeature>o).class;
 
-    // return o && o.objType;
-    // return o && o.type && !o.type.indexOf('HERE_')
-}
+type EvDetails = {[prop:string]:any};
 
 type DisplayEvent = any;
 
@@ -70,13 +64,16 @@ class EventHandler {
 
         '_layerAdd', '_layerRemove',
 
-        '_clearOverlay'
+        '_clearOverlay',
+
+        '_beforeSubmit', '_afterSubmit'
+
     ]).sync(true);
 
     constructor() {
     }
 
-    trigger(ev: DisplayEvent, object?, evType?: string) {
+    trigger(ev: DisplayEvent, object?: Feature | EditFeature | EvDetails, evType?: string) {
         const that = this;
         const type = evType || ev.type || ev;
         let triggered;
@@ -119,7 +116,7 @@ class EventHandler {
         return triggered;
     };
 
-    bind(type: string, callback: EventCallback, context?) {
+    add(type: string, callback: EventCallback, context?) {
         return this.listeners.add(type, callback, context);
     };
 

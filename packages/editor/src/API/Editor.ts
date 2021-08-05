@@ -108,7 +108,7 @@ const clearTiles = (internalEditor: InternalEditor) => {
     }
 };
 
-const commitCallback = (internalEditor: InternalEditor) => {
+const clear = (internalEditor: InternalEditor) => {
     clearTiles(internalEditor);
     internalEditor.objects.history.clear();
     internalEditor.display.refresh();
@@ -118,7 +118,6 @@ const commitChanges = (internalEditor: InternalEditor, modobjs, onSuccess, onErr
     if (!internalEditor.isCommitInProcess) {
         internalEditor.objects.selection.clearSelected();
         internalEditor.observers.change('ready', internalEditor.isCommitInProcess);
-
         internalEditor.isCommitInProcess = true;
 
         const featureSubmitter = new FeatureSubmitter(internalEditor);
@@ -280,7 +279,7 @@ export default class Editor {
 
         String(type).split(' ').forEach((t) => {
             if (supported.indexOf(t) > -1) {
-                listeners.bind.call(listeners, t, listener, context);
+                listeners.add.call(listeners, t, listener, context);
             } else {
                 JSUtils.dump(t + ' is not a valid event. Use: ' + supported.join(', '), 'warn');
             }
@@ -814,7 +813,7 @@ export default class Editor {
         while (steps--) {
             iEditor.objects.history.recoverViewport(-1, true);
         }
-        commitCallback(iEditor);
+        clear(iEditor);
     }
 
     /**
@@ -834,12 +833,13 @@ export default class Editor {
     getZoneSelector(): RangeSelector {
         return this.getRangeSelector();
     }
+
     /**
      * get the tool for selecting ranges on Navlink features.
      */
     getRangeSelector(): RangeSelector {
         const iEdit = this._i();
-        return iEdit._zs = iEdit._zs || new RangeSelector(iEdit);
+        return iEdit._rngSel = iEdit._rngSel || new RangeSelector(iEdit);
     }
 
     /**
@@ -922,7 +922,10 @@ export default class Editor {
 
         function cbCommitChange(idMap) {
             // show current view
-            commitCallback(iEditor);
+            clear(iEditor);
+
+            iEditor.listeners.trigger('_afterSubmit');
+
             onSuccess && onSuccess({
                 'permanentIDMap': idMap
             });
@@ -930,6 +933,7 @@ export default class Editor {
 
 
         function cbCommitChangeError(e) {
+            iEditor.listeners.trigger('_afterSubmit');
             // show current view including changes
             onError && onError(e);
         }
@@ -959,11 +963,9 @@ export default class Editor {
                 }
             }
 
-
-            if (modified) { // are objects modified or deleted ?
-                // clear simplified instances!
-                iEditor.objects.clear();
-
+            // are objects modified or deleted ?
+            if (modified) {
+                iEditor.listeners.trigger('_beforeSubmit');
                 commitChanges(iEditor, modobjs, cbCommitChange, cbCommitChangeError, transactionID);
                 return true;
             }

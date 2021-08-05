@@ -77,7 +77,7 @@ class TrEditor implements TurnRestrictionEditor {
             iEditor.listeners.remove('_clearOverlay', hideOnOverlayClear);
         };
 
-        iEditor.listeners.bind('_clearOverlay', hideOnOverlayClear);
+        iEditor.listeners.add('_clearOverlay', hideOnOverlayClear);
 
         this._l = navlink;
         this._i = index;

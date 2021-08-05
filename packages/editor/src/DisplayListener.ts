@@ -41,7 +41,7 @@ export default class DisplayListener {
         this.onStart = this.onStart.bind(this);
         this.onStop = this.onStop.bind(this);
 
-        HERE_WIKI.listeners.bind('_layerAdd', (ev) => {
+        HERE_WIKI.listeners.add('_layerAdd', (ev) => {
             // make sure ready observers are getting triggered in any case even if layer is ready already.
             this.observers.change('ready', false);
             this.display.setCenter(this.display.getCenter());
@@ -49,7 +49,7 @@ export default class DisplayListener {
             ev.detail.layer.addEventListener('viewportReady', this.onStop);
         });
 
-        HERE_WIKI.listeners.bind('_layerRemove', (ev) => {
+        HERE_WIKI.listeners.add('_layerRemove', (ev) => {
             ev.detail.layer.removeEventListener('viewportReady', this.onStop);
         });
     }

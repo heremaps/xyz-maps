@@ -41,7 +41,7 @@ export default class InternalEditor {
     _config: EditorOptions;
 
     isCommitInProcess: boolean = false;
-    _zs: RangeSelector;
+    _rngSel: RangeSelector;
     _db: DrawingBoard;
 
     display: Display;
@@ -96,7 +96,7 @@ export default class InternalEditor {
             HERE_WIKI.listeners.trigger(ERROR_EVENT, errorMsg);
         }
 
-        HERE_WIKI.listeners.bind('_layerAdd', (ev) => {
+        HERE_WIKI.listeners.add('_layerAdd', (ev) => {
             const layer = ev.detail.layer; // ev.target;
             const provider = layer.getProvider();
 

@@ -149,6 +149,8 @@ export default class SelectionHandler {
 
         iEditor.transformer.hide();
 
+        iEditor._rngSel?.hide();
+
         return sel;
     };
 }

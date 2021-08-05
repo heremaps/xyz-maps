@@ -29,6 +29,7 @@ import {TileLayer, FeatureProvider, EditableFeatureProvider, EditableRemoteTileP
 import {Map, JSUtils, geotools} from '@here/xyz-maps-common';
 import {getPntOnLine, intersectBBox} from '../geometry';
 import {Navlink} from './link/Navlink';
+import InternalEditor from '../IEditor';
 
 type NavlinkIds = String | Number;
 
@@ -79,7 +80,7 @@ class ObjectManager {
     selection;
     overlay: ObjectOverlay;
 
-    constructor(HERE_WIKI, display) {
+    constructor(HERE_WIKI: InternalEditor, display) {
         const objManager = this;
 
         objManager.iEdit = HERE_WIKI;
@@ -104,12 +105,12 @@ class ObjectManager {
 
         objManager.pointerListener = objManager.pointerListener.bind(objManager);
 
-        HERE_WIKI.listeners.bind('_layerAdd', (ev) => {
+        HERE_WIKI.listeners.add('_layerAdd', (ev) => {
             const layer = ev.detail.layer;
             layers.set(layer.id, layer);
         });
 
-        HERE_WIKI.listeners.bind('_layerRemove', (ev) => {
+        HERE_WIKI.listeners.add('_layerRemove', (ev) => {
             const layer = ev.detail.layer;
             layers.delete(layer.id);
             // CLEAR SELECTED OBJECTS OF LAYER IF NEEDED..
@@ -223,11 +224,6 @@ class ObjectManager {
             display.removeEventListener(POINTER_EVENTS, globalPointerListener);
             display.removeEventListener(LAYER_EVENTS, arrangeOverlay);
         }
-    };
-
-    // clear/cleanup simplified instances!
-    clear() {
-
     };
 
     get(obj, layer?) {
