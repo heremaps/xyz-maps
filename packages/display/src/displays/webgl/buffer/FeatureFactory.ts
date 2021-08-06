@@ -233,6 +233,7 @@ export class FeatureFactory {
         let strokeLinecap;
         let strokeLinejoin;
         let extrude;
+        let extrudeBase;
         let width;
         let height;
         let zGrouped;
@@ -379,8 +380,9 @@ export class FeatureFactory {
                             continue;
                         }
                         extrude = getValue('extrude', style, feature, level);
+                        extrudeBase = getValue('extrudeBase', style, feature, level);
 
-                        if (typeof extrude == 'number') {
+                        if (typeof extrude == 'number' || extrudeBase) {
                             groupId = 'E';
                             type = 'Extrude';
                         } else {
@@ -661,7 +663,8 @@ export class FeatureFactory {
                             <GeoJSONCoordinate[][]>coordinates,
                             tile,
                             tileSize,
-                            extrude
+                            extrude,
+                            extrudeBase
                         );
                     } else if (type == 'Polygon') {
                         flatPoly = addPolygon(aPosition, <GeoJSONCoordinate[][]>coordinates, tile, tileSize);

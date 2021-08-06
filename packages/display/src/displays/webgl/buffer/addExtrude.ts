@@ -41,7 +41,8 @@ const addExterior = (
     normals: FlexArray,
     vIndex: number[],
     tileSize: number,
-    extrude: number
+    extrude: number,
+    extrudeBase: number
 ) => {
     const holes = flatPolygon.holes;
     const verts = flatPolygon.vertices;
@@ -50,6 +51,8 @@ const addExterior = (
     let holeIndex = 0;
     let nextHole = start + holes[holeIndex] * 3 - 6;
     let clockwise = signedArea(vertex.data, start, nextHole ? nextHole + 3 : stop) >= 0;
+
+    extrudeBase = extrudeBase || 0;
 
     while (start < stop) {
         let x1;
@@ -89,9 +92,9 @@ const addExterior = (
 
             vertex.push(
                 x1, y1, extrude,
-                x1, y1, 0,
+                x1, y1, extrudeBase,
                 x2, y2, extrude,
-                x2, y2, 0,
+                x2, y2, extrudeBase,
             );
 
             // normalize + cross
@@ -143,7 +146,8 @@ export const addExtrude = (
     coordinates: Coordinate[][],
     tile: Tile,
     tileSize: number,
-    extrude: number
+    extrude: number,
+    extrudeBase: number
 ): FlatPolygon[] => {
     let v = vertex.length;
     const flatPolygon = addPolygon(vertex, coordinates, tile, tileSize, extrude);
@@ -156,7 +160,7 @@ export const addExtrude = (
 
     if (extrude) {
         for (let flat of flatPolygon) {
-            addExterior(flat, vertex, normals, vIndex, tileSize, extrude);
+            addExterior(flat, vertex, normals, vIndex, tileSize, extrude, extrudeBase);
         }
     }
 

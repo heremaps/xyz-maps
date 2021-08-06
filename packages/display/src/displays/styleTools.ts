@@ -55,7 +55,10 @@ const allowedProperties = {
     'collide': 1,
     'offset': 1,
     'from': 1,
-    'to': 1
+    'to': 1,
+    'checkLineSpace': 1,
+    'extrude': 1,
+    'extrudeBase': 1
 };
 
 const textRefCache = new Map();

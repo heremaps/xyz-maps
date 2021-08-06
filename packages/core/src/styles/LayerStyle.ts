@@ -497,9 +497,19 @@ export interface Style {
 
     /**
      * Extrude a Polygon or MultiPolygon geometry in meters.
-     * This attribute is validate for Polygon only.
+     * This attribute is validate for styles of type "Polygon" only.
      */
     extrude?: number | StyleValueFunction<number> | StyleZoomRange<number>;
+
+    /**
+     * The base of the Extrude in meters.
+     * The extrudeBase is defined from the ground to the bottom of the extruded Polygon in meters.
+     * The extrudeBase must be less or equal then {@link extrude}.
+     * This attribute is validate for styles of type "Polygon" only.
+     *
+     * @defaultValue 0
+     */
+    extrudeBase?: number | StyleValueFunction<number> | StyleZoomRange<number>;
 }
 
 export type StyleGroupMap = { [id: string]: StyleGroup }
