@@ -26,7 +26,9 @@ const display = new Map(document.getElementById('map'), {
                         type: 'Polygon',
                         fill: '#999999',
                         // define extrude in meters to display polygons with extrusion
-                        extrude: (feature) => feature.properties.height || 25
+                        extrude: (feature) => feature.properties.height || 0,
+                        // define the base of the extrusion in meters offset from the ground
+                        extrudeBase: (feature) => feature.properties.min_height || 0
                     }]
                 },
 
