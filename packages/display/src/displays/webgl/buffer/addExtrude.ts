@@ -154,9 +154,12 @@ export const addExtrude = (
         v += 3;
     }
 
-    for (let flat of flatPolygon) {
-        addExterior(flat, vertex, normals, vIndex, tileSize, extrude);
+    if (extrude) {
+        for (let flat of flatPolygon) {
+            addExterior(flat, vertex, normals, vIndex, tileSize, extrude);
+        }
     }
+
 
     return flatPolygon;
 };

@@ -380,7 +380,7 @@ export class FeatureFactory {
                         }
                         extrude = getValue('extrude', style, feature, level);
 
-                        if (extrude) {
+                        if (typeof extrude == 'number') {
                             groupId = 'E';
                             type = 'Extrude';
                         } else {

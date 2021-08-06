@@ -29,6 +29,7 @@ export type FlatPolygon = {
 }
 
 const flatten = (vertices: FlexArray, data: Coordinate[][], tile: Tile, tileSize: number, height?: number) => {
+    const hasHeight = typeof height == 'number';
     const start = vertices.length;
     const holes = [];
     let holeIndex = 0;
@@ -38,7 +39,7 @@ const flatten = (vertices: FlexArray, data: Coordinate[][], tile: Tile, tileSize
             x = tile.lon2x(data[i][j][0], tileSize);
             y = tile.lat2y(data[i][j][1], tileSize);
 
-            if (height) {
+            if (hasHeight) {
                 vertices.push(x, y, height);
             } else {
                 vertices.push(x, y);
@@ -51,7 +52,7 @@ const flatten = (vertices: FlexArray, data: Coordinate[][], tile: Tile, tileSize
     }
 
     return {
-        dimensions: height ? 3 : 2,
+        dimensions: hasHeight ? 3 : 2,
         vertices: vertices,
         holes: holes,
         start: start,
