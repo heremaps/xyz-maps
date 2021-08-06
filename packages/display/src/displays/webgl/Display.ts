@@ -368,7 +368,8 @@ class WebGlDisplay extends BasicDisplay {
         }
 
         render.setPass(PASS.ALPHA);
-        tileBuffers = tileBuffers.sort((a, b) => a.z - b.z);
+        // sort by zIndex and alpha/post alpha.
+        tileBuffers = tileBuffers.sort((buf1, buf2) => 10 * (buf1.z - buf2.z) + buf1.b.alpha - buf2.b.alpha);
         let layerZIndex = 0;
 
         do {
