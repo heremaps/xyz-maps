@@ -34,7 +34,7 @@ class GlyphAtlas {
     private y: number = 0;
     private style: FontStyle;
     private rowHeight: number;
-    private letterHeight: number;
+    letterHeight: number;
     private maxWidth: number;
     private maxHeight: number;
     scale: number;

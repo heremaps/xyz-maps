@@ -22,7 +22,7 @@ import {GeometryBuffer} from './GeometryBuffer';
 import {getValue, parseStyleGroup} from '../../styleTools';
 import {Tile, webMercator, StyleGroup, Feature, TileLayer} from '@here/xyz-maps-core';
 import {Layer} from '../../Layers';
-import {FeatureFactory, CollisionGroup} from './FeatureFactory';
+import {FeatureFactory, CollisionGroup, GroupMap} from './FeatureFactory';
 import {TemplateBuffer} from './templates/TemplateBuffer';
 import {GlyphTexture} from '../GlyphTexture';
 
@@ -85,7 +85,7 @@ const createBuffer = (
     onDone: (data: GeometryBuffer[], imagesLoaded: boolean) => void
 ) => {
     const {layer} = renderLayer;
-    const groups = {};
+    const groups: GroupMap = {};
     let allIconsReady = true;
 
     const task = taskManager.create({
@@ -133,26 +133,18 @@ const createBuffer = (
             let buffers = [];
             let geoBuffer: GeometryBuffer;
             let grpBuffer: TemplateBuffer;
-            let zGroup;
-            let grp;
-            let type;
-            let shared;
-            let stroke;
-            let strokeWidth;
-            let vertexType;
-
             let zIndex: string | number;
+
             for (zIndex in groups) {
-                zGroup = groups[zIndex];
+                const zGroup = groups[zIndex];
 
                 if (zGroup) {
-                    for (let g = 0; g < zGroup.length; g++) {
-                        grp = zGroup[g];
-                        type = grp.type;
-                        shared = grp.shared;
-                        stroke = shared.stroke;
-                        strokeWidth = shared.strokeWidth;
-                        vertexType = type;
+                    for (let grp of zGroup.groups) {
+                        let type = grp.type;
+                        let shared = grp.shared;
+                        let stroke = shared.stroke;
+                        let strokeWidth = shared.strokeWidth;
+                        let vertexType = type;
                         grpBuffer = grp.buffer;
 
                         if (vertexType == 'Text') {

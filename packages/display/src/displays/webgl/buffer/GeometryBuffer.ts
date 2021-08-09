@@ -22,7 +22,7 @@ import {glType} from './glType';
 import {Texture} from '../Texture';
 import {GlyphTexture} from '../GlyphTexture';
 
-type Uniform = number | number[] | boolean;
+type Uniform = number | number[] | Float32Array | Int32Array | boolean;
 
 type Index = {
     data: Uint16Array | Uint32Array

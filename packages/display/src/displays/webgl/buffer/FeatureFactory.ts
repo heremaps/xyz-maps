@@ -38,6 +38,8 @@ import {PolygonBuffer} from './templates/PolygonBuffer';
 import {ExtrudeBuffer} from './templates/ExtrudeBuffer';
 import {toPresentationFormB} from '../arabic';
 import {Feature, GeoJSONCoordinate as Coordinate, GeoJSONCoordinate} from '@here/xyz-maps-core';
+import {Texture} from '../Texture';
+import {TemplateBuffer} from './templates/TemplateBuffer';
 
 
 const DEFAULT_STROKE_WIDTH = 1;
@@ -60,13 +62,46 @@ export type CollisionGroup = {
     height?: number;
 };
 
+type DrawGroup = {
+    type: string
+    zLayer: number
+    shared: {
+        unit: string,
+        font: string,
+        fill: Float32Array,
+        opacity: number,
+        stroke: Float32Array,
+        strokeWidth: number,
+        strokeLinecap: string,
+        strokeLinejoin: string,
+        strokeDasharray: number[],
+        width: number,
+        height: number,
+        rotation: number,
+        offsetX: number,
+        offsetY: number,
+        offsetUnit: string,
+        alignment: string
+    }
+    texture?: Texture
+    buffer?: TemplateBuffer
+};
+
+type ZDrawGroup = {
+    index: { [grpId: string]: number },
+    groups: DrawGroup[]
+}
+
+export type GroupMap = { [zIndex: string]: ZDrawGroup };
+
+
 export class FeatureFactory {
     private readonly gl: WebGLRenderingContext;
     private icons: IconManager;
     private dpr: number;
     private dashes: DashAtlas;
     private tile: any;
-    private groups: any;
+    private groups: GroupMap;
     private tileSize: number;
     private lineFactory: LineFactory;
     private iconsLoaded: boolean;
@@ -84,7 +119,7 @@ export class FeatureFactory {
         this.lineFactory = new LineFactory(gl);
     }
 
-    init(tile, groups, tileSize: number, zoom: number) {
+    init(tile, groups: GroupMap, tileSize: number, zoom: number) {
         this.tile = tile;
         this.groups = groups;
         this.tileSize = tileSize;
@@ -236,9 +271,9 @@ export class FeatureFactory {
         let extrudeBase;
         let width;
         let height;
-        let zGrouped;
+        let zGrouped: ZDrawGroup;
         let groupId;
-        let group;
+        let group: DrawGroup;
         let index;
         let offsetX;
         let offsetY;
@@ -485,12 +520,12 @@ export class FeatureFactory {
                 groupId = zLayer + ':' + groupId;
             }
 
-            zGrouped = groups[zIndex] = groups[zIndex] || [];
-            index = zGrouped[groupId];
+            zGrouped = groups[zIndex] = groups[zIndex] || {index: {}, groups: []};
+            index = zGrouped.index[groupId];
 
             if (index == UNDEF) {
-                index = zGrouped[groupId] = zGrouped.length;
-                group = zGrouped[index] = {
+                index = zGrouped.index[groupId] = zGrouped.groups.length;
+                group = zGrouped.groups[index] = {
                     type: type,
                     zLayer: zLayer,
                     shared: {
@@ -514,7 +549,7 @@ export class FeatureFactory {
                     // ,index: []
                 };
             } else {
-                group = zGrouped[index];
+                group = zGrouped.groups[index];
             }
 
             if (geomType == 'Point') {
@@ -584,7 +619,7 @@ export class FeatureFactory {
                                 texture = group.texture = new GlyphTexture(this.gl, style);
                                 group.buffer = new TextBuffer();
                             }
-                            const glyphAtlas = texture.getAtlas();
+                            const glyphAtlas = (<GlyphTexture>texture).getAtlas();
                             w = glyphAtlas.getTextWidth(text);
                             h = glyphAtlas.letterHeight;
                         } else {
