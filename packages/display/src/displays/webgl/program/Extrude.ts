@@ -59,16 +59,13 @@ class ExtrudeProgram extends Program {
             // gl.stencilOp(gl.KEEP, gl.KEEP, gl.INCR);
         }
 
+        // handle coplanar lines and polygons (stroke of extruded polygons)
         gl.polygonOffset(1, 1);
         gl.enable(gl.POLYGON_OFFSET_FILL);
     }
 
     draw(geoBuffer, buffers) {
         const {gl} = this;
-
-        // if (geoBuffer.groups.length == 2) {
-        //     gl.enable(gl.POLYGON_OFFSET_FILL);
-        // }
 
         if (this._pass == PASS.ALPHA) {
             // depth pass only

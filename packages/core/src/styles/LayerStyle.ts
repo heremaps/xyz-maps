@@ -53,9 +53,8 @@ export type StyleValueFunction<Type> = (feature: Feature, zoom?: number) => Type
 export type StyleZoomRange<Type> = { [zoom: number]: Type }
 
 /**
- * Style object represents supported style attributes of Features. It indicates how a symbolizer in feature should be rendered.
- *
- * A style object should always include "zIndex" and "type" attributes, and each type of symbolizer should include its own type-specific attributes:
+ * The Style object defines how certain features should be rendered.
+ * A style object must always contain the attributes "zIndex" and "type" as well as the mandatory attributes of the corresponding "type":
  * - Circle: "radius" must be included and either "fill" or "stroke" should be included.
  * - Rect: "width" must be included and "height" will be set with the same value as "width" if only "width" is present. Either "fill" or "stroke" should be included
  * - Text: "text" or "textRef" should be included and "fill" or "stroke" should also be included for text color
@@ -119,12 +118,22 @@ export interface Style {
     /**
      * Sets the color to fill the shape.
      * This attribute is valid for Circle, Rect, Text and Polygon.
+     *
+     * The color can be specified in the following ways:
+     * - CSS color names: "red"
+     * - RGB(A) values: "rgba(255,0,0,1.0)"
+     * - hexadecimal values: "#ff0000"
      */
     fill?: string | StyleValueFunction<string> | StyleZoomRange<string>;
 
     /**
      * Sets the stroke color of the shape.
      * This attribute is valid for Circle, Rect, Line, Text and Polygon.
+     *
+     * The color can be specified in the following ways:
+     * - CSS color names: "red"
+     * - RGB(A) values: "rgba(255,0,0,1.0)"
+     * - hexadecimal values: "#ff0000"
      */
     stroke?: string | StyleValueFunction<string> | StyleZoomRange<string>;
 

@@ -204,10 +204,6 @@ class Program {
         const gl = this.gl;
         const {texture, groups} = geoBuffer;
 
-        // index = index || geoBuffer.index;
-
-        // mode = mode || geoBuffer.mode || this.mode;
-
         // console.log(
         //     this.name,
         //     'DEPTH_TEST', gl.getParameter(gl.DEPTH_TEST),
@@ -235,14 +231,6 @@ class Program {
                 gl.drawArrays(mode, (<ArrayGrp>grp).arrays.first, (<ArrayGrp>grp).arrays.count);
             }
         }
-
-
-        // if (index) {
-        //     this.initIndex(index, buffers);
-        //     gl.drawElements(mode, index.length, index.type, 0);
-        // } else {
-        //     gl.drawArrays(mode, geoBuffer.arrays.first, geoBuffer.arrays.count);
-        // }
     };
 
     private setStates(scissor: boolean, blend: boolean, depth: boolean, stencil: boolean) {
