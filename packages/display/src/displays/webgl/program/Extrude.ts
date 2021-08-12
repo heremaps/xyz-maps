@@ -58,18 +58,28 @@ class ExtrudeProgram extends Program {
             // gl.stencilFunc(gl.EQUAL, 0, 0xff);
             // gl.stencilOp(gl.KEEP, gl.KEEP, gl.INCR);
         }
+
+        gl.polygonOffset(1, 1);
+        gl.enable(gl.POLYGON_OFFSET_FILL);
     }
 
-    draw(group, buffers) {
+    draw(geoBuffer, buffers) {
         const {gl} = this;
+
+        // if (geoBuffer.groups.length == 2) {
+        //     gl.enable(gl.POLYGON_OFFSET_FILL);
+        // }
+
         if (this._pass == PASS.ALPHA) {
             // depth pass only
             gl.colorMask(false, false, false, false);
-            super.draw(group, buffers);
+            super.draw(geoBuffer, buffers);
             gl.colorMask(true, true, true, false);
         } else {
-            super.draw(group, buffers);
+            super.draw(geoBuffer, buffers);
         }
+
+        gl.disable(gl.POLYGON_OFFSET_FILL);
     }
 }
 

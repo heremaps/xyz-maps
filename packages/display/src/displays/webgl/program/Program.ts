@@ -21,6 +21,8 @@ import {createProgram} from '../glTools';
 import {GLStates, PASS} from './GLStates';
 // @ts-ignore
 import introVertex from '../glsl/intro_vertex.glsl';
+import {ArrayGrp, GeometryBuffer, IndexData, IndexGrp} from '../buffer/GeometryBuffer';
+import {BufferCache} from '../GLRender';
 
 let UNDEF;
 
@@ -146,7 +148,7 @@ class Program {
         }
     }
 
-    initAttributes(attributes, buffers) {
+    initAttributes(attributes, buffers: BufferCache) {
         const gl = this.gl;
         let attr;
         let position;
@@ -173,7 +175,7 @@ class Program {
         }
     }
 
-    initIndex(index, buffers) {
+    private initIndex(index: IndexData, buffers: BufferCache) {
         const gl = this.gl;
         let indexBuffer = buffers.get(index);
         let ready = true;
@@ -198,10 +200,13 @@ class Program {
         return pass == PASS.OPAQUE;
     }
 
-    draw(group, buffers) {
+    draw(geoBuffer: GeometryBuffer, buffers: BufferCache) {
         const gl = this.gl;
-        const {index, texture} = group;
-        const mode = group.mode || this.mode;
+        const {texture, groups} = geoBuffer;
+
+        // index = index || geoBuffer.index;
+
+        // mode = mode || geoBuffer.mode || this.mode;
 
         // console.log(
         //     this.name,
@@ -215,12 +220,29 @@ class Program {
             gl.activeTexture(gl.TEXTURE0);
             texture.bind();
         }
-        if (index) {
-            this.initIndex(index, buffers);
-            gl.drawElements(mode, index.length, index.type, 0);
-        } else {
-            gl.drawArrays(mode, group.arrays.first, group.arrays.count);
+
+        for (let grp of groups) {
+            let mode = grp.mode || this.mode;
+
+            if (grp.uniforms) {
+                this.initUniforms(grp.uniforms);
+            }
+
+            if ((<IndexGrp>grp).index) {
+                this.initIndex((<IndexGrp>grp).index, buffers);
+                gl.drawElements(mode, (<IndexGrp>grp).index.length, (<IndexGrp>grp).index.type, 0);
+            } else {
+                gl.drawArrays(mode, (<ArrayGrp>grp).arrays.first, (<ArrayGrp>grp).arrays.count);
+            }
         }
+
+
+        // if (index) {
+        //     this.initIndex(index, buffers);
+        //     gl.drawElements(mode, index.length, index.type, 0);
+        // } else {
+        //     gl.drawArrays(mode, geoBuffer.arrays.first, geoBuffer.arrays.count);
+        // }
     };
 
     private setStates(scissor: boolean, blend: boolean, depth: boolean, stencil: boolean) {

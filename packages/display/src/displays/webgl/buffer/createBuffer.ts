@@ -187,7 +187,17 @@ const createBuffer = (
 
                             if (type == 'Extrude') {
                                 geoBuffer.addUniform('u_zoom', extrudeScale);
+                                geoBuffer.addUniform('u_strokePass', 0);
                                 geoBuffer.scissor = false;
+
+                                if (shared.stroke) {
+                                    const indexGroup = geoBuffer.addGroup(grp.extrudeStrokeIndex, grpBuffer.i32, 1);
+                                    indexGroup.uniforms = {
+                                        'u_strokePass': 1,
+                                        'u_stroke': shared.stroke
+                                    };
+                                    // geoBuffer.addUniform('u_stroke', shared.stroke);
+                                }
                             }
                         } else {
                             if (type == 'Text' || type == 'Icon') {

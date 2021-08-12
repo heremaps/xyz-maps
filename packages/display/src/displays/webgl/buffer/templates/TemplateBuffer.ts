@@ -80,7 +80,7 @@ export class TemplateBuffer {
     finalize(type: string): GeometryBuffer | null {
         const buffer = this;
         const {attributes} = buffer;
-        let geoBuffer;
+        let geoBuffer: GeometryBuffer;
 
         if (buffer.hasIndex()) {
             const index = buffer.index();

@@ -132,7 +132,9 @@ export interface Style {
      * Sets the width of the stroke.
      * This attribute is valid for Circle, Rect, Line, Text and Polygon.
      * The unit of strokeWidth is defined in pixels.
+     * For Polygons that are using {@link extrude}, the maximum possible strokeWidth is 1.0 pixel.
      * For Styles of type Line the strokeWidth can also be defined in meters by using a string: "$\{width\}m".
+     *
      * @example
      * ```typescript
      * // define a Line that has a with of 1 meter

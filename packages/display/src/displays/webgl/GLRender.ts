@@ -35,7 +35,7 @@ import ExtrudeProgram from './program/Extrude';
 import Program from './program/Program';
 
 import {createGridTextBuffer, createGridTileBuffer, createTileBuffer} from './buffer/debugTileBuffer';
-import {GeometryBuffer} from './buffer/GeometryBuffer';
+import {GeometryBuffer, IndexData, IndexGrp} from './buffer/GeometryBuffer';
 
 import {GLStates, PASS} from './program/GLStates';
 import {TileBufferData} from './Display';
@@ -56,6 +56,7 @@ import {
     translate
 } from 'gl-matrix/mat4';
 import BasicTile from '../BasicTile';
+import {Attribute} from './buffer/Attribute';
 
 const mat4 = {create, lookAt, multiply, perspective, rotateX, rotateZ, translate, scale, clone, copy, invert, identity};
 
@@ -77,6 +78,7 @@ const DEBUG_GRID_FONT = {
 
 export type RenderOptions = WebGLContextAttributes;
 
+export type BufferCache = WeakMap<Attribute | IndexData, WebGLBuffer>;
 
 export class GLRender implements BasicRender {
     icons: IconManager;
@@ -115,7 +117,7 @@ export class GLRender implements BasicRender {
     private depthFnc: GLenum;
     pass: PASS;
 
-    buffers = new WeakMap();
+    buffers: BufferCache = new WeakMap();
     gl: WebGLRenderingContext;
     private ctxAttr: WebGLContextAttributes;
     fixedView: number;
@@ -333,14 +335,12 @@ export class GLRender implements BasicRender {
     }
 
 
-    initBuffers(attributes) {
+    initBuffers(attributes: { [name: string]: Attribute }) {
         const gl = this.gl;
-        let attr;
-        let buf;
 
         for (let name in attributes) {
-            attr = attributes[name];
-            buf = this.buffers.get(attr);
+            let attr = attributes[name];
+            let buf = this.buffers.get(attr);
 
             if (!buf) {
                 buf = gl.createBuffer();
@@ -357,7 +357,7 @@ export class GLRender implements BasicRender {
 
     private prog: Program;
 
-    useProgram(prog): boolean {
+    useProgram(prog: Program): boolean {
         const activeProgam = this.prog;
 
         if (activeProgam != prog) {
@@ -409,7 +409,7 @@ export class GLRender implements BasicRender {
 
     deleteBuffer(buffer: GeometryBuffer) {
         const {buffers, gl} = this;
-        const {attributes, texture, index} = buffer;
+        const {attributes, texture} = buffer;
 
         if (texture) {
             texture.destroy();
@@ -421,8 +421,11 @@ export class GLRender implements BasicRender {
             gl.deleteBuffer(glBuffer);
         }
 
-        if (index) {
-            gl.deleteBuffer(buffers.get(index));
+        for (let grp of buffer.groups) {
+            const index = (<IndexGrp>grp).index;
+            if (index) {
+                gl.deleteBuffer(buffers.get(index));
+            }
         }
     }
 

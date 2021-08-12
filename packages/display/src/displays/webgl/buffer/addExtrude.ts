@@ -42,7 +42,8 @@ const addExterior = (
     vIndex: number[],
     tileSize: number,
     extrude: number,
-    extrudeBase: number
+    extrudeBase: number,
+    strokeIndex?: number[]
 ) => {
     const holes = flatPolygon.holes;
     const verts = flatPolygon.vertices;
@@ -73,6 +74,7 @@ const addExterior = (
             y2 = verts.get(start + 4);
         }
 
+
         let dx = Math.round(x1) - Math.round(x2);
         let dy = Math.round(y1) - Math.round(y2);
 
@@ -89,6 +91,8 @@ const addExterior = (
             vIndex[vIndex.length] = vi + 3;
             vIndex[vIndex.length] = vi + 2;
             vIndex[vIndex.length] = vi + 1;
+
+            strokeIndex?.push(vi, vi + 1, vi + 2, vi + 3, vi, vi + 2, vi + 1, vi + 3);
 
             vertex.push(
                 x1, y1, extrude,
@@ -147,7 +151,8 @@ export const addExtrude = (
     tile: Tile,
     tileSize: number,
     extrude: number,
-    extrudeBase: number
+    extrudeBase: number,
+    strokeIndex?: number[]
 ): FlatPolygon[] => {
     let v = vertex.length;
     const flatPolygon = addPolygon(vertex, coordinates, tile, tileSize, extrude);
@@ -160,7 +165,7 @@ export const addExtrude = (
 
     if (extrude) {
         for (let flat of flatPolygon) {
-            addExterior(flat, vertex, normals, vIndex, tileSize, extrude, extrudeBase);
+            addExterior(flat, vertex, normals, vIndex, tileSize, extrude, extrudeBase, strokeIndex);
         }
     }
 

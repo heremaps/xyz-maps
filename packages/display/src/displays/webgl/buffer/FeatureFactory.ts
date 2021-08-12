@@ -83,8 +83,9 @@ type DrawGroup = {
         offsetUnit: string,
         alignment: string
     }
-    texture?: Texture
-    buffer?: TemplateBuffer
+    texture?: Texture,
+    buffer?: TemplateBuffer,
+    extrudeStrokeIndex?: number []
 };
 
 type ZDrawGroup = {
@@ -691,6 +692,12 @@ export class FeatureFactory {
                     flatPolyStart = aPosition.length;
 
                     if (type == 'Extrude') {
+                        let strokeIndex;
+
+                        if (stroke) {
+                            strokeIndex = group.extrudeStrokeIndex = group.extrudeStrokeIndex || [];
+                        }
+
                         flatPoly = addExtrude(
                             aPosition,
                             attributes.a_normal.data,
@@ -699,7 +706,8 @@ export class FeatureFactory {
                             tile,
                             tileSize,
                             extrude,
-                            extrudeBase
+                            extrudeBase,
+                            strokeIndex
                         );
                     } else if (type == 'Polygon') {
                         flatPoly = addPolygon(aPosition, <GeoJSONCoordinate[][]>coordinates, tile, tileSize);

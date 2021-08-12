@@ -24,18 +24,28 @@ import {GlyphTexture} from '../GlyphTexture';
 
 type Uniform = number | number[] | Float32Array | Int32Array | boolean;
 
-type Index = {
+export type IndexData = {
     data: Uint16Array | Uint32Array
     type: number;
     length: number;
 };
 
-type Arrays = {
+export type ArrayData = {
     first: number;
     count: number;
     mode?: number;
 };
 
+export type ArrayGrp = {
+    arrays: ArrayData,
+    mode?: number,
+    uniforms?: { [name: string]: Uniform }
+};
+export type IndexGrp = {
+    index: IndexData,
+    mode?: number,
+    uniforms?: { [name: string]: Uniform }
+};
 
 const GL_UNSIGNED_SHORT = 0x1403;
 const GL_UNSIGNED_INT = 0x1405;
@@ -43,8 +53,6 @@ const GL_UNSIGNED_INT = 0x1405;
 let UNDEF;
 
 class GeometryBuffer {
-    // groups: GeometryGroup[] = [];
-
     private size: number;
 
     attributes: { [name: string]: Attribute } = {};
@@ -54,8 +62,6 @@ class GeometryBuffer {
     texture?: Texture | GlyphTexture;
 
     type: string;
-    arrays?: Arrays;
-    index?: Index;
 
     alpha: number;
     zIndex?: number;
@@ -66,33 +72,53 @@ class GeometryBuffer {
 
     flat: boolean = true;
 
-    constructor(index?: Arrays | number[], type?: string, i32?: boolean) {
+
+    groups: (IndexGrp | ArrayGrp)[];
+
+
+    constructor(index?: ArrayData | number[], type?: string, i32?: boolean) {
+        this.groups = [];
+
         if (index) {
-            if (index instanceof Array) {
-                this.setIndex(index, i32);
-            } else {
-                this.setArrays(index);
-            }
+            this.addGroup(index, i32);
             this.type = type;
         }
     }
 
-    setIndex(index: number[], i32?: boolean) {
-        this.index = i32 ?
-            {
+    private createIndex(index: number[], i32?: boolean) {
+        return {
+            index: i32 ? {
                 data: new Uint32Array(index),
                 type: GL_UNSIGNED_INT,
                 length: index.length
-            }
-            : {
+            } : {
                 data: new Uint16Array(index),
                 type: GL_UNSIGNED_SHORT,
                 length: index.length
-            };
+            }
+        };
     }
 
-    setArrays(arrays: Arrays) {
-        this.arrays = arrays;
+    private createArrays(arrays: ArrayData) {
+        // this.arrays = arrays;
+        return {arrays};
+    }
+
+    addGroup(grp: ArrayData | number[], i32?: boolean, mode?: number): IndexGrp | ArrayGrp {
+        if (grp) {
+            let group: IndexGrp | ArrayGrp;
+
+            if (Array.isArray(grp)) {
+                group = this.createIndex(grp, i32);
+            } else {
+                group = this.createArrays(grp);
+            }
+
+            if (mode) {
+                group.mode = mode;
+            }
+            return this.groups[this.groups.length] = group;
+        }
     }
 
     addUniform(name: string, uniform: Uniform) {
