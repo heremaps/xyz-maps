@@ -241,6 +241,10 @@ export class GLRender implements BasicRender {
             Icon: new IconProgram(gl, devicePixelRation)
         };
 
+        for (let name in this.programs) {
+            this.programs[name].setBufferCache(this.buffers);
+        }
+
         // gl.depthFunc(gl.LESS);
         gl.blendFunc(gl.SRC_ALPHA, gl.ONE_MINUS_SRC_ALPHA);
         // gl.blendFunc(gl.ONE, gl.ONE_MINUS_SRC_ALPHA);
@@ -438,7 +442,6 @@ export class GLRender implements BasicRender {
         tileScale?: number
     ): void {
         const gl = this.gl;
-        const buffers = this.buffers;
         const renderPass = this.pass;
         let bufAttributes;
         let program: Program;
@@ -487,12 +490,11 @@ export class GLRender implements BasicRender {
                     gl.disable(this.gl.DEPTH_TEST);
                 }
 
-                program.initAttributes(bufAttributes, buffers);
+                program.initAttributes(bufAttributes);
 
                 program.initUniforms(buffer.uniforms);
 
                 uLocation = program.uniforms;
-
 
                 gl.uniform1i(uLocation.u_fixedView, this.fixedView);
                 gl.uniform1f(uLocation.u_rotate, this.rz);
@@ -502,7 +504,7 @@ export class GLRender implements BasicRender {
                 gl.uniform1f(uLocation.u_tileScale, tileScale || 1);
                 gl.uniformMatrix4fv(uLocation.u_matrix, false, pMat || this.pMat);
 
-                program.draw(buffer, buffers);
+                program.draw(buffer);
             }
         }
         // else console.warn('no program found', group.type);

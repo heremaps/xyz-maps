@@ -74,7 +74,7 @@ class WebGlDisplay extends BasicDisplay {
 
     private collision: CollisionHandler;
 
-    constructor(mapEl, renderTileSize, devicePixelRatio, renderOptions?: RenderOptions) {
+    constructor(mapEl: HTMLElement, renderTileSize: number, devicePixelRatio: number|string, renderOptions?: RenderOptions) {
         super(mapEl, renderTileSize,
             // auto dpr is default for gl display
             !devicePixelRatio ? 'auto' : devicePixelRatio,
@@ -194,7 +194,7 @@ class WebGlDisplay extends BasicDisplay {
         }
     };
 
-    setTransform(scale, rotZ, rotX) {
+    setTransform(scale: number, rotZ: number, rotX: number) {
         if (this.s != scale || this.rz != rotZ || this.rx != rotX) {
             this.s = scale;
             this.rz = rotZ;
@@ -207,7 +207,7 @@ class WebGlDisplay extends BasicDisplay {
     }
 
 
-    prepareTile(tile, data, layer, dTile: GLTile, onDone) {
+    prepareTile(tile, data, layer: TileLayer, dTile: GLTile, onDone: (dTile: GLTile, layer: TileLayer) => void) {
         const display = this;
         const renderer = display.render;
         const gl = renderer.gl;

@@ -77,7 +77,7 @@ abstract class Display {
     cluster: LayerClusterer;
     grid: Grid;
 
-    constructor(mapEl: HTMLElement, tileSize, dpr: string | number, bucketPool, tileRenderer: BasicRender, previewLookAhead: number | [number, number]) {
+    constructor(mapEl: HTMLElement, tileSize: number, dpr: string | number, bucketPool, tileRenderer: BasicRender, previewLookAhead: number | [number, number]) {
         const display = this;
         const w = getElDimension(mapEl, 'width');
         const h = getElDimension(mapEl, 'height');
@@ -258,7 +258,7 @@ abstract class Display {
 
     protected abstract viewport(dirty?: boolean);
 
-    abstract prepareTile(tile: Tile, data, layer, dTile: BasicTile, onDone: (dTile: BasicTile, layer: TileLayer) => void);
+    abstract prepareTile(tile: Tile, data, layer: TileLayer, dTile: BasicTile, onDone: (dTile: BasicTile, layer: TileLayer) => void);
 
     abstract unproject(x: number, y: number): [number, number];
 

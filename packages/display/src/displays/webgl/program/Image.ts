@@ -25,6 +25,7 @@ import fragmentShader from '../glsl/image_fragment.glsl';
 import {JSUtils} from '@here/xyz-maps-common';
 import Program from './Program';
 import {GLStates} from './GLStates';
+import {GeometryBuffer} from '../buffer/GeometryBuffer';
 
 
 class ImageProgram extends Program {
@@ -40,15 +41,15 @@ class ImageProgram extends Program {
         super(gl, gl.TRIANGLES, vertexShader, fragmentShader, devicePixelRation);
     }
 
-    draw(group, buffers) {
+    draw(geoBuffer: GeometryBuffer) {
         const {gl} = this;
 
-        const {texture} = group;
+        const {texture} = geoBuffer;
         if (texture) {
             gl.activeTexture(gl.TEXTURE0);
             texture.bind();
         }
-        super.draw(group, buffers);
+        super.draw(geoBuffer);
     };
 }
 

@@ -129,25 +129,10 @@ class GeometryBuffer {
         return this.uniforms[name];
     }
 
-
-    // addGroup(group: GeometryGroup) {
-    //     const groups = this.groups;
-    //     groups[groups.length] = group;
-    // }
-
-    // createGroup(index: number[], type: string): GeometryGroup {
-    //     return new GeometryGroup(index, type, this.size > 65536);
-    // }
-
     addAttribute(name: string, attr: Attribute) {
-        let data = attr.data;
-
-        // if (attr.type) {
-        //     data = attr.data = new (<TypedArrayConstructor><unknown>attr.type)(attr.data);
-        // }
+        const {data} = attr;
 
         attr.type = glType(data);
-
 
         if (attr.stride == UNDEF) {
             attr.stride = 0;

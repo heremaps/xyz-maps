@@ -26,25 +26,23 @@ import {BufferCache} from '../GLRender';
 
 let UNDEF;
 
+type UniformMap = { [name: string]: WebGLUniformLocation };
+type AttributeMap = { [name: string]: number };
+
 class Program {
     prog: WebGLProgram;
-
     gl: WebGLRenderingContext;
-
     name: string;
+    attributes: AttributeMap = {};
+    uniforms: UniformMap = {};
 
     private usage;
+    private buffers: BufferCache;
 
     protected glStates: GLStates;
-
-    // protected attrLength: number = 0;
-    // protected attributeSetters = {};
-
-    attributes: { [name: string]: number } = {};
-    uniforms: { [name: string]: WebGLUniformLocation } = {};
     protected uniformSetters = {};
-
     protected mode: number; // gl.POINTS;
+
 
     private createUniformSetter(uInfo: WebGLActiveInfo, location: WebGLUniformLocation) {
         const gl = this.gl;
@@ -93,22 +91,12 @@ class Program {
 
         this.glStates = new GLStates({scissor: true, blend: false, depth: true});
 
-        // if (attributes) {
-        //
-        //     const aLength = attributes.length;
-        //     for (let a = 0; a < aLength; a++) {
-        //         render.attributes[attributes[a]] = gl.getAttribLocation(glProg, attributes[a]);
-        //     }
-        //     render.attrLength = aLength;
-        // }
-
         // setup attributes
         let activeAttributes = gl.getProgramParameter(glProg, gl.ACTIVE_ATTRIBUTES);
         for (let a = 0; a < activeAttributes; ++a) {
             let aInfo = gl.getActiveAttrib(glProg, a);
             const name = aInfo.name;
             this.attributes[name] = gl.getAttribLocation(glProg, name);
-            // attributeSetters[name] = this.createUniformSetter(uInfo, location);
         }
 
         // setup uniforms
@@ -126,6 +114,10 @@ class Program {
         }
     }
 
+    setBufferCache(buffers: BufferCache) {
+        this.buffers = buffers;
+    }
+
     getUniformLocation(name: string): WebGLUniformLocation {
         return this.uniforms[name];
     }
@@ -137,7 +129,7 @@ class Program {
         }
     }
 
-    initUniforms(uniforms) {
+    initUniforms(uniforms: UniformMap) {
         for (var name in uniforms) {
             let setter = this.uniformSetters[name];
             if (setter) {
@@ -148,7 +140,7 @@ class Program {
         }
     }
 
-    initAttributes(attributes, buffers: BufferCache) {
+    initAttributes(attributes: AttributeMap) {
         const gl = this.gl;
         let attr;
         let position;
@@ -162,10 +154,9 @@ class Program {
                 console.warn(this.name, ': attribute', name, 'not found');
             }
 
-            gl.bindBuffer(gl.ARRAY_BUFFER, buffers.get(attr));
+            gl.bindBuffer(gl.ARRAY_BUFFER, this.buffers.get(attr));
+
             // gl.bindBuffer(gl.ARRAY_BUFFER, buffers[name]);
-
-
             // gl.vertexAttribPointer(position, attr.size, attr.type, attr.normalized, 0, 0);
 
             gl.vertexAttribPointer(position, attr.size, attr.type, attr.normalized, attr.stride, attr.offset);
@@ -175,8 +166,8 @@ class Program {
         }
     }
 
-    private initIndex(index: IndexData, buffers: BufferCache) {
-        const gl = this.gl;
+    private initIndex(index: IndexData) {
+        const {buffers, gl} = this;
         let indexBuffer = buffers.get(index);
         let ready = true;
 
@@ -200,8 +191,8 @@ class Program {
         return pass == PASS.OPAQUE;
     }
 
-    draw(geoBuffer: GeometryBuffer, buffers: BufferCache) {
-        const gl = this.gl;
+    draw(geoBuffer: GeometryBuffer) {
+        const {gl} = this;
         const {texture, groups} = geoBuffer;
 
         // console.log(
@@ -225,7 +216,7 @@ class Program {
             }
 
             if ((<IndexGrp>grp).index) {
-                this.initIndex((<IndexGrp>grp).index, buffers);
+                this.initIndex((<IndexGrp>grp).index);
                 gl.drawElements(mode, (<IndexGrp>grp).index.length, (<IndexGrp>grp).index.type, 0);
             } else {
                 gl.drawArrays(mode, (<ArrayGrp>grp).arrays.first, (<ArrayGrp>grp).arrays.count);

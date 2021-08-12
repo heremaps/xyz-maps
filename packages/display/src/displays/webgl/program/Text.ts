@@ -24,6 +24,7 @@ import fragmentShader from '../glsl/text_fragment.glsl';
 
 import Program from './Program';
 import {GLStates, PASS} from './GLStates';
+import {GeometryBuffer} from '../buffer/GeometryBuffer';
 
 class TextProgram extends Program {
     name = 'Text';
@@ -54,14 +55,14 @@ class TextProgram extends Program {
         gl.blendFunc(gl.ONE, gl.ONE_MINUS_SRC_ALPHA);
     }
 
-    draw(group, buffers) {
+    draw(geoBuffer: GeometryBuffer) {
         const {gl, uniforms} = this;
 
         gl.uniform1f(uniforms.u_strokeOnly, 1);
-        super.draw(group, buffers);
+        super.draw(geoBuffer);
 
         gl.uniform1f(uniforms.u_strokeOnly, 0);
-        super.draw(group, buffers);
+        super.draw(geoBuffer);
     }
 }
 

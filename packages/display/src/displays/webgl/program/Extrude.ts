@@ -24,6 +24,7 @@ import fragmentShader from '../glsl/extrude_fragment.glsl';
 
 import Program from './Program';
 import {GLStates, PASS} from './GLStates';
+import {GeometryBuffer} from '../buffer/GeometryBuffer';
 
 
 class ExtrudeProgram extends Program {
@@ -64,16 +65,16 @@ class ExtrudeProgram extends Program {
         gl.enable(gl.POLYGON_OFFSET_FILL);
     }
 
-    draw(geoBuffer, buffers) {
+    draw(geoBuffer: GeometryBuffer) {
         const {gl} = this;
 
         if (this._pass == PASS.ALPHA) {
             // depth pass only
             gl.colorMask(false, false, false, false);
-            super.draw(geoBuffer, buffers);
+            super.draw(geoBuffer);
             gl.colorMask(true, true, true, false);
         } else {
-            super.draw(geoBuffer, buffers);
+            super.draw(geoBuffer);
         }
 
         gl.disable(gl.POLYGON_OFFSET_FILL);
