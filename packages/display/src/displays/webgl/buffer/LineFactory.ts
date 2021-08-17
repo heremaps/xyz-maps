@@ -332,10 +332,6 @@ export class LineFactory {
                             let oy = offsetY;
 
                             if (applyRotation && alpha) {
-                                const bbox = getRotatedBBox(alpha, width, height, cx, cy);
-                                w = bbox[2] - bbox[0];
-                                h = bbox[3] - bbox[1];
-
                                 if (offsetX) {
                                     // ox = Math.cos(alpha) * offsetX;
                                     oy = Math.sin(alpha) * offsetX;
@@ -350,7 +346,10 @@ export class LineFactory {
                                 }
                             }
 
-                            collisionData = collisions.insert(cx, cy, ox, oy, w / 2, h / 2, tile, tileSize, priority);
+
+                            const slopeScale = Math.sqrt(sqWidth/sqLineWidth);
+
+                            collisionData = collisions.insert(cx, cy, ox, oy, w / 2, h / 2, tile, tileSize, priority, [dx*slopeScale, dy*slopeScale]);
 
                             if (collisionData) {
                                 this.alpha[checkCollisions.length] = alpha * TO_DEG;

@@ -17,23 +17,32 @@
  * License-Filename: LICENSE
  */
 
-import {Tile, tileUtils} from '@here/xyz-maps-core';
+import {LocalProvider, Tile, TileLayer, tileUtils} from '@here/xyz-maps-core';
 import Display from './Display';
 import {Attribute} from './buffer/Attribute';
 import {Layer} from '../Layers';
 import {FlexAttribute} from './buffer/templates/TemplateBuffer';
+import {webMercator} from '@here/xyz-maps-core';
+import {Map as MapDisplay} from '../../Map';
+
+const DEBUG = false;
 
 export type CollisionData = {
-    minX: number,
-    maxX: number,
-    minY: number,
-    maxY: number,
+    boxes: {
+        minX: number,
+        maxX: number,
+        minY: number,
+        maxY: number
+    }[],
     attrs: { start: number, stop: number, buffer: Attribute | FlexAttribute }[],
     priority: number,
     cx?: number,
     cy?: number,
     offsetX?: number,
-    offsetY?: number
+    offsetY?: number,
+    halfWidth?: number,
+    halfHeight?: number,
+    slope?: number[]
 };
 type CollisionDataMap = { [dataKey: string]: CollisionData[] }
 
@@ -55,10 +64,48 @@ export class CollisionHandler {
     private rz: number;
     private s: number;
 
+    // used for bbox debugging only
+    private dbgLayers: TileLayer[];
+
     constructor(display: Display) {
         this.tiles = new Map<string, CollisionDataMap>();
         this.display = display;
+
+        if (DEBUG) {
+            this.dbgLayers = ([
+                new TileLayer({pointerEvents: false, min: 2, max: 28, provider: new LocalProvider({})}),
+                new TileLayer({pointerEvents: false, min: 2, max: 28, provider: new LocalProvider({})})
+            ]);
+            setTimeout(() => this.dbgLayers.forEach((l) => MapDisplay.getInstances().pop().addLayer(l)), 0);
+        }
     }
+
+    // used for bbox debugging only
+    private dbgBoxes(bbox, z: boolean | number, color?) {
+        const map = MapDisplay.getInstances().pop();
+        for (let box of bbox.boxes) {
+            let w = (box.maxX - box.minX) * .5;
+            let h = (box.maxY - box.minY) * .5;
+            let lon;
+            let lat;
+            if (typeof z == 'number') {
+                // collision detection phase 1 (world-pixels)
+                const ws = webMercator.mapSizePixel(512, z);
+                lon = webMercator.x2lon(box.maxX - w, ws);
+                lat = webMercator.y2lat(box.maxY - h, ws);
+            } else {
+                // collision detection phase 2 (projected screen-pixels)
+                const geo = map.pixelToGeo(box.minX + w, box.minY + h);
+                lon = geo.longitude;
+                lat = geo.latitude;
+                color = z ? 'orange' : 'green';
+            }
+            this.dbgLayers[Number(typeof z != 'number')].addFeature(
+                {type: 'Feature', geometry: {type: 'Point', coordinates: [lon, lat]}},
+                [{zLayer: 1e5, zIndex: 0, type: 'Rect', stroke: color, strokeWidth: 2, width: w * 2, height: h * 2, collide: true}]
+            );
+        }
+    };
 
     private getTileCacheKey(quadkey: string, layer: Layer) {
         return layer.tileSize == 256 ? quadkey.slice(0, -1) : quadkey;
@@ -68,12 +115,15 @@ export class CollisionHandler {
         return `${layer.id}-${quadkey}`;
     }
 
-    private intersects(box1: CollisionData, data: CollisionData[], i: number = 0): boolean {
-        for (let len = data.length, bbox2; i < len; i++) {
-            bbox2 = data[i];
-
-            if (box1.minX <= bbox2.maxX && bbox2.minX <= box1.maxX && box1.minY <= bbox2.maxY && bbox2.minY <= box1.maxY) {
-                return true;
+    private intersects(box1: CollisionData, data: CollisionData[]): boolean {
+        const boxes1 = box1.boxes;
+        for (let {boxes} of data) {
+            for (let bbox2 of boxes) {
+                for (let bbox1 of boxes1) {
+                    if (bbox1.minX <= bbox2.maxX && bbox2.minX <= bbox1.maxX && bbox1.minY <= bbox2.maxY && bbox2.minY <= bbox1.maxY) {
+                        return true;
+                    }
+                }
             }
         }
     }
@@ -120,23 +170,36 @@ export class CollisionHandler {
         this.updated = false;
     }
 
+
+    private updateBBoxes(cx: number, cy: number, slope: number[], w: number, h: number, boxes, result) {
+        for (let i = 0; i <= boxes; i++) {
+            let relPos = (i / boxes - 0.5) * .75;
+            let x = slope[0] * relPos + cx;
+            let y = slope[1] * relPos + cy;
+            result[i] = {
+                minX: x - w,
+                maxX: x + w,
+                minY: y - h,
+                maxY: y + h
+            };
+        }
+    }
+
+
     insert(
         cx: number,
         cy: number,
         offsetX: number,
         offsetY: number,
-        width: number,
-        height: number,
+        halfWidth: number,
+        halfHeight: number,
         tile: Tile,
         tileSize: number,
-        priority: number = Number.MAX_SAFE_INTEGER
+        priority: number = Number.MAX_SAFE_INTEGER,
+        slope?: number[]
     ): CollisionData | false {
         const tileX = tile.x * tileSize;
         const tileY = tile.y * tileSize;
-        const x1 = tileX + cx - width;
-        const x2 = tileX + cx + width;
-        const y1 = tileY + cy - height;
-        const y2 = tileY + cy + height;
 
         // align to 512er tile-grid
         if (tileSize == 256) {
@@ -146,33 +209,61 @@ export class CollisionHandler {
             cy -= (tile.y * .5 ^ 0) * 512 - tileY;
         }
 
-        const boxBuffer = 3;
+        let boxes;
+        const boxBuffer = 4;
+
+        halfWidth += boxBuffer;
+        halfHeight += boxBuffer;
+
+        const min = Math.min(halfWidth, halfHeight);
+        const max = Math.max(halfWidth, halfHeight);
+        let aspectRatio = Math.floor(max / min);
+
+        if (slope && aspectRatio > 1.5) {
+            halfWidth = min;
+            halfHeight = min;
+            aspectRatio = Math.floor(aspectRatio * .7);
+            boxes = new Array(aspectRatio);
+
+            this.updateBBoxes(cx + tileX, cy + tileY, slope, min, min, aspectRatio, boxes);
+        } else {
+            boxes = [{
+                minX: tileX + cx - halfWidth,
+                maxX: tileX + cx + halfWidth,
+                minY: tileY + cy - halfHeight,
+                maxY: tileY + cy + halfHeight
+            }];
+        }
+
 
         const bbox: CollisionData = {
-            // tileX: tileX,
-            // tileY: tileY,
             cx: cx + offsetX,
             cy: cy + offsetY,
-            offsetX: offsetX,
-            offsetY: offsetY,
-            minX: x1 - boxBuffer,
-            maxX: x2 + boxBuffer,
-            minY: y1 - boxBuffer,
-            maxY: y2 + boxBuffer,
-            priority: priority,
+            halfWidth,
+            halfHeight,
+            offsetX,
+            offsetY,
+            boxes,
+            slope,
+            priority,
             attrs: []
         };
 
         const {data, existing} = this.curLayerTileCollision;
 
+
         if (this.intersects(bbox, data)) {
+            DEBUG && this.dbgBoxes(bbox, tile.z, 'red');
             return false;
         }
         for (let name in existing) {
             if (this.intersects(bbox, existing[name])) {
+                DEBUG && this.dbgBoxes(bbox, tile.z, 'red');
                 return false;
             }
         }
+
+        DEBUG && this.dbgBoxes(bbox, tile.z, 'rgba(255,0,255,1.0)');
 
         bbox.cx -= offsetX;
         bbox.cy -= offsetY;
@@ -235,6 +326,11 @@ export class CollisionHandler {
         const {display} = this;
         const collisionData: CollisionData[] = [];
 
+
+        DEBUG && this.dbgLayers[1].getProvider().clear();
+
+        // console.time('updateCollisions');
+
         for (let screentile of tiles) {
             let quadkey = screentile.quadkey;
             let tileCollisionData = this.tiles.get(quadkey);
@@ -246,25 +342,36 @@ export class CollisionHandler {
                     for (let i = 0; i < collisions.length; i++) {
                         const bbox = collisions[i];
                         const {attrs} = bbox;
-                        let {minX, maxX, minY, maxY} = bbox;
-                        let halfWidth = (maxX - minX) * .5;
-                        let halfHeight = (maxY - minY) * .5;
-                        let screenX = screentile.x + bbox.cx;
-                        let screenY = screentile.y + bbox.cy;
-                        let ac = display.project(
-                            screenX + bbox.offsetX / scale,
-                            screenY + bbox.offsetY / scale,
-                            0, 0// -> unscaled world pixels
-                        );
+                        let {slope, halfWidth, halfHeight, boxes} = bbox;
 
-                        collisionData.push({
-                            minX: ac[0] - halfWidth,
-                            maxX: ac[0] + halfWidth,
-                            minY: ac[1] - halfHeight,
-                            maxY: ac[1] + halfHeight,
+                        let cData = {
+                            boxes: new Array(boxes.length),
                             attrs,
+                            slope,
                             priority: bbox.priority
-                        });
+                        };
+
+                        let screenX = screentile.x + bbox.cx + bbox.offsetX / scale;
+                        let screenY = screentile.y + bbox.cy + bbox.offsetY / scale;
+                        let prjScreen = display.project(screenX, screenY, 0, 0/* -> unscaled world pixels */);
+
+                        if (slope) {
+                            let prjScreen2 = display.project(screenX + slope[0], screenY + slope[1], 0, 0);
+                            slope = [
+                                (prjScreen2[0] - prjScreen[0]) / scale,
+                                (prjScreen2[1] - prjScreen[1]) / scale
+                            ];
+                            this.updateBBoxes(prjScreen[0], prjScreen[1], slope, halfWidth, halfHeight, cData.boxes.length - 1, cData.boxes);
+                        } else {
+                            cData.boxes[0] = {
+                                minX: prjScreen[0] - halfWidth,
+                                maxX: prjScreen[0] + halfWidth,
+                                minY: prjScreen[1] - halfHeight,
+                                maxY: prjScreen[1] + halfHeight
+                            };
+                        }
+
+                        collisionData.push(cData);
                     }
                 }
             }
@@ -273,10 +380,20 @@ export class CollisionHandler {
         // sort by collision priority
         collisionData.sort((a, b) => a.priority - b.priority);
 
-        const visibleItems = [];
+        const visibleItemsMapAligned = [];
+        const visibleItemsViewportAligned = [];
 
         for (let bbox of collisionData) {
-            let intersects = this.intersects(bbox, visibleItems);
+            let visibleItems;
+            let intersects = this.intersects(bbox, visibleItemsViewportAligned);
+
+            if (bbox.slope) {
+                visibleItems = visibleItemsMapAligned;
+            } else {
+                intersects = intersects || this.intersects(bbox, visibleItemsMapAligned);
+                visibleItems = visibleItemsViewportAligned;
+            }
+
 
             if (!intersects) {
                 visibleItems.push(bbox);
@@ -300,7 +417,14 @@ export class CollisionHandler {
                     (<Attribute>buffer).dirty = true;
                 }
             }
+
+            if (DEBUG) {
+                this.dbgBoxes(bbox, intersects);
+            }
         }
+
+        // console.timeEnd('updateCollisions');
+        // console.log('visible', visibleItemsMapAligned.length + visibleItemsViewportAligned.length, 'of', collisionData.length, 'total');
     }
 
     removeTiles(layer: Layer) {
