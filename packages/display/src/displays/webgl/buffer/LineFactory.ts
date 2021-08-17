@@ -336,20 +336,20 @@ export class LineFactory {
                                     // ox = Math.cos(alpha) * offsetX;
                                     oy = Math.sin(alpha) * offsetX;
                                     // oy = offsetX * dy / Math.sqrt(sqLineWidth);
-                                    ox = oy * dx / dy;
+                                    ox = dy == 0 ? -ox : oy * dx / dy;
                                 }
 
                                 if (offsetY) {
                                     const beta = Math.PI - alpha;
-                                    ox = ox + Math.sin(beta) * -offsetY;
-                                    oy = oy + Math.cos(beta) * -offsetY;
+                                    ox = ox - Math.sin(beta) * offsetY;
+                                    oy = oy - Math.cos(beta) * offsetY;
                                 }
                             }
 
+                            const slopeScale = Math.sqrt(sqWidth / sqLineWidth);
+                            const slope = [dx * slopeScale, dy * slopeScale];
 
-                            const slopeScale = Math.sqrt(sqWidth/sqLineWidth);
-
-                            collisionData = collisions.insert(cx, cy, ox, oy, w / 2, h / 2, tile, tileSize, priority, [dx*slopeScale, dy*slopeScale]);
+                            collisionData = collisions.insert(cx, cy, ox, oy, w / 2, h / 2, tile, tileSize, priority, slope);
 
                             if (collisionData) {
                                 this.alpha[checkCollisions.length] = alpha * TO_DEG;

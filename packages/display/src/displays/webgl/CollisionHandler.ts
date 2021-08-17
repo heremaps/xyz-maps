@@ -27,13 +27,15 @@ import {Map as MapDisplay} from '../../Map';
 
 const DEBUG = false;
 
+type BBox = {
+    minX: number,
+    maxX: number,
+    minY: number,
+    maxY: number
+};
+
 export type CollisionData = {
-    boxes: {
-        minX: number,
-        maxX: number,
-        minY: number,
-        maxY: number
-    }[],
+    boxes: BBox[],
     attrs: { start: number, stop: number, buffer: Attribute | FlexAttribute }[],
     priority: number,
     cx?: number,
@@ -81,7 +83,7 @@ export class CollisionHandler {
     }
 
     // used for bbox debugging only
-    private dbgBoxes(bbox, z: boolean | number, color?) {
+    private dbgBBoxes(bbox, z: boolean | number, color?: string) {
         const map = MapDisplay.getInstances().pop();
         for (let box of bbox.boxes) {
             let w = (box.maxX - box.minX) * .5;
@@ -128,6 +130,20 @@ export class CollisionHandler {
         }
     }
 
+    private updateBBoxes(cx: number, cy: number, slope: number[], w: number, h: number, boxes, result: BBox[]) {
+        for (let i = 0; i <= boxes; i++) {
+            let relPos = (i / boxes - 0.5) * .75;
+            let x = slope[0] * relPos + cx;
+            let y = slope[1] * relPos + cy;
+            result[i] = {
+                minX: x - w,
+                maxX: x + w,
+                minY: y - h,
+                maxY: y + h
+            };
+        }
+    }
+
     initTile(tile: Tile, layer: Layer) {
         const neighbours = [];
         let {quadkey, x, y, z} = tile;
@@ -170,22 +186,6 @@ export class CollisionHandler {
         this.updated = false;
     }
 
-
-    private updateBBoxes(cx: number, cy: number, slope: number[], w: number, h: number, boxes, result) {
-        for (let i = 0; i <= boxes; i++) {
-            let relPos = (i / boxes - 0.5) * .75;
-            let x = slope[0] * relPos + cx;
-            let y = slope[1] * relPos + cy;
-            result[i] = {
-                minX: x - w,
-                maxX: x + w,
-                minY: y - h,
-                maxY: y + h
-            };
-        }
-    }
-
-
     insert(
         cx: number,
         cy: number,
@@ -198,8 +198,8 @@ export class CollisionHandler {
         priority: number = Number.MAX_SAFE_INTEGER,
         slope?: number[]
     ): CollisionData | false {
-        const tileX = tile.x * tileSize;
-        const tileY = tile.y * tileSize;
+        const tileX = tile.x * tileSize + offsetX;
+        const tileY = tile.y * tileSize + offsetY;
 
         // align to 512er tile-grid
         if (tileSize == 256) {
@@ -209,7 +209,7 @@ export class CollisionHandler {
             cy -= (tile.y * .5 ^ 0) * 512 - tileY;
         }
 
-        let boxes;
+        let boxes: BBox[];
         const boxBuffer = 4;
 
         halfWidth += boxBuffer;
@@ -235,14 +235,10 @@ export class CollisionHandler {
             }];
         }
 
-
         const bbox: CollisionData = {
-            cx: cx + offsetX,
-            cy: cy + offsetY,
-            halfWidth,
-            halfHeight,
-            offsetX,
-            offsetY,
+            cx, cy,
+            halfWidth, halfHeight,
+            offsetX, offsetY,
             boxes,
             slope,
             priority,
@@ -251,22 +247,18 @@ export class CollisionHandler {
 
         const {data, existing} = this.curLayerTileCollision;
 
-
         if (this.intersects(bbox, data)) {
-            DEBUG && this.dbgBoxes(bbox, tile.z, 'red');
+            DEBUG && this.dbgBBoxes(bbox, tile.z, 'red');
             return false;
         }
         for (let name in existing) {
             if (this.intersects(bbox, existing[name])) {
-                DEBUG && this.dbgBoxes(bbox, tile.z, 'red');
+                DEBUG && this.dbgBBoxes(bbox, tile.z, 'red');
                 return false;
             }
         }
 
-        DEBUG && this.dbgBoxes(bbox, tile.z, 'rgba(255,0,255,1.0)');
-
-        bbox.cx -= offsetX;
-        bbox.cy -= offsetY;
+        // DEBUG && this.dbgBBoxes(bbox, tile.z, 'rgba(255,0,255,1.0)');
 
         this.updated = true;
         data.push(bbox);
@@ -339,39 +331,44 @@ export class CollisionHandler {
                 for (let segment in tileCollisionData) {
                     const collisions = tileCollisionData[segment];
 
-                    for (let i = 0; i < collisions.length; i++) {
-                        const bbox = collisions[i];
-                        const {attrs} = bbox;
-                        let {slope, halfWidth, halfHeight, boxes} = bbox;
-
-                        let cData = {
-                            boxes: new Array(boxes.length),
-                            attrs,
-                            slope,
-                            priority: bbox.priority
-                        };
-
-                        let screenX = screentile.x + bbox.cx + bbox.offsetX / scale;
-                        let screenY = screentile.y + bbox.cy + bbox.offsetY / scale;
-                        let prjScreen = display.project(screenX, screenY, 0, 0/* -> unscaled world pixels */);
+                    for (let cData of collisions) {
+                        const {attrs} = cData;
+                        let {slope, halfWidth, halfHeight} = cData;
+                        let screenX = screentile.x + cData.cx;
+                        let screenY = screentile.y + cData.cy;
+                        let offsetX = cData.offsetX / scale;
+                        let offsetY = cData.offsetY / scale;
+                        let boxes;
 
                         if (slope) {
+                            // map aligned
+                            boxes = new Array(cData.boxes.length);
+                            screenX += offsetX;
+                            screenY += offsetY;
+                            let [prjX, prjY] = display.project(screenX, screenY, 0, 0/* -> unscaled world pixels */);
                             let prjScreen2 = display.project(screenX + slope[0], screenY + slope[1], 0, 0);
                             slope = [
-                                (prjScreen2[0] - prjScreen[0]) / scale,
-                                (prjScreen2[1] - prjScreen[1]) / scale
+                                (prjScreen2[0] - prjX) / scale,
+                                (prjScreen2[1] - prjY) / scale
                             ];
-                            this.updateBBoxes(prjScreen[0], prjScreen[1], slope, halfWidth, halfHeight, cData.boxes.length - 1, cData.boxes);
+                            this.updateBBoxes(prjX, prjY, slope, halfWidth, halfHeight, boxes.length - 1, boxes);
                         } else {
-                            cData.boxes[0] = {
-                                minX: prjScreen[0] - halfWidth,
-                                maxX: prjScreen[0] + halfWidth,
-                                minY: prjScreen[1] - halfHeight,
-                                maxY: prjScreen[1] + halfHeight
-                            };
+                            // viewport aligned
+                            const [prjX, prjY] = display.project(screenX, screenY, 0, 0/* -> unscaled world pixels */);
+                            boxes = [{
+                                minX: prjX - halfWidth + offsetX,
+                                maxX: prjX + halfWidth + offsetX,
+                                minY: prjY - halfHeight + offsetY,
+                                maxY: prjY + halfHeight + offsetY
+                            }];
                         }
 
-                        collisionData.push(cData);
+                        collisionData.push({
+                            boxes,
+                            attrs,
+                            slope,
+                            priority: cData.priority
+                        });
                     }
                 }
             }
@@ -394,14 +391,13 @@ export class CollisionHandler {
                 visibleItems = visibleItemsViewportAligned;
             }
 
-
             if (!intersects) {
                 visibleItems.push(bbox);
             }
 
             for (let {buffer, start, stop} of bbox.attrs) {
-                let {data, size} = buffer;
-                let visible = (data[start] & 1) == 1;
+                const {data, size} = buffer;
+                const visible = (data[start] & 1) == 1;
 
                 if (
                     // hide all glyphs
@@ -419,7 +415,7 @@ export class CollisionHandler {
             }
 
             if (DEBUG) {
-                this.dbgBoxes(bbox, intersects);
+                this.dbgBBoxes(bbox, intersects);
             }
         }
 
