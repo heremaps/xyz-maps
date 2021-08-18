@@ -326,30 +326,20 @@ export class LineFactory {
                     if (checkCollisions) {
                         distanceGrp = this.getDistanceGrp();
                         if (!distanceGrp || distanceGrp.hasSpace(cx, cy)) {
-                            let w = width;
-                            let h = height;
                             let ox = offsetX;
                             let oy = offsetY;
 
-                            if (applyRotation && alpha) {
-                                if (offsetX) {
-                                    // ox = Math.cos(alpha) * offsetX;
-                                    oy = Math.sin(alpha) * offsetX;
-                                    // oy = offsetX * dy / Math.sqrt(sqLineWidth);
-                                    ox = dy == 0 ? -ox : oy * dx / dy;
-                                }
-
-                                if (offsetY) {
-                                    const beta = Math.PI - alpha;
-                                    ox = ox - Math.sin(beta) * offsetY;
-                                    oy = oy - Math.cos(beta) * offsetY;
-                                }
+                            if (applyRotation && alpha && (ox || oy)) {
+                                const sin = Math.sin(alpha);
+                                const cos = Math.cos(alpha);
+                                ox = cos * offsetX - sin * offsetY;
+                                oy = sin * offsetX + cos * offsetY;
                             }
 
                             const slopeScale = Math.sqrt(sqWidth / sqLineWidth);
                             const slope = [dx * slopeScale, dy * slopeScale];
 
-                            collisionData = collisions.insert(cx, cy, ox, oy, w / 2, h / 2, tile, tileSize, priority, slope);
+                            collisionData = collisions.insert(cx, cy, ox, oy, width / 2, height / 2, tile, tileSize, priority, slope);
 
                             if (collisionData) {
                                 this.alpha[checkCollisions.length] = alpha * TO_DEG;
