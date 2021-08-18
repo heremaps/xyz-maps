@@ -85,6 +85,9 @@ export class CollisionHandler {
     // used for bbox debugging only
     private dbgBBoxes(bbox, z: boolean | number, color?: string) {
         const map = MapDisplay.getInstances().pop();
+        let sw = 2;
+        let zIndex = 1;
+
         for (let box of bbox.boxes) {
             let w = (box.maxX - box.minX) * .5;
             let h = (box.maxY - box.minY) * .5;
@@ -95,6 +98,8 @@ export class CollisionHandler {
                 const ws = webMercator.mapSizePixel(512, z);
                 lon = webMercator.x2lon(box.maxX - w, ws);
                 lat = webMercator.y2lat(box.maxY - h, ws);
+                sw = 3;
+                zIndex = 0;
             } else {
                 // collision detection phase 2 (projected screen-pixels)
                 const geo = map.pixelToGeo(box.minX + w, box.minY + h);
@@ -102,9 +107,10 @@ export class CollisionHandler {
                 lat = geo.latitude;
                 color = z ? 'orange' : 'green';
             }
+
             this.dbgLayers[Number(typeof z != 'number')].addFeature(
                 {type: 'Feature', geometry: {type: 'Point', coordinates: [lon, lat]}},
-                [{zLayer: 1e5, zIndex: 0, type: 'Rect', stroke: color, strokeWidth: 2, width: w * 2, height: h * 2, collide: true}]
+                [{zLayer: 1e5, zIndex: zIndex, type: 'Rect', stroke: color, strokeWidth: sw, width: w * 2, height: h * 2, collide: true}]
             );
         }
     };
@@ -198,16 +204,22 @@ export class CollisionHandler {
         priority: number = Number.MAX_SAFE_INTEGER,
         slope?: number[]
     ): CollisionData | false {
-        const tileX = tile.x * tileSize + offsetX;
-        const tileY = tile.y * tileSize + offsetY;
+        let tileX = tile.x;
+        let tileY = tile.y;
+        let tileZ = tile.z;
 
         // align to 512er tile-grid
         if (tileSize == 256) {
-            // tileX = (tile.x * .5 ^ 0) * 512;
-            // tileY = (tile.y * .5 ^ 0) * 512;
-            cx -= (tile.x * .5 ^ 0) * 512 - tileX;
-            cy -= (tile.y * .5 ^ 0) * 512 - tileY;
+            cx += tileX % 2 * tileSize;
+            cy += tileY % 2 * tileSize;
+            tileSize *= 2;
+            tileX = tileX * .5 ^ 0;
+            tileY = tileY * .5 ^ 0;
+            tileZ--;
         }
+
+        tileX = tileX * tileSize + offsetX;
+        tileY = tileY * tileSize + offsetY;
 
         let boxes: BBox[];
         const boxBuffer = 4;
@@ -235,7 +247,7 @@ export class CollisionHandler {
             }];
         }
 
-        const bbox: CollisionData = {
+        const collisionData: CollisionData = {
             cx, cy,
             halfWidth, halfHeight,
             offsetX, offsetY,
@@ -247,23 +259,23 @@ export class CollisionHandler {
 
         const {data, existing} = this.curLayerTileCollision;
 
-        if (this.intersects(bbox, data)) {
-            DEBUG && this.dbgBBoxes(bbox, tile.z, 'red');
+        if (this.intersects(collisionData, data)) {
+            DEBUG && this.dbgBBoxes(collisionData, tileZ, 'red');
             return false;
         }
         for (let name in existing) {
-            if (this.intersects(bbox, existing[name])) {
-                DEBUG && this.dbgBBoxes(bbox, tile.z, 'red');
+            if (this.intersects(collisionData, existing[name])) {
+                DEBUG && this.dbgBBoxes(collisionData, tileZ, 'red');
                 return false;
             }
         }
 
-        // DEBUG && this.dbgBBoxes(bbox, tile.z, 'rgba(255,0,255,1.0)');
+        // DEBUG && this.dbgBBoxes(collisionData, tileZ, 'rgba(255,0,255,1.0)');
 
         this.updated = true;
-        data.push(bbox);
+        data.push(collisionData);
 
-        return bbox;
+        return collisionData;
     }
 
     completeTile() {
