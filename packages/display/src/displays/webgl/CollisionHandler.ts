@@ -345,16 +345,17 @@ export class CollisionHandler {
 
                     for (let cData of collisions) {
                         const {attrs} = cData;
+                        const offsetX = cData.offsetX / scale;
+                        const offsetY = cData.offsetY / scale;
+                        const boxCnt = cData.boxes.length;
                         let {slope, halfWidth, halfHeight} = cData;
                         let screenX = screentile.x + cData.cx;
                         let screenY = screentile.y + cData.cy;
-                        let offsetX = cData.offsetX / scale;
-                        let offsetY = cData.offsetY / scale;
-                        let boxes;
+                        let boxes: BBox[];
 
-                        if (slope) {
+                        if (boxCnt > 1) {
                             // map aligned
-                            boxes = new Array(cData.boxes.length);
+                            boxes = new Array(boxCnt);
                             screenX += offsetX;
                             screenY += offsetY;
                             let [prjX, prjY] = display.project(screenX, screenY, 0, 0/* -> unscaled world pixels */);
