@@ -59,13 +59,17 @@ class Task {
 
     time: number;
 
+    _data: any;
+
+    started: boolean;
+
     constructor(
         manager: TaskManager,
         prio: number,
         task: (any?) => boolean | void,
-        init?: () => any,
+        init?: (data?: any) => any,
         time?: number,
-        onDone?: (any) => void,
+        onDone?: (data?: any) => void,
         name?: string,
         delay?: number
     ) {
@@ -92,12 +96,17 @@ class Task {
         }
     }
 
-    start() {
+    start(data?: any) {
         const task = this;
+
+        task._data = data;
+
         return task.manager.start(task);
     };
 
     restart(opt: TaskRestartOptions = {}) {
+        const {_data} = this;
+
         // cancel in case of active
         this.cancel();
 
@@ -106,6 +115,8 @@ class Task {
         this.paused = false;
         this.delayed = null;
         this.heap = null;
+        this._data = _data;
+
 
         if (opt.init) {
             this.init = opt.init;
@@ -123,8 +134,8 @@ class Task {
         this.start();
     };
 
-    init(): any {
-
+    init(data?: any): any {
+        return data;
     };
 
     // yield() {
@@ -134,6 +145,9 @@ class Task {
 
     cancel() {
         const task = this;
+
+        task._data = null;
+
         return task.manager.cancel(task);
     };
 }

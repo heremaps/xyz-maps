@@ -25,10 +25,10 @@ let TMID = 0;
 
 export interface ITask {
     priority?: number;
-    exec: (data?) => boolean | void;
-    init?: () => any;
+    exec: (data?: any) => boolean | void;
+    init?: (data?: any) => any;
     time?: number;
-    onDone?: (data?) => void;
+    onDone?: (data?: any) => void;
     name?: string
     delay?: number;
 }
@@ -99,7 +99,7 @@ export class TaskManager {
         let initStartTs;
         let taskStartTS;
         let taskStopTS;
-        let task;
+        let task: Task;
         let done;
         let data;
 
@@ -127,7 +127,7 @@ export class TaskManager {
                 } else {
                     initStartTs = manager.now();
 
-                    data = task.init();
+                    data = task.init(task._data);
                 }
 
 
@@ -202,8 +202,11 @@ export class TaskManager {
                             // make sure next runner will be triggered async
                             // manager.active = false;
 
-                            if (done && !task.canceled && task.onDone) {
-                                task.onDone(data);
+                            if (done && !task.canceled) {
+                                task.started = false;
+                                if (task.onDone) {
+                                    task.onDone(data);
+                                }
                             }
 
                             return manager._resume();
@@ -224,8 +227,11 @@ export class TaskManager {
                     task.paused = false;
                     task.heap = null;
 
-                    if (!task.canceled && task.onDone) {
-                        task.onDone(data);
+                    if (!task.canceled) {
+                        task.started = false;
+                        if (task.onDone) {
+                            task.onDone(data);
+                        }
                     }
                 }
 
@@ -299,7 +305,7 @@ export class TaskManager {
     };
 
 
-    _insert(task, first?: boolean) {
+    _insert(task: Task, first?: boolean) {
         let queue;
 
         if (task.delay) {
@@ -355,6 +361,12 @@ export class TaskManager {
 
         // var taskPrio = this.getPriority( task )
 
+        if (task.started) {
+            return;
+        }
+
+        task.started = true;
+
 
         // make sure task is not running already..
         if (task != curTask) {
@@ -378,10 +390,10 @@ export class TaskManager {
     cancel(task: Task) {
         task.canceled = true;
 
-
         // make sure task init is getting executed in case of a restart
         task.paused = false;
 
+        task.started = false;
 
         const isTaskRunning = task == this.task;
 

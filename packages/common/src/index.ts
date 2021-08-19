@@ -17,7 +17,7 @@
  * License-Filename: LICENSE
  */
 
-import TaskManager from './TaskManager';
+import TaskManager, {ITask as Task} from './TaskManager';
 import Listener from './Listener';
 import LRU from './LRU';
 import parseJSONArray from './parseJSONArray';
@@ -39,6 +39,6 @@ const common = {LRU, TaskManager, Listener, parseJSONArray, JSUtils, geotools, g
 
 scp.common = common;
 
-export {LRU, TaskManager, Listener, parseJSONArray, JSUtils, geotools, global, Queue, Set, Map};
+export {LRU, TaskManager, Task, Listener, parseJSONArray, JSUtils, geotools, global, Queue, Set, Map};
 
 export default common;
