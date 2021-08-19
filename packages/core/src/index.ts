@@ -33,11 +33,15 @@ export * from './features/GeoJSON';
 export {ImageProvider} from './providers/ImageProvider';
 export {GeoJSONProvider} from './providers/GeoJSONProvider';
 export {FeatureProvider} from './providers/FeatureProvider';
-export {LocalProvider} from './providers/LocalProvider';
+export {LocalProvider, LocalProviderOptions} from './providers/LocalProvider';
 export {RemoteTileProvider} from './providers/RemoteTileProvider/RemoteTileProvider';
+export {RemoteTileProviderOptions} from './providers/RemoteTileProvider/RemoteTileProviderOptions';
 export {EditableRemoteTileProvider} from './providers/RemoteTileProvider/EditableRemoteTileProvider';
+export {EditableRemoteTileProviderOptions} from './providers/RemoteTileProvider/EditableRemoteTileProviderOptions';
 export {SpaceProvider} from './providers/GeoSpace/SpaceProvider';
+export {SpaceProviderOptions} from './providers/GeoSpace/SpaceOptions';
 export {IMLProvider} from './providers/IMLProvider/IMLProvider';
+export {IMLProviderOptions} from './providers/IMLProvider/IMLProviderOptions';
 export {MVTProvider} from './providers/MVTProvider/MVTProvider';
 export {EditableFeatureProvider} from './providers/EditableFeatureProvider';
 
