@@ -44,6 +44,7 @@ export {IMLProvider} from './providers/IMLProvider/IMLProvider';
 export {IMLProviderOptions} from './providers/IMLProvider/IMLProviderOptions';
 export {MVTProvider} from './providers/MVTProvider/MVTProvider';
 export {EditableFeatureProvider} from './providers/EditableFeatureProvider';
+export {MVTLayerOptions} from './layers/MVTLayerOptions';
 
 import webMercatorPrj from './projection/webMercator';
 // @ts-ignore
