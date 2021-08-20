@@ -17,7 +17,8 @@
  * License-Filename: LICENSE
  */
 
-import TaskManager, {ITask as Task} from './TaskManager';
+import TaskManager, {TaskOptions} from './TaskManager';
+import Task from './Task';
 import Listener from './Listener';
 import LRU from './LRU';
 import parseJSONArray from './parseJSONArray';
@@ -29,7 +30,7 @@ import Map from './Map';
 import Queue from './Queue';
 
 // make sure global ns is also available for webpack users.
-let scp:any = global;
+let scp: any = global;
 'here.xyz.maps'.split('.').forEach((ns) => scp = (scp[ns] = scp[ns] || {}));
 
 // support for deprecated root namespace
@@ -39,6 +40,6 @@ const common = {LRU, TaskManager, Listener, parseJSONArray, JSUtils, geotools, g
 
 scp.common = common;
 
-export {LRU, TaskManager, Task, Listener, parseJSONArray, JSUtils, geotools, global, Queue, Set, Map};
+export {LRU, TaskManager, Task, TaskOptions, Listener, parseJSONArray, JSUtils, geotools, global, Queue, Set, Map};
 
 export default common;

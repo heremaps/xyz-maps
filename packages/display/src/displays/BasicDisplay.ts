@@ -256,7 +256,7 @@ abstract class Display {
         }
     };
 
-    protected abstract viewport(dirty?: boolean);
+    protected abstract viewport();
 
     abstract prepareTile(tile: Tile, data, layer: TileLayer, dTile: BasicTile, onDone: (dTile: BasicTile, layer: TileLayer) => void);
 
@@ -421,7 +421,6 @@ abstract class Display {
         }
 
         this.dirty = true;
-
         display.update();
     }
 
@@ -450,14 +449,16 @@ abstract class Display {
         }
     }
 
+
     update(dirty?: boolean) {
         const display = this;
 
+        display.dirty ||= dirty;
+
         if (!display.updating) {
             display.updating = true;
-
             requestAnimationFrame(() => {
-                display.viewport(dirty);
+                display.viewport();
                 display.updating = false;
             });
         }

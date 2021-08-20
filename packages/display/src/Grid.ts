@@ -23,7 +23,7 @@ import {doPolygonsIntersect} from './geometry';
 const INFINITY = Infinity;
 
 
-type GridTile = {
+export type ViewportTile = {
     quadkey: string,
     x: number,
     y: number
@@ -50,8 +50,8 @@ class Grid {
     private bounds: [number, number][];
 
     tiles: {
-        256?: GridTile[],
-        512?: GridTile[],
+        256?: ViewportTile[],
+        512?: ViewportTile[],
     } = {};
 
     constructor(tileSize: number) {
@@ -86,7 +86,7 @@ class Grid {
     };
 
 
-    getTiles(zoomLevel: number, tileSizePixel: number = this.size): GridTile[] {
+    getTiles(zoomLevel: number, tileSizePixel: number = this.size): ViewportTile[] {
         const {width, height} = this;
         const worldSizePixel = Math.pow(2, zoomLevel) * tileSizePixel;
         let bounds = this.bounds;

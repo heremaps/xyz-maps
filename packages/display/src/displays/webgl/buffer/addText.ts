@@ -31,7 +31,7 @@ const addText = (
     vertex: FlexArray,
     texcoord: FlexArray,
     glyphAtlas: GlyphAtlas,
-    rotation = 0,
+    rotation = 0
 ) => {
     const lineCnt = lines.length;
     const lineHeight = glyphAtlas.lineHeight;

@@ -51,7 +51,6 @@ const PREVIEW_LOOK_AHEAD_LEVELS: [number, number] = [3, 9];
 //     z || 0
 // ];
 
-
 export type TileBufferData = {
     z: number,
     b: GeometryBuffer,
@@ -74,7 +73,7 @@ class WebGlDisplay extends BasicDisplay {
 
     private collision: CollisionHandler;
 
-    constructor(mapEl: HTMLElement, renderTileSize: number, devicePixelRatio: number|string, renderOptions?: RenderOptions) {
+    constructor(mapEl: HTMLElement, renderTileSize: number, devicePixelRatio: number | string, renderOptions?: RenderOptions) {
         super(mapEl, renderTileSize,
             // auto dpr is default for gl display
             !devicePixelRatio ? 'auto' : devicePixelRatio,
@@ -239,8 +238,11 @@ class WebGlDisplay extends BasicDisplay {
                         });
                     }
 
-                    this.dirty = true;
-                    display.collision.completeTile();
+                    const collisionsUpdated = display.collision.completeTile();
+                    if (collisionsUpdated) {
+                        // trigger phase2 collision detection (vp)
+                        this.dirty = true;
+                    }
 
                     onDone(dTile, layer);
                 });
@@ -282,15 +284,18 @@ class WebGlDisplay extends BasicDisplay {
         }
     }
 
-    protected viewport(dirty?: boolean) {
+    protected viewport() {
         const display = this;
         const {buckets, layers, render} = display;
         const layerLength = layers.length;
         let length;
 
-        if (display.dirty || dirty) {
+        if (display.dirty) {
             display.dirty = false;
-            display.collision.update(display.grid.tiles[512], this.rx, this.rz, this.s,);
+            display.collision.update(display.grid.tiles[512],
+                // make sure display will refresh in case of cd toggles visibility
+                () => display.update()
+            );
         }
 
         render.clear(layerLength && layers[0].bgColor || display.globalBgc);

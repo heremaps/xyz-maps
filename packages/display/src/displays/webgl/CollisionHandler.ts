@@ -24,10 +24,13 @@ import {Layer} from '../Layers';
 import {FlexAttribute} from './buffer/templates/TemplateBuffer';
 import {webMercator} from '@here/xyz-maps-core';
 import {Map as MapDisplay} from '../../Map';
+import {ViewportTile} from '../../Grid';
 
+
+const UPDATE_DELAY_MS = 150;
 const DEBUG = false;
 
-type BBox = {
+export type BBox = {
     minX: number,
     maxX: number,
     minY: number,
@@ -62,24 +65,31 @@ export class CollisionHandler {
     private curLayerTileCollision: LayerTileCollision;
     private display: Display;
     private updated: boolean;
-    private rx: number;
-    private rz: number;
-    private s: number;
-
     // used for bbox debugging only
     private dbgLayers: TileLayer[];
+    private dbg;
 
     constructor(display: Display) {
         this.tiles = new Map<string, CollisionDataMap>();
         this.display = display;
 
-        if (DEBUG) {
-            this.dbgLayers = ([
-                new TileLayer({pointerEvents: false, min: 2, max: 28, provider: new LocalProvider({})}),
-                new TileLayer({pointerEvents: false, min: 2, max: 28, provider: new LocalProvider({})})
-            ]);
-            setTimeout(() => this.dbgLayers.forEach((l) => MapDisplay.getInstances().pop().addLayer(l)), 0);
+        this.debug(DEBUG);
+    }
+
+    // debug collision bounding boxes
+    debug(dbg: boolean) {
+        if (dbg) {
+            if (!this.dbgLayers) {
+                this.dbgLayers = ([
+                    new TileLayer({pointerEvents: false, min: 2, max: 28, provider: new LocalProvider({})}),
+                    new TileLayer({pointerEvents: false, min: 2, max: 28, provider: new LocalProvider({})})
+                ]);
+                setTimeout(() => this.dbgLayers.forEach((l) => MapDisplay.getInstances().pop().addLayer(l)), 0);
+            }
+        } else if (this.dbgLayers) {
+            this.dbgLayers.forEach((l) => l.getProvider().clear());
         }
+        this.dbg = dbg;
     }
 
     // used for bbox debugging only
@@ -258,19 +268,20 @@ export class CollisionHandler {
         };
 
         const {data, existing} = this.curLayerTileCollision;
+        const {dbg} = this;
 
         if (this.intersects(collisionData, data)) {
-            DEBUG && this.dbgBBoxes(collisionData, tileZ, 'red');
+            dbg && this.dbgBBoxes(collisionData, tileZ, 'red');
             return false;
         }
         for (let name in existing) {
             if (this.intersects(collisionData, existing[name])) {
-                DEBUG && this.dbgBBoxes(collisionData, tileZ, 'red');
+                dbg && this.dbgBBoxes(collisionData, tileZ, 'darkred');
                 return false;
             }
         }
 
-        // DEBUG && this.dbgBBoxes(collisionData, tileZ, 'rgba(255,0,255,1.0)');
+        // dbg && this.dbgBBoxes(collisionData, tileZ, 'rgba(255,0,255,1.0)');
 
         this.updated = true;
         data.push(collisionData);
@@ -278,12 +289,7 @@ export class CollisionHandler {
         return collisionData;
     }
 
-    completeTile() {
-        if (this.updated) {
-            // force next update
-            this.rx = this.rz = this.s = null;
-        }
-
+    completeTile(): boolean {
         const {tileKey, dataKey, data} = this.curLayerTileCollision;
         const tileCollisionData = this.tiles.get(tileKey) || {};
 
@@ -292,6 +298,8 @@ export class CollisionHandler {
         this.tiles.set(tileKey, tileCollisionData);
 
         this.curLayerTileCollision = null;
+
+        return this.updated;
     }
 
     clearTile(quadkey: string, layer: Layer) {
@@ -317,21 +325,26 @@ export class CollisionHandler {
         }
     }
 
-    update(tiles, rotX: number, rotZ: number, scale: number) {
-        if (!(this.rx != rotX || this.rz != rotZ || this.s != scale)) {
-            // no view changes.. no need to recalculate collision
-            return;
+    private timer = null;
+
+    update(tiles: ViewportTile[], callback: () => void) {
+        if (this.timer == null) {
+            this.timer = setTimeout(() => {
+                // update viewport tiles to match current mapview transformation
+                const tiles = this.display.grid.tiles[512];
+                const scale = this.display.s;
+                this.updateTiles(tiles, scale);
+                this.timer = null;
+                callback && callback();
+            }, UPDATE_DELAY_MS);
         }
+    }
 
-        this.rx = rotX;
-        this.rz = rotZ;
-        this.s = scale;
-
-        const {display} = this;
+    private updateTiles(tiles: ViewportTile[], scale: number) {
+        const {display, dbg} = this;
         const collisionData: CollisionData[] = [];
 
-
-        DEBUG && this.dbgLayers[1].getProvider().clear();
+        dbg && this.dbgLayers[1].getProvider().clear();
 
         // console.time('updateCollisions');
 
@@ -427,9 +440,8 @@ export class CollisionHandler {
                 }
             }
 
-            if (DEBUG) {
-                this.dbgBBoxes(bbox, intersects);
-            }
+
+            dbg && this.dbgBBoxes(bbox, intersects);
         }
 
         // console.timeEnd('updateCollisions');

@@ -23,7 +23,7 @@ import Task from './Task';
 const FPS60 = 1000 / 60;
 let TMID = 0;
 
-export interface ITask {
+export interface TaskOptions {
     priority?: number;
     exec: (data?: any) => boolean | void;
     init?: (data?: any) => any;
@@ -291,7 +291,7 @@ export class TaskManager {
         }
     };
 
-    create(task: ITask): Task {
+    create(task: TaskOptions): Task {
         return new Task(
             this,
             task.priority,
