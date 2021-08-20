@@ -12,6 +12,7 @@
     "url": "https://github.com/heremaps/xyz-maps.git"
   },
   "scripts": {
+    "prepare": "husky install",
     "test": "lerna run --stream --no-prefix --scope @here/xyz-maps-test test -- ",
     "preversion": "yarn run build-release && yarn run test",
     "version": "lerna run update-changelog --parallel && git add -u",
@@ -25,7 +26,6 @@
     "playground": "yarn run build-playground && npx http-server . -d -c-1 -p 8081 -o ./packages/playground/dist",
     "build-playground": "lerna run --scope @here/xyz-maps-playground build --stream --no-prefix",
     "eslint:fix": "eslint **/packages/*/src/**/*.{js,ts} --fix",
-    "precommit": "lint-staged",
     "server": "npx http-server . -d -c-1 -p 8080 -o ./debug",
     "set-access-token": "ts-node build/createToken --token"
   },
@@ -41,7 +41,7 @@
     "eslint-config-google": "^0.14.0",
     "fs-extra": "^10.0.0",
     "http-server": "^13.0.0",
-    "husky": "7.0.1",
+    "husky": "^7.0.1",
     "lerna": "^4.0.0",
     "lint-staged": "^11.1.2",
     "ts-node": "^10.2.1",
@@ -57,11 +57,6 @@
     "yarn": ">=1.11.0"
   },
   "lint-staged": {
-    "*.{js,ts}": "eslint --fix"
-  },
-  "husky": {
-    "hooks": {
-      "pre-commit": "lint-staged"
-    }
+    "*.{js,ts}": "eslint --cache --fix"
   }
 }
