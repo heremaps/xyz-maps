@@ -36,18 +36,18 @@
   "private": true,
   "devDependencies": {
     "@strictsoftware/typedoc-plugin-monorepo": "^0.3.1",
-    "@typescript-eslint/parser": "^3.6.1",
-    "eslint": "7.4.0",
+    "@typescript-eslint/parser": "^4.29.2",
+    "eslint": "7.32.0",
     "eslint-config-google": "^0.14.0",
-    "fs-extra": "^9.1.0",
-    "http-server": "^0.12.3",
-    "husky": "4.2.5",
+    "fs-extra": "^10.0.0",
+    "http-server": "^13.0.0",
+    "husky": "7.0.1",
     "lerna": "^4.0.0",
-    "lint-staged": "^10.2.11",
-    "ts-node": "^8.10.2",
+    "lint-staged": "^11.1.2",
+    "ts-node": "^10.2.1",
     "typedoc": "^0.19.2",
     "typedoc-plugin-remove-references": "^0.0.5",
-    "typescript": "^3.9.6"
+    "typescript": "^4.3.5"
   },
   "workspaces": [
     "packages/*"
