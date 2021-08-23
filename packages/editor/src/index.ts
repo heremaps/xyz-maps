@@ -41,6 +41,8 @@ export * from './features/area/AreaShape';
 export * from './features/feature/EditorProperties';
 export * from './API/EditorEvent';
 
+export * from './Hooks';
+
 export {Crossing} from './API/MCrossing';
 
 export {DrawingShape} from './tools/drawingBoards/DrawingShape';

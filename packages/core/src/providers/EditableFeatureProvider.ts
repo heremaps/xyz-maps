@@ -20,7 +20,9 @@
 import {FeatureProvider as FeatureTileProvider} from './FeatureProvider';
 import {Feature} from '../features/Feature';
 import {JSUtils} from '@here/xyz-maps-common';
+import {NavlinkSplitHook, NavlinkDisconnectHook, FeatureRemoveHook, CoordinatesUpdateHook} from '@here/xyz-maps-editor';
 import {GeoJSONCoordinate} from '../features/GeoJSON';
+import {TileProviderOptions} from './TileProvider/TileProviderOptions';
 
 type FeatureClass = 'LINE' | 'NAVLINK' | 'MARKER' | 'PLACE' | 'ADDRESS' | 'AREA';
 
@@ -30,35 +32,47 @@ type NavlinkId = string | number;
 
 type Navlink = Feature;
 
-// const METHOD_NOT_IMPLEMENTED = 'Method not implemented.';
-
 type TurnNode = {
     link: Navlink,
     index: number
 };
 
-type SplitHookData = {
-    link: Navlink,
-    index: number,
-    children: [Navlink, Navlink],
-    relativePosition: number // 0.0 -> 1.0
-};
-type DisconnectHookData = {
-    link: Navlink,
-    index: number
-};
-type RemoveHookData = {
-    feature: Feature
-};
-
-type SplitHook = (data: SplitHookData) => void;
-type DisconnectHook = (data: DisconnectHookData) => void;
-type RemoveHook = (data: RemoveHookData) => void;
-
-type Hooks = {
-    'Navlink.split'?: SplitHook | SplitHook[],
-    'Navlink.disconnect'?: DisconnectHook | DisconnectHook[],
-    'Feature.remove'?: RemoveHook | RemoveHook[]
+/**
+ *  Configuration options of a EditableFeatureProviderOptions.
+ */
+export interface EditableFeatureProviderOptions extends TileProviderOptions {
+    /**
+     *  Allow or prevent editing by the {@link editor.Editor} module.
+     *
+     *  @defaultValue false
+     */
+    editable?: boolean;
+    /**
+     * Add hook functions that will be called during the execution of the corresponding "editing operation".
+     * The "hooks" option is a map with the "editing operation" as its key and the corresponding Hook or Array of Hook function(s) as its value.
+     *
+     * Available editing operations are 'Navlink.disconnect', 'Navlink.split', 'Feature.remove', 'Coordinates.remove'.
+     *
+     * @see {@link editor.Editor.addHook}
+     */
+    hooks?: {
+        /**
+         * The NavlinkSplitHook(s) will be called whenever a Navlink is devided into two new Navlinks. ('Navlink.split' operation).
+         */
+        'Navlink.split'?: NavlinkSplitHook | NavlinkSplitHook[],
+        /**
+         * The NavlinkDisconnectHook(s) will be called whenever a Navlink is disconnected from an intersection ('Navlink.disconnect' operation).
+         */
+        'Navlink.disconnect'?: NavlinkDisconnectHook | NavlinkDisconnectHook[],
+        /**
+         * The FeatureRemoveHook(s) will be called when a feature is being removed ('Feature.remove' operation).
+         */
+        'Feature.remove'?: FeatureRemoveHook | FeatureRemoveHook[],
+        /**
+         * The CoordinatesUpdateHook(s) will be called whenever the coordinates of a feature are added, updated or removed ('Coordinates.update' operation).
+         */
+        'Coordinates.update'?: CoordinatesUpdateHook | CoordinatesUpdateHook[]
+    }
 };
 
 /**
@@ -68,12 +82,24 @@ export abstract class EditableFeatureProvider extends FeatureTileProvider {
     _e: any;
 
     editable: boolean;
-
-    hooks: Hooks;
+    /**
+     * Hook functions that will be called during the execution of the corresponding "editing operation".
+     * The "hooks" property is a map with the "editing operation" as its key and the corresponding Hook or Array of Hook function(s) as its value.
+     *
+     * Available editing operations are 'Navlink.disconnect', 'Navlink.split', 'Feature.remove', 'Coordinates.remove'.
+     *
+     * @see {@link editor.Editor.addHook}
+     */
+    hooks: {
+        'Navlink.split'?: NavlinkSplitHook | NavlinkSplitHook[],
+        'Navlink.disconnect'?: NavlinkDisconnectHook | NavlinkDisconnectHook[],
+        'Feature.remove'?: FeatureRemoveHook | FeatureRemoveHook[],
+        'Coordinates.update'?: CoordinatesUpdateHook | CoordinatesUpdateHook[]
+    };
 
     private blocked = {};
 
-    constructor(options) {
+    constructor(options: EditableFeatureProviderOptions) {
         super({editable: true, ...options});
     }
 

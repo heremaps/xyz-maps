@@ -17,7 +17,7 @@
  * License-Filename: LICENSE
  */
 
-import {EditableFeatureProvider} from './EditableFeatureProvider';
+import {EditableFeatureProvider, EditableFeatureProviderOptions} from './EditableFeatureProvider';
 import LRUStorage from '../storage/LRUStorage';
 import {Feature} from '../features/Feature';
 import {TileStorage} from '../storage/TileStorage';
@@ -31,7 +31,7 @@ const METHOD_NOT_IMPLEMENTED = 'Method not implemented.';
 /**
  *  Options to configure the Provider.
  */
-export interface LocalProviderOptions {
+export interface LocalProviderOptions extends EditableFeatureProviderOptions {
     /**
      * Name of the provider.
      */
@@ -50,6 +50,8 @@ export interface LocalProviderOptions {
      * @internal
      */
     storage?: TileStorage;
+
+    size?: number
 };
 
 /**

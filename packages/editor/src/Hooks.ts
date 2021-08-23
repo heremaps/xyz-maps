@@ -18,8 +18,9 @@
  */
 
 import {Listener} from '@here/xyz-maps-common';
-import {EditableFeatureProvider} from '@here/xyz-maps-core';
+import {EditableFeatureProvider, Feature, GeoJSONCoordinate} from '@here/xyz-maps-core';
 import History from './features/History';
+import {Navlink} from './features/link/Navlink';
 
 const hookTypes = [
     'Navlink.split',
@@ -28,13 +29,77 @@ const hookTypes = [
     'Coordinates.update'
 ];
 
-type Hook = (data: any) => void;
+/**
+ * The NavlinkSplitHook is called whenever a Navlink is devided into two new Navlinks. ('Navlink.split' operation).
+ */
+export type NavlinkSplitHook = (data: {
+    /**
+     * The Navlink that will be split.
+     */
+    link: Navlink,
+    /**
+     * The index of the coordinate in which the split takes place and the new navlinks are connected to one another.
+     */
+    index: number,
+    /**
+     * The two newly created Navlinks that are replacing the original Navlink.
+     */
+    children: [Navlink, Navlink],
+    /**
+     *
+     */
+    relativePosition: number // 0.0 -> 1.0
+}) => void
+
+/**
+ * The NavlinkDisconnectHook is called whenever a Navlink is disconnected from an intersection ('Navlink.disconnect' operation).
+ */
+export type NavlinkDisconnectHook = (data: {
+    /**
+     * The Navlink that will be "disconnected" from the intersection
+     */
+    link: Navlink,
+    /**
+     * The index of the coordinate that will be offset to "disconnect" the Navlink from the intersection
+     */
+    index: number
+}) => void
+
+/**
+ * The FeatureRemoveHook will be called when a feature is being removed ('Feature.remove' operation).
+ */
+export type FeatureRemoveHook = (data: {
+    /**
+     * the feature that is going to be removed
+     */
+    feature: Feature
+}) => void;
+
+/**
+ * The CoordinatesUpdateHook will be called whenever the coordinates of a feature are added, updated or removed ('Coordinates.update' operation).
+ */
+export type CoordinatesUpdateHook = (data: {
+    /**
+     * the feature whose coordinates are updated
+     */
+    feature: Feature,
+    /**
+     * the previous coordinates before they are updated
+     */
+    previousCoordinates: GeoJSONCoordinate | GeoJSONCoordinate[] | GeoJSONCoordinate[][] | GeoJSONCoordinate[][][]
+}) => void;
 
 
-type Wrapper = (data: any, provider: EditableFeatureProvider, h: Hook) => void;
+type Wrapper = (
+    data: any,
+    provider: EditableFeatureProvider, h: NavlinkSplitHook | NavlinkDisconnectHook | FeatureRemoveHook | CoordinatesUpdateHook
+) => void;
 
 
-const createWrapper = (hook: Hook, hookProvider?: EditableFeatureProvider): Wrapper => {
+const createWrapper = (
+    hook: NavlinkSplitHook | NavlinkDisconnectHook | FeatureRemoveHook | CoordinatesUpdateHook,
+    hookProvider?: EditableFeatureProvider
+): Wrapper => {
     const wrapper = (data, provider) => {
         if (!hookProvider || provider == hookProvider) {
             hook(data);
@@ -65,7 +130,11 @@ class Hooks {
         this.w = new Map();
     }
 
-    add(name: string, hook: Hook, provider?: EditableFeatureProvider) {
+    add(
+        name: string,
+        hook: NavlinkSplitHook | NavlinkDisconnectHook | FeatureRemoveHook | CoordinatesUpdateHook,
+        provider?: EditableFeatureProvider
+    ) {
         const guid = getGuid(hook, provider);
         let wrapper = this.w.get(guid);
         if (!wrapper) {
@@ -74,11 +143,15 @@ class Hooks {
         return this.h.add(name, wrapper);
     }
 
-    remove(name: string, hook: Hook, provider?: EditableFeatureProvider) {
+    remove(
+        name: string,
+        hook: NavlinkSplitHook | NavlinkDisconnectHook | FeatureRemoveHook | CoordinatesUpdateHook,
+        provider?: EditableFeatureProvider
+    ) {
         return this.h.remove(name, this.w.get(getGuid(hook, provider)));
     }
 
-    get(name: string): Hook[] {
+    get(name: string): (NavlinkSplitHook | NavlinkDisconnectHook | FeatureRemoveHook | CoordinatesUpdateHook)[] {
         return this.h.get(name).map((l) => (<any>l[0]).h);
     }
 

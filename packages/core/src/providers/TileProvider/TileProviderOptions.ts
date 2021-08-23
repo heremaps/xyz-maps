@@ -42,6 +42,9 @@ interface TileProviderOptions {
      * @internal
      */
     storage?: TileStorage;
+
+    minLevel?: number,
+    maxLevel?: number,
 };
 
 export {TileProviderOptions};

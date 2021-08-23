@@ -18,10 +18,10 @@
  */
 
 import {RemoteTileProviderOptions} from './RemoteTileProviderOptions';
+import {NavlinkSplitHook, NavlinkDisconnectHook, FeatureRemoveHook, CoordinatesUpdateHook} from '@here/xyz-maps-editor';
 
 /**
  *  Configuration options of a EditableRemoteTileProvider.
- *
  */
 export interface EditableRemoteTileProviderOptions extends RemoteTileProviderOptions {
     /**
@@ -30,4 +30,32 @@ export interface EditableRemoteTileProviderOptions extends RemoteTileProviderOpt
      *  @defaultValue false
      */
     editable?: boolean;
+    /**
+     * Add hook functions that will be called during the execution of the corresponding "editing operation".
+     * The "hooks" option is a map with the "editing operation" as its key and the corresponding Hook or Array of Hook function(s) as its value.
+     *
+     * Available editing operations are 'Navlink.disconnect', 'Navlink.split', 'Feature.remove', 'Coordinates.remove'.
+     *
+     * @see {@link editor.Editor.addHook}
+     */
+    hooks?: {
+        /**
+         * The NavlinkSplitHook(s) will be called whenever a Navlink is devided into two new Navlinks. ('Navlink.split' operation).
+         */
+        'Navlink.split'?: NavlinkSplitHook | NavlinkSplitHook[],
+        /**
+         * The NavlinkDisconnectHook(s) will be called whenever a Navlink is disconnected from an intersection ('Navlink.disconnect' operation).
+         */
+        'Navlink.disconnect'?: NavlinkDisconnectHook | NavlinkDisconnectHook[],
+        /**
+         * The FeatureRemoveHook(s) will be called when a feature is being removed ('Feature.remove' operation).
+         */
+        'Feature.remove'?: FeatureRemoveHook | FeatureRemoveHook[],
+        /**
+         * The CoordinatesUpdateHook(s) will be called whenever the coordinates of a feature are added, updated or removed ('Coordinates.update' operation).
+         */
+        'Coordinates.update'?: CoordinatesUpdateHook | CoordinatesUpdateHook[]
+    },
+
+    staticData?: boolean
 };

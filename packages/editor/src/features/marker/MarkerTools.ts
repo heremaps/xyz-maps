@@ -21,7 +21,6 @@ import {Marker} from './Marker';
 import {GeoJSONCoordinate} from '@here/xyz-maps-core';
 import {Feature} from '../feature/Feature';
 import FeatureTools from '../feature/FeatureTools';
-import {Line} from '@here/xyz-maps-editor';
 
 const DRAG_STOP = 'dragStop';
 const DRAG_MOVE = 'dragMove';

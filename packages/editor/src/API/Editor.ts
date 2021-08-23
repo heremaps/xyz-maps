@@ -26,7 +26,7 @@ import {
     GeoRect,
     GeoJSONFeature,
     GeoJSONCoordinate,
-    GeoJSONBBox
+    GeoJSONBBox, EditableFeatureProvider
 } from '@here/xyz-maps-core';
 import {Map} from '@here/xyz-maps-display';
 import {DrawingBoard} from './DrawingBoard';
@@ -45,6 +45,7 @@ import {Marker} from '../features/marker/Marker';
 import {Place} from '../features/location/Place';
 import {Line} from '../features/line/Line';
 import {Navlink} from '../features/link/Navlink';
+import {CoordinatesUpdateHook, NavlinkDisconnectHook, NavlinkSplitHook, FeatureRemoveHook} from '../Hooks';
 
 
 type EditableProvider = EditableRemoteTileProvider;
@@ -193,10 +194,6 @@ export default class Editor {
         // >>excludeStart("devMapEditorInit", pragmas.devMapEditorInit);
         that._i = () => HERE_WIKI;
         // >>excludeEnd("devMapEditorInit");
-
-        that['addHook'] = (name, hook, provider?) => HERE_WIKI.hooks.add(name, hook, provider);
-        that['removeHook'] = (name, hook, provider?) => HERE_WIKI.hooks.remove(name, hook, provider);
-        that['getHooks'] = (name) => HERE_WIKI.hooks.get(name);
 
         initHooks(HERE_WIKI);
 
@@ -434,6 +431,50 @@ export default class Editor {
 
         return added.length > 1 ? this.createFeatureContainer.apply(this, added) : added[0];
     }
+
+    /**
+     * Add a hook function that will be called during the execution of the editing operation.
+     *
+     * Possible operation types are: 'Navlink.disconnect', 'Navlink.split', 'Feature.remove', 'Coordinates.remove'
+     *
+     * @param type - the type of the operation
+     * @param hook - the hook function that should be called
+     * @param provider - If a provider is defined, the hook is only called if features of the provider are affected by the operation
+     */
+    addHook(
+        type: string,
+        hook: NavlinkSplitHook | NavlinkDisconnectHook | FeatureRemoveHook | CoordinatesUpdateHook,
+        provider?: EditableFeatureProvider
+    ) {
+        return this._i().hooks.add(type, hook, provider);
+    };
+
+    /**
+     * Remove a specific hook for the desired editing operation.
+     *
+     * Possible operation types are: 'Navlink.disconnect', 'Navlink.split', 'Feature.remove', 'Coordinates.remove'
+     *
+     * @param type - the type of the operation
+     * @param hook - the hook function to remove
+     * @param provider - If a provider is defined, the hook is only called if features of the provider are affected by the operation
+     */
+    removeHook(
+        type: string,
+        hook: NavlinkSplitHook | NavlinkDisconnectHook | FeatureRemoveHook | CoordinatesUpdateHook,
+        provider?: EditableFeatureProvider
+    ) {
+        return this._i().hooks.remove(type, hook, provider);
+    };
+
+    /**
+     * Get all registered hooks for the desired operation.
+     *
+     * @param type - the type of the operation
+     */
+    getHooks(type: string): (NavlinkSplitHook | NavlinkDisconnectHook | FeatureRemoveHook | CoordinatesUpdateHook)[] {
+        return this._i().hooks.get(type);
+    };
+
 
     /**
      * Get a feature by id and layer.
