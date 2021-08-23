@@ -21,10 +21,14 @@
 import {LineShape} from './LineShape';
 import {getSegmentIndex, getPntAt} from '../../geometry';
 import VirtualShape from './VirtualShape';
+import {Line} from '@here/xyz-maps-editor';
+import {GeoJSONCoordinate} from '@here/xyz-maps-core';
+import FeatureTools from '../feature/FeatureTools';
 
 let UNDEF;
 
-function getPrivate(feature, name?: string) {
+
+function getPrivate(feature: Line, name?: string): any {
     let prv = feature.__;
 
     if (!prv) {
@@ -33,7 +37,8 @@ function getPrivate(feature, name?: string) {
             highlight: true,
             moved: false,
             shps: [],
-            vShps: []
+            vShps: [],
+            isGeoMod: false
         };
     }
 
@@ -193,27 +198,25 @@ const tools = {
         }
     },
 
-    _setCoords: function(obj, coordinates) {
-        obj._e().objects.history.origin(obj);
-        obj.getProvider().setFeatureCoordinates(obj, coordinates);
+    _setCoords: function(line: Line, coordinates: GeoJSONCoordinate[]) {
+        line._e().objects.history.origin(line);
+
+        getPrivate(line).isGeoMod = true;
+
+        line.getProvider().setFeatureCoordinates(line, coordinates);
     },
 
-    markAsRemoved: function(obj) {
-        obj._e().hooks.trigger('Feature.remove', {feature: obj}, obj.getProvider());
-        obj.editState('removed', Date.now());
+    markAsRemoved: function(line: Line) {
+        line._e().hooks.trigger('Feature.remove', {feature: line}, line.getProvider());
+        line.editState('removed', Date.now());
 
-        tools.deHighlight(obj);
+        tools.deHighlight(line);
 
-        obj.getProvider().removeFeature(obj);
+        line.getProvider().removeFeature(line);
     },
 
-    markAsModified: function(obj, saveView?: boolean) {
-        obj.editState('modified', Date.now());
-
-        if (saveView == UNDEF || saveView) {
-            obj._e().objects.history.saveChanges();
-        }
-        return obj;
+    markAsModified: function(line: Line, saveView?: boolean) {
+        return FeatureTools.markAsModified(line, getPrivate(line), saveView);
     }
 };
 

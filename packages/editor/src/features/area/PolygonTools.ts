@@ -22,6 +22,7 @@ import {AreaShape} from './AreaShape';
 import {VirtualAreaShape} from './VirtualShape';
 import {Area} from './Area';
 import {Feature, GeoJSONCoordinate} from '@here/xyz-maps-core';
+import FeatureTools from '../feature/FeatureTools';
 
 let UNDEF;
 
@@ -244,6 +245,9 @@ const tools = {
                 feature.geometry.type = 'MultiPolygon';
             }
         }
+
+        getPrivate(feature).isGeoMod = true;
+
         feature.getProvider().setFeatureCoordinates(feature, coords);
 
         if (refresh) {
@@ -259,14 +263,7 @@ const tools = {
     },
 
     markAsModified: function(area: Area, saveView?: boolean) {
-        area.editState('modified', Date.now());
-        // feature.properties.editStates.modified = Date.now();
-        // feature.__.isModified = Date.now();
-
-        if (saveView || saveView === UNDEF) {
-            area._e().objects.history.saveChanges();
-        }
-        return area;
+        return FeatureTools.markAsModified(area, getPrivate(area), saveView);
     },
 
     //* *************************************** public area/link only ****************************************

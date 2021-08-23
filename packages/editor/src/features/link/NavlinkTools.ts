@@ -26,6 +26,7 @@ import {NavlinkShape} from './NavlinkShape';
 import VirtualLinkShape from './VirtualShape';
 import {Navlink} from './Navlink';
 import {EditStates} from '../feature/Feature';
+import FeatureTools from '../feature/FeatureTools';
 
 type LocationId = string | number;
 
@@ -332,17 +333,8 @@ var tools = {
     },
 
     markAsModified: function(line: Navlink, saveView: boolean = true, visualize: boolean = true) {
-        // if (saveView === UNDEF) {
-        //     saveView = true;
-        // }
-        // if (visualize === UNDEF) {
-        //     visualize = true;
-        // }
-
         const wasAlreadyModded = line.editState('modified');
         const prv = getPrivate(line);
-
-        line.editState('modified', Date.now());
 
         if (prv.isGeoMod) {
             const coordinates = line.coord();
@@ -352,13 +344,12 @@ var tools = {
                     coordinates,
                     getTotalLength(coordinates) * calcRelPosOfPoiAtLink(coordinates, locTools.getRoutingPosition(cObj)).offset
                 );
-
                 // connect to the line with new routing point when the link geometry is changed
                 locTools.connect(cObj, line, nrp);
             });
-
-            prv.isGeoMod = false;
         }
+
+        FeatureTools.markAsModified(line, prv, saveView);
 
         if (!wasAlreadyModded) {
             triggerDisplayRefresh(line);
@@ -366,10 +357,6 @@ var tools = {
             if (!prv.isSelected && visualize) {
                 tools.defaults(line);
             }
-        }
-
-        if (saveView) {
-            line._e().objects.history.saveChanges();
         }
 
         return line;
@@ -783,7 +770,7 @@ var tools = {
         line: Navlink,
         shapeToCheck?: number,
         ignoreSplitChildren?: Navlink[],
-        preferShapeIndex?: number,
+        preferShapeIndex?: number
     ) {
         return autoFixGeometry(line, shapeToCheck, ignoreSplitChildren, preferShapeIndex);
     },

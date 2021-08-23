@@ -209,13 +209,10 @@ class History {
         const previousStorage = storage[currentStep];
         let layerChangeStep = currentChanges[layerId];
 
-
         if (!layerChangeStep) {
             layerChangeStep = currentChanges[layerId] = {};
         }
-
         layerChangeStep[id] = feature;
-
 
         // check if origin is already known/stored in storage
         if (!previousStorage || !previousStorage[layerId] || !previousStorage[layerId][id]) {
@@ -262,6 +259,12 @@ class History {
             }
         }
         return changed;
+    };
+
+    getHistoryFeature(feature, historyStep: number = this.current) {
+        const history = this.storage.get(historyStep);
+        const layerId = feature.getProvider().id;
+        return history && history[layerId][feature.id];
     };
 
     getChanges() {

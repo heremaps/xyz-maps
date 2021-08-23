@@ -26,7 +26,8 @@ import {Navlink} from '../link/Navlink';
 import {EditableFeatureProvider, GeoJSONCoordinate} from '@here/xyz-maps-core';
 import {JSUtils} from '@here/xyz-maps-common';
 import {Location} from './Location';
-import {Feature, Marker} from '@here/xyz-maps-editor';
+import {Feature} from '@here/xyz-maps-editor';
+import FeatureTools from '../feature/FeatureTools';
 
 let linkTools;
 let UNDEF;
@@ -40,7 +41,7 @@ const getPrivate = (feature, name?: string) => {
         prv = feature.__ = {
             isEditable: true,
             allowEdit: true,
-
+            isGeoMod: false,
             isHovered: false,
             cLink: null,
             moved: false,
@@ -329,8 +330,8 @@ const tools = {
 
     markAsRemoved: markerTools.markAsRemoved,
 
-    markAsModified: (feature: PlaceAddress, saveView?: boolean) => {
-        markerTools.markAsModified(feature, saveView);
+    markAsModified: function(feature: Feature, saveView?: boolean) {
+        return FeatureTools.markAsModified(feature, getPrivate(feature), saveView);
     },
 
     _props: _props,

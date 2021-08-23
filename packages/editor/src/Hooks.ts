@@ -18,21 +18,23 @@
  */
 
 import {Listener} from '@here/xyz-maps-common';
-import {EditableRemoteTileProvider} from '@here/xyz-maps-core';
+import {EditableFeatureProvider} from '@here/xyz-maps-core';
 import History from './features/History';
 
 const hookTypes = [
     'Navlink.split',
     'Navlink.disconnect',
-    'Feature.remove'
+    'Feature.remove',
+    'Coordinates.update'
 ];
 
 type Hook = (data: any) => void;
 
-type Wrapper = (data: any, provider: EditableRemoteTileProvider, h: Hook) => void;
+
+type Wrapper = (data: any, provider: EditableFeatureProvider, h: Hook) => void;
 
 
-const createWrapper = (hook: Hook, hookProvider?: EditableRemoteTileProvider): Wrapper => {
+const createWrapper = (hook: Hook, hookProvider?: EditableFeatureProvider): Wrapper => {
     const wrapper = (data, provider) => {
         if (!hookProvider || provider == hookProvider) {
             hook(data);
@@ -63,7 +65,7 @@ class Hooks {
         this.w = new Map();
     }
 
-    add(name: string, hook: Hook, provider?: EditableRemoteTileProvider) {
+    add(name: string, hook: Hook, provider?: EditableFeatureProvider) {
         const guid = getGuid(hook, provider);
         let wrapper = this.w.get(guid);
         if (!wrapper) {
@@ -72,15 +74,15 @@ class Hooks {
         return this.h.add(name, wrapper);
     }
 
-    remove(name: string, hook: Hook, provider?: EditableRemoteTileProvider) {
+    remove(name: string, hook: Hook, provider?: EditableFeatureProvider) {
         return this.h.remove(name, this.w.get(getGuid(hook, provider)));
     }
 
-    get(name: string): Hook | Hook[] {
+    get(name: string): Hook[] {
         return this.h.get(name).map((l) => (<any>l[0]).h);
     }
 
-    trigger(name: string, data: object, provider: EditableRemoteTileProvider) {
+    trigger(name: string, data: object, provider: EditableFeatureProvider) {
         let history = this.history;
         let active = history.active();
 

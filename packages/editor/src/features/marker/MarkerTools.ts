@@ -20,6 +20,8 @@
 import {Marker} from './Marker';
 import {GeoJSONCoordinate} from '@here/xyz-maps-core';
 import {Feature} from '../feature/Feature';
+import FeatureTools from '../feature/FeatureTools';
+import {Line} from '@here/xyz-maps-editor';
 
 const DRAG_STOP = 'dragStop';
 const DRAG_MOVE = 'dragMove';
@@ -31,12 +33,13 @@ function triggerEvent(marker: Marker, ev, type: string) {
     marker._e().listeners.trigger(ev, marker, type);
 }
 
-function getPrivate(feature: Marker|Feature, name?: string) {
+function getPrivate(feature: Marker | Feature, name?: string) {
     let prv = feature.__;
 
     if (!prv) {
         prv = feature.__ = {
-            isEditable: true
+            isEditable: true,
+            isGeoMod: false
         };
     }
 
@@ -160,6 +163,8 @@ const tools = {
         }
 
         feature.getProvider().setFeatureCoordinates(feature, pos.slice());
+
+        getPrivate(feature).isGeoMod = true;
     },
 
     markAsRemoved: function(feature: Marker) {
@@ -170,12 +175,7 @@ const tools = {
     },
 
     markAsModified: function(feature: Feature, saveView?: boolean) {
-        feature.editState('modified', Date.now());
-
-        if (saveView == UNDEF || saveView) {
-            feature._e().objects.history.saveChanges();
-        }
-        return feature;
+        return FeatureTools.markAsModified(feature, getPrivate(feature), saveView);
     }
 };
 
