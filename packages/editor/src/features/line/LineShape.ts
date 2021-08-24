@@ -19,9 +19,10 @@
 
 import {Feature} from '@here/xyz-maps-core';
 import {Line} from './Line';
+import LineTools from './LineTools';
 // const Feature = features.Feature;
 
-let lineTools;
+let lineTools: typeof LineTools;
 let UNDEF;
 
 /**
@@ -108,7 +109,9 @@ class LineShape extends Feature {
      * Removes the shape point from the geometry of the Line feature.
      */
     remove() {
-        lineTools.removeCoord(this.getLine(), this.properties.index);
+        const line = this.getLine();
+        lineTools.removeCoord(line, this.properties.index);
+        lineTools.markAsModified(line);
     }
 
     pointerdown(ev) {
