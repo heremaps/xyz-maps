@@ -407,7 +407,7 @@ describe('editor hooks test', function() {
         expect(address.properties.previousCoordinates).to.deep.almost([76.090361884, 13.009954328, 0]);
     });
 
-    it('"Coordinates.update": undo and validate Address', async () => {
+    it('"Coordinates.update": undo and validate Address', () => {
         editor.undo();
 
         address = localLayer.search(address.id);
@@ -417,6 +417,38 @@ describe('editor hooks test', function() {
         expect(address.coord()).to.deep.almost([76.090361884, 13.009954328, 0]);
         expect(address.properties.previousCoordinates).to.deep.almost([76.089289, 13.0099543]);
 
-        address.remove();
+        // address.remove();
+    });
+
+    it('add an additional Hook via editor.addHook', () => {
+        editor.addHook('Coordinates.update', ({feature}) => {
+            feature.properties.hook2 = true;
+        });
+
+        const p1 = display.pixelToGeo(300, 300);
+
+        address.coord([p1.longitude, p1.latitude]);
+
+        expect(address.properties.hook2).to.equal(true);
+    });
+
+    it('get all hooks via editor.getHooks', () => {
+        let hooks = editor.getHooks('Coordinates.update');
+
+        expect(hooks.length).to.equal(2);
+    });
+
+    it('remove additional Hook and validate', () => {
+        let hooks = editor.getHooks('Coordinates.update');
+
+        editor.removeHook('Coordinates.update', hooks[1]);
+
+        address.prop('hook2', null);
+
+        const p1 = display.pixelToGeo(100, 100);
+
+        address.coord([p1.longitude, p1.latitude]);
+
+        expect(address.properties.hook2).to.equal(null);
     });
 });
