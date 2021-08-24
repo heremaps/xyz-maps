@@ -35,7 +35,7 @@ type Navlink = Feature;
  */
 export interface EditableFeatureProviderOptions extends TileProviderOptions {
     /**
-     *  Allow or prevent editing by the {@link editor.Editor} module.
+     *  Allow or prevent editing by the {@link editor.Editor | Editor} module.
      *
      *  @defaultValue false
      */
@@ -46,7 +46,7 @@ export interface EditableFeatureProviderOptions extends TileProviderOptions {
      *
      * Available editing operations are 'Navlink.disconnect', 'Navlink.split', 'Feature.remove', 'Coordinates.remove'.
      *
-     * @see {@link editor.Editor.addHook}
+     * @see {@link editor.Editor.addHook | editor.addHook}
      */
     hooks?: {
         /**
@@ -81,7 +81,7 @@ export abstract class EditableFeatureProvider extends FeatureTileProvider {
      *
      * Available editing operations are 'Navlink.disconnect', 'Navlink.split', 'Feature.remove', 'Coordinates.remove'.
      *
-     * @see {@link editor.Editor.addHook}
+     * @see {@link editor.Editor.addHook | editor.addHook }
      */
     hooks: {
         'Navlink.split'?: NavlinkSplitHook | NavlinkSplitHook[],
@@ -97,14 +97,14 @@ export abstract class EditableFeatureProvider extends FeatureTileProvider {
     }
 
     /**
-     * This method is used to determine the {@link editor.Feature.class FeatureClass} required to edit the feature.
-     * The {@link editor.Feature.class FeatureClass} defines how a certain feature behaves when its getting edited.
+     * This method is used to determine the {@link editor.Feature.class | FeatureClass} required to edit the feature.
+     * The {@link editor.Feature.class | FeatureClass} defines how a certain feature behaves when its getting edited.
      *
-     * By default, the {@link editor.Editor Editor} handles all features of geometry type 'LineString' as {@link editor.Line Line}, 'Point' as {@link editor.Marker Marker} and '(Multi)Polygon' as {@link editor.Area Area}.
+     * By default, the {@link editor.Editor Editor} handles all features of geometry type 'LineString' as {@link editor.Line | Line}, 'Point' as {@link editor.Marker | Marker} and '(Multi)Polygon' as {@link editor.Area | Area}.
      *
-     * If you want to edit features with {@link editor.Feature.class FeatureClass} 'NAVLINK', 'PLACE' or 'ADDRESS' this method must be overridden to enable editing of {@link editor.Navlink Navlinks}, {@link editor.Place Places} or {@link editor.Address Addresses}.
+     * If you want to edit features with {@link editor.Feature.class | FeatureClass} 'NAVLINK', 'PLACE' or 'ADDRESS' this method must be overridden to enable editing of {@link editor.Navlink | Navlinks}, {@link editor.Place | Places} or {@link editor.Address | Addresses}.
      *
-     * @param feature - The feature whose {@link editor.Feature.class FeatureClass} is requested
+     * @param feature - The feature whose {@link editor.Feature.class | FeatureClass} is requested
      *
      * @returns the FeatureClass of the feature, or null if the feature should not be editable.
      */
@@ -127,7 +127,7 @@ export abstract class EditableFeatureProvider extends FeatureTileProvider {
     /**
      * Attribute reader for obtaining the zLevels of a Navlink feature.
      *
-     * This method must be implemented to enable editing of {@link editor.Navlink Navlinks}.
+     * This method must be implemented to enable editing of {@link editor.Navlink | Navlinks}.
      *
      * @param navlink - the Navlink whose zLevels are requested
      *
@@ -138,7 +138,7 @@ export abstract class EditableFeatureProvider extends FeatureTileProvider {
     /**
      * Attribute writer for writing the zLevels of a Navlink feature.
      *
-     * This method must be implemented to enable editing of {@link editor.Navlink Navlinks}.
+     * This method must be implemented to enable editing of {@link editor.Navlink | Navlinks}.
      *
      * @param navlink - the Navlink whose zLevels should be set
      * @param zLevels - An array containing the zLevel for each coordinate of the Navlink
@@ -150,7 +150,7 @@ export abstract class EditableFeatureProvider extends FeatureTileProvider {
     /**
      * Attribute reader for obtaining the direction of travel of a Navlink feature.
      *
-     * This method must be implemented to enable editing of {@link editor.Navlink Navlinks}.
+     * This method must be implemented to enable editing of {@link editor.Navlink | Navlinks}.
      *
      * @param navlink - the Navlink whose direction is requested
      */
@@ -159,7 +159,7 @@ export abstract class EditableFeatureProvider extends FeatureTileProvider {
     /**
      * Attribute reader for obtaining if a Navlink feature can be accessed by pedestrians only.
      *
-     * This method must be implemented to enable editing of {@link editor.Navlink Navlinks}.
+     * This method must be implemented to enable editing of {@link editor.Navlink | Navlinks}.
      *
      * @param navlink - the Navlink
      *
@@ -170,7 +170,7 @@ export abstract class EditableFeatureProvider extends FeatureTileProvider {
     /**
      * Attribute reader for obtaining the turn-restrictions of two Navlink Features.
      *
-     * This method must be implemented to enable editing of {@link editor.Navlink Navlinks}.
+     * This method must be implemented to enable editing of {@link editor.Navlink | Navlinks}.
      *
      * @param turnFrom - The Navlink and it's coordinate index from which to turn from
      * @param turnTo - The Navlink and it's coordinate index to which you want to turn
@@ -182,7 +182,7 @@ export abstract class EditableFeatureProvider extends FeatureTileProvider {
     /**
      * Attribute writer to store turn-restrictions of two Navlink Features.
      *
-     * This method must be implemented to enable editing of {@link editor.Navlink Navlinks}.
+     * This method must be implemented to enable editing of {@link editor.Navlink | Navlinks}.
      *
      * @param restricted - Indicates if the turn is allowed (true) or forbidden (false)
      * @param turnFrom - The Navlink and it's coordinate index from which to turn from
@@ -193,7 +193,7 @@ export abstract class EditableFeatureProvider extends FeatureTileProvider {
     /**
      * Attribute reader for obtaining the id of the TileProvider containing the corresponding Navlink, of an Address or Place feature, on which the RoutingPoint is located.
      *
-     * This method must be implemented to enable editing of {@link editor.Place Places} or {@link editor.Address Addresses}.
+     * This method must be implemented to enable editing of {@link editor.Place | Places} or {@link editor.Address | Addresses}.
      *
      * @param feature - The Address or Place feature whose RoutingProvider is requested.
      *
@@ -205,7 +205,7 @@ export abstract class EditableFeatureProvider extends FeatureTileProvider {
      * Attribute reader for obtaining the RoutingPoint's geographical position of an Address or Place.
      * The geographical position must be located on the geometry of the related Navlink feature.
      *
-     * This method must be implemented to enable editing of {@link editor.Place Places} or {@link editor.Address Addresses}.
+     * This method must be implemented to enable editing of {@link editor.Place | Places} or {@link editor.Address | Addresses}.
      *
      * @param feature - The Address or Place feature whose RoutingProvider is requested.
      *
@@ -217,7 +217,7 @@ export abstract class EditableFeatureProvider extends FeatureTileProvider {
      * Attribute reader for obtaining the id of the Navlink Feature on which the RoutingPoint of an Address or Place feature is located.
      * For Addresses an Id must be returned. If null is returned for a Place, the Place is treated as "floating" without a RoutingPoint.
      *
-     * This method must be implemented to enable editing of {@link editor.Place Places} or {@link editor.Address Addresses}.
+     * This method must be implemented to enable editing of {@link editor.Place | Places} or {@link editor.Address | Addresses}.
      *
      * @param feature - The Address or Place of which the Navlink of the RoutingPoint is requested.
      *
@@ -229,7 +229,7 @@ export abstract class EditableFeatureProvider extends FeatureTileProvider {
      * Attribute writer to store the RoutingPoint's geographical position of an Address or Place.
      * The geographical position must be located on the geometry of the related Navlink feature.
      *
-     * This method must be implemented to enable editing of {@link editor.Place Places} or {@link editor.Address Addresses}.
+     * This method must be implemented to enable editing of {@link editor.Place | Places} or {@link editor.Address | Addresses}.
      *
      * @param feature - The Address or Place feature whose RoutingPoint position to write.
      * @param position - the geographical position of the RoutingPoint.
@@ -239,7 +239,7 @@ export abstract class EditableFeatureProvider extends FeatureTileProvider {
     /**
      * Attribute writer for storing the Navlink reference on which the RoutingPoint of an Address or Place feature is located.
      *
-     * This method must be implemented to enable editing of {@link editor.Place Places} or {@link editor.Address Addresses}.
+     * This method must be implemented to enable editing of {@link editor.Place | Places} or {@link editor.Address | Addresses}.
      *
      * @param feature - The Address or Place of which the Navlink reference of the RoutingPoint to store.
      * @param navlink - The navlink whose reference is to be written, or null in case of a Place becomes "floating" and has no RoutingPoint.
