@@ -64,23 +64,25 @@ const createProvider = (provider) => {
             super({editable: true, ...props}, preprocessor);
 
             this.hooks = {
-                'Navlink.split': function(data: SplitHookData) {
-                    let link = data.link;
-                    let children = data.children;
-                    link.prop('splittedInto', children.map((c) => c.id));
-                    link.prop('splitted', 'HOOK');
-                    children.forEach((child) => {
-                        child.prop('parentLink', link.id);
-                        child.prop('originLink', link.prop('originLink') || link.id);
-                    });
-                },
-                'Feature.remove': function(data: RemoveHookData) {
-                    // mark removed link as removed
-                    data.feature.prop('removed', 'HOOK');
-                },
-                'Navlink.disconnect': function(data: DisconnectHookData) {
-                    // mark disconnected link as disconnected
-                    data.link.prop('disconnected', 'HOOK');
+                ...(this.hooks || {}), ...{
+                    'Navlink.split': function(data: SplitHookData) {
+                        let link = data.link;
+                        let children = data.children;
+                        link.prop('splittedInto', children.map((c) => c.id));
+                        link.prop('splitted', 'HOOK');
+                        children.forEach((child) => {
+                            child.prop('parentLink', link.id);
+                            child.prop('originLink', link.prop('originLink') || link.id);
+                        });
+                    },
+                    'Feature.remove': function(data: RemoveHookData) {
+                        // mark removed link as removed
+                        data.feature.prop('removed', 'HOOK');
+                    },
+                    'Navlink.disconnect': function(data: DisconnectHookData) {
+                        // mark disconnected link as disconnected
+                        data.link.prop('disconnected', 'HOOK');
+                    }
                 }
             };
         }
@@ -178,7 +180,7 @@ const createProvider = (provider) => {
     return NewProvider;
 };
 
-const TestLocalProvider = createProvider(LocalProvider);
-const TestProvider = createProvider(SpaceProvider);
+const TestLocalProvider = <any>createProvider(LocalProvider);
+const TestProvider = <any>createProvider(SpaceProvider);
 
 export {TestLocalProvider, TestProvider};
