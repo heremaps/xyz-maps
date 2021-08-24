@@ -20,10 +20,10 @@ const baseMapLayer = new MVTLayer({
             'path': [{zIndex: 3, type: 'Line', stroke: '#c8b89d', strokeWidth: '1m'}],
             'tunnel': [{zIndex: 3, type: 'Line', stroke: '#ffffff', strokeWidth: {15: 4, 20: 16}, strokeDasharray: [4, 4]}],
             'ferry': [{zIndex: 4, type: 'Line', stroke: '#164ac8', strokeWidth: 1}],
-            'highway': [{zIndex: 5, type: 'Line', stroke: 'white', strokeWidth: {10: 1.5, 15: 4, 16: '12m'}}],
+            'highway': [{zIndex: 5, type: 'Line', stroke: 'white', repeat: 64, strokeWidth: {10: 1.5, 15: 4, 16: '12m'}}],
             'boundaries': [{zIndex: 6, type: 'Line', stroke: '#b3b1ad', strokeWidth: {10: 0.5, 20: 2}}],
             'buildings': [{
-                zIndex: 7, type: 'Polygon', fill: 'rgba(155,175,196,0.8)',
+                zIndex: 7, type: 'Polygon', fill: 'rgba(170,170,170,0.7)', stroke: 'rgba(30,30,30,0.7)',
                 // define extrude in meters to display polygons with extrusion
                 extrude: (feature) => feature.properties.height || 0,
                 // define the base of the extrusion in meters offset from the ground
@@ -34,6 +34,9 @@ const baseMapLayer = new MVTLayer({
                 font: '12px sans-serif',
                 strokeWidth: 4,
                 stroke: 'white', text: (f) => f.properties.name,
+                // Minimum distance in pixel between repeated text labels on line geometries.
+                // Applies per tile only. Default is 256 pixel.
+                repeat: 64,
                 // Alignment for Text. "map" aligns to the plane of the map.
                 alignment: 'map',
                 // Text with a higher priority (lower value) will be drawn before lower priorities (higher value)
