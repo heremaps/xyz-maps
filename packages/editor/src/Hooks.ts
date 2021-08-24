@@ -46,9 +46,10 @@ export type NavlinkSplitHook = (data: {
      */
     children: [Navlink, Navlink],
     /**
-     *
+     * The relative position on the Navlink's geometry where the split happened.
+     * The range of values is from 0.0 to 1.0, where 0 represents the position on the first and 1 on the last coordinate.
      */
-    relativePosition: number // 0.0 -> 1.0
+    relativePosition: number
 }) => void
 
 /**
