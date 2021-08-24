@@ -24,18 +24,11 @@ import {NavlinkSplitHook, NavlinkDisconnectHook, FeatureRemoveHook, CoordinatesU
 import {GeoJSONCoordinate} from '../features/GeoJSON';
 import {TileProviderOptions} from './TileProvider/TileProviderOptions';
 
-type FeatureClass = 'LINE' | 'NAVLINK' | 'MARKER' | 'PLACE' | 'ADDRESS' | 'AREA';
-
 // type EditorFeature = { editState: (state?: string, value?) => any };
 
 type NavlinkId = string | number;
 
 type Navlink = Feature;
-
-type TurnNode = {
-    link: Navlink,
-    index: number
-};
 
 /**
  *  Configuration options of a EditableFeatureProviderOptions.
@@ -103,8 +96,19 @@ export abstract class EditableFeatureProvider extends FeatureTileProvider {
         super({editable: true, ...options});
     }
 
-
-    detectFeatureClass(feature): FeatureClass | null {
+    /**
+     * This method is used to determine the {@link editor.Feature.class FeatureClass} required to edit the feature.
+     * The {@link editor.Feature.class FeatureClass} defines how a certain feature behaves when its getting edited.
+     *
+     * By default, the {@link editor.Editor Editor} handles all features of geometry type 'LineString' as {@link editor.Line Line}, 'Point' as {@link editor.Marker Marker} and '(Multi)Polygon' as {@link editor.Area Area}.
+     *
+     * If you want to edit features with {@link editor.Feature.class FeatureClass} 'NAVLINK', 'PLACE' or 'ADDRESS' this method must be overridden to enable editing of {@link editor.Navlink Navlinks}, {@link editor.Place Places} or {@link editor.Address Addresses}.
+     *
+     * @param feature - The feature whose {@link editor.Feature.class FeatureClass} is requested
+     *
+     * @returns the FeatureClass of the feature, or null if the feature should not be editable.
+     */
+    detectFeatureClass(feature: Feature): 'LINE' | 'NAVLINK' | 'MARKER' | 'PLACE' | 'ADDRESS' | 'AREA' | null {
         switch (feature.geometry.type) {
         case 'Point':
             return 'MARKER';
@@ -120,30 +124,138 @@ export abstract class EditableFeatureProvider extends FeatureTileProvider {
         return feature.properties;
     }
 
-    abstract readZLevels(link: Navlink): number[];
+    /**
+     * Attribute reader for obtaining the zLevels of a Navlink feature.
+     *
+     * This method must be implemented to enable editing of {@link editor.Navlink Navlinks}.
+     *
+     * @param navlink - the Navlink whose zLevels are requested
+     *
+     * @return An array containing the zLevel for each coordinate of the Navlink.
+     */
+    abstract readZLevels(navlink: Navlink): number[];
 
-    abstract writeZLevels(link: Navlink, zLevels: number[]);
+    /**
+     * Attribute writer for writing the zLevels of a Navlink feature.
+     *
+     * This method must be implemented to enable editing of {@link editor.Navlink Navlinks}.
+     *
+     * @param navlink - the Navlink whose zLevels should be set
+     * @param zLevels - An array containing the zLevel for each coordinate of the Navlink
+     *
+     * @return An array containing the zLevel for each coordinate of the Navlink.
+     */
+    abstract writeZLevels(navlink: Navlink, zLevels: number[]);
 
-    abstract readDirection(link: Navlink): 'BOTH' | 'START_TO_END' | 'END_TO_START';
+    /**
+     * Attribute reader for obtaining the direction of travel of a Navlink feature.
+     *
+     * This method must be implemented to enable editing of {@link editor.Navlink Navlinks}.
+     *
+     * @param navlink - the Navlink whose direction is requested
+     */
+    abstract readDirection(navlink: Navlink): 'BOTH' | 'START_TO_END' | 'END_TO_START';
 
-    abstract readPedestrianOnly(link: Navlink): boolean;
+    /**
+     * Attribute reader for obtaining if a Navlink feature can be accessed by pedestrians only.
+     *
+     * This method must be implemented to enable editing of {@link editor.Navlink Navlinks}.
+     *
+     * @param navlink - the Navlink
+     *
+     * @returns true, if the Navlink can be accessed by pedestrians only, otherwise false.
+     */
+    abstract readPedestrianOnly(navlink: Navlink): boolean;
 
-    abstract readTurnRestriction(turnFrom: TurnNode, turnTo: TurnNode): boolean;
+    /**
+     * Attribute reader for obtaining the turn-restrictions of two Navlink Features.
+     *
+     * This method must be implemented to enable editing of {@link editor.Navlink Navlinks}.
+     *
+     * @param turnFrom - The Navlink and it's coordinate index from which to turn from
+     * @param turnTo - The Navlink and it's coordinate index to which you want to turn
+     *
+     * @returns true if turn is allowed, otherwise false.
+     */
+    abstract readTurnRestriction(turnFrom: { link: Navlink, index: number }, turnTo: { link: Navlink, index: number }): boolean;
 
-    abstract writeTurnRestriction(restricted: boolean, turnFrom: TurnNode, turnTo: TurnNode);
+    /**
+     * Attribute writer to store turn-restrictions of two Navlink Features.
+     *
+     * This method must be implemented to enable editing of {@link editor.Navlink Navlinks}.
+     *
+     * @param turnFrom - The Navlink and it's coordinate index from which to turn from
+     * @param turnTo - The Navlink and it's coordinate index to which you want to turn
+     */
+    abstract writeTurnRestriction(restricted: boolean, turnFrom: { link: Navlink, index: number }, turnTo: { link: Navlink, index: number });
 
-    abstract readRoutingProvider(location: Feature): string; // return undefined -> provider itself acts as routing provider
+    /**
+     * Attribute reader for obtaining the id of the TileProvider containing the corresponding Navlink, of an Address or Place feature, on which the RoutingPoint is located.
+     *
+     * This method must be implemented to enable editing of {@link editor.Place Places} or {@link editor.Address Addresses}.
+     *
+     * @param feature - The Address or Place feature whose RoutingProvider is requested.
+     *
+     * @returns the Id of the TileProvider in which the object is stored. If undefined is returned, the RoutingPoint's Navlink is assumed to be in the same TileProvider as the Address/Place.
+     */
+    abstract readRoutingProvider(feature: Feature): string | undefined; // return undefined -> provider itself acts as routing provider
 
-    abstract readRoutingPosition(feature): GeoJSONCoordinate;
+    /**
+     * Attribute reader for obtaining the RoutingPoint's geographical position of an Address or Place.
+     * The geographical position must be located on the geometry of the related Navlink feature.
+     *
+     * This method must be implemented to enable editing of {@link editor.Place Places} or {@link editor.Address Addresses}.
+     *
+     * @param feature - The Address or Place feature whose RoutingProvider is requested.
+     *
+     * @returns GeoJSON Coordinate representing the geographical position of the RoutingPoint.
+     */
+    abstract readRoutingPosition(feature: Feature): GeoJSONCoordinate;
 
-    abstract readRoutingLink(feature): NavlinkId;
+    /**
+     * Attribute reader for obtaining the id of the Navlink Feature on which the RoutingPoint of an Address or Place feature is located.
+     * For Addresses an Id must be returned. If null is returned for a Place, the Place is treated as "floating" without a RoutingPoint.
+     *
+     * This method must be implemented to enable editing of {@link editor.Place Places} or {@link editor.Address Addresses}.
+     *
+     * @param feature - The Address or Place of which the Navlink of the RoutingPoint is requested.
+     *
+     * @returns the Id of the Navlink on which the RoutingPoint is located.
+     */
+    abstract readRoutingLink(feature: Feature): NavlinkId | null;
 
-    abstract writeRoutingPosition(feature, position: GeoJSONCoordinate | null);
+    /**
+     * Attribute writer to store the RoutingPoint's geographical position of an Address or Place.
+     * The geographical position must be located on the geometry of the related Navlink feature.
+     *
+     * This method must be implemented to enable editing of {@link editor.Place Places} or {@link editor.Address Addresses}.
+     *
+     * @param feature - The Address or Place feature whose RoutingPoint position to write.
+     * @param position - the geographical position of the RoutingPoint.
+     */
+    abstract writeRoutingPosition(feature: Feature, position: GeoJSONCoordinate | null);
 
-    abstract writeRoutingLink(location, link: Navlink | null);
+    /**
+     * Attribute writer for storing the Navlink reference on which the RoutingPoint of an Address or Place feature is located.
+     *
+     * This method must be implemented to enable editing of {@link editor.Place Places} or {@link editor.Address Addresses}.
+     *
+     * @param feature - The Address or Place of which the Navlink reference of the RoutingPoint to store.
+     * @param navlink - The navlink whose reference is to be written, or null in case of a Place becomes "floating" and has no RoutingPoint.
+     *
+     */
+    abstract writeRoutingLink(feature: Feature, position, navlink: Navlink | null);
 
-    // by default edit states aren't tracked/stored
-    abstract writeEditState(feature, editState: 'created' | 'modified' | 'removed' | 'split');
+    /**
+     * Attribute writer for storing the EditStates of a Feature.
+     * The EditStates provide information about whether a feature has been created, modified, removed or split.
+     *
+     * By default EditStates aren't tracked/stored.
+     *
+     * @param feature - The Feature whose EditState should be written.
+     * @param editState - the EditState to store
+     */
+    abstract writeEditState(feature: Feature, editState: 'created' | 'modified' | 'removed' | 'split');
 
 
     readRoutingPoint(location): { link: NavlinkId, position: GeoJSONCoordinate } {
