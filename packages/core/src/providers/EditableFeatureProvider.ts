@@ -184,6 +184,7 @@ export abstract class EditableFeatureProvider extends FeatureTileProvider {
      *
      * This method must be implemented to enable editing of {@link editor.Navlink Navlinks}.
      *
+     * @param restricted - Indicates if the turn is allowed (true) or forbidden (false)
      * @param turnFrom - The Navlink and it's coordinate index from which to turn from
      * @param turnTo - The Navlink and it's coordinate index to which you want to turn
      */

@@ -38,7 +38,7 @@ class MyProvider extends SpaceProvider {
         feature.prop('routingLink', navlink ? navlink.id : navlink);
     }
     // In this examle, all Navlinks are provided by provider "navlinkProvider"
-    readRoutingProvider(location, providers) {
+    readRoutingProvider(location) {
         return 'navlinkProvider';
     }
     // ########################       Navlink      ########################

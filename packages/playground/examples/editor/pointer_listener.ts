@@ -43,7 +43,7 @@ class MyProvider extends SpaceProvider {
     }
 
     // In this examle, all Navlinks are provided by provider "navlinkProvider"
-    readRoutingProvider(location, providers) {
+    readRoutingProvider(location) {
         return 'navlinkProvider';
     }
 

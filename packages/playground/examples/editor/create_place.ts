@@ -43,7 +43,7 @@ class MyProvider extends SpaceProvider {
         feature.prop('routingLink', navlink ? navlink.id : navlink);
     }
     // In this example places, addresses and navlinks are stored in the same provider.
-    readRoutingProvider(location, providers) {
+    readRoutingProvider(location) {
         return this.id;
     }
     // ########################       Navlink      ########################

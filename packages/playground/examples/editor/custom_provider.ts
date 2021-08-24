@@ -45,7 +45,7 @@ class MyProvider extends SpaceProvider {
     // (single-provider-setup), this function just needs to return id of the provider itself.
     // However, in case of multi-provider-setup, Navlinks can be separated from Address/Place data and distributed across
     // multiple providers, this function needs to return id of provider which contains the referenced Navlink.
-    readRoutingProvider(location, providers) {
+    readRoutingProvider(location) {
         return this.id;
     }
     // ########################       Navlink      ########################
