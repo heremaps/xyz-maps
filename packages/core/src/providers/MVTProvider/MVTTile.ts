@@ -31,16 +31,14 @@ export class MVTTile extends Tile {
         // const size = 1 << this.z;
         // const tileX = this.x / size;
         // return (x-tileX) * 512 * size;
-        return Math.round((x * this.s - this.x) * width);
-
-        // if(x==0.25)console.log(x,'->',_x,this.x);
+        return (x * this.s - this.x) * width;
     }
 
     lat2y(y: number, height: number = 256) {
         // const size = 1 << this.z;
         // const tileY = this.y / size;
         // return (y - tileY) * 512 * size;
-        return Math.round((y * this.s - this.y) * height);
+        return (y * this.s - this.y) * height;
     }
 
     isInside(point) {
