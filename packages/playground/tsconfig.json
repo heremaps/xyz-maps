@@ -5,10 +5,15 @@
     "sourceMap": true,
     "allowJs": true,
     "skipLibCheck": true,
-    "lib": ["dom","es2015","webworker"],
+    "lib": [
+      "dom",
+      "es2015",
+      "webworker"
+    ],
     "jsx": "react"
   },
   "include": [
+    "examples/**/*",
     "src/**/*"
   ],
   "exclude": [

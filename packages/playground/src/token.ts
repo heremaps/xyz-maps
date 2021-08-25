@@ -19,5 +19,9 @@
 // @ts-ignore
 import token from 'access_token';
 
+declare global {
+    const YOUR_ACCESS_TOKEN: string;
+}
+
 // @ts-ignore
 window._TKN = token;
