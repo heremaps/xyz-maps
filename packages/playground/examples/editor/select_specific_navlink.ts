@@ -1,6 +1,6 @@
 import {MVTLayer, TileLayer, SpaceProvider} from '@here/xyz-maps-core';
 import {Map} from '@here/xyz-maps-display';
-import {Editor} from '@here/xyz-maps-editor';
+import {Editor, Navlink} from '@here/xyz-maps-editor';
 
 /** setup the Map **/
 // Create a custom provider.
@@ -150,7 +150,7 @@ editor.addLayer(myLayer);
 
 // add an own pointerup event listener to the editor which selects only Navlink features of type Highway.
 editor.addEventListener('pointerup', function(e) {
-    const feature = e.target;
+    const feature = <Navlink>e.target;
     if (feature) {
         // filter for highways
         if (feature.class == 'NAVLINK' && feature.prop('type') == 'highway') {

@@ -108,7 +108,7 @@ export abstract class EditableFeatureProvider extends FeatureTileProvider {
      *
      * @returns the FeatureClass of the feature, or null if the feature should not be editable.
      */
-    detectFeatureClass(feature: Feature): 'LINE' | 'NAVLINK' | 'MARKER' | 'PLACE' | 'ADDRESS' | 'AREA' | null {
+    detectFeatureClass(feature: Feature): 'LINE' | 'NAVLINK' | 'MARKER' | 'PLACE' | 'ADDRESS' | 'AREA' | string | null {
         switch (feature.geometry.type) {
         case 'Point':
             return 'MARKER';

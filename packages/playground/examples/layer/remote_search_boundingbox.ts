@@ -67,7 +67,7 @@ display.addEventListener('mapviewchangeend', (ev) => {
     let bottomRight = display.pixelToGeo(display.getWidth() / 2 + 150, display.getHeight() / 2 + 150);
 
     // clear the localLayer to just show the result of the remoteLayer search
-    localLayer.removeFeature(localLayer.getProvider().all());
+    localLayer.removeFeature((<LocalProvider>localLayer.getProvider()).all());
 
     // search for features in the geographical rectangle
     remoteLayer.search({
