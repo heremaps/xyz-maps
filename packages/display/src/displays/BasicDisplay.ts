@@ -27,7 +27,7 @@ import BasicTile from './BasicTile';
 import BasicBucket from './BasicBucket';
 import Preview from './Preview';
 import LayerClusterer from './LayerClusterer';
-import Grid from '../Grid';
+import Grid, {ViewportTile} from '../Grid';
 
 const CREATE_IF_NOT_EXISTS = true;
 
@@ -281,6 +281,10 @@ abstract class Display {
             }
         }
         return false;
+    }
+
+    getScreenTile(quadkey: string, tileSize: number): ViewportTile {
+        return this.grid.tiles[<256 | 512>tileSize].find((tile) => tile.quadkey == quadkey);
     }
 
     // USED BY FEATUREMODIFIER

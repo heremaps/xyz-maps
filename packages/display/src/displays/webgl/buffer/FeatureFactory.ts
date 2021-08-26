@@ -37,9 +37,10 @@ import {PointBuffer} from './templates/PointBuffer';
 import {PolygonBuffer} from './templates/PolygonBuffer';
 import {ExtrudeBuffer} from './templates/ExtrudeBuffer';
 import {toPresentationFormB} from '../arabic';
-import {Feature, GeoJSONCoordinate as Coordinate, GeoJSONCoordinate} from '@here/xyz-maps-core';
+import {Tile, Feature, GeoJSONCoordinate as Coordinate, GeoJSONCoordinate} from '@here/xyz-maps-core';
 import {Texture} from '../Texture';
 import {TemplateBuffer} from './templates/TemplateBuffer';
+import {webMercator} from '@here/xyz-maps-core';
 
 
 const DEFAULT_STROKE_WIDTH = 1;
@@ -101,7 +102,7 @@ export class FeatureFactory {
     private icons: IconManager;
     private dpr: number;
     private dashes: DashAtlas;
-    private tile: any;
+    private tile: Tile;
     private groups: GroupMap;
     private tileSize: number;
     private lineFactory: LineFactory;
@@ -293,7 +294,7 @@ export class FeatureFactory {
 
         this.lineFactory.initFeature(level, tileSize, collisionGroup?.id);
 
-        if (priority === UNDEF && geomType === 'Point' && !tile.isInside(coordinates)) {
+        if (priority === UNDEF && geomType === 'Point' && !tile.isInside(<GeoJSONCoordinate>coordinates)) {
             return this.iconsLoaded;
         }
 
@@ -554,8 +555,8 @@ export class FeatureFactory {
             }
 
             if (geomType == 'Point') {
-                const x = tile.lon2x(coordinates[0], tileSize);
-                const y = tile.lat2y(coordinates[1], tileSize);
+                const x = tile.lon2x((<GeoJSONCoordinate>coordinates)[0], tileSize);
+                const y = tile.lat2y((<GeoJSONCoordinate>coordinates)[1], tileSize);
                 let collisionData;
 
                 if (collisionGroup) {

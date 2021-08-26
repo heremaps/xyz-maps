@@ -238,9 +238,9 @@ class WebGlDisplay extends BasicDisplay {
                         });
                     }
 
-                    const collisionsUpdated = display.collision.completeTile();
+                    const collisionsUpdated = display.collision.completeTile(true);
                     if (collisionsUpdated) {
-                        // trigger phase2 collision detection (vp)
+                        // trigger phase2 collision detection (fullscreen viewport)
                         this.dirty = true;
                     }
 

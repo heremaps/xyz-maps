@@ -17,7 +17,7 @@
  * License-Filename: LICENSE
  */
 
-import {LocalProvider, Tile, TileLayer, tileUtils} from '@here/xyz-maps-core';
+import {LocalProvider, tile, Tile, TileLayer, tileUtils} from '@here/xyz-maps-core';
 import Display from './Display';
 import {Attribute} from './buffer/Attribute';
 import {Layer} from '../Layers';
@@ -138,6 +138,7 @@ export class CollisionHandler {
         for (let {boxes} of data) {
             for (let bbox2 of boxes) {
                 for (let bbox1 of boxes1) {
+                    // if(bbox1.minX>512 && bbox2.minX<512)debugger;
                     if (bbox1.minX <= bbox2.maxX && bbox2.minX <= bbox1.maxX && bbox1.minY <= bbox2.maxY && bbox2.minY <= bbox1.maxY) {
                         return true;
                     }
@@ -271,7 +272,7 @@ export class CollisionHandler {
         const {dbg} = this;
 
         if (this.intersects(collisionData, data)) {
-            dbg && this.dbgBBoxes(collisionData, tileZ, 'red');
+            // dbg && this.dbgBBoxes(collisionData, tileZ, 'red');
             return false;
         }
         for (let name in existing) {
@@ -289,7 +290,17 @@ export class CollisionHandler {
         return collisionData;
     }
 
-    completeTile(): boolean {
+    /**
+     * Finish phase 1 collision detection (worldspace)
+     *
+     * @params updateScreenSpaceCollision - true -> update collision (phase 2 projected screen-pixels) for the tile only.
+     *
+     * @returns boolean indicating if collisions had to be updated
+     *
+     * @internal
+     * @hidden
+     */
+    completeTile(updateScreenSpaceCollision?: boolean): boolean {
         const {tileKey, dataKey, data} = this.curLayerTileCollision;
         const tileCollisionData = this.tiles.get(tileKey) || {};
 
@@ -298,6 +309,14 @@ export class CollisionHandler {
         this.tiles.set(tileKey, tileCollisionData);
 
         this.curLayerTileCollision = null;
+
+        if (this.updated) {
+            if (updateScreenSpaceCollision) {
+                // update collision in projected screen-pixels to minimize possible collisions for newly added tiles to vp..
+                // ..until fullscreen phase2 collision detection has been completed.
+                this.updateTileSync(this.display.getScreenTile(tileKey, 512));
+            }
+        }
 
         return this.updated;
     }
@@ -327,13 +346,20 @@ export class CollisionHandler {
 
     private timer = null;
 
+    updateTileSync(tile: ViewportTile) {
+        return this.updateTiles([tile], this.display.s);
+    }
+
+
     update(tiles: ViewportTile[], callback: () => void) {
         if (this.timer == null) {
             this.timer = setTimeout(() => {
                 // update viewport tiles to match current mapview transformation
                 const tiles = this.display.grid.tiles[512];
                 const scale = this.display.s;
+                // console.time('updateCollisions');
                 this.updateTiles(tiles, scale);
+                // console.timeEnd('updateCollisions');
                 this.timer = null;
                 callback && callback();
             }, UPDATE_DELAY_MS);
@@ -413,12 +439,12 @@ export class CollisionHandler {
             if (bbox.slope) {
                 visibleItems = visibleItemsMapAligned;
             } else {
-                intersects = intersects || this.intersects(bbox, visibleItemsMapAligned);
+                intersects ||= this.intersects(bbox, visibleItemsMapAligned);
                 visibleItems = visibleItemsViewportAligned;
             }
 
             if (!intersects) {
-                visibleItems.push(bbox);
+                visibleItems[visibleItems.length] = bbox;
             }
 
             for (let {buffer, start, stop} of bbox.attrs) {
@@ -443,7 +469,6 @@ export class CollisionHandler {
 
             dbg && this.dbgBBoxes(bbox, intersects);
         }
-
         // console.timeEnd('updateCollisions');
         // console.log('visible', visibleItemsMapAligned.length + visibleItemsViewportAligned.length, 'of', collisionData.length, 'total');
     }
