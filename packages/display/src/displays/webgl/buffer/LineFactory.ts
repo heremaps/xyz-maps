@@ -29,6 +29,8 @@ const TO_DEG = 180 / Math.PI;
 const DEFAULT_MIN_REPEAT = 256;
 let UNDEF;
 
+type Placer = (x: number, y: number, alpha: number, collisionData?: CollisionData) => void;
+
 export class LineFactory {
     private dashes: DashAtlas;
     private readonly gl: WebGLRenderingContext;
@@ -87,6 +89,19 @@ export class LineFactory {
             this.lineLength = lineLength;
         }
         return this.length;
+    }
+
+    private placeCached(place: Placer, tile: Tile, tileSize: number, applyRotation?: boolean) {
+        const {collisions} = this;
+        for (let i = 0, cData; i < collisions.length; i++) {
+            cData = collisions[i];
+            let {cx, cy} = cData;
+            if (tileSize == 256) {
+                cx -= tile.x % 2 * tileSize;
+                cy -= tile.y % 2 * tileSize;
+            }
+            place(cx, cy, applyRotation ? this.alpha[i] : 0, cData);
+        }
     }
 
     initTile() {
@@ -201,15 +216,12 @@ export class LineFactory {
         halfHeight: number,
         offsetX: number,
         offsetY: number,
-        place: (x: number, y: number, alpha: number, collisionData?: CollisionData) => void
+        place: Placer
     ) {
         this.projectLine(coordinates, tile, tileSize);
 
         if (this.collisions) {
-            for (let cData of this.collisions) {
-                place(cData.cx, cData.cy, 0, cData);
-            }
-            return;
+            return this.placeCached(place, tile, tileSize);
         }
 
         const checkCollisions = collisions && [];
@@ -261,14 +273,10 @@ export class LineFactory {
         height: number,
         applyRotation: boolean,
         checkLineSpace: boolean,
-        place: (x: number, y: number, alpha: number, collisionData?: CollisionData) => void
+        place: Placer
     ) {
         if (this.collisions) {
-            for (let i = 0, cData; i < this.collisions.length; i++) {
-                cData = this.collisions[i];
-                place(cData.cx, cData.cy, applyRotation ? this.alpha[i] : 0, cData);
-            }
-            return;
+            return this.placeCached(place, tile, tileSize, applyRotation);
         }
         const checkCollisions = collisions && [];
         const vLength = this.length / 2;
@@ -350,7 +358,6 @@ export class LineFactory {
 
                     if ((!checkCollisions || collisionData)) {
                         place(cx, cy, applyRotation ? alpha * TO_DEG : 0, collisionData);
-
                         distanceGrp?.add(cx, cy);
                     }
                 }
