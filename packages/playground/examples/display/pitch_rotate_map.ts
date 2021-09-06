@@ -20,7 +20,7 @@ const baseMapLayer = new MVTLayer({
             'path': [{zIndex: 3, type: 'Line', stroke: '#c8b89d', strokeWidth: '1m'}],
             'tunnel': [{zIndex: 3, type: 'Line', stroke: '#ffffff', strokeWidth: {15: 4, 20: 16}, strokeDasharray: [4, 4]}],
             'ferry': [{zIndex: 4, type: 'Line', stroke: '#164ac8', strokeWidth: 1}],
-            'highway': [{zIndex: 5, type: 'Line', stroke: 'white', repeat: 64, strokeWidth: {10: 1.5, 15: 4, 16: '12m'}}],
+            'highway': [{zIndex: 5, type: 'Line', stroke: 'white', repeat: 128, strokeWidth: {10: 1.5, 15: 4, 16: '12m'}}],
             'boundaries': [{zIndex: 6, type: 'Line', stroke: '#b3b1ad', strokeWidth: {10: 0.5, 20: 2}}],
             'buildings': [{
                 zIndex: 7, type: 'Polygon', fill: 'rgba(170,170,170,0.7)', stroke: 'rgba(30,30,30,0.7)',
@@ -36,7 +36,7 @@ const baseMapLayer = new MVTLayer({
                 stroke: 'white', text: (f) => f.properties.name,
                 // Minimum distance in pixel between repeated text labels on line geometries.
                 // Applies per tile only. Default is 256 pixel.
-                repeat: 64,
+                repeat: 128,
                 // Alignment for Text. "map" aligns to the plane of the map.
                 alignment: 'map',
                 // Text with a higher priority (lower value) will be drawn before lower priorities (higher value)

@@ -55,6 +55,10 @@
     {
       "file": "./display/animate_road.html",
       "docs": "interfaces/core.style.html#to"
+    },
+    {
+      "file": "./display/take_a_screenshot.html",
+      "docs": "classes/display.map.html#snapshot"
     }
   ],
   "Editor": [
