@@ -43,6 +43,8 @@ import {
     GeoJSONFeatureCollection, GeoJSONFeature, GeoJSONBBox
 } from '@here/xyz-maps-core';
 import {FlightAnimator} from './animation/FlightAnimator';
+import Copyright from './ui/copyright/Copyright';
+import Logo from './ui/Logo';
 
 const project = webMercator;
 
@@ -729,6 +731,54 @@ export class Map {
             options.layers,
             options.topOnly
         );
+    };
+
+    /**
+     * Take a snapshot of the current map's viewport.
+     *
+     * @param callback - Callback function that will be called when the requested snapshot has been captured.
+     * @param dx - x coordinate of the left edge of the capturing rectangle in pixel
+     * @param dy - y coordinate of the top edge of the capturing rectangle in pixel
+     * @param width - width of the capturing rectangle in pixel
+     * @param height - height of the capturing rectangle in pixel
+     *
+     */
+    snapshot(
+        callback: (
+            /**
+             * A HTMLCanvasElement containing the requested screenshot.
+             */
+            screenshot: HTMLCanvasElement
+        ) => void,
+        dx?: number,
+        dy?: number,
+        width?: number,
+        height?: number
+    ) {
+        if (!callback) return;
+        width ||= this._w;
+        height ||= this._h;
+        const canvas = this._display.copyCanvas2d(dx || 0, dy || 0, width, height);
+        const fontHeightPx = 11;
+        const buf = Math.ceil(fontHeightPx / 3);
+        const copyright = <Copyright> this.ui.get('Copyright');
+        const srcLabels = copyright.getSourceLabelsString();
+        const colors = copyright.getColors();
+        const srcWidth = copyright.calcWidth();
+
+        (async () => {
+            const logo = await (<Logo> this.ui.get('Logo')).getImage();
+            const ctx = canvas.getContext('2d');
+            ctx.font = `${fontHeightPx}px sans-serif`;
+            ctx.textBaseline = 'hanging';
+            ctx.fillStyle = colors.backgroundColor;
+            ctx.fillRect(width - srcWidth - 2 * buf, height - fontHeightPx - buf, width + 2 * buf, fontHeightPx + buf);
+            ctx.fillStyle = colors.color;
+            ctx.fillText(srcLabels, width - srcWidth - buf, height - fontHeightPx);
+            ctx.drawImage(logo.img, 2 * buf, height - logo.height - 2 * buf);
+
+            callback(canvas);
+        })();
     };
 
     /**

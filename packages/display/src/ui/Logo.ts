@@ -40,6 +40,18 @@ class Logo extends UIComponent {
     private setSrc(url: string) {
         this.html.style.backgroundImage = `url(${url})`;
     }
+
+    getImage(): Promise<{ img: HTMLImageElement, width: number, height: number }> {
+        const computedStyle = window.getComputedStyle(this.html);
+        const width = Math.round(parseFloat(computedStyle.getPropertyValue('width')));
+        const height = Math.round(parseFloat(computedStyle.getPropertyValue('height')));
+
+        return new Promise((resolve) => {
+            const img = new Image;
+            img.onload = () => resolve({img, width, height});
+            img.src = computedStyle.getPropertyValue('background-image').slice(5, -2);
+        });
+    }
 };
 
 
@@ -53,7 +65,7 @@ Logo.prototype.style = {
         background-image: url(' + logoSrc + ');\
         background-repeat: no-repeat;\
         background-size: contain;\
-        width:  32px;\
+        width: 32px;\
         height: 32px;\
         cursor: pointer;'
 };

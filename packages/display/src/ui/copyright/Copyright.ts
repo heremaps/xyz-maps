@@ -189,7 +189,23 @@ class Copyright extends UIComponent {
         ui.map.removeEventListener('resize', ui.onResize);
     };
 
-    private calcWidth(): number {
+    getSourceLabelsString() {
+        const zoom = this.map.getZoomlevel() ^ 0;
+        let str = '';
+        for (let src of this.sources.values()) {
+            if (isVisible(src, zoom)) str += `\u00A9 ${src.label} `;
+        }
+        return str;
+    }
+
+    getColors(): { color: string, backgroundColor: string } {
+        return {
+            color: window.getComputedStyle(this.$cDefault).getPropertyValue('color'),
+            backgroundColor: window.getComputedStyle(this.html).getPropertyValue('background-color')
+        };
+    }
+
+    calcWidth(): number {
         const ui = this;
         const zoom = ui.map.getZoomlevel() ^ 0;
         const sources = ui.sources;
@@ -337,9 +353,8 @@ Copyright.prototype.listeners = {
 Copyright.prototype.style = {
 
     '.copyright *': '\
-        color: #fff;\
+        color: rgba(255,255,255,.8);\
         font-family: arial;\
-        opacity: 0.8;\
         text-decoration: none;',
 
     '.copyright': '\

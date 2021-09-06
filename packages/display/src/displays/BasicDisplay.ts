@@ -283,6 +283,16 @@ abstract class Display {
         return false;
     }
 
+    copyCanvas2d(dx: number = 0, dy: number = 0, w: number = this.w, h: number = this.h): HTMLCanvasElement {
+        this.viewport();
+        const cpyCanvas = <HTMLCanvasElement>document.createElement('Canvas');
+        cpyCanvas.width = w;
+        cpyCanvas.height = h;
+        cpyCanvas.getContext('2d').drawImage(this.canvas, dx, dy, w, h, 0, 0, w, h);
+        return cpyCanvas;
+    }
+
+
     getScreenTile(quadkey: string, tileSize: number): ViewportTile {
         return this.grid.tiles[<256 | 512>tileSize].find((tile) => tile.quadkey == quadkey);
     }
