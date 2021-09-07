@@ -756,9 +756,13 @@ export class Map {
         height?: number
     ) {
         if (!callback) return;
+
         width ||= this._w;
         height ||= this._h;
-        const canvas = this._display.copyCanvas2d(dx || 0, dy || 0, width, height);
+
+        const display = this._display;
+        const {dpr} = display;
+        const canvas = display.copyCanvas2d(dx || 0, dy || 0, width, height);
         const fontHeightPx = 11;
         const buf = Math.ceil(fontHeightPx / 3);
         const copyright = <Copyright> this.ui.get('Copyright');
@@ -769,6 +773,7 @@ export class Map {
         (async () => {
             const logo = await (<Logo> this.ui.get('Logo')).getImage();
             const ctx = canvas.getContext('2d');
+            ctx.scale(dpr, dpr);
             ctx.font = `${fontHeightPx}px sans-serif`;
             ctx.textBaseline = 'hanging';
             ctx.fillStyle = colors.backgroundColor;
@@ -776,6 +781,9 @@ export class Map {
             ctx.fillStyle = colors.color;
             ctx.fillText(srcLabels, width - srcWidth - buf, height - fontHeightPx);
             ctx.drawImage(logo.img, 2 * buf, height - logo.height - 2 * buf);
+            // support for high-dpi devices
+            canvas.style.width = `${width}px`;
+            canvas.style.height = `${height}px`;
 
             callback(canvas);
         })();

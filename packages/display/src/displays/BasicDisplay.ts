@@ -284,11 +284,16 @@ abstract class Display {
     }
 
     copyCanvas2d(dx: number = 0, dy: number = 0, w: number = this.w, h: number = this.h): HTMLCanvasElement {
-        this.viewport();
+        const {canvas, dpr} = this;
+        dx *= dpr;
+        dy *= dpr;
+        w *= dpr;
+        h *= dpr;
         const cpyCanvas = <HTMLCanvasElement>document.createElement('Canvas');
         cpyCanvas.width = w;
         cpyCanvas.height = h;
-        cpyCanvas.getContext('2d').drawImage(this.canvas, dx, dy, w, h, 0, 0, w, h);
+        this.viewport();
+        cpyCanvas.getContext('2d').drawImage(canvas, dx, dy, w, h, 0, 0, w, h);
         return cpyCanvas;
     }
 
