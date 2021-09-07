@@ -1,14 +1,14 @@
 ## 0.25.0 (2021-9-7)
 ### editor
-* added: Introduced a new hook "Coordinates.update" that's being executed whenever the coordinates of a feature are updated, modified or removed. see [CoordinatesUpdateHook](https://heremaps.github.io/xyz-maps/docs/modules/editor.html#CoordinatesUpdateHook)
+* added: Introduced a new hook "Coordinates.update" that's being executed whenever the coordinates of a feature are updated, modified or removed. see [CoordinatesUpdateHook](https://heremaps.github.io/xyz-maps/docs/modules/editor.html#coordinatesupdatehook)
 * fixed: hiding the RangeSelector might fail while submit operation is in progress.
 * fixed: Missing history entry when calling lineShape.remove()
 ### display
 * improved: The collision detection is now quantizing bounding-boxes for better space utilisation of rotated/elongated objects.
 * improved: Optimized performance of collision detection.
 * improved: transparent extruded polygons(Buildings) with height of 0 are hidden when they are covered by other transparent Buildings within the same zIndex.
-* added: Take a screenshot of the current viewport of the map (or part of it) by using [map.snapshot](https://heremaps.github.io/xyz-maps/docs/interfaces/editor.range.html#snap)
-* added: The outer edges of extruded polygons (Buildings) can now be highlighted and styled individually. See [Style.stroke](https://https://heremaps.github.io/xyz-maps/docs/interfaces/core.style.html#stroke), [Style.strokeWidth](https://https://heremaps.github.io/xyz-maps/docs/interfaces/core.style.html#strokewidth)
+* added: Take a screenshot of the current viewport of the map (or part of it) by using [map.snapshot](https://heremaps.github.io/xyz-maps/docs/classes/display.map.html#snapshot)
+* added: The outer edges of extruded polygons (Buildings) can now be highlighted and styled individually. See [Style.stroke](https://heremaps.github.io/xyz-maps/docs/interfaces/core.style.html#stroke), [Style.strokeWidth](https://heremaps.github.io/xyz-maps/docs/interfaces/core.style.html#strokewidth)
 * added: The base of an extruded Polygon (Building) can now be offset from the ground. See [Style.extrudeBase](https://heremaps.github.io/xyz-maps/docs/interfaces/core.style.html#extrudebase)
 * fixed: labels might be placed incorrectly when using multiple text styles for the same geometry.
 * fixed: Points that are exactly on the tile boundary may have been placed incorrectly
