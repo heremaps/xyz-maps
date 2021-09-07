@@ -30,5 +30,8 @@ captureButton.onclick = function() {
     display.snapshot((snapshot: HTMLCanvasElement) => {
         const previewImage = <HTMLImageElement>document.querySelector('#preview');
         previewImage.src = snapshot.toDataURL();
+        // handle high-dpi devices
+        previewImage.style.width = `${snapshot.width / devicePixelRatio}px`;
+        previewImage.style.height = `${snapshot.height / devicePixelRatio}px`;
     }, 64, 64, 480, 360);
 };
