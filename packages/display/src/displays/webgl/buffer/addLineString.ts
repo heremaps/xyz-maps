@@ -93,7 +93,7 @@ const addCap = (cap: Cap, x: number, y: number, nx: number, ny: number, vertex: 
 
             sqNx << 1 | 1, sqNy << 1 | 1, nx << 1 | 1, ny << 1 | 1, // p1.0
             sqNy << 1 | 1, sqNx << 1 | 0, nx << 1 | 1, ny << 1 | 1, // p1.0
-            nx << 1 | 0, ny << 1 | 1, 0, 0, // p1.2
+            nx << 1 | 0, ny << 1 | 1, 0, 0 // p1.2
         );
     }
 };

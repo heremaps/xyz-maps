@@ -98,7 +98,7 @@ const addExterior = (
                 x1, y1, extrude,
                 x1, y1, extrudeBase,
                 x2, y2, extrude,
-                x2, y2, extrudeBase,
+                x2, y2, extrudeBase
             );
 
             // normalize + cross

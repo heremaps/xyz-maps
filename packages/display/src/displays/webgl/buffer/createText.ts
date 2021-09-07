@@ -131,7 +131,7 @@ const addText = (
     rotation: number,
     positions: FlexArray,
     texcoords: FlexArray,
-    txtData: TextData,
+    txtData: TextData
 ) => {
     for (let i = start, len = stop, j, c; i < len; i++) {
         j = isRTL ? start + (len - 1 - i) : i;
