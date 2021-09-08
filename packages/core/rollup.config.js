@@ -46,6 +46,12 @@ if (production) {
 const banner = '/*\n * ' + pkg.name + '\n * (c) 2019-2021 HERE\n */\n';
 
 const createPlugins = () => {
+    let gitRevision;
+    try {
+        gitRevision = git.short();
+    } catch (e) {
+    }
+
     return [
         nodeResolve(),
         commonjs(),
@@ -65,8 +71,8 @@ const createPlugins = () => {
         }) : false,
         virtual({
             'buildInfo': 'export default ' + JSON.stringify({
-                version: pkg.version + (production ? '':'+DEV' ),
-                revision: git.short(),
+                version: pkg.version + (production ? '' : '+DEV'),
+                revision: gitRevision,
                 date: (new Date).toISOString().replace(/\.[0-9]{3}/, '')
             })
         })
