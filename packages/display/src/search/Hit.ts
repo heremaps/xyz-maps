@@ -17,7 +17,7 @@
  * License-Filename: LICENSE
  */
 
-import {getMaxZoom, getPixelSize, getLineWidth, StyleGroup} from '../displays/styleTools';
+import {getMaxZoom, getPixelSize, getLineWidth, StyleGroup, getValue} from '../displays/styleTools';
 import {Map} from '../Map';
 import {Feature} from '@here/xyz-maps-core';
 
@@ -33,20 +33,18 @@ const isPointInBox = (ax: number, ay: number, bx: number, bx2: number, by: numbe
     );
 };
 
-const pointToLineDistance = (x: number, y: number, x1: number, y1: number, x2: number, y2: number): number => {
-    const A = x - x1;
-    const B = y - y1;
+const pointToLineDistanceSq = (x: number, y: number, x1: number, y1: number, x2: number, y2: number): number => {
     const C = x2 - x1;
     const D = y2 - y1;
-    const dot = A * C + B * D;
     const lenSq = C * C + D * D;
     let param = -1;
     let xx;
     let yy;
-    let dx;
-    let dy;
 
     if (lenSq != 0) { // in case of 0 length line
+        const A = x - x1;
+        const B = y - y1;
+        const dot = A * C + B * D;
         param = dot / lenSq;
     }
 
@@ -61,27 +59,23 @@ const pointToLineDistance = (x: number, y: number, x1: number, y1: number, x2: n
         yy = y1 + param * D;
     }
 
-    dx = x - xx;
-    dy = y - yy;
+    const dx = x - xx;
+    const dy = y - yy;
 
-    return Math.sqrt(dx * dx + dy * dy);
+    return dx * dx + dy * dy;
 };
 
 
-const pointInPolygon = (x: number, y: number, poly: Point[][]): boolean => {
+const pointInPolygon = (x: number, y: number, poly: Point[]): boolean => {
     // ray-casting algorithm based on
     // http://www.ecse.rpi.edu/Homepages/wrf/Research/Short_Notes/pnpoly.html
     let inside = false;
-    let xi;
-    let xj;
-    let yi;
-    let yj;
 
     for (let i = 0, j = poly.length - 1; i < poly.length; j = i++) {
-        xi = poly[i][0];
-        yi = poly[i][1];
-        xj = poly[j][0];
-        yj = poly[j][1];
+        const xi = poly[i][0];
+        const yi = poly[i][1];
+        const xj = poly[j][0];
+        const yj = poly[j][1];
 
         if (((yi > y) != (yj > y)) && (x < (xj - xi) * (y - yi) / (yj - yi) + xi)) {
             inside = !inside;
@@ -100,7 +94,7 @@ class Hit {
         this.dpr = dpr;
     }
 
-    feature(x: number, y: number, feature: Feature, featureStyle: StyleGroup, layerIndex: number, zoomlevel: number) {
+    feature(x: number, y: number, feature: Feature, featureStyle: StyleGroup, layerIndex: number, zoomlevel: number): number[] | false {
         return this.geometry(
             x,
             y,
@@ -125,7 +119,7 @@ class Hit {
         feature: Feature,
         zoomlevel: number,
         dimensions?: number[]
-    ) {
+    ): number[] | false {
         let hit = false;
         const {dpr, map} = this;
 
@@ -155,20 +149,33 @@ class Hit {
             for (let c = 1; c < cLen; c++) {
                 p2 = map.geoToPixel(coordinates[c][0], coordinates[c][1]);
 
-                d = pointToLineDistance(x, y, p1.x, p1.y, p2.x, p2.y);
+                d = pointToLineDistanceSq(x, y, p1.x, p1.y, p2.x, p2.y);
 
                 if (d < minDistance) {
                     minDistance = d;
                 }
-
                 p1 = p2;
             }
 
-            hit = minDistance <= width / 2;
-        } else if (geoType == 'Polygon') {
+            hit = minDistance <= width * width * .5;
+        } else if
+        (geoType == 'Polygon') {
+            let hasLineStyle = false;
+            const hasPolygonStyle = featureStyle.find((style) => {
+                const type = getValue('type', style, feature, zoomlevel);
+                hasLineStyle = hasLineStyle || type == 'Line';
+                return type == 'Polygon';
+            });
+
+            if (!hasPolygonStyle) {
+                // do hit calculation on line geometry if there a line-style but no polygon-style
+                return hasLineStyle && this.geometry(x, y, coordinates, 'MultiLineString', featureStyle, layerIndex, feature, zoomlevel);
+            }
+
             const {longitude, latitude} = map.pixelToGeo(x, y);
+
             for (let p = 0; p < coordinates.length; p++) {
-                if (pointInPolygon(longitude, latitude, <Point[][]>coordinates[p]) != !p) {
+                if (pointInPolygon(longitude, latitude, <Point[]>coordinates[p]) != !p) {
                     // point must be located inside exterior..
                     // ..and outside of all interiors
                     return false;
@@ -182,13 +189,13 @@ class Hit {
 
             if (geoType == 'MultiPolygon') {
                 baseType = 'Polygon';
-                dimensions = [getMaxZoom(featureStyle, feature, zoomlevel, layerIndex)];
+                dimensions = dimensions || [getMaxZoom(featureStyle, feature, zoomlevel, layerIndex)];
             } else if (geoType == 'MultiPoint') {
                 baseType = 'Point';
-                dimensions = getPixelSize(featureStyle, feature, zoomlevel, dpr, layerIndex);
+                dimensions = dimensions || getPixelSize(featureStyle, feature, zoomlevel, dpr, layerIndex);
             } else if (geoType == 'MultiLineString') {
                 baseType = 'LineString';
-                dimensions = getLineWidth(featureStyle, feature, zoomlevel, layerIndex);
+                dimensions = dimensions || getLineWidth(featureStyle, feature, zoomlevel, layerIndex);
             }
 
             if (baseType) {
