@@ -20,29 +20,39 @@ const MAX_IMAGE_SIZE = 64;
 
 let UNDEF;
 
-let _canvas = document.createElement('canvas');
+const _canvas = document.createElement('canvas');
+const _ctx = _canvas.getContext('2d');
 _canvas.width = 1;
 _canvas.height = 1;
-let _ctx = _canvas.getContext('2d');
+
+const createScaledImage = (img: HTMLImageElement, scale: number): HTMLCanvasElement => {
+    const _canvas = document.createElement('canvas');
+    const _ctx = _canvas.getContext('2d');
+    _canvas.width = img.width * scale;
+    _canvas.height = img.height * scale;
+    _ctx.drawImage(img, 0, 0, _canvas.width, _canvas.height);
+    return _canvas;
+};
+
 
 function onLoad() {
     let img = this;
-    let cbs = img._s;
-
-    // workaround for chrome issue (bug!?) in case of base64 encoded svg image
-    // is send to texture with incorrect size.
-    _ctx.drawImage(img, 0, 0);
-
-    img.ready = true;
-
+    const cbs = img._cbs;
     const size = Math.max(img.width, img.height);
+
+    img._cbs = null;
 
     if (size > MAX_IMAGE_SIZE) {
         // rescale image to fit max allowed source size
         const scale = MAX_IMAGE_SIZE / size;
-        img.width *= scale;
-        img.height *= scale;
+        img = img._r[img.src] = createScaledImage(img, scale);
+    } else {
+        // workaround for chrome issue (bug!?) in case of base64 encoded svg image
+        // is send to texture with incorrect size.
+        _ctx.drawImage(img, 0, 0);
     }
+    img.ready = true;
+    img._r = null;
 
     for (let cbID in cbs) {
         cbs[cbID][0](img, cbs[cbID][1]);
@@ -53,37 +63,38 @@ function onLoad() {
 declare global {
     interface HTMLImageElement {
         ready: boolean
-        _s: { [key: string]: [(...args) => void, any[]] }
+        _cbs: { [key: string]: [(...args) => void, any[]] }
+        _r: ImgDataMap
     }
 }
 
+type ImgDataMap = { [url: string]: HTMLImageElement };
 
 class ImageResourceHandler {
-    private src: { [url: string]: HTMLImageElement } = {};
+    private imgData: ImgDataMap = {};
 
     constructor() {
     }
 
     isRequested(url: string) {
-        return !!this.src[url];
+        return !!this.imgData[url];
     };
 
     isReady(url: string) {
-        return this.src[url] && this.src[url].ready;
+        return this.imgData[url] && this.imgData[url].ready;
     };
 
 
     get(url: string, cb?: (img: HTMLImageElement, ...args) => void, cbID?: string, args?) {
-        let resources = this.src;
-
+        let resources = this.imgData;
         if (resources[url] == UNDEF) {
             let img = resources[url] = new Image();
             img.ready = false;
-            img._s = {};
-
+            img._cbs = {};
             if (cb) {
-                img._s[cbID] = [cb, args];
+                img._cbs[cbID] = [cb, args];
             }
+            img._r = resources;
 
             img.crossOrigin = 'Anonymous';
             img.onload = onLoad;
@@ -94,7 +105,7 @@ class ImageResourceHandler {
         } else if (cb) {
             // image is still getting loaded..
             if (!resources[url].ready) {
-                resources[url]._s[cbID] = [cb, args];
+                resources[url]._cbs[cbID] = [cb, args];
             } else {
                 cb(resources[url], args);
             }
