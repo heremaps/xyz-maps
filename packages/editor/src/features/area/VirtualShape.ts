@@ -21,12 +21,14 @@ import InternalEditor from '../../IEditor';
 import {Feature, FeatureProvider, GeoJSONFeature} from '@here/xyz-maps-core';
 import {Area} from './Area';
 
+let UNDEF;
 
 export class VirtualAreaShape extends Feature {
     private __: { [name: string]: any };
 
     constructor(area: Area, x: number, y: number, indexData: number[], polygonTools) {
         const internalEditor: InternalEditor = area._e();
+        const zLayer = internalEditor.display.getLayers().indexOf(internalEditor.getLayer(area)) + 1;
         const overlay = internalEditor.objects.overlay;
 
         const geojson: GeoJSONFeature = {
@@ -41,7 +43,8 @@ export class VirtualAreaShape extends Feature {
                 index: indexData[1],
                 hole: indexData[2],
                 AREA: {
-                    style: internalEditor.getStyle(area)
+                    style: internalEditor.getStyle(area),
+                    zLayer: !zLayer ? UNDEF : zLayer + 1
                 }
             }
         };

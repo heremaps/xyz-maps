@@ -191,6 +191,7 @@ class AreaShape extends Feature {
         polygonTools = polyTools;
 
         const internalEditor: InternalEditor = area._e();
+        const zLayer = internalEditor.display.getLayers().indexOf(internalEditor.getLayer(area)) + 1;
         const geojson: GeoJSONFeature = {
             type: 'Feature',
             geometry: {
@@ -203,7 +204,8 @@ class AreaShape extends Feature {
                 index: indexData[1],
                 hole: indexData[2],
                 AREA: {
-                    style: internalEditor.getStyle(area)
+                    style: internalEditor.getStyle(area),
+                    zLayer: !zLayer ? UNDEF : zLayer + 1
                 }
             }
         };

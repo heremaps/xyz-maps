@@ -118,22 +118,27 @@ class OverlayStyles {
 
         'AREA_SHAPE': [{
             zIndex: 0,
+            zLayer: ({properties}) => properties.AREA.zLayer,
             type: 'Circle',
             strokeWidth: 2,
             stroke: BLACK,
-            radius: (feature) => isHovered(feature) ? 6 : 4,
-            fill: (feature, zoom) => isHovered(feature)
-                ? BLACK
-                : getValue(feature.properties['AREA'].style[0].fill, feature, zoom)
+            radius: (feature) => isHovered(feature) ? 8 : 6,
+            fill: (feature, zoom) => {
+                const {fill, stroke} = feature.properties.AREA.style[0];
+                return isHovered(feature)
+                    ? BLACK
+                    : getValue(fill, feature, zoom) || getValue(stroke, feature, zoom);
+            }
         }],
 
         'AREA_VIRTUAL_SHAPE': [{
             zIndex: 0,
+            zLayer: ({properties}) => properties.AREA.zLayer,
             type: 'Circle',
             strokeWidth: 1,
             fill: BLACK,
             stroke: BLACK,
-            radius: (feature) => isHovered(feature) ? 5 : 3
+            radius: (feature) => isHovered(feature) ? 6 : 4
         }],
 
         'LINE_SHAPE': [{

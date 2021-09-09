@@ -194,9 +194,9 @@ class NvtRoutingPoint {
         if (cLink && !this.rpFeature) {
             const editorType = this.location.class;
 
-            let zLayer = this.iEditor.display.getLayers().indexOf(this.iEditor.getLayer(this.getLink()));
+            let zLayer = this.iEditor.display.getLayers().indexOf(this.iEditor.getLayer(this.getLink())) + 1;
 
-            zLayer = zLayer == -1 ? UNDEF : zLayer + 1;
+            zLayer = !zLayer ? UNDEF : zLayer + 1;
 
             this.streetLine = this.iEditor.objects.overlay.addPath([
                 this.location.coord().slice(),
