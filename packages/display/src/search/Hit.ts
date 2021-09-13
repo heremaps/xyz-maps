@@ -20,18 +20,10 @@
 import {getMaxZoom, getPixelSize, getLineWidth, StyleGroup, getValue} from '../displays/styleTools';
 import {Map} from '../Map';
 import {Feature} from '@here/xyz-maps-core';
+import {intersectBBox} from '../geometry';
 
 type Point = [number, number, number?];
 type Coordinates = Point | Point[] | Point[][] | Point[][][];
-
-const isPointInBox = (ax: number, ay: number, bx: number, bx2: number, by: number, by2: number): boolean => {
-    return (
-        ax >= bx &&
-        ax <= bx2 &&
-        ay >= by &&
-        ay <= by2
-    );
-};
 
 const pointToLineDistanceSq = (x: number, y: number, x1: number, y1: number, x2: number, y2: number): number => {
     const C = x2 - x1;
@@ -65,7 +57,6 @@ const pointToLineDistanceSq = (x: number, y: number, x1: number, y1: number, x2:
     return dx * dx + dy * dy;
 };
 
-
 const pointInPolygon = (x: number, y: number, poly: Point[]): boolean => {
     // ray-casting algorithm based on
     // http://www.ecse.rpi.edu/Homepages/wrf/Research/Short_Notes/pnpoly.html
@@ -84,6 +75,18 @@ const pointInPolygon = (x: number, y: number, poly: Point[]): boolean => {
     return inside;
 };
 
+const intersectLineLine = (g1p1: Point, g1p2: Point, g2p1: Point, g2p2: Point): boolean => {
+    const uB = (g2p2[1] - g2p1[1]) * (g1p2[0] - g1p1[0]) - (g2p2[0] - g2p1[0]) * (g1p2[1] - g1p1[1]);
+
+    if (uB != 0) {
+        const uaT = (g2p2[0] - g2p1[0]) * (g1p1[1] - g2p1[1]) - (g2p2[1] - g2p1[1]) * (g1p1[0] - g2p1[0]);
+        const ubT = (g1p2[0] - g1p1[0]) * (g1p1[1] - g2p1[1]) - (g1p2[1] - g1p1[1]) * (g1p1[0] - g2p1[0]);
+        const ua = uaT / uB;
+        const ub = ubT / uB;
+
+        return 0 <= ua && ua <= 1 && 0 <= ub && ub <= 1;
+    }
+};
 
 class Hit {
     private map: Map;
@@ -94,24 +97,49 @@ class Hit {
         this.dpr = dpr;
     }
 
-    feature(x: number, y: number, feature: Feature, featureStyle: StyleGroup, layerIndex: number, zoomlevel: number): number[] | false {
-        return this.geometry(
-            x,
-            y,
-            feature.geometry.coordinates,
-            // feature.getProvider().decCoord(feature),
-            feature.geometry.type,
-            featureStyle,
-            layerIndex,
-            feature,
-            zoomlevel
-        );
-    };
+    private pointInPolygon(x: number, y: number, coordinates: Point[][]): boolean {
+        for (let p = 0; p < coordinates.length; p++) {
+            if (pointInPolygon(x, y, coordinates[p]) != !p) {
+                // point must be located inside exterior..
+                // ..and outside of all interiors
+                return false;
+            }
+        }
+    }
+
+    private pointInBox(points: Point[], minLon: number, maxLon: number, minLat: number, maxLat: number): boolean {
+        for (let [x, y] of points) {
+            const isPointInBox = x >= minLon && x <= maxLon && y >= minLat && y <= maxLat;
+            if (isPointInBox) {
+                return true;
+            }
+        }
+    }
+
+    private linesIntersectBox(lines: Point[], minLon: number, maxLon: number, minLat: number, maxLat: number): boolean {
+        const box: Point[] = [
+            [minLon, maxLat],
+            [maxLon, maxLat],
+            [maxLon, minLat],
+            [minLon, minLat],
+            [minLon, maxLat]
+        ];
+
+        for (let i = 0, len = lines.length - 1; i < len; i++) {
+            for (let j = 0; j < box.length - 1; j++) {
+                if (intersectLineLine(lines[i], lines[i + 1], box[j], box[j + 1])) {
+                    return true;
+                }
+            }
+        }
+    }
 
 
     private geometry(
         x: number,
         y: number,
+        halfWidth: number,
+        halfHeight: number,
         coordinates: Coordinates,
         geoType: string,
         featureStyle: StyleGroup,
@@ -122,44 +150,60 @@ class Hit {
     ): number[] | false {
         let hit = false;
         const {dpr, map} = this;
+        const isPointSearch = !halfWidth && !halfHeight;
 
         if (geoType == 'Point') {
             dimensions = dimensions || getPixelSize(featureStyle, feature, zoomlevel, dpr, layerIndex);
 
             if (dimensions) {
                 // coordinates = feature.getProvider().decCoord( feature );
-                let pixel = map.geoToPixel((<Point>coordinates)[0], (<Point>coordinates)[1]);
-                let x1 = Math.round(pixel.x + dimensions[0]);
-                let y1 = Math.round(pixel.y + dimensions[1]);
-                let x2 = Math.round(pixel.x + dimensions[2]);
-                let y2 = Math.round(pixel.y + dimensions[3]);
+                const pixel = map.geoToPixel((<Point>coordinates)[0], (<Point>coordinates)[1]);
+                const featureX1 = Math.round(pixel.x + dimensions[0]);
+                const featureY1 = Math.round(pixel.y + dimensions[1]);
+                const featureX2 = Math.round(pixel.x + dimensions[2]);
+                const featureY2 = Math.round(pixel.y + dimensions[3]);
 
-                hit = isPointInBox(x, y, x1, x2, y1, y2);
+                hit = intersectBBox(x, x + halfWidth, y, y + halfHeight, featureX1, featureX2, featureY1, featureY2);
             }
         } else if (geoType == 'LineString') {
             dimensions = dimensions || getLineWidth(featureStyle, feature, zoomlevel, layerIndex);
 
             let width = dimensions[0];
             let cLen = coordinates.length;
-            let minDistance = Infinity;
-            let p1 = map.geoToPixel(coordinates[0][0], coordinates[0][1]);
-            let p2;
-            let d;
+            let minDistanceSq = Infinity;
 
-            for (let c = 1; c < cLen; c++) {
-                p2 = map.geoToPixel(coordinates[c][0], coordinates[c][1]);
+            if (isPointSearch) {
+                let p1 = map.geoToPixel(coordinates[0][0], coordinates[0][1]);
+                let p2;
+                let d;
 
-                d = pointToLineDistanceSq(x, y, p1.x, p1.y, p2.x, p2.y);
+                for (let c = 1; c < cLen; c++) {
+                    p2 = map.geoToPixel(coordinates[c][0], coordinates[c][1]);
 
-                if (d < minDistance) {
-                    minDistance = d;
+                    d = pointToLineDistanceSq(x, y, p1.x, p1.y, p2.x, p2.y);
+
+                    if (d < minDistanceSq) {
+                        minDistanceSq = d;
+                    }
+                    p1 = p2;
                 }
-                p1 = p2;
-            }
+                hit = minDistanceSq <= width * width * .5;
+            } else {
+                const topLeft = map.pixelToGeo(x - halfWidth, y - halfWidth);
+                const bottomRight = map.pixelToGeo(x + halfWidth, y + halfWidth);
+                const minLon = topLeft.longitude;
+                const maxLon = bottomRight.longitude;
+                const minLat = bottomRight.latitude;
+                const maxLat = topLeft.latitude;
 
-            hit = minDistance <= width * width * .5;
-        } else if
-        (geoType == 'Polygon') {
+                hit = this.pointInBox(<Point[]>coordinates, minLon, maxLon, minLat, maxLat) ||
+                    this.linesIntersectBox(<Point[]>coordinates, minLon, maxLon, minLat, maxLat);
+
+                if (!hit) {
+                    return false;
+                }
+            }
+        } else if (geoType == 'Polygon') {
             let hasLineStyle = false;
             const hasPolygonStyle = featureStyle.find((style) => {
                 const type = getValue('type', style, feature, zoomlevel);
@@ -169,19 +213,42 @@ class Hit {
 
             if (!hasPolygonStyle) {
                 // do hit calculation on line geometry if there a line-style but no polygon-style
-                return hasLineStyle && this.geometry(x, y, coordinates, 'MultiLineString', featureStyle, layerIndex, feature, zoomlevel);
+                return hasLineStyle && this.geometry(
+                    x, y, halfWidth, halfHeight, coordinates, 'MultiLineString', featureStyle, layerIndex, feature, zoomlevel
+                );
             }
 
-            const {longitude, latitude} = map.pixelToGeo(x, y);
+            coordinates = <Point[][]>coordinates;
 
-            for (let p = 0; p < coordinates.length; p++) {
-                if (pointInPolygon(longitude, latitude, <Point[]>coordinates[p]) != !p) {
-                    // point must be located inside exterior..
-                    // ..and outside of all interiors
+            if (isPointSearch) {
+                const {longitude, latitude} = map.pixelToGeo(x, y);
+                hit = this.pointInPolygon(longitude, latitude, coordinates);
+                if (!hit) {
                     return false;
                 }
+            } else {
+                const topLeft = map.pixelToGeo(x - halfWidth, y - halfWidth);
+                const bottomRight = map.pixelToGeo(x + halfWidth, y + halfWidth);
+                const minLon = topLeft.longitude;
+                const maxLon = bottomRight.longitude;
+                const minLat = bottomRight.latitude;
+                const maxLat = topLeft.latitude;
+
+                for (let p = 0; p < coordinates.length; p++) {
+                    hit = this.pointInBox(coordinates[p], minLon, maxLon, minLat, maxLat);
+                    if (hit) break;
+                }
+
+                if (!hit) {
+                    const {longitude, latitude} = map.pixelToGeo(x, y);
+                    hit = this.pointInPolygon(longitude, latitude, coordinates) ||
+                        this.linesIntersectBox(coordinates[0], minLon, maxLon, minLat, maxLat);
+                    if (!hit) {
+                        return false;
+                    }
+                }
             }
-            hit = true;
+
             dimensions = dimensions || [getMaxZoom(featureStyle, feature, zoomlevel, layerIndex)];
         } else {
             let baseType;
@@ -201,7 +268,7 @@ class Hit {
             if (baseType) {
                 for (let p = 0, l = coordinates.length; p < l; p++) {
                     baseHit = this.geometry(
-                        x, y, <Point[]>coordinates[p], baseType, featureStyle, layerIndex, feature, zoomlevel, dimensions
+                        x, y, halfWidth, halfHeight, <Point[]>coordinates[p], baseType, featureStyle, layerIndex, feature, zoomlevel, dimensions
                     );
 
                     if (baseHit) {
@@ -212,6 +279,31 @@ class Hit {
             }
         }
         return hit && dimensions;
+    };
+
+    feature(
+        x1: number,
+        y1: number,
+        halfWidth: number,
+        halfHeight: number,
+        feature: Feature,
+        featureStyle: StyleGroup,
+        layerIndex: number,
+        zoomlevel: number
+    ): number[] | false {
+        return this.geometry(
+            x1,
+            y1,
+            halfWidth,
+            halfHeight,
+            feature.geometry.coordinates,
+            // feature.getProvider().decCoord(feature),
+            feature.geometry.type,
+            featureStyle,
+            layerIndex,
+            feature,
+            zoomlevel
+        );
     };
 }
 

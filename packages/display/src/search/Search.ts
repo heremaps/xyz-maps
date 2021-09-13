@@ -18,7 +18,7 @@
  */
 
 import Hit from './Hit';
-import {TileLayer} from '@here/xyz-maps-core';
+import {Feature, TileLayer} from '@here/xyz-maps-core';
 import {Map} from '../Map';
 
 const MAX_GRID_ZOOM = 20;
@@ -43,21 +43,36 @@ export class Search {
         this.hit = new Hit(map, dpr);
     }
 
-    private getFeaturesInRect(x1: number, y1: number, x2: number, y2: number, layers: TileLayer | TileLayer[], zoomlevel: number, mostTopFeatureOnly?: boolean) {
+    private getFeaturesInRect(
+        x1: number,
+        y1: number,
+        x2: number,
+        y2: number,
+        layers: TileLayer | TileLayer[]
+    ): {
+        layer: TileLayer,
+        features: Feature[]
+    }[] {
         const {map, hit} = this;
+
+        const zoomlevel = map.getZoomlevel();
+        const buffer = DEFAULT_POINT_SEARCH_RADIUS_PIXEL[Math.ceil(zoomlevel)];
+
         const tileGridZoom = Math.min(MAX_GRID_ZOOM, zoomlevel) ^ 0;
         const results = {};
-        let x = x1 + (x2 - x1) / 2;
-        let y = y1 + (y2 - y1) / 2;
+        const halfWidth = (x2 - x1) / 2;
+        const halfHeight = (y2 - y1) / 2;
+        let x = x1 + halfWidth;
+        let y = y1 + halfHeight;
         let minLon = 180;
         let maxLon = -180;
         let minLat = 180;
         let maxLat = -180;
         let searchRect = [
-            map.pixelToGeo(x1, y1), // top-left
-            map.pixelToGeo(x2, y1), // top-right
-            map.pixelToGeo(x2, y2), // bottom-right
-            map.pixelToGeo(x1, y2) // bottom-left
+            map.pixelToGeo(x1 - buffer, y1 - buffer), // top-left
+            map.pixelToGeo(x2 + buffer, y1 - buffer), // top-right
+            map.pixelToGeo(x2 + buffer, y2 + buffer), // bottom-right
+            map.pixelToGeo(x1 - buffer, y2 + buffer) // bottom-left
         ];
         let p = 4;
         let found = [];
@@ -105,11 +120,12 @@ export class Search {
             if (zoomlevel <= layer.max && zoomlevel >= layer.min && provider.search) {
                 features = provider.search(viewbounds);
                 length = features.length;
-
                 while (length--) {
                     feature = features[length];
+
                     if (featureStyle = layer.getStyleGroup(feature, tileGridZoom)) {
-                        if (dimensions = hit.feature(x, y, feature, featureStyle, layerIndex, zoomlevel)) {
+                        if (dimensions = hit.feature(x, y, halfWidth, halfHeight, feature, featureStyle, layerIndex, zoomlevel)) {
+                            // if (dimensions = hit.feature(x, y, feature, featureStyle, layerIndex, zoomlevel)) {
                             let zIndex = dimensions[dimensions.length - 1];
                             let zOrdered = results[zIndex] = results[zIndex] || [];
                             let zOrderedLayer = zOrdered[layerIndex] = zOrdered[layerIndex] || [];
@@ -128,9 +144,9 @@ export class Search {
 
         for (let z in results) {
             let zResults = results[z];
-            for (let layerIndex = 0, zLayerResults; layerIndex < zResults.length; layerIndex++) {
-                if (zLayerResults = zResults[layerIndex]) {
-                    let layer = layers[layerIndex];
+            for (let i = 0, zLayerResults; i < zResults.length; i++) {
+                if (zLayerResults = zResults[i]) {
+                    const layer = layers[i];
                     if (prevResult.layer == layer) {
                         prevResult.features = prevResult.features.concat(zLayerResults);
                     } else {
@@ -142,12 +158,20 @@ export class Search {
                 }
             }
         }
+
         return found;
     }
 
-    search(x: number, y: number, x2: number, y2: number, layers: TileLayer | TileLayer[], mostTopFeatureOnly?: boolean) {
+    search(
+        x: number,
+        y: number,
+        x2: number,
+        y2: number,
+        layers: TileLayer | TileLayer[]
+    ): { layer: TileLayer, features: Feature[] }[] {
         const {map} = this;
         const defaultLayers = map._layers;
+        // const isPointSearch = x == x2 && y == y2;
 
         if (layers) {
             if (layers instanceof Array) {
@@ -163,17 +187,14 @@ export class Search {
         }
 
         if (isNumber(x) && isNumber(y) && isNumber(x2) && isNumber(y2)) {
-            const currentZoomlevel = map.getZoomlevel();
-            const buffer = DEFAULT_POINT_SEARCH_RADIUS_PIXEL[Math.ceil(currentZoomlevel)];
-
+            // const currentZoomlevel = map.getZoomlevel();
+            // const buffer = DEFAULT_POINT_SEARCH_RADIUS_PIXEL[Math.ceil(currentZoomlevel)];
             return this.getFeaturesInRect(
-                x - buffer,
-                y - buffer,
-                x2 + buffer,
-                y2 + buffer,
-                layers,
-                currentZoomlevel,
-                mostTopFeatureOnly
+                x,
+                y,
+                x2,
+                y2,
+                layers
             );
         }
     };

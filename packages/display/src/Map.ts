@@ -694,10 +694,11 @@ export class Map {
          * defines the layer(s) to search in.
          */
         layers?: TileLayer | TileLayer[],
-        /**
-         * if set to true only the top most feature will be returned. [default: false]
-         */
-        topOnly?: boolean
+        // /**
+        //  * if set to true only the top most feature will be returned. [default: false]
+        //  * @deprecated
+        //  */
+        // topOnly?: boolean
     }): { features: Feature[], layer: TileLayer }[] {
         let x1;
         let x2;
@@ -728,8 +729,8 @@ export class Map {
 
         return x1 != UNDEF && this._search.search(
             x1, y1, x2, y2,
-            options.layers,
-            options.topOnly
+            options.layers
+            // options.topOnly
         );
     };
 
