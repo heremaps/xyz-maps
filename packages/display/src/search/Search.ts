@@ -125,7 +125,6 @@ export class Search {
 
                     if (featureStyle = layer.getStyleGroup(feature, tileGridZoom)) {
                         if (dimensions = hit.feature(x, y, halfWidth, halfHeight, feature, featureStyle, layerIndex, zoomlevel)) {
-                            // if (dimensions = hit.feature(x, y, feature, featureStyle, layerIndex, zoomlevel)) {
                             let zIndex = dimensions[dimensions.length - 1];
                             let zOrdered = results[zIndex] = results[zIndex] || [];
                             let zOrderedLayer = zOrdered[layerIndex] = zOrdered[layerIndex] || [];
@@ -171,7 +170,6 @@ export class Search {
     ): { layer: TileLayer, features: Feature[] }[] {
         const {map} = this;
         const defaultLayers = map._layers;
-        // const isPointSearch = x == x2 && y == y2;
 
         if (layers) {
             if (layers instanceof Array) {
@@ -187,15 +185,7 @@ export class Search {
         }
 
         if (isNumber(x) && isNumber(y) && isNumber(x2) && isNumber(y2)) {
-            // const currentZoomlevel = map.getZoomlevel();
-            // const buffer = DEFAULT_POINT_SEARCH_RADIUS_PIXEL[Math.ceil(currentZoomlevel)];
-            return this.getFeaturesInRect(
-                x,
-                y,
-                x2,
-                y2,
-                layers
-            );
+            return this.getFeaturesInRect(x, y, x2, y2, layers);
         }
     };
 }
