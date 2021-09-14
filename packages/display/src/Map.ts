@@ -758,12 +758,22 @@ export class Map {
     ) {
         if (!callback) return;
 
+        dx ||= 0;
+        dy ||= 0;
+
         width ||= this._w;
         height ||= this._h;
 
+        if (width + dx > this._w) {
+            width = this._w - dx;
+        }
+        if (height + dy > this._h) {
+            height = this._h - dy;
+        }
+
         const display = this._display;
         const {dpr} = display;
-        const canvas = display.copyCanvas2d(dx || 0, dy || 0, width, height);
+        const canvas = display.copyCanvas2d(dx, dy, width, height);
         const fontHeightPx = 11;
         const buf = Math.ceil(fontHeightPx / 3);
         const copyright = <Copyright> this.ui.get('Copyright');
