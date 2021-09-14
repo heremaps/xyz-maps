@@ -105,6 +105,7 @@ class Hit {
                 return false;
             }
         }
+        return true;
     }
 
     private pointInBox(points: Point[], minLon: number, maxLon: number, minLat: number, maxLat: number): boolean {
