@@ -17,7 +17,7 @@
  * License-Filename: LICENSE
  */
 
-import {LocalProvider, tile, Tile, TileLayer, tileUtils} from '@here/xyz-maps-core';
+import {LocalProvider, Tile, TileLayer, tileUtils} from '@here/xyz-maps-core';
 import Display from './Display';
 import {Attribute} from './buffer/Attribute';
 import {Layer} from '../Layers';

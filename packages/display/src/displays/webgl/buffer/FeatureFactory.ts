@@ -40,7 +40,6 @@ import {toPresentationFormB} from '../arabic';
 import {Tile, Feature, GeoJSONCoordinate as Coordinate, GeoJSONCoordinate} from '@here/xyz-maps-core';
 import {Texture} from '../Texture';
 import {TemplateBuffer} from './templates/TemplateBuffer';
-import {webMercator} from '@here/xyz-maps-core';
 
 
 const DEFAULT_STROKE_WIDTH = 1;
@@ -289,6 +288,7 @@ export class FeatureFactory {
         let collisionStyleGroup;
         let collisionGroupId = '';
         let collisionBox;
+        let collisionData;
 
         this.iconsLoaded = true;
 
@@ -297,6 +297,7 @@ export class FeatureFactory {
         if (priority === UNDEF && geomType === 'Point' && !tile.isInside(<GeoJSONCoordinate>coordinates)) {
             return this.iconsLoaded;
         }
+
 
         for (let i = 0, iLen = styleGroups.length; i < iLen; i++) {
             style = styleGroups[i];
@@ -557,7 +558,6 @@ export class FeatureFactory {
             if (geomType == 'Point') {
                 const x = tile.lon2x((<GeoJSONCoordinate>coordinates)[0], tileSize);
                 const y = tile.lat2y((<GeoJSONCoordinate>coordinates)[1], tileSize);
-                let collisionData;
 
                 if (collisionGroup) {
                     collisionData = this.collisions.insert(
