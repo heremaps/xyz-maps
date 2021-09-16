@@ -17,9 +17,10 @@
  * License-Filename: LICENSE
  */
 
-import trs from './turnRestriction';
+import TurnRestrictionHooks from './turnRestriction';
+import InternalEditor from '../IEditor';
 
-const initHooks = (internalEditor) => {
+const initHooks = (internalEditor: InternalEditor) => {
     const addHooks = (hookMap) => {
         let hooks;
         for (let name in hookMap) {
@@ -33,9 +34,7 @@ const initHooks = (internalEditor) => {
             }
         }
     };
-
-
-    [trs].forEach((hooks) => addHooks(hooks));
+    addHooks(TurnRestrictionHooks);
 };
 
 export {initHooks};

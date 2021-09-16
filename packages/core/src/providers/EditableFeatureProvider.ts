@@ -83,7 +83,7 @@ export abstract class EditableFeatureProvider extends FeatureTileProvider {
      *
      * @see {@link editor.Editor.addHook | editor.addHook }
      */
-    hooks: {
+    hooks?: {
         'Navlink.split'?: NavlinkSplitHook | NavlinkSplitHook[],
         'Navlink.disconnect'?: NavlinkDisconnectHook | NavlinkDisconnectHook[],
         'Feature.remove'?: FeatureRemoveHook | FeatureRemoveHook[],
@@ -120,7 +120,7 @@ export abstract class EditableFeatureProvider extends FeatureTileProvider {
         }
     }
 
-    getFeatureProperties(feature) {
+    getFeatureProperties(feature: Feature) {
         return feature.properties;
     }
 
