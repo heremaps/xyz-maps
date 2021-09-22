@@ -19,12 +19,13 @@
 
 import {Map} from './Map';
 import {global} from '@here/xyz-maps-common';
+import * as styleTools from './displays/styleTools';
 
 // WORKAROUND IF BUNDELED BY WEBPACK (UMD REMOVAL)
 // make sure global ns is also available for webpack users.
-global.here.xyz.maps.Map = Map;
-
-import * as styleTools from './displays/styleTools';
+const globalNamespace = global.here.xyz.maps;
+globalNamespace.Map = Map;
+globalNamespace.styleTools = styleTools;
 
 export {styleTools};
 export {Map};

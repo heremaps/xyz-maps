@@ -75,7 +75,7 @@ const rollupConfig = [{
     output: {
         file: 'dist/' + file,
         format: 'umd',
-        name: 'here.xyz.maps.Map',
+        name: 'here.xyz.maps',
         sourcemap: sourcemap,
         extend: true,
         exports: 'named',

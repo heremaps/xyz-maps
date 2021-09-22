@@ -67,7 +67,7 @@ const rollupConfig = [{
         sourcemap: sourcemap,
         exports: 'named',
         globals: {
-            '@here/xyz-maps-display': 'here.xyz.maps.Map',
+            '@here/xyz-maps-display': 'here.xyz.maps',
             '@here/xyz-maps-core': 'here.xyz.maps',
             '@here/xyz-maps-common': 'here.xyz.maps.common'
         },
@@ -88,7 +88,7 @@ if (production) {
             sourcemap: sourcemap,
             exports: 'named',
             globals: {
-                '@here/xyz-maps-display': 'here.xyz.maps.Map',
+                '@here/xyz-maps-display': 'here.xyz.maps',
                 '@here/xyz-maps-core': 'here.xyz.maps',
                 '@here/xyz-maps-common': 'here.xyz.maps.common'
             },
