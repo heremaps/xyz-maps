@@ -120,7 +120,6 @@ const getSizeInPixel = (property: string, style: Style, feature: Feature, zoom: 
     return value;
 };
 
-
 const getAbsZ = (style: Style, feature: Feature, tileGridZoom: number, layerIndex: number) => {
     let z = getValue('zIndex', style, feature, tileGridZoom);
     let zLayer = getValue('zLayer', style, feature, tileGridZoom);
@@ -158,15 +157,15 @@ const getLineWidth = (groups: StyleGroup, feature: Feature, zoom: number, layerI
             maxZ = z;
         }
 
-        let swVal = getValue('strokeWidth', grp, feature, tileGridZoom); // || 1;
-        if (isNaN(swVal)) swVal = 1;
+        // let swVal = getValue('strokeWidth', grp, feature, tileGridZoom); // || 1;
+        // if (isNaN(swVal)) swVal = 1;
+        // let [value, unit] = parseSizeValue(swVal, true);
+        // if (unit == 'm') {
+        //     const dZoomScale = Math.pow(2, zoom % tileGridZoom);
+        //     value = dZoomScale * meterToPixel(value, tileGridZoom);
+        // }
 
-        let [value, unit] = parseSizeValue(swVal, true);
-
-        if (unit == 'm') {
-            const dZoomScale = Math.pow(2, zoom % tileGridZoom);
-            value = dZoomScale * meterToPixel(value, tileGridZoom);
-        }
+        let value = getSizeInPixel('strokeWidth', grp, feature, tileGridZoom);
 
         if (value > width) {
             width = value;

@@ -34,6 +34,8 @@ import iconAllowed from '../../assets/icons/thoroughfare_24.gif';
 // @ts-ignore
 import iconPedestrian from '../../assets/icons/pedestrian_24.gif';
 
+import {styleTools} from '@here/xyz-maps-display';
+
 let UNDEF;
 
 const BLACK = '#111111';
@@ -145,8 +147,9 @@ class OverlayStyles {
             zIndex: 0,
             type: 'Circle',
             radius: (feature, zoom) => {
-                const strokeWidth = feature.properties.LINE.style[0].strokeWidth;
-                return getValue(strokeWidth, feature, zoom) / 2 + 4 ^ 0;
+                const {style} = feature.properties.LINE;
+                const [lineWidth] = styleTools.getLineWidth(style, feature.getLine(), zoom, 0);
+                return lineWidth / 2 + 4 ^ 0;
             },
             stroke: (feature, zoom) => {
                 const style = feature.properties.LINE.style.filter((s) => s.type == 'Line');
@@ -164,8 +167,9 @@ class OverlayStyles {
             zIndex: 0,
             type: 'Circle',
             radius: (feature, zoom) => {
-                const strokeWidth = feature.properties.LINE.style[0].strokeWidth;
-                return getValue(strokeWidth, feature, zoom) / 2 ^ 0;
+                const {style} = feature.properties.LINE;
+                const [lineWidth] = styleTools.getLineWidth(style, feature.getLine(), zoom, 0);
+                return lineWidth / 2 ^ 0;
             },
             fill: '#151515'
         }],
@@ -196,7 +200,11 @@ class OverlayStyles {
         'NAVLINK_VIRTUAL_SHAPE': [{
             zIndex: 1,
             type: 'Circle',
-            radius: (feature) => feature.properties.NAVLINK.style[0]['strokeWidth'] / 5,
+            radius: (feature, zoom) => {
+                const {style} = feature.properties.NAVLINK;
+                let [lw] = styleTools.getLineWidth(style, feature.getLink(), zoom, 0);
+                return lw / 5;
+            },
             opacity: .7,
             fill: BLACK,
             stroke: BLACK,

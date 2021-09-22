@@ -159,6 +159,10 @@ class VirtualLinkShape extends Feature {
                 };
         }
     }
+
+    getLink(): Navlink {
+        return this.properties.parent;
+    }
 }
 
 export default VirtualLinkShape;

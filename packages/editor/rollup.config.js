@@ -67,13 +67,14 @@ const rollupConfig = [{
         sourcemap: sourcemap,
         exports: 'named',
         globals: {
+            '@here/xyz-maps-display': 'here.xyz.maps.Map',
             '@here/xyz-maps-core': 'here.xyz.maps',
             '@here/xyz-maps-common': 'here.xyz.maps.common'
         },
         strict: true,
         banner: banner
     },
-    external: ['@here/xyz-maps-core', '@here/xyz-maps-common'],
+    external: ['@here/xyz-maps-display', '@here/xyz-maps-core', '@here/xyz-maps-common'],
     plugins: createPlugins(),
     treeshake: production
 }];
@@ -87,13 +88,14 @@ if (production) {
             sourcemap: sourcemap,
             exports: 'named',
             globals: {
+                '@here/xyz-maps-display': 'here.xyz.maps.Map',
                 '@here/xyz-maps-core': 'here.xyz.maps',
                 '@here/xyz-maps-common': 'here.xyz.maps.common'
             },
             strict: true,
             banner: banner
         },
-        external: ['@here/xyz-maps-core', '@here/xyz-maps-common'],
+        external: ['@here/xyz-maps-display', '@here/xyz-maps-core', '@here/xyz-maps-common'],
         plugins: createPlugins(),
         treeshake: production
     });

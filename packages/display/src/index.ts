@@ -24,7 +24,9 @@ import {global} from '@here/xyz-maps-common';
 // make sure global ns is also available for webpack users.
 global.here.xyz.maps.Map = Map;
 
+import * as styleTools from './displays/styleTools';
 
+export {styleTools};
 export {Map};
 export {MapEvent} from './event/Event';
 
