@@ -108,9 +108,9 @@ const parseSizeValue = (size: string | number, float: boolean = false): [number,
     return [<number>value, unit];
 };
 
-const getSizeInPixel = (property: string, style: Style, feature: Feature, zoom: number) => {
+const getSizeInPixel = (property: string, style: Style, feature: Feature, zoom: number, float?: boolean) => {
     const rawValue = getValue(property, style, feature, zoom);
-    let [value, unit] = parseSizeValue(rawValue);
+    let [value, unit] = parseSizeValue(rawValue, float);
 
     if (unit == 'm') {
         const tileGridZoom = getTileGridZoom(zoom);
@@ -165,7 +165,7 @@ const getLineWidth = (groups: StyleGroup, feature: Feature, zoom: number, layerI
         //     value = dZoomScale * meterToPixel(value, tileGridZoom);
         // }
 
-        let value = getSizeInPixel('strokeWidth', grp, feature, tileGridZoom);
+        const value = getSizeInPixel('strokeWidth', grp, feature, tileGridZoom, true);
 
         if (value > width) {
             width = value;
