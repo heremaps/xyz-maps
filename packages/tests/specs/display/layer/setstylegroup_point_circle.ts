@@ -18,9 +18,10 @@
  */
 
 import {waitForViewportReady} from 'displayUtils';
-import {getCanvasPixelColor, prepare} from 'utils';
+import {getCanvasPixelColor, Listener, prepare} from 'utils';
 import {Map} from '@here/xyz-maps-display';
 import dataset from './setstylegroup_point_circle.json';
+import {click} from 'triggerEvents';
 
 describe('setStyleGroup Point with circle', function() {
     const expect = chai.expect;
@@ -30,7 +31,7 @@ describe('setStyleGroup Point with circle', function() {
     let mapContainer;
     let feature;
 
-    before(async function() {
+    before(async () => {
         let preparedData = await prepare(dataset);
         display = new Map(document.getElementById('map'), {
             // @ts-ignore
@@ -50,11 +51,11 @@ describe('setStyleGroup Point with circle', function() {
         feature = preparedData.getFeature('paLayer', '123');
     });
 
-    after(async function() {
+    after(() => {
         display.destroy();
     });
 
-    it('style feature and validate', async function() {
+    it('style feature and validate', async () => {
         // set style for the added feature
         paLayer.setStyleGroup(
             feature, [
@@ -68,7 +69,10 @@ describe('setStyleGroup Point with circle', function() {
         // get color at right border
         // get color at top border
         // get color of bottom border
-        let colors = await getCanvasPixelColor(mapContainer, [{x: 400, y: 300}, {x: 388, y: 300}, {x: 412, y: 300}, {x: 400, y: 288}, {x: 400, y: 312}]);
+        let colors = await getCanvasPixelColor(mapContainer, [{x: 400, y: 300}, {x: 388, y: 300}, {x: 412, y: 300}, {
+            x: 400,
+            y: 288
+        }, {x: 400, y: 312}]);
 
         expect(colors[0]).to.equal('#ff0000');
         expect(colors[1]).to.equal('#000000');
@@ -77,7 +81,7 @@ describe('setStyleGroup Point with circle', function() {
         expect(colors[4]).to.equal('#000000');
     });
 
-    it('style feature with offsetX and validate', async function() {
+    it('style feature with offsetX and validate', async () => {
         // set style for the added feature
         paLayer.setStyleGroup(
             feature, [
@@ -91,7 +95,10 @@ describe('setStyleGroup Point with circle', function() {
         // get color at right border
         // get color at top border
         // get color of bottom border
-        let colors = await getCanvasPixelColor(mapContainer, [{x: 400, y: 300}, {x: 388, y: 300}, {x: 412, y: 300}, {x: 400, y: 288}, {x: 400, y: 312}]);
+        let colors = await getCanvasPixelColor(mapContainer, [{x: 400, y: 300}, {x: 388, y: 300}, {x: 412, y: 300}, {
+            x: 400,
+            y: 288
+        }, {x: 400, y: 312}]);
 
         expect(colors[0]).to.equal('#ff0000');
         expect(colors[1]).to.equal('#000000');
@@ -100,7 +107,7 @@ describe('setStyleGroup Point with circle', function() {
         expect(colors[4]).to.equal('#000000');
     });
 
-    it('style feature with offsetX again and validate', async function() {
+    it('style feature with offsetX again and validate', async () => {
         // set style for the added feature
         paLayer.setStyleGroup(
             feature, [
@@ -114,7 +121,10 @@ describe('setStyleGroup Point with circle', function() {
         // get color at right border
         // get color at top border
         // get color of bottom border
-        let colors = await getCanvasPixelColor(mapContainer, [{x: 400, y: 300}, {x: 388, y: 300}, {x: 412, y: 300}, {x: 400, y: 288}, {x: 400, y: 312}]);
+        let colors = await getCanvasPixelColor(mapContainer, [{x: 400, y: 300}, {x: 388, y: 300}, {x: 412, y: 300}, {
+            x: 400,
+            y: 288
+        }, {x: 400, y: 312}]);
 
         expect(colors[0]).to.equal('#ff0000');
         expect(colors[1]).to.equal('#ff0000');
@@ -123,7 +133,7 @@ describe('setStyleGroup Point with circle', function() {
         expect(colors[4]).to.equal('#000000');
     });
 
-    it('style feature with offsetY and validate', async function() {
+    it('style feature with offsetY and validate', async () => {
         // set style for the added feature
         paLayer.setStyleGroup(
             feature, [
@@ -137,7 +147,10 @@ describe('setStyleGroup Point with circle', function() {
         // get color at right border
         // get color at top border
         // get color of bottom border
-        let colors = await getCanvasPixelColor(mapContainer, [{x: 400, y: 300}, {x: 388, y: 300}, {x: 412, y: 300}, {x: 400, y: 288}, {x: 400, y: 312}]);
+        let colors = await getCanvasPixelColor(mapContainer, [{x: 400, y: 300}, {x: 388, y: 300}, {x: 412, y: 300}, {
+            x: 400,
+            y: 288
+        }, {x: 400, y: 312}]);
 
         expect(colors[0]).to.equal('#ff0000');
         expect(colors[1]).to.equal('#000000');
@@ -146,7 +159,7 @@ describe('setStyleGroup Point with circle', function() {
         expect(colors[4]).to.equal('#ff0000');
     });
 
-    it('style feature with offsetY again and validate', async function() {
+    it('style feature with offsetY again and validate', async () => {
         // set style for the added feature
         paLayer.setStyleGroup(
             feature, [
@@ -160,7 +173,10 @@ describe('setStyleGroup Point with circle', function() {
         // get color at right border
         // get color at top border
         // get color of bottom border
-        let colors = await getCanvasPixelColor(mapContainer, [{x: 400, y: 300}, {x: 388, y: 300}, {x: 412, y: 300}, {x: 400, y: 288}, {x: 400, y: 312}]);
+        let colors = await getCanvasPixelColor(mapContainer, [{x: 400, y: 300}, {x: 388, y: 300}, {x: 412, y: 300}, {
+            x: 400,
+            y: 288
+        }, {x: 400, y: 312}]);
 
         expect(colors[0]).to.equal('#ff0000');
         expect(colors[1]).to.equal('#000000');
@@ -169,7 +185,7 @@ describe('setStyleGroup Point with circle', function() {
         expect(colors[4]).to.equal('#000000');
     });
 
-    it('style feature with fill and stroke color', async function() {
+    it('style feature with fill and stroke color', async () => {
         // set style for the added feature
         paLayer.setStyleGroup(
             feature, [
@@ -184,12 +200,51 @@ describe('setStyleGroup Point with circle', function() {
         // get color at right border
         // get color at top border
         // get color of bottom border
-        let colors = await getCanvasPixelColor(mapContainer, [{x: 400, y: 300}, {x: 388, y: 300}, {x: 412, y: 300}, {x: 400, y: 288}, {x: 400, y: 312}]);
+        let colors = await getCanvasPixelColor(mapContainer, [{x: 400, y: 300}, {x: 388, y: 300}, {x: 412, y: 300}, {
+            x: 400,
+            y: 288
+        }, {x: 400, y: 312}]);
 
         expect(colors[0]).to.equal('#ff0000');
         expect(colors[1]).to.equal('#ffff00');
         expect(colors[2]).to.equal('#ffff00');
         expect(colors[3]).to.equal('#ffff00');
         expect(colors[4]).to.equal('#ffff00');
+    });
+
+    it('set radius in meter', async () => {
+        // set style for the added feature
+        paLayer.setStyleGroup(feature, [{
+            'zIndex': 0, 'type': 'Circle', 'radius': '30m', 'opacity': 1, 'fill': '#ff0000'
+        }]);
+        const colors = await getCanvasPixelColor(mapContainer, {x: 400 - 30, y: 300 - 30});
+        expect(colors).to.equal('#ff0000');
+    });
+
+    it('zoom in and validate radius in meter is double in size', async () => {
+        await waitForViewportReady(display, () => display.setZoomlevel(display.getZoomlevel() + 1));
+        const colors = await getCanvasPixelColor(mapContainer, {x: 400 - 60, y: 300 - 60});
+        expect(colors).to.equal('#ff0000');
+    });
+
+
+    it('validate pointer-events for meter radius', async () => {
+        const listener = new Listener(display, ['pointerdown', 'pointerup']);
+
+        await click(mapContainer, 460, 360);
+
+        const {pointerdown, pointerup} = listener.stop();
+
+        expect(pointerdown).to.have.lengthOf(1);
+        expect(pointerdown[0]).to.deep.include({
+            button: 0,
+            mapX: 460,
+            mapY: 360,
+            type: 'pointerdown'
+        });
+
+        expect(pointerup).to.have.lengthOf(1);
+        const {geometry} = (<any>pointerup[0]).target;
+        expect(geometry).to.deep.include({type: 'Point'});
     });
 });
