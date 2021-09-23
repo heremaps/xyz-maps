@@ -363,7 +363,7 @@ class ClickDraw {
             iEdit.setStyle(feature.geojson, style.feature);
 
             shapes.concat(cursor).forEach((shp) => {
-                iEdit.setStyle(shp, createShapeStyle(style.shape, iEdit.getStyle(shp)[0].zIndex));
+                iEdit.setStyle(shp, createShapeStyle(style.shape, <number>iEdit.getStyle(shp)[0].zIndex));
             });
         }
     };

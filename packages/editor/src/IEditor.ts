@@ -19,7 +19,7 @@
 
 import {JSUtils} from '@here/xyz-maps-common';
 import Transformer from './tools/transformer/Transformer';
-import {TileLayer, EditableRemoteTileProvider} from '@here/xyz-maps-core';
+import {TileLayer, EditableRemoteTileProvider, StyleGroup, Feature} from '@here/xyz-maps-core';
 import {EditorOptions} from './API/EditorOptions';
 import ObserverHandler from './handlers/ObserverHandler';
 import EventHandler from './handlers/EventHandler';
@@ -28,7 +28,6 @@ import DisplayListener from './DisplayListener';
 import Hooks from './Hooks';
 import Map from './map/Map';
 import {Map as Display} from '@here/xyz-maps-display';
-import {Feature} from './features/feature/Feature';
 import {RangeSelector} from './API/ERangeSelector';
 import {DrawingBoard} from './API/DrawingBoard';
 
@@ -43,6 +42,9 @@ export default class InternalEditor {
     isCommitInProcess: boolean = false;
     _rngSel: RangeSelector;
     _db: DrawingBoard;
+    private _dListener: DisplayListener;
+
+    private prvIdLayerMap: { [providerId: string]: TileLayer }
 
     display: Display;
     objects: ObjectManager;
@@ -53,57 +55,45 @@ export default class InternalEditor {
     transformer: Transformer;
     layers: TileLayer[];
     layerMap: { [id: string]: TileLayer };
-
-    destroy: () => void;
-
-    getStyle: (feature, layerDefaults?) => any[];
-    setStyle: (feature, style?: any[], merge?: boolean) => any;
-
-    getLayerForClass: (featureClass: string) => TileLayer;
-    getProviderById: (providerId: string) => EditableRemoteTileProvider;
-    getLayerById: (layerId: string) => TileLayer;
-    getLayer: (providerId: string | Feature) => TileLayer;
-
     dump: (...args) => void;
 
 
     constructor(config: EditorOptions, display: Display) {
         this._config = config;
 
-        const HERE_WIKI = this;
+        const iEditor = this;
 
-        HERE_WIKI.layers = [];
-        HERE_WIKI.layerMap = {};
+        iEditor.layers = [];
+        iEditor.layerMap = {};
 
-        HERE_WIKI.observers = new ObserverHandler();
+        iEditor.observers = new ObserverHandler();
 
-        HERE_WIKI.listeners = new EventHandler();
+        iEditor.listeners = new EventHandler();
 
-        HERE_WIKI.objects = new ObjectManager(HERE_WIKI, display);
+        iEditor.objects = new ObjectManager(iEditor, display);
 
-        HERE_WIKI.hooks = new Hooks(HERE_WIKI.objects.history);
+        iEditor.hooks = new Hooks(iEditor.objects.history);
 
-        const displayListener = new DisplayListener(HERE_WIKI, display);
+        this._dListener = new DisplayListener(iEditor, display);
+        this._dListener.start();
 
-        displayListener.start();
-
-        const editEngineOverlay = HERE_WIKI.objects.overlay.layer;
-        const PROVIDER_ID_TO_LAYER = {};
+        const editEngineOverlay = iEditor.objects.overlay.layer;
+        const prvIdLayerMap = this.prvIdLayerMap = {};
         // add the overlay
-        PROVIDER_ID_TO_LAYER[editEngineOverlay.getProvider().id] = editEngineOverlay;
+        prvIdLayerMap[editEngineOverlay.getProvider().id] = editEngineOverlay;
 
         function providerErrorListener(errorMsg) {
-            HERE_WIKI.listeners.trigger(ERROR_EVENT, errorMsg);
+            iEditor.listeners.trigger(ERROR_EVENT, errorMsg);
         }
 
-        HERE_WIKI.listeners.add('_layerAdd', (ev) => {
+        iEditor.listeners.add('_layerAdd', (ev) => {
             const layer = ev.detail.layer; // ev.target;
             const provider = layer.getProvider();
 
             for (let prop of ['src', 'base', 'delta', 'id']) {
                 const layerId = provider[prop];
                 if (layerId) {
-                    PROVIDER_ID_TO_LAYER[layerId] = layer;
+                    prvIdLayerMap[layerId] = layer;
                 }
             }
             // make sure it's only listening once if layer gets read...
@@ -111,97 +101,96 @@ export default class InternalEditor {
             layer.addEventListener(ERROR_EVENT, providerErrorListener);
         });
 
-        HERE_WIKI.getLayerForClass = (featureClass) => {
-            // fallback logic for Maphub Provider...
-            // TODO: can be removed if Maphub/Pro-Provider is removed from public API
-            let firstMultiTypeLayer;
-            let providerClass;
-            let found;
-            let prov;
+        iEditor.map = new Map(display);
 
-            // find the layer in which the object should be created
-            for (let layer of HERE_WIKI.layers) {
-                if (layer.getProvider) {
-                    prov = layer.getProvider();
-                }
+        iEditor.transformer = new Transformer(iEditor);
 
-                providerClass = prov.class;
+        iEditor.display = display;
 
-                if (!providerClass) {
-                    if (!firstMultiTypeLayer) {
-                        firstMultiTypeLayer = layer;
-                    }
-                } else if (featureClass == providerClass) {
-                    found = layer;
-                }
-            }
-
-            return found || firstMultiTypeLayer;
-        };
-
-        // also supporting currently not active layers.
-        HERE_WIKI.getProviderById = function(layerId) {
-            const layer = PROVIDER_ID_TO_LAYER[layerId];
-            if (layer) {
-                return layer.getProvider();
-            }
-        };
-
-        HERE_WIKI.getLayerById = (layerId) => {
-            for (let layer of HERE_WIKI.layers) {
-                if (layer.id == layerId) {
-                    return layer;
-                }
-            }
-        };
-
-        HERE_WIKI.getLayer = function(providerId) {
-            let layer;
-
-            if (typeof providerId == 'object') {
-                const provider = providerId.getProvider();
-
-                // TODO: remove deprecated maphubprovider workaround
-                // @ts-ignore
-                providerId = provider.src || provider.delta || provider.base || provider.id;
-            }
-
-            if (providerId) {
-                layer = PROVIDER_ID_TO_LAYER[<string>providerId];
-            }
-
-            return layer;
-        };
-
-
-        HERE_WIKI.getStyle = function(feature, layerDefaults) {
-            const layer = this.getLayer(feature);
-            const style = layer.getStyleGroup(feature, UNDEF, layerDefaults);
-
-            return JSUtils.extend(true, [], style);
-        };
-
-        HERE_WIKI.setStyle = function(feature, style, merge) {
-            this.getLayer(feature)
-                .setStyleGroup(feature, style, merge);
-        };
-
-        HERE_WIKI.map = new Map(display);
-
-        HERE_WIKI.transformer = new Transformer(HERE_WIKI);
-
-        HERE_WIKI.display = display;
-
-        HERE_WIKI.destroy = () => {
-            displayListener.stop();
-            // removes the overlay
-            HERE_WIKI.objects.destroy();
-
-            HERE_WIKI.listeners.destroy();
-        };
-
-        HERE_WIKI.dump = JSUtils.dump;
+        iEditor.dump = JSUtils.dump;
     }
+
+    getLayerForClass(featureClass: string): TileLayer {
+        // fallback logic for Maphub Provider...
+        // TODO: can be removed if Maphub/Pro-Provider is removed from public API
+        let firstMultiTypeLayer;
+        let providerClass;
+        let found;
+        let prov;
+
+        // find the layer in which the object should be created
+        for (let layer of this.layers) {
+            if (layer.getProvider) {
+                prov = layer.getProvider();
+            }
+
+            providerClass = prov.class;
+
+            if (!providerClass) {
+                if (!firstMultiTypeLayer) {
+                    firstMultiTypeLayer = layer;
+                }
+            } else if (featureClass == providerClass) {
+                found = layer;
+            }
+        }
+
+        return found || firstMultiTypeLayer;
+    };
+
+    // also supporting currently not active layers.
+    getProviderById(layerId: string): EditableRemoteTileProvider {
+        const layer = this.prvIdLayerMap[layerId];
+        if (layer) {
+            return <EditableRemoteTileProvider>layer.getProvider();
+        }
+    };
+
+    getLayerById(layerId: string): TileLayer {
+        for (let layer of this.layers) {
+            if (layer.id == layerId) {
+                return layer;
+            }
+        }
+    };
+
+    getLayer(providerId: string | Feature): TileLayer {
+        let layer;
+
+        if (typeof providerId == 'object') {
+            const provider = providerId.getProvider();
+
+            // TODO: remove deprecated maphubprovider workaround
+            // @ts-ignore
+            providerId = provider.src || provider.delta || provider.base || provider.id;
+        }
+
+        if (providerId) {
+            layer = this.prvIdLayerMap[<string>providerId];
+        }
+
+        return layer;
+    };
+
+    destroy() {
+        this._dListener.stop();
+        // removes the overlay
+        this.objects.destroy();
+
+        this.listeners.destroy();
+    };
+
+    getStyle(feature: Feature, layerDefaults?: boolean): StyleGroup {
+        const layer = this.getLayer(feature);
+        const style = layer.getStyleGroup(feature, this.display.getZoomlevel() ^ 0, layerDefaults);
+        return JSUtils.extend(true, [], style);
+    };
+
+    setStyle(feature: Feature, style?: StyleGroup, merge?: boolean) {
+        // @ts-ignore: merge attribute is "internal"
+        this.getLayer(feature).setStyleGroup(feature, style, merge);
+    };
+
 
     /**
      * Get or set the editor config
