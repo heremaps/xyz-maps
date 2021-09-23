@@ -25,9 +25,9 @@ const MAX_GRID_ZOOM = 20;
 // increase to make sure points (no bbox) are in hitbox of spatial check.
 // assumed default pointsize of 64x64 pixel
 const DEFAULT_POINT_SEARCH_RADIUS_PIXEL = Array.from({length: 33}, (v, zoom) => {
-    // 32 pixel up to zoomlevel MAX_GRID_ZOOM - 2 (zoom: 18)..
+    // 32 pixel up to zoomlevel MAX_GRID_ZOOM - 3 (zoom: 17)..
     // from then on the radius grows quadratically
-    return 32 * Math.pow(2, Math.max(0, zoom - MAX_GRID_ZOOM + 2));
+    return 32 * Math.pow(2, Math.max(0, zoom - MAX_GRID_ZOOM + 3));
 });
 
 const isNumber = (o) => typeof o == 'number';

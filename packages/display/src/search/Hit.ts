@@ -168,8 +168,7 @@ class Hit {
             }
         } else if (geoType == 'LineString') {
             dimensions = dimensions || getLineWidth(featureStyle, feature, zoomlevel, layerIndex);
-
-            let width = dimensions[0];
+            const width = dimensions[0] * .5;
             let cLen = coordinates.length;
             let minDistanceSq = Infinity;
 
@@ -188,7 +187,8 @@ class Hit {
                     }
                     p1 = p2;
                 }
-                hit = minDistanceSq <= width * width * .5;
+
+                hit = minDistanceSq <= width * width;
             } else {
                 const topLeft = map.pixelToGeo(x - halfWidth, y - halfWidth);
                 const bottomRight = map.pixelToGeo(x + halfWidth, y + halfWidth);
