@@ -18,11 +18,12 @@
  */
 
 import {waitForViewportReady} from 'displayUtils';
-import {getCanvasPixelColor, prepare} from 'utils';
+import {getCanvasPixelColor, Listener, prepare} from 'utils';
 import {Map} from '@here/xyz-maps-display';
 import dataset from './setstylegroup_link_with_same_zindex.json';
+import {click} from 'triggerEvents';
 
-describe('setStyleGroup link with same zIndex', function() {
+describe('setStyleGroup link with same zIndex', () => {
     const expect = chai.expect;
 
     let linkLayer;
@@ -32,7 +33,7 @@ describe('setStyleGroup link with same zIndex', function() {
     let feature;
     let building;
 
-    before(async function() {
+    before(async () => {
         let preparedData = await prepare(dataset);
         display = new Map(document.getElementById('map'), {
             // @ts-ignore
@@ -53,11 +54,11 @@ describe('setStyleGroup link with same zIndex', function() {
         building = preparedData.getFeature('buildingLayer', '123');
     });
 
-    after(async function() {
+    after(async () => {
         display.destroy();
     });
 
-    it('style feature with different zIndex, validate its style', async function() {
+    it('style feature with different zIndex, validate its style', async () => {
         // set style for the added feature with different zIndex, same color
         linkLayer.setStyleGroup(
             feature, [
@@ -73,7 +74,7 @@ describe('setStyleGroup link with same zIndex', function() {
         expect(colors[1]).to.equal('#be6b65');
     });
 
-    it('style feature with different stroke color, validate its style', async function() {
+    it('style feature with different stroke color, validate its style', async () => {
         // set style for the added feature with same zIndex, different color
         linkLayer.setStyleGroup(
             feature, [
@@ -102,7 +103,7 @@ describe('setStyleGroup link with same zIndex', function() {
         expect(colors2[1]).to.equal('#be6b65');
     });
 
-    it('style feature with different stroke width, validate its style', async function() {
+    it('style feature with different stroke width, validate its style', async () => {
         // set style for the added feature with same zIndex, different strokewidth
         linkLayer.setStyleGroup(
             feature, [
@@ -132,12 +133,12 @@ describe('setStyleGroup link with same zIndex', function() {
         expect(colors2[1]).to.equal('#be6b65');
     });
 
-    it('style feature with same zIndex and style, opacity set to 0.5, validate its style', async function() {
+    it('style feature with same zIndex and style, opacity set to 0.5, validate its style', async () => {
         // style build as background color
         buildingLayer.setStyleGroup(
-            building,
-            {'zIndex': 0, 'type': 'Polygon', 'fill': '#000000', 'stroke': '#000000'}
-        );
+            building, [{
+                'zIndex': 0, 'type': 'Polygon', 'fill': '#000000', 'stroke': '#000000'
+            }]);
 
         // set style for the added feature with same zIndex and color
         linkLayer.setStyleGroup(
@@ -152,7 +153,7 @@ describe('setStyleGroup link with same zIndex', function() {
         expect(color).to.equal('#bfbfbf');
     });
 
-    it('style feature with different zIndex and style, validate its style', async function() {
+    it('style feature with different zIndex and style, validate its style', async () => {
         // set style for the added feature with same zIndex and color
         linkLayer.setStyleGroup(
             feature, [
@@ -166,7 +167,7 @@ describe('setStyleGroup link with same zIndex', function() {
         expect(color).to.equal('#bfbfbf');
     });
 
-    it('style feature with same zIndex 1 and style, validate its style', async function() {
+    it('style feature with same zIndex 1 and style, validate its style', async () => {
         // set style for the added feature with same zIndex and color
         linkLayer.setStyleGroup(
             feature, [
@@ -178,5 +179,43 @@ describe('setStyleGroup link with same zIndex', function() {
         // get color of link in the middle
         let color = await getCanvasPixelColor(mapContainer, {x: 450, y: 300});
         expect(color).to.equal('#bfbfbf');
+    });
+
+    it('set strokeWidth in meter', async () => {
+        // set style for the added feature
+        linkLayer.setStyleGroup(feature, [
+            {'zIndex': 3, 'type': 'Line', 'stroke': 'blue', 'strokeWidth': 2},
+            {
+                'zIndex': 1, 'type': 'Line', 'stroke': '#ff0000', 'strokeWidth': '50m'
+            }]);
+        const colors = await getCanvasPixelColor(mapContainer, {x: 500, y: 300 - 40});
+        expect(colors).to.equal('#ff0000');
+    });
+
+    it('zoom in and validate strokeWidth in meter is double in size', async () => {
+        await waitForViewportReady(display, () => display.setZoomlevel(display.getZoomlevel() + 1));
+        const colors = await getCanvasPixelColor(mapContainer, {x: 500, y: 300 - 80});
+        expect(colors).to.equal('#ff0000');
+    });
+
+
+    it('validate pointer-events for meter width', async () => {
+        const listener = new Listener(display, ['pointerdown', 'pointerup']);
+
+        await click(mapContainer, 500, 220);
+
+        const {pointerdown, pointerup} = listener.stop();
+
+        expect(pointerdown).to.have.lengthOf(1);
+        expect(pointerdown[0]).to.deep.include({
+            button: 0,
+            mapX: 500,
+            mapY: 220,
+            type: 'pointerdown'
+        });
+
+        expect(pointerup).to.have.lengthOf(1);
+        const {geometry} = (<any>pointerup[0]).target;
+        expect(geometry).to.deep.include({type: 'LineString'});
     });
 });
