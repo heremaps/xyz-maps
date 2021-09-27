@@ -110,13 +110,16 @@ class WebGlDisplay extends BasicDisplay {
                 if (dLayer) {
                     const dTile = this.buckets.get(quadkey, true/* SKIP TRACK */);
                     if (dTile) {
-                        let {layer, index} = dLayer;
+                        const {layer, index} = dLayer;
                         dTile.preview(index, false);
                         dTile.ready(index, false);
                         dTile.cancelTasks(layer);
-                        let tile = layer.getCachedTile(dTile.quadkey);
+                        const tile = layer.getCachedTile(dTile.quadkey);
                         if (tile) {
-                            this.handleTile(tile, layer, dTile, index);
+                            // tile processing is only necessary if it is still visible on screen.
+                            if (this.getScreenTile(quadkey, dLayer.tileSize)) {
+                                this.handleTile(tile, layer, dTile, index);
+                            }
                         }
                     }
                 }
