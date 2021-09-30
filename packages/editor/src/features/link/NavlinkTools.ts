@@ -721,12 +721,15 @@ var tools = {
         const link = linkShape.getLink();
         const prv = getPrivate(linkShape);
         const internalEditor = link._e();
-        const closeLinks = link.getProvider().search({point: position, radius: minShpDistance});
+        const closeLinks = link.getProvider().search({
+            point: position,
+            radius: minShpDistance
+        });
         let cLen = closeLinks.length;
         let cl;
 
         while (cl = closeLinks[--cLen]) {
-            if (cl.id != link.id && prv._cls.indexOf(cl) == -1) {
+            if (cl.id != link.id && prv._cls.indexOf(cl) == -1 && cl.behavior('snapCoordinates')) {
                 const x = internalEditor.map.calcCrossingAt(cl.geometry.coordinates, position, minShpDistance, UNDEF, minShpDistance);
                 if (x) {
                     return x.point;

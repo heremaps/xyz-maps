@@ -187,7 +187,7 @@ class CrossingTester {
         }
         const path = link.coord();
         const nline = this.iEditor.objects.getNearestLine(path[shape], lines, {
-            ignore: skipIds,
+            ignore: (navlink) => skipIds.indexOf(navlink.id) != -1,
             maxDistance: this.maxDistance, // search radius in meter
             shapeThreshold: this.shapeThreshold, // shapeThreshold,
             onlyExsitingShape: false // (j == 0 || j == path.length-1) ? false : true

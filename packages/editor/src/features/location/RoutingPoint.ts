@@ -111,7 +111,7 @@ class NvtRoutingPoint {
                 if (nearestPnt.distance > 1 || isAtEnd) {
                     // the mouseposition is nearer to another line
                     const nearestStreet = iEditor.objects.getNearestLine(curPos, cLink.getProvider(), {
-                        ignore: [cLink.id],
+                        ignore: (link) => link.id == cLink.id,
                         maxDistance: 10
                     });
 

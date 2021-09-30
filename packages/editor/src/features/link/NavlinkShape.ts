@@ -83,7 +83,7 @@ const connectShpToNearestLink = (line: Navlink, index: number) => {
     // coordinate.slice(0,2), // do not pass zlevel to skip zlevel check..
     connectionCandidate = EDITOR.objects.getNearestLine(coordinate, line.getProvider(), {
         maxDistance: EDITOR._config['snapTolerance'],
-        ignore: ignore.map((link) => link.id)
+        ignore: (link) => ignore.indexOf(link) != -1 || !link.behavior('snapCoordinates')
     });
 
 
@@ -167,7 +167,7 @@ function onMouseMoveShape(ev, dx, dy) {
         if (geoFence.isPntInFence(curPos)) {
             !geoFence.isHidden() && geoFence.hide();
 
-            if (cfg['snapOnDrag']) {
+            if (cfg['snapOnDrag'] && link.behavior('snapCoordinates')) {
                 curPos = linkTools.snapShape(shp, curPos, cfg['snapTolerance']) || curPos;
             }
 
@@ -192,7 +192,7 @@ function onMouseUpShape(ev) {
     let index = prv.index;
     const isMoved = prv.drg;
     let isModified = false;
-    const line = prv.line;
+    const navlink = prv.line;
     let isGeoAutoFixed = false;
     let indexChanged = false;
     const orgCLinks = prv.cLinks;
@@ -209,7 +209,7 @@ function onMouseUpShape(ev) {
     // });
 
     if (isMoved) {
-        AFInfo = linkTools.fixGeo(line, index);
+        AFInfo = linkTools.fixGeo(navlink, index);
 
         if (typeof AFInfo == 'boolean') {
             isGeoAutoFixed = !AFInfo;
@@ -223,17 +223,17 @@ function onMouseUpShape(ev) {
         }
     }
 
-    linkTools.showDirection(line);
+    linkTools.showDirection(navlink);
 
-    if (geoFence.isHidden() && !isGeoAutoFixed && isMoved) {
-        connected = connectShpToNearestLink(line, index);
+    if (navlink.behavior('snapCoordinates') && geoFence.isHidden() && !isGeoAutoFixed && isMoved) {
+        connected = connectShpToNearestLink(navlink, index);
     }
 
     if (!connected) {
         // check if shape is moved
         if (isMoved) {
             // if link hast been del or split due to autoGeofix use original CLinks otherwise get current CLinks
-            (AFInfo === false ? orgCLinks : line.getConnectedLinks(index, true))
+            (AFInfo === false ? orgCLinks : navlink.getConnectedLinks(index, true))
                 .forEach((clink) => {
                     // if index of cLinks has changed refresh geometry is also needed to calc correct new shape indices
                     const cAFInfo = linkTools.fixGeo(clink.link, clink.index);
@@ -245,7 +245,7 @@ function onMouseUpShape(ev) {
                 });
             isModified = true;
         }
-        linkTools.createAddShapePnts(line);
+        linkTools.createAddShapePnts(navlink);
     }
 
     if (geoFence) {
@@ -257,16 +257,16 @@ function onMouseUpShape(ev) {
 
     // refresh geometry to update shape objects with correct indices and cLinks
     if (indexChanged || isMoved) {
-        linkTools.refreshGeometry(line);
+        linkTools.refreshGeometry(navlink);
     }
 
     // make sure valid shape object is available even if shape changed due to geometry restrictions
-    line._e().listeners.trigger(
+    navlink._e().listeners.trigger(
         ev,
 
-        line.editState('removed')
+        navlink.editState('removed')
             ? shp// _simplified
-            : linkTools.private(line, 'shps')[index], // ._simplified,
+            : linkTools.private(navlink, 'shps')[index], // ._simplified,
 
         isMoved
             ? 'dragStop'
@@ -275,7 +275,7 @@ function onMouseUpShape(ev) {
 
     if (isModified) {
         // ...finally save the viewport
-        linkTools.markAsModified(line, true, false);
+        linkTools.markAsModified(navlink, true, false);
     }
 }
 

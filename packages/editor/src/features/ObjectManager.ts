@@ -31,10 +31,8 @@ import {getPntOnLine, intersectBBox} from '../geometry';
 import {Navlink} from './link/Navlink';
 import InternalEditor from '../IEditor';
 
-type NavlinkIds = String | Number;
-
 type Options = {
-    ignore?: NavlinkIds[]
+    ignore?: (feature: Navlink) => boolean
     maxDistance?: number,
     shapeThreshold?: number,
     onlyExsitingShape?: boolean
@@ -460,12 +458,10 @@ class ObjectManager {
         const HERE_WIKI = this.iEdit;
         // overwrite default configuration
         options = JSUtils.extend({
-            ignore: [],
             // search radius in meter
             maxDistance: Infinity,
             shapeThreshold: 0,
             onlyExsitingShape: false
-            // lines: false
         }, options || {});
 
         const RESULT = {
@@ -500,80 +496,78 @@ class ObjectManager {
         }
 
         for (let line of <Navlink[]>data) {
+            // check if link must be skipped
+            if (options.ignore && options.ignore(line)) continue;
+
+            bbox = line.bbox;
+
             if (
-                // check if link must be skipped
-                options.ignore.indexOf(line.id) == -1
+                maxDistance == Infinity ||
+                intersectBBox(
+                    searchBBox[0], searchBBox[2], searchBBox[1], searchBBox[3],
+                    bbox[0], bbox[2], bbox[1], bbox[3]
+                )
             ) {
-                bbox = line.bbox;
+                const path = line.geometry.coordinates;
+                let // line.coord(),
+                    foundSegment;
+                let minFoundDistance = options.maxDistance;
+                let foundShapeIndex;
+                const path2d = [];
+                let foundPoint;
+                var p;
+                let d;
+
+                for (let i = 0; i < path.length; i++) {
+                    path2d[i] = HERE_WIKI.map.getPixelCoord(p = path[i]);
+
+                    d = getDistance(p);
+
+                    if (d < minFoundDistance) {
+                        minFoundDistance = d;
+                        foundShapeIndex = i;
+                        foundSegment = (i > 0 && i - 1) ^ 0; // Math.max(0,i-1);
+                        foundPoint = p;
+                    }
+                }
+
 
                 if (
-                    maxDistance == Infinity ||
-                    intersectBBox(
-                        searchBBox[0], searchBBox[2], searchBBox[1], searchBBox[3],
-                        bbox[0], bbox[2], bbox[1], bbox[3]
+                    !options.onlyExsitingShape && (
+                        // if no point is found already search for more...
+                        (foundPoint == UNDEF || // if found already and within shapeTReshold we do not need to calculate..
+                            minFoundDistance > options.shapeThreshold)
                     )
                 ) {
-                    const path = line.geometry.coordinates;
-                    let // line.coord(),
-                        foundSegment;
-                    let minFoundDistance = options.maxDistance;
-                    let foundShapeIndex;
-                    const path2d = [];
-                    let foundPoint;
-                    var p;
-                    let d;
+                    for (let i = 0; i < path2d.length - 1; i++) {
+                        if (
+                            p = getPntOnLine(path2d[i], path2d[i + 1], point)
+                        ) {
+                            p = HERE_WIKI.map.getGeoCoord(p);
 
-                    for (let i = 0; i < path.length; i++) {
-                        path2d[i] = HERE_WIKI.map.getPixelCoord(p = path[i]);
+                            // do not define zlevel to skip zlevel matching..
+                            d = getDistance([p[0], p[1]]);
 
-                        d = getDistance(p);
-
-                        if (d < minFoundDistance) {
-                            minFoundDistance = d;
-                            foundShapeIndex = i;
-                            foundSegment = (i > 0 && i - 1) ^ 0; // Math.max(0,i-1);
-                            foundPoint = p;
-                        }
-                    }
-
-
-                    if (
-                        !options.onlyExsitingShape && (
-                            // if no point is found already search for more...
-                            (foundPoint == UNDEF || // if found already and within shapeTReshold we do not need to calculate..
-                                minFoundDistance > options.shapeThreshold)
-                        )
-                    ) {
-                        for (let i = 0; i < path2d.length - 1; i++) {
-                            if (
-                                p = getPntOnLine(path2d[i], path2d[i + 1], point)
-                            ) {
-                                p = HERE_WIKI.map.getGeoCoord(p);
-
-                                // do not define zlevel to skip zlevel matching..
-                                d = getDistance([p[0], p[1]]);
-
-                                if (d < minFoundDistance) {
-                                    minFoundDistance = d;
-                                    foundShapeIndex = null;
-                                    foundSegment = i;
-                                    foundPoint = p;
-                                }
+                            if (d < minFoundDistance) {
+                                minFoundDistance = d;
+                                foundShapeIndex = null;
+                                foundSegment = i;
+                                foundPoint = p;
                             }
                         }
                     }
+                }
 
-                    if (foundPoint && minFoundDistance < RESULT.distance) {
-                        RESULT.point = foundPoint;
-                        RESULT.distance = minFoundDistance;
-                        RESULT.shpIndex = foundShapeIndex;
-                        RESULT.segmentNumber = foundSegment;
-                        RESULT.line = line;
+                if (foundPoint && minFoundDistance < RESULT.distance) {
+                    RESULT.point = foundPoint;
+                    RESULT.distance = minFoundDistance;
+                    RESULT.shpIndex = foundShapeIndex;
+                    RESULT.segmentNumber = foundSegment;
+                    RESULT.line = line;
 
-                        // set maxDistance so bbox checks can skip features..
-                        maxDistance = geotools.distance(foundPoint, geopos);
-                        searchBBox = geotools.getPointBBox(geopos, maxDistance);
-                    }
+                    // set maxDistance so bbox checks can skip features..
+                    maxDistance = geotools.distance(foundPoint, geopos);
+                    searchBBox = geotools.getPointBBox(geopos, maxDistance);
                 }
             }
         }

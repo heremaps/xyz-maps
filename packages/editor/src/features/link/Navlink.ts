@@ -32,7 +32,9 @@ const throwError = (msg) => {
     throw new Error(msg);
 };
 
-/** ********************************************************************************************************************/
+const defaultBehavior = {
+    snapCoordinates: true
+};
 
 
 /**
@@ -48,6 +50,13 @@ export class Navlink extends Feature {
      * The feature class of an Navlink Feature is "NAVLINK".
      */
     readonly class: 'NAVLINK';
+
+    /**
+     * private data storage for internal api
+     * @hidden
+     * @internal
+     */
+    __: { b: { [behavior: string]: boolean } }
 
     // constructor(feature) {
     //     BasicFeature.apply(this, arguments);
@@ -175,6 +184,59 @@ export class Navlink extends Feature {
         }
         return added;
     };
+
+    /**
+     * Set the behavior options.
+     * @experimental
+     */
+    behavior(options: {
+        /**
+         * Snap coordinates to {@link Navlink} geometry nearby.
+         */
+        snapCoordinates?: boolean
+    }): void;
+    /**
+     * Set the value of a specific behavior option.
+     * @experimental
+     */
+    behavior(name: string, value: boolean): void;
+    /**
+     * Get the value of a specific behavior option.
+     * @experimental
+     */
+    behavior(option: string): any;
+    /**
+     * Get the behavior options.
+     * @experimental
+     */
+    behavior(): {
+        /**
+         * Snap coordinates to {@link Navlink} geometry nearby.
+         */
+        snapCoordinates: boolean
+    };
+
+    behavior(options?: any, value?: boolean) {
+        let behavior = oTools.private(this, 'b') || {...defaultBehavior};
+
+        switch (arguments.length) {
+        case 0:
+            return behavior;
+        case 1:
+            if (typeof options == 'string') {
+                // getter
+                return behavior[options];
+            } else {
+                // setter
+                behavior = {...behavior, ...options};
+                break;
+            }
+        case 2:
+            behavior[options] = value;
+        }
+
+        this.__.b = behavior;
+    }
 
     /**
      * Get connected Navlink Features for the node.
