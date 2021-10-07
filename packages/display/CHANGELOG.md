@@ -1,3 +1,18 @@
+## 0.26.0 (2021-10-7)
+### editor
+* added: Snap coordinates to Navlink geometry nearby can now be controlled by using [navlink.behavior(...)](https://heremaps.github.io/xyz-maps/docs/classes/editor.navlink.html#behavior)
+* fixed: ShapePoints of selected Lines and Navlinks where invisible when the strokeWidth was defined in meters.
+* fixed: AreaShapes can only be moved with difficulty if the associated Area feature is only displayed as a line
+### display
+* improved: display.snapshot() is now more robust for invalid input dimensions on iOS devices.
+* added: pointer-events are triggered based on the "outline" of Polygon geometry when displayed with a line style only
+* fixed: Mouse-events are not propagated through the DOM on touch devices when the user taps the map.
+* fixed: A time-sensitive issue in connection with icon resource loading and collision detection has been solved.
+* fixed: PointerEvents for Lines were not triggered correctly if the strokeWidth was defined in meters.
+* fixed: Not all elements of a "CollisionGroup" were hidden when the map was pitched or rotated.
+* fixed: The result of display.getFeaturesAt only included features that intersect with the center of the search rectangle
+* fixed: Automatic downscaling of oversized (non SVG) image sources
+
 ## 0.25.0 (2021-9-7)
 ### editor
 * added: Introduced a new hook "Coordinates.update" that's being executed whenever the coordinates of a feature are updated, modified or removed. see [CoordinatesUpdateHook](https://heremaps.github.io/xyz-maps/docs/modules/editor.html#coordinatesupdatehook)
