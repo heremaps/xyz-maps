@@ -192,7 +192,16 @@ export class EventDispatcher {
             currentHoverTarget = target;
         }
 
+        let skipMouseEvent = false;
+
         this.onPointerDown = function(ev) {
+            const isTouchStart = ev.type == 'touchstart';
+
+            if (!isTouchStart && skipMouseEvent) {
+                skipMouseEvent = false;
+                return;
+            }
+
             startMapCenter = map.getCenter();
             isPointerDown = true;
             isDragged = false;
@@ -201,12 +210,19 @@ export class EventDispatcher {
             trigger(POINTER_DOWN, ev, MOUSEDOWN_POS, MOUSEDOWN_TARGET);
 
             //  make sure no mousedown is triggered to prevent double triggering of event!
-            if (ev.type == 'touchstart' && (<HTMLElement>ev.target).parentNode == domEl) {
-                ev.preventDefault();
+            if (isTouchStart && (<HTMLElement>ev.target).parentNode == domEl) {
+                skipMouseEvent = true;
+                // ev.preventDefault();
             }
         };
 
         this.onPointerMove = function(ev) {
+            const isMouseMove = ev.type == 'mousemove';
+
+            if (isMouseMove && skipMouseEvent) {
+                return;
+            }
+
             let pos;
             let dx;
             let dy;
@@ -227,7 +243,7 @@ export class EventDispatcher {
             isDragged = true;
 
             if (!isPointerDown) {
-                if (ev.type != 'touchmove' && (
+                if (isMouseMove && (
                     callbacks.isListened(POINTER_ENTER) ||
                     callbacks.isListened(POINTER_LEAVE) ||
                     callbacks.isListened(POINTER_MOVE)
@@ -237,11 +253,8 @@ export class EventDispatcher {
                 }
             } else if (isFeatureDragListened()) {
                 pos = getMousePosition(domEl, ev);
-
                 dx = pos[0] - MOUSEDOWN_POS[0];
-
                 dy = pos[1] - MOUSEDOWN_POS[1];
-
                 callbacks.trigger(PRESSMOVE, [createMapEvent(PRESSMOVE, ev, pos[0], pos[1], MOUSEDOWN_TARGET), dx, dy], false);
             }
         };
