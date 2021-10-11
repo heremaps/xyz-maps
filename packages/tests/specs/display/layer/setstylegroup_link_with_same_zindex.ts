@@ -42,6 +42,7 @@ describe('setStyleGroup link with same zIndex', () => {
             },
             center: {longitude: 73.684292, latitude: 21.190383},
             zoomlevel: 18,
+            maxLevel: 22,
             layers: preparedData.getLayers()
         });
 
@@ -211,6 +212,28 @@ describe('setStyleGroup link with same zIndex', () => {
             button: 0,
             mapX: 500,
             mapY: 220,
+            type: 'pointerdown'
+        });
+
+        expect(pointerup).to.have.lengthOf(1);
+        const {geometry} = (<any>pointerup[0]).target;
+        expect(geometry).to.deep.include({type: 'LineString'});
+    });
+
+
+    it('validate pointer-events for meter width, zoom>20', async () => {
+        const listener = new Listener(display, ['pointerdown', 'pointerup']);
+
+        await waitForViewportReady(display, () => display.setZoomlevel(21));
+        await click(mapContainer, 500, 599);
+
+        const {pointerdown, pointerup} = listener.stop();
+
+        expect(pointerdown).to.have.lengthOf(1);
+        expect(pointerdown[0]).to.deep.include({
+            button: 0,
+            mapX: 500,
+            mapY: 599,
             type: 'pointerdown'
         });
 

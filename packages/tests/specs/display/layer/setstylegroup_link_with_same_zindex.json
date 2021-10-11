@@ -30,7 +30,7 @@
             "class": "NAVLINK"
         },
         "min": 14,
-        "max": 20,
+        "max": 25,
         "data": {
             "local": [{
                 "id": 123,

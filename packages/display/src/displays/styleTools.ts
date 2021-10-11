@@ -165,7 +165,7 @@ const getLineWidth = (groups: StyleGroup, feature: Feature, zoom: number, layerI
         //     value = dZoomScale * meterToPixel(value, tileGridZoom);
         // }
 
-        const value = getSizeInPixel('strokeWidth', grp, feature, tileGridZoom, true);
+        const value = getSizeInPixel('strokeWidth', grp, feature, zoom, true);
 
         if (value > width) {
             width = value;
