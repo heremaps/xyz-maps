@@ -20,7 +20,7 @@
 import oTools from '../oTools';
 import {JSUtils} from '@here/xyz-maps-common';
 import {Feature as GeoJSONFeature, GeoPoint, EditableRemoteTileProvider, Style} from '@here/xyz-maps-core';
-import {EditorProperties, DefaultEditorProperties} from './EditorProperties';
+import {EditorFeatureProperties, DefaultEditorProperties} from './EditorProperties';
 import {FeatureProperties} from './Properties';
 import InternalEditor from '../../IEditor';
 import {GeoJSONCoordinate} from '@here/xyz-maps-core';
@@ -109,8 +109,17 @@ class Feature extends GeoJSONFeature {
 
 
     private _esu: boolean;
+    /**
+     * Get a specific {@link EditorFeatureProperties|EditState} of the feature.
+     *
+     * @param state - the "EditState" to retrieve its value.
+     *
+     * @return the value of the respective "EditState".
+     *
+     */
+    editState(state: 'created' | 'modified' | 'removed' | 'split' | 'hovered' | 'selected', value?: number | boolean): number | boolean | undefined;
 
-    editState(state: EditStates, value?) {
+    editState(state: 'created' | 'modified' | 'removed' | 'split' | 'hovered' | 'selected', value?: number | boolean): any {
         const aLen = arguments.length;
         const feature = this;
         const estates = feature.properties['@ns:com:here:editor'];
@@ -124,7 +133,7 @@ class Feature extends GeoJSONFeature {
             }
 
             if (value) {
-                estates[state] = value;
+                estates[state] = <any>value;
             } else {
                 delete estates[state];
             }

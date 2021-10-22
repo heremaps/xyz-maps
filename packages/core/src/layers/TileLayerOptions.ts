@@ -41,9 +41,26 @@ export interface TileLayerOptions {
     max?: number;
 
     /**
-     * The data provider for the TileLayer.
+     * The data provider(s) for the TileLayer.
+     *
+     * The provider can either be a single TileProvider or an array of {min: number, max: number, provider: TileProvider}, where "min" and "max" define the minimum and maximum zoom level at which data from the "provider" should be used.
+     * If a single provider is defined, it's data will be used for all zoom levels.
+     * If several providers are defined for a single zoom level, only the data of the first defined is used.
      */
-    provider?: TileProvider;
+    provider?: TileProvider | {
+        /**
+         * The minimum zoom level at which data from the TileProvider will be used.
+         */
+        min: number,
+        /**
+         * The maximum zoom level at which data from the TileProvider will be used.
+         */
+        max: number,
+        /**
+         * The Tile Provider for the respective zoom level.
+         */
+        provider: TileProvider
+    }[];
     /**
      * @internal
      */

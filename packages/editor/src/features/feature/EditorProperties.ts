@@ -20,35 +20,35 @@
 /**
  * The Editor Properties give a more detailed insight into the current state of the feature.
  */
-interface EditorProperties {
+interface EditorFeatureProperties {
     /**
-     *  Creation timestamp of the feature, in milliseconds.
+     * Creation timestamp of the feature, in milliseconds.
      */
     created: number | boolean;
     /**
-     *  Timestamp when the feature has been modified/updated, otherwise false.
+     * Timestamp when the feature has been modified/updated, otherwise false.
      */
     modified: number | boolean;
     /**
-     *  Timestamp when the feature has been removed, otherwise false.
+     * Timestamp when the feature has been removed, otherwise false.
      */
     removed: number | boolean;
     /**
-     *  Timestamp when the feature has been split, otherwise false.
-     *  The property is on relevant for "Navlink" features.
+     * Timestamp when the feature has been split, otherwise false.
+     * The property is on relevant for "Navlink" features.
      */
     split: number | boolean;
     /**
-     *  True if this feature is currently selected, otherwise false.
+     * True if this feature is currently selected, otherwise false.
      */
     selected: boolean;
     /**
-     *  True if this feature is currently hovered, otherwise false.
+     * True if this feature is currently hovered, otherwise false.
      */
     hovered: boolean;
 }
 
-class DefaultEditorProperties implements EditorProperties {
+class DefaultEditorProperties implements EditorFeatureProperties {
     created;
     modified;
     removed;
@@ -71,4 +71,4 @@ EditorNsPrototype.selected = false;
 
 EditorNsPrototype.hovered = false;
 
-export {EditorProperties, DefaultEditorProperties};
+export {EditorFeatureProperties, DefaultEditorProperties};

@@ -30,5 +30,6 @@ globalNamespace.styleTools = styleTools;
 export {styleTools};
 export {Map};
 export {MapEvent} from './event/Event';
+export {MapOptions} from './MapOptions';
 
 export default Map;

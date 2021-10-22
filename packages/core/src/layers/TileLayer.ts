@@ -398,27 +398,12 @@ export class TileLayer {
      * ```
      * // searching by id:
      * layer.search({id: 1058507462})
-     * // or:
-     * layer.search({ids: [1058507462, 1058507464]})
-     *
-     * // searching by point and radius:
-     * layer.search({
-     * point: {longitude: 72.84205, latitude: 18.97172},
-     * radius: 100
-     * })
-     *
-     * // searching by Rect:
-     * layer.search({
-     *  rect:  {minLon: 72.83584, maxLat: 18.97299, maxLon: 72.84443, minLat: 18.96876}
-     * })
      *
      * // remote search:
      * layer.search({
-     * rect:  {minLon: 72.83584, maxLat: 18.97299, maxLon: 72.84443, minLat: 18.96876},
-     * remote: true, // force layer to do remote search if feature/search area is not cached locally
-     * onload: function(result){
-     *  // search result is only return in this callback function if features are not found in cache.
-     * }
+     *     id: 1058507462,
+     *     remote: true, // force layer to do remote search if feature/search area is not cached locally
+     *     onload: (result) => {...}
      * })
      * ```
      * @returns array of features
@@ -428,6 +413,67 @@ export class TileLayer {
          * search a feature by id.
          */
         id?: number | string,
+        /**
+         * Force the data provider(s) to do remote search if no result is found in local cache.
+         */
+        remote?: boolean,
+        /**
+         * Callback function for "remote" search.
+         */
+        onload?: (result: Feature[] | null) => void
+        /**
+         * Function to be called when a request of a "remote search" fails.
+         */
+        onerror?: (error: {
+            /**
+             * The name property represents a name for the type of error. The value is "NetworkError".
+             */
+            name: 'NetworkError',
+            /**
+             * The error message of the failing request.
+             */
+            message: string,
+            /**
+             * The responseText which contains the textual data received of the failing request.
+             */
+            responseText: string,
+            /**
+             * The numerical HTTP status code of the failing request.
+             */
+            status: number
+        }) => void
+    }): Feature;
+
+    /**
+     * Search for feature(s) in the layer.
+     *
+     * @param options - configure the search
+     * @example
+     * ```
+     * // searching features by id:
+     * layer.search({ids: [1058507462, 1058507464]})
+     *
+     * // searching by point and radius:
+     * layer.search({
+     *     point: {longitude: 72.84205, latitude: 18.97172},
+     *     radius: 100
+     * })
+     *
+     * // searching by Rect:
+     * layer.search({
+     *     rect:  {minLon: 72.83584, maxLat: 18.97299, maxLon: 72.84443, minLat: 18.96876}
+     * })
+     *
+     * // remote search:
+     * layer.search({
+     *     rect:  {minLon: 72.83584, maxLat: 18.97299, maxLon: 72.84443, minLat: 18.96876},
+     *     remote: true, // force layer to do remote search if feature/search area is not cached locally
+     *     onload: (result) => {...}
+     * })
+     * ```
+     * @returns array of features
+     */
+    search(options: {
         /**
          * Array of feature ids to search.
          */
@@ -452,7 +498,28 @@ export class TileLayer {
          * Callback function for "remote" search.
          */
         onload?: (result: Feature[] | null) => void
-    }): Feature | Feature[];
+        /**
+         * Function to be called when a request of a "remote search" fails.
+         */
+        onerror?: (error: {
+            /**
+             * The name property represents a name for the type of error. The value is "NetworkError".
+             */
+            name: 'NetworkError',
+            /**
+             * The error message of the failing request.
+             */
+            message: string,
+            /**
+             * The responseText which contains the textual data received of the failing request.
+             */
+            responseText: string,
+            /**
+             * The numerical HTTP status code of the failing request.
+             */
+            status: number
+        }) => void
+    }): Feature[];
 
     /**
      * Rectangle Search for feature(s) in the layer.
@@ -466,13 +533,9 @@ export class TileLayer {
      * layer.search([72.83584, 18.96876, 72.84443,18.97299])
      *
      * // remote search:
-     * layer.search(
-     * {minLon: 72.83584, maxLat: 18.97299, maxLon: 72.84443, minLat: 18.96876},
-     * {
-     * remote: true, // force layer to do remote search if search area is not cached locally
-     * onload: function(e){
-     *  // search result is only return in this callback function if features are not found in cache.
-     * }
+     * layer.search({ minLon: 72.83584, maxLat: 18.97299, maxLon: 72.84443, minLat: 18.96876 }, {
+     *     remote: true, // force layer to do remote search if search area is not cached locally
+     *     onload: (result) => {...}
      * })
      * ```
      */
@@ -485,6 +548,27 @@ export class TileLayer {
          * Callback function for "remote" search.
          */
         onload?: (result: Feature[] | null) => void
+        /**
+         * Function to be called when a request of a "remote search" fails.
+         */
+        onerror?: (error: {
+            /**
+             * The name property represents a name for the type of error. The value is "NetworkError".
+             */
+            name: 'NetworkError',
+            /**
+             * The error message of the failing request.
+             */
+            message: string,
+            /**
+             * The responseText which contains the textual data received of the failing request.
+             */
+            responseText: string,
+            /**
+             * The numerical HTTP status code of the failing request.
+             */
+            status: number
+        }) => void
     }): Feature[];
 
     /**
@@ -525,6 +609,27 @@ export class TileLayer {
          * Callback function for "remote" search.
          */
         onload?: (result: Feature) => void
+        /**
+         * Function to be called when a request of a "remote search" fails.
+         */
+        onerror?: (error: {
+            /**
+             * The name property represents a name for the type of error. The value is "NetworkError".
+             */
+            name: 'NetworkError',
+            /**
+             * The error message of the failing request.
+             */
+            message: string,
+            /**
+             * The responseText which contains the textual data received of the failing request.
+             */
+            responseText: string,
+            /**
+             * The numerical HTTP status code of the failing request.
+             */
+            status: number
+        }) => void
     }): Feature[];
 
     /**
@@ -565,6 +670,7 @@ export class TileLayer {
         rect?: GeoRect | GeoJSONBBox,
         remote?: boolean,
         onload?: (result: Feature[] | null) => void
+        onerror?: (error: { name: 'NetworkError', message: string, responseText: string, status: number }) => void
     }, _options?): Feature | Feature[] {
         const prov = <FeatureProvider> this._fp;
 

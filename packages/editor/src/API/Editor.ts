@@ -35,7 +35,7 @@ import InternalEditor from '../IEditor';
 import {mergeOptions, EditorOptions} from './EditorOptions';
 import {initHooks} from '../hooks/init';
 import {Feature} from '../features/feature/Feature';
-import {EditorEvent} from './EditorEvent';
+import {EditorEvent, EditorEventTypes} from './EditorEvent';
 import FeatureSubmitter from '../providers/FeatureSubmitter';
 import {FeatureContainer, Container} from '../features/Container';
 
@@ -46,7 +46,6 @@ import {Place} from '../features/location/Place';
 import {Line} from '../features/line/Line';
 import {Navlink} from '../features/link/Navlink';
 import {CoordinatesUpdateHook, NavlinkDisconnectHook, NavlinkSplitHook, FeatureRemoveHook} from '../Hooks';
-
 
 type EditableProvider = EditableRemoteTileProvider;
 
@@ -260,7 +259,7 @@ export default class Editor {
      * @param type - A string representing the event type to listen for.
      * @param listener - the listener function that will be called when an event of the specific type occurs
      */
-    addEventListener(type: string, listener: (event: EditorEvent) => void);
+    addEventListener(type: EditorEventTypes, listener: (event: EditorEvent) => void);
 
     /**
      * Add an Error EventListener to the editor.
@@ -269,7 +268,7 @@ export default class Editor {
      */
     addEventListener(type: 'error', listener: (event: Error) => void);
 
-    addEventListener(type: string, listener: (event: any) => void, context?) {
+    addEventListener(type: EditorEventTypes | 'error', listener: (event: any) => void, context?) {
         const {listeners} = this._i();
         // filter internal events (_internalEventName)
         const supported = listeners.supported().filter((ev) => ev[0] != '_');
@@ -290,7 +289,17 @@ export default class Editor {
      * @param type - A string which specifies the type of event for which to remove an event listener.
      * @param listener - The listener function of the event handler to remove from the editor.
      */
-    removeEventListener(type: string, listener: (event: EditorEvent | Error) => void) {
+    removeEventListener(type: EditorEventTypes, listener: (event: EditorEvent) => void);
+
+    /**
+     * Remove an Error EventListener from the layer.
+     *
+     * @param type - the EventListener type is "error".
+     * @param listener - The error event listener to be remove from the editor.
+     */
+    removeEventListener(type: 'error', listener: (event: Error) => void);
+
+    removeEventListener(type: EditorEventTypes | 'error', listener: (event: any) => void) {
         const {listeners} = this._i();
         listeners.remove.apply(listeners, arguments);
     }
@@ -589,7 +598,9 @@ export default class Editor {
          * Layers to search in.
          */
         layers?: TileLayer[]
-    }): Feature[] {
+    }): Feature[];
+
+    search(options): Feature | Feature[] {
         const iEditor = this._i();
         const result = [];
         let feature;
@@ -937,8 +948,15 @@ export default class Editor {
     submit(options: {
         /**
          * callback function which returns additional information about the commit process.
+         * If id(s) of the submitted feature(s) had to be changed by the remote datasource a "permanentIDMap" is provided.
          */
-        onSuccess?: (data) => void,
+        onSuccess?: (data: {
+            permanentIDMap: {
+                [layerId: string]: {
+                    [featureId: string]: number | string
+                }
+            }
+        }) => void,
         /**
          * callback function that gets called in case of an error.
          */

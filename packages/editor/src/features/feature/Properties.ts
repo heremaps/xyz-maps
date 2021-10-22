@@ -17,7 +17,7 @@
  * License-Filename: LICENSE
  */
 
-import {EditorProperties} from './EditorProperties';
+import {EditorFeatureProperties} from './EditorProperties';
 
 /**
  *  The properties of a editable Features.
@@ -32,5 +32,5 @@ export interface FeatureProperties {
     /**
      *  Properties to indicate current state of this feature.
      */
-    readonly '@ns:com:here:editor': EditorProperties
+    readonly '@ns:com:here:editor': EditorFeatureProperties
 };

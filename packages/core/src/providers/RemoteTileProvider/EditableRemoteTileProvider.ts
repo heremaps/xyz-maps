@@ -353,9 +353,7 @@ export abstract class EditableRemoteTileProvider extends EditableFeatureProvider
      *
      * @example
      * ```
-     * // searching by id:
-     * provider.search({id: 1058507462})
-     * // or:
+     * // searching by ids:
      * provider.search({ids: [1058507462, 1058507464]})
      *
      * // searching by point and radius:
@@ -371,11 +369,9 @@ export abstract class EditableRemoteTileProvider extends EditableFeatureProvider
      *
      * // remote search:
      * provider.search({
-     * rect:  {minLon: 72.83584, maxLat: 18.97299, maxLon: 72.84443, minLat: 18.96876},
-     * remote: true, // force provider to do remote search if feature/search area is not cached locally
-     * onload: function(result){
-     *  // search result is only return in this callback function if features are not found in cache.
-     * }
+     *     rect:  {minLon: 72.83584, maxLat: 18.97299, maxLon: 72.84443, minLat: 18.96876},
+     *     remote: true, // force provider to do remote search if feature/search area is not cached locally
+     *     onload: (result) => {...}
      * })
      * ```
      * @returns array containing the searched features
@@ -410,7 +406,84 @@ export abstract class EditableRemoteTileProvider extends EditableFeatureProvider
          * @param result - Array of Features containing the search results.
          */
         onload?: (result: Feature[] | null) => void
+        /**
+         * Function to be called when a request of a "remote search" fails.
+         */
+        onerror?: (error: {
+            /**
+             * The name property represents a name for the type of error. The value is "NetworkError".
+             */
+            name: 'NetworkError',
+            /**
+             * The error message of the failing request.
+             */
+            message: string,
+            /**
+             * The responseText which contains the textual data received of the failing request.
+             */
+            responseText: string,
+            /**
+             * The numerical HTTP status code of the failing request.
+             */
+            status: number
+        }) => void
     }): Feature[];
+
+    /**
+     * Search for feature(s) in the provider.
+     *
+     * @param options - configure the search
+     *
+     * @example
+     * ```
+     * // searching by id:
+     * provider.search({id: 1058507462})
+     *
+     * // remote search:
+     * provider.search({
+     *     id: 1058507462,
+     *     remote: true, // force provider to do remote search if feature/search area is not cached locally
+     *     onload: (result) => {...}
+     * })
+     * ```
+     * @returns array containing the searched features
+     */
+    search(options: {
+        /**
+         * search feature by id.
+         */
+        id?: number | string,
+        /**
+         * Force the data provider(s) to do remote search if no result is found in local cache.
+         */
+        remote?: boolean,
+        /**
+         * Callback function for "remote" search.
+         * @param result - Array of Features containing the search results.
+         */
+        onload?: (result: Feature[] | null) => void
+        /**
+         * Function to be called when a request of a "remote search" fails.
+         */
+        onerror?: (error: {
+            /**
+             * The name property represents a name for the type of error. The value is "NetworkError".
+             */
+            name: 'NetworkError',
+            /**
+             * The error message of the failing request.
+             */
+            message: string,
+            /**
+             * The responseText which contains the textual data received of the failing request.
+             */
+            responseText: string,
+            /**
+             * The numerical HTTP status code of the failing request.
+             */
+            status: number
+        }) => void
+    }): Feature;
 
     /**
      * Point Search for feature(s) in provider.
@@ -428,7 +501,7 @@ export abstract class EditableRemoteTileProvider extends EditableFeatureProvider
      * })
      * ```
      */
-    search(point: GeoPoint, options?: {
+    search(point: GeoPoint | GeoJSONCoordinate, options?: {
         /**
          * the radius of the circular area in meters to search in
          */
@@ -442,6 +515,27 @@ export abstract class EditableRemoteTileProvider extends EditableFeatureProvider
          * @param result - Array of Features containing the search results.
          */
         onload?: (result: Feature[] | null) => void
+        /**
+         * Function to be called when a request of a "remote search" fails.
+         */
+        onerror?: (error: {
+            /**
+             * The name property represents a name for the type of error. The value is "NetworkError".
+             */
+            name: 'NetworkError',
+            /**
+             * The error message of the failing request.
+             */
+            message: string,
+            /**
+             * The responseText which contains the textual data received of the failing request.
+             */
+            responseText: string,
+            /**
+             * The numerical HTTP status code of the failing request.
+             */
+            status: number
+        }) => void
     }): Feature[];
 
     /**
@@ -456,13 +550,9 @@ export abstract class EditableRemoteTileProvider extends EditableFeatureProvider
      * provider.search([72.83584, 18.96876, 72.84443,18.97299])
      *
      * // remote search:
-     * provider.search(
-     * {minLon: 72.83584, maxLat: 18.97299, maxLon: 72.84443, minLat: 18.96876},
-     * {
-     * remote: true, // force provider to do remote search if search area is not cached locally
-     * onload: function(e){
-     *  // search result is only return in this callback function if features are not found in cache.
-     * }
+     * provider.search({minLon: 72.83584, maxLat: 18.97299, maxLon: 72.84443, minLat: 18.96876}, {
+     *     remote: true, // force provider to do remote search if search area is not cached locally
+     *     onload: (result) => {...}
      * })
      * ```
      */
@@ -476,6 +566,27 @@ export abstract class EditableRemoteTileProvider extends EditableFeatureProvider
          * @param result - Array of Features containing the search results.
          */
         onload?: (result: Feature[] | null) => void
+        /**
+         * Function to be called when a request of a "remote search" fails.
+         */
+        onerror?: (error: {
+            /**
+             * The name property represents a name for the type of error. The value is "NetworkError".
+             */
+            name: 'NetworkError',
+            /**
+             * The error message of the failing request.
+             */
+            message: string,
+            /**
+             * The responseText which contains the textual data received of the failing request.
+             */
+            responseText: string,
+            /**
+             * The numerical HTTP status code of the failing request.
+             */
+            status: number
+        }) => void
     }): Feature[];
 
     /**
@@ -490,10 +601,8 @@ export abstract class EditableRemoteTileProvider extends EditableFeatureProvider
      *
      * // remote search:
      * provider.search(1058507462,{
-     * remote: true, // force provider to do remote search if search area is not cached locally
-     * onload: function(feature){
-     *  // search result is only return in this callback function if features are not found in cache.
-     * }
+     *     remote: true, // force provider to do remote search if search area is not cached locally
+     *     onload: (result) => {...}
      * })
      * ```
      */
@@ -507,7 +616,28 @@ export abstract class EditableRemoteTileProvider extends EditableFeatureProvider
          * @param result - Array of Features containing the search results.
          */
         onload?: (result: Feature) => void
-    }): Feature[];
+        /**
+         * Function to be called when a request of a "remote search" fails.
+         */
+        onerror?: (error: {
+            /**
+             * The name property represents a name for the type of error. The value is "NetworkError".
+             */
+            name: 'NetworkError',
+            /**
+             * The error message of the failing request.
+             */
+            message: string,
+            /**
+             * The responseText which contains the textual data received of the failing request.
+             */
+            responseText: string,
+            /**
+             * The numerical HTTP status code of the failing request.
+             */
+            status: number
+        }) => void
+    }): Feature;
 
     search(bbox, options?): Feature | Feature[] {
         // TODO: cleanup and split search and implement remote part here

@@ -34,6 +34,19 @@ import {Crossing} from '../API/MCrossing';
 const NULL = null;
 
 /**
+ * The Possible types of an {@link EditorEvent}
+ */
+export type EditorEventTypes = 'tap'
+    | 'dbltap'
+    | 'pointerup'
+    | 'pointerenter'
+    | 'pointerleave'
+    | 'featureUnselected'
+    | 'error'
+    | 'dragStart'
+    | 'dragStop';
+
+/**
  * The EditorEvent represents an event which takes place in the editor.
  * An event can be triggered by user interaction e.g. tapping on the map, or generated to represent the progress of an asynchronous task.
  */

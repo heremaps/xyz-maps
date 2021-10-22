@@ -31,7 +31,7 @@ import {Feature} from '../features/Feature';
  * text: (feature, zoom) => feature.properties.name
  * ```
  */
-export type StyleValueFunction<Type> = (feature: Feature, zoom?: number) => Type | undefined;
+export type StyleValueFunction<Type> = (feature: Feature, zoom: number) => Type | undefined;
 
 /**
  * A StyleZoomRange is a Map\<number,any\> with zoomlevel as its keys and the value for the respective {@link Style | Style Property} at the respective zoomlevel.
@@ -573,7 +573,7 @@ export interface LayerStyle {
      *  @param feature - the feature to which style is applied
      *  @param zoomlevel - the zoomlevel of the tile the feature should be rendered in
      *
-     *  @returns the key/identifier of the styleGroup in the styleGroupMap
+     *  @returns the key/identifier of the styleGroup in the styleGroupMap, or null/undefined if the feature should not be rendered.
      */
-    assign: (feature: Feature, zoomlevel: number) => string;
+    assign: (feature: Feature, zoomlevel: number) => string | null | undefined;
 }

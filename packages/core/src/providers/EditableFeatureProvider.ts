@@ -209,9 +209,9 @@ export abstract class EditableFeatureProvider extends FeatureTileProvider {
      *
      * @param feature - The Address or Place feature whose RoutingProvider is requested.
      *
-     * @returns GeoJSON Coordinate representing the geographical position of the RoutingPoint.
+     * @returns GeoJSON Coordinate representing the geographical position of the RoutingPoint or null if a Place does not have a RoutingPoint.
      */
-    abstract readRoutingPosition(feature: Feature): GeoJSONCoordinate;
+    abstract readRoutingPosition(feature: Feature): GeoJSONCoordinate | null;
 
     /**
      * Attribute reader for obtaining the id of the Navlink Feature on which the RoutingPoint of an Address or Place feature is located.

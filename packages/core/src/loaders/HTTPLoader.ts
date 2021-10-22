@@ -39,17 +39,18 @@ const SD_I_1_4 = /{SUBDOMAIN_INT_1_4}/;
 const SD_I = /{SUBDOMAIN_INT}/;
 const SD_C = /{SUBDOMAIN_CHAR}/;
 
-class NetworkError {
+class NetworkError extends Error {
     name = 'NetworkError';
     message: string;
     statusCode: number;
     responseText: string;
 
     constructor(XHR: any) {
+        super('Service request failed with HTTP status: \'' + XHR['status'] + ' ' + XHR['statusText'] + '\'');
         const error = this;
-        const responseType = XHR['responseType'];
+        const {responseType} = XHR;
 
-        error['message'] = 'Service request failed with HTTP status: \'' + XHR['status'] + ' ' + XHR['statusText'] + '\'';
+        // error['message'] = 'Service request failed with HTTP status: \'' + XHR['status'] + ' ' + XHR['statusText'] + '\'';
         error['statusCode'] = XHR['status'];
 
         if (responseType == '' || responseType == 'text') {

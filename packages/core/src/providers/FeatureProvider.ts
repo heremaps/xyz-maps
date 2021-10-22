@@ -389,7 +389,7 @@ export class FeatureProvider extends Provider {
          * Geographical Rectangle to search in. [minLon, minLat, maxLon, maxLat] | GeoRect.
          */
         rect?: GeoRect | GeoJSONBBox
-    }): Feature[];
+    }): Feature | Feature[];
 
     /**
      * Point Search for feature(s) in provider.
@@ -437,7 +437,7 @@ export class FeatureProvider extends Provider {
      * layer.search(1058507462)
      * ```
      */
-    search(id: string | number): Feature[];
+    search(id: string | number): Feature;
 
     search(bbox, options?): Feature | Feature[] {
         const provider = this;

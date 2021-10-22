@@ -59,7 +59,7 @@ class LayerStyleImpl {
     }
 
     // default: simple assignment based on geometryType.
-    assign(feature: Feature, level?: number) {
+    assign(feature: Feature, level?: number): string | null | undefined {
         return feature.geometry.type;
     };
 
