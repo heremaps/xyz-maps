@@ -412,7 +412,7 @@ export class TileLayer {
         /**
          * search a feature by id.
          */
-        id?: number | string,
+        id: number | string,
         /**
          * Force the data provider(s) to do remote search if no result is found in local cache.
          */
@@ -420,7 +420,7 @@ export class TileLayer {
         /**
          * Callback function for "remote" search.
          */
-        onload?: (result: Feature[] | null) => void
+        onload?: (result: Feature | null) => void
         /**
          * Function to be called when a request of a "remote search" fails.
          */
@@ -669,7 +669,7 @@ export class TileLayer {
         radius?: number,
         rect?: GeoRect | GeoJSONBBox,
         remote?: boolean,
-        onload?: (result: Feature[] | null) => void
+        onload?: (result: Feature | Feature[] | null) => void
         onerror?: (error: { name: 'NetworkError', message: string, responseText: string, status: number }) => void
     }, _options?): Feature | Feature[] {
         const prov = <FeatureProvider> this._fp;

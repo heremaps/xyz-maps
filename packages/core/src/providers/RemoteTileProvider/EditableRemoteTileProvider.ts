@@ -378,11 +378,7 @@ export abstract class EditableRemoteTileProvider extends EditableFeatureProvider
      */
     search(options: {
         /**
-         * search feature by id.
-         */
-        id?: number | string,
-        /**
-         * Array of feature ids to search.
+         * Search features by Ids.
          */
         ids?: number[] | string[],
         /**
@@ -452,7 +448,7 @@ export abstract class EditableRemoteTileProvider extends EditableFeatureProvider
         /**
          * search feature by id.
          */
-        id?: number | string,
+        id: number | string,
         /**
          * Force the data provider(s) to do remote search if no result is found in local cache.
          */
@@ -461,7 +457,7 @@ export abstract class EditableRemoteTileProvider extends EditableFeatureProvider
          * Callback function for "remote" search.
          * @param result - Array of Features containing the search results.
          */
-        onload?: (result: Feature[] | null) => void
+        onload?: (result: Feature | null) => void
         /**
          * Function to be called when a request of a "remote search" fails.
          */
