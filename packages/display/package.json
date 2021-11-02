@@ -28,8 +28,8 @@
   },
   "publishConfig": {},
   "dependencies": {
-    "@here/xyz-maps-common": "^0.26.0",
-    "@here/xyz-maps-core": "^0.26.0"
+    "@here/xyz-maps-common": "0.26.0",
+    "@here/xyz-maps-core": "0.26.0"
   },
   "devDependencies": {
     "@rollup/plugin-commonjs": "^20.0.0",

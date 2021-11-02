@@ -19,10 +19,10 @@
     "dev": "rollup -c -w"
   },
   "dependencies": {
-    "@here/xyz-maps-common": "^0.26.0",
-    "@here/xyz-maps-core": "^0.26.0",
-    "@here/xyz-maps-display": "^0.26.0",
-    "@here/xyz-maps-editor": "^0.26.0",
+    "@here/xyz-maps-common": "0.26.0",
+    "@here/xyz-maps-core": "0.26.0",
+    "@here/xyz-maps-display": "0.26.0",
+    "@here/xyz-maps-editor": "0.26.0",
     "@monaco-editor/react": "^4.2.2",
     "monaco-editor": "^0.27.0",
     "react": "^17.0.2",

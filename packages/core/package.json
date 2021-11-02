@@ -27,7 +27,7 @@
   },
   "publishConfig": {},
   "dependencies": {
-    "@here/xyz-maps-common": "^0.26.0"
+    "@here/xyz-maps-common": "0.26.0"
   },
   "devDependencies": {
     "@mapbox/vector-tile": "^1.3.1",

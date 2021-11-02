@@ -1,14 +1,8 @@
+import {global} from '@here/xyz-maps-common';
 import './shared';
 import './MVTWorker';
 import './index';
 
-let XYZ_MAPS;
-
-try {
-    XYZ_MAPS = here.xyz.maps;
-} catch (e) {
-    XYZ_MAPS = {};
-    window.here = {xyz: {maps: XYZ_MAPS}};
-}
-
-export default XYZ_MAPS;
+let XYZ = global;
+'here.xyz.maps'.split('.').forEach((ns) => XYZ = (XYZ[ns] = XYZ[ns] || {}));
+export default XYZ;
