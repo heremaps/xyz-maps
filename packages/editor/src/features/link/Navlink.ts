@@ -95,7 +95,7 @@ export class Navlink extends Feature {
      * })
      * ```
      */
-    checkCrossings(option: {
+    checkCrossings(option?: {
         /**
          * Class of the crossing to check for. If no class is defined 'CROSSING' and 'CROSSING_CANDIDATE' is checked for.
          */
@@ -295,11 +295,19 @@ export class Navlink extends Feature {
     /**
      * Get the z-levels for the coordinates of the Navlink feature.
      *
-     * @param index - the index of the shape to get z-level for the specific shape only
-     *
-     * @returns The Array of z-levels for the coordinates of the Navlink or the specific z-level at shape index.
+     * @returns The Array of z-levels for the coordinates of the Navlink.
      *
      */
+    getZLevels(): number[];
+
+    /**
+     * Get the z-level for a specific coordinate of the Navlink feature.
+     *
+     * The z-level of the coordinate at the index of the feature's coordinate array.
+     *
+     */
+    getZLevels(index: number): number;
+
     getZLevels(index?: number): number[] | number {
         let zLevels = this.getProvider().readZLevels(this);
         return typeof index == 'number' ? zLevels[index] : zLevels.slice(0);

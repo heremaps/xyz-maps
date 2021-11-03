@@ -161,7 +161,7 @@ class Feature extends GeoJSONFeature {
      *
      * @returns the style of the feature
      */
-    style(type: 'default' | 'current'): Style[];
+    style(type?: 'default' | 'current'): Style[];
     /**
      * Apply style to the feature.
      *
