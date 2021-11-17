@@ -17,45 +17,13 @@
  * License-Filename: LICENSE
  */
 
-import {getMaxZoom, getPixelSize, getLineWidth, StyleGroup, getValue} from '../displays/styleTools';
+import {getMaxZoom, getPixelSize, getLineWidth, StyleGroup, getValue, getSizeInPixel} from '../displays/styleTools';
 import {Map} from '../Map';
 import {Feature} from '@here/xyz-maps-core';
 import {intersectBBox} from '../geometry';
 
 type Point = [number, number, number?];
 type Coordinates = Point | Point[] | Point[][] | Point[][][];
-
-const pointToLineDistanceSq = (x: number, y: number, x1: number, y1: number, x2: number, y2: number): number => {
-    const C = x2 - x1;
-    const D = y2 - y1;
-    const lenSq = C * C + D * D;
-    let param = -1;
-    let xx;
-    let yy;
-
-    if (lenSq != 0) { // in case of 0 length line
-        const A = x - x1;
-        const B = y - y1;
-        const dot = A * C + B * D;
-        param = dot / lenSq;
-    }
-
-    if (param < 0) {
-        xx = x1;
-        yy = y1;
-    } else if (param > 1) {
-        xx = x2;
-        yy = y2;
-    } else {
-        xx = x1 + param * C;
-        yy = y1 + param * D;
-    }
-
-    const dx = x - xx;
-    const dy = y - yy;
-
-    return dx * dx + dy * dy;
-};
 
 const pointInPolygon = (x: number, y: number, poly: Point[]): boolean => {
     // ray-casting algorithm based on
@@ -91,6 +59,44 @@ const intersectLineLine = (g1p1: Point, g1p2: Point, g2p1: Point, g2p2: Point): 
 class Hit {
     private map: Map;
     private dpr: number;
+
+    private sideOfLine: number; // right-> 1,left-> -1
+
+    private pointToLineDistanceSq(x: number, y: number, x1: number, y1: number, x2: number, y2: number): number {
+        const C = x2 - x1;
+        const D = y2 - y1;
+        const lenSq = C * C + D * D;
+        let param = -1;
+        let A;
+        let B;
+        let xx;
+        let yy;
+
+        if (lenSq != 0) { // in case of 0 length line
+            A = x - x1;
+            B = y - y1;
+            const dot = A * C + B * D;
+            param = dot / lenSq;
+        }
+
+        if (param < 0) {
+            xx = x1;
+            yy = y1;
+        } else if (param > 1) {
+            xx = x2;
+            yy = y2;
+        } else {
+            xx = x1 + param * C;
+            yy = y1 + param * D;
+        }
+
+        const dx = x - xx;
+        const dy = y - yy;
+
+        this.sideOfLine = (C * B - A * D) < 0 ? -1 : 1;
+
+        return dx * dx + dy * dy;
+    };
 
     constructor(map, dpr: number) {
         this.map = map;
@@ -135,6 +141,23 @@ class Hit {
         }
     }
 
+    private getOffsetLineData(feature: Feature, styleGrp: StyleGroup, zoomlevel: number): { offset: number, width: number }[] {
+        let offsets = [];
+        let offset0;
+        for (let style of styleGrp) {
+            const offset = getValue('offset', style, feature, zoomlevel) || 0;
+            if (offset && offsets.find((off) => off.offset == offset)) continue;
+            offsets.push({
+                offset,
+                width: getSizeInPixel('strokeWidth', style, feature, zoomlevel, true) * .5
+            });
+        }
+        // only check explicitly for no offset if required
+        if (offsets.length && offset0) {
+            offsets.push(offset0);
+        }
+        return offsets;
+    }
 
     private geometry(
         x: number,
@@ -168,30 +191,44 @@ class Hit {
             }
         } else if (geoType == 'LineString') {
             dimensions = dimensions || getLineWidth(featureStyle, feature, zoomlevel, layerIndex);
-            const width = dimensions[0] * .5;
             let cLen = coordinates.length;
-            let minDistanceSq = Infinity;
 
             if (isPointSearch) {
                 let p1 = map.geoToPixel(coordinates[0][0], coordinates[0][1]);
+                let offsets = this.getOffsetLineData(feature, featureStyle, zoomlevel);
+                let halfWidthSq;
                 let p2;
                 let d;
 
-                for (let c = 1; c < cLen; c++) {
-                    p2 = map.geoToPixel(coordinates[c][0], coordinates[c][1]);
-
-                    d = pointToLineDistanceSq(x, y, p1.x, p1.y, p2.x, p2.y);
-
-                    if (d < minDistanceSq) {
-                        minDistanceSq = d;
-                    }
-                    p1 = p2;
+                if (!offsets.length) {
+                    halfWidthSq = Math.pow(dimensions[0] * .5, 2);
                 }
 
-                hit = minDistanceSq <= width * width;
+                for (let c = 1; c < cLen; c++) {
+                    p2 = map.geoToPixel(coordinates[c][0], coordinates[c][1]);
+                    d = this.pointToLineDistanceSq(x, y, p1.x, p1.y, p2.x, p2.y);
+                    if (offsets.length) {
+                        for (let o of offsets) {
+                            const {offset, width} = o;
+                            const innerEdge = Math.pow(offset - this.sideOfLine * width, 2);
+                            if (!offset) {
+                                if (hit = d <= width * width) break;
+                            } else if (d > innerEdge) {
+                                const outerEdge = Math.pow(offset + this.sideOfLine * width, 2);
+                                if (hit = d - outerEdge <= width * width) {
+                                    break;
+                                }
+                            }
+                        }
+                        if (hit) break;
+                    } else if (hit = d <= halfWidthSq) break;
+                    p1 = p2;
+                }
             } else {
-                const topLeft = map.pixelToGeo(x - halfWidth, y - halfWidth);
-                const bottomRight = map.pixelToGeo(x + halfWidth, y + halfWidth);
+                dimensions = dimensions || getLineWidth(featureStyle, feature, zoomlevel, layerIndex);
+                const w = dimensions[0] * .5;
+                const topLeft = map.pixelToGeo(x - w, y - w);
+                const bottomRight = map.pixelToGeo(x + w, y + w);
                 const minLon = topLeft.longitude;
                 const maxLon = bottomRight.longitude;
                 const minLat = bottomRight.latitude;
