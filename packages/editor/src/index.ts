@@ -45,6 +45,8 @@ export {EditorOptions} from './API/EditorOptions';
 
 export * from './Hooks';
 
+export {RangeSelector} from './API/ERangeSelector';
+
 export {Crossing} from './API/MCrossing';
 
 export {DrawingShape} from './tools/drawingBoards/DrawingShape';
