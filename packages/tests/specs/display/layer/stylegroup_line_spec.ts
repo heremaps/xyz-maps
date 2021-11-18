@@ -22,8 +22,8 @@ import {getCanvasPixelColor, prepare} from 'utils';
 import {Map} from '@here/xyz-maps-display';
 import dataset from './stylegroup_line_spec.json';
 
-describe('setStyleGroup Line', function() {
-    const expect = chai.expect;
+describe('setStyleGroup Line', () => {
+    const {expect} = chai;
 
     let preparedData;
     let linkLayer;
@@ -31,7 +31,7 @@ describe('setStyleGroup Line', function() {
     let mapContainer;
     let feature;
 
-    before(async function() {
+    before(async () => {
         preparedData = await prepare(dataset);
 
         display = new Map(document.getElementById('map'), {
@@ -50,11 +50,9 @@ describe('setStyleGroup Line', function() {
         feature = preparedData.getFeature('linkLayer', '123');
     });
 
-    after(async function() {
-        display.destroy();
-    });
+    after(async () => display.destroy());
 
-    it('style feature, validate its new style', async function() {
+    it('style feature, validate its new style', async () => {
         // validate link style
         let color1 = await getCanvasPixelColor(mapContainer, {x: 448, y: 300}); // get link color
         // default color is red
@@ -80,7 +78,7 @@ describe('setStyleGroup Line', function() {
         expect(color3).to.equal('#ff0000');
     });
 
-    it('style feature, validate its new style', async function() {
+    it('style feature, validate its new style', async () => {
         // set link style
         linkLayer.setStyleGroup(
             feature, [
@@ -110,7 +108,7 @@ describe('setStyleGroup Line', function() {
         expect(colors2[1]).to.equal('#ffffff');
     });
 
-    it('style line with text, validate its new style', async function() {
+    it('style line with text, validate its new style', async () => {
         // set link style
         linkLayer.setStyleGroup(
             feature, [
@@ -142,7 +140,7 @@ describe('setStyleGroup Line', function() {
         expect(colors[4]).to.equal('#000000');
     });
 
-    it('validate style-function support for text', async function() {
+    it('validate style-function support for text', async () => {
         // set link style
         linkLayer.setStyleGroup(
             feature, [{
@@ -157,5 +155,71 @@ describe('setStyleGroup Line', function() {
         const color = await getCanvasPixelColor(mapContainer, {x: 431, y: 308});
         expect(color).to.equal('#ff0000');
     });
-});
 
+
+    it('validate line offset right', async () => {
+        // set link style
+        linkLayer.setStyleGroup(
+            feature, [{
+                'zIndex': 1,
+                'type': 'Line',
+                'stroke': 'black',
+                'strokeWidth': 6
+            }, {
+                'zIndex': 1,
+                'type': 'Line',
+                'stroke': 'red',
+                'strokeWidth': 10,
+                'offset': 24
+            }]);
+
+
+        const colors = await getCanvasPixelColor(mapContainer, [
+            // red offset line
+            {x: 420, y: 325}, {x: 575, y: 325}, {x: 690, y: 505},
+            // no offset line
+            {x: 410, y: 300}, {x: 585, y: 300}, {x: 715, y: 500}
+        ]);
+
+        expect(colors[0]).to.equal('#ff0000');
+        expect(colors[1]).to.equal('#ff0000');
+        expect(colors[2]).to.equal('#ff0000');
+
+        expect(colors[3]).to.equal('#000000');
+        expect(colors[4]).to.equal('#000000');
+        expect(colors[5]).to.equal('#000000');
+    });
+
+    it('validate line offset left', async () => {
+        // set link style
+        linkLayer.setStyleGroup(
+            feature, [{
+                'zIndex': 1,
+                'type': 'Line',
+                'stroke': 'black',
+                'strokeWidth': 6
+            }, {
+                'zIndex': 1,
+                'type': 'Line',
+                'stroke': 'blue',
+                'strokeWidth': 10,
+                'offset': -24
+            }]);
+
+
+        const colors = await getCanvasPixelColor(mapContainer, [
+            // blue offset line
+            {x: 420, y: 280}, {x: 600, y: 280}, {x: 735, y: 480},
+            // no offset line
+            {x: 410, y: 300}, {x: 585, y: 300}, {x: 715, y: 500}
+        ]);
+
+        expect(colors[0]).to.equal('#0000ff');
+        expect(colors[1]).to.equal('#0000ff');
+        expect(colors[2]).to.equal('#0000ff');
+
+        expect(colors[3]).to.equal('#000000');
+        expect(colors[4]).to.equal('#000000');
+        expect(colors[5]).to.equal('#000000');
+    });
+});

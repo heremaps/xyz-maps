@@ -23,7 +23,7 @@ import {click} from 'triggerEvents';
 import {Map} from '@here/xyz-maps-display';
 import dataset from './pointer_listener_with_different_style_link_spec.json';
 
-describe('pointer listener with different style link', function() {
+describe('pointer listener with different style link', ()=>{
     const expect = chai.expect;
 
     let preparedData;
@@ -32,7 +32,7 @@ describe('pointer listener with different style link', function() {
     let styles;
     let display;
 
-    before(async function() {
+    before(async ()=>{
         preparedData = await prepare(dataset);
         display = new Map(document.getElementById('map'), {
             // @ts-ignore
@@ -52,12 +52,12 @@ describe('pointer listener with different style link', function() {
         styles = linkLayer.getStyle();
     });
 
-    after(async function() {
+    after(async ()=>{
         display.destroy();
         await preparedData.clear();
     });
 
-    it('click on link and validate pointer events', async function() {
+    it('click on link and validate pointer events', async ()=>{
         let listener = new Listener(display, ['pointerdown', 'pointerup']);
 
 
@@ -80,7 +80,7 @@ describe('pointer listener with different style link', function() {
         });
     });
 
-    it('set link style and validate pointer events on link objects', async function() {
+    it('set link style and validate pointer events on link objects', async ()=>{
         linkLayer.setStyle({
             styleGroups: {
                 myStyles: [
@@ -115,7 +115,10 @@ describe('pointer listener with different style link', function() {
             type: 'pointerup'
         });
 
-        let colors = await getCanvasPixelColor(mapContainer, [{x: 395, y: 294}, {x: 395, y: 303}, {x: 395, y: 310}, {x: 395, y: 316}, {x: 395, y: 322}]);
+        let colors = await getCanvasPixelColor(mapContainer, [{x: 395, y: 294}, {x: 395, y: 303}, {x: 395, y: 310}, {
+            x: 395,
+            y: 316
+        }, {x: 395, y: 322}]);
 
         expect(colors[0]).to.equal('#ffffff');
         expect(colors[1]).to.equal('#ff0000');
@@ -124,14 +127,149 @@ describe('pointer listener with different style link', function() {
         expect(colors[4]).to.equal('#ffffff');
     });
 
-    it('reset layer style and validate', async function() {
+    it('reset layer style and validate', async ()=>{
         linkLayer.setStyle(styles);
 
         display.refresh(linkLayer);
 
-
         let color = await getCanvasPixelColor(mapContainer, {x: 322, y: 309});
 
         expect(color).to.equal('#ff0000');
+    });
+
+    it('set line offset (right) and validate click', async ()=>{
+        const feature = linkLayer.getProvider().all().pop();
+
+        linkLayer.setStyleGroup(
+            feature, [{
+                'zIndex': 1,
+                'type': 'Line',
+                'stroke': 'black',
+                'strokeWidth': 6
+            }, {
+                'zIndex': 1,
+                'type': 'Line',
+                'stroke': 'red',
+                'strokeWidth': 10,
+                'offset': 24
+            }]);
+
+
+        let listener = new Listener(display, ['pointerup']);
+
+        // center line
+        await click(mapContainer, 467, 312);
+
+        // offset line right
+        await click(mapContainer, 471, 337);
+
+        let results = listener.stop().pointerup;
+
+        expect(results).to.have.lengthOf(2);
+
+        expect(results[0]).to.deep.include({type: 'pointerup'});
+        expect(results[0].target).to.equal(feature);
+
+        expect(results[1]).to.deep.include({type: 'pointerup'});
+        expect(results[1].target).to.equal(feature);
+    });
+
+    it('set line offset (left) and validate click', async ()=>{
+        const feature = linkLayer.getProvider().all().pop();
+
+        linkLayer.setStyleGroup(
+            feature, [{
+                'zIndex': 1,
+                'type': 'Line',
+                'stroke': 'black',
+                'strokeWidth': 6
+            }, {
+                'zIndex': 1,
+                'type': 'Line',
+                'stroke': 'red',
+                'strokeWidth': 10,
+                'offset': -24
+            }]);
+
+
+        let listener = new Listener(display, ['pointerup']);
+
+        // center line
+        await click(mapContainer, 467, 312);
+
+        // offset line left
+        await click(mapContainer, 471, 287);
+
+
+        let results = listener.stop().pointerup;
+
+        expect(results).to.have.lengthOf(2);
+
+        expect(results[0]).to.deep.include({type: 'pointerup'});
+        expect(results[0].target).to.equal(feature);
+
+        expect(results[1]).to.deep.include({type: 'pointerup'});
+        expect(results[1].target).to.equal(feature);
+    });
+
+    it('set line offset and validate click in empty space', async ()=>{
+        const feature = linkLayer.getProvider().all().pop();
+
+        linkLayer.setStyleGroup(
+            feature, [{
+                'zIndex': 1,
+                'type': 'Line',
+                'stroke': 'black',
+                'strokeWidth': 6
+            }, {
+                'zIndex': 1,
+                'type': 'Line',
+                'stroke': 'red',
+                'strokeWidth': 10,
+                'offset': 24
+            }, {
+                'zIndex': 1,
+                'type': 'Line',
+                'stroke': 'red',
+                'strokeWidth': 10,
+                'offset': -24
+            }]);
+
+
+        let listener = new Listener(display, ['pointerup']);
+
+        // center line
+        await click(mapContainer, 467, 312);
+
+        // offset line right
+        await click(mapContainer, 471, 337);
+
+        // offset line left
+        await click(mapContainer, 471, 287);
+
+        // empty space
+        await click(mapContainer, 463, 321);
+
+        // empty space
+        await click(mapContainer, 463, 302);
+
+        let results = listener.stop().pointerup;
+
+        expect(results).to.have.lengthOf(5);
+
+        expect(results[0]).to.deep.include({type: 'pointerup'});
+        expect(results[0].target).to.equal(feature);
+
+        expect(results[1]).to.deep.include({type: 'pointerup'});
+        expect(results[1].target).to.equal(feature);
+
+        expect(results[2]).to.deep.include({type: 'pointerup'});
+        expect(results[2].target).to.equal(feature);
+
+        expect(results[3]).to.deep.include({type: 'pointerup'});
+        expect(results[3].target).to.be.undefined;
+
+        expect(results[4]).to.deep.include({type: 'pointerup'});
+        expect(results[4].target).to.be.undefined;
     });
 });
