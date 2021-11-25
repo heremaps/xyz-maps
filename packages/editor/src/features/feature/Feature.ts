@@ -29,10 +29,22 @@ import {GeoJSONCoordinate} from '@here/xyz-maps-core';
 type EditableProvider = EditableRemoteTileProvider;
 let UNDEF;
 
-const cpyCoord = (c) => {
+const copyCoordinate = (c) => {
     return c.length == 3
         ? [c[0], c[1], c[2]]
         : [c[0], c[1]];
+};
+
+const copyLineStrings = (poly) => {
+    const cpy = [];
+    for (let l = 0; l < poly.length; l++) {
+        const linestring = poly[l];
+        const ls = cpy[cpy.length] = [];
+        for (let i = 0; i < linestring.length; i++) {
+            ls[i] = copyCoordinate(linestring[i]);
+        }
+    }
+    return cpy;
 };
 
 export type EditStates = 'created' | 'modified' | 'removed' | 'split' | 'hovered' | 'selected';
@@ -109,6 +121,7 @@ class Feature extends GeoJSONFeature {
 
 
     private _esu: boolean;
+
     /**
      * Get a specific {@link EditorFeatureProperties|EditState} of the feature.
      *
@@ -274,7 +287,6 @@ class Feature extends GeoJSONFeature {
     coord(coordinates?: GeoJSONCoordinate | GeoJSONCoordinate[] | GeoJSONCoordinate[][] | GeoJSONCoordinate[][][] | GeoJSONCoordinate[][][][]) {
         const feature = this;
         const geoType = feature.geometry.type;
-        let coords;
 
         if (coordinates instanceof Array) {
             oTools.deHighlight(feature);
@@ -287,19 +299,18 @@ class Feature extends GeoJSONFeature {
             coordinates = feature.getProvider().decCoord(feature);
 
             if (geoType == 'Point') {
-                coords = cpyCoord(coordinates);
-            } else {
-                coords = [];
-
-                const len = coordinates.length;
-
-                for (let c = 0; c < len; c++) {
-                    coords[c] = cpyCoord(coordinates[c]);
-                }
+                return copyCoordinate(coordinates);
             }
-        }
+            if (geoType == 'Polygon' || geoType == 'MultiLineString') {
+                return copyLineStrings(coordinates);
+            }
 
-        return coords;
+            if (geoType == 'MultiPolygon') {
+                return coordinates.map((polygon) => copyLineStrings(polygon));
+            }
+            // LineString/MultiPoint
+            return copyLineStrings([coordinates])[0];
+        }
     };
 
     /**

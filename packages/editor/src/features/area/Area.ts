@@ -27,26 +27,6 @@ const throwError = (msg) => {
     throw new Error(msg);
 };
 
-
-const copyCoord = (c: [number, number, number?]) => {
-    return c.length == 3
-        ? [c[0], c[1], c[2]]
-        : [c[0], c[1]];
-};
-
-const copyPolygon = (poly) => {
-    const cpy = [];
-    for (let l = 0; l < poly.length; l++) {
-        const linestring = poly[l];
-        const ls = cpy[cpy.length] = [];
-
-        for (let i = 0; i < linestring.length; i++) {
-            ls[i] = copyCoord(linestring[i]);
-        }
-    }
-    return cpy;
-};
-
 const defaultBehavior = {
     snapCoordinates: true
 };
@@ -217,31 +197,9 @@ class Area extends Feature {
      */
     coord(coordinates: [number, number, number?][][] | [number, number, number?][][][]);
 
-    coord(coords?) {
-        const feature = this;
-        const geoType = feature.geometry.type;
-        let coordinates;
-
-        if (coords instanceof Array) {
-            oTools.deHighlight(feature);
-
-            oTools._setCoords(feature, coords);
-
-            oTools.markAsModified(feature);
-        } else {
-            coords = feature.getProvider().decCoord(feature);
-
-            if (geoType == 'Polygon') {
-                coordinates = copyPolygon(coords);
-            } else {
-                coordinates = [];
-                for (let p = 0; p < coords.length; p++) {
-                    coordinates[p] = copyPolygon(coords[p]);
-                }
-            }
-        }
-        return coordinates;
-    };
+    coord(coordinates?) {
+        return super.coord(coordinates);
+    }
 }
 
 (<any>Area).prototype.class = 'AREA';

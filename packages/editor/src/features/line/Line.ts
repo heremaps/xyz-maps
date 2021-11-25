@@ -26,7 +26,7 @@ const throwError = (msg) => {
 };
 
 /**
- * The Line Feature is a generic editable Feature with "LineString" geometry.
+ * The Line Feature is a generic editable Feature with "LineString" or "MultiLineString" geometry.
  * The Feature can be edited with the {@link Editor}.
  */
 class Line extends Feature {
@@ -35,22 +35,37 @@ class Line extends Feature {
      */
     readonly class: 'LINE';
 
+
     /**
      * Add a new shape point / coordinate to the line.
      *
      * @param point - the coordinate to add
-     * @param index - the index position in the coordinate array where the new shape point should be inserted.
      *
      * @returns index of the shape or false if shape could not be added
      */
-    addShape(point: PixelPoint | GeoPoint, index?: number): boolean | number {
+    addShape(point: PixelPoint | GeoPoint): boolean | number;
+
+    /**
+     * Adds a new coordinate to the line feature with "LineString" or "MultiLineString" geometry.
+     * For Line features with "LineString" geometry the a value of 0 must be passed for lineStringIndex.
+     *
+     * @param point - the coordinate to add
+     * @param lineStringIndex - the index of the coordinate array in the MultiLineStrings array of LineString coordinate arrays.
+     * @param coordinateIndex - the index position in the LineString coordinate array where the new shape point should be inserted.
+     *
+     * @returns index of the shape or false if shape could not be added
+     */
+    addShape(point: PixelPoint | GeoPoint, lineStringIndex: number, coordinateIndex?: number): boolean | number;
+
+    addShape(point: PixelPoint | GeoPoint, lineStringIndex?: number, coordinateIndex?: number): boolean | number {
         const line = this;
         const coordinate = line._e().map.getGeoCoord(point);
-
+        let index: number | false = coordinateIndex;
         if (!coordinate) {
             throwError('Invalid coordinate');
             return false;
-        } else if (index = tools.addCoord(line, coordinate, index)) {
+        } else if (index = tools.addCoord(line, coordinate, index, lineStringIndex || 0)) {
+            tools.displayShapes(line);
             tools.markAsModified(line);
         }
         return index;
@@ -59,15 +74,16 @@ class Line extends Feature {
     /**
      * Get the geographical coordinate(s) of the Line feature.
      */
-    coord(): [number, number, number?][];
+    coord(): [number, number, number?][] | [number, number, number?][][];
     /**
      * Set the geographical coordinate(s) of the Line feature.
      *
      * @param coordinates - the geographical coordinates that should be set.
      */
-    coord(coordinates: [number, number, number?][]);
+    coord(coordinates: [number, number, number?][] | [number, number, number?][][]);
 
-    coord(coordinates?: [number, number, number?][]): [number, number, number?][] {
+    coord(coordinates?: [number, number, number?][] | [number, number, number?][][]):
+        [number, number, number?][] | [number, number, number?][][] {
         return super.coord(coordinates);
     }
 }

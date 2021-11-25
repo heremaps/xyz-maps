@@ -35,7 +35,7 @@ class LinkDirectionHint {
     private points: Feature[];
     private overlay: Overlay;
 
-    constructor(overlay: Overlay, link: Navlink | Line, dir: string, hideShapes?: boolean) {
+    constructor(overlay: Overlay, link: Navlink, dir: string, hideShapes?: boolean) {
         const path = link.coord();
         const rotation = dir == 'END_TO_START' ? 180 : 0;
         const points = [];

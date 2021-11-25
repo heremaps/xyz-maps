@@ -19,7 +19,7 @@
 
 import {Feature} from '@here/xyz-maps-core';
 import {Line} from './Line';
-import LineTools from './LineTools';
+import LineTools, {Coordinate} from './LineTools';
 // const Feature = features.Feature;
 
 let lineTools: typeof LineTools;
@@ -40,10 +40,11 @@ class LineShape extends Feature {
 
     /** {@inheritdoc} */
     properties: {
+        lineStringIndex: number;
         moved: boolean;
         index: number;
         x: number;
-        y: number
+        y: number;
     };
 
     /** {@inheritdoc} */
@@ -56,14 +57,15 @@ class LineShape extends Feature {
 
     // getProvider: () => any;
 
-    constructor(line, coordinate, index, lTools) {
+    constructor(line, coordinate, lineStringIndex: number, index: number, lTools) {
         lineTools = lTools;
         let style = line._e().getStyle(line);
 
         super({
             type: 'Feature',
             properties: {
-                'index': index,
+                lineStringIndex,
+                index,
                 'LINE': {
                     properties: line.prop(),
                     style: style
@@ -88,7 +90,7 @@ class LineShape extends Feature {
     }
 
     /**
-     *  Get the total number of coordinates of the line
+     *  Get the total number of coordinates of the LineString geometry.
      *
      *  @returns Number of coordinates
      */
@@ -97,7 +99,7 @@ class LineShape extends Feature {
     }
 
     /**
-     * Get the index of the shape point in the coordinates array of the respective Line feature.
+     * Get the index of the shape point in the coordinates array of the respective LineString geometry.
      *
      * @returns The index of the shape point.
      */
@@ -106,11 +108,21 @@ class LineShape extends Feature {
     };
 
     /**
+     *  Get the index of the coordinate array in the MultiLineString array of LineString coordinate arrays.
+     *  For Line features with a geometry of type "LineString" the lineStringIndex is 0.
+     *
+     *  @returns the index of the coordinate array in the MultiLineString array of LineString coordinate arrays.
+     */
+    getLineStringIndex(): number {
+        return this.properties.lineStringIndex;
+    }
+
+    /**
      * Removes the shape point from the geometry of the Line feature.
      */
     remove() {
         const line = this.getLine();
-        lineTools.removeCoord(line, this.properties.index);
+        lineTools.removeCoord(line, this.properties.index, this.properties.lineStringIndex);
         lineTools.markAsModified(line);
     }
 
@@ -134,11 +146,13 @@ class LineShape extends Feature {
         const shape = this;
         const display = ev.detail.display;
         const properties = this.properties;
+        const {lineStringIndex} = properties;
         const geo = display.pixelToGeo(properties.x + dx, properties.y + dy);
         const lon = geo.longitude;
         const lat = geo.latitude;
         const line = shape.getLine();
-        const lineCoordinates = line.coord();
+
+        const coordinates = <Coordinate[]>lineTools.getCoordinates(line, lineStringIndex);
 
         if (!properties.moved) {
             properties.moved = true;
@@ -147,10 +161,10 @@ class LineShape extends Feature {
 
         shape.getProvider().setFeatureCoordinates(shape, [lon, lat]);
 
-        lineCoordinates[properties.index][0] = lon;
-        lineCoordinates[properties.index][1] = lat;
+        coordinates[properties.index][0] = lon;
+        coordinates[properties.index][1] = lat;
 
-        lineTools._setCoords(line, lineCoordinates);
+        lineTools._setCoords(line, coordinates, lineStringIndex);
     }
 
     pointerup(ev) {

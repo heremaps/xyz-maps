@@ -19,13 +19,12 @@
 
 import {LineShape} from './LineShape';
 
-const DO_NOT_REFRESH_SHAPES = true;
 let lineTools;
 
 class VirtualShape extends LineShape {
-    constructor(line, coordinate, index, lTools) {
+    constructor(line, coordinate, lineStringIndex: number, index: number, lTools) {
         lineTools = lTools;
-        super(line, coordinate, index, lTools);
+        super(line, coordinate, lineStringIndex, index, lTools);
     }
 
     pointerdown(ev) {
@@ -33,7 +32,7 @@ class VirtualShape extends LineShape {
     }
 
     pressmove(ev, dx, dy) {
-        const properties = this.properties;
+        const {properties} = this;
         const shape = this;
         const line = shape.getLine();
 
@@ -43,7 +42,7 @@ class VirtualShape extends LineShape {
                 line,
                 shape.geometry.coordinates.slice(),
                 properties.index,
-                DO_NOT_REFRESH_SHAPES
+                properties.lineStringIndex
             );
             lineTools.removeShapes(line, 'vShps', shape);
         }

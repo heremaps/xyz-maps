@@ -185,6 +185,7 @@ class ObjectManager {
             }
 
             const evl = oTools.getEventListener(o, type);
+
             if (evl) {
                 e.stopPropagation();
                 return evl.apply(o, arguments);
@@ -398,6 +399,7 @@ class ObjectManager {
             }
 
             feature = provider.prepareFeature(feature);
+
             featureClass = provider.detectFeatureClass(feature);
 
             if (defId == UNDEF) {
@@ -405,7 +407,6 @@ class ObjectManager {
             }
 
             idMapping[defId] = feature.id;
-
 
             feature = createFeature(feature);
 

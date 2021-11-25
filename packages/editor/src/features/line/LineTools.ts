@@ -27,6 +27,8 @@ import FeatureTools from '../feature/FeatureTools';
 
 let UNDEF;
 
+export type Coordinate = [number, number, number?];
+
 
 function getPrivate(feature: Line, name?: string): any {
     let prv = feature.__;
@@ -92,68 +94,71 @@ const tools = {
 
 
     //* ************************************************** Internal only **************************************************
-    addCoord: (line, position, index, skip?: boolean) => {
-        let coordinates = line.coord();
+    addCoord: (line: Line, position: Coordinate, index: number, lineStringIndex: number): number | false => {
+        let coordinates = <Coordinate[]>tools.getCoordinates(line, lineStringIndex);
 
         if (index == UNDEF) {
-            index = getSegmentIndex(coordinates, position);
-
-            if (index === false) {
-                return false;
-            } else {
-                index++;
+            const i = getSegmentIndex(coordinates, position);
+            if (i === false) {
+                return i;
             }
+            index = i + 1;
         }
 
         coordinates.splice(index, 0, position);
-        tools._setCoords(line, coordinates);
+        tools._setCoords(line, coordinates, lineStringIndex);
 
-        if (!skip) {
-            // used by virtual shape.
-            tools.displayShapes(line);
-        }
         return index;
     },
-    removeCoord: (line, index) => {
-        let coordinates = line.coord();
+    removeCoord: (line: Line, index: number, lineStringIndex: number) => {
+        let coordinates = <Coordinate[]>tools.getCoordinates(line, lineStringIndex);
         const length = coordinates.length;
         let removed;
 
         if (length > 2 && index >= 0 && index < length) {
             removed = coordinates.splice(index, 1);
-            tools._setCoords(line, coordinates);
+            tools._setCoords(line, coordinates, lineStringIndex);
             tools.displayShapes(line);
         }
         return removed;
     },
-    createShapes: (line, path, type, Shape) => {
-        const shapes = getPrivate(line, type);
-        const length = path.length;
 
-        if (shapes.length) {
-            tools.removeShapes(line, type);
-        }
+    createShapes: (line: Line, lineStringIndex: number, path, type, Shape) => {
+        const lineStrings = getPrivate(line, type);
+        const shapes = lineStrings[lineStringIndex] = lineStrings[lineStringIndex] || [];
 
-        for (let i = 0; i < length; i++) {
-            shapes[i] = new Shape(line, [path[i][0], path[i][1]], i, tools);
+        for (let i = 0; i < path.length; i++) {
+            shapes[i] = new Shape(line, [path[i][0], path[i][1]], lineStringIndex, i, tools);
             line._e().objects.overlay.addFeature(shapes[i]);
         }
     },
 
-    createVShapes: (line) => {
-        const path = line.geometry.coordinates;
-        const vpath = [];
-        for (let i = 1; i < path.length; i++) {
-            vpath.push(getPntAt(path[i - 1], path[i], .5));
+    createVShapes: (line: Line, lineStringIndex: number = 0, lineString: GeoJSONCoordinate[]) => {
+        const shapes = [];
+        for (let i = 1; i < lineString.length; i++) {
+            shapes.push(getPntAt(lineString[i - 1], lineString[i], .5));
         }
-        tools.createShapes(line, vpath, 'vShps', VirtualShape);
+        tools.createShapes(line, lineStringIndex, shapes, 'vShps', VirtualShape);
     },
 
-    displayShapes: (line) => {
+    displayShapes: (line: Line) => {
         if (getPrivate(line, 'isSelected')) {
-            const path = line.geometry.coordinates;
-            tools.createShapes(line, path, 'shps', LineShape);
-            tools.createVShapes(line);
+            const {geometry} = line;
+            let coordinates;
+
+            if (geometry.type == 'LineString') {
+                coordinates = [geometry.coordinates];
+            } else {
+                coordinates = geometry.coordinates;
+            }
+
+            tools.removeShapes(line, 'shps');
+            tools.removeShapes(line, 'vShps');
+
+            for (let i = 0; i < coordinates.length; i++) {
+                tools.createShapes(line, i, coordinates[i], 'shps', LineShape);
+                tools.createVShapes(line, i, coordinates[i]);
+            }
         }
     },
     removeShapes: (line, type, ignore?) => {
@@ -198,10 +203,30 @@ const tools = {
         }
     },
 
-    _setCoords: function(line: Line, coordinates: GeoJSONCoordinate[]) {
+    isMultiLineString(line: Line): boolean {
+        return line.geometry.type == 'MultiLineString';
+    },
+
+    getCoordinates(line: Line, index?: number): Coordinate[] | Coordinate[][] {
+        let coordinates = <Coordinate[][]>line.coord();
+        if (!tools.isMultiLineString(line)) {
+            coordinates = [<any>coordinates];
+        }
+        return index >= 0 ? coordinates[index] : coordinates;
+    },
+
+    _setCoords: function(line: Line, lineString: Coordinate[], lineStringIndex?: number) {
         line._e().objects.history.origin(line);
 
         getPrivate(line).isGeoMod = true;
+
+        let coordinates: Coordinate[] | Coordinate[][] = lineString;
+
+
+        if (tools.isMultiLineString(line) && lineStringIndex >= 0) {
+            coordinates = line.coord();
+            coordinates[lineStringIndex] = lineString;
+        }
 
         line.getProvider().setFeatureCoordinates(line, coordinates);
     },
