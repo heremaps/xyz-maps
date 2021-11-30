@@ -70,7 +70,6 @@ function onHover(e) {
 
 const tools = {
 
-
     private: getPrivate,
 
     _evl: {
@@ -123,7 +122,7 @@ const tools = {
         return removed;
     },
 
-    createShapes: (line: Line, lineStringIndex: number, path, type, Shape) => {
+    createShapes: (line: Line, lineStringIndex: number, path, type: string, Shape: typeof LineShape) => {
         const lineStrings = getPrivate(line, type);
         const shapes = lineStrings[lineStringIndex] = lineStrings[lineStringIndex] || [];
 
@@ -161,7 +160,7 @@ const tools = {
             }
         }
     },
-    removeShapes: (line, type, ignore?) => {
+    removeShapes: (line: Line, type: string, ignore?: LineShape) => {
         const shapes = getPrivate(line, type);
         shapes.forEach((shape) => {
             if (shape != ignore) {
@@ -171,35 +170,30 @@ const tools = {
         shapes.length = 0;
     },
 
-
-    // deHighlight: function( obj )
-    deHighlight: function(obj) {
-        if (getPrivate(obj, 'isSelected')) {
-            triggerDisplayRefresh(obj, 'selected', false);
-            tools.removeShapes(obj, 'shps');
-            tools.removeShapes(obj, 'vShps');
+    deHighlight: function(line: Line) {
+        if (getPrivate(line, 'isSelected')) {
+            triggerDisplayRefresh(line, 'selected', false);
+            tools.removeShapes(line, 'shps');
+            tools.removeShapes(line, 'vShps');
         }
     },
 
+    _editable: function(line: Line, editable: boolean) {
+        const prv = getPrivate(line);
 
-    // _editable: function( obj, e )
-    _editable: function(obj, e) {
-        const prv = getPrivate(obj);
-
-        if (e != UNDEF) {
-            prv.isEditable = !!e;
+        if (editable != UNDEF) {
+            prv.isEditable = !!editable;
         }
 
-        tools.deHighlight(obj);
+        tools.deHighlight(line);
 
         return prv.isEditable;
     },
 
-    // _select: function( obj ){
-    _select: function(obj) {
-        if (obj._e().objects.selection.select(obj)) {
-            triggerDisplayRefresh(obj, 'selected', true);
-            tools.displayShapes(obj);
+    _select: function(line: Line) {
+        if (line._e().objects.selection.select(line)) {
+            triggerDisplayRefresh(line, 'selected', true);
+            tools.displayShapes(line);
         }
     },
 

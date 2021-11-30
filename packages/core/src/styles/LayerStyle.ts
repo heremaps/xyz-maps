@@ -472,14 +472,17 @@ export interface Style {
     lineWrap?: number | StyleValueFunction<number> | StyleZoomRange<number>;
 
     /**
-     * Sets the anchor point for styles of type "Circle", "Rect", "Image" and "Text" used with Line geometry.
-     * Possible values are "Coordinate" and "Line".
+     * Sets the anchor point for styles of type "Circle", "Rect", "Image" and "Text" used with Line or Polygon geometry.
      *
+     * Possible values for Line geometry are "Coordinate" and "Line".
      * - "Coordinate": the respective style is displayed at each coordinate of the polyline.
-     * - "Line": the respective style is displayed on the shape of the polyline when there is enough space. See {@link checkLineSpace} to disable the space ckeck.
+     * - "Line": the respective style is displayed on the shape of the polyline when there is enough space. See {@link checkLineSpace} to disable the space check.
      *
+     * Possible values for Polygon geometry are "Center" and "Centroid".
+     * - "Center": the center of the bounding box of the polygon.
+     * - "Centroid": the geometric centroid of the polygon geometry.
      *
-     * @defaultValue "Line" for styles of type "Text", "Coordinate" for styles of type "Circle", "Rect" or "Image".
+     * @defaultValue For Polygon geometry the default is "Center". For Line geometry the default for styles of type "Text" is "Line", while "Coordinate" is the default for styles of type "Circle", "Rect" or "Image".
      */
     anchor?: 'Line' | 'Coordinate'
 

@@ -26,6 +26,8 @@ import {FeatureFactory, CollisionGroup, GroupMap} from './FeatureFactory';
 import {TemplateBuffer} from './templates/TemplateBuffer';
 import {GlyphTexture} from '../GlyphTexture';
 
+import {centroid} from './addPolygon';
+
 const PROCESS_FEATURE_BUNDLE_SIZE = 16;
 const EXCLUSIVE_TIME_MS = 4;
 const PRIORITY = 4;
@@ -62,7 +64,16 @@ const handlePolygons = (
         } else if (multiIndex == 0) {
             const {bounds} = tile;
             const {bbox} = feature;
-            const center = [bbox[0] + (bbox[2] - bbox[0]) / 2, bbox[1] + (bbox[3] - bbox[1]) / 2];
+            const anchor = getValue('anchor', style, feature, zoom);
+            let center;
+
+            if (anchor == 'Centroid') {
+                const {geometry} = feature;
+                center = geometry._c = geometry._c || centroid(geometry.type == 'Polygon' ? geometry.coordinates : geometry.coordinates[0]);
+            } else {
+                center = [bbox[0] + (bbox[2] - bbox[0]) / 2, bbox[1] + (bbox[3] - bbox[1]) / 2];
+            }
+
             const [cx, cy] = center;
 
             if (cx >= bounds[0] && cy >= bounds[1] && cx < bounds[2] && cy < bounds[3]) {
@@ -71,7 +82,8 @@ const handlePolygons = (
         }
     }
     return ready;
-};
+}
+;
 
 type TaskData = [Tile, Feature[], number, number, number, TileLayer, number, boolean | CollisionGroup[]];
 

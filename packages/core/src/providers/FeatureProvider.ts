@@ -880,6 +880,10 @@ export class FeatureProvider extends Provider {
             const bbox = calcBBox(feature);
             if (bbox) {
                 feature.bbox = <GeoJSONBBox>bbox;
+                if (feature.geometry._c) {
+                    // clear cached centroid
+                    feature.geometry._c = null;
+                }
             } else {
                 return false;
             }
