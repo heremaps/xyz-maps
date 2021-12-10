@@ -16,7 +16,7 @@ varying vec2 v_width;
 uniform vec2 u_offset;
 uniform float u_tileScale;
 
-const float N_SCALE = 1.0 / 8192.0;
+const float N_SCALE = 1.0 / 8191.0;
 
 
 float toPixel(vec2 size){

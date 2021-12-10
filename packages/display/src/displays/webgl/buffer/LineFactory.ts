@@ -154,11 +154,14 @@ export class LineFactory {
 
         this.projectLine(coordinates, tile, tileSize);
 
+        const {pixels, length} = this;
+        const isRing = pixels[0] == pixels[length - 2] && pixels[1] == pixels[length - 1];
+
         addLineString(
             groupBuffer.attributes.a_position.data,
             groupBuffer.attributes.a_normal.data,
-            this.pixels,
-            this.length,
+            pixels,
+            length,
             this.lineLength,
             tileSize,
             removeTileBounds,
@@ -166,6 +169,7 @@ export class LineFactory {
             strokeLinejoin,
             strokeWidth,
             strokeDasharray && groupBuffer.attributes.a_lengthSoFar.data,
+            isRing,
             offset,
             start,
             stop
