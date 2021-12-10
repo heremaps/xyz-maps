@@ -251,11 +251,11 @@ abstract class HTTPProvider extends EditableRemoteTileProvider {
     }
 
     readZLevels(link: Feature): number[] {
-        throw new Error('Method not implemented.');
+        throw new Error(METHOD_NOT_IMPLEMENTED);
     }
 
     writeZLevels(link: Feature, zLevels: number[]) {
-        throw new Error('Method not implemented.');
+        throw new Error(METHOD_NOT_IMPLEMENTED);
     }
 }
 

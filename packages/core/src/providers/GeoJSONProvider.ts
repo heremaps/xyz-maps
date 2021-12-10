@@ -21,10 +21,12 @@ import {JSUtils} from '@here/xyz-maps-common';
 import {HTTPProvider} from './HTTPProvider/HTTPProvider';
 import {HTTPProviderOptions} from './HTTPProvider/HTTPProviderOptions';
 
+const METHOD_NOT_IMPLEMENTED = 'Method not implemented.';
+
 /**
  *  GeoJSONProvider is a remote HTTPProvider designed to work with GeoJSON data.
  */
-export abstract class GeoJSONProvider extends HTTPProvider {
+export class GeoJSONProvider extends HTTPProvider {
     /**
      * @param options - options to configure the provider
      */
@@ -38,7 +40,15 @@ export abstract class GeoJSONProvider extends HTTPProvider {
         super(options);
     }
 
-    // delete( feature ) {
-    //     this.tree.remove( feature );
-    // }
+    getFeatureUrl(layer: string, featureId: string | number): string {
+        throw new Error(METHOD_NOT_IMPLEMENTED);
+    }
+
+    getLayerUrl(layer: string): string {
+        throw new Error(METHOD_NOT_IMPLEMENTED);
+    }
+
+    getTileUrl(layer: string): string {
+        throw new Error(METHOD_NOT_IMPLEMENTED);
+    }
 };

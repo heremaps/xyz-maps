@@ -36,9 +36,9 @@ export class Feature implements GeoJSONFeature {
     properties: { [name: string]: any; } | null;
 
     /*
-     * The type of the feature is 'Feature'
+     * The type of the feature is a string with 'Feature' as its value.
      */
-    type: 'Feature';
+    type: 'Feature' | string;
 
     /**
      * A geometry is a object where the type member's value is one of: "Point", "MultiPoint", "LineString", "MultiLineString", "Polygon" or "MultiPolygon".

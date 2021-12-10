@@ -199,8 +199,12 @@ export class RangeSelector {
      * @param range - The Range that should be displayed.
      */
     show(...ranges: Range[]);
-
-    show(range: Range) {
+    /**
+     * Add and a single or multiple Ranges. A Range can be located on a single or multiple Navlink(s).
+     *
+     * @param range - The Range(s) that should be displayed.
+     */
+    show(range: Range|Range[]) {
         const ranges = this.ranges = range instanceof Array ? range : [].slice.call(arguments);
 
         ranges.forEach((range) => {

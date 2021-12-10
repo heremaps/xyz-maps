@@ -40,6 +40,7 @@ export * from './features/link/NavlinkShape';
 export * from './features/area/AreaShape';
 export * from './features/feature/EditorProperties';
 export * from './API/EditorEvent';
+export * from './API/DrawingBoard';
 export {EditorOptions} from './API/EditorOptions';
 
 

@@ -29,6 +29,7 @@ import {LineShape} from '../features/line/LineShape';
 import {Navlink} from '../features/link/Navlink';
 import {NavlinkShape} from '../features/link/NavlinkShape';
 import {Crossing} from '../API/MCrossing';
+import {Range} from './ERangeSelector';
 
 
 const NULL = null;
@@ -105,6 +106,16 @@ export class EditorEvent {
          * the layer the event relates to.
          */
         layer?: TileLayer;
+        /**
+         * This property is set by the {@link editor.DrawingBoard|DrawingBoard utility} and dispatched when an "onShapeAdd" or "onShapeRemove" event occurs.
+         * Index in the coordinate array of the shape being added or removed.
+         */
+        index?: number;
+        /**
+         * This property is set by the {@link editor.RangeSelector|RangeSelector utility} and dispatched when an "dragStart", "dragMove" or "dragStop" event occurs.
+         * The respective {@link editor.Range|Range} on in which the event occurred.
+         */
+        range?: Range;
     };
 
     constructor(type: string, mapX, mapY, nativeEvent, button, target, detail) {
