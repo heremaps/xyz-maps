@@ -214,7 +214,7 @@ const addLineString = (
                 segmentStartIndex = isRing ? -2 : 0;
             }
 
-            addSegments(vertex, normal, coordinates, vLength, segmentStartIndex, segmentStopIndex + 2, tileSize,
+            length = addSegments(vertex, normal, coordinates, vLength, segmentStartIndex, segmentStopIndex + 2, tileSize,
                 cap, join, strokeWidth, lengthToVertex, length, absStart, absStop, offset, isRing
             );
 
