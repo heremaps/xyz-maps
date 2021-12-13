@@ -35,7 +35,7 @@ export class Feature implements GeoJSONFeature {
      */
     properties: { [name: string]: any; } | null;
 
-    /*
+    /**
      * The type of the feature is a string with 'Feature' as its value.
      */
     type: 'Feature' | string;

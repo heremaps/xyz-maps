@@ -47,11 +47,11 @@ export interface GeoJSONFeature {
     id?: string | number;
 
     /**
-     * Type of a GeoJSONFeature is 'Feature'
+     *  Type of a GeoJSONFeature is 'Feature'
      */
     type: 'Feature' | string;
 
-    /*
+    /**
      * The bounding box includes information on the coordinate range of the Feature.
      * The values of a bbox array are "[west: number, south: number, east: number, north: number]"
      */
