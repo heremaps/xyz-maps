@@ -86,13 +86,10 @@ describe('setStyleGroup Polygon', () => {
                 {'zIndex': 0, 'type': 'Polygon', 'opacity': 0.6, 'fill': '#9be128', 'stroke': '#3750cd', 'strokeWidth': 15}
             ]);
 
-        // validate features have new style
-        // get fill color
-        // get stroke color on first shape point
-        let colors = await getCanvasPixelColor(mapContainer, [{x: 380, y: 280}, {x: 246, y: 328}]);
+        let colors = await getCanvasPixelColor(mapContainer, [{x: 380, y: 280}, {x: 315, y: 337}]);
 
         expect(colors[0]).to.equal('#c3ed7e');
-        expect(colors[1]).to.equal('#576cd5');
+        expect(colors[1]).to.equal('#8796e1');
     });
 
     it('style feature with opacity, validate its new style', async () => {
