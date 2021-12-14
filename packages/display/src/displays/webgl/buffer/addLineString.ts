@@ -595,8 +595,8 @@ const addSegments = (
                         } else {
                             normal.push(
                                 0, 0, 0, 0,
-                                nUp[0], nUp[1], anX, anY,
-                                prevNUp[0], prevNUp[1], anX, anY
+                                prevNUp[0], prevNUp[1], anX, anY,
+                                nUp[0], nUp[1], anX, anY
                             );
                         }
 
