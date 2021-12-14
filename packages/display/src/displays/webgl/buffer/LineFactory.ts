@@ -38,7 +38,7 @@ export class LineFactory {
     private readonly pixels: Float32Array; // projected coordinate cache
     private length: number = 0; // length of coordinate cache
     private readonly alpha: Float32Array; // segment angle cache
-    private lineLength: number; // length of current projected line in pixels
+    private lineLength: Float32Array; // length from start to segment at index of the current projected line
     private collisions: CollisionData[];
 
     private decimals: number; // increase precision for tile scaling
@@ -52,6 +52,7 @@ export class LineFactory {
         // reused pixel coordinate cache
         this.pixels = new Float32Array(262144); // -> 1MB;
         this.alpha = new Float32Array(131072);
+        this.lineLength = new Float32Array(131072);
         this.repeat = {};
     }
 
@@ -63,7 +64,6 @@ export class LineFactory {
         const {pixels, decimals} = this;
         if (!this.length) {
             let t = 0;
-            let lineLength = 0;
             for (let c = 0, length = coordinates.length, x, y, _x, _y; c < length; c++) {
                 x = tile.lon2x(coordinates[c][0], tileSize);
                 y = tile.lat2y(coordinates[c][1], tileSize);
@@ -78,7 +78,7 @@ export class LineFactory {
                     if (t > 2) {
                         const dx = _x - x;
                         const dy = _y - y;
-                        lineLength += Math.sqrt(dx * dx + dy * dy);
+                        this.lineLength[c] = this.lineLength[c - 1] + Math.sqrt(dx * dx + dy * dy);
                     }
                 }
                 _x = x;
@@ -86,7 +86,6 @@ export class LineFactory {
             }
 
             this.length = t;
-            this.lineLength = lineLength;
         }
         return this.length;
     }

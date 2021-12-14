@@ -102,7 +102,7 @@ const addLineString = (
     normal: FlexArray,
     coordinates: Float32Array,
     vLength: number,
-    totalLineLength: number,
+    lengthToSegments: Float32Array,
     tileSize: number,
     removeTileBounds: boolean,
     cap: Cap,
@@ -117,9 +117,10 @@ const addLineString = (
     strokeWidth *= .5;
     const tileMax = tileSize + TILE_CLIP_MARGIN;
     const tileMin = -TILE_CLIP_MARGIN;
+    const d = 2;
+    const totalLineLength = lengthToSegments[vLength / d - 1];
     let absStart = relStart * totalLineLength;
     let absStop = relStop * totalLineLength;
-    let length = 0;
     let _x;
     let _y;
     let c;
@@ -151,7 +152,7 @@ const addLineString = (
     let segmentStartIndex = null;
     let segmentStopIndex = null;
     let _inside = false;
-    let d = 2;
+
 
     for (c = 0; c < vLength; c += 2) {
         let x = coordinates[c];
@@ -196,14 +197,10 @@ const addLineString = (
                     if (segmentStartIndex) {
                         segmentStopIndex = c;
                     }
-                    if (lengthToVertex || relStart || relStop) {
-                        let dx = _x - x;
-                        let dy = _y - y;
-                        length += Math.sqrt(dx * dx + dy * dy);
-                    }
                 }
             }
         }
+
 
         if (segmentStartIndex != null && (segmentStopIndex != null || c == vLength - 2)) {
             // geometry fully inside tile
@@ -214,8 +211,8 @@ const addLineString = (
                 segmentStartIndex = isRing ? -2 : 0;
             }
 
-            length = addSegments(vertex, normal, coordinates, vLength, segmentStartIndex, segmentStopIndex + 2, tileSize,
-                cap, join, strokeWidth, lengthToVertex, length, absStart, absStop, offset, isRing
+            addSegments(vertex, normal, coordinates, lengthToSegments, vLength, segmentStartIndex, segmentStopIndex + 2,
+                tileSize, cap, join, strokeWidth, lengthToVertex, absStart, absStop, offset, isRing
             );
 
             segmentStartIndex = null;
@@ -232,6 +229,7 @@ const addSegments = (
     vertex: FlexArray,
     normal: FlexArray,
     coordinates: Float32Array,
+    lengthToSegments: Float32Array,
     totalLineCoords: number,
     start: number,
     end: number,
@@ -240,25 +238,21 @@ const addSegments = (
     join: Join,
     strokeWidth: number,
     lengthToVertex: number[] | false,
-    lengthSoFar: number = 0,
     absStart?: number,
     absStop?: number,
     offset?: number,
     isRing?: boolean
 ) => {
-    let x1;
-    let y1;
+    let i0 = start;
 
     if (start < 0) {
         // handle rings
-        const i = totalLineCoords - 2 + start;
-        x1 = coordinates[i];
-        y1 = coordinates[i + 1];
-    } else {
-        x1 = coordinates[start];
-        y1 = coordinates[start + 1];
+        i0 = totalLineCoords - 2 + start;
     }
 
+    let x1 = coordinates[i0];
+    let y1 = coordinates[i0 + 1];
+    let lengthSoFar = lengthToSegments[i0 / 2];
     let vLength = end;
     let prevNUp;
     let prevNDown;
@@ -322,13 +316,12 @@ const addSegments = (
 
         first = first == null;
 
-        length = Math.sqrt(dx * dx + dy * dy);
+        const prevLengthSoFar = lengthSoFar;
+        lengthSoFar = lengthToSegments[c / 2];
+        // const totalSegmentLength = // Math.sqrt(dx*dx+dy*dy);
+        const totalSegmentLength = lengthSoFar - prevLengthSoFar;
 
-        let totalSegmentLength = length;
-        let prevLengthSoFar = lengthSoFar;
-
-        // length so far including current segment
-        lengthSoFar += length;
+        length = totalSegmentLength;
 
         if (absStop) {
             if (absStop < lengthSoFar) {
@@ -506,7 +499,6 @@ const addSegments = (
 
 
             if ((!first || last) && lengthSoFar) {
-                // debugger;
                 if (join == CAP_JOIN_ROUND) {
                     if (prevLeft) {
                         // Cone
@@ -680,8 +672,6 @@ const addSegments = (
         prevBisectorLength = bisectorLength;
         prevJoin = curJoin;
     }
-
-    return lengthSoFar;
 };
 
 export {addLineString, normalize};
