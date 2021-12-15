@@ -1,3 +1,18 @@
+## 0.27.0 (2021-12-15)
+### editor
+* added: Editing of Line Features with "MultiLineString" geometry is now supported.
+### display
+* improved: Line-joins of offset polylines now support more acute angles.
+* added: offset Lines with ring geometries are now displayed as closed.
+* added: Styles of type "Circle", "Rect", "Text" and "Image" can now be placed at the centroid/geometric center of polygon geometry. Usage: [Style.anchor="Centroid"](https://heremaps.github.io/xyz-maps/docs/interfaces/core.style.html#anchor)
+* added: The triggering of PointerEvents now takes into account the [Style.offset](https://heremaps.github.io/xyz-maps/docs/interfaces/core.style.html#offset) and empty space between multiple offset lines
+* fixed: In rare cases, lines close to tile-edges can become fragmented.
+* fixed: PointerEvents for Lines with strokeWidth defined in meter were not triggered correctly if the map is zoomed in very close (z20+).
+* fixed: Curves were displayed incorrectly in rare cases.
+### general
+* improved: several typescript declaration related fixes and improvements.
+* fixed: possible dependency resolution issues when using webpack/rollup
+
 ## 0.26.0 (2021-10-7)
 ### editor
 * added: Snap coordinates to Navlink geometry nearby can now be controlled by using [navlink.behavior(...)](https://heremaps.github.io/xyz-maps/docs/classes/editor.navlink.html#behavior)

@@ -1,6 +1,6 @@
 {
   "name": "@here/xyz-maps",
-  "version": "0.26.0",
+  "version": "0.27.0",
   "description": "XYZ Editor is an experimental and work in progress open-source map editor written in TypeScript/JavaScript",
   "author": {
     "name": "HERE Europe B.V.",
