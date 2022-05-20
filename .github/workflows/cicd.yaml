@@ -4,6 +4,7 @@ on:
     push:
         branches:
             - master
+            - dev-3d
     pull_request:
         branches:
             - '*'
