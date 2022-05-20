@@ -21,13 +21,14 @@ import typescript from '@rollup/plugin-typescript';
 import {terser} from 'rollup-plugin-terser';
 import commonjs from '@rollup/plugin-commonjs';
 import nodeResolve from '@rollup/plugin-node-resolve';
-import {string} from 'rollup-plugin-string';
 import virtual from '@rollup/plugin-virtual';
+import glslify from 'rollup-plugin-glslify';
+
 
 const fs = require('fs');
 const pkg = require('./package.json');
 
-const production = process.env.BUILD === 'production';
+let production = process.env.BUILD === 'production';
 
 let sourcemap = true;
 let module = pkg.name.split('-').pop();
@@ -39,10 +40,11 @@ const cOwner = process.env.cOwner || 'XYZ';
 const tacUrl = process.env.tacUrl || '';
 
 
+production = true;
+
 if (production) {
     sourcemap = false;
     file = file.replace('.js', '.min.js');
-
     console.info(`Use logo: ${logoSrc} cOwner: ${cOwner}`);
 }
 
@@ -53,8 +55,9 @@ const createPlugins = () => {
             'ui-default-cOwner': `export default "${cOwner}"`,
             'ui-tac-url': `export default "${tacUrl}"`
         }),
-        string({
-            include: 'src/**/*.glsl'
+        glslify({
+            include: ['src/**/*.glsl'],
+            compress: production
         }),
         nodeResolve(),
         commonjs(),
