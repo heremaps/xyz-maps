@@ -39,9 +39,6 @@ const logoSrc = process.env.logo || './assets/xyz.svg';
 const cOwner = process.env.cOwner || 'XYZ';
 const tacUrl = process.env.tacUrl || '';
 
-
-production = true;
-
 if (production) {
     sourcemap = false;
     file = file.replace('.js', '.min.js');
