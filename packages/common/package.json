@@ -26,10 +26,10 @@
   "browser": {},
   "publishConfig": {},
   "devDependencies": {
-    "@rollup/plugin-typescript": "^8.2.5",
-    "rollup": "^2.55.1",
+    "@rollup/plugin-typescript": "^8.3.2",
+    "rollup": "^2.74.1",
     "rollup-plugin-terser": "^7.0.2",
-    "tslib": "^2.3.0",
-    "typescript": "^4.3.5"
+    "tslib": "^2.4.0",
+    "typescript": "^4.6.4"
   }
 }

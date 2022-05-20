@@ -72,7 +72,7 @@ const HERE_CROSSING_CANDIDATE = HERE_CROSSING + '_CANDIDATE';
 
 
 class CrossingTester {
-    createTS: DOMTimeStamp;
+    createTS: number;
     iEditor: InternalEditor;
 
     private linkOrig: Navlink;

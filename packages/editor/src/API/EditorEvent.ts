@@ -62,7 +62,7 @@ export class EditorEvent {
     /**
      * This property specifies the time at which the event was created in milliseconds relative to 1970-01-01T00:00:00Z.
      */
-    readonly timeStamp: DOMTimeStamp;
+    readonly timeStamp: number;
 
     /**
      * Gives the x coordinate relative to the map HTMLElement in pixels.

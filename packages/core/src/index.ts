@@ -64,7 +64,7 @@ export const build: {
     /**
      * the date when the build was created
      */
-    readonly date: DOMTimeStamp;
+    readonly date: number;
 
     /**
      * the git version used for the build.
