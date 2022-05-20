@@ -161,7 +161,7 @@ class FeatureModifier {
 
         display.update();
     }
-};
+}
 
 
 export default FeatureModifier;

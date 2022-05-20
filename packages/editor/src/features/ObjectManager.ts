@@ -392,10 +392,13 @@ class ObjectManager {
             let defId = feature.id;
             let featureClass;
 
+
             if (!history) {
-                // make sure provider is creating new id (.prepareFeature) and can't be set from userspace...
-                // states are only set from provider if no id is present...
-                feature.id = UNDEF;
+                // ids can only be set from userspace if explicitly allowed by "enforceRandomFeatureId" ...
+                // ... otherwise ids are only set by provider itself ...
+                if (provider.enforceRandomFeatureId) {
+                    feature.id = UNDEF;
+                }
             }
 
             feature = provider.prepareFeature(feature);

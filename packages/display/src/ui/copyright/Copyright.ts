@@ -336,7 +336,7 @@ class Copyright extends UIComponent {
             }
         }
     };
-};
+}
 
 Copyright.prototype.listeners = {
 

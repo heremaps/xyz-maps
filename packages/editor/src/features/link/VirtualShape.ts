@@ -116,7 +116,7 @@ class VirtualLinkShape extends Feature {
             } else if (linePrv.isSelected) {
                 linkTools.showDirection(line);
             }
-        };
+        }
 
         //* *************************************************************************
         super({

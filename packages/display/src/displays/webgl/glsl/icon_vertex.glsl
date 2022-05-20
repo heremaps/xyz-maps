@@ -1,7 +1,7 @@
 precision lowp float;
 
 attribute vec2 a_size;
-attribute highp vec2 a_position;
+attribute highp vec3 a_position;
 attribute vec2 a_texcoord;
 
 uniform mat4 u_matrix;
@@ -29,8 +29,8 @@ void main(void){
         rotation = rotation / 1024.0 * 2.0 * M_PI;// 10bit -> 2PI;
 
         // bit1 is direction/normal vector [-1,+1]
-        vec2 dir = mod(floor(a_position / 2.0), 2.0) * 2.0 - 1.0;
-        vec2 pos = floor(a_position / 4.0) * EXTENT_SCALE;
+        vec2 dir = mod(floor(a_position.xy / 2.0), 2.0) * 2.0 - 1.0;
+        vec2 pos = floor(a_position.xy / 4.0) * EXTENT_SCALE;
 
 
         if (!u_alignMap){
@@ -41,14 +41,16 @@ void main(void){
         float rotCos = cos(rotation);
         mat2 mRotate = mat2(rotCos, -rotSin, rotSin, rotCos);
 
+        float z = a_position.z * SCALE_UINT16_Z;
+
         if (u_alignMap){
             vec2 shift = ((u_offset + dir * vec2(a_size.x, -a_size.y) * 0.5) * mRotate) / u_scale;
-            gl_Position = u_matrix * vec4(u_topLeft + pos + shift, 0.0, 1.0);
+            gl_Position = u_matrix * vec4(u_topLeft + pos + shift, -z, 1.0);
         } else {
-            vec4 cpos = u_matrix * vec4(u_topLeft + pos, 0.0, 1.0);
+            vec4 cpos = u_matrix * vec4(u_topLeft + pos, -z, 1.0);
             vec2 shift = dir * a_size * 0.5 * mRotate;
             vec2 offset = vec2(u_offset.x, -u_offset.y);
-            gl_Position = vec4(cpos.xy / cpos.w + (offset + shift) / u_resolution * 2.0, 0.0, 1.0);
+            gl_Position = vec4(cpos.xy / cpos.w + (offset + shift) / u_resolution * 2.0, cpos.z / cpos.w, 1.0);
         }
 
         if (u_fixedView){

@@ -58,7 +58,7 @@ class ZoomControl extends UIComponent {
     };
 
     ams: number = 250;
-};
+}
 
 ZoomControl.prototype.listeners = {
 

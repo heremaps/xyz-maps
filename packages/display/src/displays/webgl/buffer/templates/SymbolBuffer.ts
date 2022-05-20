@@ -17,17 +17,23 @@
  * License-Filename: LICENSE
  */
 
-import {TemplateBuffer} from './TemplateBuffer';
+import {FlexAttribute, TemplateBuffer} from './TemplateBuffer';
 import {FlexArray} from './FlexArray';
+import {PointBuffer} from './PointBuffer';
 
-export class SymbolBuffer extends TemplateBuffer {
-    constructor() {
-        super(false);
+export class SymbolBuffer extends PointBuffer {
+    flexAttributes: {
+        'a_position': FlexAttribute,
+        'a_size': FlexAttribute,
+        'a_texcoord': FlexAttribute
+    }
 
-        this.attributes = {
+    constructor(flat: boolean = true) {
+        super(flat);
+        this.flexAttributes = {
             a_position: {
                 data: new FlexArray(Uint16Array),
-                size: 2
+                size: flat ? 2 : 3
             },
             a_size: {
                 data: new FlexArray(Uint8Array),
@@ -46,6 +52,6 @@ export class SymbolBuffer extends TemplateBuffer {
         };
 
         this.first = 0;
-        // this.first = this.attributes.a_position.data.length / this.attributes.a_position.data.size;
+        // this.first = this.flexAttributes.a_position.data.length / this.flexAttributes.a_position.data.size;
     }
 }

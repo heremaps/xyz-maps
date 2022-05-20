@@ -16,8 +16,14 @@
  * SPDX-License-Identifier: Apache-2.0
  * License-Filename: LICENSE
  */
+import {PixelPoint} from '../pixel/PixelPoint';
+import {GeoPoint} from '../geo/GeoPoint';
 
 const PI = Math.PI;
+const TO_RAD = PI / 180;
+// 1 times the Polar Radius, and 2 Times the Equatorial radius
+const AVG_EARTH_RADIUS_METERS = (6356752 + 2 * 6378137) / 3;
+const AVG_EARTH_CIRCUMFERENCE_METERS = 2 * PI * AVG_EARTH_RADIUS_METERS;
 
 // ground resolution measured at the equator (earthCircumferenceMeters: 40075017 meters)
 const METER_PER_PIXEL_AT_ZOOM = Array.from({length: 33}, (v, zoom) => 40075017 / 256 / (1 << zoom));
@@ -47,21 +53,23 @@ const x2lon = (x: number, mapSize: number): number => {
 
 const y2lat = (y: number, mapSize: number): number => {
     const y2 = 180 - y * 360 / mapSize;
-    return 360 / PI * Math.atan(Math.exp(y2 * PI / 180)) - 90;
+    return 360 / PI * Math.atan(Math.exp(y2 * TO_RAD)) - 90;
 };
 
-const geoToPixel = (lon: number, lat: number, mapSize: number) => {
-    return {
-        x: lon2x(lon, mapSize),
-        y: lat2y(lat, mapSize)
-    };
+const geoToPixel = (lon: number, lat: number, mapSize: number): PixelPoint => {
+    return new PixelPoint(lon2x(lon, mapSize), lat2y(lat, mapSize));
 };
 
-const pixelToGeo = (x: number, y: number, mapSize: number) => {
-    return {
-        longitude: x2lon(x, mapSize),
-        latitude: y2lat(y, mapSize)
-    };
+const pixelToGeo = (x: number, y: number, mapSize: number): GeoPoint => {
+    return new GeoPoint(x2lon(x, mapSize), y2lat(y, mapSize));
+};
+
+const earthCircumference = (lat: number = 0) => {
+    return AVG_EARTH_CIRCUMFERENCE_METERS * Math.cos(lat * TO_RAD);
+};
+
+const alt2z = (alt: number, lat?: number): number => {
+    return alt / earthCircumference(lat);
 };
 
 export default {
@@ -74,5 +82,7 @@ export default {
     geoToPixel,
     meterToPixel,
     pixelToMeter,
-    getGroundResolution
+    getGroundResolution,
+    alt2z,
+    earthCircumference
 };

@@ -40,6 +40,7 @@ const NULL = null;
 export type EditorEventTypes = 'tap'
     | 'dbltap'
     | 'pointerup'
+    | 'pointerdown'
     | 'pointerenter'
     | 'pointerleave'
     | 'featureUnselected'

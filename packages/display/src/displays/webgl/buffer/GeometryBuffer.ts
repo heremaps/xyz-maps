@@ -21,6 +21,8 @@ import {Attribute} from './Attribute';
 import {glType} from './glType';
 import {Texture} from '../Texture';
 import {GlyphTexture} from '../GlyphTexture';
+import {TemplateBuffer} from './templates/TemplateBuffer';
+import {Raycaster} from '../Raycaster';
 
 type Uniform = number | number[] | Float32Array | Int32Array | boolean;
 
@@ -53,6 +55,8 @@ const GL_UNSIGNED_INT = 0x1405;
 let UNDEF;
 
 class GeometryBuffer {
+    static MODE_GL_LINES: number = 0x0001;
+
     private size: number;
 
     attributes: { [name: string]: Attribute } = {};
@@ -63,22 +67,56 @@ class GeometryBuffer {
 
     type: string;
 
-    alpha: number;
+    alpha: number = 0;
     zIndex?: number;
     zLayer?: number;
     scissor?: boolean;
     depth?: boolean;
     blend?: boolean;
 
+    mode?: number; // primitive to render
+
     flat: boolean = true;
 
+    groups: (IndexGrp | ArrayGrp)[] = [];
 
-    groups: (IndexGrp | ArrayGrp)[];
 
+    idOffsets?: (string | number)[];
+    pointerEvents?: boolean;
+
+    static fromTemplateBuffer(type: string, templBuffer: TemplateBuffer): GeometryBuffer {
+        const {flexAttributes} = templBuffer;
+        let geoBuffer: GeometryBuffer;
+
+        if (templBuffer.hasIndex()) {
+            const index = templBuffer.index();
+
+            if (!index.length) {
+                return null;
+            }
+            geoBuffer = new GeometryBuffer(index, type, templBuffer.i32);
+        } else {
+            geoBuffer = new GeometryBuffer({
+                first: templBuffer.first,
+                count: templBuffer.count()
+            }, type);
+        }
+
+        for (let name in flexAttributes) {
+            let attr = flexAttributes[name];
+            if (attr.data.length) {
+                geoBuffer.addAttribute(name, templBuffer.trimAttribute(attr));
+            }
+        }
+
+        geoBuffer.idOffsets = templBuffer.idOffsets;
+
+        geoBuffer.rayIntersects = templBuffer.rayIntersects;
+
+        return geoBuffer;
+    }
 
     constructor(index?: ArrayData | number[], type?: string, i32?: boolean) {
-        this.groups = [];
-
         if (index) {
             this.addGroup(index, i32);
             this.type = type;
@@ -154,6 +192,19 @@ class GeometryBuffer {
 
     destroy() {
 
+    }
+
+    isPointBuffer() {
+        const {type} = this;
+        return type != 'Line' && type != 'Extrude';
+    }
+
+    isFlat() {
+        return this.flat;
+    }
+
+    rayIntersects(buffer: GeometryBuffer, result, tileX: number, tileY: number, rayCaster: Raycaster): string | number {
+        return null;
     }
 }
 

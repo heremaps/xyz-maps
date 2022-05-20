@@ -49,7 +49,7 @@ class ImageInfo {
         this.u2 = u2;
         this.v2 = v2;
     }
-};
+}
 
 class Atlas {
     private c: LRU<ImageInfo>; // LRU Cache
@@ -75,7 +75,7 @@ class Atlas {
         this.max = imagesPerTexture;
         this.maxSize = maxImgSize;
         this.gl = gl;
-        this.d = atlasDimension; // atlasscale = 1/d
+        this.d = atlasDimension; // atlas-scale = 1/d
         // this.texture = new SharedTexture(gl, {width: textureAtlasSizePixel, height: textureAtlasSizePixel});
     }
 

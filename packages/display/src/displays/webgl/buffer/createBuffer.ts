@@ -140,7 +140,6 @@ const createBuffer = (
 
         onDone: function(taskData: TaskData) {
             const zoomLevel = taskData[6];
-            let extrudeScale = Math.pow(2, 17 - zoomLevel);
             const meterToPixel = 1 / webMercator.getGroundResolution(zoomLevel);
             let buffers = [];
             let geoBuffer: GeometryBuffer;
@@ -171,7 +170,16 @@ const createBuffer = (
                         }
 
 
-                        geoBuffer = grpBuffer.finalize(type);
+                        // geoBuffer = grpBuffer.finalize(type);
+                        geoBuffer = GeometryBuffer.fromTemplateBuffer(type, grpBuffer);
+
+
+                        geoBuffer.pointerEvents = grp.pointerEvents;
+
+                        if (vertexType == 'VerticalLine') {
+                            geoBuffer.groups[0].mode = GeometryBuffer.MODE_GL_LINES;
+                            geoBuffer.type = 'Polygon';
+                        }
 
                         if (geoBuffer == null) continue;
 
@@ -198,7 +206,6 @@ const createBuffer = (
                             geoBuffer.addUniform('u_fill', shared.fill);
 
                             if (type == 'Extrude') {
-                                geoBuffer.addUniform('u_zoom', extrudeScale);
                                 geoBuffer.addUniform('u_strokePass', 0);
                                 geoBuffer.scissor = false;
 
@@ -227,7 +234,7 @@ const createBuffer = (
                                 geoBuffer.addUniform('u_alignMap', shared.alignment == 'map');
 
                                 geoBuffer.addUniform('u_offset', [shared.offsetX, shared.offsetY]);
-                            } else if (type == 'Rect' || type == 'Circle') {
+                            } else if (type == 'Rect' || type == 'Circle' || type == 'Box' || type == 'Sphere') {
                                 geoBuffer.scissor = grpBuffer.scissor;
 
                                 const fill = shared.fill || COLOR_UNDEFINED;
@@ -242,7 +249,7 @@ const createBuffer = (
 
                                 const toPixel = shared.unit == 'm' ? meterToPixel : 0;
 
-                                if (type == 'Circle') {
+                                if (type == 'Circle' || type == 'Sphere') {
                                     // geoBuffer.addUniform('u_radius', shared.radius);
                                     geoBuffer.addUniform('u_radius', [shared.width, toPixel]);
                                 } else {
@@ -262,6 +269,8 @@ const createBuffer = (
                                     shared.offsetX, shared.offsetUnit[0] == 'm' ? meterToPixel : 0,
                                     shared.offsetY, shared.offsetUnit[1] == 'm' ? meterToPixel : 0
                                 ]);
+                            } else if (type == 'VerticalLine') {
+                                geoBuffer.addUniform('u_fill', shared.stroke);
                             }
                         }
 
@@ -287,9 +296,22 @@ const createBuffer = (
                             zIndex = 0;
                         }
 
+
                         zIndex = Number(zIndex);
 
                         geoBuffer.flat = grpBuffer.isFlat();
+
+                        if (!geoBuffer.flat) {
+                            geoBuffer.scissor = false;
+                            // geoBuffer.depth = true;
+                            // geoBuffer.alpha = true;
+
+                            if (grp.depthTest != UNDEF) {
+                                geoBuffer.depth = grp.depthTest;
+                                if (!geoBuffer.alpha) geoBuffer.alpha = 1;
+                            }
+                        }
+
 
                         renderLayer.addZ(zIndex, !geoBuffer.flat);
                         geoBuffer.zIndex = zIndex;

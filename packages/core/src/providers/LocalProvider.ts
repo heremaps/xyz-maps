@@ -52,7 +52,7 @@ export interface LocalProviderOptions extends EditableFeatureProviderOptions {
     storage?: TileStorage;
 
     size?: number
-};
+}
 
 /**
  *  Local feature tile provider.

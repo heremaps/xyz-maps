@@ -31,7 +31,7 @@ export class OverlayProvider extends LocalProvider {
         super(options);
         this.id = 'EOP-' + this.id;
     }
-};
+}
 
 export const createOverlayLayer = (iEdit: InternalEditor): TileLayer => {
     const provider = new OverlayProvider();

@@ -83,6 +83,6 @@ class UI {
             delete components[name];
         }
     };
-};
+}
 
 export default UI;

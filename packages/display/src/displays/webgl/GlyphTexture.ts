@@ -24,8 +24,8 @@ export type FontStyle = {
     font?: string;
     textAlign?: string;
     strokeWidth?: number;
-    stroke?: string;
-    fill?: string;
+    stroke?: string | Float32Array;
+    fill?: string | Float32Array;
 }
 
 class GlyphTexture extends Texture {
@@ -45,12 +45,12 @@ class GlyphTexture extends Texture {
         this.dirty = this.atlas.addChars(text) || this.dirty;
     }
 
-    bufferLength(text: string): number {
+    bufferLength(text: string, dimensions: number = 2): number {
         let cnt = 0;
         for (let c of text) {
             if (c != ' ') cnt++;
         }
-        return cnt * 6 * 2;
+        return cnt * 6 * dimensions;
     }
 
     getAtlas() {

@@ -26,12 +26,14 @@ const EXTENT_SCALE = 64;
 const addText = (
     cx: number,
     cy: number,
+    z: null | number,
     lines: string[],
     offsets: FlexArray,
     vertex: FlexArray,
-    texcoord: FlexArray,
+    textureCoordinates: FlexArray,
     glyphAtlas: GlyphAtlas,
-    rotation = 0
+    rotationZ = 0,
+    rotationY: number | undefined
 ) => {
     const lineCnt = lines.length;
     const lineHeight = glyphAtlas.lineHeight;
@@ -43,22 +45,42 @@ const addText = (
     cy = cy * EXTENT_SCALE << 1 | 1;
 
     // 10 bit rotation precision
-    rotation = Math.round(rotation * 1024 / 360);
+    rotationZ = Math.round(rotationZ * 1024 / 360);
+
+    const hasHeight = z !== null;
+    let dim = 2;
+
+    let dimOff = rotationY == undefined ? 2 : 3;
+    // if (dimOff) {
+    //     offsetData[i * dimOff + 2] = rotationY;
+    // }
+
+    if (hasHeight) {
+        // normalize float meters to uint16 (0m ... +9000m)
+        z = Math.round(z / 9000 * 0xffff);
+        dim = 3;
+    }
+
+
+    let i = vertex.length / dim;
 
     for (let text of lines) {
-        let i = vertex.length;
-        const textData = createTextData(text, glyphAtlas, rotation, offsets, texcoord);
+        const textData = createTextData(text, glyphAtlas, offsets, textureCoordinates, rotationZ, rotationY);
         const tx = textData.width * glyphAtlas.scale / 2 * OFFSET_SCALE;
-        const vertexCnt = textData.count * 2;
+        const vertexCnt = textData.count * dim;
 
         vertex.reserve(vertexCnt);
 
-        for (let offsetData = offsets.data, vertexData = vertex.data, len = i + vertexCnt; i < len; i += 2) {
-            offsetData[i] -= tx;
-            offsetData[i + 1] -= ty;
+        for (let offsetData = offsets.data, vertexData = vertex.data, len = i + vertexCnt / dim; i < len; i++) {
+            offsetData[i * dimOff] -= tx;
+            offsetData[i * dimOff + 1] -= ty;
 
-            vertexData[i] = cx;
-            vertexData[i + 1] = cy;
+            vertexData[i * dim] = cx;
+            vertexData[i * dim + 1] = cy;
+
+            if (hasHeight) {
+                vertexData[i * dim + 2] = <number>z;
+            }
         }
 
         vertex.length += vertexCnt;

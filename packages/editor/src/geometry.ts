@@ -18,6 +18,7 @@
  */
 
 import {GeoJSONCoordinate as Point} from '@here/xyz-maps-core';
+import {vec3} from '@here/xyz-maps-common';
 
 const MATH = Math;
 const PI = MATH.PI;
@@ -176,7 +177,6 @@ export const getPntOnLine = (g1: Point, g2: Point, p: Point): Point | false => {
         let iPnt: Point = [p[0], g1[1]];
         return isOnLine(g1, g2, iPnt) ? iPnt : false;
     }
-
     const gM = (g2[1] - g1[1]) / (g2[0] - g1[0]);
     const gB = g1[1] - (gM * g1[0]);
     const pM = -1 / gM;
@@ -188,8 +188,33 @@ export const getPntOnLine = (g1: Point, g2: Point, p: Point): Point | false => {
     return isOnLine(g1, g2, iPnt) ? iPnt : false;
 };
 
+export const getClosestPntOnLine = (l1: Point, l2: Point, p: Point, clamp?: boolean) => {
+    const l1p = vec3.sub([], p, l1);
+    const l1l2 = vec3.sub([], l2, l1);
+    const dir = vec3.sub([], l2, l1);
+    let t = vec3.dot(l1l2, l1p) / vec3.dot(l1l2, l1l2);
+    if (clamp) {
+        t = Math.max(0, Math.min(1, t));
+    }
+    vec3.scale(dir, dir, t);
+    return vec3.add(dir, dir, l1);
+};
+
+export const rayIntersectPlane = (rayVector: Point, rayPoint: Point, planeNormal: Point, planePoint: Point) => {
+    const d = vec3.sub([], rayPoint, planePoint);
+    const p1 = vec3.dot(d, planeNormal);
+    const p2 = vec3.dot(rayVector, planeNormal);
+    const p3 = p1 / p2;
+
+    if (p3 == Infinity) return null;
+
+    return vec3.sub([], rayPoint, vec3.scale([], rayVector, p3));
+};
+
 export const getPntAt = (p1: Point, p2: Point, percent: number): Point => {
-    return [(p2[0] - p1[0]) * percent + p1[0], (p2[1] - p1[1]) * percent + p1[1]];
+    let z1 = p1[2] || 0;
+    let z2 = p2[2] || 0;
+    return [(p2[0] - p1[0]) * percent + p1[0], (p2[1] - p1[1]) * percent + p1[1], z1 + (z2 - z1) * percent];
 };
 
 export const distanceToLine = (p: Point, l1: Point, l2: Point): number => {

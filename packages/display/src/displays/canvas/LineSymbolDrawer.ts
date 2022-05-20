@@ -99,6 +99,6 @@ class LineSymbolDrawer {
             p1y = p2y;
         }
     }
-};
+}
 
 export default LineSymbolDrawer;

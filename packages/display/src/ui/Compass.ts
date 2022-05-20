@@ -59,7 +59,7 @@ class Compass extends UIComponent {
             this.a = null;
         }
     };
-};
+}
 
 Compass.prototype.listeners = {
 

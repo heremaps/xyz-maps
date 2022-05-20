@@ -40,7 +40,7 @@ import {
     GeoPoint,
     GeoRect,
     utils,
-    GeoJSONFeatureCollection, GeoJSONFeature, GeoJSONBBox
+    GeoJSONFeatureCollection, GeoJSONFeature, GeoJSONBBox, FeatureProvider
 } from '@here/xyz-maps-core';
 import {FlightAnimator} from './animation/FlightAnimator';
 import Copyright from './ui/copyright/Copyright';
@@ -332,26 +332,21 @@ export class Map {
 
     private initViewPort(): [number, number] {
         const currentScale = this._s;
-        let cOffsetX = this._w / 2;
-        let cOffsetY = this._h / 2;
+        const worldSizePixel = this._wSize;
+        const centerWorldPixelX = this._cw.x;
+        const centerWorldPixelY = this._cw.y;
 
-        let centerWorldPixelX = this._cw.x;
-        let centerWorldPixelY = this._cw.y;
+        const cOffsetX = this._w / 2;
+        const cOffsetY = this._h / 2;
 
-        let topLeftWorldX = centerWorldPixelX - cOffsetX / currentScale;
-        let topLeftWorldY = centerWorldPixelY - cOffsetY / currentScale;
+        const topLeftWorldX = centerWorldPixelX - cOffsetX / currentScale;
+        const topLeftWorldY = centerWorldPixelY - cOffsetY / currentScale;
 
         this._tlwx = topLeftWorldX;
         this._tlwy = topLeftWorldY;
 
-        // topLeftX = centerWorldPixelX - this._w / currentScale / 2;
-        // topLeftY = centerWorldPixelY - this._h / currentScale / 2;
-
         this._ox = centerWorldPixelX - cOffsetX - topLeftWorldX;
         this._oy = centerWorldPixelY - cOffsetY - topLeftWorldY;
-
-
-        const worldSizePixel = this._wSize;
 
         let topLeftLon = project.x2lon(topLeftWorldX, worldSizePixel);
         let topLeftLat = project.y2lat(topLeftWorldY, worldSizePixel);
@@ -372,9 +367,9 @@ export class Map {
 
         this._mvcRecognizer.watch(true);
 
-        display.setTransform(this._s, this._rz, this._rx);
+        display.setTransform(this._s, this._rz, this._rx, this._wSize);
 
-        display.updateGrid(this.initViewPort(), this._z, this._ox, this._oy);
+        display.updateGrid(this.initViewPort(), this._c, this._z, this._ox, this._oy);
 
         if (prevCenterGeo[LON] != centerGeo[LON] || prevCenterGeo[LAT] != centerGeo[LAT]) {
             this._l.trigger('center', ['center', centerGeo, prevCenterGeo], true);
@@ -660,8 +655,6 @@ export class Map {
         layers?: TileLayer | TileLayer[]
     }): { feature: Feature, layer: TileLayer } | undefined {
         options = options || {};
-        (<any>options).topOnly = true;
-
         const results = this.getFeaturesAt(position, options);
 
         if (results.length) {
@@ -694,12 +687,13 @@ export class Map {
          * defines the layer(s) to search in.
          */
         layers?: TileLayer | TileLayer[],
-        // /**
-        //  * if set to true only the top most feature will be returned. [default: false]
-        //  * @deprecated
-        //  */
-        // topOnly?: boolean
+        /**
+         * @hidden
+         * @internal
+         */
+        skip3d?: boolean
     }): { features: Feature[], layer: TileLayer }[] {
+        let skip3d = false;
         let x1;
         let x2;
         let y1;
@@ -707,12 +701,30 @@ export class Map {
 
         options = options || {};
 
+        let {layers} = options;
+        if (layers && !Array.isArray(layers)) {
+            layers = [layers];
+        }
+
+
         // its a point
         if ((<PixelPoint>position).x != UNDEF && (<PixelPoint>position).y != UNDEF) {
             let x = (<PixelPoint>position).x;
             let y = (<PixelPoint>position).y;
             let w = options.width ^ 0;
             let h = options.height || w;
+
+            if (!w && !h) {
+                // "pixel search"
+                skip3d = true;
+                const featureInfo = this._display.getRenderedFeatureAt(x, y, <TileLayer[]>layers || this._layers);
+                if (featureInfo.id != null) {
+                    const layer = layers[featureInfo.layerIndex];
+                    const provider = <FeatureProvider>layer.getProvider(this.getZoomlevel() ^ 0);
+                    const feature = provider.search && provider.search(featureInfo.id);
+                    if (feature) return [{layer, features: [feature]}];
+                }
+            }
 
             x1 = x - w / 2;
             x2 = x + w / 2;
@@ -729,8 +741,8 @@ export class Map {
 
         return x1 != UNDEF && this._search.search(
             x1, y1, x2, y2,
-            options.layers
-            // options.topOnly
+            <TileLayer[]>layers,
+            skip3d
         );
     };
 
@@ -956,7 +968,7 @@ export class Map {
                     this._wSize = Math.pow(2, this._z) * TILESIZE;
                 }
 
-                this._display.setTransform(scale * Math.pow(.5, deltaFixedZoom), this._rz, this._rx);
+                this._display.setTransform(scale * Math.pow(.5, deltaFixedZoom), this._rz, this._rx, this._wSize);
 
                 const uFixed = this._display.unproject(fixedX, fixedY);
 
@@ -1250,23 +1262,51 @@ export class Map {
      */
     pixelToGeo(position: PixelPoint): GeoPoint;
     pixelToGeo(x: number | PixelPoint, y?: number): GeoPoint {
-        const worldSizePixel = this._wSize;
-
         if (arguments.length == 1) {
             y = (<PixelPoint>x).y;
             x = (<PixelPoint>x).x;
         }
+
+        const p = this._unprj(<number>x, y);
+        const [lon, lat] = this._w2g(p);
+
+        return new GeoPoint(lon, lat);
+    };
+
+    /**
+     * Converts from screenspace coordinates to worldspace coordinates (webmercator).
+     * @param screen - coordinate in screenspace [x,y,z]
+     *
+     * @internal
+     * @hidden
+     */
+    _unprj(x: number, y: number, z?: number): number[] {
+        if (Array.isArray(x)) {
+            [x, y, z] = x;
+        }
         const screenOffsetX = this._ox;
         const screenOffsetY = this._oy;
+        const p = this._display.unproject(x, y, z);
+        // compensate map scale
+        p[0] += screenOffsetX;
+        p[1] += screenOffsetY;
 
-        // converts screenpixel to unprojected screenpixels
-        let p = this._display.unproject(<number>x, <number>y);
+        return p;
+    }
 
+    /**
+     * worldPixel to geographical world coordinates
+     * @param p - untransformed world coordinate in pixel relative to screen
+     *
+     * @internal
+     * @hidden
+     */
+    _w2g(p: number[]): number[] {
+        const worldSizePixel = this._wSize;
         const topLeftWorldX = this._tlwx;
         const topLeftWorldY = this._tlwy;
-
-        let worldX = p[0] + topLeftWorldX + screenOffsetX;
-        let worldY = p[1] + topLeftWorldY + screenOffsetY;
+        let worldX = p[0] + topLeftWorldX;
+        let worldY = p[1] + topLeftWorldY;
 
         worldX %= worldSizePixel;
         worldY %= worldSizePixel;
@@ -1275,11 +1315,12 @@ export class Map {
             worldY += worldSizePixel;
         }
 
-        return new GeoPoint(
+        return [
             project.x2lon(worldX, worldSizePixel),
-            project.y2lat(worldY, worldSizePixel)
-        );
-    };
+            project.y2lat(worldY, worldSizePixel),
+            p[2]
+        ];
+    }
 
     /**
      * Convert a geographical coordinate to a pixel coordinate relative to the current viewport of the map.
@@ -1305,6 +1346,23 @@ export class Map {
             lon = (<GeoPoint>lon).longitude;
         }
 
+        let [x, y] = this._g2w(<number>lon, lat);
+
+        [x, y] = this._prj([x, y]);
+
+        return new PixelPoint(x, y);
+    };
+
+    /**
+     * converts from geographical coordinate (wgs84) to projected world coordinates (webmercator)
+     *
+     * @internal
+     * @hidden
+     */
+    _g2w(lon: number | number[], lat?: number, alt?: number): [number, number, number] {
+        if (Array.isArray(lon)) {
+            [lon, lat, alt] = lon;
+        }
         if (lat < MIN_LATITUDE) {
             lat = MIN_LATITUDE;
         } else if (lat > MAX_LATITUDE) {
@@ -1313,12 +1371,24 @@ export class Map {
         const worldSizePixel = this._wSize;
         const topLeftWorldX = this._tlwx;
         const topLeftWorldY = this._tlwy;
-        const screenX = project.lon2x(<number>lon, worldSizePixel) - topLeftWorldX;
-        const screenY = project.lat2y(<number>lat, worldSizePixel) - topLeftWorldY;
-        const pixel = this._display.project(screenX, screenY);
+        return [
+            project.lon2x(<number>lon, worldSizePixel) - topLeftWorldX,
+            project.lat2y(<number>lat, worldSizePixel) - topLeftWorldY,
+            alt || 0
+        ];
+    }
 
-        return new PixelPoint(pixel[0], pixel[1]);
-    };
+    /**
+     * Converts from pixel coordinates in worldspace (webmercator) to pixels in screenspace.
+     * @param geo - coordinate in worldspace [lon,lat,alt]
+     * @param worldPixel - indicates if coordinate should be returned in worldpixel (relative to screen) or screenpixel.
+     *
+     * @internal
+     * @hidden
+     */
+    _prj(world: number[]): number[] {
+        return this._display.project(world[0], world[1], world[2]);
+    }
 
     /**
      * Destroy the the map.

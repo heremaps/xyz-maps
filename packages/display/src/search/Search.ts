@@ -48,7 +48,8 @@ export class Search {
         y1: number,
         x2: number,
         y2: number,
-        layers: TileLayer | TileLayer[]
+        layers: TileLayer | TileLayer[],
+        skip3d: boolean
     ): {
         layer: TileLayer,
         features: Feature[]
@@ -124,7 +125,7 @@ export class Search {
                     feature = features[length];
 
                     if (featureStyle = layer.getStyleGroup(feature, tileGridZoom)) {
-                        if (dimensions = hit.feature(x, y, halfWidth, halfHeight, feature, featureStyle, layerIndex, zoomlevel)) {
+                        if (dimensions = hit.feature(x, y, halfWidth, halfHeight, feature, featureStyle, layerIndex, zoomlevel, skip3d)) {
                             let zIndex = dimensions[dimensions.length - 1];
                             let zOrdered = results[zIndex] = results[zIndex] || [];
                             let zOrderedLayer = zOrdered[layerIndex] = zOrdered[layerIndex] || [];
@@ -166,26 +167,23 @@ export class Search {
         y: number,
         x2: number,
         y2: number,
-        layers: TileLayer | TileLayer[]
+        layers: TileLayer[],
+        skip3d?: boolean
     ): { layer: TileLayer, features: Feature[] }[] {
         const {map} = this;
         const defaultLayers = map._layers;
 
         if (layers) {
-            if (layers instanceof Array) {
-                // layers need to be sorted correctly to make sure result is sorted by drawing hierarchy
-                layers = layers.slice().sort((l1, l2) => {
-                    return Number(defaultLayers.indexOf(l1) > defaultLayers.indexOf(l2));
-                });
-            } else {
-                layers = [layers];
-            }
+            // layers need to be sorted correctly to make sure result is sorted by drawing hierarchy
+            layers = layers.slice().sort((l1, l2) => {
+                return Number(defaultLayers.indexOf(l1) > defaultLayers.indexOf(l2));
+            });
         } else {
             layers = defaultLayers;
         }
 
         if (isNumber(x) && isNumber(y) && isNumber(x2) && isNumber(y2)) {
-            return this.getFeaturesInRect(x, y, x2, y2, layers);
+            return this.getFeaturesInRect(x, y, x2, y2, layers, skip3d);
         }
     };
 }

@@ -18,7 +18,7 @@
  */
 
 import BasicRender from '../BasicRender';
-import {Tile, TileLayer} from '@here/xyz-maps-core';
+import {tile, Tile, TileLayer} from '@here/xyz-maps-core';
 import GLTile from './GLTile';
 import {IconManager} from './IconManager';
 import {RGBA, toRGB} from './color';
@@ -32,6 +32,8 @@ import ImageProgram from './program/Image';
 import TextProgram from './program/Text';
 import IconProgram from './program/Icon';
 import ExtrudeProgram from './program/Extrude';
+import BoxProgram from './program/Box';
+import SphereProgram from './program/Sphere';
 import Program from './program/Program';
 
 import {createGridTextBuffer, createGridTileBuffer, createTileBuffer} from './buffer/debugTileBuffer';
@@ -60,7 +62,7 @@ import {Attribute} from './buffer/Attribute';
 
 const mat4 = {create, lookAt, multiply, perspective, rotateX, rotateZ, translate, scale, clone, copy, invert, identity};
 
-
+const PI2 = 2 * Math.PI;
 const FIELD_OF_VIEW = 45 * Math.PI / 180;
 
 const unclip = (v, dim) => Math.round((v + 1) / 2.0 * dim);
@@ -83,8 +85,8 @@ export type BufferCache = WeakMap<Attribute | IndexData, WebGLBuffer>;
 export class GLRender implements BasicRender {
     icons: IconManager;
     private vMat: Float32Array; // view matrix
-    private pMat: Float32Array; // projection matrix
-    private invPMat: Float32Array; // inverse projection matrix
+    private vPMat: Float32Array; // projection matrix
+    private invVPMat: Float32Array; // inverse projection matrix
     screenMat: Float32Array;
     invScreenMat: Float32Array;
 
@@ -95,6 +97,7 @@ export class GLRender implements BasicRender {
         s: number; // scale
     }
 
+    private zMeterToPixel: number;
     private scale: number;
     private rz: number;
     private rx: number;
@@ -104,8 +107,9 @@ export class GLRender implements BasicRender {
     private zIndex: number; // current zIndex buffer should be drawn
     private min3dZIndex: number; // min zIndex containing 3d/extruded data
 
+
     tileGrid: boolean = false;
-    tileSize: number = 256;
+    // tileSize: number = 256;
 
     private dpr: number; // devicePixelRatio
     private w: number;
@@ -113,13 +117,14 @@ export class GLRender implements BasicRender {
 
     private dbgTile = createGridTileBuffer();
     private stencilTile: GeometryBuffer;
-
     private depthFnc: GLenum;
-    pass: PASS;
+    private ctxAttr: WebGLContextAttributes;
+    private depthBufferSize: number;
 
+    pass: PASS;
     buffers: BufferCache = new WeakMap();
     gl: WebGLRenderingContext;
-    private ctxAttr: WebGLContextAttributes;
+    zIndexLength: number;
     fixedView: number;
 
     constructor(renderOptions: RenderOptions) {
@@ -134,9 +139,9 @@ export class GLRender implements BasicRender {
         };
 
 
-        this.pMat = mat4.create();
+        this.vPMat = mat4.create();
         this.vMat = mat4.create();
-        this.invPMat = mat4.create();
+        this.invVPMat = mat4.create();
         this.screenMat = mat4.create();
         this.invScreenMat = mat4.create();
 
@@ -199,6 +204,8 @@ export class GLRender implements BasicRender {
         gl.colorMask(true, true, true, true);
         gl.disable(gl.SCISSOR_TEST);
         gl.depthMask(true);
+
+
         gl.clear(gl.COLOR_BUFFER_BIT | gl.DEPTH_BUFFER_BIT | gl.STENCIL_BUFFER_BIT);
 
         gl.colorMask(true, true, true, false);
@@ -216,7 +223,7 @@ export class GLRender implements BasicRender {
             console.warn(EXTENSION_OES_ELEMENT_INDEX_UINT + ' not supported!');
         }
         // gl.frontFace(gl.CW);
-        gl.enable(gl.CULL_FACE);
+        // gl.enable(gl.CULL_FACE);
         gl.cullFace(gl.FRONT);
         gl.enable(gl.DEPTH_TEST);
         gl.enable(gl.SCISSOR_TEST);
@@ -224,6 +231,8 @@ export class GLRender implements BasicRender {
         // gl.enable(gl.DEPTH_TEST);
 
         gl.clearStencil(0);
+
+        this.depthBufferSize = 1 << gl.getParameter(gl.DEPTH_BITS);
 
         const texUnits = gl.getParameter(gl.MAX_VERTEX_TEXTURE_IMAGE_UNITS);
 
@@ -238,7 +247,9 @@ export class GLRender implements BasicRender {
             Circle: new CircleProgram(gl, devicePixelRation),
             Polygon: new PolygonProgram(gl, devicePixelRation),
             Extrude: new ExtrudeProgram(gl, devicePixelRation),
-            Icon: new IconProgram(gl, devicePixelRation)
+            Icon: new IconProgram(gl, devicePixelRation),
+            Box: new BoxProgram(gl, devicePixelRation),
+            Sphere: new SphereProgram(gl, devicePixelRation)
         };
 
         for (let name in this.programs) {
@@ -261,8 +272,8 @@ export class GLRender implements BasicRender {
 
     }
 
-    initView(pixelWidth: number, pixelHeight: number, scale: number, rotX: number, rotZ: number) {
-        const projectionMatrix = this.pMat;
+    initView(pixelWidth: number, pixelHeight: number, scale: number, rotX: number, rotZ: number, groundRes: number) {
+        const projectionMatrix = this.vPMat;
         const viewMatrix = this.vMat;
 
         //                                . alpha°
@@ -302,7 +313,7 @@ export class GLRender implements BasicRender {
 
         this.w = pixelWidth;
         this.h = pixelHeight;
-        this.rz = rotZ;
+        this.rz = (rotZ + PI2) % PI2;
         this.rx = rotX;
         this.scale = scale;
 
@@ -310,23 +321,32 @@ export class GLRender implements BasicRender {
 
         mat4.perspective(projectionMatrix, FIELD_OF_VIEW, pixelWidth / pixelHeight, zNear, zFar);
 
+        this.zMeterToPixel = 1 / groundRes;
+
         // {mat4} mat4.lookAt(out, eye, center, up)
         mat4.lookAt(viewMatrix, [centerPixelX, centerPixelY, -targetZ], [centerPixelX, centerPixelY, 0], [0, -1, 0]);
+
+
         mat4.translate(viewMatrix, viewMatrix, [centerPixelX, centerPixelY, 0]);
         mat4.rotateX(viewMatrix, viewMatrix, rotX);
         mat4.rotateZ(viewMatrix, viewMatrix, rotZ);
-        mat4.scale(viewMatrix, viewMatrix, [scale, scale, scale]);
+        mat4.scale(viewMatrix, viewMatrix, [
+            scale,
+            scale,
+            // scale z axis to meter/pixel
+            scale / groundRes
+        ]);
         mat4.translate(viewMatrix, viewMatrix, [-centerPixelX, -centerPixelY, 0]);
 
         mat4.multiply(projectionMatrix, projectionMatrix, viewMatrix);
 
-        invert(this.invPMat, this.pMat);
+        invert(this.invVPMat, this.vPMat);
 
         // convert from clipspace to screen.
         let screenMatrix = mat4.identity(this.screenMat);
         mat4.scale(screenMatrix, screenMatrix, [centerPixelX, -centerPixelY, 1]);
         mat4.translate(screenMatrix, screenMatrix, [1, -1, 0]);
-        mat4.multiply(screenMatrix, screenMatrix, this.pMat);
+        mat4.multiply(screenMatrix, screenMatrix, this.vPMat);
 
         invert(this.invScreenMat, screenMatrix);
 
@@ -382,11 +402,12 @@ export class GLRender implements BasicRender {
         return false;
     }
 
-    drawGrid(x: number, y: number, dTile: GLTile, tileSize: number | string) {
+    drawGrid(x: number, y: number, dTile: GLTile, tileSize: number) {
         const curPass = this.pass;
 
         this.pass = PASS.ALPHA;
         // this.pass = 'opaque';
+
         this.drawBuffer(this.dbgTile, x, y, null, null, <number>tileSize); // , {depth: false, scissor: false});
 
         let textBuffer: GeometryBuffer = this.gridTextBuf.get(dTile);
@@ -433,6 +454,48 @@ export class GLRender implements BasicRender {
         }
     }
 
+
+    initGroundDepth(x: number, y: number, tileScale?: number
+    ) {
+        const gl = this.gl;
+        const buffer = this.stencilTile;
+        let program = this.programs[buffer.type];
+
+        program.pass(this.pass);
+
+        let bufAttributes = buffer.getAttributes();
+        this.initBuffers(bufAttributes);
+
+        this.useProgram(program);
+
+        gl.depthRange(0, 1.0);
+
+        gl.depthMask(true);
+        gl.disable(gl.STENCIL_TEST);
+        gl.disable(gl.SCISSOR_TEST);
+        gl.enable(gl.DEPTH_TEST);
+
+        program.initAttributes(bufAttributes);
+        program.initUniforms(buffer.uniforms);
+
+        const uLocation = program.uniforms;
+
+        gl.uniform2f(uLocation.u_topLeft, x, y);
+        gl.uniform1f(uLocation.u_tileScale, tileScale || 1);
+        gl.uniformMatrix4fv(uLocation.u_matrix, false, this.vPMat);
+
+        gl.clear(gl.DEPTH_BUFFER_BIT);
+        gl.depthFunc(gl.ALWAYS);
+        // gl.polygonOffset(1, 1);
+        // gl.enable(gl.POLYGON_OFFSET_FILL);
+        gl.colorMask(false, false, false, false);
+        program.draw(buffer);
+        gl.colorMask(true, true, true, false);
+        // gl.disable(gl.POLYGON_OFFSET_FILL);
+        gl.depthFunc(this.depthFnc);
+    }
+
+
     private drawBuffer(
         buffer: GeometryBuffer,
         x: number,
@@ -455,7 +518,8 @@ export class GLRender implements BasicRender {
             dZoom = dZoom || 1;
 
             const zIndex = this.zIndex;
-            const isOnTopOf3d = zIndex > this.min3dZIndex;
+            const isOnTopOf3d = (buffer.flat && zIndex > this.min3dZIndex);
+            // const isOnTopOf3d = (buffer.flat && zIndex > this.min3dZIndex) || buffer.isPointBuffer();
             const isSecondAlphaPass = buffer.alpha == PASS.POST_ALPHA && renderPass == PASS.POST_ALPHA;
 
             if (buffer.alpha || isOnTopOf3d) {
@@ -477,13 +541,15 @@ export class GLRender implements BasicRender {
                 // initialise pass default
                 gl.depthFunc(this.depthFnc);
 
-                const depth = 1 - (1 + zIndex) / (1 << 16);
+                const depth = (65535 - zIndex) / 65536;
+                // const depth = 1 - (1 + zIndex) / (1 << 16);
 
                 gl.depthRange(buffer.flat ? depth : 0, depth);
 
-                program.init(<GLStates>buffer, renderPass,
+                program.init(buffer, renderPass,
                     // only use stencil when needed.. no need if map is untransformed
-                    Boolean(this.rx || this.rz)
+                    Boolean(this.rx || this.rz),
+                    zIndex
                 );
 
                 if (isOnTopOf3d) {
@@ -502,12 +568,14 @@ export class GLRender implements BasicRender {
                 gl.uniform1f(uLocation.u_scale, this.scale * dZoom);
                 gl.uniform2f(uLocation.u_topLeft, x, y);
                 gl.uniform1f(uLocation.u_tileScale, tileScale || 1);
-                gl.uniformMatrix4fv(uLocation.u_matrix, false, pMat || this.pMat);
+                gl.uniformMatrix4fv(uLocation.u_matrix, false, pMat || this.vPMat);
+                gl.uniformMatrix4fv(uLocation.u_inverseMatrix, false, this.invVPMat);
+
+                gl.uniform1f(uLocation.u_zMeterToPixel, this.zMeterToPixel / dZoom);
 
                 program.draw(buffer);
             }
-        }
-        // else console.warn('no program found', group.type);
+        } else console.warn('no program found', buffer.type);
     }
 
 
@@ -588,7 +656,7 @@ export class GLRender implements BasicRender {
                 let ymax = xmax;
 
                 for (let p of [lowerLeft, lowerRight, upperLeft, upperRight]) {
-                    p = transformMat4([], p, this.pMat);
+                    p = transformMat4([], p, this.vPMat);
                     let x = unclip(p[0], w);
                     let y = unclip(p[1], h);
                     if (x < xmin) xmin = x;
@@ -602,10 +670,9 @@ export class GLRender implements BasicRender {
         }
     }
 
-    draw(data: TileBufferData, min3dZIndex: number): void {
+    draw(bufferData: TileBufferData, min3dZIndex: number): void {
         let scissored = false;
         let stenciled = false;
-        let bufferData = data;
         let screenTile = bufferData.tile;
         let dTile = <GLTile>screenTile.tile;
         let tileSize = screenTile.size;
@@ -680,16 +747,16 @@ export class GLRender implements BasicRender {
     }
 
     private initPreviewMatrix(tx: number, ty: number, s: number): Float32Array {
-        const {tilePreviewTransform} = this;
+        const {tilePreviewTransform, vPMat} = this;
         const {m} = tilePreviewTransform;
         if (
             tilePreviewTransform.tx != tx ||
             tilePreviewTransform.ty != ty ||
             tilePreviewTransform.s != s
         ) {
-            mat4.copy(m, this.pMat);
+            mat4.copy(m, vPMat);
             mat4.translate(m, m, [tx, ty, 0]);
-            mat4.scale(m, m, [s, s, s]);
+            mat4.scale(m, m, [s, s, 1]);
 
             tilePreviewTransform.tx = tx;
             tilePreviewTransform.ty = ty;

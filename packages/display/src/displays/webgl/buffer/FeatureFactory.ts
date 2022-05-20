@@ -24,7 +24,7 @@ import {addIcon} from './addIcon';
 import earcut from 'earcut';
 import {calcBBox, getTextString, getValue, parseSizeValue, Style, StyleGroup} from '../../styleTools';
 import {defaultFont, wrapText} from '../../textUtils';
-import {GlyphTexture} from '../GlyphTexture';
+import {FontStyle, GlyphTexture} from '../GlyphTexture';
 import {toRGB} from '../color';
 import {IconManager} from '../IconManager';
 import {DashAtlas} from '../DashAtlas';
@@ -40,6 +40,11 @@ import {toPresentationFormB} from '../arabic';
 import {Tile, Feature, GeoJSONCoordinate as Coordinate, GeoJSONCoordinate} from '@here/xyz-maps-core';
 import {Texture} from '../Texture';
 import {TemplateBuffer} from './templates/TemplateBuffer';
+import {addVerticalLine} from './addVerticalLine';
+import {BoxBuffer} from './templates/BoxBuffer';
+import {addBox} from './addBox';
+import {addSphere} from './addSphere';
+import {SphereBuffer} from './templates/SphereBuffer';
 
 
 const DEFAULT_STROKE_WIDTH = 1;
@@ -63,8 +68,9 @@ export type CollisionGroup = {
 };
 
 type DrawGroup = {
-    type: string
-    zLayer: number
+    type: string,
+    zLayer: number,
+    depthTest: boolean,
     shared: {
         unit: string,
         font: string,
@@ -77,6 +83,7 @@ type DrawGroup = {
         strokeDasharray: number[],
         width: number,
         height: number,
+        depth: number,
         rotation: number,
         offsetX: number,
         offsetY: number,
@@ -85,7 +92,8 @@ type DrawGroup = {
     }
     texture?: Texture,
     buffer?: TemplateBuffer,
-    extrudeStrokeIndex?: number []
+    extrudeStrokeIndex?: number [],
+    pointerEvents?: boolean
 };
 
 type ZDrawGroup = {
@@ -132,31 +140,34 @@ export class FeatureFactory {
 
     createPoint(
         type: string,
-        group,
+        group: DrawGroup,
         x: number,
         y: number,
+        z: number | null,
         style: Style,
         feature: Feature,
         collisionData: CollisionData,
-        alpha: number = 0,
+        rotationZ: number = 0,
+        rotationY: number | undefined,
         text?: string,
         defaultLineWrap?: number | boolean
     ) {
+        const isFlat = z === null;
         const level = this.z;
         let positionBuffer;
         let collisionBufferStart;
         let collisionBufferStop;
 
         // make sure rotation is 0->360 deg
-        alpha = (alpha + 360) % 360;
+        rotationZ = (rotationZ + 360) % 360;
 
         if (type == 'Text') {
             if (!group.texture) {
                 group.texture = new GlyphTexture(this.gl, group.shared);
-                group.buffer = new TextBuffer();
+                group.buffer = new TextBuffer(isFlat, rotationY != undefined);
             }
-            const {texture} = group;
-            const {attributes} = group.buffer;
+            const texture = <GlyphTexture>group.texture;
+            const {flexAttributes} = group.buffer;
 
             texture.addChars(text);
 
@@ -168,31 +179,29 @@ export class FeatureFactory {
             }
             const lines = wrapText(text, lineWrap);
 
-            positionBuffer = attributes.a_position;
-            collisionBufferStart = attributes.a_texcoord.data.length;
-            collisionBufferStop = collisionBufferStart + texture.bufferLength(text);
+            positionBuffer = flexAttributes.a_position;
+            collisionBufferStart = positionBuffer.data.length;
+            collisionBufferStop = collisionBufferStart + texture.bufferLength(text, isFlat ? 2 : 3);
 
             addText(
-                x, y,
+                x, y, z,
                 lines,
-                attributes.a_point.data,
-                attributes.a_position.data,
-                attributes.a_texcoord.data,
+                flexAttributes.a_point.data,
+                flexAttributes.a_position.data,
+                flexAttributes.a_texcoord.data,
                 fontInfo,
-                alpha
+                rotationZ,
+                rotationY
             );
         } else {
             if (type == 'Icon') {
-                if (!group.buffer) {
-                    group.buffer = new SymbolBuffer();
-                }
-                positionBuffer = group.buffer.attributes.a_position;
+                group.buffer ||= new SymbolBuffer(isFlat);
+
+                const groupBuffer = group.buffer;
+                const {flexAttributes} = groupBuffer;
                 const src = getValue('src', style, feature, level);
                 const width = getValue('width', style, feature, level);
                 const height = getValue('height', style, feature, level) || width;
-                const groupBuffer = group.buffer;
-                const {attributes} = groupBuffer;
-
                 const img = this.icons.get(src, width, height);
 
                 if (!img) {
@@ -200,32 +209,58 @@ export class FeatureFactory {
                     return;
                 }
 
+                positionBuffer = flexAttributes.a_position;
+
                 addIcon(
-                    x, y,
+                    x, y, z,
                     img,
                     width, height,
-                    attributes.a_size.data,
+                    flexAttributes.a_size.data,
                     positionBuffer.data,
-                    attributes.a_texcoord.data,
-                    alpha
+                    flexAttributes.a_texcoord.data,
+                    rotationZ
                 );
                 group.texture = this.icons.getTexture();
             } else if (type == 'Circle' || type == 'Rect') {
-                if (!group.buffer) {
-                    group.buffer = new PointBuffer();
-                }
-                positionBuffer = group.buffer.attributes.a_position;
+                group.buffer ||= new PointBuffer(isFlat);
 
-                addPoint(x, y, positionBuffer.data);
+
+                positionBuffer = group.buffer.flexAttributes.a_position;
+
+                addPoint(x, y, z, positionBuffer.data);
             } else {
-                // unknown style-type
-                return;
+                if (type == 'Sphere') {
+                    let width = 2 * getValue('radius', style, feature, level);
+
+                    group.buffer ||= new SphereBuffer(isFlat);
+
+                    positionBuffer = group.buffer.flexAttributes.a_position;
+
+                    addSphere(x, y, z, width, positionBuffer.data, group.buffer.flexAttributes.a_point.data, group.buffer.flexAttributes.a_normal.data);
+                } else if (type == 'Box') {
+                    let width = getValue('width', style, feature, level);
+                    let height = getValue('height', style, feature, level) || width;
+                    let depth = getValue('depth', style, feature, level) || width;
+
+                    group.buffer ||= new BoxBuffer(isFlat);
+
+                    positionBuffer = group.buffer.flexAttributes.a_position;
+
+                    addBox(x, y, z, width, height, depth, positionBuffer.data, group.buffer.flexAttributes.a_point.data, group.buffer.flexAttributes.a_normal.data);
+                } else {
+                    if (z > 0 && type == 'VerticalLine') {
+                        addVerticalLine(group, x, y, z);
+                    }
+                    // unknown style-type
+                    return;
+                }
             }
 
             collisionBufferStop = positionBuffer.data.length;
             collisionBufferStart = collisionBufferStop - 12;
         }
 
+        group.buffer.setIdOffset(feature.id);
 
         if (collisionData && positionBuffer) {
             collisionData.attrs.push({
@@ -372,8 +407,11 @@ export class FeatureFactory {
             strokeScale = strokeWidthScale;
             sizeUnit = 'px';
             offsetUnit = UNDEF;
+            let depth;
+            let pointerEvents = true;
 
             rotation = getValue('rotation', style, feature, level) ^ 0;
+            let altitude = getValue('altitude', style, feature, level);
 
             if (type == 'Icon') {
                 offsetX = getValue('offsetX', style, feature, level) ^ 0;
@@ -381,12 +419,18 @@ export class FeatureFactory {
 
                 alignment = getValue('alignment', style, feature, level) || 'viewport';
 
-                groupId = 'I' + offsetX + offsetY;
+                groupId = (altitude ? 'AI' : 'I') + offsetX + offsetY + (alignment || '');
             } else {
                 stroke = getValue('stroke', style, feature, level);
                 strokeWidth = getValue('strokeWidth', style, feature, level);
 
-                if (type == 'Line') {
+
+                if (type == 'VerticalLine') {
+                    groupId = 'VL' + stroke;
+                    if (altitude == UNDEF) {
+                        altitude = true;
+                    }
+                } else if (type == 'Line') {
                     if (!stroke || !strokeWidth) continue;
 
                     const [value, unit] = parseSizeValue(strokeWidth);
@@ -409,7 +453,7 @@ export class FeatureFactory {
                     // store line offset/unit in shared offsetXY
                     [offsetX, offsetUnit] = parseSizeValue(offset);
 
-                    groupId = 'L' + sizeUnit + offsetX + offsetUnit + strokeLinecap + strokeLinejoin + (strokeDasharray || NONE);
+                    groupId = (altitude ? 'AL' : 'L') + sizeUnit + offsetX + offsetUnit + strokeLinecap + strokeLinejoin + (strokeDasharray || NONE);
                 } else {
                     fill = getValue('fill', style, feature, level);
 
@@ -453,7 +497,7 @@ export class FeatureFactory {
                             width = height = getValue('radius', style, feature, level);
                             [width, sizeUnit] = parseSizeValue(width);
 
-                            groupId = 'C' + sizeUnit + width || NONE;
+                            groupId = (altitude ? 'AC' : 'C') + sizeUnit + width || NONE;
                         } else if (type == 'Rect') {
                             width = getValue('width', style, feature, level);
                             [width, sizeUnit] = parseSizeValue(width);
@@ -461,7 +505,23 @@ export class FeatureFactory {
                             height = getValue('height', style, feature, level);
                             height = !height ? width : parseSizeValue(height)[0];
 
-                            groupId = 'R' + rotation + sizeUnit + width + height;
+                            groupId = (altitude ? 'AR' : 'R') + rotation + sizeUnit + width + height;
+                        } else if (type == 'Box') {
+                            // width = getValue('width', style, feature, level);
+                            // [width, sizeUnit] = parseSizeValue(width);
+                            // height = getValue('height', style, feature, level);
+                            // depth = getValue('depth', style, feature, level);
+
+
+                            pointerEvents = getValue('pointerEvents', style, feature, level);
+
+                            groupId = 'B' + rotation + pointerEvents; // + sizeUnit + width + height;
+                        } else if (type == 'Sphere') {
+                            width = height = getValue('radius', style, feature, level);
+                            [width, sizeUnit] = parseSizeValue(width);
+
+                            pointerEvents = getValue('pointerEvents', style, feature, level);
+                            groupId = 'S' + width + pointerEvents;
                         } else {
                             continue;
                         }
@@ -474,7 +534,7 @@ export class FeatureFactory {
                         [offsetX, offsetUnit[0]] = parseSizeValue(offsetX);
                         [offsetY, offsetUnit[1]] = parseSizeValue(offsetY);
 
-                        groupId += offsetX + offsetUnit[0] + offsetY + offsetUnit[1];
+                        groupId += offsetX + offsetUnit[0] + offsetY + offsetUnit[1] + (alignment || '');
                     }
                 }
                 if (fill) {
@@ -523,31 +583,44 @@ export class FeatureFactory {
                 groupId = zLayer + ':' + groupId;
             }
 
+            let depthTest;
+
+            if (altitude) {
+                depthTest = getValue('depthTest', style, feature, level);
+                if (!depthTest) {
+                    groupId = 'ND' + groupId;
+                }
+            }
+
+
             zGrouped = groups[zIndex] = groups[zIndex] || {index: {}, groups: []};
             index = zGrouped.index[groupId];
 
             if (index == UNDEF) {
                 index = zGrouped.index[groupId] = zGrouped.groups.length;
                 group = zGrouped.groups[index] = {
-                    type: type,
-                    zLayer: zLayer,
+                    type,
+                    zLayer,
+                    depthTest,
+                    pointerEvents,
                     shared: {
                         unit: sizeUnit,
-                        font: font,
+                        font,
                         fill: fillRGBA, // && fillRGBA.slice(0, 3),
-                        opacity: opacity,
+                        opacity,
                         stroke: strokeRGBA, // && strokeRGBA.slice(0, 3),
-                        strokeWidth: strokeWidth,
-                        strokeLinecap: strokeLinecap,
-                        strokeLinejoin: strokeLinejoin,
-                        strokeDasharray: strokeDasharray,
-                        width: width,
-                        height: height,
-                        rotation: rotation,
-                        offsetX: offsetX,
-                        offsetY: offsetY,
-                        offsetUnit: offsetUnit,
-                        alignment: alignment
+                        strokeWidth,
+                        strokeLinecap,
+                        strokeLinejoin,
+                        strokeDasharray,
+                        width,
+                        height,
+                        depth,
+                        rotation,
+                        offsetX,
+                        offsetY,
+                        offsetUnit,
+                        alignment
                     }
                     // ,index: []
                 };
@@ -556,30 +629,44 @@ export class FeatureFactory {
             }
 
             if (geomType == 'Point') {
-                const x = tile.lon2x((<GeoJSONCoordinate>coordinates)[0], tileSize);
-                const y = tile.lat2y((<GeoJSONCoordinate>coordinates)[1], tileSize);
-
-                if (collisionGroup) {
-                    collisionData = this.collisions.insert(
-                        x, y,
-                        collisionGroup.offsetX,
-                        collisionGroup.offsetY,
-                        collisionGroup.width,
-                        collisionGroup.height,
-                        tile, tileSize,
-                        collisionGroup.priority
-                    );
-
-                    if (!collisionData) {
-                        return this.iconsLoaded;
+                if (type == 'VerticalLine') {
+                    if (typeof altitude == 'number' || coordinates[2] > 0) {
+                        const z = typeof altitude == 'number' ? altitude : <number>coordinates[2];
+                        if (z > 0) {
+                            const x = tile.lon2x((<GeoJSONCoordinate>coordinates)[0], tileSize);
+                            const y = tile.lat2y((<GeoJSONCoordinate>coordinates)[1], tileSize);
+                            addVerticalLine(group, x, y, z);
+                        }
                     }
-                    // make sure collision is not check for following styles of stylegroup
-                    collisionGroup = null;
+                } else {
+                    const x = tile.lon2x((<GeoJSONCoordinate>coordinates)[0], tileSize);
+                    const y = tile.lat2y((<GeoJSONCoordinate>coordinates)[1], tileSize);
+                    const z = typeof altitude == 'number' ? altitude : altitude ? <number>coordinates[2] || 0 : null;
+                    // const z = extrude ? <number>coordinates[2] || 0 : null;
+
+                    if (collisionGroup) {
+                        collisionData = this.collisions.insert(
+                            x, y,
+                            collisionGroup.offsetX,
+                            collisionGroup.offsetY,
+                            collisionGroup.width,
+                            collisionGroup.height,
+                            tile, tileSize,
+                            collisionGroup.priority
+                        );
+
+                        if (!collisionData) {
+                            return this.iconsLoaded;
+                        }
+                        // make sure collision is not check for following styles of stylegroup
+                        collisionGroup = null;
+                    }
+
+                    this.createPoint(type, group, x, y, z, style, feature, collisionData, rotation, undefined, text);
                 }
-                this.createPoint(type, group, x, y, style, feature, collisionData, rotation, text);
             } else if (geomType == 'LineString') {
                 if (type == 'Line') {
-                    this.lineFactory.createLine(
+                    let vertexLength = this.lineFactory.createLine(
                         <GeoJSONCoordinate[]>coordinates,
                         group,
                         tile,
@@ -589,10 +676,13 @@ export class FeatureFactory {
                         strokeLinecap,
                         strokeLinejoin,
                         strokeWidth,
+                        altitude,
                         offsetX,
                         getValue('from', style, feature, level),
                         getValue('to', style, feature, level)
                     );
+
+                    group.buffer.setIdOffset(feature.id);
                 } else {
                     let anchor = getValue('anchor', style, feature, level);
                     if (anchor == UNDEF) {
@@ -642,6 +732,7 @@ export class FeatureFactory {
 
                         this.lineFactory.placeAtSegments(
                             <GeoJSONCoordinate[]>coordinates,
+                            altitude,
                             tile, tileSize,
                             checkCollisions && this.collisions,
                             priority,
@@ -650,8 +741,8 @@ export class FeatureFactory {
                             w, h,
                             applyRotation,
                             checkLineSpace,
-                            (x, y, alpha, collisionData) => {
-                                this.createPoint(type, group, x, y, style, feature, collisionData, alpha + rotation, text, false);
+                            (x, y, z, rotationZ, rotationY, collisionData) => {
+                                this.createPoint(type, group, x, y, z, style, feature, collisionData, rotationZ + rotation, rotationY, text, false);
                             }
                         );
                     } else {
@@ -665,13 +756,14 @@ export class FeatureFactory {
 
                         this.lineFactory.placeAtPoints(
                             <GeoJSONCoordinate[]>coordinates,
+                            altitude,
                             tile, tileSize,
                             checkCollisions && this.collisions,
                             priority,
                             w, h,
                             offsetX, offsetY,
-                            (x, y, alpha, collisionData) => {
-                                this.createPoint(type, group, x, y, style, feature, collisionData, alpha + rotation, text);
+                            (x, y, z, rotZ, rotY, collisionData) => {
+                                this.createPoint(type, group, x, y, z, style, feature, collisionData, rotZ + rotation, UNDEF, text);
                             }
                         );
                     }
@@ -687,8 +779,8 @@ export class FeatureFactory {
 
                     const groupBuffer = group.buffer;
                     const vIndex = groupBuffer.index();
-                    const {attributes} = groupBuffer;
-                    const aPosition = attributes.a_position.data;
+                    const {flexAttributes} = groupBuffer;
+                    const aPosition = flexAttributes.a_position.data;
 
                     flatPolyStart = aPosition.length;
 
@@ -701,7 +793,7 @@ export class FeatureFactory {
 
                         flatPoly = addExtrude(
                             aPosition,
-                            attributes.a_normal.data,
+                            flexAttributes.a_normal.data,
                             vIndex,
                             <GeoJSONCoordinate[][]>coordinates,
                             tile,
@@ -713,6 +805,9 @@ export class FeatureFactory {
                     } else if (type == 'Polygon') {
                         flatPoly = addPolygon(aPosition, <GeoJSONCoordinate[][]>coordinates, tile, tileSize);
                     }
+
+                    group.buffer.setIdOffset(feature.id);
+
 
                     if (!triangles) {
                         const geom = <any>feature.geometry;
@@ -761,7 +856,6 @@ export class FeatureFactory {
                 coordinates
             };
 
-
             const [x1, y1, x2, y2] = collisionBox;
             const halfWidth = (x2 - x1) * .5;
             const halfHeight = (y2 - y1) * .5;
@@ -777,4 +871,3 @@ export class FeatureFactory {
         return this.iconsLoaded;
     }
 }
-

@@ -127,7 +127,7 @@ const tools = {
         const shapes = lineStrings[lineStringIndex] = lineStrings[lineStringIndex] || [];
 
         for (let i = 0; i < path.length; i++) {
-            shapes[i] = new Shape(line, [path[i][0], path[i][1]], lineStringIndex, i, tools);
+            shapes[i] = new Shape(line, path[i].slice(), lineStringIndex, i, tools);
             line._e().objects.overlay.addFeature(shapes[i]);
         }
     },

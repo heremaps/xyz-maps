@@ -21,18 +21,19 @@ import {TemplateBuffer} from './TemplateBuffer';
 import {FlexArray} from './FlexArray';
 
 export class TextBuffer extends TemplateBuffer {
-    constructor() {
-        super(false);
+    constructor(flat: boolean = true, rotY?: boolean) {
+        super(flat);
 
-        this.attributes = {
+        this.flexAttributes = {
             // LSB x,y defines visibility -> 14bit position precision (use LSB:x only to increase to 15bit)
             a_position: {
                 data: new FlexArray(Uint16Array),
-                size: 2
+                size: flat ? 2 : 3
             },
             a_point: {
                 data: new FlexArray(Int16Array),
-                size: 2
+                // 16 bit used for rotationY
+                size: rotY ? 3 : 2
             },
             // bit1 -> bit5  - rotation low  (x), rotation height (y)
             // bit6 -> bit16 - texture coordinate
@@ -47,6 +48,5 @@ export class TextBuffer extends TemplateBuffer {
         };
 
         this.first = 0;
-        // this.first = this.attributes.a_position.data.length / this.attributes.a_position.data.size;
     }
 }

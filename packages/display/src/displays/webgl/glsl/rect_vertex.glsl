@@ -1,6 +1,6 @@
 precision lowp float;
 
-attribute highp vec2 a_position;
+attribute highp vec3 a_position;
 uniform float u_scale;
 
 uniform vec4 u_size;
@@ -31,8 +31,8 @@ void main(void){
     if (mod(a_position.x, 2.0) == 1.0)
     {
         // bit1 is direction/normal vector [-1,+1]
-        vec2 dir = mod(floor(a_position / 2.0), 2.0) * 2.0 - 1.0;
-        vec2 pos = floor(a_position / 4.0) * EXTENT_SCALE;
+        vec2 dir = mod(floor(a_position.xy / 2.0), 2.0) * 2.0 - 1.0;
+        vec2 pos = floor(a_position.xy / 4.0) * EXTENT_SCALE;
         vec2 size = vec2(toPixel(u_size.xy), toPixel(u_size.zw));
 
         size = (size + u_strokeWidth) * .5;
@@ -49,15 +49,17 @@ void main(void){
 
         vec2 pixel_offset = vec2(toPixel(u_offset.xy), toPixel(u_offset.zw));
 
+        float z = a_position.z * SCALE_UINT16_Z;
+
         if (u_alignMap){
             vec2 shift = (pixel_offset + dir * vec2(size.x, -size.y) * mRotate) / u_scale;
-            gl_Position = u_matrix * vec4(u_topLeft + pos + shift, 0.0, 1.0);
+            gl_Position = u_matrix * vec4(u_topLeft + pos + shift, -z, 1.0);
         } else {
-            vec4 cpos = u_matrix * vec4(u_topLeft + pos, 0.0, 1.0);
+            vec4 cpos = u_matrix * vec4(u_topLeft + pos, -z, 1.0);
             vec2 shift = dir * size * mRotate;
             vec2 offset = pixel_offset * vec2(1.0, -1.0);
 
-            gl_Position = vec4(cpos.xy / cpos.w + (offset + shift) / u_resolution * 2.0, 0.0, 1.0);
+            gl_Position = vec4(cpos.xy / cpos.w + (offset + shift) / u_resolution * 2.0, cpos.z / cpos.w, 1.0);
         }
 
         vSize = size;

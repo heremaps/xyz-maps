@@ -56,7 +56,7 @@ export class MVTLayer extends TileLayer {
         const remoteMin = remote['min'] || 1;
         const remoteMax = remote['max'] || 16;
 
-        let tileSize = remote['tileSize'];
+        let tileSize = options['tileSize']||remote['tileSize'];
 
         const name = options['name'] || '';
         const layerMax = options['max'] || DEFAULT_LAYER_MAX_ZOOM;

@@ -42,21 +42,22 @@ const findNextDir = (text, i, glyphAtlas) => {
 
 type TextData = { x: number; x2: number; offset: number; }
 
-const addGlyph = (c: string, glyphAtlas: GlyphAtlas, rotation: number, positions: FlexArray, texcoords: FlexArray, data: TextData) => {
-    let {offset} = data;
+const addGlyph = (c: string, glyphAtlas: GlyphAtlas, rotationZ: number, rotationY: number | undefined, positions: FlexArray, texcoords: FlexArray, data: TextData) => {
+    let {offset, x} = data;
     let {spaceWidth} = glyphAtlas;
     let glyphInfo = glyphAtlas.glyphInfos[c];
-    let x = data.x;
     let x2 = 0;
 
     const positionData = positions.data;
+    const hasRotY = rotationY != undefined;
+
     let p = positions.length;
     const texcoordData = texcoords.data;
     let t = texcoords.length;
 
 
-    let rotationHi = rotation >> 5;
-    let rotationLow = (rotation & 31);
+    let rotationHi = rotationZ >> 5;
+    let rotationLow = (rotationZ & 31);
 
     if (glyphInfo) {
         // let {u1, v1, u2, v2, glyph} = glyphInfo;
@@ -75,20 +76,44 @@ const addGlyph = (c: string, glyphAtlas: GlyphAtlas, rotation: number, positions
         positionData[p++] = sx;
         positionData[p++] = 0;
 
+        if (hasRotY) {
+            positionData[p++] = rotationY;
+        }
+
         positionData[p++] = x2;
         positionData[p++] = height;
+
+        if (hasRotY) {
+            positionData[p++] = rotationY;
+        }
 
         positionData[p++] = sx;
         positionData[p++] = height;
 
+        if (hasRotY) {
+            positionData[p++] = rotationY;
+        }
+
         positionData[p++] = x2;
         positionData[p++] = 0;
+
+        if (hasRotY) {
+            positionData[p++] = rotationY;
+        }
 
         positionData[p++] = x2;
         positionData[p++] = height;
 
+        if (hasRotY) {
+            positionData[p++] = rotationY;
+        }
+
         positionData[p++] = sx;
         positionData[p++] = 0;
+
+        if (hasRotY) {
+            positionData[p++] = rotationY;
+        }
 
         texcoordData[t++] = u1;
         texcoordData[t++] = v1;
@@ -128,7 +153,8 @@ const addText = (
     stop: number,
     isRTL: boolean,
     glyphAtlas: GlyphAtlas,
-    rotation: number,
+    rotationZ: number,
+    rotationY: number | undefined,
     positions: FlexArray,
     texcoords: FlexArray,
     txtData: TextData
@@ -144,7 +170,7 @@ const addText = (
                 while (--k >= 0) {
                     if (!isDigit(text.charCodeAt(k))) {
                         while (++k <= j) {
-                            addGlyph(text.charAt(k), glyphAtlas, rotation, positions, texcoords, txtData);
+                            addGlyph(text.charAt(k), glyphAtlas, rotationZ, rotationY, positions, texcoords, txtData);
                             flipped++;
                         }
                         break;
@@ -156,30 +182,37 @@ const addText = (
                 }
             }
         }
-        addGlyph(c, glyphAtlas, rotation, positions, texcoords, txtData);
+        addGlyph(c, glyphAtlas, rotationZ, rotationY, positions, texcoords, txtData);
     }
 };
 
 export const createTextData = (
     text: string,
     glyphAtlas: GlyphAtlas,
-    rotation: number = 0,
-    positions?: FlexArray,
-    texcoords?: FlexArray
+    positions: FlexArray,
+    texcoords: FlexArray,
+    rotationZ: number = 0,
+    rotationY?: undefined | number
 ) => {
     const len = text.length;
 
-    if (!positions) {
-        positions = new FlexArray(Int16Array, len * 18);
-    } else {
-        positions.reserve(len * 18);
+    // if (!positions) {
+    //     positions = new FlexArray(Int16Array, len * 18);
+    // } else {
+    positions.reserve(len * 18);
+    // }
+    //
+    // if (!texcoords) {
+    //     texcoords = new FlexArray(Uint16Array, len * 12);
+    // } else {
+    texcoords.reserve(len * 12);
+    // }
+
+
+    if (rotationY) {
+        rotationY = 32767 * rotationY / (2 * Math.PI) ^ 0;
     }
 
-    if (!texcoords) {
-        texcoords = new FlexArray(Uint16Array, len * 12);
-    } else {
-        texcoords.reserve(len * 12);
-    }
 
     const txtData = {
         x: 0,
@@ -191,7 +224,7 @@ export const createTextData = (
     let startIndex = 0;
     let prevChar;
 
-    rotation = Math.round(rotation);
+    rotationZ = Math.round(rotationZ);
 
     // BIDI text is considered as experimental and has known issues
     for (let i = 0; i < len; i++) {
@@ -224,7 +257,7 @@ export const createTextData = (
                     }
                 }
                 end++;
-                addText(text, startIndex, end, prevDirection == RIGHT_TO_LEFT, glyphAtlas, rotation, positions, texcoords, txtData);
+                addText(text, startIndex, end, prevDirection == RIGHT_TO_LEFT, glyphAtlas, rotationZ, rotationY, positions, texcoords, txtData);
                 startIndex = end;
             }
         }
@@ -240,7 +273,7 @@ export const createTextData = (
                 rtl = prevDirection != baseDirection;
             }
 
-            addText(text, startIndex, end, rtl, glyphAtlas, rotation, positions, texcoords, txtData);
+            addText(text, startIndex, end, rtl, glyphAtlas, rotationZ, rotationY, positions, texcoords, txtData);
         }
 
         if (curDirection) {

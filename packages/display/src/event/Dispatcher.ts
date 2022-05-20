@@ -163,9 +163,7 @@ export class EventDispatcher {
                 x: pos[0],
                 y: pos[1]
             }, {
-                layers: map._layers.filter(function(l) {
-                    return l.pointerEvents();
-                })
+                layers: map._layers.filter((l) => l.pointerEvents())
             });
         }
 

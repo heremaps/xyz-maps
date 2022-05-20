@@ -28,6 +28,7 @@ import global from './global';
 import Set from './Set';
 import Map from './Map';
 import Queue from './Queue';
+import * as vec3 from './Vec3';
 
 // make sure global ns is also available for webpack users.
 let scp: any = global;
@@ -36,10 +37,10 @@ let scp: any = global;
 // support for deprecated root namespace
 (<any>global).HERE = (<any>global).here;
 
-const common = {LRU, TaskManager, Listener, parseJSONArray, JSUtils, geotools, global, Queue, Set, Map};
+const common = {LRU, TaskManager, Listener, parseJSONArray, JSUtils, geotools, global, Queue, Set, Map, vec3};
 
 scp.common = common;
 
-export {LRU, TaskManager, Task, TaskOptions, Listener, parseJSONArray, JSUtils, geotools, global, Queue, Set, Map};
+export {LRU, TaskManager, Task, TaskOptions, Listener, parseJSONArray, JSUtils, geotools, global, Queue, Set, Map, vec3};
 
 export default common;

@@ -13,5 +13,8 @@ void main(void){
     float alpha = 1.0 - clamp(.5 * (width - v_width.s + v_width.t) / v_width.t, .0, 1.);
 
     gl_FragColor = u_fill;
+
+    if (v_width.t == 0.0 && alpha < 1.0) discard;
+
     gl_FragColor.a *= alpha;
 }

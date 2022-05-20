@@ -22,10 +22,8 @@ import vertexShader from '../glsl/image_vertex.glsl';
 // @ts-ignore
 import fragmentShader from '../glsl/image_fragment.glsl';
 
-import {JSUtils} from '@here/xyz-maps-common';
 import Program from './Program';
 import {GLStates} from './GLStates';
-import {GeometryBuffer} from '../buffer/GeometryBuffer';
 
 
 class ImageProgram extends Program {
@@ -40,17 +38,6 @@ class ImageProgram extends Program {
     constructor(gl: WebGLRenderingContext, devicePixelRation: number) {
         super(gl, gl.TRIANGLES, vertexShader, fragmentShader, devicePixelRation);
     }
-
-    draw(geoBuffer: GeometryBuffer) {
-        const {gl} = this;
-
-        const {texture} = geoBuffer;
-        if (texture) {
-            gl.activeTexture(gl.TEXTURE0);
-            texture.bind();
-        }
-        super.draw(geoBuffer);
-    };
 }
 
 export default ImageProgram;

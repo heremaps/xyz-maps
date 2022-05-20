@@ -61,34 +61,43 @@ export type StyleZoomRange<Type> = { [zoom: number]: Type }
  * - Image: "src" and "width" must be included. "height" will be set with the same value as "width" if only "width" is present.
  * - Line: "stroke" must be included.
  * - Polygon: "fill" or "stroke" must be included.
+ * - Box: "width" must be included, while "height" and "depth" will be set with the same value as "width" if only "width" is present. Either "fill" or "stroke" should be included
+ * - Sphere: A style of type Sphere must include "radius" and "fill".
+ * - VerticalLine: "stroke" must be included.
  *
  * @example
  * ```typescript
  * // example of Circle:
- * {zIndex:0, type:"Circle", radius:16, fill:"#FFFF00"}
+ * {zIndex: 0, type: "Circle", radius: 16, fill: "#FFFF00"}
  *
  * // example of Rect:
- * {zIndex:0, type:"Rect", fill:"#4C9EEF", stroke:"#0156BB", width:20, height:20}
+ * {zIndex: 0, type: "Rect", fill: "#4C9EEF", stroke: "#0156BB", width: 20, height: 20}
  *
  * // example of Text:
- * {zIndex:1, type:"Text", fill:"#FFFFFF", text:"HERE", font:"normal 12px Arial"}
+ * {zIndex:1, type: "Text", fill: "#FFFFFF", text: "HERE", font: "normal 12px Arial"}
  *
  * // example of Image:
- * {zIndex:0, type:"Image", src:"./here.png", width:20, height:20}
+ * {zIndex: 0, type: "Image", src: "./xyz.png", width: 20, height: 20}
  *
  * // example of Line:
- * {zIndex:0, type:"Line", opacity:0.5, stroke:"#BE6B65", strokeLinecap:"round", strokeLinejoin:"round", strokeWidth:16}
+ * {zIndex: 0, type: "Line", opacity: 0.5, stroke: "#BE6B65", strokeLinecap: "round", strokeLinejoin: "round", strokeWidth: 16}
  *
  * // example of Polygon:
- * {zIndex:0, type:"Polygon", opacity:0.5, stroke:"#BE6B65", fill:"#FFFFFF"}
+ * {zIndex: 0, type: "Polygon", opacity: 0.5, stroke: "#BE6B65", fill: "#FFFFFF"}
+ *
+ * // example of Box:
+ * {zIndex: 0, type: "Box", width: 16, height: 16, depth: 16, stroke: "#BE6B65", fill: "#FFFFFF"}
+ *
+ * // example of Sphere:
+ * {zIndex: 0, type: "Sphere", radius: 16, fill: "#FFFFFF"}
  * ```
  */
 export interface Style {
     /**
      * Indicates type of the shape to render.
-     * Its value must be one of the following: "Circle", "Rect", "Text", "Image", "Line" or "Polygon".
+     * Its value must be one of the following: "Circle", "Rect", "Text", "Image", "Line", "Polygon", "VerticalLine", "Box" or "Sphere",
      */
-    type: 'Circle' | 'Rect' | 'Image' | 'Text' | 'Line' | 'Polygon' | string;
+    type: 'Circle' | 'Rect' | 'Image' | 'Text' | 'Line' | 'Polygon' | 'VerticalLine' | 'Box' | 'Sphere' | string;
 
     /**
      * Indicates the drawing order within a layer.
@@ -182,6 +191,8 @@ export interface Style {
      * - "square" has essentially the same appearance, but stretches the stroke slightly beyond the actual path. The distance that the stroke goes beyond the path is half the strokeWidth.
      * - "round" produces a rounded effect on the end of the stroke. The radius of this curve is also controlled by the strokeWidth.
      * This attribute is valid for Line styles only.
+     *
+     * If "strokeLinecap" is used in combination with "altitude", only "butt" is supported for "strokeLinecap".
      */
     strokeLinecap?: string | StyleValueFunction<string> | StyleZoomRange<string>;
 
@@ -191,6 +202,8 @@ export interface Style {
      * - "round" creates a rounded line segment.
      * - "bevel" creates a new angle to aid in the transition between the two segments.
      * This attribute is valid for Line styles only.
+     *
+     * If "strokeLinejoin" is used in combination with "altitude", the use of "round" is not supported.
      */
     strokeLinejoin?: string | StyleValueFunction<string> | StyleZoomRange<string>;
 
@@ -211,10 +224,22 @@ export interface Style {
     opacity?: number | StyleValueFunction<number> | StyleZoomRange<number>;
 
     /**
-     * The Radius of the Circle.
-     * It is required by styles of type "Circle".
+     * The Radius of the Circle and Sphere.
+     * It is required by styles of type "Circle" and "Sphere".
      * The default unit is pixels.
-     * To define the radius in meters a string can be used: "$\{width\}m".
+     * To define the radius of a Circle in meters a string can be used: "$\{width\}m".
+     * The radius of "Sphere" must be defined in pixels.
+     *
+     * @example
+     * ```typescript
+     * // define a Sphere with a radius of 32 pixel.
+     * {
+     *     zIndex: 0,
+     *     type: "Sphere",
+     *     fill: "red",
+     *     radius: 32
+     * }
+     * ```
      * @example
      * ```typescript
      * // define a Circle with a radius of 1 meter
@@ -237,7 +262,7 @@ export interface Style {
 
     /**
      * Width of the style in pixels.
-     * It is only required by Rect and Image.
+     * It is only required by Rect, Image and Box.
      * The maximum supported width for "Image" is 64 pixels.
      * The unit of width is defined in pixels.
      * For styles of type "Rect" the width can also be defined in meters by using a string: "$\{width\}m".
@@ -304,6 +329,26 @@ export interface Style {
      * ```
      */
     height?: number | StyleValueFunction<number> | StyleZoomRange<number>;
+
+    /**
+     * The depth of the style in pixels.
+     * The depth defines the length of the edges of a "Box" parallel to the Z axis.
+     * The unit of depth is defined in pixels and only required by styles of type "Box".
+     * @example
+     * ```typescript
+     * // define a Box that has a width, height and depth of 16px
+     * {
+     *     zIndex: 0,
+     *     type: "Box",
+     *     stroke: "blue",
+     *     fill: "red",
+     *     width: 16,
+     *     height: 16,
+     *     depth: 16
+     * }
+     * ```
+     */
+    depth?: number | StyleValueFunction<number> | StyleZoomRange<number>;
 
     /**
      * CSS font string for texts.
@@ -484,7 +529,7 @@ export interface Style {
      *
      * @defaultValue For Polygon geometry the default is "Center". For Line geometry the default for styles of type "Text" is "Line", while "Coordinate" is the default for styles of type "Circle", "Rect" or "Image".
      */
-    anchor?: 'Line' | 'Coordinate'
+    anchor?: 'Line' | 'Coordinate' | 'Centroid'
 
     /**
      * Enable or disable the space check for point styles on line geometries.
@@ -524,6 +569,20 @@ export interface Style {
      * @defaultValue 0
      */
     extrudeBase?: number | StyleValueFunction<number> | StyleZoomRange<number>;
+
+    /**
+     * The altitude of the style in meters.
+     * The altitude defines the distance in the vertical direction between the ground plane at 0 meters and the geometry/style.
+     * If altitude is set to true, the altitude from the feature's geometry coordinates will be used automatically.
+     * If a number is set for altitude, the altitude of the feature's geometry is ignored and the value of "altitude" is used instead.
+     * The height must be defined in meters.
+     * This attribute is validate for styles of type "Rect", "Image", "Text", "Circle", "Line", "Box" or "Sphere".
+     *
+     * @defaultValue false
+     *
+     * @experimental
+     */
+    altitude?: number | boolean | StyleValueFunction<number | boolean> | StyleZoomRange<number | boolean>
 }
 
 export type StyleGroupMap = { [id: string]: StyleGroup }

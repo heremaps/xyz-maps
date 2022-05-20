@@ -17,29 +17,24 @@
  * License-Filename: LICENSE
  */
 
-import {TemplateBuffer} from './TemplateBuffer';
+
 import {FlexArray} from './FlexArray';
+import {PolygonBuffer} from './PolygonBuffer';
+import {FlexAttribute} from './TemplateBuffer';
 
-export class ExtrudeBuffer extends TemplateBuffer {
+export class ExtrudeBuffer extends PolygonBuffer {
+    flexAttributes: {
+        'a_position': FlexAttribute,
+        'a_normal': FlexAttribute
+    };
+
     constructor() {
-        super(true);
+        super(false);
 
-        this._flat = false;
-
-        this.attributes = {
-            // vertex
-            a_position: {
-                data: new FlexArray(Float32Array),
-                size: 3
-            },
-            a_normal: {
-                data: new FlexArray(Int8Array),
-                size: 2,
-                normalized: true
-            }
+        this.flexAttributes.a_normal = {
+            data: new FlexArray(Int8Array),
+            size: 2,
+            normalized: true
         };
-
-        this.first = 0;
-        // this.first = this.attributes.a_position.data.length / this.attributes.a_position.data.size;
     }
 }

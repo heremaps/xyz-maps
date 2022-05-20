@@ -81,7 +81,10 @@ class Feature extends GeoJSONFeature {
      * @hidden
      * @internal
      */
-    __: { [privateProperty: string]: any }
+    __: {
+        b?: { [behavior: string]: any };
+        [privateProperty: string]: any
+    }
 
     constructor(geojsonFeature, provider?: EditableProvider) {
         super(geojsonFeature, provider);

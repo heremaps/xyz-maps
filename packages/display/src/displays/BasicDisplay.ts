@@ -18,7 +18,7 @@
  */
 
 import {global, TaskManager} from '@here/xyz-maps-common';
-import {Tile, TileLayer} from '@here/xyz-maps-core';
+import {Tile, TileLayer, GeoPoint, PixelPoint} from '@here/xyz-maps-core';
 import {getElDimension, createCanvas} from '../DOMTools';
 import {Layers, Layer, ScreenTile} from './Layers';
 import FeatureModifier from './FeatureModifier';
@@ -54,11 +54,13 @@ abstract class Display {
         return dpr < 1 ? 1 : dpr;
     }
 
-    protected sx: number; // grid/screen offset x
-    protected sy: number; // grid/screen offset y
+
     private previewer: Preview;
     private updating: boolean = false;
     private ti: number; // tile index
+    protected cGeo: GeoPoint = new GeoPoint(0, 0);
+    protected sx: number; // grid/screen offset x (includes scale offset)
+    protected sy: number; // grid/screen offset y (includes scale offset)
     protected dirty: boolean = false;
     protected gridSizes: number[];
     tileSize: number;
@@ -260,9 +262,9 @@ abstract class Display {
 
     abstract prepareTile(tile: Tile, data, layer: TileLayer, dTile: BasicTile, onDone: (dTile: BasicTile, layer: TileLayer) => void);
 
-    abstract unproject(x: number, y: number): [number, number];
+    abstract unproject(x: number, y: number, z?: number): number[];
 
-    abstract project(x: number, y: number): [number, number];
+    abstract project(x: number, y: number, z?: number): number[];
 
     private setLayerBgColor(style, dLayer: Layer) {
         const {backgroundColor} = style;
@@ -401,10 +403,11 @@ abstract class Display {
 
     protected viewChange: boolean;
 
-    updateGrid(centerWorld: [number, number], tileGridZoom: number, screenOffsetX: number, screenOffsetY: number) {
+    updateGrid(centerWorldPixel: [number, number], centerGeo: GeoPoint, tileGridZoom: number, screenOffsetX: number, screenOffsetY: number) {
         this.viewChange = true;
         this.sx = screenOffsetX;
         this.sy = screenOffsetY;
+        this.cGeo = centerGeo;
 
         const display = this;
         const rotZRad = this.rz;
@@ -422,7 +425,7 @@ abstract class Display {
             display.unproject(0, displayHeight - 1)
         ];
 
-        grid.init(centerWorld, rotZRad, mapWidthPixel, mapHeightPixel, rotatedScreenPixels);
+        grid.init(centerWorldPixel, rotZRad, mapWidthPixel, mapHeightPixel, rotatedScreenPixels);
 
         const layers = this.layers;
         const tileSizes = layers.reset(tileGridZoom + Math.log(this.s) / Math.LN2);
@@ -507,11 +510,11 @@ abstract class Display {
         render.setBackgroundColor(bgColor);
     }
 
-    showGrid(show) {
+    showGrid(show: boolean) {
         this.render.grid(!!show);
     }
 
-    setTransform(scale, rotZ, rotX) {
+    setTransform(scale: number, rotZ: number, rotX: number, worldSizePixel?: number) {
         this.render.setScale(this.s = scale, 0, 0);
         this.render.setRotation(this.rz = rotZ, this.rx = rotX);
         this.render.applyTransform();
@@ -538,6 +541,20 @@ abstract class Display {
 
     viewChangeDone() {
         this.viewChange = false;
+    }
+
+    /**
+     * Return the most top rendered feature on screen.
+     *
+     * @param screenX x position on screen
+     * @param screenY y position
+     * @param layers
+     *
+     * @internal
+     * @hidden
+     */
+    getRenderedFeatureAt(screenX: number, screenY: number, layers?: TileLayer[]): { id: number | string | null, z: number, layerIndex: number } {
+        return null;
     }
 }
 

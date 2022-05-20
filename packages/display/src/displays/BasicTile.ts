@@ -18,6 +18,7 @@
  */
 
 import {TileLayer} from '@here/xyz-maps-core';
+import {Layers} from './Layers';
 
 let UNDEF;
 
@@ -27,16 +28,17 @@ abstract class BasicTile {
     private tasks: { [id: string]: any };
 
     quadkey: string;
-    layers: TileLayer[];
+    layers: Layers;
     luTs: number; // last update timestamp
     i: number; // tile index of current viewport. 1-n
     private r: boolean[] = [];
-    private p: PreviewData[]|false[] = [];
+    private p: PreviewData[] | false[] = [];
 
     abstract clear(index: number)
+
     abstract getData(index: number): any;
 
-    protected init(quadkey: string, layers: TileLayer[]) {
+    protected init(quadkey: string, layers: Layers) {
         this.luTs = null;
 
         this.quadkey = quadkey;
@@ -108,7 +110,7 @@ abstract class BasicTile {
         this.p.splice(index, 1);
     };
 
-    preview(index: number, data?: PreviewData|undefined|false): PreviewData|undefined|false {
+    preview(index: number, data?: PreviewData | undefined | false): PreviewData | undefined | false {
         if (arguments.length == 2) {
             this.p[index] = data;
         }

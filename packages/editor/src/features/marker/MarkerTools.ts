@@ -21,12 +21,16 @@ import {Marker} from './Marker';
 import {GeoJSONCoordinate} from '@here/xyz-maps-core';
 import {Feature} from '../feature/Feature';
 import FeatureTools from '../feature/FeatureTools';
+import {dragFeatureCoordinate} from '../oTools';
+
 
 const DRAG_STOP = 'dragStop';
 const DRAG_MOVE = 'dragMove';
 const DRAG_START = 'dragStart';
 const POINTER_UP = 'pointerup';
+const POINTER_DOWN = 'pointerdown';
 let UNDEF;
+
 
 function triggerEvent(marker: Marker, ev, type: string) {
     marker._e().listeners.trigger(ev, marker, type);
@@ -55,10 +59,19 @@ const tools = {
             // Feature needs to be in selected state to make it draggable..
             // ..to makes sure map can still be dragged with many features in viewport..
 
-            pointerdown: function() {
+            pointerdown: function(ev) {
                 const prv = getPrivate(this);
                 prv.moved = false;
-                prv.pdm = [0, 0];
+                // prv.pdm = [0, 0];
+                const coordinates = this.geometry.coordinates;
+                const pixel = ev.detail.display.geoToPixel(coordinates[0], coordinates[1]);
+                // const pixel = ev.detail.display.geoToPixel(...coordinates);
+                prv.x = pixel.x;
+                prv.y = pixel.y;
+                prv.button = ev.button;
+                prv.z = coordinates[2] || 0;
+
+                triggerEvent(this, ev, POINTER_DOWN);
             },
 
             pointerup: function(ev) {
@@ -113,26 +126,21 @@ const tools = {
         return prv.isEditable;
     },
 
-
     _select: function(feature: Marker) {
         const EDITOR = feature._e();
         if (EDITOR.objects.selection.select(feature)) {
             const prv = getPrivate(feature);
-
-            prv.pressmove = (ev, dx, dy, ax, ay) => {
+            prv.pressmove = (ev, dx, dy) => {
                 if (
                     prv.isEditable &&
                     prv.isSelected &&
-                    !EDITOR._config.editRestrictions(feature/* this.getSimplified()*/, 1)
+                    !EDITOR._config.editRestrictions(feature, 1)
                 ) {
-                    EDITOR.map.pixelMove(
-                        feature,
-                        dx - prv.pdm[0],
-                        dy - prv.pdm[1]
-                    );
+                    let coordinate = <GeoJSONCoordinate>[...feature.geometry.coordinates];
 
-                    prv.pdm[0] = dx;
-                    prv.pdm[1] = dy;
+                    coordinate = dragFeatureCoordinate(ev.mapX, ev.mapY, feature, coordinate);
+
+                    tools._setCoords(feature, coordinate);
 
                     triggerEvent(feature, ev,
                         prv.moved
@@ -146,7 +154,11 @@ const tools = {
 
             if (!prv.selector) {
                 prv.selector = EDITOR.objects.overlay.addCircle(<GeoJSONCoordinate>feature.coord(), UNDEF, {
-                    'type': 'MARKER_SELECTOR'
+                    type: 'MARKER_SELECTOR',
+                    MARKER: {
+                        properties: feature.prop(),
+                        style: EDITOR.getStyle(feature)
+                    }
                 });
             }
         }

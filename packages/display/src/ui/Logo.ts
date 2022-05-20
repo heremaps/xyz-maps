@@ -52,7 +52,7 @@ class Logo extends UIComponent {
             img.src = computedStyle.getPropertyValue('background-image').slice(5, -2);
         });
     }
-};
+}
 
 
 Logo.prototype.style = {

@@ -19,7 +19,12 @@
 
 import {TypedArray, TypedArrayConstructor} from '../glType';
 
-export class FlexArray {
+export interface SimpleArray<T> {
+    length: number;
+    push(...value: T[]): number;
+}
+
+export class FlexArray implements SimpleArray<number> {
     size: number;
     data: TypedArray;
     length: number = 0;

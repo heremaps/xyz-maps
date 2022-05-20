@@ -23,6 +23,7 @@ import {createTextData} from './createText';
 import {GlyphTexture} from '../GlyphTexture';
 import {toRGB} from '../color';
 import {LineBuffer} from './templates/LineBuffer';
+import {FlexArray} from './templates/FlexArray';
 
 const createTileBuffer = (tileSize: number) => {
     // 0 ------- 1
@@ -49,7 +50,7 @@ const createTileBuffer = (tileSize: number) => {
     });
 
     gridTileBuffer.addUniform('u_zIndex', 0.0);
-    gridTileBuffer.addUniform('u_fill', [1.0, 1.0, 1.0, 1.0]);
+    gridTileBuffer.addUniform('u_fill', [1.0, .0, 1.0, 1.0]);
     gridTileBuffer.scissor = true;
     gridTileBuffer.depth = false;
     gridTileBuffer.alpha = 0;
@@ -61,15 +62,17 @@ export {createTileBuffer};
 
 const createGridTileBuffer = (color: number[] = [1.0, 0.0, 0.0, 1.0], strokeWidth: number = 2) => {
     const lineBuffer = new LineBuffer();
-    const {attributes} = lineBuffer;
+    const {flexAttributes} = lineBuffer;
     const tileSize = 1;
 
     addLineString(
-        attributes.a_position.data,
-        attributes.a_normal.data,
+        flexAttributes.a_position.data,
+        flexAttributes.a_normal.data,
         new Float32Array([0, 0, tileSize, 0, tileSize, tileSize, 0, tileSize, 0, 0]),
         new Float32Array([0, tileSize, 2 * tileSize, 3 * tileSize, 4 * tileSize]),
         10,
+        2,
+        0,
         tileSize,
         false,
         'butt',
@@ -102,7 +105,23 @@ const createGridTextBuffer = (quadkey: string, gl: WebGLRenderingContext, font) 
         glyphs.sync();
     }
 
-    const {position, count, texcoord} = createTextData(quadkey + ' L' + quadkey.length, glyphs.atlas);
+    const text = quadkey + ' L' + quadkey.length;
+    const {length} = text;
+
+
+    // if (!positions) {
+    const positions = new FlexArray(Int16Array, length * 18);
+    // } else {
+    //     positions.reserve(length * 18);
+    // }
+
+    // if (!texcoords) {
+    const texcoords = new FlexArray(Uint16Array, length * 12);
+    // } else {
+    //     texcoords.reserve(length * 12);
+    // }
+
+    const {position, count, texcoord} = createTextData(text, glyphs.atlas, positions, texcoords);
 
     let textBuffer = new GeometryBuffer({
         first: 0,

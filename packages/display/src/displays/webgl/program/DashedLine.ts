@@ -24,6 +24,7 @@ import fragmentShader from '../glsl/line_dash_fragment.glsl';
 
 import Program from './Program';
 import {GLStates, PASS} from './GLStates';
+import {GeometryBuffer} from '../buffer/GeometryBuffer';
 
 
 class DashedLineProgram extends Program {
@@ -43,7 +44,7 @@ class DashedLineProgram extends Program {
         super(gl, gl.TRIANGLES, vertexShader, fragmentShader, devicePixelRation);
     }
 
-    init(options: GLStates, pass, stencil: boolean) {
+    init(options: GeometryBuffer, pass, stencil: boolean) {
         const {gl} = this;
         super.init(options, pass, stencil);
         gl.blendFunc(gl.SRC_ALPHA, gl.ONE_MINUS_SRC_ALPHA);

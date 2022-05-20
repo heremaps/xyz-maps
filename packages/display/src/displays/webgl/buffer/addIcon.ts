@@ -19,21 +19,23 @@
 
 import {ImageInfo} from '../Atlas';
 import {addPoint} from './addPoint';
+import {SimpleArray} from './templates/FlexArray';
 
-const addIcon = (
+export const addIcon = (
     x: number,
     y: number,
+    z: number | boolean,
     atlas: ImageInfo,
     width: number,
     height: number,
-    points: number[],
+    points: SimpleArray<number>, // number[],
     vertex: number[],
-    texcoord: number[],
+    texcoord: SimpleArray<number>, // number[],
     rotation: number = 0
 ) => {
     let {u1, u2, v1, v2} = atlas;
 
-    addPoint(x, y, vertex);
+    addPoint(x, y, z, vertex);
 
     // 10 bit rotation precision
     rotation = Math.round(rotation * 1024 / 360);
@@ -55,7 +57,6 @@ const addIcon = (
         width, height
     );
 
-
     texcoord.push(
         u1, v2,
         u1, v1,
@@ -65,5 +66,3 @@ const addIcon = (
         u2, v2
     );
 };
-
-export {addIcon};

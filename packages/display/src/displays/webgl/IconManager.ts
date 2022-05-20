@@ -19,6 +19,7 @@
 
 import ImageResourceHandler from '../ImageResourceHandler';
 import {Atlas, ImageInfo} from './Atlas';
+import {Texture} from './Texture';
 
 class IconManager {
     private images = new ImageResourceHandler();
@@ -33,7 +34,7 @@ class IconManager {
         });
     }
 
-    getTexture(): WebGLTexture {
+    getTexture(): Texture {
         return this.atlas.texture;
     }
 

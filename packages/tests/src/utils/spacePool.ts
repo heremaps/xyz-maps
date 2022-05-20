@@ -58,7 +58,7 @@ function deleteSpace(space) {
         'Authorization': 'Bearer ' + TOKEN
     };
     return sendReq('DELETE', url, header, {});
-};
+}
 
 function createSpace(): Promise<{id}> {
     let url = XYZHUBURL;
@@ -75,7 +75,7 @@ function createSpace(): Promise<{id}> {
         }]
     };
     return sendReq('POST', url, header, space);
-};
+}
 
 function removeFeatures(spaceId, tag) {
     let url = XYZHUBURL + '/' + spaceId + '/features?tags=' + tag;
@@ -83,7 +83,7 @@ function removeFeatures(spaceId, tag) {
         'Authorization': 'Bearer ' + TOKEN
     };
     return sendReq('DELETE', url, header, {});
-};
+}
 
 function searchFeatures(spaceId, tag) {
     let url = XYZHUBURL + '/' + spaceId + '/search?tags=' + tag;
@@ -91,7 +91,7 @@ function searchFeatures(spaceId, tag) {
         'Authorization': 'Bearer ' + TOKEN
     };
     return sendReq('GET', url, header, {});
-};
+}
 
 class SpaceLocalStorage {
     private key;

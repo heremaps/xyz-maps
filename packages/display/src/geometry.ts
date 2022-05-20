@@ -19,7 +19,7 @@
 
 let UNDEF;
 
-type Point = [number, number, number?];
+export type Point = number[];
 
 export const doPolygonsIntersect = (polyA: Point[], polyB: Point[]): boolean => {
     for (let polygon of [polyA, polyB]) {
@@ -112,4 +112,44 @@ export const getDistance = (p1x: number, p1y: number, p2x: number, p2y: number):
     const dx = p1x - p2x;
     const dy = p1y - p2y;
     return Math.sqrt(dx * dx + dy * dy);
+};
+
+export const intersectLineLine = (g1p1: Point, g1p2: Point, g2p1: Point, g2p2: Point, details: boolean): boolean | Point => {
+    const uB = (g2p2[1] - g2p1[1]) * (g1p2[0] - g1p1[0]) - (g2p2[0] - g2p1[0]) * (g1p2[1] - g1p1[1]);
+
+    if (uB != 0) {
+        const uaT = (g2p2[0] - g2p1[0]) * (g1p1[1] - g2p1[1]) - (g2p2[1] - g2p1[1]) * (g1p1[0] - g2p1[0]);
+        const ubT = (g1p2[0] - g1p1[0]) * (g1p1[1] - g2p1[1]) - (g1p2[1] - g1p1[1]) * (g1p1[0] - g2p1[0]);
+        const ua = uaT / uB;
+        const ub = ubT / uB;
+
+        if (0 <= ua && ua <= 1 && 0 <= ub && ub <= 1) {
+            return details ? [
+                g1p1[0] + ua * (g1p2[0] - g1p1[0]),
+                g1p1[1] + ua * (g1p2[1] - g1p1[1]),
+                g1p1[2] + ua * (g1p2[2] - g1p1[2])
+            ] : true;
+        }
+    }
+    return false;
+};
+
+export const intersectionLineBox = (lineP1: Point, lineP2: Point, minBoxX: number, minBoxY: number, maxBoxX: number, maxBoxY: number, reverse?: boolean): Point | false => {
+    // p0 ----- p1
+    // |        |
+    // |        |
+    // p2 ----- p3
+    let p0: Point = [minBoxX, minBoxY];
+    let p1: Point = [maxBoxX, minBoxY];
+    let p2: Point = [minBoxX, maxBoxY];
+    let p3: Point = [maxBoxX, maxBoxY];
+
+    if (reverse) {
+        const bak = p1;
+        p1 = p2;
+        p2 = bak;
+    }
+
+    return <Point>(intersectLineLine(lineP1, lineP2, p0, p1, true) || intersectLineLine(lineP1, lineP2, p1, p3, true) ||
+        intersectLineLine(lineP1, lineP2, p3, p2, true) || intersectLineLine(lineP1, lineP2, p2, p0, true));
 };

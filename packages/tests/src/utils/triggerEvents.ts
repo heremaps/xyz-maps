@@ -37,7 +37,7 @@ export function dblclick(elem: HTMLElement, x: number, y: number): Promise<Mouse
 
         dispatchEvent(e.element, e.topleft, x, y, 'dblclick');
     });
-};
+}
 
 export function click(elem: HTMLElement, x: number, y: number): Promise<MouseEvent> {
     return new Promise((resolve, reject) => {
@@ -54,7 +54,7 @@ export function click(elem: HTMLElement, x: number, y: number): Promise<MouseEve
         dispatchEvent(e.element, e.topleft, x, y, 'mouseup');
         dispatchEvent(e.element, e.topleft, x, y, 'click');
     });
-};
+}
 
 export function drag(elem: HTMLElement, from: { x: number; y: number }, to: { x: number; y: number }, time: number = 60): Promise<MouseEvent> {
     return new Promise((resolve) => {
@@ -82,7 +82,7 @@ export function drag(elem: HTMLElement, from: { x: number; y: number }, to: { x:
             dispatchEvent(e.element, e.topleft, Math.floor(from.x + vx * i), Math.floor(from.y + vy * i), 'mousemove');
         }, time / v);
     });
-};
+}
 
 export function mousemove(elem: HTMLElement, from: { x: number, y: number }, to: { x: number, y: number }): Promise<MouseEvent> {
     return new Promise((resolve) => {
@@ -108,7 +108,7 @@ export function mousemove(elem: HTMLElement, from: { x: number, y: number }, to:
         }
         dispatchEvent(e.element, e.topleft, to.x, to.y, 'mousemove');
     });
-};
+}
 
 export function mousewheel(elem: HTMLElement, x: number, y: number, d: number): Promise<MouseEvent> {
     const event = 'wheel';
@@ -128,12 +128,12 @@ export function mousewheel(elem: HTMLElement, x: number, y: number, d: number): 
 
         dispatchEvent(e.element, e.topleft, x, y, event, d * direction); // Gecko
     });
-};
+}
 
 export function triggerEvent(elem: HTMLElement, x: number, y: number, evt: string, d: number): void {
     let e = getElement(elem, x, y);
     dispatchEvent(e.element, e.topleft, x, y, evt, d);
-};
+}
 
 function getElement(elem: HTMLElement, x: number, y: number): { element: Element; topleft: { left: number; top: number } } {
     function getPosition(div) {

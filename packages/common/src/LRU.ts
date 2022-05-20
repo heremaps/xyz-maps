@@ -99,7 +99,7 @@ export default class LRU<TYPE> {
             }
 
             item = item.data;
-        };
+        }
 
         return item;
     }

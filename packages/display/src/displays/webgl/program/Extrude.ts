@@ -42,7 +42,7 @@ class ExtrudeProgram extends Program {
         super(gl, gl.TRIANGLES, vertexShader, fragmentShader, devicePixelRation);
     }
 
-    init(options: GLStates, pass: PASS, stencil: boolean) {
+    init(options: GeometryBuffer, pass: PASS, stencil: boolean) {
         const {gl} = this;
 
         this._pass = pass;

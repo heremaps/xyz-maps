@@ -190,7 +190,7 @@ describe('editor hooks test', function() {
 
         expect(marker.properties.coordinatesUpdateHook).to.equal(1);
 
-        expect(marker.coord()).to.deep.almost([76.090361884, 13.009954328, 0]);
+        expect(marker.coord()).to.deep.almost([76.090361884, 13.009954328]);
         expect(marker.properties.previousCoordinates).to.deep.almost([76.089289, 13.0099543]);
     });
 
@@ -202,7 +202,7 @@ describe('editor hooks test', function() {
         expect(marker.properties.coordinatesUpdateHook).to.equal(2);
 
         expect(marker.coord()).to.deep.almost([p1.longitude, p1.latitude]);
-        expect(marker.properties.previousCoordinates).to.deep.almost([76.090361884, 13.009954328, 0]);
+        expect(marker.properties.previousCoordinates).to.deep.almost([76.090361884, 13.009954328]);
     });
 
     it('"Coordinates.update": undo and validate marker', async () => {
@@ -212,7 +212,7 @@ describe('editor hooks test', function() {
 
         expect(marker.properties.coordinatesUpdateHook).to.equal(1);
 
-        expect(marker.coord()).to.deep.almost([76.090361884, 13.009954328, 0]);
+        expect(marker.coord()).to.deep.almost([76.090361884, 13.009954328]);
         expect(marker.properties.previousCoordinates).to.deep.almost([76.089289, 13.0099543]);
 
         marker.remove();

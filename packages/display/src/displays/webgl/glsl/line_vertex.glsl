@@ -1,6 +1,6 @@
 precision lowp float;
 
-attribute vec2 a_position;
+attribute vec3 a_position;
 attribute highp vec4 a_normal;
 attribute float a_lengthSoFar;
 
@@ -15,6 +15,8 @@ varying vec2 v_width;
 
 uniform vec2 u_offset;
 uniform float u_tileScale;
+
+uniform bool u_no_antialias;
 
 const float N_SCALE = 1.0 / 8191.0;
 
@@ -31,7 +33,10 @@ float toPixel(vec2 size){
 void main(void){
 
     float strokeWidth = toPixel(u_strokeWidth);
-    float alias = strokeWidth<1. ? .65 : 1.;
+    float alias = u_no_antialias
+        ? .0
+        : strokeWidth < 1. ? .65 : 1.;
+
     float width = (strokeWidth+alias) / u_scale;
     v_width = vec2(strokeWidth, alias * .5);
     // LSB is direction/normal vector [-1,+1]
@@ -46,8 +51,11 @@ void main(void){
 
     float lineOffset = toPixel(u_offset);
 
-    vec2 position = a_position + normal * -lineOffset / u_scale;
+    vec2 position = a_position.xy + normal * -lineOffset / u_scale;
 
-    gl_Position = u_matrix * vec4(u_topLeft + position * u_tileScale + dir * normal * width, 0.0, 1.0);
+
+    gl_PointSize = 8.0;
+
+    gl_Position = u_matrix * vec4(u_topLeft + position * u_tileScale + dir * normal * width, -a_position.z, 1.0);
 }
 

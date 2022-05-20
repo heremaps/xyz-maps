@@ -24,9 +24,9 @@ import {Feature} from '@here/xyz-maps-core';
 
 const isInternalEvent = (type: string) => type[0] == '_';
 
-const isEditorFeature = (o: EditFeature | Feature| EvDetails) => o && (<EditFeature>o).class;
+const isEditorFeature = (o: EditFeature | Feature | EvDetails) => o && (<EditFeature>o).class;
 
-type EvDetails = {[prop:string]:any};
+type EvDetails = { [prop: string]: any };
 
 type DisplayEvent = any;
 
@@ -48,6 +48,7 @@ class EventHandler {
     private listeners = new Listener([
         'tap', 'dbltap',
 
+        'pointerdown',
         'pointerup', // 'click',
 
         'pointerenter', 'pointerleave', // 'mouseover', 'mouseout',

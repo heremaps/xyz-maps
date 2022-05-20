@@ -44,7 +44,7 @@ class TextProgram extends Program {
         return pass == PASS.ALPHA;
     }
 
-    init(options: GLStates, pass: PASS, stencil: boolean) {
+    init(options: GeometryBuffer, pass: PASS, stencil: boolean, zIndex: number) {
         const {gl} = this;
         super.init(options, pass, stencil);
         // using LEQUAL and write to depthbuffer used as default in alpha pass will
@@ -53,6 +53,10 @@ class TextProgram extends Program {
         gl.depthMask(false);
         // gl.depthFunc(gl.LESS);
         gl.blendFunc(gl.ONE, gl.ONE_MINUS_SRC_ALPHA);
+
+
+        gl.polygonOffset(0, (1 << 11) * -zIndex);
+        gl.enable(gl.POLYGON_OFFSET_FILL);
     }
 
     draw(geoBuffer: GeometryBuffer) {

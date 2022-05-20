@@ -25,7 +25,6 @@ import fragmentShader from '../glsl/rect_fragment.glsl';
 import Program from './Program';
 import {GLStates} from './GLStates';
 
-
 class RectProgram extends Program {
     name = 'Rect';
 

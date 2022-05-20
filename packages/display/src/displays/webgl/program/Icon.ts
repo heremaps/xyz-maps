@@ -24,6 +24,7 @@ import fragmentShader from '../glsl/icon_fragment.glsl';
 
 import Program from './Program';
 import {GLStates, PASS} from './GLStates';
+import {GeometryBuffer} from '../buffer/GeometryBuffer';
 
 
 class TextProgram extends Program {
@@ -44,7 +45,7 @@ class TextProgram extends Program {
         return pass == PASS.ALPHA;
     }
 
-    init(options: GLStates, pass: PASS, stencil: boolean) {
+    init(options: GeometryBuffer, pass: PASS, stencil: boolean) {
         const {gl} = this;
         super.init(options, pass, stencil);
         gl.blendFunc(gl.ONE, gl.ONE_MINUS_SRC_ALPHA);

@@ -21,6 +21,7 @@ import GLTile from './GLTile';
 import BasicBucket from '../BasicBucket';
 import {LRU} from '@here/xyz-maps-common';
 import {GeometryBuffer} from './buffer/GeometryBuffer';
+import {Layers} from '../Layers';
 
 
 class Bucket extends BasicBucket {
@@ -32,7 +33,7 @@ class Bucket extends BasicBucket {
         super(size);
     }
 
-    create(quadkey: string, layers: any[]): GLTile {
+    create(quadkey: string, layers: Layers): GLTile {
         const {tiles, onDrop} = this;
         let tile = tiles.get(quadkey);
         let dropTile;

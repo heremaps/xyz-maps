@@ -30,8 +30,13 @@ import GLTile from './GLTile';
 import {FeatureFactory} from './buffer/FeatureFactory';
 import {CollisionHandler} from './CollisionHandler';
 import {GeometryBuffer} from './buffer/GeometryBuffer';
-import {TileLayer} from '@here/xyz-maps-core';
+import {TileLayer, webMercator} from '@here/xyz-maps-core';
 import {PASS} from './program/GLStates';
+import {Raycaster} from './Raycaster';
+
+// const alt2z = webMercator.alt2z;
+const earthCircumference = webMercator.earthCircumference;
+
 
 const PREVIEW_LOOK_AHEAD_LEVELS: [number, number] = [3, 9];
 
@@ -72,6 +77,8 @@ class WebGlDisplay extends BasicDisplay {
     private tilesNotReady: { quadkey: string, layerId: string }[];
 
     private collision: CollisionHandler;
+    private rayCaster: Raycaster;
+    private groundResolution: number;
 
     constructor(mapEl: HTMLElement, renderTileSize: number, devicePixelRatio: number | string, renderOptions?: RenderOptions) {
         super(mapEl, renderTileSize,
@@ -97,10 +104,12 @@ class WebGlDisplay extends BasicDisplay {
             display.releaseBuffers(buffers);
         };
 
-        // this.render.dpr = this.dpr;
-        this.render.init(this.canvas, this.dpr);
+        const {render} = display;
+        render.init(this.canvas, this.dpr);
 
-        this.factory = new FeatureFactory(this.render.gl, this.render.icons, this.collision, this.dpr);
+        this.rayCaster = new Raycaster(render.screenMat, render.invScreenMat);
+
+        this.factory = new FeatureFactory(render.gl, render.icons, this.collision, this.dpr);
 
         // TODO: do clean implementation for tile refresh after image load
         this.tilesNotReady = [];
@@ -143,22 +152,26 @@ class WebGlDisplay extends BasicDisplay {
         return super.removeLayer(layer);
     }
 
-    unproject(x: number, y: number): [number, number] {
-        let invScreenMat = this.render.invScreenMat;
-        // let inversePrjMat = this.render.invPMat;
-        // let clip = toClipSpace(x, y, 0, this.w, this.h);
-        // x = clip[0];
-        // y = clip[1];
+
+    unproject(x: number, y: number, z?): number[] {
+        const invScreenMat = this.render.invScreenMat;
+
+        if (typeof z == 'number') {
+            const p = [x, y, z];
+            transformMat4(p, p, invScreenMat);
+            p[2] *= -1;
+            return p;
+        }
+
 
         // find line intersection with plane where z is 0
+        // const targetZ = 0.0;
         const targetZ = 0;
         const p0 = [x, y, 0];
         const p1 = [x, y, 1];
 
         transformMat4(p0, p0, invScreenMat);
         transformMat4(p1, p1, invScreenMat);
-        // transformMat4(p0, p0, inversePrjMat);
-        // transformMat4(p1, p1, inversePrjMat);
 
         const z0 = p0[2];
         const z1 = p1[2];
@@ -172,40 +185,41 @@ class WebGlDisplay extends BasicDisplay {
     }
 
     // from unprojected screen pixels to projected screen pixels
-    project(x: number, y: number, sx = this.sx, sy = this.sy): [number, number] {
+    project(x: number, y: number, z: number = 0, sx = this.sx, sy = this.sy): [number, number, number] {
         // x -= screenOffsetX;
         // y -= screenOffsetY;
         // const p = [x, y, 0];
-
         // const s = this.s;
         // const p = [x * s, y * s, 0];
-
-        const p = [x - sx, y - sy, 0];
+        const p = [x - sx, y - sy, -z];
         return transformMat4(p, p, this.render.screenMat);
-
-        // transformMat4(p, p, this.render.pMat);
+        // transformMat4(p, p, this.render.vPMats);
         // return fromClipSpace(p, this.w, this.h);
     }
-
 
     setSize(w, h) {
         super.setSize(w, h);
 
         if (this.render.gl) {
-            this.render.initView(this.w, this.h, this.s, this.rx, this.rz);
+            this.render.initView(this.w, this.h, this.s, this.rx, this.rz, 0);
         }
     };
 
-    setTransform(scale: number, rotZ: number, rotX: number) {
-        if (this.s != scale || this.rz != rotZ || this.rx != rotX) {
-            this.s = scale;
-            this.rz = rotZ;
-            this.rx = rotX;
+    setTransform(scale: number, rotZ: number, rotX: number, worldSizePixel: number) {
+        // if (this.s != scale || this.rz != rotZ || this.rx != rotX)
+        // {
+        this.s = scale;
+        this.rz = rotZ;
+        this.rx = rotX;
 
-            const PI2 = 2 * Math.PI;
-            rotZ = (rotZ + PI2) % PI2;
-            this.render.initView(this.w, this.h, scale, rotX, rotZ);
-        }
+        const groundResolution = earthCircumference(this.cGeo.latitude) / worldSizePixel;
+        const PI2 = 2 * Math.PI;
+        rotZ = (rotZ + PI2) % PI2;
+
+        this.groundResolution = groundResolution;
+
+        this.render.initView(this.w, this.h, scale, rotX, rotZ, groundResolution);
+        // }
     }
 
 
@@ -287,7 +301,7 @@ class WebGlDisplay extends BasicDisplay {
         }
     }
 
-    protected viewport() {
+    protected viewport(dirty?: boolean) {
         const display = this;
         const {buckets, layers, render} = display;
         const layerLength = layers.length;
@@ -349,23 +363,27 @@ class WebGlDisplay extends BasicDisplay {
         }
 
 
-        let maxZIndex = -1;
+        let maxZIndex = 0;
         for (let i in absZOrder) {
-            absZOrder[i] = ++maxZIndex;
+            absZOrder[i] = maxZIndex++;
         }
 
         let min3dZIndex = Infinity;
-
         for (let i = 0, z, zTile; i < tileBuffers.length; i++) {
             zTile = tileBuffers[i];
             z = zTile.z = absZOrder[zTile.z];
-
             if (!zTile.b.flat && z < min3dZIndex) {
+                // if (!zTile.b.flat && z < min3dZIndex && !zTile.b.isPointBuffer() ) {
                 min3dZIndex = z;
             }
         }
 
+        // fill the depthbuffer with real depth values for the ground plane.
+        // render.initGroundDepth(this.grid.minX, this.grid.minY, Math.max(this.grid.maxX - this.grid.minX, this.grid.maxY - this.grid.minY));
+
         render.setPass(PASS.OPAQUE);
+
+        render.zIndexLength = maxZIndex;
 
         let b = tileBuffers.length;
         while (b--) {
@@ -376,6 +394,7 @@ class WebGlDisplay extends BasicDisplay {
         }
 
         render.setPass(PASS.ALPHA);
+
         // sort by zIndex and alpha/post alpha.
         tileBuffers = tileBuffers.sort((buf1, buf2) => 10 * (buf1.z - buf2.z) + buf1.b.alpha - buf2.b.alpha);
         let layerZIndex = 0;
@@ -403,16 +422,14 @@ class WebGlDisplay extends BasicDisplay {
                 // draw again.. first alpha pass was used to stencil.
                 layerZIndex--;
             }
-        } while (++layerZIndex <= maxZIndex);
+        } while (++layerZIndex < maxZIndex);
 
-
-        // display the tilegrid if enabled
         if (render.tileGrid) {
             for (let tileSize in display.tiles) {
                 const tiles = display.tiles[tileSize];
                 if (tiles.length) {
                     for (let screenTile of tiles) {
-                        render.drawGrid(screenTile.x, screenTile.y, <GLTile>screenTile.tile, tileSize);
+                        render.drawGrid(screenTile.x, screenTile.y, <GLTile>screenTile.tile, Number(tileSize));
                     }
                     break;
                 }
@@ -422,6 +439,41 @@ class WebGlDisplay extends BasicDisplay {
 
     destroy() {
         super.destroy();
+    }
+
+
+    getRenderedFeatureAt(x: number, y: number, layers): { id: number | string | null, z: number, layerIndex: number } {
+        // const tiles = this.tiles[512];
+
+        const {tiles} = this;
+
+        this.rayCaster.init(x, y, this.w, this.h, this.s, 1 / this.groundResolution);
+
+        for (let tileSize in tiles) {
+            for (let gridTile of tiles[tileSize]) {
+                const tileX = gridTile.x;
+                const tileY = gridTile.y;
+                const tile = <GLTile>gridTile.tile;
+                let {data} = tile;
+
+
+                for (let i = 0; i < data.length; i++) {
+                    const {layer} = tile.layers[i];
+                    const layerBuffers = data[i];
+                    const layerIndex = layers.indexOf(layer);
+                    if (!layerBuffers || layerIndex == -1) continue;
+                    for (let buffer of layerBuffers) {
+                        if (buffer.isFlat()) continue;
+                        this.rayCaster.intersect(tileX, tileY, buffer, layerIndex);
+                    }
+                }
+            }
+        }
+        const result = this.rayCaster.getIntersectionTop();
+
+        this.viewport(true);
+
+        return result;
     }
 
     viewChangeDone() {

@@ -31,6 +31,14 @@ export interface EditableRemoteTileProviderOptions extends RemoteTileProviderOpt
      */
     editable?: boolean;
     /**
+     * Enforce random ids for newly created features.
+     * If "enforceRandomFeatureId" is set to true, the ids of features created by {@link editor.Editor.addFeature | editor.addFeature} are ignored and randomly created.
+     * If "enforceRandomFeatureId" is set to false, ids of features created by {@link editor.Editor.addFeature | editor.addFeature} can be set. Random ids are only generated if none have been set.
+     *
+     * @defaultValue true
+     */
+    enforceRandomFeatureId?: boolean;
+    /**
      * Add hook functions that will be called during the execution of the corresponding "editing operation".
      * The "hooks" option is a map with the "editing operation" as its key and the corresponding Hook or Array of Hook function(s) as its value.
      *
@@ -55,7 +63,7 @@ export interface EditableRemoteTileProviderOptions extends RemoteTileProviderOpt
          * The CoordinatesUpdateHook(s) will be called whenever the coordinates of a feature are added, updated or removed ('Coordinates.update' operation).
          */
         'Coordinates.update'?: CoordinatesUpdateHook | CoordinatesUpdateHook[]
-    },
+    };
 
-    staticData?: boolean
+    staticData?: boolean;
 };

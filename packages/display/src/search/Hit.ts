@@ -20,7 +20,7 @@
 import {getMaxZoom, getPixelSize, getLineWidth, StyleGroup, getValue, getSizeInPixel} from '../displays/styleTools';
 import {Map} from '../Map';
 import {Feature} from '@here/xyz-maps-core';
-import {intersectBBox} from '../geometry';
+import {intersectBBox, intersectLineLine} from '../geometry';
 
 type Point = [number, number, number?];
 type Coordinates = Point | Point[] | Point[][] | Point[][][];
@@ -41,19 +41,6 @@ const pointInPolygon = (x: number, y: number, poly: Point[]): boolean => {
         }
     }
     return inside;
-};
-
-const intersectLineLine = (g1p1: Point, g1p2: Point, g2p1: Point, g2p2: Point): boolean => {
-    const uB = (g2p2[1] - g2p1[1]) * (g1p2[0] - g1p1[0]) - (g2p2[0] - g2p1[0]) * (g1p2[1] - g1p1[1]);
-
-    if (uB != 0) {
-        const uaT = (g2p2[0] - g2p1[0]) * (g1p1[1] - g2p1[1]) - (g2p2[1] - g2p1[1]) * (g1p1[0] - g2p1[0]);
-        const ubT = (g1p2[0] - g1p1[0]) * (g1p1[1] - g2p1[1]) - (g1p2[1] - g1p1[1]) * (g1p1[0] - g2p1[0]);
-        const ua = uaT / uB;
-        const ub = ubT / uB;
-
-        return 0 <= ua && ua <= 1 && 0 <= ub && ub <= 1;
-    }
 };
 
 class Hit {
@@ -134,7 +121,7 @@ class Hit {
 
         for (let i = 0, len = lines.length - 1; i < len; i++) {
             for (let j = 0; j < box.length - 1; j++) {
-                if (intersectLineLine(lines[i], lines[i + 1], box[j], box[j + 1])) {
+                if (intersectLineLine(lines[i], lines[i + 1], box[j], box[j + 1], false)) {
                     return true;
                 }
             }
@@ -170,14 +157,15 @@ class Hit {
         layerIndex: number,
         feature: Feature,
         zoomlevel: number,
-        dimensions?: number[]
+        dimensions?: number[],
+        skip3d?: boolean
     ): number[] | false {
         let hit = false;
         const {dpr, map} = this;
         const isPointSearch = !halfWidth && !halfHeight;
 
         if (geoType == 'Point') {
-            dimensions = dimensions || getPixelSize(featureStyle, feature, zoomlevel, dpr, layerIndex);
+            dimensions = dimensions || getPixelSize(featureStyle, feature, zoomlevel, dpr, layerIndex, skip3d);
 
             if (dimensions) {
                 // coordinates = feature.getProvider().decCoord( feature );
@@ -190,55 +178,56 @@ class Hit {
                 hit = intersectBBox(x, x + halfWidth, y, y + halfHeight, featureX1, featureX2, featureY1, featureY2);
             }
         } else if (geoType == 'LineString') {
-            dimensions = dimensions || getLineWidth(featureStyle, feature, zoomlevel, layerIndex);
+            dimensions = dimensions || getLineWidth(featureStyle, feature, zoomlevel, layerIndex, skip3d);
             let cLen = coordinates.length;
+            let [lineWidth] = dimensions;
+            if (lineWidth) {
+                if (isPointSearch) {
+                    let p1 = map.geoToPixel(coordinates[0][0], coordinates[0][1]);
+                    let offsets = this.getOffsetLineData(feature, featureStyle, zoomlevel);
+                    let halfWidthSq;
+                    let p2;
+                    let d;
 
-            if (isPointSearch) {
-                let p1 = map.geoToPixel(coordinates[0][0], coordinates[0][1]);
-                let offsets = this.getOffsetLineData(feature, featureStyle, zoomlevel);
-                let halfWidthSq;
-                let p2;
-                let d;
+                    if (!offsets.length) {
+                        halfWidthSq = Math.pow(dimensions[0] * .5, 2);
+                    }
 
-                if (!offsets.length) {
-                    halfWidthSq = Math.pow(dimensions[0] * .5, 2);
-                }
-
-                for (let c = 1; c < cLen; c++) {
-                    p2 = map.geoToPixel(coordinates[c][0], coordinates[c][1]);
-                    d = this.pointToLineDistanceSq(x, y, p1.x, p1.y, p2.x, p2.y);
-                    if (offsets.length) {
-                        for (let o of offsets) {
-                            const {offset, width} = o;
-                            const innerEdge = Math.pow(offset - this.sideOfLine * width, 2);
-                            if (!offset) {
-                                if (hit = d <= width * width) break;
-                            } else if (d > innerEdge) {
-                                const outerEdge = Math.pow(offset + this.sideOfLine * width, 2);
-                                if (hit = d - outerEdge <= width * width) {
-                                    break;
+                    for (let c = 1; c < cLen; c++) {
+                        p2 = map.geoToPixel(coordinates[c][0], coordinates[c][1]);
+                        d = this.pointToLineDistanceSq(x, y, p1.x, p1.y, p2.x, p2.y);
+                        if (offsets.length) {
+                            for (let o of offsets) {
+                                const {offset, width} = o;
+                                const innerEdge = Math.pow(offset - this.sideOfLine * width, 2);
+                                if (!offset) {
+                                    if (hit = d <= width * width) break;
+                                } else if (d > innerEdge) {
+                                    const outerEdge = Math.pow(offset + this.sideOfLine * width, 2);
+                                    if (hit = d - outerEdge <= width * width) {
+                                        break;
+                                    }
                                 }
                             }
-                        }
-                        if (hit) break;
-                    } else if (hit = d <= halfWidthSq) break;
-                    p1 = p2;
-                }
-            } else {
-                dimensions = dimensions || getLineWidth(featureStyle, feature, zoomlevel, layerIndex);
-                const w = dimensions[0] * .5;
-                const topLeft = map.pixelToGeo(x - w, y - w);
-                const bottomRight = map.pixelToGeo(x + w, y + w);
-                const minLon = topLeft.longitude;
-                const maxLon = bottomRight.longitude;
-                const minLat = bottomRight.latitude;
-                const maxLat = topLeft.latitude;
+                            if (hit) break;
+                        } else if (hit = d <= halfWidthSq) break;
+                        p1 = p2;
+                    }
+                } else {
+                    const w = dimensions[0] * .5;
+                    const topLeft = map.pixelToGeo(x - w, y - w);
+                    const bottomRight = map.pixelToGeo(x + w, y + w);
+                    const minLon = topLeft.longitude;
+                    const maxLon = bottomRight.longitude;
+                    const minLat = bottomRight.latitude;
+                    const maxLat = topLeft.latitude;
 
-                hit = this.pointInBox(<Point[]>coordinates, minLon, maxLon, minLat, maxLat) ||
-                    this.linesIntersectBox(<Point[]>coordinates, minLon, maxLon, minLat, maxLat);
+                    hit = this.pointInBox(<Point[]>coordinates, minLon, maxLon, minLat, maxLat) ||
+                        this.linesIntersectBox(<Point[]>coordinates, minLon, maxLon, minLat, maxLat);
 
-                if (!hit) {
-                    return false;
+                    if (!hit) {
+                        return false;
+                    }
                 }
             }
         } else if (geoType == 'Polygon') {
@@ -250,9 +239,9 @@ class Hit {
             });
 
             if (!hasPolygonStyle) {
-                // do hit calculation on line geometry if there a line-style but no polygon-style
+                // do hit calculation on line geometry if there's a line-style but no polygon-style
                 return hasLineStyle && this.geometry(
-                    x, y, halfWidth, halfHeight, coordinates, 'MultiLineString', featureStyle, layerIndex, feature, zoomlevel
+                    x, y, halfWidth, halfHeight, coordinates, 'MultiLineString', featureStyle, layerIndex, feature, zoomlevel, null, skip3d
                 );
             }
 
@@ -306,7 +295,7 @@ class Hit {
             if (baseType) {
                 for (let p = 0, l = coordinates.length; p < l; p++) {
                     baseHit = this.geometry(
-                        x, y, halfWidth, halfHeight, <Point[]>coordinates[p], baseType, featureStyle, layerIndex, feature, zoomlevel, dimensions
+                        x, y, halfWidth, halfHeight, <Point[]>coordinates[p], baseType, featureStyle, layerIndex, feature, zoomlevel, dimensions, skip3d
                     );
 
                     if (baseHit) {
@@ -327,7 +316,8 @@ class Hit {
         feature: Feature,
         featureStyle: StyleGroup,
         layerIndex: number,
-        zoomlevel: number
+        zoomlevel: number,
+        skip3d?: boolean
     ): number[] | false {
         return this.geometry(
             x1,
@@ -340,7 +330,9 @@ class Hit {
             featureStyle,
             layerIndex,
             feature,
-            zoomlevel
+            zoomlevel,
+            null,
+            skip3d
         );
     };
 }

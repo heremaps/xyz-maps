@@ -45,6 +45,6 @@ interface TileProviderOptions {
 
     minLevel?: number,
     maxLevel?: number,
-};
+}
 
 export {TileProviderOptions};

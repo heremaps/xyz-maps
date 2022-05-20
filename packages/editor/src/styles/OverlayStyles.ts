@@ -63,6 +63,27 @@ const createSelectorStyle = () => [{
     radius: 20
 }];
 
+const createSelectorStyle3d = () => [{
+    zIndex: 3,
+    alignment: 'Viewport',
+    type: 'Circle', stroke: '#FF0F00',
+    // type: 'Sphere', fill: '#FF0F00', opacity: .5, pointerEvents: false
+    strokeWidth: 2,
+    radius: 20,
+    altitude: true
+}, {
+    zIndex: 2,
+    type: 'VerticalLine',
+    stroke: '#FF0F00'
+}, {
+    zIndex: 1,
+    type: 'Circle',
+    radius: 4,
+    fill: BLACK,
+    opacity: .6
+    // depthTest: false
+}];
+
 const createRoutingPointStyle = () => [{
     zLayer: (feature) => feature.properties.zLayer,
     zIndex: 999991,
@@ -143,6 +164,44 @@ class OverlayStyles {
             radius: (feature) => isHovered(feature) ? 6 : 4
         }],
 
+        'LINE_SHAPE_3D': [{
+            zIndex: 3,
+            type: 'Sphere',
+            width: (feature, zoom) => {
+                const {style} = feature.properties.LINE;
+                const [lineWidth] = styleTools.getLineWidth(style, feature.getLine(), zoom, 0);
+                return lineWidth + 4;
+            },
+            alignment: 'map',
+            radius: (feature, zoom) => {
+                const {style} = feature.properties.LINE;
+                const [lineWidth] = styleTools.getLineWidth(style, feature.getLine(), zoom, 0);
+                return lineWidth / 2 + 4 ^ 0;
+            },
+            stroke: (feature, zoom) => {
+                const style = feature.properties.LINE.style.filter((s) => s.type == 'Line');
+                const last = style.length - 1;
+                return getValue(style[last].stroke, feature, zoom) || 'BLACK';
+            },
+            fill: (feature, zoom) => {
+                let style = feature.properties.LINE.style;
+                return style.length > 1 ? getValue(style[0].stroke, feature, zoom) : '#e9e9e9';
+            },
+            strokeWidth: 2,
+            altitude: true
+            // depthTest: false
+        },
+        {
+            zIndex: 2,
+            type: 'VerticalLine',
+            stroke: '#000'
+        }, {
+            zIndex: 1,
+            type: 'Circle',
+            radius: 4,
+            fill: BLACK,
+            opacity: .6
+        }],
         'LINE_SHAPE': [{
             zIndex: 0,
             type: 'Circle',
@@ -154,7 +213,7 @@ class OverlayStyles {
             stroke: (feature, zoom) => {
                 const style = feature.properties.LINE.style.filter((s) => s.type == 'Line');
                 const last = style.length - 1;
-                return last > 0 ? getValue(style[last].stroke, feature, zoom) : BLACK;
+                return getValue(style[last].stroke, feature, zoom) || 'BLACK';
             },
             fill: (feature, zoom) => {
                 let style = feature.properties.LINE.style;
@@ -173,8 +232,31 @@ class OverlayStyles {
             },
             fill: '#151515'
         }],
+        'LINE_VIRTUAL_SHAPE_3D': [{
+            zIndex: 3,
+            type: 'Sphere',
+            radius: (feature, zoom) => {
+                const {style} = feature.properties.LINE;
+                const [lineWidth] = styleTools.getLineWidth(style, feature.getLine(), zoom, 0);
+                return lineWidth / 2 ^ 0;
+            },
+            fill: 'red',
+            altitude: ({properties}) => properties.LINE.style.find((s) => s.altitude)?.altitude
+            // depthTest: false
+        }, {
+            zIndex: 2,
+            type: 'VerticalLine',
+            stroke: '#000'
+        }, {
+            zIndex: 1,
+            type: 'Circle',
+            radius: 4,
+            fill: BLACK,
+            opacity: .6
+        }],
 
         'MARKER_SELECTOR': createSelectorStyle(),
+        'MARKER_SELECTOR_3D': createSelectorStyle3d(),
 
         'PLACE_SELECTOR': createSelectorStyle(),
 
@@ -302,8 +384,23 @@ class OverlayStyles {
     }
 
     assign(feature) {
-        const type = feature.class || feature.properties.type;
-        return this.styleGroups[type] !== UNDEF ? type : 'UNKNOWN';
+        const {styleGroups} = this;
+        const {properties} = feature;
+        let type = feature.class || properties.type;
+        let is3d = false;
+
+        if (type == 'LINE_SHAPE' || type == 'LINE_VIRTUAL_SHAPE') {
+            is3d = properties.LINE.style.find((s) => s.altitude)?.altitude;
+        } else if (type == 'MARKER_SELECTOR') {
+            is3d = !!feature.geometry.coordinates[2];
+        }
+
+        if (is3d) {
+            const type3d = type + '_3D';
+            type = styleGroups[type3d] ? type3d : type;
+        }
+
+        return styleGroups[type] !== UNDEF ? type : 'UNKNOWN';
     }
 };
 

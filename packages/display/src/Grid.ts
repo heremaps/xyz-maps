@@ -71,12 +71,12 @@ class Grid {
         let minOy = INFINITY;
         let maxOy = -minOy;
 
-        for (let c of bounds) {
-            if (c[0] < minOx) minOx = c[0];
-            if (c[0] > maxOx) maxOx = c[0];
+        for (let [x, y] of bounds) {
+            if (x < minOx) minOx = x;
+            if (x > maxOx) maxOx = x;
 
-            if (c[1] < minOy) minOy = c[1];
-            if (c[1] > maxOy) maxOy = c[1];
+            if (y < minOy) minOy = y;
+            if (y > maxOy) maxOy = y;
         }
 
         this.minX = minOx;

@@ -63,12 +63,23 @@ export interface MapOptions {
      */
     debug?: boolean
     /**
-     * minimum threshold in pixel for enabling pan map gesture
+     * The minimum threshold in pixels to enable the pan map gesture.
      *
      * @defaultValue 4
      */
     minPanMapThreshold?: number
-
+    /**
+     * The minimum threshold in pixels to enable the rotate map gesture.
+     *
+     * @defaultValue 4
+     */
+    minRotateMapThreshold?: number
+    /**
+     * The minimum threshold in pixels to enable the pitch map gesture.
+     *
+     * @defaultValue 4
+     */
+    minPitchMapThreshold?: number
     /**
      *  Behavior options of the map.
      *  Allow user to "drag" / "rotate" / "pitch" or "zoom" the map by mouse/touch interaction.
@@ -148,6 +159,8 @@ export const defaultOptions: MapOptions = {
     minLevel: 2,
     debug: false,
     minPanMapThreshold: 4,
+    minRotateMapThreshold: 4,
+    minPitchMapThreshold: 4,
     zoomAnimationMs: 100,
     maxPitch: 50
 };

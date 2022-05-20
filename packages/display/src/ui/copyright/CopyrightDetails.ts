@@ -59,7 +59,7 @@ class CopyrightDetails extends UIComponent {
             }
         }
     }
-};
+}
 
 
 CopyrightDetails.prototype.style = {

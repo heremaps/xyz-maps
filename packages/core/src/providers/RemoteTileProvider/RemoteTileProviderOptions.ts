@@ -78,4 +78,4 @@ export interface RemoteTileProviderOptions extends TileProviderOptions {
     }): { put: GeoJSONFeature[], remove: GeoJSONFeature[] } | Promise<{ put: GeoJSONFeature[], remove: GeoJSONFeature[] }>;
 
     loader?: any;
-};
+}

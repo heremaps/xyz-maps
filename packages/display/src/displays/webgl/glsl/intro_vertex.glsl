@@ -10,3 +10,5 @@ vec4 snapToScreenPixel(vec4 position, vec2 resolution){
     position.xy = (round(screenPixel) / resolution * 2.0 - 1.0) * position.w;
     return position;
 }
+
+const float SCALE_UINT16_Z = 9000.0 / 65535.0; // 0.1373311970702678m precision

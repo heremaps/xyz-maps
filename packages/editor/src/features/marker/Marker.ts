@@ -18,6 +18,16 @@
  */
 
 import {Feature} from '../feature/Feature';
+import oTools from '../area/PolygonTools';
+
+type DefaultBehavior = {
+    dragAxis?: [number, number, number] | 'Z'
+    dragPlane?: [number, number, number] | 'XY'
+}
+
+const defaultBehavior: DefaultBehavior = {
+    dragPlane: 'XY'
+};
 
 /**
  * The Marker Feature is a generic editable Feature with "Point" geometry.
@@ -29,6 +39,77 @@ export class Marker extends Feature {
      */
     readonly class: 'MARKER';
 
+    /**
+     * Set the behavior options.
+     * @experimental
+     */
+    behavior(options: {
+        /**
+         * The drag axis across which the marker is dragged upon user interaction.
+         * Once "dragAxis" is set, "dragPlane" has no effect.
+         * In case "dragAxis" and "dragPlane" are set, "dragPlane" is preferred.
+         * In case "dragPlane" and "dragAxis" are both set, "dragPlane" is preferred.
+         */
+        dragAxis?: 'X' | 'Y' | 'Z' | [number, number, number]
+        /**
+         * The normal of the plane over which the marker is dragged upon user interaction.
+         * Once "dragPlane" is set, "dragAxis" has no effect.
+         */
+        dragPlane?: 'XY' | 'XZ' | 'YZ' | [number, number, number]
+    }): void;
+    /**
+     * Set the value of a specific behavior option.
+     * @experimental
+     */
+    behavior(name: string, value: boolean | string | [number, number, number]): void;
+    /**
+     * Get the value of a specific behavior option.
+     * @experimental
+     */
+    behavior(option: string): any;
+    /**
+     * Get the behavior options.
+     * @experimental
+     */
+    behavior(): {
+        /**
+         * The drag axis across which the marker is dragged upon user interaction.
+         */
+        dragAxis?: [number, number, number] | 'X' | 'Y' | 'Z' | null
+        /**
+         * The normal of the plane over which the marker is dragged upon user interaction.
+         */
+        dragPlane?: [number, number, number] | 'XY' | 'XZ' | 'YZ' | null
+    };
+
+    behavior(options?: any, value?: boolean) {
+        let behavior = oTools.private(this, 'b') || {...defaultBehavior};
+
+        switch (arguments.length) {
+        case 0:
+            return behavior;
+        case 1:
+            if (typeof options == 'string') {
+                // getter
+                return behavior[options];
+            }
+            break;
+        case 2:
+            const opt = {};
+            opt[options] = value;
+            options = opt;
+        }
+        // setter
+        behavior = {...behavior, ...options};
+
+        if (options.dragPlane) {
+            delete behavior.dragAxis;
+        } else if (options.dragAxis) {
+            delete behavior.dragPlane;
+        }
+
+        this.__.b = behavior;
+    }
 
     // /**
     //  *  Get the current position/coordinate of the feature.
@@ -46,4 +127,9 @@ export class Marker extends Feature {
     // }
 }
 
-(<any>Marker.prototype).class = 'MARKER';
+(<
+        any
+        >
+        Marker
+            .prototype
+).class = 'MARKER';

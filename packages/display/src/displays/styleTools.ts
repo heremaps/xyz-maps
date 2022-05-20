@@ -143,32 +143,38 @@ const getMaxZoom = (styles: StyleGroup, feature: Feature, zoom: number, layerInd
 };
 
 
-const getLineWidth = (groups: StyleGroup, feature: Feature, zoom: number, layerIndex: number): [number, number] => {
+const getLineWidth = (groups: StyleGroup, feature: Feature, zoom: number, layerIndex: number, skip3d?: boolean): [number, number] => {
     let width = 0;
     let maxZ = 0;
-    let grp;
+    let style;
     const tileGridZoom = getTileGridZoom(zoom);
 
+
     for (let s = 0; s < groups.length; s++) {
-        grp = groups[s];
+        style = groups[s];
+        const type = getValue('type', style, feature, tileGridZoom);
 
-        let z = getAbsZ(grp, feature, tileGridZoom, layerIndex);
-        if (z > maxZ) {
-            maxZ = z;
-        }
+        if (type != 'Line') continue;
 
-        // let swVal = getValue('strokeWidth', grp, feature, tileGridZoom); // || 1;
-        // if (isNaN(swVal)) swVal = 1;
-        // let [value, unit] = parseSizeValue(swVal, true);
-        // if (unit == 'm') {
-        //     const dZoomScale = Math.pow(2, zoom % tileGridZoom);
-        //     value = dZoomScale * meterToPixel(value, tileGridZoom);
-        // }
+        if (!skip3d || !getValue('altitude', style, feature, tileGridZoom)) {
+            let z = getAbsZ(style, feature, tileGridZoom, layerIndex);
+            if (z > maxZ) {
+                maxZ = z;
+            }
 
-        const value = getSizeInPixel('strokeWidth', grp, feature, zoom, true);
+            // let swVal = getValue('strokeWidth', grp, feature, tileGridZoom); // || 1;
+            // if (isNaN(swVal)) swVal = 1;
+            // let [value, unit] = parseSizeValue(swVal, true);
+            // if (unit == 'm') {
+            //     const dZoomScale = Math.pow(2, zoom % tileGridZoom);
+            //     value = dZoomScale * meterToPixel(value, tileGridZoom);
+            // }
 
-        if (value > width) {
-            width = value;
+            const value = getSizeInPixel('strokeWidth', style, feature, zoom, true);
+
+            if (value > width) {
+                width = value;
+            }
         }
     }
 
@@ -283,13 +289,17 @@ export const calcBBox = (style: Style, feature: Feature, zoom: number, dpr: numb
 
 
 // uses for point geometries only
-const getPixelSize = (groups: StyleGroup, feature: Feature, zoom: number, dpr: number, layerIndex: number): [number, number, number, number, number?] => {
+const getPixelSize = (groups: StyleGroup, feature: Feature, zoom: number, dpr: number, layerIndex: number, skip3d?: boolean): [number, number, number, number, number?] => {
     const tileGridZoom = getTileGridZoom(zoom);
     let maxZ = 0;
     let z;
 
     let combinedBBox;
     for (let style of groups) {
+        if (skip3d && getValue('altitude', style, feature, tileGridZoom)) {
+            continue;
+        }
+
         const bbox = calcBBox(style, feature, zoom, dpr, combinedBBox, true);
         combinedBBox = bbox || combinedBBox;
 
@@ -305,6 +315,27 @@ const getPixelSize = (groups: StyleGroup, feature: Feature, zoom: number, dpr: n
     }
 };
 
+
+export const is3d = (groups: StyleGroup, feature: Feature, zoom: number): boolean => {
+    const tileGridZoom = getTileGridZoom(zoom);
+    for (let style of groups) {
+        if (getValue('altitude', style, feature, tileGridZoom) || getValue('extrude', style, feature, tileGridZoom)) {
+            return true;
+        }
+    }
+    return false;
+};
+
+export const getExtrude = (groups: StyleGroup, feature: Feature, zoom: number): number | null => {
+    const tileGridZoom = getTileGridZoom(zoom);
+    for (let style of groups) {
+        const extrude = getValue('extrude', style, feature, tileGridZoom);
+        if (extrude) {
+            return extrude;
+        }
+    }
+    return null;
+};
 
 const merge = (style0: StyleGroup, style: StyleGroup): StyleGroup | null => {
     if (style === null || <any>style === false) {

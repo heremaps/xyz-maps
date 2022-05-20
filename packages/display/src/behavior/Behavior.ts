@@ -32,6 +32,7 @@ type BehaviorOptions = {
     zoom: boolean | 'fixed' | 'float';
     drag: boolean;
     rotate: boolean;
+    pitch: boolean;
 }
 
 const getCenter = (ev: TouchEvent | MouseEvent, mapEl: HTMLElement): [number, number] => {
@@ -112,6 +113,12 @@ class Behavior {
         const dragDx = [];
         const dragDy = [];
 
+
+        const gestureThresholdExceeded = (gesture: string, x: number, y: number): boolean => {
+            const threshold = mapCfg[gesture];
+            return Math.abs(x - startX) > threshold || Math.abs(y - startY) > threshold;
+        };
+
         const resetDrag = () => {
             dragGrouped = 0;
             dragDx.length = 0;
@@ -153,10 +160,7 @@ class Behavior {
         function panMap(x, y) {
             // DRAG START
             if (!dragged) {
-                let threshold = mapCfg['minPanMapThreshold'];
-                if (
-                    Math.abs(x - startX) < threshold && Math.abs(y - startY) < threshold
-                ) {
+                if (!gestureThresholdExceeded('minPanMapThreshold', x, y)) {
                     return true;
                 }
                 kinetic.cancel();
@@ -275,7 +279,7 @@ class Behavior {
             let scale = getScale(ev);
 
             if (touches > 1) {
-                if (settings['pitch']) {
+                if (settings.pitch) {
                     // wait some ticks for better gesture recognition
                     if (++ticks < 5) {
                         ev.preventDefault();
@@ -303,7 +307,7 @@ class Behavior {
                     pitch = false;
                 }
 
-                if (settings['zoom']) {
+                if (settings.zoom) {
                     that.scrollHandler.zoom(
                         //  log2(2)   ->  1
                         //  log2(1)   ->  0
@@ -315,7 +319,7 @@ class Behavior {
                     );
                 }
 
-                if (settings['rotate']) {
+                if (settings.rotate) {
                     map.rotate(startMapRotation + getAngle(ev) - startAngle);
                 }
                 lastScale = scale;
@@ -393,15 +397,18 @@ class Behavior {
         function onMouseMove(ev) {
             that.resetAnimation?.stop();
 
+            const x = ev.clientX;
+            const y = ev.clientY;
+
             if (mouseButtonPressed == 0) {
-                panMap(ev.clientX, ev.clientY);
+                panMap(x, y);
             } else if (mouseButtonPressed == 2) {
-                if (settings['rotate']) {
-                    map.rotate(startMapRotation + (lastX - ev.clientX) * .25);
+                if (settings.rotate && gestureThresholdExceeded('minRotateMapThreshold', x, y)) {
+                    map.rotate(startMapRotation + (lastX - x) * .25);
                 }
 
-                if (settings['pitch']) {
-                    map.pitch(startMapPitch + (lastY - ev.clientY) * .1);
+                if (settings.pitch && gestureThresholdExceeded('minPanMapThreshold', x, y)) {
+                    map.pitch(startMapPitch + (lastY - y) * .1);
                 }
             }
         }

@@ -83,6 +83,6 @@ class DrawLineText extends DrawLineSymbol {
             ctx.fillText(symbol, cx, cy);
         }
     }
-};
+}
 
 export default DrawLineText;

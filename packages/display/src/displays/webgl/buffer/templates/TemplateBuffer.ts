@@ -20,6 +20,7 @@
 import {Attribute} from '../Attribute';
 import {FlexArray} from './FlexArray';
 import {GeometryBuffer} from '../GeometryBuffer';
+import {Raycaster} from '../../Raycaster';
 
 export type FlexAttribute = {
     data: FlexArray;
@@ -35,7 +36,7 @@ export class TemplateBuffer {
     first: number;
     last: number;
 
-    attributes: { [name: string]: FlexAttribute };
+    flexAttributes: { [name: string]: FlexAttribute };
     groups: {
         attributes: { [name: string]: FlexAttribute; }
     }
@@ -46,12 +47,20 @@ export class TemplateBuffer {
 
     protected _flat: boolean = true;
 
-    constructor(scissor: boolean) {
+    idOffsets?: (string | number)[];
+
+    constructor(flat: boolean, scissor: boolean = false) {
+        this._flat = flat;
         this.scissor = scissor;
+        // this.flexAttributes = {};
+
+        if (!flat) {
+            this.idOffsets = [];
+        }
     }
 
     count(): number {
-        const aPosition = this.attributes.a_position;
+        const aPosition = this.flexAttributes.a_position;
         return aPosition.data.length / aPosition.size - this.first;
     }
 
@@ -79,7 +88,7 @@ export class TemplateBuffer {
 
     finalize(type: string): GeometryBuffer | null {
         const buffer = this;
-        const {attributes} = buffer;
+        const {flexAttributes} = buffer;
         let geoBuffer: GeometryBuffer;
 
         if (buffer.hasIndex()) {
@@ -96,12 +105,23 @@ export class TemplateBuffer {
             }, type);
         }
 
-        for (let name in attributes) {
-            let attr = attributes[name];
+        for (let name in flexAttributes) {
+            let attr = flexAttributes[name];
             if (attr.data.length) {
                 geoBuffer.addAttribute(name, buffer.trimAttribute(attr));
             }
         }
+
+        geoBuffer.idOffsets = buffer.idOffsets;
+
         return geoBuffer;
+    }
+
+    setIdOffset(featureId: string | number) {
+        this.idOffsets?.push(featureId);
+    }
+
+    rayIntersects(buffer: GeometryBuffer, result: { z: number }, tileX: number, tileY: number, rayCaster: Raycaster): number | string {
+        return null;
     }
 }

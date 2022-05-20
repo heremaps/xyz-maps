@@ -397,8 +397,12 @@ export class CollisionHandler {
                             boxes = new Array(boxCnt);
                             screenX += offsetX;
                             screenY += offsetY;
-                            let [prjX, prjY] = display.project(screenX, screenY, 0, 0/* -> unscaled world pixels */);
-                            let prjScreen2 = display.project(screenX + slope[0], screenY + slope[1], 0, 0);
+                            let [prjX, prjY] = display.project(screenX, screenY, 0,
+                                0, 0/* -> unscaled world pixels */
+                            );
+                            let prjScreen2 = display.project(screenX + slope[0], screenY + slope[1], 0,
+                                0, 0
+                            );
                             slope = [
                                 (prjScreen2[0] - prjX) / scale,
                                 (prjScreen2[1] - prjY) / scale
@@ -406,7 +410,9 @@ export class CollisionHandler {
                             this.updateBBoxes(prjX, prjY, slope, halfWidth, halfHeight, boxes.length - 1, boxes);
                         } else {
                             // viewport aligned
-                            const [prjX, prjY] = display.project(screenX, screenY, 0, 0/* -> unscaled world pixels */);
+                            const [prjX, prjY] = display.project(screenX, screenY, 0,
+                                0, 0/* -> unscaled world pixels */
+                            );
                             boxes = [{
                                 minX: prjX - halfWidth + offsetX,
                                 maxX: prjX + halfWidth + offsetX,

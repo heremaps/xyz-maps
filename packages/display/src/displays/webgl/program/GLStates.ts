@@ -21,9 +21,10 @@ interface States {
     scissor: boolean;
     blend: boolean;
     depth: boolean;
+    colorMask?: [boolean, boolean, boolean, boolean]
 }
 
-export class GLStates {
+export class GLStates implements States {
     scissor: boolean; // GL_SCISSOR_TEST 3089
     blend: boolean;
     depth: boolean;

@@ -29,7 +29,8 @@ const TO_DEG = 180 / Math.PI;
 const DEFAULT_MIN_REPEAT = 256;
 let UNDEF;
 
-type Placer = (x: number, y: number, alpha: number, collisionData?: CollisionData) => void;
+type PlacePointCallback = (x: number, y: number, z: number | null, rotZ: number, rotY: number, collisionData?: CollisionData) => void;
+
 
 export class LineFactory {
     private dashes: DashAtlas;
@@ -37,6 +38,7 @@ export class LineFactory {
 
     private readonly pixels: Float32Array; // projected coordinate cache
     private length: number = 0; // length of coordinate cache
+    private dimensions: number; // dimensions of coordinate cache
     private readonly alpha: Float32Array; // segment angle cache
     private lineLength: Float32Array; // length from start to segment at index of the current projected line
     private collisions: CollisionData[];
@@ -64,18 +66,28 @@ export class LineFactory {
         const {pixels, decimals} = this;
         if (!this.length) {
             let t = 0;
-            for (let c = 0, length = coordinates.length, x, y, _x, _y; c < length; c++) {
-                x = tile.lon2x(coordinates[c][0], tileSize);
-                y = tile.lat2y(coordinates[c][1], tileSize);
+            const dimensions = typeof coordinates[0][2] == 'number' ? 3 : 2;
+            const hasZ = dimensions === 3;
+
+            for (let c = 0, length = coordinates.length, x, y, z, _x, _y, _z; c < length; c++) {
+                let coord = coordinates[c];
+                x = tile.lon2x(coord[0], tileSize);
+                y = tile.lat2y(coord[1], tileSize);
+                z = coord[2] || 0;
 
                 if (!c ||
                     (Math.round(_x * decimals) - Math.round(x * decimals)) ||
-                    (Math.round(_y * decimals) - Math.round(y * decimals))
+                    (Math.round(_y * decimals) - Math.round(y * decimals)) ||
+                    (hasZ && z != _z)
                 ) {
                     pixels[t++] = x;
                     pixels[t++] = y;
 
-                    if (t > 2) {
+                    if (hasZ) {
+                        pixels[t++] = z;
+                    }
+
+                    if (t > dimensions) {
                         const dx = _x - x;
                         const dy = _y - y;
                         this.lineLength[c] = this.lineLength[c - 1] + Math.sqrt(dx * dx + dy * dy);
@@ -83,15 +95,18 @@ export class LineFactory {
                 }
                 _x = x;
                 _y = y;
+                _z = z;
             }
 
             this.length = t;
+            this.dimensions = dimensions;
         }
         return this.length;
     }
 
-    private placeCached(place: Placer, tile: Tile, tileSize: number, applyRotation?: boolean) {
+    private placeCached(place: PlacePointCallback, tile: Tile, tileSize: number, applyRotation?: boolean) {
         const {collisions} = this;
+        const z = 0;
         for (let i = 0, cData; i < collisions.length; i++) {
             cData = collisions[i];
             let {cx, cy} = cData;
@@ -99,7 +114,7 @@ export class LineFactory {
                 cx -= tile.x % 2 * tileSize;
                 cy -= tile.y % 2 * tileSize;
             }
-            place(cx, cy, applyRotation ? this.alpha[i] : 0, cData);
+            place(cx, cy, z, applyRotation ? this.alpha[i] : 0, 0, cData);
         }
     }
 
@@ -137,37 +152,41 @@ export class LineFactory {
         strokeLinecap: Cap,
         strokeLinejoin: Join,
         strokeWidth: number,
+        altitude: boolean | number,
         offset?: number,
         start?: number,
         stop?: number
-    ) {
+    ): number {
         if (strokeDasharray) {
             group.texture = this.dashes.get(strokeDasharray);
         }
 
         if (!group.buffer) {
-            group.buffer = new LineBuffer();
+            group.buffer = new LineBuffer(!altitude);
         }
 
         const groupBuffer = group.buffer;
 
         this.projectLine(coordinates, tile, tileSize);
 
-        const {pixels, length} = this;
-        const isRing = pixels[0] == pixels[length - 2] && pixels[1] == pixels[length - 1];
+        const {pixels, length, dimensions} = this;
+        const last = length - dimensions;
+        const isRing = pixels[0] == pixels[last] && pixels[1] == pixels[last + 1];
 
-        addLineString(
-            groupBuffer.attributes.a_position.data,
-            groupBuffer.attributes.a_normal.data,
+        return addLineString(
+            groupBuffer.flexAttributes.a_position.data,
+            groupBuffer.flexAttributes.a_normal.data,
             pixels,
             this.lineLength,
             length,
+            dimensions,
+            altitude,
             tileSize,
             removeTileBounds,
             strokeLinecap,
             strokeLinejoin,
             strokeWidth,
-            strokeDasharray && groupBuffer.attributes.a_lengthSoFar.data,
+            strokeDasharray && groupBuffer.flexAttributes.a_lengthSoFar.data,
             isRing,
             offset,
             start,
@@ -177,6 +196,7 @@ export class LineFactory {
 
     placeAtSegments(
         coordinates: Coordinate[],
+        altitude: boolean | number,
         tile: Tile,
         tileSize: number,
         collisions: CollisionHandler,
@@ -188,7 +208,7 @@ export class LineFactory {
         height: number,
         applyRotation: boolean,
         checkLineSpace: boolean,
-        placeFunc: any
+        placeFunc: PlacePointCallback
     ) {
         this.projectLine(coordinates, tile, tileSize);
 
@@ -205,12 +225,14 @@ export class LineFactory {
             height,
             applyRotation,
             checkLineSpace,
+            altitude,
             placeFunc
         );
     }
 
     placeAtPoints(
         coordinates: Coordinate[],
+        altitude: boolean | number,
         tile: Tile,
         tileSize: number,
         collisions: CollisionHandler,
@@ -219,19 +241,24 @@ export class LineFactory {
         halfHeight: number,
         offsetX: number,
         offsetY: number,
-        place: Placer
+        place: PlacePointCallback
     ) {
         this.projectLine(coordinates, tile, tileSize);
+
 
         if (this.collisions) {
             return this.placeCached(place, tile, tileSize);
         }
 
         const checkCollisions = collisions && [];
+        const fixZ = typeof altitude == 'number' ? altitude : null;
 
-        for (let i = 0, data = this.pixels, length = this.length; i < length; i++) {
+
+        for (let i = 0, data = this.pixels, d = this.dimensions, length = this.length; i < length; i += d) {
             let x = data[i];
-            let y = data[++i];
+            let y = data[i + 1];
+            let z = altitude === true ? data[i + 2] : fixZ;
+
             let collisionData;
 
             if (x >= 0 && y >= 0 && x < tileSize && y < tileSize) {
@@ -254,7 +281,7 @@ export class LineFactory {
                 }
 
                 if (!checkCollisions || collisionData) {
-                    place(x, y, 0, collisionData);
+                    place(x, y, z, 0, 0, collisionData);
                     distanceGrp?.add(x, y);
                 }
             }
@@ -276,28 +303,44 @@ export class LineFactory {
         height: number,
         applyRotation: boolean,
         checkLineSpace: boolean,
-        place: Placer
+        altitude: boolean | number,
+        place: PlacePointCallback
     ) {
         if (this.collisions) {
             return this.placeCached(place, tile, tileSize, applyRotation);
         }
+
+        const dim = this.dimensions;
         const checkCollisions = collisions && [];
-        const vLength = this.length / 2;
+        const vLength = this.length / dim;
         let coordinates = this.pixels;
         let prevDistance = Infinity;
         let sqWidth = Math.pow(2 * offsetX + width, 2);
         let x2;
         let y2;
+        let z2;
         let dx;
         let dy;
         let cx;
         let cy;
+        let cz;
         // for optimal repeat distance the first label gets placed in the middle of the linestring.
         let offset = Math.floor(vLength / 2) - 1;
         // we move to the end of the linestring..
         let dir = 1;
-        let x1 = coordinates[offset * 2];
-        let y1 = coordinates[offset * 2 + 1];
+        let x1 = coordinates[offset * dim];
+        let y1 = coordinates[offset * dim + 1];
+        let z1;
+
+        const handleAltitude = altitude == true;
+        let rotY = 0;
+
+        if (handleAltitude) {
+            z1 = coordinates[offset * dim + 2];
+        } else {
+            cz = typeof altitude == 'number' ? altitude : null;
+        }
+
         let startX = x1;
         let startY = y1;
         let startDistance = prevDistance;
@@ -314,19 +357,32 @@ export class LineFactory {
                 prevDistance = startDistance;
             }
 
-            x2 = coordinates[c * 2];
-            y2 = coordinates[c * 2 + 1];
+            x2 = coordinates[c * dim];
+            y2 = coordinates[c * dim + 1];
+            z2 = coordinates[c * dim + 2];
+
             dx = x2 - x1;
             dy = y2 - y1;
 
             cx = dx * .5 + x1;
             cy = dy * .5 + y1;
 
+
             // not inside tile -> skip!
             if (cx >= 0 && cy >= 0 && cx < tileSize && cy < tileSize) {
                 let sqLineWidth = checkLineSpace ? dx * dx + dy * dy : Infinity;
 
                 if (sqLineWidth > sqWidth) {
+                    if (handleAltitude) {
+                        const dz = z2 - z1;
+                        // const length = Math.sqrt(sqLineWidth);
+                        cz = z1 + (z2 - z1) * .5;
+                        // rotY = Math.atan(dz / length);
+                        rotY = Math.asin(dz / Math.sqrt(dx * dx + dy * dy + dz * dz));
+                        // rotY = dx ? Math.sin(dz / dx) : dy ? Math.cos(dz / dy) : 0;
+                    }
+
+
                     let alpha = Math.atan2(dy, dx);
                     if (dir == -1) {
                         alpha += Math.PI;
@@ -360,7 +416,7 @@ export class LineFactory {
                     }
 
                     if ((!checkCollisions || collisionData)) {
-                        place(cx, cy, applyRotation ? alpha * TO_DEG : 0, collisionData);
+                        place(cx, cy, cz, applyRotation ? alpha * TO_DEG : 0, rotY, collisionData);
                         distanceGrp?.add(cx, cy);
                     }
                 }
@@ -368,6 +424,7 @@ export class LineFactory {
 
             x1 = x2;
             y1 = y2;
+            z1 = z2;
         }
 
         if (checkCollisions?.length) {

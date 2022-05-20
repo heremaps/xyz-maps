@@ -244,6 +244,6 @@ class HTTPLoader implements TileLoader {
 
         return queue[key] = this.http.send(request);
     };
-};
+}
 
 export {HTTPLoader, NetworkError};

@@ -36,4 +36,4 @@ export interface TileStorage {
     set(tile: Tile);
 
     onDrop(onDrop: tileHandler);
-};
+}

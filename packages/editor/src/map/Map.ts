@@ -25,8 +25,8 @@ import {Feature} from '../features/feature/Feature';
 
 
 // var MAX_DECIMAL_PRECISION = 1e8; // ⁓1.1mm
-const MAX_DECIMAL_PRECISION = 1e9; // ⁓110microns
-
+const LON_LAT_DECIMALS = 1e9; // ⁓110microns
+const ALT_DECIMALS = 1e3; // mm
 const TO_RAD = Math.PI / 180;
 let UNDEF;
 
@@ -222,9 +222,13 @@ class Map {
         }
     };
 
-    clipGeoCoord(c: Point): Point {
-        c[0] = Math.round(c[0] * MAX_DECIMAL_PRECISION) / MAX_DECIMAL_PRECISION;
-        c[1] = Math.round(c[1] * MAX_DECIMAL_PRECISION) / MAX_DECIMAL_PRECISION;
+    clipGeoCoord(c: Point, clipZ?: boolean): Point {
+        const [x, y, z] = c;
+        c[0] = Math.round(x * LON_LAT_DECIMALS) / LON_LAT_DECIMALS;
+        c[1] = Math.round(y * LON_LAT_DECIMALS) / LON_LAT_DECIMALS;
+        if (clipZ && typeof z == 'number') {
+            c[2] = Math.round(z * ALT_DECIMALS) / ALT_DECIMALS;
+        }
         return c;
     };
 

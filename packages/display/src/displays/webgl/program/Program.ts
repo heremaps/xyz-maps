@@ -23,17 +23,18 @@ import {GLStates, PASS} from './GLStates';
 import introVertex from '../glsl/intro_vertex.glsl';
 import {ArrayGrp, GeometryBuffer, IndexData, IndexGrp} from '../buffer/GeometryBuffer';
 import {BufferCache} from '../GLRender';
+import {Attribute} from '../buffer/Attribute';
 
 let UNDEF;
 
 type UniformMap = { [name: string]: WebGLUniformLocation };
-type AttributeMap = { [name: string]: number };
+type AttributeMap = { [name: string]: Attribute };
 
 class Program {
     prog: WebGLProgram;
     gl: WebGLRenderingContext;
     name: string;
-    attributes: AttributeMap = {};
+    attributes: { [name: string]: number } = {};
     uniforms: UniformMap = {};
 
     private usage;
@@ -43,6 +44,7 @@ class Program {
     protected uniformSetters = {};
     protected mode: number; // gl.POINTS;
 
+    private dpr: number; // devicepixelratio
 
     private createUniformSetter(uInfo: WebGLActiveInfo, location: WebGLUniformLocation) {
         const gl = this.gl;
@@ -71,25 +73,35 @@ class Program {
         return () => console.warn('setting uniform not supported', uInfo, location);
     }
 
-    private macros: string[] = [
-        '#define M_PI 3.1415927410125732'
-    ];
+    private macros: { [name: string]: any } = {
+        // '#version 300 es',s
+        'M_PI': 3.1415927410125732
+    };
 
-    constructor(gl: WebGLRenderingContext, mode: number, vertexShader: string, fragmentShader: string, devicePixelRation: number) {
-        const render = this;
-        const macros = render.macros.concat(`#define DEVICE_PIXEL_RATIO ${devicePixelRation.toFixed(1)}\n`).join('\n');
+    private buildSource(vertexShader: string, fragmentShader: string, macros?: { [name: string]: any }): [string, string] {
+        const prog = this;
 
-        const glProg = createProgram(gl,
-            macros + introVertex + vertexShader,
-            macros + fragmentShader
-        );
+        macros = {...prog.macros, DEVICE_PIXEL_RATIO: prog.dpr.toFixed(1), ...macros};
 
-        this.mode = mode;
-        this.usage = gl.STATIC_DRAW;
-        this.gl = gl;
+        let macroSrc = '';
+        for (let name in macros) {
+            macroSrc += `#define ${name} ${macros[name]}\n`;
+        }
+
+        return [
+            macroSrc + introVertex + vertexShader,
+            macroSrc + fragmentShader
+        ];
+    }
+
+    protected compile(vertexShader: string, fragmentShader: string, macros?: { [name: string]: any }) {
+        const {gl} = this;
+
+        const [vertexSrc, fragSrc] = this.buildSource(vertexShader, fragmentShader, macros || {});
+
+        const glProg = createProgram(gl, vertexSrc, fragSrc);
+
         this.prog = glProg;
-
-        this.glStates = new GLStates({scissor: true, blend: false, depth: true});
 
         // setup attributes
         let activeAttributes = gl.getProgramParameter(glProg, gl.ACTIVE_ATTRIBUTES);
@@ -107,11 +119,28 @@ class Program {
             const name = uInfo.name;
             const location = gl.getUniformLocation(glProg, name);
 
-            render.uniforms[name] = location;
+            this.uniforms[name] = location;
 
             // gl.getUniformLocation(program, uniformInfo.name);
             this.uniformSetters[uInfo.name] = this.createUniformSetter(uInfo, location);
         }
+    }
+
+    constructor(
+        gl: WebGLRenderingContext,
+        mode: number,
+        vertexShader: string,
+        fragmentShader: string,
+        devicePixelRation: number,
+        macros?: { [name: string]: any }
+    ) {
+        this.dpr = devicePixelRation;
+        this.mode = mode;
+        this.usage = gl.STATIC_DRAW;
+        this.gl = gl;
+        this.glStates = new GLStates({scissor: true, blend: false, depth: true});
+
+        this.compile(vertexShader, fragmentShader, macros);
     }
 
     setBufferCache(buffers: BufferCache) {
@@ -182,7 +211,7 @@ class Program {
         if (!ready) {
             gl.bufferData(gl.ELEMENT_ARRAY_BUFFER, index.data, gl.STATIC_DRAW);
         } else {
-            delete index.data;
+            // delete index.data;
         }
     }
 
@@ -252,7 +281,7 @@ class Program {
         }
     }
 
-    init(options: GLStates, pass: PASS, stencil: boolean) {
+    init(options: GeometryBuffer, pass: PASS, stencil: boolean, zIndex?: number) {
         const prog = this;
         const {gl} = prog;
         const opaquePass = pass == PASS.OPAQUE;
@@ -273,8 +302,12 @@ class Program {
         gl.blendFunc(gl.SRC_ALPHA, gl.ONE_MINUS_SRC_ALPHA);
 
         // get rid of zfighting for alpha pass.
-        // alpha pass is drawn ordered zindex -> no need to write to depthbuffer
+        // alpha pass is drawn ordered zindex -> no need to write to depthbuffer (performance)
         gl.depthMask(opaquePass);
+        // gl.depthMask(false );
+        // gl.depthMask(opaquePass || !options.flat);
+
+        gl.disable(gl.POLYGON_OFFSET_FILL);
     }
 
     // use() {

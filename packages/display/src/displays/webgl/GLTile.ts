@@ -21,6 +21,7 @@ import BasicTile from '../BasicTile';
 
 import {TileLayer} from '@here/xyz-maps-core';
 import {GeometryBuffer} from './buffer/GeometryBuffer';
+import {Layers} from '../Layers';
 
 
 let UNDEF;
@@ -33,7 +34,7 @@ class GLTile extends BasicTile {
 
     private onDrop: DropHandler;
 
-    constructor(quadkey: string, layers: any[], onDrop?: DropHandler) {
+    constructor(quadkey: string, layers: Layers, onDrop?: DropHandler) {
         super();
         this.onDrop = onDrop;
         this.init(quadkey, layers);
@@ -45,7 +46,7 @@ class GLTile extends BasicTile {
         this.preview(index, false);
     };
 
-    init(quadkey: string, layers: TileLayer[]) {
+    init(quadkey: string, layers: Layers) {
         super.init(quadkey, layers);
 
         this.data.length = 0;

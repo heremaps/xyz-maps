@@ -133,6 +133,14 @@
     {
       "file": "./editor/turn_restriction_editor.html",
       "docs": "classes/editor.navlink.html#editTurnRestrictions"
+    },
+    {
+      "file": "./editor/edit_line_3d.html",
+      "docs": "classes/editor.line.html#behavior"
+    },
+    {
+      "file": "./editor/edit_point_3d.html",
+      "docs": "classes/editor.marker.html#behavior"
     }
   ],
   "Layers / Providers": [
@@ -207,6 +215,14 @@
     {
       "file": "./layer/3d_buildings.html",
       "docs": "interfaces/core.style.html#extrude"
+    },
+    {
+      "file": "./layer/3d_lines.html",
+      "docs": "interfaces/core.style.html#altitude"
+    },
+    {
+      "file": "./layer/3d_points.html",
+      "docs": "interfaces/core.style.html#altitude"
     },
     {
       "file": "./layer/label_collision_detection.html",

@@ -23,6 +23,10 @@ import LineTools from './line/LineTools';
 import NavlinkTools from './link/NavlinkTools';
 import LocationTools from './location/LocationTools';
 import {Feature} from './feature/Feature';
+import {Marker} from '@here/xyz-maps-editor';
+import {vec3} from '@here/xyz-maps-common';
+import {getClosestPntOnLine, rayIntersectPlane} from '../geometry';
+import InternalEditor from '../IEditor';
 
 const tools = {
     MARKER: MarkerTools,
@@ -63,6 +67,9 @@ type FeatureTools = {
     _setCoords?(feature: Feature, coordinates);
     markAsRemoved?(feature: Feature, animation?: boolean);
     markAsModified?(feature: Feature, saveView?: boolean, visualize?: boolean);
+
+    _getDragBehavior?(feature: Marker): { plane?: number[], axis?: number[] }
+    _dragFeatureCoordinate?(toX: number, toY: number, feature, coordinate: number[]);
 }
 
 const oTools: FeatureTools = {
@@ -100,3 +107,78 @@ for (const type in tools) {
 }
 
 export default oTools;
+
+// ********* shared utils *********
+const getDragBehavior = (feature: Marker): { plane?: number[], axis?: number[] } => {
+    const getDragVector = (behavior: string, map) => {
+        let b = feature.behavior && feature.behavior(behavior);
+        if (b) {
+            if (typeof b == 'string') {
+                b = map[b.split('').sort().join('').toUpperCase()];
+            }
+            return b;
+        }
+    };
+    const plane = getDragVector('dragPlane', {
+        XY: [0, 0, 1],
+        XZ: [0, 1, 0],
+        YZ: [1, 0, 0]
+    });
+    if (plane) return {plane};
+
+    const axis = getDragVector('dragAxis', {
+        X: [1, 0, 0],
+        Y: [0, 1, 0],
+        Z: [0, 0, 1]
+    });
+    if (axis) return {axis};
+
+    return {plane: [0, 0, 1]};
+};
+
+
+export const dragFeatureCoordinate = (toX: number, toY: number, feature, coordinate: number[], editor?: InternalEditor): number[] => {
+    editor = editor || feature._e();
+
+    const behavior = getDragBehavior(feature);
+    const display = editor.display;
+    const rayStart = display._unprj(toX, toY, -1);
+    const rayEnd = display._unprj(toX, toY, 0);
+    const rayDir = vec3.sub([], rayEnd, rayStart);
+    const pntWorldPx = display._g2w(coordinate);
+    const org2d = coordinate[2] === undefined;
+    let pntMovedWorldPx;
+
+    if (behavior.plane) {
+        pntMovedWorldPx = rayIntersectPlane(rayDir, rayStart, behavior.plane, pntWorldPx);
+    } else {
+        const dragAxis = behavior.axis;
+        const sz = display._prj(display._g2w(coordinate[0], coordinate[1], coordinate[2]))[2];
+
+        // calculate plane normal of dragaxis and mouse ray intersection
+        const plane1 = pntWorldPx;
+        const plane2 = vec3.add([], pntWorldPx, dragAxis);
+        const plane3 = display._unprj(toX, toY, sz);
+        const planeNormal = vec3.normalize([], vec3.cross([], vec3.sub([], plane3, plane2), vec3.sub([], plane1, plane2)));
+        const iPnt = rayIntersectPlane(rayDir, rayStart, planeNormal, pntWorldPx);
+
+
+        if (iPnt) {
+            const pntWorldPx2 = vec3.add([], pntWorldPx, dragAxis);
+            pntMovedWorldPx = getClosestPntOnLine(pntWorldPx2, pntWorldPx, iPnt);
+        }
+    }
+
+    if (pntMovedWorldPx) {
+        coordinate = editor.map.clipGeoCoord(display._w2g(pntMovedWorldPx), true);
+        if (coordinate[2] < 0) {
+            coordinate[2] = 0;
+        }
+        if (org2d && coordinate[2] === 0) {
+            coordinate.pop();
+        }
+    }
+
+    return coordinate;
+};
+

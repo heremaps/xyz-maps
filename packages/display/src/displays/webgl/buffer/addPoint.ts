@@ -20,9 +20,8 @@
 
 const extentScale = 32;
 
-export const addPoint = (x: number, y: number, vertex: number[]): number => {
-    const v = vertex.length;
-
+export const addPoint = (x: number, y: number, z: number | boolean, vertex: number[]): number => {
+    let v = vertex.length;
     // make room for direction vector bit1 and visibility bit0 (LSB)
     x = x * extentScale << 2 | 1;
     y = y * extentScale << 2 | 1;
@@ -45,16 +44,36 @@ export const addPoint = (x: number, y: number, vertex: number[]): number => {
     const x3 = x1; // right
     const y3 = y2; // down
 
-    vertex.push(
-        // 0 -> 2 -> 3
-        x0, y0,
-        x2, y2,
-        x3, y3,
-        // 0 -> 3 -> 1
-        x0, y0,
-        x3, y3,
-        x1, y1
-    );
 
-    return v + 12;
+    if (typeof z == 'number') {
+        // z = Math.round(z);
+        // normalize float meters to uint16 (0m ... +9000m)
+        z = Math.round( z / 9000 * 0xffff );
+
+        vertex.push(
+            // 0 -> 2 -> 3
+            x0, y0, z,
+            x2, y2, z,
+            x3, y3, z,
+            // 0 -> 3 -> 1
+            x0, y0, z,
+            x3, y3, z,
+            x1, y1, z
+        );
+        v += 18;
+    } else {
+        vertex.push(
+            // 0 -> 2 -> 3
+            x0, y0,
+            x2, y2,
+            x3, y3,
+            // 0 -> 3 -> 1
+            x0, y0,
+            x3, y3,
+            x1, y1
+        );
+        v += 12;
+    }
+
+    return v;
 };

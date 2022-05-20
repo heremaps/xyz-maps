@@ -20,10 +20,21 @@
 import {Feature} from '@here/xyz-maps-core';
 import {Line} from './Line';
 import LineTools, {Coordinate} from './LineTools';
-// const Feature = features.Feature;
+import {dragFeatureCoordinate} from '../oTools';
+import oTools from '../area/PolygonTools';
+
 
 let lineTools: typeof LineTools;
 let UNDEF;
+
+type DefaultBehavior = {
+    dragAxis?: [number, number, number] | 'Z'
+    dragPlane?: [number, number, number] | 'XY'
+}
+
+const defaultBehavior: DefaultBehavior = {
+    dragPlane: 'XY'
+};
 
 /**
  * The LineShape represents a shape-point / coordinate of a Line feature.
@@ -32,6 +43,16 @@ let UNDEF;
  */
 class LineShape extends Feature {
     private _l: Line;
+
+    /**
+     * private data storage for internal api
+     * @hidden
+     * @internal
+     */
+    __: {
+        b?: { [behavior: string]: any };
+        [privateProperty: string]: any
+    }
 
     /**
      * The feature class of a LineShape Feature is "LINE_SHAPE".
@@ -45,6 +66,8 @@ class LineShape extends Feature {
         index: number;
         x: number;
         y: number;
+        z: number;
+        button: number;
     };
 
     /** {@inheritdoc} */
@@ -78,6 +101,78 @@ class LineShape extends Feature {
         });
 
         this._l = line;
+    }
+
+    /**
+     * Set the behavior options.
+     * @experimental
+     */
+    behavior(options: {
+        /**
+         * The drag axis across which the LineShape is dragged upon user interaction.
+         * Once "dragAxis" is set, "dragPlane" has no effect.
+         * In case "dragAxis" and "dragPlane" are set, "dragPlane" is preferred.
+         * In case "dragPlane" and "dragAxis" are both set, "dragPlane" is preferred.
+         */
+        dragAxis?: 'X' | 'Y' | 'Z' | [number, number, number]
+        /**
+         * The normal of the plane over which the LineShape is dragged upon user interaction.
+         * Once "dragPlane" is set, "dragAxis" has no effect.
+         */
+        dragPlane?: 'XY' | 'XZ' | 'YZ' | [number, number, number]
+    }): void;
+    /**
+     * Set the value of a specific behavior option.
+     * @experimental
+     */
+    behavior(name: string, value: boolean | string | [number, number, number]): void;
+    /**
+     * Get the value of a specific behavior option.
+     * @experimental
+     */
+    behavior(option: string): any;
+    /**
+     * Get the behavior options.
+     * @experimental
+     */
+    behavior(): {
+        /**
+         * The drag axis across which the marker is dragged upon user interaction.
+         */
+        dragAxis?: [number, number, number] | 'X' | 'Y' | 'Z' | null
+        /**
+         * The normal of the plane over which the marker is dragged upon user interaction.
+         */
+        dragPlane?: [number, number, number] | 'XY' | 'XZ' | 'YZ' | null
+    };
+
+    behavior(options?: any, value?: boolean) {
+        let behavior = oTools.private(this, 'b') || {...defaultBehavior};
+
+        switch (arguments.length) {
+        case 0:
+            return behavior;
+        case 1:
+            if (typeof options == 'string') {
+                // getter
+                return behavior[options];
+            }
+            break;
+        case 2:
+            const opt = {};
+            opt[options] = value;
+            options = opt;
+        }
+        // setter
+        behavior = {...behavior, ...options};
+
+        if (options.dragPlane) {
+            delete behavior.dragAxis;
+        } else if (options.dragAxis) {
+            delete behavior.dragPlane;
+        }
+
+        this.__.b = behavior;
     }
 
     /**
@@ -131,6 +226,7 @@ class LineShape extends Feature {
         const properties = shape.properties;
         const coordinates = shape.geometry.coordinates;
         const display = ev.detail.display;
+        const line = shape.getLine();
 
         properties.moved = false;
 
@@ -139,7 +235,12 @@ class LineShape extends Feature {
         properties.x = pixel.x;
         properties.y = pixel.y;
 
-        lineTools.removeShapes(shape.getLine(), 'vShps', shape.class == 'LINE_VIRTUAL_SHAPE' && this);
+        properties.button = ev.button;
+        properties.z = coordinates[2] || 0;
+
+        lineTools.removeShapes(line, 'vShps', shape.class == 'LINE_VIRTUAL_SHAPE' && this);
+
+        line._e().listeners.trigger(ev, this, 'pointerdown');
     }
 
     pressmove(ev, dx, dy) {
@@ -153,16 +254,17 @@ class LineShape extends Feature {
         const line = shape.getLine();
 
         const coordinates = <Coordinate[]>lineTools.getCoordinates(line, lineStringIndex);
+        let coord = coordinates[properties.index];
+
 
         if (!properties.moved) {
             properties.moved = true;
             line._e().listeners.trigger(ev, this, 'dragStart');
         }
 
-        shape.getProvider().setFeatureCoordinates(shape, [lon, lat]);
+        coord = coordinates[properties.index] = <Coordinate>dragFeatureCoordinate(ev.mapX, ev.mapY, shape, coord, line._e());
 
-        coordinates[properties.index][0] = lon;
-        coordinates[properties.index][1] = lat;
+        shape.getProvider().setFeatureCoordinates(shape, coord.slice());
 
         lineTools._setCoords(line, coordinates, lineStringIndex);
     }
