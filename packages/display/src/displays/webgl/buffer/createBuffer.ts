@@ -260,7 +260,6 @@ const createBuffer = (
                                     }
 
                                     geoBuffer.addUniform('u_size', [shared.width, toPixel, shared.height, toPixel]);
-
                                     geoBuffer.addUniform('u_rotation', shared.rotation * TO_RAD);
                                 }
                                 geoBuffer.addUniform('u_alignMap', shared.alignment == 'map');

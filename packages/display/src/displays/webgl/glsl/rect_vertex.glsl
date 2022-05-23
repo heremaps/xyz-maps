@@ -43,20 +43,16 @@ void main(void){
             rotation *= -1.0;
         }
 
-        float rotSin = sin(rotation);
-        float rotCos = cos(rotation);
-        mat2 mRotate = mat2(rotCos, -rotSin, rotSin, rotCos);
-
         vec2 pixel_offset = vec2(toPixel(u_offset.xy), toPixel(u_offset.zw));
 
         float z = a_position.z * SCALE_UINT16_Z;
 
         if (u_alignMap){
-            vec2 shift = (pixel_offset + dir * vec2(size.x, -size.y) * mRotate) / u_scale;
+            vec2 shift = (pixel_offset + rotateZ(dir * vec2(size.x, -size.y), rotation)) / u_scale;
             gl_Position = u_matrix * vec4(u_topLeft + pos + shift, -z, 1.0);
         } else {
             vec4 cpos = u_matrix * vec4(u_topLeft + pos, -z, 1.0);
-            vec2 shift = dir * size * mRotate;
+            vec2 shift = rotateZ(dir * size, rotation);
             vec2 offset = pixel_offset * vec2(1.0, -1.0);
 
             gl_Position = vec4(cpos.xy / cpos.w + (offset + shift) / u_resolution * 2.0, cpos.z / cpos.w, 1.0);

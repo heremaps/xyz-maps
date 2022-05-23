@@ -24,14 +24,6 @@ const float PI_05 = M_PI * 0.5;
 const float PI_15 = M_PI * 1.5;
 const float PI_20 = M_PI * 2.0;
 
-vec2 rotate(vec2 point, float rad){
-    float s = sin(rad);
-    float c = cos(rad);
-    return vec2(point.x * c + point.y * s, point.y * c - point.x * s);
-}
-
-
-
 mat3 rotation3dY(float angle) {
     float s = sin(angle);
     float c = cos(angle);
@@ -78,13 +70,13 @@ void main(void){
 
             vec2 _p = a_point.xy * OFFSET_SCALE + labelOffset;
             vec3 p = rotateY(vec3(_p, 1.0), a_point.z/32767.0 * PI_20);
-            p.xy = rotate(_p, -rotation);
+            p.xy = rotateZ(_p, rotation);
             p = p / u_scale / DEVICE_PIXEL_RATIO;
 
             gl_Position = u_matrix * vec4(u_topLeft + position + p.xy, p.z -z, 1.0);
         } else {
             vec4 cpos = u_matrix * vec4((u_topLeft + position), -z, 1.0);
-            vec2 offset = rotate(a_point.xy * OFFSET_SCALE + labelOffset, -rotation);
+            vec2 offset = rotateZ(a_point.xy * OFFSET_SCALE + labelOffset, rotation);
 //            posOffset = rotateY(vec3(posOffset, 0), a_point.z).xy;
             gl_Position = vec4(cpos.xy / cpos.w + vec2(1, -1) * offset / DEVICE_PIXEL_RATIO / u_resolution * 2.0, cpos.z / cpos.w, 1.0);
         }
