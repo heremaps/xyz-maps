@@ -146,10 +146,9 @@ export class TileLayer {
             } else {
                 tileSize = Math.max(tileSize, providerCfg.size);
             }
-            let offset = Number(tileSize == 512);
-            let min = layer.min - offset;
-            let max = layer.max - offset;
-            setProvider(min, max, providerCfg);
+            const offset = Number(tileSize == 512);
+            const {min, max} = layer;
+            setProvider(min - offset, max - offset, providerCfg);
             layer._fp = providerCfg;
             // TODO: remove =)
             // currently used by edtior for automatic feature unselect..
