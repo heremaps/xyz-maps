@@ -19,7 +19,7 @@
 
 import {SimpleArray} from './templates/FlexArray';
 
-const extentScale = 32;
+export const extentScale = 32;
 
 export const addBox = (
     x: number,

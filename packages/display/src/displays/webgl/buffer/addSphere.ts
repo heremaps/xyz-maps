@@ -18,6 +18,7 @@
  */
 
 import {SimpleArray} from './templates/FlexArray';
+import {extentScale} from './addBox';
 
 const calculateSurfaceNormal = (p1, p2, p3) => {
     const ux = p2[0] - p1[0];
@@ -125,6 +126,9 @@ export const addSphere = (
     normal?: SimpleArray<number>
 ) => {
     sphereMesh = sphereMesh || buildSphereGeometry(16, 12);
+
+    x *= extentScale;
+    y *= extentScale;
     z = Math.round(z / 9000 * 0xffff);
 
     const {normals, surfaceNormals} = sphereMesh;

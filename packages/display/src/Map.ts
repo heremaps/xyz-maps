@@ -721,7 +721,7 @@ export class Map {
                 if (featureInfo.id != null) {
                     const layer = layers[featureInfo.layerIndex];
                     const provider = <FeatureProvider>layer.getProvider(this.getZoomlevel() ^ 0);
-                    const feature = provider.search && provider.search(featureInfo.id);
+                    const feature = provider?.search && provider.search(featureInfo.id);
                     if (feature) return [{layer, features: [feature]}];
                 }
             }

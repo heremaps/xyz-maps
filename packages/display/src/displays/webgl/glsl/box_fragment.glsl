@@ -41,29 +41,25 @@ void main(void){
     float radius = vSize.x;
     float distance = sphereIntersect(v_rayOrigin, normalize(v_rayDirecton), v_worldPos, radius);
     if (distance == -1.0) discard;
-
-    float c = (length(v_worldPos-v_rayOrigin)-distance)/radius * 0.3 + 0.7;
-
-    color *= vec4(c, c, c, 1.0);
+//    float c = (length(v_worldPos-v_rayOrigin)-distance)/radius * 0.3 + 0.7;
+//    color *= vec4(c, c, c, 1.0);
     #else
 
-    float strokeWidth = (u_strokeWidth/u_scale);
-
-    vec3 size =vSize;
+    vec3 size = vSize;
 //    size.z *= u_zMeterToPixel;
     vec3 pos = vPosition;
 //    vec3 pos = vec3(vPosition.xy,vPosition.z*u_zMeterToPixel);
 
-    float a = smoothstep(strokeWidth, strokeWidth + smoothness, length(abs(pos.xy) - size.xy));
-    a *= smoothstep(strokeWidth, strokeWidth + smoothness, length(abs(pos.yz) - size.yz));
-    a *= smoothstep(strokeWidth, strokeWidth + smoothness, length(abs(pos.xz) - size.xz));
+    float a = smoothstep(u_strokeWidth, u_strokeWidth + smoothness, length(abs(pos.xy) - size.xy));
+    a *= smoothstep(u_strokeWidth, u_strokeWidth + smoothness, length(abs(pos.yz) - size.yz));
+    a *= smoothstep(u_strokeWidth, u_strokeWidth + smoothness, length(abs(pos.xz) - size.xz));
     color = mix(u_stroke, u_fill, a);
+
 
     #endif
 
     // interpolated varying -> unit vector
     vec3 normal = normalize(v_normal);
-
     float light = clamp(0.0,1.0,dot(normal, lightDir));
     color.rgb *= light;
 

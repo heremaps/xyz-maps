@@ -49,13 +49,14 @@ void main(void){
     vec3 size = vec3(toPixel(u_radius)) / u_scale;
     #else
     vec3 dir = mod(a_point, 2.0) * 2.0 - 1.0;
-    vec3 size = floor(a_point * .5) / u_scale;
+    vec3 size = floor(a_point * .5);
     #endif
 
     vec3 vertexOffset = vec3(size.xy, -size.z/u_zMeterToPixel) * dir;
     vec3 boxCenter = vec3(u_topLeft + a_position.xy * EXTENT_SCALE, -a_position.z * SCALE_UINT16_Z);
 
     vec3 vertexPos = vec3(boxCenter.xy + rotateZ(vertexOffset.xy, u_rotation), boxCenter.z + vertexOffset.z);
+    //    vec3 vertexPos = vec3(boxCenter.xy + rotateZ(vertexOffset.xy / u_scale, u_rotation), boxCenter.z + vertexOffset.z / u_scale);
 
     // clip on ground plane
     vertexPos.z = min(vertexPos.z, 0.0);
@@ -83,10 +84,9 @@ void main(void){
     //    v_worldPos = boxCenter;
     #else
     //    vPosition = vertexOffset;
-    vPosition = vec3(vertexOffset.xy, vertexOffset.z*u_zMeterToPixel);
+    vPosition = vec3(vertexOffset.xy, vertexOffset.z * u_zMeterToPixel);
     #endif
 
     vSize = size;
-
     v_normal = a_normal;
 }
