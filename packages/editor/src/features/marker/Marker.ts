@@ -127,9 +127,4 @@ export class Marker extends Feature {
     // }
 }
 
-(<
-        any
-        >
-        Marker
-            .prototype
-).class = 'MARKER';
+(<any>Marker.prototype).class = 'MARKER';

@@ -53,7 +53,7 @@ void main(void){
     #endif
 
     vec3 vertexOffset = vec3(size.xy, -size.z/u_zMeterToPixel) * dir;
-    vec3 boxCenter = vec3(u_topLeft + a_position.xy, -a_position.z * SCALE_UINT16_Z);
+    vec3 boxCenter = vec3(u_topLeft + a_position.xy * EXTENT_SCALE, -a_position.z * SCALE_UINT16_Z);
 
     vec3 vertexPos = vec3(boxCenter.xy + rotateZ(vertexOffset.xy, u_rotation), boxCenter.z + vertexOffset.z);
 

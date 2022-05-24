@@ -19,6 +19,8 @@
 
 import {SimpleArray} from './templates/FlexArray';
 
+const extentScale = 32;
+
 export const addBox = (
     x: number,
     y: number,
@@ -31,6 +33,9 @@ export const addBox = (
     normal?: SimpleArray<number>
     // rotation: number = 0
 ) => {
+    x *= extentScale;
+    y *= extentScale;
+
     if (typeof z == 'number') {
         // normalize float meters to uint16 (0m ... +9000m)
         z = Math.round(z / 9000 * 0xffff);
