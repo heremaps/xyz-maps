@@ -36,6 +36,7 @@ float sphereIntersect(vec3 rayOrigin, vec3 rayDirection, vec3 spherePosition, fl
 void main(void){
 
     vec4 color = u_fill;
+    vec3 normal;
 
     #ifdef SPHERE
     float radius = vSize.x;
@@ -43,6 +44,9 @@ void main(void){
     if (distance == -1.0) discard;
 //    float c = (length(v_worldPos-v_rayOrigin)-distance)/radius * 0.3 + 0.7;
 //    color *= vec4(c, c, c, 1.0);
+    vec3 surfacePos = normalize(v_rayDirecton) * distance + v_rayOrigin;
+    // surface normal in world space
+    normal = normalize(surfacePos - v_worldPos);
     #else
 
     vec3 size = vSize;
@@ -55,11 +59,10 @@ void main(void){
     a *= smoothstep(u_strokeWidth, u_strokeWidth + smoothness, length(abs(pos.xz) - size.xz));
     color = mix(u_stroke, u_fill, a);
 
-
+    // interpolated varying -> unit vector
+    normal = normalize(v_normal);
     #endif
 
-    // interpolated varying -> unit vector
-    vec3 normal = normalize(v_normal);
     float light = clamp(0.0,1.0,dot(normal, lightDir));
     color.rgb *= light;
 
