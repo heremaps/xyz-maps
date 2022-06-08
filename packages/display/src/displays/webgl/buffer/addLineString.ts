@@ -211,7 +211,8 @@ const addLineString = (
     for (c = 0; c < vLength; c += dimensions) {
         let x = coordinates[c];
         let y = coordinates[c + 1];
-        let z = coordinates[c + 2];
+        let z = height === true ? coordinates[c + 2] : height;
+
         let inside = isInBox(x, y, 0, 0, tileSize, tileSize);
 
         if (inside) {
