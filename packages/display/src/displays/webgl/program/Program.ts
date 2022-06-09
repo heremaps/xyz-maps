@@ -46,6 +46,8 @@ class Program {
 
     private dpr: number; // devicepixelratio
 
+    private _pass: PASS;
+
     private createUniformSetter(uInfo: WebGLActiveInfo, location: WebGLUniformLocation) {
         const gl = this.gl;
 
@@ -223,6 +225,7 @@ class Program {
     draw(geoBuffer: GeometryBuffer) {
         const {gl} = this;
         const {texture, groups} = geoBuffer;
+        const isDepthOnlyPass = this._pass == PASS.ALPHA && geoBuffer.alpha == PASS.POST_ALPHA;
 
         // console.log(
         //     this.name,
@@ -231,6 +234,11 @@ class Program {
         //     'STENCIL_TEST', gl.getParameter(gl.STENCIL_TEST),
         //     'BLEND', gl.getParameter(gl.BLEND)
         // );
+
+        if (isDepthOnlyPass) {
+            // disable color mask for depth/stencil only pass
+            gl.colorMask(false, false, false, false);
+        }
 
         if (texture) {
             gl.activeTexture(gl.TEXTURE0);
@@ -250,6 +258,11 @@ class Program {
             } else {
                 gl.drawArrays(mode, (<ArrayGrp>grp).arrays.first, (<ArrayGrp>grp).arrays.count);
             }
+        }
+
+        if (isDepthOnlyPass) {
+            // re-enable color mask
+            gl.colorMask(true, true, true, false);
         }
     };
 
@@ -281,21 +294,23 @@ class Program {
         }
     }
 
-    init(options: GeometryBuffer, pass: PASS, stencil: boolean, zIndex?: number) {
+    init(geoBuffer: GeometryBuffer, pass: PASS, stencil: boolean, zIndex?: number) {
         const prog = this;
         const {gl} = prog;
         const opaquePass = pass == PASS.OPAQUE;
         let {blend, scissor, depth} = this.glStates;
 
+        this._pass = pass;
+
         // overwrite with custom gl-states
-        if (options.scissor != UNDEF) {
-            scissor = options.scissor;
+        if (geoBuffer.scissor != UNDEF) {
+            scissor = geoBuffer.scissor;
         }
-        if (options.blend != UNDEF) {
-            blend = options.blend;
+        if (geoBuffer.blend != UNDEF) {
+            blend = geoBuffer.blend;
         }
-        if (options.depth != UNDEF) {
-            depth = options.depth;
+        if (geoBuffer.depth != UNDEF) {
+            depth = geoBuffer.depth;
         }
         prog.setStates(scissor, blend, depth, stencil && !opaquePass && blend && scissor);
 
@@ -303,11 +318,21 @@ class Program {
 
         // get rid of zfighting for alpha pass.
         // alpha pass is drawn ordered zindex -> no need to write to depthbuffer (performance)
-        gl.depthMask(opaquePass);
-        // gl.depthMask(false );
+        gl.depthMask(geoBuffer.isFlat() ? opaquePass : true);
+
+        // gl.depthMask(false);
         // gl.depthMask(opaquePass || !options.flat);
 
         gl.disable(gl.POLYGON_OFFSET_FILL);
+
+        if (pass == PASS.POST_ALPHA) {
+            // use additional pass with stencil buffer to avoid "overlapping alpha" of unclipped geometry
+            gl.enable(gl.STENCIL_TEST);
+            gl.stencilFunc(gl.GREATER, 1, 0xff);
+            gl.stencilOp(gl.KEEP, gl.KEEP, gl.REPLACE);
+            // gl.stencilFunc(gl.EQUAL, 0, 0xff);
+            // gl.stencilOp(gl.KEEP, gl.KEEP, gl.INCR);
+        }
     }
 
     // use() {

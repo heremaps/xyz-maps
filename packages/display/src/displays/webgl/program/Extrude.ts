@@ -36,8 +36,6 @@ class ExtrudeProgram extends Program {
         depth: true
     });
 
-    private _pass;
-
     constructor(gl: WebGLRenderingContext, devicePixelRation: number) {
         super(gl, gl.TRIANGLES, vertexShader, fragmentShader, devicePixelRation);
     }
@@ -45,20 +43,7 @@ class ExtrudeProgram extends Program {
     init(options: GeometryBuffer, pass: PASS, stencil: boolean) {
         const {gl} = this;
 
-        this._pass = pass;
-
         super.init(options, pass, stencil);
-        // extrudes always need depth testing (alpha pass)
-        gl.depthMask(true);
-
-        if (pass == PASS.POST_ALPHA) {
-            // use additional pass with stencil buffer to avoid "overlapping alpha" of unclipped geometry
-            gl.enable(gl.STENCIL_TEST);
-            gl.stencilFunc(gl.GREATER, 1, 0xff);
-            gl.stencilOp(gl.KEEP, gl.KEEP, gl.REPLACE);
-            // gl.stencilFunc(gl.EQUAL, 0, 0xff);
-            // gl.stencilOp(gl.KEEP, gl.KEEP, gl.INCR);
-        }
 
         // handle coplanar lines and polygons (stroke of extruded polygons)
         gl.polygonOffset(1, 1);
@@ -68,14 +53,7 @@ class ExtrudeProgram extends Program {
     draw(geoBuffer: GeometryBuffer) {
         const {gl} = this;
 
-        if (this._pass == PASS.ALPHA) {
-            // depth pass only
-            gl.colorMask(false, false, false, false);
-            super.draw(geoBuffer);
-            gl.colorMask(true, true, true, false);
-        } else {
-            super.draw(geoBuffer);
-        }
+        super.draw(geoBuffer);
 
         gl.disable(gl.POLYGON_OFFSET_FILL);
     }
