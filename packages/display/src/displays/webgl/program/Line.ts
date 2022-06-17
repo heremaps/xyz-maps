@@ -45,10 +45,15 @@ class LineProgram extends Program {
     }
 
     // init(buffer: GeometryBuffer, pass: PASS, stencil: boolean, zIndex: number) {
-    //     super.init(buffer, pass, stencil);
     //     const {gl} = this;
-    //     gl.disable(gl.STENCIL_TEST);
-    //     gl.disable(gl.SCISSOR_TEST);
+    //     super.init(buffer, pass, stencil);
+    //     // gl.disable(gl.STENCIL_TEST);
+    //     // gl.disable(gl.SCISSOR_TEST);
+    //
+    //     if (!buffer.isFlat()) {
+    //         gl.polygonOffset(0, -(1<<8) * zIndex);
+    //         gl.enable(gl.POLYGON_OFFSET_FILL);
+    //     }
     // }
 }
 
