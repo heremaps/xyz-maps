@@ -37,27 +37,19 @@ class LineProgram extends Program {
     })
 
     pass(pass: PASS) {
-        return pass == PASS.ALPHA;
+        return pass == PASS.ALPHA || pass == PASS.POST_ALPHA;
     }
 
     constructor(gl: WebGLRenderingContext, devicePixelRation: number) {
         super(gl, gl.TRIANGLES, vertexShader, fragmentShader, devicePixelRation);
     }
 
-
-    init(buffer: GeometryBuffer, pass: PASS, stencil: boolean, zIndex: number) {
-        const {gl} = this;
-        super.init(buffer, pass, stencil);
-
-        if (buffer.isFlat()) {
-            gl.depthMask(false);
-        } else {
-            gl.depthMask(true);
-            // gl.polygonOffset(0, -(1<<8) * zIndex);
-            // gl.polygonOffset(0, (1 << 11) * -zIndex);
-            // gl.enable(gl.POLYGON_OFFSET_FILL);
-        }
-    }
+    // init(buffer: GeometryBuffer, pass: PASS, stencil: boolean, zIndex: number) {
+    //     super.init(buffer, pass, stencil);
+    //     const {gl} = this;
+    //     gl.disable(gl.STENCIL_TEST);
+    //     gl.disable(gl.SCISSOR_TEST);
+    // }
 }
 
 

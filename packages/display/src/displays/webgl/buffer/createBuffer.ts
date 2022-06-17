@@ -273,6 +273,10 @@ const createBuffer = (
                             }
                         }
 
+
+                        geoBuffer.flat = grpBuffer.isFlat();
+
+
                         const fillOpacity = shared.fill && shared.fill[3];
                         const strokeOpacity = shared.stroke && shared.stroke[3];
                         const hasFillAlpha = fillOpacity < 1;
@@ -280,7 +284,7 @@ const createBuffer = (
                         const hasAlphaColor = hasFillAlpha || strokeOpacity < 1;
 
                         if (hasAlphaColor) {
-                            geoBuffer.alpha = hasFillAlpha && type == 'Extrude'
+                            geoBuffer.alpha = hasFillAlpha && type == 'Extrude' || (!geoBuffer.flat && type == 'Line')
                                 ? 2 // two alpha passes are required for extrudes with alpha
                                 : 1;
                             geoBuffer.blend = true;
@@ -298,7 +302,6 @@ const createBuffer = (
 
                         zIndex = Number(zIndex);
 
-                        geoBuffer.flat = grpBuffer.isFlat();
 
                         if (!geoBuffer.flat) {
                             geoBuffer.scissor = false;

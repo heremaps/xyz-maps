@@ -17,7 +17,6 @@
  * License-Filename: LICENSE
  */
 
-import {isInBox, intersectBBox, intersectionLineBox, Point} from '../../../geometry';
 import {FlexArray} from './templates/FlexArray';
 
 export type Cap = 'round' | 'butt' | 'square';
@@ -29,20 +28,29 @@ const CAP_SQUARE = 'square';
 const JOIN_MITER = 'miter';
 const JOIN_BEVEL = 'bevel';
 const SCALE = 8191;
-// const SCALE = 1;
 const TILE_CLIP_MARGIN = 16;
 
-export const isOnTileBounds = (x1: number, y1: number, x2: number, y2: number, tileSize: number, tolerance: number = 1): boolean => {
-    return (
-        // onTileTop
-        Math.abs(y1) < tolerance && Math.abs(y2) < tolerance ||
-        // onTileRight
-        Math.abs(x1 - tileSize) < tolerance && Math.abs(x2 - tileSize) < tolerance ||
-        // onTileBottom
-        Math.abs(y1 - tileSize) < tolerance && Math.abs(y2 - tileSize) < tolerance ||
-        // onTileLeft
-        Math.abs(x1) < tolerance && Math.abs(x2) < tolerance
-    );
+enum OutCode {
+    INSIDE = 0, // 0000
+    LEFT = 1, // 0001
+    RIGHT = 2, // 0010
+    BOTTOM = 4, // 0100
+    TOP = 8 // 1000
+}
+
+const computeOutCode = (x: number, y: number, xmin: number, xmax: number, ymin: number, ymax: number): OutCode => {
+    let code = OutCode.INSIDE;
+    if (x < xmin) {
+        code |= OutCode.LEFT;
+    } else if (x > xmax) {
+        code |= OutCode.RIGHT;
+    }
+    if (y < ymin) {
+        code |= OutCode.BOTTOM;
+    } else if (y > ymax) {
+        code |= OutCode.TOP;
+    }
+    return code;
 };
 
 
@@ -167,10 +175,6 @@ const addLineString = (
     const totalLineLength = lengthToSegments[vLength / dimensions - 1];
     let absStart = relStart * totalLineLength;
     let absStop = relStop * totalLineLength;
-    let _x;
-    let _y;
-    let _z;
-    let c;
 
     if (absStart && absStop && relStop < relStart) {
         const flip = absStart;
@@ -189,8 +193,8 @@ const addLineString = (
     }
 
     if (height) {
-        cap = CAP_BUTT;
-        join = 'none';
+        // cap = CAP_BUTT;
+        // join = 'none';
     }
 
     if (lengthToVertex) {
@@ -201,129 +205,108 @@ const addLineString = (
         }
     }
 
+    let outCode0 = computeOutCode(coordinates[0], coordinates[1], tileMin, tileMax, tileMin, tileMax);
     let segmentStartIndex = null;
     let segmentStopIndex = null;
-    let _inside = false;
+    let outCode1;
+    let prevOutCode;
+    // let tileIntersection0;
+    // let tileIntersection1;
 
-    let tileIntersection1;
-    let tileIntersection2;
+    for (let i0 = 0, i1 = dimensions; i1 < vLength; i0 = i1, i1 += dimensions) {
+        let x0 = coordinates[i0];
+        let y0 = coordinates[i0 + 1];
+        let z0 = height === true ? coordinates[i0 + 2] : <number>height;
 
-    for (c = 0; c < vLength; c += dimensions) {
-        let x = coordinates[c];
-        let y = coordinates[c + 1];
-        let z = height === true ? coordinates[c + 2] : <number>height;
+        let x1 = coordinates[i1];
+        let y1 = coordinates[i1 + 1];
+        let z1 = height === true ? coordinates[i1 + 2] : <number>height;
 
-        let inside = isInBox(x, y, 0, 0, tileSize, tileSize);
+        outCode1 = prevOutCode = computeOutCode(x1, y1, tileMin, tileMax, tileMin, tileMax);
 
-        if (inside) {
-            if (!_inside) {
-                // include previous TWO points to deal with all kind of line joins.
-                let start = c - 2 * dimensions;
-                segmentStartIndex = segmentStartIndex == null || start < segmentStartIndex ? start : segmentStartIndex;
-
-                // in case of 3d line, we need to clip on tile edge.
-                if (clipOnTileEdges) {
-                    tileIntersection1 = intersectionLineBox([_x, _y, _z], [x, y, z], 0, 0, tileSize, tileSize);
-                    if (tileIntersection1) {
-                        segmentStartIndex = c - dimensions;
-                    }
+        // based on Cohen–Sutherland clipping algorithm (https://en.wikipedia.org/wiki/Cohen%E2%80%93Sutherland_algorithm)
+        while (true) {
+            if (!(outCode0 | outCode1)) { // accept
+                if (segmentStartIndex == null) {
+                    segmentStartIndex = i0;
                 }
-            }
-        } else if (c) {
-            // current point is outside...
-            if (_inside) {
-                // first point is outside. if 2d only -> no need to do anything...
-                // ..otherwise check for tile-clipping and finish current segment
-                if (clipOnTileEdges) {
-                    tileIntersection2 = <Point>intersectionLineBox([_x, _y, _z], [x, y, z], 0, 0, tileSize, tileSize);
-                    if (tileIntersection2) {
-                        segmentStopIndex = c;
-                    }
+                if (outCode1 !== prevOutCode) {
+                    // point0 still inside and point1 is now out of tile
+                    segmentStopIndex = i1;
                 }
+                break;
+            } else if (outCode0 & outCode1) {
+                // point0 and point1 are out of tile
+                break;
             } else {
-                // double out? need to check for tile intersection first.
-                let minX = x;
-                let maxX = _x;
-                let minY = y;
-                let maxY = _y;
-
-                if (_x < x) {
-                    minX = _x;
-                    maxX = x;
+                // if (segmentStartIndex == null || i0 < segmentStartIndex) {
+                //     segmentStartIndex = i0;
+                // }
+                let outCode = outCode0 || outCode1;
+                let a;
+                let x;
+                let y;
+                // calculate intersection with tile edge
+                if (outCode & OutCode.TOP) { // point is above the tile
+                    a = (tileMax - y0) / (y1 - y0);
+                    x = x0 + (x1 - x0) * a;
+                    y = tileMax;
+                } else if (outCode & OutCode.BOTTOM) { // point is below the tile
+                    a = (tileMin - y0) / (y1 - y0);
+                    x = x0 + (x1 - x0) * a;
+                    y = tileMin;
+                } else if (outCode & OutCode.RIGHT) { // point is to the right of tile
+                    a = (tileMax - x0) / (x1 - x0);
+                    y = y0 + (y1 - y0) * a;
+                    x = tileMax;
+                } else if (outCode & OutCode.LEFT) { // point is to the left of tile
+                    a = (tileMin - x0) / (x1 - x0);
+                    y = y0 + (y1 - y0) * a;
+                    x = tileMin;
                 }
-                if (_y < y) {
-                    minY = _y;
-                    maxY = y;
-                }
+                let z = z0 + (z1 - z0) * a;
+                outCode = computeOutCode(x, y, tileMin, tileMax, tileMin, tileMax);
 
-                if ((removeTileBounds && !isOnTileBounds(_x, _y, x, y, tileSize)) || (
-                    !removeTileBounds &&
-                    intersectBBox(minX, maxX, minY, maxY, tileMin, tileMax, tileMin, tileMax))
-                ) {
-                    // at least one point is nearby/intersecting (inside)..
-                    // include previous TWO points to deal with all kind of line joins.
-                    const start = c - 2 * dimensions;
-                    segmentStartIndex = segmentStartIndex == null || start < segmentStartIndex ? start : segmentStartIndex;
-
-
-                    if (clipOnTileEdges) {
-                        // debugger;
-                        tileIntersection1 = intersectionLineBox([_x, _y, _z], [x, y, z], 0, 0, tileSize, tileSize);
-                        if (tileIntersection1) {
-                            segmentStartIndex = c - dimensions;
-                            tileIntersection2 = intersectionLineBox([_x, _y, _z], [x, y, z], 0, 0, tileSize, tileSize, true);
-                            if (tileIntersection2) {
-                                segmentStopIndex = c;
-                            } else {
-                                segmentStartIndex = null;
-                            }
-                        } else {
-                            segmentStartIndex = null;
-                        }
-                        //
-                        // if (!tileIntersection1 || !tileIntersection2) {
-                        //     segmentStartIndex = null;
-                        //     segmentStopIndex = null;
-                        // }
-                    }
+                if (outCode0) {
+                    // point0 is out of tile
+                    outCode0 = outCode;
+                    x0 = x;
+                    y0 = y;
+                    z0 = z;
+                    // tileIntersection0 = [x,y,z];
                 } else {
-                    // double out!
-                    if (segmentStartIndex) {
-                        segmentStopIndex = c;
-                    }
+                    // point1 is out of tile
+                    outCode1 = outCode;
+                    x1 = x;
+                    y1 = y;
+                    z1 = z;
+                    // tileIntersection1 = [x,y,z];
                 }
             }
         }
 
-
-        if (segmentStartIndex != null && (segmentStopIndex != null || c == vLength - dimensions)) {
+        if (segmentStartIndex != null && (segmentStopIndex != null || i1 == vLength - dimensions)) {
             // geometry fully inside tile
-            segmentStartIndex ||= 0;
             segmentStopIndex ||= vLength - dimensions;
 
-            if (segmentStartIndex < 0) {
-                segmentStartIndex = isRing ? -dimensions : 0;
+            if (isRing) {
+                segmentStartIndex -= dimensions;
             }
-
+            // const capStart = tileIntersection0 ? 'butt' : cap;
+            // const capStop = tileIntersection1 ? 'butt' : cap;
             addSegments(vertex, dimensions, normal, coordinates, includeHeight,
                 height, lengthToSegments, vLength, segmentStartIndex, segmentStopIndex + dimensions,
-                tileSize, cap, join, strokeWidth, lengthToVertex, absStart, absStop, offset, isRing,
-                tileIntersection1,
-                tileIntersection2
+                tileSize, cap, cap, join, strokeWidth, lengthToVertex, absStart, absStop, offset, isRing
+                // tileIntersection0,
+                // tileIntersection1
             );
-
-            tileIntersection1 = null;
-
             segmentStartIndex = null;
             segmentStopIndex = null;
+            // tileIntersection0 = null;
+            // tileIntersection1 = null;
         }
 
-        tileIntersection2 = null;
-
-        _inside = inside;
-        _x = x;
-        _y = y;
-        _z = z;
+        outCode0 = prevOutCode;
     }
 
     return vertex.length;
@@ -341,7 +324,8 @@ const addSegments = (
     start: number,
     end: number,
     tileSize: number,
-    cap: Cap,
+    capStart: Cap,
+    capStop: Cap,
     join: Join,
     strokeWidth: number,
     lengthToVertex: number[] | false,
@@ -349,8 +333,8 @@ const addSegments = (
     absStop?: number,
     offset?: number,
     isRing?: boolean,
-    firstCoord?: Point,
-    lastCoord?: Point
+    firstCoord?: number[],
+    lastCoord?: number[]
 ) => {
     let i0 = start;
     if (start < 0) {
@@ -360,7 +344,7 @@ const addSegments = (
 
     let x1 = coordinates[i0];
     let y1 = coordinates[i0 + 1];
-    let z1 = height === true ? coordinates[i0 + 2] : height;
+    let z1 = height === true ? coordinates[i0 + 2] : <number>height;
 
     if (firstCoord) {
         [x1, y1, z1] = firstCoord;
@@ -410,7 +394,10 @@ const addSegments = (
 
     // console.log('addsegment', start, '->', vLength);
 
+    // let skipFirstSegment = isRing;
     let skipFirstSegment = isRing;
+
+
     for (let c = start + dimensions; c < vLength; c += dimensions) {
         let last = !isRing && c == vLength - dimensions;
 
@@ -427,7 +414,7 @@ const addSegments = (
         } else {
             x2 = coordinates[c];
             y2 = coordinates[c + 1];
-            z2 = height === true ? coordinates[c + 2] : height;
+            z2 = height === true ? coordinates[c + 2] : <number>height;
         }
 
         curJoin = join;
@@ -865,11 +852,11 @@ const addSegments = (
             }
 
             if (first) {
-                addCap(cap, x1, y1, includeHeight && z1, nx, ny, vertex, normal);
+                addCap(capStart, x1, y1, includeHeight && z1, nx, ny, vertex, normal);
             }
 
             if (last) {
-                addCap(cap, x2, y2, includeHeight && z2, -nx, -ny, vertex, normal);
+                addCap(capStop, x2, y2, includeHeight && z2, -nx, -ny, vertex, normal);
             }
 
             if (lengthToVertex) {

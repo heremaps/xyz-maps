@@ -22,7 +22,6 @@ import {addLineString, Cap, Join} from './addLineString';
 import {DashAtlas} from '../DashAtlas';
 import {GeoJSONCoordinate as Coordinate, Tile} from '@here/xyz-maps-core';
 import {CollisionData, CollisionHandler} from '../CollisionHandler';
-import {getRotatedBBox} from '../../../geometry';
 import {DistanceGroup} from './DistanceGroup';
 
 const TO_DEG = 180 / Math.PI;
