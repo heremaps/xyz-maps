@@ -159,8 +159,18 @@ class DrawingBoard {
          * function that's called for each shape-point that's being removed by user interaction. The target of the event is the drawn shape-point {@link DrawingShape}
          */
         onShapeRemove?: (event: EditorEvent) => void,
+        /**
+         * The tolerance in meters, used to determine the level of simplification.
+         * The simplification is applied to the LineString geometry only after drawing the geometry is complete by calling {@link DrawingBoard.create}.
+         * Tolerance has no effect if mode is set to "Area".
+         * Set tolerance to 0 to disable simplification.
+         *
+         * @defaultValue 1
+         */
+        tolerance?: number
     }) {
-        options = options || {};
+        options = {tolerance: 1, ...options || {}};
+
         // options conversation to support legacy api
         const connectTo = options['connectTo'];
         let mode = options['mode'] || NAVLINK;
@@ -177,8 +187,6 @@ class DrawingBoard {
 
         options['attributes'] = options['properties'] || options['attributes'] || {};
 
-        // by default set generalization in TouchDraw to 20 and in ClickDraw to 1
-        // opt['generalization'] = opt['generalization']||1;
         if (!this._a) {
             // this._b = opt['control'] == 'FREEHAND' ? touchDraw : clickDraw;
 

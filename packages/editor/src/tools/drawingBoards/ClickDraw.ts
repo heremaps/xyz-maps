@@ -17,7 +17,6 @@
  * License-Filename: LICENSE
  */
 
-import {JSUtils, global} from '@here/xyz-maps-common';
 import {EditorEvent} from '../../API/EditorEvent';
 import {DrawingShape} from './DrawingShape';
 import LineString from './LineString';
@@ -26,6 +25,7 @@ import {simplifyPath} from '../../geometry';
 import InternalEditor from '../../IEditor';
 import Overlay from '../../features/Overlay';
 import {Navlink} from '../../features/link/Navlink';
+import {JSUtils, global} from '@here/xyz-maps-common';
 import {EditableFeatureProvider, Style, TileLayer} from '@here/xyz-maps-core';
 
 const DEFAULT_SHAPE_STYLE = [{
@@ -126,6 +126,7 @@ type Settings = {
     layer?: TileLayer,
     onShapeAdd?: (event: EditorEvent) => void,
     onShapeRemove?: (event: EditorEvent) => void,
+    tolerance?: number;
 }
 
 class ClickDraw {
@@ -370,10 +371,11 @@ class ClickDraw {
 
     createGeom() {
         const {feature, shapes, settings} = this;
+        const {tolerance} = settings;
         let coordinates = shapes.map((s) => s.geometry.coordinates);
 
-        if (settings.mode != 'Area') {
-            coordinates = simplifyPath(coordinates, settings['generalization'] || 1 * 0.00001);
+        if (settings.mode != 'Area' && tolerance) {
+            coordinates = simplifyPath(coordinates, tolerance);
         }
 
         let geojsonCoordinates = feature.createGeo(coordinates);

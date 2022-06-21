@@ -19,6 +19,8 @@
 
 import {GeoJSONCoordinate as Point} from '@here/xyz-maps-core';
 import {vec3} from '@here/xyz-maps-common';
+import {geotools} from '@here/xyz-maps-common';
+
 
 const MATH = Math;
 const PI = MATH.PI;
@@ -26,23 +28,6 @@ const pow = MATH.pow;
 const sqrt = MATH.sqrt;
 
 export {Point};
-
-export const distancePointLine = (g1: Point, g2: Point, point: Point) => {
-    const m = (g2[1] - g1[1]) / (g2[0] - g1[0]);
-    const b = g1[1] - (m * g1[0]);
-    let dMin;
-    let d;
-    // distance to the linear equation
-    dMin = MATH.abs(point[1] - (m * point[0]) - b) / sqrt(pow(m, 2) + 1);
-
-    if ((d = getDistance(point, g1)) < dMin) {
-        dMin = d;
-    }
-    if (d = getDistance(point, g2) < dMin) {
-        dMin = d;
-    }
-    return dMin;
-};
 
 export const simplifyPath = (
     path: Point[],
@@ -57,7 +42,7 @@ export const simplifyPath = (
     end--;
 
     for (let i = start + 1; i < end; i++) {
-        const d = distancePointLine(path[start], path[end], path[i]);
+        const d = distanceToLine(path[i], path[start], path[end], geotools.distance);
         if (d > dmax) {
             index = i;
             dmax = d;
@@ -217,16 +202,16 @@ export const getPntAt = (p1: Point, p2: Point, percent: number): Point => {
     return [(p2[0] - p1[0]) * percent + p1[0], (p2[1] - p1[1]) * percent + p1[1], z1 + (z2 - z1) * percent];
 };
 
-export const distanceToLine = (p: Point, l1: Point, l2: Point): number => {
+export const distanceToLine = (p: Point, l1: Point, l2: Point, measure: (p1s: Point, p2: Point) => number = getDistance): number => {
     const px = p[0];
     const py = p[1];
     const l1x = l1[0];
     const l1y = l1[1];
     const l2x = l2[0];
     const l2y = l2[1];
-    const xD = l2x - l1x;
-    const yD = l2y - l1y;
-    const u = ((px - l1x) * xD + (py - l1y) * yD) / (xD * xD + yD * yD);
+    const dx = l2x - l1x;
+    const dy = l2y - l1y;
+    const u = ((px - l1x) * dx + (py - l1y) * dy) / (dx * dx + dy * dy);
     let closestLine;
 
     if (u < 0) {
@@ -234,10 +219,9 @@ export const distanceToLine = (p: Point, l1: Point, l2: Point): number => {
     } else if (u > 1) {
         closestLine = [l2x, l2y];
     } else {
-        closestLine = [l1x + u * xD, l1y + u * yD];
+        closestLine = [l1x + u * dx, l1y + u * dy];
     }
-
-    return getDistance([px, py], closestLine);
+    return measure([px, py], closestLine);
 };
 
 export const distanceToPolygon = (p: Point, poly: Point[]): number => {
