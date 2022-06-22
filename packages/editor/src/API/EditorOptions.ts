@@ -62,6 +62,13 @@ interface EditorOptions {
     snapTolerance?: number;
 
     /**
+     * The "routingPointPrecision" defines the number of decimal places of the position of a routing point when it is changed.
+     *
+     * @defaultValue 5
+     */
+    routingPointPrecision?: number;
+
+    /**
      * Defines the coordinate precision for the automatic intersection detection.
      * Number of decimal points of the WGS coordinates that must match.
      *
@@ -161,15 +168,15 @@ interface EditorOptions {
 
 
 const defaultOptions: EditorOptions = {
-    'debug': true,
-    'editRestrictions': function() {
+    debug: true,
+    editRestrictions: function() {
         // NO RESTRICTIONS PER DEFAULT FOR NOW
         return false;
         //    var restrictions = properties['protected'] ? 3 : 0;
         //    return !!(restrictions & checkMask);
     },
-    'services': {
-        'reverseGeocoder':
+    services: {
+        reverseGeocoder:
             {
                 //  'getISOCC': function(lon, lat, callback){
                 //      return 'ISOCC';
@@ -177,15 +184,16 @@ const defaultOptions: EditorOptions = {
             }
 
     },
-    'geoFence': false,
-    'snapTolerance': 2, // 2 meter
-    'intersectionScale': 5,
-    'XTestMaxDistance': 2,
-    'disconnectShapeDistance': 3,
-    'keepFeatureSelection': 'viewportChange',
-    'featureSelectionByDefault': true,
-    'maxRoutingPointDistance': 1000,
-    'snapOnDrag': true
+    geoFence: false,
+    snapTolerance: 2, // 2 meter
+    intersectionScale: 5,
+    routingPointPrecision: 5,
+    XTestMaxDistance: 2,
+    disconnectShapeDistance: 3,
+    keepFeatureSelection: 'viewportChange',
+    featureSelectionByDefault: true,
+    maxRoutingPointDistance: 1000,
+    snapOnDrag: true
 };
 
 

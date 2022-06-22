@@ -78,10 +78,6 @@ function _props(line, props) {
     return userProps;
 }
 
-
-const toNTU = (c) => Math.round(c * 1e5) / 1e5;
-
-
 const isPOI = (obj) => obj.class == 'PLACE';
 
 const getRPoint = (obj): RoutingPoint => {
@@ -384,9 +380,12 @@ const tools = {
 
         prv.cLink = link;
 
+        const d = Number('1e' + feature._e()._config.routingPointPrecision);
+        const round = (n: number) => Math.round(n * d) / d;
+
         const newRP = position ? [
-            toNTU(position[0]),
-            toNTU(position[1]),
+            round(position[0]),
+            round(position[1]),
             position[2] | 0
         ] : [];
 
@@ -398,8 +397,8 @@ const tools = {
         // only do history origin entry if routing point really changed
         if (
             routingData.link != linkId ||
-            newRP[0] != toNTU(curRP[0]) ||
-            newRP[1] != toNTU(curRP[1])
+            newRP[0] != round(curRP[0]) ||
+            newRP[1] != round(curRP[1])
         ) {
             feature._e().objects.history.ignore(() => {
                 // prevents infinity loop if rp writer is using .prop() function to set rp value
