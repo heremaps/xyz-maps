@@ -142,7 +142,7 @@ export class Search {
 
         const prevResult = {layer: null, features: null};
 
-        for (let z in results) {
+        for (let z of Object.keys(results).sort((a, b) => Number(a) - Number(b))) {
             let zResults = results[z];
             for (let i = 0, zLayerResults; i < zResults.length; i++) {
                 if (zLayerResults = zResults[i]) {
