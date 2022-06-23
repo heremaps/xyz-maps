@@ -215,4 +215,25 @@ describe('feature drawing order', () => {
 
         expect(color).to.equal('#ff0000');
     });
+
+    it('set zLayers with high values and bring green circle to front', async () => {
+        layer1.setStyleGroup(feature2, [{
+            zLayer: 1e6,
+            zIndex: 9,
+            type: 'Circle',
+            radius: 32,
+            fill: '#00ff00'
+        }]);
+        layer1.setStyleGroup(feature1, [{
+            zLayer: 1e6,
+            zIndex: 8,
+            type: 'Circle',
+            radius: 32,
+            fill: '#ff0000'
+        }]);
+
+        let color = await getCanvasPixelColor(mapContainer, {x: 405, y: 282});
+
+        expect(color).to.equal('#00ff00');
+    });
 });

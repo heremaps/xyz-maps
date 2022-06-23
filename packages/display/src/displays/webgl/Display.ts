@@ -362,9 +362,8 @@ class WebGlDisplay extends BasicDisplay {
             }
         }
 
-
         let maxZIndex = 0;
-        for (let z of Object.keys(absZOrder).sort()) {
+        for (let z of Object.keys(absZOrder).sort((a, b) => Number(a) - Number(b))) {
             absZOrder[z] = maxZIndex++;
         }
 
