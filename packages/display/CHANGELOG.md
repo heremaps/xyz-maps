@@ -1,3 +1,24 @@
+## 0.28.0 (2022-7-1)
+### editor
+* added: Tapping on LineShape or Marker features will trigger pointerdown events.
+* added: The drag behavior of Markers and LineShape features can now be configured to define the "dragAxis" or "dragPlane" on which to drag the feature.
+* added: It is now possible to use custom IDs for newly created features by using [option.forceRandomFeatureId](https://heremaps.github.io/xyz-maps/docs/interfaces/core.editableremotetileprovideroptions.html#forceRandomFeatureId).
+* added: The altitude of Marker Features can now be modified by user interaction.
+* added: Basic editing of 3d line geometry is now possible.
+* fixed: Dragging Features with the right mouse button may result in tiny map movements.
+### core
+* fixed: anchor "Centroid" is now correctly declared in typescript declarations
+### display
+* improved: Optimized point placement for tiny polygon geometries when using style.anchor="Centroid"
+* added: Box Styles can be rotated around the z-axis.
+* added: The minimum threshold for detecting a pan or pitch map gesture can now be configured.
+* added: The altitude of point and line geometry can now be displayed in 3D space using styles of type Circle, Rectangle, Image, Text and Line. See: [Style.altitude](https://heremaps.github.io/xyz-maps/docs/interfaces/core.style.html#altitude).
+* added: Pointerevent triggering now supports 3d geometry and styles.
+* added: New 3d styles of type "Sphere" and "Box" have been added.
+* fixed: The pointer-event target is now set correctly in all cases.
+* fixed: When using zLayer, an incorrect drawing order could occur in rare cases.
+* fixed: The placement of icon using different "alignments" is now correct in all cases.
+
 ## 0.27.0 (2021-12-15)
 ### editor
 * added: Editing of Line Features with "MultiLineString" geometry is now supported.
