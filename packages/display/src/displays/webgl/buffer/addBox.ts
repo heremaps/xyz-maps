@@ -17,9 +17,8 @@
  * License-Filename: LICENSE
  */
 
+import {extentScale} from './templates/BoxBuffer';
 import {SimpleArray} from './templates/FlexArray';
-
-export const extentScale = 32;
 
 export const addBox = (
     x: number,

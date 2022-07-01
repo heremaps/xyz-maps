@@ -19,12 +19,14 @@
 
 import {FlexArray} from './FlexArray';
 import {FlexAttribute} from './TemplateBuffer';
-import {BoxBuffer} from './BoxBuffer';
+import {BoxBuffer, extentScale} from './BoxBuffer';
 import {GeometryBuffer} from '../GeometryBuffer';
 import {Raycaster, Vec3} from '../../Raycaster';
 import {decodeUint16z} from './PointBuffer';
 
 const SPHERE_VERTICES = 1056;
+
+const scaleXY = 1 / extentScale;
 
 export class SphereBuffer extends BoxBuffer {
     flexAttributes: {
@@ -57,8 +59,8 @@ export class SphereBuffer extends BoxBuffer {
         const sphereCenter: Vec3 = [0, 0, 0];
 
         for (let i = 0, {length} = position; i < length; i += offset) {
-            sphereCenter[0] = tileX + position[i];
-            sphereCenter[1] = tileY + position[i + 1];
+            sphereCenter[0] = tileX + position[i] * scaleXY;
+            sphereCenter[1] = tileY + position[i + 1] * scaleXY;
             sphereCenter[2] = size == 3 ? -decodeUint16z(position[i + 2]) : 0;
             // Because the projection is already transforming from meter to pixel along the z-axis,
             // the sphere is technically an ellipse.

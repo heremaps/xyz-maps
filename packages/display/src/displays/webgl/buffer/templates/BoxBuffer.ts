@@ -23,6 +23,10 @@ import {FlexAttribute} from './TemplateBuffer';
 import {GeometryBuffer} from '../GeometryBuffer';
 import {Raycaster} from '../../Raycaster';
 
+export const extentScale = 32;
+
+const scaleXY = 1 / extentScale;
+
 export class BoxBuffer extends PointBuffer {
     flexAttributes: {
         'a_position': FlexAttribute,
@@ -56,13 +60,12 @@ export class BoxBuffer extends PointBuffer {
         const offset = size * 6 * 6;
 
         for (let i = 0, {length} = position; i < length; i += offset) {
-            const x = tileX + position[i];
-            const y = tileY + position[i + 1];
+            const x = tileX + position[i] * scaleXY;
+            const y = tileY + position[i + 1] * scaleXY;
             const z = size == 3 ? -decodeUint16z(position[i + 2]) : 0;
             const w = (point[i] >> 1) * scaleX;
             const h = (point[i + 1] >> 1) * scaleY;
             const d = (point[i + 2] >> 1) * scaleZ; // pixel
-
             const intersectRayLength = rayCaster.intersectAABBox(
                 x - w, y - h, z - d,
                 x + w, y + h, z + d
