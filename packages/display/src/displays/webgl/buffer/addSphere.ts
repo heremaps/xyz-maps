@@ -18,7 +18,7 @@
  */
 
 import {SimpleArray} from './templates/FlexArray';
-import {extentScale} from './addBox';
+import {extentScale} from './templates/BoxBuffer';
 
 const calculateSurfaceNormal = (p1, p2, p3) => {
     const ux = p2[0] - p1[0];
