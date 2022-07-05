@@ -2,7 +2,6 @@ precision mediump float;
 
 uniform vec4 u_fill;
 uniform vec4 u_stroke;
-uniform float u_strokeWidth;
 uniform float u_scale;
 
 varying vec3 vSize;
@@ -12,6 +11,7 @@ varying vec3 v_worldPos;
 varying vec3 v_rayOrigin;
 varying vec3 v_rayDirecton;
 #else
+varying float v_strokeWidth;
 varying vec3 vPosition;
 const float smoothness = .25;
 #endif
@@ -54,9 +54,11 @@ void main(void){
     vec3 pos = vPosition;
 //    vec3 pos = vec3(vPosition.xy,vPosition.z*u_zMeterToPixel);
 
-    float a = smoothstep(u_strokeWidth, u_strokeWidth + smoothness, length(abs(pos.xy) - size.xy));
-    a *= smoothstep(u_strokeWidth, u_strokeWidth + smoothness, length(abs(pos.yz) - size.yz));
-    a *= smoothstep(u_strokeWidth, u_strokeWidth + smoothness, length(abs(pos.xz) - size.xz));
+
+
+    float a = smoothstep(v_strokeWidth, v_strokeWidth + smoothness, length(abs(pos.xy) - size.xy));
+    a *= smoothstep(v_strokeWidth, v_strokeWidth + smoothness, length(abs(pos.yz) - size.yz));
+    a *= smoothstep(v_strokeWidth, v_strokeWidth + smoothness, length(abs(pos.xz) - size.xz));
     color = mix(u_stroke, u_fill, a);
 
     // interpolated varying -> unit vector

@@ -35,8 +35,9 @@ float toPixel(vec2 size){
     return value;
 }
 
-    #else
+#else
 varying vec3 vPosition;
+varying float v_strokeWidth;
 #endif
 varying vec3 vSize;
 
@@ -49,7 +50,7 @@ void main(void){
     vec3 size = vec3(toPixel(u_radius)) / u_scale;
     #else
     vec3 dir = mod(a_point, 2.0) * 2.0 - 1.0;
-    vec3 size = floor(a_point * .5);
+    vec3 size = floor(a_point * .5) / u_scale;
     #endif
 
     vec3 vertexOffset = vec3(size.xy, -size.z/u_zMeterToPixel) * dir;
@@ -85,6 +86,7 @@ void main(void){
     #else
     //    vPosition = vertexOffset;
     vPosition = vec3(vertexOffset.xy, vertexOffset.z * u_zMeterToPixel);
+    v_strokeWidth = u_strokeWidth / u_scale;
     #endif
 
     vSize = size;
