@@ -77,12 +77,12 @@ const createSelectorStyle3d = () => [{
     stroke: '#FF0F00',
     altitude: ({properties}) => properties.MARKER.altitude
 }, {
-    zIndex: 1,
+    zIndex: 9e5,
     type: 'Circle',
     radius: 4,
     fill: BLACK,
-    opacity: .6
-    // depthTest: false
+    opacity: .6,
+    zLayer: ({properties}) => properties.MARKER.zLayer -1
 }];
 
 const createRoutingPointStyle = () => [{
@@ -168,11 +168,6 @@ class OverlayStyles {
         'LINE_SHAPE_3D': [{
             zIndex: 3,
             type: 'Sphere',
-            width: (feature, zoom) => {
-                const {style} = feature.properties.LINE;
-                const [lineWidth] = styleTools.getLineWidth(style, feature.getLine(), zoom, 0);
-                return lineWidth + 4;
-            },
             alignment: 'map',
             radius: (feature, zoom) => {
                 const {style} = feature.properties.LINE;
@@ -197,11 +192,12 @@ class OverlayStyles {
             type: 'VerticalLine',
             stroke: '#000'
         }, {
-            zIndex: 1,
+            zIndex: 9e5,
             type: 'Circle',
             radius: 4,
             fill: BLACK,
-            opacity: .6
+            opacity: .6,
+            zLayer: ({properties}) => properties.LINE.zLayer
         }],
         'LINE_SHAPE': [{
             zIndex: 0,
@@ -249,11 +245,12 @@ class OverlayStyles {
             type: 'VerticalLine',
             stroke: '#000'
         }, {
-            zIndex: 1,
+            zIndex: 9e5,
             type: 'Circle',
             radius: 4,
             fill: BLACK,
-            opacity: .6
+            opacity: .6,
+            zLayer: ({properties}) => properties.LINE.zLayer
         }],
 
         'MARKER_SELECTOR': createSelectorStyle(),

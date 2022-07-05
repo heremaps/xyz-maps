@@ -18,13 +18,14 @@
  */
 
 import {LineShape} from './LineShape';
+import LineTools, {Coordinate} from './LineTools';
 
-let lineTools;
+let lineTools: typeof LineTools;
 
 class VirtualShape extends LineShape {
-    constructor(line, coordinate, lineStringIndex: number, index: number, lTools) {
+    constructor(line, coordinate, lineStringIndex: number, index: number, zLayer: number, lTools: typeof LineTools) {
         lineTools = lTools;
-        super(line, coordinate, lineStringIndex, index, lTools);
+        super(line, coordinate, lineStringIndex, index, zLayer, lTools);
     }
 
     pointerdown(ev) {
@@ -40,7 +41,7 @@ class VirtualShape extends LineShape {
             properties.index++;
             lineTools.addCoord(
                 line,
-                shape.geometry.coordinates.slice(),
+                <Coordinate>shape.geometry.coordinates.slice(),
                 properties.index,
                 properties.lineStringIndex
             );

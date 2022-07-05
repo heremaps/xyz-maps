@@ -80,9 +80,10 @@ class LineShape extends Feature {
 
     // getProvider: () => any;
 
-    constructor(line, coordinate, lineStringIndex: number, index: number, lTools) {
+    constructor(line: Line, coordinate: number[], lineStringIndex: number, index: number, zLayer: number, lTools: typeof LineTools) {
         lineTools = lTools;
-        let style = line._e().getStyle(line);
+        const _editor = line._e();
+        const style = _editor.getStyle(line);
 
         super({
             type: 'Feature',
@@ -91,7 +92,8 @@ class LineShape extends Feature {
                 index,
                 'LINE': {
                     properties: line.prop(),
-                    style: style
+                    style,
+                    zLayer
                 }
             },
             geometry: {

@@ -125,10 +125,12 @@ const tools = {
     createShapes: (line: Line, lineStringIndex: number, path, type: string, Shape: typeof LineShape) => {
         const lineStrings = getPrivate(line, type);
         const shapes = lineStrings[lineStringIndex] = lineStrings[lineStringIndex] || [];
+        const _editor = line._e();
+        const zLayer = _editor.getZLayer(line) -1;
 
         for (let i = 0; i < path.length; i++) {
-            shapes[i] = new Shape(line, path[i].slice(), lineStringIndex, i, tools);
-            line._e().objects.overlay.addFeature(shapes[i]);
+            shapes[i] = new Shape(line, path[i].slice(), lineStringIndex, i, zLayer, tools);
+            _editor.objects.overlay.addFeature(shapes[i]);
         }
     },
 

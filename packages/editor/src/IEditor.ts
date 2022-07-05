@@ -195,6 +195,10 @@ export default class InternalEditor {
         }
     }
 
+    getZLayer(feature: Feature): number {
+        return 1 + this.display.getLayers().indexOf(this.getLayer(feature));
+    }
+
     setStyle(feature: Feature, style?: StyleGroup, merge?: boolean) {
         // @ts-ignore: merge attribute is "internal"
         this.getLayer(feature).setStyleGroup(feature, style, merge);

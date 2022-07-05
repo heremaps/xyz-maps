@@ -159,11 +159,14 @@ const tools = {
             };
 
             if (!prv.selector) {
+                const zLayer = EDITOR.getZLayer(feature);
+
                 prv.selector = EDITOR.objects.overlay.addCircle(<GeoJSONCoordinate>feature.coord(), UNDEF, {
                     type: 'MARKER_SELECTOR',
                     MARKER: {
                         properties: feature.prop(),
-                        altitude
+                        altitude,
+                        zLayer
                     }
                 });
             }
