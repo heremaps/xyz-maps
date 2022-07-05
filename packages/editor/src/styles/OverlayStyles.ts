@@ -67,14 +67,15 @@ const createSelectorStyle3d = () => [{
     zIndex: 3,
     alignment: 'Viewport',
     type: 'Circle', stroke: '#FF0F00',
-    // type: 'Sphere', fill: '#FF0F00', opacity: .5, pointerEvents: false
+    // type: 'Sphere', fill: '#FF0F00', opacity: .5, pointerEvents: false,
     strokeWidth: 2,
     radius: 20,
-    altitude: true
+    altitude: ({properties}) => properties.MARKER.altitude
 }, {
     zIndex: 2,
     type: 'VerticalLine',
-    stroke: '#FF0F00'
+    stroke: '#FF0F00',
+    altitude: ({properties}) => properties.MARKER.altitude
 }, {
     zIndex: 1,
     type: 'Circle',
@@ -392,7 +393,10 @@ class OverlayStyles {
         if (type == 'LINE_SHAPE' || type == 'LINE_VIRTUAL_SHAPE') {
             is3d = properties.LINE.style.find((s) => s.altitude)?.altitude;
         } else if (type == 'MARKER_SELECTOR') {
-            is3d = !!feature.geometry.coordinates[2];
+            is3d = properties.MARKER.altitude;
+            if (is3d == UNDEF) {
+                is3d = !!feature.geometry.coordinates[2];
+            }
         }
 
         if (is3d) {

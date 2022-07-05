@@ -21,7 +21,6 @@ import {Feature} from '../feature/Feature';
 import oTools from './LocationTools';
 import {Navlink} from '../link/Navlink';
 import {GeoJSONCoordinate} from '@here/xyz-maps-core';
-import {Marker} from '../marker/Marker';
 
 /**
  * @hidden

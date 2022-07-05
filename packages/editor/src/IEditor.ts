@@ -27,7 +27,7 @@ import ObjectManager from './features/ObjectManager';
 import DisplayListener from './DisplayListener';
 import Hooks from './Hooks';
 import Map from './map/Map';
-import {Map as Display} from '@here/xyz-maps-display';
+import {Map as Display, styleTools} from '@here/xyz-maps-display';
 import {RangeSelector} from './API/ERangeSelector';
 import {DrawingBoard} from './API/DrawingBoard';
 
@@ -185,6 +185,15 @@ export default class InternalEditor {
         const style = layer.getStyleGroup(feature, this.display.getZoomlevel() ^ 0, layerDefaults);
         return JSUtils.extend(true, [], style);
     };
+
+    getStyleProperty(feature: Feature, property: string) {
+        const styleGroup = this.getStyle(feature);
+        for (let style of styleGroup) {
+            if (style[property] != UNDEF) {
+                return styleTools.getValue(property, style, feature, this.display.getZoomlevel() ^ 0);
+            }
+        }
+    }
 
     setStyle(feature: Feature, style?: StyleGroup, merge?: boolean) {
         // @ts-ignore: merge attribute is "internal"

@@ -23,7 +23,6 @@ import {Feature} from '../feature/Feature';
 import FeatureTools from '../feature/FeatureTools';
 import {dragFeatureCoordinate} from '../oTools';
 
-
 const DRAG_STOP = 'dragStop';
 const DRAG_MOVE = 'dragMove';
 const DRAG_START = 'dragStart';
@@ -130,6 +129,9 @@ const tools = {
         const EDITOR = feature._e();
         if (EDITOR.objects.selection.select(feature)) {
             const prv = getPrivate(feature);
+            const altitude = EDITOR.getStyleProperty(feature, 'altitude');
+
+
             prv.pressmove = (ev, dx, dy) => {
                 if (
                     prv.isEditable &&
@@ -138,7 +140,11 @@ const tools = {
                 ) {
                     let coordinate = <GeoJSONCoordinate>[...feature.geometry.coordinates];
 
-                    coordinate = dragFeatureCoordinate(ev.mapX, ev.mapY, feature, coordinate);
+                    if (typeof altitude == 'number') {
+                        coordinate[2] = altitude;
+                    }
+
+                    coordinate = dragFeatureCoordinate(ev.mapX, ev.mapY, feature, coordinate, EDITOR);
 
                     tools._setCoords(feature, coordinate);
 
@@ -157,7 +163,7 @@ const tools = {
                     type: 'MARKER_SELECTOR',
                     MARKER: {
                         properties: feature.prop(),
-                        style: EDITOR.getStyle(feature)
+                        altitude
                     }
                 });
             }
