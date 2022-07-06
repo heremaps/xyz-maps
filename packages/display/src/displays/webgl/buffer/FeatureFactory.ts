@@ -762,6 +762,8 @@ export class FeatureFactory {
                             priority,
                             w, h,
                             offsetX, offsetY,
+                            getValue('from', style, feature, level),
+                            getValue('to', style, feature, level),
                             (x, y, z, rotZ, rotY, collisionData) => {
                                 this.createPoint(type, group, x, y, z, style, feature, collisionData, rotZ + rotation, UNDEF, text);
                             }

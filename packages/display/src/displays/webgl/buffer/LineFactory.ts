@@ -240,10 +240,16 @@ export class LineFactory {
         halfHeight: number,
         offsetX: number,
         offsetY: number,
+        relativeStart: number = 0.0,
+        relativeStop: number = 1.0,
         place: PlacePointCallback
     ) {
         this.projectLine(coordinates, tile, tileSize);
 
+        let {length, dimensions, lineLength} = this;
+        const totalLineLength = lineLength[length / dimensions - 1];
+        let absStartPx = relativeStart * totalLineLength;
+        let absStopPx = relativeStop * totalLineLength;
 
         if (this.collisions) {
             return this.placeCached(place, tile, tileSize);
@@ -253,10 +259,65 @@ export class LineFactory {
         const fixZ = typeof altitude == 'number' ? altitude : null;
 
 
-        for (let i = 0, data = this.pixels, d = this.dimensions, length = this.length; i < length; i += d) {
+        let lengthSoFar = 0;
+        let prevLengthSoFar;
+
+        for (let i = 0, data = this.pixels; i < length; i += dimensions) {
             let x = data[i];
             let y = data[i + 1];
             let z = altitude === true ? data[i + 2] : fixZ;
+            let j = i / dimensions;
+
+            prevLengthSoFar = lengthSoFar;
+            lengthSoFar = lineLength[j + 1];
+
+            if (absStartPx) {
+                if (absStartPx < lengthSoFar) {
+                    const segmentLengthPx = lengthSoFar - prevLengthSoFar;
+                    const relSegmentStart = (absStartPx - prevLengthSoFar) / segmentLengthPx;
+                    const i2 = i + dimensions;
+                    const x2 = data[i2];
+                    const y2 = data[i2 + 1];
+                    const z2 = altitude === true ? data[i2 + 2] : fixZ;
+
+                    x += (x2 - x) * relSegmentStart;
+                    y += (y2 - y) * relSegmentStart;
+
+                    if (z != null) {
+                        z += (z2 - z) * relSegmentStart;
+                    }
+
+                    if (absStartPx == absStopPx) {
+                        // just a single point...so we can stop after point has been placed.
+                        length = null;
+                        absStopPx = null;
+                    }
+                    absStartPx = null;
+                } else {
+                    continue;
+                }
+            }
+
+
+            if (absStopPx) {
+                if (absStopPx && prevLengthSoFar > absStopPx) {
+                    const segmentLengthPx = prevLengthSoFar - lineLength[j - 1];
+                    const relSegmentStop = (absStopPx - prevLengthSoFar) / segmentLengthPx;
+                    const i0 = i - dimensions;
+                    const x0 = data[i0];
+                    const y0 = data[i0 + 1];
+                    const z0 = altitude === true ? data[i0 + 2] : fixZ;
+
+                    x -= (x0 - x) * relSegmentStop;
+                    y -= (y0 - y) * relSegmentStop;
+
+                    if (z != null) {
+                        z -= (z0 - z) * relSegmentStop;
+                    }
+                    // stop after point has been placed...
+                    length = null;
+                }
+            }
 
             let collisionData;
 

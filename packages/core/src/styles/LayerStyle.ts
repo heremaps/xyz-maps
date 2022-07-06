@@ -397,7 +397,6 @@ export interface Style {
      * A Segment allows to display and style parts of the entire line individually.
      * The value must be between 0 and 1.
      * The Default is 0.
-     * Applies to Line style only.
      *
      * @example
      * from: 0.0 // -\> 0%, the segment has the same starting point as the entire line
@@ -410,7 +409,6 @@ export interface Style {
      * A Segment allows to display and style parts of the entire line individually.
      * The value must be between 0 and 1.
      * The Default is 1.
-     * Applies to Line style only.
      *
      * @example
      * to: 0.5 // -\> 50%, the segment ends in the middle of the entire line
