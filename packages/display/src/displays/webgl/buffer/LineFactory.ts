@@ -229,6 +229,21 @@ export class LineFactory {
         );
     }
 
+
+    private getAbsOffset(offset: string | number) {
+        if (typeof offset == 'string') {
+            if (offset.endsWith('px')) {
+                return parseFloat(offset);
+                // offset = parseFloat(offset) / totalLineLength;
+            }
+        }
+
+        const {length, dimensions, lineLength} = this;
+        const totalLineLength = lineLength[length / dimensions - 1];
+
+        return <number>offset * totalLineLength;
+    }
+
     placeAtPoints(
         coordinates: Coordinate[],
         altitude: boolean | number,

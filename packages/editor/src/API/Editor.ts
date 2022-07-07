@@ -499,6 +499,46 @@ export default class Editor {
     }
 
     /**
+     * Get the current value of a specific editor option.
+     *
+     * @returns the value of the specific editor option.
+     */
+    config(name: string): any;
+    /**
+     * Get a deep copy of the currently active editor options.
+     *
+     * @return the editor options as a key/value map.
+     */
+    config(): EditorOptions;
+    /**
+     * Set the value of a specific editor option.
+     *
+     * @param name - the name of the option to set
+     * @param value - the value that should be set for the specific option
+     */
+    config(name: string, value: any);
+    /**
+     * Set one or more editor options.
+     * @param options - the option key/value map that should be merged with the existing editor options.
+     */
+    config(options: EditorOptions);
+
+
+    config(name?: string | EditorOptions, value?: any) {
+        const config = this._i()._config;
+        switch (arguments.length) {
+        case 2:
+            config[<string>name] = value;
+            break;
+        case 1:
+            return config[<string>name];
+        case 0:
+            return {...config};
+        }
+    }
+
+
+    /**
      * Create a FeatureContainer.
      *
      * @returns feature container
@@ -755,7 +795,7 @@ export default class Editor {
     }
 
     /**
-     * This method retrieves the current value of a observable property.
+     * This method retrieves the current value of an observable property.
      *
      * @param key - The name of the property whose value is to be retrieved
      * @returns value - The retrieved value of the property or undefined if no such property exists

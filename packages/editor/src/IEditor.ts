@@ -203,24 +203,4 @@ export default class InternalEditor {
         // @ts-ignore: merge attribute is "internal"
         this.getLayer(feature).setStyleGroup(feature, style, merge);
     };
-
-
-    /**
-     * Get or set the editor config
-     * @hidden
-     * @internal
-     * @param name
-     * @param value
-     */
-    cfg(name?: string, value?: any) {
-        switch (arguments.length) {
-        case 2:
-            this._config[name] = value;
-            break;
-        case 1:
-            return this._config[name];
-        case 0:
-            return this._config;
-        }
-    }
 };

@@ -202,7 +202,7 @@ class Feature extends GeoJSONFeature {
     prop(): { [name: string]: any };
 
     /**
-     * Get the value of an specific property
+     * Get the value of a specific property
      *
      * @param property - name of the property
      *
@@ -211,7 +211,7 @@ class Feature extends GeoJSONFeature {
     prop(property: string): any;
 
     /**
-     * Set the value for an specific property
+     * Set the value for a specific property
      *
      * @param property - name of the property
      * @param value - the value that should be set for the property

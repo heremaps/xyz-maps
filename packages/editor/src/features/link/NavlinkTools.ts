@@ -867,7 +867,12 @@ function autoFixGeometry(line: Navlink, shapeToCheck?: number, ignoreSplitChildr
     const pLength = (<number[]>zLevels).length;
     const stopAtShp = shapeToCheck === UNDEF ? pLength : k + 1;
     let AFInfo = true;
-    const minShpDistance = HERE_WIKI._config['snapTolerance'] || 2;
+    let {snapTolerance} = HERE_WIKI._config;
+
+    if (snapTolerance == UNDEF) {
+        snapTolerance = 2;
+    }
+
 
     function ignoreChild(c) {
         return ignoreAllCLinks || ignoreSplitChildren.indexOf(c) != -1;
@@ -911,7 +916,7 @@ function autoFixGeometry(line: Navlink, shapeToCheck?: number, ignoreSplitChildr
                 const p2 = path[shpIndex];
 
                 // check if shp is close
-                if (isCoordinateDuplicate(p1, p2, zLevels[duplicateIndex], zLevels[shpIndex], minShpDistance)) {
+                if (isCoordinateDuplicate(p1, p2, zLevels[duplicateIndex], zLevels[shpIndex], snapTolerance)) {
                     // identified duplicate candidate
                     shapesInBetween = Math.abs(shpIndex - duplicateIndex) - 1;
 
