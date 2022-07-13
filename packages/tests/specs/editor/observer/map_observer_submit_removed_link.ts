@@ -1,5 +1,5 @@
 /*
- * Copyright (C) 2019-2021 HERE Europe B.V.
+ * Copyright (C) 2019-2022 HERE Europe B.V.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -62,7 +62,7 @@ xdescribe('ready event is triggered once after submitting removed links', functi
     });
 
     it('create one place and one link, remove the link and submit', async function() {
-        let p = new features.Place({x: 400, y: 300}, {featureClass: 'PLACE'}, );
+        let p = new features.Place({x: 400, y: 300}, {featureClass: 'PLACE'} );
         let lnk = new features.Navlink([{x: 250, y: 100}, {x: 250, y: 400}], {featureClass: 'NAVLINK'});
 
         link = editor.addFeature(lnk, linkLayer);

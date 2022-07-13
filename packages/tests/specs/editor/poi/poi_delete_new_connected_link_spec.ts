@@ -1,5 +1,5 @@
 /*
- * Copyright (C) 2019-2021 HERE Europe B.V.
+ * Copyright (C) 2019-2022 HERE Europe B.V.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -66,7 +66,7 @@ xdescribe('New poi connect to a new link and then remove the link', function() {
     });
 
     it('validate routingPoint value of poi', async function() {
-        let p = new features.Place({x: 400, y: 300}, {featureClass: 'PLACE'}, );
+        let p = new features.Place({x: 400, y: 300}, {featureClass: 'PLACE'} );
         let lnk = new features.Navlink([{x: 250, y: 100}, {x: 250, y: 400}], {featureClass: 'NAVLINK'});
 
         link = editor.addFeature(lnk, linkLayer);

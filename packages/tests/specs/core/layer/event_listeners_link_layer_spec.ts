@@ -1,5 +1,5 @@
 /*
- * Copyright (C) 2019-2021 HERE Europe B.V.
+ * Copyright (C) 2019-2022 HERE Europe B.V.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -92,7 +92,7 @@ describe('event listeners in link layer', function() {
                     // coordinates: [[49.97183, 8.2691, 0], [49.97195, 8.26949, 0]]
                 }
             },
-            [[73.426166081, 17.890420526, 0], [73.426191257, 17.890142343, 0]],
+            [[73.426166081, 17.890420526, 0], [73.426191257, 17.890142343, 0]]
         );
 
         let results = test.stop();

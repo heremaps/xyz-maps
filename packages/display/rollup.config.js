@@ -1,5 +1,5 @@
 /*
- * Copyright (C) 2019-2021 HERE Europe B.V.
+ * Copyright (C) 2019-2022 HERE Europe B.V.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -34,7 +34,7 @@ let sourcemap = true;
 let module = pkg.name.split('-').pop();
 let file = 'xyz-maps-' + module + '.js';
 
-const banner = '/*\n * ' + pkg.name + '\n * (c) 2019-2021 HERE\n */\n';
+const banner = '/*\n * ' + pkg.name + '\n * (c) 2019-2022 HERE\n */\n';
 const logoSrc = process.env.logo || './assets/xyz.svg';
 const cOwner = process.env.cOwner || 'XYZ';
 const tacUrl = process.env.tacUrl || '';
