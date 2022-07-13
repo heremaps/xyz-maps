@@ -18,7 +18,7 @@
  */
 
 const {join} = require('path');
-const {writeFileSync} = require('fs');
+const {copyFile, writeFileSync} = require('fs');
 
 const XYZ_MAPS_SRC = '../';
 
@@ -29,3 +29,9 @@ const pkgJson = require(pkgPath);
 pkgJson.version = require(join(__dirname, XYZ_MAPS_SRC, 'lerna.json')).version;
 
 writeFileSync(pkgPath, JSON.stringify(pkgJson, null, 2), 'utf8');
+console.log('bumped root version.');
+
+copyFile(join(__dirname, XYZ_MAPS_SRC, 'packages', 'core', 'CHANGELOG.MD'), join(__dirname, XYZ_MAPS_SRC, 'CHANGELOG.MD'), (err) => {
+    if (err) throw err;
+    console.log('updated CHANGELOG.MD in root.');
+});
