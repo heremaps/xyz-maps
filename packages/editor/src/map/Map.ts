@@ -16,7 +16,7 @@
  * SPDX-License-Identifier: Apache-2.0
  * License-Filename: LICENSE
  */
-import {GeoJSONCoordinate as Point} from '@here/xyz-maps-core';
+import {GeoJSONCoordinate as Point, Feature as GeoJSONFeature} from '@here/xyz-maps-core';
 import {geotools} from '@here/xyz-maps-common';
 import {Map as MapDisplay} from '@here/xyz-maps-display';
 import {getPntOnLine} from '../geometry';
@@ -210,10 +210,10 @@ class Map {
     //     return (dr/r+360)%360;
     // };
 
-    pixelMove(feature: Feature, dx: number, dy: number) {
+    pixelMove(feature: Feature | GeoJSONFeature, dx: number, dy: number) {
         const provider = feature.getProvider();
         const curPos = this.translateGeo(provider.decCoord(feature), dx, dy);
-        const setCoords = oTools.getTool(feature, '_setCoords');
+        const setCoords = oTools.getTool(<Feature>feature, '_setCoords');
 
         if (setCoords) {
             setCoords(feature, curPos);

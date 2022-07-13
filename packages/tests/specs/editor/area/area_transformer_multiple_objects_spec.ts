@@ -17,24 +17,24 @@
  * License-Filename: LICENSE
  */
 import {waitForEditorReady} from 'editorUtils';
-import {prepare} from 'utils';
+import {prepare, TestData} from 'utils';
 import {click, drag} from 'triggerEvents';
 import {Map} from '@here/xyz-maps-display';
 import {Editor} from '@here/xyz-maps-editor';
 import chaiAlmost from 'chai-almost';
 import dataset from './area_transformer_multiple_objects_spec.json';
 
-describe('area transform multiple objects', function() {
+describe('area transform multiple objects', () => {
     const expect = chai.expect;
 
     let editor;
     let display;
-    let preparedData;
+    let preparedData: TestData;
     let area1;
     let area2;
     let mapContainer;
 
-    before(async function() {
+    before(async () => {
         chai.use(chaiAlmost());
         preparedData = await prepare(dataset);
         display = new Map(document.getElementById('map'), {
@@ -53,18 +53,19 @@ describe('area transform multiple objects', function() {
         area1 = preparedData.getFeature('buildingLayer', -9076);
         area2 = preparedData.getFeature('buildingLayer', -9077);
 
+
         expect(area1).to.not.equal(null);
         expect(area2).to.not.equal(null);
     });
 
-    after(async function() {
+    after(async () => {
         editor.destroy();
         display.destroy();
 
         await preparedData.clear();
     });
 
-    it('validate two objects are added to container and start transformer', function() {
+    it('validate two objects are added to container and start transformer', () => {
         let container = editor.createFeatureContainer();
 
         container.push(area1, area2);
@@ -74,7 +75,7 @@ describe('area transform multiple objects', function() {
         container.transform();
     });
 
-    it('drag to scale left', async function() {
+    it('drag to scale left', async () => {
         await drag(mapContainer, {x: 435, y: 244}, {x: 405, y: 244});
 
         expect(area1.coord()).to.deep.almost([[[
@@ -91,9 +92,10 @@ describe('area transform multiple objects', function() {
             [74.916382995, 12.968697091, 0],
             [74.916162012, 12.969010746, 0]
         ]]]);
-    });
+    })
+    ;
 
-    it('drag to scale right', async function() {
+    it('drag to scale right', async () => {
         await drag(mapContainer, {x: 635, y: 244}, {x: 685, y: 244});
 
         expect(area1.coord()).to.deep.almost([[[
@@ -113,84 +115,83 @@ describe('area transform multiple objects', function() {
     });
 
 
-    it('drag to scale up', async function() {
+    it('drag to scale up', async () => {
         await drag(mapContainer, {x: 550, y: 35}, {x: 550, y: 85});
 
         expect(area1.coord()).to.deep.almost([[[
-            [74.91584632, 12.968661713, 0],
-            [74.91584632, 12.968226607, 0],
-            [74.91612262, 12.968226607, 0],
-            [74.916280507, 12.968444158, 0],
-            [74.91584632, 12.968661713, 0]
+            [74.915847117, 12.968662454, 0],
+            [74.915847117, 12.968226607, 0],
+            [74.916122845, 12.968226607, 0],
+            [74.916280403, 12.96844453, 0],
+            [74.915847117, 12.968662454, 0]
         ]]]);
 
         expect(area2.coord()).to.deep.almost([[[
-            [74.916241039, 12.968879263, 0],
-            [74.916241039, 12.968661713, 0],
-            [74.916517339, 12.9686182, 0],
-            [74.916241039, 12.968879263, 0]
+            [74.916241014, 12.968880375, 0],
+            [74.916241014, 12.968662454, 0],
+            [74.91651674, 12.968618869, 0],
+            [74.916241014, 12.968880375, 0]
         ]]]);
     });
 
-    it('drag to scale down', async function() {
+    it('drag to scale down', async () => {
         await drag(mapContainer, {x: 550, y: 365}, {x: 550, y: 335});
-
         expect(area1.coord()).to.deep.almost([[[
-            [74.91584632, 12.968688116, 0],
-            [74.91584632, 12.968305814, 0],
-            [74.91612262, 12.968305814, 0],
-            [74.916280507, 12.968496962, 0],
-            [74.91584632, 12.968688116, 0]
+            [74.915847117, 12.968688459, 0],
+            [74.915847117, 12.968304619, 0],
+            [74.916122845, 12.968304619, 0],
+            [74.916280403, 12.968496538, 0],
+            [74.915847117, 12.968688459, 0]
         ]]]);
 
         expect(area2.coord()).to.deep.almost([[[
-            [74.916241039, 12.968879263, 0],
-            [74.916241039, 12.968688116, 0],
-            [74.916517339, 12.968649882, 0],
-            [74.916241039, 12.968879263, 0]
+            [74.916241014, 12.968880375, 0],
+            [74.916241014, 12.968688459, 0],
+            [74.91651674, 12.968650075, 0],
+            [74.916241014, 12.968880375, 0]
         ]]]);
     });
 
 
-    it('drag to rotate', async function() {
+    it('drag to rotate', async () => {
         await drag(mapContainer, {x: 680, y: 335}, {x: 580, y: 335});
 
         expect(area1.coord()).to.deep.almost([[[
-            [74.915947279, 12.968845105, 0],
-            [74.915741947, 12.968519349, 0],
-            [74.915977378, 12.968378423, 0],
-            [74.916214578, 12.968460769, 0],
-            [74.915947279, 12.968845105, 0]
+            [74.915948223, 12.968845072, 0],
+            [74.915742008, 12.96851804, 0],
+            [74.915976929, 12.968377368, 0],
+            [74.916214276, 12.968460499, 0],
+            [74.915948223, 12.968845072, 0]
         ]]]);
 
         expect(area2.coord()).to.deep.almost([[[
-            [74.916386281, 12.968806654, 0],
-            [74.916283616, 12.96864378, 0],
-            [74.916498513, 12.968470274, 0],
-            [74.916386281, 12.968806654, 0]
+            [74.916386929, 12.968807625, 0],
+            [74.916283824, 12.968644112, 0],
+            [74.916498121, 12.968470738, 0],
+            [74.916386929, 12.968807625, 0]
         ]]]);
     });
 
-    it('drag to move', async function() {
-        await drag(mapContainer, {x: 520, y: 200}, {x: 480, y: 200});
+    it('drag to move', async () => {
+        await drag(mapContainer, {x: 545, y: 210}, {x: 505, y: 210});
 
         expect(area1.coord()).to.deep.almost([[[
-            [74.915839992, 12.968845106, 0],
-            [74.915634658, 12.968519349, 0],
-            [74.91587009, 12.968378423, 0],
-            [74.91610729, 12.968460769, 0],
-            [74.915839992, 12.968845106, 0]
+            [74.915840935, 12.968845072, 0],
+            [74.91563472, 12.96851804, 0],
+            [74.915869641, 12.968377368, 0],
+            [74.916106988, 12.968460499, 0],
+            [74.915840935, 12.968845072, 0]
         ]]]);
 
         expect(area2.coord()).to.deep.almost([[[
-            [74.916278993, 12.968806654, 0],
-            [74.916176328, 12.96864378, 0],
-            [74.916391225, 12.968470274, 0],
-            [74.916278993, 12.968806654, 0]
+            [74.916279641, 12.968807625, 0],
+            [74.916176536, 12.968644112, 0],
+            [74.916390833, 12.968470738, 0],
+            [74.916279641, 12.968807625, 0]
         ]]]);
     });
 
-    it('validate two objects are modified', async function() {
+    it('validate two objects are modified', async () => {
         // hide transformer
         await click(mapContainer, 100, 50);
         expect(editor.info()).to.have.lengthOf(2);

@@ -183,7 +183,7 @@ class Overlay {
     }
 
 
-    addPolygon(geometry, style, props) {
+    addPolygon(geometry, style?, props?) {
         return this.addFeature(
             createFeature('Polygon', [geometry], props),
             style

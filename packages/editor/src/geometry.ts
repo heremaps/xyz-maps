@@ -289,7 +289,7 @@ export const getSubpath = (path: Point[], len1: number, len2: number) => {
     return subpath;
 };
 
-export const getPointAtLength = (path: Point[], atLen: number): Point => {
+export const getPointAtLength = (path: Point[], atLen: number, clamp: boolean = true): Point => {
     let segLen;
     let curTotalLen = 0;
     let p1;
@@ -302,7 +302,7 @@ export const getPointAtLength = (path: Point[], atLen: number): Point => {
 
         curTotalLen += (segLen = getDistance(p1, p2));
 
-        if (curTotalLen >= atLen) {
+        if (!clamp || curTotalLen >= atLen) {
             atCurSegLen = (atLen - (curTotalLen - segLen)) / segLen;
             return [
                 (p2[0] - p1[0]) * atCurSegLen + p1[0],

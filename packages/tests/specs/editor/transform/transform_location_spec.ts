@@ -24,7 +24,7 @@ import {Editor} from '@here/xyz-maps-editor';
 import dataset from './transform_location_spec.json';
 import chaiAlmost from 'chai-almost';
 
-describe('transform for poi and point address', function() {
+describe('transform for poi and point address', () => {
     const expect = chai.expect;
 
     let editor;
@@ -35,7 +35,7 @@ describe('transform for poi and point address', function() {
     let address;
     let container;
 
-    before(async function() {
+    before(async () => {
         chai.use(chaiAlmost());
         preparedData = await prepare(dataset);
         display = new Map(document.getElementById('map'), {
@@ -61,74 +61,108 @@ describe('transform for poi and point address', function() {
         expect(address.coord()).to.deep.almost([76.035072188, 13.709170873, 0]);
     });
 
-    after(async function() {
+    after(async () => {
         editor.destroy();
         display.destroy();
         await preparedData.clear();
     });
 
-    it('get container and transform right boarder', async function() {
+    it('transform right boarder', async () => {
         container.transform();
 
+
+        // console.log(JSON.stringify(area.coord()));
         await drag(mapContainer, {x: 313, y: 250}, {x: 330, y: 250});
 
-        expect(poi.coord()).to.deep.almost([76.035246764, 13.709301163, 0]);
+
+        // preparedData.getLayers('paLayer').addFeature({
+        //     'type': 'Feature',
+        //     'properties': {},
+        //     'geometry': {
+        //         'type': 'Point',
+        //         'coordinates': ((x,y)=>[
+        //             display.pixelToGeo(x,y).longitude,
+        //             display.pixelToGeo(x,y).latitude
+        //         ])(155,195)
+        //     }
+        // });console.log(JSON.stringify(link.coord()));
+        //         console.log(JSON.stringify(address.coord()));
+
+        // preparedData.getLayers('placeLayer').addFeature({
+        //     'type': 'Feature',
+        //     'properties': {},
+        //     'geometry': {
+        //         'type': 'Point',
+        //         'coordinates': [76.035246764, 13.709301163, 0]
+        //     }
+        // }, [{zIndex: 9, type: 'Circle', fill: 'blue', radius: 4, opacity: .5}]);
+        //
+        // preparedData.getLayers('placeLayer').addFeature({
+        //     'type': 'Feature',
+        //     'properties': {},
+        //     'geometry': {
+        //         'type': 'Point',
+        //         'coordinates': [76.035072188, 13.709170873, 0]
+        //     }
+        // }, [{zIndex: 9, type: 'Circle', fill: 'blue', radius: 4, opacity: .5}]);
+
+        expect(poi.coord()).to.deep.almost([76.035241467, 13.709301163, 0]);
         expect(address.coord()).to.deep.almost([76.035072188, 13.709170873, 0]);
     });
 
-    it('get container and transform left boarder', async function() {
+    it('transform left boarder', async () => {
         container.transform();
 
         await drag(mapContainer, {x: 235, y: 250}, {x: 210, y: 250});
 
-        expect(poi.coord()).to.deep.almost([76.035246764, 13.709301163, 0]);
-        expect(address.coord()).to.deep.almost([76.035004899, 13.709170873, 0]);
+        expect(poi.coord()).to.deep.almost([76.035241467, 13.709301163, 0]);
+        expect(address.coord()).to.deep.almost([76.035008515, 13.709170873, 0]);
     });
 
 
-    it('get container and transform top boarder', async function() {
+    it('transform top boarder', async () => {
         container.transform();
 
         await drag(mapContainer, {x: 270, y: 233}, {x: 270, y: 200});
 
-        expect(poi.coord()).to.deep.almost([76.035246764, 13.709391453, 0]);
-        expect(address.coord()).to.deep.almost([76.035004899, 13.709170873, 0]);
+        expect(poi.coord()).to.deep.almost([76.035241467, 13.709388819, 0]);
+        expect(address.coord()).to.deep.almost([76.035008515, 13.709170873, 0]);
     });
 
-    it('get container and transform bottom boarder', async function() {
+    it('transform bottom boarder', async () => {
         container.transform();
 
         await drag(mapContainer, {x: 270, y: 315}, {x: 270, y: 280});
 
-        expect(poi.coord()).to.deep.almost([76.035246764, 13.709391453, 0]);
-        expect(address.coord()).to.deep.almost([76.035004899, 13.709262989, 0]);
+        expect(poi.coord()).to.deep.almost([76.035241467, 13.709388819, 0]);
+        expect(address.coord()).to.deep.almost([76.035008515, 13.709257493, 0]);
     });
 
-    it('get container and move transformer', async function() {
+    it('move transformer', async () => {
         container.transform();
 
         await drag(mapContainer, {x: 270, y: 240}, {x: 300, y: 280});
 
-        expect(poi.coord()).to.deep.almost([76.03532723, 13.709287221, 0]);
-        expect(address.coord()).to.deep.almost([76.035085365, 13.709158757, 0]);
+        expect(poi.coord()).to.deep.almost([76.035321933, 13.709284587, 0]);
+        expect(address.coord()).to.deep.almost([76.035088981, 13.709153261, 0]);
     });
 
-    it('get container and rotate transformer', async function() {
+    it('rotate transformer', async () => {
         container.transform();
 
         await drag(mapContainer, {x: 360, y: 320}, {x: 300, y: 330});
 
-        expect(poi.coord()).to.deep.almost([76.03532839, 13.709160863, 0]);
-        expect(address.coord()).to.deep.almost([76.035084205, 13.709285115, 0]);
+        expect(poi.coord()).to.deep.almost([76.035325452, 13.709159544, 0]);
+        expect(address.coord()).to.deep.almost([76.035085462, 13.709278304, 0]);
     });
 
-    xit('get container and rotate transformer', async function() {
+    xit('pan map inside container', async () => {
         // expect transformer not to transform when dragging inside transformer
         container.transform();
 
         await drag(mapContainer, {x: 330, y: 270}, {x: 340, y: 300});
 
-        expect(poi.coord()).to.deep.almost([76.03532839, 13.709160863, 0]);
-        expect(address.coord()).to.deep.almost([76.035084205, 13.709285115, 0]);
+        expect(poi.coord()).to.deep.almost([76.035325452, 13.709159544, 0]);
+        expect(address.coord()).to.deep.almost([76.035085462, 13.709278304, 0]);
     });
 });

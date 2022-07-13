@@ -99,7 +99,7 @@ function prepareFeatures(dataset): Promise<{[key: string]: object[]}> {
 
 
 export default async function prepare(dataset) {
-    let preparedData = new PreparedData();
+    let preparedData = new TestData();
 
     let featuresToCommit= {};
     let featuresToUpdateRP= {};
@@ -208,7 +208,7 @@ export default async function prepare(dataset) {
 }
 
 
-class PreparedData {
+export class TestData {
     private layers: TileLayer[] = [];
     // {
     //     "layerId1": {

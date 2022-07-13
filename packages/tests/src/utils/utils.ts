@@ -16,7 +16,7 @@
  * SPDX-License-Identifier: Apache-2.0
  * License-Filename: LICENSE
  */
-import prepare from './prepareData';
+import prepare, {TestData} from './prepareData';
 
 declare global {
     interface XMLHttpRequest {
@@ -34,7 +34,7 @@ export interface RequestSummary {
     openURL: string
 }
 
-export {prepare};
+export {prepare, TestData};
 
 function backingScale() {
     if ('devicePixelRatio' in window) {

@@ -24,7 +24,7 @@ import {Editor} from '@here/xyz-maps-editor';
 import chaiAlmost from 'chai-almost';
 import dataset from './transform_spec.json';
 
-describe('transform objects', function() {
+describe('transform objects', () => {
     const expect = chai.expect;
     let editor;
     let display;
@@ -34,7 +34,7 @@ describe('transform objects', function() {
     let link;
     let address;
 
-    before(async function() {
+    before(async () => {
         chai.use(chaiAlmost());
         preparedData = await prepare(dataset);
         display = new Map(document.getElementById('map'), {
@@ -61,90 +61,77 @@ describe('transform objects', function() {
         container.transform();
     });
 
-    after(async function() {
+    after(async () => {
         editor.destroy();
         display.destroy();
         await preparedData.clear();
     });
 
-    it('validate transformer is active', async function() {
+    it('validate transformer is active', async () => {
         let overlay = editor.getOverlay();
-        let controller = overlay.search(display.getViewBounds());
-        expect(controller).to.be.lengthOf(7);
+        let features = overlay.search(display.getViewBounds());
+
+        expect(features.length).to.be.greaterThanOrEqual(7);
 
         await click(mapContainer, 100, 100);
 
-        controller = overlay.search(display.getViewBounds());
-        expect(controller).to.be.lengthOf(0);
+        features = overlay.search(display.getViewBounds());
+        expect(features).to.be.lengthOf(0);
 
         container.transform();
     });
 
-    it('drag right bar of transformer to scale ', async function() {
-        await drag(mapContainer, {x: 307, y: 280}, {x: 357, y: 280});
+    it('drag right bar of transformer to scale ', async () => {
+        await drag(mapContainer, {x: 307 + 5, y: 280}, {x: 357 + 5, y: 280});
 
-        expect(link.coord()).to.deep.almost([
-            [77.813991539, 12.651573696, 0],
-            [77.812652884, 12.651416671, 0]
-        ]);
-        expect(address.coord()).to.deep.almost([77.81332221, 12.651311987, 0]);
+        expect(link.coord()).to.deep.almost([[77.813977148, 12.651573696, 0], [77.812652884, 12.651416671, 0]]);
+        expect(address.coord()).to.deep.almost([77.813315016, 12.651311987, 0]);
     });
 
-    it('drag left bar of transformer to scale', async function() {
-        await drag(mapContainer, {x: 92, y: 280}, {x: 120, y: 280});
+    it('drag left bar of transformer to scale', async () => {
+        await drag(mapContainer, {x: 92 - 5, y: 280}, {x: 120 - 5, y: 280});
 
-        expect(link.coord()).to.deep.almost([
-            [77.813991539, 12.651573696, 0],
-            [77.812800172, 12.651416671, 0]
-        ]);
-        expect(address.coord()).to.deep.almost([77.813395854, 12.651311987, 0]);
+        expect(link.coord()).to.deep.almost([[77.813977148, 12.651573696, 0], [77.812812652, 12.651416671, 0]]);
+        expect(address.coord()).to.deep.almost([77.813394901, 12.651311987, 0]);
     });
 
-    it('drag top bar of transformer to scale', async function() {
-        await drag(mapContainer, {x: 200, y: 241}, {x: 200, y: 220});
+    it('drag top bar of transformer to scale', async () => {
+        await drag(mapContainer, {x: 200, y: 241 - 8}, {x: 200, y: 220 - 8});
 
-        expect(link.coord()).to.deep.almost([
-            [77.813991539, 12.651690721, 0],
-            [77.812800172, 12.651463481, 0]
-        ]);
-        expect(address.coord()).to.deep.almost([77.813395854, 12.651311987, 0]);
+        expect(link.coord()).to.deep.almost([[77.813977148, 12.651685962, 0], [77.812812652, 12.651461577, 0]]);
+        expect(address.coord()).to.deep.almost([77.813394901, 12.651311987, 0]);
     });
 
-    it('drag bottom bar of transformer to scale', async function() {
-        await drag(mapContainer, {x: 200, y: 306}, {x: 200, y: 280});
+    it('drag bottom bar of transformer to scale', async () => {
+        await drag(mapContainer, {x: 200, y: 306 + 10}, {x: 200, y: 280 + 10});
 
-        expect(link.coord()).to.deep.almost([
-            [77.813991539, 12.651690721, 0],
-            [77.812800172, 12.651550291, 0]
-        ]);
-        expect(address.coord()).to.deep.almost([77.813395854, 12.651456671, 0]);
+        expect(link.coord()).to.deep.almost([[77.813977148, 12.651685962, 0], [77.812812652, 12.651533941, 0]]);
+        expect(address.coord()).to.deep.almost([77.813394901, 12.651432592, 0]);
     });
 
-    it('drag the transformer to move the link and address', async function() {
-        await drag(mapContainer, {x: 235, y: 250}, {x: 250, y: 280});
+    it('drag the transformer to move the link and address', async () => {
+        await drag(mapContainer, {x: 235 + 8, y: 250 + 8}, {x: 250 + 8, y: 280 + 8});
 
-        expect(link.coord()).to.deep.almost([
-            [77.814072005, 12.651533695, 0],
-            [77.812880638, 12.651393265, 0]
-        ]);
-        expect(address.coord()).to.deep.almost([77.81347632, 12.651299645, 0]);
+        expect(link.coord()).to.deep.almost([[77.814057614, 12.651528936, 0], [77.812893118, 12.651376915, 0]]);
+        expect(address.coord()).to.deep.almost([77.813475367, 12.651275566, 0]);
     });
 
-    it('drag the transformer to rotate the link and address', async function() {
-        await drag(mapContainer, {x: 370, y: 310}, {x: 300, y: 320});
+    it('drag the transformer to rotate the link and address', async () => {
+        await drag(mapContainer, {x: 370 + 8, y: 310 + 8}, {x: 300 + 8, y: 320 + 8});
 
-        expect(link.coord()).to.deep.almost([
-            [77.814063588, 12.65126444, 0],
-            [77.812931512, 12.651652858, 0]
-        ]);
-        expect(address.coord()).to.deep.almost([77.813423251, 12.651311726, 0]);
+        expect(link.coord()).to.deep.almost([[77.814060451, 12.651288682, 0], [77.812932235, 12.651608534, 0]]);
+        expect(address.coord()).to.deep.almost([77.813422926, 12.651286358, 0]);
     });
 
+    it('scale and keep aspect ration', async () => {
+        await drag(mapContainer, {x: 155, y: 195}, {x: 120, y: 160});
+        expect(link.coord()).to.deep.almost([[77.814292863, 12.65124357, 0], [77.812716489, 12.651690475, 0]]);
+        expect(address.coord()).to.deep.almost([77.813402094, 12.651240322, 0]);
+    });
 
     it('after transforming link validate it is not selected', async function() {
         let overlay = editor.getOverlay();
-        let controller = overlay.search(display.getViewBounds());
-        // there are just transformer constrollers
-        expect(controller).to.be.lengthOf(7);
+        let features = overlay.search(display.getViewBounds());
+        expect(features.length).to.be.greaterThanOrEqual(7);
     });
 });

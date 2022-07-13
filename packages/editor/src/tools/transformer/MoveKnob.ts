@@ -18,11 +18,14 @@
  */
 import InternalEditor from '../../IEditor';
 import Overlay from '../../features/Overlay';
-import {Cursor} from './Cursor';
+import {Knob} from './Knob';
 import Transformer from './Transformer';
 import {Style} from '@here/xyz-maps-core';
+import {getPointAtLength, getTotalLength} from '../../geometry';
 
-class MoveCursor extends Cursor {
+class MoveKnob extends Knob {
+    internalEditor;
+
     constructor(
         internalEditor: InternalEditor,
         position,
@@ -31,6 +34,8 @@ class MoveCursor extends Cursor {
         style: Style | Style[]
     ) {
         super(internalEditor, position, overlay, transformer, style);
+
+        this.internalEditor = internalEditor;
 
         this.__ = {
             pointerdown: () => {
@@ -42,12 +47,9 @@ class MoveCursor extends Cursor {
             pressmove: (e, dx, dy) => {
                 const props = this.properties;
                 props.moved = true;
-                for (let item of transformer.getObjects()) {
-                    internalEditor.map.pixelMove(item, dx - props._dx, dy - props._dy);
-                }
+                transformer.pan(dx - props._dx, dy - props._dy);
                 props._dx = dx;
                 props._dy = dy;
-                transformer.objBBoxChanged();
             },
             pointerup: () => {
                 if (this.properties.moved) {
@@ -55,7 +57,18 @@ class MoveCursor extends Cursor {
                 }
             }
         };
+
+        this.enableHover('move');
+    }
+
+    update() {
+        const rotatedBoundingBox = this.transformer.getRotatedBoundingBox();
+        const topLeft = rotatedBoundingBox[0];
+        const bottomRight = rotatedBoundingBox[2];
+        const diagonal = [topLeft, bottomRight];
+        const c = getPointAtLength(diagonal, 0.5 * getTotalLength(diagonal));
+        this.setPosition(c[0], c[1]);
     }
 }
 
-export default MoveCursor;
+export default MoveKnob;

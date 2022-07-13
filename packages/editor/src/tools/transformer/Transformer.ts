@@ -18,9 +18,11 @@
  */
 import {Feature} from '../../features/feature/Feature';
 import oTools from '../../features/oTools';
-import RotateCursor from './RotateCursor';
-import MoveCursor from './MoveCursor';
-import ScaleSelector from './ScaleSelector';
+import RotateKnob from './RotateKnob';
+import ScaleKnob from './ScaleKnob';
+import MoveKnob from './MoveKnob';
+import ScaleBox, {createRectGeometry} from './ScaleBox';
+import {GeoJSONFeature, GeoJSONCoordinate, GeoJSONCoordinate as Point} from '@here/xyz-maps-core';
 import InternalEditor from '../../IEditor';
 // @ts-ignore
 import iconRotateBlack from '../../../assets/icons/rotate.black.gif';
@@ -30,16 +32,51 @@ import iconRotateWhite from '../../../assets/icons/rotate.white.gif';
 const ICON_SIZE = 18;
 const STROKE_COLOR = '#010B1E';
 
+export enum Corner {
+    topLeft,
+    topRight,
+    bottomRight,
+    bottomLeft
+}
+
 class Transformer {
     private iEditor: InternalEditor;
-    private gap: number = 4e-5;
+    gap: number = 0;
+    // gap: number = 4e-5;
     private features: Feature[] = null;
 
-    private scaleRect: ScaleSelector = null;
-    private moveCursor: MoveCursor = null;
-    private rotateCursor: RotateCursor = null;
+    private scaleBox: ScaleBox = null;
+    private moveKnob: MoveKnob = null;
+    private rotateKnob: RotateKnob = null;
+    private scaleKnob: ScaleKnob = null;
 
     private allowEditIds: (number | string)[] = [];
+    rotation: number = 0;
+    private bbox: GeoJSONFeature;
+
+    scaleFeatures(features: Feature[] | GeoJSONFeature[], sx, sy, scaleCenter) {
+        const scale = [sx, sy];
+        const map = this.iEditor.map;
+        const {rotation} = this;
+        const rotateCenter = this.getCenter();
+
+        scaleCenter = map.rotatePoint(scaleCenter, rotateCenter, -rotation);
+
+        for (let feature of features) {
+            const geom = {type: feature.geometry.type, coordinates: feature.geometry.coordinates};
+
+            geom.coordinates = map.rotateGeometry(geom, rotateCenter, -rotation);
+            geom.coordinates = map.scaleGeometry(geom, scale, scaleCenter);
+            geom.coordinates = map.rotateGeometry(geom, rotateCenter, rotation);
+
+            try {
+                oTools._setCoords(<Feature>feature, geom.coordinates);
+            } catch (e) {
+                feature.geometry.coordinates = geom.coordinates;
+                // feature.getProvider().setFeatureCoordinates(feature, geom.coordinates);
+            }
+        }
+    }
 
     constructor(iEditor: InternalEditor) {
         this.iEditor = iEditor;
@@ -51,6 +88,19 @@ class Transformer {
                 oTools._editable(feature, true);
             }
         }
+    }
+
+    setRotation(rotation: number) {
+        const deltaRotation = rotation - this.rotation;
+        const center = this.getCenter();
+
+        const {geometry} = this.bbox;
+        geometry.coordinates = this.iEditor.map.rotateGeometry(geometry, center, deltaRotation);
+
+        this.scaleBox.setRotation(deltaRotation, center);
+        this.scaleKnob.update();
+        this.rotateKnob.update();
+        this.rotation = rotation;
     }
 
     markObjsAsMod() {
@@ -65,43 +115,47 @@ class Transformer {
         }
     };
 
-    getObjects() {
+    getFeatures() {
         return this.features;
     }
 
     visible(visible: boolean) {
-        const {rotateCursor, moveCursor, scaleRect} = this;
+        const {rotateKnob, scaleKnob, moveKnob, scaleBox} = this;
 
-        if (rotateCursor) {
+        if (rotateKnob) {
             if (visible) {
-                scaleRect.show();
-                rotateCursor.show();
-                moveCursor.show();
+                scaleBox.show();
+                rotateKnob.show();
+                scaleKnob.show();
+                moveKnob.show();
             } else {
-                scaleRect.hide();
-                rotateCursor.hide();
-                moveCursor.hide();
+                scaleBox.hide();
+                rotateKnob.hide();
+                scaleKnob.hide();
+                moveKnob.hide();
             }
         }
     };
 
     isActive() {
-        return this.scaleRect !== null;
+        return this.scaleBox !== null;
     }
 
 
     hide() {
-        const {features, rotateCursor, moveCursor, scaleRect} = this;
-        if (scaleRect) {
-            scaleRect.remove();
-            rotateCursor.remove();
-            moveCursor.remove();
+        const {features, rotateKnob, scaleKnob, moveKnob, scaleBox} = this;
+        if (scaleBox) {
+            scaleBox.remove();
+            rotateKnob.remove();
+            scaleKnob.remove();
+            moveKnob.remove();
         }
 
-        this.scaleRect =
-            this.moveCursor =
-                this.rotateCursor = null;
+        this.scaleBox =
+            this.moveKnob =
+                this.rotateKnob = null;
 
+        this.rotation = 0;
 
         if (features != null) {
             this.restoreFeaturesEditable();
@@ -110,73 +164,71 @@ class Transformer {
         }
     };
 
-    objBBoxChanged() {
-        const that = this;
-        let {rotateCursor, moveCursor, scaleRect, gap, iEditor} = that;
-        const overlay = iEditor.objects.overlay;
+    private update() {
+        this.scaleBox.update();
+        this.scaleKnob.update();
+        this.rotateKnob.update();
+        this.moveKnob.update();
+    }
 
-        const _bbox = this.getBBox();
-        const minLon = _bbox[0] -= gap;
-        const minLat = _bbox[1] -= gap;
-        const maxLon = _bbox[2] += gap;
-        const maxLat = _bbox[3] += gap;
-        const centerLon = _bbox[0] + (_bbox[2] - _bbox[0]) / 2;
-        const centerLat = _bbox[1] + (_bbox[3] - _bbox[1]) / 2;
+    private offsetCorner(point, ox: number, oy: number) {
+        const map = this.iEditor.map;
+        const center = this.getCenter();
+        const rotation = this.rotation;
+        // remove rotation
+        point = map.rotateGeometry({type: 'Point', coordinates: point}, center, -rotation);
+        // project to pixel
+        point = map.getPixelCoord(point);
+        // apply pixel offset
+        point = [point[0] - ox, point[1] - oy];
+        // project back to geo
+        point = map.getGeoCoord(point);
+        // reapply rotation
+        return map.rotateGeometry({type: 'Point', coordinates: point}, center, rotation);
+    }
 
-        if (scaleRect != null) {
-            scaleRect.update(minLon, minLat, maxLon, maxLat);
-        } else {
-            scaleRect = new ScaleSelector(iEditor, minLon, minLat, maxLon, maxLat, overlay, that, {
-                type: 'Line',
-                zIndex: 0,
-                zLayer: Infinity,
-                strokeDasharray: [4, 4],
-                strokeWidth: 2,
-                stroke: STROKE_COLOR
-            });
+    scale(sx: number, sy: number, center = this.getCenter()) {
+        this.scaleFeatures(this.getFeatures(), sx, sy, center);
+        this.scaleFeatures([this.bbox], sx, sy, center);
+        this.update();
+    }
 
-            moveCursor = new MoveCursor(iEditor, [centerLon, centerLat], overlay, that, {
-                type: 'Circle',
-                zIndex: 0,
-                zLayer: Infinity,
-                stroke: '#FFFFFF',
-                fill: STROKE_COLOR,
-                strokeWidth: 3,
-                opacity: 0.3,
-                radius: 9
-            });
+    getCorner(vertex: Corner, offsetX: number = 0, offsetY: number = 0) {
+        // v0 --l0-- v1
+        // |         |
+        // l3        l1
+        // |         |
+        // v3 --l2-- v2
+        let p = this.bbox.geometry.coordinates[vertex][0];
 
-            rotateCursor = new RotateCursor(iEditor, [maxLon, minLat], overlay, that, [{
-                type: 'Image',
-                zIndex: 4,
-                zLayer: Infinity,
-                src: iconRotateBlack,
-                width: ICON_SIZE,
-                height: ICON_SIZE
-            }], [{
-                type: 'Image',
-                zIndex: 4,
-                zLayer: Infinity,
-                src: iconRotateWhite,
-                width: ICON_SIZE,
-                height: ICON_SIZE
-            }]);
+        if (offsetX || offsetY) {
+            p = this.offsetCorner(p, -offsetX, -offsetY);
+        }
+        return p;
+    }
+
+    getRotatedBoundingBox(lines?: boolean) {
+        if (lines) {
+            return this.bbox.geometry.coordinates.slice();
+        }
+        return this.bbox.geometry.coordinates.map((l) => l[0]);
+    }
+
+    pan(dx: number, dy: number) {
+        const map = this.iEditor.map;
+
+        for (let item of this.getFeatures()) {
+            map.pixelMove(item, dx, dy);
         }
 
-        rotateCursor.setPosition(maxLon, minLat);
-        moveCursor.setPosition(centerLon, centerLat);
-
-        that.moveCursor = moveCursor;
-        that.rotateCursor = rotateCursor;
-        that.scaleRect = scaleRect;
-    };
-
-    getGap(): number {
-        return this.gap;
+        const {geometry} = this.bbox;
+        geometry.coordinates = map.translateGeo(<GeoJSONCoordinate[]>geometry.coordinates, dx, dy);
+        // map.pixelMove(this.bbox, dx, dy);
+        this.update();
     }
 
     getCenter() {
-        return this.moveCursor.getCenter();
+        return this.moveKnob.getCenter();
     }
 
     getBBox(): number[] {
@@ -238,7 +290,108 @@ class Transformer {
             }
         }
 
-        this.objBBoxChanged();
+        this.initUI();
+    };
+
+    private initUI() {
+        const that = this;
+        let {gap, iEditor} = that;
+        const overlay = iEditor.objects.overlay;
+
+        if (this.scaleBox) return;
+
+        const _bbox = this.getBBox();
+        const minLon = _bbox[0] -= gap;
+        const minLat = _bbox[1] -= gap;
+        const maxLon = _bbox[2] += gap;
+        const maxLat = _bbox[3] += gap;
+        const centerLon = _bbox[0] + (_bbox[2] - _bbox[0]) / 2;
+        const centerLat = _bbox[1] + (_bbox[3] - _bbox[1]) / 2;
+        const zLayer = 1e3;
+        const geom = createRectGeometry(minLon, minLat, maxLon, maxLat);
+
+        this.bbox = {
+            type: 'Feature',
+            geometry: {
+                type: 'MultiLineString',
+                coordinates: geom
+            }
+        };
+
+        const moveCursor = new MoveKnob(iEditor, [centerLon, centerLat], overlay, that, {
+            type: 'Circle',
+            zIndex: 0,
+            zLayer,
+            stroke: '#FFFFFF',
+            fill: STROKE_COLOR,
+            strokeWidth: 3,
+            opacity: 0.3,
+            radius: 9
+        });
+        moveCursor.setPosition(centerLon, centerLat);
+        that.moveKnob = moveCursor;
+
+        const scaleBox = new ScaleBox(that, 15, iEditor,
+            overlay, [{
+                type: 'Line',
+                zIndex: 0,
+                zLayer,
+                strokeDasharray: [4, 4],
+                strokeWidth: 2,
+                stroke: STROKE_COLOR
+            }]);
+
+
+        const rotateCursor = new RotateKnob(iEditor, [maxLon, minLat], overlay, that, [{
+            type: 'Image',
+            zIndex: 4,
+            zLayer,
+            src: iconRotateBlack,
+            width: ICON_SIZE,
+            height: ICON_SIZE
+        }], [{
+            type: 'Image',
+            zIndex: 4,
+            zLayer,
+            src: iconRotateWhite,
+            width: ICON_SIZE,
+            height: ICON_SIZE
+        }]);
+
+        const scaleCursor = new ScaleKnob(iEditor, [minLon, maxLat], overlay, that, [{
+            type: 'Circle',
+            zIndex: 4,
+            zLayer,
+            fill: 'black',
+            radius: ICON_SIZE / 2
+        }, {
+            zIndex: 5,
+            zLayer,
+            type: 'Text',
+            fill: 'white',
+            font: '20px Arial',
+            text: '\u2921'
+        }], [{
+            type: 'Circle',
+            zIndex: 4,
+            zLayer,
+            fill: 'white',
+            radius: ICON_SIZE / 2
+        }, {
+            zIndex: 5,
+            zLayer,
+            type: 'Text',
+            fill: 'black',
+            font: '20px Arial',
+            text: '\u2921'
+        }]);
+
+        rotateCursor.update();
+        scaleCursor.update();
+
+        that.rotateKnob = rotateCursor;
+        that.scaleKnob = scaleCursor;
+        that.scaleBox = scaleBox;
     };
 }
 

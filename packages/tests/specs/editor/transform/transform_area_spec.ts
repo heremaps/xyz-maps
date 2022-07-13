@@ -24,7 +24,7 @@ import {Editor} from '@here/xyz-maps-editor';
 import chaiAlmost from 'chai-almost';
 import dataset from './transform_area_spec.json';
 
-describe('transform area objects', function() {
+describe('transform area objects', () => {
     const expect = chai.expect;
 
     let editor;
@@ -33,7 +33,7 @@ describe('transform area objects', function() {
     let mapContainer;
     let area;
 
-    before(async function() {
+    before(async () => {
         chai.use(chaiAlmost());
         preparedData = await prepare(dataset);
         display = new Map(document.getElementById('map'), {
@@ -49,44 +49,44 @@ describe('transform area objects', function() {
         area = preparedData.getFeature('buildingLayer', '-9084');
     });
 
-    after(async function() {
+    after(async () => {
         editor.destroy();
         display.destroy();
         await preparedData.clear();
     });
 
-    it('scale area with transformer and validate its coordinates', async function() {
+    it('scale area with transformer and validate its coordinates', async () => {
         area.transform();
 
-        await drag(mapContainer, {x: 307, y: 260}, {x: 347, y: 260});
+        await drag(mapContainer, {x: 307 + 5, y: 260}, {x: 347 + 5, y: 260});
 
         expect(area.coord()).to.deep.almost([[[
-            [77.797695686, 12.622401739, 0],
+            [77.797681232, 12.622401739, 0],
             [77.796410675, 12.622244695, 0],
-            [77.797053179, 12.621878261, 0],
-            [77.797695686, 12.622401739, 0]
+            [77.797045954, 12.621878261, 0],
+            [77.797681232, 12.622401739, 0]
         ]]]);
     });
 
-    it('move area with transformer and validate its coordinates', async function() {
+    it('move area with transformer and validate its coordinates', async () => {
         await drag(mapContainer, {x: 220, y: 300}, {x: 240, y: 350});
 
         expect(area.coord()).to.deep.almost([[[
-            [77.797802976, 12.622139999, 0],
+            [77.797788522, 12.622139999, 0],
             [77.796517965, 12.621982955, 0],
-            [77.797160469, 12.621616521, 0],
-            [77.797802976, 12.622139999, 0]
+            [77.797153244, 12.621616521, 0],
+            [77.797788522, 12.622139999, 0]
         ]]]);
     });
 
-    it('rotate area with transformer and validate its coordinates', async function() {
+    it('rotate area with transformer and validate its coordinates', async () => {
         await drag(mapContainer, {x: 370, y: 410}, {x: 300, y: 450});
 
         expect(area.coord()).to.deep.almost([[[
-            [77.797842629, 12.621742286, 0],
-            [77.796689398, 12.622317293, 0],
-            [77.797009694, 12.62166179, 0],
-            [77.797842629, 12.621742286, 0]
+            [77.797830215, 12.621750165, 0],
+            [77.796685513, 12.622310629, 0],
+            [77.797003786, 12.62166092, 0],
+            [77.797830215, 12.621750165, 0]
         ]]]);
     });
 });

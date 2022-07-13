@@ -41,7 +41,8 @@ describe('map container transform', function() {
         display = new Map(document.getElementById('map'), {
             center: {longitude: 80.47614231309831, latitude: 16.44729312879116},
             zoomlevel: 18,
-            layers: preparedData.getLayers()
+            layers: preparedData.getLayers(),
+            debug: true
         });
         editor = new Editor(display, {
             layers: preparedData.getLayers()
@@ -86,11 +87,13 @@ describe('map container transform', function() {
         container.transform();
 
         // move container
-        await drag(mapContainer, {x: 212, y: 159}, {x: 312, y: 159});
+        // await drag(mapContainer, {x: 258, y: 159}, {x: 312, y: 159});
+        await drag(mapContainer, {x: 212 - 15, y: 159}, {x: 312 - 15, y: 159});
 
         expect(link.coord()).to.deep.almost([
-            [80.475659512, 16.448270659, 0],
-            [80.475713156, 16.44775617, 0]
+            [80.475550546, 16.448270659, 0],
+            [80.475556693, 16.44775617, 0]
+
         ]);
 
         expect(poi.coord()).to.deep.almost([

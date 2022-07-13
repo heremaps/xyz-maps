@@ -24,7 +24,7 @@ import {Editor} from '@here/xyz-maps-editor';
 import chaiAlmost from 'chai-almost';
 import dataset from './area_transformer_spec.json';
 
-describe('area transformer', function() {
+describe('area transformer', () => {
     const expect = chai.expect;
 
     let editor;
@@ -33,7 +33,7 @@ describe('area transformer', function() {
     let mapContainer;
     let area;
 
-    before(async function() {
+    before(async () => {
         chai.use(chaiAlmost());
         preparedData = await prepare(dataset);
         display = new Map(document.getElementById('map'), {
@@ -52,14 +52,14 @@ describe('area transformer', function() {
         area = preparedData.getFeature('buildingLayer', -9078);
     });
 
-    after(async function() {
+    after(async () => {
         editor.destroy();
         display.destroy();
 
         await preparedData.clear();
     });
 
-    it('validate area coordinate and activate transformer', function() {
+    it('validate area coordinate and activate transformer', () => {
         expect(area.coord()).to.deep.almost([[[
             [74.82131612, 12.901112607, 0],
             [74.82131612, 12.900589706, 0],
@@ -71,7 +71,7 @@ describe('area transformer', function() {
     });
 
 
-    it('drag to scale left', async function() {
+    it('drag to scale left', async () => {
         await drag(mapContainer, {x: 185, y: 400}, {x: 200, y: 400});
 
         expect(area.coord()).to.deep.almost([[[
@@ -82,7 +82,7 @@ describe('area transformer', function() {
         ]]]);
     });
 
-    it('drag to scale right', async function() {
+    it('drag to scale right', async () => {
         await drag(mapContainer, {x: 415, y: 400}, {x: 400, y: 400});
 
         expect(area.coord()).to.deep.almost([[[
@@ -94,7 +94,7 @@ describe('area transformer', function() {
     });
 
 
-    it('drag to scale up', async function() {
+    it('drag to scale up', async () => {
         await drag(mapContainer, {x: 300, y: 285}, {x: 300, y: 250});
 
         expect(area.coord()).to.deep.almost([[[
@@ -106,51 +106,73 @@ describe('area transformer', function() {
     });
 
 
-    it('drag to scale down', async function() {
+    it('drag to scale down', async () => {
         await drag(mapContainer, {x: 300, y: 515}, {x: 300, y: 450});
 
+        // console.log(area.coord());
+        //
+        //
+        // preparedData.getLayers('buildingLayer').addFeature({
+        //     'type': 'Feature',
+        //     'properties': {
+        //         'featureClass': 'AREA',
+        //         'type': 'building'
+        //     },
+        //     'geometry': {
+        //         'type': 'MultiPolygon',
+        //         'coordinates': [[[
+        //             [74.82135612, 12.901203332, 0],
+        //             [74.82135612, 12.900760431, 0],
+        //             [74.821812562, 12.901203332, 0],
+        //             [74.82135612, 12.901203332, 0]
+        //         ]]]
+        //     }
+        // }, [{
+        //     type: 'Polygon',
+        //     zIndex: 9,
+        //     fill: 'blue',
+        //     opacity: .4
+        // }]);
+
         expect(area.coord()).to.deep.almost([[[
-            [74.82135612, 12.901203332, 0],
-            [74.82135612, 12.900760431, 0],
-            [74.821812562, 12.901203332, 0],
-            [74.82135612, 12.901203332, 0]
+            [74.821355627, 12.901203664, 0],
+            [74.821355627, 12.900759003, 0],
+            [74.82181316, 12.901203664, 0],
+            [74.821355627, 12.901203664, 0]
         ]]]);
     });
 
-    it('drag to move', async function() {
+    it('drag to move', async () => {
         await drag(mapContainer, {x: 300, y: 350}, {x: 320, y: 300});
-
         expect(area.coord()).to.deep.almost([[[
-            [74.821409765, 12.901334057, 0],
-            [74.821409765, 12.900891156, 0],
-            [74.821866207, 12.901334057, 0],
-            [74.821409765, 12.901334057, 0]
+            [74.821409272, 12.901334389, 0],
+            [74.821409272, 12.900889728, 0],
+            [74.821866805, 12.901334389, 0],
+            [74.821409272, 12.901334389, 0]
         ]]]);
     });
 
-
-    it('drag to rotate', async function() {
+    it('drag to rotate', async () => {
         await drag(mapContainer, {x: 420, y: 400}, {x: 400, y: 400});
 
         expect(area.coord()).to.deep.almost([[[
-            [74.821436249, 12.901357269, 0],
-            [74.821386073, 12.900917077, 0],
-            [74.821889899, 12.901308136, 0],
-            [74.821436249, 12.901357269, 0]
+            [74.821435871, 12.901357663, 0],
+            [74.821385474, 12.900915724, 0],
+            [74.821890603, 12.901308393, 0],
+            [74.821435871, 12.901357663, 0]
         ]]]);
     });
 
-
-    xit('drag blank area, validate area is not transformed', async function() {
+    it('drag blank area, validate area is not transformed', async () => {
         // drag inside transformer also transforms area
-        await waitForEditorReady(editor, async ()=>{
-            await drag(mapContainer, {x: 380, y: 300}, {x: 380, y: 380});
+        await waitForEditorReady(editor, async () => {
+            await drag(mapContainer, {x: 380, y: 300}, {x: 380, y: 330});
         });
         expect(area.coord()).to.deep.almost([[[
-            [74.821436249, 12.901357269, 0],
-            [74.821386073, 12.900917077, 0],
-            [74.821889899, 12.901308136, 0],
-            [74.821436249, 12.901357269, 0]
+            [74.821435871, 12.901357663, 0],
+            [74.821385474, 12.900915724, 0],
+            [74.821890603, 12.901308393, 0],
+            [74.821435871, 12.901357663, 0]
         ]]]);
     });
 });

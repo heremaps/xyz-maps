@@ -17,12 +17,13 @@
  * License-Filename: LICENSE
  */
 
-type Vec3 = number[];
+export type Vec3 = number[];
 
 export const sub = (result: Vec3, a: Vec3, b: Vec3): Vec3 => {
     result[0] = a[0] - b[0];
     result[1] = a[1] - b[1];
     result[2] = a[2] - b[2];
+    // result[2] = a[2] || 0 - b[2] || 0;
     return result;
 };
 
@@ -30,6 +31,7 @@ export const add = (result: Vec3, a: Vec3, b: Vec3): Vec3 => {
     result[0] = a[0] + b[0];
     result[1] = a[1] + b[1];
     result[2] = a[2] + b[2];
+    // result[2] = a[2] || 0 + b[2] || 0;
     return result;
 };
 
@@ -40,7 +42,7 @@ export const scale = (result: Vec3, a: Vec3, t: number): Vec3 => {
     return result;
 };
 
-export const normalize = (result: Vec3, a: Vec3) => {
+export const normalize = (result: Vec3, a: Vec3): Vec3 => {
     const x = a[0];
     const y = a[1];
     const z = a[2];
@@ -53,7 +55,7 @@ export const normalize = (result: Vec3, a: Vec3) => {
     result[2] = a[2] * length;
     return result;
 };
-export const cross = (out: Vec3, a: Vec3, b: Vec3) => {
+export const cross = (out: Vec3, a: Vec3, b: Vec3): Vec3 => {
     const ax = a[0];
     const ay = a[1];
     const az = a[2];
@@ -63,6 +65,18 @@ export const cross = (out: Vec3, a: Vec3, b: Vec3) => {
     out[0] = ay * bz - az * by;
     out[1] = az * bx - ax * bz;
     out[2] = ax * by - ay * bx;
+    return out;
+};
+
+export const transform = (out: Vec3, a: Vec3, mat4: number[]): Vec3 => {
+    const x = a[0];
+    const y = a[1];
+    const z = a[2] || 0;
+    let w = mat4[3] * x + mat4[7] * y + mat4[11] * z + mat4[15];
+    w ||= 1;
+    out[0] = (mat4[0] * x + mat4[4] * y + mat4[8] * z + mat4[12]) / w;
+    out[1] = (mat4[1] * x + mat4[5] * y + mat4[9] * z + mat4[13]) / w;
+    out[2] = (mat4[2] * x + mat4[6] * y + mat4[10] * z + mat4[14]) / w;
     return out;
 };
 

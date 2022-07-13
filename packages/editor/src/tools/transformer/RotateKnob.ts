@@ -19,13 +19,13 @@
 
 import oTools from '../../features/oTools';
 import {geotools} from '@here/xyz-maps-common';
-import {Cursor} from './Cursor';
+import {Knob} from './Knob';
 import InternalEditor from '../../IEditor';
 import {GeoJSONCoordinate, Style} from '@here/xyz-maps-core';
 import Overlay from '../../features/Overlay';
-import Transformer from './Transformer';
+import Transformer, {Corner} from './Transformer';
 
-class RotateCursor extends Cursor {
+class RotateKnob extends Knob {
     constructor(
         internalEditor: InternalEditor,
         position: GeoJSONCoordinate,
@@ -39,37 +39,31 @@ class RotateCursor extends Cursor {
         let rotated;
         let items;
         let rotCenter;
-        let initialBearing;
+        let initialBearing = null;
         let prevBearing;
-        let obj;
 
 
-        const onPointerEnterLeave = (e) => {
-            const isMouseOver = e.type == 'pointerenter';
-
-            document.body.style.cursor = isMouseOver ? 'move' : 'default';
-
-            internalEditor.setStyle(this, isMouseOver ? hoverStyle : style);
-        };
+        prevBearing = 0;
 
         this.__ = {
             pressmove: (e, dx, dy) => {
-                if (!rotated) {
-                    transformer.visible(!(rotated = true));
-                }
+                // if (!rotated) {
+                // transformer.visible(!(rotated = true));
+                // }
+                rotated = true;
 
                 const deltaBearing = geotools.calcBearing(
                     rotCenter,
                     internalEditor.map.getGeoCoord(e.mapX, e.mapY)
                 ) - initialBearing;
 
-                for (let i = 0; i < items.length; i++) {
-                    obj = items[i];
+                transformer.setRotation(deltaBearing);
 
+                for (let item of items) {
                     oTools._setCoords(
-                        obj,
+                        item,
                         internalEditor.map.rotateGeometry(
-                            obj.geometry,
+                            item.geometry,
                             rotCenter,
                             deltaBearing - prevBearing
                         )
@@ -83,33 +77,38 @@ class RotateCursor extends Cursor {
 
                 rotCenter = transformer.getCenter();
 
-                initialBearing = geotools.calcBearing(
-                    rotCenter,
-                    internalEditor.map.getGeoCoord(e.mapX, e.mapY)
-                );
+                if (initialBearing == null) {
+                    initialBearing = geotools.calcBearing(
+                        rotCenter,
+                        internalEditor.map.getGeoCoord(e.mapX, e.mapY)
+                    );
+                }
 
-                items = transformer.getObjects();
-
-                prevBearing = 0;
+                items = transformer.getFeatures();
             },
             pointerup: () => {
                 if (rotated) {
                     // rotate is not possible if only one point address or POI is in transformer
                     if (items.length > 1 || items[0].geometry.type != 'Point') {
                         transformer.markObjsAsMod();
-                        transformer.objBBoxChanged();
+                        // transformer.objBBoxChanged();
                     }
                 }
 
                 items = null;
                 rotCenter = null;
 
-                transformer.visible(true);
-            },
-            pointerenter: onPointerEnterLeave,
-            pointerleave: onPointerEnterLeave
+                // transformer.visible(true);
+            }
         };
+
+        this.enableHover('move', hoverStyle);
+    }
+
+    update() {
+        const position = this.transformer.getCorner(Corner.bottomRight, 15, 15);
+        this.setPosition(position[0], position[1]);
     }
 }
 
-export default RotateCursor;
+export default RotateKnob;

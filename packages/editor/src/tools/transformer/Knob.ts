@@ -19,16 +19,18 @@
 import {Feature, FeatureProvider, GeoJSONCoordinate, GeoJSONFeature, Style} from '@here/xyz-maps-core';
 import InternalEditor from '../../IEditor';
 import Overlay from '../../features/Overlay';
+import Transformer from './Transformer';
 
-export class Cursor extends Feature {
+export class Knob extends Feature {
     protected _o: Overlay
     protected __: { [ev: string]: (e, dx?: number, dy?: number) => void }
+    protected transformer: Transformer;
 
     constructor(
         internalEditor: InternalEditor,
         position: GeoJSONCoordinate,
         overlay: Overlay,
-        transformer,
+        transformer: Transformer,
         style: Style | Style[]
     ) {
         const geojson: GeoJSONFeature = {
@@ -43,6 +45,8 @@ export class Cursor extends Feature {
         super(geojson, <FeatureProvider>overlay.layer.getProvider());
 
         this._o = overlay;
+
+        this.transformer = transformer;
 
         overlay.addFeature(this, style);
     }
@@ -66,4 +70,19 @@ export class Cursor extends Feature {
     remove() {
         this._o.remove(this);
     };
+
+    protected enableHover(cursor: string, hoverStyle?: Style[]) {
+        const defaultStyle = this._o.getStyles(this);
+
+        const onPointerEnterLeave = (e) => {
+            const isPointerenter = e.type == 'pointerenter';
+            document.body.style.cursor = isPointerenter ? cursor : 'default';
+
+            if (hoverStyle) {
+                this._o.layer.setStyleGroup(this, isPointerenter ? hoverStyle : defaultStyle);
+            }
+        };
+
+        this.__.pointerenter = this.__.pointerleave = onPointerEnterLeave;
+    }
 }
