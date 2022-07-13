@@ -45,12 +45,7 @@ class ScaleBox {
         transformer: Transformer,
         buffer: number,
         internalEditor: InternalEditor,
-        // minLon: number,
-        // minLat: number,
-        // maxLon: number,
-        // maxLat: number,
-        overlay: Overlay,
-        style: Style[]
+        overlay: Overlay
     ) {
         const scaleBox = this;
         const {map} = internalEditor;
@@ -61,8 +56,12 @@ class ScaleBox {
         this.buffer = buffer;
 
         const selectors = [
-            overlay.addRect(0, 0, 0, 0, style)
+            overlay.addRect(0, 0, 0, 0, {
+                type: 'TRANSFORMER_SCALE_BOX'
+            })
         ];
+
+        const style = internalEditor.getStyle(selectors[0]);
 
         for (let i = 0; i < 4; i++) {
             selectors.push(overlay.addPath([[0, 0], [0, 0]], [{

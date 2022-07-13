@@ -35,6 +35,10 @@ import iconAllowed from '../../assets/icons/thoroughfare_24.gif';
 import iconPedestrian from '../../assets/icons/pedestrian_24.gif';
 
 import {styleTools} from '@here/xyz-maps-display';
+// @ts-ignore
+import iconRotateBlack from '../../assets/icons/rotate.black.gif';
+// @ts-ignore
+import iconRotateWhite from '../../assets/icons/rotate.white.gif';
 
 let UNDEF;
 
@@ -82,7 +86,7 @@ const createSelectorStyle3d = () => [{
     radius: 4,
     fill: BLACK,
     opacity: .6,
-    zLayer: ({properties}) => properties.MARKER.zLayer -1
+    zLayer: ({properties}) => properties.MARKER.zLayer - 1
 }];
 
 const createRoutingPointStyle = () => [{
@@ -370,6 +374,49 @@ class OverlayStyles {
         'TURN_RESTRICTION_FORBIDDEN': createTurnrestrictionSign(iconForbidden),
         'TURN_RESTRICTION_ALLOWED': createTurnrestrictionSign(iconAllowed),
         'TURN_RESTRICTION_PEDESTRIAN': createTurnrestrictionSign(iconPedestrian),
+
+        'TRANSFORMER_TRANSLATE_KNOB': [{
+            type: 'Circle',
+            zIndex: 0,
+            zLayer: 1e4,
+            stroke: '#FFFFFF',
+            fill: '#010B1E',
+            strokeWidth: 3,
+            opacity: 0.3,
+            radius: 9
+        }],
+
+        'TRANSFORMER_ROTATE_KNOB': [{
+            type: 'Image',
+            zIndex: 4,
+            zLayer: 1e4,
+            src: ({properties}) => properties.hovered ? iconRotateWhite : iconRotateBlack,
+            width: 18
+        }],
+
+        'TRANSFORMER_SCALE_KNOB': [{
+            type: 'Circle',
+            zIndex: 4,
+            zLayer: 1e4,
+            fill: ({properties}) => properties.hovered ? 'white' : 'black',
+            radius: 9
+        }, {
+            zIndex: 5,
+            zLayer: 1e4,
+            type: 'Text',
+            fill: ({properties}) => properties.hovered ? 'black' : 'white',
+            font: '20px Arial',
+            text: '\u2921'
+        }],
+
+        'TRANSFORMER_SCALE_BOX': [{
+            type: 'Line',
+            zIndex: 0,
+            zLayer: 1e4,
+            strokeDasharray: [4, 4],
+            strokeWidth: 2,
+            stroke: '#010B1E'
+        }],
 
         'UNKNOWN': [{
             zIndex: 0,

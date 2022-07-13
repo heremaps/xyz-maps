@@ -20,7 +20,6 @@ import InternalEditor from '../../IEditor';
 import Overlay from '../../features/Overlay';
 import {Knob} from './Knob';
 import Transformer from './Transformer';
-import {Style} from '@here/xyz-maps-core';
 import {getPointAtLength, getTotalLength} from '../../geometry';
 
 class MoveKnob extends Knob {
@@ -30,10 +29,11 @@ class MoveKnob extends Knob {
         internalEditor: InternalEditor,
         position,
         overlay: Overlay,
-        transformer: Transformer,
-        style: Style | Style[]
+        transformer: Transformer
     ) {
-        super(internalEditor, position, overlay, transformer, style);
+        super(internalEditor, position, overlay, transformer, {
+            type: 'TRANSFORMER_TRANSLATE_KNOB'
+        });
 
         this.internalEditor = internalEditor;
 

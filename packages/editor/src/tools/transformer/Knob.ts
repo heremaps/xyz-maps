@@ -31,7 +31,8 @@ export class Knob extends Feature {
         position: GeoJSONCoordinate,
         overlay: Overlay,
         transformer: Transformer,
-        style: Style | Style[]
+        properties = {},
+        style?: Style | Style[]
     ) {
         const geojson: GeoJSONFeature = {
             type: 'Feature',
@@ -39,7 +40,7 @@ export class Knob extends Feature {
                 type: 'Point',
                 coordinates: position
             },
-            properties: {}
+            properties
         };
 
         super(geojson, <FeatureProvider>overlay.layer.getProvider());
@@ -72,15 +73,19 @@ export class Knob extends Feature {
     };
 
     protected enableHover(cursor: string, hoverStyle?: Style[]) {
-        const defaultStyle = this._o.getStyles(this);
+        // const defaultStyle = this._o.getStyles(this);
 
         const onPointerEnterLeave = (e) => {
             const isPointerenter = e.type == 'pointerenter';
             document.body.style.cursor = isPointerenter ? cursor : 'default';
 
-            if (hoverStyle) {
-                this._o.layer.setStyleGroup(this, isPointerenter ? hoverStyle : defaultStyle);
-            }
+            this.properties['@ns:com:here:editor'].hovered = isPointerenter;
+            this.properties.hovered = isPointerenter;
+
+            this._o.layer.setStyleGroup(this);
+            // if (hoverStyle) {
+            //     this._o.layer.setStyleGroup(this, isPointerenter ? hoverStyle : defaultStyle);
+            // }
         };
 
         this.__.pointerenter = this.__.pointerleave = onPointerEnterLeave;

@@ -175,10 +175,9 @@ class Overlay {
     }
 
 
-    addRect(minLon: number, minLat: number, maxLon: number, maxLat: number, style: Style | Style[]) {
+    addRect(minLon: number, minLat: number, maxLon: number, maxLat: number, properties) {
         return this.addFeature(
-            createFeature('Polygon', createRect(minLon, minLat, maxLon, maxLat)),
-            style
+            createFeature('Polygon', createRect(minLon, minLat, maxLon, maxLat), properties)
         );
     }
 

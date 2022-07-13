@@ -29,11 +29,11 @@ class ScaleKnob extends Knob {
         internalEditor: InternalEditor,
         position: GeoJSONCoordinate,
         overlay: Overlay,
-        transformer: Transformer,
-        style: Style[],
-        hoverStyle: Style[]
+        transformer: Transformer
     ) {
-        super(internalEditor, position, overlay, transformer, style);
+        super(internalEditor, position, overlay, transformer, {
+            type: 'TRANSFORMER_SCALE_KNOB'
+        });
 
         let scaled: boolean;
         let prevScale: number;
@@ -108,7 +108,7 @@ class ScaleKnob extends Knob {
             }
         };
 
-        this.enableHover('nwse-resize', hoverStyle);
+        this.enableHover('nwse-resize');
     }
 
     update() {

@@ -29,9 +29,6 @@ import iconRotateBlack from '../../../assets/icons/rotate.black.gif';
 // @ts-ignore
 import iconRotateWhite from '../../../assets/icons/rotate.white.gif';
 
-const ICON_SIZE = 18;
-const STROKE_COLOR = '#010B1E';
-
 export enum Corner {
     topLeft,
     topRight,
@@ -41,8 +38,7 @@ export enum Corner {
 
 class Transformer {
     private iEditor: InternalEditor;
-    gap: number = 0;
-    // gap: number = 4e-5;
+    buffer: number = 15;
     private features: Feature[] = null;
 
     private scaleBox: ScaleBox = null;
@@ -295,19 +291,14 @@ class Transformer {
 
     private initUI() {
         const that = this;
-        let {gap, iEditor} = that;
+        const {iEditor} = that;
         const overlay = iEditor.objects.overlay;
 
         if (this.scaleBox) return;
 
-        const _bbox = this.getBBox();
-        const minLon = _bbox[0] -= gap;
-        const minLat = _bbox[1] -= gap;
-        const maxLon = _bbox[2] += gap;
-        const maxLat = _bbox[3] += gap;
-        const centerLon = _bbox[0] + (_bbox[2] - _bbox[0]) / 2;
-        const centerLat = _bbox[1] + (_bbox[3] - _bbox[1]) / 2;
-        const zLayer = 1e3;
+        const [minLon, minLat, maxLon, maxLat] = this.getBBox();
+        const centerLon = minLon + (maxLon - minLon) / 2;
+        const centerLat = minLat + (maxLat - minLat) / 2;
         const geom = createRectGeometry(minLon, minLat, maxLon, maxLat);
 
         this.bbox = {
@@ -318,73 +309,15 @@ class Transformer {
             }
         };
 
-        const moveCursor = new MoveKnob(iEditor, [centerLon, centerLat], overlay, that, {
-            type: 'Circle',
-            zIndex: 0,
-            zLayer,
-            stroke: '#FFFFFF',
-            fill: STROKE_COLOR,
-            strokeWidth: 3,
-            opacity: 0.3,
-            radius: 9
-        });
-        moveCursor.setPosition(centerLon, centerLat);
+        const moveCursor = new MoveKnob(iEditor, [centerLon, centerLat], overlay, that);
+        moveCursor.update();
         that.moveKnob = moveCursor;
 
-        const scaleBox = new ScaleBox(that, 15, iEditor,
-            overlay, [{
-                type: 'Line',
-                zIndex: 0,
-                zLayer,
-                strokeDasharray: [4, 4],
-                strokeWidth: 2,
-                stroke: STROKE_COLOR
-            }]);
+        const scaleBox = new ScaleBox(that, that.buffer, iEditor, overlay);
 
+        const rotateCursor = new RotateKnob(iEditor, [maxLon, minLat], overlay, that);
 
-        const rotateCursor = new RotateKnob(iEditor, [maxLon, minLat], overlay, that, [{
-            type: 'Image',
-            zIndex: 4,
-            zLayer,
-            src: iconRotateBlack,
-            width: ICON_SIZE,
-            height: ICON_SIZE
-        }], [{
-            type: 'Image',
-            zIndex: 4,
-            zLayer,
-            src: iconRotateWhite,
-            width: ICON_SIZE,
-            height: ICON_SIZE
-        }]);
-
-        const scaleCursor = new ScaleKnob(iEditor, [minLon, maxLat], overlay, that, [{
-            type: 'Circle',
-            zIndex: 4,
-            zLayer,
-            fill: 'black',
-            radius: ICON_SIZE / 2
-        }, {
-            zIndex: 5,
-            zLayer,
-            type: 'Text',
-            fill: 'white',
-            font: '20px Arial',
-            text: '\u2921'
-        }], [{
-            type: 'Circle',
-            zIndex: 4,
-            zLayer,
-            fill: 'white',
-            radius: ICON_SIZE / 2
-        }, {
-            zIndex: 5,
-            zLayer,
-            type: 'Text',
-            fill: 'black',
-            font: '20px Arial',
-            text: '\u2921'
-        }]);
+        const scaleCursor = new ScaleKnob(iEditor, [minLon, maxLat], overlay, that);
 
         rotateCursor.update();
         scaleCursor.update();

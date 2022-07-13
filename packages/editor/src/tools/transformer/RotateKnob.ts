@@ -30,11 +30,9 @@ class RotateKnob extends Knob {
         internalEditor: InternalEditor,
         position: GeoJSONCoordinate,
         overlay: Overlay,
-        transformer: Transformer,
-        style: Style[],
-        hoverStyle: Style[]
+        transformer: Transformer
     ) {
-        super(internalEditor, position, overlay, transformer, style);
+        super(internalEditor, position, overlay, transformer, {type: 'TRANSFORMER_ROTATE_KNOB'});
 
         let rotated;
         let items;
@@ -102,7 +100,7 @@ class RotateKnob extends Knob {
             }
         };
 
-        this.enableHover('move', hoverStyle);
+        this.enableHover('move');
     }
 
     update() {
