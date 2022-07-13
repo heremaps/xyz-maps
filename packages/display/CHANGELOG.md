@@ -1,3 +1,16 @@
+## 0.29.0 (2022-7-13)
+### display
+* added: Point Styles used with line geometry now supports line segments to allow for custom placement and styling. See: [Style.from](https://heremaps.github.io/xyz-maps/docs/interfaces/core.style.html#from) / [Style.to](https://heremaps.github.io/xyz-maps/docs/interfaces/core.style.html#to)
+* fixed: The size of Spheres and Boxes is now displayed correctly in intermediate zoom levels.
+* fixed: Pointer-events for styles of type "Sphere" and "Box" were not triggered correctly.
+### editor
+* added: The transformer utility has been updated and now provides proportional scaling, custom styling and improved rotation handling.
+* added: [EditorOptions](https://heremaps.github.io/xyz-maps/docs/interfaces/editor.editoroptions.html) can now be read and changed at runtime. See: [editor.config](https://heremaps.github.io/xyz-maps/docs/classes/editor.editor-1.html#config)
+* added: The precision of the positioning of routing points can now be configured via ["routingPointPrecision"](https://heremaps.github.io/xyz-maps/docs/interfaces/editor.editoroptions.html#routingPointPrecision) option.
+* added: The degree of simplification for drawn geometry can now be controlled via the ["tolerance"](https://heremaps.github.io/xyz-maps/docs/classes/editor.drawingboard.html#start) option.
+* fixed: The reference point on the ground is now displayed correctly.
+* fixed: Improved handling of Marker features whose altitude is explicitly overridden by styles
+
 ## 0.28.0 (2022-7-1)
 ### editor
 * added: Tapping on LineShape or Marker features will trigger pointerdown events.
