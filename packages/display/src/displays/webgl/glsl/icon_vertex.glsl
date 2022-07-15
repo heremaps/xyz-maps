@@ -8,7 +8,7 @@ uniform mat4 u_matrix;
 uniform vec2 u_topLeft;
 uniform float u_scale;
 uniform float u_atlasScale;
-uniform vec2 u_offset;
+uniform vec4 u_offset;
 uniform bool u_alignMap;
 uniform vec2 u_resolution;
 uniform bool u_fixedView;
@@ -35,12 +35,12 @@ void main(void){
         float z = a_position.z * SCALE_UINT16_Z;
 
         if (u_alignMap){
-            vec2 shift = rotateZ(u_offset + dir * vec2(a_size.x, -a_size.y) * 0.5, rotation) / u_scale;
+            vec2 shift = rotateZ(u_offset.xz + dir * vec2(a_size.x, -a_size.y) * 0.5, rotation) / u_scale;
             gl_Position = u_matrix * vec4(u_topLeft + pos + shift, -z, 1.0);
         } else {
             vec4 cpos = u_matrix * vec4(u_topLeft + pos, -z, 1.0);
             vec2 shift = rotateZ(dir * a_size, -rotation) * 0.5;
-            vec2 offset = vec2(u_offset.x, -u_offset.y);
+            vec2 offset = vec2(u_offset.x, -u_offset.z);
             gl_Position = vec4(cpos.xy / cpos.w + (offset + shift) / u_resolution * 2.0, cpos.z / cpos.w, 1.0);
         }
 

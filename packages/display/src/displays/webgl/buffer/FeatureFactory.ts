@@ -419,6 +419,8 @@ export class FeatureFactory {
 
                 alignment = getValue('alignment', style, feature, level) || 'viewport';
 
+                offsetUnit = ['px', 'px'];
+
                 groupId = (altitude ? 'AI' : 'I') + offsetX + offsetY + (alignment || '');
             } else {
                 stroke = getValue('stroke', style, feature, level);

@@ -29,6 +29,15 @@ export const decodeUint16z = (z: number): number => {
     return z * 9000 / 0xffff;
 };
 
+const toPixelOffset = (offset: number, scaleMeter: number, scale: number) => {
+    if (scaleMeter > 0.0) {
+        // offset is defined in meters -> convert to pixels at current zoom
+        return offset * scaleMeter * scale;
+    }
+    return offset;
+};
+
+
 export class PointBuffer extends TemplateBuffer {
     flexAttributes: {
         'a_position': FlexAttribute
@@ -52,8 +61,16 @@ export class PointBuffer extends TemplateBuffer {
 
     rayIntersects(buffer: GeometryBuffer, result: { z: number }, tileX: number, tileY: number, rayCaster: Raycaster): number | string {
         const {type, attributes} = buffer;
+        const alignMap = <boolean>buffer.getUniform('u_alignMap');
+        const scale = rayCaster.scale;
+        const invMapScale = alignMap ? 1 / rayCaster.scale : 1;
         let width;
         let height;
+
+        const uOffset = buffer.getUniform('u_offset');
+        let offsetX = toPixelOffset(uOffset[0], uOffset[1], scale);
+        let offsetY = toPixelOffset(uOffset[2], uOffset[3], scale);
+
 
         if (type === 'Rect') {
             const size = buffer.getUniform('u_size');
@@ -64,18 +81,15 @@ export class PointBuffer extends TemplateBuffer {
             width = height = buffer.getUniform('u_radius')[0];
         }
 
+        width *= invMapScale;
+        height *= invMapScale;
+
         let position = attributes.a_position.data;
         let size = attributes.a_position.size;
         const t0 = [0, 0, 0];
         const t1 = [0, 0, 0];
         const t2 = [0, 0, 0];
 
-        const alignMap = <boolean>buffer.getUniform('u_alignMap');
-
-        if (alignMap) {
-            width /= rayCaster.scale;
-            height /= rayCaster.scale;
-        }
 
         let rayOrigin;
         let rayDirection;
@@ -85,6 +99,9 @@ export class PointBuffer extends TemplateBuffer {
         if (alignMap) {
             rayOrigin = rayCaster.origin;
             rayDirection = rayCaster.direction;
+
+            offsetX /= scale;
+            offsetY /= scale;
         } else {
             intersectionPoint = [0, 0, 0];
         }
@@ -125,21 +142,21 @@ export class PointBuffer extends TemplateBuffer {
                 // const [scaleWidth, scaleHeight] = rayCaster.getInverseScale(true);
                 // width = point[y] / 2 * scaleWidth;
                 // height = point[y + 1] / 2 * scaleHeight;
-                width = point[y] * .5;
-                height = point[y + 1] * .5;
+                width = point[y] * .5 * invMapScale;
+                height = point[y + 1] * .5 * invMapScale;
             }
-            // console.log('icon', width, height);
+
             if (alignMap) {
-                t0[0] = x0 + dx0 * width;
-                t0[1] = y0 - dy0 * height;
+                t0[0] = x0 + dx0 * width + offsetX;
+                t0[1] = y0 - dy0 * height + offsetY;
                 t0[2] = z0;
 
-                t1[0] = x1 + dx1 * width;
-                t1[1] = y1 - dy1 * height;
+                t1[0] = x1 + dx1 * width + offsetX;
+                t1[1] = y1 - dy1 * height + offsetY;
                 t1[2] = z1;
 
-                t2[0] = x2 + dx2 * width;
-                t2[1] = y2 - dy2 * height;
+                t2[0] = x2 + dx2 * width + offsetX;
+                t2[1] = y2 - dy2 * height + offsetY;
                 t2[2] = z2;
             } else {
                 t0[0] = x0;
@@ -166,6 +183,9 @@ export class PointBuffer extends TemplateBuffer {
 
 
                 transformMat4(t0, t0, rayCaster.sMat);
+
+                t0[0] += offsetX;
+                t0[1] += offsetY;
 
                 t1[0] = t0[0] + dx1 * width;
                 t1[1] = t0[1] - dy1 * height;

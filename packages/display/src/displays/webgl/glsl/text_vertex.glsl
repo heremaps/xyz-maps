@@ -7,7 +7,7 @@ attribute vec2 a_texcoord;
 uniform vec2 u_resolution;
 uniform mat4 u_matrix;
 uniform vec2 u_topLeft;
-uniform vec2 u_offset;
+uniform vec4 u_offset;
 uniform float u_scale;
 uniform float u_rotate;
 uniform bool u_alignMap;
@@ -51,7 +51,7 @@ void main(void){
         // texture coodrinates bit6->bit16
         v_texcoord = floor(a_texcoord / 32.0) * u_atlasScale;
 
-        vec2 labelOffset = u_offset;
+        vec2 labelOffset = u_offset.xz;
 
         labelOffset *= DEVICE_PIXEL_RATIO;
 

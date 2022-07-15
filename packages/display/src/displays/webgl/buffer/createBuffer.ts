@@ -233,7 +233,7 @@ const createBuffer = (
                                 geoBuffer.addUniform('u_atlasScale', 1 / geoBuffer.texture.width);
                                 geoBuffer.addUniform('u_alignMap', shared.alignment == 'map');
 
-                                geoBuffer.addUniform('u_offset', [shared.offsetX, shared.offsetY]);
+                                // geoBuffer.addUniform('u_offset', [shared.offsetX, shared.offsetY]);
                             } else if (type == 'Rect' || type == 'Circle' || type == 'Box' || type == 'Sphere') {
                                 geoBuffer.scissor = grpBuffer.scissor;
 
@@ -263,14 +263,14 @@ const createBuffer = (
                                     geoBuffer.addUniform('u_rotation', shared.rotation * TO_RAD);
                                 }
                                 geoBuffer.addUniform('u_alignMap', shared.alignment == 'map');
-
-                                geoBuffer.addUniform('u_offset', [
-                                    shared.offsetX, shared.offsetUnit[0] == 'm' ? meterToPixel : 0,
-                                    shared.offsetY, shared.offsetUnit[1] == 'm' ? meterToPixel : 0
-                                ]);
                             } else if (type == 'VerticalLine') {
                                 geoBuffer.addUniform('u_fill', shared.stroke);
                             }
+
+                            geoBuffer.addUniform('u_offset', [
+                                shared.offsetX, shared.offsetUnit[0] == 'm' ? meterToPixel : 0,
+                                shared.offsetY, shared.offsetUnit[1] == 'm' ? meterToPixel : 0
+                            ]);
                         }
 
 
