@@ -47,6 +47,11 @@ class Hit {
     private map: Map;
     private dpr: number;
 
+    private screenX: number;
+    private screenY: number;
+    private worldX: number;
+    private worldY: number;
+
     private sideOfLine: number; // right-> 1,left-> -1
 
     private pointToLineDistanceSq(x: number, y: number, x1: number, y1: number, x2: number, y2: number): number {
@@ -147,8 +152,6 @@ class Hit {
     }
 
     private geometry(
-        x: number,
-        y: number,
         halfWidth: number,
         halfHeight: number,
         coordinates: Coordinates,
@@ -163,17 +166,35 @@ class Hit {
         let hit = false;
         const {dpr, map} = this;
         const isPointSearch = !halfWidth && !halfHeight;
+        let x = this.screenX;
+        let y = this.screenY;
 
         if (geoType == 'Point') {
+            // debugger;
             dimensions = dimensions || getPixelSize(featureStyle, feature, zoomlevel, dpr, layerIndex, skip3d);
 
             if (dimensions) {
                 // coordinates = feature.getProvider().decCoord( feature );
-                const pixel = map.geoToPixel((<Point>coordinates)[0], (<Point>coordinates)[1]);
-                const featureX1 = Math.round(pixel.x + dimensions[0]);
-                const featureY1 = Math.round(pixel.y + dimensions[1]);
-                const featureX2 = Math.round(pixel.x + dimensions[2]);
-                const featureY2 = Math.round(pixel.y + dimensions[3]);
+                let featureX = <number>coordinates[0];
+                let featureY = <number>coordinates[1];
+                const alignment = getValue('alignment', featureStyle[0], feature, zoomlevel);
+
+                if (!alignment || alignment == 'viewport') {
+                    // screen space
+                    const pixel = map.geoToPixel(featureX, featureY);
+                    featureX = pixel.x;
+                    featureY = pixel.y;
+                } else {
+                    // world space
+                    [featureX, featureY] = map._g2w(featureX, featureY);
+                    x = this.worldX;
+                    y = this.worldY;
+                }
+
+                const featureX1 = featureX + dimensions[0];
+                const featureY1 = featureY + dimensions[1];
+                const featureX2 = featureX + dimensions[2];
+                const featureY2 = featureY + dimensions[3];
 
                 hit = intersectBBox(x, x + halfWidth, y, y + halfHeight, featureX1, featureX2, featureY1, featureY2);
             }
@@ -241,7 +262,7 @@ class Hit {
             if (!hasPolygonStyle) {
                 // do hit calculation on line geometry if there's a line-style but no polygon-style
                 return hasLineStyle && this.geometry(
-                    x, y, halfWidth, halfHeight, coordinates, 'MultiLineString', featureStyle, layerIndex, feature, zoomlevel, null, skip3d
+                    halfWidth, halfHeight, coordinates, 'MultiLineString', featureStyle, layerIndex, feature, zoomlevel, null, skip3d
                 );
             }
 
@@ -295,7 +316,7 @@ class Hit {
             if (baseType) {
                 for (let p = 0, l = coordinates.length; p < l; p++) {
                     baseHit = this.geometry(
-                        x, y, halfWidth, halfHeight, <Point[]>coordinates[p], baseType, featureStyle, layerIndex, feature, zoomlevel, dimensions, skip3d
+                        halfWidth, halfHeight, <Point[]>coordinates[p], baseType, featureStyle, layerIndex, feature, zoomlevel, dimensions, skip3d
                     );
 
                     if (baseHit) {
@@ -308,9 +329,13 @@ class Hit {
         return hit && dimensions;
     };
 
+    init(screenX: number, screenY: number) {
+        this.screenX = screenX;
+        this.screenY = screenY;
+        [this.worldX, this.worldY] = this.map._unprj(screenX, screenY);
+    }
+
     feature(
-        x1: number,
-        y1: number,
         halfWidth: number,
         halfHeight: number,
         feature: Feature,
@@ -320,8 +345,6 @@ class Hit {
         skip3d?: boolean
     ): number[] | false {
         return this.geometry(
-            x1,
-            y1,
             halfWidth,
             halfHeight,
             feature.geometry.coordinates,

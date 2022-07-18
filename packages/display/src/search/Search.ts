@@ -111,6 +111,10 @@ export class Search {
             layers = [];
         }
 
+
+        hit.init(x, y);
+
+
         let layerIndex = (<TileLayer[]>layers).length;
 
         while (layerIndex--) {
@@ -125,7 +129,7 @@ export class Search {
                     feature = features[length];
 
                     if (featureStyle = layer.getStyleGroup(feature, tileGridZoom)) {
-                        if (dimensions = hit.feature(x, y, halfWidth, halfHeight, feature, featureStyle, layerIndex, zoomlevel, skip3d)) {
+                        if (dimensions = hit.feature(halfWidth, halfHeight, feature, featureStyle, layerIndex, zoomlevel, skip3d)) {
                             let zIndex = dimensions[dimensions.length - 1];
                             let zOrdered = results[zIndex] = results[zIndex] || [];
                             let zOrderedLayer = zOrdered[layerIndex] = zOrdered[layerIndex] || [];

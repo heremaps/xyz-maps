@@ -24,15 +24,15 @@ import {Editor, DrawingShape, Area} from '@here/xyz-maps-editor';
 import chaiAlmost from 'chai-almost';
 import dataset from './area_create_drawingmanager_spec.json';
 
-describe('Area drawing manager without panning the map', function() {
+describe('Area drawing manager without panning the map', () => {
     const expect = chai.expect;
 
-    let editor;
+    let editor: Editor;
     let display;
     let preparedData;
     let mapContainer;
 
-    before(async function() {
+    before(async () => {
         chai.use(chaiAlmost());
         preparedData = await prepare(dataset);
         display = new Map(document.getElementById('map'), {
@@ -49,12 +49,12 @@ describe('Area drawing manager without panning the map', function() {
         mapContainer = display.getContainer();
     });
 
-    after(async function() {
+    after(async () => {
         editor.destroy();
         display.destroy();
     });
 
-    it('create area by drawing manager', async function() {
+    it('start to draw the area', async () => {
         editor.getDrawingBoard().start({mode: 'Area'});
 
 
@@ -69,27 +69,63 @@ describe('Area drawing manager without panning the map', function() {
         await mousemove(mapContainer, {x: 200, y: 100}, {x: 300, y: 200});
         await click(mapContainer, 300, 200);
 
+        const geometry = editor.getDrawingBoard().getGeometry();
+
+
+        expect(geometry.coordinates).to.deep.almost([[[
+            [76.081516385, 13.215360578, 0], [76.082052827, 13.215882813, 0], [76.082589269, 13.215360578, 0], [76.081516385, 13.215360578, 0]
+        ]]]);
+    });
+
+    it('remove 1 shape and make sure 2 points are not valid geometry', async () => {
         let point = <DrawingShape>(await editorClick(editor, 200, 100)).target;
         point.remove();
 
+        const geometry = editor.getDrawingBoard().getGeometry();
+
+        expect(geometry).to.be.undefined;
+    });
+
+
+    it('add one more shape', async () => {
         await mousemove(mapContainer, {x: 200, y: 100}, {x: 200, y: 300});
         await click(mapContainer, 200, 300);
 
+        const geometry = editor.getDrawingBoard().getGeometry();
 
+        expect(geometry.coordinates).to.deep.almost([[[
+            [76.081516385, 13.215360578, 0],
+            [76.082589269, 13.215360578, 0],
+            [76.082052827, 13.214838342, 0],
+            [76.081516385, 13.215360578, 0]
+        ]]]);
+    });
+
+    it('drag the shape', async () => {
         await drag(mapContainer, {x: 100, y: 200}, {x: 400, y: 300});
 
+        const geometry = editor.getDrawingBoard().getGeometry();
 
+        expect(geometry.coordinates).to.deep.almost([[[
+            [76.08312571, 13.214838342, 0],
+            [76.082589269, 13.215360578, 0],
+            [76.082052827, 13.214838342, 0],
+            [76.08312571, 13.214838342, 0]
+        ]]]);
+    });
+
+    it('validate pointerevents', async () => {
         let shape = <DrawingShape>(await editorClick(editor, 400, 300)).target;
 
         expect(shape.getIndex()).to.equal(0);
         expect(shape.getLength()).to.equal(3);
-
-
-        editor.getDrawingBoard().create({featureClass: 'AREA'});
     });
 
+
     // 1204.25 366.7
-    it('validate created area', async function() {
+    it('finish drawing and validate created area', async () => {
+        editor.getDrawingBoard().create({featureClass: 'AREA'});
+
         let area = <Area>(await editorClick(editor, 271, 266)).target;
 
         expect(area.coord()).to.deep.almost([[[
