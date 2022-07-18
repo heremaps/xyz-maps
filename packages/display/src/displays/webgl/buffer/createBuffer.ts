@@ -173,6 +173,7 @@ const createBuffer = (
                         // geoBuffer = grpBuffer.finalize(type);
                         geoBuffer = GeometryBuffer.fromTemplateBuffer(type, grpBuffer);
 
+                        if (geoBuffer == null) continue;
 
                         geoBuffer.pointerEvents = grp.pointerEvents;
 
@@ -180,8 +181,6 @@ const createBuffer = (
                             geoBuffer.groups[0].mode = GeometryBuffer.MODE_GL_LINES;
                             geoBuffer.type = 'Polygon';
                         }
-
-                        if (geoBuffer == null) continue;
 
                         buffers.push(geoBuffer);
 
