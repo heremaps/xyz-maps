@@ -20,6 +20,7 @@
 import InternalEditor from '../../IEditor';
 import {Feature, FeatureProvider, GeoJSONFeature} from '@here/xyz-maps-core';
 import {Area} from './Area';
+import {AreaShape} from '@here/xyz-maps-editor';
 
 let UNDEF;
 
@@ -53,7 +54,7 @@ export class VirtualAreaShape extends Feature {
 
         const shapePnt = this;
 
-        let isMoved;
+        let newShape: AreaShape;
 
         function hoverShapePnt(e) {
             let cursor;
@@ -75,7 +76,7 @@ export class VirtualAreaShape extends Feature {
 
 
         function onMouseDown() {
-            isMoved = false;
+            newShape = null;
         }
 
         function moveAddShape(e, dx, dy, ax, ay) { // move
@@ -84,9 +85,7 @@ export class VirtualAreaShape extends Feature {
             const polyIdx = props.poly;
             const pos = shapePnt.geometry.coordinates;
 
-            if (!isMoved) {// first move ?
-                isMoved = true;
-
+            if (!newShape) {// first move ?
                 const shapes = polygonTools.private(area, 'midShapePnts');
                 for (let i = 0, shp, coord, p; i < shapes.length; i++) {
                     shp = shapes[i];
@@ -98,13 +97,14 @@ export class VirtualAreaShape extends Feature {
                     }
                 }
 
-                isMoved = polygonTools.getShp(area, polyIdx, props.hole, index);
+                newShape = polygonTools.getShp(area, polyIdx, props.hole, index);
+                newShape.__.pointerdown.apply(newShape);
             }
-            isMoved.__.pressmove.apply(isMoved, arguments);
+            newShape.__.pressmove.apply(newShape, arguments);
         }
 
         function releaseAddShape(e) { // stop
-            if (isMoved) {
+            if (newShape) {
                 const {poly, hole, index} = shapePnt.properties;
                 const shp = polygonTools.getShp(area, poly, hole, index + 1);
 

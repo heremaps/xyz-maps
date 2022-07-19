@@ -1,0 +1,81 @@
+{
+  "layers": [
+    {
+      "id": "buildingLayer",
+      "provider": {
+        "id": "buildingProvider",
+        "type": "TestLocalProvider",
+        "name": "Buildings",
+        "level": 13
+      },
+      "min": 14,
+      "max": 20,
+      "data": {
+        "local": [
+          {
+            "id": "A1",
+            "type": "Feature",
+            "properties": {
+              "featureClass": "AREA",
+              "type": "building"
+            },
+            "geometry": {
+              "type": "Polygon",
+              "coordinates": [
+                [
+                  [
+                    -74.01315467619074,
+                    40.70520692619138
+                  ],
+                  [
+                    -74.0088631419824,
+                    40.70520692619138
+                  ],
+                  [
+                    -74.01100890908656,
+                    40.70195354163019
+                  ],
+                  [
+                    -74.01315467619074,
+                    40.70520692619138
+                  ]
+                ]
+              ]
+            }
+          },
+          {
+            "id": "A2",
+            "type": "Feature",
+            "properties": {
+              "featureClass": "AREA",
+              "type": "building"
+            },
+            "geometry": {
+              "type": "Polygon",
+              "coordinates": [
+                [
+                  [
+                    -74.0088631419824,
+                    40.70520692619138
+                  ],
+                  [
+                    -74.00457160777405,
+                    40.70520692619138
+                  ],
+                  [
+                    -74.00671737487824,
+                    40.70195354163019
+                  ],
+                  [
+                    -74.0088631419824,
+                    40.70520692619138
+                  ]
+                ]
+              ]
+            }
+          }
+        ]
+      }
+    }
+  ]
+}

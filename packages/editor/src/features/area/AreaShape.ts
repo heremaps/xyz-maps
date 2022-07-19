@@ -267,6 +267,13 @@ class AreaShape extends Feature {
 
         function releaseShape(e) {
             if (isMoved) {
+                if (area.behavior('snapCoordinates')) {
+                    const connectedAreas = shapePnt.__.cAreas;
+                    for (let {area} of connectedAreas) {
+                        polygonTools.markAsModified(area, false);
+                    }
+                }
+
                 polygonTools.markAsModified(area);
             }
 
