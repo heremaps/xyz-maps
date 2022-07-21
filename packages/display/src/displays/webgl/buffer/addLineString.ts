@@ -176,6 +176,11 @@ const addLineString = (
     let absStart = relStart * totalLineLength;
     let absStop = relStop * totalLineLength;
 
+    if (relStart || relStop) {
+        // can't be a ring anymore...
+        isRing = false;
+    }
+
     if (absStart && absStop && relStop < relStart) {
         const flip = absStart;
         absStart = absStop;
