@@ -54,9 +54,6 @@ describe('modify connected areas', () => {
         area1 = preparedData.getFeature('buildingLayer', 'A1');
         area2 = preparedData.getFeature('buildingLayer', 'A2');
         areaLayer = preparedData.getLayers('buildingLayer');
-
-
-        display.addEventListener('pointerdown', (e) => console.log(e.mapX, e.mapY));
     });
 
     after(async () => {
@@ -68,8 +65,6 @@ describe('modify connected areas', () => {
 
     it('select area 1', () => {
         area1.select();
-
-        console.log(area1.coord()[0]);
         expect(area1.coord()[0]).to.have.lengthOf(4);
     });
 
