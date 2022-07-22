@@ -22,8 +22,9 @@ import {calcRelPosOfPoiAtLink, getRelPosOfPointOnLine} from '../../map/GeoMath';
 import {Feature, GeoJSONCoordinate, Style, TileLayer, webMercator} from '@here/xyz-maps-core';
 import {JSUtils, geotools} from '@here/xyz-maps-common';
 import {MapEvent} from '@here/xyz-maps-display';
-import MultiLink from './MultiLink';
+import MultiLink, {MultiLinkSegment} from './MultiLink';
 import {Range} from './Range';
+import InternalEditor from '../../IEditor';
 
 const DEFAULT_SNAP_TOLERANCE = 1; // 1 meter
 
@@ -78,6 +79,8 @@ class RangeMarker extends Feature {
     private range: Range;
     private snapped: RangeMarker[] = [];
 
+    private iEditor: InternalEditor;
+
     properties: {
         style: any;
         dragged: boolean;
@@ -85,7 +88,7 @@ class RangeMarker extends Feature {
     }
 
     constructor(
-        overlay: TileLayer,
+        iEditor: InternalEditor,
         range: Range,
         relPos: number,
         styleGroup: Style[],
@@ -107,11 +110,13 @@ class RangeMarker extends Feature {
             }
         });
         this.range = range;
-
+        this.iEditor = iEditor;
         this.isLocked = isLocked;
         this.dragStart = dragStart;
         this.dragMove = dragMove;
         this.dragEnd = dragEnd;
+
+        const overlay = iEditor.objects.overlay;
 
         overlay.addFeature(this, this.properties.style);
 
@@ -157,7 +162,6 @@ class RangeMarker extends Feature {
         offsets[Number(!from)] = newOffset;
         offsets = offsets.sort((f, t) => f - t);
 
-
         let conflictRange;
 
         for (let range of marker.range.getMultiLink().getRanges()) {
@@ -189,7 +193,7 @@ class RangeMarker extends Feature {
                 rangeOffsets = rangeOffsets.sort((f, t) => f - t);
             }
 
-            if (!markerRange.allowOverlap(range.side) && markerRange.overlaps(rangeOffsets, offsets)) {
+            if (!markerRange.allowOverlap(side) && markerRange.overlaps(rangeOffsets, offsets)) {
                 conflictRange = range;
                 break;
             }
@@ -287,9 +291,9 @@ class RangeMarker extends Feature {
         return this.properties.relPos;
     }
 
-    getRelPosOfSubLink(sublink) {
-        const markerPos = <[number, number, number?]> this.geometry.coordinates;
-        const iEditor = sublink.link._e();
+    getRelPosOfSubLink(sublink: MultiLinkSegment) {
+        const {iEditor} = this;
+        const markerPos = <GeoJSONCoordinate> this.geometry.coordinates;
         const position = iEditor.map.getPixelCoord(markerPos);
         const curSegNr = getSegmentIndex(
             this.range.getMultiLink().coord().map((c) => iEditor.map.getPixelCoord(c)),
@@ -297,7 +301,7 @@ class RangeMarker extends Feature {
         );
 
         if (curSegNr >= sublink.from && curSegNr < sublink.to) {
-            const coords = sublink.link.coord().map((c) => iEditor.map.getPixelCoord(c));
+            const coords = sublink.lineString.map((c) => iEditor.map.getPixelCoord(c));
             const relPos = getRelPosOfPointOnLine(position, sublink.reversed ? coords.reverse() : coords);
             return relPos > .995 ? 1 : Math.round(relPos * 1e6) / 1e6;
         }

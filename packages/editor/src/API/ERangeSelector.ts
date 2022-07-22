@@ -26,17 +26,24 @@ import {Range as InternalZone} from '../tools/rangeSelector/Range';
 import {MapEvent} from '@here/xyz-maps-display';
 import EventHandler from '../handlers/EventHandler';
 import {EditorEvent} from './EditorEvent';
+import {GeoJSONCoordinate, GeoJSONFeature} from '@here/xyz-maps-core';
 
 let UNDEF;
 
 /**
- * A RangeSegment is the part of a "Range" that's located at a specific Navlink.
+ * A RangeSegment is the part of a "Range" that's located at a specific LineString geometry or Navlink feature.
  */
 export type RangeSegment = {
     /**
      * The Navlink the RangeSegment is located at.
+     * @hidden
+     * @deprecated Please use RangeSegment.feature instead
      */
     navlink: Navlink
+    /**
+     * The GeoJSONFeature or Navlink the RangeSegment is located at.
+     */
+    feature: GeoJSONFeature | Navlink
     /**
      * Relative start position on the geometry of the Navlink.
      * 0 -\> 0% -\> start, 0.5 -\> 50% -\> middle, 1 -\> 100% -\> end
@@ -55,7 +62,7 @@ export type RangeSegment = {
 
 /**
  * A Range represents a part/subsegment on a line geometry or multiple line geometries.
- * Its used by the RangeSelector utility. {@link editor.RangeSelector}
+ * It's used by the RangeSelector utility. {@link editor.RangeSelector}
  */
 export interface Range {
     /**
@@ -113,11 +120,11 @@ export interface Range {
     dragStop?: (event: EditorEvent) => void;
     /**
      * A range can consist of several segments.
-     * A Segment provides detailed information on the affected Navlinks:
+     * A Segment provides detailed information on the affected GeoJSONFeatures/Navlinks:
      * @example
      * ```
      * {
-     *  navlink: Navlink;
+     *  feature: GeoJSONFeature;
      *  from: number;
      *  to: number;
      *  reversed: boolean;
@@ -180,15 +187,23 @@ export class RangeSelector {
     /**
      * Add Navlink(s) to RangeSelector tool.
      *
-     * @param navlink - a single or multiple Navlinks to add. Multiple Navlinks must be linked.
+     * @param geometry - a single or multiple LineString Features or Navlink Features to add. Multiple LineStrings/Navlinks must be linked.
      *
      */
-    add(navlink: Navlink | Navlink[]) {
-        const links = navlink instanceof Array ? navlink : [].slice.call(arguments);
+    add(geometry: Navlink | Navlink[] | GeoJSONFeature | GeoJSONFeature[]) {
+        const geometries: (Navlink | GeoJSONFeature)[] = Array.isArray(geometry) ? geometry : [].slice.call(arguments);
 
-        for (let i = 0; i < links.length; i++) {
-            if (links[i] instanceof Feature) {
-                this.links.addLink(links[i]);
+        for (let feature of geometries) {
+            let id: string | number;
+            let coordinates: GeoJSONCoordinate[];
+            // let feature: Navlink;
+
+            if (feature instanceof Feature || feature.geometry?.type == 'LineString') {
+                coordinates = <GeoJSONCoordinate[]>feature.geometry.coordinates;
+            }
+
+            if (coordinates) {
+                this.links.addLineSegment({id: feature.id || Math.random() * 1e9 ^ 0, coordinates, feature});
             }
         }
     };

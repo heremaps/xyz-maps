@@ -23,35 +23,50 @@ import InternalEditor from '../../IEditor';
 import {Map} from '@here/xyz-maps-display';
 import {Navlink} from '../../features/link/Navlink';
 import {InternalRangeOptions} from './Range';
+import {GeoJSONCoordinate, GeoJSONFeature} from '@here/xyz-maps-core';
+import {Feature} from '@here/xyz-maps-editor';
+
+type LineSegment = { id: number | string, coordinates: GeoJSONCoordinate[], feature?: Navlink | GeoJSONFeature };
+
 
 class MultiSelector {
     private multiLink: MultiLink = null;
-    private candidates = {
-        ref: null,
-        nref: null
-    };
-    private parents = [];
+    private lines: LineSegment[] = [];
 
-    private onMvcStart: () => void;
+    // private onMvcStart: () => void;
     private display: Map;
 
     private mlStyle;
 
-    constructor(iEdit: InternalEditor) {
-        this.display = iEdit.display;
+    private iEditor: InternalEditor;
+    private first: { lineString: GeoJSONCoordinate[], line?: Navlink, index: number };
+    private last: { lineString: GeoJSONCoordinate[], line?: Navlink; index: number };
+
+    constructor(iEditor: InternalEditor) {
+        this.iEditor = iEditor;
+        this.display = iEditor.display;
     }
 
-    private isCandidate(line) {
-        const {candidates} = this;
-        for (const n in candidates) {
-            for (const i in candidates[n]) {
-                if (line.id === candidates[n][i].link.id) {
-                    return n;
+    private isConnected(coordinates1: number[][], coordinates2: number[][], line2Index?: number): { i1: number, i2: number } | null {
+        const nodes1 = [0, coordinates1.length - 1];
+        const nodes2 = typeof line2Index == 'number'
+            ? [line2Index]
+            : [0, coordinates2.length - 1];
+
+        for (let i2 of nodes2) {
+            const coord2 = coordinates2[i2];
+            for (let i1 of nodes1) {
+                if (oTools.isIntersection(this.iEditor, coordinates1[i1], coord2)) {
+                    return {i1: i1, i2: i2};
                 }
             }
         }
         return null;
-    };
+    }
+
+    private getOppositeNodeIndex(coordinates: number[][], i: number) {
+        return i == 0 ? coordinates.length - 1 : 0;
+    }
 
     getCollection(): MultiLink {
         return this.multiLink;
@@ -70,16 +85,15 @@ class MultiSelector {
         // this.display.removeEventListener('mapviewchangestart', this.onMvcStart);
         // this.onMvcStart = null;
 
-        const {multiLink, parents} = this;
-        for (let i = 0; i < parents.length; i++) {
-            oTools.defaults(parents[i]);
+        const {multiLink, lines} = this;
+
+        for (let {feature} of lines) {
+            if (feature instanceof Feature) {
+                oTools.defaults(feature);
+            }
         }
 
-        this.parents = [];
-        this.candidates = {
-            ref: null,
-            nref: null
-        };
+        this.lines = [];
 
         if (multiLink) {
             multiLink.destroy();
@@ -87,54 +101,62 @@ class MultiSelector {
         }
     };
 
-    addLink(line: Navlink) {
-        let {multiLink, parents, candidates} = this;
-
+    addLineSegment(lineSegment: LineSegment) {
+        let {multiLink, lines} = this;
         let candidateNode;
         let isFirstLine;
-        let lastNodeIndex;
+        let connected;
 
+        const lineString = lineSegment.coordinates;
+        const feature = lineSegment.feature;
 
-        if (line != null) {
-            lastNodeIndex = line.coord().length - 1;
-
-            isFirstLine = !parents.length;
+        if (lineString != null) {
+            isFirstLine = !lines.length;
 
             // handling of first selected line
             if (isFirstLine) {
-                candidates.ref = line.getConnectedLinks(0, true);
-                candidates.nref = line.getConnectedLinks(lastNodeIndex, true);
-                parents.push(oTools.deHighlight(line));
+                multiLink = new MultiLink(this.iEditor, lineString, this.mlStyle, feature);
+                this.multiLink = multiLink;
+                this.first = {lineString, index: null};
 
-                this.multiLink = multiLink = new MultiLink(line._e(), line, this.mlStyle);
-            }
-
-            // handling of candidates
-            candidateNode = this.isCandidate(line);
-
-            if (candidateNode) {
-                const curParent = parents[parents.length - 1];
-                const nodeCandidates = candidates[candidateNode];
-
-                oTools.deHighlight(curParent);
-
-                for (const j in nodeCandidates) {
-                    // unset old candidates
-                    oTools.defaults(nodeCandidates[j].link);
-
-                    // check if line is conneted with first or last node
-                    if (nodeCandidates[j].link.id == line.id) {
-                        candidates[candidateNode] = line.getConnectedLinks(
-                            nodeCandidates[j].index == 0 ? lastNodeIndex : 0,
-                            true
-                        );
-
-                        // set new line as current parent
-                        parents.push(line);
-
-                        multiLink.addLink(line);
+                connected = true;
+            } else {
+                for (let {id} of lines) {
+                    if (lineSegment.id == id) {
+                        return false;
                     }
                 }
+
+                const firstLineCoordinates = <GeoJSONCoordinate[]> this.first.lineString;
+
+                let connected = this.isConnected(lineString, firstLineCoordinates, this.first.index);
+
+                if (connected) {
+                    if (!this.last) {
+                        // make sure connectable index of first line is set.
+                        this.first.index = this.getOppositeNodeIndex(firstLineCoordinates, connected.i2);
+                        this.last = {lineString, index: this.getOppositeNodeIndex(lineString, connected.i1)};
+                    } else {
+                        this.first = {lineString, index: this.getOppositeNodeIndex(lineString, connected.i1)};
+                    }
+                } else if (this.last) {
+                    connected = this.isConnected(lineString, this.last.lineString, this.last.index);
+                    if (connected) {
+                        this.last = {lineString, index: this.getOppositeNodeIndex(lineString, connected.i1)};
+                    }
+                }
+
+
+                if (connected) {
+                    multiLink.addLink(lineString, feature);
+                }
+            }
+
+            if (connected) {
+                if (feature instanceof Feature) {
+                    oTools.deHighlight(feature);
+                }
+                lines.push(lineSegment);
             }
         }
 

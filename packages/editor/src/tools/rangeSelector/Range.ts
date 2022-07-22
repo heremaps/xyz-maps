@@ -146,7 +146,7 @@ export class Range {
         }
 
         this.markers = ['from', 'to'].map((pos) => new RangeMarker(
-            overlay,
+            multiLink.iEdit,
             this,
             options[pos],
             markerStyle,
@@ -168,8 +168,8 @@ export class Range {
         this.updateSegments();
     }
 
-    getSide(): string | 'L' | 'R' | 'B' {
-        return this.options.side.toUpperCase();
+    getSide(): 'L' | 'R' | 'B' {
+        return <'L' | 'R' | 'B'> this.options.side.toUpperCase();
     }
 
     getOffsets(): [number, number] {

@@ -23,7 +23,9 @@ import {Line} from '../../features/line/Line';
 import InternalEditor from '../../IEditor';
 import {InternalRangeOptions, Range} from './Range';
 import ObjectOverlay from '../../features/Overlay';
-import {Style} from '@here/xyz-maps-core';
+import {GeoJSONCoordinate, GeoJSONFeature, Style, StyleGroup} from '@here/xyz-maps-core';
+import {JSUtils} from '@here/xyz-maps-common';
+import {Feature} from '@here/xyz-maps-core';
 
 
 let UNDEF;
@@ -50,48 +52,44 @@ const createDefaultStyle = () => [
     createStyle(2, 'white', 3, [5, 4])
 ];
 
-type MultiLinkSegment = {
+export type MultiLinkSegment = {
     from: number,
     to: number,
-    link: Navlink | Line,
+    feature?: Navlink | GeoJSONFeature,
+    lineString: GeoJSONCoordinate[],
     reversed: boolean
 }
 
 
 class MultiLink {
-    private ranges = [];
-    private feature: any;
+    private ranges: Range[] = [];
+    private feature: Feature;
     private overlay: ObjectOverlay;
     private completePath: any;
     private style: Style[];
-    links: MultiLinkSegment[] = [];
+    private links: MultiLinkSegment[] = [];
 
-    private iEdit: InternalEditor;
+    iEdit: InternalEditor;
 
-    constructor(iEditor: InternalEditor, link: Navlink | Line, style?) {
+    constructor(iEditor: InternalEditor, lineString: GeoJSONCoordinate[], style: StyleGroup, feature?: Navlink | GeoJSONFeature) {
         const overlay = iEditor.objects.overlay;
 
         this.iEdit = iEditor;
-
-        let completePath;
-
-        if (link === UNDEF) {
-            return null;
-        }
-
-        completePath = this.completePath = link.coord();
+        this.completePath = lineString;
+        // completePath = this.completePath = feature.coord();
 
         const mlStyle = this.style = style || createDefaultStyle();
 
         this.overlay = overlay;
-        this.feature = overlay.addPath(completePath, mlStyle);
+        this.feature = overlay.addPath(lineString, mlStyle);
 
         this.hide();
 
         this.links.push({
             from: 0,
-            to: completePath.length - 1,
-            link: link,
+            to: lineString.length - 1,
+            feature,
+            lineString,
             reversed: false
         });
 
@@ -136,19 +134,23 @@ class MultiLink {
         });
     };
 
-    addLink(link: Navlink) {
-        const newPath = link.coord();
+    addLink(lineString: GeoJSONCoordinate[], feature: Navlink | GeoJSONFeature) {
+        // const newPath = link.coord();
         const {links} = this;
 
-        oTools.defaults(link);
+        if (feature instanceof Feature) {
+            oTools.defaults(feature);
+        }
 
         function match(c1, c2) {
             return c1[0] === c2[0] && c1[1] === c2[1];
         }
 
         const addChild = (from, to, reversed?) => {
+            const path = JSUtils.clone(lineString);
+
             if (reversed) {
-                newPath.reverse();
+                path.reverse();
             }
 
             if (from === 0) {
@@ -156,38 +158,39 @@ class MultiLink {
                     links[i].from += to;
                     links[i].to += to;
                 }
-                this.completePath = mergeConnectedPaths(newPath, completePath);
+                this.completePath = mergeConnectedPaths(path, completePath);
             } else {
-                this.completePath = mergeConnectedPaths(completePath, newPath);
+                this.completePath = mergeConnectedPaths(completePath, path);
             }
 
             links.unshift({
                 from: from,
                 to: to,
-                link: link,
+                feature,
+                lineString,
                 reversed: !!reversed
             });
         };
 
         const completePath = this.completePath;
 
-        if (match(newPath[newPath.length - 1], completePath[0])) {
+        if (match(lineString[lineString.length - 1], completePath[0])) {
             // '0->N'
-            addChild(0, newPath.length - 1);
-        } else if (match(newPath[0], completePath[0])) {
+            addChild(0, lineString.length - 1);
+        } else if (match(lineString[0], completePath[0])) {
             // '0->0'
-            addChild(0, newPath.length - 1, true);
-        } else if (match(newPath[0], completePath[completePath.length - 1])) {
+            addChild(0, lineString.length - 1, true);
+        } else if (match(lineString[0], completePath[completePath.length - 1])) {
             // 'N->0'
             addChild(
                 completePath.length - 1,
-                completePath.length + newPath.length - 2
+                completePath.length + lineString.length - 2
             );
-        } else if (match(newPath[newPath.length - 1], completePath[completePath.length - 1])) {
+        } else if (match(lineString[lineString.length - 1], completePath[completePath.length - 1])) {
             // 'N->N';
             addChild(
                 completePath.length - 1,
-                completePath.length + newPath.length - 2,
+                completePath.length + lineString.length - 2,
                 true
             );
         }
@@ -235,7 +238,8 @@ class MultiLink {
             // 0 0 or 1 1 -> not on segment
             if (mPos[0] !== mPos[1]) {
                 segments.push({
-                    navlink: child.link,
+                    navlink: child.feature,
+                    feature: child.feature,
                     from: mPos[0],
                     to: mPos[1],
                     reversed: child.reversed
