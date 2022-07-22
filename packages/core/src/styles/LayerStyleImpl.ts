@@ -70,6 +70,9 @@ class LayerStyleImpl {
     //     ];
     // },
 
+    getCustomStyleGroup(feature: Feature) {
+        return this._c[feature.id];
+    }
 
     getStyleGroup(feature: Feature, level?: number, getDefault?: boolean) {
         let style = this._c[feature.id];

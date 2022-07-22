@@ -385,9 +385,14 @@ export class TileLayer {
      * @param zoomlevel - specify the zoomlevel for the feature style
      *
      */
-    getStyleGroup(feature, zoomlevel?: number, layerDefault?: boolean): Style[] {
-        return this._sd && this._sd.getStyleGroup(feature, zoomlevel, layerDefault);
+    getStyleGroup(feature: Feature, zoomlevel?: number, layerDefault?: boolean): Style[] {
+        return this._sd?.getStyleGroup(feature, zoomlevel, layerDefault);
     };
+
+
+    _getCustomStyleGroup(feature: Feature): Style[] {
+        return this._sd?.getCustomStyleGroup(feature);
+    }
 
     /**
      * Search for feature(s) in the layer.

@@ -200,7 +200,16 @@ export default class InternalEditor {
     }
 
     setStyle(feature: Feature, style?: StyleGroup, merge?: boolean) {
+        const layer = this.getLayer(feature);
+
+        if (style == UNDEF) {
+            // in case of a custom style has been set (default layer style is overwritten)
+            // the style won't be reset with the default layer style, but the custom style will be kept
+            // and a refresh for possible style update of styleAttributeFunctions is triggered.
+            style = layer._getCustomStyleGroup(feature);
+        }
+
         // @ts-ignore: merge attribute is "internal"
-        this.getLayer(feature).setStyleGroup(feature, style, merge);
+        layer.setStyleGroup(feature, style, merge);
     };
 };
