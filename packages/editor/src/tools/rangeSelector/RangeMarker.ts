@@ -37,8 +37,9 @@ function getPointAtLine(
     line: MultiLink,
     position: number | { longitude: number, latitude: number }
 ): { coordinate: GeoJSONCoordinate, offset: number } {
+    const worldSizePixel = 4096;
     const prjCoords = line.coord().map((c) => {
-        let pixel = webMercator.geoToPixel(c[0], c[1], 1);
+        let pixel = webMercator.geoToPixel(c[0], c[1], worldSizePixel);
         return [pixel.x, pixel.y];
     });
     let offset;
@@ -47,12 +48,12 @@ function getPointAtLine(
         offset = position;
     } else {
         // absolute projected position
-        let wgsPixel = webMercator.geoToPixel(position.longitude, position.latitude, 1);
+        let wgsPixel = webMercator.geoToPixel(position.longitude, position.latitude, worldSizePixel);
         offset = calcRelPosOfPoiAtLink(prjCoords, [wgsPixel.x, wgsPixel.y]).offset;
     }
 
     const point = getPointAtLength(prjCoords, getTotalLength(prjCoords) * offset);
-    const geo = webMercator.pixelToGeo(point[0], point[1], 1);
+    const geo = webMercator.pixelToGeo(point[0], point[1], worldSizePixel);
 
     return {
         coordinate: <number[]>[geo.longitude, geo.latitude],
