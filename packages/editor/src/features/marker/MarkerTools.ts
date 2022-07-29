@@ -48,8 +48,12 @@ function getPrivate(feature: Marker | Feature, name?: string) {
     return name ? prv[name] : prv;
 }
 
-const tools = {
+function pointerEnterLeave(e) {
+    this.editState('hovered', e.type == 'pointerenter');
+    this._e().listeners.trigger(e, this);
+}
 
+const tools = {
 
     private: getPrivate,
 
@@ -90,24 +94,19 @@ const tools = {
                 );
             },
 
-            pointerenter: function(e) {
-                this._e().listeners.trigger(e, this);
-            },
-            pointerleave: function(e) {
-                this._e().listeners.trigger(e, this);
-            }
+            pointerenter: pointerEnterLeave,
+            pointerleave: pointerEnterLeave
 
         },
 
     deHighlight: function(feature: Marker) {
         const prv = getPrivate(feature);
 
-
         if (prv.selector) {
+            feature.editState('selected', false);
             feature._e().objects.overlay.remove(prv.selector);
 
             prv.selector = null;
-
             prv.pointerdown = UNDEF;
             prv.pressmove = UNDEF;
         }
@@ -131,6 +130,7 @@ const tools = {
             const prv = getPrivate(feature);
             const altitude = EDITOR.getStyleProperty(feature, 'altitude');
 
+            feature.editState('selected', true);
 
             prv.pressmove = (ev, dx, dy) => {
                 if (
