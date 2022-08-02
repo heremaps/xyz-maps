@@ -19,7 +19,7 @@
 
 import TileLoader from './TileLoader';
 import {JSUtils} from '@here/xyz-maps-common';
-import HTTPClient from './http';
+import HTTPClient, {HTTPRequest} from './http';
 import {global} from '@here/xyz-maps-common';
 
 const DEFAULT_ACCEPT_HEADER = {
@@ -45,7 +45,7 @@ class NetworkError extends Error {
     statusCode: number;
     responseText: string;
 
-    constructor(XHR: any) {
+    constructor(XHR: XMLHttpRequest) {
         super('Service request failed with HTTP status: \'' + XHR['status'] + ' ' + XHR['statusText'] + '\'');
         const error = this;
         const {responseType} = XHR;
@@ -64,7 +64,7 @@ class NetworkError extends Error {
 
 interface Request {
     success?: (data: any, size: number) => void;
-    error?: (msg: NetworkError) => void;
+    error?: (msg: NetworkError, xhr?: XMLHttpRequest) => void;
     responseType?: string
     key?: string | number;
     url: string;
@@ -79,6 +79,16 @@ class HTTPLoader implements TileLoader {
     store = null;
     baseUrl = null;
     q = {}; // queue
+
+    static createImageFromBlob(blob: Blob, cb: (img) => void) {
+        const img = new Image();
+        img.onload = (e) => {
+            // Clean up after yourself.
+            global.URL.revokeObjectURL(img.src);
+            cb(img);
+        };
+        img.src = global.URL.createObjectURL(blob);
+    }
 
     constructor(options: { [key: string]: any }) {
         // constructor( baseurl, parseJSONVariant?, withCredentials?, headers? ) {
@@ -132,7 +142,6 @@ class HTTPLoader implements TileLoader {
         this.baseUrl = url;
     };
 
-
     load(tile, success, /* onAbort,*/ onError) {
         const url = this.getUrl(tile);
 
@@ -163,19 +172,12 @@ class HTTPLoader implements TileLoader {
                 // keep in queue until async image creation is done! (otherwise abort breaks)
                 queue[qk] = xhr;
 
-                const img = new Image();
-
-                img.onload = (e) => {
+                HTTPLoader.createImageFromBlob(blob, (img) => {
                     delete queue[qk];
-
-                    // Clean up after yourself.
-                    global.URL.revokeObjectURL(img.src);
-
                     if (!xhr._aborted) {
                         success(img);
                     }
-                };
-                img.src = global.URL.createObjectURL(blob);
+                });
             };
         } else {
             if (tile.type == 'json') {
@@ -224,25 +226,24 @@ class HTTPLoader implements TileLoader {
 
         const success = request.success;
 
-        request.success = (data, size) => {
+        const httpRequest = <HTTPRequest><unknown>request;
+
+        httpRequest.success = (data, size) => {
             delete queue[key];
-
-            // if( request['responseType']!='blob')debugger;
-
             success(data, size);
         };
 
         const onError = request.error;
 
-        request.error = (xhr) => {
+        httpRequest.error = (xhr: XMLHttpRequest) => {
             delete queue[key];
             if (onError) {
-                onError(new NetworkError(xhr));
+                onError(new NetworkError(xhr), xhr);
             }
         };
 
 
-        return queue[key] = this.http.send(request);
+        return queue[key] = this.http.send(httpRequest);
     };
 }
 

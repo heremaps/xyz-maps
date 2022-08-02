@@ -21,12 +21,22 @@ import TileProvider from './TileProvider/TileProvider';
 import {Tile} from '../tile/Tile';
 import LRUStorage from '../storage/LRUStorage';
 import GenericLoader from '../loaders/Manager';
-import {HTTPLoader} from '../loaders/HTTPLoader';
+import {HTTPLoader, NetworkError} from '../loaders/HTTPLoader';
 
 let UNDEF;
 
 const timestamp = () => +new Date;
 
+
+const finishTile = (tile: Tile, data) => {
+    tile.loadStopTs = timestamp();
+    tile.data = data;
+
+    for (let onload of tile.onLoaded) {
+        onload(tile);
+    }
+    tile.onLoaded = UNDEF;
+};
 
 /**
  *  Tile Provider for Image/Raster data.
@@ -75,7 +85,6 @@ export class ImageProvider extends TileProvider {
         const provider = this;
         const loader = provider.loader;
         const storage = provider.storage;
-
         let tile;
 
         if ((tile = storage.get(quadkey)) === UNDEF) {
@@ -84,7 +93,6 @@ export class ImageProvider extends TileProvider {
             );
             tile.onLoaded = [];
         }
-
 
         if (!tile.loadStopTs) {
             if (cb) {
@@ -100,23 +108,22 @@ export class ImageProvider extends TileProvider {
             return tile;
         }
 
-
         if (!tile.loadStartTs) {
             tile.loadStartTs = timestamp();
 
-            loader.tile(tile, (data) => {
-                tile.loadStopTs = timestamp();
-                tile.data = data;
-
-                for (let onload of tile.onLoaded) {
-                    onload(tile);
-                }
-                tile.onLoaded = UNDEF;
-            },
-            (e) => {
-                tile.loadStopTs = timestamp();
-                tile.error = e;
-            });
+            loader.tile(tile,
+                (data) => finishTile(tile, data),
+                (e: NetworkError, xhr: XMLHttpRequest) => {
+                    // support for "FileNotFound(404) Image tiles"
+                    if (e.statusCode == 404 && xhr.responseType == 'blob') {
+                        HTTPLoader.createImageFromBlob(xhr.response, (data) => {
+                            finishTile(tile, data);
+                        });
+                    } else {
+                        tile.loadStopTs = timestamp();
+                        tile.error = e;
+                    }
+                });
         }
         return tile;
     };

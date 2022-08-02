@@ -16,8 +16,18 @@
  * SPDX-License-Identifier: Apache-2.0
  * License-Filename: LICENSE
  */
-
 let UNDEF;
+
+export interface HTTPRequest {
+    success?: (data: any, size: number) => void;
+    error?: (xhr: XMLHttpRequest) => void;
+    responseType?: string;
+    type?: string;
+    url: string;
+    data?: any;
+    headers?: { [header: string]: any };
+    withCredentials?: boolean;
+}
 
 class HTTPClient {
     withCredentials = false;
@@ -29,12 +39,12 @@ class HTTPClient {
         }
     }
 
-    send(request) {
+    send(request: HTTPRequest) {
         const loader = this;
         const success = request.success;
         const onError = request.error;
-        const responseType = request['responseType'] || loader.responseType;
-        const headers = request['headers'];
+        const responseType = request.responseType || loader.responseType;
+        const headers = request.headers;
         const xhr = new XMLHttpRequest();
         const withCredentials = request.withCredentials;
 
@@ -44,7 +54,7 @@ class HTTPClient {
             : loader.withCredentials;
 
         // request json as text and do manual JSON.parse() is faster!
-        xhr.responseType = responseType == 'json' ? 'text' : responseType;
+        xhr.responseType = <XMLHttpRequestResponseType>(responseType == 'json' ? 'text' : responseType);
 
         xhr.onload = function() {
             const type = this.responseType;
@@ -76,7 +86,7 @@ class HTTPClient {
                 this.readyState == 4 &&
                 // error but not timeout
                 (this.status < 200 || this.status >= 300)
-            // && status!==0 // ignore aborts
+                // && status!==0 // ignore aborts
             ) {
                 this.onload = null;
 
@@ -89,8 +99,8 @@ class HTTPClient {
         };
 
         xhr.open(
-            request['type'] || 'GET',
-            request['url'],
+            request.type || 'GET',
+            request.url,
             true
         );
 
@@ -100,11 +110,10 @@ class HTTPClient {
             }
         }
 
-        xhr.send(request['data'] || null);
+        xhr.send(request.data || null);
 
         return xhr;
     }
 }
-
 
 export default HTTPClient;

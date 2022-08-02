@@ -63,8 +63,8 @@ class ManagedLoader {
 
                 onSuccess(data, size);
             },
-            (errorMsg) => {
-                onError(errorMsg);
+            (errorMsg, data) => {
+                onError(errorMsg, data);
                 // cleanup loading queue
                 ml.executing--;
                 delete loadingQueue[tile.quadkey];
