@@ -22,7 +22,7 @@ import {FlexAttribute} from './TemplateBuffer';
 import {BoxBuffer, extentScale} from './BoxBuffer';
 import {GeometryBuffer} from '../GeometryBuffer';
 import {Raycaster, Vec3} from '../../Raycaster';
-import {decodeUint16z} from './PointBuffer';
+import {decodeUint16z, getOffsetPixel} from './PointBuffer';
 
 const SPHERE_VERTICES = 1056;
 
@@ -54,14 +54,19 @@ export class SphereBuffer extends BoxBuffer {
         const [r] = <number[]>buffer.uniforms.u_radius;
         const radius: Vec3 = [r * scaleX, r * scaleY, r * scaleZ];
 
+        let [offsetX, offsetY, offsetZ] = getOffsetPixel(buffer, rayCaster.scale);
+        offsetX *= scaleX;
+        offsetY *= scaleY;
+        offsetZ *= scaleZ;
+
         let index = null;
         const offset = size * SPHERE_VERTICES;
         const sphereCenter: Vec3 = [0, 0, 0];
 
         for (let i = 0, {length} = position; i < length; i += offset) {
-            sphereCenter[0] = tileX + position[i] * scaleXY;
-            sphereCenter[1] = tileY + position[i + 1] * scaleXY;
-            sphereCenter[2] = size == 3 ? -decodeUint16z(position[i + 2]) : 0;
+            sphereCenter[0] = tileX + position[i] * scaleXY + offsetX;
+            sphereCenter[1] = tileY + position[i + 1] * scaleXY + offsetY;
+            sphereCenter[2] = (size == 3 ? -decodeUint16z(position[i + 2]) : 0) - offsetZ;
             // Because the projection is already transforming from meter to pixel along the z-axis,
             // the sphere is technically an ellipse.
             // const intersectRayLength = intersectEllipsoid(rayCaster.origin, rayCaster.direction, sphereCenter, radius);
