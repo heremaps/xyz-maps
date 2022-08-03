@@ -19,7 +19,7 @@
 
 import TileLoader from './TileLoader';
 import {JSUtils} from '@here/xyz-maps-common';
-import HTTPClient, {HTTPRequest} from './http';
+import HTTPClient, {XHRRequest} from './http';
 import {global} from '@here/xyz-maps-common';
 
 const DEFAULT_ACCEPT_HEADER = {
@@ -62,12 +62,15 @@ class NetworkError extends Error {
 }
 
 
-interface Request {
+export interface HTTPRequest {
+    url: string;
+    type?: 'POST' | 'GET' | string;
     success?: (data: any, size: number) => void;
+    data?: any;
     error?: (msg: NetworkError, xhr?: XMLHttpRequest) => void;
     responseType?: string
-    key?: string | number;
-    url: string;
+    id?: string | number;
+    headers?: { [header: string]: any };
 }
 
 
@@ -83,7 +86,6 @@ class HTTPLoader implements TileLoader {
     static createImageFromBlob(blob: Blob, cb: (img) => void) {
         const img = new Image();
         img.onload = (e) => {
-            // Clean up after yourself.
             global.URL.revokeObjectURL(img.src);
             cb(img);
         };
@@ -91,10 +93,6 @@ class HTTPLoader implements TileLoader {
     }
 
     constructor(options: { [key: string]: any }) {
-        // constructor( baseurl, parseJSONVariant?, withCredentials?, headers? ) {
-
-        // parseJSONVariant = baseurl['parser'];
-
         let responseType = options['responseType'] || 'json';
 
         const url = options['src'] || options['url'];
@@ -142,19 +140,18 @@ class HTTPLoader implements TileLoader {
         this.baseUrl = url;
     };
 
-    load(tile, success, /* onAbort,*/ onError) {
+    load(tile, success, /* onAbort,*/ error) {
         const url = this.getUrl(tile);
 
         const qk = tile.quadkey;
 
         const queue = this.q;
 
-        const req: Request = {
-            key: qk,
-            url: url,
-            success: success,
-            // onAbort:   onAbort,
-            error: onError
+        const req: HTTPRequest = {
+            id: qk,
+            url,
+            success,
+            error
         };
 
         let xhr;
@@ -219,31 +216,31 @@ class HTTPLoader implements TileLoader {
         }
     };
 
-    send(request: Request) {
+    send(request: HTTPRequest) {
         const loader = this;
-        const key = request.key || Math.random();
+        const id = request.id || (<any>request).key || Math.random();
         const queue = loader.q;
 
         const success = request.success;
 
-        const httpRequest = <HTTPRequest><unknown>request;
+        const httpRequest = <XHRRequest><unknown>request;
 
         httpRequest.success = (data, size) => {
-            delete queue[key];
+            delete queue[id];
             success(data, size);
         };
 
         const onError = request.error;
 
         httpRequest.error = (xhr: XMLHttpRequest) => {
-            delete queue[key];
+            delete queue[id];
             if (onError) {
                 onError(new NetworkError(xhr), xhr);
             }
         };
 
 
-        return queue[key] = this.http.send(httpRequest);
+        return queue[id] = this.http.send(httpRequest);
     };
 }
 

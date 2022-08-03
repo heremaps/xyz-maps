@@ -18,7 +18,7 @@
  */
 let UNDEF;
 
-export interface HTTPRequest {
+export interface XHRRequest {
     success?: (data: any, size: number) => void;
     error?: (xhr: XMLHttpRequest) => void;
     responseType?: string;
@@ -39,7 +39,7 @@ class HTTPClient {
         }
     }
 
-    send(request: HTTPRequest) {
+    send(request: XHRRequest) {
         const loader = this;
         const success = request.success;
         const onError = request.error;

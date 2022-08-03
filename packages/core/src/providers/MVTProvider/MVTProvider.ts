@@ -25,7 +25,8 @@ import mvtToGeoJSON from './toGeojson';
 import {JSUtils, Queue} from '@here/xyz-maps-common';
 
 import {MVTTile} from './MVTTile';
-import {RemoteTileProvider} from '../RemoteTileProvider/RemoteTileProvider'; // => no global tree (tile-tree)!
+import {RemoteTileProvider} from '../RemoteTileProvider/RemoteTileProvider';
+import {HTTPLoader} from '../../loaders/HTTPLoader'; // => no global tree (tile-tree)!
 // import GeoJsonProvider from '../GeoJSONProvider'; // global tree!
 
 
@@ -76,8 +77,9 @@ export class MVTProvider extends RemoteTileProvider {
                     cdata = new Queue();
                     cdata.add(cb);
                     prov.c = cdata;
+                    const httpLoader: HTTPLoader = prov.getLoader().src[0];
 
-                    prov.getLoader().src[0].send({
+                    httpLoader.send({
                         url: xyz + 'copyright',
                         responseType: 'json',
                         success: (c) => {

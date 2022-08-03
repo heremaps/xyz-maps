@@ -25,6 +25,8 @@ import {JSUtils, Queue} from '@here/xyz-maps-common';
 import {SpaceProviderOptions, defaultOptions} from './SpaceOptions';
 import {GeoJSONProvider} from '../GeoJSONProvider';
 import {PostProcessor, PostProcesserInput, isPreprocessor} from '../RemoteTileProvider/processors';
+import {HTTPLoader} from '../../loaders/HTTPLoader';
+import {HTTPRequest} from '../../loaders/HTTPLoader';
 
 const NS_XYZ = '@ns:com:here:xyz';
 
@@ -99,6 +101,11 @@ export class SpaceProvider extends GeoJSONProvider {
         }
     }
 
+    private getHttpLoader(): HTTPLoader {
+        const loaders = this.getLoader().src;
+        return <HTTPLoader>loaders[loaders.length - 1];
+    }
+
     /**
      * update config options of the provider.
      *
@@ -126,8 +133,8 @@ export class SpaceProvider extends GeoJSONProvider {
         remove?: GeoJSONFeature[]
     }, onSuccess?, onError?) {
         const prov = this;
-        const loaders = prov.loader.src;
-        const loader = loaders[loaders.length - 1];
+        // const loaders = prov.loader.src;
+        const loader = prov.getHttpLoader();
         let total = 0;
         let error = 0;
 
@@ -208,7 +215,7 @@ export class SpaceProvider extends GeoJSONProvider {
     protected createUpdateFeatureRequest(features, callbacks: {
         success?: (resp: any) => void,
         error?: (error: any) => void
-    } = {}) {
+    } = {}): HTTPRequest {
         const prov = this;
         const url = prov._addUrlCredentials(
             prov.getLayerUrl(prov.space) + '/features', '?'
@@ -422,16 +429,16 @@ export class SpaceProvider extends GeoJSONProvider {
 
     getDefinition(onSuccess: (definition: any) => void, onError?: ErrorEventHandler) {
         const prov = this;
-        const loaders = prov.getLoader().src;
+        const httpLoader = prov.getHttpLoader();
         let definition = prov.definition;
 
         if (definition == null) {
             let queue = new Queue();
             definition = this.definition = queue;
 
-            loaders[loaders.length - 1].send({
+            httpLoader.send({
                 url: prov._addUrlCredentials(prov.getLayerUrl(prov.space), '?'),
-                key: 'def',
+                id: 'def',
                 success: (def) => {
                     prov.definition = def;
                     // success && success(def);
@@ -458,12 +465,9 @@ export class SpaceProvider extends GeoJSONProvider {
 
 
     _requestFeatures(ids: (string | number)[], onsuccess: (features: any[]) => void, onerror?: ErrorEventHandler, opt?) {
-        const loaders = this.loader.src;
+        this.getHttpLoader().send({
 
-
-        loaders[loaders.length - 1].send({
-
-            key: ids.join('&'),
+            id: ids.join('&'),
 
             url: this._addUrlCredentials(
                 this.getFeatureUrl(this.space, ids)
