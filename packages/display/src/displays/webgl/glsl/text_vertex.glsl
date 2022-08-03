@@ -8,6 +8,8 @@ uniform vec2 u_resolution;
 uniform mat4 u_matrix;
 uniform vec2 u_topLeft;
 uniform vec4 u_offset;
+uniform vec2 u_offsetZ;
+uniform float u_zMeterToPixel;
 uniform float u_scale;
 uniform float u_rotate;
 uniform bool u_alignMap;
@@ -51,13 +53,13 @@ void main(void){
         // texture coodrinates bit6->bit16
         v_texcoord = floor(a_texcoord / 32.0) * u_atlasScale;
 
-        vec2 labelOffset = u_offset.xz;
+        vec2 labelOffset = vec2(toPixel(u_offset.xy, u_scale),toPixel(u_offset.zw, u_scale));
 
         labelOffset *= DEVICE_PIXEL_RATIO;
 
         rotation = rotation / 1024.0 * PI_20;// 9bit -> 2PI;
 
-        float z = a_position.z * SCALE_UINT16_Z;
+        float z = a_position.z * SCALE_UINT16_Z + toPixel(u_offsetZ, u_scale)/ u_zMeterToPixel/ u_scale;
 
         if (u_alignMap){
             float absRotation = mod(u_rotate + rotation, PI_20);

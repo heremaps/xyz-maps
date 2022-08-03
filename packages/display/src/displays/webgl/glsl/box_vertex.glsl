@@ -17,7 +17,7 @@ uniform float u_rotation;
 uniform vec4 u_offset;
 uniform bool u_alignMap;
 uniform vec2 u_resolution;
-
+uniform vec2 u_offsetZ;
 uniform float u_zMeterToPixel;
 
 #ifdef SPHERE
@@ -25,15 +25,6 @@ varying vec3 v_rayOrigin;
 varying vec3 v_rayDirecton;
 varying vec3 v_worldPos;
 uniform vec2 u_radius;
-
-float toPixel(vec2 size){
-    float value = size.x;
-    if (size.y > 0.0){
-        // value is defined in meters -> convert to pixels at current zoom
-        value *= u_scale * size.y;
-    }
-    return value;
-}
 
 #else
 varying vec3 vPosition;
@@ -47,7 +38,7 @@ void main(void){
 
     #ifdef SPHERE
     vec3 dir = a_point*2.0-1.0;
-    vec3 size = vec3(toPixel(u_radius)) / u_scale;
+    vec3 size = vec3(toPixel(u_radius, u_scale)) / u_scale;
     #else
     vec3 dir = mod(a_point, 2.0) * 2.0 - 1.0;
     vec3 size = floor(a_point * .5) / u_scale;
@@ -55,6 +46,8 @@ void main(void){
 
     vec3 vertexOffset = vec3(size.xy, -size.z/u_zMeterToPixel) * dir;
     vec3 boxCenter = vec3(u_topLeft + a_position.xy * EXTENT_SCALE, -a_position.z * SCALE_UINT16_Z);
+
+    boxCenter += vec3(toPixel(u_offset.xy, u_scale), toPixel(u_offset.zw, u_scale), -toPixel(u_offsetZ, u_scale) / u_zMeterToPixel)/ u_scale;
 
     vec3 vertexPos = vec3(boxCenter.xy + rotateZ(vertexOffset.xy, u_rotation), boxCenter.z + vertexOffset.z);
     //    vec3 vertexPos = vec3(boxCenter.xy + rotateZ(vertexOffset.xy / u_scale, u_rotation), boxCenter.z + vertexOffset.z / u_scale);

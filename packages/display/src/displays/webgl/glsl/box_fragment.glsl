@@ -2,7 +2,6 @@ precision mediump float;
 
 uniform vec4 u_fill;
 uniform vec4 u_stroke;
-uniform float u_scale;
 
 varying vec3 vSize;
 

@@ -20,19 +20,9 @@ uniform bool u_no_antialias;
 
 const float N_SCALE = 1.0 / 8191.0;
 
-
-float toPixel(vec2 size){
-    float value = size.x;
-    if (size.y > 0.0){
-        // value is defined in meters -> convert to pixels at current zoom
-        value *= u_scale * size.y;
-    }
-    return value;
-}
-
 void main(void){
 
-    float strokeWidth = toPixel(u_strokeWidth);
+    float strokeWidth = toPixel(u_strokeWidth, u_scale);
     float alias = u_no_antialias
         ? .0
         : strokeWidth < 1. ? .65 : 1.;
@@ -49,10 +39,9 @@ void main(void){
 
     v_lengthSoFar = a_lengthSoFar / u_texWidth;
 
-    float lineOffset = toPixel(u_offset);
+    float lineOffset = toPixel(u_offset, u_scale);
 
     vec2 position = a_position.xy + normal * -lineOffset / u_scale;
-
 
     gl_PointSize = 8.0;
 

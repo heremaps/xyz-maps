@@ -9,20 +9,13 @@ uniform float u_scale;
 uniform vec2 u_resolution;
 uniform bool u_alignMap;
 uniform float u_strokeWidth;
+uniform vec2 u_offsetZ;
+uniform float u_zMeterToPixel;
 
 varying vec2 v_position;
 varying float v_radius;
 
 const float EXTENT_SCALE = 1.0 / 32.0;// 8912->512
-
-float toPixel(vec2 size){
-    float value = size.x;
-    if (size.y > 0.0){
-        // value is defined in meters -> convert to pixels at current zoom
-        value *= u_scale * size.y;
-    }
-    return value;
-}
 
 void main(void){
 
@@ -32,16 +25,16 @@ void main(void){
         vec2 dir = mod(floor(a_position.xy / 2.0), 2.0) * 2.0 - 1.0;
         vec2 pos = floor(a_position.xy / 4.0) * EXTENT_SCALE;
 
-        float radius = toPixel(u_radius);
+        float radius = toPixel(u_radius, u_scale);
 
         radius = radius + u_strokeWidth / 2.0;
 
         v_position = dir * radius;
         v_radius = radius;
 
-        vec2 pixel_offset = vec2(toPixel(u_offset.xy), toPixel(u_offset.zw));
+        vec2 pixel_offset = vec2(toPixel(u_offset.xy, u_scale), toPixel(u_offset.zw, u_scale));
 
-        float z = a_position.z * SCALE_UINT16_Z;
+        float z = a_position.z * SCALE_UINT16_Z + toPixel(u_offsetZ, u_scale)/ u_zMeterToPixel/ u_scale;
 
         if (u_alignMap){
             vec2 shift = (pixel_offset + v_position * vec2(1.0, -1.0)) / u_scale;

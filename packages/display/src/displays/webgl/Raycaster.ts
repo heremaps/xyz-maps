@@ -65,6 +65,7 @@ class Raycaster {
             return null;
         }
     };
+
     /**
      * screen matrix
      * world space -> screen space
@@ -111,6 +112,8 @@ class Raycaster {
     private invMapScale: number[];
     private invVpScale: number[];
     private intersectRayLength: number;
+
+    scaleZ: number;
 
     constructor(screenMatrix: Float32Array, inverseScreenMatrix: Float32Array) {
         this.sMat = screenMatrix;
@@ -227,6 +230,7 @@ class Raycaster {
         return hit < hit2 ? hit : hit2;
     }
 
+
     init(x: number, y: number, width: number, height: number, scale: number, scaleZ: number) {
         const {sMat, iSMat, origin, direction, sOrigin, sDirection} = this;
 
@@ -236,6 +240,9 @@ class Raycaster {
         this.scale = scale;
         this.invMapScale = [1 / scale, 1 / scale, 1 / scale / scaleZ];
         this.invVpScale = [2 / width, 2 / height];
+
+        this.scaleZ = scaleZ;
+        // this.scaleZ = this.sMat[11]/scale;
 
         origin[0] = x;
         origin[1] = y;

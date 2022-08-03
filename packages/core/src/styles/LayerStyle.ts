@@ -418,11 +418,9 @@ export interface Style {
 
     /**
      * Offset the shape in pixels on x-axis.
-     * It is valid for Circle, Rect, Text and Image.
+     * It is valid for Circle, Rect, Text, Image, Box and Sphere.
      * A positive value offsets to the right, a negative value to the left.
      * The default unit is pixels.
-     *
-     * Style of type Circle and Rect also support an offset in meters. e.g offsetX: "1m"
      *
      * @example
      * ```typescript
@@ -437,11 +435,9 @@ export interface Style {
 
     /**
      * Offset the shape in pixels on y-axis.
-     * It is valid for Circle, Rect, Text and Image.
+     * It is valid for Circle, Rect, Text, Image, Box and Sphere.
      * A positive value offsetY offsets downwards, a negative value upwards.
      * The default unit is pixels.
-     *
-     * Style of type Circle and Rect also support an offset in meters. e.g offsetY: "1m"
      *
      * @example
      * ```typescript
@@ -453,6 +449,23 @@ export interface Style {
      * ```
      */
     offsetY?: number | StyleValueFunction<number> | StyleZoomRange<number>;
+
+    /**
+     * Offset the shape in pixels on z-axis.
+     * It is valid for Circle, Rect, Text, Image, Box and Sphere.
+     * A positive value offsets to the right, a negative value to the left.
+     * The default unit is pixels.
+     *
+     * @example
+     * ```typescript
+     * // offset Image by 8px to the top.
+     * { type: "Image", zIndex: 0, src: '...', offsetZ: 8}
+     *
+     * // offset Circle by 1m to the top
+     * { type: "Circle", zIndex: 0, fill:'blue', radius: 4, offsetZ: "1m"}
+     * ```
+     */
+    offsetZ?: number | string | StyleValueFunction<number | string> | StyleZoomRange<number | string>;
 
     /**
      * Offset a line to the left or right side in pixel or meter.

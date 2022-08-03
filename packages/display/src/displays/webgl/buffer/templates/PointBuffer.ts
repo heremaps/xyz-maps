@@ -37,6 +37,22 @@ const toPixelOffset = (offset: number, scaleMeter: number, scale: number) => {
     return offset;
 };
 
+export const getOffsetPixel = (buffer: GeometryBuffer, scale: number, scaleZ?: number) => {
+    const uOffset = <number[]>buffer.getUniform('u_offset');
+    const offsetX = toPixelOffset(uOffset[0], uOffset[1], scale);
+    const offsetY = toPixelOffset(uOffset[2], uOffset[3], scale);
+
+    const uOffsetZ = <number[]>buffer.getUniform('u_offsetZ');
+    const offsetZ = toPixelOffset(uOffsetZ[0], uOffsetZ[1], scale);
+
+    // if (offsetZUnit) {
+    //     // value is defined in meters -> convert to pixels at current zoom
+    //     offsetZ *= scale * offsetZUnit;
+    // }
+    // return [offsetX, offsetY, offsetZ / scaleZ / scale];
+    return [offsetX, offsetY, offsetZ];
+};
+
 
 export class PointBuffer extends TemplateBuffer {
     flexAttributes: {
@@ -62,15 +78,13 @@ export class PointBuffer extends TemplateBuffer {
     rayIntersects(buffer: GeometryBuffer, result: { z: number }, tileX: number, tileY: number, rayCaster: Raycaster): number | string {
         const {type, attributes} = buffer;
         const alignMap = <boolean>buffer.getUniform('u_alignMap');
-        const scale = rayCaster.scale;
+        const {scale, scaleZ} = rayCaster;
         const invMapScale = alignMap ? 1 / rayCaster.scale : 1;
         let width;
         let height;
+        let [offsetX, offsetY, offsetZ] = getOffsetPixel(buffer, scale);
 
-        const uOffset = buffer.getUniform('u_offset');
-        let offsetX = toPixelOffset(uOffset[0], uOffset[1], scale);
-        let offsetY = toPixelOffset(uOffset[2], uOffset[3], scale);
-
+        offsetZ = -offsetZ / scaleZ / scale;
 
         if (type === 'Rect') {
             const size = buffer.getUniform('u_size');
@@ -149,19 +163,19 @@ export class PointBuffer extends TemplateBuffer {
             if (alignMap) {
                 t0[0] = x0 + dx0 * width + offsetX;
                 t0[1] = y0 - dy0 * height + offsetY;
-                t0[2] = z0;
+                t0[2] = z0 + offsetZ;
 
                 t1[0] = x1 + dx1 * width + offsetX;
                 t1[1] = y1 - dy1 * height + offsetY;
-                t1[2] = z1;
+                t1[2] = z1 + offsetZ;
 
                 t2[0] = x2 + dx2 * width + offsetX;
                 t2[1] = y2 - dy2 * height + offsetY;
-                t2[2] = z2;
+                t2[2] = z2 + offsetZ;
             } else {
                 t0[0] = x0;
                 t0[1] = y0;
-                t0[2] = z0;
+                t0[2] = z0 + offsetZ;
 
                 // transformMat4(t0, t0, rayCaster.sMat);
                 // t1[0] = t0[0] + dx1 * width;

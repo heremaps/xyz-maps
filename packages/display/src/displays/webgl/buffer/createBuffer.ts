@@ -270,6 +270,7 @@ const createBuffer = (
                                 shared.offsetX, shared.offsetUnit[0] == 'm' ? meterToPixel : 0,
                                 shared.offsetY, shared.offsetUnit[1] == 'm' ? meterToPixel : 0
                             ]);
+                            geoBuffer.addUniform('u_offsetZ', [shared.offsetZ, shared.offsetUnit[2] == 'm' ? meterToPixel : 0]);
                         }
 
 

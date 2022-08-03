@@ -24,6 +24,13 @@ vec2 rotateZ(vec2 v, float a){
 //    return vec2(point.x * c + point.y * s, point.y * c - point.x * s);
 //}
 
-
+float toPixel(vec2 size, float zoom){
+    float value = size.x;
+    if (size.y > 0.0){
+        // value is defined in meters -> convert to pixels at current zoom
+        value *= zoom * size.y;
+    }
+    return value;
+}
 
 const float SCALE_UINT16_Z = 9000.0 / 65535.0; // 0.1373311970702678m precision

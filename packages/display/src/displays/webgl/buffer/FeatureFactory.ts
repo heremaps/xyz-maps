@@ -87,6 +87,7 @@ type DrawGroup = {
         rotation: number,
         offsetX: number,
         offsetY: number,
+        offsetZ: number,
         offsetUnit: string,
         alignment: string
     }
@@ -313,6 +314,7 @@ export class FeatureFactory {
         let index;
         let offsetX;
         let offsetY;
+        let offsetZ;
         let text;
         let strokeScale;
         let alignment;
@@ -409,19 +411,16 @@ export class FeatureFactory {
             offsetUnit = UNDEF;
             let depth;
             let pointerEvents = true;
+            let processPointOffset = false;
 
             rotation = getValue('rotation', style, feature, level) ^ 0;
             let altitude = getValue('altitude', style, feature, level);
 
             if (type == 'Icon') {
-                offsetX = getValue('offsetX', style, feature, level) ^ 0;
-                offsetY = getValue('offsetY', style, feature, level) ^ 0;
-
                 alignment = getValue('alignment', style, feature, level) || 'viewport';
 
-                offsetUnit = ['px', 'px'];
-
-                groupId = (altitude ? 'AI' : 'I') + offsetX + offsetY + (alignment || '');
+                groupId = (altitude ? 'AI' : 'I') + (alignment || '');
+                processPointOffset = true;
             } else {
                 stroke = getValue('stroke', style, feature, level);
                 strokeWidth = getValue('strokeWidth', style, feature, level);
@@ -528,17 +527,12 @@ export class FeatureFactory {
                             continue;
                         }
 
-                        offsetX = getValue('offsetX', style, feature, level);
-                        offsetY = getValue('offsetY', style, feature, level);
+                        processPointOffset = true;
 
-                        offsetUnit = new Array(2);
-
-                        [offsetX, offsetUnit[0]] = parseSizeValue(offsetX);
-                        [offsetY, offsetUnit[1]] = parseSizeValue(offsetY);
-
-                        groupId += offsetX + offsetUnit[0] + offsetY + offsetUnit[1] + (alignment || '');
+                        groupId += alignment || '';
                     }
                 }
+
                 if (fill) {
                     fillRGBA = toRGB(fill);
                     if (fillRGBA) {
@@ -574,6 +568,21 @@ export class FeatureFactory {
 
                 groupId += (stroke || NONE) + (strokeWidth || NONE) + (fill || NONE);
             }
+
+            if (processPointOffset) {
+                offsetX = getValue('offsetX', style, feature, level);
+                offsetY = getValue('offsetY', style, feature, level);
+                offsetZ = getValue('offsetZ', style, feature, level);
+
+                offsetUnit = new Array(3);
+
+                [offsetX, offsetUnit[0]] = parseSizeValue(offsetX);
+                [offsetY, offsetUnit[1]] = parseSizeValue(offsetY);
+                [offsetZ, offsetUnit[2]] = parseSizeValue(offsetZ);
+
+                groupId += offsetX + (offsetY << 8) + (offsetZ << 16) + offsetUnit[0] + offsetUnit[1] + offsetUnit[2];
+            }
+
 
             groupId += opacity * 100 ^ 0;
 
@@ -621,6 +630,7 @@ export class FeatureFactory {
                         rotation,
                         offsetX,
                         offsetY,
+                        offsetZ,
                         offsetUnit,
                         alignment
                     }

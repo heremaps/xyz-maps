@@ -9,6 +9,8 @@ uniform float u_strokeWidth;
 uniform vec2 u_topLeft;
 uniform float u_rotation;
 uniform vec4 u_offset;
+uniform vec2 u_offsetZ;
+uniform float u_zMeterToPixel;
 uniform bool u_alignMap;
 uniform vec2 u_resolution;
 
@@ -17,15 +19,6 @@ varying vec2 vDir;
 
 const float EXTENT_SCALE = 1.0 / 32.0;// 8912->512
 
-float toPixel(vec2 size){
-    float pixel = size.x;
-    if (size.y > 0.0){
-        // value is defined in meters -> convert to pixels at current zoom
-        pixel *= u_scale * size.y;
-    }
-    return pixel;
-}
-
 void main(void){
     // LSB defines visibility
     if (mod(a_position.x, 2.0) == 1.0)
@@ -33,7 +26,7 @@ void main(void){
         // bit1 is direction/normal vector [-1,+1]
         vec2 dir = mod(floor(a_position.xy / 2.0), 2.0) * 2.0 - 1.0;
         vec2 pos = floor(a_position.xy / 4.0) * EXTENT_SCALE;
-        vec2 size = vec2(toPixel(u_size.xy), toPixel(u_size.zw));
+        vec2 size = vec2(toPixel(u_size.xy, u_scale), toPixel(u_size.zw, u_scale));
 
         size = (size + u_strokeWidth) * .5;
 
@@ -43,9 +36,9 @@ void main(void){
             rotation *= -1.0;
         }
 
-        vec2 pixel_offset = vec2(toPixel(u_offset.xy), toPixel(u_offset.zw));
+        vec2 pixel_offset = vec2(toPixel(u_offset.xy, u_scale), toPixel(u_offset.zw, u_scale));
 
-        float z = a_position.z * SCALE_UINT16_Z;
+        float z = a_position.z * SCALE_UINT16_Z + toPixel(u_offsetZ, u_scale)/ u_zMeterToPixel/ u_scale;
 
         if (u_alignMap){
             vec2 shift = (pixel_offset + rotateZ(dir * vec2(size.x, -size.y), rotation)) / u_scale;

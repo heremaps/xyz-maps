@@ -17,7 +17,7 @@
  * License-Filename: LICENSE
  */
 
-import {decodeUint16z, PointBuffer} from './PointBuffer';
+import {decodeUint16z, getOffsetPixel, PointBuffer} from './PointBuffer';
 import {FlexArray} from './FlexArray';
 import {FlexAttribute} from './TemplateBuffer';
 import {GeometryBuffer} from '../GeometryBuffer';
@@ -56,13 +56,17 @@ export class BoxBuffer extends PointBuffer {
         const alignMap = true;
         const [scaleX, scaleY, scaleZ] = rayCaster.getInverseScale(alignMap);
         let index = null;
-
         const offset = size * 6 * 6;
+        let [offsetX, offsetY, offsetZ] = getOffsetPixel(buffer, rayCaster.scale);
+
+        offsetX *= scaleX;
+        offsetY *= scaleY;
+        offsetZ *= scaleZ;
 
         for (let i = 0, {length} = position; i < length; i += offset) {
-            const x = tileX + position[i] * scaleXY;
-            const y = tileY + position[i + 1] * scaleXY;
-            const z = size == 3 ? -decodeUint16z(position[i + 2]) : 0;
+            const x = tileX + position[i] * scaleXY + offsetX;
+            const y = tileY + position[i + 1] * scaleXY + offsetY;
+            const z = (size == 3 ? -decodeUint16z(position[i + 2]) : 0) - offsetZ;
             const w = (point[i] >> 1) * scaleX;
             const h = (point[i + 1] >> 1) * scaleY;
             const d = (point[i + 2] >> 1) * scaleZ; // pixel
