@@ -453,7 +453,7 @@ export interface Style {
     /**
      * Offset the shape in pixels on z-axis.
      * It is valid for Circle, Rect, Text, Image, Box and Sphere.
-     * A positive value offsets to the right, a negative value to the left.
+     * A positive value offsets up, a negative value down.
      * The default unit is pixels.
      *
      * @example
