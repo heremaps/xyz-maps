@@ -195,7 +195,7 @@ const tools = {
         if (prv.isSelected) {
             removeShapes(area);
 
-            area.__.hk.hide();
+            area.__.hk?.hide();
 
             // area.toggleHover( true );
             area.editState('hovered', false);
