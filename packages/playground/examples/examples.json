@@ -141,6 +141,10 @@
     {
       "file": "./editor/edit_point_3d.html",
       "docs": "classes/editor.marker.html#behavior"
+    },
+    {
+      "file": "./editor/edit_building.html",
+      "docs": "classes/display.map.html#getfeatureat"
     }
   ],
   "Layers / Providers": [
