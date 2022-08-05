@@ -290,7 +290,7 @@ export abstract class EditableFeatureProvider extends FeatureTileProvider {
      * @param height - The height specified in meters
      *
      */
-    abstract readFeatureHeight(feature: Feature, height: number| null);
+    abstract writeFeatureHeight(feature: Feature, height: number| null);
 
 
     readRoutingPoint(location): { link: NavlinkId, position: GeoJSONCoordinate } {
