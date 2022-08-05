@@ -144,7 +144,7 @@
     },
     {
       "file": "./editor/edit_building.html",
-      "docs": "classes/display.map.html#getfeatureat"
+      "docs": "classes/core.editableremotetileprovider.html#readfeatureheight"
     }
   ],
   "Layers / Providers": [
