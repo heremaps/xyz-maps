@@ -1,3 +1,24 @@
+## 0.30.0 (2022-8-5)
+### core
+* added: The ImageProvider supports images contained in a 404 status response.
+### display
+* added: Box and Sphere styles now support [Style.offsetX](https://heremaps.github.io/xyz-maps/docs/interfaces/core.style.html#offsetX) / [Style.offsetY](https://heremaps.github.io/xyz-maps/docs/interfaces/core.style.html#offsetY).
+* added: All Point styles can now be offset along the z-axis. See: [offset](https://heremaps.github.io/xyz-maps/docs/interfaces/core.style.html#offsetZ).
+* added: It is now possible to specify the offset in pixels as well as meters for all point styles.
+* added: Style of type "Image" can now be offset in meters
+* fixed: Styled line segments of ring geometries were not rendered correctly.
+* fixed: Pointerevents are now triggered correctly in all cases for 3d Point styles
+### editor
+* added: The height of buildings can now be changed by the user using mouse or touch gestures
+* added: Support for custom set feature styles has been added and is respected when features require re-rendered due to editing operations.
+* added: The RangeSelector is now more flexible and also be used with generic LineString geometry.
+* fixed: In rare cases, stuttering could occur when dragging a RangeMarker.
+* fixed: The Range Overlapping detection now also works with specific sides.
+* fixed: Using the RangeSelector with circular topology has been improved.
+* fixed: The local edit history was possibly not correct when dragging a ShapePoint from two connected Areas.
+* fixed: dragging RangeMarkers when the map is rotated or pitched is now possible.
+* fixed: Pointer-events for Point styles that use viewport alignment may not be triggered.
+
 ## 0.29.0 (2022-7-13)
 ### display
 * added: Point Styles used with line geometry now supports line segments to allow for custom placement and styling. See: [Style.from](https://heremaps.github.io/xyz-maps/docs/interfaces/core.style.html#from) / [Style.to](https://heremaps.github.io/xyz-maps/docs/interfaces/core.style.html#to)
