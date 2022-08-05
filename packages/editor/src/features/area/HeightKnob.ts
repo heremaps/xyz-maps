@@ -170,6 +170,10 @@ class HeightKnob extends Feature {
         this.__.overlay.setFeatureCoordinates(this, center);
     }
 
+    remove() {
+        this.__.overlay.remove(this);
+    }
+
     hide() {
         this.__.overlay.hideFeature(this);
     }
