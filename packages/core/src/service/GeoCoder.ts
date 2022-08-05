@@ -161,7 +161,7 @@ class GeoCoder {
 
 
     /**
-     *  Request the reverse Geocode Resource.
+     *  HTTPRequest the reverse Geocode Resource.
      *  {@link https://developer.here.com/documentation/geocoder/dev_guide/topics/resource-reverse-geocode.html}
      *
      *  @param params - additional parameters for reverse geocode request
@@ -181,7 +181,7 @@ class GeoCoder {
 
 
     /**
-     *  Request reverse geocode request to receive ISO country code for a geographical position.
+     *  HTTPRequest reverse geocode request to receive ISO country code for a geographical position.
      *
      *  @param position - it is either an array [longitude, latitude] or an object literal \{longitude: number, latitude: number\}
      *  @param onSuccess - success callback which contains the iso country code.

@@ -40,13 +40,15 @@ import {
     GeoPoint,
     GeoRect,
     utils,
-    GeoJSONFeatureCollection, GeoJSONFeature, GeoJSONBBox, FeatureProvider
+    GeoJSONFeatureCollection, GeoJSONFeature, GeoJSONBBox, FeatureProvider, GeoJSONCoordinate as Point
 } from '@here/xyz-maps-core';
 import {FlightAnimator} from './animation/FlightAnimator';
 import Copyright from './ui/copyright/Copyright';
 import Logo from './ui/Logo';
 
 const project = webMercator;
+// const alt2z = webMercator.alt2z;
+const earthCircumference = webMercator.earthCircumference;
 
 const DEFAULT_ZOOM_ANIMATION_MS = 250;
 let DEFAULT_ZOOM_BEHAVIOR: 'fixed' | 'float' | boolean = 'fixed';
@@ -128,7 +130,7 @@ export class Map {
 
     private _tlwx: number;
     private _tlwy: number;
-
+    private _groundResolution: number;
     _wSize: number; // world size pixel
 
     private _vp: GeoRect; // viewport/viewbounds
@@ -367,7 +369,9 @@ export class Map {
 
         this._mvcRecognizer.watch(true);
 
-        display.setTransform(this._s, this._rz, this._rx, this._wSize);
+        this._groundResolution = earthCircumference(centerGeo.latitude) / this._wSize;
+
+        display.setTransform(this._s, this._rz, this._rx, this._groundResolution);
 
         display.updateGrid(this.initViewPort(), this._c, this._z, this._ox, this._oy);
 
@@ -1388,6 +1392,28 @@ export class Map {
      */
     _prj(world: number[]): number[] {
         return this._display.project(world[0], world[1], world[2]);
+    }
+
+    /**
+     * Translates a geographical coordinate (wgs84) along the x-, y- and z-axis in pixels.
+     *
+     * @internal
+     * @hidden
+     */
+    _translateGeoCoord(coordinate: number[], dx: number, dy: number, dz: number): number[] {
+        const map = this;
+        const zPixelToMeter = map._groundResolution / map._s;
+        // const zPixelToMeter = 1 / map._display.render.zMeterToPixel / map._display.render.scale;
+        let [longitude, latitude, altitude] = coordinate;
+
+        altitude += dz * zPixelToMeter;
+
+        if (dx || dy) {
+            const [x, y, z] = map._g2w(longitude, latitude, altitude);
+            [longitude, latitude, altitude] = map._w2g([x + dx, y + dy, z]);
+        }
+
+        return [longitude, latitude, altitude];
     }
 
     /**

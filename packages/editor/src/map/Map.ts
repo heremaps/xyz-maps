@@ -196,6 +196,10 @@ class Map {
         });
     }
 
+    translateZ(coordinate: Point, dz: number) {
+        return this.display._translateGeoCoord(coordinate, 0, 0, dz);
+    }
+
     // map.calcBearing = (c1, c2) => {
     //     let r; let l1; let l2; let l3; let l4; let dr;
     //     r = Math.PI / 180;

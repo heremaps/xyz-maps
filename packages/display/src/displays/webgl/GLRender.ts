@@ -570,7 +570,6 @@ export class GLRender implements BasicRender {
                 gl.uniform1f(uLocation.u_tileScale, tileScale || 1);
                 gl.uniformMatrix4fv(uLocation.u_matrix, false, pMat || this.vPMat);
                 gl.uniformMatrix4fv(uLocation.u_inverseMatrix, false, this.invVPMat);
-
                 gl.uniform1f(uLocation.u_zMeterToPixel, this.zMeterToPixel / dZoom);
 
                 program.draw(buffer);

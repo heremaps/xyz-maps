@@ -17,7 +17,7 @@
  * License-Filename: LICENSE
  */
 
-import {TaskManager} from '@here/xyz-maps-common';
+import {TaskManager, geometry} from '@here/xyz-maps-common';
 import {GeometryBuffer} from './GeometryBuffer';
 import {getValue, parseStyleGroup} from '../../styleTools';
 import {Tile, webMercator, StyleGroup, Feature, TileLayer} from '@here/xyz-maps-core';
@@ -26,7 +26,7 @@ import {FeatureFactory, CollisionGroup, GroupMap} from './FeatureFactory';
 import {TemplateBuffer} from './templates/TemplateBuffer';
 import {GlyphTexture} from '../GlyphTexture';
 
-import {centroid} from './addPolygon';
+const {centroid} = geometry;
 
 const PROCESS_FEATURE_BUNDLE_SIZE = 16;
 const EXCLUSIVE_TIME_MS = 4;
@@ -180,6 +180,8 @@ const createBuffer = (
                         if (vertexType == 'VerticalLine') {
                             geoBuffer.groups[0].mode = GeometryBuffer.MODE_GL_LINES;
                             geoBuffer.type = 'Polygon';
+                            geoBuffer.addUniform('u_fill', shared.stroke);
+                            geoBuffer.addUniform('u_offsetZ', [shared.offsetZ, 0]);
                         }
 
                         buffers.push(geoBuffer);
@@ -262,15 +264,15 @@ const createBuffer = (
                                     geoBuffer.addUniform('u_rotation', shared.rotation * TO_RAD);
                                 }
                                 geoBuffer.addUniform('u_alignMap', shared.alignment == 'map');
-                            } else if (type == 'VerticalLine') {
-                                geoBuffer.addUniform('u_fill', shared.stroke);
                             }
 
-                            geoBuffer.addUniform('u_offset', [
-                                shared.offsetX, shared.offsetUnit[0] == 'm' ? meterToPixel : 0,
-                                shared.offsetY, shared.offsetUnit[1] == 'm' ? meterToPixel : 0
-                            ]);
-                            geoBuffer.addUniform('u_offsetZ', [shared.offsetZ, shared.offsetUnit[2] == 'm' ? meterToPixel : 0]);
+                            if (shared.offsetUnit) {
+                                geoBuffer.addUniform('u_offset', [
+                                    shared.offsetX, shared.offsetUnit[0] == 'm' ? meterToPixel : 0,
+                                    shared.offsetY, shared.offsetUnit[1] == 'm' ? meterToPixel : 0
+                                ]);
+                                geoBuffer.addUniform('u_offsetZ', [shared.offsetZ, shared.offsetUnit[2] == 'm' ? meterToPixel : 0]);
+                            }
                         }
 
 

@@ -80,31 +80,4 @@ const addPolygon = (
     return flatPolygons;
 };
 
-
-const centroid = (polygon: Coordinate[][]): Coordinate => {
-    const interior = polygon[0];
-    const x0 = interior[0][0];
-    const y0 = interior[0][1];
-    let signedArea = 0;
-    let cx = 0;
-    let cy = 0;
-    let x1;
-    let y1;
-
-    for (let i = 0, {length} = interior, j = length - 1, x2, y2, a; i < length; j = i, i++) {
-        x1 = interior[i][0] - x0;
-        y1 = interior[i][1] - y0;
-        x2 = interior[j][0] - x0;
-        y2 = interior[j][1] - y0;
-        a = y1 * x2 - y2 * x1;
-        cx += (x1 + x2) * a;
-        cy += (y1 + y2) * a;
-        signedArea += a;
-    }
-    signedArea *= 3;
-
-    return signedArea ? [cx / signedArea + x0, cy / signedArea + y0] : [x1, y1];
-};
-
-
-export {addPolygon, centroid};
+export {addPolygon};

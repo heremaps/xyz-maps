@@ -24,6 +24,7 @@ import LRU from './LRU';
 import parseJSONArray from './parseJSONArray';
 import JSUtils from './JSUtils';
 import geotools from './geotools';
+import geometry from './geometry';
 import global from './global';
 import Set from './Set';
 import Map from './Map';
@@ -37,10 +38,10 @@ let scp: any = global;
 // support for deprecated root namespace
 (<any>global).HERE = (<any>global).here;
 
-const common = {LRU, TaskManager, Listener, parseJSONArray, JSUtils, geotools, global, Queue, Set, Map, vec3};
+const common = {LRU, TaskManager, Listener, parseJSONArray, JSUtils, geotools, global, Queue, Set, Map, vec3, geometry};
 
 scp.common = common;
 
-export {LRU, TaskManager, Task, TaskOptions, Listener, parseJSONArray, JSUtils, geotools, global, Queue, Set, Map, vec3};
+export {LRU, TaskManager, Task, TaskOptions, Listener, parseJSONArray, JSUtils, geotools, global, Queue, Set, Map, vec3, geometry};
 
 export default common;

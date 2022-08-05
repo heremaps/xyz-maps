@@ -1108,6 +1108,13 @@ export abstract class EditableRemoteTileProvider extends EditableFeatureProvider
     writeEditState(feature, editState: 'created' | 'modified' | 'removed' | 'split') {
     }
 
+    readFeatureHeight(feature: Feature): number | null {
+        return null;
+    };
+
+    writeFeatureHeight(feature: Feature, height: number) {
+        throw new Error(METHOD_NOT_IMPLEMENTED);
+    }
 
     reserveId(createdFeatures, cb: (ids: (string | number)[]) => void) {
         let len = createdFeatures.length;

@@ -30,13 +30,9 @@ import GLTile from './GLTile';
 import {FeatureFactory} from './buffer/FeatureFactory';
 import {CollisionHandler} from './CollisionHandler';
 import {GeometryBuffer} from './buffer/GeometryBuffer';
-import {TileLayer, webMercator} from '@here/xyz-maps-core';
+import {TileLayer} from '@here/xyz-maps-core';
 import {PASS} from './program/GLStates';
 import {Raycaster} from './Raycaster';
-
-// const alt2z = webMercator.alt2z;
-const earthCircumference = webMercator.earthCircumference;
-
 
 const PREVIEW_LOOK_AHEAD_LEVELS: [number, number] = [3, 9];
 
@@ -205,14 +201,13 @@ class WebGlDisplay extends BasicDisplay {
         }
     };
 
-    setTransform(scale: number, rotZ: number, rotX: number, worldSizePixel: number) {
+    setTransform(scale: number, rotZ: number, rotX: number, groundResolution: number) {
         // if (this.s != scale || this.rz != rotZ || this.rx != rotX)
         // {
         this.s = scale;
         this.rz = rotZ;
         this.rx = rotX;
 
-        const groundResolution = earthCircumference(this.cGeo.latitude) / worldSizePixel;
         const PI2 = 2 * Math.PI;
         rotZ = (rotZ + PI2) % PI2;
 

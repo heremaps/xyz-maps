@@ -20,6 +20,7 @@
 import oTools from './PolygonTools';
 import {Feature} from '../feature/Feature';
 import {GeoJSONCoordinate, GeoPoint, PixelPoint} from '@here/xyz-maps-core';
+import {HeightKnob} from './HeightKnob';
 
 const MIN_HOLE_SIZE = 8;
 
@@ -30,6 +31,15 @@ const throwError = (msg) => {
 const defaultBehavior = {
     snapCoordinates: true
 };
+
+
+export type PrivateDataArea = {
+    // area: Area;
+    // [name: string]: any;
+    // cAreas?: ConnectedArea[];
+    b: { [behavior: string]: boolean };
+    hk: HeightKnob
+}
 
 
 /**
@@ -46,7 +56,7 @@ class Area extends Feature {
      * @hidden
      * @internal
      */
-    __: { b: { [behavior: string]: boolean } }
+    __: PrivateDataArea;
 
     /**
      * Add a new shape point / coordinate to the area.

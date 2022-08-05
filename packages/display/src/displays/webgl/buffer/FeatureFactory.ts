@@ -427,7 +427,8 @@ export class FeatureFactory {
 
 
                 if (type == 'VerticalLine') {
-                    groupId = 'VL' + stroke;
+                    offsetZ = getValue('offsetZ', style, feature, level) || 0;
+                    groupId = 'VL' + stroke + offsetZ;
                     if (altitude == UNDEF) {
                         altitude = true;
                     }

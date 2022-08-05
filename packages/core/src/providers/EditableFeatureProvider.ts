@@ -268,6 +268,31 @@ export abstract class EditableFeatureProvider extends FeatureTileProvider {
     abstract writeEditState(feature: Feature, editState: 'created' | 'modified' | 'removed' | 'split');
 
 
+    /**
+     * Attribute reader for obtaining the Height of a Building (extruded {@link editor.Area | Area}).
+     * The height must be specified in meters.
+     *
+     * This method must be implemented to enable editing of the height of an extruded {@link editor.Area | Area}.
+     *
+     * @param feature - The Area feature whose height is requested.
+     *
+     * @returns The height in meters of the Building/Area or null if the Area is considered flat.
+     */
+    abstract readFeatureHeight(feature: Feature): number | null;
+
+    /**
+     * Attribute writer for storing the Height of a Building (extruded {@link editor.Area | Area}).
+     * The height must be specified in meters.
+     *
+     * This method must be implemented to enable editing of the height of an extruded {@link editor.Area | Area}.
+     *
+     * @param feature - The Area feature whose height should be updated/written.
+     * @param height - The height specified in meters
+     *
+     */
+    abstract readFeatureHeight(feature: Feature, height: number| null);
+
+
     readRoutingPoint(location): { link: NavlinkId, position: GeoJSONCoordinate } {
         return {
             link: this.readRoutingLink(location),

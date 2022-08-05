@@ -20,6 +20,7 @@
 import {getDistance, distanceToPolygon, getSegmentIndex, intersectLineLine, Point} from '../../geometry';
 import {AreaShape} from './AreaShape';
 import {VirtualAreaShape} from './VirtualShape';
+import {HeightKnob} from './HeightKnob';
 import {Area} from './Area';
 import {Feature, GeoJSONCoordinate} from '@here/xyz-maps-core';
 import FeatureTools from '../feature/FeatureTools';
@@ -123,6 +124,22 @@ function refreshGeometry(area: Area) {
         removeShapes(area);
         addShapes(area);
         addVShapes(area);
+
+        const height = area.getProvider().readFeatureHeight(area);
+
+        if (tools.isExtruded(area) && typeof height == 'number') {
+            let heightKnob = area.__.hk;
+
+            if (!heightKnob) {
+                heightKnob = area.__.hk = new HeightKnob(area, height, tools);
+                const overlay = area._e().objects.overlay;
+                overlay.addFeature(heightKnob);
+            } else {
+                heightKnob.show();
+            }
+
+            heightKnob.update(height);
+        }
     }
 }
 
@@ -177,6 +194,9 @@ const tools = {
 
         if (prv.isSelected) {
             removeShapes(area);
+
+            area.__.hk.hide();
+
             // area.toggleHover( true );
             area.editState('hovered', false);
             area.editState('selected', false);
@@ -201,18 +221,27 @@ const tools = {
         prv.allowEdit = editable;
     },
 
+    isExtruded(area: Area) {
+        const extrude = area._e().getStyleProperty(area, 'extrude');
+
+        if (typeof extrude == 'number') {
+            return true;
+        }
+    },
+
     _select: function(area: Area) {
         const prv = getPrivate(area);
+        const editor = area._e();
 
         if (!prv.isSelected) {
-            area._e().objects.selection.select(area);
-            area._e().dump(area, 'info');
+            editor.objects.selection.select(area);
+            editor.dump(area, 'info');
             // area.toggleHover(false);
             // setOrgiginalStyle();
             prv.isSelected = true;
             area.editState('selected', true);
             // display.setStyleGroup( feature );
-            area._e().setStyle(area);
+            editor.setStyle(area);
 
             refreshGeometry(area);
         }

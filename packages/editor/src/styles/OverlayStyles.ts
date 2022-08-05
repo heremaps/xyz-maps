@@ -169,6 +169,25 @@ class OverlayStyles {
             radius: (feature) => isHovered(feature) ? 6 : 4
         }],
 
+        'AREA_HEIGHT_KNOB': [{
+            zIndex: 4,
+            type: 'Sphere',
+            altitude: true,
+            fill: (feature, zoom) => {
+                const {fill, stroke} = feature.properties.AREA.style[0];
+                return isHovered(feature)
+                    ? '#777'
+                    : getValue(fill, feature, zoom) || getValue(stroke, feature, zoom);
+            },
+            radius: 10,
+            offsetZ: 50
+        }, {
+            zIndex: 3,
+            type: 'VerticalLine',
+            stroke: '#000',
+            offsetZ: 50
+        }],
+
         'LINE_SHAPE_3D': [{
             zIndex: 3,
             type: 'Sphere',

@@ -137,10 +137,15 @@ const getDragBehavior = (feature: Marker): { plane?: number[], axis?: number[] }
 };
 
 
-export const dragFeatureCoordinate = (toX: number, toY: number, feature, coordinate: number[], editor?: InternalEditor): number[] => {
+export const dragFeatureCoordinate = (
+    toX: number,
+    toY: number,
+    feature,
+    coordinate: number[],
+    editor: InternalEditor,
+    behavior: { plane?: number[], axis?: number[] } = getDragBehavior(feature)
+): number[] => {
     editor = editor || feature._e();
-
-    const behavior = getDragBehavior(feature);
     const display = editor.display;
     const rayStart = display._unprj(toX, toY, -1);
     const rayEnd = display._unprj(toX, toY, 0);
@@ -162,10 +167,10 @@ export const dragFeatureCoordinate = (toX: number, toY: number, feature, coordin
         const planeNormal = vec3.normalize([], vec3.cross([], vec3.sub([], plane3, plane2), vec3.sub([], plane1, plane2)));
         const iPnt = rayIntersectPlane(rayDir, rayStart, planeNormal, pntWorldPx);
 
-
         if (iPnt) {
             const pntWorldPx2 = vec3.add([], pntWorldPx, dragAxis);
             pntMovedWorldPx = getClosestPntOnLine(pntWorldPx2, pntWorldPx, iPnt);
+            // pntMovedWorldPx[2] -= 50;
         }
     }
 

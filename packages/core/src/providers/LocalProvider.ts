@@ -174,4 +174,12 @@ export class LocalProvider extends EditableFeatureProvider {
 
     writeEditState(feature, editState: 'created' | 'modified' | 'removed' | 'split') {
     }
+
+    readFeatureHeight(feature: Feature): number | null {
+        return null;
+    };
+
+    writeFeatureHeight(feature: Feature, height: number) {
+        throw new Error(METHOD_NOT_IMPLEMENTED);
+    }
 }

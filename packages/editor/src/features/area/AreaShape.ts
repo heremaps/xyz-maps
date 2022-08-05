@@ -248,6 +248,8 @@ class AreaShape extends Feature {
             if (!isMoved) {// first move ?
                 isMoved = true;
                 polygonTools.hideShape(polygonTools.private(area, 'midShapePnts'), overlay);
+                area.__.hk.hide();
+
                 triggerEvents(e, 'dragStart');
             }
 
@@ -277,6 +279,7 @@ class AreaShape extends Feature {
                 polygonTools.markAsModified(area);
             }
 
+            area.__.hk.show();
             polygonTools.addVShapes(area);
 
             triggerEvents(e, isMoved ? 'dragStop' : UNDEF);

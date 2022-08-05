@@ -55,6 +55,7 @@ export class SphereBuffer extends BoxBuffer {
         const radius: Vec3 = [r * scaleX, r * scaleY, r * scaleZ];
 
         let [offsetX, offsetY, offsetZ] = getOffsetPixel(buffer, rayCaster.scale);
+
         offsetX *= scaleX;
         offsetY *= scaleY;
         offsetZ *= scaleZ;
