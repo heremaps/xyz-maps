@@ -64,11 +64,10 @@ void main(void){
         if (u_alignMap){
             float absRotation = mod(u_rotate + rotation, PI_20);
 
-//            if (absRotation > PI_05 && absRotation < PI_15){
-//                rotation += M_PI;
-//                labelOffset *= -1.0;
-//            }
-
+            if (absRotation > PI_05 && absRotation < PI_15){
+                rotation += M_PI;
+                labelOffset *= -1.0;
+            }
 
             vec2 _p = a_point.xy * OFFSET_SCALE + labelOffset;
             vec3 p = rotateY(vec3(_p, 1.0), a_point.z/32767.0 * PI_20);
