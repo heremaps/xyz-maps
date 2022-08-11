@@ -49,6 +49,7 @@ const createTileBuffer = (tileSize: number) => {
         size: 2
     });
 
+    gridTileBuffer.addUniform('u_offsetZ', [0, 0]);
     gridTileBuffer.addUniform('u_zIndex', 0.0);
     gridTileBuffer.addUniform('u_fill', [1.0, .0, 1.0, 1.0]);
     gridTileBuffer.scissor = true;

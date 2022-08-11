@@ -590,7 +590,7 @@ export class GLRender implements BasicRender {
         this.stencilY = y;
     };
 
-    drawStencil(refVal: number) {
+    private drawStencil(refVal: number) {
         // return this.gl.stencilFunc(this.gl.ALWAYS, 0, 0);
         if (this.rx || this.rz) {
             const {gl, stencilTile} = this;
@@ -602,14 +602,7 @@ export class GLRender implements BasicRender {
             // disable color buffer
             gl.colorMask(false, false, false, false);
 
-            this.drawBuffer(
-                stencilTile,
-                x, y,
-                null,
-                // layerZ / Infinity -> always draw stencil at z0 to avoid artifacts on tile boundaries
-                Infinity,
-                this.stencilSize
-            );
+            this.drawBuffer(stencilTile, x, y, null, null, this.stencilSize);
 
             gl.stencilFunc(gl.EQUAL, refVal, 0xff);
             // disable writing to stencil buffer
