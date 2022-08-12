@@ -536,19 +536,12 @@ class ObjectManager {
                 }
 
 
-                if (
-                    !options.onlyExsitingShape && (
-                        // if no point is found already search for more...
-                        (foundPoint == UNDEF || // if found already and within shapeTReshold we do not need to calculate..
-                            minFoundDistance > options.shapeThreshold)
-                    )
-                ) {
+                if (!options.onlyExsitingShape) {
                     for (let i = 0; i < path2d.length - 1; i++) {
                         if (
                             p = getPntOnLine(path2d[i], path2d[i + 1], point)
                         ) {
                             p = HERE_WIKI.map.getGeoCoord(p);
-
                             // do not define zlevel to skip zlevel matching..
                             d = getDistance([p[0], p[1]]);
 

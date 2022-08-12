@@ -24,7 +24,7 @@ import {Editor} from '@here/xyz-maps-editor';
 import {features} from '@here/xyz-maps-editor';
 import dataset from './xtestmaxdistance_spec.json';
 
-describe('set XTestMaxDistance', function() {
+describe('CrossingTester', function() {
     const expect = chai.expect;
 
     let editor;
@@ -50,11 +50,11 @@ describe('set XTestMaxDistance', function() {
         display.destroy();
     });
 
-    it('set XTestMaxDistance, validate new link created', async function() {
+    it('set snapTolerance, validate new link created', async function() {
         editor.destroy();
         editor = new Editor(display, {
             layers: preparedData.getLayers(),
-            XTestMaxDistance: 5
+            snapTolerance: 5
         });
 
         await waitForEditorReady(editor, ()=>{
@@ -71,7 +71,7 @@ describe('set XTestMaxDistance', function() {
         expect(crx).to.have.lengthOf(1);
     });
 
-    it('reset XTestMaxDistance, validate new link created again', async function() {
+    it('reset snapTolerance, validate new link created again', async function() {
         editor.destroy();
         editor = new Editor(display, {
             layers: preparedData.getLayers()

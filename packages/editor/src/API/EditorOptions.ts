@@ -76,12 +76,12 @@ interface EditorOptions {
      */
     intersectionScale?: number;
 
-    /**
-     * Maximum variance for crossing candidate detection of Navlink Features in meters.
-     *
-     * @defaultValue 2
-     */
-    XTestMaxDistance?: number;
+    // /**
+    //  * Maximum variance for crossing candidate detection of Navlink Features in meters.
+    //  *
+    //  * @defaultValue 2
+    //  */
+    // XTestMaxDistance?: number;
 
 
     /**
@@ -188,7 +188,7 @@ const defaultOptions: EditorOptions = {
     snapTolerance: 2, // 2 meter
     intersectionScale: 5,
     routingPointPrecision: 5,
-    XTestMaxDistance: 2,
+    // XTestMaxDistance: 2,
     disconnectShapeDistance: 3,
     keepFeatureSelection: 'viewportChange',
     featureSelectionByDefault: true,

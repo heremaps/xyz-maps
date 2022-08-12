@@ -79,7 +79,6 @@ class CrossingTester {
     private relatedLink: Navlink[];
     private searchType: string;
     private maxDistance: number;
-    private shapeThreshold: number;
     private cStyles: { [name: string]: Style[] };
     private foundCrossings: Crossing[] = [];
     private simpleCrossings: Crossing[] = [];
@@ -186,10 +185,11 @@ class CrossingTester {
             }
         }
         const path = link.coord();
+
         const nline = this.iEditor.objects.getNearestLine(path[shape], lines, {
             ignore: (navlink) => skipIds.indexOf(navlink.id) != -1,
             maxDistance: this.maxDistance, // search radius in meter
-            shapeThreshold: this.shapeThreshold, // shapeThreshold,
+            // shapeThreshold: this.shapeThreshold,
             onlyExsitingShape: false // (j == 0 || j == path.length-1) ? false : true
         });
 
@@ -293,8 +293,7 @@ class CrossingTester {
             this.relatedLink = this.relatedLink.concat(option.links);
         }
 
-        this.maxDistance = option['maxDistance'] || this.iEditor._config['XTestMaxDistance'] || 3;
-        this.shapeThreshold = this.iEditor._config['snapTolerance'];
+        this.maxDistance = option.maxDistance || this.iEditor._config.snapTolerance || 3;
 
         // calculate crossings if it is never calculated or link is modified after the calculation
         // if links is given, then force to do a calculating with the given links
