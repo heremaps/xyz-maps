@@ -92,4 +92,18 @@ export class IMLProvider extends SpaceProvider {
     getLayerUrl(layer: string) {
         return this.url + '/catalogs/' + this.catalog + '/layers/' + layer;
     }
+
+    /**
+     * update config options of the provider.
+     *
+     * @param options - options to configure the provider
+     */
+    config(options: IMLProviderOptions) {
+        const token = options?.credentials?.token;
+        if (token) {
+            this.token = token;
+            delete options.credentials.token;
+        }
+        return super.config(options);
+    };
 }

@@ -27,6 +27,7 @@ import {GeoJSONProvider} from '../GeoJSONProvider';
 import {PostProcessor, PostProcesserInput, isPreprocessor} from '../RemoteTileProvider/processors';
 import {HTTPLoader} from '../../loaders/HTTPLoader';
 import {HTTPRequest} from '../../loaders/HTTPLoader';
+import {HTTPProviderOptions} from '../HTTPProvider/HTTPProviderOptions';
 
 const NS_XYZ = '@ns:com:here:xyz';
 
@@ -111,7 +112,12 @@ export class SpaceProvider extends GeoJSONProvider {
      *
      * @param options - options to configure the provider
      */
-    config(options: SpaceProviderOptions) {
+    config(options: SpaceProviderOptions | HTTPProviderOptions) {
+        const credentials = (options as SpaceProviderOptions)?.credentials;
+        if (credentials) {
+            delete (<SpaceProviderOptions>options).credentials;
+            this.setParams(credentials);
+        }
         return super.config(options);
     };
 
