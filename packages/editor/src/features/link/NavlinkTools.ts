@@ -128,8 +128,7 @@ function triggerDisplayRefresh(line: Navlink, editStates?: {}) {
         }
     }
 
-
-    line._e().setStyle(line, UNDEF);
+    line._e().setStyle(line, 'default');
 }
 
 function storeConnectedPoints(line: Navlink) {

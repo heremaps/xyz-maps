@@ -199,7 +199,7 @@ export default class InternalEditor {
         return 1 + this.display.getLayers().indexOf(this.getLayer(feature));
     }
 
-    setStyle(feature: Feature, style?: StyleGroup, merge?: boolean) {
+    setStyle(feature: Feature, style?: StyleGroup | 'default', merge?: boolean) {
         const layer = this.getLayer(feature);
 
         if (style == UNDEF) {
@@ -207,6 +207,8 @@ export default class InternalEditor {
             // the style won't be reset with the default layer style, but the custom style will be kept
             // and a refresh for possible style update of styleAttributeFunctions is triggered.
             style = layer._getCustomStyleGroup(feature);
+        } else if (style == 'default') {
+            style = UNDEF;
         }
 
         // @ts-ignore: merge attribute is "internal"
