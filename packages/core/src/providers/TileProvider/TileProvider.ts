@@ -51,8 +51,6 @@ export default abstract class TileProvider {
      */
     margin?: number = 0;
 
-    dep = {};
-
     level: number;
 
     Tile = Tile;

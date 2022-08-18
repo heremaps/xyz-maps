@@ -225,7 +225,7 @@ class WebGlDisplay extends BasicDisplay {
         const tileSize = layer.tileSize;
         const displayLayer = this.layers.get(layer.id);
 
-        if (tile.type == 'image') {
+        if (tile.type == 'image' && data instanceof Image) {
             const buffer = createImageBuffer(data, gl, tileSize, displayLayer.index > 0);
             // make sure image tiles are considered by global zIndex
             displayLayer.addZ(buffer.zIndex);

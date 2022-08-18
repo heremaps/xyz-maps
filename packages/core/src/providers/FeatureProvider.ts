@@ -673,7 +673,6 @@ export class FeatureProvider extends Provider {
             }
 
             provider.cnt = cnt;
-            provider.dep = {};
             provider.IDPOOL = protectedFeatures;
 
             // Provider clears complete tile storage
@@ -683,40 +682,40 @@ export class FeatureProvider extends Provider {
         provider.dispatchEvent('clear', {tiles: dataQuads});
     };
 
-    _insert(o, tile?: Tile) {
+    _insert(feature: Feature, tile?: Tile) {
         // TODO: overwrite for providers providing splitted geo from tilehub
-        const id = o.id;// + o.bbox;
+        const id = feature.id;// + o.bbox;
 
         let inserted = null;
-        const Feature = this.getFeatureClass(o);
+        const FeatureClass = this.getFeatureClass(feature);
 
         const filter = this.filter;
 
         // if( typeof this.filter != 'function' || this.filter(o) )
-        if (!filter || filter(o)) {
+        if (!filter || filter(feature)) {
             // filter out the duplicates!!
             if (
                 this.IDPOOL[id] === UNDEF
             ) { // not in tree already??
                 this.cnt++;
 
-                if (this.isFeatureInstance(o, Feature)) {
-                    o._provider = this;
+                if (this.isFeatureInstance(feature, FeatureClass)) {
+                    (<any>feature)._provider = this;
                 } else {
                     // USE FOR FASTER PROP LOOKUP -> FASTER COMBINE ACROSS TILES!
 
-                    o = this.createFeature(o, Feature);
+                    feature = this.createFeature(feature, FeatureClass);
                 }
 
-                this.updateBBox(o);
+                this.updateBBox(feature);
 
-                this.IDPOOL[id] = new FeatureStorageInfo(o);
+                this.IDPOOL[id] = new FeatureStorageInfo(feature);
 
-                inserted = o;
+                inserted = feature;
             }
 
             if (tile) {
-                this._mark(o, tile);
+                this._mark(feature, tile);
             }
         }
 
@@ -730,6 +729,7 @@ export class FeatureProvider extends Provider {
         if ( // pool &&
             !pool[tile.quadkey]
         ) {
+            // debugger;
             pool.cnt++;
             pool[tile.quadkey] = true;
             // this.IDPOOL[ o.id ][tile.quadkey] = tile;
@@ -739,19 +739,9 @@ export class FeatureProvider extends Provider {
 
     _removeTile(tile: Tile, triggerEvent) {
         const prov = this;
-        let depTiles;
+        // let depTiles;
         let data;
         const qk = tile.quadkey;
-
-        // var t1 = performance.now();
-
-        if (depTiles = prov.dep[qk]) {
-            for (var d = 0; d < depTiles.length; d++) {
-                prov.storage.remove(depTiles[d]);
-            }
-
-            delete prov.dep[qk];
-        }
 
         prov.storage.remove(tile);
 
@@ -760,13 +750,6 @@ export class FeatureProvider extends Provider {
                 prov._dropFeature(data[d], qk, triggerEvent);
             }
         }
-
-        // console.log(
-        //     'loader tile removed', tile.quadkey,
-        //     'dep', (depTiles && depTiles.length)||0,
-        //     'features', data && data.length,
-        //     'in', performance.now() - t1, 'ms'
-        // );
     };
 
     _dropFeature(feature: Feature, qk: string, trigger?: boolean) {

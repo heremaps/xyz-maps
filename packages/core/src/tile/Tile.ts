@@ -61,7 +61,7 @@ export class Tile {
     data: any;
     loadStartTs: number;
     loadStopTs: number;
-    error: {};
+    error?: any;
     provider: any;
     onLoaded: any;
 

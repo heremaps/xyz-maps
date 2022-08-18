@@ -276,7 +276,7 @@ export class SpaceProvider extends GeoJSONProvider {
     };
 
     setUrl(url: string) {
-        this.loader.setUrl(
+        this._httpLoader().setUrl(
             this._addUrlCredentials(url)
         );
     };

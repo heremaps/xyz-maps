@@ -21,58 +21,73 @@ import TileProvider from './TileProvider/TileProvider';
 import {Tile} from '../tile/Tile';
 import LRUStorage from '../storage/LRUStorage';
 import GenericLoader from '../loaders/Manager';
-import {HTTPLoader, NetworkError} from '../loaders/HTTPLoader';
-
-let UNDEF;
-
-const timestamp = () => +new Date;
-
-
-const finishTile = (tile: Tile, data) => {
-    tile.loadStopTs = timestamp();
-    tile.data = data;
-
-    for (let onload of tile.onLoaded) {
-        onload(tile);
-    }
-    tile.onLoaded = UNDEF;
-};
+import {HTTPLoader} from '../loaders/HTTPLoader';
+import {TileLoadDelegator} from './RemoteTileProvider/TileLoadDelegator';
+import {ImageProviderOptions} from './ImageProviderOptions';
 
 /**
  *  Tile Provider for Image/Raster data.
  *  eg: Satellite Tiles.
  */
 export class ImageProvider extends TileProvider {
-    private loader: GenericLoader;
     name = '';
     /**
      *  The opacity with which the image data should be displayed.
      */
     private opacity: number = 1;
     dataType = 'image';
+    private tileLoader: TileLoadDelegator;
+    private errorImage: HTMLImageElement;
 
     /**
      *  @param options - options to configure the provider
      */
-    constructor(options) {
+    constructor(options: ImageProviderOptions) {
         super({
             storage: new LRUStorage(512),
             ...options
         });
 
-        const provider = this;
+        if (typeof options.errorImage == 'string') {
+            const errorImg = new Image();
+            errorImg.src = options.errorImage;
+            this.errorImage = errorImg;
+        }
 
-        if (!provider.loader) {
-            provider.loader = new GenericLoader(
+
+        const processTileResponse = (tile: Tile, data: any, onDone: (data: any) => void, xhr?: XMLHttpRequest) => {
+            if (tile.error) {
+                if (this.errorImage) {
+                    data = this.errorImage;
+                } else if (tile.error.statusCode == 404) {
+                    // support for "FileNotFound(404) Image tiles"
+                    const {response} = xhr;
+                    if (response instanceof Blob && response.type.startsWith('image')) {
+                        return HTTPLoader.createImageFromBlob(response, (img) => {
+                            onDone(img);
+                        });
+                    }
+                }
+            }
+            onDone(data);
+        };
+
+
+        this.tileLoader = new TileLoadDelegator({
+            provider: this,
+            loader: new GenericLoader(
                 new HTTPLoader({
                     url: options['url'],
                     headers: {
                         'Accept': '*/*'
                     }
                 })
-            );
-        }
+            ),
+            preProcessor: options.preProcessor,
+            processTileResponse
+        });
     }
+
 
     /**
      * Get a tile by quadkey.
@@ -82,64 +97,11 @@ export class ImageProvider extends TileProvider {
      * @returns the Tile is returned if its already cached locally
      */
     getTile(quadkey: string, cb: (tile: Tile) => void) {
-        const provider = this;
-        const loader = provider.loader;
-        const storage = provider.storage;
-        let tile;
-
-        if ((tile = storage.get(quadkey)) === UNDEF) {
-            storage.set(
-                tile = provider.createTile(quadkey)
-            );
-            tile.onLoaded = [];
-        }
-
-        if (!tile.loadStopTs) {
-            if (cb) {
-                if (tile.onLoaded.indexOf(cb) == -1) {
-                    tile.onLoaded.push(cb);
-                }
-                // tile.onLoaded[_cbID || Math.random()] = cb;
-            }
-        } else {
-            if (cb) {
-                cb(tile);
-            }
-            return tile;
-        }
-
-        if (!tile.loadStartTs) {
-            tile.loadStartTs = timestamp();
-
-            loader.tile(tile,
-                (data) => finishTile(tile, data),
-                (e: NetworkError, xhr: XMLHttpRequest) => {
-                    // support for "FileNotFound(404) Image tiles"
-                    if (e.statusCode == 404 && xhr.responseType == 'blob') {
-                        HTTPLoader.createImageFromBlob(xhr.response, (data) => {
-                            finishTile(tile, data);
-                        });
-                    } else {
-                        tile.loadStopTs = timestamp();
-                        tile.error = e;
-                    }
-                });
-        }
-        return tile;
+        return this.tileLoader.getTile(quadkey, cb);
     };
-
 
     _removeTile(tile: Tile) {
-        // if tile hasn't been fully loaded already, request needs to be aborted..
-        if (!tile.isLoaded()) {
-            this.storage.remove(tile);
-
-            this.loader.abort(tile);
-        }
-    };
-
-    getLoader() {
-        return this.loader;
+        this.tileLoader.drop(tile);
     };
 
     /**
@@ -147,7 +109,7 @@ export class ImageProvider extends TileProvider {
      *
      *  @param bbox - array of geographical coordinates [minLon, minLat, maxLon, maxLat] defining the area to clear.
      */
-    clear(bbox?: number[]) {
+    clear(bbox ?: number[]) {
         const provider = this;
         let dataQuads = null;
 
@@ -159,7 +121,8 @@ export class ImageProvider extends TileProvider {
             for (let d = 0, tile; d < dataQuads.length; d++) {
                 tile = dataQuads[d];
 
-                provider.storage.remove(tile);
+                this.tileLoader.drop(tile);
+                // provider.storage.remove(tile);
 
                 dataQuads[d] = tile.quadkey;
             }
@@ -168,7 +131,8 @@ export class ImageProvider extends TileProvider {
         }
 
         provider.dispatchEvent('clear', {tiles: dataQuads});
-    };
+    }
+    ;
 
     /**
      * Cancel ongoing request(s) and drop the tile.
@@ -183,17 +147,7 @@ export class ImageProvider extends TileProvider {
      */
     cancel(tile: Tile): void;
     cancel(quadkey: string | Tile) {
-        let tile;
-
-        if (quadkey instanceof Tile) {
-            tile = quadkey;
-        } else {
-            tile = this.storage.get(quadkey);
-        }
-
-        if (tile) {
-            this._removeTile(tile);
-        }
+        return this.tileLoader.cancel(quadkey);
     };
 }
 

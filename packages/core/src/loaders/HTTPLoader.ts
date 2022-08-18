@@ -83,13 +83,14 @@ class HTTPLoader implements TileLoader {
     baseUrl = null;
     q = {}; // queue
 
-    static createImageFromBlob(blob: Blob, cb: (img) => void) {
+    static createImageFromBlob(blob: Blob, cb?: (img) => void) {
         const img = new Image();
         img.onload = (e) => {
             global.URL.revokeObjectURL(img.src);
-            cb(img);
+            if (cb) cb(img);
         };
         img.src = global.URL.createObjectURL(blob);
+        return img;
     }
 
     constructor(options: { [key: string]: any }) {

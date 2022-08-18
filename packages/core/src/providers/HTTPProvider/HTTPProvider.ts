@@ -73,6 +73,11 @@ abstract class HTTPProvider extends EditableRemoteTileProvider {
         this.setHeaders(options.headers || {});
     }
 
+    protected _httpLoader(): HTTPLoader {
+        const loaders = this.remoteTileLoader.loader.src;
+        return loaders[loaders.length - 1];
+    }
+
     /**
      *  Get a specific request-header being added to all requests handled by the provider.
      *
@@ -81,8 +86,7 @@ abstract class HTTPProvider extends EditableRemoteTileProvider {
      *  @returns value of the request header or null if the header does not exist
      */
     getHeader(name: string): string | null {
-        const loaders = this.loader.src;
-        return loaders[loaders.length - 1].headers[name] || null;
+        return this._httpLoader().headers[name] || null;
     }
 
     /**
@@ -91,8 +95,7 @@ abstract class HTTPProvider extends EditableRemoteTileProvider {
      *  @returns Map of key value pairs. the key represents the header name
      */
     getHeaders(): { [name: string]: string } {
-        const loaders = this.loader.src;
-        return JSUtils.clone(loaders[loaders.length - 1].headers);
+        return JSUtils.clone(this._httpLoader().headers);
     }
 
     /**
@@ -102,12 +105,11 @@ abstract class HTTPProvider extends EditableRemoteTileProvider {
      *  @param value - The value to set as the body of the header.
      */
     setHeader(name: string, value: string) {
-        const loaders = this.loader.src;
         let headers = this.getHeaders();
 
         headers[name] = value;
 
-        loaders[loaders.length - 1].headers = headers;
+        this._httpLoader().headers = headers;
         this.headers = headers;
     }
 
@@ -117,12 +119,11 @@ abstract class HTTPProvider extends EditableRemoteTileProvider {
      *  @param map - Map of key value pairs. the key represents the header name.
      */
     setHeaders(headers: { [name: string]: string }) {
-        const loaders = this.loader.src;
         let _headers = this.getHeaders();
 
         JSUtils.extend(_headers, headers);
 
-        loaders[loaders.length - 1].headers = _headers;
+        this._httpLoader().headers = _headers;
         this.headers = _headers;
     }
 
@@ -158,8 +159,7 @@ abstract class HTTPProvider extends EditableRemoteTileProvider {
      *  @param map - A map of key value pairs. the key represents the parameter name. Possible value types are string, string[] or undefined. If undefined is used parameter get's cleared/removed.
      */
     setParams(parameters: { [name: string]: string | string[] | undefined }) {
-        const loaders = this.loader.src;
-        const loader = loaders[loaders.length - 1];
+        const loader = this._httpLoader();
         const url = loader.baseUrl;
         let params = this.params || {};
 
@@ -225,7 +225,7 @@ abstract class HTTPProvider extends EditableRemoteTileProvider {
      *
      *  @returns url string to receive the feature resource of the remote http backend
      */
-    abstract getFeatureUrl(layer:string, featureId: string|number): string;
+    abstract getFeatureUrl(layer: string, featureId: string | number): string;
 
 
     /**
@@ -234,7 +234,7 @@ abstract class HTTPProvider extends EditableRemoteTileProvider {
      *  @param layer - the id of the layer
      *  @returns url string to receive a layer resource of the remote http backend
      */
-    abstract getLayerUrl(layer:string): string;
+    abstract getLayerUrl(layer: string): string;
 
 
     /**
@@ -243,7 +243,7 @@ abstract class HTTPProvider extends EditableRemoteTileProvider {
      *  @param layer - the id of the layer
      *  @returns url string to receive a tile resource of the remote http backend
      */
-    abstract getTileUrl(layer:string): string;
+    abstract getTileUrl(layer: string): string;
 
     // request individual features from backend
     _requestFeatures(ids, onSuccess, onError, opt?) {
