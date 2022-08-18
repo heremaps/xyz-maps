@@ -414,10 +414,8 @@ class ObjectManager {
             feature = createFeature(feature);
 
             if (featureClass === 'NAVLINK') {
-                // Make sure zlevels are set!
-                feature.geometry.coordinates.forEach((c) => {
-                    c[2] = c[2] ^ 0;
-                });
+                // make sure altitude is set.
+                feature.geometry.coordinates.forEach((c) => c[2] ||= 0);
 
                 // in case of history recovering disable autofix to guarantee geometry is created 1:1 and not modified!
                 if (!history) {
