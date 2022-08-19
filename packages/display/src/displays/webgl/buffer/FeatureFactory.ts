@@ -659,7 +659,7 @@ export class FeatureFactory {
 
                     if (collisionGroup) {
                         collisionData = this.collisions.insert(
-                            x, y,
+                            x, y, z,
                             collisionGroup.offsetX,
                             collisionGroup.offsetY,
                             collisionGroup.width,

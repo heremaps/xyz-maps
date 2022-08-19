@@ -105,15 +105,15 @@ export class LineFactory {
 
     private placeCached(place: PlacePointCallback, tile: Tile, tileSize: number, applyRotation?: boolean) {
         const {collisions} = this;
-        const z = 0;
-        for (let i = 0, cData; i < collisions.length; i++) {
+        for (let i = 0, cData: CollisionData; i < collisions.length; i++) {
             cData = collisions[i];
-            let {cx, cy} = cData;
+            let {cx, cy, cz} = cData;
+
             if (tileSize == 256) {
                 cx -= tile.x % 2 * tileSize;
                 cy -= tile.y % 2 * tileSize;
             }
-            place(cx, cy, z, applyRotation ? this.alpha[i] : 0, 0, cData);
+            place(cx, cy, cz, applyRotation ? this.alpha[i] : 0, 0, cData);
         }
     }
 
@@ -342,7 +342,7 @@ export class LineFactory {
                     distanceGrp = this.getDistanceGrp();
                     if (!distanceGrp || distanceGrp.hasSpace(x, y)) {
                         collisionData = collisions.insert(
-                            x, y,
+                            x, y, z,
                             offsetX, offsetY,
                             halfWidth, halfHeight,
                             tile, tileSize,
@@ -481,7 +481,7 @@ export class LineFactory {
                             const slopeScale = Math.sqrt(sqWidth / sqLineWidth);
                             const slope = [dx * slopeScale, dy * slopeScale];
 
-                            collisionData = collisions.insert(cx, cy, ox, oy, width / 2, height / 2, tile, tileSize, priority, slope);
+                            collisionData = collisions.insert(cx, cy, cz, ox, oy, width / 2, height / 2, tile, tileSize, priority, slope);
 
                             if (collisionData) {
                                 this.alpha[checkCollisions.length] = alpha * TO_DEG;

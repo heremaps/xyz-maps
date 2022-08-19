@@ -43,6 +43,7 @@ export type CollisionData = {
     priority: number,
     cx?: number,
     cy?: number,
+    cz?: number,
     offsetX?: number,
     offsetY?: number,
     halfWidth?: number,
@@ -206,6 +207,7 @@ export class CollisionHandler {
     insert(
         cx: number,
         cy: number,
+        cz: number,
         offsetX: number,
         offsetY: number,
         halfWidth: number,
@@ -259,7 +261,7 @@ export class CollisionHandler {
         }
 
         const collisionData: CollisionData = {
-            cx, cy,
+            cx, cy, cz,
             halfWidth, halfHeight,
             offsetX, offsetY,
             boxes,
