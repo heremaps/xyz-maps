@@ -23,10 +23,28 @@ import {TileProviderOptions} from './TileProvider/TileProviderOptions';
  * Options to configure the ImageProvider.
  */
 export interface ImageProviderOptions extends TileProviderOptions {
+
+    /**
+     * URL for requesting tiles.
+     *
+     * It is either a string which may contain following flags that will be replaced by provider:
+     * - \{SUBDOMAIN_CHAR\}: subdomain id(a, b, c and d) for balancing the load
+     * - \{SUBDOMAIN_INT\}: subdomain id(0,1,2 and 3) for balancing the load
+     * - \{SUBDOMAIN_INT_1_4\}: subdomain id(1,2,3 and 4) for balancing the load
+     * - \{QUADKEY\}: quadkey of the tile to be requested
+     * - \{Z\}:  z of the tile to be requested
+     * - \{X\}:  x of the tile to be requested
+     * - \{Y\}:  y of the tile to be requested
+     *
+     * or a callback function that's called with the following parameters z,y,x,quadkey and needs to return the url for the respective tile.
+     * The callback function needs to handle custom parameters by its own.
+     */
+    url: string | ((z: number, y: number, x: number, quadkey: string) => string);
+
     /**
      * An Image url or Image that will be displayed for errored tile requests.
      */
-    errorImage: string | HTMLImageElement
+    errorImage?: string | HTMLImageElement
 
     /**
      * PreProcessor for remote data sources.
