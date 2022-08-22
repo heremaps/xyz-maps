@@ -85,6 +85,61 @@ export class FeatureProvider extends Provider {
         ].forEach((type) => this.listeners.addEvent(type));
     }
 
+    protected loadTileData(tile: Tile, data: any[], onDone: (data: any) => void) {
+        const provider = this;
+        const unique = [];
+        let len = data.length;
+        let prepared;
+        let inserted;
+        let o;
+
+        for (var i = 0; i < len; i++) {
+            prepared = provider.prepareFeature(o = data[i]);
+
+            if (prepared !== false) {
+                o = prepared;
+
+                inserted = provider._insert(o, tile);
+
+                // filter out the duplicates!!
+                if (inserted) {
+                    o = inserted;
+                    unique[unique.length] = o;
+                } else if (/* provider.indexed &&*/ !provider.tree) { // NEEDED FOR MULTI TREE!
+                    unique[unique.length] = provider.getFeature(o.id);
+                }
+            } else {
+                // unkown feature
+                console.warn('unkown feature detected..', o.geometry.type, o);
+                data.splice(i--, 1);
+                len--;
+            }
+        }
+
+        data = unique;
+
+        // if( provider.indexed )
+        // {
+        if (provider.tree) {
+            provider.tree.load(data);
+        }
+        // }
+
+        data = provider.clipped
+            ? data
+            : provider.search(tile.getContentBounds());
+
+        onDone(data);
+        // if (provider.margin) {
+        //     // additional mark in dep tiles is required because actual data of tile is bigger
+        //     // than received data..It may also contain data of neighbour tiles
+        //     for (var d = 0, l = tile.data.length; d < l; d++) {
+        //         provider._mark(tile.data[d], tile);
+        //     }
+        // }
+        // provider.execTile(tile);
+    }
+
 
     /**
      * Add a feature to the provider.

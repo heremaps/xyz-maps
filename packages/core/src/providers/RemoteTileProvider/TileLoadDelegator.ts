@@ -120,12 +120,12 @@ export class TileLoadDelegator {
     protected handleTileResponse(tile: Tile, data: any, xhr?: XMLHttpRequest, onDone?: () => void) {
         const proccessd = (data: any) => {
             tile.data = data;
-            tile.loadStopTs = Date.now();
-
             this.execTile(tile);
-
             if (onDone) onDone();
         };
+
+        tile.loadStopTs = Date.now();
+
         this.processTileResponse(tile, data, proccessd, xhr);
     }
 

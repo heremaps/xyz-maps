@@ -101,7 +101,12 @@ export abstract class EditableRemoteTileProvider extends EditableFeatureProvider
             loader,
             level: provider.level,
             preProcessor,
-            processTileResponse: (tile, data, onDone, xhr) => this.attachData(tile, data, onDone, xhr)
+            processTileResponse: (tile, data, onDone) => {
+                if (tile.error) {
+                    return onDone(tile.data);
+                }
+                this.loadTileData(tile, data, onDone);
+            }
         });
 
 
@@ -732,63 +737,6 @@ export abstract class EditableRemoteTileProvider extends EditableFeatureProvider
         // TODO: add support for partial loader clearance
         super.clear.apply(this, arguments);
     };
-
-    private attachData(tile: Tile, data: any[], onDone: (data: any) => void, xhr?: XMLHttpRequest) {
-        const provider = this;
-        const unique = [];
-        let prepared;
-        let inserted;
-        let o;
-
-        if (tile.error) {
-            return onDone(tile.data);
-        }
-
-
-        for (var i = 0, len = data.length; i < len; i++) {
-            prepared = provider.prepareFeature(o = data[i]);
-
-            if (prepared !== false) {
-                o = prepared;
-
-                inserted = provider._insert(o, tile);
-
-                // filter out the duplicates!!
-                if (inserted) {
-                    o = inserted;
-                    unique[unique.length] = o;
-                } else if (/* provider.indexed &&*/ !provider.tree) { // NEEDED FOR MULTI TREE!
-                    unique[unique.length] = provider.getFeature(o.id);
-                }
-            } else {
-                // unkown feature
-                console.warn('unkown feature detected..', o.geometry.type, o);
-                data.splice(i--, 1);
-                len--;
-            }
-        }
-
-
-        data = unique;
-
-
-        tile.loadStopTs = Date.now();
-
-        // if( provider.indexed )
-        // {
-        if (provider.tree) {
-            provider.tree.load(data);
-        }
-        // }
-
-        // tile.data = provider.clipped
-        data = provider.clipped
-            ? data
-            : provider.search(tile.getContentBounds());
-
-
-        onDone(data);
-    }
 
     /**
      * Get a tile by quadkey.
