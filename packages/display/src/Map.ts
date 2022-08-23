@@ -1395,6 +1395,25 @@ export class Map {
     }
 
     /**
+     * Get the camera of the current viewport.
+     *
+     * @experimental
+     */
+    getCamera(): {
+        /**
+         * The camera's center position in geographical coordinates (world-space).
+         */
+        position: { longitude: number, latitude: number, altitude: number }
+        } {
+        const map = this;
+
+        const [longitude, latitude, altitude] = map._w2g(map._unprj(map._cx, map._cy, -1));
+        return {
+            position: {longitude, latitude, altitude}
+        };
+    }
+
+    /**
      * Translates a geographical coordinate (wgs84) along the x-, y- and z-axis in pixels.
      *
      * @internal
