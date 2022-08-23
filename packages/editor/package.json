@@ -33,8 +33,8 @@
     "@here/xyz-maps-display": "^0.30.0"
   },
   "devDependencies": {
-    "@rollup/plugin-typescript": "^8.3.2",
-    "rollup": "^2.74.1",
+    "@rollup/plugin-typescript": "^8.3.4",
+    "rollup": "^2.78.1",
     "rollup-plugin-img": "^1.1.0",
     "rollup-plugin-terser": "^7.0.2",
     "rollup-plugin-uglify": "^6.0.4",
