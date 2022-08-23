@@ -1,3 +1,19 @@
+## 0.31.0 (2022-8-23)
+### core
+* added: The ImageProvider can now be configured to display an [errorImage](https://heremaps.github.io/xyz-maps/docs/interfaces/core.imageprovideroptions.html#errorimage) for failing tile requests.
+* added: Introduced remote [preprocessor](https://heremaps.github.io/xyz-maps/docs/interfaces/core.imageprovideroptions.html#preprocessor) to enable custom data processing for remote image sources.
+* added: The credentials of IMLProvider and SpaceProvider can now be updated at any time via [provider.config({credentials: {...}})](https://heremaps.github.io/xyz-maps/docs/classes/core.imlprovider.html#config)
+### editor
+* improved: The [snapTolerance](https://heremaps.github.io/xyz-maps/docs/interfaces/editor.editoroptions.html#snaptolerance) option is now taken into account for crossing detection.
+* fixed: Navlinks may still have been highlighted even though the intersection was no longer selected.
+* fixed: Altitude precision is reduced when restoring Navlink Features through a local undo operation.
+### display
+* improved: Handling of missing image tile data has been improved.
+* added: The camera (position) of the current view can now be retrieved using [map.getCamera()](https://heremaps.github.io/xyz-maps/docs/classes/display.map.html#getcamera)
+* fixed: Visualizing point styles on 3D polylines fails when used in combination with collision detection.
+* fixed: 2D roads disappear when the map is pitch or rotated
+* fixed: Text placed on a polyline might be upside down
+
 ## 0.30.0 (2022-8-5)
 ### core
 * added: The ImageProvider supports images contained in a 404 status response.
