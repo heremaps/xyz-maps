@@ -28,7 +28,7 @@ jobs:
             -   name: Setup Node.js
                 uses: actions/setup-node@v2
                 with:
-                    node-version: '12'
+                    node-version: '14'
                     registry-url: 'https://registry.npmjs.org'
                 env:
                     NODE_AUTH_TOKEN: ${{ secrets.NPM_TOKEN }}
