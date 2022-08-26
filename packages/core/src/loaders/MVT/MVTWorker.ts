@@ -18,78 +18,47 @@
  */
 
 import triangulate from './triangulate';
+import {HTTPLoader} from '../HTTPLoader';
 
 declare const self: Worker;
 
-const send = (url, success, onError?) => {
-    const xhr = new XMLHttpRequest();
-    xhr.responseType = 'arraybuffer';
-    xhr.onload = function() {
-        if (this.status >= 200 && this.status <= 226) {
-            const response = this.response;
-            const bytes = response.byteLength;
-            success(response, bytes);
-        }
-    };
-    xhr.onreadystatechange = function() {
-        if (this.readyState == 4 && (this.status < 200 || this.status >= 300)) {
-            this.onload = null;
-            if (this.status !== 0 && onError) {
-                onError({
-                    status: this.status,
-                    statusText: this.statusText
-                });
+let loader;
+
+export const MVTWorker = {
+    id: 'MVTWorker',
+    init() {
+        loader = new HTTPLoader({responseType: 'arraybuffer'});
+
+        self.addEventListener('message', function(e) {
+            const {msg, quadkey, url, x, y, z} = e.data;
+            switch (msg) {
+            case 'abort':
+                loader.abort({quadkey});
+                break;
+
+            case 'load':
+                loader.baseUrl = url;
+                loader.load({quadkey},
+                    (arrayBuffer) => {
+                        const triangles = triangulate(arrayBuffer, x, y, z);
+
+                        self.postMessage({
+                            msg: 'success',
+                            url,
+                            quadkey,
+                            data: arrayBuffer,
+                            triangles: triangles
+                        }, [arrayBuffer, triangles]);
+                    },
+                    (e) => {
+                        self.postMessage({
+                            msg: 'error',
+                            url,
+                            quadkey,
+                            data: e
+                        });
+                    });
             }
-        }
-    };
-    xhr.open('GET', url, true);
-    xhr.send(null);
-    return xhr;
-};
-
-
-let reqs = new Map();
-
-
-// let totalEnc = 0;
-
-
-self.addEventListener('message', function(e) {
-    var data = e.data;
-    var msg = data.msg;
-    const url = data.url;
-
-    switch (msg) {
-    case 'abort':
-        const xhr = reqs.get(url);
-        if (xhr) {
-            xhr.abort();
-            reqs.delete(url);
-        }
-        break;
-
-    case 'load':
-        reqs.set(url,
-            send(url, (arrayBuffer) => {
-                // let s = performance.now();
-                let triangles = triangulate(arrayBuffer, data.x, data.y, data.z);
-                // totalEnc += performance.now()-s;
-                // console.log('total encode', totalEnc, 'ms');
-                reqs.delete(url);
-                self.postMessage({
-                    msg: 'success',
-                    url: url,
-                    data: arrayBuffer,
-                    triangles: triangles
-                }, [arrayBuffer, triangles]);
-            }, (e) => {
-                reqs.delete(url);
-                self.postMessage({
-                    msg: 'error',
-                    url: url,
-                    data: e
-                });
-            })
-        );
+        });
     }
-});
+};

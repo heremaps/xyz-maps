@@ -1,17 +1,15 @@
 let shared;
 let worker;
-
-function define(_, chunk) {
+function define(dep, factory) {
     if (!shared) {
-        shared = chunk;
+        shared = factory;
     } else if (!worker) {
-        worker = chunk || _;
+        worker = factory;
     } else {
-        const workerBundle = 'var shared={};(' + shared + ')(shared);(' + worker + ')(shared);';
+        const xyz = here.xyz.maps;
         const sharedExports = {};
         shared(sharedExports);
-        const xyzMaps = here.xyz.maps;
-        xyzMaps.__workerURL = window.URL.createObjectURL(new Blob([workerBundle], {type: 'text/javascript'}));
-        chunk(xyzMaps, xyzMaps.common, sharedExports);
+        xyz.__workerURL = window.URL.createObjectURL(new Blob(['var shared={};('+shared+')(shared);('+worker+')(shared);'], {type: 'text/javascript'}));
+        factory(xyz, sharedExports, xyz.common);
     }
 }

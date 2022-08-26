@@ -88,7 +88,7 @@ const globals = {
 const external = ['@here/xyz-maps-common'];
 
 const rollupConfig = [{
-    input: ['./src/index.ts', 'src/loaders/MVT/MVTWorker.ts'],
+    input: ['./src/index.ts', './src/workers.ts'],
     output: {
         dir: 'build',
         format: 'amd',

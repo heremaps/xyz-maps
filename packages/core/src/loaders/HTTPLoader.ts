@@ -18,9 +18,7 @@
  */
 
 import TileLoader from './TileLoader';
-import {JSUtils} from '@here/xyz-maps-common';
 import HTTPClient, {XHRRequest} from './http';
-import {global} from '@here/xyz-maps-common';
 
 const DEFAULT_ACCEPT_HEADER = {
     // 'Accept': 'application/geo+json'
@@ -74,7 +72,19 @@ export interface HTTPRequest {
 }
 
 
+interface HTTPLoaderOptions {
+    responseType?: string;
+    // src?: string | ((x: number, y: number, z: number, qk: string) => string);
+    url?: string | ((x: number, y: number, z: number, qk: string) => string);
+    withCredentials?: boolean
+    headers?: { [name: string]: any }
+    tileType?: string;
+}
+
+
 class HTTPLoader implements TileLoader {
+    private tileType: string;
+
     withCredentials = false;
     http: HTTPClient;
 
@@ -86,14 +96,14 @@ class HTTPLoader implements TileLoader {
     static createImageFromBlob(blob: Blob, cb?: (img) => void) {
         const img = new Image();
         img.onload = (e) => {
-            global.URL.revokeObjectURL(img.src);
+            window.URL.revokeObjectURL(img.src);
             if (cb) cb(img);
         };
-        img.src = global.URL.createObjectURL(blob);
+        img.src = window.URL.createObjectURL(blob);
         return img;
     }
 
-    constructor(options: { [key: string]: any }) {
+    constructor(options: HTTPLoaderOptions) {
         let responseType = options['responseType'] || 'json';
 
         const url = options['src'] || options['url'];
@@ -104,10 +114,15 @@ class HTTPLoader implements TileLoader {
 
         this.baseUrl = url;
 
-        this.headers = JSUtils.extend(
-            JSUtils.clone(DEFAULT_ACCEPT_HEADER),
-            options['headers'] || {}
-        );
+
+        this.headers = {
+            ...DEFAULT_ACCEPT_HEADER,
+            ...(options['headers'] || {})
+        };
+        // this.headers = JSUtils.extend(
+        //     JSUtils.clone(DEFAULT_ACCEPT_HEADER),
+        //     options['headers'] || {}
+        // );
 
         if (typeof url == 'function') {
             this.getUrl = (tile) => url(
@@ -122,9 +137,11 @@ class HTTPLoader implements TileLoader {
             responseType: responseType,
             withCredentials: withCredentials
         });
+
+        this.tileType = options.tileType;
     };
 
-    getUrl(tile) {
+    protected getUrl(tile) {
         const rInt = Math.random() * 4 ^ 0;
 
         return this.baseUrl
@@ -157,8 +174,9 @@ class HTTPLoader implements TileLoader {
 
         let xhr;
 
+        const tileType = this.tileType || tile.type;
 
-        if (tile.type == 'image') {
+        if (tileType == 'image') {
             // req.responseType    = 'arraybuffer';
             // req.success       = function( arraybuffer )
             // {
@@ -178,7 +196,7 @@ class HTTPLoader implements TileLoader {
                 });
             };
         } else {
-            if (tile.type == 'json') {
+            if (tileType == 'json') {
                 req.success = (data, size) => {
                     success(
                         // in case of FeatureCollection simply pass array of features

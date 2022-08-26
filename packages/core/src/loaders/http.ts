@@ -33,7 +33,7 @@ class HTTPClient {
     withCredentials = false;
     responseType = '';
 
-    constructor(options) {
+    constructor(options?: { responseType?: string, withCredentials?: boolean }) {
         for (const o in options) {
             this[o] = options[o];
         }

@@ -16,30 +16,23 @@
  * SPDX-License-Identifier: Apache-2.0
  * License-Filename: LICENSE
  */
+import {MVTWorker} from './loaders/MVT/MVTWorker';
+import {TINWorker} from './providers/TINProvider/TINWorker';
 
-import {XYZBin} from './XYZBin';
-import WorkerHTTPLoader from '../WorkerHTTPLoader';
+let workers = [MVTWorker, TINWorker];
 
-class MVTTileLoader extends WorkerHTTPLoader {
-    constructor(options) {
-        super('MVTWorker', options);
-    }
-
-    protected processData(data: any): any {
-        // console.time('mvt-decode');
-        const xyzBin = new XYZBin(data.triangles);
-        const layers = xyzBin.getLayers();
-
-        for (let i in layers) {
-            xyzBin.getFeatures(layers[i]);
+function initListener(e) {
+    const {msg, worker, payload} = e.data;
+    if (msg == 'init') {
+        let w = workers.find((w) => w.id == worker);
+        if (w) {
+            w.init(payload);
+            w = null;
         }
-        // console.timeEnd('mvt-decode');
-
-        return {
-            mvt: data.data,
-            xyz: layers
-        };
+        // cleanup
+        workers = null;
+        self.removeEventListener('message', initListener);
     }
 }
 
-export default MVTTileLoader;
+self.addEventListener('message', initListener);
