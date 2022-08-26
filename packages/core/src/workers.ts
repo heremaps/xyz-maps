@@ -17,9 +17,8 @@
  * License-Filename: LICENSE
  */
 import {MVTWorker} from './loaders/MVT/MVTWorker';
-import {TINWorker} from './providers/TINProvider/TINWorker';
 
-let workers = [MVTWorker, TINWorker];
+let workers = [MVTWorker];
 
 function initListener(e) {
     const {msg, worker, payload} = e.data;

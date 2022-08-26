@@ -26,7 +26,7 @@ let loader;
 
 export const MVTWorker = {
     id: 'MVTWorker',
-    init() {
+    init(payload) {
         loader = new HTTPLoader({responseType: 'arraybuffer'});
 
         self.addEventListener('message', function(e) {
