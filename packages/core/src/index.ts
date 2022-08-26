@@ -38,6 +38,8 @@ export {RemoteTileProvider} from './providers/RemoteTileProvider/RemoteTileProvi
 export {RemoteTileProviderOptions} from './providers/RemoteTileProvider/RemoteTileProviderOptions';
 export {EditableRemoteTileProvider} from './providers/RemoteTileProvider/EditableRemoteTileProvider';
 export {EditableRemoteTileProviderOptions} from './providers/RemoteTileProvider/EditableRemoteTileProviderOptions';
+export {HTTPProvider} from './providers/HTTPProvider/HTTPProvider';
+export {HTTPProviderOptions} from './providers/HTTPProvider/HTTPProviderOptions';
 export {SpaceProvider} from './providers/GeoSpace/SpaceProvider';
 export {SpaceProviderOptions} from './providers/GeoSpace/SpaceOptions';
 export {IMLProvider} from './providers/IMLProvider/IMLProvider';
