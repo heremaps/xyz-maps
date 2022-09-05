@@ -18,7 +18,7 @@
  */
 
 import {XYZBin} from './XYZBin';
-import WorkerHTTPLoader from '../WorkerHTTPLoader';
+import WorkerHTTPLoader from '../webworker/HTTPLoader';
 
 class MVTTileLoader extends WorkerHTTPLoader {
     constructor(options) {
@@ -34,9 +34,8 @@ class MVTTileLoader extends WorkerHTTPLoader {
             xyzBin.getFeatures(layers[i]);
         }
         // console.timeEnd('mvt-decode');
-
         return {
-            mvt: data.data,
+            mvt: data.mvt,
             xyz: layers
         };
     }

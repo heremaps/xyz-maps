@@ -16,17 +16,19 @@
  * SPDX-License-Identifier: Apache-2.0
  * License-Filename: LICENSE
  */
-import {MVTWorker} from './loaders/MVT/MVTWorker';
+import MVTWorker from './loaders/MVT/MVTWorker';
+
 
 let workers = [MVTWorker];
 
 function initListener(e) {
     const {msg, worker, payload} = e.data;
     if (msg == 'init') {
-        let w = workers.find((w) => w.id == worker);
-        if (w) {
-            w.init(payload);
-            w = null;
+        let {Worker} = workers.find((w) => w.id == worker);
+        if (Worker) {
+            // w.init(payload);
+            new Worker();
+            Worker = null;
         }
         // cleanup
         workers = null;

@@ -17,7 +17,7 @@
  * License-Filename: LICENSE
  */
 
-import {HTTPLoader} from './HTTPLoader';
+import {HTTPLoader} from '../HTTPLoader';
 
 // const createWorker = (url) => {
 //     const blob   = new Blob(['('+fnc.toString()+')()'], { type: "text/javascript" });
@@ -62,7 +62,7 @@ class WorkerHTTPLoader extends HTTPLoader {
 
             if (cb) {
                 this.cbs.delete(quadkey);
-                cb.success(this.processData(data));
+                cb.success(this.processData(data.data));
             }
             break;
         }

@@ -19,7 +19,7 @@
 
 import {MVTProvider} from '../providers/MVTProvider/MVTProvider';
 import OSMStyle from '../styles/OSMStyle';
-import MVTTileLoader from '../loaders/MVT/MVTWorkerLoader';
+import MVTTileLoader from '../loaders/MVT/MVTLoader';
 import TileStorage from '../storage/Level2Storage';
 import {LRU} from '@here/xyz-maps-common';
 import {TileLayer, DEFAULT_LAYER_MAX_ZOOM} from './TileLayer';

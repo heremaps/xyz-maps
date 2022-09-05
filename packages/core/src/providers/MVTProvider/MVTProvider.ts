@@ -17,7 +17,7 @@
  * License-Filename: LICENSE
  */
 
-import MVTTileLoader from '../../loaders/MVT/MVTWorkerLoader';
+import MVTTileLoader from '../../loaders/MVT/MVTLoader';
 import {Feature} from '../../features/Feature';
 import {GeoJSONGeometryType} from '../../features/GeoJSON';
 

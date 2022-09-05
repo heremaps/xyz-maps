@@ -18,47 +18,15 @@
  */
 
 import triangulate from './triangulate';
-import {HTTPLoader} from '../HTTPLoader';
+import {HTTPWorker} from '../webworker/HTTPWorker';
 
-declare const self: Worker;
-
-let loader;
-
-export const MVTWorker = {
+export default {
     id: 'MVTWorker',
-    init(payload) {
-        loader = new HTTPLoader({responseType: 'arraybuffer'});
+    Worker: class MVTWorker extends HTTPWorker {
+        process(arrayBuffer: any, x: number, y: number, z: number): { data: {}, transfer: any[] } {
+            const triangles = triangulate(arrayBuffer, x, y, z);
 
-        self.addEventListener('message', function(e) {
-            const {msg, quadkey, url, x, y, z} = e.data;
-            switch (msg) {
-            case 'abort':
-                loader.abort({quadkey});
-                break;
-
-            case 'load':
-                loader.baseUrl = url;
-                loader.load({quadkey},
-                    (arrayBuffer) => {
-                        const triangles = triangulate(arrayBuffer, x, y, z);
-
-                        self.postMessage({
-                            msg: 'success',
-                            url,
-                            quadkey,
-                            data: arrayBuffer,
-                            triangles: triangles
-                        }, [arrayBuffer, triangles]);
-                    },
-                    (e) => {
-                        self.postMessage({
-                            msg: 'error',
-                            url,
-                            quadkey,
-                            data: e
-                        });
-                    });
-            }
-        });
+            return {data: {mvt: arrayBuffer, triangles}, transfer: [arrayBuffer, triangles]};
+        }
     }
 };
