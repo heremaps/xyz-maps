@@ -1,5 +1,5 @@
 node_modules/
 dist/
 build/index.js
-build/MVTWorker.js
 build/shared.js
+build/workers.js
