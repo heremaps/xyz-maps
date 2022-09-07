@@ -30,6 +30,7 @@ const DEFAULT_POINT_SEARCH_RADIUS_PIXEL = Array.from({length: 33}, (v, zoom) => 
     return 32 * Math.pow(2, Math.max(0, zoom - MAX_GRID_ZOOM + 3));
 });
 
+
 const isNumber = (o) => typeof o == 'number';
 
 //* ******************************************************************************************
@@ -55,10 +56,8 @@ export class Search {
         features: Feature[]
     }[] {
         const {map, hit} = this;
-
         const zoomlevel = map.getZoomlevel();
         const buffer = DEFAULT_POINT_SEARCH_RADIUS_PIXEL[Math.ceil(zoomlevel)];
-
         const tileGridZoom = Math.min(MAX_GRID_ZOOM, zoomlevel) ^ 0;
         const results = {};
         const halfWidth = (x2 - x1) / 2;
@@ -69,11 +68,16 @@ export class Search {
         let maxLon = -180;
         let minLat = 180;
         let maxLat = -180;
+
+        // convert to worldspace
+        [x1, y1] = map._unprj(x1, y1);
+        [x2, y2] = map._unprj(x2, y2);
+
         let searchRect = [
-            map.pixelToGeo(x1 - buffer, y1 - buffer), // top-left
-            map.pixelToGeo(x2 + buffer, y1 - buffer), // top-right
-            map.pixelToGeo(x2 + buffer, y2 + buffer), // bottom-right
-            map.pixelToGeo(x1 - buffer, y2 + buffer) // bottom-left
+            map._w2g(x1 - buffer, y1 - buffer), // top-left
+            map._w2g(x2 + buffer, y2 + buffer), // bottom-right
+            map._w2g(x1 - buffer, y2 + buffer), // bottom-left
+            map._w2g(x2 + buffer, y1 - buffer) // top-right
         ];
         let p = 4;
         let found = [];
@@ -88,8 +92,8 @@ export class Search {
 
         // take care of possible screen rotation..
         while (p--) {
-            let lon = searchRect[p].longitude;
-            let lat = searchRect[p].latitude;
+            let lon = searchRect[p][0];
+            let lat = searchRect[p][1];
 
             if (lon < minLon) {
                 minLon = lon;
@@ -110,7 +114,6 @@ export class Search {
         if (layers && !Array.isArray(layers)) {
             layers = [];
         }
-
 
         hit.init(x, y);
 

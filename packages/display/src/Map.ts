@@ -120,7 +120,7 @@ export class Map {
     private _cx: number; // center screen in pixel
     private _cy: number; // center screen in pixel
 
-    private _s: number = 1; // current scale
+    _s: number = 1; // current scale
 
     private _display: BasicDisplay;
     private _mvcRecognizer: MVCRecognizer;
@@ -1284,7 +1284,9 @@ export class Map {
      * @internal
      * @hidden
      */
-    _unprj(x: number, y: number, z?: number): number[] {
+    _unprj(p: number[]): number[];
+    _unprj(x: number, y: number, z?: number): number[];
+    _unprj(x: number | number[], y?: number, z?: number): number[] {
         if (Array.isArray(x)) {
             [x, y, z] = x;
         }
@@ -1305,12 +1307,18 @@ export class Map {
      * @internal
      * @hidden
      */
-    _w2g(p: number[]): number[] {
+    _w2g(p: number[]): number[];
+    _w2g(x: number, y: number, z?: number): number[];
+    _w2g(x: number | number[], y?: number, z?: number): number[] {
+        if (Array.isArray(x)) {
+            [x, y, z] = x;
+        }
+
         const worldSizePixel = this._wSize;
         const topLeftWorldX = this._tlwx;
         const topLeftWorldY = this._tlwy;
-        let worldX = p[0] + topLeftWorldX;
-        let worldY = p[1] + topLeftWorldY;
+        let worldX = x + topLeftWorldX;
+        let worldY = y + topLeftWorldY;
 
         worldX %= worldSizePixel;
         worldY %= worldSizePixel;
@@ -1322,7 +1330,7 @@ export class Map {
         return [
             project.x2lon(worldX, worldSizePixel),
             project.y2lat(worldY, worldSizePixel),
-            p[2]
+            z
         ];
     }
 

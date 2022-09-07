@@ -168,9 +168,9 @@ class Hit {
         const isPointSearch = !halfWidth && !halfHeight;
         let x = this.screenX;
         let y = this.screenY;
+        let scale = 1;
 
         if (geoType == 'Point') {
-            // debugger;
             dimensions = dimensions || getPixelSize(featureStyle, feature, zoomlevel, dpr, layerIndex, skip3d);
 
             if (dimensions) {
@@ -189,12 +189,13 @@ class Hit {
                     [featureX, featureY] = map._g2w(featureX, featureY);
                     x = this.worldX;
                     y = this.worldY;
+                    scale = 1 / map._s;
                 }
 
-                const featureX1 = featureX + dimensions[0];
-                const featureY1 = featureY + dimensions[1];
-                const featureX2 = featureX + dimensions[2];
-                const featureY2 = featureY + dimensions[3];
+                const featureX1 = featureX + dimensions[0] * scale;
+                const featureY1 = featureY + dimensions[1] * scale;
+                const featureX2 = featureX + dimensions[2] * scale;
+                const featureY2 = featureY + dimensions[3] * scale;
 
                 hit = intersectBBox(x, x + halfWidth, y, y + halfHeight, featureX1, featureX2, featureY1, featureY2);
             }
@@ -332,6 +333,7 @@ class Hit {
     init(screenX: number, screenY: number) {
         this.screenX = screenX;
         this.screenY = screenY;
+        // [this.worldX, this.worldY] = this.map._display.unproject(screenX, screenY);
         [this.worldX, this.worldY] = this.map._unprj(screenX, screenY);
     }
 
