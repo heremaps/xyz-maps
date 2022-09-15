@@ -652,7 +652,7 @@ var tools = {
     ): number | false => {
         const path = link.coord();
         const EDITOR = link._e();
-        const intersec = EDITOR.map.calcCrossingAt(path, pos, EDITOR._config['snapTolerance'], preferSegment);
+        const intersec = EDITOR.map.searchPointOnLine(path, pos, EDITOR._config['snapTolerance'], preferSegment);
 
         index = typeof index == 'number'
             ? index
@@ -729,7 +729,7 @@ var tools = {
 
         while (cl = closeLinks[--cLen]) {
             if (cl.id != link.id && prv._cls.indexOf(cl) == -1 && cl.behavior('snapCoordinates')) {
-                const x = internalEditor.map.calcCrossingAt(cl.geometry.coordinates, position, minShpDistance, UNDEF, minShpDistance);
+                const x = internalEditor.map.searchPointOnLine(cl.geometry.coordinates, position, minShpDistance, UNDEF, minShpDistance);
                 if (x) {
                     return x.point;
                 }
@@ -1135,7 +1135,7 @@ function connectLinks(
     const y = toPos[1];
     // var considerZlevel = toPos[2] !== UNDEF; // ***** UNCOMMENT FOR ZLEVEL CONSIDERATION *****
     const snapTolerance = HERE_WIKI._config['snapTolerance'];
-    const crossing = HERE_WIKI.map.calcCrossingAt(toLink.coord(), toPos, snapTolerance, preferSegment);
+    const crossing = HERE_WIKI.map.searchPointOnLine(toLink.coord(), toPos, snapTolerance, preferSegment);
 
     path[fromShpIndex][0] = x;
     path[fromShpIndex][1] = y;

@@ -27,7 +27,7 @@ import {createOverlayLayer, OverlayProvider} from '../providers/OverlayLayer';
 import {split, SplitOptions} from './LinkSplitter';
 import {TileLayer, FeatureProvider, EditableFeatureProvider, EditableRemoteTileProvider} from '@here/xyz-maps-core';
 import {Map, JSUtils, geotools} from '@here/xyz-maps-common';
-import {getPntOnLine, intersectBBox} from '../geometry';
+import {intersectBBox} from '../geometry';
 import {Navlink} from './link/Navlink';
 import InternalEditor from '../IEditor';
 
@@ -35,7 +35,6 @@ type Options = {
     ignore?: (feature: Navlink) => boolean
     maxDistance?: number,
     shapeThreshold?: number,
-    onlyExsitingShape?: boolean
 };
 
 
@@ -456,14 +455,13 @@ class ObjectManager {
         return objects.length > 1 ? objects : objects[0];
     };
 
-    getNearestLine(point: number[], data: EditableRemoteTileProvider | Navlink[], options?: Options) {
-        const HERE_WIKI = this.iEdit;
+    getNearestLine(position: number[], data: EditableRemoteTileProvider | Navlink[], options?: Options) {
+        const {iEdit} = this;
         // overwrite default configuration
         options = JSUtils.extend({
             // search radius in meter
             maxDistance: Infinity,
-            shapeThreshold: 0,
-            onlyExsitingShape: false
+            shapeThreshold: 0
         }, options || {});
 
         const RESULT = {
@@ -473,35 +471,20 @@ class ObjectManager {
             shpIndex: null,
             segmentNumber: null
         };
-
-        const geopos = point;
-        let bbox;
-
-        let maxDistance = options.maxDistance;
+        let {maxDistance} = options;
         let searchBBox = maxDistance < Infinity
-            ? geotools.getPointBBox(geopos, maxDistance)
+            ? geotools.getPointBBox(position, maxDistance)
             : null;
 
         if (data instanceof EditableFeatureProvider) {
             data = this.getInBBox(searchBBox, data);
         }
 
-        // const lines = options.lines || this.getInBBox(searchBBox, HERE_WIKI.linkLayer);
-
-        point = HERE_WIKI.map.getPixelCoord(point);
-
-        // if zLevels are defined -> check them!
-        function getDistance(p1) {
-            return (p1[2] === UNDEF || geopos[2] === UNDEF || p1[2] === geopos[2])
-                ? geotools.distance(p1, geopos)
-                : Infinity;
-        }
-
         for (let line of <Navlink[]>data) {
             // check if link must be skipped
             if (options.ignore && options.ignore(line)) continue;
 
-            bbox = line.bbox;
+            const {bbox} = line;
 
             if (
                 maxDistance == Infinity ||
@@ -510,59 +493,18 @@ class ObjectManager {
                     bbox[0], bbox[2], bbox[1], bbox[3]
                 )
             ) {
-                const path = line.geometry.coordinates;
-                let // line.coord(),
-                    foundSegment;
-                let minFoundDistance = options.maxDistance;
-                let foundShapeIndex;
-                const path2d = [];
-                let foundPoint;
-                var p;
-                let d;
+                const crossing = iEdit.map.calcCrossingAt(line.geometry.coordinates, position, -1);
 
-                for (let i = 0; i < path.length; i++) {
-                    path2d[i] = HERE_WIKI.map.getPixelCoord(p = path[i]);
-
-                    d = getDistance(p);
-
-                    if (d < minFoundDistance) {
-                        minFoundDistance = d;
-                        foundShapeIndex = i;
-                        foundSegment = (i > 0 && i - 1) ^ 0; // Math.max(0,i-1);
-                        foundPoint = p;
-                    }
-                }
-
-
-                if (!options.onlyExsitingShape) {
-                    for (let i = 0; i < path2d.length - 1; i++) {
-                        if (
-                            p = getPntOnLine(path2d[i], path2d[i + 1], point)
-                        ) {
-                            p = HERE_WIKI.map.getGeoCoord(p);
-                            // do not define zlevel to skip zlevel matching..
-                            d = getDistance([p[0], p[1]]);
-
-                            if (d < minFoundDistance) {
-                                minFoundDistance = d;
-                                foundShapeIndex = null;
-                                foundSegment = i;
-                                foundPoint = p;
-                            }
-                        }
-                    }
-                }
-
-                if (foundPoint && minFoundDistance < RESULT.distance) {
-                    RESULT.point = foundPoint;
-                    RESULT.distance = minFoundDistance;
-                    RESULT.shpIndex = foundShapeIndex;
-                    RESULT.segmentNumber = foundSegment;
+                if (crossing?.distance < Math.min(RESULT.distance, options.maxDistance)) {
+                    RESULT.point = crossing.point;
+                    RESULT.distance = crossing.distance;
+                    RESULT.shpIndex = crossing.existingShape ? crossing.index : null;
+                    RESULT.segmentNumber = crossing.index - Number(!crossing.existingShape);
                     RESULT.line = line;
 
                     // set maxDistance so bbox checks can skip features..
-                    maxDistance = geotools.distance(foundPoint, geopos);
-                    searchBBox = geotools.getPointBBox(geopos, maxDistance);
+                    maxDistance = geotools.distance(crossing.point, position);
+                    searchBBox = geotools.getPointBBox(position, maxDistance);
                 }
             }
         }

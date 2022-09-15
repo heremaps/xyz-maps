@@ -254,7 +254,7 @@ class ClickDraw {
             if (typeof pos === 'number') {
                 pos = oCoords[pos].slice(0);
             } else {
-                let crossing = iEdit.map.calcCrossingAt(oCoords, pos, iEdit._config['snapTolerance']);
+                let crossing = iEdit.map.searchPointOnLine(oCoords, pos, iEdit._config['snapTolerance']);
 
                 // if shape point is start or end of the original link, don't split the link
                 if (crossing?.existingShape && (crossing.index == 0 || crossing.index == oCoords.length - 1)

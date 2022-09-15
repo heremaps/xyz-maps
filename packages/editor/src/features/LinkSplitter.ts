@@ -69,7 +69,7 @@ export const split = (HERE_WIKI: InternalEditor, options: SplitOptions): [Navlin
 
     // if split is defined by absolute coordinates...
     if (splitAtShpIndex === UNDEF) {
-        const crossing = HERE_WIKI.map.calcCrossingAt(path, options.point, snapTolerance, preferSegment);
+        const crossing = HERE_WIKI.map.searchPointOnLine(path, options.point, snapTolerance, preferSegment);
 
         splitAtShpIndex = crossing?.index;
 

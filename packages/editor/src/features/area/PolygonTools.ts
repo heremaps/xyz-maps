@@ -489,7 +489,7 @@ const tools = {
                 for (let polygon of tools.getCoords(nearbyArea)) {
                     const exterior = polygon[0]; // exterior only
 
-                    const x = internalEditor.map.calcCrossingAt(
+                    const x = internalEditor.map.searchPointOnLine(
                         exterior,
                         position,
                         searchSnapDistanceMeter,

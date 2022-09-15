@@ -19,7 +19,7 @@
 import {GeoJSONCoordinate as Point, Feature as GeoJSONFeature} from '@here/xyz-maps-core';
 import {geotools} from '@here/xyz-maps-common';
 import {Map as MapDisplay} from '@here/xyz-maps-display';
-import {getPntOnLine} from '../geometry';
+import {getPntOnLine, getDistance} from '../geometry';
 import oTools from '../features/oTools';
 import {Feature} from '../features/feature/Feature';
 
@@ -37,11 +37,13 @@ type GeoPoint = { longitude: number, latitude: number, z?: number };
 class Crossing {
     point: Point;
     index: number;
+    distance: number;
     existingShape: boolean;
 
-    constructor(x: number, y: number, index: number, foundExistingShape: boolean) {
+    constructor(x: number, y: number, index: number, distance: number, foundExistingShape: boolean) {
         this.point = [x, y];
         this.index = index;
+        this.distance = distance;
         this.existingShape = foundExistingShape;
     }
 }
@@ -126,7 +128,7 @@ class Map {
         return [x * zinv, y * zinv];
     };
 
-    calcCrossingAt(path: Point[], pos: Point, snapTolerance: number, idx?: number, maxDistance?: number): Crossing {
+    searchPointOnLine(path: Point[], pos: Point, snapTolerance: number, idx?: number, maxDistance?: number): Crossing {
         const map = this;
         let index = null;
         let minDistance = maxDistance || Infinity;
@@ -135,26 +137,30 @@ class Map {
         let foundY = null;
         let distance;
         let iPnt;
-        let p1;
 
         if (idx != UNDEF) {
-            const result = map.calcCrossingAt(path.slice(idx, idx + 2), pos, snapTolerance, UNDEF, maxDistance);
+            const result = map.searchPointOnLine(path.slice(idx, idx + 2), pos, snapTolerance, UNDEF, maxDistance);
             if (result) {
                 result.index += idx;
             }
             return result;
         }
 
+        let pathGeo = path;
+        let posGeo = pos;
+        path = path.map((c) => map.getPixelCoord(c));
+        pos = map.getPixelCoord(pos);
+
         // calculate index of line for new Shape to add
-        for (var i = 0; i < path.length; i++) {
-            p1 = path[i];
+        for (let i = 0; i < path.length; i++) {
+            let curGeo = pathGeo[i];
             // check if a existing pnt is in range
-            distance = map.distance(p1, pos);
+            distance = map.distance(curGeo, posGeo);
 
             if (distance <= minDistance) {
                 minDistance = distance;
-                foundX = p1[0];
-                foundY = p1[1];
+                foundX = curGeo[0];
+                foundY = curGeo[1];
                 index = i;
                 foundExistingShape = true;
             }
@@ -165,13 +171,14 @@ class Map {
                 // calc related segment of line for new Shape
                 if (i < path.length - 1) {
                     if (iPnt = getPntOnLine(path[i], path[i + 1], pos)) {
-                        distance = map.distance(iPnt, pos);
+                        const iPntGeo = map.getGeoCoord(iPnt);
+                        distance = map.distance(iPntGeo, posGeo);
 
                         if (distance < minDistance) {
                             minDistance = distance;
                             index = i + 1;
-                            foundX = iPnt[0];
-                            foundY = iPnt[1];
+                            foundX = iPntGeo[0];
+                            foundY = iPntGeo[1];
                             foundExistingShape = false;
                         }
                     }
@@ -179,7 +186,7 @@ class Map {
             }
         }
 
-        return index === null ? index : new Crossing(foundX, foundY, index, foundExistingShape);
+        return index === null ? index : new Crossing(foundX, foundY, index, minDistance, foundExistingShape);
     };
 
 
