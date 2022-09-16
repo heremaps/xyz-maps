@@ -493,7 +493,7 @@ class ObjectManager {
                     bbox[0], bbox[2], bbox[1], bbox[3]
                 )
             ) {
-                const crossing = iEdit.map.calcCrossingAt(line.geometry.coordinates, position, -1);
+                const crossing = iEdit.map.searchPointOnLine(line.geometry.coordinates, position, -1);
 
                 if (crossing?.distance < Math.min(RESULT.distance, options.maxDistance)) {
                     RESULT.point = crossing.point;
