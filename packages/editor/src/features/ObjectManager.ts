@@ -391,7 +391,6 @@ class ObjectManager {
             let defId = feature.id;
             let featureClass;
 
-
             if (!history) {
                 // ids can only be set from userspace if explicitly allowed by "enforceRandomFeatureId" ...
                 // ... otherwise ids are only set by provider itself ...
@@ -418,7 +417,12 @@ class ObjectManager {
 
                 // in case of history recovering disable autofix to guarantee geometry is created 1:1 and not modified!
                 if (!history) {
-                    linkTools.fixGeo(feature, UNDEF, UNDEF, preferIndex);
+                    let valid = linkTools.fixGeo(feature, UNDEF, UNDEF, preferIndex);
+
+                    if (valid === false) {
+                        featureHistory.remove(feature);
+                        provider.removeFeature(objects.pop());
+                    }
                 }
             } else if (featureClass === 'PLACE' || featureClass === 'ADDRESS') {
                 // let obj = createFeature(feature);

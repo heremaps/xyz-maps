@@ -419,7 +419,9 @@ class ClickDraw {
                     },
                     provider: <EditableFeatureProvider>settings.layer.getProvider()
                 });
-                iEdit.objects.history.saveChanges();
+                if (created) {
+                    iEdit.objects.history.saveChanges();
+                }
                 this.hide();
             }
 

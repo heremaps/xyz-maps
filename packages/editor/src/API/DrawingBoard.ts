@@ -112,12 +112,11 @@ class DrawingBoard {
      *
      * @param properties - properties the feature will be created with.
      *
-     * @returns the create Feature including the drawn geometry/coordinates
+     * @returns the created Feature or undefined if creation fails due to invalid geometry.
      */
-    create(properties?): Line | Navlink | Area {
+    create(properties?): Line | Navlink | Area | undefined {
         if (this._a) {
             let feature = this._b.create(properties);
-
             if (feature) {
                 this._a = false;
             }
@@ -187,22 +186,22 @@ class DrawingBoard {
 
         options['attributes'] = options['properties'] || options['attributes'] || {};
 
-        if (!this._a) {
-            // this._b = opt['control'] == 'FREEHAND' ? touchDraw : clickDraw;
+        this.cancel();
+        // this._b = opt['control'] == 'FREEHAND' ? touchDraw : clickDraw;
 
-            options.layer = options.layer || this._e.getLayerForClass(mode.toUpperCase());
+        options.layer = options.layer || this._e.getLayerForClass(mode.toUpperCase());
 
-            if (mode != AREA || options.layer) {
-                this._e.listeners.trigger('_clearOverlay');
+        if (mode != AREA || options.layer) {
+            this._e.listeners.trigger('_clearOverlay');
 
-                this._b.show(options);
-                this._a = this._b.isActive();
+            this._b.show(options);
+            this._a = true;
 
-                if (options['position']) {
-                    this.addShape(options['position'], connectTo);
-                }
+            if (options['position']) {
+                this.addShape(options['position'], connectTo);
             }
         }
+
 
         return this._a;
     };
