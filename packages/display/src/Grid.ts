@@ -47,23 +47,25 @@ class Grid {
     private height: number;
 
     // untransformed view bounds relative to screen
-    private bounds: [number, number][];
+    private bounds: number[][];
 
     tiles: {
         256?: ViewportTile[],
         512?: ViewportTile[],
     } = {};
 
+
     constructor(tileSize: number) {
         this.size = tileSize;
     }
 
-    init(centerWorldPixel: [number, number], rotZRad: number, width: number, height: number, bounds) {
+    init(centerWorldPixel: [number, number], rotZRad: number, width: number, height: number, bounds: number[][]) {
         this.cwpx = centerWorldPixel[0];
         this.cwpy = centerWorldPixel[1];
 
         this.width = width;
         this.height = height;
+        // used for clipping
         this.bounds = bounds;
 
         let minOx = INFINITY;
@@ -85,7 +87,6 @@ class Grid {
         this.maxY = maxOy;
     };
 
-
     getTiles(zoomLevel: number, tileSizePixel: number = this.size): ViewportTile[] {
         const {width, height} = this;
         const worldSizePixel = Math.pow(2, zoomLevel) * tileSizePixel;
@@ -95,27 +96,27 @@ class Grid {
         let centerPixelX = this.cwpx * worldSizePixel;
         let centerPixelY = this.cwpy * worldSizePixel;
 
-        let minX = centerPixelX - width / 2 + this.minX;
-        let minY = centerPixelY - height / 2 + this.minY;
-        let maxX = centerPixelX + width / 2 + this.maxX - width;
-        let maxY = centerPixelY + height / 2 + this.maxY - height;
+        let minX = (centerPixelX - width / 2 + this.minX) / tileSizePixel;
+        let minY = (centerPixelY - height / 2 + this.minY) / tileSizePixel;
+        let maxX = (centerPixelX + width / 2 + this.maxX - width) / tileSizePixel;
+        let maxY = (centerPixelY + height / 2 + this.maxY - height) / tileSizePixel;
 
-        let topLeftLRC = tileUtils.pixelToGrid(minX / tileSizePixel, minY / tileSizePixel, zoomLevel);
-        let bottomRigthLRC = tileUtils.pixelToGrid(maxX / tileSizePixel, maxY / tileSizePixel, zoomLevel);
+        let topLeftLRC = tileUtils.pixelToGrid(minX, minY, zoomLevel);
+        let bottomRigthLRC = tileUtils.pixelToGrid(maxX, maxY, zoomLevel);
 
         let gridX = bottomRigthLRC[0] - topLeftLRC[0] + 1;
         let gridY = bottomRigthLRC[1] - topLeftLRC[1] + 1;
-        let vpTiles = tileUtils.getTilesIds(topLeftLRC, bottomRigthLRC);
-        let gridOx = topLeftLRC[0] * tileSizePixel - minX + this.minX;
-        let gridOy = topLeftLRC[1] * tileSizePixel - minY + this.minY;
 
-        for (let y = 0, i = 0; y < gridY; y++) {
+        let gridOx = (topLeftLRC[0] - minX) * tileSizePixel + this.minX;
+        let gridOy = (topLeftLRC[1] - minY) * tileSizePixel + this.minY;
+        // let vpTiles = tileUtils.getTilesIds(topLeftLRC, bottomRigthLRC);
+
+        for (let y = 0; y < gridY; y++) {
             for (let x = 0; x < gridX; x++) {
                 let tx1 = gridOx + x * tileSizePixel;
                 let ty1 = gridOy + y * tileSizePixel;
                 let tx2 = tx1 + tileSizePixel;
                 let ty2 = ty1 + tileSizePixel;
-                let qk = vpTiles[i++];
                 let tileGeoContainer: [number, number][] = [
                     [tx1, ty1],
                     [tx2, ty1],
@@ -124,8 +125,10 @@ class Grid {
                 ];
 
                 if (doPolygonsIntersect(bounds, tileGeoContainer)) {
+                    // const quadkey = vpTiles.unshift();
+                    const quadkey = tileUtils.tileXYToQuadKey(zoomLevel, minY + y, minX + x);
                     tiles.push({
-                        quadkey: qk,
+                        quadkey,
                         x: tx1,
                         y: ty1
                     });

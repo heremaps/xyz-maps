@@ -18,7 +18,7 @@
  */
 
 import {global, TaskManager} from '@here/xyz-maps-common';
-import {Tile, TileLayer, GeoPoint, PixelPoint} from '@here/xyz-maps-core';
+import {Tile, TileLayer, GeoPoint} from '@here/xyz-maps-core';
 import {getElDimension, createCanvas} from '../DOMTools';
 import {Layers, Layer, ScreenTile} from './Layers';
 import FeatureModifier from './FeatureModifier';
@@ -30,6 +30,7 @@ import LayerClusterer from './LayerClusterer';
 import Grid, {ViewportTile} from '../Grid';
 
 const CREATE_IF_NOT_EXISTS = true;
+const MAX_PITCH_GRID = 60 / 180 * Math.PI;
 
 function toggleLayerEventListener(toggle: string, layer: any, listeners: any) {
     toggle = toggle + 'EventListener';
@@ -58,6 +59,8 @@ abstract class Display {
     private previewer: Preview;
     private updating: boolean = false;
     private ti: number; // tile index
+    private _gridClip: { rz: number, rx: number, s: number, top: number } = {rz: 0, rx: 0, s: 0, top: 0};
+    protected viewChange: boolean;
     protected cGeo: GeoPoint = new GeoPoint(0, 0);
     protected sx: number; // grid/screen offset x (includes scale offset)
     protected sy: number; // grid/screen offset y (includes scale offset)
@@ -401,7 +404,22 @@ abstract class Display {
         });
     }
 
-    protected viewChange: boolean;
+    private clipGridHeight(maxPitch: number) {
+        const {rz, rx, s, _gridClip} = this;
+        // cache result for the current map transform
+        if (_gridClip.rx != rx || _gridClip.rz != rz
+        // || _gridClip.s != s
+        ) {
+            _gridClip.rz = rz;
+            _gridClip.rx = rx;
+            // _gridClip.s = s;
+            this.setTransform(s, rz, -maxPitch);
+            const topAtMaxPitch = this.unproject(this.w / 2, 0);
+            this.setTransform(s, rz, rx);
+            _gridClip.top = this.project(topAtMaxPitch[0], topAtMaxPitch[1])[1];
+        }
+        return _gridClip.top;
+    }
 
     updateGrid(centerWorldPixel: [number, number], centerGeo: GeoPoint, tileGridZoom: number, screenOffsetX: number, screenOffsetY: number) {
         this.viewChange = true;
@@ -416,11 +434,17 @@ abstract class Display {
         const displayWidth = mapWidthPixel;
         const displayHeight = mapHeightPixel;
         const grid = this.grid;
+        let height = 0;
+
+        // if map is pitched too much, we clip the grid at the top
+        if (-this.rx > MAX_PITCH_GRID) {
+            height = this.clipGridHeight(MAX_PITCH_GRID);
+        }
 
         // optimize gird if screen is rotated
         let rotatedScreenPixels = [
-            display.unproject(0, 0),
-            display.unproject(displayWidth - 1, 0),
+            display.unproject(0, height),
+            display.unproject(displayWidth - 1, height),
             display.unproject(displayWidth - 1, displayHeight - 1),
             display.unproject(0, displayHeight - 1)
         ];

@@ -63,6 +63,7 @@ const RENDER_TILE_SIZE = 256;
 
 const MAX_GRID_ZOOM = 20;
 const MAX_ALLOWED_ZOOM = 28;
+const MAX_ALLOWED_PITCH = 85;
 
 const LON = 'longitude';
 const LAT = 'latitude';
@@ -196,6 +197,7 @@ export class Map {
         const zoomLevel = options['zoomLevel'] || options['zoomlevel'];
 
         options.maxLevel = Math.min(MAX_ALLOWED_ZOOM, options.maxLevel);
+        options.maxPitch = Math.min(MAX_ALLOWED_PITCH, options.maxPitch);
 
         this._z = Math.min(MAX_GRID_ZOOM, zoomLevel) ^ 0;
 

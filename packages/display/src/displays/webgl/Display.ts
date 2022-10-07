@@ -201,7 +201,7 @@ class WebGlDisplay extends BasicDisplay {
         }
     };
 
-    setTransform(scale: number, rotZ: number, rotX: number, groundResolution: number) {
+    setTransform(scale: number, rotZ: number, rotX: number, groundResolution: number = this.groundResolution) {
         // if (this.s != scale || this.rz != rotZ || this.rx != rotX)
         // {
         this.s = scale;
@@ -329,7 +329,7 @@ class WebGlDisplay extends BasicDisplay {
                 while (i < length) {
                     let screenTile = tiles[i++];
                     let dTile = <GLTile>screenTile.tile;
-                    let buffers = dTile.data[layer.index];
+                    let buffers = dTile.data?.[layer.index];
 
                     if (!layer.ready && dTile.ready(layerIndex) && ++layer.cnt == length) {
                         layer.ready = true;

@@ -63,7 +63,7 @@ import {Attribute} from './buffer/Attribute';
 const mat4 = {create, lookAt, multiply, perspective, rotateX, rotateZ, translate, scale, clone, copy, invert, identity};
 
 const PI2 = 2 * Math.PI;
-const FIELD_OF_VIEW = 45 * Math.PI / 180;
+const FIELD_OF_VIEW = Math.atan(1 / 3) * 2; // ~ 36.87 deg
 
 const unclip = (v, dim) => Math.round((v + 1) / 2.0 * dim);
 
@@ -95,7 +95,7 @@ export class GLRender implements BasicRender {
         tx: number; // translate x
         ty: number; // translate y
         s: number; // scale
-    }
+    };
 
     private zMeterToPixel: number;
     private scale: number;
@@ -137,7 +137,6 @@ export class GLRender implements BasicRender {
             preserveDrawingBuffer: false,
             ...renderOptions
         };
-
 
         this.vPMat = mat4.create();
         this.vMat = mat4.create();
@@ -298,10 +297,11 @@ export class GLRender implements BasicRender {
         const cosHFOV = Math.cos(hFOV);
         // h
         const height = Math.sin(hFOV) * targetZ;
-        const alpha = Math.PI * .5 - hFOV + rotX;
+        let alpha = Math.max(.01, Math.PI * .5 - hFOV + rotX);
+
         const d1 = cosHFOV * targetZ;
         const d2 = height / Math.tan(alpha);
-        const zNear = targetZ * .25;
+        const zNear = targetZ * .1;
         let zFar = cosHFOV * (d1 + d2);
         // avoid precision issues...
         zFar *= 1.005;
