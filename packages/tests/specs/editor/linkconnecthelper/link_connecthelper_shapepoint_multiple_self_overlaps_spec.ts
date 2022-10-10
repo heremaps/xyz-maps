@@ -22,7 +22,7 @@ import {Map} from '@here/xyz-maps-display';
 import {Editor} from '@here/xyz-maps-editor';
 import dataset from './link_connecthelper_shapepoint_multiple_self_overlaps_spec.json';
 
-describe('link connect helper which has multiple overlapped shape points and crossing from one link', function() {
+describe('link connect helper which has multiple overlapped shape points and crossing from one link', () => {
     const expect = chai.expect;
 
     let editor;
@@ -30,7 +30,7 @@ describe('link connect helper which has multiple overlapped shape points and cro
     let preparedData;
     let link1;
 
-    before(async function() {
+    before(async () => {
         preparedData = await prepare(dataset);
         display = new Map(document.getElementById('map'), {
             center: {longitude: 80.69297278785734, latitude: 16.799272986590253},
@@ -45,20 +45,20 @@ describe('link connect helper which has multiple overlapped shape points and cro
         link1 = preparedData.getFeature('linkLayer', -189150);
     });
 
-    after(async function() {
+    after(async () => {
         editor.destroy();
         display.destroy();
         await preparedData.clear();
     });
 
-    it('validate there are crossings found', function() {
+    it('validate there are crossings found', () => {
         let crossings = link1.checkCrossings();
         expect(crossings).to.have.lengthOf(2);
     });
 
-    it('get crossings and connect', async function() {
+    it('get crossings and connect', async () => {
         let crossings = link1.checkCrossings();
-        crossings.forEach((c)=>{
+        crossings.forEach((c) => {
             c.connect();
         });
 

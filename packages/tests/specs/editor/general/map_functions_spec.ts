@@ -21,15 +21,18 @@ import {waitForEditorReady} from 'editorUtils';
 import {Map} from '@here/xyz-maps-display';
 import {Editor} from '@here/xyz-maps-editor';
 import dataset from './map_functions_spec.json';
+import chaiAlmost from 'chai-almost';
 
-describe('convert pixel and geo coordinates', function() {
+chai.use(chaiAlmost(1e-5));
+
+describe('convert pixel and geo coordinates', () => {
     const expect = chai.expect;
 
     var editor;
     var display;
     var preparedData;
 
-    before(async function() {
+    before(async () => {
         preparedData = await prepare(dataset);
         display = new Map(document.getElementById('map'), {
             center: {longitude: 77.79802, latitude: 12.62214},
@@ -43,26 +46,26 @@ describe('convert pixel and geo coordinates', function() {
         await waitForEditorReady(editor);
     });
 
-    after(async function() {
+    after(async () => {
         editor.destroy();
         display.destroy();
     });
 
-    it('validate geotopixel function', function() {
+    it('validate geotopixel function', () => {
         expect(editor.geoToPixel({longitude: 77.79802, latitude: 12.62214})).to.deep.equal({x: 400, y: 300});
     });
 
-    it('validate pixelToGeo function', function() {
-        expect(editor.pixelToGeo({x: 400, y: 300})).to.deep.equal({longitude: 77.79802, latitude: 12.62214});
+    it('validate pixelToGeo function', () => {
+        expect(editor.pixelToGeo({x: 400, y: 300})).to.deep.almost({longitude: 77.79802, latitude: 12.62214});
     });
 
-    it('move map to a new area', async function() {
-        await waitForEditorReady(editor, ()=>{
+    it('move map to a new area', async () => {
+        await waitForEditorReady(editor, () => {
             display.setCenter({longitude: 8.71902, latitude: 50.1109});
         });
     });
 
-    it('validate geotopixel function after dragging', function() {
+    it('validate geotopixel function after dragging', () => {
         expect(editor.geoToPixel({longitude: 8.71902, latitude: 50.1109})).to.deep.equal({x: 400, y: 300});
         expect(editor.pixelToGeo({x: 400, y: 300})).to.deep.equal({longitude: 8.71902, latitude: 50.1109});
     });

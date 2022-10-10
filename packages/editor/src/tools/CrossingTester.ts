@@ -212,33 +212,33 @@ class CrossingTester {
         this.createTS = +new Date;
 
         (Array.isArray(links) ? links : [links]).forEach((link) => {
-            // if the link doesn't exist anymore, we have to skip/ignore it.
-            if (!link.editState('removed')) {
-                if (!searchType || searchType == HERE_CROSSING || searchType == HERE_CROSSING_CANDIDATE) {
-                    const bbox = geoTools.extendBBox(link.getBBox(), this.maxDistance);
-                    const features = this.iEditor.objects.getInBBox(bbox, link.getProvider());
-                    const linkIndex = features.indexOf(link);
+            // ignore already removed links..
+            if (link.editState('removed')) return;
 
-                    if (linkIndex != -1) {
-                        features.splice(linkIndex, 1);
-                    }
+            if (!searchType || searchType == HERE_CROSSING || searchType == HERE_CROSSING_CANDIDATE) {
+                const bbox = geoTools.extendBBox(link.getBBox(), this.maxDistance);
+                const features = this.iEditor.objects.getInBBox(bbox, link.getProvider());
+                const linkIndex = features.indexOf(link);
 
-                    if (searchType != HERE_CROSSING_CANDIDATE) {
-                        foundX = foundX.concat(this.checkRealCrossing(link, features));
-                    }
-                    // check for possible crossings (candidates)
-                    if (searchType != HERE_CROSSING) {
-                        link.coord().forEach((c, i) => {
-                            if (candidate = this.getNearestLineCandidate(link, i, features)) {
-                                const {point} = candidate;
-                                if (c[0] != point[0] || c[1] != point[1]) {
-                                    foundX.push(
-                                        new Crossing(this, link, candidate.line, c, point)
-                                    );
-                                }
+                if (linkIndex != -1) {
+                    features.splice(linkIndex, 1);
+                }
+
+                if (searchType != HERE_CROSSING_CANDIDATE) {
+                    foundX = foundX.concat(this.checkRealCrossing(link, features));
+                }
+                // check for possible crossings (candidates)
+                if (searchType != HERE_CROSSING) {
+                    link.coord().forEach((c, i) => {
+                        if (candidate = this.getNearestLineCandidate(link, i, features)) {
+                            // filter out possible duplicates due to precision issues
+                            if (candidate.distance > .001) { // 1mm
+                                foundX.push(
+                                    new Crossing(this, link, candidate.line, c, candidate.point)
+                                );
                             }
-                        });
-                    }
+                        }
+                    });
                 }
             }
         });
