@@ -18,7 +18,7 @@
  */
 
 import Hit from './Hit';
-import {Feature, TileLayer} from '@here/xyz-maps-core';
+import {CustomLayer, Feature, TileLayer} from '@here/xyz-maps-core';
 import {Map} from '../Map';
 
 const MAX_GRID_ZOOM = 20;
@@ -49,7 +49,7 @@ export class Search {
         y1: number,
         x2: number,
         y2: number,
-        layers: TileLayer | TileLayer[],
+        layers: TileLayer | CustomLayer | (TileLayer | CustomLayer)[],
         skip3d: boolean
     ): {
         layer: TileLayer,
@@ -122,10 +122,10 @@ export class Search {
 
         while (layerIndex--) {
             layer = layers[layerIndex];
-            provider = layer.getProvider(zoomlevel);
+            provider = layer.getProvider?.(zoomlevel);
             let maxZ = 0;
 
-            if (zoomlevel <= layer.max && zoomlevel >= layer.min && provider.search) {
+            if (zoomlevel <= layer.max && zoomlevel >= layer.min && provider?.search) {
                 features = provider.search(viewbounds);
                 length = features.length;
                 while (length--) {
@@ -174,7 +174,7 @@ export class Search {
         y: number,
         x2: number,
         y2: number,
-        layers: TileLayer[],
+        layers: (TileLayer | CustomLayer)[],
         skip3d?: boolean
     ): { layer: TileLayer, features: Feature[] }[] {
         const {map} = this;

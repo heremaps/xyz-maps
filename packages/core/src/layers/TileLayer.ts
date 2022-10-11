@@ -76,6 +76,8 @@ export class TileLayer extends Layer {
 
     levelOffset: number = 0;
 
+    custom: boolean = false;
+
     /**
      * @param options - options to configure the TileLayer
      */
@@ -199,12 +201,6 @@ export class TileLayer extends Layer {
         if (this._l.isDefined(type)) {
             return super.addEventListener(type, listener, _c);
         }
-        // const listeners = this._l;
-        //
-        // if (listeners.isDefined(type)) {
-        //     return listeners.add(type, listener, _c);
-        // }
-        //
         return this._fp?.addEventListener(type, listener, _c);
     };
 
@@ -218,12 +214,9 @@ export class TileLayer extends Layer {
     removeEventListener(type: string, listener: (event: CustomEvent) => void)
 
     removeEventListener(type: string, listener: (event: CustomEvent) => void, _c?) {
-        const listeners = this._l;
-
-        if (listeners.isDefined(type)) {
-            return listeners.remove(type, listener, _c);
+        if (this._l.isDefined(type)) {
+            return super.removeEventListener(type, listener, _c);
         }
-
         return this._fp.removeEventListener(type, listener, _c);
     };
 

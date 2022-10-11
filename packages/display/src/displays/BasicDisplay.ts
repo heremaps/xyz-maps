@@ -18,7 +18,7 @@
  */
 
 import {global, TaskManager} from '@here/xyz-maps-common';
-import {Tile, TileLayer, GeoPoint} from '@here/xyz-maps-core';
+import {Tile, TileLayer, CustomLayer} from '@here/xyz-maps-core';
 import {getElDimension, createCanvas} from '../DOMTools';
 import {Layers, Layer, ScreenTile} from './Layers';
 import FeatureModifier from './FeatureModifier';
@@ -148,37 +148,39 @@ abstract class Display {
         };
     }
 
-    addLayer(layer: TileLayer, styles, index: number): boolean {
+    addLayer(layer: TileLayer | CustomLayer, styles, index: number): boolean {
         const display = this;
         const layers = display.layers;
         let added = false;
         if (layers.add(layer, index)) {
             const dLayer = layers.get(layer);
-            // new function needs to be created per layer otherwise a setup with same provider used
-            // accross multiple layers will lead in case of cancel to cancel all layers.
-            dLayer.handleTile = (tile) => {
-                // is tile still visible ?
-                if (display.isVisible(tile, dLayer)) {
-                    display.handleTile(tile, layer);
-                }
-            };
-
-            toggleLayerEventListener('add', layer, display.listeners);
-
-            if (index == 0) {
-                display.setLayerBgColor(layer.getStyle(), dLayer);
-            }
+            added = true;
 
             display.buckets.forEach((dTile) => {
                 dTile.addLayer(index);
             });
 
-            added = true;
+            toggleLayerEventListener('add', layer, display.listeners);
+
+            if (layer.custom) return added;
+
+            // new function needs to be created per layer otherwise a setup with same provider used
+            // accross multiple layers will lead in case of cancel to cancel all layers.
+            dLayer.handleTile = (tile) => {
+                // is tile still visible ?
+                if (display.isVisible(tile, dLayer)) {
+                    display.handleTile(tile, <TileLayer>layer);
+                }
+            };
+
+            if (index == 0) {
+                display.setLayerBgColor(layer.getStyle(), dLayer);
+            }
         }
         return added;
     }
 
-    removeLayer(layer: TileLayer): number {
+    removeLayer(layer: TileLayer | CustomLayer): number {
         const display = this;
         const layers = this.layers;
         const dLayer = layers.get(layer);
@@ -187,14 +189,14 @@ abstract class Display {
 
         if (index !== -1) {
             display.buckets.forEach((dTile) => {
-                dTile.cancelTasks(layer);
+                dTile.cancelTasks(<TileLayer>layer);
                 dTile.removeLayer(index);
             });
 
             for (let screenTile of tiles) {
                 const quadkey = screenTile.tile.quadkey;
                 display.releaseTile(quadkey, dLayer);
-                display.cancel(quadkey, layer);
+                display.cancel(quadkey, <TileLayer>layer);
             }
 
             layers.remove(layer);
@@ -609,7 +611,7 @@ abstract class Display {
      * @internal
      * @hidden
      */
-    getRenderedFeatureAt(screenX: number, screenY: number, layers?: TileLayer[]): { id: number | string | null, z: number, layerIndex: number } {
+    getRenderedFeatureAt(screenX: number, screenY: number, layers?: (TileLayer | CustomLayer)[]): { id: number | string | null, z: number, layerIndex: number } {
         return null;
     }
 }

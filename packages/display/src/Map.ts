@@ -40,7 +40,7 @@ import {
     GeoPoint,
     GeoRect,
     utils,
-    GeoJSONFeatureCollection, GeoJSONFeature, GeoJSONBBox, FeatureProvider, GeoJSONCoordinate as Point
+    GeoJSONFeatureCollection, GeoJSONFeature, GeoJSONBBox, FeatureProvider, GeoJSONCoordinate as Point, CustomLayer
 } from '@here/xyz-maps-core';
 import {FlightAnimator} from './animation/FlightAnimator';
 import Copyright from './ui/copyright/Copyright';
@@ -157,7 +157,7 @@ export class Map {
     private _oy = 0; // screenOffsetX
 
     // TODO: remove
-    _layers: TileLayer[];
+    _layers: (TileLayer | CustomLayer)[];
     private readonly _vplock: any; // current viewport lock state
     private _zoomAnimator: ZoomAnimator;
     private _flightAnimator: FlightAnimator;
@@ -1192,7 +1192,7 @@ export class Map {
      */
     getLayers(index: number): TileLayer;
 
-    getLayers(index?: number): TileLayer | TileLayer[] {
+    getLayers(index?: number): TileLayer | CustomLayer | (TileLayer | CustomLayer)[] {
         const layers = this._layers;
         if (index != UNDEF) {
             return layers[index];
@@ -1209,7 +1209,7 @@ export class Map {
      * @param layer - the layer to add
      * @param index - the index in layer hierarchy where the layer should be inserted.
      */
-    addLayer(layer: TileLayer, index?: number) {
+    addLayer(layer: TileLayer | CustomLayer, index?: number) {
         const layers = this._layers;
         // make sure layer isn't active already
         if (layers.indexOf(layer) == -1) {
@@ -1246,7 +1246,7 @@ export class Map {
      *
      * @param layer - the layer to remove
      */
-    removeLayer(layer: TileLayer) {
+    removeLayer(layer: TileLayer | CustomLayer) {
         const layers = this._layers;
         const index = layers.indexOf(layer);
 

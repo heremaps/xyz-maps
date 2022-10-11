@@ -130,7 +130,7 @@ export class CustomLayer extends Layer {
      * @param options - options to configure the CustomLayer
      */
     constructor(options?: CustomLayerOptions) {
-        super(options||{});
+        super(options || {});
 
         const layer = this;
         const onLayerAdd = layer.onLayerAdd;
@@ -181,6 +181,10 @@ export class CustomLayer extends Layer {
      */
     render(context: WebGLRenderingContext | CanvasRenderingContext2D, matrix: Float64Array) {
 
+    };
+
+    pointerEvents(active?: boolean): boolean {
+        return false;
     };
 
 

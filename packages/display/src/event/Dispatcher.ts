@@ -21,6 +21,7 @@ import {addEventListener, removeEventListener} from '../DOMTools';
 import {MapEvent} from './Event';
 import {Listener, TaskManager} from '@here/xyz-maps-common';
 import {Map} from '../Map';
+import {TileLayer} from '@here/xyz-maps-core';
 
 type EventHandler = (e: Event) => void;
 type MapEventListener = (e: MapEvent) => void;
@@ -163,7 +164,7 @@ export class EventDispatcher {
                 x: pos[0],
                 y: pos[1]
             }, {
-                layers: map._layers.filter((l) => l.pointerEvents())
+                layers: <TileLayer[]>map._layers.filter((l) => l.pointerEvents())
             });
         }
 

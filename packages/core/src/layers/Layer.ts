@@ -82,6 +82,14 @@ export class Layer {
         }
     };
 
+    removeEventListener(type: string, listener: (event: CustomEvent) => void, _c?) {
+        const listeners = this._l;
+
+        if (listeners.isDefined(type)) {
+            return listeners.remove(type, listener, _c);
+        }
+    };
+
 
     /**
      * Dispatch Layer event.
