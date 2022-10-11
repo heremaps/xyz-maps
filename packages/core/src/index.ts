@@ -52,10 +52,14 @@ export {MVTLayerOptions} from './layers/MVTLayerOptions';
 export {TileLayerOptions} from './layers/TileLayerOptions';
 
 import webMercatorPrj from './projection/webMercator';
+/**
+ * WebMercator projection utilities.
+ */
+export const webMercator = webMercatorPrj;
+
 // @ts-ignore
 import buildInfo from 'buildInfo';
 
-export const webMercator = webMercatorPrj;
 
 /**
  *  Detailed Information about the build.

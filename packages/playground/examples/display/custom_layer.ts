@@ -1,7 +1,6 @@
-import {MVTLayer, CustomLayer, projection} from '@here/xyz-maps-core';
+import {MVTLayer, CustomLayer, webMercator} from '@here/xyz-maps-core';
 import {Map} from '@here/xyz-maps-display';
 
-const {webMercator} = projection;
 
 /** setup the map and "basemap" layer **/
 const baseMapLayer = new MVTLayer({

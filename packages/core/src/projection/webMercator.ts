@@ -72,6 +72,9 @@ const alt2z = (alt: number, lat?: number): number => {
     return alt / earthCircumference(lat);
 };
 
+/**
+ * WebMercator projection utilities.
+ */
 export default {
     mapSizePixel,
     lon2x,
