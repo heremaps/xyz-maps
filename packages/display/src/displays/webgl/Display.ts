@@ -30,7 +30,7 @@ import GLTile from './GLTile';
 import {FeatureFactory} from './buffer/FeatureFactory';
 import {CollisionHandler} from './CollisionHandler';
 import {GeometryBuffer} from './buffer/GeometryBuffer';
-import {TileLayer} from '@here/xyz-maps-core';
+import {CustomLayer, TileLayer} from '@here/xyz-maps-core';
 import {PASS} from './program/GLStates';
 import {Raycaster} from './Raycaster';
 
@@ -52,12 +52,33 @@ const PREVIEW_LOOK_AHEAD_LEVELS: [number, number] = [3, 9];
 //     z || 0
 // ];
 
+
+type GeometryBufferLike = {
+    zLayer?: number;
+    zIndex?: number;
+    alpha?: number;
+    flat: boolean
+};
+
+type RenderBufferData = {
+    z: number;
+    b: GeometryBuffer | GeometryBufferLike;
+    tiled: boolean;
+    data: any;
+    // tile: ScreenTile, // [x,y,size, tile[quadkey,i]]
+    // preview: number[],
+    // previewTile: GLTile
+};
+
 export type TileBufferData = {
     z: number,
-    b: GeometryBuffer,
-    tile: ScreenTile, // [x,y,size, tile[quadkey,i]]
-    preview: number[],
-    previewTile: GLTile
+    b: GeometryBuffer
+    tiled: true;
+    data: {
+        tile: ScreenTile,
+        preview: number[],
+        previewTile: GLTile
+    }
 };
 
 
@@ -75,6 +96,9 @@ class WebGlDisplay extends BasicDisplay {
     private collision: CollisionHandler;
     private rayCaster: Raycaster;
     private groundResolution: number;
+
+    private worldCenter: number[] = [0, 0];
+    private worldSize: number;
 
     constructor(mapEl: HTMLElement, renderTileSize: number, devicePixelRatio: number | string, renderOptions?: RenderOptions) {
         super(mapEl, renderTileSize,
@@ -115,7 +139,8 @@ class WebGlDisplay extends BasicDisplay {
                 if (dLayer) {
                     const dTile = this.buckets.get(quadkey, true/* SKIP TRACK */);
                     if (dTile) {
-                        const {layer, index} = dLayer;
+                        const layer = <TileLayer>dLayer.layer;
+                        const {index} = dLayer;
                         dTile.preview(index, false);
                         dTile.ready(index, false);
                         dTile.cancelTasks(layer);
@@ -196,25 +221,54 @@ class WebGlDisplay extends BasicDisplay {
     setSize(w, h) {
         super.setSize(w, h);
 
-        if (this.render.gl) {
-            this.render.initView(this.w, this.h, this.s, this.rx, this.rz, 0);
-        }
+        this.initRenderer();
     };
 
-    setTransform(scale: number, rotZ: number, rotX: number, groundResolution: number = this.groundResolution) {
+    setTransform(scale: number, rotZ: number, rotX: number) {
         // if (this.s != scale || this.rz != rotZ || this.rx != rotX)
         // {
+        const PI2 = 2 * Math.PI;
+        rotZ = (rotZ + PI2) % PI2;
         this.s = scale;
         this.rz = rotZ;
         this.rx = rotX;
+        // }
+    }
 
-        const PI2 = 2 * Math.PI;
-        rotZ = (rotZ + PI2) % PI2;
+
+    setView(
+        worldCenter: [number, number],
+        scale: number,
+        rotZ: number,
+        rotX: number,
+        groundResolution: number = this.groundResolution,
+        worldSize: number = this.worldSize
+    ) {
+        super.setView(worldCenter, scale, rotZ, rotX, groundResolution, worldSize);
 
         this.groundResolution = groundResolution;
+        this.worldCenter[0] = worldCenter[0];
+        this.worldCenter[1] = worldCenter[1];
+        this.worldSize = worldSize;
 
-        this.render.initView(this.w, this.h, scale, rotX, rotZ, groundResolution);
-        // }
+        this.initRenderer();
+    }
+
+
+    private initRenderer() {
+        if (this.render.gl) {
+            this.render.initView(
+                this.w,
+                this.h,
+                this.s,
+                this.rx,
+                this.rz,
+                this.groundResolution,
+                this.worldCenter[0],
+                this.worldCenter[1],
+                this.worldSize
+            );
+        }
     }
 
 
@@ -267,13 +321,17 @@ class WebGlDisplay extends BasicDisplay {
 
 
     private orderBuffers(
-        screenTile: ScreenTile,
-        buffers: GeometryBuffer[],
+        zSorted: RenderBufferData[],
+        buffers: GeometryBufferLike[],
+        // zSorted: TileBufferData[],
+        // buffers: GeometryBuffer[],
         layer: Layer,
         absZOrder: { [intZ: string]: number },
-        zSorted: TileBufferData[],
-        preview?: number[],
-        previewTile?: GLTile
+        data: any,
+        tiled: boolean
+        // screenTile: ScreenTile,
+        // preview?: number[],
+        // previewTile?: GLTile
     ) {
         for (let buffer of buffers) {
             let {zLayer, zIndex} = buffer;
@@ -289,9 +347,13 @@ class WebGlDisplay extends BasicDisplay {
             zSorted[zSorted.length] = {
                 b: buffer,
                 z: z,
-                tile: screenTile,
-                preview: preview,
-                previewTile: previewTile
+                data,
+                tiled
+                // {
+                //     tile: screenTile,
+                //     preview: preview,
+                //     previewTile: previewTile
+                // }
             };
         }
     }
@@ -314,13 +376,26 @@ class WebGlDisplay extends BasicDisplay {
 
         render.fixedView = Number(!this.viewChange);
 
-        let tileBuffers: TileBufferData[] = [];
+        let tileBuffers: RenderBufferData[] = [];
         let absZOrder = {};
 
         for (let layer of layers) {
             let tiles = layer.tiles;
             // reset tile ready count
             layer.cnt = 0;
+
+            if (!layer.layer.tiled) {
+                layer.ready = true;
+                const customLayer = <CustomLayer>layer.layer;
+                const {renderOptions} = customLayer;
+                this.orderBuffers(tileBuffers, [{
+                    zLayer: renderOptions.zLayer,
+                    zIndex: renderOptions.zIndex,
+                    alpha: renderOptions.alpha || 1,
+                    flat: customLayer.flat
+                }], layer, absZOrder, layer.layer, false);
+                continue;
+            }
 
             if (tiles) {
                 let layerIndex = layer.index;
@@ -345,13 +420,17 @@ class WebGlDisplay extends BasicDisplay {
                                     let previewBuffers;
                                     previewBuffers = previewTile?.getData(layerIndex);
                                     if (previewBuffers?.length) {
-                                        this.orderBuffers(screenTile, previewBuffers, layer, absZOrder, tileBuffers, preview, previewTile);
+                                        this.orderBuffers(tileBuffers, previewBuffers, layer, absZOrder, {
+                                            tile: screenTile,
+                                            preview,
+                                            previewTile
+                                        }, true);
                                     }
                                 }
                             }
                         }
                     } else if (buffers.length) {
-                        this.orderBuffers(screenTile, buffers, layer, absZOrder, tileBuffers);
+                        this.orderBuffers(tileBuffers, buffers, layer, absZOrder, {tile: screenTile}, true);
                     }
                 }
             }
@@ -366,6 +445,7 @@ class WebGlDisplay extends BasicDisplay {
         for (let i = 0, z, zTile; i < tileBuffers.length; i++) {
             zTile = tileBuffers[i];
             z = zTile.z = absZOrder[zTile.z];
+
             if (!zTile.b.flat && z < min3dZIndex) {
                 // if (!zTile.b.flat && z < min3dZIndex && !zTile.b.isPointBuffer() ) {
                 min3dZIndex = z;
@@ -382,8 +462,8 @@ class WebGlDisplay extends BasicDisplay {
         let b = tileBuffers.length;
         while (b--) {
             let data = tileBuffers[b];
-            if (data) {
-                render.draw(data, min3dZIndex);
+            if (data?.tiled) {
+                render.draw(<TileBufferData>data, min3dZIndex);
             }
         }
 
@@ -404,8 +484,12 @@ class WebGlDisplay extends BasicDisplay {
                     // do depth in this pass only and "main" drawing in an additional pass
                     secondAlphaPass = true;
                 }
-                if (data && data.z == layerZIndex) {
-                    render.draw(data, min3dZIndex);
+                if (data?.z == layerZIndex) {
+                    if (!data.tiled) {
+                        render.drawCustom(data.data, data.z);
+                    } else {
+                        render.draw(<TileBufferData>data, min3dZIndex);
+                    }
                 }
             }
 

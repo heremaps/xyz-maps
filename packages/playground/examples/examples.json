@@ -59,6 +59,10 @@
     {
       "file": "./display/take_a_screenshot.html",
       "docs": "classes/display.map.html#snapshot"
+    },
+    {
+      "file": "./display/custom_layer.html",
+      "docs": "classes/core.customlayer.html"
     }
   ],
   "Editor": [

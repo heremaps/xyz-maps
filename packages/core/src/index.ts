@@ -24,6 +24,8 @@ export * from './geo/GeoRect';
 export * from './layers/TileLayer';
 export * from './styles/LayerStyle';
 export * from './layers/MVTLayer';
+export * from './layers/CustomLayer';
+export * from './layers/Layer';
 export * from './features/Feature';
 export * from './tile/Tile';
 export * from './service/GeoCoder';
@@ -97,6 +99,7 @@ import {PixelPoint} from './pixel/PixelPoint';
 import {PixelRect} from './pixel/PixelRect';
 import {TileLayer} from './layers/TileLayer';
 import {MVTLayer} from './layers/MVTLayer';
+import {CustomLayer} from './layers/CustomLayer';
 import {Feature} from './features/Feature';
 import {Tile} from './tile/Tile';
 import {tileUtils} from './tile/TileUtils';
@@ -130,7 +133,8 @@ const pixel = XYZMAPS.pixel = {
 
 const layers = XYZMAPS.layers = {
     TileLayer: TileLayer,
-    MVTLayer: MVTLayer
+    MVTLayer: MVTLayer,
+    CustomLayer
 };
 
 const features = XYZMAPS.features = {
@@ -160,17 +164,17 @@ const providers = XYZMAPS.providers = {
 export {pixel, tile, layers, features, providers};
 
 export const projection = XYZMAPS.projection = {
-    'webMercator': webMercator
+    webMercator
 };
 
 
 export const loaders = XYZMAPS.loaders = {
-    'HTTPLoader': HTTPLoader,
-    'Manager': Manager
+    HTTPLoader,
+    Manager
 };
 
 export const service = XYZMAPS.service || {
-    'Geocoder': GeoCoder
+    Geocoder: GeoCoder
 };
 
 export default {

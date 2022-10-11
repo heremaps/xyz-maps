@@ -96,7 +96,7 @@ const createBuffer = (
     onInit: () => void,
     onDone: (data: GeometryBuffer[], imagesLoaded: boolean) => void
 ) => {
-    const {layer} = renderLayer;
+    const layer = <TileLayer>renderLayer.layer;
     const groups: GroupMap = {};
     let allIconsReady = true;
 

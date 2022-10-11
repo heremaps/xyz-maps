@@ -59,7 +59,7 @@ class Grid {
         this.size = tileSize;
     }
 
-    init(centerWorldPixel: [number, number], rotZRad: number, width: number, height: number, bounds: number[][]) {
+    init(centerWorldPixel: number[], rotZRad: number, width: number, height: number, bounds: number[][]) {
         this.cwpx = centerWorldPixel[0];
         this.cwpy = centerWorldPixel[1];
 

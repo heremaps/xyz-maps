@@ -35,7 +35,7 @@ class FlightAnimator extends Animator {
     start(centerTo, zoomTo: number, duration?: number) {
         const {map} = this;
         const zoomFrom = map.getZoomlevel();
-        const worldSizePixel = map._wSize;
+        const worldSizePixel = map._worldSizeFixed;
         const centerFrom = map.getCenter();
         const centerFromX = project.lon2x(centerFrom.longitude, worldSizePixel);
         const centerFromY = project.lat2y(centerFrom.latitude, worldSizePixel);

@@ -132,7 +132,8 @@ export class Map {
     private _tlwx: number;
     private _tlwy: number;
     private _groundResolution: number;
-    _wSize: number; // world size pixel
+    _worldSizeFixed: number; // world size pixel
+    _worldSize: number; // world size pixel
 
     private _vp: GeoRect; // viewport/viewbounds
 
@@ -143,8 +144,11 @@ export class Map {
     private _evDispatcher: EventDispatcher;
     private _b: Behavior;
 
-    // TODO: cleanup
-    private _cw: PixelPoint = new PixelPoint(0, 0); // center world in pixel
+
+    // fixed center world in pixel. eg: zoom 12.4 -> 2^12 * tilesize
+    private _cWorldFixed: PixelPoint = new PixelPoint(0, 0);
+    // center world in pixel including intermediate zoomlevels. eg: zoom 12.4 -> 2^12.4 * tilesize
+    private _cWorld: PixelPoint = new PixelPoint(0, 0);
     private _c: GeoPoint = new GeoPoint(0, 0); // center geo
     private _pc: GeoPoint = new GeoPoint(0, 0); // previous center geo
 
@@ -201,7 +205,9 @@ export class Map {
 
         this._z = Math.min(MAX_GRID_ZOOM, zoomLevel) ^ 0;
 
-        this._wSize = Math.pow(2, this._z) * TILESIZE;
+        this._worldSizeFixed = Math.pow(2, this._z) * TILESIZE;
+        this._worldSize = Math.pow(2, zoomLevel) * TILESIZE;
+
         this._l = new Listener([
             'center',
             'rotation',
@@ -336,9 +342,9 @@ export class Map {
 
     private initViewPort(): [number, number] {
         const currentScale = this._s;
-        const worldSizePixel = this._wSize;
-        const centerWorldPixelX = this._cw.x;
-        const centerWorldPixelY = this._cw.y;
+        const worldSizePixel = this._worldSizeFixed;
+        const centerWorldPixelX = this._cWorldFixed.x;
+        const centerWorldPixelY = this._cWorldFixed.y;
 
         const cOffsetX = this._w / 2;
         const cOffsetY = this._h / 2;
@@ -371,11 +377,19 @@ export class Map {
 
         this._mvcRecognizer.watch(true);
 
-        this._groundResolution = earthCircumference(centerGeo.latitude) / this._wSize;
+        this._groundResolution = earthCircumference(centerGeo.latitude) / this._worldSizeFixed;
 
-        display.setTransform(this._s, this._rz, this._rx, this._groundResolution);
 
-        display.updateGrid(this.initViewPort(), this._c, this._z, this._ox, this._oy);
+        display.setView(this.initViewPort(), this._s, this._rz, this._rx, this._groundResolution, this._worldSize);
+        // display.setView(this.initViewPort(), this.getZoomlevel(), this._s, this._rz, this._rx, this._groundResolution);
+        display.updateGrid(this._z, this._ox, this._oy);
+
+        // display.setTransform(this._s, this._rz, this._rx, this._groundResolution);
+
+
+        // console.log(this.getZoomlevel(), 'VS', this._z);
+        // display.updateGrid(this.initViewPort(), this.getZoomlevel(), this._ox, this._oy);
+        // display.updateGrid(this.initViewPort(), this._z, this._ox, this._oy);
 
         if (prevCenterGeo[LON] != centerGeo[LON] || prevCenterGeo[LAT] != centerGeo[LAT]) {
             this._l.trigger('center', ['center', centerGeo, prevCenterGeo], true);
@@ -383,8 +397,12 @@ export class Map {
         }
     }
 
+    private _clipLatitude(latitude: number) {
+        return Math.min(MAX_LATITUDE, Math.max(MIN_LATITUDE, latitude));
+    }
+
     private _setCenter(lon, lat) {
-        const worldSizePixel = this._wSize;
+        const worldSizePixel = this._worldSizeFixed;
 
         if (arguments.length != 2) {
             if (lon instanceof Array) {
@@ -407,17 +425,21 @@ export class Map {
             lon += 360;
         }
 
-        if (lat < MIN_LATITUDE) {
-            lat = MIN_LATITUDE;
-        } else if (lat > MAX_LATITUDE) {
-            lat = MAX_LATITUDE;
-        }
+        Math.min(MAX_LATITUDE, Math.max(MIN_LATITUDE, lat));
+
+
+        lat = this._clipLatitude(lat);
 
         this._c = new GeoPoint(lon, lat);
 
-        this._cw = new PixelPoint(
+        this._cWorldFixed = new PixelPoint(
             project.lon2x(lon, worldSizePixel),
             project.lat2y(lat, worldSizePixel)
+        );
+
+        this._cWorld = new PixelPoint(
+            project.lon2x(lon, this._worldSize),
+            project.lat2y(lat, this._worldSize)
         );
 
         return true;
@@ -464,7 +486,7 @@ export class Map {
                 const rcx = this._cx;
                 const rcy = this._cy;
                 const uRotCenter = this._display.unproject(rcx, rcy);
-                const centerWorldPixel = this._cw;
+                const centerWorldPixel = this._cWorldFixed;
 
                 centerWorldPixel.x += uRotCenter[0] - rcx;
                 centerWorldPixel.y += uRotCenter[1] - rcy;
@@ -955,6 +977,8 @@ export class Map {
         }
 
         if (zoomLevel != zoomTo || currentScale != 1) {
+            this._worldSize = Math.pow(2, zoomTo) * TILESIZE;
+
             if (animate) {
                 this._zoomAnimator.start(zoomTo, fixedX, fixedY,
                     typeof animate === 'number'
@@ -966,21 +990,22 @@ export class Map {
                 const _uFixed = this._display.unproject(fixedX, fixedY);
                 const gridZoom = Math.min(MAX_GRID_ZOOM, zoomTo) ^ 0;
                 const deltaFixedZoom = zoomLevel - gridZoom;
-                const worldSizePixel = this._wSize;
+                const worldSizePixel = this._worldSizeFixed;
                 const scale = Math.pow(2, zoomTo - gridZoom);
 
                 if (deltaFixedZoom) {
                     this._z = Math.min(MAX_GRID_ZOOM, zoomTo) ^ 0;
-                    this._wSize = Math.pow(2, this._z) * TILESIZE;
+                    this._worldSizeFixed = Math.pow(2, this._z) * TILESIZE;
                 }
 
-                this._display.setTransform(scale * Math.pow(.5, deltaFixedZoom), this._rz, this._rx, this._wSize);
+                this._display.setView(this.initViewPort(), scale * Math.pow(.5, deltaFixedZoom), this._rz, this._rx, this._groundResolution, this._worldSize);
+                // this._display.setTransform(scale * Math.pow(.5, deltaFixedZoom), this._rz, this._rx, this._worldSizeFixed);
 
                 const uFixed = this._display.unproject(fixedX, fixedY);
 
                 this._setCenter(
-                    project.x2lon(this._cw.x + _uFixed[0] - uFixed[0], worldSizePixel),
-                    project.y2lat(this._cw.y + _uFixed[1] - uFixed[1], worldSizePixel)
+                    project.x2lon(this._cWorldFixed.x + _uFixed[0] - uFixed[0], worldSizePixel),
+                    project.y2lat(this._cWorldFixed.y + _uFixed[1] - uFixed[1], worldSizePixel)
                 );
 
                 this._s = scale;
@@ -1137,10 +1162,10 @@ export class Map {
     pan(dx: number, dy: number) {
         // make sure dx or dy results in real viewport change...
         if (dx != 0 || dy != 0) {
-            const worldSizePixel = this._wSize;
+            const worldSizePixel = this._worldSizeFixed;
             const cx = this._cx;
             const cy = this._cy;
-            const centerWorldPixel = this._cw;
+            const centerWorldPixel = this._cWorldFixed;
             const uDelta = this._display.unproject(cx + dx, cy + dy);
             const x = centerWorldPixel.x - uDelta[0] + cx;
             const y = centerWorldPixel.y - uDelta[1] + cy;
@@ -1196,9 +1221,19 @@ export class Map {
             // if layer get's cleared -> refresh/re-fetch data
             // layer.addEventListener('clear', (ev)=>this.refresh(ev.detail.layer));
             layer.addEventListener('clear', this._layerClearListener);
-            this._l.trigger(ON_LAYER_ADD_EVENT,
-                [new MapEvent(ON_LAYER_ADD_EVENT, {index: index, layer: layer})]
-            );
+
+
+            const eventDetail = {
+                index: index,
+                layer: layer,
+                map: this,
+                context: this._display.getContext(),
+                canvas: this._display.canvas
+            };
+
+            layer.dispatchEvent('layerAdd', eventDetail);
+
+            this._l.trigger(ON_LAYER_ADD_EVENT, [new MapEvent(ON_LAYER_ADD_EVENT, eventDetail)]);
 
             layers.splice(index, 0, layer);
             this.updateGrid();
@@ -1316,7 +1351,7 @@ export class Map {
             [x, y, z] = x;
         }
 
-        const worldSizePixel = this._wSize;
+        const worldSizePixel = this._worldSizeFixed;
         const topLeftWorldX = this._tlwx;
         const topLeftWorldY = this._tlwy;
         let worldX = x + topLeftWorldX;
@@ -1377,12 +1412,10 @@ export class Map {
         if (Array.isArray(lon)) {
             [lon, lat, alt] = lon;
         }
-        if (lat < MIN_LATITUDE) {
-            lat = MIN_LATITUDE;
-        } else if (lat > MAX_LATITUDE) {
-            lat = MAX_LATITUDE;
-        }
-        const worldSizePixel = this._wSize;
+
+        lat = this._clipLatitude(lat);
+
+        const worldSizePixel = this._worldSizeFixed;
         const topLeftWorldX = this._tlwx;
         const topLeftWorldY = this._tlwy;
         return [

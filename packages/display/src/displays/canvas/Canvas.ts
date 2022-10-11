@@ -210,6 +210,10 @@ class CanvasRenderer implements BasicRender {
     destroy(): void {
 
     }
+
+    getContext(): CanvasRenderingContext2D {
+        return this.ctx;
+    }
 }
 
 

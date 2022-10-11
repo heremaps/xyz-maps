@@ -55,17 +55,16 @@ abstract class Display {
         return dpr < 1 ? 1 : dpr;
     }
 
-
     private previewer: Preview;
     private updating: boolean = false;
     private ti: number; // tile index
     private _gridClip: { rz: number, rx: number, s: number, top: number } = {rz: 0, rx: 0, s: 0, top: 0};
     protected viewChange: boolean;
-    protected cGeo: GeoPoint = new GeoPoint(0, 0);
     protected sx: number; // grid/screen offset x (includes scale offset)
     protected sy: number; // grid/screen offset y (includes scale offset)
     protected dirty: boolean = false;
-    protected gridSizes: number[];
+    private centerWorld: number[]; // absolute world center xy0
+
     tileSize: number;
     layers: Layers;
     dpr: number;
@@ -288,6 +287,10 @@ abstract class Display {
         return false;
     }
 
+    getContext() {
+        return this.render.getContext();
+    }
+
     copyCanvas2d(dx: number = 0, dy: number = 0, w: number = this.w, h: number = this.h): HTMLCanvasElement {
         const {canvas, dpr} = this;
         dx *= dpr;
@@ -370,7 +373,10 @@ abstract class Display {
             vpTiles.push(tilePosition);
 
             for (let dLayer of layers) {
-                let layer = dLayer.layer;
+                let layer = <TileLayer>dLayer.layer;
+
+                if (!layer.tiled) continue;
+
                 let layerTileSize = layer.tileSize || 256;
 
                 if (layerTileSize == gridTileSize) {
@@ -396,7 +402,7 @@ abstract class Display {
             }
 
             for (let dLayer of layers) {
-                if (dLayer.layer.tileSize == gridTileSize) {
+                if ((<TileLayer>dLayer.layer).tileSize == gridTileSize) {
                     display.releaseTile(qk, dLayer);
                 }
             }
@@ -405,7 +411,7 @@ abstract class Display {
     }
 
     private clipGridHeight(maxPitch: number) {
-        const {rz, rx, s, _gridClip} = this;
+        const {rz, rx, s, _gridClip, centerWorld} = this;
         // cache result for the current map transform
         if (_gridClip.rx != rx || _gridClip.rz != rz
         // || _gridClip.s != s
@@ -413,19 +419,33 @@ abstract class Display {
             _gridClip.rz = rz;
             _gridClip.rx = rx;
             // _gridClip.s = s;
-            this.setTransform(s, rz, -maxPitch);
+            // this.setTransform(s, rz, -maxPitch);
+            this.setView(centerWorld, s, rz, -maxPitch);
+
             const topAtMaxPitch = this.unproject(this.w / 2, 0);
-            this.setTransform(s, rz, rx);
+            // this.setTransform(s, rz, rx);
+            this.setView(centerWorld, s, rz, rx);
             _gridClip.top = this.project(topAtMaxPitch[0], topAtMaxPitch[1])[1];
         }
         return _gridClip.top;
     }
 
-    updateGrid(centerWorldPixel: [number, number], centerGeo: GeoPoint, tileGridZoom: number, screenOffsetX: number, screenOffsetY: number) {
+
+    // updateGrid2(zoomlevel: number) {
+    //     this.updateGrid(this.centerWorld, zoomlevel, this.sx, this.sy);
+    // }
+    // updateGrid(centerWorldPixel: [number, number], zoomlevel: number, screenOffsetX: number, screenOffsetY: number) {
+    // console.log('centerWorldPixel', centerWorldPixel.map((x) => x * window._wSize), window._x, window._y);
+    updateGrid(zoomlevel: number, screenOffsetX: number, screenOffsetY: number) {
+        const centerWorldPixel = this.centerWorld;
+        // const screenOffsetX = this.sx;
+        // const screenOffsetY = this.sy;
+        const tileGridZoom = zoomlevel ^ 0;
+        // const worldSize = Math.pow(2, zoomlevel) * this.tileSize;
+
         this.viewChange = true;
         this.sx = screenOffsetX;
         this.sy = screenOffsetY;
-        this.cGeo = centerGeo;
 
         const display = this;
         const rotZRad = this.rz;
@@ -471,12 +491,12 @@ abstract class Display {
     }
 
     releaseTile(quadkey: string, dLayer: Layer) {
-        const tileLayer = dLayer.layer;
+        const tileLayer = <TileLayer>dLayer.layer;
         const tile = tileLayer.getCachedTile(quadkey);
 
         if (tile && tile.loadStartTs) {
             if (!tile.isLoaded()) {
-                dLayer.layer.cancelTile(tile, dLayer.handleTile);
+                tileLayer.cancelTile(tile, dLayer.handleTile);
             }
         }
     }
@@ -487,7 +507,7 @@ abstract class Display {
 
         if (dLayer.visible) {
             if (!displayTile.ready(index) && !displayTile.preview(index)) {
-                display.preview(displayTile, dLayer.layer, index);
+                display.preview(displayTile, dLayer.layer as TileLayer, index);
             }
         } else {
             // if layer is not visible displaytiles need to be marked as ready to stop renderloop.
@@ -538,7 +558,19 @@ abstract class Display {
         this.render.grid(!!show);
     }
 
-    setTransform(scale: number, rotZ: number, rotX: number, worldSizePixel?: number) {
+    setView(
+        centerWorld: number[],
+        scale: number,
+        rotZ: number,
+        rotX: number,
+        groundResolution?: number,
+        worldSizePixel?: number
+    ) {
+        this.centerWorld = centerWorld;
+        this.setTransform(scale, rotZ, rotX);
+    }
+
+    protected setTransform(scale: number, rotZ: number, rotX: number) {
         this.render.setScale(this.s = scale, 0, 0);
         this.render.setRotation(this.rz = rotZ, this.rx = rotX);
         this.render.applyTransform();

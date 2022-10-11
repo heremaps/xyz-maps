@@ -17,7 +17,7 @@
  * License-Filename: LICENSE
  */
 
-import {Tile, TileLayer} from '@here/xyz-maps-core';
+import {Tile, Layer as BasicLayer, TileLayer} from '@here/xyz-maps-core';
 import BasicTile from './BasicTile';
 
 class ScreenTile {
@@ -27,7 +27,7 @@ class ScreenTile {
     tile: BasicTile;
     lrTs: number | false = false;
 
-    constructor(x:number, y:number, size:number, tile) {
+    constructor(x: number, y: number, size: number, tile) {
         this.x = x;
         this.y = y;
         this.size = size;
@@ -39,7 +39,7 @@ class Layer {
     id: number;
     ready: boolean = false;
     cnt: number = 0;
-    layer: TileLayer;
+    layer: BasicLayer;
     error: boolean;
     index: number;
     visible: boolean;
@@ -53,11 +53,11 @@ class Layer {
     private zd: boolean = false; // dirty
     bgColor: any;
 
-    constructor(layer: TileLayer, layers: Layers) {
+    constructor(layer: BasicLayer, layers: Layers) {
         this.layer = layer;
-        this.tileSize = layer.tileSize;
+        this.tileSize = (<TileLayer>layer).tileSize || null;
         this.layers = layers;
-        this.id = Math.floor(Math.random()*1e16);
+        this.id = Math.floor(Math.random() * 1e16);
     }
 
     getZ(z: number | string): number {
@@ -106,7 +106,7 @@ class Layer {
         let z = 0;
         let l;
         while (l = layers[i++]) {
-            if (l._z3d>=0) {
+            if (l._z3d >= 0) {
                 return z + l.z3d;
             }
             z += l.zLength;
@@ -115,7 +115,7 @@ class Layer {
     }
 
     _z3d: number = Infinity;
-    z3d: number
+    z3d: number;
 }
 
 class Layers extends Array<Layer> {
@@ -129,7 +129,7 @@ class Layers extends Array<Layer> {
     // tiles: TileMap = {};
 
     // @ts-ignore
-    indexOf(layer: TileLayer) {
+    indexOf(layer: BasicLayer) {
         let item = this._map[layer.id];
         return super.indexOf(item);
     }
@@ -140,7 +140,7 @@ class Layers extends Array<Layer> {
         }
     }
 
-    add(layer: TileLayer, index: number) {
+    add(layer: BasicLayer, index: number) {
         const id = layer.id;
         let data = this._map[id];
         let isNew;
@@ -164,7 +164,7 @@ class Layers extends Array<Layer> {
         return isNew;
     }
 
-    remove(layer: TileLayer) {
+    remove(layer: BasicLayer) {
         let index = this.indexOf(layer);
 
         if (index !== -1) {
@@ -176,7 +176,7 @@ class Layers extends Array<Layer> {
         return index;
     }
 
-    get(layer: string | TileLayer) {
+    get(layer: string | BasicLayer) {
         if (typeof layer != 'string') {
             layer = layer.id;
         }
@@ -200,6 +200,9 @@ class Layers extends Array<Layer> {
 
             if (dLayer.visible = zoomlevel >= layer['min'] && zoomlevel <= layer['max']) {
                 dLayer.ready = false;
+
+                if (layer.custom) continue;
+
                 tileSizes.add(layer.tileSize);
             } else {
                 // if layer not visible viewportReady should be triggered..

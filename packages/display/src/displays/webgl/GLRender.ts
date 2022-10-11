@@ -18,7 +18,7 @@
  */
 
 import BasicRender from '../BasicRender';
-import {tile, Tile, TileLayer} from '@here/xyz-maps-core';
+import {CustomLayer, tile, Tile, TileLayer} from '@here/xyz-maps-core';
 import GLTile from './GLTile';
 import {IconManager} from './IconManager';
 import {RGBA, toRGB} from './color';
@@ -87,6 +87,8 @@ export class GLRender implements BasicRender {
     private vMat: Float32Array; // view matrix
     private vPMat: Float32Array; // projection matrix
     private invVPMat: Float32Array; // inverse projection matrix
+    // the worldmatrix used by custom layers to project from absolute worldcoordinates [0-1] to screencoordinates
+    private worldMatrix: Float64Array;
     screenMat: Float32Array;
     invScreenMat: Float32Array;
 
@@ -143,6 +145,7 @@ export class GLRender implements BasicRender {
         this.invVPMat = mat4.create();
         this.screenMat = mat4.create();
         this.invScreenMat = mat4.create();
+        this.worldMatrix = new Float64Array(16);
 
         this.tilePreviewTransform = {
             m: mat4.create(),
@@ -157,6 +160,10 @@ export class GLRender implements BasicRender {
         // need to be set to enable stencil test in program init.
         stencilTile.blend = true;
         this.stencilTile = stencilTile;
+    }
+
+    getContext(): WebGLRenderingContext {
+        return this.gl;
     }
 
     setPass(pass: PASS) {
@@ -221,15 +228,9 @@ export class GLRender implements BasicRender {
         if (!gl.getExtension(EXTENSION_OES_ELEMENT_INDEX_UINT)) {
             console.warn(EXTENSION_OES_ELEMENT_INDEX_UINT + ' not supported!');
         }
-        // gl.frontFace(gl.CW);
-        // gl.enable(gl.CULL_FACE);
-        gl.cullFace(gl.FRONT);
-        gl.enable(gl.DEPTH_TEST);
-        gl.enable(gl.SCISSOR_TEST);
-        // gl.enable(gl.BLEND);
-        // gl.enable(gl.DEPTH_TEST);
 
-        gl.clearStencil(0);
+        this.gl = gl;
+        this.initContext();
 
         this.depthBufferSize = 1 << gl.getParameter(gl.DEPTH_BITS);
 
@@ -254,13 +255,22 @@ export class GLRender implements BasicRender {
         for (let name in this.programs) {
             this.programs[name].setBufferCache(this.buffers);
         }
+    }
 
+    initContext() {
+        const {gl} = this;
+        // gl.frontFace(gl.CW);
+        // gl.enable(gl.CULL_FACE);
+        gl.cullFace(gl.FRONT);
+        gl.enable(gl.DEPTH_TEST);
+        gl.enable(gl.SCISSOR_TEST);
+        // gl.enable(gl.BLEND);
+        // gl.enable(gl.DEPTH_TEST);
         // gl.depthFunc(gl.LESS);
+        gl.clearStencil(0);
         gl.blendFunc(gl.SRC_ALPHA, gl.ONE_MINUS_SRC_ALPHA);
         // gl.blendFunc(gl.ONE, gl.ONE_MINUS_SRC_ALPHA);
         // gl.blendFuncSeparate(gl.SRC_ALPHA, gl.ONE_MINUS_SRC_ALPHA, gl.ONE, gl.ONE_MINUS_SRC_ALPHA)
-
-        this.gl = gl;
     }
 
     grid(show: boolean): void {
@@ -271,7 +281,17 @@ export class GLRender implements BasicRender {
 
     }
 
-    initView(pixelWidth: number, pixelHeight: number, scale: number, rotX: number, rotZ: number, groundRes: number) {
+    initView(
+        pixelWidth: number,
+        pixelHeight: number,
+        scale: number,
+        rotX: number,
+        rotZ: number,
+        groundRes: number,
+        worldCenterX: number,
+        worldCenterY: number,
+        worldSize: number
+    ) {
         const projectionMatrix = this.vPMat;
         const viewMatrix = this.vMat;
 
@@ -301,6 +321,7 @@ export class GLRender implements BasicRender {
 
         const d1 = cosHFOV * targetZ;
         const d2 = height / Math.tan(alpha);
+        // const zNear = 1;
         const zNear = targetZ * .1;
         let zFar = cosHFOV * (d1 + d2);
         // avoid precision issues...
@@ -317,16 +338,25 @@ export class GLRender implements BasicRender {
         this.rx = rotX;
         this.scale = scale;
 
+        this.zMeterToPixel = 1 / groundRes;
+
         this.gl.viewport(0, 0, pixelWidth * this.dpr, pixelHeight * this.dpr);
 
         mat4.perspective(projectionMatrix, FIELD_OF_VIEW, pixelWidth / pixelHeight, zNear, zFar);
 
-        this.zMeterToPixel = 1 / groundRes;
 
-        // {mat4} mat4.lookAt(out, eye, center, up)
+        const worldMatrix = mat4.copy(this.worldMatrix, projectionMatrix);
+        mat4.scale(worldMatrix, worldMatrix, [1, -1, 1]);
+        mat4.translate(worldMatrix, worldMatrix, [0, 0, -targetZ]);
+        mat4.rotateX(worldMatrix, worldMatrix, -rotX);
+        mat4.rotateZ(worldMatrix, worldMatrix, rotZ);
+        mat4.scale(worldMatrix, worldMatrix, [worldSize, worldSize, worldSize]);
+        mat4.translate(worldMatrix, worldMatrix, [-worldCenterX, -worldCenterY, 0]);
+        // mat4.translate(worldMatrix, worldMatrix, [-worldCenterX * worldSize, -worldCenterY * worldSize, 0]);
+        // mat4.scale(worldMatrix, worldMatrix, [worldSize, worldSize, worldSize]);
+
+
         mat4.lookAt(viewMatrix, [centerPixelX, centerPixelY, -targetZ], [centerPixelX, centerPixelY, 0], [0, -1, 0]);
-
-
         mat4.translate(viewMatrix, viewMatrix, [centerPixelX, centerPixelY, 0]);
         mat4.rotateX(viewMatrix, viewMatrix, rotX);
         mat4.rotateZ(viewMatrix, viewMatrix, rotZ);
@@ -665,13 +695,13 @@ export class GLRender implements BasicRender {
     draw(bufferData: TileBufferData, min3dZIndex: number): void {
         let scissored = false;
         let stenciled = false;
-        let screenTile = bufferData.tile;
+        let screenTile = bufferData.data.tile;
         let dTile = <GLTile>screenTile.tile;
         let tileSize = screenTile.size;
         let x = screenTile.x;
         let y = screenTile.y;
         let buffer = bufferData.b;
-        let {preview} = bufferData;
+        let {preview} = bufferData.data;
         let qk;
         let sx;
         let sy;
@@ -688,7 +718,7 @@ export class GLRender implements BasicRender {
         this.min3dZIndex = min3dZIndex;
 
         if (preview) {
-            let previewTile = bufferData.previewTile;
+            let previewTile = bufferData.data.previewTile;
 
             qk = preview[0];
             sx = preview[1];
@@ -762,5 +792,23 @@ export class GLRender implements BasicRender {
     }
 
     prepare(INSTRUCTIONS: any, tile: Tile, layer: TileLayer, display: any, dTile: BasicTile, cb: () => void): void {
+    }
+
+    drawCustom(layer: CustomLayer, zIndex: number) {
+        const render = this;
+        const {gl} = render;
+
+        render.prog = null;
+
+        const zFar = (65535 - zIndex) / 65536;
+        const zNear = layer.renderOptions.mode == '3d' ? 0 : zFar;
+
+        gl.depthRange(zNear, zFar);
+        gl.disable(gl.SCISSOR_TEST);
+        gl.disable(gl.STENCIL_TEST);
+
+        layer.render(gl, render.worldMatrix);
+
+        this.initContext();
     }
 }

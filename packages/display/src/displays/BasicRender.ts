@@ -26,7 +26,7 @@ interface BasicRender {
 
     convertColor(color: string | [number, number, number, number?]): any;
 
-    setBackgroundColor(color: string| [number, number, number, number?]): void;
+    setBackgroundColor(color: string | [number, number, number, number?]): void;
 
     setScale(scale: number, sx: number, sy: number): void;
 
@@ -37,6 +37,8 @@ interface BasicRender {
     clear(): void;
 
     grid(show: boolean): void;
+
+    getContext(): CanvasRenderingContext2D | WebGLRenderingContext;
 
     applyTransform(): void;
 

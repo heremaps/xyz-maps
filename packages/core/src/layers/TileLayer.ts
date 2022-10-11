@@ -33,6 +33,7 @@ import {Feature} from '../features/Feature';
 import {GeoPoint} from '../geo/GeoPoint';
 import {GeoRect} from '../geo/GeoRect';
 import {GeoJSONBBox, GeoJSONCoordinate, GeoJSONFeature, GeoJSONFeatureCollection} from '../features/GeoJSON';
+import {Layer} from './Layer';
 
 const REMOVE_FEATURE_EVENT = 'featureRemove';
 const ADD_FEATURE_EVENT = 'featureAdd';
@@ -51,7 +52,7 @@ let UNDEF;
 /**
  * TileLayer
  */
-export class TileLayer {
+export class TileLayer extends Layer {
     protected _p: TileProvider[] = [];
 
     private _fp: FeatureProvider;
@@ -60,7 +61,7 @@ export class TileLayer {
     // pointer events active
     private _pev = true;
 
-    private _l: Listeners;
+    // private _l: Listeners;
 
     protected __type = 'Layer';
 
@@ -69,27 +70,9 @@ export class TileLayer {
      */
     protected margin: number = 20;
 
-    /**
-     * id of the Layer.
-     */
-    public readonly id: string;
-
-    /**
-     * Name of the Layer
-     */
-    public name: string = '';
-
-    /**
-     * minimum zoom level at which data from the Layer is displayed.
-     */
-    public min: number = DEFAULT_LAYER_MIN_ZOOM;
-
-    /**
-     * maximum zoom level at which data from the Layer will be displayed.
-     */
-    public max: number = DEFAULT_LAYER_MAX_ZOOM;
-
     public tileSize: number;
+
+    tiled = true;
 
     levelOffset: number = 0;
 
@@ -97,21 +80,18 @@ export class TileLayer {
      * @param options - options to configure the TileLayer
      */
     constructor(options: TileLayerOptions) {
-        const layer = this;
         const {pointerEvents} = options;
         delete options.pointerEvents;
 
+        super({
+            min: DEFAULT_LAYER_MIN_ZOOM,
+            max: DEFAULT_LAYER_MAX_ZOOM,
+            tiled: true,
+            ...options
+        });
 
-        for (const c in options) {
-            layer[c] = options[c];
-        }
-
-        if (layer.id == UNDEF) {
-            (<any>layer).id = 'L-' + (Math.random() * 1e8 ^ 0);
-        }
-
-
-        layer._l = new Listeners([
+        const layer = this;
+        [
             ADD_FEATURE_EVENT,
             REMOVE_FEATURE_EVENT,
             MODIFY_FEATURE_COORDINATES_EVENT,
@@ -120,7 +100,7 @@ export class TileLayer {
             VIEWPORT_READY_EVENT,
             STYLE_CHANGE_EVENT
             // ,'tap', 'pointerup', 'pointerenter', 'pointerleave', 'dbltap', 'pointerdown', 'pressmove', 'pointermove'
-        ]);
+        ].forEach(((eventType) => layer._l.addEvent(eventType)));
 
         if (typeof pointerEvents == 'boolean') {
             this.pointerEvents(pointerEvents);
@@ -216,13 +196,16 @@ export class TileLayer {
     addEventListener(type: string, listener: (event: CustomEvent) => void)
 
     addEventListener(type: string, listener: (event: CustomEvent) => void, _c?) {
-        const listeners = this._l;
-
-        if (listeners.isDefined(type)) {
-            return listeners.add(type, listener, _c);
+        if (this._l.isDefined(type)) {
+            return super.addEventListener(type, listener, _c);
         }
-
-        return this._fp && this._fp.addEventListener(type, listener, _c);
+        // const listeners = this._l;
+        //
+        // if (listeners.isDefined(type)) {
+        //     return listeners.add(type, listener, _c);
+        // }
+        //
+        return this._fp?.addEventListener(type, listener, _c);
     };
 
     /**
@@ -255,15 +238,6 @@ export class TileLayer {
         }
         this._l.trigger(type, ev, true);
     }
-
-    protected dispatchEvent(type: string, detail: { [name: string]: any, layer?: TileLayer }) {
-        detail.layer = this;
-        const event = new CustomEvent(type, {
-            detail: detail
-        });
-        this._l.trigger(type, event, true);
-    }
-
 
     /**
      * Modify coordinates of a feature in the layer.
