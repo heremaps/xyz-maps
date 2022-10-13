@@ -24,9 +24,10 @@ import NavlinkTools from './link/NavlinkTools';
 import LocationTools from './location/LocationTools';
 import {Feature} from './feature/Feature';
 import {Marker} from '@here/xyz-maps-editor';
-import {vec3} from '@here/xyz-maps-common';
+import {geotools, vec3} from '@here/xyz-maps-common';
 import {getClosestPntOnLine, rayIntersectPlane} from '../geometry';
 import InternalEditor from '../IEditor';
+import {GeoJSONCoordinate} from '@here/xyz-maps-core';
 
 const tools = {
     MARKER: MarkerTools,
@@ -158,7 +159,8 @@ export const dragFeatureCoordinate = (
         pntMovedWorldPx = rayIntersectPlane(rayDir, rayStart, behavior.plane, pntWorldPx);
     } else {
         const dragAxis = behavior.axis;
-        const sz = display._prj(display._g2w(coordinate[0], coordinate[1], coordinate[2]))[2];
+        const sz = display._prj(pntWorldPx)[2];
+
 
         // calculate plane normal of dragaxis and mouse ray intersection
         const plane1 = pntWorldPx;
@@ -186,4 +188,3 @@ export const dragFeatureCoordinate = (
 
     return coordinate;
 };
-

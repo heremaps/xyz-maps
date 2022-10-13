@@ -28,7 +28,13 @@ import {JSUtils} from '@here/xyz-maps-common';
 import {Location} from './Location';
 import {Feature} from '@here/xyz-maps-editor';
 import FeatureTools from '../feature/FeatureTools';
+import {dragFeatureCoordinate} from '../oTools';
 
+const DRAG_STOP = 'dragStop';
+const DRAG_MOVE = 'dragMove';
+const DRAG_START = 'dragStart';
+const POINTER_UP = 'pointerup';
+const POINTER_DOWN = 'pointerdown';
 let linkTools;
 let UNDEF;
 
@@ -44,8 +50,7 @@ const getPrivate = (feature, name?: string) => {
             isGeoMod: false,
             isHovered: false,
             cLink: null,
-            moved: false,
-            prevDMove: null
+            moved: false
         };
     }
 
@@ -167,34 +172,26 @@ function onPressmove(ev, dx, dy, ax, ay) {
 
     if (prv.isSelected && !EDITOR._config.editRestrictions(feature, 1)) {
         if (!prv.moved) {
-            prv.moved = true;
             // connect to a link if this object has link property, if not, do not connect to a link.
             if (tools.getRoutingData(feature).link != UNDEF) {
                 tools.connect(feature, null);
             }
-            triggerEvent(feature, ev, 'display', 'dragStart');
+        }
+        triggerEvent(feature, ev, 'display', prv.moved ? DRAG_MOVE : DRAG_START);
+
+        let coordinate = <GeoJSONCoordinate>[...feature.geometry.coordinates];
+        const altitude = EDITOR.getStyleProperty(feature, 'altitude');
+
+        // place/address coordinates are "3d" in any case after being dragged.
+        if (!altitude) {
+            coordinate[2] = 0;
         }
 
-        const prevDMove = prv.prevDMove || [0, 0];
-        const _dx = dx - prevDMove[0];
-        const _dy = dy - prevDMove[1];
+        coordinate = dragFeatureCoordinate(ev.mapX, ev.mapY, feature, coordinate, EDITOR);
 
-        EDITOR.map.pixelMove(feature, _dx, _dy);
+        tools._setCoords(feature, coordinate);
 
-
-        // var pixel = this._h.map.getEventsMapXY( ev, true );
-        // pixel[2]  = this.geometry.coordinates[2];
-        //
-        // this.setCoordinates(
-        //  this._h.map.getGeoCoord( pixel )
-        // );
-
-
-        prevDMove[0] = dx;
-        prevDMove[1] = dy;
-
-        prv.prevDMove = prevDMove;
-
+        prv.moved = true;
         // move the connection line
         getRPoint(feature).updateStreetLine();
     }
@@ -241,21 +238,20 @@ const tools = {
                     tools.markAsModified(this);
                 }
 
-                triggerEvent(this, ev, 'display', moved ? 'dragStop' : UNDEF);
+                triggerEvent(this, ev, 'display', moved ? DRAG_STOP : POINTER_UP);
 
                 prv.moved = false;
-
-                prv.prevDMove = null;
             }
         },
 
-        pointerdown: function() {
+        pointerdown: function(ev) {
             const prv = getPrivate(this);
 
-            if (prv.allowEdit && prv.isSelected) {
-                prv.moved = false;
-
-                prv.prevDMove = null;
+            if (prv.allowEdit) {
+                if (prv.isSelected) {
+                    prv.moved = false;
+                }
+                triggerEvent(this, ev, 'display', POINTER_DOWN);
             }
         }
 
@@ -338,11 +334,18 @@ const tools = {
         const prv = getPrivate(feature);
 
         if (!prv.selector) {
+            const properties = {
+                type: feature.class + '_SELECTOR',
+                parentType: feature.class
+            };
+
+            properties[feature.class] = {
+                altitude: feature._e().getStyleProperty(feature, 'altitude')
+            };
+
             prv.selector = feature._e().objects.overlay.addCircle(
                 <GeoJSONCoordinate>feature.geometry.coordinates,
-                UNDEF, {
-                    'type': feature.class + '_SELECTOR'
-                });
+                UNDEF, properties);
         }
         // this.show_routing_point();
     },
@@ -370,7 +373,7 @@ const tools = {
         return rp;
     },
 
-    setRoutingData: function(feature: PlaceAddress) {
+    setRoutingData: function(feature: Location) {
         const rPoint = getRPoint(feature);
         // get current link and routing point value and set the data
         const link = rPoint.getLink();

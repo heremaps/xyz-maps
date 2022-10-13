@@ -24,7 +24,7 @@ import {Editor} from '@here/xyz-maps-editor';
 import chaiAlmost from 'chai-almost';
 import dataset from './link_setcoordinates_spec.json';
 
-describe('set link coordinates', function() {
+describe('set link coordinates', () => {
     const expect = chai.expect;
 
     let editor;
@@ -33,7 +33,7 @@ describe('set link coordinates', function() {
     let mapContainer;
     let link;
 
-    before(async function() {
+    before(async () => {
         chai.use(chaiAlmost());
         preparedData = await prepare(dataset);
         display = new Map(document.getElementById('map'), {
@@ -51,13 +51,13 @@ describe('set link coordinates', function() {
         link = preparedData.getFeature('linkLayer', -189080);
     });
 
-    after(async function() {
+    after(async () => {
         editor.destroy();
         display.destroy();
         await preparedData.clear();
     });
 
-    it('set coordinate by coord and validate', function() {
+    it('set coordinate by coord and validate', () => {
         link.coord([
             [77.178976179, 13.403983932, 0],
             [77.17784, 13.40511, 0]
@@ -69,7 +69,7 @@ describe('set link coordinates', function() {
         ]);
     });
 
-    it('set coordinate, click and drag the link', async function() {
+    it('set coordinate, click and drag the link', async () => {
         link.coord([
             [77.178373847, 13.405631824, 0],
             [77.178910288, 13.40406441, 0]
@@ -79,18 +79,20 @@ describe('set link coordinates', function() {
         await drag(mapContainer, {x: 200, y: 100}, {x: 100, y: 200});
 
         expect(link.coord()).to.deep.almost([
-            [77.177837405, 13.405109998, 0],
+            [77.177837674, 13.405108827, 0],
+            // [77.177837405, 13.405109998, 0],
             [77.178910288, 13.40406441, 0]
         ]);
     });
 
-    it('drag the map and validate the created link', async function() {
-        await waitForEditorReady(editor, async ()=>{
+    it('drag the map and validate the created link', async () => {
+        await waitForEditorReady(editor, async () => {
             await drag(mapContainer, {x: 100, y: 100}, {x: 100, y: 200});
         });
 
         expect(link.coord()).to.deep.almost([
-            [77.177837405, 13.405109998, 0],
+            [77.177837674, 13.405108827, 0],
+            // [77.177837405, 13.405109998, 0],
             [77.178910288, 13.40406441, 0]
         ]);
     });

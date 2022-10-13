@@ -56,7 +56,7 @@ export class Navlink extends Feature {
      * @hidden
      * @internal
      */
-    __: { b: { [behavior: string]: boolean } }
+    __: { b: { [behavior: string]: boolean } };
 
     // constructor(feature) {
     //     BasicFeature.apply(this, arguments);
@@ -268,15 +268,17 @@ export class Navlink extends Feature {
         let lastIndex;
         const isNode = index == 0 || index == path.length - 1;
 
+        const ignoreZ = oTools.ignoreZ(line);
+
         if (isNode /* &&!line.editState('removed')*/) {
             for (let feature of EDITOR.objects.getInBBox(line.bbox, line.getProvider())) {
                 if (feature.id != line.id && feature.class == 'NAVLINK') {
                     elPath = feature.coord();
                     lastIndex = elPath.length - 1;
 
-                    index = oTools.isIntersection(EDITOR, elPath[0], c2)
+                    index = oTools.isIntersection(EDITOR, elPath[0], c2, ignoreZ)
                         ? 0
-                        : oTools.isIntersection(EDITOR, elPath[lastIndex], c2)
+                        : oTools.isIntersection(EDITOR, elPath[lastIndex], c2, ignoreZ)
                             ? lastIndex
                             : null;
 

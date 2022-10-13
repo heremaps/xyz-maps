@@ -185,7 +185,7 @@ export const getClosestPntOnLine = (l1: Point, l2: Point, p: Point, clamp?: bool
     return vec3.add(dir, dir, l1);
 };
 
-export const rayIntersectPlane = (rayVector: Point, rayPoint: Point, planeNormal: Point, planePoint: Point) => {
+export const rayIntersectPlane = (rayVector: Point, rayPoint: Point, planeNormal: Point, planePoint: Point, clamp?: boolean) => {
     const d = vec3.sub([], rayPoint, planePoint);
     const p1 = vec3.dot(d, planeNormal);
     const p2 = vec3.dot(rayVector, planeNormal);

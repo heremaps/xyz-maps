@@ -23,6 +23,8 @@ const TORAD = Math.PI / 180;
 const TODEG = 180 / Math.PI;
 const earthRadius = 6371000; // meters
 
+let UNDEF;
+
 export type Point = number[] | [number, number] | [number, number, number];
 type BBox = [number, number, number, number];
 
@@ -47,7 +49,7 @@ export const calcBearing = (c1: Point, c2: Point) => {
 
 // based on www.movable-type.co.uk/scripts/latlong.html
 export const movePoint = (position: Point, distance: number, bearing: number, radius?: number): Point => {
-    radius = (radius === undefined) ? earthRadius : radius;
+    radius = (radius === UNDEF) ? earthRadius : radius;
     // see http://williams.best.vwh.net/avform.htm#LL
     const d = distance / radius; // angular distance in radians
     const b = bearing * TORAD;
@@ -103,10 +105,15 @@ export const extendBBox = (bbox: BBox, distanceMeter: number): GeoJSONBBox => {
 export const distance = (p1: Point, p2: Point) => {
     const dLat = TORAD * (p2[1] - p1[1]);
     const dLng = TORAD * (p2[0] - p1[0]);
-    const a = Math.sin(dLat / 2) * Math.sin(dLat / 2) +
-        Math.cos(TORAD * p1[1]) * Math.cos(TORAD * p2[1]) * Math.sin(dLng / 2) * Math.sin(dLng / 2);
+    const a = Math.sin(dLat / 2) * Math.sin(dLat / 2) + Math.cos(TORAD * p1[1]) * Math.cos(TORAD * p2[1]) * Math.sin(dLng / 2) * Math.sin(dLng / 2);
     const c = 2 * Math.atan2(Math.sqrt(a), Math.sqrt(1 - a));
-    const dist = earthRadius * c;
+    let dist = earthRadius * c;
+
+    if (p1[2] != UNDEF && p2[2] != UNDEF) {
+        // 3d coordinates...use pythagoras with haversine distance (xy in meters) and delta altitude (z in meters)
+        const dAlt = p1[2] - p2[2];
+        dist = Math.sqrt(dist * dist + dAlt * dAlt);
+    }
     return dist;
 };
 

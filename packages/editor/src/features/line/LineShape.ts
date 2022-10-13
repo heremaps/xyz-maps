@@ -32,7 +32,7 @@ type DefaultBehavior = {
     dragPlane?: [number, number, number] | 'XY'
 }
 
-const defaultBehavior: DefaultBehavior = {
+export const defaultBehavior: DefaultBehavior = {
     dragPlane: 'XY'
 };
 
@@ -49,10 +49,10 @@ class LineShape extends Feature {
      * @hidden
      * @internal
      */
-    __: {
+    private __: {
         b?: { [behavior: string]: any };
         [privateProperty: string]: any
-    }
+    };
 
     /**
      * The feature class of a LineShape Feature is "LINE_SHAPE".
@@ -251,8 +251,6 @@ class LineShape extends Feature {
         const properties = this.properties;
         const {lineStringIndex} = properties;
         const geo = display.pixelToGeo(properties.x + dx, properties.y + dy);
-        const lon = geo.longitude;
-        const lat = geo.latitude;
         const line = shape.getLine();
 
         const coordinates = <Coordinate[]>lineTools.getCoordinates(line, lineStringIndex);

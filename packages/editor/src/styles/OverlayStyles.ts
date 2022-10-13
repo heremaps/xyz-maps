@@ -51,12 +51,13 @@ const getValue = (val, feature, zoomlevel: number) => {
 };
 
 
-const createHighlightLineStyle = () => [{
+const createHighlightLineStyle = (use3d?: boolean) => [{
     zLayer: (feature) => feature.properties.zLayer,
     zIndex: 999990,
     type: 'Line',
     strokeWidth: 2,
-    stroke: '#FF0000'
+    stroke: '#FF0000',
+    altitude: !!use3d
 }];
 
 const createSelectorStyle = () => [{
@@ -70,41 +71,63 @@ const createSelectorStyle = () => [{
 const createSelectorStyle3d = () => [{
     zIndex: 3,
     alignment: 'Viewport',
-    type: 'Circle', stroke: '#FF0F00',
-    // type: 'Sphere', fill: '#FF0F00', opacity: .5, pointerEvents: false,
+    type: 'Sphere',
+    fill: '#FF0F00',
+    opacity: .5,
+    pointerEvents: false,
     strokeWidth: 2,
     radius: 20,
-    altitude: ({properties}) => properties.MARKER.altitude
+    altitude: ({properties}) => properties[properties.parentType].altitude
 }, {
     zIndex: 2,
     type: 'VerticalLine',
-    stroke: '#FF0F00',
-    altitude: ({properties}) => properties.MARKER.altitude
+    stroke: BLACK,
+    altitude: ({properties}) => properties[properties.parentType].altitude
 }, {
     zIndex: 9e5,
     type: 'Circle',
     radius: 4,
     fill: BLACK,
     opacity: .6,
-    zLayer: ({properties}) => properties.MARKER.zLayer - 1
+    zLayer: ({properties}) => properties[properties.parentType].altitude - 1
 }];
 
-const createRoutingPointStyle = () => [{
-    zLayer: (feature) => feature.properties.zLayer,
-    zIndex: 999991,
-    type: 'Circle',
-    radius: 8,
-    fill: '#FF0000',
-    stroke: '#FF0000'
-}, {
-    zLayer: (feature) => feature.properties.zLayer,
-    zIndex: 999992,
-    type: 'Circle',
-    radius: 5,
-    fill: '#FF0000',
-    stroke: '#FFFFFF',
-    strokeWidth: 2
-}];
+const createRoutingPointStyle = (use3d?: boolean) => use3d
+    // 3d style
+    ? [{
+        zLayer: (feature) => feature.properties.zLayer,
+        zIndex: 999991,
+        type: 'Sphere',
+        radius: 8,
+        fill: '#FF0000',
+        stroke: '#FF0000',
+        altitude: ({properties}) => {
+            console.log(properties); return properties[properties.parentType].altitude;
+        }
+    }, {
+        zLayer: (feature) => feature.properties.zLayer,
+        zIndex: 999990,
+        type: 'VerticalLine',
+        stroke: '#000',
+        altitude: true
+    }]
+    // 2d style
+    : [{
+        zLayer: (feature) => feature.properties.zLayer,
+        zIndex: 999991,
+        type: 'Circle',
+        radius: 8,
+        fill: '#FF0000',
+        stroke: '#FF0000'
+    }, {
+        zLayer: (feature) => feature.properties.zLayer,
+        zIndex: 999992,
+        type: 'Circle',
+        radius: 5,
+        fill: '#FF0000',
+        stroke: '#FFFFFF',
+        strokeWidth: 2
+    }];
 
 const createDirectionHintStyle = (dir) => [{
     zIndex: 0,
@@ -135,14 +158,19 @@ class OverlayStyles {
     styleGroups = {
 
         'ADDRESS_LINE': createHighlightLineStyle(),
+        'ADDRESS_LINE_3D': createHighlightLineStyle(true),
 
         'ADDRESS_ROUTING_POINT': createRoutingPointStyle(),
+        'ADDRESS_ROUTING_POINT_3D': createRoutingPointStyle(true),
 
         'ADDRESS_SELECTOR': createSelectorStyle(),
+        'ADDRESS_SELECTOR_3D': createSelectorStyle3d(),
 
         'PLACE_LINE': createHighlightLineStyle(),
+        'PLACE_LINE_3D': createHighlightLineStyle(true),
 
         'PLACE_ROUTING_POINT': createRoutingPointStyle(),
+        'PLACE_ROUTING_POINT_3D': createRoutingPointStyle(true),
 
         'AREA_SHAPE': [{
             zIndex: 0,
@@ -280,6 +308,7 @@ class OverlayStyles {
         'MARKER_SELECTOR_3D': createSelectorStyle3d(),
 
         'PLACE_SELECTOR': createSelectorStyle(),
+        'PLACE_SELECTOR_3D': createSelectorStyle3d(),
 
         'NAVLINK_SHAPE': [{
             zIndex: 0,
@@ -300,6 +329,38 @@ class OverlayStyles {
                 : '#FFFFFF'
         }],
 
+        'NAVLINK_SHAPE_3D': [{
+            zIndex: 0,
+            type: (feature) => feature.properties.isConnected
+                ? 'Box'
+                : 'Sphere',
+            width: (feature) => isHovered(feature) ? 18 : 12,
+            rotation: 45,
+            radius: (feature) => isHovered(feature) ? 9 : 6,
+            strokeWidth: 2,
+
+            fill: (feature, zoom) => feature.isOverlapping()
+                ? '#FFFFFF'
+                : getValue(feature.properties.NAVLINK.style[0].stroke, feature, zoom),
+
+            stroke: (feature) => feature.isOverlapping()
+                ? '#FF0000'
+                : '#FFFFFF',
+            alignment: 'map',
+            altitude: true
+        }, {
+            zIndex: 2,
+            type: 'VerticalLine',
+            stroke: '#000'
+        }, {
+            zIndex: 9e5,
+            type: 'Circle',
+            radius: 4,
+            fill: BLACK,
+            opacity: .6,
+            zLayer: ({properties}) => properties.NAVLINK.zLayer
+        }],
+
         'NAVLINK_VIRTUAL_SHAPE': [{
             zIndex: 1,
             type: 'Circle',
@@ -312,6 +373,33 @@ class OverlayStyles {
             fill: BLACK,
             stroke: BLACK,
             strokeWidth: 2
+        }],
+
+        'NAVLINK_VIRTUAL_SHAPE_3D': [{
+            zIndex: 1,
+            type: 'Sphere',
+            radius: (feature, zoom) => {
+                const {style} = feature.properties.NAVLINK;
+                let [lw] = styleTools.getLineWidth(style, feature.getLink(), zoom, 0);
+                return lw / 5;
+            },
+            opacity: .7,
+            fill: BLACK,
+            stroke: BLACK,
+            strokeWidth: 2,
+            alignment: 'map',
+            altitude: true
+        }, {
+            zIndex: 2,
+            type: 'VerticalLine',
+            stroke: '#000'
+        }, {
+            zIndex: 9e5,
+            type: 'Circle',
+            radius: 4,
+            fill: BLACK,
+            opacity: .6,
+            zLayer: ({properties}) => properties.NAVLINK.zLayer
         }],
 
         'NAVLINK_DIRECTION_HINT_1WAY': [{
@@ -445,7 +533,7 @@ class OverlayStyles {
             fill: '#0000FF',
             radius: 10
         }]
-    }
+    };
 
     assign(feature) {
         const {styleGroups} = this;
@@ -453,13 +541,21 @@ class OverlayStyles {
         let type = feature.class || properties.type;
         let is3d = false;
 
-        if (type == 'LINE_SHAPE' || type == 'LINE_VIRTUAL_SHAPE') {
-            is3d = properties.LINE.style.find((s) => s.altitude)?.altitude;
+        if (
+            type == 'LINE_SHAPE' || type == 'LINE_VIRTUAL_SHAPE' ||
+            type == 'NAVLINK_SHAPE' || type == 'NAVLINK_VIRTUAL_SHAPE'
+        ) {
+            is3d = (properties.LINE || properties.NAVLINK).style.find((s) => s.altitude)?.altitude;
         } else if (type == 'MARKER_SELECTOR') {
             is3d = properties.MARKER.altitude;
             if (is3d == UNDEF) {
                 is3d = !!feature.geometry.coordinates[2];
             }
+        } else if (
+            type == 'ADDRESS_ROUTING_POINT' || 'ADDRESS_LINE' || 'ADDRESS_SELECTOR' ||
+            'PLACE_ROUTING_POINT' || 'PLACE_LINE' || 'PLACE_SELECTOR'
+        ) {
+            is3d = properties[properties.parentType]?.altitude;
         }
 
         if (is3d) {

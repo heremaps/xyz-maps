@@ -29,10 +29,9 @@ import InternalEditor from '../../IEditor';
 import {Navlink} from '../link/Navlink';
 import {Location} from './Location';
 import {Feature, GeoJSONCoordinate} from '@here/xyz-maps-core';
-// import locTools from './LocationTools';
-// import linkTools from '../link/NavlinkTools';
+import LocationTools from './LocationTools';
 // will be set in constructor to avoid circular dep warnings
-let locTools;
+let locTools: typeof LocationTools;
 let linkTools;
 let UNDEF;
 
@@ -43,6 +42,8 @@ class NvtRoutingPoint {
     streetLine: Feature;
     location: Location;
     routingPoint: number[];
+
+    private ignoreZ: boolean;
 
     constructor(location: Location, _locTools, lnkTools) {
         linkTools = lnkTools;
@@ -75,65 +76,50 @@ class NvtRoutingPoint {
         }
     }
 
-    private createDisplayedRoutingPoint(type: string, zLayer: number) {
+    private createDisplayedRoutingPoint(type: string, zLayer: number, locationProperties: {}) {
         const that = this;
         const iEditor = this.iEditor;
 
         function pointerDown() {
-            this.prevDMove = null;
             this.moved = false;
         }
 
         function pressMove(ev, dx, dy) {
-            const prevDMove = this.prevDMove || [0, 0];
-            const _dx = dx - prevDMove[0];
-            const _dy = dy - prevDMove[1];
             const {cLink, location} = that;
 
             if (cLink && !iEditor._config.editRestrictions(location, 1)) {
-                const pixel = iEditor.map.getEventsMapXY(ev);
-                const curPos = iEditor.map.getGeoCoord(pixel[0] + _dx, pixel[1] + _dy);
-                // skip/ignore zlevel matching for nearest line search..
-                curPos.pop();
-
-                const nearestPnt = iEditor.objects.getNearestLine(curPos, [cLink]);
-                const isAtEnd = [0, location.geometry.coordinates.length - 1].indexOf(nearestPnt.shpIndex) != -1;
+                // let curPos = <GeoJSONCoordinate>dragFeatureCoordinate(ev.mapX, ev.mapY, this, this.geometry.coordinates, iEditor);
 
                 if (!this.moved) {
                     this.moved = true;
                     triggerEvent(location, ev, 'routing', 'dragStart');
                 }
 
-                if (!isAtEnd) {
-                    that.setRoutingPoint(cLink, nearestPnt.point);
+                let {longitude, latitude} = iEditor.display.pixelToGeo(ev.mapX, ev.mapY);
+
+                let result = iEditor.objects.searchLine([longitude, latitude], cLink.getProvider(), {
+                    // maxDistance: 10 * 100
+                    // maxDistance: 100*100
+                    ignoreZ: this.ignoreZ
+                }, location.geometry.coordinates);
+
+
+                if (!result) {
+                    result = iEditor.objects.searchLine([longitude, latitude], [cLink], {ignoreZ: this.ignoreZ}, location.geometry.coordinates);
                 }
 
-                if (nearestPnt.distance > 1 || isAtEnd) {
-                    // the mouseposition is nearer to another line
-                    const nearestStreet = iEditor.objects.getNearestLine(curPos, cLink.getProvider(), {
-                        ignore: (link) => link.id == cLink.id,
-                        maxDistance: 10
-                    });
 
-                    if (nearestStreet && (nearestStreet.distance < nearestPnt.distance || isAtEnd)) {
+                if (result) {
+                    const {line, point} = result;
+
+                    if (line != cLink) {
                         linkTools.defaults(cLink);
-                        // connect to a new link
-                        that.setRoutingPoint(nearestStreet.line, nearestStreet.point);
-
-                        linkTools.displayAsSelected(nearestStreet.line, location.id, true);
-                        return;
+                        linkTools.displayAsSelected(line, location.id, true);
                     }
-                }
-
-                if (!isAtEnd) {
+                    that.setRoutingPoint(line, point);
                     that.updateDisplayedRoutingPoint();
                 }
             }
-
-            prevDMove[0] = dx;
-            prevDMove[1] = dy;
-
-            this.prevDMove = prevDMove;
         }
 
         function pointerUp(ev) {
@@ -145,7 +131,7 @@ class NvtRoutingPoint {
             triggerEvent(that.location, ev, 'routing', this.moved ? 'dragStop' : UNDEF);
         }
 
-        that.rpFeature = that.iEditor.objects.overlay.addPoint(that.routingPoint.slice(), {type, zLayer});
+        that.rpFeature = that.iEditor.objects.overlay.addPoint(that.routingPoint.slice(), {type, zLayer, ...locationProperties});
 
         const car = <any>that.rpFeature;
 
@@ -188,34 +174,44 @@ class NvtRoutingPoint {
     };
 
     show(): Navlink {
-        const that = this;
-        const {cLink} = that;
-
-        if (cLink && !this.rpFeature) {
-            const editorType = this.location.class;
-
-            let zLayer = this.iEditor.display.getLayers().indexOf(this.iEditor.getLayer(this.getLink())) + 1;
-
-            zLayer = !zLayer ? UNDEF : zLayer + 1;
-
-            this.streetLine = this.iEditor.objects.overlay.addPath([
-                this.location.coord().slice(),
-                this.routingPoint.slice()
-            ],
-            UNDEF, {
-                type: editorType + '_LINE',
-                zLayer
-            });
-
-            this.rpFeature = this.createDisplayedRoutingPoint(editorType + '_ROUTING_POINT', zLayer);
-        }
+        const routingPoint = this;
+        const {cLink, location, iEditor} = routingPoint;
 
         if (cLink) {
-            that.updateDisplayedRoutingPoint();
-            linkTools.displayAsSelected(cLink, that.location.id);
+            const altitude = iEditor.getStyleProperty(location, 'altitude');
+            const editorType = location.class;
+
+            routingPoint.ignoreZ = altitude;
+
+            if (!routingPoint.rpFeature) {
+                let zLayer = iEditor.display.getLayers().indexOf(iEditor.getLayer(routingPoint.getLink())) + 1;
+
+                zLayer = !zLayer ? UNDEF : zLayer + 1;
+
+                const locationProperties = {
+                    parentType: editorType
+                };
+                locationProperties[editorType] = {altitude};
+
+                routingPoint.streetLine = iEditor.objects.overlay.addPath([
+                    location.coord().slice(),
+                    this.routingPoint.slice()
+                ],
+                UNDEF, {
+                    ...locationProperties,
+                    type: editorType + '_LINE',
+                    zLayer
+                });
+
+                routingPoint.rpFeature = this.createDisplayedRoutingPoint(editorType + '_ROUTING_POINT', zLayer, locationProperties);
+            }
+
+
+            routingPoint.updateDisplayedRoutingPoint();
+            linkTools.displayAsSelected(cLink, location.id);
         }
 
-        return that.cLink;
+        return routingPoint.cLink;
     };
 
     hide() {
@@ -250,7 +246,7 @@ class NvtRoutingPoint {
         // update routing point by data.link when cLink is not set/modified, otherwise use current cLink
         if (linkId && linkProvider) {
             // get connected link for Routing Point
-            this.cLink = linkProvider.search(linkId);
+            this.cLink = <Navlink>linkProvider.search(linkId);
         }
 
         // need to check here for existing link reference, otherwise calculate everything

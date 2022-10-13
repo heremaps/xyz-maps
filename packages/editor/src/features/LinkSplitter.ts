@@ -33,6 +33,7 @@ export interface SplitOptions {
     preferSegment?: number;
     point?: GeoJSONCoordinate,
     avoidSnapping?: boolean;
+    ignoreZ?: boolean;
 }
 
 // split at a existing shape
@@ -47,12 +48,15 @@ export const split = (HERE_WIKI: InternalEditor, options: SplitOptions): [Navlin
     const parentLinkProperties = linkTools._props(parentLink);
     const parentZLevels = parentLink.getProvider().readZLevels(parentLink);
     const snapTolerance = HERE_WIKI._config['snapTolerance'];
+    const {point, ignoreZ} = options;
     let x;
     let y;
+    let z;
 
-    if (options.point) {
-        x = options.point[0];
-        y = options.point[1];
+    if (point) {
+        x = point[0];
+        y = point[1];
+        z = point[2] || 0;
     }
 
     // check if not a node
@@ -69,15 +73,16 @@ export const split = (HERE_WIKI: InternalEditor, options: SplitOptions): [Navlin
 
     // if split is defined by absolute coordinates...
     if (splitAtShpIndex === UNDEF) {
-        const crossing = HERE_WIKI.map.searchPointOnLine(path, options.point, snapTolerance, preferSegment);
+        const crossing = HERE_WIKI.map.searchPointOnLine(path, point, snapTolerance, preferSegment, UNDEF, ignoreZ);
 
         splitAtShpIndex = crossing?.index;
 
         if ((splitAtShpIndex === 0 || splitAtShpIndex === lastIndex) && crossing.existingShape) {
             return false;
         }
+
         // addNewShape request index of the shape point regardless it is new or existing
-        splitAtShpIndex = <number>linkTools.addShp(parentLink, [x, y], null, true, null, preferSegment);
+        splitAtShpIndex = <number>linkTools.addShp(parentLink, [x, y, z], null, true, null, preferSegment);
 
         path = parentLink.coord();
     }
@@ -112,6 +117,7 @@ export const split = (HERE_WIKI: InternalEditor, options: SplitOptions): [Navlin
         parentZLevels.slice(0, splitAtShpIndex + 1),
         avoidSplitPointSnapping && splitAtShpIndex
     );
+
     const newLink2 = createSplitLink(
         path.slice(splitAtShpIndex),
         parentZLevels.slice(splitAtShpIndex),

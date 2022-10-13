@@ -35,6 +35,13 @@ export const add = (result: Vec3, a: Vec3, b: Vec3): Vec3 => {
     return result;
 };
 
+export const multiply = (result: Vec3, a: Vec3, v: Vec3): Vec3 => {
+    result[0] = a[0] * v[0];
+    result[1] = a[1] * v[1];
+    result[2] = a[2] * v[2];
+    return result;
+};
+
 export const scale = (result: Vec3, a: Vec3, t: number): Vec3 => {
     result[0] = a[0] * t;
     result[1] = a[1] * t;

@@ -37,7 +37,7 @@ export class Marker extends Feature {
     /**
      *  The feature class of a Marker Feature is "MARKER".
      */
-    readonly class: 'MARKER';
+    readonly class: 'MARKER' | string;
 
     /**
      * Set the behavior options.

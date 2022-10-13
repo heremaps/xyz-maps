@@ -25,7 +25,7 @@ import chaiAlmost from 'chai-almost';
 import dataset from './link_automatic_split_then_drag_spec.json';
 import {Navlink} from '@here/xyz-maps-editor';
 
-describe('drag a link shape point to the other one to split itself and then drag it crossing', function() {
+describe('drag a link shape point to the other one to split itself and then drag it crossing', () => {
     const expect = chai.expect;
 
     let editor;
@@ -34,7 +34,7 @@ describe('drag a link shape point to the other one to split itself and then drag
     let mapContainer;
     let link2;
 
-    before(async function() {
+    before(async () => {
         chai.use(chaiAlmost());
         preparedData = await prepare(dataset);
         display = new Map(document.getElementById('map'), {
@@ -52,20 +52,20 @@ describe('drag a link shape point to the other one to split itself and then drag
         link2 = preparedData.getFeature('linkLayer', -189040);
     });
 
-    after(async function() {
+    after(async () => {
         editor.destroy();
         display.destroy();
         await preparedData.clear();
     });
 
-    it('validate 2 link in viewport and no link in viewport is changed', function() {
+    it('validate 2 link in viewport and no link in viewport is changed', () => {
         expect(editor.info()).to.have.lengthOf(0);
 
         let objs = editor.search(display.getViewBounds());
         expect(objs).to.have.lengthOf(2);
     });
 
-    it('select a link to drag', async function() {
+    it('select a link to drag', async () => {
         link2.select();
 
         // drag a link middle point to another link and split the other one.
@@ -77,7 +77,7 @@ describe('drag a link shape point to the other one to split itself and then drag
         expect(objs).to.have.lengthOf(4);
     });
 
-    it('click to select the split link and drag', async function() {
+    it('click to select the split link and drag', async () => {
         // click a link
         await click(mapContainer, 290, 100);
 
@@ -87,24 +87,26 @@ describe('drag a link shape point to the other one to split itself and then drag
         // click to get dragged link
         let link1 = <Navlink>(await editorClick(editor, 200, 125)).target;
         let coords1 = link1.coord();
-
-        expect(coords1).to.be.deep.almost([[76.314630721, 15.84204812, 0], [76.316776488, 15.841532053, 0]]);
+        expect(coords1).to.be.deep.almost([[76.314630721, 15.84204812, 0], [76.316776442, 15.841529069, 0]]);
+        // expect(coords1).to.be.deep.almost([[76.314630721, 15.84204812, 0], [76.316776488, 15.841532053, 0]]);
 
         // click to get dragged link
         let link2 = <Navlink>(await editorClick(editor, 423, 125)).target;
         let coords2 = link2.coord();
-        expect(coords2).to.be.deep.almost([[76.316776488, 15.841532053, 0], [76.316240046, 15.84204812, 0]]);
-
+        expect(coords2).to.be.deep.almost([[76.316776442, 15.841529069, 0], [76.316240046, 15.84204812, 0]]);
+        // expect(coords2).to.be.deep.almost([[76.316776488, 15.841532053, 0], [76.316240046, 15.84204812, 0]]);
 
         // click to get dragged link
         let link3 = <Navlink>(await editorClick(editor, 200, 275)).target;
         let coords3 = link3.coord();
-        expect(coords3).to.be.deep.almost([[76.314630721, 15.841012974, 0], [76.316776488, 15.841532053, 0]]);
-
+        expect(coords3).to.be.deep.almost([[76.314630721, 15.841012974, 0], [76.316776442, 15.841529069, 0]]);
+        // expect(coords3).to.be.deep.almost([[76.314630721, 15.841012974, 0], [76.316776488, 15.841532053, 0]]);
 
         // click to get dragged link
         let link4 = <Navlink>(await editorClick(editor, 425, 275)).target;
+
         let coords4 = link4.coord();
-        expect(coords4).to.be.deep.almost([[76.316776488, 15.841532053, 0], [76.316240046, 15.841012974, 0]]);
+        expect(coords4).to.be.deep.almost([[76.316776442, 15.841529069, 0], [76.316240046, 15.841012974, 0]]);
+        // expect(coords4).to.be.deep.almost([[76.316776488, 15.841532053, 0], [76.316240046, 15.841012974, 0]]);
     });
 });

@@ -24,6 +24,8 @@ import {Navlink} from './Navlink';
 import {TurnRestrictionEditor} from '../../tools/turnrestriction/TrEditor';
 import {Feature as EditableFeature} from '../feature/Feature';
 import NavlinkTools from './NavlinkTools';
+import {defaultBehavior} from '@here/xyz-maps-editor';
+import {dragFeatureCoordinate} from '../oTools';
 
 
 const NS_EDITOR = '@ns:com:here:editor';
@@ -43,12 +45,15 @@ type ConnectedLinkDetails = { link: Navlink, index: number };
 type EventHandler = (e, dx?: number, dy?: number) => void;
 
 type PrivateData = {
+    b?: { [behavior: string]: any },
+    // [privateProperty: string]: any
     line: Navlink,
     _cls: Navlink[],
     cLinks: ConnectedLinkDetails[],
     drg: boolean,
     x: number,
     y: number,
+    z: number,
     index: number,
     dblclick: EventHandler,
     pressmove: EventHandler,
@@ -72,7 +77,8 @@ const toggleFillStrokeColors = (obj) => {
 };
 
 const connectShpToNearestLink = (line: Navlink, index: number) => {
-    const coordinate = line.coord()[index];
+    let coordinate = line.coord()[index];
+    const ignoreZ = linkTools.ignoreZ(line);
     const ignore = <Navlink[]>line.getConnectedLinks(index);
     const EDITOR = line._e();
     let connectionCandidate;
@@ -83,21 +89,21 @@ const connectShpToNearestLink = (line: Navlink, index: number) => {
     // coordinate.slice(0,2), // do not pass zlevel to skip zlevel check..
     connectionCandidate = EDITOR.objects.getNearestLine(coordinate, line.getProvider(), {
         maxDistance: EDITOR._config['snapTolerance'],
-        ignore: (link) => ignore.indexOf(link) != -1 || !link.behavior('snapCoordinates')
+        ignore: (link) => ignore.indexOf(link) != -1 || !link.behavior('snapCoordinates'),
+        ignoreZ
     });
-
 
     if (connectionCandidate != null) { // check for selfconnect
         foundPos = connectionCandidate.point;
-
-        foundPos[2] = line.getZLevels(index) || 0;
+        foundPos[2] ||= 0;
 
         if (linkTools.connectShpToLink(
             line,
             index,
             connectionCandidate = connectionCandidate.line,
-            foundPos
-            // ,line.getZLevels(index)
+            foundPos,
+            undefined,
+            ignoreZ
         ) === null) {
             connectionCandidate = null;
         }
@@ -111,7 +117,7 @@ function handleEvent(ev, type?) {
     getPrivate(this).line._e().listeners.trigger(ev, this/* ._simplified*/, type);
 }
 
-function onMouseDownShape() {
+function onMouseDownShape(e) {
     const shapePnt = this;
     var prv = getPrivate(shapePnt);
     const line = prv.line;
@@ -127,6 +133,7 @@ function onMouseDownShape() {
 
     prv.x = startPixel.x;
     prv.y = startPixel.y;
+    prv.z = coord[2];
 
 
     toggleFillStrokeColors(shapePnt);
@@ -147,6 +154,8 @@ function onMouseDownShape() {
     // line.toggleHover(false);
 
     geoFence = new GeoFence(EDITOR, coord[0], coord[1]);
+
+    handleEvent.call(shapePnt, e, 'pointerdown');
 }
 
 
@@ -156,22 +165,20 @@ function onMouseMoveShape(ev, dx, dy) {
     const link = prv.line;
     const EDITOR = link._e();
     const cfg = EDITOR._config;
+    const ignoreZ = linkTools.ignoreZ(link);
+    const coordinate = shp.geometry.coordinates.slice(0, ignoreZ ? 2 : 3);
 
-    let curPos: GeoJSONCoordinate = EDITOR.map.getGeoCoord(
-        prv.x + dx,
-        prv.y + dy
-    );
-
+    let curPos = <GeoJSONCoordinate>dragFeatureCoordinate(ev.mapX, ev.mapY, shp, coordinate, EDITOR);
 
     if (!cfg.editRestrictions(link, 1)) {
         if (geoFence.isPntInFence(curPos)) {
             !geoFence.isHidden() && geoFence.hide();
 
             if (cfg['snapOnDrag'] && link.behavior('snapCoordinates')) {
-                curPos = linkTools.snapShape(shp, curPos, cfg['snapTolerance']) || curPos;
+                curPos = linkTools.snapShape(shp, curPos, ignoreZ, cfg['snapTolerance']) || curPos;
             }
 
-            linkTools.moveShapeAtIndexTo(link, prv.index, curPos[0], curPos[1]);
+            linkTools.moveShapeAtIndexTo(link, prv.index, curPos);
 
             if (!prv.drg) {
                 prv.drg = true;
@@ -328,6 +335,11 @@ class NavlinkShape extends Feature {
     class: 'NAVLINK_SHAPE';
     properties: LinkShapeProperties;
 
+    /**
+     * private data storage for internal api
+     * @hidden
+     * @internal
+     */
     private __: PrivateData;
 
     constructor(line: Navlink, pos, i, lnkTools) {
@@ -384,6 +396,77 @@ class NavlinkShape extends Feature {
         }
     }
 
+    /**
+     * Set the behavior options.
+     * @experimental
+     */
+    behavior(options: {
+        /**
+         * The drag axis across which the LineShape is dragged upon user interaction.
+         * Once "dragAxis" is set, "dragPlane" has no effect.
+         * In case "dragAxis" and "dragPlane" are set, "dragPlane" is preferred.
+         * In case "dragPlane" and "dragAxis" are both set, "dragPlane" is preferred.
+         */
+        dragAxis?: 'X' | 'Y' | 'Z' | [number, number, number]
+        /**
+         * The normal of the plane over which the LineShape is dragged upon user interaction.
+         * Once "dragPlane" is set, "dragAxis" has no effect.
+         */
+        dragPlane?: 'XY' | 'XZ' | 'YZ' | [number, number, number]
+    }): void;
+    /**
+     * Set the value of a specific behavior option.
+     * @experimental
+     */
+    behavior(name: string, value: boolean | string | [number, number, number]): void;
+    /**
+     * Get the value of a specific behavior option.
+     * @experimental
+     */
+    behavior(option: string): any;
+    /**
+     * Get the behavior options.
+     * @experimental
+     */
+    behavior(): {
+        /**
+         * The drag axis across which the marker is dragged upon user interaction.
+         */
+        dragAxis?: [number, number, number] | 'X' | 'Y' | 'Z' | null
+        /**
+         * The normal of the plane over which the marker is dragged upon user interaction.
+         */
+        dragPlane?: [number, number, number] | 'XY' | 'XZ' | 'YZ' | null
+    };
+
+    behavior(options?: any, value?: boolean) {
+        let behavior = linkTools.private(this, 'b') || {...defaultBehavior};
+
+        switch (arguments.length) {
+        case 0:
+            return behavior;
+        case 1:
+            if (typeof options == 'string') {
+                // getter
+                return behavior[options];
+            }
+            break;
+        case 2:
+            const opt = {};
+            opt[options] = value;
+            options = opt;
+        }
+        // setter
+        behavior = {...behavior, ...options};
+
+        if (options.dragPlane) {
+            delete behavior.dragAxis;
+        } else if (options.dragAxis) {
+            delete behavior.dragPlane;
+        }
+
+        this.__.b = behavior;
+    }
 
     /**
      * Get the Navlink feature to which the NavlinkShape belongs.
@@ -443,7 +526,6 @@ class NavlinkShape extends Feature {
     getConnectedLinks(): Navlink[] {
         return this.getLink().getConnectedLinks(this.getIndex());
     };
-
 
     /**
      * Removes the shape point from the geometry of the Navlink feature.

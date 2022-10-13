@@ -20,7 +20,7 @@
 import InternalEditor from '../../IEditor';
 
 export default class GeoFence {
-    constructor(iEditor: InternalEditor, x: number, y: number) {
+    constructor(iEditor: InternalEditor, x: number, y: number, z?: number) {
     }
 
     isPntInFence(): boolean {

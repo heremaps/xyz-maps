@@ -24,7 +24,7 @@ import {Editor} from '@here/xyz-maps-editor';
 import chaiAlmost from 'chai-almost';
 import dataset from './rangeselector_spec.json';
 
-describe('range selector drag', function() {
+describe('range selector drag', () => {
     const expect = chai.expect;
 
     let editor;
@@ -37,7 +37,7 @@ describe('range selector drag', function() {
     let link2;
     let link3;
 
-    before(async function() {
+    before(async () => {
         chai.use(chaiAlmost());
         preparedData = await prepare(dataset);
         display = new Map(document.getElementById('map'), {
@@ -57,13 +57,13 @@ describe('range selector drag', function() {
         link3 = preparedData.getFeature('linkLayer', '-189233');
     });
 
-    after(async function() {
+    after(async () => {
         editor.destroy();
         display.destroy();
         await preparedData.clear();
     });
 
-    it('add links to rangeselector, show and validate rangeselector info ', function() {
+    it('add links to rangeselector, show and validate rangeselector info ', () => {
         editor.getZoneSelector().add(link1, link2);
 
         editor.getZoneSelector().show({
@@ -115,7 +115,7 @@ describe('range selector drag', function() {
         expect(info[1].segments[0].navlink).to.deep.include({id: link2.id});
     });
 
-    it('drag range selector and validate again', async function() {
+    it('drag range selector and validate again', async () => {
         await drag(mapContainer, {x: 350, y: 217}, {x: 350, y: 250});
 
         expect(draggedZone.segments[0]).to.deep.include({
@@ -163,7 +163,7 @@ describe('range selector drag', function() {
     });
 
 
-    it('hide rangeselector, drag the map to validate the range selector is deactivated, validate map is dragged', async function() {
+    it('hide rangeselector, drag the map to validate the range selector is deactivated, validate map is dragged', async () => {
         editor.getZoneSelector().hide();
 
         await waitForEditorReady(editor, async () => {
@@ -173,7 +173,7 @@ describe('range selector drag', function() {
         expect(display.getCenter().longitude).to.not.equal(-105.145534);
     });
 
-    it('move map to a new area and validate a link can be dragged', async function() {
+    it('move map to a new area and validate a link can be dragged', async () => {
         await waitForEditorReady(editor, () => {
             display.setCenter({longitude: -105.14442356546784, latitude: 35.37463216746484});
         });
@@ -182,9 +182,11 @@ describe('range selector drag', function() {
 
         await drag(mapContainer, {x: 451, y: 205}, {x: 501, y: 205});
 
+
         expect(link3.coord()).to.deep.almost([
             [-105.1444, 35.37458, 0],
-            [-105.143881779, 35.37504, 0]
+            [-105.143881759, 35.375047702, 0]
+            // [-105.143881779, 35.37504, 0]
         ]);
     });
 });

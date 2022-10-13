@@ -25,16 +25,18 @@ import History from './History';
 import ObjectOverlay from './Overlay';
 import {createOverlayLayer, OverlayProvider} from '../providers/OverlayLayer';
 import {split, SplitOptions} from './LinkSplitter';
-import {TileLayer, FeatureProvider, EditableFeatureProvider, EditableRemoteTileProvider} from '@here/xyz-maps-core';
-import {Map, JSUtils, geotools} from '@here/xyz-maps-common';
-import {intersectBBox} from '../geometry';
+import {TileLayer, FeatureProvider, EditableFeatureProvider, EditableRemoteTileProvider, GeoJSONCoordinate} from '@here/xyz-maps-core';
+import {Map, JSUtils, geotools, vec3} from '@here/xyz-maps-common';
+import {getClosestPntOnLine, intersectBBox, rayIntersectPlane} from '../geometry';
 import {Navlink} from './link/Navlink';
 import InternalEditor from '../IEditor';
+import {Feature} from '@here/xyz-maps-editor';
 
 type Options = {
     ignore?: (feature: Navlink) => boolean
     maxDistance?: number,
     shapeThreshold?: number,
+    ignoreZ?: boolean
 };
 
 
@@ -241,7 +243,7 @@ class ObjectManager {
         return obj && layer ? obj : null;
     };
 
-    getInBBox(bounds, searchInLayers?: FeatureProvider | TileLayer | TileLayer[]): any[] {
+    getInBBox(bounds, searchInLayers?: FeatureProvider | TileLayer | TileLayer[], filter?: (feature: Feature) => boolean): any[] {
         if (!bounds) {
             bounds = this.display.getViewBounds();
             bounds = [bounds.minLon, bounds.minLat, bounds.maxLon, bounds.maxLat];
@@ -258,8 +260,10 @@ class ObjectManager {
 
         for (let layer of layers) {
             if (layerResult = layer.search(bounds)) {
-                for (let d = 0; d < layerResult.length; d++) {
-                    result.push(layerResult[d]);
+                for (let feature of layerResult) {
+                    if (!filter || filter(feature)) {
+                        result.push(feature);
+                    }
                 }
             }
         }
@@ -465,7 +469,8 @@ class ObjectManager {
         options = JSUtils.extend({
             // search radius in meter
             maxDistance: Infinity,
-            shapeThreshold: 0
+            shapeThreshold: 0,
+            ignoreZ: false
         }, options || {});
 
         const RESULT = {
@@ -497,7 +502,7 @@ class ObjectManager {
                     bbox[0], bbox[2], bbox[1], bbox[3]
                 )
             ) {
-                const crossing = iEdit.map.searchPointOnLine(line.geometry.coordinates, position, -1);
+                const crossing = iEdit.map.searchPointOnLine(line.geometry.coordinates, position, -1, UNDEF, UNDEF, options.ignoreZ);
 
                 if (crossing?.distance < Math.min(RESULT.distance, options.maxDistance)) {
                     RESULT.point = crossing.point;
@@ -514,6 +519,94 @@ class ObjectManager {
         }
 
 
+        return RESULT.line ? RESULT : null;
+    };
+
+
+    searchLine(position: number[], data: EditableRemoteTileProvider | Navlink[], options?: Options, geo?) {
+        const {iEdit} = this;
+        // overwrite default configuration
+        options = JSUtils.extend({
+            // search radius in meter
+            maxDistance: Infinity,
+            shapeThreshold: 0,
+            ignoreZ: false
+        }, options || {});
+
+        const RESULT = {
+            line: null,
+            point: null,
+            distance: Infinity,
+            shpIndex: null,
+            segmentNumber: null
+        };
+        let {maxDistance, ignoreZ} = options;
+        let searchBBox = maxDistance < Infinity
+            ? geotools.getPointBBox(position, maxDistance)
+            : null;
+
+        if (data instanceof EditableFeatureProvider) {
+            data = this.getInBBox(searchBBox, data, (f) => f.class == 'NAVLINK');
+        }
+
+        const {display} = iEdit;
+        const {x, y} = display.geoToPixel(position[0], position[1]);
+        const rayStart = display._unprj(x, y, -1);
+        const rayEnd = display._unprj(x, y, 1.0);
+        const rayDir = vec3.sub([], rayEnd, rayStart);
+
+        for (let line of <Navlink[]>data) {
+            // check if link must be skipped
+            if (options.ignore && options.ignore(line)) continue;
+
+            const {bbox} = line;
+
+            if (!searchBBox || intersectBBox(
+                searchBBox[0], searchBBox[2], searchBBox[1], searchBBox[3],
+                bbox[0], bbox[2], bbox[1], bbox[3]
+            )) {
+                const coordinates = line.geometry.coordinates as GeoJSONCoordinate[];
+                let c = coordinates[0];
+                let l1 = display._g2w(c[0], c[1], ignoreZ ? 0 : c[2]);
+                let l0;
+
+                for (let i = 1; i < coordinates.length; i++) {
+                    c = coordinates[i];
+                    l0 = l1;
+                    l1 = display._g2w(c[0], c[1], ignoreZ ? 0 : c[2]);
+
+                    const [dx, dy] = vec3.sub([], l0, l1);
+
+                    if (!dx && !dy) continue;
+
+                    const plane1 = l0;
+                    const plane2 = vec3.add([], l0, [-dy, dx, 0]);
+                    const plane3 = l1;
+                    const planeNormal = vec3.normalize([], vec3.cross([], vec3.sub([], plane3, plane2), vec3.sub([], plane1, plane2)));
+
+                    let iPnt = rayIntersectPlane(rayDir, rayStart, planeNormal, plane1);
+                    let pointPlane = display._w2g(iPnt);
+
+                    iPnt = getClosestPntOnLine(plane1, plane3, iPnt, true);
+
+                    let point = display._w2g(iPnt);
+
+                    let distance = geotools.distance(point, pointPlane);
+
+
+                    if (distance < Math.min(RESULT.distance, maxDistance)) {
+                        RESULT.point = point;
+                        RESULT.distance = distance;
+                        // RESULT.shpIndex = crossing.existingShape ? crossing.index : null;
+                        // RESULT.segmentNumber = crossing.index - Number(!crossing.existingShape);
+                        RESULT.line = line;
+                        // set maxDistance so bbox checks can skip features...
+                        // maxDistance = geotools.distance(point, position);
+                        // searchBBox = geotools.getPointBBox(position, maxDistance);
+                    }
+                }
+            }
+        }
         return RESULT.line ? RESULT : null;
     };
 }

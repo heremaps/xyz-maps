@@ -163,6 +163,7 @@ const tools = {
 
                 prv.selector = EDITOR.objects.overlay.addCircle(<GeoJSONCoordinate>feature.coord(), UNDEF, {
                     type: 'MARKER_SELECTOR',
+                    parentType: 'MARKER',
                     MARKER: {
                         properties: feature.prop(),
                         altitude,

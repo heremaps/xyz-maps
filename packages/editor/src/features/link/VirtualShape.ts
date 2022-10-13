@@ -33,6 +33,7 @@ class VirtualLinkShape extends Feature {
     id: string;
     private x: number;
     private y: number;
+    private z: number;
     private moved: boolean;
 
     private pointerdown;
@@ -48,13 +49,14 @@ class VirtualLinkShape extends Feature {
         const display = EDITOR.display;
         let geoFence;
 
-
         function onMouseMoveAddShape(ev, dx, dy, ax, ay) {// move
             const line = shapePnt.properties.parent;
             const curPos = EDITOR.map.getGeoCoord(
                 shapePnt.x + dx,
                 shapePnt.y + dy
             );
+
+            curPos[2] = shapePnt.z;
 
             if (geoFence.isPntInFence(curPos)) {
                 if (!geoFence.isHidden()) {
@@ -79,8 +81,9 @@ class VirtualLinkShape extends Feature {
 
                     shp.x = shapePnt.x;
                     shp.y = shapePnt.y;
+                    shp.z = shapePnt.z;
 
-                    shp.__.pointerdown.call(shp);
+                    shp.__.pointerdown.apply(shp, arguments);
                 }
 
                 const newShape = shapePnts[index];
@@ -93,14 +96,15 @@ class VirtualLinkShape extends Feature {
 
         function onMouseDownAddShape() {
             const line = shapePnt.properties.parent;
+            const {coordinates} = shapePnt.geometry;
 
             shapePnt.moved = false;
 
             linkTools.hideDirection(line);
 
-            const startPixel = display.geoToPixel.apply(display, this.geometry.coordinates);
+            const startPixel = display.geoToPixel.apply(display, coordinates);
 
-            geoFence = new GeoFence(EDITOR, shapePnt.x = startPixel.x, shapePnt.y = startPixel.y);
+            geoFence = new GeoFence(EDITOR, shapePnt.x = startPixel.x, shapePnt.y = startPixel.y, shapePnt.z = coordinates[2]);
         }
 
         function onMouseUpAddShape(ev) {
@@ -123,7 +127,6 @@ class VirtualLinkShape extends Feature {
             type: 'Feature',
             geometry: {
                 type: 'Point',
-
                 coordinates: pos.slice()
             },
             properties: {

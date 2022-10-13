@@ -16,16 +16,15 @@
  * SPDX-License-Identifier: Apache-2.0
  * License-Filename: LICENSE
  */
-
-import {Feature} from '../feature/Feature';
 import oTools from './LocationTools';
 import {Navlink} from '../link/Navlink';
 import {GeoJSONCoordinate} from '@here/xyz-maps-core';
+import {Marker} from '../marker/Marker';
 
 /**
  * @hidden
  */
-export class Location extends Feature {
+export class Location extends Marker {
     readonly class: 'PLACE' | 'ADDRESS';
 
     constructor(feature, provider) {

@@ -27,6 +27,7 @@ import VirtualLinkShape from './VirtualShape';
 import {Navlink} from './Navlink';
 import {EditStates} from '../feature/Feature';
 import FeatureTools from '../feature/FeatureTools';
+import InternalEditor from '../../IEditor';
 
 type LocationId = string | number;
 
@@ -361,6 +362,10 @@ var tools = {
         return line;
     },
 
+    ignoreZ: (line: Navlink) => {
+        return !line._e().getStyleProperty(line, 'altitude');
+    },
+
 
     //* ****************************************** protected link/shape only *******************************************
 
@@ -436,19 +441,16 @@ var tools = {
 
     createShapes: function(line: Navlink) {
         const shapePnts = getPrivate(line, 'shps');
-        const path = line.geometry.coordinates;
+        const path = <GeoJSONCoordinate[]>line.geometry.coordinates;
         // line.getPath(),
         const length = path.length;
-
 
         if (!line.editState('removed')) {
             const isOverlapping = tools.checkOverlapping(line);
 
             if (!shapePnts.length) {
                 for (let i = 0; i < length; i++) {
-                    // const shp = new NavlinkShape(line, [path[i][0], path[i][1]], i, tools);
-
-                    const shp = tools.createLinkShape(line, [path[i][0], path[i][1]], i);
+                    const shp = tools.createLinkShape(line, [...path[i]], i);
 
                     updateOverlapping(shp, (<number[]>isOverlapping).indexOf(i) >= 0);
 
@@ -508,13 +510,23 @@ var tools = {
         return line;
     },
 
-    moveShapeAtIndexTo: function(line: Navlink, index: number, x: number, y: number, skipCLinks?: boolean): boolean {
+    moveShapeAtIndexTo: function(line: Navlink, index: number, position: number[], skipCLinks?: boolean): boolean {
         const path = line.coord();
         const shapePnts = getPrivate(line, 'shps');
-        const positionHasChanged = path[index][0] != x || path[index][1] != y;
+
+        position = [...position];
+
+        const [x, y, z] = position;
+
+        const positionHasChanged = path[index][0] != x || path[index][1] != y || (path[index][2] || 0) != (z || 0);
 
         path[index][0] = x;
         path[index][1] = y;
+
+
+        if (typeof z == 'number') {
+            path[index][2] = z;
+        }
 
         storeConnectedPoints(line);
 
@@ -526,13 +538,13 @@ var tools = {
 
         // if line is active also move the shape object
         if (!skipCLinks && shp) {
-            line._e().objects.overlay.setFeatureCoordinates(shp, [x, y]);
+            line._e().objects.overlay.setFeatureCoordinates(shp, position);
 
             shp.__.cLinks.forEach((clinkData) => {
                 let clink = clinkData.link;
                 let isGeoModAllowed = !line._e()._config.editRestrictions(clink, 1);
                 if (isGeoModAllowed) {
-                    tools.moveShapeAtIndexTo(clink, clinkData.index, x, y);
+                    tools.moveShapeAtIndexTo(clink, clinkData.index, position);
                 }
             });
             // update shape overlapping
@@ -652,7 +664,8 @@ var tools = {
     ): number | false => {
         const path = link.coord();
         const EDITOR = link._e();
-        const intersec = EDITOR.map.searchPointOnLine(path, pos, EDITOR._config['snapTolerance'], preferSegment);
+        const ignoreZ = tools.ignoreZ(link);
+        const intersec = EDITOR.map.searchPointOnLine(path, pos, EDITOR._config['snapTolerance'], preferSegment, UNDEF, ignoreZ);
 
         index = typeof index == 'number'
             ? index
@@ -679,7 +692,9 @@ var tools = {
 
             changeGeometry(link, path);
 
-            zLevels.splice(index, 0, pos[2] || 0); // set Zlevel 0 if not defined
+            // fallback for old non 3d zlevel passed in via coordinates z position
+            let zLevel = Math.round(pos[2] < 10 && pos[2]) || 0;
+            zLevels.splice(index, 0, zLevel);
             EDITOR.objects.history.ignore(() => {
                 link.getProvider().writeZLevels(link, zLevels);
             });
@@ -716,7 +731,7 @@ var tools = {
         return index;
     },
 
-    snapShape: (linkShape: NavlinkShape, position: GeoJSONCoordinate, minShpDistance?: number): GeoJSONCoordinate => {
+    snapShape: (linkShape: NavlinkShape, position: GeoJSONCoordinate, ignoreZ?: boolean, minShpDistance?: number): GeoJSONCoordinate => {
         const link = linkShape.getLink();
         const prv = getPrivate(linkShape);
         const internalEditor = link._e();
@@ -729,7 +744,7 @@ var tools = {
 
         while (cl = closeLinks[--cLen]) {
             if (cl.id != link.id && prv._cls.indexOf(cl) == -1 && cl.behavior('snapCoordinates')) {
-                const x = internalEditor.map.searchPointOnLine(cl.geometry.coordinates, position, minShpDistance, UNDEF, minShpDistance);
+                const x = internalEditor.map.searchPointOnLine(cl.geometry.coordinates, position, minShpDistance, UNDEF, minShpDistance, ignoreZ);
                 if (x) {
                     return x.point;
                 }
@@ -777,21 +792,13 @@ var tools = {
         return autoFixGeometry(line, shapeToCheck, ignoreSplitChildren, preferShapeIndex);
     },
     // used by: crossing + shape
-    connectShpToLink: function(line, shpIndex, toLink, toPos, preferSegment?, ignoreZLevel?: boolean): ConnectLinksResult {
+    connectShpToLink: function(line: Navlink, shpIndex: number, toLink: Navlink, toPos: GeoJSONCoordinate, preferSegment?: number, ignoreZ?: boolean): ConnectLinksResult {
         const splitInfo = new ConnectLinksResult();
         let newLinks;
         const objManager = line._e().objects;
 
         if (toLink.id != line.id) {
-            const newToLinks = connectLinks(
-                line,
-                shpIndex,
-                toLink,
-                toPos,
-                preferSegment,
-                ignoreZLevel
-            );
-
+            const newToLinks = connectLinks(line, shpIndex, toLink, toPos, preferSegment, ignoreZ);
             // connectLinks returns ...
             // null    -> no connection has been done (no intersection created) because toLink not in range..
             // false   -> no intersection created due to autofix is preventing... (road with 2 nodes at same position)
@@ -846,10 +853,14 @@ var tools = {
         return splitInfo;
     },
 
-    isIntersection(EDITOR, c1, c2) {
-        const isecPrecision = Math.pow(10, EDITOR._config['intersectionScale']);
+    isIntersection(EDITOR: InternalEditor, c1: number[], c2: number[], ignoreZ?: boolean) {
+        const isecPrecision = Math.pow(10, EDITOR._config.intersectionScale);
         const round = (v) => Math.round(v * isecPrecision);
-        return round(c1[0]) == round(c2[0]) && round(c1[1]) == round(c2[1]);
+        return (
+            round(c1[0]) == round(c2[0]) &&
+            round(c1[1]) == round(c2[1]) &&
+            (ignoreZ || round(c1[2] || 0) == round(c2[2] || 0))
+        );
     }
 };
 const moveShapeAtIndexTo = tools.moveShapeAtIndexTo;
@@ -893,7 +904,7 @@ function autoFixGeometry(line: Navlink, shapeToCheck?: number, ignoreSplitChildr
         function moveCLinksToTeardrop(shp: number) {
             const connectedLinks = line.getConnectedLinks(shp, true);
             for (let {link, index} of connectedLinks) {
-                const positionHasChanged = moveShapeAtIndexTo(link, index, TDCoord[0], TDCoord[1], true);
+                const positionHasChanged = moveShapeAtIndexTo(link, index, TDCoord, true);
                 if (positionHasChanged) {
                     tools.markAsModified(link, false);
                 }
@@ -907,7 +918,7 @@ function autoFixGeometry(line: Navlink, shapeToCheck?: number, ignoreSplitChildr
         let deleteShapeAt: false | number = false;
         let TDDetectedAt: false | number = false;
         let shapesInBetween;
-        let TDCoord;
+        let TDCoord: GeoJSONCoordinate;
 
         for (let duplicateIndex = 0; duplicateIndex < pathLength; duplicateIndex++) {
             if (shpIndex != duplicateIndex) {
@@ -971,8 +982,7 @@ function autoFixGeometry(line: Navlink, shapeToCheck?: number, ignoreSplitChildr
                                 shpIndex == TDDetectedAt
                                     ? duplicateIndex
                                     : shpIndex,
-                                TDCoord[0],
-                                TDCoord[1]
+                                TDCoord
                             );
 
                             triggerFeatureUnselected(line._e());
@@ -987,7 +997,7 @@ function autoFixGeometry(line: Navlink, shapeToCheck?: number, ignoreSplitChildr
                         } else { // Performing Teardrop split
                             moveCLinksToTeardrop(shpIndex);
 
-                            moveShapeAtIndexTo(line, shpIndex, TDCoord[0], TDCoord[1]);
+                            moveShapeAtIndexTo(line, shpIndex, TDCoord);
 
                             // Teardrop split (tds)
                             children = objManager.splitLinkAt({
@@ -1035,7 +1045,7 @@ function autoFixGeometry(line: Navlink, shapeToCheck?: number, ignoreSplitChildr
                         line.getConnectedLinks(deleteShapeAt, true).forEach((cLinkInfo) => {
                             const link = cLinkInfo.link;
                             tools.markAsModified(link, false);
-                            tools.moveShapeAtIndexTo(link, cLinkInfo.index, deleteX, deleteY, true);
+                            tools.moveShapeAtIndexTo(link, cLinkInfo.index, [deleteX, deleteY], true);
                             hasCLinks = !ignoreChild(link);
                         });
 
@@ -1044,8 +1054,8 @@ function autoFixGeometry(line: Navlink, shapeToCheck?: number, ignoreSplitChildr
                             shpIndex == duplicateIndex
                                 ? duplicateIndex
                                 : shpIndex,
-                            deleteX,
-                            deleteY,
+                            [deleteX,
+                                deleteY],
                             true
                         );
 
@@ -1055,7 +1065,7 @@ function autoFixGeometry(line: Navlink, shapeToCheck?: number, ignoreSplitChildr
                         if (isNode(deleteShapeAt)) {
                             // move moved shape to deleted node position
                             if (!isNode(shpIndex) && shpIndex - 1 > 0) {
-                                moveShapeAtIndexTo(line, shpIndex - 1, deleteX, deleteY, true);
+                                moveShapeAtIndexTo(line, shpIndex - 1, [deleteX, deleteY], true);
                             }
 
                             if (prv.isSelected) {
@@ -1124,21 +1134,20 @@ function connectLinks(
     toLink: Navlink,
     toPos: GeoJSONCoordinate,
     preferSegment?: number,
-    ignoreZLevel?: boolean
+    ignoreZ?: boolean
 ): [Navlink, Navlink] {
     const HERE_WIKI = fromLink._e();
     const path = fromLink.coord();
     let splittedLinks = null;
     // get clinks before changing geo!
     const connectedLinks = fromLink.getConnectedLinks(fromShpIndex, true);
-    const x = toPos[0];
-    const y = toPos[1];
-    // var considerZlevel = toPos[2] !== UNDEF; // ***** UNCOMMENT FOR ZLEVEL CONSIDERATION *****
+    const [x, y, z] = toPos;
     const snapTolerance = HERE_WIKI._config['snapTolerance'];
-    const crossing = HERE_WIKI.map.searchPointOnLine(toLink.coord(), toPos, snapTolerance, preferSegment);
+    const crossing = HERE_WIKI.map.searchPointOnLine(toLink.coord(), toPos, snapTolerance, preferSegment, UNDEF, ignoreZ);
 
     path[fromShpIndex][0] = x;
     path[fromShpIndex][1] = y;
+    path[fromShpIndex][2] = z || 0;
 
     tools._setCoords(fromLink, path);
 
@@ -1150,41 +1159,22 @@ function connectLinks(
         //     objectFactory.blockShapeAtIndex(fromLink, fromShpIndex);
         // }
 
-        // TODO: wait for MC to allow zlevels SUPPORT
-        // ***** UNCOMMENT FOR ZLEVEL CONSIDERATION ***** //
-        //            var toZLevel = isExistingShape ? toLink.zLevels[pnt.index] : determineZLevelForSegment(toLink, pnt.index);
-        //            if(ignoreZLevel) // ignore zlevel..force connection! reset level to 0.
-        //                toZLevel = 0;
-        //
-        //            // if no zlevel could be determined for crossingpoint (virtual shape) -> do not connect anymore!
-        //            if( toZLevel === null )
-        //                return null;
-        //
-        //            if( considerZlevel ){
-        //                // if calc intersection is snagged to existing geo -> need to check for matching zlevels..
-        //                // ..otherwise snag is not valid!
-        //                if( toZLevel !== toPos.z )
-        //                    return null;
-        //
-        //                // if connection is made to newly created shape(virtual shape) reset zlevels
-        //                fromLink.zLevels[fromShpIndex] = isExistingShape ? toPos.z : 0;
-        //            }
-
-        // splittedLinks = this._h.objects.factory.splitLinkAt.call( objectFactory,
         splittedLinks = HERE_WIKI.objects.splitLinkAt(
             isExistingShape ? {
                 link: toLink,
                 index: crossing.index,
-                avoidSnapping: true
+                avoidSnapping: true,
+                ignoreZ
             } : {
                 link: toLink,
                 point: pnt,
-                preferSegment: preferSegment,
-                avoidSnapping: true
+                preferSegment,
+                avoidSnapping: true,
+                ignoreZ
             }
         );
 
-        moveShapeAtIndexTo(fromLink, fromShpIndex, pnt[0], pnt[1]);
+        moveShapeAtIndexTo(fromLink, fromShpIndex, pnt);
 
         //   ------
         //   \    /
@@ -1199,7 +1189,7 @@ function connectLinks(
 
             const link = connection.link;
 
-            moveShapeAtIndexTo(link, connection.index, pnt[0], pnt[1]);
+            moveShapeAtIndexTo(link, connection.index, pnt);
 
             autoFixGeometry(link, connection.index);
 

@@ -17,7 +17,7 @@
  * License-Filename: LICENSE
  */
 
-import {add, cross, dot, normalize, scale, subtract, transformMat4} from 'gl-matrix/vec3';
+import {add, cross, dot, normalize, scale, subtract, multiply, transformMat4} from 'gl-matrix/vec3';
 import {GeometryBuffer} from './buffer/GeometryBuffer';
 
 export type Vec3 = [number, number, number];

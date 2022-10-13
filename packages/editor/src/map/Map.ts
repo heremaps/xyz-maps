@@ -19,7 +19,7 @@
 import {GeoJSONCoordinate as Point, Feature as GeoJSONFeature} from '@here/xyz-maps-core';
 import {geotools} from '@here/xyz-maps-common';
 import {Map as MapDisplay} from '@here/xyz-maps-display';
-import {getPntOnLine, getDistance} from '../geometry';
+import {getClosestPntOnLine, getPntOnLine, getDistance} from '../geometry';
 import oTools from '../features/oTools';
 import {Feature} from '../features/feature/Feature';
 
@@ -40,8 +40,8 @@ class Crossing {
     distance: number;
     existingShape: boolean;
 
-    constructor(x: number, y: number, index: number, distance: number, foundExistingShape: boolean) {
-        this.point = [x, y];
+    constructor(point: number[], index: number, distance: number, foundExistingShape: boolean) {
+        this.point = point;
         this.index = index;
         this.distance = distance;
         this.existingShape = foundExistingShape;
@@ -128,32 +128,35 @@ class Map {
         return [x * zinv, y * zinv];
     };
 
-    searchPointOnLine(path: Point[], pos: Point, snapTolerance: number, idx?: number, maxDistance?: number): Crossing {
+    searchPointOnLine(pathGeo: Point[], posGeo: Point, snapTolerance: number, idx?: number, maxDistance?: number, ignoreZ?: boolean): Crossing {
         const map = this;
         let index = null;
         let minDistance = maxDistance || Infinity;
         let foundExistingShape = false;
         let foundX = null;
         let foundY = null;
+        let foundZ = null;
         let distance;
         let iPnt;
 
         if (idx != UNDEF) {
-            const result = map.searchPointOnLine(path.slice(idx, idx + 2), pos, snapTolerance, UNDEF, maxDistance);
+            const result = map.searchPointOnLine(pathGeo.slice(idx, idx + 2), posGeo, snapTolerance, UNDEF, maxDistance, ignoreZ);
             if (result) {
                 result.index += idx;
             }
             return result;
         }
 
-        let pathGeo = path;
-        let posGeo = pos;
-        path = path.map((c) => map.getPixelCoord(c));
-        pos = map.getPixelCoord(pos);
+        if (ignoreZ) {
+            posGeo = [posGeo[0], posGeo[1]];
+        }
 
         // calculate index of line for new Shape to add
-        for (let i = 0; i < path.length; i++) {
+        for (let i = 0; i < pathGeo.length; i++) {
             let curGeo = pathGeo[i];
+            if (ignoreZ) {
+                curGeo = [curGeo[0], curGeo[1]];
+            }
             // check if a existing pnt is in range
             distance = map.distance(curGeo, posGeo);
 
@@ -161,17 +164,26 @@ class Map {
                 minDistance = distance;
                 foundX = curGeo[0];
                 foundY = curGeo[1];
+                foundZ = curGeo[2];
                 index = i;
                 foundExistingShape = true;
             }
         }
 
         if (minDistance > snapTolerance || !foundExistingShape) {
+            // covert to worldspace
+            const path = pathGeo.map((c) => map.display._g2w(c[0], c[1], ignoreZ ? UNDEF : c[2]));
+            const posWorld = map.display._g2w(posGeo);
+
+            // const path = pathGeo.map((c) => map.getPixelCoord(c));
+            // const posWorld = map.getPixelCoord(posGeo);
+
             for (var i = 0; i < path.length; i++) {
                 // calc related segment of line for new Shape
                 if (i < path.length - 1) {
-                    if (iPnt = getPntOnLine(path[i], path[i + 1], pos)) {
-                        const iPntGeo = map.getGeoCoord(iPnt);
+                    if (iPnt = getClosestPntOnLine(path[i], path[i + 1], posWorld, true)) {
+                        const iPntGeo = map.clipGeoCoord(map.display._w2g(iPnt));
+
                         distance = map.distance(iPntGeo, posGeo);
 
                         if (distance < minDistance) {
@@ -179,6 +191,7 @@ class Map {
                             index = i + 1;
                             foundX = iPntGeo[0];
                             foundY = iPntGeo[1];
+                            foundZ = iPnt[2];
                             foundExistingShape = false;
                         }
                     }
@@ -186,7 +199,7 @@ class Map {
             }
         }
 
-        return index === null ? index : new Crossing(foundX, foundY, index, minDistance, foundExistingShape);
+        return index === null ? index : new Crossing([foundX, foundY, foundZ || 0], index, minDistance, foundExistingShape);
     };
 
 

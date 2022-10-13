@@ -109,7 +109,7 @@ class Crossing implements GeoJSONFeature {
     /**
      *  the feature class of the crossing. Can be either CROSSING or CROSSING_CANDIDATE.
      */
-    readonly class: xClass.CROSSING | xClass.CROSSING_CANDIDATE
+    readonly class: xClass.CROSSING | xClass.CROSSING_CANDIDATE;
 
     /**
      * the x coordinate of the crossing on screen in pixel.
@@ -141,7 +141,7 @@ class Crossing implements GeoJSONFeature {
          * The coordinates of the crossing feature.
          */
         coordinates: GeoJSONCoordinate | GeoJSONCoordinate[]
-    }
+    };
 
     private readonly _: {
         set?: any,
@@ -151,7 +151,7 @@ class Crossing implements GeoJSONFeature {
         searchPnt: GeoJSONCoordinate,
         foundPnt: GeoJSONCoordinate,
         candidate: Navlink
-    }
+    };
 
     private getLinkIndex() {
         let prv = this._;
@@ -271,8 +271,7 @@ class Crossing implements GeoJSONFeature {
                 shpIndex,
                 croCandidate,
                 iEditor.map.clipGeoCoord(croFoundPnt),
-                candidateIndexBeforeSplit,
-                true
+                typeof candidateIndexBeforeSplit == 'number' ? candidateIndexBeforeSplit : UNDEF
             );
 
             (splitInfo.splittedInto || []).forEach((splitChild) => {

@@ -25,7 +25,7 @@ import {Editor} from '@here/xyz-maps-editor';
 import dataset from './link_zlevels_spec.json';
 import {NavlinkShape} from '@here/xyz-maps-editor';
 
-describe('navlink zlevels', function() {
+describe('navlink zlevels', () => {
     const expect = chai.expect;
 
     let editor;
@@ -34,7 +34,7 @@ describe('navlink zlevels', function() {
     let mapContainer;
     let link;
 
-    before(async function() {
+    before(async () => {
         preparedData = await prepare(dataset);
         display = new Map(document.getElementById('map'), {
             center: {longitude: 77.19774634658813, latitude: 13.103736533151803},
@@ -50,17 +50,17 @@ describe('navlink zlevels', function() {
         link = preparedData.getFeature('linkLayer', -189094);
     });
 
-    after(async function() {
+    after(async () => {
         editor.destroy();
         display.destroy();
         await preparedData.clear();
     });
 
-    it('create a link and validate', function() {
+    it('create a link and validate', () => {
         expect(link.getZLevels()).to.deep.equal([1, 2, 3]);
     });
 
-    it('set zlevel and validate', function() {
+    it('set zlevel and validate', () => {
         link.setZLevels([1, 1, 1]);
         expect(link.getZLevels()).to.deep.equal([1, 1, 1]);
     });
@@ -72,7 +72,7 @@ describe('navlink zlevels', function() {
         expect(link.getZLevels()).to.deep.equal([1, 1]);
     });
 
-    it('add one more shape point at head of the link and validate', function() {
+    it('add one more shape point at head of the link and validate', () => {
         link.addShape({
             x: 200,
             y: 100,
@@ -82,13 +82,13 @@ describe('navlink zlevels', function() {
         expect(link.getZLevels()).to.deep.equal([2, 1, 1]);
     });
 
-    it('set zlevel and validate', function() {
+    it('set zlevel and validate', ()=>{
         link.setZLevels([1, 1, 1]);
         expect(link.getZLevels()).to.deep.equal([1, 1, 1]);
     });
 
 
-    it('drag shape point and validate', async function() {
+    it('drag shape point and validate', async ()=>{
         await click(mapContainer, 100, 200);
         await drag(mapContainer, {x: 400, y: 200}, {x: 100, y: 300});
 
@@ -96,17 +96,17 @@ describe('navlink zlevels', function() {
     });
 
 
-    it('add a shape point and validate', function() {
+    it('add a shape point and validate', ()=>{
         link.addShape({x: 200, y: 300}, 1);
         expect(link.getZLevels()).to.deep.equal([1, 0, 1, 1]);
     });
 
-    it('add one more shape point, validate zlevel', function() {
+    it('add one more shape point, validate zlevel', ()=>{
         link.addShape({x: 200, y: 300, z: 2}, 1);
         expect(link.getZLevels()).to.deep.equal([1, 2, 0, 1, 1]);
     });
 
-    it('split link and validate', async function() {
+    it('split link and validate', async ()=>{
         let shape = <NavlinkShape>(await editorClick(editor, 100, 300)).target;
 
         let splitLinks = shape.splitLink();
