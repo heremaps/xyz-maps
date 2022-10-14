@@ -18,7 +18,7 @@
  */
 
 import BasicRender from '../BasicRender';
-import {CustomLayer, tile, Tile, TileLayer} from '@here/xyz-maps-core';
+import {CustomLayer, Tile, TileLayer} from '@here/xyz-maps-core';
 import GLTile from './GLTile';
 import {IconManager} from './IconManager';
 import {RGBA, toRGB} from './color';
@@ -260,7 +260,7 @@ export class GLRender implements BasicRender {
     private initContext() {
         const {gl} = this;
         // gl.frontFace(gl.CW);
-        // gl.enable(gl.CULL_FACE);
+        gl.enable(gl.CULL_FACE);
         gl.cullFace(gl.FRONT);
         gl.enable(gl.DEPTH_TEST);
         gl.enable(gl.SCISSOR_TEST);

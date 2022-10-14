@@ -26,6 +26,11 @@ export class LineBuffer extends TemplateBuffer {
     constructor(flat: boolean = true) {
         super(flat, true);
 
+        if (!flat) {
+            // disable culling
+            this.cullFace = null;
+        }
+
         this.flexAttributes = {
             // vertex
             a_position: {

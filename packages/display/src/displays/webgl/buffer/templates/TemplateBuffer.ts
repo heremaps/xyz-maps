@@ -21,6 +21,7 @@ import {Attribute} from '../Attribute';
 import {FlexArray} from './FlexArray';
 import {GeometryBuffer} from '../GeometryBuffer';
 import {Raycaster} from '../../Raycaster';
+import {FRONT} from '../glType';
 
 export type FlexAttribute = {
     data: FlexArray;
@@ -39,7 +40,7 @@ export class TemplateBuffer {
     flexAttributes: { [name: string]: FlexAttribute };
     groups: {
         attributes: { [name: string]: FlexAttribute; }
-    }
+    };
 
     i32: boolean = false;
 
@@ -48,6 +49,7 @@ export class TemplateBuffer {
     protected _flat: boolean = true;
 
     idOffsets?: (string | number)[];
+    cullFace: number | null;
 
     constructor(flat: boolean, scissor: boolean = false) {
         this._flat = flat;
@@ -57,6 +59,8 @@ export class TemplateBuffer {
         if (!flat) {
             this.idOffsets = [];
         }
+
+        this.cullFace = FRONT;
     }
 
     count(): number {
@@ -113,7 +117,6 @@ export class TemplateBuffer {
         }
 
         geoBuffer.idOffsets = buffer.idOffsets;
-
         return geoBuffer;
     }
 

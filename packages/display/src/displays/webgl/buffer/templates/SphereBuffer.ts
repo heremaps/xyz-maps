@@ -23,6 +23,7 @@ import {BoxBuffer, extentScale} from './BoxBuffer';
 import {GeometryBuffer} from '../GeometryBuffer';
 import {Raycaster, Vec3} from '../../Raycaster';
 import {decodeUint16z, getOffsetPixel} from './PointBuffer';
+import {BACK} from '../glType';
 
 const SPHERE_VERTICES = 1056;
 
@@ -37,6 +38,9 @@ export class SphereBuffer extends BoxBuffer {
 
     constructor(flat: boolean = true) {
         super(false);
+
+        this.cullFace = BACK;
+
         this.flexAttributes.a_point = {
             normalized: true,
             data: new FlexArray(Uint8Array),

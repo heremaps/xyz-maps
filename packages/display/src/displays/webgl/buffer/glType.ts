@@ -38,4 +38,7 @@ const glType = (data: TypedArray): number => {
     if (data instanceof Float32Array) return 0x1406; // gl.FLOAT;
 };
 
-export {glType, TypedArray, TypedArrayConstructor};
+const FRONT = 1028;
+const BACK = 1029;
+
+export {glType, TypedArray, TypedArrayConstructor, FRONT, BACK};

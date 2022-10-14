@@ -316,6 +316,16 @@ class Program {
 
         gl.blendFunc(gl.SRC_ALPHA, gl.ONE_MINUS_SRC_ALPHA);
 
+        const cullFace = geoBuffer.cullFace();
+
+        if (cullFace) {
+            gl.cullFace(cullFace);
+            gl.enable(gl.CULL_FACE);
+        } else {
+            gl.disable(gl.CULL_FACE);
+        }
+
+
         // get rid of zfighting for alpha pass.
         // alpha pass is drawn ordered zindex -> no need to write to depthbuffer (performance)
         gl.depthMask(geoBuffer.isFlat() ? opaquePass : true);

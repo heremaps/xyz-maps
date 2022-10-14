@@ -84,6 +84,8 @@ class GeometryBuffer {
     idOffsets?: (string | number)[];
     pointerEvents?: boolean;
 
+    private _cullFace: number = 0;
+
     static fromTemplateBuffer(type: string, templBuffer: TemplateBuffer): GeometryBuffer {
         const {flexAttributes} = templBuffer;
         let geoBuffer: GeometryBuffer;
@@ -112,6 +114,8 @@ class GeometryBuffer {
         geoBuffer.idOffsets = templBuffer.idOffsets;
 
         geoBuffer.rayIntersects = templBuffer.rayIntersects;
+
+        geoBuffer.cullFace(templBuffer.cullFace);
 
         return geoBuffer;
     }
@@ -205,6 +209,13 @@ class GeometryBuffer {
 
     rayIntersects(buffer: GeometryBuffer, result, tileX: number, tileY: number, rayCaster: Raycaster): string | number {
         return null;
+    }
+
+    cullFace(cullFace?: number) {
+        if (cullFace !== UNDEF) {
+            this._cullFace = cullFace;
+        }
+        return this._cullFace;
     }
 }
 
