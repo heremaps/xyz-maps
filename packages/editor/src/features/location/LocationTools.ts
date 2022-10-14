@@ -339,8 +339,12 @@ const tools = {
                 parentType: feature.class
             };
 
+            const iEditor = feature._e();
+            const zLayer = iEditor.display.getLayers().indexOf(iEditor.getLayer(feature));
+
             properties[feature.class] = {
-                altitude: feature._e().getStyleProperty(feature, 'altitude')
+                altitude: feature._e().getStyleProperty(feature, 'altitude'),
+                zLayer
             };
 
             prv.selector = feature._e().objects.overlay.addCircle(

@@ -60,56 +60,60 @@ const createHighlightLineStyle = (use3d?: boolean) => [{
     altitude: !!use3d
 }];
 
-const createSelectorStyle = () => [{
-    zIndex: 0,
-    type: 'Circle',
-    strokeWidth: 2,
-    stroke: '#FF0F00',
-    radius: 20
-}];
+const createSelectorStyle = (use3d?: boolean) => {
+    const styleGroup: any[] = [{
+        zIndex: 4,
+        type: 'Circle',
+        strokeWidth: 2,
+        stroke: '#FF0F00',
+        radius: 20,
+        pointerEvents: false,
+        altitude: use3d
+    }];
 
-const createSelectorStyle3d = () => [{
-    zIndex: 3,
-    alignment: 'Viewport',
-    type: 'Sphere',
-    fill: '#FF0F00',
-    opacity: .5,
-    pointerEvents: false,
-    strokeWidth: 2,
-    radius: 20,
-    altitude: ({properties}) => properties[properties.parentType].altitude
-}, {
-    zIndex: 2,
-    type: 'VerticalLine',
-    stroke: BLACK,
-    altitude: ({properties}) => properties[properties.parentType].altitude
-}, {
-    zIndex: 9e5,
-    type: 'Circle',
-    radius: 4,
-    fill: BLACK,
-    opacity: .6,
-    zLayer: ({properties}) => properties[properties.parentType].altitude - 1
-}];
+    if (use3d) {
+        styleGroup.push({
+            zIndex: 3,
+            type: 'VerticalLine',
+            stroke: BLACK,
+            altitude: ({properties}) => properties[properties.parentType].altitude
+        }, {
+            zIndex: 1,
+            type: 'Circle',
+            radius: 4,
+            fill: BLACK,
+            opacity: .6,
+            zLayer: ({properties}) => properties[properties.parentType].zLayer
+        });
+    }
+
+    return styleGroup;
+};
 
 const createRoutingPointStyle = (use3d?: boolean) => use3d
     // 3d style
     ? [{
         zLayer: (feature) => feature.properties.zLayer,
-        zIndex: 999991,
+        zIndex: 999992,
         type: 'Sphere',
         radius: 8,
         fill: '#FF0000',
         stroke: '#FF0000',
-        altitude: ({properties}) => {
-            console.log(properties); return properties[properties.parentType].altitude;
-        }
+        altitude: ({properties}) => properties[properties.parentType].altitude
     }, {
         zLayer: (feature) => feature.properties.zLayer,
-        zIndex: 999990,
+        zIndex: 999991,
         type: 'VerticalLine',
         stroke: '#000',
         altitude: true
+    }, {
+        zIndex: 999990,
+        type: 'Circle',
+        radius: 4,
+        fill: BLACK,
+        opacity: .6,
+        altitude: 0,
+        zLayer: (feature) => feature.properties.zLayer
     }]
     // 2d style
     : [{
@@ -164,7 +168,7 @@ class OverlayStyles {
         'ADDRESS_ROUTING_POINT_3D': createRoutingPointStyle(true),
 
         'ADDRESS_SELECTOR': createSelectorStyle(),
-        'ADDRESS_SELECTOR_3D': createSelectorStyle3d(),
+        'ADDRESS_SELECTOR_3D': createSelectorStyle(true),
 
         'PLACE_LINE': createHighlightLineStyle(),
         'PLACE_LINE_3D': createHighlightLineStyle(true),
@@ -305,10 +309,10 @@ class OverlayStyles {
         }],
 
         'MARKER_SELECTOR': createSelectorStyle(),
-        'MARKER_SELECTOR_3D': createSelectorStyle3d(),
+        'MARKER_SELECTOR_3D': createSelectorStyle(true),
 
         'PLACE_SELECTOR': createSelectorStyle(),
-        'PLACE_SELECTOR_3D': createSelectorStyle3d(),
+        'PLACE_SELECTOR_3D': createSelectorStyle(true),
 
         'NAVLINK_SHAPE': [{
             zIndex: 0,

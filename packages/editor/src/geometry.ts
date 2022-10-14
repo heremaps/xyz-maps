@@ -79,15 +79,11 @@ export const getAngle = (p1: Point, p2: Point): number => {
 };
 
 
-export const movePointOnPath = (p1: Point, p2: Point, distance?: number): Point => {
-    const deg = getAngle(p1, p2) - 180;
-    const rad = deg * PI / 180;
-
-    return [
-        p1[0] + (distance || 0) * MATH.cos(rad),
-        p1[1] + (distance || 0) * MATH.sin(rad)
-        // g1p1ha: deg
-    ];
+export const movePointOnPath = (g1: Point, g2: Point, distance: number) => {
+    // let d = vec3.sub([], g2, g1);
+    const d = [g2[0] - g1[0], g2[1] - g1[1], g2[2] || 0 - g1[2] || 0];
+    vec3.scale(d, vec3.normalize(d, d), distance);
+    return vec3.add(d, d, g1);
 };
 
 export const getClosestPoint = (path: Point[], p: Point, maxDistance?: number) => {

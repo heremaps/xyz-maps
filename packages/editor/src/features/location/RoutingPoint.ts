@@ -44,6 +44,7 @@ class NvtRoutingPoint {
     routingPoint: number[];
 
     private ignoreZ: boolean;
+    private dragged: boolean;
 
     constructor(location: Location, _locTools, lnkTools) {
         linkTools = lnkTools;
@@ -81,17 +82,18 @@ class NvtRoutingPoint {
         const iEditor = this.iEditor;
 
         function pointerDown() {
-            this.moved = false;
+            that.dragged = false;
         }
 
         function pressMove(ev, dx, dy) {
-            const {cLink, location} = that;
+            const {cLink, location, ignoreZ} = that;
 
             if (cLink && !iEditor._config.editRestrictions(location, 1)) {
                 // let curPos = <GeoJSONCoordinate>dragFeatureCoordinate(ev.mapX, ev.mapY, this, this.geometry.coordinates, iEditor);
 
-                if (!this.moved) {
-                    this.moved = true;
+
+                if (!that.dragged) {
+                    that.dragged = true;
                     triggerEvent(location, ev, 'routing', 'dragStart');
                 }
 
@@ -99,13 +101,12 @@ class NvtRoutingPoint {
 
                 let result = iEditor.objects.searchLine([longitude, latitude], cLink.getProvider(), {
                     // maxDistance: 10 * 100
-                    // maxDistance: 100*100
-                    ignoreZ: this.ignoreZ
+                    ignoreZ
                 }, location.geometry.coordinates);
 
 
                 if (!result) {
-                    result = iEditor.objects.searchLine([longitude, latitude], [cLink], {ignoreZ: this.ignoreZ}, location.geometry.coordinates);
+                    result = iEditor.objects.searchLine([longitude, latitude], [cLink], {ignoreZ}, location.geometry.coordinates);
                 }
 
 
@@ -123,12 +124,12 @@ class NvtRoutingPoint {
         }
 
         function pointerUp(ev) {
-            if (this.moved) {
+            if (that.dragged) {
                 locTools.setRoutingData(that.location);
                 that.updateDisplayedRoutingPoint();
                 locTools.markAsModified(that.location);
             }
-            triggerEvent(that.location, ev, 'routing', this.moved ? 'dragStop' : UNDEF);
+            triggerEvent(that.location, ev, 'routing', that.dragged ? 'dragStop' : UNDEF);
         }
 
         that.rpFeature = that.iEditor.objects.overlay.addPoint(that.routingPoint.slice(), {type, zLayer, ...locationProperties});
@@ -144,6 +145,7 @@ class NvtRoutingPoint {
 
     updateStreetLine() {
         const {iEditor, location} = this;
+        const {display} = iEditor;
 
         if (this.streetLine) {
             let displayPnt = location.coord();
@@ -151,15 +153,13 @@ class NvtRoutingPoint {
             const position = this.coord();
 
             if (prv.isSelected) {
-                const selectorStyle = (iEditor.getStyle(prv.selector)[0] || [])[1] || {};
+                const selectorStyle = iEditor.getStyle(prv.selector)[0] || {};
 
-                displayPnt = iEditor.map.getGeoCoord(
-                    movePointOnPath(
-                        iEditor.map.getPixelCoord(displayPnt),
-                        iEditor.map.getPixelCoord(position),
-                        selectorStyle['radius'] || selectorStyle['width'] / 2
-                    )
-                );
+                displayPnt = display._w2g(movePointOnPath(
+                    display._g2w(displayPnt),
+                    display._g2w(position),
+                    selectorStyle['radius'] || selectorStyle['width'] / 2
+                ));
             }
             iEditor.objects.overlay.setFeatureCoordinates(this.streetLine, [position].concat([displayPnt]));
         }
@@ -181,7 +181,7 @@ class NvtRoutingPoint {
             const altitude = iEditor.getStyleProperty(location, 'altitude');
             const editorType = location.class;
 
-            routingPoint.ignoreZ = altitude;
+            routingPoint.ignoreZ = !altitude;
 
             if (!routingPoint.rpFeature) {
                 let zLayer = iEditor.display.getLayers().indexOf(iEditor.getLayer(routingPoint.getLink())) + 1;
