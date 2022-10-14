@@ -1,3 +1,15 @@
+## 0.32.0 (2022-10-14)
+### editor
+* improved: Attempting to create an invalid feature using the drawing board now returns undefined.
+* added: Full 3d geometry editing support for Navlink, Address and Place Features has been added.
+* fixed: Pointerup now triggers correctly after selecting or dragging an address/place.
+### display
+* improved: Improved near-plane clipping of features using altitude.
+* improved: Pointer events for 2d point styles are now triggered "pixel perfect" in all cases.
+* added: Support to integrate custom renderers into the map by using [CustomLayer](https://heremaps.github.io/xyz-maps/docs/classes/core.customlayer.html) has been added.
+* added: The map can now be pitched up to 85 degrees. see [maxPitch](https://heremaps.github.io/xyz-maps/docs/interfaces/display.mapoptions.html#maxpitch).
+* fixed: Text placed on line geometry without collision detection was not displayed correctly
+
 ## 0.31.0 (2022-8-23)
 ### core
 * added: The ImageProvider can now be configured to display an [errorImage](https://heremaps.github.io/xyz-maps/docs/interfaces/core.imageprovideroptions.html#errorimage) for failing tile requests.
