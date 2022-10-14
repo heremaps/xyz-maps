@@ -722,7 +722,7 @@ export class FeatureFactory {
                             let {texture} = group;
                             if (!texture) {
                                 texture = group.texture = new GlyphTexture(this.gl, style);
-                                group.buffer = new TextBuffer();
+                                group.buffer = new TextBuffer(true, true);
                             }
                             const glyphAtlas = (<GlyphTexture>texture).getAtlas();
                             w = glyphAtlas.getTextWidth(text);
