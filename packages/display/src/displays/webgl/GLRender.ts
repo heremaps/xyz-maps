@@ -257,7 +257,7 @@ export class GLRender implements BasicRender {
         }
     }
 
-    initContext() {
+    private initContext() {
         const {gl} = this;
         // gl.frontFace(gl.CW);
         // gl.enable(gl.CULL_FACE);
@@ -808,6 +808,12 @@ export class GLRender implements BasicRender {
         gl.disable(gl.STENCIL_TEST);
 
         layer.render(gl, render.worldMatrix);
+
+        // make sure vao gets unbound in case of being used to prevent possible side effects
+        gl.getExtension('OES_vertex_array_object')?.bindVertexArrayOES(null);
+
+        // make sure canvas framebuffer is used
+        gl.bindFramebuffer(gl.FRAMEBUFFER, null);
 
         this.initContext();
     }
