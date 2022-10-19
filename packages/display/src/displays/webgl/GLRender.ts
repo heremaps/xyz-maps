@@ -427,7 +427,7 @@ export class GLRender implements BasicRender {
 
             if (activeProgam) {
                 // disable bound Attributes from previous program.
-                prog.disableAttributes();
+                activeProgam.disableAttributes();
             }
 
             gl.useProgram(prog.prog);
