@@ -17,25 +17,30 @@
  * License-Filename: LICENSE
  */
 
-// @ts-ignore
-import vertexShader from '../glsl/polygon_vertex.glsl';
-// @ts-ignore
-import fragmentShader from '../glsl/fill_fragment.glsl';
+export class GLExtensions {
+    private gl: WebGLRenderingContext;
 
-import Program from './Program';
+    private ext: { [name: string]: any };
 
-class PolygonProgram extends Program {
-    name = 'Polygon';
+    constructor(gl: WebGLRenderingContext, defaultExtensions: string[] = []) {
+        this.gl = gl;
+        this.ext = {};
 
-    constructor(gl: WebGLRenderingContext, devicePixelRation: number) {
-        super(gl, gl.TRIANGLES, vertexShader, fragmentShader, devicePixelRation);
+        for (let name of defaultExtensions) {
+            this.getExtension(name);
+        }
     }
 
-    // initGeometryBuffer(options: GLStates) {
-    //     super.initGeometryBuffer(options);
-    //     this.gl.depthMask(false);
-    // }
+    getExtension(name: string) {
+        const {ext, gl} = this;
+        let extension = ext[name];
+
+        if (extension === undefined) {
+            extension = ext[name] = gl.getExtension(name);
+            if (!extension) {
+                console.warn(`Extension "${name}" not supported!`);
+            }
+        }
+        return extension;
+    }
 }
-
-
-export default PolygonProgram;

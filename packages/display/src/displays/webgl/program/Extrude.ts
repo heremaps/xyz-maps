@@ -40,10 +40,10 @@ class ExtrudeProgram extends Program {
         super(gl, gl.TRIANGLES, vertexShader, fragmentShader, devicePixelRation);
     }
 
-    init(options: GeometryBuffer, pass: PASS, stencil: boolean) {
+    initGeometryBuffer(options: GeometryBuffer, pass: PASS, stencil: boolean) {
         const {gl} = this;
 
-        super.init(options, pass, stencil);
+        super.initGeometryBuffer(options, pass, stencil);
 
         // handle coplanar lines and polygons (stroke of extruded polygons)
         gl.polygonOffset(1, 1);

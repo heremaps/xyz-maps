@@ -34,7 +34,7 @@ class DashedLineProgram extends Program {
         blend: true,
         scissor: true,
         depth: true
-    })
+    });
 
     pass(pass: PASS) {
         return pass == PASS.ALPHA;
@@ -44,9 +44,9 @@ class DashedLineProgram extends Program {
         super(gl, gl.TRIANGLES, vertexShader, fragmentShader, devicePixelRation);
     }
 
-    init(options: GeometryBuffer, pass, stencil: boolean) {
+    initGeometryBuffer(options: GeometryBuffer, pass, stencil: boolean) {
         const {gl} = this;
-        super.init(options, pass, stencil);
+        super.initGeometryBuffer(options, pass, stencil);
         gl.blendFunc(gl.SRC_ALPHA, gl.ONE_MINUS_SRC_ALPHA);
         // gl.depthFunc(gl.LESS);
     }

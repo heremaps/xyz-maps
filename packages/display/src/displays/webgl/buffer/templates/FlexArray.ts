@@ -37,6 +37,12 @@ export class FlexArray implements SimpleArray<number> {
         return this.data[index];
     }
 
+    set(data, offset?: number) {
+        this.data.set(data, offset);
+        this.length = data.length;
+        this.size = this.length;
+    }
+
     push(...args);
     push(value: number): number {
         const values = arguments.length;

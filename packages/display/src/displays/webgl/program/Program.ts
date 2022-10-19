@@ -33,8 +33,10 @@ type AttributeMap = { [name: string]: Attribute };
 class Program {
     prog: WebGLProgram;
     gl: WebGLRenderingContext;
+    // eslint-disable-next-line camelcase
+    glExtAngleInstancedArrays: ANGLE_instanced_arrays;
     name: string;
-    attributes: { [name: string]: number } = {};
+    attributeLocations: { [name: string]: { index: number, length: number } } = {};
     uniforms: UniformMap = {};
 
     private usage;
@@ -47,6 +49,33 @@ class Program {
     private dpr: number; // devicepixelratio
 
     private _pass: PASS;
+
+    constructor(
+        gl: WebGLRenderingContext,
+        mode: number,
+        vertexShader: string,
+        fragmentShader: string,
+        devicePixelRation: number,
+        macros?: { [name: string]: any }
+    ) {
+        this.dpr = devicePixelRation;
+        this.mode = mode;
+        this.usage = gl.STATIC_DRAW;
+        this.gl = gl;
+        this.glStates = new GLStates({scissor: true, blend: false, depth: true});
+
+        this.compile(vertexShader, fragmentShader, macros);
+    }
+
+    init(
+        buffers: BufferCache,
+        // eslint-disable-next-line camelcase
+        glExtAngleInstancedArrays: ANGLE_instanced_arrays
+    ) {
+        this.setBufferCache(buffers);
+
+        this.glExtAngleInstancedArrays = glExtAngleInstancedArrays;
+    }
 
     private createUniformSetter(uInfo: WebGLActiveInfo, location: WebGLUniformLocation) {
         const gl = this.gl;
@@ -108,9 +137,11 @@ class Program {
         // setup attributes
         let activeAttributes = gl.getProgramParameter(glProg, gl.ACTIVE_ATTRIBUTES);
         for (let a = 0; a < activeAttributes; ++a) {
-            let aInfo = gl.getActiveAttrib(glProg, a);
-            const name = aInfo.name;
-            this.attributes[name] = gl.getAttribLocation(glProg, name);
+            const aInfo = gl.getActiveAttrib(glProg, a);
+            const {name, type} = aInfo;
+            const index = gl.getAttribLocation(glProg, name);
+            const length = type == gl.FLOAT_MAT2 ? 2 : type == gl.FLOAT_MAT3 ? 3 : type == gl.FLOAT_MAT4 ? 4 : 1;
+            this.attributeLocations[name] = {index, length};
         }
 
         // setup uniforms
@@ -128,24 +159,7 @@ class Program {
         }
     }
 
-    constructor(
-        gl: WebGLRenderingContext,
-        mode: number,
-        vertexShader: string,
-        fragmentShader: string,
-        devicePixelRation: number,
-        macros?: { [name: string]: any }
-    ) {
-        this.dpr = devicePixelRation;
-        this.mode = mode;
-        this.usage = gl.STATIC_DRAW;
-        this.gl = gl;
-        this.glStates = new GLStates({scissor: true, blend: false, depth: true});
-
-        this.compile(vertexShader, fragmentShader, macros);
-    }
-
-    setBufferCache(buffers: BufferCache) {
+    private setBufferCache(buffers: BufferCache) {
         this.buffers = buffers;
     }
 
@@ -172,28 +186,44 @@ class Program {
     }
 
     initAttributes(attributes: AttributeMap) {
-        const gl = this.gl;
-        let attr;
-        let position;
-
+        const {gl, buffers, attributeLocations} = this;
 
         for (let name in attributes) {
-            attr = attributes[name];
-            position = this.attributes[name];
+            let attr = attributes[name];
+            let {index, length} = attributeLocations[name];
 
-            if (position == UNDEF) {
+
+            let instanced = attr.instanced;
+
+            if (index == UNDEF) {
                 console.warn(this.name, ': attribute', name, 'not found');
             }
+            gl.bindBuffer(gl.ARRAY_BUFFER, buffers.get(attr));
 
-            gl.bindBuffer(gl.ARRAY_BUFFER, this.buffers.get(attr));
+            const bytesPerElement = attr.bytesPerElement;
+            const stride = attr.stride ^ 0 + attr.size * bytesPerElement;
+            const offset = attr.offset ^ 0;
+            const size = attr.size / length;
 
-            // gl.bindBuffer(gl.ARRAY_BUFFER, buffers[name]);
-            // gl.vertexAttribPointer(position, attr.size, attr.type, attr.normalized, 0, 0);
+            for (let i = 0; i < length; ++i) {
+                const location = index + i;
+                gl.enableVertexAttribArray(location);
+                gl.vertexAttribPointer(
+                    location, // location
+                    size, // size (num values to pull from buffer per iteration)
+                    attr.type, // type of data in buffer
+                    attr.normalized, // normalize
+                    stride, // stride, num bytes to advance to get to next set of values
+                    offset + i * size * bytesPerElement
+                );
 
-            gl.vertexAttribPointer(position, attr.size, attr.type, attr.normalized, attr.stride, attr.offset);
-
-            // Turns on the vertex attributes in the GPU program.
-            gl.enableVertexAttribArray(position); // active buffer!
+                // Turns on the vertex attributes in the GPU program.
+                if (instanced) {
+                    this.glExtAngleInstancedArrays?.vertexAttribDivisorANGLE(location, 1);
+                } else {
+                    gl.enableVertexAttribArray(location);
+                }
+            }
         }
     }
 
@@ -252,11 +282,28 @@ class Program {
                 this.initUniforms(grp.uniforms);
             }
 
+
             if ((<IndexGrp>grp).index) {
-                this.initIndex((<IndexGrp>grp).index);
-                gl.drawElements(mode, (<IndexGrp>grp).index.length, (<IndexGrp>grp).index.type, 0);
+                const index = (<IndexGrp>grp).index;
+                const count = index.length;
+                const type = index.type;
+
+                this.initIndex(index);
+
+                if (geoBuffer.instances) {
+                    this.glExtAngleInstancedArrays?.drawElementsInstancedANGLE(mode, count, type, 0, geoBuffer.instances);
+                } else {
+                    gl.drawElements(mode, count, type, 0);
+                }
             } else {
-                gl.drawArrays(mode, (<ArrayGrp>grp).arrays.first, (<ArrayGrp>grp).arrays.count);
+                const first = (<ArrayGrp>grp).arrays.first;
+                const count = (<ArrayGrp>grp).arrays.count;
+
+                if (geoBuffer.instances) {
+                    this.glExtAngleInstancedArrays?.drawArraysInstancedANGLE(mode, first, count, geoBuffer.instances);
+                } else {
+                    gl.drawArrays(mode, first, count);
+                }
             }
         }
 
@@ -294,7 +341,7 @@ class Program {
         }
     }
 
-    init(geoBuffer: GeometryBuffer, pass: PASS, stencil: boolean, zIndex?: number) {
+    initGeometryBuffer(geoBuffer: GeometryBuffer, pass: PASS, stencil: boolean, zIndex?: number) {
         const prog = this;
         const {gl} = prog;
         const opaquePass = pass == PASS.OPAQUE;
@@ -348,8 +395,17 @@ class Program {
     // use() {
     //     const gl = this.gl;
     //     gl.useProgram(this.prog);
-    //     // this.init(options);
+    //     // this.initGeometryBuffer(options);
     // }
+    disableAttributes() {
+        const {attributeLocations, gl} = this;
+        for (let name in attributeLocations) {
+            let {index, length} = attributeLocations[name];
+            while (length--) {
+                gl.disableVertexAttribArray(index + length);
+            }
+        }
+    }
 }
 
 export default Program;

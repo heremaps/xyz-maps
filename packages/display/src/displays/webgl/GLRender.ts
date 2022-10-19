@@ -59,6 +59,7 @@ import {
 } from 'gl-matrix/mat4';
 import BasicTile from '../BasicTile';
 import {Attribute} from './buffer/Attribute';
+import {GLExtensions} from './GLExtensions';
 
 const mat4 = {create, lookAt, multiply, perspective, rotateX, rotateZ, translate, scale, clone, copy, invert, identity};
 
@@ -68,6 +69,7 @@ const FIELD_OF_VIEW = Math.atan(1 / 3) * 2; // ~ 36.87 deg
 const unclip = (v, dim) => Math.round((v + 1) / 2.0 * dim);
 
 const EXTENSION_OES_ELEMENT_INDEX_UINT = 'OES_element_index_uint';
+const EXTENSION_ANGLE_INSTANCED_ARRAYS = 'ANGLE_instanced_arrays';
 
 const DEBUG_GRID_FONT = {
     font: 'bold 14px Arial',
@@ -126,6 +128,7 @@ export class GLRender implements BasicRender {
     pass: PASS;
     buffers: BufferCache = new WeakMap();
     gl: WebGLRenderingContext;
+    private glExt: GLExtensions;
     zIndexLength: number;
     fixedView: number;
 
@@ -225,11 +228,13 @@ export class GLRender implements BasicRender {
         // @ts-ignore
         gl.dpr = devicePixelRation;
 
-        if (!gl.getExtension(EXTENSION_OES_ELEMENT_INDEX_UINT)) {
-            console.warn(EXTENSION_OES_ELEMENT_INDEX_UINT + ' not supported!');
-        }
-
         this.gl = gl;
+        this.glExt = new GLExtensions(gl, [
+            EXTENSION_OES_ELEMENT_INDEX_UINT,
+            EXTENSION_ANGLE_INSTANCED_ARRAYS
+        ]);
+
+
         this.initContext();
 
         this.depthBufferSize = 1 << gl.getParameter(gl.DEPTH_BITS);
@@ -253,7 +258,10 @@ export class GLRender implements BasicRender {
         };
 
         for (let name in this.programs) {
-            this.programs[name].setBufferCache(this.buffers);
+            this.programs[name].init(
+                this.buffers,
+                this.glExt.getExtension(EXTENSION_ANGLE_INSTANCED_ARRAYS)
+            );
         }
     }
 
@@ -419,10 +427,7 @@ export class GLRender implements BasicRender {
 
             if (activeProgam) {
                 // disable bound Attributes from previous program.
-                const activeAttributes = activeProgam.attributes;
-                for (let name in activeAttributes) {
-                    gl.disableVertexAttribArray(activeAttributes[name]);
-                }
+                prog.disableAttributes();
             }
 
             gl.useProgram(prog.prog);
@@ -576,7 +581,7 @@ export class GLRender implements BasicRender {
 
                 gl.depthRange(buffer.flat ? depth : 0, depth);
 
-                program.init(buffer, renderPass,
+                program.initGeometryBuffer(buffer, renderPass,
                     // only use stencil when needed.. no need if map is untransformed
                     Boolean(this.rx || this.rz),
                     zIndex
@@ -810,7 +815,7 @@ export class GLRender implements BasicRender {
         layer.render(gl, render.worldMatrix);
 
         // make sure vao gets unbound in case of being used to prevent possible side effects
-        gl.getExtension('OES_vertex_array_object')?.bindVertexArrayOES(null);
+        this.glExt.getExtension('OES_vertex_array_object')?.bindVertexArrayOES(null);
 
         // make sure canvas framebuffer is used
         gl.bindFramebuffer(gl.FRAMEBUFFER, null);

@@ -57,7 +57,7 @@ let UNDEF;
 class GeometryBuffer {
     static MODE_GL_LINES: number = 0x0001;
 
-    private size: number;
+    // private size: number;
 
     attributes: { [name: string]: Attribute } = {};
 
@@ -84,7 +84,12 @@ class GeometryBuffer {
     idOffsets?: (string | number)[];
     pointerEvents?: boolean;
 
+
+    instances: number = 0;
+
+
     private _cullFace: number = 0;
+
 
     static fromTemplateBuffer(type: string, templBuffer: TemplateBuffer): GeometryBuffer {
         const {flexAttributes} = templBuffer;
@@ -110,6 +115,7 @@ class GeometryBuffer {
                 geoBuffer.addAttribute(name, templBuffer.trimAttribute(attr));
             }
         }
+        geoBuffer.instances = templBuffer.instances;
 
         geoBuffer.idOffsets = templBuffer.idOffsets;
 
@@ -171,10 +177,11 @@ class GeometryBuffer {
         return this.uniforms[name];
     }
 
-    addAttribute(name: string, attr: Attribute) {
+    addAttribute(name: string, attr: Attribute, attributes = this.attributes) {
         const {data} = attr;
 
         attr.type = glType(data);
+        attr.bytesPerElement = data.BYTES_PER_ELEMENT;
 
         if (attr.stride == UNDEF) {
             attr.stride = 0;
@@ -184,11 +191,10 @@ class GeometryBuffer {
             attr.dirty = true;
         }
 
-        this.attributes[name] = attr;
+        attributes[name] = attr;
 
-        this.size = data.length;
+        // this.size = data.length;
     }
-
 
     getAttributes() {
         return this.attributes;

@@ -35,7 +35,7 @@ class TextProgram extends Program {
         scissor: false,
         // disable depth because of artifacts around icons in case of image is not fully covering texture area..
         depth: true
-    })
+    });
 
     constructor(gl: WebGLRenderingContext, devicePixelRation: number) {
         super(gl, gl.TRIANGLES, vertexShader, fragmentShader, devicePixelRation);
@@ -45,9 +45,9 @@ class TextProgram extends Program {
         return pass == PASS.ALPHA;
     }
 
-    init(options: GeometryBuffer, pass: PASS, stencil: boolean) {
+    initGeometryBuffer(options: GeometryBuffer, pass: PASS, stencil: boolean) {
         const {gl} = this;
-        super.init(options, pass, stencil);
+        super.initGeometryBuffer(options, pass, stencil);
         gl.blendFunc(gl.ONE, gl.ONE_MINUS_SRC_ALPHA);
     }
 }

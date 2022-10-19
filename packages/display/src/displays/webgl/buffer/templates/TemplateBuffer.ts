@@ -29,6 +29,7 @@ export type FlexAttribute = {
     normalized?: boolean;
     stride?: number;
     offset?: number;
+    instanced?: boolean;
 }
 
 export class TemplateBuffer {
@@ -51,6 +52,8 @@ export class TemplateBuffer {
     idOffsets?: (string | number)[];
     cullFace: number | null;
 
+    instances: number = 0;
+
     constructor(flat: boolean, scissor: boolean = false) {
         this._flat = flat;
         this.scissor = scissor;
@@ -61,6 +64,7 @@ export class TemplateBuffer {
         }
 
         this.cullFace = FRONT;
+        this.first = 0;
     }
 
     count(): number {

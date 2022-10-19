@@ -34,7 +34,7 @@ class LineProgram extends Program {
         blend: true,
         scissor: true,
         depth: true
-    })
+    });
 
     pass(pass: PASS) {
         return pass == PASS.ALPHA || pass == PASS.POST_ALPHA;
@@ -44,9 +44,9 @@ class LineProgram extends Program {
         super(gl, gl.TRIANGLES, vertexShader, fragmentShader, devicePixelRation);
     }
 
-    // init(buffer: GeometryBuffer, pass: PASS, stencil: boolean, zIndex: number) {
+    // initGeometryBuffer(buffer: GeometryBuffer, pass: PASS, stencil: boolean, zIndex: number) {
     //     const {gl} = this;
-    //     super.init(buffer, pass, stencil);
+    //     super.initGeometryBuffer(buffer, pass, stencil);
     //     // gl.disable(gl.STENCIL_TEST);
     //     // gl.disable(gl.SCISSOR_TEST);
     //

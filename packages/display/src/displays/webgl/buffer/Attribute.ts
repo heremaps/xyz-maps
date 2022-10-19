@@ -22,12 +22,14 @@ import {TypedArray} from './glType';
 
 type Attribute = {
     data: TypedArray,
+    bytesPerElement?: number;
     stride?: number;
-    type?: number | TypedArray;
+    type?: number; // | TypedArray;
     size: number;
     normalized?: boolean;
     offset?: number;
     dirty?: boolean;
+    instanced?: boolean
 };
 
 export {Attribute};
