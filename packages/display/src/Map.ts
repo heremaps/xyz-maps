@@ -735,7 +735,7 @@ export class Map {
         }
 
 
-        // its a point
+        // it's a point
         if ((<PixelPoint>position).x != UNDEF && (<PixelPoint>position).y != UNDEF) {
             let x = (<PixelPoint>position).x;
             let y = (<PixelPoint>position).y;
@@ -745,7 +745,8 @@ export class Map {
             if (!w && !h) {
                 // "pixel search"
                 skip3d = true;
-                const featureInfo = this._display.getRenderedFeatureAt(x, y, <TileLayer[]>layers || this._layers);
+                layers = <TileLayer[]>(layers || this._layers);
+                const featureInfo = this._display.getRenderedFeatureAt(x, y, layers);
                 if (featureInfo.id != null) {
                     const layer = layers[featureInfo.layerIndex];
                     const provider = <FeatureProvider>layer.getProvider(this.getZoomlevel() ^ 0);
