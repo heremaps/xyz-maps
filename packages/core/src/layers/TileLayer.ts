@@ -68,13 +68,13 @@ export class TileLayer extends Layer {
     /**
      * default tile margin in pixel
      */
-    protected margin: number = 20;
+    protected margin: number;
 
     public tileSize: number;
 
-    tiled = true;
+    tiled: boolean;
 
-    levelOffset: number = 0;
+    levelOffset: number;
 
     custom: boolean = false;
 
@@ -88,6 +88,8 @@ export class TileLayer extends Layer {
         super({
             min: DEFAULT_LAYER_MIN_ZOOM,
             max: DEFAULT_LAYER_MAX_ZOOM,
+            margin: 20,
+            levelOffset: 0,
             tiled: true,
             ...options
         });
