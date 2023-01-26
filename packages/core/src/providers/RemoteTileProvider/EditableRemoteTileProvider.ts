@@ -19,7 +19,6 @@
 
 import {geotools, JSUtils} from '@here/xyz-maps-common';
 import LoaderManager from '../../loaders/Manager';
-import TileReceiver from './TileReceiver';
 import {tileUtils} from '../../tile/TileUtils';
 import {Tile} from '../../tile/Tile';
 import {EditableRemoteTileProviderOptions} from './EditableRemoteTileProviderOptions';
@@ -863,7 +862,7 @@ export abstract class EditableRemoteTileProvider extends EditableFeatureProvider
 
     isDroppable(feature: Feature | EditorFeature) {
         const editStates = (<EditorFeature>feature).editState && (<EditorFeature>feature).editState();
-        return !editStates || (
+        return !editStates || editStates.drop || (
             !editStates.modified &&
             !editStates.removed &&
             !editStates.split

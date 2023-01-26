@@ -92,7 +92,7 @@ const clearTiles = (internalEditor: InternalEditor) => {
                 // make sure featKeeper is not protecting the feature from being cleared after commit..
                 // and can be refreshed/replaced with latest version returned from backend...
                 if (feature) {
-                    delete feature.properties['@ns:com:here:editor'];
+                    feature.properties['@ns:com:here:editor'].drop = true;
                 }
                 clearBBoxes.push(provider, commited[layerId][id].bbox);
             } else if (feature) {
