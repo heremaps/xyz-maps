@@ -349,7 +349,7 @@ export class CollisionHandler {
     private timer = null;
 
     updateTileSync(tile: ViewportTile) {
-        return this.updateTiles([tile], this.display.s);
+        return tile && this.updateTiles([tile], this.display.s);
     }
 
 
