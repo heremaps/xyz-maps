@@ -138,13 +138,20 @@ export const intersectLineLine = (g1p1: Point, g1p2: Point, g2p1: Point, g2p2: P
         const ubT = (g1p2[0] - g1p1[0]) * (g1p1[1] - g2p1[1]) - (g1p2[1] - g1p1[1]) * (g1p1[0] - g2p1[0]);
         const ua = uaT / uB;
         const ub = ubT / uB;
-
+        const g1p1z = g1p1[2] || 0;
+        const g1p2z = g1p2[2] || 0;
+        // const g2p1z = g2p1[2] || 0;
+        // const g2p2z = g2p2[2] || 0;
+        //
+        // if ((uaT * (g1p2z - g1p1z) + ubT * (g2p1z - g2p2z)) == g2p1z - g1p1z) {
         if (0 <= ua && ua <= 1 && 0 <= ub && ub <= 1) {
             return details ? [
                 g1p1[0] + ua * (g1p2[0] - g1p1[0]),
-                g1p1[1] + ua * (g1p2[1] - g1p1[1])
+                g1p1[1] + ua * (g1p2[1] - g1p1[1]),
+                g1p1z + ua * (g1p2z - g1p1z)
             ] : true;
         }
+        // }
     }
     return false;
 };
