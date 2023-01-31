@@ -19,11 +19,12 @@
 
 import {add, cross, dot, normalize, scale, subtract, multiply, transformMat4} from 'gl-matrix/vec3';
 import {GeometryBuffer} from './buffer/GeometryBuffer';
+import {vec3} from '@here/xyz-maps-common';
 
 export type Vec3 = [number, number, number];
 
 class Raycaster {
-    private result: { id: number | string; z: number; layerIndex: number; };
+    private result: { id: number | string; z: number; layerIndex: number; pointWorld: number[] };
 
     // https://en.wikipedia.org/wiki/M%C3%B6ller%E2%80%93Trumbore_intersection_algorithm
     static rayIntersectsTriangle(
@@ -65,6 +66,10 @@ class Raycaster {
             return null;
         }
     };
+
+    static getPointAtRayLength(rayLength: number, rayOrigin: number[], rayVector: number[], point = []) {
+        return add(point, rayOrigin, scale(point, rayVector, rayLength));
+    }
 
     /**
      * screen matrix
@@ -268,7 +273,8 @@ class Raycaster {
         this.result = {
             id: null,
             z: Infinity,
-            layerIndex: null
+            layerIndex: null,
+            pointWorld: null
         };
     }
 
@@ -288,7 +294,12 @@ class Raycaster {
     }
 
     getIntersectionTop(): { id: number | string, z: number, layerIndex: number } {
-        return this.result;
+        const {result} = this;
+
+        if (result.z != Infinity) {
+            result.pointWorld = Raycaster.getPointAtRayLength(result.z, this.origin, this.direction);
+        }
+        return result;
     }
 
     intersect(

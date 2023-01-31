@@ -26,7 +26,7 @@ export class SymbolBuffer extends PointBuffer {
         'a_position': FlexAttribute,
         'a_size': FlexAttribute,
         'a_texcoord': FlexAttribute
-    }
+    };
 
     constructor(flat: boolean = true) {
         super(flat);

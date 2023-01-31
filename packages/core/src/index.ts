@@ -23,6 +23,7 @@ export * from './geo/GeoPoint';
 export * from './geo/GeoRect';
 export * from './layers/TileLayer';
 export * from './styles/LayerStyle';
+export * from './styles/ModelStyle';
 export * from './layers/MVTLayer';
 export * from './layers/CustomLayer';
 export * from './layers/Layer';
@@ -52,6 +53,7 @@ export {MVTLayerOptions} from './layers/MVTLayerOptions';
 export {TileLayerOptions} from './layers/TileLayerOptions';
 
 import webMercatorPrj from './projection/webMercator';
+
 /**
  * WebMercator projection utilities.
  */

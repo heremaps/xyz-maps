@@ -21,6 +21,13 @@ import {Map} from './Map';
 import {global} from '@here/xyz-maps-common';
 import * as styleTools from './displays/styleTools';
 
+import {transformMat4} from 'gl-matrix/vec3';
+import {scale, rotate, translate, create, identity} from 'gl-matrix/mat4';
+
+export const mat4 = {scale, rotate, translate, create, identity};
+export const vec3 = {transformMat4};
+
+
 // WORKAROUND IF BUNDELED BY WEBPACK (UMD REMOVAL)
 // make sure global ns is also available for webpack users.
 const globalNamespace = global.here.xyz.maps;

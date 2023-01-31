@@ -156,12 +156,12 @@ export class LineFactory {
         start?: number,
         stop?: number
     ): number {
-        if (strokeDasharray) {
-            group.texture = this.dashes.get(strokeDasharray);
-        }
-
         if (!group.buffer) {
             group.buffer = new LineBuffer(!altitude);
+        }
+
+        if (strokeDasharray) {
+            group.buffer.addUniform('u_pattern', this.dashes.get(strokeDasharray));
         }
 
         const groupBuffer = group.buffer;

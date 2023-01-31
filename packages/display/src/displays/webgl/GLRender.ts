@@ -34,32 +34,22 @@ import IconProgram from './program/Icon';
 import ExtrudeProgram from './program/Extrude';
 import BoxProgram from './program/Box';
 import SphereProgram from './program/Sphere';
+import ModelProgram from './program/Model';
 import Program from './program/Program';
 
 import {createGridTextBuffer, createGridTileBuffer, createTileBuffer} from './buffer/debugTileBuffer';
 import {GeometryBuffer, IndexData, IndexGrp} from './buffer/GeometryBuffer';
 
-import {GLStates, PASS} from './program/GLStates';
+import {PASS} from './program/GLStates';
 import {TileBufferData} from './Display';
 
 import {transformMat4} from 'gl-matrix/vec3';
-import {
-    clone,
-    copy,
-    create,
-    identity,
-    invert,
-    lookAt,
-    multiply,
-    perspective,
-    rotateX,
-    rotateZ,
-    scale,
-    translate
-} from 'gl-matrix/mat4';
+import {clone, copy, create, identity, invert, lookAt, multiply, perspective, rotateX, rotateZ, scale, translate} from 'gl-matrix/mat4';
 import BasicTile from '../BasicTile';
 import {Attribute} from './buffer/Attribute';
 import {GLExtensions} from './GLExtensions';
+import {ConstantAttribute} from './buffer/templates/TemplateBuffer';
+import {Texture} from './Texture';
 
 const mat4 = {create, lookAt, multiply, perspective, rotateX, rotateZ, translate, scale, clone, copy, invert, identity};
 
@@ -131,6 +121,21 @@ export class GLRender implements BasicRender {
     private glExt: GLExtensions;
     zIndexLength: number;
     fixedView: number;
+    private sharedUniforms: {
+        u_resolution: number[];
+        u_tileScale: number;
+        u_matrix: Float32Array;
+        u_rotate: number;
+        u_topLeft: number[];
+        u_inverseMatrix: Float32Array;
+        u_scale: number;
+        u_groundResolution: number;
+        u_zMeterToPixel: number;
+        u_fixedView: number;
+        u_lightDir: number[];
+    };
+
+    private _lightDir: number[] = [0.5, 0.0, -1.0];
 
     constructor(renderOptions: RenderOptions) {
         this.ctxAttr = {
@@ -243,27 +248,43 @@ export class GLRender implements BasicRender {
 
         this.icons = new IconManager(gl, texUnits - 2);
 
-        this.programs = {
-            Rect: new RectProgram(gl, devicePixelRation),
-            Line: new LineProgram(gl, devicePixelRation),
-            DashedLine: new DashedLineProgram(gl, devicePixelRation),
-            Text: new TextProgram(gl, devicePixelRation),
-            Image: new ImageProgram(gl, devicePixelRation),
-            Circle: new CircleProgram(gl, devicePixelRation),
-            Polygon: new PolygonProgram(gl, devicePixelRation),
-            Extrude: new ExtrudeProgram(gl, devicePixelRation),
-            Icon: new IconProgram(gl, devicePixelRation),
-            Box: new BoxProgram(gl, devicePixelRation),
-            Sphere: new SphereProgram(gl, devicePixelRation)
+        const programConfig = {
+            Rect: RectProgram,
+            Line: LineProgram,
+            DashedLine: DashedLineProgram,
+            Text: TextProgram,
+            Image: ImageProgram,
+            Circle: CircleProgram,
+            Polygon: PolygonProgram,
+            Extrude: ExtrudeProgram,
+            Icon: IconProgram,
+            Box: BoxProgram,
+            Sphere: SphereProgram,
+            Model: ModelProgram
         };
 
-        for (let name in this.programs) {
-            this.programs[name].init(
-                this.buffers,
-                this.glExt.getExtension(EXTENSION_ANGLE_INSTANCED_ARRAYS)
-            );
+        this.programs = {};
+
+        for (let program in programConfig) {
+            this.createProgram(program, programConfig[program]);
         }
     }
+
+    createProgram(name: string, Program, macros?) {
+        const {gl, programs, dpr} = this;
+
+        if (programs[name]) {
+            programs[name].delete();
+        }
+
+        const program = programs[name] = new Program(gl, dpr, macros);
+
+        program.init(
+            this.buffers,
+            this.glExt.getExtension(EXTENSION_ANGLE_INSTANCED_ARRAYS)
+        );
+    }
+
 
     private initContext() {
         const {gl} = this;
@@ -281,8 +302,14 @@ export class GLRender implements BasicRender {
         // gl.blendFuncSeparate(gl.SRC_ALPHA, gl.ONE_MINUS_SRC_ALPHA, gl.ONE, gl.ONE_MINUS_SRC_ALPHA)
     }
 
-    grid(show: boolean): void {
-        this.tileGrid = show;
+    grid(show: boolean | { grid3d: boolean }): void {
+        if (typeof show == 'object') {
+            if (show.grid3d != undefined) {
+                this.createProgram('Model', ModelProgram, show.grid3d && {DBG_GRID: 1});
+            }
+        } else {
+            this.tileGrid = show;
+        }
     }
 
     applyTransform() {
@@ -372,13 +399,15 @@ export class GLRender implements BasicRender {
             scale,
             scale,
             // scale z axis to meter/pixel
+            // scale
             scale / groundRes
         ]);
+
         mat4.translate(viewMatrix, viewMatrix, [-centerPixelX, -centerPixelY, 0]);
 
         mat4.multiply(projectionMatrix, projectionMatrix, viewMatrix);
 
-        invert(this.invVPMat, this.vPMat);
+        invert(this.invVPMat, projectionMatrix);
 
         // convert from clipspace to screen.
         let screenMatrix = mat4.identity(this.screenMat);
@@ -388,20 +417,43 @@ export class GLRender implements BasicRender {
 
         invert(this.invScreenMat, screenMatrix);
 
+
         // // used for debug only...
         // let s05 = mat4.clone(this.pMat);
         // mat4.translate(s05, s05, [centerPixelX, centerPixelY, 0]);
         // mat4.scale(s05, s05, [.5, .5,.5]);
         // mat4.translate(s05, s05, [-centerPixelX, -centerPixelY, 0]);
         // this.pMat = s05;
+
+        this.initSharedUniforms();
+    }
+
+    private initSharedUniforms() {
+        this.sharedUniforms = {
+            u_fixedView: this.fixedView,
+            u_rotate: this.rz,
+            u_resolution: [this.w, this.h],
+            u_scale: null, // this.scale * dZoom,
+            u_topLeft: [0, 0],
+            u_tileScale: 1, // tileScale || 1,
+            u_matrix: this.vPMat,
+            u_inverseMatrix: this.invVPMat,
+            u_zMeterToPixel: null, // this.zMeterToPixel / dZoom,
+            u_groundResolution: 1 / this.zMeterToPixel,
+            u_lightDir: this._lightDir
+        };
     }
 
 
-    initBuffers(attributes: { [name: string]: Attribute }) {
+    initBuffers(attributes: { [name: string]: Attribute | ConstantAttribute }) {
         const gl = this.gl;
 
         for (let name in attributes) {
-            let attr = attributes[name];
+            let attr = <Attribute>attributes[name];
+
+            // attribute is using constant value -> no need to init/fill attribute buffers
+            if ((<ConstantAttribute><unknown>attr).value) continue;
+
             let buf = this.buffers.get(attr);
 
             if (!buf) {
@@ -469,16 +521,26 @@ export class GLRender implements BasicRender {
 
     deleteBuffer(buffer: GeometryBuffer) {
         const {buffers, gl} = this;
-        const {attributes, texture} = buffer;
+        let {attributes, uniforms} = buffer;
 
-        if (texture) {
-            texture.destroy();
+        for (let name in uniforms) {
+            let uniform = <Texture>uniforms[name];
+            // if (uniform instanceof Texture) {
+            if (uniform.format) {
+                let refCounter = uniform.ref = (uniform.ref || 1) - 1;
+                if (refCounter === 0) {
+                    (uniform as Texture).destroy();
+                }
+            }
         }
 
         for (let name in attributes) {
-            let attr = attributes[name];
-            let glBuffer = buffers.get(attr);
-            gl.deleteBuffer(glBuffer);
+            let attr = <Attribute>attributes[name];
+            let refCounter = attr.ref = (attr.ref || 1) - 1;
+            if (refCounter === 0) {
+                let glBuffer = buffers.get(<Attribute>attr);
+                gl.deleteBuffer(glBuffer);
+            }
         }
 
         for (let grp of buffer.groups) {
@@ -487,6 +549,8 @@ export class GLRender implements BasicRender {
                 gl.deleteBuffer(buffers.get(index));
             }
         }
+
+        buffer.destroy(buffer);
     }
 
 
@@ -582,7 +646,7 @@ export class GLRender implements BasicRender {
                 gl.depthRange(buffer.flat ? depth : 0, depth);
 
                 program.initGeometryBuffer(buffer, renderPass,
-                    // only use stencil when needed.. no need if map is untransformed
+                    // only use stencil when needed... no need if map is untransformed
                     Boolean(this.rx || this.rz),
                     zIndex
                 );
@@ -593,19 +657,20 @@ export class GLRender implements BasicRender {
 
                 program.initAttributes(bufAttributes);
 
+                // initialize shared uniforms
+                const {sharedUniforms} = this;
+                sharedUniforms.u_fixedView = this.fixedView; // must be set at render time
+                sharedUniforms.u_scale = this.scale * dZoom;
+                sharedUniforms.u_topLeft[0] = x;
+                sharedUniforms.u_topLeft[1] = y;
+                sharedUniforms.u_tileScale = tileScale || 1;
+                sharedUniforms.u_matrix = pMat || this.vPMat;
+                sharedUniforms.u_zMeterToPixel = this.zMeterToPixel / dZoom;
+
+                program.initUniforms(sharedUniforms);
+
+                // initialize buffer uniforms
                 program.initUniforms(buffer.uniforms);
-
-                uLocation = program.uniforms;
-
-                gl.uniform1i(uLocation.u_fixedView, this.fixedView);
-                gl.uniform1f(uLocation.u_rotate, this.rz);
-                gl.uniform2f(uLocation.u_resolution, this.w, this.h);
-                gl.uniform1f(uLocation.u_scale, this.scale * dZoom);
-                gl.uniform2f(uLocation.u_topLeft, x, y);
-                gl.uniform1f(uLocation.u_tileScale, tileScale || 1);
-                gl.uniformMatrix4fv(uLocation.u_matrix, false, pMat || this.vPMat);
-                gl.uniformMatrix4fv(uLocation.u_inverseMatrix, false, this.invVPMat);
-                gl.uniform1f(uLocation.u_zMeterToPixel, this.zMeterToPixel / dZoom);
 
                 program.draw(buffer);
             }
@@ -628,6 +693,8 @@ export class GLRender implements BasicRender {
     private drawStencil(refVal: number) {
         // return this.gl.stencilFunc(this.gl.ALWAYS, 0, 0);
         if (this.rx || this.rz) {
+            // console.log('drawing stencil!');
+
             const {gl, stencilTile} = this;
             const x = this.stencilX;
             const y = this.stencilY;

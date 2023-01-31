@@ -1,11 +1,11 @@
 /*
- * Copyright (C) 2019-2022 HERE Europe B.V.
+ * Copyright (C) 2019-2023 HERE Europe B.V.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
  * You may obtain a copy of the License at
  *
- *     http://www.apache.org/licenses/LICENSE-2.0
+ *  http://www.apache.org/licenses/LICENSE-2.0
  *
  * Unless required by applicable law or agreed to in writing, software
  * distributed under the License is distributed on an "AS IS" BASIS,
@@ -16,21 +16,23 @@
  * SPDX-License-Identifier: Apache-2.0
  * License-Filename: LICENSE
  */
+export interface ModelStyle {
 
-import {TypedArray} from './glType';
+    type: 'Model' | string;
 
+    zIndex: number;
 
-type Attribute = {
-    data: TypedArray,
-    bytesPerElement?: number;
-    stride?: number;
-    type?: number; // | TypedArray;
-    size: number;
-    normalized?: boolean;
-    offset?: number;
-    dirty?: boolean;
-    instanced?: boolean
-    ref?: number; // reference counter for attribute sharing
-};
+    scale: number[];
 
-export {Attribute};
+    translate: number[];
+
+    cullFace: number;
+
+    rotate: number[];
+
+    transform: number[];
+
+    data: any;
+
+    modelId?: number;
+}

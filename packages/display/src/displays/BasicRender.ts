@@ -36,7 +36,7 @@ interface BasicRender {
 
     clear(): void;
 
-    grid(show: boolean): void;
+    grid(show: boolean | { [opt: string]: any }): void;
 
     getContext(): CanvasRenderingContext2D | WebGLRenderingContext;
 

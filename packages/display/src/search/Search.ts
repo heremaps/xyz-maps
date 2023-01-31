@@ -74,11 +74,20 @@ export class Search {
         [x2, y2] = map._unprj(x2, y2);
 
         let searchRect = [
+            // map._w2g(x1 - buffer, y1 - buffer), // top-left
+            // map._w2g(x2 + buffer, y2 + buffer), // bottom-right
+            // map._w2g(x1 - buffer, y2 + buffer), // bottom-left
+            // map._w2g(x2 + buffer, y1 - buffer) // top-right
+
             map._w2g(x1 - buffer, y1 - buffer), // top-left
+            map._w2g(x2 + buffer, y1 - buffer), // top-right
             map._w2g(x2 + buffer, y2 + buffer), // bottom-right
-            map._w2g(x1 - buffer, y2 + buffer), // bottom-left
-            map._w2g(x2 + buffer, y1 - buffer) // top-right
+            map._w2g(x1 - buffer, y2 + buffer) // bottom-left
         ];
+
+
+        // window.showGeoBox&&window.showGeoBox(searchRect);
+
         let p = 4;
         let found = [];
         let viewbounds;

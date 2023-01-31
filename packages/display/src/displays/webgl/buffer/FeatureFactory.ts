@@ -38,14 +38,17 @@ import {PolygonBuffer} from './templates/PolygonBuffer';
 import {ExtrudeBuffer} from './templates/ExtrudeBuffer';
 import {toPresentationFormB} from '../arabic';
 import {Tile, Feature, GeoJSONCoordinate as Coordinate, GeoJSONCoordinate} from '@here/xyz-maps-core';
-import {Texture} from '../Texture';
 import {TemplateBuffer} from './templates/TemplateBuffer';
 import {addVerticalLine} from './addVerticalLine';
 import {BoxBuffer} from './templates/BoxBuffer';
 import {addBox} from './addBox';
 import {addSphere} from './addSphere';
 import {SphereBuffer} from './templates/SphereBuffer';
-
+import {TemplateBufferBucket} from './templates/TemplateBufferBucket';
+import {ModelStyle} from '@here/xyz-maps-core';
+import {ModelFactory} from './ModelFactory';
+import Model from '../program/Model';
+import {ModelBuffer} from './templates/ModelBuffer';
 
 const DEFAULT_STROKE_WIDTH = 1;
 const DEFAULT_LINE_CAP = 'round';
@@ -89,10 +92,10 @@ type DrawGroup = {
         offsetY: number,
         offsetZ: number,
         offsetUnit: string,
-        alignment: string
-    }
-    texture?: Texture,
-    buffer?: TemplateBuffer,
+        alignment: string,
+        modelMode: number
+    },
+    buffer?: TemplateBuffer | TemplateBufferBucket<ModelBuffer>,
     extrudeStrokeIndex?: number [],
     pointerEvents?: boolean
 };
@@ -114,8 +117,8 @@ export class FeatureFactory {
     private groups: GroupMap;
     private tileSize: number;
     private lineFactory: LineFactory;
+    private modelFactory: ModelFactory;
     private iconsLoaded: boolean;
-
     collisions: CollisionHandler;
     pendingCollisions: CollisionGroup[] = [];
     z: number;
@@ -127,6 +130,16 @@ export class FeatureFactory {
         this.dashes = new DashAtlas(gl);
         this.collisions = collisionHandler;
         this.lineFactory = new LineFactory(gl);
+        this.modelFactory = new ModelFactory(gl);
+
+        var pixels = new Uint8Array(512 * 512 * 4);
+
+        for (let i = 0; i < 512 * 512; i++) {
+            pixels[i * 4] = 255;
+            pixels[i * 4 + 1] = 0;
+            pixels[i * 4 + 2] = 0;
+            pixels[i * 4 + 3] = 255;
+        }
     }
 
     init(tile, groups: GroupMap, tileSize: number, zoom: number) {
@@ -163,12 +176,17 @@ export class FeatureFactory {
         rotationZ = (rotationZ + 360) % 360;
 
         if (type == 'Text') {
-            if (!group.texture) {
-                group.texture = new GlyphTexture(this.gl, group.shared);
+            if (!group.buffer) {
                 group.buffer = new TextBuffer(isFlat, rotationY != undefined);
+                group.buffer.addUniform('u_texture', new GlyphTexture(this.gl, group.shared));
             }
-            const texture = <GlyphTexture>group.texture;
-            const {flexAttributes} = group.buffer;
+            // if (!group.texture) {
+            //     group.texture = new GlyphTexture(this.gl, group.shared);
+            //     group.buffer = new TextBuffer(isFlat, rotationY != undefined);
+            // }
+            // const texture = <GlyphTexture>group.texture;
+            const texture = (<TextBuffer>group.buffer).uniforms.u_texture as GlyphTexture;
+            const {flexAttributes} = group.buffer as TextBuffer;
 
             texture.addChars(text);
 
@@ -195,10 +213,30 @@ export class FeatureFactory {
                 rotationY
             );
         } else {
-            if (type == 'Icon') {
+            if (type == 'Model') {
+                let data = getValue('data', style, feature, level);
+
+                if (data) {
+                    data.id ||= Math.random();
+
+                    const modelId = data.id || (style as ModelStyle).modelId;
+
+                    this.modelFactory.initModel(modelId, data);
+
+                    let bucket = <TemplateBufferBucket<ModelBuffer>>group.buffer;
+
+                    let {scale, translate, rotate, transform, cullFace} = style as ModelStyle;
+
+                    if (!group.buffer) {
+                        bucket = group.buffer = this.modelFactory.createModelBuffer(modelId, cullFace);
+                    }
+
+                    this.modelFactory.addPosition(bucket, x, y, z, scale, translate, rotate, transform);
+                }
+            } else if (type == 'Icon') {
                 group.buffer ||= new SymbolBuffer(isFlat);
 
-                const groupBuffer = group.buffer;
+                const groupBuffer = group.buffer as SymbolBuffer;
                 const {flexAttributes} = groupBuffer;
                 const src = getValue('src', style, feature, level);
                 const width = getValue('width', style, feature, level);
@@ -221,33 +259,33 @@ export class FeatureFactory {
                     flexAttributes.a_texcoord.data,
                     rotationZ
                 );
-                group.texture = this.icons.getTexture();
+                groupBuffer.addUniform('u_texture', this.icons.getTexture());
+                // group.texture = this.icons.getTexture();
             } else if (type == 'Circle' || type == 'Rect') {
-                group.buffer ||= new PointBuffer(isFlat);
+                const pointBuffer = (group.buffer as PointBuffer) ||= new PointBuffer(isFlat);
+                positionBuffer = pointBuffer.flexAttributes.a_position;
 
-
-                positionBuffer = group.buffer.flexAttributes.a_position;
 
                 addPoint(x, y, z, positionBuffer.data);
             } else {
                 if (type == 'Sphere') {
                     let width = 2 * getValue('radius', style, feature, level);
 
-                    group.buffer ||= new SphereBuffer(isFlat);
+                    const sphereBuffer: SphereBuffer = (group.buffer as SphereBuffer) ||= new SphereBuffer(isFlat);
+                    const {flexAttributes} = sphereBuffer;
+                    positionBuffer = flexAttributes.a_position;
 
-                    positionBuffer = group.buffer.flexAttributes.a_position;
-
-                    addSphere(x, y, z, width, positionBuffer.data, group.buffer.flexAttributes.a_point.data, group.buffer.flexAttributes.a_normal.data);
+                    addSphere(x, y, z, width, positionBuffer.data, flexAttributes.a_point.data, flexAttributes.a_normal.data);
                 } else if (type == 'Box') {
                     let width = getValue('width', style, feature, level);
                     let height = getValue('height', style, feature, level) || width;
                     let depth = getValue('depth', style, feature, level) || width;
 
-                    group.buffer ||= new BoxBuffer(isFlat);
+                    const boxBuffer: BoxBuffer = (group.buffer as BoxBuffer) ||= new BoxBuffer(isFlat);
+                    const {flexAttributes} = boxBuffer;
+                    positionBuffer = flexAttributes.a_position;
 
-                    positionBuffer = group.buffer.flexAttributes.a_position;
-
-                    addBox(x, y, z, width, height, depth, positionBuffer.data, group.buffer.flexAttributes.a_point.data, group.buffer.flexAttributes.a_normal.data);
+                    addBox(x, y, z, width, height, depth, positionBuffer.data, flexAttributes.a_point.data, flexAttributes.a_normal.data);
                 } else {
                     if (z > 0 && type == 'VerticalLine') {
                         addVerticalLine(group, x, y, z);
@@ -257,13 +295,16 @@ export class FeatureFactory {
                 }
             }
 
-            collisionBufferStop = positionBuffer.data.length;
+            collisionBufferStop = positionBuffer?.data.length;
             collisionBufferStart = collisionBufferStop - 12;
         }
 
-        group.buffer.setIdOffset(feature.id);
+        group
+            .buffer
+            .setIdOffset(feature.id);
 
-        if (collisionData && positionBuffer) {
+        if (collisionData && positionBuffer
+        ) {
             collisionData.attrs.push({
                 buffer: positionBuffer,
                 start: collisionBufferStart,
@@ -279,10 +320,11 @@ export class FeatureFactory {
         coordinates: GeoJSONCoordinate | GeoJSONCoordinate[] | GeoJSONCoordinate[][],
         styleGroups: StyleGroup,
         strokeWidthScale: number,
-        removeTileBounds?: boolean,
-        priority?: number,
-        collisionGroup?: CollisionGroup
-    ): boolean {
+        removeTileBounds ?: boolean,
+        priority ?: number,
+        collisionGroup ?: CollisionGroup
+    ):
+        boolean {
         const {tile, groups, tileSize} = this;
         const level = this.z;
         let flatPolyStart: number;
@@ -333,8 +375,8 @@ export class FeatureFactory {
 
         if (priority === UNDEF && geomType === 'Point' && !tile.isInside(<GeoJSONCoordinate>coordinates)) {
             return this.iconsLoaded;
+            // console.log('NOT INSIDE',coordinates,tile);
         }
-
 
         for (let i = 0, iLen = styleGroups.length; i < iLen; i++) {
             style = styleGroups[i];
@@ -412,11 +454,18 @@ export class FeatureFactory {
             let depth;
             let pointerEvents = true;
             let processPointOffset = false;
+            let modelMode = 0;
 
             rotation = getValue('rotation', style, feature, level) ^ 0;
             let altitude = getValue('altitude', style, feature, level);
 
-            if (type == 'Icon') {
+            if (type == 'Model') {
+                style.modelId ||= Math.random();
+                modelMode = Number(style.terrain || 0);
+                groupId = 'M' + style.modelId;
+
+                processPointOffset = true;
+            } else if (type == 'Icon') {
                 alignment = getValue('alignment', style, feature, level) || 'viewport';
 
                 groupId = (altitude ? 'AI' : 'I') + (alignment || '');
@@ -633,7 +682,8 @@ export class FeatureFactory {
                         offsetY,
                         offsetZ,
                         offsetUnit,
-                        alignment
+                        alignment,
+                        modelMode
                     }
                     // ,index: []
                 };
@@ -656,6 +706,8 @@ export class FeatureFactory {
                     const y = tile.lat2y((<GeoJSONCoordinate>coordinates)[1], tileSize);
                     const z = typeof altitude == 'number' ? altitude : altitude ? <number>coordinates[2] || 0 : null;
                     // const z = extrude ? <number>coordinates[2] || 0 : null;
+
+                    // console.log('x,y,z', x, y, z, 'tileSize', tileSize);
 
                     if (collisionGroup) {
                         collisionData = this.collisions.insert(
@@ -719,11 +771,16 @@ export class FeatureFactory {
                             w = getValue('width', style, feature, level);
                             h = getValue('height', style, feature, level) || width;
                         } else if (type == 'Text') {
-                            let {texture} = group;
-                            if (!texture) {
-                                texture = group.texture = new GlyphTexture(this.gl, style);
+                            if (!group.buffer) {
                                 group.buffer = new TextBuffer(true, true);
+                                group.buffer.addUniform('u_texture', new GlyphTexture(this.gl, style));
                             }
+                            let texture = (group.buffer as TemplateBuffer).uniforms.u_texture as GlyphTexture;
+                            // let {texture} = group;
+                            // if (!texture) {
+                            //     texture = group.texture = new GlyphTexture(this.gl, style);
+                            //     group.buffer = new TextBuffer(true, true);
+                            // }
                             const glyphAtlas = (<GlyphTexture>texture).getAtlas();
                             w = glyphAtlas.getTextWidth(text);
                             h = glyphAtlas.letterHeight;
@@ -792,8 +849,8 @@ export class FeatureFactory {
                             : new ExtrudeBuffer();
                     }
 
-                    const groupBuffer = group.buffer;
-                    const vIndex = groupBuffer.index();
+                    const groupBuffer = group.buffer as PolygonBuffer | ExtrudeBuffer;
+                    const vIndex = <number[]>groupBuffer.index();
                     const {flexAttributes} = groupBuffer;
                     const aPosition = flexAttributes.a_position.data;
 
@@ -808,7 +865,7 @@ export class FeatureFactory {
 
                         flatPoly = addExtrude(
                             aPosition,
-                            flexAttributes.a_normal.data,
+                            (group.buffer as ExtrudeBuffer).flexAttributes.a_normal.data,
                             vIndex,
                             <GeoJSONCoordinate[][]>coordinates,
                             tile,

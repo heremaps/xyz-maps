@@ -521,17 +521,25 @@ class WebGlDisplay extends BasicDisplay {
 
 
     getRenderedFeatureAt(x: number, y: number, layers): { id: number | string | null, z: number, layerIndex: number } {
-        // const tiles = this.tiles[512];
-
         const {tiles} = this;
-
+        // console.time('getRenderedFeatureAt');
         this.rayCaster.init(x, y, this.w, this.h, this.s, 1 / this.groundResolution);
+
+        const scaleZ = this.rayCaster.getInverseScale(true)[2];
 
         for (let tileSize in tiles) {
             for (let gridTile of tiles[tileSize]) {
                 const tileX = gridTile.x;
                 const tileY = gridTile.y;
+
                 const tile = <GLTile>gridTile.tile;
+
+                const hitTile = this.rayCaster.intersectAABBox(
+                    tileX, tileY, 0,
+                    tileX + Number(tileSize), tileY + Number(tileSize), -tileSize * scaleZ
+                );
+                if (!hitTile) continue;
+
                 let {data} = tile;
 
 
@@ -548,6 +556,8 @@ class WebGlDisplay extends BasicDisplay {
             }
         }
         const result = this.rayCaster.getIntersectionTop();
+
+        // console.timeEnd('getRenderedFeatureAt');
 
         this.viewport(true);
 

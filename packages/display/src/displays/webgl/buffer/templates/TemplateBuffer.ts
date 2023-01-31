@@ -19,9 +19,10 @@
 
 import {Attribute} from '../Attribute';
 import {FlexArray} from './FlexArray';
-import {GeometryBuffer} from '../GeometryBuffer';
+import {GeometryBuffer, Uniform} from '../GeometryBuffer';
 import {Raycaster} from '../../Raycaster';
 import {FRONT} from '../glType';
+import {Texture} from '../../Texture';
 
 export type FlexAttribute = {
     data: FlexArray;
@@ -31,6 +32,15 @@ export type FlexAttribute = {
     offset?: number;
     instanced?: boolean;
 }
+export type ConstantAttribute = {
+    value: number[];
+}
+
+export type BufferGroup = {
+    attributes: { [name: string]: Attribute; }
+};
+
+type Index = number[] | Uint16Array | Uint32Array;
 
 export class TemplateBuffer {
     scissor: boolean;
@@ -38,14 +48,12 @@ export class TemplateBuffer {
     first: number;
     last: number;
 
-    flexAttributes: { [name: string]: FlexAttribute };
-    groups: {
-        attributes: { [name: string]: FlexAttribute; }
-    };
+    flexAttributes: { [name: string]: FlexAttribute | ConstantAttribute };
+    groups: BufferGroup[];
 
     i32: boolean = false;
 
-    private _index?: number[];
+    protected _index?: Index;
 
     protected _flat: boolean = true;
 
@@ -53,6 +61,8 @@ export class TemplateBuffer {
     cullFace: number | null;
 
     instances: number = 0;
+
+    uniforms: { [name: string]: Uniform } = {};
 
     constructor(flat: boolean, scissor: boolean = false) {
         this._flat = flat;
@@ -67,12 +77,26 @@ export class TemplateBuffer {
         this.first = 0;
     }
 
+    addUniform(name: string, uniform: Uniform) {
+        this.uniforms[name] = uniform;
+    }
+
     count(): number {
-        const aPosition = this.flexAttributes.a_position;
+        let aPosition = this.flexAttributes.a_position as FlexAttribute;
+
+        // if (!aPosition) {
+        //     // take length of first group
+        //     aPosition = this.groups[0].attributes.a_position;
+        // }
+
         return aPosition.data.length / aPosition.size - this.first;
     }
 
-    index(): number[] {
+    setIndex(index: Index) {
+        this._index = index;
+    }
+
+    index(): Index {
         return this._index = this._index || [];
     }
 
@@ -86,7 +110,9 @@ export class TemplateBuffer {
 
     trimAttribute(flexAttr: FlexAttribute): Attribute {
         const attr = <any>flexAttr;
-        attr.data = attr.data.trim();
+        if (attr.data instanceof FlexArray) {
+            attr.data = attr.data.trim();
+        }
         return attr;
     }
 
@@ -101,7 +127,6 @@ export class TemplateBuffer {
 
         if (buffer.hasIndex()) {
             const index = buffer.index();
-
             if (!index.length) {
                 return null;
             }
@@ -114,8 +139,8 @@ export class TemplateBuffer {
         }
 
         for (let name in flexAttributes) {
-            let attr = flexAttributes[name];
-            if (attr.data.length) {
+            let attr = flexAttributes[name] as FlexAttribute;
+            if (attr.data?.length) {
                 geoBuffer.addAttribute(name, buffer.trimAttribute(attr));
             }
         }

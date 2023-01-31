@@ -24,11 +24,12 @@ import introVertex from '../glsl/intro_vertex.glsl';
 import {ArrayGrp, GeometryBuffer, IndexData, IndexGrp} from '../buffer/GeometryBuffer';
 import {BufferCache} from '../GLRender';
 import {Attribute} from '../buffer/Attribute';
+import {ConstantAttribute, FlexAttribute} from '../buffer/templates/TemplateBuffer';
 
 let UNDEF;
 
 type UniformMap = { [name: string]: WebGLUniformLocation };
-type AttributeMap = { [name: string]: Attribute };
+type AttributeMap = { [name: string]: Attribute | ConstantAttribute };
 
 class Program {
     prog: WebGLProgram;
@@ -37,6 +38,7 @@ class Program {
     glExtAngleInstancedArrays: ANGLE_instanced_arrays;
     name: string;
     attributeLocations: { [name: string]: { index: number, length: number } } = {};
+    attributeDivisors: number[] = [];
     uniforms: UniformMap = {};
 
     private usage;
@@ -49,6 +51,8 @@ class Program {
     private dpr: number; // devicepixelratio
 
     private _pass: PASS;
+
+    private textureUnits: number = 0;
 
     constructor(
         gl: WebGLRenderingContext,
@@ -63,7 +67,6 @@ class Program {
         this.usage = gl.STATIC_DRAW;
         this.gl = gl;
         this.glStates = new GLStates({scissor: true, blend: false, depth: true});
-
         this.compile(vertexShader, fragmentShader, macros);
     }
 
@@ -78,8 +81,7 @@ class Program {
     }
 
     private createUniformSetter(uInfo: WebGLActiveInfo, location: WebGLUniformLocation) {
-        const gl = this.gl;
-
+        const {gl} = this;
         switch (uInfo.type) {
         case gl.FLOAT:
             return (v) => gl.uniform1f(location, v);
@@ -97,8 +99,14 @@ class Program {
             return (v) => gl.uniform4fv(location, v);
 
         case gl.BOOL:
-        case gl.SAMPLER_2D:
             return (v) => gl.uniform1i(location, v);
+        case gl.SAMPLER_2D:
+            const tu = this.textureUnits++;
+            return (v) => {
+                gl.uniform1i(location, tu);
+                gl.activeTexture(gl.TEXTURE0 + tu);
+                gl.bindTexture(gl.TEXTURE_2D, v?.texture );
+            };
         }
 
         return () => console.warn('setting uniform not supported', uInfo, location);
@@ -175,38 +183,75 @@ class Program {
     }
 
     initUniforms(uniforms: UniformMap) {
-        for (var name in uniforms) {
-            let setter = this.uniformSetters[name];
+        for (let name in uniforms) {
+            const setter = this.uniformSetters[name];
             if (setter) {
-                setter(uniforms[name]);
+                const uniform = uniforms[name];
+                setter(uniform);
             } else {
                 // console.warn('no uniform setter defined', name);
             }
         }
     }
 
+    private setConstantAttributeValue(location: number, value: number[]) {
+        const {gl} = this;
+        gl.disableVertexAttribArray(location);
+        switch (value.length) {
+        case 4:
+            gl.vertexAttrib4fv(location, value);
+            break;
+        case 3:
+            gl.vertexAttrib3fv(location, value);
+            break;
+        case 2:
+            gl.vertexAttrib2fv(location, value);
+            break;
+        case 1:
+            gl.vertexAttrib1fv(location, value);
+        }
+    }
+
     initAttributes(attributes: AttributeMap) {
-        const {gl, buffers, attributeLocations} = this;
+        const {gl, buffers, attributeLocations, attributeDivisors} = this;
 
         for (let name in attributes) {
-            let attr = attributes[name];
+            let attribute = attributes[name];
             let {index, length} = attributeLocations[name];
 
+            const {value} = attribute as ConstantAttribute;
 
+            if (value != undefined) {
+                for (let i = 0; i < length; ++i) {
+                    const location = index + i;
+                    // Attribute is using constant value
+                    this.setConstantAttributeValue(location, value);
+                }
+                continue;
+            }
+
+            let attr = attribute as Attribute;
             let instanced = attr.instanced;
 
             if (index == UNDEF) {
                 console.warn(this.name, ': attribute', name, 'not found');
             }
+
             gl.bindBuffer(gl.ARRAY_BUFFER, buffers.get(attr));
 
+
             const bytesPerElement = attr.bytesPerElement;
+            const attributeDivisor = Number(instanced) | 0;
+            // console.log('bytesPerElement',bytesPerElement);
+
             const stride = attr.stride ^ 0 + attr.size * bytesPerElement;
             const offset = attr.offset ^ 0;
             const size = attr.size / length;
 
+
             for (let i = 0; i < length; ++i) {
                 const location = index + i;
+                // Turns on the vertex attributes in the GPU program.
                 gl.enableVertexAttribArray(location);
                 gl.vertexAttribPointer(
                     location, // location
@@ -216,12 +261,10 @@ class Program {
                     stride, // stride, num bytes to advance to get to next set of values
                     offset + i * size * bytesPerElement
                 );
-
-                // Turns on the vertex attributes in the GPU program.
+                // this.glExtAngleInstancedArrays?.vertexAttribDivisorANGLE(location, Number(instanced));
+                attributeDivisors[location] = attributeDivisor;
                 if (instanced) {
                     this.glExtAngleInstancedArrays?.vertexAttribDivisorANGLE(location, 1);
-                } else {
-                    gl.enableVertexAttribArray(location);
                 }
             }
         }
@@ -254,7 +297,7 @@ class Program {
 
     draw(geoBuffer: GeometryBuffer) {
         const {gl} = this;
-        const {texture, groups} = geoBuffer;
+        const {groups, instances} = geoBuffer;
         const isDepthOnlyPass = this._pass == PASS.ALPHA && geoBuffer.alpha == PASS.POST_ALPHA;
 
         // console.log(
@@ -264,15 +307,11 @@ class Program {
         //     'STENCIL_TEST', gl.getParameter(gl.STENCIL_TEST),
         //     'BLEND', gl.getParameter(gl.BLEND)
         // );
+        // console.log(geoBuffer);
 
         if (isDepthOnlyPass) {
             // disable color mask for depth/stencil only pass
             gl.colorMask(false, false, false, false);
-        }
-
-        if (texture) {
-            gl.activeTexture(gl.TEXTURE0);
-            texture.bind();
         }
 
         for (let grp of groups) {
@@ -290,8 +329,8 @@ class Program {
 
                 this.initIndex(index);
 
-                if (geoBuffer.instances) {
-                    this.glExtAngleInstancedArrays?.drawElementsInstancedANGLE(mode, count, type, 0, geoBuffer.instances);
+                if (instances) {
+                    this.glExtAngleInstancedArrays?.drawElementsInstancedANGLE(mode, count, type, 0, instances);
                 } else {
                     gl.drawElements(mode, count, type, 0);
                 }
@@ -299,8 +338,8 @@ class Program {
                 const first = (<ArrayGrp>grp).arrays.first;
                 const count = (<ArrayGrp>grp).arrays.count;
 
-                if (geoBuffer.instances) {
-                    this.glExtAngleInstancedArrays?.drawArraysInstancedANGLE(mode, first, count, geoBuffer.instances);
+                if (instances) {
+                    this.glExtAngleInstancedArrays?.drawArraysInstancedANGLE(mode, first, count, instances);
                 } else {
                     gl.drawArrays(mode, first, count);
                 }
@@ -398,13 +437,23 @@ class Program {
     //     // this.initGeometryBuffer(options);
     // }
     disableAttributes() {
-        const {attributeLocations, gl} = this;
+        const {attributeLocations, attributeDivisors, gl} = this;
         for (let name in attributeLocations) {
             let {index, length} = attributeLocations[name];
+
             while (length--) {
-                gl.disableVertexAttribArray(index + length);
+                let i = index + length;
+                if (attributeDivisors[i]) {
+                    this.glExtAngleInstancedArrays?.vertexAttribDivisorANGLE(i, 0);
+                    attributeDivisors[i] = 0;
+                }
+                gl.disableVertexAttribArray(i);
             }
         }
+    }
+
+    delete() {
+        this.gl.deleteProgram(this.prog);
     }
 }
 

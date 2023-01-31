@@ -24,6 +24,8 @@ import {GlyphTexture} from '../GlyphTexture';
 import {toRGB} from '../color';
 import {LineBuffer} from './templates/LineBuffer';
 import {FlexArray} from './templates/FlexArray';
+import {Attribute} from './Attribute';
+import {FlexAttribute} from './templates/TemplateBuffer';
 
 const createTileBuffer = (tileSize: number) => {
     // 0 ------- 1
@@ -67,8 +69,8 @@ const createGridTileBuffer = (color: number[] = [1.0, 0.0, 0.0, 1.0], strokeWidt
     const tileSize = 1;
 
     addLineString(
-        flexAttributes.a_position.data,
-        flexAttributes.a_normal.data,
+        (flexAttributes.a_position as FlexAttribute).data,
+        (flexAttributes.a_normal as FlexAttribute).data,
         new Float32Array([0, 0, tileSize, 0, tileSize, tileSize, 0, tileSize, 0, 0]),
         new Float32Array([0, tileSize, 2 * tileSize, 3 * tileSize, 4 * tileSize]),
         10,
@@ -149,8 +151,8 @@ const createGridTextBuffer = (quadkey: string, gl: WebGLRenderingContext, font) 
 
     textBuffer.depth = false;
     textBuffer.scissor = false;
-    textBuffer.texture = glyphs;
-    textBuffer.addUniform('u_texture', 0);
+    // textBuffer.texture = glyphs;
+    textBuffer.addUniform('u_texture', glyphs);
     textBuffer.addUniform('u_atlasScale', 1 / glyphs.width);
     textBuffer.addUniform('u_opacity', 1.0);
     textBuffer.addUniform('u_alignMap', true);

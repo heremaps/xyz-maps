@@ -51,11 +51,20 @@ const loadProgram = (gl: WebGLRenderingContext, shaders: WebGLShader[], onError?
     return program;
 };
 
-const createProgram = (gl: WebGLRenderingContext, vertexShader: string, fragmentShader: string) => {
-    return loadProgram(gl, [
-        loadShader(gl, vertexShader, gl.VERTEX_SHADER),
-        loadShader(gl, fragmentShader, gl.FRAGMENT_SHADER)
+const createProgram = (gl: WebGLRenderingContext, vertexShaderSrc: string, fragmentShaderSrc: string) => {
+    const vertexShader = loadShader(gl, vertexShaderSrc, gl.VERTEX_SHADER);
+    const fragmentShader = loadShader(gl, fragmentShaderSrc, gl.FRAGMENT_SHADER);
+
+    const program = loadProgram(gl, [
+        vertexShader,
+        fragmentShader
     ]);
+
+    gl.detachShader(program, vertexShader);
+    gl.detachShader(program, fragmentShader);
+    gl.deleteShader(vertexShader);
+    gl.deleteShader(fragmentShader);
+    return program;
 };
 
 export {loadProgram, loadShader, createProgram};

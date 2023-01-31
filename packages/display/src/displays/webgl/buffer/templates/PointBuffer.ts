@@ -22,6 +22,7 @@ import {FlexArray} from './FlexArray';
 import {GeometryBuffer} from '../GeometryBuffer';
 import {Raycaster} from '../../Raycaster';
 import {transformMat4} from 'gl-matrix/vec3';
+import {Attribute} from '../Attribute';
 
 const extentScale = 32;
 
@@ -98,8 +99,9 @@ export class PointBuffer extends TemplateBuffer {
         width *= invMapScale;
         height *= invMapScale;
 
-        let position = attributes.a_position.data;
-        let size = attributes.a_position.size;
+        const positionAttribute = (attributes.a_position as Attribute);
+        const position = positionAttribute.data;
+        const size = positionAttribute.size;
         const t0 = [0, 0, 0];
         const t1 = [0, 0, 0];
         const t2 = [0, 0, 0];
@@ -152,7 +154,7 @@ export class PointBuffer extends TemplateBuffer {
             let z2 = size == 3 ? -decodeUint16z(position[i + 2]) : 0;
 
             if (type === 'Icon') {
-                let point = attributes.a_size?.data;
+                let point = (attributes.a_size as Attribute)?.data;
                 // const [scaleWidth, scaleHeight] = rayCaster.getInverseScale(true);
                 // width = point[y] / 2 * scaleWidth;
                 // height = point[y + 1] / 2 * scaleHeight;

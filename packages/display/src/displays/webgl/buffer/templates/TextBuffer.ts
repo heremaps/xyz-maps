@@ -17,10 +17,21 @@
  * License-Filename: LICENSE
  */
 
-import {TemplateBuffer} from './TemplateBuffer';
+import {FlexAttribute, TemplateBuffer} from './TemplateBuffer';
 import {FlexArray} from './FlexArray';
+import {GlyphTexture} from '../../GlyphTexture';
 
 export class TextBuffer extends TemplateBuffer {
+    uniforms: {
+        u_texture: GlyphTexture
+    };
+
+    flexAttributes: {
+        'a_position': FlexAttribute,
+        'a_point': FlexAttribute
+        'a_texcoord': FlexAttribute
+    };
+
     constructor(flat: boolean = true, rotY?: boolean) {
         super(flat);
 

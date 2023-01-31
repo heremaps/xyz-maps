@@ -55,7 +55,7 @@ class DashAtlas {
             width: pixels.length,
             height: 1,
             pixels: pixels
-        }, this.gl.LUMINANCE);
+        }, false, this.gl.LUMINANCE);
     }
 
     get(dashArray: DashArray): SharedTexture {

@@ -2,6 +2,7 @@ precision mediump float;
 
 uniform vec4 u_fill;
 uniform vec4 u_stroke;
+uniform vec3 u_lightDir;
 
 varying vec3 vSize;
 
@@ -19,7 +20,7 @@ uniform float u_zMeterToPixel;
 
 
 varying vec3 v_normal;
-#define lightDir vec3(.5, .0, -1.0)
+
 
 
 #ifdef SPHERE
@@ -64,7 +65,7 @@ void main(void){
     normal = normalize(v_normal);
     #endif
 
-    float light = clamp(0.0,1.0,dot(normal, lightDir));
+    float light = clamp(0.0,1.0,dot(normal, u_lightDir));
     color.rgb *= light;
 
     gl_FragColor = color;

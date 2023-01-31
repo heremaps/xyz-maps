@@ -17,10 +17,11 @@
  * License-Filename: LICENSE
  */
 
-import {TemplateBuffer} from './TemplateBuffer';
+import {FlexAttribute, TemplateBuffer} from './TemplateBuffer';
 import {FlexArray} from './FlexArray';
 import {Raycaster} from '../../Raycaster';
 import {GeometryBuffer} from '../GeometryBuffer';
+import {Attribute} from '../Attribute';
 
 export class LineBuffer extends TemplateBuffer {
     constructor(flat: boolean = true) {
@@ -52,14 +53,14 @@ export class LineBuffer extends TemplateBuffer {
     }
 
     setIdOffset(featureId: string) {
-        this.idOffsets?.push(this.flexAttributes.a_position.data.length, featureId);
+        this.idOffsets?.push((this.flexAttributes.a_position as FlexAttribute).data.length, featureId);
     }
 
     rayIntersects(buffer: GeometryBuffer, result, tileX: number, tileY: number, rayCaster: Raycaster): number | string {
         const {attributes} = buffer;
-        let position = attributes.a_position.data;
-        let normal = attributes.a_normal.data;
-        let size = attributes.a_position.size;
+        let position = (attributes.a_position as Attribute).data;
+        let normal = (attributes.a_normal as Attribute).data;
+        let size = (attributes.a_position as Attribute).size;
         const t0 = [0, 0, 0];
         const t1 = [0, 0, 0];
         const t2 = [0, 0, 0];

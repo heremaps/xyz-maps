@@ -18,38 +18,27 @@
  */
 
 // @ts-ignore
-import vertexShader from '../glsl/icon_vertex.glsl';
+import vertexShader from '../glsl/model_vertex.glsl';
 // @ts-ignore
-import fragmentShader from '../glsl/icon_fragment.glsl';
+import fragmentShader from '../glsl/model_fragment.glsl';
 
 import Program from './Program';
 import {GLStates, PASS} from './GLStates';
 import {GeometryBuffer} from '../buffer/GeometryBuffer';
 
 
-class IconProgram extends Program {
-    name = 'icon';
+class ModelProgram extends Program {
+    name = 'Model';
 
     glStates = new GLStates({
-        blend: true,
         scissor: false,
-        // disable depth because of artifacts around icons in case of image is not fully covering texture area..
+        blend: false,
         depth: true
     });
 
-    constructor(gl: WebGLRenderingContext, devicePixelRation: number) {
-        super(gl, gl.TRIANGLES, vertexShader, fragmentShader, devicePixelRation);
-    }
-
-    pass(pass: PASS) {
-        return pass == PASS.ALPHA;
-    }
-
-    initGeometryBuffer(options: GeometryBuffer, pass: PASS, stencil: boolean) {
-        const {gl} = this;
-        super.initGeometryBuffer(options, pass, stencil);
-        gl.blendFunc(gl.ONE, gl.ONE_MINUS_SRC_ALPHA);
+    constructor(gl: WebGLRenderingContext, devicePixelRation: number, macros?) {
+        super(gl, gl.TRIANGLES, vertexShader, fragmentShader, devicePixelRation, macros);
     }
 }
 
-export default IconProgram;
+export default ModelProgram;

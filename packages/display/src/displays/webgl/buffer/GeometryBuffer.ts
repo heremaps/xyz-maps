@@ -18,13 +18,12 @@
  */
 
 import {Attribute} from './Attribute';
-import {glType} from './glType';
+import {glType, isTypedArray, TypedArray} from './glType';
 import {Texture} from '../Texture';
-import {GlyphTexture} from '../GlyphTexture';
-import {TemplateBuffer} from './templates/TemplateBuffer';
+import {ConstantAttribute, FlexAttribute, TemplateBuffer} from './templates/TemplateBuffer';
 import {Raycaster} from '../Raycaster';
 
-type Uniform = number | number[] | Float32Array | Int32Array | boolean;
+export type Uniform = number | number[] | Float32Array | Int32Array | boolean | Texture;
 
 export type IndexData = {
     data: Uint16Array | Uint32Array
@@ -41,29 +40,84 @@ export type ArrayData = {
 export type ArrayGrp = {
     arrays: ArrayData,
     mode?: number,
-    uniforms?: { [name: string]: Uniform }
+    uniforms?: { [name: string]: Uniform },
+    attributes?: { [name: string]: Attribute }
 };
 export type IndexGrp = {
     index: IndexData,
     mode?: number,
-    uniforms?: { [name: string]: Uniform }
+    uniforms?: { [name: string]: Uniform },
+    attributes?: { [name: string]: Attribute }
 };
+
+type IndexArray = number[] | Uint32Array | Uint16Array;
 
 const GL_UNSIGNED_SHORT = 0x1403;
 const GL_UNSIGNED_INT = 0x1405;
 
 let UNDEF;
 
+const averageFaceNormal = (vertex: TypedArray, i1: number, i2: number, i3: number, normals: TypedArray) => {
+    // const t3x = vertex[i1];
+    // const t3y = vertex[i1 + 1];
+    // const t3z = vertex[i1 + 2];
+    //
+    // const t2x = vertex[i2];
+    // const t2y = vertex[i2 + 1];
+    // const t2z = vertex[i2 + 2];
+    //
+    // const t1x = vertex[i3];
+    // const t1y = vertex[i3 + 1];
+    // const t1z = vertex[i3 + 2];
+
+    const t1x = vertex[i1];
+    const t1y = vertex[i1 + 1];
+    const t1z = vertex[i1 + 2];
+
+    const t2x = vertex[i2];
+    const t2y = vertex[i2 + 1];
+    const t2z = vertex[i2 + 2];
+
+    const t3x = vertex[i3];
+    const t3y = vertex[i3 + 1];
+    const t3z = vertex[i3 + 2];
+
+
+    const ux = t2x - t1x;
+    const uy = t2y - t1y;
+    const uz = t2z - t1z;
+
+    const vx = t3x - t1x;
+    const vy = t3y - t1y;
+    const vz = t3z - t1z;
+
+    // surface normal
+    const nx = uz * vy - uy * vz;
+    const ny = ux * vz - uz * vx;
+    const nz = uy * vx - ux * vy;
+
+    // sum normals, average
+    normals[i1] += nx;
+    normals[i1 + 1] += ny;
+    normals[i1 + 2] += nz;
+
+    normals[i2] += nx;
+    normals[i2 + 1] += ny;
+    normals[i2 + 2] += nz;
+
+    normals[i3] += nx;
+    normals[i3 + 1] += ny;
+    normals[i3 + 2] += nz;
+};
+
 class GeometryBuffer {
     static MODE_GL_LINES: number = 0x0001;
 
     // private size: number;
 
-    attributes: { [name: string]: Attribute } = {};
+    attributes: { [name: string]: Attribute | ConstantAttribute } = {};
 
     uniforms: { [name: string]: Uniform } = {};
-
-    texture?: Texture | GlyphTexture;
 
     type: string;
 
@@ -90,6 +144,10 @@ class GeometryBuffer {
 
     private _cullFace: number = 0;
 
+    // currently used by "Model" only
+    bbox?: number[];
+    id?: number | string;
+    hitTest?: number;
 
     static fromTemplateBuffer(type: string, templBuffer: TemplateBuffer): GeometryBuffer {
         const {flexAttributes} = templBuffer;
@@ -111,8 +169,12 @@ class GeometryBuffer {
 
         for (let name in flexAttributes) {
             let attr = flexAttributes[name];
-            if (attr.data.length) {
-                geoBuffer.addAttribute(name, templBuffer.trimAttribute(attr));
+
+            if ((<ConstantAttribute>attr).value) {
+                // attribute uses constant value
+                geoBuffer.attributes[name] = {value: (<ConstantAttribute>attr).value};
+            } else if ((<FlexAttribute>attr).data.length) {
+                geoBuffer.addAttribute(name, templBuffer.trimAttribute(attr as FlexAttribute));
             }
         }
         geoBuffer.instances = templBuffer.instances;
@@ -123,28 +185,46 @@ class GeometryBuffer {
 
         geoBuffer.cullFace(templBuffer.cullFace);
 
+        for (let name in templBuffer.uniforms) {
+            geoBuffer.addUniform(name, templBuffer.uniforms[name]);
+        }
+
         return geoBuffer;
     }
 
-    constructor(index?: ArrayData | number[], type?: string, i32?: boolean) {
+    constructor(index?: ArrayData | IndexArray, type?: string, i32?: boolean) {
         if (index) {
             this.addGroup(index, i32);
             this.type = type;
         }
     }
 
-    private createIndex(index: number[], i32?: boolean) {
+    private createIndex(index: number[] | Uint16Array | Uint32Array, i32?: boolean): IndexGrp {
         return {
             index: i32 ? {
-                data: new Uint32Array(index),
+                data: isTypedArray(index) ? (<Uint32Array>index) : new Uint32Array(index),
                 type: GL_UNSIGNED_INT,
                 length: index.length
             } : {
-                data: new Uint16Array(index),
+                data: isTypedArray(index) ? (<Uint16Array>index) : new Uint16Array(index),
                 type: GL_UNSIGNED_SHORT,
                 length: index.length
             }
         };
+
+
+        // return {
+        //     index: i32 ? {
+        //         data: new Uint32Array(3),
+        //         // data: isTypedArray(index) ? (<Uint16Array | Uint32Array>index) : new Uint32Array(index),
+        //         type: GL_UNSIGNED_INT,
+        //         length: index.length
+        //     } : {
+        //         data: isTypedArray(index) ? index : new Uint16Array(index),
+        //         type: GL_UNSIGNED_SHORT,
+        //         length: index.length
+        //     }
+        // };
     }
 
     private createArrays(arrays: ArrayData) {
@@ -152,14 +232,14 @@ class GeometryBuffer {
         return {arrays};
     }
 
-    addGroup(grp: ArrayData | number[], i32?: boolean, mode?: number): IndexGrp | ArrayGrp {
+    addGroup(grp: ArrayData | IndexArray, i32?: boolean, mode?: number): IndexGrp | ArrayGrp {
         if (grp) {
             let group: IndexGrp | ArrayGrp;
 
-            if (Array.isArray(grp)) {
-                group = this.createIndex(grp, i32);
+            if ((<ArrayData>grp).first != UNDEF) {
+                group = this.createArrays(<ArrayData>grp);
             } else {
-                group = this.createArrays(grp);
+                group = this.createIndex(<IndexArray>grp, i32);
             }
 
             if (mode) {
@@ -181,6 +261,7 @@ class GeometryBuffer {
         const {data} = attr;
 
         attr.type = glType(data);
+
         attr.bytesPerElement = data.BYTES_PER_ELEMENT;
 
         if (attr.stride == UNDEF) {
@@ -196,11 +277,45 @@ class GeometryBuffer {
         // this.size = data.length;
     }
 
+    computeNormals(
+        vertex: TypedArray = (this.attributes.a_position as Attribute)?.data,
+        index: TypedArray = (<IndexGrp> this.groups[0]).index?.data
+    ) {
+        const vertexLength = vertex.length;
+        const normals = new Float32Array(vertexLength);
+
+        if (!index) {
+            for (let i = 0; i < vertexLength;) {
+                averageFaceNormal(vertex, i, i + 3, i += 6, normals);
+            }
+        } else {
+            for (let i = 0, {length} = index; i < length; i += 3) {
+                averageFaceNormal(vertex, index[i] * 3, index[i + 1] * 3, index[i + 2] * 3, normals);
+            }
+        }
+
+        const normalized = new Int8Array(vertexLength);
+        for (let i = 0, nx, ny, nz; i < vertexLength; i += 3) {
+            nx = normals[i];
+            ny = normals[i + 1];
+            nz = normals[i + 2];
+            let len = nx * nx + ny * ny + nz * nz;
+            if (len > 0) {
+                len = 1 / Math.sqrt(len);
+            }
+            len *= 127;
+            normalized[i] = Math.round(nx * len);
+            normalized[i + 1] = Math.round(ny * len);
+            normalized[i + 2] = Math.round(nz * len);
+        }
+        return normalized;
+    }
+
     getAttributes() {
         return this.attributes;
     }
 
-    destroy() {
+    destroy(buffer: GeometryBuffer) {
 
     }
 

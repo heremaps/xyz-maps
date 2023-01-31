@@ -17,7 +17,7 @@
  * License-Filename: LICENSE
  */
 
-type Image = HTMLCanvasElement | HTMLImageElement | { width: number, height: number, pixels?: Uint8Array } ;
+export type Image = HTMLCanvasElement | HTMLImageElement | { width: number, height: number, pixels?: Uint8Array };
 
 
 const isPowerOf2 = (size: number) => (size & (size - 1)) == 0;
@@ -31,9 +31,14 @@ class Texture {
     protected texture: WebGLTexture;
     protected gl: WebGLRenderingContext;
 
-    constructor(gl: WebGLRenderingContext, image?: Image, format?: GLenum) {
+    private flipY: boolean;
+
+    ref?: number; // reference counter for Texture sharing
+
+    constructor(gl: WebGLRenderingContext, image?: Image, flipY: boolean = false, format?: GLenum) {
         this.gl = gl;
         this.format = format || gl.RGBA;
+        this.flipY = flipY;
 
         if (image) {
             this.set(image);
@@ -48,7 +53,7 @@ class Texture {
     }
 
     set(image: Image, x?: number, y?: number) {
-        let {gl, texture, format} = this;
+        let {gl, texture, format, flipY} = this;
         const {width, height} = image;
         const internalformat = format;
         const isSubImage = typeof x == 'number';
@@ -61,7 +66,9 @@ class Texture {
         gl.pixelStorei(gl.UNPACK_PREMULTIPLY_ALPHA_WEBGL, true);
 
         gl.texParameteri(gl.TEXTURE_2D, gl.TEXTURE_WRAP_S, gl.CLAMP_TO_EDGE); // GL.REPEAT
-        gl.texParameteri(gl.TEXTURE_2D, gl.TEXTURE_WRAP_T, gl.CLAMP_TO_EDGE);// GL.REPEAT
+        gl.texParameteri(gl.TEXTURE_2D, gl.TEXTURE_WRAP_T, gl.CLAMP_TO_EDGE); // GL.REPEAT
+
+        gl.pixelStorei(gl.UNPACK_FLIP_Y_WEBGL, flipY);
 
         if (!isSubImage && (this.width != width || this.height || height)) {
             if (image instanceof HTMLCanvasElement || image instanceof HTMLImageElement) {
@@ -85,13 +92,17 @@ class Texture {
         }
     }
 
+    onDestroyed(tex: Texture) {
+    };
+
     destroy() {
         const {gl, texture} = this;
         if (texture) {
             gl.deleteTexture(texture);
-            this.texture = null;
         }
+        this.texture = null;
+        this.onDestroyed(this);
     }
 }
 
-export {Texture, Image};
+export {Texture};

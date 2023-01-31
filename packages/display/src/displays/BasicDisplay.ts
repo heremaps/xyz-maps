@@ -556,8 +556,8 @@ abstract class Display {
         render.setBackgroundColor(bgColor);
     }
 
-    showGrid(show: boolean) {
-        this.render.grid(!!show);
+    showGrid(show: boolean | { [opt: string]: any }) {
+        this.render.grid(show);
     }
 
     setView(
@@ -611,7 +611,7 @@ abstract class Display {
      * @internal
      * @hidden
      */
-    getRenderedFeatureAt(screenX: number, screenY: number, layers?: (TileLayer | CustomLayer)[]): { id: number | string | null, z: number, layerIndex: number } {
+    getRenderedFeatureAt(screenX: number, screenY: number, layers?: (TileLayer | CustomLayer)[]): { id: number | string | null, z: number, layerIndex: number, pointWorld?: number[] } {
         return null;
     }
 }

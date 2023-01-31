@@ -18,7 +18,7 @@
  */
 
 import {wrapText} from './textUtils';
-import {Feature} from '@here/xyz-maps-core';
+import {Feature, StyleZoomRange} from '@here/xyz-maps-core';
 import {toRGB} from './webgl/color';
 import {getRotatedBBox} from '../geometry';
 import {webMercator, Style, StyleGroup} from '@here/xyz-maps-core';
@@ -83,10 +83,15 @@ export const getTextString = (style, feature: Feature, level: number) => {
     }
 };
 
+// const getValue = <
+//     Property extends keyof Style,
+//     Value = Style[Property],
+//     Return = Value extends (...args: any[]) => any ? ReturnType<Value> : Exclude<Value,StyleZoomRange<any>>
+//     >(property: Property, style: Style, feature: Feature, zoom: number): Return {
 const getValue = (name: string, style: Style, feature: Feature, tileGridZoom: number) => {
     let value = style[name];
-
     return typeof value == 'function'
+        // @ts-ignore, 3rd param can be used internally
         ? value(feature, tileGridZoom, style)
         : value;
 };

@@ -342,6 +342,7 @@ export class Map {
 
     private initViewPort(): [number, number] {
         const currentScale = this._s;
+        // const currentScale = 1;
         const worldSizePixel = this._worldSizeFixed;
         const centerWorldPixelX = this._cWorldFixed.x;
         const centerWorldPixelY = this._cWorldFixed.y;
@@ -352,11 +353,14 @@ export class Map {
         const topLeftWorldX = centerWorldPixelX - cOffsetX / currentScale;
         const topLeftWorldY = centerWorldPixelY - cOffsetY / currentScale;
 
-        this._tlwx = topLeftWorldX;
-        this._tlwy = topLeftWorldY;
-
-        this._ox = centerWorldPixelX - cOffsetX - topLeftWorldX;
-        this._oy = centerWorldPixelY - cOffsetY - topLeftWorldY;
+        // this._tlwx = topLeftWorldX;
+        // this._tlwy = topLeftWorldY;
+        // this._ox = centerWorldPixelX - cOffsetX - topLeftWorldX;
+        // this._oy = centerWorldPixelY - cOffsetY - topLeftWorldY;
+        this._tlwx = centerWorldPixelX - cOffsetX;
+        this._tlwy = centerWorldPixelY - cOffsetY;
+        this._ox = centerWorldPixelX - cOffsetX / currentScale - topLeftWorldX;
+        this._oy = centerWorldPixelY - cOffsetY / currentScale - topLeftWorldY;
 
         let topLeftLon = project.x2lon(topLeftWorldX, worldSizePixel);
         let topLeftLat = project.y2lat(topLeftWorldY, worldSizePixel);
@@ -681,7 +685,15 @@ export class Map {
          * defines the layer(s) to search in.
          */
         layers?: TileLayer | TileLayer[]
-    }): { feature: Feature, layer: TileLayer } | undefined {
+    }): {
+        feature: Feature,
+        layer: TileLayer,
+        /**
+         * @hidden
+         * @internal
+         */
+        intersectionPoint?
+    } | undefined {
         options = options || {};
         const results = this.getFeaturesAt(position, options);
 
@@ -720,7 +732,15 @@ export class Map {
          * @internal
          */
         skip3d?: boolean
-    }): { features: Feature[], layer: TileLayer }[] {
+    }): {
+        features: Feature[],
+        layer: TileLayer,
+        /**
+         * @hidden
+         * @internal
+         */
+        intersectionPoint?
+    }[] {
         let skip3d = false;
         let x1;
         let x2;
@@ -734,7 +754,6 @@ export class Map {
             layers = [layers];
         }
 
-
         // it's a point
         if ((<PixelPoint>position).x != UNDEF && (<PixelPoint>position).y != UNDEF) {
             let x = (<PixelPoint>position).x;
@@ -747,11 +766,27 @@ export class Map {
                 skip3d = true;
                 layers = <TileLayer[]>(layers || this._layers);
                 const featureInfo = this._display.getRenderedFeatureAt(x, y, layers);
+
                 if (featureInfo.id != null) {
                     const layer = layers[featureInfo.layerIndex];
                     const provider = <FeatureProvider>layer.getProvider(this.getZoomlevel() ^ 0);
                     const feature = provider?.search && provider.search(featureInfo.id);
-                    if (feature) return [{layer, features: [feature]}];
+
+                    if (feature) {
+                        const {pointWorld} = featureInfo;
+                        return [{
+                            layer,
+                            features: [feature],
+                            intersectionPoint: pointWorld && this._w2g(
+                                pointWorld[0],
+                                pointWorld[1],
+                                // convert from unscaled-world- to scaled-world coordinates
+                                // pointWorld[0] + this._ox,
+                                // pointWorld[1] + this._oy,
+                                -pointWorld[2]
+                            )
+                        }];
+                    }
                 }
             }
 
@@ -1419,6 +1454,8 @@ export class Map {
         const worldSizePixel = this._worldSizeFixed;
         const topLeftWorldX = this._tlwx;
         const topLeftWorldY = this._tlwy;
+        // const topLeftWorldX = this._tlwx + this._ox;
+        // const topLeftWorldY = this._tlwy + this._oy;
         return [
             project.lon2x(<number>lon, worldSizePixel) - topLeftWorldX,
             project.lat2y(<number>lat, worldSizePixel) - topLeftWorldY,

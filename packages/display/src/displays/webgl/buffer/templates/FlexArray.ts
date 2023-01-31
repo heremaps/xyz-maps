@@ -17,10 +17,11 @@
  * License-Filename: LICENSE
  */
 
-import {TypedArray, TypedArrayConstructor} from '../glType';
+import {isTypedArray, TypedArray, TypedArrayConstructor} from '../glType';
 
 export interface SimpleArray<T> {
     length: number;
+
     push(...value: T[]): number;
 }
 
@@ -29,18 +30,28 @@ export class FlexArray implements SimpleArray<number> {
     data: TypedArray;
     length: number = 0;
 
-    constructor(TypedArray: TypedArrayConstructor, size: number = 128) {
-        this.data = new TypedArray(this.size = size);
+    constructor(Array: TypedArrayConstructor | TypedArray, size: number = 128) {
+        if (isTypedArray(Array)) {
+            this.data = Array as TypedArray;
+            this.length = this.size = this.data.length;
+        } else {
+            this.data = new (Array as TypedArrayConstructor)(this.size = size);
+        }
     }
 
     get(index: number): number {
         return this.data[index];
     }
 
-    set(data, offset?: number) {
+    set(data: ArrayLike<number> | number[], offset: number = 0) {
+        const {length} = data;
+        const reserveSpace = offset + length;
+
+        if (reserveSpace) {
+            this.reserve(reserveSpace);
+        }
         this.data.set(data, offset);
-        this.length = data.length;
-        this.size = this.length;
+        this.length = reserveSpace;
     }
 
     push(...args);
@@ -70,6 +81,10 @@ export class FlexArray implements SimpleArray<number> {
 
     trim(): TypedArray {
         // return this.data = this.data.subarray(0,this.length);
-        return this.data = this.data.slice(0, this.length);
+        let {size, length} = this;
+        if (size != length) {
+            this.data = this.data.slice(0, length);
+        }
+        return this.data;
     }
 }

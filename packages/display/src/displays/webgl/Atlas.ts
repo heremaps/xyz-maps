@@ -22,7 +22,7 @@ import {Texture, Image} from './Texture';
 
 
 class SharedTexture extends Texture {
-    // do not destroy texture on tile drop because its shared across multiple tiles.
+    // do not destroy texture on tile drop because it's shared across multiple tiles.
     destroy(force?: boolean) {
         if (force) {
             super.destroy();

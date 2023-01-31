@@ -22,6 +22,7 @@ import {FlexArray} from './FlexArray';
 import {FlexAttribute} from './TemplateBuffer';
 import {GeometryBuffer} from '../GeometryBuffer';
 import {Raycaster} from '../../Raycaster';
+import {Attribute} from '../Attribute';
 
 export const extentScale = 32;
 
@@ -38,7 +39,7 @@ export class BoxBuffer extends PointBuffer {
         super(false);
 
         this.flexAttributes.a_point = {
-            data: new FlexArray(Uint8Array),
+            data: new FlexArray(Uint16Array),
             size: 3
         };
 
@@ -51,9 +52,9 @@ export class BoxBuffer extends PointBuffer {
 
     rayIntersects(buffer: GeometryBuffer, result: { z: number }, tileX: number, tileY: number, rayCaster: Raycaster): number | string {
         const {attributes} = buffer;
-        const position = attributes.a_position.data;
-        const size = attributes.a_position.size;
-        const point = attributes.a_point.data;
+        const position = (attributes.a_position as Attribute).data;
+        const size = (attributes.a_position as Attribute).size;
+        const point = (attributes.a_point as Attribute).data;
         const alignMap = true;
         const [scaleX, scaleY, scaleZ] = rayCaster.getInverseScale(alignMap);
         let index = null;

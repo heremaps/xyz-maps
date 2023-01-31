@@ -20,7 +20,7 @@
 import {SimpleArray} from './templates/FlexArray';
 import {extentScale} from './templates/BoxBuffer';
 
-const calculateSurfaceNormal = (p1, p2, p3) => {
+export const calculateSurfaceNormal = (p1: number[], p2: number[], p3: number[]) => {
     const ux = p2[0] - p1[0];
     const uy = p2[1] - p1[1];
     const uz = p2[2] - p1[2];

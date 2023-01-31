@@ -24,6 +24,7 @@ import {GeometryBuffer} from '../GeometryBuffer';
 import {Raycaster, Vec3} from '../../Raycaster';
 import {decodeUint16z, getOffsetPixel} from './PointBuffer';
 import {BACK} from '../glType';
+import {Attribute} from '../Attribute';
 
 const SPHERE_VERTICES = 1056;
 
@@ -50,8 +51,8 @@ export class SphereBuffer extends BoxBuffer {
 
     rayIntersects(buffer: GeometryBuffer, result: { z: number }, tileX: number, tileY: number, rayCaster: Raycaster): number | string {
         const {attributes} = buffer;
-        const position = attributes.a_position.data;
-        const size = attributes.a_position.size;
+        const position = (attributes.a_position as Attribute).data;
+        const size = (attributes.a_position as Attribute).size;
         const alignMap = true;
 
         const [scaleX, scaleY, scaleZ] = rayCaster.getInverseScale(alignMap);

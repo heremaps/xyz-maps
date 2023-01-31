@@ -21,6 +21,7 @@ import {FlexAttribute, TemplateBuffer} from './TemplateBuffer';
 import {FlexArray} from './FlexArray';
 import {GeometryBuffer, IndexGrp} from '../GeometryBuffer';
 import {Raycaster} from '../../Raycaster';
+import {Attribute} from '../Attribute';
 
 export class PolygonBuffer extends TemplateBuffer {
     flexAttributes: {
@@ -48,8 +49,8 @@ export class PolygonBuffer extends TemplateBuffer {
 
     rayIntersects(buffer: GeometryBuffer, result: { z: number }, tileX: number, tileY: number, rayCaster: Raycaster): number | string {
         const {attributes} = buffer;
-        const position = attributes.a_position.data;
-        const size = attributes.a_position.size;
+        const position = (attributes.a_position as Attribute).data;
+        const size = (attributes.a_position as Attribute).size;
         const rayOrigin = rayCaster.origin;
         const rayDirection = rayCaster.direction;
         const t0 = [0, 0, 0];
@@ -67,18 +68,22 @@ export class PolygonBuffer extends TemplateBuffer {
                 const i0 = indexData[i] * size;
                 const i1 = indexData[i + 1] * size;
                 const i2 = indexData[i + 2] * size;
-                // for (let i = 0; i < position.length; i += size) {
+
                 t0[0] = tileX + position[i0];
                 t0[1] = tileY + position[i0 + 1];
-                t0[2] = size == 3 ? -position[i0 + 2] : 0;
 
                 t1[0] = tileX + position[i1];
                 t1[1] = tileY + position[i1 + 1];
-                t1[2] = size == 3 ? -position[i1 + 2] : 0;
 
                 t2[0] = tileX + position[i2];
                 t2[1] = tileY + position[i2 + 1];
-                t2[2] = size == 3 ? -position[i2 + 2] : 0;
+
+                if (size == 3) {
+                    t0[2] = -position[i0 + 2];
+                    t1[2] = -position[i1 + 2];
+                    t2[2] = -position[i2 + 2];
+                }
+
 
                 const intersectRayLength = Raycaster.rayIntersectsTriangle(rayOrigin, rayDirection, t0, t1, t2);
 
