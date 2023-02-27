@@ -197,10 +197,10 @@ const addLineString = (
         }
     }
 
-    if (height) {
-        cap = CAP_BUTT;
-        join = 'none';
-    }
+    // if (height) {
+    // cap = CAP_BUTT;
+    // join = 'none';
+    // }
 
     if (lengthToVertex) {
         cap = 'butt';

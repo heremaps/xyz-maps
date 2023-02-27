@@ -43,8 +43,6 @@ void main(void){
 
     vec2 position = a_position.xy + normal * -lineOffset / u_scale;
 
-    gl_PointSize = 8.0;
-
     gl_Position = u_matrix * vec4(u_topLeft + position * u_tileScale + dir * normal * width, -a_position.z, 1.0);
 }
 

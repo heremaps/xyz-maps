@@ -195,6 +195,8 @@ const createBuffer = (
                                     shared.offsetUnit == 'm' ? meterToPixel : 0
                                 ]);
 
+                                geoBuffer.addUniform('u_no_antialias', !grpBuffer.isFlat());
+
                                 geoBuffer.alpha = 1;
                                 // geoBuffer.blend = true;
                             } else if (type == 'Polygon' || type == 'Extrude') {

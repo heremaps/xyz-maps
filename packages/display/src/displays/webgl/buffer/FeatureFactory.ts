@@ -492,7 +492,7 @@ export class FeatureFactory {
                     strokeLinejoin = getValue('strokeLinejoin', style, feature, level) || DEFAULT_LINE_JOIN;
                     strokeDasharray = getValue('strokeDasharray', style, feature, level);
 
-                    if (strokeDasharray instanceof Array) {
+                    if (Array.isArray(strokeDasharray)) {
                         if (!strokeDasharray.length || !strokeDasharray[0]) {
                             strokeDasharray = UNDEF;
                         }
