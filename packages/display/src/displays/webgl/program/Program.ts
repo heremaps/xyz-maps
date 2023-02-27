@@ -105,7 +105,7 @@ class Program {
             return (v) => {
                 gl.uniform1i(location, tu);
                 gl.activeTexture(gl.TEXTURE0 + tu);
-                gl.bindTexture(gl.TEXTURE_2D, v?.texture );
+                gl.bindTexture(gl.TEXTURE_2D, v?.texture);
             };
         }
 
@@ -315,7 +315,7 @@ class Program {
         }
 
         for (let grp of groups) {
-            let mode = grp.mode || this.mode;
+            let mode = grp.mode != UNDEF ? grp.mode : this.mode;
 
             if (grp.uniforms) {
                 this.initUniforms(grp.uniforms);

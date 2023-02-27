@@ -287,6 +287,10 @@ const createBuffer = (
                                     geoBuffer.id = (grpBuffer as ModelBuffer).id;
                                     geoBuffer.hitTest = shared.modelMode || 0;
                                     geoBuffer.destroy = (grpBuffer as ModelBuffer).destroy || geoBuffer.destroy;
+
+                                    if (geoBuffer.uniforms.pointSize) {
+                                        geoBuffer.groups[0].mode = GeometryBuffer.MODE_GL_POINTS;
+                                    }
                                 }
                             }
 

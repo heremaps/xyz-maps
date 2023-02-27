@@ -111,7 +111,9 @@ const averageFaceNormal = (vertex: TypedArray, i1: number, i2: number, i3: numbe
 };
 
 class GeometryBuffer {
+    static MODE_GL_POINTS: number = 0x0000;
     static MODE_GL_LINES: number = 0x0001;
+    static MODE_GL_TRIANGLES: number = 0x0004;
 
     // private size: number;
 

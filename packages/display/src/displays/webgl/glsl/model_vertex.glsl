@@ -10,6 +10,7 @@ attribute mat4 a_modelMatrix;
 uniform mat4 u_matrix;
 uniform vec2 u_topLeft;
 uniform float u_groundResolution;
+uniform float pointSize;
 
 varying vec3 v_normal;
 varying vec2 v_texCoord;
@@ -19,6 +20,8 @@ void main(void){
 
     vec4 position = a_modelMatrix * vec4(a_position, 1.0);
     vec3 worldPos = a_offset + vec3(position.xy/u_groundResolution, position.z);
+
+    gl_PointSize = pointSize;
 
     gl_Position = u_matrix * vec4(u_topLeft + worldPos.xy, -worldPos.z, 1.0);
 

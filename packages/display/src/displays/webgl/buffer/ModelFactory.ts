@@ -32,6 +32,12 @@ export type ModelData = {
         bbox?: number[];
     }[],
     materials: {
+        [name: string]: {
+            diffuse?: number[],
+            diffuseMap?: string,
+            mode?: 'Triangles' | 'Points' | number,
+            pointSize?: number
+        }
     }
 }
 
@@ -76,7 +82,7 @@ class ModelFactory {
         if (!this.models[id]) {
             if (!geometries) return;
 
-            const parts = [];
+            const parts: Model['parts'] = [];
             const modelTextures = {
                 unusedTexture: this.unusedTexture
             };
@@ -89,6 +95,14 @@ class ModelFactory {
                     opacity: 1,
                     ...materials?.[geom.material]
                 };
+
+                if (material.mode == 'Points') {
+                    material.pointSize = material.pointSize == undefined ? 1 : material.pointSize;
+                } else {
+                    material.pointSize = 0;
+                }
+                delete material.mode;
+
                 const attributes = {};
                 let index;
 
