@@ -18,7 +18,7 @@
  */
 
 import {Crossing} from '../API/MCrossing';
-import {intersectLineLine} from '../geometry';
+import {intersectLineLine3d} from '../geometry';
 import {geotools as geoTools} from '@here/xyz-maps-common';
 import linkTools from '../features/link/NavlinkTools';
 import {Navlink} from '../features/link/Navlink';
@@ -43,24 +43,15 @@ function calcPathIntersections(
     const results = [];
     for (let i = 0; i < path1.length - 1; i++) {
         for (let k = 0; k < path2.length - 1; k++) {
-            const point = intersectLineLine(path1[i], path1[i + 1], path2[k], path2[k + 1], true);
-            if (point) {
+            // const point = intersectLineLine(path1[i], path1[i + 1], path2[k], path2[k + 1], true);
+            const intersection = intersectLineLine3d(path1[i], path1[i + 1], path2[k], path2[k + 1]);
+
+            if (intersection.intersects && intersection.onSegment) {
                 results.push({
-                    point,
+                    point: intersection.p0,
                     s1: i + 1,
                     s2: k + 1
                 });
-                // result = {x,y,
-                //  // // check if line segments are "connected"
-                //  // // this is a indication for overlapping shape..
-                //  // // ..which results results in crossing detected multiple times
-                //  // connected:
-                //  //  // crossing at existing geo1
-                //  //  ( ua == 0.0 || ua == 1.0 )       ||
-                //  //  // crossing at existing geo2
-                //  //  ( x == g2_1[0] && y == g2_1[1] ) ||
-                //  //  ( x == g2_2[0] && y == g2_2[1] )
-                // }
             }
         }
     }
@@ -103,13 +94,28 @@ class CrossingTester {
 
     private checkRealCrossing(link: Navlink, objs: Navlink[]) {
         let pCons: Crossing[] = [];
-        const linkPath = link.coord();
 
+        const altitude = link._e().getStyleProperty(link, 'altitude');
+        // if used style is not using altitude, it's considered to work in forced 2d mode with ignored altitude
+        const useZ = altitude ? undefined : 0;
+
+        const fixZ = (coordinates, fixZ) => {
+            const fixed = [];
+            const setFixed = typeof fixZ == 'number';
+            for (let c of coordinates) {
+                let z = setFixed ? fixZ : c[2] || 0;
+                fixed[fixed.length] = [c[0], c[1], z];
+            }
+            return fixed;
+        };
+
+        const linkPath = fixZ(link.geometry.coordinates, useZ);
 
         const getCrossings = (l2: Navlink, cLinks: { link: Navlink, index: number }[]) => {
             let isCLink = false;
             const pcons = [];
-            const intersections = calcPathIntersections(linkPath, l2.coord());
+            const intersections = calcPathIntersections(linkPath, fixZ(l2.geometry.coordinates, useZ));
+            // const intersections = calcPathIntersections(linkPath, l2.coord(dimensions));
 
             // filter out crossing duplicates. e.g. overlapping shapes.
             for (var i = 0, j = 0, len = intersections.length; i < len - 1; i++, j = i) {
@@ -151,7 +157,8 @@ class CrossingTester {
 
                 if (!isCLink) {
                     pcons.push(
-                        new Crossing(this, link, l2, point.slice(0, 2))
+                        new Crossing(this, link, l2, point)
+                        // new Crossing(this, link, l2, point.slice(0, 2))
                         // index: intersections[i]['s1']-1,
                         // index2: intersections[i]['s2']-1
                     );
@@ -274,35 +281,35 @@ class CrossingTester {
         option = option || {};
 
         // clear
-        this.setRelatedLink(UNDEF);
+        that.setRelatedLink(UNDEF);
 
         if (!option.links) {
             // if new search type or maxDistance is different from previous type, force to recalculate crossings
             if (
-                this.searchType != option['class'] ||
-                this.maxDistance != option['maxDistance']
+                that.searchType != option['class'] ||
+                that.maxDistance != option['maxDistance']
             ) {
                 that.createTS = 0;
             }
 
-            this.cStyles = option['styles'] || {};
-            this.searchType = option['class'];
+            that.cStyles = option['styles'] || {};
+            that.searchType = option['class'];
         } else if (option.croLink && option.links.length) {
             // check if option.links is not empty, then remove the split link and add new links to related links array
-            this.relatedLink = this.relatedLink.concat(option.links);
+            that.relatedLink = that.relatedLink.concat(option.links);
         }
 
-        this.maxDistance = option.maxDistance || this.iEditor._config.snapTolerance || 3;
+        that.maxDistance = option.maxDistance || that.iEditor._config.snapTolerance || 3;
 
         // calculate crossings if it is never calculated or link is modified after the calculation
         // if links is given, then force to do a calculating with the given links
-        if (!that.createTS || this.linkOrig.editState('modified') > that.createTS || option.links) {
+        if (!that.createTS || that.linkOrig.editState('modified') > that.createTS || option.links) {
             that.clear();
 
-            this.foundCrossings = this.calculateCrossings(this.relatedLink, this.searchType);
+            that.foundCrossings = that.calculateCrossings(that.relatedLink, that.searchType);
         }
 
-        return this.getSimplifiedCrossings();
+        return that.getSimplifiedCrossings();
     };
 
     private getSimplifiedCrossings(): Crossing[] {

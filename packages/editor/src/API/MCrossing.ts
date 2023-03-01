@@ -211,7 +211,7 @@ class Crossing implements GeoJSONFeature {
     }
 
     /**
-     * Get the Navlink feature which is the crossed or treated as a crossing candidate.
+     * Get the Navlink feature which is crossed or treated as a crossing candidate.
      */
     getRelatedLink(): Navlink {
         // related link means the link to which the selected link could be connected on crossing indicator
@@ -313,15 +313,17 @@ class Crossing implements GeoJSONFeature {
             const createCircle = (p, style) => overlay.addCircle(p, style);
             const mouseUpTrigger = (ev) => iEditor.listeners.trigger(ev, crossing);
 
+            const altitude = iEditor.getStyleProperty(searchLine, 'altitude');
+
             // if the search or found link is not found, return UNDEF
             if (searchStroke && foundStroke) {
                 const container = [
-                    createPath({...connector1, ...cs['connector1']}),
-                    createPath({...connector2, ...cs['connector2']}),
-                    createPath({...connector3, ...cs['connector3']}),
-                    createCircle(searchPnt, {...search1, ...cs['search1']}),
-                    createCircle(searchPnt, {...search2, fill: searchStroke, ...cs['search2']}),
-                    createCircle(foundPnt, {...found, fill: foundStroke, stroke: foundStroke, ...cs['found']})
+                    createPath({...connector1, ...cs['connector1'], altitude}),
+                    createPath({...connector2, ...cs['connector2'], altitude}),
+                    createPath({...connector3, ...cs['connector3'], altitude}),
+                    createCircle(searchPnt, {...search1, ...cs['search1'], altitude}),
+                    createCircle(searchPnt, {...search2, fill: searchStroke, ...cs['search2'], altitude}),
+                    createCircle(foundPnt, {...found, fill: foundStroke, stroke: foundStroke, ...cs['found'], altitude})
                 ];
                 container.forEach((el) => (<any>el).pointerup = mouseUpTrigger);
                 return container;

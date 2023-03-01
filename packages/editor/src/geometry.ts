@@ -18,8 +18,7 @@
  */
 
 import {GeoJSONCoordinate as Point} from '@here/xyz-maps-core';
-import {vec3} from '@here/xyz-maps-common';
-import {geotools} from '@here/xyz-maps-common';
+import {geotools, vec3} from '@here/xyz-maps-common';
 
 
 const MATH = Math;
@@ -128,6 +127,34 @@ export const getSegmentIndex = (path: Point[], p: Point): number | false => {
 //     // if (ccw(g2p1, g2p2, g1p1) * ccw(g2p1, g2p2, g1p2) > 0) return false;
 //     // return true;
 // };
+
+
+export const intersectLineLine3d = (a: number[], b: number[], c: number[], d: number[]) => {
+    const r = vec3.sub([], b, a);
+    const s = vec3.sub([], d, c);
+    const q = vec3.sub([], a, c);
+
+    const dotqr = vec3.dot(q, r);
+    const dotqs = vec3.dot(q, s);
+    const dotrs = vec3.dot(r, s);
+    const dotrr = vec3.dot(r, r);
+    const dotss = vec3.dot(s, s);
+
+    const denom = dotrr * dotss - dotrs * dotrs;
+    const numer = dotqs * dotrs - dotqr * dotss;
+
+    const t = numer / denom;
+    const u = (dotqs + t * dotrs) / dotss;
+
+    const p0 = vec3.add([], a, vec3.scale([], r, t));
+    const p1 = vec3.add([], c, vec3.scale([], s, u));
+
+    const onSegment = 0 <= t && t <= 1 && 0 <= u && u <= 1;
+    const length = vec3.length(vec3.sub([], p0, p1));
+    const intersects = length <= 1e-7;
+
+    return {p0, p1, onSegment, intersects, distance: length};
+};
 
 
 export const intersectLineLine = (g1p1: Point, g1p2: Point, g2p1: Point, g2p2: Point, details?: boolean): boolean | Point => {
