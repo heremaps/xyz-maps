@@ -42,6 +42,13 @@ export const multiply = (result: Vec3, a: Vec3, v: Vec3): Vec3 => {
     return result;
 };
 
+export const length = (a: Vec3) => {
+    const [x, y, z] = a;
+    return Math.sqrt(x * x + y * y + z * z);
+    // return Math.hypot(a[0], a[1], a[2]);
+};
+
+
 export const scale = (result: Vec3, a: Vec3, t: number): Vec3 => {
     result[0] = a[0] * t;
     result[1] = a[1] * t;
