@@ -1410,12 +1410,13 @@ export class Map {
     /**
      * Convert a geographical coordinate to a pixel coordinate relative to the current viewport of the map.
      *
-     * @param longitude - the longitude
-     * @param latitude - lat latitude
+     * @param longitude - the longitude in degrees
+     * @param latitude - the latitude in degrees
+     * @param altitude - the altitude in meters
      *
      * @returns the pixel coordinate relative to the current viewport.
      */
-    geoToPixel(longitude: number, latitude?: number): PixelPoint;
+    geoToPixel(longitude: number, latitude: number, altitude?: number): PixelPoint;
     /**
      * Convert a geographical coordinate to a pixel coordinate relative to the current viewport of the map.
      *
@@ -1425,15 +1426,16 @@ export class Map {
      */
     geoToPixel(coordinate: GeoPoint): PixelPoint;
 
-    geoToPixel(lon: number | GeoPoint, lat?: number): PixelPoint {
+    geoToPixel(lon: number | GeoPoint, lat?: number, alt?: number): PixelPoint {
         if (lat == UNDEF) {
+            alt = (<GeoPoint>lon).altitude;
             lat = (<GeoPoint>lon).latitude;
             lon = (<GeoPoint>lon).longitude;
         }
 
         let [x, y] = this._g2w(<number>lon, lat);
 
-        [x, y] = this._prj([x, y]);
+        [x, y] = this._prj([x, y, alt || 0]);
 
         return new PixelPoint(x, y);
     };

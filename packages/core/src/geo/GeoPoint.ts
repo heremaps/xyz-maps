@@ -30,13 +30,21 @@ export class GeoPoint {
      */
     latitude: number;
     /**
+     *  the altitude in meters
+     */
+    altitude?: number;
+
+    /**
      *  @param longitude - the longitude in degrees
      *  @param latitude - the latitude in degrees
+     *  @param altitude - the altitude in degrees
      */
-    constructor(longitude: number, latitude: number) {
+    constructor(longitude: number, latitude: number, altitude?: number) {
         this.longitude = longitude;
 
         this.latitude = latitude;
+
+        this.altitude = altitude || 0;
     }
 }
 
