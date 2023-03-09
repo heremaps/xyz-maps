@@ -44,7 +44,9 @@ export class GeoPoint {
 
         this.latitude = latitude;
 
-        this.altitude = altitude || 0;
+        if (altitude) {
+            this.altitude = altitude;
+        }
     }
 }
 
