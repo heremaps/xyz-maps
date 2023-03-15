@@ -123,10 +123,9 @@ class Grid {
                     [tx2, ty2],
                     [tx1, ty2]
                 ];
-
+                // const quadkey = vpTiles.unshift();
                 if (doPolygonsIntersect(bounds, tileGeoContainer)) {
-                    // const quadkey = vpTiles.unshift();
-                    const quadkey = tileUtils.tileXYToQuadKey(zoomLevel, minY + y, minX + x);
+                    const quadkey = tileUtils.tileXYToQuadKey(zoomLevel, Math.floor(minY + y), Math.floor(minX + x));
                     tiles.push({
                         quadkey,
                         x: tx1,
