@@ -148,7 +148,7 @@ class CrossingTester {
 
                     if (
                         clink.link.id == l2.id &&
-                        linkTools.isIntersection(this.iEditor, point, clink.link.coord()[clink.index])
+                        linkTools.isIntersection(this.iEditor, point, clink.link.coord()[clink.index], !useZ)
                     ) {
                         isCLink = true;
                         break;
