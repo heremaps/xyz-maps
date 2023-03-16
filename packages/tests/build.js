@@ -58,6 +58,24 @@ let apiComponents = ['editor', 'display', 'core', 'common'];
 let testComponents = apiComponents.concat('integration');
 let compsToRun = [];
 
+
+const sourceFiles = {};
+let customSources = false;
+
+// pass in path of each API component
+apiComponents.forEach((component) => {
+    let argvName = component + '-src';
+    if (argv[argvName]) {
+        sourceFiles[argvName] = argv[argvName];
+        customSources = true;
+    } else if (argv.dev) {
+        sourceFiles[argvName] = `${component}/dist/xyz-maps-${component}.js`;
+        customSources = true;
+    }
+});
+
+console.log('used sources:', customSources ? sourceFiles : 'default');
+
 function parseArgv(arg, dataPath, data) {
     try {
         dataPath = path.join(__dirname, dataPath);
@@ -222,27 +240,16 @@ function getKarmaConfig(comp) {
 
     karmaConfig.files.forEach((file) => {
         if (file.id) {
-            var sourceFiles = {};
-
-            // pass in path of each API component
-            apiComponents.forEach((component) => {
-                let argvName = component + '-src';
-                if (argv[argvName]) {
-                    sourceFiles[argvName] = argv[argvName];
-                }
-            });
-
             // Use custom API path if it is passed in with arguments
             if (sourceFiles[file.id]) {
                 file.pattern = sourceFiles[file.id];
             }
-
             // validate if file exists
             validateFile(file.id, file.pattern, karmaConfig.basePath);
         }
     });
 
-    for (a in argv) {
+    for (let a in argv) {
         let la = a.toLowerCase();
         if (karmaSettings.hasOwnProperty(la)) {
             // browser, singleRun are get here

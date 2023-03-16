@@ -63,13 +63,14 @@ Start a test under 'test/' sub-directory. API is build under root directory `yar
         --core-src              Path of component 'core'                                    [string] [default: '../core/dist/xyz-maps-core.min.js']
         --display-src           Path of component 'display'                           [string] [default: '../display/dist/xyz-maps-display.min.js']
         --editor-src            Path of component 'editor'                              [string] [default: '../editor/dist/xyz-maps-editor.min.js']
-    
+        --dev                   Use dev source path of all components                                                    [boolean] [default: false]
+
     Test Environments:
-        --environments          Path of environments file, details of the file see above in `Setup Environments`  
+        --environments          Path of environments file, details of the file see above in `Setup Environments`
                                                                                                         ['string'] [default: './environments.json']
         --environments.xyzhub   Set/overwrite endpoint of XYZ Hub                                                                        ['string']
         --environments.image    Set/overwrite endpoint of image server                                                                   ['string']
-                                         
+
     XYZ Hub credentials:
         --credentials:          Path of credentials file, details of the file see above in `Setup Credentials`
                                                                                                          ['string'] [default: './credentials.json']
