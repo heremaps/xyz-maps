@@ -442,7 +442,7 @@ const addSegments = (
 
         if (absStop) {
             if (absStop < lengthSoFar) {
-                if (absStop > prevLengthSoFar) {
+                if (absStop >= prevLengthSoFar) {
                     const relStopSegment = (absStop - prevLengthSoFar) / totalSegmentLength;
 
                     x2 = x1 - dx * relStopSegment;
@@ -475,7 +475,7 @@ const addSegments = (
 
         if (absStart) {
             if (absStart < lengthSoFar) {
-                if (absStart > prevLengthSoFar) {
+                if (absStart >= prevLengthSoFar) {
                     const relStartSegment = (absStart - prevLengthSoFar) / totalSegmentLength;
                     x1 = x1 - dx * relStartSegment;
                     y1 = y1 - dy * relStartSegment;
