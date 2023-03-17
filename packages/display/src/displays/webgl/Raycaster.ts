@@ -249,19 +249,19 @@ class Raycaster {
         this.scaleZ = scaleZ;
         // this.scaleZ = this.sMat[11]/scale;
 
-        origin[0] = x;
-        origin[1] = y;
-        origin[2] = -1;
+        sOrigin[0] = x;
+        sOrigin[1] = y;
+        sOrigin[2] = -1;
 
         direction[0] = x;
         direction[1] = y;
         direction[2] = 0;
 
-        transformMat4(origin, origin, iSMat);
+        transformMat4(origin, sOrigin, iSMat);
         transformMat4(direction, direction, iSMat);
 
         transformMat4(sDirection, direction, sMat);
-        transformMat4(sOrigin, origin, sMat);
+        // transformMat4(sOrigin, origin, sMat);
 
         subtract(sDirection, sDirection, sOrigin);
         normalize(sDirection, sDirection);
