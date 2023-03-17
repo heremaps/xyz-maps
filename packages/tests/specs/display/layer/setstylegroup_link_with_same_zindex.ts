@@ -144,42 +144,42 @@ describe('setStyleGroup link with same zIndex', () => {
         // set style for the added feature with same zIndex and color
         linkLayer.setStyleGroup(
             feature, [
-                {'zIndex': 0, 'type': 'Line', 'opacity': 0.5, 'stroke': '#ffffff', 'strokeWidth': 18},
-                {'zIndex': 0, 'type': 'Line', 'opacity': 0.5, 'stroke': '#ffffff', 'strokeWidth': 18}
+                {'zIndex': 0, 'type': 'Line', 'opacity': 0.4, 'stroke': '#ffffff', 'strokeWidth': 18},
+                {'zIndex': 1, 'type': 'Line', 'opacity': 0.8, 'stroke': '#ffffff', 'strokeWidth': 18}
             ]);
 
         // validate features have new style
         // get color of link in the middle
         let color = await getCanvasPixelColor(mapContainer, {x: 450, y: 300});
-        expect(color).to.equal('#bfbfbf');
+        expect(color).to.equal('#e0e0e0');
     });
 
     it('style feature with different zIndex and style, validate its style', async () => {
         // set style for the added feature with same zIndex and color
         linkLayer.setStyleGroup(
             feature, [
-                {'zIndex': 0, 'type': 'Line', 'opacity': 0.5, 'stroke': '#ffffff', 'strokeWidth': 18},
-                {'zIndex': 1, 'type': 'Line', 'opacity': 0.5, 'stroke': '#ffffff', 'strokeWidth': 18}
+                {'zIndex': 0, 'type': 'Line', 'opacity': 0.4, 'stroke': '#ffffff', 'strokeWidth': 18},
+                {'zIndex': 1, 'type': 'Line', 'opacity': 0.8, 'stroke': '#ffffff', 'strokeWidth': 18}
             ]);
 
         // validate features have new style
         // get color of link in the middle
         let color = await getCanvasPixelColor(mapContainer, {x: 450, y: 300});
-        expect(color).to.equal('#bfbfbf');
+        expect(color).to.equal('#e0e0e0');
     });
 
     it('style feature with same zIndex 1 and style, validate its style', async () => {
         // set style for the added feature with same zIndex and color
         linkLayer.setStyleGroup(
             feature, [
-                {'zIndex': 1, 'type': 'Line', 'opacity': 0.5, 'stroke': '#ffffff', 'strokeWidth': 18},
-                {'zIndex': 1, 'type': 'Line', 'opacity': 0.5, 'stroke': '#ffffff', 'strokeWidth': 18}
+                {'zIndex': 1, 'type': 'Line', 'opacity': 0.4, 'stroke': '#ffffff', 'strokeWidth': 18},
+                {'zIndex': 1, 'type': 'Line', 'opacity': 0.8, 'stroke': '#ffffff', 'strokeWidth': 18}
             ]);
 
         // validate features have new style
         // get color of link in the middle
         let color = await getCanvasPixelColor(mapContainer, {x: 450, y: 300});
-        expect(color).to.equal('#bfbfbf');
+        expect(color).to.equal('#e0e0e0');
     });
 
     it('set strokeWidth in meter', async () => {
