@@ -70,14 +70,14 @@ export class LineBuffer extends TemplateBuffer {
         // let feature;
         // const scaleX = 2 / rayCaster.w;
         // const scaleY = 2 / rayCaster.h;
-
-        let strokeWidth = buffer.getUniform('u_strokeWidth')[0];
+        let strokeWidth = buffer.getUniform('u_strokeWidth')[0] / rayCaster.scale;
 
         const N_SCALE = 1.0 / 8192.0;
 
+        const stride = size * 3;
         let index;
 
-        for (let i = 0, n = 0; i < position.length; i += size, n += 12) {
+        for (let i = 0, n = 0; i < position.length; n += 12) {
             // console.log('------p0',position[i],position[i+1]);
             let nx0 = normal[n];
             let ny0 = normal[n + 1];
@@ -93,7 +93,6 @@ export class LineBuffer extends TemplateBuffer {
             let z0 = size == 3 ? -position[i + 2] : 0;
             // convert normalized int16 to float meters (-500m ... +9000m)
             // z0 = (z0 - 32267.0) * 0.14496292001098665;
-            i += size;
 
 
             let nx1 = normal[n + 4];
@@ -105,11 +104,9 @@ export class LineBuffer extends TemplateBuffer {
             const dy1 = (ny1 & 1) * 2 - 1;
             ny1 = dy1 * (ny1 >> 1) * N_SCALE;
 
-            let x1 = position[i];
-            let y1 = position[i + 1];
-            let z1 = size == 3 ? -position[i + 2] : 0;
-
-            i += size;
+            let x1 = position[i + 3];
+            let y1 = position[i + 4];
+            let z1 = size == 3 ? -position[i + 5] : 0;
 
             let nx2 = normal[n + 8];
             let ny2 = normal[n + 9];
@@ -120,9 +117,9 @@ export class LineBuffer extends TemplateBuffer {
             const dy2 = (ny2 & 1) * 2 - 1;
             ny2 = dy2 * (ny2 >> 1) * N_SCALE;
 
-            let x2 = position[i];
-            let y2 = position[i + 1];
-            let z2 = size == 3 ? -position[i + 2] : 0;
+            let x2 = position[i + 6];
+            let y2 = position[i + 7];
+            let z2 = size == 3 ? -position[i + 8] : 0;
 
             t0[0] = tileX + x0 + nx0 * strokeWidth;
             t0[1] = tileY + y0 + ny0 * strokeWidth;
@@ -136,16 +133,19 @@ export class LineBuffer extends TemplateBuffer {
             t2[1] = tileY + y2 + ny2 * strokeWidth;
             t2[2] = z2;
 
+
             let intersectRayLength = Raycaster.rayIntersectsTriangle(
                 rayOrigin,
                 rayDirection,
                 t0, t1, t2
             );
 
+            i += stride;
+
             if (intersectRayLength != null) {
                 if (intersectRayLength <= result.z) {
                     result.z = intersectRayLength;
-                    index = i;
+                    index = i - size;
                 }
             }
         }
