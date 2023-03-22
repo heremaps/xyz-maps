@@ -15,6 +15,7 @@ uniform float u_rotate;
 uniform bool u_alignMap;
 uniform bool u_fixedView;
 uniform float u_atlasScale;
+uniform bool u_scaleByAltitude;
 
 varying vec2 v_texcoord;
 varying vec4 vColor;
@@ -30,16 +31,16 @@ mat3 rotation3dY(float angle) {
     float s = sin(angle);
     float c = cos(angle);
     return mat3(
-        c, 0.0, -s,
-        0.0, 1.0, 0.0,
-        s, 0.0, c
+    c, 0.0, -s,
+    0.0, 1.0, 0.0,
+    s, 0.0, c
     );
 }
 vec3 rotateY(vec3 v, float angle) {
     return rotation3dY(angle) * v;
 }
 vec3 rotateY(vec2 v, float angle) {
-    return rotation3dY(angle) * vec3(v,0.0);
+    return rotation3dY(angle) * vec3(v, 0.0);
 }
 
 
@@ -53,7 +54,7 @@ void main(void){
         // texture coodrinates bit6->bit16
         v_texcoord = floor(a_texcoord / 32.0) * u_atlasScale;
 
-        vec2 labelOffset = vec2(toPixel(u_offset.xy, u_scale),toPixel(u_offset.zw, u_scale));
+        vec2 labelOffset = vec2(toPixel(u_offset.xy, u_scale), toPixel(u_offset.zw, u_scale));
 
         labelOffset *= DEVICE_PIXEL_RATIO;
 
@@ -74,11 +75,18 @@ void main(void){
             p.xy = rotateZ(_p, rotation);
             p = p / u_scale / DEVICE_PIXEL_RATIO;
 
-            gl_Position = u_matrix * vec4(u_topLeft + position + p.xy, p.z -z, 1.0);
+            vec3 posWorld = vec3(u_topLeft + position, p.z -z);
+
+            if (!u_scaleByAltitude){
+                float scaleDZ = 1.0 + posWorld.z * u_matrix[2][3] / (u_matrix[0][3] * posWorld.x + u_matrix[1][3] * posWorld.y + u_matrix[3][3]);
+                p.xy *= scaleDZ;
+            }
+
+            gl_Position = u_matrix * vec4(posWorld.xy + p.xy, posWorld.z + p.z, 1.0);
         } else {
             vec4 cpos = u_matrix * vec4((u_topLeft + position), -z, 1.0);
             vec2 offset = rotateZ(a_point.xy * OFFSET_SCALE + labelOffset, rotation);
-//            posOffset = rotateY(vec3(posOffset, 0), a_point.z).xy;
+            //            posOffset = rotateY(vec3(posOffset, 0), a_point.z).xy;
             gl_Position = vec4(cpos.xy / cpos.w + vec2(1, -1) * offset / DEVICE_PIXEL_RATIO / u_resolution * 2.0, cpos.z / cpos.w, 1.0);
         }
 

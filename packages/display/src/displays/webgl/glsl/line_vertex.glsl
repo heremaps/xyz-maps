@@ -15,8 +15,8 @@ varying vec2 v_width;
 
 uniform vec2 u_offset;
 uniform float u_tileScale;
-
 uniform bool u_no_antialias;
+uniform bool u_scaleByAltitude;
 
 const float N_SCALE = 1.0 / 8191.0;
 
@@ -43,6 +43,15 @@ void main(void){
 
     vec2 position = a_position.xy + normal * -lineOffset / u_scale;
 
-    gl_Position = u_matrix * vec4(u_topLeft + position * u_tileScale + dir * normal * width, -a_position.z, 1.0);
+    vec2 posCenterWorld = vec2(u_topLeft +position * u_tileScale);
+    vec2 offset = dir * normal * width;
+
+    if (!u_scaleByAltitude){
+        vec3 posWorld = vec3(posCenterWorld + offset, -a_position.z);
+        float scaleDZ = 1.0 + posWorld.z * u_matrix[2][3] / (u_matrix[0][3] * posWorld.x + u_matrix[1][3] * posWorld.y + u_matrix[3][3]);
+        offset *= scaleDZ;
+    }
+
+    gl_Position = u_matrix * vec4(posCenterWorld + offset, -a_position.z, 1.0);
 }
 

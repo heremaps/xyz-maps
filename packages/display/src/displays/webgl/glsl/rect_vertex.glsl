@@ -41,8 +41,14 @@ void main(void){
         float z = a_position.z * SCALE_UINT16_Z + toPixel(u_offsetZ, u_scale)/ u_zMeterToPixel/ u_scale;
 
         if (u_alignMap){
+            vec2 posCenterWorld = u_topLeft + pos;
             vec2 shift = (pixel_offset + rotateZ(dir * vec2(size.x, -size.y), rotation)) / u_scale;
-            gl_Position = u_matrix * vec4(u_topLeft + pos + shift, -z, 1.0);
+            vec3 posWorld = vec3(posCenterWorld + shift, -z);
+            if(!u_scaleByAltitude){
+                float scaleDZ = 1.0 + posWorld.z * u_matrix[2][3] / (u_matrix[0][3] * posWorld.x + u_matrix[1][3] * posWorld.y + u_matrix[3][3]);
+                shift *= scaleDZ;
+            }
+            gl_Position = u_matrix * vec4(posCenterWorld + shift, -z, 1.0);
         } else {
             vec4 cpos = u_matrix * vec4(u_topLeft + pos, -z, 1.0);
             vec2 shift = rotateZ(dir * size, rotation);
@@ -53,6 +59,7 @@ void main(void){
 
         vSize = size;
         vDir = dir;
+
 
     }
 }

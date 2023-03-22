@@ -297,7 +297,7 @@ const createBuffer = (
                             }
 
                             geoBuffer.flat = grpBuffer.isFlat();
-
+                            geoBuffer.addUniform('u_scaleByAltitude', shared.scaleByAltitude);
 
                             const fillOpacity = shared.fill && shared.fill[3];
                             const strokeOpacity = shared.stroke && shared.stroke[3];

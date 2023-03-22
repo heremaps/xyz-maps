@@ -575,7 +575,7 @@ export interface Style {
      * The base of the Extrude in meters.
      * The extrudeBase is defined from the ground to the bottom of the extruded Polygon in meters.
      * The extrudeBase must be less or equal then {@link extrude}.
-     * This attribute is validate for styles of type "Polygon" only.
+     * This attribute applies only to styles of type "Polygon".
      *
      * @defaultValue 0
      */
@@ -587,13 +587,27 @@ export interface Style {
      * If altitude is set to true, the altitude from the feature's geometry coordinates will be used automatically.
      * If a number is set for altitude, the altitude of the feature's geometry is ignored and the value of "altitude" is used instead.
      * The height must be defined in meters.
-     * This attribute is validate for styles of type "Rect", "Image", "Text", "Circle", "Line", "Box" or "Sphere".
+     * This attribute is valid for styles of type "Rect", "Image", "Text", "Circle", "Line", "Box" or "Sphere".
      *
      * @defaultValue false
      *
      * @experimental
      */
     altitude?: number | boolean | StyleValueFunction<number | boolean> | StyleZoomRange<number | boolean>
+
+
+    /**
+     * Scales the size of a style based on the feature's altitude.
+     * If it's enabled (true), features closer to the camera will be drawn larger than those farther away.
+     * When off (false), the size of the style is always the same size, regardless of its actual altitude, as if it were placed on the ground (altitude 0).
+     *
+     * This attribute applies to styles of type "Rect", "Image", "Text", "Circle", "Line", "Box", or "Sphere" whose size ({@link width}, {@link radius}, {@link strokeWidth}) that are using "map" {@link alignment} only.
+     *
+     * @defaultValue false
+     *
+     * @experimental
+     */
+    scaleByAltitude?: boolean | StyleValueFunction<boolean> | StyleZoomRange<boolean>
 }
 
 export type StyleGroupMap = { [id: string]: StyleGroup }

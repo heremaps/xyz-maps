@@ -71,14 +71,19 @@ export class LineBuffer extends TemplateBuffer {
         // const scaleX = 2 / rayCaster.w;
         // const scaleY = 2 / rayCaster.h;
         let strokeWidth = buffer.getUniform('u_strokeWidth')[0] / rayCaster.scale;
-
+        const scaleByAltitude = <boolean>buffer.getUniform('u_scaleByAltitude');
         const N_SCALE = 1.0 / 8192.0;
+
 
         const stride = size * 3;
         let index;
 
+        const m3 = rayCaster.sMat[3];
+        const m7 = rayCaster.sMat[7];
+        const m11 = rayCaster.sMat[11];
+        const m15 = rayCaster.sMat[15];
+
         for (let i = 0, n = 0; i < position.length; n += 12) {
-            // console.log('------p0',position[i],position[i+1]);
             let nx0 = normal[n];
             let ny0 = normal[n + 1];
 
@@ -121,16 +126,22 @@ export class LineBuffer extends TemplateBuffer {
             let y2 = position[i + 7];
             let z2 = size == 3 ? -position[i + 8] : 0;
 
-            t0[0] = tileX + x0 + nx0 * strokeWidth;
-            t0[1] = tileY + y0 + ny0 * strokeWidth;
+
+            const tileX0 = tileX + x0;
+            const tileY0 = tileY + y0;
+            const scaleDZ = 1 + (scaleByAltitude ? 0 : z0 * m11 / (m3 * tileX0 + m7 * tileY0 + m15));
+
+
+            t0[0] = tileX0 + nx0 * strokeWidth * scaleDZ;
+            t0[1] = tileY0 + ny0 * strokeWidth * scaleDZ;
             t0[2] = z0;
 
-            t1[0] = tileX + x1 + nx1 * strokeWidth;
-            t1[1] = tileY + y1 + ny1 * strokeWidth;
+            t1[0] = tileX + x1 + nx1 * strokeWidth * scaleDZ;
+            t1[1] = tileY + y1 + ny1 * strokeWidth * scaleDZ;
             t1[2] = z1;
 
-            t2[0] = tileX + x2 + nx2 * strokeWidth;
-            t2[1] = tileY + y2 + ny2 * strokeWidth;
+            t2[0] = tileX + x2 + nx2 * strokeWidth * scaleDZ;
+            t2[1] = tileY + y2 + ny2 * strokeWidth * scaleDZ;
             t2[2] = z2;
 
 

@@ -19,6 +19,7 @@ uniform bool u_alignMap;
 uniform vec2 u_resolution;
 uniform vec2 u_offsetZ;
 uniform float u_zMeterToPixel;
+uniform bool u_scaleByAltitude;
 
 #ifdef SPHERE
 varying vec3 v_rayOrigin;
@@ -44,11 +45,16 @@ void main(void){
     vec3 size = floor(a_point * .5) / u_scale;
     #endif
 
-    vec3 vertexOffset = vec3(size.xy, -size.z/u_zMeterToPixel) * dir;
-    vec3 boxCenter = vec3(u_topLeft + a_position.xy * EXTENT_SCALE, -a_position.z * SCALE_UINT16_Z);
 
+    vec3 boxCenter = vec3(u_topLeft + a_position.xy * EXTENT_SCALE, -a_position.z * SCALE_UINT16_Z);
     boxCenter += vec3(toPixel(u_offset.xy, u_scale), toPixel(u_offset.zw, u_scale), -toPixel(u_offsetZ, u_scale) / u_zMeterToPixel)/ u_scale;
 
+
+    float scaleDZ = 1.0 + (u_scaleByAltitude ? 0.0 : boxCenter.z * u_matrix[2][3] / (u_matrix[0][3] * boxCenter.x + u_matrix[1][3] * boxCenter.y + u_matrix[3][3]));
+
+    size *= scaleDZ;
+
+    vec3 vertexOffset = vec3(size.xy, -size.z/u_zMeterToPixel) * dir;
     vec3 vertexPos = vec3(boxCenter.xy + rotateZ(vertexOffset.xy, u_rotation), boxCenter.z + vertexOffset.z);
     //    vec3 vertexPos = vec3(boxCenter.xy + rotateZ(vertexOffset.xy / u_scale, u_rotation), boxCenter.z + vertexOffset.z / u_scale);
 

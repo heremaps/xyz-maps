@@ -57,9 +57,15 @@ export class BoxBuffer extends PointBuffer {
         const point = (attributes.a_point as Attribute).data;
         const alignMap = true;
         const [scaleX, scaleY, scaleZ] = rayCaster.getInverseScale(alignMap);
+        const scaleByAltitude = <boolean>buffer.getUniform('u_scaleByAltitude');
         let index = null;
         const offset = size * 6 * 6;
         let [offsetX, offsetY, offsetZ] = getOffsetPixel(buffer, rayCaster.scale);
+        const {sMat} = rayCaster;
+        const m3 = sMat[3];
+        const m7 = sMat[7];
+        const m11 = sMat[11];
+        const m15 = sMat[15];
 
         offsetX *= scaleX;
         offsetY *= scaleY;
@@ -69,9 +75,11 @@ export class BoxBuffer extends PointBuffer {
             const x = tileX + position[i] * scaleXY + offsetX;
             const y = tileY + position[i + 1] * scaleXY + offsetY;
             const z = (size == 3 ? -decodeUint16z(position[i + 2]) : 0) - offsetZ;
-            const w = (point[i] >> 1) * scaleX;
-            const h = (point[i + 1] >> 1) * scaleY;
-            const d = (point[i + 2] >> 1) * scaleZ; // pixel
+            const scaleDZ = 1 + (scaleByAltitude ? 0 : z * m11 / (m3 * x + m7 * y + m15));
+            const w = (point[i] >> 1) * scaleX * scaleDZ;
+            const h = (point[i + 1] >> 1) * scaleY * scaleDZ;
+            const d = (point[i + 2] >> 1) * scaleZ * scaleDZ; // pixel
+
             const intersectRayLength = rayCaster.intersectAABBox(
                 x - w, y - h, z - d,
                 x + w, y + h, z + d

@@ -93,7 +93,8 @@ type DrawGroup = {
         offsetZ: number,
         offsetUnit: string,
         alignment: string,
-        modelMode: number
+        modelMode: number,
+        scaleByAltitude: boolean
     },
     buffer?: TemplateBuffer | TemplateBufferBucket<ModelBuffer>,
     extrudeStrokeIndex?: number [],
@@ -653,6 +654,17 @@ export class FeatureFactory {
                 }
             }
 
+            let scaleByAltitude: boolean = getValue('scaleByAltitude', style, feature, level);
+
+            if (scaleByAltitude == UNDEF) {
+                scaleByAltitude = true;
+            } else {
+                if (!scaleByAltitude) {
+                    groupId += 'SA!'; // don't scale XY with altitude
+                }
+                scaleByAltitude = !!scaleByAltitude;
+            }
+
 
             zGrouped = groups[zIndex] = groups[zIndex] || {index: {}, groups: []};
             index = zGrouped.index[groupId];
@@ -683,7 +695,8 @@ export class FeatureFactory {
                         offsetZ,
                         offsetUnit,
                         alignment,
-                        modelMode
+                        modelMode,
+                        scaleByAltitude
                     }
                     // ,index: []
                 };

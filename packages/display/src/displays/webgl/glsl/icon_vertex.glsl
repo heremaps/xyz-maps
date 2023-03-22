@@ -14,6 +14,7 @@ uniform bool u_alignMap;
 uniform vec2 u_resolution;
 uniform bool u_fixedView;
 uniform float u_zMeterToPixel;
+uniform bool u_scaleByAltitude;
 
 varying float vOpacity;
 varying vec2 v_texcoord;
@@ -38,8 +39,15 @@ void main(void){
         vec2 offsetXY = vec2(toPixel(u_offset.xy, u_scale),toPixel(u_offset.zw, u_scale));
 
         if (u_alignMap){
+            vec3 posWorld = vec3(u_topLeft + pos, -z);
             vec2 shift = rotateZ(offsetXY + dir * vec2(a_size.x, -a_size.y) * 0.5, rotation) / u_scale;
-            gl_Position = u_matrix * vec4(u_topLeft + pos + shift, -z, 1.0);
+
+            if(!u_scaleByAltitude){
+                float scaleDZ = 1.0 + posWorld.z * u_matrix[2][3] / (u_matrix[0][3] * posWorld.x + u_matrix[1][3] * posWorld.y + u_matrix[3][3]);
+                shift *= scaleDZ;
+            }
+
+            gl_Position = u_matrix * vec4(posWorld.xy + shift, posWorld.z, 1.0);
         } else {
             vec4 cpos = u_matrix * vec4(u_topLeft + pos, -z, 1.0);
             vec2 shift = rotateZ(dir * a_size, -rotation) * 0.5;

@@ -11,6 +11,7 @@ uniform bool u_alignMap;
 uniform float u_strokeWidth;
 uniform vec2 u_offsetZ;
 uniform float u_zMeterToPixel;
+uniform bool u_scaleByAltitude;
 
 varying vec2 v_position;
 varying float v_radius;
@@ -36,12 +37,19 @@ void main(void){
 
         float z = a_position.z * SCALE_UINT16_Z + toPixel(u_offsetZ, u_scale)/ u_zMeterToPixel/ u_scale;
 
+        vec3 posWorld = vec3(u_topLeft + pos, -z);
+
         if (u_alignMap){
             vec2 shift = (pixel_offset + v_position * vec2(1.0, -1.0)) / u_scale;
 
-            gl_Position = u_matrix * vec4(u_topLeft + pos + shift, -z, 1.0);
+            if(!u_scaleByAltitude){
+                float scaleDZ = 1.0 + posWorld.z * u_matrix[2][3] / (u_matrix[0][3] * posWorld.x + u_matrix[1][3] * posWorld.y + u_matrix[3][3]);
+                shift *= scaleDZ;
+            }
+
+            gl_Position = u_matrix * vec4(posWorld.xy + shift, posWorld.z, 1.0);
         } else {
-            vec4 cpos = u_matrix * vec4(u_topLeft + pos, -z, 1.0);
+            vec4 cpos = u_matrix * vec4(posWorld, 1.0);
             vec2 offset = pixel_offset * vec2(1.0, -1.0);
             gl_Position = vec4(cpos.xy / cpos.w + (offset + v_position) / u_resolution * 2.0, cpos.z / cpos.w, 1.0);
         }

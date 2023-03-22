@@ -79,7 +79,8 @@ export class PointBuffer extends TemplateBuffer {
     rayIntersects(buffer: GeometryBuffer, result: { z: number }, tileX: number, tileY: number, rayCaster: Raycaster): number | string {
         const {type, attributes} = buffer;
         const alignMap = <boolean>buffer.getUniform('u_alignMap');
-        const {scale, scaleZ} = rayCaster;
+        const scaleByAltitude = <boolean>buffer.getUniform('u_scaleByAltitude');
+        const {scale, scaleZ, sMat} = rayCaster;
         const invMapScale = alignMap ? 1 / rayCaster.scale : 1;
         let width;
         let height;
@@ -122,37 +123,28 @@ export class PointBuffer extends TemplateBuffer {
             intersectionPoint = [0, 0, 0];
         }
 
+        const m3 = sMat[3];
+        const m7 = sMat[7];
+        const m11 = sMat[11];
+        const m15 = sMat[15];
 
         for (let i = 0, y = 0; i < position.length; i += size, y += 6) {
-            let dx0 = (position[i] & 2) - 1;
             let x0 = tileX + (position[i] >> 2) / extentScale;
-            let dy0 = (position[i + 1] & 2) - 1;
             let y0 = tileY + (position[i + 1] >> 2) / extentScale;
-
-            // let z0 = size == 3 ? -position[i + 2] : 0;
-            let z0 = size == 3 ? -decodeUint16z(position[i + 2]) : 0;
             // convert normalized int16 to float meters (-500m ... +9000m)
             // z0 = (z0 - 32267.0) * 0.14496292001098665;
+            let z0 = size == 3 ? -decodeUint16z(position[i + 2]) : 0;
+            let dx0 = (position[i] & 2) - 1;
+            let dy0 = (position[i + 1] & 2) - 1;
+
 
             i += size;
-            // if (z0 == 0) continue;
-
             let dx1 = (position[i] & 2) - 1;
-            let x1 = tileX + (position[i] >> 2) / extentScale;
             let dy1 = (position[i + 1] & 2) - 1;
-            let y1 = tileY + (position[i + 1] >> 2) / extentScale;
-            // let z1 = size == 3 ? -position[i + 2] : 0;
-            let z1 = size == 3 ? -decodeUint16z(position[i + 2]) : 0;
 
             i += size;
-
             let dx2 = (position[i] & 2) - 1;
-            let x2 = tileX + (position[i] >> 2) / extentScale;
             let dy2 = (position[i + 1] & 2) - 1;
-            let y2 = tileY + (position[i + 1] >> 2) / extentScale;
-            // let z2 = size == 3 ? -position[i + 2] : 0;
-            let z2 = size == 3 ? -decodeUint16z(position[i + 2]) : 0;
-
             if (type === 'Icon') {
                 let point = (attributes.a_size as Attribute)?.data;
                 // const [scaleWidth, scaleHeight] = rayCaster.getInverseScale(true);
@@ -163,17 +155,23 @@ export class PointBuffer extends TemplateBuffer {
             }
 
             if (alignMap) {
-                t0[0] = x0 + dx0 * width + offsetX;
-                t0[1] = y0 - dy0 * height + offsetY;
-                t0[2] = z0 + offsetZ;
+                // position world feature center
+                t0[0] = t1[0] = t2[0] = x0 + offsetX;
+                t0[1] = t1[1] = t2[1] = y0 + offsetY;
+                t0[2] = t1[2] = t2[2] = z0 + offsetZ;
 
-                t1[0] = x1 + dx1 * width + offsetX;
-                t1[1] = y1 - dy1 * height + offsetY;
-                t1[2] = z1 + offsetZ;
+                const scaleDZ = 1 + (scaleByAltitude ? 0 : t0[2] * m11 / (m3 * t0[0] + m7 * t0[1] + m15));
+                const w = width * scaleDZ;
+                const h = height * scaleDZ;
 
-                t2[0] = x2 + dx2 * width + offsetX;
-                t2[1] = y2 - dy2 * height + offsetY;
-                t2[2] = z2 + offsetZ;
+                t0[0] += dx0 * w;
+                t0[1] -= dy0 * h;
+
+                t1[0] += dx1 * w;
+                t1[1] -= dy1 * h;
+
+                t2[0] += dx2 * w;
+                t2[1] -= dy2 * h;
             } else {
                 t0[0] = x0;
                 t0[1] = y0;
