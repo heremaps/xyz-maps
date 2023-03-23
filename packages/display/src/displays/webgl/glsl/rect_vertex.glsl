@@ -13,6 +13,7 @@ uniform vec2 u_offsetZ;
 uniform float u_zMeterToPixel;
 uniform bool u_alignMap;
 uniform vec2 u_resolution;
+uniform bool u_scaleByAltitude;
 
 varying vec2 vSize;
 varying vec2 vDir;
