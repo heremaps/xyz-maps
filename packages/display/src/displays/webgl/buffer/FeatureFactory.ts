@@ -657,14 +657,15 @@ export class FeatureFactory {
             let scaleByAltitude: boolean = getValue('scaleByAltitude', style, feature, level);
 
             if (scaleByAltitude == UNDEF) {
-                scaleByAltitude = true;
+                // scale xy by altitude is enable for meters by default.
+                scaleByAltitude = sizeUnit == 'm';
             } else {
-                if (!scaleByAltitude) {
-                    groupId += 'SA!'; // don't scale XY with altitude
-                }
                 scaleByAltitude = !!scaleByAltitude;
             }
 
+            if (scaleByAltitude) {
+                groupId += 'SA';
+            }
 
             zGrouped = groups[zIndex] = groups[zIndex] || {index: {}, groups: []};
             index = zGrouped.index[groupId];
