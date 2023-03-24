@@ -19,7 +19,7 @@
 
 import {getSegmentIndex, getDistance} from '../geometry';
 import oTools from '../features/link/NavlinkTools';
-import {GeoJSONCoordinate, GeoJSONFeature} from '@here/xyz-maps-core';
+import {GeoJSONCoordinate, GeoJSONFeature, LineStyle} from '@here/xyz-maps-core';
 import {Navlink} from '../features/link/Navlink';
 import CrossingTester from '../tools/CrossingTester';
 import InternalEditor from '../IEditor';
@@ -307,8 +307,8 @@ class Crossing implements GeoJSONFeature {
 
         const createSet = (searchPnt, foundPnt, searchLine, foundLine) => {
             const cs = xTester.getStyle();
-            const searchStroke = iEditor.getStyle(searchLine)[0].stroke;
-            const foundStroke = iEditor.getStyle(foundLine)[0].stroke;
+            const searchStroke = (iEditor.getStyle(searchLine)[0] as LineStyle).stroke;
+            const foundStroke = (iEditor.getStyle(foundLine)[0] as LineStyle).stroke;
             const createPath = (style) => overlay.addPath([searchPnt, foundPnt], style);
             const createCircle = (p, style) => overlay.addCircle(p, style);
             const mouseUpTrigger = (ev) => iEditor.listeners.trigger(ev, crossing);

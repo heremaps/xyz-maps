@@ -20,6 +20,11 @@
 import {Feature} from '../features/Feature';
 import {StyleGroup, StyleGroupMap} from '../styles/LayerStyle';
 
+const isTypedArray = (() => {
+    const TypedArray = Object.getPrototypeOf(Uint8Array);
+    return (obj) => obj instanceof TypedArray;
+})();
+
 function mixin(to, from) {
     for (const f in from) {
         to[f] = from[f];
@@ -42,7 +47,14 @@ class LayerStyleImpl {
             if (typeof from !== 'object' || from === null) {
                 return from;
             }
-            to = to || (Array.isArray(from) ? [] : {});
+            if (!to) {
+                if (Array.isArray(from) || isTypedArray(from)) {
+                    return from.slice();
+                } else {
+                    to = {};
+                }
+            }
+            // to = to || (Array.isArray(from) ? [] : {});
             for (let key in from) {
                 to[key] = deepCopy(from[key]);
             }

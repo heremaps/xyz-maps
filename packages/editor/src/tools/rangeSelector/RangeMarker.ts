@@ -19,7 +19,7 @@
 
 import {getPointAtLength, getSegmentIndex, getTotalLength} from '../../geometry';
 import {calcRelPosOfPoiAtLink, getRelPosOfPointOnLine} from '../../map/GeoMath';
-import {Feature, GeoJSONCoordinate, Style, TileLayer, webMercator} from '@here/xyz-maps-core';
+import {Feature, GeoJSONCoordinate, CircleStyle, RectStyle, webMercator} from '@here/xyz-maps-core';
 import {JSUtils, geotools} from '@here/xyz-maps-common';
 import {MapEvent} from '@here/xyz-maps-display';
 import MultiLink, {MultiLinkSegment} from './MultiLink';
@@ -28,7 +28,7 @@ import InternalEditor from '../../IEditor';
 
 const DEFAULT_SNAP_TOLERANCE = 1; // 1 meter
 
-type MarkerStyle = Style & { _offsetX?: number, _offsetY?: number };
+type MarkerStyle = (CircleStyle | RectStyle) & { _offsetX?: number, _offsetY?: number };
 
 type DragListener = (e: MapEvent) => void;
 
@@ -86,13 +86,13 @@ class RangeMarker extends Feature {
         style: any;
         dragged: boolean;
         relPos: number
-    }
+    };
 
     constructor(
         iEditor: InternalEditor,
         range: Range,
         relPos: number,
-        styleGroup: Style[],
+        styleGroup: MarkerStyle[],
         isLocked: () => boolean,
         dragStart: DragListener,
         dragMove: DragListener,

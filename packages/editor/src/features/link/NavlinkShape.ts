@@ -18,7 +18,7 @@
  */
 
 import {JSUtils, geotools} from '@here/xyz-maps-common';
-import {FeatureProvider, Feature, GeoJSONFeature, GeoJSONCoordinate} from '@here/xyz-maps-core';
+import {FeatureProvider, Feature, GeoJSONFeature, GeoJSONCoordinate, LineStyle} from '@here/xyz-maps-core';
 import GeoFence from './GeoFence';
 import {Navlink} from './Navlink';
 import {TurnRestrictionEditor} from '../../tools/turnrestriction/TrEditor';
@@ -309,7 +309,7 @@ function mouseInHandler() {
     document.body.style.cursor = 'move';
 
     prv.cLinks.forEach((cl) => {
-        const style = EDITOR.getStyle(cl.link);
+        const style = EDITOR.getStyle(cl.link) as LineStyle[];
 
         for (let s = 0; s < style.length; s++) {
             style[s].opacity = 0.5;

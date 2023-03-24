@@ -16,21 +16,29 @@
  * SPDX-License-Identifier: Apache-2.0
  * License-Filename: LICENSE
  */
+import {StyleValueFunction, StyleZoomRange} from './LayerStyle';
+
+/**
+ * Interface for configuring the visual appearance of Models.
+ */
 export interface ModelStyle {
+    /**
+     * Specifies the type of style to render.
+     */
+    type: 'Model';
 
-    type: 'Model' | string;
+    zIndex: number | StyleValueFunction<number> | StyleZoomRange<number>;
+    zLayer?: number | StyleValueFunction<number>;
 
-    zIndex: number;
+    scale?: number[];
 
-    scale: number[];
+    translate?: number[];
 
-    translate: number[];
+    cullFace?: number;
 
-    cullFace: number;
+    rotate?: number[];
 
-    rotate: number[];
-
-    transform: number[];
+    transform?: number[];
 
     data: any;
 
