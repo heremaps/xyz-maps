@@ -34,7 +34,14 @@ export interface ModelStyle {
 
     translate?: number[];
 
-    cullFace?: number;
+    /**
+     * Configure Face culling.
+     * To enable culling set cullFace to "front" or "back", to disable set false.
+     * Face culling is disabled by default.
+     *
+     * @defaultValue: false
+     */
+    cullFace?: 'front' | 'back' | false;
 
     rotate?: number[];
 

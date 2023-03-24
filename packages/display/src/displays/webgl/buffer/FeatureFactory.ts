@@ -229,7 +229,13 @@ export class FeatureFactory {
                     let {scale, translate, rotate, transform, cullFace} = style as ModelStyle;
 
                     if (!group.buffer) {
-                        bucket = group.buffer = this.modelFactory.createModelBuffer(modelId, cullFace);
+                        let faceCulling: number;
+
+                        if (cullFace) {
+                            faceCulling = cullFace == 'front' ? this.gl.FRONT : this.gl.BACK;
+                        }
+
+                        bucket = group.buffer = this.modelFactory.createModelBuffer(modelId, faceCulling);
                     }
 
                     this.modelFactory.addPosition(bucket, x, y, z, scale, translate, rotate, transform);
