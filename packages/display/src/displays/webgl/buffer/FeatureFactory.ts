@@ -232,7 +232,7 @@ export class FeatureFactory {
                         let faceCulling: number;
 
                         if (cullFace) {
-                            faceCulling = cullFace == 'front' ? this.gl.FRONT : this.gl.BACK;
+                            faceCulling = cullFace == 'Front' ? this.gl.FRONT : this.gl.BACK;
                         }
 
                         bucket = group.buffer = this.modelFactory.createModelBuffer(modelId, faceCulling);
