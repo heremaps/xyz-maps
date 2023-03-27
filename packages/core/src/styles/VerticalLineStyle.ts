@@ -25,7 +25,6 @@ import {StyleValueFunction, StyleZoomRange} from './LayerStyle';
 export interface VerticalLineStyle {
     /**
      * Indicates type of the shape to render.
-     * Its value must be one of the following: "Circle", "Rect", "Text", "Image", "Line", "Polygon", "VerticalLine", "Box" or "Sphere",
      */
     type: 'VerticalLine';
 
@@ -49,7 +48,6 @@ export interface VerticalLineStyle {
 
     /**
      * Sets the stroke color of the shape.
-     * This attribute is valid for Circle, Rect, Line, Text and Polygon.
      *
      * The color can be specified in the following ways:
      * - CSS color names: "red"
@@ -68,17 +66,16 @@ export interface VerticalLineStyle {
 
     /**
      * Offset the shape in pixels on z-axis.
-     * It is valid for Circle, Rect, Text, Image, Box and Sphere.
      * A positive value offsets up, a negative value down.
      * The default unit is pixels.
      *
      * @example
      * ```typescript
-     * // offset Image by 8px to the top.
-     * { type: "Image", zIndex: 0, src: '...', offsetZ: 8}
+     * // offset VerticalLine by 8px to the top.
+     * { type: "VerticalLine", zIndex: 0, stoke: 'black', offsetZ: 8}
      *
-     * // offset Circle by 1m to the top
-     * { type: "Circle", zIndex: 0, fill:'blue', radius: 4, offsetZ: "1m"}
+     * // offset VerticalLine by 1m to the top
+     * {  type: "VerticalLine", zIndex: 0, stoke: 'black', offsetZ: "1m"}
      * ```
      */
     offsetZ?: number | string | StyleValueFunction<number | string> | StyleZoomRange<number | string>;

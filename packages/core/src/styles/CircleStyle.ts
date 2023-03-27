@@ -67,38 +67,17 @@ export interface CircleStyle {
 
     /**
      * Sets the width of the stroke.
-     * This attribute is valid for Circle, Rect, Line, Text and Polygon.
      * The unit of strokeWidth is defined in pixels.
-     * For Polygons that are using {@link extrude}, the maximum possible strokeWidth is 1.0 pixel.
-     * For Styles of type Line the strokeWidth can also be defined in meters by using a string: "$\{width\}m".
      *
      * @example
      * ```typescript
-     * // define a Line that has a with of 1 meter
+     * // define a Circle that has a strokeWidth of 2 pixels
      * {
      *     zIndex: 0,
-     *     type: "Line",
+     *     type: "Circle",
      *     stroke: "blue",
-     *     strokeWidth: "1m"
-     * }
-     * // define a Line that has a with of 16 pixel
-     * {
-     *     zIndex: 0,
-     *     type: "Line",
-     *     stroke: "green",
-     *     strokeWidth: "16
-     * }
-     * ```
-     * @example
-     * ```typescript
-     * // define a Text style with a strokeWidth of 8px
-     * {
-     *     zIndex: 0,
-     *     type: "Text",
-     *     text: "doc",
-     *     fill: "white",
-     *     stroke: "black,
-     *     strokeWidth: 8
+     *     strokeWidth: 2,
+     *     radius: "1m"
      * }
      * ```
      */
@@ -113,22 +92,10 @@ export interface CircleStyle {
     opacity?: number | StyleValueFunction<number> | StyleZoomRange<number>;
 
     /**
-     * The Radius of the Circle and Sphere.
-     * It is required by styles of type "Circle" and "Sphere".
+     * The Radius of the Circle.
      * The default unit is pixels.
      * To define the radius of a Circle in meters a string can be used: "$\{width\}m".
-     * The radius of "Sphere" must be defined in pixels.
      *
-     * @example
-     * ```typescript
-     * // define a Sphere with a radius of 32 pixel.
-     * {
-     *     zIndex: 0,
-     *     type: "Sphere",
-     *     fill: "red",
-     *     radius: 32
-     * }
-     * ```
      * @example
      * ```typescript
      * // define a Circle with a radius of 1 meter
@@ -150,16 +117,12 @@ export interface CircleStyle {
     radius: number | StyleValueFunction<number> | StyleZoomRange<number>;
 
     /**
-     * Offset the shape in pixels on x-axis.
-     * It is valid for Circle, Rect, Text, Image, Box and Sphere.
+     * Offset the Circle in pixels on x-axis.
      * A positive value offsets to the right, a negative value to the left.
      * The default unit is pixels.
      *
      * @example
      * ```typescript
-     * // offset Image by 8px to the right.
-     * { type: "Image", zIndex: 0, src: '...', offsetX: 8}
-     *
      * // offset Circle by 1m to the left
      * { type: "Circle", zIndex: 0, fill:'blue', radius: 4, offsetX: "-1m"}
      * ```
@@ -167,16 +130,12 @@ export interface CircleStyle {
     offsetX?: number | string | StyleValueFunction<number | string> | StyleZoomRange<number | string>;
 
     /**
-     * Offset the shape in pixels on y-axis.
-     * It is valid for Circle, Rect, Text, Image, Box and Sphere.
+     * Offset the Circle in pixels on y-axis.
      * A positive value offsetY offsets downwards, a negative value upwards.
      * The default unit is pixels.
      *
      * @example
      * ```typescript
-     * // offset Image by 8px to the bottom
-     * { type: "Image", zIndex: 0, src: '...', offsetY: 8}
-     *
      * // offset Circle by 1m to the top
      * { type: "Circle", zIndex: 0, fill:'blue', radius: 4, offsetY: "-1m"}
      * ```
@@ -184,16 +143,12 @@ export interface CircleStyle {
     offsetY?: number | StyleValueFunction<number> | StyleZoomRange<number>;
 
     /**
-     * Offset the shape in pixels on z-axis.
-     * It is valid for Circle, Rect, Text, Image, Box and Sphere.
+     * Offset the Circle in pixels on z-axis.
      * A positive value offsets up, a negative value down.
      * The default unit is pixels.
      *
      * @example
      * ```typescript
-     * // offset Image by 8px to the top.
-     * { type: "Image", zIndex: 0, src: '...', offsetZ: 8}
-     *
      * // offset Circle by 1m to the top
      * { type: "Circle", zIndex: 0, fill:'blue', radius: 4, offsetZ: "1m"}
      * ```
@@ -201,7 +156,7 @@ export interface CircleStyle {
     offsetZ?: number | string | StyleValueFunction<number | string> | StyleZoomRange<number | string>;
 
     /**
-     * Alignment for styles of type "Circle", "Rect", "Image" and "Text".
+     * Alignment for styles of type "Circle".
      * Possible values are: "map" and "viewport".
      * "map" aligns to the plane of the map and "viewport" aligns to the plane of the viewport/screen.
      * Default alignment for Text based on point geometries is "viewport" while "map" is the default for line geometries.
@@ -209,7 +164,7 @@ export interface CircleStyle {
     alignment?: 'map' | 'viewport' | StyleValueFunction<string> | StyleZoomRange<string>;
 
     /**
-     * Sets the anchor point for styles of type "Circle", "Rect", "Image" and "Text" used with Line or Polygon geometry.
+     * Sets the anchor point for styles of type "Circle" when used with Line or Polygon geometry.
      *
      * Possible values for Line geometry are "Coordinate" and "Line".
      * - "Coordinate": the respective style is displayed at each coordinate of the polyline.
@@ -219,13 +174,13 @@ export interface CircleStyle {
      * - "Center": the center of the bounding box of the polygon.
      * - "Centroid": the geometric centroid of the polygon geometry.
      *
-     * @defaultValue For Polygon geometry the default is "Center". For Line geometry the default for styles of type "Text" is "Line", while "Coordinate" is the default for styles of type "Circle", "Rect" or "Image".
+     * @defaultValue For Polygon geometry the default is "Center". For Line geometry the default is "Coordinate".
      */
     anchor?: 'Line' | 'Coordinate' | 'Centroid'
 
     /**
      * Enable or disable the space check for point styles on line geometries.
-     * Only applies to "Circle", "Rect", "Image" and "Text" styles with {@link anchor} set to "Line".
+     * Only applies to "Circle" styles with {@link anchor} set to "Line".
      * If check checkLineSpace is enabled the respective style is only displayed if there is enough space on the line,
      * otherwise it is not displayed.
      *
@@ -235,14 +190,13 @@ export interface CircleStyle {
 
     /**
      * Enable or disable collision detection.
-     * Works for styles of type "Circle", "Rect", "Image" and "Text".
      * If the collision detection is enabled for multiple Styles within the same StyleGroup, the respective Styles are
      * handled as a single Object ("CollisionGroup") where the combined bounding-box is determined automatically.
      *
      * - true: collision are allowed, Collision detection is disabled.
      * - false: avoid collisions, Collision detection is enabled.
      *
-     * @defaultValue false for "Text", true for all other.
+     * @defaultValue true.
      */
     collide?: boolean | StyleValueFunction<boolean> | StyleZoomRange<boolean>;
 
@@ -260,7 +214,6 @@ export interface CircleStyle {
      * If altitude is set to true, the altitude from the feature's geometry coordinates will be used automatically.
      * If a number is set for altitude, the altitude of the feature's geometry is ignored and the value of "altitude" is used instead.
      * The height must be defined in meters.
-     * This attribute is valid for styles of type "Rect", "Image", "Text", "Circle", "Line", "Box" or "Sphere".
      *
      * @defaultValue false
      *

@@ -46,9 +46,8 @@ export interface ImageStyle {
     zLayer?: number | StyleValueFunction<number>;
 
     /**
-     * Specifies the URL of an image.
+     * Specifies the URL of the image to render.
      * It can be either absolute or relative path.
-     * It is only required by "Image".
      */
     src: string | StyleValueFunction<string> | StyleZoomRange<string>;
 
@@ -61,70 +60,37 @@ export interface ImageStyle {
     opacity?: number | StyleValueFunction<number> | StyleZoomRange<number>;
 
     /**
-     * Width of the style in pixels.
-     * It is only required by Rect, Image and Box.
+     * Width of the Image in pixels.
      * The maximum supported width for "Image" is 64 pixels.
      * The unit of width is defined in pixels.
-     * For styles of type "Rect" the width can also be defined in meters by using a string: "$\{width\}m".
      * @example
      * ```typescript
-     * // define a Rect that has a width (and height) of 2.2 meter
+     * // define an Image that has a width (and height) of 64 pxiels
      * {
      *     zIndex: 0,
-     *     type: "Line",
-     *     stroke: "blue",
-     *     width: "2.2m"
-     * }
-     * ```
-     * @example
-     * ```typescript
-     * // define a Rect that has a width (and height) of 16 pixel
-     * {
-     *     zIndex: 0,
-     *     type: "Line",
-     *     stroke: "green",
-     *     width: 16
+     *     type: "Image",
+     *     src: "urlToImage.png",
+     *     width: 64
      * }
      * ```
      */
     width: number | StyleValueFunction<number> | StyleZoomRange<number>;
 
     /**
-     * Height of the style in pixels.
-     * It is only required by Rect and Image.
+     * Height of the Image in pixels.
      * The maximum supported height for "Image" is 64 pixels.
-     * The unit of height is defined in pixels.
-     * For styles of type "Rect" the height can also be defined in meters by using a string: "$\{width\}m".
+     * The unit of width is defined in pixels.
+     * If the height is not explicitly defined, the value of the width is used as the height.
+     *
      * @example
      * ```typescript
-     * // define a Rect that has a width of 2 meter and a height of 1 meter.
-     * {
-     *     zIndex: 0,
-     *     type: "Line",
-     *     stroke: "blue",
-     *     width: "2m",
-     *     height: "1m"
-     * }
-     * ```
-     * @example
-     * ```typescript
-     * // define a Rect that has a width of 20 pixel and a height of 28 pixel.
-     * {
-     *     zIndex: 0,
-     *     type: "Line",
-     *     stroke: "green",
-     *     width: 20,
-     *     height: 28
-     * }
-     * ```
-     * @example
-     * ```typescript
-     * // define a Image/Icon style with/height of 32pixel
+     * // define an Image that has a width of 32 and height of 64 pxiels
      * {
      *     zIndex: 0,
      *     type: "Image",
-     *     src: "urlToMyImageResource",
-     *     width: 32
+     *     src: "urlToImage.png",
+     *     width: 32,
+     *     height: 64
      * }
      * ```
      */
@@ -132,7 +98,6 @@ export interface ImageStyle {
 
     /**
      * Offset the shape in pixels on x-axis.
-     * It is valid for Circle, Rect, Text, Image, Box and Sphere.
      * A positive value offsets to the right, a negative value to the left.
      * The default unit is pixels.
      *
@@ -141,15 +106,12 @@ export interface ImageStyle {
      * // offset Image by 8px to the right.
      * { type: "Image", zIndex: 0, src: '...', offsetX: 8}
      *
-     * // offset Circle by 1m to the left
-     * { type: "Circle", zIndex: 0, fill:'blue', radius: 4, offsetX: "-1m"}
      * ```
      */
     offsetX?: number | string | StyleValueFunction<number | string> | StyleZoomRange<number | string>;
 
     /**
      * Offset the shape in pixels on y-axis.
-     * It is valid for Circle, Rect, Text, Image, Box and Sphere.
      * A positive value offsetY offsets downwards, a negative value upwards.
      * The default unit is pixels.
      *
@@ -157,16 +119,12 @@ export interface ImageStyle {
      * ```typescript
      * // offset Image by 8px to the bottom
      * { type: "Image", zIndex: 0, src: '...', offsetY: 8}
-     *
-     * // offset Circle by 1m to the top
-     * { type: "Circle", zIndex: 0, fill:'blue', radius: 4, offsetY: "-1m"}
      * ```
      */
     offsetY?: number | StyleValueFunction<number> | StyleZoomRange<number>;
 
     /**
      * Offset the shape in pixels on z-axis.
-     * It is valid for Circle, Rect, Text, Image, Box and Sphere.
      * A positive value offsets up, a negative value down.
      * The default unit is pixels.
      *
@@ -174,15 +132,12 @@ export interface ImageStyle {
      * ```typescript
      * // offset Image by 8px to the top.
      * { type: "Image", zIndex: 0, src: '...', offsetZ: 8}
-     *
-     * // offset Circle by 1m to the top
-     * { type: "Circle", zIndex: 0, fill:'blue', radius: 4, offsetZ: "1m"}
      * ```
      */
     offsetZ?: number | string | StyleValueFunction<number | string> | StyleZoomRange<number | string>;
 
     /**
-     * Alignment for styles of type "Circle", "Rect", "Image" and "Text".
+     * Alignment for styles of type "Circle".
      * Possible values are: "map" and "viewport".
      * "map" aligns to the plane of the map and "viewport" aligns to the plane of the viewport/screen.
      * Default alignment for Text based on point geometries is "viewport" while "map" is the default for line geometries.
@@ -191,7 +146,6 @@ export interface ImageStyle {
 
     /**
      * Rotate the shape of the style to the angle in degrees.
-     * This attribute is validate for Rect and Image.
      */
     rotation?: number | StyleValueFunction<number> | StyleZoomRange<number>;
 
@@ -211,7 +165,7 @@ export interface ImageStyle {
     repeat?: number | StyleValueFunction<number> | StyleZoomRange<number>;
 
     /**
-     * Sets the anchor point for styles of type "Circle", "Rect", "Image" and "Text" used with Line or Polygon geometry.
+     * Sets the anchor point for styles of type "Circle" used with Line or Polygon geometry.
      *
      * Possible values for Line geometry are "Coordinate" and "Line".
      * - "Coordinate": the respective style is displayed at each coordinate of the polyline.
@@ -221,13 +175,12 @@ export interface ImageStyle {
      * - "Center": the center of the bounding box of the polygon.
      * - "Centroid": the geometric centroid of the polygon geometry.
      *
-     * @defaultValue For Polygon geometry the default is "Center". For Line geometry the default for styles of type "Text" is "Line", while "Coordinate" is the default for styles of type "Circle", "Rect" or "Image".
+     * @defaultValue For Polygon geometry the default is "Center". For Line geometry the default is "Line""Coordinate".
      */
     anchor?: 'Line' | 'Coordinate' | 'Centroid'
 
     /**
      * Enable or disable the space check for point styles on line geometries.
-     * Only applies to "Circle", "Rect", "Image" and "Text" styles with {@link anchor} set to "Line".
      * If check checkLineSpace is enabled the respective style is only displayed if there is enough space on the line,
      * otherwise it is not displayed.
      *
@@ -237,7 +190,6 @@ export interface ImageStyle {
 
     /**
      * Enable or disable collision detection.
-     * Works for styles of type "Circle", "Rect", "Image" and "Text".
      * If the collision detection is enabled for multiple Styles within the same StyleGroup, the respective Styles are
      * handled as a single Object ("CollisionGroup") where the combined bounding-box is determined automatically.
      *
@@ -254,7 +206,6 @@ export interface ImageStyle {
      * If altitude is set to true, the altitude from the feature's geometry coordinates will be used automatically.
      * If a number is set for altitude, the altitude of the feature's geometry is ignored and the value of "altitude" is used instead.
      * The height must be defined in meters.
-     * This attribute is valid for styles of type "Rect", "Image", "Text", "Circle", "Line", "Box" or "Sphere".
      *
      * @defaultValue false
      *

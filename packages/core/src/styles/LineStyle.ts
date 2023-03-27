@@ -48,19 +48,7 @@ export interface LineStyle {
     opacity?: number | StyleValueFunction<number> | StyleZoomRange<number>;
 
     /**
-     * Sets the color to fill the shape.
-     * This attribute is valid for Circle, Rect, Text and Polygon.
-     *
-     * The color can be specified in the following ways:
-     * - CSS color names: "red"
-     * - RGB(A) values: "rgba(255,0,0,1.0)"
-     * - hexadecimal values: "#ff0000"
-     */
-    fill?: string | StyleValueFunction<string> | StyleZoomRange<string>;
-
-    /**
-     * Sets the stroke color of the shape.
-     * This attribute is valid for Circle, Rect, Line, Text and Polygon.
+     * Sets the stroke color of the Line.
      *
      * The color can be specified in the following ways:
      * - CSS color names: "red"
@@ -70,8 +58,7 @@ export interface LineStyle {
     stroke?: string | StyleValueFunction<string> | StyleZoomRange<string>;
 
     /**
-     * Sets the width of the stroke.
-     * This attribute is valid for Circle, Rect, Line, Text and Polygon.
+     * Sets the width of the line.
      * The unit of strokeWidth is defined in pixels.
      * For Polygons that are using {@link extrude}, the maximum possible strokeWidth is 1.0 pixel.
      * For Styles of type Line the strokeWidth can also be defined in meters by using a string: "$\{width\}m".
@@ -91,18 +78,6 @@ export interface LineStyle {
      *     type: "Line",
      *     stroke: "green",
      *     strokeWidth: "16
-     * }
-     * ```
-     * @example
-     * ```typescript
-     * // define a Text style with a strokeWidth of 8px
-     * {
-     *     zIndex: 0,
-     *     type: "Text",
-     *     text: "doc",
-     *     fill: "white",
-     *     stroke: "black,
-     *     strokeWidth: 8
      * }
      * ```
      */
@@ -181,12 +156,11 @@ export interface LineStyle {
     offset?: number | string | StyleValueFunction<number | string> | StyleZoomRange<number | string>;
 
     /**
-     * The altitude of the style in meters.
+     * The altitude of the line in meters.
      * The altitude defines the distance in the vertical direction between the ground plane at 0 meters and the geometry/style.
      * If altitude is set to true, the altitude from the feature's geometry coordinates will be used automatically.
      * If a number is set for altitude, the altitude of the feature's geometry is ignored and the value of "altitude" is used instead.
      * The height must be defined in meters.
-     * This attribute is valid for styles of type "Rect", "Image", "Text", "Circle", "Line", "Box" or "Sphere".
      *
      * @defaultValue false
      *

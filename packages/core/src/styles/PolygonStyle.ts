@@ -46,8 +46,7 @@ export interface PolygonStyle {
     zLayer?: number | StyleValueFunction<number>;
 
     /**
-     * Sets the color to fill the shape.
-     * This attribute is valid for Circle, Rect, Text and Polygon.
+     * Sets the color to fill the polygon.
      *
      * The color can be specified in the following ways:
      * - CSS color names: "red"
@@ -57,8 +56,7 @@ export interface PolygonStyle {
     fill?: string | StyleValueFunction<string> | StyleZoomRange<string>;
 
     /**
-     * Sets the stroke color of the shape.
-     * This attribute is valid for Circle, Rect, Line, Text and Polygon.
+     * Sets the stroke color of the polygon.
      *
      * The color can be specified in the following ways:
      * - CSS color names: "red"
@@ -68,39 +66,20 @@ export interface PolygonStyle {
     stroke?: string | StyleValueFunction<string> | StyleZoomRange<string>;
 
     /**
-     * Sets the width of the stroke.
-     * This attribute is valid for Circle, Rect, Line, Text and Polygon.
+     * Sets the width of the stroke of the polygon (outline).
      * The unit of strokeWidth is defined in pixels.
      * For Polygons that are using {@link extrude}, the maximum possible strokeWidth is 1.0 pixel.
      * For Styles of type Line the strokeWidth can also be defined in meters by using a string: "$\{width\}m".
      *
      * @example
      * ```typescript
-     * // define a Line that has a with of 1 meter
+     * // define a red colored polygon with a 2 pixel blue stroke (outline).
      * {
      *     zIndex: 0,
      *     type: "Line",
+     *     fill: "red",
      *     stroke: "blue",
-     *     strokeWidth: "1m"
-     * }
-     * // define a Line that has a with of 16 pixel
-     * {
-     *     zIndex: 0,
-     *     type: "Line",
-     *     stroke: "green",
-     *     strokeWidth: "16
-     * }
-     * ```
-     * @example
-     * ```typescript
-     * // define a Text style with a strokeWidth of 8px
-     * {
-     *     zIndex: 0,
-     *     type: "Text",
-     *     text: "doc",
-     *     fill: "white",
-     *     stroke: "black,
-     *     strokeWidth: 8
+     *     strokeWidth: 2
      * }
      * ```
      */

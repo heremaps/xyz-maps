@@ -43,8 +43,7 @@ export interface RectStyle {
     zLayer?: number | StyleValueFunction<number>;
 
     /**
-     * Sets the color to fill the shape.
-     * This attribute is valid for Circle, Rect, Text and Polygon.
+     * Sets the color to fill the Rectangle.
      *
      * The color can be specified in the following ways:
      * - CSS color names: "red"
@@ -54,8 +53,7 @@ export interface RectStyle {
     fill?: string | StyleValueFunction<string> | StyleZoomRange<string>;
 
     /**
-     * Sets the stroke color of the shape.
-     * This attribute is valid for Circle, Rect, Line, Text and Polygon.
+     * Sets the stroke color of the Rectangle.
      *
      * The color can be specified in the following ways:
      * - CSS color names: "red"
@@ -65,39 +63,18 @@ export interface RectStyle {
     stroke?: string | StyleValueFunction<string> | StyleZoomRange<string>;
 
     /**
-     * Sets the width of the stroke.
-     * This attribute is valid for Circle, Rect, Line, Text and Polygon.
+     * Sets the width of the Rectangle.
      * The unit of strokeWidth is defined in pixels.
-     * For Polygons that are using {@link extrude}, the maximum possible strokeWidth is 1.0 pixel.
-     * For Styles of type Line the strokeWidth can also be defined in meters by using a string: "$\{width\}m".
      *
      * @example
      * ```typescript
-     * // define a Line that has a with of 1 meter
+     * // define a Rectangle that has a strokeWidth of 2 pixels
      * {
      *     zIndex: 0,
-     *     type: "Line",
+     *     type: "Rect",
      *     stroke: "blue",
-     *     strokeWidth: "1m"
-     * }
-     * // define a Line that has a with of 16 pixel
-     * {
-     *     zIndex: 0,
-     *     type: "Line",
-     *     stroke: "green",
-     *     strokeWidth: "16
-     * }
-     * ```
-     * @example
-     * ```typescript
-     * // define a Text style with a strokeWidth of 8px
-     * {
-     *     zIndex: 0,
-     *     type: "Text",
-     *     text: "doc",
-     *     fill: "white",
-     *     stroke: "black,
-     *     strokeWidth: 8
+     *     strokeWidth: 2,
+     *     width: 32
      * }
      * ```
      */
@@ -112,24 +89,21 @@ export interface RectStyle {
     opacity?: number | StyleValueFunction<number> | StyleZoomRange<number>;
 
     /**
-     * Rotate the shape of the style to the angle in degrees.
-     * This attribute is validate for Rect and Image.
+     * Rotate the Rectangle by the angle in degrees.
      */
     rotation?: number | StyleValueFunction<number> | StyleZoomRange<number>;
 
     /**
      * Width of the style in pixels.
-     * It is only required by Rect, Image and Box.
-     * The maximum supported width for "Image" is 64 pixels.
-     * The unit of width is defined in pixels.
+     * The default unit of width is defined in pixels.
      * For styles of type "Rect" the width can also be defined in meters by using a string: "$\{width\}m".
      * @example
      * ```typescript
      * // define a Rect that has a width (and height) of 2.2 meter
      * {
      *     zIndex: 0,
-     *     type: "Line",
-     *     stroke: "blue",
+     *     type: "Rect",
+     *     fill: "blue",
      *     width: "2.2m"
      * }
      * ```
@@ -138,8 +112,8 @@ export interface RectStyle {
      * // define a Rect that has a width (and height) of 16 pixel
      * {
      *     zIndex: 0,
-     *     type: "Line",
-     *     stroke: "green",
+     *     type: "Rect",
+     *     fill: "green",
      *     width: 16
      * }
      * ```
@@ -147,18 +121,18 @@ export interface RectStyle {
     width?: number | StyleValueFunction<number> | StyleZoomRange<number>;
 
     /**
-     * Height of the style in pixels.
-     * It is only required by Rect and Image.
-     * The maximum supported height for "Image" is 64 pixels.
+     * Height of the REctangle in pixels.
      * The unit of height is defined in pixels.
      * For styles of type "Rect" the height can also be defined in meters by using a string: "$\{width\}m".
+     * If the height is not explicitly defined, the value of the width is used as the height.
+     *
      * @example
      * ```typescript
      * // define a Rect that has a width of 2 meter and a height of 1 meter.
      * {
      *     zIndex: 0,
-     *     type: "Line",
-     *     stroke: "blue",
+     *     type: "Rect",
+     *     fill: "blue",
      *     width: "2m",
      *     height: "1m"
      * }
@@ -168,78 +142,56 @@ export interface RectStyle {
      * // define a Rect that has a width of 20 pixel and a height of 28 pixel.
      * {
      *     zIndex: 0,
-     *     type: "Line",
-     *     stroke: "green",
+     *     type: "Rect",
+     *     fill: "green",
      *     width: 20,
      *     height: 28
-     * }
-     * ```
-     * @example
-     * ```typescript
-     * // define a Image/Icon style with/height of 32pixel
-     * {
-     *     zIndex: 0,
-     *     type: "Image",
-     *     src: "urlToMyImageResource",
-     *     width: 32
      * }
      * ```
      */
     height?: number | StyleValueFunction<number> | StyleZoomRange<number>;
 
     /**
-     * Offset the shape in pixels on x-axis.
-     * It is valid for Circle, Rect, Text, Image, Box and Sphere.
+     * Offset the rectangle in pixels on x-axis.
      * A positive value offsets to the right, a negative value to the left.
      * The default unit is pixels.
      *
      * @example
      * ```typescript
-     * // offset Image by 8px to the right.
-     * { type: "Image", zIndex: 0, src: '...', offsetX: 8}
-     *
-     * // offset Circle by 1m to the left
-     * { type: "Circle", zIndex: 0, fill:'blue', radius: 4, offsetX: "-1m"}
+     * // offset Rectangle by 1m to the left
+     * { type: "Rect", zIndex: 0, fill:'blue', width: 24, offsetX: "-1m"}
      * ```
      */
     offsetX?: number | string | StyleValueFunction<number | string> | StyleZoomRange<number | string>;
 
     /**
-     * Offset the shape in pixels on y-axis.
-     * It is valid for Circle, Rect, Text, Image, Box and Sphere.
+     * Offset the rectangle in pixels on y-axis.
      * A positive value offsetY offsets downwards, a negative value upwards.
      * The default unit is pixels.
      *
      * @example
      * ```typescript
-     * // offset Image by 8px to the bottom
-     * { type: "Image", zIndex: 0, src: '...', offsetY: 8}
-     *
-     * // offset Circle by 1m to the top
-     * { type: "Circle", zIndex: 0, fill:'blue', radius: 4, offsetY: "-1m"}
+     * // offset Rectangle by 1m to the top
+     * { type: "Rect", zIndex: 0, fill:'blue', width: 24, offsetY: "-1m"}
      * ```
      */
     offsetY?: number | StyleValueFunction<number> | StyleZoomRange<number>;
 
     /**
-     * Offset the shape in pixels on z-axis.
-     * It is valid for Circle, Rect, Text, Image, Box and Sphere.
+     * Offset the rectangle in pixels on z-axis.
      * A positive value offsets up, a negative value down.
      * The default unit is pixels.
      *
      * @example
      * ```typescript
-     * // offset Image by 8px to the top.
-     * { type: "Image", zIndex: 0, src: '...', offsetZ: 8}
-     *
-     * // offset Circle by 1m to the top
-     * { type: "Circle", zIndex: 0, fill:'blue', radius: 4, offsetZ: "1m"}
+     * // offset rectangle by 1m to the top
+     * { type: "Rect", zIndex: 0, fill:'blue', radius: 24, offsetZ: "1m"}
      * ```
      */
     offsetZ?: number | string | StyleValueFunction<number | string> | StyleZoomRange<number | string>;
 
     /**
-     * Alignment for styles of type "Circle", "Rect", "Image" and "Text".
+     * Alignment for styles of type "Rect".
      * Possible values are: "map" and "viewport".
      * "map" aligns to the plane of the map and "viewport" aligns to the plane of the viewport/screen.
      * Default alignment for Text based on point geometries is "viewport" while "map" is the default for line geometries.
@@ -247,7 +199,7 @@ export interface RectStyle {
     alignment?: 'map' | 'viewport' | StyleValueFunction<string> | StyleZoomRange<string>;
 
     /**
-     * Sets the anchor point for styles of type "Circle", "Rect", "Image" and "Text" used with Line or Polygon geometry.
+     * Sets the anchor point for rectangle style used with Line or Polygon geometry.
      *
      * Possible values for Line geometry are "Coordinate" and "Line".
      * - "Coordinate": the respective style is displayed at each coordinate of the polyline.
@@ -257,13 +209,13 @@ export interface RectStyle {
      * - "Center": the center of the bounding box of the polygon.
      * - "Centroid": the geometric centroid of the polygon geometry.
      *
-     * @defaultValue For Polygon geometry the default is "Center". For Line geometry the default for styles of type "Text" is "Line", while "Coordinate" is the default for styles of type "Circle", "Rect" or "Image".
+     * @defaultValue For Polygon geometry the default is "Center". For Line geometry the default is "Coordinate".
      */
     anchor?: 'Line' | 'Coordinate' | 'Centroid'
 
     /**
      * Enable or disable the space check for point styles on line geometries.
-     * Only applies to "Circle", "Rect", "Image" and "Text" styles with {@link anchor} set to "Line".
+     * Only applies to "Rect" styles with {@link anchor} set to "Line".
      * If check checkLineSpace is enabled the respective style is only displayed if there is enough space on the line,
      * otherwise it is not displayed.
      *
@@ -273,14 +225,13 @@ export interface RectStyle {
 
     /**
      * Enable or disable collision detection.
-     * Works for styles of type "Circle", "Rect", "Image" and "Text".
      * If the collision detection is enabled for multiple Styles within the same StyleGroup, the respective Styles are
      * handled as a single Object ("CollisionGroup") where the combined bounding-box is determined automatically.
      *
      * - true: collision are allowed, Collision detection is disabled.
      * - false: avoid collisions, Collision detection is enabled.
      *
-     * @defaultValue false for "Text", true for all other.
+     * @defaultValue true
      */
     collide?: boolean | StyleValueFunction<boolean> | StyleZoomRange<boolean>;
 
@@ -298,7 +249,6 @@ export interface RectStyle {
      * If altitude is set to true, the altitude from the feature's geometry coordinates will be used automatically.
      * If a number is set for altitude, the altitude of the feature's geometry is ignored and the value of "altitude" is used instead.
      * The height must be defined in meters.
-     * This attribute is valid for styles of type "Rect", "Image", "Text", "Circle", "Line", "Box" or "Sphere".
      *
      * @defaultValue false
      *

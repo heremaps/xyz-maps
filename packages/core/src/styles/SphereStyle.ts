@@ -46,7 +46,7 @@ export interface SphereStyle {
     zLayer?: number | StyleValueFunction<number>;
 
     /**
-     * Sets the color to fill the shape.
+     * Sets the color to fill the Sphere.
      * This attribute is valid for Circle, Rect, Text and Polygon.
      *
      * The color can be specified in the following ways:
@@ -65,10 +65,8 @@ export interface SphereStyle {
     opacity?: number | StyleValueFunction<number> | StyleZoomRange<number>;
 
     /**
-     * The Radius of the Circle and Sphere.
-     * It is required by styles of type "Circle" and "Sphere".
+     * The Radius of the Sphere.
      * The default unit is pixels.
-     * To define the radius of a Circle in meters a string can be used: "$\{width\}m".
      * The radius of "Sphere" must be defined in pixels.
      *
      * @example
@@ -81,73 +79,44 @@ export interface SphereStyle {
      *     radius: 32
      * }
      * ```
-     * @example
-     * ```typescript
-     * // define a Circle with a radius of 1 meter
-     * {
-     *     zIndex: 0,
-     *     type: "Circle",
-     *     fill: "red",
-     *     radius: "1m"
-     * }
-     * // define a Circle with a radius of 16 pixel
-     * {
-     *     zIndex: 0,
-     *     type: "Circle",
-     *     fill: "red",
-     *     radius: 16
-     * }
-     * ```
      */
     radius?: number | StyleValueFunction<number> | StyleZoomRange<number>;
 
     /**
      * Offset the shape in pixels on x-axis.
-     * It is valid for Circle, Rect, Text, Image, Box and Sphere.
      * A positive value offsets to the right, a negative value to the left.
      * The default unit is pixels.
      *
      * @example
      * ```typescript
-     * // offset Image by 8px to the right.
-     * { type: "Image", zIndex: 0, src: '...', offsetX: 8}
-     *
-     * // offset Circle by 1m to the left
-     * { type: "Circle", zIndex: 0, fill:'blue', radius: 4, offsetX: "-1m"}
+     * // offset Sphere by 1m to the left
+     * { type: "Sphere", zIndex: 0, fill:'blue', radius: 24, offsetX: "-1m"}
      * ```
      */
     offsetX?: number | string | StyleValueFunction<number | string> | StyleZoomRange<number | string>;
 
     /**
      * Offset the shape in pixels on y-axis.
-     * It is valid for Circle, Rect, Text, Image, Box and Sphere.
      * A positive value offsetY offsets downwards, a negative value upwards.
      * The default unit is pixels.
      *
      * @example
      * ```typescript
-     * // offset Image by 8px to the bottom
-     * { type: "Image", zIndex: 0, src: '...', offsetY: 8}
-     *
-     * // offset Circle by 1m to the top
-     * { type: "Circle", zIndex: 0, fill:'blue', radius: 4, offsetY: "-1m"}
+     * // offset Sphere by 1m to the top
+     * { type: "Sphere", zIndex: 0, fill:'blue', radius: 24, offsetY: "-1m"}
      * ```
      */
     offsetY?: number | StyleValueFunction<number> | StyleZoomRange<number>;
 
     /**
      * Offset the shape in pixels on z-axis.
-     * It is valid for Circle, Rect, Text, Image, Box and Sphere.
      * A positive value offsets up, a negative value down.
      * The default unit is pixels.
      *
      * @example
      * ```typescript
-     * // offset Image by 8px to the top.
-     * { type: "Image", zIndex: 0, src: '...', offsetZ: 8}
-     *
-     * // offset Circle by 1m to the top
-     * { type: "Circle", zIndex: 0, fill:'blue', radius: 4, offsetZ: "1m"}
+     * // offset Sphere by 1m to the top
+     * { type: "Sphere", zIndex: 0, fill:'blue', radius: 24, offsetZ: "1m"}
      * ```
      */
     offsetZ?: number | string | StyleValueFunction<number | string> | StyleZoomRange<number | string>;
@@ -158,7 +127,6 @@ export interface SphereStyle {
      * If altitude is set to true, the altitude from the feature's geometry coordinates will be used automatically.
      * If a number is set for altitude, the altitude of the feature's geometry is ignored and the value of "altitude" is used instead.
      * The height must be defined in meters.
-     * This attribute is valid for styles of type "Rect", "Image", "Text", "Circle", "Line", "Box" or "Sphere".
      *
      * @defaultValue false
      *

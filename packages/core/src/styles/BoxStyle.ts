@@ -47,8 +47,7 @@ export interface BoxStyle {
     zLayer?: number | StyleValueFunction<number>;
 
     /**
-     * Sets the color to fill the shape.
-     * This attribute is valid for Circle, Rect, Text and Polygon.
+     * Sets the color to fill the Box.
      *
      * The color can be specified in the following ways:
      * - CSS color names: "red"
@@ -58,8 +57,7 @@ export interface BoxStyle {
     fill?: string | StyleValueFunction<string> | StyleZoomRange<string>;
 
     /**
-     * Sets the stroke color of the shape.
-     * This attribute is valid for Circle, Rect, Line, Text and Polygon.
+     * Sets the stroke color of the Box.
      *
      * The color can be specified in the following ways:
      * - CSS color names: "red"
@@ -70,38 +68,17 @@ export interface BoxStyle {
 
     /**
      * Sets the width of the stroke.
-     * This attribute is valid for Circle, Rect, Line, Text and Polygon.
      * The unit of strokeWidth is defined in pixels.
-     * For Polygons that are using {@link extrude}, the maximum possible strokeWidth is 1.0 pixel.
-     * For Styles of type Line the strokeWidth can also be defined in meters by using a string: "$\{width\}m".
      *
      * @example
      * ```typescript
-     * // define a Line that has a with of 1 meter
+     * // define a red filled Box that with a blue stroke of 2px width.
      * {
      *     zIndex: 0,
-     *     type: "Line",
+     *     type: "Box",
+     *     fill: "red",
      *     stroke: "blue",
-     *     strokeWidth: "1m"
-     * }
-     * // define a Line that has a with of 16 pixel
-     * {
-     *     zIndex: 0,
-     *     type: "Line",
-     *     stroke: "green",
-     *     strokeWidth: "16
-     * }
-     * ```
-     * @example
-     * ```typescript
-     * // define a Text style with a strokeWidth of 8px
-     * {
-     *     zIndex: 0,
-     *     type: "Text",
-     *     text: "doc",
-     *     fill: "white",
-     *     stroke: "black,
-     *     strokeWidth: 8
+     *     strokeWidth: "2
      * }
      * ```
      */
@@ -110,85 +87,52 @@ export interface BoxStyle {
     /**
      * Defines the opacity of the style.
      * The value must be between 0.0 (fully transparent) and 1.0 (fully opaque).
-     * It is valid for all style types.
+     *
      * @defaultValue 1
      */
     opacity?: number | StyleValueFunction<number> | StyleZoomRange<number>;
 
     /**
-     * Width of the style in pixels.
-     * It is only required by Rect, Image and Box.
-     * The maximum supported width for "Image" is 64 pixels.
+     * The Width of the Box.
      * The unit of width is defined in pixels.
-     * For styles of type "Rect" the width can also be defined in meters by using a string: "$\{width\}m".
+     *
      * @example
      * ```typescript
-     * // define a Rect that has a width (and height) of 2.2 meter
+     * // define a Box that has a width, height and depth of 32 pixels.
      * {
      *     zIndex: 0,
-     *     type: "Line",
-     *     stroke: "blue",
-     *     width: "2.2m"
-     * }
-     * ```
-     * @example
-     * ```typescript
-     * // define a Rect that has a width (and height) of 16 pixel
-     * {
-     *     zIndex: 0,
-     *     type: "Line",
-     *     stroke: "green",
-     *     width: 16
+     *     type: "Box",
+     *     fill: "blue",
+     *     width: 32
      * }
      * ```
      */
     width: number | StyleValueFunction<number> | StyleZoomRange<number>;
 
     /**
-     * Height of the style in pixels.
-     * It is only required by Rect and Image.
-     * The maximum supported height for "Image" is 64 pixels.
+     * The Height of the Box.
      * The unit of height is defined in pixels.
-     * For styles of type "Rect" the height can also be defined in meters by using a string: "$\{width\}m".
+     * If the height is not explicitly defined, the value of the width is used as the height.
+     *
      * @example
      * ```typescript
-     * // define a Rect that has a width of 2 meter and a height of 1 meter.
+     * // define a Box that have a width of 32px and a height of 48px.
      * {
      *     zIndex: 0,
-     *     type: "Line",
-     *     stroke: "blue",
-     *     width: "2m",
-     *     height: "1m"
-     * }
-     * ```
-     * @example
-     * ```typescript
-     * // define a Rect that has a width of 20 pixel and a height of 28 pixel.
-     * {
-     *     zIndex: 0,
-     *     type: "Line",
-     *     stroke: "green",
-     *     width: 20,
-     *     height: 28
-     * }
-     * ```
-     * @example
-     * ```typescript
-     * // define a Image/Icon style with/height of 32pixel
-     * {
-     *     zIndex: 0,
-     *     type: "Image",
-     *     src: "urlToMyImageResource",
-     *     width: 32
+     *     type: "Box",
+     *     fill: "blue",
+     *     width: 32,
+     *     height: 48
      * }
      * ```
      */
     height?: number | StyleValueFunction<number> | StyleZoomRange<number>;
 
     /**
-     * The depth of the style in pixels.
+     * The depth of the Box.
      * The depth defines the length of the edges of a "Box" parallel to the Z axis.
-     * The unit of depth is defined in pixels and only required by styles of type "Box".
+     * If the depth is not explicitly defined, the value of the "width" is used as the height.
+     *
      * @example
      * ```typescript
      * // define a Box that has a width, height and depth of 16px
@@ -206,70 +150,62 @@ export interface BoxStyle {
     depth?: number | StyleValueFunction<number> | StyleZoomRange<number>;
 
     /**
-     * Offset the shape in pixels on x-axis.
-     * It is valid for Circle, Rect, Text, Image, Box and Sphere.
+     * Offset the Box in pixels on x-axis.
      * A positive value offsets to the right, a negative value to the left.
      * The default unit is pixels.
      *
      * @example
      * ```typescript
-     * // offset Image by 8px to the right.
-     * { type: "Image", zIndex: 0, src: '...', offsetX: 8}
-     *
-     * // offset Circle by 1m to the left
-     * { type: "Circle", zIndex: 0, fill:'blue', radius: 4, offsetX: "-1m"}
+     * // offset Box by 8px to the right.
+     * { type: "Box", zIndex: 0, with: 32, fill: 'red', offsetX: 8}
      * ```
      */
     offsetX?: number | string | StyleValueFunction<number | string> | StyleZoomRange<number | string>;
 
     /**
-     * Offset the shape in pixels on y-axis.
-     * It is valid for Circle, Rect, Text, Image, Box and Sphere.
+     * Offset the Box in pixels on y-axis.
      * A positive value offsetY offsets downwards, a negative value upwards.
      * The default unit is pixels.
      *
      * @example
      * ```typescript
-     * // offset Image by 8px to the bottom
-     * { type: "Image", zIndex: 0, src: '...', offsetY: 8}
+     * // offset Box by 8px to the bottom
+     * { type: "Box", zIndex: 0, fill: 'red', width:32, offsetY: 8}
      *
-     * // offset Circle by 1m to the top
-     * { type: "Circle", zIndex: 0, fill:'blue', radius: 4, offsetY: "-1m"}
+     * // offset Box by 1m to the top
+     * { type: "Box", zIndex: 0, fill: 'blue', width: 32, offsetY: "-1m"}
      * ```
      */
     offsetY?: number | StyleValueFunction<number> | StyleZoomRange<number>;
 
     /**
-     * Offset the shape in pixels on z-axis.
-     * It is valid for Circle, Rect, Text, Image, Box and Sphere.
+     * Offset the Box in pixels on z-axis.
      * A positive value offsets up, a negative value down.
      * The default unit is pixels.
      *
      * @example
      * ```typescript
      * // offset Image by 8px to the top.
-     * { type: "Image", zIndex: 0, src: '...', offsetZ: 8}
+     * { type: "Box", zIndex: 0, fill: 'red', width:32, offsetZ: 8}
      *
      * // offset Circle by 1m to the top
-     * { type: "Circle", zIndex: 0, fill:'blue', radius: 4, offsetZ: "1m"}
+     * { type: "Box", zIndex: 0, fill: 'red', width:32, offsetZ: "1m"}
      * ```
      */
     offsetZ?: number | string | StyleValueFunction<number | string> | StyleZoomRange<number | string>;
 
     /**
-     * The altitude of the style in meters.
+     * The altitude of the center of the Box in meters.
      * The altitude defines the distance in the vertical direction between the ground plane at 0 meters and the geometry/style.
      * If altitude is set to true, the altitude from the feature's geometry coordinates will be used automatically.
      * If a number is set for altitude, the altitude of the feature's geometry is ignored and the value of "altitude" is used instead.
      * The height must be defined in meters.
-     * This attribute is valid for styles of type "Rect", "Image", "Text", "Circle", "Line", "Box" or "Sphere".
      *
      * @defaultValue false
      *
      * @experimental
      */
     altitude?: number | boolean | StyleValueFunction<number | boolean> | StyleZoomRange<number | boolean>
-
 
     /**
      * Scales the size of a style based on the feature's altitude.
