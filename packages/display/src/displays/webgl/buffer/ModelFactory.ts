@@ -19,6 +19,7 @@
 import {Image, Texture} from '../Texture';
 import {GeometryData, ModelBuffer} from './templates/ModelBuffer';
 import {TemplateBufferBucket} from './templates/TemplateBufferBucket';
+import {Material} from '@here/xyz-maps-core';
 
 class ModelTexture extends Texture {
     ref: number = 0;
@@ -32,12 +33,7 @@ export type ModelData = {
         bbox?: number[];
     }[],
     materials: {
-        [name: string]: {
-            diffuse?: number[],
-            diffuseMap?: string,
-            mode?: 'Triangles' | 'Points' | number,
-            pointSize?: number
-        }
+        [name: string]: Material
     }
 }
 
@@ -93,6 +89,7 @@ class ModelFactory {
                     diffuse: [1, 1, 1],
                     diffuseMap: 'unusedTexture',
                     opacity: 1,
+                    illumination: 1,
                     ...materials?.[geom.material]
                 };
 
@@ -137,11 +134,12 @@ class ModelFactory {
             let {parts} = model;
             let positionOffset;
             let modelMatrix;
+            let undef;
 
             for (let i = 0; i < parts.length; i++) {
                 let {attributes, bbox, uniforms, index} = parts[i];
 
-                let buffer = new ModelBuffer(undefined, undefined, modelMatrix, positionOffset);
+                let buffer = new ModelBuffer(undef, undef, modelMatrix, positionOffset);
                 // share a single buffer for the model-matrix data across multiple GeometryBuffers of the same model.
                 modelMatrix = buffer.flexAttributes.a_modelMatrix;
                 positionOffset = buffer.flexAttributes.a_offset;

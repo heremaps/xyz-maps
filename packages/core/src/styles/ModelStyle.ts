@@ -21,6 +21,41 @@ import {StyleValueFunction, StyleZoomRange} from './LayerStyle';
 type TypedArray = Int8Array | Uint8Array | Int16Array | Uint16Array | Int32Array | Uint32Array | Float32Array;
 
 /**
+ * The Material used to render the model/geometry.
+ */
+export interface Material {
+    /**
+     * Diffuse color of the material.
+     *
+     * @defaultValue
+     */
+    diffuse?: number[],
+    /**
+     * The diffuse (texture) map used by the material.
+     */
+    diffuseMap?: string,
+    /**
+     * The used primitive type to render the model geometry.
+     *
+     * @defaultValue "Triangles"
+     */
+    mode?: 'Triangles' | 'Points',
+    /**
+     * The used pointSize in pixels to render when mode is set to "Points".
+     */
+    pointSize?: number
+    /**
+     * The Illumination Mode of the material.
+     *
+     * - mode 0: Constant color mode. Colors, no lightning, no shading
+     * - mode 1: Diffuse lightning mode.
+     *
+     * @defaultValue 1
+     */
+    illumination?: number
+}
+
+/**
  * Interface for configuring the visual appearance of Models.
  *
  * @experimental
@@ -101,28 +136,7 @@ export interface ModelStyle {
          * Materials referenced by {@link ModelStyle.data.geometries}.
          */
         materials?: {
-            [name: string]: {
-                /**
-                 * Diffuse color of the material.
-                 *
-                 * @defaultValue
-                 */
-                diffuse?: number[],
-                /**
-                 * The diffuse (texture) map used by the material.
-                 */
-                diffuseMap?: string,
-                /**
-                 * The used primitive type to render the model geometry.
-                 *
-                 * @defaultValue "Triangles"
-                 */
-                mode?: 'Triangles' | 'Points',
-                /**
-                 * The used pointSize in pixels to render when mode is set to "Points".
-                 */
-                pointSize?: number
-            }
+            [name: string]: Material
         }
     };
 
