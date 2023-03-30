@@ -22,6 +22,8 @@ type TypedArray = Int8Array | Uint8Array | Int16Array | Uint16Array | Int32Array
 
 /**
  * The Material used to render the model/geometry.
+ *
+ * @experimental
  */
 export interface Material {
     /**
@@ -31,7 +33,8 @@ export interface Material {
      */
     diffuse?: number[],
     /**
-     * The diffuse (texture) map used by the material.
+     * The name of the diffuse map used by the material.
+     * The actual texture must be defined in {@link ModelStyle.data.textures}.
      */
     diffuseMap?: string,
     /**
@@ -53,6 +56,37 @@ export interface Material {
      * @defaultValue 1
      */
     illumination?: number
+}
+
+/**
+ * ModelGeometry
+ */
+export interface ModelGeometry {
+    /**
+     * Vertex positions
+     */
+    position: TypedArray | number[],
+    /**
+     * Vertex indices
+     */
+    index?: Uint16Array | Uint32Array | number[],
+    /**
+     * Vertex normals
+     */
+    normal?: TypedArray | number[],
+    /**
+     * Texture coordinates
+     */
+    uv?: number[],
+    /**
+     * Per Vertex color
+     */
+    color?: string | number[]
+    /**
+     * @hidden
+     * @internal
+     */
+    bbox?: number[];
 }
 
 /**
@@ -87,57 +121,55 @@ export interface ModelStyle {
      * The Model data that should be rendered.
      */
     data: {
+
         /**
          * Textures used by Materials.
          */
         textures?: { [name: string]: HTMLCanvasElement | HTMLImageElement | { width: number, height: number, pixels?: Uint8Array } };
-
         /**
-         * The Geometries of the Model.
-         */
-        geometries: {
-            /**
-             * The geometry data to render.
-             */
-            data: {
-                /**
-                 * Vertex positions
-                 */
-                position: TypedArray | number[],
-                /**
-                 * Vertex indices
-                 */
-                index?: Int16Array | Int32Array | number[],
-                /**
-                 * Vertex normals
-                 */
-                normal?: TypedArray | number[],
-                /**
-                 * Texture coordinates
-                 */
-                texcoord?: number[],
-                /**
-                 * Per Vertex color
-                 */
-                color?: string | [number, number, number, number] | number[]
-            };
-            /**
-             * The name of the Material the geometry should be rendered with.
-             * If the used material is not defined in {@link ModelStyle.data.materials| Materials}, or none is defined, the default material will be used.
-             */
-            material?: string;
-            /**
-             * @hidden
-             * @internal
-             */
-            bbox?: number[];
-        }[],
-        /**
-         * Materials referenced by {@link ModelStyle.data.geometries}.
+         * Materials referenced by {@link ModelStyle.data.faces}.
          */
         materials?: {
             [name: string]: Material
         }
+        /**
+         * The Faces of the Model.
+         */
+        faces: {
+            /**
+             * Index of the geometry used to render the face.
+             */
+            geometryIndex: number;
+            /**
+             * The name of the Material the geometry should be rendered with.
+             * If the used material is not defined in {@link ModelStyle.data.materials| Materials}, or none is defined, the default material will be used.
+             */
+            material: string;
+            /**
+             * Vertex indices.
+             * If no vertex indices are defined, "first" and "count" are used to render the face.
+             */
+            index?: Uint16Array | Uint32Array | number[];
+            /**
+             * A number specifying the starting index of the vertices to render the face.
+             * If "index" is defined, "first" is ignored.
+             *
+             * @defaultValue 0
+             */
+            first?: number;
+            /**
+             * A number specifying the number of indices of the face to be rendered.
+             * If "index" is defined, "count" is ignored.
+             *
+             * @defaultValue position.size/3
+             */
+            count?: number;
+        }[],
+
+        /**
+         * The Geometries of the Model.
+         */
+        geometries: ModelGeometry[]
     };
 
     /**

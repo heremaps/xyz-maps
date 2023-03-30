@@ -63,6 +63,7 @@ export class TemplateBuffer {
     instances: number = 0;
 
     uniforms: { [name: string]: Uniform } = {};
+    private _cnt: number;
 
     constructor(flat: boolean, scissor: boolean = false) {
         this._flat = flat;
@@ -82,14 +83,17 @@ export class TemplateBuffer {
     }
 
     count(): number {
-        let aPosition = this.flexAttributes.a_position as FlexAttribute;
+        if (this._cnt != undefined) {
+            return this._cnt;
+        }
+        const {data, size} = this.flexAttributes.a_position as FlexAttribute;
+        return data.length / size - this.first;
+    }
 
-        // if (!aPosition) {
-        //     // take length of first group
-        //     aPosition = this.groups[0].attributes.a_position;
-        // }
 
-        return aPosition.data.length / aPosition.size - this.first;
+    setArray(first: number, count: number) {
+        this.first = first;
+        this._cnt = count;
     }
 
     setIndex(index: Index) {

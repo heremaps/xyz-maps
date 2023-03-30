@@ -4,7 +4,7 @@ attribute vec3 a_position;
 attribute vec3 a_offset;
 attribute vec3 a_normal;
 attribute vec4 a_color;
-attribute vec2 a_texcoord;
+attribute vec2 a_uv;
 attribute mat4 a_modelMatrix;
 
 uniform mat4 u_matrix;
@@ -32,7 +32,7 @@ void main(void){
         v_texCoord = vec2(worldPos.x/ 512.0, 1.- worldPos.y/ 512.0);
         v_normal = normal;
     } else {
-        v_texCoord = a_texcoord;
+        v_texCoord = a_uv;
         v_normal = mat3(a_modelMatrix) * normal;
     }
 

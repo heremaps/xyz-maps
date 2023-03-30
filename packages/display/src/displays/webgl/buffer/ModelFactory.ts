@@ -16,30 +16,20 @@
  * SPDX-License-Identifier: Apache-2.0
  * License-Filename: LICENSE
  */
-import {Image, Texture} from '../Texture';
-import {GeometryData, ModelBuffer} from './templates/ModelBuffer';
+import {Texture} from '../Texture';
+import {ModelBuffer} from './templates/ModelBuffer';
 import {TemplateBufferBucket} from './templates/TemplateBufferBucket';
-import {Material} from '@here/xyz-maps-core';
+import {ModelStyle} from '@here/xyz-maps-core';
 
 class ModelTexture extends Texture {
     ref: number = 0;
 }
 
-export type ModelData = {
-    textures?: { [name: string]: Image };
-    geometries: {
-        data: GeometryData;
-        material: string;
-        bbox?: number[];
-    }[],
-    materials: {
-        [name: string]: Material
-    }
-}
+export type ModelData = ModelStyle['data'];
 
 type Model = {
     textures: { [name: string]: ModelTexture }
-    parts: { attributes: any, uniforms: any, bbox: any, index?: number[] | Uint16Array | Uint32Array }[]
+    parts: { attributes: any, uniforms: any, bbox: any, index?: number[] | Uint16Array | Uint32Array, first?: number, count?: number }[]
 }
 
 class ModelFactory {
@@ -71,27 +61,34 @@ class ModelFactory {
     }
 
     initModel(id: number, data: ModelData) {
-        const {geometries, materials} = data;
+        const {geometries, materials, faces} = data;
         const imgTexData = data.textures || {};
 
 
-        if (!this.models[id]) {
-            if (!geometries) return;
+        const sharedAttr = new WeakMap();
 
+        if (!this.models[id] && geometries && faces) {
             const parts: Model['parts'] = [];
             const modelTextures = {
                 unusedTexture: this.unusedTexture
             };
 
-            for (let i = 0; i < geometries.length; i++) {
-                const geom = geometries[i];
+            for (let face of faces) {
+                // for (let i = 0; i < geometries.length; i++) {
+                const geom = geometries[face.geometryIndex];
+
+                if (!geom) continue;
+
                 const material = {
                     diffuse: [1, 1, 1],
                     diffuseMap: 'unusedTexture',
                     opacity: 1,
                     illumination: 1,
-                    ...materials?.[geom.material]
+                    ...materials?.[face.material]
                 };
+
+                let attributes = sharedAttr.get(geom);
+                let index;
 
                 if (material.mode == 'Points') {
                     material.pointSize = material.pointSize == undefined ? 1 : material.pointSize;
@@ -100,16 +97,18 @@ class ModelFactory {
                 }
                 delete material.mode;
 
-                const attributes = {};
-                let index;
 
-                ModelBuffer.init(attributes, geom.data);
-
-                if (geom.data.index) {
-                    index = geom.data.index;
+                if (!attributes) {
+                    attributes = ModelBuffer.init(geom);
+                    // sharedAttr.set(geom, attributes);
                 }
 
-                const bbox = geom.bbox ||= ModelBuffer.calcBBox(geom.data);
+
+                if (geom.index) {
+                    index = geom.index;
+                }
+
+                const bbox = geom.bbox ||= ModelBuffer.calcBBox(geom);
 
                 for (let key in material) {
                     if (key.endsWith('Map')) {
@@ -119,7 +118,7 @@ class ModelFactory {
                     }
                 }
 
-                parts.push({attributes, bbox, uniforms: material, index});
+                parts.push({attributes, bbox, uniforms: material, index, first: face.first, count: face.count});
             }
 
             this.models[id] = {textures: modelTextures, parts};
@@ -137,7 +136,7 @@ class ModelFactory {
             let undef;
 
             for (let i = 0; i < parts.length; i++) {
-                let {attributes, bbox, uniforms, index} = parts[i];
+                let {attributes, bbox, uniforms, index, first, count} = parts[i];
 
                 let buffer = new ModelBuffer(undef, undef, modelMatrix, positionOffset);
                 // share a single buffer for the model-matrix data across multiple GeometryBuffers of the same model.
@@ -159,7 +158,13 @@ class ModelFactory {
                     buffer.uniforms[name] = uniform;
                 }
 
-                buffer.setIndex(index);
+                if (index) {
+                    buffer.setIndex(index);
+                } else {
+                    buffer.setArray(first || 0, count);
+                }
+
+
                 buffer.bbox = bbox;
                 buffer.cullFace = cullFace;
                 buffer.id = id;

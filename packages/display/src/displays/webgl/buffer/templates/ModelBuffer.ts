@@ -27,6 +27,7 @@ import {transformMat4} from 'gl-matrix/vec3';
 import {isTypedArray, TypedArray} from '../glType';
 import {Attribute} from '../Attribute';
 import {toRGB} from '../../color';
+import {ModelGeometry} from '@here/xyz-maps-core';
 
 
 enum HitTest {
@@ -36,18 +37,18 @@ enum HitTest {
 
 const NO_COLOR_WHITE = [1, 1, 1, 1];
 
-export type GeometryData = {
-    position: TypedArray | number[],
-    index?: number[],
-    normal?: TypedArray | number[],
-    texcoord?: number[],
-    color?: string | [number, number, number, number]
-};
+// export type GeometryData = {
+//     position: TypedArray | number[],
+//     index?: number[],
+//     normal?: TypedArray | number[],
+//     texcoord?: number[],
+//     color?: string | [number, number, number, number]
+// };
 
 export class ModelBuffer extends TemplateBuffer {
     destroy?: (buffer: GeometryBuffer) => void;
 
-    static calcBBox(data: GeometryData) {
+    static calcBBox(data: ModelGeometry) {
         const {position} = data;
         const infinity = Infinity;
         let minX = infinity;
@@ -75,9 +76,9 @@ export class ModelBuffer extends TemplateBuffer {
         return [minX, minY, minZ, maxX, maxY, maxZ];
     }
 
-    static init(attributes, data: GeometryData) {
+    static init(data: ModelGeometry, attributes: ModelBuffer['flexAttributes'] = {}) {
         if (data) {
-            const {position, normal, color, texcoord} = data;
+            const {position, normal, color, uv} = data;
             let colorRGB: Uint8Array | number[] | string = NO_COLOR_WHITE;
             let size;
 
@@ -94,9 +95,9 @@ export class ModelBuffer extends TemplateBuffer {
                 };
             }
 
-            if (texcoord) {
-                attributes.a_texcoord = {
-                    data: ModelBuffer.createFlexArray(texcoord),
+            if (uv) {
+                attributes.a_uv = {
+                    data: ModelBuffer.createFlexArray(uv),
                     size: 2
                 };
             }
@@ -137,6 +138,7 @@ export class ModelBuffer extends TemplateBuffer {
                 value: colorRGB as number[]
             };
         }
+        return attributes;
     };
 
     static createFlexArray(array: TypedArray | number[]) {
@@ -149,7 +151,7 @@ export class ModelBuffer extends TemplateBuffer {
         a_modelMatrix?: FlexAttribute,
         a_offset?: FlexAttribute,
         a_color?: FlexAttribute | ConstantAttribute,
-        a_texcoord?: FlexAttribute
+        a_uv?: FlexAttribute
         a_normal?: FlexAttribute
     };
 
@@ -158,14 +160,14 @@ export class ModelBuffer extends TemplateBuffer {
     id: string | number;
     bbox: number[];
 
-    constructor(geometryData?: GeometryData, material?, modelMatrix?, offset?) {
+    constructor(geometryData?: ModelGeometry, material?, modelMatrix?, offset?) {
         super(false);
 
         this.flexAttributes = {};
 
         const {flexAttributes} = this;
 
-        ModelBuffer.init(flexAttributes, geometryData);
+        ModelBuffer.init(geometryData, flexAttributes);
 
         if (geometryData?.index) {
             this._index = geometryData.index;
@@ -184,65 +186,6 @@ export class ModelBuffer extends TemplateBuffer {
         };
 
         this.uniforms = {...material};
-    }
-
-
-    private setOptional(attributes, data: GeometryData) {
-        const {position, normal, index, color, texcoord} = data;
-
-        let colorRGB: Uint8Array | number[] | string = NO_COLOR_WHITE;
-        let size;
-
-        if (normal) {
-            attributes.a_normal = {
-                data: ModelBuffer.createFlexArray(normal),
-                size: 3
-                // normalized: true
-            };
-        }
-
-        if (texcoord) {
-            attributes.a_texcoord = {
-                data: ModelBuffer.createFlexArray(texcoord),
-                size: 2
-            };
-        }
-
-        if (color) {
-            if (isTypedArray(color) || Array.isArray(color)) {
-                const vertexCount = position.length / 3;
-                if (color.length == vertexCount * 4) {
-                    // color per vertex
-                    colorRGB = color;
-                    size = 4;
-                } else if (color.length == vertexCount * 3) {
-                    // size = 3;
-                    // colorRGB = new Uint8Array(color.map((v) => v * 255));
-                    size = 4;
-                    colorRGB = new Uint8Array(vertexCount * 4);
-                    const colorData = color as number[];
-                    for (let c = 0; c < colorData.length; c += 3) {
-                        let i = c / 3 * 4;
-                        colorRGB[i] = colorData[c] * 255;
-                        colorRGB[i + 1] = colorData[c + 1] * 255;
-                        colorRGB[i + 2] = colorData[c + 2] * 255;
-                        colorRGB[i + 3] = 255;
-                    }
-                }
-            } else {
-                colorRGB = toRGB(color);
-            }
-        }
-        // const colorData = this.createFlexArray(colorRGB as number[] | Uint8Array);
-
-        attributes.a_color = size ? {
-            // data: colorRGB.map((v) => v * 255),
-            data: new FlexArray(colorRGB as Uint8Array),
-            size,
-            normalized: true
-        } : {
-            value: colorRGB as number[]
-        };
     }
 
     addInstance(x: number, y: number, z: number, scaleXYZ?: number[], translateXYZ?: number[], rotation?: number[], transform?) {
@@ -342,8 +285,8 @@ export class ModelBuffer extends TemplateBuffer {
                     // p[2] *= -groundRes;
                     transformMat4(p, p, modelMatrix);
 
-                    p[0] = p[0]/groundRes + tileX + positionOffsetData[i];
-                    p[1] = p[1]/groundRes + tileY + positionOffsetData[i + 1];
+                    p[0] = p[0] / groundRes + tileX + positionOffsetData[i];
+                    p[1] = p[1] / groundRes + tileY + positionOffsetData[i + 1];
                     p[2] = -p[2] - positionOffsetData[i + 2];
 
 
