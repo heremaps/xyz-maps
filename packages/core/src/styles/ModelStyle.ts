@@ -34,7 +34,7 @@ export interface Material {
     diffuse?: number[],
     /**
      * The name of the diffuse map used by the material.
-     * The actual texture must be defined in {@link ModelStyle.data.textures}.
+     * The actual texture must be defined in {@link ModelStyle.model.textures}.
      */
     diffuseMap?: string,
     /**
@@ -120,14 +120,14 @@ export interface ModelStyle {
     /**
      * The Model data that should be rendered.
      */
-    data: {
+    model: {
 
         /**
          * Textures used by Materials.
          */
         textures?: { [name: string]: HTMLCanvasElement | HTMLImageElement | { width: number, height: number, pixels?: Uint8Array } };
         /**
-         * Materials referenced by {@link ModelStyle.data.faces}.
+         * Materials referenced by {@link ModelStyle.model.faces}.
          */
         materials?: {
             [name: string]: Material
@@ -145,18 +145,18 @@ export interface ModelStyle {
              * If the used material is not defined in {@link ModelStyle.data.materials| Materials}, or none is defined, the default material will be used.
              */
             material: string;
-            /**
-             * Vertex indices.
-             * If no vertex indices are defined, "first" and "count" are used to render the face.
-             */
-            index?: Uint16Array | Uint32Array | number[];
+            // /**
+            //  * Vertex indices.
+            //  * If no vertex indices are defined, "first" and "count" are used to render the face.
+            //  */
+            // index?: Uint16Array | Uint32Array | number[];
             /**
              * A number specifying the starting index of the vertices to render the face.
-             * If "index" is defined, "first" is ignored.
+             * If "index" is defined, "start" is ignored.
              *
              * @defaultValue 0
              */
-            first?: number;
+            start?: number;
             /**
              * A number specifying the number of indices of the face to be rendered.
              * If "index" is defined, "count" is ignored.
@@ -182,19 +182,21 @@ export interface ModelStyle {
     cullFace?: 'Front' | 'Back' | false;
 
     /**
-     * scale the model.
+     * Scale the model by the given vector [sx,sy,sz].
      */
     scale?: number[];
     /**
-     * translate the model.
+     * Translate the model by the given vector [tx,ty,tz].
      */
     translate?: number[];
     /**
-     * rotate the model.
+     * rotate the model by the given vector [radX,radY,radZ].
+     * The order of rotation is x first, then y, followed by z.
      */
     rotate?: number[];
     /**
-     * transform the model.
+     * 4x4 transformation matrix to transform the model.
+     * if transform is defined, {@link ModelStyle.scale | scale}, {@link ModelStyle.translate} and {@link ModelStyle.rotate} are ignored.
      */
     transform?: number[];
 

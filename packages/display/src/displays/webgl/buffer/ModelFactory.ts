@@ -25,7 +25,7 @@ class ModelTexture extends Texture {
     ref: number = 0;
 }
 
-export type ModelData = ModelStyle['data'];
+export type ModelData = ModelStyle['model'];
 
 type Model = {
     textures: { [name: string]: ModelTexture }
@@ -118,7 +118,7 @@ class ModelFactory {
                     }
                 }
 
-                parts.push({attributes, bbox, uniforms: material, index, first: face.first, count: face.count});
+                parts.push({attributes, bbox, uniforms: material, index, first: face.start, count: face.count});
             }
 
             this.models[id] = {textures: modelTextures, parts};

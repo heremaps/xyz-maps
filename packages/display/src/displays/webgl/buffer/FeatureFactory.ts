@@ -215,7 +215,7 @@ export class FeatureFactory {
             );
         } else {
             if (type == 'Model') {
-                let data = getValue('data', style, feature, level);
+                let data = getValue('model', style, feature, level);
 
                 if (data) {
                     data.id ||= Math.random();
