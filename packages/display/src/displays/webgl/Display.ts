@@ -525,7 +525,7 @@ class WebGlDisplay extends BasicDisplay {
         // console.time('getRenderedFeatureAt');
         this.rayCaster.init(x, y, this.w, this.h, this.s, 1 / this.groundResolution);
 
-        const camWorldZ = this.render.cameraWorld[2];
+        const camWorldZ = -this.render.cameraWorld[2];
 
         let tileSize: number | string;
         for (tileSize in tiles) {
