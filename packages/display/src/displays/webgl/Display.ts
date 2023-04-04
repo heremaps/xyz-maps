@@ -525,23 +525,22 @@ class WebGlDisplay extends BasicDisplay {
         // console.time('getRenderedFeatureAt');
         this.rayCaster.init(x, y, this.w, this.h, this.s, 1 / this.groundResolution);
 
-        const scaleZ = this.rayCaster.getInverseScale(true)[2];
+        const camWorldZ = this.render.cameraWorld[2];
 
-        for (let tileSize in tiles) {
+        let tileSize: number | string;
+        for (tileSize in tiles) {
+            tileSize = Number(tileSize);
             for (let gridTile of tiles[tileSize]) {
                 const tileX = gridTile.x;
                 const tileY = gridTile.y;
-
                 const tile = <GLTile>gridTile.tile;
-
                 const hitTile = this.rayCaster.intersectAABBox(
                     tileX, tileY, 0,
-                    tileX + Number(tileSize), tileY + Number(tileSize), -tileSize * scaleZ
+                    tileX + tileSize, tileY + tileSize, camWorldZ
                 );
                 if (!hitTile) continue;
 
                 let {data} = tile;
-
 
                 for (let i = 0; i < data.length; i++) {
                     const {layer} = tile.layers[i];

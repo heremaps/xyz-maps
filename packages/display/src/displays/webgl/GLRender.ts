@@ -83,6 +83,7 @@ export class GLRender implements BasicRender {
     private worldMatrix: Float64Array;
     screenMat: Float32Array;
     invScreenMat: Float32Array;
+    cameraWorld: Float64Array = new Float64Array(3);
 
     private tilePreviewTransform: {
         m: Float32Array; // tile transformation matrix,
@@ -416,6 +417,13 @@ export class GLRender implements BasicRender {
         mat4.multiply(screenMatrix, screenMatrix, this.vPMat);
 
         invert(this.invScreenMat, screenMatrix);
+
+        // update camera's world position
+        const {cameraWorld} = this;
+        cameraWorld[0] = 0;
+        cameraWorld[1] = 0;
+        cameraWorld[2] = -1;
+        transformMat4(cameraWorld, cameraWorld, this.invVPMat);
 
 
         // // used for debug only...
