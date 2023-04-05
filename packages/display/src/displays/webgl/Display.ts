@@ -525,7 +525,7 @@ class WebGlDisplay extends BasicDisplay {
         // console.time('getRenderedFeatureAt');
         this.rayCaster.init(x, y, this.w, this.h, this.s, 1 / this.groundResolution);
 
-        const camWorldZ = -this.render.cameraWorld[2];
+        const camWorldZ = this.rayCaster.origin[2] - .001;
 
         let tileSize: number | string;
         for (tileSize in tiles) {
@@ -540,9 +540,7 @@ class WebGlDisplay extends BasicDisplay {
                 );
                 if (!hitTile) continue;
 
-                let {data} = tile;
-
-                for (let i = 0; i < data.length; i++) {
+                for (let i = 0, {data} = tile; i < data.length; i++) {
                     const {layer} = tile.layers[i];
                     const layerBuffers = data[i];
                     const layerIndex = layers.indexOf(layer);
