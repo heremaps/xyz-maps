@@ -22,6 +22,7 @@ import {Line} from './Line';
 import LineTools, {Coordinate} from './LineTools';
 import {dragFeatureCoordinate} from '../oTools';
 import oTools from '../area/PolygonTools';
+import {Navlink} from '@here/xyz-maps-editor';
 
 
 let lineTools: typeof LineTools;
@@ -247,23 +248,25 @@ class LineShape extends Feature {
 
     pressmove(ev, dx, dy) {
         const shape = this;
-        const display = ev.detail.display;
         const properties = this.properties;
         const {lineStringIndex} = properties;
-        const geo = display.pixelToGeo(properties.x + dx, properties.y + dy);
         const line = shape.getLine();
-
+        const editor = line._e();
         const coordinates = <Coordinate[]>lineTools.getCoordinates(line, lineStringIndex);
-        let coord = coordinates[properties.index];
-
+        const ignoreZ = !editor.getStyleProperty(line, 'altitude');
+        const orgCoord: number[] = coordinates[properties.index];
+        let coord = ignoreZ ? orgCoord.slice(0, 2) : orgCoord;
 
         if (!properties.moved) {
             properties.moved = true;
-            line._e().listeners.trigger(ev, this, 'dragStart');
+            editor.listeners.trigger(ev, this, 'dragStart');
         }
+        coord = coordinates[properties.index] = <Coordinate>dragFeatureCoordinate(ev.mapX, ev.mapY, shape, coord, editor);
 
-        coord = coordinates[properties.index] = <Coordinate>dragFeatureCoordinate(ev.mapX, ev.mapY, shape, coord, line._e());
-
+        if (ignoreZ && typeof orgCoord[2] == 'number') {
+            // restore original altitude if 2d edit mode is forced.
+            coord[2] = orgCoord[2];
+        }
         shape.getProvider().setFeatureCoordinates(shape, coord.slice());
 
         lineTools._setCoords(line, coordinates, lineStringIndex);
