@@ -1,3 +1,33 @@
+## 0.33.0 (2023-4-6)
+### core
+* fixed: Using custom margin was ignored when set via TileLayer constructor
+### deps
+* build: bump loader-utils from 1.4.0 to 1.4.2
+* build: bump socket.io-parser from 4.0.4 to 4.0.5
+* build: bump minimatch from 3.0.4 to 3.0.5
+* build: bump engine.io from 6.2.0 to 6.2.1
+* build: bump decode-uri-component from 0.2.0 to 0.2.2
+* build: bump json5 from 1.0.1 to 1.0.2
+* build: bump ua-parser-js from 0.7.31 to 0.7.33
+* build: bump http-cache-semantics from 4.1.0 to 4.1.1
+### editor
+* added: Editing of 3D LineString geometry is now automatically enforced in 2D only when using 2D styling.
+* added: The CrossingDetector utility now supports 3D line geometry and automatically switches between 2D and 3D modes based on the style used.
+* fixed: The crossing tester utility detects too many crossings when used with 3d line geometry.
+* fixed: Trigger pointerleave events for hovered features currently in submit process can fail
+### display
+* improved: Improved rendering of intersecting 3D Icon-styles with transparency
+* improved: The rendering of lines in 3D space has been improved
+* added: New [ModelStyles](https://heremaps.github.io/xyz-maps/docs/interfaces/core.modelstyle.html) have been introduced that allow features to be displayed as 3D models including lighting support.
+* added: Point and line styles can now be configured whether to scale their size based on the altitude. See: [scaleByAltitude](https://heremaps.github.io/xyz-maps/docs/interfaces/core.style.html#scaleByAltitude)
+* added: Altitude is now taken into account when projecting a geographic coordinate in pixels.
+* fixed: Pointer events for 3d lines are now triggered correctly in intermediate zoom levels.
+* fixed: Using range based line styling can, in rare cases, lead to a crash.
+* fixed: Line ranges can be ignored if the start/end of the range is exactly on a line coordinate.
+* fixed: If longitude exceeds 180 degrees, an incorrect tile may be displayed.
+* fixed: Heavy workload/layer-setup may cause collision detection to crash
+* fixed: Searching for rendered features at a specific pixel will fail if the layers are not explicitly passed
+
 ## 0.32.0 (2022-10-14)
 ### editor
 * improved: Attempting to create an invalid feature using the drawing board now returns undefined.
