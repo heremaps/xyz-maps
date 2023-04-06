@@ -291,9 +291,11 @@ class NvtRoutingPoint {
 
 
     searchLink() {
-        const linkProvider = locTools.getRoutingProvider(this.location);
-        return linkProvider && this.iEditor.objects.getNearestLine(this.location.coord(), linkProvider, {
-            maxDistance: this.iEditor._config['maxRoutingPointDistance']
+        const {iEditor, location} = this;
+        const linkProvider = locTools.getRoutingProvider(location);
+        return linkProvider && iEditor.objects.getNearestLine(location.coord(), linkProvider, {
+            maxDistance: iEditor._config['maxRoutingPointDistance']
+            // ignoreZ: !iEditor.getStyleProperty(location, 'altitude')
         });
     };
 

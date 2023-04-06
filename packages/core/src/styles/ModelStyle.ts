@@ -152,14 +152,14 @@ export interface ModelStyle {
             // index?: Uint16Array | Uint32Array | number[];
             /**
              * A number specifying the starting index of the vertices to render the face.
-             * If "index" is defined, "start" is ignored.
+             * If "start" is defined, "index" is ignored.
              *
              * @defaultValue 0
              */
             start?: number;
             /**
              * A number specifying the number of indices of the face to be rendered.
-             * If "index" is defined, "count" is ignored.
+             * If "count"  is defined, "index" is ignored.
              *
              * @defaultValue position.size/3
              */
