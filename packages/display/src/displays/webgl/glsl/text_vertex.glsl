@@ -27,30 +27,15 @@ const float PI_05 = M_PI * 0.5;
 const float PI_15 = M_PI * 1.5;
 const float PI_20 = M_PI * 2.0;
 
-mat3 rotation3dY(float angle) {
-    float s = sin(angle);
-    float c = cos(angle);
-    return mat3(
-    c, 0.0, -s,
-    0.0, 1.0, 0.0,
-    s, 0.0, c
-    );
-}
-vec3 rotateY(vec3 v, float angle) {
-    return rotation3dY(angle) * v;
-}
-vec3 rotateY(vec2 v, float angle) {
-    return rotation3dY(angle) * vec3(v, 0.0);
-}
 
 
-void main(void){
-    if (mod(a_position.x, 2.0) == 1.0){
+void main(void) {
+    if (mod(a_position.x, 2.0) == 1.0) {
 
         vec2 position = floor(a_position.xy / 2.0) * EXTENT_SCALE;
 
         vec2 rotLowHi = mod(a_texcoord, 32.0);
-        float rotation = rotLowHi.y * 32.0 + rotLowHi.x;
+        float rotationZ = rotLowHi.y * 32.0 + rotLowHi.x;
         // texture coodrinates bit6->bit16
         v_texcoord = floor(a_texcoord / 32.0) * u_atlasScale;
 
@@ -58,39 +43,39 @@ void main(void){
 
         labelOffset *= DEVICE_PIXEL_RATIO;
 
-        rotation = rotation / 1024.0 * PI_20;// 9bit -> 2PI;
+        rotationZ = rotationZ / 1024.0 * PI_20;// 9bit -> 2PI;
 
-        float z = a_position.z * SCALE_UINT16_Z + toPixel(u_offsetZ, u_scale)/ u_zMeterToPixel/ u_scale;
+        float z = a_position.z * SCALE_UINT16_Z + toPixel(u_offsetZ, u_scale) / u_zMeterToPixel / u_scale;
 
-        if (u_alignMap){
-            float absRotation = mod(u_rotate + rotation, PI_20);
+        if (u_alignMap) {
+            float absRotation = mod(u_rotate + rotationZ, PI_20);
+            float rotationY = a_point.z / 32767.0 * PI_20;
 
-            if (absRotation > PI_05 && absRotation < PI_15){
-                rotation += M_PI;
+            if (absRotation > PI_05 && absRotation < PI_15) {
+                rotationZ += M_PI;
                 labelOffset *= -1.0;
+                rotationY *= -1.0;
             }
 
-            vec2 _p = a_point.xy * OFFSET_SCALE + labelOffset;
-            vec3 p = rotateY(vec3(_p, 1.0), a_point.z/32767.0 * PI_20);
-            p.xy = rotateZ(_p, rotation);
-            p = p / u_scale / DEVICE_PIXEL_RATIO;
+            vec3 offset = vec3(a_point.xy * OFFSET_SCALE + labelOffset, 0.0) / u_scale / DEVICE_PIXEL_RATIO;
+            offset = rotateY(offset, rotationY);
+            offset.xy = rotateZ(offset.xy, rotationZ);
 
-            vec3 posWorld = vec3(u_topLeft + position, p.z -z);
-
-            if (!u_scaleByAltitude){
+            vec3 posWorld = vec3(u_topLeft + position, -z);
+            if (!u_scaleByAltitude) {
                 float scaleDZ = 1.0 + posWorld.z * u_matrix[2][3] / (u_matrix[0][3] * posWorld.x + u_matrix[1][3] * posWorld.y + u_matrix[3][3]);
-                p.xy *= scaleDZ;
+                offset.xy *= scaleDZ;
             }
+            gl_Position = u_matrix * vec4(posWorld + offset, 1.0);
 
-            gl_Position = u_matrix * vec4(posWorld.xy + p.xy, posWorld.z + p.z, 1.0);
         } else {
             vec4 cpos = u_matrix * vec4((u_topLeft + position), -z, 1.0);
-            vec2 offset = rotateZ(a_point.xy * OFFSET_SCALE + labelOffset, rotation);
+            vec2 offset = rotateZ(a_point.xy * OFFSET_SCALE + labelOffset, rotationZ);
             //            posOffset = rotateY(vec3(posOffset, 0), a_point.z).xy;
             gl_Position = vec4(cpos.xy / cpos.w + vec2(1, -1) * offset / DEVICE_PIXEL_RATIO / u_resolution * 2.0, cpos.z / cpos.w, 1.0);
         }
 
-        if (u_fixedView){
+        if (u_fixedView) {
             // round/snap to pixelgrid if mapview is static -> crisp
             gl_Position = snapToScreenPixel(gl_Position, u_resolution);
         }

@@ -11,11 +11,17 @@ vec4 snapToScreenPixel(vec4 position, vec2 resolution){
     return position;
 }
 
+
+vec3 rotateY(vec3 v, float a) {
+    float s = sin(a);
+    float c = cos(a);
+    return mat3(c, 0.0, -s, 0.0, 1.0, 0.0, s, 0.0, c) * v;
+}
+
 vec2 rotateZ(vec2 v, float a){
-    float rotSin = sin(a);
-    float rotCos = cos(a);
-    mat2 m = mat2(rotCos, -rotSin, rotSin, rotCos);
-    return v * m;
+    float s = sin(a);
+    float c = cos(a);
+    return v * mat2(c, -s, s, c);
 }
 
 //vec2 rotateZ(vec2 point, float rad){
