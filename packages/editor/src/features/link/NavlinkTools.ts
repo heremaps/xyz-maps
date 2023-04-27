@@ -792,7 +792,14 @@ var tools = {
         return autoFixGeometry(line, shapeToCheck, ignoreSplitChildren, preferShapeIndex);
     },
     // used by: crossing + shape
-    connectShpToLink: function(line: Navlink, shpIndex: number, toLink: Navlink, toPos: GeoJSONCoordinate, preferSegment?: number, ignoreZ?: boolean): ConnectLinksResult {
+    connectShpToLink: function(
+        line: Navlink,
+        shpIndex: number,
+        toLink: Navlink,
+        toPos: GeoJSONCoordinate,
+        preferSegment?: number,
+        ignoreZ: boolean = tools.ignoreZ(line)
+    ): ConnectLinksResult {
         const splitInfo = new ConnectLinksResult();
         let newLinks;
         const objManager = line._e().objects;
