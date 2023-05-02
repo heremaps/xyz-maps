@@ -614,6 +614,11 @@ abstract class Display {
     getRenderedFeatureAt(screenX: number, screenY: number, layers?: (TileLayer | CustomLayer)[]): { id: number | string | null, z: number, layerIndex: number, pointWorld?: number[] } {
         return null;
     }
+
+    scaleOffsetXYByAltitude(pointWorld: number[]) {
+        // compensate altitude scaling is not supported by default
+        return 1;
+    }
 }
 
 

@@ -80,7 +80,7 @@ export const getAngle = (p1: Point, p2: Point): number => {
 
 export const movePointOnPath = (g1: Point, g2: Point, distance: number) => {
     // let d = vec3.sub([], g2, g1);
-    const d = [g2[0] - g1[0], g2[1] - g1[1], g2[2] || 0 - g1[2] || 0];
+    const d = [g2[0] - g1[0], g2[1] - g1[1], (g2[2] || 0) - (g1[2] || 0)];
     vec3.scale(d, vec3.normalize(d, d), distance);
     return vec3.add(d, d, g1);
 };

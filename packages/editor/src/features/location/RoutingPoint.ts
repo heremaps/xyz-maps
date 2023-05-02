@@ -154,11 +154,14 @@ class NvtRoutingPoint {
 
             if (prv.isSelected) {
                 const selectorStyle = iEditor.getStyle(prv.selector)[0] || {};
-
+                const distance = selectorStyle['radius'] || selectorStyle['width'] / 2;
+                const scaleByAltitude = selectorStyle['scaleByAltitude'];
+                const displayWorld = display._g2w(displayPnt);
+                const scaleDZ = display._scaleOffsetXYByAltitude(displayWorld, scaleByAltitude);
                 displayPnt = display._w2g(movePointOnPath(
-                    display._g2w(displayPnt),
+                    displayWorld,
                     display._g2w(position),
-                    selectorStyle['radius'] || selectorStyle['width'] / 2
+                    distance * scaleDZ
                 ));
             }
             iEditor.objects.overlay.setFeatureCoordinates(this.streetLine, [position].concat([displayPnt]));

@@ -77,7 +77,7 @@ export type BufferCache = WeakMap<Attribute | IndexData, WebGLBuffer>;
 export class GLRender implements BasicRender {
     icons: IconManager;
     private vMat: Float32Array; // view matrix
-    private vPMat: Float32Array; // projection matrix
+    vPMat: Float32Array; // projection matrix
     private invVPMat: Float32Array; // inverse projection matrix
     // the worldmatrix used by custom layers to project from absolute worldcoordinates [0-1] to screencoordinates
     private worldMatrix: Float64Array;

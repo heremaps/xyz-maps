@@ -565,6 +565,11 @@ class WebGlDisplay extends BasicDisplay {
         this.viewChange = false;
         this.update();
     }
+
+    scaleOffsetXYByAltitude(pointWorld: number[]): number {
+        const mat = this.render.vPMat;
+        return 1.0 - pointWorld[2] * mat[11] / (mat[3] * pointWorld[0] + mat[7] * pointWorld[1] + mat[15]);
+    }
 }
 
 export default WebGlDisplay;

@@ -1519,6 +1519,18 @@ export class Map {
     }
 
     /**
+     * Apply scaling of xy axis if required by "scaleByAltitude" styling.
+     *
+     * @internal
+     * @hidden
+     */
+    _scaleOffsetXYByAltitude(pointWorld: number[], scaleByAltitude: boolean) {
+        const map = this;
+        const scale = scaleByAltitude ? 1 : map._display.scaleOffsetXYByAltitude(pointWorld);
+        return scale / map._s;
+    }
+
+    /**
      * Destroy the the map.
      */
     destroy() {
