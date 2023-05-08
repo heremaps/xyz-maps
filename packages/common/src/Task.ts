@@ -1,5 +1,5 @@
 /*
- * Copyright (C) 2019-2022 HERE Europe B.V.
+ * Copyright (C) 2019-2023 HERE Europe B.V.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -39,6 +39,8 @@ class Task {
 
     onDone: (any) => void;
 
+    yield: boolean;
+
     paused: boolean;
 
     priority: number;
@@ -46,8 +48,6 @@ class Task {
     delayed: number;
 
     delay: number;
-
-    yielded: boolean;
 
     canceled: boolean;
 
@@ -62,6 +62,7 @@ class Task {
     _data: any;
 
     started: boolean;
+
 
     constructor(
         manager: TaskManager,
@@ -104,6 +105,15 @@ class Task {
         return task.manager.start(task);
     };
 
+    pause() {
+        this.paused = true;
+        return this.CONTINUE;
+    }
+    resume() {
+        this.paused = false;
+        this.start(this._data);
+    }
+
     restart(opt: TaskRestartOptions = {}) {
         const {_data} = this;
 
@@ -111,8 +121,9 @@ class Task {
         this.cancel();
 
         // reset
-        this.canceled = false;
         this.paused = false;
+        this.canceled = false;
+        this.yield = false;
         this.delayed = null;
         this.heap = null;
         this._data = _data;
@@ -160,11 +171,9 @@ Task.prototype.onDone = null;
 
 Task.prototype.heap = null;
 
-Task.prototype.paused = false;
+Task.prototype.yield = false;
 
 Task.prototype.delayed = null;
-
-Task.prototype.yielded = false;
 
 Task.prototype.canceled = false;
 

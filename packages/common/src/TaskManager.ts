@@ -1,5 +1,5 @@
 /*
- * Copyright (C) 2019-2022 HERE Europe B.V.
+ * Copyright (C) 2019-2023 HERE Europe B.V.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -96,6 +96,7 @@ export class TaskManager {
         let runtimeLeft = true;
         let runTimeExceeded;
         let taskDuration;
+        let execStopped;
         let initStartTs;
         let taskStartTS;
         let taskStopTS;
@@ -104,9 +105,6 @@ export class TaskManager {
         let data;
 
         runnerStartTS = runnerStartTS || manager.now();
-
-        let execStopped;
-
 
         if (!manager.active) {
             manager._resume();
@@ -119,17 +117,13 @@ export class TaskManager {
 
                 done = false;
 
-
-                if (task.paused) {
-                    task.paused = false;
-
+                if (task.yield) {
+                    task.yield = false;
                     data = task.heap;
                 } else {
                     initStartTs = manager.now();
-
                     data = task.init(task._data);
                 }
-
 
                 while (!done) {
                     taskStartTS = initStartTs || manager.now();
@@ -141,12 +135,19 @@ export class TaskManager {
                     taskDuration = taskStopTS - taskStartTS;
 
                     initStartTs = null;
-
                     // total taskrunner's time is exceeded
                     runTimeExceeded = taskStopTS - runnerStartTS > manager.time;
 
                     manager.task = null;
 
+                    if (task.paused) {
+                        done = true;
+                        runTimeExceeded = false;
+                        execStopped = true;
+                        task.heap = data;
+                        task.started = false;
+                        task.yield = true;
+                    }
 
                     // if( task.canceled )
                     // {
@@ -178,25 +179,21 @@ export class TaskManager {
                     if (
                         !done && (
                             // check if task as been paused due to task with higher priority arrived.
-                            (task.paused || // check if task's runtime hasn't been exceeded
+                            (task.yield || // check if task's runtime hasn't been exceeded
                                 taskDuration >= task.time)
                         ) ||
                         // total taskrunner's time is exceeded
                         runTimeExceeded
                     ) {
-                        // debugger;
-
                         if (!done) {
                             // no more runtime left -> put back in queue
                             // manager.queue[ task.priority ].unshift( task );
                             manager._insert(manager.task = task, true);
 
-                            task.paused = true;
+                            task.yield = true;
 
                             task.heap = data;
                         }
-
-
                         // check if total runner's time is exceeded
                         if (runTimeExceeded) {
                             // make sure next runner will be triggered async
@@ -214,17 +211,12 @@ export class TaskManager {
 
                         execStopped = true;
                         break;
-
                         // return manager.runner( runnerStartTS );
                     }
                 }
 
-                // if( !task.yielded )
-                // {
-
-
                 if (!execStopped) {
-                    task.paused = false;
+                    task.yield = false;
                     task.heap = null;
 
                     if (!task.canceled) {
@@ -234,11 +226,7 @@ export class TaskManager {
                         }
                     }
                 }
-
-
-                // }
             }
-
 
             if (!runtimeLeft) {
                 return manager._resume();
@@ -358,15 +346,13 @@ export class TaskManager {
 
     start(task: Task, forceSync?: boolean) {
         const curTask = this.task;
-
         // var taskPrio = this.getPriority( task )
 
-        if (task.started) {
+        if (task.started || task.paused) {
             return;
         }
 
         task.started = true;
-
 
         // make sure task is not running already..
         if (task != curTask) {
@@ -382,7 +368,7 @@ export class TaskManager {
                 this.runner();
             } else if (curTask && curTask.priority > task.priority) {
                 // current executing task has less priority -> pause the task!
-                curTask.paused = true;
+                curTask.yield = true;
             }
         }
     };
@@ -391,7 +377,7 @@ export class TaskManager {
         task.canceled = true;
 
         // make sure task init is getting executed in case of a restart
-        task.paused = false;
+        task.yield = false;
 
         task.started = false;
 
