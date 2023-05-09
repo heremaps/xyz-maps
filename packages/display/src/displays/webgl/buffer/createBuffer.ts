@@ -17,7 +17,7 @@
  * License-Filename: LICENSE
  */
 
-import {TaskManager, geometry} from '@here/xyz-maps-common';
+import {Task, TaskManager, geometry} from '@here/xyz-maps-common';
 import {GeometryBuffer} from './GeometryBuffer';
 import {getValue, parseStyleGroup} from '../../styleTools';
 import {Tile, webMercator, StyleGroup, Feature, TileLayer} from '@here/xyz-maps-core';
@@ -50,7 +50,6 @@ const handlePolygons = (
     multiIndex: number = 0
 ): boolean => {
     const zoom = factory.z;
-    let ready = true;
 
     for (let style of styleGroup) {
         const styleType = style.type;
@@ -59,7 +58,7 @@ const handlePolygons = (
             if (getValue('stroke', style, feature, zoom)) {
                 style.type = 'Line';
                 for (let linestring of coordinates) {
-                    ready = ready && factory.create(feature, 'LineString', linestring, [style], lsScale, tile.clipped);
+                    factory.create(feature, 'LineString', linestring, [style], lsScale, tile.clipped);
                 }
                 style.type = styleType;
             }
@@ -79,13 +78,12 @@ const handlePolygons = (
             const [cx, cy] = center;
 
             if (cx >= bounds[0] && cy >= bounds[1] && cx < bounds[2] && cy < bounds[3]) {
-                ready = ready && factory.create(feature, 'Point', center, [style], lsScale);
+                factory.create(feature, 'Point', center, [style], lsScale);
             }
         }
     }
-    return ready;
-}
-;
+    return;
+};
 
 type TaskData = [Tile, Feature[], number, number, number, TileLayer, number, boolean | CollisionGroup[]];
 
@@ -96,11 +94,14 @@ const createBuffer = (
     tile: Tile,
     factory: FeatureFactory,
     onInit: () => void,
-    onDone: (data: GeometryBuffer[], imagesLoaded: boolean) => void
+    onDone: (data: GeometryBuffer[], pendingResources: Promise<any>[]) => void
 ) => {
     const layer = <TileLayer>renderLayer.layer;
     const groups: GroupMap = {};
-    let allIconsReady = true;
+    const pendingResources = [];
+    const waitAndRefresh = (promise: Promise<any>)=>{
+        pendingResources.push(promise);
+    };
 
     const task = taskManager.create({
 
@@ -124,7 +125,7 @@ const createBuffer = (
                 onInit();
             }
 
-            factory.init(tile, groups, tileSize, zoom);
+            factory.init(tile, groups, tileSize, zoom, waitAndRefresh);
 
             return [
                 tile,
@@ -351,7 +352,7 @@ const createBuffer = (
                 }
             }
 
-            onDone(buffers.reverse(), allIconsReady);
+            onDone(buffers.reverse(), pendingResources);
         },
 
         exec: function(taskData: TaskData) {
@@ -366,9 +367,10 @@ const createBuffer = (
             let feature;
             let geom;
             let geomType;
-            let notDone = false;
+            let notDone;
 
             if (!taskData[7]) {
+                notDone ||= false;
                 while (taskData[4]--) {
                     if (feature = data[taskData[3]++]) {
                         styleGroups = displayLayer.getStyleGroup(feature, level);
@@ -386,31 +388,32 @@ const createBuffer = (
                             // const coordinates = geom.coordinates;
                             const coordinates = feature.getProvider().decCoord(feature);
 
-                            let imgReady = true;
-
                             if (geomType == 'MultiLineString' || geomType == 'MultiPoint') {
                                 const simpleType = geomType == 'MultiPoint' ? 'Point' : 'LineString';
 
                                 for (let coords of coordinates) {
-                                    imgReady = imgReady && factory.create(feature, simpleType, coords, styleGroups, lsScale);
+                                    factory.create(feature, simpleType, coords, styleGroups, lsScale);
                                 }
                             } else if (geomType == 'MultiPolygon') {
-                                imgReady = factory.create(feature, 'Polygon', coordinates, styleGroups, lsScale);
+                                factory.create(feature, 'Polygon', coordinates, styleGroups, lsScale);
 
                                 for (let p = 0; p < coordinates.length; p++) {
                                     let polygon = coordinates[p];
                                     // for (let polygon of coordinates) {
-                                    imgReady = imgReady && handlePolygons(factory, feature, polygon, styleGroups, lsScale, tile, p);
+                                    handlePolygons(factory, feature, polygon, styleGroups, lsScale, tile, p);
                                 }
                             } else {
-                                imgReady = factory.create(feature, geomType, coordinates, styleGroups, lsScale);
+                                factory.create(feature, geomType, coordinates, styleGroups, lsScale);
 
                                 if (geomType == 'Polygon') {
-                                    imgReady = imgReady && handlePolygons(factory, feature, coordinates, styleGroups, lsScale, tile);
+                                    handlePolygons(factory, feature, coordinates, styleGroups, lsScale, tile);
                                 }
                             }
 
-                            allIconsReady = allIconsReady && imgReady;
+                            // if (task.paused) {
+                            // awaiting asynchronous operation...
+                            // return notDone = true;
+                            // }
                         }
                     } else {
                         // feature count < bundle size -> next
@@ -438,7 +441,7 @@ const createBuffer = (
                             const {coordinates, priority, geomType} = candidate;
 
                             if (geomType == 'Point' || geomType == 'LineString') {
-                                const iconsReady = factory.create(
+                                factory.create(
                                     candidate.feature,
                                     geomType,
                                     coordinates,
@@ -448,7 +451,6 @@ const createBuffer = (
                                     priority,
                                     candidate
                                 );
-                                allIconsReady = allIconsReady && iconsReady;
                             }
                         } else {
                             break;
@@ -467,7 +469,6 @@ const createBuffer = (
 
     taskManager.start(task);
     return task;
-}
-;
+};
 
 export {createBuffer};

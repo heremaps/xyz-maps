@@ -25,7 +25,7 @@ class IconManager {
     private images = new ImageResourceHandler();
     private atlas: Atlas;
 
-    onLoad: (info: ImageInfo) => void;
+    // onLoad: (info: ImageInfo) => void;
 
     constructor(gl: WebGLRenderingContext, tu: number) {
         this.atlas = new Atlas({
@@ -38,30 +38,45 @@ class IconManager {
         return this.atlas.texture;
     }
 
-    get(src: string, width?: number, height?: number, readyCb?: (atlasInfo: ImageInfo) => void): ImageInfo | false {
-        const {atlas, images, onLoad} = this;
-        let info = atlas.get(src);
+    // get(src: string, width?: number, height?: number, readyCb?: (atlasInfo: ImageInfo) => void): ImageInfo | false {
+    //     const {atlas, images, onLoad} = this;
+    //     let info = atlas.get(src);
+    //
+    //     if (!info) {
+    //         const img = images.get(src, (img) => {
+    //             info = atlas.set(src, img);
+    //             // let old = atlas.get(src);
+    //             if (readyCb) {
+    //                 readyCb(info);
+    //             }
+    //             if (onLoad) {
+    //                 onLoad(info);
+    //             }
+    //         });
+    //
+    //         if (!img.ready) {
+    //             // debugger;
+    //             console.log('imgReady', img.ready, info);
+    //             return false;
+    //             // set empty dummy until real image is ready...
+    //             // info = atlas.set(src, {width: width, height: height});
+    //         }
+    //     }
+    //
+    //     return info;
+    // }
 
-        if (!info) {
-            const img = images.get(src, (img) => {
-                info = atlas.set(src, img);
-                // let old = atlas.get(src);
-                if (readyCb) {
-                    readyCb(info);
-                }
-                if (onLoad) {
-                    onLoad(info);
-                }
+    private promises = {};
+    get(src: string, width?: number, height?: number, readyCb?: (atlasInfo: ImageInfo) => void): ImageInfo | Promise<ImageInfo> {
+        const {atlas, images, promises} = this;
+        return atlas.get(src) || (promises[src] ||= new Promise((resolve, reject)=>{
+            images.get(src, (img) => {
+                delete promises[src];
+                const info = atlas.set(src, img);
+                readyCb?.(info);
+                resolve(info);
             });
-
-            if (!img.ready) {
-                return false;
-                // set empty dummy until real image is ready...
-                // info = atlas.set(src, {width: width, height: height});
-            }
-        }
-
-        return info;
+        }));
     }
 
     destroy() {

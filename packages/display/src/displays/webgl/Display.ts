@@ -130,33 +130,28 @@ class WebGlDisplay extends BasicDisplay {
         this.rayCaster = new Raycaster(render.screenMat, render.invScreenMat);
 
         this.factory = new FeatureFactory(render.gl, render.icons, this.collision, this.dpr);
+    };
 
-        // TODO: do clean implementation for tile refresh after image load
-        this.tilesNotReady = [];
-        this.render.icons.onLoad = (src) => {
-            for (let {quadkey, layerId} of this.tilesNotReady) {
-                const dLayer = this.layers.get(layerId);
-                if (dLayer) {
-                    const dTile = this.buckets.get(quadkey, true/* SKIP TRACK */);
-                    if (dTile) {
-                        const layer = <TileLayer>dLayer.layer;
-                        const {index} = dLayer;
-                        dTile.preview(index, false);
-                        dTile.ready(index, false);
-                        dTile.cancelTasks(layer);
-                        const tile = layer.getCachedTile(dTile.quadkey);
-                        if (tile) {
-                            // tile processing is only necessary if it is still visible on screen.
-                            if (this.getScreenTile(quadkey, dLayer.tileSize)) {
-                                this.handleTile(tile, layer, dTile, index);
-                            }
-                        }
+    private refreshTile(quadkey: string, layerId: string) {
+        const dLayer = this.layers.get(layerId);
+        if (dLayer) {
+            const dTile = this.buckets.get(quadkey, true/* SKIP TRACK */);
+            if (dTile) {
+                const layer = <TileLayer>dLayer.layer;
+                const {index} = dLayer;
+                dTile.preview(index, false);
+                dTile.ready(index, false);
+                dTile.cancelTasks(layer);
+                const tile = layer.getCachedTile(dTile.quadkey);
+                if (tile) {
+                    // tile processing is only necessary if it is still visible on screen.
+                    if (this.getScreenTile(quadkey, dLayer.tileSize)) {
+                        this.handleTile(tile, layer, dTile, index);
                     }
                 }
             }
-            this.tilesNotReady = [];
-        };
-    };
+        }
+    }
 
     private releaseBuffers(buffers: GeometryBuffer[]) {
         const renderer = this.render;
@@ -277,7 +272,9 @@ class WebGlDisplay extends BasicDisplay {
         const renderer = display.render;
         const gl = renderer.gl;
         const tileSize = layer.tileSize;
-        const displayLayer = this.layers.get(layer.id);
+        const {quadkey} = dTile;
+        const layerId = layer.id;
+        const displayLayer = this.layers.get(layerId);
 
         if (tile.type == 'image' && data instanceof Image) {
             const buffer = createImageBuffer(data, gl, tileSize, displayLayer.index > 0);
@@ -292,15 +289,14 @@ class WebGlDisplay extends BasicDisplay {
                     display.collision.initTile(tile, displayLayer);
                 },
                 // on done
-                (buffer, allImgLoaded) => {
+                (buffer, pendingResources) => {
                     dTile.removeTask(task, layer);
-
                     dTile.preview(dTile.setData(layer, buffer), null);
 
-                    if (!allImgLoaded) {
-                        display.tilesNotReady.push({
-                            quadkey: dTile.quadkey,
-                            layerId: layer.id
+                    if (pendingResources.length) {
+                        // Promise.all(pendingResources).then(()=>this.refreshTile(quadkey, layerId));
+                        pendingResources.forEach((resource)=>{
+                            resource.then(()=>this.refreshTile(quadkey, layerId));
                         });
                     }
 

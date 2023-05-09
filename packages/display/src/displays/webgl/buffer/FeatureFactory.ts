@@ -1,5 +1,5 @@
 /*
- * Copyright (C) 2019-2022 HERE Europe B.V.
+ * Copyright (C) 2019-2023 HERE Europe B.V.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -47,8 +47,8 @@ import {SphereBuffer} from './templates/SphereBuffer';
 import {TemplateBufferBucket} from './templates/TemplateBufferBucket';
 import {ModelStyle} from '@here/xyz-maps-core';
 import {ModelFactory} from './ModelFactory';
-import Model from '../program/Model';
 import {ModelBuffer} from './templates/ModelBuffer';
+import {ImageInfo} from '../Atlas';
 
 const DEFAULT_STROKE_WIDTH = 1;
 const DEFAULT_LINE_CAP = 'round';
@@ -119,10 +119,10 @@ export class FeatureFactory {
     private tileSize: number;
     private lineFactory: LineFactory;
     private modelFactory: ModelFactory;
-    private iconsLoaded: boolean;
     collisions: CollisionHandler;
     pendingCollisions: CollisionGroup[] = [];
     z: number;
+    private waitAndRefresh: (p:Promise<any>)=>void;
 
     constructor(gl: WebGLRenderingContext, iconManager: IconManager, collisionHandler, devicePixelRatio: number) {
         this.gl = gl;
@@ -143,13 +143,14 @@ export class FeatureFactory {
         }
     }
 
-    init(tile, groups: GroupMap, tileSize: number, zoom: number) {
+    init(tile, groups: GroupMap, tileSize: number, zoom: number, waitAndRefresh: (p:Promise<any>)=>void) {
         this.tile = tile;
         this.groups = groups;
         this.tileSize = tileSize;
         this.z = zoom;
         this.lineFactory.initTile();
         this.pendingCollisions.length = 0;
+        this.waitAndRefresh = waitAndRefresh;
     }
 
 
@@ -216,12 +217,9 @@ export class FeatureFactory {
         } else {
             if (type == 'Model') {
                 let data = getValue('model', style, feature, level);
-
+                let modelId;
                 if (data) {
-                    data.id ||= Math.random();
-
-                    const modelId = data.id || (style as ModelStyle).modelId;
-
+                    modelId = data.id ||= Math.random();
                     this.modelFactory.initModel(modelId, data);
 
                     let bucket = <TemplateBufferBucket<ModelBuffer>>group.buffer;
@@ -248,18 +246,18 @@ export class FeatureFactory {
                 const src = getValue('src', style, feature, level);
                 const width = getValue('width', style, feature, level);
                 const height = getValue('height', style, feature, level) || width;
+
                 const img = this.icons.get(src, width, height);
 
-                if (!img) {
-                    this.iconsLoaded = false;
-                    return;
+                if ((<Promise<ImageInfo>>img).then) {
+                    return this.waitAndRefresh(<Promise<ImageInfo>>img);
                 }
 
                 positionBuffer = flexAttributes.a_position;
 
                 addIcon(
                     x, y, z,
-                    img,
+                    <ImageInfo>img,
                     width, height,
                     flexAttributes.a_size.data,
                     positionBuffer.data,
@@ -271,7 +269,6 @@ export class FeatureFactory {
             } else if (type == 'Circle' || type == 'Rect') {
                 const pointBuffer = (group.buffer as PointBuffer) ||= new PointBuffer(isFlat);
                 positionBuffer = pointBuffer.flexAttributes.a_position;
-
 
                 addPoint(x, y, z, positionBuffer.data);
             } else {
@@ -376,13 +373,12 @@ export class FeatureFactory {
         let collisionBox;
         let collisionData;
 
-        this.iconsLoaded = true;
 
         this.lineFactory.initFeature(level, tileSize, collisionGroup?.id);
 
         if (priority === UNDEF && geomType === 'Point' && !tile.isInside(<GeoJSONCoordinate>coordinates)) {
-            return this.iconsLoaded;
-            // console.log('NOT INSIDE',coordinates,tile);
+            // not inside tile
+            return;
         }
 
         for (let i = 0, iLen = styleGroups.length; i < iLen; i++) {
@@ -470,7 +466,6 @@ export class FeatureFactory {
                 style.modelId ||= Math.random();
                 modelMode = Number(style.terrain || 0);
                 groupId = 'M' + style.modelId;
-
                 processPointOffset = true;
             } else if (type == 'Icon') {
                 alignment = getValue('alignment', style, feature, level) || 'viewport';
@@ -741,7 +736,7 @@ export class FeatureFactory {
                         );
 
                         if (!collisionData) {
-                            return this.iconsLoaded;
+                            return;
                         }
                         // make sure collision is not check for following styles of stylegroup
                         collisionGroup = null;
@@ -960,6 +955,6 @@ export class FeatureFactory {
             this.pendingCollisions.push(cData);
         }
 
-        return this.iconsLoaded;
+        return;
     }
 }

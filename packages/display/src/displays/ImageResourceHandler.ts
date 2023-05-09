@@ -81,9 +81,8 @@ class ImageResourceHandler {
     };
 
     isReady(url: string) {
-        return this.imgData[url] && this.imgData[url].ready;
+        return this.imgData[url]?.ready;
     };
-
 
     get(url: string, cb?: (img: HTMLImageElement, ...args) => void, cbID?: string, args?) {
         let resources = this.imgData;
