@@ -1,20 +1,24 @@
 module.exports = {
-    'extends': 'google',
-    'parser': '@typescript-eslint/parser',
+    extends: ['google', 'prettier'],
+    plugins: ['prettier'],
+    parser: '@typescript-eslint/parser',
     // "env":{
     //     browser:true,
     //     "es6":true
     // },
-    'parserOptions': {
-        'ecmaVersion': 2021,
-        'sourceType': 'module'
+    parserOptions: {
+        ecmaVersion: 2021,
+        sourceType: 'module'
     },
-
-    'rules': {
+    rules: {
+        'prettier/prettier': ['error'],
         'no-var': 0,
-        'max-len': [0, {
-            'ignoreComments': true
-        }],
+        'max-len': [
+            0,
+            {
+                ignoreComments: true
+            }
+        ],
         'prefer-const': 0,
         'operator-linebreak': 0,
         'valid-jsdoc': 0,
@@ -25,7 +29,7 @@ module.exports = {
         'no-unused-vars': 0,
         'comma-dangle': ['error', 'never'],
         'no-multi-str': 0,
-        'indent': ['error', 4],
+        indent: ['error', 4],
         'no-invalid-this': 0
         // "padding-line-between-statements": [
         //     "error",
