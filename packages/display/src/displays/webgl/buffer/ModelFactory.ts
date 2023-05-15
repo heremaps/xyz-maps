@@ -16,30 +16,39 @@
  * SPDX-License-Identifier: Apache-2.0
  * License-Filename: LICENSE
  */
-import {Texture} from '../Texture';
-import {ModelBuffer} from './templates/ModelBuffer';
-import {TemplateBufferBucket} from './templates/TemplateBufferBucket';
-import {ModelStyle} from '@here/xyz-maps-core';
+import { Texture } from '../Texture';
+import { ModelBuffer } from './templates/ModelBuffer';
+import { TemplateBufferBucket } from './templates/TemplateBufferBucket';
+import { ModelData } from '@here/xyz-maps-core';
+import { ObjParser } from './ObjParser';
 
 class ModelTexture extends Texture {
     ref: number = 0;
 }
 
-export type ModelData = ModelStyle['model'];
+// export type ModelData = ModelStyle['model'];
 
 type Model = {
-    textures: { [name: string]: ModelTexture }
-    parts: { attributes: any, uniforms: any, bbox: any, index?: number[] | Uint16Array | Uint32Array, first?: number, count?: number }[]
-}
+    textures: { [name: string]: ModelTexture };
+    parts: {
+        attributes: any;
+        uniforms: any;
+        bbox: any;
+        index?: number[] | Uint16Array | Uint32Array;
+        first?: number;
+        count?: number;
+    }[];
+};
 
 class ModelFactory {
     private models: { [id: string]: Model } = {};
     private unusedTexture: ModelTexture;
     private gl: WebGLRenderingContext;
     private onBufferDestroyed: (buffer) => void;
+    private objParser: ObjParser;
 
     constructor(gl: WebGLRenderingContext) {
-        const unusedTexture = new ModelTexture(gl, {width: 1, height: 1, pixels: new Uint8Array([255, 255, 255, 255])});
+        const unusedTexture = new ModelTexture(gl, { width: 1, height: 1, data: new Uint8Array([255, 255, 255, 255]) });
         unusedTexture.ref = Infinity;
         this.unusedTexture = unusedTexture;
         this.gl = gl;
@@ -49,6 +58,17 @@ class ModelFactory {
                 delete this.models[buffer.id];
             }
         };
+
+        this.objParser = new ObjParser();
+    }
+
+    destroy() {
+        this.objParser.destroy();
+    }
+
+    async loadObj(url: string) {
+        const data = await this.objParser.load(url);
+        return this.initModel(url, data);
     }
 
     private initTexture(name, imgData, textures) {
@@ -60,10 +80,13 @@ class ModelFactory {
         return texture;
     }
 
-    initModel(id: number, data: ModelData) {
-        const {geometries, materials, faces} = data;
-        const imgTexData = data.textures || {};
+    getModel(id: number | string): Model {
+        return this.models[id];
+    }
 
+    initModel(id: number | string, data: ModelData): Model {
+        const { geometries, materials, faces } = data;
+        const imgTexData = data.textures || {};
 
         const sharedAttr = new WeakMap();
 
@@ -97,18 +120,16 @@ class ModelFactory {
                 }
                 delete material.mode;
 
-
                 if (!attributes) {
                     attributes = ModelBuffer.init(geom);
                     // sharedAttr.set(geom, attributes);
                 }
 
-
                 if (geom.index) {
                     index = geom.index;
                 }
 
-                const bbox = geom.bbox ||= ModelBuffer.calcBBox(geom);
+                const bbox = (geom.bbox ||= ModelBuffer.calcBBox(geom));
 
                 for (let key in material) {
                     if (key.endsWith('Map')) {
@@ -118,11 +139,12 @@ class ModelFactory {
                     }
                 }
 
-                parts.push({attributes, bbox, uniforms: material, index, first: face.start, count: face.count});
+                parts.push({ attributes, bbox, uniforms: material, index, first: face.start, count: face.count });
             }
 
-            this.models[id] = {textures: modelTextures, parts};
+            this.models[id] = { textures: modelTextures, parts };
         }
+        return this.models[id];
     }
 
     createModelBuffer(id: string, cullFace?) {
@@ -130,13 +152,13 @@ class ModelFactory {
         let bufferBucket;
         if (model) {
             bufferBucket = new TemplateBufferBucket<ModelBuffer>();
-            let {parts} = model;
+            let { parts } = model;
             let positionOffset;
             let modelMatrix;
             let undef;
 
             for (let i = 0; i < parts.length; i++) {
-                let {attributes, bbox, uniforms, index, first, count} = parts[i];
+                let { attributes, bbox, uniforms, index, first, count } = parts[i];
 
                 let buffer = new ModelBuffer(undef, undef, modelMatrix, positionOffset);
                 // share a single buffer for the model-matrix data across multiple GeometryBuffers of the same model.
@@ -164,7 +186,6 @@ class ModelFactory {
                     buffer.setArray(first || 0, count);
                 }
 
-
                 buffer.bbox = bbox;
                 buffer.cullFace = cullFace;
                 buffer.id = id;
@@ -187,7 +208,7 @@ class ModelFactory {
         rotate: number[],
         transform: number[]
     ) {
-        const {buffers} = bufferBucker;
+        const { buffers } = bufferBucker;
         buffers[0].addInstance(x, y, z, scale, translate, rotate, transform);
         for (let i = 1; i < buffers.length; i++) {
             // buffers[i].addPosition(x, y, z, scale, translate, rotate, transform);
@@ -196,4 +217,4 @@ class ModelFactory {
     }
 }
 
-export {ModelFactory};
+export { ModelFactory };

@@ -1,10 +1,11 @@
 {
   "extends": "../../tsconfig.json",
   "compilerOptions": {
-    "target": "es5",
+    "target": "es2017",
     "sourceMap": true,
     "skipLibCheck": true,
-    "lib": ["es6","dom"]
+    "lib": ["ES2017","dom"],
+    "moduleResolution": "node"
   },
   "include": [
     "src/**/*"

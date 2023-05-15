@@ -17,7 +17,7 @@
  * License-Filename: LICENSE
  */
 
-import {SharedTexture} from './Atlas';
+import { SharedTexture } from './Atlas';
 
 type DashArray = [number, number, number?];
 
@@ -30,9 +30,10 @@ class DashAtlas {
     }
 
     create(dashArray: DashArray) {
-        let size = dashArray.reduce((a, b) => a + b)
+        let size =
+            dashArray.reduce((a, b) => a + b) *
             // double size for odd dasharray size to get repeating pattern
-            * (dashArray.length % 2 + 1);
+            ((dashArray.length % 2) + 1);
 
         // repeat pattern to roughly fit a complete tile to improve antialiasing of long lines
         size *= Math.ceil(512 / size);
@@ -51,11 +52,16 @@ class DashAtlas {
             }
         }
 
-        return new SharedTexture(this.gl, {
-            width: pixels.length,
-            height: 1,
-            pixels: pixels
-        }, false, this.gl.LUMINANCE);
+        return new SharedTexture(
+            this.gl,
+            {
+                width: pixels.length,
+                height: 1,
+                data: pixels
+            },
+            false,
+            this.gl.LUMINANCE
+        );
     }
 
     get(dashArray: DashArray): SharedTexture {
@@ -70,4 +76,4 @@ class DashAtlas {
     }
 }
 
-export {DashAtlas, DashArray};
+export { DashAtlas, DashArray };

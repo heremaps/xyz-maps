@@ -16,39 +16,39 @@
  * SPDX-License-Identifier: Apache-2.0
  * License-Filename: LICENSE
  */
-import {addText} from './addText';
-import {addPoint} from './addPoint';
-import {addPolygon, FlatPolygon} from './addPolygon';
-import {addExtrude} from './addExtrude';
-import {addIcon} from './addIcon';
+import { addText } from './addText';
+import { addPoint } from './addPoint';
+import { addPolygon, FlatPolygon } from './addPolygon';
+import { addExtrude } from './addExtrude';
+import { addIcon } from './addIcon';
 import earcut from 'earcut';
-import {calcBBox, getTextString, getValue, parseSizeValue, Style, StyleGroup} from '../../styleTools';
-import {defaultFont, wrapText} from '../../textUtils';
-import {FontStyle, GlyphTexture} from '../GlyphTexture';
-import {toRGB} from '../color';
-import {IconManager} from '../IconManager';
-import {DashAtlas} from '../DashAtlas';
-import {CollisionData, CollisionHandler} from '../CollisionHandler';
-import {LineFactory} from './LineFactory';
+import { calcBBox, getTextString, getValue, parseSizeValue, Style, StyleGroup } from '../../styleTools';
+import { defaultFont, wrapText } from '../../textUtils';
+import { FontStyle, GlyphTexture } from '../GlyphTexture';
+import { toRGB } from '../color';
+import { IconManager } from '../IconManager';
+import { DashAtlas } from '../DashAtlas';
+import { CollisionData, CollisionHandler } from '../CollisionHandler';
+import { LineFactory } from './LineFactory';
 
-import {TextBuffer} from './templates/TextBuffer';
-import {SymbolBuffer} from './templates/SymbolBuffer';
-import {PointBuffer} from './templates/PointBuffer';
-import {PolygonBuffer} from './templates/PolygonBuffer';
-import {ExtrudeBuffer} from './templates/ExtrudeBuffer';
-import {toPresentationFormB} from '../arabic';
-import {Tile, Feature, GeoJSONCoordinate as Coordinate, GeoJSONCoordinate} from '@here/xyz-maps-core';
-import {TemplateBuffer} from './templates/TemplateBuffer';
-import {addVerticalLine} from './addVerticalLine';
-import {BoxBuffer} from './templates/BoxBuffer';
-import {addBox} from './addBox';
-import {addSphere} from './addSphere';
-import {SphereBuffer} from './templates/SphereBuffer';
-import {TemplateBufferBucket} from './templates/TemplateBufferBucket';
-import {ModelStyle} from '@here/xyz-maps-core';
-import {ModelFactory} from './ModelFactory';
-import {ModelBuffer} from './templates/ModelBuffer';
-import {ImageInfo} from '../Atlas';
+import { TextBuffer } from './templates/TextBuffer';
+import { SymbolBuffer } from './templates/SymbolBuffer';
+import { PointBuffer } from './templates/PointBuffer';
+import { PolygonBuffer } from './templates/PolygonBuffer';
+import { ExtrudeBuffer } from './templates/ExtrudeBuffer';
+import { toPresentationFormB } from '../arabic';
+import { Tile, Feature, GeoJSONCoordinate as Coordinate, GeoJSONCoordinate } from '@here/xyz-maps-core';
+import { TemplateBuffer } from './templates/TemplateBuffer';
+import { addVerticalLine } from './addVerticalLine';
+import { BoxBuffer } from './templates/BoxBuffer';
+import { addBox } from './addBox';
+import { addSphere } from './addSphere';
+import { SphereBuffer } from './templates/SphereBuffer';
+import { TemplateBufferBucket } from './templates/TemplateBufferBucket';
+import { ModelStyle } from '@here/xyz-maps-core';
+import { ModelFactory } from './ModelFactory';
+import { ModelBuffer } from './templates/ModelBuffer';
+import { ImageInfo } from '../Atlas';
 
 const DEFAULT_STROKE_WIDTH = 1;
 const DEFAULT_LINE_CAP = 'round';
@@ -57,13 +57,13 @@ const NONE = '*';
 let UNDEF;
 
 export type CollisionGroup = {
-    id: string,
-    feature: Feature,
-    styleGrp: Style,
-    priority: number,
-    repeat: number,
-    geomType: string,
-    coordinates: any,
+    id: string;
+    feature: Feature;
+    styleGrp: Style;
+    priority: number;
+    repeat: number;
+    geomType: string;
+    coordinates: any;
     offsetX?: number;
     offsetY?: number;
     width?: number;
@@ -71,43 +71,42 @@ export type CollisionGroup = {
 };
 
 type DrawGroup = {
-    type: string,
-    zLayer: number,
-    depthTest: boolean,
+    type: string;
+    zLayer: number;
+    depthTest: boolean;
     shared: {
-        unit: string,
-        font: string,
-        fill: Float32Array,
-        opacity: number,
-        stroke: Float32Array,
-        strokeWidth: number,
-        strokeLinecap: string,
-        strokeLinejoin: string,
-        strokeDasharray: number[],
-        width: number,
-        height: number,
-        depth: number,
-        rotation: number,
-        offsetX: number,
-        offsetY: number,
-        offsetZ: number,
-        offsetUnit: string,
-        alignment: string,
-        modelMode: number,
-        scaleByAltitude: boolean
-    },
-    buffer?: TemplateBuffer | TemplateBufferBucket<ModelBuffer>,
-    extrudeStrokeIndex?: number [],
-    pointerEvents?: boolean
+        unit: string;
+        font: string;
+        fill: Float32Array;
+        opacity: number;
+        stroke: Float32Array;
+        strokeWidth: number;
+        strokeLinecap: string;
+        strokeLinejoin: string;
+        strokeDasharray: number[];
+        width: number;
+        height: number;
+        depth: number;
+        rotation: number;
+        offsetX: number;
+        offsetY: number;
+        offsetZ: number;
+        offsetUnit: string;
+        alignment: string;
+        modelMode: number;
+        scaleByAltitude: boolean;
+    };
+    buffer?: TemplateBuffer | TemplateBufferBucket<ModelBuffer>;
+    extrudeStrokeIndex?: number[];
+    pointerEvents?: boolean;
 };
 
 type ZDrawGroup = {
-    index: { [grpId: string]: number },
-    groups: DrawGroup[]
-}
+    index: { [grpId: string]: number };
+    groups: DrawGroup[];
+};
 
 export type GroupMap = { [zIndex: string]: ZDrawGroup };
-
 
 export class FeatureFactory {
     private readonly gl: WebGLRenderingContext;
@@ -122,7 +121,7 @@ export class FeatureFactory {
     collisions: CollisionHandler;
     pendingCollisions: CollisionGroup[] = [];
     z: number;
-    private waitAndRefresh: (p:Promise<any>)=>void;
+    private waitAndRefresh: (p: Promise<any>) => void;
 
     constructor(gl: WebGLRenderingContext, iconManager: IconManager, collisionHandler, devicePixelRatio: number) {
         this.gl = gl;
@@ -143,7 +142,7 @@ export class FeatureFactory {
         }
     }
 
-    init(tile, groups: GroupMap, tileSize: number, zoom: number, waitAndRefresh: (p:Promise<any>)=>void) {
+    init(tile, groups: GroupMap, tileSize: number, zoom: number, waitAndRefresh: (p: Promise<any>) => void) {
         this.tile = tile;
         this.groups = groups;
         this.tileSize = tileSize;
@@ -152,7 +151,6 @@ export class FeatureFactory {
         this.pendingCollisions.length = 0;
         this.waitAndRefresh = waitAndRefresh;
     }
-
 
     createPoint(
         type: string,
@@ -188,7 +186,7 @@ export class FeatureFactory {
             // }
             // const texture = <GlyphTexture>group.texture;
             const texture = (<TextBuffer>group.buffer).uniforms.u_texture as GlyphTexture;
-            const {flexAttributes} = group.buffer as TextBuffer;
+            const { flexAttributes } = group.buffer as TextBuffer;
 
             texture.addChars(text);
 
@@ -205,7 +203,9 @@ export class FeatureFactory {
             collisionBufferStop = collisionBufferStart + texture.bufferLength(text, isFlat ? 2 : 3);
 
             addText(
-                x, y, z,
+                x,
+                y,
+                z,
                 lines,
                 flexAttributes.a_point.data,
                 flexAttributes.a_position.data,
@@ -216,15 +216,26 @@ export class FeatureFactory {
             );
         } else {
             if (type == 'Model') {
-                let data = getValue('model', style, feature, level);
-                let modelId;
-                if (data) {
-                    modelId = data.id ||= Math.random();
-                    this.modelFactory.initModel(modelId, data);
+                let model = getValue('model', style, feature, level);
+                let modelId: string;
+                if (model) {
+                    if (typeof model == 'string') {
+                        modelId = model;
+                        model = this.modelFactory.getModel(modelId);
+                        if (!model) {
+                            if (modelId.endsWith('.obj')) {
+                                this.waitAndRefresh(this.modelFactory.loadObj(modelId));
+                            }
+                            return;
+                        }
+                    } else {
+                        modelId = model.id ||= Math.random();
+                        this.modelFactory.initModel(modelId, model);
+                    }
 
                     let bucket = <TemplateBufferBucket<ModelBuffer>>group.buffer;
 
-                    let {scale, translate, rotate, transform, cullFace} = style as ModelStyle;
+                    let { scale, translate, rotate, transform, cullFace } = style as ModelStyle;
 
                     if (!group.buffer) {
                         let faceCulling: number;
@@ -242,7 +253,7 @@ export class FeatureFactory {
                 group.buffer ||= new SymbolBuffer(isFlat);
 
                 const groupBuffer = group.buffer as SymbolBuffer;
-                const {flexAttributes} = groupBuffer;
+                const { flexAttributes } = groupBuffer;
                 const src = getValue('src', style, feature, level);
                 const width = getValue('width', style, feature, level);
                 const height = getValue('height', style, feature, level) || width;
@@ -256,9 +267,12 @@ export class FeatureFactory {
                 positionBuffer = flexAttributes.a_position;
 
                 addIcon(
-                    x, y, z,
+                    x,
+                    y,
+                    z,
                     <ImageInfo>img,
-                    width, height,
+                    width,
+                    height,
                     flexAttributes.a_size.data,
                     positionBuffer.data,
                     flexAttributes.a_texcoord.data,
@@ -267,7 +281,7 @@ export class FeatureFactory {
                 groupBuffer.addUniform('u_texture', this.icons.getTexture());
                 // group.texture = this.icons.getTexture();
             } else if (type == 'Circle' || type == 'Rect') {
-                const pointBuffer = (group.buffer as PointBuffer) ||= new PointBuffer(isFlat);
+                const pointBuffer = ((group.buffer as PointBuffer) ||= new PointBuffer(isFlat));
                 positionBuffer = pointBuffer.flexAttributes.a_position;
 
                 addPoint(x, y, z, positionBuffer.data);
@@ -275,8 +289,8 @@ export class FeatureFactory {
                 if (type == 'Sphere') {
                     let width = 2 * getValue('radius', style, feature, level);
 
-                    const sphereBuffer: SphereBuffer = (group.buffer as SphereBuffer) ||= new SphereBuffer(isFlat);
-                    const {flexAttributes} = sphereBuffer;
+                    const sphereBuffer: SphereBuffer = ((group.buffer as SphereBuffer) ||= new SphereBuffer(isFlat));
+                    const { flexAttributes } = sphereBuffer;
                     positionBuffer = flexAttributes.a_position;
 
                     addSphere(x, y, z, width, positionBuffer.data, flexAttributes.a_point.data, flexAttributes.a_normal.data);
@@ -285,8 +299,8 @@ export class FeatureFactory {
                     let height = getValue('height', style, feature, level) || width;
                     let depth = getValue('depth', style, feature, level) || width;
 
-                    const boxBuffer: BoxBuffer = (group.buffer as BoxBuffer) ||= new BoxBuffer(isFlat);
-                    const {flexAttributes} = boxBuffer;
+                    const boxBuffer: BoxBuffer = ((group.buffer as BoxBuffer) ||= new BoxBuffer(isFlat));
+                    const { flexAttributes } = boxBuffer;
                     positionBuffer = flexAttributes.a_position;
 
                     addBox(x, y, z, width, height, depth, positionBuffer.data, flexAttributes.a_point.data, flexAttributes.a_normal.data);
@@ -303,12 +317,9 @@ export class FeatureFactory {
             collisionBufferStart = collisionBufferStop - 12;
         }
 
-        group
-            .buffer
-            .setIdOffset(feature.id);
+        group.buffer.setIdOffset(feature.id);
 
-        if (collisionData && positionBuffer
-        ) {
+        if (collisionData && positionBuffer) {
             collisionData.attrs.push({
                 buffer: positionBuffer,
                 start: collisionBufferStart,
@@ -317,19 +328,17 @@ export class FeatureFactory {
         }
     }
 
-
     create(
         feature: Feature,
         geomType: string,
         coordinates: GeoJSONCoordinate | GeoJSONCoordinate[] | GeoJSONCoordinate[][],
         styleGroups: StyleGroup,
         strokeWidthScale: number,
-        removeTileBounds ?: boolean,
-        priority ?: number,
-        collisionGroup ?: CollisionGroup
-    ):
-        boolean {
-        const {tile, groups, tileSize} = this;
+        removeTileBounds?: boolean,
+        priority?: number,
+        collisionGroup?: CollisionGroup
+    ): boolean {
+        const { tile, groups, tileSize } = this;
         const level = this.z;
         let flatPolyStart: number;
         let flatPoly: FlatPolygon[];
@@ -373,7 +382,6 @@ export class FeatureFactory {
         let collisionBox;
         let collisionData;
 
-
         this.lineFactory.initFeature(level, tileSize, collisionGroup?.id);
 
         if (priority === UNDEF && geomType === 'Point' && !tile.isInside(<GeoJSONCoordinate>coordinates)) {
@@ -392,15 +400,12 @@ export class FeatureFactory {
 
             if (opacity === 0) continue;
 
-            let collide = geomType == 'Polygon'
-                ? true // no collision detection support for polygons
-                : getValue('collide', style, feature, level);
+            let collide =
+                geomType == 'Polygon'
+                    ? true // no collision detection support for polygons
+                    : getValue('collide', style, feature, level);
 
-            if (
-                priority == UNDEF && (
-                    type == 'Text' && !collide ||
-                    collide === false
-                )) {
+            if (priority == UNDEF && ((type == 'Text' && !collide) || collide === false)) {
                 let bbox = calcBBox(style, feature, level, this.dpr, collisionBox);
 
                 if (bbox) {
@@ -424,8 +429,9 @@ export class FeatureFactory {
                 continue;
             }
 
-            if (opacity == UNDEF ||
-                opacity >= .98 // no alpha visible -> no need to use more expensive alpha pass
+            if (
+                opacity == UNDEF ||
+                opacity >= 0.98 // no alpha visible -> no need to use more expensive alpha pass
             ) {
                 opacity = 1;
             }
@@ -476,7 +482,6 @@ export class FeatureFactory {
                 stroke = getValue('stroke', style, feature, level);
                 strokeWidth = getValue('strokeWidth', style, feature, level);
 
-
                 if (type == 'VerticalLine') {
                     offsetZ = getValue('offsetZ', style, feature, level) || 0;
                     groupId = 'VL' + stroke + offsetZ;
@@ -506,7 +511,14 @@ export class FeatureFactory {
                     // store line offset/unit in shared offsetXY
                     [offsetX, offsetUnit] = parseSizeValue(offset);
 
-                    groupId = (altitude ? 'AL' : 'L') + sizeUnit + offsetX + offsetUnit + strokeLinecap + strokeLinejoin + (strokeDasharray || NONE);
+                    groupId =
+                        (altitude ? 'AL' : 'L') +
+                        sizeUnit +
+                        offsetX +
+                        offsetUnit +
+                        strokeLinecap +
+                        strokeLinejoin +
+                        (strokeDasharray || NONE);
                 } else {
                     fill = getValue('fill', style, feature, level);
 
@@ -564,7 +576,6 @@ export class FeatureFactory {
                             // [width, sizeUnit] = parseSizeValue(width);
                             // height = getValue('height', style, feature, level);
                             // depth = getValue('depth', style, feature, level);
-
 
                             pointerEvents = getValue('pointerEvents', style, feature, level);
 
@@ -635,8 +646,7 @@ export class FeatureFactory {
                 groupId += offsetX + (offsetY << 8) + (offsetZ << 16) + offsetUnit[0] + offsetUnit[1] + offsetUnit[2];
             }
 
-
-            groupId += opacity * 100 ^ 0;
+            groupId += (opacity * 100) ^ 0;
 
             zIndex = getValue('zIndex', style, feature, level);
 
@@ -668,7 +678,7 @@ export class FeatureFactory {
                 groupId += 'SA';
             }
 
-            zGrouped = groups[zIndex] = groups[zIndex] || {index: {}, groups: []};
+            zGrouped = groups[zIndex] = groups[zIndex] || { index: {}, groups: [] };
             index = zGrouped.index[groupId];
 
             if (index == UNDEF) {
@@ -726,12 +736,15 @@ export class FeatureFactory {
 
                     if (collisionGroup) {
                         collisionData = this.collisions.insert(
-                            x, y, z,
+                            x,
+                            y,
+                            z,
                             collisionGroup.offsetX,
                             collisionGroup.offsetY,
                             collisionGroup.width,
                             collisionGroup.height,
-                            tile, tileSize,
+                            tile,
+                            tileSize,
                             collisionGroup.priority
                         );
 
@@ -769,9 +782,7 @@ export class FeatureFactory {
                         anchor = type == 'Text' ? 'Line' : 'Coordinate';
                     }
 
-                    const checkCollisions = type == 'Text'
-                        ? !collide
-                        : collide === false;
+                    const checkCollisions = type == 'Text' ? !collide : collide === false;
 
                     let w;
                     let h;
@@ -818,16 +829,32 @@ export class FeatureFactory {
                         this.lineFactory.placeAtSegments(
                             <GeoJSONCoordinate[]>coordinates,
                             altitude,
-                            tile, tileSize,
+                            tile,
+                            tileSize,
                             checkCollisions && this.collisions,
                             priority,
                             getValue('repeat', style, feature, level),
-                            offsetX, offsetY,
-                            w, h,
+                            offsetX,
+                            offsetY,
+                            w,
+                            h,
                             applyRotation,
                             checkLineSpace,
                             (x, y, z, rotationZ, rotationY, collisionData) => {
-                                this.createPoint(type, group, x, y, z, style, feature, collisionData, rotationZ + rotation, rotationY, text, false);
+                                this.createPoint(
+                                    type,
+                                    group,
+                                    x,
+                                    y,
+                                    z,
+                                    style,
+                                    feature,
+                                    collisionData,
+                                    rotationZ + rotation,
+                                    rotationY,
+                                    text,
+                                    false
+                                );
                             }
                         );
                     } else {
@@ -842,11 +869,14 @@ export class FeatureFactory {
                         this.lineFactory.placeAtPoints(
                             <GeoJSONCoordinate[]>coordinates,
                             altitude,
-                            tile, tileSize,
+                            tile,
+                            tileSize,
                             checkCollisions && this.collisions,
                             priority,
-                            w, h,
-                            offsetX, offsetY,
+                            w,
+                            h,
+                            offsetX,
+                            offsetY,
                             getValue('from', style, feature, level),
                             getValue('to', style, feature, level),
                             (x, y, z, rotZ, rotY, collisionData) => {
@@ -859,14 +889,12 @@ export class FeatureFactory {
                 // Polygon geometry
                 if (type == 'Polygon' || type == 'Extrude') {
                     if (!group.buffer) {
-                        group.buffer = type == 'Polygon'
-                            ? new PolygonBuffer()
-                            : new ExtrudeBuffer();
+                        group.buffer = type == 'Polygon' ? new PolygonBuffer() : new ExtrudeBuffer();
                     }
 
                     const groupBuffer = group.buffer as PolygonBuffer | ExtrudeBuffer;
                     const vIndex = <number[]>groupBuffer.index();
-                    const {flexAttributes} = groupBuffer;
+                    const { flexAttributes } = groupBuffer;
                     const aPosition = flexAttributes.a_position.data;
 
                     flatPolyStart = aPosition.length;
@@ -894,7 +922,6 @@ export class FeatureFactory {
                     }
 
                     group.buffer.setIdOffset(feature.id);
-
 
                     if (!triangles) {
                         const geom = <any>feature.geometry;
@@ -944,8 +971,8 @@ export class FeatureFactory {
             };
 
             const [x1, y1, x2, y2] = collisionBox;
-            const halfWidth = (x2 - x1) * .5;
-            const halfHeight = (y2 - y1) * .5;
+            const halfWidth = (x2 - x1) * 0.5;
+            const halfHeight = (y2 - y1) * 0.5;
 
             cData.offsetX = x1 + halfWidth;
             cData.offsetY = y1 + halfHeight;
@@ -956,5 +983,9 @@ export class FeatureFactory {
         }
 
         return;
+    }
+
+    destroy() {
+        this.modelFactory.destroy();
     }
 }

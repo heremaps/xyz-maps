@@ -13,7 +13,6 @@
     "directory": "packages/utils"
   },
   "private": true,
-  "scripts": {},
   "devDependencies": {
     "@microsoft/api-extractor": "^7.18.4",
     "cross-spawn": "^7.0.3",
@@ -23,7 +22,7 @@
     "yargs": "^17.0.1"
   },
   "bin": {
-    "build-dts": "./lib/buildDts/cli.js",
-    "build-changelog": "./lib/changelog/cli.js"
+    "build-changelog": "./lib/changelog/cli.js",
+    "build-dts": "./lib/buildDts/cli.js"
   }
 }

@@ -18,24 +18,23 @@
  */
 
 import BasicDisplay from '../BasicDisplay';
-import {GLRender, RenderOptions} from './GLRender';
+import { GLRender, RenderOptions } from './GLRender';
 import GLBucket from './Bucket';
 
-import {createBuffer} from './buffer/createBuffer';
-import {createImageBuffer} from './buffer/createImageBuffer';
+import { createBuffer } from './buffer/createBuffer';
+import { createImageBuffer } from './buffer/createImageBuffer';
 
-import {transformMat4} from 'gl-matrix/vec3';
-import {Layer, ScreenTile} from '../Layers';
+import { transformMat4 } from 'gl-matrix/vec3';
+import { Layer, ScreenTile } from '../Layers';
 import GLTile from './GLTile';
-import {FeatureFactory} from './buffer/FeatureFactory';
-import {CollisionHandler} from './CollisionHandler';
-import {GeometryBuffer} from './buffer/GeometryBuffer';
-import {CustomLayer, TileLayer} from '@here/xyz-maps-core';
-import {PASS} from './program/GLStates';
-import {Raycaster} from './Raycaster';
+import { FeatureFactory } from './buffer/FeatureFactory';
+import { CollisionHandler } from './CollisionHandler';
+import { GeometryBuffer } from './buffer/GeometryBuffer';
+import { CustomLayer, TileLayer } from '@here/xyz-maps-core';
+import { PASS } from './program/GLStates';
+import { Raycaster } from './Raycaster';
 
 const PREVIEW_LOOK_AHEAD_LEVELS: [number, number] = [3, 9];
-
 
 // const fromClipSpace = (clip, width, height) => {
 //     return [
@@ -52,12 +51,11 @@ const PREVIEW_LOOK_AHEAD_LEVELS: [number, number] = [3, 9];
 //     z || 0
 // ];
 
-
 type GeometryBufferLike = {
     zLayer?: number;
     zIndex?: number;
     alpha?: number;
-    flat: boolean
+    flat: boolean;
 };
 
 type RenderBufferData = {
@@ -71,16 +69,15 @@ type RenderBufferData = {
 };
 
 export type TileBufferData = {
-    z: number,
-    b: GeometryBuffer
+    z: number;
+    b: GeometryBuffer;
     tiled: true;
     data: {
-        tile: ScreenTile,
-        preview: number[],
-        previewTile: GLTile
-    }
+        tile: ScreenTile;
+        preview: number[];
+        previewTile: GLTile;
+    };
 };
-
 
 class WebGlDisplay extends BasicDisplay {
     static zoomBehavior: 'fixed' | 'float' = 'float';
@@ -91,7 +88,7 @@ class WebGlDisplay extends BasicDisplay {
     buckets: GLBucket;
     private factory: FeatureFactory;
 
-    private tilesNotReady: { quadkey: string, layerId: string }[];
+    private tilesNotReady: { quadkey: string; layerId: string }[];
 
     private collision: CollisionHandler;
     private rayCaster: Raycaster;
@@ -101,7 +98,9 @@ class WebGlDisplay extends BasicDisplay {
     private worldSize: number;
 
     constructor(mapEl: HTMLElement, renderTileSize: number, devicePixelRatio: number | string, renderOptions?: RenderOptions) {
-        super(mapEl, renderTileSize,
+        super(
+            mapEl,
+            renderTileSize,
             // auto dpr is default for gl display
             !devicePixelRatio ? 'auto' : devicePixelRatio,
             new GLBucket(512),
@@ -116,29 +115,29 @@ class WebGlDisplay extends BasicDisplay {
         const display = this;
         this.collision = new CollisionHandler(display);
 
-        this.buckets.onDrop = function(buffers, index) {
-            const {quadkey, layers} = this;
+        this.buckets.onDrop = function (buffers, index) {
+            const { quadkey, layers } = this;
 
             display.collision.clearTile(quadkey, layers[index]);
 
             display.releaseBuffers(buffers);
         };
 
-        const {render} = display;
+        const { render } = display;
         render.init(this.canvas, this.dpr);
 
         this.rayCaster = new Raycaster(render.screenMat, render.invScreenMat);
 
         this.factory = new FeatureFactory(render.gl, render.icons, this.collision, this.dpr);
-    };
+    }
 
     private refreshTile(quadkey: string, layerId: string) {
         const dLayer = this.layers.get(layerId);
         if (dLayer) {
-            const dTile = this.buckets.get(quadkey, true/* SKIP TRACK */);
+            const dTile = this.buckets.get(quadkey, true /* SKIP TRACK */);
             if (dTile) {
                 const layer = <TileLayer>dLayer.layer;
-                const {index} = dLayer;
+                const { index } = dLayer;
                 dTile.preview(index, false);
                 dTile.ready(index, false);
                 dTile.cancelTasks(layer);
@@ -168,7 +167,6 @@ class WebGlDisplay extends BasicDisplay {
         return super.removeLayer(layer);
     }
 
-
     unproject(x: number, y: number, z?): number[] {
         const invScreenMat = this.render.invScreenMat;
 
@@ -178,7 +176,6 @@ class WebGlDisplay extends BasicDisplay {
             p[2] *= -1;
             return p;
         }
-
 
         // find line intersection with plane where z is 0
         // const targetZ = 0.0;
@@ -194,10 +191,7 @@ class WebGlDisplay extends BasicDisplay {
         const t = z0 === z1 ? 0 : (targetZ - z0) / (z1 - z0);
 
         // linear interpolation
-        return [
-            p0[0] * (1 - t) + p1[0] * t,
-            p0[1] * (1 - t) + p1[1] * t
-        ];
+        return [p0[0] * (1 - t) + p1[0] * t, p0[1] * (1 - t) + p1[1] * t];
     }
 
     // from unprojected screen pixels to projected screen pixels
@@ -217,7 +211,7 @@ class WebGlDisplay extends BasicDisplay {
         super.setSize(w, h);
 
         this.initRenderer();
-    };
+    }
 
     setTransform(scale: number, rotZ: number, rotX: number) {
         // if (this.s != scale || this.rz != rotZ || this.rx != rotX)
@@ -229,7 +223,6 @@ class WebGlDisplay extends BasicDisplay {
         this.rx = rotX;
         // }
     }
-
 
     setView(
         worldCenter: [number, number],
@@ -249,7 +242,6 @@ class WebGlDisplay extends BasicDisplay {
         this.initRenderer();
     }
 
-
     private initRenderer() {
         if (this.render.gl) {
             this.render.initView(
@@ -266,13 +258,12 @@ class WebGlDisplay extends BasicDisplay {
         }
     }
 
-
     prepareTile(tile, data, layer: TileLayer, dTile: GLTile, onDone: (dTile: GLTile, layer: TileLayer) => void) {
         const display = this;
         const renderer = display.render;
         const gl = renderer.gl;
         const tileSize = layer.tileSize;
-        const {quadkey} = dTile;
+        const { quadkey } = dTile;
         const layerId = layer.id;
         const displayLayer = this.layers.get(layerId);
 
@@ -283,7 +274,12 @@ class WebGlDisplay extends BasicDisplay {
             dTile.preview(dTile.setData(layer, [buffer]), null);
             onDone(dTile, layer);
         } else if (data.length) {
-            const task = createBuffer(data, displayLayer, tileSize, tile, this.factory,
+            const task = createBuffer(
+                data,
+                displayLayer,
+                tileSize,
+                tile,
+                this.factory,
                 // on initTile / start
                 () => {
                     display.collision.initTile(tile, displayLayer);
@@ -295,8 +291,8 @@ class WebGlDisplay extends BasicDisplay {
 
                     if (pendingResources.length) {
                         // Promise.all(pendingResources).then(()=>this.refreshTile(quadkey, layerId));
-                        pendingResources.forEach((resource)=>{
-                            resource.then(()=>this.refreshTile(quadkey, layerId));
+                        pendingResources.forEach((resource) => {
+                            resource.then(() => this.refreshTile(quadkey, layerId));
                         });
                     }
 
@@ -307,14 +303,14 @@ class WebGlDisplay extends BasicDisplay {
                     }
 
                     onDone(dTile, layer);
-                });
+                }
+            );
             dTile.addTask(task, layer);
         } else {
             dTile.preview(dTile.setData(layer, []), null);
             onDone(dTile, layer);
         }
     }
-
 
     private orderBuffers(
         zSorted: RenderBufferData[],
@@ -330,7 +326,7 @@ class WebGlDisplay extends BasicDisplay {
         // previewTile?: GLTile
     ) {
         for (let buffer of buffers) {
-            let {zLayer, zIndex} = buffer;
+            let { zLayer, zIndex } = buffer;
 
             if (zLayer == null) {
                 zLayer = layer.index + 1;
@@ -356,19 +352,20 @@ class WebGlDisplay extends BasicDisplay {
 
     protected viewport(dirty?: boolean) {
         const display = this;
-        const {buckets, layers, render} = display;
+        const { buckets, layers, render } = display;
         const layerLength = layers.length;
         let length;
 
         if (display.dirty) {
             display.dirty = false;
-            display.collision.update(display.grid.tiles[512],
+            display.collision.update(
+                display.grid.tiles[512],
                 // make sure display will refresh in case of cd toggles visibility
                 () => display.update()
             );
         }
 
-        render.clear(layerLength && layers[0].bgColor || display.globalBgc);
+        render.clear((layerLength && layers[0].bgColor) || display.globalBgc);
 
         render.fixedView = Number(!this.viewChange);
 
@@ -383,13 +380,22 @@ class WebGlDisplay extends BasicDisplay {
             if (!layer.layer.tiled) {
                 layer.ready = true;
                 const customLayer = <CustomLayer>layer.layer;
-                const {renderOptions} = customLayer;
-                this.orderBuffers(tileBuffers, [{
-                    zLayer: renderOptions.zLayer,
-                    zIndex: renderOptions.zIndex,
-                    alpha: renderOptions.alpha || 1,
-                    flat: customLayer.flat
-                }], layer, absZOrder, layer.layer, false);
+                const { renderOptions } = customLayer;
+                this.orderBuffers(
+                    tileBuffers,
+                    [
+                        {
+                            zLayer: renderOptions.zLayer,
+                            zIndex: renderOptions.zIndex,
+                            alpha: renderOptions.alpha || 1,
+                            flat: customLayer.flat
+                        }
+                    ],
+                    layer,
+                    absZOrder,
+                    layer.layer,
+                    false
+                );
                 continue;
             }
 
@@ -408,7 +414,7 @@ class WebGlDisplay extends BasicDisplay {
 
                     if (!buffers) {
                         let previewData;
-                        if (previewData = dTile.preview(layerIndex)) {
+                        if ((previewData = dTile.preview(layerIndex))) {
                             if (previewData.length) {
                                 for (let preview of previewData) {
                                     let qk = preview[0];
@@ -416,17 +422,24 @@ class WebGlDisplay extends BasicDisplay {
                                     let previewBuffers;
                                     previewBuffers = previewTile?.getData(layerIndex);
                                     if (previewBuffers?.length) {
-                                        this.orderBuffers(tileBuffers, previewBuffers, layer, absZOrder, {
-                                            tile: screenTile,
-                                            preview,
-                                            previewTile
-                                        }, true);
+                                        this.orderBuffers(
+                                            tileBuffers,
+                                            previewBuffers,
+                                            layer,
+                                            absZOrder,
+                                            {
+                                                tile: screenTile,
+                                                preview,
+                                                previewTile
+                                            },
+                                            true
+                                        );
                                     }
                                 }
                             }
                         }
                     } else if (buffers.length) {
-                        this.orderBuffers(tileBuffers, buffers, layer, absZOrder, {tile: screenTile}, true);
+                        this.orderBuffers(tileBuffers, buffers, layer, absZOrder, { tile: screenTile }, true);
                     }
                 }
             }
@@ -513,15 +526,15 @@ class WebGlDisplay extends BasicDisplay {
 
     destroy() {
         super.destroy();
+        this.factory.destroy();
     }
 
-
-    getRenderedFeatureAt(x: number, y: number, layers): { id: number | string | null, z: number, layerIndex: number } {
-        const {tiles} = this;
+    getRenderedFeatureAt(x: number, y: number, layers): { id: number | string | null; z: number; layerIndex: number } {
+        const { tiles } = this;
         // console.time('getRenderedFeatureAt');
         this.rayCaster.init(x, y, this.w, this.h, this.s, 1 / this.groundResolution);
 
-        const camWorldZ = this.rayCaster.origin[2] - .001;
+        const camWorldZ = this.rayCaster.origin[2] - 0.001;
 
         let tileSize: number | string;
         for (tileSize in tiles) {
@@ -530,14 +543,11 @@ class WebGlDisplay extends BasicDisplay {
                 const tileX = gridTile.x;
                 const tileY = gridTile.y;
                 const tile = <GLTile>gridTile.tile;
-                const hitTile = this.rayCaster.intersectAABBox(
-                    tileX, tileY, 0,
-                    tileX + tileSize, tileY + tileSize, camWorldZ
-                );
+                const hitTile = this.rayCaster.intersectAABBox(tileX, tileY, 0, tileX + tileSize, tileY + tileSize, camWorldZ);
                 if (!hitTile) continue;
 
-                for (let i = 0, {data} = tile; i < data.length; i++) {
-                    const {layer} = tile.layers[i];
+                for (let i = 0, { data } = tile; i < data.length; i++) {
+                    const { layer } = tile.layers[i];
                     const layerBuffers = data[i];
                     const layerIndex = layers.indexOf(layer);
                     if (!layerBuffers || layerIndex == -1) continue;
@@ -564,7 +574,7 @@ class WebGlDisplay extends BasicDisplay {
 
     scaleOffsetXYByAltitude(pointWorld: number[]): number {
         const mat = this.render.vPMat;
-        return 1.0 - pointWorld[2] * mat[11] / (mat[3] * pointWorld[0] + mat[7] * pointWorld[1] + mat[15]);
+        return 1.0 - (pointWorld[2] * mat[11]) / (mat[3] * pointWorld[0] + mat[7] * pointWorld[1] + mat[15]);
     }
 }
 

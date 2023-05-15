@@ -27,9 +27,9 @@ module.exports = {
         'prefer-spread': 0,
         'guard-for-in': 0,
         'no-unused-vars': 0,
-        'comma-dangle': ['error', 'never'],
+        // 'comma-dangle': ['error', 'never'],
         'no-multi-str': 0,
-        indent: ['error', 4],
+        'indent': 0,
         'no-invalid-this': 0
         // "padding-line-between-statements": [
         //     "error",

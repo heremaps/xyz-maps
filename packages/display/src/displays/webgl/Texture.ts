@@ -16,9 +16,16 @@
  * SPDX-License-Identifier: Apache-2.0
  * License-Filename: LICENSE
  */
-
-export type Image = HTMLCanvasElement | HTMLImageElement | { width: number, height: number, pixels?: Uint8Array };
-
+export type Image =
+    | HTMLCanvasElement
+    | HTMLImageElement
+    | ImageBitmap
+    | {
+          width: number;
+          height: number;
+          data?: Uint8Array | Uint8ClampedArray;
+          colorSpace?: string;
+      };
 
 const isPowerOf2 = (size: number) => (size & (size - 1)) == 0;
 
@@ -46,15 +53,15 @@ class Texture {
     }
 
     bind() {
-        const {gl, texture} = this;
+        const { gl, texture } = this;
         if (texture) {
             gl.bindTexture(gl.TEXTURE_2D, texture);
         }
     }
 
     set(image: Image, x?: number, y?: number) {
-        let {gl, texture, format, flipY} = this;
-        const {width, height} = image;
+        let { gl, texture, format, flipY } = this;
+        const { width, height } = image;
         const internalformat = format;
         const isSubImage = typeof x == 'number';
 
@@ -71,10 +78,10 @@ class Texture {
         gl.pixelStorei(gl.UNPACK_FLIP_Y_WEBGL, flipY);
 
         if (!isSubImage && (this.width != width || this.height || height)) {
-            if (image instanceof HTMLCanvasElement || image instanceof HTMLImageElement) {
+            if (image instanceof HTMLCanvasElement || image instanceof HTMLImageElement || image instanceof ImageBitmap) {
                 gl.texImage2D(gl.TEXTURE_2D, 0, internalformat, format, gl.UNSIGNED_BYTE, image);
             } else {
-                gl.texImage2D(gl.TEXTURE_2D, 0, internalformat, width, height, 0, format, gl.UNSIGNED_BYTE, image.pixels);
+                gl.texImage2D(gl.TEXTURE_2D, 0, internalformat, width, height, 0, format, gl.UNSIGNED_BYTE, image.data);
             }
             this.width = width;
             this.height = height;
@@ -92,11 +99,10 @@ class Texture {
         }
     }
 
-    onDestroyed(tex: Texture) {
-    };
+    onDestroyed(tex: Texture) {}
 
     destroy() {
-        const {gl, texture} = this;
+        const { gl, texture } = this;
         if (texture) {
             gl.deleteTexture(texture);
         }
@@ -105,4 +111,4 @@ class Texture {
     }
 }
 
-export {Texture};
+export { Texture };

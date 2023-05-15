@@ -16,7 +16,7 @@
  * SPDX-License-Identifier: Apache-2.0
  * License-Filename: LICENSE
  */
-import {StyleValueFunction, StyleZoomRange} from './LayerStyle';
+import { StyleValueFunction, StyleZoomRange } from './LayerStyle';
 
 type TypedArray = Int8Array | Uint8Array | Int16Array | Uint16Array | Int32Array | Uint32Array | Float32Array;
 
@@ -31,22 +31,22 @@ export interface Material {
      *
      * @defaultValue
      */
-    diffuse?: number[],
+    diffuse?: number[];
     /**
      * The name of the diffuse map used by the material.
      * The actual texture must be defined in {@link ModelStyle.model.textures}.
      */
-    diffuseMap?: string,
+    diffuseMap?: string;
     /**
      * The used primitive type to render the model geometry.
      *
      * @defaultValue "Triangles"
      */
-    mode?: 'Triangles' | 'Points',
+    mode?: 'Triangles' | 'Points';
     /**
      * The used pointSize in pixels to render when mode is set to "Points".
      */
-    pointSize?: number
+    pointSize?: number;
     /**
      * The Illumination Mode of the material.
      *
@@ -55,7 +55,7 @@ export interface Material {
      *
      * @defaultValue 1
      */
-    illumination?: number
+    illumination?: number;
 }
 
 /**
@@ -65,28 +65,84 @@ export interface ModelGeometry {
     /**
      * Vertex positions
      */
-    position: TypedArray | number[],
+    position: TypedArray | number[];
     /**
      * Vertex indices
      */
-    index?: Uint16Array | Uint32Array | number[],
+    index?: Uint16Array | Uint32Array | number[];
     /**
      * Vertex normals
      */
-    normal?: TypedArray | number[],
+    normal?: TypedArray | number[];
     /**
      * Texture coordinates
      */
-    uv?: number[],
+    uv?: number[];
     /**
      * Per Vertex color
      */
-    color?: string | number[]
+    color?: string | number[];
     /**
      * @hidden
      * @internal
      */
     bbox?: number[];
+}
+
+/**
+ * The data format that describes the model to display.
+ */
+export interface ModelData {
+    /**
+     * The Geometries of the Model.
+     */
+    geometries: ModelGeometry[];
+
+    /**
+     * Textures used by Materials.
+     */
+    textures?: {
+        [name: string]: HTMLCanvasElement | HTMLImageElement | { width: number; height: number; pixels?: Uint8Array };
+    };
+    /**
+     * Materials referenced by {@link ModelStyle.model.faces}.
+     */
+    materials?: {
+        [name: string]: Material;
+    };
+    /**
+     * The Faces of the Model.
+     */
+    faces: {
+        /**
+         * Index of the geometry used to render the face.
+         */
+        geometryIndex: number;
+        /**
+         * The name of the Material the geometry should be rendered with.
+         * If the used material is not defined in {@link ModelStyle.data.materials| Materials}, or none is defined, the default material will be used.
+         */
+        material: string;
+        // /**
+        //  * Vertex indices.
+        //  * If no vertex indices are defined, "first" and "count" are used to render the face.
+        //  */
+        // index?: Uint16Array | Uint32Array | number[];
+        /**
+         * A number specifying the starting index of the vertices to render the face.
+         * If "start" is defined, "index" is ignored.
+         *
+         * @defaultValue 0
+         */
+        start?: number;
+        /**
+         * A number specifying the number of indices of the face to be rendered.
+         * If "count"  is defined, "index" is ignored.
+         *
+         * @defaultValue position.size/3
+         */
+        count?: number;
+    }[];
 }
 
 /**
@@ -119,58 +175,11 @@ export interface ModelStyle {
 
     /**
      * The Model data that should be rendered.
+     * In addition to passing the model directly, a string can also be provided that references a Wavefront OBJ file.
+     *
+     * @example \{zIndex: 0, type: "Model", model: "./MyModel.obj"\}
      */
-    model: {
-
-        /**
-         * Textures used by Materials.
-         */
-        textures?: { [name: string]: HTMLCanvasElement | HTMLImageElement | { width: number, height: number, pixels?: Uint8Array } };
-        /**
-         * Materials referenced by {@link ModelStyle.model.faces}.
-         */
-        materials?: {
-            [name: string]: Material
-        }
-        /**
-         * The Faces of the Model.
-         */
-        faces: {
-            /**
-             * Index of the geometry used to render the face.
-             */
-            geometryIndex: number;
-            /**
-             * The name of the Material the geometry should be rendered with.
-             * If the used material is not defined in {@link ModelStyle.data.materials| Materials}, or none is defined, the default material will be used.
-             */
-            material: string;
-            // /**
-            //  * Vertex indices.
-            //  * If no vertex indices are defined, "first" and "count" are used to render the face.
-            //  */
-            // index?: Uint16Array | Uint32Array | number[];
-            /**
-             * A number specifying the starting index of the vertices to render the face.
-             * If "start" is defined, "index" is ignored.
-             *
-             * @defaultValue 0
-             */
-            start?: number;
-            /**
-             * A number specifying the number of indices of the face to be rendered.
-             * If "count"  is defined, "index" is ignored.
-             *
-             * @defaultValue position.size/3
-             */
-            count?: number;
-        }[],
-
-        /**
-         * The Geometries of the Model.
-         */
-        geometries: ModelGeometry[]
-    };
+    model: string | ModelData;
 
     /**
      * Configure Face culling.
