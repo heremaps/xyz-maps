@@ -177,7 +177,7 @@ export class FeatureFactory {
 
         if (type == 'Text') {
             if (!group.buffer) {
-                group.buffer = new TextBuffer(isFlat, rotationY != undefined);
+                group.buffer = new TextBuffer(isFlat, rotationY != UNDEF);
                 group.buffer.addUniform('u_texture', new GlyphTexture(this.gl, group.shared));
             }
             // if (!group.texture) {
@@ -218,37 +218,43 @@ export class FeatureFactory {
             if (type == 'Model') {
                 let model = getValue('model', style, feature, level);
                 let modelId: string;
-                if (model) {
-                    if (typeof model == 'string') {
-                        modelId = model;
-                        model = this.modelFactory.getModel(modelId);
-                        if (!model) {
-                            if (modelId.endsWith('.obj')) {
-                                this.waitAndRefresh(this.modelFactory.loadObj(modelId));
-                            }
-                            return;
+                if (!model) return;
+
+                if (typeof model == 'string') {
+                    modelId = model;
+                    model = this.modelFactory.getModel(modelId);
+                    // check if model has been loaded and processed already
+                    if (model === UNDEF) {
+                        if (modelId.endsWith('.obj')) {
+                            this.waitAndRefresh(this.modelFactory.loadObj(modelId));
                         }
-                    } else {
-                        modelId = model.id ||= Math.random();
-                        this.modelFactory.initModel(modelId, model);
+                        return;
                     }
-
-                    let bucket = <TemplateBufferBucket<ModelBuffer>>group.buffer;
-
-                    let { scale, translate, rotate, transform, cullFace } = style as ModelStyle;
-
-                    if (!group.buffer) {
-                        let faceCulling: number;
-
-                        if (cullFace) {
-                            faceCulling = cullFace == 'Front' ? this.gl.FRONT : this.gl.BACK;
-                        }
-
-                        bucket = group.buffer = this.modelFactory.createModelBuffer(modelId, faceCulling);
-                    }
-
-                    this.modelFactory.addPosition(bucket, x, y, z, scale, translate, rotate, transform);
+                } else {
+                    modelId = model.id ||= Math.random();
+                    model = this.modelFactory.initModel(modelId, model);
                 }
+
+                if (model === false) {
+                    // invalid model -> ignore
+                    return;
+                }
+
+                let bucket = <TemplateBufferBucket<ModelBuffer>>group.buffer;
+
+                let { scale, translate, rotate, transform, cullFace } = style as ModelStyle;
+
+                if (!group.buffer) {
+                    let faceCulling: number;
+
+                    if (cullFace) {
+                        faceCulling = cullFace == 'Front' ? this.gl.FRONT : this.gl.BACK;
+                    }
+
+                    bucket = group.buffer = this.modelFactory.createModelBuffer(modelId, faceCulling);
+                }
+
+                this.modelFactory.addPosition(bucket, x, y, z, scale, translate, rotate, transform);
             } else if (type == 'Icon') {
                 group.buffer ||= new SymbolBuffer(isFlat);
 
@@ -652,7 +658,7 @@ export class FeatureFactory {
 
             const zLayer = getValue('zLayer', style, feature, level);
 
-            if (zLayer != undefined) {
+            if (zLayer != UNDEF) {
                 groupId = zLayer + ':' + groupId;
             }
 
@@ -755,7 +761,7 @@ export class FeatureFactory {
                         collisionGroup = null;
                     }
 
-                    this.createPoint(type, group, x, y, z, style, feature, collisionData, rotation, undefined, text);
+                    this.createPoint(type, group, x, y, z, style, feature, collisionData, rotation, UNDEF, text);
                 }
             } else if (geomType == 'LineString') {
                 if (type == 'Line') {

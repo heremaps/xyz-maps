@@ -38,9 +38,9 @@ type ObjMaterial = {
     illum?: number;
 };
 
-const DEFAULT = 'default';
-
 const worker = function () {
+    const DEFAULT = 'default';
+
     const parseOBJ = (text: string) => {
         const objVertexData: number[][][] = [[], [], [], []];
         const [objPositions, objUVs, objNormals, objColors] = objVertexData;
@@ -313,6 +313,7 @@ export class ObjParser extends XYZWorker {
             const _url = new URL(url, window.location.href);
             const model: ModelData = await this.main({ url: _url.href });
             delete this.inProgress[url];
+            // if (!model.geometries || model.geometries.length === 0) return null;
             return model;
         })());
     }

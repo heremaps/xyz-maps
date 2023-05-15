@@ -41,7 +41,8 @@ type Model = {
 };
 
 class ModelFactory {
-    private models: { [id: string]: Model } = {};
+    // false means the model has already been processed and is invalid, preventing further processing.
+    private models: { [id: string]: Model | false } = {};
     private unusedTexture: ModelTexture;
     private gl: WebGLRenderingContext;
     private onBufferDestroyed: (buffer) => void;
@@ -66,6 +67,10 @@ class ModelFactory {
         this.objParser.destroy();
     }
 
+    private isValid(model: ModelData): boolean {
+        return !!(model?.geometries?.length && model.faces?.length);
+    }
+
     async loadObj(url: string) {
         const data = await this.objParser.load(url);
         return this.initModel(url, data);
@@ -80,17 +85,17 @@ class ModelFactory {
         return texture;
     }
 
-    getModel(id: number | string): Model {
+    getModel(id: number | string): Model | false {
         return this.models[id];
     }
 
-    initModel(id: number | string, data: ModelData): Model {
-        const { geometries, materials, faces } = data;
-        const imgTexData = data.textures || {};
+    initModel(id: number | string, data: ModelData): Model | false {
+        if (this.models[id] != undefined) return this.models[id];
 
-        const sharedAttr = new WeakMap();
-
-        if (!this.models[id] && geometries && faces) {
+        if (this.isValid(data)) {
+            const { geometries, materials, faces } = data;
+            const sharedAttr = new WeakMap();
+            const imgTexData = data.textures || {};
             const parts: Model['parts'] = [];
             const modelTextures = {
                 unusedTexture: this.unusedTexture
@@ -143,6 +148,10 @@ class ModelFactory {
             }
 
             this.models[id] = { textures: modelTextures, parts };
+        } else {
+            // invalid model description
+            console.warn('ModelError:', data || id);
+            this.models[id] = false;
         }
         return this.models[id];
     }
