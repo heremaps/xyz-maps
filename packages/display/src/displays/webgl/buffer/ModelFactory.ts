@@ -68,7 +68,8 @@ class ModelFactory {
     }
 
     private isValid(model: ModelData): boolean {
-        return !!(model?.geometries?.length && model.faces?.length);
+        return !!(model?.faces?.length && model.geometries?.[model.faces[0].geometryIndex]);
+        // return !!(model?.geometries?.length && model.faces?.length);
     }
 
     async loadObj(url: string) {
