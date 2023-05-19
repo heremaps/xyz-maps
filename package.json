@@ -25,7 +25,7 @@
     "build-declarations": "lerna run --parallel build-dts",
     "playground": "yarn run build-playground && npx http-server . -d -c-1 -p 8081 -o ./packages/playground/dist",
     "build-playground": "lerna run --scope @here/xyz-maps-playground build --stream --no-prefix",
-    "eslint:fix": "eslint **/packages/*/src/**/*.ts --fix",
+    "eslint:fix": "eslint ./packages/*/src/**/*.ts --fix",
     "server": "npx http-server . -d -c-1 -p 8080 -o ./debug",
     "set-access-token": "ts-node build/createToken --token"
   },
@@ -46,7 +46,6 @@
     "husky": "^8.0.1",
     "lerna": "^5.4.3",
     "lint-staged": "^13.0.3",
-    "prettier": "^2.8.8",
     "ts-node": "^10.9.1",
     "typedoc": "^0.19.2",
     "typedoc-plugin-remove-references": "^0.0.5",

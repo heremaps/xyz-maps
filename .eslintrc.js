@@ -1,6 +1,5 @@
 module.exports = {
-    extends: ['google', 'prettier'],
-    plugins: ['prettier'],
+    extends: ['google'],
     parser: '@typescript-eslint/parser',
     // "env":{
     //     browser:true,
@@ -11,7 +10,6 @@ module.exports = {
         sourceType: 'module'
     },
     rules: {
-        'prettier/prettier': ['error'],
         'no-var': 0,
         'max-len': [
             0,
@@ -26,8 +24,8 @@ module.exports = {
         'prefer-rest-params': 0,
         'prefer-spread': 0,
         'guard-for-in': 0,
+        'comma-dangle': ['error', 'never'],
         'no-unused-vars': 0,
-        // 'comma-dangle': ['error', 'never'],
         'no-multi-str': 0,
         'indent': 0,
         'no-invalid-this': 0

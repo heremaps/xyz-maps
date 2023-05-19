@@ -16,7 +16,7 @@
  * SPDX-License-Identifier: Apache-2.0
  * License-Filename: LICENSE
  */
-import { StyleValueFunction, StyleZoomRange } from './LayerStyle';
+import {StyleValueFunction, StyleZoomRange} from './LayerStyle';
 
 type TypedArray = Int8Array | Uint8Array | Int16Array | Uint16Array | Int32Array | Uint32Array | Float32Array;
 
