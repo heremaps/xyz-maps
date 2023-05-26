@@ -22,13 +22,12 @@ import {ConstantAttribute, FlexAttribute, TemplateBuffer} from './TemplateBuffer
 import {GeometryBuffer, IndexGrp} from '../GeometryBuffer';
 import {Raycaster} from '../../Raycaster';
 
-import {scale, rotate, multiply, identity, translate, create} from 'gl-matrix/mat4';
-import {transformMat4} from 'gl-matrix/vec3';
+import {scale, rotate, multiply, translate} from 'gl-matrix/mat4';
+import {transformMat4, subtract, scale as scaleVec3, normalize as normalizeVec3} from 'gl-matrix/vec3';
 import {isTypedArray, TypedArray} from '../glType';
 import {Attribute} from '../Attribute';
 import {toRGB} from '../../color';
 import {ModelGeometry} from '@here/xyz-maps-core';
-
 
 enum HitTest {
     bbox,
@@ -37,13 +36,173 @@ enum HitTest {
 
 const NO_COLOR_WHITE = [1, 1, 1, 1];
 
-// export type GeometryData = {
-//     position: TypedArray | number[],
-//     index?: number[],
-//     normal?: TypedArray | number[],
-//     texcoord?: number[],
-//     color?: string | [number, number, number, number]
-// };
+type VertexData = TypedArray | number[];
+
+function computeTangents(vertex: VertexData, uv: number[], indices?: Uint16Array | Uint32Array | number[]) {
+    const tangents = new Float32Array(vertex.length);
+    const p1 = new Float32Array(3);
+    const p2 = new Float32Array(3);
+    const p3 = new Float32Array(3);
+    const uv1 = new Float32Array(3);
+    const uv2 = new Float32Array(3);
+    const uv3 = new Float32Array(3);
+    const length = indices?.length || vertex.length / 3;
+
+    for (let i = 0; i < length; i += 3) {
+        let i1 = i;
+        let i2 = i + 1;
+        let i3 = i + 2;
+
+        if (indices) {
+            i1 = indices[i1];
+            i2 = indices[i2];
+            i3 = indices[i3];
+        }
+
+        const pi1 = i1 * 3;
+        const pi2 = i2 * 3;
+        const pi3 = i3 * 3;
+
+        const ni1 = i1 * 2;
+        const ni2 = i2 * 2;
+        const ni3 = i3 * 2;
+
+        p1[0] = vertex[pi1];
+        p1[1] = vertex[pi1 + 1];
+        p1[2] = vertex[pi1 + 2];
+
+        p2[0] = vertex[pi2];
+        p2[1] = vertex[pi2 + 1];
+        p2[2] = vertex[pi2 + 2];
+
+        p3[0] = vertex[pi3];
+        p3[1] = vertex[pi3 + 1];
+        p3[2] = vertex[pi3 + 2];
+
+        uv1[0] = uv[ni1];
+        uv1[1] = uv[ni1 + 1];
+        uv1[2] = uv[ni1 + 2];
+
+        uv2[0] = uv[ni2];
+        uv2[1] = uv[ni2 + 1];
+        uv2[2] = uv[ni2 + 2];
+
+        uv3[0] = uv[ni3];
+        uv3[1] = uv[ni3 + 1];
+        uv3[2] = uv[ni3 + 2];
+
+        const dp12 = subtract(p2, p2, p1); // reuse array p2
+        const dp13 = subtract(p3, p3, p1); // reuse array p3
+        const duv12 = subtract(uv2, uv2, uv1);
+        const duv13 = subtract(uv3, uv3, uv1);
+        const f = 1.0 / (duv12[0] * duv13[1] - duv13[0] * duv12[1]);
+        const tangent = p1; // reuse array p1
+
+        if (Number.isFinite(f)) {
+            normalizeVec3(tangent, scaleVec3(tangent, subtract(tangent,
+                scaleVec3(dp12, dp12, duv13[1]),
+                scaleVec3(dp13, dp13, duv12[1])
+            ), f));
+        } else {
+            tangent[0] = 1;
+            tangent[1] = 0;
+            tangent[2] = 0;
+        }
+
+        tangents[pi1] = tangents[pi2] = tangents[pi3] = tangent[0];
+        tangents[pi1 + 1] = tangents[pi2 + 1] = tangents[pi3 + 1] = tangent[1];
+        tangents[pi1 + 2] = tangents[pi2 + 2] = tangents[pi3 + 2] = tangent[2];
+    };
+
+    return tangents;
+}
+
+
+const averageFaceNormal = (vertex: VertexData, i1: number, i2: number, i3: number, normals: VertexData) => {
+    // const t3x = vertex[i1];
+    // const t3y = vertex[i1 + 1];
+    // const t3z = vertex[i1 + 2];
+    //
+    // const t2x = vertex[i2];
+    // const t2y = vertex[i2 + 1];
+    // const t2z = vertex[i2 + 2];
+    //
+    // const t1x = vertex[i3];
+    // const t1y = vertex[i3 + 1];
+    // const t1z = vertex[i3 + 2];
+
+    const t1x = vertex[i1];
+    const t1y = vertex[i1 + 1];
+    const t1z = vertex[i1 + 2];
+
+    const t2x = vertex[i2];
+    const t2y = vertex[i2 + 1];
+    const t2z = vertex[i2 + 2];
+
+    const t3x = vertex[i3];
+    const t3y = vertex[i3 + 1];
+    const t3z = vertex[i3 + 2];
+
+    const ux = t2x - t1x;
+    const uy = t2y - t1y;
+    const uz = t2z - t1z;
+
+    const vx = t3x - t1x;
+    const vy = t3y - t1y;
+    const vz = t3z - t1z;
+
+    // surface normal
+    const nx = uz * vy - uy * vz;
+    const ny = ux * vz - uz * vx;
+    const nz = uy * vx - ux * vy;
+
+    // sum normals, average
+    normals[i1] += nx;
+    normals[i1 + 1] += ny;
+    normals[i1 + 2] += nz;
+
+    normals[i2] += nx;
+    normals[i2 + 1] += ny;
+    normals[i2 + 2] += nz;
+
+    normals[i3] += nx;
+    normals[i3 + 1] += ny;
+    normals[i3 + 2] += nz;
+};
+
+const computeMeshNormals = (vertex: VertexData, index?: number[]) => {
+    const vertexLength = vertex.length;
+    const normals = new Float32Array(vertexLength);
+
+    if (!index) {
+        for (let i = 0; i < vertexLength;) {
+            averageFaceNormal(vertex, i, i + 3, i += 6, normals);
+        }
+    } else {
+        for (let i = 0; i < index.length; i += 3) {
+            averageFaceNormal(vertex, index[i] * 3, index[i + 1] * 3, index[i + 2] * 3, normals);
+        }
+    }
+
+    // normalize
+    const normalized = new Int8Array(vertexLength);
+    for (let i = 0, nx, ny, nz; i < vertexLength; i += 3) {
+        nx = normals[i];
+        ny = normals[i + 1];
+        nz = normals[i + 2];
+        let len = nx * nx + ny * ny + nz * nz;
+        if (len > 0) {
+            len = 1 / Math.sqrt(len);
+        }
+        len *= 127;
+        normalized[i] = Math.round(nx * len);
+        normalized[i + 1] = Math.round(ny * len);
+        normalized[i + 2] = Math.round(nz * len);
+    }
+
+    return normalized;
+};
+
 
 export class ModelBuffer extends TemplateBuffer {
     destroy?: (buffer: GeometryBuffer) => void;
@@ -93,6 +252,14 @@ export class ModelBuffer extends TemplateBuffer {
                     size: 3
                     // normalized: true
                 };
+            } else {
+                console.time('computeMeshNormals');
+                attributes.a_normal = {
+                    data: ModelBuffer.createFlexArray(computeMeshNormals(position)),
+                    normalized: true,
+                    size: 3
+                };
+                console.timeEnd('computeMeshNormals');
             }
 
             if (uv) {
@@ -100,6 +267,16 @@ export class ModelBuffer extends TemplateBuffer {
                     data: ModelBuffer.createFlexArray(uv),
                     size: 2
                 };
+            }
+            if (uv && normal) {
+                const tangents = computeTangents(position, uv, data.index);
+
+                attributes.a_tangent = {
+                    data: ModelBuffer.createFlexArray(tangents),
+                    size: 3
+                };
+            } else {
+                attributes.a_tangent = {value: [1, 0, 0]};
             }
 
             if (color) {
@@ -147,6 +324,7 @@ export class ModelBuffer extends TemplateBuffer {
 
 
     flexAttributes: {
+        a_tangent?: FlexAttribute | ConstantAttribute,
         a_position?: FlexAttribute,
         a_modelMatrix?: FlexAttribute,
         a_offset?: FlexAttribute,
@@ -191,16 +369,15 @@ export class ModelBuffer extends TemplateBuffer {
     addInstance(x: number, y: number, z: number, scaleXYZ?: number[], translateXYZ?: number[], rotation?: number[], transform?) {
         this.instances++;
 
-        // var m = create();
-        var m = new Float64Array(16);
-        identity(m);
+        // const m = identity(create());
+        // rotate(m, m, Math.PI/2, [1, 0, 0]);
+        // rotate(m, m, Math.PI, [0, 1, 0]);
 
-        // translate(m, m, [0.5309507019668391, 0.34998539151450736, 0]);
-        // translate(m, m, [x, y, z]);
-        // debugger;
+        // The default rotation orients the model with the Y-axis facing up on the map
+        const m = new Float32Array([-1, 0, 0, 0, 0, 0, 1, 0, 0, 1, 0, 0, 0, 0, 0, 1]);
+
         if (transform) {
             multiply(m, m, transform);
-
             // translate(m, m, [x, y, z]);
         } else {
             // identity(m);

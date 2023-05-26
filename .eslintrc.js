@@ -27,11 +27,11 @@ module.exports = {
         'comma-dangle': ['error', 'never'],
         'no-unused-vars': 0,
         'no-multi-str': 0,
-        'indent': 0,
+        'indent': ['error', 4],
         'no-invalid-this': 0
-        // "padding-line-between-statements": [
-        //     "error",
-        //     { "blankLine": "never", "prev": "var", "next": ["var"] }
-        // ]
+    // "padding-line-between-statements": [
+    //     "error",
+    //     { "blankLine": "never", "prev": "var", "next": ["var"] }
+    // ]
     }
 };

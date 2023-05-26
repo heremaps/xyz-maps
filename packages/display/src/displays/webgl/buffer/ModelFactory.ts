@@ -16,11 +16,11 @@
  * SPDX-License-Identifier: Apache-2.0
  * License-Filename: LICENSE
  */
-import { Texture } from '../Texture';
-import { ModelBuffer } from './templates/ModelBuffer';
-import { TemplateBufferBucket } from './templates/TemplateBufferBucket';
-import { ModelData } from '@here/xyz-maps-core';
-import { ObjParser } from './ObjParser';
+import {Texture} from '../Texture';
+import {ModelBuffer} from './templates/ModelBuffer';
+import {TemplateBufferBucket} from './templates/TemplateBufferBucket';
+import {ModelData} from '@here/xyz-maps-core';
+import {ObjParser} from './ObjParser';
 
 class ModelTexture extends Texture {
     ref: number = 0;
@@ -47,11 +47,17 @@ class ModelFactory {
     private gl: WebGLRenderingContext;
     private onBufferDestroyed: (buffer) => void;
     private objParser: ObjParser;
+    private unusedNormalTexture: ModelTexture;
 
     constructor(gl: WebGLRenderingContext) {
-        const unusedTexture = new ModelTexture(gl, { width: 1, height: 1, data: new Uint8Array([255, 255, 255, 255]) });
+        const unusedTexture = new ModelTexture(gl, {width: 1, height: 1, data: new Uint8Array([255, 255, 255, 255])});
         unusedTexture.ref = Infinity;
         this.unusedTexture = unusedTexture;
+
+        const unusedNormalTexture = new ModelTexture(gl, {width: 1, height: 1, data: new Uint8Array([127, 127, 255, 255])});
+        unusedNormalTexture.ref = Infinity;
+        this.unusedNormalTexture = unusedNormalTexture;
+
         this.gl = gl;
 
         this.onBufferDestroyed = (buffer) => {
@@ -94,16 +100,16 @@ class ModelFactory {
         if (this.models[id] != undefined) return this.models[id];
 
         if (this.isValid(data)) {
-            const { geometries, materials, faces } = data;
+            const {geometries, materials, faces} = data;
             const sharedAttr = new WeakMap();
             const imgTexData = data.textures || {};
             const parts: Model['parts'] = [];
             const modelTextures = {
-                unusedTexture: this.unusedTexture
+                unusedTexture: this.unusedTexture,
+                unusedNormalTexture: this.unusedNormalTexture
             };
 
             for (let face of faces) {
-                // for (let i = 0; i < geometries.length; i++) {
                 const geom = geometries[face.geometryIndex];
 
                 if (!geom) continue;
@@ -113,6 +119,11 @@ class ModelFactory {
                     diffuseMap: 'unusedTexture',
                     opacity: 1,
                     illumination: 1,
+                    ambient: [1, 1, 1],
+                    specular: [1, 1, 1],
+                    specularMap: 'unusedTexture',
+                    shininess: 384,
+                    normalMap: 'unusedNormalTexture',
                     ...materials?.[face.material]
                 };
 
@@ -145,10 +156,10 @@ class ModelFactory {
                     }
                 }
 
-                parts.push({ attributes, bbox, uniforms: material, index, first: face.start, count: face.count });
+                parts.push({attributes, bbox, uniforms: material, index, first: face.start, count: face.count});
             }
 
-            this.models[id] = { textures: modelTextures, parts };
+            this.models[id] = {textures: modelTextures, parts};
         } else {
             // invalid model description
             console.warn('ModelError:', data || id);
@@ -162,13 +173,13 @@ class ModelFactory {
         let bufferBucket;
         if (model) {
             bufferBucket = new TemplateBufferBucket<ModelBuffer>();
-            let { parts } = model;
+            let {parts} = model;
             let positionOffset;
             let modelMatrix;
             let undef;
 
             for (let i = 0; i < parts.length; i++) {
-                let { attributes, bbox, uniforms, index, first, count } = parts[i];
+                let {attributes, bbox, uniforms, index, first, count} = parts[i];
 
                 let buffer = new ModelBuffer(undef, undef, modelMatrix, positionOffset);
                 // share a single buffer for the model-matrix data across multiple GeometryBuffers of the same model.
@@ -218,7 +229,7 @@ class ModelFactory {
         rotate: number[],
         transform: number[]
     ) {
-        const { buffers } = bufferBucker;
+        const {buffers} = bufferBucker;
         buffers[0].addInstance(x, y, z, scale, translate, rotate, transform);
         for (let i = 1; i < buffers.length; i++) {
             // buffers[i].addPosition(x, y, z, scale, translate, rotate, transform);
@@ -227,4 +238,4 @@ class ModelFactory {
     }
 }
 
-export { ModelFactory };
+export {ModelFactory};

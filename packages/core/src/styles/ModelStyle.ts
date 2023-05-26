@@ -21,22 +21,64 @@ import {StyleValueFunction, StyleZoomRange} from './LayerStyle';
 type TypedArray = Int8Array | Uint8Array | Int16Array | Uint16Array | Int32Array | Uint32Array | Float32Array;
 
 /**
- * The Material used to render the model/geometry.
+ * The Material to render the model/geometry using the Phong reflection model.
  *
  * @experimental
  */
 export interface Material {
     /**
+     * The Ambient color reflection intensity constant of the material.
+     *
+     * @defaultValue [1,1,1] (white)
+     */
+    ambient?: number[];
+    /**
+     * The emissive color of the material.
+     * Emissive Color is solid and unaffected by other lightning.
+     *
+     * @defaultValue [1,1,1] (white)
+     */
+    emissive?: number[];
+    /**
      * Diffuse color of the material.
      *
-     * @defaultValue
+     * @defaultValue [1, 1, 1] (white)
      */
     diffuse?: number[];
     /**
      * The name of the diffuse map used by the material.
-     * The actual texture must be defined in {@link ModelStyle.model.textures}.
+     * The actual texture must be defined in {@link ModelData.textures}.
      */
     diffuseMap?: string;
+
+    /**
+     * The shininess of the material determines how shiny the {@link Material.specular | specular} highlights are rendered.
+     * A higher value results in a sharper, more focused highlight, while lower values cause the highlight to become more blown out.
+     * The value range is from 0 to 1000.
+     *
+     * @defaultValue 384
+     */
+    shininess?: number;
+
+    /**
+     * Specular defines the specular highlight color of the material.
+     *
+     * @defaultValue [1, 1, 1] (white)
+     */
+    specular?: number[];
+
+    /**
+     * The name of the specular map used by the material.
+     * The actual texture must be defined in {@link ModelData.textures}.
+     */
+    specularMap: string;
+
+    /**
+     * The name of the normal map used by the material.
+     * The actual texture must be defined in {@link ModelData.textures}.
+     */
+    normalMap: string;
+
     /**
      * The used primitive type to render the model geometry.
      *
@@ -105,7 +147,7 @@ export interface ModelData {
         [name: string]: HTMLCanvasElement | HTMLImageElement | { width: number; height: number; pixels?: Uint8Array };
     };
     /**
-     * Materials referenced by {@link ModelStyle.model.faces}.
+     * Materials referenced by {@link ModelData.faces}.
      */
     materials?: {
         [name: string]: Material;
@@ -120,7 +162,7 @@ export interface ModelData {
         geometryIndex: number;
         /**
          * The name of the Material the geometry should be rendered with.
-         * If the used material is not defined in {@link ModelStyle.data.materials| Materials}, or none is defined, the default material will be used.
+         * If the used material is not defined in {@link ModelData.materials| Materials}, or none is defined, the default material will be used.
          */
         material: string;
         // /**
@@ -147,6 +189,7 @@ export interface ModelData {
 
 /**
  * Interface for configuring the visual appearance of Models.
+ * The default orientation is with the Y axis pointing up.
  *
  * @experimental
  */
@@ -205,7 +248,7 @@ export interface ModelStyle {
     rotate?: number[];
     /**
      * 4x4 transformation matrix to transform the model.
-     * if transform is defined, {@link ModelStyle.scale | scale}, {@link ModelStyle.translate} and {@link ModelStyle.rotate} are ignored.
+     * if transform is defined, {@link ModelStyle.scale | scale}, {@link ModelStyle.translate | translate} and {@link ModelStyle.rotate | rotate} are ignored.
      */
     transform?: number[];
 

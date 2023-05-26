@@ -134,6 +134,7 @@ export class GLRender implements BasicRender {
         u_zMeterToPixel: number;
         u_fixedView: number;
         u_lightDir: number[];
+        u_camWorld: Float64Array;
     };
 
     private _lightDir: number[] = [0.5, 0.0, -1.0];
@@ -448,7 +449,8 @@ export class GLRender implements BasicRender {
             u_inverseMatrix: this.invVPMat,
             u_zMeterToPixel: null, // this.zMeterToPixel / dZoom,
             u_groundResolution: 1 / this.zMeterToPixel,
-            u_lightDir: this._lightDir
+            u_lightDir: this._lightDir,
+            u_camWorld: this.cameraWorld
         };
     }
 

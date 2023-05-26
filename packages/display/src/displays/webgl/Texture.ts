@@ -53,15 +53,15 @@ class Texture {
     }
 
     bind() {
-        const { gl, texture } = this;
+        const {gl, texture} = this;
         if (texture) {
             gl.bindTexture(gl.TEXTURE_2D, texture);
         }
     }
 
     set(image: Image, x?: number, y?: number) {
-        let { gl, texture, format, flipY } = this;
-        const { width, height } = image;
+        let {gl, texture, format, flipY} = this;
+        const {width, height} = image;
         const internalformat = format;
         const isSubImage = typeof x == 'number';
 
@@ -102,7 +102,7 @@ class Texture {
     onDestroyed(tex: Texture) {}
 
     destroy() {
-        const { gl, texture } = this;
+        const {gl, texture} = this;
         if (texture) {
             gl.deleteTexture(texture);
         }
@@ -111,4 +111,4 @@ class Texture {
     }
 }
 
-export { Texture };
+export {Texture};
