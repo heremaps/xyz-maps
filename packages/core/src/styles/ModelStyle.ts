@@ -162,6 +162,7 @@ export interface ModelData {
     };
     /**
      * The Faces of the Model.
+     * The winding orientation is counter-clockwise.
      */
     faces: {
         /**
