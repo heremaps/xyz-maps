@@ -235,6 +235,7 @@ export interface ModelStyle {
     /**
      * Configure Face culling.
      * To enable culling set cullFace to "Front" or "Back", to disable set to false.
+     * The used winding order is counter-clock-wise.
      * Face culling is disabled by default.
      *
      * @defaultValue: false

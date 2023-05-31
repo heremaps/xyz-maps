@@ -248,7 +248,8 @@ export class FeatureFactory {
                     let faceCulling: number;
 
                     if (cullFace) {
-                        faceCulling = cullFace == 'Front' ? this.gl.FRONT : this.gl.BACK;
+                        // because default winding order is ccw and cullface set to front, we need to flip.
+                        faceCulling = cullFace == 'Front' ? this.gl.BACK : this.gl.FRONT;
                     }
 
                     bucket = group.buffer = this.modelFactory.createModelBuffer(modelId, faceCulling);
