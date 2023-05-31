@@ -138,6 +138,7 @@ export class GLRender implements BasicRender {
     };
 
     private _lightDir: number[] = [0.5, 0.0, -1.0];
+    private programConfig: { [name: string]: typeof Program };
 
     constructor(renderOptions: RenderOptions) {
         this.ctxAttr = {
@@ -250,7 +251,7 @@ export class GLRender implements BasicRender {
 
         this.icons = new IconManager(gl, texUnits - 2);
 
-        const programConfig = {
+        const programConfig = this.programConfig = {
             Rect: RectProgram,
             Line: LineProgram,
             DashedLine: DashedLineProgram,
@@ -268,23 +269,30 @@ export class GLRender implements BasicRender {
         this.programs = {};
 
         for (let program in programConfig) {
-            this.createProgram(program, programConfig[program]);
+            if (program == 'Model') continue;
+
+            this.createProgram(program, programConfig[program], {
+                // NORMAL_MAP: 1,
+                // SPECULAR: 1
+            });
         }
     }
 
-    createProgram(name: string, Program, macros?) {
+    private createProgram(name: string, Prog: typeof Program, macros?): Program {
         const {gl, programs, dpr} = this;
 
         if (programs[name]) {
             programs[name].delete();
         }
 
-        const program = programs[name] = new Program(gl, dpr, macros);
+        const program = programs[name] = new Prog(gl, dpr, macros);
 
         program.init(
             this.buffers,
             this.glExt.getExtension(EXTENSION_ANGLE_INSTANCED_ARRAYS)
         );
+
+        return program;
     }
 
 
@@ -616,10 +624,8 @@ export class GLRender implements BasicRender {
         const gl = this.gl;
         const renderPass = this.pass;
         let bufAttributes;
-        let program: Program;
-        let uLocation;
-
-        program = this.programs[buffer.type];
+        let program: Program = this.getProgram(buffer);
+        // program = this.programs[buffer.type];
 
         if (program) {
             let pass = program.pass(renderPass);
@@ -898,5 +904,26 @@ export class GLRender implements BasicRender {
         gl.bindFramebuffer(gl.FRAMEBUFFER, null);
 
         this.initContext();
+    }
+
+    private getProgram(buffer: GeometryBuffer) {
+        let id = buffer.progId;
+        const type = buffer.type;
+        const Program = this.programConfig[type];
+
+        if (!id) {
+            id = buffer.progId = Program.getProgramId(buffer, Program.getMacros(buffer));
+        }
+
+        let prog = this.programs[id];
+
+        if (prog === undefined) {
+            const Program = this.programConfig[buffer.type];
+            if (Program) {
+                prog = this.createProgram(id, Program, Program.getMacros(buffer));
+            }
+        }
+
+        return prog;
     }
 }

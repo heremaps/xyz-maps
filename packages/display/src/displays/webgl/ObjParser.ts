@@ -17,25 +17,12 @@
  * License-Filename: LICENSE
  */
 import {ModelData} from '@here/xyz-maps-core';
-import {XYZWorker} from '../XYZWorker';
+import {XYZWorker} from './XYZWorker';
+import {Material} from '@here/xyz-maps-core';
 
 type Face = {
     material: string;
     geometryIndex: number;
-};
-
-type ObjMaterial = {
-    shininess?: number;
-    ambient?: number[];
-    diffuse?: number[];
-    specular?: number[];
-    emissive?: number[];
-    diffuseMap?: string;
-    specularMap?: string;
-    normalMap?: string;
-    opticalDensity?: number;
-    opacity?: number;
-    illum?: number;
 };
 
 const worker = function() {
@@ -158,8 +145,21 @@ const worker = function() {
         };
     };
 
+
+    const mtlToMaterial = {
+        'Ka': 'ambient',
+        'Kd': 'diffuse',
+        'Ks': 'specular',
+        'Ke': 'emissive',
+        'map_Kd': 'diffuseMap',
+        'map_Ns': 'specularMap',
+        'map_Bump': 'normalMap',
+        'd': 'opacity',
+        'illum': 'illumination'
+    };
+
     const parseMTL = (text: string) => {
-        let material: ObjMaterial = {};
+        let material: Material = {};
         const materials = {};
         const lines = text.split('\n');
         const regex = /(\w*)(?: )*(.*)/;
@@ -171,44 +171,27 @@ const worker = function() {
             }
             const [, key, rawValue] = regex.exec(line);
             const values = rawValue.split(/\s+/);
+
             switch (key) {
             case 'newmtl':
                 material = {};
                 materials[rawValue] = material;
                 break;
+            case 'd':
             case 'Ns':
-                material.shininess = parseFloat(values[0]);
+            case 'illum':
+                material[mtlToMaterial[key]] = parseFloat(values[0]);
                 break;
             case 'Ka':
-                material.ambient = values.map(parseFloat);
-                break;
             case 'Kd':
-                material.diffuse = values.map(parseFloat);
-                console.log('SET DIFFUSE', material.diffuse);
-                break;
             case 'Ks':
-                material.specular = values.map(parseFloat);
-                break;
             case 'Ke':
-                material.emissive = values.map(parseFloat);
+                material[mtlToMaterial[key]] = values.map(parseFloat);
                 break;
             case 'map_Kd':
-                material.diffuseMap = rawValue;
-                break;
             case 'map_Ns':
-                material.specularMap = rawValue;
-                break;
             case 'map_Bump':
-                material.normalMap = rawValue;
-                break;
-            case 'Ni':
-                material.opticalDensity = parseFloat(values[0]);
-                break;
-            case 'd':
-                material.opacity = parseFloat(values[0]);
-                break;
-            case 'illum':
-                material.illum = parseInt(values[0]);
+                material[mtlToMaterial[key]] = rawValue;
                 break;
                 // default: console.warn(`objParser unhandled: ${key}`);
             }

@@ -56,7 +56,7 @@ export interface Material {
      * A higher value results in a sharper, more focused highlight, while lower values cause the highlight to become more blown out.
      * The value range is from 0 to 1000.
      *
-     * @defaultValue 384
+     * @defaultValue 32
      */
     shininess?: number;
 
@@ -71,13 +71,13 @@ export interface Material {
      * The name of the specular map used by the material.
      * The actual texture must be defined in {@link ModelData.textures}.
      */
-    specularMap: string;
+    specularMap?: string;
 
     /**
      * The name of the normal map used by the material.
      * The actual texture must be defined in {@link ModelData.textures}.
      */
-    normalMap: string;
+    normalMap?: string;
 
     /**
      * The used primitive type to render the model geometry.
@@ -98,6 +98,14 @@ export interface Material {
      * @defaultValue 1
      */
     illumination?: number;
+
+    /**
+     * The opacity of the material determines how much this material dissolves into the background.
+     * The value must be between 0.0 (completely transparent) and 1.0 (fully opaque).
+     *
+     * @defaultValue 1
+     */
+    opacity?: number;
 }
 
 /**

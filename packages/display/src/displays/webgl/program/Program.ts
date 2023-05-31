@@ -32,6 +32,17 @@ type UniformMap = { [name: string]: WebGLUniformLocation };
 type AttributeMap = { [name: string]: Attribute | ConstantAttribute };
 
 class Program {
+    protected vertexShaderSrc: string;
+    protected fragmentShaderSrc: string;
+
+    static getMacros(buffer: GeometryBuffer): { [name: string]: string | number | boolean } {
+        return null;
+    }
+
+    static getProgramId(buffer: GeometryBuffer, macros?: { [name: string]: string | number | boolean }) {
+        return buffer.type;
+    }
+
     prog: WebGLProgram;
     gl: WebGLRenderingContext;
     // eslint-disable-next-line camelcase
@@ -54,20 +65,28 @@ class Program {
 
     private textureUnits: number = 0;
 
+    private macros: { [name: string]: string | number | boolean } = {
+        // '#version 300 es',s
+        'M_PI': 3.1415927410125732
+    };
+
     constructor(
         gl: WebGLRenderingContext,
-        mode: number,
-        vertexShader: string,
-        fragmentShader: string,
+        // mode: number,
+        // vertexShader: string,
+        // fragmentShader: string,
         devicePixelRation: number,
-        macros?: { [name: string]: any }
+        macros?: { [name: string]: string | number | boolean },
+        mode?: number
     ) {
         this.dpr = devicePixelRation;
-        this.mode = mode;
         this.usage = gl.STATIC_DRAW;
+        if (macros) {
+            this.macros = {...this.macros, ...macros};
+        }
+        this.mode = mode || gl.TRIANGLES;
         this.gl = gl;
         this.glStates = new GLStates({scissor: true, blend: false, depth: true});
-        this.compile(vertexShader, fragmentShader, macros);
     }
 
     init(
@@ -75,6 +94,8 @@ class Program {
         // eslint-disable-next-line camelcase
         glExtAngleInstancedArrays: ANGLE_instanced_arrays
     ) {
+        this.compile(this.vertexShaderSrc, this.fragmentShaderSrc, this.macros);
+
         this.setBufferCache(buffers);
 
         this.glExtAngleInstancedArrays = glExtAngleInstancedArrays;
@@ -111,11 +132,6 @@ class Program {
 
         return () => console.warn('setting uniform not supported', uInfo, location);
     }
-
-    private macros: { [name: string]: any } = {
-        // '#version 300 es',s
-        'M_PI': 3.1415927410125732
-    };
 
     private buildSource(vertexShader: string, fragmentShader: string, macros?: { [name: string]: any }): [string, string] {
         const prog = this;
@@ -217,6 +233,9 @@ class Program {
 
         for (let name in attributes) {
             let attribute = attributes[name];
+
+            if (!attributeLocations[name]) continue;
+
             let {index, length} = attributeLocations[name];
 
             const {value} = attribute as ConstantAttribute;

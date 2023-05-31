@@ -20,7 +20,7 @@ import {Texture} from '../Texture';
 import {ModelBuffer} from './templates/ModelBuffer';
 import {TemplateBufferBucket} from './templates/TemplateBufferBucket';
 import {ModelData} from '@here/xyz-maps-core';
-import {ObjParser} from './ObjParser';
+import {ObjParser} from '../ObjParser';
 
 class ModelTexture extends Texture {
     ref: number = 0;
@@ -122,7 +122,7 @@ class ModelFactory {
                     ambient: [1, 1, 1],
                     specular: [1, 1, 1],
                     specularMap: 'unusedTexture',
-                    shininess: 384,
+                    shininess: 32,
                     normalMap: 'unusedNormalTexture',
                     ...materials?.[face.material]
                 };
@@ -210,7 +210,6 @@ class ModelFactory {
                 buffer.bbox = bbox;
                 buffer.cullFace = cullFace;
                 buffer.id = id;
-
                 bufferBucket.set(i, buffer);
             }
 

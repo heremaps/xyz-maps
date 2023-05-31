@@ -272,12 +272,12 @@ const createBuffer = (
                                 }
 
                                 if (type == 'Model') {
-                                    geoBuffer.addUniform('u_fill', [1, 0, 0, 1]);
                                     geoBuffer.addUniform('u_meterToPixel', meterToPixel);
                                     if (shared.modelMode) {
                                         // terrain model -> scale xy in pixel
                                         geoBuffer.addUniform('u_groundResolution', 1);
                                     }
+
                                     if (!geoBuffer.attributes.a_normal) {
                                         const normals = geoBuffer.computeNormals();
                                         geoBuffer.addAttribute('a_normal', {
@@ -293,6 +293,11 @@ const createBuffer = (
 
                                     if (geoBuffer.uniforms.pointSize) {
                                         geoBuffer.groups[0].mode = GeometryBuffer.MODE_GL_POINTS;
+                                    }
+
+                                    if (geoBuffer.uniforms.opacity<1.0) {
+                                        geoBuffer.alpha = 1;
+                                        geoBuffer.blend = true;
                                     }
                                 }
                             }

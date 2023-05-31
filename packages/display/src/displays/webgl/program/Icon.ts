@@ -38,7 +38,11 @@ class IconProgram extends Program {
     });
 
     constructor(gl: WebGLRenderingContext, devicePixelRation: number) {
-        super(gl, gl.TRIANGLES, vertexShader, fragmentShader, devicePixelRation);
+        super(gl, devicePixelRation);
+
+        this.mode = gl.TRIANGLES;
+        this.vertexShaderSrc = vertexShader;
+        this.fragmentShaderSrc = fragmentShader;
     }
 
     pass(pass: PASS) {

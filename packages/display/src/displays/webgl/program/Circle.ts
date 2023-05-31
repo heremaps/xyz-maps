@@ -32,10 +32,14 @@ class CircleProgram extends Program {
         scissor: false,
         blend: false,
         depth: true
-    })
+    });
 
     constructor(gl: WebGLRenderingContext, devicePixelRation: number) {
-        super(gl, gl.TRIANGLES, vertexShader, fragmentShader, devicePixelRation);
+        super(gl, devicePixelRation);
+
+        this.mode = gl.TRIANGLES;
+        this.vertexShaderSrc = vertexShader;
+        this.fragmentShaderSrc = fragmentShader;
     }
 
     // pass(pass: string) {

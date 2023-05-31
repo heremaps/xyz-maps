@@ -1,4 +1,4 @@
-precision highp float;
+precision lowp float;
 
 attribute vec3 a_position;
 attribute vec3 a_offset;
@@ -19,8 +19,12 @@ varying vec3 v_normal;
 varying vec2 v_texCoord;
 varying vec4 v_color;
 varying vec3 v_lightDir;
+#ifdef SPECULAR
 varying vec3 v_surfaceToCam;
+#endif
+#ifdef NORMAL_MAP
 varying vec3 v_tangent;
+#endif
 
 void main(void){
     vec4 position = a_modelMatrix * vec4(a_position, 1.0);
@@ -41,11 +45,14 @@ void main(void){
         v_texCoord = a_uv;
 
         mat3 normalMat = mat3(a_modelMatrix);
-
         v_normal = normalize(normalMat * normal);
+        #ifdef NORMAL_MAP
         v_tangent = normalize(normalMat * a_tangent);
+        #endif
     }
+    #ifdef SPECULAR
     v_surfaceToCam = u_camWorld - worldPos.xyz;
+    #endif
     v_color = a_color;
     v_lightDir = u_lightDir * vec3(-1.0);
 }

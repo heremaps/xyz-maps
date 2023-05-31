@@ -41,7 +41,11 @@ class DashedLineProgram extends Program {
     }
 
     constructor(gl: WebGLRenderingContext, devicePixelRation: number) {
-        super(gl, gl.TRIANGLES, vertexShader, fragmentShader, devicePixelRation);
+        super(gl, devicePixelRation);
+
+        this.mode = gl.TRIANGLES;
+        this.vertexShaderSrc = vertexShader;
+        this.fragmentShaderSrc = fragmentShader;
     }
 
     initGeometryBuffer(options: GeometryBuffer, pass, stencil: boolean) {

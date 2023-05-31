@@ -114,35 +114,24 @@ class GeometryBuffer {
     static MODE_GL_POINTS: number = 0x0000;
     static MODE_GL_LINES: number = 0x0001;
     static MODE_GL_TRIANGLES: number = 0x0004;
-
     // private size: number;
-
     attributes: { [name: string]: Attribute | ConstantAttribute } = {};
-
     uniforms: { [name: string]: Uniform } = {};
-
     type: string;
-
     alpha: number = 0;
     zIndex?: number;
     zLayer?: number;
     scissor?: boolean;
     depth?: boolean;
     blend?: boolean;
-
     mode?: number; // primitive to render
-
     flat: boolean = true;
-
     groups: (IndexGrp | ArrayGrp)[] = [];
-
-
     idOffsets?: (string | number)[];
     pointerEvents?: boolean;
-
-
     instances: number = 0;
-
+    // id of the program to render the buffer
+    progId: string;
 
     private _cullFace: number = 0;
 
@@ -150,6 +139,7 @@ class GeometryBuffer {
     bbox?: number[];
     id?: number | string;
     hitTest?: number;
+
 
     static fromTemplateBuffer(type: string, templBuffer: TemplateBuffer): GeometryBuffer {
         const {flexAttributes} = templBuffer;

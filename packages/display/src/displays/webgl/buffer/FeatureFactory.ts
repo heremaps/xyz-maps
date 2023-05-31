@@ -16,39 +16,39 @@
  * SPDX-License-Identifier: Apache-2.0
  * License-Filename: LICENSE
  */
-import { addText } from './addText';
-import { addPoint } from './addPoint';
-import { addPolygon, FlatPolygon } from './addPolygon';
-import { addExtrude } from './addExtrude';
-import { addIcon } from './addIcon';
+import {addText} from './addText';
+import {addPoint} from './addPoint';
+import {addPolygon, FlatPolygon} from './addPolygon';
+import {addExtrude} from './addExtrude';
+import {addIcon} from './addIcon';
 import earcut from 'earcut';
-import { calcBBox, getTextString, getValue, parseSizeValue, Style, StyleGroup } from '../../styleTools';
-import { defaultFont, wrapText } from '../../textUtils';
-import { FontStyle, GlyphTexture } from '../GlyphTexture';
-import { toRGB } from '../color';
-import { IconManager } from '../IconManager';
-import { DashAtlas } from '../DashAtlas';
-import { CollisionData, CollisionHandler } from '../CollisionHandler';
-import { LineFactory } from './LineFactory';
+import {calcBBox, getTextString, getValue, parseSizeValue, Style, StyleGroup} from '../../styleTools';
+import {defaultFont, wrapText} from '../../textUtils';
+import {FontStyle, GlyphTexture} from '../GlyphTexture';
+import {toRGB} from '../color';
+import {IconManager} from '../IconManager';
+import {DashAtlas} from '../DashAtlas';
+import {CollisionData, CollisionHandler} from '../CollisionHandler';
+import {LineFactory} from './LineFactory';
 
-import { TextBuffer } from './templates/TextBuffer';
-import { SymbolBuffer } from './templates/SymbolBuffer';
-import { PointBuffer } from './templates/PointBuffer';
-import { PolygonBuffer } from './templates/PolygonBuffer';
-import { ExtrudeBuffer } from './templates/ExtrudeBuffer';
-import { toPresentationFormB } from '../arabic';
-import { Tile, Feature, GeoJSONCoordinate as Coordinate, GeoJSONCoordinate } from '@here/xyz-maps-core';
-import { TemplateBuffer } from './templates/TemplateBuffer';
-import { addVerticalLine } from './addVerticalLine';
-import { BoxBuffer } from './templates/BoxBuffer';
-import { addBox } from './addBox';
-import { addSphere } from './addSphere';
-import { SphereBuffer } from './templates/SphereBuffer';
-import { TemplateBufferBucket } from './templates/TemplateBufferBucket';
-import { ModelStyle } from '@here/xyz-maps-core';
-import { ModelFactory } from './ModelFactory';
-import { ModelBuffer } from './templates/ModelBuffer';
-import { ImageInfo } from '../Atlas';
+import {TextBuffer} from './templates/TextBuffer';
+import {SymbolBuffer} from './templates/SymbolBuffer';
+import {PointBuffer} from './templates/PointBuffer';
+import {PolygonBuffer} from './templates/PolygonBuffer';
+import {ExtrudeBuffer} from './templates/ExtrudeBuffer';
+import {toPresentationFormB} from '../arabic';
+import {Tile, Feature, GeoJSONCoordinate as Coordinate, GeoJSONCoordinate} from '@here/xyz-maps-core';
+import {TemplateBuffer} from './templates/TemplateBuffer';
+import {addVerticalLine} from './addVerticalLine';
+import {BoxBuffer} from './templates/BoxBuffer';
+import {addBox} from './addBox';
+import {addSphere} from './addSphere';
+import {SphereBuffer} from './templates/SphereBuffer';
+import {TemplateBufferBucket} from './templates/TemplateBufferBucket';
+import {ModelStyle} from '@here/xyz-maps-core';
+import {ModelFactory} from './ModelFactory';
+import {ModelBuffer} from './templates/ModelBuffer';
+import {ImageInfo} from '../Atlas';
 
 const DEFAULT_STROKE_WIDTH = 1;
 const DEFAULT_LINE_CAP = 'round';
@@ -186,7 +186,7 @@ export class FeatureFactory {
             // }
             // const texture = <GlyphTexture>group.texture;
             const texture = (<TextBuffer>group.buffer).uniforms.u_texture as GlyphTexture;
-            const { flexAttributes } = group.buffer as TextBuffer;
+            const {flexAttributes} = group.buffer as TextBuffer;
 
             texture.addChars(text);
 
@@ -242,7 +242,7 @@ export class FeatureFactory {
 
                 let bucket = <TemplateBufferBucket<ModelBuffer>>group.buffer;
 
-                let { scale, translate, rotate, transform, cullFace } = style as ModelStyle;
+                let {scale, translate, rotate, transform, cullFace} = style as ModelStyle;
 
                 if (!group.buffer) {
                     let faceCulling: number;
@@ -259,7 +259,7 @@ export class FeatureFactory {
                 group.buffer ||= new SymbolBuffer(isFlat);
 
                 const groupBuffer = group.buffer as SymbolBuffer;
-                const { flexAttributes } = groupBuffer;
+                const {flexAttributes} = groupBuffer;
                 const src = getValue('src', style, feature, level);
                 const width = getValue('width', style, feature, level);
                 const height = getValue('height', style, feature, level) || width;
@@ -296,7 +296,7 @@ export class FeatureFactory {
                     let width = 2 * getValue('radius', style, feature, level);
 
                     const sphereBuffer: SphereBuffer = ((group.buffer as SphereBuffer) ||= new SphereBuffer(isFlat));
-                    const { flexAttributes } = sphereBuffer;
+                    const {flexAttributes} = sphereBuffer;
                     positionBuffer = flexAttributes.a_position;
 
                     addSphere(x, y, z, width, positionBuffer.data, flexAttributes.a_point.data, flexAttributes.a_normal.data);
@@ -306,7 +306,7 @@ export class FeatureFactory {
                     let depth = getValue('depth', style, feature, level) || width;
 
                     const boxBuffer: BoxBuffer = ((group.buffer as BoxBuffer) ||= new BoxBuffer(isFlat));
-                    const { flexAttributes } = boxBuffer;
+                    const {flexAttributes} = boxBuffer;
                     positionBuffer = flexAttributes.a_position;
 
                     addBox(x, y, z, width, height, depth, positionBuffer.data, flexAttributes.a_point.data, flexAttributes.a_normal.data);
@@ -344,7 +344,7 @@ export class FeatureFactory {
         priority?: number,
         collisionGroup?: CollisionGroup
     ): boolean {
-        const { tile, groups, tileSize } = this;
+        const {tile, groups, tileSize} = this;
         const level = this.z;
         let flatPolyStart: number;
         let flatPoly: FlatPolygon[];
@@ -684,7 +684,7 @@ export class FeatureFactory {
                 groupId += 'SA';
             }
 
-            zGrouped = groups[zIndex] = groups[zIndex] || { index: {}, groups: [] };
+            zGrouped = groups[zIndex] = groups[zIndex] || {index: {}, groups: []};
             index = zGrouped.index[groupId];
 
             if (index == UNDEF) {
@@ -900,7 +900,7 @@ export class FeatureFactory {
 
                     const groupBuffer = group.buffer as PolygonBuffer | ExtrudeBuffer;
                     const vIndex = <number[]>groupBuffer.index();
-                    const { flexAttributes } = groupBuffer;
+                    const {flexAttributes} = groupBuffer;
                     const aPosition = flexAttributes.a_position.data;
 
                     flatPolyStart = aPosition.length;

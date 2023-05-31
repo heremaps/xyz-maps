@@ -23,12 +23,36 @@ import vertexShader from '../glsl/model_vertex.glsl';
 import fragmentShader from '../glsl/model_fragment.glsl';
 
 import Program from './Program';
-import {GLStates, PASS} from './GLStates';
+import {GLStates} from './GLStates';
 import {GeometryBuffer} from '../buffer/GeometryBuffer';
+import {Texture} from '../Texture';
 
 
 class ModelProgram extends Program {
     name = 'Model';
+
+    static getMacros(buffer: GeometryBuffer) {
+        const {uniforms} = buffer;
+        let macros;
+
+        if (uniforms.illumination > 0) {
+            macros = {DIFFUSE: 1, SPECULAR: 2};
+        }
+        if ((uniforms.normalMap as Texture).width > 1) {
+            macros ||= {};
+            macros.NORMAL_MAP = 4;
+        }
+        if (uniforms.shininess > 0) {
+            macros ||= {};
+            macros.SPECULAR = 2;
+        }
+        return macros;
+    }
+
+    static getProgramId(buffer: GeometryBuffer, macros?: { [name: string]: string | number | boolean }) {
+        return buffer.type + (<number>macros.DIFFUSE | <number>macros.SPECULAR | <number>macros.NORMAL_MAP);
+        // return buffer.type + (macros ? JSON.stringify(macros) : '');
+    }
 
     glStates = new GLStates({
         scissor: false,
@@ -36,8 +60,11 @@ class ModelProgram extends Program {
         depth: true
     });
 
-    constructor(gl: WebGLRenderingContext, devicePixelRation: number, macros?) {
-        super(gl, gl.TRIANGLES, vertexShader, fragmentShader, devicePixelRation, macros);
+    constructor(gl: WebGLRenderingContext, devicePixelRation: number, macros?: { [name: string]: string | number | boolean }) {
+        super(gl, devicePixelRation, macros);
+
+        this.vertexShaderSrc = vertexShader;
+        this.fragmentShaderSrc = fragmentShader;
     }
 }
 

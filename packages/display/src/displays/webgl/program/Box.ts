@@ -33,10 +33,14 @@ class BoxProgram extends Program {
         scissor: false,
         blend: false,
         depth: true
-    })
+    });
 
-    constructor(gl: WebGLRenderingContext, devicePixelRation: number, macros?: { [name: string]: any }) {
-        super(gl, gl.TRIANGLES, vertexShader, fragmentShader, devicePixelRation, macros);
+    constructor(gl: WebGLRenderingContext, devicePixelRation: number, macros?: { [name: string]: string | number | boolean }) {
+        super(gl, devicePixelRation, macros);
+
+        this.mode = gl.TRIANGLES;
+        this.vertexShaderSrc = vertexShader;
+        this.fragmentShaderSrc = fragmentShader;
     }
 }
 

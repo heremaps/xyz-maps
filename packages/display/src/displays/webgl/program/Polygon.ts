@@ -28,7 +28,11 @@ class PolygonProgram extends Program {
     name = 'Polygon';
 
     constructor(gl: WebGLRenderingContext, devicePixelRation: number) {
-        super(gl, gl.TRIANGLES, vertexShader, fragmentShader, devicePixelRation);
+        super(gl, devicePixelRation);
+
+        this.mode = gl.TRIANGLES;
+        this.vertexShaderSrc = vertexShader;
+        this.fragmentShaderSrc = fragmentShader;
     }
 
     // initGeometryBuffer(options: GLStates) {
