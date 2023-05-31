@@ -90,12 +90,12 @@ describe('range selector drag', () => {
         expect(info[0].segments[0]).to.deep.include({
             from: 0,
             reversed: false,
-            to: 0.163711
+            to: 0.163710884
         });
 
         expect(info[0].segments[0].navlink).to.deep.include({id: link2.id});
         expect(info[0].segments[1]).to.deep.include({
-            from: 0.353926,
+            from: 0.353926211,
             reversed: false,
             to: 1
         });
@@ -108,9 +108,9 @@ describe('range selector drag', () => {
             to: 0.8
         });
         expect(info[1].segments[0]).to.deep.include({
-            from: 0.303092,
+            from: 0.303092403,
             reversed: false,
-            to: 0.721237
+            to: 0.721236961
         });
         expect(info[1].segments[0].navlink).to.deep.include({id: link2.id});
     });
@@ -119,8 +119,8 @@ describe('range selector drag', () => {
         await drag(mapContainer, {x: 350, y: 217}, {x: 350, y: 250});
 
         expect(draggedZone.segments[0]).to.deep.include({
-            from: 0.446885,
-            to: 0.721237,
+            from: 0.446884535,
+            to: 0.721236961,
             reversed: false
         });
 
@@ -138,11 +138,11 @@ describe('range selector drag', () => {
         expect(info[0].segments[0]).to.deep.include({
             from: 0,
             reversed: false,
-            to: 0.163711
+            to: 0.163710884
         });
         expect(info[0].segments[0].navlink).to.deep.include({id: link2.id});
         expect(info[0].segments[1]).to.deep.include({
-            from: 0.353926,
+            from: 0.353926211,
             reversed: false,
             to: 1
         });
@@ -155,8 +155,8 @@ describe('range selector drag', () => {
             to: 0.8
         });
         expect(info[1].segments[0]).to.deep.include({
-            from: 0.446885,
-            to: 0.721237,
+            from: 0.446884535,
+            to: 0.721236961,
             reversed: false
         });
         expect(info[1].segments[0].navlink).to.deep.include({id: link2.id});

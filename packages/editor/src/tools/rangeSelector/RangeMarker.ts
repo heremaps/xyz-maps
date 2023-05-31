@@ -304,7 +304,7 @@ class RangeMarker extends Feature {
         if (curSegNr >= sublink.from && curSegNr < sublink.to) {
             const coords = sublink.lineString.map((c) => iEditor.map.getPixelCoord(c));
             const relPos = getRelPosOfPointOnLine(position, sublink.reversed ? coords.reverse() : coords);
-            return relPos > .995 ? 1 : Math.round(relPos * 1e6) / 1e6;
+            return relPos > .995 ? 1 : Math.round(relPos * 1e9) / 1e9;
         }
         return curSegNr < sublink.from ? 0 : 1;
     }
