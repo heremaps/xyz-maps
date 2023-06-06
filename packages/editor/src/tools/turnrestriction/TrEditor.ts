@@ -25,7 +25,7 @@ import {getDirection, isPedestrianOnly} from './utils';
 import TurnRestriction from './TurnRestriction';
 import Overlay from '../../features/Overlay';
 import {Feature} from '@here/xyz-maps-core';
-
+import tools from '../../features/link/NavlinkTools';
 
 enum DIRECTION {
     BOTH = 'BOTH',
@@ -95,7 +95,15 @@ class TrEditor implements TurnRestrictionEditor {
     private _showOrigin(link: Navlink, index: number) {
         const path = link.coord();
         const ii = index == 0 ? 1 : path.length - 2;
-        const position = movePointOnPath(path[index], path[ii], .0001 /* 40*/);
+        let p0 = path[index];
+        let p1 = path[ii];
+        const ignoreZ = tools.ignoreZ(link);
+        if (ignoreZ) {
+            p0 = [p0[0], p0[1], 0];
+            p1 = [p1[0], p1[1], 0];
+        }
+        const position = movePointOnPath(p0, p1, .0001 /* 40*/);
+
         const feature = {
             geometry: {
                 coordinates: position,
@@ -104,7 +112,7 @@ class TrEditor implements TurnRestrictionEditor {
             type: 'Feature',
             properties: {
                 type: 'TURN_RESTRICTION_START',
-                rotation: -geotools.calcBearing(path[index], path[ii])
+                rotation: -geotools.calcBearing(p0, p1)
             }
         };
         this._origin = this._overlay.addFeature(feature);

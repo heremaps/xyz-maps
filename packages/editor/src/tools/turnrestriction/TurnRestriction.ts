@@ -55,6 +55,12 @@ class TurnRestriction {
         const path = toLink.coord();
         const p1 = path[toShape].slice();
         const p2 = path[nextShape].slice();
+
+        if (linkTools.ignoreZ(fromLink)) {
+            p1[2] = 0;
+            p2[2] = 0;
+        }
+
         const rotPnt = movePointOnPath(p1, p2, DISTANCE_METER);
 
         let curSign = getCurSign(fromLink, fromShape, toLink, toShape);
