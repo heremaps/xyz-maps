@@ -20,6 +20,7 @@
 import {GeometryBuffer} from './GeometryBuffer';
 import {Texture} from '../Texture';
 import {PASS} from '../program/GLStates';
+import {BACK, FRONT} from './glType';
 
 const textureCoordinates = [
     0, 0,
@@ -71,6 +72,8 @@ const createImageBuffer = (img: HTMLImageElement | HTMLCanvasElement, gl: WebGLR
     tileBuffer.scissor = true;
     tileBuffer.blend = alpha;
     tileBuffer.alpha = alpha ? PASS.ALPHA : PASS.OPAQUE;
+
+    tileBuffer.cullFace(FRONT);
 
     return tileBuffer;
 };
