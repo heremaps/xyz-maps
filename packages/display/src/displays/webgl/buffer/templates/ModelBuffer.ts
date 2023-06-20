@@ -22,7 +22,7 @@ import {ConstantAttribute, FlexAttribute, TemplateBuffer} from './TemplateBuffer
 import {GeometryBuffer, IndexGrp} from '../GeometryBuffer';
 import {Raycaster} from '../../Raycaster';
 
-import {scale, rotate, multiply, translate} from 'gl-matrix/mat4';
+import {scale, rotate, multiply, translate, identity, create} from 'gl-matrix/mat4';
 import {transformMat4, subtract, scale as scaleVec3, normalize as normalizeVec3} from 'gl-matrix/vec3';
 import {isTypedArray, TypedArray} from '../glType';
 import {Attribute} from '../Attribute';
@@ -112,7 +112,8 @@ function computeTangents(vertex: VertexData, uv: number[], indices?: Uint16Array
         tangents[pi1] = tangents[pi2] = tangents[pi3] = tangent[0];
         tangents[pi1 + 1] = tangents[pi2 + 1] = tangents[pi3 + 1] = tangent[1];
         tangents[pi1 + 2] = tangents[pi2 + 2] = tangents[pi3 + 2] = tangent[2];
-    };
+    }
+    ;
 
     return tangents;
 }
@@ -369,12 +370,7 @@ export class ModelBuffer extends TemplateBuffer {
     addInstance(x: number, y: number, z: number, scaleXYZ?: number[], translateXYZ?: number[], rotation?: number[], transform?) {
         this.instances++;
 
-        // const m = identity(create());
-        // rotate(m, m, Math.PI/2, [1, 0, 0]);
-        // rotate(m, m, Math.PI, [0, 1, 0]);
-
-        // The default rotation orients the model with the Y-axis facing up on the map
-        const m = new Float32Array([-1, 0, 0, 0, 0, 0, 1, 0, 0, 1, 0, 0, 0, 0, 0, 1]);
+        const m = identity(create());
 
         if (transform) {
             multiply(m, m, transform);
