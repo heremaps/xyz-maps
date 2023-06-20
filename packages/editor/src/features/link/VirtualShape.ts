@@ -51,14 +51,9 @@ class VirtualLinkShape extends Feature {
 
         function onMouseMoveAddShape(ev, dx, dy, ax, ay) {// move
             const line = shapePnt.properties.parent;
-            const curPos = EDITOR.map.getGeoCoord(
-                shapePnt.x + dx,
-                shapePnt.y + dy
-            );
+            const position = shapePnt.geometry.coordinates.slice();
 
-            curPos[2] = shapePnt.z;
-
-            if (geoFence.isPntInFence(curPos)) {
+            if (geoFence.isPntInFence(position)) {
                 if (!geoFence.isHidden()) {
                     geoFence.hide();
                 }
@@ -67,7 +62,7 @@ class VirtualLinkShape extends Feature {
 
                 if (!shapePnt.moved) {
                     // create "real" shape with first move
-                    linkTools.addShp(line, curPos, index, false, true);
+                    linkTools.addShp(line, position, index, false, true);
                     // line.addNewShape.call( that, cur_pos, index, false, true );
 
                     linkTools.removeShapePnts(line, true, shapePnt.id);
