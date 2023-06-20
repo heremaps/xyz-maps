@@ -231,16 +231,13 @@ class MultiLink {
                 mPos[1] = 1 - mPos[1];
             }
 
-            // 0 0 or 1 1 -> not on segment
-            if (mPos[0] !== mPos[1]) {
-                segments.push({
-                    navlink: child.feature,
-                    feature: child.feature,
-                    from: mPos[0],
-                    to: mPos[1],
-                    reversed: child.reversed
-                });
-            }
+            segments.push({
+                navlink: child.feature,
+                feature: child.feature,
+                from: mPos[0],
+                to: mPos[1],
+                reversed: child.reversed
+            });
         });
         return segments;
     };
