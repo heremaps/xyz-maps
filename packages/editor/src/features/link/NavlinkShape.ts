@@ -89,7 +89,7 @@ const connectShpToNearestLink = (line: Navlink, index: number) => {
     // coordinate.slice(0,2), // do not pass zlevel to skip zlevel check..
     connectionCandidate = EDITOR.objects.getNearestLine(coordinate, line.getProvider(), {
         maxDistance: EDITOR._config['snapTolerance'],
-        ignore: (link) => ignore.indexOf(link) != -1 || !link.behavior('snapCoordinates'),
+        ignore: (link) => link.class == 'NAVLINK' && (ignore.indexOf(link) != -1 || !link.behavior('snapCoordinates')),
         ignoreZ
     });
 

@@ -743,7 +743,7 @@ var tools = {
         let cl;
 
         while (cl = closeLinks[--cLen]) {
-            if (cl.id != link.id && prv._cls.indexOf(cl) == -1 && cl.behavior('snapCoordinates')) {
+            if (cl.class == 'NAVLINK' && cl.id != link.id && prv._cls.indexOf(cl) == -1 && cl.behavior('snapCoordinates')) {
                 const x = internalEditor.map.searchPointOnLine(cl.geometry.coordinates, position, minShpDistance, UNDEF, minShpDistance, ignoreZ);
                 if (x) {
                     return x.point;
