@@ -1,3 +1,23 @@
+## 0.34.0 (2023-6-21)
+### editor
+* improved: The RangeSelector utility now treats RangeMarkers that are exactly on top of each other as a valid zero-length range.
+* improved: The RangeSelector utility now defines ranges with a precision of 9 decimal places.
+* fixed: Dragging the VirtualShape of a Navlink feature with 3d coordinates can result in offset geometry
+* fixed: Snapping Navlink shapes can fail when Navlink and Line features are mixed in the same layer source.
+* fixed: Turn restrictions from 3D data may be misaligned when forcing a 2D display.
+* fixed: For 3D Addresses/Places, the anchor line of routing points can be displayed incorrectly.
+* fixed: The crossing tester utility used elevation even though 2D mode was enforced.
+### display
+* improved: Features can now be at even higher altitudes before being clipped.
+* improved: Text placed on 3D line geometry is now properly aligned.
+* added: 3D models in Wavefront .obj format can now be placed and viewed on the map using [ModelStyle.model](https://heremaps.github.io/xyz-maps/docs/interfaces/core.modelstyle.html#model)
+* added: Alpha support for 3D Models.
+* added: 3D Models do now support ambient light, emissive light, specular highlights and normal-maps.
+* fixed: Pointer events may fire incorrectly for high altitude Spheres
+* fixed: Text placed on lines is now always rendered correctly.
+### common
+* added: Tasks can now be paused during runtime and resumed at any point in time.
+
 ## 0.33.0 (2023-4-6)
 ### core
 * fixed: Using custom margin was ignored when set via TileLayer constructor

@@ -1,6 +1,6 @@
 {
   "name": "@here/xyz-maps-editor",
-  "version": "0.33.0",
+  "version": "0.34.0",
   "description": "XYZ editor.",
   "author": {
     "name": "HERE Europe B.V.",
@@ -28,9 +28,9 @@
     "update-changelog": "npx build-changelog"
   },
   "dependencies": {
-    "@here/xyz-maps-common": "^0.33.0",
-    "@here/xyz-maps-core": "^0.33.0",
-    "@here/xyz-maps-display": "^0.33.0"
+    "@here/xyz-maps-common": "^0.34.0",
+    "@here/xyz-maps-core": "^0.34.0",
+    "@here/xyz-maps-display": "^0.34.0"
   },
   "devDependencies": {
     "@rollup/plugin-typescript": "^8.3.4",
@@ -39,5 +39,6 @@
     "rollup-plugin-terser": "^7.0.2",
     "tslib": "^2.4.0",
     "typescript": "^4.7.4"
-  }
+  },
+  "gitHead": "45c1cfc050f2fd86d9540dfff1aed75acedb27fa"
 }
