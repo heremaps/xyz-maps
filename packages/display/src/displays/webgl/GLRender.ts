@@ -367,7 +367,7 @@ export class GLRender implements BasicRender {
         const d1 = cosHFOV * targetZ;
         const d2 = height / Math.tan(alpha);
         // const zNear = 1;
-        const zNear = targetZ * .1;
+        const zNear = pixelHeight / 100;
         let zFar = cosHFOV * (d1 + d2);
         // avoid precision issues...
         zFar *= 1.005;
