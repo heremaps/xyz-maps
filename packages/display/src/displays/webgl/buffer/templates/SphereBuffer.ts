@@ -54,10 +54,21 @@ export class SphereBuffer extends BoxBuffer {
         const position = (attributes.a_position as Attribute).data;
         const size = (attributes.a_position as Attribute).size;
         const alignMap = true;
-
+        const scaleByAltitude = <boolean>buffer.getUniform('u_scaleByAltitude');
         const [scaleX, scaleY, scaleZ] = rayCaster.getInverseScale(alignMap);
         const [r] = <number[]>buffer.uniforms.u_radius;
-        const radius: Vec3 = [r * scaleX, r * scaleY, r * scaleZ];
+        const rx = r * scaleX;
+        const ry = r * scaleY;
+        const rz = r * scaleZ;
+        const {sMat} = rayCaster;
+        const m3 = sMat[3];
+        const m7 = sMat[7];
+        const m11 = sMat[11];
+        const m15 = sMat[15];
+        const offset = size * SPHERE_VERTICES;
+        const sphereCenter: Vec3 = [0, 0, 0];
+        const radius: Vec3 = [0, 0, 0];
+        let index = null;
 
         let [offsetX, offsetY, offsetZ] = getOffsetPixel(buffer, rayCaster.scale);
 
@@ -65,14 +76,19 @@ export class SphereBuffer extends BoxBuffer {
         offsetY *= scaleY;
         offsetZ *= scaleZ;
 
-        let index = null;
-        const offset = size * SPHERE_VERTICES;
-        const sphereCenter: Vec3 = [0, 0, 0];
-
         for (let i = 0, {length} = position; i < length; i += offset) {
-            sphereCenter[0] = tileX + position[i] * scaleXY + offsetX;
-            sphereCenter[1] = tileY + position[i + 1] * scaleXY + offsetY;
-            sphereCenter[2] = (size == 3 ? -decodeUint16z(position[i + 2]) : 0) - offsetZ;
+            const x = tileX + position[i] * scaleXY + offsetX;
+            const y = tileY + position[i + 1] * scaleXY + offsetY;
+            const z = (size == 3 ? -decodeUint16z(position[i + 2]) : 0) - offsetZ;
+            const scaleDZ = 1 + (scaleByAltitude ? 0 : z * m11 / (m3 * x + m7 * y + m15));
+
+            sphereCenter[0] = x;
+            sphereCenter[1] = y;
+            sphereCenter[2] = z;
+
+            radius[0] = rx * scaleDZ;
+            radius[1] = ry * scaleDZ;
+            radius[2] = rz * scaleDZ;
             // Because the projection is already transforming from meter to pixel along the z-axis,
             // the sphere is technically an ellipse.
             // const intersectRayLength = intersectEllipsoid(rayCaster.origin, rayCaster.direction, sphereCenter, radius);
