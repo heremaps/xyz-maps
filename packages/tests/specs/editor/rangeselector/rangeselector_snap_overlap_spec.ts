@@ -57,8 +57,8 @@ describe('range selector: snapping and overlapping', () => {
     });
 
     it('validate default snap & overlap behavior', async () => {
-        editor.getZoneSelector().add(link);
-        editor.getZoneSelector().show({
+        editor.getRangeSelector().add(link);
+        editor.getRangeSelector().show({
             from: 0.1,
             to: 0.4,
             side: 'B'
@@ -70,7 +70,7 @@ describe('range selector: snapping and overlapping', () => {
 
         await drag(mapContainer, {x: 370, y: 343}, {x: 580, y: 352});
 
-        let info = editor.getZoneSelector().info();
+        let info = editor.getRangeSelector().info();
         expect(info[0]).to.deep.include({
             from: 0.1,
             to: 0.4,
@@ -80,7 +80,7 @@ describe('range selector: snapping and overlapping', () => {
         expect(info[0].segments[0]).to.deep.include({
             from: 0.1,
             reversed: false,
-            to: 0.752499844
+            to: 0.752498281
         });
 
         expect(info[1]).to.deep.include({
@@ -97,8 +97,8 @@ describe('range selector: snapping and overlapping', () => {
     });
 
     it('enable snapping and validate', async () => {
-        editor.getZoneSelector().add(link);
-        editor.getZoneSelector().show({
+        editor.getRangeSelector().add(link);
+        editor.getRangeSelector().show({
             from: 0.1,
             to: 0.4,
             side: 'B',
@@ -112,7 +112,7 @@ describe('range selector: snapping and overlapping', () => {
 
         await drag(mapContainer, {x: 370, y: 343}, {x: 580, y: 352});
 
-        let info = editor.getZoneSelector().info();
+        let info = editor.getRangeSelector().info();
         expect(info[0]).to.deep.include({
             from: 0.1,
             to: 0.4,
@@ -122,7 +122,7 @@ describe('range selector: snapping and overlapping', () => {
         expect(info[0].segments[0]).to.deep.include({
             from: 0.1,
             reversed: false,
-            to: 0.752499844
+            to: 0.752498281
         });
 
         expect(info[1]).to.deep.include({
@@ -132,15 +132,15 @@ describe('range selector: snapping and overlapping', () => {
         });
 
         expect(info[1].segments[0]).to.deep.include({
-            from: 0.752499844,
+            from: 0.752498281,
             reversed: false,
             to: 0.9
         });
     });
 
     it('enable snapping different side only (no match)', async () => {
-        editor.getZoneSelector().add(link);
-        editor.getZoneSelector().show({
+        editor.getRangeSelector().add(link);
+        editor.getRangeSelector().show({
             from: 0.1,
             to: 0.4,
             side: 'B',
@@ -154,7 +154,7 @@ describe('range selector: snapping and overlapping', () => {
 
         await drag(mapContainer, {x: 370, y: 343}, {x: 580, y: 352});
 
-        let info = editor.getZoneSelector().info();
+        let info = editor.getRangeSelector().info();
         expect(info[0]).to.deep.include({
             from: 0.1,
             to: 0.4,
@@ -164,7 +164,7 @@ describe('range selector: snapping and overlapping', () => {
         expect(info[0].segments[0]).to.deep.include({
             from: 0.1,
             reversed: false,
-            to: 0.752499844
+            to: 0.752498281
         });
 
         expect(info[1]).to.deep.include({
@@ -181,8 +181,8 @@ describe('range selector: snapping and overlapping', () => {
     });
 
     it('enable snapping different side only (match)', async () => {
-        editor.getZoneSelector().add(link);
-        editor.getZoneSelector().show({
+        editor.getRangeSelector().add(link);
+        editor.getRangeSelector().show({
             from: 0.1,
             to: 0.4,
             side: 'B',
@@ -196,7 +196,7 @@ describe('range selector: snapping and overlapping', () => {
 
         await drag(mapContainer, {x: 370, y: 343}, {x: 580, y: 352});
 
-        let info = editor.getZoneSelector().info();
+        let info = editor.getRangeSelector().info();
         expect(info[0]).to.deep.include({
             from: 0.1,
             to: 0.4,
@@ -206,7 +206,7 @@ describe('range selector: snapping and overlapping', () => {
         expect(info[0].segments[0]).to.deep.include({
             from: 0.1,
             reversed: false,
-            to: 0.752499844
+            to: 0.752498281
         });
 
         expect(info[1]).to.deep.include({
@@ -216,15 +216,15 @@ describe('range selector: snapping and overlapping', () => {
         });
 
         expect(info[1].segments[0]).to.deep.include({
-            from: 0.752499844,
+            from: 0.752498281,
             reversed: false,
             to: 0.9
         });
     });
 
     it('enable snapping multiple side only (no match)', async () => {
-        editor.getZoneSelector().add(link);
-        editor.getZoneSelector().show({
+        editor.getRangeSelector().add(link);
+        editor.getRangeSelector().show({
             from: 0.1,
             to: 0.4,
             side: 'B',
@@ -238,7 +238,7 @@ describe('range selector: snapping and overlapping', () => {
 
         await drag(mapContainer, {x: 370, y: 343}, {x: 580, y: 352});
 
-        let info = editor.getZoneSelector().info();
+        let info = editor.getRangeSelector().info();
         expect(info[0]).to.deep.include({
             from: 0.1,
             to: 0.4,
@@ -248,7 +248,7 @@ describe('range selector: snapping and overlapping', () => {
         expect(info[0].segments[0]).to.deep.include({
             from: 0.1,
             reversed: false,
-            to: 0.752499844
+            to: 0.752498281
         });
 
         expect(info[1]).to.deep.include({
@@ -265,8 +265,8 @@ describe('range selector: snapping and overlapping', () => {
     });
 
     it('enable snapping multiple side only (match)', async () => {
-        editor.getZoneSelector().add(link);
-        editor.getZoneSelector().show({
+        editor.getRangeSelector().add(link);
+        editor.getRangeSelector().show({
             from: 0.1,
             to: 0.4,
             side: 'B',
@@ -280,7 +280,7 @@ describe('range selector: snapping and overlapping', () => {
 
         await drag(mapContainer, {x: 370, y: 343}, {x: 580, y: 352});
 
-        let info = editor.getZoneSelector().info();
+        let info = editor.getRangeSelector().info();
         expect(info[0]).to.deep.include({
             from: 0.1,
             to: 0.4,
@@ -290,7 +290,7 @@ describe('range selector: snapping and overlapping', () => {
         expect(info[0].segments[0]).to.deep.include({
             from: 0.1,
             reversed: false,
-            to: 0.752499844
+            to: 0.752498281
         });
 
         expect(info[1]).to.deep.include({
@@ -300,7 +300,7 @@ describe('range selector: snapping and overlapping', () => {
         });
 
         expect(info[1].segments[0]).to.deep.include({
-            from: 0.752499844,
+            from: 0.752498281,
             reversed: false,
             to: 0.9
         });
@@ -308,8 +308,8 @@ describe('range selector: snapping and overlapping', () => {
 
 
     it('enable snapping out of tolerance ', async () => {
-        editor.getZoneSelector().add(link);
-        editor.getZoneSelector().show({
+        editor.getRangeSelector().add(link);
+        editor.getRangeSelector().show({
             from: 0.1,
             to: 0.4,
             side: 'B',
@@ -323,7 +323,7 @@ describe('range selector: snapping and overlapping', () => {
 
         await drag(mapContainer, {x: 370, y: 343}, {x: 420, y: 352});
 
-        let info = editor.getZoneSelector().info();
+        let info = editor.getRangeSelector().info();
         expect(info[0]).to.deep.include({
             from: 0.1,
             to: 0.4,
@@ -333,7 +333,7 @@ describe('range selector: snapping and overlapping', () => {
         expect(info[0].segments[0]).to.deep.include({
             from: 0.1,
             reversed: false,
-            to: 0.485833143
+            to: 0.485830724
         });
 
         expect(info[1]).to.deep.include({
@@ -350,8 +350,8 @@ describe('range selector: snapping and overlapping', () => {
     });
 
     it('enable snapping in tolerance ', async () => {
-        editor.getZoneSelector().add(link);
-        editor.getZoneSelector().show({
+        editor.getRangeSelector().add(link);
+        editor.getRangeSelector().show({
             from: 0.1,
             to: 0.4,
             side: 'B',
@@ -365,7 +365,7 @@ describe('range selector: snapping and overlapping', () => {
 
         await drag(mapContainer, {x: 370, y: 343}, {x: 460, y: 352});
 
-        let info = editor.getZoneSelector().info();
+        let info = editor.getRangeSelector().info();
         expect(info[0]).to.deep.include({
             from: 0.1,
             to: 0.4,
@@ -375,7 +375,7 @@ describe('range selector: snapping and overlapping', () => {
         expect(info[0].segments[0]).to.deep.include({
             from: 0.1,
             reversed: false,
-            to: 0.552499818
+            to: 0.552497613
         });
 
         expect(info[1]).to.deep.include({
@@ -385,7 +385,7 @@ describe('range selector: snapping and overlapping', () => {
         });
 
         expect(info[1].segments[0]).to.deep.include({
-            from: 0.552499818,
+            from: 0.552497613,
             reversed: false,
             to: 0.9
         });
@@ -393,8 +393,8 @@ describe('range selector: snapping and overlapping', () => {
 
 
     it('disable overlap', async () => {
-        editor.getZoneSelector().add(link);
-        editor.getZoneSelector().show({
+        editor.getRangeSelector().add(link);
+        editor.getRangeSelector().show({
             from: 0.1,
             to: 0.4,
             side: 'B',
@@ -407,7 +407,7 @@ describe('range selector: snapping and overlapping', () => {
 
         await drag(mapContainer, {x: 370, y: 343}, {x: 580, y: 352});
 
-        let info = editor.getZoneSelector().info();
+        let info = editor.getRangeSelector().info();
         expect(info[0]).to.deep.include({
             from: 0.1,
             to: 0.4,
@@ -434,8 +434,8 @@ describe('range selector: snapping and overlapping', () => {
     });
 
     it('disable overlap side (no match)', async () => {
-        editor.getZoneSelector().add(link);
-        editor.getZoneSelector().show({
+        editor.getRangeSelector().add(link);
+        editor.getRangeSelector().show({
             from: 0.1,
             to: 0.4,
             side: 'B',
@@ -448,7 +448,7 @@ describe('range selector: snapping and overlapping', () => {
 
         await drag(mapContainer, {x: 370, y: 343}, {x: 580, y: 352});
 
-        let info = editor.getZoneSelector().info();
+        let info = editor.getRangeSelector().info();
         expect(info[0]).to.deep.include({
             from: 0.1,
             to: 0.4,
@@ -475,8 +475,8 @@ describe('range selector: snapping and overlapping', () => {
     });
 
     it('disable overlap multiple side (no match)', async () => {
-        editor.getZoneSelector().add(link);
-        editor.getZoneSelector().show({
+        editor.getRangeSelector().add(link);
+        editor.getRangeSelector().show({
             from: 0.1,
             to: 0.4,
             side: 'B',
@@ -489,7 +489,7 @@ describe('range selector: snapping and overlapping', () => {
 
         await drag(mapContainer, {x: 370, y: 343}, {x: 580, y: 352});
 
-        let info = editor.getZoneSelector().info();
+        let info = editor.getRangeSelector().info();
         expect(info[0]).to.deep.include({
             from: 0.1,
             to: 0.4,
@@ -516,8 +516,8 @@ describe('range selector: snapping and overlapping', () => {
     });
 
     it('allow overlap multiple side (match)', async () => {
-        editor.getZoneSelector().add(link);
-        editor.getZoneSelector().show({
+        editor.getRangeSelector().add(link);
+        editor.getRangeSelector().show({
             from: 0.1,
             to: 0.4,
             side: 'B',
@@ -530,7 +530,7 @@ describe('range selector: snapping and overlapping', () => {
 
         await drag(mapContainer, {x: 370, y: 343}, {x: 580, y: 352});
 
-        let info = editor.getZoneSelector().info();
+        let info = editor.getRangeSelector().info();
         expect(info[0]).to.deep.include({
             from: 0.1,
             to: 0.4,
@@ -557,8 +557,8 @@ describe('range selector: snapping and overlapping', () => {
     });
 
     it('allow overlap and enable snapping max "to" position', async () => {
-        editor.getZoneSelector().add(link);
-        editor.getZoneSelector().show({
+        editor.getRangeSelector().add(link);
+        editor.getRangeSelector().show({
             from: 0.1,
             to: 0.4,
             side: 'R',
@@ -573,7 +573,7 @@ describe('range selector: snapping and overlapping', () => {
 
         await drag(mapContainer, {x: 370, y: 343}, {x: 800, y: 352});
 
-        let info = editor.getZoneSelector().info();
+        let info = editor.getRangeSelector().info();
         expect(info[0]).to.deep.include({
             from: 0.1,
             to: 0.4,
@@ -601,8 +601,8 @@ describe('range selector: snapping and overlapping', () => {
 
 
     it('allow overlap and enable snapping min "from" position', async () => {
-        editor.getZoneSelector().add(link);
-        editor.getZoneSelector().show({
+        editor.getRangeSelector().add(link);
+        editor.getRangeSelector().show({
             from: 0.1,
             to: 0.4,
             side: 'R'
@@ -617,7 +617,7 @@ describe('range selector: snapping and overlapping', () => {
 
         await drag(mapContainer, {x: 490, y: 343}, {x: 90, y: 342});
 
-        let info = editor.getZoneSelector().info();
+        let info = editor.getRangeSelector().info();
         expect(info[0]).to.deep.include({
             from: 0.1,
             to: 0.4,

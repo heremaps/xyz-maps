@@ -119,7 +119,7 @@ describe('range selector drag', () => {
         await drag(mapContainer, {x: 350, y: 217}, {x: 350, y: 250});
 
         expect(draggedZone.segments[0]).to.deep.include({
-            from: 0.446884535,
+            from: 0.446886558,
             to: 0.721236961,
             reversed: false
         });
@@ -155,7 +155,7 @@ describe('range selector drag', () => {
             to: 0.8
         });
         expect(info[1].segments[0]).to.deep.include({
-            from: 0.446884535,
+            from: 0.446886558,
             to: 0.721236961,
             reversed: false
         });

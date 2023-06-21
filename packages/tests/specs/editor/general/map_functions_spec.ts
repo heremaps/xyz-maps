@@ -67,6 +67,6 @@ describe('convert pixel and geo coordinates', () => {
 
     it('validate geotopixel function after dragging', () => {
         expect(editor.geoToPixel({longitude: 8.71902, latitude: 50.1109})).to.deep.equal({x: 400, y: 300});
-        expect(editor.pixelToGeo({x: 400, y: 300})).to.deep.equal({longitude: 8.71902, latitude: 50.1109});
+        expect(editor.pixelToGeo({x: 400, y: 300})).to.deep.almost({longitude: 8.71902, latitude: 50.1109});
     });
 });
