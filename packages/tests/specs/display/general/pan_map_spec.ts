@@ -50,15 +50,14 @@ describe('pan the map', () => {
         await waitForViewportReady(display, () => {
             display.pan(100, 100, 0, 0);
         });
-
-        expect(display.getCenter()).to.deep.almost({latitude: 12.13629158, longitude: 77.98972679});
+        expect(display.getCenter()).to.deep.almost({latitude: 12.13629159, longitude: 77.98972677});
         expect(display.getHeight()).to.equal(600);
         expect(display.getWidth()).to.equal(800);
         expect(display.getViewBounds()).to.deep.almost({
-            minLon: 77.98758102,
-            minLat: 12.13471822,
-            maxLon: 77.99187255,
-            maxLat: 12.13786494
+            maxLat: 12.13786494,
+            maxLon: 77.99187254,
+            minLat: 12.13471823,
+            minLon: 77.98758100
         });
         expect(display.getZoomlevel()).to.equal(18);
     });
