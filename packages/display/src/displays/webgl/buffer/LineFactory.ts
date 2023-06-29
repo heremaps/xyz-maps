@@ -28,6 +28,11 @@ const TO_DEG = 180 / Math.PI;
 const DEFAULT_MIN_REPEAT = 256;
 let UNDEF;
 
+enum DIR {
+    MID_TO_END = 1,
+    MID_TO_START = -1
+}
+
 type PlacePointCallback = (x: number, y: number, z: number | null, rotZ: number, rotY: number, collisionData?: CollisionData) => void;
 
 
@@ -207,11 +212,22 @@ export class LineFactory {
         height: number,
         applyRotation: boolean,
         checkLineSpace: boolean,
+        relativeStart: number,
+        relativeStop: number,
         placeFunc: PlacePointCallback
     ) {
         this.projectLine(coordinates, tile, tileSize);
 
         this.getDistanceGrp()?.setMinDistance(repeat == UNDEF ? DEFAULT_MIN_REPEAT : repeat);
+
+
+        if (relativeStop < relativeStart) {
+            // swap
+            const bak = relativeStop;
+            relativeStop = relativeStart;
+            relativeStart = bak;
+        }
+
 
         this.placeAlongLine(
             tile,
@@ -225,6 +241,8 @@ export class LineFactory {
             applyRotation,
             checkLineSpace,
             altitude,
+            relativeStart,
+            relativeStop,
             placeFunc
         );
     }
@@ -271,16 +289,18 @@ export class LineFactory {
         }
 
         const checkCollisions = collisions && [];
+        let handleAltitude = altitude === true;
         const fixZ = typeof altitude == 'number' ? altitude : null;
-
-
+        if (handleAltitude && dimensions == 2) {
+            handleAltitude = null;
+        }
         let lengthSoFar = 0;
         let prevLengthSoFar;
 
         for (let i = 0, data = this.pixels; i < length; i += dimensions) {
             let x = data[i];
             let y = data[i + 1];
-            let z = altitude === true ? data[i + 2] : fixZ;
+            let z = handleAltitude ? data[i + 2] : fixZ;
             let j = i / dimensions;
 
             prevLengthSoFar = lengthSoFar;
@@ -293,7 +313,7 @@ export class LineFactory {
                     const i2 = i + dimensions;
                     const x2 = data[i2];
                     const y2 = data[i2 + 1];
-                    const z2 = altitude === true ? data[i2 + 2] : fixZ;
+                    const z2 = handleAltitude ? data[i2 + 2] : fixZ;
 
                     x += (x2 - x) * relSegmentStart;
                     y += (y2 - y) * relSegmentStart;
@@ -321,7 +341,7 @@ export class LineFactory {
                     const i0 = i - dimensions;
                     const x0 = data[i0];
                     const y0 = data[i0 + 1];
-                    const z0 = altitude === true ? data[i0 + 2] : fixZ;
+                    const z0 = handleAltitude ? data[i0 + 2] : fixZ;
 
                     x -= (x0 - x) * relSegmentStop;
                     y -= (y0 - y) * relSegmentStop;
@@ -356,6 +376,7 @@ export class LineFactory {
                 }
 
                 if (!checkCollisions || collisionData) {
+                    console.log('place', x, y, z);
                     place(x, y, z, 0, 0, collisionData);
                     distanceGrp?.add(x, y);
                 }
@@ -379,84 +400,129 @@ export class LineFactory {
         applyRotation: boolean,
         checkLineSpace: boolean,
         altitude: boolean | number,
+        relativeStart: number,
+        relativeStop: number,
         place: PlacePointCallback
     ) {
         if (this.collisions) {
             return this.placeCached(place, tile, tileSize, applyRotation);
         }
 
+        let {length, dimensions, lineLength} = this;
+        const totalLineLength = lineLength[length / dimensions - 1];
+        let absStartPx = relativeStart * totalLineLength;
+        let absStopPx = relativeStop * totalLineLength;
         const dim = this.dimensions;
         const checkCollisions = collisions && [];
         const vLength = this.length / dim;
         let coordinates = this.pixels;
-        let prevDistance = Infinity;
+        let rotY = 0;
         let sqWidth = Math.pow(2 * offsetX + width, 2);
-        let x2;
-        let y2;
-        let z2;
-        let dx;
-        let dy;
-        let cx;
-        let cy;
-        let cz;
         // for optimal repeat distance the first label gets placed in the middle of the linestring.
         let offset = Math.floor(vLength / 2) - 1;
-        // we move to the end of the linestring..
-        let dir = 1;
-        let x1 = coordinates[offset * dim];
-        let y1 = coordinates[offset * dim + 1];
-        let z1;
+        // we move to the end of the linestring...
+        let dir = DIR.MID_TO_END;
+        let skipMidToStart = false;
+        let handleAltitude = altitude === true;
 
-        const handleAltitude = altitude == true;
-        let rotY = 0;
+        const fixZ = typeof altitude == 'number' ? altitude : null;
+        let cz = typeof altitude == 'number' ? altitude : null;
 
-        if (handleAltitude) {
-            z1 = coordinates[offset * dim + 2];
-        } else {
-            cz = typeof altitude == 'number' ? altitude : null;
+        if (handleAltitude && dimensions == 2) {
+            handleAltitude = null;
         }
-
-        let startX = x1;
-        let startY = y1;
-        let startDistance = prevDistance;
 
         for (let i = 1; i < vLength; i++) {
             let c = offset + dir * i;
+
             if (c >= vLength) {
                 // from now on we move from middle to beginning of linestring
-                dir = -1;
-                c = offset - 1;
+                dir = DIR.MID_TO_START;
+                c = offset;
                 offset = vLength - 1;
-                x1 = startX;
-                y1 = startY;
-                prevDistance = startDistance;
+                if (skipMidToStart) break;
             }
 
-            x2 = coordinates[c * dim];
-            y2 = coordinates[c * dim + 1];
-            z2 = coordinates[c * dim + 2];
+            const c0 = c - 1;
+            const prevLengthSoFar = lineLength[c0];
+            const lengthSoFar = lineLength[c];
 
-            dx = x2 - x1;
-            dy = y2 - y1;
+            const i1 = (c0) * dim;
+            let x1 = coordinates[i1];
+            let y1 = coordinates[i1 + 1];
+            let z1 = handleAltitude ? coordinates[i1 + 2] : fixZ;
 
-            cx = dx * .5 + x1;
-            cy = dy * .5 + y1;
+            const i2 = c * dim;
+            let x2 = coordinates[i2];
+            let y2 = coordinates[i2 + 1];
+            let z2 = handleAltitude ? coordinates[i2 + 2] : fixZ;
 
+            if (absStartPx) {
+                if (absStartPx < lengthSoFar) {
+                    if (absStartPx >= prevLengthSoFar) {
+                        const segmentLengthPx = lengthSoFar - prevLengthSoFar;
+                        const relSegmentStart = (absStartPx - prevLengthSoFar) / segmentLengthPx;
 
-            // not inside tile -> skip!
-            if (cx >= 0 && cy >= 0 && cx < tileSize && cy < tileSize) {
+                        x1 += (x2 - x1) * relSegmentStart;
+                        y1 += (y2 - y1) * relSegmentStart;
+                        z1 += (z2 - z1) * relSegmentStart;
+
+                        if (dir == DIR.MID_TO_END) {
+                            // finish directional run and stop, because mid to start run is not needed.
+                            skipMidToStart = true;
+                        } else {
+                            // range is fully handled, so we can stop after current iteration.
+                            i = Infinity;
+                        }
+                    }
+                } else {
+                    continue;
+                }
+            }
+
+            if (absStopPx) {
+                if (absStopPx > prevLengthSoFar) {
+                    if (absStopPx <= lengthSoFar) {
+                        const segmentLengthPx = lengthSoFar - prevLengthSoFar;
+                        const relSegmentStop = 1 - (absStopPx - prevLengthSoFar) / segmentLengthPx;
+
+                        x2 -= (x2 - x1) * relSegmentStop;
+                        y2 -= (y2 - y1) * relSegmentStop;
+                        z2 -= (z2 - z1) * relSegmentStop;
+
+                        if (dir == DIR.MID_TO_END) {
+                            // we can flip direction immediately
+                            i = vLength - offset - 1;
+                        }
+                    }
+                } else {
+                    if (dir == DIR.MID_TO_END) {
+                        // we can flip direction immediately
+                        i = vLength - offset - 1;
+                    }
+                    continue;
+                }
+            }
+            const dx = x2 - x1;
+            const dy = y2 - y1;
+            const cx = x1 + dx * .5;
+            const cy = y1 + dy * .5;
+
+            if (
+                // not inside tile -> skip!
+                cx >= 0 && cy >= 0 && cx < tileSize && cy < tileSize
+            ) {
                 let sqLineWidth = checkLineSpace ? dx * dx + dy * dy : Infinity;
+                // let sqLineWidth = checkLineSpace ? Math.abs(lineLengthSq[c] - lineLengthSq[c-dir]) : Infinity;
 
                 if (sqLineWidth > sqWidth) {
                     if (handleAltitude) {
                         const dz = z2 - z1;
-                        // const length = Math.sqrt(sqLineWidth);
-                        cz = z1 + (z2 - z1) * .5;
+                        cz = z1 + dz * .5;
                         // rotY = Math.atan(dz / length);
                         rotY = Math.asin(dz / Math.sqrt(dx * dx + dy * dy + dz * dz));
                         // rotY = dx ? Math.sin(dz / dx) : dy ? Math.cos(dz / dy) : 0;
                     }
-
 
                     let alpha = Math.atan2(dy, dx);
                     if (dir == -1) {
@@ -496,10 +562,6 @@ export class LineFactory {
                     }
                 }
             }
-
-            x1 = x2;
-            y1 = y2;
-            z1 = z2;
         }
 
         if (checkCollisions?.length) {

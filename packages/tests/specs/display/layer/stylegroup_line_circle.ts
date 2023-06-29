@@ -460,4 +460,162 @@ describe('StyleGroup Circle and Line geometry', () => {
         const color = await getCanvasPixelColor(mapContainer, {x: 400, y: 300});
         expect(color).to.equal('#00ff00');
     });
+
+    it('point styles, anchor: Line', async () => {
+        layer.setStyleGroup(line2, [{
+            type: 'Line',
+            zIndex: 0,
+            stroke: '#0000ff',
+            strokeWidth: 12
+        }, {
+            zIndex: 1,
+            type: 'Circle',
+            radius: 16,
+            fill: '#ff0000',
+            anchor: 'Line',
+            checkLineSpace: false,
+            collide: true
+        }
+        ]);
+
+        await waitForViewportReady(display, () => {
+            display.setZoomlevel(18);
+        });
+
+        const colors = await getCanvasPixelColor(mapContainer, [
+            {x: 300, y: 300}, {x: 400, y: 300}, {x: 500, y: 300}
+        ]);
+        expect(colors[0]).to.equal('#ff0000');
+        expect(colors[1]).to.equal('#ff0000');
+        expect(colors[2]).to.equal('#ff0000');
+    });
+
+    it('point styles, anchor: Line, segment 1', async () => {
+        layer.setStyleGroup(line2, [{
+            type: 'Line',
+            zIndex: 0,
+            stroke: '#0000ff',
+            strokeWidth: 16
+        }, {
+            zIndex: 1,
+            type: 'Circle',
+            radius: 16,
+            fill: '#ff0000',
+            anchor: 'Line',
+            to: 1/3,
+            checkLineSpace: false,
+            collide: true
+        }]);
+
+        const colors = await getCanvasPixelColor(mapContainer, [
+            {x: 300, y: 300}, {x: 400, y: 300}, {x: 500, y: 300}
+        ]);
+
+        expect(colors[0]).to.equal('#ff0000');
+        expect(colors[1]).to.equal('#0000ff');
+        expect(colors[2]).to.equal('#0000ff');
+    });
+
+    it('point styles, anchor: Line, segment 2', async () => {
+        layer.setStyleGroup(line2, [{
+            type: 'Line',
+            zIndex: 0,
+            stroke: '#0000ff',
+            strokeWidth: 16
+        }, {
+            zIndex: 1,
+            type: 'Circle',
+            radius: 16,
+            fill: '#ff0000',
+            anchor: 'Line',
+            from: 1/3,
+            to: 2/3,
+            checkLineSpace: false,
+            collide: true
+        }]);
+
+        const colors = await getCanvasPixelColor(mapContainer, [
+            {x: 300, y: 300}, {x: 400, y: 300}, {x: 500, y: 300}
+        ]);
+
+        expect(colors[0]).to.equal('#0000ff');
+        expect(colors[1]).to.equal('#ff0000');
+        expect(colors[2]).to.equal('#0000ff');
+    });
+
+    it('point styles, anchor: Line, segment 3', async () => {
+        layer.setStyleGroup(line2, [{
+            type: 'Line',
+            zIndex: 0,
+            stroke: '#0000ff',
+            strokeWidth: 16
+        }, {
+            zIndex: 1,
+            type: 'Circle',
+            radius: 16,
+            fill: '#ff0000',
+            anchor: 'Line',
+            from: 2/3,
+            checkLineSpace: false,
+            collide: true
+        }]);
+
+        const colors = await getCanvasPixelColor(mapContainer, [
+            {x: 300, y: 300}, {x: 400, y: 300}, {x: 500, y: 300}
+        ]);
+
+        expect(colors[0]).to.equal('#0000ff');
+        expect(colors[1]).to.equal('#0000ff');
+        expect(colors[2]).to.equal('#ff0000');
+    });
+
+    it('point styles, anchor: Line, segment 4', async () => {
+        layer.setStyleGroup(line2, [{
+            type: 'Line',
+            zIndex: 0,
+            stroke: '#0000ff',
+            strokeWidth: 16
+        }, {
+            zIndex: 1,
+            type: 'Circle',
+            radius: 16,
+            fill: '#ff0000',
+            anchor: 'Line',
+            to: .15,
+            checkLineSpace: false,
+            collide: true
+        }]);
+
+        const colors = await getCanvasPixelColor(mapContainer, [
+            {x: 300, y: 400}
+        ]);
+
+        expect(colors[0]).to.equal('#ff0000');
+    });
+
+
+    it('point styles, anchor: Line, segment 5', async () => {
+        layer.setStyleGroup(line2, [{
+            type: 'Line',
+            zIndex: 0,
+            stroke: '#0000ff',
+            strokeWidth: 16
+        }, {
+            zIndex: 1,
+            type: 'Circle',
+            radius: 16,
+            fill: '#ff0000',
+            anchor: 'Line',
+            from: .85,
+            to: .95,
+            checkLineSpace: false,
+            collide: true
+        }]);
+
+        const colors = await getCanvasPixelColor(mapContainer, [
+            {x: 500, y: 200}
+        ]);
+
+        expect(colors[0]).to.equal('#ff0000');
+    });
 });

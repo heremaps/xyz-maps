@@ -794,6 +794,9 @@ export class FeatureFactory {
                     let w;
                     let h;
 
+                    const from = getValue('from', style, feature, level);
+                    const to = getValue('to', style, feature, level);
+
                     if (anchor == 'Line') {
                         const applyRotation = alignment == 'map';
 
@@ -847,6 +850,7 @@ export class FeatureFactory {
                             h,
                             applyRotation,
                             checkLineSpace,
+                            from, to,
                             (x, y, z, rotationZ, rotationY, collisionData) => {
                                 this.createPoint(
                                     type,
@@ -884,8 +888,8 @@ export class FeatureFactory {
                             h,
                             offsetX,
                             offsetY,
-                            getValue('from', style, feature, level),
-                            getValue('to', style, feature, level),
+                            from,
+                            to,
                             (x, y, z, rotZ, rotY, collisionData) => {
                                 this.createPoint(type, group, x, y, z, style, feature, collisionData, rotZ + rotation, UNDEF, text);
                             }
