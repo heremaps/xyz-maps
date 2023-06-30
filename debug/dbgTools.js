@@ -69,7 +69,7 @@
 
     let running;
     let optimise = false;
-    let testlayer;
+    let dbgLayer;
 
 
     window.dbgTools = {
@@ -78,8 +78,8 @@
             return window.display || here.xyz.maps.Map.getInstances()[0];
         },
         getDebugLayer() {
-            if (!window._dbgLayer) {
-                dbgTools.getDisplay().addLayer(window._dbgLayer =
+            if (!dbgLayer) {
+                dbgTools.getDisplay().addLayer(dbgLayer =
                     new here.xyz.maps.layers.TileLayer({
                         name: 'DbgLayer',
                         min: 2, max: 30,
@@ -87,7 +87,7 @@
                         provider: new here.xyz.maps.providers.LocalProvider({editable: false})
                     }));
             }
-            return window._dbgLayer;
+            return dbgLayer;
         },
 
         showCam: (id) => {
