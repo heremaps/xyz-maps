@@ -61,7 +61,7 @@
     };
 
     //* **************************************************
-    window.toggleRotateAnimation = ()=> (window.afid == UNDEF) ? rotate() : stop();
+    window.toggleRotateAnimation = () => (window.afid == UNDEF) ? rotate() : stop();
     window.frames = 0;
     window.total_time = 0;
     window.renderTotalTime = 0;
@@ -73,6 +73,155 @@
 
 
     window.dbgTools = {
+
+        getDisplay() {
+            return window.display || here.xyz.maps.Map.getInstances()[0];
+        },
+        getDebugLayer() {
+            if (!window._dbgLayer) {
+                dbgTools.getDisplay().addLayer(window._dbgLayer =
+                    new here.xyz.maps.layers.TileLayer({
+                        name: 'DbgLayer',
+                        min: 2, max: 30,
+                        pointerEvents: false,
+                        provider: new here.xyz.maps.providers.LocalProvider({editable: false})
+                    }));
+            }
+            return window._dbgLayer;
+        },
+
+        showCam: (id) => {
+            id ||= '';
+            const layer = dbgTools.getDebugLayer();
+            const display = dbgTools.getDisplay();
+            const center = display.getCenter();
+
+            const {longitude, latitude, altitude} = display.getCamera().position;
+
+            layer.removeFeature({id: 'Cam' + id});
+            layer.addFeature({
+                id: 'Cam' + id,
+                type: 'Feature',
+                geometry: {
+                    type: 'Point',
+                    coordinates: [longitude, latitude, altitude]
+                }
+            }, [{
+                zIndex: 1100,
+                type: 'Box',
+                width: 24,
+                fill: '#5b5b56',
+                stroke: 'white',
+                altitude: true
+            }, {
+                zIndex: 1000,
+                type: 'VerticalLine',
+                stroke: '#676666FF'
+            }, {
+                zIndex: 1000,
+                type: 'Circle',
+                fill: '#000',
+                radius: 8,
+                opacity: .7,
+                altitude: false,
+                alignment: 'map'
+            }]);
+
+
+            layer.removeFeature({id: 'Cam-map-center' + id});
+            layer.addFeature({
+                id: 'Cam-mamp-center' + id,
+                type: 'Feature',
+                geometry: {
+                    type: 'Point',
+                    coordinates: [center.longitude, center.latitude]
+                }
+            }, [{
+                zIndex: 1000,
+                type: 'Circle',
+                fill: '#000',
+                radius: 8,
+                opacity: .7,
+                alignment: 'map'
+            }]);
+
+
+            const topLeft = display.pixelToGeo(0, 0);
+            const topRight = display.pixelToGeo(display.getWidth(), 0);
+            const bottomLeft = display.pixelToGeo(0, display.getHeight());
+            const bottomRight = display.pixelToGeo(display.getWidth(), display.getHeight());
+
+            layer.removeFeature({id: 'Cam-center' + id});
+            layer.addFeature({
+                id: 'Cam-center' + id,
+                type: 'Feature',
+                geometry: {
+                    type: 'LineString',
+                    coordinates: [
+                        [longitude, latitude, altitude],
+                        [center.longitude, center.latitude, 0]
+                    ]
+                }
+            }, [{
+                zIndex: 1000,
+                type: 'Line',
+                stroke: '#676666FF',
+                strokeWidth: 4,
+                altitude: true
+            }]);
+
+            layer.removeFeature({id: 'Cam-lookAt' + id});
+            layer.addFeature({
+                id: 'Cam-lookAt' + id,
+                type: 'Feature',
+                geometry: {
+                    type: 'MultiLineString',
+                    coordinates: [[
+                        [longitude, latitude, altitude],
+                        [topLeft.longitude, topLeft.latitude, 0]
+                    ], [
+                        [longitude, latitude, altitude],
+                        [topRight.longitude, topRight.latitude, 0]
+                    ], [
+                        [longitude, latitude, altitude],
+                        [bottomLeft.longitude, bottomLeft.latitude, 0]
+                    ], [
+                        [longitude, latitude, altitude],
+                        [bottomRight.longitude, bottomRight.latitude, 0]
+                    ]
+                    ]
+                }
+            }, [{
+                zIndex: 1000,
+                type: 'Line',
+                stroke: '#FF7220FF',
+                strokeWidth: 4,
+                altitude: true
+            }]);
+
+
+            layer.removeFeature({id: 'Cam-plane' + id});
+            layer.addFeature({
+                id: 'Cam-plane' + id,
+                type: 'Feature',
+                geometry: {
+                    type: 'Polygon',
+                    coordinates: [[
+                        [topLeft.longitude, topLeft.latitude, 0],
+                        [topRight.longitude, topRight.latitude, 0],
+                        [bottomRight.longitude, bottomRight.latitude, 0],
+                        [bottomLeft.longitude, bottomLeft.latitude, 0],
+                        [topLeft.longitude, topLeft.latitude, 0]
+                    ]]
+                }
+            }, [{
+                zIndex: 1000,
+                type: 'Polygon',
+                fill: 'rgba(0,0,0,.3)',
+                stroke: '#FF7220FF',
+                strokeWidth: 4
+            }]);
+        },
 
 
         start_fps: function(overlay, display) {
