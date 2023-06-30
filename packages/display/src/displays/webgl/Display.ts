@@ -447,6 +447,11 @@ class WebGlDisplay extends BasicDisplay {
         return {tileBuffers, min3dZIndex, maxZIndex};
     }
 
+    protected getCamGroundPositionScreen() {
+        const {cameraWorld} = this.render;
+        return this.project(cameraWorld[0], cameraWorld[1]);
+    }
+
     protected viewport(dirty?: boolean) {
         const display = this;
         const {buckets, layers, render} = display;

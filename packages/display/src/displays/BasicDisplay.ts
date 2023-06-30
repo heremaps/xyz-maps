@@ -412,6 +412,10 @@ abstract class Display {
         });
     }
 
+    protected getCamGroundPositionScreen() {
+        return [this.w / 2, this.h / 2];
+    }
+
     private clipGridHeight(maxPitch: number) {
         const {rz, rx, s, _gridClip, centerWorld} = this;
         // cache result for the current map transform
@@ -431,7 +435,6 @@ abstract class Display {
         }
         return _gridClip.top;
     }
-
 
     // updateGrid2(zoomlevel: number) {
     //     this.updateGrid(this.centerWorld, zoomlevel, this.sx, this.sy);
@@ -454,7 +457,8 @@ abstract class Display {
         const mapWidthPixel = this.w;
         const mapHeightPixel = this.h;
         const displayWidth = mapWidthPixel;
-        const displayHeight = mapHeightPixel;
+        // Be sure to also handle tiles that are not part of the actual viewport but whose data is still visible because of high altitude.
+        const displayHeight = Math.max(mapHeightPixel, this.getCamGroundPositionScreen()[1]);
         const grid = this.grid;
         let height = 0;
 
@@ -611,7 +615,12 @@ abstract class Display {
      * @internal
      * @hidden
      */
-    getRenderedFeatureAt(screenX: number, screenY: number, layers?: (TileLayer | CustomLayer)[]): { id: number | string | null, z: number, layerIndex: number, pointWorld?: number[] } {
+    getRenderedFeatureAt(screenX: number, screenY: number, layers?: (TileLayer | CustomLayer)[]): {
+        id: number | string | null,
+        z: number,
+        layerIndex: number,
+        pointWorld?: number[]
+    } {
         return null;
     }
 
