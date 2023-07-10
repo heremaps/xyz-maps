@@ -34,32 +34,52 @@ const getTileGridZoom = (zoom) => Math.min(zoom, 20) ^ 0;
 const INFINITY = Infinity;
 let UNDEF;
 
-const allowedProperties = {
-    'type': 1,
-    'zIndex': 1,
-    'fill': 1,
-    'stroke': 1,
-    'strokeWidth': 1,
-    'radius': 1,
-    'width': 1,
-    'height': 1,
-    'font': 1,
-    'text': 1,
-    'textRef': 1,
-    'offsetX': 1,
-    'offsetY': 1,
-    'alignment': 1,
-    'rotation': 1,
-    'priority': 1,
-    'repeat': 1,
-    'collide': 1,
-    'offset': 1,
-    'from': 1,
-    'to': 1,
-    'checkLineSpace': 1,
-    'extrude': 1,
-    'extrudeBase': 1
+
+enum ValueType {
+    Number,
+    String,
+    Color,
+    // Size values can be defined in Meter or Pixel, needs to be parsed.
+    Size,
+    Boolean,
+    Float
+}
+
+const parsePropertyNames = {
+    'type': {value: ValueType.Number},
+    'zIndex': {value: ValueType.Number},
+    'fill': {value: ValueType.Color},
+    'stroke': {value: ValueType.Color},
+    'strokeWidth': {value: ValueType.Size},
+    'radius': {value: ValueType.Size},
+    'width': {value: ValueType.Size},
+    'height': {value: ValueType.Size},
+    'font': {value: ValueType.String},
+    'text': {value: ValueType.String},
+    'textRef': {value: ValueType.String},
+    'offsetX': {value: ValueType.Size},
+    'offsetY': {value: ValueType.Size},
+    'alignment': {value: ValueType.String},
+    'rotation': {value: ValueType.Size},
+    'priority': {value: ValueType.Size},
+    'repeat': {value: ValueType.Number},
+    'collide': {value: ValueType.Size},
+    'offset': {value: ValueType.Size},
+    'from': {value: ValueType.Size},
+    'to': {value: ValueType.Size},
+    'checkLineSpace': {value: ValueType.Boolean},
+    'extrude': {value: ValueType.Size},
+    'extrudeBase': {value: ValueType.Size},
+    'intensity': {value: ValueType.Float},
+    'weight': {value: ValueType.Float}
 };
+const allowedFloatProperties: { [name: string]: true } = {};
+for (let name in parsePropertyNames) {
+    if (parsePropertyNames[name].value == ValueType.Float) {
+        allowedFloatProperties[name] = true;
+    }
+}
+
 
 const textRefCache = new Map();
 
@@ -379,7 +399,7 @@ const lerp = (x: number, y: number, a: number) => x * (1 - a) + y * a;
 const invlerp = (x: number, y: number, a: number) => clamp((a - x) / (y - x));
 const clamp = (a: number, min = 0, max = 1) => Math.min(max, Math.max(min, a));
 const range = (x1: number, y1: number, x2: number, y2: number, a: number) => lerp(x2, y2, invlerp(x1, y1, a));
-const searchLerp = (map, search: number) => {
+const searchLerp = (map, search: number, parseSize: boolean = true) => {
     let i = 0;
     let rawVal;
     let _v;
@@ -395,8 +415,10 @@ const searchLerp = (map, search: number) => {
 
         if (isColorValue) {
             value = rawVal;
-        } else {
+        } else if (parseSize) {
             [value, unit] = parseSizeValue(rawVal);
+        } else {
+            value = rawVal;
         }
 
         if (unit == 'px') {
@@ -439,9 +461,9 @@ const searchLerp = (map, search: number) => {
     }
     return rawVal;
 };
-const fillMap = (map, searchMap) => {
+const fillMap = (map, searchMap, parseSizeValue: boolean) => {
     for (let zoom = 1; zoom <= 20; zoom++) {
-        map[zoom] = searchLerp(searchMap, zoom);
+        map[zoom] = searchLerp(searchMap, zoom, parseSizeValue);
     }
     return map;
 };
@@ -468,15 +490,23 @@ const parseStyleGroup = (styleGroup: Style[]) => {
         (<any>styleGroup).__p = true;
         for (let style of styleGroup) {
             for (let name in style) {
-                if (name in allowedProperties) {
+                if (name in parsePropertyNames) {
                     let value = style[name];
-                    if (typeof value == 'object' && !Array.isArray(value)) {
+                    if (
+                        typeof value == 'object' &&
+                        !Array.isArray(value) &&
+                        // skip Gradients
+                        !value.type
+                    ) {
                         // "zoomrange" value detected
                         if (name == 'stroke' || name == 'fill') {
                             // convert to [r,g,b,a]
                             parseColors(value);
                         }
-                        let map = fillMap({}, value);
+
+                        const parseSizeValue = !allowedFloatProperties[name];
+
+                        let map = fillMap({}, value, parseSizeValue);
                         style[name] = createZoomRangeFunction(map);
                     }
                 }

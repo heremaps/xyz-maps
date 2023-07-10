@@ -56,7 +56,7 @@ const createTileBuffer = (tileSize: number) => {
     gridTileBuffer.addUniform('u_fill', [1.0, .0, 1.0, 1.0]);
     gridTileBuffer.scissor = true;
     gridTileBuffer.depth = false;
-    gridTileBuffer.alpha = 0;
+    gridTileBuffer.pass = 0;
 
     return gridTileBuffer;
 };

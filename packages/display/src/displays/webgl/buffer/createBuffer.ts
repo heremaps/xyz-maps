@@ -17,16 +17,18 @@
  * License-Filename: LICENSE
  */
 
-import {Task, TaskManager, geometry} from '@here/xyz-maps-common';
+import {geometry, TaskManager} from '@here/xyz-maps-common';
 import {GeometryBuffer} from './GeometryBuffer';
 import {getValue, parseStyleGroup} from '../../styleTools';
-import {Tile, webMercator, StyleGroup, Feature, TileLayer} from '@here/xyz-maps-core';
+import {Feature, LinearGradient, StyleGroup, Tile, TileLayer, webMercator} from '@here/xyz-maps-core';
 import {Layer} from '../../Layers';
-import {FeatureFactory, CollisionGroup, GroupMap} from './FeatureFactory';
+import {CollisionGroup, FeatureFactory, GroupMap} from './FeatureFactory';
 import {GlyphTexture} from '../GlyphTexture';
 import {TemplateBufferBucket} from './templates/TemplateBufferBucket';
 import {Texture} from '../Texture';
 import {ModelBuffer} from './templates/ModelBuffer';
+import {PASS} from '../program/GLStates';
+import {DEFAULT_HEATMAP_GRADIENT} from './templates/HeatmapBuffer';
 
 const {centroid} = geometry;
 
@@ -99,7 +101,7 @@ const createBuffer = (
     const layer = <TileLayer>renderLayer.layer;
     const groups: GroupMap = {};
     const pendingResources = [];
-    const waitAndRefresh = (promise: Promise<any>)=>{
+    const waitAndRefresh = (promise: Promise<any>) => {
         pendingResources.push(promise);
     };
 
@@ -172,6 +174,15 @@ const createBuffer = (
 
                             if (geoBuffer == null) continue;
 
+
+                            // let hasAlphaColor = false;
+                            const fillOpacity = shared.fill?.[3];
+                            const strokeOpacity = shared.stroke?.[3];
+                            const hasFillAlpha = fillOpacity < 1;
+                            const hasAlphaColor = hasFillAlpha || strokeOpacity < 1;
+
+                            geoBuffer.flat = grpBuffer.isFlat();
+                            geoBuffer.addUniform('u_scaleByAltitude', shared.scaleByAltitude);
                             geoBuffer.pointerEvents = grp.pointerEvents;
 
                             if (vertexType == 'VerticalLine') {
@@ -198,8 +209,8 @@ const createBuffer = (
 
                                 geoBuffer.addUniform('u_no_antialias', !grpBuffer.isFlat());
 
-                                geoBuffer.alpha = 1;
-                                // geoBuffer.blend = true;
+                                geoBuffer.pass = geoBuffer.flat ? PASS.ALPHA : PASS.POST_ALPHA;
+                                geoBuffer.depth = geoBuffer.blend = true;
                             } else if (type == 'Polygon' || type == 'Extrude') {
                                 geoBuffer.addUniform('u_fill', shared.fill);
 
@@ -216,6 +227,10 @@ const createBuffer = (
                                         // geoBuffer.addUniform('u_stroke', shared.stroke);
                                     }
                                 }
+                                if (hasAlphaColor) {
+                                    geoBuffer.pass = type == 'Extrude' ? PASS.POST_ALPHA : PASS.ALPHA;
+                                    geoBuffer.depth = geoBuffer.blend = true;
+                                }
                             } else {
                                 if (type == 'Text' || type == 'Icon') {
                                     geoBuffer.scissor = grpBuffer.scissor;
@@ -231,6 +246,8 @@ const createBuffer = (
                                     geoBuffer.addUniform('u_atlasScale', 1 / (geoBuffer.uniforms.u_texture as Texture).width);
                                     geoBuffer.addUniform('u_alignMap', shared.alignment == 'map');
 
+                                    geoBuffer.pass = PASS.ALPHA;
+                                    geoBuffer.depth = geoBuffer.blend = true;
                                     // geoBuffer.addUniform('u_offset', [shared.offsetX, shared.offsetY]);
                                 } else if (type == 'Rect' || type == 'Circle' || type == 'Box' || type == 'Sphere') {
                                     geoBuffer.scissor = grpBuffer.scissor;
@@ -247,20 +264,41 @@ const createBuffer = (
 
                                     const toPixel = shared.unit == 'm' ? meterToPixel : 0;
 
+
                                     if (type == 'Circle' || type == 'Sphere') {
                                         // geoBuffer.addUniform('u_radius', shared.radius);
                                         geoBuffer.addUniform('u_radius', [shared.width, toPixel]);
                                     } else {
                                         if (fill == COLOR_UNDEFINED) {
                                             // use blend to enable shader to not use discard (faster)
-                                            geoBuffer.alpha = 1;
+                                            geoBuffer.pass = PASS.ALPHA;
                                             geoBuffer.blend = true;
                                         }
 
                                         geoBuffer.addUniform('u_size', [shared.width, toPixel, shared.height, toPixel]);
                                         geoBuffer.addUniform('u_rotation', shared.rotation * TO_RAD);
                                     }
+
+                                    if (hasAlphaColor) {
+                                        geoBuffer.pass = PASS.ALPHA;
+                                        geoBuffer.depth = geoBuffer.blend = true;
+                                    }
+
                                     geoBuffer.addUniform('u_alignMap', shared.alignment == 'map');
+                                } else if (type == 'Heatmap') {
+                                    geoBuffer.scissor = grpBuffer.scissor;
+                                    geoBuffer.addUniform('u_radius', [shared.width, 0]);
+                                    geoBuffer.addUniform('u_weight', 1.);
+                                    geoBuffer.addUniform('u_intensity', typeof shared.height == 'number' ? shared.height : 1);
+                                    geoBuffer.addUniform('u_opacity', shared.opacity);
+                                    geoBuffer.pass = PASS.POST_ALPHA;
+                                    geoBuffer.flat = true;
+                                    geoBuffer.depth = false;
+                                    geoBuffer.blend = false;
+
+                                    const gradient = (<unknown>shared.fill as LinearGradient)?.stops || DEFAULT_HEATMAP_GRADIENT.stops;
+
+                                    geoBuffer.addUniform('u_gradient', factory.gradients.getTexture(gradient));
                                 }
 
                                 if (shared.offsetUnit) {
@@ -290,34 +328,19 @@ const createBuffer = (
                                     geoBuffer.id = (grpBuffer as ModelBuffer).id;
                                     geoBuffer.hitTest = shared.modelMode || 0;
                                     geoBuffer.destroy = (grpBuffer as ModelBuffer).destroy || geoBuffer.destroy;
+                                    geoBuffer.depth = true;
 
                                     if (geoBuffer.uniforms.pointSize) {
                                         geoBuffer.groups[0].mode = GeometryBuffer.MODE_GL_POINTS;
                                     }
 
-                                    if (geoBuffer.uniforms.opacity<1.0) {
-                                        geoBuffer.alpha = 1;
+                                    if (geoBuffer.uniforms.opacity < 1.0) {
+                                        geoBuffer.pass = PASS.ALPHA;
                                         geoBuffer.blend = true;
                                     }
                                 }
                             }
 
-                            geoBuffer.flat = grpBuffer.isFlat();
-                            geoBuffer.addUniform('u_scaleByAltitude', shared.scaleByAltitude);
-
-                            const fillOpacity = shared.fill && shared.fill[3];
-                            const strokeOpacity = shared.stroke && shared.stroke[3];
-                            const hasFillAlpha = fillOpacity < 1;
-
-                            const hasAlphaColor = hasFillAlpha || strokeOpacity < 1;
-
-                            if (hasAlphaColor) {
-                                geoBuffer.alpha = hasFillAlpha && type == 'Extrude' || (!geoBuffer.flat && type == 'Line')
-                                    ? 2 // two alpha passes are required for extrudes with alpha
-                                    : 1;
-                                geoBuffer.blend = true;
-                                geoBuffer.depth = true;
-                            }
 
                             let {zLayer} = grp;
 
@@ -330,7 +353,6 @@ const createBuffer = (
 
                             zIndex = Number(zIndex);
 
-
                             if (!geoBuffer.flat) {
                                 geoBuffer.scissor = false;
                                 // geoBuffer.depth = true;
@@ -338,7 +360,7 @@ const createBuffer = (
 
                                 if (grp.depthTest != UNDEF) {
                                     geoBuffer.depth = grp.depthTest;
-                                    if (!geoBuffer.alpha) geoBuffer.alpha = 1;
+                                    if (!geoBuffer.pass) geoBuffer.pass = PASS.ALPHA;
                                 }
                             }
 

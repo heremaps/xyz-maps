@@ -54,7 +54,7 @@ const PREVIEW_LOOK_AHEAD_LEVELS: [number, number] = [3, 9];
 type GeometryBufferLike = {
     zLayer?: number;
     zIndex?: number;
-    alpha?: number;
+    pass?: number;
     flat: boolean;
 };
 
@@ -370,7 +370,7 @@ class WebGlDisplay extends BasicDisplay {
                         {
                             zLayer: renderOptions.zLayer,
                             zIndex: renderOptions.zIndex,
-                            alpha: renderOptions.alpha || 1,
+                            pass: renderOptions.alpha || 1,
                             flat: customLayer.flat
                         }
                     ],
@@ -491,7 +491,7 @@ class WebGlDisplay extends BasicDisplay {
         render.setPass(PASS.ALPHA);
 
         // sort by zIndex and alpha/post alpha.
-        tileBuffers = tileBuffers.sort((buf1, buf2) => 10 * (buf1.z - buf2.z) + buf1.b.alpha - buf2.b.alpha);
+        tileBuffers = tileBuffers.sort((buf1, buf2) => 10 * (buf1.z - buf2.z) + buf1.b.pass - buf2.b.pass);
         let layerZIndex = 0;
 
         do {
@@ -501,7 +501,7 @@ class WebGlDisplay extends BasicDisplay {
                 let data = tileBuffers[b];
                 let buffer = data.b;
 
-                if (buffer.alpha == 2) {
+                if (buffer.pass == 2) {
                     // do depth in this pass only and "main" drawing in an additional pass
                     secondAlphaPass = true;
                 }

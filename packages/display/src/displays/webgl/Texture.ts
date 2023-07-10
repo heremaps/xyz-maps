@@ -21,11 +21,11 @@ export type Image =
     | HTMLImageElement
     | ImageBitmap
     | {
-          width: number;
-          height: number;
-          data?: Uint8Array | Uint8ClampedArray;
-          colorSpace?: string;
-      };
+    width: number;
+    height: number;
+    data?: Uint8Array | Uint8ClampedArray;
+    colorSpace?: string;
+};
 
 const isPowerOf2 = (size: number) => (size & (size - 1)) == 0;
 
@@ -39,13 +39,24 @@ class Texture {
     protected gl: WebGLRenderingContext;
 
     private flipY: boolean;
+    private halfFloat: boolean;
+    private premultiplyAlpha: boolean;
 
     ref?: number; // reference counter for Texture sharing
 
-    constructor(gl: WebGLRenderingContext, image?: Image, flipY: boolean = false, format?: GLenum) {
+    constructor(gl: WebGLRenderingContext, image?: Image, options: {
+        flipY?: boolean,
+        format?: GLenum,
+        halfFloat?: boolean,
+        premultiplyAlpha?: boolean
+    } = {}) {
         this.gl = gl;
-        this.format = format || gl.RGBA;
-        this.flipY = flipY;
+        this.format = options.format || gl.RGBA;
+        this.flipY = options.flipY || false;
+        this.halfFloat = options.halfFloat || false;
+        this.premultiplyAlpha = options.premultiplyAlpha == undefined
+            ? true
+            : options.premultiplyAlpha;
 
         if (image) {
             this.set(image);
@@ -62,7 +73,7 @@ class Texture {
     set(image: Image, x?: number, y?: number) {
         let {gl, texture, format, flipY} = this;
         const {width, height} = image;
-        const internalformat = format;
+        let internalformat = format;
         const isSubImage = typeof x == 'number';
 
         if (!texture) {
@@ -70,7 +81,7 @@ class Texture {
         }
 
         gl.bindTexture(gl.TEXTURE_2D, texture);
-        gl.pixelStorei(gl.UNPACK_PREMULTIPLY_ALPHA_WEBGL, true);
+        gl.pixelStorei(gl.UNPACK_PREMULTIPLY_ALPHA_WEBGL, this.premultiplyAlpha);
 
         gl.texParameteri(gl.TEXTURE_2D, gl.TEXTURE_WRAP_S, gl.CLAMP_TO_EDGE); // GL.REPEAT
         gl.texParameteri(gl.TEXTURE_2D, gl.TEXTURE_WRAP_T, gl.CLAMP_TO_EDGE); // GL.REPEAT
@@ -81,7 +92,12 @@ class Texture {
             if (image instanceof HTMLCanvasElement || image instanceof HTMLImageElement || image instanceof ImageBitmap) {
                 gl.texImage2D(gl.TEXTURE_2D, 0, internalformat, format, gl.UNSIGNED_BYTE, image);
             } else {
-                gl.texImage2D(gl.TEXTURE_2D, 0, internalformat, width, height, 0, format, gl.UNSIGNED_BYTE, image.data);
+                let type = gl.UNSIGNED_BYTE;
+                if (this.halfFloat) {
+                    type = gl.getExtension('OES_texture_half_float')?.HALF_FLOAT_OES;
+                    gl.getExtension('OES_texture_half_float_linear');
+                }
+                gl.texImage2D(gl.TEXTURE_2D, 0, internalformat, width, height, 0, format, type, image.data);
             }
             this.width = width;
             this.height = height;
@@ -99,7 +115,8 @@ class Texture {
         }
     }
 
-    onDestroyed(tex: Texture) {}
+    onDestroyed(tex: Texture) {
+    }
 
     destroy() {
         const {gl, texture} = this;
@@ -108,6 +125,10 @@ class Texture {
         }
         this.texture = null;
         this.onDestroyed(this);
+    }
+
+    getGLTexture(): WebGLTexture {
+        return this.texture;
     }
 }
 

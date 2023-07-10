@@ -26,7 +26,7 @@ class ModelTexture extends Texture {
     ref: number = 0;
 }
 
-// export type ModelData = ModelStyle['model'];
+type TextureData = HTMLCanvasElement | HTMLImageElement | { width: number; height: number; pixels?: Uint8Array };
 
 type Model = {
     textures: { [name: string]: ModelTexture };
@@ -39,6 +39,10 @@ type Model = {
         count?: number;
     }[];
 };
+
+type ModelTextures = {
+    [id: string]: ModelTexture;
+}
 
 class ModelFactory {
     // false means the model has already been processed and is invalid, preventing further processing.
@@ -83,10 +87,10 @@ class ModelFactory {
         return this.initModel(url, data);
     }
 
-    private initTexture(name, imgData, textures) {
+    private initTexture(name: string, imgData: TextureData, textures: ModelTextures) {
         let texture = textures[name];
         if (!texture) {
-            texture = new ModelTexture(this.gl, imgData, true);
+            texture = new ModelTexture(this.gl, imgData, {flipY: true});
             textures[name] = texture;
         }
         return texture;
@@ -104,7 +108,7 @@ class ModelFactory {
             const sharedAttr = new WeakMap();
             const imgTexData = data.textures || {};
             const parts: Model['parts'] = [];
-            const modelTextures = {
+            const modelTextures: ModelTextures = {
                 unusedTexture: this.unusedTexture,
                 unusedNormalTexture: this.unusedNormalTexture
             };

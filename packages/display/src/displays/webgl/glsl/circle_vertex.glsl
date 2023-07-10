@@ -22,7 +22,7 @@ void main(void){
 
     if (mod(a_position.x, 2.0) == 1.0)
     {
-        // LSB is direction/normal vector [-1,+1]
+        // LSB (bit0) is visibility, bit1 is direction/normal vector [-1,+1]
         vec2 dir = mod(floor(a_position.xy / 2.0), 2.0) * 2.0 - 1.0;
         vec2 pos = floor(a_position.xy / 4.0) * EXTENT_SCALE;
 

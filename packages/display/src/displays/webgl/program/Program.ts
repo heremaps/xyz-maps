@@ -34,6 +34,7 @@ type AttributeMap = { [name: string]: Attribute | ConstantAttribute };
 class Program {
     protected vertexShaderSrc: string;
     protected fragmentShaderSrc: string;
+    protected framebuffer: WebGLFramebuffer;
 
     static getMacros(buffer: GeometryBuffer): { [name: string]: string | number | boolean } {
         return null;
@@ -61,7 +62,7 @@ class Program {
 
     private dpr: number; // devicepixelratio
 
-    private _pass: PASS;
+    protected _pass: PASS;
 
     private textureUnits: number = 0;
 
@@ -86,6 +87,7 @@ class Program {
         }
         this.mode = mode || gl.TRIANGLES;
         this.gl = gl;
+        this.framebuffer = null;
         this.glStates = new GLStates({scissor: true, blend: false, depth: true});
     }
 
@@ -100,6 +102,32 @@ class Program {
 
         this.glExtAngleInstancedArrays = glExtAngleInstancedArrays;
     }
+
+
+    initBuffers(attributes: { [name: string]: Attribute | ConstantAttribute }) {
+        const gl = this.gl;
+
+        for (let name in attributes) {
+            let attr = <Attribute>attributes[name];
+
+            // attribute is using constant value -> no need to init/fill attribute buffers
+            if ((<ConstantAttribute><unknown>attr).value) continue;
+
+            let buf = this.buffers.get(attr);
+
+            if (!buf) {
+                buf = gl.createBuffer();
+                this.buffers.set(attr, buf);
+            }
+            if (attr.dirty) {
+                attr.dirty = false;
+                gl.bindBuffer(gl.ARRAY_BUFFER, buf);
+                gl.bufferData(gl.ARRAY_BUFFER, attr.data, gl.STATIC_DRAW);
+                // delete attr.data;
+            }
+        }
+    }
+
 
     private createUniformSetter(uInfo: WebGLActiveInfo, location: WebGLUniformLocation) {
         const {gl} = this;
@@ -309,15 +337,25 @@ class Program {
         }
     }
 
+    // draw in opaque pass only by default.
+    // private _passes: PASS[] = [PASS.OPAQUE];
+
     pass(pass: PASS) {
         // draw in opaque pass only by default.
         return pass == PASS.OPAQUE;
+        // return this._passes.indexOf(pass) > 0;
+    }
+
+    runPass(pass: PASS, buffer: GeometryBuffer) {
+        return pass == PASS.OPAQUE
+            ? buffer.pass == pass
+            : buffer.pass >= pass;
     }
 
     draw(geoBuffer: GeometryBuffer) {
         const {gl} = this;
         const {groups, instances} = geoBuffer;
-        const isDepthOnlyPass = this._pass == PASS.ALPHA && geoBuffer.alpha == PASS.POST_ALPHA;
+        const isDepthOnlyPass = this._pass == PASS.ALPHA && geoBuffer.pass == PASS.POST_ALPHA;
 
         // console.log(
         //     this.name,
@@ -326,7 +364,6 @@ class Program {
         //     'STENCIL_TEST', gl.getParameter(gl.STENCIL_TEST),
         //     'BLEND', gl.getParameter(gl.BLEND)
         // );
-        // console.log(geoBuffer);
 
         if (isDepthOnlyPass) {
             // disable color mask for depth/stencil only pass
@@ -339,7 +376,6 @@ class Program {
             if (grp.uniforms) {
                 this.initUniforms(grp.uniforms);
             }
-
 
             if ((<IndexGrp>grp).index) {
                 const index = (<IndexGrp>grp).index;
@@ -473,6 +509,15 @@ class Program {
 
     delete() {
         this.gl.deleteProgram(this.prog);
+    }
+
+    bindFramebuffer(
+        fb: WebGLFramebuffer | null = this.framebuffer,
+        width: number = this.gl.canvas.width,
+        height: number = this.gl.canvas.height
+    ) {
+        this.gl.bindFramebuffer(this.gl.FRAMEBUFFER, fb);
+        this.gl.viewport(0, 0, width, height);
     }
 }
 

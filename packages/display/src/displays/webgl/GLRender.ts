@@ -35,6 +35,7 @@ import ExtrudeProgram from './program/Extrude';
 import BoxProgram from './program/Box';
 import SphereProgram from './program/Sphere';
 import ModelProgram from './program/Model';
+import HeatmapProgram from './program/Heatmap';
 import Program from './program/Program';
 
 import {createGridTextBuffer, createGridTileBuffer, createTileBuffer} from './buffer/debugTileBuffer';
@@ -48,7 +49,6 @@ import {clone, copy, create, identity, invert, lookAt, multiply, perspective, ro
 import BasicTile from '../BasicTile';
 import {Attribute} from './buffer/Attribute';
 import {GLExtensions} from './GLExtensions';
-import {ConstantAttribute} from './buffer/templates/TemplateBuffer';
 import {Texture} from './Texture';
 
 const mat4 = {create, lookAt, multiply, perspective, rotateX, rotateZ, translate, scale, clone, copy, invert, identity};
@@ -138,7 +138,7 @@ export class GLRender implements BasicRender {
     };
 
     private _lightDir: number[] = [0.5, 0.0, -1.0];
-    private programConfig: { [name: string]: typeof Program };
+    private programConfig: { [name: string]: { program: typeof Program, default?: boolean } };
 
     constructor(renderOptions: RenderOptions) {
         this.ctxAttr = {
@@ -167,7 +167,7 @@ export class GLRender implements BasicRender {
 
         const stencilTile = createTileBuffer(1);
         // will only draw in alpha pass!
-        stencilTile.alpha = PASS.ALPHA;
+        stencilTile.pass = PASS.ALPHA;
         // need to be set to enable stencil test in program init.
         stencilTile.blend = true;
         this.stencilTile = stencilTile;
@@ -214,6 +214,8 @@ export class GLRender implements BasicRender {
     clear(clearColor?): void {
         const {gl} = this;
 
+        gl.bindFramebuffer(gl.FRAMEBUFFER, null);
+
         if (clearColor) {
             this.setBackgroundColor(clearColor);
         }
@@ -224,7 +226,6 @@ export class GLRender implements BasicRender {
 
 
         gl.clear(gl.COLOR_BUFFER_BIT | gl.DEPTH_BUFFER_BIT | gl.STENCIL_BUFFER_BIT);
-
         gl.colorMask(true, true, true, false);
     }
 
@@ -252,29 +253,27 @@ export class GLRender implements BasicRender {
         this.icons = new IconManager(gl, texUnits - 2);
 
         const programConfig = this.programConfig = {
-            Rect: RectProgram,
-            Line: LineProgram,
-            DashedLine: DashedLineProgram,
-            Text: TextProgram,
-            Image: ImageProgram,
-            Circle: CircleProgram,
-            Polygon: PolygonProgram,
-            Extrude: ExtrudeProgram,
-            Icon: IconProgram,
-            Box: BoxProgram,
-            Sphere: SphereProgram,
-            Model: ModelProgram
+            Rect: {program: RectProgram},
+            Line: {program: LineProgram},
+            DashedLine: {program: DashedLineProgram},
+            Text: {program: TextProgram},
+            Image: {program: ImageProgram},
+            Circle: {program: CircleProgram},
+            Polygon: {program: PolygonProgram},
+            Extrude: {program: ExtrudeProgram},
+            Icon: {program: IconProgram},
+            Box: {program: BoxProgram},
+            Sphere: {program: SphereProgram},
+            Model: {program: ModelProgram, default: false},
+            Heatmap: {program: HeatmapProgram, default: false}
         };
 
         this.programs = {};
 
         for (let program in programConfig) {
-            if (program == 'Model') continue;
-
-            this.createProgram(program, programConfig[program], {
-                // NORMAL_MAP: 1,
-                // SPECULAR: 1
-            });
+            const cfg = programConfig[program];
+            if (cfg.default === false) continue;
+            this.createProgram(program, cfg.program);
         }
     }
 
@@ -462,31 +461,6 @@ export class GLRender implements BasicRender {
         };
     }
 
-
-    initBuffers(attributes: { [name: string]: Attribute | ConstantAttribute }) {
-        const gl = this.gl;
-
-        for (let name in attributes) {
-            let attr = <Attribute>attributes[name];
-
-            // attribute is using constant value -> no need to init/fill attribute buffers
-            if ((<ConstantAttribute><unknown>attr).value) continue;
-
-            let buf = this.buffers.get(attr);
-
-            if (!buf) {
-                buf = gl.createBuffer();
-                this.buffers.set(attr, buf);
-            }
-            if (attr.dirty) {
-                attr.dirty = false;
-                gl.bindBuffer(gl.ARRAY_BUFFER, buf);
-                gl.bufferData(gl.ARRAY_BUFFER, attr.data, gl.STATIC_DRAW);
-                // delete attr.data;
-            }
-        }
-    }
-
     private prog: Program;
 
     useProgram(prog: Program): boolean {
@@ -581,7 +555,7 @@ export class GLRender implements BasicRender {
         program.pass(this.pass);
 
         let bufAttributes = buffer.getAttributes();
-        this.initBuffers(bufAttributes);
+        program.initBuffers(bufAttributes);
 
         this.useProgram(program);
 
@@ -624,35 +598,34 @@ export class GLRender implements BasicRender {
         const gl = this.gl;
         const renderPass = this.pass;
         let bufAttributes;
+
         let program: Program = this.getProgram(buffer);
         // program = this.programs[buffer.type];
 
         if (program) {
-            let pass = program.pass(renderPass);
-
             dZoom = dZoom || 1;
 
             const zIndex = this.zIndex;
+
             const isOnTopOf3d = (buffer.flat && zIndex > this.min3dZIndex);
-            // const isOnTopOf3d = (buffer.flat && zIndex > this.min3dZIndex) || buffer.isPointBuffer();
-            const isSecondAlphaPass = buffer.alpha == PASS.POST_ALPHA && renderPass == PASS.POST_ALPHA;
 
-            if (buffer.alpha || isOnTopOf3d) {
-                pass = renderPass == PASS.ALPHA || isSecondAlphaPass;
-            }
-
+            let pass = program.runPass(renderPass, buffer);
 
             if (pass) {
-                if (this.stencilVal && buffer.alpha) {
+                if (this.stencilVal && buffer.pass) {
                     const refVal = this.stencilVal;
                     this.stencilVal = null;
                     this.drawStencil(refVal);
                 }
 
                 bufAttributes = buffer.getAttributes();
-                this.initBuffers(bufAttributes);
 
                 this.useProgram(program);
+
+                program.initBuffers(bufAttributes);
+
+                program.bindFramebuffer(null, this.w, this.h);
+
                 // initialise pass default
                 gl.depthFunc(this.depthFnc);
 
@@ -909,7 +882,7 @@ export class GLRender implements BasicRender {
     private getProgram(buffer: GeometryBuffer) {
         let id = buffer.progId;
         const type = buffer.type;
-        const Program = this.programConfig[type];
+        const Program = this.programConfig[type].program;
 
         if (!id) {
             id = buffer.progId = Program.getProgramId(buffer, Program.getMacros(buffer));
@@ -918,7 +891,7 @@ export class GLRender implements BasicRender {
         let prog = this.programs[id];
 
         if (prog === undefined) {
-            const Program = this.programConfig[buffer.type];
+            const Program = this.programConfig[buffer.type].program;
             if (Program) {
                 prog = this.createProgram(id, Program, Program.getMacros(buffer));
             }

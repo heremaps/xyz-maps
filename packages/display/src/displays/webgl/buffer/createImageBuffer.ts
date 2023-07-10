@@ -71,7 +71,7 @@ const createImageBuffer = (img: HTMLImageElement | HTMLCanvasElement, gl: WebGLR
     tileBuffer.zIndex = 0;
     tileBuffer.scissor = true;
     tileBuffer.blend = alpha;
-    tileBuffer.alpha = alpha ? PASS.ALPHA : PASS.OPAQUE;
+    tileBuffer.pass = alpha ? PASS.ALPHA : PASS.OPAQUE;
 
     tileBuffer.cullFace(FRONT);
 

@@ -37,7 +37,7 @@ import {PointBuffer} from './templates/PointBuffer';
 import {PolygonBuffer} from './templates/PolygonBuffer';
 import {ExtrudeBuffer} from './templates/ExtrudeBuffer';
 import {toPresentationFormB} from '../arabic';
-import {Tile, Feature, GeoJSONCoordinate as Coordinate, GeoJSONCoordinate} from '@here/xyz-maps-core';
+import {Tile, Feature, GeoJSONCoordinate as Coordinate, GeoJSONCoordinate, LinearGradient} from '@here/xyz-maps-core';
 import {TemplateBuffer} from './templates/TemplateBuffer';
 import {addVerticalLine} from './addVerticalLine';
 import {BoxBuffer} from './templates/BoxBuffer';
@@ -49,6 +49,8 @@ import {ModelStyle} from '@here/xyz-maps-core';
 import {ModelFactory} from './ModelFactory';
 import {ModelBuffer} from './templates/ModelBuffer';
 import {ImageInfo} from '../Atlas';
+import {GradientFactory} from '../GradientFactory';
+import {HeatmapBuffer} from './templates/HeatmapBuffer';
 
 const DEFAULT_STROKE_WIDTH = 1;
 const DEFAULT_LINE_CAP = 'round';
@@ -78,6 +80,7 @@ type DrawGroup = {
         unit: string;
         font: string;
         fill: Float32Array;
+        // fill: Float32Array|LinearGradient;
         opacity: number;
         stroke: Float32Array;
         strokeWidth: number;
@@ -122,6 +125,7 @@ export class FeatureFactory {
     pendingCollisions: CollisionGroup[] = [];
     z: number;
     private waitAndRefresh: (p: Promise<any>) => void;
+    gradients: GradientFactory;
 
     constructor(gl: WebGLRenderingContext, iconManager: IconManager, collisionHandler, devicePixelRatio: number) {
         this.gl = gl;
@@ -131,6 +135,8 @@ export class FeatureFactory {
         this.collisions = collisionHandler;
         this.lineFactory = new LineFactory(gl);
         this.modelFactory = new ModelFactory(gl);
+
+        this.gradients = new GradientFactory(gl, 256, 1);
 
         var pixels = new Uint8Array(512 * 512 * 4);
 
@@ -292,33 +298,37 @@ export class FeatureFactory {
                 positionBuffer = pointBuffer.flexAttributes.a_position;
 
                 addPoint(x, y, z, positionBuffer.data);
+            } else if (type == 'Heatmap') {
+                const heatmapBuffer = ((group.buffer as HeatmapBuffer) ||= new HeatmapBuffer(isFlat));
+
+                const weight = getValue('weight', style, feature, level);
+                heatmapBuffer.addPoint(x, y, weight);
+            } else if (type == 'Sphere') {
+                let width = 2 * getValue('radius', style, feature, level);
+
+                const sphereBuffer: SphereBuffer = ((group.buffer as SphereBuffer) ||= new SphereBuffer(isFlat));
+                const {flexAttributes} = sphereBuffer;
+                positionBuffer = flexAttributes.a_position;
+
+                addSphere(x, y, z, width, positionBuffer.data, flexAttributes.a_point.data, flexAttributes.a_normal.data);
+            } else if (type == 'Box') {
+                let width = getValue('width', style, feature, level);
+                let height = getValue('height', style, feature, level) || width;
+                let depth = getValue('depth', style, feature, level) || width;
+
+                const boxBuffer: BoxBuffer = ((group.buffer as BoxBuffer) ||= new BoxBuffer(isFlat));
+                const {flexAttributes} = boxBuffer;
+                positionBuffer = flexAttributes.a_position;
+
+                addBox(x, y, z, width, height, depth, positionBuffer.data, flexAttributes.a_point.data, flexAttributes.a_normal.data);
             } else {
-                if (type == 'Sphere') {
-                    let width = 2 * getValue('radius', style, feature, level);
-
-                    const sphereBuffer: SphereBuffer = ((group.buffer as SphereBuffer) ||= new SphereBuffer(isFlat));
-                    const {flexAttributes} = sphereBuffer;
-                    positionBuffer = flexAttributes.a_position;
-
-                    addSphere(x, y, z, width, positionBuffer.data, flexAttributes.a_point.data, flexAttributes.a_normal.data);
-                } else if (type == 'Box') {
-                    let width = getValue('width', style, feature, level);
-                    let height = getValue('height', style, feature, level) || width;
-                    let depth = getValue('depth', style, feature, level) || width;
-
-                    const boxBuffer: BoxBuffer = ((group.buffer as BoxBuffer) ||= new BoxBuffer(isFlat));
-                    const {flexAttributes} = boxBuffer;
-                    positionBuffer = flexAttributes.a_position;
-
-                    addBox(x, y, z, width, height, depth, positionBuffer.data, flexAttributes.a_point.data, flexAttributes.a_normal.data);
-                } else {
-                    if (z > 0 && type == 'VerticalLine') {
-                        addVerticalLine(group, x, y, z);
-                    }
-                    // unknown style-type
-                    return;
+                if (z > 0 && type == 'VerticalLine') {
+                    addVerticalLine(group, x, y, z);
                 }
+                // unknown style-type
+                return;
             }
+
 
             collisionBufferStop = positionBuffer?.data.length;
             collisionBufferStart = collisionBufferStop - 12;
@@ -570,6 +580,21 @@ export class FeatureFactory {
                             [width, sizeUnit] = parseSizeValue(width);
 
                             groupId = (altitude ? 'AC' : 'C') + sizeUnit + width || NONE;
+                        } else if (type == 'Heatmap') {
+                            width = getValue('radius', style, feature, level);
+                            [width, sizeUnit] = parseSizeValue(width);
+
+                            fillRGBA = fill;
+
+                            const intensity = getValue('intensity', style, feature, level);
+
+                            // TODO: refactor shared property usage..
+                            height = intensity;
+
+                            // if (fill?.type) {
+                            //     fill._id = Math.random() * 1e6;
+                            // }
+                            groupId = 'H' + (width || NONE) + JSON.stringify(fill) + intensity;
                         } else if (type == 'Rect') {
                             width = getValue('width', style, feature, level);
                             [width, sizeUnit] = parseSizeValue(width);
@@ -603,7 +628,8 @@ export class FeatureFactory {
                     }
                 }
 
-                if (fill) {
+
+                if (!fillRGBA && fill) {
                     fillRGBA = toRGB(fill);
                     if (fillRGBA) {
                         fillRGBA[3] *= opacity;

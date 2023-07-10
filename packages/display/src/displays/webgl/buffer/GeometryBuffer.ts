@@ -118,7 +118,7 @@ class GeometryBuffer {
     attributes: { [name: string]: Attribute | ConstantAttribute } = {};
     uniforms: { [name: string]: Uniform } = {};
     type: string;
-    alpha: number = 0;
+    pass: number = 0;
     zIndex?: number;
     zLayer?: number;
     scissor?: boolean;

@@ -33,6 +33,7 @@ export * from './styles/RectStyle';
 export * from './styles/SphereStyle';
 export * from './styles/TextStyle';
 export * from './styles/VerticalLineStyle';
+export * from './styles/HeatmapStyle';
 export * from './layers/MVTLayer';
 export * from './layers/CustomLayer';
 export * from './layers/Layer';
@@ -147,8 +148,8 @@ const pixel = XYZMAPS.pixel = {
 };
 
 const layers = XYZMAPS.layers = {
-    TileLayer: TileLayer,
-    MVTLayer: MVTLayer,
+    TileLayer,
+    MVTLayer,
     CustomLayer
 };
 

@@ -16,8 +16,7 @@
  * SPDX-License-Identifier: Apache-2.0
  * License-Filename: LICENSE
  */
-
-import { SharedTexture } from './Atlas';
+import {SharedTexture} from './Atlas';
 
 type DashArray = [number, number, number?];
 
@@ -39,8 +38,10 @@ class DashAtlas {
         size *= Math.ceil(512 / size);
 
         const pixels = new Uint8Array(size);
+        const {gl} = this;
         let fill = true;
         let offset = 0;
+
 
         while (offset < size) {
             for (let bytes of dashArray) {
@@ -52,16 +53,13 @@ class DashAtlas {
             }
         }
 
-        return new SharedTexture(
-            this.gl,
-            {
-                width: pixels.length,
-                height: 1,
-                data: pixels
-            },
-            false,
-            this.gl.LUMINANCE
-        );
+        return new SharedTexture(gl, {
+            width: pixels.length,
+            height: 1,
+            data: pixels
+        }, {
+            format: gl.LUMINANCE
+        });
     }
 
     get(dashArray: DashArray): SharedTexture {
@@ -76,4 +74,4 @@ class DashAtlas {
     }
 }
 
-export { DashAtlas, DashArray };
+export {DashAtlas, DashArray};
