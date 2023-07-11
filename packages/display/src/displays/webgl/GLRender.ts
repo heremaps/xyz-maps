@@ -139,6 +139,7 @@ export class GLRender implements BasicRender {
 
     private _lightDir: number[] = [0.5, 0.0, -1.0];
     private programConfig: { [name: string]: { program: typeof Program, default?: boolean } };
+    private resolution: number[] = [];
 
     constructor(renderOptions: RenderOptions) {
         this.ctxAttr = {
@@ -376,8 +377,7 @@ export class GLRender implements BasicRender {
         this.tilePreviewTransform.ty = null;
         this.tilePreviewTransform.s = null;
 
-        this.w = pixelWidth;
-        this.h = pixelHeight;
+
         this.rz = (rotZ + PI2) % PI2;
         this.rx = rotX;
         this.scale = scale;
@@ -441,6 +441,8 @@ export class GLRender implements BasicRender {
         // mat4.translate(s05, s05, [-centerPixelX, -centerPixelY, 0]);
         // this.pMat = s05;
 
+        this.setResolution(pixelWidth, pixelHeight);
+
         this.initSharedUniforms();
     }
 
@@ -448,7 +450,7 @@ export class GLRender implements BasicRender {
         this.sharedUniforms = {
             u_fixedView: this.fixedView,
             u_rotate: this.rz,
-            u_resolution: [this.w, this.h],
+            u_resolution: this.resolution,
             u_scale: null, // this.scale * dZoom,
             u_topLeft: [0, 0],
             u_tileScale: 1, // tileScale || 1,
@@ -622,9 +624,11 @@ export class GLRender implements BasicRender {
 
                 this.useProgram(program);
 
+                program.setResolution(this.resolution);
+
                 program.initBuffers(bufAttributes);
 
-                program.bindFramebuffer(null, this.w, this.h);
+                program.bindFramebuffer(null);
 
                 // initialise pass default
                 gl.depthFunc(this.depthFnc);
@@ -898,5 +902,13 @@ export class GLRender implements BasicRender {
         }
 
         return prog;
+    }
+
+    private setResolution(width: number, height: number) {
+        const {resolution} = this;
+        // if (resolution[0] != width || resolution[1] != height) {
+        resolution[0] = width;
+        resolution[1] = height;
+        // }
     }
 }

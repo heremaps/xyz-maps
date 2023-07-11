@@ -519,6 +519,10 @@ class Program {
         this.gl.bindFramebuffer(this.gl.FRAMEBUFFER, fb);
         this.gl.viewport(0, 0, width, height);
     }
+
+    setResolution(resolution: readonly number[]) {
+
+    }
 }
 
 export default Program;

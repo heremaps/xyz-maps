@@ -41,6 +41,7 @@ class HeatmapProgram extends Program {
     private offscreen: {
         framebuffer: WebGLFramebuffer;
         texture: Texture;
+        scale: number
     };
     private offscreenBuffer: GeometryBuffer;
 
@@ -51,9 +52,10 @@ class HeatmapProgram extends Program {
         this.vertexShaderSrc = vertexShader;
         this.fragmentShaderSrc = fragmentShader;
 
+        const offscreenScale = 1 / 4;
         let {width, height} = gl.canvas;
-        width /= 4;
-        height /= 4;
+        width *= offscreenScale;
+        height *= offscreenScale;
 
         const offscreenTexture = new Texture(gl, {width, height, data: null}, {halfFloat: true, premultiplyAlpha: false});
 
@@ -63,7 +65,8 @@ class HeatmapProgram extends Program {
 
         this.offscreen = {
             framebuffer: offscreenFrameBuffer,
-            texture: offscreenTexture
+            texture: offscreenTexture,
+            scale: offscreenScale
         };
 
         const tileBuffer = new GeometryBuffer({first: 0, count: 6}, 'Heatmap');
@@ -142,7 +145,7 @@ class HeatmapProgram extends Program {
             super.initAttributes(offscreenBuffer.attributes);
             super.initGeometryBuffer(offscreenBuffer, PASS.ALPHA, false);
 
-            super.bindFramebuffer(null);
+            this.bindFramebuffer(null);
             // this.gl.colorMask(true, true, true, false);
             // this.gl.colorMask(true, true, true, false);
             // this.gl.colorMask(true, true, true, true);
@@ -170,7 +173,7 @@ class HeatmapProgram extends Program {
         const {gl, offscreen} = this;
         const {width, height} = offscreen.texture;
 
-        super.bindFramebuffer(offscreen.framebuffer, width, height);
+        this.bindFramebuffer(offscreen.framebuffer, width, height);
 
         gl.colorMask(true, true, true, true);
         // gl.disable(gl.STENCIL_TEST);
@@ -182,10 +185,24 @@ class HeatmapProgram extends Program {
         gl.clear(gl.COLOR_BUFFER_BIT);
         // gl.colorMask(true, true, true, false);
 
-        super.bindFramebuffer(null);
+        this.bindFramebuffer(null);
         // gl.disable(gl.BLEND);
         gl.colorMask(true, true, true, false);
         // gl.blendFunc(gl.SRC_ALPHA, gl.ONE_MINUS_SRC_ALPHA);
+    }
+
+    setResolution(resolution: readonly number[]) {
+        const [screenWidth, screenHeight] = resolution;
+        const {gl, offscreen} = this;
+        const {scale} = offscreen;
+        const {width, height} = offscreen.texture;
+
+        const w = screenWidth * scale;
+        const h = screenHeight * scale;
+
+        if (width != w || height != h) {
+            offscreen.texture.set({width: w, height: h});
+        }
     }
 }
 

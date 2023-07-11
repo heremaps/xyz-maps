@@ -376,7 +376,6 @@ export class LineFactory {
                 }
 
                 if (!checkCollisions || collisionData) {
-                    console.log('place', x, y, z);
                     place(x, y, z, 0, 0, collisionData);
                     distanceGrp?.add(x, y);
                 }
