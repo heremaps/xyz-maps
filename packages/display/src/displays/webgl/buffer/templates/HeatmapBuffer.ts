@@ -22,6 +22,7 @@ import {FlexArray} from './FlexArray';
 import {PointBuffer} from './PointBuffer';
 import {addPoint} from '../addPoint';
 import {LinearGradient} from '@here/xyz-maps-core';
+import {toRGB} from '../../color';
 
 export const DEFAULT_HEATMAP_GRADIENT: LinearGradient = {
     type: 'LinearGradient',
@@ -32,12 +33,25 @@ export const DEFAULT_HEATMAP_GRADIENT: LinearGradient = {
         0.7: '#F26C19',
         0.5: '#C41D6F',
         0.3: '#70009C',
-        0.0: 'rgba(30,0,115,0)'
+        0.0: '#1E0073'
     }
 };
 
 
 export class HeatmapBuffer extends PointBuffer {
+    static verifyAndFixGradient(stops: LinearGradient['stops']): LinearGradient['stops'] {
+        let min: string | number = Infinity;
+        for (let stop in stops) {
+            if (stop < min) min = stop;
+        }
+        const [r, g, b, a] = toRGB(stops[min]);
+        if (a > 0) {
+            stops = {...stops};
+            stops[min] = `rgba(${r * 255},${g * 255},${b * 255},0)`;
+            return stops;
+        }
+    }
+
     flexAttributes: {
         'a_position': FlexAttribute,
         'a_weight': FlexAttribute,

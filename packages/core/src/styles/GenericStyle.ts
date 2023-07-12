@@ -17,6 +17,7 @@
  * License-Filename: LICENSE
  */
 import {StyleValueFunction, StyleZoomRange} from './LayerStyle';
+import {LinearGradient} from '@here/xyz-maps-core';
 
 /**
  * The Style object defines how certain features should be rendered.
@@ -99,7 +100,7 @@ export interface Style {
      * - RGB(A) values: "rgba(255,0,0,1.0)"
      * - hexadecimal values: "#ff0000"
      */
-    fill?: string | StyleValueFunction<string> | StyleZoomRange<string>;
+    fill?: string | StyleValueFunction<string> | StyleZoomRange<string> | LinearGradient;
 
     /**
      * Sets the stroke color of the shape.

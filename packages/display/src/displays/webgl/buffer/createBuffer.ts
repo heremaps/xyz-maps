@@ -28,7 +28,7 @@ import {TemplateBufferBucket} from './templates/TemplateBufferBucket';
 import {Texture} from '../Texture';
 import {ModelBuffer} from './templates/ModelBuffer';
 import {PASS} from '../program/GLStates';
-import {DEFAULT_HEATMAP_GRADIENT} from './templates/HeatmapBuffer';
+import {DEFAULT_HEATMAP_GRADIENT, HeatmapBuffer} from './templates/HeatmapBuffer';
 
 const {centroid} = geometry;
 
@@ -298,7 +298,8 @@ const createBuffer = (
 
                                     const gradient = (<unknown>shared.fill as LinearGradient)?.stops || DEFAULT_HEATMAP_GRADIENT.stops;
 
-                                    geoBuffer.addUniform('u_gradient', factory.gradients.getTexture(gradient));
+                                    const gradientTexture = factory.gradients.getTexture(gradient, HeatmapBuffer.verifyAndFixGradient);
+                                    geoBuffer.addUniform('u_gradient', gradientTexture);
                                 }
 
                                 if (shared.offsetUnit) {

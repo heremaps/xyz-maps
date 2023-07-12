@@ -55,7 +55,7 @@ export class GradientFactory {
         this.height = height;
     }
 
-    getTexture(gradientConfig: LinearGradient): GradientTexture {
+    getTexture(gradientConfig: LinearGradient, preprocessor?: (stops: LinearGradient) => LinearGradient): GradientTexture {
         let texture = this.cache.get(gradientConfig);
 
         if (!texture) {
@@ -66,8 +66,11 @@ export class GradientFactory {
             canvas.height = height;
 
             const gradient = ctx.createLinearGradient(0, 0, width, height);
-            for (var key in gradientConfig) {
-                gradient.addColorStop(Number(key), gradientConfig[key]);
+
+            const stops = preprocessor?.(gradientConfig) || gradientConfig;
+
+            for (var key in stops) {
+                gradient.addColorStop(Number(key), stops[key]);
             }
             // ctx.clearRect(0, 0, width, height);
             ctx.fillStyle = gradient;

@@ -32,7 +32,7 @@ import {StyleValueFunction, StyleZoomRange} from './LayerStyle';
  *         0.7: '#F26C19',
  *         0.5: '#C41D6F',
  *         0.3: '#70009C',
- *         0.0: 'rgba(30,0,115,0)'
+ *         0.0: '#1E0073'
  *     }
  * };
  */
