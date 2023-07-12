@@ -165,6 +165,10 @@
       "docs": "interfaces/core.remotetileprovideroptions.html#preprocessor"
     },
     {
+      "file": "./layer/Heatmap.html",
+      "docs": "interfaces/core.heatmapstyle.html"
+    },
+    {
       "file": "./layer/settag_space_provider.html",
       "docs": "classes/core.spaceprovider.html#settags"
     },

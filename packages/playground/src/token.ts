@@ -17,11 +17,14 @@
  * License-Filename: LICENSE
  */
 // @ts-ignore
-import token from 'access_token';
+import {TOKEN, APIKEY} from 'access_token';
 
 declare global {
     const YOUR_ACCESS_TOKEN: string;
+    const YOUR_API_KEY: string;
+
+    interface Window { _APIKEY: string; _TKN: string}
 }
 
-// @ts-ignore
-window._TKN = token;
+window._TKN = TOKEN;
+window._APIKEY = APIKEY;

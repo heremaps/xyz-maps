@@ -86,6 +86,7 @@ export const Editor = (props: {
         if (!modelPath.current) {
             modelPath.current = monaco.Uri.parse('file:///example.ts');
             monaco.languages.typescript.typescriptDefaults.addExtraLib(`declare const YOUR_ACCESS_TOKEN: string;`);
+            monaco.languages.typescript.typescriptDefaults.addExtraLib(`declare const YOUR_API_KEY: string;`);
         }
     }
 

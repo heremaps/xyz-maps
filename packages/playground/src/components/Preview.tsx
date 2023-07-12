@@ -27,8 +27,9 @@ import ts from 'ts';
 import {FSToggle} from './FSToggle';
 
 const TS_PARAM = '?ts=' + ts;
-// @ts-ignore
+
 const TOKEN = window._TKN;
+const APIKEY = window._APIKEY;
 
 const globalImportMap = {
     '@here/xyz-maps-common': {ns: 'here.xyz.maps'},
@@ -38,7 +39,8 @@ const globalImportMap = {
 };
 
 export const createIframeSrc = (exampleSource, includePgSpecifics: boolean = false): string => {
-    const tokenInject = `var YOUR_ACCESS_TOKEN='${TOKEN}';`;
+    const tokenInject = `var YOUR_ACCESS_TOKEN='${TOKEN}';
+    var YOUR_API_KEY='${APIKEY}'`;
     const {html, ts} = exampleSource;
     const injectScript = (html, src) => {
         const absolutePath = (href) => {

@@ -173,7 +173,8 @@ if (!env['token-path']) {
         },
         plugins: [
             virtual({
-                'access_token': `export default "${credentials.access_token}"`
+                'access_token': `export const TOKEN="${credentials.access_token}";
+                export const APIKEY="${credentials.api_key}";`
             }),
             typescript(),
             terser()
