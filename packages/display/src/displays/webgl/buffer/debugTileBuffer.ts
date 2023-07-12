@@ -24,8 +24,8 @@ import {GlyphTexture} from '../GlyphTexture';
 import {toRGB} from '../color';
 import {LineBuffer} from './templates/LineBuffer';
 import {FlexArray} from './templates/FlexArray';
-import {Attribute} from './Attribute';
 import {FlexAttribute} from './templates/TemplateBuffer';
+import {PASS} from '../program/GLStates';
 
 const createTileBuffer = (tileSize: number) => {
     // 0 ------- 1
@@ -92,6 +92,7 @@ const createGridTileBuffer = (color: number[] = [1.0, 0.0, 0.0, 1.0], strokeWidt
 
     geoBuffer.scissor = false;
     geoBuffer.depth = false;
+    geoBuffer.pass = PASS.ALPHA;
 
     return geoBuffer;
 };
@@ -149,6 +150,7 @@ const createGridTextBuffer = (quadkey: string, gl: WebGLRenderingContext, font) 
     });
 
 
+    textBuffer.pass = PASS.ALPHA;
     textBuffer.depth = false;
     textBuffer.scissor = false;
     // textBuffer.texture = glyphs;
