@@ -360,15 +360,15 @@ export class CollisionHandler {
                 const tiles = this.display.grid.tiles[512];
                 const scale = this.display.s;
                 // console.time('updateCollisions');
-                this.updateTiles(tiles, scale);
+                const updated = this.updateTiles(tiles, scale);
                 // console.timeEnd('updateCollisions');
                 this.timer = null;
-                callback && callback();
+                updated && callback?.();
             }, UPDATE_DELAY_MS);
         }
     }
 
-    private updateTiles(tiles: ViewportTile[], scale: number) {
+    private updateTiles(tiles: ViewportTile[], scale: number): boolean {
         const {display, dbg} = this;
         const collisionData: CollisionData[] = [];
 
@@ -440,6 +440,8 @@ export class CollisionHandler {
         const visibleItemsMapAligned = [];
         const visibleItemsViewportAligned = [];
 
+        let updated = false;
+
         for (let bbox of collisionData) {
             let visibleItems;
             let intersects = this.intersects(bbox, visibleItemsViewportAligned);
@@ -471,6 +473,7 @@ export class CollisionHandler {
                     }
 
                     (<Attribute>buffer).dirty = true;
+                    updated = true;
                 }
             }
 
@@ -479,6 +482,7 @@ export class CollisionHandler {
         }
         // console.timeEnd('updateCollisions');
         // console.log('visible', visibleItemsMapAligned.length + visibleItemsViewportAligned.length, 'of', collisionData.length, 'total');
+        return updated;
     }
 
     removeTiles(layer: Layer) {
