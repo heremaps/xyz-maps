@@ -25,11 +25,22 @@ import {ArrayGrp, GeometryBuffer, IndexData, IndexGrp} from '../buffer/GeometryB
 import {BufferCache} from '../GLRender';
 import {Attribute} from '../buffer/Attribute';
 import {ConstantAttribute, FlexAttribute} from '../buffer/templates/TemplateBuffer';
+import {DEFAULT_HEATMAP_GRADIENT} from '../buffer/templates/HeatmapBuffer';
 
 let UNDEF;
 
 type UniformMap = { [name: string]: WebGLUniformLocation };
 type AttributeMap = { [name: string]: Attribute | ConstantAttribute };
+
+type ColorMask = { r: boolean; g: boolean; b: boolean; a: boolean };
+
+const DEFAULT_COLOR_MASK: ColorMask = {
+    r: true, g: true, b: true, a: false
+};
+
+const NO_COLOR_MASK: ColorMask = {
+    r: false, g: false, b: false, a: false
+};
 
 class Program {
     protected vertexShaderSrc: string;
@@ -347,7 +358,6 @@ class Program {
     draw(geoBuffer: GeometryBuffer) {
         const {gl} = this;
         const {groups, instances} = geoBuffer;
-        const isDepthOnlyPass = this._pass == PASS.ALPHA && geoBuffer.pass & PASS.POST_ALPHA;
 
         // console.log(
         //     this.name,
@@ -356,11 +366,6 @@ class Program {
         //     'STENCIL_TEST', gl.getParameter(gl.STENCIL_TEST),
         //     'BLEND', gl.getParameter(gl.BLEND)
         // );
-
-        if (isDepthOnlyPass) {
-            // disable color mask for depth/stencil only pass
-            gl.colorMask(false, false, false, false);
-        }
 
         for (let grp of groups) {
             let mode = grp.mode != UNDEF ? grp.mode : this.mode;
@@ -392,11 +397,6 @@ class Program {
                 }
             }
         }
-
-        if (isDepthOnlyPass) {
-            // re-enable color mask
-            gl.colorMask(true, true, true, false);
-        }
     };
 
     private setStates(scissor: boolean, blend: boolean, depth: boolean, stencil: boolean) {
@@ -427,6 +427,13 @@ class Program {
         }
     }
 
+    protected blendFunc(
+        sFactor: number = this.gl.SRC_ALPHA,
+        dFactor: number = this.gl.ONE_MINUS_SRC_ALPHA
+    ) {
+        this.gl.blendFunc(sFactor, dFactor);
+    }
+
     initGeometryBuffer(geoBuffer: GeometryBuffer, pass: PASS, stencil: boolean, zIndex?: number) {
         const prog = this;
         const {gl} = prog;
@@ -447,7 +454,7 @@ class Program {
         }
         prog.setStates(scissor, blend, depth, stencil && !opaquePass && blend && scissor);
 
-        gl.blendFunc(gl.SRC_ALPHA, gl.ONE_MINUS_SRC_ALPHA);
+        this.blendFunc();
 
         const cullFace = geoBuffer.cullFace();
 
@@ -458,6 +465,13 @@ class Program {
             gl.disable(gl.CULL_FACE);
         }
 
+        const isDepthPrePass = pass == PASS.ALPHA && geoBuffer.pass & PASS.POST_ALPHA;
+
+        const colorMask = isDepthPrePass
+            ? NO_COLOR_MASK
+            : geoBuffer.colorMask || DEFAULT_COLOR_MASK;
+
+        gl.colorMask(colorMask.r, colorMask.g, colorMask.b, colorMask.a);
 
         // get rid of zfighting for alpha pass.
         // alpha pass is drawn ordered zindex -> no need to write to depthbuffer (performance)

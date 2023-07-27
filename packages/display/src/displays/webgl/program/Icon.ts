@@ -45,10 +45,9 @@ class IconProgram extends Program {
         this.fragmentShaderSrc = fragmentShader;
     }
 
-    initGeometryBuffer(options: GeometryBuffer, pass: PASS, stencil: boolean) {
+    protected blendFunc() {
         const {gl} = this;
-        super.initGeometryBuffer(options, pass, stencil);
-        gl.blendFunc(gl.ONE, gl.ONE_MINUS_SRC_ALPHA);
+        super.blendFunc(gl.ONE, gl.ONE_MINUS_SRC_ALPHA);
     }
 }
 

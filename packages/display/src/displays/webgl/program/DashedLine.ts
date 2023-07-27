@@ -44,11 +44,9 @@ class DashedLineProgram extends Program {
         this.fragmentShaderSrc = fragmentShader;
     }
 
-    initGeometryBuffer(options: GeometryBuffer, pass, stencil: boolean) {
+    protected blendFunc(sFactor?: number, dFactor?: number) {
         const {gl} = this;
-        super.initGeometryBuffer(options, pass, stencil);
         gl.blendFunc(gl.SRC_ALPHA, gl.ONE_MINUS_SRC_ALPHA);
-        // gl.depthFunc(gl.LESS);
     }
 }
 

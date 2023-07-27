@@ -127,13 +127,9 @@ class HeatmapProgram extends Program {
             const {width, height} = offscreen.texture;
             this.bindFramebuffer(offscreen.framebuffer, width, height);
 
-            const p = this._pass;
-            this._pass = PASS.OPAQUE;
-
             gl.blendFunc(gl.ONE, gl.ONE);
 
             super.draw(geoBuffer);
-            this._pass = p;
         } else {
             // render offscreen-buffer to screen-buffer and colorize the heatmap.
             const {offscreenBuffer} = this;
@@ -144,27 +140,14 @@ class HeatmapProgram extends Program {
             this.initGeometryBuffer(offscreenBuffer, PASS.ALPHA, false);
 
             this.bindFramebuffer(null);
-            // this.gl.colorMask(true, true, true, false);
-            // this.gl.colorMask(true, true, true, false);
-            // this.gl.colorMask(true, true, true, true);
 
-            // this.gl.disable(this.gl.STENCIL_TEST);
-
-            gl.blendFunc(gl.SRC_ALPHA, gl.ONE_MINUS_SRC_ALPHA);
-            // this.gl.blendFunc(this.gl.ONE, this.gl.ONE_MINUS_SRC_ALPHA);
             super.draw(offscreenBuffer);
-
-            // this.gl.colorMask(true, true, true, false);
 
             // clear offscreen buffer for next frame
             this.clear();
         }
 
         this.bindFramebuffer(null);
-
-        gl.disable(gl.BLEND);
-        gl.colorMask(true, true, true, false);
-        gl.blendFunc(gl.SRC_ALPHA, gl.ONE_MINUS_SRC_ALPHA);
     }
 
     private clear() {
@@ -182,11 +165,7 @@ class HeatmapProgram extends Program {
         // gl.depthMask(true);
         gl.clear(gl.COLOR_BUFFER_BIT);
         // gl.colorMask(true, true, true, false);
-
         this.bindFramebuffer(null);
-        // gl.disable(gl.BLEND);
-        gl.colorMask(true, true, true, false);
-        // gl.blendFunc(gl.SRC_ALPHA, gl.ONE_MINUS_SRC_ALPHA);
     }
 
     setResolution(resolution: readonly number[]) {

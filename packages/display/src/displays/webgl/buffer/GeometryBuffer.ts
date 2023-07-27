@@ -142,6 +142,8 @@ class GeometryBuffer {
     hitTest?: number;
 
 
+    colorMask?: { r: boolean, g: boolean, b: boolean, a: boolean };
+
     static fromTemplateBuffer(type: string, templBuffer: TemplateBuffer): GeometryBuffer {
         const {flexAttributes} = templBuffer;
         let geoBuffer: GeometryBuffer;

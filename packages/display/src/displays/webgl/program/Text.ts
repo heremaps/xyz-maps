@@ -43,6 +43,12 @@ class TextProgram extends Program {
         this.fragmentShaderSrc = fragmentShader;
     }
 
+
+    protected blendFunc() {
+        const {gl} = this;
+        gl.blendFunc(gl.ONE, gl.ONE_MINUS_SRC_ALPHA);
+    }
+
     initGeometryBuffer(options: GeometryBuffer, pass: PASS, stencil: boolean, zIndex: number) {
         const {gl} = this;
         super.initGeometryBuffer(options, pass, stencil);
@@ -51,8 +57,6 @@ class TextProgram extends Program {
         // this issues is also related to overlapping (atlas.spacing) of characters
         gl.depthMask(false);
         // gl.depthFunc(gl.LESS);
-        gl.blendFunc(gl.ONE, gl.ONE_MINUS_SRC_ALPHA);
-
 
         gl.polygonOffset(0, (1 << 11) * -zIndex);
         gl.enable(gl.POLYGON_OFFSET_FILL);

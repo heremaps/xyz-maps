@@ -171,6 +171,9 @@ export class GLRender implements BasicRender {
         stencilTile.pass = PASS.ALPHA;
         // need to be set to enable stencil test in program init.
         stencilTile.blend = true;
+
+        stencilTile.colorMask = {r: false, g: false, b: false, a: false};
+
         this.stencilTile = stencilTile;
     }
 
@@ -220,14 +223,10 @@ export class GLRender implements BasicRender {
         if (clearColor) {
             this.setBackgroundColor(clearColor);
         }
-        // gl.clearDepth(1.0);
         gl.colorMask(true, true, true, true);
         gl.disable(gl.SCISSOR_TEST);
         gl.depthMask(true);
-
-
         gl.clear(gl.COLOR_BUFFER_BIT | gl.DEPTH_BUFFER_BIT | gl.STENCIL_BUFFER_BIT);
-        gl.colorMask(true, true, true, false);
     }
 
     init(canvas: HTMLCanvasElement, devicePixelRation: number): void {
@@ -548,43 +547,43 @@ export class GLRender implements BasicRender {
     }
 
 
-    initGroundDepth(x: number, y: number, tileScale?: number
-    ) {
-        const gl = this.gl;
-        const buffer = this.stencilTile;
-        let program = this.programs[buffer.type];
-
-        let bufAttributes = buffer.getAttributes();
-        program.initBuffers(bufAttributes);
-
-        this.useProgram(program);
-
-        gl.depthRange(0, 1.0);
-
-        gl.depthMask(true);
-        gl.disable(gl.STENCIL_TEST);
-        gl.disable(gl.SCISSOR_TEST);
-        gl.enable(gl.DEPTH_TEST);
-
-        program.initAttributes(bufAttributes);
-        program.initUniforms(buffer.uniforms);
-
-        const uLocation = program.uniforms;
-
-        gl.uniform2f(uLocation.u_topLeft, x, y);
-        gl.uniform1f(uLocation.u_tileScale, tileScale || 1);
-        gl.uniformMatrix4fv(uLocation.u_matrix, false, this.vPMat);
-
-        gl.clear(gl.DEPTH_BUFFER_BIT);
-        gl.depthFunc(gl.ALWAYS);
-        // gl.polygonOffset(1, 1);
-        // gl.enable(gl.POLYGON_OFFSET_FILL);
-        gl.colorMask(false, false, false, false);
-        program.draw(buffer);
-        gl.colorMask(true, true, true, false);
-        // gl.disable(gl.POLYGON_OFFSET_FILL);
-        gl.depthFunc(this.depthFnc);
-    }
+    // initGroundDepth(x: number, y: number, tileScale?: number
+    // ) {
+    //     const gl = this.gl;
+    //     const buffer = this.stencilTile;
+    //     let program = this.programs[buffer.type];
+    //
+    //     let bufAttributes = buffer.getAttributes();
+    //     program.initBuffers(bufAttributes);
+    //
+    //     this.useProgram(program);
+    //
+    //     gl.depthRange(0, 1.0);
+    //
+    //     gl.depthMask(true);
+    //     gl.disable(gl.STENCIL_TEST);
+    //     gl.disable(gl.SCISSOR_TEST);
+    //     gl.enable(gl.DEPTH_TEST);
+    //
+    //     program.initAttributes(bufAttributes);
+    //     program.initUniforms(buffer.uniforms);
+    //
+    //     const uLocation = program.uniforms;
+    //
+    //     gl.uniform2f(uLocation.u_topLeft, x, y);
+    //     gl.uniform1f(uLocation.u_tileScale, tileScale || 1);
+    //     gl.uniformMatrix4fv(uLocation.u_matrix, false, this.vPMat);
+    //
+    //     gl.clear(gl.DEPTH_BUFFER_BIT);
+    //     gl.depthFunc(gl.ALWAYS);
+    //     // gl.polygonOffset(1, 1);
+    //     // gl.enable(gl.POLYGON_OFFSET_FILL);
+    //     gl.colorMask(false, false, false, false);
+    //     program.draw(buffer);
+    //     gl.colorMask(true, true, true, false);
+    //     // gl.disable(gl.POLYGON_OFFSET_FILL);
+    //     gl.depthFunc(this.depthFnc);
+    // }
 
 
     private drawBuffer(
@@ -693,7 +692,7 @@ export class GLRender implements BasicRender {
             gl.stencilFunc(gl.ALWAYS, refVal, 0xff);
             gl.stencilOp(gl.REPLACE, gl.REPLACE, gl.REPLACE);
             // disable color buffer
-            gl.colorMask(false, false, false, false);
+            // gl.colorMask(false, false, false, false);
 
             this.drawBuffer(stencilTile, x, y, null, null, this.stencilSize);
 
@@ -701,7 +700,7 @@ export class GLRender implements BasicRender {
             // disable writing to stencil buffer
             gl.stencilOp(gl.KEEP, gl.KEEP, gl.KEEP);
             // enable color buffer again
-            gl.colorMask(true, true, true, false);
+            // gl.colorMask(true, true, true, false);
         }
     }
 
