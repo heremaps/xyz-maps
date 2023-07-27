@@ -554,8 +554,6 @@ export class GLRender implements BasicRender {
         const buffer = this.stencilTile;
         let program = this.programs[buffer.type];
 
-        program.pass(this.pass);
-
         let bufAttributes = buffer.getAttributes();
         program.initBuffers(bufAttributes);
 

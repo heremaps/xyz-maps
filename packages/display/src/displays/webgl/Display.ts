@@ -501,7 +501,7 @@ class WebGlDisplay extends BasicDisplay {
                 let data = tileBuffers[b];
                 let buffer = data.b;
 
-                if (buffer.pass == 2) {
+                if (buffer.pass & PASS.POST_ALPHA) {
                     // do depth in this pass only and "main" drawing in an additional pass
                     secondAlphaPass = true;
                 }

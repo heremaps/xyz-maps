@@ -337,25 +337,17 @@ class Program {
         }
     }
 
-    // draw in opaque pass only by default.
-    // private _passes: PASS[] = [PASS.OPAQUE];
-
-    pass(pass: PASS) {
-        // draw in opaque pass only by default.
-        return pass == PASS.OPAQUE;
-        // return this._passes.indexOf(pass) > 0;
-    }
-
-    runPass(pass: PASS, buffer: GeometryBuffer) {
-        return pass == PASS.OPAQUE
-            ? buffer.pass == pass
-            : buffer.pass >= pass;
+    runPass(pass: PASS, buffer: GeometryBuffer): boolean {
+        return Boolean(pass & buffer.pass);
+        // return pass == PASS.OPAQUE
+        //     ? buffer.pass == pass
+        //     : buffer.pass >= pass;
     }
 
     draw(geoBuffer: GeometryBuffer) {
         const {gl} = this;
         const {groups, instances} = geoBuffer;
-        const isDepthOnlyPass = this._pass == PASS.ALPHA && geoBuffer.pass == PASS.POST_ALPHA;
+        const isDepthOnlyPass = this._pass == PASS.ALPHA && geoBuffer.pass & PASS.POST_ALPHA;
 
         // console.log(
         //     this.name,

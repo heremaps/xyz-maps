@@ -209,7 +209,10 @@ const createBuffer = (
 
                                 geoBuffer.addUniform('u_no_antialias', !grpBuffer.isFlat());
 
-                                geoBuffer.pass = geoBuffer.flat ? PASS.ALPHA : PASS.POST_ALPHA;
+                                geoBuffer.pass = PASS.ALPHA;
+                                if (!geoBuffer.flat) {
+                                    geoBuffer.pass |= PASS.POST_ALPHA;
+                                }
                                 geoBuffer.depth = geoBuffer.blend = true;
                             } else if (type == 'Polygon' || type == 'Extrude') {
                                 geoBuffer.addUniform('u_fill', shared.fill);
@@ -228,7 +231,10 @@ const createBuffer = (
                                     }
                                 }
                                 if (hasAlphaColor) {
-                                    geoBuffer.pass = type == 'Extrude' ? PASS.POST_ALPHA : PASS.ALPHA;
+                                    geoBuffer.pass = PASS.ALPHA;
+                                    if (type == 'Extrude') {
+                                        geoBuffer.pass |= PASS.POST_ALPHA;
+                                    }
                                     geoBuffer.depth = geoBuffer.blend = true;
                                 }
                             } else {
@@ -291,7 +297,7 @@ const createBuffer = (
                                     geoBuffer.addUniform('u_weight', 1.);
                                     geoBuffer.addUniform('u_intensity', typeof shared.height == 'number' ? shared.height : 1);
                                     geoBuffer.addUniform('u_opacity', shared.opacity);
-                                    geoBuffer.pass = PASS.POST_ALPHA;
+                                    geoBuffer.pass = PASS.ALPHA | PASS.POST_ALPHA;
                                     geoBuffer.flat = true;
                                     geoBuffer.depth = false;
                                     geoBuffer.blend = false;

@@ -45,10 +45,6 @@ class IconProgram extends Program {
         this.fragmentShaderSrc = fragmentShader;
     }
 
-    pass(pass: PASS) {
-        return pass == PASS.ALPHA;
-    }
-
     initGeometryBuffer(options: GeometryBuffer, pass: PASS, stencil: boolean) {
         const {gl} = this;
         super.initGeometryBuffer(options, pass, stencil);

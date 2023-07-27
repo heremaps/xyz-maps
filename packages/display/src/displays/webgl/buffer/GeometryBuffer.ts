@@ -22,6 +22,7 @@ import {glType, isTypedArray, TypedArray} from './glType';
 import {Texture} from '../Texture';
 import {ConstantAttribute, FlexAttribute, TemplateBuffer} from './templates/TemplateBuffer';
 import {Raycaster} from '../Raycaster';
+import {PASS} from '../program/GLStates';
 
 export type Uniform = number | number[] | Float32Array | Int32Array | boolean | Texture;
 
@@ -118,7 +119,7 @@ class GeometryBuffer {
     attributes: { [name: string]: Attribute | ConstantAttribute } = {};
     uniforms: { [name: string]: Uniform } = {};
     type: string;
-    pass: number = 0;
+    pass: number = PASS.OPAQUE;
     zIndex?: number;
     zLayer?: number;
     scissor?: boolean;

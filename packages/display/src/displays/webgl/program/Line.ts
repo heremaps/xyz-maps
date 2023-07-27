@@ -36,10 +36,6 @@ class LineProgram extends Program {
         depth: true
     });
 
-    pass(pass: PASS) {
-        return pass == PASS.ALPHA || pass == PASS.POST_ALPHA;
-    }
-
     constructor(gl: WebGLRenderingContext, devicePixelRation: number) {
         super(gl, devicePixelRation);
 

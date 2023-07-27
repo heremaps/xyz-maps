@@ -43,11 +43,6 @@ class TextProgram extends Program {
         this.fragmentShaderSrc = fragmentShader;
     }
 
-    pass(pass: PASS) {
-        // draw text in alpha pass only
-        return pass == PASS.ALPHA;
-    }
-
     initGeometryBuffer(options: GeometryBuffer, pass: PASS, stencil: boolean, zIndex: number) {
         const {gl} = this;
         super.initGeometryBuffer(options, pass, stencil);

@@ -62,6 +62,7 @@ export class PointBuffer extends TemplateBuffer {
 
     constructor(flat: boolean = true) {
         super(flat);
+        // super(flat, true);
 
         this.flexAttributes = {
             // vertex

@@ -45,6 +45,9 @@ class HeatmapProgram extends Program {
     };
     private offscreenBuffer: GeometryBuffer;
 
+    // Indicates whether the screen buffer for the current frame has already been updated.
+    private screenBufferRefreshed: boolean;
+
     constructor(gl: WebGLRenderingContext, devicePixelRation: number) {
         super(gl, devicePixelRation);
 
@@ -82,23 +85,18 @@ class HeatmapProgram extends Program {
         this.offscreenBuffer = tileBuffer;
     }
 
-    _pass: PASS;
-
-    private firstTileHandeled: boolean;
-
     runPass(pass: PASS, buffer: GeometryBuffer): boolean {
-        // return super.runPass(pass, buffer);
         switch (pass) {
         case PASS.OPAQUE:
-            // By default the offscreenbuffer gets cleared after rendered to screenbuffer immediatly.
+            // By default, the offscreenbuffer gets cleared after rendered to screenbuffer immediately.
             // But if we want to debug the offscreenbuffer we do the following:
             // use opaque pass to only clear the offscreen framebuffer once.
             // So we are ready(clear) to render the current frame.
-            // if (this.firstTileHandeled) {
+            // if (this.firstTileHandled) {
             //     // clear offscreen buffer for next frame
             //     this.clear();
             // }
-            return this.firstTileHandeled = false;
+            return this.screenBufferRefreshed = false;
         case OFFSCREEN_PASS:
             // Use the PASS.ALPHA to render the tiles to offscreen-framebuffer.
             return true;
@@ -106,9 +104,9 @@ class HeatmapProgram extends Program {
             // use post-alpha pass to render the offscreen to screenbuffer.
             // the first tile of the pass will be used to trigger fullscreen rendering to the offscreen-buffer.
             // further tiles are simply skipped.
-            const doPass = this.firstTileHandeled == false;
-            this.firstTileHandeled = true;
-            return doPass;
+            const doOnce = !this.screenBufferRefreshed;
+            this.screenBufferRefreshed = true;
+            return doOnce;
         }
     }
 
@@ -141,9 +139,9 @@ class HeatmapProgram extends Program {
             const {offscreenBuffer} = this;
 
             this.initBuffers(offscreenBuffer.attributes);
-            super.initUniforms(offscreenBuffer.uniforms);
-            super.initAttributes(offscreenBuffer.attributes);
-            super.initGeometryBuffer(offscreenBuffer, PASS.ALPHA, false);
+            this.initUniforms(offscreenBuffer.uniforms);
+            this.initAttributes(offscreenBuffer.attributes);
+            this.initGeometryBuffer(offscreenBuffer, PASS.ALPHA, false);
 
             this.bindFramebuffer(null);
             // this.gl.colorMask(true, true, true, false);
