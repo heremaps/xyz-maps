@@ -214,10 +214,9 @@ export class Tile {
     };
 
     isInside(point: GeoJSONCoordinate) {
-        const rect = this.bounds;
-        const x = point[0];
-        const y = point[1];
-        return x > rect[0] && x <= rect[2] && y > rect[1] && y <= rect[3];
+        const [minLon, minLat, maxLon, maxLat] = this.bounds;
+        const [x, y] = point;
+        return x >= minLon && x < maxLon && y > minLat && y <= maxLat;
     };
 }
 
