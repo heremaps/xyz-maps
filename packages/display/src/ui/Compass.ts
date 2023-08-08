@@ -22,6 +22,7 @@ import {Animation} from '../animation/Animation';
 import {Map as Display} from '../Map';
 import {MapOptions} from '../MapOptions';
 
+const MAX_NEEDLE_PITCH = 60;
 const ANIMATION_MS = 500;
 
 type CompassOptions = {
@@ -45,7 +46,7 @@ class Compass extends UIComponent {
         const display = this.map;
 
         display.addEventListener('mapviewchange', this._rl = (ev) => {
-            compass.style.transform = `rotate(${display.rotate()}deg) rotateX(${display.pitch()}deg) scale(0.7,1.1)`;
+            compass.style.transform = `rotate(${display.rotate()}deg) rotateX(${Math.min(MAX_NEEDLE_PITCH, display.pitch())}deg) scale(0.7,1.1)`;
         });
 
         this._rl();
@@ -63,7 +64,7 @@ class Compass extends UIComponent {
 
 Compass.prototype.listeners = {
 
-    '.needle':
+    '.btn':
         {
             'click': async function(ev) {
                 if (!this.aip) {
@@ -111,6 +112,10 @@ Compass.prototype.style = {
         padding: 4px 0px;\
         line-height: 10px;',
 
+    '.compass .btn': '\
+        width: 100%;\
+        height: 100%;',
+
     '.compass:hover': '\
         background-color: #383c45;\
         cursor: pointer;'
@@ -118,7 +123,9 @@ Compass.prototype.style = {
 //
 Compass.prototype.templ =
     '<div class="compass">\
-        <div class="needle">&#9650;<br>&#9661;</div>\
+        <div class="btn">\
+            <div class="needle">&#9650;<br>&#9661;</div>\
+        </div>\
     </div>';
 
 export default Compass;

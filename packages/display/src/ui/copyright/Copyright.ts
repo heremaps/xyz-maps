@@ -379,7 +379,7 @@ Copyright.prototype.style = {
         text-overflow: ellipsis;\
         border-right: 2px;',
 
-    '.btn': '\
+    '.copyright .btn': '\
         display: none;\
         font-family: sans-serif;\
         font-weight: bold;\
