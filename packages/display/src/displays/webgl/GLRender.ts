@@ -56,8 +56,6 @@ const mat4 = {create, lookAt, multiply, perspective, rotateX, rotateZ, translate
 const PI2 = 2 * Math.PI;
 const FIELD_OF_VIEW = Math.atan(1 / 3) * 2; // ~ 36.87 deg
 
-const unclip = (v, dim) => Math.round((v + 1) / 2.0 * dim);
-
 const EXTENSION_OES_ELEMENT_INDEX_UINT = 'OES_element_index_uint';
 const EXTENSION_ANGLE_INSTANCED_ARRAYS = 'ANGLE_instanced_arrays';
 
@@ -69,6 +67,8 @@ const DEBUG_GRID_FONT = {
     // textAlign : 'start',
     // textBaseline : 'alphabetic'
 };
+
+const MAX_PITCH_SCISSOR = 65 / 180 * Math.PI;
 
 export type RenderOptions = WebGLContextAttributes;
 
@@ -715,7 +715,7 @@ export class GLRender implements BasicRender {
             const w = gl.canvas.width;
             const h = gl.canvas.height;
 
-            if (this.scale > 4.0) {
+            if (this.scale > 4.0/* || -this.rx > MAX_PITCH_SCISSOR*/) {
                 // workaround: precision issues for 22+ zooms -> disable scissor
                 gl.scissor(0, 0, w, h);
                 this.scissorX = null;
@@ -740,20 +740,27 @@ export class GLRender implements BasicRender {
                 let ymax = xmax;
 
                 for (let p of [lowerLeft, lowerRight, upperLeft, upperRight]) {
-                    p = transformMat4([], p, this.vPMat);
-                    let x = unclip(p[0], w);
-                    let y = unclip(p[1], h);
+                    transformMat4(p, p, this.screenMat);
+                    let x = Math.round(p[0]);
+                    let y = Math.round(p[1]);
+
                     if (x < xmin) xmin = x;
                     if (x > xmax) xmax = x;
                     if (y < ymin) ymin = y;
                     if (y > ymax) ymax = y;
                 }
-                gl.scissor(xmin, ymin, xmax - xmin, ymax - ymin);
+                // high pitch, part of tile is "behind" the cam, plane "flips" -> skip scissor
+                if (ymin < 0 && ymax > 0) {
+                    xmin = 0;
+                    ymin = 0;
+                    xmax = w;
+                    ymax = h;
+                }
+                gl.scissor(xmin, h-ymax, xmax - xmin, ymax - ymin);
             }
-            return true;
         }
+        return true;
     }
-
     draw(bufferData: TileBufferData, min3dZIndex: number): void {
         let scissored = false;
         let stenciled = false;
@@ -818,6 +825,7 @@ export class GLRender implements BasicRender {
             this.drawBuffer(buffer, px, py, previewTransformMatrix, dZoom);
         } else {
             if (!scissored) {
+                window._dbgKey = dTile.quadkey;
                 scissored = this.initScissor(buffer, x, y, tileSize, tileSize);
             }
 
