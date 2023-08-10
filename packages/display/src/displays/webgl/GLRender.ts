@@ -825,7 +825,6 @@ export class GLRender implements BasicRender {
             this.drawBuffer(buffer, px, py, previewTransformMatrix, dZoom);
         } else {
             if (!scissored) {
-                window._dbgKey = dTile.quadkey;
                 scissored = this.initScissor(buffer, x, y, tileSize, tileSize);
             }
 
