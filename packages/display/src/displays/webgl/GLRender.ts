@@ -68,7 +68,7 @@ const DEBUG_GRID_FONT = {
     // textBaseline : 'alphabetic'
 };
 
-const MAX_PITCH_SCISSOR = 65 / 180 * Math.PI;
+const MAX_PITCH_SCISSOR = 72 / 180 * Math.PI;
 
 export type RenderOptions = WebGLContextAttributes;
 
@@ -715,8 +715,9 @@ export class GLRender implements BasicRender {
             const w = gl.canvas.width;
             const h = gl.canvas.height;
 
-            if (this.scale > 4.0/* || -this.rx > MAX_PITCH_SCISSOR*/) {
-                // workaround: precision issues for 22+ zooms -> disable scissor
+            if (this.scale > 4.0 // workaround: precision issues for 22+ zooms -> disable scissor
+                || -this.rx > MAX_PITCH_SCISSOR // high pitch, part of tile is "behind" the cam, plane "flips" -> skip scissor.
+            ) {
                 gl.scissor(0, 0, w, h);
                 this.scissorX = null;
                 return true;
@@ -739,28 +740,38 @@ export class GLRender implements BasicRender {
                 let ymin = xmin;
                 let ymax = xmax;
 
-                for (let p of [lowerLeft, lowerRight, upperLeft, upperRight]) {
-                    transformMat4(p, p, this.screenMat);
-                    let x = Math.round(p[0]);
-                    let y = Math.round(p[1]);
+                // for (let p of [lowerLeft, lowerRight, upperLeft, upperRight]) {
+                //     let [x, y] = transformMat4(p, p, this.vPMat);
+                //     if (x < xmin) xmin = x;
+                //     if (x > xmax) xmax = x;
+                //     if (y < ymin) ymin = y;
+                //     if (y > ymax) ymax = y;
+                // }
+                // // clip to screen
+                // xmin = Math.round((xmin + 1) * .5 * w);
+                // xmax = Math.round((xmax + 1) * .5 * w);
+                // ymin = Math.round((ymin + 1) * .5 * h);
+                // ymax = Math.round((ymax + 1) * .5 * h);
+                // gl.scissor(xmin, ymin, xmax - xmin, ymax - ymin);
 
+                let {dpr, screenMat} = this;
+                for (let p of [lowerLeft, lowerRight, upperLeft, upperRight]) {
+                    let [x, y] = transformMat4(p, p, screenMat);
                     if (x < xmin) xmin = x;
                     if (x > xmax) xmax = x;
                     if (y < ymin) ymin = y;
                     if (y > ymax) ymax = y;
                 }
-                // high pitch, part of tile is "behind" the cam, plane "flips" -> skip scissor
-                if (ymin < 0 && ymax > 0) {
-                    xmin = 0;
-                    ymin = 0;
-                    xmax = w;
-                    ymax = h;
-                }
-                gl.scissor(xmin, h-ymax, xmax - xmin, ymax - ymin);
+                xmin = Math.round(xmin * dpr);
+                xmax = Math.round(xmax * dpr);
+                ymin = Math.round(ymin * dpr);
+                ymax = Math.round(ymax * dpr);
+                gl.scissor(xmin, h - ymax, xmax - xmin, ymax - ymin);
             }
         }
         return true;
     }
+
     draw(bufferData: TileBufferData, min3dZIndex: number): void {
         let scissored = false;
         let stenciled = false;
