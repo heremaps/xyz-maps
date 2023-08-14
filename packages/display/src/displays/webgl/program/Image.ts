@@ -24,6 +24,7 @@ import fragmentShader from '../glsl/image_fragment.glsl';
 
 import Program from './Program';
 import {GLStates} from './GLStates';
+import {GeometryBuffer} from '../buffer/GeometryBuffer';
 
 
 class ImageProgram extends Program {

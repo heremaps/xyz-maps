@@ -55,16 +55,24 @@ class HeatmapProgram extends Program {
         this.vertexShaderSrc = vertexShader;
         this.fragmentShaderSrc = fragmentShader;
 
-        const offscreenScale = 1 / 4;
+        const offscreenScale = 1;
+        // const offscreenScale = 1 / 4;
         let {width, height} = gl.canvas;
         width *= offscreenScale;
         height *= offscreenScale;
 
-        const offscreenTexture = new Texture(gl, {width, height, data: null}, {halfFloat: true, premultiplyAlpha: false});
-
+        const offscreenTexture = new Texture(gl, {width, height}, {
+            halfFloat: true,
+            premultiplyAlpha: false
+        });
         const offscreenFrameBuffer = gl.createFramebuffer();
         gl.bindFramebuffer(gl.FRAMEBUFFER, offscreenFrameBuffer);
         gl.framebufferTexture2D(gl.FRAMEBUFFER, gl.COLOR_ATTACHMENT0, gl.TEXTURE_2D, offscreenTexture.getGLTexture(), 0);
+
+        const renderBuffer = gl.createRenderbuffer();
+        gl.bindRenderbuffer(gl.RENDERBUFFER, renderBuffer);
+        gl.renderbufferStorage(gl.RENDERBUFFER, gl.DEPTH_STENCIL, width, height);
+        gl.framebufferRenderbuffer(gl.FRAMEBUFFER, gl.DEPTH_STENCIL_ATTACHMENT, gl.RENDERBUFFER, renderBuffer);
 
         this.offscreen = {
             framebuffer: offscreenFrameBuffer,
@@ -85,7 +93,7 @@ class HeatmapProgram extends Program {
         this.offscreenBuffer = tileBuffer;
     }
 
-    runPass(pass: PASS, buffer: GeometryBuffer): boolean {
+    initPass(pass: PASS, buffer: GeometryBuffer) {
         switch (pass) {
         case PASS.OPAQUE:
             // By default, the offscreenbuffer gets cleared after rendered to screenbuffer immediately.
@@ -98,9 +106,13 @@ class HeatmapProgram extends Program {
             // }
             return this.screenBufferRefreshed = false;
         case OFFSCREEN_PASS:
+            const {width, height} = this.offscreen.texture;
+            this.bindFramebuffer(this.offscreen.framebuffer, width, height);
             // Use the PASS.ALPHA to render the tiles to offscreen-framebuffer.
             return true;
+            // return {framebuffer: this.offscreen.framebuffer};
         case PASS.POST_ALPHA:
+            this.bindFramebuffer(null);
             // use post-alpha pass to render the offscreen to screenbuffer.
             // the first tile of the pass will be used to trigger fullscreen rendering to the offscreen-buffer.
             // further tiles are simply skipped.
@@ -124,12 +136,25 @@ class HeatmapProgram extends Program {
             // gl.colorMask(true, true, true, true);
             gl.colorMask(true, false, false, false);
 
-            const {width, height} = offscreen.texture;
-            this.bindFramebuffer(offscreen.framebuffer, width, height);
+            // const {width, height} = offscreen.texture;
+            // this.bindFramebuffer(offscreen.framebuffer, width, height);
+            // // this.bindFramebuffer(null);
 
             gl.blendFunc(gl.ONE, gl.ONE);
 
+            // gl.depthFunc(gl.LEQUAL);
+            // gl.enable(gl.SCISSOR_TEST);
+
+
+            // gl.depthMask(true);
+            // gl.depthFunc(gl.NEVER);
+            //* ** ?????? ***
+            // gl.enable(gl.DEPTH_TEST);
+
+
             super.draw(geoBuffer);
+
+            this.bindFramebuffer(null);
         } else {
             // render offscreen-buffer to screen-buffer and colorize the heatmap.
             const {offscreenBuffer} = this;
@@ -138,16 +163,10 @@ class HeatmapProgram extends Program {
             this.initUniforms(offscreenBuffer.uniforms);
             this.initAttributes(offscreenBuffer.attributes);
             this.initGeometryBuffer(offscreenBuffer, PASS.ALPHA, false);
-
-            this.bindFramebuffer(null);
-
             super.draw(offscreenBuffer);
-
             // clear offscreen buffer for next frame
             this.clear();
         }
-
-        this.bindFramebuffer(null);
     }
 
     private clear() {

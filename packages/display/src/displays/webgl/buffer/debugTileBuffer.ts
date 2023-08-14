@@ -1,5 +1,5 @@
 /*
- * Copyright (C) 2019-2022 HERE Europe B.V.
+ * Copyright (C) 2019-2023 HERE Europe B.V.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -27,41 +27,35 @@ import {FlexArray} from './templates/FlexArray';
 import {FlexAttribute} from './templates/TemplateBuffer';
 import {PASS} from '../program/GLStates';
 
-const createTileBuffer = (tileSize: number) => {
+export const createStencilTileBuffer = (tileSize: number) => {
+    const tileBuffer = new GeometryBuffer({first: 0, count: 6}, 'Polygon');
+    const TypedArray = tileSize > 256 ? Int16Array : Int8Array;
     // 0 ------- 1
     // |      /  |
     // |    /    |
     // |  /      |
     // 3 ------- 2
-
-    const gridTileBuffer = new GeometryBuffer([
-        0, 1, 3,
-        3, 1, 2
-    ], 'Polygon');
-
-    const TypedArray = tileSize > 256 ? Int16Array : Int8Array;
-
-    gridTileBuffer.addAttribute('a_position', {
+    tileBuffer.addAttribute('a_position', {
         data: new TypedArray([
             0, 0,
             tileSize, 0,
-            tileSize, tileSize,
-            0, tileSize
+            0, tileSize,
+
+            0, tileSize,
+            tileSize, 0,
+            tileSize, tileSize
         ]),
         size: 2
     });
 
-    gridTileBuffer.addUniform('u_offsetZ', [0, 0]);
-    gridTileBuffer.addUniform('u_zIndex', 0.0);
-    gridTileBuffer.addUniform('u_fill', [1.0, .0, 1.0, 1.0]);
-    gridTileBuffer.scissor = true;
-    gridTileBuffer.depth = false;
-    gridTileBuffer.pass = PASS.OPAQUE;
-
-    return gridTileBuffer;
+    tileBuffer.addUniform('u_offsetZ', [0, 0]);
+    tileBuffer.addUniform('u_zIndex', 0.0);
+    tileBuffer.addUniform('u_fill', [1.0, .0, 1.0, 1.0]);
+    tileBuffer.scissor = true;
+    tileBuffer.depth = false;
+    tileBuffer.pass = PASS.OPAQUE;
+    return tileBuffer;
 };
-
-export {createTileBuffer};
 
 const createGridTileBuffer = (color: number[] = [1.0, 0.0, 0.0, 1.0], strokeWidth: number = 2) => {
     const lineBuffer = new LineBuffer();

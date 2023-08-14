@@ -348,11 +348,12 @@ class Program {
         }
     }
 
-    runPass(pass: PASS, buffer: GeometryBuffer): boolean {
-        return Boolean(pass & buffer.pass);
-        // return pass == PASS.OPAQUE
-        //     ? buffer.pass == pass
-        //     : buffer.pass >= pass;
+    initPass(pass: PASS, buffer: GeometryBuffer) {
+        const passed = Boolean(pass & buffer.pass);
+        if (passed) {
+            this.bindFramebuffer(null);
+        }
+        return passed;
     }
 
     draw(geoBuffer: GeometryBuffer) {
@@ -452,7 +453,8 @@ class Program {
         if (geoBuffer.depth != UNDEF) {
             depth = geoBuffer.depth;
         }
-        prog.setStates(scissor, blend, depth, stencil && !opaquePass && blend && scissor);
+
+        prog.setStates(scissor, blend, depth, stencil && scissor);
 
         this.blendFunc();
 
@@ -492,11 +494,6 @@ class Program {
         }
     }
 
-    // use() {
-    //     const gl = this.gl;
-    //     gl.useProgram(this.prog);
-    //     // this.initGeometryBuffer(options);
-    // }
     disableAttributes() {
         const {attributeLocations, attributeDivisors, gl} = this;
         for (let name in attributeLocations) {

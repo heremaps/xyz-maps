@@ -25,59 +25,73 @@ import {createBuffer} from './buffer/createBuffer';
 import {createImageBuffer} from './buffer/createImageBuffer';
 
 import {transformMat4} from 'gl-matrix/vec3';
-import {Layer, ScreenTile} from '../Layers';
+import {Layer, Layers, ScreenTile} from '../Layers';
 import GLTile from './GLTile';
 import {FeatureFactory} from './buffer/FeatureFactory';
 import {CollisionHandler} from './CollisionHandler';
 import {GeometryBuffer} from './buffer/GeometryBuffer';
-import {CustomLayer, TileLayer} from '@here/xyz-maps-core';
+import {CustomLayer, tile, TileLayer, Layer as BasicLayer} from '@here/xyz-maps-core';
 import {PASS} from './program/GLStates';
 import {Raycaster} from './Raycaster';
 
 const PREVIEW_LOOK_AHEAD_LEVELS: [number, number] = [3, 9];
 
-// const fromClipSpace = (clip, width, height) => {
-//     return [
-//         (clip[0] + 1) / 2.0 * width,
-//         // we calculate -point3D.getY() because the screen Y axis is
-//         // oriented top->down
-//         (1 - clip[1]) / 2.0 * height
-//     ];
-// };
-
+// const fromClipSpace = (clip, width, height) => [
+//     (clip[0] + 1) / 2.0 * width,
+//     (1 - clip[1]) / 2.0 * height // oriented top->down
+// ];
 // const toClipSpace = (x, y, z, width, height) => [
 //     2 * x / width - 1,
 //     -2 * y / height + 1,
 //     z || 0
 // ];
 
-type GeometryBufferLike = {
-    zLayer?: number;
-    zIndex?: number;
-    pass?: number;
-    flat: boolean;
+const stencilQuad = (quadkey: string, subQuadkey: string) => {
+    let level = quadkey.length;
+    let dLevel = subQuadkey.length - level;
+    // quad:
+    // -------------
+    // |  0  |  1  |
+    // -------------
+    // |  2  |  3  |
+    // -------------
+    let x = 0;
+    let y = 0;
+
+    for (let i = 0, size = .5; i < dLevel; i++, size *= .5) {
+        const quad = Number(subQuadkey.charAt(level + i));
+        x += (quad % 2) * size;
+        y += Number(quad > 1) * size;
+    }
+    return [x, y];
 };
 
-type RenderBufferData = {
-    z: number;
-    b: GeometryBuffer | GeometryBufferLike;
-    tiled: boolean;
-    data: any;
-    // tile: ScreenTile, // [x,y,size, tile[quadkey,i]]
-    // preview: number[],
-    // previewTile: GLTile
-};
 
 export type TileBufferData = {
     z: number;
-    b: GeometryBuffer;
     tiled: true;
+    b: GeometryBuffer;
     data: {
         tile: ScreenTile;
-        preview: number[];
-        previewTile: GLTile;
+        preview?: [string, number, number, number, number, number, number, number, number];
+        previewTile?: GLTile;
+        stencils?;
     };
 };
+
+type CustomBufferData = {
+    z: number;
+    tiled: boolean;
+    b: {
+        zLayer?: number;
+        zIndex?: number;
+        pass?: number;
+        flat: boolean;
+    };
+    data: CustomLayer;
+};
+
+type BufferData = CustomBufferData | TileBufferData;
 
 class WebGlDisplay extends BasicDisplay {
     static zoomBehavior: 'fixed' | 'float' = 'float';
@@ -86,14 +100,10 @@ class WebGlDisplay extends BasicDisplay {
 
     render: GLRender;
     buckets: GLBucket;
-    private factory: FeatureFactory;
-
-    private tilesNotReady: { quadkey: string; layerId: string }[];
-
-    private collision: CollisionHandler;
+    private readonly factory: FeatureFactory;
+    private readonly collision: CollisionHandler;
     private rayCaster: Raycaster;
     private groundResolution: number;
-
     private worldCenter: number[] = [0, 0];
     private worldSize: number;
 
@@ -313,17 +323,12 @@ class WebGlDisplay extends BasicDisplay {
     }
 
     private orderBuffers(
-        zSorted: RenderBufferData[],
-        buffers: GeometryBufferLike[],
-        // zSorted: TileBufferData[],
-        // buffers: GeometryBuffer[],
+        zSorted: BufferData[],
+        buffers: (GeometryBuffer | CustomBufferData['b'])[],
         layer: Layer,
         absZOrder: { [intZ: string]: number },
-        data: any,
+        data: CustomBufferData['data'] | TileBufferData['data'],
         tiled: boolean
-        // screenTile: ScreenTile,
-        // preview?: number[],
-        // previewTile?: GLTile
     ) {
         for (let buffer of buffers) {
             let {zLayer, zIndex} = buffer;
@@ -341,18 +346,14 @@ class WebGlDisplay extends BasicDisplay {
                 z: z,
                 data,
                 tiled
-                // {
-                //     tile: screenTile,
-                //     preview: preview,
-                //     previewTile: previewTile
-                // }
-            };
+            } as TileBufferData;
         }
     }
 
-    private initLayerBuffers(layers) {
+    private initLayerBuffers(layers: Layers) {
         const {buckets} = this;
-        let tileBuffers: RenderBufferData[] = [];
+        let tileBuffers: BufferData[] = [];
+        let previewTiles: { [qk: string]: number[][] };
         let absZOrder = {};
 
         for (let layer of layers) {
@@ -360,34 +361,33 @@ class WebGlDisplay extends BasicDisplay {
             // reset tile ready count
             layer.cnt = 0;
 
+            previewTiles = {};
+
             if (!layer.layer.tiled) {
                 layer.ready = true;
                 const customLayer = <CustomLayer>layer.layer;
                 const {renderOptions} = customLayer;
-                this.orderBuffers(
-                    tileBuffers,
-                    [
-                        {
-                            zLayer: renderOptions.zLayer,
-                            zIndex: renderOptions.zIndex,
-                            pass: renderOptions.alpha || 1,
-                            flat: customLayer.flat
-                        }
-                    ],
+                this.orderBuffers(tileBuffers,
+                    [{
+                        zLayer: renderOptions.zLayer,
+                        zIndex: renderOptions.zIndex,
+                        pass: renderOptions.alpha || 1,
+                        flat: customLayer.flat
+                    }],
                     layer,
                     absZOrder,
-                    layer.layer,
+                    <CustomLayer>layer.layer,
                     false
                 );
                 continue;
             }
 
+
             if (tiles) {
                 let layerIndex = layer.index;
                 let length = tiles.length;
-                let i = 0;
-                while (i < length) {
-                    let screenTile = tiles[i++];
+
+                for (let screenTile of tiles) {
                     let dTile = <GLTile>screenTile.tile;
                     let buffers = dTile.data?.[layer.index];
 
@@ -400,8 +400,18 @@ class WebGlDisplay extends BasicDisplay {
                         if ((previewData = dTile.preview(layerIndex))) {
                             if (previewData.length) {
                                 for (let preview of previewData) {
-                                    let qk = preview[0];
-                                    let previewTile = <GLTile>buckets.get(qk, true /* SKIP TRACK */);
+                                    const [previewQuadkey] = preview;
+
+                                    const tileStencil = stencilQuad(previewQuadkey, dTile.quadkey);
+
+                                    if (previewTiles[previewQuadkey]) {
+                                        previewTiles[previewQuadkey].push(tileStencil);
+                                        continue;
+                                    }
+
+                                    previewTiles[previewQuadkey] = [tileStencil];
+
+                                    let previewTile = <GLTile>buckets.get(previewQuadkey, true /* SKIP TRACK */);
                                     let previewBuffers;
                                     previewBuffers = previewTile?.getData(layerIndex);
                                     if (previewBuffers?.length) {
@@ -413,7 +423,8 @@ class WebGlDisplay extends BasicDisplay {
                                             {
                                                 tile: screenTile,
                                                 preview,
-                                                previewTile
+                                                previewTile,
+                                                stencils: previewTiles[previewQuadkey]
                                             },
                                             true
                                         );
@@ -434,6 +445,7 @@ class WebGlDisplay extends BasicDisplay {
         }
 
         let min3dZIndex = Infinity;
+
         for (let i = 0, z, zTile; i < tileBuffers.length; i++) {
             zTile = tileBuffers[i];
             z = zTile.z = absZOrder[zTile.z];
@@ -507,7 +519,7 @@ class WebGlDisplay extends BasicDisplay {
                 }
                 if (data?.z == layerZIndex) {
                     if (!data.tiled) {
-                        render.drawCustom(data.data, data.z);
+                        render.drawCustom((<CustomBufferData>data).data, data.z);
                     } else {
                         render.draw(<TileBufferData>data, min3dZIndex);
                     }
@@ -518,7 +530,7 @@ class WebGlDisplay extends BasicDisplay {
                 render.setPass(PASS.ALPHA);
             } else if (secondAlphaPass) {
                 render.setPass(PASS.POST_ALPHA);
-                // draw again.. first alpha pass was used to stencil.
+                // draw again... first alpha pass was used to stencil.
                 layerZIndex--;
             }
         } while (++layerZIndex < maxZIndex);
