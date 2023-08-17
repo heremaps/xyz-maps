@@ -614,6 +614,11 @@ export class GLRender implements BasicRender {
 
             let executePass = program.initPass(pass, buffer);
 
+            if (isOnTopOf3d && buffer.pass == PASS.OPAQUE) {
+                // opaque flat geometry that is on top of 3d must be drawn in alpha pass.
+                executePass = pass == PASS.ALPHA;
+            }
+
             if (executePass) {
                 // initialize shared uniforms
                 const {sharedUniforms} = this;
