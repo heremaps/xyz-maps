@@ -56,8 +56,7 @@ class HeatmapProgram extends Program {
         this.vertexShaderSrc = vertexShader;
         this.fragmentShaderSrc = fragmentShader;
 
-        const offscreenScale = 1;
-        // const offscreenScale = 1 / 4;
+        const offscreenScale = 1 / 2;
         let {width, height} = gl.canvas;
         width *= offscreenScale;
         height *= offscreenScale;
