@@ -45,6 +45,7 @@ let UNDEF;
 const BLACK = '#111111';
 
 const isHovered = (feature) => feature.properties['@ns:com:here:editor'].hovered;
+const isSelected = (feature) => feature.properties['@ns:com:here:editor'].selected;
 
 const getValue = (val, feature, zoomlevel: number) => {
     return typeof val == 'function' ? val(feature, zoomlevel) : val;
@@ -221,6 +222,18 @@ class OverlayStyles {
         }],
 
         'LINE_SHAPE_3D': [{
+            zIndex: 4,
+            type: (feature) => isSelected(feature) ? 'Sphere' : null,
+            radius: (feature, zoom) => {
+                const {style} = feature.properties.LINE;
+                const [lineWidth] = styleTools.getLineWidth(style, feature.getLine(), zoom, 0);
+                return (lineWidth / 2 + 4 ^ 0) + 6;
+            },
+            fill: 'red',
+            opacity: .5,
+            strokeWidth: 5,
+            altitude: true
+        }, {
             zIndex: 3,
             type: 'Sphere',
             alignment: 'map',
@@ -272,6 +285,16 @@ class OverlayStyles {
                 return style.length > 1 ? getValue(style[0].stroke, feature, zoom) : '#151515';
             },
             strokeWidth: 2
+        }, {
+            zIndex: 4,
+            type: (feature) => isSelected(feature) ? 'Circle' : null,
+            radius: (feature, zoom) => {
+                const {style} = feature.properties.LINE;
+                const [lineWidth] = styleTools.getLineWidth(style, feature.getLine(), zoom, 0);
+                return (lineWidth / 2 + 4 ^ 0) + 6;
+            },
+            stroke: 'red',
+            strokeWidth: 3
         }],
 
         'LINE_VIRTUAL_SHAPE': [{
@@ -331,6 +354,12 @@ class OverlayStyles {
             stroke: (feature) => feature.isOverlapping()
                 ? '#FF0000'
                 : '#FFFFFF'
+        }, {
+            zIndex: 1,
+            type: (feature) => isSelected(feature) ? 'Circle' : null,
+            radius: (feature) => isHovered(feature) ? 18 : 14,
+            stroke: 'red',
+            strokeWidth: 3
         }],
 
         'NAVLINK_SHAPE_3D': [{

@@ -21,8 +21,7 @@ import {Feature} from '@here/xyz-maps-core';
 import {Line} from './Line';
 import LineTools, {Coordinate} from './LineTools';
 import {dragFeatureCoordinate} from '../oTools';
-import oTools from '../area/PolygonTools';
-import {Navlink} from '@here/xyz-maps-editor';
+import {vec3} from '@here/xyz-maps-common';
 
 
 let lineTools: typeof LineTools;
@@ -34,7 +33,14 @@ type DefaultBehavior = {
 }
 
 export const defaultBehavior: DefaultBehavior = {
-    dragPlane: 'XY'
+    'dragPlane': 'XY'
+};
+
+const EDITOR_NS = '@ns:com:here:editor';
+
+const getPrivateData = (shape: LineShape, prop?: string) => {
+    const data = shape.__ ||= {b: {...defaultBehavior}};
+    return prop ? data[prop] : data;
 };
 
 /**
@@ -50,7 +56,7 @@ class LineShape extends Feature {
      * @hidden
      * @internal
      */
-    private __: {
+    __: {
         b?: { [behavior: string]: any };
         [privateProperty: string]: any
     };
@@ -86,6 +92,7 @@ class LineShape extends Feature {
         const _editor = line._e();
         const style = _editor.getStyle(line);
 
+
         super({
             type: 'Feature',
             properties: {
@@ -104,6 +111,12 @@ class LineShape extends Feature {
         });
 
         this._l = line;
+
+        this.properties[EDITOR_NS] = {
+            selected: this.isSelected()
+        };
+
+        console.log('CONSTRUCTOR SHAPE', lineStringIndex, index, '->', this.properties[EDITOR_NS]);
     }
 
     /**
@@ -150,7 +163,7 @@ class LineShape extends Feature {
     };
 
     behavior(options?: any, value?: boolean) {
-        let behavior = oTools.private(this, 'b') || {...defaultBehavior};
+        let behavior = getPrivateData(this, 'b');
 
         switch (arguments.length) {
         case 0:
@@ -224,6 +237,55 @@ class LineShape extends Feature {
         lineTools.markAsModified(line);
     }
 
+    /**
+     * Select the LineShape add it to the current selection.
+     * Multiple LineShapes can be selected at the same time.
+     * When a selected shape is dragged, all other shapes in the current selection are dragged as well.
+     */
+    select() {
+        const shape = this;
+        const line = shape.getLine();
+        const editor = line._e();
+
+        const selectedShapes = lineTools.private(line, 'selectedShapes');
+        const {lineStringIndex, index} = shape.properties;
+
+        selectedShapes[lineStringIndex] ||= [];
+        selectedShapes[lineStringIndex][index] = true;
+
+        shape.properties[EDITOR_NS].selected = true;
+
+        lineTools.displayShapes(line);
+    }
+
+    /**
+     * Unselect the LineShape and remove from current selection.
+     */
+    unselect() {
+        const shape = this;
+        const line = shape.getLine();
+        const editor = line._e();
+        shape.properties[EDITOR_NS].selected = false;
+        const selectedShapes = lineTools.private(line, 'selectedShapes');
+        const {lineStringIndex, index} = shape.properties;
+
+        if (selectedShapes[lineStringIndex]) {
+            selectedShapes[lineStringIndex][index] = false;
+        }
+        // editor.setStyle(shape, UNDEF);
+        lineTools.displayShapes(line);
+    }
+
+    /**
+     * Will return true or false whether the Shape is currently selected.
+     */
+    isSelected(): boolean {
+        const shape = this;
+        const selectedShapes = lineTools.private(shape.getLine(), 'selectedShapes');
+        const {lineStringIndex, index} = shape.properties;
+        return !!selectedShapes[lineStringIndex]?.[index];
+    }
+
     pointerdown(ev) {
         const shape = this;
         const properties = shape.properties;
@@ -246,30 +308,73 @@ class LineShape extends Feature {
         line._e().listeners.trigger(ev, this, 'pointerdown');
     }
 
+
+    getSelectedShapes(ingoreIndex?: number, ignoreLineStringIndex?: number) {
+        const line = this.getLine();
+        let selectedShapes = lineTools.private(line, 'selectedShapes');
+        let shapes = lineTools.private(line, 'shps');
+        let selected = [];
+
+        for (let lineStringIndex = 0; lineStringIndex < selectedShapes.length; lineStringIndex++) {
+            for (let index = 0; index < selectedShapes[lineStringIndex]?.length; index++) {
+                if (!selectedShapes[lineStringIndex][index]) continue;
+                if (!arguments.length || ignoreLineStringIndex != lineStringIndex || ingoreIndex != index) {
+                    selected.push(shapes[lineStringIndex][index]);
+                }
+            }
+        }
+
+        return selected;
+    }
+
+
     pressmove(ev, dx, dy) {
         const shape = this;
         const properties = this.properties;
-        const {lineStringIndex} = properties;
+        const {lineStringIndex, index} = properties;
         const line = shape.getLine();
         const editor = line._e();
-        const coordinates = <Coordinate[]>lineTools.getCoordinates(line, lineStringIndex);
+        const coordinates = <Coordinate[][]>lineTools.getCoordinates(line);
+        const lineStringCoordinates = coordinates[lineStringIndex];
         const ignoreZ = !editor.getStyleProperty(line, 'altitude');
-        const orgCoord: number[] = coordinates[properties.index];
-        let coord = ignoreZ ? orgCoord.slice(0, 2) : orgCoord;
+        const orgAltitude: number = lineStringCoordinates[index][2];
+        const coord: number[] = shape.geometry.coordinates;
 
         if (!properties.moved) {
             properties.moved = true;
             editor.listeners.trigger(ev, this, 'dragStart');
         }
-        coord = coordinates[properties.index] = <Coordinate>dragFeatureCoordinate(ev.mapX, ev.mapY, shape, coord, editor);
+        let movedCoord = lineStringCoordinates[index] = <Coordinate>dragFeatureCoordinate(ev.mapX, ev.mapY, shape, coord, editor);
 
-        if (ignoreZ && typeof orgCoord[2] == 'number') {
+        if (ignoreZ && typeof orgAltitude == 'number') {
             // restore original altitude if 2d edit mode is forced.
-            coord[2] = orgCoord[2];
+            movedCoord[2] = orgAltitude;
         }
-        shape.getProvider().setFeatureCoordinates(shape, coord.slice());
 
-        lineTools._setCoords(line, coordinates, lineStringIndex);
+        if (this.isSelected()) {
+            const display = editor.display;
+            const orgCoordWorldPx = display._g2w(coord);
+            const movedCoordWorldPx = display._g2w(movedCoord);
+            const offsetWorldPx = vec3.sub(movedCoordWorldPx, movedCoordWorldPx, orgCoordWorldPx);
+
+            for (let selectedShape of this.getSelectedShapes(properties.index, lineStringIndex)) {
+                const {properties} = selectedShape;
+                const positionWorldPx = display._g2w(selectedShape.geometry.coordinates);
+
+                vec3.add(positionWorldPx, positionWorldPx, offsetWorldPx);
+                const movedPosition = display._w2g(positionWorldPx);
+
+
+                // linkTools.moveShapeAtIndexTo(link, getPrivate(selectedShape).index, movedPosition);
+
+                coordinates[properties.lineStringIndex][properties.index] = <Coordinate>movedPosition;
+                selectedShape.getProvider().setFeatureCoordinates(selectedShape, movedPosition);
+            }
+        }
+
+        shape.getProvider().setFeatureCoordinates(shape, movedCoord.slice());
+
+        lineTools._setCoords(line, coordinates);
     }
 
     pointerup(ev) {
@@ -279,6 +384,7 @@ class LineShape extends Feature {
         if (moved) {
             lineTools.markAsModified(line);
         }
+
         lineTools.displayShapes(line);
 
         line._e().listeners.trigger(ev, this, moved ? 'dragStop' : UNDEF);

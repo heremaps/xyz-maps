@@ -86,6 +86,24 @@ class Line extends Feature {
         [number, number, number?][] | [number, number, number?][][] {
         return super.coord(coordinates);
     }
+
+    /**
+     * Returns an array of Boolean values indicating whether the corresponding shape is selected at index or not.
+     */
+    getSelectedShapes(): boolean[] | boolean[][] {
+        const line = this;
+        const selectedShapes = tools.private(line, 'selectedShapes');
+        const coordinates = tools.getCoordinates(line);
+        const selected = [];
+
+        for (let ls = 0; ls < coordinates.length; ls++) {
+            selected[ls] = [];
+            for (let i = 0; i < coordinates[ls].length; i++) {
+                selected[ls][i] = !!(selectedShapes[ls]?.[i]);
+            }
+        }
+        return tools.isMultiLineString(line) ? selected : selected[0];
+    }
 }
 
 (<any>Line).prototype.class = 'LINE';

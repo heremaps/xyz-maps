@@ -51,6 +51,7 @@ const getPrivate = (feature, name?: string) => {
 
             shps: [],
             vShps: [],
+            selectedShapes: [],
 
             isHovered: null,
 
@@ -252,6 +253,8 @@ var tools = {
     deHighlight: function(line: Navlink) {
         if (getPrivate(line, 'isSelected')) {
             // line.toggleHover( line.allowEdit );
+
+            getPrivate(line, 'selectedShapes').length = 0;
 
             triggerDisplayRefresh(line, {'selected': false, 'hovered': false});
 
@@ -575,6 +578,8 @@ var tools = {
                 shapes.forEach((shp) => {// set new correct index
                     shp.__.index -= Number(shp.getIndex() >= index);
                 });
+
+                getPrivate(navlink, 'selectedShapes').splice(index, 1);
             }
 
             storeConnectedPoints(navlink);
@@ -718,6 +723,8 @@ var tools = {
                         tools.checkOverlapping(link, shp.getIndex())
                     );
                 });
+
+                getPrivate(link, 'selectedShapes').splice(index, 0, false);
             }
 
             tools.refreshGeometry(link);
@@ -870,7 +877,7 @@ var tools = {
         );
     }
 };
-const moveShapeAtIndexTo = tools.moveShapeAtIndexTo;
+// const moveShapeAtIndexTo = tools.moveShapeAtIndexTo;
 
 // ********************************************** PRIVATE **********************************************
 
@@ -911,7 +918,7 @@ function autoFixGeometry(line: Navlink, shapeToCheck?: number, ignoreSplitChildr
         function moveCLinksToTeardrop(shp: number) {
             const connectedLinks = line.getConnectedLinks(shp, true);
             for (let {link, index} of connectedLinks) {
-                const positionHasChanged = moveShapeAtIndexTo(link, index, TDCoord, true);
+                const positionHasChanged = tools.moveShapeAtIndexTo(link, index, TDCoord, true);
                 if (positionHasChanged) {
                     tools.markAsModified(link, false);
                 }
@@ -984,7 +991,7 @@ function autoFixGeometry(line: Navlink, shapeToCheck?: number, ignoreSplitChildr
 
                         if (pathLength == 2) { // remove useless singlepoint/samepoint geo
                             const clinks = moveCLinksToTeardrop(shapeToCheck);
-                            moveShapeAtIndexTo(
+                            tools.moveShapeAtIndexTo(
                                 line,
                                 shpIndex == TDDetectedAt
                                     ? duplicateIndex
@@ -1004,7 +1011,7 @@ function autoFixGeometry(line: Navlink, shapeToCheck?: number, ignoreSplitChildr
                         } else { // Performing Teardrop split
                             moveCLinksToTeardrop(shpIndex);
 
-                            moveShapeAtIndexTo(line, shpIndex, TDCoord);
+                            tools.moveShapeAtIndexTo(line, shpIndex, TDCoord);
 
                             // Teardrop split (tds)
                             children = objManager.splitLinkAt({
@@ -1056,7 +1063,7 @@ function autoFixGeometry(line: Navlink, shapeToCheck?: number, ignoreSplitChildr
                             hasCLinks = !ignoreChild(link);
                         });
 
-                        moveShapeAtIndexTo(
+                        tools.moveShapeAtIndexTo(
                             line,
                             shpIndex == duplicateIndex
                                 ? duplicateIndex
@@ -1072,7 +1079,7 @@ function autoFixGeometry(line: Navlink, shapeToCheck?: number, ignoreSplitChildr
                         if (isNode(deleteShapeAt)) {
                             // move moved shape to deleted node position
                             if (!isNode(shpIndex) && shpIndex - 1 > 0) {
-                                moveShapeAtIndexTo(line, shpIndex - 1, [deleteX, deleteY], true);
+                                tools.moveShapeAtIndexTo(line, shpIndex - 1, [deleteX, deleteY], true);
                             }
 
                             if (prv.isSelected) {
@@ -1181,7 +1188,7 @@ function connectLinks(
             }
         );
 
-        moveShapeAtIndexTo(fromLink, fromShpIndex, pnt);
+        tools.moveShapeAtIndexTo(fromLink, fromShpIndex, pnt);
 
         //   ------
         //   \    /
@@ -1196,7 +1203,7 @@ function connectLinks(
 
             const link = connection.link;
 
-            moveShapeAtIndexTo(link, connection.index, pnt);
+            tools.moveShapeAtIndexTo(link, connection.index, pnt);
 
             autoFixGeometry(link, connection.index);
 

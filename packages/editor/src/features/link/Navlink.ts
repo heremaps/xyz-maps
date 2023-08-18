@@ -24,7 +24,7 @@ import DirectionHint from '../../tools/DirectionHint';
 import oTools from './NavlinkTools';
 import {Feature} from '../feature/Feature';
 import {JSUtils} from '@here/xyz-maps-common';
-import {GeoPoint, PixelPoint, Style} from '@here/xyz-maps-core';
+import {GeoJSONCoordinate, GeoPoint, PixelPoint, Style} from '@here/xyz-maps-core';
 
 let UNDEF;
 
@@ -315,6 +315,20 @@ export class Navlink extends Feature {
         return typeof index == 'number' ? zLevels[index] : zLevels.slice(0);
     };
 
+    /**
+     * Returns an array of Boolean values indicating whether the corresponding shape is selected at index or not.
+     */
+    getSelectedShapes(): boolean[] | boolean[][] {
+        const line = this;
+        const selectedShapes = oTools.private(line, 'selectedShapes');
+        const coordinates = <GeoJSONCoordinate[]>line.geometry.coordinates;
+        const selected = [];
+        for (let i = 0; i < coordinates.length; i++) {
+            selected[i] = !!(selectedShapes[i]);
+        }
+
+        return selected;
+    }
 
     /**
      * Set the z-levels for the coordinates of the Navlink Feature.

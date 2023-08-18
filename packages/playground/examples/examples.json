@@ -131,6 +131,10 @@
       "docs": "classes/editor.navlink.html#checkCrossings"
     },
     {
+      "file": "./editor/select_shapes.html",
+      "docs": "classes/editor.lineshape.html#select"
+    },
+    {
       "file": "./editor/range_selector.html",
       "docs": "classes/editor.editor-1.html#getRangeSelector"
     },

@@ -40,6 +40,7 @@ function getPrivate(feature: Line, name?: string): any {
             moved: false,
             shps: [],
             vShps: [],
+            selectedShapes: [],
             isGeoMod: false
         };
     }
@@ -106,6 +107,7 @@ const tools = {
 
         coordinates.splice(index, 0, position);
         tools._setCoords(line, coordinates, lineStringIndex);
+        getPrivate(line, 'selectedShapes')[lineStringIndex]?.splice(index, 0, UNDEF);
 
         return index;
     },
@@ -116,6 +118,7 @@ const tools = {
 
         if (length > 2 && index >= 0 && index < length) {
             removed = coordinates.splice(index, 1);
+            getPrivate(line, 'selectedShapes')[lineStringIndex]?.splice(index, 1);
             tools._setCoords(line, coordinates, lineStringIndex);
             tools.displayShapes(line);
         }
@@ -126,10 +129,18 @@ const tools = {
         const lineStrings = getPrivate(line, type);
         const shapes = lineStrings[lineStringIndex] = lineStrings[lineStringIndex] || [];
         const _editor = line._e();
-        const zLayer = _editor.getZLayer(line) -1;
+        const zLayer = _editor.getZLayer(line) - 1;
+        const altitude = _editor.getStyleProperty(line, 'altitude');
+
 
         for (let i = 0; i < path.length; i++) {
-            shapes[i] = new Shape(line, path[i].slice(), lineStringIndex, i, zLayer, tools);
+            let coordinate = path[i].slice();
+            if (typeof altitude == 'number') {
+                coordinate[2] = altitude;
+            } else if (!altitude) {
+                coordinate[2] = 0;
+            }
+            shapes[i] = new Shape(line, coordinate, lineStringIndex, i, zLayer, tools);
             _editor.objects.overlay.addFeature(shapes[i]);
         }
     },
@@ -211,19 +222,23 @@ const tools = {
         return index >= 0 ? coordinates[index] : coordinates;
     },
 
-    _setCoords: function(line: Line, lineString: Coordinate[], lineStringIndex?: number) {
+    _setCoords: function(line: Line, lineString: Coordinate[] | Coordinate[][], lineStringIndex?: number) {
         line._e().objects.history.origin(line);
 
         getPrivate(line).isGeoMod = true;
 
         let coordinates: Coordinate[] | Coordinate[][] = lineString;
 
-
-        if (tools.isMultiLineString(line) && lineStringIndex >= 0) {
-            coordinates = line.coord();
-            coordinates[lineStringIndex] = lineString;
+        if (tools.isMultiLineString(line)) {
+            if (lineStringIndex >= 0) {
+                coordinates = line.coord();
+                coordinates[lineStringIndex] = <Coordinate[]>lineString;
+            }
+        } else {
+            if (typeof coordinates[0][0] != 'number') {
+                coordinates = <Coordinate[]>coordinates[0];
+            }
         }
-
         line.getProvider().setFeatureCoordinates(line, coordinates);
     },
 

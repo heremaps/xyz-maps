@@ -17,7 +17,7 @@
  * License-Filename: LICENSE
  */
 
-import {JSUtils, geotools} from '@here/xyz-maps-common';
+import {JSUtils, geotools, vec3} from '@here/xyz-maps-common';
 import {FeatureProvider, Feature, GeoJSONFeature, GeoJSONCoordinate, LineStyle} from '@here/xyz-maps-core';
 import GeoFence from './GeoFence';
 import {Navlink} from './Navlink';
@@ -26,9 +26,10 @@ import {Feature as EditableFeature} from '../feature/Feature';
 import NavlinkTools from './NavlinkTools';
 import {defaultBehavior} from '@here/xyz-maps-editor';
 import {dragFeatureCoordinate} from '../oTools';
+import {Coordinate} from '../line/LineTools';
 
 
-const NS_EDITOR = '@ns:com:here:editor';
+const EDITOR_NS = '@ns:com:here:editor';
 
 type LinkShapeProperties = {
     isNode: boolean;
@@ -159,6 +160,20 @@ function onMouseDownShape(e) {
 }
 
 
+const getSelectedShapes = (line, ignoreIndex?: number) => {
+    const selectedShapes = linkTools.private(line, 'selectedShapes');
+    const shapes = linkTools.private(line, 'shps');
+    const selected = [];
+
+    for (let index = 0; index < selectedShapes.length; index++) {
+        if (selectedShapes[index] && (ignoreIndex === undefined || ignoreIndex != index)) {
+            selected.push(shapes[index]);
+        }
+    }
+    return selected;
+};
+
+
 function onMouseMoveShape(ev, dx, dy) {
     const shp = this;
     const prv = getPrivate(shp);
@@ -170,6 +185,8 @@ function onMouseMoveShape(ev, dx, dy) {
 
     let curPos = <GeoJSONCoordinate>dragFeatureCoordinate(ev.mapX, ev.mapY, shp, coordinate, EDITOR);
 
+    console.log('onMouseMoveShape', dx, dy);
+
     if (!cfg.editRestrictions(link, 1)) {
         if (geoFence.isPntInFence(curPos)) {
             !geoFence.isHidden() && geoFence.hide();
@@ -179,6 +196,21 @@ function onMouseMoveShape(ev, dx, dy) {
             }
 
             linkTools.moveShapeAtIndexTo(link, prv.index, curPos);
+
+            if (this.isSelected()) {
+                const display = EDITOR.display;
+                const orgCoordWorldPx = display._g2w(coordinate);
+                const movedCoordWorldPx = display._g2w(curPos);
+                const offsetWorldPx = vec3.sub(movedCoordWorldPx, movedCoordWorldPx, orgCoordWorldPx);
+
+                for (let selectedShape of getSelectedShapes(link, prv.index)) {
+                    const positionWorldPx = display._g2w(selectedShape.geometry.coordinates);
+                    vec3.add(positionWorldPx, positionWorldPx, offsetWorldPx);
+                    const movedPosition = display._w2g(positionWorldPx);
+                    linkTools.moveShapeAtIndexTo(link, getPrivate(selectedShape).index, movedPosition);
+                }
+            }
+
 
             if (!prv.drg) {
                 prv.drg = true;
@@ -295,7 +327,7 @@ function mouseOutHandler() {
         linkTools.defaults(cl.link);
     });
 
-    delete this.properties[NS_EDITOR].hovered;
+    delete this.properties[EDITOR_NS].hovered;
 
     prv.line._e().setStyle(this);
 }
@@ -317,7 +349,7 @@ function mouseInHandler() {
         EDITOR.setStyle(cl.link, style);
     });
 
-    this.properties[NS_EDITOR].hovered = true;
+    this.properties[EDITOR_NS].hovered = true;
 
     EDITOR.setStyle(this);
 }
@@ -361,12 +393,14 @@ class NavlinkShape extends Feature {
             properties: {
                 'isNode': isNode,
                 'isConnected': !!connectedLinks.length,
-                '@ns:com:here:editor': {},
                 'NAVLINK': {
                     'properties': JSUtils.extend(true, {}, line.properties),
                     'style': EDITOR.getStyle(line)
                 },
-                'parent': line
+                'parent': line,
+                '@ns:com:here:editor': {
+                    selected: !!linkTools.private(line, 'selectedShapes')[i]
+                }
             }
         };
 
@@ -578,6 +612,34 @@ class NavlinkShape extends Feature {
         }
     };
 
+    /**
+     * Select the NavlinkShape add it to the current selection.
+     * Multiple NavlinkShape can be selected at the same time.
+     * When a selected shape is dragged, all other shapes in the current selection are dragged as well.
+     */
+    select() {
+        const shape = this;
+        const line = shape.getLink();
+        const selectedShapes = linkTools.private(line, 'selectedShapes');
+        const {index} = getPrivate(shape);
+        selectedShapes[index] = true;
+        shape.properties[EDITOR_NS].selected = true;
+
+        linkTools.refreshGeometry(line);
+    }
+    /**
+     * Unselect the NavlinkShape and remove from current selection.
+     */
+    unselect() {
+        const shape = this;
+        const line = shape.getLink();
+        shape.properties[EDITOR_NS].selected = false;
+        const selectedShapes = linkTools.private(line, 'selectedShapes');
+        const {index} = getPrivate(shape);
+        selectedShapes[index] = false;
+
+        linkTools.refreshGeometry(line);
+    }
 
     /**
      * Splits the Navlink at the position of the NavlinkShape into two new "child" Navlinks.
@@ -635,6 +697,15 @@ class NavlinkShape extends Feature {
         }
         return childs;
     };
+    /**
+     * Will return true or false whether the Shape is currently selected.
+     */
+    isSelected(): boolean {
+        const shape = this;
+        const selectedShapes = linkTools.private(shape.getLink(), 'selectedShapes');
+        const {index} = getPrivate(shape);
+        return !!selectedShapes[index];
+    }
 }
 
 
