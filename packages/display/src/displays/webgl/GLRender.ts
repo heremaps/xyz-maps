@@ -167,15 +167,6 @@ export class GLRender implements BasicRender {
             ty: 0,
             s: 0
         };
-
-        const stencilTile = createStencilTileBuffer(1);
-        stencilTile.pass = PASS.OPAQUE | PASS.ALPHA;
-        // need to be set to enable stencil test in program init.
-        stencilTile.blend = true;
-        // stencilTile.colorMask = {r: true, g: true, b: true, a: false};
-        stencilTile.colorMask = {r: false, g: false, b: false, a: false};
-
-        this.stencilTile = stencilTile;
     }
 
     getContext(): WebGLRenderingContext {
@@ -246,6 +237,15 @@ export class GLRender implements BasicRender {
 
 
         this.initContext();
+
+        const stencilTile = createStencilTileBuffer(1, gl);
+        stencilTile.pass = PASS.OPAQUE | PASS.ALPHA;
+        // need to be set to enable stencil test in program init.
+        stencilTile.blend = true;
+        // stencilTile.colorMask = {r: true, g: true, b: true, a: false};
+        stencilTile.colorMask = {r: false, g: false, b: false, a: false};
+
+        this.stencilTile = stencilTile;
 
         this.depthBufferSize = 1 << gl.getParameter(gl.DEPTH_BITS);
 
@@ -453,7 +453,7 @@ export class GLRender implements BasicRender {
             u_resolution: this.resolution,
             u_scale: null, // this.scale * dZoom,
             u_topLeft: [0, 0],
-            u_tileScale: 1, // tileScale || 1,
+            u_tileScale: 1,
             u_matrix: this.vPMat,
             u_inverseMatrix: this.invVPMat,
             u_zMeterToPixel: null, // this.zMeterToPixel / dZoom,
@@ -484,7 +484,9 @@ export class GLRender implements BasicRender {
     }
 
     drawGrid(x: number, y: number, dTile: GLTile, tileSize: number) {
-        this.drawBuffer(this.dbgTile, x, y, null, null, <number>tileSize);
+        this.dbgTile.uniforms.u_tileScale = tileSize;
+
+        this.drawBuffer(this.dbgTile, x, y, null, null);
 
         let textBuffer: GeometryBuffer = this.gridTextBuf.get(dTile);
 
@@ -598,8 +600,7 @@ export class GLRender implements BasicRender {
         x: number,
         y: number,
         pMat?: Float32Array,
-        dZoom?: number,
-        tileScale?: number
+        dZoom?: number
     ): void {
         const {gl, pass} = this;
         const program: Program = this.getProgram(buffer);
@@ -628,14 +629,12 @@ export class GLRender implements BasicRender {
                 sharedUniforms.u_zMeterToPixel = this.zMeterToPixel / dZoom;
 
                 if (buffer.scissor) {
-                    this.drawStencil(x, y, dZoom);
+                    this.drawStencil(x, y, dZoom/* ,buffer.type=='Image'*/);
                 }
 
                 // must be set after stenciling...
                 sharedUniforms.u_topLeft[0] = x;
                 sharedUniforms.u_topLeft[1] = y;
-                sharedUniforms.u_tileScale = tileScale || 1;
-
 
                 // initialise pass default
                 gl.depthFunc(this.depthFnc);
@@ -666,7 +665,7 @@ export class GLRender implements BasicRender {
         this.tileStencils = subStencils;
     };
 
-    private drawStencil(x: number, y: number, zoom: number) {
+    private drawStencil(x: number, y: number, zoom: number/* , snapGrid: boolean*/) {
         // return this.gl.stencilFunc(this.gl.ALWAYS, 0, 0);
         const refVal = this.stencilVal;
         const {gl, stencilTile, sharedUniforms} = this;
@@ -678,10 +677,12 @@ export class GLRender implements BasicRender {
         gl.stencilOp(gl.REPLACE, gl.REPLACE, gl.REPLACE);
         // stencilTile.colorMask = {r: true, g: true, b: true, a: false};
 
+        stencilTile.uniforms.u_tileScale = stencilSize;
+        // stencilTile.uniforms.u_snapGrid = snapGrid;
+
         for (let position of this.tileStencils) {
             sharedUniforms.u_topLeft[0] = x + position[0] * tileSize;
             sharedUniforms.u_topLeft[1] = y + position[1] * tileSize;
-            sharedUniforms.u_tileScale = stencilSize;
 
             this.initProgram(program, stencilTile, this.pass);
             program.draw(stencilTile);

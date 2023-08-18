@@ -26,35 +26,45 @@ import {LineBuffer} from './templates/LineBuffer';
 import {FlexArray} from './templates/FlexArray';
 import {FlexAttribute} from './templates/TemplateBuffer';
 import {PASS} from '../program/GLStates';
+import {createImageBuffer} from './createImageBuffer';
 
-export const createStencilTileBuffer = (tileSize: number) => {
-    const tileBuffer = new GeometryBuffer({first: 0, count: 6}, 'Polygon');
-    const TypedArray = tileSize > 256 ? Int16Array : Int8Array;
-    // 0 ------- 1
-    // |      /  |
-    // |    /    |
-    // |  /      |
-    // 3 ------- 2
-    tileBuffer.addAttribute('a_position', {
-        data: new TypedArray([
-            0, 0,
-            tileSize, 0,
-            0, tileSize,
-
-            0, tileSize,
-            tileSize, 0,
-            tileSize, tileSize
-        ]),
-        size: 2
-    });
-
-    tileBuffer.addUniform('u_offsetZ', [0, 0]);
-    tileBuffer.addUniform('u_zIndex', 0.0);
-    tileBuffer.addUniform('u_fill', [1.0, .0, 1.0, 1.0]);
+export const createStencilTileBuffer = (tileSize: number, gl: WebGLRenderingContext) => {
+    const tileBuffer = createImageBuffer({
+        width: 1,
+        height: 1,
+        data: new Uint8ClampedArray([255, 255, 255, 255])
+    }, gl, 1, false);
     tileBuffer.scissor = true;
     tileBuffer.depth = false;
     tileBuffer.pass = PASS.OPAQUE;
+    // tileBuffer.uniforms.u_snapGrid = false;
     return tileBuffer;
+    // const tileBuffer = new GeometryBuffer({first: 0, count: 6}, 'Polygon');
+    // const TypedArray = tileSize > 256 ? Int16Array : Int8Array;
+    // // 0 ------- 1
+    // // |      /  |
+    // // |    /    |
+    // // |  /      |
+    // // 3 ------- 2
+    // tileBuffer.addAttribute('a_position', {
+    //     data: new TypedArray([
+    //         0, 0,
+    //         tileSize, 0,
+    //         0, tileSize,
+    //
+    //         0, tileSize,
+    //         tileSize, 0,
+    //         tileSize, tileSize
+    //     ]),
+    //     size: 2
+    // });
+    // tileBuffer.addUniform('u_offsetZ', [0, 0]);
+    // tileBuffer.addUniform('u_zIndex', 0.0);
+    // tileBuffer.addUniform('u_fill', [1.0, .0, 1.0, 1.0]);
+    // tileBuffer.scissor = true;
+    // tileBuffer.depth = false;
+    // tileBuffer.pass = PASS.OPAQUE;
+    // return tileBuffer;
 };
 
 const createGridTileBuffer = (color: number[] = [1.0, 0.0, 0.0, 1.0], strokeWidth: number = 2) => {
