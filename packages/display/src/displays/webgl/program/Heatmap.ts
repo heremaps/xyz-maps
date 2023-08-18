@@ -40,6 +40,7 @@ class HeatmapProgram extends Program {
 
     private offscreen: {
         framebuffer: WebGLFramebuffer;
+        depthStencilAttachment: WebGLFramebuffer;
         texture: Texture;
         scale: number
     };
@@ -76,6 +77,7 @@ class HeatmapProgram extends Program {
 
         this.offscreen = {
             framebuffer: offscreenFrameBuffer,
+            depthStencilAttachment: renderBuffer,
             texture: offscreenTexture,
             scale: offscreenScale
         };
@@ -198,6 +200,9 @@ class HeatmapProgram extends Program {
 
         if (width != w || height != h) {
             offscreen.texture.set({width: w, height: h});
+
+            gl.bindRenderbuffer(gl.RENDERBUFFER, offscreen.depthStencilAttachment);
+            gl.renderbufferStorage(gl.RENDERBUFFER, gl.DEPTH_STENCIL, w, h);
         }
     }
 }
