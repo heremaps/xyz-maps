@@ -316,7 +316,7 @@ export class Navlink extends Feature {
     };
 
     /**
-     * Returns an array of Boolean values indicating whether the corresponding shape is selected at index or not.
+     * Returns an array of Boolean values indicating whether the corresponding shape is selected at coordinate-index or not.
      */
     getSelectedShapes(): boolean[] | boolean[][] {
         const line = this;
@@ -328,6 +328,22 @@ export class Navlink extends Feature {
         }
 
         return selected;
+    }
+
+    /**
+     * Sets the selected state of the shapes at their respective coordinate-indices.
+     *
+     * @param selectedShapeIndicies Array of Boolean values indicating whether the corresponding shape is selected at index or not
+     */
+    setSelectedShapes(selectedShapeIndicies: boolean[] | boolean[][]) {
+        const line = this;
+        const selectedShapes = oTools.private(line, 'selectedShapes');
+        const coordinates = <GeoJSONCoordinate[]>line.geometry.coordinates;
+
+        for (let i = 0; i < coordinates.length; i++) {
+            selectedShapes[i] = Boolean(selectedShapeIndicies[i]);
+        }
+        oTools.refreshGeometry(line);
     }
 
     /**

@@ -253,9 +253,6 @@ var tools = {
     deHighlight: function(line: Navlink) {
         if (getPrivate(line, 'isSelected')) {
             // line.toggleHover( line.allowEdit );
-
-            getPrivate(line, 'selectedShapes').length = 0;
-
             triggerDisplayRefresh(line, {'selected': false, 'hovered': false});
 
             tools.removeShapePnts(line);
@@ -287,6 +284,7 @@ var tools = {
 
     _select: function(line: Navlink) {
         if (!getPrivate(line, 'isSelected')) {
+            getPrivate(line, 'selectedShapes').length = 0;
             line._e().objects.selection.select(line);
 
             line._e().dump(line, 'info');

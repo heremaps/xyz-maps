@@ -104,6 +104,29 @@ class Line extends Feature {
         }
         return tools.isMultiLineString(line) ? selected : selected[0];
     }
+
+    /**
+     * Sets the selected state of the shapes at their respective indices.
+     *
+     * @param selectedShapeIndicies Array of Boolean values indicating whether the corresponding shape is selected at index or not
+     */
+    setSelectedShapes(selectedShapeIndicies: boolean[] | boolean[][]) {
+        const line = this;
+        const selectedShapes = tools.private(line, 'selectedShapes');
+        const coordinates = tools.getCoordinates(line);
+
+        if (!Array.isArray(selectedShapeIndicies?.[0])) {
+            selectedShapeIndicies = [selectedShapeIndicies as boolean[]];
+        }
+
+        for (let ls = 0; ls < coordinates.length; ls++) {
+            selectedShapes[ls] ||= [];
+            for (let i = 0; i < coordinates[ls].length; i++) {
+                selectedShapes[ls][i] = Boolean(selectedShapeIndicies?.[ls]?.[i]);
+            }
+        }
+        tools.displayShapes(line);
+    }
 }
 
 (<any>Line).prototype.class = 'LINE';

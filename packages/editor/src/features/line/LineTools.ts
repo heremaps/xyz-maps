@@ -203,6 +203,7 @@ const tools = {
 
     _select: function(line: Line) {
         if (line._e().objects.selection.select(line)) {
+            getPrivate(line, 'selectedShapes').length = 0;
             triggerDisplayRefresh(line, 'selected', true);
             tools.displayShapes(line);
         }

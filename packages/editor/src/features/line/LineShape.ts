@@ -245,14 +245,12 @@ class LineShape extends Feature {
     select() {
         const shape = this;
         const line = shape.getLine();
-        const editor = line._e();
 
         const selectedShapes = lineTools.private(line, 'selectedShapes');
         const {lineStringIndex, index} = shape.properties;
 
         selectedShapes[lineStringIndex] ||= [];
         selectedShapes[lineStringIndex][index] = true;
-
         shape.properties[EDITOR_NS].selected = true;
 
         lineTools.displayShapes(line);

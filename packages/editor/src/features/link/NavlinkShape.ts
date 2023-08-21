@@ -185,8 +185,6 @@ function onMouseMoveShape(ev, dx, dy) {
 
     let curPos = <GeoJSONCoordinate>dragFeatureCoordinate(ev.mapX, ev.mapY, shp, coordinate, EDITOR);
 
-    console.log('onMouseMoveShape', dx, dy);
-
     if (!cfg.editRestrictions(link, 1)) {
         if (geoFence.isPntInFence(curPos)) {
             !geoFence.isHidden() && geoFence.hide();
