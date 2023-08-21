@@ -137,8 +137,6 @@ const tools = {
             let coordinate = path[i].slice();
             if (typeof altitude == 'number') {
                 coordinate[2] = altitude;
-            } else if (!altitude) {
-                coordinate[2] = 0;
             }
             shapes[i] = new Shape(line, coordinate, lineStringIndex, i, zLayer, tools);
             _editor.objects.overlay.addFeature(shapes[i]);
