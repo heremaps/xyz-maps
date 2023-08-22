@@ -1,6 +1,6 @@
 {
   "name": "@here/xyz-maps-display",
-  "version": "0.34.0",
+  "version": "0.35.0",
   "description": "Map display of XYZ editor.",
   "author": {
     "name": "HERE Europe B.V.",
@@ -28,8 +28,8 @@
   },
   "publishConfig": {},
   "dependencies": {
-    "@here/xyz-maps-common": "^0.34.0",
-    "@here/xyz-maps-core": "^0.34.0"
+    "@here/xyz-maps-common": "^0.35.0",
+    "@here/xyz-maps-core": "^0.35.0"
   },
   "devDependencies": {
     "@rollup/plugin-commonjs": "^23.0.2",

@@ -1,3 +1,17 @@
+## 0.35.0 (2023-8-22)
+### display
+* improved: The display of preview tiles has been optimized.
+* improved: Tiles that are not part of the actual viewport but whose data is still visible due to the high altitude are now processed and displayed.
+* added: A new [HeatmapStyle](https://heremaps.github.io/xyz-maps/docs/interfaces/core.heatmapstyle.html) has been introduced, which makes it possible to visualize density maps where the data density is displayed in different colors. [Playground Example](https://heremaps.github.io/xyz-maps/playground/#Layers%20/%20Providers-Heatmap)
+* added: Point styles can now also be applied separately to line ranges with the anchor set to "Line".
+* fixed: Tile previews of transparent point styles may flicker for a very brief moment
+* fixed: Fixes an issue where tiles are only partially visible when the map is tilted at a steep angle.
+* fixed: The Compass UI now works properly even when the map is heavily pitched.
+* fixed: In rare cases, points may be offset if they lie exactly on a tile boundary.
+* fixed: Region-based point styles with an explicitly defined altitude are not displayed if there is no altitude in the source geometry.
+### editor
+* added: It is now possible to select multiple LineShapes/NavlinkShapes and drag them simultaneously to change position. See: [shape.select()](https://heremaps.github.io/xyz-maps/docs/classes/editor.lineshape.html#select), [Playground](https://heremaps.github.io/xyz-maps/playground/#Editor-Drag_multiple_Shapes)
+
 ## 0.34.0 (2023-6-21)
 ### editor
 * improved: The RangeSelector utility now treats RangeMarkers that are exactly on top of each other as a valid zero-length range.
