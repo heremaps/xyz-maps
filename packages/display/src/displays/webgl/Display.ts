@@ -217,7 +217,7 @@ class WebGlDisplay extends BasicDisplay {
         // return fromClipSpace(p, this.w, this.h);
     }
 
-    setSize(w, h) {
+    setSize(w: number, h: number) {
         super.setSize(w, h);
 
         this.initRenderer();
@@ -310,6 +310,12 @@ class WebGlDisplay extends BasicDisplay {
                     if (collisionsUpdated) {
                         // trigger phase2 collision detection (fullscreen viewport)
                         this.dirty = true;
+                    }
+
+                    // clear previews of related parent/child tiles...
+                    let overlayingTiles = dTile.getOverlayingTiles();
+                    for (let overlayingTile of overlayingTiles) {
+                        overlayingTile.preview(displayLayer.index, null);
                     }
 
                     onDone(dTile, layer);

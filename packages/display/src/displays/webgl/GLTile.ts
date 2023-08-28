@@ -22,6 +22,7 @@ import BasicTile from '../BasicTile';
 import {TileLayer} from '@here/xyz-maps-core';
 import {GeometryBuffer} from './buffer/GeometryBuffer';
 import {Layers} from '../Layers';
+import Bucket from './Bucket';
 
 
 let UNDEF;
@@ -33,9 +34,10 @@ class GLTile extends BasicTile {
     data = [];
 
     private onDrop: DropHandler;
+    protected pool: Bucket;
 
-    constructor(quadkey: string, layers: Layers, onDrop?: DropHandler) {
-        super();
+    constructor(pool: Bucket, quadkey: string, layers: Layers, onDrop?: DropHandler) {
+        super(pool);
         this.onDrop = onDrop;
         this.init(quadkey, layers);
     }

@@ -19,6 +19,8 @@
 
 import {TileLayer} from '@here/xyz-maps-core';
 import {Layers} from './Layers';
+import BasicBucket from './BasicBucket';
+import basicBucket from './BasicBucket';
 
 let UNDEF;
 
@@ -33,89 +35,107 @@ abstract class BasicTile {
     i: number; // tile index of current viewport. 1-n
     private r: boolean[] = [];
     private p: PreviewData[] | false[] = [];
+    protected pool: BasicBucket;
 
-    abstract clear(index: number)
+  abstract clear(index: number)
 
-    abstract getData(index: number): any;
+  abstract getData(index: number): any;
 
-    protected init(quadkey: string, layers: Layers) {
-        this.luTs = null;
+  constructor(pool: basicBucket) {
+      this.pool = pool;
+  }
 
-        this.quadkey = quadkey;
+  init(quadkey: string, layers: Layers) {
+      this.luTs = null;
 
-        this.layers = layers;
+      this.quadkey = quadkey;
 
-        this.tasks = {};
+      this.layers = layers;
 
-        this.r.length = 0;
-        this.p.length = 0;
-    }
+      this.tasks = {};
 
-    busy(layer: TileLayer) {
-        const id = layer.id;
-        for (let t in this.tasks) {
-            if (id == this.tasks[t]._lid) {
-                return true;
-            }
-        }
-    };
+      this.r.length = 0;
+      this.p.length = 0;
+  }
 
-    addTask(task, layer: TileLayer) {
-        task._lid = layer.id;
+  busy(layer: TileLayer) {
+      const id = layer.id;
+      for (let t in this.tasks) {
+          if (id == this.tasks[t]._lid) {
+              return true;
+          }
+      }
+  };
 
-        this.tasks[task.id] = task;
-    };
+  addTask(task, layer: TileLayer) {
+      task._lid = layer.id;
+
+      this.tasks[task.id] = task;
+  };
 
 
-    cancelTasks(layer?: TileLayer) {
-        const tasks = this.tasks;
-        let task;
+  cancelTasks(layer?: TileLayer) {
+      const tasks = this.tasks;
+      let task;
 
-        for (let id in tasks) {
-            task = tasks[id];
+      for (let id in tasks) {
+          task = tasks[id];
 
-            if (!layer || layer.id == task._lid) {
-                task.cancel();
-                delete tasks[id];
-            }
-        }
-    };
+          if (!layer || layer.id == task._lid) {
+              task.cancel();
+              delete tasks[id];
+          }
+      }
+  };
 
-    removeTask(task, layer) {
-        delete this.tasks[task.id];
-    };
+  removeTask(task, layer) {
+      delete this.tasks[task.id];
+  };
 
-    index(layer: TileLayer) {
-        return this.layers.indexOf(layer);
-    };
+  index(layer: TileLayer) {
+      return this.layers.indexOf(layer);
+  };
 
-    ready(index: number, ready?: boolean): boolean {
-        if (arguments.length == 2) {
-            this.r[index] = ready;
+  ready(index: number, ready?: boolean): boolean {
+      if (arguments.length == 2) {
+          this.r[index] = ready;
 
-            if (ready) {
-                this.luTs = Date.now();
-            }
-        }
-        return this.r[index];
-    };
+          if (ready) {
+              this.luTs = Date.now();
+          }
+      }
+      return this.r[index];
+  };
 
-    addLayer(index: number) {
-        this.r.splice(index, 0, false);
-        this.p.splice(index, 0, UNDEF);
-    };
+  addLayer(index: number) {
+      this.r.splice(index, 0, false);
+      this.p.splice(index, 0, UNDEF);
+  };
 
-    removeLayer(index: number) {
-        this.r.splice(index, 1);
-        this.p.splice(index, 1);
-    };
+  removeLayer(index: number) {
+      this.r.splice(index, 1);
+      this.p.splice(index, 1);
+  };
 
-    preview(index: number, data?: PreviewData | undefined | false): PreviewData | undefined | false {
-        if (arguments.length == 2) {
-            this.p[index] = data;
-        }
-        return this.p[index];
-    };
+  preview(index: number, data?: PreviewData | undefined | false): PreviewData | undefined | false {
+      if (arguments.length == 2) {
+          this.p[index] = data;
+      }
+      return this.p[index];
+  };
+
+  getOverlayingTiles(): BasicTile[] {
+      const overlaying = [];
+      const {quadkey} = this;
+      const level = quadkey.length;
+      this.pool.forEach((tile) => {
+          const qk = tile.quadkey;
+          if ((qk.length < level && quadkey.indexOf(qk) == 0) || (qk.length > level && qk.indexOf(quadkey) == 0)) {
+              overlaying.push(tile);
+          }
+      });
+      return overlaying;
+  };
 }
 
 export default BasicTile;

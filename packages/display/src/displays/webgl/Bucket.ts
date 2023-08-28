@@ -27,7 +27,7 @@ import {Layers} from '../Layers';
 class Bucket extends BasicBucket {
     onDrop: (data: GeometryBuffer[], layerIndex: number) => void | null;
 
-    tiles: LRU<GLTile>;
+    public tiles: LRU<GLTile>;
 
     constructor(size: number) {
         super(size);
@@ -40,7 +40,7 @@ class Bucket extends BasicBucket {
         let dropData;
 
         if (!tile) {
-            tile = new GLTile(quadkey, layers, onDrop);
+            tile = new GLTile(this, quadkey, layers, onDrop);
 
             dropTile = tiles.set(quadkey, tile);
 

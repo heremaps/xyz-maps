@@ -31,7 +31,7 @@ let UNDEF;
 class CanvasTile extends BasicTile {
     private c: CanvasRenderingContext2D[];
 
-    bPool: any;
+    pool: any;
 
     // private tasks: {[id: string]: any};
 
@@ -44,7 +44,7 @@ class CanvasTile extends BasicTile {
     size: number;
 
     constructor(bPool, quadkey, layers, size, backgroundColor) {
-        super();
+        super(bPool);
 
         let layerCnt = layers.length;
 
@@ -54,8 +54,6 @@ class CanvasTile extends BasicTile {
         this.init(quadkey, layers);
 
         this.size = size;
-
-        this.bPool = bPool;
 
         this.ctx = bPool.claimCtx(size); // this.claimContext();
 
@@ -68,7 +66,7 @@ class CanvasTile extends BasicTile {
         if ( index!=UNDEF ) {
             if ( c = this.c[index] ) {
                 if ( c.canvas ) {
-                    this.bPool.releaseCtx( c );
+                    this.pool.releaseCtx( c );
                 }
 
                 this.c[index] = UNDEF;
@@ -81,7 +79,7 @@ class CanvasTile extends BasicTile {
             while ( i-- ) {
                 if ( c = this.c[i] ) {
                     if ( c.canvas ) {
-                        this.bPool.releaseCtx( c );
+                        this.pool.releaseCtx( c );
 
                         this.c[i] = UNDEF;
                     }
@@ -186,7 +184,7 @@ class CanvasTile extends BasicTile {
         if ( ctx = this.c[index] ) {
             // make sure it's canvas context and filter image elements
             if ( ctx.setTransform ) {
-                this.bPool.releaseCtx( ctx );
+                this.pool.releaseCtx( ctx );
             }
 
             this.c[index] = UNDEF;
@@ -205,7 +203,7 @@ class CanvasTile extends BasicTile {
 
     getContext( index ) {
         if ( !this.c[index] ) {
-            this.c[index] = this.bPool.claimCtx( this.size );// .getContext('2d');
+            this.c[index] = this.pool.claimCtx( this.size );// .getContext('2d');
 
             // this.c[index] = this.claimContext();//.getContext('2d');
         }

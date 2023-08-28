@@ -23,7 +23,7 @@ import {LRU} from '@here/xyz-maps-common';
 
 
 abstract class BasicBucket {
-    tiles: LRU<BasicTile>;
+    public tiles: LRU<BasicTile>;
 
     constructor(size: number) {
         this.tiles = new LRU(size);
