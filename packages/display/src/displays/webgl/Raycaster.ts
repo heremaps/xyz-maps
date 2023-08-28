@@ -137,14 +137,9 @@ class Raycaster {
         return alignMap ? this.invMapScale : this.invVpScale;
     }
 
-    intersectAABBox(minX: number, minY: number, minZ: number, maxX: number, maxY: number, maxZ: number) {
-        const rayDirX = this.direction[0];
-        const rayDirY = this.direction[1];
-        const rayDirZ = this.direction[2];
-
-        const rayOriginX = this.origin[0];
-        const rayOriginY = this.origin[1];
-        const rayOriginZ = this.origin[2];
+    intersectAABBox(minX: number, minY: number, minZ: number, maxX: number, maxY: number, maxZ: number, origin = this.origin, direction = this.direction) {
+        const [rayDirX, rayDirY, rayDirZ] = direction;
+        const [rayOriginX, rayOriginY, rayOriginZ] = origin;
 
         const dirfracX = 1.0 / rayDirX;
         const dirfracY = 1.0 / rayDirY;
