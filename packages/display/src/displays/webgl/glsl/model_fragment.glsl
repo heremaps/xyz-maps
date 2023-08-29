@@ -21,6 +21,9 @@ varying vec3 v_surfaceToCam;
 varying vec3 v_tangent;
 #endif
 
+#ifdef DBG_GRID
+uniform highp float u_scale;
+#endif
 
 void main() {
     vec3 color = ambient * u_ambientLight + emissive;
@@ -57,8 +60,10 @@ void main() {
     gl_FragColor = vec4(emissive + color, opacity * v_color.a * diffuseMapColor.a);
 
     #ifdef DBG_GRID
-    float dx = distance(gl_FragCoord.x, .5) * 512.;
-    float dy = distance(gl_FragCoord.y, .5) * 512.;
-    if (dx > 253. || dy > 253.)gl_FragColor = vec4(1., .0, .0, 1.);
+    float tileSize = 512. * u_scale;
+    float dx = distance(v_texCoord.x, .5) * tileSize;
+    float dy = distance(v_texCoord.y, .5) * tileSize;
+    if (dx > (tileSize * .5 - 1.5)||dy > (tileSize * .5 - 1.5))
+    gl_FragColor += vec4(1., .0, .0, .2);
     #endif
 }
