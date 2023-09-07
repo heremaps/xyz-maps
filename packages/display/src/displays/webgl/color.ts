@@ -170,25 +170,43 @@ const HTML_COLOR_NAMES = {
 };
 
 
-export const hexToRGBA = (hex: string): RGBA => {
-    return hex.length < 5 ? [
-        parseInt(`${hex[1]}${hex[1]}`, 16) / 255,
-        parseInt(`${hex[2]}${hex[2]}`, 16) / 255,
-        parseInt(`${hex[3]}${hex[3]}`, 16) / 255,
-        1
+const hexToRGBA = (hexString: string): RGBA => {
+    hexString = hexString.slice(1);
+    const length = hexString.length;
+    if (length < 5) {
+        return [
+            parseInt(hexString.charAt(0), 16) / 15,
+            parseInt(hexString.charAt(1), 16) / 15,
+            parseInt(hexString.charAt(2), 16) / 15,
+            length == 4
+                ? parseInt(hexString.charAt(3), 16) / 15
+                : 1
+        ];
+    } else {
+        return rgbaFromHex(parseInt(hexString, 16), length == 8);
+    }
+};
+
+const rgbaFromHex = (hex: number, alpha?: boolean): RGBA => {
+    return alpha ? [
+        (hex >> 24 & 255) / 255,
+        (hex >> 16 & 255) / 255,
+        (hex >> 8 & 255) / 255,
+        (hex & 255) / 255
     ] : [
-        parseInt(hex.slice(1, 3), 16) / 255,
-        parseInt(hex.slice(3, 5), 16) / 255,
-        parseInt(hex.slice(5, 7), 16) / 255,
+        (hex >> 16 & 255) / 255,
+        (hex >> 8 & 255) / 255,
+        (hex & 255) / 255,
         1
     ];
 };
+
 
 for (let name in HTML_COLOR_NAMES) {
     HTML_COLOR_NAMES[name] = hexToRGBA('#' + HTML_COLOR_NAMES[name]);
 }
 
-export const parseRGBA = (color: string): RGBA => {
+const parseRGBAString = (color: string): RGBA => {
     const rgb = <number[]><unknown>color.match(/^rgba?\s*\((\d+),\s*(\d+),\s*(\d+)(?:,\s*(\d*(?:\.\d+)?))?\)$/);
 
     return rgb && rgb.length > 3 && [
@@ -200,7 +218,7 @@ export const parseRGBA = (color: string): RGBA => {
 };
 
 
-export const toRGB = (color: string | RGBA): RGBA => {
+export const toRGB = (color: string | RGBA | number): RGBA => {
     let rgba;
     if (color) {
         if (Array.isArray(color)) {
@@ -208,11 +226,13 @@ export const toRGB = (color: string | RGBA): RGBA => {
             if (rgba.length == 3) {
                 rgba[3] = 1;
             }
+        } else if (typeof color == 'number') {
+            return rgbaFromHex(color);
         } else if (color[0] == '#') {
             rgba = hexToRGBA(color);
         } else {
             rgba = HTML_COLOR_NAMES[color];
-            rgba = rgba ? rgba.slice() : parseRGBA(color);
+            rgba = rgba ? rgba.slice() : parseRGBAString(color);
         }
     }
     return rgba;
