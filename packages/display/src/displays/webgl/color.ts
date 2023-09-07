@@ -19,7 +19,9 @@
 
 export type RGBA = [number, number, number, number];
 
-const HTML_COLOR_NAMES = {
+const INVALID_COLOR: RGBA = [0, 0, 0, 1];
+
+const HTML_COLOR_NAMES: { [color: string]: RGBA | string } = {
     aliceblue: 'f0f8ff',
     antiquewhite: 'faebd7',
     aqua: '00ffff',
@@ -170,8 +172,7 @@ const HTML_COLOR_NAMES = {
 };
 
 
-const hexToRGBA = (hexString: string): RGBA => {
-    hexString = hexString.slice(1);
+const hexStringToRGBA = (hexString: string): RGBA => {
     const length = hexString.length;
     if (length < 5) {
         return [
@@ -183,11 +184,11 @@ const hexToRGBA = (hexString: string): RGBA => {
                 : 1
         ];
     } else {
-        return rgbaFromHex(parseInt(hexString, 16), length == 8);
+        return hexToRGBA(parseInt(hexString, 16), length == 8);
     }
 };
 
-const rgbaFromHex = (hex: number, alpha?: boolean): RGBA => {
+const hexToRGBA = (hex: number, alpha?: boolean): RGBA => {
     return alpha ? [
         (hex >> 24 & 255) / 255,
         (hex >> 16 & 255) / 255,
@@ -203,13 +204,13 @@ const rgbaFromHex = (hex: number, alpha?: boolean): RGBA => {
 
 
 for (let name in HTML_COLOR_NAMES) {
-    HTML_COLOR_NAMES[name] = hexToRGBA('#' + HTML_COLOR_NAMES[name]);
+    HTML_COLOR_NAMES[name] = hexStringToRGBA(HTML_COLOR_NAMES[name] as string);
 }
 
 const parseRGBAString = (color: string): RGBA => {
     const rgb = <number[]><unknown>color.match(/^rgba?\s*\((\d+),\s*(\d+),\s*(\d+)(?:,\s*(\d*(?:\.\d+)?))?\)$/);
 
-    return rgb && rgb.length > 3 && [
+    return rgb?.length > 3 && [
         rgb[1] / 255,
         rgb[2] / 255,
         rgb[3] / 255,
@@ -227,13 +228,19 @@ export const toRGB = (color: string | RGBA | number): RGBA => {
                 rgba[3] = 1;
             }
         } else if (typeof color == 'number') {
-            return rgbaFromHex(color);
-        } else if (color[0] == '#') {
             rgba = hexToRGBA(color);
+        } else if (color[0] == '#') {
+            rgba = hexStringToRGBA(color.slice(1));
         } else {
-            rgba = HTML_COLOR_NAMES[color];
-            rgba = rgba ? rgba.slice() : parseRGBAString(color);
+            if (/^([A-Fa-f\d]+)$/.test(color)) {
+                rgba = hexStringToRGBA(color);
+            } else if (color.startsWith('rgb')) {
+                rgba = parseRGBAString(color);
+            } else {
+                rgba = HTML_COLOR_NAMES[color];
+                rgba = (rgba as RGBA) && [rgba[0], rgba[1], rgba[2], rgba[3]];
+            }
         }
     }
-    return rgba;
+    return rgba || INVALID_COLOR;
 };
