@@ -16,7 +16,7 @@
  * SPDX-License-Identifier: Apache-2.0
  * License-Filename: LICENSE
  */
-import {StyleValueFunction, StyleZoomRange} from './LayerStyle';
+import {Color, StyleValueFunction, StyleZoomRange} from './LayerStyle';
 
 
 /**
@@ -49,12 +49,9 @@ export interface VerticalLineStyle {
     /**
      * Sets the stroke color of the shape.
      *
-     * The color can be specified in the following ways:
-     * - CSS color names: "red"
-     * - RGB(A) values: "rgba(255,0,0,1.0)"
-     * - hexadecimal values: "#ff0000"
+     * @see {@link Color} for a detailed list of possible supported formats.
      */
-    stroke?: string | StyleValueFunction<string> | StyleZoomRange<string>;
+    stroke?: Color | StyleValueFunction<Color> | StyleZoomRange<Color>;
 
     /**
      * Defines the opacity of the style.

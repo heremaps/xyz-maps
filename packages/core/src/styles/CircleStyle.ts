@@ -16,7 +16,7 @@
  * SPDX-License-Identifier: Apache-2.0
  * License-Filename: LICENSE
  */
-import {StyleValueFunction, StyleZoomRange} from './LayerStyle';
+import {Color, StyleValueFunction, StyleZoomRange} from './LayerStyle';
 
 /**
  * Interface for configuring the visual appearance of Circles.
@@ -48,22 +48,16 @@ export interface CircleStyle {
     /**
      * Sets the color to fill the Circle.
      *
-     * The color can be specified in the following ways:
-     * - CSS color names: "red"
-     * - RGB(A) values: "rgba(255,0,0,1.0)"
-     * - hexadecimal values: "#ff0000"
+     * @see {@link Color} for a detailed list of possible supported formats.
      */
-    fill?: string | StyleValueFunction<string> | StyleZoomRange<string>;
+    fill?: Color | StyleValueFunction<Color> | StyleZoomRange<Color>;
 
     /**
      * Sets the stroke color of the Circle.
      *
-     * The color can be specified in the following ways:
-     * - CSS color names: "red"
-     * - RGB(A) values: "rgba(255,0,0,1.0)"
-     * - hexadecimal values: "#ff0000"
+     * @see {@link Color} for a detailed list of possible supported formats.
      */
-    stroke?: string | StyleValueFunction<string> | StyleZoomRange<string>;
+    stroke?: Color | StyleValueFunction<Color> | StyleZoomRange<Color>;
 
     /**
      * Sets the width of the stroke.

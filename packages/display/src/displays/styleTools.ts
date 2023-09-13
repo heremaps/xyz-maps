@@ -19,7 +19,7 @@
 
 import {wrapText} from './textUtils';
 import {Feature, StyleZoomRange} from '@here/xyz-maps-core';
-import {toRGB} from './webgl/color';
+import {RGBA, toRGB} from './webgl/color';
 import {getRotatedBBox} from '../geometry';
 import {webMercator, Style, StyleGroup} from '@here/xyz-maps-core';
 
@@ -469,16 +469,18 @@ const fillMap = (map, searchMap, parseSizeValue: boolean) => {
 };
 
 
-const parseColors = (map) => {
+export const parseColorMap = (map: { [zoom: string]: RGBA }) => {
     for (let z in map) {
         map[z] = toRGB(map[z]);
     }
+    return map;
 };
 
-const createZoomRangeFunction = (map) => {
-    // const range = new Function('f,zoom', `return (${JSON.stringify(map)})[zoom];`);
+export const createZoomRangeFunction = (map: StyleZoomRange<RGBA>, /* isFeatureContext?:boolean,*/ parseSizeValue?: boolean) => {
+    map = fillMap({}, map, parseSizeValue);
+    // return new Function('f,zoom', `return (${JSON.stringify(map)})[zoom];`);
     const range = (feature, zoom: number) => {
-        return map[zoom];
+        return map[zoom ?? feature];
     };
     range.map = map; // dbg
 
@@ -501,13 +503,14 @@ const parseStyleGroup = (styleGroup: Style[]) => {
                         // "zoomrange" value detected
                         if (name == 'stroke' || name == 'fill') {
                             // convert to [r,g,b,a]
-                            parseColors(value);
+                            parseColorMap(value);
                         }
 
                         const parseSizeValue = !allowedFloatProperties[name];
 
-                        let map = fillMap({}, value, parseSizeValue);
-                        style[name] = createZoomRangeFunction(map);
+                        style[name] = createZoomRangeFunction(value, parseSizeValue);
+                        // let map = fillMap({}, value, parseSizeValue);
+                        // style[name] = createZoomRangeFunction(map);
                     }
                 }
             }

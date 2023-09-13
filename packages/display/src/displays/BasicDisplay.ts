@@ -28,6 +28,8 @@ import BasicBucket from './BasicBucket';
 import Preview from './Preview';
 import LayerClusterer from './LayerClusterer';
 import Grid, {ViewportTile} from '../Grid';
+import {createZoomRangeFunction, parseColorMap} from './styleTools';
+import {RGBA} from './webgl/color';
 
 const CREATE_IF_NOT_EXISTS = true;
 const MAX_PITCH_GRID = 60 / 180 * Math.PI;
@@ -47,14 +49,6 @@ const exclusiveTimeMS = 4;
 let UNDEF;
 
 abstract class Display {
-    static getPixelRatio(dpr: string | number | any) {
-        dpr = dpr == 'auto'
-            ? Math.min(2, global.devicePixelRatio || 1)
-            : dpr || 1;
-
-        return dpr < 1 ? 1 : dpr;
-    }
-
     private previewer: Preview;
     private updating: boolean = false;
     private ti: number; // tile index
@@ -63,7 +57,11 @@ abstract class Display {
     protected sx: number; // grid/screen offset x (includes scale offset)
     protected sy: number; // grid/screen offset y (includes scale offset)
     protected dirty: boolean = false;
+
     private centerWorld: number[]; // absolute world center xy0
+
+    protected bgColor: RGBA;
+    globalBgc: boolean | string | [number, number, number, number?] = false;
 
     tileSize: number;
     layers: Layers;
@@ -146,6 +144,14 @@ abstract class Display {
                 display.buckets.tiles.forEach((t) => t.clear(index));
             }
         };
+    }
+
+    static getPixelRatio(dpr: string | number | any) {
+        dpr = dpr == 'auto'
+            ? Math.min(2, global.devicePixelRatio || 1)
+            : dpr || 1;
+
+        return dpr < 1 ? 1 : dpr;
     }
 
     addLayer(layer: TileLayer | CustomLayer, styles, index: number): boolean {
@@ -271,12 +277,27 @@ abstract class Display {
     abstract project(x: number, y: number, z?: number): number[];
 
     private setLayerBgColor(style, dLayer: Layer) {
-        const {backgroundColor} = style;
-        const display = this;
+        let {backgroundColor} = style;
 
         if (backgroundColor) {
-            dLayer.bgColor = display.render.convertColor(backgroundColor);
+            if (typeof backgroundColor == 'object' && !Array.isArray(backgroundColor)) {
+                backgroundColor = createZoomRangeFunction(parseColorMap(backgroundColor));
+            }
+            dLayer.bgColor = typeof backgroundColor == 'function'
+                ? backgroundColor
+                : this.render.convertColor(backgroundColor);
         }
+    }
+
+    private processLayerBackgroundColor(zoomlevel?: number) {
+        const display = this;
+        const layers = display.layers;
+        let bgColor = layers[0]?.bgColor;
+
+        if (typeof bgColor == 'function') {
+            bgColor = display.render.convertColor(bgColor(zoomlevel));
+        }
+        this.bgColor = bgColor || display.globalBgc;
     }
 
     private isVisible(tile: Tile, dLayer: Layer): boolean {
@@ -288,6 +309,7 @@ abstract class Display {
         }
         return false;
     }
+
 
     getContext() {
         return this.render.getContext();
@@ -448,6 +470,8 @@ abstract class Display {
         const tileGridZoom = zoomlevel ^ 0;
         // const worldSize = Math.pow(2, zoomlevel) * this.tileSize;
 
+        this.processLayerBackgroundColor(zoomlevel);
+
         this.viewChange = true;
         this.sx = screenOffsetX;
         this.sy = screenOffsetY;
@@ -535,8 +559,6 @@ abstract class Display {
             });
         }
     }
-
-    globalBgc: boolean | string | [number, number, number, number?] = false;
 
     setBGColor(color?: string) {
         const displ = this;

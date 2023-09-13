@@ -19,18 +19,6 @@
 
 import {Feature} from '../features/Feature';
 import {Style} from './GenericStyle';
-import {ModelStyle} from '@here/xyz-maps-core';
-import Model from '@here/xyz-maps-display/src/displays/webgl/program/Model';
-import {LineStyle} from './LineStyle';
-import {VerticalLineStyle} from './VerticalLineStyle';
-import {Line} from '@here/xyz-maps-editor';
-import {PolygonStyle} from './PolygonStyle';
-import {RectStyle} from './RectStyle';
-import {CircleStyle} from './CircleStyle';
-import {ImageStyle} from './ImageStyle';
-import {BoxStyle} from './BoxStyle';
-import {SphereStyle} from './SphereStyle';
-import {TextStyle} from './TextStyle';
 
 
 /**
@@ -89,6 +77,18 @@ export type StyleGroup = Array<Style>;
 
 // (<LineStyle>testStyle[0]).stroke;
 
+/**
+ * The Color is an RGBA color value representing RED, GREEN, and BLUE light sources with an optional alpha channel.
+ * Colors can be specified in the following ways:
+ * - CSS color names: "red"
+ * - RGB colors: "rgb(255,0,0)"
+ * - RGBA colors: "rgba(255,0,0,1.0)"
+ * - Hexadecimal colors: "#ff0000" | "#f00"
+ * - Hexadecimal colors with transparency: "#ff0000ff"
+ * - hexadecimal numbers: 0xff0000
+ * - RGBA Color Array: [1.0, 0.0, 0.0, 1.0]
+ */
+export type Color = string | number | [number, number, number, number];
 
 /**
  * This is an interface to describe how certain features should be rendered within a layer.
@@ -119,7 +119,7 @@ export interface LayerStyle {
     /**
      * the color for the background of the layer
      */
-    backgroundColor?: string;
+    backgroundColor?: Color | StyleZoomRange<Color> | ((zoomlevel: number) => Color);
 
     /**
      *  This object contains key/styleGroup pairs.

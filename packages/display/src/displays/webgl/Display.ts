@@ -485,7 +485,7 @@ class WebGlDisplay extends BasicDisplay {
             );
         }
 
-        render.clear((layerLength && layers[0].bgColor) || display.globalBgc);
+        render.clear(display.bgColor);
 
         render.fixedView = Number(!this.viewChange);
 
