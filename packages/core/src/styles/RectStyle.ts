@@ -230,6 +230,11 @@ export interface RectStyle {
     collide?: boolean | StyleValueFunction<boolean> | StyleZoomRange<boolean>;
 
     /**
+     * Enables collision detection and combines all styles of a StyleGroup with the same "CollisionGroup" into a single logical object for collision detection.
+     */
+    collisionGroup?: string | StyleValueFunction<string> | StyleZoomRange<string>
+
+    /**
      * Minimum distance in pixels between repeated style-groups on line geometries.
      * Applies per tile only.
      *

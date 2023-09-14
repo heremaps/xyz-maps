@@ -527,6 +527,11 @@ export interface Style {
     collide?: boolean | StyleValueFunction<boolean> | StyleZoomRange<boolean>;
 
     /**
+     * Enables collision detection and combines all styles of a StyleGroup with the same "CollisionGroup" into a single logical object for collision detection.
+     */
+    collisionGroup?: string | StyleValueFunction<string> | StyleZoomRange<string>
+
+    /**
      * Extrude a Polygon or MultiPolygon geometry in meters.
      * This attribute is validate for styles of type "Polygon" only.
      */

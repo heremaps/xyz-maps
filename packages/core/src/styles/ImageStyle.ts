@@ -201,6 +201,11 @@ export interface ImageStyle {
     collide?: boolean | StyleValueFunction<boolean> | StyleZoomRange<boolean>;
 
     /**
+     * Enables collision detection and combines all styles of a StyleGroup with the same "CollisionGroup" into a single logical object for collision detection.
+     */
+    collisionGroup?: string | StyleValueFunction<string> | StyleZoomRange<string>
+
+    /**
      * The altitude of the style in meters.
      * The altitude defines the distance in the vertical direction between the ground plane at 0 meters and the geometry/style.
      * If altitude is set to true, the altitude from the feature's geometry coordinates will be used automatically.

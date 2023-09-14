@@ -37,7 +37,11 @@ import {PointBuffer} from './templates/PointBuffer';
 import {PolygonBuffer} from './templates/PolygonBuffer';
 import {ExtrudeBuffer} from './templates/ExtrudeBuffer';
 import {toPresentationFormB} from '../arabic';
-import {Tile, Feature, GeoJSONCoordinate as Coordinate, GeoJSONCoordinate, LinearGradient} from '@here/xyz-maps-core';
+import {
+    Tile,
+    Feature,
+    GeoJSONCoordinate
+} from '@here/xyz-maps-core';
 import {TemplateBuffer} from './templates/TemplateBuffer';
 import {addVerticalLine} from './addVerticalLine';
 import {BoxBuffer} from './templates/BoxBuffer';
@@ -55,58 +59,62 @@ import {HeatmapBuffer} from './templates/HeatmapBuffer';
 const DEFAULT_STROKE_WIDTH = 1;
 const DEFAULT_LINE_CAP = 'round';
 const DEFAULT_LINE_JOIN = 'round';
+const DEFAULT_COLLISION_GRP = '__CG0';
 const NONE = '*';
 let UNDEF;
 
 export type CollisionGroup = {
-    id: string;
-    feature: Feature;
-    styleGrp: Style;
-    priority: number;
-    repeat: number;
-    geomType: string;
-    coordinates: any;
-    offsetX?: number;
-    offsetY?: number;
-    width?: number;
-    height?: number;
+  id: string;
+  styleGrp: Style[];
+  priority: number;
+  repeat: number;
+  bbox: number[];
+
+  feature?: Feature;
+  geomType?: string;
+  coordinates?: any;
+
+  offsetX?: number;
+  offsetY?: number;
+  width?: number;
+  height?: number;
 };
 
 type DrawGroup = {
-    type: string;
-    zLayer: number;
-    depthTest: boolean;
-    shared: {
-        unit: string;
-        font: string;
-        fill: Float32Array;
-        // fill: Float32Array|LinearGradient;
-        opacity: number;
-        stroke: Float32Array;
-        strokeWidth: number;
-        strokeLinecap: string;
-        strokeLinejoin: string;
-        strokeDasharray: number[];
-        width: number;
-        height: number;
-        depth: number;
-        rotation: number;
-        offsetX: number;
-        offsetY: number;
-        offsetZ: number;
-        offsetUnit: string;
-        alignment: string;
-        modelMode: number;
-        scaleByAltitude: boolean;
-    };
-    buffer?: TemplateBuffer | TemplateBufferBucket<ModelBuffer>;
-    extrudeStrokeIndex?: number[];
-    pointerEvents?: boolean;
+  type: string;
+  zLayer: number;
+  depthTest: boolean;
+  shared: {
+    unit: string;
+    font: string;
+    fill: Float32Array;
+    // fill: Float32Array|LinearGradient;
+    opacity: number;
+    stroke: Float32Array;
+    strokeWidth: number;
+    strokeLinecap: string;
+    strokeLinejoin: string;
+    strokeDasharray: number[];
+    width: number;
+    height: number;
+    depth: number;
+    rotation: number;
+    offsetX: number;
+    offsetY: number;
+    offsetZ: number;
+    offsetUnit: string;
+    alignment: string;
+    modelMode: number;
+    scaleByAltitude: boolean;
+  };
+  buffer?: TemplateBuffer | TemplateBufferBucket<ModelBuffer>;
+  extrudeStrokeIndex?: number[];
+  pointerEvents?: boolean;
 };
 
 type ZDrawGroup = {
-    index: { [grpId: string]: number };
-    groups: DrawGroup[];
+  index: { [grpId: string]: number };
+  groups: DrawGroup[];
 };
 
 export type GroupMap = { [zIndex: string]: ZDrawGroup };
@@ -360,7 +368,7 @@ export class FeatureFactory {
         let flatPolyStart: number;
         let flatPoly: FlatPolygon[];
         let triangles;
-        let style;
+        let style: Style;
         let zIndex;
         let type;
         let opacity;
@@ -392,11 +400,7 @@ export class FeatureFactory {
         let alignment;
         let sizeUnit;
         let offsetUnit;
-        let collisionPriority = Number.MAX_SAFE_INTEGER;
-        let collisionRepeat = -Number.MAX_SAFE_INTEGER;
-        let collisionStyleGroup;
-        let collisionGroupId = '';
-        let collisionBox;
+        let collisionGroups = new Map<string, CollisionGroup /* { id: string, bbox: number[], priority: number, repeat: number, styleGrp: Style[] }*/>();
         let collisionData;
 
         this.lineFactory.initFeature(level, tileSize, collisionGroup?.id);
@@ -423,25 +427,36 @@ export class FeatureFactory {
                     : getValue('collide', style, feature, level);
 
             if (priority == UNDEF && ((type == 'Text' && !collide) || collide === false)) {
-                let bbox = calcBBox(style, feature, level, this.dpr, collisionBox);
+                let collisionGroupId = getValue('collisionGroup', style, feature, level) || DEFAULT_COLLISION_GRP;
+                let collisionGrp = collisionGroups.get(collisionGroupId);
+
+                const bbox = calcBBox(style, feature, level, this.dpr, collisionGrp?.bbox);
 
                 if (bbox) {
-                    collisionBox = bbox || collisionBox;
-                    collisionStyleGroup = collisionStyleGroup || [];
-                    collisionStyleGroup.push(style);
+                    if (!collisionGrp) {
+                        collisionGroups.set(collisionGroupId, collisionGrp = {
+                            id: collisionGroupId,
+                            bbox: null,
+                            priority: Number.MAX_SAFE_INTEGER,
+                            repeat: -Number.MAX_SAFE_INTEGER,
+                            styleGrp: []
+                        });
+                    }
+
+                    collisionGrp.bbox = bbox;
+                    collisionGrp.styleGrp.push(style);
 
                     const priority = getValue('priority', style, feature, level);
-
-                    if (priority < collisionPriority) {
-                        collisionPriority = priority;
+                    if (priority < collisionGrp.priority) {
+                        collisionGrp.priority = priority;
                     }
 
                     const repeat = getValue('repeat', style, feature, level);
-
-                    if (repeat > collisionRepeat) {
-                        collisionRepeat = repeat;
+                    if (repeat < collisionGrp.repeat) {
+                        collisionGrp.repeat = repeat;
                     }
-                    collisionGroupId += type + (priority || '?') + (repeat || '?');
+                    // the id is used to identify the repeatGroup
+                    collisionGrp.id += `${type}${priority || '?'}${repeat || '?'}`;
                 }
                 continue;
             }
@@ -486,9 +501,9 @@ export class FeatureFactory {
             let altitude = getValue('altitude', style, feature, level);
 
             if (type == 'Model') {
-                style.modelId ||= Math.random();
-                modelMode = Number(style.terrain || 0);
-                groupId = 'M' + style.modelId;
+                (style as ModelStyle).modelId ||= Math.random();
+                modelMode = Number((style as any).terrain || 0);
+                groupId = 'M' + (style as ModelStyle).modelId;
                 processPointOffset = true;
             } else if (type == 'Icon') {
                 alignment = getValue('alignment', style, feature, level) || 'viewport';
@@ -835,7 +850,7 @@ export class FeatureFactory {
                         } else if (type == 'Text') {
                             if (!group.buffer) {
                                 group.buffer = new TextBuffer(true, true);
-                                group.buffer.addUniform('u_texture', new GlyphTexture(this.gl, style));
+                                group.buffer.addUniform('u_texture', new GlyphTexture(this.gl, style as FontStyle));
                             }
                             let texture = (group.buffer as TemplateBuffer).uniforms.u_texture as GlyphTexture;
                             // let {texture} = group;
@@ -995,31 +1010,22 @@ export class FeatureFactory {
             }
         }
 
-        if (collisionStyleGroup) {
-            const id = collisionGroupId;
-            let cData: CollisionGroup = {
-                id,
-                priority: collisionPriority,
-                repeat: collisionRepeat,
-                styleGrp: collisionStyleGroup,
-                feature,
-                geomType,
-                coordinates
-            };
-
-            const [x1, y1, x2, y2] = collisionBox;
+        for (let [, collisionGrp] of collisionGroups) {
+            const [x1, y1, x2, y2] = collisionGrp.bbox;
             const halfWidth = (x2 - x1) * 0.5;
             const halfHeight = (y2 - y1) * 0.5;
 
-            cData.offsetX = x1 + halfWidth;
-            cData.offsetY = y1 + halfHeight;
-            cData.width = halfWidth;
-            cData.height = halfHeight;
+            collisionGrp.feature = feature;
+            collisionGrp.geomType = geomType;
+            collisionGrp.coordinates = coordinates;
 
-            this.pendingCollisions.push(cData);
+            collisionGrp.offsetX = x1 + halfWidth;
+            collisionGrp.offsetY = y1 + halfHeight;
+            collisionGrp.width = halfWidth;
+            collisionGrp.height = halfHeight;
+
+            this.pendingCollisions.push(collisionGrp);
         }
-
-        return;
     }
 
     destroy() {
