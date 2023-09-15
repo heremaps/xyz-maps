@@ -59,7 +59,7 @@ import {HeatmapBuffer} from './templates/HeatmapBuffer';
 const DEFAULT_STROKE_WIDTH = 1;
 const DEFAULT_LINE_CAP = 'round';
 const DEFAULT_LINE_JOIN = 'round';
-const DEFAULT_COLLISION_GRP = '__CG0';
+const DEFAULT_COLLISION_GRP = '0';
 const NONE = '*';
 let UNDEF;
 
@@ -400,7 +400,7 @@ export class FeatureFactory {
         let alignment;
         let sizeUnit;
         let offsetUnit;
-        let collisionGroups = new Map<string, CollisionGroup /* { id: string, bbox: number[], priority: number, repeat: number, styleGrp: Style[] }*/>();
+        let collisionGroups: {[key:string]: CollisionGroup} = {};
         let collisionData;
 
         this.lineFactory.initFeature(level, tileSize, collisionGroup?.id);
@@ -428,19 +428,19 @@ export class FeatureFactory {
 
             if (priority == UNDEF && ((type == 'Text' && !collide) || collide === false)) {
                 let collisionGroupId = getValue('collisionGroup', style, feature, level) || DEFAULT_COLLISION_GRP;
-                let collisionGrp = collisionGroups.get(collisionGroupId);
+                let collisionGrp = collisionGroups[collisionGroupId];
 
                 const bbox = calcBBox(style, feature, level, this.dpr, collisionGrp?.bbox);
 
                 if (bbox) {
                     if (!collisionGrp) {
-                        collisionGroups.set(collisionGroupId, collisionGrp = {
+                        collisionGrp = collisionGroups[collisionGroupId] = {
                             id: collisionGroupId,
                             bbox: null,
                             priority: Number.MAX_SAFE_INTEGER,
                             repeat: -Number.MAX_SAFE_INTEGER,
                             styleGrp: []
-                        });
+                        };
                     }
 
                     collisionGrp.bbox = bbox;
@@ -780,8 +780,6 @@ export class FeatureFactory {
                     const z = typeof altitude == 'number' ? altitude : altitude ? <number>coordinates[2] || 0 : null;
                     // const z = extrude ? <number>coordinates[2] || 0 : null;
 
-                    // console.log('x,y,z', x, y, z, 'tileSize', tileSize);
-
                     if (collisionGroup) {
                         collisionData = this.collisions.insert(
                             x,
@@ -1010,7 +1008,9 @@ export class FeatureFactory {
             }
         }
 
-        for (let [, collisionGrp] of collisionGroups) {
+
+        for (let key in collisionGroups) {
+            const collisionGrp = collisionGroups[key];
             const [x1, y1, x2, y2] = collisionGrp.bbox;
             const halfWidth = (x2 - x1) * 0.5;
             const halfHeight = (y2 - y1) * 0.5;
@@ -1025,9 +1025,8 @@ export class FeatureFactory {
             collisionGrp.height = halfHeight;
 
             this.pendingCollisions.push(collisionGrp);
-        }
+        };
     }
-
     destroy() {
         this.modelFactory.destroy();
     }

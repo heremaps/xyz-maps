@@ -25,6 +25,7 @@
     "build-declarations": "lerna run build-dts --parallel --stream",
     "playground": "yarn run build-playground && npx http-server . -d -c-1 -p 8081 -o ./packages/playground/dist",
     "build-playground": "lerna run --scope @here/xyz-maps-playground build --stream --no-prefix",
+    "cleanup:dist": "rm -r ./packages/*/dist && ./packages/core/build/index.js ./packages/core/build/shared.js ./packages/core/build/workers.js",
     "eslint:fix": "eslint ./packages/*/src/**/*.ts --fix",
     "server": "npx http-server . -d -c-1 -p 8080 -o ./debug",
     "set-access-token": "ts-node build/createToken --token"
