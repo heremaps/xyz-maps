@@ -172,4 +172,18 @@ export interface PolygonStyle {
      * @experimental
      */
     altitude?: number | boolean | StyleValueFunction<number | boolean> | StyleZoomRange<number | boolean>
+
+    /**
+     * Extrude a Polygon or MultiPolygon geometry in meters.
+     */
+    extrude?: number | StyleValueFunction<number> | StyleZoomRange<number>;
+
+    /**
+     * The base of the Extrude in meters.
+     * The extrudeBase is defined from the ground to the bottom of the extruded Polygon in meters.
+     * The extrudeBase must be less or equal then {@link extrude}.
+     *
+     * @defaultValue 0
+     */
+    extrudeBase?: number | StyleValueFunction<number> | StyleZoomRange<number>;
 }
