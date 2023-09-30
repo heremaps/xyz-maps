@@ -212,6 +212,7 @@ export class Map {
             'center',
             'rotation',
             'zoomlevel',
+            'pitch',
 
             'mapviewchangestart',
             'mapviewchange',
@@ -466,10 +467,15 @@ export class Map {
     pitch(pitch?: number) {
         if (pitch !== UNDEF) {
             const maxPitch = this._cfg.maxPitch;
-            const deg = Math.max(0, Math.min(maxPitch, Math.round(pitch % 360 * 10) / 10));
+            pitch = Math.max(0, Math.min(maxPitch, Math.round(pitch % 360 * 10) / 10));
+            const rad = -pitch * Math.PI / 180;
+            const rotX = this._rx;
 
-            this._rx = -deg * Math.PI / 180;
-            this.updateGrid();
+            if (rotX != rad) {
+                this._rx = rad;
+                this.updateGrid();
+                this._l.trigger('pitch', ['pitch', pitch, -rotX * 180 / Math.PI], true);
+            }
         }
         return -this._rx * 180 / Math.PI;
     };
@@ -483,7 +489,8 @@ export class Map {
      */
     rotate(rotation?: number): number {
         if (rotation !== UNDEF) {
-            const rad = Math.round(10 * rotation || 0) * Math.PI / 1800;
+            const deg = Math.round(10 * rotation || 0) / 10;
+            const rad = deg * Math.PI / 180;
             const rotZRad = this._rz;
 
             if (rad !== rotZRad) {
@@ -500,7 +507,7 @@ export class Map {
                 this.updateGrid();
 
                 this._l.trigger('rotation',
-                    ['rotation', this._rz, rotZRad],
+                    ['rotation', deg, rotZRad / Math.PI * 180],
                     true
                 );
             }
@@ -1612,7 +1619,7 @@ export class Map {
 
     /**
      * Add an observer to the map.
-     * Supported observer types are: "zoomlevel" and "center".
+     * Supported observers are: "zoomlevel", "center", "rotation" and "pitch".
      *
      * @param name - the name of the value to observe
      * @param observer - the observer that will be executed on value changes.
