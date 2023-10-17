@@ -43,7 +43,7 @@ export class LineBuffer extends TemplateBuffer {
                 size: 4
             },
             a_lengthSoFar: {
-                data: new FlexArray(Uint16Array),
+                data: new FlexArray(Float32Array),
                 size: 1
             }
         };
