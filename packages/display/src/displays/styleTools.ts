@@ -36,13 +36,13 @@ let UNDEF;
 
 
 enum ValueType {
-    Number,
-    String,
-    Color,
-    // Size values can be defined in Meter or Pixel, needs to be parsed.
-    Size,
-    Boolean,
-    Float
+  Number,
+  String,
+  Color,
+  // Size values can be defined in Meter or Pixel, needs to be parsed.
+  Size,
+  Boolean,
+  Float
 }
 
 const parsePropertyNames = {
@@ -111,7 +111,7 @@ export const getTextString = (style, feature: Feature, level: number) => {
 const getValue = (name: string, style: Style, feature: Feature, tileGridZoom: number) => {
     let value = style[name];
     return typeof value == 'function'
-        // @ts-ignore, 3rd param can be used internally
+    // @ts-ignore, 3rd param can be used internally
         ? value(feature, tileGridZoom, style)
         : value;
 };
@@ -209,6 +209,8 @@ const getLineWidth = (groups: StyleGroup, feature: Feature, zoom: number, layerI
 export const calcBBox = (style: Style, feature: Feature, zoom: number, dpr: number, bbox?: number[], skipStrokeColor?: boolean): number[] | null => {
     const tileGridZoom = getTileGridZoom(zoom);
     const type = getValue('type', style, feature, tileGridZoom);
+    let offsetX = 0;
+    let offsetY = 0;
     let x1;
     let x2;
     let y1;
@@ -223,10 +225,10 @@ export const calcBBox = (style: Style, feature: Feature, zoom: number, dpr: numb
 
     if ( // it's not a icon..
         type != 'Image' &&
-        // .. and no fill/stroke is defined
-        !fill && !stroke
+    // .. and no fill/stroke is defined
+    !fill && !stroke
     ) {
-        // -> it's not visible!
+    // -> it's not visible!
         return null;
     }
 
@@ -260,6 +262,39 @@ export const calcBBox = (style: Style, feature: Feature, zoom: number, dpr: numb
             }
             h = lines.length * _font.letterHeight;
         }
+
+        const textAnchor = getValue('textAnchor', style, feature, tileGridZoom);
+
+        if (typeof textAnchor == 'string') {
+            // if (textAnchor.startsWith('Top')) offsetY += h * .5;
+            // else if (textAnchor.startsWith('Bottom')) offsetY -= h * .5;
+            // if (textAnchor.endsWith('Left')) offsetX += w * .5;
+            // else if (textAnchor.endsWith('Right')) offsetX -= w * .5;
+            switch (textAnchor) {
+            case 'Top':
+                offsetY += h * .5;
+                break;
+            case 'TopLeft':
+                offsetX += w * .5;
+                offsetY += h * .5;
+                break;
+            case 'TopRight':
+                offsetX -= w * .5;
+                offsetY += h * .5;
+                break;
+            case 'Bottom':
+                offsetY -= h * .5;
+                break;
+            case 'BottomLeft':
+                offsetX += w * .5;
+                offsetY -= h * .5;
+                break;
+            case 'BottomRight':
+                offsetX -= w * .5;
+                offsetY -= h * .5;
+                break;
+            }
+        }
     } else {
         let strokeWidth = getValue('strokeWidth', style, feature, tileGridZoom); // || 1;
 
@@ -278,8 +313,8 @@ export const calcBBox = (style: Style, feature: Feature, zoom: number, dpr: numb
         w += strokeWidth;
     }
 
-    let offsetX = getValue('offsetX', style, feature, tileGridZoom) ^ 0;
-    let offsetY = getValue('offsetY', style, feature, tileGridZoom) ^ 0;
+    offsetX += getValue('offsetX', style, feature, tileGridZoom) ^ 0;
+    offsetY += getValue('offsetY', style, feature, tileGridZoom) ^ 0;
     let rotation = type != 'Circle' && getValue('rotation', style, feature, tileGridZoom) ^ 0;
 
     if (rotation) {
