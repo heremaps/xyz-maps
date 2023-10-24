@@ -25,15 +25,15 @@ import {TextStyle} from '@here/xyz-maps-core';
 const EXTENT_SCALE = 64;
 
 const ANCHOR_OFFSET: Record<TextStyle['textAnchor'], { x: number, y: number }> = {
-    Center: {x: .5, y: 0},
-    Left: {x: 0, y: 0},
-    Right: {x: 1, y: 0},
-    Top: {x: .5, y: -1},
-    TopLeft: {x: 0, y: -1},
-    TopRight: {x: 1, y: -1},
-    Bottom: {x: .5, y: 1},
-    BottomLeft: {x: 0, y: 1},
-    BottomRight: {x: 1, y: 1}
+    Center: {x: .5, y: 1},
+    Left: {x: 0, y: 1},
+    Right: {x: 1, y: 1},
+    Top: {x: .5, y: 0},
+    TopLeft: {x: 0, y: 0},
+    TopRight: {x: 1, y: 0},
+    Bottom: {x: .5, y: 2},
+    BottomLeft: {x: 0, y: 2},
+    BottomRight: {x: 1, y: 2}
 };
 
 const addText = (
@@ -52,7 +52,7 @@ const addText = (
     const lineOffset = lines.length - 1;
     const lineHeight = glyphAtlas.lineHeight;
     const anchorOffset = ANCHOR_OFFSET[textAnchor] || ANCHOR_OFFSET.Center;
-    let ty = (glyphAtlas.baselineOffset + lineHeight * (lineOffset * .5 + anchorOffset.y * (lineOffset || 1))) * OFFSET_SCALE;
+    let ty = (glyphAtlas.baselineOffset + lineHeight * lineOffset * .5) * OFFSET_SCALE * anchorOffset.y;
 
     // LSB defines visibility, visible by default
     cx = cx * EXTENT_SCALE << 1 | 1;
