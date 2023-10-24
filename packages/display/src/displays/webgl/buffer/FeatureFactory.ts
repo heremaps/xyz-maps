@@ -37,11 +37,7 @@ import {PointBuffer} from './templates/PointBuffer';
 import {PolygonBuffer} from './templates/PolygonBuffer';
 import {ExtrudeBuffer} from './templates/ExtrudeBuffer';
 import {toPresentationFormB} from '../arabic';
-import {
-    Tile,
-    Feature,
-    GeoJSONCoordinate
-} from '@here/xyz-maps-core';
+import {Tile, Feature, GeoJSONCoordinate, TextStyle} from '@here/xyz-maps-core';
 import {TemplateBuffer} from './templates/TemplateBuffer';
 import {addVerticalLine} from './addVerticalLine';
 import {BoxBuffer} from './templates/BoxBuffer';
@@ -178,7 +174,8 @@ export class FeatureFactory {
         rotationZ: number = 0,
         rotationY: number | undefined,
         text?: string,
-        defaultLineWrap?: number | boolean
+        defaultLineWrap?: number | boolean,
+        textAnchor?: TextStyle['textAnchor']
     ) {
         const isFlat = z === null;
         const level = this.z;
@@ -205,11 +202,8 @@ export class FeatureFactory {
             texture.addChars(text);
 
             const fontInfo = texture.getAtlas();
-            let lineWrap = getValue('lineWrap', style, feature, level);
+            let lineWrap = getValue('lineWrap', style, feature, level) ?? defaultLineWrap;
 
-            if (lineWrap == UNDEF) {
-                lineWrap = defaultLineWrap;
-            }
             const lines = wrapText(text, lineWrap);
 
             positionBuffer = flexAttributes.a_position;
@@ -226,7 +220,8 @@ export class FeatureFactory {
                 flexAttributes.a_texcoord.data,
                 fontInfo,
                 rotationZ,
-                rotationY
+                rotationY,
+                textAnchor
             );
         } else {
             if (type == 'Model') {
@@ -291,13 +286,13 @@ export class FeatureFactory {
                     x,
                     y,
                     z,
-                    <ImageInfo>img,
-                    width,
-                    height,
-                    flexAttributes.a_size.data,
-                    positionBuffer.data,
-                    flexAttributes.a_texcoord.data,
-                    rotationZ
+          <ImageInfo>img,
+          width,
+          height,
+          flexAttributes.a_size.data,
+          positionBuffer.data,
+          flexAttributes.a_texcoord.data,
+          rotationZ
                 );
                 groupBuffer.addUniform('u_texture', this.icons.getTexture());
                 // group.texture = this.icons.getTexture();
@@ -400,7 +395,7 @@ export class FeatureFactory {
         let alignment;
         let sizeUnit;
         let offsetUnit;
-        let collisionGroups: {[key:string]: CollisionGroup} = {};
+        let collisionGroups: { [key: string]: CollisionGroup } = {};
         let collisionData;
 
         this.lineFactory.initFeature(level, tileSize, collisionGroup?.id);
@@ -421,10 +416,9 @@ export class FeatureFactory {
 
             if (opacity === 0) continue;
 
-            let collide =
-                geomType == 'Polygon'
-                    ? true // no collision detection support for polygons
-                    : getValue('collide', style, feature, level);
+            let collide = geomType == 'Polygon'
+                ? true // no collision detection support for polygons
+                : getValue('collide', style, feature, level);
 
             if (priority == UNDEF && ((type == 'Text' && !collide) || collide === false)) {
                 let collisionGroupId = getValue('collisionGroup', style, feature, level) || DEFAULT_COLLISION_GRP;
@@ -463,7 +457,7 @@ export class FeatureFactory {
 
             if (
                 opacity == UNDEF ||
-                opacity >= 0.98 // no alpha visible -> no need to use more expensive alpha pass
+        opacity >= 0.98 // no alpha visible -> no need to use more expensive alpha pass
             ) {
                 opacity = 1;
             }
@@ -544,13 +538,13 @@ export class FeatureFactory {
                     [offsetX, offsetUnit] = parseSizeValue(offset);
 
                     groupId =
-                        (altitude ? 'AL' : 'L') +
-                        sizeUnit +
-                        offsetX +
-                        offsetUnit +
-                        strokeLinecap +
-                        strokeLinejoin +
-                        (strokeDasharray || NONE);
+            (altitude ? 'AL' : 'L') +
+            sizeUnit +
+            offsetX +
+            offsetUnit +
+            strokeLinecap +
+            strokeLinejoin +
+            (strokeDasharray || NONE);
                 } else {
                     fill = getValue('fill', style, feature, level);
 
@@ -801,34 +795,36 @@ export class FeatureFactory {
                         collisionGroup = null;
                     }
 
-                    this.createPoint(type, group, x, y, z, style, feature, collisionData, rotation, UNDEF, text);
+                    this.createPoint(type, group, x, y, z, style, feature, collisionData, rotation, UNDEF, text, UNDEF,
+                        type == 'Text' && getValue('textAnchor', style, feature, level)
+                    );
                 }
             } else if (geomType == 'LineString') {
                 if (type == 'Line') {
                     let vertexLength = this.lineFactory.createLine(
-                        <GeoJSONCoordinate[]>coordinates,
-                        group,
-                        tile,
-                        tileSize,
-                        removeTileBounds,
-                        strokeDasharray,
-                        strokeLinecap,
-                        strokeLinejoin,
-                        strokeWidth,
-                        altitude,
-                        offsetX,
-                        getValue('from', style, feature, level),
-                        getValue('to', style, feature, level)
+            <GeoJSONCoordinate[]>coordinates,
+            group,
+            tile,
+            tileSize,
+            removeTileBounds,
+            strokeDasharray,
+            strokeLinecap,
+            strokeLinejoin,
+            strokeWidth,
+            altitude,
+            offsetX,
+            getValue('from', style, feature, level),
+            getValue('to', style, feature, level)
                     );
 
                     group.buffer.setIdOffset(feature.id);
                 } else {
+                    let isText = type == 'Text';
                     let anchor = getValue('anchor', style, feature, level);
-                    if (anchor == UNDEF) {
-                        anchor = type == 'Text' ? 'Line' : 'Coordinate';
-                    }
+                    anchor ??= isText ? 'Line' : 'Coordinate';
 
-                    const checkCollisions = type == 'Text' ? !collide : collide === false;
+                    const textAnchor = isText && getValue('textAnchor', style, feature, level);
+                    const checkCollisions = isText ? !collide : collide === false;
 
                     let w;
                     let h;
@@ -876,36 +872,37 @@ export class FeatureFactory {
                         }
 
                         this.lineFactory.placeAtSegments(
-                            <GeoJSONCoordinate[]>coordinates,
-                            altitude,
-                            tile,
-                            tileSize,
-                            checkCollisions && this.collisions,
-                            priority,
-                            getValue('repeat', style, feature, level),
-                            offsetX,
-                            offsetY,
-                            w,
-                            h,
-                            applyRotation,
-                            checkLineSpace,
-                            from, to,
-                            (x, y, z, rotationZ, rotationY, collisionData) => {
-                                this.createPoint(
-                                    type,
-                                    group,
-                                    x,
-                                    y,
-                                    z,
-                                    style,
-                                    feature,
-                                    collisionData,
-                                    rotationZ + rotation,
-                                    rotationY,
-                                    text,
-                                    false
-                                );
-                            }
+              <GeoJSONCoordinate[]>coordinates,
+              altitude,
+              tile,
+              tileSize,
+              checkCollisions && this.collisions,
+              priority,
+              getValue('repeat', style, feature, level),
+              offsetX,
+              offsetY,
+              w,
+              h,
+              applyRotation,
+              checkLineSpace,
+              from, to,
+              (x, y, z, rotationZ, rotationY, collisionData) => {
+                  this.createPoint(
+                      type,
+                      group,
+                      x,
+                      y,
+                      z,
+                      style,
+                      feature,
+                      collisionData,
+                      rotationZ + rotation,
+                      rotationY,
+                      text,
+                      false,
+                      textAnchor
+                  );
+              }
                         );
                     } else {
                         if (collisionGroup) {
@@ -917,21 +914,21 @@ export class FeatureFactory {
                         }
 
                         this.lineFactory.placeAtPoints(
-                            <GeoJSONCoordinate[]>coordinates,
-                            altitude,
-                            tile,
-                            tileSize,
-                            checkCollisions && this.collisions,
-                            priority,
-                            w,
-                            h,
-                            offsetX,
-                            offsetY,
-                            from,
-                            to,
-                            (x, y, z, rotZ, rotY, collisionData) => {
-                                this.createPoint(type, group, x, y, z, style, feature, collisionData, rotZ + rotation, UNDEF, text);
-                            }
+              <GeoJSONCoordinate[]>coordinates,
+              altitude,
+              tile,
+              tileSize,
+              checkCollisions && this.collisions,
+              priority,
+              w,
+              h,
+              offsetX,
+              offsetY,
+              from,
+              to,
+              (x, y, z, rotZ, rotY, collisionData) => {
+                  this.createPoint(type, group, x, y, z, style, feature, collisionData, rotZ + rotation, UNDEF, text, UNDEF, textAnchor);
+              }
                         );
                     }
                 }
@@ -960,12 +957,12 @@ export class FeatureFactory {
                             aPosition,
                             (group.buffer as ExtrudeBuffer).flexAttributes.a_normal.data,
                             vIndex,
-                            <GeoJSONCoordinate[][]>coordinates,
-                            tile,
-                            tileSize,
-                            extrude,
-                            extrudeBase,
-                            strokeIndex
+              <GeoJSONCoordinate[][]>coordinates,
+              tile,
+              tileSize,
+              extrude,
+              extrudeBase,
+              strokeIndex
                         );
                     } else if (type == 'Polygon') {
                         flatPoly = addPolygon(aPosition, <GeoJSONCoordinate[][]>coordinates, tile, tileSize);
@@ -1025,8 +1022,10 @@ export class FeatureFactory {
             collisionGrp.height = halfHeight;
 
             this.pendingCollisions.push(collisionGrp);
-        };
+        }
+        ;
     }
+
     destroy() {
         this.modelFactory.destroy();
     }

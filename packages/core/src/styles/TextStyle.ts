@@ -110,6 +110,24 @@ export interface TextStyle {
     text?: string | number | boolean | StyleValueFunction<string | number | boolean> | StyleZoomRange<string | number | boolean>;
 
     /**
+     * The "textAnchor" attribute is used to align the text relative to the {@link anchor} point.
+     *
+     * Possible values:
+     * - "Left": The text is aligned left to the anchor.
+     * - "Right": The text is aligned right to the anchor.
+     * - "Center": The center of the Text is placed at the {@link anchor} point.
+     * - "Top": The top of the Text is placed closest the {@link anchor} point.
+     * - "TopLeft": The top left side of the Text is placed closest the {@link anchor} point.
+     * - "TopRight": The top right side of the Text is placed closest the {@link anchor} point.
+     * - "Bottom": The bottom of the Text is placed closest to the {@link anchor} point.
+     * - "BottomLeft": The bottom left side of the Text is placed closest the {@link anchor} point.
+     * - "BottomRight": The bottom right side of the Text is placed closest the {@link anchor} point.
+     *
+     * @defaultValue "Center"
+     */
+    textAnchor?: 'Left' | 'Center' | 'Right' | 'Top' | 'TopLeft' | 'TopRight' | 'Bottom' | 'BottomLeft' | 'BottomRight'
+
+    /**
      * "textRef" Reference to an attribute of an feature that's value should be displayed as text.
      * If both "text" and "textRef" are set, "text" prevails.
      * It is only required by Text.
@@ -121,7 +139,7 @@ export interface TextStyle {
      * ```
      * @example
      * ```typescript
-     * // display the id of the featurre
+     * // display the id of the feature
      * ...
      * textRef: "id"
      * ```
@@ -221,7 +239,7 @@ export interface TextStyle {
      *
      * @defaultValue For Polygon geometry the default is "Center". For Line geometry the default for styles of type "Text" is "Line".
      */
-    anchor?: 'Line' | 'Coordinate' | 'Centroid'
+    anchor?: 'Line' | 'Coordinate' | 'Centroid' | 'Center'
 
     /**
      * Enable or disable the space check for point styles on line geometries.

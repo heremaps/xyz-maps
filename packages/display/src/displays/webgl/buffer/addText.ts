@@ -20,8 +20,21 @@
 import {createTextData, OFFSET_SCALE} from './createText';
 import {GlyphAtlas} from '../GlyphAtlas';
 import {FlexArray} from './templates/FlexArray';
+import {TextStyle} from '@here/xyz-maps-core';
 
 const EXTENT_SCALE = 64;
+
+const ANCHOR_OFFSET: Record<TextStyle['textAnchor'], { x: number, y: number }> = {
+    Center: {x: .5, y: 0},
+    Left: {x: 0, y: 0},
+    Right: {x: 1, y: 0},
+    Top: {x: .5, y: -1},
+    TopLeft: {x: 0, y: -1},
+    TopRight: {x: 1, y: -1},
+    Bottom: {x: .5, y: 1},
+    BottomLeft: {x: 0, y: 1},
+    BottomRight: {x: 1, y: 1}
+};
 
 const addText = (
     cx: number,
@@ -33,12 +46,13 @@ const addText = (
     textureCoordinates: FlexArray,
     glyphAtlas: GlyphAtlas,
     rotationZ = 0,
-    rotationY: number | undefined
+    rotationY: number | undefined,
+    textAnchor: TextStyle['textAnchor'] | string = 'Center'
 ) => {
-    const lineCnt = lines.length;
+    const lineOffset = lines.length - 1;
     const lineHeight = glyphAtlas.lineHeight;
-
-    let ty = (glyphAtlas.baselineOffset + (lineCnt - 1) * lineHeight * .5) * OFFSET_SCALE;
+    const anchorOffset = ANCHOR_OFFSET[textAnchor] || ANCHOR_OFFSET.Center;
+    let ty = (glyphAtlas.baselineOffset + lineHeight * (lineOffset * .5 + anchorOffset.y * (lineOffset || 1))) * OFFSET_SCALE;
 
     // LSB defines visibility, visible by default
     cx = cx * EXTENT_SCALE << 1 | 1;
@@ -56,17 +70,16 @@ const addText = (
     // }
 
     if (hasHeight) {
-        // normalize float meters to uint16 (0m ... +9000m)
+    // normalize float meters to uint16 (0m ... +9000m)
         z = Math.round(z / 9000 * 0xffff);
         dim = 3;
     }
-
 
     let i = vertex.length / dim;
 
     for (let text of lines) {
         const textData = createTextData(text, glyphAtlas, offsets, textureCoordinates, rotationZ, rotationY);
-        const tx = textData.width * glyphAtlas.scale / 2 * OFFSET_SCALE;
+        const tx = textData.width * anchorOffset.x * glyphAtlas.scale * OFFSET_SCALE;
         const vertexCnt = textData.count * dim;
 
         vertex.reserve(vertexCnt);
