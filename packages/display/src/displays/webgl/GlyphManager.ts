@@ -67,7 +67,7 @@ class GlyphManager {
         if (!fonts[styleId]) {
             const size = 96 * scale;
             const canvas = createCanvas(size, size);
-            const ctx = canvas.getContext('2d');
+            const ctx = canvas.getContext('2d', {willReadFrequently: true});
 
             ctx.textBaseline = 'bottom';
             const letterHeightBottom = determineFontHeight(ctx, style, 'gM').height;
