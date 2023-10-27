@@ -29,6 +29,14 @@ export type Image =
 
 const isPowerOf2 = (size: number) => (size & (size - 1)) == 0;
 
+export type TextureOptions = {
+    flipY?: boolean,
+    format?: GLenum,
+    halfFloat?: boolean,
+    premultiplyAlpha?: boolean,
+    mipMaps?: boolean
+}
+
 class Texture {
     width: number;
     height: number;
@@ -41,19 +49,16 @@ class Texture {
     private flipY: boolean;
     private halfFloat: boolean;
     private premultiplyAlpha: boolean;
+    private mipMaps: boolean;
 
     ref?: number; // reference counter for Texture sharing
 
-    constructor(gl: WebGLRenderingContext, image?: Image, options: {
-        flipY?: boolean,
-        format?: GLenum,
-        halfFloat?: boolean,
-        premultiplyAlpha?: boolean
-    } = {}) {
+    constructor(gl: WebGLRenderingContext, image?: Image, options: TextureOptions = {}) {
         this.gl = gl;
         this.format = options.format || gl.RGBA;
         this.flipY = options.flipY || false;
         this.halfFloat = options.halfFloat || false;
+        this.mipMaps = options.mipMaps ?? true;
         this.premultiplyAlpha = options.premultiplyAlpha == undefined
             ? true
             : options.premultiplyAlpha;
@@ -105,7 +110,7 @@ class Texture {
             gl.texSubImage2D(gl.TEXTURE_2D, 0, x || 0, y || 0, format, gl.UNSIGNED_BYTE, <HTMLCanvasElement | HTMLImageElement>image);
         }
 
-        if (width == height && isPowerOf2(height)) {
+        if (this.mipMaps && width == height && isPowerOf2(height)) {
             gl.texParameteri(gl.TEXTURE_2D, gl.TEXTURE_MIN_FILTER, gl.LINEAR_MIPMAP_NEAREST);
             gl.texParameteri(gl.TEXTURE_2D, gl.TEXTURE_MAG_FILTER, gl.LINEAR);
             gl.generateMipmap(gl.TEXTURE_2D);
