@@ -785,7 +785,8 @@ export class GLRender implements BasicRender {
             const previewTransformMatrix = this.initPreviewMatrix(x, y, scale);
 
             if (buffer.scissor) {
-                this.initScissor(x - sx * scale, y - sy * scale, dWidth * scale, this.vPMat);
+                this.initScissor( x + dx, y + dy, tileSize * scale, this.vPMat);
+                // this.initScissor(x - sx * scale, y - sy * scale, dWidth * scale, this.vPMat);
                 // this.initScissor(px, py, tileSize, previewTransformMatrix);
             }
             this.initStencil(dTile.i, tileSize, bufferData.data.stencils);
