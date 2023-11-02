@@ -500,7 +500,7 @@ const searchLerp = (map, search: number, parseSize: boolean = true) => {
 export const fillMap = (searchMap, parseSizeValue: boolean, map = {}) => {
     let fixedZoomMap = {};
     for (let zoom in searchMap) {
-        fixedZoomMap[Math.round(zoom)] = searchMap[zoom];
+        fixedZoomMap[Math.round(Number(zoom))] = searchMap[zoom];
     }
     for (let zoom = 1; zoom <= 20; zoom++) {
         map[zoom] = searchLerp(fixedZoomMap, zoom, parseSizeValue);
