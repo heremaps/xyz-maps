@@ -84,7 +84,7 @@ describe('pointer listener with different style link', ()=>{
         linkLayer.setStyle({
             styleGroups: {
                 myStyles: [
-                    {'zIndex': 0, 'type': 'Line', 'opacity': 1, 'stroke': '#ff0000', 'strokeWidth': 16},
+                    {'zIndex': 0, 'type': 'Line', 'opacity': 1, 'stroke': '#ff0000', 'strokeWidth': 18},
                     {'zIndex': 1, 'type': 'Line', 'opacity': 1, 'stroke': '#ff00ff', 'strokeWidth': 8}
                 ]
             },
