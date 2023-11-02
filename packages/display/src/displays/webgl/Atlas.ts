@@ -83,7 +83,7 @@ class Atlas {
         return this.c.get(key);
     };
 
-    init() {
+    private init() {
         let {texture, gl, maxSize, d} = this;
 
         if (!this.texture) {

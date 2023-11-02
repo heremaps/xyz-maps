@@ -197,7 +197,13 @@ const createBuffer = (
                             if (type == 'Line') {
                                 if (shared.strokeDasharray) {
                                     geoBuffer.type = 'DashedLine';
-                                    geoBuffer.addUniform('u_texWidth', (geoBuffer.uniforms.u_pattern as Texture).width);
+
+                                    geoBuffer.addUniform('u_hasDashTexture', !!(geoBuffer.uniforms.u_dashTexture));
+                                    geoBuffer.addUniform('u_dashSize', [
+                                        (geoBuffer.uniforms.u_pattern as Texture).width,
+                                        shared.strokeDasharray[0],
+                                        shared.strokeDasharray[1]
+                                    ]);
                                 }
                                 geoBuffer.addUniform('u_fill', stroke);
 
@@ -207,10 +213,11 @@ const createBuffer = (
                                     shared.offsetUnit == 'm' ? meterToPixel : 0
                                 ]);
 
-                                geoBuffer.addUniform('u_no_antialias', !grpBuffer.isFlat());
+                                geoBuffer.addUniform('u_no_antialias', false);
+                                // geoBuffer.addUniform('u_no_antialias', !grpBuffer.isFlat());
 
                                 geoBuffer.pass = PASS.ALPHA;
-                                if (!geoBuffer.flat) {
+                                if (!geoBuffer.flat || shared.strokeDasharray || hasAlphaColor) {
                                     geoBuffer.pass |= PASS.POST_ALPHA;
                                 }
                                 geoBuffer.depth = geoBuffer.blend = true;
@@ -249,7 +256,9 @@ const createBuffer = (
                                         geoBuffer.addUniform('u_opacity', shared.opacity);
                                     }
 
-                                    geoBuffer.addUniform('u_atlasScale', 1 / (geoBuffer.uniforms.u_texture as Texture).width);
+                                    const texture = geoBuffer.uniforms.u_texture as Texture;
+                                    geoBuffer.addUniform('u_texSize', [texture.width, texture.height]);
+
                                     geoBuffer.addUniform('u_alignMap', shared.alignment == 'map');
 
                                     geoBuffer.pass = PASS.ALPHA;

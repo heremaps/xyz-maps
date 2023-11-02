@@ -128,7 +128,8 @@ const parseSizeValue = (size: string | number, float: boolean = false): [number,
         }
     }
     if (!float) {
-        value = <number>value ^ 0; // no "float pixels"
+        value = Math.round(value as number || 0); // no "float pixels"
+        // value = <number>value ^ 0; // no "float pixels"
     }
     return [<number>value, unit];
 };
@@ -496,9 +497,13 @@ const searchLerp = (map, search: number, parseSize: boolean = true) => {
     }
     return rawVal;
 };
-const fillMap = (map, searchMap, parseSizeValue: boolean) => {
+export const fillMap = (searchMap, parseSizeValue: boolean, map = {}) => {
+    let fixedZoomMap = {};
+    for (let zoom in searchMap) {
+        fixedZoomMap[Math.round(zoom)] = searchMap[zoom];
+    }
     for (let zoom = 1; zoom <= 20; zoom++) {
-        map[zoom] = searchLerp(searchMap, zoom, parseSizeValue);
+        map[zoom] = searchLerp(fixedZoomMap, zoom, parseSizeValue);
     }
     return map;
 };
@@ -512,7 +517,7 @@ export const parseColorMap = (map: { [zoom: string]: RGBA }) => {
 };
 
 export const createZoomRangeFunction = (map: StyleZoomRange<RGBA>, /* isFeatureContext?:boolean,*/ parseSizeValue?: boolean) => {
-    map = fillMap({}, map, parseSizeValue);
+    map = fillMap(map, parseSizeValue);
     // return new Function('f,zoom', `return (${JSON.stringify(map)})[zoom];`);
     const range = (feature, zoom: number) => {
         return map[zoom ?? feature];
@@ -544,7 +549,7 @@ const parseStyleGroup = (styleGroup: Style[]) => {
                         const parseSizeValue = !allowedFloatProperties[name];
 
                         style[name] = createZoomRangeFunction(value, parseSizeValue);
-                        // let map = fillMap({}, value, parseSizeValue);
+                        // let map = fillMap(value, parseSizeValue, {});
                         // style[name] = createZoomRangeFunction(map);
                     }
                 }

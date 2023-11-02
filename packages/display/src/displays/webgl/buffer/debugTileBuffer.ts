@@ -159,7 +159,7 @@ const createGridTextBuffer = (quadkey: string, gl: WebGLRenderingContext, font) 
     textBuffer.scissor = false;
     // textBuffer.texture = glyphs;
     textBuffer.addUniform('u_texture', glyphs);
-    textBuffer.addUniform('u_atlasScale', 1 / glyphs.width);
+    textBuffer.addUniform('u_texSize', [glyphs.width, glyphs.height]);
     textBuffer.addUniform('u_opacity', 1.0);
     textBuffer.addUniform('u_alignMap', true);
     textBuffer.addUniform('u_fillColor', toRGB(font.fill));

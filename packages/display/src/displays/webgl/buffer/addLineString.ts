@@ -31,11 +31,11 @@ const SCALE = 8191;
 const TILE_CLIP_MARGIN = 16;
 
 enum OutCode {
-    INSIDE = 0, // 0000
-    LEFT = 1, // 0001
-    RIGHT = 2, // 0010
-    BOTTOM = 4, // 0100
-    TOP = 8 // 1000
+  INSIDE = 0, // 0000
+  LEFT = 1, // 0001
+  RIGHT = 2, // 0010
+  BOTTOM = 4, // 0100
+  TOP = 8 // 1000
 }
 
 const computeOutCode = (x: number, y: number, xmin: number, xmax: number, ymin: number, ymax: number): OutCode => {
@@ -155,7 +155,7 @@ const addLineString = (
     cap: Cap,
     join: Join,
     strokeWidth: number,
-    lengthToVertex?: number[] | false,
+    lengthToVertex?: FlexArray | false,
     isRing?: boolean,
     offset?: number,
     relStart = 0,
@@ -163,7 +163,6 @@ const addLineString = (
 ): number => {
     strokeWidth *= .5;
 
-    // join = 'none'
     const clipOnTileEdges = !!height;
     const includeHeight = clipOnTileEdges;
     if (height === true && dimensions == 2) {
@@ -204,10 +203,7 @@ const addLineString = (
 
     if (lengthToVertex) {
         cap = 'butt';
-        if (!offset) {
-            // keep meter join for offset dashed lines
-            join = 'none';
-        }
+        join = 'miter';
     }
 
     let outCode0 = computeOutCode(coordinates[0], coordinates[1], tileMin, tileMax, tileMin, tileMax);
@@ -333,7 +329,7 @@ const addSegments = (
     capStop: Cap,
     join: Join,
     strokeWidth: number,
-    lengthToVertex: number[] | false,
+    lengthToVertex: FlexArray | false,
     absStart?: number,
     absStop?: number,
     offset?: number,
@@ -539,7 +535,9 @@ const addSegments = (
             } else {
                 // >2 -> >90deg
                 // bisectorExceeds = bisectorLength > 2;
-                bisectorExceeds = bisectorLength > 3;
+                bisectorExceeds = lengthToVertex
+                    ? true // prevent dasharray distortion
+                    : bisectorLength > 3;
                 // if angle is to sharp and bisector length goes to infinity we cut the cone
                 // // bisectorLength > 10 behaves exactly like canvas2d..
                 // // ..but we cut earlier to prevent "cone explosion"
@@ -574,6 +572,13 @@ const addSegments = (
         p1Up = nUp;
         p2Up = nUp;
 
+        // nUp = [-nx << 1 | 0, ny << 1 | 1];
+        // nDown = [nUp[0], nUp[1] ^ 1];
+        // p1Down = [-nx << 1 | 0, nDown[1]];
+        // p2Down = [-nx << 1 | 1, nDown[1]];
+        // p1Up = [-nx << 1 | 0, nUp[1]];
+        // p2Up = [-nx << 1 | 1, nUp[1]];
+
         if (join != 'none') {
             if (!last && curJoin == JOIN_MITER && vLength > 2 * dimensions /** 4**/) {
                 p2Down = [ex << 1 | 0, ey << 1 | 0];
@@ -583,12 +588,12 @@ const addSegments = (
             if (!first && !prevBisectorExceeds) {
                 if (prevLeft) {
                     p1Up = [prevEx << 1 | 1, prevEy << 1 | 1];
-                    if (join == 'miter') {
+                    if (join == JOIN_MITER) {
                         p1Down = [prevEx << 1 | 0, prevEy << 1 | 0]; // miter
                     }
                 } else {
                     p1Down = [prevEx << 1 | 0, prevEy << 1 | 0];
-                    if (join == 'miter') {
+                    if (join == JOIN_MITER) {
                         p1Up = [prevEx << 1 | 1, prevEy << 1 | 1]; // miter
                     }
                 }
@@ -675,6 +680,7 @@ const addSegments = (
                     } else {
                         vertex.push(prevX2, prevY2, prevX2, prevY2, prevX2, prevY2);
                     }
+                    (lengthToVertex as FlexArray)?.push(prevLengthSoFar, prevLengthSoFar, prevLengthSoFar);
                 }
 
                 if (!first) {
@@ -727,7 +733,7 @@ const addSegments = (
                             } else {
                                 vertex.push(prevX2, prevY2, prevX2, prevY2, prevX2, prevY2);
                             }
-
+                            (lengthToVertex as FlexArray)?.push(prevLengthSoFar, prevLengthSoFar, prevLengthSoFar);
 
                             // if (hasZ && join == JOIN_BEVEL) {
                             // if (z1 != z2 && join == JOIN_BEVEL) {
@@ -807,6 +813,7 @@ const addSegments = (
                         } else {
                             vertex.push(prevX2, prevY2, prevX2, prevY2, prevX2, prevY2);
                         }
+                        (lengthToVertex as FlexArray)?.push(prevLengthSoFar, prevLengthSoFar, prevLengthSoFar);
                     }
                 }
             }
@@ -864,13 +871,10 @@ const addSegments = (
                 addCap(capStop, x2, y2, includeHeight && z2, -nx, -ny, vertex, normal);
             }
 
-            if (lengthToVertex) {
-                const prevLengthSoFar = lengthSoFar - length;
-                lengthToVertex.push(
-                    prevLengthSoFar, lengthSoFar, prevLengthSoFar,
-                    prevLengthSoFar, lengthSoFar, lengthSoFar
-                );
-            }
+            (lengthToVertex as FlexArray)?.push(
+                prevLengthSoFar, lengthSoFar, prevLengthSoFar,
+                prevLengthSoFar, lengthSoFar, lengthSoFar
+            );
         }
 
         skipFirstSegment = false;

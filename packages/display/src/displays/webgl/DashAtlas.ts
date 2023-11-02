@@ -28,7 +28,7 @@ class DashAtlas {
         this.gl = gl;
     }
 
-    create(dashArray: DashArray) {
+    private create(dashArray: DashArray) {
         let size =
             dashArray.reduce((a, b) => a + b) *
             // double size for odd dasharray size to get repeating pattern
@@ -62,7 +62,7 @@ class DashAtlas {
         });
     }
 
-    get(dashArray: DashArray): SharedTexture {
+    get(dashArray: DashArray, dashImage?): SharedTexture {
         const id = String(dashArray);
         let dashData = this.data[id];
 

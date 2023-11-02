@@ -41,7 +41,7 @@ export class SymbolBuffer extends PointBuffer {
             },
             // bit1 -> bit5  - rotation low (x), rotation height (y)
             // bit6 -> bit16 - texture coordinate
-            // 10 bit rotation, 2 * 12 bit texture coordinate
+            // 10 bit rotation, 2 * 11 bit texture coordinate (2048x2048)
             //  MSB                                                              LSB
             // |TCX|TCX|TCX|TCX|TCX|TCX|TCX|TCX|TCX|TCX|TCX|ROTL|ROTL|ROTL|ROTL|ROTL|
             // |TCY|TCY|TCY|TCY|TCY|TCY|TCY|TCY|TCY|TCY|TCY|ROTH|ROTH|ROTH|ROTH|ROTH|

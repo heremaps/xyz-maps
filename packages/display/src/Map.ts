@@ -45,6 +45,9 @@ import {
 import {FlightAnimator} from './animation/FlightAnimator';
 import Copyright from './ui/copyright/Copyright';
 import Logo from './ui/Logo';
+import {fillMap} from './displays/styleTools';
+import {toRGB} from './displays/webgl/color';
+
 
 const project = webMercator;
 // const alt2z = webMercator.alt2z;
@@ -111,6 +114,9 @@ export class Map {
     static getInstances() {
         return instances.slice();
     }
+
+    static fillZoomMap = fillMap;
+    static toRGB = toRGB;
 
     id: number;
 

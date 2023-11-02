@@ -1,5 +1,5 @@
 /*
- * Copyright (C) 2019-2022 HERE Europe B.V.
+ * Copyright (C) 2019-2023 HERE Europe B.V.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -42,7 +42,7 @@ function onLoad() {
 
     img._cbs = null;
 
-    if (size > MAX_IMAGE_SIZE) {
+    if (!img.skipAutoScale && size > MAX_IMAGE_SIZE) {
         // rescale image to fit max allowed source size
         const scale = MAX_IMAGE_SIZE / size;
         img = img._r[img.src] = createScaledImage(img, scale);
@@ -59,19 +59,42 @@ function onLoad() {
     }
 }
 
+export const loadImage = (url: string, skipAutoScale?): Promise<HTMLCanvasElement | HTMLImageElement> => new Promise((resolve, reject) => {
+    let img = new Image();
+    img.crossOrigin = 'Anonymous';
+    // img.skipAutoScale = skipAutoScale;
+    img.addEventListener('load', () => {
+        let image: HTMLCanvasElement | HTMLImageElement = img;
+        const size = Math.max(img.width, img.height);
+        if (!skipAutoScale && size > MAX_IMAGE_SIZE) {
+            // rescale image to fit max allowed source size
+            const scale = MAX_IMAGE_SIZE / size;
+            image = createScaledImage(img, scale);
+        } else {
+            // workaround for chrome issue (bug!?) in case of base64 encoded svg image
+            // is send to texture with incorrect size.
+            _ctx.drawImage(img, 0, 0);
+        }
+        resolve(image);
+    });
+    img.addEventListener('error', (err) => reject(err));
+    img.src = url;
+});
 
-declare global {
-    interface HTMLImageElement {
-        ready: boolean
-        _cbs: { [key: string]: [(...args) => void, any[]] }
-        _r: ImgDataMap
-    }
+
+interface Image extends HTMLImageElement{
+    ready: boolean;
+    _cbs: { [key: string]: [(...args) => void, any[]] };
+    _r: ImgDataMap;
+    skipAutoScale: boolean;
 }
 
-type ImgDataMap = { [url: string]: HTMLImageElement };
 
-class ImageResourceHandler {
-    private imgData: ImgDataMap = {};
+type ImgDataMap = { [url: string]: Image };
+
+export class ImageLoader {
+    imgData: ImgDataMap = {};
+    private promises: any = {};
 
     constructor() {
     }
@@ -84,35 +107,31 @@ class ImageResourceHandler {
         return this.imgData[url]?.ready;
     };
 
-    get(url: string, cb?: (img: HTMLImageElement, ...args) => void, cbID?: string, args?) {
+    get(url: string, cb?: (img: HTMLImageElement, ...args) => void, cbID?: string, args?, skipAutoScale?: boolean) {
         let resources = this.imgData;
         if (resources[url] == UNDEF) {
-            let img = resources[url] = new Image();
+            let img = resources[url] = new Image() as Image;
             img.ready = false;
             img._cbs = {};
             if (cb) {
                 img._cbs[cbID] = [cb, args];
             }
             img._r = resources;
-
             img.crossOrigin = 'Anonymous';
+            img.skipAutoScale = skipAutoScale;
             img.onload = onLoad;
             // if (img.decode) {
             //     img.decode().then(() => onLoad(img)).catch((e) => {});
             // }
             img.src = url;
         } else if (cb) {
-            // image is still getting loaded..
+            // image is still getting loaded...
             if (!resources[url].ready) {
                 resources[url]._cbs[cbID] = [cb, args];
             } else {
                 cb(resources[url], args);
             }
         }
-
         return resources[url];
     };
 }
-
-
-export default ImageResourceHandler;

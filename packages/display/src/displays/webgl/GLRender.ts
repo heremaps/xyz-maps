@@ -20,7 +20,6 @@
 import BasicRender from '../BasicRender';
 import {CustomLayer, Tile, TileLayer} from '@here/xyz-maps-core';
 import GLTile from './GLTile';
-import {IconManager} from './IconManager';
 import {RGBA, toRGB} from './color';
 
 import RectProgram from './program/Rect';
@@ -45,7 +44,20 @@ import {PASS} from './program/GLStates';
 import {TileBufferData} from './Display';
 
 import {transformMat4} from 'gl-matrix/vec3';
-import {clone, copy, create, identity, invert, lookAt, multiply, perspective, rotateX, rotateZ, scale, translate} from 'gl-matrix/mat4';
+import {
+    clone,
+    copy,
+    create,
+    identity,
+    invert,
+    lookAt,
+    multiply,
+    perspective,
+    rotateX,
+    rotateZ,
+    scale,
+    translate
+} from 'gl-matrix/mat4';
 import BasicTile from '../BasicTile';
 import {Attribute} from './buffer/Attribute';
 import {GLExtensions} from './GLExtensions';
@@ -77,7 +89,6 @@ export type RenderOptions = WebGLContextAttributes;
 export type BufferCache = WeakMap<Attribute | IndexData, WebGLBuffer>;
 
 export class GLRender implements BasicRender {
-    icons: IconManager;
     readonly vPMat: Float32Array; // projection matrix
     private readonly vMat: Float32Array; // view matrix
     private readonly invVPMat: Float32Array; // inverse projection matrix
@@ -88,10 +99,10 @@ export class GLRender implements BasicRender {
     cameraWorld: Float64Array = new Float64Array(3);
 
     private tilePreviewTransform: {
-        m: Float32Array; // tile transformation matrix,
-        tx: number; // translate x
-        ty: number; // translate y
-        s: number; // scale
+      m: Float32Array; // tile transformation matrix,
+      tx: number; // translate x
+      ty: number; // translate y
+      s: number; // scale
     };
 
     private zMeterToPixel: number;
@@ -194,9 +205,9 @@ export class GLRender implements BasicRender {
     }
 
     setBackgroundColor(color: RGBA) {
-        // this.clearColor = color;
+    // this.clearColor = color;
         if (this.gl) {
-            this.gl.clearColor(color[0], color[1], color[2], 1.0);
+            this.gl.clearColor(color[0], color[1], color[2], color[3] || 1.0);
         }
     }
 
@@ -248,10 +259,6 @@ export class GLRender implements BasicRender {
         this.stencilTile = stencilTile;
 
         this.depthBufferSize = 1 << gl.getParameter(gl.DEPTH_BITS);
-
-        const texUnits = gl.getParameter(gl.MAX_VERTEX_TEXTURE_IMAGE_UNITS);
-
-        this.icons = new IconManager(gl, texUnits - 2);
 
         const programConfig = this.programConfig = {
             Rect: {program: RectProgram},
@@ -576,7 +583,7 @@ export class GLRender implements BasicRender {
         program: Program,
         buffer: GeometryBuffer,
         renderPass: PASS,
-        sharedUniforms = this.sharedUniforms
+        useStencil: boolean|number = true
     ) {
         const bufAttributes = buffer.getAttributes();
         this.useProgram(program);
@@ -586,12 +593,12 @@ export class GLRender implements BasicRender {
         program.initGeometryBuffer(buffer, renderPass,
             // only use stencil when needed... no need if map is untransformed
             // Boolean(this.rx || this.rz),
-            true,
+            useStencil,
             this.zIndex
         );
 
         program.initAttributes(bufAttributes);
-        program.initUniforms(sharedUniforms);
+        program.initUniforms(this.sharedUniforms);
         program.initUniforms(buffer.uniforms);
     }
 
@@ -628,7 +635,13 @@ export class GLRender implements BasicRender {
                 sharedUniforms.u_matrix = pMat || this.vPMat;
                 sharedUniforms.u_zMeterToPixel = this.zMeterToPixel / dZoom;
 
-                if (buffer.scissor) {
+                const uses2PassAlpha = buffer.pass & PASS.POST_ALPHA;
+                // 2 pass alpha requires stencil usage. otherwise only needed when buffer scissors.
+                let useStencil = (uses2PassAlpha ?? pass == PASS.POST_ALPHA) || buffer.scissor;
+                // for flat buffers we can use tile stenciling as well.
+                useStencil &&= buffer.isFlat() ? this.stencilVal : true;
+
+                if (typeof useStencil == 'number') {
                     this.drawStencil(x, y, dZoom/* ,buffer.type=='Image'*/);
                 }
 
@@ -642,9 +655,7 @@ export class GLRender implements BasicRender {
                 // const depth = 1 - (1 + zIndex) / (1 << 16);
                 gl.depthRange(buffer.flat ? depth : 0, depth);
 
-
-                this.initProgram(program, buffer, pass, this.sharedUniforms);
-
+                this.initProgram(program, buffer, pass, useStencil);
 
                 if (isOnTopOf3d) {
                     gl.disable(gl.DEPTH_TEST);
@@ -666,7 +677,7 @@ export class GLRender implements BasicRender {
     };
 
     private drawStencil(x: number, y: number, zoom: number/* , snapGrid: boolean*/) {
-        // return this.gl.stencilFunc(this.gl.ALWAYS, 0, 0);
+    // return this.gl.stencilFunc(this.gl.ALWAYS, 0, 0);
         const refVal = this.stencilVal;
         const {gl, stencilTile, sharedUniforms} = this;
         const program: Program = this.getProgram(stencilTile);
@@ -684,7 +695,10 @@ export class GLRender implements BasicRender {
             sharedUniforms.u_topLeft[0] = x + position[0] * tileSize;
             sharedUniforms.u_topLeft[1] = y + position[1] * tileSize;
 
-            this.initProgram(program, stencilTile, this.pass);
+            this.initProgram(program, stencilTile, this.pass, false);
+
+            gl.enable(gl.STENCIL_TEST);
+
             program.draw(stencilTile);
         }
         gl.stencilFunc(gl.EQUAL, refVal, 0xff);
@@ -697,13 +711,13 @@ export class GLRender implements BasicRender {
     private scissorSize: number;
 
     private initScissor(x: number, y: number, size: number, matrix: Float32Array) {
-        // return this.gl.scissor(0, 0, this.gl.canvas.width, this.gl.canvas.height);
+    // return this.gl.scissor(0, 0, this.gl.canvas.width, this.gl.canvas.height);
         const {gl} = this;
         const w = gl.canvas.width;
         const h = gl.canvas.height;
 
         if (this.scale > 4.0 // workaround: precision issues for 22+ zooms -> disable scissor
-            || -this.rx > MAX_PITCH_SCISSOR // high pitch, part of tile is "behind" the cam, plane "flips" -> skip scissor.
+      || -this.rx > MAX_PITCH_SCISSOR // high pitch, part of tile is "behind" the cam, plane "flips" -> skip scissor.
         ) {
             gl.scissor(0, 0, w, h);
             this.scissorX = null;
@@ -785,7 +799,7 @@ export class GLRender implements BasicRender {
             const previewTransformMatrix = this.initPreviewMatrix(x, y, scale);
 
             if (buffer.scissor) {
-                this.initScissor( x + dx, y + dy, tileSize * scale, this.vPMat);
+                this.initScissor(x + dx, y + dy, tileSize * scale, this.vPMat);
                 // this.initScissor(x - sx * scale, y - sy * scale, dWidth * scale, this.vPMat);
                 // this.initScissor(px, py, tileSize, previewTransformMatrix);
             }
@@ -820,7 +834,6 @@ export class GLRender implements BasicRender {
     }
 
     destroy(): void {
-        this.icons.destroy();
     }
 
     prepare(INSTRUCTIONS: any, tile: Tile, layer: TileLayer, display: any, dTile: BasicTile, cb: () => void): void {

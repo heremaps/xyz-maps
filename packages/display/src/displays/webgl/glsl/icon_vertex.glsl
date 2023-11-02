@@ -7,7 +7,7 @@ attribute vec2 a_texcoord;
 uniform mat4 u_matrix;
 uniform vec2 u_topLeft;
 uniform float u_scale;
-uniform float u_atlasScale;
+uniform vec2 u_texSize;
 uniform vec4 u_offset;
 uniform vec2 u_offsetZ;
 uniform bool u_alignMap;
@@ -60,6 +60,6 @@ void main(void){
         }
 
         // textcoords bit6->bit16
-        v_texcoord = floor(a_texcoord / 32.0) * u_atlasScale;
+        v_texcoord = floor(a_texcoord / 32.0) / u_texSize;
     }
 }

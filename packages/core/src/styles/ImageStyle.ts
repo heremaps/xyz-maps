@@ -52,6 +52,12 @@ export interface ImageStyle {
     src: string | StyleValueFunction<string> | StyleZoomRange<string>;
 
     /**
+     * If specified, the Image provided by {@link src} is considered as an IconAtlas/TextureAtlas.
+     * The clipping region for the image must be defined by x, y, width and height.
+     */
+    atlas?: {x: number, y: number, width: number, height: number};
+
+    /**
      * Defines the opacity of the style.
      * The value must be between 0.0 (fully transparent) and 1.0 (fully opaque).
      * It is valid for all style types.
@@ -165,7 +171,7 @@ export interface ImageStyle {
     repeat?: number | StyleValueFunction<number> | StyleZoomRange<number>;
 
     /**
-     * Sets the anchor point for styles of type "Circle" used with Line or Polygon geometry.
+     * Sets the anchor point for styles of type "Image" used with Line or Polygon geometry.
      *
      * Possible values for Line geometry are "Coordinate" and "Line".
      * - "Coordinate": the respective style is displayed at each coordinate of the polyline.
@@ -175,7 +181,7 @@ export interface ImageStyle {
      * - "Center": the center of the bounding box of the polygon.
      * - "Centroid": the geometric centroid of the polygon geometry.
      *
-     * @defaultValue For Polygon geometry the default is "Center". For Line geometry the default is "Line""Coordinate".
+     * @defaultValue For Polygon geometry the default is "Center". For Line geometry the default is "Line".
      */
     anchor?: 'Line' | 'Coordinate' | 'Centroid'
 

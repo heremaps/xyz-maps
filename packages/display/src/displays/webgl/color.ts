@@ -171,7 +171,6 @@ const HTML_COLOR_NAMES: { [color: string]: RGBA | string } = {
     yellowgreen: '9acd32'
 };
 
-
 const hexStringToRGBA = (hexString: string): RGBA => {
     const length = hexString.length;
     if (length < 5) {
@@ -202,7 +201,6 @@ const hexToRGBA = (hex: number, alpha?: boolean): RGBA => {
     ];
 };
 
-
 for (let name in HTML_COLOR_NAMES) {
     HTML_COLOR_NAMES[name] = hexStringToRGBA(HTML_COLOR_NAMES[name] as string);
 }
@@ -218,8 +216,7 @@ const parseRGBAString = (color: string): RGBA => {
     ];
 };
 
-
-export const toRGB = (color: string | RGBA | number): RGBA => {
+export const toRGB = (color: string | RGBA | number, ignoreNumbers?: boolean): RGBA => {
     let rgba;
     if (color) {
         if (Array.isArray(color)) {
@@ -228,7 +225,9 @@ export const toRGB = (color: string | RGBA | number): RGBA => {
                 rgba[3] = 1;
             }
         } else if (typeof color == 'number') {
-            rgba = hexToRGBA(color);
+            if (!ignoreNumbers) {
+                rgba = hexToRGBA(color);
+            }
         } else if (color[0] == '#') {
             rgba = hexStringToRGBA(color.slice(1));
         } else {
@@ -244,3 +243,5 @@ export const toRGB = (color: string | RGBA | number): RGBA => {
     }
     return rgba || INVALID_COLOR;
 };
+
+toRGB.INVALID_COLOR = INVALID_COLOR;

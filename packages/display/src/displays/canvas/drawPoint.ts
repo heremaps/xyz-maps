@@ -18,9 +18,9 @@
  */
 
 import {getValue} from '../styleTools';
-import ImgResourceHandler from '../ImageResourceHandler';
+import {ImageLoader} from '../ImageLoader';
 
-const imgResources = new ImgResourceHandler();
+const imgResources = new ImageLoader();
 const PI2 = 2 * Math.PI;
 const TO_RAD = Math.PI / 180;
 const MAX_CANVAS_SIZE = 512;

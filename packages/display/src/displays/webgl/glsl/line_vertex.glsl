@@ -8,12 +8,15 @@ uniform mat4 u_matrix;
 uniform highp vec2 u_strokeWidth;
 uniform highp float u_scale;
 uniform vec2 u_topLeft;
-uniform float u_texWidth;
 varying vec2 v_normal;
+#ifdef DASHARRAY
 varying float v_lengthSoFar;
+#endif
 varying vec2 v_width;
+varying vec2 v_dir;
 
 uniform vec2 u_offset;
+uniform vec3 u_dashSize;
 uniform float u_tileScale;
 uniform bool u_no_antialias;
 uniform bool u_scaleByAltitude;
@@ -24,7 +27,7 @@ void main(void){
 
     float strokeWidth = toPixel(u_strokeWidth, u_scale);
     float alias = u_no_antialias
-        ? .0
+        ? 0.0
         : strokeWidth < 1. ? .65 : 1.;
 
     float width = (strokeWidth+alias) / u_scale;
@@ -33,17 +36,22 @@ void main(void){
     vec2 dir2 = mod(a_normal.zw, 2.0) * 2.0 - 1.0;
     vec2 aliasNormal = floor(a_normal.zw * .5) * N_SCALE;
     v_normal = dir2 * aliasNormal;
+    v_dir = mod(a_normal.xy, 2.0);
     // LSB is direction/normal vector [-1,+1]
-    vec2 dir = mod(a_normal.xy, 2.0) * 2.0 - 1.0;
+    vec2 dir = v_dir * 2.0 - 1.0;
     vec2 normal = floor(a_normal.xy * .5) * N_SCALE;
 
-    v_lengthSoFar = a_lengthSoFar / u_texWidth;
+    #ifdef DASHARRAY
+//    v_lengthSoFar = a_lengthSoFar / u_dashSize.x;
+    v_lengthSoFar = a_lengthSoFar;
+    #endif
 
     float lineOffset = toPixel(u_offset, u_scale);
 
     vec2 position = a_position.xy + normal * -lineOffset / u_scale;
 
     vec2 posCenterWorld = vec2(u_topLeft +position * u_tileScale);
+//    vec2 offset = dir.y * normal * width;
     vec2 offset = dir * normal * width;
 
     if (!u_scaleByAltitude){

@@ -14,7 +14,7 @@ uniform float u_scale;
 uniform float u_rotate;
 uniform bool u_alignMap;
 uniform bool u_fixedView;
-uniform float u_atlasScale;
+uniform vec2 u_texSize;
 uniform bool u_scaleByAltitude;
 
 varying vec2 v_texcoord;
@@ -37,7 +37,7 @@ void main(void) {
         vec2 rotLowHi = mod(a_texcoord, 32.0);
         float rotationZ = rotLowHi.y * 32.0 + rotLowHi.x;
         // texture coodrinates bit6->bit16
-        v_texcoord = floor(a_texcoord / 32.0) * u_atlasScale;
+        v_texcoord = floor(a_texcoord / 32.0) / u_texSize;
 
         vec2 labelOffset = vec2(toPixel(u_offset.xy, u_scale), toPixel(u_offset.zw, u_scale));
 

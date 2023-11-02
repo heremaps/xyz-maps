@@ -20,7 +20,7 @@
 // @ts-ignore
 import vertexShader from '../glsl/line_vertex.glsl';
 // @ts-ignore
-import fragmentShader from '../glsl/line_dash_fragment.glsl';
+import fragmentShader from '../glsl/line_fragment.glsl';
 
 import Program from './Program';
 import {GLStates, PASS} from './GLStates';
@@ -37,7 +37,7 @@ class DashedLineProgram extends Program {
     });
 
     constructor(gl: WebGLRenderingContext, devicePixelRation: number) {
-        super(gl, devicePixelRation);
+        super(gl, devicePixelRation, {DASHARRAY: true});
 
         this.mode = gl.TRIANGLES;
         this.vertexShaderSrc = vertexShader;

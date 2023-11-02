@@ -26,9 +26,8 @@ import {calcBBox, getTextString, getValue, parseSizeValue, Style, StyleGroup} fr
 import {defaultFont, wrapText} from '../../textUtils';
 import {FontStyle, GlyphTexture} from '../GlyphTexture';
 import {toRGB} from '../color';
-import {IconManager} from '../IconManager';
 import {DashAtlas} from '../DashAtlas';
-import {CollisionData, CollisionHandler} from '../CollisionHandler';
+import {BBox, CollisionData, CollisionHandler} from '../CollisionHandler';
 import {LineFactory} from './LineFactory';
 
 import {TextBuffer} from './templates/TextBuffer';
@@ -37,7 +36,7 @@ import {PointBuffer} from './templates/PointBuffer';
 import {PolygonBuffer} from './templates/PolygonBuffer';
 import {ExtrudeBuffer} from './templates/ExtrudeBuffer';
 import {toPresentationFormB} from '../arabic';
-import {Tile, Feature, GeoJSONCoordinate, TextStyle} from '@here/xyz-maps-core';
+import {Tile, Feature, GeoJSONCoordinate, TextStyle, ImageStyle} from '@here/xyz-maps-core';
 import {TemplateBuffer} from './templates/TemplateBuffer';
 import {addVerticalLine} from './addVerticalLine';
 import {BoxBuffer} from './templates/BoxBuffer';
@@ -51,6 +50,8 @@ import {ModelBuffer} from './templates/ModelBuffer';
 import {ImageInfo} from '../Atlas';
 import {GradientFactory} from '../GradientFactory';
 import {HeatmapBuffer} from './templates/HeatmapBuffer';
+import {TextureAtlasManager} from '../TextureAtlasManager';
+import {LineBuffer} from './templates/LineBuffer';
 
 const DEFAULT_STROKE_WIDTH = 1;
 const DEFAULT_LINE_CAP = 'round';
@@ -60,64 +61,65 @@ const NONE = '*';
 let UNDEF;
 
 export type CollisionGroup = {
-  id: string;
-  styleGrp: Style[];
-  priority: number;
-  repeat: number;
-  bbox: number[];
+    id: string;
+    styleGrp: Style[];
+    priority: number;
+    repeat: number;
+    bbox: number[];
 
-  feature?: Feature;
-  geomType?: string;
-  coordinates?: any;
+    feature?: Feature;
+    geomType?: string;
+    coordinates?: any;
 
-  offsetX?: number;
-  offsetY?: number;
-  width?: number;
-  height?: number;
+    offsetX?: number;
+    offsetY?: number;
+    width?: number;
+    height?: number;
 };
 
 type DrawGroup = {
-  type: string;
-  zLayer: number;
-  depthTest: boolean;
-  shared: {
-    unit: string;
-    font: string;
-    fill: Float32Array;
-    // fill: Float32Array|LinearGradient;
-    opacity: number;
-    stroke: Float32Array;
-    strokeWidth: number;
-    strokeLinecap: string;
-    strokeLinejoin: string;
-    strokeDasharray: number[];
-    width: number;
-    height: number;
-    depth: number;
-    rotation: number;
-    offsetX: number;
-    offsetY: number;
-    offsetZ: number;
-    offsetUnit: string;
-    alignment: string;
-    modelMode: number;
-    scaleByAltitude: boolean;
-  };
-  buffer?: TemplateBuffer | TemplateBufferBucket<ModelBuffer>;
-  extrudeStrokeIndex?: number[];
-  pointerEvents?: boolean;
+    type: string;
+    zLayer: number;
+    depthTest: boolean;
+    shared: {
+        unit: string;
+        font: string;
+        fill: Float32Array;
+        // fill: Float32Array|LinearGradient;
+        opacity: number;
+        stroke: Float32Array;
+        strokeWidth: number;
+        strokeLinecap: string;
+        strokeLinejoin: string;
+        strokeDasharray: number[];
+        strokeDashimage: string;
+        width: number;
+        height: number;
+        depth: number;
+        rotation: number;
+        offsetX: number;
+        offsetY: number;
+        offsetZ: number;
+        offsetUnit: string;
+        alignment: string;
+        modelMode: number;
+        scaleByAltitude: boolean;
+    };
+    buffer?: TemplateBuffer | TemplateBufferBucket<ModelBuffer>;
+    extrudeStrokeIndex?: number[];
+    pointerEvents?: boolean;
 };
 
 type ZDrawGroup = {
-  index: { [grpId: string]: number };
-  groups: DrawGroup[];
+    index: { [grpId: string]: number };
+    groups: DrawGroup[];
 };
 
 export type GroupMap = { [zIndex: string]: ZDrawGroup };
 
 export class FeatureFactory {
     private readonly gl: WebGLRenderingContext;
-    private icons: IconManager;
+    private atlasManager: TextureAtlasManager;
     private dpr: number;
     private dashes: DashAtlas;
     private tile: Tile;
@@ -131,9 +133,9 @@ export class FeatureFactory {
     private waitAndRefresh: (p: Promise<any>) => void;
     gradients: GradientFactory;
 
-    constructor(gl: WebGLRenderingContext, iconManager: IconManager, collisionHandler, devicePixelRatio: number) {
+    constructor(gl: WebGLRenderingContext, collisionHandler, devicePixelRatio: number) {
         this.gl = gl;
-        this.icons = iconManager;
+        this.atlasManager = new TextureAtlasManager(gl);
         this.dpr = devicePixelRatio;
         this.dashes = new DashAtlas(gl);
         this.collisions = collisionHandler;
@@ -273,8 +275,8 @@ export class FeatureFactory {
                 const src = getValue('src', style, feature, level);
                 const width = getValue('width', style, feature, level);
                 const height = getValue('height', style, feature, level) || width;
-
-                const img = this.icons.get(src, width, height);
+                const atlas = (style as ImageStyle).atlas;
+                const img = this.atlasManager.loadAtlas(src, atlas);
 
                 if ((<Promise<ImageInfo>>img).then) {
                     return this.waitAndRefresh(<Promise<ImageInfo>>img);
@@ -286,16 +288,16 @@ export class FeatureFactory {
                     x,
                     y,
                     z,
-          <ImageInfo>img,
-          width,
-          height,
-          flexAttributes.a_size.data,
-          positionBuffer.data,
-          flexAttributes.a_texcoord.data,
-          rotationZ
+                    <ImageInfo>img,
+                    width,
+                    height,
+                    flexAttributes.a_size.data,
+                    positionBuffer.data,
+                    flexAttributes.a_texcoord.data,
+                    rotationZ
                 );
-                groupBuffer.addUniform('u_texture', this.icons.getTexture());
-                // group.texture = this.icons.getTexture();
+
+                groupBuffer.addUniform('u_texture', this.atlasManager.getTexture(src));
             } else if (type == 'Circle' || type == 'Rect') {
                 const pointBuffer = ((group.buffer as PointBuffer) ||= new PointBuffer(isFlat));
                 positionBuffer = pointBuffer.flexAttributes.a_position;
@@ -331,7 +333,6 @@ export class FeatureFactory {
                 // unknown style-type
                 return;
             }
-
 
             collisionBufferStop = positionBuffer?.data.length;
             collisionBufferStart = collisionBufferStop - 12;
@@ -377,6 +378,7 @@ export class FeatureFactory {
         let strokeAlpha;
         let strokeWidth;
         let strokeDasharray;
+        let strokeDashimage;
         let strokeLinecap;
         let strokeLinejoin;
         let extrude;
@@ -457,7 +459,7 @@ export class FeatureFactory {
 
             if (
                 opacity == UNDEF ||
-        opacity >= 0.98 // no alpha visible -> no need to use more expensive alpha pass
+                opacity >= 0.98 // no alpha visible -> no need to use more expensive alpha pass
             ) {
                 opacity = 1;
             }
@@ -475,6 +477,7 @@ export class FeatureFactory {
             strokeAlpha = 1;
             strokeWidth = UNDEF;
             strokeDasharray = UNDEF;
+            strokeDashimage = UNDEF;
             strokeLinecap = UNDEF;
             strokeLinejoin = UNDEF;
             width = UNDEF;
@@ -523,28 +526,35 @@ export class FeatureFactory {
 
                     strokeLinecap = getValue('strokeLinecap', style, feature, level) || DEFAULT_LINE_CAP;
                     strokeLinejoin = getValue('strokeLinejoin', style, feature, level) || DEFAULT_LINE_JOIN;
-                    strokeDasharray = getValue('strokeDasharray', style, feature, level);
-
-                    if (Array.isArray(strokeDasharray)) {
-                        if (!strokeDasharray.length || !strokeDasharray[0]) {
-                            strokeDasharray = UNDEF;
-                        }
-                    } else {
-                        strokeDasharray = UNDEF;
-                    }
 
                     const offset = getValue('offset', style, feature, level);
                     // store line offset/unit in shared offsetXY
                     [offsetX, offsetUnit] = parseSizeValue(offset);
 
                     groupId =
-            (altitude ? 'AL' : 'L') +
-            sizeUnit +
-            offsetX +
-            offsetUnit +
-            strokeLinecap +
-            strokeLinejoin +
-            (strokeDasharray || NONE);
+                        (altitude ? 'AL' : 'L') +
+                        sizeUnit +
+                        offsetX +
+                        offsetUnit +
+                        strokeLinecap +
+                        strokeLinejoin;
+                    strokeDasharray = getValue('strokeDasharray', style, feature, level);
+
+                    if (Array.isArray(strokeDasharray)) {
+                        if (!strokeDasharray.length || !strokeDasharray[0]) {
+                            strokeDasharray = UNDEF;
+                        }
+
+                        groupId += strokeDasharray;
+
+                        strokeDashimage = getValue('strokeDashimage', style, feature, level);
+
+                        if (strokeDashimage) {
+                            groupId += strokeDashimage.slice(-8);
+                        }
+                    } else {
+                        strokeDasharray = UNDEF;
+                    }
                 } else {
                     fill = getValue('fill', style, feature, level);
 
@@ -582,7 +592,6 @@ export class FeatureFactory {
                             if (alignment == UNDEF) {
                                 alignment = geomType == 'Point' ? 'viewport' : 'map';
                             }
-
                             groupId = 'T' + (font || NONE);
                         } else if (type == 'Circle') {
                             width = height = getValue('radius', style, feature, level);
@@ -740,6 +749,7 @@ export class FeatureFactory {
                         strokeLinecap,
                         strokeLinejoin,
                         strokeDasharray,
+                        strokeDashimage,
                         width,
                         height,
                         depth,
@@ -801,21 +811,33 @@ export class FeatureFactory {
                 }
             } else if (geomType == 'LineString') {
                 if (type == 'Line') {
+                    if (strokeDashimage) {
+                        const dashImgTexture = this.atlasManager.load(strokeDashimage, {mipMaps: false});
+                        if ((<Promise<ImageInfo>>dashImgTexture).then) {
+                            this.waitAndRefresh(<Promise<ImageInfo>>dashImgTexture);
+                            return;
+                        }
+                    }
+
                     let vertexLength = this.lineFactory.createLine(
-            <GeoJSONCoordinate[]>coordinates,
-            group,
-            tile,
-            tileSize,
-            removeTileBounds,
-            strokeDasharray,
-            strokeLinecap,
-            strokeLinejoin,
-            strokeWidth,
-            altitude,
-            offsetX,
-            getValue('from', style, feature, level),
-            getValue('to', style, feature, level)
+                        <GeoJSONCoordinate[]>coordinates,
+                        group,
+                        tile,
+                        tileSize,
+                        removeTileBounds,
+                        strokeDasharray,
+                        strokeLinecap,
+                        strokeLinejoin,
+                        strokeWidth,
+                        altitude,
+                        offsetX,
+                        getValue('from', style, feature, level),
+                        getValue('to', style, feature, level)
                     );
+
+                    if (strokeDashimage) {
+                        (group.buffer as LineBuffer).addUniform('u_dashTexture', this.atlasManager.getTexture(strokeDashimage));
+                    }
 
                     group.buffer.setIdOffset(feature.id);
                 } else {

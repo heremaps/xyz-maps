@@ -68,27 +68,27 @@ const stencilQuad = (quadkey: string, subQuadkey: string) => {
 
 
 export type TileBufferData = {
-    z: number;
-    tiled: true;
-    b: GeometryBuffer;
-    data: {
-        tile: ScreenTile;
-        preview?: [string, number, number, number, number, number, number, number, number];
-        previewTile?: GLTile;
-        stencils?;
-    };
+  z: number;
+  tiled: true;
+  b: GeometryBuffer;
+  data: {
+    tile: ScreenTile;
+    preview?: [string, number, number, number, number, number, number, number, number];
+    previewTile?: GLTile;
+    stencils?;
+  };
 };
 
 type CustomBufferData = {
-    z: number;
-    tiled: boolean;
-    b: {
-        zLayer?: number;
-        zIndex?: number;
-        pass?: number;
-        flat: boolean;
-    };
-    data: CustomLayer;
+  z: number;
+  tiled: boolean;
+  b: {
+    zLayer?: number;
+    zIndex?: number;
+    pass?: number;
+    flat: boolean;
+  };
+  data: CustomLayer;
 };
 
 type BufferData = CustomBufferData | TileBufferData;
@@ -138,7 +138,7 @@ class WebGlDisplay extends BasicDisplay {
 
         this.rayCaster = new Raycaster(render.screenMat, render.invScreenMat);
 
-        this.factory = new FeatureFactory(render.gl, render.icons, this.collision, this.dpr);
+        this.factory = new FeatureFactory(render.gl, this.collision, this.dpr);
     }
 
     private refreshTile(quadkey: string, layerId: string) {
@@ -206,15 +206,15 @@ class WebGlDisplay extends BasicDisplay {
 
     // from unprojected screen pixels to projected screen pixels
     project(x: number, y: number, z: number = 0, sx = this.sx, sy = this.sy): [number, number, number] {
-        // x -= screenOffsetX;
-        // y -= screenOffsetY;
-        // const p = [x, y, 0];
-        // const s = this.s;
-        // const p = [x * s, y * s, 0];
+    // x -= screenOffsetX;
+    // y -= screenOffsetY;
+    // const p = [x, y, 0];
+    // const s = this.s;
+    // const p = [x * s, y * s, 0];
         const p = [x - sx, y - sy, -z];
         return transformMat4(p, p, this.render.screenMat);
-        // transformMat4(p, p, this.render.vPMats);
-        // return fromClipSpace(p, this.w, this.h);
+    // transformMat4(p, p, this.render.vPMats);
+    // return fromClipSpace(p, this.w, this.h);
     }
 
     setSize(w: number, h: number) {
@@ -224,14 +224,14 @@ class WebGlDisplay extends BasicDisplay {
     }
 
     setTransform(scale: number, rotZ: number, rotX: number) {
-        // if (this.s != scale || this.rz != rotZ || this.rx != rotX)
-        // {
+    // if (this.s != scale || this.rz != rotZ || this.rx != rotX)
+    // {
         const PI2 = 2 * Math.PI;
         rotZ = (rotZ + PI2) % PI2;
         this.s = scale;
         this.rz = rotZ;
         this.rx = rotX;
-        // }
+    // }
     }
 
     setView(

@@ -24,8 +24,7 @@ import introVertex from '../glsl/intro_vertex.glsl';
 import {ArrayGrp, GeometryBuffer, IndexData, IndexGrp} from '../buffer/GeometryBuffer';
 import {BufferCache} from '../GLRender';
 import {Attribute} from '../buffer/Attribute';
-import {ConstantAttribute, FlexAttribute} from '../buffer/templates/TemplateBuffer';
-import {DEFAULT_HEATMAP_GRADIENT} from '../buffer/templates/HeatmapBuffer';
+import {ConstantAttribute} from '../buffer/templates/TemplateBuffer';
 
 let UNDEF;
 
@@ -78,7 +77,7 @@ class Program {
     private textureUnits: number = 0;
 
     private macros: { [name: string]: string | number | boolean } = {
-        // '#version 300 es',s
+    // '#version 300 es',s
         'M_PI': 3.1415927410125732
     };
 
@@ -360,13 +359,21 @@ class Program {
         const {gl} = this;
         const {groups, instances} = geoBuffer;
 
-        // console.log(
-        //     this.name,
-        //     'DEPTH_TEST', gl.getParameter(gl.DEPTH_TEST),
-        //     'SCISSOR_TEST', gl.getParameter(gl.SCISSOR_TEST),
-        //     'STENCIL_TEST', gl.getParameter(gl.STENCIL_TEST),
-        //     'BLEND', gl.getParameter(gl.BLEND)
-        // );
+        // // if (this.name == 'Extrude' || this.name == 'Image') {
+        // if (this.name == 'Line'||(this.name == 'Extrude'||this.name == 'Image') {
+        //     const stencilFunc = {};
+        //     for (let func of ['NEVER', 'LESS', 'LEQUAL', 'GREATER', 'GEQUAL', 'EQUAL', 'NOTEQUAL', 'ALWAYS']) {
+        //         stencilFunc[gl[func]] = func;
+        //     }
+        //     console.log(
+        //         this._pass,
+        //         this.name,
+        //         'DEPTH_TEST', gl.getParameter(gl.DEPTH_TEST),
+        //         'SCISSOR_TEST', gl.getParameter(gl.SCISSOR_TEST),
+        //         'STENCIL_TEST', gl.getParameter(gl.STENCIL_TEST) ? `${stencilFunc[gl.getParameter(gl.STENCIL_FUNC)]} ${gl.getParameter(gl.STENCIL_REF)}` : false,
+        //         'BLEND', gl.getParameter(gl.BLEND)
+        //     );
+        // }
 
         for (let grp of groups) {
             let mode = grp.mode != UNDEF ? grp.mode : this.mode;
@@ -435,7 +442,7 @@ class Program {
         this.gl.blendFunc(sFactor, dFactor);
     }
 
-    initGeometryBuffer(geoBuffer: GeometryBuffer, pass: PASS, stencil: boolean, zIndex?: number) {
+    initGeometryBuffer(geoBuffer: GeometryBuffer, pass: PASS, useStencil: boolean|number = true, zIndex?: number) {
         const prog = this;
         const {gl} = prog;
         const opaquePass = pass == PASS.OPAQUE;
@@ -454,7 +461,7 @@ class Program {
             depth = geoBuffer.depth;
         }
 
-        prog.setStates(scissor, blend, depth, stencil && scissor);
+        prog.setStates(scissor, blend, depth, useStencil && scissor);
 
         this.blendFunc();
 
@@ -468,7 +475,6 @@ class Program {
         }
 
         const isDepthPrePass = pass == PASS.ALPHA && geoBuffer.pass & PASS.POST_ALPHA;
-
         const colorMask = isDepthPrePass
             ? NO_COLOR_MASK
             : geoBuffer.colorMask || DEFAULT_COLOR_MASK;
@@ -484,13 +490,20 @@ class Program {
 
         gl.disable(gl.POLYGON_OFFSET_FILL);
 
-        if (pass == PASS.POST_ALPHA) {
-            // use additional pass with stencil buffer to avoid "overlapping alpha" of unclipped geometry
+        if (useStencil && pass == PASS.POST_ALPHA) {
             gl.enable(gl.STENCIL_TEST);
-            gl.stencilFunc(gl.GREATER, 1, 0xff);
-            gl.stencilOp(gl.KEEP, gl.KEEP, gl.REPLACE);
-            // gl.stencilFunc(gl.EQUAL, 0, 0xff);
-            // gl.stencilOp(gl.KEEP, gl.KEEP, gl.INCR);
+
+            if (typeof useStencil == 'number') {
+                gl.stencilFunc(gl.EQUAL, useStencil as number, 0xff);
+                gl.stencilOp(gl.KEEP, gl.KEEP, gl.ZERO);
+            } else {
+                // flat geometry and tile stencil is being used.
+                // use additional pass with stencil buffer to avoid "overlapping alpha" of unclipped geometry
+                gl.stencilFunc(gl.GREATER, 1, 0xff);
+                gl.stencilOp(gl.KEEP, gl.KEEP, gl.REPLACE);
+                // gl.stencilFunc(gl.EQUAL, 0, 0xff);
+                // gl.stencilOp(gl.KEEP, gl.KEEP, gl.INCR);
+            }
         }
     }
 

@@ -111,6 +111,13 @@ export interface LineStyle {
     strokeDasharray?: number[] | StyleValueFunction<number[]> | StyleZoomRange<number[]> | 'none';
 
     /**
+     * Specifies the URL of the image to be rendered at the positions of the dashes.
+     * If strokeDashimage is defined, only the first dash and gap definition of the {@link strokeDasharry} pattern is used.
+     * The dashimage will be colored with the color defined in {@link stroke}.
+     */
+    strokeDashimage?: string
+
+    /**
      * Define the starting position of a segment of the entire line in %.
      * A Segment allows to display and style parts of the entire line individually.
      * The value must be between 0 and 1.
