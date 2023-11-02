@@ -36,7 +36,7 @@
     "karma-json-reporter": "^1.2.1",
     "karma-mocha": "^2.0.1",
     "mkdirp": "~1.0.4",
-    "mocha": "~10.0.0",
+    "mocha": "~10.2.0",
     "request": "^2.88.2",
     "rimraf": "~3.0.2",
     "rollup": "^2.78.1",
