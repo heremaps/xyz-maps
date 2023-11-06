@@ -199,11 +199,18 @@ const createBuffer = (
                                     geoBuffer.type = 'DashedLine';
 
                                     geoBuffer.addUniform('u_hasDashTexture', !!(geoBuffer.uniforms.u_dashTexture));
+
                                     geoBuffer.addUniform('u_dashSize', [
                                         (geoBuffer.uniforms.u_pattern as Texture).width,
-                                        shared.strokeDasharray[0],
-                                        shared.strokeDasharray[1]
+                                        shared.strokeDasharray.pattern[0],
+                                        shared.strokeDasharray.pattern[1]
                                     ]);
+
+                                    geoBuffer.addUniform('u_dashUnit', [
+                                        shared.strokeDasharray.units[0] == 'm' ? meterToPixel : 0,
+                                        shared.strokeDasharray.units[1] == 'm' ? meterToPixel : 0
+                                    ]);
+                                    console.log('omg', geoBuffer.uniforms.u_dashUnit);
                                 }
                                 geoBuffer.addUniform('u_fill', stroke);
 

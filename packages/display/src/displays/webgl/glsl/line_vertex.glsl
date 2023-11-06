@@ -11,12 +11,15 @@ uniform vec2 u_topLeft;
 varying vec2 v_normal;
 #ifdef DASHARRAY
 varying float v_lengthSoFar;
+varying vec3 v_dashSize;
+uniform vec3 u_dashSize;
+uniform vec2 u_dashUnit;
 #endif
 varying vec2 v_width;
 varying vec2 v_dir;
 
 uniform vec2 u_offset;
-uniform vec3 u_dashSize;
+
 uniform float u_tileScale;
 uniform bool u_no_antialias;
 uniform bool u_scaleByAltitude;
@@ -42,8 +45,13 @@ void main(void){
     vec2 normal = floor(a_normal.xy * .5) * N_SCALE;
 
     #ifdef DASHARRAY
-//    v_lengthSoFar = a_lengthSoFar / u_dashSize.x;
     v_lengthSoFar = a_lengthSoFar;
+
+    v_dashSize = vec3(
+        toPixel(vec2(u_dashSize.x, u_dashUnit.x), u_scale),
+        toPixel(vec2(u_dashSize.y, u_dashUnit.x), u_scale),
+        toPixel(vec2(u_dashSize.z, u_dashUnit.y), u_scale)
+    );
     #endif
 
     float lineOffset = toPixel(u_offset, u_scale);

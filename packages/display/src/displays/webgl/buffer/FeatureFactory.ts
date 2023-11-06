@@ -91,7 +91,7 @@ type DrawGroup = {
         strokeWidth: number;
         strokeLinecap: string;
         strokeLinejoin: string;
-        strokeDasharray: number[];
+        strokeDasharray: {pattern:number[], units:string[]};
         strokeDashimage: string;
         width: number;
         height: number;
@@ -540,12 +540,20 @@ export class FeatureFactory {
                         strokeLinejoin;
                     strokeDasharray = getValue('strokeDasharray', style, feature, level);
 
-                    if (Array.isArray(strokeDasharray)) {
-                        if (!strokeDasharray.length || !strokeDasharray[0]) {
-                            strokeDasharray = UNDEF;
+
+                    if (Array.isArray(strokeDasharray) && strokeDasharray[0] ) {
+                        groupId += strokeDasharray;
+
+                        let pattern = [];
+                        let units = [];
+
+                        for (let i=0; i< strokeDasharray.length; i++) {
+                            const [size, unit] = parseSizeValue(strokeDasharray[i]);
+                            pattern[i] = size;
+                            units[i] = unit;
                         }
 
-                        groupId += strokeDasharray;
+                        strokeDasharray = {pattern, units};
 
                         strokeDashimage = getValue('strokeDashimage', style, feature, level);
 

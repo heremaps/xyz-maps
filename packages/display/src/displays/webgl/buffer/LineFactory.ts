@@ -29,8 +29,8 @@ const DEFAULT_MIN_REPEAT = 256;
 let UNDEF;
 
 enum DIR {
-    MID_TO_END = 1,
-    MID_TO_START = -1
+  MID_TO_END = 1,
+  MID_TO_START = -1
 }
 
 type PlacePointCallback = (x: number, y: number, z: number | null, rotZ: number, rotY: number, collisionData?: CollisionData) => void;
@@ -80,9 +80,9 @@ export class LineFactory {
                 z = coord[2] || 0;
 
                 if (!c ||
-                    (Math.round(_x * decimals) - Math.round(x * decimals)) ||
-                    (Math.round(_y * decimals) - Math.round(y * decimals)) ||
-                    (hasZ && z != _z)
+          (Math.round(_x * decimals) - Math.round(x * decimals)) ||
+          (Math.round(_y * decimals) - Math.round(y * decimals)) ||
+          (hasZ && z != _z)
                 ) {
                     pixels[t++] = x;
                     pixels[t++] = y;
@@ -127,11 +127,11 @@ export class LineFactory {
         for (let id in repeat) {
             repeat[id].clear();
         }
-        // this.repeat.clear();
+    // this.repeat.clear();
     }
 
     initFeature(zoom: number, tileSize: number, distanceGroup?: string) {
-        // allow more precision in case tiles are getting zoomed very close (zoomlevel 20+)
+    // allow more precision in case tiles are getting zoomed very close (zoomlevel 20+)
         this.decimals = zoom >= 20 - Number(tileSize == 512) ? 1e2 : 1;
         // clear projected coordinate cache
         this.length = 0;
@@ -152,7 +152,7 @@ export class LineFactory {
         tile: Tile,
         tileSize: number,
         removeTileBounds: boolean,
-        strokeDasharray: [number, number],
+        strokeDasharray: { pattern: [number, number, number?], units: number[] },
         strokeLinecap: Cap,
         strokeLinejoin: Join,
         strokeWidth: number,
@@ -166,7 +166,7 @@ export class LineFactory {
         }
 
         if (strokeDasharray) {
-            group.buffer.addUniform('u_pattern', this.dashes.get(strokeDasharray));
+            group.buffer.addUniform('u_pattern', this.dashes.get(strokeDasharray.pattern));
         }
 
         const groupBuffer = group.buffer;
