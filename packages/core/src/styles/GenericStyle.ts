@@ -172,9 +172,20 @@ export interface Style {
      * The strokeDasharray attribute controls the pattern of dashes and gaps used to stroke paths.
      * It's an array of <length> that specify the lengths of alternating dashes and gaps. If an odd number of values is provided,
      * then the list of values is repeated to yield an even number of values. Thus, 5,3,2 is equivalent to 5,3,2,5,3,2.
+     * The size of dashes and gaps can be defined in pixel or meter.
+     * The default unit for dash and gap size is pixel.
+     * To define the size in meters, a string containing the "dash"/"gap" size and ending with "m" must be used.
      * This attribute is valid for Line styles only.
+     *
+     * @example
+     * // dash and gap size is defined in pixel.
+     * strokeDasharray: [20,10]
+     * // dash and gap size is defined in meter.
+     * strokeDasharray: ["20m","10m"]
+     * // dash -> 10 meter, gap -> 10 pixel.
+     * strokeDasharray: ["20m",10] || ["20m","10px"]
      */
-    strokeDasharray?: number[] | StyleValueFunction<number[]> | StyleZoomRange<number[]> | 'none';
+    strokeDasharray?: (number|string)[] | StyleValueFunction<(number|string)[]> | StyleZoomRange<(number|string)[]> | 'none';
 
     /**
      * Defines the opacity of the style.
