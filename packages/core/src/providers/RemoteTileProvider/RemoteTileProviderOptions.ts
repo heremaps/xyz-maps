@@ -77,5 +77,13 @@ export interface RemoteTileProviderOptions extends TileProviderOptions {
         ready: (data) => void
     }): { put: GeoJSONFeature[], remove: GeoJSONFeature[] } | Promise<{ put: GeoJSONFeature[], remove: GeoJSONFeature[] }>;
 
+    /**
+     * To prevent an overwhelming volume of tile requests, any requests for zoom levels lower than the provider's setting are disregarded.
+     * Enabling "ignoreTileQueryLimit" will bypass the tile query limit but may risk browser crashes.
+     *
+     * @defaultValue false
+     */
+    ignoreTileQueryLimit?: boolean;
+
     loader?: any;
 }

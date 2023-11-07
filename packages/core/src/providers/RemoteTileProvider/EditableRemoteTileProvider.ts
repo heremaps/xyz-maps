@@ -99,6 +99,7 @@ export abstract class EditableRemoteTileProvider extends EditableFeatureProvider
             provider,
             loader,
             level: provider.level,
+            ignoreTileQueryLimit: options.ignoreTileQueryLimit,
             preProcessor,
             processTileResponse: (tile, data, onDone) => {
                 if (tile.error) {

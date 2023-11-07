@@ -23,6 +23,7 @@ import {Tile} from '../../tile/Tile';
 import TileProvider from '../TileProvider/TileProvider';
 import {TileLoadDelegator} from './TileLoadDelegator';
 import {tileUtils} from '@here/xyz-maps-core';
+import {add} from '@here/xyz-maps-common/src/Vec3';
 
 let UNDEF;
 
@@ -32,21 +33,23 @@ type TileLoader = any;
 export class FixedLevelTileLoadDelegator extends TileLoadDelegator {
     private level: number;
     private dep: { [quadkey: string]: Tile[] } = {};
+    private ignoreTileQueryLimit: boolean;
 
     constructor(options: {
-        level: number,
-        provider: TileProvider,
-        loader: TileLoader,
-        preProcessor?: (input: {
-            data: any,
-            ready: (features: any) => void,
-            tile?: { x: number, y: number, z: number }
-        }) => (any | Promise<any>),
-        processTileResponse: (tile: Tile, data: any, onDone: (data: any) => void, xhr: XMLHttpRequest) => any
+      level: number,
+      ignoreTileQueryLimit?: boolean,
+      provider: TileProvider,
+      loader: TileLoader,
+      preProcessor?: (input: {
+        data: any,
+        ready: (features: any) => void,
+        tile?: { x: number, y: number, z: number }
+      }) => (any | Promise<any>),
+      processTileResponse: (tile: Tile, data: any, onDone: (data: any) => void, xhr: XMLHttpRequest) => any
     }) {
         super(options);
-
         this.level = options.level;
+        this.ignoreTileQueryLimit = options.ignoreTileQueryLimit || false;
     }
 
     cancel(quadkey: string | Tile, cb?: () => void) {
@@ -146,6 +149,8 @@ export class FixedLevelTileLoadDelegator extends TileLoadDelegator {
         return tile;
     };
 
+    private blockedLevels: { [level: number]: number } = {};
+
     getTile(quadkey: string, callback: (tile: Tile, error?: any) => void) {
         const provider = this.provider;
         const storage = provider.storage;
@@ -177,12 +182,34 @@ export class FixedLevelTileLoadDelegator extends TileLoadDelegator {
             }
         }
 
-        if (quadkey.length != storageLevel) {
+        const addSimpleOnLoadCallback = (tile, callback) => {
+            if (!callback) return;
+            if (tile.onLoaded.indexOf(callback) == -1) {
+                tile.onLoaded.push(callback);
+            }
+        };
+
+        const requestedLevel = quadkey.length;
+
+        if (requestedLevel != storageLevel) {
+            tile.loadStartTs = Date.now();
+
+            console.log('this.ignoreTileQueryLimit', this.ignoreTileQueryLimit);
+
+            if (!this.ignoreTileQueryLimit && storageLevel > requestedLevel) {
+                if (!this.blockedLevels[requestedLevel]) {
+                    this.blockedLevels[requestedLevel] = 1;
+                    console.warn(`The request for all tiles from level ${requestedLevel} was denied because the TileProvider is set to level ${storageLevel}, leading to an excessive number of tile requests.`);
+                }
+
+                addSimpleOnLoadCallback(tile, callback);
+                setTimeout(() => this.completeTile(tile, []), 0);
+                return tile;
+            }
+
             const loaderTiles = tileUtils.getTilesOfLevel(quadkey, storageLevel);
             let loaderTile;
             let receiver;
-
-            tile.loadStartTs = Date.now();
 
             if (!tile.onLoaded.length) {
                 receiver = new TileReceiver(tile, loaderTiles);
@@ -197,7 +224,6 @@ export class FixedLevelTileLoadDelegator extends TileLoadDelegator {
             for (let l = 0; l < loaderTiles.length; l++) {
                 loaderTile = storage.get(loaderTiles[l]);
 
-
                 if (loaderTile == UNDEF) {
                     loaderTile = provider.getTile(loaderTiles[l], receiver);
                 } else {// if( loaderTile.onLoaded.indexOf(receiver) == -1 )
@@ -210,11 +236,7 @@ export class FixedLevelTileLoadDelegator extends TileLoadDelegator {
             }
         } else {
             // attach the callback
-            if (callback) {
-                if (tile.onLoaded.indexOf(callback) == -1) {
-                    tile.onLoaded.push(callback);
-                }
-            }
+            addSimpleOnLoadCallback(tile, callback);
 
             if (!tile.loadStartTs) {
                 tile.loadStartTs = Date.now();

@@ -84,6 +84,7 @@ export class RemoteTileProvider extends FeatureProvider {
             provider,
             loader,
             level: provider.level,
+            ignoreTileQueryLimit: options.ignoreTileQueryLimit,
             preProcessor,
             processTileResponse: (tile, data, onDone) => {
                 if (tile.error) {
