@@ -23,6 +23,7 @@ import {DashAtlas} from '../DashAtlas';
 import {GeoJSONCoordinate as Coordinate, Tile} from '@here/xyz-maps-core';
 import {CollisionData, CollisionHandler} from '../CollisionHandler';
 import {DistanceGroup} from './DistanceGroup';
+import {FlexAttribute} from './templates/TemplateBuffer';
 
 const TO_DEG = 180 / Math.PI;
 const DEFAULT_MIN_REPEAT = 256;
@@ -165,11 +166,19 @@ export class LineFactory {
             group.buffer = new LineBuffer(!altitude);
         }
 
-        if (strokeDasharray) {
-            group.buffer.addUniform('u_pattern', this.dashes.get(strokeDasharray.pattern));
-        }
+        const groupBuffer: LineBuffer = group.buffer;
 
-        const groupBuffer = group.buffer;
+        if (strokeDasharray) {
+            const texture = this.dashes.get(strokeDasharray.pattern);
+            groupBuffer.addUniform('u_pattern', texture);
+
+            groupBuffer.addUniform('u_dashSize', [
+                texture.width,
+                1 / this.dashes.scale,
+                strokeDasharray.pattern[0],
+                strokeDasharray.pattern[1]
+            ]);
+        }
 
         this.projectLine(coordinates, tile, tileSize);
 
@@ -178,8 +187,8 @@ export class LineFactory {
         const isRing = pixels[0] == pixels[last] && pixels[1] == pixels[last + 1];
 
         return addLineString(
-            groupBuffer.flexAttributes.a_position.data,
-            groupBuffer.flexAttributes.a_normal.data,
+            (groupBuffer.flexAttributes.a_position as FlexAttribute).data,
+            (groupBuffer.flexAttributes.a_normal as FlexAttribute).data,
             pixels,
             this.lineLength,
             length,
@@ -190,7 +199,7 @@ export class LineFactory {
             strokeLinecap,
             strokeLinejoin,
             strokeWidth,
-            strokeDasharray && groupBuffer.flexAttributes.a_lengthSoFar.data,
+            strokeDasharray && (groupBuffer.flexAttributes.a_lengthSoFar as FlexAttribute).data,
             isRing,
             offset,
             start,

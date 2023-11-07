@@ -24,27 +24,27 @@ class DashAtlas {
     private gl: WebGLRenderingContext;
     private data: { [id: string]: SharedTexture } = {};
 
+    // scale by 10 to allow 0.1 meter precision
+    scale: number = 10;
+
     constructor(gl: WebGLRenderingContext) {
         this.gl = gl;
     }
 
     private create(dashArray: DashArray) {
-        let size =
-            dashArray.reduce((a, b) => a + b) *
-            // double size for odd dasharray size to get repeating pattern
-            ((dashArray.length % 2) + 1);
+        let size = dashArray.reduce((a, b) => a + b);
+        let {scale} = this;
 
-        // repeat pattern to roughly fit a complete tile to improve antialiasing of long lines
-        size *= Math.ceil(512 / size);
+        size *= scale;
 
         const pixels = new Uint8Array(size);
         const {gl} = this;
         let fill = true;
         let offset = 0;
 
-
         while (offset < size) {
             for (let bytes of dashArray) {
+                bytes *= scale;
                 if (fill) {
                     pixels.fill(255, offset, offset + bytes);
                 }

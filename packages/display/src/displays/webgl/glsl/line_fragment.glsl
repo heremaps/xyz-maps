@@ -29,10 +29,10 @@ void main(void){
         float dashSize = v_dashSize.y;
         float gapSize = v_dashSize.z;
         float totalDashSize = dashSize + gapSize;
-        //  [dashsize: constant, gabsize: scaling, ->pattern: fix]
+        // [dashsize: constant, gabsize: scaling, ->pattern: fix]
         // float u = fract(v_lengthSoFar/totalDashSize) * (1. + gapSize / dashSize) * u_scale;
-        //  [dashsize: constant, gabsize: constant, ->pattern: floating]
-        float u = fract(v_lengthSoFar/totalDashSize * u_scale) * (gapSize / dashSize);
+        // [dashsize: constant, gabsize: constant, ->pattern: floating]
+        float u = fract(v_lengthSoFar/totalDashSize * u_scale) * (1. + gapSize / dashSize);
         gl_FragColor = u_fill * texture2D(u_dashTexture, vec2(u, v_dir.y));
         // gl_FragColor = vec4(u_fill.rgb, u_fill.a * texture2D(u_dashTexture, vec2(u, v_dir.y)).a);
     } else {

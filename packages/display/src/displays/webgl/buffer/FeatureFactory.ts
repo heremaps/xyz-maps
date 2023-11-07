@@ -542,8 +542,6 @@ export class FeatureFactory {
 
 
                     if (Array.isArray(strokeDasharray) && strokeDasharray[0] ) {
-                        groupId += strokeDasharray;
-
                         let pattern = [];
                         let units = [];
 
@@ -551,6 +549,8 @@ export class FeatureFactory {
                             const [size, unit] = parseSizeValue(strokeDasharray[i]);
                             pattern[i] = size;
                             units[i] = unit;
+
+                            groupId += size+unit;
                         }
 
                         strokeDasharray = {pattern, units};

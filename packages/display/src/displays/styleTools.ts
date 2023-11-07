@@ -123,7 +123,7 @@ const parseSizeValue = (size: string | number, float: boolean = false): [number,
         value = parseFloat(size) || 0;
         if (size.charAt(size.length - 1) == 'm') {
             unit = 'm';
-            value = Math.round(value * 10) / 10;
+            value = Math.round(value * 1e3) / 1e3; // mm
             return [value, unit];
         }
     }
