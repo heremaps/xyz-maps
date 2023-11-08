@@ -107,15 +107,15 @@ function prepareFeatures(dataset): Promise<{ [key: string]: object[] }> {
 }
 
 type ProviderSetup = {
-    id: string;
+    id?: string;
     type: string;
-    url: string | ((z: number, x: number, y: number, qk: string) => string);
-    name: string;
-    level: number;
+    url?: string | ((z: number, x: number, y: number, qk: string) => string);
+    name?: string;
+    level?: number;
     credentials?;
     space?:string;
     https?:boolean;
-    options?:{[options:string]:any};
+    options?:{[option:string]:any};
 };
 type LayerSetup = {
     id: string;
