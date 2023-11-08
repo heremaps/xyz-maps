@@ -2,11 +2,14 @@
     "layers": [{
         "id": "placeLayer",
         "provider": {
-            "id": "placeProvider",
             "type": "GeoJSONProvider",
-            "url": "base/tests/assets/tiles/tile.json?quadkey={QUADKEY}",
-            "name": "Places",
-            "level": 16
+            "options": {
+                "id": "placeProvider",
+                "url": "base/tests/assets/tiles/tile.json?quadkey={QUADKEY}",
+                "name": "Places",
+                "level": 16,
+                "ignoreTileQueryLimit": true
+            }
         },
         "min": 14,
         "max": 20

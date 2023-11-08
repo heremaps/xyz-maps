@@ -21,10 +21,21 @@ import environments from 'environments';
 // @ts-ignore
 import credentials from 'credentials';
 import {TileLayer, FeatureProvider} from '@here/xyz-maps-core';
-import * as providers from '@here/xyz-maps-core';
+import * as XYZMapsCore from '@here/xyz-maps-core';
 import {TestLocalProvider, TestProvider} from '../TestProvider';
 import {spacePool} from '../runner';
+import {GeoJSONFeature} from '@here/xyz-maps-core';
+import TileProvider from '@here/xyz-maps-core/src/providers/TileProvider/TileProvider';
 
+
+const Providers = {
+    TestLocalProvider, TestProvider
+};
+for (let name in XYZMapsCore) {
+    if (name.endsWith('Provider')) {
+        Providers[name] = XYZMapsCore[name];
+    }
+}
 
 const TOKEN = credentials.access_token;
 
@@ -32,45 +43,43 @@ const IMAGEURL = environments.image;
 const GEOJSONURL = environments.xyzhub + '/spaces/{SPACEID}/tile/quadkey/{QUADKEY}?margin=20&clip=false&access_token=' + TOKEN;
 const XYZHUBURL = environments.xyzhub + '/spaces';
 
-
-const existingProviders = ['ProProvider', 'RemoteTileProvider', 'SpaceProvider', 'GeoJSONProvider', 'ImageProvider', 'MVTProvider', 'LocalProvider', 'FeatureProvider', 'EditableProvider', 'LocalEditProvider'];
-
-
-function spaceTypes(type: string) : boolean {
+function spaceTypes(type: string): boolean {
     return type == 'SpaceProvider' || type == 'GeoJSONProvider' || type == 'TestProvider';
 }
 
-async function prepareProviderConfig(config, ts) {
-    let providerConfig = Object.assign({}, config);
+async function prepareProviderConfig(config: ProviderSetup, ts) {
+    let options = {...config.options, ...config};
     let spaceId;
 
+    delete options.options;
+
     if (config.type == 'ImageProvider') {
-        providerConfig.url = providerConfig.url || function(z, x, y, quad) {
-            return IMAGEURL.replace('{LOCALHOST}', location.protocol + '//' + location.host).replace('{QUADKEY}', quad.charAt(quad.length-1));
+        options.url = options.url || function(z, x, y, quad) {
+            return IMAGEURL.replace('{LOCALHOST}', location.protocol + '//' + location.host).replace('{QUADKEY}', quad.charAt(quad.length - 1));
         };
     } else if (spaceTypes(config.type)) {
         if (config.type == 'GeoJSONProvider') {
-            if (!providerConfig.url) {
+            if (!options.url) {
                 spaceId = await spacePool.get(ts);
-                providerConfig.url = GEOJSONURL.replace('{SPACEID}', spaceId);
+                options.url = GEOJSONURL.replace('{SPACEID}', spaceId);
             }
         } else {
             spaceId = await spacePool.get(ts);
-            providerConfig.url = providerConfig.url || XYZHUBURL;
-            providerConfig.credentials = providerConfig.credentials || {
+            options.url = options.url || XYZHUBURL;
+            options.credentials = options.credentials || {
                 access_token: TOKEN
             };
-            providerConfig.space = spaceId;
-            if (providerConfig.url.indexOf('localhost') > 0) {
-                providerConfig.https = false;
+            options.space = spaceId;
+            if ((options.url as string).indexOf('localhost') > 0) {
+                options.https = false;
             }
         }
     }
-    return {providerConfig, spaceId};
+    return {options, spaceId};
 }
 
 
-function prepareFeatures(dataset): Promise<{[key: string]: object[]}> {
+function prepareFeatures(dataset): Promise<{ [key: string]: object[] }> {
     let xhrs = [];
     let layers = [];
 
@@ -79,8 +88,8 @@ function prepareFeatures(dataset): Promise<{[key: string]: object[]}> {
         let provider = dataset[layer].provider;
 
         if (features.length) {
-            xhrs.push(new Promise((resolve, reject)=>{
-                provider.commit({'put': features}, (e)=>{
+            xhrs.push(new Promise((resolve, reject) => {
+                provider.commit({'put': features}, (e) => {
                     resolve(e.inserted);
                 }, reject);
             }));
@@ -97,12 +106,36 @@ function prepareFeatures(dataset): Promise<{[key: string]: object[]}> {
     });
 }
 
+type ProviderSetup = {
+    id: string;
+    type: string;
+    url: string | ((z: number, x: number, y: number, qk: string) => string);
+    name: string;
+    level: number;
+    credentials?;
+    space?:string;
+    https?:boolean;
+    options?:{[options:string]:any};
+};
+type LayerSetup = {
+    id: string;
+    provider: ProviderSetup;
+    min: number;
+    max: number;
+    data?: {
+        local?: GeoJSONFeature[]
+        remote?: GeoJSONFeature[]
+    }
+}
+type MapSetup = {
+    layers: LayerSetup[]
+}
 
-export default async function prepare(dataset) {
+export default async function prepare(dataset: MapSetup) {
     let preparedData = new TestData();
 
-    let featuresToCommit= {};
-    let featuresToUpdateRP= {};
+    let featuresToCommit = {};
+    let featuresToUpdateRP = {};
     let linkLayerId;
 
     if (dataset && dataset.layers) {
@@ -111,12 +144,10 @@ export default async function prepare(dataset) {
             const providerType = l.provider.type;
             const layerId = l.id;
 
-            let preparedConfig = await prepareProviderConfig(l.provider, ts);
-            let provider = providerType == 'TestLocalProvider' ?
-                new TestLocalProvider(preparedConfig.providerConfig) :
-                (providerType == 'TestProvider' ? new TestProvider(preparedConfig.providerConfig) : new providers[providerType](preparedConfig.providerConfig));
+            let {options, spaceId} = await prepareProviderConfig(l.provider, ts);
+            let provider = new Providers[providerType](options);
+            let layerConfig: Pick<LayerSetup, 'min' | 'max'> | {provider: typeof TileProvider} = Object.assign({}, l);
 
-            let layerConfig = Object.assign({}, l);
             layerConfig['provider'] = provider;
             delete layerConfig['data'];
             delete layerConfig['clear'];
@@ -125,7 +156,7 @@ export default async function prepare(dataset) {
 
             preparedData.addLayer(layer);
 
-            preparedData.setProvider(layerId, provider, preparedConfig.spaceId);
+            preparedData.setProvider(layerId, provider, spaceId);
 
             if (l.data && l.data.remote) {
                 // data to commit
@@ -161,7 +192,7 @@ export default async function prepare(dataset) {
                     // identify which Point need to update its link id for routing point
                     if ((prop.featureClass == 'ADDRESS' || prop.featureClass == 'PLACE') && prop.routingLink) {
                         let clone = JSON.parse(JSON.stringify(feature));
-                        // save idx as feature.id, which will be replace by real feature id
+                        // save idx as feature.id, which will be replaced by real feature id
                         clone.id = idx;
                         featuresToUpdateRP[layerId].data.push(clone);
                     }
@@ -185,12 +216,12 @@ export default async function prepare(dataset) {
     for (let layerId in featuresToUpdateRP) {
         let data = featuresToUpdateRP[layerId].data;
         let index = data.length - 1;
-        while (index >=0) {
+        while (index >= 0) {
             let feature = data[index];
             let linkId = preparedData.getId(linkLayerId, feature.properties.routingLink);
 
             // link to which the point connects is also created
-            if ( linkId != feature.properties.routingLink ) {
+            if (linkId != feature.properties.routingLink) {
                 feature.properties.routingLink = linkId;
                 // feature.id is the idx of the feature
                 feature.id = features[layerId][feature.id];
@@ -225,11 +256,11 @@ export class TestData {
     //         "local": []
     //     }
     // }
-    private features: {[key: string]: {}} = {};
+    private features: { [key: string]: {} } = {};
 
-    private _provider: {[key: string]: {provider: {type: string}, spaceId: string}} = {};
+    private _provider: { [key: string]: { provider: { type: string }, spaceId: string } } = {};
 
-    private _idMap: {[key: string]: {}} = {};
+    private _idMap: { [key: string]: {} } = {};
 
     addIdMap(layerId, tempId, idx) {
         if (!this._idMap[layerId]) {
@@ -249,7 +280,7 @@ export class TestData {
         this.layers.push(layer);
     };
 
-    addFeature(features: {[key: string]: object[]}, location: string): void {
+    addFeature(features: { [key: string]: object[] }, location: string): void {
         for (let layer in features) {
             this.features[layer] = {};
             this.features[layer][location] = features[layer];
@@ -258,10 +289,10 @@ export class TestData {
 
     getLayers(): TileLayer[];
     getLayers(id: string): TileLayer;
-    getLayers(id?: string): TileLayer|TileLayer[] {
+    getLayers(id?: string): TileLayer | TileLayer[] {
         if (id) {
             let layer;
-            this.layers.forEach((l)=>{
+            this.layers.forEach((l) => {
                 if (id == l.id) {
                     layer = l;
                     return;
@@ -272,7 +303,7 @@ export class TestData {
         return this.layers;
     };
 
-    getId(layerId: string, id: string|number): string|number {
+    getId(layerId: string, id: string | number): string | number {
         if (this._idMap[layerId] && this._idMap[layerId].hasOwnProperty(id)) {
             let idx = this._idMap[layerId][id];
             id = this.features[layerId]['remote'][idx];
@@ -281,14 +312,14 @@ export class TestData {
         return id;
     }
 
-    getFeature(layerId: string, id: string|number) {
+    getFeature(layerId: string, id: string | number) {
         let layer = this.getLayers(layerId);
 
         id = this.getId(layerId, id);
 
         if (!Array.isArray(layer)) {
             let provider = layer.getProvider();
-            if ( provider instanceof FeatureProvider) {
+            if (provider instanceof FeatureProvider) {
                 return provider.getFeature(id);
             }
         }
