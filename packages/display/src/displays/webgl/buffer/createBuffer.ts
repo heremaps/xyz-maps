@@ -197,7 +197,6 @@ const createBuffer = (
                             if (type == 'Line') {
                                 if (shared.strokeDasharray) {
                                     geoBuffer.type = 'DashedLine';
-
                                     geoBuffer.addUniform('u_hasDashTexture', !!(geoBuffer.uniforms.u_dashTexture));
 
                                     geoBuffer.addUniform('u_dashUnit', [
@@ -205,6 +204,10 @@ const createBuffer = (
                                         shared.strokeDasharray.units[1] == 'm' ? meterToPixel : 0
                                     ]);
                                 }
+                                // scissor un-clipped geometry in any case...(huge geometry possible)
+                                // otherwise clipping can be skipped to avoid strokeWidth cutoffs close to tile edges
+                                geoBuffer.clip = !tile.clipped;
+
                                 geoBuffer.addUniform('u_fill', stroke);
 
                                 geoBuffer.addUniform('u_strokeWidth', [strokeWidth * .5, shared.unit == 'm' ? meterToPixel : 0]);
@@ -217,160 +220,153 @@ const createBuffer = (
                                 // geoBuffer.addUniform('u_no_antialias', !grpBuffer.isFlat());
 
                                 geoBuffer.pass = PASS.ALPHA;
-                                if (!geoBuffer.flat || shared.strokeDasharray || hasAlphaColor) {
+                                if ( !geoBuffer.isFlat() || shared.strokeDasharray || hasAlphaColor) {
                                     geoBuffer.pass |= PASS.POST_ALPHA;
                                 }
                                 geoBuffer.depth = geoBuffer.blend = true;
-                            } else if (type == 'Polygon' || type == 'Extrude') {
-                                geoBuffer.addUniform('u_fill', shared.fill);
-
-                                if (type == 'Extrude') {
-                                    geoBuffer.addUniform('u_strokePass', 0);
-                                    geoBuffer.scissor = false;
-
-                                    if (shared.stroke) {
-                                        const indexGroup = geoBuffer.addGroup(grp.extrudeStrokeIndex, grpBuffer.i32, 1);
-                                        indexGroup.uniforms = {
-                                            'u_strokePass': 1,
-                                            'u_stroke': shared.stroke
-                                        };
-                                        // geoBuffer.addUniform('u_stroke', shared.stroke);
-                                    }
-                                }
-                                if (hasAlphaColor) {
-                                    geoBuffer.pass = PASS.ALPHA;
-                                    if (type == 'Extrude') {
-                                        geoBuffer.pass |= PASS.POST_ALPHA;
-                                    }
-                                    geoBuffer.depth = geoBuffer.blend = true;
-                                }
                             } else {
-                                if (type == 'Text' || type == 'Icon') {
-                                    geoBuffer.scissor = grpBuffer.scissor;
+                                if (type == 'Polygon' || type == 'Extrude') {
+                                    geoBuffer.addUniform('u_fill', shared.fill);
 
-                                    if (type == 'Text') {
-                                        (geoBuffer.uniforms.u_texture as GlyphTexture).sync();
-                                        geoBuffer.addUniform('u_fillColor', shared.fill || COLOR_UNDEFINED);
-                                        geoBuffer.addUniform('u_strokeColor', shared.stroke || COLOR_UNDEFINED);
-                                    } else {
+                                    if (type == 'Extrude') {
+                                        geoBuffer.addUniform('u_strokePass', 0);
+
+                                        if (shared.stroke) {
+                                            const indexGroup = geoBuffer.addGroup(grp.extrudeStrokeIndex, grpBuffer.i32, 1);
+                                            indexGroup.uniforms = {
+                                                'u_strokePass': 1,
+                                                'u_stroke': shared.stroke
+                                            };
+                                        }
+                                    }
+                                    if (hasAlphaColor) {
+                                        geoBuffer.pass = PASS.ALPHA;
+                                        if (type == 'Extrude') {
+                                            geoBuffer.pass |= PASS.POST_ALPHA;
+                                        }
+                                        geoBuffer.depth = geoBuffer.blend = true;
+                                    }
+                                } else {
+                                    if (type == 'Text' || type == 'Icon') {
+                                        if (type == 'Text') {
+                                            (geoBuffer.uniforms.u_texture as GlyphTexture).sync();
+                                            geoBuffer.addUniform('u_fillColor', shared.fill || COLOR_UNDEFINED);
+                                            geoBuffer.addUniform('u_strokeColor', shared.stroke || COLOR_UNDEFINED);
+                                        } else {
+                                            geoBuffer.addUniform('u_opacity', shared.opacity);
+                                        }
+
+                                        const texture = geoBuffer.uniforms.u_texture as Texture;
+                                        geoBuffer.addUniform('u_texSize', [texture.width, texture.height]);
+
+                                        geoBuffer.addUniform('u_alignMap', shared.alignment == 'map');
+
+                                        geoBuffer.pass = PASS.ALPHA;
+                                        geoBuffer.depth = geoBuffer.blend = true;
+                                        // geoBuffer.addUniform('u_offset', [shared.offsetX, shared.offsetY]);
+                                    } else if (type == 'Rect' || type == 'Circle' || type == 'Box' || type == 'Sphere') {
+                                        const fill = shared.fill || COLOR_UNDEFINED;
+
+                                        geoBuffer.addUniform('u_fill', fill);
+
+                                        if (stroke) {
+                                            geoBuffer.addUniform('u_stroke', stroke);
+                                            if (strokeWidth == UNDEF) strokeWidth = 1;
+                                        }
+                                        geoBuffer.addUniform('u_strokeWidth', strokeWidth ^ 0);
+
+                                        const toPixel = shared.unit == 'm' ? meterToPixel : 0;
+
+
+                                        if (type == 'Circle' || type == 'Sphere') {
+                                            // geoBuffer.addUniform('u_radius', shared.radius);
+                                            geoBuffer.addUniform('u_radius', [shared.width, toPixel]);
+                                        } else {
+                                            if (fill == COLOR_UNDEFINED) {
+                                                // use blend to enable shader to not use discard (faster)
+                                                geoBuffer.pass = PASS.ALPHA;
+                                                geoBuffer.blend = true;
+                                            }
+
+                                            geoBuffer.addUniform('u_size', [shared.width, toPixel, shared.height, toPixel]);
+                                            geoBuffer.addUniform('u_rotation', shared.rotation * TO_RAD);
+                                        }
+
+                                        if (hasAlphaColor) {
+                                            geoBuffer.pass = PASS.ALPHA;
+                                            geoBuffer.depth = geoBuffer.blend = true;
+                                        }
+
+                                        geoBuffer.addUniform('u_alignMap', shared.alignment == 'map');
+                                    } else if (type == 'Heatmap') {
+                                        geoBuffer.addUniform('u_radius', [shared.width, 0]);
+                                        geoBuffer.addUniform('u_weight', 1.);
+                                        geoBuffer.addUniform('u_intensity', typeof shared.height == 'number' ? shared.height : 1);
                                         geoBuffer.addUniform('u_opacity', shared.opacity);
+                                        geoBuffer.pass = PASS.ALPHA | PASS.POST_ALPHA;
+                                        geoBuffer.flat = true;
+                                        geoBuffer.depth = false;
+                                        geoBuffer.blend = false;
+
+                                        const gradient = (<unknown>shared.fill as LinearGradient)?.stops || DEFAULT_HEATMAP_GRADIENT.stops;
+
+                                        const gradientTexture = factory.gradients.getTexture(gradient, HeatmapBuffer.verifyAndFixGradient);
+                                        geoBuffer.addUniform('u_gradient', gradientTexture);
                                     }
 
-                                    const texture = geoBuffer.uniforms.u_texture as Texture;
-                                    geoBuffer.addUniform('u_texSize', [texture.width, texture.height]);
-
-                                    geoBuffer.addUniform('u_alignMap', shared.alignment == 'map');
-
-                                    geoBuffer.pass = PASS.ALPHA;
-                                    geoBuffer.depth = geoBuffer.blend = true;
-                                    // geoBuffer.addUniform('u_offset', [shared.offsetX, shared.offsetY]);
-                                } else if (type == 'Rect' || type == 'Circle' || type == 'Box' || type == 'Sphere') {
-                                    geoBuffer.scissor = grpBuffer.scissor;
-
-                                    const fill = shared.fill || COLOR_UNDEFINED;
-
-                                    geoBuffer.addUniform('u_fill', fill);
-
-                                    if (stroke) {
-                                        geoBuffer.addUniform('u_stroke', stroke);
-                                        if (strokeWidth == UNDEF) strokeWidth = 1;
+                                    if (shared.offsetUnit) {
+                                        geoBuffer.addUniform('u_offset', [
+                                            shared.offsetX, shared.offsetUnit[0] == 'm' ? meterToPixel : 0,
+                                            shared.offsetY, shared.offsetUnit[1] == 'm' ? meterToPixel : 0
+                                        ]);
+                                        geoBuffer.addUniform('u_offsetZ', [shared.offsetZ, shared.offsetUnit[2] == 'm' ? meterToPixel : 0]);
                                     }
-                                    geoBuffer.addUniform('u_strokeWidth', strokeWidth ^ 0);
 
-                                    const toPixel = shared.unit == 'm' ? meterToPixel : 0;
+                                    if (type == 'Model') {
+                                        geoBuffer.addUniform('u_meterToPixel', meterToPixel);
+                                        if (shared.modelMode) {
+                                            // terrain model -> scale xy in pixel
+                                            geoBuffer.addUniform('u_groundResolution', 1);
+                                        }
 
+                                        if (!geoBuffer.attributes.a_normal) {
+                                            const normals = geoBuffer.computeNormals();
+                                            geoBuffer.addAttribute('a_normal', {
+                                                data: normals,
+                                                size: 3,
+                                                normalized: true
+                                            });
+                                        }
+                                        geoBuffer.bbox = (grpBuffer as ModelBuffer).bbox;
+                                        geoBuffer.id = (grpBuffer as ModelBuffer).id;
+                                        geoBuffer.hitTest = shared.modelMode || 0;
+                                        geoBuffer.destroy = (grpBuffer as ModelBuffer).destroy || geoBuffer.destroy;
+                                        geoBuffer.depth = true;
 
-                                    if (type == 'Circle' || type == 'Sphere') {
-                                        // geoBuffer.addUniform('u_radius', shared.radius);
-                                        geoBuffer.addUniform('u_radius', [shared.width, toPixel]);
-                                    } else {
-                                        if (fill == COLOR_UNDEFINED) {
-                                            // use blend to enable shader to not use discard (faster)
+                                        if (geoBuffer.uniforms.pointSize) {
+                                            geoBuffer.groups[0].mode = GeometryBuffer.MODE_GL_POINTS;
+                                        }
+
+                                        if (geoBuffer.uniforms.opacity < 1.0) {
                                             geoBuffer.pass = PASS.ALPHA;
                                             geoBuffer.blend = true;
                                         }
-
-                                        geoBuffer.addUniform('u_size', [shared.width, toPixel, shared.height, toPixel]);
-                                        geoBuffer.addUniform('u_rotation', shared.rotation * TO_RAD);
-                                    }
-
-                                    if (hasAlphaColor) {
-                                        geoBuffer.pass = PASS.ALPHA;
-                                        geoBuffer.depth = geoBuffer.blend = true;
-                                    }
-
-                                    geoBuffer.addUniform('u_alignMap', shared.alignment == 'map');
-                                } else if (type == 'Heatmap') {
-                                    geoBuffer.scissor = grpBuffer.scissor;
-                                    geoBuffer.addUniform('u_radius', [shared.width, 0]);
-                                    geoBuffer.addUniform('u_weight', 1.);
-                                    geoBuffer.addUniform('u_intensity', typeof shared.height == 'number' ? shared.height : 1);
-                                    geoBuffer.addUniform('u_opacity', shared.opacity);
-                                    geoBuffer.pass = PASS.ALPHA | PASS.POST_ALPHA;
-                                    geoBuffer.flat = true;
-                                    geoBuffer.depth = false;
-                                    geoBuffer.blend = false;
-
-                                    const gradient = (<unknown>shared.fill as LinearGradient)?.stops || DEFAULT_HEATMAP_GRADIENT.stops;
-
-                                    const gradientTexture = factory.gradients.getTexture(gradient, HeatmapBuffer.verifyAndFixGradient);
-                                    geoBuffer.addUniform('u_gradient', gradientTexture);
-                                }
-
-                                if (shared.offsetUnit) {
-                                    geoBuffer.addUniform('u_offset', [
-                                        shared.offsetX, shared.offsetUnit[0] == 'm' ? meterToPixel : 0,
-                                        shared.offsetY, shared.offsetUnit[1] == 'm' ? meterToPixel : 0
-                                    ]);
-                                    geoBuffer.addUniform('u_offsetZ', [shared.offsetZ, shared.offsetUnit[2] == 'm' ? meterToPixel : 0]);
-                                }
-
-                                if (type == 'Model') {
-                                    geoBuffer.addUniform('u_meterToPixel', meterToPixel);
-                                    if (shared.modelMode) {
-                                        // terrain model -> scale xy in pixel
-                                        geoBuffer.addUniform('u_groundResolution', 1);
-                                    }
-
-                                    if (!geoBuffer.attributes.a_normal) {
-                                        const normals = geoBuffer.computeNormals();
-                                        geoBuffer.addAttribute('a_normal', {
-                                            data: normals,
-                                            size: 3,
-                                            normalized: true
-                                        });
-                                    }
-                                    geoBuffer.bbox = (grpBuffer as ModelBuffer).bbox;
-                                    geoBuffer.id = (grpBuffer as ModelBuffer).id;
-                                    geoBuffer.hitTest = shared.modelMode || 0;
-                                    geoBuffer.destroy = (grpBuffer as ModelBuffer).destroy || geoBuffer.destroy;
-                                    geoBuffer.depth = true;
-
-                                    if (geoBuffer.uniforms.pointSize) {
-                                        geoBuffer.groups[0].mode = GeometryBuffer.MODE_GL_POINTS;
-                                    }
-
-                                    if (geoBuffer.uniforms.opacity < 1.0) {
-                                        geoBuffer.pass = PASS.ALPHA;
-                                        geoBuffer.blend = true;
                                     }
                                 }
+                                geoBuffer.clip = grpBuffer.clip;
                             }
 
-
                             let {zLayer} = grp;
-
                             // convert zIndex:'top' (deprecated) to zLayer
                             if (zIndex == 'top') {
                                 zLayer = Infinity;
                                 zIndex = 0;
                             }
 
-
                             zIndex = Number(zIndex);
 
                             if (!geoBuffer.flat) {
-                                geoBuffer.scissor = false;
+                                geoBuffer.clip = false;
                                 // geoBuffer.depth = true;
                                 // geoBuffer.alpha = true;
 
@@ -380,15 +376,13 @@ const createBuffer = (
                                 }
                             }
 
-
                             renderLayer.addZ(zIndex, !geoBuffer.flat);
                             geoBuffer.zIndex = zIndex;
-
                             geoBuffer.zLayer = typeof zLayer == 'number' ? Math.ceil(zLayer) : null;
 
-                            if (geoBuffer.scissor == UNDEF) {
+                            if (geoBuffer.clip == UNDEF) {
                                 // scissoring is slow. we can skip if source data is already clipped on tile edges.
-                                geoBuffer.scissor = !tile.clipped || layer.getMargin() > 0 || hasAlphaColor;
+                                geoBuffer.clip = !tile.clipped || layer.getMargin() > 0 || hasAlphaColor;
                             }
                         }
                     }

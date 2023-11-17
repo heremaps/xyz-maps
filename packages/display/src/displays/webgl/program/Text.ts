@@ -49,9 +49,9 @@ class TextProgram extends Program {
         gl.blendFunc(gl.ONE, gl.ONE_MINUS_SRC_ALPHA);
     }
 
-    initGeometryBuffer(options: GeometryBuffer, pass: PASS, stencil: boolean, zIndex: number) {
+    initGeometryBuffer(options: GeometryBuffer, pass: PASS, zIndex: number) {
         const {gl} = this;
-        super.initGeometryBuffer(options, pass, stencil);
+        super.initGeometryBuffer(options, pass);
         // using LEQUAL and write to depthbuffer used as default in alpha pass will
         // lead to lost context on some systems (driverbug?!)
         // this issues is also related to overlapping (atlas.spacing) of characters

@@ -60,8 +60,8 @@ export class PointBuffer extends TemplateBuffer {
         'a_position': FlexAttribute
     };
 
-    constructor(flat: boolean = true, scissor?: boolean) {
-        super(flat, scissor);
+    constructor(flat: boolean = true, clipTile?: boolean) {
+        super(flat, clipTile);
 
         this.flexAttributes = {
             // vertex

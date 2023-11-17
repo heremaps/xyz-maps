@@ -28,8 +28,8 @@ export class PolygonBuffer extends TemplateBuffer {
         'a_position': FlexAttribute
     };
 
-    constructor(flat: boolean = true) {
-        super(flat, true);
+    constructor(flat: boolean = true, clip: boolean = true) {
+        super(flat, clip);
 
         this.flexAttributes = {
             'a_position': {

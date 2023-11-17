@@ -146,7 +146,6 @@ class HeatmapProgram extends Program {
             // gl.depthFunc(gl.LEQUAL);
             // gl.enable(gl.SCISSOR_TEST);
 
-
             // gl.depthMask(true);
             // gl.depthFunc(gl.NEVER);
             //* ** ?????? ***
@@ -163,7 +162,9 @@ class HeatmapProgram extends Program {
             this.initBuffers(offscreenBuffer.attributes);
             this.initUniforms(offscreenBuffer.uniforms);
             this.initAttributes(offscreenBuffer.attributes);
-            this.initGeometryBuffer(offscreenBuffer, PASS.ALPHA, false);
+            this.initGeometryBuffer(offscreenBuffer, PASS.ALPHA);
+            gl.depthFunc(gl.LEQUAL);
+
             super.draw(offscreenBuffer);
             // clear offscreen buffer for next frame
             this.clear();

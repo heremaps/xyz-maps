@@ -122,7 +122,9 @@ class GeometryBuffer {
     pass: number = PASS.OPAQUE;
     zIndex?: number;
     zLayer?: number;
-    scissor?: boolean;
+    clip?: boolean;
+    depthMask?: boolean;
+    scissorBox?:number[];
     depth?: boolean;
     blend?: boolean;
     mode?: number; // primitive to render

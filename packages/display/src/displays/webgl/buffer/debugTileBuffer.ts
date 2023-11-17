@@ -34,7 +34,8 @@ export const createStencilTileBuffer = (tileSize: number, gl: WebGLRenderingCont
         height: 1,
         data: new Uint8ClampedArray([255, 255, 255, 255])
     }, gl, 1, false);
-    tileBuffer.scissor = true;
+    tileBuffer.id = 'StencilTile';
+    tileBuffer.clip = true;
     tileBuffer.depth = false;
     tileBuffer.pass = PASS.OPAQUE;
     // tileBuffer.uniforms.u_snapGrid = false;
@@ -94,7 +95,7 @@ const createGridTileBuffer = (color: number[] = [1.0, 0.0, 0.0, 1.0], strokeWidt
     geoBuffer.addUniform('u_strokeWidth', [strokeWidth, 0]);
     geoBuffer.addUniform('u_offset', [0, 0]);
 
-    geoBuffer.scissor = false;
+    geoBuffer.clip = false;
     geoBuffer.depth = false;
     geoBuffer.pass = PASS.ALPHA;
 
@@ -156,7 +157,7 @@ const createGridTextBuffer = (quadkey: string, gl: WebGLRenderingContext, font) 
 
     textBuffer.pass = PASS.ALPHA;
     textBuffer.depth = false;
-    textBuffer.scissor = false;
+    textBuffer.clip = false;
     // textBuffer.texture = glyphs;
     textBuffer.addUniform('u_texture', glyphs);
     textBuffer.addUniform('u_texSize', [glyphs.width, glyphs.height]);

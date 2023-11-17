@@ -43,7 +43,8 @@ export type BufferGroup = {
 type Index = number[] | Uint16Array | Uint32Array;
 
 export class TemplateBuffer {
-    scissor: boolean;
+    // clip on tile edges
+    clip: boolean;
 
     first: number;
     last: number;
@@ -65,9 +66,9 @@ export class TemplateBuffer {
     uniforms: { [name: string]: Uniform } = {};
     private _cnt: number;
 
-    constructor(flat: boolean, scissor: boolean = false) {
+    constructor(flat: boolean, clipTile: boolean = false) {
         this._flat = flat;
-        this.scissor = scissor;
+        this.clip = clipTile;
         // this.flexAttributes = {};
 
         if (!flat) {

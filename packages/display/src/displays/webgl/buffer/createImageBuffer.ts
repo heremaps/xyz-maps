@@ -63,7 +63,7 @@ const createImageBuffer = (img: Image, gl: WebGLRenderingContext, size: number, 
 
     tileBuffer.addUniform('u_sampler', new Texture(gl, img));
     tileBuffer.zIndex = 0;
-    tileBuffer.scissor = true;
+    tileBuffer.clip = true;
     tileBuffer.blend = alpha;
     tileBuffer.pass = alpha ? PASS.ALPHA : PASS.OPAQUE;
 

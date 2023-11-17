@@ -24,11 +24,9 @@ import fragmentShader from '../glsl/line_fragment.glsl';
 
 import Program from './Program';
 import {GLStates, PASS} from './GLStates';
-import {GeometryBuffer} from '../buffer/GeometryBuffer';
-
 
 class DashedLineProgram extends Program {
-    name = 'Line';
+    name = 'DashedLine';
 
     glStates = new GLStates({
         blend: true,

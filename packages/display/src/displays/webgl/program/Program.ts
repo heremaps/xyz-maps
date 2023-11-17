@@ -28,29 +28,35 @@ import {ConstantAttribute} from '../buffer/templates/TemplateBuffer';
 
 let UNDEF;
 
-type UniformMap = { [name: string]: WebGLUniformLocation };
-type AttributeMap = { [name: string]: Attribute | ConstantAttribute };
-
-type ColorMask = { r: boolean; g: boolean; b: boolean; a: boolean };
-
-const DEFAULT_COLOR_MASK: ColorMask = {
-    r: true, g: true, b: true, a: false
+type UniformMap = {
+    [name: string]: WebGLUniformLocation
+};
+type AttributeMap = {
+    [name: string]: Attribute | ConstantAttribute
 };
 
-const NO_COLOR_MASK: ColorMask = {
-    r: false, g: false, b: false, a: false
+export type ColorMask = {
+    r: boolean;
+    g: boolean;
+    b: boolean;
+    a: boolean
 };
 
 class Program {
     protected vertexShaderSrc: string;
     protected fragmentShaderSrc: string;
     protected framebuffer: WebGLFramebuffer;
+    private colorMask: ColorMask;
 
-    static getMacros(buffer: GeometryBuffer): { [name: string]: string | number | boolean } {
+    static getMacros(buffer: GeometryBuffer): {
+        [name: string]: string | number | boolean
+    } {
         return null;
     }
 
-    static getProgramId(buffer: GeometryBuffer, macros?: { [name: string]: string | number | boolean }) {
+    static getProgramId(buffer: GeometryBuffer, macros?: {
+        [name: string]: string | number | boolean
+    }) {
         return buffer.type;
     }
 
@@ -59,7 +65,12 @@ class Program {
     // eslint-disable-next-line camelcase
     glExtAngleInstancedArrays: ANGLE_instanced_arrays;
     name: string;
-    attributeLocations: { [name: string]: { index: number, length: number } } = {};
+    attributeLocations: {
+        [name: string]: {
+            index: number,
+            length: number
+        }
+    } = {};
     attributeDivisors: number[] = [];
     uniforms: UniformMap = {};
 
@@ -76,10 +87,12 @@ class Program {
 
     private textureUnits: number = 0;
 
-    private macros: { [name: string]: string | number | boolean } = {
-    // '#version 300 es',s
-        'M_PI': 3.1415927410125732
-    };
+    private macros: {
+        [name: string]: string | number | boolean
+    } = {
+        // '#version 300 es',s
+            'M_PI': 3.1415927410125732
+        };
 
     constructor(
         gl: WebGLRenderingContext,
@@ -87,7 +100,9 @@ class Program {
         // vertexShader: string,
         // fragmentShader: string,
         devicePixelRation: number,
-        macros?: { [name: string]: string | number | boolean },
+        macros?: {
+            [name: string]: string | number | boolean
+        },
         mode?: number
     ) {
         this.dpr = devicePixelRation;
@@ -114,7 +129,9 @@ class Program {
     }
 
 
-    initBuffers(attributes: { [name: string]: Attribute | ConstantAttribute }) {
+    initBuffers(attributes: {
+        [name: string]: Attribute | ConstantAttribute
+    }) {
         const gl = this.gl;
 
         for (let name in attributes) {
@@ -171,7 +188,9 @@ class Program {
         return () => console.warn('setting uniform not supported', uInfo, location);
     }
 
-    private buildSource(vertexShader: string, fragmentShader: string, macros?: { [name: string]: any }): [string, string] {
+    private buildSource(vertexShader: string, fragmentShader: string, macros?: {
+        [name: string]: any
+    }): [string, string] {
         const prog = this;
 
         macros = {...prog.macros, DEVICE_PIXEL_RATIO: prog.dpr.toFixed(1), ...macros};
@@ -187,7 +206,9 @@ class Program {
         ];
     }
 
-    protected compile(vertexShader: string, fragmentShader: string, macros?: { [name: string]: any }) {
+    protected compile(vertexShader: string, fragmentShader: string, macros?: {
+        [name: string]: any
+    }) {
         const {gl} = this;
 
         const [vertexSrc, fragSrc] = this.buildSource(vertexShader, fragmentShader, macros || {});
@@ -355,24 +376,41 @@ class Program {
         return passed;
     }
 
+    private dbgGLState(geoBuffer) {
+        const {gl} = this;
+        const glEnums = (this as any).__dbgGlEnums ||= ((glEnums) => {
+            for (let func of [
+                'NEVER', 'LESS', 'LEQUAL', 'GREATER', 'GEQUAL', 'EQUAL', 'NOTEQUAL', 'ALWAYS',
+                'KEEP', 'ZERO', 'REPLACE', 'INCR', 'INCR_WRAP', 'DECR', 'DECR_WRAP', 'INVERT'
+            ]) glEnums[gl[func]] = func;
+            return glEnums;
+        })({});
+
+        console.table([{
+            // 'p': geoBuffer.p,
+            'TYPE (ID)': `${this.name} ${geoBuffer.id || null}`,
+            'PASS': this._pass,
+            'SCISSOR_TEST': gl.getParameter(gl.SCISSOR_TEST) ? `${gl.getParameter(gl.SCISSOR_BOX)}` : false,
+            'STENCIL_TEST': gl.getParameter(gl.STENCIL_TEST) ? `${glEnums[gl.getParameter(gl.STENCIL_FUNC)]} ${gl.getParameter(gl.STENCIL_REF)}` : false,
+            'STENCIL': `${glEnums[gl.getParameter(gl.STENCIL_FAIL)]}-${glEnums[gl.getParameter(gl.STENCIL_PASS_DEPTH_FAIL)]}-${glEnums[gl.getParameter(gl.STENCIL_PASS_DEPTH_PASS)]}`,
+            'BLEND': gl.getParameter(gl.BLEND),
+            'BLEND_SRC RGB A': `${gl.getParameter(gl.BLEND_SRC_RGB)} ${gl.getParameter(gl.BLEND_SRC_ALPHA)}`,
+            'BLEND_DST RGB A': `${gl.getParameter(gl.BLEND_DST_RGB)} ${gl.getParameter(gl.BLEND_DST_ALPHA)}`,
+            'COLOR_WRITEMASK': `[${gl.getParameter(gl.COLOR_WRITEMASK).map((a) => Number(a))}]`,
+            'DEPTH_TEST': gl.getParameter(gl.DEPTH_TEST) ? `${glEnums[gl.getParameter(gl.DEPTH_FUNC)]}` : false,
+            'DEPTH_WRITEMASK': gl.getParameter(gl.DEPTH_WRITEMASK),
+            // 'DEPTH_RANGE Near': gl.getParameter(gl.DEPTH_RANGE)[0],
+            // 'DEPTH_RANGE Far': gl.getParameter(gl.DEPTH_RANGE)[1]
+            'FB': gl.getParameter(gl.FRAMEBUFFER_BINDING)
+        }]);
+    }
+
     draw(geoBuffer: GeometryBuffer) {
         const {gl} = this;
         const {groups, instances} = geoBuffer;
 
-        // // if (this.name == 'Extrude' || this.name == 'Image') {
-        // if (this.name == 'Line'||(this.name == 'Extrude'||this.name == 'Image') {
-        //     const stencilFunc = {};
-        //     for (let func of ['NEVER', 'LESS', 'LEQUAL', 'GREATER', 'GEQUAL', 'EQUAL', 'NOTEQUAL', 'ALWAYS']) {
-        //         stencilFunc[gl[func]] = func;
-        //     }
-        //     console.log(
-        //         this._pass,
-        //         this.name,
-        //         'DEPTH_TEST', gl.getParameter(gl.DEPTH_TEST),
-        //         'SCISSOR_TEST', gl.getParameter(gl.SCISSOR_TEST),
-        //         'STENCIL_TEST', gl.getParameter(gl.STENCIL_TEST) ? `${stencilFunc[gl.getParameter(gl.STENCIL_FUNC)]} ${gl.getParameter(gl.STENCIL_REF)}` : false,
-        //         'BLEND', gl.getParameter(gl.BLEND)
-        //     );
+        // if (this.name == 'Line' || this.name == 'Image') {
+        //     this.dbgGLState(geoBuffer);
         // }
 
         for (let grp of groups) {
@@ -407,33 +445,10 @@ class Program {
         }
     };
 
-    private setStates(scissor: boolean, blend: boolean, depth: boolean, stencil: boolean) {
-        const gl = this.gl;
-        // apply default gl-states
-        if (scissor) {
-            gl.enable(gl.SCISSOR_TEST);
-        } else {
-            gl.disable(gl.SCISSOR_TEST);
-        }
-
-        if (stencil) {
-            gl.enable(gl.STENCIL_TEST);
-        } else {
-            gl.disable(gl.STENCIL_TEST);
-        }
-
-        if (blend) {
-            gl.enable(gl.BLEND);
-        } else {
-            gl.disable(gl.BLEND);
-        }
-
-        if (depth) {
-            gl.enable(gl.DEPTH_TEST);
-        } else {
-            gl.disable(gl.DEPTH_TEST);
-        }
-    }
+    private toggleCapability(glCapability: GLenum, enable: boolean) {
+        if (enable) this.gl.enable(glCapability);
+        else this.gl.disable(glCapability);
+    };
 
     protected blendFunc(
         sFactor: number = this.gl.SRC_ALPHA,
@@ -442,26 +457,27 @@ class Program {
         this.gl.blendFunc(sFactor, dFactor);
     }
 
-    initGeometryBuffer(geoBuffer: GeometryBuffer, pass: PASS, useStencil: boolean|number = true, zIndex?: number) {
+    initGeometryBuffer(geoBuffer: GeometryBuffer, pass: PASS, zIndex?: number) {
         const prog = this;
-        const {gl} = prog;
-        const opaquePass = pass == PASS.OPAQUE;
-        let {blend, scissor, depth} = this.glStates;
+        const {gl, glStates} = prog;
 
         this._pass = pass;
 
         // overwrite with custom gl-states
-        if (geoBuffer.scissor != UNDEF) {
-            scissor = geoBuffer.scissor;
-        }
-        if (geoBuffer.blend != UNDEF) {
-            blend = geoBuffer.blend;
-        }
-        if (geoBuffer.depth != UNDEF) {
-            depth = geoBuffer.depth;
+        const blend = geoBuffer.blend ?? glStates.blend;
+        const depth = geoBuffer.depth ?? glStates.depth;
+        const stencil = geoBuffer.clip ?? glStates.scissor;
+        const {scissorBox} = geoBuffer;
+        const scissor = !!scissorBox;
+
+        if (scissorBox) {
+            gl.scissor(scissorBox[0], scissorBox[1], scissorBox[2], scissorBox[3]);
         }
 
-        prog.setStates(scissor, blend, depth, useStencil && scissor);
+        prog.toggleCapability(gl.SCISSOR_TEST, scissor);
+        prog.toggleCapability(gl.BLEND, blend);
+        prog.toggleCapability(gl.DEPTH_TEST, depth);
+        prog.toggleCapability(gl.STENCIL_TEST, stencil);
 
         this.blendFunc();
 
@@ -474,37 +490,17 @@ class Program {
             gl.disable(gl.CULL_FACE);
         }
 
-        const isDepthPrePass = pass == PASS.ALPHA && geoBuffer.pass & PASS.POST_ALPHA;
-        const colorMask = isDepthPrePass
-            ? NO_COLOR_MASK
-            : geoBuffer.colorMask || DEFAULT_COLOR_MASK;
 
-        gl.colorMask(colorMask.r, colorMask.g, colorMask.b, colorMask.a);
+        if (geoBuffer.depthMask != null) {
+            gl.depthMask(geoBuffer.depthMask);
+        }
 
-        // get rid of zfighting for alpha pass.
-        // alpha pass is drawn ordered zindex -> no need to write to depthbuffer (performance)
-        gl.depthMask(geoBuffer.isFlat() ? opaquePass : true);
-
-        // gl.depthMask(false);
-        // gl.depthMask(opaquePass || !options.flat);
+        const colorMask = geoBuffer.colorMask || this.colorMask;
+        if (colorMask != null) {
+            gl.colorMask(colorMask.r, colorMask.g, colorMask.b, colorMask.a);
+        }
 
         gl.disable(gl.POLYGON_OFFSET_FILL);
-
-        if (useStencil && pass == PASS.POST_ALPHA) {
-            gl.enable(gl.STENCIL_TEST);
-
-            if (typeof useStencil == 'number') {
-                gl.stencilFunc(gl.EQUAL, useStencil as number, 0xff);
-                gl.stencilOp(gl.KEEP, gl.KEEP, gl.ZERO);
-            } else {
-                // flat geometry and tile stencil is being used.
-                // use additional pass with stencil buffer to avoid "overlapping alpha" of unclipped geometry
-                gl.stencilFunc(gl.GREATER, 1, 0xff);
-                gl.stencilOp(gl.KEEP, gl.KEEP, gl.REPLACE);
-                // gl.stencilFunc(gl.EQUAL, 0, 0xff);
-                // gl.stencilOp(gl.KEEP, gl.KEEP, gl.INCR);
-            }
-        }
     }
 
     disableAttributes() {
@@ -538,6 +534,10 @@ class Program {
 
     setResolution(resolution: readonly number[]) {
 
+    }
+
+    setColorMask(colorMask: ColorMask) {
+        this.colorMask = colorMask;
     }
 }
 

@@ -29,7 +29,7 @@ export class ExtrudeBuffer extends PolygonBuffer {
     };
 
     constructor() {
-        super(false);
+        super(false, false);
 
         this.flexAttributes.a_normal = {
             data: new FlexArray(Int8Array),
