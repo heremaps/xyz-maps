@@ -194,8 +194,6 @@ export class FixedLevelTileLoadDelegator extends TileLoadDelegator {
         if (requestedLevel != storageLevel) {
             tile.loadStartTs = Date.now();
 
-            console.log('this.ignoreTileQueryLimit', this.ignoreTileQueryLimit);
-
             if (!this.ignoreTileQueryLimit && storageLevel > requestedLevel) {
                 if (!this.blockedLevels[requestedLevel]) {
                     this.blockedLevels[requestedLevel] = 1;
