@@ -11,7 +11,7 @@ const display = new Map(document.getElementById('map'), {
     layers: [
         new MVTLayer({
             remote: {
-                url: 'https://xyz.api.here.com/tiles/osmbase/512/all/{z}/{x}/{y}.mvt?access_token=' + YOUR_ACCESS_TOKEN
+                url: 'https://vector.hereapi.com/v2/vectortiles/base/mc/{z}/{x}/{y}/omv?apikey=' + YOUR_API_KEY
             },
             style: {
                 backgroundColor: '#555555',
