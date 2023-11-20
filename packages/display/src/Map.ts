@@ -40,7 +40,7 @@ import {
     GeoPoint,
     GeoRect,
     utils,
-    GeoJSONFeatureCollection, GeoJSONFeature, GeoJSONBBox, FeatureProvider, GeoJSONCoordinate as Point, CustomLayer
+    GeoJSONFeatureCollection, GeoJSONFeature, GeoJSONBBox, FeatureProvider, Layer, CustomLayer
 } from '@here/xyz-maps-core';
 import {FlightAnimator} from './animation/FlightAnimator';
 import Copyright from './ui/copyright/Copyright';
@@ -1322,7 +1322,7 @@ export class Map {
      *
      * @param layers - the layer(s) that should be refreshed/re-rendered.
      */
-    refresh(layers?: TileLayer | TileLayer[]) {
+    refresh(layers?: TileLayer | Layer | (TileLayer|Layer)[]) {
         if (!(layers instanceof Array)) {
             layers = [layers];
         }
