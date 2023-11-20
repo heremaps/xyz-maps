@@ -83,7 +83,7 @@ var baseMapLayer = new MVTLayer({
         assign: function(feature, zoom) {
             var props = feature.properties;
             var kind = props.kind;
-            var layer = props.layer;
+            var layer = feature.getMvtLayer();
             var geom = feature.geometry.type;
 
             if (layer == 'landuse') {

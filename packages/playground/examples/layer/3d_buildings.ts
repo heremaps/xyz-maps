@@ -35,7 +35,7 @@ const display = new Map(document.getElementById('map'), {
                 assign: (feature, level) => {
                     var props = feature.properties;
                     var kind = props.kind;
-                    var layer = props.layer; // the data layer of the feature
+                    var layer = feature.getMvtLayer(); // the data layer of the feature
                     var geom = feature.geometry.type;
 
                     if (layer == 'water') {

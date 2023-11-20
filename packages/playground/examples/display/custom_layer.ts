@@ -66,7 +66,7 @@ const baseMapLayer = new MVTLayer({
         assign: (feature, zoom) => {
             let props = feature.properties;
             let kind = props.kind;
-            let layer = props.layer;
+            let layer = feature.getMvtLayer();
             let geom = feature.geometry.type;
 
             if (layer == 'landuse') {
@@ -173,8 +173,11 @@ class MyCustomLayer extends CustomLayer {
         // load the model
         const loader = new THREE.GLTFLoader();
         loader.load(
-            'https://xyz.api.here.com/maps/playground/assets/models/ML_HP/ML_HP.gltf',
-            (gltf) => this.scene.add(gltf.scene)
+            'https://s3.eu-west-1.amazonaws.com/xyz-maps.cpdev.aws.in.here.com/public/playground/assets/models/ML_HP/ML_HP.gltf',
+            (gltf) =>{
+                this.scene.add(gltf.scene);
+                display.refresh(this);
+            }
         );
 
         // Use two Directional lights to illuminate the model

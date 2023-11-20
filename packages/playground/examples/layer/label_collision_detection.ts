@@ -73,7 +73,7 @@ const display = new Map(document.getElementById('map'), {
                 assign: (feature, zoom) => {
                     let props = feature.properties;
                     let kind = props.kind;
-                    let layer = props.layer;
+                    let layer = feature.getMvtLayer();
                     let geom = feature.geometry.type;
 
                     if (layer == 'landuse') {

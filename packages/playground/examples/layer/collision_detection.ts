@@ -64,7 +64,7 @@ const display = new Map(document.getElementById('map'), {
                     let props = feature.properties;
                     let geom = feature.geometry.type;
                     let kind = props.kind;
-                    let layer = props.layer; // the data layer of the feature
+                    let layer = feature.getMvtLayer(); // the data layer of the feature
 
                     if (layer == 'water') {
                         if (geom == 'LineString' || geom == 'MultiLineString') {
