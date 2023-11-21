@@ -792,7 +792,7 @@ export class FeatureProvider extends Provider {
     };
 
 
-    _removeTile(tile: Tile, triggerEvent) {
+    _removeTile(tile: Tile, triggerEvent?) {
         const prov = this;
         // let depTiles;
         let data;
@@ -835,20 +835,23 @@ export class FeatureProvider extends Provider {
         }
     };
 
-    _s(searchBBox) {
+    _s(searchBBox, tilePyramid?: string) {
         if (this.tree) {
             return this.tree.search(searchBBox);
         }
         const prov = this;
-        const mergeID = Math.random() * 1e8 ^ 0;
-        const level = prov.level;
+        const mergeID = Math.random();
+        const {level} = prov;
         let data;
-        let tileData;
-        // const set = new Set();
 
         prov.storage.forEach((tile) => {
-            if (tile.z == level && tile.isLoaded()) {
-                tileData = tile.search(searchBBox);
+            if (tile.z == level && tile.isLoaded() && (
+                !tilePyramid || tilePyramid.startsWith(tile.quadkey)
+            )) {
+                // const [minLon, minLat, maxLon, maxLat] = tile.bounds;
+                // if (searchBBox.minX < minLon || searchBBox.maxX > maxLon || searchBBox.minY < minLat || searchBBox.maxY > maxLat) return;
+                const tileData = tile.search(searchBBox);
+
                 if (tileData.length) {
                     // for(let f of tileData) set.add(f);
                     if (!data) {
@@ -867,16 +870,6 @@ export class FeatureProvider extends Provider {
                 }
             }
         });
-        // data = Array.from(set);
-
-        // if((data||[]).length)
-        // {
-        //     // var dupl = findDuplicates(data);
-        //     // console.log( quads );
-        //     // console.log( quads.length, data.length);
-        //     console.log('timeSearch',((timeSearch*1e3)^0)/1e3,'ms','timeMerge',((timeMerge*1e3)^0)/1e3,'ms');
-        // }
-
         return data || [];
     };
 

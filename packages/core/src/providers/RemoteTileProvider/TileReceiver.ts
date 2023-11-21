@@ -18,6 +18,7 @@
  */
 
 import {Tile} from '../../tile/Tile';
+import {FeatureProvider} from '@here/xyz-maps-core';
 
 let UNDEF;
 
@@ -41,10 +42,8 @@ class TileReceiver {
         const receiver = this;
 
         if (!receiver.ready) {
-            const tile = receiver.tile;
-
+            const tile: Tile = receiver.tile;
             const qks = receiver.qks;
-
             const i = qks.indexOf(subtile.quadkey);
 
             if (i != -1) {
@@ -53,16 +52,19 @@ class TileReceiver {
                 if (++receiver.c == qks.length) {
                     receiver.ready = true;
 
-                    // in case of data has been already pushed to provider/tile.. (eg: add Feature by user via api.)
-                    // ..clear processedData in any case to force rendering of display.
-                    tile.processedData = UNDEF;
-
                     const err = subtile.error;
 
                     if (err) {
                         tile.error = err;
                     } else {
-                        tile.data = tile.provider.search(tile.getContentBounds());
+                        const [minX, minY, maxX, maxY] = tile.getContentBounds();
+                        const {provider} = tile;
+                        tile.data = (tile.provider as FeatureProvider)._s({minX, minY, maxX, maxY},
+                            // Ensure that data explicitly clipped using a buffer larger than the tile's dimensions
+                            // is excluded from being returned in neighboring tiles.
+                            provider.clipped && tile.quadkey
+                        );
+                        // tile.data = tile.provider.search(tile.getContentBounds());
                     }
 
                     tile.loadStopTs = Date.now();

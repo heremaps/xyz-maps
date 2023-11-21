@@ -31,11 +31,11 @@ const SCALE = 8191;
 const TILE_CLIP_MARGIN = 16;
 
 enum OutCode {
-  INSIDE = 0, // 0000
-  LEFT = 1, // 0001
-  RIGHT = 2, // 0010
-  BOTTOM = 4, // 0100
-  TOP = 8 // 1000
+    INSIDE = 0, // 0000
+    LEFT = 1, // 0001
+    RIGHT = 2, // 0010
+    BOTTOM = 4, // 0100
+    TOP = 8 // 1000
 }
 
 const computeOutCode = (x: number, y: number, xmin: number, xmax: number, ymin: number, ymax: number): OutCode => {
@@ -297,7 +297,7 @@ const addLineString = (
             // const capStop = tileIntersection1 ? 'butt' : cap;
             addSegments(vertex, dimensions, normal, coordinates, includeHeight,
                 height, lengthToSegments, vLength, segmentStartIndex, segmentStopIndex + dimensions,
-                tileSize, cap, cap, join, strokeWidth, lengthToVertex, absStart, absStop, offset, isRing
+                tileSize, removeTileBounds, cap, cap, join, strokeWidth, lengthToVertex, absStart, absStop, offset, isRing
                 // tileIntersection0,
                 // tileIntersection1
             );
@@ -325,6 +325,7 @@ const addSegments = (
     start: number,
     end: number,
     tileSize: number,
+    removeTileBounds: boolean,
     capStart: Cap,
     capStop: Cap,
     join: Join,
@@ -338,9 +339,13 @@ const addSegments = (
     lastCoord?: number[]
 ) => {
     let i0 = start;
+    let lengthSoFar = 0;
+
     if (start < 0) {
         // handle rings
         i0 = totalLineCoords - dimensions + start;
+    } else {
+        lengthSoFar = lengthToSegments[i0 / dimensions];
     }
 
     let x1 = coordinates[i0];
@@ -351,7 +356,6 @@ const addSegments = (
         [x1, y1, z1] = firstCoord;
     }
 
-    let lengthSoFar = lengthToSegments[i0 / dimensions];
 
     let vLength = end;
     let prevNUp;
@@ -393,16 +397,12 @@ const addSegments = (
         return lengthSoFar;
     }
 
-    // console.log('addsegment', start, '->', vLength);
-
-    // let skipFirstSegment = isRing;
-    let skipFirstSegment = isRing;
+    // skip first segment for ring geometries
+    let skipSegment = isRing;
 
 
     for (let c = start + dimensions; c < vLength; c += dimensions) {
         let last = !isRing && c == vLength - dimensions;
-
-
         // console.log(c,'last?',last);
 
         let nextNormal = null;
@@ -435,6 +435,14 @@ const addSegments = (
         const totalSegmentLength = lengthSoFar - prevLengthSoFar;
 
         length = totalSegmentLength;
+
+        if (
+            removeTileBounds && (
+                y1 == y2 && (y1 <= 0 || y1 >= tileSize) ||
+                x1 == x2 && (x1 <= 0 || x1 >= tileSize)
+            )) {
+            skipSegment = true;
+        }
 
         if (absStop) {
             if (absStop < lengthSoFar) {
@@ -579,232 +587,100 @@ const addSegments = (
         // p1Up = [-nx << 1 | 0, nUp[1]];
         // p2Up = [-nx << 1 | 1, nUp[1]];
 
-        if (join != 'none') {
-            if (!last && curJoin == JOIN_MITER && vLength > 2 * dimensions /** 4**/) {
-                p2Down = [ex << 1 | 0, ey << 1 | 0];
-                p2Up = [ex << 1 | 1, ey << 1 | 1];
-            }
-
-            if (!first && !prevBisectorExceeds) {
-                if (prevLeft) {
-                    p1Up = [prevEx << 1 | 1, prevEy << 1 | 1];
-                    if (join == JOIN_MITER) {
-                        p1Down = [prevEx << 1 | 0, prevEy << 1 | 0]; // miter
-                    }
-                } else {
-                    p1Down = [prevEx << 1 | 0, prevEy << 1 | 0];
-                    if (join == JOIN_MITER) {
-                        p1Up = [prevEx << 1 | 1, prevEy << 1 | 1]; // miter
-                    }
+        if (!skipSegment) {
+            if (join != 'none') {
+                if (!last && curJoin == JOIN_MITER && vLength > 2 * dimensions /** 4**/) {
+                    p2Down = [ex << 1 | 0, ey << 1 | 0];
+                    p2Up = [ex << 1 | 1, ey << 1 | 1];
                 }
-            }
 
-
-            if (!bisectorExceeds && !last) {
-                if (join != JOIN_MITER) {
-                    let aEx = strokeWidth * ex / -SCALE;
-                    let aEy = strokeWidth * ey / -SCALE;
-
-                    if (left) {
-                        aEx *= -1;
-                        aEy *= -1;
-                    }
-
-                    let s = n[0] * aEx + n[1] * aEy;
-
-                    if (length < s) {
-                        bisectorExceeds = true;
-                    } else if (left) {
-                        p2Up = [ex << 1 | 1, ey << 1 | 1];
-                    } else {
-                        p2Down = [ex << 1 | 0, ey << 1 | 0];
-                    }
-                }
-            }
-
-
-            // if (hasZ && join == JOIN_BEVEL) {
-            // if (!bisectorExceeds && z1 != z2 && join == JOIN_BEVEL && !last ) {
-            //     console.log(bisectorExceeds, 'first???', first, 'last', last, c, 'left', left, z1, z2, z3);
-            //     if (left) {
-            //         const _p2Down = [(ex + 2 * nx) << 1 | 1, (ey - 2 * ny) << 1 | 1];
-            //         // const _p2Up = [(ex + 2 * nx) << 1 | 0, (ey - 2 * ny) << 1 | 0];
-            //         normal.push(
-            //             p2Down[0], p2Down[1], 0, 0,
-            //             p2Up[0], p2Up[1], 0, 0,
-            //             _p2Down[0], _p2Down[1], 0, 0
-            //         );
-            //         p2Down = _p2Down;
-            //     } else {
-            //         const _p2Up = [(ex + 2 * nx) << 1 | 0, (ey - 2 * ny) << 1 | 0];
-            //         // const _p2Up = [(ex + 2 * nx) << 1 | 0, (ey - 2 * ny) << 1 | 0];
-            //         normal.push(
-            //             p2Down[0], p2Down[1], 0, 0,
-            //             p2Up[0], p2Up[1], 0, 0,
-            //             _p2Up[0], _p2Up[1], 0, 0
-            //         );
-            //         p2Up = _p2Up;
-            //     }
-            //     vertex.push(x2, y2, z2, x2, y2, z2, x2, y2, z2);
-            // }
-
-
-            // console.log(c,first,last,'lengthSoFar',lengthSoFar);
-
-            if ((!first || last) && lengthSoFar) {
-                if (join == CAP_JOIN_ROUND) {
+                if (!first && !prevBisectorExceeds) {
                     if (prevLeft) {
-                        // Cone
-                        // 1---2
-                        //  \ /
-                        //   3
-                        normal.push(
-                            prevNDown[0], prevNDown[1], prevNDown[0], prevNDown[1],
-                            p1Down[0], p1Down[1], p1Down[0], p1Down[1],
-                            prevEx << 1 | 0, prevEy << 1 | 0, prevEx << 1 | 0, prevEy << 1 | 0
-                        );
+                        p1Up = [prevEx << 1 | 1, prevEy << 1 | 1];
+                        if (join == JOIN_MITER) {
+                            p1Down = [prevEx << 1 | 0, prevEy << 1 | 0]; // miter
+                        }
                     } else {
-                        // Cone
-                        //   1
-                        //  / \
-                        // 3---2
-                        normal.push(
-                            prevEx << 1 | 1, prevEy << 1 | 1, prevEx << 1 | 1, prevEy << 1 | 1,
-                            p1Up[0], p1Up[1], p1Up[0], p1Up[1],
-                            prevNUp[0], prevNUp[1], prevNUp[0], prevNUp[1]
-                        );
+                        p1Down = [prevEx << 1 | 0, prevEy << 1 | 0];
+                        if (join == JOIN_MITER) {
+                            p1Up = [prevEx << 1 | 1, prevEy << 1 | 1]; // miter
+                        }
                     }
-
-                    if (includeHeight) {
-                        vertex.push(prevX2, prevY2, prevZ2, prevX2, prevY2, prevZ2, prevX2, prevY2, prevZ2);
-                    } else {
-                        vertex.push(prevX2, prevY2, prevX2, prevY2, prevX2, prevY2);
-                    }
-                    (lengthToVertex as FlexArray)?.push(prevLengthSoFar, prevLengthSoFar, prevLengthSoFar);
                 }
 
-                if (!first) {
-                    if (!prevBisectorExceeds) {
-                        if (join != JOIN_MITER) {
-                            let an = normalize([prevEx, prevEy]); // alias normal
-                            an[0] *= SCALE;
-                            an[1] *= SCALE;
 
-                            if (prevLeft) {
-                                //   1
-                                //  / \
-                                // 3---2
-                                if (join == JOIN_BEVEL) {
-                                    // allow antialias for bevel join
-                                    normal.push(
-                                        prevEx << 1 | 1, prevEy << 1 | 1, an[0] << 1 | 1, an[1] << 1 | 1,
-                                        p1Down[0], p1Down[1], an[0] << 1 | 0, an[1] << 1 | 0,
-                                        prevNDown[0], prevNDown[1], an[0] << 1 | 0, an[1] << 1 | 0
-                                    );
-                                } else {
-                                    normal.push(
-                                        prevEx << 1 | 1, prevEy << 1 | 1, an[0] << 1 | 1, an[1] << 1 | 1,
-                                        p1Down[0], p1Down[1], p1Down[0], p1Down[1],
-                                        prevNDown[0], prevNDown[1], prevNDown[0], prevNDown[1]
-                                    );
-                                }
-                            } else {
-                                // 3---1
-                                //  \ /
-                                //   2
-                                if (join == JOIN_BEVEL) {
-                                    // allow antialias for bevel join
-                                    normal.push(
-                                        p1Up[0], p1Up[1], an[0] << 1 | 1, an[1] << 1 | 1,
-                                        prevEx << 1 | 0, prevEy << 1 | 0, an[0] << 1 | 0, an[1] << 1 | 0,
-                                        prevNUp[0], prevNUp[1], an[0] << 1 | 1, an[1] << 1 | 1
-                                    );
-                                } else {
-                                    normal.push(
-                                        p1Up[0], p1Up[1], p1Up[0], p1Up[1],
-                                        prevEx << 1 | 0, prevEy << 1 | 0, an[0] << 1 | 0, an[1] << 1 | 0,
-                                        prevNUp[0], prevNUp[1], prevNUp[0], prevNUp[1]
-                                    );
-                                }
-                            }
+                if (!bisectorExceeds && !last) {
+                    if (join != JOIN_MITER) {
+                        let aEx = strokeWidth * ex / -SCALE;
+                        let aEy = strokeWidth * ey / -SCALE;
 
-                            if (includeHeight) {
-                                vertex.push(prevX2, prevY2, prevZ2, prevX2, prevY2, prevZ2, prevX2, prevY2, prevZ2);
-                            } else {
-                                vertex.push(prevX2, prevY2, prevX2, prevY2, prevX2, prevY2);
-                            }
-                            (lengthToVertex as FlexArray)?.push(prevLengthSoFar, prevLengthSoFar, prevLengthSoFar);
-
-                            // if (hasZ && join == JOIN_BEVEL) {
-                            // if (z1 != z2 && join == JOIN_BEVEL) {
-                            //     // console.log('first', first, 'last', last, c, 'prevLeft', prevLeft, z1, z2, z3);
-                            //     if (prevLeft) {
-                            //         const _p1Down = [(prevEx + 2 * nx) << 1 | 1, (prevEy - 2 * ny) << 1 | 1];
-                            //         normal.push(
-                            //             prevEx << 1 | 1, prevEy << 1 | 1, nx << 1 | 1, ny << 1 | 1,
-                            //             p1Down[0], p1Down[1], nx << 1 | 0, ny << 1 | 0,
-                            //             _p1Down[0], _p1Down[1], nx << 1 | 0, ny << 1 | 0
-                            //         );
-                            //         p1Down = _p1Down;
-                            //     } else {
-                            //         const _p1Up = [(prevEx + 2 * nx) << 1 | 0, (prevEy - 2 * ny) << 1 | 0];
-                            //         normal.push(
-                            //             prevEx << 1 | 0, prevEy << 1 | 0, nx << 1 | 0, ny << 1 | 0,
-                            //             p1Up[0], p1Up[1], nx << 1 | 1, ny << 1 | 1,
-                            //             _p1Up[0], _p1Up[1], nx << 1 | 1, ny << 1 | 1
-                            //         );
-                            //         p1Up = _p1Up;
-                            //     }
-                            //     vertex.push(prevX2, prevY2, prevZ2, prevX2, prevY2, prevZ2, prevX2, prevY2, prevZ2);
-                            // }
-                            // if (hasZ && join == JOIN_BEVEL) {
-                            //     console.log(c,'prevLeft',prevLeft, z1, z2 ,z3);
-                            //     if (prevLeft) {
-                            //         const _p1Down = [(prevEx + 2 * nx) << 1 | 1, (prevEy - 2 * ny) << 1 | 1];
-                            //
-                            //         normal.push(
-                            //             prevEx << 1 | 1, prevEy << 1 | 1, an[0] << 1 | 1, an[1] << 1 | 1,
-                            //             p1Down[0], p1Down[1], an[0] << 1 | 0, an[1] << 1 | 0,
-                            //             _p1Down[0], _p1Down[1], an[0] << 1 | 0, an[1] << 1 | 0
-                            //         );
-                            //         p1Down = _p1Down;
-                            //     } else {
-                            //         const _p1Up = [(prevEx + 2 * nx) << 1 | 0, (prevEy - 2 * ny) << 1 | 0];
-                            //         normal.push(
-                            //             prevEx << 1 | 0, prevEy << 1 | 0, an[0] << 1 | 0, an[1] << 1 | 0,
-                            //             p1Up[0], p1Up[1], an[0] << 1 | 1, an[1] << 1 | 1,
-                            //             _p1Up[0], _p1Up[1], an[0] << 1 | 1, an[1] << 1 | 1
-                            //         );
-                            //         p1Up = _p1Up;
-                            //     }
-                            //     vertex.push(prevX2, prevY2, prevZ2, prevX2, prevY2, prevZ2, prevX2, prevY2, prevZ2);
-                            // }
-                        }
-                    } else if (!offset) {
-                        // alias normal: no alias for round joins
-                        let anX = 0;
-                        let anY = 0;
-
-                        if (join != CAP_JOIN_ROUND) {
-                            let an = normalize([ex, ey]);
-                            anX = an[0] * SCALE;
-                            anY = an[1] * SCALE;
+                        if (left) {
+                            aEx *= -1;
+                            aEy *= -1;
                         }
 
-                        anX = anX << 1 | 1;
-                        anY = anY << 1 | 1;
+                        let s = n[0] * aEx + n[1] * aEy;
 
+                        if (length < s) {
+                            bisectorExceeds = true;
+                        } else if (left) {
+                            p2Up = [ex << 1 | 1, ey << 1 | 1];
+                        } else {
+                            p2Down = [ex << 1 | 0, ey << 1 | 0];
+                        }
+                    }
+                }
+
+
+                // if (hasZ && join == JOIN_BEVEL) {
+                // if (!bisectorExceeds && z1 != z2 && join == JOIN_BEVEL && !last ) {
+                //     console.log(bisectorExceeds, 'first???', first, 'last', last, c, 'left', left, z1, z2, z3);
+                //     if (left) {
+                //         const _p2Down = [(ex + 2 * nx) << 1 | 1, (ey - 2 * ny) << 1 | 1];
+                //         // const _p2Up = [(ex + 2 * nx) << 1 | 0, (ey - 2 * ny) << 1 | 0];
+                //         normal.push(
+                //             p2Down[0], p2Down[1], 0, 0,
+                //             p2Up[0], p2Up[1], 0, 0,
+                //             _p2Down[0], _p2Down[1], 0, 0
+                //         );
+                //         p2Down = _p2Down;
+                //     } else {
+                //         const _p2Up = [(ex + 2 * nx) << 1 | 0, (ey - 2 * ny) << 1 | 0];
+                //         // const _p2Up = [(ex + 2 * nx) << 1 | 0, (ey - 2 * ny) << 1 | 0];
+                //         normal.push(
+                //             p2Down[0], p2Down[1], 0, 0,
+                //             p2Up[0], p2Up[1], 0, 0,
+                //             _p2Up[0], _p2Up[1], 0, 0
+                //         );
+                //         p2Up = _p2Up;
+                //     }
+                //     vertex.push(x2, y2, z2, x2, y2, z2, x2, y2, z2);
+                // }
+
+
+                // console.log(c,first,last,'lengthSoFar',lengthSoFar);
+
+                if ((!first || last) && lengthSoFar) {
+                    if (join == CAP_JOIN_ROUND) {
                         if (prevLeft) {
+                            // Cone
+                            // 1---2
+                            //  \ /
+                            //   3
                             normal.push(
-                                0, 0, 0, 0,
-                                nDown[0], nDown[1], anX, anY,
-                                prevNDown[0], prevNDown[1], anX, anY
+                                prevNDown[0], prevNDown[1], prevNDown[0], prevNDown[1],
+                                p1Down[0], p1Down[1], p1Down[0], p1Down[1],
+                                prevEx << 1 | 0, prevEy << 1 | 0, prevEx << 1 | 0, prevEy << 1 | 0
                             );
                         } else {
+                            // Cone
+                            //   1
+                            //  / \
+                            // 3---2
                             normal.push(
-                                0, 0, 0, 0,
-                                prevNUp[0], prevNUp[1], anX, anY,
-                                nUp[0], nUp[1], anX, anY
+                                prevEx << 1 | 1, prevEy << 1 | 1, prevEx << 1 | 1, prevEy << 1 | 1,
+                                p1Up[0], p1Up[1], p1Up[0], p1Up[1],
+                                prevNUp[0], prevNUp[1], prevNUp[0], prevNUp[1]
                             );
                         }
 
@@ -815,12 +691,144 @@ const addSegments = (
                         }
                         (lengthToVertex as FlexArray)?.push(prevLengthSoFar, prevLengthSoFar, prevLengthSoFar);
                     }
+
+                    if (!first) {
+                        if (!prevBisectorExceeds) {
+                            if (join != JOIN_MITER) {
+                                let an = normalize([prevEx, prevEy]); // alias normal
+                                an[0] *= SCALE;
+                                an[1] *= SCALE;
+
+                                if (prevLeft) {
+                                    //   1
+                                    //  / \
+                                    // 3---2
+                                    if (join == JOIN_BEVEL) {
+                                        // allow antialias for bevel join
+                                        normal.push(
+                                            prevEx << 1 | 1, prevEy << 1 | 1, an[0] << 1 | 1, an[1] << 1 | 1,
+                                            p1Down[0], p1Down[1], an[0] << 1 | 0, an[1] << 1 | 0,
+                                            prevNDown[0], prevNDown[1], an[0] << 1 | 0, an[1] << 1 | 0
+                                        );
+                                    } else {
+                                        normal.push(
+                                            prevEx << 1 | 1, prevEy << 1 | 1, an[0] << 1 | 1, an[1] << 1 | 1,
+                                            p1Down[0], p1Down[1], p1Down[0], p1Down[1],
+                                            prevNDown[0], prevNDown[1], prevNDown[0], prevNDown[1]
+                                        );
+                                    }
+                                } else {
+                                    // 3---1
+                                    //  \ /
+                                    //   2
+                                    if (join == JOIN_BEVEL) {
+                                        // allow antialias for bevel join
+                                        normal.push(
+                                            p1Up[0], p1Up[1], an[0] << 1 | 1, an[1] << 1 | 1,
+                                            prevEx << 1 | 0, prevEy << 1 | 0, an[0] << 1 | 0, an[1] << 1 | 0,
+                                            prevNUp[0], prevNUp[1], an[0] << 1 | 1, an[1] << 1 | 1
+                                        );
+                                    } else {
+                                        normal.push(
+                                            p1Up[0], p1Up[1], p1Up[0], p1Up[1],
+                                            prevEx << 1 | 0, prevEy << 1 | 0, an[0] << 1 | 0, an[1] << 1 | 0,
+                                            prevNUp[0], prevNUp[1], prevNUp[0], prevNUp[1]
+                                        );
+                                    }
+                                }
+
+                                if (includeHeight) {
+                                    vertex.push(prevX2, prevY2, prevZ2, prevX2, prevY2, prevZ2, prevX2, prevY2, prevZ2);
+                                } else {
+                                    vertex.push(prevX2, prevY2, prevX2, prevY2, prevX2, prevY2);
+                                }
+                                (lengthToVertex as FlexArray)?.push(prevLengthSoFar, prevLengthSoFar, prevLengthSoFar);
+
+                                // if (hasZ && join == JOIN_BEVEL) {
+                                // if (z1 != z2 && join == JOIN_BEVEL) {
+                                //     // console.log('first', first, 'last', last, c, 'prevLeft', prevLeft, z1, z2, z3);
+                                //     if (prevLeft) {
+                                //         const _p1Down = [(prevEx + 2 * nx) << 1 | 1, (prevEy - 2 * ny) << 1 | 1];
+                                //         normal.push(
+                                //             prevEx << 1 | 1, prevEy << 1 | 1, nx << 1 | 1, ny << 1 | 1,
+                                //             p1Down[0], p1Down[1], nx << 1 | 0, ny << 1 | 0,
+                                //             _p1Down[0], _p1Down[1], nx << 1 | 0, ny << 1 | 0
+                                //         );
+                                //         p1Down = _p1Down;
+                                //     } else {
+                                //         const _p1Up = [(prevEx + 2 * nx) << 1 | 0, (prevEy - 2 * ny) << 1 | 0];
+                                //         normal.push(
+                                //             prevEx << 1 | 0, prevEy << 1 | 0, nx << 1 | 0, ny << 1 | 0,
+                                //             p1Up[0], p1Up[1], nx << 1 | 1, ny << 1 | 1,
+                                //             _p1Up[0], _p1Up[1], nx << 1 | 1, ny << 1 | 1
+                                //         );
+                                //         p1Up = _p1Up;
+                                //     }
+                                //     vertex.push(prevX2, prevY2, prevZ2, prevX2, prevY2, prevZ2, prevX2, prevY2, prevZ2);
+                                // }
+                                // if (hasZ && join == JOIN_BEVEL) {
+                                //     console.log(c,'prevLeft',prevLeft, z1, z2 ,z3);
+                                //     if (prevLeft) {
+                                //         const _p1Down = [(prevEx + 2 * nx) << 1 | 1, (prevEy - 2 * ny) << 1 | 1];
+                                //
+                                //         normal.push(
+                                //             prevEx << 1 | 1, prevEy << 1 | 1, an[0] << 1 | 1, an[1] << 1 | 1,
+                                //             p1Down[0], p1Down[1], an[0] << 1 | 0, an[1] << 1 | 0,
+                                //             _p1Down[0], _p1Down[1], an[0] << 1 | 0, an[1] << 1 | 0
+                                //         );
+                                //         p1Down = _p1Down;
+                                //     } else {
+                                //         const _p1Up = [(prevEx + 2 * nx) << 1 | 0, (prevEy - 2 * ny) << 1 | 0];
+                                //         normal.push(
+                                //             prevEx << 1 | 0, prevEy << 1 | 0, an[0] << 1 | 0, an[1] << 1 | 0,
+                                //             p1Up[0], p1Up[1], an[0] << 1 | 1, an[1] << 1 | 1,
+                                //             _p1Up[0], _p1Up[1], an[0] << 1 | 1, an[1] << 1 | 1
+                                //         );
+                                //         p1Up = _p1Up;
+                                //     }
+                                //     vertex.push(prevX2, prevY2, prevZ2, prevX2, prevY2, prevZ2, prevX2, prevY2, prevZ2);
+                                // }
+                            }
+                        } else if (!offset) {
+                            // alias normal: no alias for round joins
+                            let anX = 0;
+                            let anY = 0;
+
+                            if (join != CAP_JOIN_ROUND) {
+                                let an = normalize([ex, ey]);
+                                anX = an[0] * SCALE;
+                                anY = an[1] * SCALE;
+                            }
+
+                            anX = anX << 1 | 1;
+                            anY = anY << 1 | 1;
+
+                            if (prevLeft) {
+                                normal.push(
+                                    0, 0, 0, 0,
+                                    nDown[0], nDown[1], anX, anY,
+                                    prevNDown[0], prevNDown[1], anX, anY
+                                );
+                            } else {
+                                normal.push(
+                                    0, 0, 0, 0,
+                                    prevNUp[0], prevNUp[1], anX, anY,
+                                    nUp[0], nUp[1], anX, anY
+                                );
+                            }
+
+                            if (includeHeight) {
+                                vertex.push(prevX2, prevY2, prevZ2, prevX2, prevY2, prevZ2, prevX2, prevY2, prevZ2);
+                            } else {
+                                vertex.push(prevX2, prevY2, prevX2, prevY2, prevX2, prevY2);
+                            }
+                            (lengthToVertex as FlexArray)?.push(prevLengthSoFar, prevLengthSoFar, prevLengthSoFar);
+                        }
+                    }
                 }
             }
-        }
 
 
-        if (!skipFirstSegment) {
             normal.push(
                 // 1up -> 2down -> 1down
                 //
@@ -877,7 +885,7 @@ const addSegments = (
             );
         }
 
-        skipFirstSegment = false;
+        skipSegment = false;
 
         prevNUp = nUp;
         prevNDown = nDown;

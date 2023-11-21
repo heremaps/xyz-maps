@@ -22,6 +22,7 @@ import RTree from '../features/RTree';
 import projection from '../projection/webMercator';
 import {Feature} from '../features/Feature';
 import {GeoJSONCoordinate, GeoJSONBBox} from '../features/GeoJSON';
+import TileProvider from '../providers/TileProvider/TileProvider';
 
 
 const TILESIZE = 256;
@@ -62,7 +63,7 @@ export class Tile {
     loadStartTs: number;
     loadStopTs: number;
     error?: any;
-    provider: any;
+    provider: TileProvider;
     onLoaded: any;
 
     cbnds: GeoJSONBBox;

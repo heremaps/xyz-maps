@@ -67,7 +67,7 @@ export default abstract class TileProvider {
 
     protected abstract dataType: string;
 
-    abstract _removeTile(tile: Tile, triggerEvent: boolean);
+    abstract _removeTile(tile: Tile, triggerEvent?: boolean);
 
     /**
      * Get a tile by quadkey.

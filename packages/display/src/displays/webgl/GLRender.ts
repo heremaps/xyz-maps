@@ -205,6 +205,8 @@ export class GLRender implements BasicRender {
             this.depthFnc = gl.LESS;
             break;
         case PASS.ALPHA:
+            // this.depthFnc = gl.LESS;
+            // this.depthMask = true;
             this.depthFnc = gl.LEQUAL;
             this.depthMask = false;
             break;
@@ -794,6 +796,11 @@ export class GLRender implements BasicRender {
         xmax = Math.round((xmax + 1) * .5 * w);
         ymin = Math.round((ymin + 1) * .5 * h);
         ymax = Math.round((ymax + 1) * .5 * h);
+        //
+        // xmin = ((xmin + 1) * .5 * w);
+        // xmax = ((xmax + 1) * .5 * w);
+        // ymin = ((ymin + 1) * .5 * h);
+        // ymax = ((ymax + 1) * .5 * h);
 
         const sw = xmax - xmin;
         const sh = ymax - ymin;
