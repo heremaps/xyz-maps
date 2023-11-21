@@ -17,18 +17,14 @@
  * License-Filename: LICENSE
  */
 
+import {JSUtils, Queue} from '@here/xyz-maps-common';
 import MVTTileLoader from '../../loaders/MVT/MVTLoader';
 import {Feature} from '../../features/Feature';
 import {GeoJSONGeometryType} from '../../features/GeoJSON';
-
 import mvtToGeoJSON from './toGeojson';
-import {JSUtils, Queue} from '@here/xyz-maps-common';
-
 import {MVTTile} from './MVTTile';
 import {RemoteTileProvider} from '../RemoteTileProvider/RemoteTileProvider';
-import {HTTPLoader} from '../../loaders/HTTPLoader'; // => no global tree (tile-tree)!
-// import GeoJsonProvider from '../GeoJSONProvider'; // global tree!
-
+import {HTTPLoader} from '../../loaders/HTTPLoader';
 
 class MvtFeature extends Feature {
     geometry: { type: GeoJSONGeometryType, coordinates: any[], __xyz: any };
@@ -54,6 +50,13 @@ export class MVTProvider extends RemoteTileProvider {
             'Feature': MvtFeature,
             'preProcessor': mvtToGeoJSON
         }, config));
+
+        // this.__s = this._s;
+        //
+        // this._s = function(bbox) {
+        //     debugger;
+        //     return this.__s(bbox);
+        // };
     };
 
     decCoord(feature) {

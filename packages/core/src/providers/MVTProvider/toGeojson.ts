@@ -85,9 +85,10 @@ interface GeoJsonFeature {
     bbox?: number[];
     geometry: {
         type: string,
-        coordinates: any[]
+        coordinates: any[];
+        _xyz?: any;
     }
-    properties?: {}
+    properties?: {[name:string]: any}
 }
 
 function classifyRings(rings) {
@@ -222,17 +223,10 @@ const decodeBBox = (vtFeature, x, y, z) => {
 // window.tt = 0;
 
 function vtFeatureToGeoJSON(vtFeature, xyz, includeBBox) {
-    // let s = performance.now();
-
     const geom = decodeBBox(vtFeature, xyz.x, xyz.y, xyz.z);
     // const geom = decodeGeometry(vtFeature, x, y, z, includeBBox);
-    // geom.type = geom.geometry.type;
-
-    // window.tt += performance.now() - s;
-
     const result: GeoJsonFeature = {
         type: 'Feature',
-        // geometry: geom.geometry,
         geometry: new FeatureGeometry(geom.type, vtFeature, xyz),
         properties: vtFeature.properties
     };
@@ -291,15 +285,12 @@ class FeatureGeometry {
     }
 }
 
-// @
-// window.mvtDecodeTime = 0;
-
 export default function mvtPreProcessor(prep) {
     taskManager.create({
 
         init: function() {
             const layers = [];
-            let mvt = new VectorTile(new Protobuf(prep.data.mvt));
+            const mvt = new VectorTile(new Protobuf(prep.data.mvt));
             const {tile} = prep;
 
             for (var l in mvt.layers) {
@@ -311,7 +302,7 @@ export default function mvtPreProcessor(prep) {
                     y: tile.y,
                     z: tile.z
                 },
-                mvt: mvt,
+                mvt,
                 xyzLayers: prep.data.xyz,
                 layers: layers,
                 l: 0,
@@ -324,39 +315,29 @@ export default function mvtPreProcessor(prep) {
 
         exec: function(data) {
             let {mvt, xyz, layers, xyzLayers, l, f, geojson} = data;
-            let layer;
-            let feature;
-            let geom;
-            let _xyz;
 
             while (l < layers.length) {
-                layer = mvt.layers[layers[l]];
+                let mvtLayer = mvt.layers[layers[l]];
+                let xyzLayer = xyzLayers[l];
+                let mvtLayerName = mvtLayer.name;
                 // const mvtNs = {layer: layer.name};
-                _xyz = {x: xyz.x, y: xyz.y, z: xyz.z, l: layer.name};
+                let _xyz = {x: xyz.x, y: xyz.y, z: xyz.z, l: mvtLayerName};
 
-                while (f < layer.length) {
+                while (f < mvtLayer.length) {
                     // feature    = layer.feature(f++).toGeoJSON( x, y, z );
-
-                    feature = vtFeatureToGeoJSON(layer.feature(f), _xyz, true);
-
-                    geom = feature.geometry.type;
+                    let feature = vtFeatureToGeoJSON(mvtLayer.feature(f), _xyz, true);
+                    let geom = feature.geometry.type;
 
                     if (geom == 'MultiPolygon' || geom == 'Polygon') {
-                        let xyzFeature = xyzLayers[l] && xyzLayers[l].features[f];
-                        if (xyzFeature) {
-                            feature.geometry._xyz = xyzFeature;
-                        } else {
-                            debugger;
-                        }
+                        feature.geometry._xyz = xyzLayer?.features[f];
                     }
                     // feature.id = /*feature.id ||*/ Math.random();
-
                     feature.id = ++guid;
                     f++;
 
-                    if (feature.properties.layer == UNDEF) {
-                        feature.properties.layer = layer.name;
-                    }
+                    feature.properties.layer ??= mvtLayer.name;
+                    feature.properties.$layer ??= mvtLayer.name;
+
                     // feature.properties['@ns:com:here:mvt'] = mvtNs;
 
                     geojson.push(feature);
