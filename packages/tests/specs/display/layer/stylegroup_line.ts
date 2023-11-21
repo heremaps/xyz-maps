@@ -25,7 +25,7 @@ import {Map} from '@here/xyz-maps-display';
 describe('StyleGroup Line geometry', () => {
     const expect = chai.expect;
     let segment05to1 = {x: 238, y: 278};
-    let segment0to05 = {x: 569, y: 328};
+    let segment0to05 = {x: 569, y: 326};
     let display;
     let mapContainer;
     let line1;
