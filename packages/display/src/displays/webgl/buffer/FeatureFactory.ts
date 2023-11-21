@@ -520,7 +520,7 @@ export class FeatureFactory {
                 } else if (type == 'Line') {
                     if (!stroke || !strokeWidth) continue;
 
-                    const [value, unit] = parseSizeValue(strokeWidth);
+                    const [value, unit] = parseSizeValue(strokeWidth, false);
                     strokeWidth = value;
                     sizeUnit = unit;
 

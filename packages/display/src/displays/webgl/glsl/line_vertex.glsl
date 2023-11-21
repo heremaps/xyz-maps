@@ -34,7 +34,7 @@ void main(void){
         : strokeWidth < 1. ? .65 : 1.;
 
     float width = (strokeWidth+alias) / u_scale;
-    v_width = vec2(strokeWidth, alias * .5);
+    v_width = vec2(strokeWidth, alias /* *.5 */);
     // LSB is direction/normal vector [-1,+1]
     vec2 dir2 = mod(a_normal.zw, 2.0) * 2.0 - 1.0;
     vec2 aliasNormal = floor(a_normal.zw * .5) * N_SCALE;
