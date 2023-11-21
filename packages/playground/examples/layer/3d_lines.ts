@@ -81,10 +81,10 @@ var baseMapLayer = new MVTLayer({
             }]
         },
         assign: function(feature, zoom) {
-            var props = feature.properties;
-            var kind = props.kind;
-            var layer = feature.getMvtLayer();
-            var geom = feature.geometry.type;
+            const props = feature.properties;
+            const kind = props.kind;
+            const layer = props.$layer; // the name of the layer in the mvt datasource.
+            const geom = feature.geometry.type;
 
             if (layer == 'landuse') {
                 switch (kind) {

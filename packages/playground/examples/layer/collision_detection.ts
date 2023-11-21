@@ -61,10 +61,10 @@ const display = new Map(document.getElementById('map'), {
                 },
 
                 assign: (feature, level) => {
-                    let props = feature.properties;
-                    let geom = feature.geometry.type;
-                    let kind = props.kind;
-                    let layer = feature.getMvtLayer(); // the data layer of the feature
+                    const props = feature.properties;
+                    const kind = props.kind;
+                    const layer = props.$layer; // the name of the layer in the mvt datasource.
+                    const geom = feature.geometry.type;
 
                     if (layer == 'water') {
                         if (geom == 'LineString' || geom == 'MultiLineString') {

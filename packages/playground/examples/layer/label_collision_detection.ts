@@ -71,10 +71,10 @@ const display = new Map(document.getElementById('map'), {
                 },
 
                 assign: (feature, zoom) => {
-                    let props = feature.properties;
-                    let kind = props.kind;
-                    let layer = feature.getMvtLayer();
-                    let geom = feature.geometry.type;
+                    const props = feature.properties;
+                    const kind = props.kind;
+                    const layer = props.$layer; // the name of the layer in the mvt datasource.
+                    const geom = feature.geometry.type;
 
                     if (layer == 'landuse') {
                         switch (kind) {
