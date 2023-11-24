@@ -30,8 +30,8 @@ const DEFAULT_MIN_REPEAT = 256;
 let UNDEF;
 
 enum DIR {
-  MID_TO_END = 1,
-  MID_TO_START = -1
+    MID_TO_END = 1,
+    MID_TO_START = -1
 }
 
 type PlacePointCallback = (x: number, y: number, z: number | null, rotZ: number, rotY: number, collisionData?: CollisionData) => void;
@@ -81,9 +81,9 @@ export class LineFactory {
                 z = coord[2] || 0;
 
                 if (!c ||
-          (Math.round(_x * decimals) - Math.round(x * decimals)) ||
-          (Math.round(_y * decimals) - Math.round(y * decimals)) ||
-          (hasZ && z != _z)
+                    (Math.round(_x * decimals) - Math.round(x * decimals)) ||
+                    (Math.round(_y * decimals) - Math.round(y * decimals)) ||
+                    (hasZ && z != _z)
                 ) {
                     pixels[t++] = x;
                     pixels[t++] = y;
@@ -128,11 +128,11 @@ export class LineFactory {
         for (let id in repeat) {
             repeat[id].clear();
         }
-    // this.repeat.clear();
+        // this.repeat.clear();
     }
 
     initFeature(zoom: number, tileSize: number, distanceGroup?: string) {
-    // allow more precision in case tiles are getting zoomed very close (zoomlevel 20+)
+        // allow more precision in case tiles are getting zoomed very close (zoomlevel 20+)
         this.decimals = zoom >= 20 - Number(tileSize == 512) ? 1e2 : 1;
         // clear projected coordinate cache
         this.length = 0;
@@ -153,7 +153,7 @@ export class LineFactory {
         tile: Tile,
         tileSize: number,
         removeTileBounds: boolean,
-        strokeDasharray: { pattern: [number, number, number?], units: number[] },
+        strokeDasharray: { pattern: number[], units: string[] },
         strokeLinecap: Cap,
         strokeLinejoin: Join,
         strokeWidth: number,
@@ -169,15 +169,17 @@ export class LineFactory {
         const groupBuffer: LineBuffer = group.buffer;
 
         if (strokeDasharray) {
-            const texture = this.dashes.get(strokeDasharray.pattern);
-            groupBuffer.addUniform('u_pattern', texture);
+            const {units} = strokeDasharray;
+            const mixedUnits = units.some((e) => e != units[0]);
 
-            groupBuffer.addUniform('u_dashSize', [
-                texture.width,
-                1 / this.dashes.scale,
-                strokeDasharray.pattern[0],
-                strokeDasharray.pattern[1]
-            ]);
+            // Multiple dash/gap combinations are exclusively supported within the same unit due to the utilization of a pattern texture.
+            if (strokeDasharray.pattern.length > 2 && !mixedUnits) {
+                const dashPatternTexture = this.dashes.get(strokeDasharray.pattern);
+                groupBuffer.addUniform('u_dashPattern', dashPatternTexture.texture);
+                groupBuffer.addUniform('u_dashSize', [dashPatternTexture.texture.width / dashPatternTexture.scale, 0]);
+            } else {
+                groupBuffer.addUniform('u_dashSize', [strokeDasharray.pattern[0], strokeDasharray.pattern[1]]);
+            }
         }
 
         this.projectLine(coordinates, tile, tileSize);
