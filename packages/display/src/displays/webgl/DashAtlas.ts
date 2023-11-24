@@ -18,11 +18,13 @@
  */
 import {SharedTexture} from './Atlas';
 
-type DashArray = [number, number, number?];
+type DashArray = number[];
+
+type DashTexture = { texture: SharedTexture, scale: number};
 
 class DashAtlas {
     private gl: WebGLRenderingContext;
-    private data: { [id: string]: SharedTexture } = {};
+    private data: { [id: string]: DashTexture } = {};
 
     // scale by 10 to allow 0.1 meter precision
     scale: number = 10;
@@ -33,7 +35,8 @@ class DashAtlas {
 
     private create(dashArray: DashArray) {
         let size = dashArray.reduce((a, b) => a + b);
-        let {scale} = this;
+        // Dynamically adjust the scale to roughly fit the size of a tile.
+        const scale = 512 / size;
 
         size *= scale;
 
@@ -53,16 +56,19 @@ class DashAtlas {
             }
         }
 
-        return new SharedTexture(gl, {
-            width: pixels.length,
-            height: 1,
-            data: pixels
-        }, {
-            format: gl.LUMINANCE
-        });
+        return {
+            scale,
+            texture: new SharedTexture(gl, {
+                width: pixels.length,
+                height: 1,
+                data: pixels
+            }, {
+                format: gl.LUMINANCE
+            })
+        };
     }
 
-    get(dashArray: DashArray, dashImage?): SharedTexture {
+    get(dashArray: DashArray): DashTexture {
         const id = String(dashArray);
         let dashData = this.data[id];
 

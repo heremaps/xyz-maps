@@ -108,6 +108,7 @@ export interface LineStyle {
    * then the list of values is repeated to yield an even number of values. Thus, 5,3,2 is equivalent to 5,3,2,5,3,2.
    * The size of dashes and gaps can be defined in pixel or meter.
    * The default unit for dash and gap size is pixel.
+   * In a pattern utilizing both meter and pixel units, only the initial "dash" and "gap" combination is utilized, with the subsequent ones being skipped.
    * To define the size in meters, a string containing the "dash"/"gap" size and ending with "m" must be used.
    *
    * @example

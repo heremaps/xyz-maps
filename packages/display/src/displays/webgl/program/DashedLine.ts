@@ -24,8 +24,18 @@ import fragmentShader from '../glsl/line_fragment.glsl';
 
 import Program from './Program';
 import {GLStates, PASS} from './GLStates';
+import {GeometryBuffer} from '../buffer/GeometryBuffer';
 
 class DashedLineProgram extends Program {
+    static getMacros(buffer: GeometryBuffer) {
+        const {uniforms} = buffer;
+        return {DASHARRAY: 1 | (uniforms.u_dashPattern?2:0) | (uniforms.u_dashTexture?4:0)};
+    }
+
+    static getProgramId(buffer: GeometryBuffer, macros?: { [name: string]: string | number | boolean }) {
+        return buffer.type + (<number>macros.DASHARRAY);
+    }
+
     name = 'DashedLine';
 
     glStates = new GLStates({
@@ -34,8 +44,8 @@ class DashedLineProgram extends Program {
         depth: true
     });
 
-    constructor(gl: WebGLRenderingContext, devicePixelRation: number) {
-        super(gl, devicePixelRation, {DASHARRAY: true});
+    constructor(gl: WebGLRenderingContext, devicePixelRation: number, macros = {}) {
+        super(gl, devicePixelRation, macros);
 
         this.mode = gl.TRIANGLES;
         this.vertexShaderSrc = vertexShader;

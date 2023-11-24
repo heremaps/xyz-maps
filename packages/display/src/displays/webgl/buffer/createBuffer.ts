@@ -197,8 +197,6 @@ const createBuffer = (
                             if (type == 'Line') {
                                 if (shared.strokeDasharray) {
                                     geoBuffer.type = 'DashedLine';
-                                    geoBuffer.addUniform('u_hasDashTexture', !!(geoBuffer.uniforms.u_dashTexture));
-
                                     geoBuffer.addUniform('u_dashUnit', [
                                         shared.strokeDasharray.units[0] == 'm' ? meterToPixel : 0,
                                         shared.strokeDasharray.units[1] == 'm' ? meterToPixel : 0

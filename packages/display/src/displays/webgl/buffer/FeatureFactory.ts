@@ -121,7 +121,6 @@ export class FeatureFactory {
     private readonly gl: WebGLRenderingContext;
     private atlasManager: TextureAtlasManager;
     private dpr: number;
-    private dashes: DashAtlas;
     private tile: Tile;
     private groups: GroupMap;
     private tileSize: number;
@@ -137,7 +136,6 @@ export class FeatureFactory {
         this.gl = gl;
         this.atlasManager = new TextureAtlasManager(gl);
         this.dpr = devicePixelRatio;
-        this.dashes = new DashAtlas(gl);
         this.collisions = collisionHandler;
         this.lineFactory = new LineFactory(gl);
         this.modelFactory = new ModelFactory(gl);

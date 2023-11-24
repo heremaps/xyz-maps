@@ -160,7 +160,7 @@ export class GLRender implements BasicRender {
     };
 
     private _lightDir: number[] = [0.5, 0.0, -1.0];
-    private programConfig: { [name: string]: { program: typeof Program, default?: boolean } };
+    private programConfig: { [name: string]: { program: typeof Program, default?: boolean, macros?: any } };
     private resolution: number[] = [];
 
     constructor(renderOptions: RenderOptions) {
@@ -225,10 +225,7 @@ export class GLRender implements BasicRender {
     }
 
     setBackgroundColor(color: RGBA) {
-        // this.clearColor = color;
-        if (this.gl) {
-            this.gl.clearColor(color[0], color[1], color[2], color[3] || 1.0);
-        }
+        this.gl?.clearColor(color[0], color[1], color[2], color[3] || 1.0);
     }
 
     setScale(scale: number, sx: number, sy: number) {
@@ -284,7 +281,7 @@ export class GLRender implements BasicRender {
         const programConfig = this.programConfig = {
             Rect: {program: RectProgram},
             Line: {program: LineProgram},
-            DashedLine: {program: DashedLineProgram},
+            DashedLine: {program: DashedLineProgram, default: false},
             Text: {program: TextProgram},
             Image: {program: ImageProgram},
             Circle: {program: CircleProgram},
@@ -935,7 +932,7 @@ export class GLRender implements BasicRender {
         if (prog === undefined) {
             const Program = this.programConfig[type].program;
             if (Program) {
-                prog = this.createProgram(id, Program, Program.getMacros(buffer));
+                prog = this.createProgram(id, Program, Program.getMacros(buffer) );
             }
         }
 

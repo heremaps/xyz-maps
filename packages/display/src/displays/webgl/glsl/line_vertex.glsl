@@ -11,8 +11,8 @@ uniform vec2 u_topLeft;
 varying vec2 v_normal;
 #ifdef DASHARRAY
 varying float v_lengthSoFar;
-varying vec3 v_dashSize;
-uniform vec4 u_dashSize;
+varying vec2 v_dashSize;
+uniform vec2 u_dashSize;
 uniform vec2 u_dashUnit;
 #endif
 varying vec2 v_width;
@@ -47,10 +47,9 @@ void main(void){
     #ifdef DASHARRAY
     v_lengthSoFar = a_lengthSoFar;
 
-    v_dashSize = vec3(
-        toPixel(vec2(u_dashSize.x, u_dashUnit.x), u_scale) * u_dashSize.y,
-        toPixel(vec2(u_dashSize.z, u_dashUnit.x), u_scale),
-        toPixel(vec2(u_dashSize.w, u_dashUnit.y), u_scale)
+    v_dashSize = vec2(
+        toPixel(vec2(u_dashSize.x, u_dashUnit.x), u_scale), // dashSizePixel
+        toPixel(vec2(u_dashSize.y, u_dashUnit.y), u_scale) // gapSizePixel
     );
     #endif
 

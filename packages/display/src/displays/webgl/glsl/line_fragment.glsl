@@ -7,11 +7,13 @@ uniform bool u_no_antialias;
 
 #ifdef DASHARRAY
 uniform highp float u_scale;
-uniform sampler2D u_pattern;
+#if (DASHARRAY & 2)
+uniform sampler2D u_dashPattern;
+#endif
 varying float v_lengthSoFar;
 uniform sampler2D u_dashTexture;
 uniform bool u_hasDashTexture;
-varying vec3 v_dashSize;
+varying vec2 v_dashSize;
 #endif
 varying vec2 v_width;
 
@@ -24,23 +26,33 @@ void main(void){
     }
 
     #ifdef DASHARRAY
-    if (u_hasDashTexture){
-        // dash size + gap size
-        float dashSize = v_dashSize.y;
-        float gapSize = v_dashSize.z;
+        float dashSize = v_dashSize.x;
+        float gapSize = v_dashSize.y;
         float totalDashSize = dashSize + gapSize;
-        // [dashsize: constant, gabsize: scaling, ->pattern: fix]
-        // float u = fract(v_lengthSoFar/totalDashSize) * (1. + gapSize / dashSize) * u_scale;
-        // [dashsize: constant, gabsize: constant, ->pattern: floating]
-        float u = fract(v_lengthSoFar/totalDashSize * u_scale) * (1. + gapSize / dashSize);
-        gl_FragColor = u_fill * texture2D(u_dashTexture, vec2(u, v_dir.y));
-        // gl_FragColor = vec4(u_fill.rgb, u_fill.a * texture2D(u_dashTexture, vec2(u, v_dir.y)).a);
-    } else {
-        float dash = texture2D(u_pattern, vec2(fract(v_lengthSoFar / v_dashSize.x * u_scale))).r;
-        gl_FragColor = u_fill * step(0.1,dash);
-    }
+
+        #if DASHARRAY & 2
+            float dash = texture2D(u_dashPattern, vec2(fract(v_lengthSoFar / totalDashSize * u_scale))).r;
+            gl_FragColor = u_fill * step(0.1, dash);
+        #else
+            float patternPosition = fract(v_lengthSoFar / totalDashSize * u_scale);
+            float dashPosition = dashSize / totalDashSize;
+
+            #if DASHARRAY & 4
+//            #ifdef DASH_ICON
+                // [dashsize: constant, gabsize: scaling, ->pattern: fix]
+                // float u = fract(v_lengthSoFar/totalDashSize) * (1. + gapSize / dashSize) * u_scale;
+                // [dashsize: constant, gabsize: constant, ->pattern: floating]
+                // float u = fract(v_lengthSoFar/totalDashSize * u_scale) * (1. + gapSize / dashSize);
+                // gl_FragColor = vec4(u_fill.rgb, u_fill.a * texture2D(u_dashTexture, vec2(u, v_dir.y)).a);
+                float u = patternPosition / dashPosition;
+                gl_FragColor = u_fill * texture2D(u_dashTexture, vec2(u, v_dir.y));
+            #else
+                gl_FragColor = vec4(u_fill.rgb, step(patternPosition, dashPosition));
+            #endif
+        #endif
+
     #else
-    gl_FragColor = u_fill;
+        gl_FragColor = u_fill;
     #endif
 
     if (!u_no_antialias){
