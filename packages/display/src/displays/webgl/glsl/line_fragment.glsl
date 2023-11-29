@@ -47,7 +47,7 @@ void main(void){
                 float u = patternPosition / dashPosition;
                 gl_FragColor = u_fill * texture2D(u_dashTexture, vec2(u, v_dir.y));
             #else
-                gl_FragColor = vec4(u_fill.rgb, step(patternPosition, dashPosition));
+                gl_FragColor = u_fill * step(patternPosition, dashPosition);
             #endif
         #endif
 
