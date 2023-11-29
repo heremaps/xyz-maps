@@ -23,6 +23,7 @@ import {GeometryBuffer} from '../GeometryBuffer';
 import {Raycaster} from '../../Raycaster';
 import {transformMat4} from 'gl-matrix/vec3';
 import {Attribute} from '../Attribute';
+import {vec3} from '@here/xyz-maps-common';
 
 const extentScale = 32;
 
@@ -105,6 +106,7 @@ export class PointBuffer extends TemplateBuffer {
         const size = positionAttribute.size;
         const t0 = [0, 0, 0];
         const t1 = [0, 0, 0];
+        let intersectionPoint;
 
         let rayOrigin;
         let rayDirection;
@@ -116,6 +118,8 @@ export class PointBuffer extends TemplateBuffer {
 
             offsetX /= scale;
             offsetY /= scale;
+        } else {
+            intersectionPoint = [0, 0, 0];
         }
 
         const m3 = sMat[3];
@@ -209,7 +213,13 @@ export class PointBuffer extends TemplateBuffer {
                 rayDirection
             );
 
+
             if (intersectRayLength) {
+                if (!alignMap) {
+                    vec3.add(intersectionPoint, rayOrigin, vec3.scale(intersectionPoint, rayDirection, intersectRayLength));
+                    intersectRayLength = rayCaster.rayLengthScreenToWorld(intersectionPoint);
+                }
+
                 if (intersectRayLength < result.z) {
                     result.z = intersectRayLength;
                     bufferIndex = i;
