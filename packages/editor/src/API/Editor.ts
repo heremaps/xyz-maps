@@ -545,7 +545,7 @@ export default class Editor {
      */
     createFeatureContainer(...features: Feature[]): FeatureContainer {
         const container = new Container(this._i());
-        container.push(features);
+        container.push(features.flat());
         return container;
     }
 
