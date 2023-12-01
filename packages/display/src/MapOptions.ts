@@ -17,7 +17,7 @@
  * License-Filename: LICENSE
  */
 
-import {GeoPoint, TileLayer} from '@here/xyz-maps-core';
+import {Color, GeoPoint, TileLayer} from '@here/xyz-maps-core';
 
 /**
  *  Options to configure the map display.
@@ -26,60 +26,67 @@ export interface MapOptions {
     /**
      * Configure visibility and position of ui components
      */
-    ui?: {}
+    ui?: {};
     /**
      * zoomlevel of the map.
      *
      * @defaultValue 18
      */
-    zoomlevel?: number
+    zoomlevel?: number;
     /**
      * Center coordinate of the map.
      *
      * @defaultValue \{longitude: 8.534, latitude: 50.162\}
      */
-    center?: GeoPoint
+    center?: GeoPoint;
     /**
      * add layers to display.
      *
      */
-    layers?: TileLayer[]
+    layers?: TileLayer[];
     /**
      * the maximum zoom level the map can be zoomed in
      *
      * @defaultValue 20
      */
-    maxLevel?: number
+    maxLevel?: number;
     /**
      * the minimum zoom level the map can be zoomed out
      *
      * @defaultValue 2
      */
-    minLevel?: number
+    minLevel?: number;
+    /**
+     * The default background color of the map is white.
+     * To achieve a transparent map background, you can set it to "rgba(0, 0, 0, 0)" or simply use the keyword "transparent".
+     *
+     * @defaultValue "white"
+     */
+    backgroundColor?: Color;
     /**
      * enable or disable debug tile grid
      *
      * @defaultValue false
      */
-    debug?: boolean
+    debug?: boolean;
     /**
      * The minimum threshold in pixels to enable the pan map gesture.
      *
      * @defaultValue 4
      */
-    minPanMapThreshold?: number
+    minPanMapThreshold?: number;
     /**
      * The minimum threshold in pixels to enable the rotate map gesture.
      *
      * @defaultValue 4
      */
-    minRotateMapThreshold?: number
+    minRotateMapThreshold?: number;
     /**
      * The minimum threshold in pixels to enable the pitch map gesture.
      *
      * @defaultValue 4
      */
-    minPitchMapThreshold?: number
+    minPitchMapThreshold?: number;
     /**
      *  Behavior options of the map.
      *  Allow user to "drag" / "rotate" / "pitch" or "zoom" the map by mouse/touch interaction.
@@ -112,29 +119,29 @@ export interface MapOptions {
          * @defaultValue falses
          */
         rotate?: boolean;
-    }
+    };
     /**
      * initial rotation of the map in degree.
      *
      * @defaultValue 0
      */
-    rotate?: number
+    rotate?: number;
     /**
      * initial pitch (tilt) of the map in degree.
      *
      * @defaultValue 0
      */
-    pitch?: number
+    pitch?: number;
     /**
      * duration of a zoom level change animation in milliseconds.
      * @defaultValue 100
      */
-    zoomAnimationMs?: number
+    zoomAnimationMs?: number;
     /**
      * The maximum angle in degrees the map can be pitched
      * @defaultValue 50
      */
-    maxPitch?: number
+    maxPitch?: number;
 }
 
 export const defaultOptions: MapOptions = {

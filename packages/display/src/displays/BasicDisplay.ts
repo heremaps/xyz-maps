@@ -18,7 +18,7 @@
  */
 
 import {global, TaskManager} from '@here/xyz-maps-common';
-import {Tile, TileLayer, CustomLayer} from '@here/xyz-maps-core';
+import {Tile, TileLayer, CustomLayer, Color} from '@here/xyz-maps-core';
 import {getElDimension, createCanvas} from '../DOMTools';
 import {Layers, Layer, ScreenTile} from './Layers';
 import FeatureModifier from './FeatureModifier';
@@ -61,7 +61,7 @@ abstract class Display {
     private centerWorld: number[]; // absolute world center xy0
 
     protected bgColor: RGBA;
-    globalBgc: boolean | string | [number, number, number, number?] = false;
+    globalBgc: boolean | Color = false;
 
     tileSize: number;
     layers: Layers;
@@ -560,26 +560,19 @@ abstract class Display {
         }
     }
 
-    setBGColor(color?: string) {
+    setBGColor(color: Color = '#ffffff') {
         const displ = this;
         const {render} = displ;
 
-        let bgColor = color ||
-            global.getComputedStyle(displ.canvas.parentElement, null)
-                .getPropertyValue('background-color');
-        if (
-            !bgColor ||
-            bgColor == 'rgba(0, 0, 0, 0)' || // webkit
-            bgColor == 'transparent' // firefox, ie
-        ) {
-            bgColor = '#ffffff';
+        if (color == 'transparent') {
+            color = 'rgba(0, 0, 0, 0)';
         }
 
-        bgColor = render.convertColor(bgColor);
+        color = render.convertColor(color);
 
-        displ.globalBgc = bgColor;
+        displ.globalBgc = color;
 
-        render.setBackgroundColor(bgColor);
+        render.setBackgroundColor(color);
     }
 
     showGrid(show: boolean | { [opt: string]: any }) {

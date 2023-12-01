@@ -18,15 +18,15 @@
  */
 
 import BasicTile from './BasicTile';
-import {TileLayer, Tile} from '@here/xyz-maps-core';
+import {TileLayer, Tile, Color} from '@here/xyz-maps-core';
 
 interface BasicRender {
 
     init(canvas: HTMLCanvasElement, devicePixelRation: number): void;
 
-    convertColor(color: string | [number, number, number, number?]): any;
+    convertColor(color: number | string | [number, number, number, number?]): any;
 
-    setBackgroundColor(color: string | [number, number, number, number?]): void;
+    setBackgroundColor(color: Color): void;
 
     setScale(scale: number, sx: number, sy: number): void;
 

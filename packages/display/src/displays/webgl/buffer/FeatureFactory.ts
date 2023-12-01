@@ -25,8 +25,7 @@ import earcut from 'earcut';
 import {calcBBox, getTextString, getValue, parseSizeValue, Style, StyleGroup} from '../../styleTools';
 import {defaultFont, wrapText} from '../../textUtils';
 import {FontStyle, GlyphTexture} from '../GlyphTexture';
-import {toRGB} from '../color';
-import {DashAtlas} from '../DashAtlas';
+import {RGBA, toRGB} from '../color';
 import {BBox, CollisionData, CollisionHandler} from '../CollisionHandler';
 import {LineFactory} from './LineFactory';
 
@@ -44,7 +43,7 @@ import {addBox} from './addBox';
 import {addSphere} from './addSphere';
 import {SphereBuffer} from './templates/SphereBuffer';
 import {TemplateBufferBucket} from './templates/TemplateBufferBucket';
-import {ModelStyle} from '@here/xyz-maps-core';
+import {ModelStyle, Color} from '@here/xyz-maps-core';
 import {ModelFactory} from './ModelFactory';
 import {ModelBuffer} from './templates/ModelBuffer';
 import {ImageInfo} from '../Atlas';
@@ -91,7 +90,7 @@ type DrawGroup = {
         strokeWidth: number;
         strokeLinecap: string;
         strokeLinejoin: string;
-        strokeDasharray: {pattern:number[], units:string[]};
+        strokeDasharray: { pattern: number[], units: string[] };
         strokeDashimage: string;
         width: number;
         height: number;
@@ -150,6 +149,19 @@ export class FeatureFactory {
             pixels[i * 4 + 2] = 0;
             pixels[i * 4 + 3] = 255;
         }
+    }
+
+    private toRGBA(color: Color, alpha: number = 1, premultiplyAlpha: boolean = true): RGBA {
+        const rgba = toRGB(color);
+        if (rgba) {
+            alpha = rgba[3] *= alpha;
+            if (premultiplyAlpha) {
+                rgba[0] *= alpha;
+                rgba[1] *= alpha;
+                rgba[2] *= alpha;
+            }
+        }
+        return rgba || null;
     }
 
     init(tile, groups: GroupMap, tileSize: number, zoom: number, waitAndRefresh: (p: Promise<any>) => void) {
@@ -539,16 +551,16 @@ export class FeatureFactory {
                     strokeDasharray = getValue('strokeDasharray', style, feature, level);
 
 
-                    if (Array.isArray(strokeDasharray) && strokeDasharray[0] ) {
+                    if (Array.isArray(strokeDasharray) && strokeDasharray[0]) {
                         let pattern = [];
                         let units = [];
 
-                        for (let i=0; i< strokeDasharray.length; i++) {
+                        for (let i = 0; i < strokeDasharray.length; i++) {
                             const [size, unit] = parseSizeValue(strokeDasharray[i]);
                             pattern[i] = size;
                             units[i] = unit;
 
-                            groupId += size+unit;
+                            groupId += size + unit;
                         }
 
                         strokeDasharray = {pattern, units};
@@ -654,21 +666,11 @@ export class FeatureFactory {
 
 
                 if (!fillRGBA && fill) {
-                    fillRGBA = toRGB(fill);
-                    if (fillRGBA) {
-                        fillRGBA[3] *= opacity;
-                    } else {
-                        fill = null;
-                    }
+                    fillRGBA = this.toRGBA(fill, opacity);
                 }
 
                 if (stroke) {
-                    strokeRGBA = toRGB(stroke);
-                    if (strokeRGBA) {
-                        strokeRGBA[3] *= opacity;
-                    } else {
-                        stroke = null;
-                    }
+                    strokeRGBA = this.toRGBA(stroke, opacity);
 
                     if (type == 'Text') {
                         // don't apply stroke-scale to text rendering
@@ -900,37 +902,37 @@ export class FeatureFactory {
                         }
 
                         this.lineFactory.placeAtSegments(
-              <GeoJSONCoordinate[]>coordinates,
-              altitude,
-              tile,
-              tileSize,
-              checkCollisions && this.collisions,
-              priority,
-              getValue('repeat', style, feature, level),
-              offsetX,
-              offsetY,
-              w,
-              h,
-              applyRotation,
-              checkLineSpace,
-              from, to,
-              (x, y, z, rotationZ, rotationY, collisionData) => {
-                  this.createPoint(
-                      type,
-                      group,
-                      x,
-                      y,
-                      z,
-                      style,
-                      feature,
-                      collisionData,
-                      rotationZ + rotation,
-                      rotationY,
-                      text,
-                      false,
-                      textAnchor
-                  );
-              }
+                            <GeoJSONCoordinate[]>coordinates,
+                            altitude,
+                            tile,
+                            tileSize,
+                            checkCollisions && this.collisions,
+                            priority,
+                            getValue('repeat', style, feature, level),
+                            offsetX,
+                            offsetY,
+                            w,
+                            h,
+                            applyRotation,
+                            checkLineSpace,
+                            from, to,
+                            (x, y, z, rotationZ, rotationY, collisionData) => {
+                                this.createPoint(
+                                    type,
+                                    group,
+                                    x,
+                                    y,
+                                    z,
+                                    style,
+                                    feature,
+                                    collisionData,
+                                    rotationZ + rotation,
+                                    rotationY,
+                                    text,
+                                    false,
+                                    textAnchor
+                                );
+                            }
                         );
                     } else {
                         if (collisionGroup) {
@@ -942,21 +944,21 @@ export class FeatureFactory {
                         }
 
                         this.lineFactory.placeAtPoints(
-              <GeoJSONCoordinate[]>coordinates,
-              altitude,
-              tile,
-              tileSize,
-              checkCollisions && this.collisions,
-              priority,
-              w,
-              h,
-              offsetX,
-              offsetY,
-              from,
-              to,
-              (x, y, z, rotZ, rotY, collisionData) => {
-                  this.createPoint(type, group, x, y, z, style, feature, collisionData, rotZ + rotation, UNDEF, text, UNDEF, textAnchor);
-              }
+                            <GeoJSONCoordinate[]>coordinates,
+                            altitude,
+                            tile,
+                            tileSize,
+                            checkCollisions && this.collisions,
+                            priority,
+                            w,
+                            h,
+                            offsetX,
+                            offsetY,
+                            from,
+                            to,
+                            (x, y, z, rotZ, rotY, collisionData) => {
+                                this.createPoint(type, group, x, y, z, style, feature, collisionData, rotZ + rotation, UNDEF, text, UNDEF, textAnchor);
+                            }
                         );
                     }
                 }
@@ -985,12 +987,12 @@ export class FeatureFactory {
                             aPosition,
                             (group.buffer as ExtrudeBuffer).flexAttributes.a_normal.data,
                             vIndex,
-              <GeoJSONCoordinate[][]>coordinates,
-              tile,
-              tileSize,
-              extrude,
-              extrudeBase,
-              strokeIndex
+                            <GeoJSONCoordinate[][]>coordinates,
+                            tile,
+                            tileSize,
+                            extrude,
+                            extrudeBase,
+                            strokeIndex
                         );
                     } else if (type == 'Polygon') {
                         flatPoly = addPolygon(aPosition, <GeoJSONCoordinate[][]>coordinates, tile, tileSize);

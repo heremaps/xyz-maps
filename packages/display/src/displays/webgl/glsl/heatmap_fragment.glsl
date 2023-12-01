@@ -26,7 +26,6 @@ void main(void) {
         gl_FragColor.r = v_weight * u_intensity * density;
     } else {
         float r = texture2D(u_texture, v_texcoord).r;
-        gl_FragColor = texture2D(u_gradient, vec2(r, 0.5));
-        gl_FragColor.a *= u_opacity;
+        gl_FragColor = texture2D(u_gradient, vec2(r, 0.5)) * u_opacity;
     }
 }

@@ -451,7 +451,7 @@ class Program {
     };
 
     protected blendFunc(
-        sFactor: number = this.gl.SRC_ALPHA,
+        sFactor: number = this.gl.ONE,
         dFactor: number = this.gl.ONE_MINUS_SRC_ALPHA
     ) {
         this.gl.blendFunc(sFactor, dFactor);

@@ -44,11 +44,6 @@ class IconProgram extends Program {
         this.vertexShaderSrc = vertexShader;
         this.fragmentShaderSrc = fragmentShader;
     }
-
-    protected blendFunc() {
-        const {gl} = this;
-        super.blendFunc(gl.ONE, gl.ONE_MINUS_SRC_ALPHA);
-    }
 }
 
 export default IconProgram;

@@ -91,7 +91,7 @@ export type BufferCache = WeakMap<Attribute | IndexData, WebGLBuffer>;
 
 export class GLRender implements BasicRender {
     static DEFAULT_COLOR_MASK: ColorMask = {
-        r: true, g: true, b: true, a: false
+        r: true, g: true, b: true, a: true
     };
 
     static NO_COLOR_MASK: ColorMask = {
@@ -169,7 +169,7 @@ export class GLRender implements BasicRender {
             antialias: false,
             depth: true,
             stencil: true,
-            premultipliedAlpha: false,
+            premultipliedAlpha: true,
             preserveDrawingBuffer: false,
             ...renderOptions
         };
@@ -225,7 +225,7 @@ export class GLRender implements BasicRender {
     }
 
     setBackgroundColor(color: RGBA) {
-        this.gl?.clearColor(color[0], color[1], color[2], color[3] || 1.0);
+        this.gl?.clearColor(color[0], color[1], color[2], color[3] ?? 1.0);
     }
 
     setScale(scale: number, sx: number, sy: number) {

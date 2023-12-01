@@ -19,8 +19,6 @@
 
 export type RGBA = [number, number, number, number];
 
-const INVALID_COLOR: RGBA = [0, 0, 0, 1];
-
 const HTML_COLOR_NAMES: { [color: string]: RGBA | string } = {
     aliceblue: 'f0f8ff',
     antiquewhite: 'faebd7',
@@ -216,7 +214,9 @@ const parseRGBAString = (color: string): RGBA => {
     ];
 };
 
-export const toRGB = (color: string | RGBA | number, ignoreNumbers?: boolean): RGBA => {
+export type Color = string | RGBA | number;
+
+export const toRGB = (color: Color, ignoreNumbers?: boolean): RGBA => {
     let rgba;
     if (color) {
         if (Array.isArray(color)) {
@@ -241,7 +241,5 @@ export const toRGB = (color: string | RGBA | number, ignoreNumbers?: boolean): R
             }
         }
     }
-    return rgba || INVALID_COLOR;
+    return rgba || null;
 };
-
-toRGB.INVALID_COLOR = INVALID_COLOR;

@@ -19,5 +19,5 @@ void main() {
         glyphAlpha = glyph.r;
     }
 
-    gl_FragColor = glyphAlpha * vec4(color.rgb * color.a, color.a);
+    gl_FragColor = glyphAlpha * color;
 }

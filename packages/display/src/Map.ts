@@ -40,7 +40,7 @@ import {
     GeoPoint,
     GeoRect,
     utils,
-    GeoJSONFeatureCollection, GeoJSONFeature, GeoJSONBBox, FeatureProvider, Layer, CustomLayer
+    GeoJSONFeatureCollection, GeoJSONFeature, GeoJSONBBox, FeatureProvider, Layer, CustomLayer, Color
 } from '@here/xyz-maps-core';
 import {FlightAnimator} from './animation/FlightAnimator';
 import Copyright from './ui/copyright/Copyright';
@@ -277,6 +277,8 @@ export class Map {
         );
 
         tigerMap._display = display;
+
+        this.setBackgroundColor(options.backgroundColor);
 
         this._search = new Search(tigerMap, display.dpr);
 
@@ -526,7 +528,7 @@ export class Map {
      *
      * @param color - the background color to set
      */
-    setBackgroundColor(color: string) {
+    setBackgroundColor(color: Color) {
         this._display.setBGColor(color);
         this.refresh();
     };

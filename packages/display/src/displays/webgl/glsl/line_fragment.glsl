@@ -57,6 +57,7 @@ void main(void){
 
     if (!u_no_antialias){
         //    float antialiasAlpha = 1.0 - clamp(.5 * (width - lineWidth) / v_width.t, .0, 1.);
-        gl_FragColor.a *= 1.0 - clamp(.5 * width - .5 * v_width.s + .5, .0, 1.);
+        float antialiasAlpha = 1.0 - clamp(.5 * width - .5 * v_width.s + .5, .0, 1.);
+        gl_FragColor *= antialiasAlpha;
     }
 }

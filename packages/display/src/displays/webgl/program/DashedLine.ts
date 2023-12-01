@@ -51,11 +51,6 @@ class DashedLineProgram extends Program {
         this.vertexShaderSrc = vertexShader;
         this.fragmentShaderSrc = fragmentShader;
     }
-
-    protected blendFunc(sFactor?: number, dFactor?: number) {
-        const {gl} = this;
-        gl.blendFunc(gl.SRC_ALPHA, gl.ONE_MINUS_SRC_ALPHA);
-    }
 }
 
 export default DashedLineProgram;

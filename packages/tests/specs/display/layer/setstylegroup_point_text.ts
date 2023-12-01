@@ -84,14 +84,13 @@ describe('setStyleGroup Point with text', function() {
         paLayer.setStyleGroup(
             feature, [
                 {'zIndex': 0, 'type': 'Rect', 'width': 128, 'height': 96, 'opacity': 1, 'fill': '#ff0000'},
-                {'zIndex': 1, 'type': 'Text', 'fill': '#000000', 'text': FULL_BLOCK_CHAR, 'opacity': 0.5, 'font': FONT}
+                {'zIndex': 1, 'type': 'Text', 'fill': '#000', 'text': FULL_BLOCK_CHAR, 'opacity': 0.5, 'font': FONT}
             ]);
-
 
         let colors = await getCanvasPixelColor(mapContainer, [{x: 375, y: 300}, {x: 400, y: 300}, {x: 425, y: 300}]);
 
         expect(colors[0]).to.equal('#ff0000');
-        expect(colors[1]).to.equal('#808080');
+        expect(colors[1]).to.equal('#800000');
         expect(colors[2]).to.equal('#ff0000');
     });
 
