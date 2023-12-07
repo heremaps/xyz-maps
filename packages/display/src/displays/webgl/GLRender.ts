@@ -247,6 +247,8 @@ export class GLRender implements BasicRender {
         gl.disable(gl.SCISSOR_TEST);
         gl.depthMask(true);
         gl.clear(gl.COLOR_BUFFER_BIT | gl.DEPTH_BUFFER_BIT | gl.STENCIL_BUFFER_BIT);
+
+        this.reservedStencils.clear();
     }
 
     init(canvas: HTMLCanvasElement, devicePixelRation: number): void {
@@ -719,6 +721,7 @@ export class GLRender implements BasicRender {
     private stencilVal: number;
     private stencilSize: number;
     private tileStencils: number[][];
+    private reservedStencils = new Map<number, number>();
 
     private initStencil(refValue: number, tileSize: number, subStencils: number[][] = FULL_TILE_STENCIL) {
         this.stencilVal = refValue;
@@ -726,14 +729,29 @@ export class GLRender implements BasicRender {
         this.tileStencils = subStencils;
     };
 
-    private drawStencil(x: number, y: number, zoom: number/* , snapGrid: boolean*/) {
+    private reserveStencilValue(id: number): number {
+        const {reservedStencils} = this;
+        let refVal = reservedStencils.get(id);
+        if (!refVal) {
+            refVal = reservedStencils.size + 1;
+            if (refVal > 255) {
+                refVal = 1;
+                reservedStencils.clear();
+                this.gl.clear(this.gl.STENCIL_BUFFER_BIT);
+            }
+            reservedStencils.set(id, refVal);
+        }
+        return refVal;
+    }
+
+    private drawStencil(x: number, y: number, scale: number/* , snapGrid: boolean*/) {
         // return this.gl.stencilFunc(this.gl.ALWAYS, 0, 0);
-        const refVal = this.stencilVal;
         const {gl, stencilTile, sharedUniforms} = this;
         const program: Program = this.getProgram(stencilTile);
-
         const tileSize = this.stencilSize;
-        const stencilSize = Math.min(tileSize, tileSize / zoom);
+        const stencilSize = Math.min(tileSize, tileSize / scale);
+        const tileStencilId = scale * 16777216 + this.stencilVal;
+        const refVal = this.reserveStencilValue(tileStencilId);
 
         gl.stencilFunc(gl.ALWAYS, refVal, 0xff);
         gl.stencilOp(gl.REPLACE, gl.REPLACE, gl.REPLACE);
@@ -757,6 +775,7 @@ export class GLRender implements BasicRender {
 
         return refVal;
     }
+
     private initScissor(x: number, y: number, size: number, matrix: Float32Array) {
         // return this.gl.scissor(0, 0, this.gl.canvas.width, this.gl.canvas.height);
         const {gl} = this;
@@ -851,7 +870,6 @@ export class GLRender implements BasicRender {
         if (preview) {
             const [previewQuadkey, sx, sy, sWidth, sHeight, dx, dy, dWidth, dHeight] = preview;
             const scale = dWidth / sWidth;
-            const dZoom = Math.pow(2, dTile.quadkey.length - previewQuadkey.length);
             const px = dx / scale - sx;
             const py = dy / scale - sy;
             const previewTransformMatrix = this.initPreviewMatrix(x, y, scale);
@@ -861,9 +879,8 @@ export class GLRender implements BasicRender {
             //         // this.initScissor(px, py, tileSize, previewTransformMatrix);
             //     }
             this.initStencil(dTile.i, tileSize, bufferData.data.stencils);
-            this.drawBuffer(buffer, px, py, previewTransformMatrix, dZoom);
+            this.drawBuffer(buffer, px, py, previewTransformMatrix, scale);
         } else {
-            // if (buffer.scissor) this.initScissor(x, y, tileSize, this.vPMat);
             this.initStencil(dTile.i, tileSize);
             this.drawBuffer(buffer, x, y);
         }
@@ -932,7 +949,7 @@ export class GLRender implements BasicRender {
         if (prog === undefined) {
             const Program = this.programConfig[type].program;
             if (Program) {
-                prog = this.createProgram(id, Program, Program.getMacros(buffer) );
+                prog = this.createProgram(id, Program, Program.getMacros(buffer));
             }
         }
 

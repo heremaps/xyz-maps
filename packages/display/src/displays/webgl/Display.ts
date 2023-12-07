@@ -74,7 +74,6 @@ export type TileBufferData = {
     data: {
         tile: ScreenTile;
         preview?: [string, number, number, number, number, number, number, number, number];
-        previewTile?: GLTile;
         stencils?;
     };
 };
@@ -332,7 +331,9 @@ class WebGlDisplay extends BasicDisplay {
         zSorted: BufferData[],
         buffers: (GeometryBuffer | CustomBufferData['b'])[],
         layer: Layer,
-        absZOrder: { [intZ: string]: number },
+        absZOrder: {
+            [intZ: string]: number
+        },
         data: CustomBufferData['data'] | TileBufferData['data'],
         tiled: boolean
     ) {
@@ -364,7 +365,9 @@ class WebGlDisplay extends BasicDisplay {
     private initLayerBuffers(layers: Layers) {
         const {buckets} = this;
         let tileBuffers: BufferData[] = [];
-        let previewTiles: { [qk: string]: number[][] };
+        let previewTiles: {
+            [qk: string]: number[][]
+        };
         let absZOrder = {};
 
         for (let layer of layers) {
@@ -434,7 +437,6 @@ class WebGlDisplay extends BasicDisplay {
                                             {
                                                 tile: screenTile,
                                                 preview,
-                                                previewTile,
                                                 stencils: previewTiles[previewQuadkey]
                                             },
                                             true
@@ -507,7 +509,7 @@ class WebGlDisplay extends BasicDisplay {
         while (b--) {
             let data = tileBuffers[b];
             if (data?.tiled) {
-                render.initBufferScissorBox((<TileBufferData>data).b, (<TileBufferData>data).data.tile, (<TileBufferData>data).data.preview);
+                // render.initBufferScissorBox((<TileBufferData>data).b, (<TileBufferData>data).data.tile, (<TileBufferData>data).data.preview);
                 render.draw(<TileBufferData>data, min3dZIndex);
             }
         }
@@ -565,7 +567,11 @@ class WebGlDisplay extends BasicDisplay {
         this.factory.destroy();
     }
 
-    getRenderedFeatureAt(x: number, y: number, layers): { id: number | string | null; z: number; layerIndex: number } {
+    getRenderedFeatureAt(x: number, y: number, layers): {
+        id: number | string | null;
+        z: number;
+        layerIndex: number
+    } {
         const {tiles} = this;
         // console.time('getRenderedFeatureAt');
         this.rayCaster.init(x, y, this.w, this.h, this.s, 1 / this.groundResolution);
