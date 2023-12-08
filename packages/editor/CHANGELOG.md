@@ -1,3 +1,29 @@
+## 0.36.0 (2023-12-8)
+### core
+* added: The ["ignoreTileQueryLimit"](https://heremaps.github.io/xyz-maps/docs/core.imlprovideroptions.html#ignoretilequerylimit) option has been introduced to mitigate an excessive number of tile requests.
+### display
+* improved: The anti-aliasing for lines using floating point widths has been enhanced.
+* improved: In the visualization of clipped polygon outlines, the tile edges are excluded, regardless of whether the clipped geometry extends beyond the tile's boundaries.
+* improved: The display quality of dashed lines has been improved.
+* improved: An updated feature could experience a very brief flicker after changing the zoom level.
+* added: The alpha blending has been revamped to enable the map to display with a transparent background, allowing the remaining browser content to show through behind it. See [backgroundColor](https://heremaps.github.io/xyz-maps/docs/interfaces/display.mapoptions.html#backgroundcolor). (#90)
+* added: In addition to pixels, dashed lines can now also be defined and displayed in meter units.
+* added: It is now possible to combine Images/Icons with dashed line patterns by using [strokeDashimage](https://heremaps.github.io/xyz-maps/docs/interfaces/core.linestyle.html#strokedashimage).
+* added: Image/Icon styles now support the use of Icon[Atlases](https://heremaps.github.io/xyz-maps/docs/interfaces/core.imagestyle.html#atlas).
+* added: By using [textAnchor](https://heremaps.github.io/xyz-maps/docs/interfaces/core.textstyle.html#textanchor) it is now possible to align the text relative to the anchor point.
+* added: Introduced [CollisionGroup](https://heremaps.github.io/xyz-maps/docs/interfaces/core.textstyle.html#collisiongroup) which allows to define various CollisionGroups (multiple Styles grouped together that will be handled as a single collision object) within the same StyleGroup.
+* added: LayerStyles backgroundColor now supports dynamic colors taking zoom level into account.
+* added: Colors now support hexadecimal color strings with alpha and hexadecimal numbers as input.
+* fixed: The triggering of pointer events for 3D point geometry was inconsistent across various scenarios.
+* fixed: The tile preview is only partially displayed when zoomed out.
+* fixed: In very rare cases, Chrome could cause text to be displayed offset.
+* fixed: Using StrokeDashArray with very long lines could result in artifacts.
+### editor
+* improved: The [createFeatureContainer](https://heremaps.github.io/xyz-maps/docs/classes/editor.editor-1.html#createfeaturecontainer) function now accommodates multiple arrays of features as arguments. [fix #91]
+### fixed
+* display: Glitches that may have appeared on the edges of previewed raster tiles have been resolved.
+* display: Issues with occasional tile preview display glitches have been fixed.
+
 ## 0.35.0 (2023-8-22)
 ### display
 * improved: The display of preview tiles has been optimized.
