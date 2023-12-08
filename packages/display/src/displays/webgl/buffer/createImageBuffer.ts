@@ -66,6 +66,7 @@ const createImageBuffer = (img: Image, gl: WebGLRenderingContext, size: number, 
     tileBuffer.clip = true;
     tileBuffer.blend = alpha;
     tileBuffer.pass = alpha ? PASS.ALPHA : PASS.OPAQUE;
+    tileBuffer.pixelPerfect = true;
 
     tileBuffer.cullFace(FRONT);
 

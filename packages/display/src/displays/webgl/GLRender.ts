@@ -98,6 +98,7 @@ export class GLRender implements BasicRender {
         r: false, g: false, b: false, a: false
     };
     readonly vPMat: Float32Array; // projection matrix
+    readonly vPRasterMat: Float32Array; // pixel aligned projection matrix for raster data
     private readonly vMat: Float32Array; // view matrix
     private readonly invVPMat: Float32Array; // inverse projection matrix
     // the worldmatrix used by custom layers to project from absolute worldcoordinates [0-1] to screencoordinates
@@ -175,6 +176,7 @@ export class GLRender implements BasicRender {
         };
 
         this.vPMat = mat4.create();
+        this.vPRasterMat = mat4.create();
         this.vMat = mat4.create();
         this.invVPMat = mat4.create();
         this.screenMat = mat4.create();
@@ -438,9 +440,7 @@ export class GLRender implements BasicRender {
             // scale
             scale / groundRes
         ]);
-
         mat4.translate(viewMatrix, viewMatrix, [-centerPixelX, -centerPixelY, 0]);
-
         mat4.multiply(projectionMatrix, projectionMatrix, viewMatrix);
 
         invert(this.invVPMat, projectionMatrix);
@@ -460,6 +460,14 @@ export class GLRender implements BasicRender {
         cameraWorld[2] = -1;
         transformMat4(cameraWorld, cameraWorld, this.invVPMat);
 
+        // pixel perfect matrix used for crisper raster graphics, icons/text/raster-tiles
+        // rounding in shader leads to precision issues and tiles edges become visible when the map is scaled.
+        const pixelPerfectMatrix = mat4.copy(this.vPRasterMat, projectionMatrix);
+        const worldCenterPixelX = worldCenterX * worldSize;
+        const worldCenterPixelY = worldCenterY * worldSize;
+        const dx = worldCenterPixelX - Math.round(worldCenterPixelX) + centerPixelX % 1;
+        const dy = worldCenterPixelY - Math.round(worldCenterPixelY) + centerPixelY % 1;
+        mat4.translate(pixelPerfectMatrix, pixelPerfectMatrix, [dx - Math.round(dx), dy - Math.round(dy), 0]);
 
         // used for debug only...
         // let s05 = mat4.clone(this.vPMat);
@@ -643,7 +651,7 @@ export class GLRender implements BasicRender {
                 const {sharedUniforms} = this;
                 sharedUniforms.u_fixedView = this.fixedView; // must be set at render time
                 sharedUniforms.u_scale = this.scale * dZoom;
-                sharedUniforms.u_matrix = pMat || this.vPMat;
+                sharedUniforms.u_matrix = pMat || (buffer.pixelPerfect ? this.vPRasterMat : this.vPMat);
                 sharedUniforms.u_zMeterToPixel = this.zMeterToPixel / dZoom;
 
                 const uses2PassAlpha = buffer.pass & PASS.POST_ALPHA;
@@ -872,7 +880,7 @@ export class GLRender implements BasicRender {
             const scale = dWidth / sWidth;
             const px = dx / scale - sx;
             const py = dy / scale - sy;
-            const previewTransformMatrix = this.initPreviewMatrix(x, y, scale);
+            const previewTransformMatrix = this.initPreviewMatrix(x, y, scale, buffer.pixelPerfect);
             //     if (buffer.scissor) {
             //         this.initScissor(x + dx, y + dy, tileSize * scale, this.vPMat);
             //         // this.initScissor(x - sx * scale, y - sy * scale, dWidth * scale, this.vPMat);
@@ -886,15 +894,15 @@ export class GLRender implements BasicRender {
         }
     }
 
-    private initPreviewMatrix(tx: number, ty: number, s: number): Float32Array {
-        const {tilePreviewTransform, vPMat} = this;
+    private initPreviewMatrix(tx: number, ty: number, s: number, pixelPerfect?: boolean): Float32Array {
+        const {tilePreviewTransform} = this;
         const {m} = tilePreviewTransform;
         if (
             tilePreviewTransform.tx != tx ||
             tilePreviewTransform.ty != ty ||
             tilePreviewTransform.s != s
         ) {
-            mat4.copy(m, vPMat);
+            mat4.copy(m, pixelPerfect ? this.vPRasterMat : this.vPMat);
             mat4.translate(m, m, [tx, ty, 0]);
             mat4.scale(m, m, [s, s, 1]);
 

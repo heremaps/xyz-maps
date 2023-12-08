@@ -135,6 +135,8 @@ class GeometryBuffer {
     instances: number = 0;
     // id of the program to render the buffer
     progId: string;
+    // If set to true, the buffer should render "pixel-perfect" to ensure sharp, precise raster graphics.
+    pixelPerfect?: boolean = false;
 
     private _cullFace: number = 0;
 
