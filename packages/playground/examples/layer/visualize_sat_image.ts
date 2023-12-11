@@ -9,12 +9,14 @@ var myLayer = new TileLayer({
     min: 14,
     // Maximum zoom level
     max: 20,
+    // set the tileSize in pixel
+    tileSize: 512,
     // Define provider for this layer
     provider: new ImageProvider({
         // Name of the provider
         name: 'myImageProvider',
         // URL of image tiles
-        url: 'https://maphub.api.here.com/satellite/{QUADKEY}?access_token=' + YOUR_ACCESS_TOKEN
+        url: `https://maps.hereapi.com/v3/background/mc/{z}/{x}/{y}/png8?apikey=${YOUR_API_KEY}&style=satellite.day&size=512`
     })
 });
 
