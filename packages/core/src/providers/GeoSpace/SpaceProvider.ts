@@ -39,9 +39,12 @@ const ENDPOINT = {
     'prd': HTTP + 'xyz.api' + XYZ_HUB_HERE_COM
 };
 
-const addUrlParams = (url: string, params: { [key: string]: string }, p: '?' | '&') => {
+type Parameter = string | number | boolean;
+const addUrlParams = (url: string, params: { [key: string]: Parameter | Parameter[] }, p?: '?' | '&') => {
+    p ||= url.indexOf('?=') == -1 ? '?' : '&';
     for (const key in params) {
-        url += p + key + '=' + params[key];
+        const param = <Parameter>params[key];
+        url += `${p}${key}=${encodeURIComponent(param)}`;
         p = '&';
     }
     return url;
@@ -196,11 +199,10 @@ export class SpaceProvider extends GeoJSONProvider {
      * @returns url string to receive a tile resource of the remote http backend
      */
     getTileUrl(space: string) {
-        return this._addUrlFilters(
-            this.getLayerUrl(space)
-            + '/tile/quadkey/{QUADKEY}?margin=' + this.margin
-            + '&clip=' + !!this.clip
-        );
+        return addUrlParams(this._addUrlFilters(
+            this.getLayerUrl(space) + '/tile/quadkey/{QUADKEY}'
+        ),
+        {margin: this.margin, clip: !!this.clip});
     };
 
     /**
@@ -212,10 +214,10 @@ export class SpaceProvider extends GeoJSONProvider {
      * @returns url string to receive the feature resource of the remote http backend
      */
     getFeatureUrl(space: string, ids: (string | number) | (string | number)[]) {
-        if (!(ids instanceof Array)) {
+        if (!Array.isArray(ids)) {
             ids = [ids];
         }
-        return this.getLayerUrl(space) + '/features?id=' + ids.join('&id=');
+        return addUrlParams(this.getLayerUrl(space) + '/features', {id: ids});
     };
 
     protected createUpdateFeatureRequest(features, callbacks: {
@@ -248,7 +250,7 @@ export class SpaceProvider extends GeoJSONProvider {
         );
         return {
             type: 'DELETE',
-            url: url + '&id=' + features.map((f) => f.id).join(','),
+            url: addUrlParams(url, {id: features.map((f) => f.id)}),
             headers: {
                 ...prov.headers,
                 'Accept': 'application/json'
@@ -501,13 +503,11 @@ export class SpaceProvider extends GeoJSONProvider {
         const {tags, psf} = this;
 
         if (tags && tags.length) {
-            url += '&tags=' + tags.join(',');
+            url = addUrlParams(url, {tags});
         }
-
         if (psf) {
             url += '&' + psf;
         }
-
         return url;
     };
 }
