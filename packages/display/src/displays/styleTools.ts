@@ -135,11 +135,11 @@ const parseSizeValue = (size: string | number, float: boolean = false): [number,
 };
 
 const getSizeInPixel = (property: string, style: Style, feature: Feature, zoom: number, float?: boolean) => {
-    const rawValue = getValue(property, style, feature, zoom);
+    const tileGridZoom = getTileGridZoom(zoom);
+    const rawValue = getValue(property, style, feature, tileGridZoom);
     let [value, unit] = parseSizeValue(rawValue, float);
 
     if (unit == 'm') {
-        const tileGridZoom = getTileGridZoom(zoom);
         const dZoomScale = Math.pow(2, zoom % tileGridZoom);
         value = dZoomScale * meterToPixel(value, tileGridZoom);
     }
