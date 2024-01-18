@@ -24,7 +24,7 @@ import {GeoJSONFeature, GeoJSONBBox} from './GeoJSON';
 /**
  * represents a Feature in GeoJSON Feature format.
  */
-export class Feature implements GeoJSONFeature {
+export class Feature<GeometryType = string> implements GeoJSONFeature<GeometryType> {
     /**
      * id of the feature.
      */
@@ -33,7 +33,9 @@ export class Feature implements GeoJSONFeature {
     /**
      * The properties associated with the feature.
      */
-    properties: { [name: string]: any; } | null;
+    properties: {
+        [name: string]: any;
+    } | null;
 
     /**
      * The type of the feature is a string with 'Feature' as its value.
@@ -83,7 +85,7 @@ export class Feature implements GeoJSONFeature {
      *```
      */
     geometry: {
-        type: 'Point' | 'MultiPoint' | 'LineString' | 'MultiLineString' | 'Polygon' | 'MultiPolygon' | string,
+        type: 'Point' | 'MultiPoint' | 'LineString' | 'MultiLineString' | 'Polygon' | 'MultiPolygon' | GeometryType | string,
         coordinates: any[]
         /**
          * cached polygon centroid

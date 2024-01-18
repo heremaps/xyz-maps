@@ -32,6 +32,7 @@ import {
 import {TileProviderOptions} from './TileProvider/TileProviderOptions';
 import {GeoPoint} from '../geo/GeoPoint';
 import {GeoRect} from '../geo/GeoRect';
+import {PathFinder} from '../route/Route';
 
 
 const REMOVE_FEATURE_EVENT = 'featureRemove';
@@ -676,6 +677,237 @@ export class FeatureProvider extends Provider {
 
         return feature;
     };
+
+
+    /**
+     * Finds the optimal path between two coordinates on a GeoJSON road network, considering various options.
+     * By default, the weight function returns the distance of the road segment, a lower distance implies a shorter route and is considered more favorable.
+     * If you have specific criteria such as road quality, traffic conditions, or other factors influencing the desirability of a road segment, you can customize the weight function accordingly.
+     * Only data available locally will be taken into account for pathfinding.
+     *
+     * @experimental
+     *
+     * @param options - The options object containing parameters for finding the path.
+     * @returns {Promise<{
+     *   features: Feature[];
+     *   readonly path: GeoJSONFeature<MultiLineString>;
+     *   readonly distance: number;
+     *   from: GeoJSONCoordinate;
+     *   to: GeoJSONCoordinate;
+     * }>} A Promise that resolves to an object containing the path, additional information, and the distance of the path.
+     *
+     * @example
+     * ```typescript
+     * const pathOptions = {
+     *   from: [startLongitude, startLatitude],
+     *   to: [endLongitude, endLatitude],
+     *   // optional
+     *   allowTurn: (turn) => {
+     *      // Custom logic to determine whether a turn is allowed
+     *     return true;
+     *   },
+     *   // optional
+     *   weight: (data) => {
+     *     // Custom weight function to determine the cost of traversing a road segment
+     *     return data.distance; // Default implementation uses distance as the weight
+     *   },
+     * };
+     * const result = await findPath(pathOptions);
+     * console.log(result);
+     * ```
+     */
+    async findPath(options: {
+        /**
+         * The starting coordinates defining the path.
+         */
+        from: GeoJSONCoordinate | GeoPoint,
+        /**
+         * The ending coordinates of the path.
+         */
+        to: GeoJSONCoordinate | GeoPoint,
+        /**
+         * Optional callback function to determine if a turn is allowed between road segments.
+         * If not provided, all turns are considered allowed.
+         *
+         * @param {object} turn - Object containing information about the turn, including source and destination road segments.
+         * @returns {boolean} `true` if the turn is allowed, `false` otherwise.
+         */
+        allowTurn?: (turn: {
+            /**
+             * Object representing the source road segment of the turn.
+             */
+            from: {
+                /**
+                 * GeoJSON Feature representing the source road segment.
+                 */
+                link: Feature<'LineString'>,
+                /**
+                 * Index of the Coordinates array of the source road segment.
+                 */
+                index: number
+            },
+            /**
+             * Object representing the destination road segment of the turn.
+             */
+            to: {
+                /**
+                 * GeoJSON Feature representing the destination road segment.
+                 */
+                link: Feature<'LineString'>,
+                /**
+                 * Index of the Coordinates array of the destination road segment.
+                 */
+                index: number
+            }
+        }) => boolean,
+        /**
+         * Optional callback function to determine the weight (cost) of traversing a road segment.
+         *
+         * @param {object} data - Object containing information about the road segment.
+         * @returns {number} A numerical value representing the weight or cost of traversing the road segment. Default is the distance in meter.
+         */
+        weight?: (data: {
+            /**
+             * Starting coordinates of the road segment.
+             */
+            from: GeoJSONCoordinate,
+            /**
+             * Ending coordinates of the road segment.
+             */
+            to: GeoJSONCoordinate,
+            /**
+             * Feature representing the road segment.
+             */
+            feature: Feature<'LineString'>,
+            /**
+             * Direction of traversal on the road segment.
+             */
+            direction: 'START_TO_END' | 'END_TO_START',
+            /**
+             * The Distance of the road in meters.
+             */
+            distance: number
+        }) => number
+    })
+    /**
+     * A Promise that resolves to an object containing the path and additional information.
+     */
+        : Promise<{
+        /**
+         * A GeoJSON Feature of geometry type MultiLineString representing the geometry of the found path.
+         */
+        readonly path: GeoJSONFeature<'MultiLineString'>;
+        /**
+         * An array of GeoJSON features representing the road segments in the path.
+         */
+        features: Feature<'LineString'>[];
+        /**
+         * the distance in meter of the path.
+         */
+        readonly distance: number;
+        /**
+         * The starting coordinates of the path.
+         */
+        from: GeoJSONCoordinate;
+        /**
+         * The end coordinates of the path.
+         */
+        to: GeoJSONCoordinate
+    }> {
+        if (!options?.from || !options?.to) return null;
+
+        let {from, to} = options;
+
+        if (typeof (from as GeoPoint).longitude == 'number') {
+            from = [(from as GeoPoint).longitude, (from as GeoPoint).latitude];
+        }
+        if (typeof (to as GeoPoint).longitude == 'number') {
+            to = [(to as GeoPoint).longitude, (to as GeoPoint).latitude];
+        }
+
+        function findNearestCoordinate(searchPoint: number[], lineCoordinates: number[][]): { point: number[], distance: number } {
+            let nearestPoint = null;
+            let minDistance = Infinity;
+            for (let i = 0; i < lineCoordinates.length; i++) {
+                const currentPoint = lineCoordinates[i];
+                const currentDistance = geotools.distance(searchPoint, currentPoint);
+                if (currentDistance < minDistance) {
+                    minDistance = currentDistance;
+                    nearestPoint = currentPoint;
+                }
+            }
+            return {point: nearestPoint, distance: minDistance};
+        }
+
+        const findNearestNode = (point: number[], radius: number = 10, maxRadius = 10_000) => {
+            const features = <Feature[]> this.search({point: {longitude: point[0], latitude: point[1]}, radius});
+            if (!features.length && radius < maxRadius) return findNearestNode(point, radius * 10);
+
+            const start = {distance: Infinity, feature: null, point: null, index: null};
+            for (let feature of features) {
+                if (feature.geometry.type != 'LineString') continue;
+                const {coordinates} = feature.geometry;
+                const last = coordinates.length - 1;
+                const result = findNearestCoordinate(point, [coordinates[0], coordinates[last]]);
+                if (result.distance < start.distance) {
+                    start.distance = result.distance;
+                    start.point = result.point;
+                    start.feature = feature;
+                    start.index = start.point === coordinates[0] ? 0 : last;
+                }
+            }
+            return start;
+        };
+
+        const start = findNearestNode(<GeoJSONCoordinate>from);
+        const end = findNearestNode(<GeoJSONCoordinate>to);
+
+        if (!start.feature || !end.feature) return null;
+
+        const fromNode = {
+            point: start.point,
+            data: {
+                link: start.feature,
+                index: start.index
+            }
+        };
+        const toNode = {
+            point: end.point,
+            data: {
+                link: end.feature,
+                index: end.index
+            }
+        };
+
+        const nodes = await PathFinder.findPath(this, fromNode, toNode, options?.allowTurn || (() => true), options?.weight);
+
+        return nodes?.length && {
+            from: [...fromNode.point],
+            to: [...toNode.point],
+            features: nodes.map((node) => node.data.link) as Feature<'LineString'>[],
+            get distance() {
+                let distance = 0;
+                for (let lineString of this.path.geometry.coordinates) {
+                    for (let i = 1, len = lineString.length; i < len; i++) {
+                        distance += geotools.distance(lineString[i - 1], lineString[i]);
+                    }
+                    // distance += geotools.distance(lineString[0], lineString[lineString.length - 1]);
+                }
+                return distance;
+            },
+            get path() {
+                return {
+                    type: 'Feature',
+                    geometry: {
+                        type: 'MultiLineString',
+                        coordinates: this.features.map((feature) => feature.geometry.coordinates)
+                    },
+                    properties: {}
+                };
+            }
+        };
+    }
+
 
     /**
      *  Clear all tiles and features of a given bounding box or do a full wipe if no parameter is given.

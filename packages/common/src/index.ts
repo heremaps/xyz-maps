@@ -30,6 +30,8 @@ import Set from './Set';
 import Map from './Map';
 import Queue from './Queue';
 import * as vec3 from './Vec3';
+import {AStar, AStarNode} from './AStar';
+import {BinaryHeap} from './BinaryHeap';
 
 // make sure global ns is also available for webpack users.
 let scp: any = global;
@@ -38,10 +40,10 @@ let scp: any = global;
 // support for deprecated root namespace
 (<any>global).HERE = (<any>global).here;
 
-const common = {LRU, TaskManager, Listener, parseJSONArray, JSUtils, geotools, global, Queue, Set, Map, vec3, geometry};
+const common = {AStar, BinaryHeap, LRU, TaskManager, Listener, parseJSONArray, JSUtils, geotools, global, Queue, Set, Map, vec3, geometry};
 
 scp.common = common;
 
-export {LRU, TaskManager, Task, TaskOptions, Listener, parseJSONArray, JSUtils, geotools, global, Queue, Set, Map, vec3, geometry};
+export {AStar, AStarNode, BinaryHeap, LRU, TaskManager, Task, TaskOptions, Listener, parseJSONArray, JSUtils, geotools, global, Queue, Set, Map, vec3, geometry};
 
 export default common;

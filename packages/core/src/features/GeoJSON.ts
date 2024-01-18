@@ -40,14 +40,14 @@ export type GeoJSONCoordinate = number[]; // [number, number] | [number, number,
 /**
  * A GeoJSON Feature object.
  */
-export interface GeoJSONFeature {
+export interface GeoJSONFeature<GeometryType = string> {
     /**
      *  id of the feature.
      */
     id?: string | number;
 
     /**
-     *  Type of a GeoJSONFeature is 'Feature'
+     *  Type of GeoJSONFeature is 'Feature'
      */
     type: 'Feature' | string;
 
@@ -105,7 +105,7 @@ export interface GeoJSONFeature {
      *```
      */
     geometry: {
-        type: 'Point' | 'MultiPoint' | 'LineString' | 'MultiLineString' | 'Polygon' | 'MultiPolygon' | string,
+        type: 'Point' | 'MultiPoint' | 'LineString' | 'MultiLineString' | 'Polygon' | 'MultiPolygon' | GeometryType | string,
         coordinates: GeoJSONCoordinate | GeoJSONCoordinate[] | GeoJSONCoordinate[][] | GeoJSONCoordinate[][][]
     };
 }
@@ -121,5 +121,5 @@ export interface GeoJSONFeatureCollection {
     /**
      * An array of {@link GeoJSONFeature | GeoJSONFeatures}.
      */
-    features: GeoJSONFeature[]
+    features: GeoJSONFeature[];
 }
