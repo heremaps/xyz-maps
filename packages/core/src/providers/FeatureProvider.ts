@@ -683,7 +683,7 @@ export class FeatureProvider extends Provider {
      * Finds the optimal path between two coordinates on a GeoJSON road network, considering various options.
      * By default, the weight function returns the distance of the road segment, a lower distance implies a shorter route and is considered more favorable.
      * If you have specific criteria such as road quality, traffic conditions, or other factors influencing the desirability of a road segment, you can customize the weight function accordingly.
-     * Only data available locally will be taken into account for pathfinding.
+     * Pathfinding will consider only the locally cached data available on the client.
      *
      * @experimental
      *
@@ -712,7 +712,7 @@ export class FeatureProvider extends Provider {
      *     return data.distance; // Default implementation uses distance as the weight
      *   },
      * };
-     * const result = await findPath(pathOptions);
+     * const result = await provider.findPath(pathOptions);
      * console.log(result);
      * ```
      */
