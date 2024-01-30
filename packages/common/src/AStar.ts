@@ -33,17 +33,21 @@ class Node implements AStarNode {
     f: number;
     parent: Node | null;
 
+    id: number;
+
     constructor(point: number[], g: number, h: number, parent: Node | null = null) {
         this.point = point;
         this.g = g;
         this.h = h;
         this.f = g + h;
         this.parent = parent;
+        this.id = AStar.pointKey(this);
     }
 }
 
 export class AStar {
     static precision = 1e5;
+
     static calculateDistance(point1: number[], point2: number[]): number {
         // const dx = point2[0] - point1[0];
         // const dy = point2[1] - point1[1];
@@ -61,10 +65,19 @@ export class AStar {
         // return point1[0] === point2[0] && point1[1] === point2[1];
     }
 
-    private static pointKey(node: AStarNode): number {
+    static pointKey(node: AStarNode): number {
         const precision = AStar.precision;
         const point = node.point;
         return (point[0] * precision ^ 0) * 1e7 + (point[1] * precision ^ 0);
+    }
+
+    private static reconstructPath(current: Node) {
+        const path: AStarNode[] = [];
+        while (current !== null) {
+            path.unshift(current);
+            current = current.parent;
+        }
+        return path;
     }
 
     public static findPath(
@@ -73,52 +86,52 @@ export class AStar {
         getNeighbors: (node: AStarNode) => AStarNode[],
         weight: (nodeA: AStarNode, nodeB: AStarNode) => number = AStar.weight
     ): AStarNode[] | null {
-        const start = from.point;
-        const endCoordinate = endNode.point;
         const openList = new BinaryHeap<Node>((a, b) => a.f - b.f);
-        const closedList = new Set<number>();
-        // const startNode = new NavNode(start, 0, AStar.calculateDistance(start, endCoordinate));
-        const startNode = new Node(start, 0, Infinity);
+        const closedList = new Map<string | number, boolean>();
+        // const startNode = new NavNode(start, 0, AStar.calculateDistance(start, endNode.point));
+        const startNode = new Node(from.point, 0, Infinity);
+
         startNode.data = from.data;
 
         openList.push(startNode);
 
+        const endNodeId = this.pointKey(endNode);
+
         while (openList.size() > 0) {
             const currentNode = openList.pop()!;
 
-            if (AStar.isPointEqual(currentNode.point, endCoordinate)) {
-                // reconstruct the path
-                const path: AStarNode[] = [];
-                let current: Node | null = currentNode;
-                while (current !== null) {
-                    path.unshift(current);
-                    current = current.parent;
-                }
-                return path;
+            if (currentNode.id === endNodeId) {
+                // if (AStar.isPointEqual(currentNode.point, endNode.point)) {
+                return this.reconstructPath(currentNode);
             }
 
-            const pointKey = AStar.pointKey(currentNode);
-            closedList.add(pointKey);
+            closedList.set(currentNode.id, true);
+
             for (const neighborNode of getNeighbors(currentNode)) {
-                const {point: neighbor, data} = neighborNode;
-                const neighborKey = AStar.pointKey(neighborNode);
+                const {point, data} = neighborNode;
+                const neighborKey = this.pointKey(neighborNode);
+
                 if (closedList.has(neighborKey)) {
                     continue;
                 }
+
                 const g = currentNode.g + weight(currentNode, neighborNode);
                 const h = weight(neighborNode, endNode);
-                // const h = AStar.calculateDistance(neighborNode.point, endNode.point);
-                const existingNode = openList.find((node) => AStar.isPointEqual(node.point, neighbor));
-                if (existingNode) {
+                // const existingNodeIndex = openList.findIndex((node) => AStar.isPointEqual(node.point, point));
+                const existingNodeIndex = openList.findIndex((node) => node.id == neighborKey);
+
+                if (existingNodeIndex != -1) {
+                    const existingNode = openList.get(existingNodeIndex);
                     if (g < existingNode.g) {
                         existingNode.g = g;
                         existingNode.h = h;
                         existingNode.f = g + h;
                         existingNode.parent = currentNode;
                         existingNode.data = data;
+                        openList.adjustElement(existingNodeIndex);
                     }
                 } else {
-                    const newNode = new Node(neighbor, g, h, currentNode);
+                    const newNode = new Node(point, g, h, currentNode);
                     newNode.data = data;
                     openList.push(newNode);
                 }

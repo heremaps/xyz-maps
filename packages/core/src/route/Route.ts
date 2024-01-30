@@ -17,7 +17,7 @@
  * License-Filename: LICENSE
  */
 import {AStar, AStarNode} from '@here/xyz-maps-common';
-import {Feature, FeatureProvider, GeoJSONCoordinate} from '@here/xyz-maps-core';
+import {Feature, FeatureProvider} from '@here/xyz-maps-core';
 
 type NodeData = { link: Feature, index: number };
 
@@ -29,12 +29,14 @@ type Weight = (options: { feature: Feature; distance: number; from: number[]; to
 //     return [0, feature.geometry.coordinates.length - 1];
 // };
 
+type Turn = { from: NodeData, to: NodeData };
+
 export class PathFinder {
     static async findPath(
         provider: FeatureProvider,
         fromNode: Node,
         toNode: Node,
-        isTurnAllowed: (turn: { from: NodeData, to: NodeData }) => boolean,
+        isTurnAllowed: (turn: Turn) => boolean,
         weight?: Weight
         // filterCoordinates: ((feature: Feature) => number[]) | undefined = defaultCoordinatesFilter
     ): Promise<Node[]> {
@@ -43,8 +45,8 @@ export class PathFinder {
             const getNeighbor = (node: Node): Node[] => {
                 const point = node.point;
                 const fromLink = node.data.link;
-                const turn = {from: node.data, to: {link: null, index: null}};
-                const neighbors: { point: number[], data: { link: Feature, index: number } }[] = [];
+                const turn = {from: node.data, to: null};
+                const neighbors: Node[] = [];
                 const geoJSONFeatures = <Feature[]>provider.search({point: {longitude: point[0], latitude: point[1]}, radius: .5});
                 for (const feature of geoJSONFeatures) {
                     if (feature.geometry.type != 'LineString' /* || feature.id == fromLink.id*/) continue;

@@ -736,28 +736,28 @@ export class FeatureProvider extends Provider {
             /**
              * Object representing the source road segment of the turn.
              */
-            from: {
+            readonly from: {
                 /**
                  * GeoJSON Feature representing the source road segment.
                  */
-                link: Feature<'LineString'>,
+                readonly link: Feature<'LineString'>,
                 /**
                  * Index of the Coordinates array of the source road segment.
                  */
-                index: number
+                readonly index: number
             },
             /**
              * Object representing the destination road segment of the turn.
              */
-            to: {
+            readonly to: {
                 /**
                  * GeoJSON Feature representing the destination road segment.
                  */
-                link: Feature<'LineString'>,
+                readonly link: Feature<'LineString'>,
                 /**
                  * Index of the Coordinates array of the destination road segment.
                  */
-                index: number
+                readonly index: number
             }
         }) => boolean,
         /**

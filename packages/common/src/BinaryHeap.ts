@@ -25,8 +25,16 @@ export class BinaryHeap<T> {
         this.compare = compare;
     }
 
-    find(predicate: (this: void, value: T, index: number, obj: T[]) => boolean) {
+    get(index: number) {
+        return this.heap[index];
+    }
+
+    find(predicate: (value: T, index: number, obj: T[]) => boolean) {
         return this.heap.find(predicate);
+    }
+
+    findIndex(predicate: (this: void, value: T, index: number, obj: T[]) => boolean): number {
+        return this.heap.findIndex(predicate);
     }
 
     includes(value: T) {
@@ -52,6 +60,29 @@ export class BinaryHeap<T> {
         return result;
     }
 
+    adjustElement(index: number): void {
+        const element = this.heap[index];
+        const parentIndex = Math.floor((index - 1) / 2);
+        const parent = this.heap[parentIndex];
+
+        if (parentIndex > 0 && this.compare(element, parent) < 0) {
+            this.bubbleUp(index);
+        } else {
+            this.sinkDown(index);
+        }
+    }
+
+    remove(value: T): void {
+        const index = this.heap.findIndex((item) => item === value);
+        if (index !== -1) {
+            const end = this.heap.pop()!;
+            if (index !== this.heap.length) {
+                this.heap[index] = end;
+                this.adjustElement(index);
+            }
+        }
+    }
+
     size(): number {
         return this.heap.length;
     }
@@ -71,26 +102,28 @@ export class BinaryHeap<T> {
     private sinkDown(index: number): void {
         const length = this.heap.length;
         const element = this.heap[index];
+
         while (true) {
             let leftChildIndex = 2 * index + 1;
             let rightChildIndex = 2 * index + 2;
             let swap = null;
-            let leftChild;
-            let rightChild;
 
             if (leftChildIndex < length) {
-                leftChild = this.heap[leftChildIndex];
+                const leftChild = this.heap[leftChildIndex];
                 if (this.compare(leftChild, element) < 0) {
                     swap = leftChildIndex;
                 }
             }
             if (rightChildIndex < length) {
-                rightChild = this.heap[rightChildIndex];
-                if ((swap === null && this.compare(rightChild, element) < 0) ||
-                    (swap !== null && this.compare(rightChild, leftChild!) < 0)) {
+                const rightChild = this.heap[rightChildIndex];
+                if (
+                    (swap === null && this.compare(rightChild, element) < 0) ||
+                    (swap !== null && this.compare(rightChild, this.heap[swap]!) < 0)
+                ) {
                     swap = rightChildIndex;
                 }
             }
+
             if (swap === null) break;
             this.heap[index] = this.heap[swap];
             this.heap[swap] = element;
@@ -98,3 +131,4 @@ export class BinaryHeap<T> {
         }
     }
 }
+
