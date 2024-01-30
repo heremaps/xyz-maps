@@ -79,7 +79,7 @@ export class GradientFactory {
 
             const data = ctx.getImageData(0, 0, width, height).data;
 
-            texture = new GradientTexture(this.gl, {width, height, data}, {premultiplyAlpha: false});
+            texture = new GradientTexture(this.gl, {width, height, data}, {premultiplyAlpha: true});
             texture.gradient = gradientConfig;
             texture.factory = this;
 
