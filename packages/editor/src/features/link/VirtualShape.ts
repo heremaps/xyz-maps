@@ -29,7 +29,7 @@ type VirtualLinkShapeProperties = {
     parent: Navlink
 };
 
-class VirtualLinkShape extends Feature {
+class VirtualLinkShape extends Feature<'Point'> {
     id: string;
     private x: number;
     private y: number;

@@ -18,7 +18,8 @@
  */
 
 import {Feature} from '../features/Feature';
-type Point = [number, number, number?];
+import {GeoJSONCoordinate} from '@here/xyz-maps-core';
+type Point = number[];
 type BBox = number[];
 type Coordinates = Array<Point>;
 
@@ -57,9 +58,9 @@ const updateLineStringBBox = (lineString: Coordinates, bbox?: BBox) => {
 
 const calcBBox = (feature: Feature, bbox?: BBox): BBox | false => {
     const geoType = feature.geometry.type;
-    const coordinates = feature.geometry.coordinates;
 
     if (geoType == 'Point') {
+        const coordinates = (<Feature<'Point'>>feature).geometry.coordinates;
         if (bbox) {
             updatePointBBox(<[number, number]>coordinates, bbox);
         } else {
@@ -67,19 +68,20 @@ const calcBBox = (feature: Feature, bbox?: BBox): BBox | false => {
         }
     } else {
         bbox = bbox || [Infinity, Infinity, -Infinity, -Infinity];
+        const coordinates = feature.geometry.coordinates;
 
         if (geoType == 'MultiLineString') {
             for (let ls = 0; ls < coordinates.length; ls++) {
-                updateLineStringBBox(coordinates[ls], bbox);
+                updateLineStringBBox((coordinates as GeoJSONCoordinate[][])[ls], bbox);
             }
         } else if (geoType == 'MultiPolygon') {
             for (let p = 0; p < coordinates.length; p++) {
                 updateLineStringBBox(coordinates[p][0], bbox);
             }
         } else if (geoType == 'LineString' || geoType == 'MultiPoint') {
-            updateLineStringBBox(coordinates, bbox);
+            updateLineStringBBox((coordinates as GeoJSONCoordinate[]), bbox);
         } else if (geoType == 'Polygon') {
-            updateLineStringBBox(coordinates[0], bbox);
+            updateLineStringBBox((coordinates as GeoJSONCoordinate[][])[0], bbox);
         } else {
             return false;
         }

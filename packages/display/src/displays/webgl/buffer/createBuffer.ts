@@ -20,7 +20,7 @@
 import {geometry, TaskManager} from '@here/xyz-maps-common';
 import {GeometryBuffer} from './GeometryBuffer';
 import {getValue, parseStyleGroup} from '../../styleTools';
-import {Feature, LinearGradient, StyleGroup, Tile, TileLayer, webMercator} from '@here/xyz-maps-core';
+import {Feature, GeoJSONCoordinate, LinearGradient, StyleGroup, Tile, TileLayer, webMercator} from '@here/xyz-maps-core';
 import {Layer} from '../../Layers';
 import {CollisionGroup, FeatureFactory, GroupMap} from './FeatureFactory';
 import {GlyphTexture} from '../GlyphTexture';
@@ -72,7 +72,7 @@ const handlePolygons = (
 
             if (anchor == 'Centroid') {
                 const {geometry} = feature;
-                center = geometry._c = geometry._c || centroid(geometry.type == 'Polygon' ? geometry.coordinates : geometry.coordinates[0]);
+                center = geometry._c = geometry._c || centroid(<GeoJSONCoordinate[][]>(geometry.type == 'Polygon' ? geometry.coordinates : geometry.coordinates[0]));
             } else {
                 center = [bbox[0] + (bbox[2] - bbox[0]) / 2, bbox[1] + (bbox[3] - bbox[1]) / 2];
             }

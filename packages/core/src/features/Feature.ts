@@ -19,7 +19,7 @@
 
 import {JSUtils} from '@here/xyz-maps-common';
 import {FeatureProvider} from '../providers/FeatureProvider';
-import {GeoJSONFeature, GeoJSONBBox} from './GeoJSON';
+import {GeoJSONFeature, GeoJSONBBox, GeoJSONCoordinate} from './GeoJSON';
 
 /**
  * represents a Feature in GeoJSON Feature format.
@@ -86,7 +86,13 @@ export class Feature<GeometryType = string> implements GeoJSONFeature<GeometryTy
      */
     geometry: {
         type: 'Point' | 'MultiPoint' | 'LineString' | 'MultiLineString' | 'Polygon' | 'MultiPolygon' | GeometryType | string,
-        coordinates: any[]
+        coordinates: GeometryType extends 'Point' ? GeoJSONCoordinate :
+            GeometryType extends 'MultiPoint' ? GeoJSONCoordinate[] :
+                GeometryType extends 'LineString' ? GeoJSONCoordinate[] :
+                    GeometryType extends 'MultiLineString' ? GeoJSONCoordinate[][] :
+                        GeometryType extends 'Polygon' ? GeoJSONCoordinate[][] :
+                            GeometryType extends 'MultiPolygon' ? GeoJSONCoordinate[][][] :
+                                GeoJSONCoordinate | GeoJSONCoordinate[] | GeoJSONCoordinate[][] | GeoJSONCoordinate[][][]
         /**
          * cached polygon centroid
          * @internal
@@ -106,7 +112,7 @@ export class Feature<GeometryType = string> implements GeoJSONFeature<GeometryTy
     // need for quick data merge across multiple tile searches
     private _m: number = 0;
 
-    constructor(feature: GeoJSONFeature, prov?: FeatureProvider) {
+    constructor(feature: GeoJSONFeature<GeometryType>, prov?: FeatureProvider) {
         this.id = feature.id;
 
         this.properties = feature.properties;

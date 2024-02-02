@@ -42,5 +42,12 @@ export default {
         signedArea *= 3;
 
         return signedArea ? [cx / signedArea + x0, cy / signedArea + y0] : [x1, y1];
+    },
+
+    intersectBBox(ax: number, ax2: number, ay: number, ay2: number, bx: number, bx2: number, by: number, by2: number): boolean {
+        return ax <= bx2 &&
+            bx <= ax2 &&
+            ay <= by2 &&
+            by <= ay2;
     }
 };

@@ -21,9 +21,9 @@ import InternalEditor from '../../IEditor';
 import Overlay from '../../features/Overlay';
 import Transformer from './Transformer';
 
-export class Knob extends Feature {
-    protected _o: Overlay
-    protected __: { [ev: string]: (e, dx?: number, dy?: number) => void }
+export class Knob extends Feature<'Point'> {
+    protected _o: Overlay;
+    protected __: { [ev: string]: (e, dx?: number, dy?: number) => void };
     protected transformer: Transformer;
 
     constructor(
@@ -34,7 +34,7 @@ export class Knob extends Feature {
         properties = {},
         style?: Style | Style[]
     ) {
-        const geojson: GeoJSONFeature = {
+        const geojson: GeoJSONFeature<'Point'> = {
             type: 'Feature',
             geometry: {
                 type: 'Point',

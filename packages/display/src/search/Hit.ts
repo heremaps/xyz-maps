@@ -22,7 +22,7 @@ import {Map} from '../Map';
 import {Feature} from '@here/xyz-maps-core';
 import {intersectBBox, intersectLineLine} from '../geometry';
 
-type Point = [number, number, number?];
+type Point = number[]; // [number, number, number?];
 type Coordinates = Point | Point[] | Point[][] | Point[][][];
 
 const pointInPolygon = (x: number, y: number, poly: Point[]): boolean => {

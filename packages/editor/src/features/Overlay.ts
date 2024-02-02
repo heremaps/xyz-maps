@@ -178,7 +178,7 @@ class Overlay {
     addRect(minLon: number, minLat: number, maxLon: number, maxLat: number, properties) {
         return this.addFeature(
             createFeature('Polygon', createRect(minLon, minLat, maxLon, maxLat), properties)
-        );
+        ) as Feature<'Polygon'>;
     }
 
 
@@ -214,7 +214,7 @@ class Overlay {
             },
             type: 'Feature',
             properties: props || {}
-        }, prepareStyle(style));
+        }, prepareStyle(style)) as Feature<'LineString'>;
     }
 
 

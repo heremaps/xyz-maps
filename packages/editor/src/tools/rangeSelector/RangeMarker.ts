@@ -62,7 +62,7 @@ function getPointAtLine(
 }
 
 
-class RangeMarker extends Feature {
+class RangeMarker extends Feature<'Point'> {
     static initStyle(styleGroup: MarkerStyle[]): MarkerStyle[] {
         styleGroup = JSUtils.clone(styleGroup);
         for (let style of styleGroup) {

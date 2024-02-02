@@ -57,10 +57,10 @@ const getAreaCenter = (area: Area): number[] => {
 };
 
 
-class HeightKnob extends Feature {
+class HeightKnob extends Feature<'Point'> {
     __: PrivateData;
 
-    properties: {}
+    properties: {};
 
     constructor(area: Area, altitude: number, polyTools) {
         polygonTools = polyTools;
@@ -71,7 +71,7 @@ class HeightKnob extends Feature {
 
         const [lon, lat] = getAreaCenter(area);
 
-        const geojson: GeoJSONFeature = {
+        const geojson: GeoJSONFeature<'Point'> = {
             type: 'Feature',
             geometry: {
                 type: 'Point',

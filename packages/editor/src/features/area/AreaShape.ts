@@ -173,7 +173,7 @@ let UNDEF;
  * The AreaShape is only existing if the corresponding Area feature is "selected" and user based geometry editing with touch/mouse interaction is activated.
  * @see {@link Area.select}
  */
-class AreaShape extends Feature {
+class AreaShape extends Feature<'Point'> {
     /**
      * The feature class of an AreaShape Feature is "AREA_SHAPE".
      */
@@ -185,14 +185,14 @@ class AreaShape extends Feature {
         index: number;
         hole: number;
         poly: number;
-    }
+    };
 
     constructor(area: Area, x: number, y: number, indexData: number[], polyTools) {
         polygonTools = polyTools;
 
         const internalEditor: InternalEditor = area._e();
         const zLayer = internalEditor.display.getLayers().indexOf(internalEditor.getLayer(area)) + 1;
-        const geojson: GeoJSONFeature = {
+        const geojson: GeoJSONFeature<'Point'> = {
             type: 'Feature',
             geometry: {
                 type: 'Point',

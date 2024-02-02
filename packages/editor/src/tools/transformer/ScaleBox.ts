@@ -17,7 +17,7 @@
  * License-Filename: LICENSE
  */
 
-import {Feature, Style} from '@here/xyz-maps-core';
+import {Feature, GeoJSONCoordinate, Style} from '@here/xyz-maps-core';
 import Overlay from '../../features/Overlay';
 import InternalEditor from '../../IEditor';
 import Transformer, {Corner} from './Transformer';
@@ -55,7 +55,7 @@ class ScaleBox {
 
         this.buffer = buffer;
 
-        const selectors = [
+        const selectors: Feature<'Polygon'|'LineString'>[] = [
             overlay.addRect(0, 0, 0, 0, {
                 type: 'TRANSFORMER_SCALE_BOX'
             })
@@ -85,7 +85,7 @@ class ScaleBox {
             const {index, vertical} = this.properties;
 
             let i: Corner = index == Corner.topLeft ? Corner.bottomLeft : index - 1;
-            let line = selectors[i + 1].geometry.coordinates;
+            let line = selectors[i + 1].geometry.coordinates as GeoJSONCoordinate[];
             // const [line0, line1] = transformer.getRotatedBoundingBox(true)[i];
 
             if (flipped) {
@@ -147,7 +147,7 @@ class ScaleBox {
 
             const {index, vertical} = this.properties;
             const i: Corner = index == Corner.topLeft ? Corner.bottomLeft : index - 1;
-            const [line0, line1] = selectors[i + 1].geometry.coordinates;
+            const [line0, line1] = selectors[i + 1].geometry.coordinates as GeoJSONCoordinate[];
             //  [line0, line1] = transformer.getRotatedBoundingBox(true)[i];
 
             let line0px = map.getPixelCoord(line0);

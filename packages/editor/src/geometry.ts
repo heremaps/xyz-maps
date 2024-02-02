@@ -18,7 +18,7 @@
  */
 
 import {GeoJSONCoordinate as Point} from '@here/xyz-maps-core';
-import {geotools, vec3} from '@here/xyz-maps-common';
+import {geometry, geotools, vec3} from '@here/xyz-maps-common';
 
 
 const MATH = Math;
@@ -63,12 +63,7 @@ export const isPntInRect = (px: number, py: number, x1: number, y1: number, x2: 
     return px >= x1 && px <= x2 && py >= y1 && py <= y2;
 };
 
-export const intersectBBox = (ax: number, ax2: number, ay: number, ay2: number, bx: number, bx2: number, by: number, by2: number) => {
-    return ax <= bx2 &&
-        bx <= ax2 &&
-        ay <= by2 &&
-        by <= ay2;
-};
+export const intersectBBox = geometry.intersectBBox;
 
 export const getAngle = (p1: Point, p2: Point): number => {
     const dx = p2[0] - p1[0];

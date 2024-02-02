@@ -846,7 +846,7 @@ export class FeatureProvider extends Provider {
             const start = {distance: Infinity, feature: null, point: null, index: null};
             for (let feature of features) {
                 if (feature.geometry.type != 'LineString') continue;
-                const {coordinates} = feature.geometry;
+                const coordinates = feature.geometry.coordinates as GeoJSONCoordinate[];
                 const last = coordinates.length - 1;
                 const result = findNearestCoordinate(point, [coordinates[0], coordinates[last]]);
                 if (result.distance < start.distance) {

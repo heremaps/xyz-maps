@@ -106,7 +106,14 @@ export interface GeoJSONFeature<GeometryType = string> {
      */
     geometry: {
         type: 'Point' | 'MultiPoint' | 'LineString' | 'MultiLineString' | 'Polygon' | 'MultiPolygon' | GeometryType | string,
-        coordinates: GeoJSONCoordinate | GeoJSONCoordinate[] | GeoJSONCoordinate[][] | GeoJSONCoordinate[][][]
+        coordinates: GeometryType extends 'Point' ? GeoJSONCoordinate :
+            GeometryType extends 'MultiPoint' ? GeoJSONCoordinate[] :
+                GeometryType extends 'LineString' ? GeoJSONCoordinate[] :
+                    GeometryType extends 'MultiLineString' ? GeoJSONCoordinate[][] :
+                        GeometryType extends 'Polygon' ? GeoJSONCoordinate[][] :
+                            GeometryType extends 'MultiPolygon' ? GeoJSONCoordinate[][][] :
+                                GeoJSONCoordinate | GeoJSONCoordinate[] | GeoJSONCoordinate[][] | GeoJSONCoordinate[][][]
+        // coordinates: GeoJSONCoordinate | GeoJSONCoordinate[] | GeoJSONCoordinate[][] | GeoJSONCoordinate[][][]
     };
 }
 
