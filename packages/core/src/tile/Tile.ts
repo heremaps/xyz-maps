@@ -70,27 +70,16 @@ export class Tile {
 
     private tree: any;
 
-
     private expire: number;
 
     constructor(quadkey: string, type: string, clipped: boolean, expire?: number) {
         const grid = quadToGrid(quadkey);
-
-
         this.quadkey = quadkey;
-
         this.z = grid[0];
-
         this.y = grid[1];
-
         this.x = grid[2];
-
-
         this.type = type;
-
-
         this.bounds = getGeoBounds(grid[0], grid[1], grid[2]);
-
         this.expire = expire;
         this.clipped = clipped;
     }
@@ -114,12 +103,9 @@ export class Tile {
     add(feature: Feature) {
         const data = this.data;
 
-        if (data && data.indexOf(feature) == -1) {
+        if (data?.indexOf(feature) == -1) {
             data.push(feature);
-
-            if (this.tree) {
-                this.tree.insert(feature);
-            }
+            this.tree?.insert(feature);
         }
     };
 
@@ -134,9 +120,7 @@ export class Tile {
         if (tileIndex !== -1) {
             this.data.splice(tileIndex, 1);
 
-            if (this.tree) {
-                this.tree.remove(feature);
-            }
+            this.tree?.remove(feature);
         }
     };
 
@@ -145,7 +129,7 @@ export class Tile {
     //  *
     //  *  @param bbox -  the bounding box has the coordinates in the order: [minX, minY, maxX, maxY]
     //  */
-    search(bbox: number[]): any[] {
+    search(bbox: {minX:number, maxX:number, minY: number, maxY: number}): any[] {
         if (this.data) {
             if (!this.tree) {
                 // console.time('create tile index ' + this.quadkey);

@@ -42,24 +42,30 @@ const MODIFY_FEATURE_COORDINATES_EVENT = 'featureCoordinatesChange';
 let UNDEF;
 
 
-function FeatureStorageInfo(feature) {
-    this.feature = feature;
+class FeatureStorageInfo {
+    feature: Feature;
+    tiles: Set<string>;
+
+    constructor(feature: Feature) {
+        this.feature = feature;
+        this.tiles = new Set();
+    }
 }
 
-FeatureStorageInfo.prototype.cnt = 0;
+// FeatureStorageInfo.prototype.cnt = 0;
 
 /**
  *  Feature provider.
  *
  */
 export class FeatureProvider extends Provider {
-    IDPOOL = {};
+    fStore: Map<string | number, FeatureStorageInfo> = new Map();
 
     Feature: any;
 
     dataType = 'json';
 
-    tree: any;
+    tree: RTree;
 
     private filter: (feature) => boolean;
 
@@ -86,51 +92,41 @@ export class FeatureProvider extends Provider {
         ].forEach((type) => this.listeners.addEvent(type));
     }
 
-    protected loadTileData(tile: Tile, data: any[], onDone: (data: any) => void) {
+    protected loadTileData(tile: Tile, data: GeoJSONFeature[], onDone: (data: any) => void) {
         const provider = this;
-        const unique = [];
-        let len = data.length;
-        let prepared;
-        let inserted;
-        let o;
+        let unique = [];
 
-        for (var i = 0; i < len; i++) {
-            prepared = provider.prepareFeature(o = data[i]);
-
+        for (let feature of data) {
+            const prepared = provider.prepareFeature(feature);
             if (prepared !== false) {
-                o = prepared;
-
-                inserted = provider._insert(o, tile);
-
-                // filter out the duplicates!!
+                // filter out the duplicates
+                const inserted = provider._insert(prepared);
                 if (inserted) {
-                    o = inserted;
-                    unique[unique.length] = o;
+                    unique[unique.length] = inserted;
                 } else if (/* provider.indexed &&*/ !provider.tree) { // NEEDED FOR MULTI TREE!
-                    unique[unique.length] = provider.getFeature(o.id);
+                    unique[unique.length] = provider.getFeature(prepared.id);
                 }
             } else {
                 // unkown feature
-                console.warn('unkown feature detected..', o.geometry.type, o);
-                data.splice(i--, 1);
-                len--;
+                console.warn('unkown feature detected..', feature.geometry.type, feature);
             }
         }
 
-        data = unique;
 
-        // if( provider.indexed )
-        // {
         if (provider.tree) {
-            provider.tree.load(data);
+            // if( provider.indexed ){
+            provider.tree.load(unique);
+            // }
+            unique = provider.clipped
+                ? unique
+                : provider.search(tile.getContentBounds());
         }
-        // }
 
-        data = provider.clipped
-            ? data
-            : provider.search(tile.getContentBounds());
+        for (let feature of unique) {
+            provider._mark(feature, tile);
+        }
 
-        onDone(data);
+        onDone(unique);
         // if (provider.margin) {
         //     // additional mark in dep tiles is required because actual data of tile is bigger
         //     // than received data..It may also contain data of neighbour tiles
@@ -233,9 +229,7 @@ export class FeatureProvider extends Provider {
                     }
                 }
 
-                if (provider.tree) {
-                    provider.tree.insert(feature);
-                }
+                provider.tree?.insert(feature as GeoJSONFeature);
 
                 if (!provider.ignore) {
                     provider.dispatchEvent(ADD_FEATURE_EVENT, {feature: feature, tiles: tiles});
@@ -282,24 +276,10 @@ export class FeatureProvider extends Provider {
      * Get all the features that are currently present in the provider.
      */
     all(): Feature[] {
-        const prov = this;
-
-        if (prov.tree) {
-            return prov.tree.all();
-        }
-
-        return prov._s({
-            minX: -180,
-            maxX: 180,
-            minY: -90,
-            maxY: 90
-        });
-
-        // very slow for 100K+ entries...
-        // var data = [], pool = prov.IDPOOL;
-        // for(var id in pool)
-        //     data.push( pool[id].feature )
-        // return data;
+        const data = new Array(this.cnt);
+        let i = 0;
+        this.fStore.forEach((f) => data[i++] = f.feature);
+        return data;
     };
 
     /**
@@ -310,9 +290,7 @@ export class FeatureProvider extends Provider {
      *  @returns the found feature or undefined if feature is not present.
      */
     getFeature(id: string | number): Feature | undefined {
-        if (this.IDPOOL[id]) {
-            return this.IDPOOL[id].feature;
-        }
+        return this.fStore.get(id)?.feature;
     };
 
     /**
@@ -562,7 +540,7 @@ export class FeatureProvider extends Provider {
      *  @returns the {@link Feature} if it is found, otherwise undefined
      */
     exists(feature: { id: number | string }): Feature {
-        return this.IDPOOL[feature.id];
+        return this.fStore.get(feature.id)?.feature;
     };
 
 
@@ -661,11 +639,9 @@ export class FeatureProvider extends Provider {
 
                 this.cnt--;
 
-                delete this.IDPOOL[feature.id];
+                this.fStore.delete(feature.id);
 
-                if (this.tree) {
-                    this.tree.remove(feature);
-                }
+                this.tree?.remove(feature);
 
                 // delete feature._provider;
 
@@ -936,31 +912,22 @@ export class FeatureProvider extends Provider {
                 dataQuads[d] = tile.quadkey;
             }
         } else if (arguments.length == 0) { // full wipe
-            const protectedFeatures = {};
-            const idPool = provider.IDPOOL;
-            let cnt = 0;
+            provider.tree?.clear();
 
+            const featuresInfo = Array.from(provider.fStore);
+            provider.fStore.clear();
 
-            if (provider.tree) {
-                provider.tree.clear();
-            }
-
-            for (const id in idPool) {
-                feature = provider.getFeature(id);
+            for (const [id, featureInfo] of featuresInfo) {
+                const feature = featureInfo.feature;
 
                 if (!provider.isDroppable(feature)) {
-                    protectedFeatures[id] = new FeatureStorageInfo(feature);
+                    provider.fStore.set(id, new FeatureStorageInfo(feature));
 
-                    cnt++;
-
-                    if (provider.tree) {
-                        provider.tree.insert(feature);
-                    }
+                    provider.tree?.insert(feature);
                 }
             }
 
-            provider.cnt = cnt;
-            provider.IDPOOL = protectedFeatures;
+            provider.cnt = provider.fStore.size;
 
             // Provider clears complete tile storage
             Provider.prototype.clear.call(this, bbox);
@@ -969,7 +936,7 @@ export class FeatureProvider extends Provider {
         provider.dispatchEvent('clear', {tiles: dataQuads});
     };
 
-    _insert(feature: Feature, tile?: Tile) {
+    _insert(feature: GeoJSONFeature): Feature {
         // TODO: overwrite for providers providing splitted geo from tilehub
         const id = feature.id;// + o.bbox;
 
@@ -982,7 +949,7 @@ export class FeatureProvider extends Provider {
         if (!filter || filter(feature)) {
             // filter out the duplicates!!
             if (
-                this.IDPOOL[id] === UNDEF
+                !this.fStore.has(id)
             ) { // not in tree already??
                 this.cnt++;
 
@@ -996,13 +963,9 @@ export class FeatureProvider extends Provider {
 
                 this.updateBBox(feature);
 
-                this.IDPOOL[id] = new FeatureStorageInfo(feature);
+                this.fStore.set(id, new FeatureStorageInfo(feature as Feature));
 
                 inserted = feature;
-            }
-
-            if (tile) {
-                this._mark(feature, tile);
             }
         }
 
@@ -1011,16 +974,7 @@ export class FeatureProvider extends Provider {
 
 
     _mark(o, tile: Tile) {
-        const pool = this.IDPOOL[o.id];
-
-        if ( // pool &&
-            !pool[tile.quadkey]
-        ) {
-            // debugger;
-            pool.cnt++;
-            pool[tile.quadkey] = true;
-            // this.IDPOOL[ o.id ][tile.quadkey] = tile;
-        }
+        this.fStore.get(o.id)?.tiles.add(tile.quadkey);
     };
 
 
@@ -1041,23 +995,18 @@ export class FeatureProvider extends Provider {
 
     _dropFeature(feature: Feature, qk: string, trigger?: boolean) {
         const provider = this;
-        const featureStoreInfo = provider.IDPOOL[feature.id];
+        const featureStoreInfo = provider.fStore.get(feature.id);
 
         if (featureStoreInfo) {
-            if (featureStoreInfo[qk]) {
-                featureStoreInfo[qk] = UNDEF;
-                // delete featureStoreInfo[qk];
-                featureStoreInfo.cnt--;
-            }
+            const tiles = featureStoreInfo.tiles;
+            tiles.delete(qk);
 
             if (provider.isDroppable(feature)) {
-                if (!featureStoreInfo.cnt) {
+                if (!tiles.size) {
                     provider.cnt--;
-                    delete provider.IDPOOL[feature.id];
+                    provider.fStore.delete(feature.id);
 
-                    if (provider.tree) {
-                        provider.tree.remove(feature);
-                    }
+                    provider.tree?.remove(feature);
 
                     if (trigger) {
                         provider.dispatchEvent(REMOVE_FEATURE_EVENT, {feature});
@@ -1067,9 +1016,9 @@ export class FeatureProvider extends Provider {
         }
     };
 
-    _s(searchBBox, tilePyramid?: string) {
+    _s(searchBBox, tilePyramid?: string): Feature[] {
         if (this.tree) {
-            return this.tree.search(searchBBox);
+            return this.tree.search(searchBBox) as Feature[];
         }
         const prov = this;
         const mergeID = Math.random();
@@ -1124,7 +1073,7 @@ export class FeatureProvider extends Provider {
 
     __type = 'FeatureProvider';
 
-    prepareFeature(feature: Feature): Feature | false {
+    prepareFeature(feature: GeoJSONFeature): GeoJSONFeature | false {
         if (feature['id'] == UNDEF) {
             feature['id'] = Math.random() * 1e8 ^ 0;
         }
@@ -1138,14 +1087,14 @@ export class FeatureProvider extends Provider {
         return feature;
     };
 
-    updateBBox(feature: Feature): boolean {
+    updateBBox(feature: GeoJSONFeature | Feature): boolean {
         if (!feature.bbox) {
             const bbox = calcBBox(feature);
             if (bbox) {
                 feature.bbox = <GeoJSONBBox>bbox;
-                if (feature.geometry._c) {
+                if ((feature as Feature).geometry._c) {
                     // clear cached centroid
-                    feature.geometry._c = null;
+                    (feature as Feature).geometry._c = null;
                 }
             } else {
                 return false;

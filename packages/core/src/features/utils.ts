@@ -18,7 +18,7 @@
  */
 
 import {Feature} from '../features/Feature';
-import {GeoJSONCoordinate} from '@here/xyz-maps-core';
+import {GeoJSONCoordinate, GeoJSONFeature} from '@here/xyz-maps-core';
 type Point = number[];
 type BBox = number[];
 type Coordinates = Array<Point>;
@@ -56,11 +56,11 @@ const updateLineStringBBox = (lineString: Coordinates, bbox?: BBox) => {
     }
 };
 
-const calcBBox = (feature: Feature, bbox?: BBox): BBox | false => {
+const calcBBox = (feature: GeoJSONFeature, bbox?: BBox): BBox | false => {
     const geoType = feature.geometry.type;
 
     if (geoType == 'Point') {
-        const coordinates = (<Feature<'Point'>>feature).geometry.coordinates;
+        const coordinates = (feature as GeoJSONFeature<'Point'>).geometry.coordinates;
         if (bbox) {
             updatePointBBox(<[number, number]>coordinates, bbox);
         } else {

@@ -313,11 +313,11 @@ export abstract class EditableFeatureProvider extends FeatureTileProvider {
         }
     };
 
-    _insert(o, tile?) {
+    _insert(o) {
         if (this.blocked[o.id]) {
             return null;
         }
-        return super._insert(o, tile);
+        return super._insert(o);
     };
 
     reserveId(createdFeatures, cb) {

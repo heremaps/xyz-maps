@@ -236,6 +236,6 @@ export default abstract class TileProvider {
 
         return tile;
     };
-}
+};
 
 TileProvider.prototype.__type = 'Provider';

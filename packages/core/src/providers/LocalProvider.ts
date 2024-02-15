@@ -94,7 +94,7 @@ export class LocalProvider extends EditableFeatureProvider {
     import(data) {
         const provider = this;
 
-        provider.tree.fromJSON(data);
+        provider.tree.import(data);
 
         data = provider.tree.all();
 
