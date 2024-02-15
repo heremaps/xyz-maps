@@ -33,6 +33,7 @@ import {TileProviderOptions} from './TileProvider/TileProviderOptions';
 import {GeoPoint} from '../geo/GeoPoint';
 import {GeoRect} from '../geo/GeoRect';
 import {PathFinder} from '../route/Route';
+import {FeatureRegistry, FeatureRegistryInfo} from './FeatureRegistry';
 
 
 const REMOVE_FEATURE_EVENT = 'featureRemove';
@@ -41,25 +42,12 @@ const MODIFY_FEATURE_COORDINATES_EVENT = 'featureCoordinatesChange';
 
 let UNDEF;
 
-
-class FeatureStorageInfo {
-    feature: Feature;
-    tiles: Set<string>;
-
-    constructor(feature: Feature) {
-        this.feature = feature;
-        this.tiles = new Set();
-    }
-}
-
-// FeatureStorageInfo.prototype.cnt = 0;
-
 /**
  *  Feature provider.
  *
  */
 export class FeatureProvider extends Provider {
-    fStore: Map<string | number, FeatureStorageInfo> = new Map();
+    private fReg: FeatureRegistry; // Map<string | number, FeatureStorageInfo> = new Map();
 
     Feature: any;
 
@@ -82,6 +70,7 @@ export class FeatureProvider extends Provider {
         super(options);
 
         this.tree = new RTree(9);
+        this.fReg = new FeatureRegistry();
 
         this.Feature = this.Feature || Feature;
 
@@ -107,7 +96,7 @@ export class FeatureProvider extends Provider {
                     unique[unique.length] = provider.getFeature(prepared.id);
                 }
             } else {
-                // unkown feature
+                // unknown feature
                 console.warn('unkown feature detected..', feature.geometry.type, feature);
             }
         }
@@ -276,10 +265,7 @@ export class FeatureProvider extends Provider {
      * Get all the features that are currently present in the provider.
      */
     all(): Feature[] {
-        const data = new Array(this.cnt);
-        let i = 0;
-        this.fStore.forEach((f) => data[i++] = f.feature);
-        return data;
+        return this.fReg.toArray();
     };
 
     /**
@@ -290,7 +276,7 @@ export class FeatureProvider extends Provider {
      *  @returns the found feature or undefined if feature is not present.
      */
     getFeature(id: string | number): Feature | undefined {
-        return this.fStore.get(id)?.feature;
+        return this.fReg.get(id)?.feature;
     };
 
     /**
@@ -539,8 +525,8 @@ export class FeatureProvider extends Provider {
      *  @param feature - Object literal containing "id" property.
      *  @returns the {@link Feature} if it is found, otherwise undefined
      */
-    exists(feature: { id: number | string }): Feature {
-        return this.fStore.get(feature.id)?.feature;
+    exists(feature: { id: number | string }): { feature?: Feature } {
+        return this.fReg.get(feature.id); // ?.feature;
     };
 
 
@@ -639,7 +625,7 @@ export class FeatureProvider extends Provider {
 
                 this.cnt--;
 
-                this.fStore.delete(feature.id);
+                this.fReg.delete(feature.id);
 
                 this.tree?.remove(feature);
 
@@ -914,20 +900,18 @@ export class FeatureProvider extends Provider {
         } else if (arguments.length == 0) { // full wipe
             provider.tree?.clear();
 
-            const featuresInfo = Array.from(provider.fStore);
-            provider.fStore.clear();
+            const featuresInfo = provider.fReg.toArray();
+            provider.fReg.clear();
 
-            for (const [id, featureInfo] of featuresInfo) {
-                const feature = featureInfo.feature;
-
+            for (const feature of featuresInfo) {
                 if (!provider.isDroppable(feature)) {
-                    provider.fStore.set(id, new FeatureStorageInfo(feature));
+                    provider.fReg.set(feature.id, new FeatureRegistryInfo(feature));
 
                     provider.tree?.insert(feature);
                 }
             }
 
-            provider.cnt = provider.fStore.size;
+            provider.cnt = provider.fReg.size();
 
             // Provider clears complete tile storage
             Provider.prototype.clear.call(this, bbox);
@@ -949,7 +933,7 @@ export class FeatureProvider extends Provider {
         if (!filter || filter(feature)) {
             // filter out the duplicates!!
             if (
-                !this.fStore.has(id)
+                !this.fReg.has(id)
             ) { // not in tree already??
                 this.cnt++;
 
@@ -963,7 +947,7 @@ export class FeatureProvider extends Provider {
 
                 this.updateBBox(feature);
 
-                this.fStore.set(id, new FeatureStorageInfo(feature as Feature));
+                this.fReg.set(String(id), new FeatureRegistryInfo(feature as Feature));
 
                 inserted = feature;
             }
@@ -974,7 +958,7 @@ export class FeatureProvider extends Provider {
 
 
     _mark(o, tile: Tile) {
-        this.fStore.get(o.id)?.tiles.add(tile.quadkey);
+        this.fReg.get(o.id)?.tiles.add(tile.quadkey);
     };
 
 
@@ -995,7 +979,7 @@ export class FeatureProvider extends Provider {
 
     _dropFeature(feature: Feature, qk: string, trigger?: boolean) {
         const provider = this;
-        const featureStoreInfo = provider.fStore.get(feature.id);
+        const featureStoreInfo = provider.fReg.get(feature.id);
 
         if (featureStoreInfo) {
             const tiles = featureStoreInfo.tiles;
@@ -1004,7 +988,7 @@ export class FeatureProvider extends Provider {
             if (provider.isDroppable(feature)) {
                 if (!tiles.size) {
                     provider.cnt--;
-                    provider.fStore.delete(feature.id);
+                    provider.fReg.delete(feature.id);
 
                     provider.tree?.remove(feature);
 
