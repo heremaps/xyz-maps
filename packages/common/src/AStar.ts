@@ -18,7 +18,6 @@
  */
 
 import {BinaryHeap} from './BinaryHeap';
-import {distance} from './geotools';
 
 export type AStarNode = { point: number[], data?: any };
 
@@ -49,10 +48,9 @@ export class AStar {
     static precision = 1e5;
 
     static calculateDistance(point1: number[], point2: number[]): number {
-        // const dx = point2[0] - point1[0];
-        // const dy = point2[1] - point1[1];
-        // return Math.sqrt(dx * dx + dy * dy);
-        return distance(point1, point2);
+        const dx = point2[0] - point1[0];
+        const dy = point2[1] - point1[1];
+        return Math.sqrt(dx * dx + dy * dy);
     }
 
     private static weight(nodeA: AStarNode, nodeB: AStarNode): number {

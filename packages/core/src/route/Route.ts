@@ -16,14 +16,20 @@
  * SPDX-License-Identifier: Apache-2.0
  * License-Filename: LICENSE
  */
-import {AStar, AStarNode} from '@here/xyz-maps-common';
+import {AStar, AStarNode, geotools} from '@here/xyz-maps-common';
 import {Feature, FeatureProvider} from '@here/xyz-maps-core';
 
 type NodeData = { link: Feature, index: number };
 
 type Node = AStarNode & { data: NodeData };
 
-type Weight = (options: { feature: Feature; distance: number; from: number[]; to: number[]; direction: 'START_TO_END' | 'END_TO_START' }) => number;
+type Weight = (options: {
+    feature: Feature;
+    distance: number;
+    from: number[];
+    to: number[];
+    direction: 'START_TO_END' | 'END_TO_START'
+}) => number;
 
 // const defaultCoordinatesFilter = (feature: Feature<'LineString'>) => {
 //     return [0, feature.geometry.coordinates.length - 1];
@@ -70,15 +76,20 @@ export class PathFinder {
                 return neighbors;
             };
 
-            const path = AStar.findPath(fromNode, toNode, getNeighbor, weight && ((a, b) => {
-                return weight({
-                    from: a.point,
-                    to: b.point,
-                    direction: b.data.index ? 'START_TO_END' : 'END_TO_START',
-                    feature: b.data.link,
-                    distance: AStar.calculateDistance(a.point, b.point)
-                });
-            })) as Node[];
+            const path = AStar.findPath(
+                fromNode,
+                toNode,
+                getNeighbor,
+                weight ? (a, b) => {
+                    return weight({
+                        from: a.point,
+                        to: b.point,
+                        direction: b.data.index ? 'START_TO_END' : 'END_TO_START',
+                        feature: b.data.link,
+                        distance: geotools.distance(a.point, b.point)
+                    });
+                } : (a, b) => geotools.distance(a.point, b.point)
+            ) as Node[];
             // console.timeEnd('route');
             resolve(path);
         });
