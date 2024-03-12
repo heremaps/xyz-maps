@@ -33,7 +33,7 @@ import {DisplayTileTask} from '../../BasicTile';
 
 const {centroid} = geometry;
 
-const PROCESS_FEATURE_BUNDLE_SIZE = 16;
+const PROCESS_FEATURE_CHUNK_SIZE = 16;
 const EXCLUSIVE_TIME_MS = 4;
 const PRIORITY = 4;
 
@@ -88,11 +88,20 @@ const handlePolygons = (
     return;
 };
 
-type TaskData = [Tile, Feature[], number, number, number, TileLayer, number, boolean | CollisionGroup[], GroupMap];
+type TaskData = {
+    tile: Tile,
+    data: Feature[],
+    zoomScale: number,
+    featureIndex: number,
+    chunkSize: number,
+    layer: TileLayer,
+    zoom: number,
+    collisions: null | CollisionGroup[],
+    groups: GroupMap
+};
 
 
 const createBuffer = (
-    data: Feature[],
     renderLayer: Layer,
     tileSize: number,
     tile: Tile,
@@ -131,27 +140,27 @@ const createBuffer = (
 
             factory.init(tile, groups, tileSize, zoom, waitAndRefresh);
 
-            return [
+            return {
                 tile,
-                data,
-                lsZoomScale,
-                0, // featureIndex
-                PROCESS_FEATURE_BUNDLE_SIZE,
+                data: tile.data || [],
+                zoomScale: lsZoomScale,
+                featureIndex: 0, // featureIndex
+                chunkSize: PROCESS_FEATURE_CHUNK_SIZE,
                 layer,
                 zoom,
-                false,
+                collisions: null,
                 groups
-            ];
+            };
         },
 
         name: 'createBuffer',
 
         onDone: function(taskData: TaskData) {
-            const zoomLevel = taskData[6];
+            const zoomLevel = taskData.zoom;
             const meterToPixel = 1 / webMercator.getGroundResolution(zoomLevel);
             let buffers = [];
             let zIndex: string | number;
-            const groups = taskData[8];
+            const groups = taskData.groups;
 
             for (zIndex in groups) {
                 const zGroup = groups[zIndex];
@@ -395,24 +404,20 @@ const createBuffer = (
         },
 
         exec: function(taskData: TaskData) {
-            let tile = taskData[0];
-            let data = taskData[1];
-            const lsScale = taskData[2];
-            let displayLayer = taskData[5];
+            const {tile, data, layer, zoomScale: lsScale, zoom: level} = taskData;
             let dataLen = data.length;
 
-            const level = taskData[6];
             let styleGroups;
             let feature;
             let geom;
             let geomType;
             let notDone;
 
-            if (!taskData[7]) {
+            if (!taskData.collisions) {
                 notDone ||= false;
-                while (taskData[4]--) {
-                    if (feature = data[taskData[3]++]) {
-                        styleGroups = displayLayer.getStyleGroup(feature, level);
+                while (taskData.chunkSize--) {
+                    if (feature = data[taskData.featureIndex++]) {
+                        styleGroups = layer.getStyleGroup(feature, level);
 
                         if (styleGroups) {
                             geom = feature.geometry;
@@ -460,23 +465,23 @@ const createBuffer = (
                     }
                 }
 
-                notDone = taskData[3] < dataLen;
+                notDone = taskData.featureIndex < dataLen;
             }
 
             // handle pending collisions...
             if (!notDone && factory.pendingCollisions.length) {
-                if (!taskData[7]) {
+                if (!taskData.collisions) {
                     // sort collision data by priority
-                    taskData[7] = factory.pendingCollisions.sort((a, b) => a.priority - b.priority);
+                    taskData.collisions = factory.pendingCollisions.sort((a, b) => a.priority - b.priority);
                     // reset/reuse feature index
-                    taskData[3] = 0;
+                    taskData.featureIndex = 0;
                 }
-                let cData = taskData[7];
+                let cData = taskData.collisions;
                 let candidate;
 
-                if (taskData[4] >= 0) {
-                    while (taskData[4]--) {
-                        if (candidate = cData[taskData[3]++]) {
+                if (taskData.chunkSize >= 0) {
+                    while (taskData.chunkSize--) {
+                        if (candidate = cData[taskData.featureIndex++]) {
                             const {coordinates, priority, geomType} = candidate;
 
                             if (geomType == 'Point' || geomType == 'LineString') {
@@ -496,10 +501,10 @@ const createBuffer = (
                         }
                     }
                 }
-                notDone = taskData[3] < (<CollisionGroup[]>cData).length;
+                notDone = taskData.featureIndex < (<CollisionGroup[]>cData).length;
             }
 
-            taskData[4] = PROCESS_FEATURE_BUNDLE_SIZE;
+            taskData.chunkSize = PROCESS_FEATURE_CHUNK_SIZE;
 
             return notDone;
         }

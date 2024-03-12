@@ -284,7 +284,6 @@ class WebGlDisplay extends BasicDisplay {
             onDone(dTile, layer);
         } else if (data.length) {
             const task = createBuffer(
-                data,
                 displayLayer,
                 tileSize,
                 tile,
