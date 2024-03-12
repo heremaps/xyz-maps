@@ -29,6 +29,7 @@ import {Texture} from '../Texture';
 import {ModelBuffer} from './templates/ModelBuffer';
 import {PASS} from '../program/GLStates';
 import {DEFAULT_HEATMAP_GRADIENT, HeatmapBuffer} from './templates/HeatmapBuffer';
+import {DisplayTileTask} from '../../BasicTile';
 
 const {centroid} = geometry;
 
@@ -87,7 +88,8 @@ const handlePolygons = (
     return;
 };
 
-type TaskData = [Tile, Feature[], number, number, number, TileLayer, number, boolean | CollisionGroup[]];
+type TaskData = [Tile, Feature[], number, number, number, TileLayer, number, boolean | CollisionGroup[], GroupMap];
+
 
 const createBuffer = (
     data: Feature[],
@@ -97,15 +99,15 @@ const createBuffer = (
     factory: FeatureFactory,
     onInit: () => void,
     onDone: (data: GeometryBuffer[], pendingResources: Promise<any>[]) => void
-) => {
+): DisplayTileTask => {
     const layer = <TileLayer>renderLayer.layer;
-    const groups: GroupMap = {};
+    // const groups: GroupMap = {};
     const pendingResources = [];
     const waitAndRefresh = (promise: Promise<any>) => {
         pendingResources.push(promise);
     };
 
-    const task = taskManager.create({
+    const task = <DisplayTileTask>taskManager.create({
 
         time: EXCLUSIVE_TIME_MS,
 
@@ -123,9 +125,9 @@ const createBuffer = (
                 }
             }
 
-            if (onInit) {
-                onInit();
-            }
+            onInit?.();
+
+            const groups: GroupMap = {};
 
             factory.init(tile, groups, tileSize, zoom, waitAndRefresh);
 
@@ -137,7 +139,8 @@ const createBuffer = (
                 PROCESS_FEATURE_BUNDLE_SIZE,
                 layer,
                 zoom,
-                false
+                false,
+                groups
             ];
         },
 
@@ -148,6 +151,7 @@ const createBuffer = (
             const meterToPixel = 1 / webMercator.getGroundResolution(zoomLevel);
             let buffers = [];
             let zIndex: string | number;
+            const groups = taskData[8];
 
             for (zIndex in groups) {
                 const zGroup = groups[zIndex];
@@ -218,7 +222,7 @@ const createBuffer = (
                                 // geoBuffer.addUniform('u_no_antialias', !grpBuffer.isFlat());
 
                                 geoBuffer.pass = PASS.ALPHA;
-                                if ( !geoBuffer.isFlat() || shared.strokeDasharray || hasAlphaColor) {
+                                if (!geoBuffer.isFlat() || shared.strokeDasharray || hasAlphaColor) {
                                     geoBuffer.pass |= PASS.POST_ALPHA;
                                 }
                                 geoBuffer.depth = geoBuffer.blend = true;
@@ -502,6 +506,7 @@ const createBuffer = (
         // icb(groups);
     });
 
+    task.outdated = false;
     taskManager.start(task);
     return task;
 };

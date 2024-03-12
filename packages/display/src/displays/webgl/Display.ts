@@ -295,7 +295,6 @@ class WebGlDisplay extends BasicDisplay {
                 },
                 // on done
                 (buffer, pendingResources) => {
-                    dTile.removeTask(task, layer);
                     dTile.preview(dTile.setData(layer, buffer), null);
 
                     if (pendingResources.length) {
@@ -315,6 +314,13 @@ class WebGlDisplay extends BasicDisplay {
                     let overlayingTiles = dTile.getOverlayingTiles();
                     for (let overlayingTile of overlayingTiles) {
                         overlayingTile.preview(displayLayer.index, null);
+                    }
+
+                    if (task.outdated) {
+                        task.outdated = false;
+                        task.restart();
+                    } else {
+                        dTile.removeTask(task, layer);
                     }
 
                     onDone(dTile, layer);

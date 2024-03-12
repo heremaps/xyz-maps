@@ -109,6 +109,7 @@ class Task {
         this.paused = true;
         return this.CONTINUE;
     }
+
     resume() {
         this.paused = false;
         this.start(this._data);
@@ -161,6 +162,10 @@ class Task {
 
         return task.manager.cancel(task);
     };
+
+    isInterrupted(): boolean {
+        return this.started && this.yield;
+    }
 }
 
 Task.prototype.CONTINUE = true;

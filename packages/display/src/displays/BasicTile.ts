@@ -17,6 +17,7 @@
  * License-Filename: LICENSE
  */
 
+import {Task} from '@here/xyz-maps-common';
 import {TileLayer} from '@here/xyz-maps-core';
 import {Layers} from './Layers';
 import BasicBucket from './BasicBucket';
@@ -25,6 +26,12 @@ import basicBucket from './BasicBucket';
 let UNDEF;
 
 type PreviewData = any[][];
+
+export interface DisplayTileTask extends Task {
+    // indicates if source data has been updated while task is running.
+    outdated: boolean;
+};
+
 
 abstract class BasicTile {
     private tasks: { [id: string]: any };
@@ -58,18 +65,18 @@ abstract class BasicTile {
       this.p.length = 0;
   }
 
-  busy(layer: TileLayer) {
+  busy(layer: TileLayer): DisplayTileTask {
       const id = layer.id;
       for (let t in this.tasks) {
-          if (id == this.tasks[t]._lid) {
-              return true;
+          const task = this.tasks[t];
+          if (id == task._lid) {
+              return task;
           }
       }
   };
 
   addTask(task, layer: TileLayer) {
       task._lid = layer.id;
-
       this.tasks[task.id] = task;
   };
 

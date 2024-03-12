@@ -336,7 +336,13 @@ abstract class Display {
 
     // USED BY FEATUREMODIFIER
     updateTile(tile: Tile, dTile: BasicTile, layer: TileLayer, feature?) {
-        if (dTile && !dTile.busy(layer)) {
+        if (!dTile) return;
+        const pendingTask = dTile.busy(layer);
+        if (pendingTask) {
+            if (pendingTask.isInterrupted()) {
+                pendingTask.outdated = true;
+            }
+        } else {
             const display = this;
             const index = dTile.index(layer);
             dTile.ready(index, false);
