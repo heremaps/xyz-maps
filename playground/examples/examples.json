@@ -1,0 +1,248 @@
+{
+  "Display": [
+    {
+      "file": "./display/hello_world.html",
+      "docs": "classes/display.map.html"
+    },
+    {
+      "file": "./display/visualize_space_layer.html",
+      "docs": "classes/core.spaceprovider.html"
+    },
+    {
+      "file": "./display/click_feature_show_properties.html",
+      "docs": "classes/display.map.html#addlayer"
+    },
+    {
+      "file": "./display/click_feature_to_center_map.html",
+      "docs": "classes/display.map.html#setcenter"
+    },
+    {
+      "file": "./display/hover_hightlight_line.html",
+      "docs": "classes/display.map.html#addeventlistener"
+    },
+    {
+      "file": "./display/click_highlight_line.html",
+      "docs": "classes/display.map.html#addeventlistener"
+    },
+    {
+      "file": "./display/pointer_listener.html",
+      "docs": "classes/display.map.html#addeventlistener"
+    },
+    {
+      "file": "./display/mapview_listener.html",
+      "docs": "classes/display.map.html#addeventlistener"
+    },
+    {
+      "file": "./display/observer.html",
+      "docs": "classes/display.map.html#addobserver"
+    },
+    {
+      "file": "./display/add_remove_layer.html",
+      "docs": "classes/display.map.html#addlayer"
+    },
+    {
+      "file": "./display/switch_layers_display_order.html",
+      "docs": "classes/display.map.html#addlayer"
+    },
+    {
+      "file": "./display/behavior_set.html",
+      "docs": "classes/display.map.html#setbehavior"
+    },
+    {
+      "file": "./display/pitch_rotate_map.html",
+      "docs": "classes/display.map.html#pitch"
+    },
+    {
+      "file": "./display/animate_road.html",
+      "docs": "interfaces/core.style.html#to"
+    },
+    {
+      "file": "./display/take_a_screenshot.html",
+      "docs": "classes/display.map.html#snapshot"
+    },
+    {
+      "file": "./display/custom_layer.html",
+      "docs": "classes/core.customlayer.html"
+    }
+  ],
+  "Editor": [
+    {
+      "file": "./editor/hello_world.html",
+      "docs": "modules/editor.html"
+    },
+    {
+      "file": "./editor/custom_provider.html",
+      "docs": "modules/editor.html"
+    },
+    {
+      "file": "./editor/add_contextmenu.html",
+      "docs": "classes/editor.editor-1.html"
+    },
+    {
+      "file": "./editor/add_remove_object_layer.html",
+      "docs": "classes/editor.editor-1.html#addlayer"
+    },
+    {
+      "file": "./editor/select_specific_navlink.html",
+      "docs": "interfaces/editor.editoroptions.html#featureselectionbydefault"
+    },
+    {
+      "file": "./editor/observe_change_history.html",
+      "docs": "classes/editor.editor-1.html#addobserver"
+    },
+    {
+      "file": "./editor/pointer_listener.html",
+      "docs": "classes/editor.editor-1.html#addeventlistener"
+    },
+    {
+      "file": "./editor/hover_highlight_connected_navlink.html",
+      "docs": "classes/core.tilelayer.html#setstylegroup"
+    },
+    {
+      "file": "./editor/drag_place_to_building.html",
+      "docs": "classes/display.map.html#getfeatureat"
+    },
+    {
+      "file": "./editor/create_navlink.html",
+      "docs": "classes/editor.editor-1.html#addfeature"
+    },
+    {
+      "file": "./editor/add_road.html",
+      "docs": "classes/editor.editor-1.html#getdrawingboard"
+    },
+    {
+      "file": "./editor/create_place.html",
+      "docs": "classes/editor.editor-1.html#addfeature"
+    },
+    {
+      "file": "./editor/create_address.html",
+      "docs": "classes/editor.editor-1.html#addfeature"
+    },
+    {
+      "file": "./editor/change_road_name.html",
+      "docs": "classes/editor.navlink.html#prop"
+    },
+    {
+      "file": "./editor/transform_road.html",
+      "docs": "classes/editor.line.html#transform"
+    },
+    {
+      "file": "./editor/crossing_detect.html",
+      "docs": "classes/editor.navlink.html#checkCrossings"
+    },
+    {
+      "file": "./editor/select_shapes.html",
+      "docs": "classes/editor.lineshape.html#select"
+    },
+    {
+      "file": "./editor/range_selector.html",
+      "docs": "classes/editor.editor-1.html#getRangeSelector"
+    },
+    {
+      "file": "./editor/turn_restriction_editor.html",
+      "docs": "classes/editor.navlink.html#editTurnRestrictions"
+    },
+    {
+      "file": "./editor/edit_line_3d.html",
+      "docs": "classes/editor.line.html#behavior"
+    },
+    {
+      "file": "./editor/edit_point_3d.html",
+      "docs": "classes/editor.marker.html#behavior"
+    },
+    {
+      "file": "./editor/edit_building.html",
+      "docs": "classes/core.editableremotetileprovider.html#readfeatureheight"
+    }
+  ],
+  "Layers / Providers": [
+    {
+      "file": "./layer/visualize_sat_image.html",
+      "docs": "classes/core.imageprovider.html"
+    },
+    {
+      "file": "./layer/custom_style.html",
+      "docs": "interfaces/core.layerstyle.html"
+    },
+    {
+      "file": "./layer/preprocessor.html",
+      "docs": "interfaces/core.remotetileprovideroptions.html#preprocessor"
+    },
+    {
+      "file": "./layer/Heatmap.html",
+      "docs": "interfaces/core.heatmapstyle.html"
+    },
+    {
+      "file": "./layer/settag_space_provider.html",
+      "docs": "classes/core.spaceprovider.html#settags"
+    },
+    {
+      "file": "./layer/set_layer_color.html",
+      "docs": "classes/core.tilelayer.html#setstyle"
+    },
+    {
+      "file": "./layer/add_remove_line.html",
+      "docs": "classes/core.tilelayer.html#addfeature"
+    },
+    {
+      "file": "./layer/add_remove_point.html",
+      "docs": "classes/core.tilelayer.html#addfeature"
+    },
+    {
+      "file": "./layer/add_remove_building_feature.html",
+      "docs": "classes/core.tilelayer.html#addfeature"
+    },
+    {
+      "file": "./layer/style_navlink.html",
+      "docs": "classes/core.tilelayer.html#setstylegroup"
+    },
+    {
+      "file": "./layer/offset_line.html",
+      "docs": "interfaces/core.style.html#offset"
+    },
+    {
+      "file": "./layer/style_zoomrange.html",
+      "docs": "modules/core.html#stylezoomrange"
+    },
+    {
+      "file": "./layer/style_drawingorder.html",
+      "docs": "interfaces/core.style.html#zlayer"
+    },
+    {
+      "file": "./layer/search_boundingbox.html",
+      "docs": "classes/core.tilelayer.html#search"
+    },
+    {
+      "file": "./layer/search_id.html",
+      "docs": "classes/core.tilelayer.html#search"
+    },
+    {
+      "file": "./layer/remote_search_boundingbox.html",
+      "docs": "classes/core.tilelayer.html#search"
+    },
+    {
+      "file": "./layer/MVTLayer.html",
+      "docs": "classes/core.mvtlayer.html"
+    },
+    {
+      "file": "./layer/collision_detection.html",
+      "docs": "interfaces/core.style.html#collide"
+    },
+    {
+      "file": "./layer/3d_buildings.html",
+      "docs": "interfaces/core.style.html#extrude"
+    },
+    {
+      "file": "./layer/3d_lines.html",
+      "docs": "interfaces/core.style.html#altitude"
+    },
+    {
+      "file": "./layer/3d_points.html",
+      "docs": "interfaces/core.style.html#altitude"
+    },
+    {
+      "file": "./layer/label_collision_detection.html",
+      "docs": "interfaces/core.style.html#collide"
+    }
+  ]
+}
