@@ -173,7 +173,7 @@ class MyCustomLayer extends CustomLayer {
         // load the model
         const loader = new THREE.GLTFLoader();
         loader.load(
-            'https://s3.eu-west-1.amazonaws.com/xyz-maps.cpdev.aws.in.here.com/public/playground/assets/models/ML_HP/ML_HP.gltf',
+            'https://xyz-maps.mapeditor.here.com/playground/assets/models/ML_HP/ML_HP.gltf',
             (gltf) =>{
                 this.scene.add(gltf.scene);
                 display.refresh(this);
