@@ -19,7 +19,7 @@
 
 import {BinaryHeap} from './BinaryHeap';
 
-export type AStarNode = { point: number[], data?: any };
+export type AStarNode = { readonly id?: string|number; point: number[], data?: any };
 
 class Node implements AStarNode {
     point: number[];
@@ -32,15 +32,15 @@ class Node implements AStarNode {
     f: number;
     parent: Node | null;
 
-    id: number;
+    id: number | string;
 
-    constructor(point: number[], g: number, h: number, parent: Node | null = null) {
+    constructor(point: number[], g: number, h: number, parent: Node | null = null, data: any) {
         this.point = point;
         this.g = g;
         this.h = h;
         this.f = g + h;
         this.parent = parent;
-        this.id = AStar.pointKey(this);
+        this.data = data;
     }
 }
 
@@ -63,7 +63,7 @@ export class AStar {
         // return point1[0] === point2[0] && point1[1] === point2[1];
     }
 
-    static pointKey(node: AStarNode): number {
+    static pointKey(node: AStarNode): number | string {
         const precision = AStar.precision;
         const point = node.point;
         return (point[0] * precision ^ 0) * 1e7 + (point[1] * precision ^ 0);
@@ -80,57 +80,65 @@ export class AStar {
 
     public static findPath(
         from: AStarNode,
-        endNode: AStarNode,
+        end: AStarNode,
         getNeighbors: (node: AStarNode) => AStarNode[],
-        weight: (nodeA: AStarNode, nodeB: AStarNode) => number = AStar.weight
+        weight: (nodeA: AStarNode, nodeB: AStarNode) => number = AStar.weight,
+        pointKey: (node: AStarNode) => (string | number) = AStar.pointKey,
+        isEndNode: (node: AStarNode, endNode: AStarNode) => boolean = (node, endNode) => node.id === endNode.id
     ): AStarNode[] | null {
+        const createNode = (point: number[], g: number, h: number, parent: Node | null = null, data?: any) => {
+            const node = new Node(point, g, h, parent, data);
+            node.id = pointKey(node);
+            return node;
+        };
         const openList = new BinaryHeap<Node>((a, b) => a.f - b.f);
         const closedList = new Map<string | number, boolean>();
-        // const startNode = new NavNode(start, 0, AStar.calculateDistance(start, endNode.point));
-        const startNode = new Node(from.point, 0, Infinity);
 
-        startNode.data = from.data;
+        const endNode = createNode(end.point, 0, Infinity, null, end.data);
+        const endNodeId = endNode.id;
 
-        openList.push(startNode);
-
-        const endNodeId = this.pointKey(endNode);
+        openList.push(createNode(from.point, 0, Infinity, null, from.data));
 
         while (openList.size() > 0) {
             const currentNode = openList.pop()!;
 
-            if (currentNode.id === endNodeId) {
-                // if (AStar.isPointEqual(currentNode.point, endNode.point)) {
+            if (isEndNode(currentNode, endNode)) {
+                // if (currentNode.data.link == endNode.data.link) {
+                // if (currentNode.id === endNodeId) {
                 return this.reconstructPath(currentNode);
             }
 
             closedList.set(currentNode.id, true);
 
-            for (const neighborNode of getNeighbors(currentNode)) {
+            const neighbors = getNeighbors(currentNode);
+
+            for (const neighborNode of neighbors) {
                 const {point, data} = neighborNode;
-                const neighborKey = this.pointKey(neighborNode);
+                const neighborKey = pointKey(neighborNode);
 
                 if (closedList.has(neighborKey)) {
                     continue;
                 }
-
                 const g = currentNode.g + weight(currentNode, neighborNode);
-                const h = weight(neighborNode, endNode);
-                // const existingNodeIndex = openList.findIndex((node) => AStar.isPointEqual(node.point, point));
-                const existingNodeIndex = openList.findIndex((node) => node.id == neighborKey);
+                const h = weight(neighborNode, endNode); // heuristic
+                // const h = 0; // heuristic
+
+                const existingNodeIndex = openList.findIndex((node) => AStar.isPointEqual(node.point, point));
+                // const existingNodeIndex = openList.findIndex((node) => node.id == neighborKey);
 
                 if (existingNodeIndex != -1) {
                     const existingNode = openList.get(existingNodeIndex);
-                    if (g < existingNode.g) {
-                        existingNode.g = g;
-                        existingNode.h = h;
-                        existingNode.f = g + h;
-                        existingNode.parent = currentNode;
-                        existingNode.data = data;
-                        openList.adjustElement(existingNodeIndex);
+                    if (g >= existingNode.g) {
+                        continue;
                     }
+                    existingNode.g = g;
+                    existingNode.h = h;
+                    existingNode.f = g + h;
+                    existingNode.parent = currentNode;
+                    existingNode.data = data;
+                    openList.adjustElement(existingNodeIndex);
                 } else {
-                    const newNode = new Node(point, g, h, currentNode);
-                    newNode.data = data;
+                    const newNode = createNode(point, g, h, currentNode, data);
                     openList.push(newNode);
                 }
             }

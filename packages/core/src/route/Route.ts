@@ -44,38 +44,53 @@ export class PathFinder {
         toNode: Node,
         isTurnAllowed: (turn: Turn) => boolean,
         weight?: Weight
-        // filterCoordinates: ((feature: Feature) => number[]) | undefined = defaultCoordinatesFilter
     ): Promise<Node[]> {
         return new Promise((resolve, reject) => {
-            // console.time('route');
-            const getNeighbor = (node: Node): Node[] => {
-                const point = node.point;
-                const fromLink = node.data.link;
-                const turn = {from: node.data, to: null};
-                const neighbors: Node[] = [];
+            const filterConnectedFeatures = (fromLink, i: number, result) => {
+                const fromCoordinates = fromLink.geometry.coordinates;
+                const point = fromCoordinates[i];
                 const geoJSONFeatures = <Feature[]>provider.search({point: {longitude: point[0], latitude: point[1]}, radius: .5});
+                const turn = {from: {link: fromLink, index: i}, to: null};
+
                 for (const feature of geoJSONFeatures) {
-                    if (feature.geometry.type != 'LineString' /* || feature.id == fromLink.id*/) continue;
+                    if (feature.geometry.type != 'LineString' || feature == fromLink) continue;
+
                     const coordinates = <number[][]>feature.geometry.coordinates;
-                    const firstCoordinateIndex = 0;
                     const lastCoordinateIndex = coordinates.length - 1;
-                    const index = AStar.isPointEqual(point, coordinates[firstCoordinateIndex])
+                    const index = AStar.isPointEqual(point, coordinates[0])
                         ? lastCoordinateIndex
                         : AStar.isPointEqual(point, coordinates[lastCoordinateIndex])
-                            ? firstCoordinateIndex
+                            ? 0
                             : null;
 
                     if (index != null) {
                         const data = turn.to = {link: feature, index};
-
-                        if (fromLink == feature || isTurnAllowed(turn)) {
-                            neighbors.push({point: coordinates[index], data});
+                        if (isTurnAllowed(turn)) {
+                            result.push({point: coordinates[index], data});
                         }
                     }
                 }
+                return result;
+            };
+
+            let first = true;
+            const getNeighbor = (node: Node): Node[] => {
+                const fromLink = node.data.link;
+                const neighbors: Node[] = [];
+
+                // if (!node.parent) {
+                if (first) {
+                    first = false;
+                    filterConnectedFeatures(fromLink, 0, neighbors);
+                    filterConnectedFeatures(fromLink, fromLink.geometry.coordinates.length - 1, neighbors);
+                    return neighbors;
+                }
+
+                filterConnectedFeatures(fromLink, node.data.index, neighbors);
                 return neighbors;
             };
 
+            // console.time('xyz-route');
             const path = AStar.findPath(
                 fromNode,
                 toNode,
@@ -88,9 +103,17 @@ export class PathFinder {
                         feature: b.data.link,
                         distance: geotools.distance(a.point, b.point)
                     });
-                } : (a, b) => geotools.distance(a.point, b.point)
+                } : (a, b) => geotools.distance(a.point, b.point),
+                (node: Node) => {
+                    let id = node.data.link.id;
+                    if (node.data.index > 0) {
+                        id += ':R';
+                    }
+                    return id;
+                },
+                (node: Node, endNode: Node) => node.data.link == endNode.data.link
             ) as Node[];
-            // console.timeEnd('route');
+            // console.timeEnd('xyz-route');
             resolve(path);
         });
     }

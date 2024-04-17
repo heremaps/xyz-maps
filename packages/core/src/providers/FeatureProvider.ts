@@ -19,7 +19,7 @@
 
 import {Feature} from '../features/Feature';
 import Provider from './TileProvider/TileProvider';
-import {geotools} from '@here/xyz-maps-common';
+import {geometry, geotools} from '@here/xyz-maps-common';
 import {Tile} from '../tile/Tile';
 import {calcBBox} from '../features/utils';
 import RTree from '../features/RTree';
@@ -787,35 +787,32 @@ export class FeatureProvider extends Provider {
             to = [(to as GeoPoint).longitude, (to as GeoPoint).latitude];
         }
 
-        function findNearestCoordinate(searchPoint: number[], lineCoordinates: number[][]): { point: number[], distance: number } {
-            let nearestPoint = null;
-            let minDistance = Infinity;
-            for (let i = 0; i < lineCoordinates.length; i++) {
-                const currentPoint = lineCoordinates[i];
-                const currentDistance = geotools.distance(searchPoint, currentPoint);
-                if (currentDistance < minDistance) {
-                    minDistance = currentDistance;
-                    nearestPoint = currentPoint;
-                }
-            }
-            return {point: nearestPoint, distance: minDistance};
-        }
-
-        const findNearestNode = (point: number[], radius: number = 10, maxRadius = 10_000) => {
+        const findNearestNode = (point: number[], radius: number = 100, maxRadius = 10_000) => {
             const features = <Feature[]> this.search({point: {longitude: point[0], latitude: point[1]}, radius});
             if (!features.length && radius < maxRadius) return findNearestNode(point, radius * 10);
 
-            const start = {distance: Infinity, feature: null, point: null, index: null};
+            const start = {distance: Infinity, feature: null, point: null, index: null, segment: null};
             for (let feature of features) {
                 if (feature.geometry.type != 'LineString') continue;
+
                 const coordinates = feature.geometry.coordinates as GeoJSONCoordinate[];
                 const last = coordinates.length - 1;
-                const result = findNearestCoordinate(point, [coordinates[0], coordinates[last]]);
-                if (result.distance < start.distance) {
-                    start.distance = result.distance;
-                    start.point = result.point;
+                const result = geometry.findPointOnLineString(coordinates, point);
+                const distance = geotools.distance(result.point, point);
+
+                if (distance < start.distance) {
+                    start.distance = distance;
                     start.feature = feature;
-                    start.index = start.point === coordinates[0] ? 0 : last;
+                    const distanceToStartNode = geotools.distance(result.point, coordinates[0]);
+                    const distanceToEndNode = geotools.distance(result.point, coordinates[last]);
+
+                    if (distanceToStartNode < distanceToEndNode) {
+                        start.index = 0;
+                    } else {
+                        start.index = last;
+                    }
+                    start.point = coordinates[start.index];
+                    start.segment = result.segment;
                 }
             }
             return start;
@@ -827,49 +824,83 @@ export class FeatureProvider extends Provider {
         if (!start.feature || !end.feature) return null;
 
         const fromNode = {
-            point: start.point,
+            point: start.feature.geometry.coordinates[start.index],
             data: {
                 link: start.feature,
                 index: start.index
             }
+            // id: start.feature
         };
         const toNode = {
-            point: end.point,
+            point: end.feature.geometry.coordinates[end.index],
             data: {
                 link: end.feature,
                 index: end.index
             }
+            // id: end.feature
         };
 
         const nodes = await PathFinder.findPath(this, fromNode, toNode, options?.allowTurn || (() => true), options?.weight);
 
-        return nodes?.length && {
-            from: [...fromNode.point],
-            to: [...toNode.point],
-            features: nodes.map((node) => node.data.link) as Feature<'LineString'>[],
-            get distance() {
-                let distance = 0;
-                for (let lineString of this.path.geometry.coordinates) {
-                    for (let i = 1, len = lineString.length; i < len; i++) {
-                        distance += geotools.distance(lineString[i - 1], lineString[i]);
+        if (nodes?.length) {
+            return {
+                from: [...fromNode.point],
+                to: [...toNode.point],
+                features: nodes.map((node) => node.data.link) as Feature<'LineString'>[],
+                get distance() {
+                    let distance = 0;
+                    for (let lineString of this.path.geometry.coordinates) {
+                        for (let i = 1, len = lineString.length; i < len; i++) {
+                            distance += geotools.distance(lineString[i - 1], lineString[i]);
+                        }
                     }
-                    // distance += geotools.distance(lineString[0], lineString[lineString.length - 1]);
-                }
-                return distance;
-            },
-            get path() {
-                return {
-                    type: 'Feature',
-                    geometry: {
-                        type: 'MultiLineString',
-                        coordinates: this.features.map((feature) => feature.geometry.coordinates)
-                    },
-                    properties: {}
-                };
-            }
-        };
-    }
+                    return distance;
+                },
+                get path() {
+                    const coordinates = this.features.map((feature) => feature.geometry.coordinates);
+                    const isReverseDirection = (fromLink, toLink) => {
+                        const fromGeom = fromLink.geometry.coordinates;
+                        const toGeom = toLink.geometry.coordinates;
+                        const minDistance = (p) => Math.min(geotools.distance(p, toGeom[0]), geotools.distance(p, toGeom[toGeom.length - 1]));
+                        return minDistance(fromGeom[0]) < minDistance(fromGeom[fromGeom.length - 1]);
+                    };
 
+                    let reverseDirection = isReverseDirection(nodes[0].data.link, nodes[1].data.link);
+                    let {point, segment} = geometry.findPointOnLineString(coordinates[0], from as GeoJSONCoordinate);
+                    if (reverseDirection) {
+                        coordinates[0] = coordinates[0].slice(0, segment + 1);
+                        coordinates[0][segment + 1] = point;
+                    } else {
+                        coordinates[0] = coordinates[0].slice(segment);
+                        coordinates[0][0] = point;
+                    }
+
+                    const lastIndex = coordinates.length - 1;
+                    let {
+                        point: pointEnd,
+                        segment: segmentEnd
+                    } = geometry.findPointOnLineString(coordinates[lastIndex], to as GeoJSONCoordinate);
+                    if (nodes[nodes.length - 1].data.index == 0) {
+                        // reverse direction
+                        coordinates[lastIndex] = coordinates[lastIndex].slice(segmentEnd);
+                        coordinates[lastIndex][0] = pointEnd;
+                    } else {
+                        coordinates[lastIndex] = coordinates[lastIndex].slice(0, segmentEnd + 1);
+                        coordinates[lastIndex][segmentEnd + 1] = pointEnd;
+                    }
+
+                    return {
+                        type: 'Feature',
+                        geometry: {
+                            type: 'MultiLineString',
+                            coordinates
+                        },
+                        properties: {}
+                    };
+                }
+            };
+        }
+    }
 
     /**
      *  Clear all tiles and features of a given bounding box or do a full wipe if no parameter is given.
@@ -955,7 +986,6 @@ export class FeatureProvider extends Provider {
 
         return inserted;
     };
-
 
     _mark(o, tile: Tile) {
         this.fReg.get(o.id)?.tiles.add(tile.quadkey);
