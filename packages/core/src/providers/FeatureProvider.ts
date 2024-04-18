@@ -777,15 +777,19 @@ export class FeatureProvider extends Provider {
         to: GeoJSONCoordinate
     }> {
         if (!options?.from || !options?.to) return null;
+        const toGeoJsonCoordinate = (p: GeoPoint | GeoJSONCoordinate): GeoJSONCoordinate => {
+            if (typeof (p as GeoPoint).longitude == 'number') {
+                const alt = (p as GeoPoint).altitude;
+                p = [(p as GeoPoint).longitude, (p as GeoPoint).latitude];
+                if (typeof alt == 'number') p[2] = alt;
+            }
+            return p as GeoJSONCoordinate;
+        };
 
-        let {from, to} = options;
-
-        if (typeof (from as GeoPoint).longitude == 'number') {
-            from = [(from as GeoPoint).longitude, (from as GeoPoint).latitude];
-        }
-        if (typeof (to as GeoPoint).longitude == 'number') {
-            to = [(to as GeoPoint).longitude, (to as GeoPoint).latitude];
-        }
+        const from = toGeoJsonCoordinate(options.from);
+        const to = toGeoJsonCoordinate(options.to);
+        const ignoreZ = from.length + to.length < 6;
+        const findPointOnLineString = (lineString: GeoJSONCoordinate[], point: GeoJSONCoordinate) => geometry.findPointOnLineString(lineString, point, ignoreZ);
 
         const findNearestNode = (point: number[], radius: number = 100, maxRadius = 10_000) => {
             const features = <Feature[]> this.search({point: {longitude: point[0], latitude: point[1]}, radius});
@@ -797,7 +801,7 @@ export class FeatureProvider extends Provider {
 
                 const coordinates = feature.geometry.coordinates as GeoJSONCoordinate[];
                 const last = coordinates.length - 1;
-                const result = geometry.findPointOnLineString(coordinates, point);
+                const result = findPointOnLineString(coordinates, point);
                 const distance = geotools.distance(result.point, point);
 
                 if (distance < start.distance) {
@@ -877,7 +881,7 @@ export class FeatureProvider extends Provider {
                         multiLineString.push(lineString);
                     }
 
-                    const {point, segment} = geometry.findPointOnLineString(multiLineString[0], from as GeoJSONCoordinate);
+                    const {point, segment} = findPointOnLineString(multiLineString[0], from as GeoJSONCoordinate);
                     multiLineString[0] = multiLineString[0].slice(segment);
                     multiLineString[0][0] = point;
 
@@ -885,7 +889,7 @@ export class FeatureProvider extends Provider {
                     let {
                         point: pointEnd,
                         segment: segmentEnd
-                    } = geometry.findPointOnLineString(multiLineString[lastIndex], to as GeoJSONCoordinate);
+                    } = findPointOnLineString(multiLineString[lastIndex], to as GeoJSONCoordinate);
 
                     multiLineString[lastIndex] = multiLineString[lastIndex].slice(0, segmentEnd + 1);
                     multiLineString[lastIndex][segmentEnd + 1] = pointEnd;
