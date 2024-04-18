@@ -19,7 +19,7 @@
 
 import {Feature} from '../features/Feature';
 import Provider from './TileProvider/TileProvider';
-import {geometry, geotools} from '@here/xyz-maps-common';
+import {AStar, geometry, geotools} from '@here/xyz-maps-common';
 import {Tile} from '../tile/Tile';
 import {calcBBox} from '../features/utils';
 import RTree from '../features/RTree';
@@ -857,43 +857,44 @@ export class FeatureProvider extends Provider {
                     return distance;
                 },
                 get path() {
-                    const coordinates = this.features.map((feature) => feature.geometry.coordinates);
-                    const isReverseDirection = (fromLink, toLink) => {
-                        const fromGeom = fromLink.geometry.coordinates;
-                        const toGeom = toLink.geometry.coordinates;
-                        const minDistance = (p) => Math.min(geotools.distance(p, toGeom[0]), geotools.distance(p, toGeom[toGeom.length - 1]));
-                        return minDistance(fromGeom[0]) < minDistance(fromGeom[fromGeom.length - 1]);
-                    };
+                    const {features} = this;
+                    let coords0 = [...features[0].geometry.coordinates];
+                    let coords1 = features[1].geometry.coordinates;
 
-                    let reverseDirection = isReverseDirection(nodes[0].data.link, nodes[1].data.link);
-                    let {point, segment} = geometry.findPointOnLineString(coordinates[0], from as GeoJSONCoordinate);
-                    if (reverseDirection) {
-                        coordinates[0] = coordinates[0].slice(0, segment + 1);
-                        coordinates[0][segment + 1] = point;
-                    } else {
-                        coordinates[0] = coordinates[0].slice(segment);
-                        coordinates[0][0] = point;
+                    if (AStar.isPointEqual(coords0[0], coords1[0]) || AStar.isPointEqual(coords0[0], coords1[coords1.length - 1])) {
+                        // the travel of direction of the first lineString is reversed
+                        coords0.reverse();
+                    }
+                    const multiLineString = [coords0];
+
+                    for (let i = 1; i < features.length; i++) {
+                        const prevCoordinates = multiLineString[i - 1];
+                        const lineString = [...features[i].geometry.coordinates];
+                        if (!AStar.isPointEqual(lineString[0], prevCoordinates[prevCoordinates.length - 1])) {
+                            // does not match initial travel of direction
+                            lineString.reverse();
+                        }
+                        multiLineString.push(lineString);
                     }
 
-                    const lastIndex = coordinates.length - 1;
+                    const {point, segment} = geometry.findPointOnLineString(multiLineString[0], from as GeoJSONCoordinate);
+                    multiLineString[0] = multiLineString[0].slice(segment);
+                    multiLineString[0][0] = point;
+
+                    const lastIndex = multiLineString.length - 1;
                     let {
                         point: pointEnd,
                         segment: segmentEnd
-                    } = geometry.findPointOnLineString(coordinates[lastIndex], to as GeoJSONCoordinate);
-                    if (nodes[nodes.length - 1].data.index == 0) {
-                        // reverse direction
-                        coordinates[lastIndex] = coordinates[lastIndex].slice(segmentEnd);
-                        coordinates[lastIndex][0] = pointEnd;
-                    } else {
-                        coordinates[lastIndex] = coordinates[lastIndex].slice(0, segmentEnd + 1);
-                        coordinates[lastIndex][segmentEnd + 1] = pointEnd;
-                    }
+                    } = geometry.findPointOnLineString(multiLineString[lastIndex], to as GeoJSONCoordinate);
+
+                    multiLineString[lastIndex] = multiLineString[lastIndex].slice(0, segmentEnd + 1);
+                    multiLineString[lastIndex][segmentEnd + 1] = pointEnd;
 
                     return {
                         type: 'Feature',
                         geometry: {
                             type: 'MultiLineString',
-                            coordinates
+                            coordinates: multiLineString
                         },
                         properties: {}
                     };
