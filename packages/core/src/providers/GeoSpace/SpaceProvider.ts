@@ -36,15 +36,17 @@ const HTTP = 'http://';
 const XYZ_HUB_HERE_COM = '.here.com/hub/spaces';
 
 const ENDPOINT = {
-    'prd': HTTP + 'xyz.api' + XYZ_HUB_HERE_COM
+    'prd': `${HTTP}xyz.api${XYZ_HUB_HERE_COM}`
 };
 
 type Parameter = string | number | boolean;
 const addUrlParams = (url: string, params: { [key: string]: Parameter | Parameter[] }, p?: '?' | '&') => {
     p ||= url.indexOf('?=') == -1 ? '?' : '&';
+    const encodeParam = (param: Parameter | Parameter[]): string => {
+        return Array.isArray(param) ? param.map((p: string) => encodeURIComponent(p)).join(',') : encodeURIComponent(param);
+    };
     for (const key in params) {
-        const param = <Parameter>params[key];
-        url += `${p}${key}=${encodeURIComponent(param)}`;
+        url += `${p}${key}=${encodeParam(params[key])}`;
         p = '&';
     }
     return url;
