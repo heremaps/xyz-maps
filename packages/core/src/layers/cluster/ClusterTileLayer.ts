@@ -103,6 +103,7 @@ export class ClusterTileLayer extends TileLayer {
 
         super({
             clusterRadius,
+            tileSize: 512,
             ...options,
             providers
         });
@@ -110,26 +111,31 @@ export class ClusterTileLayer extends TileLayer {
         this.clusterMaxZoom = max - this.levelOffset;
         this._dataProvider = dataProvider;
 
-        const featureUpdateListener = this.featureUpdateListener.bind(this);
+        this.featureUpdateListener = this.featureUpdateListener.bind(this);
 
-        const toggleProviderUpdateListener = ({type}) => {
-            ['featuresAdd', 'featuresRemove'/* , 'tileInitialized'*/, 'tileDestroyed'].forEach((e) => {
-                if (type == 'layerAdd') {
-                    dataProvider.addEventListener(e, featureUpdateListener);
-                } else {
-                    dataProvider.removeEventListener(e, featureUpdateListener);
-                }
-            });
+        const toggleProviderListener = ({type}) => {
+            this.listenForDataUpdates(type == 'layerAdd');
         };
-        this.addEventListener('layerAdd', toggleProviderUpdateListener);
-        this.addEventListener('layerRemove', toggleProviderUpdateListener);
+        this.addEventListener('layerAdd', toggleProviderListener);
+        this.addEventListener('layerRemove', toggleProviderListener);
     }
+
+    listenForDataUpdates(active: boolean) {
+        ['featuresAdd', 'featuresRemove'/* , 'tileInitialized'*/, 'tileDestroyed'].forEach((e) => {
+            if (active) {
+                this._dataProvider.addEventListener(e, this.featureUpdateListener);
+            } else {
+                this._dataProvider.removeEventListener(e, this.featureUpdateListener);
+            }
+        });
+    };
 
     private featureUpdateListener(e) {
         let {features, tiles} = e.detail;
         const preventDuplicates = e.type == 'tileInitialized';
         const operation = e.type == 'featuresAdd' ? CLUSTER_OPERATION.GROW : CLUSTER_OPERATION.SHRINK;
         const updatedTiles = this._updateClusters(features, operation, preventDuplicates);
+
         if (e.type == 'tileDestroyed') {
             for (let tile of tiles) {
                 this._pendingClusterJobs.delete(tile.quadkey);
@@ -326,7 +332,6 @@ export class ClusterTileLayer extends TileLayer {
     private _getCoveringTile(quadkey: string): string {
         for (let [qk, jobs] of Array.from(this._pendingClusterJobs)) {
             if (quadkey.indexOf(qk) == 0/* && jobs.size == 0*/) {
-                // console.log('::: WTF!!!', qk, 'covers', quadkey);
                 return qk;
             }
         }

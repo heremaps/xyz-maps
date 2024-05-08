@@ -1,0 +1,11 @@
+{
+    "layers": [{
+        "id": "dataLayer",
+        "provider": {
+            "id": "dataProvider",
+            "type": "LocalProvider"
+        },
+        "min": 2,
+        "max": 20
+    }]
+}

@@ -20,11 +20,10 @@
 import environments from 'environments';
 // @ts-ignore
 import credentials from 'credentials';
-import {TileLayer, FeatureProvider} from '@here/xyz-maps-core';
+import {GeoJSONFeature, ClusterTileLayer, TileLayer, FeatureProvider} from '@here/xyz-maps-core';
 import * as XYZMapsCore from '@here/xyz-maps-core';
 import {TestLocalProvider, TestProvider} from '../TestProvider';
 import {spacePool} from '../runner';
-import {GeoJSONFeature} from '@here/xyz-maps-core';
 import TileProvider from '@here/xyz-maps-core/src/providers/TileProvider/TileProvider';
 
 
@@ -120,6 +119,7 @@ type ProviderSetup = {
 type LayerSetup = {
     id: string;
     provider: ProviderSetup;
+    type?: 'TileLayer'|'ClusterTileLayer'
     min: number;
     max: number;
     data?: {
@@ -138,6 +138,9 @@ export default async function prepare(dataset: MapSetup) {
     let featuresToUpdateRP = {};
     let linkLayerId;
 
+
+    const supportedLayerTypes = {'TileLayer': TileLayer, 'ClusterTileLayer': ClusterTileLayer};
+
     if (dataset && dataset.layers) {
         let ts = (new Date()).getTime().toString();
         for (let l of dataset.layers) {
@@ -152,7 +155,9 @@ export default async function prepare(dataset: MapSetup) {
             delete layerConfig['data'];
             delete layerConfig['clear'];
 
-            let layer = new TileLayer(layerConfig);
+            const LayerClass: typeof TileLayer = supportedLayerTypes[l.type]||TileLayer;
+
+            let layer = new LayerClass(layerConfig);
 
             preparedData.addLayer(layer);
 
