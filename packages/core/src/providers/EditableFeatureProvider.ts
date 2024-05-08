@@ -197,7 +197,10 @@ export abstract class EditableFeatureProvider extends FeatureTileProvider {
      * @param turnFrom - The Navlink and it's coordinate index from which to turn from
      * @param turnTo - The Navlink and it's coordinate index to which you want to turn
      */
-    abstract writeTurnRestriction(restricted: boolean, turnFrom: { link: Navlink, index: number }, turnTo: { link: Navlink, index: number });
+    abstract writeTurnRestriction(restricted: boolean, turnFrom: { link: Navlink, index: number }, turnTo: {
+        link: Navlink,
+        index: number
+    });
 
     /**
      * Attribute reader for obtaining the id of the TileProvider containing the corresponding Navlink, of an Address or Place feature, on which the RoutingPoint is located.
@@ -290,7 +293,7 @@ export abstract class EditableFeatureProvider extends FeatureTileProvider {
      * @param height - The height specified in meters
      *
      */
-    abstract writeFeatureHeight(feature: Feature, height: number| null);
+    abstract writeFeatureHeight(feature: Feature, height: number | null);
 
 
     readRoutingPoint(location): { link: NavlinkId, position: GeoJSONCoordinate } {

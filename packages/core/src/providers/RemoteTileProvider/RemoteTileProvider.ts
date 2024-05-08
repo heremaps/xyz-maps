@@ -20,7 +20,6 @@
 import {FeatureProvider} from '../FeatureProvider';
 import LoaderManager from '../../loaders/Manager';
 import {Tile} from '../../tile/Tile';
-import {GeoJSONFeature} from '../../features/GeoJSON';
 import {RemoteTileProviderOptions} from './RemoteTileProviderOptions';
 import {FixedLevelTileLoadDelegator} from './FixedLevelTileLoadDelegator';
 
@@ -90,7 +89,7 @@ export class RemoteTileProvider extends FeatureProvider {
                 if (tile.error) {
                     return onDone(tile.data);
                 }
-                this.loadTileData(tile, data, onDone);
+                this.insertTileData(tile, data, onDone);
             }
         });
     }
@@ -127,7 +126,7 @@ export class RemoteTileProvider extends FeatureProvider {
             this.remoteTileLoader.clear();
         }
         // TODO: add support for partial loader clearance
-        super.clear.apply(this, arguments);
+        return super.clear.apply(this, arguments);
     };
 
     /**

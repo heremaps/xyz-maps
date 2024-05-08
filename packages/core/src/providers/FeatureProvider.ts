@@ -71,17 +71,18 @@ export class FeatureProvider extends Provider {
 
         this.tree = new RTree(9);
         this.fReg = new FeatureRegistry();
-
         this.Feature = this.Feature || Feature;
 
         [
             ADD_FEATURE_EVENT,
+            'featuresAdd',
             REMOVE_FEATURE_EVENT,
+            'featuresRemove',
             MODIFY_FEATURE_COORDINATES_EVENT
         ].forEach((type) => this.listeners.addEvent(type));
     }
 
-    protected loadTileData(tile: Tile, data: GeoJSONFeature[], onDone: (data: any) => void) {
+    protected insertTileData(tile: Tile, data: GeoJSONFeature[], onDone: (data: any) => void, triggerEvent: boolean = true) {
         const provider = this;
         let unique = [];
 
@@ -101,7 +102,6 @@ export class FeatureProvider extends Provider {
             }
         }
 
-
         if (provider.tree) {
             // if( provider.indexed ){
             provider.tree.load(unique);
@@ -113,6 +113,10 @@ export class FeatureProvider extends Provider {
 
         for (let feature of unique) {
             provider._mark(feature, tile);
+        }
+
+        if (triggerEvent) {
+            provider.dispatchEvent('tileInitialized', {features: unique, tiles: [tile]});
         }
 
         onDone(unique);
@@ -171,7 +175,8 @@ export class FeatureProvider extends Provider {
      */
     addFeature(feature: GeoJSONFeatureCollection | GeoJSONFeature[]): Feature[];
 
-    addFeature(feature: GeoJSONFeature | Feature | GeoJSONFeatureCollection | GeoJSONFeature[]): Feature | Feature[] {
+    addFeature(feature: GeoJSONFeature | Feature | GeoJSONFeatureCollection | GeoJSONFeature[], updateTileSet?: Set<Tile>);
+    addFeature(feature: GeoJSONFeature | Feature | GeoJSONFeatureCollection | GeoJSONFeature[], updateTileSet?: Set<Tile>): Feature | Feature[] {
         const provider = this;
         let prepared;
         let inserted;
@@ -185,8 +190,15 @@ export class FeatureProvider extends Provider {
         if (Array.isArray(feature)) {
             const result: Feature[] = [];
 
+            if (!provider.ignore) {
+                updateTileSet = new Set<Tile>();
+            }
             for (let f = 0, len = feature.length; f < len; f++) {
-                result[f] = provider.addFeature(feature[f]);
+                result[f] = provider.addFeature(feature[f], updateTileSet);
+            }
+
+            if (updateTileSet) {
+                provider.dispatchEvent('featuresAdd', {features: result, tiles: Array.from(updateTileSet)});
             }
             return result;
         }
@@ -208,10 +220,10 @@ export class FeatureProvider extends Provider {
 
                 const tiles = provider.getCachedTilesOfBBox(provider.decBBox(feature));
 
-                for (let t = 0, tile; t < tiles.length; t++) {
-                    tile = tiles[t];
+                for (let tile of tiles) {
+                    tile.add(<Feature>feature);
 
-                    tile.add(feature);
+                    updateTileSet?.add(tile);
 
                     if (tile.z == provider.level) {
                         this._mark(feature, tile);
@@ -220,8 +232,8 @@ export class FeatureProvider extends Provider {
 
                 provider.tree?.insert(feature as GeoJSONFeature);
 
-                if (!provider.ignore) {
-                    provider.dispatchEvent(ADD_FEATURE_EVENT, {feature: feature, tiles: tiles});
+                if (!provider.ignore && !updateTileSet) {
+                    provider.dispatchEvent('featuresAdd', {features: [feature], tiles});
                 }
             }
         } else {
@@ -301,6 +313,20 @@ export class FeatureProvider extends Provider {
             : result;
     };
 
+
+    createStorageTile(quadkey: string) {
+        const {storage} = this;
+        let tile = storage.get(quadkey);
+
+        if (tile === UNDEF) {
+            storage.set(
+                tile = this.createTile(quadkey)
+            );
+            tile.loadStartTs = Date.now();
+        }
+        return tile;
+    }
+
     /**
      * Get a tile by quadkey.
      * If the tile is not cached already, it will be created and stored automatically.
@@ -311,26 +337,13 @@ export class FeatureProvider extends Provider {
      */
     getTile(quadkey: string, callback?: (tile: Tile) => void): Tile | undefined {
         const provider = this;
-        const storage = provider.storage;
-        let tile = storage.get(quadkey);
+        const tile = provider.createStorageTile(quadkey);
 
-        if (tile === UNDEF) {
-            storage.set(
-                tile = provider.createTile(quadkey)
-            );
-
-            // tile.provider    = provider;
-            tile.loadStartTs = tile.loadStopTs = Date.now();
-
-            // var tileBounds = utils.getGeoBounds.call(utils, tile.z, tile.y, tile.x);
-            // tile.data      = this.tree.search([tileBounds[1], tileBounds[2], tileBounds[3], tileBounds[0]]);
-
-
+        if (!tile.loadStopTs) {
             tile.data = provider.search(tile.getContentBounds());
-            // tile.data = this.tree.search.call( this.tree, tile.getContentBounds() )
+            tile.loadStopTs = Date.now();
         }
-
-        callback && callback(tile);
+        callback?.(tile);
 
         return tile;
     };
@@ -590,34 +603,37 @@ export class FeatureProvider extends Provider {
      *
      * @param feature - features that should be removed from the provider
      */
-    removeFeature(feature: GeoJSONFeature | Feature | GeoJSONFeatureCollection | GeoJSONFeature[]) {
+    removeFeature(feature: GeoJSONFeature | Feature | GeoJSONFeatureCollection | GeoJSONFeature[]);
+
+    removeFeature(feature: GeoJSONFeature | Feature | GeoJSONFeatureCollection | GeoJSONFeature[], updateTileSet?: Set<Tile>);
+    removeFeature(feature: GeoJSONFeature | Feature | GeoJSONFeatureCollection | GeoJSONFeature[], updateTileSet?: Set<Tile>) {
         if (feature) {
             if ((<GeoJSONFeatureCollection>feature).type == 'FeatureCollection') {
                 feature = (<GeoJSONFeatureCollection>feature).features;
             }
             if (Array.isArray(feature)) {
                 const result = [];
+                if (!this.ignore) {
+                    updateTileSet = new Set<Tile>();
+                }
                 for (let f = 0, len = feature.length; f < len; f++) {
-                    result[f] = this.removeFeature(feature[f]);
+                    result[f] = this.removeFeature(feature[f], updateTileSet);
+                }
+                if (updateTileSet) {
+                    this.dispatchEvent('featuresRemove', {features: result, tiles: Array.from(updateTileSet)});
                 }
                 return result;
             }
 
-
             if (feature = this.getFeature((<GeoJSONFeature>feature).id)) {
                 const tiles = this.getCachedTilesOfBBox(this.decBBox(feature));
-                let tile;
 
-                for (let t = 0; t < tiles.length; t++) {
-                    tile = tiles[t];
-
+                for (let tile of tiles) {
                     if (tile.isLoaded()) {
-                        tile.remove(feature);
-
+                        updateTileSet?.add(tile);
+                        tile.remove(<Feature>feature);
                         // tileIndex = tile.data.indexOf(feature);
-                        //
-                        // if( tileIndex !== -1 )
-                        // {
+                        // if( tileIndex !== -1 ){
                         //     tile.data.splice(tileIndex,1);
                         // }
                     }
@@ -632,11 +648,11 @@ export class FeatureProvider extends Provider {
                 // delete feature._provider;
 
                 if (!this.ignore) {
-                    this.dispatchEvent(REMOVE_FEATURE_EVENT, {feature, tiles});
+                    this.dispatchEvent('featuresRemove', {features: [feature], tiles});
+                    // this.dispatchEvent(REMOVE_FEATURE_EVENT, {feature, tiles});
                 }
             }
         }
-
         return feature;
     };
 
@@ -912,13 +928,16 @@ export class FeatureProvider extends Provider {
      *
      *  @param bbox - array of geographical coordinates [minLon, minLat, maxLon, maxLat] defining the area to clear.
      */
-    clear(bbox?: number[]) {
+    clear(bbox?: number[]);
+
+    clear(bbox?: number[], triggerEvent?: boolean);
+    clear(bbox?: number[], triggerEvent: boolean = true) {
         const provider = this;
         let dataQuads = null;
         let feature;
 
-        if (arguments.length == 4) {
-            bbox = Array.prototype.slice.call(arguments);
+        if (arguments.length > 3) {
+            bbox = Array.prototype.slice.call(arguments, 0, 4);
         }
 
         if ( // wipe all cached tiles containing provided bbox
@@ -933,7 +952,7 @@ export class FeatureProvider extends Provider {
 
                 dataQuads[d] = tile.quadkey;
             }
-        } else if (arguments.length == 0) { // full wipe
+        } else { // full wipe
             provider.tree?.clear();
 
             const featuresInfo = provider.fReg.toArray();
@@ -953,7 +972,11 @@ export class FeatureProvider extends Provider {
             Provider.prototype.clear.call(this, bbox);
         }
 
-        provider.dispatchEvent('clear', {tiles: dataQuads});
+        if (triggerEvent) {
+            provider.dispatchEvent('clear', {tiles: dataQuads});
+        }
+
+        return dataQuads;
     };
 
     _insert(feature: GeoJSONFeature): Feature {
@@ -1005,14 +1028,22 @@ export class FeatureProvider extends Provider {
 
         prov.storage.remove(tile);
 
+        const tileDestroyedEvent = 'tileDestroyed';
+        const droppedFeatures: Feature[] = prov.listeners.isListened(tileDestroyedEvent) && [];
+
         if (data = tile.data) {
-            for (var d = 0; d < data.length; d++) {
-                prov._dropFeature(data[d], qk, triggerEvent);
+            for (let feature of data) {
+                if (prov._dropFeature(feature, qk, triggerEvent) && droppedFeatures) {
+                    droppedFeatures.push(feature);
+                }
             }
+        }
+        if (droppedFeatures) {
+            prov.dispatchEvent(tileDestroyedEvent, {features: droppedFeatures, tiles: [tile]});
         }
     };
 
-    _dropFeature(feature: Feature, qk: string, trigger?: boolean) {
+    _dropFeature(feature: Feature, qk: string, trigger?: boolean): boolean {
         const provider = this;
         const featureStoreInfo = provider.fReg.get(feature.id);
 
@@ -1020,17 +1051,11 @@ export class FeatureProvider extends Provider {
             const tiles = featureStoreInfo.tiles;
             tiles.delete(qk);
 
-            if (provider.isDroppable(feature)) {
-                if (!tiles.size) {
-                    provider.cnt--;
-                    provider.fReg.delete(feature.id);
-
-                    provider.tree?.remove(feature);
-
-                    if (trigger) {
-                        provider.dispatchEvent(REMOVE_FEATURE_EVENT, {feature});
-                    }
-                }
+            if (!tiles.size && provider.isDroppable(feature)) {
+                provider.cnt--;
+                provider.fReg.delete(feature.id);
+                provider.tree?.remove(feature);
+                return true;
             }
         }
     };
@@ -1045,26 +1070,27 @@ export class FeatureProvider extends Provider {
         let data;
 
         prov.storage.forEach((tile) => {
-            if (tile.z == level && tile.isLoaded() && (
-                !tilePyramid || tilePyramid.startsWith(tile.quadkey)
-            )) {
-                // const [minLon, minLat, maxLon, maxLat] = tile.bounds;
-                // if (searchBBox.minX < minLon || searchBBox.maxX > maxLon || searchBBox.minY < minLat || searchBBox.maxY > maxLat) return;
-                const tileData = tile.search(searchBBox);
+            if (tile.z != level || !tile.isLoaded()) {
+                return;
+            }
+            // if (tile.z == level && tile.isLoaded() && (
+            //     // !tilePyramid || tilePyramid.startsWith(tile.quadkey)
+            // ) && tile.data.length) {
 
-                if (tileData.length) {
-                    // for(let f of tileData) set.add(f);
-                    if (!data) {
-                        data = tileData;
-                        for (let feature of data) {
+            // var start = performance.now();
+            const tileData = tile.search(searchBBox);
+
+            if (tileData.length) {
+                if (!data) {
+                    data = tileData;
+                    for (let feature of data) {
+                        feature._m = mergeID;
+                    }
+                } else {
+                    for (let feature of tileData) {
+                        if (feature._m != mergeID) {
                             feature._m = mergeID;
-                        }
-                    } else {
-                        for (let feature of tileData) {
-                            if (feature._m != mergeID) {
-                                feature._m = mergeID;
-                                data[data.length] = feature;
-                            }
+                            data[data.length] = feature;
                         }
                     }
                 }

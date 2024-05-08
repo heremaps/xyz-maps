@@ -105,7 +105,7 @@ export abstract class EditableRemoteTileProvider extends EditableFeatureProvider
                 if (tile.error) {
                     return onDone(tile.data);
                 }
-                this.loadTileData(tile, data, onDone);
+                this.insertTileData(tile, data, onDone);
             }
         });
 

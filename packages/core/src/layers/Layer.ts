@@ -100,9 +100,9 @@ export class Layer {
      * @param type
      * @param detail
      */
-    dispatchEvent(type: string, detail: { [name: string]: any, layer?: Layer }) {
+    dispatchEvent(type: string, detail: { [name: string]: any, layer?: Layer }, async: boolean = false) {
         detail.layer = this;
         const event = new CustomEvent(type, {detail});
-        this._l.trigger(type, event, true);
+        this._l.trigger(type, event, !async);
     }
 }

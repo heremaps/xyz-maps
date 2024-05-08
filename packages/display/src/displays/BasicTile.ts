@@ -103,6 +103,10 @@ abstract class BasicTile {
       return this.layers.indexOf(layer);
   };
 
+  getDisplayLayer(layer: TileLayer) {
+      return this.layers[this.index(layer)];
+  }
+
   ready(index: number, ready?: boolean): boolean {
       if (arguments.length == 2) {
           this.r[index] = ready;

@@ -106,8 +106,8 @@ export class LocalProvider extends EditableFeatureProvider {
     }
 
     initStorage(storage) {
-        // local provider does not drop data if tilestorage is full.
-        // creator of provider is responsable for clearance.
+        // local provider does not drop data if tile storage is full.
+        // creator of provider is responsible for clearance.
         // storage.onDrop(storage.remove.bind(storage), this);
     };
 

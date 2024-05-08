@@ -72,6 +72,10 @@ export const quadToGrid = (quadKey: string): Grid => {
     return [lvl, x, y];
 };
 
+export const getBoundsOfQuadkey = (quadkey: string): BBox => {
+    return getGeoBounds.apply(null, quadToGrid(quadkey));
+};
+
 export const tileXYToQuadKey = (level: number, row: number, col: number): Quadkey => {
     let quadkey = '';
     let tiles;

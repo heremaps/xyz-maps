@@ -28,6 +28,7 @@ const DEFAULT_EXPIRE_SECONDS = Infinity;
 let UNDEF;
 
 const intersectBBox = (ax, ax2, ay, ay2, bx, bx2, by, by2) => {
+    // return ax < bx2 && bx < ax2 && ay < by2 && by < ay2;
     return ax <= bx2 && bx <= ax2 && ay <= by2 && by <= ay2;
 };
 
@@ -101,7 +102,7 @@ export default abstract class TileProvider {
 
         // this.storage = new TileStorage( this['minLevel'], this['level'] );
 
-        this.listeners = new Listener(['clear', 'error']);
+        this.listeners = new Listener(['clear', 'error', 'tileInitialized', 'tileDestroyed']);
     };
 
     protected dispatchEvent(type: string, detail: { [name: string]: any, provider?: TileProvider }) {
@@ -192,16 +193,32 @@ export default abstract class TileProvider {
         this.storage.forEach((tile) => {
             const tBounds = tile.getContentBounds();
             if (
+                (!zoomlevel || tile.z == zoomlevel) &&
                 intersectBBox(
                     tBounds[0], tBounds[2], tBounds[1], tBounds[3],
                     minLon, maxLon, minLat, maxLat
                 )
-                && (!zoomlevel || tile.z == zoomlevel)
             ) {
                 tiles[tiles.length] = tile;
             }
         });
 
+        return tiles;
+    };
+
+    getCachedTileofQuadkey(quadkey: string, fixZoom?: number): Tile[] {
+        const tiles = [];
+        const z = quadkey.length;
+        this.storage.forEach((tile) => {
+            if (fixZoom && fixZoom != tile.z) return;
+            if (tile.quadkey.length >= z) {
+                if (tile.quadkey.indexOf(quadkey) == 0) {
+                    tiles[tiles.length] = tile;
+                }
+            } else if (quadkey.indexOf(tile.quadkey) == 0) {
+                tiles[tiles.length] = tile;
+            }
+        });
         return tiles;
     };
 

@@ -169,6 +169,10 @@
       "docs": "interfaces/core.remotetileprovideroptions.html#preprocessor"
     },
     {
+      "file": "./layer/ClusterTileLayer.html",
+      "docs": "classes/core.clustertilelayer.html"
+    },
+    {
       "file": "./layer/Heatmap.html",
       "docs": "interfaces/core.heatmapstyle.html"
     },

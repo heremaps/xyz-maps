@@ -513,7 +513,7 @@ export interface Style {
      *
      * @defaultValue For Polygon geometry the default is "Center". For Line geometry the default for styles of type "Text" is "Line", while "Coordinate" is the default for styles of type "Circle", "Rect" or "Image".
      */
-    anchor?: 'Line' | 'Coordinate' | 'Centroid'
+    anchor?: 'Line' | 'Coordinate' | 'Centroid' | 'Center'
 
     /**
      * Enable or disable the space check for point styles on line geometries.

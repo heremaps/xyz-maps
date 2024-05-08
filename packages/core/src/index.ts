@@ -61,6 +61,9 @@ export {MVTProvider} from './providers/MVTProvider/MVTProvider';
 export {EditableFeatureProvider} from './providers/EditableFeatureProvider';
 export {MVTLayerOptions} from './layers/MVTLayerOptions';
 export {TileLayerOptions} from './layers/TileLayerOptions';
+export {ClusterTileLayer} from './layers/cluster/ClusterTileLayer';
+export {ClusterTileLayerOptions} from './layers/cluster/ClusterTileLayerOptions';
+export {ClusterFeature, ClusterFeatureProperties} from './features/ClusterFeature';
 
 import webMercatorPrj from './projection/webMercator';
 
@@ -116,6 +119,7 @@ import {PixelRect} from './pixel/PixelRect';
 import {TileLayer} from './layers/TileLayer';
 import {MVTLayer} from './layers/MVTLayer';
 import {CustomLayer} from './layers/CustomLayer';
+import {ClusterTileLayer} from './layers/cluster/ClusterTileLayer';
 import {Feature} from './features/Feature';
 import {Tile} from './tile/Tile';
 import {tileUtils} from './tile/TileUtils';
@@ -150,7 +154,8 @@ const pixel = XYZMAPS.pixel = {
 const layers = XYZMAPS.layers = {
     TileLayer,
     MVTLayer,
-    CustomLayer
+    CustomLayer,
+    ClusterTileLayer
 };
 
 const features = XYZMAPS.features = {

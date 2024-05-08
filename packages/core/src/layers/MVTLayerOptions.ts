@@ -70,7 +70,7 @@ export interface MVTLayerOptions extends TileLayerOptions {
         tileSize?: number
     },
     /**
-     * enable or disable pointer-event triggering for all features of all layers.
+     * Determines whether pointer events are enabled for all features of the layer.
      * @defaultValue false
      */
     pointerEvents?: boolean

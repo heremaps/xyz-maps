@@ -49,6 +49,10 @@ export const DEFAULT_LAYER_MAX_ZOOM = 32;
 
 let UNDEF;
 
+export function getProviderZoomOffset(tileSize: number) {
+    return Math.round(Math.log(tileSize) / Math.log(2) - 8);
+}
+
 /**
  * TileLayer
  */
@@ -97,7 +101,9 @@ export class TileLayer extends Layer {
         const layer = this;
         [
             ADD_FEATURE_EVENT,
+            'featuresAdd',
             REMOVE_FEATURE_EVENT,
+            'featuresRemove',
             MODIFY_FEATURE_COORDINATES_EVENT,
             CLEAR_EVENT,
             STYLEGROUP_CHANGE_EVENT,
@@ -145,18 +151,17 @@ export class TileLayer extends Layer {
             this.tileSize = tileSize;
         }
 
-        this.levelOffset = Math.round(Math.log(this.tileSize) / Math.log(2) - 8);
+        this.levelOffset = getProviderZoomOffset(this.tileSize);
 
         layer._p.forEach((provider, i) => {
             if (provider) {
+                const proxyEvents = [CLEAR_EVENT];
                 if (provider.__type == 'FeatureProvider') {
-                    provider.addEventListener(ADD_FEATURE_EVENT, layer._eventProxy, layer);
-
-                    provider.addEventListener(REMOVE_FEATURE_EVENT, layer._eventProxy, layer);
-
-                    provider.addEventListener(MODIFY_FEATURE_COORDINATES_EVENT, layer._eventProxy, layer);
+                    proxyEvents.push(ADD_FEATURE_EVENT, 'featuresAdd', REMOVE_FEATURE_EVENT, 'featuresRemove', MODIFY_FEATURE_COORDINATES_EVENT);
                 }
-                provider.addEventListener(CLEAR_EVENT, layer._eventProxy, layer);
+                for (let proxyEvent of proxyEvents) {
+                    provider.addEventListener(proxyEvent, layer._eventProxy, layer);
+                }
             }
         });
 
@@ -227,10 +232,12 @@ export class TileLayer extends Layer {
         detail.layer = this;
 
         if (type == REMOVE_FEATURE_EVENT) {
+            debugger;
             // cleanup styles
             // delete this._cs[id];
-            this.setStyleGroup(detail.feature);
+            // this.setStyleGroup(detail.feature);
         }
+
         this._l.trigger(type, ev, true);
     }
 
@@ -747,7 +754,7 @@ export class TileLayer extends Layer {
 
 
     /**
-     * enable or disable pointer-event triggering for all features of all layers.
+     * Enable or disable pointer-event triggering for all features of the layer.
      *
      * @param active - boolean to enable or disable posinter-events.
      *

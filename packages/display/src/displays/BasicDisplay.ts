@@ -113,17 +113,17 @@ abstract class Display {
                 featureModifier.clear(layer, tiles);
             },
 
-            'featureAdd': (ev) => {
-                const {feature, tiles, layer} = ev.detail;
-                if (tiles) {
-                    featureModifier.add(feature, tiles, layer);
+            'featuresAdd': (ev) => {
+                const {features, tiles, layer} = ev.detail;
+                if (tiles?.length) {
+                    featureModifier.add(features, tiles, layer);
                 }
             },
 
-            'featureRemove': (ev) => {
-                const {feature, tiles, layer} = ev.detail;
+            'featuresRemove': (ev) => {
+                const {features, tiles, layer} = ev.detail;
                 if (tiles) {
-                    featureModifier.remove(feature, tiles, layer);
+                    featureModifier.remove(features, tiles, layer);
                 }
             },
 
@@ -348,9 +348,7 @@ abstract class Display {
             dTile.ready(index, false);
             // clear preview to enable preview creation for next render iteration
             // dTile.p[index] = false;
-            if (display.isVisible(tile, display.layers[index])) {
-                display.handleTile(tile, layer, dTile, index);
-            }
+            display.layers[index].handleTile(tile);
         }
     }
 
@@ -415,7 +413,6 @@ abstract class Display {
                     }
                     if (zoomLevel >= layer.min && zoomLevel <= layer.max) {
                         display.initTile(displayTile, dLayer);
-                        // tile = mapLayers[layerId][quadkey] =
                         layer.getTile(quadkey, dLayer.handleTile);
                     }
                 }
@@ -508,7 +505,7 @@ abstract class Display {
         grid.init(centerWorldPixel, rotZRad, mapWidthPixel, mapHeightPixel, rotatedScreenPixels);
 
         const layers = this.layers;
-        const tileSizes = layers.reset(tileGridZoom + Math.log(this.s) / Math.LN2);
+        const tileSizes = layers.reset(tileGridZoom/* + Math.log(this.s) / Math.LN2*/);
         this.ti = 0;
 
         for (let tileSize of tileSizes) {
