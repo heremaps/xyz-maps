@@ -52,7 +52,7 @@ describe('event listeners in poi layer', function() {
     });
 
     it('start event listener', function() {
-        let listener = new Listener(placeLayer, 'featureRemove');
+        let listener = new Listener(placeLayer, 'featuresRemove');
 
         placeLayer.removeFeature({
             type: 'Feature',
@@ -61,7 +61,7 @@ describe('event listeners in poi layer', function() {
 
         let results = listener.stop();
 
-        expect(results.featureRemove[0].detail.feature).to.deep.include({
+        expect(results.featuresRemove[0].detail.features[0]).to.deep.include({
             id: place1.id,
             type: 'Feature'
         });
@@ -69,7 +69,7 @@ describe('event listeners in poi layer', function() {
 
 
     it('start add, remove and modify event', function() {
-        let listener = new Listener(placeLayer, ['featureAdd', 'featureRemove', 'featureCoordinatesChange']);
+        let listener = new Listener(placeLayer, ['featuresAdd', 'featuresRemove', 'featureCoordinatesChange']);
 
         placeLayer.addFeature({
             geometry: {
@@ -96,11 +96,11 @@ describe('event listeners in poi layer', function() {
 
         let results = listener.stop();
 
-        expect(results.featureAdd).to.have.lengthOf(1);
-        expect(results.featureRemove).to.have.lengthOf(0);
+        expect(results.featuresAdd).to.have.lengthOf(1);
+        expect(results.featuresRemove).to.have.lengthOf(0);
         expect(results.featureCoordinatesChange).to.have.lengthOf(1);
 
-        expect(results.featureAdd[0].detail.feature).to.deep.include({
+        expect(results.featuresAdd[0].detail.features[0]).to.deep.include({
             id: 'abcpoi',
             type: 'Feature'
         });

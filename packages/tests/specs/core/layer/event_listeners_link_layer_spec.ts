@@ -58,12 +58,13 @@ describe('event listeners in link layer', function() {
     });
 
     it('validate remove event', function() {
-        let test = new Listener(linkLayer, 'featureRemove');
+        let test = new Listener(linkLayer, 'featuresRemove');
 
         linkLayer.removeFeature({id: link1.id});
 
         let results = test.stop();
-        let feature = results.featureRemove[0].detail.feature;
+
+        let feature = results.featuresRemove[0].detail.features[0];
         expect(feature).to.deep.include({
             id: link1.id,
             type: 'Feature'
@@ -71,7 +72,7 @@ describe('event listeners in link layer', function() {
     });
 
     it('validate add remove and modify events', function() {
-        let test = new Listener(linkLayer, ['featureAdd', 'featureRemove', 'featureCoordinatesChange']);
+        let test = new Listener(linkLayer, ['featuresAdd', 'featuresRemove', 'featureCoordinatesChange']);
 
         linkLayer.addFeature({
             geometry: {
@@ -97,12 +98,12 @@ describe('event listeners in link layer', function() {
 
         let results = test.stop();
 
-        expect(results.featureAdd).to.have.lengthOf(1);
-        expect(results.featureRemove).to.have.lengthOf(0);
+        expect(results.featuresAdd).to.have.lengthOf(1);
+        expect(results.featuresRemove).to.have.lengthOf(0);
         expect(results.featureCoordinatesChange).to.have.lengthOf(1);
 
         // @ts-ignore
-        let feature = results.featureAdd[0].detail.feature;
+        let feature = results.featuresAdd[0].detail.features[0];
         expect(feature).to.deep.include({
             id: 'abc',
             type: 'Feature'

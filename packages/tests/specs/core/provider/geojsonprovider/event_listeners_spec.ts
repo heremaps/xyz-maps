@@ -32,7 +32,7 @@ describe('event listeners in provider layer', function() {
 
 
     it('add and remove feature and validate add and remove events', function() {
-        let listener = new Listener(poiProvider, ['featureAdd', 'featureRemove']);
+        let listener = new Listener(poiProvider, ['featuresAdd', 'featuresRemove']);
 
         poiProvider.addFeature({
             geometry: {
@@ -49,11 +49,11 @@ describe('event listeners in provider layer', function() {
 
         let evts = listener.stop();
 
-        expect(evts.featureAdd[0].detail.feature).to.deep.include({id: 'abc'});
-        expect(evts.featureRemove).to.have.lengthOf(0);
+        expect(evts.featuresAdd[0].detail.features[0]).to.deep.include({id: 'abc'});
+        expect(evts.featuresRemove).to.have.lengthOf(0);
 
 
-        let listener2 = new Listener(poiProvider, ['featureAdd', 'featureRemove']);
+        let listener2 = new Listener(poiProvider, ['featuresAdd', 'featuresRemove']);
 
         poiProvider.removeFeature({
             type: 'Feature',
@@ -63,7 +63,7 @@ describe('event listeners in provider layer', function() {
 
         let evt = listener2.stop();
 
-        expect(evt.featureRemove[0].detail.feature).to.deep.include({id: 'abc'});
-        expect(evt.featureAdd).to.have.lengthOf(0);
+        expect(evt.featuresRemove[0].detail.features[0]).to.deep.include({id: 'abc'});
+        expect(evt.featuresAdd).to.have.lengthOf(0);
     });
 });
