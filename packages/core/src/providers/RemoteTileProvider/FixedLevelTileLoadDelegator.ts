@@ -23,7 +23,6 @@ import {Tile} from '../../tile/Tile';
 import TileProvider from '../TileProvider/TileProvider';
 import {TileLoadDelegator} from './TileLoadDelegator';
 import {tileUtils} from '@here/xyz-maps-core';
-import {add} from '@here/xyz-maps-common/src/Vec3';
 
 let UNDEF;
 

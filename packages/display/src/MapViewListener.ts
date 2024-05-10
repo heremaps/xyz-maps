@@ -48,7 +48,7 @@ const createEvent = (eventName: string, map, layer): Event => {
 };
 
 
-class MVCRecognizer {
+class MapViewListener {
     private readyTimer: number;
     private watchTimer: number = null;
     private viewport: GeoRect;
@@ -199,4 +199,4 @@ class MVCRecognizer {
     };
 }
 
-export default MVCRecognizer;
+export default MapViewListener;

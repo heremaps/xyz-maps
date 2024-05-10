@@ -19,6 +19,7 @@
 
 import {Set} from '@here/xyz-maps-common';
 import InternalEditor from './IEditor';
+import ObserverHandler from './handlers/ObserverHandler';
 
 export default class DisplayListener {
     // private layers = {};
@@ -27,7 +28,7 @@ export default class DisplayListener {
 
     private busy: Set = null;
 
-    private observers: any;
+    private observers: ObserverHandler;
 
     private iEdit;
 
@@ -51,6 +52,10 @@ export default class DisplayListener {
 
         HERE_WIKI.listeners.add('_layerRemove', (ev) => {
             ev.detail.layer.removeEventListener('viewportReady', this.onStop);
+            this.busy?.delete(ev.detail.layer);
+            if (!this.busy?.size && !this.iEdit.layers.length) {
+                this.observers.change('ready', true);
+            }
         });
     }
 

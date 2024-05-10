@@ -749,13 +749,12 @@ export default class Editor {
             const lid = getIdentifier(prov);
 
             if (prov.__type == 'FeatureProvider' && prov.editable && layerMap[lid]) {
+                delete layerMap[lid];
+                layers.splice(layers.indexOf(layer), 1);
+
                 iEditor.listeners.trigger('_layerRemove', {
                     layer: layer
                 });
-
-                delete layerMap[lid];
-
-                layers.splice(layers.indexOf(layer), 1);
 
                 toggleProviderHooks('remove', prov, iEditor);
 

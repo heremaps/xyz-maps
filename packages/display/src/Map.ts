@@ -25,7 +25,7 @@ import {Behavior, BehaviorOptions} from './behavior/Behavior';
 import {EventDispatcher} from './event/Dispatcher';
 import {Search} from './search/Search';
 import {MapEvent} from './event/Event';
-import MVCRecognizer from './MVCRecognizer';
+import MapViewListener from './MapViewListener';
 import UI from './ui/UI';
 import {JSUtils, Listener} from '@here/xyz-maps-common';
 import {ZoomAnimator} from './animation/ZoomAnimator';
@@ -130,7 +130,7 @@ export class Map {
     _s: number = 1; // current scale
 
     private _display: BasicDisplay;
-    private _mvcRecognizer: MVCRecognizer;
+    private _mvListener: MapViewListener;
     private _rz: number = 0; // rotation z in rad
     private _rx: number = 0; // rotation x in rad
     private _z: number; // zoom level
@@ -265,7 +265,7 @@ export class Map {
             options['renderOptions'] || {}
         );
 
-        tigerMap._mvcRecognizer = new MVCRecognizer(tigerMap,
+        tigerMap._mvListener = new MapViewListener(tigerMap,
             function triggerEventListeners(type, detail, sync) {
                 listeners.trigger(
                     type,
@@ -388,7 +388,7 @@ export class Map {
         const centerGeo = this._c;
         const prevCenterGeo = this._pc;
 
-        this._mvcRecognizer.watch(true);
+        this._mvListener.watch(true);
 
         this._groundResolution = earthCircumference(centerGeo.latitude) / this._worldSizeFixed;
 
@@ -1558,7 +1558,7 @@ export class Map {
 
         mapEl.parentNode.removeChild(mapEl);
 
-        this._mvcRecognizer.watch(false);
+        this._mvListener.watch(false);
 
         this._evDispatcher.destroy();
 
