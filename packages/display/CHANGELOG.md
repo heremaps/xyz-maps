@@ -1,3 +1,16 @@
+## 0.37.0 (2024-5-10)
+### display
+* fixed: In cases where a particularly large dataset is frequently updated, it could lead to the display of outdated data.
+* fixed: The alpha blending of heatmaps has been corrected and is now functioning as intended.
+* fixed: Pointerevents at intermediate zoom levels now activate accurately when used alongside StyleZoomRanges/StyleValueFunctions.
+### core
+* improved: Ensured that all parameters are URL encoded for both "SpaceProvider" and "IMLProvider".
+* added: The new [ClusterTileLayer](https://heremaps.github.io/xyz-maps/docs/classes/core.clustertilelayer.html) enables efficient client-side clustering of map-data from various sources, providing optimized clusters at each zoom level, supporting dynamic feature addition/removal and customizable property aggregation for tailored data summarization and display. [Playground Example](https://heremaps.github.io/xyz-maps/playground/#Layers%20/%20Providers-Cluster_and_display_map-data)
+* added: Introducing the ["findPath"](https://heremaps.github.io/xyz-maps/docs/classes/core.featureprovider.html#findpath) method for optimal client-side path finding on a GeoJSON road network supporting advanced options such as custom turn restrictions and weights.
+* fixed: Custom request parameters utilizing arrays are now properly URL encoded for improved reliability
+### editor
+* fixed: In exceptionally rare instances, timing issues could cause inconsistent triggering of the 'ready' event.
+
 ## 0.36.0 (2023-12-8)
 ### core
 * added: The ["ignoreTileQueryLimit"](https://heremaps.github.io/xyz-maps/docs/core.imlprovideroptions.html#ignoretilequerylimit) option has been introduced to mitigate an excessive number of tile requests.
