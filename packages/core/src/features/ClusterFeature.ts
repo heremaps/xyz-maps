@@ -27,12 +27,28 @@ export const updateBBox = (bbox: GeoJSONBBox, [longitude, latitude]: GeoJSONCoor
     return bbox;
 };
 /**
- * Properties if a ClusterFeature.
+ * Properties of a ClusterFeature.
+ *
+ * The `isCluster`, `clusterSize`, and `zoom` properties are automatically populated for each cluster feature.
+ *
+ * Custom properties aggregation for clusters can be achieved by defining custom property creation and aggregation functions using the {@link ClusterTileLayerOptions.createProperties|createProperties} and {@link ClusterTileLayerOptions.aggregateProperties|aggregateProperties} options.
  */
 export type ClusterFeatureProperties = {
-    readonly isCluster?: true;
-    readonly clusterSize?: number;
-    readonly zoom?: number;
+    /**
+     * Indicates if the feature is a cluster.
+     */
+    readonly isCluster: true;
+    /**
+     * The size of the cluster, i.e., the number of features it contains.
+     */
+    readonly clusterSize: number;
+    /**
+     * The zoom level at which the cluster was formed.
+     */
+    readonly zoom: number;
+    /**
+     * Additional custom properties of the cluster feature.
+     */
     [name: string]: any;
 }
 
