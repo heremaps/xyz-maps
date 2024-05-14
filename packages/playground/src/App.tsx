@@ -121,10 +121,11 @@ export const App: React.FC = (props: { examples: any }) => {
         if (hash) {
             let [c, title] = hash.split('-');
             if (title) {
-                c = decodeURI(c);
-                title = title.replace(/_/g, ' ');
+                // capitalize
+                c = decodeURI(c).split(' ').map((w) => w[0].toUpperCase() + w.slice(1)).join(' ');
+                title = title.replace(/_/g, ' ').toLowerCase();
                 for (let i = 0, examples = props.examples[c]; i < examples.length; i++) {
-                    if (examples[i].title == title) {
+                    if (examples[i].title.toLowerCase() == title) {
                         initExample = [i, c];
                         break;
                     }
@@ -182,7 +183,7 @@ export const App: React.FC = (props: { examples: any }) => {
 
     return (<div className={'Playground'}>
         <Navbar title={'XYZ Maps Playground'} version={apiVersion}></Navbar>
-        <MobilePanel defaultActive={'editor'} onChange={handleVisibility} visibility={visibility}/>
+        <MobilePanel defaultActive={'editor'} onChange={handleVisibility} visibility={visibility} />
 
         <div className={'content'}>
             <ExampleList examples={props.examples} onSelect={selectExample} onResize={updateColumnSize}
