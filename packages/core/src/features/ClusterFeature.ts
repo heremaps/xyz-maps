@@ -62,6 +62,15 @@ export class ClusterFeature extends Feature<'Point'> {
     properties: ClusterFeatureProperties;
 
     /**
+     * The geometry of a cluster feature is of type 'Point',
+     * where the `coordinates` represent the geographical coordinates [longitude, latitude] of the cluster center.
+     */
+    geometry: {
+        type: 'Point',
+        coordinates: GeoJSONCoordinate
+    };
+
+    /**
      * Returns the features within the cluster.
      * @returns An array containing the features within the cluster.
      */
