@@ -28,8 +28,8 @@ const float N_SCALE = 1.0 / 8191.0;
 
 void main(void){
 
-    float strokeWidth = toPixel(u_strokeWidth, u_scale);
-    float alias = u_no_antialias
+    float strokeWidth = toPixel(u_strokeWidth, u_scale) * 0.5;
+    float alias = (strokeWidth==0.0||u_no_antialias)
         ? 0.0
         : strokeWidth < 1. ? .65 : 1.;
 

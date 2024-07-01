@@ -16,7 +16,7 @@
  * SPDX-License-Identifier: Apache-2.0
  * License-Filename: LICENSE
  */
-import {Color, StyleValueFunction, StyleZoomRange} from './LayerStyle';
+import {Color, StyleExpression, StyleValueFunction, StyleZoomRange} from './LayerStyle';
 
 /**
  * Interface for configuring the visual appearance of Lines.
@@ -37,7 +37,7 @@ export interface LineStyle {
    *
    * @example \{...zLayer: 2, zIndex: 5\} will be rendered on top of \{...zLayer: 1, zIndex: 10\}
    */
-  zLayer?: number | StyleValueFunction<number>;
+  zLayer?: number | StyleValueFunction<number> | StyleExpression<number>;
 
   /**
    * Defines the opacity of the style.
@@ -45,14 +45,14 @@ export interface LineStyle {
    * It is valid for all style types.
    * @defaultValue 1
    */
-  opacity?: number | StyleValueFunction<number> | StyleZoomRange<number>;
+  opacity?: number | StyleValueFunction<number> | StyleZoomRange<number> | StyleExpression<number>;
 
   /**
    * Sets the stroke color of the Line.
    *
    * @see {@link Color} for a detailed list of possible supported formats.
    */
-  stroke?: Color | StyleValueFunction<Color> | StyleZoomRange<Color>;
+  stroke?: Color | StyleValueFunction<Color> | StyleZoomRange<Color> | StyleExpression<Color>;
 
   /**
    * Sets the width of the line.
@@ -78,7 +78,7 @@ export interface LineStyle {
    * }
    * ```
    */
-  strokeWidth: number | string | StyleValueFunction<number | number> | StyleZoomRange<string | number>;
+  strokeWidth: number | string | StyleValueFunction<number | string> | StyleZoomRange<number | string> | StyleExpression<number | string>;
 
   /**
    * This controls the shape of the ends of lines. there are three possible values for strokeLinecap:
@@ -89,7 +89,7 @@ export interface LineStyle {
    *
    * If "strokeLinecap" is used in combination with "altitude", only "butt" is supported for "strokeLinecap".
    */
-  strokeLinecap?: string | StyleValueFunction<string> | StyleZoomRange<string>;
+  strokeLinecap?: string | StyleValueFunction<string> | StyleZoomRange<string> | StyleExpression<string>;
 
   /**
    * The joint where the two segments in a line meet is controlled by the strokeLinejoin attribute, There are three possible values for this attribute:
@@ -100,7 +100,7 @@ export interface LineStyle {
    *
    * If "strokeLinejoin" is used in combination with "altitude", the use of "round" is not supported.
    */
-  strokeLinejoin?: string | StyleValueFunction<string> | StyleZoomRange<string>;
+  strokeLinejoin?: string | StyleValueFunction<string> | StyleZoomRange<string> | StyleExpression<string>;
 
   /**
    * The strokeDasharray attribute controls the pattern of dashes and gaps used to stroke paths.
@@ -119,7 +119,7 @@ export interface LineStyle {
    * // dash -> 10 meter, gap -> 10 pixel.
    * strokeDasharray: ["20m",10] || ["20m","10px"]
    */
-  strokeDasharray?: (number | string)[] | StyleValueFunction<(number | string)[]> | StyleZoomRange<(number | string)[]> | 'none';
+  strokeDasharray?: (number | string)[] | StyleValueFunction<(number | string)[]> | StyleZoomRange<(number | string)[]> | StyleExpression<(number | string)[]> | 'none';
 
   /**
    * Specifies the URL of the image to be rendered at the positions of the dashes.
@@ -138,7 +138,7 @@ export interface LineStyle {
    * from: 0.0 // -\> 0%, the segment has the same starting point as the entire line
    * from:  0.5 // -\> 50%, the segment starts in the middle of the entire line
    */
-  from?: number | StyleValueFunction<number> | StyleZoomRange<number>;
+  from?: number | StyleValueFunction<number> | StyleZoomRange<number> | StyleExpression<number>;
 
   /**
    * Define the end position of a segment of the entire line in %.
@@ -150,7 +150,7 @@ export interface LineStyle {
    * to: 0.5 // -\> 50%, the segment ends in the middle of the entire line
    * to: 1.0 // -\> 100%, the segment has the same end point as the entire line
    */
-  to?: number | StyleValueFunction<number> | StyleZoomRange<number>;
+  to?: number | StyleValueFunction<number> | StyleZoomRange<number> | StyleExpression<number>;
 
   /**
    * Offset a line to the left or right side in pixel or meter.
@@ -168,7 +168,7 @@ export interface LineStyle {
    * { type: "Line", zIndex: 0, stroke:'blue', strokeWidth: 4, offset: "2m"}
    * ```
    */
-  offset?: number | string | StyleValueFunction<number | string> | StyleZoomRange<number | string>;
+  offset?: number | string | StyleValueFunction<number | string> | StyleZoomRange<number | string> | StyleExpression<number | string>;
 
   /**
    * The altitude of the line in meters.
@@ -181,7 +181,7 @@ export interface LineStyle {
    *
    * @experimental
    */
-  altitude?: number | boolean | StyleValueFunction<number | boolean> | StyleZoomRange<number | boolean>;
+  altitude?: number | boolean | StyleValueFunction<number | boolean> | StyleZoomRange<number | boolean> | StyleExpression<number | boolean>;
 
   /**
    * Scales the size of a style based on the feature's altitude.
@@ -194,5 +194,5 @@ export interface LineStyle {
    *
    * @experimental
    */
-  scaleByAltitude?: boolean | StyleValueFunction<boolean> | StyleZoomRange<boolean>;
+  scaleByAltitude?: boolean | StyleValueFunction<boolean> | StyleZoomRange<boolean> | StyleExpression<boolean>;
 }

@@ -46,7 +46,6 @@ import {FlightAnimator} from './animation/FlightAnimator';
 import Copyright from './ui/copyright/Copyright';
 import Logo from './ui/Logo';
 import {fillMap} from './displays/styleTools';
-import {toRGB} from './displays/webgl/color';
 
 
 const project = webMercator;
@@ -116,7 +115,6 @@ export class Map {
     }
 
     static fillZoomMap = fillMap;
-    static toRGB = toRGB;
 
     id: number;
 
@@ -280,7 +278,7 @@ export class Map {
 
         this.setBackgroundColor(options.backgroundColor);
 
-        this._search = new Search(tigerMap, display.dpr);
+        this._search = new Search(tigerMap, display.layers, display.dpr);
 
         const pointerEvents = this._evDispatcher = new EventDispatcher(mapEl, tigerMap, layers, options);
 
@@ -394,8 +392,7 @@ export class Map {
 
 
         display.setView(this.initViewPort(), this._s, this._rz, this._rx, this._groundResolution, this._worldSize);
-        // display.setView(this.initViewPort(), this.getZoomlevel(), this._s, this._rz, this._rx, this._groundResolution);
-        display.updateGrid(this._z, this._ox, this._oy);
+        display.updateGrid(this._z, this.getZoomlevel(), this._ox, this._oy);
 
         // display.setTransform(this._s, this._rz, this._rx, this._groundResolution);
 
@@ -785,7 +782,7 @@ export class Map {
                 if (featureInfo.id != null) {
                     const layer = layers[featureInfo.layerIndex];
                     const provider = <FeatureProvider>layer.getProvider(this.getZoomlevel() ^ 0);
-                    const feature = provider?.search && provider.search(featureInfo.id);
+                    const feature = provider?.search?.(featureInfo.id);
 
                     if (feature) {
                         const {pointWorld} = featureInfo;
@@ -1268,7 +1265,7 @@ export class Map {
                 index = layers.length;
             }
             // initLayer(layer, index);
-            this._display.addLayer(layer, layer.getStyle(), index);
+            this._display.addLayer(layer, index, (layer as TileLayer).getStyleManager?.());
             // if layer get's cleared -> refresh/re-fetch data
             // layer.addEventListener('clear', (ev)=>this.refresh(ev.detail.layer));
             layer.addEventListener('clear', this._layerClearListener);

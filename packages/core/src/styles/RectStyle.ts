@@ -16,7 +16,7 @@
  * SPDX-License-Identifier: Apache-2.0
  * License-Filename: LICENSE
  */
-import {Color, StyleValueFunction, StyleZoomRange} from './LayerStyle';
+import {Color, StyleExpression, StyleValueFunction, StyleZoomRange} from './LayerStyle';
 
 export interface RectStyle {
     /**
@@ -30,7 +30,7 @@ export interface RectStyle {
      * The zIndex is defined relative to the "zLayer" property.
      * If "zLayer" is defined all zIndex values are relative to the "zLayer" value.
      */
-    zIndex: number | StyleValueFunction<number> | StyleZoomRange<number>;
+    zIndex: number | StyleValueFunction<number> | StyleZoomRange<number> | StyleExpression<number>;
 
     /**
      * Indicates drawing order across multiple layers.
@@ -40,21 +40,21 @@ export interface RectStyle {
      *
      * @example \{...zLayer: 2, zIndex: 5\} will be rendered on top of \{...zLayer: 1, zIndex: 10\}
      */
-    zLayer?: number | StyleValueFunction<number>;
+    zLayer?: number | StyleValueFunction<number> | StyleExpression<number>;
 
     /**
      * Sets the color to fill the Rectangle.
      *
      * @see {@link Color} for a detailed list of possible supported formats.
      */
-    fill?: Color | StyleValueFunction<Color> | StyleZoomRange<Color>;
+    fill?: Color | StyleValueFunction<Color> | StyleZoomRange<Color> | StyleExpression<Color>;
 
     /**
      * Sets the stroke color of the Rectangle.
      *
      * @see {@link Color} for a detailed list of possible supported formats.
      */
-    stroke?: Color | StyleValueFunction<Color> | StyleZoomRange<Color>;
+    stroke?: Color | StyleValueFunction<Color> | StyleZoomRange<Color> | StyleExpression<Color>;
 
     /**
      * Sets the width of the Rectangle.
@@ -72,7 +72,7 @@ export interface RectStyle {
      * }
      * ```
      */
-    strokeWidth?: number | string | StyleValueFunction<number | number> | StyleZoomRange<string | number>;
+    strokeWidth?: number | string | StyleValueFunction<number | string> | StyleZoomRange<number | string> | StyleExpression<number | string>;
 
     /**
      * Defines the opacity of the style.
@@ -80,12 +80,12 @@ export interface RectStyle {
      * It is valid for all style types.
      * @defaultValue 1
      */
-    opacity?: number | StyleValueFunction<number> | StyleZoomRange<number>;
+    opacity?: number | StyleValueFunction<number> | StyleZoomRange<number> | StyleExpression<number>;
 
     /**
      * Rotate the Rectangle by the angle in degrees.
      */
-    rotation?: number | StyleValueFunction<number> | StyleZoomRange<number>;
+    rotation?: number | StyleValueFunction<number> | StyleZoomRange<number> | StyleExpression<number>;
 
     /**
      * Width of the style in pixels.
@@ -112,7 +112,7 @@ export interface RectStyle {
      * }
      * ```
      */
-    width?: number | StyleValueFunction<number> | StyleZoomRange<number>;
+    width?: number | StyleValueFunction<number> | StyleZoomRange<number> | StyleExpression<number>;
 
     /**
      * Height of the REctangle in pixels.
@@ -143,7 +143,7 @@ export interface RectStyle {
      * }
      * ```
      */
-    height?: number | StyleValueFunction<number> | StyleZoomRange<number>;
+    height?: number | StyleValueFunction<number> | StyleZoomRange<number> | StyleExpression<number>;
 
     /**
      * Offset the rectangle in pixels on x-axis.
@@ -156,7 +156,7 @@ export interface RectStyle {
      * { type: "Rect", zIndex: 0, fill:'blue', width: 24, offsetX: "-1m"}
      * ```
      */
-    offsetX?: number | string | StyleValueFunction<number | string> | StyleZoomRange<number | string>;
+    offsetX?: number | string | StyleValueFunction<number | string> | StyleZoomRange<number | string> | StyleExpression<number | string>;
 
     /**
      * Offset the rectangle in pixels on y-axis.
@@ -169,7 +169,7 @@ export interface RectStyle {
      * { type: "Rect", zIndex: 0, fill:'blue', width: 24, offsetY: "-1m"}
      * ```
      */
-    offsetY?: number | StyleValueFunction<number> | StyleZoomRange<number>;
+    offsetY?: number | StyleValueFunction<number> | StyleZoomRange<number> | StyleExpression<number>;
 
     /**
      * Offset the rectangle in pixels on z-axis.
@@ -182,7 +182,7 @@ export interface RectStyle {
      * { type: "Rect", zIndex: 0, fill:'blue', radius: 24, offsetZ: "1m"}
      * ```
      */
-    offsetZ?: number | string | StyleValueFunction<number | string> | StyleZoomRange<number | string>;
+    offsetZ?: number | string | StyleValueFunction<number | string> | StyleZoomRange<number | string> | StyleExpression<number | string>;
 
     /**
      * Alignment for styles of type "Rect".
@@ -190,7 +190,7 @@ export interface RectStyle {
      * "map" aligns to the plane of the map and "viewport" aligns to the plane of the viewport/screen.
      * Default alignment for Text based on point geometries is "viewport" while "map" is the default for line geometries.
      */
-    alignment?: 'map' | 'viewport' | StyleValueFunction<string> | StyleZoomRange<string>;
+    alignment?: 'map' | 'viewport' | StyleValueFunction<string> | StyleZoomRange<string> | StyleExpression<string>;
 
     /**
      * Sets the anchor point for rectangle style used with Line or Polygon geometry.
@@ -205,7 +205,7 @@ export interface RectStyle {
      *
      * @defaultValue For Polygon geometry the default is "Center". For Line geometry the default is "Coordinate".
      */
-    anchor?: 'Line' | 'Coordinate' | 'Centroid'
+    anchor?: 'Line' | 'Coordinate' | 'Centroid' | StyleValueFunction<string> | StyleZoomRange<string> | StyleExpression<string>;
 
     /**
      * Enable or disable the space check for point styles on line geometries.
@@ -215,7 +215,7 @@ export interface RectStyle {
      *
      * @defaultValue true
      */
-    checkLineSpace?: boolean
+    checkLineSpace?: boolean | StyleValueFunction<boolean> | StyleZoomRange<boolean> | StyleExpression<boolean>;
 
     /**
      * Enable or disable collision detection.
@@ -227,12 +227,12 @@ export interface RectStyle {
      *
      * @defaultValue true
      */
-    collide?: boolean | StyleValueFunction<boolean> | StyleZoomRange<boolean>;
+    collide?: boolean | StyleValueFunction<boolean> | StyleZoomRange<boolean> | StyleExpression<boolean>;
 
     /**
      * Enables collision detection and combines all styles of a StyleGroup with the same "CollisionGroup" into a single logical object for collision detection.
      */
-    collisionGroup?: string | StyleValueFunction<string> | StyleZoomRange<string>
+    collisionGroup?: string | StyleValueFunction<string> | StyleZoomRange<string> | StyleExpression<string>;
 
     /**
      * Minimum distance in pixels between repeated style-groups on line geometries.
@@ -240,7 +240,7 @@ export interface RectStyle {
      *
      * @defaultValue 256 (pixels)
      */
-    repeat?: number | StyleValueFunction<number> | StyleZoomRange<number>;
+    repeat?: number | StyleValueFunction<number> | StyleZoomRange<number> | StyleExpression<number>;
 
     /**
      * The altitude of the style in meters.
@@ -253,7 +253,7 @@ export interface RectStyle {
      *
      * @experimental
      */
-    altitude?: number | boolean | StyleValueFunction<number | boolean> | StyleZoomRange<number | boolean>
+    altitude?: number | boolean | StyleValueFunction<number | boolean> | StyleZoomRange<number | boolean> | StyleExpression<number | boolean>;
 
 
     /**
@@ -267,5 +267,5 @@ export interface RectStyle {
      *
      * @experimental
      */
-    scaleByAltitude?: boolean | StyleValueFunction<boolean> | StyleZoomRange<boolean>
+    scaleByAltitude?: boolean | StyleValueFunction<boolean> | StyleZoomRange<boolean> | StyleExpression<boolean>;
 }

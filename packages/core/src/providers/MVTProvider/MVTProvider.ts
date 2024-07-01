@@ -32,6 +32,9 @@ class MvtFeature extends Feature {
     getMvtLayer() {
         return this.geometry.__xyz.l;
     }
+    getDataSourceLayer(layer:any) {
+        return this.geometry.__xyz.l;
+    }
 }
 
 

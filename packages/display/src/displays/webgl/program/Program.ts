@@ -21,16 +21,21 @@ import {createProgram} from '../glTools';
 import {GLStates, PASS} from './GLStates';
 // @ts-ignore
 import introVertex from '../glsl/intro_vertex.glsl';
-import {ArrayGrp, GeometryBuffer, IndexData, IndexGrp} from '../buffer/GeometryBuffer';
+import {ArrayGrp, DynamicUniform, GeometryBuffer, IndexData, IndexGrp, Uniform} from '../buffer/GeometryBuffer';
 import {BufferCache} from '../GLRender';
 import {Attribute} from '../buffer/Attribute';
 import {ConstantAttribute} from '../buffer/templates/TemplateBuffer';
 
 let UNDEF;
 
-type UniformMap = {
+type UniformLocations = {
     [name: string]: WebGLUniformLocation
 };
+
+type UniformMap = {
+    [name: string]: Uniform | DynamicUniform
+};
+
 type AttributeMap = {
     [name: string]: Attribute | ConstantAttribute
 };
@@ -72,7 +77,7 @@ class Program {
         }
     } = {};
     attributeDivisors: number[] = [];
-    uniforms: UniformMap = {};
+    uniforms: UniformLocations = {};
 
     private usage;
     private buffers: BufferCache;
@@ -158,24 +163,20 @@ class Program {
 
     private createUniformSetter(uInfo: WebGLActiveInfo, location: WebGLUniformLocation) {
         const {gl} = this;
+        const getVal = (u) => typeof u == 'function' ? u() : u;
         switch (uInfo.type) {
         case gl.FLOAT:
-            return (v) => gl.uniform1f(location, v);
-
+            return (v) => gl.uniform1f(location, getVal(v));
         case gl.FLOAT_MAT4:
             return (v) => gl.uniformMatrix4fv(location, false, v);
-
         case gl.FLOAT_VEC2:
-            return (v) => gl.uniform2fv(location, v);
-
+            return (v) => gl.uniform2f(location, getVal(v[0]), getVal(v[1]));
         case gl.FLOAT_VEC3:
             return (v) => gl.uniform3fv(location, v);
-
         case gl.FLOAT_VEC4:
             return (v) => gl.uniform4fv(location, v);
-
         case gl.BOOL:
-            return (v) => gl.uniform1i(location, v);
+            return (v) => gl.uniform1i(location, getVal(v));
         case gl.SAMPLER_2D:
             const tu = this.textureUnits++;
             return (v) => {

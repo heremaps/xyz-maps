@@ -165,7 +165,7 @@ class Overlay {
     }
 
 
-    getStyles(obj): Style[] {
+    getStyles(obj): readonly Style[] {
         return this.layer.getStyleGroup(obj);
     }
 

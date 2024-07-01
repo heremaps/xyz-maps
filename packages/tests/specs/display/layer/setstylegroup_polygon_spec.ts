@@ -22,6 +22,7 @@ import {getCanvasPixelColor, prepare} from 'utils';
 import {Map} from '@here/xyz-maps-display';
 import dataset from './setstylegroup_polygon_spec.json';
 import chaiAlmost from 'chai-almost';
+import {TileLayer} from '@here/xyz-maps-core';
 
 const IMG_SRC_RED = 'data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAAAgAAAAICAYAAADED76LAAAAE0lEQVR42mP8z8AARLgB48hQAAAdEw/5itjcFgAAAABJRU5ErkJggg==';
 const IMG_SRC_BLUE = 'data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAAAgAAAAICAYAAADED76LAAAAE0lEQVR42mNkYPj/nwEPYBwZCgANIw/5um5PVwAAAABJRU5ErkJggg==';
@@ -32,7 +33,7 @@ const FONT = 'bold 30px Arial,Helvetica,sans-serif';
 describe('setStyleGroup Polygon', () => {
     const expect = chai.expect;
 
-    let buildingLayer;
+    let buildingLayer: TileLayer;
     let display;
     let mapContainer;
     let feature;

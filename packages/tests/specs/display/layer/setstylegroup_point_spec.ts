@@ -21,11 +21,12 @@ import {waitForViewportReady} from 'displayUtils';
 import {getCanvasPixelColor, prepare} from 'utils';
 import {Map} from '@here/xyz-maps-display';
 import dataset from './setstylegroup_point_spec.json';
+import {TileLayer} from '@here/xyz-maps-core';
 
 describe('setStyleGroup Point', function() {
     const expect = chai.expect;
 
-    let paLayer;
+    let paLayer: TileLayer;
     let display;
     let mapContainer;
     let feature1;
@@ -61,12 +62,12 @@ describe('setStyleGroup Point', function() {
         // set style for the added feature
         paLayer.setStyleGroup(
             feature1,
-            {'zIndex': 0, 'type': 'Rect', 'width': 16, 'height': 16, 'opacity': 1, 'stroke': '#be6b65', 'strokeWidth': 16}
+            [{'zIndex': 0, 'type': 'Rect', 'width': 16, 'height': 16, 'opacity': 1, 'stroke': '#be6b65', 'strokeWidth': 16}]
         );
 
         paLayer.setStyleGroup(
             feature2,
-            {'zIndex': 0, 'type': 'Rect', 'width': 16, 'height': 16, 'opacity': 1, 'stroke': '#be6b65', 'strokeWidth': 16}
+            [{'zIndex': 0, 'type': 'Rect', 'width': 16, 'height': 16, 'opacity': 1, 'stroke': '#be6b65', 'strokeWidth': 16}]
         );
 
         // validate features have new style

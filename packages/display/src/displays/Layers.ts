@@ -17,8 +17,11 @@
  * License-Filename: LICENSE
  */
 
-import {Tile, Layer as BasicLayer, TileLayer} from '@here/xyz-maps-core';
+import {Tile, Layer as BasicLayer, TileLayer, Feature} from '@here/xyz-maps-core';
+import {Expression, ExpressionParser} from '@here/xyz-maps-common';
 import BasicTile from './BasicTile';
+import {parseStyleGroup} from './styleTools';
+
 
 class ScreenTile {
     x: number;
@@ -34,6 +37,16 @@ class ScreenTile {
         this.tile = tile;
     }
 }
+
+interface ResultCache<K, V> extends Map<K, V> {
+    hits?: number;
+}
+
+export type StyleExpressionParser = ExpressionParser & {
+    context: { [name: string]: any, _dynamicExpResultCache: ResultCache<Expression, any> },
+    _dynamicExpCache: Map<Expression, any>
+}
+
 
 class Layer {
     id: number;
@@ -53,11 +66,19 @@ class Layer {
     private zd: boolean = false; // dirty
     bgColor: any;
 
+    private expParser: StyleExpressionParser | undefined;
+
     constructor(layer: BasicLayer, layers: Layers) {
         this.layer = layer;
         this.tileSize = (<TileLayer>layer).tileSize || null;
         this.layers = layers;
         this.id = Math.floor(Math.random() * 1e16);
+
+        this.expParser = (this.layer as TileLayer).getStyleManager?.().getExpressionParser?.() as StyleExpressionParser;
+    }
+
+    getExpressionParser(): StyleExpressionParser {
+        return this.expParser;
     }
 
     getZ(z: number | string): number {
@@ -116,6 +137,14 @@ class Layer {
 
     _z3d: number = Infinity;
     z3d: number;
+
+    processStyleGroup(feature, tileGridZoom: number) {
+        const styleGroup = (this.layer as TileLayer).getStyleGroup?.(feature, tileGridZoom);
+        if (styleGroup) {
+            parseStyleGroup(styleGroup, this.expParser);
+        }
+        return styleGroup;
+    }
 }
 
 class Layers extends Array<Layer> {
@@ -181,6 +210,18 @@ class Layers extends Array<Layer> {
             layer = layer.id;
         }
         return this._map[layer];
+    }
+
+    setZoom(zoomlevel: number) {
+        for (let layer of this) {
+            const expParser = layer.getExpressionParser();
+            const expContext = expParser?.context;
+            if (expContext && expContext.zoom != zoomlevel) {
+                expContext.zoom = zoomlevel;
+                expContext.$zoom = zoomlevel^0;
+                // expParser.dynamicResultCache.clear();
+            }
+        }
     }
 
     // clear(): TileMap {

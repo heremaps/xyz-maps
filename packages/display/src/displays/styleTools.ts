@@ -18,12 +18,13 @@
  */
 
 import {wrapText} from './textUtils';
-import {Feature, StyleZoomRange} from '@here/xyz-maps-core';
-import {RGBA, toRGB} from './webgl/color';
 import {getRotatedBBox} from '../geometry';
-import {webMercator, Style, StyleGroup} from '@here/xyz-maps-core';
-
 import {GlyphManager} from './webgl/GlyphManager';
+import {Expression, ExpressionParser, JSONExpression} from '@here/xyz-maps-common';
+import {Feature, StyleZoomRange, webMercator, Style, StyleGroup, LayerStyle} from '@here/xyz-maps-core';
+import {Color} from '@here/xyz-maps-common';
+import toRGB = Color.toRGB;
+import {StyleExpressionParser} from './Layers';
 
 const glyphManager = GlyphManager.getInstance();
 
@@ -34,15 +35,14 @@ const getTileGridZoom = (zoom) => Math.min(zoom, 20) ^ 0;
 const INFINITY = Infinity;
 let UNDEF;
 
-
 enum ValueType {
-  Number,
-  String,
-  Color,
-  // Size values can be defined in Meter or Pixel, needs to be parsed.
-  Size,
-  Boolean,
-  Float
+    Number,
+    String,
+    Color,
+    // Size values can be defined in Meter or Pixel, needs to be parsed.
+    Size,
+    Boolean,
+    Float
 }
 
 const parsePropertyNames = {
@@ -71,7 +71,9 @@ const parsePropertyNames = {
     'extrude': {value: ValueType.Size},
     'extrudeBase': {value: ValueType.Size},
     'intensity': {value: ValueType.Float},
-    'weight': {value: ValueType.Float}
+    'weight': {value: ValueType.Float},
+    'opacity': {value: ValueType.Float},
+    'strokeDasharray': {value: ValueType.Size}
 };
 const allowedFloatProperties: { [name: string]: true } = {};
 for (let name in parsePropertyNames) {
@@ -103,17 +105,34 @@ export const getTextString = (style, feature: Feature, level: number) => {
     }
 };
 
+export const fillMap = (searchMap, parseSizeValue: boolean, map = {}) => {
+    let fixedZoomMap = {};
+    for (let zoom in searchMap) {
+        fixedZoomMap[Math.round(Number(zoom))] = searchMap[zoom];
+    }
+    for (let zoom = 1; zoom <= 20; zoom++) {
+        map[zoom] = searchLerp(fixedZoomMap, zoom, parseSizeValue);
+    }
+    return map;
+};
+
 // const getValue = <
 //     Property extends keyof Style,
 //     Value = Style[Property],
 //     Return = Value extends (...args: any[]) => any ? ReturnType<Value> : Exclude<Value,StyleZoomRange<any>>
 //     >(property: Property, style: Style, feature: Feature, zoom: number): Return {
-const getValue = (name: string, style: Style, feature: Feature, tileGridZoom: number) => {
+const getValue = (name: string, style: Style, feature: Feature, tileGridZoom: number, mode?: 0 | 1/* 0->Static mode, 1-> Dynamic mode*/) => {
     let value = style[name];
-    return typeof value == 'function'
-    // @ts-ignore, 3rd param can be used internally
-        ? value(feature, tileGridZoom, style)
+
+    if (value instanceof Expression) {
+        return value.resolve(feature.properties, mode || 0);
+    }
+
+    value = typeof value == 'function'
+        // @ts-ignore, 3rd param can be used internally
+        ? value(feature, tileGridZoom, style, mode)
         : value;
+    return value;
 };
 
 const parseSizeValue = (size: string | number, float: boolean = false): [number, string] => {
@@ -197,7 +216,6 @@ const getLineWidth = (groups: StyleGroup, feature: Feature, zoom: number, layerI
             // }
 
             const value = getSizeInPixel('strokeWidth', style, feature, zoom, true);
-
             if (value > width) {
                 width = value;
             }
@@ -226,10 +244,10 @@ export const calcBBox = (style: Style, feature: Feature, zoom: number, dpr: numb
 
     if ( // it's not a icon..
         type != 'Image' &&
-    // .. and no fill/stroke is defined
-    !fill && !stroke
+        // .. and no fill/stroke is defined
+        !fill && !stroke
     ) {
-    // -> it's not visible!
+        // -> it's not visible!
         return null;
     }
 
@@ -497,67 +515,57 @@ const searchLerp = (map, search: number, parseSize: boolean = true) => {
     }
     return rawVal;
 };
-export const fillMap = (searchMap, parseSizeValue: boolean, map = {}) => {
-    let fixedZoomMap = {};
-    for (let zoom in searchMap) {
-        fixedZoomMap[Math.round(Number(zoom))] = searchMap[zoom];
-    }
-    for (let zoom = 1; zoom <= 20; zoom++) {
-        map[zoom] = searchLerp(fixedZoomMap, zoom, parseSizeValue);
-    }
-    return map;
-};
 
-
-export const parseColorMap = (map: { [zoom: string]: RGBA }) => {
+export const parseColorMap = (map: { [zoom: string]: Color.RGBA }) => {
     for (let z in map) {
         map[z] = toRGB(map[z]);
     }
     return map;
 };
 
-export const createZoomRangeFunction = (map: StyleZoomRange<RGBA>, /* isFeatureContext?:boolean,*/ parseSizeValue?: boolean) => {
+export const createZoomRangeFunction = (map: StyleZoomRange<Color.RGBA>, /* isFeatureContext?:boolean,*/ parseSizeValue?: boolean) => {
     map = fillMap(map, parseSizeValue);
     // return new Function('f,zoom', `return (${JSON.stringify(map)})[zoom];`);
     const range = (feature, zoom: number) => {
         return map[zoom ?? feature];
     };
     range.map = map; // dbg
-
     return range;
 };
 
-const parseStyleGroup = (styleGroup: Style[]) => {
-    if (!(<any>styleGroup).__p) {
-        (<any>styleGroup).__p = true;
-        for (let style of styleGroup) {
-            for (let name in style) {
-                if (name in parsePropertyNames) {
-                    let value = style[name];
-                    if (
-                        typeof value == 'object' &&
-                        !Array.isArray(value) &&
+const parseStyleGroup = (styleGroup: readonly(Style & { __p?: true })[], expParser: StyleExpressionParser) => {
+    for (let style of styleGroup) {
+        // process style only once
+        if (style.__p) continue;
+        for (let name in style) {
+            if (name in parsePropertyNames) {
+                const value = style[name];
+                const skipExpressions = name == 'strokeDasharray';
+
+                if (!skipExpressions && ExpressionParser.isJSONExp(value)) {
+                    // if (name != 'strokeDasharray' || typeof parseInt(value[0]) != 'number') {
+                    style[name] = expParser.parseJSON(value);
+                    // }
+                } else {
+                    // check if value is a "StyleZoomRange"
+                    if (value && typeof value == 'object' && !Array.isArray(value) &&
                         // skip Gradients
                         !value.type
                     ) {
-                        // "zoomrange" value detected
                         if (name == 'stroke' || name == 'fill') {
                             // convert to [r,g,b,a]
                             parseColorMap(value);
                         }
-
                         const parseSizeValue = !allowedFloatProperties[name];
-
                         style[name] = createZoomRangeFunction(value, parseSizeValue);
-                        // let map = fillMap(value, parseSizeValue, {});
-                        // style[name] = createZoomRangeFunction(map);
                     }
                 }
             }
         }
+        style.__p = true;
     }
+    return styleGroup;
 };
-
 
 export {
     getValue,

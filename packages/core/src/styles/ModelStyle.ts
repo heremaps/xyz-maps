@@ -16,7 +16,7 @@
  * SPDX-License-Identifier: Apache-2.0
  * License-Filename: LICENSE
  */
-import {StyleValueFunction, StyleZoomRange} from './LayerStyle';
+import {StyleExpression, StyleValueFunction, StyleZoomRange} from './LayerStyle';
 
 type TypedArray = Int8Array | Uint8Array | Int16Array | Uint16Array | Int32Array | Uint32Array | Float32Array;
 
@@ -214,7 +214,7 @@ export interface ModelStyle {
      * The zIndex is defined relative to the "zLayer" property.
      * If "zLayer" is defined all zIndex values are relative to the "zLayer" value.
      */
-    zIndex: number | StyleValueFunction<number> | StyleZoomRange<number>;
+    zIndex: number | StyleValueFunction<number> | StyleZoomRange<number> | StyleExpression<number>;
     /**
      * Indicates drawing order across multiple layers.
      * Styles using zLayer with a high value are rendered on top of zLayers with a low value.
@@ -223,7 +223,7 @@ export interface ModelStyle {
      *
      * @example \{...zLayer: 2, zIndex: 5\} will be rendered on top of \{...zLayer: 1, zIndex: 10\}
      */
-    zLayer?: number | StyleValueFunction<number>;
+    zLayer?: number | StyleValueFunction<number> | StyleExpression<number>;
 
     /**
      * The Model data that should be rendered.

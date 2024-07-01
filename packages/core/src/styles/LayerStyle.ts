@@ -20,6 +20,161 @@
 import {Feature} from '../features/Feature';
 import {Style} from './GenericStyle';
 
+/**
+ * A StyleExpression is a JSON array representing an expression that returns the desired value
+ * for a specific style property. It is particularly useful for data-driven styling in map or UI components.
+ *
+ * The structure of a StyleExpression is as follows:
+ * - The first element (index 0) is a string that specifies the operator of the expression.
+ * - The subsequent elements are the operands required by the operator.
+ *
+ * @template ResultType - The type of the value that the expression returns.
+ *
+ * ## StyleExpression Operators
+ *
+ * A StyleExpression is a JSON array representing an expression that returns the desired value for a specific style property. Below are the possible operators and their descriptions, along with examples.
+ *
+ * ### Reference
+ * - **`ref`**: References another expression by name.
+ *   - Example: `["ref", "otherExpression"]`
+ *
+ * ### Data Retrieval
+ * - **`get`**: Retrieves a property from the input data. The third optional operand specifies the input data from which to retrieve the property. If not provided, it defaults to `feature.properties`.
+ *
+ *   The property name can also be a global map context variable:
+ *   - `$zoom`: The current zoom level.
+ *   - `$layer`: The name of the datasource layer.
+ *   - `$geometryType`: The type of the current feature geometry ("line", "point", "polygon").
+ *   - `$id`: The ID of the current feature.
+ *
+ *   - Example: `["get", "propertyName"]` // Retrieves `propertyName` from `feature.properties`.
+ *   - Example with input data: `["get", "propertyName", { custom: "data" }]` // Retrieves `propertyName` from the specified input data.
+ *   - Example with global map context variable: `["get", "$zoom"]` // Retrieves the current zoom level.
+ *
+ * ### Arithmetic
+ * - **`+`**: Adds two numbers.
+ *   - Example: `["+", 2, 3]` // Outputs: 5
+ * - **`-`**: Subtracts the second number from the first.
+ *   - Example: `["-", 5, 3]` // Outputs: 2
+ * - **`*`**: Multiplies two numbers.
+ *   - Example: `["*", 2, 3]` // Outputs: 6
+ * - **`/`**: Divides the first number by the second.
+ *   - Example: `["/", 6, 3]` // Outputs: 2
+ * - **`%`**: Computes the remainder of dividing the first number by the second.
+ *   - Example: `["%", 5, 2]` // Outputs: 1
+ * - **`floor`**: Rounds down a number to the nearest integer.
+ *   - Example: `["floor", 4.7]` // Outputs: 4
+ * - **`min`**: Returns the smallest number.
+ *   - Example: `["min", 1, 2, 3]` // Outputs: 1
+ * - **`max`**: Returns the largest number.
+ *   - Example: `["max", 1, 2, 3]` // Outputs: 3
+ *
+ * ### Logical
+ * - **`all`**: Returns true if all conditions are true.
+ *   - Example: `["all", true, true]` // Outputs: true
+ * - **`any`**: Returns true if any condition is true.
+ *   - Example: `["any", true, false]` // Outputs: true
+ * - **`!`**: Negates a boolean value.
+ *   - Example: `["!", true]` // Outputs: false
+ * - **`!has`**: Checks if a property does not exist.
+ *   - Example: `["!has", "propertyName"]`
+ * - **`has`**: Checks if a property exists.
+ *   - Example: `["has", "propertyName"]`
+ * - **`none`**: Returns true if no conditions are true.
+ *   - Example: `["none", false, false]` // Outputs: true
+ *
+ * ### Comparison
+ * - **`==`**: Checks if two values are equal.
+ *   - Example: `["==", 2, 2]` // Outputs: true
+ * - **`!=`**: Checks if two values are not equal.
+ *   - Example: `["!=", 2, 3]` // Outputs: true
+ * - **`>`**: Checks if the first value is greater than the second.
+ *   - Example: `[" >", 3, 2]` // Outputs: true
+ * - **`>=`**: Checks if the first value is greater than or equal to the second.
+ *   - Example: `[" >=", 3, 3]` // Outputs: true
+ * - **`<=`**: Checks if the first value is less than or equal to the second.
+ *   - Example: `["<=", 2, 2]` // Outputs: true
+ * - **`<`**: Checks if the first value is less than the second.
+ *   - Example: `["<", 2, 3]` // Outputs: true
+ * - **`^=`**: Checks if a string starts with a given substring.
+ *   - Example: `["^=", "hello", "he"]` // Outputs: true
+ * - **`$=`**: Checks if a string ends with a given substring.
+ *   - Example: `["$=", "hello", "lo"]` // Outputs: true
+ *
+ * ### String Manipulation
+ * - **`split`**: Splits a string by a delimiter.
+ *   - Example: `["split", "a,b,c", ","]` // Outputs: ["a", "b", "c"]
+ * - **`to-string`**: Converts a value to a string.
+ *   - Example: `["to-string", 123]` // Outputs: "123"
+ * - **`concat`**: Concatenates multiple strings.
+ *   - Example: `["concat", "hello", " ", "world"]` // Outputs: "hello world"
+ * - **`regex-replace`**: Replaces parts of a string matching a regex.
+ *   - Example: `["regex-replace", "hello world", "world", "there"]` // Outputs: "hello there"
+ * - **`slice`**: Extracts a section of a string.
+ *   - Example: `["slice", "hello", 0, 2]` // Outputs: "he"
+ * - **`at`**: Gets the character at a specified index in a string.
+ *   - Example: `["at", "hello", 1]` // Outputs: "e"
+ * - **`length`**: Gets the length of a string.
+ *   - Example: `["length", "hello"]` // Outputs: 5
+ *
+ * ### Conditional
+ * - **`case`**: Evaluates conditions in order and returns the corresponding result for the first true condition.
+ *   - Example: `["case", ["==", 1, 1], "one", ["==", 2, 2], "two", "default"]` // Outputs: "one"
+ * - **`step`**: Returns a value from a step function based on input.
+ *   - Example: `["step", 3, "small", 5, "medium", 10, "large"]` // Outputs: "small"
+ * - **`match`**: Returns a value based on matching input values.
+ *   - Example: `["match", "a", "a", 1, "b", 2, 0]` // Outputs: 1
+ *
+ * ### Utility
+ * - **`literal`**: Returns a literal value.
+ *   - Example: `["literal", [1, 2, 3]]` // Outputs: [1, 2, 3]
+ * - **`lookup`**: Finds an entry in a table that matches the given key values. The entry with the most matching keys is returned.
+ *   If multiple entries match equally, one of them is returned.
+ *   If no match is found, the default entry (if any) is returned. If no default entry is defined, null is returned.
+ *     - The `lookupTable` should be an array of objects, each with a `keys` member and an `attributes` member:
+ *       - `keys`: An object containing key-value pairs used for matching.
+ *       - `attributes`: An object containing the attributes to be returned when a match is found.
+ *   - Example:
+ *     ```javascript
+ *     {
+ *     "definitions": {
+ *       "lookupTable": [ "literal", [
+ *         { "keys": { "country": "US" }, "attributes": { "population": 331000000 } },
+ *         { "keys": { "country": "US", "state": "CA" }, "attributes": { "population": 39500000 } },
+ *         { "keys": {}, "attributes": { "population": 7800000000 } } // Default entry
+ *       ]]
+ *     }
+ *     }
+ *     // This example looks up the population for the state of California in the United States from the `lookupTable`.
+ *     ["lookup", { "country": "US", "state": "CA" }, ["ref", "lookupTable"]] // Outputts: `{ "population": 39500000 }`.
+ *     ```
+ *
+ * ### Type Conversion
+ * - **`number`**: Converts a value to a number.
+ *   - Example: `["number", "123"]` // Outputs: 123
+ * - **`boolean`**: Converts a value to a boolean.
+ *   - Example: `["boolean", "true"]` // Outputs: true
+ * - **`to-number`**: Converts a value to a number.
+ *   - Example: `["to-number", "123"]` // Outputs: 123
+ * - **`to-boolean`**: Converts a value to a boolean.
+ *   - Example: `["to-boolean", "true"]` // Outputs: true
+ *
+ * ### Zoom and Interpolation
+ * - **`zoom`**: Returns the current zoom level.
+ *   - Example: `["zoom"]` // Outputs: current zoom level
+ * - **`interpolate`**: Interpolates between values based on zoom level.
+ *   - Example: `["interpolate", ["linear"], ["zoom"], 10, 1, 15, 10]`
+ *
+ * Example:
+ * ```typescript
+ * const expression: StyleExpression = ["==", ["get", "property"], "value"];
+ * ```
+ * In this example, `"=="` is the operator, and `["get", "property"]` and `"value"` are the operands.
+ *
+ * Operators can include logical, arithmetic, string manipulation, and other types of operations, which are evaluated
+ * to determine the final value of the style property.
+ */
+export type StyleExpression<ResultType = any> = [string, ...any[]]; // JSONExpression
 
 /**
  * A StyleValueFunction is a function that returns the desired value for the respective style property.
@@ -52,7 +207,7 @@ export type StyleValueFunction<Type> = (feature: Feature, zoom: number) => Type 
  * }
  * ```
  */
-export type StyleZoomRange<Type> = { [zoom: number]: Type }
+export type StyleZoomRange<Type> = { [zoom: number|string]: Type }
 
 export {Style};
 // /**
@@ -72,10 +227,13 @@ export {Style};
 
 export type StyleGroupMap = { [id: string]: StyleGroup }
 
-export type StyleGroup = Array<Style>;
+export type StyleGroup = Style[];
+
+// type StrictExclude<T, U> = T extends U ? U extends T ? never : T : T;
+export type ParsedStyleProperty<S> = Exclude<S, StyleExpression<any> | StyleValueFunction<any> | StyleZoomRange<any>>;
 
 
-// (<LineStyle>testStyle[0]).stroke;
+var test: ParsedStyleProperty<number|StyleZoomRange<number>>;
 
 /**
  * The Color is an RGBA color value representing RED, GREEN, and BLUE light sources with an optional alpha channel.
@@ -111,6 +269,11 @@ export type Color = string | number | [number, number, number, number];
 export interface LayerStyle {
 
     /**
+     * Option LayerStyle definitions that can be references and reused by {@link Style|Styles} within the Layer.
+     */
+    definitions?: { [definitionName: string]: boolean | number | StyleExpression | any[] | null };
+
+    /**
      * @deprecated define strokeWidth style property using a "StyleZoomRange" value instead.
      * @hidden
      */
@@ -132,10 +295,12 @@ export interface LayerStyle {
      *  This function will be called for each feature being rendered by the display.
      *  The display expects this method to return the key for the styleGroup of how the feature should be rendered for the respective zoomlevel.
      *
+     *  If `assign` is not defined, the {@link Style.filter} property must be used to determine whether the feature should be rendered.
+     *
      *  @param feature - the feature to which style is applied
      *  @param zoomlevel - the zoomlevel of the tile the feature should be rendered in
      *
      *  @returns the key/identifier of the styleGroup in the styleGroupMap, or null/undefined if the feature should not be rendered.
      */
-    assign: (feature: Feature, zoomlevel: number) => string | null | undefined;
+    assign?: (feature: Feature, zoomlevel: number) => string | null | undefined;
 }

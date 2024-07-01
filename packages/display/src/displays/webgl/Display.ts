@@ -30,7 +30,7 @@ import GLTile from './GLTile';
 import {FeatureFactory} from './buffer/FeatureFactory';
 import {CollisionHandler} from './CollisionHandler';
 import {GeometryBuffer} from './buffer/GeometryBuffer';
-import {CustomLayer, tile, TileLayer, Layer as BasicLayer} from '@here/xyz-maps-core';
+import {CustomLayer, TileLayer} from '@here/xyz-maps-core';
 import {PASS} from './program/GLStates';
 import {Raycaster} from './Raycaster';
 

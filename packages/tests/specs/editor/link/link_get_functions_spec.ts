@@ -68,8 +68,11 @@ describe('Link getters return correct value', function() {
             pedestrianOnly: true
         });
         expect(link.getZLevels()).to.deep.equal([0, 0]);
-        expect(link.style()).to.deep.equal([
-            {zIndex: 0, type: 'Line', strokeWidth: 10, stroke: '#ff0000'}
-        ]);
+        expect(link.style()[0]).to.deep.include({
+            zIndex: 0,
+            type: 'Line',
+            strokeWidth: 10,
+            stroke: '#ff0000'
+        });
     });
 });

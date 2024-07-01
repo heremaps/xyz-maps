@@ -16,7 +16,7 @@
  * SPDX-License-Identifier: Apache-2.0
  * License-Filename: LICENSE
  */
-import {Color, StyleValueFunction, StyleZoomRange} from './LayerStyle';
+import {Color, StyleExpression, StyleValueFunction, StyleZoomRange} from './LayerStyle';
 
 /**
  * Interface for configuring the visual appearance of Text.
@@ -33,7 +33,7 @@ export interface TextStyle {
      * The zIndex is defined relative to the "zLayer" property.
      * If "zLayer" is defined all zIndex values are relative to the "zLayer" value.
      */
-    zIndex: number | StyleValueFunction<number> | StyleZoomRange<number>;
+    zIndex: number | StyleValueFunction<number> | StyleZoomRange<number> | StyleExpression<number>;
 
     /**
      * Indicates drawing order across multiple layers.
@@ -43,21 +43,21 @@ export interface TextStyle {
      *
      * @example \{...zLayer: 2, zIndex: 5\} will be rendered on top of \{...zLayer: 1, zIndex: 10\}
      */
-    zLayer?: number | StyleValueFunction<number>;
+    zLayer?: number | StyleValueFunction<number> | StyleExpression<number>;
 
     /**
      * Sets the color to fill the text.
      *
      * @see {@link Color} for a detailed list of possible supported formats.
      */
-    fill?: Color | StyleValueFunction<Color> | StyleZoomRange<Color>;
+    fill?: Color | StyleValueFunction<Color> | StyleZoomRange<Color> | StyleExpression<Color>;
 
     /**
      * Sets the stroke color of the text (outline).
      *
      * @see {@link Color} for a detailed list of possible supported formats.
      */
-    stroke?: Color | StyleValueFunction<Color> | StyleZoomRange<Color>;
+    stroke?: Color | StyleValueFunction<Color> | StyleZoomRange<Color> | StyleExpression<Color>;
 
     /**
      * Sets the width of the stroke (outline) to display the text with.
@@ -76,7 +76,7 @@ export interface TextStyle {
      * }
      * ```
      */
-    strokeWidth?: number | string | StyleValueFunction<number | number> | StyleZoomRange<string | number>;
+    strokeWidth?: number | string | StyleValueFunction<number | string> | StyleZoomRange<number | string> | StyleExpression<number | string>;
 
     /**
      * Defines the opacity of the style.
@@ -84,7 +84,7 @@ export interface TextStyle {
      * It is valid for all style types.
      * @defaultValue 1
      */
-    opacity?: number | StyleValueFunction<number> | StyleZoomRange<number>;
+    opacity?: number | StyleValueFunction<number> | StyleZoomRange<number> | StyleExpression<number>;
 
     /**
      * CSS font string for texts.
@@ -92,7 +92,7 @@ export interface TextStyle {
      *
      * @defaultValue “normal 12px Arial”
      */
-    font?: string | StyleValueFunction<string> | StyleZoomRange<string>;
+    font?: string | StyleValueFunction<string> | StyleZoomRange<string> | StyleExpression<string>;
 
     /**
      * Text is either a string or a function that generates the string that should be displayed.
@@ -125,7 +125,7 @@ export interface TextStyle {
      *
      * @defaultValue "Center"
      */
-    textAnchor?: 'Left' | 'Center' | 'Right' | 'Top' | 'TopLeft' | 'TopRight' | 'Bottom' | 'BottomLeft' | 'BottomRight'
+    textAnchor?: 'Left' | 'Center' | 'Right' | 'Top' | 'TopLeft' | 'TopRight' | 'Bottom' | 'BottomLeft' | 'BottomRight' | StyleValueFunction<string> | StyleZoomRange<string> | StyleExpression<string>;
 
     /**
      * "textRef" Reference to an attribute of an feature that's value should be displayed as text.
@@ -144,7 +144,7 @@ export interface TextStyle {
      * textRef: "id"
      * ```
      */
-    textRef?: string | StyleValueFunction<string> | StyleZoomRange<string>;
+    textRef?: string | StyleValueFunction<string> | StyleZoomRange<string> | StyleExpression<string>;
 
     /**
      * Offset the text in pixels on x-axis.
@@ -157,7 +157,7 @@ export interface TextStyle {
      * { type: "Text", zIndex: 0, fill:'blue', offsetX: "-1m", text: 'XYZ'}
      * ```
      */
-    offsetX?: number | string | StyleValueFunction<number | string> | StyleZoomRange<number | string>;
+    offsetX?: number | string | StyleValueFunction<number | string> | StyleZoomRange<number | string> | StyleExpression<number | string>;
 
     /**
      * Offset the text in pixels on y-axis.
@@ -170,7 +170,7 @@ export interface TextStyle {
      * { type: "Text", zIndex: 0, fill:'blue', offsetY: "-1m", text: 'XYZ'}
      * ```
      */
-    offsetY?: number | StyleValueFunction<number> | StyleZoomRange<number>;
+    offsetY?: number | StyleValueFunction<number> | StyleZoomRange<number> | StyleExpression<number>;
 
     /**
      * Offset the text in pixels on z-axis.
@@ -183,7 +183,7 @@ export interface TextStyle {
      * { type: "Text", zIndex: 0, fill:'blue', text: 'XYZ', offsetZ: "1m"}
      * ```
      */
-    offsetZ?: number | string | StyleValueFunction<number | string> | StyleZoomRange<number | string>;
+    offsetZ?: number | string | StyleValueFunction<number | string> | StyleZoomRange<number | string> | StyleExpression<number | string>;
 
     /**
      * Alignment for styles of type "Text".
@@ -191,19 +191,19 @@ export interface TextStyle {
      * "map" aligns to the plane of the map and "viewport" aligns to the plane of the viewport/screen.
      * Default alignment for Text based on point geometries is "viewport" while "map" is the default for line geometries.
      */
-    alignment?: 'map' | 'viewport' | StyleValueFunction<string> | StyleZoomRange<string>;
+    alignment?: 'map' | 'viewport' | StyleValueFunction<string> | StyleZoomRange<string> | StyleExpression<string>;
 
     /**
      * Rotate text around it's center in degrees.
      */
-    rotation?: number | StyleValueFunction<number> | StyleZoomRange<number>;
+    rotation?: number | StyleValueFunction<number> | StyleZoomRange<number> | StyleExpression<number>;
 
     /**
      * In case of label collision, Text with a higher priority (lower value) will be drawn before lower priorities (higher value).
      * If the collision detection is enabled for multiple Styles within the same StyleGroup, the highest priority (lowest value)
      * is used.
      */
-    priority?: number | StyleValueFunction<number> | StyleZoomRange<number>;
+    priority?: number | StyleValueFunction<number> | StyleZoomRange<number> | StyleExpression<number>;
 
     /**
      * Minimum distance in pixels between repeated style-groups on line geometries.
@@ -211,7 +211,7 @@ export interface TextStyle {
      *
      * @defaultValue 256 (pixels)
      */
-    repeat?: number | StyleValueFunction<number> | StyleZoomRange<number>;
+    repeat?: number | StyleValueFunction<number> | StyleZoomRange<number> | StyleExpression<number>;
 
     /**
      * Enable oder Disable line wrapping for styles of type "Text".
@@ -224,7 +224,7 @@ export interface TextStyle {
      *
      * @defaultValue 14
      */
-    lineWrap?: number | StyleValueFunction<number> | StyleZoomRange<number>;
+    lineWrap?: number | StyleValueFunction<number> | StyleZoomRange<number> | StyleExpression<number>;
 
     /**
      * Sets the anchor point for styles of type "Text" used with Line or Polygon geometry.
@@ -239,7 +239,7 @@ export interface TextStyle {
      *
      * @defaultValue For Polygon geometry the default is "Center". For Line geometry the default for styles of type "Text" is "Line".
      */
-    anchor?: 'Line' | 'Coordinate' | 'Centroid' | 'Center'
+    anchor?: 'Line' | 'Coordinate' | 'Centroid' | 'Center' | StyleValueFunction<string> | StyleZoomRange<string> | StyleExpression<string>;
 
     /**
      * Enable or disable the space check for point styles on line geometries.
@@ -249,7 +249,7 @@ export interface TextStyle {
      *
      * @defaultValue true
      */
-    checkLineSpace?: boolean
+    checkLineSpace?: boolean | StyleValueFunction<boolean> | StyleZoomRange<boolean> | StyleExpression<boolean>;
 
     /**
      * Enable or disable collision detection.
@@ -261,12 +261,12 @@ export interface TextStyle {
      *
      * @defaultValue false
      */
-    collide?: boolean | StyleValueFunction<boolean> | StyleZoomRange<boolean>;
+    collide?: boolean | StyleValueFunction<boolean> | StyleZoomRange<boolean> | StyleExpression<boolean>;
 
     /**
      * Enables collision detection and combines all styles of a StyleGroup with the same "CollisionGroup" into a single logical object for collision detection.
      */
-    collisionGroup?: string | StyleValueFunction<string> | StyleZoomRange<string>
+    collisionGroup?: string | StyleValueFunction<string> | StyleZoomRange<string> | StyleExpression<string>;
 
     /**
      * The altitude of the style in meters.
@@ -279,7 +279,7 @@ export interface TextStyle {
      *
      * @experimental
      */
-    altitude?: number | boolean | StyleValueFunction<number | boolean> | StyleZoomRange<number | boolean>
+    altitude?: number | boolean | StyleValueFunction<number | boolean> | StyleZoomRange<number | boolean> | StyleExpression<number | boolean>;
 
     /**
      * Scales the size of a style based on the feature's altitude.
@@ -292,5 +292,5 @@ export interface TextStyle {
      *
      * @experimental
      */
-    scaleByAltitude?: boolean | StyleValueFunction<boolean> | StyleZoomRange<boolean>
+    scaleByAltitude?: boolean | StyleValueFunction<boolean> | StyleZoomRange<boolean> | StyleExpression<boolean>;
 }

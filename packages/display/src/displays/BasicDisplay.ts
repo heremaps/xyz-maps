@@ -17,8 +17,8 @@
  * License-Filename: LICENSE
  */
 
-import {global, TaskManager} from '@here/xyz-maps-common';
-import {Tile, TileLayer, CustomLayer, Color} from '@here/xyz-maps-core';
+import {global, TaskManager, Color as ColorUtils} from '@here/xyz-maps-common';
+import {Tile, TileLayer, CustomLayer, XYZLayerStyle, LayerStyle, Color, Style} from '@here/xyz-maps-core';
 import {getElDimension, createCanvas} from '../DOMTools';
 import {Layers, Layer, ScreenTile} from './Layers';
 import FeatureModifier from './FeatureModifier';
@@ -26,10 +26,10 @@ import BasicRender from './BasicRender';
 import BasicTile from './BasicTile';
 import BasicBucket from './BasicBucket';
 import Preview from './Preview';
-import LayerClusterer from './LayerClusterer';
 import Grid, {ViewportTile} from '../Grid';
-import {createZoomRangeFunction, parseColorMap} from './styleTools';
-import {RGBA} from './webgl/color';
+import {createZoomRangeFunction, getValue, parseColorMap} from './styleTools';
+
+type RGBA = ColorUtils.RGBA;
 
 const CREATE_IF_NOT_EXISTS = true;
 const MAX_PITCH_GRID = 60 / 180 * Math.PI;
@@ -43,8 +43,6 @@ function toggleLayerEventListener(toggle: string, layer: any, listeners: any) {
         }
     }
 }
-
-const exclusiveTimeMS = 4;
 
 let UNDEF;
 
@@ -76,7 +74,7 @@ abstract class Display {
     buckets: BasicBucket;
     listeners: { [event: string]: (a1?, a2?) => void };
     tiles: { [tilesize: string]: ScreenTile[] };
-    cluster: LayerClusterer;
+
     grid: Grid;
 
     constructor(mapEl: HTMLElement, tileSize: number, dpr: string | number, bucketPool, tileRenderer: BasicRender, previewLookAhead: number | [number, number]) {
@@ -87,13 +85,13 @@ abstract class Display {
         const canvas = createCanvas(mapEl, w, h, 0);
 
         display.previewer = new Preview(display, previewLookAhead);
-        display.cluster = new LayerClusterer(TaskManager.getInstance(), exclusiveTimeMS);
         display.grid = new Grid(tileSize);
         display.tiles = {
             256: [],
             512: []
         };
         display.render = tileRenderer;
+        // tileRenderer.mapContext = this.mapContext;
         display.tileSize = tileSize;
         display.buckets = bucketPool;
         display.layers = new Layers();
@@ -154,21 +152,20 @@ abstract class Display {
         return dpr < 1 ? 1 : dpr;
     }
 
-    addLayer(layer: TileLayer | CustomLayer, styles, index: number): boolean {
+    addLayer(layer: TileLayer | CustomLayer, index: number, styles?: XYZLayerStyle): boolean {
         const display = this;
         const layers = display.layers;
-        let added = false;
-        if (layers.add(layer, index)) {
+        let added = layers.add(layer, index);
+        if (added) {
             const dLayer = layers.get(layer);
-            added = true;
-
             display.buckets.forEach((dTile) => {
                 dTile.addLayer(index);
             });
-
             toggleLayerEventListener('add', layer, display.listeners);
 
             if (layer.custom) return added;
+
+            styles?.clearCache();
 
             // new function needs to be created per layer otherwise a setup with same provider used
             // accross multiple layers will lead in case of cancel to cancel all layers.
@@ -278,7 +275,6 @@ abstract class Display {
 
     private setLayerBgColor(style, dLayer: Layer) {
         let {backgroundColor} = style;
-
         if (backgroundColor) {
             if (typeof backgroundColor == 'object' && !Array.isArray(backgroundColor)) {
                 backgroundColor = createZoomRangeFunction(parseColorMap(backgroundColor));
@@ -461,19 +457,14 @@ abstract class Display {
         return _gridClip.top;
     }
 
-    // updateGrid2(zoomlevel: number) {
-    //     this.updateGrid(this.centerWorld, zoomlevel, this.sx, this.sy);
-    // }
-    // updateGrid(centerWorldPixel: [number, number], zoomlevel: number, screenOffsetX: number, screenOffsetY: number) {
-    // console.log('centerWorldPixel', centerWorldPixel.map((x) => x * window._wSize), window._x, window._y);
-    updateGrid(zoomlevel: number, screenOffsetX: number, screenOffsetY: number) {
+    updateGrid(tileGridZoom: number, zoomLevel: number, screenOffsetX: number, screenOffsetY: number) {
         const centerWorldPixel = this.centerWorld;
         // const screenOffsetX = this.sx;
         // const screenOffsetY = this.sy;
-        const tileGridZoom = zoomlevel ^ 0;
         // const worldSize = Math.pow(2, zoomlevel) * this.tileSize;
 
-        this.processLayerBackgroundColor(zoomlevel);
+        this.processLayerBackgroundColor(zoomLevel);
+        this.layers.setZoom(zoomLevel);
 
         this.viewChange = true;
         this.sx = screenOffsetX;

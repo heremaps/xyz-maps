@@ -26,8 +26,10 @@ import {scale, rotate, multiply, translate, identity, create} from 'gl-matrix/ma
 import {transformMat4, subtract, scale as scaleVec3, normalize as normalizeVec3} from 'gl-matrix/vec3';
 import {isTypedArray, TypedArray} from '../glType';
 import {Attribute} from '../Attribute';
-import {toRGB} from '../../color';
+import {Color} from '@here/xyz-maps-common';
 import {ModelGeometry} from '@here/xyz-maps-core';
+
+import toRGB = Color.toRGB;
 
 enum HitTest {
     bbox,

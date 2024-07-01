@@ -21,12 +21,13 @@ import {GeometryBuffer} from './GeometryBuffer';
 import {addLineString} from './addLineString';
 import {createTextData} from './createText';
 import {GlyphTexture} from '../GlyphTexture';
-import {toRGB} from '../color';
 import {LineBuffer} from './templates/LineBuffer';
 import {FlexArray} from './templates/FlexArray';
 import {FlexAttribute} from './templates/TemplateBuffer';
 import {PASS} from '../program/GLStates';
 import {createImageBuffer} from './createImageBuffer';
+import {Color as ColorUtils} from '@here/xyz-maps-common';
+const {toRGB} = ColorUtils;
 
 export const createStencilTileBuffer = (tileSize: number, gl: WebGLRenderingContext) => {
     const tileBuffer = createImageBuffer({

@@ -24,7 +24,9 @@ import {ConstantAttribute, FlexAttribute, TemplateBuffer} from './templates/Temp
 import {Raycaster} from '../Raycaster';
 import {PASS} from '../program/GLStates';
 
-export type Uniform = number | number[] | Float32Array | Int32Array | boolean | Texture;
+export type Uniform = number | number[] | Float32Array | Float64Array | Int32Array | boolean | Texture;
+export type DynamicUniform = () => Uniform;
+
 
 export type IndexData = {
     data: Uint16Array | Uint32Array
@@ -117,7 +119,7 @@ class GeometryBuffer {
     static MODE_GL_TRIANGLES: number = 0x0004;
     // private size: number;
     attributes: { [name: string]: Attribute | ConstantAttribute } = {};
-    uniforms: { [name: string]: Uniform } = {};
+    uniforms: { [name: string]: Uniform|DynamicUniform } = {};
     type: string;
     pass: number = PASS.OPAQUE;
     zIndex?: number;
@@ -181,6 +183,8 @@ class GeometryBuffer {
         geoBuffer.idOffsets = templBuffer.idOffsets;
 
         geoBuffer.rayIntersects = templBuffer.rayIntersects;
+
+        // geoBuffer.finalize = templBuffer.finalize;
 
         geoBuffer.cullFace(templBuffer.cullFace);
 
@@ -252,7 +256,7 @@ class GeometryBuffer {
         this.uniforms[name] = uniform;
     }
 
-    getUniform(name: string): Uniform {
+    getUniform(name: string): Uniform|DynamicUniform {
         return this.uniforms[name];
     }
 

@@ -20,8 +20,6 @@
 import BasicRender from '../BasicRender';
 import {CustomLayer, Tile, TileLayer} from '@here/xyz-maps-core';
 import GLTile from './GLTile';
-import {RGBA, toRGB} from './color';
-
 import RectProgram from './program/Rect';
 import CircleProgram from './program/Circle';
 import LineProgram from './program/Line';
@@ -63,6 +61,10 @@ import {Attribute} from './buffer/Attribute';
 import {GLExtensions} from './GLExtensions';
 import {Texture} from './Texture';
 import {ScreenTile} from '../Layers';
+
+import {Color, ExpressionParser} from '@here/xyz-maps-common';
+import toRGB = Color.toRGB;
+
 
 const mat4 = {create, lookAt, multiply, perspective, rotateX, rotateZ, translate, scale, clone, copy, invert, identity};
 
@@ -222,11 +224,11 @@ export class GLRender implements BasicRender {
         }
     }
 
-    convertColor(color: string | RGBA) {
+    convertColor(color: string | Color.RGBA) {
         return toRGB(color);
     }
 
-    setBackgroundColor(color: RGBA) {
+    setBackgroundColor(color: Color.RGBA) {
         this.gl?.clearColor(color[0], color[1], color[2], color[3] ?? 1.0);
     }
 
@@ -621,6 +623,7 @@ export class GLRender implements BasicRender {
         program.initAttributes(bufAttributes);
 
         program.initUniforms(this.sharedUniforms);
+
         program.initUniforms(buffer.uniforms);
     }
 

@@ -16,7 +16,7 @@
  * SPDX-License-Identifier: Apache-2.0
  * License-Filename: LICENSE
  */
-import {StyleValueFunction, StyleZoomRange} from './LayerStyle';
+import {StyleExpression, StyleValueFunction, StyleZoomRange} from './LayerStyle';
 
 /**
  * Interface for configuring the visual appearance of Images/Icons.
@@ -33,7 +33,7 @@ export interface ImageStyle {
      * The zIndex is defined relative to the "zLayer" property.
      * If "zLayer" is defined all zIndex values are relative to the "zLayer" value.
      */
-    zIndex: number | StyleValueFunction<number> | StyleZoomRange<number>;
+    zIndex: number | StyleValueFunction<number> | StyleZoomRange<number> | StyleExpression<number>;
 
     /**
      * Indicates drawing order across multiple layers.
@@ -43,13 +43,13 @@ export interface ImageStyle {
      *
      * @example \{...zLayer: 2, zIndex: 5\} will be rendered on top of \{...zLayer: 1, zIndex: 10\}
      */
-    zLayer?: number | StyleValueFunction<number>;
+    zLayer?: number | StyleValueFunction<number> | StyleExpression<number>;
 
     /**
      * Specifies the URL of the image to render.
      * It can be either absolute or relative path.
      */
-    src: string | StyleValueFunction<string> | StyleZoomRange<string>;
+    src: string | StyleValueFunction<string> | StyleZoomRange<string> | StyleExpression<string>;
 
     /**
      * If specified, the Image provided by {@link src} is considered as an IconAtlas/TextureAtlas.
@@ -63,7 +63,7 @@ export interface ImageStyle {
      * It is valid for all style types.
      * @defaultValue 1
      */
-    opacity?: number | StyleValueFunction<number> | StyleZoomRange<number>;
+    opacity?: number | StyleValueFunction<number> | StyleZoomRange<number> | StyleExpression<number>;
 
     /**
      * Width of the Image in pixels.
@@ -80,7 +80,7 @@ export interface ImageStyle {
      * }
      * ```
      */
-    width: number | StyleValueFunction<number> | StyleZoomRange<number>;
+    width: number | StyleValueFunction<number> | StyleZoomRange<number> | StyleExpression<number>;
 
     /**
      * Height of the Image in pixels.
@@ -100,7 +100,7 @@ export interface ImageStyle {
      * }
      * ```
      */
-    height?: number | StyleValueFunction<number> | StyleZoomRange<number>;
+    height?: number | StyleValueFunction<number> | StyleZoomRange<number> | StyleExpression<number>;
 
     /**
      * Offset the shape in pixels on x-axis.
@@ -114,7 +114,7 @@ export interface ImageStyle {
      *
      * ```
      */
-    offsetX?: number | string | StyleValueFunction<number | string> | StyleZoomRange<number | string>;
+    offsetX?: number | string | StyleValueFunction<number | string> | StyleZoomRange<number | string> | StyleExpression<number | string>;
 
     /**
      * Offset the shape in pixels on y-axis.
@@ -127,7 +127,7 @@ export interface ImageStyle {
      * { type: "Image", zIndex: 0, src: '...', offsetY: 8}
      * ```
      */
-    offsetY?: number | StyleValueFunction<number> | StyleZoomRange<number>;
+    offsetY?: number | StyleValueFunction<number> | StyleZoomRange<number> | StyleExpression<number>;
 
     /**
      * Offset the shape in pixels on z-axis.
@@ -140,7 +140,7 @@ export interface ImageStyle {
      * { type: "Image", zIndex: 0, src: '...', offsetZ: 8}
      * ```
      */
-    offsetZ?: number | string | StyleValueFunction<number | string> | StyleZoomRange<number | string>;
+    offsetZ?: number | string | StyleValueFunction<number | string> | StyleZoomRange<number | string> | StyleExpression<number | string>;
 
     /**
      * Alignment for styles of type "Circle".
@@ -148,19 +148,19 @@ export interface ImageStyle {
      * "map" aligns to the plane of the map and "viewport" aligns to the plane of the viewport/screen.
      * Default alignment for Text based on point geometries is "viewport" while "map" is the default for line geometries.
      */
-    alignment?: 'map' | 'viewport' | StyleValueFunction<string> | StyleZoomRange<string>;
+    alignment?: 'map' | 'viewport' | StyleValueFunction<string> | StyleZoomRange<string> | StyleExpression<string>;
 
     /**
      * Rotate the shape of the style to the angle in degrees.
      */
-    rotation?: number | StyleValueFunction<number> | StyleZoomRange<number>;
+    rotation?: number | StyleValueFunction<number> | StyleZoomRange<number> | StyleExpression<number>;
 
     /**
      * In case of label collision, Text with a higher priority (lower value) will be drawn before lower priorities (higher value).
      * If the collision detection is enabled for multiple Styles within the same StyleGroup, the highest priority (lowest value)
      * is used.
      */
-    priority?: number | StyleValueFunction<number> | StyleZoomRange<number>;
+    priority?: number | StyleValueFunction<number> | StyleZoomRange<number> | StyleExpression<number>;
 
     /**
      * Minimum distance in pixels between repeated style-groups on line geometries.
@@ -168,7 +168,7 @@ export interface ImageStyle {
      *
      * @defaultValue 256 (pixels)
      */
-    repeat?: number | StyleValueFunction<number> | StyleZoomRange<number>;
+    repeat?: number | StyleValueFunction<number> | StyleZoomRange<number> | StyleExpression<number>;
 
     /**
      * Sets the anchor point for styles of type "Image" used with Line or Polygon geometry.
@@ -183,7 +183,7 @@ export interface ImageStyle {
      *
      * @defaultValue For Polygon geometry the default is "Center". For Line geometry the default is "Line".
      */
-    anchor?: 'Line' | 'Coordinate' | 'Centroid'
+    anchor?: 'Line' | 'Coordinate' | 'Centroid' | StyleValueFunction<string> | StyleZoomRange<string> | StyleExpression<string>;
 
     /**
      * Enable or disable the space check for point styles on line geometries.
@@ -192,7 +192,7 @@ export interface ImageStyle {
      *
      * @defaultValue true
      */
-    checkLineSpace?: boolean
+    checkLineSpace?: boolean | StyleValueFunction<boolean> | StyleZoomRange<boolean> | StyleExpression<boolean>;
 
     /**
      * Enable or disable collision detection.
@@ -204,12 +204,12 @@ export interface ImageStyle {
      *
      * @defaultValue false for "Text", true for all other.
      */
-    collide?: boolean | StyleValueFunction<boolean> | StyleZoomRange<boolean>;
+    collide?: boolean | StyleValueFunction<boolean> | StyleZoomRange<boolean> | StyleExpression<boolean>;
 
     /**
      * Enables collision detection and combines all styles of a StyleGroup with the same "CollisionGroup" into a single logical object for collision detection.
      */
-    collisionGroup?: string | StyleValueFunction<string> | StyleZoomRange<string>
+    collisionGroup?: string | StyleValueFunction<string> | StyleZoomRange<string> | StyleExpression<string>;
 
     /**
      * The altitude of the style in meters.
@@ -222,7 +222,7 @@ export interface ImageStyle {
      *
      * @experimental
      */
-    altitude?: number | boolean | StyleValueFunction<number | boolean> | StyleZoomRange<number | boolean>
+    altitude?: number | boolean | StyleValueFunction<number | boolean> | StyleZoomRange<number | boolean> | StyleExpression<number | boolean>;
 
     /**
      * Scales the size of a style based on the feature's altitude.
@@ -235,5 +235,5 @@ export interface ImageStyle {
      *
      * @experimental
      */
-    scaleByAltitude?: boolean | StyleValueFunction<boolean> | StyleZoomRange<boolean>
+    scaleByAltitude?: boolean | StyleValueFunction<boolean> | StyleZoomRange<boolean> | StyleExpression<boolean>;
 }

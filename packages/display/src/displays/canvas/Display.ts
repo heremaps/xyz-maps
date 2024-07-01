@@ -23,6 +23,8 @@ import BasicDisplay from '../BasicDisplay';
 import {TileLayer} from '@here/xyz-maps-core';
 import CanvasTile from './CanvasTile';
 import CanvasRenderer from './Canvas';
+import LayerClusterer from './LayerClusterer';
+import {TaskManager} from '@here/xyz-maps-common';
 
 let DISPLAY_CFG_PR = {
     '1': [
@@ -71,12 +73,14 @@ class RenderBucket {
     }
 }
 
+const CLUSTER_EXCLUSIVE_TIME_MS = 4;
 
 class CanvasDisplay extends BasicDisplay {
-    static zoomBehavior:'fixed'|'float' = 'fixed';
+    static zoomBehavior: 'fixed' | 'float' = 'fixed';
 
     buckets: DisplayTilePool;
     render: CanvasRenderer;
+    private cluster: LayerClusterer;
 
     constructor(mapEl, tileSize, devicePixelRatio, renderOptions?: {}) {
         tileSize = tileSize || DEFAULT_TILE_SIZE;
@@ -94,6 +98,8 @@ class CanvasDisplay extends BasicDisplay {
         tileRenderer.setBuckets(buckets);
 
         super(mapEl, tileSize, devicePixelRatio, buckets, tileRenderer, PREVIEW_LOOK_AHEAD_LEVELS);
+
+        this.cluster = new LayerClusterer(TaskManager.getInstance(), CLUSTER_EXCLUSIVE_TIME_MS);
 
         tileRenderer.init(this.canvas);
     };
@@ -199,10 +205,10 @@ class CanvasDisplay extends BasicDisplay {
         }
     }
 
-    addLayer(layer: TileLayer, styles, index) {
+    addLayer(layer: TileLayer, index: number, styles?) {
         // Workaround: canvas only supports 256pixel rendering
         layer.tileSize = 256;
-        const added = super.addLayer(layer, styles, index);
+        const added = super.addLayer(layer, index, styles);
         if (added) {
             this.setupTilePool();
         }

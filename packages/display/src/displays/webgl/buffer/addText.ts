@@ -20,11 +20,14 @@
 import {createTextData, OFFSET_SCALE} from './createText';
 import {GlyphAtlas} from '../GlyphAtlas';
 import {FlexArray} from './templates/FlexArray';
-import {TextStyle} from '@here/xyz-maps-core';
+import {ParsedStyleProperty, StyleExpression, StyleValueFunction, StyleZoomRange, TextStyle} from '@here/xyz-maps-core';
+import ZoomControl from '../../../ui/ZoomControl';
 
 const EXTENT_SCALE = 64;
 
-const ANCHOR_OFFSET: Record<TextStyle['textAnchor'], { x: number, y: number }> = {
+type TextAnchors = ParsedStyleProperty<TextStyle['textAnchor']>;
+
+const ANCHOR_OFFSET: Record<TextAnchors, { x: number, y: number }> = {
     Center: {x: .5, y: 0},
     Left: {x: 0, y: 0},
     Right: {x: 1, y: 0},
@@ -47,7 +50,7 @@ const addText = (
     glyphAtlas: GlyphAtlas,
     rotationZ = 0,
     rotationY: number | undefined,
-    textAnchor: TextStyle['textAnchor'] | string = 'Center'
+    textAnchor: ParsedStyleProperty<TextStyle['textAnchor']> | string = 'Center'
 ) => {
     const lineOffset = lines.length - 1;
     const lineHeight = glyphAtlas.lineHeight;
@@ -73,7 +76,7 @@ const addText = (
     // }
 
     if (hasHeight) {
-    // normalize float meters to uint16 (0m ... +9000m)
+        // normalize float meters to uint16 (0m ... +9000m)
         z = Math.round(z / 9000 * 0xffff);
         dim = 3;
     }

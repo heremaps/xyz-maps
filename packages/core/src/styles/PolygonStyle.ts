@@ -16,7 +16,7 @@
  * SPDX-License-Identifier: Apache-2.0
  * License-Filename: LICENSE
  */
-import {Color, StyleValueFunction, StyleZoomRange} from './LayerStyle';
+import {Color, StyleExpression, StyleValueFunction, StyleZoomRange} from './LayerStyle';
 
 /**
  * Interface for configuring the visual appearance of Polygons.
@@ -33,7 +33,7 @@ export interface PolygonStyle {
      * The zIndex is defined relative to the "zLayer" property.
      * If "zLayer" is defined all zIndex values are relative to the "zLayer" value.
      */
-    zIndex: number | StyleValueFunction<number> | StyleZoomRange<number>;
+    zIndex: number | StyleValueFunction<number> | StyleZoomRange<number> | StyleExpression<number>;
 
     /**
      * Indicates drawing order across multiple layers.
@@ -43,21 +43,21 @@ export interface PolygonStyle {
      *
      * @example \{...zLayer: 2, zIndex: 5\} will be rendered on top of \{...zLayer: 1, zIndex: 10\}
      */
-    zLayer?: number | StyleValueFunction<number>;
+    zLayer?: number | StyleValueFunction<number> | StyleExpression<number>;
 
     /**
      * Sets the color to fill the polygon.
      *
      * @see {@link Color} for a detailed list of possible supported formats.
      */
-    fill?: Color | StyleValueFunction<Color> | StyleZoomRange<Color>;
+    fill?: Color | StyleValueFunction<Color> | StyleZoomRange<Color> | StyleExpression<Color>;
 
     /**
      * Sets the stroke color of the polygon.
      *
      * @see {@link Color} for a detailed list of possible supported formats.
      */
-    stroke?: Color | StyleValueFunction<Color> | StyleZoomRange<Color>;
+    stroke?: Color | StyleValueFunction<Color> | StyleZoomRange<Color> | StyleExpression<Color>;
 
     /**
      * Sets the width of the stroke of the polygon (outline).
@@ -77,7 +77,7 @@ export interface PolygonStyle {
      * }
      * ```
      */
-    strokeWidth?: number | string | StyleValueFunction<number | number> | StyleZoomRange<string | number>;
+    strokeWidth?: number | string | StyleValueFunction<number | string> | StyleZoomRange<number | string> | StyleExpression<number | string>;
 
     /**
      * This controls the shape of the ends of lines. there are three possible values for strokeLinecap:
@@ -88,7 +88,7 @@ export interface PolygonStyle {
      *
      * If "strokeLinecap" is used in combination with "altitude", only "butt" is supported for "strokeLinecap".
      */
-    strokeLinecap?: string | StyleValueFunction<string> | StyleZoomRange<string>;
+    strokeLinecap?: string | StyleValueFunction<string> | StyleZoomRange<string> | StyleExpression<string>;
 
     /**
      * The joint where the two segments in a line meet is controlled by the strokeLinejoin attribute, There are three possible values for this attribute:
@@ -99,7 +99,7 @@ export interface PolygonStyle {
      *
      * If "strokeLinejoin" is used in combination with "altitude", the use of "round" is not supported.
      */
-    strokeLinejoin?: string | StyleValueFunction<string> | StyleZoomRange<string>;
+    strokeLinejoin?: string | StyleValueFunction<string> | StyleZoomRange<string> | StyleExpression<string>;
 
     /**
      * The strokeDasharray attribute controls the pattern of dashes and gaps used to stroke paths.
@@ -118,7 +118,7 @@ export interface PolygonStyle {
      * // dash -> 10 meter, gap -> 10 pixel.
      * strokeDasharray: ["20m",10] || ["20m","10px"]
      */
-    strokeDasharray?: number[] | StyleValueFunction<number[]> | StyleZoomRange<number[]> | 'none';
+    strokeDasharray?: (number | string)[] | StyleValueFunction<(number | string)[]> | StyleZoomRange<(number | string)[]> | StyleExpression<(number | string)[]> | 'none';
 
     /**
      * Defines the opacity of the style.
@@ -126,7 +126,7 @@ export interface PolygonStyle {
      * It is valid for all style types.
      * @defaultValue 1
      */
-    opacity?: number | StyleValueFunction<number> | StyleZoomRange<number>;
+    opacity?: number | StyleValueFunction<number> | StyleZoomRange<number> | StyleExpression<number>;
 
     /**
      * Define the starting position of a segment of the entire line in %.
@@ -138,7 +138,7 @@ export interface PolygonStyle {
      * from: 0.0 // -\> 0%, the segment has the same starting point as the entire line
      * from:  0.5 // -\> 50%, the segment starts in the middle of the entire line
      */
-    from?: number | StyleValueFunction<number> | StyleZoomRange<number>;
+    from?: number | StyleValueFunction<number> | StyleZoomRange<number> | StyleExpression<number>;
 
     /**
      * Define the end position of a segment of the entire line in %.
@@ -150,7 +150,7 @@ export interface PolygonStyle {
      * to: 0.5 // -\> 50%, the segment ends in the middle of the entire line
      * to: 1.0 // -\> 100%, the segment has the same end point as the entire line
      */
-    to?: number | StyleValueFunction<number> | StyleZoomRange<number>;
+    to?: number | StyleValueFunction<number> | StyleZoomRange<number> | StyleExpression<number>;
 
     /**
      * Offset a line to the left or right side in pixel or meter.
@@ -168,7 +168,7 @@ export interface PolygonStyle {
      * { type: "Line", zIndex: 0, stroke:'blue', strokeWidth: 4, offset: "2m"}
      * ```
      */
-    offset?: number | string | StyleValueFunction<number | string> | StyleZoomRange<number | string>;
+    offset?: number | string | StyleValueFunction<number | string> | StyleZoomRange<number | string> | StyleExpression<number | string>;
 
     /**
      * The altitude of the style in meters.
@@ -182,12 +182,12 @@ export interface PolygonStyle {
      *
      * @experimental
      */
-    altitude?: number | boolean | StyleValueFunction<number | boolean> | StyleZoomRange<number | boolean>
+    altitude?: number | boolean | StyleValueFunction<number | boolean> | StyleZoomRange<number | boolean> | StyleExpression<number | boolean>;
 
     /**
      * Extrude a Polygon or MultiPolygon geometry in meters.
      */
-    extrude?: number | StyleValueFunction<number> | StyleZoomRange<number>;
+    extrude?: number | StyleValueFunction<number> | StyleZoomRange<number> | StyleExpression<number>;
 
     /**
      * The base of the Extrude in meters.
@@ -196,5 +196,5 @@ export interface PolygonStyle {
      *
      * @defaultValue 0
      */
-    extrudeBase?: number | StyleValueFunction<number> | StyleZoomRange<number>;
+    extrudeBase?: number | StyleValueFunction<number> | StyleZoomRange<number> | StyleExpression<number>;
 }

@@ -56,7 +56,7 @@ describe('validate polygon rendering', function() {
             properties: {},
             type: 'Feature'
         };
-        layer.addFeature(f1, {'zIndex': 0, 'type': 'Polygon', 'opacity': 1, 'fill': '#000000', 'strokeWidth': 5});
+        layer.addFeature(f1, [{'zIndex': 0, 'type': 'Polygon', 'opacity': 1, 'fill': '#000000', 'strokeWidth': 5}]);
 
         let f2 = {
             geometry: {
@@ -78,7 +78,7 @@ describe('validate polygon rendering', function() {
             properties: {},
             type: 'Feature'
         };
-        layer.addFeature(f2, {'zIndex': 0, 'type': 'Polygon', 'opacity': 1, 'fill': '#00ffff', 'stroke': '#ff0000', 'strokeWidth': 5});
+        layer.addFeature(f2, [{'zIndex': 0, 'type': 'Polygon', 'opacity': 1, 'fill': '#00ffff', 'stroke': '#ff0000', 'strokeWidth': 5}]);
     });
 
     after(async function() {

@@ -17,11 +17,11 @@
  * License-Filename: LICENSE
  */
 
-import {geometry, TaskManager} from '@here/xyz-maps-common';
+import {geometry, ExpressionParser, JSONExpression, TaskManager} from '@here/xyz-maps-common';
 import {GeometryBuffer} from './GeometryBuffer';
 import {getValue, parseStyleGroup} from '../../styleTools';
-import {Feature, GeoJSONCoordinate, LinearGradient, StyleGroup, Tile, TileLayer, webMercator} from '@here/xyz-maps-core';
-import {Layer} from '../../Layers';
+import {Feature, GeoJSONCoordinate, LayerStyle, LinearGradient, StyleGroup, Tile, TileLayer, webMercator} from '@here/xyz-maps-core';
+import {Layer, StyleExpressionParser} from '../../Layers';
 import {CollisionGroup, FeatureFactory, GroupMap} from './FeatureFactory';
 import {GlyphTexture} from '../GlyphTexture';
 import {TemplateBufferBucket} from './templates/TemplateBufferBucket';
@@ -30,6 +30,7 @@ import {ModelBuffer} from './templates/ModelBuffer';
 import {PASS} from '../program/GLStates';
 import {DEFAULT_HEATMAP_GRADIENT, HeatmapBuffer} from './templates/HeatmapBuffer';
 import {DisplayTileTask} from '../../BasicTile';
+
 
 const {centroid} = geometry;
 
@@ -94,7 +95,7 @@ type TaskData = {
     zoomScale: number,
     featureIndex: number,
     chunkSize: number,
-    layer: TileLayer,
+    layer: Layer,
     zoom: number,
     collisions: null | CollisionGroup[],
     groups: GroupMap
@@ -102,14 +103,14 @@ type TaskData = {
 
 
 const createBuffer = (
-    renderLayer: Layer,
+    displayLayer: Layer,
     tileSize: number,
     tile: Tile,
     factory: FeatureFactory,
     onInit: () => void,
     onDone: (data: GeometryBuffer[], pendingResources: Promise<any>[]) => void
 ): DisplayTileTask => {
-    const layer = <TileLayer>renderLayer.layer;
+    const layer = <TileLayer>displayLayer.layer;
     // const groups: GroupMap = {};
     const pendingResources = [];
     const waitAndRefresh = (promise: Promise<any>) => {
@@ -146,7 +147,7 @@ const createBuffer = (
                 zoomScale: lsZoomScale,
                 featureIndex: 0, // featureIndex
                 chunkSize: PROCESS_FEATURE_CHUNK_SIZE,
-                layer,
+                layer: displayLayer,
                 zoom,
                 collisions: null,
                 groups
@@ -221,7 +222,8 @@ const createBuffer = (
 
                                 geoBuffer.addUniform('u_fill', stroke);
 
-                                geoBuffer.addUniform('u_strokeWidth', [strokeWidth * .5, shared.unit == 'm' ? meterToPixel : 0]);
+                                geoBuffer.addUniform('u_strokeWidth', [strokeWidth, shared.unit == 'm' ? meterToPixel : 0]);
+                                // geoBuffer.addUniform('u_strokeWidth', [strokeWidth * .5, shared.unit == 'm' ? meterToPixel : 0]);
 
                                 geoBuffer.addUniform('u_offset', [shared.offsetX,
                                     shared.offsetUnit == 'm' ? meterToPixel : 0
@@ -387,7 +389,7 @@ const createBuffer = (
                                 }
                             }
 
-                            renderLayer.addZ(zIndex, !geoBuffer.flat);
+                            displayLayer.addZ(zIndex, !geoBuffer.flat);
                             geoBuffer.zIndex = zIndex;
                             geoBuffer.zLayer = typeof zLayer == 'number' ? Math.ceil(zLayer) : null;
 
@@ -406,7 +408,6 @@ const createBuffer = (
         exec: function(taskData: TaskData) {
             const {tile, data, layer, zoomScale: lsScale, zoom: level} = taskData;
             let dataLen = data.length;
-
             let styleGroups;
             let feature;
             let geom;
@@ -417,7 +418,7 @@ const createBuffer = (
                 notDone ||= false;
                 while (taskData.chunkSize--) {
                     if (feature = data[taskData.featureIndex++]) {
-                        styleGroups = layer.getStyleGroup(feature, level);
+                        styleGroups = layer.processStyleGroup(feature, level);
 
                         if (styleGroups) {
                             geom = feature.geometry;
@@ -427,9 +428,6 @@ const createBuffer = (
                                 styleGroups = [styleGroups];
                             }
 
-                            parseStyleGroup(styleGroups);
-
-                            // const coordinates = geom.coordinates;
                             const coordinates = feature.getProvider().decCoord(feature);
 
                             if (geomType == 'MultiLineString' || geomType == 'MultiPoint') {
@@ -442,9 +440,7 @@ const createBuffer = (
                                 factory.create(feature, 'Polygon', coordinates, styleGroups, lsScale);
 
                                 for (let p = 0; p < coordinates.length; p++) {
-                                    let polygon = coordinates[p];
-                                    // for (let polygon of coordinates) {
-                                    handlePolygons(factory, feature, polygon, styleGroups, lsScale, tile, p);
+                                    handlePolygons(factory, feature, coordinates[p], styleGroups, lsScale, tile, p);
                                 }
                             } else {
                                 factory.create(feature, geomType, coordinates, styleGroups, lsScale);
@@ -453,7 +449,6 @@ const createBuffer = (
                                     handlePolygons(factory, feature, coordinates, styleGroups, lsScale, tile);
                                 }
                             }
-
                             // if (task.paused) {
                             // awaiting asynchronous operation...
                             // return notDone = true;

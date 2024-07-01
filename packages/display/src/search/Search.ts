@@ -20,6 +20,7 @@
 import Hit from './Hit';
 import {CustomLayer, Feature, TileLayer} from '@here/xyz-maps-core';
 import {Map} from '../Map';
+import {Layers} from '../displays/Layers';
 
 const MAX_GRID_ZOOM = 20;
 // increase to make sure points (no bbox) are in hitbox of spatial check.
@@ -38,9 +39,11 @@ const isNumber = (o) => typeof o == 'number';
 export class Search {
     private map: Map;
     private hit: Hit;
+    private layers: Layers;
 
-    constructor(map: Map, dpr: number) {
+    constructor(map: Map, layers: Layers, dpr: number) {
         this.map = map;
+        this.layers = layers;
         this.hit = new Hit(map, dpr);
     }
 
@@ -134,13 +137,15 @@ export class Search {
             provider = layer.getProvider?.(zoomlevel);
             let maxZ = 0;
 
+            const displayLayer = this.layers.get(layer);
+
             if (zoomlevel <= layer.max && zoomlevel >= layer.min && provider?.search) {
                 features = provider.search(viewbounds);
                 length = features.length;
                 while (length--) {
                     feature = features[length];
 
-                    if (featureStyle = layer.getStyleGroup(feature, tileGridZoom)) {
+                    if (featureStyle = displayLayer.processStyleGroup(feature, tileGridZoom)) {
                         if (dimensions = hit.feature(halfWidth, halfHeight, feature, featureStyle, layerIndex, zoomlevel, skip3d)) {
                             let zIndex = dimensions[dimensions.length - 1];
                             let zOrdered = results[zIndex] = results[zIndex] || [];

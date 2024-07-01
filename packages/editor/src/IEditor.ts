@@ -44,7 +44,7 @@ export default class InternalEditor {
     _db: DrawingBoard;
     private _dListener: DisplayListener;
 
-    private prvIdLayerMap: { [providerId: string]: TileLayer }
+    private prvIdLayerMap: { [providerId: string]: TileLayer };
 
     display: Display;
     objects: ObjectManager;

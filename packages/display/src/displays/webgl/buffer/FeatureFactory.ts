@@ -23,19 +23,25 @@ import {addExtrude} from './addExtrude';
 import {addIcon} from './addIcon';
 import earcut from 'earcut';
 import {calcBBox, getTextString, getValue, parseSizeValue, Style, StyleGroup} from '../../styleTools';
+// import {calcBBox, getTextString, getValue as parseValue, parseSizeValue, Style, StyleGroup} from '../../styleTools';
 import {defaultFont, wrapText} from '../../textUtils';
 import {FontStyle, GlyphTexture} from '../GlyphTexture';
-import {RGBA, toRGB} from '../color';
 import {BBox, CollisionData, CollisionHandler} from '../CollisionHandler';
 import {LineFactory} from './LineFactory';
-
 import {TextBuffer} from './templates/TextBuffer';
 import {SymbolBuffer} from './templates/SymbolBuffer';
 import {PointBuffer} from './templates/PointBuffer';
 import {PolygonBuffer} from './templates/PolygonBuffer';
 import {ExtrudeBuffer} from './templates/ExtrudeBuffer';
 import {toPresentationFormB} from '../arabic';
-import {Tile, Feature, GeoJSONCoordinate, TextStyle, ImageStyle} from '@here/xyz-maps-core';
+import {
+    Tile,
+    Feature,
+    GeoJSONCoordinate,
+    TextStyle,
+    ImageStyle,
+    ParsedStyleProperty
+} from '@here/xyz-maps-core';
 import {TemplateBuffer} from './templates/TemplateBuffer';
 import {addVerticalLine} from './addVerticalLine';
 import {BoxBuffer} from './templates/BoxBuffer';
@@ -51,6 +57,11 @@ import {GradientFactory} from '../GradientFactory';
 import {HeatmapBuffer} from './templates/HeatmapBuffer';
 import {TextureAtlasManager} from '../TextureAtlasManager';
 import {LineBuffer} from './templates/LineBuffer';
+import {Color as ColorUtils, Expression} from '@here/xyz-maps-common';
+
+const {toRGB} = ColorUtils;
+type RGBA = ColorUtils.RGBA;
+
 
 const DEFAULT_STROKE_WIDTH = 1;
 const DEFAULT_LINE_CAP = 'round';
@@ -115,6 +126,12 @@ type ZDrawGroup = {
 };
 
 export type GroupMap = { [zIndex: string]: ZDrawGroup };
+
+const isDynamicProperty = (prop: any) => prop instanceof Expression;
+// const isDynamicProperty = (prop: any) => typeof prop == 'function';
+
+const DYNAMIC_MODE = 1;
+let dynamicValueId = 0;
 
 export class FeatureFactory {
     private readonly gl: WebGLRenderingContext;
@@ -187,7 +204,7 @@ export class FeatureFactory {
         rotationY: number | undefined,
         text?: string,
         defaultLineWrap?: number | boolean,
-        textAnchor?: TextStyle['textAnchor']
+        textAnchor?: ParsedStyleProperty<TextStyle['textAnchor']> | string
     ) {
         const isFlat = z === null;
         const level = this.z;
@@ -361,7 +378,7 @@ export class FeatureFactory {
 
     create(
         feature: Feature,
-        geomType: string,
+        geomType: 'Point' | 'LineString' | 'Polygon',
         coordinates: GeoJSONCoordinate | GeoJSONCoordinate[] | GeoJSONCoordinate[][],
         styleGroups: StyleGroup,
         strokeWidthScale: number,
@@ -519,20 +536,23 @@ export class FeatureFactory {
                 processPointOffset = true;
             } else {
                 stroke = getValue('stroke', style, feature, level);
-                strokeWidth = getValue('strokeWidth', style, feature, level);
 
-                if (type == 'VerticalLine') {
-                    offsetZ = getValue('offsetZ', style, feature, level) || 0;
-                    groupId = 'VL' + stroke + offsetZ;
-                    if (altitude == UNDEF) {
-                        altitude = true;
-                    }
-                } else if (type == 'Line') {
-                    if (!stroke || !strokeWidth) continue;
+                let widthId;
 
-                    const [value, unit] = parseSizeValue(strokeWidth, false);
-                    strokeWidth = value;
-                    sizeUnit = unit;
+                if (type == 'Line') {
+                    if (!stroke) continue;
+
+                    strokeWidth = getValue('strokeWidth', style, feature, level);
+                    // strokeWidth = getValue('strokeWidth', style, feature, level, DYNAMIC_MODE);
+
+                    if (!strokeWidth) continue;
+
+                    // if (isDynamicProperty(strokeWidth)) {
+                    // widthId = (strokeWidth.id ||= dynamicValueId++);
+                    // } else {
+                    [strokeWidth, sizeUnit] = parseSizeValue(strokeWidth);
+                    widthId = strokeWidth;
+                    // }
 
                     strokeLinecap = getValue('strokeLinecap', style, feature, level) || DEFAULT_LINE_CAP;
                     strokeLinejoin = getValue('strokeLinejoin', style, feature, level) || DEFAULT_LINE_JOIN;
@@ -574,96 +594,113 @@ export class FeatureFactory {
                         strokeDasharray = UNDEF;
                     }
                 } else {
-                    fill = getValue('fill', style, feature, level);
+                    strokeWidth = getValue('strokeWidth', style, feature, level);
+                    widthId = strokeWidth;
 
-                    if (type == 'Polygon') {
-                        if (!fill || geomType != 'Polygon') {
-                            continue;
-                        }
-                        extrude = getValue('extrude', style, feature, level);
-                        extrudeBase = getValue('extrudeBase', style, feature, level);
-
-                        if (typeof extrude == 'number' || extrudeBase) {
-                            groupId = 'E';
-                            type = 'Extrude';
-                        } else {
-                            groupId = 'P';
+                    if (type == 'VerticalLine') {
+                        offsetZ = getValue('offsetZ', style, feature, level) || 0;
+                        groupId = 'VL' + stroke + offsetZ;
+                        if (altitude == UNDEF) {
+                            altitude = true;
                         }
                     } else {
-                        if (geomType == 'Polygon') {
-                            continue;
-                        }
+                        fill = getValue('fill', style, feature, level);
 
-                        alignment = getValue('alignment', style, feature, level);
+                        if (type == 'Polygon') {
+                            if (!fill || geomType != 'Polygon') {
+                                continue;
+                            }
+                            extrude = getValue('extrude', style, feature, level);
+                            extrudeBase = getValue('extrudeBase', style, feature, level);
 
-                        if (type == 'Text') {
-                            text = getTextString(style, feature, level);
-
-                            if (!text) {
+                            if (typeof extrude == 'number' || extrudeBase) {
+                                groupId = 'E';
+                                type = 'Extrude';
+                            } else {
+                                groupId = 'P';
+                            }
+                        } else {
+                            if (geomType == 'Polygon') {
                                 continue;
                             }
 
-                            text = toPresentationFormB(text);
+                            alignment = getValue('alignment', style, feature, level);
 
-                            font = getValue('font', style, feature, level) || defaultFont;
+                            if (type == 'Text') {
+                                text = getTextString(style, feature, level);
 
-                            if (alignment == UNDEF) {
-                                alignment = geomType == 'Point' ? 'viewport' : 'map';
+                                if (!text) {
+                                    continue;
+                                }
+
+                                text = toPresentationFormB(text);
+
+                                font = getValue('font', style, feature, level) || defaultFont;
+
+                                if (alignment == UNDEF) {
+                                    alignment = geomType == 'Point' ? 'viewport' : 'map';
+                                }
+                                groupId = 'T' + (font || NONE);
+                            } else if (type == 'Circle') {
+                                width = height = getValue('radius', style, feature, level, DYNAMIC_MODE);
+
+                                let widthId;
+                                if (isDynamicProperty(width)) {
+                                    widthId = (width.id ||= width++);
+                                } else {
+                                    [width, sizeUnit] = parseSizeValue(width);
+                                    widthId = width;
+                                }
+
+                                groupId = (altitude ? 'AC' : 'C') + sizeUnit + widthId || NONE;
+                            } else if (type == 'Heatmap') {
+                                width = getValue('radius', style, feature, level);
+                                [width, sizeUnit] = parseSizeValue(width);
+
+                                fillRGBA = fill;
+
+                                const intensity = getValue('intensity', style, feature, level);
+
+                                // TODO: refactor shared property usage..
+                                height = intensity;
+
+                                // if (fill?.type) {
+                                //     fill._id = Math.random() * 1e6;
+                                // }
+                                groupId = 'H' + (width || NONE) + JSON.stringify(fill) + intensity;
+                            } else if (type == 'Rect') {
+                                width = getValue('width', style, feature, level);
+                                [width, sizeUnit] = parseSizeValue(width);
+
+                                height = getValue('height', style, feature, level);
+                                height = !height ? width : parseSizeValue(height)[0];
+
+                                groupId = (altitude ? 'AR' : 'R') + rotation + sizeUnit + width + height;
+                            } else if (type == 'Box') {
+                                // width = getValue('width', style, feature, level);
+                                // [width, sizeUnit] = parseSizeValue(width);
+                                // height = getValue('height', style, feature, level);
+                                // depth = getValue('depth', style, feature, level);
+
+                                pointerEvents = getValue('pointerEvents', style, feature, level);
+
+                                groupId = 'B' + rotation + pointerEvents; // + sizeUnit + width + height;
+                            } else if (type == 'Sphere') {
+                                width = height = getValue('radius', style, feature, level);
+                                [width, sizeUnit] = parseSizeValue(width);
+
+                                pointerEvents = getValue('pointerEvents', style, feature, level);
+                                groupId = 'S' + width + pointerEvents;
+                            } else {
+                                continue;
                             }
-                            groupId = 'T' + (font || NONE);
-                        } else if (type == 'Circle') {
-                            width = height = getValue('radius', style, feature, level);
-                            [width, sizeUnit] = parseSizeValue(width);
 
-                            groupId = (altitude ? 'AC' : 'C') + sizeUnit + width || NONE;
-                        } else if (type == 'Heatmap') {
-                            width = getValue('radius', style, feature, level);
-                            [width, sizeUnit] = parseSizeValue(width);
+                            processPointOffset = true;
 
-                            fillRGBA = fill;
-
-                            const intensity = getValue('intensity', style, feature, level);
-
-                            // TODO: refactor shared property usage..
-                            height = intensity;
-
-                            // if (fill?.type) {
-                            //     fill._id = Math.random() * 1e6;
-                            // }
-                            groupId = 'H' + (width || NONE) + JSON.stringify(fill) + intensity;
-                        } else if (type == 'Rect') {
-                            width = getValue('width', style, feature, level);
-                            [width, sizeUnit] = parseSizeValue(width);
-
-                            height = getValue('height', style, feature, level);
-                            height = !height ? width : parseSizeValue(height)[0];
-
-                            groupId = (altitude ? 'AR' : 'R') + rotation + sizeUnit + width + height;
-                        } else if (type == 'Box') {
-                            // width = getValue('width', style, feature, level);
-                            // [width, sizeUnit] = parseSizeValue(width);
-                            // height = getValue('height', style, feature, level);
-                            // depth = getValue('depth', style, feature, level);
-
-                            pointerEvents = getValue('pointerEvents', style, feature, level);
-
-                            groupId = 'B' + rotation + pointerEvents; // + sizeUnit + width + height;
-                        } else if (type == 'Sphere') {
-                            width = height = getValue('radius', style, feature, level);
-                            [width, sizeUnit] = parseSizeValue(width);
-
-                            pointerEvents = getValue('pointerEvents', style, feature, level);
-                            groupId = 'S' + width + pointerEvents;
-                        } else {
-                            continue;
+                            groupId += alignment || '';
                         }
-
-                        processPointOffset = true;
-
-                        groupId += alignment || '';
                     }
                 }
-
 
                 if (!fillRGBA && fill) {
                     fillRGBA = this.toRGBA(fill, opacity);
@@ -677,18 +714,19 @@ export class FeatureFactory {
                         strokeScale = 1;
                     }
 
-                    if (typeof strokeWidth != 'number') {
-                        strokeWidth = DEFAULT_STROKE_WIDTH;
-                    } else {
-                        strokeWidth *= strokeScale;
-
-                        if (strokeWidth < 0) {
+                    if (!isDynamicProperty(strokeWidth)) {
+                        if (typeof strokeWidth != 'number') {
                             strokeWidth = DEFAULT_STROKE_WIDTH;
+                        } else {
+                            strokeWidth *= strokeScale;
+                            if (strokeWidth < 0) {
+                                strokeWidth = DEFAULT_STROKE_WIDTH;
+                            }
                         }
                     }
                 }
 
-                groupId += (stroke || NONE) + (strokeWidth || NONE) + (fill || NONE);
+                groupId += (stroke || NONE) + (widthId || NONE) + (fill || NONE);
             }
 
             if (processPointOffset) {
@@ -814,7 +852,7 @@ export class FeatureFactory {
                     }
 
                     this.createPoint(type, group, x, y, z, style, feature, collisionData, rotation, UNDEF, text, UNDEF,
-                        type == 'Text' && getValue('textAnchor', style, feature, level)
+                        (type == 'Text' && getValue('textAnchor', style, feature, level)) as ParsedStyleProperty<TextStyle['textAnchor']>
                     );
                 }
             } else if (geomType == 'LineString') {
@@ -853,7 +891,7 @@ export class FeatureFactory {
                     let anchor = getValue('anchor', style, feature, level);
                     anchor ??= isText ? 'Line' : 'Coordinate';
 
-                    const textAnchor = isText && getValue('textAnchor', style, feature, level);
+                    const textAnchor = isText && getValue('textAnchor', style, feature, level) as ParsedStyleProperty<TextStyle['textAnchor']>;
                     const checkCollisions = isText ? !collide : collide === false;
 
                     let w;

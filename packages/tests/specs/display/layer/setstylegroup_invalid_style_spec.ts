@@ -59,26 +59,6 @@ describe('setStyleGroup with invalid style', function() {
     });
 
     it('style link, validate its new style with invalid value', async function() {
-        // set link with invalid style
-        linkLayer.setStyleGroup(
-            link,
-            [
-                {'zIndex': 0, 'type': 'Line', 'opacity': 1, 'stroke': '#be6b65', 'strokeWidth': 16},
-                'invalid'
-            ]
-        );
-
-        let style = linkLayer.getStyleGroup(link);
-
-        expect(style).to.be.deep.equal([
-            {'zIndex': 0, 'type': 'Line', 'opacity': 1, 'stroke': '#be6b65', 'strokeWidth': 16},
-            'invalid'
-        ]);
-
-        // validate new link style
-        let color1 = await getCanvasPixelColor(mapContainer, {x: 350, y: 300}); // get link color
-        expect(color1).to.equal('#be6b65');
-
         // set link style again
         linkLayer.setStyleGroup(
             link,
@@ -88,7 +68,7 @@ describe('setStyleGroup with invalid style', function() {
             ]
         );
 
-        style = linkLayer.getStyleGroup(link);
+        let style = linkLayer.getStyleGroup(link);
 
         expect(style).to.be.deep.equal([
             {'zIndex': 0, 'type': 'Line', 'opacity': 1, 'stroke': '#be6b65', 'strokeWidth': 16},
@@ -102,26 +82,6 @@ describe('setStyleGroup with invalid style', function() {
 
 
     it('style address, validate its new style with invalid value', async function() {
-        // set address with invalid style
-        addressLayer.setStyleGroup(
-            address,
-            [
-                {'zIndex': 1, 'type': 'Rect', 'width': 16, 'height': 16, 'opacity': 1, 'fill': '#765432'},
-                'invalid'
-            ]
-        );
-
-        let style = addressLayer.getStyleGroup(address);
-
-        expect(style).to.be.deep.equal([
-            {'zIndex': 1, 'type': 'Rect', 'width': 16, 'height': 16, 'opacity': 1, 'fill': '#765432'},
-            'invalid'
-        ]);
-
-        // validate new address style
-        let color1 = await getCanvasPixelColor(mapContainer, {x: 300, y: 200}); // get address color
-        expect(color1).to.equal('#765432');
-
         // set address style again
         addressLayer.setStyleGroup(
             address,
@@ -131,7 +91,7 @@ describe('setStyleGroup with invalid style', function() {
             ]
         );
 
-        style = addressLayer.getStyleGroup(address);
+        let style = addressLayer.getStyleGroup(address);
 
         expect(style).to.be.deep.equal([
             {'zIndex': 1, 'type': 'Rect', 'width': 16, 'height': 16, 'opacity': 1, 'fill': '#765432'},

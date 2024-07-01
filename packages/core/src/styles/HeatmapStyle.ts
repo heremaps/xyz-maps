@@ -16,7 +16,7 @@
  * SPDX-License-Identifier: Apache-2.0
  * License-Filename: LICENSE
  */
-import {StyleValueFunction, StyleZoomRange} from './LayerStyle';
+import {StyleExpression, StyleValueFunction, StyleZoomRange} from './LayerStyle';
 
 /**
  * LinearGradient
@@ -66,7 +66,7 @@ export interface HeatmapStyle {
      * The zIndex is defined relative to the "zLayer" property.
      * If "zLayer" is defined all zIndex values are relative to the "zLayer" value.
      */
-    zIndex: number | StyleValueFunction<number> | StyleZoomRange<number>;
+    zIndex: number | StyleValueFunction<number> | StyleZoomRange<number> | StyleExpression<number>;
 
     /**
      * Indicates drawing order across multiple layers.
@@ -76,14 +76,14 @@ export interface HeatmapStyle {
      *
      * @example \{...zLayer: 2, zIndex: 5\} will be rendered on top of \{...zLayer: 1, zIndex: 10\}
      */
-    zLayer?: number | StyleValueFunction<number>;
+    zLayer?: number | StyleValueFunction<number> | StyleExpression<number>;
 
     /**
      * The radius in pixels with which to render a single point of the heatmap.
      *
      * @defaultValue 24
      */
-    radius?: number | StyleValueFunction<number> | StyleZoomRange<number>;
+    radius?: number | StyleValueFunction<number> | StyleZoomRange<number> | StyleExpression<number>;
 
     /**
      * The fill color is a linear gradient used to colorize the heatmap.
@@ -103,7 +103,7 @@ export interface HeatmapStyle {
      *
      * @defaultValue 1
      */
-    weight?: number | StyleValueFunction<number>;
+    weight?: number | StyleValueFunction<number> | StyleExpression<number>;
 
     /**
      * The intensity of the Heatmap is a global multiplier on top of the weight.
@@ -111,7 +111,7 @@ export interface HeatmapStyle {
      *
      * @defaultValue 1
      */
-    intensity?: number | StyleZoomRange<number>;
+    intensity?: number | StyleZoomRange<number> | StyleExpression<number>;
 
     /**
      * Defines the global opacity of the heatmap.
@@ -119,5 +119,5 @@ export interface HeatmapStyle {
      *
      * @defaultValue 1
      */
-    opacity?: number | StyleValueFunction<number> | StyleZoomRange<number>;
+    opacity?: number | StyleValueFunction<number> | StyleZoomRange<number> | StyleExpression<number>;
 }

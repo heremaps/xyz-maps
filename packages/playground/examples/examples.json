@@ -165,6 +165,10 @@
       "docs": "interfaces/core.layerstyle.html"
     },
     {
+      "file": "./layer/style_expressions.html",
+      "docs": "modules/core.html#styleexpression"
+    },
+    {
       "file": "./layer/preprocessor.html",
       "docs": "interfaces/core.remotetileprovideroptions.html#preprocessor"
     },

@@ -19,7 +19,7 @@
 
 import {Listener as Listeners} from '@here/xyz-maps-common';
 import defaultStylesDef from '../styles/default';
-import LayerStyleImpl from '../styles/LayerStyleImpl';
+import {XYZLayerStyle} from '../styles/XYZLayerStyle';
 
 import {LayerStyle, Style, StyleGroup} from '../styles/LayerStyle';
 
@@ -61,7 +61,7 @@ export class TileLayer extends Layer {
 
     private _fp: FeatureProvider;
 
-    private _sd = null;
+    private _sd: XYZLayerStyle = null;
     // pointer events active
     private _pev = true;
 
@@ -345,11 +345,11 @@ export class TileLayer extends Layer {
      */
     setStyleGroup(feature: Feature, styleGroup?: Style[] | false | null): void;
 
-    setStyleGroup(feature, style?, merge?) {
+    setStyleGroup(feature, styleGroup?, merge?) {
         if (this._sd) {
             this.dispatchEvent(STYLEGROUP_CHANGE_EVENT, {
                 feature,
-                styleGroup: this._sd.setStyleGroup(feature, style, merge)
+                styleGroup: this._sd.setStyleGroup(feature, styleGroup, merge)
             });
         }
     };
@@ -361,7 +361,7 @@ export class TileLayer extends Layer {
      * @param zoomlevel - specify the zoomlevel for the feature style
      *
      */
-    getStyleGroup(feature: Feature, zoomlevel?: number, layerDefault?: boolean): Style[] {
+    getStyleGroup(feature: Feature, zoomlevel?: number, layerDefault?: boolean): readonly Style[] {
         return this._sd?.getStyleGroup(feature, zoomlevel, layerDefault);
     };
 
@@ -707,26 +707,31 @@ export class TileLayer extends Layer {
      * @param layerStyle - the layerStyle
      * @param keepCustom - keep and reuse custom set feature styles that have been set via layer.setStyleGroup(...)
      */
-    setStyle(layerStyle: LayerStyle, keepCustom: boolean = false) {
-        const isFnc = (fnc) => typeof fnc == 'function';
-
-        // @ts-ignore
-        if (!isFnc(layerStyle.getStyleGroup) || !isFnc(layerStyle.setStyleGroup)) {
-            layerStyle = new LayerStyleImpl(layerStyle, keepCustom && this._sd && this._sd._c);
+    setStyle(layerStyle: LayerStyle| XYZLayerStyle, keepCustom: boolean = false) {
+        const _customFeatureStyles = keepCustom && this._sd?.getCustomStyles();
+        // const isFnc = (fnc) => typeof fnc == 'function';
+        // if (!isFnc(layerStyle.getStyleGroup) || !isFnc(layerStyle.setStyleGroup)) {
+        if (!(layerStyle instanceof XYZLayerStyle)) {
+            layerStyle = new XYZLayerStyle(layerStyle);
         }
 
-        this._sd = layerStyle;
+        (layerStyle as XYZLayerStyle).init?.(this, _customFeatureStyles);
+
+        this._sd = layerStyle as XYZLayerStyle;
 
         this.dispatchEvent(STYLE_CHANGE_EVENT, {style: layerStyle});
     };
 
+
+    getStyleManager(): XYZLayerStyle {
+        return this._sd;
+    };
     /**
      * Get the current layerStyle.
      */
     getStyle(): LayerStyle {
         return this._sd;
     };
-
 
     getMargin() {
         return this.margin;
@@ -809,6 +814,10 @@ export class TileLayer extends Layer {
 
         // this.getProvider(this.max).getCopyright(cb);
     };
+
+    getStyleDefinitions(): LayerStyle['definitions'] {
+        return this._sd?.getDefinitions();
+    }
 }
 
 // deprecated fallback..

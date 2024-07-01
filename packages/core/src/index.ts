@@ -34,6 +34,7 @@ export * from './styles/SphereStyle';
 export * from './styles/TextStyle';
 export * from './styles/VerticalLineStyle';
 export * from './styles/HeatmapStyle';
+export * from './styles/XYZLayerStyle';
 export * from './layers/MVTLayer';
 export * from './layers/CustomLayer';
 export * from './layers/Layer';

@@ -59,34 +59,25 @@ const mixin = (to, from) => {
     return to;
 };
 
-const clone = (o) => {
+const clone = (obj) => {
     // return this.extend(true,o);
-    let newO;
-    let i;
-
-    if (typeof o !== 'object') {
-        return o;
+    if (typeof obj !== 'object' || !obj) {
+        return obj;
     }
-
-    if (!o) {
-        return o;
-    }
-
-    if (Object.prototype.toString.apply(o) === '[object Array]') {
-        newO = [];
-        for (i = 0; i < o.length; i += 1) {
-            newO[i] = clone(o[i]);
+    if (Array.isArray(obj)) {
+        const clonedObj = [];
+        for (let i = 0; i < obj.length; i += 1) {
+            clonedObj[i] = clone(obj[i]);
         }
-        return newO;
+        return clonedObj;
     }
-
-    newO = {};
-    for (i in o) {
-        if (o.hasOwnProperty(i)) {
-            newO[i] = clone(o[i]);
+    const clonedObj = {};
+    for (let i in obj) {
+        if (obj.hasOwnProperty(i)) {
+            clonedObj[i] = clone(obj[i]);
         }
     }
-    return newO;
+    return clonedObj;
 };
 
 const JSUtils = {

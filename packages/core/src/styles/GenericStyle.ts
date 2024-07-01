@@ -16,8 +16,9 @@
  * SPDX-License-Identifier: Apache-2.0
  * License-Filename: LICENSE
  */
-import {Color, StyleValueFunction, StyleZoomRange} from './LayerStyle';
+import {Color, StyleExpression, StyleValueFunction, StyleZoomRange} from './LayerStyle';
 import {LinearGradient} from '@here/xyz-maps-core';
+import {JSONExpression} from '@here/xyz-maps-common';
 
 /**
  * The Style object defines how certain features should be rendered.
@@ -72,7 +73,7 @@ export interface Style {
      * The zIndex is defined relative to the "zLayer" property.
      * If "zLayer" is defined all zIndex values are relative to the "zLayer" value.
      */
-    zIndex: number | StyleValueFunction<number> | StyleZoomRange<number>;
+    zIndex: number | StyleValueFunction<number> | StyleZoomRange<number> | StyleExpression<number>;
 
     /**
      * Indicates drawing order across multiple layers.
@@ -82,14 +83,14 @@ export interface Style {
      *
      * @example \{...zLayer: 2, zIndex: 5\} will be rendered on top of \{...zLayer: 1, zIndex: 10\}
      */
-    zLayer?: number | StyleValueFunction<number>;
+    zLayer?: number | StyleValueFunction<number> | StyleExpression<number>;
 
     /**
      * Specifies the URL of an image.
      * It can be either absolute or relative path.
      * It is only required by "Image".
      */
-    src?: string | StyleValueFunction<string> | StyleZoomRange<string>;
+    src?: string | StyleValueFunction<string> | StyleZoomRange<string> | StyleExpression<string>;
 
     /**
      * Sets the color to fill the shape.
@@ -97,7 +98,7 @@ export interface Style {
      *
      * @see {@link Color} for a detailed list of possible supported formats.
      */
-    fill?: Color | StyleValueFunction<Color> | StyleZoomRange<Color> | LinearGradient;
+    fill?: Color | StyleValueFunction<Color> | StyleZoomRange<Color> | LinearGradient | StyleExpression<Color>;
 
     /**
      * Sets the stroke color of the shape.
@@ -105,7 +106,7 @@ export interface Style {
      *
      * @see {@link Color} for a detailed list of possible supported formats.
      */
-    stroke?: Color | StyleValueFunction<Color> | StyleZoomRange<Color>;
+    stroke?: Color | StyleValueFunction<Color> | StyleZoomRange<Color> | StyleExpression<Color>;
 
     /**
      * Sets the width of the stroke.
@@ -144,7 +145,7 @@ export interface Style {
      * }
      * ```
      */
-    strokeWidth?: number | string | StyleValueFunction<number | number> | StyleZoomRange<string | number>;
+    strokeWidth?: number | string | StyleValueFunction<number | string> | StyleZoomRange<number | string> | StyleExpression<number | string>;
 
     /**
      * This controls the shape of the ends of lines. there are three possible values for strokeLinecap:
@@ -155,7 +156,7 @@ export interface Style {
      *
      * If "strokeLinecap" is used in combination with "altitude", only "butt" is supported for "strokeLinecap".
      */
-    strokeLinecap?: string | StyleValueFunction<string> | StyleZoomRange<string>;
+    strokeLinecap?: string | StyleValueFunction<string> | StyleZoomRange<string> | StyleExpression<string>;
 
     /**
      * The joint where the two segments in a line meet is controlled by the strokeLinejoin attribute, There are three possible values for this attribute:
@@ -166,7 +167,7 @@ export interface Style {
      *
      * If "strokeLinejoin" is used in combination with "altitude", the use of "round" is not supported.
      */
-    strokeLinejoin?: string | StyleValueFunction<string> | StyleZoomRange<string>;
+    strokeLinejoin?: string | StyleValueFunction<string> | StyleZoomRange<string> | StyleExpression<string>;
 
     /**
      * The strokeDasharray attribute controls the pattern of dashes and gaps used to stroke paths.
@@ -186,7 +187,7 @@ export interface Style {
      * // dash -> 10 meter, gap -> 10 pixel.
      * strokeDasharray: ["20m",10] || ["20m","10px"]
      */
-    strokeDasharray?: (number|string)[] | StyleValueFunction<(number|string)[]> | StyleZoomRange<(number|string)[]> | 'none';
+    strokeDasharray?: (number | string)[] | StyleValueFunction<(number | string)[]> | StyleZoomRange<(number | string)[]> | StyleExpression<(number | string)[]> | 'none';
 
     /**
      * Defines the opacity of the style.
@@ -194,7 +195,7 @@ export interface Style {
      * It is valid for all style types.
      * @defaultValue 1
      */
-    opacity?: number | StyleValueFunction<number> | StyleZoomRange<number>;
+    opacity?: number | StyleValueFunction<number> | StyleZoomRange<number> | StyleExpression<number>;
 
     /**
      * The Radius of the Circle and Sphere.
@@ -231,7 +232,7 @@ export interface Style {
      * }
      * ```
      */
-    radius?: number | StyleValueFunction<number> | StyleZoomRange<number>;
+    radius?: number | StyleValueFunction<number> | StyleZoomRange<number> | StyleExpression<number>;
 
     /**
      * Width of the style in pixels.
@@ -260,7 +261,7 @@ export interface Style {
      * }
      * ```
      */
-    width?: number | StyleValueFunction<number> | StyleZoomRange<number>;
+    width?: number | StyleValueFunction<number> | StyleZoomRange<number> | StyleExpression<number>;
 
     /**
      * Height of the style in pixels.
@@ -301,7 +302,7 @@ export interface Style {
      * }
      * ```
      */
-    height?: number | StyleValueFunction<number> | StyleZoomRange<number>;
+    height?: number | StyleValueFunction<number> | StyleZoomRange<number> | StyleExpression<number>;
 
     /**
      * The depth of the style in pixels.
@@ -321,7 +322,7 @@ export interface Style {
      * }
      * ```
      */
-    depth?: number | StyleValueFunction<number> | StyleZoomRange<number>;
+    depth?: number | StyleValueFunction<number> | StyleZoomRange<number> | StyleExpression<number>;
 
     /**
      * CSS font string for texts.
@@ -329,7 +330,7 @@ export interface Style {
      *
      * @defaultValue “normal 12px Arial”
      */
-    font?: string | StyleValueFunction<string> | StyleZoomRange<string>;
+    font?: string | StyleValueFunction<string> | StyleZoomRange<string> | StyleExpression<string>;
 
     /**
      * Text is either a string or a function that generates the string that should be displayed.
@@ -344,7 +345,7 @@ export interface Style {
      * }
      * ```
      */
-    text?: string | number | boolean | StyleValueFunction<string | number | boolean> | StyleZoomRange<string | number | boolean>;
+    text?: string | number | boolean | StyleValueFunction<string | number | boolean> | StyleZoomRange<string | number | boolean> | StyleExpression<string | number | boolean>;
 
     /**
      * "textRef" Reference to an attribute of an feature that's value should be displayed as text.
@@ -363,7 +364,7 @@ export interface Style {
      * textRef: "id"
      * ```
      */
-    textRef?: string | StyleValueFunction<string> | StyleZoomRange<string>;
+    textRef?: string | StyleValueFunction<string> | StyleZoomRange<string> | StyleExpression<string>;
 
     /**
      * Define the starting position of a segment of the entire line in %.
@@ -375,7 +376,7 @@ export interface Style {
      * from: 0.0 // -\> 0%, the segment has the same starting point as the entire line
      * from:  0.5 // -\> 50%, the segment starts in the middle of the entire line
      */
-    from?: number | StyleValueFunction<number> | StyleZoomRange<number>;
+    from?: number | StyleValueFunction<number> | StyleZoomRange<number> | StyleExpression<number>;
 
     /**
      * Define the end position of a segment of the entire line in %.
@@ -387,7 +388,7 @@ export interface Style {
      * to: 0.5 // -\> 50%, the segment ends in the middle of the entire line
      * to: 1.0 // -\> 100%, the segment has the same end point as the entire line
      */
-    to?: number | StyleValueFunction<number> | StyleZoomRange<number>;
+    to?: number | StyleValueFunction<number> | StyleZoomRange<number> | StyleExpression<number>;
 
     /**
      * Offset the shape in pixels on x-axis.
@@ -404,7 +405,7 @@ export interface Style {
      * { type: "Circle", zIndex: 0, fill:'blue', radius: 4, offsetX: "-1m"}
      * ```
      */
-    offsetX?: number | string | StyleValueFunction<number | string> | StyleZoomRange<number | string>;
+    offsetX?: number | string | StyleValueFunction<number | string> | StyleZoomRange<number | string> | StyleExpression<number | string>;
 
     /**
      * Offset the shape in pixels on y-axis.
@@ -421,7 +422,7 @@ export interface Style {
      * { type: "Circle", zIndex: 0, fill:'blue', radius: 4, offsetY: "-1m"}
      * ```
      */
-    offsetY?: number | StyleValueFunction<number> | StyleZoomRange<number>;
+    offsetY?: number | StyleValueFunction<number> | StyleZoomRange<number> | StyleExpression<string>;
 
     /**
      * Offset the shape in pixels on z-axis.
@@ -438,7 +439,7 @@ export interface Style {
      * { type: "Circle", zIndex: 0, fill:'blue', radius: 4, offsetZ: "1m"}
      * ```
      */
-    offsetZ?: number | string | StyleValueFunction<number | string> | StyleZoomRange<number | string>;
+    offsetZ?: number | string | StyleValueFunction<number | string> | StyleZoomRange<number | string> | StyleExpression<number | string>;
 
     /**
      * Offset a line to the left or right side in pixel or meter.
@@ -456,7 +457,7 @@ export interface Style {
      * { type: "Line", zIndex: 0, stroke:'blue', strokeWidth: 4, offset: "2m"}
      * ```
      */
-    offset?: number | string | StyleValueFunction<number | string> | StyleZoomRange<number | string>;
+    offset?: number | string | StyleValueFunction<number | string> | StyleZoomRange<number | string> | StyleExpression<number | string>;
 
     /**
      * Alignment for styles of type "Circle", "Rect", "Image" and "Text".
@@ -464,20 +465,20 @@ export interface Style {
      * "map" aligns to the plane of the map and "viewport" aligns to the plane of the viewport/screen.
      * Default alignment for Text based on point geometries is "viewport" while "map" is the default for line geometries.
      */
-    alignment?: 'map' | 'viewport' | StyleValueFunction<string> | StyleZoomRange<string>;
+    alignment?: 'map' | 'viewport' | StyleValueFunction<string> | StyleZoomRange<string> | StyleExpression<string>;
 
     /**
      * Rotate the shape of the style to the angle in degrees.
      * This attribute is validate for Rect and Image.
      */
-    rotation?: number | StyleValueFunction<number> | StyleZoomRange<number>;
+    rotation?: number | StyleValueFunction<number> | StyleZoomRange<number> | StyleExpression<number>;
 
     /**
      * In case of label collision, Text with a higher priority (lower value) will be drawn before lower priorities (higher value).
      * If the collision detection is enabled for multiple Styles within the same StyleGroup, the highest priority (lowest value)
      * is used.
      */
-    priority?: number | StyleValueFunction<number> | StyleZoomRange<number>;
+    priority?: number | StyleValueFunction<number> | StyleZoomRange<number> | StyleExpression<number>;
 
     /**
      * Minimum distance in pixels between repeated style-groups on line geometries.
@@ -485,7 +486,7 @@ export interface Style {
      *
      * @defaultValue 256 (pixels)
      */
-    repeat?: number | StyleValueFunction<number> | StyleZoomRange<number>;
+    repeat?: number | StyleValueFunction<number> | StyleZoomRange<number> | StyleExpression<number>;
 
     /**
      * Enable oder Disable line wrapping for styles of type "Text".
@@ -498,7 +499,7 @@ export interface Style {
      *
      * @defaultValue 14
      */
-    lineWrap?: number | StyleValueFunction<number> | StyleZoomRange<number>;
+    lineWrap?: number | StyleValueFunction<number> | StyleZoomRange<number> | StyleExpression<number>;
 
     /**
      * Sets the anchor point for styles of type "Circle", "Rect", "Image" and "Text" used with Line or Polygon geometry.
@@ -513,7 +514,7 @@ export interface Style {
      *
      * @defaultValue For Polygon geometry the default is "Center". For Line geometry the default for styles of type "Text" is "Line", while "Coordinate" is the default for styles of type "Circle", "Rect" or "Image".
      */
-    anchor?: 'Line' | 'Coordinate' | 'Centroid' | 'Center'
+    anchor?: 'Line' | 'Coordinate' | 'Centroid' | 'Center' | StyleValueFunction<string> | StyleZoomRange<string> | StyleExpression<string>;
 
     /**
      * Enable or disable the space check for point styles on line geometries.
@@ -523,7 +524,7 @@ export interface Style {
      *
      * @defaultValue true
      */
-    checkLineSpace?: boolean
+    checkLineSpace?: boolean | StyleValueFunction<boolean> | StyleZoomRange<boolean> | StyleExpression<boolean>;
 
     /**
      * Enable or disable collision detection.
@@ -536,18 +537,18 @@ export interface Style {
      *
      * @defaultValue false for "Text", true for all other.
      */
-    collide?: boolean | StyleValueFunction<boolean> | StyleZoomRange<boolean>;
+    collide?: boolean | StyleValueFunction<boolean> | StyleZoomRange<boolean> | StyleExpression<boolean>;
 
     /**
      * Enables collision detection and combines all styles of a StyleGroup with the same "CollisionGroup" into a single logical object for collision detection.
      */
-    collisionGroup?: string | StyleValueFunction<string> | StyleZoomRange<string>
+    collisionGroup?: string | StyleValueFunction<string> | StyleZoomRange<string> | StyleExpression<string>;
 
     /**
      * Extrude a Polygon or MultiPolygon geometry in meters.
      * This attribute is validate for styles of type "Polygon" only.
      */
-    extrude?: number | StyleValueFunction<number> | StyleZoomRange<number>;
+    extrude?: number | StyleValueFunction<number> | StyleZoomRange<number> | StyleExpression<number>;
 
     /**
      * The base of the Extrude in meters.
@@ -557,7 +558,7 @@ export interface Style {
      *
      * @defaultValue 0
      */
-    extrudeBase?: number | StyleValueFunction<number> | StyleZoomRange<number>;
+    extrudeBase?: number | StyleValueFunction<number> | StyleZoomRange<number> | StyleExpression<number>;
 
     /**
      * The altitude of the style in meters.
@@ -571,7 +572,7 @@ export interface Style {
      *
      * @experimental
      */
-    altitude?: number | boolean | StyleValueFunction<number | boolean> | StyleZoomRange<number | boolean>
+    altitude?: number | boolean | StyleValueFunction<number | boolean> | StyleZoomRange<number | boolean> | StyleExpression<number | boolean>;
 
 
     /**
@@ -585,5 +586,34 @@ export interface Style {
      *
      * @experimental
      */
-    scaleByAltitude?: boolean | StyleValueFunction<boolean> | StyleZoomRange<boolean>
+    scaleByAltitude?: boolean | StyleValueFunction<boolean> | StyleZoomRange<boolean> | StyleExpression<boolean>;
+
+    /**
+     * Sets the condition(s) to determine whether a feature should be rendered with the respective style.
+     * The `filter` expression is evaluated to determine if the respective style should be applied to a feature.
+     * It must resolve to a boolean value where `true` means the style applies and `false` means it does not.
+     *
+     * This property is only used when {@link LayerStyle.assign} is not defined; otherwise, `filter` is ignored.
+     *
+     * @example
+     * // Render features where the "type" property is equal to "park"
+     * filter: ['==', ['get', 'type'], 'park']
+     *
+     * @example
+     * // Render features where the "population" property is greater than 1000
+     * filter: ['>', ['get', 'population'], 1000]
+     *
+     * @example
+     * // Render features where the "type" property is "park" and "population" is less than 500
+     * filter: ['all', ['==', ['get', 'type'], 'park'], ['<', ['get', 'population'], 500]]
+     *
+     * @example
+     * // Render features where the "type" property is not "residential"
+     * filter: ['!=', ['get', 'type'], 'residential']
+     *
+     * @example
+     * // Render features where the "type" property is either "park" or "garden"
+     * filter: ['any', ['==', ['get', 'type'], 'park'], ['==', ['get', 'type'], 'garden']]
+     */
+    filter?: StyleValueFunction<boolean> | StyleExpression<boolean>;
 }

@@ -16,7 +16,7 @@
  * SPDX-License-Identifier: Apache-2.0
  * License-Filename: LICENSE
  */
-import {Color, StyleValueFunction, StyleZoomRange} from './LayerStyle';
+import {Color, StyleExpression, StyleValueFunction, StyleZoomRange} from './LayerStyle';
 
 /**
  * Interface for configuring the visual appearance of Rectangles.
@@ -33,7 +33,7 @@ export interface SphereStyle {
      * The zIndex is defined relative to the "zLayer" property.
      * If "zLayer" is defined all zIndex values are relative to the "zLayer" value.
      */
-    zIndex: number | StyleValueFunction<number> | StyleZoomRange<number>;
+    zIndex: number | StyleValueFunction<number> | StyleZoomRange<number> | StyleExpression<number>;
 
     /**
      * Indicates drawing order across multiple layers.
@@ -43,7 +43,7 @@ export interface SphereStyle {
      *
      * @example \{...zLayer: 2, zIndex: 5\} will be rendered on top of \{...zLayer: 1, zIndex: 10\}
      */
-    zLayer?: number | StyleValueFunction<number>;
+    zLayer?: number | StyleValueFunction<number> | StyleExpression<number>;
 
     /**
      * Sets the color to fill the Sphere.
@@ -51,7 +51,7 @@ export interface SphereStyle {
      *
      * @see {@link Color} for a detailed list of possible supported formats.
      */
-    fill?: Color | StyleValueFunction<Color> | StyleZoomRange<Color>;
+    fill?: Color | StyleValueFunction<Color> | StyleZoomRange<Color> | StyleExpression<Color>;
 
     /**
      * Defines the opacity of the style.
@@ -59,7 +59,7 @@ export interface SphereStyle {
      * It is valid for all style types.
      * @defaultValue 1
      */
-    opacity?: number | StyleValueFunction<number> | StyleZoomRange<number>;
+    opacity?: number | StyleValueFunction<number> | StyleZoomRange<number> | StyleExpression<number>;
 
     /**
      * The Radius of the Sphere.
@@ -77,7 +77,7 @@ export interface SphereStyle {
      * }
      * ```
      */
-    radius?: number | StyleValueFunction<number> | StyleZoomRange<number>;
+    radius?: number | StyleValueFunction<number> | StyleZoomRange<number> | StyleExpression<number>;
 
     /**
      * Offset the shape in pixels on x-axis.
@@ -90,7 +90,7 @@ export interface SphereStyle {
      * { type: "Sphere", zIndex: 0, fill:'blue', radius: 24, offsetX: "-1m"}
      * ```
      */
-    offsetX?: number | string | StyleValueFunction<number | string> | StyleZoomRange<number | string>;
+    offsetX?: number | string | StyleValueFunction<number | string> | StyleZoomRange<number | string> | StyleExpression<number | string>;
 
     /**
      * Offset the shape in pixels on y-axis.
@@ -103,7 +103,7 @@ export interface SphereStyle {
      * { type: "Sphere", zIndex: 0, fill:'blue', radius: 24, offsetY: "-1m"}
      * ```
      */
-    offsetY?: number | StyleValueFunction<number> | StyleZoomRange<number>;
+    offsetY?: number | StyleValueFunction<number> | StyleZoomRange<number> | StyleExpression<number>;
 
     /**
      * Offset the shape in pixels on z-axis.
@@ -116,7 +116,7 @@ export interface SphereStyle {
      * { type: "Sphere", zIndex: 0, fill:'blue', radius: 24, offsetZ: "1m"}
      * ```
      */
-    offsetZ?: number | string | StyleValueFunction<number | string> | StyleZoomRange<number | string>;
+    offsetZ?: number | string | StyleValueFunction<number | string> | StyleZoomRange<number | string> | StyleExpression<number | string>;
 
     /**
      * The altitude of the style in meters.
@@ -129,7 +129,7 @@ export interface SphereStyle {
      *
      * @experimental
      */
-    altitude?: number | boolean | StyleValueFunction<number | boolean> | StyleZoomRange<number | boolean>
+    altitude?: number | boolean | StyleValueFunction<number | boolean> | StyleZoomRange<number | boolean> | StyleExpression<number | boolean>;
 
 
     /**
@@ -143,5 +143,5 @@ export interface SphereStyle {
      *
      * @experimental
      */
-    scaleByAltitude?: boolean | StyleValueFunction<boolean> | StyleZoomRange<boolean>
+    scaleByAltitude?: boolean | StyleValueFunction<boolean> | StyleZoomRange<boolean> | StyleExpression<boolean>;
 }

@@ -132,12 +132,12 @@ describe('zoom in 20+', function() {
                     [-77.0077688, 38.9011329]
                 ]
             }
-        }, {
+        }, [{
             zIndex: 1,
             type: 'Line',
             stroke: '#0000ff',
             strokeWidth: 14
-        });
+        }]);
 
         display.setCenter(-77.0077688, 38.9011329);
 

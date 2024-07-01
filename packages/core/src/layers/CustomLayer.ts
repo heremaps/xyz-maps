@@ -18,6 +18,7 @@
  */
 
 import {Layer} from './Layer';
+import {LayerStyle} from '../styles/LayerStyle';
 
 /**
  * Options to configure the CustomLayer.
@@ -192,7 +193,7 @@ export class CustomLayer extends Layer {
 
     }
 
-    getStyle() {
-        return this.style;
+    getStyle(): LayerStyle {
+        return this.style as LayerStyle;
     }
 }

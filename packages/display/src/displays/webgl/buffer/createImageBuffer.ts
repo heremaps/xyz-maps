@@ -37,6 +37,7 @@ const createImageBuffer = (img: Image, gl: WebGLRenderingContext, size: number, 
     // const texInfo = atlas.get(id) || atlas.set(id, img); // [UNIT,X,Y]
 
     const tileBuffer = new GeometryBuffer({first: 0, count: 6}, 'Image');
+
     // 0 ------- 1
     // |      /  |
     // |    /    |
@@ -67,7 +68,7 @@ const createImageBuffer = (img: Image, gl: WebGLRenderingContext, size: number, 
     tileBuffer.blend = alpha;
     tileBuffer.pass = alpha ? PASS.ALPHA : PASS.OPAQUE;
     tileBuffer.pixelPerfect = true;
-
+    tileBuffer.pointerEvents = false;
     tileBuffer.cullFace(FRONT);
 
     // tileBuffer.uniforms.u_snapGrid = true;

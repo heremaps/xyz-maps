@@ -21,12 +21,13 @@ import {waitForViewportReady} from 'displayUtils';
 import {getCanvasPixelColor, prepare} from 'utils';
 import {Map} from '@here/xyz-maps-display';
 import dataset from './stylegroup_line_spec.json';
+import {TileLayer} from '@here/xyz-maps-core';
 
 describe('setStyleGroup Line', () => {
     const {expect} = chai;
 
     let preparedData;
-    let linkLayer;
+    let linkLayer: TileLayer;
     let display;
     let mapContainer;
     let feature;
@@ -61,7 +62,7 @@ describe('setStyleGroup Line', () => {
         // set link style
         linkLayer.setStyleGroup(
             feature,
-            {'zIndex': 0, 'type': 'Line', 'opacity': 1, 'stroke': '#be6b65', 'strokeWidth': 16}
+            [{'zIndex': 0, 'type': 'Line', 'opacity': 1, 'stroke': '#be6b65', 'strokeWidth': 16}]
         );
 
         // validate new link style

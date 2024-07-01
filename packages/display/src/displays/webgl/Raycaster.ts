@@ -303,7 +303,7 @@ class Raycaster {
         buffer: GeometryBuffer,
         layerIndex?: number
     ) {
-        if (buffer.type == 'Image' || buffer.pointerEvents === false) return;
+        if (buffer.pointerEvents === false) return;
 
         const {result} = this;
 

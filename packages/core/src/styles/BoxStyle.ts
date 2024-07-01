@@ -16,7 +16,7 @@
  * SPDX-License-Identifier: Apache-2.0
  * License-Filename: LICENSE
  */
-import {Color, StyleValueFunction, StyleZoomRange} from './LayerStyle';
+import {Color, StyleExpression, StyleValueFunction, StyleZoomRange} from './LayerStyle';
 
 
 /**
@@ -34,7 +34,7 @@ export interface BoxStyle {
      * The zIndex is defined relative to the "zLayer" property.
      * If "zLayer" is defined all zIndex values are relative to the "zLayer" value.
      */
-    zIndex: number | StyleValueFunction<number> | StyleZoomRange<number>;
+    zIndex: number | StyleValueFunction<number> | StyleZoomRange<number> | StyleExpression<number>;
 
     /**
      * Indicates drawing order across multiple layers.
@@ -44,21 +44,21 @@ export interface BoxStyle {
      *
      * @example \{...zLayer: 2, zIndex: 5\} will be rendered on top of \{...zLayer: 1, zIndex: 10\}
      */
-    zLayer?: number | StyleValueFunction<number>;
+    zLayer?: number | StyleValueFunction<number> | StyleExpression<number>;
 
     /**
      * Sets the color to fill the Box.
      *
      * @see {@link Color} for a detailed list of possible supported formats.
      */
-    fill?: Color | StyleValueFunction<Color> | StyleZoomRange<Color>;
+    fill?: Color | StyleValueFunction<Color> | StyleZoomRange<Color> | StyleExpression<Color>;
 
     /**
      * Sets the stroke color of the Box.
      *
      * @see {@link Color} for a detailed list of possible supported formats.
      */
-    stroke?: Color | StyleValueFunction<Color> | StyleZoomRange<Color>;
+    stroke?: Color | StyleValueFunction<Color> | StyleZoomRange<Color> | StyleExpression<Color>;
 
     /**
      * Sets the width of the stroke.
@@ -76,7 +76,7 @@ export interface BoxStyle {
      * }
      * ```
      */
-    strokeWidth?: number | string | StyleValueFunction<number | number> | StyleZoomRange<string | number>;
+    strokeWidth?: number | string | StyleValueFunction<number | number> | StyleZoomRange<string | number> | StyleExpression<number | string>;
 
     /**
      * Defines the opacity of the style.
@@ -84,7 +84,7 @@ export interface BoxStyle {
      *
      * @defaultValue 1
      */
-    opacity?: number | StyleValueFunction<number> | StyleZoomRange<number>;
+    opacity?: number | StyleValueFunction<number> | StyleZoomRange<number> | StyleExpression<number>;
 
     /**
      * The Width of the Box.
@@ -101,7 +101,7 @@ export interface BoxStyle {
      * }
      * ```
      */
-    width: number | StyleValueFunction<number> | StyleZoomRange<number>;
+    width: number | StyleValueFunction<number> | StyleZoomRange<number> | StyleExpression<number>;
 
     /**
      * The Height of the Box.
@@ -120,7 +120,7 @@ export interface BoxStyle {
      * }
      * ```
      */
-    height?: number | StyleValueFunction<number> | StyleZoomRange<number>;
+    height?: number | StyleValueFunction<number> | StyleZoomRange<number> | StyleExpression<number>;
 
     /**
      * The depth of the Box.
@@ -141,7 +141,7 @@ export interface BoxStyle {
      * }
      * ```
      */
-    depth?: number | StyleValueFunction<number> | StyleZoomRange<number>;
+    depth?: number | StyleValueFunction<number> | StyleZoomRange<number> | StyleExpression<number>;
 
     /**
      * Offset the Box in pixels on x-axis.
@@ -154,7 +154,7 @@ export interface BoxStyle {
      * { type: "Box", zIndex: 0, with: 32, fill: 'red', offsetX: 8}
      * ```
      */
-    offsetX?: number | string | StyleValueFunction<number | string> | StyleZoomRange<number | string>;
+    offsetX?: number | string | StyleValueFunction<number | string> | StyleZoomRange<number | string> | StyleExpression<number | string>;
 
     /**
      * Offset the Box in pixels on y-axis.
@@ -170,7 +170,7 @@ export interface BoxStyle {
      * { type: "Box", zIndex: 0, fill: 'blue', width: 32, offsetY: "-1m"}
      * ```
      */
-    offsetY?: number | StyleValueFunction<number> | StyleZoomRange<number>;
+    offsetY?: number | StyleValueFunction<number> | StyleZoomRange<number> | StyleExpression<number>;
 
     /**
      * Offset the Box in pixels on z-axis.
@@ -186,7 +186,7 @@ export interface BoxStyle {
      * { type: "Box", zIndex: 0, fill: 'red', width:32, offsetZ: "1m"}
      * ```
      */
-    offsetZ?: number | string | StyleValueFunction<number | string> | StyleZoomRange<number | string>;
+    offsetZ?: number | string | StyleValueFunction<number | string> | StyleZoomRange<number | string> | StyleExpression<number | string>;
 
     /**
      * The altitude of the center of the Box in meters.
@@ -199,7 +199,7 @@ export interface BoxStyle {
      *
      * @experimental
      */
-    altitude?: number | boolean | StyleValueFunction<number | boolean> | StyleZoomRange<number | boolean>
+    altitude?: number | boolean | StyleValueFunction<number | boolean> | StyleZoomRange<number | boolean> | StyleExpression<number | boolean>;
 
     /**
      * Scales the size of a style based on the feature's altitude.
@@ -212,5 +212,5 @@ export interface BoxStyle {
      *
      * @experimental
      */
-    scaleByAltitude?: boolean | StyleValueFunction<boolean> | StyleZoomRange<boolean>
+    scaleByAltitude?: boolean | StyleValueFunction<boolean> | StyleZoomRange<boolean> | StyleExpression<boolean>;
 }

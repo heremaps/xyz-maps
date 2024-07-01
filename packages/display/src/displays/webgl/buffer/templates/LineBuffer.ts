@@ -70,7 +70,7 @@ export class LineBuffer extends TemplateBuffer {
         // let feature;
         // const scaleX = 2 / rayCaster.w;
         // const scaleY = 2 / rayCaster.h;
-        let strokeWidth = buffer.getUniform('u_strokeWidth')[0] / rayCaster.scale;
+        let strokeWidth = 0.5 * buffer.getUniform('u_strokeWidth')[0] / rayCaster.scale;
         const scaleByAltitude = <boolean>buffer.getUniform('u_scaleByAltitude');
         const N_SCALE = 1.0 / 8192.0;
 

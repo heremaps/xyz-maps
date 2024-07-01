@@ -20,6 +20,7 @@
 import {JSUtils} from '@here/xyz-maps-common';
 import {FeatureProvider} from '../providers/FeatureProvider';
 import {GeoJSONFeature, GeoJSONBBox, GeoJSONCoordinate} from './GeoJSON';
+import {TileLayer} from '@here/xyz-maps-core';
 
 /**
  * represents a Feature in GeoJSON Feature format.
@@ -150,6 +151,10 @@ export class Feature<GeometryType = string> implements GeoJSONFeature<GeometryTy
     getBBox(): GeoJSONBBox {
         return this._provider.decBBox(this);
     };
+
+    getDataSourceLayer(layer: TileLayer) {
+        return layer.name ?? layer.id;
+    }
 }
 
 Feature.prototype.type = 'Feature';

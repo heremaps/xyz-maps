@@ -21,12 +21,13 @@ import {waitForViewportReady} from 'displayUtils';
 import {getCanvasPixelColor, prepare} from 'utils';
 import {Map} from '@here/xyz-maps-display';
 import dataset from './setstylegroup_point_with_same_zindex.json';
+import {TileLayer} from '@here/xyz-maps-core';
 
 describe('setStyleGroup point with same zIndex', function() {
     const expect = chai.expect;
 
-    let buildingLayer;
-    let paLayer;
+    let buildingLayer: TileLayer;
+    let paLayer: TileLayer;
     let display;
     let mapContainer;
     let feature;
@@ -201,7 +202,7 @@ describe('setStyleGroup point with same zIndex', function() {
         // style build as background color
         buildingLayer.setStyleGroup(
             building,
-            {'zIndex': 0, 'type': 'Polygon', 'fill': '#000000', 'stroke': '#000000'}
+            [{'zIndex': 0, 'type': 'Polygon', 'fill': '#000000', 'stroke': '#000000'}]
         );
 
         // set style for the added feature with same values
@@ -223,7 +224,7 @@ describe('setStyleGroup point with same zIndex', function() {
         // style build as background color
         buildingLayer.setStyleGroup(
             building,
-            {'zIndex': 0, 'type': 'Polygon', 'fill': '#000000', 'stroke': '#000000'}
+            [{'zIndex': 0, 'type': 'Polygon', 'fill': '#000000', 'stroke': '#000000'}]
         );
 
         // set style for the added feature with different opacity
@@ -245,7 +246,7 @@ describe('setStyleGroup point with same zIndex', function() {
         // style build as background color
         buildingLayer.setStyleGroup(
             building,
-            {'zIndex': 0, 'type': 'Polygon', 'fill': '#000000', 'stroke': '#000000'}
+            [{'zIndex': 0, 'type': 'Polygon', 'fill': '#000000', 'stroke': '#000000'}]
         );
 
         // set style for the added feature with different opacity and zIndex

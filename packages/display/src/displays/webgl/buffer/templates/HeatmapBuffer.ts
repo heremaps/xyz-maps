@@ -22,7 +22,8 @@ import {FlexArray} from './FlexArray';
 import {PointBuffer} from './PointBuffer';
 import {addPoint} from '../addPoint';
 import {LinearGradient} from '@here/xyz-maps-core';
-import {toRGB} from '../../color';
+import {Color} from '@here/xyz-maps-common';
+import toRGB = Color.toRGB;
 
 export const DEFAULT_HEATMAP_GRADIENT: LinearGradient = {
     type: 'LinearGradient',
