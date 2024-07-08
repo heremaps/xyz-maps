@@ -48,7 +48,7 @@ export class ExpressionParser {
     private _cacheHits: number = 0;
     private defaultResultCache: ResultCache = new Map();
     private resultCache: ResultCache;
-    private _mode: ExpressionMode = ExpressionMode.static;
+    private _mode: ExpressionMode;
     private dynamicResultCache: ResultCache = new Map();
 
     static {
@@ -62,6 +62,7 @@ export class ExpressionParser {
     constructor(definitions = {}, context = {}) {
         this.definitions = definitions;
         this.context = context;
+        this.setMode(ExpressionMode.static);
         // console.time('clone definitions');
         // this.definitions = JSUtils.clone(definitions);
         // console.timeEnd('clone definitions');
@@ -196,11 +197,11 @@ export class ExpressionParser {
     }
 
     setMode(mode: ExpressionMode) {
-        // if (mode != this._mode) {
-        this._mode = mode;
-        this.context.mode = mode;
-        this.resultCache = mode === ExpressionMode.static ? this.defaultResultCache : this.dynamicResultCache;
-        // }
+        if (mode != this._mode) {
+            this._mode = mode;
+            this.context.mode = mode;
+            this.resultCache = mode === ExpressionMode.static ? this.defaultResultCache : this.dynamicResultCache;
+        }
     }
 
     getMode() {
