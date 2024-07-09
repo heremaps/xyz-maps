@@ -170,7 +170,7 @@ export class FeatureFactory {
 
     private toRGBA(color: Color, alpha: number = 1, premultiplyAlpha: boolean = true): RGBA {
         const rgba = Array.isArray(color)
-            ? [color[0], color[1], color[2], color[3]??1] as RGBA
+            ? [color[0], color[1], color[2], typeof color[3] == 'number' ? color[3] : 1] as RGBA
             : toRGB(color);
         if (rgba) {
             alpha = rgba[3] *= alpha;
