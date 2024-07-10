@@ -127,7 +127,9 @@ export class PointBuffer extends TemplateBuffer {
         const m11 = sMat[11];
         const m15 = sMat[15];
 
-        for (let i = 0, y = 0; i < position.length; i += 6 * size, y += 6) {
+        const stride = 6 * size;
+
+        for (let i = 0, y = 0; i < position.length; i += stride, y += 6) {
             let x0 = tileX + (position[i] >> 2) / extentScale;
             let y0 = tileY + (position[i + 1] >> 2) / extentScale;
             // convert normalized int16 to float meters (-500m ... +9000m)
@@ -228,7 +230,7 @@ export class PointBuffer extends TemplateBuffer {
         }
 
         if (bufferIndex != null) {
-            return buffer.idOffsets[Math.floor(bufferIndex / 18)];
+            return buffer.idOffsets[Math.floor(bufferIndex / stride)];
         }
     }
 }
