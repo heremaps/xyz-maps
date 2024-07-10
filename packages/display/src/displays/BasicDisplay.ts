@@ -615,7 +615,7 @@ abstract class Display {
     }
 
     /**
-     * Return the most top rendered feature on screen.
+     * Returns the topmost rendered feature on the screen.
      *
      * @param screenX x position on screen
      * @param screenY y position
@@ -626,11 +626,11 @@ abstract class Display {
      */
     getRenderedFeatureAt(screenX: number, screenY: number, layers?: (TileLayer | CustomLayer)[]): {
         id: number | string | null,
-        z: number,
-        layerIndex: number,
+        z?: number,
+        layerIndex?: number,
         pointWorld?: number[]
     } {
-        return null;
+        return {id: null};
     }
 
     scaleOffsetXYByAltitude(pointWorld: number[]) {
