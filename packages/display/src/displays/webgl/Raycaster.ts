@@ -301,7 +301,7 @@ class Raycaster {
         tileX: number,
         tileY: number,
         buffer: GeometryBuffer,
-        layerIndex?: number
+        layerIndex: number
     ) {
         if (buffer.pointerEvents === false) return;
 
@@ -313,6 +313,7 @@ class Raycaster {
             result.id = featureId;
             result.layerIndex = layerIndex;
         }
+        return featureId;
     }
 }
 

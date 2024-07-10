@@ -71,6 +71,7 @@ export type TileBufferData = {
     z: number;
     tiled: true;
     b: GeometryBuffer;
+    layerIndex: number;
     data: {
         tile: ScreenTile;
         preview?: [string, number, number, number, number, number, number, number, number];
@@ -80,12 +81,13 @@ export type TileBufferData = {
 
 type CustomBufferData = {
     z: number;
-    tiled: boolean;
+    tiled: false;
     b: {
+        flat: boolean;
         zLayer?: number;
         zIndex?: number;
         pass?: number;
-        flat: boolean;
+        pointerEvents?: boolean;
     };
     data: CustomLayer;
 };
@@ -105,6 +107,7 @@ class WebGlDisplay extends BasicDisplay {
     private groundResolution: number;
     private worldCenter: number[] = [0, 0];
     private worldSize: number;
+    private _zSortedTileBuffers: { tileBuffers: BufferData[], min3dZIndex: number, maxZIndex: number };
 
     constructor(mapEl: HTMLElement, renderTileSize: number, devicePixelRatio: number | string, renderOptions?: RenderOptions) {
         super(
@@ -362,12 +365,13 @@ class WebGlDisplay extends BasicDisplay {
                 b: buffer,
                 z,
                 data,
+                layerIndex: layer.index,
                 tiled
             } as TileBufferData;
         }
     }
 
-    private initLayerBuffers(layers: Layers) {
+    private initLayerBuffers(layers: Layers): { tileBuffers: BufferData[], min3dZIndex: number, maxZIndex: number } {
         const {buckets} = this;
         let tileBuffers: BufferData[] = [];
         let previewTiles: {
@@ -501,7 +505,8 @@ class WebGlDisplay extends BasicDisplay {
 
         render.fixedView = Number(!this.viewChange);
 
-        let {tileBuffers, min3dZIndex, maxZIndex} = this.initLayerBuffers(layers);
+        const layerBuffers = this.initLayerBuffers(layers);
+        const {tileBuffers, min3dZIndex, maxZIndex} = layerBuffers;
 
         render.zIndexLength = maxZIndex;
 
@@ -522,7 +527,8 @@ class WebGlDisplay extends BasicDisplay {
         render.setPass(PASS.ALPHA);
 
         // sort by zIndex and alpha/post alpha.
-        tileBuffers = tileBuffers.sort((buf1, buf2) => 10 * (buf1.z - buf2.z) + buf1.b.pass - buf2.b.pass);
+        tileBuffers.sort((buf1, buf2) => 10 * (buf1.z - buf2.z) + buf1.b.pass - buf2.b.pass);
+        this._zSortedTileBuffers = layerBuffers;
         let layerZIndex = 0;
 
         do {
@@ -577,40 +583,63 @@ class WebGlDisplay extends BasicDisplay {
         z: number;
         layerIndex: number
     } {
-        const {tiles} = this;
         // console.time('getRenderedFeatureAt');
         this.rayCaster.init(x, y, this.w, this.h, this.s, 1 / this.groundResolution);
 
         const camWorldZ = this.rayCaster.origin[2] - 0.001;
 
-        let tileSize: number | string;
-        for (tileSize in tiles) {
-            tileSize = Number(tileSize);
-            for (let gridTile of tiles[tileSize]) {
-                const tileX = gridTile.x;
-                const tileY = gridTile.y;
-                const tile = <GLTile>gridTile.tile;
-                const hitTile = this.rayCaster.intersectAABBox(tileX, tileY, 0, tileX + tileSize, tileY + tileSize, camWorldZ);
-                if (!hitTile) continue;
+        const {tileBuffers, min3dZIndex} = this._zSortedTileBuffers;
+        let i = tileBuffers.length;
+        while (i--) {
+            let tileBuffer = tileBuffers[i];
+            if (!tileBuffer.tiled || !tileBuffer.b.pointerEvents) continue; // skip custom layers
+            let {b: buffer, z, data, tiled} = tileBuffer;
+            let isOnTopOf3d = false;
 
-                for (let i = 0, {data} = tile; i < data.length; i++) {
-                    const {layer} = tile.layers[i];
-                    const layerBuffers = data[i];
-                    const layerIndex = layers.indexOf(layer);
-                    if (!layerBuffers || layerIndex == -1) continue;
-                    for (let buffer of layerBuffers) {
-                        if (buffer.isFlat()) continue;
-                        this.rayCaster.intersect(tileX, tileY, buffer, layerIndex);
-                    }
+            if (buffer.flat) {
+                if (z > min3dZIndex) {
+                    isOnTopOf3d = true;
+                } else {
+                    // skip flat/2d buffers for now. will be evaluated later on data level.
+                    continue;
                 }
             }
+            const tile: ScreenTile = data.tile;
+            const {x: tileX, y: tileY, size} = tile;
+            const hitTile = this.rayCaster.intersectAABBox(tileX, tileY, 0, tileX + size, tileY + size, camWorldZ);
+            if (!hitTile) continue;
+
+            const id = this.rayCaster.intersect(tileX, tileY, buffer, tileBuffer.layerIndex);
+            if (isOnTopOf3d && id != null) {
+                break;
+            }
         }
+
+        // const {tiles} = this;
+        // let tileSize: number | string;
+        // for (tileSize in tiles) {
+        //     tileSize = Number(tileSize);
+        //     for (let gridTile of tiles[tileSize]) {
+        //         const tileX = gridTile.x;
+        //         const tileY = gridTile.y;
+        //         const tile = <GLTile>gridTile.tile;
+        //         const hitTile = this.rayCaster.intersectAABBox(tileX, tileY, 0, tileX + tileSize, tileY + tileSize, camWorldZ);
+        //         if (!hitTile) continue;
+        //
+        //         for (let i = 0, {data} = tile; i < data.length; i++) {
+        //             const {layer} = tile.layers[i];
+        //             const layerBuffers = data[i];
+        //             const layerIndex = layers.indexOf(layer);
+        //             if (!layerBuffers || layerIndex == -1) continue;
+        //             for (let buffer of layerBuffers) {
+        //                 if (buffer.isFlat()) continue;
+        //                 this.rayCaster.intersect(tileX, tileY, buffer, layerIndex);
+        //             }
+        //         }
+        //     }
+        // }
         const result = this.rayCaster.getIntersectionTop();
-
-        // console.timeEnd('getRenderedFeatureAt');
-
         this.viewport(true);
-
         return result;
     }
 

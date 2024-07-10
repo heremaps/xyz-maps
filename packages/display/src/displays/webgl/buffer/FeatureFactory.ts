@@ -386,7 +386,8 @@ export class FeatureFactory {
         strokeWidthScale: number,
         removeTileBounds?: boolean,
         priority?: number,
-        collisionGroup?: CollisionGroup
+        collisionGroup?: CollisionGroup,
+        allowPointerEvents: boolean = true
     ): boolean {
         const {tile, groups, tileSize} = this;
         const level = this.z;
@@ -519,7 +520,7 @@ export class FeatureFactory {
             sizeUnit = 'px';
             offsetUnit = UNDEF;
             let depth;
-            let pointerEvents = true;
+            let pointerEvents = allowPointerEvents;
             let processPointOffset = false;
             let modelMode = 0;
 
@@ -615,7 +616,7 @@ export class FeatureFactory {
                             extrude = getValue('extrude', style, feature, level);
                             extrudeBase = getValue('extrudeBase', style, feature, level);
 
-                            if (typeof extrude == 'number' || extrudeBase) {
+                            if (extrude > 0 || extrudeBase > 0) {
                                 groupId = 'E';
                                 type = 'Extrude';
                             } else {
@@ -678,21 +679,23 @@ export class FeatureFactory {
                                 height = !height ? width : parseSizeValue(height)[0];
 
                                 groupId = (altitude ? 'AR' : 'R') + rotation + sizeUnit + width + height;
-                            } else if (type == 'Box') {
-                                // width = getValue('width', style, feature, level);
-                                // [width, sizeUnit] = parseSizeValue(width);
-                                // height = getValue('height', style, feature, level);
-                                // depth = getValue('depth', style, feature, level);
-
-                                pointerEvents = getValue('pointerEvents', style, feature, level);
-
-                                groupId = 'B' + rotation + pointerEvents; // + sizeUnit + width + height;
-                            } else if (type == 'Sphere') {
-                                width = height = getValue('radius', style, feature, level);
-                                [width, sizeUnit] = parseSizeValue(width);
-
-                                pointerEvents = getValue('pointerEvents', style, feature, level);
-                                groupId = 'S' + width + pointerEvents;
+                            } else if (type == 'Box' || type == 'Sphere') {
+                                if (type == 'Box') {
+                                    // width = getValue('width', style, feature, level);
+                                    // [width, sizeUnit] = parseSizeValue(width);
+                                    // height = getValue('height', style, feature, level);
+                                    // depth = getValue('depth', style, feature, level);
+                                    groupId = 'B' + rotation; // + sizeUnit + width + height;
+                                } else {
+                                    width = height = getValue('radius', style, feature, level);
+                                    [width, sizeUnit] = parseSizeValue(width);
+                                    groupId = 'S' + width;
+                                }
+                                const allowEvents = getValue('pointerEvents', style, feature, level);
+                                if (typeof allowEvents == 'boolean') {
+                                    pointerEvents = allowEvents;
+                                }
+                                groupId += pointerEvents;
                             } else {
                                 continue;
                             }

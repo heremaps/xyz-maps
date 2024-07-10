@@ -71,9 +71,9 @@ export class TemplateBuffer {
         this.clip = clipTile;
         // this.flexAttributes = {};
 
-        if (!flat) {
-            this.idOffsets = [];
-        }
+        // if (!flat) {
+        this.idOffsets = [];
+        // }
 
         this.cullFace = FRONT;
         this.first = 0;

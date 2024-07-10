@@ -56,15 +56,24 @@ const handlePolygons = (
     const zoom = factory.z;
 
     for (let style of styleGroup) {
-        const styleType = style.type;
         const type = getValue('type', style, feature, zoom);
         if (type == 'Polygon' || type == 'Line') {
-            if (getValue('stroke', style, feature, zoom)) {
+            const {type: orgType, stroke: orgStroke, strokeWidth: orgStrokwWidth} = style;
+            let stroke = getValue('stroke', style, feature, zoom);
+            let strokeWidth = getValue('strokeWidth', style, feature, zoom);
+            if (stroke && strokeWidth) {
                 style.type = 'Line';
+                style.stroke = stroke;
+                style.strokeWidth = strokeWidth;
+
                 for (let linestring of coordinates) {
-                    factory.create(feature, 'LineString', linestring, [style], lsScale, tile.clipped);
+                    factory.create(feature, 'LineString', linestring, [style], lsScale, tile.clipped, undefined, undefined,
+                        style.fill ? strokeWidth>3 :true // ignore pointerevents for polygon outlines if fill is used
+                    );
                 }
-                style.type = styleType;
+                style.type = orgType;
+                style.stroke = orgStroke;
+                style.strokeWidth = strokeWidth;
             }
         } else if (multiIndex == 0) {
             const {bounds} = tile;
@@ -187,7 +196,6 @@ const createBuffer = (
                             const geoBuffer: GeometryBuffer = GeometryBuffer.fromTemplateBuffer(type, grpBuffer);
 
                             if (geoBuffer == null) continue;
-
 
                             // let hasAlphaColor = false;
                             const fillOpacity = shared.fill?.[3];
@@ -401,7 +409,6 @@ const createBuffer = (
                     }
                 }
             }
-
             onDone(buffers.reverse(), pendingResources);
         },
 
