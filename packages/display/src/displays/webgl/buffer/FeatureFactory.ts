@@ -147,6 +147,7 @@ export class FeatureFactory {
     z: number;
     private waitAndRefresh: (p: Promise<any>) => void;
     gradients: GradientFactory;
+    private zLayer: number;
 
     constructor(gl: WebGLRenderingContext, collisionHandler, devicePixelRatio: number) {
         this.gl = gl;
@@ -183,11 +184,12 @@ export class FeatureFactory {
         return rgba || null;
     }
 
-    init(tile, groups: GroupMap, tileSize: number, zoom: number, waitAndRefresh: (p: Promise<any>) => void) {
+    init(tile, groups: GroupMap, tileSize: number, zoom: number, zLayer: number, waitAndRefresh: (p: Promise<any>) => void) {
         this.tile = tile;
         this.groups = groups;
         this.tileSize = tileSize;
         this.z = zoom;
+        this.zLayer = zLayer;
         this.lineFactory.initTile();
         this.pendingCollisions.length = 0;
         this.waitAndRefresh = waitAndRefresh;
@@ -752,11 +754,12 @@ export class FeatureFactory {
 
             zIndex = getValue('zIndex', style, feature, level);
 
-            const zLayer = getValue('zLayer', style, feature, level);
-
-            if (zLayer != UNDEF) {
-                groupId = zLayer + ':' + groupId;
+            let zLayer = getValue('zLayer', style, feature, level);
+            if (zLayer == UNDEF) {
+                zLayer = this.zLayer;
             }
+            groupId = zLayer + groupId;
+
 
             let depthTest;
 

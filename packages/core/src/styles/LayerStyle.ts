@@ -303,4 +303,12 @@ export interface LayerStyle {
      *  @returns the key/identifier of the styleGroup in the styleGroupMap, or null/undefined if the feature should not be rendered.
      */
     assign?: (feature: Feature, zoomlevel: number) => string | null | undefined;
+
+    /**
+     * Indicates the global drawing order across multiple layers.
+     * This value acts as a fallback for the {@link Style.zLayer} property if not explicitly defined there.
+     * Styles with higher zLayer values are rendered on top of those with lower values.
+     * If no `zLayer` is defined, the display layer order is used by default.
+     */
+    zLayer?: number
 }

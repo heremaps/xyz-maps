@@ -38,7 +38,7 @@ export interface CircleStyle {
     /**
      * Indicates drawing order across multiple layers.
      * Styles using zLayer with a high value are rendered on top of zLayers with a low value.
-     * If no zLayer is defined the zLayer depends on the display layer order.
+     * If no zLayer is defined, it will fall back to the {@link LayerStyle.zLayer} or depend on the display layer order.
      * The first (lowest) layer has a zLayer value of 1.
      *
      * @example \{...zLayer: 2, zIndex: 5\} will be rendered on top of \{...zLayer: 1, zIndex: 10\}

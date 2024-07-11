@@ -148,7 +148,7 @@ const createBuffer = (
 
             const groups: GroupMap = {};
 
-            factory.init(tile, groups, tileSize, zoom, waitAndRefresh);
+            factory.init(tile, groups, tileSize, zoom, layerStyles.zLayer, waitAndRefresh);
 
             return {
                 tile,
