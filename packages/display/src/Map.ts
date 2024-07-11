@@ -344,7 +344,7 @@ export class Map {
 
     private _layerChangeListener(ev) {
         // refresh render-data if layer is cleared
-        this.refresh(ev.type === 'clear'??ev.detail.layer);
+        this.refresh(ev.type === 'clear' ?? ev.detail.layer);
     }
 
     private initViewPort(): [number, number] {
@@ -776,12 +776,11 @@ export class Map {
             if (!w && !h) {
                 // "pixel search"
                 skip3d = true;
-                layers = <TileLayer[]>(layers || this._layers);
-                const featureInfo = this._display.getRenderedFeatureAt(x, y, layers);
+                const featureInfo = this._display.getRenderedFeatureAt(x, y, <TileLayer[]>layers);
 
                 if (featureInfo.id != null) {
-                    const layer = layers[featureInfo.layerIndex];
-                    const provider = <FeatureProvider>layer.getProvider(this.getZoomlevel() ^ 0);
+                    const {layer} = featureInfo;
+                    const provider = layer.getProvider(this.getZoomlevel() ^ 0) as FeatureProvider;
                     const feature = provider?.search?.(featureInfo.id);
 
                     if (feature) {
@@ -1323,7 +1322,7 @@ export class Map {
      *
      * @param layers - the layer(s) that should be refreshed/re-rendered.
      */
-    refresh(layers?: TileLayer | Layer | (TileLayer|Layer)[]) {
+    refresh(layers?: TileLayer | Layer | (TileLayer | Layer)[]) {
         if (!(layers instanceof Array)) {
             layers = [layers];
         }

@@ -626,7 +626,7 @@ abstract class Display {
     getRenderedFeatureAt(screenX: number, screenY: number, layers?: (TileLayer | CustomLayer)[]): {
         id: number | string | null,
         z?: number,
-        layerIndex?: number,
+        layer?: TileLayer,
         pointWorld?: number[]
     } {
         return {id: null};

@@ -66,12 +66,18 @@ const stencilQuad = (quadkey: string, subQuadkey: string) => {
     return [x, y];
 };
 
+type RendereFeatureResult = {
+    id: number | string | null;
+    z: number;
+    layer: TileLayer
+};
 
 export type TileBufferData = {
     z: number;
     tiled: true;
     b: GeometryBuffer;
-    layerIndex: number;
+    // layerIndex: number;
+    layer: Layer,
     data: {
         tile: ScreenTile;
         preview?: [string, number, number, number, number, number, number, number, number];
@@ -365,7 +371,8 @@ class WebGlDisplay extends BasicDisplay {
                 b: buffer,
                 z,
                 data,
-                layerIndex: layer.index,
+                layer,
+                // layerIndex: layer.index,
                 tiled
             } as TileBufferData;
         }
@@ -578,14 +585,10 @@ class WebGlDisplay extends BasicDisplay {
         this.factory.destroy();
     }
 
-    getRenderedFeatureAt(x: number, y: number, layers): {
-        id: number | string | null;
-        z: number;
-        layerIndex: number
-    } {
+    getRenderedFeatureAt(x: number, y: number, layers?: TileLayer[]): RendereFeatureResult {
         // console.time('getRenderedFeatureAt');
         this.rayCaster.init(x, y, this.w, this.h, this.s, 1 / this.groundResolution);
-
+        let intersectLayer: Layer = null;
         const camWorldZ = this.rayCaster.origin[2] - 0.001;
 
         const {tileBuffers, min3dZIndex} = this._zSortedTileBuffers;
@@ -593,7 +596,9 @@ class WebGlDisplay extends BasicDisplay {
         while (i--) {
             let tileBuffer = tileBuffers[i];
             if (!tileBuffer.tiled || !tileBuffer.b.pointerEvents) continue; // skip custom layers
-            let {b: buffer, z, data, tiled} = tileBuffer;
+            let {b: buffer, z, data, tiled, layer} = tileBuffer;
+
+            if (layers?.indexOf(layer.layer as TileLayer) == -1) continue;
             let isOnTopOf3d = false;
 
             if (buffer.flat) {
@@ -609,9 +614,10 @@ class WebGlDisplay extends BasicDisplay {
             const hitTile = this.rayCaster.intersectAABBox(tileX, tileY, 0, tileX + size, tileY + size, camWorldZ);
             if (!hitTile) continue;
 
-            const id = this.rayCaster.intersect(tileX, tileY, buffer, tileBuffer.layerIndex);
-            if (isOnTopOf3d && id != null) {
-                break;
+            const id = this.rayCaster.intersect(tileX, tileY, buffer);
+            if (id != null) {
+                intersectLayer = layer;
+                if (isOnTopOf3d) break;
             }
         }
 
@@ -638,7 +644,8 @@ class WebGlDisplay extends BasicDisplay {
         //         }
         //     }
         // }
-        const result = this.rayCaster.getIntersectionTop();
+        const result = <RendereFeatureResult><unknown> this.rayCaster.getIntersectionTop();
+        result.layer = intersectLayer?.layer as TileLayer;
         this.viewport(true);
         return result;
     }
