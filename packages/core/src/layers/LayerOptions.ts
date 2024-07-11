@@ -44,5 +44,8 @@ export interface LayerOptions {
      * Indicates whether the layer should be visible (`true`) or hidden (`false`).
      * @defaultValue true
      */
-    visible?: boolean
+    visible?: boolean;
+
+    levelOffset?: number;
+    tiled?: boolean;
 }

@@ -19,11 +19,12 @@
 
 import {Layer} from './Layer';
 import {LayerStyle} from '../styles/LayerStyle';
+import {LayerOptions} from './LayerOptions';
 
 /**
  * Options to configure the CustomLayer.
  */
-type CustomLayerOptions = {
+interface CustomLayerOptions extends LayerOptions {
     /**
      * Event Listener that will be called when the layer is added to the display.
      * @param ev - Event of type "layerAdd"
