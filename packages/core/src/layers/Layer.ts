@@ -164,6 +164,7 @@ export class Layer {
      * ```
      */
     isVisible(): boolean;
+    isVisible(zoomLevel?: number): boolean;
     isVisible(zoomLevel?: number): boolean {
         return (!this.visible || zoomLevel == UNDEF)
             ? this.visible
