@@ -167,7 +167,6 @@ export class TileLayer extends Layer {
 
         layer.setMargin(layer.getMargin());
 
-
         let style;
         // deprecated fallback
         const deprecatedProviderStyles = this._fp && (<any> this._fp).styles;

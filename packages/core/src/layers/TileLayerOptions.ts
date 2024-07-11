@@ -19,12 +19,13 @@
 
 import TileProvider from '../providers/TileProvider/TileProvider';
 import {LayerStyle} from '../styles/LayerStyle';
+import {LayerOptions} from './LayerOptions';
 
 
 /**
  *  Configuration options for a TileLayer.
  */
-export interface TileLayerOptions {
+export interface TileLayerOptions extends LayerOptions {
     /**
      * Name of the TileLayer.
      */

@@ -329,7 +329,7 @@ export class Map {
 
         tigerMap.setZoomlevel(zoomLevel);
 
-        tigerMap._layerClearListener = tigerMap._layerClearListener.bind(tigerMap);
+        tigerMap._layerChangeListener = tigerMap._layerChangeListener.bind(tigerMap);
 
         for (let layer of (options['layers'] || [])) {
             tigerMap.addLayer(layer);
@@ -342,9 +342,9 @@ export class Map {
         }
     }
 
-    private _layerClearListener(ev) {
-        // refresh(re-fetch) data if layer get's cleared
-        this.refresh(ev.detail.layer);
+    private _layerChangeListener(ev) {
+        // refresh render-data if layer is cleared
+        this.refresh(ev.type === 'clear'??ev.detail.layer);
     }
 
     private initViewPort(): [number, number] {
@@ -1268,7 +1268,8 @@ export class Map {
             this._display.addLayer(layer, index, (layer as TileLayer).getStyleManager?.());
             // if layer get's cleared -> refresh/re-fetch data
             // layer.addEventListener('clear', (ev)=>this.refresh(ev.detail.layer));
-            layer.addEventListener('clear', this._layerClearListener);
+            layer.addEventListener('clear', this._layerChangeListener);
+            layer.addEventListener('layerVisibilityChange', this._layerChangeListener);
 
 
             const eventDetail = {
@@ -1301,7 +1302,8 @@ export class Map {
         if (index >= 0) {
             this._display.removeLayer(layer);
             // layer.removeEventListener('clear', (ev)=>this.refresh(ev.detail.layer));
-            layer.removeEventListener('clear', this._layerClearListener);
+            layer.removeEventListener('clear', this._layerChangeListener);
+            layer.removeEventListener('layerVisibilityChange', this._layerChangeListener);
 
             layers.splice(index, 1);
 

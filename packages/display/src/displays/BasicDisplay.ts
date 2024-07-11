@@ -404,10 +404,8 @@ abstract class Display {
                 let layerTileSize = layer.tileSize || 256;
 
                 if (layerTileSize == gridTileSize) {
-                    if (dLayer.tiles != screenTiles) {
+                    if (layer.isVisible(zoomLevel)) {
                         dLayer.tiles = screenTiles;
-                    }
-                    if (zoomLevel >= layer.min && zoomLevel <= layer.max) {
                         display.initTile(displayTile, dLayer);
                         layer.getTile(quadkey, dLayer.handleTile);
                     }
@@ -511,6 +509,7 @@ abstract class Display {
         }
 
         this.dirty = true;
+
         display.update();
     }
 

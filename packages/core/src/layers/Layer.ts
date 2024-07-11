@@ -18,9 +18,14 @@
  */
 
 import {Listener as Listeners} from '@here/xyz-maps-common';
+import {LayerOptions} from './LayerOptions';
 
-const REMOVE_LAYER_EVENT = 'layerRemove';
-const ADD_LAYER_EVENT = 'layerAdd';
+
+enum LAYER_EVENT {
+    REMOVE = 'layerRemove',
+    ADD = 'layerAdd',
+    VISIBILITY_CHANGE = 'layerVisibilityChange',
+}
 
 let UNDEF;
 
@@ -54,11 +59,15 @@ export class Layer {
      */
     public max: number;
 
+    private visible: boolean;
+
     /**
      * @param options - options to configure the Layer
      */
-    constructor(options) {
+    constructor(options: LayerOptions) {
         const layer = this;
+
+        options = {visible: true, ...options};
 
         for (const c in options) {
             layer[c] = options[c];
@@ -68,10 +77,7 @@ export class Layer {
             (<any>layer).id = 'L-' + (Math.random() * 1e8 ^ 0);
         }
 
-        layer._l = new Listeners([
-            ADD_LAYER_EVENT,
-            REMOVE_LAYER_EVENT
-        ]);
+        layer._l = new Listeners(Object.values(LAYER_EVENT));
     };
 
     addEventListener(type: string, listener: (event: CustomEvent) => void, _c?) {
@@ -104,5 +110,63 @@ export class Layer {
         detail.layer = this;
         const event = new CustomEvent(type, {detail});
         this._l.trigger(type, event, !async);
+    }
+
+    /**
+     * Sets the visibility of the Layer.
+     *
+     * This function controls whether the tile layer is currently displayed or hidden.
+     *
+     * @param {boolean} [isVisible] - A boolean value indicating whether the tile layer should be visible (true) or hidden (false).
+     *
+     * @returns {boolean} - The current visibility state of the tile layer.
+     *
+     * @example
+     * ```
+     * // Create a new tile layer
+     * let tileLayer = new XYZMapsTileLayer();
+     *
+     * // Hide the tile layer
+     * tileLayer.visible(false);
+     *
+     * // Show the tile layer
+     * tileLayer.visible(true);
+     * ```
+     */
+    setVisible(isVisible?: boolean) {
+        if (typeof isVisible == 'boolean') {
+            const {visible} = this;
+            this.visible = !!isVisible;
+
+            if (visible != isVisible) {
+                this._l.trigger(LAYER_EVENT.VISIBILITY_CHANGE, new CustomEvent(LAYER_EVENT.VISIBILITY_CHANGE, {
+                    detail: {
+                        visible: isVisible,
+                        layer: this
+                    }
+                }), false);
+            }
+        }
+    }
+
+    /**
+     * Checks whether the xyz-maps tile layer is currently visible.
+     *
+     * @returns {boolean} - Returns `true` if the layer is visible, otherwise `false`.
+     *
+     * @example
+     * ```
+     * if (layer.isVisible()) {
+     *   console.log("Layer is visible");
+     * } else {
+     *   console.log("Layer is not visible");
+     * }
+     * ```
+     */
+    isVisible(): boolean;
+    isVisible(zoomLevel?: number): boolean {
+        return (!this.visible || zoomLevel == UNDEF)
+            ? this.visible
+            : zoomLevel >= this.min && zoomLevel <= this.max;
     }
 }

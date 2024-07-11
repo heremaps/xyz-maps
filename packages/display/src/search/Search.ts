@@ -18,7 +18,7 @@
  */
 
 import Hit from './Hit';
-import {CustomLayer, Feature, TileLayer} from '@here/xyz-maps-core';
+import {CustomLayer, Feature, TileLayer, TileLayerOptions} from '@here/xyz-maps-core';
 import {Map} from '../Map';
 import {Layers} from '../displays/Layers';
 
@@ -95,7 +95,7 @@ export class Search {
         let found = [];
         let viewbounds;
         let provider;
-        let layer;
+        let layer: TileLayer;
         let feature;
         let features;
         let length;
@@ -139,7 +139,7 @@ export class Search {
 
             const displayLayer = this.layers.get(layer);
 
-            if (zoomlevel <= layer.max && zoomlevel >= layer.min && provider?.search) {
+            if (provider?.search && layer.isVisible(zoomlevel) ) {
                 features = provider.search(viewbounds);
                 length = features.length;
                 while (length--) {

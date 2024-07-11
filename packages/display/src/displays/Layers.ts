@@ -239,7 +239,7 @@ class Layers extends Array<Layer> {
             dLayer.cnt = 0;
             dLayer.tiles = [];
 
-            if (dLayer.visible = zoomlevel >= layer['min'] && zoomlevel <= layer['max']) {
+            if (dLayer.visible = layer.isVisible(zoomlevel)) {
                 dLayer.ready = false;
 
                 if (layer.custom) continue;
