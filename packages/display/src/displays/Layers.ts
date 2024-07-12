@@ -73,7 +73,10 @@ class Layer {
         this.tileSize = (<TileLayer>layer).tileSize || null;
         this.layers = layers;
         this.id = Math.floor(Math.random() * 1e16);
+        this.initStyle();
+    }
 
+    initStyle() {
         this.expParser = (this.layer as TileLayer).getStyleManager?.().getExpressionParser?.() as StyleExpressionParser;
     }
 

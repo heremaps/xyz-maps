@@ -87,9 +87,11 @@ export class XYZLayerStyle implements LayerStyle {
     private flatStyles?: Style[];
     private _filteredStyleGrp: StyleGroup;
 
-    constructor(styleCfg) {
-        for (let p in styleCfg) {
-            const property = styleCfg[p];
+    private _style: LayerStyle;
+
+    constructor(styleJSON: LayerStyle) {
+        for (let p in styleJSON) {
+            const property = styleJSON[p];
             this[p] = p == 'styleGroups' ? deepCopy(property) : property;
         }
         // layerStyle._l = layer;
@@ -97,7 +99,7 @@ export class XYZLayerStyle implements LayerStyle {
 
         this.expParser = new ExpressionParser(this.definitions, this.exprContext);
 
-        if (!styleCfg.assign) {
+        if (!styleJSON.assign) {
             const flatStyles = [];
             for (let name in this.styleGroups) {
                 let styleGrp = this.styleGroups[name];
@@ -122,6 +124,8 @@ export class XYZLayerStyle implements LayerStyle {
 
             this._filteredStyleGrp = [];
         }
+
+        this._style = styleJSON;
     }
 
     private createExpEvaluator(expr: JSONExpression) {
@@ -285,5 +289,9 @@ export class XYZLayerStyle implements LayerStyle {
 
     clearCache() {
         this.expParser.clearCache?.();
+    }
+
+    getLayerStyle(): LayerStyle {
+        return this._style;
     }
 }

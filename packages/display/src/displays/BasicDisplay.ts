@@ -137,7 +137,10 @@ abstract class Display {
 
             'styleChange': (ev) => {
                 const {layer, style} = ev.detail;
-                const index = display.layers.indexOf(layer);
+                // const index = display.layers.indexOf(layer);
+                const displayLayer = display.layers.get(layer);
+                const {index} = displayLayer;
+                displayLayer.initStyle();
                 display.setLayerBgColor(style, display.layers[index]);
                 display.buckets.tiles.forEach((t) => t.clear(index));
             }

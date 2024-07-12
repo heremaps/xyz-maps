@@ -61,7 +61,7 @@ export class TileLayer extends Layer {
 
     private _fp: FeatureProvider;
 
-    private _sd: XYZLayerStyle = null;
+    private _styleManager: XYZLayerStyle = null;
     // pointer events active
     private _pev = true;
 
@@ -345,10 +345,10 @@ export class TileLayer extends Layer {
     setStyleGroup(feature: Feature, styleGroup?: Style[] | false | null): void;
 
     setStyleGroup(feature, styleGroup?, merge?) {
-        if (this._sd) {
+        if (this._styleManager) {
             this.dispatchEvent(STYLEGROUP_CHANGE_EVENT, {
                 feature,
-                styleGroup: this._sd.setStyleGroup(feature, styleGroup, merge)
+                styleGroup: this._styleManager.setStyleGroup(feature, styleGroup, merge)
             });
         }
     };
@@ -361,12 +361,12 @@ export class TileLayer extends Layer {
      *
      */
     getStyleGroup(feature: Feature, zoomlevel?: number, layerDefault?: boolean): readonly Style[] {
-        return this._sd?.getStyleGroup(feature, zoomlevel, layerDefault);
+        return this._styleManager?.getStyleGroup(feature, zoomlevel, layerDefault);
     };
 
 
     _getCustomStyleGroup(feature: Feature): Style[] {
-        return this._sd?.getCustomStyleGroup(feature);
+        return this._styleManager?.getCustomStyleGroup(feature);
     }
 
     /**
@@ -707,7 +707,7 @@ export class TileLayer extends Layer {
      * @param keepCustom - keep and reuse custom set feature styles that have been set via layer.setStyleGroup(...)
      */
     setStyle(layerStyle: LayerStyle| XYZLayerStyle, keepCustom: boolean = false) {
-        const _customFeatureStyles = keepCustom && this._sd?.getCustomStyles();
+        const _customFeatureStyles = keepCustom && this._styleManager?.getCustomStyles();
         // const isFnc = (fnc) => typeof fnc == 'function';
         // if (!isFnc(layerStyle.getStyleGroup) || !isFnc(layerStyle.setStyleGroup)) {
         if (!(layerStyle instanceof XYZLayerStyle)) {
@@ -716,20 +716,20 @@ export class TileLayer extends Layer {
 
         (layerStyle as XYZLayerStyle).init?.(this, _customFeatureStyles);
 
-        this._sd = layerStyle as XYZLayerStyle;
+        this._styleManager = layerStyle as XYZLayerStyle;
 
         this.dispatchEvent(STYLE_CHANGE_EVENT, {style: layerStyle});
     };
 
 
     getStyleManager(): XYZLayerStyle {
-        return this._sd;
+        return this._styleManager;
     };
     /**
      * Get the current layerStyle.
      */
     getStyle(): LayerStyle {
-        return this._sd;
+        return this._styleManager.getLayerStyle();
     };
 
     getMargin() {
@@ -815,7 +815,7 @@ export class TileLayer extends Layer {
     };
 
     getStyleDefinitions(): LayerStyle['definitions'] {
-        return this._sd?.getDefinitions();
+        return this._styleManager?.getDefinitions();
     }
 }
 
