@@ -163,20 +163,19 @@ class Program {
 
     private createUniformSetter(uInfo: WebGLActiveInfo, location: WebGLUniformLocation) {
         const {gl} = this;
-        const getVal = (u) => typeof u == 'function' ? u() : u;
         switch (uInfo.type) {
         case gl.FLOAT:
-            return (v) => gl.uniform1f(location, getVal(v));
+            return (v) => gl.uniform1f(location, v);
         case gl.FLOAT_MAT4:
             return (v) => gl.uniformMatrix4fv(location, false, v);
         case gl.FLOAT_VEC2:
-            return (v) => gl.uniform2f(location, getVal(v[0]), getVal(v[1]));
+            return (v) => gl.uniform2fv(location, v);
         case gl.FLOAT_VEC3:
             return (v) => gl.uniform3fv(location, v);
         case gl.FLOAT_VEC4:
             return (v) => gl.uniform4fv(location, v);
         case gl.BOOL:
-            return (v) => gl.uniform1i(location, getVal(v));
+            return (v) => gl.uniform1i(location, v);
         case gl.SAMPLER_2D:
             const tu = this.textureUnits++;
             return (v) => {

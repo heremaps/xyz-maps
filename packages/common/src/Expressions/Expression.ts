@@ -84,7 +84,7 @@ export abstract class Expression implements IExpression {
     resolve(context=this.env.context, mode?: ExpressionMode) {
         const {env} = this;
         env.setMode(mode);
-        const result = env.evaluateParsed(this, context);
+        const result = env.evaluate(this, context);
         env.setMode(ExpressionMode.static);
         return result;
     }
