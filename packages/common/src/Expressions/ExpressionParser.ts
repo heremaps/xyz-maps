@@ -17,10 +17,9 @@
  * License-Filename: LICENSE
  */
 
-import {Expression, ExpressionMode, IExpression, JSONExpression} from './Expression';
+import {Expression, ExpressionMode, JSONExpression} from './Expression';
 import * as Expressions from './Expressions';
 import * as InterpolateExpressions from './InterpolateExpression';
-import {JSUtils} from '@here/xyz-maps-common';
 
 type ResultCache = Map<Expression, any> & { hits?: number };
 
@@ -69,7 +68,7 @@ export class ExpressionParser {
 
         // this.cache.get = this.cache.set =()=>undefined;
         // this.defaultResultCache.get = this.defaultResultCache.set =()=>undefined;
-        // this.dynamicResultCache.get = this.defaultResultCache.set =()=>undefined;
+        // this.dynamicResultCache.get = this.dynamicResultCache.set =()=>undefined;
     }
 
     init(def, mapContext) {
@@ -87,10 +86,11 @@ export class ExpressionParser {
         this.cache.clear();
     }
 
-    evaluate(exp, context) {
-        exp = this.parseJSON(exp);
+    evaluate(exp, context, mode: ExpressionMode = ExpressionMode.static) {
         let result;
+        exp = this.parseJSON(exp);
         try {
+            this.setMode(mode);
             result = this.evaluateParsed(exp, context);
         } catch (e) {
             if (e.message === 'DynamicExpressionInterrupt') {
@@ -189,6 +189,9 @@ export class ExpressionParser {
 
     clearResultCache() {
         this.defaultResultCache.clear();
+    }
+
+    clearDynamicResultCache() {
         this.dynamicResultCache.clear();
     }
 

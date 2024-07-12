@@ -49,7 +49,7 @@ export abstract class Expression implements IExpression {
 
     json: JSONExpression;
 
-    supportsPartialEval: boolean = false;
+    supportsPartialEval: boolean;
     constructor(json: JSONExpression, env: ExpressionParser) {
         // this.id = expId++;
         this.json = json;
@@ -83,9 +83,6 @@ export abstract class Expression implements IExpression {
 
     resolve(context=this.env.context, mode?: ExpressionMode) {
         const {env} = this;
-        env.setMode(mode);
-        const result = env.evaluate(this, context);
-        env.setMode(ExpressionMode.static);
-        return result;
+        return env.evaluate(this, context, mode);
     }
 }

@@ -222,7 +222,7 @@ class Layers extends Array<Layer> {
             if (expContext && expContext.zoom != zoomlevel) {
                 expContext.zoom = zoomlevel;
                 expContext.$zoom = zoomlevel^0;
-                // expParser.dynamicResultCache.clear();
+                expParser.clearDynamicResultCache();
             }
         }
     }

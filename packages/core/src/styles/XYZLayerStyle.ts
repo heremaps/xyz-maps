@@ -19,9 +19,8 @@
 
 import {Feature} from '../features/Feature';
 import {Color, LayerStyle, Style, StyleGroup, StyleGroupMap, StyleValueFunction, StyleZoomRange} from '../styles/LayerStyle';
-import {ExpressionParser, JSONExpression} from '@here/xyz-maps-common';
+import {Expression, ExpressionParser, JSONExpression} from '@here/xyz-maps-common';
 import {TileLayer} from '../layers/TileLayer';
-// import {JsonExpression} from '@here/xyz-maps-common';
 
 const isTypedArray = (() => {
     const TypedArray = Object.getPrototypeOf(Uint8Array);
@@ -94,9 +93,8 @@ export class XYZLayerStyle implements LayerStyle {
             const property = styleJSON[p];
             this[p] = p == 'styleGroups' ? deepCopy(property) : property;
         }
-        // layerStyle._l = layer;
-        this.definitions ||= {};
 
+        this.definitions ||= {};
         this.expParser = new ExpressionParser(this.definitions, this.exprContext);
 
         if (!styleJSON.assign) {
@@ -107,14 +105,10 @@ export class XYZLayerStyle implements LayerStyle {
                     styleGrp = [styleGrp];
                 }
                 for (let style of styleGrp) {
-                    // for (let prop in style) {
-                    //     if ( ExpressionParser.isJSONExp(style[prop])) {
-                    //         style[prop] = this.createExpEvaluator(style[prop]);
-                    //     }
-                    // }
                     if (style.filter) {
                         if (ExpressionParser.isJSONExp(style.filter)) {
-                            style.filter = this.createExpEvaluator(style.filter);
+                            //     style.filter = this.createExpEvaluator(style.filter);
+                            style.filter = this.expParser.parseJSON(style.filter);
                         }
                         flatStyles.push(style);
                     }
@@ -128,18 +122,6 @@ export class XYZLayerStyle implements LayerStyle {
         this._style = styleJSON;
     }
 
-    private createExpEvaluator(expr: JSONExpression) {
-        return (feature) => {
-            return this.expParser.evaluate(expr, feature.properties);
-            // window._measure.count('filter-calls');
-            // window._measure.start('filter-eval');
-            // let filtered = this.expParser.evaluate(expr, feature.properties);
-            // window._measure.stop('filter-eval');
-            // return filtered;
-        };
-    };
-
-    // default: simple assignment based on geometryType.
     assign(feature: Feature, level?: number): string | null | undefined {
         // return <string><unknown> this.flatStyles;
         // let filteredStyleGroups = this.flatStyles.filter((style) => {
@@ -156,9 +138,10 @@ export class XYZLayerStyle implements LayerStyle {
         for (let style of this.flatStyles) {
             const {filter} = style;
 
-            const filtered =
-                typeof filter === 'function' ? (style.filter as StyleValueFunction<boolean>)(feature, level)
-                    // : ExpressionParser.isJSONExp(filter) ? this.expParser.evaluate(filter, feature.properties)
+            const filtered = filter instanceof Expression
+                ? filter.resolve(feature.properties)
+                : typeof filter === 'function'
+                    ? (style.filter as StyleValueFunction<boolean>)(feature, level)
                     : filter;
 
             if (filtered) {
@@ -168,18 +151,10 @@ export class XYZLayerStyle implements LayerStyle {
 
         if (i > 0) {
             filteredStyleGroups.length = i;
-            // filteredStyleGroups.__p = false;
             return <string><unknown>filteredStyleGroups;
         }
         // return feature.geometry.type;
     };
-
-    // get : function( feature, level )
-    // {
-    //     return this.styleGroups[
-    //         this.assign( feature, level )
-    //     ];
-    // },
 
     getDefinitions() {
         return this.definitions;
@@ -256,11 +231,6 @@ export class XYZLayerStyle implements LayerStyle {
         }
 
         return group;
-
-        // if( layer = this._l )
-        // {
-        //     layer._l.trigger( 'style', [ feature, group, layer ], true );
-        // }
     };
 
     merge(grp1: readonly Style[], grp2: StyleGroup | false) {
