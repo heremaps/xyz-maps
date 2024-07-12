@@ -25,16 +25,19 @@ export enum ExpressionMode {
 
 export interface IExpression {
     json: any[];
+
     eval(context: any);
 }
 
 export type JSONExpression = [string, ...any[]];
 
 
-let expId =0;
+let expId = 0;
+
 export abstract class Expression implements IExpression {
     static operator: string;
     id?: number;
+
     static isExpression(exp) {
         return exp instanceof Expression;
     }
@@ -50,6 +53,7 @@ export abstract class Expression implements IExpression {
     json: JSONExpression;
 
     supportsPartialEval: boolean;
+
     constructor(json: JSONExpression, env: ExpressionParser) {
         // this.id = expId++;
         this.json = json;
@@ -78,11 +82,17 @@ export abstract class Expression implements IExpression {
     }
 
     toJSON() {
-        return this.json.map((v)=>Expression.isExpression(v) ? v.toJSON(): v);
+        return this.json.map((v) => Expression.isExpression(v) ? v.toJSON() : v);
     }
 
-    resolve(context=this.env.context, mode?: ExpressionMode) {
+    resolve(context?, mode?: ExpressionMode) {
         const {env} = this;
-        return env.evaluate(this, context, mode);
+        let cache;
+        if (context === undefined) {
+            // resolve dynamic expression
+            context = this.env.context;
+            cache = env.dynamicResultCache;
+        }
+        return env.evaluate(this, context, mode, cache);
     }
 }

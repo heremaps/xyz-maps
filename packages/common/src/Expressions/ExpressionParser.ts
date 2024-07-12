@@ -20,6 +20,7 @@
 import {Expression, ExpressionMode, JSONExpression} from './Expression';
 import * as Expressions from './Expressions';
 import * as InterpolateExpressions from './InterpolateExpression';
+import {StyleExpression} from '@here/xyz-maps-core';
 
 type ResultCache = Map<Expression, any> & { hits?: number };
 
@@ -34,6 +35,12 @@ class DynamicExpressionInterrupt extends Error {
     }
 }
 
+type Context = { [name: string]: any };
+type Def = JSONExpression | Expression | boolean | number | string | null | any[];
+type Value = {value:Def};
+type Definitions = { [name: string]: Def | Value };
+
+
 export class ExpressionParser {
     static DYNAMIC_EXPRESSION_INTERRUPT: DynamicExpressionInterrupt = new DynamicExpressionInterrupt();
     static Mode = ExpressionMode;
@@ -41,14 +48,14 @@ export class ExpressionParser {
         [op: string]: new (e: JSONExpression, p: ExpressionParser) => Expression & { [K in keyof typeof Expression]: typeof Expression[K] }
     };
 
-    private definitions: {};
+    private definitions: Definitions;
     private cache = new Map();
-    context: { [name: string]: any };
+    context: Context;
     private _cacheHits: number = 0;
     private defaultResultCache: ResultCache = new Map();
     private resultCache: ResultCache;
     private _mode: ExpressionMode;
-    private dynamicResultCache: ResultCache = new Map();
+    dynamicResultCache: ResultCache = new Map();
 
     static {
         let expressions = {};
@@ -58,26 +65,29 @@ export class ExpressionParser {
         this.Expressions = expressions;
     }
 
-    constructor(definitions = {}, context = {}) {
+    constructor(definitions: Definitions = {}, context: Context = {}) {
         this.definitions = definitions;
         this.context = context;
         this.setMode(ExpressionMode.static);
+
+        this.defaultResultCache.hits = 0;
+        this.dynamicResultCache.hits = 0;
+
         // console.time('clone definitions');
         // this.definitions = JSUtils.clone(definitions);
         // console.timeEnd('clone definitions');
-
         // this.cache.get = this.cache.set =()=>undefined;
         // this.defaultResultCache.get = this.defaultResultCache.set =()=>undefined;
         // this.dynamicResultCache.get = this.dynamicResultCache.set =()=>undefined;
     }
 
-    init(def, mapContext) {
+    init(def: Definitions, mapContext: Context) {
         this.clearCache();
         this.setDefinitions(def);
         this.context = mapContext;
     }
 
-    setDefinitions(def) {
+    setDefinitions(def: Definitions) {
         this.definitions = def;
     }
 
@@ -86,12 +96,12 @@ export class ExpressionParser {
         this.cache.clear();
     }
 
-    evaluate(exp, context, mode: ExpressionMode = ExpressionMode.static) {
+    evaluate(exp: Expression | JSONExpression, context: Context, mode: ExpressionMode = ExpressionMode.static, cache?) {
         let result;
         exp = this.parseJSON(exp);
         try {
-            this.setMode(mode);
-            result = this.evaluateParsed(exp, context);
+            this.setMode(mode, cache);
+            result = this.evaluateParsed(exp as Expression, context);
         } catch (e) {
             if (e.message === 'DynamicExpressionInterrupt') {
                 return e.exp;
@@ -102,17 +112,18 @@ export class ExpressionParser {
         return result;
     }
 
-    evaluateParsed(exp: Expression, context) {
+    evaluateParsed(exp: Expression, context: Context) {
         if (exp instanceof Expression) {
             if (this.getMode() == ExpressionParser.Mode.dynamic && exp.dynamic() && !exp.supportsPartialEval) {
                 const DYNAMIC_EXPRESSION_INTERRUPT = ExpressionParser.DYNAMIC_EXPRESSION_INTERRUPT;
                 DYNAMIC_EXPRESSION_INTERRUPT.exp = exp;
                 throw DYNAMIC_EXPRESSION_INTERRUPT;
+                // return exp;
             }
             // return exp.eval(context);
             let result = this.resultCache.get(exp);
             if (result !== undefined) {
-                this.resultCache.hits = (this.resultCache.hits || 0) + 1;
+                this.resultCache.hits++;
                 return result;
             }
             result = exp.eval(context);
@@ -124,17 +135,17 @@ export class ExpressionParser {
     }
 
 
-    resolveReference(exp: JSONExpression, definitions = this.definitions) {
+    resolveReference(exp: JSONExpression, definitions: Definitions = this.definitions) {
         let key = exp?.[1];
         let value = definitions[key];
         if (value != null) {
-            if (value.value != null) {
-                value = value.value;
+            if ((value as Value).value != null) {
+                value = (value as Value).value;
             }
             while (ExpressionParser.isJSONExp(value) && value[0] == 'ref') {
                 value = definitions[value[1]];
-                if (value.value !== undefined) {
-                    value = value.value;
+                if ((value as Value).value !== undefined) {
+                    value = (value as Value).value;
                 }
             }
         }
@@ -183,7 +194,7 @@ export class ExpressionParser {
         return Expression && new Expression(jsonExp, this);
     }
 
-    static isJSONExp(exp) {
+    static isJSONExp(exp: any) {
         return Array.isArray(exp) && typeof exp[0] == 'string';
     }
 
@@ -195,19 +206,20 @@ export class ExpressionParser {
         this.dynamicResultCache.clear();
     }
 
-    isSupported(exp: JSONExpression) {
+    isSupported(exp: JSONExpression): boolean {
         return Boolean(ExpressionParser.Expressions[exp[0]]);
     }
 
-    setMode(mode: ExpressionMode) {
-        if (mode != this._mode) {
-            this._mode = mode;
-            this.context.mode = mode;
-            this.resultCache = mode === ExpressionMode.static ? this.defaultResultCache : this.dynamicResultCache;
-        }
+    setMode(mode: ExpressionMode, cache?: ResultCache) {
+        // if (mode != this._mode) {
+        this._mode = mode;
+        this.context.mode = mode;
+        this.resultCache = cache || this.defaultResultCache;
+        // this.resultCache = cache || (mode === ExpressionMode.static ? this.defaultResultCache : this.dynamicResultCache);
+        // }
     }
 
-    getMode() {
+    getMode(): ExpressionMode {
         return this._mode;
     }
 }
