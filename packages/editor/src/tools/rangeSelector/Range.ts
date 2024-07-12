@@ -19,7 +19,7 @@
 
 import RangeMarker from './RangeMarker';
 import MultiLink from './MultiLink';
-import {Feature} from '@here/xyz-maps-core/';
+import {Feature} from '@here/xyz-maps-core';
 import Overlay from '../../features/Overlay';
 import {MapEvent} from '@here/xyz-maps-display';
 import {Range as RangeOptions} from '../../API/ERangeSelector';

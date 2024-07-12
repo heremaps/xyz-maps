@@ -24,17 +24,14 @@ import {GeoJSONFeature, ClusterTileLayer, TileLayer, FeatureProvider} from '@her
 import * as XYZMapsCore from '@here/xyz-maps-core';
 import {TestLocalProvider, TestProvider} from '../TestProvider';
 import {spacePool} from '../runner';
-import TileProvider from '@here/xyz-maps-core/src/providers/TileProvider/TileProvider';
 
-
-const Providers = {
-    TestLocalProvider, TestProvider
+const createProvider = (name:string, options): FeatureProvider =>{
+    const Provider = XYZMapsCore[name] || {
+        TestLocalProvider, TestProvider
+    }[name];
+    return new Provider(options);
 };
-for (let name in XYZMapsCore) {
-    if (name.endsWith('Provider')) {
-        Providers[name] = XYZMapsCore[name];
-    }
-}
+
 
 const TOKEN = credentials.access_token;
 
@@ -148,8 +145,8 @@ export default async function prepare(dataset: MapSetup) {
             const layerId = l.id;
 
             let {options, spaceId} = await prepareProviderConfig(l.provider, ts);
-            let provider = new Providers[providerType](options);
-            let layerConfig: Pick<LayerSetup, 'min' | 'max'> | {provider: typeof TileProvider} = Object.assign({}, l);
+            let provider = createProvider(providerType, options);
+            let layerConfig: Pick<LayerSetup, 'min' | 'max'> | {provider: typeof FeatureProvider} = Object.assign({}, l);
 
             layerConfig['provider'] = provider;
             delete layerConfig['data'];
