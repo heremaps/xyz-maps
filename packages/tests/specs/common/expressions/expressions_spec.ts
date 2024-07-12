@@ -44,8 +44,7 @@ describe('Expressions', function() {
 
     const context = {aName: 'testName', aNumber: 123, aString: 'testString'};
     const evalExpression = (exp: JSONExpression, mode = ExpressionMode.static) => {
-        exprParser.setMode(mode);
-        return exprParser.evaluate(exp, context);
+        return exprParser.evaluate(exp, context, mode);
     };
 
     it('evaluate simple sum expression', async () => {
