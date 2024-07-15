@@ -706,7 +706,7 @@ export class TileLayer extends Layer {
      * @param layerStyle - the layerStyle
      * @param keepCustom - keep and reuse custom set feature styles that have been set via layer.setStyleGroup(...)
      */
-    setStyle(layerStyle: LayerStyle| XYZLayerStyle, keepCustom: boolean = false) {
+    setStyle(layerStyle: LayerStyle | XYZLayerStyle, keepCustom: boolean = false) {
         const _customFeatureStyles = keepCustom && this._styleManager?.getCustomStyles();
         // const isFnc = (fnc) => typeof fnc == 'function';
         // if (!isFnc(layerStyle.getStyleGroup) || !isFnc(layerStyle.setStyleGroup)) {
@@ -725,6 +725,7 @@ export class TileLayer extends Layer {
     getStyleManager(): XYZLayerStyle {
         return this._styleManager;
     };
+
     /**
      * Get the current layerStyle.
      */
@@ -816,6 +817,10 @@ export class TileLayer extends Layer {
 
     getStyleDefinitions(): LayerStyle['definitions'] {
         return this._styleManager?.getDefinitions();
+    }
+
+    override _initZoom(zoomlevel: number) {
+        this.getStyleManager().initZoom(zoomlevel);
     }
 }
 

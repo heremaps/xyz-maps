@@ -20,7 +20,6 @@
 import {Expression, ExpressionMode, JSONExpression} from './Expression';
 import * as Expressions from './Expressions';
 import * as InterpolateExpressions from './InterpolateExpression';
-import {StyleExpression} from '@here/xyz-maps-core';
 
 type ResultCache = Map<Expression, any> & { hits?: number };
 
@@ -42,6 +41,10 @@ type Definitions = { [name: string]: Def | Value };
 
 
 export class ExpressionParser {
+    static isJSONExp(exp: any) {
+        return Array.isArray(exp) && typeof exp[0] == 'string';
+    }
+
     static DYNAMIC_EXPRESSION_INTERRUPT: DynamicExpressionInterrupt = new DynamicExpressionInterrupt();
     static Mode = ExpressionMode;
     static Expressions: {
@@ -192,10 +195,6 @@ export class ExpressionParser {
     createExpression(jsonExp: JSONExpression) {
         const Expression = ExpressionParser.Expressions[jsonExp[0]];
         return Expression && new Expression(jsonExp, this);
-    }
-
-    static isJSONExp(exp: any) {
-        return Array.isArray(exp) && typeof exp[0] == 'string';
     }
 
     clearResultCache() {

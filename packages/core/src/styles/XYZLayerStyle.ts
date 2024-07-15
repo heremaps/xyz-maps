@@ -69,7 +69,7 @@ export class XYZLayerStyle implements LayerStyle {
 
     backgroundColor?: Color | StyleZoomRange<Color> | ((zoomlevel: number) => Color);
 
-    protected exprContext: {
+    protected expContext: {
         $geometryType: string;
         $layer: string;
         $zoom: number;
@@ -95,7 +95,7 @@ export class XYZLayerStyle implements LayerStyle {
         }
 
         this.definitions ||= {};
-        this.expParser = new ExpressionParser(this.definitions, this.exprContext);
+        this.expParser = new ExpressionParser(this.definitions, this.expContext);
 
         if (!styleJSON.assign) {
             const flatStyles = [];
@@ -165,7 +165,7 @@ export class XYZLayerStyle implements LayerStyle {
     }
 
     getExpressionContext() {
-        return this.exprContext;
+        return this.expContext;
     }
 
     getCustomStyles() {
@@ -176,23 +176,23 @@ export class XYZLayerStyle implements LayerStyle {
         return this._c[feature.id];
     }
 
-    protected initMapContext(feature: Feature, zoom: number): XYZLayerStyle['exprContext'] {
+    protected initMapContext(feature: Feature, zoom: number): XYZLayerStyle['expContext'] {
         const geometryType = feature.geometry.type;
-        const {exprContext} = this;
-        exprContext.$geometryType = (geometryType == 'Point' || geometryType == 'MultiPoint')
+        const {expContext} = this;
+        expContext.$geometryType = (geometryType == 'Point' || geometryType == 'MultiPoint')
             ? 'point'
             : (geometryType == 'LineString' || geometryType == 'MultiLineString')
                 ? 'line'
                 : 'polygon';
 
-        exprContext.$id = feature.properties.$id ?? feature.id;
-        exprContext.$layer = feature.getDataSourceLayer(this.layer);
+        expContext.$id = feature.properties.$id ?? feature.id;
+        expContext.$layer = feature.getDataSourceLayer(this.layer);
 
-        let z = exprContext.$zoom;
-        exprContext.$zoom = zoom;
+        let z = expContext.$zoom;
+        expContext.$zoom = zoom;
 
         this.expParser.clearResultCache();
-        return exprContext;
+        return expContext;
     }
 
     getStyleGroup(feature: Feature, level?: number, getDefault?: boolean): (readonly Style[]) {
@@ -263,5 +263,15 @@ export class XYZLayerStyle implements LayerStyle {
 
     getLayerStyle(): LayerStyle {
         return this._style;
+    }
+
+    initZoom(zoomlevel: number): boolean {
+        const {expParser, expContext} = this;
+        if (expContext.zoom != zoomlevel) {
+            expContext.zoom = zoomlevel;
+            expContext.$zoom = zoomlevel ^ 0;
+            expParser.clearDynamicResultCache();
+            return true;
+        }
     }
 }

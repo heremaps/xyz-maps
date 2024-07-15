@@ -217,13 +217,7 @@ class Layers extends Array<Layer> {
 
     setZoom(zoomlevel: number) {
         for (let layer of this) {
-            const expParser = layer.getExpressionParser();
-            const expContext = expParser?.context;
-            if (expContext && expContext.zoom != zoomlevel) {
-                expContext.zoom = zoomlevel;
-                expContext.$zoom = zoomlevel^0;
-                expParser.clearDynamicResultCache();
-            }
+            layer.layer._initZoom(zoomlevel);
         }
     }
 

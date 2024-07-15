@@ -170,4 +170,7 @@ export class Layer {
             ? this.visible
             : zoomLevel >= this.min && zoomLevel <= this.max;
     }
+
+    _initZoom(zoomlevel: number) {
+    }
 }
