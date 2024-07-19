@@ -59,9 +59,6 @@ const deepCopy = (src: any) => {
     return cpy;
 };
 
-/**
- * StyleManager
- */
 export class XYZLayerStyle implements LayerStyle {
     styleGroups = null;
     private _c: StyleGroupMap = null;
