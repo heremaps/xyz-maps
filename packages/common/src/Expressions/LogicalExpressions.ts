@@ -45,6 +45,7 @@ export class AnyExpression extends Expression {
 
 export class isFalseExpression extends Expression {
     static operator = '!';
+
     eval(context) {
         let val = this.operand(1, context);
         return !val;
@@ -96,22 +97,22 @@ export class NoneExpression extends Expression {
 }
 
 
-class CompareExpression extends Expression {
-    // dynamic(): boolean {
-    //     const a = this.compileOperand(1);
-    //     if (Expression.isDynamicExpression(a)) {
-    //         return true;
-    //     }
-    //     const b = this.compileOperand(2);
-    //     if (Expression.isDynamicExpression(b)) {
-    //         return true;
-    //     }
-    //     return false;
-    // }
-
-    eval(context) {
-    }
-}
+const CompareExpression = Expression;
+// class CompareExpression extends Expression {
+//     dynamic(context: Context): false|Expression {
+//         const a = this.compileOperand(1);
+//         if (Expression.isDynamicExpression(a, context)) {
+//             return this;
+//         }
+//         const b = this.compileOperand(2);
+//         if (Expression.isDynamicExpression(b, context)) {
+//             return this;
+//         }
+//         return false;
+//     }
+//     eval(context) {
+//     }
+// }
 
 export class EqualsExpression extends CompareExpression {
     static operator = '==';

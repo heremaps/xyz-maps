@@ -41,35 +41,6 @@ export class CaseExpression extends Expression {
         super(json, env);
     }
 
-    // override clone(jsonExp) {
-    //     let c = new this.constructor(jsonExp || this.toJSON(), this.env);
-    //     c.runtime = this.runtime;
-    //     return c;
-    // }
-
-
-    __dynamic(context?): boolean | Expression {
-        const operands: JSONExpression = [this.json[0]];
-        let partial = false;
-        let dynamic: false | Expression = false;
-        for (let i = 1, {json} = this, len = json.length; i < len; i++) {
-            let o = this.compileOperand(i);
-            if (Expression.isExpression(o)) {
-                let isDynamic = o.dynamic(context);
-                if (isDynamic) {
-                    dynamic = this;
-                    let isClonedExpression = typeof isDynamic === 'object' && isDynamic != o;
-                    if (isClonedExpression) {
-                        partial = true;
-                        o = isDynamic;
-                    }
-                }
-            }
-            operands[i] = o;
-        }
-        return partial ? this.clone(operands) : dynamic;
-    }
-
     dynamic(context: Context): false | Expression {
         const operands: JSONExpression = [this.json[0]];
         let partial = false;

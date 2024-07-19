@@ -44,16 +44,12 @@ export abstract class Expression implements IExpression {
     }
 
     static isDynamicExpression(exp: Expression, context: Context): false | Expression {
-        // return false;
-        // return this.isExpression(exp) && false;
-        return this.isExpression(exp) ? exp.dynamic(context) : false;
+        return this.isExpression(exp) && exp.dynamic(context);
     }
 
     protected env: ExpressionParser;
 
     json: JSONExpression;
-
-    supportsPartialEval: boolean;
 
     constructor(json: JSONExpression, env: ExpressionParser) {
         // this.id = ++expId;
@@ -89,55 +85,6 @@ export abstract class Expression implements IExpression {
         }
         return partial ? this.clone(operands) : dynamic;
     }
-
-    // dynamic(context?): boolean | JSONExpression {
-    //     const operands: JSONExpression = [this.json[0]];
-    //     let partial = false;
-    //     let partialId = '';
-    //     let dynamic = false;
-    //
-    //     for (let i = 1, {json} = this, len = json.length; i < len; i++) {
-    //         let o = this.compileOperand(i);
-    //         // let isDynamic = Expression.isDynamicExpression(o, context);
-    //         if (Expression.isExpression(o)) {
-    //             let isDynamic = o.dynamic(context);
-    //             if (isDynamic) {
-    //                 dynamic = true;
-    //                 if (isDynamic!=true) {
-    //                     partial = true;
-    //                     o = isDynamic;
-    //                     // partialId += o.getId();
-    //                 } else
-    //                 if (o.supportsPartialEval) {
-    //                     partial = true;
-    //                     o = o.eval(context);
-    //                     // partialId += (Expression.isExpression(o) ? 'p' + o.getId() : 'v' + o);
-    //                 }
-    //             }
-    //         }
-    //
-    //         operands[i] = o;
-    //     }
-    //
-    //     if (partial) {
-    //         let exp = this.clone(operands);
-    //         // exp.id = this.getId();
-    //         // exp.id = this.getId() + partialId;
-    //         // console.log(exp.id);
-    //         // debugger;
-    //         return exp;
-    //     }
-    //     return dynamic;
-    //     // return partialResult ? this.clone(operands) : dynamic;
-    //
-    //     // for (let i = 1, {json} = this, len = json.length; i < len; i++) {
-    //     //     let exp = this.compileOperand(i);
-    //     //     if (Expression.isDynamicExpression(exp)) {
-    //     //         return true;
-    //     //     }
-    //     // }
-    //     // return false;
-    // }
 
     protected compileOperand(index: number) {
         return this.json[index] = this.env.parseJSON(this.json[index]);
