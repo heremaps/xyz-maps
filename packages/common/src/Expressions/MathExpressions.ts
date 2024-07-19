@@ -19,25 +19,65 @@
 
 import {Expression} from './Expression';
 
-class SimpleOperatorExpression extends Expression {
-    dynamic(): boolean {
-        return Expression.isDynamicExpression(this.compileOperand(1)) ||
-            Expression.isDynamicExpression(this.compileOperand(2));
-    }
-
-    eval(context) {
-    }
-}
+const SimpleOperatorExpression = Expression;
+// class SimpleOperatorExpression extends Expression {
+//     dynamic(): boolean {
+//         return Expression.isDynamicExpression(this.compileOperand(1)) ||
+//             Expression.isDynamicExpression(this.compileOperand(2));
+//     }
+//
+//     eval(context) {
+//     }
+// }
 
 export class SumExpression extends SimpleOperatorExpression {
     static operator = '+';
+
+    // dynamic(context?): boolean | JSONExpression {
+    //     return super.dynamic(context);
+    // }
+
+    // dynamic(context): boolean|JSONExpression {
+    //     // for (let i = 1, {json} = this, len = json.length; i < len; i++) {
+    //     //     let exp = this.compileOperand(i);
+    //     //     if (Expression.isDynamicExpression(exp)) {
+    //     //         if (exp.supportsPartialEval) {
+    //     //
+    //     //         }
+    //     //     }
+    //     // }
+    //
+    //     const operands: JSONExpression = [this.json[0]];
+    //     let partialResult = false;
+    //     let dynamic = false;
+    //     for (let i = 1, {json} = this, len = json.length; i < len; i++) {
+    //         let o = this.compileOperand(i);
+    //         if (Expression.isDynamicExpression(o)) {
+    //             dynamic = true;
+    //             if (o.supportsPartialEval) {
+    //                 partialResult = true;
+    //                 o = o.eval(context);
+    //             }
+    //         }
+    //         operands[i] = o;
+    //     }
+    //     return partialResult ? operands : dynamic;
+    // }
+
     eval(context) {
         const {json} = this;
         // this.env._expressionRequiresLiveMode ||= this;
         let sum = 0;
         // max 17.5ms
         for (let i = 1, {length} = json; i < length; i++) {
-            sum += Number(this.operand(i, context)) || 0;
+            let value = this.operand(i, context);
+
+            // if (this.dynamicInterrupt) {
+            //     debugger;
+            //     return sum;
+            // }
+
+            sum += Number(value) || 0;
         }
         // this.env._expressionRequiresLiveMode = null;
         return sum;
@@ -92,6 +132,7 @@ class FloorExpressionError extends Error {
         this.name = this.constructor.name;
     }
 }
+
 export class FloorExpression extends Expression {
     static operator = 'floor';
 

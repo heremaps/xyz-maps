@@ -17,7 +17,7 @@
  * License-Filename: LICENSE
  */
 
-import {Expression, ExpressionMode} from './Expression';
+import {Context, Expression, ExpressionMode, JSONExpression} from './Expression';
 
 class CaseExpressionError extends Error {
     constructor(message: string) {
@@ -26,9 +26,10 @@ class CaseExpressionError extends Error {
         this.name = this.constructor.name;
     }
 }
+
 export class CaseExpression extends Expression {
     static operator = 'case';
-    private runtime: number;
+    private conditionIndex: number;
 
     constructor(json, env) {
         if (json.length < 4) {
@@ -40,37 +41,79 @@ export class CaseExpression extends Expression {
         super(json, env);
     }
 
-    dynamic(): boolean {
-        this.supportsPartialEval = true;
+    // override clone(jsonExp) {
+    //     let c = new this.constructor(jsonExp || this.toJSON(), this.env);
+    //     c.runtime = this.runtime;
+    //     return c;
+    // }
+
+
+    __dynamic(context?): boolean | Expression {
+        const operands: JSONExpression = [this.json[0]];
+        let partial = false;
+        let dynamic: false | Expression = false;
         for (let i = 1, {json} = this, len = json.length; i < len; i++) {
-            let exp = this.compileOperand(i);
-            if (Expression.isDynamicExpression(exp)) {
-                this.runtime = i;
-                const isCondition = Boolean(i%2);
-                this.supportsPartialEval = !isCondition;
-                return true;
+            let o = this.compileOperand(i);
+            if (Expression.isExpression(o)) {
+                let isDynamic = o.dynamic(context);
+                if (isDynamic) {
+                    dynamic = this;
+                    let isClonedExpression = typeof isDynamic === 'object' && isDynamic != o;
+                    if (isClonedExpression) {
+                        partial = true;
+                        o = isDynamic;
+                    }
+                }
             }
+            operands[i] = o;
         }
-        this.runtime = Infinity;
-        return false;
+        return partial ? this.clone(operands) : dynamic;
     }
 
-    isOperandDynamic(index) {
-        let expr = this.compileOperand(index);
-        return Expression.isDynamicExpression(expr);
+    dynamic(context: Context): false | Expression {
+        const operands: JSONExpression = [this.json[0]];
+        let partial = false;
+        let dynamic: false | Expression = false;
+        this.conditionIndex = 1;
+        for (let i = 1, branch = 2, {json} = this, len = json.length, fbIndex = len - 1; i < len; i++) {
+            let exp = this.compileOperand(i);
+            const isCondition = Boolean(i % 2);
+            const isFallback = i == fbIndex;
+            if (Expression.isExpression(exp)) {
+                let dynamicExpression = exp.dynamic(context);
+                if (dynamicExpression) {
+                    let isClonedExpression = typeof dynamicExpression === 'object' && dynamicExpression != exp;
+                    if (isClonedExpression) {
+                        partial = true;
+                        exp = dynamicExpression;
+                    }
+                    if (!dynamic && (!isCondition || isFallback)) {
+                        return dynamicExpression;
+                    }
+                    dynamic = <Expression> this;
+                }
+            } else if (isCondition) {
+                // make sure it's not fallback
+                if (!isFallback) {
+                    // unreachable -> we can skip statement;
+                    i++;
+                    this.conditionIndex = i + 1;
+                    continue;
+                }
+            }
+            operands[i] = exp;
+        }
+        if (partial) {
+            return this.clone(operands);
+            // return this.clone(operands).eval(context);
+        }
+        return dynamic;
     }
-
 
     eval(context) {
         const {json} = this;
         let len = json.length - 1;
-        const requiresRuntimeExecution = this.env.getMode() == ExpressionMode.dynamic;
-        const initialRuntimeConditionIndex = requiresRuntimeExecution ? this.runtime : Infinity;
-
-        for (let i = 1; i < len; i += 2) {
-            if (initialRuntimeConditionIndex===i) {
-                return this;
-            }
+        for (let i = this.conditionIndex || 1; i < len; i += 2) {
             let condition = this.operand(i, context);
             if (condition) {
                 return this.operand(i + 1, context);
@@ -84,11 +127,9 @@ export class CaseExpression extends Expression {
 export class StepExpression extends Expression {
     static operator = 'step';
 
-    dynamic(): boolean {
-        return Expression.isDynamicExpression(this.compileOperand(1)) ||
-            Expression.isDynamicExpression(this.compileOperand(2)) ||
-            Expression.isDynamicExpression(this.compileOperand(3));
-    }
+    // dynamic(context): boolean {
+    //     return super.dynamic(context, 1, 1, 4);
+    // }
 
     eval(context) {
         let input = this.operand(1, context);
@@ -109,14 +150,14 @@ export class StepExpression extends Expression {
 export class MatchExpression extends Expression {
     static operator = 'match';
 
-    dynamic(): boolean {
+    dynamic(context: Context): false|Expression {
         for (let i = 1, len = this.json.length - 2; i < len; i += 2) {
-            if (Expression.isDynamicExpression(this.compileOperand(i))) {
-                return true;
+            if (Expression.isDynamicExpression(this.compileOperand(i), context)) {
+                return this;
             }
         }
-        if (Expression.isDynamicExpression(this.compileOperand(this.json.length - 1))) {
-            return true;
+        if (Expression.isDynamicExpression(this.compileOperand(this.json.length - 1), context)) {
+            return this;
         }
         return false;
     }

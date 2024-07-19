@@ -43,8 +43,8 @@ describe('Expressions', function() {
     let exprParser = new ExpressionParser(definitions, environment);
 
     const context = {aName: 'testName', aNumber: 123, aString: 'testString'};
-    const evalExpression = (exp: JSONExpression, mode = ExpressionMode.static) => {
-        return exprParser.evaluate(exp, context, mode);
+    const evalExpression = (exp: JSONExpression, mode = ExpressionMode.static, ctx=context) => {
+        return exprParser.evaluate(exp, ctx, mode);
     };
 
     it('evaluate simple sum expression', async () => {
@@ -171,5 +171,138 @@ describe('Expressions', function() {
         const value = ['zoom'];
         const result = evalExpression(['interpolate', ['linear'], value, 3, 0, 3, 10, 3, 4, 5, 5, 17, 64, 19, 19, 22, 22], ExpressionMode.dynamic);
         expectExpression('interpolate', result);
+    });
+
+    it('(dynamic) evaluate partially case expression', async () => {
+        const exp = ['case',
+            ['get', 'prop'],
+            ['zoom'],
+            0
+        ];
+        const result = evalExpression(exp, ExpressionMode.dynamic, {prop: true});
+        console.log(result);
+        expectExpression('zoom', result);
+        // expect(result).to.equal(666);
+    });
+
+    it('(dynamic) evaluate nested partially case expression', async () => {
+        const exp = ['case',
+            ['get', 'prop'],
+            ['zoom'],
+            0
+        ];
+        const result = evalExpression(['*', exp, 2], ExpressionMode.dynamic, {prop: true});
+        console.log(result);
+        expectExpression('*', result);
+        expectExpression('zoom', result.json[1]);
+    });
+    it('(dynamic) evaluate multiply-exp with deeply nested partially case expression', async () => {
+        const exp = ['case',
+            ['get', 'prop'],
+            ['zoom'],
+            0
+        ];
+        const result = evalExpression(['*', ['*', exp, 2], 3], ExpressionMode.dynamic, {prop: true});
+        console.log(result);
+        expectExpression('*', result);
+        expectExpression('*', result.json[1]);
+        expectExpression('zoom', result.json[1].json[1]);
+    });
+
+    it('(dynamic) evaluate compare-exp with deeply nested partially case expression 2', async () => {
+        const exp = ['case',
+            ['get', 'prop'],
+            ['zoom'],
+            0
+        ];
+        const result = evalExpression(['==', exp, environment.zoom], ExpressionMode.dynamic, {prop: true});
+        expectExpression('==', result);
+        expectExpression('zoom', result.json[1]);
+    });
+
+
+    it('(dynamic) evaluate with multiple deeply nested partially case expressions', async () => {
+        const exp = ['case',
+            ['zoom'],
+            ['==', ['case', ['get', 'prop'], ['zoom'], 0], environment.zoom],
+            null
+        ];
+        const result = evalExpression(exp, ExpressionMode.dynamic, {prop: true});
+        expectExpression('case', result);
+        expectExpression('zoom', result.json[1]);
+        expectExpression('==', result.json[2]);
+        expectExpression('zoom', result.json[2].json[1]);
+    });
+
+    it('(dynamic) evaluate case expressions with unreachable condition', async () => {
+        const exp = ['case', false, ['zoom'], null];
+        const result = evalExpression(exp, ExpressionMode.dynamic);
+        expect(result).to.equal(null);
+    });
+
+    it('(dynamic) evaluate case expressions with unreachable condition and dynamic fallback', async () => {
+        const exp = ['case', false, ['zoom'],
+            ['==', ['case', ['get', 'prop'], ['zoom'], 0], environment.zoom]
+        ];
+        const result = evalExpression(exp, ExpressionMode.dynamic);
+        expectExpression('==', result);
+        expectExpression('zoom', result.json[1]);
+    });
+
+    it('(dynamic) evaluate case expressions with interpolate fallback', async () => {
+        const exp = ['case',
+            // ["==", ["get", "surface"], "unpaved"], ["interpolate", ["linear"], ["zoom"], 0, 0.7, 20, 216.85],
+            ['get', 'notavailable'],
+            ['interpolate', ['linear'], ['zoom'], 1, 1, 10, 100],
+            ['interpolate', ['linear'], ['zoom'], 2, 2, 20, 200]
+        ];
+        const result = evalExpression(exp, ExpressionMode.dynamic);
+        expectExpression('interpolate', result);
+        // expectExpression('zoom', result.json[1]);
+    });
+
+
+    it('step expression', async () => {
+        const exp= ['step', 15, 1, 10, 2, 100, 0];
+        const result = evalExpression(exp);
+        expect(result).to.equal(2);
+    });
+
+    it('(dynamic) step expression', async () => {
+        const exp=['step', ['zoom'], 1, 10, 2, 100, 0];
+        const result = evalExpression(exp, ExpressionMode.dynamic);
+        expectExpression('step', result);
+    });
+
+
+    it('match expression label', async () => {
+        const exp=['match', 'value',
+            'label1', 'result1',
+            'value', 'result2',
+            'fallback'
+        ];
+        const result = evalExpression(exp);
+        expect(result).to.equal('result2');
+    });
+
+    it('match expression fallback', async () => {
+        const exp=['match', 'value',
+            'label1', 'result1',
+            'label2', 'result2',
+            'fallback'
+        ];
+        const result = evalExpression(exp);
+        expect(result).to.equal('fallback');
+    });
+
+    it('(dynamic) match expression dynamic value', async () => {
+        const exp=['match', ['zoom'],
+            'label1', 'result1',
+            'label2', 'result2',
+            environment.zoom, 'result3',
+            'fallback'
+        ];
+        const result = evalExpression(exp, ExpressionMode.dynamic);
+        expectExpression('match', result);
     });
 });

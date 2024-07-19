@@ -16,7 +16,7 @@
  * SPDX-License-Identifier: Apache-2.0
  * License-Filename: LICENSE
  */
-import {Expression, JSONExpression} from './Expression';
+import {Context, Expression, JSONExpression} from './Expression';
 import {ExpressionParser} from '@here/xyz-maps-common';
 
 export * from './MathExpressions';
@@ -29,12 +29,11 @@ export * from './TypeExpressions';
 
 export class ReferenceExpression extends Expression {
     static operator = 'ref';
-    private refExp: Expression | any;
+    private result: Expression | any;
 
     eval(context) {
-        const refExp = this.refExp ||= this.env.resolveReference(this.json);
-        const result = this.env.evaluate(refExp, context);
-        return result;
+        const refExp = this.result ||= this.env.resolveReference(this.json);
+        return this.env.evaluate(refExp, context);
     }
 }
 
@@ -57,7 +56,7 @@ export class GetExpression extends Expression {
         super(json, expressions);
     }
 
-    dynamic(): boolean {
+    dynamic(context: Context): false|Expression {
         return false;
     }
 

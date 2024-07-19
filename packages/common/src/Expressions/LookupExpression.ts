@@ -17,12 +17,12 @@
  * License-Filename: LICENSE
  */
 
-import {Expression} from './Expression';
+import {Context, Expression} from './Expression';
 
 export class LiteralExpression extends Expression {
     static operator = 'literal';
 
-    dynamic(): boolean {
+    dynamic(context: Context): false|Expression {
         return false;
     }
 
@@ -38,6 +38,7 @@ class LookupExpressionError extends Error {
         this.name = this.constructor.name;
     }
 }
+
 export class LookupExpression extends Expression {
     static operator = 'lookup';
 

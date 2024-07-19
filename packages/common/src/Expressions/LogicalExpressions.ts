@@ -17,7 +17,7 @@
  * License-Filename: LICENSE
  */
 
-import {Expression} from './Expression';
+import {Context, Expression, JSONExpression} from './Expression';
 
 export class AllExpression extends Expression {
     static operator = 'all';
@@ -69,7 +69,7 @@ export class NotInExpression extends HasNotExpression {
 export class HasExpression extends Expression {
     static operator = 'has';
 
-    dynamic(): boolean {
+    dynamic(context: Context): false {
         return false;
     }
 
@@ -97,17 +97,17 @@ export class NoneExpression extends Expression {
 
 
 class CompareExpression extends Expression {
-    dynamic(): boolean {
-        const a = this.compileOperand(1);
-        if (Expression.isDynamicExpression(a)) {
-            return true;
-        }
-        const b = this.compileOperand(2);
-        if (Expression.isDynamicExpression(b)) {
-            return true;
-        }
-        return false;
-    }
+    // dynamic(): boolean {
+    //     const a = this.compileOperand(1);
+    //     if (Expression.isDynamicExpression(a)) {
+    //         return true;
+    //     }
+    //     const b = this.compileOperand(2);
+    //     if (Expression.isDynamicExpression(b)) {
+    //         return true;
+    //     }
+    //     return false;
+    // }
 
     eval(context) {
     }

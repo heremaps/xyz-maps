@@ -24,13 +24,12 @@ import toRGB = Colors.toRGB;
 export class ZoomExpression extends Expression {
     static operator = 'zoom';
 
-    dynamic() {
-        return true;
+    dynamic() : Expression {
+        return this;
     }
 
     eval(context) {
         return this.env.context.zoom;
-        // return this.env.context.$zoom;
     }
 }
 
@@ -41,13 +40,8 @@ export class InterpolateExpression extends Expression {
 
     static supported = {'linear': lerp, 'discrete': (x) => x, 'exponential': lerp};
 
-    dynamic(): boolean {
-        for (let i = 2, len = this.json.length - 1; i < len; i += 2) {
-            if (Expression.isDynamicExpression(this.compileOperand(i))) {
-                return true;
-            }
-        }
-        return false;
+    dynamic(context): false| Expression {
+        return super.dynamic(context, 2, 2);
     }
 
     eval(context) {
