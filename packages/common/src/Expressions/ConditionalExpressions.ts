@@ -29,7 +29,7 @@ class CaseExpressionError extends Error {
 
 export class CaseExpression extends Expression {
     static operator = 'case';
-    private conditionIndex: number;
+    private start: number;
 
     constructor(json, env) {
         if (json.length < 4) {
@@ -45,7 +45,7 @@ export class CaseExpression extends Expression {
         const operands: JSONExpression = [this.json[0]];
         let partial = false;
         let dynamic: false | Expression = false;
-        this.conditionIndex = 1;
+        this.start = 1;
         for (let i = 1, branch = 2, {json} = this, len = json.length, fbIndex = len - 1; i < len; i++) {
             let exp = this.compileOperand(i);
             const isCondition = Boolean(i % 2);
@@ -63,20 +63,23 @@ export class CaseExpression extends Expression {
                     }
                     dynamic = <Expression> this;
                 }
-            } else if (isCondition) {
-                // make sure it's not fallback
-                if (!isFallback) {
+            } else if (isCondition && !isFallback) {
+                if (exp) {
+                    this.start = i;
+                    // following condition are unreachable, we stop next iteration (result)
+                    len = i + 2;
+                } else {
                     // unreachable -> we can skip statement;
                     i++;
-                    this.conditionIndex = i + 1;
-                    continue;
+                    this.start = i + 1;
                 }
+                continue;
             }
+
             operands[i] = exp;
         }
         if (partial) {
             return this.clone(operands);
-            // return this.clone(operands).eval(context);
         }
         return dynamic;
     }
@@ -84,7 +87,7 @@ export class CaseExpression extends Expression {
     eval(context) {
         const {json} = this;
         let len = json.length - 1;
-        for (let i = this.conditionIndex || 1; i < len; i += 2) {
+        for (let i = this.start || 1; i < len; i += 2) {
             let condition = this.operand(i, context);
             if (condition) {
                 return this.operand(i + 1, context);
@@ -121,7 +124,7 @@ export class StepExpression extends Expression {
 export class MatchExpression extends Expression {
     static operator = 'match';
 
-    dynamic(context: Context): false|Expression {
+    dynamic(context: Context): false | Expression {
         for (let i = 1, len = this.json.length - 2; i < len; i += 2) {
             if (Expression.isDynamicExpression(this.compileOperand(i), context)) {
                 return this;

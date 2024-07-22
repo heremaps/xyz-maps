@@ -305,4 +305,33 @@ describe('Expressions', function() {
         const result = evalExpression(exp, ExpressionMode.dynamic);
         expectExpression('match', result);
     });
+
+    it('(dynamic) case expression dynamic nested value expression', async () => {
+        const exp=['case',
+            true,
+            ['==', ['zoom'], 555],
+            null
+        ];
+        const result = evalExpression(exp, ExpressionMode.dynamic);
+        expectExpression('==', result);
+    });
+
+    it('(dynamic) case expression simple operands only, positive condition boolean', async () => {
+        const exp=['case',
+            true,
+            555,
+            null
+        ];
+        const result = evalExpression(exp, ExpressionMode.dynamic);
+        expect(result).to.equal(555);
+    });
+    it('(dynamic) case expression simple operands only, positive condition number', async () => {
+        const exp=['case',
+            1,
+            555,
+            null
+        ];
+        const result = evalExpression(exp, ExpressionMode.dynamic);
+        expect(result).to.equal(555);
+    });
 });
