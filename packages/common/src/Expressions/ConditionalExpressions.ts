@@ -42,46 +42,49 @@ export class CaseExpression extends Expression {
     }
 
     dynamic(context: Context): false | Expression {
-        const operands: JSONExpression = [this.json[0]];
-        let partial = false;
-        let dynamic: false | Expression = false;
         this.start = 1;
-        for (let i = 1, branch = 2, {json} = this, len = json.length, fbIndex = len - 1; i < len; i++) {
+        const copy: JSONExpression = ['case'];
+        let hasDynamicCondition: false | Expression = false;
+        let modified = false;
+
+        for (let i = 1, {json} = this, len = json.length; i < len; i++) {
             let exp = this.compileOperand(i);
-            const isCondition = Boolean(i % 2);
-            const isFallback = i == fbIndex;
-            if (Expression.isExpression(exp)) {
-                let dynamicExpression = exp.dynamic(context);
-                if (dynamicExpression) {
-                    let isClonedExpression = typeof dynamicExpression === 'object' && dynamicExpression != exp;
-                    if (isClonedExpression) {
-                        partial = true;
-                        exp = dynamicExpression;
+            let isFallback = i == len-1;
+            let result;
+            if (Boolean(i % 2) && !isFallback) {
+                // condition
+                result = this.operand(i, context);
+
+                if (result) {
+                    let conditionIsDynamic = Expression.isDynamicExpression(exp, context);
+                    if (!conditionIsDynamic &&
+                        // check here if not dynamic until now.
+                        !hasDynamicCondition
+                    ) {
+                        return Expression.isDynamicExpression(this.compileOperand(i + 1), context) || this.operand(i + 1, context);
                     }
-                    if (!dynamic && (!isCondition || isFallback)) {
-                        return dynamicExpression;
-                    }
-                    dynamic = <Expression> this;
-                }
-            } else if (isCondition && !isFallback) {
-                if (exp) {
-                    this.start = i;
-                    // following condition are unreachable, we stop next iteration (result)
-                    len = i + 2;
+                    hasDynamicCondition ||= conditionIsDynamic;
                 } else {
-                    // unreachable -> we can skip statement;
+                    // branch is not reachable
                     i++;
-                    this.start = i + 1;
+                    modified = true;
+                    continue;
                 }
-                continue;
+            } else {
+                // branch result
+                result = Expression.isDynamicExpression(exp, context) || this.operand(i, context);
+                if (isFallback && copy.length == 1) {
+                    // case has no valid condition/branches -> fallback
+                    return result;
+                }
             }
 
-            operands[i] = exp;
+            if (exp != result) {
+                modified = true;
+            }
+            copy.push(result);
         }
-        if (partial) {
-            return this.clone(operands);
-        }
-        return dynamic;
+        return modified ? this.clone(copy) : this;
     }
 
     eval(context) {

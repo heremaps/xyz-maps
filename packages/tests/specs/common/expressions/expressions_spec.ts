@@ -244,7 +244,7 @@ describe('Expressions', function() {
         const exp = ['case', false, ['zoom'],
             ['==', ['case', ['get', 'prop'], ['zoom'], 0], environment.zoom]
         ];
-        const result = evalExpression(exp, ExpressionMode.dynamic);
+        const result = evalExpression(exp, ExpressionMode.dynamic, {prop: true});
         expectExpression('==', result);
         expectExpression('zoom', result.json[1]);
     });
@@ -333,5 +333,41 @@ describe('Expressions', function() {
         ];
         const result = evalExpression(exp, ExpressionMode.dynamic);
         expect(result).to.equal(555);
+    });
+
+    it('(dynamic) dynamic case where first branch is unreachable', async () => {
+        const exp=['case',
+            ['get', 'unreachable'],
+            ['*', ['zoom'], 2],
+            ['zoom'],
+            ['zoom'],
+            ['+', ['zoom'], 2],
+            ['+', ['zoom'], 2],
+            0
+        ];
+        const result = evalExpression(exp, ExpressionMode.dynamic);
+        expectExpression('case', result);
+        expectExpression('zoom', result.json[1]);
+        expectExpression('zoom', result.json[2]);
+        expectExpression('+', result.json[3]);
+        expectExpression('+', result.json[4]);
+    });
+
+    it('(dynamic) dynamic case where second branch is unreachable', async () => {
+        const exp=['case',
+            ['zoom'],
+            ['zoom'],
+            ['get', 'unreachable'],
+            ['*', ['zoom'], 2],
+            ['+', ['zoom'], 2],
+            ['+', ['zoom'], 2],
+            0
+        ];
+        const result = evalExpression(exp, ExpressionMode.dynamic);
+        expectExpression('case', result);
+        expectExpression('zoom', result.json[1]);
+        expectExpression('zoom', result.json[2]);
+        expectExpression('+', result.json[3]);
+        expectExpression('+', result.json[4]);
     });
 });
