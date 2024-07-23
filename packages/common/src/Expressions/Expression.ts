@@ -74,7 +74,7 @@ export abstract class Expression implements IExpression {
                 let isDynamic = o.dynamic(context);
                 if (isDynamic) {
                     dynamic = this;
-                    let isClonedExpression = typeof isDynamic === 'object' && isDynamic != o;
+                    let isClonedExpression = isDynamic != o;
                     if (isClonedExpression) {
                         partial = true;
                         o = isDynamic;

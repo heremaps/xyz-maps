@@ -43,7 +43,7 @@ describe('Expressions', function() {
     let exprParser = new ExpressionParser(definitions, environment);
 
     const context = {aName: 'testName', aNumber: 123, aString: 'testString'};
-    const evalExpression = (exp: JSONExpression, mode = ExpressionMode.static, ctx=context) => {
+    const evalExpression = (exp: JSONExpression, mode = ExpressionMode.static, ctx: { [key: string]: any } = context) => {
         return exprParser.evaluate(exp, ctx, mode);
     };
 
@@ -263,20 +263,20 @@ describe('Expressions', function() {
 
 
     it('step expression', async () => {
-        const exp= ['step', 15, 1, 10, 2, 100, 0];
+        const exp = ['step', 15, 1, 10, 2, 100, 0];
         const result = evalExpression(exp);
         expect(result).to.equal(2);
     });
 
     it('(dynamic) step expression', async () => {
-        const exp=['step', ['zoom'], 1, 10, 2, 100, 0];
+        const exp = ['step', ['zoom'], 1, 10, 2, 100, 0];
         const result = evalExpression(exp, ExpressionMode.dynamic);
         expectExpression('step', result);
     });
 
 
     it('match expression label', async () => {
-        const exp=['match', 'value',
+        const exp = ['match', 'value',
             'label1', 'result1',
             'value', 'result2',
             'fallback'
@@ -286,7 +286,7 @@ describe('Expressions', function() {
     });
 
     it('match expression fallback', async () => {
-        const exp=['match', 'value',
+        const exp = ['match', 'value',
             'label1', 'result1',
             'label2', 'result2',
             'fallback'
@@ -296,7 +296,7 @@ describe('Expressions', function() {
     });
 
     it('(dynamic) match expression dynamic value', async () => {
-        const exp=['match', ['zoom'],
+        const exp = ['match', ['zoom'],
             'label1', 'result1',
             'label2', 'result2',
             environment.zoom, 'result3',
@@ -307,7 +307,7 @@ describe('Expressions', function() {
     });
 
     it('(dynamic) case expression dynamic nested value expression', async () => {
-        const exp=['case',
+        const exp = ['case',
             true,
             ['==', ['zoom'], 555],
             null
@@ -317,7 +317,7 @@ describe('Expressions', function() {
     });
 
     it('(dynamic) case expression simple operands only, positive condition boolean', async () => {
-        const exp=['case',
+        const exp = ['case',
             true,
             555,
             null
@@ -326,7 +326,7 @@ describe('Expressions', function() {
         expect(result).to.equal(555);
     });
     it('(dynamic) case expression simple operands only, positive condition number', async () => {
-        const exp=['case',
+        const exp = ['case',
             1,
             555,
             null
@@ -336,7 +336,7 @@ describe('Expressions', function() {
     });
 
     it('(dynamic) dynamic case where first branch is unreachable', async () => {
-        const exp=['case',
+        const exp = ['case',
             ['get', 'unreachable'],
             ['*', ['zoom'], 2],
             ['zoom'],
@@ -354,7 +354,7 @@ describe('Expressions', function() {
     });
 
     it('(dynamic) dynamic case where second branch is unreachable', async () => {
-        const exp=['case',
+        const exp = ['case',
             ['zoom'],
             ['zoom'],
             ['get', 'unreachable'],
@@ -369,5 +369,21 @@ describe('Expressions', function() {
         expectExpression('zoom', result.json[2]);
         expectExpression('+', result.json[3]);
         expectExpression('+', result.json[4]);
+    });
+
+    it('(dynamic) partial evaluated expression with primitive result', async () => {
+        const exp = ['+', ['case', ['get', 'prop'], 3, ['zoom']], 1];
+        const result = evalExpression(exp, ExpressionMode.dynamic, {prop: true});
+        expectExpression('+', result);
+        expect(result.json[1]).to.equal(3);
+        expect(result.json[2]).to.equal(1);
+    });
+
+    it('(dynamic) partial evaluated expression with dynamic result', async () => {
+        const exp = ['+', ['case', ['get', 'prop'], 3, ['zoom']], 1];
+        const result = evalExpression(exp, ExpressionMode.dynamic, {prop: false});
+        expectExpression('+', result);
+        expectExpression('zoom', result.json[1]);
+        expect(result.json[2]).to.equal(1);
     });
 });
