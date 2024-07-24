@@ -18,6 +18,7 @@
  */
 import {Context, Expression, JSONExpression} from './Expression';
 import {ExpressionParser} from '@here/xyz-maps-common';
+import {Definitions, Value} from './ExpressionParser';
 
 export * from './MathExpressions';
 export * from './LogicalExpressions';
@@ -29,11 +30,13 @@ export * from './TypeExpressions';
 
 export class ReferenceExpression extends Expression {
     static operator = 'ref';
-    private result: Expression | any;
+
+    dynamic(context: Context): false | Expression {
+        return false;
+    }
 
     eval(context) {
-        const refExp = this.result ||= this.env.resolveReference(this.json);
-        return this.env.evaluate(refExp, context);
+        return this.env.evaluate(this.env.resolveReference(this.json), context, this.env.getMode());
     }
 }
 
@@ -56,7 +59,7 @@ export class GetExpression extends Expression {
         super(json, expressions);
     }
 
-    dynamic(context: Context): false|Expression {
+    dynamic(context: Context): false | Expression {
         return false;
     }
 

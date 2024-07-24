@@ -22,29 +22,35 @@ import * as Expressions from './Expressions';
 import * as InterpolateExpressions from './InterpolateExpression';
 
 // type Cache = Map<Expression, any> & { hits?: number };
-interface Cache {
+interface Cache<E> {
     hits?: number;
 
-    get(key);
+    get(key: E|string);
 
-    set(key, value);
+    set(key: E|string, value: Expression|Def);
 
     clear();
 }
 
-type Def = JSONExpression | Expression | boolean | number | string | null | any[];
-type Value = { value: Def };
-type Definitions = { [name: string]: Def | Value };
+export type Def = JSONExpression | Expression | boolean | number | string | null | any[];
+export type Value = { value: Def };
+export type Definitions = { [name: string]: Def | Value };
 
 
-class SimpleLinkCache implements Cache {
+class SimpleLinkCache<E> implements Cache<E> {
     hits = 0;
+    private invalid: number = 0;
+
     clear() {
+        this.invalid++;
     }
+
     get(key) {
-        return key._c;
+        return key._invalid < this.invalid ? undefined : key._c;
     }
+
     set(key, value) {
+        key._invalid = this.invalid;
         key._c = value;
     }
 }
@@ -59,14 +65,13 @@ export class ExpressionParser {
         [op: string]: new (e: JSONExpression, p: ExpressionParser) => Expression & { [K in keyof typeof Expression]: typeof Expression[K] }
     };
 
-    private definitions: Definitions;
-    private cache: Cache = new Map();
-    // private cache: Cache = new SimpleLinkCache();
+    definitions: Definitions;
+    private cache: Cache<JSONExpression> = new Map();
     context: Context;
-    private defaultResultCache: Cache = new Map();
-    private resultCache: Cache;
+    private defaultResultCache: Cache<Expression> = new Map();
+    private resultCache: Cache<Expression>;
     private _mode: ExpressionMode;
-    dynamicResultCache: Cache = new Map();
+    dynamicResultCache: Cache<Expression> = new Map();
 
     static {
         let expressions = {};
@@ -108,7 +113,7 @@ export class ExpressionParser {
         this.cache.clear();
     }
 
-    evaluate(exp: Expression | JSONExpression, context: Context, mode: ExpressionMode = ExpressionMode.static, cache?) {
+    evaluate(exp: Def, context: Context, mode: ExpressionMode = ExpressionMode.static, cache?) {
         let result;
         exp = this.parseJSON(exp);
         try {
@@ -124,6 +129,7 @@ export class ExpressionParser {
         if (exp instanceof Expression) {
             if (this.getMode() === ExpressionParser.Mode.dynamic) {
                 let dynamicResult = exp.dynamic(context);
+
                 if (dynamicResult) {
                     return dynamicResult;
                 }
@@ -144,7 +150,7 @@ export class ExpressionParser {
     }
 
 
-    resolveReference(exp: JSONExpression, definitions: Definitions = this.definitions) {
+    resolveReference(exp: JSONExpression, definitions: Definitions = this.definitions): Expression | Def {
         let key = exp?.[1];
         let value = definitions[key];
         if (value != null) {
@@ -158,22 +164,24 @@ export class ExpressionParser {
                 }
             }
         }
-        return value;
+        return value as Def;
     }
 
-    parseJSON(expression: Expression | JSONExpression, throwUnsupportedExpError?: boolean) {
+    parseJSON(expression: Def, throwUnsupportedExpError?: boolean) {
         const isJSONExp = ExpressionParser.isJSONExp(expression);
         if (!isJSONExp) return expression;
 
-        // let cacheKey = expression;
-        let operator = expression[0];
+        // const cacheKey = expression;
+        let [operator] = expression as JSONExpression;
         const isReferenceExp = operator == 'ref';
-        let cacheKey = isReferenceExp ? expression[1] : expression;
+        const cacheKey = isReferenceExp ? expression[1] : expression;
+
         let exp = this.cache.get(cacheKey);
         if (exp != undefined) {
             this.cache.hits++;
             return exp;
         }
+
         if (isReferenceExp) {
             exp = this.resolveReference(expression as JSONExpression);
             if (!ExpressionParser.isJSONExp(exp)) {
@@ -183,10 +191,10 @@ export class ExpressionParser {
             expression = exp;
             [operator] = exp;
         }
-        const Expression = ExpressionParser.Expressions[operator];
+        const Exp = ExpressionParser.Expressions[operator];
 
-        if (Expression) {
-            exp = new Expression(expression as JSONExpression, this);
+        if (Exp) {
+            exp = new Exp(expression as JSONExpression, this);
         } else if (throwUnsupportedExpError !== false) {
             throw new Error(`Expression ${operator} unsupported`);
         } else {
@@ -214,7 +222,7 @@ export class ExpressionParser {
         return Boolean(ExpressionParser.Expressions[exp[0]]);
     }
 
-    setMode(mode: ExpressionMode, cache?: Cache) {
+    setMode(mode: ExpressionMode, cache?: Cache<Expression>) {
         // if (mode != this._mode) {
         this._mode = mode;
         this.context.mode = mode;
