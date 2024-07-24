@@ -76,6 +76,7 @@ abstract class Display {
     tiles: { [tilesize: string]: ScreenTile[] };
 
     grid: Grid;
+    private _zoom: number;
 
     constructor(mapEl: HTMLElement, tileSize: number, dpr: string | number, bucketPool, tileRenderer: BasicRender, previewLookAhead: number | [number, number]) {
         const display = this;
@@ -467,6 +468,8 @@ abstract class Display {
         this.processLayerBackgroundColor(zoomLevel);
         this.layers.setZoom(zoomLevel);
 
+        this.setZoom(zoomLevel);
+
         this.viewChange = true;
         this.sx = screenOffsetX;
         this.sy = screenOffsetY;
@@ -638,6 +641,13 @@ abstract class Display {
     scaleOffsetXYByAltitude(pointWorld: number[]) {
         // compensate altitude scaling is not supported by default
         return 1;
+    }
+
+    protected setZoom(zoomLevel: number):boolean {
+        if (this._zoom != zoomLevel) {
+            this._zoom = zoomLevel;
+            return true;
+        }
     }
 }
 

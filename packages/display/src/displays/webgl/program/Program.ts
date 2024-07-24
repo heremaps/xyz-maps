@@ -32,7 +32,7 @@ type UniformLocations = {
     [name: string]: WebGLUniformLocation
 };
 
-type UniformMap = {
+export type UniformMap = {
     [name: string]: Uniform | DynamicUniform
 };
 
@@ -83,7 +83,7 @@ class Program {
     private buffers: BufferCache;
 
     protected glStates: GLStates;
-    protected uniformSetters = {};
+    private uniformSetters = {};
     protected mode: number; // gl.POINTS;
 
     private dpr: number; // devicepixelratio
@@ -366,6 +366,22 @@ class Program {
         } else {
             // delete index.data;
         }
+    }
+
+
+    /**
+     * @internal
+     * @hidden
+     *
+     * Determines if the buffer is visible based on the compiled uniform data.
+     *
+     * @param uniforms - The compiled uniform data for the buffer.
+     *
+     * @returns true if the buffer is visible otherwise false.
+     */
+    isBufferVisible(uniforms: UniformMap): boolean {
+        // TODO: move logic into GeometryBuffer
+        return true;
     }
 
     initPass(pass: PASS, buffer: GeometryBuffer) {

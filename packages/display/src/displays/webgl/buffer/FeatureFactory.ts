@@ -547,17 +547,17 @@ export class FeatureFactory {
                 if (type == 'Line') {
                     if (!stroke) continue;
 
-                    strokeWidth = getValue('strokeWidth', style, feature, level);
-                    // strokeWidth = getValue('strokeWidth', style, feature, level, DYNAMIC_MODE);
+                    // strokeWidth = getValue('strokeWidth', style, feature, level);
+                    strokeWidth = getValue('strokeWidth', style, feature, level, DYNAMIC_MODE);
 
                     if (!strokeWidth) continue;
 
-                    // if (isDynamicProperty(strokeWidth)) {
-                    // widthId = (strokeWidth.id ||= dynamicValueId++);
-                    // } else {
-                    [strokeWidth, sizeUnit] = parseSizeValue(strokeWidth);
-                    widthId = strokeWidth;
-                    // }
+                    if (isDynamicProperty(strokeWidth)) {
+                        widthId = strokeWidth.getId();
+                    } else {
+                        [strokeWidth, sizeUnit] = parseSizeValue(strokeWidth);
+                        widthId = strokeWidth;
+                    }
 
                     strokeLinecap = getValue('strokeLinecap', style, feature, level) || DEFAULT_LINE_CAP;
                     strokeLinejoin = getValue('strokeLinejoin', style, feature, level) || DEFAULT_LINE_JOIN;

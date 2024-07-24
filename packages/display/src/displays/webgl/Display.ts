@@ -659,6 +659,21 @@ class WebGlDisplay extends BasicDisplay {
         const mat = this.render.vPMat;
         return 1.0 - (pointWorld[2] * mat[11]) / (mat[3] * pointWorld[0] + mat[7] * pointWorld[1] + mat[15]);
     }
+
+    protected setZoom(zoomLevel: number): boolean {
+        if (super.setZoom(zoomLevel)) {
+            this.buckets.forEach((tile: GLTile) => {
+                for (let layerBuffers of tile.data) {
+                    if (layerBuffers) {
+                        for (let buffer of layerBuffers) {
+                            buffer.clearUniformCache();
+                        }
+                    }
+                }
+            });
+            return true;
+        }
+    }
 }
 
 export default WebGlDisplay;

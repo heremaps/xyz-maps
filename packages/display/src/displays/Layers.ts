@@ -216,8 +216,8 @@ class Layers extends Array<Layer> {
     }
 
     setZoom(zoomlevel: number) {
-        for (let layer of this) {
-            layer.layer._initZoom(zoomlevel);
+        for (let {layer} of this) {
+            layer._initZoom(zoomlevel);
         }
     }
 

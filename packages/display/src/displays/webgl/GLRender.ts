@@ -33,7 +33,7 @@ import BoxProgram from './program/Box';
 import SphereProgram from './program/Sphere';
 import ModelProgram from './program/Model';
 import HeatmapProgram from './program/Heatmap';
-import Program, {ColorMask} from './program/Program';
+import Program, {ColorMask, UniformMap} from './program/Program';
 
 import {createGridTextBuffer, createGridTileBuffer, createStencilTileBuffer} from './buffer/debugTileBuffer';
 import {GeometryBuffer, IndexData, IndexGrp} from './buffer/GeometryBuffer';
@@ -62,7 +62,7 @@ import {GLExtensions} from './GLExtensions';
 import {Texture} from './Texture';
 import {ScreenTile} from '../Layers';
 
-import {Color, ExpressionParser} from '@here/xyz-maps-common';
+import {Color} from '@here/xyz-maps-common';
 import toRGB = Color.toRGB;
 
 
@@ -609,10 +609,11 @@ export class GLRender implements BasicRender {
     //     gl.depthFunc(this.depthFnc);
     // }
 
-    initProgram(
+    private initProgram(
         program: Program,
         buffer: GeometryBuffer,
-        renderPass: PASS
+        renderPass: PASS,
+        uniforms: UniformMap = buffer.getUniformData()
     ) {
         const bufAttributes = buffer.getAttributes();
         this.useProgram(program);
@@ -624,7 +625,7 @@ export class GLRender implements BasicRender {
 
         program.initUniforms(this.sharedUniforms);
 
-        program.initUniforms(buffer.uniforms);
+        program.initUniforms(uniforms);
     }
 
     private drawBuffer(
@@ -650,6 +651,10 @@ export class GLRender implements BasicRender {
             }
 
             if (executePass) {
+                const compiledUniforms = buffer.compileUniforms();
+                if (!program.isBufferVisible(compiledUniforms.uniforms)) {
+                    return;
+                }
                 // initialize shared uniforms
                 const {sharedUniforms} = this;
                 sharedUniforms.u_fixedView = this.fixedView; // must be set at render time
@@ -775,7 +780,7 @@ export class GLRender implements BasicRender {
             sharedUniforms.u_topLeft[0] = x + position[0] * tileSize;
             sharedUniforms.u_topLeft[1] = y + position[1] * tileSize;
 
-            this.initProgram(program, stencilTile, this.pass);
+            this.initProgram(program, stencilTile, this.pass, stencilTile.uniforms);
 
             gl.enable(gl.STENCIL_TEST);
 

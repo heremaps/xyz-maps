@@ -22,9 +22,8 @@ import vertexShader from '../glsl/line_vertex.glsl';
 // @ts-ignore
 import fragmentShader from '../glsl/line_fragment.glsl';
 
-import Program from './Program';
-import {GLStates, PASS} from './GLStates';
-import {GeometryBuffer} from '../buffer/GeometryBuffer';
+import Program, {UniformMap} from './Program';
+import {GLStates} from './GLStates';
 
 
 class LineProgram extends Program {
@@ -42,6 +41,20 @@ class LineProgram extends Program {
         this.mode = gl.TRIANGLES;
         this.vertexShaderSrc = vertexShader;
         this.fragmentShaderSrc = fragmentShader;
+    }
+
+    /**
+     * @internal
+     * @hidden
+     *
+     * Determines if the buffer is visible based on the compiled uniform data.
+     *
+     * @param uniforms - The compiled uniform data for the buffer.
+     *
+     * @returns true if the buffer is visible otherwise false.
+     */
+    override isBufferVisible(uniforms: UniformMap): boolean {
+        return uniforms.u_strokeWidth[0] > 0;
     }
 
     // initGeometryBuffer(buffer: GeometryBuffer, pass: PASS, stencil: boolean, zIndex: number) {

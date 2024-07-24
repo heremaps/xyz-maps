@@ -23,9 +23,10 @@ import {Texture} from '../Texture';
 import {ConstantAttribute, FlexAttribute, TemplateBuffer} from './templates/TemplateBuffer';
 import {Raycaster} from '../Raycaster';
 import {PASS} from '../program/GLStates';
+import {Expression, ExpressionMode} from '@here/xyz-maps-common';
 
 export type Uniform = number | number[] | Float32Array | Float64Array | Int32Array | boolean | Texture;
-export type DynamicUniform = () => Uniform;
+export type DynamicUniform = Expression | (Expression | Uniform)[];
 
 
 export type IndexData = {
@@ -59,6 +60,14 @@ const GL_UNSIGNED_SHORT = 0x1403;
 const GL_UNSIGNED_INT = 0x1405;
 
 let UNDEF;
+
+type CompiledUniformCache = {
+    clear: boolean,
+    fromCache: boolean;
+    uniforms: { [name: string]: Uniform }
+}
+
+export type CompiledUniformData = Omit<CompiledUniformCache, 'clear'>;
 
 const averageFaceNormal = (vertex: TypedArray, i1: number, i2: number, i3: number, normals: TypedArray) => {
     // const t3x = vertex[i1];
@@ -119,14 +128,14 @@ class GeometryBuffer {
     static MODE_GL_TRIANGLES: number = 0x0004;
     // private size: number;
     attributes: { [name: string]: Attribute | ConstantAttribute } = {};
-    uniforms: { [name: string]: Uniform|DynamicUniform } = {};
+    uniforms: { [name: string]: Uniform | DynamicUniform } = {};
     type: string;
     pass: number = PASS.OPAQUE;
     zIndex?: number;
     zLayer?: number;
     clip?: boolean;
     depthMask?: boolean;
-    scissorBox?:number[];
+    scissorBox?: number[];
     depth?: boolean;
     blend?: boolean;
     mode?: number; // primitive to render
@@ -256,7 +265,7 @@ class GeometryBuffer {
         this.uniforms[name] = uniform;
     }
 
-    getUniform(name: string): Uniform|DynamicUniform {
+    getUniform(name: string): Uniform | DynamicUniform {
         return this.uniforms[name];
     }
 
@@ -340,6 +349,59 @@ class GeometryBuffer {
             this._cullFace = cullFace;
         }
         return this._cullFace;
+    }
+    private _uniformCache: CompiledUniformCache = {
+        clear: true,
+        uniforms: {},
+        fromCache: false
+    };
+
+    clearUniformCache() {
+        this._uniformCache.clear = true;
+    }
+
+    getUniformData(): { [name: string]: Uniform } {
+        return this._uniformCache.uniforms;
+    }
+
+    /**
+     * @internal
+     * @hidden
+     *
+     * Compiles uniforms for the current context if they are not already cached.
+     *
+     * This method checks if the uniforms need to be compiled. If the uniforms have not been cached,
+     * it compiles them and updates the uniform data. If they are already cached, it marks the data
+     * as being from the cache.
+     *
+     * @returns - An object representing the compiled uniforms, indicating whether the data was retrieved from the cache or freshly compiled.
+     */
+    compileUniforms(): CompiledUniformData {
+        const uniformData = this._uniformCache;
+        if (uniformData.clear) {
+            uniformData.clear = false;
+            uniformData.fromCache = false;
+            const {uniforms} = this;
+
+            for (let name in uniforms) {
+                let u = uniforms[name];
+                if (u instanceof Expression) {
+                    u = u.resolve();
+                } else if (Array.isArray(u)) {
+                    let v0 = u[0];
+                    if (v0 instanceof Expression) {
+                        v0 = v0.resolve();
+                        u = uniformData.uniforms[name] || [0, 0];
+                        u[0] = v0;
+                        u[1] = 0;
+                    }
+                }
+                uniformData.uniforms[name] = u as Uniform;
+            }
+        } else {
+            uniformData.fromCache = true;
+        }
+        return uniformData;
     }
 }
 
