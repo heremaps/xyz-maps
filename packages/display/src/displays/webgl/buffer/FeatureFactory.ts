@@ -553,7 +553,7 @@ export class FeatureFactory {
                     if (!strokeWidth) continue;
 
                     if (isDynamicProperty(strokeWidth)) {
-                        widthId = strokeWidth.getId();
+                        widthId = (strokeWidth as Expression).id();
                     } else {
                         [strokeWidth, sizeUnit] = parseSizeValue(strokeWidth);
                         widthId = strokeWidth;

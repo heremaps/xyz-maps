@@ -37,7 +37,7 @@ let expId = 0;
 
 export abstract class Expression implements IExpression {
     static operator: string;
-    protected id?: string | number;
+    protected _id?: string | number;
 
     static isExpression(exp) {
         return exp instanceof Expression;
@@ -109,7 +109,7 @@ export abstract class Expression implements IExpression {
         return env.evaluate(this, context, mode, cache);
     }
 
-    private getId() {
-        return this.id ||= ++expId;
+    id() {
+        return this._id ||= ++expId;
     }
 }
