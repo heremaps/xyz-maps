@@ -356,9 +356,20 @@ export class TileLayer extends Layer {
     /**
      * Get styleGroup for the feature.
      *
-     * @param feature - the feature to get style
-     * @param zoomlevel - specify the zoomlevel for the feature style
+     * This method retrieves a StyleGroup for a given feature, optionally
+     * based on the specified zoom level and whether to use the layer default styles.
      *
+     * @param feature - The feature for which to get the styles.
+     * @param zoomlevel - The zoom level to use for determining the styles.
+     * This parameter should be set as it determines how styles are applied based on zoom.
+     * It is only optional if the style definition supports being applied without a specific zoom level.
+     * @param layerDefault - (Optional) A boolean indicating whether to use the layer's default styles.
+     * If true, any custom styles set via {@link TileLayer.setStyleGroup} are ignored and the default layer styles are returned.
+     * If false, the method will return the custom styles set for the feature if available;
+     * otherwise, it returns the default layer styles. Default is false.
+     *
+     * @returns A readonly StyleGroup representing the styles for the given feature at the specified zoom level.
+     * If no styles are found, a falsy value is returned, indicating that the feature is not displayed/visible.
      */
     getStyleGroup(feature: Feature, zoomlevel?: number, layerDefault?: boolean): readonly Style[] {
         return this._styleManager?.getStyleGroup(feature, zoomlevel, layerDefault);
@@ -704,7 +715,7 @@ export class TileLayer extends Layer {
      * Set layer with given style.
      *
      * @param layerStyle - the layerStyle
-     * @param keepCustom - keep and reuse custom set feature styles that have been set via layer.setStyleGroup(...)
+     * @param keepCustom - keep and reuse custom set feature styles that have been set via {@link TileLayer.setStyleGroup}
      */
     setStyle(layerStyle: LayerStyle | XYZLayerStyle, keepCustom: boolean = false) {
         const _customFeatureStyles = keepCustom && this._styleManager?.getCustomStyles();
