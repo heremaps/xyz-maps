@@ -24,7 +24,7 @@ import {Navlink} from './Navlink';
 import {TurnRestrictionEditor} from '../../tools/turnrestriction/TrEditor';
 import {Feature as EditableFeature} from '../feature/Feature';
 import NavlinkTools from './NavlinkTools';
-import {defaultBehavior} from '@here/xyz-maps-editor';
+import {defaultBehavior} from '../line/LineShape';
 import {dragFeatureCoordinate} from '../oTools';
 import {Coordinate} from '../line/LineTools';
 

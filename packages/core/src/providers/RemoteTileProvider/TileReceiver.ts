@@ -18,7 +18,7 @@
  */
 
 import {Tile} from '../../tile/Tile';
-import {FeatureProvider} from '@here/xyz-maps-core';
+import {FeatureProvider} from '../FeatureProvider';
 
 let UNDEF;
 

@@ -17,8 +17,7 @@
  * License-Filename: LICENSE
  */
 
-import {Feature} from '../features/Feature';
-import {GeoJSONCoordinate, GeoJSONFeature} from '@here/xyz-maps-core';
+import {GeoJSONCoordinate, GeoJSONFeature} from './GeoJSON';
 type Point = number[];
 type BBox = number[];
 type Coordinates = Array<Point>;

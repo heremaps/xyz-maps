@@ -17,7 +17,8 @@
  * License-Filename: LICENSE
  */
 import {AStar, AStarNode, geotools} from '@here/xyz-maps-common';
-import {Feature, FeatureProvider} from '@here/xyz-maps-core';
+import {FeatureProvider} from '../providers/FeatureProvider';
+import {Feature} from '../features/Feature';
 
 type NodeData = { link: Feature, index: number };
 

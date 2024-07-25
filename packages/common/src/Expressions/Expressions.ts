@@ -17,8 +17,7 @@
  * License-Filename: LICENSE
  */
 import {Context, Expression, JSONExpression} from './Expression';
-import {ExpressionParser} from '@here/xyz-maps-common';
-import {Definitions, Value} from './ExpressionParser';
+import {ExpressionParser} from './ExpressionParser';
 
 export * from './MathExpressions';
 export * from './LogicalExpressions';

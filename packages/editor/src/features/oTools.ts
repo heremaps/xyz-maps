@@ -23,11 +23,10 @@ import LineTools from './line/LineTools';
 import NavlinkTools from './link/NavlinkTools';
 import LocationTools from './location/LocationTools';
 import {Feature} from './feature/Feature';
-import {Marker} from '@here/xyz-maps-editor';
+import {Marker} from './marker/Marker';
 import {geotools, vec3} from '@here/xyz-maps-common';
 import {getClosestPntOnLine, rayIntersectPlane} from '../geometry';
 import InternalEditor from '../IEditor';
-import {GeoJSONCoordinate} from '@here/xyz-maps-core';
 
 const tools = {
     MARKER: MarkerTools,

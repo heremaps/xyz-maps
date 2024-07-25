@@ -17,8 +17,7 @@
  * License-Filename: LICENSE
  */
 import {Color, StyleExpression, StyleValueFunction, StyleZoomRange} from './LayerStyle';
-import {LinearGradient} from '@here/xyz-maps-core';
-import {JSONExpression} from '@here/xyz-maps-common';
+import {LinearGradient} from './HeatmapStyle';
 
 /**
  * The Style object defines how certain features should be rendered.

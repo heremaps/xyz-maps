@@ -17,7 +17,7 @@
  * License-Filename: LICENSE
  */
 import {TileLayerOptions} from '../TileLayerOptions';
-import {FeatureProvider} from '@here/xyz-maps-core';
+import {FeatureProvider} from '../../providers/FeatureProvider';
 import {ClusterFeatureProperties} from '../../features/ClusterFeature';
 
 /**

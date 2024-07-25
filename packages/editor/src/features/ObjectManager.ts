@@ -30,7 +30,7 @@ import {Map, JSUtils, geotools, vec3} from '@here/xyz-maps-common';
 import {getClosestPntOnLine, intersectBBox, rayIntersectPlane} from '../geometry';
 import {Navlink} from './link/Navlink';
 import InternalEditor from '../IEditor';
-import {Feature} from '@here/xyz-maps-editor';
+import {Feature} from './feature/Feature';
 
 type Options = {
     ignore?: (feature: Navlink) => boolean

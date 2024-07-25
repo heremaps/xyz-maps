@@ -21,7 +21,7 @@
 import {LineShape} from './LineShape';
 import {getSegmentIndex, getPntAt} from '../../geometry';
 import VirtualShape from './VirtualShape';
-import {Line} from '@here/xyz-maps-editor';
+import {Line} from './Line';
 import {GeoJSONCoordinate} from '@here/xyz-maps-core';
 import FeatureTools from '../feature/FeatureTools';
 

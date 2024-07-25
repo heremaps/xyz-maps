@@ -18,8 +18,7 @@
  */
 
 import RBush from 'rbush/rbush.min.js';
-import {Feature} from './Feature';
-import {GeoJSONFeature} from '@here/xyz-maps-core';
+import {GeoJSONFeature} from './GeoJSON';
 
 type BBox = {
     minX: number,

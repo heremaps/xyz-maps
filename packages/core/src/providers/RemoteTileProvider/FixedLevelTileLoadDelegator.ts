@@ -22,7 +22,7 @@ import TileReceiver from './TileReceiver';
 import {Tile} from '../../tile/Tile';
 import TileProvider from '../TileProvider/TileProvider';
 import {TileLoadDelegator} from './TileLoadDelegator';
-import {tileUtils} from '@here/xyz-maps-core';
+import {tileUtils} from '../../tile/TileUtils';
 
 let UNDEF;
 

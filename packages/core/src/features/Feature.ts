@@ -20,7 +20,7 @@
 import {JSUtils} from '@here/xyz-maps-common';
 import {FeatureProvider} from '../providers/FeatureProvider';
 import {GeoJSONFeature, GeoJSONBBox, GeoJSONCoordinate} from './GeoJSON';
-import {TileLayer} from '@here/xyz-maps-core';
+import {TileLayer} from '../layers/TileLayer';
 
 /**
  * represents a Feature in GeoJSON Feature format.

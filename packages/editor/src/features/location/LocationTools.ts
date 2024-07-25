@@ -26,7 +26,7 @@ import {Navlink} from '../link/Navlink';
 import {EditableFeatureProvider, GeoJSONCoordinate} from '@here/xyz-maps-core';
 import {JSUtils} from '@here/xyz-maps-common';
 import {Location} from './Location';
-import {Feature} from '@here/xyz-maps-editor';
+import {Feature} from '../feature/Feature';
 import FeatureTools from '../feature/FeatureTools';
 import {dragFeatureCoordinate} from '../oTools';
 

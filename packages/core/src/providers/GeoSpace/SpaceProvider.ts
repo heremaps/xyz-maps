@@ -16,7 +16,7 @@
  * SPDX-License-Identifier: Apache-2.0
  * License-Filename: LICENSE
  */
-import {GeoJSONFeature} from '@here/xyz-maps-core';
+import {GeoJSONFeature} from '../../features/GeoJSON';
 
 
 import {JSUtils, Queue} from '@here/xyz-maps-common';
