@@ -430,6 +430,7 @@ export class LineFactory {
         let sqWidth = Math.pow(2 * offsetX + width, 2);
         // for optimal repeat distance the first label gets placed in the middle of the linestring.
         let offset = Math.floor(vLength / 2) - 1;
+        // let offset = 0;
         // we move to the end of the linestring...
         let dir = DIR.MID_TO_END;
         let skipMidToStart = false;
@@ -441,18 +442,14 @@ export class LineFactory {
         if (handleAltitude && dimensions == 2) {
             handleAltitude = null;
         }
-
         for (let i = 1; i < vLength; i++) {
-            let c = offset + dir * i;
-
-            if (c >= vLength) {
+            if (offset+i === vLength) {
+                if (skipMidToStart) break;
                 // from now on we move from middle to beginning of linestring
                 dir = DIR.MID_TO_START;
-                c = offset;
-                offset = vLength - 1;
-                if (skipMidToStart) break;
+                offset = vLength;
             }
-
+            let c = (offset + dir * i) % vLength;
             const c0 = c - 1;
             const prevLengthSoFar = lineLength[c0];
             const lengthSoFar = lineLength[c];
@@ -535,10 +532,6 @@ export class LineFactory {
                     }
 
                     let alpha = Math.atan2(dy, dx);
-                    if (dir == -1) {
-                        alpha += Math.PI;
-                    }
-
                     let collisionData;
                     let distanceGrp;
                     if (checkCollisions) {
