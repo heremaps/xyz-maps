@@ -30,17 +30,18 @@ interface EditorOptions {
      */
     layers?: TileLayer[];
     /**
-     * Callback that's being called before certain edit-operations are executed.
-     * A operation can be restricted or allowed, controlled by the respective return value.
+     * Callback that is called before certain edit operations are executed.
+     * This callback can be used to allow or restrict specific edit operations based on the return value.
      *
-     * @param feature - the map feature
-     * @param restrictionMask - restrictionMask represents a bitmask for the desired edit operations.
-     *     1  -\> GEOMETRY CHANGE
-     *     2  -\> REMOVE
+     * @param feature - The map feature to be edited.
+     * @param restrictionMask - A bitmask representing the desired edit operations:
+     *     1 - GEOMETRY CHANGE
+     *     2 - REMOVE
      *
-     * @returns true -\> Allow operation(s) and execute edits. false -\> forbid operation(s). No edit gets executed.
+     * @returns {boolean} - Return `false` to allow the operation(s) and execute the edits.
+     *                      Return `true` to forbid the operation(s); no edits will be executed.
      *
-     * @defaultValue
+     * @defaultValue false
      */
     editRestrictions?: (feature: Feature, restrictionMask: number) => boolean;
 
