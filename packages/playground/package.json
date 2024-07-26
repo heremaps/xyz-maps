@@ -1,6 +1,6 @@
 {
   "name": "@here/xyz-maps-playground",
-  "version": "0.37.0",
+  "version": "0.38.0",
   "description": "Playground for XYZ editor.",
   "author": {
     "name": "HERE Europe B.V.",
@@ -19,10 +19,10 @@
     "dev": "rollup -c -w"
   },
   "dependencies": {
-    "@here/xyz-maps-common": "^0.37.0",
-    "@here/xyz-maps-core": "^0.37.0",
-    "@here/xyz-maps-display": "^0.37.0",
-    "@here/xyz-maps-editor": "^0.37.0",
+    "@here/xyz-maps-common": "^0.38.0",
+    "@here/xyz-maps-core": "^0.38.0",
+    "@here/xyz-maps-display": "^0.38.0",
+    "@here/xyz-maps-editor": "^0.38.0",
     "@monaco-editor/react": "^4.4.5",
     "monaco-editor": "^0.34.0",
     "react": "^18.2.0",

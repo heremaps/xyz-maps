@@ -1,3 +1,20 @@
+## 0.38.0 (2024-7-26)
+### core
+* added: Add [LayerStyle.zLayer](https://heremaps.github.io/xyz-maps/docs/interfaces/core.layerstyle.html#zlayer) for fallback drawing order control when zLayer is not explicitly defined on the style.
+* added: Introduce Layer methods [setVisible(visible: boolean)](https://heremaps.github.io/xyz-maps/docs/classes/core.tilelayer.html#setvisible) and [isVisible()](https://heremaps.github.io/xyz-maps/docs/classes/core.tilelayer.html#isvisible) for controlling and querying layer visibility directly, complementing [LayerOptions.visible](https://heremaps.github.io/xyz-maps/docs/interfaces/core.tilelayeroptions.html#visible) without modifying layer presence on the display.
+* fixed: resolve packaging issue causing excessive artifact size
+### editor
+* improved: Modifying building footprints now works seamlessly even when shape points are covered by building extrusions.
+* fixed: correctly edit 3D LineString geometry displayed as 2D due to styling.
+* fixed: Resolved issue preventing translation of 3D buildings using the Transformer utility.
+### display
+* improved: Enhanced "opacity" and "strokeDasharray" style properties to support StyleZoomRanges for dynamic zoom-level-based rendering.
+* added: Enabled pointer event triggering for flat 2D geometry that is positioned below but rendered on top of 3D geometry.
+* added: LayerStyles can now be defined in pure JSON using StyleExpressions.
+* fixed: resolve setBackgroundColor issue with StyleZoomRange or StyleValueFunction.
+* fixed: ensure correct rotation and positioning of icons along all segments of LineStrings
+* fixed: Resolved alpha blending issues for colors defined as RGBA arrays.
+
 ## 0.37.0 (2024-5-10)
 ### display
 * fixed: In cases where a particularly large dataset is frequently updated, it could lead to the display of outdated data.
