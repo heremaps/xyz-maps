@@ -103,7 +103,7 @@ export abstract class Expression implements IExpression {
         let cache;
         if (context === undefined) {
             // resolve dynamic expression
-            context = this.env.context;
+            context = env.context;
             cache = env.dynamicResultCache;
         }
         return env.evaluate(this, context, mode, cache);

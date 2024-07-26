@@ -17,8 +17,8 @@
  * License-Filename: LICENSE
  */
 
-import {global, TaskManager, Color as ColorUtils} from '@here/xyz-maps-common';
-import {Tile, TileLayer, CustomLayer, XYZLayerStyle, LayerStyle, Color, Style} from '@here/xyz-maps-core';
+import {global, Color as ColorUtils} from '@here/xyz-maps-common';
+import {Tile, TileLayer, CustomLayer, XYZLayerStyle, Color} from '@here/xyz-maps-core';
 import {getElDimension, createCanvas} from '../DOMTools';
 import {Layers, Layer, ScreenTile} from './Layers';
 import FeatureModifier from './FeatureModifier';
@@ -27,7 +27,7 @@ import BasicTile from './BasicTile';
 import BasicBucket from './BasicBucket';
 import Preview from './Preview';
 import Grid, {ViewportTile} from '../Grid';
-import {createZoomRangeFunction, getValue, parseColorMap} from './styleTools';
+import {createZoomRangeFunction, parseColorMap} from './styleTools';
 
 type RGBA = ColorUtils.RGBA;
 
@@ -59,7 +59,7 @@ abstract class Display {
     private centerWorld: number[]; // absolute world center xy0
 
     protected bgColor: RGBA;
-    globalBgc: boolean | Color = false;
+    private globalBgc: boolean | Color = false;
 
     tileSize: number;
     layers: Layers;
@@ -181,7 +181,7 @@ abstract class Display {
             };
 
             if (index == 0) {
-                display.setLayerBgColor(layer.getStyle(), dLayer);
+                display.setLayerBgColor((layer as TileLayer).getStyleManager(), dLayer);
             }
         }
         return added;
@@ -278,26 +278,22 @@ abstract class Display {
     abstract project(x: number, y: number, z?: number): number[];
 
     private setLayerBgColor(style, dLayer: Layer) {
-        let {backgroundColor} = style;
-        if (backgroundColor) {
-            if (typeof backgroundColor == 'object' && !Array.isArray(backgroundColor)) {
-                backgroundColor = createZoomRangeFunction(parseColorMap(backgroundColor));
+        dLayer.bgColor = this.parseColor(style.backgroundColor);
+    }
+
+    private parseColor(color) {
+        if (color) {
+            if (typeof color == 'object' && !Array.isArray(color)) {
+                color = createZoomRangeFunction(parseColorMap(color));
             }
-            dLayer.bgColor = typeof backgroundColor == 'function'
-                ? backgroundColor
-                : this.render.convertColor(backgroundColor);
+            return typeof color == 'function' ? color : this.render.convertColor(color);
         }
     }
 
     private processLayerBackgroundColor(zoomlevel?: number) {
         const display = this;
-        const layers = display.layers;
-        let bgColor = layers[0]?.bgColor;
-
-        if (typeof bgColor == 'function') {
-            bgColor = display.render.convertColor(bgColor(zoomlevel));
-        }
-        this.bgColor = bgColor || display.globalBgc;
+        const bgColor = display.layers[0]?.bgColor || display.globalBgc;
+        this.bgColor = typeof bgColor == 'function' ? display.render.convertColor(bgColor(zoomlevel^0)) : bgColor;
     }
 
     private isVisible(tile: Tile, dLayer: Layer): boolean {
@@ -466,8 +462,6 @@ abstract class Display {
         // const worldSize = Math.pow(2, zoomlevel) * this.tileSize;
 
         this.processLayerBackgroundColor(zoomLevel);
-        this.layers.setZoom(zoomLevel);
-
         this.setZoom(zoomLevel);
 
         this.viewChange = true;
@@ -567,8 +561,7 @@ abstract class Display {
             color = 'rgba(0, 0, 0, 0)';
         }
 
-        color = render.convertColor(color);
-
+        color = this.parseColor(color);
         displ.globalBgc = color;
 
         render.setBackgroundColor(color);

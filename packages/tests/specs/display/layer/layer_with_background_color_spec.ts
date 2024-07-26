@@ -55,6 +55,20 @@ describe('layer with background color', function() {
         expect(color).to.equal('#ffffff');
     });
 
+    it('change display background color StyleValueFunction', async () => {
+        display.setBackgroundColor((zoom)=>'blue');
+
+        let color = await getCanvasPixelColor(mapContainer, {x: 400, y: 300});
+        expect(color).to.equal('#0000ff');
+    });
+
+    it('change display background color ZoomRangeMap', async () => {
+        display.setBackgroundColor({1: 'blue', 20: 'red'});
+
+        let color = await getCanvasPixelColor(mapContainer, {x: 400, y: 300});
+        expect(color).to.equal('#e4001b');
+    });
+
     it('change display background color', async () => {
         display.setBackgroundColor(globalBackgroundcolor);
 

@@ -392,12 +392,16 @@ export class Map {
 
 
         display.setView(this.initViewPort(), this._s, this._rz, this._rx, this._groundResolution, this._worldSize);
-        display.updateGrid(this._z, this.getZoomlevel(), this._ox, this._oy);
+
+        const zoomlevel = this.getZoomlevel();
+
+        for (let layer of this._layers) {
+            layer._initZoom(zoomlevel);
+        }
+
+        display.updateGrid(this._z, zoomlevel, this._ox, this._oy);
 
         // display.setTransform(this._s, this._rz, this._rx, this._groundResolution);
-
-
-        // console.log(this.getZoomlevel(), 'VS', this._z);
         // display.updateGrid(this.initViewPort(), this.getZoomlevel(), this._ox, this._oy);
         // display.updateGrid(this.initViewPort(), this._z, this._ox, this._oy);
 
@@ -1263,7 +1267,7 @@ export class Map {
             if (index == UNDEF) {
                 index = layers.length;
             }
-            // initLayer(layer, index);
+
             this._display.addLayer(layer, index, (layer as TileLayer).getStyleManager?.());
             // if layer get's cleared -> refresh/re-fetch data
             // layer.addEventListener('clear', (ev)=>this.refresh(ev.detail.layer));

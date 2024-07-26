@@ -280,9 +280,15 @@ export interface LayerStyle {
     strokeWidthZoomScale?: (level: number) => number;
 
     /**
-     * the color for the background of the layer
+     * Specifies the background color of the layer.
+     *
+     * This property can accept different types of values to determine the background color:
+     * - A fixed `Color`.
+     * - A `StyleZoomRange<Color>` object to define color based on zoom levels.
+     * - A function `(zoomlevel: number) => Color` to compute the color dynamically based on the zoom level.
+     * - A `StyleExpression<Color>` to compute the color using a style expression.
      */
-    backgroundColor?: Color | StyleZoomRange<Color> | ((zoomlevel: number) => Color);
+    backgroundColor?: Color | StyleZoomRange<Color> | ((zoomlevel: number) => Color) | StyleExpression<Color>;
 
     /**
      *  This object contains key/styleGroup pairs.

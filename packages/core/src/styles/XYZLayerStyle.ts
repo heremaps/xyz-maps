@@ -18,8 +18,8 @@
  */
 
 import {Feature} from '../features/Feature';
-import {Color, LayerStyle, Style, StyleGroup, StyleGroupMap, StyleValueFunction, StyleZoomRange} from '../styles/LayerStyle';
-import {Expression, ExpressionParser, JSONExpression} from '@here/xyz-maps-common';
+import {LayerStyle, Style, StyleGroup, StyleGroupMap, StyleValueFunction} from '../styles/LayerStyle';
+import {Expression, ExpressionMode, ExpressionParser} from '@here/xyz-maps-common';
 import {TileLayer} from '../layers/TileLayer';
 
 const isTypedArray = (() => {
@@ -64,7 +64,7 @@ export class XYZLayerStyle implements LayerStyle {
     private _c: StyleGroupMap = null;
     definitions: LayerStyle['definitions'];
 
-    backgroundColor?: Color | StyleZoomRange<Color> | ((zoomlevel: number) => Color);
+    backgroundColor?: LayerStyle['backgroundColor'];
 
     protected expContext: {
         $geometryType: string;
@@ -115,8 +115,18 @@ export class XYZLayerStyle implements LayerStyle {
 
             this._filteredStyleGrp = [];
         }
-
         this._style = styleJSON;
+
+        this.setBgColor(styleJSON.backgroundColor);
+    }
+
+    setBgColor(backgroundColor: LayerStyle['backgroundColor']) {
+        if (ExpressionParser.isJSONExp(backgroundColor)) {
+            const color = this.expParser.evaluate(<any>backgroundColor, this.expContext, ExpressionMode.dynamic);
+            this.backgroundColor = color instanceof Expression ? ()=>color.resolve() : color;
+        } else {
+            this.backgroundColor = backgroundColor;
+        }
     }
 
     assign(feature: Feature, level?: number): string | null | undefined {
@@ -184,8 +194,6 @@ export class XYZLayerStyle implements LayerStyle {
 
         expContext.$id = feature.properties.$id ?? feature.id;
         expContext.$layer = feature.getDataSourceLayer(this.layer);
-
-        let z = expContext.$zoom;
         expContext.$zoom = zoom;
 
         this.expParser.clearResultCache();

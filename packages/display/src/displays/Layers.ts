@@ -215,12 +215,6 @@ class Layers extends Array<Layer> {
         return this._map[layer];
     }
 
-    setZoom(zoomlevel: number) {
-        for (let {layer} of this) {
-            layer._initZoom(zoomlevel);
-        }
-    }
-
     // clear(): TileMap {
     //     const _tiles = this.tiles;
     //     this.tiles = {};
