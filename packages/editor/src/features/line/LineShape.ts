@@ -334,7 +334,7 @@ class LineShape extends Feature {
         const lineStringCoordinates = coordinates[lineStringIndex];
         const ignoreZ = !editor.getStyleProperty(line, 'altitude');
         const orgAltitude: number = lineStringCoordinates[index][2];
-        const coord: number[] = shape.geometry.coordinates;
+        const coord: number[] = shape.geometry.coordinates.slice(0, ignoreZ ? 2 : 3);
 
         if (!properties.moved) {
             properties.moved = true;
@@ -360,9 +360,7 @@ class LineShape extends Feature {
                 vec3.add(positionWorldPx, positionWorldPx, offsetWorldPx);
                 const movedPosition = display._w2g(positionWorldPx);
 
-
                 // linkTools.moveShapeAtIndexTo(link, getPrivate(selectedShape).index, movedPosition);
-
                 coordinates[properties.lineStringIndex][properties.index] = <Coordinate>movedPosition;
                 selectedShape.getProvider().setFeatureCoordinates(selectedShape, movedPosition);
             }
