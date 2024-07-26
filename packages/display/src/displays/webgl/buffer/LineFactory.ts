@@ -169,11 +169,11 @@ export class LineFactory {
         const groupBuffer: LineBuffer = group.buffer;
 
         if (strokeDasharray) {
-            const {units} = strokeDasharray;
-            const mixedUnits = units.some((e) => e != units[0]);
-
             // Multiple dash/gap combinations are exclusively supported within the same unit due to the utilization of a pattern texture.
-            if (strokeDasharray.pattern.length > 2 && !mixedUnits) {
+            if (strokeDasharray.pattern.length > 2 &&
+                // has mixed units
+                !strokeDasharray.units.some((e) => e != strokeDasharray.units[0])
+            ) {
                 const dashPatternTexture = this.dashes.get(strokeDasharray.pattern);
                 groupBuffer.addUniform('u_dashPattern', dashPatternTexture.texture);
                 groupBuffer.addUniform('u_dashSize', [dashPatternTexture.texture.width / dashPatternTexture.scale, 0]);

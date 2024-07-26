@@ -60,6 +60,10 @@ export class ExpressionParser {
         return Array.isArray(exp) && typeof exp[0] == 'string';
     }
 
+    static isSupported(operator: string) {
+        return this.Expressions[operator] != null;
+    }
+
     static Mode = ExpressionMode;
     static Expressions: {
         [op: string]: new (e: JSONExpression, p: ExpressionParser) => Expression & { [K in keyof typeof Expression]: typeof Expression[K] }

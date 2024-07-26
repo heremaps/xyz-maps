@@ -115,8 +115,6 @@ class LineShape extends Feature {
         this.properties[EDITOR_NS] = {
             selected: this.isSelected()
         };
-
-        console.log('CONSTRUCTOR SHAPE', lineStringIndex, index, '->', this.properties[EDITOR_NS]);
     }
 
     /**
