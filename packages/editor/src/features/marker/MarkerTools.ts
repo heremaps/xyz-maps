@@ -22,6 +22,7 @@ import {GeoJSONCoordinate} from '@here/xyz-maps-core';
 import {Feature} from '../feature/Feature';
 import FeatureTools from '../feature/FeatureTools';
 import {dragFeatureCoordinate} from '../oTools';
+import {EDIT_RESTRICTION} from '../../API/EditorOptions';
 
 const DRAG_STOP = 'dragStop';
 const DRAG_MOVE = 'dragMove';
@@ -136,7 +137,7 @@ const tools = {
                 if (
                     prv.isEditable &&
                     prv.isSelected &&
-                    !EDITOR._config.editRestrictions(feature, 1)
+                    !EDITOR._config.editRestrictions(feature, EDIT_RESTRICTION.GEOMETRY)
                 ) {
                     let coordinate = <GeoJSONCoordinate>[...feature.geometry.coordinates];
 

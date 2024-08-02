@@ -28,6 +28,7 @@ import {Navlink} from './Navlink';
 import {EditStates} from '../feature/Feature';
 import FeatureTools from '../feature/FeatureTools';
 import InternalEditor from '../../IEditor';
+import {EDIT_RESTRICTION} from '../../API/EditorOptions';
 
 type LocationId = string | number;
 
@@ -470,7 +471,7 @@ var tools = {
     createAddShapePnts: function(line: Navlink) {
         const addShapePnts = getPrivate(line, 'vShps');
 
-        if (!addShapePnts.length && !line.editState('removed') && !line._e()._config.editRestrictions(line, 1)) {
+        if (!addShapePnts.length && !line.editState('removed') && !line._e()._config.editRestrictions(line, EDIT_RESTRICTION.GEOMETRY)) {
             const path = line.geometry.coordinates;
 
             for (let i = 1, p1, p2; i < path.length; i++) {
@@ -543,7 +544,7 @@ var tools = {
 
             shp.__.cLinks.forEach((clinkData) => {
                 let clink = clinkData.link;
-                let isGeoModAllowed = !line._e()._config.editRestrictions(clink, 1);
+                let isGeoModAllowed = !line._e()._config.editRestrictions(clink, EDIT_RESTRICTION.GEOMETRY);
                 if (isGeoModAllowed) {
                     tools.moveShapeAtIndexTo(clink, clinkData.index, position);
                 }

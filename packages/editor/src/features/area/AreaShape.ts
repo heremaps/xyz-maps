@@ -21,8 +21,8 @@ import {intersectLineLine} from '../../geometry';
 import InternalEditor from '../../IEditor';
 import {Area} from './Area';
 import {FeatureProvider, Feature, GeoJSONCoordinate, GeoJSONFeature} from '@here/xyz-maps-core';
-import {geotools} from '@here/xyz-maps-common';
 import PolyTools, {ConnectedArea} from './PolygonTools';
+import {EDIT_RESTRICTION} from '../../API/EditorOptions';
 
 type PolygonTools = typeof PolyTools;
 
@@ -213,7 +213,7 @@ class AreaShape extends Feature<'Point'> {
         // TODO: cleanup provider add/attach to feature
         super(geojson, <FeatureProvider>internalEditor.objects.overlay.layer.getProvider());
 
-        const shapePnt = this;
+        const shapePnt: AreaShape = this;
         const overlay = internalEditor.objects.overlay;
 
 
@@ -245,6 +245,9 @@ class AreaShape extends Feature<'Point'> {
         }
 
         function moveShape(e, dx, dy, cx, cy) {
+            const cfg = internalEditor._config;
+            if (cfg.editRestrictions(area, EDIT_RESTRICTION.GEOMETRY)) return;
+
             if (!isMoved) {// first move ?
                 isMoved = true;
                 polygonTools.hideShape(polygonTools.private(area, 'midShapePnts'), overlay);
@@ -253,7 +256,6 @@ class AreaShape extends Feature<'Point'> {
                 triggerEvents(e, 'dragStart');
             }
 
-            const cfg = internalEditor._config;
             const index = shapePnt.getIndex();
             const polyIndex = shapePnt.properties.poly;
             const holeIndex = shapePnt.properties.hole;
@@ -277,12 +279,12 @@ class AreaShape extends Feature<'Point'> {
                 }
 
                 polygonTools.markAsModified(area);
+
+                area.__.hk?.show();
+                polygonTools.addVShapes(area);
+
+                triggerEvents(e, isMoved ? 'dragStop' : UNDEF);
             }
-
-            area.__.hk?.show();
-            polygonTools.addVShapes(area);
-
-            triggerEvents(e, isMoved ? 'dragStop' : UNDEF);
         }
 
         this.__ = {

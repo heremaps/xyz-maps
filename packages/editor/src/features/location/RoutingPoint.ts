@@ -30,6 +30,7 @@ import {Navlink} from '../link/Navlink';
 import {Location} from './Location';
 import {Feature, GeoJSONCoordinate} from '@here/xyz-maps-core';
 import LocationTools from './LocationTools';
+import {EDIT_RESTRICTION} from '../../API/EditorOptions';
 // will be set in constructor to avoid circular dep warnings
 let locTools: typeof LocationTools;
 let linkTools;
@@ -88,7 +89,7 @@ class NvtRoutingPoint {
         function pressMove(ev, dx, dy) {
             const {cLink, location, ignoreZ} = that;
 
-            if (cLink && !iEditor._config.editRestrictions(location, 1)) {
+            if (cLink && !iEditor._config.editRestrictions(location, EDIT_RESTRICTION.GEOMETRY)) {
                 // let curPos = <GeoJSONCoordinate>dragFeatureCoordinate(ev.mapX, ev.mapY, this, this.geometry.coordinates, iEditor);
 
 

@@ -25,12 +25,19 @@ import History from './History';
 import ObjectOverlay from './Overlay';
 import {createOverlayLayer, OverlayProvider} from '../providers/OverlayLayer';
 import {split, SplitOptions} from './LinkSplitter';
-import {TileLayer, FeatureProvider, EditableFeatureProvider, EditableRemoteTileProvider, GeoJSONCoordinate} from '@here/xyz-maps-core';
+import {
+    TileLayer,
+    FeatureProvider,
+    EditableFeatureProvider,
+    EditableRemoteTileProvider,
+    GeoJSONCoordinate
+} from '@here/xyz-maps-core';
 import {Map, JSUtils, geotools, vec3} from '@here/xyz-maps-common';
 import {getClosestPntOnLine, intersectBBox, rayIntersectPlane} from '../geometry';
 import {Navlink} from './link/Navlink';
 import InternalEditor from '../IEditor';
 import {Feature} from './feature/Feature';
+import {EDIT_RESTRICTION} from '../API/EditorOptions';
 
 type Options = {
     ignore?: (feature: Navlink) => boolean
@@ -278,7 +285,7 @@ class ObjectManager {
 
         if (
             // if delete is triggered by a split-operation -> edit-restriction should be ignored!
-            params.split || !objManager.iEdit._config.editRestrictions(obj, 2)
+            params.split || !objManager.iEdit._config.editRestrictions(obj, EDIT_RESTRICTION.REMOVE)
         ) {
             const animation = params.animation == null ? true : params.animation;
 

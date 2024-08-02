@@ -26,7 +26,7 @@ import {Feature as EditableFeature} from '../feature/Feature';
 import NavlinkTools from './NavlinkTools';
 import {defaultBehavior} from '../line/LineShape';
 import {dragFeatureCoordinate} from '../oTools';
-import {Coordinate} from '../line/LineTools';
+import {EDIT_RESTRICTION} from '../../API/EditorOptions';
 
 
 const EDITOR_NS = '@ns:com:here:editor';
@@ -185,7 +185,7 @@ function onMouseMoveShape(ev, dx, dy) {
 
     let curPos = <GeoJSONCoordinate>dragFeatureCoordinate(ev.mapX, ev.mapY, shp, coordinate, EDITOR);
 
-    if (!cfg.editRestrictions(link, 1)) {
+    if (!cfg.editRestrictions(link, EDIT_RESTRICTION.GEOMETRY)) {
         if (geoFence.isPntInFence(curPos)) {
             !geoFence.isHidden() && geoFence.hide();
 
@@ -421,8 +421,7 @@ class NavlinkShape extends Feature {
 
         prv.pointerup = onMouseUpShape;
 
-
-        if (!EDITOR._config.editRestrictions(line, 1)) {
+        if (!EDITOR._config.editRestrictions(line, EDIT_RESTRICTION.GEOMETRY)) {
             prv.pointerenter = mouseInHandler;
             prv.pointerleave = mouseOutHandler;
         }
@@ -565,7 +564,7 @@ class NavlinkShape extends Feature {
     remove() {
         const link = this.getLink();
 
-        if (!link._e()._config.editRestrictions(<EditableFeature>(link || this), 2)) {
+        if (!link._e()._config.editRestrictions(<EditableFeature>(link || this), EDIT_RESTRICTION.REMOVE)) {
             linkTools.deleteShape(link, this);
         }
     };
@@ -625,6 +624,7 @@ class NavlinkShape extends Feature {
 
         linkTools.refreshGeometry(line);
     }
+
     /**
      * Unselect the NavlinkShape and remove from current selection.
      */
@@ -695,6 +695,7 @@ class NavlinkShape extends Feature {
         }
         return childs;
     };
+
     /**
      * Will return true or false whether the Shape is currently selected.
      */

@@ -21,6 +21,11 @@ import {JSUtils} from '@here/xyz-maps-common';
 import {TileLayer} from '@here/xyz-maps-core';
 import {Feature} from '../features/feature/Feature';
 
+export enum EDIT_RESTRICTION {
+    GEOMETRY = 1,
+    REMOVE = 2
+}
+
 /**
  * Options to configure the map editor ({@link editor.Editor}).
  */
