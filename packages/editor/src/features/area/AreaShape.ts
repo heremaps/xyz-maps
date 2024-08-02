@@ -277,14 +277,12 @@ class AreaShape extends Feature<'Point'> {
                         polygonTools.markAsModified(area, false);
                     }
                 }
-
                 polygonTools.markAsModified(area);
 
                 area.__.hk?.show();
                 polygonTools.addVShapes(area);
-
-                triggerEvents(e, isMoved ? 'dragStop' : UNDEF);
             }
+            triggerEvents(e, isMoved ? 'dragStop' : UNDEF);
         }
 
         this.__ = {
