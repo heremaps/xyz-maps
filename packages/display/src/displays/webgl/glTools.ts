@@ -1,5 +1,5 @@
 /*
- * Copyright (C) 2019-2022 HERE Europe B.V.
+ * Copyright (C) 2019-2024 HERE Europe B.V.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -19,8 +19,7 @@
 
 const dumpError = window.console.error;
 
-const loadShader = (gl: WebGLRenderingContext, shaderSource: string, shaderType: number, onError?: (error) => void) => {
-    onError = onError || dumpError;
+export const loadShader = (gl: WebGLRenderingContext, shaderSource: string, shaderType: number, onError: (error) => void = dumpError) => {
     const shader = gl.createShader(shaderType);
     gl.shaderSource(shader, shaderSource);
     gl.compileShader(shader);
@@ -34,8 +33,7 @@ const loadShader = (gl: WebGLRenderingContext, shaderSource: string, shaderType:
     return shader;
 };
 
-const loadProgram = (gl: WebGLRenderingContext, shaders: WebGLShader[], onError?: (error) => void) => {
-    onError = onError || dumpError;
+const loadProgram = (gl: WebGLRenderingContext, shaders: WebGLShader[], onError: (error) => void = dumpError) => {
     const program = gl.createProgram();
     for (let shader of shaders) {
         gl.attachShader(program, shader);
@@ -51,7 +49,7 @@ const loadProgram = (gl: WebGLRenderingContext, shaders: WebGLShader[], onError?
     return program;
 };
 
-const createProgram = (gl: WebGLRenderingContext, vertexShaderSrc: string, fragmentShaderSrc: string) => {
+export const createProgram = (gl: WebGLRenderingContext, vertexShaderSrc: string, fragmentShaderSrc: string) => {
     const vertexShader = loadShader(gl, vertexShaderSrc, gl.VERTEX_SHADER);
     const fragmentShader = loadShader(gl, fragmentShaderSrc, gl.FRAGMENT_SHADER);
 
@@ -67,4 +65,36 @@ const createProgram = (gl: WebGLRenderingContext, vertexShaderSrc: string, fragm
     return program;
 };
 
-export {loadProgram, loadShader, createProgram};
+export const preprocessShaderIncludes = (source: string, includes: {
+    [name: string]: string
+}, onError: (error) => void = dumpError) => {
+    // pattern matches:
+    // 1. #include "filename.glsl"
+    // 2. #include "filename.glsl/BLOCK_NAME"
+    const includePattern = /#include\s+"([^"]+?)(?:\/([^"]+))?"/g;
+
+    function extractBlock(source, blockName) {
+        const beginMarker = '#begin';
+        const endMarker = '#end';
+        const blockPattern = new RegExp(`${beginMarker}\\s+${blockName}[\\s\\S]*?${endMarker}\\s+${blockName}`, 'g');
+        const match = source.match(blockPattern);
+
+        return match?.[0].replace(`${beginMarker} ${blockName}`, '').replace(`${endMarker} ${blockName}`, '').trim();
+    }
+
+    return source.replace(includePattern, (match, includeFile, blockName) => {
+        const includeSource = includes[includeFile];
+        if (includeSource) {
+            if (blockName) {
+                let blockSrc = extractBlock(includeSource, blockName);
+                if (blockSrc == null) {
+                    onError(`Block "${blockName}" not found in "${includeFile}".`);
+                    return;
+                }
+            }
+            return includeSource;
+        }
+        onError(`Include file "${includeFile}" not found.`);
+    });
+};
+

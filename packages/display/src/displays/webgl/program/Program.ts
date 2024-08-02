@@ -1,5 +1,5 @@
 /*
- * Copyright (C) 2019-2022 HERE Europe B.V.
+ * Copyright (C) 2019-2024 HERE Europe B.V.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -17,14 +17,18 @@
  * License-Filename: LICENSE
  */
 
-import {createProgram} from '../glTools';
+import {createProgram, preprocessShaderIncludes} from '../glTools';
 import {GLStates, PASS} from './GLStates';
 // @ts-ignore
 import introVertex from '../glsl/intro_vertex.glsl';
+
 import {ArrayGrp, DynamicUniform, GeometryBuffer, IndexData, IndexGrp, Uniform} from '../buffer/GeometryBuffer';
 import {BufferCache} from '../GLRender';
 import {Attribute} from '../buffer/Attribute';
 import {ConstantAttribute} from '../buffer/templates/TemplateBuffer';
+
+const GLSL_INCLUDES = {
+};
 
 let UNDEF;
 
@@ -175,6 +179,7 @@ class Program {
         case gl.FLOAT_VEC4:
             return (v) => gl.uniform4fv(location, v);
         case gl.BOOL:
+        case gl.INT:
             return (v) => gl.uniform1i(location, v);
         case gl.SAMPLER_2D:
             const tu = this.textureUnits++;
@@ -201,8 +206,8 @@ class Program {
         }
 
         return [
-            macroSrc + introVertex + vertexShader,
-            macroSrc + fragmentShader
+            preprocessShaderIncludes(macroSrc + introVertex + vertexShader, GLSL_INCLUDES),
+            preprocessShaderIncludes(macroSrc + fragmentShader, GLSL_INCLUDES)
         ];
     }
 
