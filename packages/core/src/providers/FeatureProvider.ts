@@ -928,13 +928,12 @@ export class FeatureProvider extends Provider {
      *
      *  @param bbox - array of geographical coordinates [minLon, minLat, maxLon, maxLat] defining the area to clear.
      */
-    clear(bbox?: number[]);
+    clear(bbox?: number[]): string[] | null;
 
-    clear(bbox?: number[], triggerEvent?: boolean);
-    clear(bbox?: number[], triggerEvent: boolean = true) {
+    clear(bbox?: number[], triggerEvent?: boolean): string[] | null;
+    clear(bbox?: number[], triggerEvent: boolean = true): string[] | null {
         const provider = this;
         let dataQuads = null;
-        let feature;
 
         if (arguments.length > 3) {
             bbox = Array.prototype.slice.call(arguments, 0, 4);

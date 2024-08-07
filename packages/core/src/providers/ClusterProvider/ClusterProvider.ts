@@ -40,17 +40,21 @@ export class ClusterProvider extends LocalProvider {
         return feature.properties.clusterSize ? ClusterFeature : Feature;
     }
 
-    clear(bbox: GeoJSONBBox) {
-        const tiles = super.clear(bbox);
+    clear(bbox?: GeoJSONBBox, triggerEvent?: boolean): string[] | null {
+        const tiles = super.clear(bbox, triggerEvent);
         if (bbox) {
-            for (let {data} of tiles) {
-                for (let feature of data) {
-                    this.f2c.delete(feature);
+            for (const qk of tiles) {
+                const tile = this.getCachedTile(qk);
+                if (tile) {
+                    for (let feature of tile.data) {
+                        this.f2c.delete(feature);
+                    }
                 }
             }
         } else {
             this.f2c.clear();
         }
+        return tiles;
     }
 
     setMargin(tileMargin: number = 0) {

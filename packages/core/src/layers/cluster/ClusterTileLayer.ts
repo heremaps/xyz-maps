@@ -75,7 +75,9 @@ export class ClusterTileLayer extends TileLayer {
     protected _p: ClusterProvider[];
     private clusterMaxZoom: number;
     private _globalClusterId: number = 0;
+
     private _pendingClusterJobs: Map<string, Map<string, () => void>> = new Map();
+    private providerClearListener: (ev) => void;
 
     private _searchRadius: [number, number] = [0, 0];
     private _searchBBox: GeoJSONBBox = [0, 0, 0, 0];
@@ -113,6 +115,8 @@ export class ClusterTileLayer extends TileLayer {
 
         this.featureUpdateListener = this.featureUpdateListener.bind(this);
 
+        this.providerClearListener = (ev) => this.clear(null, true);
+
         const toggleProviderListener = ({type}) => {
             this.listenForDataUpdates(type == 'layerAdd');
         };
@@ -121,13 +125,13 @@ export class ClusterTileLayer extends TileLayer {
     }
 
     listenForDataUpdates(active: boolean) {
+        const toggleListener = `${active ? 'add' : 'remove'}EventListener`;
+
         ['featuresAdd', 'featuresRemove'/* , 'tileInitialized'*/, 'tileDestroyed'].forEach((e) => {
-            if (active) {
-                this._dataProvider.addEventListener(e, this.featureUpdateListener);
-            } else {
-                this._dataProvider.removeEventListener(e, this.featureUpdateListener);
-            }
+            this._dataProvider[toggleListener](e, this.featureUpdateListener);
         });
+
+        this._dataProvider[toggleListener]('clear', this.providerClearListener);
     };
 
     private featureUpdateListener(e) {
@@ -135,7 +139,7 @@ export class ClusterTileLayer extends TileLayer {
         const preventDuplicates = e.type == 'tileInitialized';
         const operation = e.type == 'featuresAdd' ? CLUSTER_OPERATION.GROW : CLUSTER_OPERATION.SHRINK;
         const updatedTiles = this._updateClusters(features, operation, preventDuplicates);
-
+        console.log('tileDestroyed', tiles);
         if (e.type == 'tileDestroyed') {
             for (let tile of tiles) {
                 this._pendingClusterJobs.delete(tile.quadkey);
@@ -325,9 +329,39 @@ export class ClusterTileLayer extends TileLayer {
         return {bounds, clusters: updatedClusters};
     }
 
-    // clear(bbox?: number[]) {
-    //     this._p.forEach((provider) => provider?.clear(bbox));
-    // }
+
+    /**
+     * Retrieves the data provider associated with this ClusterTileLayer.
+     *
+     * The data provider is responsible for supplying the features that are
+     * to be clustered and displayed within the ClusterTileLayer.
+     *
+     * @returns The `FeatureProvider` instance used by this layer.
+     */
+    getDataProvider(): FeatureProvider {
+        return this._dataProvider;
+    }
+
+    /**
+     * Clears the {@link ClusterTileLayerOptions.provider | source data provider} and all associated clusters, optionally within a specified bounding box.
+     *
+     * If no bounding box is provided, all features in the source dataProvider and all clusters will be cleared.
+     *
+     * @param {GeoJSONBBox} [bbox] - Optional. The bounding box defining the area to clear.
+     */
+    clear(bbox?: GeoJSONBBox);
+
+    clear(bbox?: GeoJSONBBox, clearDataProvider?: boolean);
+    clear(bbox?: GeoJSONBBox, clearDataProvider: boolean = true) {
+        if (clearDataProvider) {
+            this._dataProvider.clear();
+        }
+        this._pendingClusterJobs.clear();
+        for (let z = this.clusterMaxZoom; z >= this.min; z--) {
+            this.getClusterProvider(z).clear(bbox, false);
+        }
+        this.dispatchEvent('clear', {tiles: null});
+    }
 
     private _getCoveringTile(quadkey: string): string {
         for (let [qk, jobs] of Array.from(this._pendingClusterJobs)) {
@@ -451,7 +485,7 @@ export class ClusterTileLayer extends TileLayer {
 
     /**
      * Retrieves all clusters to which the specified feature belongs across all zoom levels.
-     * The returned array is ordered by zoom level in descending order, starting from the {@link clusterMaxZoom}.
+     * The returned array is ordered by zoom level in descending order, starting from the {@link ClusterTileLayerOptions.clusterMaxZoom}.
      *
      * @param feature The feature for which to retrieve all clusters.
      * @returns An array of cluster features to which the specified feature belongs, ordered by zoom level.

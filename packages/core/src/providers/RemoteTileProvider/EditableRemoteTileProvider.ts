@@ -735,7 +735,7 @@ export abstract class EditableRemoteTileProvider extends EditableFeatureProvider
             this.remoteTileLoader.clear();
         }
         // TODO: add support for partial loader clearance
-        super.clear.apply(this, arguments);
+        return super.clear.apply(this, arguments);
     };
 
     /**
