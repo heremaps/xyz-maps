@@ -1254,11 +1254,18 @@ export class Map {
 
     /**
      * Adds a layer to the map.
-     * If index is defined the layer will be placed at respective index in the layer hierarchy.
-     * Otherwise it's added on top (last).
      *
-     * @param layer - the layer to add
-     * @param index - the index in layer hierarchy where the layer should be inserted.
+     * If an `index` is provided, the layer will be inserted at the specified position within the layer hierarchy,
+     * which allows placing the layer between existing layers. If the `index` is not specified, the layer will be
+     * added on top of all existing layers (i.e., as the last layer in the hierarchy).
+     *
+     * The `index` is zero-based, meaning an index of `0` will insert the layer at the bottom, and an index equal
+     * to the current number of layers will place it on top. If the specified `index` exceeds the current number
+     * of layers, the layer will be added on top.
+     *
+     * @param layer - The layer to be added to the map. This can be a `TileLayer` or a `CustomLayer`.
+     * @param index - (Optional) The zero-based index in the layer hierarchy where the layer should be inserted.
+     *                If omitted, the layer will be added as the topmost layer.
      */
     addLayer(layer: TileLayer | CustomLayer, index?: number) {
         const layers = this._layers;
