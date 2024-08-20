@@ -202,10 +202,10 @@ export class XYZLayerStyle implements LayerStyle {
 
     getStyleGroup(feature: Feature, level?: number, getDefault?: boolean): (readonly Style[]) {
         let style = this._c[feature.id];
-        if (style == UNDEF || getDefault) {
-            // initialize the map context
-            this.initMapContext(feature, level);
+        // initialize the map context
+        this.initMapContext(feature, level);
 
+        if (style == UNDEF || getDefault) {
             (<{}>style) = this.assign(feature, level);
 
             if (typeof style != 'object') {
