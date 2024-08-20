@@ -105,6 +105,7 @@
             }
           },
           {
+            "id": "Polygon",
             "type": "Feature",
             "geometry": {
               "type": "Polygon",

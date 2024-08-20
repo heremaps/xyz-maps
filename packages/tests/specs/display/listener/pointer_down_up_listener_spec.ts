@@ -30,6 +30,7 @@ describe('pointer down and pointer up listener', () => {
     let display;
     let mapContainer;
 
+
     before(async () => {
         preparedData = await prepare(dataset);
         display = new Map(document.getElementById('map'), {
@@ -199,6 +200,35 @@ describe('pointer down and pointer up listener', () => {
         const geometry = (<any>results.pointerup[0]).target.geometry;
         expect(geometry).to.deep.include({
             type: 'LineString'
+        });
+    });
+
+    it('validate pointer event target on polygon visualized as point', async () => {
+        let testLayer = preparedData.getLayers('testLayer');
+        let testPolygon = preparedData.getFeature('testLayer', 'Polygon');
+        testLayer.setStyleGroup(testPolygon, [{zIndex: 100, type: 'Circle', radius: 32, fill: 'blue'}]);
+
+        await waitForViewportReady(display, () => {
+            display.setCenter(-74.0067173729875, 40.70065214195145);
+            display.setZoomlevel(16);
+        });
+
+        let listener = new Listener(display, ['pointerup']);
+
+        await click(mapContainer, 430, 300);
+
+        let results = listener.stop();
+
+        expect(results.pointerup).to.have.lengthOf(1);
+        expect(results.pointerup[0]).to.deep.include({
+            button: 0,
+            mapX: 430,
+            mapY: 300,
+            type: 'pointerup'
+        });
+        const geometry = (<any>results.pointerup[0]).target.geometry;
+        expect(geometry).to.deep.include({
+            type: 'Polygon'
         });
     });
 });

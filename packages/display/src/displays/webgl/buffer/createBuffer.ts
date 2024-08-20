@@ -19,7 +19,7 @@
 
 import {geometry, ExpressionParser, JSONExpression, TaskManager} from '@here/xyz-maps-common';
 import {GeometryBuffer} from './GeometryBuffer';
-import {getValue, parseStyleGroup} from '../../styleTools';
+import {getPolygonCenter, getValue, parseStyleGroup} from '../../styleTools';
 import {Feature, GeoJSONCoordinate, LayerStyle, LinearGradient, StyleGroup, Tile, TileLayer, webMercator} from '@here/xyz-maps-core';
 import {Layer, StyleExpressionParser} from '../../Layers';
 import {CollisionGroup, FeatureFactory, GroupMap} from './FeatureFactory';
@@ -77,17 +77,7 @@ const handlePolygons = (
             }
         } else if (multiIndex == 0) {
             const {bounds} = tile;
-            const {bbox} = feature;
-            const anchor = getValue('anchor', style, feature, zoom);
-            let center;
-
-            if (anchor == 'Centroid') {
-                const {geometry} = feature;
-                center = geometry._c = geometry._c || centroid(<GeoJSONCoordinate[][]>(geometry.type == 'Polygon' ? geometry.coordinates : geometry.coordinates[0]));
-            } else {
-                center = [bbox[0] + (bbox[2] - bbox[0]) / 2, bbox[1] + (bbox[3] - bbox[1]) / 2];
-            }
-
+            const center = getPolygonCenter(style, feature, zoom);
             const [cx, cy] = center;
 
             if (cx >= bounds[0] && cy >= bounds[1] && cx < bounds[2] && cy < bounds[3]) {

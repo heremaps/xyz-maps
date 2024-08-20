@@ -17,7 +17,15 @@
  * License-Filename: LICENSE
  */
 
-import {getMaxZoom, getPixelSize, getLineWidth, StyleGroup, getValue, getSizeInPixel} from '../displays/styleTools';
+import {
+    getMaxZoom,
+    getPixelSize,
+    getLineWidth,
+    StyleGroup,
+    getValue,
+    getSizeInPixel,
+    getPolygonCenter
+} from '../displays/styleTools';
 import {Map} from '../Map';
 import {Feature} from '@here/xyz-maps-core';
 import {intersectBBox, intersectLineLine} from '../geometry';
@@ -133,7 +141,10 @@ class Hit {
         }
     }
 
-    private getOffsetLineData(feature: Feature, styleGrp: StyleGroup, zoomlevel: number): { offset: number, width: number }[] {
+    private getOffsetLineData(feature: Feature, styleGrp: StyleGroup, zoomlevel: number): {
+        offset: number,
+        width: number
+    }[] {
         let offsets = [];
         let offset0;
         for (let style of styleGrp) {
@@ -254,16 +265,35 @@ class Hit {
             }
         } else if (geoType == 'Polygon') {
             let hasLineStyle = false;
+            let pointStyle;
             const hasPolygonStyle = featureStyle.find((style) => {
                 const type = getValue('type', style, feature, zoomlevel);
-                hasLineStyle = hasLineStyle || type == 'Line';
-                return type == 'Polygon';
+                const isLineStyle = type == 'Line';
+                const isPolygonStyle = type == 'Polygon';
+                hasLineStyle ||= isLineStyle;
+                pointStyle ||= !(isLineStyle && isPolygonStyle) && style;
+                return isPolygonStyle;
             });
 
             if (!hasPolygonStyle) {
                 // do hit calculation on line geometry if there's a line-style but no polygon-style
-                return hasLineStyle && this.geometry(
-                    halfWidth, halfHeight, coordinates, 'MultiLineString', featureStyle, layerIndex, feature, zoomlevel, null, skip3d
+                if (hasLineStyle) {
+                    const lineHit = this.geometry(
+                        halfWidth, halfHeight, coordinates, 'MultiLineString', featureStyle, layerIndex, feature, zoomlevel, null, skip3d
+                    );
+                    if (lineHit) return lineHit;
+                }
+                return pointStyle && this.geometry(
+                    halfWidth,
+                    halfHeight,
+                    getPolygonCenter(pointStyle, feature, zoomlevel),
+                    'Point',
+                    featureStyle,
+                    layerIndex,
+                    feature,
+                    zoomlevel,
+                    null,
+                    skip3d
                 );
             }
 
