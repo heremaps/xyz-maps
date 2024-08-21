@@ -85,7 +85,7 @@ void main(void){
     #else
     //    vPosition = vertexOffset;
     vPosition = vec3(vertexOffset.xy, vertexOffset.z * u_zMeterToPixel);
-    v_strokeWidth = u_strokeWidth / u_scale;
+    v_strokeWidth = u_strokeWidth / u_scale * scaleDZ;
     #endif
 
     vSize = size;

@@ -49,16 +49,9 @@ void main(void){
     normal = normalize(surfacePos - v_worldPos);
     #else
 
-    vec3 size = vSize;
-//    size.z *= u_zMeterToPixel;
-    vec3 pos = vPosition;
-//    vec3 pos = vec3(vPosition.xy,vPosition.z*u_zMeterToPixel);
-
-
-
-    float a = smoothstep(v_strokeWidth, v_strokeWidth + smoothness, length(abs(pos.xy) - size.xy));
-    a *= smoothstep(v_strokeWidth, v_strokeWidth + smoothness, length(abs(pos.yz) - size.yz));
-    a *= smoothstep(v_strokeWidth, v_strokeWidth + smoothness, length(abs(pos.xz) - size.xz));
+    float a = smoothstep(v_strokeWidth, v_strokeWidth + smoothness, length(abs(vPosition.xy) - vSize.xy));
+    a *= smoothstep(v_strokeWidth, v_strokeWidth + smoothness, length(abs(vPosition.yz) - vSize.yz));
+    a *= smoothstep(v_strokeWidth, v_strokeWidth + smoothness, length(abs(vPosition.xz) - vSize.xz));
     color = mix(u_stroke, u_fill, a);
 
     // interpolated varying -> unit vector
