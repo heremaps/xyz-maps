@@ -131,7 +131,7 @@ function triggerDisplayRefresh(line: Navlink, editStates?: {}) {
         }
     }
 
-    line._e().setStyle(line, 'default');
+    line._e().setStyle(line);
 }
 
 function storeConnectedPoints(line: Navlink) {
@@ -186,8 +186,8 @@ function updateOverlapping(shp, ol) {
     shp.properties['isOverlapping'] = ol;
 
     if (wasOverlapping != (shp.__.ol = ol)) {
-        // tirgger display refresh if needed.
-        shp.getLink()._e().setStyle(shp, UNDEF);
+        // trigger display refresh if needed.
+        shp.getLink()._e().setStyle(shp);
     }
 }
 
