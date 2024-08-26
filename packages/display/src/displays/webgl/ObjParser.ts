@@ -86,7 +86,7 @@ const worker = function() {
         };
         const parseFloatArray = (a) => a.map(parseFloat);
 
-        const regex = /(\w*)(?: )*(.*)/;
+        const regex = /^(\w+)\s+(.*?)\s*(?:#.*)?$/;
         const lines = text.split('\n');
 
         for (let l = 0; l < lines.length; l++) {
