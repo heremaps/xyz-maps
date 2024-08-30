@@ -155,6 +155,7 @@ const worker = function() {
         'Kd': 'diffuse',
         'Ks': 'specular',
         'Ke': 'emissive',
+        'Ns': 'shininess',
         'map_Kd': 'diffuseMap',
         'map_Ns': 'specularMap',
         'map_Bump': 'normalMap',
