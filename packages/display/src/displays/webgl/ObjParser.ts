@@ -28,6 +28,11 @@ type Face = {
 const worker = function() {
     const DEFAULT = 'default';
 
+    const parseLine = (line: string) => {
+        const regex = /^(\w+)\s+(.*?)\s*(?:#.*)?$/;
+        const [, key, rawValue] = regex.exec(line);
+        return [key, rawValue];
+    };
     const parseOBJ = (text: string) => {
         const objVertexData: number[][][] = [[], [], [], []];
         const [objPositions, objUVs, objNormals, objColors] = objVertexData;
@@ -86,7 +91,6 @@ const worker = function() {
         };
         const parseFloatArray = (a) => a.map(parseFloat);
 
-        const regex = /^(\w+)\s+(.*?)\s*(?:#.*)?$/;
         const lines = text.split('\n');
 
         for (let l = 0; l < lines.length; l++) {
@@ -94,7 +98,7 @@ const worker = function() {
             if (line === '' || line.startsWith('#')) {
                 continue;
             }
-            const [, key, rawValue] = regex.exec(line);
+            const [key, rawValue] = parseLine(line);
             let values = rawValue.split(/\s+/);
 
             switch (key) {
@@ -162,14 +166,13 @@ const worker = function() {
         let material: Material = {};
         const materials = {};
         const lines = text.split('\n');
-        const regex = /(\w*)(?: )*(.*)/;
 
         for (let l = 0; l < lines.length; l++) {
             const line = lines[l].trim();
             if (line === '' || line.startsWith('#')) {
                 continue;
             }
-            const [, key, rawValue] = regex.exec(line);
+            const [key, rawValue] = parseLine(line);
             const values = rawValue.split(/\s+/);
 
             switch (key) {
@@ -210,6 +213,10 @@ const worker = function() {
                     promises.push(
                         (async () => {
                             const response = await fetch(new URL(fileName, baseUrl).href);
+                            if (response.status >= 400) {
+                                console.warn(`load texture error:`, response);
+                                return;
+                            }
                             const blob = await response.blob();
                             const bitmap = await createImageBitmap(blob, {
                                 imageOrientation: 'flipY',
@@ -243,6 +250,8 @@ const worker = function() {
                     let response = await fetch(new URL(filename, baseHref).href);
                     if (response.status == 200) {
                         return await response.text();
+                    } else {
+                        console.warn('load material error:', response);
                     }
                 })
             );
