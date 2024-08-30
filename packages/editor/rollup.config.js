@@ -18,7 +18,7 @@
  */
 
 import typescript from '@rollup/plugin-typescript';
-import {terser} from 'rollup-plugin-terser';
+import terser from '@rollup/plugin-terser';
 import image from 'rollup-plugin-img';
 
 const pkg = require('./package.json');
