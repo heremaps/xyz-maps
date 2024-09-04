@@ -158,6 +158,7 @@ class GeometryBuffer {
 
 
     colorMask?: { r: boolean, g: boolean, b: boolean, a: boolean };
+    light?: string;
 
     static fromTemplateBuffer(type: string, templBuffer: TemplateBuffer): GeometryBuffer {
         const {flexAttributes} = templBuffer;

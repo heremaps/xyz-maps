@@ -209,6 +209,10 @@ const computeMeshNormals = (vertex: VertexData, index?: number[]) => {
 
 export class ModelBuffer extends TemplateBuffer {
     destroy?: (buffer: GeometryBuffer) => void;
+    // Rotate by 90 degrees along the X-axis (pitch rotation).
+    private defaultOrientationMatrix: number[] = [1, 0, 0, 0, 0, 0, -1, 0, 0, 1, 0, 0, 0, 0, 0, 1];
+    // Flip Y and rotate by 90 degrees along the X-axis (pitch rotation).
+    // private defaultOrientationMatrix: number[] = [1, 0, 0, 0, 0, 0, -1, 0, 0, -1, 0, 0, 0, 0, 0, 1];
 
     static calcBBox(data: ModelGeometry) {
         const {position} = data;
@@ -372,17 +376,11 @@ export class ModelBuffer extends TemplateBuffer {
     addInstance(x: number, y: number, z: number, scaleXYZ?: number[], translateXYZ?: number[], rotation?: number[], transform?) {
         this.instances++;
 
-        const m = identity(create());
+        const m = new Float32Array(this.defaultOrientationMatrix);
 
         if (transform) {
             multiply(m, m, transform);
-            // translate(m, m, [x, y, z]);
         } else {
-            // identity(m);
-            // rotate(m, m, 90/180*Math.PI, [0, 0, 1]);
-            // translate(m, m, [x, y, z]);
-
-
             if (translateXYZ) {
                 translate(m, m, translateXYZ);
             }
@@ -404,7 +402,6 @@ export class ModelBuffer extends TemplateBuffer {
             }
         }
 
-
         const flexArray = this.flexAttributes.a_modelMatrix.data;
 
         flexArray.set(m, flexArray.length);
@@ -418,7 +415,9 @@ export class ModelBuffer extends TemplateBuffer {
         this.idOffsets?.push(this.flexAttributes.a_modelMatrix.data.length, featureId);
     }
 
-    rayIntersects(buffer: GeometryBuffer, result: { z: number }, tileX: number, tileY: number, rayCaster: Raycaster): number | string {
+    rayIntersects(buffer: GeometryBuffer, result: {
+        z: number
+    }, tileX: number, tileY: number, rayCaster: Raycaster): number | string {
         const {attributes} = buffer;
         const positionAttr = attributes.a_position as Attribute;
         const modelMatrixData = (attributes.a_modelMatrix as Attribute).data;

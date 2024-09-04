@@ -17,11 +17,18 @@
  * License-Filename: LICENSE
  */
 
-import {geometry, ExpressionParser, JSONExpression, TaskManager} from '@here/xyz-maps-common';
+import {TaskManager} from '@here/xyz-maps-common';
 import {GeometryBuffer} from './GeometryBuffer';
-import {getPolygonCenter, getValue, parseStyleGroup} from '../../styleTools';
-import {Feature, GeoJSONCoordinate, LayerStyle, LinearGradient, StyleGroup, Tile, TileLayer, webMercator} from '@here/xyz-maps-core';
-import {Layer, StyleExpressionParser} from '../../Layers';
+import {getPolygonCenter, getValue} from '../../styleTools';
+import {
+    Feature,
+    LinearGradient,
+    StyleGroup,
+    Tile,
+    TileLayer,
+    webMercator
+} from '@here/xyz-maps-core';
+import {Layer} from '../../Layers';
 import {CollisionGroup, FeatureFactory, GroupMap} from './FeatureFactory';
 import {GlyphTexture} from '../GlyphTexture';
 import {TemplateBufferBucket} from './templates/TemplateBufferBucket';
@@ -30,9 +37,6 @@ import {ModelBuffer} from './templates/ModelBuffer';
 import {PASS} from '../program/GLStates';
 import {DEFAULT_HEATMAP_GRADIENT, HeatmapBuffer} from './templates/HeatmapBuffer';
 import {DisplayTileTask} from '../../BasicTile';
-
-
-const {centroid} = geometry;
 
 const PROCESS_FEATURE_CHUNK_SIZE = 16;
 const EXCLUSIVE_TIME_MS = 4;
@@ -68,7 +72,7 @@ const handlePolygons = (
 
                 for (let linestring of coordinates) {
                     factory.create(feature, 'LineString', linestring, [style], lsScale, tile.clipped, undefined, undefined,
-                        style.fill ? strokeWidth>3 :true // ignore pointerevents for polygon outlines if fill is used
+                        style.fill ? strokeWidth > 3 : true // ignore pointerevents for polygon outlines if fill is used
                     );
                 }
                 style.type = orgType;
@@ -365,6 +369,18 @@ const createBuffer = (
                                     }
                                 }
                                 geoBuffer.clip = grpBuffer.clip;
+                                geoBuffer.light = shared.light;
+
+                                // model emissive/specular lightning uniforms have already been merged with material.
+                                if (type != 'Model') {
+                                    if (shared.emissive) {
+                                        geoBuffer.addUniform('u_emissive.color', shared.emissive);
+                                    }
+                                    if (shared.specular) {
+                                        geoBuffer.addUniform('specular', shared.specular);
+                                        geoBuffer.addUniform('shininess', shared.shininess);
+                                    }
+                                }
                             }
 
                             let {zLayer} = grp;

@@ -35,7 +35,7 @@
     }
 
     function rotate() {
-        // afid = requestAnimationFrame(rotate);
+    // afid = requestAnimationFrame(rotate);
 
         alpha = (alpha + 0.1) % 360;
         cx = innerWidth / 2;
@@ -67,25 +67,29 @@
     window.renderTotalTime = 0;
 
 
+    document.addEventListener('keydown', function(e) {
+        if (e.code == 'KeyL') {
+            animateLight();
+        }
+    });
+
+
     let running;
     let optimise = false;
     let dbgLayer;
-
-
-    window.dbgTools = {
-
+    const dbgTools = {
         getDisplay() {
             return window.display || here.xyz.maps.Map.getInstances()[0];
         },
         getDebugLayer() {
             if (!dbgLayer) {
                 dbgTools.getDisplay().addLayer(dbgLayer =
-                    new here.xyz.maps.layers.TileLayer({
-                        name: 'DbgLayer',
-                        min: 2, max: 30,
-                        pointerEvents: false,
-                        provider: new here.xyz.maps.providers.LocalProvider({editable: false})
-                    }));
+          new here.xyz.maps.layers.TileLayer({
+              name: 'DbgLayer',
+              min: 2, max: 30,
+              pointerEvents: false,
+              provider: new here.xyz.maps.providers.LocalProvider({editable: false})
+          }));
             }
             return dbgLayer;
         },
@@ -96,7 +100,8 @@
             const display = dbgTools.getDisplay();
             const center = display.getCenter();
 
-            const {longitude, latitude, altitude} = display.getCamera().position;
+            const camPosition = display.getCamera().position;
+            const {longitude, latitude, altitude} = camPosition;
 
             layer.removeFeature({id: 'Cam' + id});
             layer.addFeature({
@@ -127,10 +132,9 @@
                 alignment: 'map'
             }]);
 
-
             layer.removeFeature({id: 'Cam-map-center' + id});
             layer.addFeature({
-                id: 'Cam-mamp-center' + id,
+                id: 'Cam-map-center' + id,
                 type: 'Feature',
                 geometry: {
                     type: 'Point',
@@ -144,7 +148,6 @@
                 opacity: .7,
                 alignment: 'map'
             }]);
-
 
             const topLeft = display.pixelToGeo(0, 0);
             const topRight = display.pixelToGeo(display.getWidth(), 0);
@@ -199,7 +202,6 @@
                 altitude: true
             }]);
 
-
             layer.removeFeature({id: 'Cam-plane' + id});
             layer.addFeature({
                 id: 'Cam-plane' + id,
@@ -221,8 +223,9 @@
                 stroke: '#FF7220FF',
                 strokeWidth: 4
             }]);
-        },
 
+            return camPosition;
+        },
 
         start_fps: function(overlay, display) {
             if (running) {
@@ -246,17 +249,13 @@
             running = false;
         },
 
-
         showDisplayTile: function(qk, index) {
             let ctx = document.querySelector('.tmc').getContext('2d');
             let dTile = displayTiles.get(qk);
             let tileCanvas = index != UNDEF ? dTile.c[index] : dTile.combine();
             let size = dTile.size;
-
             ctx.fillRect(0, 40, size + 14, size + 14);
-
             ctx.drawImage(tileCanvas.canvas || tileCanvas, 6, 47);
-
             return dTile;
         },
 
@@ -269,7 +268,6 @@
                     remote = false;
                 }
             });
-
             display2.addObserver('center', (type, center) => {
                 if (!remote) {
                     remote = true;
@@ -277,8 +275,6 @@
                     remote = false;
                 }
             });
-
-
             display1.addObserver('zoomlevel', function(type, to) {
                 if (!remote) {
                     remote = true;
@@ -295,4 +291,37 @@
             });
         }
     };
+
+    let lightAnimated = false;
+    const animateLight = () => {
+        lightAnimated = !lightAnimated;
+        const rotateZ = (p, rad) => {
+            const cos = Math.cos(rad);
+            const sin = Math.sin(rad);
+            p[0] = p[0] * cos - p[1] * sin;
+            p[1] = p[0] * sin + p[1] * cos;
+            return p;
+        };
+
+        const animate = () => {
+            const display = dbgTools.getDisplay();
+            let lights;
+            const layer = display.getLayers().find((layer) => lights = layer.getStyleManager().getLights());
+            if (!lights) return;
+            for (let name in lights) {
+                for (let light of lights[name]) {
+                    if (light.direction) {
+                        rotateZ(light.direction, Math.PI / 180);
+                    }
+                }
+            }
+            layer.getStyleManager().setLights(lights);
+            // layer.getStyleManager().setLights({default: lights});
+            display.refresh();
+            if (lightAnimated) requestAnimationFrame(animate);
+        };
+        if (lightAnimated) animate();
+    };
+
+    window.dbgTools = dbgTools;
 })();

@@ -63,6 +63,10 @@
     {
       "file": "./display/custom_layer.html",
       "docs": "classes/core.customlayer.html"
+    },
+    {
+      "file": "./display/custom_lightning.html",
+      "docs": "classes/core.customlayer.html"
     }
   ],
   "Editor": [

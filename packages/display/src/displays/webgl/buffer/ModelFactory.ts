@@ -21,6 +21,7 @@ import {ModelBuffer} from './templates/ModelBuffer';
 import {TemplateBufferBucket} from './templates/TemplateBufferBucket';
 import {ModelData} from '@here/xyz-maps-core';
 import {ObjParser} from '../ObjParser';
+import {vec3} from '@here/xyz-maps-common';
 
 class ModelTexture extends Texture {
     ref: number = 0;
@@ -58,7 +59,11 @@ class ModelFactory {
         unusedTexture.ref = Infinity;
         this.unusedTexture = unusedTexture;
 
-        const unusedNormalTexture = new ModelTexture(gl, {width: 1, height: 1, data: new Uint8Array([127, 127, 255, 255])});
+        const unusedNormalTexture = new ModelTexture(gl, {
+            width: 1,
+            height: 1,
+            data: new Uint8Array([127, 127, 255, 255])
+        });
         unusedNormalTexture.ref = Infinity;
         this.unusedNormalTexture = unusedNormalTexture;
 
@@ -90,7 +95,7 @@ class ModelFactory {
     private initTexture(name: string, imgData: TextureData, textures: ModelTextures) {
         let texture = textures[name];
         if (!texture) {
-            texture = new ModelTexture(this.gl, imgData, {flipY: true});
+            texture = new ModelTexture(this.gl, imgData, {flipY: true, wrapS: this.gl.REPEAT, wrapT: this.gl.REPEAT});
             textures[name] = texture;
         }
         return texture;
@@ -126,7 +131,7 @@ class ModelFactory {
                     ambient: [1, 1, 1],
                     specular: [1, 1, 1],
                     specularMap: 'unusedTexture',
-                    shininess: 32,
+                    shininess: 0,
                     normalMap: 'unusedNormalTexture',
                     ...materials?.[face.material]
                 };
@@ -172,7 +177,12 @@ class ModelFactory {
         return this.models[id];
     }
 
-    createModelBuffer(id: string, cullFace?) {
+    createModelBuffer(
+        id: string,
+        specular?: [number, number, number],
+        shininess?: number,
+        emissive?: [number, number, number],
+        cullFace?: number) {
         const model = this.models[id];
         let bufferBucket;
         if (model) {
@@ -196,13 +206,25 @@ class ModelFactory {
                     buffer.flexAttributes[name] = attribute;
                 }
 
+                const bufferUniforms = buffer.uniforms;
                 for (let name in uniforms) {
                     let uniform = uniforms[name];
                     if (uniform instanceof ModelTexture) {
                         uniform.ref++;
                     }
+                    bufferUniforms[name] = uniform;
+                }
 
-                    buffer.uniforms[name] = uniform;
+                if (specular) {
+                    bufferUniforms.specular = vec3.add([], bufferUniforms.specular as number[], specular);
+                    (bufferUniforms.shininess as number) += shininess;
+                }
+                if (emissive) {
+                    if (bufferUniforms.emissive) {
+                        bufferUniforms.emissive = vec3.add([], bufferUniforms.emissive as number[], emissive);
+                    } else {
+                        bufferUniforms.emissive = emissive;
+                    }
                 }
 
                 if (index) {

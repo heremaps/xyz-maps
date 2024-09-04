@@ -18,7 +18,14 @@
  */
 
 import {Feature} from '../features/Feature';
-import {LayerStyle, Style, StyleGroup, StyleGroupMap, StyleValueFunction} from '../styles/LayerStyle';
+import {
+    AmbientLight, DirectionalLight,
+    LayerStyle,
+    Style,
+    StyleGroup,
+    StyleGroupMap,
+    StyleValueFunction
+} from '../styles/LayerStyle';
 import {Expression, ExpressionMode, ExpressionParser} from '@here/xyz-maps-common';
 import {TileLayer} from '../layers/TileLayer';
 
@@ -65,6 +72,7 @@ export class XYZLayerStyle implements LayerStyle {
     definitions: LayerStyle['definitions'];
 
     backgroundColor?: LayerStyle['backgroundColor'];
+    lights: LayerStyle['lights'] = {};
 
     protected expContext: {
         $geometryType: string;
@@ -118,12 +126,38 @@ export class XYZLayerStyle implements LayerStyle {
         this._style = styleJSON;
 
         this.setBgColor(styleJSON.backgroundColor);
+
+        if (styleJSON.lights) {
+            this.setLights(styleJSON.lights);
+        }
+    }
+
+    setLights(lights: LayerStyle['lights']) {
+        this.lights = {};
+        for (let name in lights) {
+            let validLights = [];
+            const lightSet = lights[name];
+            for (let light of lightSet) {
+                if (light?.type && light.color) {
+                    if (light.type == 'ambient' || Array.isArray((light as DirectionalLight).direction) ) {
+                        validLights.push(light);
+                    }
+                }
+            }
+            if (validLights.length) {
+                this.lights[name] = validLights;
+            }
+        }
+    }
+
+    getLights(name?: string): LayerStyle['lights'] | (AmbientLight | DirectionalLight)[] {
+        return name ? this.lights[name] : this.lights;
     }
 
     setBgColor(backgroundColor: LayerStyle['backgroundColor']) {
         if (ExpressionParser.isJSONExp(backgroundColor)) {
             const color = this.expParser.evaluate(<any>backgroundColor, this.expContext, ExpressionMode.dynamic);
-            this.backgroundColor = color instanceof Expression ? ()=>color.resolve() : color;
+            this.backgroundColor = color instanceof Expression ? () => color.resolve() : color;
         } else {
             this.backgroundColor = backgroundColor;
         }
@@ -219,10 +253,18 @@ export class XYZLayerStyle implements LayerStyle {
         const id = feature.id;
         const custom = this._c;
 
+        this.expParser.clearResultCache();
+
         if (
             group && (merge /* || merge == UNDEF*/)
         ) {
             group = this.merge(this.getStyleGroup(feature), group);
+        }
+
+        const {expContext} = this;
+
+        if (expContext.$id === feature.id) {
+            console.log('need to clear result cache!!!');
         }
 
         if (group) {

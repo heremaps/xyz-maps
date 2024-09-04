@@ -156,18 +156,17 @@ abstract class Display {
         return dpr < 1 ? 1 : dpr;
     }
 
-    addLayer(layer: TileLayer | CustomLayer, index: number, styles?: XYZLayerStyle): boolean {
+    addLayer(layer: TileLayer | CustomLayer, index: number, styles?: XYZLayerStyle): Layer {
         const display = this;
         const layers = display.layers;
-        let added = layers.add(layer, index);
-        if (added) {
+        if (layers.add(layer, index)) {
             const dLayer = layers.get(layer);
             display.buckets.forEach((dTile) => {
                 dTile.addLayer(index);
             });
             toggleLayerEventListener('add', layer, display.listeners);
 
-            if (layer.custom) return added;
+            if (layer.custom) return dLayer;
 
             styles?.clearCache();
 
@@ -183,8 +182,8 @@ abstract class Display {
             if (index == 0) {
                 display.setLayerBgColor((layer as TileLayer).getStyleManager(), dLayer);
             }
+            return dLayer;
         }
-        return added;
     }
 
     removeLayer(layer: TileLayer | CustomLayer): number {
@@ -293,7 +292,7 @@ abstract class Display {
     private processLayerBackgroundColor(zoomlevel?: number) {
         const display = this;
         const bgColor = display.layers[0]?.bgColor || display.globalBgc;
-        this.bgColor = typeof bgColor == 'function' ? display.render.convertColor(bgColor(zoomlevel^0)) : bgColor;
+        this.bgColor = typeof bgColor == 'function' ? display.render.convertColor(bgColor(zoomlevel ^ 0)) : bgColor;
     }
 
     private isVisible(tile: Tile, dLayer: Layer): boolean {
@@ -636,7 +635,7 @@ abstract class Display {
         return 1;
     }
 
-    protected setZoom(zoomLevel: number):boolean {
+    protected setZoom(zoomLevel: number): boolean {
         if (this._zoom != zoomLevel) {
             this._zoom = zoomLevel;
             return true;

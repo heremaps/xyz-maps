@@ -71,7 +71,8 @@ export const preprocessShaderIncludes = (source: string, includes: {
     // pattern matches:
     // 1. #include "filename.glsl"
     // 2. #include "filename.glsl/BLOCK_NAME"
-    const includePattern = /#include\s+"([^"]+?)(?:\/([^"]+))?"/g;
+    // const includePattern = /#include\s+"([^"]+?)(?:\/([^"]+))?"/g;
+    const includePattern = /(?<!\/\/.*)#include\s+"([^"]+?)(?:\/([^"]+))?"/g;
 
     function extractBlock(source, blockName) {
         const beginMarker = '#begin';

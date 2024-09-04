@@ -129,8 +129,6 @@ export default (str: string, cb: (result)=>void, taskManager) => {
                         }
                     } else if (c == '}') {
                         if (--heap.open == 0) {
-                            // if(elements.length == 1856)debugger;
-
                             if (--heap.grp && i < sLen - 2) {
                                 return this.CONTINUE;
                             }

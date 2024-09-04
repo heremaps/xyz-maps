@@ -18,7 +18,7 @@
  */
 
 import BasicRender from '../BasicRender';
-import {CustomLayer, Tile, TileLayer} from '@here/xyz-maps-core';
+import {AmbientLight, CustomLayer, Tile, TileLayer} from '@here/xyz-maps-core';
 import GLTile from './GLTile';
 import RectProgram from './program/Rect';
 import CircleProgram from './program/Circle';
@@ -62,11 +62,23 @@ import {GLExtensions} from './GLExtensions';
 import {Texture} from './Texture';
 import {ScreenTile} from '../Layers';
 
-import {Color} from '@here/xyz-maps-common';
+import {Color, vec3} from '@here/xyz-maps-common';
 import toRGB = Color.toRGB;
 
-
-const mat4 = {create, lookAt, multiply, perspective, rotateX, rotateZ, translate, scale, clone, copy, invert, identity};
+const mat4 = {
+    create,
+    lookAt,
+    multiply,
+    perspective,
+    rotateX,
+    rotateZ,
+    translate,
+    scale,
+    clone,
+    copy,
+    invert,
+    identity
+};
 
 const PI2 = 2 * Math.PI;
 const FIELD_OF_VIEW = Math.atan(1 / 3) * 2; // ~ 36.87 deg
@@ -141,12 +153,15 @@ export class GLRender implements BasicRender {
     private readonly ctxAttr: WebGLContextAttributes;
     private depthBufferSize: number;
 
+    processedLight: { [lightSetName: string]: UniformMap }[] = [];
+
     pass: PASS;
     buffers: BufferCache = new WeakMap();
     gl: WebGLRenderingContext;
     private glExt: GLExtensions;
     zIndexLength: number;
     fixedView: number;
+
     private sharedUniforms: {
         u_resolution: number[];
         u_tileScale: number;
@@ -158,13 +173,14 @@ export class GLRender implements BasicRender {
         u_groundResolution: number;
         u_zMeterToPixel: number;
         u_fixedView: number;
-        u_lightDir: number[];
         u_camWorld: Float64Array;
+        // elapsedTime in seconds
+        u_time: number;
     };
 
-    private _lightDir: number[] = [0.5, 0.0, -1.0];
     private programConfig: { [name: string]: { program: typeof Program, default?: boolean, macros?: any } };
     private resolution: number[] = [];
+    private startTime: number;
 
     constructor(renderOptions: RenderOptions) {
         this.ctxAttr = {
@@ -263,6 +279,9 @@ export class GLRender implements BasicRender {
         // @ts-ignore
         gl.dpr = devicePixelRation;
 
+
+        this.startTime = Date.now();
+
         this.gl = gl;
         this.glExt = new GLExtensions(gl, [
             EXTENSION_OES_ELEMENT_INDEX_UINT,
@@ -292,10 +311,10 @@ export class GLRender implements BasicRender {
             Image: {program: ImageProgram},
             Circle: {program: CircleProgram},
             Polygon: {program: PolygonProgram},
-            Extrude: {program: ExtrudeProgram},
+            Extrude: {program: ExtrudeProgram, default: false},
             Icon: {program: IconProgram},
-            Box: {program: BoxProgram},
-            Sphere: {program: SphereProgram},
+            Box: {program: BoxProgram, default: false},
+            Sphere: {program: SphereProgram, default: false},
             Model: {program: ModelProgram, default: false},
             Heatmap: {program: HeatmapProgram, default: false}
         };
@@ -340,7 +359,7 @@ export class GLRender implements BasicRender {
         gl.clearStencil(0);
         gl.blendFunc(gl.SRC_ALPHA, gl.ONE_MINUS_SRC_ALPHA);
         // gl.blendFunc(gl.ONE, gl.ONE_MINUS_SRC_ALPHA);
-        // gl.blendFuncSeparate(gl.SRC_ALPHA, gl.ONE_MINUS_SRC_ALPHA, gl.ONE, gl.ONE_MINUS_SRC_ALPHA)
+        // gl.blendFuncSeparate(gl.SRC_ALPHA, gl.ONE_MINUS_SRC_ALPHA, gl.ONE, gl.ONE_MINUS_SRC_ALPHA);
     }
 
     grid(show: boolean | { grid3d: boolean }): void {
@@ -408,7 +427,6 @@ export class GLRender implements BasicRender {
         this.tilePreviewTransform.ty = null;
         this.tilePreviewTransform.s = null;
 
-
         this.rz = (rotZ + PI2) % PI2;
         this.rx = rotX;
         this.scale = scale;
@@ -418,7 +436,6 @@ export class GLRender implements BasicRender {
         this.gl.viewport(0, 0, pixelWidth * this.dpr, pixelHeight * this.dpr);
 
         mat4.perspective(projectionMatrix, FIELD_OF_VIEW, pixelWidth / pixelHeight, zNear, zFar);
-
 
         const worldMatrix = mat4.copy(this.worldMatrix, projectionMatrix);
         mat4.scale(worldMatrix, worldMatrix, [1, -1, 1]);
@@ -430,8 +447,8 @@ export class GLRender implements BasicRender {
         // mat4.translate(worldMatrix, worldMatrix, [-worldCenterX * worldSize, -worldCenterY * worldSize, 0]);
         // mat4.scale(worldMatrix, worldMatrix, [worldSize, worldSize, worldSize]);
 
-
-        mat4.lookAt(viewMatrix, [centerPixelX, centerPixelY, -targetZ], [centerPixelX, centerPixelY, 0], [0, -1, 0]);
+        const cam = [centerPixelX, centerPixelY, -targetZ];
+        mat4.lookAt(viewMatrix, cam, [centerPixelX, centerPixelY, 0], [0, -1, 0]);
         mat4.translate(viewMatrix, viewMatrix, [centerPixelX, centerPixelY, 0]);
         mat4.rotateX(viewMatrix, viewMatrix, rotX);
         mat4.rotateZ(viewMatrix, viewMatrix, rotZ);
@@ -461,6 +478,10 @@ export class GLRender implements BasicRender {
         cameraWorld[1] = 0;
         cameraWorld[2] = -1;
         transformMat4(cameraWorld, cameraWorld, this.invVPMat);
+        // The Z-axis is scaled to meters per pixel, leading to a non-uniform coordinate system.
+        // To maintain consistent specular highlight sizes,
+        // we scale Z by zMeterToPixel to compensate for ground resolution scaling, ensuring a uniform coordinate system.
+        cameraWorld[2] *= this.zMeterToPixel;
 
         // pixel perfect matrix used for crisper raster graphics, icons/text/raster-tiles
         // rounding in shader leads to precision issues and tiles edges become visible when the map is scaled.
@@ -485,18 +506,18 @@ export class GLRender implements BasicRender {
 
     private initSharedUniforms() {
         this.sharedUniforms = {
-            u_fixedView: this.fixedView,
-            u_rotate: this.rz,
-            u_resolution: this.resolution,
-            u_scale: null, // this.scale * dZoom,
-            u_topLeft: [0, 0],
-            u_tileScale: 1,
-            u_matrix: this.vPMat,
-            u_inverseMatrix: this.invVPMat,
-            u_zMeterToPixel: null, // this.zMeterToPixel / dZoom,
-            u_groundResolution: 1 / this.zMeterToPixel,
-            u_lightDir: this._lightDir,
-            u_camWorld: this.cameraWorld
+            'u_fixedView': this.fixedView,
+            'u_rotate': this.rz,
+            'u_resolution': this.resolution,
+            'u_scale': null, // this.scale * dZoom,
+            'u_topLeft': [0, 0],
+            'u_tileScale': 1,
+            'u_matrix': this.vPMat,
+            'u_inverseMatrix': this.invVPMat,
+            'u_zMeterToPixel': null, // this.zMeterToPixel / dZoom,
+            'u_groundResolution': 1 / this.zMeterToPixel,
+            'u_camWorld': this.cameraWorld,
+            'u_time': (Date.now() - this.startTime) / 1000.0
         };
     }
 
@@ -879,6 +900,9 @@ export class GLRender implements BasicRender {
         let {preview} = bufferData.data;
         this.zIndex = bufferData.z;
         this.min3dZIndex = min3dZIndex;
+
+        const lightUniforms = this.processedLight[bufferData.layer.index][buffer.light || 'defaultLight'];
+        Object.assign(this.sharedUniforms, lightUniforms);
 
         // make sure to reset stencil
         this.stencilVal = null;

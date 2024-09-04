@@ -17,10 +17,11 @@
  * License-Filename: LICENSE
  */
 
-import {Tile, Layer as BasicLayer, TileLayer, Feature} from '@here/xyz-maps-core';
+import {Tile, Layer as BasicLayer, TileLayer} from '@here/xyz-maps-core';
 import {Expression, ExpressionParser} from '@here/xyz-maps-common';
 import BasicTile from './BasicTile';
 import {parseStyleGroup} from './styleTools';
+import {defaultLight, ProcessedLights} from './webgl/lights';
 
 
 class ScreenTile {
@@ -147,6 +148,18 @@ class Layer {
             parseStyleGroup(styleGroup, this.expParser);
         }
         return styleGroup;
+    }
+
+    getLights(lightSet?: string): { [p: string]: ProcessedLights } {
+        const styleManager = (this.layer as TileLayer).getStyleManager?.();
+        let lights = styleManager?.lights || {};
+        if (!lights.defaultLight) {
+            lights.defaultLight ||= defaultLight;
+            if (styleManager) {
+                styleManager.lights = lights;
+            }
+        }
+        return lights as { [p: string]: ProcessedLights };
     }
 }
 

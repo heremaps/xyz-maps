@@ -16,7 +16,14 @@
  * SPDX-License-Identifier: Apache-2.0
  * License-Filename: LICENSE
  */
-import {StyleExpression, StyleValueFunction, StyleZoomRange} from './LayerStyle';
+import {
+    AmbientLight,
+    Color,
+    DirectionalLight,
+    StyleExpression,
+    StyleValueFunction,
+    StyleZoomRange
+} from './LayerStyle';
 
 type TypedArray = Int8Array | Uint8Array | Int16Array | Uint16Array | Int32Array | Uint32Array | Float32Array;
 
@@ -263,4 +270,107 @@ export interface ModelStyle {
     transform?: number[];
 
     modelId?: number;
+
+    /**
+     * The `light` property specifies a collection of light sources that can be used to illuminate `"Model"` features within the layer.
+     * It is a map where each key is a unique light group name, and the value is an array of light objects.
+     * Lights can be of various types, including {@link AmbientLight} and {@link DirectionalLight}, and can be used to create different lighting effects.
+     *
+     * The `light` property allows you to define and organize multiple light sources that influence the rendering of features in the layer.
+     *
+     * ### Structure
+     * - **Key (string):** A unique identifier for the light group.
+     * - **Value (array):** An array of light objects, which can be of type {@link AmbientLight} or {@link DirectionalLight}.
+     *
+     * ### Relation to {@link LayerStyle.lights}
+     * - **{@link ModelStyle.light}**: Specifies which single light group to use for illuminating a specific Model. This property must reference a key defined in {@link LayerStyle.lights}.
+     * - **Default Light**: If a `FeatureStyle` does not specify a `light`, the light group associated with the `"defaultLight"` key in `LayerStyle.lights` will be used. If `"defaultLight"` is not defined, a default light will be automatically provided.
+     * - **Only One Light Group**: Only one light group is used to illuminate a feature. This is either the group specified in `FeatureStyle.light`, or if not specified, the `"defaultLight"` group from {@link LayerStyle.lights}.
+     * - **Override Default Light**: To override the default light, set it explicitly in {@link LayerStyle.lights} under the key `"defaultLight"`.
+     *
+     * ### Examples
+     * ```typescript
+     * {
+     *   lights: {
+     *      // Define a light group named "defaultLight" to override the default lighting for the layer
+     *    "defaultLight": [{
+     *        type: 'ambient',
+     *        color: '#fff',
+     *        intensity: 0.3
+     *    }, {
+     *        type: 'directional',
+     *        color: '#fff',
+     *        direction: [0, 0, 1],
+     *        intensity: 1.0
+     *    }, {
+     *        type: 'directional',
+     *        color: '#fff',
+     *        direction: [-1, 0, 0],
+     *        intensity: 0.2
+     *    }],
+     *    // Define a light group named "buildingLight" for specific features that use `style.light` set to "buildingLight"
+     *    "buildingLight": [
+     *       { type: "ambient", color: "#fff", intensity: 1.0 } // A simple ambient light source for buildings
+     *     ]
+     *   }
+     * }
+     * ```
+     *
+     * In the example above:
+     * - `"defaultLight"` is a light group that overrides the standard lighting configuration. It includes both an ambient and a directional light source and is used for all illuminated FeatureStyle instances where the light property is not explicitly set.
+     * - `"buildingLights"` is a light group containing only an ambient light source. This group will only be used for features where {@link ModelStyle.light} is set to `"buildingLights"`.
+     * - Each light source can be customized with properties such as `color`, `intensity`, and, for `DirectionalLight`, a `direction` vector.
+     *
+     * The light specified here will be applied to the rendering of features within the layer. However, only one light group will be used for each feature:
+     * - If {@link ModelStyle.light} is defined, it will reference a specific light group in `LayerStyle.lights`.
+     * - If {@link ModelStyle.light} is not defined, the `"defaultLight"` light group (if specified) will be used.
+     * - If no `"defaultLight"` light group is set, an automatic default light will be provided.
+     *
+     * @type { { [name: string]: (AmbientLight | DirectionalLight)[] } }
+     */
+    light?: { [name: string]: (AmbientLight | DirectionalLight)[] };
+
+    /**
+     * Sets the emissive color of the extruded polygon, giving it a glow effect.
+     *
+     * **Combination with Material Emissive:**
+     * - The provided `emissive` color value will be combined with {@link Material.emissive} through color addition.
+     *
+     * @see {@link Color} for a detailed list of possible supported formats.
+     */
+    emissive?: Color | StyleValueFunction<Color> | StyleZoomRange<Color> | StyleExpression<Color>;
+
+    /**
+     * Sets the specular color of the extruded polygon, affecting how it reflects light.
+     *
+     * **Combination with Material Specular:**
+     * - The provided `specular` value will be combined with {@link Material.specular} through color addition.
+     *
+     * ### Relationship with Shininess
+     * - **Effect:** The `specular` property determines the color of the light reflection, while the {@link shininess} value controls the intensity and size of the reflection.
+     * - **Shininess Dependency:** If `specular` is set and `shininess` is not explicitly set, the default {@link shininess} value will be used to control the reflection's appearance.
+     *
+     * @see {@link Color} for a detailed list of possible supported formats.
+     */
+    specular?: Color | StyleValueFunction<Color> | StyleZoomRange<Color> | StyleExpression<Color>;
+
+    /**
+     * Sets the shininess of the `"Box"`, determining how glossy its surface appears.
+     * A higher value makes the `"Box"` surface more reflective.
+     *
+     * **Combination with Material Shininess:**
+     * - The provided `shininess` value will be combined with {@link Material.shininess} through addition.
+     *
+     * ### Relationship with Specular
+     * - **Effect:** The `shininess` value controls the size and intensity of the specular highlight, which is colored by the {@link specular} property.
+     * - **Specular Dependency:** The `shininess` property enhances the effect of the `specular` color. If `specular` is not set, `shininess` has no visible effect.
+     *
+     * ### Shininess Value Range and Effect
+     * - **Range:** The `shininess` value typically ranges from 0 to 128.
+     * - **Low Values (0-10):** Produce a wide, diffused highlight, resulting in a matte or dull appearance.
+     * - **High Values (50-128):** Produce a small, intense highlight, resulting in a glossy or shiny appearance.
+     *
+     * @defaultValue 32
+     */
+    shininess?: number;
 }

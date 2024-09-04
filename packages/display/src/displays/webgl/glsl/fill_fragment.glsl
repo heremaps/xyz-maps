@@ -1,7 +1,7 @@
 precision lowp float;
 
-uniform vec4 u_fill;
+varying vec4 v_fill;
 
 void main(void){
-    gl_FragColor = u_fill;
+    gl_FragColor = v_fill;
 }

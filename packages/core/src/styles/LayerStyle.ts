@@ -207,7 +207,7 @@ export type StyleValueFunction<Type> = (feature: Feature, zoom: number) => Type 
  * }
  * ```
  */
-export type StyleZoomRange<Type> = { [zoom: number|string]: Type }
+export type StyleZoomRange<Type> = { [zoom: number | string]: Type }
 
 export {Style};
 // /**
@@ -233,7 +233,61 @@ export type StyleGroup = Style[];
 export type ParsedStyleProperty<S> = Exclude<S, StyleExpression<any> | StyleValueFunction<any> | StyleZoomRange<any>>;
 
 
-var test: ParsedStyleProperty<number|StyleZoomRange<number>>;
+/**
+ * The `Light` interface defines a base structure for various types of lighting in the styling system. It includes properties for color and intensity, and is extended by specific light types such as `AmbientLight` and `DirectionalLight`.
+ *
+ * @interface Light
+ */
+interface Light {
+    /**
+     * Specifies the type of light.
+     */
+    type: string;
+    /**
+     * The color of the light.
+     * Can be specified as a `Color` value, a `StyleZoomRange<Color>`, a function that returns a `Color` based on zoom level, or a `StyleExpression<Color>`.
+     */
+    color: Color | StyleZoomRange<Color> | ((zoomlevel: number) => Color) | StyleExpression<Color>;
+    /**
+     * The intensity of the light. This property is optional and defaults to 1 if not specified.
+     */
+    intensity?: number;
+    /**
+     * @internal
+     * @hidden
+     */
+    id?: number;
+}
+
+/**
+ * The `AmbientLight` interface represents ambient lighting, which provides a constant level of illumination across all objects.
+ *
+ * @extends Light
+ */
+export interface AmbientLight extends Light {
+    /**
+     * The type of light. For `AmbientLight`, this is always 'ambient'.
+     */
+    type: 'ambient';
+}
+
+/**
+ * The `DirectionalLight` interface represents directional lighting, which simulates light coming from a specific direction.
+ *
+ * @extends Light
+ */
+export interface DirectionalLight extends Light {
+    /**
+     * The type of light. For `DirectionalLight`, this is always 'directional'.
+     */
+    type: 'directional';
+
+    /**
+     * The direction of the light, represented as a vector. This determines the direction from which the light is coming.
+     */
+    direction: number[];
+}
+
 
 /**
  * The Color is an RGBA color value representing RED, GREEN, and BLUE light sources with an optional alpha channel.
@@ -246,7 +300,7 @@ var test: ParsedStyleProperty<number|StyleZoomRange<number>>;
  * - hexadecimal numbers: 0xff0000
  * - RGBA Color Array: [1.0, 0.0, 0.0, 1.0]
  */
-export type Color = string | number | [number, number, number, number];
+export type Color = string | number | [number, number, number, number?];
 
 /**
  * This is an interface to describe how certain features should be rendered within a layer.
@@ -291,6 +345,65 @@ export interface LayerStyle {
     backgroundColor?: Color | StyleZoomRange<Color> | ((zoomlevel: number) => Color) | StyleExpression<Color>;
 
     /**
+     * The `lights` property specifies a collection of light sources that can be used to illuminate features within the layer.
+     * It is a map where each key is a unique light group name, and the value is an array of light objects.
+     * Lights can be of various types, including {@link AmbientLight} and {@link DirectionalLight}, and can be used to create different lighting effects.
+     *
+     * The `lights` property allows you to define and organize multiple light sources that influence the rendering of features in the layer.
+     *
+     * ### Structure
+     * - **Key (string):** A unique identifier for the light group.
+     * - **Value (array):** An array of light objects, which can be of type {@link AmbientLight} or {@link DirectionalLight}.
+     *
+     * ### Relation to Style.light
+     * - **{@link Style.light}**: Specifies which single light group to use for illuminating a specific feature. This property must reference a key defined in `LayerStyle.lights`.
+     * - **Default Light**: If a `FeatureStyle` does not specify a `light`, the light group associated with the `"defaultLight"` key in `LayerStyle.lights` will be used. If `"defaultLight"` is not defined, a default light will be automatically provided.
+     * - **Only One Light Group**: Only one light group is used to illuminate a feature. This is either the group specified in `FeatureStyle.light`, or if not specified, the `"defaultLight"` group from `LayerStyle.lights`.
+     * - **Override Default Light**: To override the default light, set it explicitly in `LayerStyle.lights` under the key `"defaultLight"`.
+     *
+     * ### Examples
+     * ```typescript
+     * {
+     *   lights: {
+     *      // Define a light group named "default" to override the default lighting for the layer
+     *    "defaultLight": [{
+     *        type: 'ambient',
+     *        color: '#fff',
+     *        intensity: 0.3
+     *    }, {
+     *        type: 'directional',
+     *        color: '#fff',
+     *        direction: [0, 0, 1],
+     *        intensity: 1.0
+     *    }, {
+     *        type: 'directional',
+     *        color: '#fff',
+     *        direction: [-1, 0, 0],
+     *        intensity: 0.2
+     *    }],
+     *    // Define a light group named "buildingLights" for specific features
+     *     "buildingLights": [
+     *       { type: "ambient", color: "#fff", intensity: 1.0 } // A simple ambient light source for buildings
+     *     ]
+     *   }
+     * }
+     * ```
+     *
+     * In the example above:
+     * - `"defaultLight"` is a light group that overrides the standard lighting configuration. It includes both an ambient and a directional light source and is used for all illuminated FeatureStyle instances where the light property is not explicitly set.
+     * - `"buildingLights"` is a light group containing only an ambient light source. This group will only be used for features where {@link Style.light} is set to `"buildingLights"`.
+     * - Each light source can be customized with properties such as `color`, `intensity`, and, for `DirectionalLight`, a `direction` vector.
+     *
+     * The lights specified here will be applied to the rendering of features within the layer. However, only one light group will be used for each feature:
+     * - If {@link Style.light} is defined, it will reference a specific light group in `LayerStyle.lights`.
+     * - If {@link Style.light} is not defined, the `"defaultLight"` light group (if specified) will be used.
+     * - If no `"defaultLight"` light group is set, an automatic default light will be provided.
+     *
+     * @type { { [name: string]: (AmbientLight | DirectionalLight)[] } }
+     */
+    lights?: { [name: string]: (AmbientLight | DirectionalLight)[] };
+
+    /**
      *  This object contains key/styleGroup pairs.
      *  A styleGroup is an array of {@link Style}, that exactly defines how a feature should be rendered.
      */
@@ -316,5 +429,5 @@ export interface LayerStyle {
      * Styles with higher zLayer values are rendered on top of those with lower values.
      * If no `zLayer` is defined, the display layer order is used by default.
      */
-    zLayer?: number
+    zLayer?: number;
 }

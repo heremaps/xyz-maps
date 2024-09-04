@@ -36,7 +36,7 @@ class ModelProgram extends Program {
         let macros;
 
         if (uniforms.illumination > 0) {
-            macros = {DIFFUSE: 1, SPECULAR: 2};
+            macros = {DIFFUSE: 1};
         }
         if ((uniforms.normalMap as Texture).width > 1) {
             macros ||= {};

@@ -21,13 +21,15 @@ import {createProgram, preprocessShaderIncludes} from '../glTools';
 import {GLStates, PASS} from './GLStates';
 // @ts-ignore
 import introVertex from '../glsl/intro_vertex.glsl';
-
+// @ts-ignore
+import lightGLSL from '../glsl/light.glsl';
 import {ArrayGrp, DynamicUniform, GeometryBuffer, IndexData, IndexGrp, Uniform} from '../buffer/GeometryBuffer';
 import {BufferCache} from '../GLRender';
 import {Attribute} from '../buffer/Attribute';
 import {ConstantAttribute} from '../buffer/templates/TemplateBuffer';
 
 const GLSL_INCLUDES = {
+    'light.glsl': lightGLSL
 };
 
 let UNDEF;

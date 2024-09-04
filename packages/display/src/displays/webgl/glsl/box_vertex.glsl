@@ -1,6 +1,6 @@
 precision mediump float;
 
-varying vec3 v_normal;
+
 attribute vec3 a_normal;
 
 attribute highp vec3 a_position;
@@ -26,19 +26,25 @@ varying vec3 v_rayOrigin;
 varying vec3 v_rayDirecton;
 varying vec3 v_worldPos;
 uniform vec2 u_radius;
-
 #else
 varying vec3 vPosition;
 varying float v_strokeWidth;
+varying vec3 v_normal;
 #endif
 varying vec3 vSize;
 
 const float EXTENT_SCALE = 1.0 / 32.0;// 8912->512
 
-void main(void){
+#ifdef SPECULAR
+varying vec3 v_surfaceToCam;
+uniform vec3 u_camWorld;
+#endif
+
+
+void main(void) {
 
     #ifdef SPHERE
-    vec3 dir = a_point*2.0-1.0;
+    vec3 dir = a_point * 2.0 - 1.0;
     vec3 size = vec3(toPixel(u_radius, u_scale)) / u_scale;
     #else
     vec3 dir = mod(a_point, 2.0) * 2.0 - 1.0;
@@ -47,14 +53,14 @@ void main(void){
 
 
     vec3 boxCenter = vec3(u_topLeft + a_position.xy * EXTENT_SCALE, -a_position.z * SCALE_UINT16_Z);
-    boxCenter += vec3(toPixel(u_offset.xy, u_scale), toPixel(u_offset.zw, u_scale), -toPixel(u_offsetZ, u_scale) / u_zMeterToPixel)/ u_scale;
+    boxCenter += vec3(toPixel(u_offset.xy, u_scale), toPixel(u_offset.zw, u_scale), -toPixel(u_offsetZ, u_scale) / u_zMeterToPixel) / u_scale;
 
 
     float scaleDZ = 1.0 + (u_scaleByAltitude ? 0.0 : boxCenter.z * u_matrix[2][3] / (u_matrix[0][3] * boxCenter.x + u_matrix[1][3] * boxCenter.y + u_matrix[3][3]));
 
     size *= scaleDZ;
 
-    vec3 vertexOffset = vec3(size.xy, -size.z/u_zMeterToPixel) * dir;
+    vec3 vertexOffset = vec3(size.xy, -size.z / u_zMeterToPixel) * dir;
     vec3 vertexPos = vec3(boxCenter.xy + rotateZ(vertexOffset.xy, u_rotation), boxCenter.z + vertexOffset.z);
     //    vec3 vertexPos = vec3(boxCenter.xy + rotateZ(vertexOffset.xy / u_scale, u_rotation), boxCenter.z + vertexOffset.z / u_scale);
 
@@ -69,7 +75,7 @@ void main(void){
     //    vec4 origin = u_iSMatrix * vec4(vertexScreen.xy, -1.0, vertexScreen.w);
     vec4 origin = u_inverseMatrix * vec4(gl_Position.xy, -1.0, gl_Position.w);
 
-    v_rayOrigin = origin.xyz/origin.w;
+    v_rayOrigin = origin.xyz / origin.w;
     v_rayDirecton = vertexPos - v_rayOrigin;
     v_worldPos = boxCenter;
 
@@ -86,8 +92,14 @@ void main(void){
     //    vPosition = vertexOffset;
     vPosition = vec3(vertexOffset.xy, vertexOffset.z * u_zMeterToPixel);
     v_strokeWidth = u_strokeWidth / u_scale * scaleDZ;
+    v_normal = a_normal;
+    #endif
+
+
+    #ifdef SPECULAR
+    v_surfaceToCam = u_camWorld - vertexPos;
+//    v_surfaceToCam = u_camWorld - worldPos.xyz;
     #endif
 
     vSize = size;
-    v_normal = a_normal;
 }

@@ -19,7 +19,9 @@
 
 export namespace Colors {
 
-    export type RGBA = [number, number, number, number];
+    export type RGBA = [number, number, number, number?];
+
+    export type Color = string | RGBA | number;
 
     const HTML_COLOR_NAMES: { [color: string]: RGBA | string } = {
         aliceblue: 'f0f8ff',
@@ -215,8 +217,6 @@ export namespace Colors {
             rgb[4] == undefined ? 1 : Number(rgb[4])
         ];
     };
-
-    export type Color = string | RGBA | number;
 
     export const toRGB = (color: Color, ignoreNumbers?: boolean): RGBA => {
         let rgba;

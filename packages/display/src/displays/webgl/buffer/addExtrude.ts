@@ -22,6 +22,9 @@ import {isInBox} from '../../../geometry';
 import {Tile, GeoJSONCoordinate as Coordinate} from '@here/xyz-maps-core';
 import {FlexArray} from './templates/FlexArray';
 import {TypedArray} from './glType';
+// import {cross, normalize} from 'gl-matrix/vec3';
+
+const MIN_VISIBLE_HEIGHT = 0.01;
 
 const signedArea = (lineString: TypedArray, start: number, stop: number) => {
     let sum = 0;
@@ -101,13 +104,10 @@ const addExterior = (
                 x2, y2, extrudeBase
             );
 
-            // normalize + cross
-            let len = dx * dx + dy * dy;
-            let nx = dy;
-            let ny = -dx;
-            len = 127 / Math.sqrt(len);
-            nx *= len;
-            ny *= len;
+            // normalize (Int8), rotate 90deg
+            const len = 127 / Math.sqrt(dx * dx + dy * dy);
+            const nx = -dy * len;
+            const ny = dx * len;
 
             normals.push(
                 nx, ny,
@@ -116,13 +116,11 @@ const addExterior = (
                 nx, ny
             );
 
-            // let exterior = [x1 - x2, y1 - y2, 0];
+            // const exterior = [x1 - x2, y2 - y1, 0];
             // normalize(exterior, exterior);
-            // let up = [0, 0, -1];
-            // let normal = cross(up, up, exterior);
-            // let nx = normal[0];
-            // let ny = normal[1];
-            // let nz = normal[2];
+            // const up = [0, 0, -1];
+            // const normal = cross(up, up, exterior);
+            // const [nx, ny, nz] = normal;
             // normals.push(
             //     nx, ny, nz,
             //     nx, ny, nz,
@@ -159,16 +157,16 @@ export const addExtrude = (
 
     // add fake normals for top surface
     while (v < vertex.length) {
+        // normals.push(0, 0, -1);
         normals.push(0, 0);
         v += 3;
     }
 
-    if (extrude) {
+    if (extrude > MIN_VISIBLE_HEIGHT) {
         for (let flat of flatPolygon) {
             addExterior(flat, vertex, normals, vIndex, tileSize, extrude, extrudeBase, strokeIndex);
         }
     }
-
 
     return flatPolygon;
 };

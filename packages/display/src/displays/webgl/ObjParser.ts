@@ -25,9 +25,9 @@ type Face = {
     geometryIndex: number;
 };
 
+
 const worker = function() {
     const DEFAULT = 'default';
-
     const parseLine = (line: string) => {
         const regex = /^(\w+)\s+(.*?)\s*(?:#.*)?$/;
         const [, key, rawValue] = regex.exec(line);

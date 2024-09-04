@@ -20,15 +20,30 @@
 // @ts-ignore
 import vertexShader from '../glsl/polygon_vertex.glsl';
 // @ts-ignore
-import fragmentShader from '../glsl/fill_fragment.glsl';
+import fragmentShader from '../glsl/polygon_fragment.glsl';
 
 import Program from './Program';
+import {GeometryBuffer} from '../buffer/GeometryBuffer';
 
 class PolygonProgram extends Program {
     name = 'Polygon';
 
-    constructor(gl: WebGLRenderingContext, devicePixelRation: number) {
-        super(gl, devicePixelRation);
+    static getProgramId(buffer: GeometryBuffer, macros?: { [name: string]: string | number | boolean }) {
+        const specular = <number>macros?.SPECULAR;
+        return specular ? buffer.type + specular : buffer.type;
+    }
+
+    static getMacros(buffer: GeometryBuffer) {
+        const {uniforms} = buffer;
+        let macros;
+        if (uniforms.specular) {
+            macros = {SPECULAR: 2};
+        }
+        return macros;
+    }
+
+    constructor(gl: WebGLRenderingContext, devicePixelRation: number, macros?: { [name: string]: string | number | boolean }) {
+        super(gl, devicePixelRation, macros);
 
         this.mode = gl.TRIANGLES;
         this.vertexShaderSrc = vertexShader;

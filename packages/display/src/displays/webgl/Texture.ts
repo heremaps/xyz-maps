@@ -35,6 +35,8 @@ export type TextureOptions = {
     halfFloat?: boolean,
     premultiplyAlpha?: boolean,
     mipMaps?: boolean
+    wrapS?: GLenum;
+    wrapT?: GLenum;
 }
 
 class Texture {
@@ -50,6 +52,8 @@ class Texture {
     private halfFloat: boolean;
     private premultiplyAlpha: boolean;
     private mipMaps: boolean;
+    private wrapS: GLenum;
+    private wrapT: GLenum;
 
     ref?: number; // reference counter for Texture sharing
 
@@ -59,6 +63,8 @@ class Texture {
         this.flipY = options.flipY || false;
         this.halfFloat = options.halfFloat || false;
         this.mipMaps = options.mipMaps ?? true;
+        this.wrapS = options.wrapS ?? gl.CLAMP_TO_EDGE;
+        this.wrapT = options.wrapT ?? gl.CLAMP_TO_EDGE;
         this.premultiplyAlpha = options.premultiplyAlpha == undefined
             ? true
             : options.premultiplyAlpha;
@@ -76,7 +82,7 @@ class Texture {
     }
 
     set(image: Image, x?: number, y?: number) {
-        let {gl, texture, format, flipY} = this;
+        let {gl, texture, format, flipY, wrapS, wrapT} = this;
         const {width, height} = image;
         let internalformat = format;
         const isSubImage = typeof x == 'number';
@@ -88,8 +94,8 @@ class Texture {
         gl.bindTexture(gl.TEXTURE_2D, texture);
         gl.pixelStorei(gl.UNPACK_PREMULTIPLY_ALPHA_WEBGL, this.premultiplyAlpha);
 
-        gl.texParameteri(gl.TEXTURE_2D, gl.TEXTURE_WRAP_S, gl.CLAMP_TO_EDGE); // GL.REPEAT
-        gl.texParameteri(gl.TEXTURE_2D, gl.TEXTURE_WRAP_T, gl.CLAMP_TO_EDGE); // GL.REPEAT
+        gl.texParameteri(gl.TEXTURE_2D, gl.TEXTURE_WRAP_S, wrapS);
+        gl.texParameteri(gl.TEXTURE_2D, gl.TEXTURE_WRAP_T, wrapT);
 
         gl.pixelStorei(gl.UNPACK_FLIP_Y_WEBGL, flipY);
 

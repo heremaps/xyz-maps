@@ -30,9 +30,11 @@ import GLTile from './GLTile';
 import {FeatureFactory} from './buffer/FeatureFactory';
 import {CollisionHandler} from './CollisionHandler';
 import {GeometryBuffer} from './buffer/GeometryBuffer';
-import {CustomLayer, TileLayer} from '@here/xyz-maps-core';
+import {AmbientLight, CustomLayer, DirectionalLight, TileLayer, XYZLayerStyle} from '@here/xyz-maps-core';
 import {PASS} from './program/GLStates';
 import {Raycaster} from './Raycaster';
+import {defaultLightUniforms, initLightUniforms, ProcessedLights} from './lights';
+import {UniformMap} from './program/Program';
 
 const PREVIEW_LOOK_AHEAD_LEVELS: [number, number] = [3, 9];
 
@@ -99,6 +101,8 @@ type CustomBufferData = {
 };
 
 type BufferData = CustomBufferData | TileBufferData;
+
+const PROCESSED_LIGHTS_SYMBOL = Symbol();
 
 class WebGlDisplay extends BasicDisplay {
     static zoomBehavior: 'fixed' | 'float' = 'float';
@@ -180,8 +184,37 @@ class WebGlDisplay extends BasicDisplay {
         }
     }
 
+    private initLights(displayLayer: Layer) {
+        const lightSets: {
+            [l: string]: ProcessedLights
+            [p: symbol]: { [u: string]: UniformMap }
+        } = displayLayer.getLights();
+
+        let processedLightSets = lightSets[PROCESSED_LIGHTS_SYMBOL];
+        if (!processedLightSets) {
+            // processedLightSets = {'default': defaultLightUniforms};
+            processedLightSets = {};
+            for (let name in lightSets) {
+                const lightSet = lightSets[name];
+                processedLightSets[name] = initLightUniforms(lightSet);
+            }
+            lightSets[PROCESSED_LIGHTS_SYMBOL] = processedLightSets;
+        }
+        this.render.processedLight[displayLayer.index] = processedLightSets;
+    }
+
+    addLayer(layer: TileLayer | CustomLayer, index: number, styles?: XYZLayerStyle): Layer {
+        const displayLayer = super.addLayer(layer, index, styles);
+        // if (displayLayer) {
+        //     this.initLights(displayLayer);
+        // }
+        return displayLayer;
+    }
+
     removeLayer(layer: TileLayer): number {
-        this.collision.removeTiles(this.layers.get(layer));
+        const displayLayer = this.layers.get(layer);
+        this.collision.removeTiles(displayLayer);
+        this.render.processedLight[displayLayer.index] = undefined;
         return super.removeLayer(layer);
     }
 
@@ -227,7 +260,6 @@ class WebGlDisplay extends BasicDisplay {
 
     setSize(w: number, h: number) {
         super.setSize(w, h);
-
         this.initRenderer();
     }
 
@@ -387,6 +419,8 @@ class WebGlDisplay extends BasicDisplay {
         let absZOrder = {};
 
         for (let layer of layers) {
+            this.initLights(layer);
+
             let tiles = layer.tiles;
             // reset tile ready count
             layer.cnt = 0;

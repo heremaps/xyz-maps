@@ -10,7 +10,7 @@ uniform sampler2D normalMap;
 varying vec4 v_color;
 varying vec3 v_normal;
 varying vec2 v_texCoord;
-varying vec3 v_lightDir;
+
 #ifdef SPECULAR
 uniform float shininess;
 uniform vec3 specular;
@@ -25,45 +25,43 @@ varying vec3 v_tangent;
 uniform highp float u_scale;
 #endif
 
-void main() {
-    vec3 color = ambient * u_ambientLight + emissive;
+#include "light.glsl"
 
-    #ifdef DIFFUSE
+void main() {
+
     vec3 normal = normalize(v_normal);
 
     #ifdef NORMAL_MAP
-    float flip = float(gl_FrontFacing) * 2.0 - 1.0;
+    float flip = float(!gl_FrontFacing) * 2. - 1.;
     normal = normal * flip;
     vec3 tangent = normalize(v_tangent) * flip;
     vec3 bitangent = normalize(cross(normal, tangent));
     mat3 matrixTbn = mat3(tangent, bitangent, normal);
     normal = texture2D(normalMap, v_texCoord).rgb * 2. - 1.;
     normal = normalize(matrixTbn * normal);
-
-    #ifdef SPECULAR
-    vec3 surfaceToCamDir = normalize(v_surfaceToCam);
-    vec3 halfVector = normalize(v_lightDir + surfaceToCamDir);
-    float specularLight = clamp(dot(normal, halfVector), 0.0, 1.0);
-    color += specular * texture2D(specularMap, v_texCoord).rgb * pow(specularLight, shininess);
-    #endif
-
-    #endif
-    float diffuseLight = max(.3, dot(normal, v_lightDir));
-    #else
-    float diffuseLight = 1.0;
     #endif
 
     vec4 diffuseMapColor = texture2D(diffuseMap, v_texCoord);
-    vec3 diffuseColor = diffuse * diffuseMapColor.rgb * v_color.rgb;
-    color += diffuseLight * diffuseColor;
+    vec3 color = diffuse * diffuseMapColor.rgb * v_color.rgb;
+    vec4 totalColor = computeBaseLighting(normal, color, opacity * v_color.a);
 
-    gl_FragColor = vec4(emissive + color, opacity * v_color.a * diffuseMapColor.a);
+    #ifdef SPECULAR
+    totalColor = addSpecularHighlights(
+        normal,
+        totalColor,
+        v_surfaceToCam,
+        shininess,
+        specular * texture2D(specularMap, v_texCoord).rgb
+    );
+    #endif
+
+    gl_FragColor = totalColor;
 
     #ifdef DBG_GRID
     float tileSize = 512. * u_scale;
     float dx = distance(v_texCoord.x, .5) * tileSize;
     float dy = distance(v_texCoord.y, .5) * tileSize;
-    if (dx > (tileSize * .5 - 1.5)||dy > (tileSize * .5 - 1.5))
+    if (dx > (tileSize * .5 - 1.5) || dy > (tileSize * .5 - 1.5))
     gl_FragColor += vec4(1., .0, .0, .2);
     #endif
 }

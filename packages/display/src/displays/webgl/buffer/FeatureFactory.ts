@@ -62,7 +62,7 @@ import {Color as ColorUtils, Expression} from '@here/xyz-maps-common';
 const {toRGB} = ColorUtils;
 type RGBA = ColorUtils.RGBA;
 
-
+const DEFAULT_SPECULAR_SHININESS = 32;
 const DEFAULT_STROKE_WIDTH = 1;
 const DEFAULT_LINE_CAP = 'round';
 const DEFAULT_LINE_JOIN = 'round';
@@ -114,6 +114,10 @@ type DrawGroup = {
         alignment: string;
         modelMode: number;
         scaleByAltitude: boolean;
+        light: string;
+        shininess: number;
+        specular: [number, number, number];
+        emissive: [number, number, number];
     };
     buffer?: TemplateBuffer | TemplateBufferBucket<ModelBuffer>;
     extrudeStrokeIndex?: number[];
@@ -169,7 +173,7 @@ export class FeatureFactory {
         }
     }
 
-    private toRGBA(color: Color, alpha: number = 1, premultiplyAlpha: boolean = true): RGBA {
+    toRGBA(color: Color, alpha: number = 1, premultiplyAlpha: boolean = true): RGBA {
         const rgba = Array.isArray(color)
             ? [color[0], color[1], color[2], typeof color[3] == 'number' ? color[3] : 1] as RGBA
             : toRGB(color);
@@ -195,7 +199,7 @@ export class FeatureFactory {
         this.waitAndRefresh = waitAndRefresh;
     }
 
-    createPoint(
+    private createPoint(
         type: string,
         group: DrawGroup,
         x: number,
@@ -284,7 +288,8 @@ export class FeatureFactory {
 
                 let bucket = <TemplateBufferBucket<ModelBuffer>>group.buffer;
 
-                let {scale, translate, rotate, transform, cullFace} = style as ModelStyle;
+                let {translate, rotate, transform, cullFace} = style as ModelStyle;
+                let scale = getValue('scale', style, feature, level);
 
                 if (!group.buffer) {
                     let faceCulling: number;
@@ -294,7 +299,8 @@ export class FeatureFactory {
                         faceCulling = cullFace == 'Front' ? this.gl.BACK : this.gl.FRONT;
                     }
 
-                    bucket = group.buffer = this.modelFactory.createModelBuffer(modelId, faceCulling);
+                    const {shared} = group;
+                    bucket = group.buffer = this.modelFactory.createModelBuffer(modelId, shared.specular, shared.shininess, shared.emissive, faceCulling);
                 }
 
                 this.modelFactory.addPosition(bucket, x, y, z, scale, translate, rotate, transform);
@@ -525,6 +531,11 @@ export class FeatureFactory {
             let pointerEvents = allowPointerEvents;
             let processPointOffset = false;
             let modelMode = 0;
+            let emissive;
+            let shininess: number;
+            let specular;
+            let light: string;
+            let processAdvancedLight = false;
 
             rotation = getValue('rotation', style, feature, level) ^ 0;
             let altitude = getValue('altitude', style, feature, level);
@@ -534,6 +545,7 @@ export class FeatureFactory {
                 modelMode = Number((style as any).terrain || 0);
                 groupId = 'M' + (style as ModelStyle).modelId;
                 processPointOffset = true;
+                processAdvancedLight = true;
             } else if (type == 'Icon') {
                 alignment = getValue('alignment', style, feature, level) || 'viewport';
 
@@ -618,6 +630,8 @@ export class FeatureFactory {
                             extrude = getValue('extrude', style, feature, level);
                             extrudeBase = getValue('extrudeBase', style, feature, level);
 
+                            processAdvancedLight = true;
+
                             if (extrude > 0 || extrudeBase > 0) {
                                 groupId = 'E';
                                 type = 'Extrude';
@@ -698,6 +712,8 @@ export class FeatureFactory {
                                     pointerEvents = allowEvents;
                                 }
                                 groupId += pointerEvents;
+
+                                processAdvancedLight = true;
                             } else {
                                 continue;
                             }
@@ -748,6 +764,25 @@ export class FeatureFactory {
                 [offsetZ, offsetUnit[2]] = parseSizeValue(offsetZ);
 
                 groupId += offsetX + (offsetY << 8) + (offsetZ << 16) + offsetUnit[0] + offsetUnit[1] + offsetUnit[2];
+            }
+
+            if (processAdvancedLight) {
+                light = getValue('light', style, feature, level);
+                if (light) {
+                    groupId += light;
+                }
+                emissive = getValue('emissive', style, feature, level);
+                if (emissive) {
+                    groupId += emissive;
+                    emissive = this.toRGBA(emissive).slice(0, 3);
+                }
+                specular = getValue('specular', style, feature, level);
+
+                if (specular) {
+                    shininess = getValue('shininess', style, feature, level) || DEFAULT_SPECULAR_SHININESS;
+                    groupId += specular + shininess;
+                    specular = this.toRGBA(specular).slice(0, 3);
+                }
             }
 
             groupId += (opacity * 100) ^ 0;
@@ -814,7 +849,11 @@ export class FeatureFactory {
                         offsetUnit,
                         alignment,
                         modelMode,
-                        scaleByAltitude
+                        scaleByAltitude,
+                        emissive,
+                        shininess,
+                        specular,
+                        light
                     }
                     // ,index: []
                 };

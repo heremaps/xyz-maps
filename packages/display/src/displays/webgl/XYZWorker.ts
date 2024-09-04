@@ -16,6 +16,7 @@
  * SPDX-License-Identifier: Apache-2.0
  * License-Filename: LICENSE
  */
+
 export class XYZWorker {
     private worker: Worker;
     private fncStr: string;
@@ -51,7 +52,7 @@ self.onmessage = async ({data}) => {try{
     }catch(error){self.postMessage({error, id: data.id})}
 };`
                     ],
-                    { type: 'text/javascript' }
+                    {type: 'text/javascript'}
                 )
             );
             this.worker = new Worker(workerUrl);
@@ -59,8 +60,8 @@ self.onmessage = async ({data}) => {try{
             URL.revokeObjectURL(workerUrl);
             delete this.fncStr;
 
-            this.worker.onmessage = ({ data }) => {
-                const { result, error, id } = data;
+            this.worker.onmessage = ({data}) => {
+                const {result, error, id} = data;
                 let [resolve, reject] = this.callbacks[id];
                 delete this.callbacks[id];
                 if (error) {
@@ -76,7 +77,7 @@ self.onmessage = async ({data}) => {try{
     async call(method: string, args: any) {
         this.init();
         const id = this.cnt++;
-        this.worker.postMessage({ args, id, method: method });
+        this.worker.postMessage({args, id, method: method});
         return new Promise((resolve, reject) => {
             this.callbacks[id] = [resolve, reject];
         });

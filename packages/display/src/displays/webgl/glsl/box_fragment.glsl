@@ -2,8 +2,6 @@ precision mediump float;
 
 uniform vec4 u_fill;
 uniform vec4 u_stroke;
-uniform vec3 u_lightDir;
-
 varying vec3 vSize;
 
 #ifdef SPHERE
@@ -13,15 +11,17 @@ varying vec3 v_rayDirecton;
 #else
 varying float v_strokeWidth;
 varying vec3 vPosition;
+varying vec3 v_normal;
 const float smoothness = .25;
 #endif
 
-uniform float u_zMeterToPixel;
+#include "light.glsl"
 
-
-varying vec3 v_normal;
-
-
+#ifdef SPECULAR
+uniform vec3 specular;
+uniform float shininess;
+varying vec3 v_surfaceToCam;
+#endif
 
 #ifdef SPHERE
 float sphereIntersect(vec3 rayOrigin, vec3 rayDirection, vec3 spherePosition, float sphereRadius){
@@ -40,11 +40,12 @@ void main(void){
 
     #ifdef SPHERE
     float radius = vSize.x;
-    float distance = sphereIntersect(v_rayOrigin, normalize(v_rayDirecton), v_worldPos, radius);
+    vec3 rayDir = normalize(v_rayDirecton);
+    float distance = sphereIntersect(v_rayOrigin, rayDir, v_worldPos, radius);
     if (distance == -1.0) discard;
 //    float c = (length(v_worldPos-v_rayOrigin)-distance)/radius * 0.3 + 0.7;
 //    color *= vec4(c, c, c, 1.0);
-    vec3 surfacePos = normalize(v_rayDirecton) * distance + v_rayOrigin;
+    vec3 surfacePos = rayDir * distance + v_rayOrigin;
     // surface normal in world space
     normal = normalize(surfacePos - v_worldPos);
     #else
@@ -58,8 +59,17 @@ void main(void){
     normal = normalize(v_normal);
     #endif
 
-    float light = clamp(0.0,1.0,dot(normal, u_lightDir));
-    color.rgb *= light;
+    color = computeBaseLighting(normal, color.rgb, u_fill.a);
+
+    #ifdef SPECULAR
+    color = addSpecularHighlights(
+        normal,
+        color,
+        v_surfaceToCam,
+        shininess,
+        specular
+    );
+    #endif
 
     gl_FragColor = color;
 }
