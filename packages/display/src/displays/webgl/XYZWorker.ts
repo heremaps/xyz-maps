@@ -19,46 +19,70 @@
 
 export class XYZWorker {
     private worker: Worker;
-    private fncStr: string;
+    private workerStr: string;
     private cnt = 0;
     private callbacks: { [id: string]: [(value: unknown) => void, (reason?: any) => void] } = {};
 
-    constructor(workerFunction: Function, methods?: string[]) {
-        this.fncStr = workerFunction.toString().match(/^\s*function\s*\(\s*\)\s*\{(([\s\S](?!\}$))*[\s\S])/)[1];
-        let worker = this;
-        for (let method of methods) {
-            this[method] = async (args) => {
-                return worker.call(method, args);
-            };
-        }
+    constructor(workerFunction: Function) {
+        const fnStr = workerFunction.toString();
+        const bodyStartIndex = fnStr.indexOf('{') + 1;
+        const bodyEndIndex = fnStr.lastIndexOf('}');
+        const fullBody = fnStr.substring(bodyStartIndex, bodyEndIndex).trim();
+        let fncBody = '';
+        let returnVal = null;
+        let openBraces = 0;
+        fullBody.split('').some((char, i) => {
+            if (char == '{') openBraces++;
+            if (char == '}') openBraces--;
+            if (!openBraces && fullBody.slice(i, i + 6) === 'return') {
+                returnVal = fullBody.slice(i + 6).trim().replace(/;?\s*$/, '');
+                return true;
+            }
+            fncBody += char;
+        });
+        this.workerStr = fncBody.trim() + `;self.__main=${returnVal}`;
+        // this.workerStr = fncBody.trim() + `;self.__main=async(o)=>(${returnVal})(o);`;
     }
-
-    destroy() {
-        this.worker?.terminate();
-        this.worker = null;
-        this.callbacks = null;
+    async main(args) {
+        // return this.call('main', args);
+        this.init();
+        const id = this.cnt++;
+        this.worker.postMessage({args, id, method: '__main'});
+        return new Promise((resolve, reject) => {
+            this.callbacks[id] = [resolve, reject];
+        });
     }
-
-    init() {
+    // private initWorkerMethods(methods: string[]) {
+    //     let worker = this;
+    //     for (let method of methods) {
+    //         this[method] = async (args) => {
+    //             return worker.call(method, args);
+    //         };
+    //     }
+    // }
+    // async call(method: string, args: any) {
+    //     this.init();
+    //     const id = this.cnt++;
+    //     this.worker.postMessage({args, id, method: method});
+    //     return new Promise((resolve, reject) => {
+    //         this.callbacks[id] = [resolve, reject];
+    //     });
+    // }
+    private init() {
         if (!this.worker) {
-            const workerUrl = URL.createObjectURL(
-                new Blob(
-                    [
-                        this.fncStr,
-                        `
+            const workerUrl = URL.createObjectURL(new Blob([
+                this.workerStr, `
 self.onmessage = async ({data}) => {try{
-        const {message,transfer} = await self[data.method](data.args);
+    const {message,transfer} = await self[data.method](data.args);
         self.postMessage({result: message, id: data.id}, transfer);
     }catch(error){self.postMessage({error, id: data.id})}
 };`
-                    ],
-                    {type: 'text/javascript'}
-                )
-            );
+            ], {type: 'text/javascript'}
+            ));
             this.worker = new Worker(workerUrl);
 
             URL.revokeObjectURL(workerUrl);
-            delete this.fncStr;
+            delete this.workerStr;
 
             this.worker.onmessage = ({data}) => {
                 const {result, error, id} = data;
@@ -73,13 +97,9 @@ self.onmessage = async ({data}) => {try{
         }
         return this.worker;
     }
-
-    async call(method: string, args: any) {
-        this.init();
-        const id = this.cnt++;
-        this.worker.postMessage({args, id, method: method});
-        return new Promise((resolve, reject) => {
-            this.callbacks[id] = [resolve, reject];
-        });
+    destroy() {
+        this.worker?.terminate();
+        this.worker = null;
+        this.callbacks = null;
     }
 }

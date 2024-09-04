@@ -263,8 +263,7 @@ const worker = function() {
             return model;
         })();
     };
-
-    async function main({url}) {
+    return async ({url})=>{
         let model: ModelData;
         try {
             model = await load(url);
@@ -284,13 +283,13 @@ const worker = function() {
                 }
             }
         }
-
         for (let name in model.textures) {
             transfer.push(model.textures[name]);
         }
         return {message: model, transfer};
-    }
+    };
 };
+
 
 export class ObjParser extends XYZWorker {
     private inProgress: { [url: string]: Promise<any> } = {};
@@ -298,7 +297,7 @@ export class ObjParser extends XYZWorker {
     main: (args: any) => Promise<ModelData>;
 
     constructor() {
-        super(worker, ['main']);
+        super(worker);
     }
 
     async load(url: string): Promise<ModelData> {
