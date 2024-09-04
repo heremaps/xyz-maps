@@ -18,10 +18,25 @@
  */
 
 import BoxProgram from './Box';
+import {GeometryBuffer} from '../buffer/GeometryBuffer';
 
 
 class SphereProgram extends BoxProgram {
     name = 'Sphere';
+
+    static getProgramId(buffer: GeometryBuffer, macros?: { [name: string]: string | number | boolean }) {
+        const specular = <number>macros?.SPECULAR;
+        return specular ? buffer.type + specular : buffer.type;
+    }
+
+    static getMacros(buffer: GeometryBuffer) {
+        const {uniforms} = buffer;
+        let macros;
+        if (uniforms.specular) {
+            macros = {SPECULAR: 2};
+        }
+        return macros;
+    }
 
     constructor(gl: WebGLRenderingContext, devicePixelRation: number) {
         super(gl, devicePixelRation, {SPHERE: true});

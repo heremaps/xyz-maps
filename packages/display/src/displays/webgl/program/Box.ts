@@ -24,6 +24,7 @@ import fragmentShader from '../glsl/box_fragment.glsl';
 
 import Program from './Program';
 import {GLStates} from './GLStates';
+import {GeometryBuffer} from '../buffer/GeometryBuffer';
 
 
 class BoxProgram extends Program {
@@ -35,9 +36,22 @@ class BoxProgram extends Program {
         depth: true
     });
 
+    static getProgramId(buffer: GeometryBuffer, macros?: { [name: string]: string | number | boolean }) {
+        const specular = <number>macros?.SPECULAR;
+        return specular ? buffer.type + specular : buffer.type;
+    }
+
+    static getMacros(buffer: GeometryBuffer) {
+        const {uniforms} = buffer;
+        let macros;
+        if (uniforms.specular) {
+            macros = {SPECULAR: 2};
+        }
+        return macros;
+    }
+
     constructor(gl: WebGLRenderingContext, devicePixelRation: number, macros?: { [name: string]: string | number | boolean }) {
         super(gl, devicePixelRation, macros);
-
         this.mode = gl.TRIANGLES;
         this.vertexShaderSrc = vertexShader;
         this.fragmentShaderSrc = fragmentShader;
