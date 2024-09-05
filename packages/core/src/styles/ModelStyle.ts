@@ -285,7 +285,7 @@ export interface ModelStyle {
     light?: string;
 
     /**
-     * Sets the emissive color of the extruded polygon, giving it a glow effect.
+     * Sets the emissive color of the `"Model"`, giving it a glow effect.
      *
      * **Combination with Material Emissive:**
      * - The provided `emissive` color value will be combined with {@link Material.emissive} through color addition.
@@ -295,7 +295,7 @@ export interface ModelStyle {
     emissive?: Color | StyleValueFunction<Color> | StyleZoomRange<Color> | StyleExpression<Color>;
 
     /**
-     * Sets the specular color of the extruded polygon, affecting how it reflects light.
+     * Sets the specular color of the `"Model"`, affecting how it reflects light.
      *
      * **Combination with Material Specular:**
      * - The provided `specular` value will be combined with {@link Material.specular} through color addition.
@@ -309,8 +309,8 @@ export interface ModelStyle {
     specular?: Color | StyleValueFunction<Color> | StyleZoomRange<Color> | StyleExpression<Color>;
 
     /**
-     * Sets the shininess of the `"Box"`, determining how glossy its surface appears.
-     * A higher value makes the `"Box"` surface more reflective.
+     * Sets the shininess of the `"Model"`, determining how glossy its surface appears.
+     * A higher value makes the ``"Model"` surface more reflective.
      *
      * **Combination with Material Shininess:**
      * - The provided `shininess` value will be combined with {@link Material.shininess} through addition.

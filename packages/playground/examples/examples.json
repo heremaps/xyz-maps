@@ -66,7 +66,7 @@
     },
     {
       "file": "./display/custom_lightning.html",
-      "docs": "classes/core.customlayer.html"
+      "docs": "interfaces/core.layerstyle.html#lights"
     }
   ],
   "Editor": [
@@ -243,6 +243,10 @@
     {
       "file": "./layer/3d_buildings.html",
       "docs": "interfaces/core.style.html#extrude"
+    },
+    {
+      "file": "./layer/Models.html",
+      "docs": "interfaces/core.modelstyle.html"
     },
     {
       "file": "./layer/3d_lines.html",
