@@ -222,63 +222,17 @@ export interface BoxStyle {
     scaleByAltitude?: boolean | StyleValueFunction<boolean> | StyleZoomRange<boolean> | StyleExpression<boolean>;
 
     /**
-     * The `light` property specifies a collection of light sources that can be used to illuminate `"Box"` features within the layer.
-     * It is a map where each key is a unique light group name, and the value is an array of light objects.
-     * Lights can be of various types, including {@link AmbientLight} and {@link DirectionalLight}, and can be used to create different lighting effects.
+     * Specifies the name of the light group to use for illuminating specific features on a layer.
+     * This property must reference a key corresponding to a light group defined in {@link LayerStyle.lights}.
+     * A light group consists of lighting sources such as ambient or directional lights that affect the appearance of features.
      *
-     * The `light` property allows you to define and organize multiple light sources that influence the rendering of features in the layer.
+     * If `light` is not defined, the default light group `"defaultLight"` will be used to illuminate the layer's features.
      *
-     * ### Structure
-     * - **Key (string):** A unique identifier for the light group.
-     * - **Value (array):** An array of light objects, which can be of type {@link AmbientLight} or {@link DirectionalLight}.
+     * @see {@link LayerStyle.lights} for defining and referencing available light groups.
      *
-     * ### Relation to {@link LayerStyle.lights}
-     * - **{@link Style.light}**: Specifies which single light group to use for illuminating a specific feature. This property must reference a key defined in {@link LayerStyle.lights}.
-     * - **Default Light**: If a `FeatureStyle` does not specify a `light`, the light group associated with the `"defaultLight"` key in `LayerStyle.lights` will be used. If `"defaultLight"` is not defined, a default light will be automatically provided.
-     * - **Only One Light Group**: Only one light group is used to illuminate a feature. This is either the group specified in `FeatureStyle.light`, or if not specified, the `"defaultLight"` group from {@link LayerStyle.lights}.
-     * - **Override Default Light**: To override the default light, set it explicitly in {@link LayerStyle.lights} under the key `"defaultLight"`.
-     *
-     * ### Examples
-     * ```typescript
-     * {
-     *   lights: {
-     *      // Define a light group named "defaultLight" to override the default lighting for the layer
-     *    "defaultLight": [{
-     *        type: 'ambient',
-     *        color: '#fff',
-     *        intensity: 0.3
-     *    }, {
-     *        type: 'directional',
-     *        color: '#fff',
-     *        direction: [0, 0, 1],
-     *        intensity: 1.0
-     *    }, {
-     *        type: 'directional',
-     *        color: '#fff',
-     *        direction: [-1, 0, 0],
-     *        intensity: 0.2
-     *    }],
-     *    // Define a light group named "buildingLight" for specific features that use `style.light` set to "buildingLight"
-     *    "buildingLight": [
-     *       { type: "ambient", color: "#fff", intensity: 1.0 } // A simple ambient light source for buildings
-     *     ]
-     *   }
-     * }
-     * ```
-     *
-     * In the example above:
-     * - `"defaultLight"` is a light group that overrides the standard lighting configuration. It includes both an ambient and a directional light source and is used for all illuminated FeatureStyle instances where the light property is not explicitly set.
-     * - `"buildingLights"` is a light group containing only an ambient light source. This group will only be used for features where {@link BoxStyle.light} is set to `"buildingLights"`.
-     * - Each light source can be customized with properties such as `color`, `intensity`, and, for `DirectionalLight`, a `direction` vector.
-     *
-     * The light specified here will be applied to the rendering of features within the layer. However, only one light group will be used for each feature:
-     * - If {@link BoxStyle.light} is defined, it will reference a specific light group in `LayerStyle.lights`.
-     * - If {@link BoxStyle.light} is not defined, the `"defaultLight"` light group (if specified) will be used.
-     * - If no `"defaultLight"` light group is set, an automatic default light will be provided.
-     *
-     * @type { { [name: string]: (AmbientLight | DirectionalLight)[] } }
+     * @defaultValue "defaultLight"
      */
-    light?: { [name: string]: (AmbientLight | DirectionalLight)[] };
+    light?: string;
 
     /**
      * Sets the emissive color of the extruded polygon, giving it a glow effect.
