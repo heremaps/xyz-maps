@@ -779,7 +779,7 @@ export class FeatureFactory {
                 specular = getValue('specular', style, feature, level);
 
                 if (specular) {
-                    shininess = getValue('shininess', style, feature, level) || DEFAULT_SPECULAR_SHININESS;
+                    shininess = getValue('shininess', style, feature, level) ?? DEFAULT_SPECULAR_SHININESS;
                     groupId += specular + shininess;
                     specular = this.toRGBA(specular).slice(0, 3);
                 }

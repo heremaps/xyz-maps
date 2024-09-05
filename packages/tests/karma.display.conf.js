@@ -24,6 +24,7 @@ const cfg = Object.assign(baseCfg, {
         {id: 'core-src', pattern: 'core/dist/xyz-maps-core.min.js', watched: true, served: true, included: true},
         {id: 'display-src', pattern: 'display/dist/xyz-maps-display.min.js', watched: true, served: true, included: true},
         {pattern: 'tests/assets/tiles/*.png', watched: false, included: false, served: true},
+        {pattern: 'tests/assets/model/*', watched: false, included: false, served: true},
         {pattern: 'tests/dist/display/displayTests*.js', watched: true, served: true, included: true},
         {pattern: 'tests/dist/display/specs*.js', watched: true, served: true, included: true}
     ],
@@ -40,6 +41,7 @@ const cfg = Object.assign(baseCfg, {
 
 module.exports = (config) => {
     config.set(cfg);
+    console.log(cfg.files);
 };
 
 module.exports.cfg = cfg;

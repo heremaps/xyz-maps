@@ -1,0 +1,75 @@
+# Cube with numbered sides and colors
+#                     [Top - Orange]
+#                    v8---------v5
+#                    /|        / |
+#                   / |       /  |
+#                v7---------v6   | [Right - Blue]
+#                 |   |      |   |
+#                 |   |      |   |
+#   [Left - Yellow] |  v3------|--v2
+#                 | /        |  /  [Bottom - Purple]
+#                 |/         | /
+#                 v4---------v1
+#
+#
+#                 [Front - Red]
+#                    Y (+)
+#                    ^
+#                    |
+#                    |
+#                    +----> X (+)
+#                   /
+#                 /
+#                Z (-) (going into the screen)
+
+mtllib cube.mtl
+
+# Vertices (corners)
+v  1.0  1.0 -1.0  # v1: Front top right
+v  1.0 -1.0 -1.0  # v2: Front bottom right
+v -1.0 -1.0 -1.0  # v3: Front bottom left
+v -1.0  1.0 -1.0  # v4: Front top left
+v  1.0  1.0  1.0  # v5: Back top right
+v  1.0 -1.0  1.0  # v6: Back bottom right
+v -1.0 -1.0  1.0  # v7: Back bottom left
+v -1.0  1.0  1.0  # v8: Back top left
+
+# Texture coordinates (optional)
+vt 0.0 0.0  # Texture coordinate for corner (0,0)
+vt 1.0 0.0  # Texture coordinate for corner (1,0)
+vt 1.0 1.0  # Texture coordinate for corner (1,1)
+vt 0.0 1.0  # Texture coordinate for corner (0,1)
+
+# Normal vectors
+vn  0.0  0.0 -1.0  # Normal for the front side
+vn  0.0  0.0  1.0  # Normal for the back side
+vn  1.0  0.0  0.0  # Normal for the right side
+vn -1.0  0.0  0.0  # Normal for the left side
+vn  0.0  1.0  0.0  # Normal for the top side
+vn  0.0 -1.0  0.0  # Normal for the bottom side
+
+# Faces with material assignments
+# Front side
+g front
+usemtl front
+f 1/1/1 2/2/1 3/3/1 4/4/1
+
+# Back side
+usemtl back
+f 5/1/2 8/2/2 7/3/2 6/4/2
+
+# Right side
+usemtl right
+f 1/1/3 5/2/3 6/3/3 2/4/3
+
+# Left side
+usemtl left
+f 4/1/4 3/2/4 7/3/4 8/4/4
+
+# Top side
+usemtl top
+f 1/1/5 4/2/5 8/3/5 5/4/5
+
+# Bottom side
+usemtl bottom
+f 2/1/6 6/2/6 7/3/6 3/4/6

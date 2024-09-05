@@ -1,0 +1,55 @@
+# Materials for the cube
+########################################################################
+# Material for the front side
+newmtl front
+# Red
+Kd 0.0 0.0 1.0
+# Specular color (white) - highlights from light
+#Ks 1.0 1.0 1.0
+# Shininess coefficient (higher values mean sharper highlights)
+#Ns 32
+########################################################################
+# Material for the back side
+newmtl back
+# Green
+Kd 1.0 1.0 0.0
+# Specular color (white) - highlights from light
+#Ks 1.0 1.0 1.0
+# Shininess coefficient (higher values mean sharper highlights)
+#Ns 32
+########################################################################
+# Material for the right side
+newmtl right
+# Blue
+Kd 1.0 0.0 1.0
+# Specular color (white) - highlights from light
+#Ks 1.0 1.0 1.0
+# Shininess coefficient (higher values mean sharper highlights)
+#Ns 1
+########################################################################
+# Material for the left side
+newmtl left
+# Yellow
+Kd 0.0 1.0 1.0
+# Specular color (white) - highlights from light
+#Ks 1.0 1.0 1.0
+# Shininess coefficient (higher values mean sharper highlights)
+#Ns 32
+########################################################################
+# Material for the top side
+newmtl top
+# Orange
+Kd 1.0 0.0 0.0
+# Specular color (white) - highlights from light
+#Ks 1.0 1.0 1.0
+# Shininess coefficient (higher values mean sharper highlights)
+#Ns 32
+########################################################################
+# Material for the bottom side
+newmtl bottom
+# Purple
+Kd 0.0 1.0 0.0
+# Specular color (white) - highlights from light
+#Ks 1.0 1.0 1.0
+# Shininess coefficient (higher values mean sharper highlights)
+#Ns 32

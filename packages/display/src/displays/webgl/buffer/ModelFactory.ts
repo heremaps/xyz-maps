@@ -227,6 +227,8 @@ class ModelFactory {
                     }
                 }
 
+                console.log(bufferUniforms);
+
                 if (index) {
                     buffer.setIndex(index);
                 } else {
