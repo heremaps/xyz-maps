@@ -302,7 +302,8 @@ export class ObjParser extends XYZWorker {
 
     async load(url: string): Promise<ModelData> {
         return (this.inProgress[url] ||= (async () => {
-            const _url = new URL(url, window.location.href);
+            const _url = new URL(url, window.top.location.href);
+            // const _url = new URL(url, window.location.href);
             const model: ModelData = await this.main({url: _url.href});
             delete this.inProgress[url];
             // if (!model.geometries || model.geometries.length === 0) return null;
