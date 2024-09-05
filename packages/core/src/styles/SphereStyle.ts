@@ -166,14 +166,14 @@ export interface SphereStyle {
     light?: string;
 
     /**
-     * Sets the emissive color of the extruded polygon, giving it a glow effect.
+     * Sets the emissive color of the `"Sphere"`, giving it a glow effect.
      *
      * @see {@link Color} for a detailed list of possible supported formats.
      */
     emissive?: Color | StyleValueFunction<Color> | StyleZoomRange<Color> | StyleExpression<Color>;
 
     /**
-     * Sets the specular color of the extruded polygon, affecting how it reflects light.
+     * Sets the specular color of the `"Sphere"`, affecting how it reflects light.
      *
      * ### Relationship with Shininess
      * - **Effect:** The `specular` property determines the color of the light reflection, while the {@link shininess} value controls the intensity and size of the reflection.

@@ -638,18 +638,18 @@ export interface Style {
     light?: string;
 
     /**
-     * Sets the emissive color of the extruded polygon, giving it a glow effect.
+     * Sets the emissive color of the feature, giving it a glow effect.
      *
-     * This property is only applicable for Styles of type `"Polygon"`, `"Box"` or `"Sphere"`;
+     * This property is only applicable for Styles of type `"Polygon"`, `"Box"`, `"Sphere"` or `"Model"`;
      *
      * @see {@link Color} for a detailed list of possible supported formats.
      */
     emissive?: Color | StyleValueFunction<Color> | StyleZoomRange<Color> | StyleExpression<Color>;
 
     /**
-     * Sets the specular color of the extruded polygon, affecting how it reflects light.
+     * Sets the specular color of the feature, affecting how it reflects light.
      *
-     * This property is only applicable for Styles of type `"Polygon"`, `"Box"` or `"Sphere"`;
+     * This property is only applicable for Styles of type `"Polygon"`, `"Box"`, `"Sphere"` or `"Model"`;
      *
      * ### Relationship with Shininess
      * - **Effect:** The `specular` property determines the color of the light reflection, while the {@link shininess} value controls the intensity and size of the reflection.
@@ -660,10 +660,10 @@ export interface Style {
     specular?: Color | StyleValueFunction<Color> | StyleZoomRange<Color> | StyleExpression<Color>;
 
     /**
-     * Sets the shininess of the extruded polygon, determining how glossy its surface appears.
+     * Sets the shininess of the feature, determining how glossy its surface appears.
      * A higher value makes the polygon surface more reflective.
      *
-     * This property is only applicable for Styles of type `"Polygon"`, `"Box"` or `"Sphere"`;
+     * This property is only applicable for Styles of type `"Polygon"`, `"Box"`, `"Sphere"` or `"Model"`;
      *
      * ### Relationship with Specular
      * - **Effect:** The `shininess` value controls the size and intensity of the specular highlight, which is colored by the {@link specular} property.
