@@ -41,7 +41,8 @@ const ENDPOINT = {
 
 type Parameter = string | number | boolean;
 const addUrlParams = (url: string, params: { [key: string]: Parameter | Parameter[] }, p?: '?' | '&') => {
-    p ||= url.indexOf('?=') == -1 ? '?' : '&';
+    p ||= url.includes('?') ? '&' : '?';
+    // p ||= new URL(url).searchParams.size ? '&' : '?';
     const encodeParam = (param: Parameter | Parameter[]): string => {
         return Array.isArray(param) ? param.map((p: string) => encodeURIComponent(p)).join(',') : encodeURIComponent(param);
     };
@@ -247,12 +248,13 @@ export class SpaceProvider extends GeoJSONProvider {
         error?: (error: any) => void
     } = {}) {
         const prov = this;
-        const url = prov._addUrlCredentials(
-            prov.getLayerUrl(prov.space) + '/features', '?'
+        const url = addUrlParams(
+            prov.getLayerUrl(prov.space) + '/features',
+            {id: features.map((f) => f.id)}
         );
         return {
             type: 'DELETE',
-            url: addUrlParams(url, {id: features.map((f) => f.id)}),
+            url: prov._addUrlCredentials(url),
             headers: {
                 ...prov.headers,
                 'Accept': 'application/json'
@@ -495,8 +497,7 @@ export class SpaceProvider extends GeoJSONProvider {
 
 
     private _addUrlCredentials(url: string, p?: '?' | '&') {
-        url = addUrlParams(url, this.params, p || '&');
-        return url;
+        return addUrlParams(url, this.params, p || '&');
     };
 
 
