@@ -1,5 +1,4 @@
 ## 0.39.0 (2024-9-6)
-### editor## 0.39.0 (2024-9-6)
 ### editor
 * improved: Full support added for custom Navlink styles, which are now preserved and reapplied during re-rendering, such as in response to pointer events.
 * fixed: Ensure [EditRestrictions](https://heremaps.github.io/xyz-maps/docs/editor.editoroptions.html#editrestrictions) are evaluated during AreaShape drag operations
