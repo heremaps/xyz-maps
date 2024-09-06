@@ -43,7 +43,7 @@ void main() {
 
     vec4 diffuseMapColor = texture2D(diffuseMap, v_texCoord);
     vec3 color = diffuse * diffuseMapColor.rgb * v_color.rgb;
-    vec4 totalColor = computeBaseLighting(normal, color, opacity * v_color.a);
+    vec4 totalColor = computeBaseLighting(normal, color, 1.0, opacity * v_color.a);
 
     #ifdef SPECULAR
     totalColor = addSpecularHighlights(

@@ -1,6 +1,7 @@
 precision lowp float;
 
 uniform vec4 u_fill;
+uniform float u_fillIntensity;
 
 #ifdef SPECULAR
 #include "light.glsl"
@@ -18,7 +19,7 @@ void main(void) {
 
     #ifdef SPECULAR
     // Compute lighting with specular component
-    vec4 light = computeBaseLighting(surfaceNormal, u_fill.rgb, u_fill.a);
+    vec4 light = computeBaseLighting(surfaceNormal, u_fill.rgb, u_fillIntensity, u_fill.a);
     light = addSpecularHighlights(surfaceNormal, light, v_surfaceToCam, shininess, specular);
 
     gl_FragColor = light;

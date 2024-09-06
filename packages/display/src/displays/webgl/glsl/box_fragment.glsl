@@ -1,6 +1,7 @@
 precision mediump float;
 
 uniform vec4 u_fill;
+uniform float u_fillIntensity;
 uniform vec4 u_stroke;
 varying vec3 vSize;
 
@@ -59,7 +60,7 @@ void main(void){
     normal = normalize(v_normal);
     #endif
 
-    color = computeBaseLighting(normal, color.rgb, u_fill.a);
+    color = computeBaseLighting(normal, color.rgb, u_fillIntensity, u_fill.a);
 
     #ifdef SPECULAR
     color = addSpecularHighlights(

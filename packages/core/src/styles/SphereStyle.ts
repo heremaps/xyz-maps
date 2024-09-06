@@ -199,4 +199,17 @@ export interface SphereStyle {
      * @defaultValue 32
      */
     shininess?: number;
+
+    /**
+     * Controls the intensity of the fill color under directional lighting.
+     *
+     * `fillIntensity` determines how much the `"Sphere"`'s fill color is affected by the directional lighting in the scene.
+     * A higher value increases the intensity of the fill color, making it more vibrant under strong lighting,
+     * while a lower value reduces the effect, resulting in a more muted color.
+     *
+     * The value should range from 0 to 1, where 0 means no color intensity and 1 represents full intensity.
+     *
+     * @defaultValue 1
+     */
+    fillIntensity?: number;
 }

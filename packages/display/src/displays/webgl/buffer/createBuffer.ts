@@ -242,6 +242,7 @@ const createBuffer = (
                             } else {
                                 if (type == 'Polygon' || type == 'Extrude') {
                                     geoBuffer.addUniform('u_fill', shared.fill);
+                                    geoBuffer.addUniform('u_fillIntensity', shared.fillIntensity);
 
                                     if (type == 'Extrude') {
                                         geoBuffer.addUniform('u_strokePass', 0);
@@ -283,6 +284,7 @@ const createBuffer = (
                                         const fill = shared.fill || COLOR_UNDEFINED;
 
                                         geoBuffer.addUniform('u_fill', fill);
+                                        geoBuffer.addUniform('u_fillIntensity', shared.fillIntensity);
 
                                         if (stroke) {
                                             geoBuffer.addUniform('u_stroke', stroke);

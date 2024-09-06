@@ -63,6 +63,7 @@ const {toRGB} = ColorUtils;
 type RGBA = ColorUtils.RGBA;
 
 const DEFAULT_SPECULAR_SHININESS = 32;
+const DEFAULT_COLOR_INTENSITY = 1;
 const DEFAULT_STROKE_WIDTH = 1;
 const DEFAULT_LINE_CAP = 'round';
 const DEFAULT_LINE_JOIN = 'round';
@@ -95,6 +96,7 @@ type DrawGroup = {
         unit: string;
         font: string;
         fill: Float32Array;
+        fillIntensity: number;
         // fill: Float32Array|LinearGradient;
         opacity: number;
         stroke: Float32Array;
@@ -536,6 +538,7 @@ export class FeatureFactory {
             let specular;
             let light: string;
             let processAdvancedLight = false;
+            let colorIntensity = 1;
 
             rotation = getValue('rotation', style, feature, level) ^ 0;
             let altitude = getValue('altitude', style, feature, level);
@@ -731,7 +734,6 @@ export class FeatureFactory {
 
                 if (stroke) {
                     strokeRGBA = this.toRGBA(stroke, opacity);
-
                     if (type == 'Text') {
                         // don't apply stroke-scale to text rendering
                         strokeScale = 1;
@@ -783,6 +785,7 @@ export class FeatureFactory {
                     groupId += specular + shininess;
                     specular = this.toRGBA(specular).slice(0, 3);
                 }
+                colorIntensity = getValue('fillIntensity', style, feature, level) ?? DEFAULT_COLOR_INTENSITY;
             }
 
             groupId += (opacity * 100) ^ 0;
@@ -832,6 +835,7 @@ export class FeatureFactory {
                         unit: sizeUnit,
                         font,
                         fill: fillRGBA, // && fillRGBA.slice(0, 3),
+                        fillIntensity: colorIntensity,
                         opacity,
                         stroke: strokeRGBA, // && strokeRGBA.slice(0, 3),
                         strokeWidth,
