@@ -27,7 +27,8 @@ const EVENT_MVC = 'mapviewchange';
 const EVENT_MVC_START = EVENT_MVC + 'start';
 const EVENT_MVC_END = EVENT_MVC + 'end';
 const MAPVIEWCHANGE_MS = 1e3 / 30;
-let MAPVIEWCHANGE_END_DELAY_MS = 10;
+// 16.666ms -> 1fps to avoid end mapviewchangeend events during running animations
+let MAPVIEWCHANGE_END_DELAY_MS = 1000/60;
 
 const SYNC = true;
 
