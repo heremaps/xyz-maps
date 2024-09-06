@@ -1,3 +1,23 @@
+## 0.39.0 (2024-9-6)
+### editor
+* improved: Full support added for custom Navlink styles, which are now preserved and reapplied during re-rendering, such as in response to pointer events.
+* fixed: Ensure [EditRestrictions](https://heremaps.github.io/xyz-maps/docs/editor.editoroptions.html#editrestrictions) are evaluated during AreaShape drag operations
+### core
+* fixed: ensure valid URL is used for all IMLProvider delete feature requests
+* fixed: Ensure custom feature styles are fully respected when using StyleExpressions
+* fixed: Ensure ClusterTileLayer properly clears and reclusters when the source data provider is cleared.
+### display
+* added: Introduced a new lighting engine that enables advanced configuration at both the layer and style levels. For detailed setup instructions, refer to [LayerStyle.lights](https://heremaps.github.io/xyz-maps/docs/interfaces/core.layerstyle.html#lights). See [Playground Example](https://heremaps.github.io/xyz-maps/playground/#Display-Custom_Lightning).
+* added: Integrated [specular lighting](https://heremaps.github.io/xyz-maps/docs/interfaces/core.polygonstyle.html#specular), [shininess](https://heremaps.github.io/xyz-maps/docs/interfaces/core.polygonstyle.html#shininess), and [emissive](https://heremaps.github.io/xyz-maps/docs/interfaces/core.polygonstyle.html#emissive) properties for enhanced reflections and self-illumination. These features are applicable to various 3D styles, including extruded Polygons, Boxes, Spheres and Models.
+* added: introduce [fillIntensity](https://heremaps.github.io/xyz-maps/docs/interfaces/core.polygonstyle.html#fillIntensity) to control color intensity of 3D styles under directional lighting
+* added: Model Styles now support unclamped and extended texture coordinates.
+* improved: Enhanced the visuals of Box edges for better clarity and detail.
+* fixed: resolve [3D model](https://heremaps.github.io/xyz-maps/playground/#Layers%20/%20Providers-3d_Model_Styles) loading issues in release builds
+* fixed: ensure Shininess parameter in Wavefront OBJ materials correctly affects specular reflections
+* fixed: Ensure the strokeWidth of Boxes is correctly rendered in all cases
+* fixed: Trigger PointerEvents for Point Styles on Polygon geometries
+* fixed: resolve slight text flickering during long animations
+
 ## 0.38.0 (2024-7-26)
 ### editor
 * improved: Modifying building footprints now works seamlessly even when shape points are covered by building extrusions.
