@@ -20,6 +20,7 @@
 import {TaskManager} from '@here/xyz-maps-common';
 import Protobuf from 'pbf';
 import vtLib from '@mapbox/vector-tile';
+import {ProcessedMvtResult} from '../../loaders/MVT/MVTLoader';
 
 const VectorTile = vtLib.VectorTile;
 const VectorTileFeature = vtLib.VectorTileFeature;
@@ -285,14 +286,15 @@ class FeatureGeometry {
     }
 }
 
+type TaskData = {xyz:{x:number, y:number, z:number}, mvt:any, triangles: ProcessedMvtResult, l: number, f: number, geojson: any[], layers: any};
+
 export default function mvtPreProcessor(prep) {
     taskManager.create({
 
-        init: function() {
+        init: function(): TaskData {
             const layers = [];
             const mvt = new VectorTile(new Protobuf(prep.data.mvt));
             const {tile} = prep;
-
             for (var l in mvt.layers) {
                 layers.push(l);
             }
@@ -303,7 +305,7 @@ export default function mvtPreProcessor(prep) {
                     z: tile.z
                 },
                 mvt,
-                xyzLayers: prep.data.xyz,
+                triangles: prep.data.triangles,
                 layers: layers,
                 l: 0,
                 f: 0,
@@ -313,12 +315,12 @@ export default function mvtPreProcessor(prep) {
 
         priority: 4,
 
-        exec: function(data) {
-            let {mvt, xyz, layers, xyzLayers, l, f, geojson} = data;
+        exec: function(data: TaskData) {
+            let {mvt, xyz, layers, triangles, l, f, geojson} = data;
 
             while (l < layers.length) {
                 let mvtLayer = mvt.layers[layers[l]];
-                let xyzLayer = xyzLayers[l];
+                let xyzLayer = triangles[l];
                 let mvtLayerName = mvtLayer.name;
                 // const mvtNs = {layer: layer.name};
                 let _xyz = {x: xyz.x, y: xyz.y, z: xyz.z, l: mvtLayerName};
@@ -329,7 +331,7 @@ export default function mvtPreProcessor(prep) {
                     let geom = feature.geometry.type;
 
                     if (geom == 'MultiPolygon' || geom == 'Polygon') {
-                        feature.geometry._xyz = xyzLayer?.features[f];
+                        feature.geometry._xyz = xyzLayer?.[f];
                     }
                     // feature.id = /*feature.id ||*/ Math.random();
                     feature.id = ++guid;

@@ -23,7 +23,7 @@
 import Protobuf from 'pbf';
 import earcut from 'earcut';
 import {VectorTile} from '@mapbox/vector-tile';
-import {XYZBin} from './XYZBin';
+import {LayerData, XYZBin} from './XYZBin';
 
 // based on @mapbox/vector-tile
 const loadGeometry = (feature) => {
@@ -94,7 +94,8 @@ function classifyRings(rings) {
     if (polygon) polygons.push(polygon);
 
     return polygons;
-}
+};
+
 // based on @mapbox/vector-tile
 function signedArea(ring) {
     let sum = 0;
@@ -143,7 +144,7 @@ function signedArea(ring) {
 // };
 
 
-const flatten = (data: [[[number, number, number?]]], vertices = []) => {
+const flatten = (data: [number, number, number?][][], vertices = []) => {
     // const vertices = [];
     const holes = [];
     let holeIndex = 0;
@@ -160,8 +161,8 @@ const flatten = (data: [[[number, number, number?]]], vertices = []) => {
     }
 
     return {
-        vertices: vertices,
-        holes: holes,
+        vertices,
+        holes,
         dimensions: data[0][0].length
     };
 };
@@ -243,152 +244,48 @@ const flatten = (data: [[[number, number, number?]]], vertices = []) => {
 
 export default (arraybuffer, x: number, y: number, z: number) => {
     const mvt = new VectorTile(new Protobuf(arraybuffer));
-    let layers = {};
+    let layers: LayerData = [];
     let layerIndex = 0;
-    let byteLength = 0;
-    let usedLayers = 0;
 
     for (let name in mvt.layers) {
         let mvtLayer = mvt.layers[name];
         let f = 0;
-
-
-        let layer = layers[layerIndex++] = {
-            length: 0,
-            features: {}
+        const layer = {
+            index: layerIndex++,
+            features: []
         };
-        // console.log(layerIndex,name,'features:',layer.length);
 
         while (f < mvtLayer.length) {
-            let feature = mvtLayer.feature(f);
-            // let geojson = feature.toGeoJSON( 1, 0, 2 ).geometry;
+            const feature = mvtLayer.feature(f);
 
             if (feature.type == 3) { // Polygon
-                // let polygons = [];
-                // let geom = parseGeom(feature);
-                // let coordinates = geom.coordinates;
-                // let holes = geom.holes;
-                // let prevLength = 0;
-                // let curHole = 0;
-                // // let polygons = geom.coordinates;
-                // const lines = geom.lines;
-                // const dim = 2;
-                // for (let i = 0, len = lines.length; i < len; i++) {
-                //     let start = lines[i];
-                //     let stop = lines[i + 1] || (coordinates.length / dim);
-                //
-                //     if (stop > holes[curHole]) {
-                //         stop = holes[curHole];
-                //     }
-                //     let _holes = geom.holes.filter((i) => i > start && i <= stop).map((v) => v - prevLength);
-                //     let coords = coordinates.slice(dim * start, dim * stop);
-                //     let triangles = earcut(coords, [], dim);
-                //
-                //     for (let t of triangles) {
-                //         polygons[polygons.length] = prevLength + t;
-                //     }
-                //     prevLength += stop;
-                //     // prevPolysLength += data.vertices.length / data.dimensions;
-                // }
-
-
-                let polygons = [];
-                let vertices = [];
-                let holeIndices = [];
-                let polyIndices = [];
+                const coordinates = loadGeometry(feature);
+                const polygons = [];
                 let prevPolysLength = 0;
-                let coordinates = loadGeometry(feature);
+                let requires32Bit = false;
 
                 for (let polygon of classifyRings(coordinates)) {
                     let data = flatten(polygon);
                     let triangles = earcut(data.vertices, data.holes, data.dimensions);
 
-                    polyIndices.push(prevPolysLength);
-
                     for (let t of triangles) {
-                        polygons[polygons.length] = prevPolysLength + t;
+                        const index = prevPolysLength + t;
+                        requires32Bit ||= index > 0xffff;
+                        polygons[polygons.length] = index;
                     }
-
-                    // for (let c of data.vertices) {
-                    //     vertices[vertices.length] = c;
-                    // }
-                    // for (let h of data.holes) {
-                    //     holeIndices[holeIndices.length] = prevPolysLength + h;
-                    // }
-
                     prevPolysLength += data.vertices.length / data.dimensions;
                 }
-
-                layer.features[f] = {
-                    tris: polygons,
-                    verts: vertices,
-                    polys: polyIndices,
-                    holes: holeIndices
-                };
-                // data + featureDatalength + feature index (16bit);
-                layer.length += polygons.length + 2 + 1;
-                // layer.length += 2 + vertices.length;
+                layer.features.push({index: f, data: polygons, requires32Bit});
             }
             f++;
         }
 
+        const features = layer.features.length;
 
-        if (layer.length) {
-            usedLayers++;
-            byteLength += 2 * layer.length;
+        if (features) {
+            layers.push(layer);
         }
     }
 
-    // console.log(layers);
-
-    // const buffer = new ArrayBuffer(6 * usedLayers + byteLength);
-
-    const xyzBin = new XYZBin(6 * usedLayers + byteLength);
-
-
-    if (byteLength > 0) {
-        // layer
-        // layerlength(unint32)|layerindex(uint16)|layerdat ...
-        // const dv = new DataView(buffer);
-        // let byteOffset = 0;
-
-        for (let index in layers) {
-            let layer = layers[index];
-            let layerLength16 = layer.length;
-            if (!layerLength16) continue;
-
-            xyzBin.setLayer(index, layerLength16);
-
-            // dv.setUint16(byteOffset, Number(index));
-            // dv.setUint32(byteOffset + 2, layerLength16);
-            // byteOffset += 6; // + layerLength16 * 2;
-
-
-            const features = layer.features;
-            for (let fi in features) {
-                let feature = features[fi];
-                let triangles = feature.tris;
-
-                // let dataLength = triangles.length;
-
-                // debugger;
-                xyzBin.setFeature(Number(fi), triangles/* , feature.verts, feature.polys, feature.holes*/);
-
-                // dv.setUint16(byteOffset, Number(fi));
-                // dv.setUint32(byteOffset + 2, dataLength);
-                //
-                // (new Uint16Array(buffer, 6 + byteOffset, dataLength)).set(triangles);
-                // byteOffset += 6 + 2 * dataLength;
-                //
-                // const verts = feature.verts;
-                // const vLength = verts.length;
-                // dv.setUint32(byteOffset, vLength);
-                // (new Uint16Array(buffer, byteOffset + 4, vLength)).set(verts);
-                // byteOffset += 4 + 2 * vLength;
-            }
-        }
-    }
-
-
-    return xyzBin.getBuffer();
+    return XYZBin.fromLayers(layers).getBuffer();
 };

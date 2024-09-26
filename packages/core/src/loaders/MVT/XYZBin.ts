@@ -17,76 +17,149 @@
  * License-Filename: LICENSE
  */
 
-export type Feature = any;
+export type Feature = Uint16Array | Uint32Array;
+
+export type FeatureLayerMap = { [fetureIndex: number]: Feature };
 
 export type Layer = {
     offset: number,
     length: number,
-    features: { [fetureIndex: number]: Feature }
+    features: FeatureLayerMap
 }
 
+export type LayerData = {
+    index: number,
+    length?: number,
+    features: { index: number, requires32Bit: boolean, data: number[] }[]
+}[];
+
 export class XYZBin {
+    static BYTES_LAYER_INDEX = 4;
+    static BYTES_LAYER_LENGTH = 4;
+
+    static get BYTES_LAYER() {
+        return this.BYTES_LAYER_INDEX + this.BYTES_LAYER_LENGTH;
+    };
+
+    static BYTES_FEATURE_METADATA = 4;
+    static BYTES_TRIANGLES_LENGTH = 4;
+
+    static fromLayers(layers: LayerData) {
+        let bytes = 0;
+        let contains32BitData = false;
+        for (let layer of layers) {
+            if (layer.features.length) {
+                layer.length = layer.features.reduce((a, b) => {
+                    const {requires32Bit} = b;
+                    contains32BitData ||= requires32Bit;
+                    const dataLength = b.data.length;
+                    let dataBytes =
+                        dataLength * (requires32Bit ? 4 : 2) +
+                        XYZBin.BYTES_TRIANGLES_LENGTH +
+                        XYZBin.BYTES_FEATURE_METADATA;
+
+                    if (dataBytes % 4) {
+                        dataBytes += 2;
+                    }
+                    return a + dataBytes;
+                }, 0);
+
+                bytes += layer.length + XYZBin.BYTES_LAYER;
+            }
+        }
+        const xyzBin = new XYZBin(bytes, contains32BitData);
+        xyzBin.setLayers(layers);
+        return xyzBin;
+    }
+
     private aB: ArrayBuffer;
     private dV: DataView;
     private bO: number = 0;
+    private contains32BitData: boolean = false;
 
-    private setUint16Array(arr: number[]) {
-        const byteOffset = this.bO;
-        const length = arr.length;
-        this.dV.setUint32(byteOffset, length);
-        (new Uint16Array(this.aB, byteOffset + 4, length)).set(arr);
-        this.bO += 4 + 2 * length;
-    }
-
-    constructor(bytes: number | ArrayBuffer) {
+    constructor(bytes: number | ArrayBuffer, contains32BitData: boolean = false) {
         if (typeof bytes == 'number') {
             bytes = new ArrayBuffer(bytes);
         }
         this.dV = new DataView(bytes);
         this.aB = bytes;
+        this.contains32BitData = contains32BitData;
     }
 
-    setLayer(index: number|string, layerLength16) {
+    private setLayers(layers: LayerData) {
+        for (let layer of layers) {
+            let {index, length, features} = layer;
+            if (length) {
+                this.setLayer(index, length);
+
+                for (let feature of features) {
+                    this.setFeature(feature.index, feature.data, feature.requires32Bit);
+                }
+            }
+        }
+    }
+
+    setLayer(index: number | string, byteLength: number) {
         const dv = this.dV;
-        const byteOffset = this.bO;
-        dv.setUint16(byteOffset, Number(index));
-        dv.setUint32(byteOffset + 2, layerLength16);
-        this.bO += 6;
+
+        dv.setUint16(this.bO, Number(index));
+        this.bO += XYZBin.BYTES_LAYER_INDEX;
+
+        dv.setUint32(this.bO, byteLength);
+        this.bO += XYZBin.BYTES_LAYER_LENGTH;
     }
 
-    setFeature(featureIndex: number, triangles: number[]) {
-        this.dV.setUint16(this.bO, featureIndex);
-        this.bO += 2;
-        this.setUint16Array(triangles);
+    private setFeatureMetaData(index: number, requires32Bit: 0 | 1) {
+        this.dV.setUint32(this.bO, index << 1 | requires32Bit);
+        this.bO += XYZBin.BYTES_FEATURE_METADATA;
+    }
+
+    private setFeatureData(arr: number[], requires32Bit: 0 | 1) {
+        const length = arr.length;
+        this.dV.setUint32(this.bO, length);
+        this.bO += XYZBin.BYTES_TRIANGLES_LENGTH;
+
+        const TypedArray = requires32Bit ? Uint32Array : Uint16Array;
+        (new TypedArray(this.aB, this.bO, length)).set(arr);
+
+        let byteOffset = (requires32Bit + 1) * 2 * length;
+        this.bO += byteOffset;
+
+        if (this.bO % 4) this.bO += 2;
+    }
+
+    setFeature(featureIndex: number, data: number[], requires32Bit: boolean) {
+        const needs32Bit = Number(requires32Bit) as (0 | 1);
+        this.setFeatureMetaData(featureIndex, needs32Bit);
+        this.setFeatureData(data, needs32Bit);
     }
 
     getLayers(): { [layerindex: number]: Layer } {
         const dv = this.dV;
         let byteLength = dv.byteLength;
         let byteOffset = 0;
-
         const layers = {};
 
         while (byteOffset < byteLength) {
             // readLayer infos
             let index = dv.getUint16(byteOffset);
-            let layerLength = dv.getUint32(byteOffset + 2) * 2;
-            byteOffset += 6;
+            byteOffset += XYZBin.BYTES_LAYER_INDEX;
+
+            let layerByteLength = dv.getUint32(byteOffset);
+            byteOffset += XYZBin.BYTES_LAYER_LENGTH;
+
             layers[index] = {
                 offset: byteOffset,
-                length: layerLength,
+                length: layerByteLength,
                 features: null
             };
-            byteOffset += layerLength;
+            byteOffset += layerByteLength;
         }
         return layers;
     }
 
-    getFeatures(layer: Layer) {
-        if (layer.features) {
-            return layer.features;
-        }
-        const features = layer.features = {};
+    getFeatures(layer: Layer): FeatureLayerMap {
+        const features = {};
         const dv = this.dV;
         const buffer = this.aB;
         let byteOffset = layer.offset;
@@ -94,40 +167,25 @@ export class XYZBin {
 
         // read feature infos in layer
         while (byteOffset < layerByteOffsetEnd) {
-            let fi = dv.getUint16(byteOffset);
-            let length = dv.getUint32(byteOffset + 2);
-            byteOffset += 6;
-            features[fi] = new Uint16Array(buffer, byteOffset, length);
-            byteOffset += length * 2;
-            // byteOffset += 4 + 2 * dv.getUint32(byteOffset);
+            const metadata = dv.getUint32(byteOffset);
+            const index = metadata >> 1;
+            const uses32Bit: 0 | 1 = (metadata & 1) as (0 | 1);
+            byteOffset += XYZBin.BYTES_FEATURE_METADATA;
+
+            let length = dv.getUint32(byteOffset);
+            byteOffset += XYZBin.BYTES_TRIANGLES_LENGTH;
+
+            const TypedArray = uses32Bit ? Uint32Array : Uint16Array;
+            features[index] = new TypedArray(buffer, byteOffset, length);
+            byteOffset += length * (uses32Bit + 1) * 2;
+
+            if (byteOffset % 4) byteOffset += 2;
         }
+
+        return features;
     }
 
     getBuffer() {
         return this.aB;
     }
 }
-
-
-// export const writeFeature = () => {
-//
-//
-//     let triangles = feature.tris;
-//
-//     let dataLength = triangles.length;
-//
-//     dv.setUint16(byteOffset, Number(fi));
-//     dv.setUint32(byteOffset + 2, dataLength);
-//
-//     let tdata = new Uint16Array(buffer, 6 + byteOffset, dataLength);
-//     tdata.set(triangles);
-//     byteOffset += 6 + 2 * dataLength;
-//
-//     // const verts = feature.verts;
-//     // const vLength = verts.length;
-//     // // const vdata = new Uint16Array(buffer, byteOffset, vLength);
-//     // dv.setUint32(byteOffset, vLength);
-//     // // vdata.set(verts);
-//     // byteOffset += 4 + 2 * vLength;
-//
-// }

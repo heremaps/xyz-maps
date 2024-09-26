@@ -17,26 +17,29 @@
  * License-Filename: LICENSE
  */
 
-import {XYZBin} from './XYZBin';
+import {FeatureLayerMap, XYZBin} from './XYZBin';
 import WorkerHTTPLoader from '../webworker/HTTPLoader';
+
+export type ProcessedMvtResult = { mvt: any, triangles: FeatureLayerMap };
 
 class MVTTileLoader extends WorkerHTTPLoader {
     constructor(options) {
         super('MVTWorker', options);
     }
 
-    protected processData(data: any): any {
+    protected processData(data: any): ProcessedMvtResult {
         // console.time('mvt-decode');
         const xyzBin = new XYZBin(data.triangles);
         const layers = xyzBin.getLayers();
+        const triangles = {};
 
         for (let i in layers) {
-            xyzBin.getFeatures(layers[i]);
+            triangles[i] = xyzBin.getFeatures(layers[i]);
         }
         // console.timeEnd('mvt-decode');
         return {
             mvt: data.mvt,
-            xyz: layers
+            triangles
         };
     }
 }
