@@ -195,8 +195,23 @@ export default class InternalEditor {
         }
     }
 
-    getZLayer(feature: Feature): number {
-        return 1 + this.display.getLayers().indexOf(this.getLayer(feature));
+    getZLayer(layer: TileLayer): number {
+        const zLayer = layer.getStyle().zLayer;
+        return zLayer ?? 1 + this.display.getLayers().indexOf(layer);
+    }
+
+    getMaxZLayer(feature: Feature): number {
+        const layer = this.getLayer(feature);
+        const styleGrp = layer.getStyleGroup(feature);
+        let maxZLayer = -1;
+        if (styleGrp) {
+            let zoom = this.display.getZoomlevel() ^ 0;
+            for (let style of styleGrp) {
+                let zLayer = styleTools.getValue('zLayer', style, feature, zoom);
+                if (zLayer>maxZLayer) maxZLayer = zLayer;
+            }
+        }
+        return maxZLayer > -1 ? maxZLayer : this.getZLayer(layer);
     }
 
     setStyle(feature: Feature, style?: StyleGroup | 'default', merge?: boolean) {

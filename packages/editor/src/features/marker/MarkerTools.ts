@@ -160,7 +160,7 @@ const tools = {
             };
 
             if (!prv.selector) {
-                const zLayer = EDITOR.getZLayer(feature);
+                const zLayer = EDITOR.getMaxZLayer(feature);
 
                 prv.selector = EDITOR.objects.overlay.addCircle(<GeoJSONCoordinate>feature.coord(), UNDEF, {
                     type: 'MARKER_SELECTOR',

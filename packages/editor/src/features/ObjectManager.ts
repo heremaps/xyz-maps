@@ -17,6 +17,7 @@
  * License-Filename: LICENSE
  */
 
+import MapDisplay from '@here/xyz-maps-display';
 import oTools from './oTools';
 import linkTools from './link/NavlinkTools';
 import locationTools from './location/LocationTools';
@@ -86,7 +87,7 @@ class ObjectManager {
     selection;
     overlay: ObjectOverlay;
 
-    constructor(HERE_WIKI: InternalEditor, display) {
+    constructor(HERE_WIKI: InternalEditor, display: MapDisplay) {
         const objManager = this;
 
         objManager.iEdit = HERE_WIKI;

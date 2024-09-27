@@ -558,6 +558,58 @@ class OverlayStyles {
             stroke: '#010B1E'
         }],
 
+        'RANGESELECTOR_LINE': [{
+            zIndex: 0,
+            type: 'Line',
+            stroke: 'white',
+            strokeWidth: 23
+        }, {
+            zIndex: 1,
+            type: 'Line',
+            stroke: 'grey',
+            strokeWidth: 20
+        }, {
+            zIndex: 2,
+            type: 'Line',
+            stroke: 'white',
+            strokeWidth: 3,
+            strokeDasharray: [5, 4],
+            strokeLinecap: 'butt'
+        }],
+
+        'RANGESELECTOR_RANGE_MARKER': [{
+            zIndex: 110,
+            type: 'Rect',
+            fill: '#fff',
+            width: 2,
+            height: 20,
+            alignment: 'map',
+            offsetY: 8
+        }, {
+            zIndex: 111,
+            type: 'Circle',
+            fill: '#000',
+            radius: 7,
+            alignment: 'map',
+            stroke: '#fff',
+            strokeWidth: 1,
+            offsetY: 20
+        }, {
+            zIndex: 110,
+            type: 'Circle',
+            stroke: '#fff',
+            radius: 5,
+            alignment: 'map'
+        }],
+
+        'RANGESELECTOR_RANGE_LINE': [{
+            zIndex: 4,
+            type: 'Line',
+            strokeWidth: 9,
+            opacity: 0.75,
+            stroke: '#fff'
+        }],
+
         'UNKNOWN': [{
             zIndex: 0,
             type: 'Circle',

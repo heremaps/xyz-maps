@@ -51,7 +51,7 @@ const createDefaultStyle = () => [
 export type MultiLinkSegment = {
     from: number,
     to: number,
-    feature?: Navlink | GeoJSONFeature,
+    feature?: Navlink | Feature,
     lineString: GeoJSONCoordinate[],
     reversed: boolean
 }
@@ -66,18 +66,18 @@ class MultiLink {
     private links: MultiLinkSegment[] = [];
 
     iEdit: InternalEditor;
+    zLayer: number;
 
-    constructor(iEditor: InternalEditor, lineString: GeoJSONCoordinate[], style: StyleGroup, feature?: Navlink | GeoJSONFeature) {
+    constructor(iEditor: InternalEditor, lineString: GeoJSONCoordinate[], style: StyleGroup, feature?: Navlink | Feature) {
         const overlay = iEditor.objects.overlay;
 
         this.iEdit = iEditor;
         this.completePath = lineString;
-        // completePath = this.completePath = feature.coord();
 
-        const mlStyle = this.style = style || createDefaultStyle();
+        this.style = style || createDefaultStyle();
 
         this.overlay = overlay;
-        this.feature = overlay.addPath(lineString, mlStyle);
+        this.feature = overlay.addPath(lineString, this.style, {type: 'RANGESELECTOR_LINE'});
 
         this.hide();
 
@@ -114,10 +114,27 @@ class MultiLink {
         this.overlay.remove(this.feature);
     }
 
+
+    private getMaxZLayer() {
+        let maxZLayer = this.iEdit.getZLayer(this.overlay.layer);
+        for (let {feature} of this.links) {
+            let zLayer = this.iEdit.getMaxZLayer(feature);
+            if (zLayer > maxZLayer) maxZLayer = zLayer;
+        }
+        return maxZLayer + 1;
+    }
+
     show(zones: InternalRangeOptions[]) {
         const {overlay} = this;
 
         this.removeZones();
+
+        let maxZLayer = this.getMaxZLayer();
+        this.zLayer = maxZLayer;
+
+        for (let s of this.style) {
+            s.zLayer = maxZLayer;
+        }
 
         overlay.addFeature(this.feature, this.style);
 
@@ -130,7 +147,7 @@ class MultiLink {
         });
     };
 
-    addLink(lineString: GeoJSONCoordinate[], feature: Navlink | GeoJSONFeature) {
+    addLink(lineString: GeoJSONCoordinate[], feature: Navlink | Feature) {
         // const newPath = link.coord();
         const {links} = this;
 

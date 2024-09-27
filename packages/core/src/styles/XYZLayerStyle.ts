@@ -261,12 +261,6 @@ export class XYZLayerStyle implements LayerStyle {
             group = this.merge(this.getStyleGroup(feature), group);
         }
 
-        const {expContext} = this;
-
-        if (expContext.$id === feature.id) {
-            console.log('need to clear result cache!!!');
-        }
-
         if (group) {
             custom[id] = group;
         } else {

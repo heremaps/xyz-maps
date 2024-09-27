@@ -23,11 +23,11 @@ import InternalEditor from '../../IEditor';
 import {Map} from '@here/xyz-maps-display';
 import {Navlink} from '../../features/link/Navlink';
 import {InternalRangeOptions} from './Range';
-import {GeoJSONCoordinate, GeoJSONFeature} from '@here/xyz-maps-core';
+import {GeoJSONCoordinate} from '@here/xyz-maps-core';
 import {Feature} from '../../features/feature/Feature';
 
 
-type LineSegment = { id: number | string, coordinates: GeoJSONCoordinate[], feature?: Navlink | GeoJSONFeature };
+type LineSegment = { id: number | string, coordinates: GeoJSONCoordinate[], feature?: Navlink | Feature };
 
 class MultiSelector {
     private multiLink: MultiLink = null;

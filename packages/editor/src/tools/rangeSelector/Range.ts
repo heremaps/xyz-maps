@@ -34,44 +34,24 @@ enum DEFAULT_FILL {
     B = '#35b2ee'
 }
 
-const createDefaultMarkerStyle = (stroke: string, fill: string, opacity: number, side: string) => {
-    let offsetY = side == 'R' ? 8 : side == 'L' ? -8 : 0;
-    return [{
-        zIndex: 110,
-        type: 'Rect',
-        fill: fill,
-        width: 2,
-        height: 20,
-        alignment: 'map',
-        offsetY: offsetY
-    }, {
-        zIndex: 111,
-        type: 'Circle',
-        fill: stroke,
-        radius: 7,
-        alignment: 'map',
-        stroke: fill,
-        strokeWidth: 1,
-        offsetY: 2.5 * offsetY
-    }, {
-        zIndex: 110,
-        type: 'Circle',
-        stroke: fill,
-        radius: 5,
-        alignment: 'map'
-    }];
+const createDefaultMarkerStyle = (overlay: Overlay, stroke: string, fill: string, side: string) => {
+    let offset = side == 'R' ? 1 : side == 'L' ? -1 : 0;
+    const styleGroup = overlay.layer.getStyle().styleGroups['RANGESELECTOR_RANGE_MARKER'];
+    return [
+        {...styleGroup[0], fill, offsetY: offset * (styleGroup[0].offsetY as number)}, // line to handle
+        {...styleGroup[1], fill: stroke, stroke: fill, offsetY: offset * (styleGroup[1].offsetY as number)}, // handle
+        {...styleGroup[2], stroke: fill} // point on range
+    ];
 };
 
-const createDefaultLineStyle = (stroke: string, opacity: number = 0.75, side: string) => [{
-    'zIndex': 4,
-    'type': 'Line',
-    'strokeWidth': 9,
-    'opacity': opacity,
-    'stroke': stroke
-    // 'offset': side == 'R' ? 32 : side == 'L' ? -32 : 0,
-    // strokeLinejoin: 'bevel',
-    // strokeLinecap: 'butt'
-}];
+const createDefaultLineStyle = (overlay: Overlay, stroke: string, opacity: number) => {
+    const styleGroup = overlay.layer.getStyle().styleGroups['RANGESELECTOR_RANGE_LINE'];
+    const custom = [];
+    for (let style of styleGroup) {
+        custom.push({...style, opacity: opacity ?? style.opacity, stroke});
+    }
+    return custom;
+};
 
 export interface InternalRangeOptions extends RangeOptions {
     _dragStart?: (e: MapEvent, range: Range) => void;
@@ -128,20 +108,21 @@ export class Range {
 
         fill = fill || DEFAULT_FILL[side];
 
-        let lineStyle = options.lineStyle || createDefaultLineStyle(fill, opacity, side);
-
-        this.line = overlay.addPath(multiLink.coord(), this.style = lineStyle);
+        let lineStyle = options.lineStyle || createDefaultLineStyle(overlay, fill, opacity);
 
         let lineOffset = 0;
         for (let style of lineStyle) {
+            style.zLayer = multiLink.zLayer;
             lineOffset = style.offset || lineOffset;
         }
 
-        let markerStyle = options.markerStyle || createDefaultMarkerStyle(fill, stroke, opacity, side);
+        this.line = overlay.addPath(multiLink.coord(), this.style = lineStyle);
 
+        let markerStyle = options.markerStyle || createDefaultMarkerStyle(overlay, fill, stroke, side);
         for (let style of markerStyle) {
             if (style.lineOffset == UNDEF) {
                 style.lineOffset = lineOffset;
+                style.zLayer = multiLink.zLayer;
             }
         }
 

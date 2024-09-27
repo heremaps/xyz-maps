@@ -129,7 +129,7 @@ const tools = {
         const lineStrings = getPrivate(line, type);
         const shapes = lineStrings[lineStringIndex] = lineStrings[lineStringIndex] || [];
         const _editor = line._e();
-        const zLayer = _editor.getZLayer(line) - 1;
+        const zLayer = _editor.getMaxZLayer(line) - 1;
         const altitude = _editor.getStyleProperty(line, 'altitude');
 
 

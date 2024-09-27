@@ -19,7 +19,7 @@
 
 import {getPointAtLength, getSegmentIndex, getTotalLength} from '../../geometry';
 import {calcRelPosOfPoiAtLink, getRelPosOfPointOnLine} from '../../map/GeoMath';
-import {Feature, GeoJSONCoordinate, CircleStyle, RectStyle, webMercator} from '@here/xyz-maps-core';
+import {Feature, GeoJSONCoordinate, CircleStyle, RectStyle, webMercator, Style} from '@here/xyz-maps-core';
 import {JSUtils, geotools} from '@here/xyz-maps-common';
 import {MapEvent} from '@here/xyz-maps-display';
 import MultiLink, {MultiLinkSegment} from './MultiLink';
@@ -28,7 +28,7 @@ import InternalEditor from '../../IEditor';
 
 const DEFAULT_SNAP_TOLERANCE = 1; // 1 meter
 
-type MarkerStyle = (CircleStyle | RectStyle) & { _offsetX?: number, _offsetY?: number };
+type MarkerStyle = (CircleStyle | RectStyle) & { lineOffset?: number, _offsetX?: number, _offsetY?: number };
 
 type DragListener = (e: MapEvent) => void;
 
@@ -63,13 +63,13 @@ function getPointAtLine(
 
 
 class RangeMarker extends Feature<'Point'> {
-    static initStyle(styleGroup: MarkerStyle[]): MarkerStyle[] {
-        styleGroup = JSUtils.clone(styleGroup);
-        for (let style of styleGroup) {
+    static initStyle(styleGroup: readonly Style[]): MarkerStyle[] {
+        let markerStyle = JSUtils.clone(styleGroup);
+        for (let style of markerStyle) {
             style._offsetX = <number>(style.offsetX) || 0;
             style._offsetY = <number>(style.offsetY) || 0;
         }
-        return styleGroup;
+        return markerStyle;
     }
 
     private isLocked: () => boolean;

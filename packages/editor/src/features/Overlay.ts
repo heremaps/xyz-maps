@@ -55,7 +55,7 @@ const restoreOpacity = (styles) => {
     return styles;
 };
 
-const prepareStyle = (style: Style | Style[]): Style[] => {
+const prepareStyle = (style?: Style | Style[]): Style[] => {
     style = style ? style instanceof Array ? style : [style] : UNDEF;
     return <Style[]>style;
 };
@@ -136,15 +136,13 @@ class Overlay {
         return oFeature;
     };
 
-
     addCircle(center: GeoJSONCoordinate, style: Style[], props?) {
         // style = null -> invisible for display
         return this.addFeature(
             createFeature('Point', center, props),
             style
         );
-    }
-    ;
+    };
 
     remove(feature) {
         const layer = this.layer;
@@ -158,22 +156,28 @@ class Overlay {
         }
     }
 
-
     setFeatureCoordinates(feature, coordinates) {
         feature._provider.setFeatureCoordinates(feature, coordinates);
         // displayOverlay.setFeatureCoordinates(feature,coordinates);
     }
 
-
     getStyles(obj): readonly Style[] {
         return this.layer.getStyleGroup(obj);
     }
 
+    setZLayer(zLayer: number | null) {
+        let style = this.layer.getStyle();
+        if (zLayer == null) {
+            delete style.zLayer;
+        } else {
+            style.zLayer = zLayer;
+        }
+        this.layer.setStyle(style);
+    }
 
     modifyRect(feature: Feature, minLon: number, minLat: number, maxLon: number, maxLat: number) {
         this.setFeatureCoordinates(feature, createRect(minLon, minLat, maxLon, maxLat));
     }
-
 
     addRect(minLon: number, minLat: number, maxLon: number, maxLat: number, properties) {
         return this.addFeature(
@@ -181,14 +185,12 @@ class Overlay {
         ) as Feature<'Polygon'>;
     }
 
-
     addPolygon(geometry, style?, props?) {
         return this.addFeature(
             createFeature('Polygon', [geometry], props),
             style
         );
     }
-
 
     addSquare(center, dMeter, rotDeg, style, props) {
         const movePoint = geotools.movePoint;
@@ -205,8 +207,7 @@ class Overlay {
         );
     }
 
-
-    addPath(coordinates: GeoJSONCoordinate[], style, props?: {}) {
+    addPath(coordinates: GeoJSONCoordinate[], style?, props?: {}) {
         return this.addFeature({
             geometry: {
                 coordinates: coordinates,
@@ -216,7 +217,6 @@ class Overlay {
             properties: props || {}
         }, prepareStyle(style)) as Feature<'LineString'>;
     }
-
 
     addPoint(coordinates, style, props?: {}) {
         if (style instanceof Array) {

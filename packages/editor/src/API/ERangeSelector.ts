@@ -194,7 +194,6 @@ export class RangeSelector {
         const geometries: (Navlink | GeoJSONFeature)[] = Array.isArray(geometry) ? geometry : [].slice.call(arguments);
 
         for (let feature of geometries) {
-            let id: string | number;
             let coordinates: GeoJSONCoordinate[];
             // let feature: Navlink;
 
@@ -203,7 +202,7 @@ export class RangeSelector {
             }
 
             if (coordinates) {
-                this.links.addLineSegment({id: feature.id || Math.random() * 1e9 ^ 0, coordinates, feature});
+                this.links.addLineSegment({id: feature.id || Math.random() * 1e9 ^ 0, coordinates, feature: feature as Feature});
             }
         }
     };
