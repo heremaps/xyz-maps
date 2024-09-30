@@ -1069,13 +1069,13 @@ export class FeatureProvider extends Provider {
         let data;
 
         prov.storage.forEach((tile) => {
-            if (tile.z != level || !tile.isLoaded()) {
+            if (tile.z != level || !tile.isLoaded() ||
+                // Verify that the tile is part of the specified tile pyramid,
+                // considering clipped data with offset and neighboring tiles.
+                tilePyramid?.indexOf(tile.quadkey) == -1
+            ) {
                 return;
             }
-            // if (tile.z == level && tile.isLoaded() && (
-            //     // !tilePyramid || tilePyramid.startsWith(tile.quadkey)
-            // ) && tile.data.length) {
-
             // var start = performance.now();
             const tileData = tile.search(searchBBox);
 
