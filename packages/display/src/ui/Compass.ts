@@ -69,15 +69,17 @@ Compass.prototype.listeners = {
             'click': async function(ev) {
                 if (!this.aip) {
                     const {map} = this;
-                    const rotation = map.rotate();
+                    const rotation = (map.rotate() + 360) % 360;
                     const pitch = map.pitch();
-                    let transform = [0, 0];
+                    let toRot = rotation < 180 ? 0 : 360;
+                    let toPitch = 0;
 
                     if (!rotation && !pitch) {
-                        transform = [0, this.maxPitch];
+                        toPitch = this.maxPitch;
+                        toRot = 0;
                     }
 
-                    this.a = new Animation([rotation, pitch], transform, ANIMATION_MS, 'easeOutCubic', (values) => {
+                    this.a = new Animation([rotation, pitch], [toRot, toPitch], ANIMATION_MS, 'easeOutCubic', (values) => {
                         map.rotate(values[0]);
                         map.pitch(values[1]);
                     });
