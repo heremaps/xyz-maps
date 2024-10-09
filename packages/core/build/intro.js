@@ -9,7 +9,7 @@ function define(dep, factory) {
         const xyz = here.xyz.maps;
         const sharedExports = {};
         shared(sharedExports);
-        xyz.__workerURL = window.URL.createObjectURL(new Blob(['var shared={};('+shared+')(shared);('+worker+')(shared);'], {type: 'text/javascript'}));
+        xyz.__workerURL = URL.createObjectURL(new Blob(['var shared={};('+shared+')(shared);('+worker+')(shared);'], {type: 'text/javascript'}));
         factory(xyz, sharedExports, xyz.common);
     }
 }
