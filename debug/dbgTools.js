@@ -305,18 +305,20 @@
 
         const animate = () => {
             const display = dbgTools.getDisplay();
-            let lights;
-            const layer = display.getLayers().find((layer) => lights = layer.getStyleManager().getLights());
-            if (!lights) return;
-            for (let name in lights) {
-                for (let light of lights[name]) {
-                    if (light.direction) {
-                        rotateZ(light.direction, Math.PI / 180);
+            const animateLayerLights = (layer) => {
+                const lights = layer.getStyleManager().getLights();
+                if (!lights) return;
+                for (let name in lights) {
+                    for (let light of lights[name]) {
+                        if (light.direction) {
+                            rotateZ(light.direction, Math.PI / 180);
+                        }
                     }
                 }
-            }
-            layer.getStyleManager().setLights(lights);
-            // layer.getStyleManager().setLights({default: lights});
+                layer.getStyleManager().setLights(lights);
+            };
+            display.getLayers().forEach(animateLayerLights);
+
             display.refresh();
             if (lightAnimated) requestAnimationFrame(animate);
         };
