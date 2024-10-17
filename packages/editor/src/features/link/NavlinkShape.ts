@@ -18,7 +18,13 @@
  */
 
 import {JSUtils, geotools, vec3} from '@here/xyz-maps-common';
-import {FeatureProvider, Feature, GeoJSONFeature, GeoJSONCoordinate, LineStyle} from '@here/xyz-maps-core';
+import {
+    FeatureProvider,
+    Feature,
+    GeoJSONFeature,
+    GeoJSONCoordinate,
+    StyleGroup
+} from '@here/xyz-maps-core';
 import GeoFence from './GeoFence';
 import {Navlink} from './Navlink';
 import {TurnRestrictionEditor} from '../../tools/turnrestriction/TrEditor';
@@ -240,11 +246,6 @@ function onMouseUpShape(ev) {
 
     prv._cls = null;
 
-    // reenabale mouse move event for all connected links of the shape
-    // orgCLinks.forEach(function(cl){
-    //     cl.link.toggleHover( true )
-    // });
-
     if (isMoved) {
         AFInfo = linkTools.fixGeo(navlink, index);
 
@@ -258,6 +259,8 @@ function onMouseUpShape(ev) {
                 index = AFInfo;
             }
         }
+
+        setConnectedLinksDefault(this);
     }
 
     linkTools.showDirection(navlink);
@@ -298,13 +301,10 @@ function onMouseUpShape(ev) {
     }
 
     // make sure valid shape object is available even if shape changed due to geometry restrictions
-    navlink._e().listeners.trigger(
-        ev,
-
+    navlink._e().listeners.trigger(ev,
         navlink.editState('removed')
             ? shp// _simplified
             : linkTools.private(navlink, 'shps')[index], // ._simplified,
-
         isMoved
             ? 'dragStop'
             : undefined
@@ -316,16 +316,21 @@ function onMouseUpShape(ev) {
     }
 }
 
+const setConnectedLinksDefault = (shapePnt) => {
+    getPrivate(shapePnt).cLinks.forEach((cl) => {
+        linkTools.defaults(cl.link, null, true);
+    });
+};
+
 function mouseOutHandler() {
     const shapePnt = this;
     const prv = getPrivate(shapePnt);
     document.body.style.cursor = 'default';
 
-    prv.cLinks.forEach((cl) => {
-        linkTools.defaults(cl.link);
-    });
+    setConnectedLinksDefault(shapePnt);
 
     delete this.properties[EDITOR_NS].hovered;
+
 
     prv.line._e().setStyle(this);
 }
@@ -338,13 +343,22 @@ function mouseInHandler() {
 
     document.body.style.cursor = 'move';
 
-    prv.cLinks.forEach((cl) => {
-        const style = EDITOR.getStyle(cl.link) as LineStyle[];
+    prv.cLinks.forEach(({link}) => {
+        const customStyle = EDITOR.getCustomStyle(link);
+        let style: StyleGroup & {__default?: StyleGroup};
+
+        if (customStyle) {
+            style = JSUtils.extend(true, [], customStyle);
+            // Preserve previously applied custom styles when "default" styles are set.
+            style.__default = customStyle;
+        } else {
+            style = EDITOR.getStyle(link) as StyleGroup;
+        }
 
         for (let s = 0; s < style.length; s++) {
             style[s].opacity = 0.5;
         }
-        EDITOR.setStyle(cl.link, style);
+        EDITOR.setStyle(link, style);
     });
 
     this.properties[EDITOR_NS].hovered = true;

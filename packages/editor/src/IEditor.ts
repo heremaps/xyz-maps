@@ -186,6 +186,10 @@ export default class InternalEditor {
         return JSUtils.extend(true, [], style);
     };
 
+    getCustomStyle(feature: Feature): StyleGroup {
+        return this.getLayer(feature)._getCustomStyleGroup(feature);
+    };
+
     getStyleProperty(feature: Feature, property: string) {
         const styleGroup = this.getStyle(feature);
         for (let style of styleGroup) {
@@ -223,9 +227,10 @@ export default class InternalEditor {
             // and a refresh for possible style update of styleAttributeFunctions is triggered.
             style = layer._getCustomStyleGroup(feature);
         } else if (style == 'default') {
-            style = UNDEF;
+            // __default is used to preserve previously applied custom styles that may have been "overwritten"
+            // when the editor itself applies custom styles.
+            style = (layer._getCustomStyleGroup(feature) as StyleGroup & {__default?: StyleGroup}).__default || UNDEF;
         }
-
         // @ts-ignore: merge attribute is "internal"
         layer.setStyleGroup(feature, style, merge);
     };

@@ -17,7 +17,7 @@
  * License-Filename: LICENSE
  */
 
-import {GeoJSONBBox as BBox, GeoJSONCoordinate} from '@here/xyz-maps-core';
+import {Feature, GeoJSONBBox as BBox, GeoJSONCoordinate, StyleGroup} from '@here/xyz-maps-core';
 import {geotools, JSUtils} from '@here/xyz-maps-common';
 import {getPointAtLength, getTotalLength, getPntAt, getSegmentIndex} from '../../geometry';
 import {calcRelPosOfPoiAtLink} from '../../map/GeoMath';
@@ -124,14 +124,13 @@ function handleEvent(ev) {
     line._e().listeners.trigger(ev, line);
 }
 
-function triggerDisplayRefresh(line: Navlink, editStates?: {}) {
+function triggerDisplayRefresh(line: Navlink, editStates?: {}, enforceDefault?: boolean) {
     if (editStates) {
         for (let s in editStates) {
             line.editState(<EditStates>s, editStates[s]);
         }
     }
-
-    line._e().setStyle(line);
+    line._e().setStyle(line, enforceDefault ? 'default': UNDEF);
 }
 
 function storeConnectedPoints(line: Navlink) {
@@ -758,7 +757,7 @@ var tools = {
         }
     },
 
-    defaults: function(line: Navlink, selected?: boolean) {
+    defaults: function(line: Navlink, selected?: LocationId, enforceDefault?: boolean) {
         const prv = getPrivate(line);
 
         if (selected && selected != prv._cPnt) {
@@ -770,7 +769,7 @@ var tools = {
         triggerDisplayRefresh(line, {
             'selected': false,
             'hovered': false
-        });
+        }, enforceDefault);
 
         return line;
     },
