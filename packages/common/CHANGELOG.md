@@ -1,3 +1,15 @@
+## 0.40.0-dev.1 (2024-10-17)
+### display
+* improved: Prevent transparency rendering issues when handling clipped data with offsets larger than remote source tile bounds.
+* fixed: prevent the Compass UI from causing the map view to be reset in some cases with excessive applied rotation and tilt
+### core
+* fixed: resolve incorrect module initialization in non-browser environments like Node.js
+* fix: resolve potential rendering artifacts for huge polygons in MVT datasources
+### editor
+* improved: Allow customization of default RangeSelector through enhanced overlay styles.
+* fixed: Highlighted crossings links are reset in all cases.
+* fixed: Ensure RangeSelector fully supports custom Navlink/Line styles and correctly handles zLayer for proper layering.
+
 ## 0.39.0 (2024-9-6)
 ### editor
 * improved: Full support added for custom Navlink styles, which are now preserved and reapplied during re-rendering, such as in response to pointer events.
