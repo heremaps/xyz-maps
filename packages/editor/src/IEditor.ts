@@ -229,7 +229,7 @@ export default class InternalEditor {
         } else if (style == 'default') {
             // __default is used to preserve previously applied custom styles that may have been "overwritten"
             // when the editor itself applies custom styles.
-            style = (layer._getCustomStyleGroup(feature) as StyleGroup & {__default?: StyleGroup}).__default || UNDEF;
+            style = (layer._getCustomStyleGroup(feature) as StyleGroup & {__default?: StyleGroup})?.__default || UNDEF;
         }
         // @ts-ignore: merge attribute is "internal"
         layer.setStyleGroup(feature, style, merge);

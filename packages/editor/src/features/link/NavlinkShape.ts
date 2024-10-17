@@ -317,7 +317,7 @@ function onMouseUpShape(ev) {
 }
 
 const setConnectedLinksDefault = (shapePnt) => {
-    getPrivate(shapePnt).cLinks.forEach((cl) => {
+    getPrivate(shapePnt).cLinks?.forEach((cl) => {
         linkTools.defaults(cl.link, null, true);
     });
 };
