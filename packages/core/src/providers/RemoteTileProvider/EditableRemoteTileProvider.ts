@@ -92,8 +92,8 @@ export abstract class EditableRemoteTileProvider extends EditableFeatureProvider
         }
 
         const {preProcessor} = options;
-        provider.preprocess = createRemoteProcessor(preProcessor || (<any>options).preprocessor);
-        provider.postprocess = createRemoteProcessor((<any>options).postProcessor);
+        provider.preprocess = createRemoteProcessor(preProcessor || (<any>options).preprocessor, provider);
+        provider.postprocess = createRemoteProcessor((<any>options).postProcessor, provider);
 
         this.remoteTileLoader = new FixedLevelTileLoadDelegator({
             provider,

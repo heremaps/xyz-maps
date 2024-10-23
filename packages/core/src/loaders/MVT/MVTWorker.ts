@@ -23,6 +23,10 @@ import {HTTPWorker} from '../webworker/HTTPWorker';
 export default {
     id: 'MVTWorker',
     Worker: class MVTWorker extends HTTPWorker {
+        constructor() {
+            super({responseType: 'arraybuffer'});
+        }
+
         process(arrayBuffer: any, x: number, y: number, z: number): { data: {}, transfer: any[] } {
             const triangles = triangulate(arrayBuffer, x, y, z);
 

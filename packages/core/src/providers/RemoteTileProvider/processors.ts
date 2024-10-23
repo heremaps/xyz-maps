@@ -39,6 +39,7 @@ export type ProcessorInput = {
         x: number;
         y: number;
         z: number;
+        quadkey: string;
     }
 }
 
@@ -69,14 +70,14 @@ export const executeProcessor = (processor, data: any = {}) => {
     }
 };
 
-export const createRemoteProcessor = (preprocessor: PreProcessor) => function(
+export const createRemoteProcessor = (preprocessor: PreProcessor, provider: TileProvider) => function(
     data: any[] | PostProcesserInput,
     ready,
     tile?: Tile
 ) {
     const processorInput: ProcessorInput = {
         data: data,
-        provider: <TileProvider> this,
+        provider,
         ready: ready
     };
 
@@ -84,7 +85,8 @@ export const createRemoteProcessor = (preprocessor: PreProcessor) => function(
         processorInput.tile = {
             x: tile.x,
             y: tile.y,
-            z: tile.z
+            z: tile.z,
+            quadkey: tile.quadkey
         };
     }
     executeProcessor(preprocessor, processorInput);

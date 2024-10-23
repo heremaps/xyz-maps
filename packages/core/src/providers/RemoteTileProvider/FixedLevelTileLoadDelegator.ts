@@ -20,9 +20,9 @@
 
 import TileReceiver from './TileReceiver';
 import {Tile} from '../../tile/Tile';
+import {getTilesOfLevel} from '../../tile/TileUtils';
 import TileProvider from '../TileProvider/TileProvider';
 import {TileLoadDelegator} from './TileLoadDelegator';
-import {tileUtils} from '../../tile/TileUtils';
 
 let UNDEF;
 
@@ -68,7 +68,7 @@ export class FixedLevelTileLoadDelegator extends TileLoadDelegator {
             quadkey = tile.quadkey;
 
             // get loader tile
-            dataTiles = tileUtils.getTilesOfLevel(<string>quadkey, this.level);
+            dataTiles = getTilesOfLevel(<string>quadkey, this.level);
 
             for (let i = 0, dTile, dQuad; i < dataTiles.length; i++) {
                 dQuad = dataTiles[i];
@@ -113,7 +113,7 @@ export class FixedLevelTileLoadDelegator extends TileLoadDelegator {
     };
 
     clear() {
-        this.loader.clear();
+        super.clear();
         this.dep = {};
     }
 
@@ -128,7 +128,7 @@ export class FixedLevelTileLoadDelegator extends TileLoadDelegator {
             if (tileLevel > cacheLevel) {
                 cacheQuads = [quadkey.substr(0, cacheLevel)];
             } else if (tileLevel < cacheLevel) {
-                cacheQuads = tileUtils.getTilesOfLevel(quadkey, cacheLevel);
+                cacheQuads = getTilesOfLevel(quadkey, cacheLevel);
             }
 
             if (cacheQuads) {
@@ -204,7 +204,7 @@ export class FixedLevelTileLoadDelegator extends TileLoadDelegator {
                 return tile;
             }
 
-            const loaderTiles = tileUtils.getTilesOfLevel(quadkey, storageLevel);
+            const loaderTiles = getTilesOfLevel(quadkey, storageLevel);
             let loaderTile;
             let receiver;
 

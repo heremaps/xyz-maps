@@ -72,7 +72,7 @@ export interface HTTPRequest {
 }
 
 
-interface HTTPLoaderOptions {
+export interface HTTPLoaderOptions {
     responseType?: string;
     // src?: string | ((x: number, y: number, z: number, qk: string) => string);
     url?: string | ((x: number, y: number, z: number, qk: string) => string);
@@ -133,10 +133,7 @@ class HTTPLoader implements TileLoader {
             );
         }
 
-        this.http = new HTTPClient({
-            responseType: responseType,
-            withCredentials: withCredentials
-        });
+        this.http = new HTTPClient({responseType, withCredentials});
 
         this.tileType = options.tileType;
     };

@@ -17,7 +17,7 @@
  * License-Filename: LICENSE
  */
 
-import {HTTPLoader} from '../HTTPLoader';
+import {HTTPLoader, HTTPLoaderOptions} from '../HTTPLoader';
 
 declare const self: Worker;
 
@@ -25,8 +25,12 @@ declare const self: Worker;
 export class HTTPWorker {
     loader;
 
-    constructor() {
-        const loader = this.loader = new HTTPLoader({responseType: 'arraybuffer'});
+    id: string;
+
+    constructor(options: HTTPLoaderOptions) {
+        const {responseType} = options;
+
+        const loader = this.loader = new HTTPLoader({responseType});
         const worker = this;
 
         self.addEventListener('message', function(e) {

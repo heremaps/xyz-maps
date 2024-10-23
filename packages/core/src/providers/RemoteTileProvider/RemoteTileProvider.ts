@@ -22,6 +22,7 @@ import LoaderManager from '../../loaders/Manager';
 import {Tile} from '../../tile/Tile';
 import {RemoteTileProviderOptions} from './RemoteTileProviderOptions';
 import {FixedLevelTileLoadDelegator} from './FixedLevelTileLoadDelegator';
+import {TileLoadDelegator} from './TileLoadDelegator';
 
 /**
  *  A remote tile provider fetches data from remote data-sources.
@@ -39,7 +40,7 @@ export class RemoteTileProvider extends FeatureProvider {
 
     clipped: boolean;
 
-    private remoteTileLoader: FixedLevelTileLoadDelegator;
+    protected remoteTileLoader: TileLoadDelegator;
 
     /**
      * @param options - options to configure the provider
@@ -77,8 +78,8 @@ export class RemoteTileProvider extends FeatureProvider {
         //     );
         // }
 
-
         const {preProcessor} = options;
+
         this.remoteTileLoader = new FixedLevelTileLoadDelegator({
             provider,
             loader,

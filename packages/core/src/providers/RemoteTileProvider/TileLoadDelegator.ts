@@ -28,18 +28,20 @@ let UNDEF;
 
 type TileLoader = any;
 
+type PreProcessor = (input: {
+    data: any,
+    ready: (features: any) => void,
+    tile?: { x: number, y: number, z: number }
+}) => (any | Promise<any>)
+
 export class TileLoadDelegator {
-    protected provider: TileProvider;
+    provider: TileProvider;
     protected preprocess: (data: any, ready, tile?: Tile) => void;
 
     loader: TileLoader;
 
     constructor(options: {
-        provider: TileProvider, loader: TileLoader, preProcessor?: (input: {
-            data: any,
-            ready: (features: any) => void,
-            tile?: { x: number, y: number, z: number }
-        }) => (any | Promise<any>),
+        provider: TileProvider, loader: TileLoader, preProcessor?: PreProcessor,
         processTileResponse?: (tile: Tile, data: any, onDone: (data: any) => void, xhr: XMLHttpRequest) => any
     }) {
         let {loader} = options;
@@ -55,12 +57,19 @@ export class TileLoadDelegator {
         this.loader = loader;
         this.provider = options.provider;
 
-        const {preProcessor} = options;
-        this.preprocess = createRemoteProcessor(<any>preProcessor);
+        this.initPreprocessor(options.preProcessor);
 
         if (typeof options.processTileResponse == 'function') {
             this.processTileResponse = options.processTileResponse;
         }
+    }
+
+    initPreprocessor(preProcessor: PreProcessor) {
+        this.preprocess = createRemoteProcessor(preProcessor, this.provider);
+    }
+
+    clear() {
+        this.loader.clear();
     }
 
     cancel(quadkey: string | Tile, cb?: () => void) {

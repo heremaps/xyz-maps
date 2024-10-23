@@ -17,7 +17,7 @@
  * License-Filename: LICENSE
  */
 
-import {HTTPLoader} from '../HTTPLoader';
+import {HTTPLoader, HTTPLoaderOptions} from '../HTTPLoader';
 
 // const createWorker = (url) => {
 //     const blob   = new Blob(['('+fnc.toString()+')()'], { type: "text/javascript" });
@@ -32,7 +32,7 @@ class WorkerHTTPLoader extends HTTPLoader {
 
     private cbs = new Map();
 
-    constructor(worker: string, options, payload?) {
+    constructor(worker: string, options: HTTPLoaderOptions, payload?) {
         super(options);
 
         payload ||= new ArrayBuffer(0);
@@ -42,6 +42,7 @@ class WorkerHTTPLoader extends HTTPLoader {
         this.worker.postMessage({
             msg: 'init',
             worker,
+            options: JSON.parse(JSON.stringify(options)),
             payload
         }, [payload]);
         this.worker.addEventListener('message', this.receiveMessage.bind(this));

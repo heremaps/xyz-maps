@@ -24,6 +24,7 @@ import GenericLoader from '../loaders/Manager';
 import {HTTPLoader} from '../loaders/HTTPLoader';
 import {TileLoadDelegator} from './RemoteTileProvider/TileLoadDelegator';
 import {ImageProviderOptions} from './ImageProviderOptions';
+import {FixedLevelTileLoadDelegator} from './RemoteTileProvider/FixedLevelTileLoadDelegator';
 
 /**
  *  Tile Provider for Image/Raster data.
@@ -71,7 +72,6 @@ export class ImageProvider extends TileProvider {
             }
             onDone(data);
         };
-
 
         this.tileLoader = new TileLoadDelegator({
             provider: this,
