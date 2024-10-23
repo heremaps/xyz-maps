@@ -213,31 +213,23 @@ class GeometryBuffer {
     }
 
     private createIndex(index: number[] | Uint16Array | Uint32Array, i32?: boolean): IndexGrp {
+        const data = Array.isArray(index) ?
+            i32 ? new Uint32Array(index) : new Uint16Array(index)
+            : index;
+        // let i = index.length;
+        // while (i--) {
+        //     if (index[i] > 0xffff) {
+        //         i32 = true;
+        //         break;
+        //     }
+        // }
         return {
-            index: i32 ? {
-                data: isTypedArray(index) ? (<Uint32Array>index) : new Uint32Array(index),
-                type: GL_UNSIGNED_INT,
-                length: index.length
-            } : {
-                data: isTypedArray(index) ? (<Uint16Array>index) : new Uint16Array(index),
-                type: GL_UNSIGNED_SHORT,
-                length: index.length
+            index: {
+                type: data.constructor == Uint32Array ? GL_UNSIGNED_INT : GL_UNSIGNED_SHORT,
+                length: index.length,
+                data
             }
         };
-
-
-        // return {
-        //     index: i32 ? {
-        //         data: new Uint32Array(3),
-        //         // data: isTypedArray(index) ? (<Uint16Array | Uint32Array>index) : new Uint32Array(index),
-        //         type: GL_UNSIGNED_INT,
-        //         length: index.length
-        //     } : {
-        //         data: isTypedArray(index) ? index : new Uint16Array(index),
-        //         type: GL_UNSIGNED_SHORT,
-        //         length: index.length
-        //     }
-        // };
     }
 
     private createArrays(arrays: ArrayData) {
