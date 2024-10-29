@@ -14,6 +14,7 @@
   },
   "main": "dist/xyz-maps-common.min.js",
   "module": "dist/xyz-maps-common.esm.min.js",
+  "types": "dist/xyz-maps-common.d.js",
   "files": [
     "dist/xyz*.min.js"
   ],
@@ -21,6 +22,7 @@
     "watch-dev": "rollup -c --watch --environment BUILD:dev",
     "build-dev": "rollup -c --environment BUILD:dev",
     "build-release": "rollup -c --environment BUILD:production",
+    "build-dts": "npx build-dts -p .",
     "update-changelog": "npx build-changelog"
   },
   "browser": {},

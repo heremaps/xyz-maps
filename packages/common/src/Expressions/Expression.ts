@@ -35,10 +35,17 @@ export type Context = { [name: string]: any };
 
 let expId = 0;
 
+/**
+ * Expression
+ * @hidden
+ */
 export abstract class Expression implements IExpression {
     static operator: string;
     protected _id?: string | number;
 
+    /**
+     * @hidden
+     */
     static isExpression(exp) {
         return exp instanceof Expression;
     }
@@ -47,8 +54,14 @@ export abstract class Expression implements IExpression {
         return this.isExpression(exp) && exp.dynamic(context);
     }
 
+    /**
+     * @hidden
+     */
     protected env: ExpressionParser;
 
+    /**
+     * @hidden
+     */
     json: JSONExpression;
 
     constructor(json: JSONExpression, env: ExpressionParser) {
@@ -64,6 +77,9 @@ export abstract class Expression implements IExpression {
     // compute(context);
     abstract eval(context);
 
+    /**
+     * @hidden
+     */
     dynamic(context: Context, start = 1, step = 1, stop?: number): false | Expression {
         const operands: JSONExpression = [this.json[0]];
         let partial = false;
@@ -86,10 +102,16 @@ export abstract class Expression implements IExpression {
         return partial ? this.clone(operands) : dynamic;
     }
 
+    /**
+     * @hidden
+     */
     protected compileOperand(index: number) {
         return this.json[index] = this.env.parseJSON(this.json[index]);
     }
 
+    /**
+     * @hidden
+     */
     operand(index: number, context?) {
         return this.env.evaluateParsed(this.compileOperand(index), context);
     }

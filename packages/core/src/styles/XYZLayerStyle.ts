@@ -66,9 +66,17 @@ const deepCopy = (src: any) => {
     return cpy;
 };
 
+/**
+ * XYZLayerStyle
+ * @hidden
+ */
 export class XYZLayerStyle implements LayerStyle {
     styleGroups = null;
     private _c: StyleGroupMap = null;
+    /**
+     * definitions
+     * @hidden
+     */
     definitions: LayerStyle['definitions'];
 
     backgroundColor?: LayerStyle['backgroundColor'];
@@ -87,12 +95,22 @@ export class XYZLayerStyle implements LayerStyle {
             $id: null
         };
     private layer: TileLayer;
-    private expParser: ExpressionParser;
+    /**
+     * XYZLayerStyle
+     * @protected
+     * @hidden
+     */
+    protected expParser: ExpressionParser;
     private flatStyles?: Style[];
     private _filteredStyleGrp: StyleGroup;
 
     private _style: LayerStyle;
 
+    /**
+     *
+     * @param styleJSON
+     * @hidden
+     */
     constructor(styleJSON: LayerStyle) {
         for (let p in styleJSON) {
             const property = styleJSON[p];
@@ -132,6 +150,11 @@ export class XYZLayerStyle implements LayerStyle {
         }
     }
 
+    /**
+     * setLights
+     * @param lights
+     * @hidden
+     */
     setLights(lights: LayerStyle['lights']) {
         this.lights = {};
         for (let name in lights) {
@@ -154,6 +177,11 @@ export class XYZLayerStyle implements LayerStyle {
         return name ? this.lights[name] : this.lights;
     }
 
+    /**
+     * setBgColor
+     * @param backgroundColor
+     * @hidden
+     */
     setBgColor(backgroundColor: LayerStyle['backgroundColor']) {
         if (ExpressionParser.isJSONExp(backgroundColor)) {
             const color = this.expParser.evaluate(<any>backgroundColor, this.expContext, ExpressionMode.dynamic);
@@ -205,6 +233,10 @@ export class XYZLayerStyle implements LayerStyle {
         return this.expParser;
     }
 
+    /**
+     * getExpressionContext
+     * @hidden
+     */
     getExpressionContext() {
         return this.expContext;
     }
@@ -217,6 +249,13 @@ export class XYZLayerStyle implements LayerStyle {
         return this._c[feature.id];
     }
 
+    /**
+     * initMapContext
+     * @param feature
+     * @param zoom
+     * @protected
+     * @hidden
+     */
     protected initMapContext(feature: Feature, zoom: number): XYZLayerStyle['expContext'] {
         const geometryType = feature.geometry.type;
         const {expContext} = this;
@@ -306,6 +345,11 @@ export class XYZLayerStyle implements LayerStyle {
         return this._style;
     }
 
+    /**
+     * initZoom
+     * @param zoomlevel
+     * @hidden
+     */
     initZoom(zoomlevel: number): boolean {
         const {expParser, expContext} = this;
         if (expContext.zoom != zoomlevel) {

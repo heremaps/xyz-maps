@@ -18,9 +18,14 @@
  */
 
 export namespace Colors {
-
+    /**
+     * @hidden
+     */
     export type RGBA = [number, number, number, number?];
 
+    /**
+     * @hidden
+     */
     export type Color = string | RGBA | number;
 
     const HTML_COLOR_NAMES: { [color: string]: RGBA | string } = {
@@ -218,6 +223,9 @@ export namespace Colors {
         ];
     };
 
+    /**
+     * @hidden
+     */
     export const toRGB = (color: Color, ignoreNumbers?: boolean): RGBA => {
         let rgba;
         if (color) {

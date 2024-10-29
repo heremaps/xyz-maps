@@ -55,7 +55,13 @@ class SimpleLinkCache<E> implements Cache<E> {
     }
 }
 
+/**
+ * @hidde
+ */
 export class ExpressionParser {
+    /**
+     * @hidde
+     */
     static isJSONExp(exp: any) {
         return Array.isArray(exp) && typeof exp[0] == 'string';
     }
@@ -65,12 +71,18 @@ export class ExpressionParser {
     }
 
     static Mode = ExpressionMode;
+    /**
+     * @hidden
+     */
     static Expressions: {
         [op: string]: new (e: JSONExpression, p: ExpressionParser) => Expression & { [K in keyof typeof Expression]: typeof Expression[K] }
     };
 
     definitions: Definitions;
     private cache: Cache<JSONExpression> = new Map();
+    /**
+     * @hidden
+     */
     context: Context;
     private defaultResultCache: Cache<Expression> = new Map();
     private resultCache: Cache<Expression>;
@@ -117,6 +129,13 @@ export class ExpressionParser {
         this.cache.clear();
     }
 
+    /**
+     * @hidden
+     * @param exp
+     * @param context
+     * @param mode
+     * @param cache
+     */
     evaluate(exp: Def, context: Context, mode: ExpressionMode = ExpressionMode.static, cache?) {
         let result;
         exp = this.parseJSON(exp);
@@ -226,6 +245,12 @@ export class ExpressionParser {
         return Boolean(ExpressionParser.Expressions[exp[0]]);
     }
 
+
+    /**
+     * @hidden
+     * @param mode
+     * @param cache
+     */
     setMode(mode: ExpressionMode, cache?: Cache<Expression>) {
         // if (mode != this._mode) {
         this._mode = mode;
