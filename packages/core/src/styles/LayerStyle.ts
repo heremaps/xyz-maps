@@ -19,6 +19,7 @@
 
 import {Feature} from '../features/Feature';
 import {Style} from './GenericStyle';
+import {LinearGradient} from './HeatmapStyle';
 
 /**
  * A StyleExpression is a JSON array representing an expression that returns the desired value
@@ -343,6 +344,21 @@ export interface LayerStyle {
      * - A `StyleExpression<Color>` to compute the color using a style expression.
      */
     backgroundColor?: Color | StyleZoomRange<Color> | ((zoomlevel: number) => Color) | StyleExpression<Color>;
+
+    /**
+     * Defines the sky color of the map.
+     * - The sky becomes visible when the map is pitched to higher angles.
+     * - When multiple layers with different sky colors are used, the sky color from the bottommost layer is applied.
+     * - Supports various formats, including:
+     *    - `Color`: A single color applied across all zoom levels.
+     *    - `StyleZoomRange<Color>`: Specifies a range of colors based on zoom levels.
+     *    - `(zoomlevel: number) => Color`: A function that dynamically determines the color based on the current zoom level.
+     *    - `StyleExpression<Color>`: An expression to compute color based on style parameters.
+     *    - `LinearGradient`: Applies a gradient effect for smooth transitions in sky color.
+     *      - When using `LinearGradient`, stops at `0` represent the color near the horizon (close to the ground), and stops at `1` represent the color in the sky at the top of the screen.
+     *      - The full gradient (0 to 1) becomes fully visible only when the map pitch is set to maximum (85 degrees).
+     */
+    skyColor?: Color | StyleZoomRange<Color> | ((zoomlevel: number) => Color) | StyleExpression<Color> | LinearGradient;
 
     /**
      * The `lights` property specifies a collection of light sources that can be used to illuminate features within the layer.

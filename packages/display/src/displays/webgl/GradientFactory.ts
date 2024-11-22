@@ -18,8 +18,11 @@
  */
 
 import {Texture} from './Texture';
+import {LinearGradient} from '@here/xyz-maps-core';
 
-class GradientTexture extends Texture {
+type LinearGradientStops = LinearGradient['stops'];
+
+export class GradientTexture extends Texture {
     ref: number = 0;
     gradient: any;
     factory: GradientFactory;
@@ -36,10 +39,6 @@ class GradientTexture extends Texture {
 // const defaultGradientConfig = {0: 'rgba(0, 0, 255, 0)', 0.1: 'royalblue', 0.3: 'cyan', 0.5: 'lime', 0.7: 'yellow', 1.0: 'red'};
 
 
-type LinearGradient = {
-    [stop: string]: string;
-}
-
 export class GradientFactory {
     static canvas: HTMLCanvasElement = document.createElement('canvas');
     static ctx: CanvasRenderingContext2D = GradientFactory.canvas.getContext('2d');
@@ -47,7 +46,7 @@ export class GradientFactory {
     private width: number;
     private height: number;
     private gl: WebGLRenderingContext;
-    private cache: Map<LinearGradient, GradientTexture> = new Map();
+    private cache: Map<LinearGradientStops, GradientTexture> = new Map();
 
     constructor(gl: WebGLRenderingContext, width: number = 256, height: number = 1) {
         this.gl = gl;
@@ -55,8 +54,16 @@ export class GradientFactory {
         this.height = height;
     }
 
-    getTexture(gradientConfig: LinearGradient, preprocessor?: (stops: LinearGradient) => LinearGradient): GradientTexture {
-        let texture = this.cache.get(gradientConfig);
+    isGradient(gradient: LinearGradient | any): boolean {
+        return typeof gradient?.type == 'string' && typeof gradient.stops == 'object';
+    }
+
+    getTexture(linearGradient: LinearGradientStops | LinearGradient, preprocessor?: (stops: LinearGradientStops) => LinearGradientStops): GradientTexture {
+        const gradientStops: LinearGradientStops = this.isGradient(linearGradient)
+            ? (linearGradient as LinearGradient).stops
+            : linearGradient as LinearGradientStops;
+
+        let texture = this.cache.get(gradientStops);
 
         if (!texture) {
             const canvas = GradientFactory.canvas;
@@ -67,7 +74,7 @@ export class GradientFactory {
 
             const gradient = ctx.createLinearGradient(0, 0, width, height);
 
-            const stops = preprocessor?.(gradientConfig) || gradientConfig;
+            const stops = preprocessor?.(gradientStops) || gradientStops;
 
             for (var key in stops) {
                 gradient.addColorStop(Number(key), stops[key]);
@@ -80,10 +87,10 @@ export class GradientFactory {
             const data = ctx.getImageData(0, 0, width, height).data;
 
             texture = new GradientTexture(this.gl, {width, height, data}, {premultiplyAlpha: true});
-            texture.gradient = gradientConfig;
+            texture.gradient = gradientStops;
             texture.factory = this;
 
-            this.cache.set(gradientConfig, texture);
+            this.cache.set(gradientStops, texture);
         }
         texture.ref++;
 

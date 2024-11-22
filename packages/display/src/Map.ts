@@ -477,16 +477,16 @@ export class Map {
         if (pitch !== UNDEF) {
             const maxPitch = this._cfg.maxPitch;
             pitch = Math.max(0, Math.min(maxPitch, Math.round(pitch % 360 * 10) / 10));
-            const rad = -pitch * Math.PI / 180;
+            const rad = pitch * Math.PI / 180;
             const rotX = this._rx;
 
             if (rotX != rad) {
                 this._rx = rad;
                 this.updateGrid();
-                this._l.trigger('pitch', ['pitch', pitch, -rotX * 180 / Math.PI], true);
+                this._l.trigger('pitch', ['pitch', pitch, rotX * 180 / Math.PI], true);
             }
         }
-        return -this._rx * 180 / Math.PI;
+        return this._rx * 180 / Math.PI;
     };
 
     /**

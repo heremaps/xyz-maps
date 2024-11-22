@@ -18,7 +18,7 @@
  */
 
 import BasicRender from '../BasicRender';
-import {AmbientLight, CustomLayer, Tile, TileLayer} from '@here/xyz-maps-core';
+import {CustomLayer, Tile, TileLayer} from '@here/xyz-maps-core';
 import GLTile from './GLTile';
 import RectProgram from './program/Rect';
 import CircleProgram from './program/Circle';
@@ -33,16 +33,22 @@ import BoxProgram from './program/Box';
 import SphereProgram from './program/Sphere';
 import ModelProgram from './program/Model';
 import HeatmapProgram from './program/Heatmap';
+import {SkyProgram, createSkyBuffer, createSkyMatrix} from './program/Sky';
 import Program, {ColorMask, UniformMap} from './program/Program';
 
-import {createGridTextBuffer, createGridTileBuffer, createStencilTileBuffer} from './buffer/debugTileBuffer';
+import {
+    createGridTextBuffer,
+    createGridTileBuffer,
+    createStencilTileBuffer
+} from './buffer/debugTileBuffer';
 import {GeometryBuffer, IndexData, IndexGrp} from './buffer/GeometryBuffer';
 
 import {PASS} from './program/GLStates';
-import {TileBufferData} from './Display';
+import {TileBufferData, MAX_PITCH_GRID} from './Display';
 
 import {transformMat4} from 'gl-matrix/vec3';
 import {
+    ortho,
     clone,
     copy,
     create,
@@ -61,11 +67,15 @@ import {Attribute} from './buffer/Attribute';
 import {GLExtensions} from './GLExtensions';
 import {Texture} from './Texture';
 import {ScreenTile} from '../Layers';
+import {Color} from '@here/xyz-maps-common';
+import {GradientTexture} from './GradientFactory';
 
-import {Color, vec3} from '@here/xyz-maps-common';
+
 import toRGB = Color.toRGB;
 
+
 const mat4 = {
+    ortho,
     create,
     lookAt,
     multiply,
@@ -81,7 +91,11 @@ const mat4 = {
 };
 
 const PI2 = 2 * Math.PI;
-const FIELD_OF_VIEW = Math.atan(1 / 3) * 2; // ~ 36.87 deg
+const DEG_2_RAD = Math.PI / 180;
+const FIELD_OF_VIEW = 38 * DEG_2_RAD;
+// Calculates the critical pitch angle where the view frustum reaches its limit.
+// Beyond this angle, the calculation for zFar becomes unstable or negative.
+const CRITICAL_PITCH = Math.PI / 2 - Math.atan(Math.tan(FIELD_OF_VIEW / 2));
 
 const EXTENSION_OES_ELEMENT_INDEX_UINT = 'OES_element_index_uint';
 const EXTENSION_ANGLE_INSTANCED_ARRAYS = 'ANGLE_instanced_arrays';
@@ -95,7 +109,7 @@ const DEBUG_GRID_FONT = {
     // textBaseline : 'alphabetic'
 };
 
-const MAX_PITCH_SCISSOR = 72 / 180 * Math.PI;
+const MAX_PITCH_SCISSOR = 72 * DEG_2_RAD;
 
 const FULL_TILE_STENCIL = [[0, 0]];
 
@@ -117,6 +131,12 @@ export class GLRender implements BasicRender {
     private readonly invVPMat: Float32Array; // inverse projection matrix
     // the worldmatrix used by custom layers to project from absolute worldcoordinates [0-1] to screencoordinates
     private readonly worldMatrix: Float64Array;
+    // temporary matrix used for matrix calculations
+    private _tmpMatrix: Float32Array;
+
+    private skyMatrix: Float32Array = createSkyMatrix();
+    private skyBuffer: GeometryBuffer = createSkyBuffer();
+
     screenMat: Float32Array;
     invScreenMat: Float32Array;
     cameraWorld: Float64Array = new Float64Array(3);
@@ -143,8 +163,6 @@ export class GLRender implements BasicRender {
     // tileSize: number = 256;
 
     private dpr: number; // devicePixelRatio
-    private w: number;
-    private h: number;
 
     private dbgTile = createGridTileBuffer();
     private stencilTile: GeometryBuffer;
@@ -199,6 +217,8 @@ export class GLRender implements BasicRender {
         this.invVPMat = mat4.create();
         this.screenMat = mat4.create();
         this.invScreenMat = mat4.create();
+        this._tmpMatrix = mat4.create();
+
         this.worldMatrix = new Float64Array(16);
 
         this.tilePreviewTransform = {
@@ -246,6 +266,10 @@ export class GLRender implements BasicRender {
 
     setBackgroundColor(color: Color.RGBA) {
         this.gl?.clearColor(color[0], color[1], color[2], color[3] ?? 1.0);
+    }
+
+    setSkyColor(color: Color.RGBA | GradientTexture) {
+        this.skyBuffer.addUniform('u_fill', color);
     }
 
     setScale(scale: number, sx: number, sy: number) {
@@ -316,7 +340,8 @@ export class GLRender implements BasicRender {
             Box: {program: BoxProgram, default: false},
             Sphere: {program: SphereProgram, default: false},
             Model: {program: ModelProgram, default: false},
-            Heatmap: {program: HeatmapProgram, default: false}
+            Heatmap: {program: HeatmapProgram, default: false},
+            Sky: {program: SkyProgram}
         };
 
         this.programs = {};
@@ -376,93 +401,135 @@ export class GLRender implements BasicRender {
 
     }
 
+    updateMapGridMatrix(pitch: number, width, height) {
+        const centerX = width / 2;
+        const centerY = height / 2;
+        const targetZ = centerY / Math.tan(FIELD_OF_VIEW / 2);
+        const prjMat = this._tmpMatrix;
+        const cam = [centerX, centerY, -targetZ];
+
+        mat4.perspective(prjMat, FIELD_OF_VIEW, width / height, 0.1, 1e5);
+        this.updateVPMatrix(prjMat, cam, pitch, 0, [1, 1, 1]);
+        return prjMat;
+    }
+
+    private _tm = new Float32Array(16);
+
+    private updateVPMatrix(
+        prjMatrix: Float32Array | Float64Array,
+        cam: number[],
+        rotX: number,
+        rotZ: number,
+        scale: number[],
+        viewMatrix: Float32Array | Float64Array = this._tm
+    ): Float32Array | Float64Array {
+        // const cam = [cx, cy, -targetZ];
+        const [cx, cy] = cam;
+        mat4.lookAt(viewMatrix, cam, [cx, cy, 0], [0, -1, 0]);
+        mat4.translate(viewMatrix, viewMatrix, [cx, cy, 0]);
+        mat4.rotateX(viewMatrix, viewMatrix, -rotX);
+        mat4.rotateZ(viewMatrix, viewMatrix, rotZ);
+        mat4.scale(viewMatrix, viewMatrix, scale);
+        mat4.translate(viewMatrix, viewMatrix, [-cx, -cy, 0]);
+        return mat4.multiply(prjMatrix, prjMatrix, viewMatrix);
+    }
+
+
     initView(
         pixelWidth: number,
         pixelHeight: number,
         scale: number,
-        rotX: number,
+        rotX: number, // pitch
         rotZ: number,
         groundRes: number,
         worldCenterX: number,
         worldCenterY: number,
         worldSize: number
     ) {
-        const projectionMatrix = this.vPMat;
+        const viewPrjMatrix = this.vPMat;
         const viewMatrix = this.vMat;
+        this.zMeterToPixel = 1 / groundRes;
+        // Calculating zFar based on pitch and hFOV when map is "overpitched".
+        // The tile grid is clipped at MAX_PITCH_GRID, but the view can be pitched further.
+        // The calculations ensure that zFar adapts based on the pitch, maintaining view stability.
+        //                                       alpha)
+        //                                    . ´   |
+        //                                . ´     .°|
+        //                            . ´       .°  |
+        //                        . ´         .°    |
+        //                 d2 . ´           .°      |
+        //                 .´ |           .°        |
+        //           d1 .´\*) | hPH     .° k        |
+        //           .´    \  |       .°            |
+        //        .´      h \ | rX).°               |
+        //    . ´            \| .°                (*|
+        // hFov) -------------|---------------------|
+        // <--   targetZ   --> <-- farPlaneOffset -->
+        // <--               zFar                 -->
 
-        //                                . alpha°
-        //                         d2 . ´     .°|
-        //                        . ´       .°  |
-        //                    . ´         .°    |
-        //                 .´ |         .°      |
-        //           d1 .´\   | hPH   .°        |
-        //           .´    \  |     .°          |
-        //        .´      h \ |rx°.°            |
-        //    . ´            \| .°              |
-        // hFov° -------------|-----------------|
-        // <--   targetZ   -->
-        // <--               zfar            -->
-
-        const hFOV = FIELD_OF_VIEW * .5;
+        const halfVFOV = FIELD_OF_VIEW * .5;
         const centerPixelX = pixelWidth * .5;
         // hPH
         const centerPixelY = pixelHeight * .5;
         // one texel equals one pixel
-        const targetZ = centerPixelY / Math.tan(hFOV);
-        const cosHFOV = Math.cos(hFOV);
-        // h
-        const height = Math.sin(hFOV) * targetZ;
-        let alpha = Math.max(.01, Math.PI * .5 - hFOV + rotX);
+        // Calculate base zFar as if the map were flat
+        const targetZ = centerPixelY / Math.tan(halfVFOV);
+        const h = Math.sin(halfVFOV) * targetZ;
 
-        const d1 = cosHFOV * targetZ;
-        const d2 = height / Math.tan(alpha);
-        // const zNear = 1;
-        const zNear = pixelHeight / 100;
-        let zFar = cosHFOV * (d1 + d2);
-        // avoid precision issues...
+        const maxGridPitch = Math.min(rotX, MAX_PITCH_GRID);
+        const alpha = Math.PI * .5 - halfVFOV - maxGridPitch;
+        // const d1 = Math.cos(halfVFOV) * targetZ;
+        // const d2 = h / Math.tan(alpha);
+        // const zFar = Math.sin(Math.PI/2 - hFOV) * (d1+d2);
+        // const zFar = Math.cos(halfVFOV) * (d1 + d2);
+        // const farPlaneOffset = Math.sin(pitch) * h / Math.sin(alpha);
+        // const zFar = targetZ + farPlaneOffset;
+        // calculate far plane offset based on pitch angle and adjust if pitch exceeds MAX_PITCH_GRID limit
+        const farPlaneOffsetAngle = rotX > maxGridPitch
+            ? Math.cos(Math.PI / 2 - rotX)
+            : Math.sin(maxGridPitch);
+        // calculate k based on pitch up to MAX_PITCH_GRID.
+        const k = h / Math.sin(alpha);
+        const farPlaneOffset = farPlaneOffsetAngle * k;
+        let zFar = targetZ + farPlaneOffset;
+        // Small buffer to avoid precision issues
         zFar *= 1.005;
-
-        // clear tile preview matrix cache
-        this.tilePreviewTransform.tx = null;
-        this.tilePreviewTransform.ty = null;
-        this.tilePreviewTransform.s = null;
 
         this.rz = (rotZ + PI2) % PI2;
         this.rx = rotX;
         this.scale = scale;
 
-        this.zMeterToPixel = 1 / groundRes;
-
         this.gl.viewport(0, 0, pixelWidth * this.dpr, pixelHeight * this.dpr);
 
-        mat4.perspective(projectionMatrix, FIELD_OF_VIEW, pixelWidth / pixelHeight, zNear, zFar);
+        const zNear = pixelHeight / 100;
 
-        const worldMatrix = mat4.copy(this.worldMatrix, projectionMatrix);
-        mat4.scale(worldMatrix, worldMatrix, [1, -1, 1]);
-        mat4.translate(worldMatrix, worldMatrix, [0, 0, -targetZ]);
-        mat4.rotateX(worldMatrix, worldMatrix, -rotX);
-        mat4.rotateZ(worldMatrix, worldMatrix, rotZ);
-        mat4.scale(worldMatrix, worldMatrix, [worldSize, worldSize, worldSize]);
-        mat4.translate(worldMatrix, worldMatrix, [-worldCenterX, -worldCenterY, 0]);
-        // mat4.translate(worldMatrix, worldMatrix, [-worldCenterX * worldSize, -worldCenterY * worldSize, 0]);
+        mat4.perspective(viewPrjMatrix, FIELD_OF_VIEW, pixelWidth / pixelHeight, zNear, zFar);
+
+        // let worldMatrix = mat4.copy(this.worldMatrix, projectionMatrix);
+        // mat4.scale(worldMatrix, worldMatrix, [1, -1, 1]);
+        // mat4.translate(worldMatrix, worldMatrix, [0, 0, -targetZ]);
+        // mat4.rotateX(worldMatrix, worldMatrix, rotX);
+        // mat4.rotateZ(worldMatrix, worldMatrix, rotZ);
         // mat4.scale(worldMatrix, worldMatrix, [worldSize, worldSize, worldSize]);
+        // mat4.translate(worldMatrix, worldMatrix, [-worldCenterX, -worldCenterY, 0]);
+        this.worldMatrix.set(viewPrjMatrix);
+        this.updateVPMatrix(this.worldMatrix, [worldCenterX, worldCenterY, -targetZ], rotX, rotZ,
+            [worldSize, worldSize, -worldSize]
+        );
+        // const cam = [centerPixelX, centerPixelY, -targetZ];
+        // mat4.lookAt(viewMatrix, cam, [centerPixelX, centerPixelY, 0], [0, -1, 0]);
+        // mat4.translate(viewMatrix, viewMatrix, [centerPixelX, centerPixelY, 0]);
+        // mat4.rotateX(viewMatrix, viewMatrix, -rotX);
+        // mat4.rotateZ(viewMatrix, viewMatrix, rotZ);
+        // mat4.scale(viewMatrix, viewMatrix, [scale, scale, scale / groundRes]); // scale z axis to meter/pixel
+        // mat4.translate(viewMatrix, viewMatrix, [-centerPixelX, -centerPixelY, 0]);
+        // mat4.multiply(projectionMatrix, projectionMatrix, viewMatrix);
+        this.updateVPMatrix(viewPrjMatrix, [centerPixelX, centerPixelY, -targetZ], rotX, rotZ,
+            [scale, scale, scale / groundRes],
+            viewMatrix
+        );
 
-        const cam = [centerPixelX, centerPixelY, -targetZ];
-        mat4.lookAt(viewMatrix, cam, [centerPixelX, centerPixelY, 0], [0, -1, 0]);
-        mat4.translate(viewMatrix, viewMatrix, [centerPixelX, centerPixelY, 0]);
-        mat4.rotateX(viewMatrix, viewMatrix, rotX);
-        mat4.rotateZ(viewMatrix, viewMatrix, rotZ);
-        mat4.scale(viewMatrix, viewMatrix, [
-            scale,
-            scale,
-            // scale z axis to meter/pixel
-            // scale
-            scale / groundRes
-        ]);
-        mat4.translate(viewMatrix, viewMatrix, [-centerPixelX, -centerPixelY, 0]);
-        mat4.multiply(projectionMatrix, projectionMatrix, viewMatrix);
-
-        invert(this.invVPMat, projectionMatrix);
+        invert(this.invVPMat, viewPrjMatrix);
 
         // convert from clipspace to screen.
         let screenMatrix = mat4.identity(this.screenMat);
@@ -485,7 +552,7 @@ export class GLRender implements BasicRender {
 
         // pixel perfect matrix used for crisper raster graphics, icons/text/raster-tiles
         // rounding in shader leads to precision issues and tiles edges become visible when the map is scaled.
-        const pixelPerfectMatrix = mat4.copy(this.vPRasterMat, projectionMatrix);
+        const pixelPerfectMatrix = mat4.copy(this.vPRasterMat, viewPrjMatrix);
         const worldCenterPixelX = worldCenterX * worldSize;
         const worldCenterPixelY = worldCenterY * worldSize;
         const dx = worldCenterPixelX - Math.round(worldCenterPixelX) + centerPixelX % 1;
@@ -502,6 +569,11 @@ export class GLRender implements BasicRender {
         this.setResolution(pixelWidth, pixelHeight);
 
         this.initSharedUniforms();
+
+        // clear tile preview matrix cache
+        this.tilePreviewTransform.tx = null;
+        this.tilePreviewTransform.ty = null;
+        this.tilePreviewTransform.s = null;
     }
 
     private initSharedUniforms() {
@@ -924,6 +996,22 @@ export class GLRender implements BasicRender {
             this.initStencil(dTile.i, tileSize);
             this.drawBuffer(buffer, x, y);
         }
+    }
+
+
+    drawSky(horizonY: number, height: number, maxHorizonY: number) {
+        if (!horizonY) return; // sky is not visible
+
+        this.zIndex = 0; // min3dZ
+
+        const {skyBuffer} = this;
+        const horizon = skyBuffer.getUniform('u_horizon');
+        horizon[0] = 2 * horizonY / height;
+        horizon[1] = 2 * maxHorizonY; // pitch:85 (->) 0.4198
+        // make sure uniforms are being updated...
+        skyBuffer.clearUniformCache();
+
+        this.drawBuffer(skyBuffer, 0, 0, this.skyMatrix);
     }
 
     private initPreviewMatrix(tx: number, ty: number, s: number, pixelPerfect?: boolean): Float32Array {

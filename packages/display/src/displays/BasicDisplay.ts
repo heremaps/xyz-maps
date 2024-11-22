@@ -32,7 +32,6 @@ import {createZoomRangeFunction, parseColorMap} from './styleTools';
 type RGBA = ColorUtils.RGBA;
 
 const CREATE_IF_NOT_EXISTS = true;
-const MAX_PITCH_GRID = 60 / 180 * Math.PI;
 
 function toggleLayerEventListener(toggle: string, layer: any, listeners: any) {
     toggle = toggle + 'EventListener';
@@ -348,9 +347,8 @@ abstract class Display {
     }
 
     setSize(w: number, h: number) {
-        var display = this;
-        var dpr = display.dpr;
-        var canvas = display.canvas;
+        const display = this;
+        const {dpr, canvas} = display;
 
         display.w = w;
         display.h = h;
@@ -434,24 +432,8 @@ abstract class Display {
         return [this.w / 2, this.h / 2];
     }
 
-    private clipGridHeight(maxPitch: number) {
-        const {rz, rx, s, _gridClip, centerWorld} = this;
-        // cache result for the current map transform
-        if (_gridClip.rx != rx || _gridClip.rz != rz
-        // || _gridClip.s != s
-        ) {
-            _gridClip.rz = rz;
-            _gridClip.rx = rx;
-            // _gridClip.s = s;
-            // this.setTransform(s, rz, -maxPitch);
-            this.setView(centerWorld, s, rz, -maxPitch);
-
-            const topAtMaxPitch = this.unproject(this.w / 2, 0);
-            // this.setTransform(s, rz, rx);
-            this.setView(centerWorld, s, rz, rx);
-            _gridClip.top = this.project(topAtMaxPitch[0], topAtMaxPitch[1])[1];
-        }
-        return _gridClip.top;
+    protected pitchMapOffsetY() {
+        return 0;
     }
 
     updateGrid(tileGridZoom: number, zoomLevel: number, screenOffsetX: number, screenOffsetY: number) {
@@ -472,25 +454,23 @@ abstract class Display {
         const mapWidthPixel = this.w;
         const mapHeightPixel = this.h;
         const displayWidth = mapWidthPixel;
+
         // Be sure to also handle tiles that are not part of the actual viewport but whose data is still visible because of high altitude.
         const displayHeight = Math.max(mapHeightPixel, this.getCamGroundPositionScreen()[1]);
-        const grid = this.grid;
-        let height = 0;
 
         // if map is pitched too much, we clip the grid at the top
-        if (-this.rx > MAX_PITCH_GRID) {
-            height = this.clipGridHeight(MAX_PITCH_GRID);
-        }
+        const maxGridPitchOffset = this.pitchMapOffsetY();
 
-        // optimize gird if screen is rotated
-        let rotatedScreenPixels = [
-            display.unproject(0, height),
-            display.unproject(displayWidth - 1, height),
+        // Calculate the world pixel bounds of the grid based on effective display height
+        let gridWorldPixel = [
+            display.unproject(0, maxGridPitchOffset),
+            display.unproject(displayWidth - 1, maxGridPitchOffset),
             display.unproject(displayWidth - 1, displayHeight - 1),
             display.unproject(0, displayHeight - 1)
         ];
 
-        grid.init(centerWorldPixel, rotZRad, mapWidthPixel, mapHeightPixel, rotatedScreenPixels);
+        // Initialize the grid with the adjusted bounds
+        this.grid.init(centerWorldPixel, rotZRad, mapWidthPixel, mapHeightPixel, gridWorldPixel);
 
         const layers = this.layers;
         const tileSizes = layers.reset(tileGridZoom/* + Math.log(this.s) / Math.LN2*/);

@@ -399,7 +399,7 @@ class Program {
         return passed;
     }
 
-    private dbgGLState(geoBuffer) {
+    protected dbgGLState(geoBuffer) {
         const {gl} = this;
         const glEnums = (this as any).__dbgGlEnums ||= ((glEnums) => {
             for (let func of [
@@ -432,7 +432,8 @@ class Program {
         const {gl} = this;
         const {groups, instances} = geoBuffer;
 
-        // if (this.name == 'Line' || this.name == 'Image') {
+        // if (this.name == 'Line' || this.name == 'Image')
+        // {
         //     this.dbgGLState(geoBuffer);
         // }
 

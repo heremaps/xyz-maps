@@ -26,7 +26,7 @@ import {
     StyleGroupMap,
     StyleValueFunction
 } from '../styles/LayerStyle';
-import {Expression, ExpressionMode, ExpressionParser} from '@here/xyz-maps-common';
+import {Expression, ExpressionMode, ExpressionParser, Color as Colors} from '@here/xyz-maps-common';
 import {TileLayer} from '../layers/TileLayer';
 
 const isTypedArray = (() => {
@@ -105,6 +105,8 @@ export class XYZLayerStyle implements LayerStyle {
     private _filteredStyleGrp: StyleGroup;
 
     private _style: LayerStyle;
+
+    skyColor: Colors.Color;
 
     /**
      *

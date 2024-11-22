@@ -25,16 +25,28 @@ import {createBuffer} from './buffer/createBuffer';
 import {createImageBuffer} from './buffer/createImageBuffer';
 
 import {transformMat4} from 'gl-matrix/vec3';
+import {invert} from 'gl-matrix/mat4';
 import {Layer, Layers, ScreenTile} from '../Layers';
 import GLTile from './GLTile';
 import {FeatureFactory} from './buffer/FeatureFactory';
 import {CollisionHandler} from './CollisionHandler';
 import {GeometryBuffer} from './buffer/GeometryBuffer';
-import {AmbientLight, CustomLayer, DirectionalLight, TileLayer, XYZLayerStyle} from '@here/xyz-maps-core';
+import {
+    CustomLayer,
+    LinearGradient,
+    TileLayer,
+    XYZLayerStyle,
+    Color
+} from '@here/xyz-maps-core';
 import {PASS} from './program/GLStates';
 import {Raycaster} from './Raycaster';
 import {defaultLightUniforms, initLightUniforms, ProcessedLights} from './lights';
 import {UniformMap} from './program/Program';
+import {Color as Colors} from '@here/xyz-maps-common';
+
+const {toRGB} = Colors;
+
+export const MAX_PITCH_GRID = 60 / 180 * Math.PI;
 
 const PREVIEW_LOOK_AHEAD_LEVELS: [number, number] = [3, 9];
 
@@ -118,7 +130,15 @@ class WebGlDisplay extends BasicDisplay {
     private worldCenter: number[] = [0, 0];
     private worldSize: number;
     private _zSortedTileBuffers: { tileBuffers: BufferData[], min3dZIndex: number, maxZIndex: number };
-
+    // Normalized maximum horizon Y-coordinate.
+    // This value represents the maximum vertical offset of the grid's horizon when maximum possible pitch applied.
+    // The offset is normalized by dividing it by the total screen height.
+    private maxHorizonY: number;
+    // Represents the world-space Y-coordinate of the topmost edge of the grid visible at the maximum pitch.
+    // maxPitchGridTopWorld is used to calculate `horizonY` when the map is pitched beyond the maximum grid pitch.
+    private maxPitchGridTopWorld: number[];
+    // vertical offset from top of the screen to the "horizon line" in screen pixels.
+    protected horizonY: number;
     constructor(mapEl: HTMLElement, renderTileSize: number, devicePixelRatio: number | string, renderOptions?: RenderOptions) {
         super(
             mapEl,
@@ -203,11 +223,28 @@ class WebGlDisplay extends BasicDisplay {
         this.render.processedLight[displayLayer.index] = processedLightSets;
     }
 
-    addLayer(layer: TileLayer | CustomLayer, index: number, styles?: XYZLayerStyle): Layer {
+    private initSky(skyColor: Color | LinearGradient) {
+        let color;
+        if (this.factory.gradients.isGradient(skyColor)) {
+            color = this.factory.gradients.getTexture((<unknown>skyColor as LinearGradient));
+        } else {
+            color = toRGB(skyColor as Color);
+        }
+
+        this.render.setSkyColor(color);
+    }
+
+    addLayer(layer: TileLayer | CustomLayer, index: number, styles: XYZLayerStyle): Layer {
         const displayLayer = super.addLayer(layer, index, styles);
-        // if (displayLayer) {
-        //     this.initLights(displayLayer);
-        // }
+
+
+        if (displayLayer?.index == 0) {
+            // styles.skyColor
+
+            this.initSky(styles.skyColor || [1, 0, 0, 1]);
+        }
+        // this.initLights(displayLayer);
+
         return displayLayer;
     }
 
@@ -218,12 +255,12 @@ class WebGlDisplay extends BasicDisplay {
         return super.removeLayer(layer);
     }
 
-    unproject(x: number, y: number, z?): number[] {
-        const invScreenMat = this.render.invScreenMat;
+    unproject(x: number, y: number, z?: number, inverseMatrix?: Float32Array): number[] {
+        inverseMatrix ||= this.render.invScreenMat;
 
         if (typeof z == 'number') {
             const p = [x, y, z];
-            transformMat4(p, p, invScreenMat);
+            transformMat4(p, p, inverseMatrix);
             p[2] *= -1;
             return p;
         }
@@ -234,8 +271,8 @@ class WebGlDisplay extends BasicDisplay {
         const p0 = [x, y, 0];
         const p1 = [x, y, 1];
 
-        transformMat4(p0, p0, invScreenMat);
-        transformMat4(p1, p1, invScreenMat);
+        transformMat4(p0, p0, inverseMatrix);
+        transformMat4(p1, p1, inverseMatrix);
 
         const z0 = p0[2];
         const z1 = p1[2];
@@ -246,21 +283,34 @@ class WebGlDisplay extends BasicDisplay {
     }
 
     // from unprojected screen pixels to projected screen pixels
-    project(x: number, y: number, z: number = 0, sx = this.sx, sy = this.sy): [number, number, number] {
+    project(
+        x: number,
+        y: number,
+        z: number = 0,
+        sx = this.sx,
+        sy = this.sy,
+        matrix: Float32Array | Float64Array = this.render.screenMat
+    ): [number, number, number] {
         // x -= screenOffsetX;
         // y -= screenOffsetY;
         // const p = [x, y, 0];
         // const s = this.s;
         // const p = [x * s, y * s, 0];
         const p = [x - sx, y - sy, -z];
-        return transformMat4(p, p, this.render.screenMat);
+        return transformMat4(p, p, matrix);
         // transformMat4(p, p, this.render.vPMats);
         // return fromClipSpace(p, this.w, this.h);
     }
 
-    setSize(w: number, h: number) {
-        super.setSize(w, h);
+    setSize(width: number, height: number) {
+        super.setSize(width, height);
         this.initRenderer();
+
+        const matrix = this.render.updateMapGridMatrix(MAX_PITCH_GRID, width, height);
+        const inverseMatrix = invert([], matrix);
+        this.maxPitchGridTopWorld = this.unproject(0, 1, null, inverseMatrix);
+
+        this.maxHorizonY = this.pitchMapOffsetY(85 / 180 * Math.PI) / height;
     }
 
     setTransform(scale: number, rotZ: number, rotX: number) {
@@ -527,6 +577,15 @@ class WebGlDisplay extends BasicDisplay {
         return this.project(cameraWorld[0], cameraWorld[1]);
     }
 
+    protected pitchMapOffsetY(pitch: number = this.rx) {
+        const {w, h} = this;
+        const [x, maxPitchGridOffset] = this.maxPitchGridTopWorld;
+        const matrix = this.render.updateMapGridMatrix(pitch, w, h);
+        const y = this.project(x, maxPitchGridOffset, 0, 0, 0, matrix)[1];
+        this.horizonY = (1 - y) * h / 2;
+        return this.horizonY;
+    }
+
     protected viewport(dirty?: boolean) {
         const display = this;
         const {buckets, layers, render} = display;
@@ -548,6 +607,9 @@ class WebGlDisplay extends BasicDisplay {
 
         const layerBuffers = this.initLayerBuffers(layers);
         const {tileBuffers, min3dZIndex, maxZIndex} = layerBuffers;
+
+
+        render.drawSky(this.horizonY, this.h, this.maxHorizonY);
 
         render.zIndexLength = maxZIndex;
 
