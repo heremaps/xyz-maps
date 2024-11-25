@@ -82,51 +82,45 @@ describe('transform objects', () => {
     });
 
     it('drag right bar of transformer to scale ', async () => {
-        await drag(mapContainer, {x: 307 + 5, y: 280}, {x: 357 + 5, y: 280});
-
-        expect(link.coord()).to.deep.almost([[77.813977148, 12.651573696, 0], [77.812652884, 12.651416671, 0]]);
-        expect(address.coord()).to.deep.almost([77.813315016, 12.651311987, 0]);
+        await drag(mapContainer, {x: 307 + 8, y: 280}, {x: 357 + 8, y: 280});
+        expect(link.coord()).to.deep.almost([[77.813993244, 12.651573696, 0], [77.812652884, 12.651416671, 0]]);
+        expect(address.coord()).to.deep.almost([77.813323063, 12.651311987, 0]);
     });
 
     it('drag left bar of transformer to scale', async () => {
         await drag(mapContainer, {x: 92 - 5, y: 280}, {x: 120 - 5, y: 280});
-
-        expect(link.coord()).to.deep.almost([[77.813977148, 12.651573696, 0], [77.812812652, 12.651416671, 0]]);
-        expect(address.coord()).to.deep.almost([77.813394901, 12.651311987, 0]);
+        expect(link.coord()).to.deep.almost([[77.813993244, 12.651573696, 0], [77.812812677, 12.651416671, 0]]);
+        expect(address.coord()).to.deep.almost([77.81340296, 12.651311987, 0]);
     });
 
     it('drag top bar of transformer to scale', async () => {
         await drag(mapContainer, {x: 200, y: 241 - 8}, {x: 200, y: 220 - 8});
-
-        expect(link.coord()).to.deep.almost([[77.813977148, 12.651685962, 0], [77.812812652, 12.651461577, 0]]);
-        expect(address.coord()).to.deep.almost([77.813394901, 12.651311987, 0]);
+        expect(link.coord()).to.deep.almost([[77.813993244, 12.65168597, 0], [77.812812677, 12.65146158, 0]]);
+        expect(address.coord()).to.deep.almost([77.81340296, 12.651311987, 0]);
     });
 
     it('drag bottom bar of transformer to scale', async () => {
         await drag(mapContainer, {x: 200, y: 306 + 10}, {x: 200, y: 280 + 10});
-
-        expect(link.coord()).to.deep.almost([[77.813977148, 12.651685962, 0], [77.812812652, 12.651533941, 0]]);
-        expect(address.coord()).to.deep.almost([77.813394901, 12.651432592, 0]);
+        expect(link.coord()).to.deep.almost([[77.813993244, 12.65168597, 0], [77.812812677, 12.651533949, 0]]);
+        expect(address.coord()).to.deep.almost([77.81340296, 12.651432603, 0]);
     });
 
     it('drag the transformer to move the link and address', async () => {
         await drag(mapContainer, {x: 235 + 8, y: 250 + 8}, {x: 250 + 8, y: 280 + 8});
-
-        expect(link.coord()).to.deep.almost([[77.814057614, 12.651528936, 0], [77.812893118, 12.651376915, 0]]);
-        expect(address.coord()).to.deep.almost([77.813475367, 12.651275566, 0]);
+        expect(link.coord()).to.deep.almost([[77.814073766, 12.651528907, 0], [77.812893162, 12.651376881, 0]]);
+        expect(address.coord()).to.deep.almost([77.813483463, 12.651275532, 0]);
     });
 
     it('drag the transformer to rotate the link and address', async () => {
         await drag(mapContainer, {x: 370 + 8, y: 310 + 8}, {x: 300 + 8, y: 320 + 8});
-
-        expect(link.coord()).to.deep.almost([[77.814060451, 12.651288682, 0], [77.812932235, 12.651608534, 0]]);
-        expect(address.coord()).to.deep.almost([77.813422926, 12.651286358, 0]);
+        expect(link.coord()).to.deep.almost([[77.814074622, 12.651279385, 0], [77.812935261, 12.65161733, 0]]);
+        expect(address.coord()).to.deep.almost([77.81342977, 12.651286872, 0]);
     });
 
     it('scale and keep aspect ration', async () => {
         await drag(mapContainer, {x: 155, y: 195}, {x: 120, y: 160});
-        expect(link.coord()).to.deep.almost([[77.814292863, 12.65124357, 0], [77.812716489, 12.651690475, 0]]);
-        expect(address.coord()).to.deep.almost([77.813402094, 12.651240322, 0]);
+        expect(link.coord()).to.deep.almost([[77.814305863, 12.651231337, 0], [77.812720823, 12.651701475, 0]]);
+        expect(address.coord()).to.deep.almost([77.813408767, 12.651241751, 0]);
     });
 
     it('after transforming link validate it is not selected', async function() {
