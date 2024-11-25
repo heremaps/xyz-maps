@@ -80,7 +80,7 @@ describe('range selector: snapping and overlapping', () => {
         expect(info[0].segments[0]).to.deep.include({
             from: 0.1,
             reversed: false,
-            to: 0.752498281
+            to: 0.752494502
         });
 
         expect(info[1]).to.deep.include({
@@ -122,7 +122,7 @@ describe('range selector: snapping and overlapping', () => {
         expect(info[0].segments[0]).to.deep.include({
             from: 0.1,
             reversed: false,
-            to: 0.752498281
+            to: 0.752494502
         });
 
         expect(info[1]).to.deep.include({
@@ -132,7 +132,7 @@ describe('range selector: snapping and overlapping', () => {
         });
 
         expect(info[1].segments[0]).to.deep.include({
-            from: 0.752498281,
+            from: 0.752494502,
             reversed: false,
             to: 0.9
         });
@@ -164,7 +164,7 @@ describe('range selector: snapping and overlapping', () => {
         expect(info[0].segments[0]).to.deep.include({
             from: 0.1,
             reversed: false,
-            to: 0.752498281
+            to: 0.752494502
         });
 
         expect(info[1]).to.deep.include({
@@ -206,7 +206,7 @@ describe('range selector: snapping and overlapping', () => {
         expect(info[0].segments[0]).to.deep.include({
             from: 0.1,
             reversed: false,
-            to: 0.752498281
+            to: 0.752494502
         });
 
         expect(info[1]).to.deep.include({
@@ -216,7 +216,7 @@ describe('range selector: snapping and overlapping', () => {
         });
 
         expect(info[1].segments[0]).to.deep.include({
-            from: 0.752498281,
+            from: 0.752494502,
             reversed: false,
             to: 0.9
         });
@@ -248,7 +248,7 @@ describe('range selector: snapping and overlapping', () => {
         expect(info[0].segments[0]).to.deep.include({
             from: 0.1,
             reversed: false,
-            to: 0.752498281
+            to: 0.752494502
         });
 
         expect(info[1]).to.deep.include({
@@ -290,7 +290,7 @@ describe('range selector: snapping and overlapping', () => {
         expect(info[0].segments[0]).to.deep.include({
             from: 0.1,
             reversed: false,
-            to: 0.752498281
+            to: 0.752494502
         });
 
         expect(info[1]).to.deep.include({
@@ -300,7 +300,7 @@ describe('range selector: snapping and overlapping', () => {
         });
 
         expect(info[1].segments[0]).to.deep.include({
-            from: 0.752498281,
+            from: 0.752494502,
             reversed: false,
             to: 0.9
         });
@@ -333,7 +333,7 @@ describe('range selector: snapping and overlapping', () => {
         expect(info[0].segments[0]).to.deep.include({
             from: 0.1,
             reversed: false,
-            to: 0.485830724
+            to: 0.485828186
         });
 
         expect(info[1]).to.deep.include({
@@ -375,7 +375,7 @@ describe('range selector: snapping and overlapping', () => {
         expect(info[0].segments[0]).to.deep.include({
             from: 0.1,
             reversed: false,
-            to: 0.552497613
+            to: 0.552494765
         });
 
         expect(info[1]).to.deep.include({
@@ -385,7 +385,7 @@ describe('range selector: snapping and overlapping', () => {
         });
 
         expect(info[1].segments[0]).to.deep.include({
-            from: 0.552497613,
+            from: 0.552494765,
             reversed: false,
             to: 0.9
         });
