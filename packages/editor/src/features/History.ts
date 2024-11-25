@@ -412,10 +412,10 @@ class History {
         return this._a;
     };
 
-    ignore(operation: () => void) {
-        let a = this.active();
+    batch(action: () => void) {
+        const a = this.active();
         this.active(false);
-        operation();
+        action();
         this.active(a);
     };
 }

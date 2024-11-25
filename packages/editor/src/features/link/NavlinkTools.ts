@@ -587,7 +587,7 @@ var tools = {
             // update/remove zlevels
             const zLevels = <number[]>navlink.getZLevels();
             zLevels.splice(index, 1);
-            navlink._e().objects.history.ignore(() => {
+            navlink._e().objects.history.batch(() => {
                 navlink.getProvider().writeZLevels(navlink, zLevels);
             });
 
@@ -698,7 +698,7 @@ var tools = {
             // fallback for old non 3d zlevel passed in via coordinates z position
             let zLevel = Math.round(pos[2] < 10 && pos[2]) || 0;
             zLevels.splice(index, 0, zLevel);
-            EDITOR.objects.history.ignore(() => {
+            EDITOR.objects.history.batch(() => {
                 link.getProvider().writeZLevels(link, zLevels);
             });
             // link.setZLevels(zLevels)

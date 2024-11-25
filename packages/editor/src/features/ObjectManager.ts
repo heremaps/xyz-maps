@@ -76,7 +76,7 @@ const getOverlayIndex = (layers) => {
 };
 
 class ObjectManager {
-    private iEdit;
+    private iEdit: InternalEditor;
     private display;
     private listen: boolean = false;
     private layers: Map<TileLayer>;
@@ -388,7 +388,7 @@ class ObjectManager {
                 featureHistory.origin(feature, true);
 
                 if (zLevels) {
-                    featureHistory.ignore(() => {
+                    featureHistory.batch(() => {
                         provider.writeZLevels(feature, zLevels);
                     });
                 }
@@ -445,7 +445,7 @@ class ObjectManager {
                     const provider = locationTools.getRoutingProvider(feature);
                     const routingLink = provider && provider.search(idMapping[cLinkId]);
 
-                    featureHistory.ignore(() => {
+                    featureHistory.batch(() => {
                         feature.getProvider().writeRoutingPoint(feature, routingLink, routingPoint.position);
                     });
                 }
@@ -510,7 +510,7 @@ class ObjectManager {
                     bbox[0], bbox[2], bbox[1], bbox[3]
                 )
             ) {
-                const crossing = iEdit.map.searchPointOnLine(line.geometry.coordinates, position, -1, UNDEF, UNDEF, options.ignoreZ);
+                const crossing = iEdit.map.searchPointOnLine(line.geometry.coordinates as GeoJSONCoordinate[], position, -1, UNDEF, UNDEF, options.ignoreZ);
 
                 if (crossing?.distance < Math.min(RESULT.distance, options.maxDistance)) {
                     RESULT.point = crossing.point;

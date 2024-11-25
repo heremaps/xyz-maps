@@ -95,6 +95,10 @@
       "docs": "classes/editor.editor-1.html#addobserver"
     },
     {
+      "file": "./editor/batch_changes.html",
+      "docs": "classes/editor.editor-1.html#batch"
+    },
+    {
       "file": "./editor/pointer_listener.html",
       "docs": "classes/editor.editor-1.html#addeventlistener"
     },

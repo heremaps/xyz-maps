@@ -459,6 +459,103 @@ export default class Editor {
     };
 
     /**
+     * Batches multiple feature edits into a single history entry.
+     * This allows combining multiple actions, such as modifying properties or coordinates,
+     * so that only a single history step is created for undo/redo purposes.
+     *
+     * Use this method when you want to group multiple feature modifications (such as setting properties or coordinates)
+     * into a single history step for easier undo/redo management.
+     *
+     * @param action A function that contains one or more feature modification actions. All edits within this function
+     *               will be grouped together as a single history step.
+     *
+     * @example
+     * editor.batch(() => {
+     *   feature.prop("name", "newName");  // Modify feature property
+     *   feature.coord(newCoordinate);     // Modify feature coordinates
+     * });
+     *
+     * @remarks
+     * This method is useful when you want to execute multiple edits in sequence but treat them as a single operation
+     * for undo/redo. The changes will be bundled into one history entry, simplifying the undo/redo process.
+     *
+     * @see {@link editor.undo} for undoing the last action.
+     * @see {@link editor.redo} for redoing the last undone action.
+     * @see {@link editor.beginBatch} for starting a batch of edits manually.
+     * @see {@link editor.endBatch} for finalizing a batch of edits manually.
+     */
+    batch(action: () => void): void {
+        if (typeof action === 'function') {
+            this.beginBatch();
+            try {
+                action();
+            } finally {
+                this.endBatch();
+            }
+        }
+    }
+
+    /**
+     * Begins a new batch operation for multiple feature edits.
+     *
+     * Call this function before making a series of edits to a feature. All changes made between `beginBatch` and
+     * `endBatch` will be grouped together as a single history entry. This allows more control over when to
+     * create a history step for a series of edits.
+     *
+     * @example
+     * editor.startBatch();  // Start a batch operation
+     * feature.prop("name", "newName");  // Modify feature property
+     * feature.coord(newCoordinate);     // Modify feature coordinates
+     * editor.endBatch();  // Finish the batch and commit changes as a single history entry
+     *
+     * @remarks
+     * This method is helpful when you want to make multiple edits and control when the changes are committed to history.
+     * The edits made within the `startBatch`/`endBatch` block are treated as a single operation.
+     *
+     * @see {@link editor.endBatch} for finalizing a batch operation.
+     * @see {@link editor.undo} for undoing the last action.
+     * @see {@link editor.redo} for redoing the last undone action.
+     * @see {@link editor.batch} for an alternative method to group edits without manually starting and ending a batch.
+     */
+    beginBatch(): void {
+        this._b++;
+        this._i().objects.history.active(false);
+    }
+
+    // counter for "nested batch" handling
+    private _b: number = 0;
+
+    /**
+     * Ends the current batch operation and creates a single history entry for all changes made since `startBatch`.
+     *
+     * This function should be called after making all desired edits within a `startBatch` block. Once called,
+     * all changes will be committed as a single entry in the local history, enabling easy undo/redo of the entire batch.
+     *
+     * @example
+     * editor.startBatch();  // Start a batch operation
+     * feature.prop("name", "newName");  // Modify feature property
+     * feature.coord(newCoordinate);     // Modify feature coordinates
+     * editor.endBatch();  // Finalize the batch and create a single history entry
+     *
+     * @remarks
+     * The `endBatch` method ensures that all modifications made within the batch are recorded as a single step in the local history.
+     * After calling this, you can undo or redo the entire set of changes together.
+     *
+     * @see {@link editor.startBatch} for beginning a batch operation.
+     * @see {@link editor.undo} for undoing the last action.
+     * @see {@link editor.redo} for redoing the last undone action.
+     * @see {@link editor.batch} for an alternative method to group feature edits into a single history step without manually starting and ending a batch.
+     */
+    endBatch(): void {
+        const history = this._i().objects.history;
+        if (this._b > 0 && --this._b === 0) {
+            history.active(true);
+            history.saveChanges();
+        }
+    }
+
+
+    /**
      * Remove a specific hook for the desired editing operation.
      *
      * Possible operation types are: 'Navlink.disconnect', 'Navlink.split', 'Feature.remove', 'Coordinates.remove'
@@ -543,7 +640,7 @@ export default class Editor {
      *
      * @returns feature container
      */
-    createFeatureContainer(...features: (Feature|Feature[])[]): FeatureContainer {
+    createFeatureContainer(...features: (Feature | Feature[])[]): FeatureContainer {
         const container = new Container(this._i());
         container.push(features.flat());
         return container;

@@ -156,7 +156,7 @@ class Feature extends GeoJSONFeature {
             }
 
             if (state != 'hovered' && state != 'selected') {
-                feature._e().objects.history.ignore(() => {
+                feature._e().objects.history.batch(() => {
                     feature._esu = true;
                     (<EditableProvider>feature.getProvider()).writeEditState(feature, state);
                     feature._esu = UNDEF;

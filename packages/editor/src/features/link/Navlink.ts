@@ -387,7 +387,7 @@ export class Navlink extends Feature {
         }
 
         if (updated) {
-            history.ignore(() => {
+            history.batch(() => {
                 link.getProvider().writeZLevels(link, zLevels);
             });
             // update zlevel visuals

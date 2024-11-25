@@ -23,6 +23,7 @@ import linkTools from '../../features/link/NavlinkTools';
 import {isTurnAllowed, isPedestrianOnly, getProperty, setProperty} from './utils';
 import Overlay from '../../features/Overlay';
 import {Navlink} from '../../features/link/Navlink';
+import InternalEditor from '../../IEditor';
 
 const DISTANCE_METER = 8 * 1e-5;
 
@@ -49,7 +50,7 @@ class TurnRestriction {
     from: Navlink;
     to: Navlink;
 
-    constructor(HERE_WIKI, fromLink, fromShape, toLink, toShape, carPosition) {
+    constructor(HERE_WIKI: InternalEditor, fromLink, fromShape, toLink, toShape, carPosition) {
         const overlay = HERE_WIKI.objects.overlay;
         const nextShape = toShape == 0 ? 1 : toLink.coord().length - 2;
         const path = toLink.coord();
@@ -95,7 +96,7 @@ class TurnRestriction {
 
         sign.pointerup = () => {
             if (isTurnAllowed(fromLink, fromShape, toLink, toShape) && !isPedestrianOnly(toLink)) {
-                HERE_WIKI.objects.history.ignore(() => {
+                HERE_WIKI.objects.history.batch(() => {
                     setProperty(curSign == 'ALLOWED', fromLink, fromShape, toLink, toShape);
                 });
 

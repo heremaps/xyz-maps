@@ -113,6 +113,25 @@ export class Feature<GeometryType = string> implements GeoJSONFeature<GeometryTy
     // need for quick data merge across multiple tile searches
     private _m: number = 0;
 
+    /**
+     * pointerenter event listener for internal use only
+     * @hidden
+     * @internal
+     */
+    pointerenter: () => void;
+    /**
+     * pointerleave event listener for internal use only
+     * @hidden
+     * @internal
+     */
+    pointerleave: () => void;
+    /**
+     * pointerup event listener for internal use only
+     * @hidden
+     * @internal
+     */
+    pointerup: () => void;
+
     constructor(feature: GeoJSONFeature<GeometryType>, prov?: FeatureProvider) {
         this.id = feature.id;
 

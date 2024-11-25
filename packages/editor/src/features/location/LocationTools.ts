@@ -407,7 +407,7 @@ const tools = {
             newRP[0] != round(curRP[0]) ||
             newRP[1] != round(curRP[1])
         ) {
-            feature._e().objects.history.ignore(() => {
+            feature._e().objects.history.batch(() => {
                 // prevents infinity loop if rp writer is using .prop() function to set rp value
                 // because .prop() will call connect to make sure
                 // the connection gets created in case of rp val is changed
