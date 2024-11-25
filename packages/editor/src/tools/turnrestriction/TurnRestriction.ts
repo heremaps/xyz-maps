@@ -22,8 +22,10 @@ import {movePointOnPath} from '../../geometry';
 import linkTools from '../../features/link/NavlinkTools';
 import {isTurnAllowed, isPedestrianOnly, getProperty, setProperty} from './utils';
 import Overlay from '../../features/Overlay';
+import {Feature} from '../../features/feature/Feature';
 import {Navlink} from '../../features/link/Navlink';
 import InternalEditor from '../../IEditor';
+
 
 const DISTANCE_METER = 8 * 1e-5;
 
@@ -70,7 +72,7 @@ class TurnRestriction {
             type: TURN_RESTRICTION + 'LINE',
             sign: TURN_RESTRICTION + curSign
         });
-        const sign = overlay.addImage(rotPnt, null, {
+        const sign = <Feature>overlay.addImage(rotPnt, null, {
             'type': TURN_RESTRICTION + curSign,
             'rotation': -geotools.calcBearing(p1, rotPnt)
         });

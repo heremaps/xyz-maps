@@ -24,6 +24,7 @@ import {EditorFeatureProperties, DefaultEditorProperties} from './EditorProperti
 import {FeatureProperties} from './Properties';
 import InternalEditor from '../../IEditor';
 import {GeoJSONCoordinate} from '@here/xyz-maps-core';
+import {MapEvent} from '@here/xyz-maps-display';
 
 
 type EditableProvider = EditableRemoteTileProvider;
@@ -86,6 +87,26 @@ class Feature extends GeoJSONFeature {
         b?: { [behavior: string]: any };
         [privateProperty: string]: any
     };
+
+    /**
+     * pointerenter event listener for internal use only
+     * @hidden
+     * @internal
+     */
+    pointerenter: (e?: MapEvent) => void;
+    /**
+     * pointerleave event listener for internal use only
+     * @hidden
+     * @internal
+     */
+    pointerleave: (e: MapEvent) => void;
+    /**
+     * pointerup event listener for internal use only
+     * @hidden
+     * @internal
+     */
+    pointerup: (e: MapEvent) => void;
+
 
     constructor(geojsonFeature, provider?: EditableProvider) {
         super(geojsonFeature, provider);
