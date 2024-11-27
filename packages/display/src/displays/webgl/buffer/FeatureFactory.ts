@@ -133,11 +133,11 @@ type ZDrawGroup = {
 
 export type GroupMap = { [zIndex: string]: ZDrawGroup };
 
-const isDynamicProperty = (prop: any) => prop instanceof Expression;
+export const isDynamicProperty = (prop: any) => prop instanceof Expression;
 // const isDynamicProperty = (prop: any) => typeof prop == 'function';
 
 const DYNAMIC_MODE = 1;
-let dynamicValueId = 0;
+const PIXEL_UNITS = ['px', 'px'];
 
 export class FeatureFactory {
     private readonly gl: WebGLRenderingContext;
@@ -588,10 +588,16 @@ export class FeatureFactory {
                         offsetUnit +
                         strokeLinecap +
                         strokeLinejoin;
-                    strokeDasharray = getValue('strokeDasharray', style, feature, level);
 
+                    strokeDasharray = getValue('strokeDasharray', style, feature, level, DYNAMIC_MODE);
 
-                    if (Array.isArray(strokeDasharray) && strokeDasharray[0]) {
+                    if (isDynamicProperty(strokeDasharray)) {
+                        groupId += (strokeDasharray as Expression).id();
+                        strokeDasharray = {
+                            pattern: strokeDasharray,
+                            units: PIXEL_UNITS
+                        };
+                    } else if (Array.isArray(strokeDasharray) && strokeDasharray[0]) {
                         let pattern = [];
                         let units = [];
 
@@ -602,16 +608,16 @@ export class FeatureFactory {
 
                             groupId += size + unit;
                         }
-
                         strokeDasharray = {pattern, units};
+                    } else {
+                        strokeDasharray = UNDEF;
+                    }
 
+                    if (strokeDasharray) {
                         strokeDashimage = getValue('strokeDashimage', style, feature, level);
-
                         if (strokeDashimage) {
                             groupId += strokeDashimage.slice(-8);
                         }
-                    } else {
-                        strokeDasharray = UNDEF;
                     }
                 } else {
                     strokeWidth = getValue('strokeWidth', style, feature, level);

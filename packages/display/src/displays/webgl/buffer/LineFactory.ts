@@ -24,6 +24,7 @@ import {GeoJSONCoordinate as Coordinate, Tile} from '@here/xyz-maps-core';
 import {CollisionData, CollisionHandler} from '../CollisionHandler';
 import {DistanceGroup} from './DistanceGroup';
 import {FlexAttribute} from './templates/TemplateBuffer';
+import {isDynamicProperty} from './FeatureFactory';
 
 const TO_DEG = 180 / Math.PI;
 const DEFAULT_MIN_REPEAT = 256;
@@ -169,8 +170,9 @@ export class LineFactory {
         const groupBuffer: LineBuffer = group.buffer;
 
         if (strokeDasharray) {
-            // Multiple dash/gap combinations are exclusively supported within the same unit due to the utilization of a pattern texture.
-            if (strokeDasharray.pattern.length > 2 &&
+            if (!isDynamicProperty(strokeDasharray.pattern) &&
+                // Multiple dash/gap combinations are exclusively supported within the same unit due to the utilization of a pattern texture.
+                strokeDasharray.pattern.length > 2 &&
                 // has mixed units
                 !strokeDasharray.units.some((e) => e != strokeDasharray.units[0])
             ) {
@@ -178,7 +180,7 @@ export class LineFactory {
                 groupBuffer.addUniform('u_dashPattern', dashPatternTexture.texture);
                 groupBuffer.addUniform('u_dashSize', [dashPatternTexture.texture.width / dashPatternTexture.scale, 0]);
             } else {
-                groupBuffer.addUniform('u_dashSize', [strokeDasharray.pattern[0], strokeDasharray.pattern[1]]);
+                groupBuffer.addUniform('u_dashSize', strokeDasharray.pattern);
             }
         }
 

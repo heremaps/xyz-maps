@@ -540,9 +540,9 @@ const parseStyleGroup = (styleGroup: readonly(Style & { __p?: true })[], expPars
         for (let name in style) {
             if (name in parsePropertyNames) {
                 const value = style[name];
-                const skipExpressions = name == 'strokeDasharray';
-
-                if (!skipExpressions && ExpressionParser.isJSONExp(value)) {
+                if (ExpressionParser.isJSONExp(value) && (
+                    name != 'strokeDasharray' || isNaN(value[0].charAt(0))
+                )) {
                     // if (name != 'strokeDasharray' || typeof parseInt(value[0]) != 'number') {
                     style[name] = expParser.parseJSON(value);
                     // }

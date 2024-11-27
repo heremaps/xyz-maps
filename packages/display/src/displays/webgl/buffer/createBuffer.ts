@@ -29,7 +29,7 @@ import {
     webMercator
 } from '@here/xyz-maps-core';
 import {Layer} from '../../Layers';
-import {CollisionGroup, FeatureFactory, GroupMap} from './FeatureFactory';
+import {CollisionGroup, FeatureFactory, GroupMap, isDynamicProperty} from './FeatureFactory';
 import {GlyphTexture} from '../GlyphTexture';
 import {TemplateBufferBucket} from './templates/TemplateBufferBucket';
 import {Texture} from '../Texture';
@@ -213,16 +213,23 @@ const createBuffer = (
                             if (type == 'Line') {
                                 if (shared.strokeDasharray) {
                                     geoBuffer.type = 'DashedLine';
+
+                                    // if (isDynamicProperty(shared.strokeDasharray)) {
+                                    //     geoBuffer.addUniform('u_dashUnit', [0, 0]);
+                                    // } else {
                                     geoBuffer.addUniform('u_dashUnit', [
                                         shared.strokeDasharray.units[0] == 'm' ? meterToPixel : 0,
                                         shared.strokeDasharray.units[1] == 'm' ? meterToPixel : 0
                                     ]);
+                                    // }
                                 }
                                 // scissor un-clipped geometry in any case...(huge geometry possible)
                                 // otherwise clipping can be skipped to avoid strokeWidth cutoffs close to tile edges
                                 geoBuffer.clip = !tile.clipped;
 
                                 geoBuffer.addUniform('u_fill', stroke);
+
+                                // if (isDynamicProperty(shared.strokeWidth)) debugger;
 
                                 geoBuffer.addUniform('u_strokeWidth', [strokeWidth, shared.unit == 'm' ? meterToPixel : 0]);
                                 // geoBuffer.addUniform('u_strokeWidth', [strokeWidth * .5, shared.unit == 'm' ? meterToPixel : 0]);
@@ -417,6 +424,7 @@ const createBuffer = (
                     }
                 }
             }
+            // console.log('buffers', buffers);
             onDone(buffers.reverse(), pendingResources);
         },
 
