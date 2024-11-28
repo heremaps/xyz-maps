@@ -51,7 +51,7 @@ class FeatureModifier {
     }
 
     forEachTile(feature: Feature, cb) {
-        feature.getProvider().getCachedTilesOfBBox(feature.getBBox()).forEach(cb);
+        feature.getProvider().getCachedTiles(feature.getBBox()).forEach(cb);
     }
 
     remove(feature: Feature, tiles: Tile[], layer: TileLayer) {
@@ -107,8 +107,8 @@ class FeatureModifier {
         layer: TileLayer
     ) {
         let prov = layer.getProvider();
-        let prevTiles = prov.getCachedTilesOfBBox(prevBBox);
-        let curTiles = prov.getCachedTilesOfBBox(feature.getBBox());
+        let prevTiles = prov.getCachedTiles(prevBBox);
+        let curTiles = prov.getCachedTiles(feature.getBBox());
 
         for (var t = 0, len = curTiles.length; t < len; t++) {
             let iPrev = prevTiles.indexOf(curTiles[t]);

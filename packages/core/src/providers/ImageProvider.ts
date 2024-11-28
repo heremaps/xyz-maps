@@ -116,7 +116,7 @@ export class ImageProvider extends TileProvider {
         if ( // wipe all cached tiles containing provided bbox
             bbox instanceof Array
         ) {
-            dataQuads = provider.getCachedTilesOfBBox(bbox, provider.level);
+            dataQuads = provider.getCachedTiles(bbox, provider.level);
 
             for (let d = 0, tile; d < dataQuads.length; d++) {
                 tile = dataQuads[d];

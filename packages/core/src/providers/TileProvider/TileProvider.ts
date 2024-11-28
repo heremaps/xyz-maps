@@ -174,30 +174,32 @@ export default abstract class TileProvider {
         this.storage.forEach((tile) => tile.cbnds = null);
     };
 
+
     /**
-     * get cached tile by bounding box.
+     * Retrieves cached tiles within a specified bounding box or all cached tiles if no parameters are provided.
      *
-     * @param bbox - array of coordinates in order: [minLon, minLat, maxLon, maxLat]
-     * @param zoomlevel - get tiles at specified tileMargin
-     * @returns array of {@link Tiles}
+     * If no arguments are passed, all cached tiles are returned.
+     * If a bounding box (`bbox`) and/or zoom level (`zoomlevel`) are provided, it filters the cached tiles based on the specified area and zoom level.
+     *
+     * @param bbox - An optional array of coordinates defining the bounding box in the format: `[minLon, minLat, maxLon, maxLat]`.
+     * If provided, only tiles within this geographic area will be returned.
+     *
+     * @param zoomlevel - An optional zoom level to filter tiles. If provided, only tiles at the specified zoom level will be returned.
+     *
+     * @returns {Tile[]} - An array of {@link Tile} objects that match the specified parameters, or all cached tiles if no parameters are given.
      */
-    getCachedTilesOfBBox(bbox: number[], zoomlevel?: number): Tile[] {
-        const minLon = bbox[0];
-        const minLat = bbox[1];
-        const maxLon = bbox[2];
-        const maxLat = bbox[3];
+    getCachedTiles(bbox?: number[], zoomlevel?: number): Tile[] {
         const tiles = [];
 
-        zoomlevel = zoomlevel ^ 0;
-
+        zoomlevel ^= 0;
         this.storage.forEach((tile) => {
             const tBounds = tile.getContentBounds();
             if (
                 (!zoomlevel || tile.z == zoomlevel) &&
-                intersectBBox(
+                (!bbox || intersectBBox(
                     tBounds[0], tBounds[2], tBounds[1], tBounds[3],
-                    minLon, maxLon, minLat, maxLat
-                )
+                    bbox[0], bbox[2], bbox[1], bbox[3]
+                ))
             ) {
                 tiles[tiles.length] = tile;
             }
@@ -206,21 +208,13 @@ export default abstract class TileProvider {
         return tiles;
     };
 
-    getCachedTileofQuadkey(quadkey: string, fixZoom?: number): Tile[] {
-        const tiles = [];
-        const z = quadkey.length;
-        this.storage.forEach((tile) => {
-            if (fixZoom && fixZoom != tile.z) return;
-            if (tile.quadkey.length >= z) {
-                if (tile.quadkey.indexOf(quadkey) == 0) {
-                    tiles[tiles.length] = tile;
-                }
-            } else if (quadkey.indexOf(tile.quadkey) == 0) {
-                tiles[tiles.length] = tile;
-            }
-        });
-        return tiles;
-    };
+    /**
+     * @deprecated please use {@link TileProvider.getCachedTiles} instead.
+     * @hidden
+     */
+    getCachedTilesOfBBox(bbox: number[], zoomlevel?: number): Tile[] {
+        return this.getCachedTiles(bbox, zoomlevel);
+    }
 
     /**
      * Set config for provider.

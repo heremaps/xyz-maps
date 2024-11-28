@@ -174,7 +174,7 @@ export class ClusterTileLayer extends TileLayer {
     }
 
     private _updateCachedTiles(bounds: GeoJSONBBox, clusterIndex: ClusterProvider, updatedTiles?: Set<Tile>) {
-        const tiles = clusterIndex.getCachedTilesOfBBox(bounds);
+        const tiles = clusterIndex.getCachedTiles(bounds);
         if (tiles) {
             for (let cachedTile of tiles) {
                 updatedTiles?.add(cachedTile);

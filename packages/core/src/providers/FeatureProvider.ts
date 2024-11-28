@@ -218,7 +218,7 @@ export class FeatureProvider extends Provider {
             if (inserted != UNDEF) {
                 feature = inserted;
 
-                const tiles = provider.getCachedTilesOfBBox(provider.decBBox(feature));
+                const tiles = provider.getCachedTiles(provider.decBBox(feature));
 
                 for (let tile of tiles) {
                     tile.add(<Feature>feature);
@@ -626,7 +626,7 @@ export class FeatureProvider extends Provider {
             }
 
             if (feature = this.getFeature((<GeoJSONFeature>feature).id)) {
-                const tiles = this.getCachedTilesOfBBox(this.decBBox(feature));
+                const tiles = this.getCachedTiles(this.decBBox(feature));
 
                 for (let tile of tiles) {
                     if (tile.isLoaded()) {
@@ -942,7 +942,7 @@ export class FeatureProvider extends Provider {
         if ( // wipe all cached tiles containing provided bbox
             bbox instanceof Array
         ) {
-            dataQuads = provider.getCachedTilesOfBBox(bbox, provider.level);
+            dataQuads = provider.getCachedTiles(bbox, provider.level);
 
             for (let d = 0, tile; d < dataQuads.length; d++) {
                 tile = dataQuads[d];
