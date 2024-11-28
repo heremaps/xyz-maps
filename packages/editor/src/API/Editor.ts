@@ -647,7 +647,21 @@ export default class Editor {
     }
 
     /**
+     * Retrieves the currently selected feature.
+     *
+     * @returns {Feature | null} - The currently selected feature. If no Feature is selected,
+     * it returns `null`.
+     */
+    getSelectedFeature(): Feature {
+        return this._i().objects.selection.getCurSelObj() || null;
+    }
+
+    /**
      * Clears the current selected feature.
+     *
+     * @deprecated please use `editor.getSelectedFeature()?.unselect()` instead.
+     *
+     * @hidden
      *
      * @returns the cleared Feature or null of none is selected.
      */
@@ -655,9 +669,6 @@ export default class Editor {
         const cleared = this._i().objects.selection.clearSelected();
         return cleared || null;
     }
-
-    // support for legacy/deprecated api
-    clearObjectSelection: () => Feature | null;
 
     /**
      * Search for feature(s) in the provider.
@@ -1306,7 +1317,3 @@ export default class Editor {
         }
     }
 }
-
-
-// support for legacy/deprecated api
-Editor.prototype.clearObjectSelection = Editor.prototype.clearFeatureSelection;
