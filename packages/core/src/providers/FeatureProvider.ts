@@ -923,59 +923,25 @@ export class FeatureProvider extends Provider {
         }
     }
 
-    /**
-     *  Clear all tiles and features of a given bounding box or do a full wipe if no parameter is given.
-     *
-     *  @param bbox - array of geographical coordinates [minLon, minLat, maxLon, maxLat] defining the area to clear.
-     */
-    clear(bbox?: number[]): string[] | null;
-
-    clear(bbox?: number[], triggerEvent?: boolean): string[] | null;
-    clear(bbox?: number[], triggerEvent: boolean = true): string[] | null {
+    clear(bbox?: GeoJSONBBox | Tile | Tile[], triggerEvent?: boolean): string[] | null {
         const provider = this;
-        let dataQuads = null;
-
-        if (arguments.length > 3) {
-            bbox = Array.prototype.slice.call(arguments, 0, 4);
-        }
-
-        if ( // wipe all cached tiles containing provided bbox
-            bbox instanceof Array
-        ) {
-            dataQuads = provider.getCachedTiles(bbox, provider.level);
-
-            for (let d = 0, tile; d < dataQuads.length; d++) {
-                tile = dataQuads[d];
-
-                provider._removeTile(tile, false);
-
-                dataQuads[d] = tile.quadkey;
-            }
-        } else { // full wipe
+        if (!bbox) {
+            // full wipe
             provider.tree?.clear();
 
-            const featuresInfo = provider.fReg.toArray();
-            provider.fReg.clear();
+            const {fReg} = provider;
+            const featuresInfo = fReg.toArray();
+            fReg.clear();
 
             for (const feature of featuresInfo) {
                 if (!provider.isDroppable(feature)) {
-                    provider.fReg.set(feature.id, new FeatureRegistryInfo(feature));
-
+                    fReg.set(feature.id, new FeatureRegistryInfo(feature));
                     provider.tree?.insert(feature);
                 }
             }
-
-            provider.cnt = provider.fReg.size();
-
-            // Provider clears complete tile storage
-            Provider.prototype.clear.call(this, bbox);
+            provider.cnt = fReg.size();
         }
-
-        if (triggerEvent) {
-            provider.dispatchEvent('clear', {tiles: dataQuads});
-        }
-
-        return dataQuads;
+        return super.clear(bbox, triggerEvent);
     };
 
     _insert(feature: GeoJSONFeature): Feature {

@@ -20,6 +20,7 @@ import {ClusterFeature} from '../../features/ClusterFeature';
 import {LocalProvider, LocalProviderOptions} from '../LocalProvider';
 import {Feature} from '../../features/Feature';
 import {GeoJSONBBox, GeoJSONFeature} from '../../features/GeoJSON';
+import Tile from '../../tile/Tile';
 
 export type GeoJSONPointFeature = GeoJSONFeature<'Point'>;
 
@@ -40,8 +41,8 @@ export class ClusterProvider extends LocalProvider {
         return feature.properties.clusterSize ? ClusterFeature : Feature;
     }
 
-    clear(bbox?: GeoJSONBBox, triggerEvent?: boolean): string[] | null {
-        const tiles = super.clear(bbox, triggerEvent);
+    clear(bbox?: GeoJSONBBox | Tile | Tile[], triggerEvent?: boolean): string[] | null {
+        const tiles = super.clear(bbox);
         if (bbox) {
             for (const qk of tiles) {
                 const tile = this.getCachedTile(qk);

@@ -22,6 +22,7 @@ import {TileStorage} from '../../storage/TileStorage';
 import Level2TileStorage from '../../storage/Level2Storage';
 import {Listener} from '@here/xyz-maps-common';
 import {TileProviderOptions} from './TileProviderOptions';
+import {GeoJSONBBox} from '@here/xyz-maps-core';
 
 const TILESIZE = 256;
 const DEFAULT_EXPIRE_SECONDS = Infinity;
@@ -147,10 +148,50 @@ export default abstract class TileProvider {
     }
 
     /**
-     * Clear all features in.
+     * Clears the given tile(s) from the provider's cache.
+     *
+     * @param tiles - A single `Tile` or an array of `Tile`s to be cleared.
      */
-    clear(bbox?) {
-        this.storage.clear();
+    clear(tiles: Tile | Tile[]): void;
+    /**
+     * Clears all tiles within a specified geographical bounding box.
+     *
+     * @param bbox - An array of geographical coordinates `[minLon, minLat, maxLon, maxLat]`
+     * defining the rectangular area from which tiles will be cleared.
+     */
+    clear(bbox: GeoJSONBBox): void;
+    /**
+     * Clears all cached tiles of the provider.
+     */
+    clear(): void;
+    clear(bbox?: GeoJSONBBox | Tile | Tile[], triggerEvents?: boolean): string[]|null;
+    clear(bbox?: GeoJSONBBox | Tile | Tile[], triggerEvents: boolean = true): string[]|null {
+        // this.storage.clear();
+        const provider = this;
+        let clearTiles = null;
+
+        if (!bbox) {
+            provider.storage.clear();
+        } else {
+            if (bbox instanceof Tile) {
+                bbox = [bbox];
+            }
+            if (Array.isArray(bbox)) {
+                clearTiles = typeof bbox[0] == 'number'
+                    ? provider.getCachedTiles(bbox as number[], provider.level)
+                    : bbox;
+
+                for (let d = 0, tile; d < clearTiles.length; d++) {
+                    tile = clearTiles[d];
+                    this._removeTile(tile);
+                    clearTiles[d] = tile.quadkey;
+                }
+            }
+        }
+        if (triggerEvents) {
+            this.dispatchEvent('clear', {tiles: clearTiles});
+        }
+        return clearTiles;
     };
 
     /**

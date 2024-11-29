@@ -24,7 +24,6 @@ import GenericLoader from '../loaders/Manager';
 import {HTTPLoader} from '../loaders/HTTPLoader';
 import {TileLoadDelegator} from './RemoteTileProvider/TileLoadDelegator';
 import {ImageProviderOptions} from './ImageProviderOptions';
-import {FixedLevelTileLoadDelegator} from './RemoteTileProvider/FixedLevelTileLoadDelegator';
 
 /**
  *  Tile Provider for Image/Raster data.
@@ -103,36 +102,6 @@ export class ImageProvider extends TileProvider {
     _removeTile(tile: Tile) {
         this.tileLoader.drop(tile);
     };
-
-    /**
-     *  Clear tiles in a given bounding box or all tiles called without parameter.
-     *
-     *  @param bbox - array of geographical coordinates [minLon, minLat, maxLon, maxLat] defining the area to clear.
-     */
-    clear(bbox ?: number[]) {
-        const provider = this;
-        let dataQuads = null;
-
-        if ( // wipe all cached tiles containing provided bbox
-            bbox instanceof Array
-        ) {
-            dataQuads = provider.getCachedTiles(bbox, provider.level);
-
-            for (let d = 0, tile; d < dataQuads.length; d++) {
-                tile = dataQuads[d];
-
-                this.tileLoader.drop(tile);
-                // provider.storage.remove(tile);
-
-                dataQuads[d] = tile.quadkey;
-            }
-        } else if (arguments.length == 0) {
-            this.storage.clear();
-        }
-
-        provider.dispatchEvent('clear', {tiles: dataQuads});
-    }
-    ;
 
     /**
      * Cancel ongoing request(s) and drop the tile.
