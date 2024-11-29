@@ -1,3 +1,26 @@
+## 0.40.0 (2024-11-29)
+### display
+* improved: refined depth clipping to enhance visual quality at high pitch angles
+* improved: Prevent transparency rendering issues when handling clipped data with offsets larger than remote source tile bounds.
+* added: Line dashes now support dynamic StyleExpressions with intermediate zoom level support.
+* added: The dynamic coloring of the horizon is now possible with [LayerStyle.skyColor](https://heremaps.github.io/xyz-maps/docs/interfaces/core.layerstyle.html#skycolor), including support for gradients for smooth transitions from sky to horizon
+* fixed: prevent the Compass UI from causing the map view to be reset in some cases with excessive applied rotation and tilt
+### editor
+* improved: Allow customization of default RangeSelector through enhanced overlay styles.
+* added: introduce [getSelectedFeature](https://heremaps.github.io/xyz-maps/docs/classes/editor.editor-1.html#getselectedfeature) method to retrieve the currently selected feature.
+* added: Introduced batch editing to group multiple feature modifications into a single history entry. See [batch](https://heremaps.github.io/xyz-maps/docs/classes/editor.editor-1.html#batch), [startBatch](https://heremaps.github.io/xyz-maps/docs/classes/editor.editor-1.html#startBatch), [endBatch](https://heremaps.github.io/xyz-maps/docs/classes/editor.editor-1.html#endBatch), [Playground Example](https://heremaps.github.io/xyz-maps/playground/#Editor-Batch_Changes)
+* fixed: Highlighted crossings links are reset in all cases.
+* fixed: Ensure RangeSelector fully supports custom Navlink/Line styles and correctly handles zLayer for proper layering.
+### core
+* improved: Enhanced [Provider.clear](https://heremaps.github.io/xyz-maps/docs/classes/core.featureprovider.html#clear) to support more flexible inputs, including bounding boxes and tiles.
+* added: locally cached tiles can now be queried using [TileProvider.getCachedTiles](https://heremaps.github.io/xyz-maps/docs/classes/core.tileprovider.html#getcachedtile)
+* fixed: resolve incorrect module initialization in non-browser environments like Node.js
+* fix: resolve potential rendering artifacts for huge polygons in MVT datasources
+### deps
+* build: bump ejs from 3.1.9 to 3.1.10
+* build: bump braces from 3.0.2 to 3.0.3
+* build: bump body-parser from 1.19.0 to 1.20.3
+
 ## 0.40.0-dev.1 (2024-10-17)
 ### display
 * improved: Prevent transparency rendering issues when handling clipped data with offsets larger than remote source tile bounds.
