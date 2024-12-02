@@ -16,7 +16,8 @@
   "module": "dist/xyz-maps-common.esm.min.js",
   "types": "dist/xyz-maps-common.d.js",
   "files": [
-    "dist/xyz*.min.js"
+    "dist/xyz*.min.js",
+    "dist/xyz-maps-common.d.ts"
   ],
   "scripts": {
     "watch-dev": "rollup -c --watch --environment BUILD:dev",
