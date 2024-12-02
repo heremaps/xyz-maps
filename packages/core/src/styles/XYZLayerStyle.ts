@@ -106,6 +106,11 @@ export class XYZLayerStyle implements LayerStyle {
 
     private _style: LayerStyle;
 
+    /**
+     * skyColor
+     * @protected
+     * @hidden
+     */
     skyColor: Colors.Color;
 
     /**
