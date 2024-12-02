@@ -139,6 +139,7 @@ class WebGlDisplay extends BasicDisplay {
     private maxPitchGridTopWorld: number[];
     // vertical offset from top of the screen to the "horizon line" in screen pixels.
     protected horizonY: number;
+
     constructor(mapEl: HTMLElement, renderTileSize: number, devicePixelRatio: number | string, renderOptions?: RenderOptions) {
         super(
             mapEl,
@@ -578,12 +579,15 @@ class WebGlDisplay extends BasicDisplay {
     }
 
     protected pitchMapOffsetY(pitch: number = this.rx) {
-        const {w, h} = this;
-        const [x, maxPitchGridOffset] = this.maxPitchGridTopWorld;
-        const matrix = this.render.updateMapGridMatrix(pitch, w, h);
-        const y = this.project(x, maxPitchGridOffset, 0, 0, 0, matrix)[1];
-        this.horizonY = (1 - y) * h / 2;
-        return this.horizonY;
+        let horizonY = 0;
+        if (pitch > MAX_PITCH_GRID) {
+            const {w, h} = this;
+            const [x, maxPitchGridOffset] = this.maxPitchGridTopWorld;
+            const matrix = this.render.updateMapGridMatrix(pitch, w, h);
+            const y = this.project(x, maxPitchGridOffset, 0, 0, 0, matrix)[1];
+            horizonY = (1 - y) * h / 2;
+        }
+        return this.horizonY = horizonY;
     }
 
     protected viewport(dirty?: boolean) {
