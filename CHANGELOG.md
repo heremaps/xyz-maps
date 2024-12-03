@@ -1,3 +1,6 @@
+## 0.40.1 (2024-12-3)
+* fixed: resolve excessive tile processing issue introduced in v0.40.0, boosting performance
+
 ## 0.40.0 (2024-11-29)
 ### editor
 * improved: Allow customization of default RangeSelector through enhanced overlay styles.

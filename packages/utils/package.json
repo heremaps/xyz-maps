@@ -1,6 +1,6 @@
 {
   "name": "@here/xyz-maps-utils",
-  "version": "0.40.0",
+  "version": "0.40.1",
   "description": "Development utilities used to build XYZ Maps modules",
   "author": {
     "name": "HERE Europe B.V.",
