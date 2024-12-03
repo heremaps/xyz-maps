@@ -57,7 +57,7 @@ import {GradientFactory} from '../GradientFactory';
 import {HeatmapBuffer} from './templates/HeatmapBuffer';
 import {TextureAtlasManager} from '../TextureAtlasManager';
 import {LineBuffer} from './templates/LineBuffer';
-import {Color as ColorUtils, Expression} from '@here/xyz-maps-common';
+import {Color as ColorUtils, Expression, ExpressionMode} from '@here/xyz-maps-common';
 
 const {toRGB} = ColorUtils;
 type RGBA = ColorUtils.RGBA;
@@ -136,7 +136,7 @@ export type GroupMap = { [zIndex: string]: ZDrawGroup };
 export const isDynamicProperty = (prop: any) => prop instanceof Expression;
 // const isDynamicProperty = (prop: any) => typeof prop == 'function';
 
-const DYNAMIC_MODE = 1;
+const DYNAMIC_MODE = ExpressionMode.dynamic;
 const PIXEL_UNITS = ['px', 'px'];
 
 export class FeatureFactory {

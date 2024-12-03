@@ -214,14 +214,10 @@ const createBuffer = (
                                 if (shared.strokeDasharray) {
                                     geoBuffer.type = 'DashedLine';
 
-                                    // if (isDynamicProperty(shared.strokeDasharray)) {
-                                    //     geoBuffer.addUniform('u_dashUnit', [0, 0]);
-                                    // } else {
                                     geoBuffer.addUniform('u_dashUnit', [
                                         shared.strokeDasharray.units[0] == 'm' ? meterToPixel : 0,
                                         shared.strokeDasharray.units[1] == 'm' ? meterToPixel : 0
                                     ]);
-                                    // }
                                 }
                                 // scissor un-clipped geometry in any case...(huge geometry possible)
                                 // otherwise clipping can be skipped to avoid strokeWidth cutoffs close to tile edges
