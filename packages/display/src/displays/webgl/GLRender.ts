@@ -991,7 +991,13 @@ export class GLRender implements BasicRender {
             //         // this.initScissor(px, py, tileSize, previewTransformMatrix);
             //     }
             this.initStencil(dTile.i, tileSize, bufferData.data.stencils);
+            const {clip} = buffer;
+            if (scale > 1) {
+                // Ensure clipped geometry is stenciled to match the dimensions of smaller preview tiles accurately when zoomed in.
+                buffer.clip = true;
+            }
             this.drawBuffer(buffer, px, py, previewTransformMatrix, scale);
+            buffer.clip = clip;
         } else {
             this.initStencil(dTile.i, tileSize);
             this.drawBuffer(buffer, x, y);
