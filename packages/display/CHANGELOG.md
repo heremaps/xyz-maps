@@ -1,3 +1,9 @@
+## 0.40.2 (2024-12-10)
+### display
+* fixed: prevent potential brief preview tile flickering for clipped data sources
+### editor
+* fixed: clear providers after sending updates and fetch fresh data
+
 ## 0.40.1 (2024-12-3)
 * fixed: resolve excessive tile processing issue introduced in v0.40.0, boosting performance
 
