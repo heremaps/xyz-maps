@@ -104,7 +104,7 @@ const clearTiles = (internalEditor: InternalEditor) => {
 
     for (let i = 0; i < clearBBoxes.length; i += 2) {
         provider = clearBBoxes[i];
-        provider.clear.apply(provider, clearBBoxes[i + 1]);
+        provider.clear(clearBBoxes[i + 1]);
     }
 };
 
