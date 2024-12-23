@@ -20,11 +20,13 @@ import {FlexArray} from './templates/FlexArray';
 
 const extentScale = 32;
 
-export const addPoint = (x: number, y: number, z: number | boolean, vertex: number[]|FlexArray): number => {
+export const addPoint = (x: number, y: number, z: number | boolean, vertex: number[]|FlexArray, hide?: boolean): number => {
     let v = vertex.length;
+    const visible: number = hide === undefined ? 1 : Number(!hide);
+
     // make room for direction vector bit1 and visibility bit0 (LSB)
-    x = x * extentScale << 2 | 1;
-    y = y * extentScale << 2 | 1;
+    x = x * extentScale << 2 | visible;
+    y = y * extentScale << 2 | visible;
 
     //   0 ------ 1
     //   | `.     |

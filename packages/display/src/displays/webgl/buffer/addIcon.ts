@@ -31,11 +31,12 @@ export const addIcon = (
     points: SimpleArray<number>, // number[],
     vertex: number[],
     texcoord: SimpleArray<number>, // number[],
-    rotation: number = 0
+    rotation: number = 0,
+    hide?: boolean
 ) => {
     let {u1, u2, v1, v2} = atlas;
 
-    addPoint(x, y, z, vertex);
+    addPoint(x, y, z, vertex, hide);
 
     // 10 bit rotation precision
     rotation = Math.round(rotation * 1024 / 360);

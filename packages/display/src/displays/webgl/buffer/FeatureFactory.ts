@@ -23,7 +23,6 @@ import {addExtrude} from './addExtrude';
 import {addIcon} from './addIcon';
 import earcut from 'earcut';
 import {calcBBox, getTextString, getValue, parseSizeValue, Style, StyleGroup} from '../../styleTools';
-// import {calcBBox, getTextString, getValue as parseValue, parseSizeValue, Style, StyleGroup} from '../../styleTools';
 import {defaultFont, wrapText} from '../../textUtils';
 import {FontStyle, GlyphTexture} from '../GlyphTexture';
 import {BBox, CollisionData, CollisionHandler} from '../CollisionHandler';
@@ -261,6 +260,7 @@ export class FeatureFactory {
                 rotationZ,
                 rotationY,
                 textAnchor
+                // !!this.collisionGroup
             );
         } else {
             if (type == 'Model') {
@@ -334,6 +334,7 @@ export class FeatureFactory {
                     positionBuffer.data,
                     flexAttributes.a_texcoord.data,
                     rotationZ
+                    // !!this.collisionGroup
                 );
 
                 groupBuffer.addUniform('u_texture', this.atlasManager.getTexture(src));
@@ -341,7 +342,7 @@ export class FeatureFactory {
                 const pointBuffer = ((group.buffer as PointBuffer) ||= new PointBuffer(isFlat));
                 positionBuffer = pointBuffer.flexAttributes.a_position;
 
-                addPoint(x, y, z, positionBuffer.data);
+                addPoint(x, y, z, positionBuffer.data /* !!this.collisionGroup*/);
             } else if (type == 'Heatmap') {
                 const heatmapBuffer = ((group.buffer as HeatmapBuffer) ||= new HeatmapBuffer(isFlat));
 
@@ -400,6 +401,7 @@ export class FeatureFactory {
         allowPointerEvents: boolean = true
     ): boolean {
         const {tile, groups, tileSize} = this;
+        // this.collisionGroup = collisionGroup;
         const level = this.z;
         let flatPolyStart: number;
         let flatPoly: FlatPolygon[];
@@ -411,11 +413,9 @@ export class FeatureFactory {
         let font;
         let fill;
         let fillRGBA;
-        let fillAlpha;
         let rotation;
         let stroke;
         let strokeRGBA;
-        let strokeAlpha;
         let strokeWidth;
         let strokeDasharray;
         let strokeDashimage;
@@ -513,8 +513,6 @@ export class FeatureFactory {
             stroke = UNDEF;
             fillRGBA = UNDEF;
             strokeRGBA = UNDEF;
-            fillAlpha = 1;
-            strokeAlpha = 1;
             strokeWidth = UNDEF;
             strokeDasharray = UNDEF;
             strokeDashimage = UNDEF;

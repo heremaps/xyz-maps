@@ -50,7 +50,8 @@ const addText = (
     glyphAtlas: GlyphAtlas,
     rotationZ = 0,
     rotationY: number | undefined,
-    textAnchor: ParsedStyleProperty<TextStyle['textAnchor']> | string = 'Center'
+    textAnchor: ParsedStyleProperty<TextStyle['textAnchor']> | string = 'Center',
+    hide?: boolean
 ) => {
     const lineOffset = lines.length - 1;
     const lineHeight = glyphAtlas.lineHeight;
@@ -60,9 +61,11 @@ const addText = (
     let ty = glyphAtlas.baselineOffset + 0.5 * lineHeight * (lineOffset + lines.length * anchorOffset.y);
     ty *= OFFSET_SCALE;
 
+    const visible: number = hide === undefined ? 1 : Number(!hide);
+
     // LSB defines visibility, visible by default
-    cx = cx * EXTENT_SCALE << 1 | 1;
-    cy = cy * EXTENT_SCALE << 1 | 1;
+    cx = cx * EXTENT_SCALE << 1 | visible;
+    cy = cy * EXTENT_SCALE << 1 | visible;
 
     // 10 bit rotation precision
     rotationZ = Math.round(rotationZ * 1024 / 360);
