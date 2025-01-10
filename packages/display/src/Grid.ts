@@ -43,6 +43,7 @@ export class GridTile implements ViewportTile {
     gridY: number;
 
     private bounds: number[][];
+    private resultCache: {};
 
     constructor(tileZoomLevel: number, x: number, y: number, size: number, gridX: number, gridY: number, bounds: number[][]) {
         this.quadkey = tileUtils.tileXYToQuadKey(tileZoomLevel, gridY, gridX);
@@ -54,6 +55,8 @@ export class GridTile implements ViewportTile {
         this.gridX = gridX;
         this.gridY = gridY;
         this.bounds = bounds;
+
+        this.resultCache = {};
     }
 
     static updateTileBBox(tx1: number, ty1: number, tileSize: number) {
@@ -88,6 +91,13 @@ export class GridTile implements ViewportTile {
         optimiseTileLevel: boolean = true,
         tiles: ViewportTile[] = []
     ): ViewportTile[] {
+        const cacheKey = minTileSize<<1|Number(optimiseTileLevel);
+        const cache = this.resultCache;
+        if (cache[cacheKey]) {
+            return cache[cacheKey];
+        }
+        cache[cacheKey] = tiles;
+
         let {tileZoomLevel, gridX, gridY, scaledSize: size} = this;
         if (size > minTileSize) {
             const displayScale = display.s;
