@@ -409,13 +409,14 @@ abstract class Display {
                         gridTile.size = gridTileSize;
                         gridTile.tile = displayTile;
 
-                        displayTile.i = ++this.ti;
                         screenTiles.push(gridTile);
 
                         if (!vpTiles.find((t) => t.quadkey == quadkey
                             // At the most zoomed-out level, tiles may repeat multiple times to fully cover the screen.
-                            && t.x == gridTile.x && t.y == gridTile.y)) {
+                            && t.x == gridTile.x && t.y == gridTile.y)
+                        ) {
                             vpTiles.push(gridTile);
+                            displayTile.i = ++this.ti;
                         }
                         display.initTile(displayTile, dLayer);
                         layer.getTile(quadkey, dLayer.handleTile);
