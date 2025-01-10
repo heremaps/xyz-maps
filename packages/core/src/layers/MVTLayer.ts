@@ -45,6 +45,7 @@ const DEFAULT_TILE_SIZE = 512;
 export class MVTLayer extends TileLayer {
     protected _p: MVTProvider[];
 
+    adaptiveGrid = true;
     /**
      * @param options - options to configure the TileLayer
      */
@@ -55,14 +56,11 @@ export class MVTLayer extends TileLayer {
         const url = remote['url'];
         const remoteMin = remote['min'] || 1;
         const remoteMax = remote['max'] || 16;
-
-        let tileSize = options['tileSize']||remote['tileSize'];
-
         const name = options['name'] || '';
         const layerMax = options['max'] || DEFAULT_LAYER_MAX_ZOOM;
         const loader = new MVTTileLoader(remote);
-
-        const providers = [];
+        let tileSize = options['tileSize']||remote['tileSize'];
+        let providers = options.providers;
         let levelOffset;
 
         if (!tileSize) {
@@ -76,34 +74,30 @@ export class MVTLayer extends TileLayer {
             }
         }
 
-        // levelOffset = Math.round(Math.log(tileSize) / Math.log(2) - 8);
-        levelOffset = 0;
+        if (!Array.isArray(providers)) {
+            providers = [];
+            // levelOffset = Math.round(Math.log(tileSize) / Math.log(2) - 8);
+            levelOffset = 0;
+            // 128tiles (512px) -> about 512MB mem!, 256tiles(256px), 64tiles(10240px)...
+            let cache1: LRU<Tile> = new LRU(256 / Math.pow(2, levelOffset));
+            let cache2: LRU<Tile> = new LRU(cache1.max * 4);
 
-
-        // 128tiles (512px) -> about 512MB mem!, 256tiles(256px), 64tiles(10240px)...
-        let cache1: LRU<Tile> = new LRU(256 / Math.pow(2, levelOffset));
-        let cache2: LRU<Tile> = new LRU(cache1.max * 4);
-
-        for (var level = remoteMin; level <= remoteMax; level++) {
-            providers.push({
-
-                min: level,
-
-                max: level == remoteMax ? layerMax : level,
-
-                provider: new MVTProvider({
-
-                    name: name + '-L' + level,
-
-                    url: url,
-                    level: level - levelOffset,
-                    loader: loader,
-                    size: tileSize,
-                    // storage : tileStorage
-                    // storage : new TileStorage( level - levelOffset, 16, 16 * 4 )
-                    storage: new TileStorage(level - levelOffset, cache1, cache2)
-                })
-            });
+            for (var level = remoteMin; level <= remoteMax; level++) {
+                providers.push({
+                    min: level,
+                    max: level == remoteMax ? layerMax : level,
+                    provider: new MVTProvider({
+                        name: name + '-L' + level,
+                        url: url,
+                        level: level - levelOffset,
+                        loader: loader,
+                        size: tileSize,
+                        // storage : tileStorage
+                        // storage : new TileStorage( level - levelOffset, 16, 16 * 4 )
+                        storage: new TileStorage(level - levelOffset, cache1, cache2)
+                    })
+                });
+            }
         }
 
         super({

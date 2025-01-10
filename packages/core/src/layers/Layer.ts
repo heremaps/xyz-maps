@@ -61,6 +61,8 @@ export class Layer {
 
     private visible: boolean;
 
+    custom: boolean;
+
     /**
      * @param options - options to configure the Layer
      */

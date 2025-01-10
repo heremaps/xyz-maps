@@ -396,6 +396,10 @@ class GeometryBuffer {
         }
         return uniformData;
     }
+
+    needs2AlphaPasses(): boolean {
+        return !!(this.pass & PASS.POST_ALPHA);
+    }
 }
 
 

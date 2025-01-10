@@ -19,7 +19,7 @@
 
 import Renderer from './Canvas';
 import DisplayTilePool from './CanvasTileBucket';
-import BasicDisplay from '../BasicDisplay';
+import BasicDisplay, {ViewportTile} from '../BasicDisplay';
 import {TileLayer} from '@here/xyz-maps-core';
 import CanvasTile from './CanvasTile';
 import CanvasRenderer from './Canvas';
@@ -82,6 +82,7 @@ class CanvasDisplay extends BasicDisplay {
     render: CanvasRenderer;
     private cluster: LayerClusterer;
 
+    tiles: (ViewportTile & {lrTs?: number})[];
     constructor(mapEl, tileSize, devicePixelRatio, renderOptions?: {}) {
         tileSize = tileSize || DEFAULT_TILE_SIZE;
 
@@ -160,47 +161,29 @@ class CanvasDisplay extends BasicDisplay {
         const render = display.render;
         const layers = display.layers;
         const layerCount = layers.length;
-        const bucket = this.buckets;
-
-        let screenTile;
-        let dTile;
-        let lastTileUpdateTs;
-
+        const length = tiles.length;
 
         if (this.dirty || dirty) {
             this.render.clear();
             this.dirty = false;
         }
 
-        for (let tileSize in tiles) {
-            if (tileSize == '512') continue;
+        for (let screenTile of tiles) {
+            if (screenTile.scaledSize != 256) continue;
 
-            const vpTiles = tiles[tileSize];
-            const length = vpTiles.length;
+            const dTile = screenTile.tile;
 
-            for (let screenTile of vpTiles) {
-                dTile = screenTile.tile;
-                lastTileUpdateTs = dTile.luTs;
+            if (screenTile.lrTs !== dTile.luTs || dirty) {
+                screenTile.lrTs = dTile.luTs;
 
-                if (screenTile.lrTs != lastTileUpdateTs || dirty) {
-                    screenTile.lrTs = lastTileUpdateTs;
+                render.tile(dTile, screenTile.x, screenTile.y);
 
-                    render.tile(dTile, screenTile.x, screenTile.y);
-
-                    for (var l = 0, layer; l < layerCount; l++) {
-                        layer = layers[l]; // {ready: false, layer: Layer, cnt: 0, visible: true}
-
-                        if (
-                            !layer.ready && dTile.ready(l) &&
-                            ++layer.cnt == length
-                        ) {
-                            layer.ready = true;
-                            // layers[l].__C_RENDER && layers[l].__C_RENDER(tileRenderer.ctx,mapscale,rotationZ, display.setTransform );
-                        }
+                for (var l = 0, layer; l < layerCount; l++) {
+                    layer = layers[l];
+                    if (!layer.ready && dTile.ready(l) && ++layer.cnt == length) {
+                        layer.ready = true;
                     }
                 }
-                // }
-                // i++;
             }
         }
     }

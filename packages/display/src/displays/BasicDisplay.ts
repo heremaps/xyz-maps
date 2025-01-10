@@ -18,15 +18,15 @@
  */
 
 import {global, Color as ColorUtils} from '@here/xyz-maps-common';
-import {Tile, TileLayer, CustomLayer, XYZLayerStyle, Color} from '@here/xyz-maps-core';
+import {Tile, TileLayer, CustomLayer, XYZLayerStyle, Color, tile} from '@here/xyz-maps-core';
 import {getElDimension, createCanvas} from '../DOMTools';
-import {Layers, Layer, ScreenTile} from './Layers';
+import {Layers, Layer} from './Layers';
 import FeatureModifier from './FeatureModifier';
 import BasicRender from './BasicRender';
 import BasicTile from './BasicTile';
 import BasicBucket from './BasicBucket';
 import Preview from './Preview';
-import Grid, {ViewportTile} from '../Grid';
+import Grid, {GridTile} from '../Grid';
 import {createZoomRangeFunction, parseColorMap} from './styleTools';
 
 type RGBA = ColorUtils.RGBA;
@@ -44,6 +44,8 @@ function toggleLayerEventListener(toggle: string, layer: any, listeners: any) {
 }
 
 let UNDEF;
+
+export type ViewportTile = GridTile & {scale: number, size: number, tile: BasicTile};
 
 abstract class Display {
     private previewer: Preview;
@@ -72,8 +74,7 @@ abstract class Display {
     render: BasicRender;
     buckets: BasicBucket;
     listeners: { [event: string]: (a1?, a2?) => void };
-    tiles: { [tilesize: string]: ScreenTile[] };
-
+    tiles: ViewportTile[];
     grid: Grid;
     private _zoom: number;
 
@@ -86,10 +87,6 @@ abstract class Display {
 
         display.previewer = new Preview(display, previewLookAhead);
         display.grid = new Grid(tileSize);
-        display.tiles = {
-            256: [],
-            512: []
-        };
         display.render = tileRenderer;
         // tileRenderer.mapContext = this.mapContext;
         display.tileSize = tileSize;
@@ -275,6 +272,10 @@ abstract class Display {
 
     abstract project(x: number, y: number, z?: number): number[];
 
+    computeDistanceScale(x: number, y: number): number {
+        return 1;
+    }
+
     private setLayerBgColor(style, dLayer: Layer) {
         dLayer.bgColor = this.parseColor(style.backgroundColor);
     }
@@ -324,8 +325,8 @@ abstract class Display {
     }
 
 
-    getScreenTile(quadkey: string, tileSize: number): ViewportTile {
-        return this.grid.tiles[<256 | 512>tileSize].find((tile) => tile.quadkey == quadkey);
+    getScreenTile(quadkey: string, tileSize?: number): ViewportTile {
+        return this.tiles.find((tile) => tile.quadkey == quadkey);
     }
 
     // USED BY FEATUREMODIFIER
@@ -366,7 +367,6 @@ abstract class Display {
         }
     }
 
-
     preview(displayTile: BasicTile, layer: TileLayer, index: number): any[][] {
         const previewData = this.previewer.create(displayTile, layer);
         displayTile.preview(index, previewData);
@@ -374,58 +374,74 @@ abstract class Display {
         return previewData;
     }
 
-
-    private initVpTiles(gridTiles, zoomLevel: number, gridTileSize: number) {
+    private initVpTiles(gridTiles: GridTile[], zoomLevel: number, _gridTileSize?: number) {
         const display = this;
-        const layers: Layer[] = <Layer[]><unknown> this.layers;
+        const layers = this.layers;
+        const prevVPTiles = display.tiles || [];
+        let vpTiles = display.tiles = [];
 
-        const prevVPTiles = display.tiles[gridTileSize];
-        let vpTiles = display.tiles[gridTileSize] = [];
-        const screenTiles = [];
+        for (let dLayer of layers) {
+            dLayer.reset(zoomLevel);
 
-        for (let gridTile of gridTiles) {
-            const {x, y, quadkey} = gridTile;
-            const displayTile = display.getBucket(quadkey, CREATE_IF_NOT_EXISTS);
-            const tilePosition = new ScreenTile(x, y, gridTileSize, displayTile);
+            const layer = dLayer.layer as TileLayer;
+            if (!layer.tiled) continue;
 
-            displayTile.i = ++this.ti;
+            let layerTileSize = layer.tileSize || 256;
+            let gridTileSize = layerTileSize;
+            let screenTiles = [];
 
-            screenTiles.push(tilePosition);
-            vpTiles.push(tilePosition);
+            dLayer.tiles = screenTiles;
 
-            for (let dLayer of layers) {
-                let layer = <TileLayer>dLayer.layer;
+            if ( layer.isVisible(zoomLevel)) {
+                for (let _gridTile of gridTiles) {
+                    const subTiles = _gridTile.generateTileHierarchy(
+                        display,
+                        layerTileSize,
+                        layer.adaptiveGrid
+                    ) as ViewportTile[];
 
-                if (!layer.tiled) continue;
+                    for (let gridTile of subTiles) {
+                        const {quadkey, scaledSize} = gridTile;
+                        const displayTile = display.getBucket(quadkey, CREATE_IF_NOT_EXISTS);
+                        const tileZoomScale = scaledSize / gridTileSize;
 
-                let layerTileSize = layer.tileSize || 256;
+                        gridTile.scale = tileZoomScale;
+                        gridTile.size = gridTileSize;
+                        gridTile.tile = displayTile;
 
-                if (layerTileSize == gridTileSize) {
-                    if (layer.isVisible(zoomLevel)) {
-                        dLayer.tiles = screenTiles;
+                        displayTile.i = ++this.ti;
+                        screenTiles.push(gridTile);
+
+                        if (!vpTiles.find((t) => t.quadkey == quadkey && t.x == gridTile.x && t.y == gridTile.y)) {
+                            vpTiles.push(gridTile);
+                        }
                         display.initTile(displayTile, dLayer);
                         layer.getTile(quadkey, dLayer.handleTile);
                     }
                 }
+                this.freeStaleTilesLayer(screenTiles, prevVPTiles, dLayer);
             }
         }
+    }
 
+    private freeStaleTilesLayer(vpTiles: ViewportTile[], prevVPTiles: ViewportTile[], displayLayer: Layer) {
         // mark tiles to not be visible anymore
-        prevVPTiles.forEach((tilePos) => {
-            const qk = tilePos.tile.quadkey;
-            for (let vpTile of vpTiles) {
-                if (vpTile.tile.quadkey == qk) {
-                    return;
+        for (const {quadkey, size} of prevVPTiles) {
+            let staled = true;
+            for (const {quadkey: qk, size: s} of vpTiles) {
+                if (qk == quadkey && size == s) {
+                    staled = false;
+                    break;
                 }
             }
-
-            for (let dLayer of layers) {
-                if ((<TileLayer>dLayer.layer).tileSize == gridTileSize) {
-                    display.releaseTile(qk, dLayer);
+            if (staled) {
+                const tileLayer = <TileLayer>displayLayer.layer;
+                if ((tileLayer).tileSize == size) {
+                    this.releaseTile(quadkey, displayLayer);
                 }
+                this.cancel(quadkey, tileLayer);
             }
-            display.cancel(qk);
-        });
+        }
     }
 
     protected getCamGroundPositionScreen() {
@@ -450,7 +466,6 @@ abstract class Display {
         this.sy = screenOffsetY;
 
         const display = this;
-        const rotZRad = this.rz;
         const mapWidthPixel = this.w;
         const mapHeightPixel = this.h;
         const displayWidth = mapWidthPixel;
@@ -470,22 +485,12 @@ abstract class Display {
         ];
 
         // Initialize the grid with the adjusted bounds
-        this.grid.init(centerWorldPixel, rotZRad, mapWidthPixel, mapHeightPixel, gridWorldPixel);
+        this.grid.init(centerWorldPixel, mapWidthPixel, mapHeightPixel, gridWorldPixel);
 
-        const layers = this.layers;
-        const tileSizes = layers.reset(tileGridZoom/* + Math.log(this.s) / Math.LN2*/);
         this.ti = 0;
+        const gridTiles = display.grid.getTiles(tileGridZoom);
 
-        for (let tileSize of tileSizes) {
-            const gridTiles = display.grid.getTiles(tileGridZoom - Number(tileSize == 512), tileSize);
-            this.initVpTiles(gridTiles, tileGridZoom, tileSize);
-        }
-
-        if (tileSizes.indexOf(512) == -1) {
-            // 512er tile-grid is used for collision detection.
-            // so we need to make sure grid is initialised with 512er tiles.
-            display.grid.getTiles(tileGridZoom - 1, 512);
-        }
+        this.initVpTiles(gridTiles, tileGridZoom);
 
         this.dirty = true;
 

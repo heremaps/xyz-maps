@@ -19,25 +19,10 @@
 
 import {Tile, Layer as BasicLayer, TileLayer} from '@here/xyz-maps-core';
 import {Expression, ExpressionParser} from '@here/xyz-maps-common';
-import BasicTile from './BasicTile';
 import {parseStyleGroup} from './styleTools';
 import {defaultLight, ProcessedLights} from './webgl/lights';
+import {ViewportTile} from './BasicDisplay';
 
-
-class ScreenTile {
-    x: number;
-    y: number;
-    size: number;
-    tile: BasicTile;
-    lrTs: number | false = false;
-
-    constructor(x: number, y: number, size: number, tile) {
-        this.x = x;
-        this.y = y;
-        this.size = size;
-        this.tile = tile;
-    }
-}
 
 interface ResultCache<K, V> extends Map<K, V> {
     hits?: number;
@@ -57,7 +42,7 @@ class Layer {
     error: boolean;
     index: number;
     visible: boolean;
-    tiles: ScreenTile[];
+    tiles: ViewportTile[] = [];
     tileSize: number;
     handleTile: (tile: Tile) => void;
     z: { [zIndex: string]: number } = {};
@@ -161,6 +146,27 @@ class Layer {
         }
         return lights as { [p: string]: ProcessedLights };
     }
+
+    reset(zoomlevel: number): number {
+        const dLayer: Layer = this;
+        const layer = dLayer.layer;
+        dLayer.error = false;
+        dLayer.cnt = 0;
+        dLayer.tiles = [];
+
+        if (dLayer.visible = layer.isVisible(zoomlevel)) {
+            dLayer.ready = false;
+
+            if (layer.custom) return;
+
+            return (<TileLayer>layer).tileSize;
+            // tileSizes.add(layer.tileSize);
+        } else {
+            // if layer not visible viewportReady should be triggered..
+            // changing this default behavior might make sense for future release
+            dLayer.ready = true;
+        }
+    }
 }
 
 class Layers extends Array<Layer> {
@@ -236,32 +242,14 @@ class Layers extends Array<Layer> {
 
     reset(zoomlevel: number): number[] {
         const tileSizes = new Set<number>();
-        let layer;
         for (let dLayer of this) {
-            layer = dLayer.layer;
-            dLayer.error = false;
-            dLayer.cnt = 0;
-            dLayer.tiles = [];
-
-            if (dLayer.visible = layer.isVisible(zoomlevel)) {
-                dLayer.ready = false;
-
-                if (layer.custom) continue;
-
-                tileSizes.add(layer.tileSize);
-            } else {
-                // if layer not visible viewportReady should be triggered..
-                // changing this default behavior might make sense for future release
-                dLayer.ready = true;
+            let tileSize = dLayer.reset(zoomlevel);
+            if (tileSize) {
+                tileSizes.add(tileSize);
             }
         }
-
         return Array.from(tileSizes);
-
-        // const _tiles = this.tiles;
-        // this.tiles = {};
-        // return _tiles;
     }
 }
 
-export {Layers, Layer, ScreenTile};
+export {Layers, Layer};

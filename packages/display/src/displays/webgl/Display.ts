@@ -17,7 +17,7 @@
  * License-Filename: LICENSE
  */
 
-import BasicDisplay from '../BasicDisplay';
+import BasicDisplay, {ViewportTile} from '../BasicDisplay';
 import {GLRender, RenderOptions} from './GLRender';
 import GLBucket from './Bucket';
 
@@ -25,8 +25,9 @@ import {createBuffer} from './buffer/createBuffer';
 import {createImageBuffer} from './buffer/createImageBuffer';
 
 import {transformMat4} from 'gl-matrix/vec3';
+import {transformMat4 as transformMat4Vec4} from 'gl-matrix/vec4';
 import {invert} from 'gl-matrix/mat4';
-import {Layer, Layers, ScreenTile} from '../Layers';
+import {Layer, Layers} from '../Layers';
 import GLTile from './GLTile';
 import {FeatureFactory} from './buffer/FeatureFactory';
 import {CollisionHandler} from './CollisionHandler';
@@ -46,7 +47,7 @@ import {Color as Colors} from '@here/xyz-maps-common';
 
 const {toRGB} = Colors;
 
-export const MAX_PITCH_GRID = 60 / 180 * Math.PI;
+export const MAX_PITCH_GRID = 68 / 180 * Math.PI;
 
 const PREVIEW_LOOK_AHEAD_LEVELS: [number, number] = [3, 9];
 
@@ -61,8 +62,8 @@ const PREVIEW_LOOK_AHEAD_LEVELS: [number, number] = [3, 9];
 // ];
 
 const stencilQuad = (quadkey: string, subQuadkey: string) => {
-    let level = quadkey.length;
-    let dLevel = subQuadkey.length - level;
+    const level = quadkey.length;
+    const dLevel = subQuadkey.length - level;
     // quad:
     // -------------
     // |  0  |  1  |
@@ -71,13 +72,14 @@ const stencilQuad = (quadkey: string, subQuadkey: string) => {
     // -------------
     let x = 0;
     let y = 0;
-
-    for (let i = 0, size = .5; i < dLevel; i++, size *= .5) {
+    let size = 1;
+    for (let i = 0; i < dLevel; i++) {
+        size *= .5;
         const quad = Number(subQuadkey.charAt(level + i));
         x += (quad % 2) * size;
         y += Number(quad > 1) * size;
     }
-    return [x, y];
+    return [x, y, size];
 };
 
 type RendereFeatureResult = {
@@ -93,7 +95,7 @@ export type TileBufferData = {
     // layerIndex: number;
     layer: Layer,
     data: {
-        tile: ScreenTile;
+        tile: ViewportTile;
         preview?: [string, number, number, number, number, number, number, number, number];
         stencils?;
     };
@@ -516,14 +518,12 @@ class WebGlDisplay extends BasicDisplay {
                             if (previewData.length) {
                                 for (let preview of previewData) {
                                     const [previewQuadkey] = preview;
-
                                     const tileStencil = stencilQuad(previewQuadkey, dTile.quadkey);
 
                                     if (previewTiles[previewQuadkey]) {
                                         previewTiles[previewQuadkey].push(tileStencil);
                                         continue;
                                     }
-
                                     previewTiles[previewQuadkey] = [tileStencil];
 
                                     let previewTile = <GLTile>buckets.get(previewQuadkey, true /* SKIP TRACK */);
@@ -599,7 +599,6 @@ class WebGlDisplay extends BasicDisplay {
         if (display.dirty) {
             display.dirty = false;
             display.collision.update(
-                display.grid.tiles[512],
                 // make sure display will refresh in case of cd toggles visibility
                 () => display.update()
             );
@@ -668,14 +667,8 @@ class WebGlDisplay extends BasicDisplay {
         } while (++layerZIndex < maxZIndex);
 
         if (render.tileGrid) {
-            for (let tileSize in display.tiles) {
-                const tiles = display.tiles[tileSize];
-                if (tiles.length) {
-                    for (let screenTile of tiles) {
-                        render.drawGrid(screenTile.x, screenTile.y, <GLTile>screenTile.tile, Number(tileSize));
-                    }
-                    break;
-                }
+            for (let screenTile of display.tiles) {
+                render.drawGrid(screenTile.x, screenTile.y, <GLTile>screenTile.tile, screenTile.size * screenTile.scale);
             }
         }
     }
@@ -709,8 +702,7 @@ class WebGlDisplay extends BasicDisplay {
                     continue;
                 }
             }
-            const tile: ScreenTile = data.tile;
-            const {x: tileX, y: tileY, size} = tile;
+            const {x: tileX, y: tileY, size} = data.tile;
             const hitTile = this.rayCaster.intersectAABBox(tileX, tileY, 0, tileX + size, tileY + size, camWorldZ);
             if (!hitTile) continue;
 
@@ -773,6 +765,17 @@ class WebGlDisplay extends BasicDisplay {
             });
             return true;
         }
+    }
+
+    computeDistanceScale(x: number, y: number): number {
+        const position = [x, y, 0, 1];
+        const centerTileScreen = transformMat4Vec4(position, position, this.render.screenMat);
+        const distanceScale = centerTileScreen[3] / this.render.distanceCam2Center;
+        return distanceScale;
+    }
+
+    get geometryBufferCount() {
+        return this._zSortedTileBuffers?.tileBuffers?.length ^ 0;
     }
 }
 

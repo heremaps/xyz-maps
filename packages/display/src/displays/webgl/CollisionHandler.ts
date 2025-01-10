@@ -17,15 +17,13 @@
  * License-Filename: LICENSE
  */
 
-import {LocalProvider, Tile, TileLayer, tileUtils} from '@here/xyz-maps-core';
+import {LocalProvider, Tile, TileLayer, tileUtils, webMercator} from '@here/xyz-maps-core';
 import Display from './Display';
 import {Attribute} from './buffer/Attribute';
 import {Layer} from '../Layers';
 import {FlexAttribute} from './buffer/templates/TemplateBuffer';
-import {webMercator} from '@here/xyz-maps-core';
 import {Map as MapDisplay} from '../../Map';
-import {ViewportTile} from '../../Grid';
-
+import {ViewportTile} from '../BasicDisplay';
 
 const UPDATE_DELAY_MS = 150;
 const DEBUG = false;
@@ -146,6 +144,7 @@ export class CollisionHandler {
                 }
             }
         }
+        return false;
     }
 
     private updateBBoxes(cx: number, cy: number, slope: number[], w: number, h: number, boxes, result: BBox[]) {
@@ -312,14 +311,11 @@ export class CollisionHandler {
 
         this.curLayerTileCollision = null;
 
-        if (this.updated) {
-            if (updateScreenSpaceCollision) {
-                // update collision in projected screen-pixels to minimize possible collisions for newly added tiles to vp..
-                // ..until fullscreen phase2 collision detection has been completed.
-                this.updateTileSync(this.display.getScreenTile(tileKey, 512));
-            }
+        if (this.updated && updateScreenSpaceCollision) {
+            // update collision in projected screen-pixels to minimize possible collisions for newly added tiles to vp...
+            // ...until fullscreen phase2 collision detection has been completed.
+            this.updateTileSync(this.display.getScreenTile(tileKey, 512));
         }
-
         return this.updated;
     }
 
@@ -353,12 +349,11 @@ export class CollisionHandler {
     }
 
 
-    update(tiles: ViewportTile[], callback: () => void) {
+    update(callback: () => void) {
         if (this.timer == null) {
             this.timer = setTimeout(() => {
                 // update viewport tiles to match current mapview transformation
-                const tiles = this.display.grid.tiles[512];
-                const scale = this.display.s;
+                const {tiles, s: scale} = this.display;
                 // console.time('updateCollisions');
                 const updated = this.updateTiles(tiles, scale);
                 // console.timeEnd('updateCollisions');
@@ -368,8 +363,8 @@ export class CollisionHandler {
         }
     }
 
-    private updateTiles(tiles: ViewportTile[], scale: number): boolean {
-        const {display, dbg} = this;
+    private updateTiles(tiles: ViewportTile[], displayScale: number): boolean {
+        const {dbg} = this;
         const collisionData: CollisionData[] = [];
 
         dbg && this.dbgLayers[1].getProvider().clear();
@@ -377,60 +372,11 @@ export class CollisionHandler {
         // console.time('updateCollisions');
 
         for (let screentile of tiles) {
-            let quadkey = screentile.quadkey;
-            let tileCollisionData = this.tiles.get(quadkey);
+            let {quadkey, scale: tileScale} = screentile;
+            const tileCollisionData = this.tiles.get(quadkey);
 
             if (tileCollisionData) {
-                for (let segment in tileCollisionData) {
-                    const collisions = tileCollisionData[segment];
-
-                    for (let cData of collisions) {
-                        const {attrs} = cData;
-                        const offsetX = cData.offsetX / scale;
-                        const offsetY = cData.offsetY / scale;
-                        const boxCnt = cData.boxes.length;
-                        let {slope, halfWidth, halfHeight} = cData;
-                        let screenX = screentile.x + cData.cx;
-                        let screenY = screentile.y + cData.cy;
-                        let boxes: BBox[];
-
-                        if (boxCnt > 1) {
-                            // map aligned
-                            boxes = new Array(boxCnt);
-                            screenX += offsetX;
-                            screenY += offsetY;
-                            let [prjX, prjY] = display.project(screenX, screenY, 0,
-                                0, 0/* -> unscaled world pixels */
-                            );
-                            let prjScreen2 = display.project(screenX + slope[0], screenY + slope[1], 0,
-                                0, 0
-                            );
-                            slope = [
-                                (prjScreen2[0] - prjX) / scale,
-                                (prjScreen2[1] - prjY) / scale
-                            ];
-                            this.updateBBoxes(prjX, prjY, slope, halfWidth, halfHeight, boxes.length - 1, boxes);
-                        } else {
-                            // viewport aligned
-                            const [prjX, prjY] = display.project(screenX, screenY, 0,
-                                0, 0/* -> unscaled world pixels */
-                            );
-                            boxes = [{
-                                minX: prjX - halfWidth + offsetX,
-                                maxX: prjX + halfWidth + offsetX,
-                                minY: prjY - halfHeight + offsetY,
-                                maxY: prjY + halfHeight + offsetY
-                            }];
-                        }
-
-                        collisionData.push({
-                            boxes,
-                            attrs,
-                            slope,
-                            priority: cData.priority
-                        });
-                    }
-                }
+                this.updateTileCollisionData(screentile.x, screentile.y, tileScale, tileCollisionData, displayScale, collisionData);
             }
         }
 
@@ -445,7 +391,6 @@ export class CollisionHandler {
         for (let bbox of collisionData) {
             let visibleItems;
             let intersects = this.intersects(bbox, visibleItemsViewportAligned);
-
             if (bbox.slope) {
                 visibleItems = visibleItemsMapAligned;
             } else {
@@ -460,18 +405,15 @@ export class CollisionHandler {
             for (let {buffer, start, stop} of bbox.attrs) {
                 const {data, size} = buffer;
                 const visible = (data[start] & 1) == 1;
-
                 if (
-                    // hide all glyphs
-                    (intersects && visible) ||
-                    // show all glyphs again (previously hidden)..
-                    (!intersects && !visible)
+                    // Hide all buffers (intersects && visible) or
+                    // restore previously hidden buffers to make them visible again (!intersects && !visible).
+                    intersects == visible
                 ) {
                     while (start < stop) {
                         data[start] ^= 1; // toggle LSB
                         start += size;
                     }
-
                     (<Attribute>buffer).dirty = true;
                     updated = true;
                 }
@@ -484,6 +426,68 @@ export class CollisionHandler {
         // console.log('visible', visibleItemsMapAligned.length + visibleItemsViewportAligned.length, 'of', collisionData.length, 'total');
         return updated;
     }
+
+    private updateTileCollisionData(
+        tileX: number,
+        tileY: number,
+        tileScale: number,
+        tileCollisionData: CollisionDataMap,
+        displayScale: number,
+        collisionData: CollisionData[]
+    ) {
+        const {display} = this;
+        for (let segment in tileCollisionData) {
+            const collisions = tileCollisionData[segment];
+
+            for (let cData of collisions) {
+                const {attrs} = cData;
+                const offsetX = cData.offsetX / displayScale;
+                const offsetY = cData.offsetY / displayScale;
+                const boxCnt = cData.boxes.length;
+                let {slope, halfWidth, halfHeight} = cData;
+                let screenX = tileX + cData.cx * tileScale;
+                let screenY = tileY + cData.cy * tileScale;
+                let boxes: BBox[];
+
+                if (boxCnt > 1) {
+                    // map aligned
+                    boxes = new Array(boxCnt);
+                    screenX += offsetX;
+                    screenY += offsetY;
+                    let [prjX, prjY] = display.project(screenX, screenY, 0,
+                        0, 0/* -> unscaled world pixels */
+                    );
+                    let prjScreen2 = display.project(screenX + slope[0], screenY + slope[1], 0,
+                        0, 0
+                    );
+                    slope = [
+                        (prjScreen2[0] - prjX) / displayScale,
+                        (prjScreen2[1] - prjY) / displayScale
+                    ];
+                    this.updateBBoxes(prjX, prjY, slope, halfWidth, halfHeight, boxes.length - 1, boxes);
+                } else {
+                    // viewport aligned
+                    const [prjX, prjY] = display.project(screenX, screenY, 0,
+                        0, 0/* -> unscaled world pixels */
+                    );
+                    boxes = [{
+                        minX: prjX - halfWidth + offsetX,
+                        maxX: prjX + halfWidth + offsetX,
+                        minY: prjY - halfHeight + offsetY,
+                        maxY: prjY + halfHeight + offsetY
+                    }];
+                }
+
+                collisionData.push({
+                    boxes,
+                    attrs,
+                    slope,
+                    priority: cData.priority
+                });
+            }
+        }
+    }
+
 
     removeTiles(layer: Layer) {
         const {id} = layer;

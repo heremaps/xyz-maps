@@ -197,8 +197,8 @@ class CanvasRenderer implements BasicRender {
                     preview[2],
                     preview[3],
                     preview[4],
-                    0 + preview[5],
-                    0 + preview[6],
+                    preview[5],
+                    preview[6],
                     preview[7],
                     preview[8]
                 );

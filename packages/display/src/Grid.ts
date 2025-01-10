@@ -19,14 +19,115 @@
 
 import {tileUtils} from '@here/xyz-maps-core';
 import {doPolygonsIntersect} from './geometry';
+import BasicDisplay from './displays/BasicDisplay';
+
 
 const INFINITY = Infinity;
 
-
-export type ViewportTile = {
+interface ViewportTile {
     quadkey: string,
     x: number,
-    y: number
+    y: number,
+    scaledSize: number;
+}
+export class GridTile implements ViewportTile {
+    static minTileSize: number = 256;
+    static tileGeoContainer: number[][] = [[0, 0], [0, 0], [0, 0], [0, 0]];
+
+    quadkey: string;
+    x: number;
+    y: number;
+    scaledSize: number;
+    tileZoomLevel: number;
+    gridX: number;
+    gridY: number;
+
+    private bounds: number[][];
+
+    constructor(tileZoomLevel: number, x: number, y: number, size: number, gridX: number, gridY: number, bounds: number[][]) {
+        this.quadkey = tileUtils.tileXYToQuadKey(tileZoomLevel, gridY, gridX);
+        this.tileZoomLevel = tileZoomLevel;
+        this.x = x;
+        this.y = y;
+        this.scaledSize = size;
+
+        this.gridX = gridX;
+        this.gridY = gridY;
+        this.bounds = bounds;
+    }
+
+    static updateTileBBox(tx1: number, ty1: number, tileSize: number) {
+        const tileGeoContainer = GridTile.tileGeoContainer;
+        const [tile1, tile2, tile3, tile4] = tileGeoContainer;
+        const tx2 = tx1 + tileSize;
+        const ty2 = ty1 + tileSize;
+
+        tile1[0] = tx1;
+        tile1[1] = ty1;
+
+        tile2[0] = tx2;
+        tile2[1] = ty1;
+
+        tile3[0] = tx2;
+        tile3[1] = ty2;
+
+        tile4[0] = tx1;
+        tile4[1] = ty2;
+
+        return tileGeoContainer;
+    }
+
+    static intersects(bounds: number[][], x: number, y: number, size: number) {
+        const tileGeoContainer = GridTile.updateTileBBox(x, y, size);
+        return doPolygonsIntersect(bounds, tileGeoContainer);
+    }
+
+    generateTileHierarchy(
+        display: BasicDisplay,
+        minTileSize: number = GridTile.minTileSize,
+        optimiseTileLevel: boolean = true,
+        tiles: ViewportTile[] = []
+    ): ViewportTile[] {
+        let {tileZoomLevel, gridX, gridY, scaledSize: size} = this;
+        if (size > minTileSize) {
+            const displayScale = display.s;
+            const distanceScale = display.computeDistanceScale(this.x + size / 2, this.y + size / 2) / displayScale;
+            const zoomOffset = Math.log2(size / minTileSize);
+            if (optimiseTileLevel) {
+                let threshold = 0;
+                if (zoomOffset >= 3) threshold = 3.75; // 4096(512)
+                else if (zoomOffset === 2) threshold = 2.75; // 2048(512)
+                else if (zoomOffset === 1) threshold = 2.05; // 1024(512)
+
+                if (distanceScale > threshold) {
+                    tiles.push(this);
+                    return tiles;
+                }
+            } else {
+                if (distanceScale > 2. + zoomOffset * 0.5) {
+                    return tiles;
+                }
+            }
+
+            tileZoomLevel += 1;
+            size *= 0.5;
+            gridX *= 2;
+            gridY *= 2;
+
+            for (let [gridOffsetX, gridOffsetY] of [[0, 0], [1, 0], [0, 1], [1, 1]]) {
+                const x = this.x + gridOffsetX * size;
+                const y = this.y + gridOffsetY * size;
+
+                if (GridTile.intersects(this.bounds, x, y, size)) {
+                    const subTile = new GridTile(tileZoomLevel, x, y, size, gridX + gridOffsetX, gridY + gridOffsetY, this.bounds);
+                    subTile.generateTileHierarchy(display, minTileSize, optimiseTileLevel, tiles);
+                }
+            }
+        } else {
+            tiles.push(this);
+        }
+        return tiles;
+    }
 }
 
 class Grid {
@@ -49,17 +150,11 @@ class Grid {
     // untransformed view bounds relative to screen
     private bounds: number[][];
 
-    tiles: {
-        256?: ViewportTile[],
-        512?: ViewportTile[],
-    } = {};
-
-
     constructor(tileSize: number) {
         this.size = tileSize;
     }
 
-    init(centerWorldPixel: number[], rotZRad: number, width: number, height: number, bounds: number[][]) {
+    init(centerWorldPixel: number[], width: number, height: number, bounds: number[][]) {
         this.cwpx = centerWorldPixel[0];
         this.cwpy = centerWorldPixel[1];
 
@@ -87,58 +182,53 @@ class Grid {
         this.maxY = maxOy;
     };
 
-    getTiles(zoomLevel: number, tileSizePixel: number = this.size): ViewportTile[] {
+    getTiles(zoomLevel: number, zoomOutLookahead: number = 3): GridTile[] {
         const {width, height} = this;
-        const worldSizePixel = Math.pow(2, zoomLevel) * tileSizePixel;
-        let bounds = this.bounds;
-        let tiles = [];
 
-        let centerPixelX = this.cwpx * worldSizePixel;
-        let centerPixelY = this.cwpy * worldSizePixel;
+        // let zoomOutLookahead = Math.log2(4096) - 8; // for 512px tiles
+        let baseTileSize = 512;
+        const baseTileSizeLookOutAhead = Number(baseTileSize == 512);
+        // const baseTileSizeLookOutAhead = 0;
 
-        let minX = (centerPixelX - width / 2 + this.minX) / tileSizePixel;
-        let minY = (centerPixelY - height / 2 + this.minY) / tileSizePixel;
-        let maxX = (centerPixelX + width / 2 + this.maxX - width) / tileSizePixel;
-        let maxY = (centerPixelY + height / 2 + this.maxY - height) / tileSizePixel;
+        let tileSize = baseTileSize * (1 << zoomOutLookahead);
+        let tileZoomLevel = zoomLevel - zoomOutLookahead - baseTileSizeLookOutAhead;
+        const worldSizePixel = Math.pow(2, tileZoomLevel) * tileSize;
+        const centerPixelX = this.cwpx * worldSizePixel;
+        const centerPixelY = this.cwpy * worldSizePixel;
 
-        let topLeftLRC = tileUtils.pixelToGrid(minX, minY, zoomLevel);
-        let bottomRigthLRC = tileUtils.pixelToGrid(maxX, maxY, zoomLevel);
+        let minX = (centerPixelX - width / 2 + this.minX) / tileSize;
+        let minY = (centerPixelY - height / 2 + this.minY) / tileSize;
+        let maxX = (centerPixelX + width / 2 + this.maxX - width) / tileSize;
+        let maxY = (centerPixelY + height / 2 + this.maxY - height) / tileSize;
 
-        let gridX = bottomRigthLRC[0] - topLeftLRC[0] + 1;
-        let gridY = bottomRigthLRC[1] - topLeftLRC[1] + 1;
 
-        let gridOx = (topLeftLRC[0] - minX) * tileSizePixel + this.minX;
-        let gridOy = (topLeftLRC[1] - minY) * tileSizePixel + this.minY;
-        // let vpTiles = tileUtils.getTilesIds(topLeftLRC, bottomRigthLRC);
+        // let [topLeftRow, topLeftCol] = tileUtils.pixelToGrid(minX, minY, tileZoomLevel);
+        let topLeftRow = Math.floor(minX);
+        let topLeftCol = Math.floor(minY);
+        // let [bottomRightRow, bottomRightCol] = tileUtils.pixelToGrid(maxX, maxY, tileZoomLevel);
+        let bottomRightRow = Math.floor(maxX);
+        let bottomRightCol = Math.floor(maxY);
+
+        let gridX = bottomRightRow - topLeftRow + 1;
+        let gridY = bottomRightCol - topLeftCol + 1;
+        let gridOx = (topLeftRow - minX) * tileSize + this.minX;
+        let gridOy = (topLeftCol - minY) * tileSize + this.minY;
+
+        const tiles = [];
 
         for (let y = 0; y < gridY; y++) {
             for (let x = 0; x < gridX; x++) {
-                let tx1 = gridOx + x * tileSizePixel;
-                let ty1 = gridOy + y * tileSizePixel;
-                let tx2 = tx1 + tileSizePixel;
-                let ty2 = ty1 + tileSizePixel;
-                let tileGeoContainer: [number, number][] = [
-                    [tx1, ty1],
-                    [tx2, ty1],
-                    [tx2, ty2],
-                    [tx1, ty2]
-                ];
-                // const quadkey = vpTiles.unshift();
-                if (doPolygonsIntersect(bounds, tileGeoContainer)) {
-                    const quadkey = tileUtils.tileXYToQuadKey(zoomLevel, Math.floor(minY + y), Math.floor(minX + x));
-                    tiles.push({
-                        quadkey,
-                        x: tx1,
-                        y: ty1
-                    });
-                }
+                const topLeftScreenX = gridOx + x * tileSize;
+                const topLeftScreenY = gridOy + y * tileSize;
+
+                if (GridTile.intersects(this.bounds, topLeftScreenX, topLeftScreenY, tileSize)) {
+                    const gridTile = new GridTile(tileZoomLevel, topLeftScreenX, topLeftScreenY, tileSize, topLeftRow + x, topLeftCol + y, this.bounds);
+                    tiles.push(gridTile);
+                }// else console.log('no intersect', new ScreenGridTile(tileZoomLevel, ScreenGridTile.tileGeoContainer[0], tileSize, topLeftRow + x, topLeftCol + y));
             }
         }
-
-        this.tiles[tileSizePixel] = tiles;
-
         return tiles;
-    }
+    };
 }
 
 
