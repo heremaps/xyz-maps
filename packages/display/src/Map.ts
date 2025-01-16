@@ -1645,9 +1645,7 @@ export class Map {
 
 
             const {singleWorldView} = this._cfg;
-            this._maxZoomExtent = (singleWorldView === true || singleWorldView === 'latitude' || singleWorldView === 'both')
-                ? this.calculateMaxZoomExtent()
-                : 0;
+            this._maxZoomExtent = singleWorldView ? this.calculateMaxZoomExtent() : 0;
             this._repeatWorldViewX = !singleWorldView || singleWorldView === 'latitude';
 
             // make sure map is fully initialised
