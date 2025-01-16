@@ -132,27 +132,33 @@ export class Map {
     private _rz: number = 0; // rotation z in rad
     private _rx: number = 0; // rotation x in rad
     private _z: number; // zoom level
-
     private _tlwx: number;
     private _tlwy: number;
     private _groundResolution: number;
-    _worldSizeFixed: number; // world size pixel
-    _worldSize: number; // world size pixel
+
+    private _maxZoomExtent: number;
+    private _repeatWorldViewX: boolean;
+
+    _worldSizeFixed: number; // world size in pixel for fixed zoom
+    _worldSize: number; // world size in pixel for smooth/intermediate zoom
 
     private _vp: GeoRect; // viewport/viewbounds
-
     private ui: UI;
-
     private readonly _cfg: MapOptions;// mapconfig
-
     private _evDispatcher: EventDispatcher;
     private _b: Behavior;
-
-
     // fixed center world in pixel. eg: zoom 12.4 -> 2^12 * tilesize
     private _cWorldFixed: PixelPoint = new PixelPoint(0, 0);
+
     // center world in pixel including intermediate zoomlevels. eg: zoom 12.4 -> 2^12.4 * tilesize
-    private _cWorld: PixelPoint = new PixelPoint(0, 0);
+    private get _cWorld(): PixelPoint {
+        const fixedToSmoothZoomScale = this._worldSize / this._worldSizeFixed;
+        return new PixelPoint(
+            this._cWorldFixed.x * fixedToSmoothZoomScale,
+            this._cWorldFixed.y * fixedToSmoothZoomScale
+        );
+    };
+
     private _c: GeoPoint = new GeoPoint(0, 0); // center geo
     private _pc: GeoPoint = new GeoPoint(0, 0); // previous center geo
 
@@ -168,7 +174,7 @@ export class Map {
     private _search: Search;
 
     /**
-     * @param mapEl - HTMLElement used to create the map display
+     * @param mapElement - HTMLElement used to create the map display
      * @param options - options to configure for the map
      *
      * @example
@@ -187,19 +193,26 @@ export class Map {
      * });
      * ```
      */
-    constructor(mapEl: HTMLElement, options: MapOptions) {
+    constructor(mapElement: HTMLElement, options: MapOptions) {
         this._cfg = options = JSUtils.extend(true,
             JSUtils.extend(true, {}, defaultOptions),
             options || {}
         );
 
-        let tigerMap = this;
+        const tigerMap = this;
+        tigerMap.id = Math.random() * 1e6 ^ 0;
 
+        const mapContainer = document.createElement('div');
+        mapContainer.className = '_' + JSUtils.String.random(11);
+        mapContainer.style['-webkit-tap-highlight-color'] = 'rgba(0,0,0,0)';
+        mapContainer.style.position = 'relative';
+
+        mapElement.appendChild(mapContainer);
+
+        this._el = mapContainer;
         // mapsize is same as displaysize by default
-        this._w = getElDimension(mapEl, WIDTH);
-        this._h = getElDimension(mapEl, HEIGHT);
-        this._cx = this._w / 2;
-        this._cy = this._h / 2;
+        this.resize();
+        console.log('TM', this._w, 'x', this._h);
 
         // init defaults
         const zoomLevel = options['zoomLevel'] || options['zoomlevel'];
@@ -230,24 +243,7 @@ export class Map {
 
         let listeners = this._l;
         let layers = [];
-        let parent = mapEl;
-
-
         tigerMap._layers = layers;
-        tigerMap.id = Math.random() * 1e6 ^ 0;
-
-        mapEl = document.createElement('div');
-        mapEl.className = '_' + JSUtils.String.random(11);
-        mapEl.style['-webkit-tap-highlight-color'] = 'rgba(0,0,0,0)';
-        mapEl.style.position = 'relative';
-        mapEl.style.width = this._w + 'px';
-        mapEl.style.height = this._h + 'px';
-
-        parent.appendChild(mapEl);
-
-        this._el = mapEl;
-
-        console.log('TM', this._w, 'x', this._h);
 
         const Display = options['renderer'] == 'canvas' ? CanvasDisplay : WebglDisplay;
 
@@ -257,7 +253,7 @@ export class Map {
 
         // var display = new Display( tigerMap, mapEl );
         const display = new Display(
-            mapEl,
+            mapContainer,
             RENDER_TILE_SIZE,
             options['devicePixelRatio'],
             options['renderOptions'] || {}
@@ -280,7 +276,7 @@ export class Map {
 
         this._search = new Search(tigerMap, display.layers, display.dpr);
 
-        const pointerEvents = this._evDispatcher = new EventDispatcher(mapEl, tigerMap, layers, options);
+        const pointerEvents = this._evDispatcher = new EventDispatcher(mapContainer, tigerMap, layers, options);
 
         listeners.add('mapviewchangestart', (e) => pointerEvents.disable('pointerenter'));
         listeners.add('mapviewchangeend', (e) => pointerEvents.enable('pointerenter'));
@@ -298,7 +294,7 @@ export class Map {
         }
 
         let behavior = this._b = new Behavior(
-            mapEl,
+            mapContainer,
             tigerMap,
             new KineticPanAnimator(tigerMap),
             <BehaviorOptions>behaviorOptions,
@@ -321,7 +317,7 @@ export class Map {
             uiOptions.Compass = behaviorOptions[BEHAVIOR_ROTATE] || behaviorOptions[BEHAVIOR_PITCH];
         }
 
-        this.ui = new UI(mapEl, options, tigerMap);
+        this.ui = new UI(mapContainer, options, tigerMap);
 
         tigerMap.setCenter(options['center']);
         tigerMap.pitch(options['pitch']);
@@ -416,7 +412,8 @@ export class Map {
     }
 
     private _setCenter(lon, lat) {
-        const worldSizePixel = this._worldSizeFixed;
+        const worldSizeFixed = this._worldSizeFixed;
+        const worldSize = this._worldSize;
 
         if (arguments.length != 2) {
             if (lon instanceof Array) {
@@ -439,24 +436,60 @@ export class Map {
             lon += 360;
         }
 
-        Math.min(MAX_LATITUDE, Math.max(MIN_LATITUDE, lat));
-
-
         lat = this._clipLatitude(lat);
+
+        if (!this._repeatWorldViewX) {
+            const lonPerPixel = 360 / worldSize;
+            const halfWidthDeg = lonPerPixel * this._w * .5;
+            const minLon = lon - halfWidthDeg;
+            const maxLon = lon + halfWidthDeg;
+            if (minLon < -180) {
+                lon -= minLon % 180;
+            }
+            if (maxLon > 180) {
+                lon -= maxLon % 180;
+            }
+        }
+
+        this._cWorldFixed = new PixelPoint(
+            project.lon2x(lon, worldSizeFixed),
+            project.lat2y(lat, worldSizeFixed)
+        );
+
+        if (this._maxZoomExtent) {
+            const latPerPixel = worldSize / this._h - 1;
+            const halfHeightDeg = latPerPixel * this._h * .5;
+            const fixedToSmoothZoomScale = worldSize / worldSizeFixed;
+            const y = this._cWorldFixed.y * fixedToSmoothZoomScale;
+            const halfWorldSize = worldSize / 2;
+            let adjustY = 0;
+
+            const maxY = y + halfHeightDeg;
+            if (maxY < halfWorldSize) {
+                adjustY = maxY;
+            }
+            const minY = y - halfHeightDeg;
+            if (minY > halfWorldSize) {
+                adjustY = minY;
+            }
+
+            if (adjustY) {
+                this._cWorldFixed.y += (halfWorldSize - adjustY) / fixedToSmoothZoomScale;
+                lat = project.y2lat(this._cWorldFixed.y, worldSizeFixed);
+            }
+        }
 
         this._c = new GeoPoint(lon, lat);
 
-        this._cWorldFixed = new PixelPoint(
-            project.lon2x(lon, worldSizePixel),
-            project.lat2y(lat, worldSizePixel)
-        );
-
-        this._cWorld = new PixelPoint(
-            project.lon2x(lon, this._worldSize),
-            project.lat2y(lat, this._worldSize)
-        );
-
         return true;
+    }
+
+    private calculateMaxZoomExtent(): number {
+        // return this._cfg.singleWorldView ? Math.log2(this._h / TILESIZE) : 0;
+        return Math.max(
+            Math.log2(this._h / TILESIZE),
+            Math.log2(this._w / TILESIZE)
+        );
     }
 
     repaint() {
@@ -1016,7 +1049,7 @@ export class Map {
         const currentScale = this._s;
 
         zoomTo = Math.round(zoomTo * 1e3) / 1e3;
-        zoomTo = Math.max(Math.min(zoomTo, vplock.maxLevel), vplock.minLevel);
+        zoomTo = Math.max(Math.min(zoomTo, vplock.maxLevel), vplock.minLevel, this._maxZoomExtent);
 
         if (arguments.length == 2) {
             animate = fixedX;
@@ -1604,17 +1637,25 @@ export class Map {
             mapEl.style.width = width + 'px';
             mapEl.style.height = height + 'px';
 
-            this._display.setSize(width, height);
-
             this._w = width;
             this._h = height;
 
             this._cx = width / 2;
             this._cy = height / 2;
 
-            this.updateGrid();
 
-            this._l.trigger('resize', [new MapEvent('resize', {width: width, height: height})]);
+            const {singleWorldView} = this._cfg;
+            this._maxZoomExtent = (singleWorldView === true || singleWorldView === 'latitude' || singleWorldView === 'both')
+                ? this.calculateMaxZoomExtent()
+                : 0;
+            this._repeatWorldViewX = !singleWorldView || singleWorldView === 'latitude';
+
+            // make sure map is fully initialised
+            if (this._display) {
+                this._display.setSize(width, height);
+                this.updateGrid();
+                this._l.trigger('resize', [new MapEvent('resize', {width: width, height: height})]);
+            }
         }
     };
 

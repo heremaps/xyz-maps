@@ -142,6 +142,19 @@ export interface MapOptions {
      * @defaultValue 50
      */
     maxPitch?: number;
+    /**
+     * Specifies whether the map should display the world only once at the maximum zoom-out level,
+     * and along which axes.
+     *
+     * - `true`: Restricts repetition on both the latitude (Y-axis) and longitude (X-axis).
+     * - `false`: Allows infinite repetition on both axes.
+     * - `'latitude'`: Restricts repetition only on the latitude (Y-axis), allowing infinite panning on the X-axis.
+     * - `'both'`: Restricts repetition on both axes (latitude and longitude).
+     *
+     * @default false
+     */
+    singleWorldView?: boolean | 'both' | 'latitude';
+
 }
 
 export const defaultOptions: MapOptions = {
@@ -169,5 +182,6 @@ export const defaultOptions: MapOptions = {
     minRotateMapThreshold: 4,
     minPitchMapThreshold: 4,
     zoomAnimationMs: 100,
-    maxPitch: 50
+    maxPitch: 50,
+    singleWorldView: false
 };
