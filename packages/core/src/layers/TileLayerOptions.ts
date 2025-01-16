@@ -87,4 +87,16 @@ export interface TileLayerOptions extends LayerOptions {
      * @defaultValue true
      */
     pointerEvents?: boolean
+    /**
+     * Indicates whether the layer supports adaptive tile loading.
+     *
+     * When enabled, tiles are dynamically selected from higher zoom levels
+     * based on their distance, improving performance and rendering efficiency.
+     * This is particularly useful for high pitch map views, as it enhances
+     * viewing distance and clarity.
+     *
+     * @hidden
+     * @internal
+     */
+    adaptiveGrid?: boolean;
 }

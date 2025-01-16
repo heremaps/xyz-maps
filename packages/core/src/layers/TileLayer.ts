@@ -93,7 +93,7 @@ export class TileLayer extends Layer {
      * @hidden
      * @internal
      */
-    adaptiveGrid: boolean = false;
+    adaptiveGrid: boolean;
 
     /**
      * @param options - options to configure the TileLayer
@@ -108,6 +108,7 @@ export class TileLayer extends Layer {
             margin: 20,
             levelOffset: 0,
             tiled: true,
+            adaptiveGrid: false,
             ...options
         });
 
