@@ -22,7 +22,7 @@ import {TileStorage} from '../../storage/TileStorage';
 import Level2TileStorage from '../../storage/Level2Storage';
 import {Listener} from '@here/xyz-maps-common';
 import {TileProviderOptions} from './TileProviderOptions';
-import {GeoJSONBBox} from '@here/xyz-maps-core';
+import {GeoJSONBBox} from '../../features/GeoJSON';
 
 const TILESIZE = 256;
 const DEFAULT_EXPIRE_SECONDS = Infinity;

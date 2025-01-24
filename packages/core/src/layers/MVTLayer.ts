@@ -76,7 +76,7 @@ export class MVTLayer extends TileLayer {
 
         if (!Array.isArray(providers)) {
             providers = [];
-            // levelOffset = Math.round(Math.log(tileSize) / Math.log(2) - 8);
+            // levelOffset = Math.round(Math.log(tileSize) / Math.LN2 - 8);
             levelOffset = 0;
             // 128tiles (512px) -> about 512MB mem!, 256tiles(256px), 64tiles(10240px)...
             let cache1: LRU<Tile> = new LRU(256 / Math.pow(2, levelOffset));
