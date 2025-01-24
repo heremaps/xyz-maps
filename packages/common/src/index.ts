@@ -43,10 +43,26 @@ let scp: any = global;
 // support for deprecated root namespace
 (<any>global).HERE = (<any>global).here;
 
-const common = {AStar, BinaryHeap, Color, Expression, ExpressionMode, ExpressionParser, LRU, TaskManager, Listener, parseJSONArray, JSUtils, geotools, global, Queue, Set, Map, vec3, geometry};
-
-scp.common = common;
-
-export {AStar, AStarNode, BinaryHeap, Color, JSONExpression, Expression, ExpressionMode, ExpressionParser, LRU, TaskManager, Task, TaskOptions, Listener, parseJSONArray, JSUtils, geotools, global, Queue, Set, Map, vec3, geometry};
+export const common = scp.common = {
+    QuadTree,
+    AStar,
+    BinaryHeap,
+    Color,
+    Expression,
+    ExpressionMode,
+    ExpressionParser,
+    LRU,
+    TaskManager,
+    Listener,
+    parseJSONArray,
+    JSUtils,
+    geotools,
+    global,
+    Queue,
+    Set,
+    Map,
+    vec3,
+    geometry
+};
 
 export default common;
