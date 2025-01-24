@@ -44,7 +44,6 @@ let scp: any = global;
 (<any>global).HERE = (<any>global).here;
 
 export const common = scp.common = {
-    QuadTree,
     AStar,
     BinaryHeap,
     Color,
