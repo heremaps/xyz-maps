@@ -35,7 +35,6 @@ import {BinaryHeap} from './BinaryHeap';
 import {ExpressionParser} from './Expressions/ExpressionParser';
 import {JSONExpression, Expression, ExpressionMode} from './Expressions/Expression';
 import {Colors as Color} from './Color';
-
 // make sure global ns is also available for webpack users.
 let scp: any = global;
 'here.xyz.maps'.split('.').forEach((ns) => scp = (scp[ns] = scp[ns] || {}));
@@ -43,25 +42,7 @@ let scp: any = global;
 // support for deprecated root namespace
 (<any>global).HERE = (<any>global).here;
 
-export const common = scp.common = {
-    AStar,
-    BinaryHeap,
-    Color,
-    Expression,
-    ExpressionMode,
-    ExpressionParser,
-    LRU,
-    TaskManager,
-    Listener,
-    parseJSONArray,
-    JSUtils,
-    geotools,
-    global,
-    Queue,
-    Set,
-    Map,
-    vec3,
-    geometry
-};
-
+const common = {AStar, BinaryHeap, Color, Expression, ExpressionMode, ExpressionParser, LRU, TaskManager, Listener, parseJSONArray, JSUtils, geotools, global, Queue, Set, Map, vec3, geometry};
+scp.common = common;
+export {AStar, AStarNode, BinaryHeap, Color, JSONExpression, Expression, ExpressionMode, ExpressionParser, LRU, TaskManager, Task, TaskOptions, Listener, parseJSONArray, JSUtils, geotools, global, Queue, Set, Map, vec3, geometry};
 export default common;
