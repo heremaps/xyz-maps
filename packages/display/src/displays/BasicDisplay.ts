@@ -58,6 +58,8 @@ abstract class Display {
     protected dirty: boolean = false;
 
     private centerWorld: number[]; // absolute world center xy0
+    centerWorld: number[]; // absolute world center xy0
+    zoom: number; // current zoomlevel
 
     protected bgColor: RGBA;
     private globalBgc: boolean | Color = false;
@@ -75,8 +77,7 @@ abstract class Display {
     buckets: BasicBucket;
     listeners: { [event: string]: (a1?, a2?) => void };
     tiles: ViewportTile[];
-    grid: Grid;
-    private _zoom: number;
+    private grid: Grid;
 
     constructor(mapEl: HTMLElement, tileSize: number, dpr: string | number, bucketPool, tileRenderer: BasicRender, previewLookAhead: number | [number, number]) {
         const display = this;
@@ -370,7 +371,6 @@ abstract class Display {
     preview(displayTile: BasicTile, layer: TileLayer, index: number): any[][] {
         const previewData = this.previewer.create(displayTile, layer);
         displayTile.preview(index, previewData);
-
         return previewData;
     }
 
@@ -392,7 +392,7 @@ abstract class Display {
 
             dLayer.tiles = screenTiles;
 
-            if ( layer.isVisible(zoomLevel)) {
+            if (layer.isVisible(zoomLevel)) {
                 for (let _gridTile of gridTiles) {
                     const subTiles = _gridTile.generateTileHierarchy(
                         display,
@@ -624,8 +624,8 @@ abstract class Display {
     }
 
     protected setZoom(zoomLevel: number): boolean {
-        if (this._zoom != zoomLevel) {
-            this._zoom = zoomLevel;
+        if (this.zoom != zoomLevel) {
+            this.zoom = zoomLevel;
             return true;
         }
     }

@@ -166,7 +166,7 @@ class CanvasRenderer implements BasicRender {
         );
     }
 
-    tile(dTile, x: number, y: number) {
+    tile(dTile: CanvasTile, x: number, y: number) {
         const renderer = this;
 
         x = Math.round(x);

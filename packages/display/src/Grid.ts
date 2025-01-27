@@ -234,7 +234,7 @@ class Grid {
                 if (GridTile.intersects(this.bounds, topLeftScreenX, topLeftScreenY, tileSize)) {
                     const gridTile = new GridTile(tileZoomLevel, topLeftScreenX, topLeftScreenY, tileSize, topLeftRow + x, topLeftCol + y, this.bounds);
                     tiles.push(gridTile);
-                }// else console.log('no intersect', new ScreenGridTile(tileZoomLevel, ScreenGridTile.tileGeoContainer[0], tileSize, topLeftRow + x, topLeftCol + y));
+                }
             }
         }
         return tiles;
