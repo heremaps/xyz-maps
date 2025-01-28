@@ -171,7 +171,7 @@ class CanvasDisplay extends BasicDisplay {
         for (let screenTile of tiles) {
             if (screenTile.scaledSize != 256) continue;
 
-            const dTile = screenTile.tile;
+            const dTile = screenTile.tile as CanvasTile;
 
             if (screenTile.lrTs !== dTile.luTs || dirty) {
                 screenTile.lrTs = dTile.luTs;
