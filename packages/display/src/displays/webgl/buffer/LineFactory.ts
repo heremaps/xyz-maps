@@ -115,11 +115,12 @@ export class LineFactory {
         for (let i = 0, cData: CollisionData; i < collisions.length; i++) {
             cData = collisions[i];
             let {cx, cy, cz} = cData;
+            const worldSize = tileSize << tile.z;
+            const tilesPerAxis = 1 << tile.z;
 
-            if (tileSize == 256) {
-                cx -= tile.x % 2 * tileSize;
-                cy -= tile.y % 2 * tileSize;
-            }
+            cx = (cx - tile.x / tilesPerAxis) * worldSize;
+            cy = (cy - tile.y / tilesPerAxis) * worldSize;
+
             place(cx, cy, cz, applyRotation ? this.alpha[i] : 0, 0, cData);
         }
     }
