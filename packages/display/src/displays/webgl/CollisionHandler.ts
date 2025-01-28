@@ -311,7 +311,7 @@ export class CollisionHandler {
         }
 
         const collisionData: CollisionData = {
-            cx, cy, // cz,
+            cx, cy, cz,
             halfWidth, halfHeight,
             offsetX, offsetY,
             boxes,
