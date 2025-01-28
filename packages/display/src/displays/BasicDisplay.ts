@@ -57,8 +57,7 @@ abstract class Display {
     protected sy: number; // grid/screen offset y (includes scale offset)
     protected dirty: boolean = false;
 
-    private centerWorld: number[]; // absolute world center xy0
-    centerWorld: number[]; // absolute world center xy0
+    centerWorld: number[]; // absolute world center xy
     zoom: number; // current zoomlevel
 
     protected bgColor: RGBA;
