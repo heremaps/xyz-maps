@@ -53,6 +53,7 @@ class Layer {
     bgColor: any;
 
     private expParser: StyleExpressionParser | undefined;
+    skipDbgGrid: boolean; // do not render tile grid in debug mode
 
     constructor(layer: BasicLayer, layers: Layers) {
         this.layer = layer;

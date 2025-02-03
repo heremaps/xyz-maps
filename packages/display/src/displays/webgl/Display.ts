@@ -598,10 +598,7 @@ class WebGlDisplay extends BasicDisplay {
 
         if (display.dirty) {
             display.dirty = false;
-            display.collision.update(
-                // make sure display will refresh in case of cd toggles visibility
-                () => display.update()
-            );
+            display.updateCollisions();
         }
 
         render.clear(display.bgColor);
@@ -668,11 +665,22 @@ class WebGlDisplay extends BasicDisplay {
 
         if (render.tileGrid) {
             for (let screenTile of display.tiles) {
-                render.drawGrid(screenTile.x, screenTile.y, <GLTile>screenTile.tile, screenTile.size * screenTile.scale);
+                for (let layer of display.layers) {
+                    if (!layer.skipDbgGrid && layer.tiles.indexOf(screenTile) !== -1) {
+                        render.drawGrid(screenTile.x, screenTile.y, <GLTile>screenTile.tile, screenTile.size * screenTile.scale);
+                        break;
+                    }
+                }
             }
         }
     }
 
+    private updateCollisions() {
+        this.collision.update( this.tiles,
+            // make sure display will refresh in case of cd toggles visibility
+            () => this.update()
+        );
+    }
     destroy() {
         super.destroy();
         this.factory.destroy();

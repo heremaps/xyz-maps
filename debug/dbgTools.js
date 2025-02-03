@@ -83,13 +83,17 @@
         },
         getDebugLayer() {
             if (!dbgLayer) {
-                dbgTools.getDisplay().addLayer(dbgLayer =
-          new here.xyz.maps.layers.TileLayer({
-              name: 'DbgLayer',
-              min: 2, max: 30,
-              pointerEvents: false,
-              provider: new here.xyz.maps.providers.LocalProvider({editable: false})
-          }));
+                const map = dbgTools.getDisplay();
+                map.addLayer(dbgLayer =
+                    new here.xyz.maps.layers.TileLayer({
+                        name: 'DbgLayer',
+                        min: 2, max: 30,
+                        pointerEvents: false,
+                        adaptiveGrid: true,
+                        tileSize: 512,
+                        provider: new here.xyz.maps.providers.LocalProvider({editable: false})
+                    }));
+                map._display.layers.get(dbgLayer).skipDbgGrid = true;
             }
             return dbgLayer;
         },
@@ -289,6 +293,33 @@
                     remote = false;
                 }
             });
+        },
+
+        drawTile: (quadkey, color) => {
+            const {tileUtils} = here.xyz.maps;
+            const [minLon, minLat, maxLon, maxLat] = tileUtils.getGeoBounds.apply(tileUtils, tileUtils.quadToGrid(quadkey));
+            const layer = dbgTools.getDebugLayer();
+            layer.removeFeature({id: `tile:${quadkey}`});
+            layer.addFeature({
+                id: `tile:${quadkey}`,
+                type: 'Feature',
+                geometry: {
+                    type: 'Polygon',
+                    coordinates: [[
+                        [minLon, minLat],
+                        [minLon, maxLat],
+                        [maxLon, maxLat],
+                        [maxLon, minLat],
+                        [minLon, minLat]
+                    ]]
+                }
+            }, [{
+                zIndex: 1000,
+                type: 'Polygon',
+                fill: color||'#FF722055',
+                stroke: '#FF7220',
+                strokeWidth: 10
+            }]);
         }
     };
 
