@@ -23,6 +23,7 @@ import projection from '../projection/webMercator';
 import {Feature} from '../features/Feature';
 import {GeoJSONCoordinate, GeoJSONBBox} from '../features/GeoJSON';
 import TileProvider from '../providers/TileProvider/TileProvider';
+import {NetworkError} from '../loaders/HTTPLoader';
 
 
 const TILESIZE = 256;
@@ -58,14 +59,20 @@ export class Tile {
      *  Geographical Bounding box has the coordinates in order: [minLon, minLat, maxLon, maxLat].
      */
     bounds: GeoJSONBBox;
+    /**
+     * Represents an error that occurred during tile processing.
+     *
+     * This property is set when an error is encountered while performing operations on the tile,
+     * such as network failures during the loading of remote tile data.
+     *
+     */
+    error?: NetworkError;
 
     data: any;
     loadStartTs: number;
     loadStopTs: number;
-    error?: any;
     provider: TileProvider;
     onLoaded: any;
-
     cbnds: GeoJSONBBox;
 
     private tree: any;
