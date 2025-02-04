@@ -42,7 +42,7 @@ export function getTileOnProvider(opts: {
             if (++requestMonitoredCount == monitor.requestCount) {
                 monitor.stopMonitor = setTimeout(()=>{
                     monitor.stop();
-                    opts.onFinish && opts.onFinish(monitor.readyRequests, callbackResults);
+                    opts.onFinish?.(monitor.readyRequests, callbackResults);
                 }, timeout);
             }
         }
@@ -101,7 +101,7 @@ export function getTileOnProvider(opts: {
     setTimeout(()=>{
         if (monitor.requestCount == 0) {
             monitor.stop();
-            opts.onFinish && opts.onFinish(monitor.readyRequests, callbackResults);
+            opts.onFinish?.(monitor.readyRequests, callbackResults);
         }
     }, timeout);
 
