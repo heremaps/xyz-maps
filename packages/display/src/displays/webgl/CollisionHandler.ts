@@ -342,8 +342,6 @@ export class CollisionHandler {
      * @hidden
      */
     completeTile(updateScreenSpaceCollision?: boolean): boolean {
-        if (!this.updated) return false;
-
         let {tileKey, data, tileCache, tileSize, layer} = this.curLayerTileCollision;
 
         this.curLayerTileCollision = null;
@@ -352,7 +350,7 @@ export class CollisionHandler {
         tileCollisionData[this.getLayerId(layer)] = data;
         tileCache.set(tileKey, tileCollisionData);
 
-        if (updateScreenSpaceCollision) {
+        if (updateScreenSpaceCollision && this.updated) {
             // update collision in projected screen-pixels to minimize possible collisions for newly added tiles to vp...
             // ...until fullscreen phase2 collision detection has been completed.
             this.updateTileSync(this.display.getScreenTile(tileKey, tileSize), layer);
