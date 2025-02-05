@@ -18,7 +18,7 @@
  */
 
 import typescript from '@rollup/plugin-typescript';
-import {terser} from 'rollup-plugin-terser';
+import terser from '@rollup/plugin-terser';
 
 const pkg = require('./package.json');
 const production = process.env.BUILD === 'production';

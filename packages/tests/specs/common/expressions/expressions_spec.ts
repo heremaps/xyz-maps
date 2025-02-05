@@ -47,6 +47,16 @@ describe('Expressions', function() {
         return exprParser.evaluate(exp, ctx, mode);
     };
 
+    it('evaluate simple min expression', async () => {
+        const result = evalExpression(['min', 1, 2, 0.1, 4]);
+        expect(result).to.equal(0.1);
+    });
+
+    it('evaluate simple max expression', async () => {
+        const result = evalExpression(['max', 1, 2, 0.1, 4]);
+        expect(result).to.equal(4);
+    });
+
     it('evaluate simple sum expression', async () => {
         const result = evalExpression(['+', 1, 2]);
         expect(result).to.equal(3);
