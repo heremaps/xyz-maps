@@ -19,7 +19,7 @@ jobs:
 
         strategy:
             matrix:
-                node-version: [ 14.x ]
+                node-version: [ 20.x ]
                 browser: [ ChromeHeadless ]
                 os: [ ubuntu-latest ]
 
