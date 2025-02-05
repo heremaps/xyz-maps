@@ -15,8 +15,8 @@
   "main": "index.html",
   "private": true,
   "scripts": {
-    "build": "rollup -c",
-    "dev": "rollup -c -w"
+    "build": "rollup -c --bundleConfigAsCjs",
+    "dev": "rollup -c -w --bundleConfigAsCjs"
   },
   "dependencies": {
     "@here/xyz-maps-common": "^0.40.2",
@@ -32,15 +32,15 @@
     "@rollup/plugin-commonjs": "^22.0.2",
     "@rollup/plugin-html": "^0.2.4",
     "@rollup/plugin-json": "^4.1.0",
-    "@rollup/plugin-node-resolve": "^13.3.0",
+    "@rollup/plugin-node-resolve": "^16.0.0",
     "@rollup/plugin-replace": "^4.0.0",
-    "@rollup/plugin-typescript": "^8.3.4",
+    "@rollup/plugin-typescript": "^12.1.2",
     "@rollup/plugin-virtual": "^2.1.0",
     "postcss": "^8.4.16",
-    "rollup": "^2.78.1",
+    "rollup": "^3.29.5",
     "rollup-plugin-copy": "^3.4.0",
     "rollup-plugin-postcss": "^4.0.2",
-    "rollup-plugin-terser": "^7.0.2",
+    "@rollup/plugin-terser": "^0.4.4",
     "sass": "^1.54.5",
     "tslib": "^2.4.0",
     "typescript": "^4.7.4"

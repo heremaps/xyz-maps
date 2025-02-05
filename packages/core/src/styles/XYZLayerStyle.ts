@@ -118,16 +118,18 @@ export class XYZLayerStyle implements LayerStyle {
      * @param styleJSON
      * @hidden
      */
-    constructor(styleJSON: LayerStyle) {
-        for (let p in styleJSON) {
-            const property = styleJSON[p];
-            this[p] = p == 'styleGroups' ? deepCopy(property) : property;
+    constructor(styleJSON?: LayerStyle) {
+        if (styleJSON) {
+            for (let p in styleJSON) {
+                const property = styleJSON[p];
+                this[p] = p == 'styleGroups' ? deepCopy(property) : property;
+            }
         }
 
         this.definitions ||= {};
         this.expParser = new ExpressionParser(this.definitions, this.expContext);
 
-        if (!styleJSON.assign) {
+        if (styleJSON?.assign == UNDEF) {
             const flatStyles = [];
             for (let name in this.styleGroups) {
                 let styleGrp = this.styleGroups[name];
@@ -148,12 +150,15 @@ export class XYZLayerStyle implements LayerStyle {
 
             this._filteredStyleGrp = [];
         }
-        this._style = styleJSON;
 
-        this.setBgColor(styleJSON.backgroundColor);
+        const style = styleJSON || this;
 
-        if (styleJSON.lights) {
-            this.setLights(styleJSON.lights);
+        this._style = style;
+
+        this.setBgColor(style.backgroundColor);
+
+        if (style.lights) {
+            this.setLights(style.lights);
         }
     }
 
@@ -169,7 +174,7 @@ export class XYZLayerStyle implements LayerStyle {
             const lightSet = lights[name];
             for (let light of lightSet) {
                 if (light?.type && light.color) {
-                    if (light.type == 'ambient' || Array.isArray((light as DirectionalLight).direction) ) {
+                    if (light.type == 'ambient' || Array.isArray((light as DirectionalLight).direction)) {
                         validLights.push(light);
                     }
                 }

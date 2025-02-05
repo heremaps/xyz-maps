@@ -25,6 +25,7 @@ import settings from 'settings';
 // @ts-ignore
 import ts from 'ts';
 import {FSToggle} from './FSToggle';
+import {useMonaco} from '@monaco-editor/react';
 
 const TS_PARAM = '?ts=' + ts;
 
@@ -68,8 +69,13 @@ export const createIframeSrc = (exampleSource, includePgSpecifics: boolean = fal
 
     let jsSrc = '';
     try {
-        // @ts-ignore
-        jsSrc = window.ts.transpile(lines.join('\n'));
+        const monaco = useMonaco();
+        if (monaco) {
+            // @ts-ignore
+            jsSrc = window.ts.transpile(lines.join('\n'), {
+                target: monaco.languages.typescript.ScriptTarget.ES2017
+            });
+        }
     } catch (e) {
         console.error(e);
     }

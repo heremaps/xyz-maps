@@ -105,6 +105,8 @@ function getIndex(line: Navlink, point: GeoJSONCoordinate) {
  * The threshold for the candidate detection can be configured with {@link EditorOptions.intersectionScale}
  */
 class Crossing implements GeoJSONFeature {
+    id?: string | number;
+
     type: string = 'Feature';
     /**
      *  the feature class of the crossing. Can be either CROSSING or CROSSING_CANDIDATE.
@@ -285,9 +287,7 @@ class Crossing implements GeoJSONFeature {
         this.hide();
 
         for (const p in this) {
-            if (p !== 'type') {
-                this[p] = UNDEF;
-            }
+            if (p !== 'type') this[p] = UNDEF;
         }
 
         // @ts-ignore
@@ -323,7 +323,12 @@ class Crossing implements GeoJSONFeature {
                     createPath({...connector3, ...cs['connector3'], altitude}),
                     createCircle(searchPnt, {...search1, ...cs['search1'], altitude}),
                     createCircle(searchPnt, {...search2, fill: searchStroke, ...cs['search2'], altitude}),
-                    createCircle(foundPnt, {...found, fill: foundStroke, stroke: foundStroke, ...cs['found'], altitude})
+                    createCircle(foundPnt, {
+                        ...found,
+                        fill: foundStroke,
+                        stroke: foundStroke, ...cs['found'],
+                        altitude
+                    })
                 ];
                 container.forEach((el) => (<any>el).pointerup = mouseUpTrigger);
                 return container;
@@ -339,11 +344,10 @@ class Crossing implements GeoJSONFeature {
      */
     hide() {
         const prv = this._;
-        const set = prv.set;
-        set && set.forEach((el) => {
-            el._provider.removeFeature(el);
-        });
-        prv.set = null;
+        if (prv) {
+            prv.set?.forEach((el) => el._provider.removeFeature(el));
+            prv.set = null;
+        }
     }
 
     /**

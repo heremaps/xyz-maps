@@ -27,7 +27,7 @@ import virtual from '@rollup/plugin-virtual';
 import json from '@rollup/plugin-json';
 import settings from './settings.json';
 import {join} from 'path';
-import {terser} from 'rollup-plugin-terser';
+import terser from '@rollup/plugin-terser';
 import fs from 'fs';
 import nodeResolve from 'resolve';
 const tsServicePath = nodeResolve.sync('typescript/lib/typescriptServices.js');
