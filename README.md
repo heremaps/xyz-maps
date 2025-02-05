@@ -20,8 +20,8 @@ XYZ Maps consists of the following main modules:
 
 ## Prerequisites
 
-* [Node.js](https://nodejs.org) (8.16.0+)
-* [Yarn](https://yarnpkg.com/en/docs/install) (1.11.0+)
+* [Node.js](https://nodejs.org) (>=20.0.0)
+* [Yarn](https://yarnpkg.com/en/docs/install) (>=1.22.0)
 
 
 ## Start developing

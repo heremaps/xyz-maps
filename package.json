@@ -56,8 +56,8 @@
     "packages/*"
   ],
   "engines": {
-    "node": ">=14",
-    "yarn": ">=1.11.0"
+    "node": ">=20",
+    "yarn": ">=1.22"
   },
   "lint-staged": {
     "*.{js,ts}": "eslint --cache --fix"
