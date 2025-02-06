@@ -19,11 +19,12 @@
 
 import {FlexAttribute, TemplateBuffer} from './TemplateBuffer';
 import {FlexArray} from './FlexArray';
-import {GeometryBuffer} from '../GeometryBuffer';
+import {GeometryBuffer, Uniform} from '../GeometryBuffer';
 import {Raycaster} from '../../Raycaster';
 import {transformMat4} from 'gl-matrix/vec3';
 import {Attribute} from '../Attribute';
 import {vec3} from '@here/xyz-maps-common';
+import {addPoint} from '../addPoint';
 
 const extentScale = 32;
 
@@ -61,8 +62,15 @@ export class PointBuffer extends TemplateBuffer {
         'a_position': FlexAttribute
     };
 
-    constructor(flat: boolean = true, clipTile?: boolean) {
-        super(flat, clipTile);
+    uniforms: {
+        u_normalizePosition: number;
+        [name: string]: Uniform
+    };
+
+    protected normalizePosition: number;
+
+    constructor(flat: boolean = true, tileSize?: number) {
+        super(flat, false);
 
         this.flexAttributes = {
             // vertex
@@ -72,10 +80,21 @@ export class PointBuffer extends TemplateBuffer {
             }
         };
 
+        if (tileSize) {
+            // 14-bit position precision
+            this.normalizePosition = 16384 / tileSize;
+
+            this.addUniform('u_normalizePosition', 1 / this.normalizePosition);
+        }
+
+
         this.first = 0;
         // this.first = this.flexAttributes.a_position.data.length / this.flexAttributes.a_position.data.size;
     }
 
+    addPoint(x: number, y: number, z: number, hide?: boolean) {
+        addPoint(x, y, z, this.normalizePosition, this.flexAttributes.a_position.data, hide);
+    }
 
     rayIntersects(buffer: GeometryBuffer, result: { z: number }, tileX: number, tileY: number, rayCaster: Raycaster): number | string {
         const {type, attributes} = buffer;

@@ -7,12 +7,11 @@ uniform mat4 u_matrix;
 uniform vec2 u_topLeft;
 uniform float u_scale;
 uniform bool u_offscreen;
+uniform float u_normalizePosition;
 
 varying vec2 v_texcoord;
 varying vec2 v_direction;
 varying float v_weight;
-
-const float EXTENT_SCALE = 1.0 / 32.0;// 8912->512
 
 
 void main(void) {
@@ -20,7 +19,7 @@ void main(void) {
     if (u_offscreen) {
         // LSB (bit0) is visibility, bit1 is direction/normal vector [-1,+1]
         vec2 dir = mod(floor(a_position.xy / 2.0), 2.0) * 2.0 - 1.0;
-        vec2 pos = floor(a_position.xy / 4.0) * EXTENT_SCALE;
+        vec2 pos = floor(a_position.xy / 4.0) * u_normalizePosition;
 
         // Distribution Normal function (Gaussion)
         // effective value range is -3 -> +3, values <-3 or >+3 are very close to 0, so we simply scale and cut by 3.

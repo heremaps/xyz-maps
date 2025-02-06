@@ -25,18 +25,19 @@ export const addIcon = (
     x: number,
     y: number,
     z: number | boolean,
+    normalizePosition: number,
     atlas: ImageInfo,
     width: number,
     height: number,
     points: SimpleArray<number>, // number[],
-    vertex: number[],
+    vertex: SimpleArray<number>,
     texcoord: SimpleArray<number>, // number[],
     rotation: number = 0,
     hide?: boolean
 ) => {
     let {u1, u2, v1, v2} = atlas;
 
-    addPoint(x, y, z, vertex, hide);
+    addPoint(x, y, z, normalizePosition, vertex, hide);
 
     // 10 bit rotation precision
     rotation = Math.round(rotation * 1024 / 360);

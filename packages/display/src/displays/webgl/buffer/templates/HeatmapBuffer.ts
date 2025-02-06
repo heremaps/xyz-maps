@@ -58,8 +58,8 @@ export class HeatmapBuffer extends PointBuffer {
         'a_weight': FlexAttribute,
     };
 
-    constructor(flat?: boolean) {
-        super(true);
+    constructor(flat: boolean, tileSize: number) {
+        super(true, tileSize);
         this.flexAttributes.a_weight = {
             data: new FlexArray(Float32Array),
             size: 1
@@ -69,7 +69,7 @@ export class HeatmapBuffer extends PointBuffer {
     addPoint(x: number, y: number, weight: number = 1.0) {
         const {flexAttributes} = this;
 
-        addPoint(x, y, undefined, flexAttributes.a_position.data);
+        addPoint(x, y, undefined, this.normalizePosition, flexAttributes.a_position.data);
         // 2 triangles, 3 points each
         flexAttributes.a_weight.data.push(weight, weight, weight, weight, weight, weight);
     }

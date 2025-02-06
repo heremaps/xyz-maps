@@ -17,9 +17,11 @@
  * License-Filename: LICENSE
  */
 
-import {FlexAttribute, TemplateBuffer} from './TemplateBuffer';
+import {FlexAttribute} from './TemplateBuffer';
 import {FlexArray} from './FlexArray';
 import {PointBuffer} from './PointBuffer';
+import {addIcon} from '../addIcon';
+import {ImageInfo} from '../../Atlas';
 
 export class SymbolBuffer extends PointBuffer {
     flexAttributes: {
@@ -28,8 +30,8 @@ export class SymbolBuffer extends PointBuffer {
         'a_texcoord': FlexAttribute
     };
 
-    constructor(flat: boolean = true) {
-        super(flat);
+    constructor(flat: boolean = true, tileSize: number) {
+        super(flat, tileSize);
         this.flexAttributes = {
             a_position: {
                 data: new FlexArray(Uint16Array),
@@ -53,5 +55,22 @@ export class SymbolBuffer extends PointBuffer {
 
         this.first = 0;
         // this.first = this.flexAttributes.a_position.data.length / this.flexAttributes.a_position.data.size;
+    }
+
+    addIcon(x: number, y: number, z: number, img: ImageInfo, width: number, height: number, rotationZ?: number, hide?: boolean) {
+        addIcon(
+            x,
+            y,
+            z,
+            this.normalizePosition,
+            <ImageInfo>img,
+            width,
+            height,
+            this.flexAttributes.a_size.data,
+            this.flexAttributes.a_position.data,
+            this.flexAttributes.a_texcoord.data,
+            rotationZ
+            // !!this.collisionGroup
+        );
     }
 }

@@ -16,11 +16,8 @@
  * SPDX-License-Identifier: Apache-2.0
  * License-Filename: LICENSE
  */
-import {addText} from './addText';
-import {addPoint} from './addPoint';
 import {addPolygon, FlatPolygon} from './addPolygon';
 import {addExtrude} from './addExtrude';
-import {addIcon} from './addIcon';
 import earcut from 'earcut';
 import {calcBBox, getTextString, getValue, parseSizeValue, Style, StyleGroup} from '../../styleTools';
 import {defaultFont, wrapText} from '../../textUtils';
@@ -226,7 +223,7 @@ export class FeatureFactory {
 
         if (type == 'Text') {
             if (!group.buffer) {
-                group.buffer = new TextBuffer(isFlat, rotationY != UNDEF);
+                group.buffer = new TextBuffer(isFlat, this.tileSize, rotationY != UNDEF);
                 group.buffer.addUniform('u_texture', new GlyphTexture(this.gl, group.shared));
             }
             // if (!group.texture) {
@@ -248,14 +245,11 @@ export class FeatureFactory {
             collisionBufferStart = positionBuffer.data.length;
             collisionBufferStop = collisionBufferStart + texture.bufferLength(text, isFlat ? 2 : 3);
 
-            addText(
+            (group.buffer as TextBuffer).addText(
                 x,
                 y,
                 z,
                 lines,
-                flexAttributes.a_point.data,
-                flexAttributes.a_position.data,
-                flexAttributes.a_texcoord.data,
                 fontInfo,
                 rotationZ,
                 rotationY,
@@ -307,7 +301,7 @@ export class FeatureFactory {
 
                 this.modelFactory.addPosition(bucket, x, y, z, scale, translate, rotate, transform);
             } else if (type == 'Icon') {
-                group.buffer ||= new SymbolBuffer(isFlat);
+                group.buffer ||= new SymbolBuffer(isFlat, this.tileSize);
 
                 const groupBuffer = group.buffer as SymbolBuffer;
                 const {flexAttributes} = groupBuffer;
@@ -323,28 +317,15 @@ export class FeatureFactory {
 
                 positionBuffer = flexAttributes.a_position;
 
-                addIcon(
-                    x,
-                    y,
-                    z,
-                    <ImageInfo>img,
-                    width,
-                    height,
-                    flexAttributes.a_size.data,
-                    positionBuffer.data,
-                    flexAttributes.a_texcoord.data,
-                    rotationZ
-                    // !!this.collisionGroup
-                );
+                groupBuffer.addIcon(x, y, z, <ImageInfo>img, width, height, rotationZ);
 
                 groupBuffer.addUniform('u_texture', this.atlasManager.getTexture(src));
             } else if (type == 'Circle' || type == 'Rect') {
-                const pointBuffer = ((group.buffer as PointBuffer) ||= new PointBuffer(isFlat));
+                const pointBuffer = ((group.buffer as PointBuffer) ||= new PointBuffer(isFlat, this.tileSize));
                 positionBuffer = pointBuffer.flexAttributes.a_position;
-
-                addPoint(x, y, z, positionBuffer.data /* !!this.collisionGroup*/);
+                pointBuffer.addPoint(x, y, z/* !!this.collisionGroup*/);
             } else if (type == 'Heatmap') {
-                const heatmapBuffer = ((group.buffer as HeatmapBuffer) ||= new HeatmapBuffer(isFlat));
+                const heatmapBuffer = ((group.buffer as HeatmapBuffer) ||= new HeatmapBuffer(isFlat, this.tileSize));
 
                 const weight = getValue('weight', style, feature, level);
                 heatmapBuffer.addPoint(x, y, weight);
@@ -966,7 +947,7 @@ export class FeatureFactory {
                             h = getValue('height', style, feature, level) || width;
                         } else if (type == 'Text') {
                             if (!group.buffer) {
-                                group.buffer = new TextBuffer(true, true);
+                                group.buffer = new TextBuffer(true, this.tileSize, true);
                                 group.buffer.addUniform('u_texture', new GlyphTexture(this.gl, style as FontStyle));
                             }
                             let texture = (group.buffer as TemplateBuffer).uniforms.u_texture as GlyphTexture;

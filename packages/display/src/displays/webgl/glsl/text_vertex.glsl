@@ -16,11 +16,11 @@ uniform bool u_alignMap;
 uniform bool u_fixedView;
 uniform vec2 u_texSize;
 uniform bool u_scaleByAltitude;
+uniform float u_normalizePosition;
 
 varying vec2 v_texcoord;
 varying vec4 vColor;
 
-const float EXTENT_SCALE = 1.0 / 64.0;// 32768->512
 const float OFFSET_SCALE = 1.0 / 32.0;
 
 const float PI_05 = M_PI * 0.5;
@@ -32,7 +32,7 @@ const float PI_20 = M_PI * 2.0;
 void main(void) {
     if (mod(a_position.x, 2.0) == 1.0) {
 
-        vec2 position = floor(a_position.xy / 2.0) * EXTENT_SCALE;
+        vec2 position = floor(a_position.xy / 2.0) * u_normalizePosition;
 
         vec2 rotLowHi = mod(a_texcoord, 32.0);
         float rotationZ = rotLowHi.y * 32.0 + rotLowHi.x;

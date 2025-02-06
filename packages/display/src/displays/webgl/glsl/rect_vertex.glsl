@@ -14,11 +14,11 @@ uniform float u_zMeterToPixel;
 uniform bool u_alignMap;
 uniform vec2 u_resolution;
 uniform bool u_scaleByAltitude;
+uniform float u_normalizePosition;
 
 varying vec2 vSize;
 varying vec2 vDir;
 
-const float EXTENT_SCALE = 1.0 / 32.0;// 8912->512
 
 void main(void){
     // LSB defines visibility
@@ -26,7 +26,7 @@ void main(void){
     {
         // bit1 is direction/normal vector [-1,+1]
         vec2 dir = mod(floor(a_position.xy / 2.0), 2.0) * 2.0 - 1.0;
-        vec2 pos = floor(a_position.xy / 4.0) * EXTENT_SCALE;
+        vec2 pos = floor(a_position.xy / 4.0) * u_normalizePosition;
         vec2 size = vec2(toPixel(u_size.xy, u_scale), toPixel(u_size.zw, u_scale));
 
         size = (size + u_strokeWidth) * .5;

@@ -15,11 +15,10 @@ uniform vec2 u_resolution;
 uniform bool u_fixedView;
 uniform float u_zMeterToPixel;
 uniform bool u_scaleByAltitude;
+uniform float u_normalizePosition;
 
 varying float vOpacity;
 varying vec2 v_texcoord;
-
-const float EXTENT_SCALE = 1.0 / 32.0;// 8912->512
 
 void main(void){
 
@@ -33,7 +32,7 @@ void main(void){
 
         // bit1 is direction/normal vector [-1,+1]
         vec2 dir = mod(floor(a_position.xy / 2.0), 2.0) * 2.0 - 1.0;
-        vec2 pos = floor(a_position.xy / 4.0) * EXTENT_SCALE;
+        vec2 pos = floor(a_position.xy / 4.0) * u_normalizePosition;
         float z = a_position.z * SCALE_UINT16_Z + toPixel(u_offsetZ, u_scale)/ u_zMeterToPixel/ u_scale;
 
         vec2 offsetXY = vec2(toPixel(u_offset.xy, u_scale),toPixel(u_offset.zw, u_scale));

@@ -20,10 +20,7 @@
 import {createTextData, OFFSET_SCALE} from './createText';
 import {GlyphAtlas} from '../GlyphAtlas';
 import {FlexArray} from './templates/FlexArray';
-import {ParsedStyleProperty, StyleExpression, StyleValueFunction, StyleZoomRange, TextStyle} from '@here/xyz-maps-core';
-import ZoomControl from '../../../ui/ZoomControl';
-
-const EXTENT_SCALE = 64;
+import {ParsedStyleProperty, TextStyle} from '@here/xyz-maps-core';
 
 type TextAnchors = ParsedStyleProperty<TextStyle['textAnchor']>;
 
@@ -43,6 +40,7 @@ const addText = (
     cx: number,
     cy: number,
     z: null | number,
+    positionPrecisionScale: number,
     lines: string[],
     offsets: FlexArray,
     vertex: FlexArray,
@@ -64,8 +62,8 @@ const addText = (
     const visible: number = hide === undefined ? 1 : Number(!hide);
 
     // LSB defines visibility, visible by default
-    cx = cx * EXTENT_SCALE << 1 | visible;
-    cy = cy * EXTENT_SCALE << 1 | visible;
+    cx = (cx << 1) * positionPrecisionScale | visible;
+    cy = (cy << 1) * positionPrecisionScale | visible;
 
     // 10 bit rotation precision
     rotationZ = Math.round(rotationZ * 1024 / 360);

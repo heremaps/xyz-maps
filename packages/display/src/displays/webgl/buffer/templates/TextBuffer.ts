@@ -20,6 +20,8 @@
 import {FlexAttribute, TemplateBuffer} from './TemplateBuffer';
 import {FlexArray} from './FlexArray';
 import {GlyphTexture} from '../../GlyphTexture';
+import {addText} from '../addText';
+import {GlyphAtlas} from '../../GlyphAtlas';
 
 export class TextBuffer extends TemplateBuffer {
     uniforms: {
@@ -31,9 +33,14 @@ export class TextBuffer extends TemplateBuffer {
         'a_point': FlexAttribute
         'a_texcoord': FlexAttribute
     };
+    private normalizePosition: number;
 
-    constructor(flat: boolean = true, rotY?: boolean) {
+    constructor(flat: boolean = true, tileSize: number, rotY?: boolean) {
         super(flat);
+
+        // 15-bit position precision
+        this.normalizePosition = 32768 / tileSize;
+        this.addUniform('u_normalizePosition', 1 / this.normalizePosition);
 
         this.flexAttributes = {
             // LSB x,y defines visibility -> 14bit position precision (use LSB:x only to increase to 15bit)
@@ -59,5 +66,33 @@ export class TextBuffer extends TemplateBuffer {
         };
 
         this.first = 0;
+    }
+
+    addText(
+        x: number,
+        y: number,
+        z: number,
+        lines: string[],
+        fontInfo: GlyphAtlas,
+        rotationZ: number,
+        rotationY: number,
+        textAnchor: string
+    ) {
+        const {flexAttributes} = this;
+        addText(
+            x,
+            y,
+            z,
+            this.normalizePosition,
+            lines,
+            flexAttributes.a_point.data,
+            flexAttributes.a_position.data,
+            flexAttributes.a_texcoord.data,
+            fontInfo,
+            rotationZ,
+            rotationY,
+            textAnchor
+            // !!this.collisionGroup
+        );
     }
 }

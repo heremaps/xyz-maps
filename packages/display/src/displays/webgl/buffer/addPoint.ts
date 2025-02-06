@@ -16,17 +16,22 @@
  * SPDX-License-Identifier: Apache-2.0
  * License-Filename: LICENSE
  */
-import {FlexArray} from './templates/FlexArray';
+import {SimpleArray} from './templates/FlexArray';
 
-const extentScale = 32;
-
-export const addPoint = (x: number, y: number, z: number | boolean, vertex: number[]|FlexArray, hide?: boolean): number => {
+export const addPoint = (
+    x: number,
+    y: number,
+    z: number | boolean,
+    normalizePositionFactor: number,
+    vertex: SimpleArray<number>,
+    hide?: boolean
+): number => {
     let v = vertex.length;
     const visible: number = hide === undefined ? 1 : Number(!hide);
 
     // make room for direction vector bit1 and visibility bit0 (LSB)
-    x = x * extentScale << 2 | visible;
-    y = y * extentScale << 2 | visible;
+    x = (x<<2) * normalizePositionFactor | visible;
+    y = (y<<2) * normalizePositionFactor | visible;
 
     //   0 ------ 1
     //   | `.     |
