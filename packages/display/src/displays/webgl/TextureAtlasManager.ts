@@ -69,8 +69,9 @@ export class TextureAtlasManager {
                 });
             }));
         } else {
-            if (this.textures.has(src)) {
-                return new ImageInfo(0, atlasInfo.x, atlasInfo.x + atlasInfo.width, atlasInfo.y, atlasInfo.y + atlasInfo.height);
+            const texture = this.textures.get(src);
+            if (texture) {
+                return new ImageInfo(0, atlasInfo.x, atlasInfo.x + atlasInfo.width, atlasInfo.y, atlasInfo.y + atlasInfo.height, texture);
             }
             return this.load(src);
         }

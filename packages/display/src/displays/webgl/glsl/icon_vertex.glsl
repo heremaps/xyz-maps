@@ -7,7 +7,6 @@ attribute vec2 a_texcoord;
 uniform mat4 u_matrix;
 uniform vec2 u_topLeft;
 uniform float u_scale;
-uniform vec2 u_texSize;
 uniform vec4 u_offset;
 uniform vec2 u_offsetZ;
 uniform bool u_alignMap;
@@ -25,10 +24,10 @@ void main(void){
     // LSB defines visibility
     if (mod(a_position.x, 2.0) == 1.0)
     {
-        vec2 rotLowHi = mod(a_texcoord, 32.0);
-        float rotation = rotLowHi.x + floor(rotLowHi.y * 32.0);
+        vec2 rotLowHi = mod(a_texcoord, 16.0);
+        float rotation = rotLowHi.x + floor(rotLowHi.y * 16.0);
 
-        rotation = rotation / 1024.0 * 2.0 * M_PI;// 10bit -> 2PI;
+        rotation = rotation / 255.0 * 2.0 * M_PI;// 10bit -> 2PI;
 
         // bit1 is direction/normal vector [-1,+1]
         vec2 dir = mod(floor(a_position.xy / 2.0), 2.0) * 2.0 - 1.0;
@@ -58,7 +57,7 @@ void main(void){
             gl_Position = snapToScreenPixel(gl_Position, u_resolution);
         }
 
-        // textcoords bit6->bit16
-        v_texcoord = floor(a_texcoord / 32.0) / u_texSize;
+        // 12bit texture coordinates, bit4->bit15
+        v_texcoord = floor(a_texcoord / 16.0) / 4095.0;
     }
 }

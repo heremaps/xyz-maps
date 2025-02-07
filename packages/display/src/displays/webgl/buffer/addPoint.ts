@@ -30,8 +30,9 @@ export const addPoint = (
     const visible: number = hide === undefined ? 1 : Number(!hide);
 
     // make room for direction vector bit1 and visibility bit0 (LSB)
-    x = (x<<2) * normalizePositionFactor | visible;
-    y = (y<<2) * normalizePositionFactor | visible;
+    x = (x * normalizePositionFactor) << 2 | (visible & 0x03);
+    y = (y * normalizePositionFactor) << 2 | (visible & 0x03);
+
 
     //   0 ------ 1
     //   | `.     |

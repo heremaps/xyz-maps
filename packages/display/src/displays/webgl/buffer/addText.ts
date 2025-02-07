@@ -62,8 +62,8 @@ const addText = (
     const visible: number = hide === undefined ? 1 : Number(!hide);
 
     // LSB defines visibility, visible by default
-    cx = (cx << 1) * positionPrecisionScale | visible;
-    cy = (cy << 1) * positionPrecisionScale | visible;
+    cx = (cx * positionPrecisionScale) << 1 | visible;
+    cy = (cy * positionPrecisionScale) << 1 | visible;
 
     // 10 bit rotation precision
     rotationZ = Math.round(rotationZ * 1024 / 360);

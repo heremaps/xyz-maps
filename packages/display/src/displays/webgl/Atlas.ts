@@ -42,12 +42,26 @@ class ImageInfo {
     u2: number;
     v2: number;
 
-    constructor(index: number, u1: number, u2: number, v1: number, v2: number) {
+    atlasWidth: number;
+    atlasHeight: number;
+
+    constructor(index: number, u1: number, u2: number, v1: number, v2: number, texture?: Texture) {
         this.i = index;
         this.u1 = u1;
         this.v1 = v1;
         this.u2 = u2;
         this.v2 = v2;
+        this.atlasWidth = texture.width;
+        this.atlasHeight = texture.height;
+    }
+
+    normalized() {
+        return {
+            u1: this.u1 / this.atlasWidth,
+            v1: this.v1 / this.atlasHeight,
+            u2: this.u2 / this.atlasWidth,
+            v2: this.v2 / this.atlasHeight
+        };
     }
 }
 
@@ -119,18 +133,18 @@ class Atlas {
         const u2 = u1 + data.width;
         const v2 = v1 + data.height;
 
+        if (data instanceof HTMLImageElement || data instanceof HTMLCanvasElement) {
+            this.init();
+            this.texture.set(data, ax * maxSize, ay * maxSize);
+        }
+
         if (atlas) {
             atlas.u1 = u1;
             atlas.u2 = u2;
             atlas.v1 = v1;
             atlas.v2 = v2;
         } else {
-            atlas = new ImageInfo(index, u1, u2, v1, v2);
-        }
-
-        if (data instanceof HTMLImageElement || data instanceof HTMLCanvasElement) {
-            this.init();
-            this.texture.set(data, ax * maxSize, ay * maxSize);
+            atlas = new ImageInfo(index, u1, u2, v1, v2, this.texture);
         }
 
         if (updateCache) {

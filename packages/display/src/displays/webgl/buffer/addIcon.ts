@@ -40,15 +40,18 @@ export const addIcon = (
     addPoint(x, y, z, normalizePosition, vertex, hide);
 
     // 10 bit rotation precision
-    rotation = Math.round(rotation * 1024 / 360);
+    rotation = Math.round(rotation * 255 / 360);
 
-    const rotationHi = rotation >> 5;
-    const rotationLow = (rotation & 31);
+    const rotationHi = rotation >> 4;
+    const rotationLow = (rotation & 15);
 
-    u1 = u1 << 5 | rotationLow;
-    u2 = u2 << 5 | rotationLow;
-    v1 = v1 << 5 | rotationHi;
-    v2 = v2 << 5 | rotationHi;
+    const scaleU = 4095 / (atlas.atlasWidth-1);
+    const scaleV = 4095 / (atlas.atlasHeight-1);
+
+    u1 = (u1 * scaleU) << 4 | rotationLow;
+    u2 = (u2 * scaleU) << 4 | rotationLow;
+    v1 = (v1 * scaleV) << 4 | rotationHi;
+    v2 = (v2 * scaleV) << 4 | rotationHi;
 
     points.push(
         width, height,
