@@ -54,6 +54,7 @@ export interface ImageStyle {
     /**
      * If specified, the Image provided by {@link src} is considered as an IconAtlas/TextureAtlas.
      * The clipping region for the image must be defined by x, y, width and height.
+     * The maximum supported atlas size is 4096x4096.
      */
     atlas?: {x: number, y: number, width: number, height: number};
 

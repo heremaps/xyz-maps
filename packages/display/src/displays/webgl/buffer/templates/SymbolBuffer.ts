@@ -33,9 +33,9 @@ export class SymbolBuffer extends PointBuffer {
     constructor(flat: boolean = true, tileSize: number) {
         super(flat, tileSize);
         this.flexAttributes = {
-            //  MSB                     LSB
-            // |vertexX|directionX|    visible|
-            // |vertexY|directionY|metaDataBit|
+            //  MSB                           LSB
+            // |VX|...|VX|directionX|    visible|
+            // |VY|...|VY|directionY|metaDataBit|
             a_position: {
                 data: new FlexArray(Uint16Array),
                 size: flat ? 2 : 3
@@ -63,17 +63,18 @@ export class SymbolBuffer extends PointBuffer {
     }
 
     addIcon(x: number, y: number, z: number, img: ImageInfo, width: number, height: number, rotationZ?: number, hide?: boolean) {
+        const {normalizePosition, flexAttributes} = this;
         addIcon(
             x,
             y,
             z,
-            this.normalizePosition,
+            normalizePosition,
             <ImageInfo>img,
             width,
             height,
-            this.flexAttributes.a_size.data,
-            this.flexAttributes.a_position.data,
-            this.flexAttributes.a_texcoord.data,
+            flexAttributes.a_size.data,
+            flexAttributes.a_position.data,
+            flexAttributes.a_texcoord.data,
             rotationZ
             // !!this.collisionGroup
         );
