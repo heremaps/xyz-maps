@@ -47,8 +47,6 @@ export class RemoteTileProvider extends FeatureProvider {
      */
     constructor(options: RemoteTileProviderOptions) {
         super(<any>{
-            minLevel: 8,
-            maxLevel: 20,
             staticData: false,
             ...options
         });

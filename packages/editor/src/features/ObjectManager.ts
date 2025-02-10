@@ -115,13 +115,17 @@ class ObjectManager {
         HERE_WIKI.listeners.add('_layerAdd', (ev) => {
             const layer = ev.detail.layer;
             layers.set(layer.id, layer);
+
+            const editLayers = layers.values().filter((layer) => layer !== overlayLayer);
+            // Automatically display editor overlay features only when edit layers are visible.
+            overlayLayer.min = Math.min(...editLayers.map(({min}) => min));
+            overlayLayer.max = Math.max(...editLayers.map(({max}) => max));
         });
 
         HERE_WIKI.listeners.add('_layerRemove', (ev) => {
             const layer = ev.detail.layer;
             layers.delete(layer.id);
-            // CLEAR SELECTED OBJECTS OF LAYER IF NEEDED..
-            // ..TO MAKE SURE THERE ARE NO LEFTOVERS IN OVERLAY
+            // Clear selected objects from the layer if necessary to prevent leftover elements in the overlay.
             const curSelObj = HERE_WIKI.objects.selection.getCurSelObj();
 
             if (curSelObj && HERE_WIKI.getLayer(curSelObj) == layer) {

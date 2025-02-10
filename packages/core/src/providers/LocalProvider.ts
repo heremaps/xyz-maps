@@ -63,8 +63,6 @@ export class LocalProvider extends EditableFeatureProvider {
      */
     constructor(options?: LocalProviderOptions) {
         super({
-            minLevel: 8,
-            maxLevel: 20,
             storage: new LRUStorage(512),
             editable: false,
             // suggest default tile-size for layersetup

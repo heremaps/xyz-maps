@@ -73,8 +73,6 @@ export abstract class EditableRemoteTileProvider extends EditableFeatureProvider
      */
     protected constructor(options: EditableRemoteTileProviderOptions) {
         super({
-            minLevel: 8,
-            maxLevel: 20,
             staticData: false,
             ...options
         });

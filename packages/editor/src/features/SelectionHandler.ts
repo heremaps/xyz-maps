@@ -26,10 +26,6 @@ export default class SelectionHandler {
     private ie: InternalEditor;
     private display;
 
-    // stores feature that got cleared because of provider's visibilty changed (zoomlevel config)
-    // will lead to automatic reselect if provider gets visible again.
-    private zClearFeat: Feature = null;
-
     private add(feature: Feature) {
         oTools.private(feature).isSelected = true;
         this.s.push(feature);
@@ -43,58 +39,18 @@ export default class SelectionHandler {
     constructor(HERE_WIKI: InternalEditor, display) {
         this.ie = HERE_WIKI;
         this.display = display;
-
-        const that = this;
-
-        // handle delselection of mapobject and it's overlay ui elements if data provider visibility is changed.
-        // e.g. zoomlevel min max setting of provider.
-        // only needed if keepFeatureSelection config is set, otherwise objects always become deselected.
-        if (HERE_WIKI._config['keepFeatureSelection']) {
-            let curZoomLevel = display.getZoomlevel();
-
-            // use mapviewchangeend event instead ov zoomlevel observer to work around swm limitations..
-            // objects are getting added during zoom animation in swm position is shifted during animation..
-            display.addEventListener('mapviewchangeend', () => {
-                const level = display.getZoomlevel();
-
-                if (level != curZoomLevel) {
-                    const sel = that.getCurSelObj() || that.zClearFeat;
-                    let prov;
-                    let min;
-
-                    if (sel) {
-                        prov = sel.getProvider();
-                        min = prov.minLevel;
-
-                        if (curZoomLevel >= min) {
-                            if (level < min) {
-                                that.clearSelected();
-                                that.zClearFeat = sel;
-                            }
-                        } else if (level >= min) {
-                            oTools._select(sel);
-                        }
-                    }
-                }
-
-                curZoomLevel = level;
-            });
-        }
     };
 
     select(feature: Feature) {
-        const that = this;
-        const curzl = that.display.getZoomlevel();
-        const prov = <any>feature.getProvider();
-        // TODO: remove =)
-        // only allow object selection if feature's layer is visible to prevent visbility of created overlayobjects.
-        if (curzl >= prov.minLevel && curzl <= prov.maxLevel) {
-            that.clearSelected();
+        const zoomlevel = this.display.getZoomlevel();
+        const layer = this.ie.getLayer(feature);
+
+        // only allow object selection if feature's layer is visible/displayed.
+        if (zoomlevel >= layer?.min && zoomlevel <= layer?.max) {
+            this.clearSelected();
             this.add(feature);
             return true;
         }
-
-        that.zClearFeat = feature;
     };
 
     getCurSelObj(): Feature {
@@ -144,8 +100,6 @@ export default class SelectionHandler {
         });
 
         selected.length = 0;
-
-        this.zClearFeat = null;
 
         iEditor.transformer.hide();
 

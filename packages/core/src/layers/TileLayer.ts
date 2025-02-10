@@ -151,14 +151,8 @@ export class TileLayer extends Layer {
                 tileSize = Math.max(tileSize, providerCfg.size);
             }
             const offset = Number(tileSize == 512);
-            const {min, max} = layer;
-            setProvider(min - offset, max - offset, providerCfg);
+            setProvider(layer.min - offset, layer.max - offset, providerCfg);
             layer._fp = providerCfg;
-            // TODO: remove =)
-            // currently used by edtior for automatic feature unselect..
-            // ..in case of layer is not visible anymore due to (zoomlevel range)
-            providerCfg.minLevel = min;
-            providerCfg.maxLevel = max;
         }
 
         if (!this.tileSize && !(tileSize % 256)) {
