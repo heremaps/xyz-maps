@@ -93,7 +93,7 @@ export class PointBuffer extends TemplateBuffer {
     }
 
     addPoint(x: number, y: number, z: number, hide?: boolean) {
-        addPoint(x, y, z, this.normalizePosition, this.flexAttributes.a_position.data, hide);
+        addPoint(x, y, z, this.normalizePosition, this.flexAttributes.a_position.data);
     }
 
     rayIntersects(buffer: GeometryBuffer, result: { z: number }, tileX: number, tileY: number, rayCaster: Raycaster): number | string {

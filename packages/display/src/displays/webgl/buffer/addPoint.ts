@@ -24,15 +24,16 @@ export const addPoint = (
     z: number | boolean,
     normalizePositionFactor: number,
     vertex: SimpleArray<number>,
-    hide?: boolean
+    metadataBit?: 0|1
+    // hide?: boolean
 ): number => {
+    // const visible: number = hide === undefined ? 1 : Number(!hide);
+    const visible = 1;
     let v = vertex.length;
-    const visible: number = hide === undefined ? 1 : Number(!hide);
 
     // make room for direction vector bit1 and visibility bit0 (LSB)
     x = (x * normalizePositionFactor) << 2 | (visible & 0x03);
-    y = (y * normalizePositionFactor) << 2 | (visible & 0x03);
-
+    y = (y * normalizePositionFactor) << 2 | (metadataBit & 0x03);
 
     //   0 ------ 1
     //   | `.     |

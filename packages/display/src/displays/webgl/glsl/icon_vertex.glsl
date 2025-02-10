@@ -25,9 +25,11 @@ void main(void){
     if (mod(a_position.x, 2.0) == 1.0)
     {
         vec2 rotLowHi = mod(a_texcoord, 16.0);
-        float rotation = rotLowHi.x + floor(rotLowHi.y * 16.0);
+        float roationMSB = mod(a_position.y, 2.0);
+        // 9 bit rotation
+        float rotation = rotLowHi.x + floor(rotLowHi.y * 16.0) + (roationMSB * 256.0);
 
-        rotation = rotation / 255.0 * 2.0 * M_PI;// 10bit -> 2PI;
+        rotation = rotation / 511.0 * 2.0 * M_PI;// 10bit -> 2PI;
 
         // bit1 is direction/normal vector [-1,+1]
         vec2 dir = mod(floor(a_position.xy / 2.0), 2.0) * 2.0 - 1.0;

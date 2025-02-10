@@ -37,13 +37,14 @@ export const addIcon = (
 ) => {
     let {u1, u2, v1, v2} = atlas;
 
-    addPoint(x, y, z, normalizePosition, vertex, hide);
+    // 9 bit rotation precision
+    rotation = Math.round(rotation * 511 / 360);
+    const rotationMSB = (rotation >> 8) & 1; // Bit 8 (MSB of 9-bit rotation)
 
-    // 10 bit rotation precision
-    rotation = Math.round(rotation * 255 / 360);
+    addPoint(x, y, z, normalizePosition, vertex, rotationMSB as 0|1);
 
-    const rotationHi = rotation >> 4;
-    const rotationLow = (rotation & 15);
+    const rotationHi = (rotation >> 4) & 0x0F;
+    const rotationLow = rotation & 0x0F;
 
     const scaleU = 4095 / (atlas.atlasWidth-1);
     const scaleV = 4095 / (atlas.atlasHeight-1);

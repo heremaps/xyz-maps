@@ -33,6 +33,9 @@ export class SymbolBuffer extends PointBuffer {
     constructor(flat: boolean = true, tileSize: number) {
         super(flat, tileSize);
         this.flexAttributes = {
+            //  MSB                     LSB
+            // |vertexX|directionX|    visible|
+            // |vertexY|directionY|metaDataBit|
             a_position: {
                 data: new FlexArray(Uint16Array),
                 size: flat ? 2 : 3
@@ -41,12 +44,14 @@ export class SymbolBuffer extends PointBuffer {
                 data: new FlexArray(Uint8Array),
                 size: 2
             },
-            // bit1 -> bit5  - rotation low (x), rotation height (y)
-            // bit6 -> bit16 - texture coordinate
-            // 10 bit rotation, 2 * 11 bit texture coordinate (2048x2048)
+            // Rotation is 9 bit in total.
+            // lower 8 bits are stored in texture coordinates. MSB is stored in vertex coordinates metaDataBit.
+            // bit0 -> bit3  - rotation low (x), rotation height (y)
+            // bit4 -> bit15 - texture coordinate
+            // 8 bit rotation, 2 * 12 bit texture coordinate (4096x4096)
             //  MSB                                                              LSB
-            // |TCX|TCX|TCX|TCX|TCX|TCX|TCX|TCX|TCX|TCX|TCX|ROTL|ROTL|ROTL|ROTL|ROTL|
-            // |TCY|TCY|TCY|TCY|TCY|TCY|TCY|TCY|TCY|TCY|TCY|ROTH|ROTH|ROTH|ROTH|ROTH|
+            // |TCX|TCX|TCX|TCX|TCX|TCX|TCX|TCX|TCX|TCX|TCX|TCX|ROTL|ROTL|ROTL|ROTL|
+            // |TCY|TCY|TCY|TCY|TCY|TCY|TCY|TCY|TCY|TCY|TCY|TCY|ROTH|ROTH|ROTH|ROTH|
             a_texcoord: {
                 data: new FlexArray(Uint16Array),
                 size: 2
