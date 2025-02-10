@@ -29,9 +29,9 @@ export const addIcon = (
     atlas: ImageInfo,
     width: number,
     height: number,
-    points: SimpleArray<number>, // number[],
+    points: SimpleArray<number>,
     vertex: SimpleArray<number>,
-    texcoord: SimpleArray<number>, // number[],
+    texcoord: SimpleArray<number>,
     rotation: number = 0,
     hide?: boolean
 ) => {
@@ -41,18 +41,25 @@ export const addIcon = (
     rotation = Math.round(rotation * 511 / 360);
     const rotationMSB = (rotation >> 8) & 1; // Bit 8 (MSB of 9-bit rotation)
 
-    addPoint(x, y, z, normalizePosition, vertex, rotationMSB as 0|1);
+    addPoint(x, y, z, normalizePosition, vertex, rotationMSB as 0 | 1);
 
     const rotationHi = (rotation >> 4) & 0x0F;
     const rotationLow = rotation & 0x0F;
+    const scaleU = 0x0FFF / (atlas.atlasWidth - 1);
+    const scaleV = 0x0FFF / (atlas.atlasHeight - 1);
 
-    const scaleU = 4095 / (atlas.atlasWidth-1);
-    const scaleV = 4095 / (atlas.atlasHeight-1);
+    u1 *= scaleU;
+    u2 *= scaleU;
+    v1 *= scaleV;
+    v2 *= scaleV;
 
-    u1 = (u1 * scaleU) << 4 | rotationLow;
-    u2 = (u2 * scaleU) << 4 | rotationLow;
-    v1 = (v1 * scaleV) << 4 | rotationHi;
-    v2 = (v2 * scaleV) << 4 | rotationHi;
+    if (u2 > 0x0FFF) u2 = 0x0FFF;
+    if (v2 > 0x0FFF) v2 = 0x0FFF;
+
+    u1 = u1 << 4 | rotationLow;
+    u2 = u2 << 4 | rotationLow;
+    v1 = v1 << 4 | rotationHi;
+    v2 = v2 << 4 | rotationHi;
 
     points.push(
         width, height,

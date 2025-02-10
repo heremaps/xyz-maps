@@ -161,13 +161,14 @@ export class FeatureFactory {
 
         this.gradients = new GradientFactory(gl, 256, 1);
 
-        var pixels = new Uint8Array(512 * 512 * 4);
+        const pixels = 512 * 512;
+        const pixelData = new Uint8Array(pixels * 4);
 
-        for (let i = 0; i < 512 * 512; i++) {
-            pixels[i * 4] = 255;
-            pixels[i * 4 + 1] = 0;
-            pixels[i * 4 + 2] = 0;
-            pixels[i * 4 + 3] = 255;
+        for (let i = 0; i < pixels; i++) {
+            pixelData[i * 4] = 255;
+            pixelData[i * 4 + 1] = 0;
+            pixelData[i * 4 + 2] = 0;
+            pixelData[i * 4 + 3] = 255;
         }
     }
 
