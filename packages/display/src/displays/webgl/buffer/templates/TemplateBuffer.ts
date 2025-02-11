@@ -66,6 +66,8 @@ export class TemplateBuffer {
     uniforms: { [name: string]: Uniform } = {};
     private _cnt: number;
 
+    light?: string;
+
     constructor(flat: boolean, clipTile: boolean = false) {
         this._flat = flat;
         this.clip = clipTile;

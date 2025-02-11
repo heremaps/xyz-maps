@@ -203,6 +203,7 @@ export class GLRender implements BasicRender {
         fixedView: 0,
         inverseMatrix: new Float32Array(16)
     };
+    private bufferLightUniforms: UniformMap;
 
     constructor(renderOptions: RenderOptions) {
         this.ctxAttr = {
@@ -730,6 +731,11 @@ export class GLRender implements BasicRender {
 
         program.initUniforms(this.sharedUniforms);
         program.initViewUniforms(this.viewUniforms);
+
+        if (buffer.light && this.bufferLightUniforms) {
+            program.initUniforms(this.bufferLightUniforms);
+        }
+
         program.initUniforms(uniforms);
     }
 
@@ -981,12 +987,11 @@ export class GLRender implements BasicRender {
         let {x, y, scaledSize} = screenTile;
         const {tileSize} = layer;
         const distanceScale = scaledSize / tileSize;
-        const lightUniforms = this.processedLight[layer.index][buffer.light || 'defaultLight'];
 
         this.zIndex = bufferData.z;
         this.min3dZIndex = min3dZIndex;
 
-        Object.assign(this.sharedUniforms, lightUniforms);
+        this.bufferLightUniforms = buffer.light ? this.processedLight[layer.index][buffer.light] : null;
 
         // make sure to reset stencil
         this.stencilVal = null;

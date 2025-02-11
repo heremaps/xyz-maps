@@ -187,7 +187,7 @@ const createBuffer = (
                         const grpBuffers = grp.buffer instanceof TemplateBufferBucket ? grp.buffer.toArray() : [grp.buffer];
                         for (let grpBuffer of grpBuffers) {
                             // geoBuffer = grpBuffer.finalize(type);
-                            const geoBuffer: GeometryBuffer = GeometryBuffer.fromTemplateBuffer(type, grpBuffer);
+                            const geoBuffer: GeometryBuffer = GeometryBuffer.fromTemplateBuffer(type, grpBuffer, shared.light);
 
                             if (geoBuffer == null) continue;
 
@@ -374,7 +374,7 @@ const createBuffer = (
                                     }
                                 }
                                 geoBuffer.clip = grpBuffer.clip;
-                                geoBuffer.light = shared.light;
+
 
                                 // model emissive/specular lightning uniforms have already been merged with material.
                                 if (type != 'Model') {

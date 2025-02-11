@@ -370,6 +370,8 @@ export class ModelBuffer extends TemplateBuffer {
         };
 
         this.uniforms = {...material};
+
+        this.light = 'defaultLight';
     }
 
     addInstance(x: number, y: number, z: number, scaleXYZ?: number[], translateXYZ?: number[], rotation?: number[], transform?) {

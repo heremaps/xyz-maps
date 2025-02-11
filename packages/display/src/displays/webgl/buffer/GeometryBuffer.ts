@@ -160,7 +160,7 @@ class GeometryBuffer {
     colorMask?: { r: boolean, g: boolean, b: boolean, a: boolean };
     light?: string;
 
-    static fromTemplateBuffer(type: string, templBuffer: TemplateBuffer): GeometryBuffer {
+    static fromTemplateBuffer(type: string, templBuffer: TemplateBuffer, light?: string): GeometryBuffer {
         const {flexAttributes} = templBuffer;
         let geoBuffer: GeometryBuffer;
 
@@ -201,6 +201,8 @@ class GeometryBuffer {
         for (let name in templBuffer.uniforms) {
             geoBuffer.addUniform(name, templBuffer.uniforms[name]);
         }
+
+        geoBuffer.light = light || templBuffer.light;
 
         return geoBuffer;
     }

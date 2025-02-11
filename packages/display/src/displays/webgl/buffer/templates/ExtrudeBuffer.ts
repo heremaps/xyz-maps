@@ -36,5 +36,7 @@ export class ExtrudeBuffer extends PolygonBuffer {
             size: 2,
             normalized: true
         };
+
+        this.light = 'defaultLight';
     }
 }
