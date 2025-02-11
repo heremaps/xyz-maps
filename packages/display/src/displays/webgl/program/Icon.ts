@@ -46,7 +46,7 @@ class IconProgram extends Program {
     }
 
     initViewUniforms(viewUniforms: ViewUniforms) {
-        this.setUniform('u_fixedView', viewUniforms.fixedView);
+        this.initUniform('u_fixedView', viewUniforms.fixedView);
     }
 }
 

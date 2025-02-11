@@ -189,7 +189,6 @@ export class GLRender implements BasicRender {
         u_topLeft: number[];
         u_scale: number;
         u_zMeterToPixel: number;
-        u_camWorld: Float64Array;
     };
 
     private programConfig: { [name: string]: { program: typeof Program, default?: boolean, macros?: any } };
@@ -600,8 +599,7 @@ export class GLRender implements BasicRender {
             'u_scale': null, // this.scale * dZoom,
             'u_topLeft': [0, 0],
             'u_matrix': this.vPMat,
-            'u_zMeterToPixel': null, // this.zMeterToPixel / dZoom,
-            'u_camWorld': this.cameraWorld
+            'u_zMeterToPixel': null // this.zMeterToPixel / dZoom,
         };
     }
 
@@ -733,7 +731,7 @@ export class GLRender implements BasicRender {
         program.initViewUniforms(this.viewUniforms);
 
         if (buffer.light && this.bufferLightUniforms) {
-            program.initUniforms(this.bufferLightUniforms);
+            program.initLight(this.bufferLightUniforms, this.cameraWorld);
         }
 
         program.initUniforms(uniforms);

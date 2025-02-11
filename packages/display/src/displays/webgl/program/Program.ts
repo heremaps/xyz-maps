@@ -257,19 +257,13 @@ class Program {
         return this.uniforms[name];
     }
 
-    setUniform(name: string, data: any) {
+    initUniform(name: string, data: any) {
         this.uniformSetters[name]?.(data);
     }
 
     initUniforms(uniforms: UniformMap) {
         for (let name in uniforms) {
-            const setter = this.uniformSetters[name];
-            if (setter) {
-                const uniform = uniforms[name];
-                setter(uniform);
-            } else {
-                // console.warn('no uniform setter defined', name);
-            }
+            this.initUniform(name, uniforms[name]);
         }
     }
 
@@ -562,6 +556,11 @@ class Program {
 
     setColorMask(colorMask: ColorMask) {
         this.colorMask = colorMask;
+    }
+
+    initLight(bufferLightUniforms: UniformMap, cameraWorld: Float64Array) {
+        this.initUniforms(bufferLightUniforms);
+        this.initUniform('u_camWorld', cameraWorld);
     }
 }
 

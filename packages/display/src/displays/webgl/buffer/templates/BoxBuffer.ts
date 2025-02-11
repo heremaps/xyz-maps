@@ -48,6 +48,8 @@ export class BoxBuffer extends PointBuffer {
             normalized: true,
             size: 3
         };
+
+        this.light = 'defaultLight';
     }
 
     rayIntersects(buffer: GeometryBuffer, result: { z: number }, tileX: number, tileY: number, rayCaster: Raycaster): number | string {

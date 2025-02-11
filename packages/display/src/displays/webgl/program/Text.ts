@@ -74,8 +74,8 @@ class TextProgram extends Program {
     }
 
     override initViewUniforms(viewUniforms: ViewUniforms ) {
-        this.setUniform('u_rotate', viewUniforms.rz);
-        this.setUniform('u_fixedView', viewUniforms.fixedView);
+        this.initUniform('u_rotate', viewUniforms.rz);
+        this.initUniform('u_fixedView', viewUniforms.fixedView);
     }
 }
 

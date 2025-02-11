@@ -44,7 +44,7 @@ class SphereProgram extends BoxProgram {
     }
 
     override initViewUniforms(displayUniforms: ViewUniforms) {
-        this.setUniform('u_inverseMatrix', displayUniforms.inverseMatrix);
+        this.initUniform('u_inverseMatrix', displayUniforms.inverseMatrix);
     }
 }
 
