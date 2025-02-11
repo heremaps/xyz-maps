@@ -9,11 +9,11 @@ uniform vec4 u_fill;
 uniform float u_fillIntensity;
 uniform bool u_strokePass;
 uniform vec4 u_stroke;
-uniform vec3 u_camWorld;
 
 #include "light.glsl"
 
 #ifdef SPECULAR
+uniform vec3 u_camWorld;
 uniform vec3 specular;
 uniform float shininess;
 #endif

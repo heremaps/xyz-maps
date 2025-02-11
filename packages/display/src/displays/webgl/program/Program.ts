@@ -24,7 +24,7 @@ import introVertex from '../glsl/intro_vertex.glsl';
 // @ts-ignore
 import lightGLSL from '../glsl/light.glsl';
 import {ArrayGrp, DynamicUniform, GeometryBuffer, IndexData, IndexGrp, Uniform} from '../buffer/GeometryBuffer';
-import {BufferCache} from '../GLRender';
+import {BufferCache, ViewUniforms} from '../GLRender';
 import {Attribute} from '../buffer/Attribute';
 import {ConstantAttribute} from '../buffer/templates/TemplateBuffer';
 
@@ -258,10 +258,7 @@ class Program {
     }
 
     setUniform(name: string, data: any) {
-        let uset;
-        if (uset = this.uniformSetters[name]) {
-            uset(data);
-        }
+        this.uniformSetters[name]?.(data);
     }
 
     initUniforms(uniforms: UniformMap) {
@@ -274,6 +271,9 @@ class Program {
                 // console.warn('no uniform setter defined', name);
             }
         }
+    }
+
+    initViewUniforms(displayUniforms: ViewUniforms ) {
     }
 
     private setConstantAttributeValue(location: number, value: number[]) {

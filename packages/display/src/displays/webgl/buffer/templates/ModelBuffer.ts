@@ -329,7 +329,6 @@ export class ModelBuffer extends TemplateBuffer {
         return new FlexArray(isTypedArray(array) ? <TypedArray>array : new Float32Array(array));
     }
 
-
     flexAttributes: {
         a_tangent?: FlexAttribute | ConstantAttribute,
         a_position?: FlexAttribute,
@@ -447,7 +446,7 @@ export class ModelBuffer extends TemplateBuffer {
                 let maxYWorld = -Infinity;
                 let maxZWorld = -Infinity;
 
-                const groundRes = <number>buffer.uniforms.u_groundResolution || (1 / rayCaster.scaleZ);
+                const groundRes = 1 / (<number>buffer.uniforms.u_zMeterToPixel || rayCaster.scaleZ);
 
                 for (let p of box) {
                     // p[0] /= groundRes;

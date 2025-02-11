@@ -23,8 +23,8 @@ import vertexShader from '../glsl/icon_vertex.glsl';
 import fragmentShader from '../glsl/icon_fragment.glsl';
 
 import Program from './Program';
-import {GLStates, PASS} from './GLStates';
-import {GeometryBuffer} from '../buffer/GeometryBuffer';
+import {GLStates} from './GLStates';
+import {ViewUniforms} from '../GLRender';
 
 
 class IconProgram extends Program {
@@ -43,6 +43,10 @@ class IconProgram extends Program {
         this.mode = gl.TRIANGLES;
         this.vertexShaderSrc = vertexShader;
         this.fragmentShaderSrc = fragmentShader;
+    }
+
+    initViewUniforms(viewUniforms: ViewUniforms) {
+        this.setUniform('u_fixedView', viewUniforms.fixedView);
     }
 }
 

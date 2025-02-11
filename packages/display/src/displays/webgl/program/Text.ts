@@ -22,9 +22,10 @@ import vertexShader from '../glsl/text_vertex.glsl';
 // @ts-ignore
 import fragmentShader from '../glsl/text_fragment.glsl';
 
-import Program from './Program';
+import Program, {UniformMap} from './Program';
 import {GLStates, PASS} from './GLStates';
 import {GeometryBuffer} from '../buffer/GeometryBuffer';
+import {ViewUniforms} from '../GLRender';
 
 class TextProgram extends Program {
     name = 'Text';
@@ -70,6 +71,11 @@ class TextProgram extends Program {
 
         gl.uniform1f(uniforms.u_strokeOnly, 0);
         super.draw(geoBuffer);
+    }
+
+    override initViewUniforms(viewUniforms: ViewUniforms ) {
+        this.setUniform('u_rotate', viewUniforms.rz);
+        this.setUniform('u_fixedView', viewUniforms.fixedView);
     }
 }
 

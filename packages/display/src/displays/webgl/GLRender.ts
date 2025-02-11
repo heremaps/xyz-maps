@@ -111,6 +111,15 @@ export type RenderOptions = WebGLContextAttributes;
 
 export type BufferCache = WeakMap<Attribute | IndexData, WebGLBuffer>;
 
+
+export type ViewUniforms = {
+    fixedView: number;
+    rz: number;
+    elapsedTime: number;
+    inverseMatrix: Float32Array;
+}
+
+
 export class GLRender implements BasicRender {
     static DEFAULT_COLOR_MASK: ColorMask = {
         r: true, g: true, b: true, a: true
@@ -176,24 +185,24 @@ export class GLRender implements BasicRender {
 
     private sharedUniforms: {
         u_resolution: number[];
-        u_tileScale: number;
         u_matrix: Float32Array;
-        u_rotate: number;
         u_topLeft: number[];
-        u_inverseMatrix: Float32Array;
         u_scale: number;
-        u_groundResolution: number;
         u_zMeterToPixel: number;
-        u_fixedView: number;
         u_camWorld: Float64Array;
-        // elapsedTime in seconds
-        u_time: number;
     };
 
     private programConfig: { [name: string]: { program: typeof Program, default?: boolean, macros?: any } };
     private resolution: number[] = [];
     private startTime: number;
     distanceCam2Center: number;
+
+    private viewUniforms: ViewUniforms = {
+        rz: 0,
+        elapsedTime: 0,
+        fixedView: 0,
+        inverseMatrix: new Float32Array(16)
+    };
 
     constructor(renderOptions: RenderOptions) {
         this.ctxAttr = {
@@ -567,26 +576,31 @@ export class GLRender implements BasicRender {
 
         this.initSharedUniforms();
 
+        this.initDisplayUniforms();
+
         // clear tile preview matrix cache
         this.tilePreviewTransform.tx = null;
         this.tilePreviewTransform.ty = null;
         this.tilePreviewTransform.s = null;
     }
 
+    private initDisplayUniforms() {
+        const {viewUniforms} = this;
+        viewUniforms.rz = this.rz;
+        viewUniforms.elapsedTime = (Date.now() - this.startTime) / 1000.0;
+        viewUniforms.inverseMatrix = this.invVPMat;
+        viewUniforms.fixedView = this.fixedView;
+    }
+
+
     private initSharedUniforms() {
         this.sharedUniforms = {
-            'u_fixedView': this.fixedView,
-            'u_rotate': this.rz,
             'u_resolution': this.resolution,
             'u_scale': null, // this.scale * dZoom,
             'u_topLeft': [0, 0],
-            'u_tileScale': 1,
             'u_matrix': this.vPMat,
-            'u_inverseMatrix': this.invVPMat,
             'u_zMeterToPixel': null, // this.zMeterToPixel / dZoom,
-            'u_groundResolution': 1 / this.zMeterToPixel,
-            'u_camWorld': this.cameraWorld,
-            'u_time': (Date.now() - this.startTime) / 1000.0
+            'u_camWorld': this.cameraWorld
         };
     }
 
@@ -715,7 +729,7 @@ export class GLRender implements BasicRender {
         program.initAttributes(bufAttributes);
 
         program.initUniforms(this.sharedUniforms);
-
+        program.initViewUniforms(this.viewUniforms);
         program.initUniforms(uniforms);
     }
 
@@ -749,10 +763,12 @@ export class GLRender implements BasicRender {
                 }
                 // initialize shared uniforms
                 const {sharedUniforms} = this;
-                sharedUniforms.u_fixedView = this.fixedView; // must be set at render time
                 sharedUniforms.u_scale = this.scale * dZoom;
                 sharedUniforms.u_matrix = pMat || (buffer.pixelPerfect ? this.vPRasterMat : this.vPMat);
                 sharedUniforms.u_zMeterToPixel = this.zMeterToPixel / dZoom;
+
+                // must be set at render time
+                this.viewUniforms.fixedView = this.fixedView;
 
                 const uses2PassAlpha = buffer.needs2AlphaPasses();
                 let stencilRefVal = null;

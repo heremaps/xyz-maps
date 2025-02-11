@@ -344,10 +344,10 @@ const createBuffer = (
 
                                     if (type == 'Model') {
                                         geoBuffer.addUniform('u_meterToPixel', meterToPixel);
-                                        if (shared.modelMode) {
-                                            // terrain model -> scale xy in pixel
-                                            geoBuffer.addUniform('u_groundResolution', 1);
-                                        }
+
+                                        // terrain model -> scale xy in pixel
+                                        geoBuffer.addUniform('u_modelMode', shared.modelMode);
+
 
                                         if (!geoBuffer.attributes.a_normal) {
                                             const normals = geoBuffer.computeNormals();

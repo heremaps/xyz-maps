@@ -62,6 +62,7 @@ const createImageBuffer = (img: Image, gl: WebGLRenderingContext, size: number, 
         stride: 0
     });
 
+    tileBuffer.addUniform('u_tileScale', 1);
     tileBuffer.addUniform('u_sampler', new Texture(gl, img));
     tileBuffer.zIndex = 0;
     tileBuffer.clip = true;

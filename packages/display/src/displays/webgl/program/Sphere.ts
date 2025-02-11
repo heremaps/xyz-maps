@@ -19,6 +19,7 @@
 
 import BoxProgram from './Box';
 import {GeometryBuffer} from '../buffer/GeometryBuffer';
+import {BufferCache, ViewUniforms} from '../GLRender';
 
 
 class SphereProgram extends BoxProgram {
@@ -40,6 +41,10 @@ class SphereProgram extends BoxProgram {
 
     constructor(gl: WebGLRenderingContext, devicePixelRation: number) {
         super(gl, devicePixelRation, {SPHERE: true});
+    }
+
+    override initViewUniforms(displayUniforms: ViewUniforms) {
+        this.setUniform('u_inverseMatrix', displayUniforms.inverseMatrix);
     }
 }
 

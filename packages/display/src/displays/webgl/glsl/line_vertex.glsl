@@ -19,8 +19,6 @@ varying vec2 v_width;
 varying vec2 v_dir;
 
 uniform vec2 u_offset;
-
-uniform float u_tileScale;
 uniform bool u_no_antialias;
 uniform bool u_scaleByAltitude;
 
@@ -57,7 +55,7 @@ void main(void){
 
     vec2 position = a_position.xy + normal * -lineOffset / u_scale;
 
-    vec2 posCenterWorld = vec2(u_topLeft +position * u_tileScale);
+    vec2 posCenterWorld = vec2(u_topLeft + position);
 //    vec2 offset = dir.y * normal * width;
     vec2 offset = dir * normal * width;
 
