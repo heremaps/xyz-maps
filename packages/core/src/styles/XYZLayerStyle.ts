@@ -28,6 +28,7 @@ import {
 } from '../styles/LayerStyle';
 import {Expression, ExpressionMode, ExpressionParser, Color as Colors} from '@here/xyz-maps-common';
 import {TileLayer} from '../layers/TileLayer';
+import {LinearGradient} from './HeatmapStyle';
 
 const isTypedArray = (() => {
     const TypedArray = Object.getPrototypeOf(Uint8Array);
@@ -111,7 +112,7 @@ export class XYZLayerStyle implements LayerStyle {
      * @protected
      * @hidden
      */
-    skyColor: Colors.Color;
+    skyColor: Colors.Color | LinearGradient;
 
     /**
      *

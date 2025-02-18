@@ -19,11 +19,11 @@
 import {StyleExpression, StyleValueFunction, StyleZoomRange} from './LayerStyle';
 
 /**
- * LinearGradient
+ * Represents a linear gradient with color stops.
  *
  * @example
  * ```typescript
- * {
+ * const gradient: LinearGradient = {
  *     type: 'LinearGradient',
  *     stops: {
  *         1.0: 'white',
@@ -35,14 +35,18 @@ import {StyleExpression, StyleValueFunction, StyleZoomRange} from './LayerStyle'
  *         0.0: '#1E0073'
  *     }
  * };
+ * ```
  */
 export interface LinearGradient {
     /**
-     * The type is "LinearGradient".
+     * Specifies the gradient type.
+     * Must always be "LinearGradient".
      */
     type: 'LinearGradient',
     /**
-     * The stops of the LinearGradient
+     * Defines the color stops for the gradient.
+     * Keys represent stop positions (ranging from 0.0 to 1.0),
+     * where 0.0 is the start and 1.0 is the end of the gradient.
      */
     stops: {
         [stop: number]: string;
