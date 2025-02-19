@@ -188,19 +188,22 @@ export abstract class EditableFeatureProvider extends FeatureTileProvider {
      */
     abstract readTurnRestriction(turnFrom: { link: Navlink, index: number }, turnTo: { link: Navlink, index: number }): boolean;
 
+
     /**
-     * Attribute writer to store turn-restrictions of two Navlink Features.
+     * Attribute writer for writing a turn restriction between two Navlink features.
      *
      * This method must be implemented to enable editing of {@link editor.Navlink | Navlinks}.
+     * It defines whether a turn from one Navlink to another is permitted or restricted.
      *
-     * @param restricted - Indicates if the turn is allowed (true) or forbidden (false)
-     * @param turnFrom - The Navlink and it's coordinate index from which to turn from
-     * @param turnTo - The Navlink and it's coordinate index to which you want to turn
+     * @param restricted - Specifies whether the turn is forbidden (`true`) or allowed (`false`).
+     * @param turnFrom - The originating Navlink and its coordinate index from which the turn starts.
+     * @param turnTo - The destination Navlink and its coordinate index to which the turn is directed.
      */
-    abstract writeTurnRestriction(restricted: boolean, turnFrom: { link: Navlink, index: number }, turnTo: {
-        link: Navlink,
-        index: number
-    });
+    abstract writeTurnRestriction(
+        restricted: boolean,
+        turnFrom: { link: Navlink; index: number },
+        turnTo: { link: Navlink; index: number }
+    );
 
     /**
      * Attribute reader for obtaining the id of the TileProvider containing the corresponding Navlink, of an Address or Place feature, on which the RoutingPoint is located.
