@@ -47,7 +47,6 @@ class GlyphAtlas {
     spaceWidth: number;
     glyphs: number = 0;
     font;
-    fontScale: number;
 
     constructor(
         style: FontStyle,
@@ -63,7 +62,6 @@ class GlyphAtlas {
         this.baselineOffset = font.baselineOffset;
         this.rowHeight = font.rowHeight;
         this.spaceWidth = font.spaceWidth;
-        this.fontScale = font.fontScale;
 
         if (!size) {
             size = 1;
