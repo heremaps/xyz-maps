@@ -42,8 +42,28 @@ export type Glyph = {
     direction: number; // 1(LTR)|0(NEUTRAL)|-1(RTL)
 }
 
+type Font = {
+    canvas: HTMLCanvasElement;
+    textMetricsCache: Map<string, TextMetrics>;
+    ctx: CanvasRenderingContext2D;
+    scale: number;
+    glyphs: Map<string, Glyph>;
+    baselineOffset: number;
+    paddingX: number;
+    offsetX: number;
+    size: number;
+    name: string;
+    width: number;
+    style: FontStyle;
+    letterHeight: number;
+    letterHeightBottom: number;
+    spaceWidth: number;
+    paddingY: number;
+    rowHeight: number
+};
+
 class GlyphManager {
-    fonts = {};
+    private fonts: { [id: string]: Font } = {};
 
     static instance: GlyphManager;
 
@@ -60,7 +80,7 @@ class GlyphManager {
         // return `${style.font || DEFAULT_FONT}${style.strokeWidth || DEFAULT_STROKE_WIDTH}${style.textAlign || DEFAULT_TEXT_ALIGN}${scale}`;
     }
 
-    initFont(style: FontStyle, scale: number = 1) {
+    initFont(style: FontStyle, scale: number = 1): Font {
         const {fonts} = this;
         const styleId = this.getFontId(style, scale);
 
@@ -100,7 +120,7 @@ class GlyphManager {
                 offsetX: 2 * lineWidth * scale,
                 scale,
                 style,
-                charWidthCache: new Map<string, number>(),
+                textMetricsCache: new Map<string, TextMetrics>(),
                 rowHeight: rowHeight * scale,
                 letterHeightBottom: letterHeightBottom,
                 letterHeight: letterHeight,
@@ -117,7 +137,7 @@ class GlyphManager {
         return font.glyphs.has(char);
     }
 
-    getGlyph(char: string, font): Glyph {
+    getGlyph(char: string, font: Font): Glyph {
         let glyph = font.glyphs.get(char);
 
         if (!glyph) {
@@ -128,15 +148,15 @@ class GlyphManager {
 
             drawCharacter(font.ctx, char, font.paddingX, font.paddingY, font.style);
 
-            let charWidth = font.charWidthCache.get(char);
-            if (charWidth == undefined) {
-                charWidth = font.ctx.measureText(char).width;
+            let metrics = font.textMetricsCache.get(char);
+
+            if (!metrics) {
+                metrics = font.ctx.measureText(char);
             } else {
-                font.charWidthCache.delete(char);
+                font.textMetricsCache.delete(char);
             }
-
-
-            let width = Math.round((charWidth || 0) + 2 * font.paddingX) * scale;
+            const {width} = metrics;
+            const imgWidth = Math.round((width || 0) + 2 * font.paddingX) * scale;
 
             // debug only
             // let lw = font.ctx.lineWidth;
@@ -146,14 +166,15 @@ class GlyphManager {
             // font.ctx.lineWidth = lw;
             // font.ctx.strokeStyle = GLYPH_STROKE;
 
-            let imgData = font.ctx.getImageData(0, 0, width, font.rowHeight);
+            const imgData = font.ctx.getImageData(0, 0, imgWidth, font.rowHeight);
 
             glyph = {
+                // metrics,
                 char: char,
-                width: charWidth,
+                width,
                 data: imgData,
                 direction: getDirection(char.charCodeAt(0)),
-                advanceX: charWidth ? imgData.width - offsetX : 0
+                advanceX: width ? imgData.width - offsetX : 0
             };
 
             font.glyphs.set(char, glyph);
@@ -171,12 +192,12 @@ class GlyphManager {
             if (glyph) {
                 width += glyph.width;
             } else {
-                let w = font.charWidthCache.get(char);
-                if (w == undefined) {
-                    w = ctx.measureText(char).width;
-                    font.charWidthCache.set(char, w);
+                let metrics = font.textMetricsCache.get(char);
+                if (!metrics) {
+                    metrics = ctx.measureText(char);
+                    font.textMetricsCache.set(char, metrics);
                 }
-                width += w;
+                width += metrics.width;
             }
         }
         return width;

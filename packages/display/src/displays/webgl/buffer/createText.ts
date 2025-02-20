@@ -40,7 +40,7 @@ const findNextDir = (text, i, glyphAtlas) => {
     }
 };
 
-type TextData = { x: number; x2: number; offset: number; }
+type TextData = { x: number; boxWidth: number; offset: number; textWidth: number }
 
 const addGlyph = (c: string, glyphAtlas: GlyphAtlas, rotationZ: number, rotationY: number | undefined, positions: FlexArray, texcoords: FlexArray, data: TextData) => {
     let {offset, x} = data;
@@ -54,10 +54,9 @@ const addGlyph = (c: string, glyphAtlas: GlyphAtlas, rotationZ: number, rotation
     let p = positions.length;
     const texcoordData = texcoords.data;
     let t = texcoords.length;
-
-
     let rotationHi = rotationZ >> 5;
     let rotationLow = (rotationZ & 31);
+    let glyphWidth = 0;
 
     if (glyphInfo) {
         // let {u1, v1, u2, v2, glyph} = glyphInfo;
@@ -67,48 +66,53 @@ const addGlyph = (c: string, glyphAtlas: GlyphAtlas, rotationZ: number, rotation
         let v1 = glyphInfo.v1 << 5 | rotationHi;
         let v2 = glyphInfo.v2 << 5 | rotationHi;
         let {advanceX} = glyph;
+        glyphWidth = glyph.width;
+
         let {width, height} = glyph.data;
-        let sx = x * OFFSET_SCALE;
+
+        x2 = x + width;
+
+        const scaledX = x * OFFSET_SCALE;
+        const scaledX2 = x2 * OFFSET_SCALE;
 
         height *= OFFSET_SCALE;
-        x2 = sx + OFFSET_SCALE * width;
 
-        positionData[p++] = sx;
+        positionData[p++] = scaledX;
         positionData[p++] = 0;
 
         if (hasRotY) {
             positionData[p++] = rotationY;
         }
 
-        positionData[p++] = x2;
+        positionData[p++] = scaledX2;
         positionData[p++] = height;
 
         if (hasRotY) {
             positionData[p++] = rotationY;
         }
 
-        positionData[p++] = sx;
+        positionData[p++] = scaledX;
         positionData[p++] = height;
 
         if (hasRotY) {
             positionData[p++] = rotationY;
         }
 
-        positionData[p++] = x2;
+        positionData[p++] = scaledX2;
         positionData[p++] = 0;
 
         if (hasRotY) {
             positionData[p++] = rotationY;
         }
 
-        positionData[p++] = x2;
+        positionData[p++] = scaledX2;
         positionData[p++] = height;
 
         if (hasRotY) {
             positionData[p++] = rotationY;
         }
 
-        positionData[p++] = sx;
+        positionData[p++] = scaledX;
         positionData[p++] = 0;
 
         if (hasRotY) {
@@ -144,7 +148,8 @@ const addGlyph = (c: string, glyphAtlas: GlyphAtlas, rotationZ: number, rotation
 
     data.x = x;
     data.offset = offset;
-    data.x2 = x2;
+    data.boxWidth = x2;
+    data.textWidth += glyphWidth;
 };
 
 const addText = (
@@ -214,10 +219,11 @@ export const createTextData = (
     }
 
 
-    const txtData = {
+    const txtData: TextData = {
         x: 0,
-        x2: 0,
-        offset: 0
+        boxWidth: 0,
+        offset: 0,
+        textWidth: 0
     };
     let baseDirection;
     let prevDirection;
@@ -231,7 +237,11 @@ export const createTextData = (
         let char = text.charAt(i);
         let glyphInfo = glyphAtlas.glyphInfos[char];
         let isLast = i == len - 1;
-        let curDirection = glyphInfo?.glyph?.direction || 0; // -1,0,+1
+        let curDirection = 0;
+        const glyph = glyphInfo?.glyph;
+        if (glyph) {
+            curDirection = glyph.direction; // -1,0,+1
+        }
 
         if (!baseDirection) {
             if (char == ' ') { // neutral
@@ -282,13 +292,13 @@ export const createTextData = (
         prevChar = char;
     }
 
-    const {offset, x2} = txtData;
+    const width = txtData.boxWidth / glyphAtlas.scale;
 
     return {
-        count: offset / 2,
+        count: txtData.offset / 2,
         position: positions.data,
         texcoord: texcoords.data,
-        width: x2 / OFFSET_SCALE / glyphAtlas.scale
-        // height: glyphAtlas.letterHeight
+        width,
+        leftSideBearing: ( width - txtData.textWidth ) / 2
     };
 };
