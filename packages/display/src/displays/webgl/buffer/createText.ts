@@ -291,14 +291,10 @@ export const createTextData = (
         }
         prevChar = char;
     }
-
-    const width = txtData.boxWidth / glyphAtlas.scale;
-
     return {
         count: txtData.offset / 2,
         position: positions.data,
         texcoord: texcoords.data,
-        width,
-        leftSideBearing: ( width - txtData.textWidth ) / 2
+        width: txtData.boxWidth
     };
 };

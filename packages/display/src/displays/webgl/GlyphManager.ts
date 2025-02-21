@@ -104,16 +104,16 @@ class GlyphManager {
             // ctx.textBaseline = 'top'; // 'middle'
 
             const {lineWidth} = ctx;
-            const paddingX = Math.floor(lineWidth);
-            const paddingY = Math.floor(/* 2* */lineWidth);
+            const paddingX = Math.ceil(lineWidth/2);
+            const paddingY = Math.ceil(lineWidth/2);
             const rowHeight = (letterHeight + 2 * paddingY);
 
             fonts[styleId] = {
                 name: styleId,
                 size: 0,
                 glyphs: new Map<string, Glyph>(),
-                paddingX: paddingX,
-                paddingY: paddingY,
+                paddingX,
+                paddingY,
                 canvas,
                 ctx,
                 width: size,
@@ -142,31 +142,41 @@ class GlyphManager {
 
         if (!glyph) {
             let size = font.canvas.width;
-            let {offsetX, scale} = font;
+            let {ctx, scale, paddingX} = font;
 
-            font.ctx.clearRect(0, 0, size, size);
+            ctx.clearRect(0, 0, size, size);
 
-            drawCharacter(font.ctx, char, font.paddingX, font.paddingY, font.style);
+            drawCharacter(ctx, char, paddingX, font.paddingY, font.style);
 
             let metrics = font.textMetricsCache.get(char);
 
             if (!metrics) {
-                metrics = font.ctx.measureText(char);
+                metrics = ctx.measureText(char);
             } else {
                 font.textMetricsCache.delete(char);
             }
-            const {width} = metrics;
-            const imgWidth = Math.round((width || 0) + 2 * font.paddingX) * scale;
 
-            // debug only
+            const {width} = metrics;
+            const imgWidth = Math.round(width + 2 * paddingX) * scale;
+
+            // ---- debug only ----
             // let lw = font.ctx.lineWidth;
             // font.ctx.lineWidth = 2;
             // font.ctx.strokeStyle = 'black';
-            // font.ctx.strokeRect(0, 0, width / scale, font.rowHeight / scale);
+            // font.ctx.strokeRect(0, 0, imgWidth, font.rowHeight / scale);
             // font.ctx.lineWidth = lw;
             // font.ctx.strokeStyle = GLYPH_STROKE;
 
-            const imgData = font.ctx.getImageData(0, 0, imgWidth, font.rowHeight);
+            const imgData = ctx.getImageData(0, 0, imgWidth, font.rowHeight);
+
+            // ---- debug only ----
+            // (function(imgData, width, height) {
+            //     const canvas = createCanvas(width, height);
+            //     canvas.getContext('2d').putImageData(imgData, 0, 0);
+            //     const img = document.createElement('img');
+            //     img.src = canvas.toDataURL('image/png');
+            //     document.body.appendChild(img);
+            // })(imgData, imgWidth, font.rowHeight);
 
             glyph = {
                 // metrics,
@@ -174,7 +184,7 @@ class GlyphManager {
                 width,
                 data: imgData,
                 direction: getDirection(char.charCodeAt(0)),
-                advanceX: width ? imgData.width - offsetX : 0
+                advanceX: width * scale
             };
 
             font.glyphs.set(char, glyph);

@@ -87,7 +87,7 @@ const addText = (
     for (let text of lines) {
         const textData = createTextData(text, glyphAtlas, offsets, textureCoordinates, rotationZ, rotationY);
         const vertexCnt = textData.count * dim;
-        const tx = (textData.width * anchorOffset.x * glyphAtlas.scale + textData.leftSideBearing) * OFFSET_SCALE;
+        const tx = textData.width * anchorOffset.x * OFFSET_SCALE;
 
         vertex.reserve(vertexCnt);
 
