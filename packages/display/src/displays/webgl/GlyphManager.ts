@@ -18,7 +18,7 @@
  */
 import {getDirection} from './unicode';
 import {FontStyle} from './GlyphTexture';
-import {initFont, determineFontHeight, drawCharacter} from '../textUtils';
+import {initFont, drawCharacter} from '../textUtils';
 
 const DEFAULT_STROKE_WIDTH = 1;
 const DEFAULT_FONT = 'normal 12px Arial';
@@ -50,13 +50,11 @@ type Font = {
     glyphs: Map<string, Glyph>;
     baselineOffset: number;
     paddingX: number;
-    offsetX: number;
     size: number;
     name: string;
     width: number;
     style: FontStyle;
     letterHeight: number;
-    letterHeightBottom: number;
     spaceWidth: number;
     paddingY: number;
     rowHeight: number
@@ -85,17 +83,28 @@ class GlyphManager {
         const styleId = this.getFontId(style, scale);
 
         if (!fonts[styleId]) {
+            style.strokeWidth ??= 1;
+
             const size = 96 * scale;
             const canvas = createCanvas(size, size);
             const ctx = canvas.getContext('2d', {willReadFrequently: true});
 
-            ctx.textBaseline = 'bottom';
-            const letterHeightBottom = determineFontHeight(ctx, style, 'gM').height;
+            // ctx.textBaseline = 'bottom';
+            // const letterHeightBottom = determineFontHeight(ctx, style, 'gM').height;
+            // ctx.textBaseline = 'top';
+            // let letterHeight = determineFontHeight(ctx, style, 'gM').height;
+            // let baseLineOffset = (letterHeight - letterHeightBottom) / 2;
 
             ctx.textBaseline = 'top';
-            const letterHeight = determineFontHeight(ctx, style, 'gM').height;
-
             initFont(ctx, style, GLYPH_FILL, GLYPH_STROKE);
+
+
+            const strokePadding = Math.ceil(style.strokeWidth / 2);
+            const paddingX = strokePadding;
+            const accentHeight = ctx.measureText('Ä').actualBoundingBoxAscent;
+            const paddingY = Math.ceil(strokePadding + accentHeight);
+            const baseLineOffset = Math.ceil(this.getLetterHeight(ctx, 'bottom') / 2);
+            const letterHeight = Math.ceil(this.getLetterHeight(ctx, 'top') + strokePadding) + 1;
 
             // determine font height on scaled canvas is less precise
             // so we determine unscaled and scale afterwards
@@ -103,10 +112,8 @@ class GlyphManager {
             // ctx.textAlign = 'start'; // 'center'
             // ctx.textBaseline = 'top'; // 'middle'
 
-            const {lineWidth} = ctx;
-            const paddingX = Math.ceil(lineWidth/2);
-            const paddingY = Math.ceil(lineWidth/2);
-            const rowHeight = (letterHeight + 2 * paddingY);
+
+            const rowHeight = Math.ceil(letterHeight + paddingY);
 
             fonts[styleId] = {
                 name: styleId,
@@ -117,15 +124,13 @@ class GlyphManager {
                 canvas,
                 ctx,
                 width: size,
-                offsetX: 2 * lineWidth * scale,
                 scale,
                 style,
                 textMetricsCache: new Map<string, TextMetrics>(),
                 rowHeight: rowHeight * scale,
-                letterHeightBottom: letterHeightBottom,
-                letterHeight: letterHeight,
+                letterHeight,
                 spaceWidth: ctx.measureText(' ').width * scale,
-                baselineOffset: scale * ((letterHeight - letterHeightBottom) / 2 + paddingY) // middle
+                baselineOffset: scale * (baseLineOffset + paddingY) // middle
                 // this.baselineOffset = 0; // top
                 // this.baselineOffset = (letterHeight - letterHeightBottom); // bottom
             };
@@ -212,6 +217,12 @@ class GlyphManager {
         }
         return width;
     }
+
+    private getLetterHeight(ctx: CanvasRenderingContext2D, textBaseline: CanvasTextBaseline): number {
+        ctx.textBaseline = textBaseline;
+        const textMetrics = ctx.measureText('gM');
+        return textMetrics.actualBoundingBoxDescent + textMetrics.actualBoundingBoxAscent;
+    };
 }
 
 export {GlyphManager};
