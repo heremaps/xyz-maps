@@ -86,7 +86,7 @@ const mat4 = {
 
 const PI2 = 2 * Math.PI;
 const DEG_2_RAD = Math.PI / 180;
-const FIELD_OF_VIEW = 38 * DEG_2_RAD;
+const FIELD_OF_VIEW = 40 * DEG_2_RAD;
 // Calculates the critical pitch angle where the view frustum reaches its limit.
 // Beyond this angle, the calculation for zFar becomes unstable or negative.
 const CRITICAL_PITCH = Math.PI / 2 - Math.atan(Math.tan(FIELD_OF_VIEW / 2));

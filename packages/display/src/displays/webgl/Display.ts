@@ -47,7 +47,8 @@ import {Color as Colors} from '@here/xyz-maps-common';
 
 const {toRGB} = Colors;
 
-export const MAX_PITCH_GRID = 68 / 180 * Math.PI;
+// determined through experimentation to find the best balance between performance and view distance.
+export const MAX_PITCH_GRID = 66.33 / 180 * Math.PI;
 
 const PREVIEW_LOOK_AHEAD_LEVELS: [number, number] = [3, 9];
 

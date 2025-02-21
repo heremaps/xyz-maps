@@ -38,7 +38,7 @@ describe('range selector drag', () => {
     let link3;
 
     before(async () => {
-        chai.use(chaiAlmost());
+        chai.use(chaiAlmost(1e-8));
         preparedData = await prepare(dataset);
         display = new Map(document.getElementById('map'), {
             center: {longitude: -105.145534, latitude: 35.374829},
@@ -119,7 +119,7 @@ describe('range selector drag', () => {
         await drag(mapContainer, {x: 350, y: 217}, {x: 350, y: 250});
 
         expect(draggedZone.segments[0]).to.deep.include({
-            from: 0.44687746,
+            from: 0.446889377,
             to: 0.721236961,
             reversed: false
         });
@@ -155,7 +155,7 @@ describe('range selector drag', () => {
             to: 0.8
         });
         expect(info[1].segments[0]).to.deep.include({
-            from: 0.44687746,
+            from: 0.446889377,
             to: 0.721236961,
             reversed: false
         });

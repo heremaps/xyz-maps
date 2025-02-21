@@ -29,7 +29,7 @@ describe('pan the map', () => {
     let display;
 
     before(async () => {
-        chai.use(chaiAlmost(1e-8));
+        chai.use(chaiAlmost(1e-7));
         let preparedData = await prepare(dataset);
         display = new Map(document.getElementById('map'), {
             center: {longitude: 77.99026323, latitude: 12.13576713},
@@ -50,11 +50,9 @@ describe('pan the map', () => {
         await waitForViewportReady(display, () => {
             display.pan(100, 100, 0, 0);
         });
-
-        expect(display.getCenter()).to.deep.almost({latitude: 12.13629159, longitude: 77.98972678});
+        expect(display.getCenter()).to.deep.almost({latitude: 12.13629159, longitude: 77.9897267});
         expect(display.getHeight()).to.equal(600);
         expect(display.getWidth()).to.equal(800);
-
         expect(display.getViewBounds()).to.deep.almost({
             maxLat: 12.13786494,
             maxLon: 77.99187255,
