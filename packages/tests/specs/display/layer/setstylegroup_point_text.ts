@@ -162,7 +162,7 @@ describe('setStyleGroup Point with text', function() {
                 {'zIndex': 1, 'type': 'Text', 'fill': '#000000', 'text': FULL_BLOCK_CHAR, 'font': FONT, 'offsetY': -24}
             ]);
 
-        let colors = await getCanvasPixelColor(mapContainer, [{x: 400, y: 250}, {x: 400, y: 280}, {x: 400, y: 305}]);
+        let colors = await getCanvasPixelColor(mapContainer, [{x: 400, y: 245}, {x: 400, y: 275}, {x: 400, y: 305}]);
 
         expect(colors[0]).to.equal('#ff0000');
         expect(colors[1]).to.equal('#000000');
@@ -185,7 +185,7 @@ describe('setStyleGroup Point with text', function() {
             ]);
 
         let colors = await getCanvasPixelColor(mapContainer, [
-            {x: 400, y: 325}, {x: 425, y: 355}, {x: 445, y: 325}, {x: 425, y: 300}, {x: 425, y: 325}
+            {x: 400, y: 325}, {x: 425, y: 355}, {x: 450, y: 325}, {x: 420, y: 295}, {x: 425, y: 325}
         ]);
 
         expect(colors[0]).to.equal('#ff0000');
