@@ -67,6 +67,10 @@
     {
       "file": "./display/custom_lightning.html",
       "docs": "interfaces/core.layerstyle.html#lights"
+    },
+    {
+      "file": "./display/world_repetition_modes.html",
+      "docs": "interfaces/display.mapoptions.html#singleworldview"
     }
   ],
   "Editor": [

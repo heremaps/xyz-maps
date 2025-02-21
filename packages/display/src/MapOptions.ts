@@ -149,7 +149,9 @@ export interface MapOptions {
      * - `true`: Restricts repetition on both the latitude (Y-axis) and longitude (X-axis).
      * - `false`: Allows infinite repetition on both axes.
      * - `'latitude'`: Restricts repetition only on the latitude (Y-axis), allowing infinite panning on the X-axis.
-     * - `'both'`: Restricts repetition on both axes (latitude and longitude).
+     * - `'both'`: Restricts repetition on both latitude and longitude axes.
+     *
+     * When set to `true` or `'latitude'`, zooming out is limited to prevent the map from repeating, allowing it to cover the entire visible area without repetition.
      *
      * @default false
      */
