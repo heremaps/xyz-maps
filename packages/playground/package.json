@@ -1,6 +1,6 @@
 {
   "name": "@here/xyz-maps-playground",
-  "version": "0.40.2",
+  "version": "0.41.0",
   "description": "Playground for XYZ editor.",
   "author": {
     "name": "HERE Europe B.V.",
@@ -19,10 +19,10 @@
     "dev": "rollup -c -w --bundleConfigAsCjs"
   },
   "dependencies": {
-    "@here/xyz-maps-common": "^0.40.2",
-    "@here/xyz-maps-core": "^0.40.2",
-    "@here/xyz-maps-display": "^0.40.2",
-    "@here/xyz-maps-editor": "^0.40.2",
+    "@here/xyz-maps-common": "^0.41.0",
+    "@here/xyz-maps-core": "^0.41.0",
+    "@here/xyz-maps-display": "^0.41.0",
+    "@here/xyz-maps-editor": "^0.41.0",
     "@monaco-editor/react": "^4.4.5",
     "monaco-editor": "^0.34.0",
     "react": "^18.2.0",
@@ -34,13 +34,13 @@
     "@rollup/plugin-json": "^4.1.0",
     "@rollup/plugin-node-resolve": "^16.0.0",
     "@rollup/plugin-replace": "^4.0.0",
+    "@rollup/plugin-terser": "^0.4.4",
     "@rollup/plugin-typescript": "^12.1.2",
     "@rollup/plugin-virtual": "^2.1.0",
     "postcss": "^8.4.16",
     "rollup": "^3.29.5",
     "rollup-plugin-copy": "^3.4.0",
     "rollup-plugin-postcss": "^4.0.2",
-    "@rollup/plugin-terser": "^0.4.4",
     "sass": "^1.54.5",
     "tslib": "^2.4.0",
     "typescript": "^4.7.4"

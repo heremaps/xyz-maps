@@ -1,6 +1,6 @@
 {
   "name": "@here/xyz-maps-common",
-  "version": "0.40.2",
+  "version": "0.41.0",
   "description": "Commonly used libraries of XYZ Maps.",
   "author": {
     "name": "HERE Europe B.V.",
@@ -29,9 +29,9 @@
   "browser": {},
   "publishConfig": {},
   "devDependencies": {
+    "@rollup/plugin-terser": "^0.4.4",
     "@rollup/plugin-typescript": "^12.1.2",
     "rollup": "^3.29.5",
-    "@rollup/plugin-terser": "^0.4.4",
     "tslib": "^2.4.0",
     "typescript": "^4.7.4"
   },

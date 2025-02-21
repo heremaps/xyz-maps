@@ -1,3 +1,18 @@
+## 0.41.0 (2025-2-21)
+### general
+* improved: Upgraded the minimum runtime JavaScript target for all packages to ES2017.
+### editor
+* added: overlay features now auto-toggle based on edit layers visibility.
+### display
+* improved: Enhanced balance between performance and view distance by optimizing grid size at very high pitch
+* improved: Horizontal text positioning accuracy enhanced, especially with [textAnchor](https://heremaps.github.io/xyz-maps/docs/interfaces/core.textstyle.html#textanchor) enabled
+* added: Icons/Images now support texture atlases up to 4096 pixels in size.
+* added: collision detection now handles mixed tile sizes more effectively and supports tile sizes of 1024 and larger.
+* added: Introduced [singleWorldView](https://heremaps.github.io/xyz-maps/docs/interfaces/display.mapoptions.html#singleworldview) option to control map view repetition on the horizontal and vertical axes, allowing control over one or both axes, or enabling infinite repetition.
+* added: add adaptive tile loading to dynamically select larger tiles from higher zoom levels for distant areas, improving performance, rendering efficiency, and viewing distance for high pitch map views.
+* fixed: prevent temporary incorrect scaling of 3D Models during tile preview
+* fixed: address brief flashing issue in styles rendering requiring two alpha passes
+
 ## 0.40.2 (2024-12-10)
 ### display
 * fixed: prevent potential brief preview tile flickering for clipped data sources
