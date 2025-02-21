@@ -106,12 +106,8 @@ class GlyphManager {
             const baseLineOffset = Math.ceil(this.getLetterHeight(ctx, 'bottom') / 2);
             const letterHeight = Math.ceil(this.getLetterHeight(ctx, 'top') + strokePadding) + 1;
 
-            // determine font height on scaled canvas is less precise
-            // so we determine unscaled and scale afterwards
-            ctx.setTransform(scale, 0, 0, scale, 0, 0);
-            // ctx.textAlign = 'start'; // 'center'
-            // ctx.textBaseline = 'top'; // 'middle'
 
+            ctx.setTransform(scale, 0, 0, scale, 0, 0);
 
             const rowHeight = Math.ceil(letterHeight + paddingY);
 
