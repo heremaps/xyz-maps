@@ -443,8 +443,16 @@ export class CollisionHandler {
     ) {
         const layerId = this.getLayerId(layer);
 
+        // When tiles are repeated due to the singleWorldView setting, we skip processing them for collision detection.
+        // This prevents redundant checks and ensures they don't incorrectly collide with themselves,
+        // which could cause them to become invisible.
+        const skipRepeatedTiles = new Set<string>();
+
         for (let screentile of tiles) {
             const {quadkey, scale: tileScale} = screentile;
+
+            if (skipRepeatedTiles.has(quadkey)) continue;
+            skipRepeatedTiles.add(quadkey);
 
             const zoom = quadkey.length;
             const tileCache = this.getTileCache(zoom);
