@@ -26,7 +26,8 @@ void main(void){
     }
 
     #ifdef DASHARRAY
-        float dashSize = v_dashSize.x;
+        // Ensure dashSize remains valid: if set to 0 (dynamic uniform), set to large value to force a solid line
+        float dashSize = v_dashSize.x + (1.0 - step(0.1, v_dashSize.x)) * 1e5;
         float gapSize = v_dashSize.y;
         float totalDashSize = dashSize + gapSize;
 
