@@ -172,6 +172,8 @@ class Program {
         switch (uInfo.type) {
         case gl.FLOAT:
             return (v) => gl.uniform1f(location, v);
+        case gl.FLOAT_MAT3:
+            return (v) => gl.uniformMatrix3fv(location, false, v);
         case gl.FLOAT_MAT4:
             return (v) => gl.uniformMatrix4fv(location, false, v);
         case gl.FLOAT_VEC2:
