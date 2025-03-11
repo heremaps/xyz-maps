@@ -34,7 +34,10 @@ Item.prototype.next = null;
 
 Item.prototype.prev = null;
 
-
+/**
+ * LRU Cache
+ * @hidden
+ */
 export default class LRU<TYPE> {
     constructor( max: number ) {
         this.max = max || 5e3;
