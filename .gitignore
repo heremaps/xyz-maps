@@ -6,6 +6,7 @@ credentials.json
 debug/token.js
 docs/
 deploy/
+.DS_Store
 .npmrc
 .eslintcache
 .pnp.*
