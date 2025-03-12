@@ -20,56 +20,90 @@
 (function() {
     let UNDEF;
     //* **************************************************
-    let alpha = 0;
-    let _x;
-    let _y;
-    let r = 20;
-
-    function stop() {
-        console.log('stop');
-        alpha = 0;
-        _x = cx + r * Math.cos(r);
-        _y = cy + r * Math.sin(r);
-        cancelAnimationFrame(afid || 0);
-        afid = UNDEF;
-    }
-
-    function rotate() {
-    // afid = requestAnimationFrame(rotate);
-
-        alpha = (alpha + 0.1) % 360;
-        cx = innerWidth / 2;
-        cy = innerHeight / 2;
-
-        let x = cx + r * Math.cos(alpha);
-        let y = cy + r * Math.sin(alpha);
-
-        display.pan(x - _x, y - _y);
-
-        _x = x;
-        _y = y;
-
-        afid = requestAnimationFrame(rotate);
-    }
-
-    window.onkeyup = function(e) {
-        if (window.display) {
-            if ((e.keyCode ? e.keyCode : e.which) == 65) { // a
-                toggleRotateAnimation();
+    const animations = {
+        animations: [],
+        afid: 0,
+        animateMap() {
+            if (!this.animations.length) return;
+            this.animations.forEach((animator) => animator());
+            this.afid = requestAnimationFrame(() => this.animateMap());
+        },
+        toggleAnimation(animation) {
+            const index = this.animations.indexOf(animation);
+            if (index == -1) {
+                this.animations.push(animation);
+                if (this.animations.length == 1) {
+                    this.animateMap();
+                }
+            } else {
+                this.animations.splice(index, 1);
+                if (!this.animations.length) {
+                    cancelAnimationFrame(this.afid);
+                }
             }
         }
     };
 
+
+    function panAnimation() {
+        const alpha = panAnimation.alpha = ((panAnimation.alpha || 0) + 0.1) % 360;
+        cx = innerWidth / 2;
+        cy = innerHeight / 2;
+        const r = 20;
+        const x = cx + r * Math.cos(alpha);
+        const y = cy + r * Math.sin(alpha);
+        dbgTools.getDisplay().pan(x - panAnimation._x || 0, y - panAnimation._y || 0);
+        panAnimation._x = x;
+        panAnimation._y = y;
+    }
+
+    const rotateAnimation = () => {
+        dbgTools.getDisplay().rotate((display.rotate() + .4) % 360);
+    };
+
+    const animateLight = () => {
+        const rotateZ = (p, rad) => {
+            const cos = Math.cos(rad);
+            const sin = Math.sin(rad);
+            p[0] = p[0] * cos - p[1] * sin;
+            p[1] = p[0] * sin + p[1] * cos;
+            return p;
+        };
+
+
+        const display = dbgTools.getDisplay();
+        const animateLayerLights = (layer) => {
+            const lights = layer.getStyleManager().getLights();
+            if (!lights) return;
+            for (let name in lights) {
+                for (let light of lights[name]) {
+                    if (light.direction) {
+                        rotateZ(light.direction, Math.PI / 180);
+                    }
+                }
+            }
+            layer.getStyleManager().setLights(lights);
+        };
+        display.getLayers().forEach(animateLayerLights);
+        display.refresh();
+    };
     //* **************************************************
-    window.toggleRotateAnimation = () => (window.afid == UNDEF) ? rotate() : stop();
     window.frames = 0;
     window.total_time = 0;
     window.renderTotalTime = 0;
 
 
     document.addEventListener('keydown', function(e) {
-        if (e.code == 'KeyL') {
-            animateLight();
+        switch (e.code) {
+        case 'KeyL':
+            animations.toggleAnimation(animateLight);
+            break;
+        case 'KeyR':
+            animations.toggleAnimation(rotateAnimation);
+            break;
+        case 'KeyA':
+            animations.toggleAnimation(panAnimation);
+            break;
         }
     });
 
@@ -85,14 +119,14 @@
             if (!dbgLayer) {
                 const map = dbgTools.getDisplay();
                 map.addLayer(dbgLayer =
-                    new here.xyz.maps.layers.TileLayer({
-                        name: 'DbgLayer',
-                        min: 2, max: 30,
-                        pointerEvents: false,
-                        adaptiveGrid: true,
-                        tileSize: 512,
-                        provider: new here.xyz.maps.providers.LocalProvider({editable: false})
-                    }));
+          new here.xyz.maps.layers.TileLayer({
+              name: 'DbgLayer',
+              min: 2, max: 30,
+              pointerEvents: false,
+              adaptiveGrid: true,
+              tileSize: 512,
+              provider: new here.xyz.maps.providers.LocalProvider({editable: false})
+          }));
                 map._display.layers.get(dbgLayer).skipDbgGrid = true;
             }
             return dbgLayer;
@@ -316,44 +350,11 @@
             }, [{
                 zIndex: 1000,
                 type: 'Polygon',
-                fill: color||'#FF722055',
+                fill: color || '#FF722055',
                 stroke: '#FF7220',
                 strokeWidth: 10
             }]);
         }
-    };
-
-    let lightAnimated = false;
-    const animateLight = () => {
-        lightAnimated = !lightAnimated;
-        const rotateZ = (p, rad) => {
-            const cos = Math.cos(rad);
-            const sin = Math.sin(rad);
-            p[0] = p[0] * cos - p[1] * sin;
-            p[1] = p[0] * sin + p[1] * cos;
-            return p;
-        };
-
-        const animate = () => {
-            const display = dbgTools.getDisplay();
-            const animateLayerLights = (layer) => {
-                const lights = layer.getStyleManager().getLights();
-                if (!lights) return;
-                for (let name in lights) {
-                    for (let light of lights[name]) {
-                        if (light.direction) {
-                            rotateZ(light.direction, Math.PI / 180);
-                        }
-                    }
-                }
-                layer.getStyleManager().setLights(lights);
-            };
-            display.getLayers().forEach(animateLayerLights);
-
-            display.refresh();
-            if (lightAnimated) requestAnimationFrame(animate);
-        };
-        if (lightAnimated) animate();
     };
 
     window.dbgTools = dbgTools;
