@@ -84,17 +84,14 @@ const JSUtils = {
 
     loglevel: 'debug',
 
-    dump: (msg: string, loglevel?: string) => {
+    dump: function(msg: string, loglevel?: string) {
         const debug = !!JSUtils.loglevel;
-        // @ts-ignore
-        const args = Array.prototype.slice.call(arguments);
-        let level = args[args.length - 1];
-        const console = window.console;
-
+        const {console} = window;
         if (debug && !!console) {
+            const args = Array.prototype.slice.call(arguments);
+            let level = args[args.length - 1];
             if (level in console) args.pop();
             else level = 'log';
-
             // workaround for IE9, in which console.log is not an instance of Function
             if (debug === true || debug === level) {
                 if (Function.prototype.bind && typeof console.log == 'object') {
