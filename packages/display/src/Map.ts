@@ -1651,6 +1651,8 @@ export class Map {
             // make sure map is fully initialised
             if (this._display) {
                 this._display.setSize(width, height);
+                // ensure `singleWorldView` is respected and prevent map repetition when resizing the map
+                this.setZoomlevel(this.getZoomlevel());
                 this.updateGrid();
                 this._l.trigger('resize', [new MapEvent('resize', {width: width, height: height})]);
             }
