@@ -16,7 +16,7 @@
  * SPDX-License-Identifier: Apache-2.0
  * License-Filename: LICENSE
  */
-import {Texture} from '../Texture';
+import {Texture, TextureOptions} from '../Texture';
 import {ModelBuffer} from './templates/ModelBuffer';
 import {TemplateBufferBucket} from './templates/TemplateBufferBucket';
 import {ModelData} from '@here/xyz-maps-core';
@@ -40,6 +40,13 @@ type Model = {
         count?: number;
     }[];
 };
+
+interface MaterialUniforms extends Omit<Material, 'diffuseMap' | 'specularMap' | 'normalMap'> {
+    diffuseMap?: ModelTexture | string;
+    specularMap?: ModelTexture | string;
+    normalMap?: ModelTexture | string;
+    u_textureSize?: number[];
+}
 
 type ModelTextures = {
     [id: string]: ModelTexture;
@@ -92,10 +99,10 @@ class ModelFactory {
         return this.initModel(url, data);
     }
 
-    private initTexture(name: string, imgData: TextureData, textures: ModelTextures) {
+    private initTexture(name: string, imgData: TextureData, textures: ModelTextures, options?: TextureOptions) {
         let texture = textures[name];
         if (!texture) {
-            texture = new ModelTexture(this.gl, imgData, {flipY: true, wrapS: this.gl.REPEAT, wrapT: this.gl.REPEAT});
+            texture = new ModelTexture(this.gl, imgData, options);
             textures[name] = texture;
         }
         return texture;
@@ -145,6 +152,7 @@ class ModelFactory {
                     material.pointSize = 0;
                 }
                 delete material.mode;
+                material.pointSize = (material.mode == 'Points') ? (material.pointSize ?? 1) : 0;
 
                 if (!attributes) {
                     attributes = ModelBuffer.init(geom);
@@ -157,15 +165,45 @@ class ModelFactory {
 
                 const bbox = (geom.bbox ||= ModelBuffer.calcBBox(geom));
 
+                const uniforms: MaterialUniforms = material;
+
+
                 for (let key in material) {
                     if (key.endsWith('Map')) {
-                        const textureName = material[key];
+                        const textureName = uniforms[key];
                         const imgData = imgTexData[textureName];
-                        material[key] = this.initTexture(textureName, imgData, modelTextures);
+
+                        let wrap = material.wrap;
+                        let wrapS: GLenum = this.gl.REPEAT;
+                        let wrapT: GLenum = this.gl.REPEAT;
+
+                        if (typeof wrap == 'string') {
+                            wrap = [wrap, wrap];
+                        }
+
+                        if (Array.isArray(wrap)) {
+                            [wrapS, wrapT] = wrap.map((w) => w == 'clamp'
+                                ? this.gl.CLAMP_TO_EDGE
+                                : w == 'mirror'
+                                    ? this.gl.MIRRORED_REPEAT
+                                    : this.gl.REPEAT
+                            );
+                        }
+
+                        uniforms[key] = this.initTexture(textureName, imgData, modelTextures, {flipY: material.flipY, wrapS, wrapT});
                     }
                 }
 
                 parts.push({attributes, bbox, uniforms: material, index, first: face.start, count: face.count});
+                const diffuseMap = uniforms.diffuseMap as ModelTexture;
+                if (!uniforms.useUVMapping && diffuseMap) {
+                    uniforms.u_textureSize = [diffuseMap.width, diffuseMap.height];
+                }
+
+                // cleanup to be used as uniforms
+                delete uniforms.mode;
+
+                parts.push({attributes, bbox, uniforms, index, first: face.start, count: face.count});
             }
 
             this.models[id] = {textures: modelTextures, parts};

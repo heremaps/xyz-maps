@@ -59,6 +59,14 @@ export interface Material {
     diffuseMap?: string;
 
     /**
+     * Texture wrapping mode for the U (horizontal) and V (vertical) directions.
+     * Supported values are 'clamp', 'repeat', and 'mirror'.
+     *
+     * @defaultValue 'repeat'
+     */
+    wrap?: 'clamp' | 'repeat' | 'mirror' | [wrapS: 'clamp' | 'repeat' | 'mirror', wrapT: 'clamp' | 'repeat' | 'mirror'];
+
+    /**
      * The shininess of the material determines how shiny the {@link Material.specular | specular} highlights are rendered.
      * A higher value results in a sharper, more focused highlight, while lower values cause the highlight to become more blown out.
      * The value range is from 0 to 1000.
