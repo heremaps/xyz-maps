@@ -194,7 +194,7 @@ class ModelFactory {
                     }
                 }
 
-                parts.push({attributes, bbox, uniforms: material, index, first: face.start, count: face.count});
+
                 const diffuseMap = uniforms.diffuseMap as ModelTexture;
                 if (!uniforms.useUVMapping && diffuseMap) {
                     uniforms.u_textureSize = [diffuseMap.width, diffuseMap.height];
