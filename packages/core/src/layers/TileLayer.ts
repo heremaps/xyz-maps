@@ -106,7 +106,6 @@ export class TileLayer extends Layer {
             min: DEFAULT_LAYER_MIN_ZOOM,
             max: DEFAULT_LAYER_MAX_ZOOM,
             margin: 20,
-            levelOffset: 0,
             tiled: true,
             adaptiveGrid: false,
             ...options
@@ -159,7 +158,7 @@ export class TileLayer extends Layer {
             this.tileSize = tileSize;
         }
 
-        this.levelOffset = getProviderZoomOffset(this.tileSize);
+        this.levelOffset ??= getProviderZoomOffset(this.tileSize);
 
         layer._p.forEach((provider, i) => {
             if (provider) {
