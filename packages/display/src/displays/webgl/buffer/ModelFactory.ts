@@ -19,7 +19,7 @@
 import {Texture, TextureOptions} from '../Texture';
 import {ModelBuffer} from './templates/ModelBuffer';
 import {TemplateBufferBucket} from './templates/TemplateBufferBucket';
-import {ModelData} from '@here/xyz-maps-core';
+import {ModelData, Material} from '@here/xyz-maps-core';
 import {ObjParser} from '../ObjParser';
 import {vec3} from '@here/xyz-maps-common';
 

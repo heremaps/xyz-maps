@@ -121,6 +121,9 @@ export interface Material {
      * @defaultValue 1
      */
     opacity?: number;
+
+    useUVMapping?: boolean;
+    flipY?: boolean;
 }
 
 /**
