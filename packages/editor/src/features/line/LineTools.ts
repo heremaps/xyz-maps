@@ -19,11 +19,12 @@
 
 // import EDITOR from '../../editor';
 import {LineShape} from './LineShape';
-import {getSegmentIndex, getPntAt} from '../../geometry';
+import {getSegmentIndex, getPntAt, simplifyPath} from '../../geometry';
 import VirtualShape from './VirtualShape';
 import {Line} from './Line';
-import {GeoJSONCoordinate} from '@here/xyz-maps-core';
+import {GeoJSONCoordinate, webMercator} from '@here/xyz-maps-core';
 import FeatureTools from '../feature/FeatureTools';
+import {Feature} from '../feature/Feature';
 
 let UNDEF;
 
@@ -199,6 +200,35 @@ const tools = {
         tools.deHighlight(line);
 
         return prv.isEditable;
+    },
+
+    simplifyGeometry(line: Feature, tolerance: number | string) {
+        if (typeof tolerance == 'string') {
+            const isMeters = tolerance.endsWith('m');
+            tolerance = parseFloat(tolerance);
+            if (isMeters) {
+                const [minLon, minLat, maxLon, maxLat] = line.getBBox();
+                const centerLat = minLat - (maxLat - minLat) / 2;
+                const pixelToMeter = webMercator.earthCircumference(centerLat) / webMercator.mapSizePixel(256, line._e().display.getZoomlevel());
+                tolerance *= pixelToMeter;
+            }
+        }
+
+        const {type} = line.geometry;
+        const isLineString = type == 'LineString';
+        const coordinates = line.coord();
+        const multiLineString: (GeoJSONCoordinate)[][] = isLineString
+            ? [coordinates as GeoJSONCoordinate[]]
+            : coordinates as GeoJSONCoordinate[][];
+
+        for (let i = 0; i < multiLineString.length; i++) {
+            multiLineString[i] = simplifyPath(multiLineString[i] as GeoJSONCoordinate[], tolerance);
+        }
+
+        line.coord(isLineString
+            ? multiLineString[0] as [number, number, number?][]
+            : multiLineString as [number, number, number?][][]
+        );
     },
 
     _select: function(line: Line) {

@@ -25,6 +25,8 @@ import oTools from './NavlinkTools';
 import {Feature} from '../feature/Feature';
 import {JSUtils} from '@here/xyz-maps-common';
 import {GeoJSONCoordinate, GeoPoint, PixelPoint, Style} from '@here/xyz-maps-core';
+import lineTools from '../line/LineTools';
+
 
 let UNDEF;
 
@@ -395,6 +397,30 @@ export class Navlink extends Feature {
             oTools.markAsModified(this);
         }
     };
+
+    /**
+     * Simplifies the line geometry by removing unnecessary points while preserving the overall shape.
+     *
+     * This method reduces the number of vertices in the line based on a distance-based tolerance.
+     * The tolerance can be provided either as a **number** (assumed to be in meters) or as a **string** with units like "px" (pixels) or "m" (meters).
+     *
+     * @param tolerance - The maximum allowed deviation between the original line and the simplified version.
+     *                    This can be specified as:
+     *                    - **A number (default in meters)**: The tolerance in meters (e.g., `5` means 5 meters).
+     *                    - **A string with units**: e.g., `"10px"` for pixels or `"10m"` for meters.
+     *                    - If a string is provided without units, **meters** is assumed by default.
+     *
+     *                    A larger value results in fewer points and more aggressive simplification.
+     *                    A smaller value retains more detail but reduces the simplification effect.
+     *
+     * @example
+     * line.simplifyGeometry(5); // Simplifies the line allowing up to 5 meters of deviation.
+     * line.simplifyGeometry("10m"); // Simplifies the line allowing up to 10 meters of deviation.
+     * line.simplifyGeometry("10px"); // Simplifies the line with a tolerance of 10 pixels (useful for screen-based coordinates).
+     */
+    simplifyGeometry(tolerance: number | string) {
+        return lineTools.simplifyGeometry(this, tolerance);
+    }
 
     /**
      * Displays and allows editing of the "turn restrictions" for the node/shape-point at the "index" of the Navlink feature.
