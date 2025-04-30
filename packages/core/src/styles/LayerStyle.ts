@@ -446,4 +446,21 @@ export interface LayerStyle {
      * If no `zLayer` is defined, the display layer order is used by default.
      */
     zLayer?: number;
+
+
+    /**
+     * Specifies whether to display a wireframe for debugging purposes.
+     * Currently only supported for `Model` styles.
+     *
+     * - If set to `true`, the wireframe will be shown with an automatically inverted color
+     *   relative to the main color of the layer.
+     * - If set to a `Color`, the wireframe will be displayed in the specified color.
+     * - If set to `false`, the wireframe will not be shown.
+     *
+     * Default is `false`.
+     *
+     * @hidden
+     * @internal
+     */
+    showWireframe?: boolean | Color;
 }

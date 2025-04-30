@@ -582,4 +582,35 @@ export class ModelBuffer extends TemplateBuffer {
             }
         }
     }
+
+    generateWireframeIndices(): Uint16Array | Uint32Array {
+        const triangleIndices: ArrayLike<number> = this.index();
+        const edgeSet = new Set<string>();
+        const lines: number[] = [];
+
+        for (let i = 0; i < triangleIndices.length; i += 3) {
+            const i0 = triangleIndices[i];
+            const i1 = triangleIndices[i + 1];
+            const i2 = triangleIndices[i + 2];
+
+            const edges: [number, number][] = [
+                [i0, i1],
+                [i1, i2],
+                [i2, i0]
+            ];
+
+            for (const [a, b] of edges) {
+                const key = a < b ? `${a};${b}` : `${b};${a}`;
+                if (!edgeSet.has(key)) {
+                    edgeSet.add(key);
+                    lines.push(a, b);
+                }
+            }
+        }
+
+        const IndexArrayConstructor =
+            triangleIndices instanceof Uint32Array ? Uint32Array : Uint16Array;
+
+        return new IndexArrayConstructor(lines);
+    }
 }

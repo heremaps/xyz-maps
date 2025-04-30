@@ -17,11 +17,11 @@
  * License-Filename: LICENSE
  */
 
-import {TaskManager} from '@here/xyz-maps-common';
+import {Color as Colors, TaskManager} from '@here/xyz-maps-common';
 import {GeometryBuffer} from './GeometryBuffer';
 import {getPolygonCenter, getValue} from '../../styleTools';
 import {
-    Feature,
+    Feature, LayerStyle,
     LinearGradient,
     StyleGroup,
     Tile,
@@ -101,7 +101,8 @@ type TaskData = {
     layer: Layer,
     zoom: number,
     collisions: null | CollisionGroup[],
-    groups: GroupMap
+    groups: GroupMap,
+    showWireframe: LayerStyle['showWireframe']
 };
 
 
@@ -144,6 +145,8 @@ const createBuffer = (
 
             factory.init(tile, groups, tileSize, zoom, layerStyles.zLayer, waitAndRefresh);
 
+            const {showWireframe} = layerStyles;
+
             return {
                 tile,
                 data: tile.data || [],
@@ -153,7 +156,8 @@ const createBuffer = (
                 layer: displayLayer,
                 zoom,
                 collisions: null,
-                groups
+                groups,
+                showWireframe: (showWireframe && typeof showWireframe != 'boolean') ? Colors.toRGB(showWireframe): showWireframe
             };
         },
 
@@ -362,6 +366,21 @@ const createBuffer = (
                                         geoBuffer.hitTest = shared.modelMode || 0;
                                         geoBuffer.destroy = (grpBuffer as ModelBuffer).destroy || geoBuffer.destroy;
                                         geoBuffer.depth = true;
+
+                                        const {showWireframe}= taskData;
+                                        if (showWireframe) {
+                                            const wireFrame = geoBuffer.addGroup(
+                                                (grpBuffer as ModelBuffer).generateWireframeIndices(),
+                                                grpBuffer.i32,
+                                                GeometryBuffer.MODE_GL_LINES
+                                            );
+                                            wireFrame.uniforms = {
+                                                // invert diffuse color for wireframe
+                                                diffuse: ((showWireframe === true ? geoBuffer.getUniform('diffuse') : showWireframe) as number[])
+                                                    .slice(0, 3)
+                                                    .map((c) => 1 - c)
+                                            };
+                                        }
 
                                         if (geoBuffer.uniforms.pointSize) {
                                             geoBuffer.groups[0].mode = GeometryBuffer.MODE_GL_POINTS;
