@@ -114,98 +114,10 @@ function computeTangents(vertex: VertexData, uv: number[], indices?: Uint16Array
         tangents[pi1] = tangents[pi2] = tangents[pi3] = tangent[0];
         tangents[pi1 + 1] = tangents[pi2 + 1] = tangents[pi3 + 1] = tangent[1];
         tangents[pi1 + 2] = tangents[pi2 + 2] = tangents[pi3 + 2] = tangent[2];
-    }
-    ;
+    };
 
     return tangents;
 }
-
-
-const averageFaceNormal = (vertex: VertexData, i1: number, i2: number, i3: number, normals: VertexData) => {
-    // const t3x = vertex[i1];
-    // const t3y = vertex[i1 + 1];
-    // const t3z = vertex[i1 + 2];
-    //
-    // const t2x = vertex[i2];
-    // const t2y = vertex[i2 + 1];
-    // const t2z = vertex[i2 + 2];
-    //
-    // const t1x = vertex[i3];
-    // const t1y = vertex[i3 + 1];
-    // const t1z = vertex[i3 + 2];
-
-    const t1x = vertex[i1];
-    const t1y = vertex[i1 + 1];
-    const t1z = vertex[i1 + 2];
-
-    const t2x = vertex[i2];
-    const t2y = vertex[i2 + 1];
-    const t2z = vertex[i2 + 2];
-
-    const t3x = vertex[i3];
-    const t3y = vertex[i3 + 1];
-    const t3z = vertex[i3 + 2];
-
-    const ux = t2x - t1x;
-    const uy = t2y - t1y;
-    const uz = t2z - t1z;
-
-    const vx = t3x - t1x;
-    const vy = t3y - t1y;
-    const vz = t3z - t1z;
-
-    // surface normal
-    const nx = uz * vy - uy * vz;
-    const ny = ux * vz - uz * vx;
-    const nz = uy * vx - ux * vy;
-
-    // sum normals, average
-    normals[i1] += nx;
-    normals[i1 + 1] += ny;
-    normals[i1 + 2] += nz;
-
-    normals[i2] += nx;
-    normals[i2 + 1] += ny;
-    normals[i2 + 2] += nz;
-
-    normals[i3] += nx;
-    normals[i3 + 1] += ny;
-    normals[i3 + 2] += nz;
-};
-
-const computeMeshNormals = (vertex: VertexData, index?: number[]) => {
-    const vertexLength = vertex.length;
-    const normals = new Float32Array(vertexLength);
-
-    if (!index) {
-        for (let i = 0; i < vertexLength;) {
-            averageFaceNormal(vertex, i, i + 3, i += 6, normals);
-        }
-    } else {
-        for (let i = 0; i < index.length; i += 3) {
-            averageFaceNormal(vertex, index[i] * 3, index[i + 1] * 3, index[i + 2] * 3, normals);
-        }
-    }
-
-    // normalize
-    const normalized = new Int8Array(vertexLength);
-    for (let i = 0, nx, ny, nz; i < vertexLength; i += 3) {
-        nx = normals[i];
-        ny = normals[i + 1];
-        nz = normals[i + 2];
-        let len = nx * nx + ny * ny + nz * nz;
-        if (len > 0) {
-            len = 1 / Math.sqrt(len);
-        }
-        len *= 127;
-        normalized[i] = Math.round(nx * len);
-        normalized[i + 1] = Math.round(ny * len);
-        normalized[i + 2] = Math.round(nz * len);
-    }
-
-    return normalized;
-};
-
 
 export class ModelBuffer extends TemplateBuffer {
     destroy?: (buffer: GeometryBuffer) => void;
@@ -244,7 +156,7 @@ export class ModelBuffer extends TemplateBuffer {
 
     static init(data: ModelGeometry, attributes: ModelBuffer['flexAttributes'] = {}) {
         if (data) {
-            const {position, normal, color, uv} = data;
+            const {position, color, uv} = data;
             let colorRGB: Uint8Array | number[] | string = NO_COLOR_WHITE;
             let size;
 
@@ -253,20 +165,13 @@ export class ModelBuffer extends TemplateBuffer {
                 size: 3
             };
 
+            const normal = data.normal || GeometryBuffer.computeNormals(position, data.index);
             if (normal) {
                 attributes.a_normal = {
                     data: ModelBuffer.createFlexArray(normal),
-                    size: 3
-                    // normalized: true
+                    size: 3,
+                    normalized: normal instanceof Int8Array || normal instanceof Int16Array
                 };
-            } else {
-                console.time('computeMeshNormals');
-                attributes.a_normal = {
-                    data: ModelBuffer.createFlexArray(computeMeshNormals(position)),
-                    normalized: true,
-                    size: 3
-                };
-                console.timeEnd('computeMeshNormals');
             }
 
             if (uv) {
@@ -277,7 +182,6 @@ export class ModelBuffer extends TemplateBuffer {
             }
             if (uv && normal) {
                 const tangents = computeTangents(position, uv, data.index);
-
                 attributes.a_tangent = {
                     data: ModelBuffer.createFlexArray(tangents),
                     size: 3
