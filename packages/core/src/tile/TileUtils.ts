@@ -18,14 +18,13 @@
  */
 
 import projection from '../projection/webMercator';
-import {global} from '@here/xyz-maps-common';
+
 
 type Grid = [number, number, number];
 type BBox = [number, number, number, number];
 type Quadkey = string;
 type Quadkeys = Array<Quadkey>;
 
-const MATH = global.Math;
 const TILE_SIZE = 256;
 
 const MAX_LONGITUDE = 180;
@@ -36,13 +35,13 @@ const MIN_LATITUDE = -MAX_LATITUDE;
 
 export const geoToGrid = (longitude: number, latitude: number, z: number): Grid => {
     const size = 1 << z;
-    const x = MATH.floor(projection.lon2x(longitude, size));
-    const y = MATH.floor(projection.lat2y(latitude, size));
+    const x = Math.floor(projection.lon2x(longitude, size));
+    const y = Math.floor(projection.lat2y(latitude, size));
     return [x, y, z];
 };
 
 export const pixelToGrid = (x: number, y: number, z: number): Grid => {
-    return [MATH.floor(x), MATH.floor(y), z];
+    return [Math.floor(x), Math.floor(y), z];
 };
 
 export const quadToGrid = (quadKey: string): Grid => {
@@ -117,9 +116,9 @@ export const getGeoBounds = (level: number, y: number, x: number): BBox => {
     //  x1 = (clip(pixelX+TILE_SIZE, 0, mapSize - 1) / mapSize) - .5,
     //  y1 = .5 - (clip(pixelY+TILE_SIZE, 0, mapSize - 1) / mapSize);
     // return [
-    //  90 - 360 * MATH.atan(MATH.exp(-y * 2 * MATH.PI)) / MATH.PI,
+    //  90 - 360 * Math.atan(Math.exp(-y * 2 * Math.PI)) / Math.PI,
     //  360 * x,
-    //  90 - 360 * MATH.atan(MATH.exp(-y1 * 2 * MATH.PI)) / MATH.PI,
+    //  90 - 360 * Math.atan(Math.exp(-y1 * 2 * Math.PI)) / Math.PI,
     //  360 * x1
     // ]
 };
@@ -192,9 +191,9 @@ export const getTilesInRect =
 
 //* ***********************************************************************************************
 // this.geoToGrid = function( longitude, latitude, level ) {
-// var  sinLatitude = MATH.sin(latitude * MATH.PI / 180),
-//  row = MATH.floor(((longitude + 180) / 360) * MATH.pow(2, level)),
-//  col = MATH.floor((.5 - MATH.log((1 + sinLatitude) / (1 - sinLatitude)) / (4 * MATH.PI)) * MATH.pow(2, level));
+// var  sinLatitude = Math.sin(latitude * Math.PI / 180),
+//  row = Math.floor(((longitude + 180) / 360) * Math.pow(2, level)),
+//  col = Math.floor((.5 - Math.log((1 + sinLatitude) / (1 - sinLatitude)) / (4 * Math.PI)) * Math.pow(2, level));
 // return [ level, col, row ];
 // }
 
