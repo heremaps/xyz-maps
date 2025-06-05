@@ -134,7 +134,7 @@ export class Map {
     private _z: number; // zoom level
     private _tlwx: number;
     private _tlwy: number;
-    private _groundResolution: number;
+    private _groundResolution: number; // meter per pixel at zoom
 
     private _maxZoomExtent: number;
     private _repeatWorldViewX: boolean;

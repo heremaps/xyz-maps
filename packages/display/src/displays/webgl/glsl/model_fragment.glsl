@@ -22,7 +22,7 @@ varying vec3 v_tangent;
 #endif
 
 #ifdef DBG_GRID
-uniform highp float u_scale;
+varying vec2 v_tilePos;
 #endif
 
 #include "light.glsl"
@@ -58,10 +58,10 @@ void main() {
     gl_FragColor = totalColor;
 
     #ifdef DBG_GRID
-    float tileSize = 512. * u_scale;
-    float dx = distance(v_texCoord.x, .5) * tileSize;
-    float dy = distance(v_texCoord.y, .5) * tileSize;
-    if (dx > (tileSize * .5 - 1.5) || dy > (tileSize * .5 - 1.5))
-    gl_FragColor += vec4(1., .0, .0, .2);
+    float min =1.0;
+    float max = 512.0-1.0;
+    if (v_tilePos.x < min || v_tilePos.x > max || v_tilePos.y < min || v_tilePos.y > max){
+        gl_FragColor += vec4(1.0, 0.0, 0.0, 0.5);
+    }
     #endif
 }

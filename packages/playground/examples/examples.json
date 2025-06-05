@@ -71,6 +71,10 @@
     {
       "file": "./display/world_repetition_modes.html",
       "docs": "interfaces/display.mapoptions.html#singleworldview"
+    },
+    {
+      "file": "./display/terrain.html",
+      "docs": "interfaces/core.terraintilelayeroptions.html"
     }
   ],
   "Editor": [

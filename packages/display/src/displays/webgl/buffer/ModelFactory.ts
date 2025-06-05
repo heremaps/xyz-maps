@@ -16,18 +16,17 @@
  * SPDX-License-Identifier: Apache-2.0
  * License-Filename: LICENSE
  */
-import {Texture, TextureOptions} from '../Texture';
+import {Texture, TextureOptions, ImageData, TextureData} from '../Texture';
 import {ModelBuffer} from './templates/ModelBuffer';
 import {TemplateBufferBucket} from './templates/TemplateBufferBucket';
 import {ModelData, Material} from '@here/xyz-maps-core';
 import {ObjParser} from '../ObjParser';
 import {vec3} from '@here/xyz-maps-common';
+import {TypedArray} from './glType';
 
 class ModelTexture extends Texture {
     ref: number = 0;
 }
-
-type TextureData = HTMLCanvasElement | HTMLImageElement | { width: number; height: number; pixels?: Uint8Array };
 
 type Model = {
     textures: { [name: string]: ModelTexture };
@@ -99,7 +98,7 @@ class ModelFactory {
         return this.initModel(url, data);
     }
 
-    private initTexture(name: string, imgData: TextureData, textures: ModelTextures, options?: TextureOptions) {
+    private initTexture(name: string, imgData: ImageData, textures: ModelTextures, options?: TextureOptions) {
         let texture = textures[name];
         if (!texture) {
             texture = new ModelTexture(this.gl, imgData, options);
@@ -140,39 +139,29 @@ class ModelFactory {
                     specularMap: 'unusedTexture',
                     shininess: 0,
                     normalMap: 'unusedNormalTexture',
+                    useUVMapping: true,
                     ...materials?.[face.material]
                 };
 
                 let attributes = sharedAttr.get(geom);
-                let index;
+                const index = geom.index;
 
-                if (material.mode == 'Points') {
-                    material.pointSize = material.pointSize == undefined ? 1 : material.pointSize;
-                } else {
-                    material.pointSize = 0;
-                }
-                delete material.mode;
-                material.pointSize = (material.mode == 'Points') ? (material.pointSize ?? 1) : 0;
+                material.pointSize = material.mode == 'Points' ? (material.pointSize ?? 1) : 0;
 
                 if (!attributes) {
                     attributes = ModelBuffer.init(geom);
                     // sharedAttr.set(geom, attributes);
                 }
 
-                if (geom.index) {
-                    index = geom.index;
-                }
 
                 const bbox = (geom.bbox ||= ModelBuffer.calcBBox(geom));
-
                 const uniforms: MaterialUniforms = material;
 
 
                 for (let key in material) {
                     if (key.endsWith('Map')) {
                         const textureName = uniforms[key];
-                        const imgData = imgTexData[textureName];
-
+                        let imgData = imgTexData[textureName];
                         let wrap = material.wrap;
                         let wrapS: GLenum = this.gl.REPEAT;
                         let wrapT: GLenum = this.gl.REPEAT;
@@ -190,18 +179,24 @@ class ModelFactory {
                             );
                         }
 
-                        uniforms[key] = this.initTexture(textureName, imgData, modelTextures, {flipY: material.flipY, wrapS, wrapT});
+                        const texOptions: TextureOptions = {
+                            flipY: material.flipY,
+                            wrapS,
+                            wrapT
+                        };
+                        uniforms[key] = this.initTexture(textureName, imgData, modelTextures, texOptions);
                     }
                 }
 
-
                 const diffuseMap = uniforms.diffuseMap as ModelTexture;
                 if (!uniforms.useUVMapping && diffuseMap) {
-                    uniforms.u_textureSize = [diffuseMap.width, diffuseMap.height];
+                    const uvScale = material.uvScale || 1;
+                    uniforms.u_textureSize = [diffuseMap.width * uvScale, diffuseMap.height * uvScale];
                 }
 
                 // cleanup to be used as uniforms
                 delete uniforms.mode;
+                delete uniforms.flipY;
 
                 parts.push({attributes, bbox, uniforms, index, first: face.start, count: face.count});
             }
@@ -287,16 +282,18 @@ class ModelFactory {
         x: number,
         y: number,
         z: number,
-        scale: number[],
-        translate: number[],
-        rotate: number[],
-        transform: number[]
+        scale?: number[],
+        translate?: number[],
+        rotate?: number[],
+        transform?: number[]
     ) {
         const {buffers} = bufferBucker;
-        buffers[0].addInstance(x, y, z, scale, translate, rotate, transform);
+        const [firstBuffer] = buffers;
+        firstBuffer.addInstance(x, y, z, scale, translate, rotate, transform);
         for (let i = 1; i < buffers.length; i++) {
-            // buffers[i].addPosition(x, y, z, scale, translate, rotate, transform);
-            buffers[i].instances = buffers[0].instances;
+            // buffers[i].addInstance(x, y, z, scale, translate, rotate, transform);
+            buffers[i].instances = firstBuffer.instances;
+            buffers[i].uniforms.u_normalMatrix = firstBuffer.uniforms.u_normalMatrix;
         }
     }
 }

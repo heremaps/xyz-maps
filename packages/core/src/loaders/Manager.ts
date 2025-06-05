@@ -75,8 +75,8 @@ class ManagedLoader {
     };
 
     tile(tile: Tile, onSuccess, onError) {
-        this.q.push(onError, onSuccess, tile);
-
+        this.q.unshift(onError, onSuccess, tile);
+        // this.q.push(onError, onSuccess, tile);
         this.exec();
     };
 
@@ -139,9 +139,5 @@ class ManagedLoader {
         }
     };
 }
-
-
-const ManagedLoaderPrototype = ManagedLoader.prototype;
-
 
 export default ManagedLoader;

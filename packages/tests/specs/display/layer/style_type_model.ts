@@ -21,6 +21,7 @@ import {waitForViewportReady} from 'displayUtils';
 import {getCanvasPixelColor, prepare} from 'utils';
 import {Map} from '@here/xyz-maps-display';
 import dataset from './style_type_model.json';
+import {ModelStyle} from '@here/xyz-maps-core';
 
 
 describe('3d Model Styles', function() {
@@ -31,9 +32,13 @@ describe('3d Model Styles', function() {
     let mapContainer;
     let feature;
 
-    let baseModelStyle = {
-        'zIndex': 0, 'type': 'Model', 'model': 'base/tests/assets/model/cube.obj', 'scale': [20, 20, 20],
-        'specular': [0, 0, 0], 'shininess': 0
+    let baseModelStyle: ModelStyle = {
+        zIndex: 0,
+        type: 'Model',
+        model: 'base/tests/assets/model/cube.obj',
+        scale: [20, 20, 20],
+        specular: [0, 0, 0],
+        shininess: 0
     };
 
     before(async () => {

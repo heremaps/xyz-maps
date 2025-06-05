@@ -59,12 +59,21 @@ export {SpaceProviderOptions} from './providers/GeoSpace/SpaceOptions';
 export {IMLProvider} from './providers/IMLProvider/IMLProvider';
 export {IMLProviderOptions} from './providers/IMLProvider/IMLProviderOptions';
 export {MVTProvider} from './providers/MVTProvider/MVTProvider';
+export {TerrainTileProvider} from './providers/TerrainProvider/TerrainTileProvider';
 export {EditableFeatureProvider} from './providers/EditableFeatureProvider';
 export {MVTLayerOptions} from './layers/MVTLayerOptions';
 export {TileLayerOptions} from './layers/TileLayerOptions';
-export {ClusterTileLayer} from './layers/cluster/ClusterTileLayer';
-export {ClusterTileLayerOptions} from './layers/cluster/ClusterTileLayerOptions';
 export {ClusterFeature, ClusterFeatureProperties} from './features/ClusterFeature';
+
+import {ClusterTileLayer} from './layers/cluster/ClusterTileLayer';
+import {ClusterTileLayerOptions} from './layers/cluster/ClusterTileLayerOptions';
+export {ClusterTileLayer, ClusterTileLayerOptions};
+
+import {TerrainTileLayer} from './layers/terrain/TerrainTileLayer';
+import {TerrainTileLayerOptions} from './layers/terrain/TerrainTileLayerOptions';
+import {TerrainTileLayerStyle} from './layers/terrain/TerrainStyle';
+export {TerrainTileLayer, TerrainTileLayerOptions, TerrainTileLayerStyle};
+export {RTINMeshBuilder} from './providers/TerrainProvider/RTINMeshBuilder';
 
 import webMercatorPrj from './projection/webMercator';
 
@@ -120,7 +129,7 @@ import {PixelRect} from './pixel/PixelRect';
 import {TileLayer} from './layers/TileLayer';
 import {MVTLayer} from './layers/MVTLayer';
 import {CustomLayer} from './layers/CustomLayer';
-import {ClusterTileLayer} from './layers/cluster/ClusterTileLayer';
+// import {ClusterTileLayer} from './layers/cluster/ClusterTileLayer';
 import {Feature} from './features/Feature';
 import {Tile} from './tile/Tile';
 import {tileUtils} from './tile/TileUtils';
@@ -133,6 +142,7 @@ import {EditableRemoteTileProvider} from './providers/RemoteTileProvider/Editabl
 import {SpaceProvider} from './providers/GeoSpace/SpaceProvider';
 import {IMLProvider} from './providers/IMLProvider/IMLProvider';
 import {MVTProvider} from './providers/MVTProvider/MVTProvider';
+import {TerrainTileProvider} from './providers/TerrainProvider/TerrainTileProvider';
 import {EditableFeatureProvider} from './providers/EditableFeatureProvider';
 import {HTTPLoader} from './loaders/HTTPLoader';
 import Manager from './loaders/Manager';
@@ -156,7 +166,12 @@ const layers = XYZMAPS.layers = {
     TileLayer,
     MVTLayer,
     CustomLayer,
-    ClusterTileLayer
+    ClusterTileLayer,
+    TerrainTileLayer
+};
+
+const styles = XYZMAPS.styles = {
+    TerrainTileLayerStyle
 };
 
 const features = XYZMAPS.features = {
@@ -180,10 +195,11 @@ const providers = XYZMAPS.providers = {
     SpaceProvider,
     IMLProvider,
     MVTProvider,
+    TINProvider: TerrainTileProvider,
     EditableFeatureProvider
 };
 
-export {pixel, tile, layers, features, providers};
+export {pixel, tile, layers, styles, features, providers};
 
 export const projection = XYZMAPS.projection = {
     webMercator
@@ -202,6 +218,7 @@ export const service = XYZMAPS.service || {
 export default {
     tile,
     layers,
+    styles,
     geo,
     pixel,
     features,

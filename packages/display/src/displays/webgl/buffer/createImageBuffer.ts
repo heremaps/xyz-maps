@@ -18,7 +18,7 @@
  */
 
 import {GeometryBuffer} from './GeometryBuffer';
-import {Image, Texture} from '../Texture';
+import {ImageData, Texture} from '../Texture';
 import {PASS} from '../program/GLStates';
 import {BACK, FRONT} from './glType';
 
@@ -32,7 +32,7 @@ const textureCoordinates = [
     1, 1
 ];
 
-const createImageBuffer = (img: Image, gl: WebGLRenderingContext, size: number, alpha: boolean) => {
+const createImageBuffer = (img: ImageData, gl: WebGLRenderingContext, size: number, alpha: boolean) => {
     // const id = (<any>img)._id || ((<any>img)._id = String(Math.random()));
     // const texInfo = atlas.get(id) || atlas.set(id, img); // [UNIT,X,Y]
 

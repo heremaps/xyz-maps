@@ -18,7 +18,7 @@
  */
 
 import {LRU} from '@here/xyz-maps-common';
-import {Texture, Image} from './Texture';
+import {Texture, ImageData} from './Texture';
 
 
 class SharedTexture extends Texture {
@@ -106,7 +106,7 @@ class Atlas {
         }
     }
 
-    set(key: string, data: Image): ImageInfo {
+    set(key: string, data: ImageData): ImageInfo {
         // TODO: remove workaround for image might not been loaded already.
         const cache = this.c;
         const {d, maxSize} = this;

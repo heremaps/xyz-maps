@@ -70,10 +70,6 @@ type CompiledUniformCache = {
 export type CompiledUniformData = Omit<CompiledUniformCache, 'clear'>;
 
 const averageFaceNormal = (vertex: ArrayLike<number>, i1: number, i2: number, i3: number, normals: TypedArray) => {
-    // const [t3x, t3y, t3z] = [vertex[i1], vertex[i1 + 1], vertex[i1 + 2]];
-    // const [t2x, t2y, t2z] = [vertex[i2], vertex[i2 + 1], vertex[i2 + 2]];
-    // const [t1x, t1y, t1z] = [vertex[i3], vertex[i3 + 1], vertex[i3 + 2]];
-
     const t1x = vertex[i1];
     const t1y = vertex[i1 + 1];
     const t1z = vertex[i1 + 2];
@@ -86,13 +82,13 @@ const averageFaceNormal = (vertex: ArrayLike<number>, i1: number, i2: number, i3
     const t3y = vertex[i3 + 1];
     const t3z = vertex[i3 + 2];
 
-    const ux = t2x - t1x;
-    const uy = t2y - t1y;
-    const uz = t2z - t1z;
+    const ux = t2x - t3x;
+    const uy = t2y - t3y;
+    const uz = t2z - t3z;
 
-    const vx = t3x - t1x;
-    const vy = t3y - t1y;
-    const vz = t3z - t1z;
+    const vx = t1x - t3x;
+    const vy = t1y - t3y;
+    const vz = t1z - t3z;
 
     // surface normal
     const nx = uz * vy - uy * vz;
@@ -156,11 +152,16 @@ class GeometryBuffer {
         const normals = new Float32Array(vertexLength);
 
         if (!index) {
-            for (let i = 0; i < vertexLength;) {
-                averageFaceNormal(vertex, i, i + 3, i += 6, normals);
+            // flat shading
+            let i = 0;
+            while (i < vertexLength) {
+                averageFaceNormal(vertex, i, i + 6, i + 3, normals);
+                i += 9;
             }
         } else {
+            // smooth shading
             for (let i = 0, {length} = index; i < length; i += 3) {
+                // averageFaceNormal(vertex, index[i+2] * 3, index[i + 1] * 3, index[i] * 3, normals);
                 averageFaceNormal(vertex, index[i] * 3, index[i + 1] * 3, index[i + 2] * 3, normals);
             }
         }
@@ -338,6 +339,7 @@ class GeometryBuffer {
         }
         return this._cullFace;
     }
+
     private _uniformCache: CompiledUniformCache = {
         clear: true,
         uniforms: {},

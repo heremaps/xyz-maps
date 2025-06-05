@@ -33,12 +33,12 @@ class GlyphTexture extends Texture {
     private dirty: boolean = false;
 
     constructor(gl: WebGLRenderingContext, style: FontStyle, size?: number) {
-        super(gl);
+        super(gl, null, {
+            format: gl.LUMINANCE_ALPHA
+        });
 
         const {dpr} = <any>gl;
         this.atlas = new GlyphAtlas(style, dpr, size);
-
-        this.format = gl.LUMINANCE_ALPHA;
     }
 
     addChars(text: string) {

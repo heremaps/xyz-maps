@@ -23,18 +23,18 @@ import vertexShader from '../glsl/model_vertex.glsl';
 import fragmentShader from '../glsl/model_fragment.glsl';
 
 import Program from './Program';
-import {GLStates} from './GLStates';
+import {GLStates, PASS} from './GLStates';
 import {GeometryBuffer} from '../buffer/GeometryBuffer';
 import {Texture} from '../Texture';
 
 
 class ModelProgram extends Program {
     name = 'Model';
+    static dbgGrid: boolean;
 
     static getMacros(buffer: GeometryBuffer) {
         const {uniforms} = buffer;
         let macros;
-
         if (uniforms.illumination > 0) {
             macros = {DIFFUSE: 1};
         }
@@ -46,11 +46,17 @@ class ModelProgram extends Program {
             macros ||= {};
             macros.SPECULAR = 2;
         }
+
+        if (ModelProgram.dbgGrid) {
+            macros ||= {};
+            macros.DBG_GRID = 8;
+        }
+
         return macros;
     }
 
     static getProgramId(buffer: GeometryBuffer, macros?: { [name: string]: string | number | boolean }) {
-        return buffer.type + (<number>macros.DIFFUSE | <number>macros.SPECULAR | <number>macros.NORMAL_MAP);
+        return buffer.type + (macros ? (<number>macros.DIFFUSE | <number>macros.SPECULAR | <number>macros.NORMAL_MAP) : '');
         // return buffer.type + (macros ? JSON.stringify(macros) : '');
     }
 
@@ -65,6 +71,15 @@ class ModelProgram extends Program {
 
         this.vertexShaderSrc = vertexShader;
         this.fragmentShaderSrc = fragmentShader;
+    }
+
+    draw(geoBuffer: GeometryBuffer, isPreview?: boolean) {
+        const {gl} = this;
+        if (isPreview) {
+            gl.polygonOffset(1, 1);
+            gl.enable(gl.POLYGON_OFFSET_FILL);
+        }
+        super.draw(geoBuffer);
     }
 }
 

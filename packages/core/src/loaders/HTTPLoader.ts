@@ -78,12 +78,12 @@ export interface HTTPLoaderOptions {
     url?: string | ((x: number, y: number, z: number, qk: string) => string);
     withCredentials?: boolean
     headers?: { [name: string]: any }
-    tileType?: string;
+    // tileType?: string;
 }
 
 
 class HTTPLoader implements TileLoader {
-    private tileType: string;
+    private responseType: string;
 
     withCredentials = false;
     http: HTTPClient;
@@ -93,14 +93,10 @@ class HTTPLoader implements TileLoader {
     baseUrl = null;
     q = {}; // queue
 
-    static createImageFromBlob(blob: Blob, cb?: (img) => void) {
-        const img = new Image();
-        img.onload = (e) => {
-            window.URL.revokeObjectURL(img.src);
-            if (cb) cb(img);
-        };
-        img.src = window.URL.createObjectURL(blob);
-        return img;
+    static async createImageFromBlob(blob: Blob, cb?: (img) => void) {
+        createImageBitmap(blob).then((bitmap)=>{
+            cb?.(bitmap);
+        });
     }
 
     constructor(options: HTTPLoaderOptions) {
@@ -135,7 +131,7 @@ class HTTPLoader implements TileLoader {
 
         this.http = new HTTPClient({responseType, withCredentials});
 
-        this.tileType = options.tileType;
+        this.responseType = responseType;
     };
 
     protected getUrl(tile) {
@@ -171,20 +167,17 @@ class HTTPLoader implements TileLoader {
 
         let xhr;
 
-        const tileType = this.tileType || tile.type;
-
-        if (tileType == 'image') {
+        const responseType = this.responseType || tile.type;
+        if (responseType == 'image') {
             // req.responseType    = 'arraybuffer';
             // req.success       = function( arraybuffer )
             // {
             //     var blob = new Blob( [ new Uint8Array( arraybuffer ) ], { type: "image/png" } );
 
-
             req.responseType = 'blob';
             req.success = (blob) => {
                 // keep in queue until async image creation is done! (otherwise abort breaks)
                 queue[qk] = xhr;
-
                 HTTPLoader.createImageFromBlob(blob, (img) => {
                     delete queue[qk];
                     if (!xhr._aborted) {
@@ -193,7 +186,7 @@ class HTTPLoader implements TileLoader {
                 });
             };
         } else {
-            if (tileType == 'json') {
+            if (responseType == 'json') {
                 req.success = (data, size) => {
                     success(
                         // in case of FeatureCollection simply pass array of features

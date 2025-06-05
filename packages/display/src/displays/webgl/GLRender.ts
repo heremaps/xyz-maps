@@ -93,6 +93,8 @@ const CRITICAL_PITCH = Math.PI / 2 - Math.atan(Math.tan(FIELD_OF_VIEW / 2));
 
 const EXTENSION_OES_ELEMENT_INDEX_UINT = 'OES_element_index_uint';
 const EXTENSION_ANGLE_INSTANCED_ARRAYS = 'ANGLE_instanced_arrays';
+const EXTENSION_OES_TEXTURE_FLOAT = 'OES_texture_float';
+
 
 const DEBUG_GRID_FONT = {
     font: 'bold 14px Arial',
@@ -313,7 +315,8 @@ export class GLRender implements BasicRender {
         this.gl = gl;
         this.glExt = new GLExtensions(gl, [
             EXTENSION_OES_ELEMENT_INDEX_UINT,
-            EXTENSION_ANGLE_INSTANCED_ARRAYS
+            EXTENSION_ANGLE_INSTANCED_ARRAYS,
+            EXTENSION_OES_TEXTURE_FLOAT
         ]);
 
         this.initContext();
@@ -394,7 +397,14 @@ export class GLRender implements BasicRender {
     grid(show: boolean | { grid3d: boolean }): void {
         if (typeof show == 'object') {
             if (show.grid3d != undefined) {
-                this.createProgram('Model', ModelProgram, show.grid3d && {DBG_GRID: 1});
+                ModelProgram.dbgGrid = !!show.grid3d;
+                for (let name in this.programs) {
+                    if (name.startsWith('Model')) {
+                        this.programs[name].delete();
+                        delete this.programs[name];
+                    }
+                }
+                // this.createProgram('Model', ModelProgram, show.grid3d && {DBG_GRID: 1});
             }
         } else {
             this.tileGrid = show;
@@ -749,6 +759,7 @@ export class GLRender implements BasicRender {
         const program: Program = this.getProgram(buffer);
 
         if (program) {
+            const isPreview = dZoom > 0 || buffer.type == 'Line';
             dZoom = dZoom || 1;
 
             const zIndex = this.zIndex;
@@ -841,7 +852,7 @@ export class GLRender implements BasicRender {
                     gl.disable(gl.DEPTH_TEST);
                 }
 
-                program.draw(buffer);
+                program.draw(buffer, isPreview);
             }
         } else console.warn('no program found', buffer.type);
     }
@@ -1006,7 +1017,7 @@ export class GLRender implements BasicRender {
 
             const {clip} = buffer;
             let clipPreview = false;
-            if (previewScale > 1 && !buffer.needs2AlphaPasses()) {
+            if (previewScale > 1 && !buffer.needs2AlphaPasses() && buffer.flat) {
                 // Already clipped geometry is stenciled to match the dimensions of smaller preview tiles accurately when zoomed in.
                 clipPreview = buffer.clip = true;
             }

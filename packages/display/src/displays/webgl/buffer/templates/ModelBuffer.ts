@@ -21,9 +21,10 @@ import {FlexArray} from './FlexArray';
 import {ConstantAttribute, FlexAttribute, TemplateBuffer} from './TemplateBuffer';
 import {GeometryBuffer, IndexGrp} from '../GeometryBuffer';
 import {Raycaster} from '../../Raycaster';
-
-import {scale, rotate, multiply, translate, identity, create} from 'gl-matrix/mat4';
-import {transformMat4, subtract, scale as scaleVec3, normalize as normalizeVec3} from 'gl-matrix/vec3';
+import {multiply, create as createMat4, fromRotationTranslationScale} from 'gl-matrix/mat4';
+import {normalFromMat4, create as createMat3} from 'gl-matrix/mat3';
+import {subtract, scale as scaleVec3, normalize as normalizeVec3} from 'gl-matrix/vec3';
+import {create as createQuat, fromEuler} from 'gl-matrix/quat';
 import {isTypedArray, TypedArray} from '../glType';
 import {Attribute} from '../Attribute';
 import {Color} from '@here/xyz-maps-common';
@@ -37,6 +38,7 @@ enum HitTest {
 }
 
 const NO_COLOR_WHITE = [1, 1, 1, 1];
+const TO_DEG = 180 / Math.PI;
 
 type VertexData = TypedArray | number[];
 
@@ -128,27 +130,26 @@ export class ModelBuffer extends TemplateBuffer {
 
     static calcBBox(data: ModelGeometry) {
         const {position} = data;
-        const infinity = Infinity;
-        let minX = infinity;
-        let maxX = -infinity;
-        let minY = infinity;
-        let maxY = -infinity;
-        let minZ = infinity;
-        let maxZ = -infinity;
+        let minX = Infinity;
+        let maxX = -minX;
+        let minY = minX;
+        let maxY = maxX;
+        let minZ = minX;
+        let maxZ = maxX;
         // console.time('calcModelBBox');
-        for (let i = 0, x, y, z, {length} = position; i < length; i += 3) {
-            x = position[i];
-            y = position[i + 1];
-            z = position[i + 2];
+        for (let i = 0, {length} = position; i < length; i += 3) {
+            const x = position[i];
+            const y = position[i + 1];
+            const z = position[i + 2];
 
             if (x < minX) minX = x;
-            if (x > maxX) maxX = x;
+            else if (x > maxX) maxX = x;
 
             if (y < minY) minY = y;
-            if (y > maxY) maxY = y;
+            else if (y > maxY) maxY = y;
 
             if (z < minZ) minZ = z;
-            if (z > maxZ) maxZ = z;
+            else if (z > maxZ) maxZ = z;
         }
         // console.timeEnd('calcModelBBox');
         return [minX, minY, minZ, maxX, maxY, maxZ];
@@ -165,7 +166,7 @@ export class ModelBuffer extends TemplateBuffer {
                 size: 3
             };
 
-            const normal = data.normal || GeometryBuffer.computeNormals(position, data.index);
+            const normal = data.normal ||= GeometryBuffer.computeNormals(position, data.index);
             if (normal) {
                 attributes.a_normal = {
                     data: ModelBuffer.createFlexArray(normal),
@@ -216,7 +217,6 @@ export class ModelBuffer extends TemplateBuffer {
                 }
             }
             // const colorData = this.createFlexArray(colorRGB as number[] | Uint8Array);
-
             attributes.a_color = size ? {
                 // data: colorRGB.map((v) => v * 255),
                 data: new FlexArray(colorRGB as Uint8Array),
@@ -242,8 +242,6 @@ export class ModelBuffer extends TemplateBuffer {
         a_uv?: FlexAttribute
         a_normal?: FlexAttribute
     };
-
-
     hitTest: HitTest = HitTest.bbox;
     id: string | number;
     bbox: number[];
@@ -278,51 +276,54 @@ export class ModelBuffer extends TemplateBuffer {
         this.light = 'defaultLight';
     }
 
-    addInstance(x: number, y: number, z: number, scaleXYZ?: number[], translateXYZ?: number[], rotation?: number[], transform?) {
+    addInstance(
+        x: number,
+        y: number,
+        z: number,
+        scaleXYZ: number[] = [1, 1, 1],
+        translateXYZ: number[] = [0, 0, 0],
+        rotation: number[] = [0, 0, 0],
+        transform?: ArrayLike<number>
+    ) {
         this.instances++;
-
-        const m = new Float32Array(this.defaultOrientationMatrix);
-
-        if (transform) {
-            multiply(m, m, transform);
-        } else {
-            if (translateXYZ) {
-                translate(m, m, translateXYZ);
-            }
-
-            if (scaleXYZ) {
-                scale(m, m, scaleXYZ);
-            }
-
-            if (rotation) {
-                if (rotation[0]) {
-                    rotate(m, m, rotation[0], [1, 0, 0]);
-                }
-                if (rotation[1]) {
-                    rotate(m, m, rotation[1], [0, 1, 0]);
-                }
-                if (rotation[2]) {
-                    rotate(m, m, rotation[2], [0, 0, 1]);
-                }
-            }
-        }
-
-        const flexArray = this.flexAttributes.a_modelMatrix.data;
-
-        flexArray.set(m, flexArray.length);
-
         this.flexAttributes.a_offset.data.push(x, y, z);
 
-        return m;
+        // scale → rotate → translate
+        let rotationQuat = fromEuler(createQuat(), rotation[0] * TO_DEG, rotation[1] * TO_DEG, rotation[2] * TO_DEG);
+        let modelMatrix = fromRotationTranslationScale(
+            createMat4(),
+            rotationQuat,
+            translateXYZ,
+            scaleXYZ
+        );
+        const mm = new Float32Array(this.defaultOrientationMatrix);
+        modelMatrix = multiply(mm, mm, modelMatrix);
+
+        // this.uniforms.u_normalMatrix = transpose(modelMatrix, invert(modelMatrix, modelMatrix));
+        // this.uniforms.u_normalMatrix = normalFromMat4(createMat3(), modelMatrix);
+        // create normal matrix to support non-uniform coordinate systems
+        this.uniforms.u_normalMatrix = normalFromMat4(
+            createMat3(),
+            modelMatrix
+        );
+
+        const flexArray = this.flexAttributes.a_modelMatrix.data;
+        flexArray.set(modelMatrix, flexArray.length);
     }
 
     setIdOffset(featureId: string) {
         this.idOffsets?.push(this.flexAttributes.a_modelMatrix.data.length, featureId);
     }
 
-    rayIntersects(buffer: GeometryBuffer, result: {
-        z: number
-    }, tileX: number, tileY: number, rayCaster: Raycaster): number | string {
+    rayIntersects(
+        buffer: GeometryBuffer,
+        result: {
+            z: number
+        },
+        tileX: number,
+        tileY: number,
+        rayCaster: Raycaster
+    ): number | string {
         const {attributes} = buffer;
         const positionAttr = attributes.a_position as Attribute;
         const modelMatrixData = (attributes.a_modelMatrix as Attribute).data;
@@ -336,77 +337,77 @@ export class ModelBuffer extends TemplateBuffer {
         const t2 = [0, 0, 0];
         let bufferIndex = null;
 
+
         for (let m = 0, i = 0, {length} = modelMatrixData; m < length; m += 16, i += 3) {
             const modelMatrix = modelMatrixData.subarray(m, m + 16);
             // const modelMatrix = modelMatrixData.slice(m, m + 16);
             // let rayDirection = transformMat4([], rayDirOrg, modelMatrix);
 
-            if (buffer.bbox) {
-                const [minX, minY, minZ, maxX, maxY, maxZ] = buffer.bbox;
-                const box = [[minX, minY, minZ], [maxX, maxY, maxZ]];
+            // if (buffer.bbox) {
+            //     const [minX, minY, minZ, maxX, maxY, maxZ] = buffer.bbox;
+            //     const box = [[minX, minY, minZ], [maxX, maxY, maxZ]];
+            //
+            //     let minXWorld = Infinity;
+            //     let minYWorld = Infinity;
+            //     let minZWorld = Infinity;
+            //     let maxXWorld = -Infinity;
+            //     let maxYWorld = -Infinity;
+            //     let maxZWorld = -Infinity;
+            //
+            //     const groundRes = 1 / (<number>buffer.uniforms.u_zMeterToPixel || rayCaster.scaleZ);
+            //
+            //     for (let p of box) {
+            //         // p[0] /= groundRes;
+            //         // p[1] /= groundRes;
+            //         // p[2] /= groundRes;
+            //         // transformMat4(p, p, modelMatrix);
+            //         // p[0] += tileX;
+            //         // p[1] += tileY;
+            //         // p[2] *= -groundRes;
+            //         transformMat4(p, p, modelMatrix);
+            //
+            //         p[0] = p[0] / groundRes + tileX + positionOffsetData[i];
+            //         p[1] = p[1] / groundRes + tileY + positionOffsetData[i + 1];
+            //         p[2] = -p[2] - positionOffsetData[i + 2];
+            //
+            //
+            //         let [x, y, z] = p;
+            //         if (x < minXWorld) minXWorld = x;
+            //         if (x > maxXWorld) maxXWorld = x;
+            //         if (y < minYWorld) minYWorld = y;
+            //         if (y > maxYWorld) maxYWorld = y;
+            //         if (z < minZWorld) minZWorld = z;
+            //         if (z > maxZWorld) maxZWorld = z;
+            //     }
+            //
+            //     const intersectRayLength = rayCaster.intersectAABBox(
+            //         minXWorld, minYWorld, minZWorld,
+            //         maxXWorld, maxYWorld, maxZWorld
+            //     );
+            //
+            //     const hitTestModeBBox = (buffer.hitTest || 0) == HitTest.bbox;
+            //
+            //     if (intersectRayLength != null) {
+            //         if (hitTestModeBBox) {
+            //             if (intersectRayLength < result.z) {
+            //                 bufferIndex = m;
+            //                 result.z = intersectRayLength;
+            //             }
+            //             continue;
+            //         }
+            //     } else {
+            //         continue;
+            //     }
+            // }
 
-                let minXWorld = Infinity;
-                let minYWorld = Infinity;
-                let minZWorld = Infinity;
-                let maxXWorld = -Infinity;
-                let maxYWorld = -Infinity;
-                let maxZWorld = -Infinity;
-
-                const groundRes = 1 / (<number>buffer.uniforms.u_zMeterToPixel || rayCaster.scaleZ);
-
-                for (let p of box) {
-                    // p[0] /= groundRes;
-                    // p[1] /= groundRes;
-                    // p[2] /= groundRes;
-                    // transformMat4(p, p, modelMatrix);
-                    // p[0] += tileX;
-                    // p[1] += tileY;
-                    // p[2] *= -groundRes;
-                    transformMat4(p, p, modelMatrix);
-
-                    p[0] = p[0] / groundRes + tileX + positionOffsetData[i];
-                    p[1] = p[1] / groundRes + tileY + positionOffsetData[i + 1];
-                    p[2] = -p[2] - positionOffsetData[i + 2];
-
-
-                    let [x, y, z] = p;
-                    if (x < minXWorld) minXWorld = x;
-                    if (x > maxXWorld) maxXWorld = x;
-                    if (y < minYWorld) minYWorld = y;
-                    if (y > maxYWorld) maxYWorld = y;
-                    if (z < minZWorld) minZWorld = z;
-                    if (z > maxZWorld) maxZWorld = z;
-                }
-
-                const intersectRayLength = rayCaster.intersectAABBox(
-                    minXWorld, minYWorld, minZWorld,
-                    maxXWorld, maxYWorld, maxZWorld
-                );
-
-                const hitTestModeBBox = (buffer.hitTest || 0) == HitTest.bbox;
-
-
-                if (intersectRayLength != null) {
-                    if (hitTestModeBBox) {
-                        if (intersectRayLength < result.z) {
-                            bufferIndex = m;
-                            result.z = intersectRayLength;
-                        }
-                        continue;
-                    }
-                } else {
-                    continue;
-                }
-            }
 
             // scale to tile size in pixel
             const positionScaleX = modelMatrix[m];
             const positionScaleY = modelMatrix[m + 5];
             const positionScaleZ = modelMatrix[m + 10];
-            // const translateX = modelMatrix[m+12];
-            // const translateY = modelMatrix[m+13];
-            // const translateZ = modelMatrix[m+14];
-
+            const translateX = modelMatrix[m + 12] + positionOffsetData[i];
+            const translateY = modelMatrix[m + 13] + positionOffsetData[i + 1];
+            const translateZ = modelMatrix[m + 14] + positionOffsetData[i + 2];
 
             for (let group of buffer.groups) {
                 const indexData = (<IndexGrp>group).index?.data;
@@ -431,38 +432,40 @@ export class ModelBuffer extends TemplateBuffer {
 
                     // t0[0] = position[i0];
                     // t0[1] = position[i0 + 1];
-                    // t0[2] = -position[i0 + 2];
+                    // t0[2] = position[i0 + 2];
                     // transformMat4(t0, t0, modelMatrix);
                     // t0[0] += tileX;
                     // t0[1] += tileY;
                     //
                     // t1[0] = position[i1];
                     // t1[1] = position[i1 + 1];
-                    // t1[2] = -position[i1 + 2];
+                    // t1[2] = position[i1 + 2];
                     // transformMat4(t1, t1, modelMatrix);
                     // t1[0] += tileX;
                     // t1[1] += tileY;
                     //
                     // t2[0] = position[i2];
                     // t2[1] = position[i2 + 1];
-                    // t2[2] = -position[i2 + 2];
+                    // t2[2] = position[i2 + 2];
                     // transformMat4(t2, t2, modelMatrix);
                     // t2[0] += tileX;
                     // t2[1] += tileY;
 
-                    t0[0] = tileX + position[i0] * positionScaleX;
-                    t0[1] = tileY + position[i0 + 1] * positionScaleY;
 
-                    t1[0] = tileX + position[i1] * positionScaleX;
-                    t1[1] = tileY + position[i1 + 1] * positionScaleY;
+                    t0[0] = tileX + (position[i0]) * positionScaleX + translateX;
+                    t0[1] = tileY + (position[i0 + 1]) * positionScaleY + translateY;
 
-                    t2[0] = tileX + position[i2] * positionScaleX;
-                    t2[1] = tileY + position[i2 + 1] * positionScaleY;
+                    t1[0] = tileX + (position[i1]) * positionScaleX + translateX;
+                    t1[1] = tileY + (position[i1 + 1]) * positionScaleY + translateY;
+
+                    t2[0] = tileX + (position[i2]) * positionScaleX + translateX;
+                    t2[1] = tileY + (position[i2 + 1]) * positionScaleY + translateY;
 
                     if (size == 3) {
-                        t0[2] = -position[i0 + 2] * positionScaleZ;
-                        t1[2] = -position[i1 + 2] * positionScaleZ;
-                        t2[2] = -position[i2 + 2] * positionScaleZ;
+                        t0[2] = position[i0 + 2] * positionScaleZ + translateZ;
+                        t1[2] = position[i1 + 2] * positionScaleZ + translateZ;
+                        t2[2] = position[i2 + 2] * positionScaleZ + translateZ;
+                        // console.log(t0, t1, t2, positionScaleZ);
                     }
 
                     const intersectRayLength = Raycaster.rayIntersectsTriangle(rayOrigin, rayDirection, t0, t1, t2);

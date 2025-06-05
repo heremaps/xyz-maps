@@ -63,9 +63,7 @@ export class ImageProvider extends TileProvider {
                     // support for "FileNotFound(404) Image tiles"
                     const {response} = xhr;
                     if (response instanceof Blob && response.type.startsWith('image')) {
-                        return HTTPLoader.createImageFromBlob(response, (img) => {
-                            onDone(img);
-                        });
+                        return HTTPLoader.createImageFromBlob(response, onDone);
                     }
                 }
             }
@@ -79,7 +77,8 @@ export class ImageProvider extends TileProvider {
                     url: options['url'],
                     headers: {
                         'Accept': '*/*'
-                    }
+                    },
+                    responseType: 'image'
                 })
             ),
             preProcessor: options.preProcessor,

@@ -16,22 +16,22 @@
  * SPDX-License-Identifier: Apache-2.0
  * License-Filename: LICENSE
  */
-export type Image =
-    | HTMLCanvasElement
-    | HTMLImageElement
-    | ImageBitmap
-    | {
+
+export type TextureData = {
     width: number;
     height: number;
-    data?: Uint8Array | Uint8ClampedArray;
+    data?: Uint8Array | Uint8ClampedArray | Float32Array;
     colorSpace?: string;
-};
+}
+export type ImageData = HTMLCanvasElement | HTMLImageElement | ImageBitmap | TextureData;
 
 const isPowerOf2 = (size: number) => (size & (size - 1)) == 0;
 
 export type TextureOptions = {
     flipY?: boolean,
     format?: GLenum,
+    internalFormat?: GLenum;
+    float?: boolean;
     halfFloat?: boolean,
     premultiplyAlpha?: boolean,
     mipMaps?: boolean
@@ -44,6 +44,7 @@ class Texture {
     height: number;
 
     format: GLenum;
+    private internalFormat: number;
 
     protected texture: WebGLTexture;
     protected gl: WebGLRenderingContext;
@@ -56,18 +57,47 @@ class Texture {
     private wrapT: GLenum;
 
     ref?: number; // reference counter for Texture sharing
+    private type: GLenum;
+    private minFilter: GLenum;
+    private magFilter: GLenum;
 
-    constructor(gl: WebGLRenderingContext, image?: Image, options: TextureOptions = {}) {
+
+    constructor(gl: WebGLRenderingContext, image?: ImageData, options: TextureOptions = {}) {
         this.gl = gl;
         this.format = options.format || gl.RGBA;
+        this.internalFormat = options.internalFormat || this.format;
         this.flipY = options.flipY || false;
         this.halfFloat = options.halfFloat || false;
-        this.mipMaps = options.mipMaps ?? true;
+
+        let mipmaps = options.mipMaps ?? true;
+        let type = gl.UNSIGNED_BYTE;
+
+        const textureData = (image as TextureData)?.data;
+        const float = options.float || textureData instanceof Float32Array;
+
+        let minFilter: GLenum;
+        let magFilter: GLenum;
+
+        if (float) {
+            type = gl.FLOAT;
+            this.format = this.internalFormat = gl.LUMINANCE; // mock gl.R32F
+            minFilter = magFilter = gl.NEAREST;
+            const size = Math.sqrt(textureData.length);
+            (image as TextureData).width ??= size;
+            (image as TextureData).height ??= size;
+        } else if (this.halfFloat) {
+            type = gl.getExtension('OES_texture_half_float')?.HALF_FLOAT_OES;
+            gl.getExtension('OES_texture_half_float_linear');
+        }
+
+        this.type = type;
+
+        this.mipMaps = mipmaps;
         this.wrapS = options.wrapS ?? gl.CLAMP_TO_EDGE;
         this.wrapT = options.wrapT ?? gl.CLAMP_TO_EDGE;
-        this.premultiplyAlpha = options.premultiplyAlpha == undefined
-            ? true
-            : options.premultiplyAlpha;
+        this.premultiplyAlpha = options.premultiplyAlpha ?? true;
+        this.minFilter = minFilter ?? gl.LINEAR;
+        this.magFilter = magFilter ?? gl.LINEAR;
 
         if (image) {
             this.set(image);
@@ -81,10 +111,10 @@ class Texture {
         }
     }
 
-    set(image: Image, x?: number, y?: number) {
-        let {gl, texture, format, flipY, wrapS, wrapT} = this;
+    set(image: ImageData, x?: number, y?: number) {
+        let {gl, texture, format, internalFormat, flipY, wrapS, wrapT, type, minFilter, magFilter} = this;
+
         const {width, height} = image;
-        let internalformat = format;
         const isSubImage = typeof x == 'number';
 
         if (!texture) {
@@ -101,19 +131,14 @@ class Texture {
 
         if (!isSubImage && (this.width != width || this.height || height)) {
             if (image instanceof HTMLCanvasElement || image instanceof HTMLImageElement || image instanceof ImageBitmap) {
-                gl.texImage2D(gl.TEXTURE_2D, 0, internalformat, format, gl.UNSIGNED_BYTE, image);
+                gl.texImage2D(gl.TEXTURE_2D, 0, internalFormat, format, gl.UNSIGNED_BYTE, image);
             } else {
-                let type = gl.UNSIGNED_BYTE;
-                if (this.halfFloat) {
-                    type = gl.getExtension('OES_texture_half_float')?.HALF_FLOAT_OES;
-                    gl.getExtension('OES_texture_half_float_linear');
-                }
-                gl.texImage2D(gl.TEXTURE_2D, 0, internalformat, width, height, 0, format, type, image.data);
+                gl.texImage2D(gl.TEXTURE_2D, 0, internalFormat, width, height, 0, format, type, image.data);
             }
             this.width = width;
             this.height = height;
         } else {
-            gl.texSubImage2D(gl.TEXTURE_2D, 0, x || 0, y || 0, format, gl.UNSIGNED_BYTE, <HTMLCanvasElement | HTMLImageElement>image);
+            gl.texSubImage2D(gl.TEXTURE_2D, 0, x || 0, y || 0, format, type, image as HTMLImageElement);
         }
 
         if (this.mipMaps && width == height && isPowerOf2(height)) {
@@ -121,8 +146,8 @@ class Texture {
             gl.texParameteri(gl.TEXTURE_2D, gl.TEXTURE_MAG_FILTER, gl.LINEAR);
             gl.generateMipmap(gl.TEXTURE_2D);
         } else {
-            gl.texParameteri(gl.TEXTURE_2D, gl.TEXTURE_MIN_FILTER, gl.LINEAR);
-            gl.texParameteri(gl.TEXTURE_2D, gl.TEXTURE_MAG_FILTER, gl.LINEAR);
+            gl.texParameteri(gl.TEXTURE_2D, gl.TEXTURE_MIN_FILTER, minFilter);
+            gl.texParameteri(gl.TEXTURE_2D, gl.TEXTURE_MAG_FILTER, magFilter);
         }
     }
 

@@ -157,7 +157,7 @@ const createBuffer = (
                 zoom,
                 collisions: null,
                 groups,
-                showWireframe: (showWireframe && typeof showWireframe != 'boolean') ? Colors.toRGB(showWireframe): showWireframe
+                showWireframe: (showWireframe && typeof showWireframe != 'boolean') ? Colors.toRGB(showWireframe) : showWireframe
             };
         },
 
@@ -347,16 +347,14 @@ const createBuffer = (
                                     }
 
                                     if (type == 'Model') {
-                                        geoBuffer.addUniform('u_meterToPixel', meterToPixel);
-
-                                        // terrain model -> scale xy in pixel
-                                        geoBuffer.addUniform('u_modelMode', shared.modelMode);
-
+                                        if (shared.modelMode) {
+                                            // terrain model -> scale xy in pixel
+                                            geoBuffer.addUniform('u_zMeterToPixel', 1);
+                                        }
 
                                         if (!geoBuffer.attributes.a_normal) {
-                                            const normals = geoBuffer.computeNormals();
                                             geoBuffer.addAttribute('a_normal', {
-                                                data: normals,
+                                                data: geoBuffer.computeNormals(),
                                                 size: 3,
                                                 normalized: true
                                             });
@@ -367,7 +365,7 @@ const createBuffer = (
                                         geoBuffer.destroy = (grpBuffer as ModelBuffer).destroy || geoBuffer.destroy;
                                         geoBuffer.depth = true;
 
-                                        const {showWireframe}= taskData;
+                                        const {showWireframe} = taskData;
                                         if (showWireframe) {
                                             const wireFrame = geoBuffer.addGroup(
                                                 (grpBuffer as ModelBuffer).generateWireframeIndices(),

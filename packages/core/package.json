@@ -37,6 +37,7 @@
     "@rollup/plugin-typescript": "^12.1.2",
     "@rollup/plugin-virtual": "^2.1.0",
     "@types/node": "^18.7.11",
+    "@types/offscreencanvas": "^2019.7.3",
     "git-rev-sync": "^3.0.2",
     "pbf": "^3.2.1",
     "rbush": "^3.0.1",

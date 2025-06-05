@@ -123,6 +123,13 @@ export interface Material {
     opacity?: number;
 
     useUVMapping?: boolean;
+    uvScale?: number;
+
+    /**
+     * A flag to specify if the texture should be flipped vertically.
+     *
+     * @defaultValue false
+     */
     flipY?: boolean;
 }
 
@@ -249,7 +256,7 @@ export interface ModelStyle {
      *
      * @example \{zIndex: 0, type: "Model", model: "./MyModel.obj"\}
      */
-    model: string | ModelData;
+    model: string | ModelData | StyleValueFunction<ModelData>;
 
     /**
      * Configure Face culling.

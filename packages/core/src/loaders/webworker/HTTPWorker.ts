@@ -29,33 +29,34 @@ export class HTTPWorker {
 
     constructor(options: HTTPLoaderOptions) {
         const {responseType} = options;
-
         const loader = this.loader = new HTTPLoader({responseType});
-        const worker = this;
 
-        self.addEventListener('message', function(e) {
+        self.addEventListener('message', (e) => {
             const {msg, quadkey, url, x, y, z} = e.data;
             switch (msg) {
             case 'abort':
                 loader.abort({quadkey});
                 break;
-
             case 'load':
                 loader.baseUrl = url;
-                loader.load({quadkey}, (arrayBuffer) => {
-                    const {data, transfer} = worker.process(arrayBuffer, x, y, z);
-
-                    self.postMessage({
-                        msg: 'success',
-                        url,
-                        quadkey,
-                        data
-                    }, transfer);
-                },
-                (e) => {
-                    self.postMessage({msg: 'error', url, quadkey, data: e});
-                });
+                this.load(x, y, z, quadkey, url);
             }
+        });
+    }
+
+    load(x: number, y: number, z: number, quadkey: string, url: string) {
+        const worker = this;
+        worker.loader.load({quadkey}, (arrayBuffer) => {
+            const {data, transfer} = worker.process(arrayBuffer, x, y, z);
+            self.postMessage({
+                msg: 'success',
+                url,
+                quadkey,
+                data
+            }, transfer);
+        },
+        (e) => {
+            self.postMessage({msg: 'error', url, quadkey, data: e});
         });
     }
 

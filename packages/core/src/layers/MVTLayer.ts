@@ -25,6 +25,7 @@ import {LRU} from '@here/xyz-maps-common';
 import {TileLayer, DEFAULT_LAYER_MAX_ZOOM} from './TileLayer';
 import {Tile} from '../tile/Tile';
 import {MVTLayerOptions} from './MVTLayerOptions';
+import {parseTileSize} from './TileLayerOptions';
 
 const DEFAULT_TILE_SIZE = 512;
 
@@ -63,16 +64,7 @@ export class MVTLayer extends TileLayer {
         let providers = options.providers;
         let levelOffset;
 
-        if (!tileSize) {
-            // check if tilesize is defined in url..
-            const ts = typeof url == 'string' && url.match(/256|512|1024|2048|4096/);
-
-            if (ts) {
-                tileSize = Number(ts[0]);
-            } else {
-                tileSize = DEFAULT_TILE_SIZE;
-            }
-        }
+        tileSize ||= parseTileSize(url as string) || DEFAULT_TILE_SIZE;
 
         if (!Array.isArray(providers)) {
             providers = [];

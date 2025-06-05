@@ -106,12 +106,12 @@ export default abstract class TileProvider {
         this.listeners = new Listener(['clear', 'error', 'tileInitialized', 'tileDestroyed']);
     };
 
-    protected dispatchEvent(type: string, detail: { [name: string]: any, provider?: TileProvider }) {
+    protected dispatchEvent(type: string, detail: { [name: string]: any, provider?: TileProvider }, sync: boolean = true) {
         detail.provider = this;
         const event = new CustomEvent(type, {
             detail: detail
         });
-        this.listeners.trigger(type, event, true);
+        this.listeners.trigger(type, event, sync);
     }
 
     initStorage(storage: TileStorage) {

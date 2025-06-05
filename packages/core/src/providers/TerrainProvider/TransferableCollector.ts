@@ -1,5 +1,5 @@
 /*
- * Copyright (C) 2019-2022 HERE Europe B.V.
+ * Copyright (C) 2019-2025 HERE Europe B.V.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -16,25 +16,23 @@
  * SPDX-License-Identifier: Apache-2.0
  * License-Filename: LICENSE
  */
-import MVTWorker from './loaders/MVT/MVTWorker';
-import TerrainWorker from './providers/TerrainProvider/TerrainWorker';
+type TypedArray = Float64Array | Float32Array | Uint16Array | Int16Array | Uint8Array | Uint32Array | Int8Array | Int32Array
 
+export class TransferableCollector {
+    private transfer = new Set<ArrayBuffer>();
 
-let workers = [MVTWorker, TerrainWorker];
-
-function initListener(e) {
-    const {msg, worker, options} = e.data;
-    if (msg == 'init') {
-        let {Worker} = workers.find((w) => w.id == worker);
-        if (Worker) {
-            // w.init(payload);
-            new Worker(options);
-            Worker = null;
+    add(data: any|TypedArray) {
+        const buffer = (data as Float32Array)?.buffer;
+        if (buffer) {
+            this.transfer.add(buffer);
+        } else if (!Array.isArray(data) && typeof data == 'object') {
+            for (let p in data) {
+                this.add(data[p]);
+            }
         }
-        // cleanup
-        workers = null;
-        self.removeEventListener('message', initListener);
+    }
+
+    getTransferables(): ArrayBuffer[] {
+        return Array.from(this.transfer);
     }
 }
-
-self.addEventListener('message', initListener);

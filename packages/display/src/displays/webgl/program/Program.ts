@@ -190,7 +190,8 @@ class Program {
             return (v) => {
                 gl.uniform1i(location, tu);
                 gl.activeTexture(gl.TEXTURE0 + tu);
-                gl.bindTexture(gl.TEXTURE_2D, v?.texture);
+                v?.bind();
+                // gl.bindTexture(gl.TEXTURE_2D, v?.texture);
             };
         }
 
@@ -424,12 +425,11 @@ class Program {
         }]);
     }
 
-    draw(geoBuffer: GeometryBuffer) {
+    draw(geoBuffer: GeometryBuffer, isPreview?: boolean) {
         const {gl} = this;
         const {groups, instances} = geoBuffer;
 
-        // if (this.name == 'Line' || this.name == 'Image')
-        // {
+        // if (this.name == 'Line' || this.name == 'Image'){
         //     this.dbgGLState(geoBuffer);
         // }
 

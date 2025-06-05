@@ -285,8 +285,11 @@ export class FeatureFactory {
 
                 let bucket = <TemplateBufferBucket<ModelBuffer>>group.buffer;
 
-                let {translate, rotate, transform, cullFace} = style as ModelStyle;
-                let scale = getValue('scale', style, feature, level);
+                // let {rotate, transform, cullFace} = style as ModelStyle;
+                const {rotate, cullFace} = style as ModelStyle;
+                const transform = getValue('transform', style, feature, level);
+                const scale = getValue('scale', style, feature, level);
+                const translate = getValue('translate', style, feature, level);
 
                 if (!group.buffer) {
                     let faceCulling: number;

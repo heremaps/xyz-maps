@@ -22,6 +22,13 @@ import {LayerStyle} from '../styles/LayerStyle';
 import {LayerOptions} from './LayerOptions';
 
 
+export const parseTileSize = (url: string): number | null => {
+    // check if tilesize is defined in url..
+    const matches = typeof url == 'string' && url.match(/256|512|1024|2048|4096/);
+    return matches ? Number(matches[0]) : null;
+};
+
+
 /**
  *  Configuration options for a TileLayer.
  */
@@ -86,7 +93,7 @@ export interface TileLayerOptions extends LayerOptions {
      * Determines whether pointer events are enabled for all features of the layer.
      * @defaultValue true
      */
-    pointerEvents?: boolean
+    pointerEvents?: boolean;
     /**
      * Indicates whether the layer supports adaptive tile loading.
      *
