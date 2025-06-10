@@ -17,7 +17,7 @@
  * License-Filename: LICENSE
  */
 
-import {Feature} from '@here/xyz-maps-core';
+import {CustomLayer, Feature, TileLayer} from '@here/xyz-maps-core';
 
 let UNDEF;
 
@@ -74,7 +74,17 @@ class MapEvent {
     /**
      * optional event detail data
      */
-    readonly detail?: any;
+    readonly detail?: {
+        [detail: string]: any;
+        /**
+         * If the event was triggered as a result of user interaction (e.g., clicking or hovering),
+         * and the source of the event is a layer-based object, this property refers to the associated
+         * `TileLayer` or `CustomLayer` instance from which the event originated.
+         *
+         * Useful for identifying which data layer was interacted with, especially when multiple layers are active.
+         */
+        layer?: TileLayer | CustomLayer
+    };
     data?: any;
 
 

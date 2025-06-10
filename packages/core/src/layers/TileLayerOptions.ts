@@ -106,4 +106,48 @@ export interface TileLayerOptions extends LayerOptions {
      * @internal
      */
     adaptiveGrid?: boolean;
+
+    /**
+     * Attribution information for data sources used by this layer.
+     *
+     * Attributions are automatically displayed or hidden depending on whether the corresponding
+     * data is currently active or visible on the map — e.g., based on zoom level, layer visibility,
+     * or usage. This ensures that only active data providers are credited, as required by licensing.
+     *
+     * Can be a simple string (displayed as static text), or an array of structured attribution entries
+     * that support clickable labels and optional tooltips.
+     *
+     * @example
+     * // Simple attribution string
+     * attribution: "© Data Provider"
+     *
+     * @example
+     * // Multiple detailed attributions
+     * attribution: [
+     *     {
+     *         label: "© Elevation Provider",
+     *         url: "https://elevation.example.com",
+     *         title: "Elevation data source"
+     *     },
+     *     {
+     *         label: "Imagery © HERE Maps",
+     *         url: "https://www.here.com",
+     *         title: "Satellite imagery by HERE"
+     *     }
+     * ]
+     */
+    attribution?: string | {
+        /**
+         * The text label displayed in the attribution control.
+         */
+        label: string;
+        /**
+         * (Optional) A URL that opens when the label is clicked.
+         */
+        url?: string;
+        /**
+         * (Optional) Tooltip shown on hover over the label.
+         */
+        title?: string;
+    }[];
 }

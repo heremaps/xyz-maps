@@ -95,12 +95,16 @@ export class TileLayer extends Layer {
      */
     adaptiveGrid: boolean;
 
+    private attribution: { label: string; url?: string; title?: string; }[];
+
     /**
      * @param options - options to configure the TileLayer
      */
     constructor(options: TileLayerOptions) {
-        const {pointerEvents} = options;
+        const {pointerEvents, attribution} = options;
         delete options.pointerEvents;
+        delete options.attribution;
+
 
         super({
             min: DEFAULT_LAYER_MIN_ZOOM,
@@ -110,6 +114,12 @@ export class TileLayer extends Layer {
             adaptiveGrid: false,
             ...options
         });
+
+
+        this.attribution = attribution ? Array.isArray(attribution)
+            ? attribution
+            : [{label: attribution}] : [];
+
 
         const layer = this;
         [
@@ -793,44 +803,30 @@ export class TileLayer extends Layer {
 
 
     // /**
-    //  * Copyright callback receiving array of copyright objects: [{label:"",alt:""}]
+    //  * Get the attribution information from all unique tile providers in the layer.
     //  *
-    //  * @callback here.xyz.maps.layers.TileLayer~copyrightCallback
-    //  * @param {Array.<{label: String, alt: String}>} copyright array of copyright data.
+    //  * @param cb - Callback function that receives an array of attribution strings.
     //  */
-    //
-    // /**
-    //  * get copyright information of all providers used by the layer.
-    //  *
-    //  * @public
-    //  * @expose
-    //  * @param {here.xyz.maps.layers.TileLayer~copyrightCallback} callback that handles copyright response
-    //  * @function
-    //  * @name here.xyz.maps.layers.TileLayer#getCopyright
-    //  *
-    //  */
-    getCopyright(cb) {
-        let unique = this._p.filter((v, i, self) => self.indexOf(v) === i);
-        let copyrights = [];
+    getAttribution(cb: (attribution: { label: string; url?: string; title?: string }[]) => void) {
+        const unique = this._p.filter((v, i, self) => self.indexOf(v) === i);
+        const attribution = [...this.attribution];
         let i = 0;
-        let prov;
-        let done = (c) => {
+        let prov: TileProvider;
+        const done = (c) => {
             if (c.length) {
-                copyrights.push(...c);
+                attribution.push(...c);
             }
             if (!--i) {
-                cb && cb(copyrights);
+                cb?.(attribution);
             }
         };
 
         while (prov = unique.pop()) {
-            if (prov && prov.getCopyright) {
+            if (prov?.getAttribution) {
                 i++;
-                prov.getCopyright(done);
+                prov.getAttribution(done);
             }
         }
-
-        // this.getProvider(this.max).getCopyright(cb);
     };
 
     getStyleDefinitions(): LayerStyle['definitions'] {

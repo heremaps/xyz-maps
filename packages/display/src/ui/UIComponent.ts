@@ -25,7 +25,7 @@ let styleEl;
 
 class UIComponent {
     style: any;
-    map: any;
+    map: Map;
     listeners: any;
     templ: string;
     html: any;

@@ -722,10 +722,6 @@ export abstract class EditableRemoteTileProvider extends EditableFeatureProvider
         return this.remoteTileLoader.loader;
     };
 
-    config(cfg) {
-        return super.config(cfg);
-    };
-
     clear(tile?) {
         if (arguments.length == 0) {// full wipe!
             // this.loader.clear();

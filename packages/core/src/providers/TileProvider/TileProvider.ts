@@ -106,7 +106,10 @@ export default abstract class TileProvider {
         this.listeners = new Listener(['clear', 'error', 'tileInitialized', 'tileDestroyed']);
     };
 
-    protected dispatchEvent(type: string, detail: { [name: string]: any, provider?: TileProvider }, sync: boolean = true) {
+    protected dispatchEvent(type: string, detail: {
+        [name: string]: any,
+        provider?: TileProvider
+    }, sync: boolean = true) {
         detail.provider = this;
         const event = new CustomEvent(type, {
             detail: detail
@@ -164,8 +167,8 @@ export default abstract class TileProvider {
      * Clears all cached tiles of the provider.
      */
     clear(): void;
-    clear(bbox?: GeoJSONBBox | Tile | Tile[], triggerEvents?: boolean): string[]|null;
-    clear(bbox?: GeoJSONBBox | Tile | Tile[], triggerEvents: boolean = true): string[]|null {
+    clear(bbox?: GeoJSONBBox | Tile | Tile[], triggerEvents?: boolean): string[] | null;
+    clear(bbox?: GeoJSONBBox | Tile | Tile[], triggerEvents: boolean = true): string[] | null {
         // this.storage.clear();
         const provider = this;
         let clearTiles = null;
@@ -258,15 +261,24 @@ export default abstract class TileProvider {
     }
 
     /**
-     * Set config for provider.
+     * Get or set configuration options for the provider.
      *
-     * @param options - options to set
+     * If a string is provided as the first argument, returns the value of the corresponding property.
+     * If an object is provided, sets the provider's properties according to the object.
+     *
+     * @param options - The configuration key as a string to get a value, or an object to set multiple options.
+     * @param value - Optional value to set if a string key is provided.
      */
-    config(options: TileProviderOptions) {
-        options = options || {};
-
-        for (const c in options) {
-            this.config[c] = options[c];
+    config(options: TileProviderOptions | string, value?): TileProviderOptions {
+        if (typeof options === 'string') {
+            if (value === undefined) {
+                return this[options];
+            }
+            this[options] = value;
+        } else if (options) {
+            for (const c in options) {
+                this[c] = options[c];
+            }
         }
         return this;
     };
@@ -288,6 +300,25 @@ export default abstract class TileProvider {
 
         return tile;
     };
+
+    /**
+     * @hidden
+     * @internal
+     */
+    getAttribution(cb: (copyright: { label: string, alt?: string, url?: string }[]) => void, error?: (error) => void) {
+        let attribution: { label: string, alt?: string } | {
+            label: string,
+            alt?: string
+        }[] | string = this.config('attribution') as string;
+        if (attribution) {
+            if (typeof attribution === 'string') {
+                attribution = {label: attribution};
+            }
+        } else {
+            attribution = [];
+        }
+        cb(Array.isArray(attribution) ? attribution : [attribution]);
+    }
 };
 
 TileProvider.prototype.__type = 'Provider';

@@ -29,18 +29,20 @@ import {TileLoadDelegator} from '../RemoteTileProvider/TileLoadDelegator';
 import {getOppositeNeighbor, Neighbor, stitchMeshBorders} from './terrainUtils';
 import {stitchHeightmapBorders} from './heightmapUtils';
 import {TerrainTileFeature} from '../../features/TerrainFeature';
-import {StyleZoomRange} from '@here/xyz-maps-core';
+import {RemoteTileProviderOptions, StyleZoomRange} from '@here/xyz-maps-core';
 
+
+type TerrainTileProviderOptions = Omit<RemoteTileProviderOptions, 'level'> & {
+    terrain?: TerrainTileLoaderOptions,
+    maxGeometricError?: StyleZoomRange<number> | number;
+    imagery?: HTTPLoaderOptions,
+    loader?: any
+}
 
 export class TerrainTileProvider extends RemoteTileProvider {
     dataType = 'json';
 
-    constructor(options: {
-        terrain?: TerrainTileLoaderOptions,
-        maxGeometricError?: StyleZoomRange<number>|number;
-        imagery?: HTTPLoaderOptions,
-        loader?: any
-    }) {
+    constructor(options: TerrainTileProviderOptions) {
         options ||= {};
 
         let {maxGeometricError} = options;

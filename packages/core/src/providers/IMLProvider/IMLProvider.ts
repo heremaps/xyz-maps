@@ -93,17 +93,26 @@ export class IMLProvider extends SpaceProvider {
         return this.url + '/catalogs/' + this.catalog + '/layers/' + layer;
     }
 
+
     /**
-     * update config options of the provider.
+     * Get or set configuration options for the provider.
      *
-     * @param options - options to configure the provider
+     * If a string is provided as the first argument, returns the value of the corresponding property.
+     * If an object is provided, sets the provider's properties according to the object.
+     *
+     * @param options - The configuration key as a string to get a value, or an object to set multiple options.
+     * @param value - Optional value to set if a string key is provided.
      */
-    config(options: IMLProviderOptions) {
-        const token = options?.credentials?.token;
+    config(options: IMLProviderOptions|string, value?: any) {
+        if (options === 'credentials') {
+            options = {credentials: value} as IMLProviderOptions;
+            value = undefined;
+        }
+        const token = (options as IMLProviderOptions)?.credentials?.token;
         if (token) {
             this.token = token;
-            delete options.credentials.token;
+            delete (options as IMLProviderOptions).credentials.token;
         }
-        return super.config(options);
+        return super.config(options, value);
     };
 }

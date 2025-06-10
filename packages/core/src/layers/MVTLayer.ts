@@ -110,7 +110,7 @@ export class MVTLayer extends TileLayer {
     }
 
 
-    getCopyright(cb: (copyrightInfo: any) => void) {
-        this.getProvider(this.max).getCopyright(cb);
+    getAttribution(cb: (copyrightInfo: any) => void) {
+        this.getProvider(this.max).getAttribution(cb);
     }
 }

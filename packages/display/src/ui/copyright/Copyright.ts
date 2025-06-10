@@ -22,6 +22,7 @@ import Details from './CopyrightDetails';
 import {CopyrightSource, CopyrightSourceScope} from './CopyrightSource';
 import {global, Map, JSUtils} from '@here/xyz-maps-common';
 import {Map as Display} from '../../Map';
+import {MapEvent} from '../../event/Event';
 // @ts-ignore
 import defaultOwner from 'ui-default-cOwner';
 // @ts-ignore
@@ -163,9 +164,9 @@ class Copyright extends UIComponent {
             }
         });
 
-        ui.map.addEventListener(LAYER_TOGGLE_EVENTS, ui.onLayerChange = (ev) => {
+        ui.map.addEventListener(LAYER_TOGGLE_EVENTS, ui.onLayerChange = (ev: MapEvent) => {
             let layer = ev.detail.layer;
-            layer.getCopyright((copyright) => {
+            layer.getAttribution((copyright) => {
                 // ui might have been destroyed in the meanwhile
                 if (ui.active) {
                     if (ev.type == 'addLayer') {
@@ -251,8 +252,16 @@ class Copyright extends UIComponent {
         }
     }
 
-    private setOwnerLabel(el: HTMLElement, label: string) {
-        el.innerText = '\u00A9 ' + label;
+    private setOwnerLabel(el: HTMLElement, label: string, alt?: string, url?: string) {
+        if (url) {
+            el.innerHTML = `<a href='${url}' target='_blank' rel='noopener noreferrer'>\u00A9 ${label}</a>`;
+        } else {
+            el.innerText = '\u00A9 ' + label;
+        }
+        if (alt) {
+            el.setAttribute('title', alt);
+            el.setAttribute('aria-label', alt);
+        }
     }
 
     private addSource(src: CopyrightSource, layer: any) {
@@ -268,7 +277,7 @@ class Copyright extends UIComponent {
             el = document.createElement('span');
             el.className = this.prefixClass('.source').substr(1);
 
-            ui.setOwnerLabel(el, label);
+            ui.setOwnerLabel(el, label, src.alt, src.url);
 
             ui.$src.appendChild(el);
             source = {

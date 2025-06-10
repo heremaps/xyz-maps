@@ -32,7 +32,8 @@ class MvtFeature extends Feature {
     getMvtLayer() {
         return this.geometry.__xyz.l;
     }
-    getDataSourceLayer(layer:any) {
+
+    getDataSourceLayer(layer: any) {
         return this.geometry.__xyz.l;
     }
 }
@@ -66,7 +67,8 @@ export class MVTProvider extends RemoteTileProvider {
         return feature.geometry._coordinates();
     }
 
-    getCopyright(cb) {
+
+    getAttribution(cb) {
         let prov = this;
         let url = prov.url;
 

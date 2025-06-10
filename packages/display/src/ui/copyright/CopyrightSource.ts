@@ -28,5 +28,6 @@ export type CopyrightSourceScope = {
 export type CopyrightSource = {
     label: string
     alt?: string
+    url?: string
     scopes?: CopyrightSourceScope[]
 };

@@ -190,7 +190,7 @@ export class CustomLayer extends Layer {
     };
 
 
-    getCopyright() {
+    getAttribution() {
 
     }
 

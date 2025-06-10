@@ -199,18 +199,25 @@ abstract class HTTPProvider extends EditableRemoteTileProvider {
     }
 
     /**
-     * update config options of the provider.
+     * Get or set configuration options for the provider.
      *
-     * @param options - options to configure the provider
+     * If a string is provided as the first argument, returns the value of the corresponding property.
+     * If an object is provided, sets the provider's properties according to the object.
+     *
+     * @param options - The configuration key as a string to get a value, or an object to set multiple options.
+     * @param value - Optional value to set if a string key is provided.
      */
-    config(options: HTTPProviderOptions) {
-        super.config(options);
-
-        if (options && options.url) {
+    config(options: HTTPProviderOptions| string, value?: any) {
+        if ( options === 'url' && typeof value === 'string') {
+            options = {url: value} as HTTPProviderOptions;
+            value = undefined;
+        }
+        const retVal = super.config(options, value);
+        if ((options as HTTPProviderOptions)?.url) {
             // also updated tile loader url
             this.setParams({});
         }
-        return this;
+        return retVal;
     }
 
     commit(features, onSuccess, onError, transactionId?: string) {

@@ -114,17 +114,25 @@ export class SpaceProvider extends GeoJSONProvider {
     }
 
     /**
-     * update config options of the provider.
+     * Get or set configuration options for the provider.
      *
-     * @param options - options to configure the provider
+     * If a string is provided as the first argument, returns the value of the corresponding property.
+     * If an object is provided, sets the provider's properties according to the object.
+     *
+     * @param options - The configuration key as a string to get a value, or an object to set multiple options.
+     * @param value - Optional value to set if a string key is provided.
      */
-    config(options: SpaceProviderOptions | HTTPProviderOptions) {
+    config(options: SpaceProviderOptions | HTTPProviderOptions | string, value?: any) {
+        if (options === 'credentials' && typeof value === 'object') {
+            options = {credentials: value} as SpaceProviderOptions;
+            value = undefined;
+        }
         const credentials = (options as SpaceProviderOptions)?.credentials;
         if (credentials) {
             delete (<SpaceProviderOptions>options).credentials;
             this.setParams(credentials);
         }
-        return super.config(options);
+        return super.config(options, value);
     };
 
     /**
@@ -431,10 +439,13 @@ export class SpaceProvider extends GeoJSONProvider {
         this.clear();
     };
 
-    getCopyright(success?: (copyright: any) => void, error?: ErrorEventHandler) {
-        this.getDefinition((def) => {
-            success && success(def.copyright || []);
-        }, error);
+    getAttribution(success?: (copyright: any) => void, error?: ErrorEventHandler) {
+        super.getAttribution((attribution)=>{
+            attribution ||= [];
+            this.getDefinition((def) => {
+                success?.([...attribution, ...(def.copyright || [])]);
+            }, error);
+        });
     };
 
     definition = null;
