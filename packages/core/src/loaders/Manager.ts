@@ -18,37 +18,44 @@
  */
 
 import {Tile} from '../tile/Tile';
+import TileLoader from './TileLoader';
+
+type OnTileLoadSuccess = (data: any, size?: number) => void;
+type OnTileLoadError = (error: any, data?: any) => void
+
+type QueueItem = {
+    tile: Tile;
+    onSuccess: OnTileLoadSuccess;
+    onError: OnTileLoadError;
+}
 
 class ManagedLoader {
     private executing = 0;
-
     private parallel = 16;
 
-    private q = [];
+    private q: QueueItem[] = [];
     private lq = {};
-    private src: any[];
+    private src: TileLoader[];
 
-    constructor(...dataSources) {
+    constructor(...dataSources: TileLoader[]) {
         this.src = dataSources;
     }
 
-    exec() {
+    private exec() {
         const ml = this;
         const queue = ml.q;
 
         while (queue.length && ml.executing < ml.parallel) {
-            ml.fire(queue.pop(), queue.pop(), queue.pop());
+            const {onError, onSuccess, tile} = queue.pop();
+            ml.loadTile(tile, onSuccess, onError);
+            // ml.fire(queue.pop(), queue.pop(), queue.pop());
         }
     };
 
-    fire(tile: Tile, onSuccess, onError, cacheLoadLevel?: number) {
+    private loadTile(tile: Tile, onSuccess: OnTileLoadSuccess, onError: OnTileLoadError, cacheLoadLevel: number = 0) {
         const ml = this;
-
         const dataSources = ml.src;
         const loadingQueue = ml.lq;
-
-        var // tLen           = dataSources.length,
-            cacheLoadLevel = cacheLoadLevel ^ 0;
 
         ml.executing++;
         loadingQueue[tile.quadkey] = [tile, onSuccess, onError, cacheLoadLevel];
@@ -74,9 +81,8 @@ class ManagedLoader {
         );
     };
 
-    tile(tile: Tile, onSuccess, onError) {
-        this.q.unshift(onError, onSuccess, tile);
-        // this.q.push(onError, onSuccess, tile);
+    tile(tile: Tile, onSuccess: OnTileLoadSuccess, onError: OnTileLoadError) {
+        this.q.unshift({onError, onSuccess, tile});
         this.exec();
     };
 
@@ -86,12 +92,12 @@ class ManagedLoader {
         const loadingQueue = ml.lq;
         const dataSources = ml.src;
         let aborted = true;
-        let index;
         let request;
 
+        const itemIndex = queue.findIndex((item) => item.tile === tile);
         // tile is in queue and waiting for being processed
-        if ((index = queue.indexOf(tile)) !== -1) {
-            queue.splice(index - 2, 3);
+        if (itemIndex !== -1) {
+            queue.splice(itemIndex, 1);
         } else if (request = loadingQueue[tile.quadkey]) {
             // tile is already requested and waiting for response
             // cleanup loading queue
@@ -110,32 +116,17 @@ class ManagedLoader {
         return aborted;
     };
 
-    store(tile: Tile, cb) {
-        const dataSources = this.src;
-
-        for (const ds in dataSources) {
-            if (dataSources[ds].store) {
-                dataSources[ds].store(tile, cb);
-                break;
-            }
-        }
-    };
-
     clear() {
         const dataSources = this.src;
         // TODO: need to add support for clearing per tile only in loaders!
         dataSources.forEach((ds) => {
-            ds.clear && ds.clear();
+            ds.clear?.();
         });
     };
 
     setUrl() {
-        const dataSources = this.src;
-
-        for (const ds in dataSources) {
-            if (dataSources[ds].setUrl) {
-                dataSources[ds].setUrl.apply(dataSources[ds], arguments);
-            }
+        for (const dataSource of this.src) {
+            dataSource.setUrl?.apply(dataSource, arguments);
         }
     };
 }

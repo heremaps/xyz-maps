@@ -45,7 +45,7 @@ function toggleLayerEventListener(toggle: string, layer: any, listeners: any) {
 
 let UNDEF;
 
-export type ViewportTile = GridTile & {scale: number, size: number, tile: BasicTile};
+export type ViewportTile = GridTile & { scale?: number, size?: number, tile?: BasicTile };
 
 abstract class Display {
     private previewer: Preview;
@@ -221,7 +221,7 @@ abstract class Display {
     }
 
     handleTile(tile: Tile, layer: TileLayer, displayTile?: BasicTile, index?: number) {
-        const display = this;
+        const display: Display = this;
         let dirty = false;
         let data;
 
@@ -377,7 +377,8 @@ abstract class Display {
         const display = this;
         const layers = this.layers;
         const prevVPTiles = display.tiles || [];
-        let vpTiles = display.tiles = [];
+        const vpTiles = display.tiles = [];
+        const center = {x: display.w / 2, y: display.h / 2};
 
         for (let dLayer of layers) {
             dLayer.reset(zoomLevel);
@@ -392,35 +393,34 @@ abstract class Display {
             dLayer.tiles = screenTiles;
 
             if (layer.isVisible(zoomLevel)) {
-                for (let _gridTile of gridTiles) {
-                    const subTiles = _gridTile.generateTileHierarchy(
-                        display,
-                        layerTileSize,
-                        layer.adaptiveGrid
-                    ) as ViewportTile[];
+                const tiles = gridTiles.flatMap((_gridTile) => {
+                    return _gridTile.generateTileHierarchy(display, layerTileSize, layer.adaptiveGrid) as ViewportTile[];
+                });
+                // load tiles in order of distance to the center of the screen
+                tiles.sort((a, b) => Math.hypot(a.x - center.x, a.y - center.y) - Math.hypot(b.x - center.y, b.y - center.y));
 
-                    for (let gridTile of subTiles) {
-                        const {quadkey, scaledSize} = gridTile;
-                        const displayTile = display.getBucket(quadkey, CREATE_IF_NOT_EXISTS);
-                        const tileZoomScale = scaledSize / gridTileSize;
+                for (let gridTile of tiles) {
+                    const {quadkey, scaledSize} = gridTile;
+                    const displayTile = display.getBucket(quadkey, CREATE_IF_NOT_EXISTS);
+                    const tileZoomScale = scaledSize / gridTileSize;
 
-                        gridTile.scale = tileZoomScale;
-                        gridTile.size = gridTileSize;
-                        gridTile.tile = displayTile;
+                    gridTile.scale = tileZoomScale;
+                    gridTile.size = gridTileSize;
+                    gridTile.tile = displayTile;
 
-                        screenTiles.push(gridTile);
+                    screenTiles.push(gridTile);
 
-                        if (!vpTiles.find((t) => t.quadkey == quadkey
-                            // At the most zoomed-out level, tiles may repeat multiple times to fully cover the screen.
-                            && t.x == gridTile.x && t.y == gridTile.y)
-                        ) {
-                            vpTiles.push(gridTile);
-                            displayTile.i = ++this.ti;
-                        }
-                        display.initTile(displayTile, dLayer);
-                        layer.getTile(quadkey, dLayer.handleTile);
+                    if (!vpTiles.find((t) => t.quadkey == quadkey
+                        // At the most zoomed-out level, tiles may repeat multiple times to fully cover the screen.
+                        && t.x == gridTile.x && t.y == gridTile.y)
+                    ) {
+                        vpTiles.push(gridTile);
+                        displayTile.i = ++this.ti;
                     }
+                    display.initTile(displayTile, dLayer);
+                    layer.getTile(quadkey, dLayer.handleTile);
                 }
+
                 this.freeStaleTilesLayer(screenTiles, prevVPTiles, dLayer);
             }
         }

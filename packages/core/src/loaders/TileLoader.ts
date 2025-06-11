@@ -22,9 +22,12 @@ import {Tile} from '../tile/Tile';
 
 interface TileLoader {
 
-    load: (tile: Tile, success, error)=>void;
+    load: (tile: Tile, success, error) => void;
 
-    abort: (tile: Tile)=>void;
+    abort: (tile: Tile) => void;
+
+    setUrl?: (url: string) => void;
+    clear?: () => void;
 }
 
 export default TileLoader;
