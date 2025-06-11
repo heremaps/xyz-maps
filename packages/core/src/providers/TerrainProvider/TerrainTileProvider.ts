@@ -24,13 +24,13 @@ import {HTTPLoader, HTTPLoaderOptions} from '../../loaders/HTTPLoader';
 import {ConcurrentTileLoader} from '../../loaders/ConcurrentTileLoader';
 import TerrainWorkerLoader, {TerrainTileLoaderOptions} from './TerrainWorkerLoader';
 import {RemoteTileProvider} from '../RemoteTileProvider/RemoteTileProvider';
+import {RemoteTileProviderOptions} from '../RemoteTileProvider/RemoteTileProviderOptions';
 import {tileXYToQuadKey} from '../../tile/TileUtils';
 import {TileLoadDelegator} from '../RemoteTileProvider/TileLoadDelegator';
 import {getOppositeNeighbor, Neighbor, stitchMeshBorders} from './terrainUtils';
 import {stitchHeightmapBorders} from './heightmapUtils';
 import {TerrainTileFeature} from '../../features/TerrainFeature';
-import {RemoteTileProviderOptions, StyleZoomRange} from '@here/xyz-maps-core';
-
+import {StyleZoomRange} from '../../styles/LayerStyle';
 
 type TerrainTileProviderOptions = Omit<RemoteTileProviderOptions, 'level'> & {
     terrain?: TerrainTileLoaderOptions,
