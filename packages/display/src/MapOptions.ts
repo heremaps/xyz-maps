@@ -64,7 +64,10 @@ export interface MapOptions {
      */
     backgroundColor?: Color;
     /**
-     * enable or disable debug tile grid
+     * Enables or disables the display of the debug tile grid overlay on the map.
+     *
+     * When set to `true`, a grid will be rendered to visualize the boundaries of map tiles,
+     * which is useful for debugging tile loading and rendering issues.
      *
      * @defaultValue false
      */

@@ -43,10 +43,9 @@ export const createStencilTileBuffer = (tileSize: number, gl: WebGLRenderingCont
     return tileBuffer;
 };
 
-const createGridTileBuffer = (color: number[] = [1.0, 0.0, 0.0, 1.0], strokeWidth: number = 2) => {
+const createGridTileBuffer = (tileSize: number = 1, color: number[] = [1.0, 0.0, 0.0, 1.0], strokeWidth: number = 2) => {
     const lineBuffer = new LineBuffer();
     const {flexAttributes} = lineBuffer;
-    const tileSize = 1;
 
     addLineString(
         (flexAttributes.a_position as FlexAttribute).data,

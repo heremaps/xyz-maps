@@ -18,7 +18,7 @@
  */
 
 import BasicRender from '../BasicRender';
-import {CustomLayer, Tile, TileLayer} from '@here/xyz-maps-core';
+import {CustomLayer, tile, Tile, TileLayer} from '@here/xyz-maps-core';
 import GLTile from './GLTile';
 import RectProgram from './program/Rect';
 import CircleProgram from './program/Circle';
@@ -169,7 +169,7 @@ export class GLRender implements BasicRender {
 
     private dpr: number; // devicePixelRatio
 
-    private dbgTile = createGridTileBuffer();
+    private dbgTile: {[tileSize: number]: GeometryBuffer} = {};
     private stencilTile: GeometryBuffer;
     private depthFnc: GLenum;
     private depthMask: boolean;
@@ -634,10 +634,7 @@ export class GLRender implements BasicRender {
     }
 
     drawGrid(x: number, y: number, dTile: GLTile, tileSize: number) {
-        this.dbgTile.uniforms.u_tileScale = tileSize;
-        this.dbgTile.clearUniformCache();
-
-        this.drawBuffer(this.dbgTile, x, y, null, null);
+        this.drawBuffer(this.getDbgTile(tileSize), x, y, null, null);
 
         let textBuffer: GeometryBuffer = this.gridTextBuf.get(dTile);
 
@@ -1134,5 +1131,9 @@ export class GLRender implements BasicRender {
         resolution[0] = width;
         resolution[1] = height;
         // }
+    }
+
+    private getDbgTile(tileSize: number) {
+        return this.dbgTile[tileSize] ||= createGridTileBuffer(tileSize);
     }
 }
