@@ -44,8 +44,7 @@ import {Raycaster} from './Raycaster';
 import {defaultLightUniforms, initLightUniforms, ProcessedLights} from './lights';
 import {UniformMap} from './program/Program';
 import {Color as Colors} from '@here/xyz-maps-common';
-
-const {toRGB} = Colors;
+const {toRGB, rgbaToHexString} = Colors;
 
 // determined through experimentation to find the best balance between performance and view distance.
 export const MAX_PITCH_GRID = 66.33 / 180 * Math.PI;
@@ -232,9 +231,10 @@ class WebGlDisplay extends BasicDisplay {
         if (this.factory.gradients.isGradient(skyColor)) {
             color = this.factory.gradients.getTexture((<unknown>skyColor as LinearGradient));
         } else {
-            color = toRGB(skyColor as Color);
+            // TODO: Separate the texture cache from the gradient factory, and add support for caching simple color textures in the texture cache for efficiency.
+            const hexColor = rgbaToHexString(toRGB(skyColor as Color, true));
+            color = this.factory.gradients.getTexture({0: hexColor, 1: hexColor});
         }
-
         this.render.setSkyColor(color);
     }
 

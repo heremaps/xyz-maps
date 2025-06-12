@@ -254,4 +254,11 @@ export namespace Colors {
         return rgba || null;
     };
 
+    export const rgbaToHexString = (rgba: [number, number, number, number?]): string => {
+        const [r, g, b, a = 1] = rgba;
+        const toHex = (v: number) => Math.round(v * 255).toString(16).padStart(2, '0');
+        const hex = `#${toHex(r)}${toHex(g)}${toHex(b)}`;
+        return a < 1 ? `${hex}${toHex(a)}` : hex;
+    };
+
 }
