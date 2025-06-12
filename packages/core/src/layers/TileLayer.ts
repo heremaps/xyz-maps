@@ -17,13 +17,9 @@
  * License-Filename: LICENSE
  */
 
-import {Listener as Listeners} from '@here/xyz-maps-common';
 import defaultStylesDef from '../styles/default';
 import {XYZLayerStyle} from '../styles/XYZLayerStyle';
-
-import {LayerStyle, Style, StyleGroup} from '../styles/LayerStyle';
-
-/* exported Options */
+import {LayerStyle, Style} from '../styles/LayerStyle';
 import {TileLayerOptions} from './TileLayerOptions';
 import TileProvider from '../providers/TileProvider/TileProvider';
 import {RemoteTileProvider} from '../providers/RemoteTileProvider/RemoteTileProvider';
@@ -34,6 +30,7 @@ import {GeoPoint} from '../geo/GeoPoint';
 import {GeoRect} from '../geo/GeoRect';
 import {GeoJSONBBox, GeoJSONCoordinate, GeoJSONFeature, GeoJSONFeatureCollection} from '../features/GeoJSON';
 import {Layer} from './Layer';
+import {DataSourceAttribution} from './DataSourceAttribution';
 
 const REMOVE_FEATURE_EVENT = 'featureRemove';
 const ADD_FEATURE_EVENT = 'featureAdd';
@@ -95,7 +92,7 @@ export class TileLayer extends Layer {
      */
     adaptiveGrid: boolean;
 
-    private attribution: { label: string; url?: string; title?: string; }[];
+    private attribution: DataSourceAttribution[];
 
     /**
      * @param options - options to configure the TileLayer
@@ -105,7 +102,6 @@ export class TileLayer extends Layer {
         delete options.pointerEvents;
         delete options.attribution;
 
-
         super({
             min: DEFAULT_LAYER_MIN_ZOOM,
             max: DEFAULT_LAYER_MAX_ZOOM,
@@ -114,14 +110,15 @@ export class TileLayer extends Layer {
             adaptiveGrid: false,
             ...options
         });
-
-
-        this.attribution = attribution ? Array.isArray(attribution)
-            ? attribution
-            : [{label: attribution}] : [];
-
-
         const layer = this;
+
+        layer.attribution = attribution ? Array.isArray(attribution)
+            ? attribution
+            : typeof attribution === 'string'
+                ? [{label: attribution}]
+                : [attribution]
+            : [];
+
         [
             ADD_FEATURE_EVENT,
             'featuresAdd',
@@ -136,7 +133,7 @@ export class TileLayer extends Layer {
         ].forEach(((eventType) => layer._l.addEvent(eventType)));
 
         if (typeof pointerEvents == 'boolean') {
-            this.pointerEvents(pointerEvents);
+            layer.pointerEvents(pointerEvents);
         }
 
 
@@ -165,10 +162,10 @@ export class TileLayer extends Layer {
         }
 
         if (!this.tileSize && !(tileSize % 256)) {
-            this.tileSize = tileSize;
+            layer.tileSize = tileSize;
         }
 
-        this.levelOffset ??= getProviderZoomOffset(this.tileSize);
+        layer.levelOffset ??= getProviderZoomOffset(this.tileSize);
 
         layer._p.forEach((provider, i) => {
             if (provider) {
@@ -186,7 +183,7 @@ export class TileLayer extends Layer {
 
         let style;
         // deprecated fallback
-        const deprecatedProviderStyles = this._fp && (<any> this._fp).styles;
+        const deprecatedProviderStyles = layer._fp && (<any> layer._fp).styles;
 
         if (style = options.style || (<any>options).styles || deprecatedProviderStyles || defaultStylesDef) {
             layer.setStyle(style);
@@ -807,7 +804,7 @@ export class TileLayer extends Layer {
     //  *
     //  * @param cb - Callback function that receives an array of attribution strings.
     //  */
-    getAttribution(cb: (attribution: { label: string; url?: string; title?: string }[]) => void) {
+    getAttribution(cb: (attribution: DataSourceAttribution[]) => void) {
         const unique = this._p.filter((v, i, self) => self.indexOf(v) === i);
         const attribution = [...this.attribution];
         let i = 0;

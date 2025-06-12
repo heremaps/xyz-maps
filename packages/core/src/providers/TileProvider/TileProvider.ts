@@ -24,6 +24,8 @@ import {Listener} from '@here/xyz-maps-common';
 import {TileProviderOptions} from './TileProviderOptions';
 import {GeoJSONBBox} from '../../features/GeoJSON';
 
+import {DataSourceAttribution} from '../../layers/DataSourceAttribution';
+
 const TILESIZE = 256;
 const DEFAULT_EXPIRE_SECONDS = Infinity;
 let UNDEF;
@@ -69,6 +71,8 @@ export default abstract class TileProvider {
 
     protected abstract dataType: string;
 
+    private attribution: DataSourceAttribution[];
+
     abstract _removeTile(tile: Tile, triggerEvent?: boolean);
 
     /**
@@ -104,7 +108,18 @@ export default abstract class TileProvider {
         // this.storage = new TileStorage( this['minLevel'], this['level'] );
 
         this.listeners = new Listener(['clear', 'error', 'tileInitialized', 'tileDestroyed']);
+
+        if (options.attribution) {
+            this.attribution = this.normalizeAttribution(options.attribution);
+        }
     };
+
+    private normalizeAttribution(attribution: DataSourceAttribution | DataSourceAttribution[] | string): DataSourceAttribution[] {
+        const items = Array.isArray(attribution) ? attribution : [attribution];
+        return items.map((item) =>
+            typeof item === 'string' ? {label: item} : item?.label ? item : null
+        ).filter((item): item is DataSourceAttribution => item !== null);
+    }
 
     protected dispatchEvent(type: string, detail: {
         [name: string]: any,
@@ -280,7 +295,7 @@ export default abstract class TileProvider {
                 this[c] = options[c];
             }
         }
-        return this;
+        return <unknown> this as TileProviderOptions;
     };
 
     /**
@@ -305,19 +320,8 @@ export default abstract class TileProvider {
      * @hidden
      * @internal
      */
-    getAttribution(cb: (copyright: { label: string, alt?: string, url?: string }[]) => void, error?: (error) => void) {
-        let attribution: { label: string, alt?: string } | {
-            label: string,
-            alt?: string
-        }[] | string = this.config('attribution') as string;
-        if (attribution) {
-            if (typeof attribution === 'string') {
-                attribution = {label: attribution};
-            }
-        } else {
-            attribution = [];
-        }
-        cb(Array.isArray(attribution) ? attribution : [attribution]);
+    getAttribution(cb: (copyright: DataSourceAttribution[]) => void, error?: (error) => void) {
+        cb(this.config('attribution') as DataSourceAttribution[]);
     }
 };
 

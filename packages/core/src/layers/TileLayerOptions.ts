@@ -20,6 +20,7 @@
 import TileProvider from '../providers/TileProvider/TileProvider';
 import {LayerStyle} from '../styles/LayerStyle';
 import {LayerOptions} from './LayerOptions';
+import {DataSourceAttribution} from './DataSourceAttribution';
 
 
 export const parseTileSize = (url: string): number | null => {
@@ -136,18 +137,6 @@ export interface TileLayerOptions extends LayerOptions {
      *     }
      * ]
      */
-    attribution?: string | {
-        /**
-         * The text label displayed in the attribution control.
-         */
-        label: string;
-        /**
-         * (Optional) A URL that opens when the label is clicked.
-         */
-        url?: string;
-        /**
-         * (Optional) Tooltip shown on hover over the label.
-         */
-        title?: string;
-    }[];
+    attribution?: string | DataSourceAttribution | DataSourceAttribution[];
 }
+

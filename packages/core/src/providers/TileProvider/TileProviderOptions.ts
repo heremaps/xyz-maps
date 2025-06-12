@@ -19,6 +19,8 @@
 
 import {TileStorage} from '../../storage/TileStorage';
 
+import {DataSourceAttribution} from '../../layers/DataSourceAttribution';
+
 /**
  *  Options to configure the Provider.
  */
@@ -72,20 +74,7 @@ interface TileProviderOptions {
      *     }
      * ]
      */
-    attribution?: string | {
-        /**
-         * The text label displayed in the attribution control.
-         */
-        label: string;
-        /**
-         * (Optional) A URL that opens when the label is clicked.
-         */
-        url?: string;
-        /**
-         * (Optional) Tooltip shown on hover over the label.
-         */
-        title?: string;
-    }[];
+    attribution?: string | DataSourceAttribution | DataSourceAttribution[];
 }
 
 export {TileProviderOptions};

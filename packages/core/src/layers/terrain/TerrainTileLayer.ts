@@ -57,6 +57,7 @@ export class TerrainTileLayer extends TileLayer {
             provider: new TerrainTileProvider({
                 maxGeometricError: options.maxGeometricError || defaultMaxGeometricError,
                 terrain: {
+                    attribution: elevationOptions.attribution,
                     url,
                     encoding,
                     responseType,
@@ -65,6 +66,7 @@ export class TerrainTileLayer extends TileLayer {
                 },
                 ...(imageryUrl ? {
                     imagery: {
+                        attribution: options.imagery.attribution,
                         url: imageryUrl,
                         responseType: 'image'
                     }

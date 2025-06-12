@@ -20,9 +20,9 @@
 import {Tile} from '../../tile/Tile';
 import LRUStorage from '../../storage/LRUStorage';
 import LoaderManager from '../../loaders/Manager';
-import {HTTPLoader, HTTPLoaderOptions} from '../../loaders/HTTPLoader';
+import {HTTPLoader} from '../../loaders/HTTPLoader';
 import {ConcurrentTileLoader} from '../../loaders/ConcurrentTileLoader';
-import TerrainWorkerLoader, {TerrainTileLoaderOptions} from './TerrainWorkerLoader';
+import TerrainWorkerLoader, {TerrainTileLoaderOptions, TerrainImageryLoaderOptions} from './TerrainWorkerLoader';
 import {RemoteTileProvider} from '../RemoteTileProvider/RemoteTileProvider';
 import {RemoteTileProviderOptions} from '../RemoteTileProvider/RemoteTileProviderOptions';
 import {tileXYToQuadKey} from '../../tile/TileUtils';
@@ -32,10 +32,12 @@ import {stitchHeightmapBorders} from './heightmapUtils';
 import {TerrainTileFeature} from '../../features/TerrainFeature';
 import {StyleZoomRange} from '../../styles/LayerStyle';
 
+import {DataSourceAttribution} from '../../layers/DataSourceAttribution';
+
 type TerrainTileProviderOptions = Omit<RemoteTileProviderOptions, 'level'> & {
     terrain?: TerrainTileLoaderOptions,
     maxGeometricError?: StyleZoomRange<number> | number;
-    imagery?: HTTPLoaderOptions,
+    imagery?: TerrainImageryLoaderOptions,
     loader?: any
 }
 
@@ -45,6 +47,7 @@ export class TerrainTileProvider extends RemoteTileProvider {
     constructor(options: TerrainTileProviderOptions) {
         options ||= {};
 
+        const attribution: (DataSourceAttribution|string)[] = [];
         let {maxGeometricError} = options;
 
         if (typeof maxGeometricError == 'number') {
@@ -52,6 +55,14 @@ export class TerrainTileProvider extends RemoteTileProvider {
                 Array.from({length: 30}, (_, i) => [i, maxGeometricError as number])
             );
         }
+
+        const addAttribution = (attr: string | DataSourceAttribution | DataSourceAttribution[]) => {
+            if (attr) {
+                attribution.push(...(Array.isArray(attr) ? attr : [attr]));
+            }
+        };
+
+        addAttribution(options.attribution);
 
         if (!options.loader) {
             const tileLoadersConfig = {};
@@ -67,9 +78,9 @@ export class TerrainTileProvider extends RemoteTileProvider {
                         ...loaderOptions,
                         maxGeometricError
                     });
+                    addAttribution(loaderOptions.attribution);
                 }
             }
-
 
             options.loader = new LoaderManager(
                 new ConcurrentTileLoader(tileLoadersConfig)
@@ -79,7 +90,8 @@ export class TerrainTileProvider extends RemoteTileProvider {
         super(Object.assign(options, {
             level: 0,
             storage: new LRUStorage(512),
-            clipped: true
+            clipped: true,
+            attribution
         }));
 
         const provider = this;

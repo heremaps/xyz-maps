@@ -21,11 +21,18 @@ import WorkerHTTPLoader from '../../loaders/webworker/HTTPLoader';
 import {HTTPLoaderOptions} from '../../loaders/HTTPLoader';
 import {StyleZoomRange} from '../../styles/LayerStyle';
 
+import {DataSourceAttribution} from '../../layers/DataSourceAttribution';
+
+
+export interface TerrainImageryLoaderOptions extends HTTPLoaderOptions {
+    attribution?: DataSourceAttribution | DataSourceAttribution[] | string;
+}
 export interface TerrainTileLoaderOptions extends HTTPLoaderOptions {
     encoding?: string;
     heightScale?: number;
     heightOffset?: number;
     maxGeometricError?: StyleZoomRange<number>;
+    attribution?: DataSourceAttribution | DataSourceAttribution[] | string;
 }
 
 class TerrainTileLoader extends WorkerHTTPLoader {

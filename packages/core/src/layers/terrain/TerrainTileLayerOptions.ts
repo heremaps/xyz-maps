@@ -19,6 +19,7 @@
 import {TileLayerOptions} from '../TileLayerOptions';
 import {LayerStyle, StyleZoomRange} from '../../styles/LayerStyle';
 import {TerrainTileLayerStyle} from './TerrainStyle';
+import {DataSourceAttribution} from '../DataSourceAttribution';
 
 
 /**
@@ -144,6 +145,16 @@ export interface TerrainTileLayerOptions extends TileLayerOptions {
          * This field is optional for mesh input if decoding is handled externally.
          */
         encoding?: 'terrarium' | 'mtk' | 'xyztrn' | 'mapboxrgb' | 'custom-raster' | 'custom-mesh';
+        /**
+         * Attribution for the elevation data source.
+         *
+         * Can be a string, a single DataSourceAttribution object, or an array of DataSourceAttribution objects.
+         * This is used to provide proper credit or licensing information for the elevation tiles.
+         *
+         * @see {@link TileLayerOptions.attribution}
+         */
+        attribution?: string | DataSourceAttribution | DataSourceAttribution[];
+
         // /**
         //  * Minimum zoom level for which elevation tiles are available. Default is 1.
         //  */
@@ -226,6 +237,17 @@ export interface TerrainTileLayerOptions extends TileLayerOptions {
          * This is typically used to fetch satellite imagery, orthophotos, or custom raster tiles.
          */
         url: string | ((z: number, y: number, x: number, quadkey: string) => string);
+
+        /**
+         * Attribution for the imagery data source.
+         *
+         * Can be a string, a single DataSourceAttribution object, or an array of such objects.
+         * This is used to provide proper credit or licensing information for the imagery tiles,
+         * similar to how TileLayerOptions.attribution works.
+         *
+         * @see {@link TileLayerOptions.attribution}
+         */
+        attribution?: string | DataSourceAttribution | DataSourceAttribution[];
         // /**
         //  * Opacity of the imagery layer (default: 1.0).
         //  * A value between 0 (fully transparent) and 1 (fully opaque).
