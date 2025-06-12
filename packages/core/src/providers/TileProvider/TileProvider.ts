@@ -109,9 +109,7 @@ export default abstract class TileProvider {
 
         this.listeners = new Listener(['clear', 'error', 'tileInitialized', 'tileDestroyed']);
 
-        if (options.attribution) {
-            this.attribution = this.normalizeAttribution(options.attribution);
-        }
+        this.attribution = this.normalizeAttribution(options.attribution);
     };
 
     private normalizeAttribution(attribution: DataSourceAttribution | DataSourceAttribution[] | string): DataSourceAttribution[] {
