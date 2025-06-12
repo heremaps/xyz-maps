@@ -30,6 +30,7 @@ interface ViewportTile {
     y: number,
     scaledSize: number;
 }
+
 export class GridTile implements ViewportTile {
     static minTileSize: number = 256;
     static tileGeoContainer: number[][] = [[0, 0], [0, 0], [0, 0], [0, 0]];
@@ -43,7 +44,7 @@ export class GridTile implements ViewportTile {
     gridY: number;
 
     private bounds: number[][];
-    private resultCache: {};
+    private resultCache: { [key: number]: ViewportTile[] };
 
     constructor(tileZoomLevel: number, x: number, y: number, size: number, gridX: number, gridY: number, bounds: number[][]) {
         this.quadkey = tileUtils.tileXYToQuadKey(tileZoomLevel, gridY, gridX);
@@ -91,7 +92,7 @@ export class GridTile implements ViewportTile {
         optimiseTileLevel: boolean = true,
         tiles: ViewportTile[] = []
     ): ViewportTile[] {
-        const cacheKey = minTileSize<<1|Number(optimiseTileLevel);
+        const cacheKey = minTileSize << 1 | Number(optimiseTileLevel);
         const cache = this.resultCache;
         if (cache[cacheKey]) {
             return cache[cacheKey];
@@ -99,22 +100,18 @@ export class GridTile implements ViewportTile {
         cache[cacheKey] = tiles;
 
         let {tileZoomLevel, gridX, gridY, scaledSize: size} = this;
+
         if (size > minTileSize) {
             const displayScale = display.s;
             const distanceScale = display.computeDistanceScale(this.x + size / 2, this.y + size / 2) / displayScale;
-            const zoomOffset = Math.log2(size / minTileSize);
-            if (optimiseTileLevel) {
-                let threshold = 0;
-                if (zoomOffset >= 3) threshold = 3.75; // 4096(512)
-                else if (zoomOffset === 2) threshold = 2.75; // 2048(512)
-                else if (zoomOffset === 1) threshold = 2.05; // 1024(512)
+            const zoomLevelDelta = Math.log2(size / minTileSize);
 
-                if (distanceScale > threshold) {
+            if (optimiseTileLevel) {
+                // Adjust LOD threshold based on pitch:
+                // higher pitch (more tilted view) → less detail near the horizon (later LOD split)
+                const LOD_DISTANCE_SCALE_FACTOR = Math.sin(display.rx); // 0.875
+                if (distanceScale * LOD_DISTANCE_SCALE_FACTOR > zoomLevelDelta) {
                     tiles.push(this);
-                    return tiles;
-                }
-            } else {
-                if (distanceScale > 2. + zoomOffset * 0.5) {
                     return tiles;
                 }
             }

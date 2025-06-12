@@ -46,8 +46,10 @@ import {UniformMap} from './program/Program';
 import {Color as Colors} from '@here/xyz-maps-common';
 const {toRGB, rgbaToHexString} = Colors;
 
+const TO_RADIANS = Math.PI / 180;
 // determined through experimentation to find the best balance between performance and view distance.
-export const MAX_PITCH_GRID = 66.33 / 180 * Math.PI;
+export const MAX_PITCH_GRID = 66.33 * TO_RADIANS;
+export const MIN_PITCH_ADAPTIVE_GRID = 60 * TO_RADIANS;
 
 const PREVIEW_LOOK_AHEAD_LEVELS: [number, number] = [3, 9];
 

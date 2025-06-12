@@ -28,6 +28,7 @@ import BasicBucket from './BasicBucket';
 import Preview from './Preview';
 import Grid, {GridTile} from '../Grid';
 import {createZoomRangeFunction, parseColorMap} from './styleTools';
+import {MIN_PITCH_ADAPTIVE_GRID} from './webgl/Display';
 
 type RGBA = ColorUtils.RGBA;
 
@@ -379,6 +380,7 @@ abstract class Display {
         const prevVPTiles = display.tiles || [];
         const vpTiles = display.tiles = [];
         const center = {x: display.w / 2, y: display.h / 2};
+        const useAdaptiveGrid = this.rx > MIN_PITCH_ADAPTIVE_GRID;
 
         for (let dLayer of layers) {
             dLayer.reset(zoomLevel);
@@ -393,9 +395,11 @@ abstract class Display {
             dLayer.tiles = screenTiles;
 
             if (layer.isVisible(zoomLevel)) {
+                const adaptiveGrid = useAdaptiveGrid && layer.adaptiveGrid;
                 const tiles = gridTiles.flatMap((_gridTile) => {
-                    return _gridTile.generateTileHierarchy(display, layerTileSize, layer.adaptiveGrid) as ViewportTile[];
+                    return _gridTile.generateTileHierarchy(display, layerTileSize, adaptiveGrid) as ViewportTile[];
                 });
+
                 // load tiles in order of distance to the center of the screen
                 tiles.sort((a, b) => Math.hypot(a.x - center.x, a.y - center.y) - Math.hypot(b.x - center.y, b.y - center.y));
 
