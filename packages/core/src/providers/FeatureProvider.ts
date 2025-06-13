@@ -1102,9 +1102,14 @@ export class FeatureProvider extends Provider {
             const bbox = calcBBox(feature);
             if (bbox) {
                 feature.bbox = <GeoJSONBBox>bbox;
-                if ((feature as Feature).geometry._c) {
+                const geometry = (feature as Feature).geometry;
+                if (geometry._c) {
                     // clear cached centroid
-                    (feature as Feature).geometry._c = null;
+                    geometry._c = null;
+                }
+                if (geometry._pc) {
+                    // clear cached projected polygon center
+                    geometry._pc = null;
                 }
             } else {
                 return false;

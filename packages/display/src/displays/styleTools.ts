@@ -20,9 +20,8 @@
 import {wrapText} from './textUtils';
 import {getRotatedBBox} from '../geometry';
 import {GlyphManager} from './webgl/GlyphManager';
-import {Expression, ExpressionParser, geometry as geometryUtils} from '@here/xyz-maps-common';
 import {Feature, StyleZoomRange, webMercator, Style, StyleGroup, GeoJSONCoordinate} from '@here/xyz-maps-core';
-import {Color} from '@here/xyz-maps-common';
+import {Expression, ExpressionParser, geometry as geometryUtils, Color} from '@here/xyz-maps-common';
 import toRGB = Color.toRGB;
 import {StyleExpressionParser} from './Layers';
 
@@ -569,13 +568,20 @@ const parseStyleGroup = (styleGroup: readonly(Style & { __p?: true })[], expPars
 
 export const getPolygonCenter = (style: Style, feature: Feature, zoom: number) => {
     const anchor = getValue('anchor', style, feature, zoom);
+    const {geometry} = feature;
     let center;
     if (anchor == 'Centroid') {
-        const {geometry} = feature;
-        center = geometry._c = geometry._c || geometryUtils.centroid(<GeoJSONCoordinate[][]>(geometry.type == 'Polygon' ? geometry.coordinates : geometry.coordinates[0]));
+        center = geometry._c ||= geometryUtils.centroid(<GeoJSONCoordinate[][]>(geometry.type == 'Polygon' ? geometry.coordinates : geometry.coordinates[0]));
     } else {
-        const {bbox} = feature;
-        center = [bbox[0] + (bbox[2] - bbox[0]) / 2, bbox[1] + (bbox[3] - bbox[1]) / 2];
+        center = geometry._pc;
+        if (!center) {
+            const {bbox} = feature;
+            const minY = webMercator.lat2y(bbox[1], 1);
+            const maxY = webMercator.lat2y(bbox[3], 1);
+            const centerLat = webMercator.y2lat((maxY + minY) * .5, 1);
+            center = geometry._pc = [(bbox[0] + bbox[2]) * 0.5, centerLat];
+            // center = [(bbox[0] + bbox[2]) * 0.5, (bbox[1] + bbox[3]) * 0.5];
+        }
     }
     return center;
 };
