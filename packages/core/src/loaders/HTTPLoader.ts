@@ -66,7 +66,7 @@ export interface HTTPRequest {
     success?: (data: any, size: number) => void;
     data?: any;
     error?: (msg: NetworkError, xhr?: XMLHttpRequest) => void;
-    responseType?: string
+    responseType?: string;
     id?: string | number;
     headers?: { [header: string]: any };
 }
@@ -76,8 +76,8 @@ export interface HTTPLoaderOptions {
     responseType?: string;
     // src?: string | ((x: number, y: number, z: number, qk: string) => string);
     url?: string | ((x: number, y: number, z: number, qk: string) => string);
-    withCredentials?: boolean
-    headers?: { [name: string]: any }
+    withCredentials?: boolean;
+    headers?: { [name: string]: any };
     // tileType?: string;
 }
 
@@ -91,10 +91,10 @@ class HTTPLoader implements TileLoader {
     headers = null;
     store = null;
     baseUrl = null;
-    q = {}; // queue
+    q: { [quadkey: string]: XMLHttpRequest & {_aborted?: boolean} } = {}; // queue
 
     static async createImageFromBlob(blob: Blob, cb?: (img) => void) {
-        createImageBitmap(blob).then((bitmap)=>{
+        createImageBitmap(blob).then((bitmap) => {
             cb?.(bitmap);
         });
     }
@@ -207,20 +207,12 @@ class HTTPLoader implements TileLoader {
     abort(tile) {
         const queue = this.q;
         const key = tile.quadkey;
-
         const req = queue[key];
 
         if (req) {
-            if (tile.type == 'image') {
-                req.onload = UNDEF;
-
-                req._aborted = true;
-            }
-
-            if (req.abort) {
-                req.abort();
-            }
-
+            req.onload = null;
+            req._aborted = true;
+            req.abort?.();
             delete queue[key];
         }
     };
