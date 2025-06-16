@@ -229,14 +229,7 @@ class WebGlDisplay extends BasicDisplay {
     }
 
     private initSky(skyColor: Color | LinearGradient) {
-        let color;
-        if (this.factory.gradients.isGradient(skyColor)) {
-            color = this.factory.gradients.getTexture((<unknown>skyColor as LinearGradient));
-        } else {
-            // TODO: Separate the texture cache from the gradient factory, and add support for caching simple color textures in the texture cache for efficiency.
-            const hexColor = rgbaToHexString(toRGB(skyColor as Color, true));
-            color = this.factory.gradients.getTexture({0: hexColor, 1: hexColor});
-        }
+        const color = this.factory.textureManager.getFillTexture(skyColor);
         this.render.setSkyColor(color);
     }
 

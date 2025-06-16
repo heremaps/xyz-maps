@@ -63,7 +63,7 @@ import {Attribute} from './buffer/Attribute';
 import {GLExtensions} from './GLExtensions';
 import {Texture} from './Texture';
 import {Color} from '@here/xyz-maps-common';
-import {GradientTexture} from './GradientFactory';
+import {FillTexture} from './TextureManager';
 import {ViewportTile} from '../BasicDisplay';
 import toRGB = Color.toRGB;
 
@@ -274,7 +274,7 @@ export class GLRender implements BasicRender {
         this.gl?.clearColor(color[0], color[1], color[2], color[3] ?? 1.0);
     }
 
-    setSkyColor(color: Color.RGBA | GradientTexture) {
+    setSkyColor(color: Color.RGBA | FillTexture) {
         this.skyBuffer.addUniform('u_fill', color);
     }
 

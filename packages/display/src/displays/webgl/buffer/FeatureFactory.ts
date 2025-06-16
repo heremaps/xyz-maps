@@ -49,11 +49,11 @@ import {ModelStyle, Color} from '@here/xyz-maps-core';
 import {ModelFactory} from './ModelFactory';
 import {ModelBuffer} from './templates/ModelBuffer';
 import {ImageInfo} from '../Atlas';
-import {GradientFactory} from '../GradientFactory';
 import {HeatmapBuffer} from './templates/HeatmapBuffer';
 import {TextureAtlasManager} from '../TextureAtlasManager';
 import {LineBuffer} from './templates/LineBuffer';
 import {Color as ColorUtils, Expression, ExpressionMode} from '@here/xyz-maps-common';
+import {TextureManager} from '../TextureManager';
 
 const {toRGB} = ColorUtils;
 type RGBA = ColorUtils.RGBA;
@@ -148,18 +148,18 @@ export class FeatureFactory {
     pendingCollisions: CollisionGroup[] = [];
     z: number;
     private waitAndRefresh: (p: Promise<any>) => void;
-    gradients: GradientFactory;
+    textureManager: TextureManager;
     private zLayer: number;
 
     constructor(gl: WebGLRenderingContext, collisionHandler, devicePixelRatio: number) {
         this.gl = gl;
         this.atlasManager = new TextureAtlasManager(gl);
+        this.textureManager = new TextureManager(gl);
         this.dpr = devicePixelRatio;
         this.collisions = collisionHandler;
         this.lineFactory = new LineFactory(gl);
         this.modelFactory = new ModelFactory(gl);
 
-        this.gradients = new GradientFactory(gl, 256, 1);
 
         const pixelCnt = 512 * 512;
         const pixelData = new Uint8Array(pixelCnt * 4);
@@ -868,7 +868,6 @@ export class FeatureFactory {
                     const x = tile.lon2x((<GeoJSONCoordinate>coordinates)[0], tileSize);
                     const y = tile.lat2y((<GeoJSONCoordinate>coordinates)[1], tileSize);
                     const z = typeof altitude == 'number' ? altitude : altitude ? <number>coordinates[2] || 0 : null;
-                    // const z = extrude ? <number>coordinates[2] || 0 : null;
 
                     if (collisionGroup) {
                         collisionData = this.collisions.insert(

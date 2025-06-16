@@ -334,7 +334,7 @@ const createBuffer = (
 
                                         const gradient = (<unknown>shared.fill as LinearGradient)?.stops || DEFAULT_HEATMAP_GRADIENT.stops;
 
-                                        const gradientTexture = factory.gradients.getTexture(gradient, HeatmapBuffer.verifyAndFixGradient);
+                                        const gradientTexture = factory.textureManager.getGradientTexture(gradient, HeatmapBuffer.verifyAndFixGradient);
                                         geoBuffer.addUniform('u_gradient', gradientTexture);
                                     }
 
