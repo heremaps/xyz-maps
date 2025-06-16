@@ -100,6 +100,12 @@ export class Feature<GeometryType = string> implements GeoJSONFeature<GeometryTy
          * @hidden
          */
         _c?: number[];
+        /**
+         * cached polygon projected center
+         * @internal
+         * @hidden
+         */
+        _pc?: number[]
     };
 
     /**
