@@ -311,8 +311,9 @@ const createBuffer = (
                                                 geoBuffer.pass = PASS.ALPHA;
                                                 geoBuffer.blend = true;
                                             }
-
-                                            geoBuffer.addUniform('u_size', [shared.width, toPixel, shared.height, toPixel]);
+                                            if (type == 'Rect') {
+                                                geoBuffer.addUniform('u_size', [shared.width, toPixel, shared.height, toPixel]);
+                                            }
                                             geoBuffer.addUniform('u_rotation', shared.rotation * TO_RAD);
                                         }
 
@@ -429,10 +430,8 @@ const createBuffer = (
                             geoBuffer.zIndex = zIndex;
                             geoBuffer.zLayer = typeof zLayer == 'number' ? Math.ceil(zLayer) : null;
 
-                            if (geoBuffer.clip == UNDEF) {
-                                // scissoring is slow. we can skip if source data is already clipped on tile edges.
-                                geoBuffer.clip = !tile.clipped || layer.getMargin() > 0 || hasAlphaColor;
-                            }
+                            // scissoring is slow. we can skip if source data is already clipped on tile edges.
+                            geoBuffer.clip ??= !tile.clipped || layer.getMargin() > 0 || hasAlphaColor;
                         }
                     }
                 }

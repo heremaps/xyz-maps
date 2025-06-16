@@ -8,7 +8,6 @@ attribute highp vec3 a_point;
 
 uniform float u_scale;
 
-uniform vec4 u_size;
 uniform mat4 u_matrix;
 uniform mat4 u_inverseMatrix;
 uniform float u_strokeWidth;
