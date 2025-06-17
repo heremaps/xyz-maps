@@ -588,8 +588,7 @@ class WebGlDisplay extends BasicDisplay {
 
     protected viewport(dirty?: boolean) {
         const display = this;
-        const {buckets, layers, render} = display;
-        const layerLength = layers.length;
+        const {layers, render} = display;
         let length;
 
         if (display.dirty) {
@@ -597,15 +596,15 @@ class WebGlDisplay extends BasicDisplay {
             display.updateCollisions();
         }
 
-        render.clear(display.bgColor);
 
         render.fixedView = Number(!this.viewChange);
 
         const layerBuffers = this.initLayerBuffers(layers);
         const {tileBuffers, min3dZIndex, maxZIndex} = layerBuffers;
 
-
+        render.clear(display.bgColor);
         render.drawSky(this.horizonY, this.h, this.maxHorizonY);
+        render.resetGLStates();
 
         render.zIndexLength = maxZIndex;
 
