@@ -505,10 +505,8 @@ class Program {
 
         if (cullFace) {
             gl.cullFace(cullFace);
-            gl.enable(gl.CULL_FACE);
-        } else {
-            gl.disable(gl.CULL_FACE);
         }
+        prog.toggleCapability(gl.CULL_FACE, !!cullFace);
 
 
         if (geoBuffer.depthMask != null) {
