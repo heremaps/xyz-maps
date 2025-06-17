@@ -294,17 +294,15 @@ export class GLRender implements BasicRender {
             this.setBackgroundColor(clearColor);
         }
 
+        gl.colorMask(true, true, true, true);
+        gl.disable(gl.SCISSOR_TEST);
+        gl.depthMask(true);
+
         gl.clear(gl.COLOR_BUFFER_BIT | gl.DEPTH_BUFFER_BIT | gl.STENCIL_BUFFER_BIT);
 
         this.reservedStencils.clear();
     }
 
-    resetGLStates() {
-        const {gl} = this;
-        gl.colorMask(true, true, true, true);
-        gl.disable(gl.SCISSOR_TEST);
-        gl.depthMask(true);
-    }
 
     init(canvas: HTMLCanvasElement, devicePixelRation: number): void {
         this.dpr = devicePixelRation;
@@ -1058,6 +1056,7 @@ export class GLRender implements BasicRender {
         skyBuffer.clearUniformCache();
 
         this.drawBuffer(skyBuffer, 0, 0, this.skyMatrix);
+        this.gl.depthMask(true);
     }
 
     private initPreviewMatrix(tx: number, ty: number, s: number, pixelPerfect?: boolean): Float32Array {

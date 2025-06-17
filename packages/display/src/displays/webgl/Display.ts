@@ -604,7 +604,7 @@ class WebGlDisplay extends BasicDisplay {
 
         render.clear(display.bgColor);
         render.drawSky(this.horizonY, this.h, this.maxHorizonY);
-        render.resetGLStates();
+
 
         render.zIndexLength = maxZIndex;
 
