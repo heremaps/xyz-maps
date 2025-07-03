@@ -194,7 +194,9 @@ class Copyright extends UIComponent {
         const zoom = this.map.getZoomlevel() ^ 0;
         let str = '';
         for (let src of this.sources.values()) {
-            if (isVisible(src, zoom)) str += `\u00A9 ${src.label} `;
+            if (isVisible(src, zoom)) {
+                str += `${this.formatLabel(src.label)} `;
+            }
         }
         return str;
     }
@@ -252,11 +254,16 @@ class Copyright extends UIComponent {
         }
     }
 
+    private formatLabel(label: string): string {
+        return label.startsWith('\u00A9') ? label : '\u00A9 ' + label;
+    }
+
     private setOwnerLabel(el: HTMLElement, label: string, alt?: string, url?: string) {
+        label = this.formatLabel(label);
         if (url) {
-            el.innerHTML = `<a href='${url}' target='_blank' rel='noopener noreferrer'>\u00A9 ${label}</a>`;
+            el.innerHTML = `<a href='${url}' target='_blank' rel='noopener noreferrer'>${label}</a>`;
         } else {
-            el.innerText = '\u00A9 ' + label;
+            el.innerText = label;
         }
         if (alt) {
             el.setAttribute('title', alt);
