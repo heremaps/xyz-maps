@@ -16,7 +16,9 @@ var myLayer = new TileLayer({
         // Name of the provider
         name: 'myImageProvider',
         // URL of image tiles
-        url: `https://maps.hereapi.com/v3/background/mc/{z}/{x}/{y}/png8?apikey=${YOUR_API_KEY}&style=satellite.day&size=512`
+        url: `https://maps.hereapi.com/v3/base/mc/{z}/{x}/{y}/jpeg?apikey=${YOUR_API_KEY}&style=satellite.day&size=512`,
+        // Attribution for the satellite provider
+        attribution: '© 2025 HERE, Maxar'
     })
 });
 
