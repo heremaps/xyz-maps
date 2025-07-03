@@ -17,6 +17,7 @@
  * License-Filename: LICENSE
  */
 import {TerrainTileMesh} from '../../features/TerrainFeature';
+import {add} from '@here/xyz-maps-common/src/Vec3';
 
 type TypedArray =
     Float64Array
@@ -44,38 +45,42 @@ export const computeEdgeIndices = <T extends Uint16Array | Uint32Array>(
     vertices: ArrayLike<number>,
     stride: number = 2,
     TypedArray: { new(array: number[] | ArrayBufferLike): T } = Uint16Array as any,
-    maxValue: number = 65535
+    maxValue: number = 65535,
+    skirtToMainVertexMap?: Map<number, number>
 ): { left: T, right: T, top: T, bottom: T } => {
     const left: number[] = [];
     const right: number[] = [];
     const top: number[] = [];
     const bottom: number[] = [];
 
+    const addEdge = (edge: number[], ei: number) => {
+        if (!skirtToMainVertexMap?.has(ei)) {
+            edge.push(ei);
+        }
+    };
+
     for (let i = 0, {length} = vertices; i < length; i += stride) {
         const x = vertices[i];
         const y = vertices[i + 1];
-        const ei = i / stride;
-
+        const j = i / stride;
         if (x === 0) {
-            left.push(ei);
+            addEdge(left, j);
         } else if (x === maxValue) {
-            right.push(ei);
+            addEdge(right, j);
         }
         if (y === 0) {
-            top.push(ei);
+            addEdge(top, j);
         } else if (y === maxValue) {
-            bottom.push(ei);
+            addEdge(bottom, j);
         }
     }
 
-    // const edgeIndices = {left, right, top, bottom};
     const edgeIndices = {
         left: new TypedArray(left),
         right: new TypedArray(right),
         top: new TypedArray(top),
         bottom: new TypedArray(bottom)
     };
-
     return edgeIndices;
 };
 

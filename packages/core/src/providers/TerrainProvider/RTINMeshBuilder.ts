@@ -225,10 +225,9 @@ export class RTINMeshBuilder {
             vertices[i] = vertices[i3];
             vertices[i + 1] = vertices[i3 + 1];
             const z = vertices[i3 + 2];
-            vertices[i + 2] = 0; // skirtHeight;
-            // vertices[i + 2] = z - z * .05; // skirtHeight;
+            // vertices[i + 2] = 0; // skirtHeight;
+            vertices[i + 2] = z - z * .2; // skirtHeight;
             // skirtMap.set(index, skirtIndex);
-
             return skirtIndex;
         };
         const addSkirtIndices = (i1: number, i2: number, i3: number) => {

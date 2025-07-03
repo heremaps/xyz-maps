@@ -40,13 +40,14 @@ const createTerrainFeature = (
     indices: Uint16Array | Uint32Array,
     vertices: ArrayLike<number>,
     sourceFormat: string = 'binary',
-    normalizeScale?: number
+    normalizeScale?: number,
+    skirtToMainVertexMap?: Map<number, number>
 ) => {
     let quadkey = tileXYToQuadKey(z, y, x);
     const bounds = getGeoBounds(z, y, x);
     const [minLon, minLat, maxLon, maxLat] = bounds;
 
-    const edgeIndices = computeEdgeIndices(vertices, 3, indices.constructor as typeof Uint16Array, QUANTIZED_RANGE);
+    const edgeIndices = computeEdgeIndices(vertices, 3, indices.constructor as typeof Uint16Array, QUANTIZED_RANGE, skirtToMainVertexMap);
 
     return {
         id: quadkey,
@@ -95,7 +96,7 @@ const createMeshFromHeightMap = (heightMap: ArrayLike<number>, maxError: number 
     const meshBuilder = terrainFactories.get(heightMapSize);
     const mesh = meshBuilder.triangulate(heightMap, {
         maxError,
-        enableSkirts: false,
+        enableSkirts: true,
         maxEdgeDetails: true
     });
 
@@ -115,7 +116,8 @@ function createHeightmapTerrainFeature(x, y, z, mesh: RTINMesh, heightMap) {
             mesh.stride !== 3 && heightMap
         ),
         'terrarium',
-        1 / QUANTIZED_RANGE
+        1 / QUANTIZED_RANGE,
+        mesh.skirtToMainVertexMap
     );
 }
 
@@ -164,7 +166,7 @@ export default {
         } {
             const transfer = new TransferableCollector();
             let feature;
-            let skipNormalIndices;
+            let skirtToMainVertexMap: Map<number, number>;
             const encoding = this.encoding;
             let heightMap = null;
 
@@ -183,7 +185,7 @@ export default {
                     );
 
                     const mesh: RTINMesh = createMeshFromHeightMap(heightMap, this.maxGeometricError[z]);
-                    skipNormalIndices = mesh.skirtToMainVertexMap;
+                    skirtToMainVertexMap = mesh.skirtToMainVertexMap;
                     data = createHeightmapTerrainFeature(x, y, z, mesh, heightMap);
                     heightMap = null;
                     // data.properties.heightScale = 1;
@@ -213,11 +215,11 @@ export default {
                     properties.heightMap = extendHeightMapWithFullClamping(heightMap);
                 }
                 // else {
-                properties.normals = computeMeshNormals(properties.vertices, properties.indices, skipNormalIndices);
+                properties.normals = computeMeshNormals(properties.vertices, properties.indices, skirtToMainVertexMap);
                 // }
 
-                if (skipNormalIndices) {
-                    for (const [i, j] of skipNormalIndices) {
+                if (skirtToMainVertexMap) {
+                    for (const [i, j] of skirtToMainVertexMap) {
                         const i3 = i * 3;
                         const j3 = j * 3;
                         properties.normals[i3] = properties.normals[j3];
