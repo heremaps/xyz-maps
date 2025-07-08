@@ -35,10 +35,10 @@ import {StyleZoomRange} from '../../styles/LayerStyle';
 import {DataSourceAttribution} from '../../layers/DataSourceAttribution';
 
 type TerrainTileProviderOptions = Omit<RemoteTileProviderOptions, 'level'> & {
-    terrain?: TerrainTileLoaderOptions,
+    terrain?: TerrainTileLoaderOptions;
     maxGeometricError?: StyleZoomRange<number> | number;
-    imagery?: TerrainImageryLoaderOptions,
-    loader?: any
+    imagery?: TerrainImageryLoaderOptions;
+    loader?: any;
 }
 
 export class TerrainTileProvider extends RemoteTileProvider {

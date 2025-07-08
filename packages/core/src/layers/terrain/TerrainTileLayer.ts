@@ -40,7 +40,10 @@ export class TerrainTileLayer extends TileLayer {
         const {elevation: elevationOptions} = options;
         const {url, encoding} = elevationOptions;
         const tileSize = options.tileSize || parseTileSize(url as string) || DEFAULT_TILE_SIZE;
-        const responseType = encoding == 'xyztrn' ? 'arraybuffer' : 'image';
+        const responseType = encoding.includes('json')
+            ? 'json' : encoding == 'xyztrn'
+                ? 'arraybuffer'
+                : 'image';
 
         if (!responseType) {
             throw new Error('TerrainTileLayer requires a valid `encoding` in elevation options.');
@@ -62,7 +65,9 @@ export class TerrainTileLayer extends TileLayer {
                     encoding,
                     responseType,
                     heightScale: elevationOptions.scale ?? 1,
-                    heightOffset: elevationOptions.offset ?? 0
+                    heightOffset: elevationOptions.offset ?? 0,
+                    min: elevationOptions.min ?? 1,
+                    max: elevationOptions.max ?? 20
                 },
                 ...(imageryUrl ? {
                     imagery: {

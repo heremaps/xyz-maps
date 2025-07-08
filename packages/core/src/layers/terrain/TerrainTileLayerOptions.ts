@@ -154,15 +154,14 @@ export interface TerrainTileLayerOptions extends TileLayerOptions {
          * @see {@link TileLayerOptions.attribution}
          */
         attribution?: string | DataSourceAttribution | DataSourceAttribution[];
-
-        // /**
-        //  * Minimum zoom level for which elevation tiles are available. Default is 1.
-        //  */
-        // min?: number;
-        // /**
-        //  * Maximum zoom level for elevation tile requests. Default is 15.
-        //  */
-        // max?: number;
+        /**
+         * Minimum zoom level for which elevation tiles are available. Default is 1.
+         */
+        min?: number;
+        /**
+         * Maximum zoom level for elevation tile requests. Default is 20.
+         */
+        max?: number;
         /**
          * Constant offset to apply to decoded elevation values (in meters).
          * Used with `scale` when no custom `decodeHeight` or `decodeMesh` is provided.

@@ -22,25 +22,54 @@ import {HTTPLoaderOptions} from '../../loaders/HTTPLoader';
 import {StyleZoomRange} from '../../styles/LayerStyle';
 
 import {DataSourceAttribution} from '../../layers/DataSourceAttribution';
+import {createTerrainTile} from './TerrainWorker';
 
 
 export interface TerrainImageryLoaderOptions extends HTTPLoaderOptions {
     attribution?: DataSourceAttribution | DataSourceAttribution[] | string;
 }
+
 export interface TerrainTileLoaderOptions extends HTTPLoaderOptions {
     encoding?: string;
     heightScale?: number;
     heightOffset?: number;
     maxGeometricError?: StyleZoomRange<number>;
     attribution?: DataSourceAttribution | DataSourceAttribution[] | string;
+    min?: number;
+    max?: number;
 }
 
 class TerrainTileLoader extends WorkerHTTPLoader {
+    private min: number;
+    private max: number;
+
     constructor(options: TerrainTileLoaderOptions) {
         super('TerrainWorker', options);
+
+        this.min = options.min ?? 0;
+        this.max = options.min ?? 30;
     }
+
     protected processData(data: any): any {
         return data;
+    }
+
+    load(tile, success, error?) {
+        if (tile.quadkey.length < this.min) {
+            const flatTerrain = createTerrainTile(tile.x, tile.y, tile.z,
+                new Uint16Array([0, 1, 3, 1, 2, 3]),
+                new Uint8Array([0, 0, 0, 255, 0, 0, 255, 255, 0, 0, 255, 0]),
+                new Int8Array([0, 0, 127, 0, 0, 127, 0, 0, 127, 0, 0, 127]),
+                {
+                    quantizedRange: 255,
+                    quantizedMinHeight: 0,
+                    quantizedMaxHeight: 255
+                }
+            );
+            flatTerrain.properties.dummy = true;
+            return success(flatTerrain);
+        }
+        super.load(tile, success, error);
     }
 }
 

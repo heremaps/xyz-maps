@@ -24,7 +24,7 @@ export type TerrainTileMesh = {
     vertices: Uint16Array|Uint32Array|Float32Array;
     indices: Uint16Array|Uint32Array;
     normals?: Int8Array|Int16Array|Float32Array;
-    edgeIndices: {
+    edgeIndices?: {
         left: Uint16Array|Uint32Array;
         right: Uint16Array|Uint32Array;
         top: Uint16Array|Uint32Array;

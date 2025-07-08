@@ -27,39 +27,55 @@ import {TerrainTileFeature} from '../../features/TerrainFeature';
 import {XYZTerra} from './XYZTerra';
 import {TerrainTileLoaderOptions} from './TerrainWorkerLoader';
 import {StyleZoomRange} from '../../styles/LayerStyle';
+import {GeoJSONFeature} from '../../features/GeoJSON';
 
 declare const self: Worker;
 
 const QUANTIZED_RANGE = 0xffff;
 const QUANTIZED_MIN_HEIGHT = -500;
 const QUANTIZED_MAX_HEIGHT = 9000;
-const QUANTIZED_HEIGHT_RANGE = QUANTIZED_MAX_HEIGHT - QUANTIZED_MIN_HEIGHT;
 
+type QuantizeOptions = {
+    quantizedRange?: number,
+    quantizedMinHeight?: number,
+    quantizedMaxHeight?: number
+};
+
+
+export const createTerrainTile = (
+    x: number, y: number, z: number,
+    indices: ArrayLike<number>,
+    vertices: ArrayLike<number>,
+    normals?: Float32Array | Int16Array | Int8Array,
+    quantizeOptions?: QuantizeOptions
+) => {
+    const feature = createTerrainFeature(x, y, z, indices, vertices);
+
+    if (normals) {
+        feature.properties.normals = normals;
+    }
+    return prepareFeature(feature, null, null, quantizeOptions);
+};
 const createTerrainFeature = (
     x: number, y: number, z: number,
-    indices: Uint16Array | Uint32Array,
+    indices: ArrayLike<number>,
     vertices: ArrayLike<number>,
-    sourceFormat: string = 'binary',
-    normalizeScale?: number,
-    skirtToMainVertexMap?: Map<number, number>
-) => {
+    sourceFormat: string = 'binary'
+): GeoJSONFeature => {
     let quadkey = tileXYToQuadKey(z, y, x);
     const bounds = getGeoBounds(z, y, x);
     const [minLon, minLat, maxLon, maxLat] = bounds;
-
-    const edgeIndices = computeEdgeIndices(vertices, 3, indices.constructor as typeof Uint16Array, QUANTIZED_RANGE, skirtToMainVertexMap);
 
     return {
         id: quadkey,
         type: 'Feature',
         properties: {
+            isTerrain: true,
             source: {
-                type: sourceFormat,
-                normalizeScale
+                type: sourceFormat
             },
             indices,
-            vertices,
-            edgeIndices
+            vertices
         },
         geometry: {
             type: 'Polygon',
@@ -97,40 +113,88 @@ const createMeshFromHeightMap = (heightMap: ArrayLike<number>, maxError: number 
     const mesh = meshBuilder.triangulate(heightMap, {
         maxError,
         enableSkirts: true,
-        maxEdgeDetails: true
+        maxEdgeDetails: false
     });
 
     return mesh;
 };
 
-function createHeightmapTerrainFeature(x, y, z, mesh: RTINMesh, heightMap) {
+function createHeightmapTerrainFeature(x: number, y: number, z: number, mesh: RTINMesh, heightMap) {
     const heightMapSize = Math.sqrt(heightMap.length);
     const tileSize = heightMapSize % 2 == 0 ? heightMapSize : heightMapSize - 1;
+    const quantizedHeightRange = QUANTIZED_MAX_HEIGHT - QUANTIZED_MIN_HEIGHT;
 
     return createTerrainFeature(x, y, z,
         mesh.indices as Uint16Array | Uint32Array,
         quantizeVertexData(
             mesh.vertices,
             QUANTIZED_RANGE / tileSize,
-            (h) => (h - QUANTIZED_MIN_HEIGHT) * QUANTIZED_RANGE / QUANTIZED_HEIGHT_RANGE,
+            (h) => (h - QUANTIZED_MIN_HEIGHT) * QUANTIZED_RANGE / quantizedHeightRange,
             mesh.stride !== 3 && heightMap
-        ),
-        'terrarium',
-        1 / QUANTIZED_RANGE,
-        mesh.skirtToMainVertexMap
+        ) as Float32Array,
+        'terrarium'
     );
 }
 
-function prepareFeature(feature) {
+function prepareFeature(feature,
+    heightMap?: Float32Array,
+    skirtToMainVertexMap?: Map<number, number>,
+    quantizeOptions?: QuantizeOptions
+): TerrainTileFeature {
     if (feature) {
         const {properties} = feature;
 
         if (Array.isArray(properties.indices)) {
-            properties.indices = new Uint32Array(properties.indices);
+            const max = properties.indices.reduce((a, b) => Math.max(a, b), -Infinity);
+            properties.indices = new (max > 65535 ? Uint32Array : Uint16Array)(properties.indices);
         }
         if (Array.isArray(properties.vertices)) {
             properties.vertices = new Uint16Array(properties.vertices);
         }
+
+        quantizeOptions ||= {};
+        const quantizedRange = quantizeOptions.quantizedRange ?? QUANTIZED_RANGE;
+        const quantizedMinHeight = quantizeOptions.quantizedMinHeight ?? QUANTIZED_MIN_HEIGHT;
+        const quantizedMaxHeight = quantizeOptions.quantizedMaxHeight ?? QUANTIZED_MAX_HEIGHT;
+        const quantizedHeightRange = quantizedMaxHeight - quantizedMinHeight;
+        const srcNormalizeScale = properties.source.normalizeScale ||= 1 / (Math.pow(2, properties.vertices.BYTES_PER_ELEMENT * 8) - 1);
+        properties.normalizeScale ??= {
+            x: srcNormalizeScale,
+            y: srcNormalizeScale,
+            z: srcNormalizeScale * quantizedHeightRange
+        };
+        properties.quantizationRange ??= quantizedRange;
+        properties.quantizedMinHeight ??= quantizedMinHeight;
+        properties.quantizedMaxHeight ??= quantizedMaxHeight;
+        properties.quantizationStep ??= quantizedHeightRange / quantizedRange;
+        properties.heightScale ??= (quantizedMaxHeight - quantizedMinHeight) / quantizedRange;
+
+        // properties.normalMap = computeNormals(heightMap);
+
+        if (heightMap) {
+            properties.heightMap = extendHeightMapWithFullClamping(heightMap);
+        }
+        // else {
+        properties.normals ||= computeMeshNormals(properties.vertices, properties.indices, skirtToMainVertexMap);
+        // }
+
+        if (skirtToMainVertexMap) {
+            for (const [i, j] of skirtToMainVertexMap) {
+                const i3 = i * 3;
+                const j3 = j * 3;
+                properties.normals[i3] = properties.normals[j3];
+                properties.normals[i3 + 1] = properties.normals[j3 + 1];
+                properties.normals[i3 + 2] = properties.normals[j3 + 2];
+            }
+        }
+
+        properties.edgeIndices ||= computeEdgeIndices(
+            properties.vertices,
+            3,
+            properties.indices.constructor as typeof Uint16Array,
+            QUANTIZED_RANGE,
+            skirtToMainVertexMap
+        );
     }
     return feature;
 }
@@ -172,7 +236,7 @@ export default {
 
             if (data instanceof ArrayBuffer) {
                 const {indices, vertices} = XYZTerra.decode(data);
-                feature = createTerrainFeature(x, y, z, indices as Uint16Array | Uint32Array, vertices, encoding);
+                feature = createTerrainFeature(x, y, z, indices as Uint16Array | Uint32Array, vertices as Float32Array, encoding);
                 data = [feature];
             } else {
                 if (data instanceof ImageBitmap) {
@@ -188,45 +252,12 @@ export default {
                     skirtToMainVertexMap = mesh.skirtToMainVertexMap;
                     data = createHeightmapTerrainFeature(x, y, z, mesh, heightMap);
                     heightMap = null;
-                    // data.properties.heightScale = 1;
-                    // data.properties.quantizedMinHeight = 0;
                 }
                 feature = data.type == 'Feature' ? data : data.features[0];
             }
 
             if (feature) {
-                prepareFeature(feature);
-                const {properties} = feature;
-                const srcNormalizeScale = properties.source.normalizeScale ||= 1 / (Math.pow(2, properties.vertices.BYTES_PER_ELEMENT * 8) - 1);
-                properties.normalizeScale ??= {
-                    x: srcNormalizeScale,
-                    y: srcNormalizeScale,
-                    z: srcNormalizeScale * QUANTIZED_HEIGHT_RANGE
-                };
-                properties.quantizationRange ??= QUANTIZED_RANGE;
-                properties.quantizedMinHeight ??= QUANTIZED_MIN_HEIGHT;
-                properties.quantizedMaxHeight ??= QUANTIZED_MAX_HEIGHT;
-                properties.quantizationStep ??= QUANTIZED_HEIGHT_RANGE / QUANTIZED_RANGE;
-                properties.heightScale ??= (QUANTIZED_MAX_HEIGHT - QUANTIZED_MIN_HEIGHT) / QUANTIZED_RANGE;
-
-                // properties.normalMap = computeNormals(heightMap);
-
-                if (heightMap) {
-                    properties.heightMap = extendHeightMapWithFullClamping(heightMap);
-                }
-                // else {
-                properties.normals = computeMeshNormals(properties.vertices, properties.indices, skirtToMainVertexMap);
-                // }
-
-                if (skirtToMainVertexMap) {
-                    for (const [i, j] of skirtToMainVertexMap) {
-                        const i3 = i * 3;
-                        const j3 = j * 3;
-                        properties.normals[i3] = properties.normals[j3];
-                        properties.normals[i3 + 1] = properties.normals[j3 + 1];
-                        properties.normals[i3 + 2] = properties.normals[j3 + 2];
-                    }
-                }
+                prepareFeature(feature, heightMap, skirtToMainVertexMap);
 
                 // properties.uv = (function createUVs(
                 //  vertices: Float64Array | Float32Array | Uint16Array | Int16Array | number[],
@@ -242,7 +273,7 @@ export default {
                 //     return uv;
                 // })(properties.vertices, QUANTIZED_RANGE, QUANTIZED_RANGE);
 
-                transfer.add(properties);
+                transfer.add(feature.properties);
             }
             return {data, transfer: transfer.getTransferables()};
         }

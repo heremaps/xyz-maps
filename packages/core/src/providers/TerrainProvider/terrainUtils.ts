@@ -17,7 +17,6 @@
  * License-Filename: LICENSE
  */
 import {TerrainTileMesh} from '../../features/TerrainFeature';
-import {add} from '@here/xyz-maps-common/src/Vec3';
 
 type TypedArray =
     Float64Array
@@ -90,9 +89,12 @@ export const stitchMeshBorders = (
     srcTile: TerrainTileMesh
 ) => {
     const {edgeIndices, vertices, normals} = destTile;
-    const {vertices: neighborVertices, normals: neighborNormals} = srcTile;
+    const {vertices: neighborVertices, normals: neighborNormals, edgeIndices: neighborEdgeIndices} = srcTile;
+
+    if (!edgeIndices || !neighborEdgeIndices) return;
+
     const destBorderIndices = edgeIndices[side];
-    const neighborBorderIndices = srcTile.edgeIndices[getOppositeNeighbor(side)];
+    const neighborBorderIndices = neighborEdgeIndices[getOppositeNeighbor(side)];
     const maxValue = 0xffff;
     const oppositeX = side === Neighbor.RIGHT ? -maxValue : side === Neighbor.LEFT ? maxValue : 0;
     const oppositeY = side === Neighbor.BOTTOM ? -maxValue : side === Neighbor.TOP ? maxValue : 0;
@@ -138,7 +140,7 @@ export const quantizeVertexData = (
     scaleXY: number = 1,
     scaleZ: (v: number) => number = (v) => v,
     elevationData?: ArrayLike<number>
-) => {
+): typeof vertices => {
     const is3d = !elevationData;
     const vertices3d = is3d
         ? vertices
