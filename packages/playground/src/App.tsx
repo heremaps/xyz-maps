@@ -28,6 +28,7 @@ import settings from 'settings';
 // @ts-ignore
 import ts from 'ts';
 import {MobilePanel} from './components/MobilePanel';
+import {useMonaco} from '@monaco-editor/react';
 
 const fetchExample = async (example): Promise<{ title: string, html: string, ts: string }> => {
     let {file, title} = example;
@@ -90,10 +91,12 @@ export const App: React.FC = (props: { examples: any }) => {
         setExampleSrc({title, html, ts, org, docs});
     };
 
+    const monaco = useMonaco();
+
     const onDownload = () => {
         const title = exampleSrc.title;
         if (title) {
-            const content = createIframeSrc(exampleSrc);
+            const content = createIframeSrc(exampleSrc, false, monaco);
             const a = document.createElement('a');
             a.href = 'data:application/octet-stream,' + encodeURIComponent(content);
             a.target = '_blank';

@@ -1,13 +1,13 @@
 {
   "extends": "../../tsconfig.json",
   "compilerOptions": {
-    "target": "es5",
+    "target": "ES2017",
     "sourceMap": true,
     "allowJs": true,
     "skipLibCheck": true,
     "lib": [
       "dom",
-      "es2015",
+      "es2017",
       "webworker"
     ],
     "jsx": "react"

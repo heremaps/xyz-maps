@@ -27,6 +27,8 @@ import ts from 'ts';
 import {FSToggle} from './FSToggle';
 import {useMonaco} from '@monaco-editor/react';
 
+type MonacoEditor = typeof import('monaco-editor/esm/vs/editor/editor.api');
+
 const TS_PARAM = '?ts=' + ts;
 
 const TOKEN = window._TKN;
@@ -39,7 +41,8 @@ const globalImportMap = {
     '@here/xyz-maps-editor': {ns: 'here.xyz.maps.editor'}
 };
 
-export const createIframeSrc = (exampleSource, includePgSpecifics: boolean = false): string => {
+
+export const createIframeSrc = (exampleSource, includePgSpecifics: boolean = false, monaco?: MonacoEditor): string => {
     const tokenInject = `var YOUR_ACCESS_TOKEN='${TOKEN}';
     var YOUR_API_KEY='${APIKEY}'`;
     const {html, ts} = exampleSource;
@@ -69,7 +72,6 @@ export const createIframeSrc = (exampleSource, includePgSpecifics: boolean = fal
 
     let jsSrc = '';
     try {
-        const monaco = useMonaco();
         if (monaco) {
             // @ts-ignore
             jsSrc = window.ts.transpile(lines.join('\n'), {
@@ -101,7 +103,7 @@ export const Preview: React.FC = React.forwardRef((props: {
     onToggleFullscreen: (active: boolean) => void
 }, ref) => {
     const {src} = props;
-    const iFrameSrc = createIframeSrc(src, true);
+    const iFrameSrc = createIframeSrc(src, true, useMonaco());
     const iframeRef = React.useRef(null);
     const [size, setSize] = React.useState([0, 0]);
 
