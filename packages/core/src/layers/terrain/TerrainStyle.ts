@@ -19,6 +19,12 @@
 import {AmbientLight, DirectionalLight, LayerStyle} from '../../styles/LayerStyle';
 import {Material, ModelStyle} from '../../styles/ModelStyle';
 
+const DEFAULT_TERRAIN_LIGHT = [{
+    type: 'ambient',
+    color: 'white',
+    intensity: 1.0
+}];
+
 /**
  * Configuration style for a 3D terrain tile layer.
  *
@@ -54,7 +60,7 @@ export class TerrainTileLayerStyle implements LayerStyle {
          * Lights to illuminate the terrain surface.
          *
          * Can include ambient and directional lights to control shading effects.
-         * If omitted, a default terrain light setup is used.
+         * If omitted, a default terrain light setup is used, which is just a simple ambient light (no directional lights).
          */
         light?: (AmbientLight | DirectionalLight)[],
         /**
@@ -68,11 +74,15 @@ export class TerrainTileLayerStyle implements LayerStyle {
          * Defines the sky color of the map
          * {@link LayerStyle.skyColor}
          */
-        skyColor?: LayerStyle['skyColor']
+        skyColor?: LayerStyle['skyColor'],
+        /**
+         * Defines the background color of the terrain layer, shown when terrain data is not fully loaded.
+         */
+        backgroundColor?: LayerStyle['backgroundColor']
     }) = {}) {
         const lights = {};
         const material = style.material || {};
-        let light = 'defaultLight';
+        let light = 'defaultTerrainLight';
         let tileSize = 512;
 
         const exaggeration = style.exaggeration || 1;
@@ -80,6 +90,8 @@ export class TerrainTileLayerStyle implements LayerStyle {
         if (style.light) {
             light = 'terrainLight';
             lights[light] = style.light;
+        } else {
+            lights[light] = DEFAULT_TERRAIN_LIGHT;
         }
 
         this.setTileSize = (size: number) => {
@@ -103,7 +115,7 @@ export class TerrainTileLayerStyle implements LayerStyle {
                     '1.0': 'rgba(35, 110, 213, 1)'
                 }
             },
-            backgroundColor: '#0b75e5',
+            backgroundColor: style.backgroundColor || '#8c9c5a',
             lights,
             styleGroups: {
                 'TerrainModel': [<ModelStyle><unknown>{
