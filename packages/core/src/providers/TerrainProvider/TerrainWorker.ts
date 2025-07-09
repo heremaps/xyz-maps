@@ -206,76 +206,78 @@ const getImageDataFromImageBitmap = (imageBitmap: ImageBitmap): ImageData => {
     return ctx.getImageData(0, 0, imageBitmap.width, imageBitmap.height);
 };
 
+class TerrainWorker extends HTTPWorker {
+    private encoding: string;
+
+    private decodeScale: number;
+    private decodeOffset: number;
+    private maxGeometricError: StyleZoomRange<number>;
+
+    constructor(options: TerrainTileLoaderOptions = {}) {
+        options = {responseType: 'json', ...options};
+        super(options);
+        this.encoding = options.encoding || 'terrarium';
+        this.decodeScale = options.heightScale ?? 1;
+        this.decodeOffset = options.heightOffset ?? 0;
+        this.maxGeometricError = options.maxGeometricError;
+    }
+
+    process(data: any, x: number, y: number, z: number): {
+        data: TerrainTileFeature,
+        transfer: any[]
+    } {
+        const transfer = new TransferableCollector();
+        let feature;
+        let skirtToMainVertexMap: Map<number, number>;
+        const encoding = this.encoding;
+        let heightMap = null;
+
+        if (data instanceof ArrayBuffer) {
+            const {indices, vertices} = XYZTerra.decode(data);
+            feature = createTerrainFeature(x, y, z, indices as Uint16Array | Uint32Array, vertices as Float32Array, encoding);
+            data = [feature];
+        } else {
+            if (data instanceof ImageBitmap) {
+                heightMap = decodeHeights(
+                    getImageDataFromImageBitmap(data),
+                    encoding,
+                    'extrapolate', // 'backfill',
+                    this.decodeScale,
+                    this.decodeOffset
+                );
+
+                const mesh: RTINMesh = createMeshFromHeightMap(heightMap, this.maxGeometricError[z]);
+                skirtToMainVertexMap = mesh.skirtToMainVertexMap;
+                data = createHeightmapTerrainFeature(x, y, z, mesh, heightMap);
+                heightMap = null;
+            }
+            feature = data.type == 'Feature' ? data : data.features[0];
+        }
+
+        if (feature) {
+            prepareFeature(feature, heightMap, skirtToMainVertexMap);
+
+            // properties.uv = (function createUVs(
+            //  vertices: Float64Array | Float32Array | Uint16Array | Int16Array | number[],
+            //  extentX: number,
+            //  extentY: number
+            //  ) {
+            //     const {length} = vertices;
+            //     const uv = new Float32Array(length / 3 * 2);
+            //     for (let i = 0, j = 0; i < length; i += 3) {
+            //         uv[j++] = vertices[i] / extentX;
+            //         uv[j++] = 1 - vertices[i + 1] / extentY;
+            //     }
+            //     return uv;
+            // })(properties.vertices, QUANTIZED_RANGE, QUANTIZED_RANGE);
+
+            transfer.add(feature.properties);
+        }
+        return {data, transfer: transfer.getTransferables()};
+    }
+}
+
 export default {
     id: 'TerrainWorker',
-    Worker: class TerrainWorker extends HTTPWorker {
-        private encoding: string;
-
-        private decodeScale: number;
-        private decodeOffset: number;
-        private maxGeometricError: StyleZoomRange<number>;
-
-        constructor(options: TerrainTileLoaderOptions = {}) {
-            options = {responseType: 'json', ...options};
-            super(options);
-            this.encoding = options.encoding || 'terrarium';
-            this.decodeScale = options.heightScale ?? 1;
-            this.decodeOffset = options.heightOffset ?? 0;
-            this.maxGeometricError = options.maxGeometricError;
-        }
-
-        process(data: any, x: number, y: number, z: number): {
-            data: TerrainTileFeature,
-            transfer: any[]
-        } {
-            const transfer = new TransferableCollector();
-            let feature;
-            let skirtToMainVertexMap: Map<number, number>;
-            const encoding = this.encoding;
-            let heightMap = null;
-
-            if (data instanceof ArrayBuffer) {
-                const {indices, vertices} = XYZTerra.decode(data);
-                feature = createTerrainFeature(x, y, z, indices as Uint16Array | Uint32Array, vertices as Float32Array, encoding);
-                data = [feature];
-            } else {
-                if (data instanceof ImageBitmap) {
-                    heightMap = decodeHeights(
-                        getImageDataFromImageBitmap(data),
-                        encoding,
-                        'extrapolate', // 'backfill',
-                        this.decodeScale,
-                        this.decodeOffset
-                    );
-
-                    const mesh: RTINMesh = createMeshFromHeightMap(heightMap, this.maxGeometricError[z]);
-                    skirtToMainVertexMap = mesh.skirtToMainVertexMap;
-                    data = createHeightmapTerrainFeature(x, y, z, mesh, heightMap);
-                    heightMap = null;
-                }
-                feature = data.type == 'Feature' ? data : data.features[0];
-            }
-
-            if (feature) {
-                prepareFeature(feature, heightMap, skirtToMainVertexMap);
-
-                // properties.uv = (function createUVs(
-                //  vertices: Float64Array | Float32Array | Uint16Array | Int16Array | number[],
-                //  extentX: number,
-                //  extentY: number
-                //  ) {
-                //     const {length} = vertices;
-                //     const uv = new Float32Array(length / 3 * 2);
-                //     for (let i = 0, j = 0; i < length; i += 3) {
-                //         uv[j++] = vertices[i] / extentX;
-                //         uv[j++] = 1 - vertices[i + 1] / extentY;
-                //     }
-                //     return uv;
-                // })(properties.vertices, QUANTIZED_RANGE, QUANTIZED_RANGE);
-
-                transfer.add(feature.properties);
-            }
-            return {data, transfer: transfer.getTransferables()};
-        }
-    }
+    Worker: TerrainWorker
 };
