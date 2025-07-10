@@ -24,7 +24,8 @@ import {Editor} from '@here/xyz-maps-editor';
 import {features} from '@here/xyz-maps-editor';
 import chaiAlmost from 'chai-almost';
 import dataset from './link_split_spec.json';
-import {NavlinkShape} from '@here/xyz-maps-editor';
+import {Navlink, NavlinkShape} from '@here/xyz-maps-editor';
+import {drag} from 'triggerEvents';
 
 describe('link splitting and set its properties correctly', function() {
     const expect = chai.expect;
@@ -197,5 +198,38 @@ describe('link splitting and set its properties correctly', function() {
         expect(splitLinks[0].prop('parentLink')).to.equal(link.id);
         expect(splitLinks[1].prop('originLink')).to.equal('testOrigin');
         expect(splitLinks[1].prop('parentLink')).to.equal(link.id);
+    });
+
+
+    it('split 3d Navlink geometries in forced 2d mode and validate intersection altitude', async ()=> {
+        let link = editor.addFeature(new features.Navlink([{x: 100, y: 100, z: 100}, {x: 100, y: 200, z: 200}, {x: 200, y: 200, z: 300}], {
+            featureClass: 'NAVLINK'
+        }), linkLayer);
+
+        let link2 = editor.addFeature(new features.Navlink([{x: 300, y: 300, z: 400}, {x: 500, y: 500, z: 500}], {
+            featureClass: 'NAVLINK'
+        }), linkLayer);
+
+        link.select();
+
+        await drag(display.getContainer(), {x: 200, y: 200}, {x: 400, y: 400});
+
+        expect(link.coord()).to.be.deep.almost([
+            [77.468927698, 13.212794768, 100],
+            [77.468927698, 13.212272527, 200],
+            [77.470537021, 13.211228043, 449.999953]
+        ]);
+
+        const child1 = <Navlink>(await editorClick(editor, 350, 350)).target;
+        expect(child1.coord()).to.deep.almost([
+            [77.47000058, 13.211750285, 400],
+            [77.470537021, 13.211228043, 449.999953]
+        ]);
+
+        const child2 = <Navlink>(await editorClick(editor, 450, 450)).target;
+        expect(child2.coord()).to.deep.almost([
+            [77.470537021, 13.211228043, 449.999953],
+            [77.471073462, 13.210705799, 500]
+        ]);
     });
 });

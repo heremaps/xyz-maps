@@ -130,7 +130,7 @@ function triggerDisplayRefresh(line: Navlink, editStates?: {}, enforceDefault?: 
             line.editState(<EditStates>s, editStates[s]);
         }
     }
-    line._e().setStyle(line, enforceDefault ? 'default': UNDEF);
+    line._e().setStyle(line, enforceDefault ? 'default' : UNDEF);
 }
 
 function storeConnectedPoints(line: Navlink) {
@@ -751,6 +751,10 @@ var tools = {
             if (cl.class == 'NAVLINK' && cl.id != link.id && prv._cls.indexOf(cl) == -1 && cl.behavior('snapCoordinates')) {
                 const x = internalEditor.map.searchPointOnLine(cl.geometry.coordinates, position, minShpDistance, UNDEF, minShpDistance, ignoreZ);
                 if (x) {
+                    if (ignoreZ) {
+                        // reset to initial z value to ensure the line retains its original z geometry if it gets unsnapped later
+                        x.point[2] = position[2] || 0;
+                    }
                     return x.point;
                 }
             }

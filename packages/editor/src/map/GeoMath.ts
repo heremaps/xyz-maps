@@ -123,3 +123,17 @@ export const calcSideOfLine = (p: Point, g1: Point, g2: Point): false | 'L' | 'R
     return direction > 0 ? 'L' : 'R';
 };
 
+
+/**
+ * Interpolates the altitude (z-value) of a point located between two 3D points on a line.
+ * Calculates the relative position of the point between line0 and line1 in 2D,
+ * then linearly interpolates the altitude using the z-values of line0 and line1.
+ * This is primarily used when editing 3D geometry with a 2D display,
+ * to estimate the altitude of a point based on its 2D position.
+ */
+export const interpolateAltitude = (point: Point, line0: Point, line1: Point): number => {
+    const [x0, y0, z0] = line0;
+    const [x1, y1, z1] = line1;
+    const relativePosition = getRelPosOfPointOnLine(point, [[x0, y0, 0], [x1, y1, 0]]);
+    return z0 + (z1 - z0) * relativePosition;
+};

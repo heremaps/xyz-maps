@@ -305,7 +305,7 @@ describe('editor hooks test', function() {
         expect(navlink.properties.coordinatesUpdateHook).to.equal(1);
 
         expect(navlink.coord()).to.deep.almost([
-            [76.08767968, 13.009954328],
+            [76.08767968, 13.009954328, 0],
             [76.09036188, 13.009954328]
         ]);
     });

@@ -39,6 +39,7 @@ import {Navlink} from './link/Navlink';
 import InternalEditor from '../IEditor';
 import {Feature} from './feature/Feature';
 import {EDIT_RESTRICTION} from '../API/EditorOptions';
+import {interpolateAltitude} from '../map/GeoMath';
 
 type Options = {
     ignore?: (feature: Navlink) => boolean
@@ -490,7 +491,7 @@ class ObjectManager {
             point: null,
             distance: Infinity,
             shpIndex: null,
-            segmentNumber: null
+            segment: null
         };
         let {maxDistance} = options;
         let searchBBox = maxDistance < Infinity
@@ -520,7 +521,7 @@ class ObjectManager {
                     RESULT.point = crossing.point;
                     RESULT.distance = crossing.distance;
                     RESULT.shpIndex = crossing.existingShape ? crossing.index : null;
-                    RESULT.segmentNumber = crossing.index - Number(!crossing.existingShape);
+                    RESULT.segment = crossing.index - Number(!crossing.existingShape);
                     RESULT.line = line;
 
                     // set maxDistance so bbox checks can skip features..
@@ -530,8 +531,18 @@ class ObjectManager {
             }
         }
 
-
-        return RESULT.line ? RESULT : null;
+        if (RESULT.line) {
+            // If ignoreZ is enabled, interpolate the altitude (z-value) between the two segment points.
+            // This "mocks" the z-value for the result point, because 3D geometry is edited in a 2D view.
+            // The actual altitude from the geometry is not used; instead, a linear interpolation is performed
+            // between the segment endpoints to provide a plausible z-value for editing and snapping purposes.
+            if (options.ignoreZ) {
+                const {line, segment, point} = RESULT;
+                const coordinates = line.geometry.coordinates as GeoJSONCoordinate[];
+                point[2] = interpolateAltitude(point, coordinates[segment], coordinates[segment+1]);
+            }
+            return RESULT;
+        }
     };
 
 
@@ -550,7 +561,7 @@ class ObjectManager {
             point: null,
             distance: Infinity,
             shpIndex: null,
-            segmentNumber: null
+            segment: null
         };
         let {maxDistance, ignoreZ} = options;
         let searchBBox = maxDistance < Infinity
@@ -610,7 +621,7 @@ class ObjectManager {
                         RESULT.point = point;
                         RESULT.distance = distance;
                         // RESULT.shpIndex = crossing.existingShape ? crossing.index : null;
-                        // RESULT.segmentNumber = crossing.index - Number(!crossing.existingShape);
+                        // RESULT.segment = crossing.index - Number(!crossing.existingShape);
                         RESULT.line = line;
                         // set maxDistance so bbox checks can skip features...
                         // maxDistance = geotools.distance(point, position);

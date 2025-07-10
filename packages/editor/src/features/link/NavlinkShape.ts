@@ -93,14 +93,13 @@ const connectShpToNearestLink = (line: Navlink, index: number) => {
 
     ignore.push(line);
 
-    // coordinate.slice(0,2), // do not pass zlevel to skip zlevel check..
     connectionCandidate = EDITOR.objects.getNearestLine(coordinate, line.getProvider(), {
         maxDistance: EDITOR._config['snapTolerance'],
         ignore: (link) => link.class == 'NAVLINK' && (ignore.indexOf(link) != -1 || !link.behavior('snapCoordinates')),
         ignoreZ
     });
 
-    if (connectionCandidate != null) { // check for selfconnect
+    if (connectionCandidate) { // check for selfconnect
         foundPos = connectionCandidate.point;
         foundPos[2] ||= 0;
 
@@ -187,9 +186,13 @@ function onMouseMoveShape(ev, dx, dy) {
     const EDITOR = link._e();
     const cfg = EDITOR._config;
     const ignoreZ = linkTools.ignoreZ(link);
-    const coordinate = shp.geometry.coordinates.slice(0, ignoreZ ? 2 : 3);
+    const orgCoordinate = shp.geometry.coordinates.slice(0, ignoreZ ? 2 : 3);
 
-    let curPos = <GeoJSONCoordinate>dragFeatureCoordinate(ev.mapX, ev.mapY, shp, coordinate, EDITOR);
+    let curPos = <GeoJSONCoordinate>dragFeatureCoordinate(ev.mapX, ev.mapY, shp, orgCoordinate, EDITOR);
+    if (ignoreZ) {
+        // restore initial altitude
+        curPos[2] = shp.geometry.coordinates[2]||0;
+    }
 
     if (!cfg.editRestrictions(link, EDIT_RESTRICTION.GEOMETRY)) {
         if (geoFence.isPntInFence(curPos)) {
@@ -203,7 +206,7 @@ function onMouseMoveShape(ev, dx, dy) {
 
             if (this.isSelected()) {
                 const display = EDITOR.display;
-                const orgCoordWorldPx = display._g2w(coordinate);
+                const orgCoordWorldPx = display._g2w(orgCoordinate);
                 const movedCoordWorldPx = display._g2w(curPos);
                 const offsetWorldPx = vec3.sub(movedCoordWorldPx, movedCoordWorldPx, orgCoordWorldPx);
 

@@ -199,7 +199,7 @@ class CrossingTester {
             // shapeThreshold: this.shapeThreshold
         });
 
-        if (nline != null) {
+        if (nline) {
             const cons = nline.line.getConnectedLinks(nline.shpIndex, true);
 
             if (connectionsContainIds(cons, skipIds)) {

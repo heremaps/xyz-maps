@@ -22,6 +22,7 @@ import {Map as MapDisplay} from '@here/xyz-maps-display';
 import {getClosestPntOnLine, getPntOnLine, getDistance} from '../geometry';
 import oTools from '../features/oTools';
 import {Feature} from '../features/feature/Feature';
+import {interpolateAltitude} from './GeoMath';
 
 
 // var MAX_DECIMAL_PRECISION = 1e8; // ⁓1.1mm
@@ -128,7 +129,7 @@ class Map {
         return [x * zinv, y * zinv];
     };
 
-    searchPointOnLine(pathGeo: Point[], posGeo: Point, snapTolerance: number, idx?: number, maxDistance?: number, ignoreZ?: boolean): Crossing {
+    searchPointOnLine(pathGeo: Point[], searchPoint: Point, snapTolerance: number, idx?: number, maxDistance?: number, ignoreZ?: boolean): Crossing {
         const map = this;
         let index = null;
         let minDistance = maxDistance || Infinity;
@@ -140,7 +141,7 @@ class Map {
         let iPnt;
 
         if (idx != UNDEF) {
-            const result = map.searchPointOnLine(pathGeo.slice(idx, idx + 2), posGeo, snapTolerance, UNDEF, maxDistance, ignoreZ);
+            const result = map.searchPointOnLine(pathGeo.slice(idx, idx + 2), searchPoint, snapTolerance, UNDEF, maxDistance, ignoreZ);
             if (result) {
                 result.index += idx;
             }
@@ -148,17 +149,14 @@ class Map {
         }
 
         if (ignoreZ) {
-            posGeo = [posGeo[0], posGeo[1]];
+            searchPoint = [searchPoint[0], searchPoint[1]];
         }
 
         // calculate index of line for new Shape to add
         for (let i = 0; i < pathGeo.length; i++) {
             let curGeo = pathGeo[i];
-            if (ignoreZ) {
-                curGeo = [curGeo[0], curGeo[1]];
-            }
             // check if a existing pnt is in range
-            distance = map.distance(curGeo, posGeo);
+            distance = map.distance(curGeo, searchPoint);
 
             if (distance <= minDistance) {
                 minDistance = distance;
@@ -173,8 +171,7 @@ class Map {
         if (minDistance > snapTolerance || !foundExistingShape) {
             // covert to worldspace
             const path = pathGeo.map((c) => map.display._g2w(c[0], c[1], ignoreZ ? UNDEF : c[2]));
-            const posWorld = map.display._g2w(posGeo);
-
+            const posWorld = map.display._g2w(searchPoint);
             // const path = pathGeo.map((c) => map.getPixelCoord(c));
             // const posWorld = map.getPixelCoord(posGeo);
 
@@ -184,7 +181,7 @@ class Map {
                     if (iPnt = getClosestPntOnLine(path[i], path[i + 1], posWorld, true)) {
                         const iPntGeo = map.clipGeoCoord(map.display._w2g(iPnt));
 
-                        distance = map.distance(iPntGeo, posGeo);
+                        distance = map.distance(iPntGeo, searchPoint);
 
                         if (distance < minDistance) {
                             minDistance = distance;
@@ -199,7 +196,19 @@ class Map {
             }
         }
 
-        return index === null ? index : new Crossing([foundX, foundY, foundZ || 0], index, minDistance, foundExistingShape);
+        if (index !== null) {
+            if (ignoreZ) {
+                if (foundExistingShape) {
+                    // if found existing shape, use its z value
+                    foundZ = pathGeo[index][2];
+                } else {
+                    // otherwise, calculate interpolated z value based on the line segment
+                    foundZ = interpolateAltitude([foundX, foundY], pathGeo[index - 1], pathGeo[index]);
+                }
+            }
+            return new Crossing([foundX, foundY, foundZ || 0], index, minDistance, foundExistingShape);
+        }
+        return null;
     };
 
 
