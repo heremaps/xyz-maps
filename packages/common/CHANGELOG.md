@@ -1,3 +1,25 @@
+## 0.42.0 (2025-7-11)
+### editor
+* added: implemented altitude interpolation for 3D geometry applied during link splitting and road network editing in forced 2D mode
+* added: Line and Navlink features now support automatic geometry simplification with distance-based tolerance, supporting both pixel and meter units. See [link.simplifyGeometry](http://https://heremaps.github.io/xyz-maps/docs/classes/editor.navlink.html#simplifygeometry).
+* fixed: resolve an issue when editing intersections affects hidden roads
+### core
+* added: introduce [TerrainTileLayer](https://heremaps.github.io/xyz-maps/docs/interfaces/core.terraintilelayeroptions.html) for flexible 3D terrain rendering using raster heightmaps or precomputed meshes, with support for custom decoding, imagery overlays, lighting, and styling. [Playground Example](https://heremaps.github.io/xyz-maps/playground/#Display-3D_Terrain)
+* added: TileLayer and TileProviders now support [attribution info](https://heremaps.github.io/xyz-maps/docs/interfaces/core.tilelayeroptions.html#attribution) with optional linked URLs, automatically displayed on the map when the respective data is visible.
+### display
+* improved: Treat lines as solid when "strokeDasharray" is a dynamic StyleExpression and dashSize resolves to 0
+* added: improve adaptive tile loading and LOD selection using pitch-based scaling and adaptive thresholds for optimal tile count
+* added: accelerate visual feedback by prioritizing center tile loading
+* added: 3D Models now support configurable [Material.wrap](https://heremaps.github.io/xyz-maps/docs/interfaces/core.material.html#wrap) for diffuse/specular/normal maps, enabling per-material texture wrapping (clamp, repeat, mirror) for enhanced UV control
+* fixed: optimize projected feature bbox center to match visual center in WebMercator
+* fixed: skyColor ignored when set to a solid color, only gradients are effective
+* fixed: correct broken rendering of [debug tile grid](https://heremaps.github.io/xyz-maps/docs/interfaces/display.mapoptions.html#debug)
+* fixed: ensure [singleWorldView](https://heremaps.github.io/xyz-maps/docs/interfaces/display.mapoptions.html#singleworldview) is respected and prevent map repetition when resizing the map
+### common
+* fixed: Ensure debug dump logger works correctly with ES2017 target
+### playground
+* fixed: include transpiled JS in downloaded example code
+
 ## 0.41.0 (2025-2-21)
 ### general
 * improved: Upgraded the minimum runtime JavaScript target for all packages to ES2017.
