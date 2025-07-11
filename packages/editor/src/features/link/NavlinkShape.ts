@@ -358,10 +358,12 @@ function mouseInHandler() {
             style = EDITOR.getStyle(link) as StyleGroup;
         }
 
-        for (let s = 0; s < style.length; s++) {
-            style[s].opacity = 0.5;
+        if (Array.isArray(style)) {
+            for (let s = 0; s < style.length; s++) {
+                style[s].opacity = 0.5;
+            }
+            EDITOR.setStyle(link, style);
         }
-        EDITOR.setStyle(link, style);
     });
 
     this.properties[EDITOR_NS].hovered = true;
