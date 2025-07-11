@@ -1,0 +1,527 @@
+<!doctype html>
+<html class="default no-js">
+<head>
+	<meta charset="utf-8">
+	<meta http-equiv="X-UA-Compatible" content="IE=edge">
+	<title>Crossing | XYZ Maps Documentation</title>
+	<meta name="description" content="Documentation for XYZ Maps Documentation">
+	<meta name="viewport" content="width=device-width, initial-scale=1">
+	<link rel="stylesheet" href="../assets/css/main.css">
+</head>
+<body>
+<header>
+	<div class="tsd-page-toolbar">
+		<div class="container">
+			<div class="table-wrap">
+				<div class="table-cell" id="tsd-search" data-index="../assets/js/search.json" data-base="..">
+					<div class="field">
+						<label for="tsd-search-field" class="tsd-widget search no-caption">Search</label>
+						<input id="tsd-search-field" type="text" />
+					</div>
+					<ul class="results">
+						<li class="state loading">Preparing search index...</li>
+						<li class="state failure">The search index is not available</li>
+					</ul>
+					<a href="../index.html" class="title">XYZ Maps Documentation</a>
+				</div>
+				<div class="table-cell" id="tsd-widgets">
+					<div id="tsd-filter">
+						<a href="#" class="tsd-widget options no-caption" data-toggle="options">Options</a>
+						<div class="tsd-filter-group">
+							<div class="tsd-select" id="tsd-filter-visibility">
+								<span class="tsd-select-label">All</span>
+								<ul class="tsd-select-list">
+									<li data-value="public">Public</li>
+									<li data-value="protected">Public/Protected</li>
+									<li data-value="private" class="selected">All</li>
+								</ul>
+							</div>
+							<input type="checkbox" id="tsd-filter-inherited" checked />
+							<label class="tsd-widget" for="tsd-filter-inherited">Inherited</label>
+						</div>
+					</div>
+					<a href="#" class="tsd-widget menu no-caption" data-toggle="menu">Menu</a>
+				</div>
+			</div>
+		</div>
+	</div>
+	<div class="tsd-page-title">
+		<div class="container">
+			<ul class="tsd-breadcrumb">
+				<li>
+					<a href="../globals.html">Globals</a>
+				</li>
+				<li>
+					<a href="../modules/editor.html">editor</a>
+				</li>
+				<li>
+					<a href="editor.crossing.html">Crossing</a>
+				</li>
+			</ul>
+			<h1>Class Crossing</h1>
+		</div>
+	</div>
+</header>
+<div class="container container-main">
+	<div class="row">
+		<div class="col-8 col-content">
+			<section class="tsd-panel tsd-comment">
+				<div class="tsd-comment tsd-typography">
+					<div class="lead">
+						<p>The Crossing represents the intersection point of 2 Navlink geometries.
+							A Crossing feature is an indication for a Road Intersection an can be used to detect and create missing intersections in a road network.
+							In case of 2 Navlink geometries are located very close to each other (but not intersecting), the Crossing represents a &quot;CROSSING_CANDIDATE&quot;.
+						The threshold for the candidate detection can be configured with <a href="../interfaces/editor.editoroptions.html#intersectionscale">EditorOptions.intersectionScale</a></p>
+					</div>
+				</div>
+			</section>
+			<section class="tsd-panel tsd-hierarchy">
+				<h3>Hierarchy</h3>
+				<ul class="tsd-hierarchy">
+					<li>
+						<span class="target">Crossing</span>
+					</li>
+				</ul>
+			</section>
+			<section class="tsd-panel">
+				<h3>Implements</h3>
+				<ul class="tsd-hierarchy">
+					<li><a href="../interfaces/core.geojsonfeature.html" class="tsd-signature-type">GeoJSONFeature</a></li>
+				</ul>
+			</section>
+			<section class="tsd-panel-group tsd-index-group">
+				<h2>Index</h2>
+				<section class="tsd-panel tsd-index-panel">
+					<div class="tsd-index-content">
+						<section class="tsd-index-section ">
+							<h3>Properties</h3>
+							<ul class="tsd-index-list">
+								<li class="tsd-kind-property tsd-parent-kind-class"><a href="editor.crossing.html#class" class="tsd-kind-icon">class</a></li>
+								<li class="tsd-kind-property tsd-parent-kind-class"><a href="editor.crossing.html#distance" class="tsd-kind-icon">distance</a></li>
+								<li class="tsd-kind-property tsd-parent-kind-class"><a href="editor.crossing.html#geometry" class="tsd-kind-icon">geometry</a></li>
+								<li class="tsd-kind-property tsd-parent-kind-class"><a href="editor.crossing.html#x" class="tsd-kind-icon">x</a></li>
+								<li class="tsd-kind-property tsd-parent-kind-class"><a href="editor.crossing.html#y" class="tsd-kind-icon">y</a></li>
+							</ul>
+						</section>
+						<section class="tsd-index-section ">
+							<h3>Methods</h3>
+							<ul class="tsd-index-list">
+								<li class="tsd-kind-method tsd-parent-kind-class"><a href="editor.crossing.html#connect" class="tsd-kind-icon">connect</a></li>
+								<li class="tsd-kind-method tsd-parent-kind-class"><a href="editor.crossing.html#getconnectedlinks" class="tsd-kind-icon">get<wbr>Connected<wbr>Links</a></li>
+								<li class="tsd-kind-method tsd-parent-kind-class"><a href="editor.crossing.html#getlink" class="tsd-kind-icon">get<wbr>Link</a></li>
+								<li class="tsd-kind-method tsd-parent-kind-class"><a href="editor.crossing.html#getrelatedlink" class="tsd-kind-icon">get<wbr>Related<wbr>Link</a></li>
+								<li class="tsd-kind-method tsd-parent-kind-class"><a href="editor.crossing.html#hide" class="tsd-kind-icon">hide</a></li>
+								<li class="tsd-kind-method tsd-parent-kind-class"><a href="editor.crossing.html#show" class="tsd-kind-icon">show</a></li>
+							</ul>
+						</section>
+					</div>
+				</section>
+			</section>
+			<section class="tsd-panel-group tsd-member-group ">
+				<h2>Properties</h2>
+				<section class="tsd-panel tsd-member tsd-kind-property tsd-parent-kind-class">
+					<a name="class" class="tsd-anchor"></a>
+					<h3><span class="tsd-flag ts-flagReadonly">Readonly</span> class</h3>
+					<div class="tsd-signature tsd-kind-icon">class<span class="tsd-signature-symbol">:</span> <span class="tsd-signature-type">CROSSING</span><span class="tsd-signature-symbol"> | </span><span class="tsd-signature-type">CROSSING_CANDIDATE</span></div>
+					<aside class="tsd-sources">
+					</aside>
+					<div class="tsd-comment tsd-typography">
+						<div class="lead">
+							<p> the feature class of the crossing. Can be either CROSSING or CROSSING_CANDIDATE.</p>
+						</div>
+					</div>
+				</section>
+				<section class="tsd-panel tsd-member tsd-kind-property tsd-parent-kind-class">
+					<a name="distance" class="tsd-anchor"></a>
+					<h3><span class="tsd-flag ts-flagReadonly">Readonly</span> distance</h3>
+					<div class="tsd-signature tsd-kind-icon">distance<span class="tsd-signature-symbol">:</span> <span class="tsd-signature-type">number</span></div>
+					<aside class="tsd-sources">
+					</aside>
+					<div class="tsd-comment tsd-typography">
+						<div class="lead">
+							<p>The distance between two points which will be connected on current and related links.</p>
+						</div>
+					</div>
+				</section>
+				<section class="tsd-panel tsd-member tsd-kind-property tsd-parent-kind-class">
+					<a name="geometry" class="tsd-anchor"></a>
+					<h3>geometry</h3>
+					<div class="tsd-signature tsd-kind-icon">geometry<span class="tsd-signature-symbol">:</span> <span class="tsd-signature-symbol">{ </span>coordinates<span class="tsd-signature-symbol">: </span><a href="../modules/core.html#geojsoncoordinate" class="tsd-signature-type">GeoJSONCoordinate</a><span class="tsd-signature-symbol"> | </span><a href="../modules/core.html#geojsoncoordinate" class="tsd-signature-type">GeoJSONCoordinate</a><span class="tsd-signature-symbol">[]</span><span class="tsd-signature-symbol">; </span>type<span class="tsd-signature-symbol">: </span><span class="tsd-signature-type">"Point"</span><span class="tsd-signature-symbol"> | </span><span class="tsd-signature-type">"LineString"</span><span class="tsd-signature-symbol"> }</span></div>
+					<aside class="tsd-sources">
+						<p>Implementation of <a href="../interfaces/core.geojsonfeature.html">GeoJSONFeature</a>.<a href="../interfaces/core.geojsonfeature.html#geometry">geometry</a></p>
+					</aside>
+					<div class="tsd-comment tsd-typography">
+						<div class="lead">
+							<p>The geometry of the Crossing feature.</p>
+						</div>
+					</div>
+					<div class="tsd-type-declaration">
+						<h4>Type declaration</h4>
+						<ul class="tsd-parameters">
+							<li class="tsd-parameter">
+								<h5>coordinates<span class="tsd-signature-symbol">: </span><a href="../modules/core.html#geojsoncoordinate" class="tsd-signature-type">GeoJSONCoordinate</a><span class="tsd-signature-symbol"> | </span><a href="../modules/core.html#geojsoncoordinate" class="tsd-signature-type">GeoJSONCoordinate</a><span class="tsd-signature-symbol">[]</span></h5>
+								<div class="tsd-comment tsd-typography">
+									<div class="lead">
+										<p>The coordinates of the crossing feature.</p>
+									</div>
+								</div>
+							</li>
+							<li class="tsd-parameter">
+								<h5>type<span class="tsd-signature-symbol">: </span><span class="tsd-signature-type">"Point"</span><span class="tsd-signature-symbol"> | </span><span class="tsd-signature-type">"LineString"</span></h5>
+								<div class="tsd-comment tsd-typography">
+									<div class="lead">
+										<p>The type of the geometry.
+										For &quot;CROSSINGS&quot; the type is &quot;Point&quot;, for &quot;CROSSING_CANDIDATE&quot; its &quot;LineString&quot;.</p>
+									</div>
+								</div>
+							</li>
+						</ul>
+					</div>
+				</section>
+				<section class="tsd-panel tsd-member tsd-kind-property tsd-parent-kind-class">
+					<a name="x" class="tsd-anchor"></a>
+					<h3><span class="tsd-flag ts-flagReadonly">Readonly</span> x</h3>
+					<div class="tsd-signature tsd-kind-icon">x<span class="tsd-signature-symbol">:</span> <span class="tsd-signature-type">number</span></div>
+					<aside class="tsd-sources">
+					</aside>
+					<div class="tsd-comment tsd-typography">
+						<div class="lead">
+							<p>the x coordinate of the crossing on screen in pixel.</p>
+						</div>
+						<dl class="tsd-comment-tags">
+							<dt>deprecated</dt>
+							<dd><p>use display.geoToPixel to project the geographical coordinates of the crossing to pixels on screen.</p>
+							</dd>
+						</dl>
+					</div>
+				</section>
+				<section class="tsd-panel tsd-member tsd-kind-property tsd-parent-kind-class">
+					<a name="y" class="tsd-anchor"></a>
+					<h3><span class="tsd-flag ts-flagReadonly">Readonly</span> y</h3>
+					<div class="tsd-signature tsd-kind-icon">y<span class="tsd-signature-symbol">:</span> <span class="tsd-signature-type">number</span></div>
+					<aside class="tsd-sources">
+					</aside>
+					<div class="tsd-comment tsd-typography">
+						<div class="lead">
+							<p>the y coordinate of the crossing on screen in pixel.</p>
+						</div>
+						<dl class="tsd-comment-tags">
+							<dt>deprecated</dt>
+							<dd><p>use display.geoToPixel to project the geographical coordinates of the crossing to pixels on screen.</p>
+							</dd>
+						</dl>
+					</div>
+				</section>
+			</section>
+			<section class="tsd-panel-group tsd-member-group ">
+				<h2>Methods</h2>
+				<section class="tsd-panel tsd-member tsd-kind-method tsd-parent-kind-class">
+					<a name="connect" class="tsd-anchor"></a>
+					<h3>connect</h3>
+					<ul class="tsd-signatures tsd-kind-method tsd-parent-kind-class">
+						<li class="tsd-signature tsd-kind-icon">connect<span class="tsd-signature-symbol">(</span><span class="tsd-signature-symbol">)</span><span class="tsd-signature-symbol">: </span><a href="editor.crossing.html" class="tsd-signature-type">Crossing</a><span class="tsd-signature-symbol">[]</span><span class="tsd-signature-symbol"> | </span><span class="tsd-signature-type">false</span></li>
+					</ul>
+					<ul class="tsd-descriptions">
+						<li class="tsd-description">
+							<aside class="tsd-sources">
+							</aside>
+							<div class="tsd-comment tsd-typography">
+								<div class="lead">
+									<p>Connects the related Navlink features and creates an intersection.</p>
+								</div>
+							</div>
+							<h4 class="tsd-returns-title">Returns <a href="editor.crossing.html" class="tsd-signature-type">Crossing</a><span class="tsd-signature-symbol">[]</span><span class="tsd-signature-symbol"> | </span><span class="tsd-signature-type">false</span></h4>
+							<p>Resulting array of new Crossing due to road network changes or false if none crossing is detected.</p>
+						</li>
+					</ul>
+				</section>
+				<section class="tsd-panel tsd-member tsd-kind-method tsd-parent-kind-class">
+					<a name="getconnectedlinks" class="tsd-anchor"></a>
+					<h3>get<wbr>Connected<wbr>Links</h3>
+					<ul class="tsd-signatures tsd-kind-method tsd-parent-kind-class">
+						<li class="tsd-signature tsd-kind-icon">get<wbr>Connected<wbr>Links<span class="tsd-signature-symbol">(</span><span class="tsd-signature-symbol">)</span><span class="tsd-signature-symbol">: </span><a href="editor.navlink.html" class="tsd-signature-type">Navlink</a><span class="tsd-signature-symbol">[]</span></li>
+					</ul>
+					<ul class="tsd-descriptions">
+						<li class="tsd-description">
+							<aside class="tsd-sources">
+							</aside>
+							<div class="tsd-comment tsd-typography">
+								<div class="lead">
+									<p>Get all connected Navlink features which are connected (Intersection) to the related link that is treated as crossing candidate.
+									This method affects Crossings of type &quot;CROSSING_CANDIDATE&quot; only.</p>
+								</div>
+							</div>
+							<h4 class="tsd-returns-title">Returns <a href="editor.navlink.html" class="tsd-signature-type">Navlink</a><span class="tsd-signature-symbol">[]</span></h4>
+						</li>
+					</ul>
+				</section>
+				<section class="tsd-panel tsd-member tsd-kind-method tsd-parent-kind-class">
+					<a name="getlink" class="tsd-anchor"></a>
+					<h3>get<wbr>Link</h3>
+					<ul class="tsd-signatures tsd-kind-method tsd-parent-kind-class">
+						<li class="tsd-signature tsd-kind-icon">get<wbr>Link<span class="tsd-signature-symbol">(</span><span class="tsd-signature-symbol">)</span><span class="tsd-signature-symbol">: </span><a href="editor.navlink.html" class="tsd-signature-type">Navlink</a></li>
+					</ul>
+					<ul class="tsd-descriptions">
+						<li class="tsd-description">
+							<aside class="tsd-sources">
+							</aside>
+							<div class="tsd-comment tsd-typography">
+								<div class="lead">
+									<p>Get the Navlink feature of which the crossing belongs to.</p>
+								</div>
+							</div>
+							<h4 class="tsd-returns-title">Returns <a href="editor.navlink.html" class="tsd-signature-type">Navlink</a></h4>
+						</li>
+					</ul>
+				</section>
+				<section class="tsd-panel tsd-member tsd-kind-method tsd-parent-kind-class">
+					<a name="getrelatedlink" class="tsd-anchor"></a>
+					<h3>get<wbr>Related<wbr>Link</h3>
+					<ul class="tsd-signatures tsd-kind-method tsd-parent-kind-class">
+						<li class="tsd-signature tsd-kind-icon">get<wbr>Related<wbr>Link<span class="tsd-signature-symbol">(</span><span class="tsd-signature-symbol">)</span><span class="tsd-signature-symbol">: </span><a href="editor.navlink.html" class="tsd-signature-type">Navlink</a></li>
+					</ul>
+					<ul class="tsd-descriptions">
+						<li class="tsd-description">
+							<aside class="tsd-sources">
+							</aside>
+							<div class="tsd-comment tsd-typography">
+								<div class="lead">
+									<p>Get the Navlink feature which is crossed or treated as a crossing candidate.</p>
+								</div>
+							</div>
+							<h4 class="tsd-returns-title">Returns <a href="editor.navlink.html" class="tsd-signature-type">Navlink</a></h4>
+						</li>
+					</ul>
+				</section>
+				<section class="tsd-panel tsd-member tsd-kind-method tsd-parent-kind-class">
+					<a name="hide" class="tsd-anchor"></a>
+					<h3>hide</h3>
+					<ul class="tsd-signatures tsd-kind-method tsd-parent-kind-class">
+						<li class="tsd-signature tsd-kind-icon">hide<span class="tsd-signature-symbol">(</span><span class="tsd-signature-symbol">)</span><span class="tsd-signature-symbol">: </span><span class="tsd-signature-type">void</span></li>
+					</ul>
+					<ul class="tsd-descriptions">
+						<li class="tsd-description">
+							<aside class="tsd-sources">
+							</aside>
+							<div class="tsd-comment tsd-typography">
+								<div class="lead">
+									<p>Hide the crossing on the map.</p>
+								</div>
+							</div>
+							<h4 class="tsd-returns-title">Returns <span class="tsd-signature-type">void</span></h4>
+						</li>
+					</ul>
+				</section>
+				<section class="tsd-panel tsd-member tsd-kind-method tsd-parent-kind-class">
+					<a name="show" class="tsd-anchor"></a>
+					<h3>show</h3>
+					<ul class="tsd-signatures tsd-kind-method tsd-parent-kind-class">
+						<li class="tsd-signature tsd-kind-icon">show<span class="tsd-signature-symbol">(</span><span class="tsd-signature-symbol">)</span><span class="tsd-signature-symbol">: </span><span class="tsd-signature-type">void</span></li>
+					</ul>
+					<ul class="tsd-descriptions">
+						<li class="tsd-description">
+							<aside class="tsd-sources">
+							</aside>
+							<div class="tsd-comment tsd-typography">
+								<div class="lead">
+									<p>Show the crossing on the map.</p>
+								</div>
+							</div>
+							<h4 class="tsd-returns-title">Returns <span class="tsd-signature-type">void</span></h4>
+						</li>
+					</ul>
+				</section>
+			</section>
+		</div>
+		<div class="col-4 col-menu menu-sticky-wrap menu-highlight">
+			<nav class="tsd-navigation primary">
+				<ul>
+					<li class="globals  ">
+						<a href="../globals.html"><em>Globals</em></a>
+					</li>
+					<li class=" tsd-kind-module">
+						<a href="../modules/core.html">core</a>
+					</li>
+					<li class=" tsd-kind-module">
+						<a href="../modules/display.html">display</a>
+					</li>
+					<li class="current tsd-kind-module">
+						<a href="../modules/editor.html">editor</a>
+					</li>
+				</ul>
+			</nav>
+			<nav class="tsd-navigation secondary menu-sticky">
+				<ul class="before-current">
+					<li class=" tsd-kind-module">
+						<a href="../modules/core.html" class="tsd-kind-icon">core</a>
+					</li>
+					<li class=" tsd-kind-module">
+						<a href="../modules/display.html" class="tsd-kind-icon">display</a>
+					</li>
+				</ul>
+				<ul class="current">
+					<li class="current tsd-kind-module">
+						<a href="../modules/editor.html" class="tsd-kind-icon">editor</a>
+						<ul>
+							<li class=" tsd-kind-class tsd-parent-kind-module">
+								<a href="editor.address.html" class="tsd-kind-icon">Address</a>
+							</li>
+							<li class=" tsd-kind-class tsd-parent-kind-module">
+								<a href="editor.area.html" class="tsd-kind-icon">Area</a>
+							</li>
+							<li class=" tsd-kind-class tsd-parent-kind-module">
+								<a href="editor.areashape.html" class="tsd-kind-icon">Area<wbr>Shape</a>
+							</li>
+							<li class="current tsd-kind-class tsd-parent-kind-module">
+								<a href="editor.crossing.html" class="tsd-kind-icon">Crossing</a>
+								<ul>
+									<li class=" tsd-kind-property tsd-parent-kind-class">
+										<a href="editor.crossing.html#class" class="tsd-kind-icon">class</a>
+									</li>
+									<li class=" tsd-kind-property tsd-parent-kind-class">
+										<a href="editor.crossing.html#distance" class="tsd-kind-icon">distance</a>
+									</li>
+									<li class=" tsd-kind-property tsd-parent-kind-class">
+										<a href="editor.crossing.html#geometry" class="tsd-kind-icon">geometry</a>
+									</li>
+									<li class=" tsd-kind-property tsd-parent-kind-class">
+										<a href="editor.crossing.html#x" class="tsd-kind-icon">x</a>
+									</li>
+									<li class=" tsd-kind-property tsd-parent-kind-class">
+										<a href="editor.crossing.html#y" class="tsd-kind-icon">y</a>
+									</li>
+									<li class=" tsd-kind-method tsd-parent-kind-class">
+										<a href="editor.crossing.html#connect" class="tsd-kind-icon">connect</a>
+									</li>
+									<li class=" tsd-kind-method tsd-parent-kind-class">
+										<a href="editor.crossing.html#getconnectedlinks" class="tsd-kind-icon">get<wbr>Connected<wbr>Links</a>
+									</li>
+									<li class=" tsd-kind-method tsd-parent-kind-class">
+										<a href="editor.crossing.html#getlink" class="tsd-kind-icon">get<wbr>Link</a>
+									</li>
+									<li class=" tsd-kind-method tsd-parent-kind-class">
+										<a href="editor.crossing.html#getrelatedlink" class="tsd-kind-icon">get<wbr>Related<wbr>Link</a>
+									</li>
+									<li class=" tsd-kind-method tsd-parent-kind-class">
+										<a href="editor.crossing.html#hide" class="tsd-kind-icon">hide</a>
+									</li>
+									<li class=" tsd-kind-method tsd-parent-kind-class">
+										<a href="editor.crossing.html#show" class="tsd-kind-icon">show</a>
+									</li>
+								</ul>
+							</li>
+							<li class=" tsd-kind-class tsd-parent-kind-module">
+								<a href="editor.drawingboard.html" class="tsd-kind-icon">Drawing<wbr>Board</a>
+							</li>
+							<li class=" tsd-kind-class tsd-parent-kind-module">
+								<a href="editor.drawingshape.html" class="tsd-kind-icon">Drawing<wbr>Shape</a>
+							</li>
+							<li class=" tsd-kind-class tsd-parent-kind-module">
+								<a href="editor.editor-1.html" class="tsd-kind-icon">Editor</a>
+							</li>
+							<li class=" tsd-kind-class tsd-parent-kind-module">
+								<a href="editor.editorevent.html" class="tsd-kind-icon">Editor<wbr>Event</a>
+							</li>
+							<li class=" tsd-kind-class tsd-parent-kind-module">
+								<a href="editor.feature.html" class="tsd-kind-icon">Feature</a>
+							</li>
+							<li class=" tsd-kind-class tsd-parent-kind-module">
+								<a href="editor.line.html" class="tsd-kind-icon">Line</a>
+							</li>
+							<li class=" tsd-kind-class tsd-parent-kind-module">
+								<a href="editor.lineshape.html" class="tsd-kind-icon">Line<wbr>Shape</a>
+							</li>
+							<li class=" tsd-kind-class tsd-parent-kind-module">
+								<a href="editor.marker.html" class="tsd-kind-icon">Marker</a>
+							</li>
+							<li class=" tsd-kind-class tsd-parent-kind-module">
+								<a href="editor.navlink.html" class="tsd-kind-icon">Navlink</a>
+							</li>
+							<li class=" tsd-kind-class tsd-parent-kind-module">
+								<a href="editor.navlinkshape.html" class="tsd-kind-icon">Navlink<wbr>Shape</a>
+							</li>
+							<li class=" tsd-kind-class tsd-parent-kind-module">
+								<a href="editor.place.html" class="tsd-kind-icon">Place</a>
+							</li>
+							<li class=" tsd-kind-class tsd-parent-kind-module">
+								<a href="editor.rangeselector.html" class="tsd-kind-icon">Range<wbr>Selector</a>
+							</li>
+							<li class=" tsd-kind-interface tsd-parent-kind-module">
+								<a href="../interfaces/editor.editorfeatureproperties.html" class="tsd-kind-icon">Editor<wbr>Feature<wbr>Properties</a>
+							</li>
+							<li class=" tsd-kind-interface tsd-parent-kind-module">
+								<a href="../interfaces/editor.editoroptions.html" class="tsd-kind-icon">Editor<wbr>Options</a>
+							</li>
+							<li class=" tsd-kind-interface tsd-parent-kind-module">
+								<a href="../interfaces/editor.featurecontainer.html" class="tsd-kind-icon">Feature<wbr>Container</a>
+							</li>
+							<li class=" tsd-kind-interface tsd-parent-kind-module">
+								<a href="../interfaces/editor.featureproperties.html" class="tsd-kind-icon">Feature<wbr>Properties</a>
+							</li>
+							<li class=" tsd-kind-interface tsd-parent-kind-module">
+								<a href="../interfaces/editor.range.html" class="tsd-kind-icon">Range</a>
+							</li>
+							<li class=" tsd-kind-interface tsd-parent-kind-module">
+								<a href="../interfaces/editor.turnrestrictioneditor.html" class="tsd-kind-icon">Turn<wbr>Restriction<wbr>Editor</a>
+							</li>
+							<li class=" tsd-kind-type-alias tsd-parent-kind-module">
+								<a href="../modules/editor.html#coordinatesupdatehook" class="tsd-kind-icon">Coordinates<wbr>Update<wbr>Hook</a>
+							</li>
+							<li class=" tsd-kind-type-alias tsd-parent-kind-module">
+								<a href="../modules/editor.html#editoreventtypes" class="tsd-kind-icon">Editor<wbr>Event<wbr>Types</a>
+							</li>
+							<li class=" tsd-kind-type-alias tsd-parent-kind-module">
+								<a href="../modules/editor.html#featureremovehook" class="tsd-kind-icon">Feature<wbr>Remove<wbr>Hook</a>
+							</li>
+							<li class=" tsd-kind-type-alias tsd-parent-kind-module">
+								<a href="../modules/editor.html#navlinkdisconnecthook" class="tsd-kind-icon">Navlink<wbr>Disconnect<wbr>Hook</a>
+							</li>
+							<li class=" tsd-kind-type-alias tsd-parent-kind-module">
+								<a href="../modules/editor.html#navlinksplithook" class="tsd-kind-icon">Navlink<wbr>Split<wbr>Hook</a>
+							</li>
+							<li class=" tsd-kind-type-alias tsd-parent-kind-module">
+								<a href="../modules/editor.html#rangesegment" class="tsd-kind-icon">Range<wbr>Segment</a>
+							</li>
+							<li class=" tsd-kind-function tsd-parent-kind-module">
+								<a href="../modules/editor.html#interpolatealtitude" class="tsd-kind-icon">interpolate<wbr>Altitude</a>
+							</li>
+						</ul>
+					</li>
+				</ul>
+				<ul class="after-current">
+				</ul>
+			</nav>
+		</div>
+	</div>
+</div>
+<footer class="with-border-bottom">
+	<div class="container">
+		<h2>Legend</h2>
+		<div class="tsd-legend-group">
+			<ul class="tsd-legend">
+				<li class="tsd-kind-object-literal"><span class="tsd-kind-icon">Object literal</span></li>
+				<li class="tsd-kind-variable"><span class="tsd-kind-icon">Variable</span></li>
+				<li class="tsd-kind-function"><span class="tsd-kind-icon">Function</span></li>
+				<li class="tsd-kind-type-alias"><span class="tsd-kind-icon">Type alias</span></li>
+				<li class="tsd-kind-type-alias tsd-has-type-parameter"><span class="tsd-kind-icon">Type alias with type parameter</span></li>
+			</ul>
+			<ul class="tsd-legend">
+				<li class="tsd-kind-class"><span class="tsd-kind-icon">Class</span></li>
+				<li class="tsd-kind-class tsd-has-type-parameter"><span class="tsd-kind-icon">Class with type parameter</span></li>
+				<li class="tsd-kind-property tsd-parent-kind-class"><span class="tsd-kind-icon">Property</span></li>
+				<li class="tsd-kind-method tsd-parent-kind-class"><span class="tsd-kind-icon">Method</span></li>
+			</ul>
+			<ul class="tsd-legend">
+				<li class="tsd-kind-interface"><span class="tsd-kind-icon">Interface</span></li>
+				<li class="tsd-kind-interface tsd-has-type-parameter"><span class="tsd-kind-icon">Interface with type parameter</span></li>
+			</ul>
+		</div>
+	</div>
+</footer>
+<div class="container tsd-generator">
+	<p>Generated using <a href="https://typedoc.org/" target="_blank">TypeDoc</a></p>
+</div>
+<div class="overlay"></div>
+<script src="../assets/js/main.js"></script>
+</body>
+</html>

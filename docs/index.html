@@ -1,0 +1,199 @@
+<!doctype html>
+<html class="default no-js">
+<head>
+	<meta charset="utf-8">
+	<meta http-equiv="X-UA-Compatible" content="IE=edge">
+	<title>XYZ Maps Documentation</title>
+	<meta name="description" content="Documentation for XYZ Maps Documentation">
+	<meta name="viewport" content="width=device-width, initial-scale=1">
+	<link rel="stylesheet" href="assets/css/main.css">
+</head>
+<body>
+<header>
+	<div class="tsd-page-toolbar">
+		<div class="container">
+			<div class="table-wrap">
+				<div class="table-cell" id="tsd-search" data-index="assets/js/search.json" data-base=".">
+					<div class="field">
+						<label for="tsd-search-field" class="tsd-widget search no-caption">Search</label>
+						<input id="tsd-search-field" type="text" />
+					</div>
+					<ul class="results">
+						<li class="state loading">Preparing search index...</li>
+						<li class="state failure">The search index is not available</li>
+					</ul>
+					<a href="index.html" class="title">XYZ Maps Documentation</a>
+				</div>
+				<div class="table-cell" id="tsd-widgets">
+					<div id="tsd-filter">
+						<a href="#" class="tsd-widget options no-caption" data-toggle="options">Options</a>
+						<div class="tsd-filter-group">
+							<div class="tsd-select" id="tsd-filter-visibility">
+								<span class="tsd-select-label">All</span>
+								<ul class="tsd-select-list">
+									<li data-value="public">Public</li>
+									<li data-value="protected">Public/Protected</li>
+									<li data-value="private" class="selected">All</li>
+								</ul>
+							</div>
+							<input type="checkbox" id="tsd-filter-inherited" checked />
+							<label class="tsd-widget" for="tsd-filter-inherited">Inherited</label>
+						</div>
+					</div>
+					<a href="#" class="tsd-widget menu no-caption" data-toggle="menu">Menu</a>
+				</div>
+			</div>
+		</div>
+	</div>
+	<div class="tsd-page-title">
+		<div class="container">
+			<ul class="tsd-breadcrumb">
+				<li>
+					<a href="globals.html">Globals</a>
+				</li>
+			</ul>
+			<h1>XYZ Maps Documentation</h1>
+		</div>
+	</div>
+</header>
+<div class="container container-main">
+	<div class="row">
+		<div class="col-8 col-content">
+			<div class="tsd-panel tsd-typography">
+				<a href="#xyz-maps-js-display" id="xyz-maps-js-display" style="color: inherit; text-decoration: none;">
+					<h1>XYZ Maps JS: Display</h1>
+				</a>
+				<p><a href="https://github.com/heremaps/xyz-maps">XYZ Maps</a> is an experimental and work in progress open-source map editor written in TypeScript/JavaScript.
+					The display module of <a href="https://github.com/heremaps/xyz-maps">XYZ Maps</a> is a highly customizable vector map display that&#39;s optimized for map
+				editing, larger raw datasets and frequently changing data.</p>
+				<a href="#links" id="links" style="color: inherit; text-decoration: none;">
+					<h3>Links</h3>
+				</a>
+				<ul>
+					<li><a href="https://heremaps.github.io/xyz-maps/playground/#Display-Pitch_and_Rotate_Map">API Playground</a></li>
+					<li><a href="https://heremaps.github.io/xyz-maps/docs/">Documentation</a></li>
+				</ul>
+				<a href="#installation" id="installation" style="color: inherit; text-decoration: none;">
+					<h2>Installation</h2>
+				</a>
+				<p>Install XYZ Map Display by using</p>
+				<pre><code class="language-sh"><span class="hljs-comment"># install using npm</span>
+npm install @here/xyz-maps-display
+</code></pre>
+				<p>or</p>
+				<pre><code class="language-sh"><span class="hljs-comment"># install using yarn</span>
+yarn add @here/xyz-maps-display
+</code></pre>
+				<a href="#example-usage" id="example-usage" style="color: inherit; text-decoration: none;">
+					<h2>Example Usage:</h2>
+				</a>
+				<p>Create a map display</p>
+				<pre><code class="language-ts"><span class="hljs-keyword">import</span> MapDisplay <span class="hljs-keyword">from</span> <span class="hljs-string">&#x27;@here/xyz-maps-display&#x27;</span>;
+
+<span class="hljs-keyword">const</span> display = <span class="hljs-keyword">new</span> MapDisplay( mapDiv, {
+    <span class="hljs-attr">zoomLevel</span> : <span class="hljs-number">18</span>,
+    <span class="hljs-attr">center</span>: {
+        <span class="hljs-attr">longitude</span>: <span class="hljs-number">8.53422</span>,
+        <span class="hljs-attr">latitude</span>: <span class="hljs-number">50.16212</span>
+    },
+    <span class="hljs-comment">// add layers to the display</span>
+    <span class="hljs-attr">layers</span>: layerSetup
+});
+</code></pre>
+				<a href="#start-developing" id="start-developing" style="color: inherit; text-decoration: none;">
+					<h2>Start developing</h2>
+				</a>
+				<ol>
+					<li><p>Install node module dependencies</p>
+						<pre><code class="language-sh">yarn install
+</code></pre>
+						<p>In case yarn is not installed already: <a href="https://yarnpkg.com/en/docs/install">install yarn</a></p>
+					</li>
+					<li><p>watch for source code changes and build dev version</p>
+						<pre><code class="language-sh">yarn run watch-dev
+</code></pre>
+						<p>Builds are located in located in <code>./dist/</code></p>
+					</li>
+				</ol>
+				<a href="#other" id="other" style="color: inherit; text-decoration: none;">
+					<h2>Other</h2>
+				</a>
+				<ul>
+					<li><p>build dev version once <code>yarn run build-dev</code> (located in packages/*/dist/)</p>
+					</li>
+					<li><p>build release version only <code>yarn run build-release</code> (minified...)</p>
+					</li>
+				</ul>
+				<a href="#contributing" id="contributing" style="color: inherit; text-decoration: none;">
+					<h1>Contributing</h1>
+				</a>
+				<p>Your contributions are always welcome! Please have a look at the <a href="CONTRIBUTING.md">contribution guidelines</a> first.</p>
+				<a href="#license" id="license" style="color: inherit; text-decoration: none;">
+					<h2>License</h2>
+				</a>
+				<p>Copyright (C) 2019-2022 HERE Europe B.V.</p>
+				<p>This project is licensed under the Apache License, Version 2.0 - see the <a href="LICENSE">LICENSE</a> file for details</p>
+			</div>
+		</div>
+		<div class="col-4 col-menu menu-sticky-wrap menu-highlight">
+			<nav class="tsd-navigation primary">
+				<ul>
+					<li class="globals  ">
+						<a href="globals.html"><em>Globals</em></a>
+					</li>
+					<li class=" tsd-kind-module">
+						<a href="modules/core.html">core</a>
+					</li>
+					<li class=" tsd-kind-module">
+						<a href="modules/display.html">display</a>
+					</li>
+					<li class=" tsd-kind-module">
+						<a href="modules/editor.html">editor</a>
+					</li>
+				</ul>
+			</nav>
+			<nav class="tsd-navigation secondary menu-sticky">
+				<ul class="before-current">
+					<li class=" tsd-kind-module">
+						<a href="modules/core.html" class="tsd-kind-icon">core</a>
+					</li>
+					<li class=" tsd-kind-module">
+						<a href="modules/display.html" class="tsd-kind-icon">display</a>
+					</li>
+					<li class=" tsd-kind-module">
+						<a href="modules/editor.html" class="tsd-kind-icon">editor</a>
+					</li>
+				</ul>
+			</nav>
+		</div>
+	</div>
+</div>
+<footer class="with-border-bottom">
+	<div class="container">
+		<h2>Legend</h2>
+		<div class="tsd-legend-group">
+			<ul class="tsd-legend">
+				<li class="tsd-kind-object-literal"><span class="tsd-kind-icon">Object literal</span></li>
+				<li class="tsd-kind-variable"><span class="tsd-kind-icon">Variable</span></li>
+				<li class="tsd-kind-function"><span class="tsd-kind-icon">Function</span></li>
+				<li class="tsd-kind-type-alias"><span class="tsd-kind-icon">Type alias</span></li>
+				<li class="tsd-kind-type-alias tsd-has-type-parameter"><span class="tsd-kind-icon">Type alias with type parameter</span></li>
+			</ul>
+			<ul class="tsd-legend">
+				<li class="tsd-kind-interface"><span class="tsd-kind-icon">Interface</span></li>
+				<li class="tsd-kind-interface tsd-has-type-parameter"><span class="tsd-kind-icon">Interface with type parameter</span></li>
+			</ul>
+			<ul class="tsd-legend">
+				<li class="tsd-kind-class"><span class="tsd-kind-icon">Class</span></li>
+				<li class="tsd-kind-class tsd-has-type-parameter"><span class="tsd-kind-icon">Class with type parameter</span></li>
+			</ul>
+		</div>
+	</div>
+</footer>
+<div class="container tsd-generator">
+	<p>Generated using <a href="https://typedoc.org/" target="_blank">TypeDoc</a></p>
+</div>
+<div class="overlay"></div>
+<script src="assets/js/main.js"></script>
+</body>
+</html>
