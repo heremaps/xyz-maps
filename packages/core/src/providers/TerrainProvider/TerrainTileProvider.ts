@@ -138,7 +138,10 @@ export class TerrainTileProvider extends RemoteTileProvider {
 
                 const neighborTile = this.getCachedTile(tileXYToQuadKey(tile.z, tile.y + dy, tile.x + dx));
                 if (neighborTile?.isLoaded()) {
-                    const neighborProperties = neighborTile.data[0].properties;
+                    const neighborTerrain = neighborTile.data[0];
+                    if (!neighborTerrain) continue;
+
+                    const neighborProperties = neighborTerrain.properties;
                     const oppositeSide = getOppositeNeighbor(side);
                     updatedTiles.push(neighborTile);
 
