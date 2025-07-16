@@ -420,9 +420,14 @@ const createBuffer = (
                                 // geoBuffer.depth = true;
                                 // geoBuffer.alpha = true;
 
-                                if (grp.depthTest != UNDEF) {
-                                    geoBuffer.depth = grp.depthTest;
-                                    if (!geoBuffer.pass) geoBuffer.pass = PASS.ALPHA;
+                                const {depthTest} = grp;
+                                if (depthTest != UNDEF) {
+                                    geoBuffer.depth = depthTest;
+                                    if (!geoBuffer.pass || !depthTest) {
+                                        // Ensure this buffer is rendered last so it remains visible
+                                        // and is not obscured by transparent geometry
+                                        geoBuffer.pass = PASS.ALPHA;
+                                    }
                                 }
                             }
 
