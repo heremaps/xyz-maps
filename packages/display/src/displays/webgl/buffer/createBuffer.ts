@@ -362,7 +362,7 @@ const createBuffer = (
                                         }
                                         geoBuffer.bbox = (grpBuffer as ModelBuffer).bbox;
                                         geoBuffer.id = (grpBuffer as ModelBuffer).id;
-                                        geoBuffer.hitTest = shared.modelMode || 0;
+                                        geoBuffer.zRange = shared.modelMode || null;
                                         geoBuffer.destroy = (grpBuffer as ModelBuffer).destroy || geoBuffer.destroy;
                                         geoBuffer.depth = true;
 

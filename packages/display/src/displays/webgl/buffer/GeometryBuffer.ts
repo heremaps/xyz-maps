@@ -141,7 +141,8 @@ class GeometryBuffer {
     // currently used by "Model" only
     bbox?: number[];
     id?: number | string;
-    hitTest?: number;
+
+    zRange?: [min: number, max: number];
 
 
     colorMask?: { r: boolean, g: boolean, b: boolean, a: boolean };

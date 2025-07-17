@@ -706,7 +706,13 @@ class WebGlDisplay extends BasicDisplay {
                 }
             }
             const {x: tileX, y: tileY, size} = data.tile;
-            const hitTile = this.rayCaster.intersectAABBox(tileX, tileY, 0, tileX + size, tileY + size, camWorldZ);
+            let minZ = 0;
+            let maxZ = camWorldZ;
+            if (buffer.zRange) {
+                minZ = -buffer.zRange[0];
+                maxZ = -buffer.zRange[1];
+            }
+            const hitTile = this.rayCaster.intersectAABBox(tileX, tileY, minZ, tileX + size, tileY + size, maxZ);
             if (!hitTile) continue;
 
             const id = this.rayCaster.intersect(tileX, tileY, buffer);

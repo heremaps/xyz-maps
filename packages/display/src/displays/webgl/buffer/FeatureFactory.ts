@@ -110,7 +110,7 @@ type DrawGroup = {
         offsetZ: number;
         offsetUnit: string;
         alignment: string;
-        modelMode: number;
+        modelMode: [number, number]|null;
         scaleByAltitude: boolean;
         light: string;
         shininess: number;
@@ -515,7 +515,7 @@ export class FeatureFactory {
             let depth;
             let pointerEvents = allowPointerEvents;
             let processPointOffset = false;
-            let modelMode = 0;
+            let modelMode = null;
             let emissive;
             let shininess: number;
             let specular;
@@ -528,7 +528,9 @@ export class FeatureFactory {
 
             if (type == 'Model') {
                 (style as ModelStyle).modelId ||= Math.random();
-                modelMode = Number((style as any).terrain || 0);
+                if ((style as any).terrain) {
+                    modelMode = [feature.properties.minHeight, feature.properties.maxHeight];
+                }
                 groupId = 'M' + (style as ModelStyle).modelId;
                 processPointOffset = true;
                 processAdvancedLight = true;
