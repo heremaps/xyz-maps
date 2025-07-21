@@ -40,7 +40,14 @@ import {
     GeoPoint,
     GeoRect,
     utils,
-    GeoJSONFeatureCollection, GeoJSONFeature, GeoJSONBBox, FeatureProvider, Layer, CustomLayer, Color
+    GeoJSONFeatureCollection,
+    GeoJSONFeature,
+    GeoJSONBBox,
+    FeatureProvider,
+    Layer,
+    CustomLayer,
+    Color,
+    TerrainTileLayer
 } from '@here/xyz-maps-core';
 import {FlightAnimator} from './animation/FlightAnimator';
 import Copyright from './ui/copyright/Copyright';
@@ -172,6 +179,8 @@ export class Map {
     private _zoomAnimator: ZoomAnimator;
     private _flightAnimator: FlightAnimator;
     private _search: Search;
+
+    private _terrainLayer?: TerrainTileLayer;
 
     /**
      * @param mapElement - HTMLElement used to create the map display
@@ -822,17 +831,23 @@ export class Map {
 
                     if (feature) {
                         const {pointWorld} = featureInfo;
-                        return [{
-                            layer,
-                            features: [feature],
-                            intersectionPoint: pointWorld && this._w2g(
+                        let intersectionPoint = null;
+                        if (pointWorld) {
+                            const iPnt = this._w2g(
                                 pointWorld[0],
                                 pointWorld[1],
                                 // convert from unscaled-world- to scaled-world coordinates
                                 // pointWorld[0] + this._ox,
                                 // pointWorld[1] + this._oy,
                                 -pointWorld[2]
-                            )
+                            );
+                            intersectionPoint = new GeoPoint(iPnt[0], iPnt[1], iPnt[2]);
+                        }
+
+                        return [{
+                            layer,
+                            features: [feature],
+                            intersectionPoint
                         }];
                     }
                 }
@@ -1308,6 +1323,13 @@ export class Map {
                 index = layers.length;
             }
 
+            if (layer instanceof TerrainTileLayer) {
+                if (this._terrainLayer) {
+                    throw new Error('Only one TerrainTileLayer instance can be added to the MapDisplay. Please ensure you add a single terrain layer to avoid conflicts.');
+                }
+                this._terrainLayer = layer;
+            }
+
             this._display.addLayer(layer, index, (layer as TileLayer).getStyleManager?.());
             // if layer get's cleared -> refresh/re-fetch data
             // layer.addEventListener('clear', (ev)=>this.refresh(ev.detail.layer));
@@ -1343,6 +1365,9 @@ export class Map {
         const index = layers.indexOf(layer);
 
         if (index >= 0) {
+            if (layer instanceof TerrainTileLayer) {
+                this._terrainLayer = null;
+            }
             this._display.removeLayer(layer);
             // layer.removeEventListener('clear', (ev)=>this.refresh(ev.detail.layer));
             layer.removeEventListener('clear', this._layerChangeListener);
@@ -1712,4 +1737,34 @@ export class Map {
     getContainer(): HTMLElement {
         return <HTMLElement>(this._el.parentNode);
     };
+
+    /**
+     * Returns the 3D geographic coordinates (including elevation) of the terrain
+     * at a given screen position.
+     *
+     * This method performs a raycast from the screen pixel into the scene and returns
+     * the intersection point on the terrain surface, if available.
+     *
+     * It can be used to convert screen positions into real-world terrain positions,
+     * including altitude based on the terrain elevation data.
+     *
+     * @param screen - The screen (pixel) coordinates `{x, y}` to query.
+     *
+     * @returns A `GeoPoint` object `{longitude, latitude, altitude}` representing
+     *          the 3D position on the terrain, or `null` if the terrain data is not yet loaded
+     *          or if the ray does not intersect any terrain surface.
+     *
+     * @example
+     * const terrainPoint = map.getTerrainPointAt({x: 300, y: 200});
+     * if (terrainPoint) {
+     *     console.log(`Longitude: ${terrainPoint.longitude}`);
+     *     console.log(`Latitude: ${terrainPoint.latitude}`);
+     *     console.log(`Altitude: ${terrainPoint.altitude} m`);
+     * }
+     */
+    getTerrainPointAt(screen: PixelPoint): GeoPoint | null {
+        const terrainLayer = this._terrainLayer;
+        // const terrainLayer = this._layers.find((layer) => layer instanceof TerrainTileLayer) || null;
+        return (terrainLayer && this.getFeatureAt(screen, {layers: terrainLayer})?.intersectionPoint) || null;
+    }
 }

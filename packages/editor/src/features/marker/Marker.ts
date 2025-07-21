@@ -40,47 +40,58 @@ export class Marker extends Feature {
     readonly class: 'MARKER' | string;
 
     /**
-     * Set the behavior options.
-     * @experimental
-     */
-    behavior(options: {
-        /**
-         * The drag axis across which the marker is dragged upon user interaction.
-         * Once "dragAxis" is set, "dragPlane" has no effect.
-         * In case "dragAxis" and "dragPlane" are set, "dragPlane" is preferred.
-         * In case "dragPlane" and "dragAxis" are both set, "dragPlane" is preferred.
-         */
-        dragAxis?: 'X' | 'Y' | 'Z' | [number, number, number]
-        /**
-         * The normal of the plane over which the marker is dragged upon user interaction.
-         * Once "dragPlane" is set, "dragAxis" has no effect.
-         */
-        dragPlane?: 'XY' | 'XZ' | 'YZ' | [number, number, number]
-    }): void;
-    /**
-     * Set the value of a specific behavior option.
-     * @experimental
-     */
-    behavior(name: string, value: boolean | string | [number, number, number]): void;
-    /**
-     * Get the value of a specific behavior option.
-     * @experimental
-     */
-    behavior(option: string): any;
-    /**
-     * Get the behavior options.
+     * Set or get interaction behavior for the marker.
      * @experimental
      */
     behavior(): {
         /**
-         * The drag axis across which the marker is dragged upon user interaction.
+         * The axis along which the marker can be dragged.
+         * Has no effect if `dragPlane` or `dragSurface` is set.
          */
         dragAxis?: [number, number, number] | 'X' | 'Y' | 'Z' | null
+
         /**
-         * The normal of the plane over which the marker is dragged upon user interaction.
+         * The normal of the plane over which the marker is dragged.
+         * Overrides `dragAxis` if both are set.
+         * Has no effect if `dragSurface` is set.
          */
         dragPlane?: [number, number, number] | 'XY' | 'XZ' | 'YZ' | null
+
+        /**
+         * The surface over which the marker is dragged.
+         * Takes precedence over `dragPlane` and `dragAxis` if set.
+         */
+        dragSurface?: 'terrain' | null
     };
+
+    behavior(option: string): any;
+
+    behavior(name: string, value: boolean | string | [number, number, number]): void;
+
+    /**
+     * Configure drag behavior with multiple options at once.
+     * @experimental
+     */
+    behavior(options: {
+        /**
+         * The axis along which the marker can be dragged.
+         * Ignored if `dragPlane` or `dragSurface` is set.
+         */
+        dragAxis?: [number, number, number] | 'X' | 'Y' | 'Z'
+
+        /**
+         * The normal of the plane over which the marker is dragged.
+         * Overrides `dragAxis` if both are set.
+         * Ignored if `dragSurface` is set.
+         */
+        dragPlane?: [number, number, number] | 'XY' | 'XZ' | 'YZ'
+
+        /**
+         * The surface over which the marker is dragged.
+         * Takes precedence over both `dragPlane` and `dragAxis`.
+         */
+        dragSurface?: 'terrain'
+    }): void;
 
     behavior(options?: any, value?: boolean) {
         let behavior = oTools.private(this, 'b') || {...defaultBehavior};

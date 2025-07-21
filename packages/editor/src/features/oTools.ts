@@ -68,7 +68,7 @@ type FeatureTools = {
     markAsRemoved?(feature: Feature, animation?: boolean);
     markAsModified?(feature: Feature, saveView?: boolean, visualize?: boolean);
 
-    _getDragBehavior?(feature: Marker): { plane?: number[], axis?: number[] }
+    _getDragBehavior?(feature: Marker): DragBehavior;
     _dragFeatureCoordinate?(toX: number, toY: number, feature, coordinate: number[]);
 }
 
@@ -108,10 +108,16 @@ for (const type in tools) {
 
 export default oTools;
 
+type DragBehavior = { terrain?: boolean, plane?: number[], axis?: number[] };
+
 // ********* shared utils *********
-const getDragBehavior = (feature: Marker): { plane?: number[], axis?: number[] } => {
+const getDragBehavior = (feature: Marker): DragBehavior => {
+    if (feature.behavior?.('dragSurface') === 'terrain') {
+        return {terrain: true};
+    }
+
     const getDragVector = (behavior: string, map) => {
-        let b = feature.behavior && feature.behavior(behavior);
+        let b = feature.behavior?.(behavior);
         if (b) {
             if (typeof b == 'string') {
                 b = map[b.split('').sort().join('').toUpperCase()];
@@ -136,14 +142,13 @@ const getDragBehavior = (feature: Marker): { plane?: number[], axis?: number[] }
     return {plane: [0, 0, 1]};
 };
 
-
 export const dragFeatureCoordinate = (
     toX: number,
     toY: number,
     feature,
     coordinate: number[],
     editor: InternalEditor,
-    behavior: { plane?: number[], axis?: number[] } = getDragBehavior(feature)
+    behavior: DragBehavior = getDragBehavior(feature)
 ): number[] => {
     editor = editor || feature._e();
     const display = editor.display;
@@ -152,10 +157,14 @@ export const dragFeatureCoordinate = (
     const rayDir = vec3.sub([], rayEnd, rayStart);
     const pntWorldPx = display._g2w(coordinate);
     const org2d = coordinate[2] === undefined;
-    let pntMovedWorldPx;
+    let updatedGeoCoordinate: number[];
 
-    if (behavior.plane) {
-        pntMovedWorldPx = rayIntersectPlane(rayDir, rayStart, behavior.plane, pntWorldPx);
+    if (behavior.terrain) {
+        const terrainPoint = display.getTerrainPointAt({x: toX, y: toY});
+        updatedGeoCoordinate = terrainPoint && [terrainPoint.longitude, terrainPoint.latitude, terrainPoint.altitude];
+    } else if (behavior.plane) {
+        const pntMovedWorldPx = rayIntersectPlane(rayDir, rayStart, behavior.plane, pntWorldPx);
+        updatedGeoCoordinate = display._w2g(pntMovedWorldPx);
     } else {
         const dragAxis = behavior.axis;
         const sz = display._prj(pntWorldPx)[2];
@@ -170,13 +179,16 @@ export const dragFeatureCoordinate = (
 
         if (iPnt) {
             const pntWorldPx2 = vec3.add([], pntWorldPx, dragAxis);
-            pntMovedWorldPx = getClosestPntOnLine(pntWorldPx2, pntWorldPx, iPnt);
+            const pntMovedWorldPx = getClosestPntOnLine(pntWorldPx2, pntWorldPx, iPnt);
             // pntMovedWorldPx[2] -= 50;
+            updatedGeoCoordinate = display._w2g(pntMovedWorldPx);
         }
     }
 
-    if (pntMovedWorldPx) {
-        coordinate = editor.map.clipGeoCoord(display._w2g(pntMovedWorldPx), true);
+    // if (pntMovedWorldPx) {
+    if (updatedGeoCoordinate) {
+        coordinate = editor.map.clipGeoCoord(updatedGeoCoordinate, true);
+        //     coordinate = editor.map.clipGeoCoord(display._w2g(pntMovedWorldPx), true);
         if (coordinate[2] < 0) {
             coordinate[2] = 0;
         }
@@ -187,3 +199,4 @@ export const dragFeatureCoordinate = (
 
     return coordinate;
 };
+

@@ -169,6 +169,10 @@
     {
       "file": "./editor/edit_building.html",
       "docs": "classes/core.editableremotetileprovider.html#readfeatureheight"
+    },
+    {
+      "file": "./editor/drag_terrain.html",
+      "docs": "classes/editor.marker.html#behavior"
     }
   ],
   "Layers / Providers": [
