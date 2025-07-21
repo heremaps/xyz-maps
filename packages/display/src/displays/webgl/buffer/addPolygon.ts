@@ -28,19 +28,27 @@ export type FlatPolygon = {
     stop: number;
 }
 
-const flatten = (vertices: FlexArray, data: Coordinate[][], tile: Tile, tileSize: number, height?: number) => {
-    const hasHeight = typeof height == 'number';
+const flatten = (
+    vertices: FlexArray,
+    data: Coordinate[][],
+    tile: Tile,
+    tileSize: number,
+    height?: number | boolean
+) => {
+    const fixedHeight = typeof height == 'number';
+    const hasHeight = fixedHeight || height === true;
     const start = vertices.length;
     const holes = [];
     let holeIndex = 0;
 
     for (let i = 0; i < data.length; i++) {
         for (let j = 0, x, y; j < data[i].length; j++) {
-            x = tile.lon2x(data[i][j][0], tileSize);
-            y = tile.lat2y(data[i][j][1], tileSize);
+            const coordinate = data[i][j];
+            x = tile.lon2x(coordinate[0], tileSize);
+            y = tile.lat2y(coordinate[1], tileSize);
 
             if (hasHeight) {
-                vertices.push(x, y, height);
+                vertices.push(x, y, fixedHeight ? height : (coordinate[2] || 0));
             } else {
                 vertices.push(x, y);
             }
@@ -65,17 +73,17 @@ const addPolygon = (
     coordinates: Coordinate[][] | Coordinate[][][],
     tile: Tile,
     tileSize: number,
-    extrude?: number
+    height?: number | boolean
 ): FlatPolygon[] => {
     let flatPolygons;
     if (typeof coordinates[0][0][0] != 'number') {
         // MultiPolygon: only for already triangulated data (MVT)
         flatPolygons = [];
         for (let poly of coordinates) {
-            flatPolygons.push(flatten(vertex, <Coordinate[][]>poly, tile, tileSize, extrude));
+            flatPolygons.push(flatten(vertex, <Coordinate[][]>poly, tile, tileSize, height));
         }
     } else {
-        flatPolygons = [flatten(vertex, <Coordinate[][]>coordinates, tile, tileSize, extrude)];
+        flatPolygons = [flatten(vertex, <Coordinate[][]>coordinates, tile, tileSize, height)];
     }
     return flatPolygons;
 };

@@ -1045,7 +1045,7 @@ export class FeatureFactory {
                 // Polygon geometry
                 if (type == 'Polygon' || type == 'Extrude') {
                     if (!group.buffer) {
-                        group.buffer = type == 'Polygon' ? new PolygonBuffer() : new ExtrudeBuffer();
+                        group.buffer = type == 'Polygon' ? new PolygonBuffer(!altitude) : new ExtrudeBuffer();
                     }
 
                     const groupBuffer = group.buffer as PolygonBuffer | ExtrudeBuffer;
@@ -1074,7 +1074,7 @@ export class FeatureFactory {
                             strokeIndex
                         );
                     } else if (type == 'Polygon') {
-                        flatPoly = addPolygon(aPosition, <GeoJSONCoordinate[][]>coordinates, tile, tileSize);
+                        flatPoly = addPolygon(aPosition, <GeoJSONCoordinate[][]>coordinates, tile, tileSize, !groupBuffer.isFlat() );
                     }
 
                     group.buffer.setIdOffset(feature.id);
