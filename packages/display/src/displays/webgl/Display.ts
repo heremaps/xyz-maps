@@ -233,17 +233,13 @@ class WebGlDisplay extends BasicDisplay {
         this.render.setSkyColor(color);
     }
 
-    addLayer(layer: TileLayer | CustomLayer, index: number, styles: XYZLayerStyle): Layer {
+    addLayer(layer: TileLayer | CustomLayer, index: number, styles?: XYZLayerStyle): Layer {
         const displayLayer = super.addLayer(layer, index, styles);
 
-
         if (displayLayer?.index == 0) {
-            // styles.skyColor
-
-            this.initSky(styles.skyColor || [1, 0, 0, 1]);
+            this.initSky(styles?.skyColor || [1, 0, 0, 1]);
         }
         // this.initLights(displayLayer);
-
         return displayLayer;
     }
 
