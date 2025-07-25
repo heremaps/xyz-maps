@@ -43,13 +43,20 @@ import {PASS} from './program/GLStates';
 import {Raycaster} from './Raycaster';
 import {defaultLightUniforms, initLightUniforms, ProcessedLights} from './lights';
 import {UniformMap} from './program/Program';
-import {Color as Colors} from '@here/xyz-maps-common';
-const {toRGB, rgbaToHexString} = Colors;
 
 const TO_RADIANS = Math.PI / 180;
-// determined through experimentation to find the best balance between performance and view distance.
-export const MAX_PITCH_GRID = 66.33 * TO_RADIANS;
-export const MIN_PITCH_ADAPTIVE_GRID = 60 * TO_RADIANS;
+// Maximum pitch (in radians) used for calculating the world-coordinate tile grid.
+// When the actual map pitch exceeds this value, the grid is still computed using this capped pitch value.
+// This limits the visible area and reduces the number of generated tiles at steep pitch angles,
+// helping to control performance and memory usage while maintaining reasonable horizon coverage.
+// Experimentally determined to provide the best balance between performance and view distance.
+export const GRID_PITCH_CLAMP = 66.33 * TO_RADIANS;
+
+// Maximum pitch (in radians) at which fixed (non-adaptive) grid tiles are allowed to render.
+// If the actual pitch exceeds this value, fixed tiles are culled and no longer displayed.
+// Adaptive tiles may still render above this threshold by scaling appropriately.
+export const FIXED_TILE_PITCH_THRESHOLD = 60 * TO_RADIANS;
+
 
 const PREVIEW_LOOK_AHEAD_LEVELS: [number, number] = [3, 9];
 
@@ -138,11 +145,21 @@ class WebGlDisplay extends BasicDisplay {
     // This value represents the maximum vertical offset of the grid's horizon when maximum possible pitch applied.
     // The offset is normalized by dividing it by the total screen height.
     private maxHorizonY: number;
-    // Represents the world-space Y-coordinate of the topmost edge of the grid visible at the maximum pitch.
-    // maxPitchGridTopWorld is used to calculate `horizonY` when the map is pitched beyond the maximum grid pitch.
-    private maxPitchGridTopWorld: number[];
-    // vertical offset from top of the screen to the "horizon line" in screen pixels.
+    // World-space position of the upper edge of the tile grid as seen at GRID_PITCH_CLAMP.
+    // Used to determine `horizonY` when the map pitch exceeds the clamped grid pitch.
+    private gridTopWorldAtPitchClamp: number[];
+    // World-space position of the grid’s top edge calculated at FIXED_TILE_PITCH_THRESHOLD.
+    // Used to compute `horizonYFixed` when the map pitch exceeds the fixed tile pitch limit.
+    private gridTopWorldAtFixedTilePitch: number[];
+    // Vertical screen-space offset (in pixels) from the top of the screen to the horizon line,
+    // calculated using the grid position at the clamped pitch (GRID_PITCH_CLAMP).
+    // This represents the horizon cutoff when the map pitch is above the maximum grid pitch clamp.
     protected horizonY: number;
+    // Vertical screen-space offset (in pixels) from the top of the screen to the horizon line,
+    // calculated using the grid position at the fixed tile pitch threshold (FIXED_TILE_PITCH_THRESHOLD).
+    // This value is used to control horizon clipping when the map pitch exceeds the fixed tile pitch limit,
+    // typically affecting the fixed (non-adaptive) tile grid rendering.
+    protected horizonYFixed: number;
 
     constructor(mapEl: HTMLElement, renderTileSize: number, devicePixelRatio: number | string, renderOptions?: RenderOptions) {
         super(
@@ -297,15 +314,24 @@ class WebGlDisplay extends BasicDisplay {
         // return fromClipSpace(p, this.w, this.h);
     }
 
+    private updateHorizonOffsets(rotX: number): void {
+        this.horizonY = this.calcHorizonYOffset(rotX);
+        this.horizonYFixed = this.calcHorizonYOffset(rotX, this.gridTopWorldAtFixedTilePitch, FIXED_TILE_PITCH_THRESHOLD);
+    }
+
     setSize(width: number, height: number) {
         super.setSize(width, height);
         this.initRenderer();
+        const calcMaxPitchGridTopWorld = (pitch: number) => {
+            const matrix = this.render.updateMapGridMatrix(pitch, width, height);
+            const inverseMatrix = invert([], matrix);
+            return this.unproject(0, 1, null, inverseMatrix);
+        };
+        this.gridTopWorldAtPitchClamp = calcMaxPitchGridTopWorld(GRID_PITCH_CLAMP);
+        this.gridTopWorldAtFixedTilePitch = calcMaxPitchGridTopWorld(FIXED_TILE_PITCH_THRESHOLD);
 
-        const matrix = this.render.updateMapGridMatrix(MAX_PITCH_GRID, width, height);
-        const inverseMatrix = invert([], matrix);
-        this.maxPitchGridTopWorld = this.unproject(0, 1, null, inverseMatrix);
-
-        this.maxHorizonY = this.pitchMapOffsetY(85 / 180 * Math.PI) / height;
+        this.maxHorizonY = this.calcHorizonYOffset(85 / 180 * Math.PI) / height;
+        this.updateHorizonOffsets(this.rx);
     }
 
     setTransform(scale: number, rotZ: number, rotX: number) {
@@ -315,6 +341,10 @@ class WebGlDisplay extends BasicDisplay {
         rotZ = (rotZ + PI2) % PI2;
         this.s = scale;
         this.rz = rotZ;
+
+        if (this.rx != rotX) {
+            this.updateHorizonOffsets(rotX);
+        }
         this.rx = rotX;
         // }
     }
@@ -491,7 +521,6 @@ class WebGlDisplay extends BasicDisplay {
                 continue;
             }
 
-
             if (tiles) {
                 let layerIndex = layer.index;
                 let length = tiles.length;
@@ -570,16 +599,27 @@ class WebGlDisplay extends BasicDisplay {
         return this.project(cameraWorld[0], cameraWorld[1]);
     }
 
-    protected pitchMapOffsetY(pitch: number = this.rx) {
+    protected getHorizonYOffset(): number {
+        return this.horizonY; // = this.calcHorizonYOffset();
+    }
+
+    private calcHorizonYOffset(
+        pitch: number = this.rx,
+        gridTopWorld: number[] = this.gridTopWorldAtPitchClamp,
+        maxPitch: number = GRID_PITCH_CLAMP
+    ) {
         let horizonY = 0;
-        if (pitch > MAX_PITCH_GRID) {
+        if (pitch > maxPitch) {
             const {w, h} = this;
-            const [x, maxPitchGridOffset] = this.maxPitchGridTopWorld;
             const matrix = this.render.updateMapGridMatrix(pitch, w, h);
-            const y = this.project(x, maxPitchGridOffset, 0, 0, 0, matrix)[1];
+            const y = this.project(gridTopWorld[0], gridTopWorld[1], 0, 0, 0, matrix)[1];
             horizonY = (1 - y) * h / 2;
         }
-        return this.horizonY = horizonY;
+        return horizonY;
+    }
+
+    protected useLODTiles(): boolean {
+        return this.rx > FIXED_TILE_PITCH_THRESHOLD;
     }
 
     protected viewport(dirty?: boolean) {

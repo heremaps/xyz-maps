@@ -89,24 +89,27 @@ export class GridTile implements ViewportTile {
     generateTileHierarchy(
         display: BasicDisplay,
         minTileSize: number = GridTile.minTileSize,
-        optimiseTileLevel: boolean = true,
+        useAdaptiveLOD: boolean = true,
         tiles: ViewportTile[] = []
     ): ViewportTile[] {
-        const cacheKey = minTileSize << 1 | Number(optimiseTileLevel);
+        const cacheKey = minTileSize << 1 | Number(useAdaptiveLOD);
         const cache = this.resultCache;
         if (cache[cacheKey]) {
             return cache[cacheKey];
         }
         cache[cacheKey] = tiles;
 
-        let {tileZoomLevel, gridX, gridY, scaledSize: size} = this;
+        let {tileZoomLevel, gridX, gridY, scaledSize} = this;
 
-        if (size > minTileSize) {
+        if (scaledSize > minTileSize) {
             const displayScale = display.s;
-            const distanceScale = display.computeDistanceScale(this.x + size / 2, this.y + size / 2) / displayScale;
-            const zoomLevelDelta = Math.log2(size / minTileSize);
+            const distanceScale = display.computeDistanceScale(
+                this.x + scaledSize / 2,
+                this.y + scaledSize / 2
+            ) / displayScale;
+            const zoomLevelDelta = Math.log2(scaledSize / minTileSize);
 
-            if (optimiseTileLevel) {
+            if (useAdaptiveLOD) {
                 // Adjust LOD threshold based on pitch:
                 // higher pitch (more tilted view) → less detail near the horizon (later LOD split)
                 const LOD_DISTANCE_SCALE_FACTOR = Math.sin(display.rx); // 0.875
@@ -115,22 +118,28 @@ export class GridTile implements ViewportTile {
                     return tiles;
                 }
             }
-
             tileZoomLevel += 1;
-            size *= 0.5;
+            scaledSize *= 0.5;
             gridX *= 2;
             gridY *= 2;
 
             for (let [gridOffsetX, gridOffsetY] of [[0, 0], [1, 0], [0, 1], [1, 1]]) {
-                const x = this.x + gridOffsetX * size;
-                const y = this.y + gridOffsetY * size;
+                const x = this.x + gridOffsetX * scaledSize;
+                const y = this.y + gridOffsetY * scaledSize;
 
-                if (GridTile.intersects(this.bounds, x, y, size)) {
-                    const subTile = new GridTile(tileZoomLevel, x, y, size, gridX + gridOffsetX, gridY + gridOffsetY, this.bounds);
-                    subTile.generateTileHierarchy(display, minTileSize, optimiseTileLevel, tiles);
+                if (GridTile.intersects(this.bounds, x, y, scaledSize)) {
+                    const subTile = new GridTile(tileZoomLevel, x, y, scaledSize, gridX + gridOffsetX, gridY + gridOffsetY, this.bounds);
+                    subTile.generateTileHierarchy(display, minTileSize, useAdaptiveLOD, tiles);
                 }
             }
         } else {
+            if (!useAdaptiveLOD) {
+                if (
+                    display.isPointAboveHorizon(this.x + scaledSize / 2, this.y + scaledSize / 2)
+                ) {
+                    return tiles;
+                }
+            }
             tiles.push(this);
         }
         return tiles;

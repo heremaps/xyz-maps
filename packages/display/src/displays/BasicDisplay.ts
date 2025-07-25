@@ -28,7 +28,6 @@ import BasicBucket from './BasicBucket';
 import Preview from './Preview';
 import Grid, {GridTile} from '../Grid';
 import {createZoomRangeFunction, parseColorMap} from './styleTools';
-import {MIN_PITCH_ADAPTIVE_GRID} from './webgl/Display';
 
 type RGBA = ColorUtils.RGBA;
 
@@ -52,7 +51,6 @@ abstract class Display {
     private previewer: Preview;
     private updating: boolean = false;
     private ti: number; // tile index
-    private _gridClip: { rz: number, rx: number, s: number, top: number } = {rz: 0, rx: 0, s: 0, top: 0};
     protected viewChange: boolean;
     protected sx: number; // grid/screen offset x (includes scale offset)
     protected sy: number; // grid/screen offset y (includes scale offset)
@@ -374,13 +372,17 @@ abstract class Display {
         return previewData;
     }
 
+    protected useLODTiles() {
+        return false;
+    }
+
     private initVpTiles(gridTiles: GridTile[], zoomLevel: number, _gridTileSize?: number) {
         const display = this;
         const layers = this.layers;
         const prevVPTiles = display.tiles || [];
         const vpTiles = display.tiles = [];
         const center = {x: display.w / 2, y: display.h / 2};
-        const useAdaptiveGrid = this.rx > MIN_PITCH_ADAPTIVE_GRID;
+        const useAdaptiveLOD = this.useLODTiles();
 
         for (let dLayer of layers) {
             dLayer.reset(zoomLevel);
@@ -395,7 +397,7 @@ abstract class Display {
             dLayer.tiles = screenTiles;
 
             if (layer.isVisible(zoomLevel)) {
-                const adaptiveGrid = useAdaptiveGrid && layer.adaptiveGrid;
+                const adaptiveGrid = useAdaptiveLOD && layer.adaptiveGrid;
                 const tiles = gridTiles.flatMap((_gridTile) => {
                     return _gridTile.generateTileHierarchy(display, layerTileSize, adaptiveGrid) as ViewportTile[];
                 });
@@ -454,8 +456,12 @@ abstract class Display {
         return [this.w / 2, this.h / 2];
     }
 
-    protected pitchMapOffsetY() {
+    protected getHorizonYOffset() {
         return 0;
+    }
+
+    isPointAboveHorizon(x: number, y:number) {
+        return false;
     }
 
     updateGrid(tileGridZoom: number, zoomLevel: number, screenOffsetX: number, screenOffsetY: number) {
@@ -480,10 +486,10 @@ abstract class Display {
         const displayHeight = Math.max(mapHeightPixel, this.getCamGroundPositionScreen()[1]);
 
         // if map is pitched too much, we clip the grid at the top
-        const maxGridPitchOffset = this.pitchMapOffsetY();
+        const maxGridPitchOffset = this.getHorizonYOffset();
 
         // Calculate the world pixel bounds of the grid based on effective display height
-        let gridWorldPixel = [
+        const gridWorldPixel = [
             display.unproject(0, maxGridPitchOffset),
             display.unproject(displayWidth - 1, maxGridPitchOffset),
             display.unproject(displayWidth - 1, displayHeight - 1),

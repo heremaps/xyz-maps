@@ -40,7 +40,7 @@ import {createGridTextBuffer, createGridTileBuffer, createStencilTileBuffer} fro
 import {GeometryBuffer, IndexData, IndexGrp} from './buffer/GeometryBuffer';
 
 import {PASS} from './program/GLStates';
-import {MAX_PITCH_GRID, TileBufferData} from './Display';
+import {GRID_PITCH_CLAMP, TileBufferData} from './Display';
 
 import {transformMat4} from 'gl-matrix/vec3';
 import {
@@ -169,7 +169,7 @@ export class GLRender implements BasicRender {
 
     private dpr: number; // devicePixelRatio
 
-    private dbgTile: {[tileSize: number]: GeometryBuffer} = {};
+    private dbgTile: { [tileSize: number]: GeometryBuffer } = {};
     private stencilTile: GeometryBuffer;
     private depthFnc: GLenum;
     private depthMask: boolean;
@@ -493,7 +493,7 @@ export class GLRender implements BasicRender {
         const targetZ = centerPixelY / Math.tan(halfVFOV);
         const h = Math.sin(halfVFOV) * targetZ;
 
-        const maxGridPitch = Math.min(rotX, MAX_PITCH_GRID);
+        const maxGridPitch = Math.min(rotX, GRID_PITCH_CLAMP);
         const alpha = Math.PI * .5 - halfVFOV - maxGridPitch;
         // const d1 = Math.cos(halfVFOV) * targetZ;
         // const d2 = h / Math.tan(alpha);
@@ -583,7 +583,8 @@ export class GLRender implements BasicRender {
         // mat4.translate(s05, s05, [-centerPixelX, -centerPixelY, 0]);
         // this.vPMat = s05;
 
-        this.distanceCam2Center = 0.5 / Math.tan(halfVFOV) * pixelHeight;
+        // this.distanceCam2Center = 0.5 / Math.tan(halfVFOV) * pixelHeight;
+        this.distanceCam2Center = targetZ;
 
         this.setResolution(pixelWidth, pixelHeight);
 
