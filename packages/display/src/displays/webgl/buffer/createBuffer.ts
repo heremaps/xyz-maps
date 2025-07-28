@@ -206,8 +206,6 @@ const createBuffer = (
                             geoBuffer.pointerEvents = grp.pointerEvents;
 
                             if (vertexType == 'VerticalLine') {
-                                geoBuffer.groups[0].mode = GeometryBuffer.MODE_GL_LINES;
-                                geoBuffer.type = 'Polygon';
                                 geoBuffer.addUniform('u_fill', shared.stroke);
                                 geoBuffer.addUniform('u_offsetZ', [shared.offsetZ, 0]);
                             }

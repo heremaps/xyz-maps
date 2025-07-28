@@ -33,6 +33,7 @@ import BoxProgram from './program/Box';
 import SphereProgram from './program/Sphere';
 import ModelProgram from './program/Model';
 import HeatmapProgram from './program/Heatmap';
+import VerticalLineProgram from './program/VerticalLine';
 import {createSkyBuffer, createSkyMatrix, SkyProgram} from './program/Sky';
 import Program, {ColorMask, UniformMap} from './program/Program';
 
@@ -345,6 +346,7 @@ export class GLRender implements BasicRender {
             Image: {program: ImageProgram},
             Circle: {program: CircleProgram},
             Polygon: {program: PolygonProgram},
+            VerticalLine: {program: VerticalLineProgram},
             Extrude: {program: ExtrudeProgram, default: false},
             Icon: {program: IconProgram},
             Box: {program: BoxProgram, default: false},

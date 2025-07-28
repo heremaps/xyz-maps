@@ -1,5 +1,5 @@
 /*
- * Copyright (C) 2019-2022 HERE Europe B.V.
+ * Copyright (C) 2019-2025 HERE Europe B.V.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -17,27 +17,15 @@
  * License-Filename: LICENSE
  */
 
-import {VerticalLineBuffer} from './templates/VerticalLineBuffer';
+import {PolygonBuffer} from './PolygonBuffer';
+import {GeometryBuffer} from '../GeometryBuffer';
+import {Raycaster} from '../../Raycaster';
 
-
-const addVerticalLine = (
-    group,
-    x: number,
-    y: number,
-    z: number | false
-): number => {
-    if (z) {
-        group.buffer ||= new VerticalLineBuffer();
-
-        const position = group.buffer.flexAttributes.a_position.data;
-
-        position.push(
-            x, y, 0,
-            x, y, z
-        );
-
-        return position.length;
+export class VerticalLineBuffer extends PolygonBuffer {
+    constructor(flat: boolean = false, clip: boolean = true) {
+        super(flat, clip);
     }
-};
-
-export {addVerticalLine};
+    rayIntersects(buffer: GeometryBuffer, result: { z: number }, tileX: number, tileY: number, rayCaster: Raycaster): number | string {
+        return null;
+    }
+}
