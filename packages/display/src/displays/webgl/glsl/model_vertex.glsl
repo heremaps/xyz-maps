@@ -12,8 +12,8 @@ uniform bool useUVMapping;
 uniform vec2 u_textureSize;
 uniform mat3 u_normalMatrix;
 uniform mat4 u_matrix;
-uniform mat4 u_world;
 uniform vec2 u_topLeft;
+uniform bool u_isPixelCoords;
 uniform float u_zMeterToPixel;
 uniform float pointSize;
 
@@ -35,7 +35,8 @@ varying vec2 v_tilePos;
 
 void main(void) {
     vec4 position = a_modelMatrix * vec4(a_position, 1.0);
-    vec3 positionTileWorld = a_offset + vec3(position.xy * u_zMeterToPixel, position.z);
+    float xyUnitScale = u_isPixelCoords ? 1.0 : u_zMeterToPixel;
+    vec3 positionTileWorld = a_offset + vec3(position.xy * xyUnitScale, position.z);
     vec4 worldPos = vec4(u_topLeft + positionTileWorld.xy, positionTileWorld.z, 1.0);
 
     gl_Position = u_matrix * worldPos;
@@ -43,7 +44,7 @@ void main(void) {
 
     // only correct if model is not scaled (not uniform), otherwise normals are distorted
     // v_normal = normalize(mat3(a_modelMatrix) * a_normal);
-    v_normal = normalize(u_normalMatrix * a_normal );
+    v_normal = normalize(u_normalMatrix * a_normal);
 
     if (useUVMapping) {
         v_texCoord = a_uv;
@@ -62,6 +63,10 @@ void main(void) {
 
     #ifdef SPECULAR
     v_surfaceToCam = u_camWorld - worldPos.xyz;
+    // The view-projection matrix scales Z non-uniformly (typically to match ground resolution),
+    // so we need to rescale the Z-component of the surface-to-camera vector
+    // to ensure lighting calculations (e.g. specular intensity) are physically consistent.
+    v_surfaceToCam.z *= u_zMeterToPixel;
     #endif
     v_color = a_color;
 }

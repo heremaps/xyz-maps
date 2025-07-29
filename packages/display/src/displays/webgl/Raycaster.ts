@@ -19,10 +19,27 @@
 
 import {add, cross, dot, normalize, scale, subtract, multiply, transformMat4} from 'gl-matrix/vec3';
 import {GeometryBuffer} from './buffer/GeometryBuffer';
+import {invert} from 'gl-matrix/mat4';
 
 export type Vec3 = [number, number, number];
 
-type Result = { id: number | string; z: number; pointWorld: number[] }
+type Result = {
+    id: number | string;
+    z: number;
+    pointWorld: number[];
+    origin?: Float32Array;
+    direction?: Float32Array;
+    localMatrix?: Float32Array;
+}
+
+export type LocalRay = {
+    origin: Float32Array;
+    direction: Float32Array;
+    modelMatrix: Float32Array;
+    invModelMatrix?: Float32Array;
+}
+
+
 class Raycaster {
     private result: Result;
 
@@ -67,7 +84,7 @@ class Raycaster {
         }
     };
 
-    static getPointAtRayLength(rayLength: number, rayOrigin: number[], rayVector: number[], point = []) {
+    static getPointAtRayLength(rayLength: number, rayOrigin: Vec3|Float32Array, rayVector: Vec3|Float32Array, point = []) {
         return add(point, rayOrigin, scale(point, rayVector, rayLength));
     }
 
@@ -84,11 +101,11 @@ class Raycaster {
     /**
      * ray origin in world space
      */
-    origin: Vec3;
+    origin: Vec3 | Float32Array;
     /**
      * ray direction in world space
      */
-    direction: Vec3;
+    direction: Vec3 | Float32Array;
     /**
      * ray origin in screen space
      */
@@ -268,7 +285,6 @@ class Raycaster {
         this.result = {
             id: null,
             z: Infinity,
-            // layerIndex: null,
             pointWorld: null
         };
     }
@@ -291,25 +307,82 @@ class Raycaster {
     getIntersectionTop(): Result {
         const {result} = this;
         if (result.z != Infinity) {
-            result.pointWorld = Raycaster.getPointAtRayLength(result.z, this.origin, this.direction);
+            let hitPoint = Raycaster.getPointAtRayLength(result.z,
+                result.origin || this.origin,
+                result.direction || this.direction
+            );
+            // If localMatrix exists, transform the hit point from local to world space
+            if (result.localMatrix) {
+                const hitLength = result.z;
+                const localHitPoint = add([], result.origin, scale([], result.direction, hitLength));
+                hitPoint = transformMat4([], localHitPoint, result.localMatrix);
+            }
+            result.pointWorld = hitPoint;
         }
         return result;
+    }
+
+    // used to transform ray from world space to local space
+    // used to cache and save memory allocations
+    private localRay: LocalRay = {
+        origin: new Float32Array(3),
+        direction: new Float32Array(3),
+        modelMatrix: new Float32Array(16),
+        invModelMatrix: new Float32Array(16)
+    };
+
+    transformRayToLocal(modelMatrix: Float32Array): LocalRay {
+        const localRay = this.localRay;
+        const invModelMatrix = invert(localRay.invModelMatrix, modelMatrix);
+        transformMat4(localRay.origin, this.origin, invModelMatrix);
+
+        const direction = this.direction;
+        const localDirection = localRay.direction;
+        // transform direction, ignores translation
+        // const rotationMat3 = mat3.fromMat4([], invModelMatrix);
+        // vec3.transformMat3(localDirection, direction, rotationMat3);
+        localDirection[0] = direction[0] * invModelMatrix[0] + direction[1] * invModelMatrix[4] + direction[2] * invModelMatrix[8];
+        localDirection[1] = direction[0] * invModelMatrix[1] + direction[1] * invModelMatrix[5] + direction[2] * invModelMatrix[9];
+        localDirection[2] = direction[0] * invModelMatrix[2] + direction[1] * invModelMatrix[6] + direction[2] * invModelMatrix[10];
+
+        normalize(localDirection, localDirection);
+
+        localRay.modelMatrix = modelMatrix;
+        return localRay;
     }
 
     intersect(
         tileX: number,
         tileY: number,
-        buffer: GeometryBuffer
-    ) {
+        buffer: GeometryBuffer,
+        localRay?: LocalRay
+    ): string | number | null {
         if (buffer.pointerEvents === false) return;
 
-        const {result} = this;
+        const result = this.result;
+        let orgOrigin = this.origin;
+        let orgDirection = this.direction;
 
-        let featureId = buffer.rayIntersects(buffer, result, tileX, tileY, this);
+        if (localRay) {
+            this.origin = localRay.origin;
+            this.direction = localRay.direction;
+            tileX = 0;
+            tileY = 0;
+        }
+
+        const featureId = buffer.rayIntersects(buffer, result, tileX, tileY, this);
 
         if (featureId != null) {
             result.id = featureId;
+            result.origin = localRay?.origin.slice();
+            result.direction = localRay?.direction.slice();
+            result.localMatrix = localRay?.modelMatrix;
         }
+
+        // Restore the original origin and direction if local model matrix transformations have been applied
+        this.origin = orgOrigin;
+        this.direction = orgDirection;
+
         return featureId;
     }
 }

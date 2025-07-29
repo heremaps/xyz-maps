@@ -41,7 +41,7 @@ import {createGridTextBuffer, createGridTileBuffer, createStencilTileBuffer} fro
 import {GeometryBuffer, IndexData, IndexGrp} from './buffer/GeometryBuffer';
 
 import {PASS} from './program/GLStates';
-import {GRID_PITCH_CLAMP, TileBufferData} from './Display';
+import {GRID_PITCH_CLAMP} from './Display';
 
 import {transformMat4} from 'gl-matrix/vec3';
 import {
@@ -66,6 +66,8 @@ import {Texture} from './Texture';
 import {Color} from '@here/xyz-maps-common';
 import {FillTexture} from './TextureManager';
 import {ViewportTile} from '../BasicDisplay';
+import {RenderTile} from './RenderTile';
+
 import toRGB = Color.toRGB;
 
 
@@ -142,17 +144,15 @@ export class GLRender implements BasicRender {
 
     private skyMatrix: Float32Array = createSkyMatrix();
     private skyBuffer: GeometryBuffer = createSkyBuffer();
+    private sky: RenderTile = new RenderTile(this.skyBuffer);
 
     screenMat: Float32Array;
     invScreenMat: Float32Array;
     cameraWorld: Float64Array = new Float64Array(3);
 
-    private tilePreviewTransform: {
-        m: Float32Array; // tile transformation matrix,
-        tx: number; // translate x
-        ty: number; // translate y
-        s: number; // scale
-    };
+    // Used for local tile lighting, stores camera position in tile space,
+    // accounting for tile scale (e.g. preview or LOD)
+    private localCamera: Float64Array;
 
     private zMeterToPixel: number;
     private scale: number;
@@ -171,6 +171,7 @@ export class GLRender implements BasicRender {
     private dpr: number; // devicePixelRatio
 
     private dbgTile: { [tileSize: number]: GeometryBuffer } = {};
+    private dbgRenderTile: RenderTile = new RenderTile();
     private stencilTile: GeometryBuffer;
     private depthFnc: GLenum;
     private depthMask: boolean;
@@ -228,12 +229,7 @@ export class GLRender implements BasicRender {
 
         this.worldMatrix = new Float64Array(16);
 
-        this.tilePreviewTransform = {
-            m: mat4.create(),
-            tx: 0,
-            ty: 0,
-            s: 0
-        };
+        this.localCamera = new Float64Array(3);
     }
 
     getContext(): WebGLRenderingContext {
@@ -518,6 +514,8 @@ export class GLRender implements BasicRender {
         this.rx = rotX;
         this.scale = scale;
 
+        this.setResolution(pixelWidth, pixelHeight);
+
         this.gl.viewport(0, 0, pixelWidth * this.dpr, pixelHeight * this.dpr);
 
         const zNear = pixelHeight / 100;
@@ -588,16 +586,14 @@ export class GLRender implements BasicRender {
         // this.distanceCam2Center = 0.5 / Math.tan(halfVFOV) * pixelHeight;
         this.distanceCam2Center = targetZ;
 
-        this.setResolution(pixelWidth, pixelHeight);
-
         this.initSharedUniforms();
 
         this.initDisplayUniforms();
+    }
 
-        // clear tile preview matrix cache
-        this.tilePreviewTransform.tx = null;
-        this.tilePreviewTransform.ty = null;
-        this.tilePreviewTransform.s = null;
+    private getCameraElevationMeters(): number {
+        return -this.cameraWorld[2];
+        // return -this.cameraWorld[2] / this.zMeterToPixel;
     }
 
     private initDisplayUniforms() {
@@ -640,17 +636,20 @@ export class GLRender implements BasicRender {
     }
 
     drawGrid(x: number, y: number, dTile: GLTile, tileSize: number) {
-        this.drawBuffer(this.getDbgTile(tileSize), x, y, null, null);
+        let dbgRenderTile = this.dbgRenderTile;
+
+        dbgRenderTile.init(this.getDbgTile(tileSize));
+        this.drawBuffer(dbgRenderTile, x, y, null, null);
 
         let textBuffer: GeometryBuffer = this.gridTextBuf.get(dTile);
 
         if (!textBuffer) {
             textBuffer = createGridTextBuffer(dTile.quadkey, this.gl, DEBUG_GRID_FONT);
-
             this.gridTextBuf.set(dTile, textBuffer);
         }
 
-        this.drawBuffer(textBuffer, x + 4, y + 4);
+        dbgRenderTile.init(textBuffer);
+        this.drawBuffer(dbgRenderTile, x + 4, y + 4);
     }
 
     deleteBuffer(buffer: GeometryBuffer) {
@@ -730,7 +729,8 @@ export class GLRender implements BasicRender {
         program: Program,
         buffer: GeometryBuffer,
         renderPass: PASS,
-        uniforms: UniformMap = buffer.getUniformData()
+        uniforms: UniformMap = buffer.getUniformData(),
+        cameraWorld?: Float64Array
     ) {
         const bufAttributes = buffer.getAttributes();
         this.useProgram(program);
@@ -744,26 +744,27 @@ export class GLRender implements BasicRender {
         program.initViewUniforms(this.viewUniforms);
 
         if (buffer.light && this.bufferLightUniforms) {
-            program.initLight(this.bufferLightUniforms, this.cameraWorld);
+            program.initLight(this.bufferLightUniforms, cameraWorld || this.cameraWorld);
         }
 
         program.initUniforms(uniforms);
     }
 
     private drawBuffer(
-        buffer: GeometryBuffer,
+        renderTile: RenderTile,
         x: number,
         y: number,
-        pMat?: Float32Array,
+        mvpMat?: Float32Array,
         dZoom?: number,
         forceStencil?: boolean
     ): void {
+        const buffer: GeometryBuffer = renderTile.buffer;
         const {gl, pass} = this;
         const program: Program = this.getProgram(buffer);
 
         if (program) {
-            const isPreview = dZoom > 0 || buffer.type == 'Line';
-            dZoom = dZoom || 1;
+            const isScaledTile = mvpMat == null && dZoom !== undefined;
+            dZoom ||= 1;
 
             const zIndex = this.zIndex;
             const isOnTopOf3d = (buffer.flat && zIndex > this.min3dZIndex);
@@ -782,7 +783,7 @@ export class GLRender implements BasicRender {
                 // initialize shared uniforms
                 const {sharedUniforms} = this;
                 sharedUniforms.u_scale = this.scale * dZoom;
-                sharedUniforms.u_matrix = pMat || (buffer.pixelPerfect ? this.vPRasterMat : this.vPMat);
+                sharedUniforms.u_matrix = mvpMat || renderTile.updateMVPMatrix(buffer.pixelPerfect ? this.vPRasterMat : this.vPMat);
                 sharedUniforms.u_zMeterToPixel = this.zMeterToPixel / dZoom;
 
                 // must be set at render time
@@ -795,7 +796,7 @@ export class GLRender implements BasicRender {
                     // (!uses2PassAlpha || pass != PASS.POST_ALPHA) &&
                     forceStencil || (buffer.clip && buffer.isFlat())
                 ) {
-                    stencilRefVal = this.drawStencil(x, y, dZoom, pMat);
+                    stencilRefVal = this.drawStencil(x, y, dZoom);
                 }
 
                 // initialise pass default
@@ -839,7 +840,14 @@ export class GLRender implements BasicRender {
                 // const depth = 1 - (1 + zIndex) / (1 << 16);
                 gl.depthRange(buffer.flat ? depth : 0, depth);
 
-                this.initProgram(program, buffer, pass);
+
+                let cameraWorld = this.cameraWorld;
+                if (isScaledTile && buffer.light) {
+                    cameraWorld = this.getLocalCameraPosition(renderTile.getModelMatrix());
+                }
+
+                // this.initProgram(program, buffer, pass, buffer.getUniformData());
+                this.initProgram(program, buffer, pass, buffer.getUniformData(), cameraWorld);
 
                 if (uses2PassAlpha) {
                     // 2 pass alpha requires stencil usage. otherwise only needed when buffer scissors.
@@ -855,9 +863,41 @@ export class GLRender implements BasicRender {
                     gl.disable(gl.DEPTH_TEST);
                 }
 
-                program.draw(buffer, isPreview);
+                program.draw(buffer, isScaledTile);
             }
         } else console.warn('no program found', buffer.type);
+    }
+
+
+    /**
+     * Computes the camera position relative to a local transformation matrix.
+     * This is typically used for lighting or preview passes where camera position
+     * must be expressed in the local coordinate system of a tile or object.
+     * @internal
+     * @hidden
+     */
+    private getLocalCameraPosition(localMatrix: Float32Array | Float64Array): Float64Array {
+        const {localCamera, cameraWorld, zMeterToPixel} = this;
+        // Transform cameraWorld into local tile space
+        const invMatrix = invert([], localMatrix);
+        transformMat4(localCamera, cameraWorld, invMatrix);
+        // const tileScale = localMatrix[0];
+        // localCamera[0] *= tileScale;
+        // localCamera[1] *= tileScale;
+        // localCamera[2] *= tileScale;
+        return localCamera;
+        // const {localCamera, cameraWorld} = this;
+        // // Extract scale and translation from the local matrix.
+        // // Assumes uniform scale in x and y and no rotation/shear.
+        // const s = localMatrix[0];
+        // const tx = localMatrix[12];
+        // const ty = localMatrix[13];
+        // // Transform the world-space camera position into local space.
+        // // This is done by inverting the translation and scale of the local matrix.
+        // localCamera[0] = (cameraWorld[0] - tx) / s;
+        // localCamera[1] = (cameraWorld[1] - ty) / s;
+        // localCamera[2] = cameraWorld[2] / s;
+        // return localCamera;
     }
 
     private stencilVal: number;
@@ -886,7 +926,7 @@ export class GLRender implements BasicRender {
         return refVal;
     }
 
-    private drawStencil(x: number, y: number, scale: number/* , snapGrid: boolean*/, pMat) {
+    private drawStencil(x: number, y: number, scale: number/* , snapGrid: boolean*/) {
         // return this.gl.stencilFunc(this.gl.ALWAYS, 0, 0);
         const {gl, stencilTile, sharedUniforms} = this;
         const program: Program = this.getProgram(stencilTile);
@@ -963,7 +1003,7 @@ export class GLRender implements BasicRender {
     }
 
 
-    initBufferScissorBox(buffer: GeometryBuffer, screenTile: ViewportTile, preview?: TileBufferData['data']['preview']) {
+    initBufferScissorBox(buffer: GeometryBuffer, screenTile: ViewportTile, preview?: RenderTile['data']['preview']) {
         if (buffer.clip) {
             let tileSize = screenTile.size;
             let {x, y, tile} = screenTile;
@@ -991,16 +1031,18 @@ export class GLRender implements BasicRender {
         }
     }
 
-    draw(bufferData: TileBufferData, min3dZIndex: number): void {
-        const screenTile = bufferData.data.tile;
+    draw(renderTile: RenderTile, min3dZIndex: number): void {
+        const screenTile = renderTile.data.tile;
+        const {preview} = renderTile.data;
+
         const dTile = <GLTile>screenTile.tile;
-        const {layer, b: buffer} = bufferData;
-        const {preview} = bufferData.data;
+        const {layer, buffer} = renderTile;
+
         let {x, y, scaledSize} = screenTile;
         const {tileSize} = layer;
         const distanceScale = scaledSize / tileSize;
 
-        this.zIndex = bufferData.z;
+        this.zIndex = renderTile.z;
         this.min3dZIndex = min3dZIndex;
 
         this.bufferLightUniforms = buffer.light ? this.processedLight[layer.index][buffer.light] : null;
@@ -1011,12 +1053,13 @@ export class GLRender implements BasicRender {
             // (screenTile.preview ||= new Map()).set(buffer, preview);
             const [previewQuadkey, sx, sy, sWidth, sHeight, dx, dy, dWidth, dHeight] = preview;
             const previewScale = dWidth / sWidth;
-            const previewTransformMatrix = this.initPreviewMatrix(
-                x + (dx - sx * previewScale) * distanceScale,
-                y + (dy - sy * previewScale) * distanceScale,
-                previewScale * distanceScale,
-                buffer.pixelPerfect
-            );
+
+            const tx = x + (dx - sx * previewScale) * distanceScale;
+            const ty = y + (dy - sy * previewScale) * distanceScale;
+            const scale = previewScale * distanceScale;
+
+            renderTile.setTransform(tx, ty, scale);
+
 
             const {clip} = buffer;
             let clipPreview = false;
@@ -1025,23 +1068,25 @@ export class GLRender implements BasicRender {
                 clipPreview = buffer.clip = true;
             }
 
-            this.initStencil(dTile.i, tileSize, bufferData.data.stencils);
+            this.initStencil(dTile.i, tileSize, renderTile.data.stencils);
 
-            this.drawBuffer(buffer, 0, 0, previewTransformMatrix, distanceScale * previewScale,
+            this.drawBuffer(renderTile, 0, 0, null, distanceScale * previewScale,
                 // Ensure clipped geometry is stenciled when required
                 clipPreview
             );
 
             buffer.clip = clip;
         } else {
-            let previewTransformMatrix;
+            let matrix;
+            renderTile.setTransform(x, y, distanceScale);
             if (distanceScale > 1) {
-                previewTransformMatrix = this.initPreviewMatrix(x, y, distanceScale, buffer.pixelPerfect);
                 x = 0;
                 y = 0;
+            } else {
+                matrix = buffer.pixelPerfect ? this.vPRasterMat : this.vPMat;
             }
             this.initStencil(dTile.i, tileSize);
-            this.drawBuffer(buffer, x, y, previewTransformMatrix, distanceScale);
+            this.drawBuffer(renderTile, x, y, matrix, distanceScale);
         }
     }
 
@@ -1058,27 +1103,8 @@ export class GLRender implements BasicRender {
         // make sure uniforms are being updated...
         skyBuffer.clearUniformCache();
 
-        this.drawBuffer(skyBuffer, 0, 0, this.skyMatrix);
+        this.drawBuffer(this.sky, 0, 0, this.skyMatrix);
         this.gl.depthMask(true);
-    }
-
-    private initPreviewMatrix(tx: number, ty: number, s: number, pixelPerfect?: boolean): Float32Array {
-        const {tilePreviewTransform} = this;
-        const {m} = tilePreviewTransform;
-        if (
-            tilePreviewTransform.tx != tx ||
-            tilePreviewTransform.ty != ty ||
-            tilePreviewTransform.s != s
-        ) {
-            mat4.copy(m, pixelPerfect ? this.vPRasterMat : this.vPMat);
-            mat4.translate(m, m, [tx, ty, 0]);
-            mat4.scale(m, m, [s, s, 1]);
-
-            tilePreviewTransform.tx = tx;
-            tilePreviewTransform.ty = ty;
-            tilePreviewTransform.s = s;
-        }
-        return m;
     }
 
     destroy(): void {

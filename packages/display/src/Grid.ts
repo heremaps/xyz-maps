@@ -92,7 +92,8 @@ export class GridTile implements ViewportTile {
         useAdaptiveLOD: boolean = true,
         tiles: ViewportTile[] = []
     ): ViewportTile[] {
-        const cacheKey = minTileSize << 1 | Number(useAdaptiveLOD);
+        // const cacheKey = minTileSize << 1 | Number(useAdaptiveLOD);
+        const cacheKey = minTileSize + Number(useAdaptiveLOD);
         const cache = this.resultCache;
         if (cache[cacheKey]) {
             return cache[cacheKey];

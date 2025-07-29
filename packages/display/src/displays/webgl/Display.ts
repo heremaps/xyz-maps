@@ -17,7 +17,7 @@
  * License-Filename: LICENSE
  */
 
-import BasicDisplay, {ViewportTile} from '../BasicDisplay';
+import BasicDisplay from '../BasicDisplay';
 import {GLRender, RenderOptions} from './GLRender';
 import GLBucket from './Bucket';
 
@@ -43,6 +43,8 @@ import {PASS} from './program/GLStates';
 import {Raycaster} from './Raycaster';
 import {defaultLightUniforms, initLightUniforms, ProcessedLights} from './lights';
 import {UniformMap} from './program/Program';
+import {RenderTile, RenderTilePool} from './RenderTile';
+
 
 const TO_RADIANS = Math.PI / 180;
 // Maximum pitch (in radians) used for calculating the world-coordinate tile grid.
@@ -97,23 +99,11 @@ type RendereFeatureResult = {
     layer: TileLayer
 };
 
-export type TileBufferData = {
-    z: number;
-    tiled: true;
-    b: GeometryBuffer;
-    // layerIndex: number;
-    layer: Layer,
-    data: {
-        tile: ViewportTile;
-        preview?: [string, number, number, number, number, number, number, number, number];
-        stencils?;
-    };
-};
 
-type CustomBufferData = {
+type CustomRenderData = {
     z: number;
     tiled: false;
-    b: {
+    buffer: {
         flat: boolean;
         zLayer?: number;
         zIndex?: number;
@@ -123,7 +113,7 @@ type CustomBufferData = {
     data: CustomLayer;
 };
 
-type BufferData = CustomBufferData | TileBufferData;
+type RenderData = CustomRenderData | RenderTile;
 
 const PROCESSED_LIGHTS_SYMBOL = Symbol();
 
@@ -140,7 +130,8 @@ class WebGlDisplay extends BasicDisplay {
     private groundResolution: number;
     private worldCenter: number[] = [0, 0];
     private worldSize: number;
-    private _zSortedTileBuffers: { tileBuffers: BufferData[], min3dZIndex: number, maxZIndex: number };
+    private renderTilePool: RenderTilePool = new RenderTilePool();
+    private _zSortedTileBuffers: { tileBuffers: RenderData[], min3dZIndex: number, maxZIndex: number };
     // Normalized maximum horizon Y-coordinate.
     // This value represents the maximum vertical offset of the grid's horizon when maximum possible pitch applied.
     // The offset is normalized by dividing it by the total screen height.
@@ -449,13 +440,13 @@ class WebGlDisplay extends BasicDisplay {
     }
 
     private orderBuffers(
-        zSorted: BufferData[],
-        buffers: (GeometryBuffer | CustomBufferData['b'])[],
+        zSorted: RenderData[],
+        buffers: (GeometryBuffer | CustomRenderData['buffer'])[],
         layer: Layer,
         absZOrder: {
             [intZ: string]: number
         },
-        data: CustomBufferData['data'] | TileBufferData['data'],
+        data: RenderData['data'],
         tiled: boolean
     ) {
         for (let buffer of buffers) {
@@ -474,20 +465,20 @@ class WebGlDisplay extends BasicDisplay {
             }
             absZOrder[z] = 0;
 
-            zSorted[zSorted.length] = {
-                b: buffer,
-                z,
-                data,
-                layer,
-                // layerIndex: layer.index,
-                tiled
-            } as TileBufferData;
+            let node: RenderTile | CustomRenderData;
+            if (tiled) {
+                node = this.renderTilePool.getNext();
+                node.init(buffer as GeometryBuffer, z, data as RenderTile['data'], layer);
+            } else {
+                node = {buffer, z, data, layer, tiled} as CustomRenderData;
+            }
+            zSorted[zSorted.length] = node;
         }
     }
 
-    private initLayerBuffers(layers: Layers): { tileBuffers: BufferData[], min3dZIndex: number, maxZIndex: number } {
+    private initLayerBuffers(layers: Layers): { tileBuffers: RenderData[], min3dZIndex: number, maxZIndex: number } {
         const {buckets} = this;
-        let tileBuffers: BufferData[] = [];
+        let tileBuffers: RenderData[] = [];
         let previewTiles: {
             [qk: string]: number[][]
         };
@@ -585,8 +576,8 @@ class WebGlDisplay extends BasicDisplay {
             zTile = tileBuffers[i];
             z = zTile.z = absZOrder[zTile.z];
 
-            if (!zTile.b.flat && z < min3dZIndex) {
-                // if (!zTile.b.flat && z < min3dZIndex && !zTile.b.isPointBuffer() ) {
+            if (!zTile.buffer.flat && z < min3dZIndex) {
+                // if (!zTile.buffer.flat && z < min3dZIndex && !zTile.buffer.isPointBuffer() ) {
                 min3dZIndex = z;
             }
         }
@@ -618,6 +609,10 @@ class WebGlDisplay extends BasicDisplay {
         return horizonY;
     }
 
+    isPointAboveHorizon(x: number, y: number): boolean {
+        return this.rx > FIXED_TILE_PITCH_THRESHOLD && this.project(x, y)[1] < this.horizonYFixed;
+    }
+
     protected useLODTiles(): boolean {
         return this.rx > FIXED_TILE_PITCH_THRESHOLD;
     }
@@ -634,6 +629,8 @@ class WebGlDisplay extends BasicDisplay {
 
 
         render.fixedView = Number(!this.viewChange);
+
+        this.renderTilePool.beginFrame();
 
         const layerBuffers = this.initLayerBuffers(layers);
         const {tileBuffers, min3dZIndex, maxZIndex} = layerBuffers;
@@ -654,14 +651,14 @@ class WebGlDisplay extends BasicDisplay {
             let data = tileBuffers[b];
             if (data?.tiled) {
                 // render.initBufferScissorBox((<TileBufferData>data).b, (<TileBufferData>data).data.tile, (<TileBufferData>data).data.preview);
-                render.draw(<TileBufferData>data, min3dZIndex);
+                render.draw(<RenderTile>data, min3dZIndex);
             }
         }
 
         render.setPass(PASS.ALPHA);
 
         // sort by zIndex and alpha/post alpha.
-        tileBuffers.sort((buf1, buf2) => 10 * (buf1.z - buf2.z) + buf1.b.pass - buf2.b.pass);
+        tileBuffers.sort((buf1, buf2) => 10 * (buf1.z - buf2.z) + buf1.buffer.pass - buf2.buffer.pass);
         this._zSortedTileBuffers = layerBuffers;
         let layerZIndex = 0;
 
@@ -670,7 +667,7 @@ class WebGlDisplay extends BasicDisplay {
 
             for (b = 0, length = tileBuffers.length; b < length; b++) {
                 let data = tileBuffers[b];
-                let buffer = data.b;
+                let buffer = data.buffer;
 
                 if (buffer.pass & PASS.POST_ALPHA) {
                     // do depth in this pass only and "main" drawing in an additional pass
@@ -678,9 +675,9 @@ class WebGlDisplay extends BasicDisplay {
                 }
                 if (data?.z == layerZIndex) {
                     if (!data.tiled) {
-                        render.drawCustom((<CustomBufferData>data).data, data.z);
+                        render.drawCustom((<CustomRenderData>data).data, data.z);
                     } else {
-                        render.draw(<TileBufferData>data, min3dZIndex);
+                        render.draw(<RenderTile>data, min3dZIndex);
                     }
                 }
             }
@@ -707,7 +704,7 @@ class WebGlDisplay extends BasicDisplay {
     }
 
     private updateCollisions() {
-        this.collision.update( this.tiles,
+        this.collision.update(this.tiles,
             // make sure display will refresh in case of cd toggles visibility
             () => this.update()
         );
@@ -722,13 +719,13 @@ class WebGlDisplay extends BasicDisplay {
         this.rayCaster.init(x, y, this.w, this.h, this.s, 1 / this.groundResolution);
         let intersectLayer: Layer = null;
         const camWorldZ = this.rayCaster.origin[2] - 0.001;
-
         const {tileBuffers, min3dZIndex} = this._zSortedTileBuffers;
         let i = tileBuffers.length;
         while (i--) {
-            let tileBuffer = tileBuffers[i];
-            if (!tileBuffer.tiled || !tileBuffer.b.pointerEvents) continue; // skip custom layers
-            let {b: buffer, z, data, tiled, layer} = tileBuffer;
+            if (!tileBuffers[i].tiled || !tileBuffers[i].buffer.pointerEvents) continue; // skip custom layers
+
+            const renderTile: RenderTile = tileBuffers[i] as RenderTile;
+            let {buffer, z, data, layer} = renderTile;
 
             if (layers?.indexOf(layer.layer as TileLayer) == -1) continue;
             let isOnTopOf3d = false;
@@ -748,10 +745,23 @@ class WebGlDisplay extends BasicDisplay {
                 minZ = -buffer.zRange[0];
                 maxZ = -buffer.zRange[1];
             }
-            const hitTile = this.rayCaster.intersectAABBox(tileX, tileY, minZ, tileX + size, tileY + size, maxZ);
+
+            const worldModelMatrix = renderTile.getModelMatrix();
+            const aabbMin = transformMat4([], [0, 0, minZ], worldModelMatrix);
+            const aabbMax = transformMat4([], [size, size, maxZ], worldModelMatrix);
+            // If the model matrix flips axes (e.g. negative scaling), compute min/max for each axis to ensure a valid AABB.
+            // const boxMinX = Math.min(aabbMin[0], aabbMax[0]);
+            // We know modelMatrix is orthogonal, so we can use the min/max directly.
+            const hitTile = this.rayCaster.intersectAABBox(
+                aabbMin[0], aabbMin[1], aabbMin[2],
+                aabbMax[0], aabbMax[1], aabbMax[2]
+            );
             if (!hitTile) continue;
 
-            const id = this.rayCaster.intersect(tileX, tileY, buffer);
+            const localTransform = worldModelMatrix && this.rayCaster.transformRayToLocal(worldModelMatrix);
+
+            const id = this.rayCaster.intersect(tileX, tileY, buffer, localTransform);
+
             if (id != null) {
                 intersectLayer = layer;
                 if (isOnTopOf3d) break;

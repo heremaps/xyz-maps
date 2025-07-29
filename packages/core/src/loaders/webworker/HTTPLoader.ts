@@ -17,7 +17,8 @@
  * License-Filename: LICENSE
  */
 
-import {HTTPLoader, HTTPLoaderOptions} from '../HTTPLoader';
+import {HTTPLoader, HTTPLoaderOptions, NetworkError} from '../HTTPLoader';
+import Tile from '../../tile/Tile';
 
 // const createWorker = (url) => {
 //     const blob   = new Blob(['('+fnc.toString()+')()'], { type: "text/javascript" });
@@ -30,7 +31,7 @@ import {HTTPLoader, HTTPLoaderOptions} from '../HTTPLoader';
 class WorkerHTTPLoader extends HTTPLoader {
     private worker: Worker;
 
-    private cbs = new Map();
+    private requests: Map<string, { tile: Tile, success: any, error: any }> = new Map();
 
     constructor(worker: string, options: HTTPLoaderOptions, payload?) {
         super(options);
@@ -55,17 +56,21 @@ class WorkerHTTPLoader extends HTTPLoader {
     private receiveMessage(e) {
         const data = e.data;
         const msg = data.msg;
+        const quadkey = data.quadkey;
+        const cb = this.requests.get(quadkey);
 
-        switch (msg) {
-        case 'success':
-            const quadkey = data.quadkey;
-            const cb = this.cbs.get(quadkey);
-
-            if (cb) {
-                this.cbs.delete(quadkey);
+        if (cb) {
+            this.requests.delete(quadkey);
+            switch (msg) {
+            case 'success':
                 cb.success(this.processData(data.data));
+                break;
+            case 'error':
+                const {tile} = cb;
+                tile.error = new NetworkError(data.data);
+                cb.error?.(tile.error, tile);
+                break;
             }
-            break;
         }
     }
 
@@ -73,12 +78,7 @@ class WorkerHTTPLoader extends HTTPLoader {
     load(tile, success, error?) {
         const url = this.getUrl(tile);
         const {quadkey, x, y, z} = tile;
-        this.cbs.set(quadkey, {
-            tile: tile,
-            success: success,
-            error
-        });
-
+        this.requests.set(quadkey, {tile, success, error});
         this.worker.postMessage({msg: 'load', url, quadkey, x, y, z});
     }
 
@@ -87,8 +87,8 @@ class WorkerHTTPLoader extends HTTPLoader {
         const url = this.getUrl(tile);
         const {quadkey, x, y, z} = tile;
 
-        if (this.cbs.get(quadkey)) {
-            this.cbs.delete(quadkey);
+        if (this.requests.get(quadkey)) {
+            this.requests.delete(quadkey);
             this.worker.postMessage({msg: 'abort', url, quadkey, x, y, z});
         }
     }
