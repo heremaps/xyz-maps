@@ -45,11 +45,11 @@ class Raycaster {
 
     // https://en.wikipedia.org/wiki/M%C3%B6ller%E2%80%93Trumbore_intersection_algorithm
     static rayIntersectsTriangle(
-        rayOrigin: number[],
-        rayVector: number[],
-        vertex0: number[],
-        vertex1: number[],
-        vertex2: number[],
+        rayOrigin: number[]|Float32Array,
+        rayVector: number[]|Float32Array,
+        vertex0: number[]|Float32Array,
+        vertex1: number[]|Float32Array,
+        vertex2: number[]|Float32Array,
         rayIntersectionPoint?: number[]
     ): number | null {
         const EPSILON = 1e-7;
