@@ -19,7 +19,7 @@
 
 import TaskManager from './TaskManager';
 
-const tm = TaskManager.getInstance(13);
+const tm = TaskManager.getInstance();
 
 const GRPCNT = 20;
 

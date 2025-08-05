@@ -21,14 +21,14 @@ import {TaskManager} from './TaskManager';
 
 let TASK_ID = 0;
 
-export interface TaskRestartOptions {
-    init?: () => void;
+export interface TaskRestartOptions<I=any, O=any> {
+    init?: (i:I) => O;
     onDone?: () => void;
     priority?: number;
 }
 
 
-class Task {
+class Task<I=any, O=any> {
     private manager: TaskManager;
 
     id: number;
@@ -67,10 +67,10 @@ class Task {
     constructor(
         manager: TaskManager,
         prio: number,
-        task: (any?) => boolean | void,
-        init?: (data?: any) => any,
+        task: (any?: O) => boolean | void,
+        init?: (data?: I) => any,
         time?: number,
-        onDone?: (data?: any) => void,
+        onDone?: (data?: O) => void,
         name?: string,
         delay?: number
     ) {
@@ -115,7 +115,7 @@ class Task {
         this.start(this._data);
     }
 
-    restart(opt: TaskRestartOptions = {}) {
+    restart(opt: TaskRestartOptions<I, O> = {}) {
         const {_data} = this;
 
         // cancel in case of active
@@ -146,8 +146,8 @@ class Task {
         this.start();
     };
 
-    init(data?: any): any {
-        return data;
+    init(data?: I): O {
+        return (<unknown>data) as O;
     };
 
     // yield() {

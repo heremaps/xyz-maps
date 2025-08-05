@@ -20,16 +20,18 @@
 import global from './global';
 import Task from './Task';
 
-const FPS60 = 1000 / 60;
+// Target frame time for 60 FPS, minus 4ms headroom for all non-TaskManager processing
+const FPS60 = 1000 / 60 - 4;
 let TMID = 0;
 
-export interface TaskOptions {
+
+export interface TaskOptions<I = any, O = any> {
     priority?: number;
-    exec: (data?: any) => boolean | void;
-    init?: (data?: any) => any;
+    exec: (data?: O) => boolean | void;
+    init?: (data?: I) => any;
     time?: number;
-    onDone?: (data?: any) => void;
-    name?: string
+    onDone?: (data?: O) => void;
+    name?: string;
     delay?: number;
 }
 
@@ -90,6 +92,10 @@ export class TaskManager {
             };
         }
     };
+    // private _resume = () => {
+    //     this.active = true;
+    //     requestAnimationFrame(() => this.runner());
+    // };
 
     runner(runnerStartTS?: number) {
         const manager = this;
@@ -279,7 +285,7 @@ export class TaskManager {
         }
     };
 
-    create(task: TaskOptions): Task {
+    create<I = any, O = any>(task: TaskOptions<I, O>): Task<I, O> {
         return new Task(
             this,
             task.priority,
