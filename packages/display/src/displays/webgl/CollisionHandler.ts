@@ -16,17 +16,18 @@
  * SPDX-License-Identifier: Apache-2.0
  * License-Filename: LICENSE
  */
-
-import {LocalProvider, tile, Tile, TileLayer, tileUtils, webMercator} from '@here/xyz-maps-core';
+import {TaskManager, Task, TaskOptions} from '@here/xyz-maps-common';
+import {LocalProvider, Tile, TileLayer, tileUtils, webMercator} from '@here/xyz-maps-core';
 import Display from './Display';
 import {Attribute} from './buffer/Attribute';
 import {Layer} from '../Layers';
 import {FlexAttribute} from './buffer/templates/TemplateBuffer';
 import {Map as MapDisplay} from '../../Map';
 import {ViewportTile} from '../BasicDisplay';
+import {CREATE_BUFFER_TASK_PRIORITY} from './buffer/createBuffer';
 
 const DEBUG = false;
-const UPDATE_DELAY_MS = !DEBUG && 150;
+const UPDATE_DELAY_MS = !DEBUG && (1000/4); // 4 times per second
 
 export type BBox = {
     minX: number,
@@ -63,6 +64,62 @@ type LayerTileCollision = {
     }
 }
 
+
+const CollisionTask: TaskOptions<[CollisionHandler, Iterable<Layer>, () => void], {
+    startTs: number,
+    screenCollisionData: CollisionData[],
+    index: number,
+    sorted: boolean,
+    updated: boolean,
+    processBatchSize: number,
+    visibleMap: CollisionData[],
+    visibleViewport: CollisionData[],
+    collisionHandler: CollisionHandler,
+    onDone?: (updated: boolean) => void
+}> = {
+    time: 4,
+    priority: CREATE_BUFFER_TASK_PRIORITY - 1,
+    init([collisionHandler, layers, onDone]) {
+        const screenCollisionData = collisionHandler.projectCollisionsToScreen(layers, null);
+        // sort by collision priority
+        screenCollisionData.sort((a, b) => a.priority - b.priority);
+        return {
+            startTs: performance.now(),
+            screenCollisionData,
+            index: 0,
+            sorted: false,
+            updated: false,
+            processBatchSize: 100,
+            visibleMap: [],
+            visibleViewport: [],
+            collisionHandler,
+            onDone
+        };
+    },
+    exec(taskData) {
+        const {collisionHandler, screenCollisionData, visibleMap, visibleViewport, processBatchSize} = taskData;
+
+        const visible: CollisionData[] = screenCollisionData;
+
+        for (let i = taskData.index, len = visible.length; i < len;) {
+            const bbox = visible[i++];
+            const updateBBox = collisionHandler.processCollision(bbox, visibleMap, visibleViewport);
+            taskData.updated ||= updateBBox;
+
+            if (i % processBatchSize == 0) {
+                taskData.index = i;
+                return true;
+            }
+        }
+
+        return false;
+    },
+    onDone(data) {
+        data.onDone(data.updated);
+    }
+};
+
+
 export class CollisionHandler {
     private tiles: { [targetZoom: number]: TileCache };
     private curLayerTileCollision: LayerTileCollision;
@@ -72,11 +129,13 @@ export class CollisionHandler {
     private dbgLayers: TileLayer[];
     private dbgSkipNextRefresh: boolean;
     private dbg;
+    private task: Task;
 
     constructor(display: Display) {
         this.tiles = {};
         this.display = display;
         this.debug(!!DEBUG);
+        this.task = TaskManager.getInstance().create(CollisionTask);
     }
 
     private getTileCache(zoom: number) {
@@ -148,7 +207,6 @@ export class CollisionHandler {
                 const geo = map.pixelToGeo(box.minX + w, box.minY + h);
                 lon = geo.longitude;
                 lat = geo.latitude;
-
                 color = z ? 'orange' : 'green';
             }
 
@@ -170,10 +228,18 @@ export class CollisionHandler {
 
     private intersects(box1: CollisionData, data: CollisionData[]): boolean {
         const boxes1 = box1.boxes;
-        for (let {boxes} of data) {
-            for (let bbox2 of boxes) {
-                for (let bbox1 of boxes1) {
-                    if (bbox1.minX <= bbox2.maxX && bbox2.minX <= bbox1.maxX && bbox1.minY <= bbox2.maxY && bbox2.minY <= bbox1.maxY) {
+        for (let i = 0, length = data.length; i < length; ++i) {
+            const boxes2 = data[i].boxes;
+            for (let j = 0, length2 = boxes2.length; j < length2; ++j) {
+                const bbox2 = boxes2[j];
+                for (let k = 0, length1 = boxes1.length; k < length1; ++k) {
+                    const bbox1 = boxes1[k];
+                    if (
+                        bbox1.minX <= bbox2.maxX &&
+                        bbox2.minX <= bbox1.maxX &&
+                        bbox1.minY <= bbox2.maxY &&
+                        bbox2.minY <= bbox1.maxY
+                    ) {
                         return true;
                     }
                 }
@@ -387,37 +453,43 @@ export class CollisionHandler {
         }
     }
 
-    private timer = null;
+    private isUpdating: boolean;
 
     private updateTileSync(tile: ViewportTile, layer: Layer) {
         if (tile) {
-            this.computeScreenCollisions([layer], [tile]);
+            const screenCollisionData = this.projectCollisionsToScreen([layer], [tile]);
+            return this.intersectCollisionData(screenCollisionData);
         }
     }
 
 
     update(tiles: ViewportTile[], callback: () => void) {
-        if (this.timer == null) {
-            this.timer = setTimeout(() => {
+        if (!this.isUpdating) {
+            this.isUpdating = true;
+            setTimeout(() => {
                 if (this.dbg) {
                     if (this.dbgSkipNextRefresh = !this.dbgSkipNextRefresh) {
                         this.dbgLayers[1].getProvider().clear();
                     }
                 }
-                const updated = this.computeScreenCollisions(this.display.layers);
-
-                this.timer = null;
-                updated && callback?.();
+                this.task.start([this, this.display.layers, (updated: boolean) => {
+                    this.isUpdating = false;
+                    if (updated) {
+                        callback?.();
+                    }
+                }]);
             }, UPDATE_DELAY_MS);
         }
     }
 
-    private computeScreenCollisions(layers: Iterable<Layer>, tiles?: ViewportTile[], screenCollisionData: CollisionData[] = []): boolean {
+
+    projectCollisionsToScreen(layers: Iterable<Layer>, tiles?: ViewportTile[]): CollisionData[] {
         const {centerWorld, w, h, s: scale, zoom} = this.display;
         const worldSize = 256 << zoom;
         const screenWorldTopLeftX = centerWorld[0] * worldSize - w * .5;
         const screenWorldTopLeftY = centerWorld[1] * worldSize - h * .5;
-        // update viewport tiles to match current mapview transformation
+        const screenCollisionData: CollisionData[] = [];
+
         for (let layer of layers) {
             this.collisionsWorld2Screen(
                 screenCollisionData,
@@ -429,7 +501,7 @@ export class CollisionHandler {
                 scale
             );
         }
-        return this.intersectCollisionData(screenCollisionData);
+        return screenCollisionData;
     }
 
     private collisionsWorld2Screen(
@@ -479,46 +551,56 @@ export class CollisionHandler {
 
         const visibleItemsMapAligned = [];
         const visibleItemsViewportAligned = [];
-
         let updated = false;
 
         for (let bbox of visible) {
-            let visibleItems;
-            let intersects = this.intersects(bbox, visibleItemsViewportAligned);
-            if (bbox.slope) {
-                visibleItems = visibleItemsMapAligned;
-            } else {
-                intersects ||= this.intersects(bbox, visibleItemsMapAligned);
-                visibleItems = visibleItemsViewportAligned;
-            }
-
-            if (!intersects) {
-                visibleItems[visibleItems.length] = bbox;
-            }
-
-            for (let {buffer, start, stop} of bbox.attrs) {
-                const {data, size} = buffer;
-                const visible = (data[start] & 1) == 1;
-                if (
-                    // Hide all buffers (intersects && visible) or
-                    // restore previously hidden buffers to make them visible again (!intersects && !visible).
-                    intersects == visible
-                ) {
-                    while (start < stop) {
-                        data[start] ^= 1; // toggle LSB
-                        start += size;
-                    }
-                    (<Attribute>buffer).dirty = true;
-                    updated = true;
-                }
-            }
-
-            if (this.dbg) {
-                this.dbgBBoxes(bbox, intersects);
-            }
+            const updateBBox = this.processCollision(bbox,
+                visibleItemsMapAligned,
+                visibleItemsViewportAligned
+            );
+            updated ||= updateBBox;
         }
         return updated;
     }
+
+    processCollision(bbox: CollisionData, visibleItemsMapAligned: CollisionData[], visibleItemsViewportAligned: CollisionData[]): boolean {
+        let updated = false;
+        let visibleItems;
+        let intersects = this.intersects(bbox, visibleItemsViewportAligned);
+        if (bbox.slope) {
+            visibleItems = visibleItemsMapAligned;
+        } else {
+            intersects ||= this.intersects(bbox, visibleItemsMapAligned);
+            visibleItems = visibleItemsViewportAligned;
+        }
+
+        if (!intersects) {
+            visibleItems[visibleItems.length] = bbox;
+        }
+
+        for (let {buffer, start, stop} of bbox.attrs) {
+            const {data, size} = buffer;
+            const visible = (data[start] & 1) == 1;
+            if (
+                // Hide all buffers (intersects && visible) or
+                // restore previously hidden buffers to make them visible again (!intersects && !visible).
+                intersects == visible
+            ) {
+                while (start < stop) {
+                    data[start] ^= 1; // toggle LSB
+                    start += size;
+                }
+                (<Attribute>buffer).dirty = true;
+                updated = true;
+            }
+        }
+
+        if (this.dbg) {
+            this.dbgBBoxes(bbox, intersects);
+        }
+        return updated;
+    }
+
 
     private updateTileCollisionData(
         layerId: string,
@@ -589,7 +671,6 @@ export class CollisionHandler {
             }
         }
     }
-
 
     removeTiles(layer: Layer) {
         for (let zoom in this.tiles) {

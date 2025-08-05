@@ -40,7 +40,7 @@ import {DisplayTileTask} from '../../BasicTile';
 
 const PROCESS_FEATURE_CHUNK_SIZE = 16;
 const EXCLUSIVE_TIME_MS = 4;
-const PRIORITY = 4;
+export const CREATE_BUFFER_TASK_PRIORITY = 4;
 
 const taskManager = TaskManager.getInstance();
 const TO_RAD = Math.PI / 180;
@@ -125,7 +125,7 @@ const createBuffer = (
 
         time: EXCLUSIVE_TIME_MS,
 
-        priority: PRIORITY,
+        priority: CREATE_BUFFER_TASK_PRIORITY,
 
         init: function(): TaskData {
             const zoom = tile.z + layer.levelOffset;
