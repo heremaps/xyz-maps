@@ -40,10 +40,9 @@ export class RenderTile {
     private _mvpUpdated: boolean;
 
     constructor(buffer?: GeometryBuffer, z?: number, data?: ViewportTileData, layer?: Layer) {
-        this.init(buffer, z, data, layer);
-
         this._modelMatrix = create();
         this._mvpMatrix = create();
+        this.init(buffer, z, data, layer);
     }
 
     init(buffer: GeometryBuffer, z?: number, data?: ViewportTileData, layer?: Layer) {
@@ -51,12 +50,16 @@ export class RenderTile {
         this.z = z;
         this.data = data;
         this.layer = layer;
-    }
 
-    reset() {
         identity(this._modelMatrix);
         this._mmUpdated = false;
         this._mvpUpdated = false;
+    }
+
+    reset() {
+        this.buffer = null;
+        this.data = null;
+        this.layer = null;
     }
 
     getModelMatrix() {
@@ -96,6 +99,8 @@ export class RenderTilePool {
     private pool: RenderTile[] = [];
     private index = 0;
 
+    private lastClearedIndex: number;
+
     beginFrame() {
         this.index = 0;
     }
@@ -105,12 +110,19 @@ export class RenderTilePool {
             this.pool.push(new RenderTile());
         }
         const node = this.pool[this.index++];
-        node.reset();
+
         return node;
     }
-
+    /**
+     * Resets all RenderTiles that were not used in the current frame but were
+     * potentially used in the previous frame. This allows releasing references
+     * and helps garbage collection by avoiding unnecessary repeated resets.
+     */
     endFrame() {
-
+        for (let i = this.index; i < this.lastClearedIndex; i++) {
+            this.pool[i].reset();
+        }
+        this.lastClearedIndex = this.index;
     }
 
     getUsedNodes(): RenderTile[] {

@@ -701,6 +701,8 @@ class WebGlDisplay extends BasicDisplay {
                 }
             }
         }
+
+        this.renderTilePool.endFrame();
     }
 
     private updateCollisions() {
