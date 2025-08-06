@@ -1,3 +1,22 @@
+## 0.43.0 (2025-8-6)
+### editor
+* added: Marker [behavior](https://heremaps.github.io/xyz-maps/docs/classes/editor.marker.html#behavior) now supports dragSurface: 'terrain' to enable geometry editing based on terrain elevation ([Playground](https://heremaps.github.io/xyz-maps/playground/dist/#Editor-Drag_Marker_on_Terrain))
+### core
+* fixed: prevent stalling in WebWorker-based tile loaders when requests fail
+* fixed: Resolved border stitching of terrain tiles failing with empty neighbors.
+### display
+* perf: significantly speed up terrain hit-testing and intersection computation for interactive API events
+* improved: Specular highlights now render correctly on Tiles in previews and LOD scaling.
+* improved: Offload collision detection to task system to reduce frame stalls under high load
+* improved: Enhanced lighting for adaptive tiles
+* added: Pointer events now correctly trigger for previewed or adaptively scaled tiles (far distance), enabling full interaction on high-pitch map views.
+* added: implement basic 3D polygon rendering (best for moderate elevation variation)
+* added: implement [getTerrainPointAt)](https://heremaps.github.io/xyz-maps/docs/classes/display.map.html#getterrainpointat) method to retrieve 3D terrain position from screen coordinates
+* fixed: VerticalLines using offsetZ could cause polygon misalignment in edge cases
+* fixed: tile loading and LOD selection when adaptive and fixed-grid TileLayers are used together
+* fixed: prevent error when adding a CustomLayer as the first map layer
+* fixed: ensure styles with depthTest=false are rendered on top of transparent geometry
+
 ## 0.42.0 (2025-7-11)
 ### editor
 * added: implemented altitude interpolation for 3D geometry applied during link splitting and road network editing in forced 2D mode
