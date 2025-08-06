@@ -97,7 +97,10 @@ void main(void) {
 
     #ifdef SPECULAR
     v_surfaceToCam = u_camWorld - vertexPos;
-//    v_surfaceToCam = u_camWorld - worldPos.xyz;
+    // The view-projection matrix scales Z non-uniformly (typically to match ground resolution),
+    // so we need to rescale the Z-component of the surface-to-camera vector
+    // to ensure lighting calculations (e.g. specular intensity) are physically consistent.
+    v_surfaceToCam.z *= u_zMeterToPixel;
     #endif
 
     vSize = size;

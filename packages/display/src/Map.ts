@@ -53,6 +53,7 @@ import {FlightAnimator} from './animation/FlightAnimator';
 import Copyright from './ui/copyright/Copyright';
 import Logo from './ui/Logo';
 import {fillMap} from './displays/styleTools';
+import {GLRender} from './displays/webgl/GLRender';
 
 
 const project = webMercator;
@@ -1466,7 +1467,9 @@ export class Map {
     _w2g(x: number, y: number, z?: number): number[];
     _w2g(x: number | number[], y?: number, z?: number): number[] {
         if (Array.isArray(x)) {
-            [x, y, z] = x;
+            z = x[2];
+            y = x[1];
+            x = x[0];
         }
 
         const worldSizePixel = this._worldSizeFixed;
@@ -1570,9 +1573,9 @@ export class Map {
          */
         position: { longitude: number, latitude: number, altitude: number }
         } {
-        const map = this;
-
-        const [longitude, latitude, altitude] = map._w2g(map._unprj(map._cx, map._cy, -1));
+        const cameraWorld = (this._display.render as GLRender).cameraWorld;
+        const [longitude, latitude, altitude] = this._w2g(cameraWorld[0], cameraWorld[1], -cameraWorld[2]);
+        // const [longitude, latitude, altitude] = this._w2g(map._unprj(map._cx, map._cy, -1));
         return {
             position: {longitude, latitude, altitude}
         };

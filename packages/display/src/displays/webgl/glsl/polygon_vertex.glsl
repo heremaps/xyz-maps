@@ -21,5 +21,6 @@ void main(void){
 
     #ifdef SPECULAR
     v_surfaceToCam = u_camWorld - worldPos;
+    v_surfaceToCam.z *= u_zMeterToPixel;
     #endif
 }

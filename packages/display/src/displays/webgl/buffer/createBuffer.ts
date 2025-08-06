@@ -348,10 +348,8 @@ const createBuffer = (
                                     if (type == 'Model') {
                                         // 0 meters (default),  1 pixel (terrain)
                                         geoBuffer.addUniform('u_isPixelCoords', !!shared.modelMode );
-                                        if (shared.modelMode) {
-                                            // terrain model -> scale xy in pixel
-                                            geoBuffer.addUniform('u_zMeterToPixel', 1);
-                                        }
+                                        // terrain mode
+                                        // if (shared.modelMode) (geoBuffer as ModelBuffer).hitTest = 1;
 
                                         if (!geoBuffer.attributes.a_normal) {
                                             geoBuffer.addAttribute('a_normal', {

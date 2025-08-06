@@ -167,7 +167,7 @@ export const quantizeVertexData = (
 
 type VertexData = Float64Array | Float32Array | Uint16Array | Int16Array | number[];
 
-const accumulateFaceNormal = (vertex: VertexData, i1: number, i2: number, i3: number, normals: VertexData) => {
+const accumulateFaceNormal = (vertex: VertexData, i1: number, i2: number, i3: number, normals: VertexData, scaleXY: number = 1) => {
     const t3x = vertex[i1];
     const t3y = vertex[i1 + 1];
     const t3z = vertex[i1 + 2];
@@ -180,12 +180,12 @@ const accumulateFaceNormal = (vertex: VertexData, i1: number, i2: number, i3: nu
     const t1y = vertex[i3 + 1];
     const t1z = vertex[i3 + 2];
 
-    const ux = t2x - t1x;
-    const uy = t2y - t1y;
+    const ux = (t2x - t1x) * scaleXY;
+    const uy = (t2y - t1y) * scaleXY;
     const uz = t2z - t1z;
 
-    const vx = t3x - t1x;
-    const vy = t3y - t1y;
+    const vx = (t3x - t1x) * scaleXY;
+    const vy = (t3y - t1y) * scaleXY;
     const vz = t3z - t1z;
 
     // surface normal
@@ -208,20 +208,29 @@ const accumulateFaceNormal = (vertex: VertexData, i1: number, i2: number, i3: nu
 };
 
 
-export const computeMeshNormals = (
-    vertex: VertexData,
-    index?: number[],
-    skipIndices?: Map<number, number>,
-    normals?: Float32Array
-) => {
+export interface ComputeMeshNormalsOptions {
+    vertex: VertexData;
+    index?: number[];
+    scaleXY?: number;
+    skipIndices?: Map<number, number>;
+    normals?: Float32Array;
+}
+export const computeMeshNormals = ({
+    vertex,
+    scaleXY,
+    index,
+    skipIndices,
+    normals
+}: ComputeMeshNormalsOptions) => {
     const vertexLength = vertex.length;
+    scaleXY ??= 1;
     // const normals = new Float32Array(vertexLength);
     normals = normals?.fill(0) || new Float32Array(vertexLength);
     // const normals = new Array(vertexLength);
 
     if (!index) {
         for (let i = 0; i < vertexLength;) {
-            accumulateFaceNormal(vertex, i, i + 3, i += 6, normals);
+            accumulateFaceNormal(vertex, i, i + 3, i += 6, normals, scaleXY);
         }
     } else {
         for (let i = 0; i < index.length; i += 3) {
@@ -229,7 +238,7 @@ export const computeMeshNormals = (
             const i2 = index[i + 1];
             const i3 = index[i + 2];
             if (skipIndices?.has(i3)) continue;
-            accumulateFaceNormal(vertex, i1 * 3, i2 * 3, i3 * 3, normals);
+            accumulateFaceNormal(vertex, i1 * 3, i2 * 3, i3 * 3, normals, scaleXY);
         }
     }
 

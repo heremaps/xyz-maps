@@ -175,7 +175,18 @@ function prepareFeature(feature,
             properties.heightMap = extendHeightMapWithFullClamping(heightMap);
         }
         // else {
-        properties.normals ||= computeMeshNormals(properties.vertices, properties.indices, skirtToMainVertexMap);
+        const minLat = feature.geometry.coordinates[0][3][1];
+        const maxLat = feature.geometry.coordinates[0][4][1];
+        const centerLat = minLat + (maxLat - minLat) / 2;
+        const worldSize = Math.pow(2, feature.id.length) * 256;
+        const meterPerPixel = earthCircumference(centerLat) / worldSize;
+
+        properties.normals ||= computeMeshNormals({
+            vertex: properties.vertices,
+            index: properties.indices,
+            skipIndices: skirtToMainVertexMap,
+            scaleXY: meterPerPixel
+        });
         // }
 
         if (skirtToMainVertexMap) {

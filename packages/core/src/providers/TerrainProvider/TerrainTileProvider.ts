@@ -44,6 +44,7 @@ type TerrainTileProviderOptions = Omit<RemoteTileProviderOptions, 'level'> & {
 export class TerrainTileProvider extends RemoteTileProvider {
     dataType = 'json';
 
+    Feature = TerrainTileFeature;
     constructor(options: TerrainTileProviderOptions) {
         options ||= {};
 

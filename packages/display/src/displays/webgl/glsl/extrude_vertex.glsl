@@ -14,6 +14,7 @@ uniform vec4 u_stroke;
 
 #ifdef SPECULAR
 uniform vec3 u_camWorld;
+uniform float u_zMeterToPixel;
 uniform vec3 specular;
 uniform float shininess;
 #endif
@@ -35,6 +36,8 @@ void main(void) {
 
         #ifdef SPECULAR
         vec3 surfaceToCam = normalize(u_camWorld - worldPos);
+        surfaceToCam.z *= u_zMeterToPixel;
+
         light = addSpecularHighlights(normal, light, surfaceToCam, shininess, specular);
         #endif
 

@@ -562,10 +562,6 @@ export class GLRender implements BasicRender {
         cameraWorld[1] = 0;
         cameraWorld[2] = -1;
         transformMat4(cameraWorld, cameraWorld, this.invVPMat);
-        // The Z-axis is scaled to meters per pixel, leading to a non-uniform coordinate system.
-        // To maintain consistent specular highlight sizes,
-        // we scale Z by zMeterToPixel to compensate for ground resolution scaling, ensuring a uniform coordinate system.
-        cameraWorld[2] *= this.zMeterToPixel;
 
         // pixel perfect matrix used for crisper raster graphics, icons/text/raster-tiles
         // rounding in shader leads to precision issues and tiles edges become visible when the map is scaled.
