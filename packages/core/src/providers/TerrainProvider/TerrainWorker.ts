@@ -28,6 +28,7 @@ import {XYZTerra} from './XYZTerra';
 import {TerrainTileLoaderOptions} from './TerrainWorkerLoader';
 import {StyleZoomRange} from '../../styles/LayerStyle';
 import {GeoJSONFeature} from '../../features/GeoJSON';
+import webMercator from '../../projection/webMercator';
 
 declare const self: Worker;
 
@@ -54,7 +55,7 @@ export const createTerrainTile = (
     if (normals) {
         feature.properties.normals = normals;
     }
-    return prepareFeature(feature, null, null, quantizeOptions);
+    return prepareFeature(feature, z, null, null, quantizeOptions);
 };
 const createTerrainFeature = (
     x: number, y: number, z: number,
@@ -72,7 +73,8 @@ const createTerrainFeature = (
         properties: {
             isTerrain: true,
             source: {
-                type: sourceFormat
+                type: sourceFormat,
+                tile: [x, y, z]
             },
             indices,
             vertices
@@ -137,6 +139,7 @@ function createHeightmapTerrainFeature(x: number, y: number, z: number, mesh: RT
 }
 
 function prepareFeature(feature,
+    zoom: number,
     heightMap?: Float32Array,
     skirtToMainVertexMap?: Map<number, number>,
     quantizeOptions?: QuantizeOptions
@@ -179,7 +182,7 @@ function prepareFeature(feature,
         const maxLat = feature.geometry.coordinates[0][4][1];
         const centerLat = minLat + (maxLat - minLat) / 2;
         const worldSize = Math.pow(2, feature.id.length) * 256;
-        const meterPerPixel = earthCircumference(centerLat) / worldSize;
+        const meterPerPixel = webMercator.earthCircumference(centerLat) / worldSize;
 
         properties.normals ||= computeMeshNormals({
             vertex: properties.vertices,
@@ -277,7 +280,7 @@ class TerrainWorker extends HTTPWorker {
         }
 
         if (feature) {
-            prepareFeature(feature, heightMap, skirtToMainVertexMap);
+            prepareFeature(feature, z, heightMap, skirtToMainVertexMap);
 
             // properties.uv = (function createUVs(
             //  vertices: Float64Array | Float32Array | Uint16Array | Int16Array | number[],

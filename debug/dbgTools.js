@@ -112,6 +112,9 @@
     let optimise = false;
     let dbgLayer;
     const dbgTools = {
+        animateLight() {
+            animations.toggleAnimation(animateLight);
+        },
         getDisplay() {
             return window.display || here.xyz.maps.Map.getInstances()[0];
         },
