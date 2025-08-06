@@ -249,6 +249,17 @@ class TerrainWorker extends HTTPWorker {
                 const mesh: RTINMesh = createMeshFromHeightMap(heightMap, this.maxGeometricError[z]);
                 skirtToMainVertexMap = mesh.skirtToMainVertexMap;
                 data = createHeightmapTerrainFeature(x, y, z, mesh, heightMap);
+
+                // compute min and max height, used to optimize ray intersection
+                let minHeight = Infinity;
+                let maxHeight = -minHeight;
+                for (let height of heightMap) {
+                    if (height < minHeight) minHeight = height;
+                    else if (height > maxHeight) maxHeight = height;
+                }
+                Object.assign(data.properties, {minHeight, maxHeight});
+
+                // data.properties.heightScale = 1.0;
                 heightMap = null;
             }
             feature = data.type == 'Feature' ? data : data.features[0];
