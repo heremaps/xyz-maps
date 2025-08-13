@@ -264,7 +264,7 @@ class WebGlDisplay extends BasicDisplay {
         if (typeof z == 'number') {
             const p = [x, y, z];
             transformMat4(p, p, inverseMatrix);
-            p[2] *= -1;
+            // p[2] *= -1;
             return p;
         }
 
@@ -299,7 +299,7 @@ class WebGlDisplay extends BasicDisplay {
         // const p = [x, y, 0];
         // const s = this.s;
         // const p = [x * s, y * s, 0];
-        const p = [x - sx, y - sy, -z];
+        const p = [x - sx, y - sy, z];
         return transformMat4(p, p, matrix);
         // transformMat4(p, p, this.render.vPMats);
         // return fromClipSpace(p, this.w, this.h);
@@ -720,7 +720,7 @@ class WebGlDisplay extends BasicDisplay {
         // console.time('getRenderedFeatureAt');
         this.rayCaster.init(x, y, this.w, this.h, this.s, 1 / this.groundResolution);
         let intersectLayer: Layer = null;
-        const camWorldZ = this.rayCaster.origin[2] - 0.001;
+        const camWorldZ = this.rayCaster.origin[2] + 0.001;
         const {tileBuffers, min3dZIndex} = this._zSortedTileBuffers;
         let i = tileBuffers.length;
         while (i--) {
@@ -744,8 +744,8 @@ class WebGlDisplay extends BasicDisplay {
             let minZ = 0;
             let maxZ = camWorldZ;
             if (buffer.zRange) {
-                minZ = -buffer.zRange[0];
-                maxZ = -buffer.zRange[1];
+                minZ = buffer.zRange[0];
+                maxZ = buffer.zRange[1];
             }
 
             const worldModelMatrix = renderTile.getModelMatrix();
@@ -758,7 +758,11 @@ class WebGlDisplay extends BasicDisplay {
                 aabbMin[0], aabbMin[1], aabbMin[2],
                 aabbMax[0], aabbMax[1], aabbMax[2]
             );
-            if (!hitTile) continue;
+
+            if (!hitTile) {
+                continue;
+            };
+
 
             const localTransform = worldModelMatrix && this.rayCaster.transformRayToLocal(worldModelMatrix);
 

@@ -79,9 +79,9 @@ export class PolygonBuffer extends TemplateBuffer {
                 t2[1] = tileY + position[i2 + 1];
 
                 if (size == 3) {
-                    t0[2] = -position[i0 + 2];
-                    t1[2] = -position[i1 + 2];
-                    t2[2] = -position[i2 + 2];
+                    t0[2] = position[i0 + 2];
+                    t1[2] = position[i1 + 2];
+                    t2[2] = position[i2 + 2];
                 }
 
 

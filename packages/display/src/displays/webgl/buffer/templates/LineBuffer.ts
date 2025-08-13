@@ -92,7 +92,7 @@ export class LineBuffer extends TemplateBuffer {
 
             let x0 = position[i++];
             let y0 = position[i++];
-            let z0 = size == 3 ? -position[i++] : 0;
+            let z0 = size == 3 ? position[i++] : 0;
             // convert normalized int16 to float meters (-500m ... +9000m)
             // z0 = (z0 - 32267.0) * 0.14496292001098665;
             let nx1 = normal[n + 4];
@@ -107,7 +107,7 @@ export class LineBuffer extends TemplateBuffer {
 
             let x1 = position[i++];
             let y1 = position[i++];
-            let z1 = size == 3 ? -position[i++] : 0;
+            let z1 = size == 3 ? position[i++] : 0;
 
             let nx2 = normal[n + 8];
             let ny2 = normal[n + 9];
@@ -120,7 +120,7 @@ export class LineBuffer extends TemplateBuffer {
 
             let x2 = position[i++];
             let y2 = position[i++];
-            let z2 = size == 3 ? -position[i++] : 0;
+            let z2 = size == 3 ? position[i++] : 0;
 
             const tileX0 = tileX + x0;
             const tileY0 = tileY + y0;

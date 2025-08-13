@@ -13,7 +13,7 @@ varying vec3 v_surfaceToCam;
 varying vec3 fragNormal;
 #endif
 
-const vec3 surfaceNormal = vec3(0, 0, -1);
+const vec3 surfaceNormal = vec3(0, 0, 1);
 
 void main(void) {
 

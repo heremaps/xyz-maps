@@ -51,20 +51,20 @@ void main(void) {
     #endif
 
 
-    vec3 boxCenter = vec3(u_topLeft + a_position.xy * EXTENT_SCALE, -a_position.z * SCALE_UINT16_Z);
-    boxCenter += vec3(toPixel(u_offset.xy, u_scale), toPixel(u_offset.zw, u_scale), -toPixel(u_offsetZ, u_scale) / u_zMeterToPixel) / u_scale;
+    vec3 boxCenter = vec3(u_topLeft + a_position.xy * EXTENT_SCALE, a_position.z * SCALE_UINT16_Z);
+    boxCenter += vec3(toPixel(u_offset.xy, u_scale), toPixel(u_offset.zw, u_scale), toPixel(u_offsetZ, u_scale) / u_zMeterToPixel) / u_scale;
 
 
     float scaleDZ = 1.0 + (u_scaleByAltitude ? 0.0 : boxCenter.z * u_matrix[2][3] / (u_matrix[0][3] * boxCenter.x + u_matrix[1][3] * boxCenter.y + u_matrix[3][3]));
 
     size *= scaleDZ;
 
-    vec3 vertexOffset = vec3(size.xy, -size.z / u_zMeterToPixel) * dir;
+    vec3 vertexOffset = vec3(size.xy, size.z / u_zMeterToPixel) * dir;
     vec3 vertexPos = vec3(boxCenter.xy + rotateZ(vertexOffset.xy, u_rotation), boxCenter.z + vertexOffset.z);
     //    vec3 vertexPos = vec3(boxCenter.xy + rotateZ(vertexOffset.xy / u_scale, u_rotation), boxCenter.z + vertexOffset.z / u_scale);
 
     // clip on ground plane
-    vertexPos.z = min(vertexPos.z, 0.0);
+    vertexPos.z = max(vertexPos.z, 0.0);
 
 
     gl_Position = u_matrix * vec4(vertexPos, 1.0);

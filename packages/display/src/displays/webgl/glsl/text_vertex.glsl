@@ -61,7 +61,7 @@ void main(void) {
             offset = rotateY(offset, rotationY);
             offset.xy = rotateZ(offset.xy, rotationZ);
 
-            vec3 posWorld = vec3(u_topLeft + position, -z);
+            vec3 posWorld = vec3(u_topLeft + position, z);
             if (!u_scaleByAltitude) {
                 float scaleDZ = 1.0 + posWorld.z * u_matrix[2][3] / (u_matrix[0][3] * posWorld.x + u_matrix[1][3] * posWorld.y + u_matrix[3][3]);
                 offset.xy *= scaleDZ;
@@ -69,7 +69,7 @@ void main(void) {
             gl_Position = u_matrix * vec4(posWorld + offset, 1.0);
 
         } else {
-            vec4 cpos = u_matrix * vec4((u_topLeft + position), -z, 1.0);
+            vec4 cpos = u_matrix * vec4((u_topLeft + position), z, 1.0);
             vec2 offset = rotateZ(a_point.xy * OFFSET_SCALE + labelOffset, rotationZ);
             //            posOffset = rotateY(vec3(posOffset, 0), a_point.z).xy;
             gl_Position = vec4(cpos.xy / cpos.w + vec2(1, -1) * offset / DEVICE_PIXEL_RATIO / u_resolution * 2.0, cpos.z / cpos.w, 1.0);

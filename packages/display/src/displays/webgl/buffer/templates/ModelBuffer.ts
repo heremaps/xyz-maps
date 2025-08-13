@@ -123,8 +123,7 @@ function computeTangents(vertex: VertexData, uv: number[], indices?: Uint16Array
 
 export class ModelBuffer extends TemplateBuffer {
     destroy?: (buffer: GeometryBuffer) => void;
-    // Rotate by 90 degrees along the X-axis (pitch rotation).
-    private defaultOrientationMatrix: number[] = [1, 0, 0, 0, 0, 0, -1, 0, 0, 1, 0, 0, 0, 0, 0, 1];
+    private defaultOrientationMatrix: Float32Array = new Float32Array([1, 0, 0, 0, 0, 0, 1, 0, 0, 1, 0, 0, 0, 0, 0, 1]);
     // Flip Y and rotate by 90 degrees along the X-axis (pitch rotation).
     // private defaultOrientationMatrix: number[] = [1, 0, 0, 0, 0, 0, -1, 0, 0, -1, 0, 0, 0, 0, 0, 1];
 
@@ -296,7 +295,7 @@ export class ModelBuffer extends TemplateBuffer {
             translateXYZ,
             scaleXYZ
         );
-        const mm = new Float32Array(this.defaultOrientationMatrix);
+        const mm = this.defaultOrientationMatrix.slice();
         modelMatrix = multiply(mm, mm, modelMatrix);
 
         // this.uniforms.u_normalMatrix = transpose(modelMatrix, invert(modelMatrix, modelMatrix));

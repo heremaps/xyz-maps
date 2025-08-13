@@ -60,11 +60,11 @@ void main(void){
     vec2 offset = dir * normal * width;
 
     if (!u_scaleByAltitude){
-        vec3 posWorld = vec3(posCenterWorld + offset, -a_position.z);
+        vec3 posWorld = vec3(posCenterWorld + offset, a_position.z);
         float scaleDZ = 1.0 + posWorld.z * u_matrix[2][3] / (u_matrix[0][3] * posWorld.x + u_matrix[1][3] * posWorld.y + u_matrix[3][3]);
         offset *= scaleDZ;
     }
 
-    gl_Position = u_matrix * vec4(posCenterWorld + offset, -a_position.z, 1.0);
+    gl_Position = u_matrix * vec4(posCenterWorld + offset, a_position.z, 1.0);
 }
 

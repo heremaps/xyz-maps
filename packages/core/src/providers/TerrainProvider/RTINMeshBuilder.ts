@@ -294,6 +294,8 @@ export class RTINMeshBuilder {
         // D ---- C
         processTriangle(0, 0, maxXY, maxXY, 0, maxXY); // A->C->D (CW)
         processTriangle(maxXY, maxXY, 0, 0, maxXY, 0); // C->A->B (CW)
+        // processTriangle(maxXY, maxXY, 0, 0, 0, maxXY); // C->A->D (CCW)
+        // processTriangle(0, 0, maxXY, maxXY, maxXY, 0); // A->C->B (CCW)
 
         const mesh: RTINMesh = {
             vertices: this.meshVertices.slice(0, this.curMeshVertexIndex * this.vertexStride),

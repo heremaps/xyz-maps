@@ -840,7 +840,7 @@ export class Map {
                                 // convert from unscaled-world- to scaled-world coordinates
                                 // pointWorld[0] + this._ox,
                                 // pointWorld[1] + this._oy,
-                                -pointWorld[2]
+                                pointWorld[2]
                             );
                             intersectionPoint = new GeoPoint(iPnt[0], iPnt[1], iPnt[2]);
                         }
@@ -1574,7 +1574,7 @@ export class Map {
         position: { longitude: number, latitude: number, altitude: number }
         } {
         const cameraWorld = (this._display.render as GLRender).cameraWorld;
-        const [longitude, latitude, altitude] = this._w2g(cameraWorld[0], cameraWorld[1], -cameraWorld[2]);
+        const [longitude, latitude, altitude] = this._w2g(cameraWorld[0], cameraWorld[1], cameraWorld[2]);
         // const [longitude, latitude, altitude] = this._w2g(map._unprj(map._cx, map._cy, -1));
         return {
             position: {longitude, latitude, altitude}

@@ -190,18 +190,18 @@ export const addBox = (
             1, 0, 0, // right
             1, 0, 0, // right
             1, 0, 0, // right
-            0, 0, -1, // top
-            0, 0, -1, // top
-            0, 0, -1, // top
-            0, 0, -1, // top
-            0, 0, -1, // top
-            0, 0, -1, // top
-            0, 0, 1, // bottom
-            0, 0, 1, // bottom
-            0, 0, 1, // bottom
-            0, 0, 1, // bottom
-            0, 0, 1, // bottom
-            0, 0, 1 // bottom
+            0, 0, 1, // top
+            0, 0, 1, // top
+            0, 0, 1, // top
+            0, 0, 1, // top
+            0, 0, 1, // top
+            0, 0, 1, // top
+            0, 0, -1, // bottom
+            0, 0, -1, // bottom
+            0, 0, -1, // bottom
+            0, 0, -1, // bottom
+            0, 0, -1, // bottom
+            0, 0, -1 // bottom
         );
     }
 };

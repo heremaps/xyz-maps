@@ -19,7 +19,7 @@
 
 import {AmbientLight, DirectionalLight} from '@here/xyz-maps-core';
 import {vec3, Color} from '@here/xyz-maps-common';
-import multiply = vec3.multiply;
+// import multiply = vec3.multiply;
 import add = vec3.add;
 import toRGB = Color.toRGB;
 import {UniformMap} from './program/Program';
@@ -62,7 +62,7 @@ export const initLightUniforms = (lights: ProcessedLights): UniformMap => {
             uniforms[`${loc}.color`] = color;
             uniforms[`${loc}.intensity`] = light.intensity ?? 1.0;
             uniforms[`${loc}.direction`] = (light as DirectionalLight).direction;
-            uniforms[`${loc}.direction`] = multiply([0, 0, 0], (light as DirectionalLight).direction, [1, 1, -1]);
+            // uniforms[`${loc}.direction`] = multiply([0, 0, 0], (light as DirectionalLight).direction, [1, 1, -1]);
             break;
         case 'ambient':
             uniforms['u_ambient.color'] = add(totalAmbientColor, totalAmbientColor, color);

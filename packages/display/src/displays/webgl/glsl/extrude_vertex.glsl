@@ -21,9 +21,9 @@ uniform float shininess;
 
 varying vec4 v_fill;
 
-const vec3 TopSurfaceNormal = vec3(0, 0, -1);
+const vec3 TopSurfaceNormal = vec3(0, 0, 1);
 void main(void) {
-    vec3 worldPos = vec3(u_topLeft + a_position.xy, -a_position.z);
+    vec3 worldPos = vec3(u_topLeft + a_position.xy, a_position.z);
     gl_Position = u_matrix * vec4(worldPos, 1.0);
 
     if(u_strokePass){

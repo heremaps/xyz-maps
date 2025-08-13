@@ -421,7 +421,7 @@ export class GLRender implements BasicRender {
         const centerY = height / 2;
         const targetZ = centerY / Math.tan(FIELD_OF_VIEW / 2);
         const prjMat = this._tmpMatrix;
-        const cam = [centerX, centerY, -targetZ];
+        const cam = [centerX, centerY, targetZ];
 
         mat4.perspective(prjMat, FIELD_OF_VIEW, width / height, 0.1, 1e5);
         this.updateVPMatrix(prjMat, cam, pitch, 0, [1, 1, 1]);
@@ -440,11 +440,12 @@ export class GLRender implements BasicRender {
     ): Float32Array | Float64Array {
         // const cam = [cx, cy, -targetZ];
         const [cx, cy] = cam;
-        mat4.lookAt(viewMatrix, cam, [cx, cy, 0], [0, -1, 0]);
+        mat4.lookAt(viewMatrix, cam, [cx, cy, 0], [0, 1, 0]);
+        // scale[1] *= -1;
         mat4.translate(viewMatrix, viewMatrix, [cx, cy, 0]);
         mat4.rotateX(viewMatrix, viewMatrix, -rotX);
-        mat4.rotateZ(viewMatrix, viewMatrix, rotZ);
-        mat4.scale(viewMatrix, viewMatrix, scale);
+        mat4.rotateZ(viewMatrix, viewMatrix, -rotZ);
+        mat4.scale(viewMatrix, viewMatrix, [scale[0], -scale[1], scale[2]]);
         mat4.translate(viewMatrix, viewMatrix, [-cx, -cy, 0]);
         return mat4.multiply(prjMatrix, prjMatrix, viewMatrix);
     }
@@ -522,26 +523,12 @@ export class GLRender implements BasicRender {
 
         mat4.perspective(viewPrjMatrix, FIELD_OF_VIEW, pixelWidth / pixelHeight, zNear, zFar);
 
-        // let worldMatrix = mat4.copy(this.worldMatrix, projectionMatrix);
-        // mat4.scale(worldMatrix, worldMatrix, [1, -1, 1]);
-        // mat4.translate(worldMatrix, worldMatrix, [0, 0, -targetZ]);
-        // mat4.rotateX(worldMatrix, worldMatrix, rotX);
-        // mat4.rotateZ(worldMatrix, worldMatrix, rotZ);
-        // mat4.scale(worldMatrix, worldMatrix, [worldSize, worldSize, worldSize]);
-        // mat4.translate(worldMatrix, worldMatrix, [-worldCenterX, -worldCenterY, 0]);
         this.worldMatrix.set(viewPrjMatrix);
-        this.updateVPMatrix(this.worldMatrix, [worldCenterX, worldCenterY, -targetZ], rotX, rotZ,
-            [worldSize, worldSize, -worldSize]
+        this.updateVPMatrix(this.worldMatrix, [worldCenterX, worldCenterY, targetZ], rotX, rotZ,
+            [worldSize, worldSize, worldSize]
         );
-        // const cam = [centerPixelX, centerPixelY, -targetZ];
-        // mat4.lookAt(viewMatrix, cam, [centerPixelX, centerPixelY, 0], [0, -1, 0]);
-        // mat4.translate(viewMatrix, viewMatrix, [centerPixelX, centerPixelY, 0]);
-        // mat4.rotateX(viewMatrix, viewMatrix, -rotX);
-        // mat4.rotateZ(viewMatrix, viewMatrix, rotZ);
-        // mat4.scale(viewMatrix, viewMatrix, [scale, scale, scale / groundRes]); // scale z axis to meter/pixel
-        // mat4.translate(viewMatrix, viewMatrix, [-centerPixelX, -centerPixelY, 0]);
-        // mat4.multiply(projectionMatrix, projectionMatrix, viewMatrix);
-        this.updateVPMatrix(viewPrjMatrix, [centerPixelX, centerPixelY, -targetZ], rotX, rotZ,
+
+        this.updateVPMatrix(viewPrjMatrix, [centerPixelX, centerPixelY, targetZ], rotX, rotZ,
             [scale, scale, scale / groundRes],
             viewMatrix
         );

@@ -76,7 +76,7 @@ export class BoxBuffer extends PointBuffer {
         for (let i = 0, {length} = position; i < length; i += offset) {
             const x = tileX + position[i] * scaleXY + offsetX;
             const y = tileY + position[i + 1] * scaleXY + offsetY;
-            const z = (size == 3 ? -decodeUint16z(position[i + 2]) : 0) - offsetZ;
+            const z = (size == 3 ? decodeUint16z(position[i + 2]) : 0) + offsetZ;
             const scaleDZ = 1 + (scaleByAltitude ? 0 : z * m11 / (m3 * x + m7 * y + m15));
             const w = (point[i] >> 1) * scaleX * scaleDZ;
             const h = (point[i + 1] >> 1) * scaleY * scaleDZ;

@@ -38,7 +38,7 @@ void main(void){
 
         float z = a_position.z * SCALE_UINT16_Z + toPixel(u_offsetZ, u_scale)/ u_zMeterToPixel/ u_scale;
 
-        vec3 posWorld = vec3(u_topLeft + pos, -z);
+        vec3 posWorld = vec3(u_topLeft + pos, z);
 
         if (u_alignMap){
             vec2 shift = (pixel_offset + v_position * vec2(1.0, -1.0)) / u_scale;

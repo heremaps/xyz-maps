@@ -15,7 +15,7 @@ varying vec3 v_surfaceToCam;
 
 void main(void){
     float z = a_position.z + u_offsetZ.x / u_zMeterToPixel / u_scale;
-    vec3 worldPos = vec3(u_topLeft + a_position.xy, -z);
+    vec3 worldPos = vec3(u_topLeft + a_position.xy, z);
 
     gl_Position = u_matrix * vec4(worldPos, 1.0);
 

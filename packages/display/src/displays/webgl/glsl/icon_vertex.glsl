@@ -39,7 +39,7 @@ void main(void){
         vec2 offsetXY = vec2(toPixel(u_offset.xy, u_scale),toPixel(u_offset.zw, u_scale));
 
         if (u_alignMap){
-            vec3 posWorld = vec3(u_topLeft + pos, -z);
+            vec3 posWorld = vec3(u_topLeft + pos, z);
             vec2 shift = rotateZ(offsetXY + dir * vec2(a_size.x, -a_size.y) * 0.5, rotation) / u_scale;
 
             if(!u_scaleByAltitude){
@@ -49,7 +49,7 @@ void main(void){
 
             gl_Position = u_matrix * vec4(posWorld.xy + shift, posWorld.z, 1.0);
         } else {
-            vec4 cpos = u_matrix * vec4(u_topLeft + pos, -z, 1.0);
+            vec4 cpos = u_matrix * vec4(u_topLeft + pos, z, 1.0);
             vec2 shift = rotateZ(dir * a_size, -rotation) * 0.5;
             vec2 offset = offsetXY * vec2(1.0, -1.0);
             gl_Position = vec4(cpos.xy / cpos.w + (offset + shift) / u_resolution * 2.0, cpos.z / cpos.w, 1.0);
