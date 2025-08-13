@@ -153,7 +153,7 @@ export class PointBuffer extends TemplateBuffer {
             let y0 = tileY + (position[i + 1] >> 2) / extentScale;
             // convert normalized int16 to float meters (-500m ... +9000m)
             // z0 = (z0 - 32267.0) * 0.14496292001098665;
-            let z0 = size == 3 ? -decodeUint16z(position[i + 2]) : 0;
+            let z0 = size == 3 ? decodeUint16z(position[i + 2]) : 0;
             let dx0 = (position[i] & 2) - 1;
             let dy0 = (position[i + 1] & 2) - 1;
 

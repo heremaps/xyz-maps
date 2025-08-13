@@ -544,11 +544,7 @@ export class GLRender implements BasicRender {
         invert(this.invScreenMat, screenMatrix);
 
         // update camera's world position
-        const {cameraWorld} = this;
-        cameraWorld[0] = 0;
-        cameraWorld[1] = 0;
-        cameraWorld[2] = -1;
-        transformMat4(cameraWorld, cameraWorld, this.invVPMat);
+        this.updateCamWorld(this.cameraWorld);
 
         // pixel perfect matrix used for crisper raster graphics, icons/text/raster-tiles
         // rounding in shader leads to precision issues and tiles edges become visible when the map is scaled.
@@ -572,6 +568,22 @@ export class GLRender implements BasicRender {
         this.initSharedUniforms();
 
         this.initDisplayUniforms();
+    }
+
+    private updateCamWorld(camWorld: Float32Array | Float64Array) {
+        // use inverse view matrix to get camera position in world coordinates
+        // const cam = transformMat4Vec4([], [0, 0, 0,1], invVPMat);
+        // return [cam[0] / cam[3], cam[1] / cam[3], cam[2] / cam[3]];
+        const invViewPrjMatrix = this.invVPMat;
+        camWorld[0] = invViewPrjMatrix[12] / invViewPrjMatrix[15];
+        camWorld[1] = invViewPrjMatrix[13] / invViewPrjMatrix[15];
+        camWorld[2] = invViewPrjMatrix[14] / invViewPrjMatrix[15];
+        // or use inverse view matrix to get camera position in world coordinates
+        // const invViewMat = invert([], this.vMat);
+        // // return transformMat4(camWorld, [0, 0, 0], invViewMat);
+        // camWorld[0] = invViewMat[12];
+        // camWorld[1] = invViewMat[13];
+        // camWorld[2] = invViewMat[14];
     }
 
     private getCameraElevationMeters(): number {
