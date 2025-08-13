@@ -1116,6 +1116,17 @@ export class Map {
         }
     };
 
+    /**
+     * Adjusts the map zoom level so that the camera altitude matches the target altitude.
+     *
+     * @param targetAltitude - The desired camera altitude in meters.
+     */
+    setAltitude(targetAltitude: number) {
+        const currentZoom = this.getZoomlevel();
+        const currentAltitude = this.getCamera().position.altitude;
+        const zoom = currentZoom + Math.log2(currentAltitude / targetAltitude);
+        this.setZoomlevel(zoom);
+    }
 
     /**
      * Set new geographical center for the map.
