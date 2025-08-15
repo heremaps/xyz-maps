@@ -1118,14 +1118,23 @@ export class Map {
 
     /**
      * Adjusts the map zoom level so that the camera altitude matches the target altitude.
+     * Moves the camera straight up or down — elevator style — while keeping the ground point
+     * directly beneath the camera fixed in the same screen position.
+     *
+     * Unlike a plain {@link Map.setZoomlevel | setZoomlevel()}, which zooms towards a specified anchor point (default: map center),
+     * this method ensures the zoom is anchored to the point directly under the camera.
+     *
+     * Pitch and bearing remain unchanged, so the map center (lookAt) will shift as altitude changes.
      *
      * @param targetAltitude - The desired camera altitude in meters.
+     * @param {number} [duration=0] - Optional zoom animation duration in milliseconds.
      */
-    setAltitude(targetAltitude: number) {
+    setAltitude(targetAltitude: number, duration: number = 0) {
         const currentZoom = this.getZoomlevel();
-        const currentAltitude = this.getCamera().position.altitude;
-        const zoom = currentZoom + Math.log2(currentAltitude / targetAltitude);
-        this.setZoomlevel(zoom);
+        const camPosition = this.getCamera().position;
+        const zoom = currentZoom + Math.log2(camPosition.altitude / targetAltitude);
+        const camGroundScreen = this.geoToPixel(camPosition.longitude, camPosition.latitude, 0);
+        this.setZoomlevel(zoom, camGroundScreen.x, camGroundScreen.y, duration);
     }
 
     /**
