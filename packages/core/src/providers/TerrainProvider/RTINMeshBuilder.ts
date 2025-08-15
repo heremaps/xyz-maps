@@ -262,6 +262,8 @@ export class RTINMeshBuilder {
         const maxXY = this.size - 1;
         const meshIndices: Uint32Array | Uint16Array = this.meshIndices;
 
+        console.log('---');
+
         this.resetTmpMesh();
 
         const processTriangle = (ax: number, ay: number, bx: number, by: number, cx: number, cy: number) => {
@@ -282,8 +284,8 @@ export class RTINMeshBuilder {
 
                 if (enableSkirts) {
                     if (this.isBorderEdge(ax, ay, bx, by)) this.addSkirtForEdge(ia, ib);
-                    else if (this.isBorderEdge(bx, by, cx, cy)) this.addSkirtForEdge(ib, ic);
-                    else if (this.isBorderEdge(cx, cy, ax, ay)) this.addSkirtForEdge(ic, ia);
+                    if (this.isBorderEdge(bx, by, cx, cy)) this.addSkirtForEdge(ib, ic);
+                    if (this.isBorderEdge(cx, cy, ax, ay)) this.addSkirtForEdge(ic, ia);
                 }
             }
         };
