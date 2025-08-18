@@ -58,7 +58,8 @@
     }
 
     const rotateAnimation = () => {
-        dbgTools.getDisplay().rotate((display.rotate() + .4) % 360);
+        const display = dbgTools.getDisplay();
+        display.rotate((display.rotate() + .4) % 360);
     };
 
     const animateLight = () => {
@@ -166,7 +167,7 @@
             }, {
                 zIndex: 1000,
                 type: 'Circle',
-                fill: '#000',
+                fill: '#fff',
                 radius: 8,
                 opacity: .7,
                 altitude: false,

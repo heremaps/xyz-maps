@@ -22,7 +22,6 @@ import {isInBox} from '../../../geometry';
 import {Tile, GeoJSONCoordinate as Coordinate} from '@here/xyz-maps-core';
 import {FlexArray} from './templates/FlexArray';
 import {TypedArray} from './glType';
-// import {cross, normalize} from 'gl-matrix/vec3';
 
 const MIN_VISIBLE_HEIGHT = 0.01;
 
@@ -38,6 +37,7 @@ const signedArea = (lineString: TypedArray, start: number, stop: number) => {
     return sum;
 };
 
+
 const addExterior = (
     flatPolygon: FlatPolygon,
     vertex: FlexArray,
@@ -49,14 +49,17 @@ const addExterior = (
     strokeIndex?: number[]
 ) => {
     const holes = flatPolygon.holes;
-    const verts = flatPolygon.vertices;
+    const vertexData = flatPolygon.vertices.data;
     const stop = flatPolygon.stop - 3;
     let start = flatPolygon.start;
     let holeIndex = 0;
-    let nextHole = start + holes[holeIndex] * 3 - 6;
-    let clockwise = signedArea(vertex.data, start, nextHole ? nextHole + 3 : stop) >= 0;
 
     extrudeBase = extrudeBase || 0;
+
+    let nextHole = holes.length === 0 ? -1 : start + holes[holeIndex] * 3 - 6;
+    let ringStart = start;
+    let ringStop = nextHole !== -1 ? nextHole + 3 : stop;
+    let clockwise = signedArea(vertex.data, ringStart, ringStop) >= 0;
 
     while (start < stop) {
         let x1;
@@ -65,36 +68,29 @@ const addExterior = (
         let y2;
 
         if (clockwise) {
-            let i = flatPolygon.start + stop - start;
-            x1 = verts.get(i);
-            y1 = verts.get(i + 1);
-            x2 = verts.get(i - 3);
-            y2 = verts.get(i - 2);
+            const i = ringStop - (start - ringStart);
+            x1 = vertexData[i];
+            y1 = vertexData[i + 1];
+            x2 = vertexData[i - 3];
+            y2 = vertexData[i - 2];
         } else {
-            x1 = verts.get(start);
-            y1 = verts.get(start + 1);
-            x2 = verts.get(start + 3);
-            y2 = verts.get(start + 4);
+            x1 = vertexData[start];
+            y1 = vertexData[start + 1];
+            x2 = vertexData[start + 3];
+            y2 = vertexData[start + 4];
         }
 
+        const dx = Math.round(x1) - Math.round(x2);
+        const dy = Math.round(y1) - Math.round(y2);
 
-        let dx = Math.round(x1) - Math.round(x2);
-        let dy = Math.round(y1) - Math.round(y2);
-
-        if (
-            (dx || dy) &&
-            (isInBox(x1, y1, 0, 0, tileSize, tileSize) || isInBox(x2, y2, 0, 0, tileSize, tileSize))
-        ) {
-            let vi = vertex.length / 3;
-
-            vIndex[vIndex.length] = vi + 2;
-            vIndex[vIndex.length] = vi;
-            vIndex[vIndex.length] = vi + 1;
-
-            vIndex[vIndex.length] = vi + 3;
-            vIndex[vIndex.length] = vi + 2;
-            vIndex[vIndex.length] = vi + 1;
-
+        if ((dx || dy) && (
+            isInBox(x1, y1, 0, 0, tileSize, tileSize) || isInBox(x2, y2, 0, 0, tileSize, tileSize)
+        )) {
+            const vi = vertex.length / 3;
+            vIndex.push(
+                vi + 2, vi, vi + 1,
+                vi + 3, vi + 2, vi + 1
+            );
             strokeIndex?.push(vi, vi + 1, vi + 2, vi + 3, vi, vi + 2, vi + 1, vi + 3);
 
             vertex.push(
@@ -104,36 +100,20 @@ const addExterior = (
                 x2, y2, extrudeBase
             );
 
-            // normalize (Int8), rotate 90deg
             const len = 127 / Math.sqrt(dx * dx + dy * dy);
             const nx = -dy * len;
             const ny = dx * len;
-
-            normals.push(
-                nx, ny,
-                nx, ny,
-                nx, ny,
-                nx, ny
-            );
-
-            // const exterior = [x1 - x2, y2 - y1, 0];
-            // normalize(exterior, exterior);
-            // const up = [0, 0, -1];
-            // const normal = cross(up, up, exterior);
-            // const [nx, ny, nz] = normal;
-            // normals.push(
-            //     nx, ny, nz,
-            //     nx, ny, nz,
-            //     nx, ny, nz,
-            //     nx, ny, nz
-            // );
+            normals.push(nx, ny, nx, ny, nx, ny, nx, ny);
         }
 
-        if (start == nextHole) {
+        if (start === nextHole) {
+            // Move to next hole / ring
             start += 6;
-            nextHole = flatPolygon.start + holes[++holeIndex] * 3 - 6;
-            // invert winding order for holes
-            clockwise = signedArea(vertex.data, start, nextHole ? nextHole + 3 : stop) < 0;
+            ringStart = start;
+            holeIndex++;
+            nextHole = holeIndex < holes.length ? flatPolygon.start + holes[holeIndex] * 3 - 6 : -1;
+            ringStop = nextHole !== -1 ? nextHole + 3 : stop;
+            clockwise = signedArea(vertex.data, ringStart, ringStop) < 0;
         } else {
             start += 3;
         }
