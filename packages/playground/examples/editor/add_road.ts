@@ -71,7 +71,7 @@ editor.addEventListener('pointerup', function(event) {
             // create the line if last shape is clicked
             if (length > 1 && feature.getIndex() == length - 1) {
                 // create the line
-                let line = drawingBoard.create({properties: {optional: 'just drawn'}});
+                let line = drawingBoard.create({optional: 'just drawn'});
             }
             createButton.style.display = 'block';
             infoTag.innerText = 'Click Start button to draw new road';
