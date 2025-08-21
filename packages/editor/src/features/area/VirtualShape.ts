@@ -25,7 +25,10 @@ import {AreaShape} from './AreaShape';
 let UNDEF;
 
 export class VirtualAreaShape extends Feature {
-    private __: { [name: string]: any };
+    private __: {
+        area: Area;
+        [name: string]: any
+    };
 
     constructor(area: Area, x: number, y: number, indexData: number[], polygonTools) {
         const internalEditor: InternalEditor = area._e();
@@ -113,17 +116,15 @@ export class VirtualAreaShape extends Feature {
         }
 
         shapePnt.__ = {
-
+            area,
             pointerdown: onMouseDown,
-
             pressmove: moveAddShape,
-
             pointerup: releaseAddShape,
-
             pointerenter: hoverShapePnt,
-
             pointerleave: hoverShapePnt
-
         };
+    }
+    getArea(): Area {
+        return this.__.area;
     }
 }

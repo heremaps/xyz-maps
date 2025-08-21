@@ -286,7 +286,7 @@ class AreaShape extends Feature<'Point'> {
         }
 
         this.__ = {
-            area: area,
+            area,
             pointerdown: onMouseDown,
             pressmove: moveShape,
             pointerup: releaseShape,

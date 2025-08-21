@@ -123,6 +123,17 @@ class MyProvider extends SpaceProvider {
     writeZLevels(navlink, zLevel) {
         navlink.prop('zLevels', zLevel);
     }
+    // ####################       Buildings/Extruded Polygons      ####################
+    // Following functions are only necessary if you want to edit Buildings (Extruded Polygons).
+
+    // to obtain the height of a Building the respective attribute reader must be implemented.
+    readFeatureHeight(feature) {
+        return feature.properties.height;
+    }
+    // the Attribute writer stores the modified height and must be implemented to enable height-editing of the building.
+    writeFeatureHeight(feature, heightMeter) {
+        feature.properties.height = heightMeter;
+    }
 }
 
 let backgroundLayer = new MVTLayer({

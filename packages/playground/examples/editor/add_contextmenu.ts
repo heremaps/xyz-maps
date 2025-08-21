@@ -87,6 +87,53 @@ class MyProvider extends SpaceProvider {
     writeZLevels(navlink, zLevel) {
         navlink.prop('zLevels', zLevel);
     }
+    // ####################       Buildings/Extruded Polygons      ####################
+    // Following functions are only necessary if you want to edit Buildings (Extruded Polygons).
+
+    // to obtain the height of a Building the respective attribute reader must be implemented.
+    readFeatureHeight(feature) {
+        return feature.properties.height;
+    }
+    // the Attribute writer stores the modified height and must be implemented to enable height-editing of the building.
+    writeFeatureHeight(feature, heightMeter) {
+        feature.properties.height = heightMeter;
+    }
+    // ########################   Address, Place   ########################
+    // Following functions are only necessary if you want to edit Address or Place.
+
+    // In addition to a simple Marker, a Place CAN, while an Address MUST have a routing point.
+    // A routing point of a Place or Address is a geo position (routingPosition) intended for routing purposes and references
+    // to a navlink (routingLink).
+    // In this example, we get routingPosition from features's properties 'routingPoint' and routingLink from 'routingLink'.
+
+    // Get coordinate of routing point, its format is: [longitude, latitude, altitude].
+    // This position should always be on the geometry of referenced Navlink.
+    readRoutingPosition(feature) {
+        return feature.prop('routingPoint');
+    }
+    // Get id of referenced Navlink for Address or Place. Place becomes floating if this function does not return a Navlink id properly.
+    readRoutingLink(feature) {
+        return feature.prop('routingLink');
+    }
+    // This function is called to write updated coordinate on referenced Navlink when routing position is changed.
+    // Format of routing position: [longitude, latitude, altitude].
+    writeRoutingPosition(feature, position) {
+        feature.prop('routingPoint', position);
+    }
+    // This function is called to write new Navlink reference when routingLink is changed.
+    // For example, drag routing point from one Navlink to another will change routingLink.
+    // In this example, Navlink id is updated when routingLink changes.
+    writeRoutingLink(feature, navlink) {
+        feature.prop('routingLink', navlink ? navlink.id : navlink);
+    }
+    // This function is called by editor API to get the provider in which referenced Navlink of Address/Place is located.
+    // A map/provider setup where all features (Place/Address and referenced Navlink) are provided by the same provider
+    // (single-provider-setup), this function just needs to return id of the provider itself.
+    // However, in case of multi-provider-setup, Navlinks can be separated from Address/Place data and distributed across
+    // multiple providers, this function needs to return id of provider which contains the referenced Navlink.
+    readRoutingProvider(location) {
+        return this.id;
+    }
 }
 
 let backgroundLayer = new MVTLayer({

@@ -182,6 +182,10 @@ class HeightKnob extends Feature<'Point'> {
         this.update(this.geometry.coordinates[2]);
         this.__.overlay.showFeature(this);
     }
+
+    getArea(): Area {
+        return this.__.area;
+    }
 }
 
 export {HeightKnob};
