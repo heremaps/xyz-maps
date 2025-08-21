@@ -90,9 +90,7 @@ class LineShape extends Feature {
     constructor(line: Line, coordinate: number[], lineStringIndex: number, index: number, zLayer: number, lTools: typeof LineTools) {
         lineTools = lTools;
         const _editor = line._e();
-        const style = _editor.getStyle(line);
-
-
+        const style = _editor.getResolvedStyle(line);
         super({
             type: 'Feature',
             properties: {

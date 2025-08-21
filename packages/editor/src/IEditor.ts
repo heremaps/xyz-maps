@@ -186,15 +186,26 @@ export default class InternalEditor {
         return JSUtils.extend(true, [], style);
     };
 
+    getResolvedStyle(feature: Feature, layerDefaults?: boolean): StyleGroup {
+        const styleGroup = this.getStyle(feature, layerDefaults);
+        const zoom = this.display.getZoomlevel() ^ 0;
+        for (let style of styleGroup) {
+            for (let prop in style) {
+                style[prop] = styleTools.getValue(prop, style, feature, zoom);
+            }
+        }
+        return styleGroup;
+    }
+
     getCustomStyle(feature: Feature): StyleGroup {
         return this.getLayer(feature)._getCustomStyleGroup(feature);
     };
 
-    getStyleProperty(feature: Feature, property: string) {
+    getStyleProperty(feature: Feature, propertyName?: string) {
         const styleGroup = this.getStyle(feature);
         for (let style of styleGroup) {
-            if (style[property] != UNDEF) {
-                return styleTools.getValue(property, style, feature, this.display.getZoomlevel() ^ 0);
+            if (style[propertyName] != UNDEF) {
+                return styleTools.getValue(propertyName, style, feature, this.display.getZoomlevel() ^ 0);
             }
         }
     }
@@ -212,7 +223,7 @@ export default class InternalEditor {
             let zoom = this.display.getZoomlevel() ^ 0;
             for (let style of styleGrp) {
                 let zLayer = styleTools.getValue('zLayer', style, feature, zoom);
-                if (zLayer>maxZLayer) maxZLayer = zLayer;
+                if (zLayer > maxZLayer) maxZLayer = zLayer;
             }
         }
         return maxZLayer > -1 ? maxZLayer : this.getZLayer(layer);
@@ -229,7 +240,9 @@ export default class InternalEditor {
         } else if (style == 'default') {
             // __default is used to preserve previously applied custom styles that may have been "overwritten"
             // when the editor itself applies custom styles.
-            style = (layer._getCustomStyleGroup(feature) as StyleGroup & {__default?: StyleGroup})?.__default || UNDEF;
+            style = (layer._getCustomStyleGroup(feature) as StyleGroup & {
+                __default?: StyleGroup
+            })?.__default || UNDEF;
         }
         // @ts-ignore: merge attribute is "internal"
         layer.setStyleGroup(feature, style, merge);

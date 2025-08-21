@@ -189,7 +189,7 @@ class OverlayStyles extends XYZLayerStyle {
                 const {fill, stroke} = feature.properties.AREA.style[0];
                 return isHovered(feature)
                     ? BLACK
-                    : getValue(fill, feature, zoom) || getValue(stroke, feature, zoom);
+                    : getValue(fill, feature.getArea(), zoom) || getValue(stroke, feature.getArea(), zoom);
             }
         }],
 
@@ -211,7 +211,7 @@ class OverlayStyles extends XYZLayerStyle {
                 const {fill, stroke} = feature.properties.AREA.style[0];
                 return isHovered(feature)
                     ? '#777'
-                    : getValue(fill, feature, zoom) || getValue(stroke, feature, zoom);
+                    : getValue(fill, feature.getArea(), zoom) || getValue(stroke, feature.getArea(), zoom);
             },
             radius: 10,
             offsetZ: 50
@@ -246,11 +246,11 @@ class OverlayStyles extends XYZLayerStyle {
             stroke: (feature, zoom) => {
                 const style = feature.properties.LINE.style.filter((s) => s.type == 'Line');
                 const last = style.length - 1;
-                return getValue(style[last].stroke, feature, zoom) || 'BLACK';
+                return style[last].stroke || 'BLACK';
             },
             fill: (feature, zoom) => {
                 let style = feature.properties.LINE.style;
-                return style.length > 1 ? getValue(style[0].stroke, feature, zoom) : '#e9e9e9';
+                return style.length > 1 ? style[0].stroke : '#e9e9e9';
             },
             strokeWidth: 2,
             altitude: true
@@ -278,12 +278,11 @@ class OverlayStyles extends XYZLayerStyle {
             },
             stroke: (feature, zoom) => {
                 const style = feature.properties.LINE.style.filter((s) => s.type == 'Line');
-                const last = style.length - 1;
-                return getValue(style[last].stroke, feature, zoom) || 'BLACK';
+                return style[style.length - 1]?.stroke || 'BLACK';
             },
             fill: (feature, zoom) => {
                 let style = feature.properties.LINE.style;
-                return style.length > 1 ? getValue(style[0].stroke, feature, zoom) : '#151515';
+                return style.length > 1 ? style[0].stroke : '#151515';
             },
             strokeWidth: 2
         }, {
@@ -350,7 +349,7 @@ class OverlayStyles extends XYZLayerStyle {
 
             fill: (feature, zoom) => feature.isOverlapping()
                 ? '#FFFFFF'
-                : getValue(feature.properties.NAVLINK.style[0].stroke, feature, zoom),
+                : getValue(feature.properties.NAVLINK.style[0].stroke, feature.getLink(), zoom),
 
             stroke: (feature) => feature.isOverlapping()
                 ? '#FF0000'
@@ -375,7 +374,7 @@ class OverlayStyles extends XYZLayerStyle {
 
             fill: (feature, zoom) => feature.isOverlapping()
                 ? '#FFFFFF'
-                : getValue(feature.properties.NAVLINK.style[0].stroke, feature, zoom),
+                : getValue(feature.properties.NAVLINK.style[0].stroke, feature.getLink(), zoom),
 
             stroke: (feature) => feature.isOverlapping()
                 ? '#FF0000'
