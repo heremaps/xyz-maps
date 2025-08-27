@@ -94,7 +94,7 @@ export class TerrainTileFeature extends Feature<'Polygon'> {
      *
      * @returns The height value at the specified coordinates, or null if no height map is available.
      */
-    getHeightAt(normalizedX: number, nomralizedY: number, interpolate?: boolean = false) {
+    getHeightAt(normalizedX: number, nomralizedY: number, interpolate: boolean = false) {
         const heightMap = this.getHeightMap();
         if (!heightMap) return null;
         const size = Math.sqrt(heightMap.length);

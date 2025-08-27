@@ -68,7 +68,7 @@ class WorkerHTTPLoader extends HTTPLoader {
                 (cb as TileResponse).success(this.processData(data.data));
                 break;
             case 'error':
-                const {tile} = cb;
+                const {tile} = cb as TileResponse;
                 tile.error = new NetworkError(data.data);
                 (cb as TileResponse).error?.(tile.error, tile);
                 break;
