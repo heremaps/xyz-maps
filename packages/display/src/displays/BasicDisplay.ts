@@ -460,7 +460,7 @@ abstract class Display {
         return 0;
     }
 
-    isPointAboveHorizon(x: number, y:number) {
+    isPointAboveHorizon(x: number, y: number) {
         return false;
     }
 
@@ -637,6 +637,10 @@ abstract class Display {
             this.zoom = zoomLevel;
             return true;
         }
+    }
+
+    getTerrainHeightAtWorldXY(x: number, y: number, terrainLayer: TileLayer): number | null {
+        return null;
     }
 }
 

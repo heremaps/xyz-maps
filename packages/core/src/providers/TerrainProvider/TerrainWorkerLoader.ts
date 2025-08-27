@@ -71,6 +71,29 @@ class TerrainTileLoader extends WorkerHTTPLoader {
         }
         super.load(tile, success, error);
     }
+
+    setMaxGeometricError(maxGeometricError: { [zoom: number]: number }) {
+        this.call({method: 'setMaxGeometricError', data: maxGeometricError});
+    }
+
+    async createMeshFromHeightMap(data: {
+        heightMap: Float32Array,
+        error: number,
+        centerLatitude: number,
+        zoom: number
+    }): Promise<{
+        indices: Uint16Array | Uint32Array,
+        vertices: Float32Array,
+        heightMap: Float32Array,
+        normals?: Float32Array
+    }> {
+        return this.call({
+            method: 'createMeshFromHeightMap',
+            key: `${data.zoom}:${data.centerLatitude}`,
+            data,
+            transfer: [data.heightMap.buffer]
+        });
+    }
 }
 
 export default TerrainTileLoader;

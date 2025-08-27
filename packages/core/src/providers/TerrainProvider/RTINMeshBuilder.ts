@@ -262,8 +262,6 @@ export class RTINMeshBuilder {
         const maxXY = this.size - 1;
         const meshIndices: Uint32Array | Uint16Array = this.meshIndices;
 
-        console.log('---');
-
         this.resetTmpMesh();
 
         const processTriangle = (ax: number, ay: number, bx: number, by: number, cx: number, cy: number) => {

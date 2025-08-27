@@ -41,21 +41,30 @@ type TerrainTileProviderOptions = Omit<RemoteTileProviderOptions, 'level'> & {
     loader?: any;
 }
 
+
+const createGeometricErrorMap = (maxGeometricError: number | StyleZoomRange<number>) => {
+    if (typeof maxGeometricError == 'number') {
+        maxGeometricError = Object.fromEntries(
+            Array.from({length: 30}, (_, i) => [i, maxGeometricError as number])
+        );
+    }
+    return maxGeometricError;
+};
+
+
 export class TerrainTileProvider extends RemoteTileProvider {
     dataType = 'json';
 
     Feature = TerrainTileFeature;
+    private _twl: TerrainWorkerLoader; // TerrainWorkerLoader
+
+    private maxGeometricError: { [zoom: number]: number };
+
     constructor(options: TerrainTileProviderOptions) {
         options ||= {};
 
-        const attribution: (DataSourceAttribution|string)[] = [];
-        let {maxGeometricError} = options;
-
-        if (typeof maxGeometricError == 'number') {
-            maxGeometricError = Object.fromEntries(
-                Array.from({length: 30}, (_, i) => [i, maxGeometricError as number])
-            );
-        }
+        const attribution: (DataSourceAttribution | string)[] = [];
+        const maxGeometricError = createGeometricErrorMap(options.maxGeometricError);
 
         const addAttribution = (attr: string | DataSourceAttribution | DataSourceAttribution[]) => {
             if (attr) {
@@ -64,6 +73,9 @@ export class TerrainTileProvider extends RemoteTileProvider {
         };
 
         addAttribution(options.attribution);
+
+
+        let terrainWorkderLoader;
 
         if (!options.loader) {
             const tileLoadersConfig = {};
@@ -79,6 +91,9 @@ export class TerrainTileProvider extends RemoteTileProvider {
                         ...loaderOptions,
                         maxGeometricError
                     });
+                    if (key == 'terrain') {
+                        terrainWorkderLoader = tileLoadersConfig[key];
+                    }
                     addAttribution(loaderOptions.attribution);
                 }
             }
@@ -96,6 +111,8 @@ export class TerrainTileProvider extends RemoteTileProvider {
         }));
 
         const provider = this;
+
+        this._twl = terrainWorkderLoader;
 
         this.remoteTileLoader = new TileLoadDelegator({
             provider,
@@ -146,7 +163,8 @@ export class TerrainTileProvider extends RemoteTileProvider {
                     const oppositeSide = getOppositeNeighbor(side);
                     updatedTiles.push(neighborTile);
 
-                    if (heightMap) {
+                    if (!properties.edgeIndices) {
+                        // fully uses heightmaps
                         const neighborHeightMap = neighborProperties.heightMap;
                         if (side === Neighbor.RIGHT || side === Neighbor.BOTTOM) {
                             stitchHeightmapBorders(heightMap, neighborHeightMap, side, 1, 2);

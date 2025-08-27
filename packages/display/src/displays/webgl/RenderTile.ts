@@ -19,7 +19,8 @@
 import {GeometryBuffer} from './buffer/GeometryBuffer';
 import {Layer} from '../Layers';
 import {ViewportTile} from '../BasicDisplay';
-import {create, identity, translate, scale, multiply} from 'gl-matrix/mat4';
+import {create, identity, invert, multiply} from 'gl-matrix/mat4';
+import {transformMat4} from 'gl-matrix/vec3';
 
 export type ViewportTileData = {
     tile: ViewportTile;
@@ -35,13 +36,16 @@ export class RenderTile {
     data: ViewportTileData;
 
     private _modelMatrix: Float32Array;
+    private _invModelMatrix: Float32Array;
     private _mmUpdated: boolean;
     private _mvpMatrix: Float32Array;
     private _mvpUpdated: boolean;
+    private _iMMUpdate: boolean;
 
     constructor(buffer?: GeometryBuffer, z?: number, data?: ViewportTileData, layer?: Layer) {
         this._modelMatrix = create();
         this._mvpMatrix = create();
+        this._invModelMatrix = create();
         this.init(buffer, z, data, layer);
     }
 
@@ -54,6 +58,7 @@ export class RenderTile {
         identity(this._modelMatrix);
         this._mmUpdated = false;
         this._mvpUpdated = false;
+        this._iMMUpdate = true;
     }
 
     reset() {
@@ -64,6 +69,19 @@ export class RenderTile {
 
     getModelMatrix() {
         return this._modelMatrix;
+    }
+
+    getInverseModelMatrix() {
+        if (this._iMMUpdate) {
+            this._iMMUpdate = false;
+            invert(this._invModelMatrix, this._modelMatrix);
+        }
+        return this._invModelMatrix;
+    }
+
+    worldToTile(worldX: number, worldY: number, worldZ?: number): [number, number, number] {
+        const p = [worldX, worldY, worldZ||0];
+        return transformMat4(p, p, this.getInverseModelMatrix());
     }
 
     updateMVPMatrix(vpMatrix: Float32Array) {
@@ -81,6 +99,7 @@ export class RenderTile {
     setTransform(tx: number, ty: number, s: number) {
         if (!this._mmUpdated) {
             this._mmUpdated = true;
+            this._iMMUpdate = true;
             const modelMatrix = this._modelMatrix;
 
             modelMatrix[12] = tx;

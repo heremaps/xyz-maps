@@ -232,3 +232,25 @@ export function decodeHeights(imgData: ImageData, encoding: string, fillStrategy
             ? extrapolateTileEdges(terrain, Math.sqrt(terrain.length))
             : backfillHeightmapBorders(terrain);
 }
+
+export const cropHeightMap = (
+    heightMap: Float32Array,
+    right: number,
+    bottom: number,
+    left: number,
+    top: number
+): Float32Array => {
+    const size = Math.sqrt(heightMap.length);
+    const newSize = size - top - bottom;
+    const newWidth = size - left - right;
+    const result = new Float32Array(newSize * newWidth);
+
+    for (let row = 0; row < newSize; row++) {
+        const srcStart = (row + top) * size + left;
+        const destStart = row * newWidth;
+        for (let col = 0; col < newWidth; col++) {
+            result[destStart + col] = heightMap[srcStart + col];
+        }
+    }
+    return result;
+};

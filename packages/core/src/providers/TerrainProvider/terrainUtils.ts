@@ -210,7 +210,7 @@ const accumulateFaceNormal = (vertex: VertexData, i1: number, i2: number, i3: nu
 
 export interface ComputeMeshNormalsOptions {
     vertex: VertexData;
-    index?: number[];
+    index?: Uint16Array|Uint32Array;
     scaleXY?: number;
     skipIndices?: Map<number, number>;
     normals?: Float32Array;

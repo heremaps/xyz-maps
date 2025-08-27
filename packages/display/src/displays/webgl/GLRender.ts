@@ -1074,13 +1074,13 @@ export class GLRender implements BasicRender {
         } else {
             let matrix;
             renderTile.setTransform(x, y, distanceScale);
+            this.initStencil(dTile.i, tileSize);
             if (distanceScale > 1) {
                 x = 0;
                 y = 0;
             } else {
                 matrix = buffer.pixelPerfect ? this.vPRasterMat : this.vPMat;
             }
-            this.initStencil(dTile.i, tileSize);
             this.drawBuffer(renderTile, x, y, matrix, distanceScale);
         }
     }

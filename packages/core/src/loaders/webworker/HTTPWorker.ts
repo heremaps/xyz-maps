@@ -26,10 +26,13 @@ export class HTTPWorker {
     loader;
 
     id: string;
+    private customHandlers: Set<string>;
 
     constructor(options: HTTPLoaderOptions) {
         const {responseType} = options;
         const loader = this.loader = new HTTPLoader({responseType});
+
+        this.customHandlers = new Set<string>();
 
         self.addEventListener('message', (e) => {
             const {msg, quadkey, url, x, y, z} = e.data;
@@ -40,8 +43,22 @@ export class HTTPWorker {
             case 'load':
                 loader.baseUrl = url;
                 this.load(x, y, z, quadkey, url);
+                break;
+            default:
+                if (this.customHandlers.has(msg)) {
+                    const result : {data:any, transfer?: Transferable[]} = this[msg](e.data.custom);
+                    if (result?.data) {
+                        self.postMessage({msg, key: e.data.key, data: result.data}, result.transfer);
+                    }
+                }
             }
         });
+    }
+
+    protected registerCustomMsgHandler(customHandler: string) {
+        if (typeof this[customHandler] == 'function') {
+            this.customHandlers.add(customHandler);
+        }
     }
 
     load(x: number, y: number, z: number, quadkey: string, url: string) {
@@ -51,12 +68,12 @@ export class HTTPWorker {
             self.postMessage({
                 msg: 'success',
                 url,
-                quadkey,
+                key: quadkey,
                 data
             }, transfer);
         },
         (e) => {
-            self.postMessage({msg: 'error', url, quadkey, data: e});
+            self.postMessage({msg: 'error', url, key: quadkey, data: e});
         });
     }
 

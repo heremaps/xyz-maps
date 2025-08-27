@@ -28,10 +28,13 @@ import Tile from '../../tile/Tile';
 //     return worker;
 // };
 
+type TileResponse = { tile: Tile, success: any, error: any };
+type CustomResponse = { resolve: (data: unknown) => void, reject(reason?: any): void };
+
 class WorkerHTTPLoader extends HTTPLoader {
     private worker: Worker;
 
-    private requests: Map<string, { tile: Tile, success: any, error: any }> = new Map();
+    private pendingResponses: Map<string, TileResponse | CustomResponse> = new Map();
 
     constructor(worker: string, options: HTTPLoaderOptions, payload?) {
         super(options);
@@ -56,19 +59,22 @@ class WorkerHTTPLoader extends HTTPLoader {
     private receiveMessage(e) {
         const data = e.data;
         const msg = data.msg;
-        const quadkey = data.quadkey;
-        const cb = this.requests.get(quadkey);
-
+        const key = data.key || msg;
+        const cb = this.pendingResponses.get(key);
         if (cb) {
-            this.requests.delete(quadkey);
+            this.pendingResponses.delete(key);
             switch (msg) {
             case 'success':
-                cb.success(this.processData(data.data));
+                (cb as TileResponse).success(this.processData(data.data));
                 break;
             case 'error':
                 const {tile} = cb;
                 tile.error = new NetworkError(data.data);
-                cb.error?.(tile.error, tile);
+                (cb as TileResponse).error?.(tile.error, tile);
+                break;
+            default:
+                // custom messages
+                (cb as CustomResponse).resolve(data.data);
                 break;
             }
         }
@@ -78,7 +84,7 @@ class WorkerHTTPLoader extends HTTPLoader {
     load(tile, success, error?) {
         const url = this.getUrl(tile);
         const {quadkey, x, y, z} = tile;
-        this.requests.set(quadkey, {tile, success, error});
+        this.pendingResponses.set(quadkey, {tile, success, error});
         this.worker.postMessage({msg: 'load', url, quadkey, x, y, z});
     }
 
@@ -87,10 +93,25 @@ class WorkerHTTPLoader extends HTTPLoader {
         const url = this.getUrl(tile);
         const {quadkey, x, y, z} = tile;
 
-        if (this.requests.get(quadkey)) {
-            this.requests.delete(quadkey);
+        if (this.pendingResponses.get(quadkey)) {
+            this.pendingResponses.delete(quadkey);
             this.worker.postMessage({msg: 'abort', url, quadkey, x, y, z});
         }
+    }
+
+
+    private addPendingResponse(key: string) {
+        return new Promise(async (resolve, reject) => {
+            this.pendingResponses.set(key, {resolve, reject});
+        });
+    }
+
+    async call(args: { method: string, key?: string, data?: any, transfer?: any[] }): Promise<any> {
+        const {method, data, transfer} = args;
+        const key = args.method + args.key ?? '';
+        const promise = this.addPendingResponse(key);
+        this.worker.postMessage({msg: method, key, custom: data}, transfer);
+        return promise;
     }
 }
 

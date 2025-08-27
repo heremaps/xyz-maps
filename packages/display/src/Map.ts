@@ -54,6 +54,7 @@ import Copyright from './ui/copyright/Copyright';
 import Logo from './ui/Logo';
 import {fillMap} from './displays/styleTools';
 import {GLRender} from './displays/webgl/GLRender';
+import {CameraTerrainController} from './CameraTerrainController';
 
 
 const project = webMercator;
@@ -182,6 +183,10 @@ export class Map {
     private _search: Search;
 
     private _terrainLayer?: TerrainTileLayer;
+    // controls the camera to stay above terrain
+    private _camController: CameraTerrainController;
+
+    private _onTerrainReadyListener: (ev: MapEvent | CustomEvent<any>) => void;
 
     /**
      * @param mapElement - HTMLElement used to create the map display
@@ -282,6 +287,8 @@ export class Map {
 
         tigerMap._display = display;
 
+        this._camController = new CameraTerrainController(tigerMap);
+
         this.setBackgroundColor(options.backgroundColor);
 
         this._search = new Search(tigerMap, display.layers, display.dpr);
@@ -337,6 +344,11 @@ export class Map {
 
         tigerMap._layerChangeListener = tigerMap._layerChangeListener.bind(tigerMap);
 
+        // Ensure the camera stays above the terrain after terrain data has finished loading
+        tigerMap._onTerrainReadyListener = (ev) => {
+            this._camController.ensureAboveTerrain();
+        };
+
         for (let layer of (options['layers'] || [])) {
             tigerMap.addLayer(layer);
         }
@@ -348,7 +360,7 @@ export class Map {
         }
     }
 
-    private _layerChangeListener(ev) {
+    private _layerChangeListener(ev: MapEvent | CustomEvent<any>) {
         // refresh render-data if layer is cleared
         this.refresh(ev.type === 'clear' ?? ev.detail.layer);
     }
@@ -396,7 +408,6 @@ export class Map {
 
         this._groundResolution = earthCircumference(centerGeo.latitude) / this._worldSizeFixed;
 
-
         display.setView(this.initViewPort(), this._s, this._rz, this._rx, this._groundResolution, this._worldSize);
 
         const zoomlevel = this.getZoomlevel();
@@ -415,6 +426,25 @@ export class Map {
             this._l.trigger('center', ['center', centerGeo, prevCenterGeo], true);
             this._pc = centerGeo;
         }
+        this._camController.ensureAboveTerrain();
+    }
+
+
+    /**
+     * Returns the terrain height at the specified world coordinates.
+     * Used for camera terrain collision detection.
+     * Uses heightmaps for faster lookup.
+     * TODO: Need to implement fallback to (simplified) terrain mesh if no heightmap is available.
+     *
+     * @internal
+     * @hidden
+     *
+     * @param worldX - The x coordinate in world space.
+     * @param worldY - The y coordinate in world space.
+     * @returns The terrain height at the given world coordinates, or undefined if not available.
+     */
+    _getTerrainAtWorldXY(worldX: number, worldY: number) {
+        return this._display.getTerrainHeightAtWorldXY(worldX, worldY, this._terrainLayer);
     }
 
     private _clipLatitude(latitude: number) {
@@ -1179,7 +1209,6 @@ export class Map {
         );
     };
 
-
     /**
      * Set the map center using a bow animation combining pan and zoom operations.
      *
@@ -1349,6 +1378,8 @@ export class Map {
                     throw new Error('Only one TerrainTileLayer instance can be added to the MapDisplay. Please ensure you add a single terrain layer to avoid conflicts.');
                 }
                 this._terrainLayer = layer;
+
+                layer.addEventListener('viewportReady', this._onTerrainReadyListener);
             }
 
             this._display.addLayer(layer, index, (layer as TileLayer).getStyleManager?.());
@@ -1388,6 +1419,7 @@ export class Map {
         if (index >= 0) {
             if (layer instanceof TerrainTileLayer) {
                 this._terrainLayer = null;
+                layer.removeEventListener('viewportReady', this._onTerrainReadyListener);
             }
             this._display.removeLayer(layer);
             // layer.removeEventListener('clear', (ev)=>this.refresh(ev.detail.layer));

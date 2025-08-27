@@ -136,7 +136,7 @@ export class Tile {
     //  *
     //  *  @param bbox -  the bounding box has the coordinates in the order: [minX, minY, maxX, maxY]
     //  */
-    search(bbox: {minX:number, maxX:number, minY: number, maxY: number}): any[] {
+    search(bbox: { minX: number, maxX: number, minY: number, maxY: number }): any[] {
         if (this.data) {
             if (!this.tree) {
                 // console.time('create tile index ' + this.quadkey);
@@ -181,6 +181,14 @@ export class Tile {
         }
         return this.cbnds;
     };
+
+    getCenter(): GeoJSONCoordinate {
+        const [minLon, minLat, maxLon, maxLat] = this.bounds;
+        return [
+            (minLon + maxLon) / 2,
+            (minLat + maxLat) / 2
+        ];
+    }
 
     project(lon: number, lat: number): number[] {
         const worldsize = TILESIZE << this.z;

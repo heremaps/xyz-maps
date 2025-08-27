@@ -153,6 +153,7 @@ export class TerrainTileLayerStyle implements LayerStyle {
                             };
                         }
                         return {
+                            id: `Terrain-${id}-${Math.random()*1e6^0}`,
                             textures,
                             materials: {
                                 terrain: {

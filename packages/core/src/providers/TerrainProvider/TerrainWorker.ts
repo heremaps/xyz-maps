@@ -22,7 +22,7 @@ import {getGeoBounds, tileXYToQuadKey} from '../../tile/TileUtils';
 import {TransferableCollector} from './TransferableCollector';
 import {RTINMeshBuilder, RTINMesh} from './RTINMeshBuilder';
 import {quantizeVertexData, computeEdgeIndices, computeMeshNormals} from './terrainUtils';
-import {extendHeightMapWithFullClamping, decodeHeights} from './heightmapUtils';
+import {extendHeightMapWithFullClamping, decodeHeights, cropHeightMap} from './heightmapUtils';
 import {TerrainTileFeature} from '../../features/TerrainFeature';
 import {XYZTerra} from './XYZTerra';
 import {TerrainTileLoaderOptions} from './TerrainWorkerLoader';
@@ -115,25 +115,29 @@ const createMeshFromHeightMap = (heightMap: ArrayLike<number>, maxError: number 
     const mesh = meshBuilder.triangulate(heightMap, {
         maxError,
         enableSkirts: true,
-        maxEdgeDetails: false
+        maxEdgeDetails: true
     });
 
     return mesh;
 };
 
-function createHeightmapTerrainFeature(x: number, y: number, z: number, mesh: RTINMesh, heightMap) {
+
+const quantizeMesh = (mesh: RTINMesh, heightMap: Float32Array) => {
     const heightMapSize = Math.sqrt(heightMap.length);
     const tileSize = heightMapSize % 2 == 0 ? heightMapSize : heightMapSize - 1;
     const quantizedHeightRange = QUANTIZED_MAX_HEIGHT - QUANTIZED_MIN_HEIGHT;
+    return quantizeVertexData(
+        mesh.vertices,
+        QUANTIZED_RANGE / tileSize,
+        (h) => (h - QUANTIZED_MIN_HEIGHT) * QUANTIZED_RANGE / quantizedHeightRange,
+        mesh.stride !== 3 && heightMap
+    ) as Float32Array;
+};
 
+function createHeightmapTerrainFeature(x: number, y: number, z: number, mesh: RTINMesh, heightMap) {
     return createTerrainFeature(x, y, z,
         mesh.indices as Uint16Array | Uint32Array,
-        quantizeVertexData(
-            mesh.vertices,
-            QUANTIZED_RANGE / tileSize,
-            (h) => (h - QUANTIZED_MIN_HEIGHT) * QUANTIZED_RANGE / quantizedHeightRange,
-            mesh.stride !== 3 && heightMap
-        ) as Float32Array,
+        quantizeMesh(mesh, heightMap),
         'terrarium'
     );
 }
@@ -184,34 +188,49 @@ function prepareFeature(feature,
         const worldSize = Math.pow(2, feature.id.length) * 256;
         const meterPerPixel = webMercator.earthCircumference(centerLat) / worldSize;
 
-        properties.normals ||= computeMeshNormals({
-            vertex: properties.vertices,
-            index: properties.indices,
-            skipIndices: skirtToMainVertexMap,
-            scaleXY: meterPerPixel
-        });
-        // }
-
-        if (skirtToMainVertexMap) {
-            for (const [i, j] of skirtToMainVertexMap) {
-                const i3 = i * 3;
-                const j3 = j * 3;
-                properties.normals[i3] = properties.normals[j3];
-                properties.normals[i3 + 1] = properties.normals[j3 + 1];
-                properties.normals[i3 + 2] = properties.normals[j3 + 2];
-            }
-        }
-
-        properties.edgeIndices ||= computeEdgeIndices(
-            properties.vertices,
-            3,
-            properties.indices.constructor as typeof Uint16Array,
-            QUANTIZED_RANGE,
-            skirtToMainVertexMap
-        );
+        computeNormalsAndEdges(properties, meterPerPixel, skirtToMainVertexMap);
     }
     return feature;
 }
+
+
+function computeNormalsAndEdges(
+    properties: {
+        vertices: Float32Array | Uint16Array,
+        indices: Uint16Array | Uint32Array,
+        normals?: Int8Array | Int16Array | Int32Array | Float32Array,
+        edgeIndices?: { left: Uint16Array, right: Uint16Array, top: Uint16Array, bottom: Uint16Array },
+    },
+    meterPerPixel: number,
+    skirtToMainVertexMap?: Map<number, number>
+) {
+    properties.normals ||= computeMeshNormals({
+        vertex: properties.vertices,
+        index: properties.indices,
+        skipIndices: skirtToMainVertexMap,
+        scaleXY: meterPerPixel
+    });
+
+    if (skirtToMainVertexMap) {
+        for (const [i, j] of skirtToMainVertexMap) {
+            const i3 = i * 3;
+            const j3 = j * 3;
+            properties.normals[i3] = properties.normals[j3];
+            properties.normals[i3 + 1] = properties.normals[j3 + 1];
+            properties.normals[i3 + 2] = properties.normals[j3 + 2];
+        }
+    }
+
+    properties.edgeIndices ||= computeEdgeIndices(
+        properties.vertices,
+        3,
+        properties.indices.constructor as typeof Uint16Array,
+        QUANTIZED_RANGE,
+        skirtToMainVertexMap
+    );
+    return {normals: properties.normals, edgeIndices: properties.edgeIndices};
+}
+
 
 const getImageDataFromImageBitmap = (imageBitmap: ImageBitmap): ImageData => {
     const offscreenCanvas = new OffscreenCanvas(imageBitmap.width, imageBitmap.height);
@@ -219,6 +238,7 @@ const getImageDataFromImageBitmap = (imageBitmap: ImageBitmap): ImageData => {
     ctx.drawImage(imageBitmap, 0, 0);
     return ctx.getImageData(0, 0, imageBitmap.width, imageBitmap.height);
 };
+
 
 class TerrainWorker extends HTTPWorker {
     private encoding: string;
@@ -234,6 +254,31 @@ class TerrainWorker extends HTTPWorker {
         this.decodeScale = options.heightScale ?? 1;
         this.decodeOffset = options.heightOffset ?? 0;
         this.maxGeometricError = options.maxGeometricError;
+        this.registerCustomMsgHandler('setMaxGeometricError');
+        this.registerCustomMsgHandler('createMeshFromHeightMap');
+    }
+
+    setMaxGeometricError(maxGeometricError: StyleZoomRange<number>) {
+        this.maxGeometricError = maxGeometricError;
+    }
+
+    createMeshFromHeightMap(data: { zoom: number, centerLatitude: number, heightMap: Float32Array, error: number }) {
+        let heightMap = data.heightMap;
+        const croppedHeightMap = cropHeightMap(heightMap, 1, 1, 1, 1);
+
+
+        const mesh = createMeshFromHeightMap(croppedHeightMap, data.error);
+        const indices = mesh.indices;
+        const vertices = quantizeMesh(mesh, croppedHeightMap);
+        const worldSize = Math.pow(2, data.zoom) * 256;
+        const meterPerPixel = webMercator.earthCircumference(data.centerLatitude) / worldSize;
+        const prepared= {vertices, indices};
+        const {normals, edgeIndices} = computeNormalsAndEdges(prepared, meterPerPixel, mesh.skirtToMainVertexMap);
+
+        return {
+            data: {vertices, indices, normals, heightMap},
+            transfer: [vertices, indices, normals, heightMap].map((a) => a.buffer)
+        };
     }
 
     process(data: any, x: number, y: number, z: number): {
@@ -274,7 +319,7 @@ class TerrainWorker extends HTTPWorker {
                 Object.assign(data.properties, {minHeight, maxHeight});
 
                 // data.properties.heightScale = 1.0;
-                heightMap = null;
+                // heightMap = null;
             }
             feature = data.type == 'Feature' ? data : data.features[0];
         }

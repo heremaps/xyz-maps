@@ -160,7 +160,6 @@ export class FeatureFactory {
         this.lineFactory = new LineFactory(gl);
         this.modelFactory = new ModelFactory(gl);
 
-
         const pixelCnt = 512 * 512;
         const pixelData = new Uint8Array(pixelCnt * 4);
 
@@ -260,6 +259,7 @@ export class FeatureFactory {
         } else {
             if (type == 'Model') {
                 let model = getValue('model', style, feature, level);
+
                 let modelId: string;
                 if (!model) return;
 

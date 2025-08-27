@@ -17,7 +17,7 @@
  * License-Filename: LICENSE
  */
 
-import BasicDisplay from '../BasicDisplay';
+import BasicDisplay, {ViewportTile} from '../BasicDisplay';
 import {GLRender, RenderOptions} from './GLRender';
 import GLBucket from './Bucket';
 
@@ -44,6 +44,7 @@ import {Raycaster} from './Raycaster';
 import {defaultLightUniforms, initLightUniforms, ProcessedLights} from './lights';
 import {UniformMap} from './program/Program';
 import {RenderTile, RenderTilePool} from './RenderTile';
+import {TerrainTileFeature} from '@here/xyz-maps-core/src/features/TerrainFeature';
 
 
 const TO_RADIANS = Math.PI / 180;
@@ -58,7 +59,6 @@ export const GRID_PITCH_CLAMP = 66.33 * TO_RADIANS;
 // If the actual pitch exceeds this value, fixed tiles are culled and no longer displayed.
 // Adaptive tiles may still render above this threshold by scaling appropriately.
 export const FIXED_TILE_PITCH_THRESHOLD = 60 * TO_RADIANS;
-
 
 const PREVIEW_LOOK_AHEAD_LEVELS: [number, number] = [3, 9];
 
@@ -131,7 +131,11 @@ class WebGlDisplay extends BasicDisplay {
     private worldCenter: number[] = [0, 0];
     private worldSize: number;
     private renderTilePool: RenderTilePool = new RenderTilePool();
-    private _zSortedTileBuffers: { tileBuffers: RenderData[], min3dZIndex: number, maxZIndex: number };
+    private _zSortedTileBuffers: { tileBuffers: RenderData[], min3dZIndex: number, maxZIndex: number } = {
+        tileBuffers: [],
+        min3dZIndex: 0,
+        maxZIndex: 0
+    };
     // Normalized maximum horizon Y-coordinate.
     // This value represents the maximum vertical offset of the grid's horizon when maximum possible pitch applied.
     // The offset is normalized by dividing it by the total screen height.
@@ -714,6 +718,38 @@ class WebGlDisplay extends BasicDisplay {
     destroy() {
         super.destroy();
         this.factory.destroy();
+    }
+
+    getTerrainHeightAtWorldXY(x: number, y: number, terrainLayer: TileLayer): number {
+        const {tileBuffers} = this._zSortedTileBuffers;
+        let i = tileBuffers.length;
+
+        while (i--) {
+            if (!tileBuffers[i].tiled || !tileBuffers[i].buffer.pointerEvents) continue; // skip custom layers
+            const renderTile: RenderTile = tileBuffers[i] as RenderTile;
+            let {layer} = renderTile;
+            const viewportTile: ViewportTile = renderTile.data.tile;
+            if (terrainLayer !== (layer.layer as TileLayer)) continue;
+
+            const quadkey = renderTile.data.preview?.[0] || viewportTile.quadkey;
+            const terrainFeature: TerrainTileFeature = (layer.layer as TileLayer).getCachedTile(quadkey)?.data?.[0];
+            const heightMap = terrainFeature?.getHeightMap();
+
+            if (!heightMap) continue;
+
+            const [localTileX, localTileY] = renderTile.worldToTile(x, y, 0);
+            const tileSize = viewportTile.size;
+
+            const isOutsideTile = localTileX < 0 || localTileY < 0 || localTileX > tileSize || localTileY > tileSize;
+
+            if (isOutsideTile) continue;
+
+            const normalizedTileX = localTileX / tileSize;
+            const normalizedTileY = localTileY / tileSize;
+
+            return terrainFeature.getHeightAt(normalizedTileX, normalizedTileY);
+        }
+        return null;
     }
 
     getRenderedFeatureAt(x: number, y: number, layers?: TileLayer[]): RendereFeatureResult {

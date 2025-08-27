@@ -83,6 +83,7 @@ abstract class Animator {
 
     stop() {
         this.animation?.stop();
+        this.active = false;
     }
 }
 
