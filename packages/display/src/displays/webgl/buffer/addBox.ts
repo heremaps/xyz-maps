@@ -18,7 +18,7 @@
  */
 
 import {extentScale} from './templates/BoxBuffer';
-import {SimpleArray} from './templates/FlexArray';
+import {FlexArray, SimpleArray} from './templates/FlexArray';
 
 export const addBox = (
     x: number,
@@ -27,7 +27,7 @@ export const addBox = (
     width: number,
     height: number,
     depth: number,
-    vertex: number[],
+    vertex: FlexArray,
     points: SimpleArray<number>,
     normal?: SimpleArray<number>
     // rotation: number = 0
@@ -35,80 +35,24 @@ export const addBox = (
     x *= extentScale;
     y *= extentScale;
 
+    // 6 vertices per face, 6 faces
+    const vertexCount = 36;
+
     if (typeof z == 'number') {
         // normalize float meters to uint16 (0m ... +9000m)
         z = Math.round(z / 9000 * 0xffff);
-
-        vertex.push(
-            x, y, z,
-            x, y, z,
-            x, y, z,
-            x, y, z,
-            x, y, z,
-            x, y, z,
-
-            x, y, z,
-            x, y, z,
-            x, y, z,
-            x, y, z,
-            x, y, z,
-            x, y, z,
-
-            x, y, z,
-            x, y, z,
-            x, y, z,
-            x, y, z,
-            x, y, z,
-            x, y, z,
-
-            x, y, z,
-            x, y, z,
-            x, y, z,
-            x, y, z,
-            x, y, z,
-            x, y, z,
-
-            x, y, z,
-            x, y, z,
-            x, y, z,
-            x, y, z,
-            x, y, z,
-            x, y, z,
-
-            x, y, z,
-            x, y, z,
-            x, y, z,
-            x, y, z,
-            x, y, z,
-            x, y, z
-        );
+        vertex.reserve(3 * vertexCount);
+        for (let i = 0; i < vertexCount; i++) {
+            vertex.data[vertex.length++] = x;
+            vertex.data[vertex.length++] = y;
+            vertex.data[vertex.length++] = z;
+        }
     } else {
-        vertex.push(
-            // 1
-            x, y,
-            x, y,
-            x, y,
-            // 2
-            x, y,
-            x, y,
-            x, y,
-            // 3
-            x, y,
-            x, y,
-            x, y,
-            // 4
-            x, y,
-            x, y,
-            x, y,
-            // 5
-            x, y,
-            x, y,
-            x, y,
-            // 6
-            x, y,
-            x, y,
-            x, y
-        );
+        vertex.reserve(2 * vertexCount);
+        for (let i = 0; i < vertexCount; i++) {
+            vertex.data[vertex.length++] = x;
+            vertex.data[vertex.length++] = y;
+        }
     }
 
     points.push(

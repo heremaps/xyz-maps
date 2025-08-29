@@ -17,7 +17,7 @@
  * License-Filename: LICENSE
  */
 
-import {SimpleArray} from './templates/FlexArray';
+import {FlexArray, SimpleArray} from './templates/FlexArray';
 import {extentScale} from './templates/BoxBuffer';
 
 export const calculateSurfaceNormal = (p1: number[], p2: number[], p3: number[]) => {
@@ -121,7 +121,7 @@ export const addSphere = (
     y: number,
     z: number,
     radius: number,
-    vertex: number[],
+    vertex: FlexArray,
     points: SimpleArray<number>,
     normal?: SimpleArray<number>
 ) => {
@@ -129,12 +129,18 @@ export const addSphere = (
 
     x *= extentScale;
     y *= extentScale;
+
+    const hasZ = typeof z === 'number';
+
     z = Math.round(z / 9000 * 0xffff);
 
     const {normals, surfaceNormals} = sphereMesh;
-
-    for (let i = 0; i < normals.length; i += 3) {
-        vertex.push(x, y, z);
+    for (let i = 0, length = normals.length; i < length; i += 3) {
+        if (!hasZ) {
+            vertex.push(x, y);
+        } else {
+            vertex.push(x, y, z);
+        }
         points.push(normals[i], normals[i + 1], normals[i + 2]);
         normal?.push(surfaceNormals[i], surfaceNormals[i + 1], surfaceNormals[i + 2]);
     }

@@ -37,8 +37,8 @@ export class SphereBuffer extends BoxBuffer {
         'a_normal'?: FlexAttribute
     };
 
-    constructor(flat: boolean = true) {
-        super(false);
+    constructor(flat: boolean) {
+        super(flat);
 
         this.cullFace = BACK;
 

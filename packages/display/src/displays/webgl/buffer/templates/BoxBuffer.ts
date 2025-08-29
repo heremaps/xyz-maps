@@ -36,7 +36,7 @@ export class BoxBuffer extends PointBuffer {
     };
 
     constructor(flat: boolean = true) {
-        super(false);
+        super(flat);
 
         this.flexAttributes.a_point = {
             data: new FlexArray(Uint16Array),
