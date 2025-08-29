@@ -37,6 +37,8 @@ export class BoxBuffer extends PointBuffer {
 
     constructor(flat: boolean = true) {
         super(flat);
+        // Box geometry is always represented in 3D space, even when input positions are 2D
+        this._flat = false;
 
         this.flexAttributes.a_point = {
             data: new FlexArray(Uint16Array),
