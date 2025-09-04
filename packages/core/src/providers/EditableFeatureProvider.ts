@@ -20,7 +20,12 @@
 import {FeatureProvider as FeatureTileProvider} from './FeatureProvider';
 import {Feature} from '../features/Feature';
 import {JSUtils} from '@here/xyz-maps-common';
-import {NavlinkSplitHook, NavlinkDisconnectHook, FeatureRemoveHook, CoordinatesUpdateHook} from '@here/xyz-maps-editor';
+import {
+    NavlinkSplitHook,
+    NavlinkDisconnectHook,
+    FeatureRemoveHook,
+    CoordinatesUpdateHook
+} from '@here/xyz-maps-editor';
 import {GeoJSONCoordinate} from '../features/GeoJSON';
 import {TileProviderOptions} from './TileProvider/TileProviderOptions';
 
@@ -186,7 +191,10 @@ export abstract class EditableFeatureProvider extends FeatureTileProvider {
      *
      * @returns true if turn is allowed, otherwise false.
      */
-    abstract readTurnRestriction(turnFrom: { link: Navlink, index: number }, turnTo: { link: Navlink, index: number }): boolean;
+    abstract readTurnRestriction(turnFrom: { link: Navlink, index: number }, turnTo: {
+        link: Navlink,
+        index: number
+    }): boolean;
 
 
     /**
@@ -336,13 +344,13 @@ export abstract class EditableFeatureProvider extends FeatureTileProvider {
         return true;
     };
 
-    prepareFeature(feature: Feature): Feature {
-        if (!feature.properties) {
-            feature.properties = {};
+    prepareFeature(feature: Feature): Feature | false {
+        feature.id ??= JSUtils.String.random();
+        if (!super.prepareFeature(feature)) {
+            return false;
         }
-        if (feature.id == undefined) {
-            feature.id = JSUtils.String.random();
-        }
+        feature.properties ??= {};
+
         return feature;
     }
 }

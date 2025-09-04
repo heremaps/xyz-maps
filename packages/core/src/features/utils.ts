@@ -18,6 +18,7 @@
  */
 
 import {GeoJSONCoordinate, GeoJSONFeature} from './GeoJSON';
+
 type Point = number[];
 type BBox = number[];
 type Coordinates = Array<Point>;
@@ -63,7 +64,9 @@ const calcBBox = (feature: GeoJSONFeature, bbox?: BBox): BBox | false => {
         if (bbox) {
             updatePointBBox(<[number, number]>coordinates, bbox);
         } else {
-            bbox = [coordinates[0], coordinates[1], coordinates[0], coordinates[1]];
+            const lon = coordinates[0];
+            const lat = coordinates[1];
+            bbox = [lon, lat, lon, lat];
         }
     } else {
         bbox = bbox || [Infinity, Infinity, -Infinity, -Infinity];
@@ -84,6 +87,10 @@ const calcBBox = (feature: GeoJSONFeature, bbox?: BBox): BBox | false => {
         } else {
             return false;
         }
+    }
+
+    if (!Number.isFinite(bbox[0]) || !Number.isFinite(bbox[1])) {
+        return false;
     }
 
     return bbox;

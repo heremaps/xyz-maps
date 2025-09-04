@@ -98,7 +98,7 @@ export class FeatureProvider extends Provider {
                 }
             } else {
                 // unknown feature
-                console.warn('unkown feature detected..', feature.geometry.type, feature);
+                console.warn('Invalid feature skipped:', feature);
             }
         }
 
@@ -238,7 +238,7 @@ export class FeatureProvider extends Provider {
             }
         } else {
             //  unkown feature
-            console.warn('unkown feature detected..', feature);
+            console.warn('Invalid feature skipped:', feature);
 
             feature = null;
         }
@@ -1084,12 +1084,10 @@ export class FeatureProvider extends Provider {
     __type = 'FeatureProvider';
 
     prepareFeature(feature: GeoJSONFeature): GeoJSONFeature | false {
-        if (feature['id'] == UNDEF) {
-            feature['id'] = Math.random() * 1e8 ^ 0;
-        }
+        feature.id ??= Math.random() * 1e8 ^ 0;
         // calculates object bbox's
         if (!feature.bbox) {
-            // false -> unkown feature -> no success
+            // false -> unknown feature -> no success
             return this.updateBBox(feature) && feature;
         } else if ((<number[]>feature.bbox).length === 6) { // convert to 2D bbox
             feature.bbox = [feature.bbox[0], feature.bbox[1], feature.bbox[3], (<number[]>feature.bbox)[4]];
