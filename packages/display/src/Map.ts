@@ -1160,11 +1160,21 @@ export class Map {
      * @param {number} [duration=0] - Optional zoom animation duration in milliseconds.
      */
     setAltitude(targetAltitude: number, duration: number = 0) {
-        const currentZoom = this.getZoomlevel();
         const camPosition = this.getCamera().position;
-        const zoom = currentZoom + Math.log2(camPosition.altitude / targetAltitude);
+        const zoom = this._altToZoom(targetAltitude);
         const camGroundScreen = this.geoToPixel(camPosition.longitude, camPosition.latitude, 0);
         this.setZoomlevel(zoom, camGroundScreen.x, camGroundScreen.y, duration);
+    }
+
+    /**
+     * helper function
+     * @hidden
+     * @internal
+     */
+    _altToZoom(altitude: number): number {
+        const currentZoom = this.getZoomlevel();
+        const camPosition = this.getCamera().position;
+        return currentZoom + Math.log2(camPosition.altitude / altitude);
     }
 
     /**

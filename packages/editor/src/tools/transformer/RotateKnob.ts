@@ -50,7 +50,7 @@ class RotateKnob extends Knob {
                 // }
                 rotated = true;
 
-                const deltaBearing = geotools.calcBearing(
+                const deltaBearing = 90 - geotools.calcBearing(
                     rotCenter,
                     internalEditor.map.getGeoCoord(e.mapX, e.mapY)
                 ) - initialBearing;
@@ -76,7 +76,7 @@ class RotateKnob extends Knob {
                 rotCenter = transformer.getCenter();
 
                 if (initialBearing == null) {
-                    initialBearing = geotools.calcBearing(
+                    initialBearing = 90 - geotools.calcBearing(
                         rotCenter,
                         internalEditor.map.getGeoCoord(e.mapX, e.mapY)
                     );

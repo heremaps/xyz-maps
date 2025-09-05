@@ -24,6 +24,8 @@ import * as styleTools from './displays/styleTools';
 import {transformMat4} from 'gl-matrix/vec3';
 import {scale, rotate, translate, create, identity} from 'gl-matrix/mat4';
 
+import {FollowPathAnimationController} from './animation/FollowPathAnimationController';
+
 export const mat4 = {scale, rotate, translate, create, identity};
 export const vec3 = {transformMat4};
 
@@ -38,5 +40,6 @@ export {styleTools};
 export {Map};
 export {MapEvent} from './event/Event';
 export {MapOptions} from './MapOptions';
+export {FollowPathAnimationController};
 
 export default Map;

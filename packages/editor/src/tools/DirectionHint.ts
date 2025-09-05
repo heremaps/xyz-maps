@@ -63,7 +63,7 @@ class LinkDirectionHint {
             };
 
             if (dir != 'BLOCKED') {
-                props['bearing'] = rotation - geotools.calcBearing(p1, p2);
+                props['bearing'] = rotation + geotools.calcBearing(p1, p2) - 90;
             }
 
             points.push(

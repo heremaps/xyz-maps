@@ -28,23 +28,15 @@ let UNDEF;
 export type Point = number[] | [number, number] | [number, number, number];
 type BBox = [number, number, number, number];
 
-export const calcBearing = (c1: Point, c2: Point) => {
-    let r;
-    let l1;
-    let l2;
-    let l3;
-    let l4;
-    let dr;
-    r = Math.PI / 180;
-    l1 = c1[1] * r;
-    l2 = c2[1] * r;
-    l3 = c1[0] * r;
-    l4 = c2[0] * r;
-    dr = Math.atan2(
-        Math.cos(l1) * Math.sin(l2) - Math.sin(l1) * Math.cos(l2) * Math.cos(l4 - l3),
-        Math.sin(l4 - l3) * Math.cos(l2)
-    );
-    return (dr / r + 360) % 360;
+export const calcBearing = (c1: Point, c2: Point): number => {
+    const lat1 = c1[1] * TORAD;
+    const lat2 = c2[1] * TORAD;
+    const dLon = (c2[0] - c1[0]) * TORAD;
+    const y = Math.sin(dLon) * Math.cos(lat2);
+    const x = Math.cos(lat1) * Math.sin(lat2) -
+              Math.sin(lat1) * Math.cos(lat2) * Math.cos(dLon);
+    const bearing = Math.atan2(y, x) * TODEG;
+    return (bearing + 360) % 360;
 };
 
 // based on www.movable-type.co.uk/scripts/latlong.html
@@ -102,6 +94,7 @@ export const extendBBox = (bbox: BBox, distanceMeter: number): GeoJSONBBox => {
     ];
 };
 
+// Haversine
 export const distance = (p1: Point, p2: Point) => {
     const dLat = TORAD * (p2[1] - p1[1]);
     const dLng = TORAD * (p2[0] - p1[0]);

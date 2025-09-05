@@ -625,7 +625,7 @@ var tools = {
                     p1 = path[i];
                     p2 = path[i + 1];
 
-                    angle = geotools.calcBearing(p1, p2) - rotation;
+                    angle = 90 - geotools.calcBearing(p1, p2) - rotation;
 
                     arrows.push(
                         line._e().objects.overlay.addPoint(getPntAt(p1, p2, .5), {

@@ -112,7 +112,7 @@ class TrEditor implements TurnRestrictionEditor {
             type: 'Feature',
             properties: {
                 type: 'TURN_RESTRICTION_START',
-                rotation: -geotools.calcBearing(p0, p1)
+                rotation: geotools.calcBearing(p0, p1) - 90
             }
         };
         this._origin = this._overlay.addFeature(feature);

@@ -17,19 +17,22 @@
  * License-Filename: LICENSE
  */
 
-export const linear = (t: number): number => {
+
+export type Easing = (t: number) => number;
+
+export const linear: Easing = (t: number): number => {
     return t;
 };
 
-export const easeOut = (t: number): number => {
+export const easeOut: Easing = (t: number): number => {
     return 1 - Math.pow(1 - t, 1.5);
 };
 
-export const easeOutSine = (t: number): number => {
+export const easeOutSine: Easing = (t: number): number => {
     return Math.sin((Math.PI * t) * .5);
 };
 
-export const easeOutCubic = (t: number): number => {
+export const easeOutCubic: Easing = (t: number): number => {
     t = 1 - t;
     return 1 - t * t * t;
 };

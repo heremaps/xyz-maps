@@ -605,7 +605,7 @@ class NavlinkShape extends Feature {
             const coords = line.coord();
             const p1 = coords[index];
             const p2 = coords[index + (!index ? 1 : -1)];
-            const bearing = 90 - geotools.calcBearing(p1, p2);
+            const bearing = geotools.calcBearing(p1, p2);
             const pnt = EDITOR.map.movePoint(
                 p1,
                 EDITOR._config['disconnectShapeDistance'],

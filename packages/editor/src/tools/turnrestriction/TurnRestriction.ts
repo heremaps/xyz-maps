@@ -74,7 +74,7 @@ class TurnRestriction {
         });
         const sign = <Feature>overlay.addImage(rotPnt, null, {
             'type': TURN_RESTRICTION + curSign,
-            'rotation': -geotools.calcBearing(p1, rotPnt)
+            'rotation': geotools.calcBearing(p1, rotPnt) - 90
         });
 
         this.sign = sign;
