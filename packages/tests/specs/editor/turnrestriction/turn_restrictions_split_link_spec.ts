@@ -70,7 +70,7 @@ describe('turn restriction test split a link', function() {
         shape.editTurnRestrictions();
 
         // click on traffic sign
-        await click(mapContainer, 210, 100);
+        await click(mapContainer, 220, 100);
 
         expect(link3.prop('turnRestriction')).to.deep.equal({end: [link1.id]});
     });
