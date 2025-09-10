@@ -287,7 +287,7 @@ export class Map {
 
         tigerMap._display = display;
 
-        this._camController = new CameraTerrainController(tigerMap);
+        this._camController = new CameraTerrainController(tigerMap, options);
 
         this.setBackgroundColor(options.backgroundColor);
 

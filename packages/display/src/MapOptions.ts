@@ -159,7 +159,15 @@ export interface MapOptions {
      * @default false
      */
     singleWorldView?: boolean | 'both' | 'latitude';
-
+    /**
+     * Specifies the vertical offset (in meters) applied to the camera above the terrain surface.
+     * This can be used to prevent the camera from intersecting with the terrain or to achieve a specific visual effect.
+     * Only relevant when a `TerrainTileLayer` is added to the map.
+     *
+     * @experimental
+     * @defaultValue 200
+     */
+    cameraTerrainOffset?: number;
 }
 
 export const defaultOptions: MapOptions = {
@@ -188,5 +196,6 @@ export const defaultOptions: MapOptions = {
     minPitchMapThreshold: 4,
     zoomAnimationMs: 100,
     maxPitch: 50,
-    singleWorldView: false
+    singleWorldView: false,
+    cameraTerrainOffset: 200
 };

@@ -18,18 +18,22 @@
  */
 
 import {Map} from './Map';
+import {MapOptions} from './MapOptions';
 import {GeoPoint} from '@here/xyz-maps-core';
+
 
 export class CameraTerrainController {
     private _camTerrainGuard: boolean;
     private _camTerrainSmoothedAltitude: number | null;
     private _prevCamPos: GeoPoint | null;
     private _prevTime: number | null;
+    private _options: MapOptions;
 
-    constructor(private map: Map) {
+    constructor(private map: Map, options: MapOptions) {
         this._prevCamPos = {longitude: 0, latitude: 0, altitude: 0};
         this._prevTime = null;
         this._camTerrainSmoothedAltitude = null;
+        this._options = options;
     }
 
     private computeCamSpeed(cam: GeoPoint): number {
@@ -69,8 +73,6 @@ export class CameraTerrainController {
 
     public ensureAboveTerrain() {
         if (this._camTerrainGuard) return null;
-
-        const offset = 200;
         const map = this.map;
         const cam = map.getCamera().position;
         const rawTerrain = this.getTerrainHeightAtGeo(cam.longitude, cam.latitude);
@@ -92,7 +94,7 @@ export class CameraTerrainController {
         // const speedScaling = 0.05;
         // const minDiff = baseMinDiff + camSpeed * speedScaling;
         const minDiff = 2.0; // meters
-        const targetAltitude = smoothedAltitude + offset;
+        const targetAltitude = smoothedAltitude + this._options.cameraTerrainOffset;
         const diff = targetAltitude - cam.altitude;
 
         if (diff > minDiff) {
