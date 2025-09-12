@@ -18,22 +18,11 @@
  */
 
 import global from './global';
-import Task from './Task';
+import Task, {TaskOptions} from './Task';
 
 // Target frame time for 60 FPS, minus 4ms headroom for all non-TaskManager processing
 const FPS60 = 1000 / 60 - 4;
 let TMID = 0;
-
-
-export interface TaskOptions<I = any, O = any> {
-    priority?: number;
-    exec: (data?: O) => boolean | void;
-    init?: (data?: I) => any;
-    time?: number;
-    onDone?: (data?: O) => void;
-    name?: string;
-    delay?: number;
-}
 
 export class TaskManager {
     private active: boolean;
@@ -92,6 +81,7 @@ export class TaskManager {
             };
         }
     };
+
     // private _resume = () => {
     //     this.active = true;
     //     requestAnimationFrame(() => this.runner());
@@ -205,11 +195,8 @@ export class TaskManager {
                             // make sure next runner will be triggered async
                             // manager.active = false;
 
-                            if (done && !task.canceled) {
-                                task.started = false;
-                                if (task.onDone) {
-                                    task.onDone(data);
-                                }
+                            if (done) {
+                                this.completeTask(task, data);
                             }
 
                             return manager._resume();
@@ -224,13 +211,7 @@ export class TaskManager {
                 if (!execStopped) {
                     task.yield = false;
                     task.heap = null;
-
-                    if (!task.canceled) {
-                        task.started = false;
-                        if (task.onDone) {
-                            task.onDone(data);
-                        }
-                    }
+                    this.completeTask(task, data);
                 }
             }
 
@@ -241,6 +222,13 @@ export class TaskManager {
             manager.active = false;
         }
     };
+
+    private completeTask(task: Task, data) {
+        task.started = false;
+        if (!task.canceled) {
+            task.onDone?.(data);
+        }
+    }
 
     setExclusiveTime(time: number) {
         this.time = time ^ 0;
@@ -286,16 +274,7 @@ export class TaskManager {
     };
 
     create<I = any, O = any>(task: TaskOptions<I, O>): Task<I, O> {
-        return new Task(
-            this,
-            task.priority,
-            task.exec,
-            task.init,
-            task.time,
-            task.onDone,
-            task.name,
-            task.delay
-        );
+        return new Task(task, this);
     };
 
 

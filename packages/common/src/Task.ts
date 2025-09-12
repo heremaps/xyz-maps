@@ -21,15 +21,24 @@ import {TaskManager} from './TaskManager';
 
 let TASK_ID = 0;
 
-export interface TaskRestartOptions<I=any, O=any> {
-    init?: (i:I) => O;
+export interface TaskRestartOptions<I = any, O = any> {
+    init?: (i: I) => O;
     onDone?: () => void;
     priority?: number;
 }
 
+export interface TaskOptions<I = any, O = any> {
+    priority?: number;
+    exec?: (data?: O) => boolean | void;
+    init?: (data?: I) => any;
+    time?: number;
+    onDone?: (data?: O) => void;
+    name?: string;
+    delay?: number;
+}
 
-class Task<I=any, O=any> {
-    private manager: TaskManager;
+class Task<I = any, O = any> {
+    protected manager: TaskManager;
 
     id: number;
 
@@ -37,7 +46,7 @@ class Task<I=any, O=any> {
 
     BREAK: boolean;
 
-    onDone: (any) => void;
+    // onDone: (any) => void;
 
     yield: boolean;
 
@@ -51,7 +60,7 @@ class Task<I=any, O=any> {
 
     canceled: boolean;
 
-    exec: (any?) => boolean | void;
+    // exec: (any?) => boolean | void;
 
     heap: any;
 
@@ -65,44 +74,40 @@ class Task<I=any, O=any> {
 
 
     constructor(
-        manager: TaskManager,
-        prio: number,
-        task: (any?: O) => boolean | void,
-        init?: (data?: I) => any,
-        time?: number,
-        onDone?: (data?: O) => void,
-        name?: string,
-        delay?: number
+        options: TaskOptions<I, O> = {},
+        manager?: TaskManager
+        // prio: number,
+        // task: (any?: O) => boolean | void,
+        // init?: (data?: I) => any,
+        // time?: number,
+        // onDone?: (data?: O) => void,
+        // name?: string,
+        // delay?: number
     ) {
         this.id = ++TASK_ID;
 
-        this.exec = task;
+        if (options.exec) this.exec = options.exec;
+        if (options.init) this.init = options.init;
+        if (options.onDone) this.onDone = options.onDone;
 
-        if (init) {
-            this.init = init;
-        }
-
-        this.delay = delay ^ 0;
-
-        this.name = name;
-
-        this.time = time || 100;
-
-        this.priority = Math.max(Math.min(prio ^ 0, 5), 1);
+        this.delay = options.delay ^ 0;
+        this.name = options.name;
+        this.time = options.time || 100;
+        this.setPriority(options.priority);
 
         this.manager = manager;
+    }
+    protected setPriority(prio: number) {
+        this.priority = Math.max(Math.min(prio ^ 0, 5), 1);
+    }
 
-        if (onDone) {
-            this.onDone = onDone;
-        }
+    setManager(manager: TaskManager) {
+        this.manager = manager;
     }
 
     start(data?: any) {
-        const task = this;
-
-        task._data = data;
-
-        return task.manager.start(task);
+        this._data = data;
+        return this.manager.start(this);
     };
 
     pause() {
@@ -127,15 +132,13 @@ class Task<I=any, O=any> {
         this.yield = false;
         this.delayed = null;
         this.heap = null;
-        this._data = _data;
-
 
         if (opt.init) {
             this.init = opt.init;
         }
 
         if (opt.priority) {
-            this.priority = opt.priority;
+            this.setPriority(opt.priority);
         }
 
         if (opt.onDone) {
@@ -143,11 +146,19 @@ class Task<I=any, O=any> {
         }
 
         // start
-        this.start();
+        this.start(_data);
     };
 
     init(data?: I): O {
         return (<unknown>data) as O;
+    };
+
+    exec(data?: O): boolean | void {
+
+    }
+
+    onDone(data?: O) {
+
     };
 
     // yield() {
@@ -156,11 +167,8 @@ class Task<I=any, O=any> {
     // };
 
     cancel() {
-        const task = this;
-
-        task._data = null;
-
-        return task.manager.cancel(task);
+        this._data = null;
+        return this.manager.cancel(this);
     };
 
     isInterrupted(): boolean {
