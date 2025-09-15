@@ -59,7 +59,7 @@ class CanvasRenderer implements BasicRender {
     private _rz: number;
     private iMap: any;
     // private cluster: any;
-    private painter: any;
+    private painter: Painter;
     private ts: number;
     private ctx: CanvasRenderingContext2D;
     private canvas: HTMLCanvasElement;

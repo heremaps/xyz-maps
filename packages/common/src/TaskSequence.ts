@@ -65,12 +65,12 @@ export class TaskSequence<I = any, O = any> extends Task<I, O> {
 
     init(data?: I): O {
         const task = this.curTask();
-        return task.init.call(task, data);
+        return task.init(data);
     }
 
     exec(data: O) {
         const task = this.curTask();
-        return task.exec.call(task, data);
+        return task.exec(data);
     }
 
     cancel(): boolean {
@@ -88,7 +88,7 @@ export class TaskSequence<I = any, O = any> extends Task<I, O> {
 
         const nextTask = this.nextTask();
         if (nextTask) {
-            this._data = result;
+            this._initData = result;
             const prio = nextTask.priority ?? this.sequencePriority;
             this.priority = prio;
             // Re-insert the sequence task at the front of the queue with the correct priority to

@@ -33,7 +33,6 @@ export class TaskManager {
     time: number = FPS60; // -> 60FPS
     // current executing task...
     private task: Task;
-    private _delayed: number = null;
     private now = Date.now;
 
     private _resume: () => void;
@@ -82,145 +81,71 @@ export class TaskManager {
         }
     };
 
-    // private _resume = () => {
-    //     this.active = true;
-    //     requestAnimationFrame(() => this.runner());
-    // };
-
     runner(runnerStartTS?: number) {
         const manager = this;
-        let runtimeLeft = true;
-        let runTimeExceeded;
-        let taskDuration;
-        let execStopped;
-        let initStartTs;
-        let taskStartTS;
-        let taskStopTS;
-        let task: Task;
-        let done;
-        let data;
 
-        runnerStartTS = runnerStartTS || manager.now();
+        if (!manager.active) return manager._resume();
 
-        if (!manager.active) {
-            manager._resume();
-        } else {
-            while ((
-                runtimeLeft = manager.now() - runnerStartTS < manager.time) && (
-                manager.task = task = manager._next()
-            )) {
-                execStopped = false;
+        runnerStartTS ||= manager.now();
 
-                done = false;
+        while (true) {
+            const task: Task = manager._next();
+            if (!task) break;
 
-                if (task.yield) {
+            let done = false;
+            let initStartTs;
+            let data;
+
+            if (task.yield) {
+                task.yield = false;
+                data = task._data;
+            } else {
+                initStartTs = manager.now();
+                data = task.init(task._initData);
+            }
+
+            while (!done) {
+                const taskStartTS = initStartTs || manager.now();
+                initStartTs = null;
+
+                done = !task.exec(data) || task.canceled;
+
+                manager.task = null;
+
+                if (done) {
                     task.yield = false;
-                    data = task.heap;
-                } else {
-                    initStartTs = manager.now();
-                    data = task.init(task._data);
-                }
-
-                while (!done) {
-                    taskStartTS = initStartTs || manager.now();
-
-                    done = !task.exec(data) || task.canceled;
-
-                    taskStopTS = manager.now();
-
-                    taskDuration = taskStopTS - taskStartTS;
-
-                    initStartTs = null;
-                    // total taskrunner's time is exceeded
-                    runTimeExceeded = taskStopTS - runnerStartTS > manager.time;
-
-                    manager.task = null;
-
-                    if (task.paused) {
-                        done = true;
-                        runTimeExceeded = false;
-                        execStopped = true;
-                        task.heap = data;
-                        task.started = false;
-                        task.yield = true;
-                    }
-
-                    // if( task.canceled )
-                    // {
-                    // debugger;
-                    // if( !runTimeExceeded )
-                    // {
-                    //     break;
-                    // }
-                    // else
-                    // {
-                    //     return manager._resume();
-                    // }
-                    // }
-
-                    // if( !done && task.delay )
-                    // {
-                    //     task.paused    = true;
-                    //     task.heap      = data;
-                    //
-                    //     task.delayed   = Date.now() + task.delay;
-                    //
-                    //     manager.active = false;
-                    //
-                    //     manager._insert( task, true );
-                    //
-                    //     return manager.runner( runnerStartTS );
-                    // }
-
-                    if (
-                        !done && (
-                            // check if task as been paused due to task with higher priority arrived.
-                            (task.yield || // check if task's runtime hasn't been exceeded
-                                taskDuration >= task.time)
-                        ) ||
-                        // total taskrunner's time is exceeded
-                        runTimeExceeded
-                    ) {
-                        if (!done) {
-                            // no more runtime left -> put back in queue
-                            // manager.queue[ task.priority ].unshift( task );
-                            manager._insert(manager.task = task, true);
-
-                            task.yield = true;
-
-                            task.heap = data;
-                        }
-                        // check if total runner's time is exceeded
-                        if (runTimeExceeded) {
-                            // make sure next runner will be triggered async
-                            // manager.active = false;
-
-                            if (done) {
-                                this.completeTask(task, data);
-                            }
-
-                            return manager._resume();
-                        }
-
-                        execStopped = true;
-                        break;
-                        // return manager.runner( runnerStartTS );
-                    }
-                }
-
-                if (!execStopped) {
-                    task.yield = false;
-                    task.heap = null;
+                    task._data = null;
                     this.completeTask(task, data);
+                    break;
+                }
+
+                if (task.paused) {
+                    task._data = data;
+                    task.started = false;
+                    task.yield = true;
+                    break;
+                }
+                const taskStopTS = manager.now();
+
+                if (
+                    task.yield ||
+                    // task's exclusive runtime is exceeded
+                    (taskStopTS - taskStartTS) > task.time ||
+                    // total taskrunner's time is exceeded
+                    (taskStopTS - runnerStartTS) > manager.time
+                ) {
+                    this.resumeTask(task, data);
+                    return manager._resume();
                 }
             }
 
+            const runtimeLeft = manager.now() - runnerStartTS < manager.time;
             if (!runtimeLeft) {
                 return manager._resume();
             }
-
-            manager.active = false;
         }
+
+        manager.active = false;
     };
 
     private completeTask(task: Task, data) {
@@ -230,47 +155,25 @@ export class TaskManager {
         }
     }
 
+    private resumeTask(task, data) {
+        this._insert(this.task = task, true);
+        task.yield = true;
+        task._data = data;
+    }
+
     setExclusiveTime(time: number) {
         this.time = time ^ 0;
     };
 
     private _next() {
-        const manager = this;
-        const {queue} = manager;
-        const nextDelayed = queue[0][0];
-        const nowTS = manager.now();
-        let task;
-
-        if (nextDelayed && nowTS >= nextDelayed.delayed) {
-            if (manager._delayed) {
-                global.clearTimeout(manager._delayed);
-            }
-
-            return manager.queue[0].shift();
-        }
-
+        const queue = this.queue;
+        let task: Task = null;
         for (let prio = 1, {length} = queue; prio < length; prio++) {
             if (task = queue[prio].shift()) {
-                return task;
+                break;
             }
         }
-
-        if (nextDelayed) {
-            if (manager._delayed) {
-                global.clearTimeout(manager._delayed);
-            }
-
-            manager._delayed = global.setTimeout(() => {
-                manager._delayed = null;
-                // make sure exec is sync
-                manager.active = true;
-
-                manager.runner();
-                // manager.go();
-            },
-            nextDelayed.delayed - nowTS
-            );
-        }
+        return this.task = task;
     };
 
     create<I = any, O = any>(task: TaskOptions<I, O>): Task<I, O> {
@@ -279,53 +182,18 @@ export class TaskManager {
 
 
     _insert(task: Task, first?: boolean) {
-        let queue;
+        const queue = this.queue[task.priority];
 
-        if (task.delay) {
-            task.delayed = this.now() + task.delay;
-
-            queue = this.queue[0];
-
-            // binary insert
-            let l = 0;
-            let r = queue.length - 1;
-            let m;
-
-            while (l <= r) {
-                m = (l + r) / 2 | 0;
-
-                if (queue[m].delayed > task.delayed) {
-                    r = m - 1;
-                    continue;
-                }
-
-                l = m + 1;
-
-                if (queue[m].delayed == task.delayed) {
-                    break; // replace with return if no duplicates are desired
-                }
-            }
-            queue.splice(l, 0, task);
+        if (first) {
+            queue.unshift(task);
         } else {
-            queue = this.queue[task.priority];
-
-            if (first) {
-                queue.unshift(task);
-            } else {
-                queue.push(task);
-            }
+            queue.push(task);
         }
     };
 
 
     isWaiting(task: Task) {
-        return this.queue[
-
-            task.delay
-                ? 0
-                : task.priority
-
-        ].indexOf(task) != -1;
+        return this.queue[task.priority].indexOf(task) != -1;
     };
 
 
@@ -370,7 +238,7 @@ export class TaskManager {
 
         // if( !isTaskRunning )
         // {
-        const prio = task.delay ? 0 : task.priority;
+        const prio = task.priority;
 
         const queue = this.queue[prio];
 
@@ -396,7 +264,10 @@ export class TaskManager {
 
 let instance;
 
-
+/**
+ * TaskManager
+ * @hidden
+ */
 const taskManager = {
 
     getInstance: function(time?: number): TaskManager {

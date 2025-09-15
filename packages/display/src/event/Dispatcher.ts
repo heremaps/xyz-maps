@@ -19,7 +19,7 @@
 
 import {addEventListener, removeEventListener} from '../DOMTools';
 import {MapEvent} from './Event';
-import {Listener, TaskManager} from '@here/xyz-maps-common';
+import {Listener, Task} from '@here/xyz-maps-common';
 import {Map} from '../Map';
 import {TileLayer} from '@here/xyz-maps-core';
 
@@ -62,6 +62,36 @@ function getMousePosition(domEl, event) {
 }
 
 
+class DetectFeatureTask extends Task {
+    private ev: Event;
+    private _active: boolean;
+    private findTarget: (ev: Event) => void;
+    private interval = 1000 / 20; // 20 FPS
+
+    priority: 5;
+    constructor(findTarget: (ev: Event) => void) {
+        super();
+        this.findTarget = findTarget;
+        this._active = false;
+    }
+    isActive() {
+        return this._active;
+    }
+    setPointerEvent(ev: Event) {
+        this.ev = ev;
+    }
+    exec() {
+        this.findTarget(this.ev);
+        this._active = false;
+        this.ev = null;
+    }
+    start() {
+        this._active = true;
+        setTimeout(() => super.start(), this.interval);
+    }
+}
+
+
 export class EventDispatcher {
     private cbs: Listener;
     private disabled: { [type: string]: boolean } = {};
@@ -87,9 +117,6 @@ export class EventDispatcher {
         let prevPointerDownTs = 0;
         let prevPointerDownTarget;
         let currentHoverTarget;
-        let mouseoverFPS = 1000 / 25;
-        let mousemoveEvent;
-        let checkingHover = false;
         let callbacks = this.cbs;
 
         callbacks.sync(true);
@@ -99,15 +126,7 @@ export class EventDispatcher {
             disabled[ev] = false;
         });
 
-        let checkLineHover = TaskManager.getInstance().create({
-            delay: mouseoverFPS,
-            priority: 5,
-
-            exec: function() {
-                findTarget(mousemoveEvent);
-                checkingHover = false;
-            }
-        });
+        const detectFeatureHover = new DetectFeatureTask(findTarget);
 
         function handleDoubleClick(ev) {
             let timestamp = Date.now();
@@ -150,13 +169,11 @@ export class EventDispatcher {
         }
 
         function listenMouseMove(e) {
-            mousemoveEvent = e;
-
-            if (!disabled['pointerenter'] && !disabled['pointerleave'] && !checkingHover) {
-                checkingHover = true;
-                checkLineHover.start();
-                // checkLineHover.run( mouseoverFPS );
+            detectFeatureHover.setPointerEvent(e);
+            if (detectFeatureHover.isActive() || disabled['pointerenter'] || disabled['pointerleave']) {
+                return;
             }
+            detectFeatureHover.start();
         }
 
         function searchForFeature(pos) {
@@ -171,7 +188,6 @@ export class EventDispatcher {
         function findTarget(ev) {
             let position = getMousePosition(domEl, ev);
             let target = searchForFeature(position);
-
 
             trigger(POINTER_MOVE, ev, position, target);
 

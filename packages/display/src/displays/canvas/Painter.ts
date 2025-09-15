@@ -47,20 +47,19 @@ class Painter {
         this.dpr = devicePixelRatio;
     };
 
-    spawn(priority: number, display, tile, layer, displayTile, INSTRUCTIONS, onDone, skipClear, delay) {
-        let task = this.createTask(priority, display, tile, layer, displayTile, tile.bounds, INSTRUCTIONS, onDone, skipClear, delay);
+    spawn(priority: number, display, tile, layer, displayTile, INSTRUCTIONS, onDone, skipClear?) {
+        let task = this.createTask(priority, display, tile, layer, displayTile, tile.bounds, INSTRUCTIONS, onDone, skipClear);
         this.tm.start(task);
         return task;
     };
 
-    createTask(priority: number, display, tile, layer, displayTile, tileBounds, INSTRUCTIONS, onDone, skipClear, delay) {
+    createTask(priority: number, display, tile, layer, displayTile, tileBounds, INSTRUCTIONS, onDone, skipClear) {
         const devicePixelRatio = this.dpr;
         let index = displayTile.index(layer);
         let tileCtx = displayTile.getContext(index);
 
         let task = this.tm.create({
             priority: priority,
-            delay: delay,
             time: this.exclusiveTimeMS,
             init: function() {
                 if (!skipClear) {

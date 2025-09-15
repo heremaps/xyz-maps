@@ -17,7 +17,7 @@
  * License-Filename: LICENSE
  */
 
-import {TaskManager} from './TaskManager';
+import taskManagerSingleton, {TaskManager} from './TaskManager';
 
 let TASK_ID = 0;
 
@@ -34,7 +34,6 @@ export interface TaskOptions<I = any, O = any> {
     time?: number;
     onDone?: (data?: O) => void;
     name?: string;
-    delay?: number;
 }
 
 class Task<I = any, O = any> {
@@ -54,21 +53,17 @@ class Task<I = any, O = any> {
 
     priority: number;
 
-    delayed: number;
-
-    delay: number;
-
     canceled: boolean;
 
     // exec: (any?) => boolean | void;
 
-    heap: any;
+    _data: any;
 
     name: string;
 
     time: number;
 
-    _data: any;
+    _initData: any;
 
     started: boolean;
 
@@ -76,13 +71,6 @@ class Task<I = any, O = any> {
     constructor(
         options: TaskOptions<I, O> = {},
         manager?: TaskManager
-        // prio: number,
-        // task: (any?: O) => boolean | void,
-        // init?: (data?: I) => any,
-        // time?: number,
-        // onDone?: (data?: O) => void,
-        // name?: string,
-        // delay?: number
     ) {
         this.id = ++TASK_ID;
 
@@ -90,12 +78,11 @@ class Task<I = any, O = any> {
         if (options.init) this.init = options.init;
         if (options.onDone) this.onDone = options.onDone;
 
-        this.delay = options.delay ^ 0;
         this.name = options.name;
         this.time = options.time || 100;
         this.setPriority(options.priority);
 
-        this.manager = manager;
+        this.manager = manager || taskManagerSingleton.getInstance();
     }
     protected setPriority(prio: number) {
         this.priority = Math.max(Math.min(prio ^ 0, 5), 1);
@@ -106,7 +93,7 @@ class Task<I = any, O = any> {
     }
 
     start(data?: any) {
-        this._data = data;
+        this._initData = data;
         return this.manager.start(this);
     };
 
@@ -117,11 +104,11 @@ class Task<I = any, O = any> {
 
     resume() {
         this.paused = false;
-        this.start(this._data);
+        this.start(this._initData);
     }
 
     restart(opt: TaskRestartOptions<I, O> = {}) {
-        const {_data} = this;
+        const {_initData} = this;
 
         // cancel in case of active
         this.cancel();
@@ -130,8 +117,7 @@ class Task<I = any, O = any> {
         this.paused = false;
         this.canceled = false;
         this.yield = false;
-        this.delayed = null;
-        this.heap = null;
+        this._data = null;
 
         if (opt.init) {
             this.init = opt.init;
@@ -146,7 +132,7 @@ class Task<I = any, O = any> {
         }
 
         // start
-        this.start(_data);
+        this.start(_initData);
     };
 
     init(data?: I): O {
@@ -167,7 +153,7 @@ class Task<I = any, O = any> {
     // };
 
     cancel() {
-        this._data = null;
+        this._initData = null;
         return this.manager.cancel(this);
     };
 
@@ -182,11 +168,9 @@ Task.prototype.BREAK = false;
 
 Task.prototype.onDone = null;
 
-Task.prototype.heap = null;
+Task.prototype._data = null;
 
 Task.prototype.yield = false;
-
-Task.prototype.delayed = null;
 
 Task.prototype.canceled = false;
 
