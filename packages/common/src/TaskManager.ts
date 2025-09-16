@@ -93,7 +93,8 @@ export class TaskManager {
             if (!task) break;
 
             let done = false;
-            let initStartTs;
+            let taskStopTs: number;
+            let initStartTs: number;
             let data;
 
             if (task.yield) {
@@ -116,8 +117,10 @@ export class TaskManager {
                     task.yield = false;
                     task._data = null;
                     this.completeTask(task, data);
+                    taskStopTs = manager.now();
                     break;
                 }
+                taskStopTs = manager.now();
 
                 if (task.paused) {
                     task._data = data;
@@ -125,21 +128,20 @@ export class TaskManager {
                     task.yield = true;
                     break;
                 }
-                const taskStopTS = manager.now();
 
                 if (
                     task.yield ||
                     // task's exclusive runtime is exceeded
-                    (taskStopTS - taskStartTS) > task.time ||
+                    (taskStopTs - taskStartTS) > task.time ||
                     // total taskrunner's time is exceeded
-                    (taskStopTS - runnerStartTS) > manager.time
+                    (taskStopTs - runnerStartTS) > manager.time
                 ) {
                     this.resumeTask(task, data);
                     return manager._resume();
                 }
             }
 
-            const runtimeLeft = manager.now() - runnerStartTS < manager.time;
+            const runtimeLeft = taskStopTs - runnerStartTS < manager.time;
             if (!runtimeLeft) {
                 return manager._resume();
             }
