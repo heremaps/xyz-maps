@@ -56,7 +56,10 @@ export function click(elem: HTMLElement, x: number, y: number): Promise<MouseEve
     });
 }
 
-export function drag(elem: HTMLElement, from: { x: number; y: number }, to: { x: number; y: number }, time: number = 60): Promise<MouseEvent> {
+export function drag(elem: HTMLElement, from: { x: number; y: number }, to: {
+    x: number;
+    y: number
+}, time: number = 60): Promise<MouseEvent> {
     return new Promise((resolve) => {
         let e = getElement(elem, from.x, from.y);
 
@@ -84,7 +87,10 @@ export function drag(elem: HTMLElement, from: { x: number; y: number }, to: { x:
     });
 }
 
-export function mousemove(elem: HTMLElement, from: { x: number, y: number }, to: { x: number, y: number }): Promise<MouseEvent> {
+export function mousemove(elem: HTMLElement, from: { x: number, y: number }, to: {
+    x: number,
+    y: number
+}): Promise<MouseEvent> {
     return new Promise((resolve) => {
         let e = getElement(elem, from.x, from.y);
         let v = Math.max(Math.abs(to.x - from.x) / 2, Math.abs(to.y - from.y) / 2);
@@ -94,10 +100,13 @@ export function mousemove(elem: HTMLElement, from: { x: number, y: number }, to:
 
         function callback(evt: MouseEvent): void {
             if (++evtNr == Math.floor(v) + 1) {
-                setTimeout(function() {
-                    resolve(evt);
-                }, 50);
                 elem.removeEventListener('mousemove', callback);
+                // The 75 ms timeout allows the browser's event loop and JavaScript engine enough time
+                // to process all dispatched mousemove events before resolving the promise.
+                // This delay is timing-critical: if too short, some events may not be handled;
+                // if too long, tests slow down. The optimal value depends on browser internals and system performance.
+                // Adjust for reliability in your environment.
+                setTimeout(() => resolve(evt), 75);
             }
         }
 
@@ -135,7 +144,10 @@ export function triggerEvent(elem: HTMLElement, x: number, y: number, evt: strin
     dispatchEvent(e.element, e.topleft, x, y, evt, d);
 }
 
-function getElement(elem: HTMLElement, x: number, y: number): { element: Element; topleft: { left: number; top: number } } {
+function getElement(elem: HTMLElement, x: number, y: number): {
+    element: Element;
+    topleft: { left: number; top: number }
+} {
     function getPosition(div) {
         var T = 0;
         var L = 0;
@@ -156,7 +168,10 @@ function getElement(elem: HTMLElement, x: number, y: number): { element: Element
     };
 }
 
-function dispatchEvent(elem: Element, tl: { top: number; left: number }, x: number, y: number, evt: string, d?: number) {
+function dispatchEvent(elem: Element, tl: {
+    top: number;
+    left: number
+}, x: number, y: number, evt: string, d?: number) {
     let ev: any = new MouseEvent(evt, {
         altKey: true,
         bubbles: true,
