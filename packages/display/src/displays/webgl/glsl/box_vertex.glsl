@@ -47,7 +47,7 @@ void main(void) {
     vec3 size = vec3(toPixel(u_radius, u_scale)) / u_scale;
     #else
     vec3 dir = mod(a_point, 2.0) * 2.0 - 1.0;
-    vec3 size = floor(a_point * .5) / u_scale;
+    vec3 size = floor(a_point * .5) / u_scale * .5;
     #endif
 
 

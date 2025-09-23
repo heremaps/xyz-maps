@@ -55,6 +55,10 @@ export const addBox = (
         }
     }
 
+    width = width << 1;
+    height = height << 1;
+    depth = depth << 1;
+
     points.push(
         // FRONT
         width | 0, height | 1, depth | 1,
