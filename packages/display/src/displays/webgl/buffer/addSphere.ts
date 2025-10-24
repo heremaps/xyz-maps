@@ -120,7 +120,6 @@ export const addSphere = (
     x: number,
     y: number,
     z: number,
-    radius: number,
     vertex: FlexArray,
     points: SimpleArray<number>,
     normal?: SimpleArray<number>
@@ -132,7 +131,7 @@ export const addSphere = (
 
     const hasZ = typeof z === 'number';
 
-    z = Math.round(z / 9000 * 0xffff);
+    z = hasZ && Math.round(z / 9000 * 0xffff);
 
     const {normals, surfaceNormals} = sphereMesh;
     for (let i = 0, length = normals.length; i < length; i += 3) {

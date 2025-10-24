@@ -37,14 +37,27 @@ export interface TerrainTileLoaderOptions extends HTTPLoaderOptions {
     attribution?: DataSourceAttribution | DataSourceAttribution[] | string;
     min?: number;
     max?: number;
+    heightMapPadding?: number;
 }
+
+const FLAT_TERRAIN_DATA = {
+    indices: new Uint16Array([0, 1, 3, 1, 2, 3]),
+    vertices: new Uint8Array([0, 0, 0, 255, 0, 0, 255, 255, 0, 0, 255, 0]),
+    normals: new Int8Array([0, 0, 127, 0, 0, 127, 0, 0, 127, 0, 0, 127]),
+    quantizeOptions: {
+        quantizedRange: 255,
+        quantizedMinHeight: 0,
+        quantizedMaxHeight: 255
+    },
+    heightMap: {data: new Float32Array(3 * 3), padding: 0}
+};
 
 class TerrainTileLoader extends WorkerHTTPLoader {
     private min: number;
     private max: number;
 
     constructor(options: TerrainTileLoaderOptions) {
-        super('TerrainWorker', options);
+        super('TerrainWorker', {heightMapPadding: 0, ...options});
 
         this.min = options.min ?? 0;
         this.max = options.min ?? 30;
@@ -57,16 +70,14 @@ class TerrainTileLoader extends WorkerHTTPLoader {
     load(tile, success, error?) {
         if (tile.quadkey.length < this.min) {
             const flatTerrain = createTerrainTile(tile.x, tile.y, tile.z,
-                new Uint16Array([0, 1, 3, 1, 2, 3]),
-                new Uint8Array([0, 0, 0, 255, 0, 0, 255, 255, 0, 0, 255, 0]),
-                new Int8Array([0, 0, 127, 0, 0, 127, 0, 0, 127, 0, 0, 127]),
-                {
-                    quantizedRange: 255,
-                    quantizedMinHeight: 0,
-                    quantizedMaxHeight: 255
-                }
+                FLAT_TERRAIN_DATA.indices,
+                FLAT_TERRAIN_DATA.vertices,
+                FLAT_TERRAIN_DATA.normals,
+                FLAT_TERRAIN_DATA.quantizeOptions,
+                FLAT_TERRAIN_DATA.heightMap
             );
             flatTerrain.properties.dummy = true;
+            flatTerrain.properties.useHeightMap = true;
             return success(flatTerrain);
         }
         super.load(tile, success, error);

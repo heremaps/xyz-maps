@@ -21,7 +21,7 @@ import BasicDisplay, {ViewportTile} from '../BasicDisplay';
 import {GLRender, RenderOptions} from './GLRender';
 import GLBucket from './Bucket';
 
-import {createBuffer} from './buffer/createBuffer';
+import {GeometryBufferFactory} from './buffer/factory/GeometryBufferFactory';
 import {createImageBuffer} from './buffer/createImageBuffer';
 
 import {transformMat4} from 'gl-matrix/vec3';
@@ -33,18 +33,22 @@ import {FeatureFactory} from './buffer/FeatureFactory';
 import {CollisionHandler} from './CollisionHandler';
 import {GeometryBuffer} from './buffer/GeometryBuffer';
 import {
+    Tile,
     CustomLayer,
     LinearGradient,
     TileLayer,
     XYZLayerStyle,
-    Color
+    Color,
+    TerrainTileLayer,
+    TerrainTileFeature
 } from '@here/xyz-maps-core';
 import {PASS} from './program/GLStates';
 import {Raycaster} from './Raycaster';
 import {defaultLightUniforms, initLightUniforms, ProcessedLights} from './lights';
-import {UniformMap} from './program/Program';
+import {CompiledUniformMap, UniformMap} from './program/Program';
 import {RenderTile, RenderTilePool} from './RenderTile';
-import {TerrainTileFeature} from '@here/xyz-maps-core/src/features/TerrainFeature';
+import {HeightMapTileCache} from './HeightMapTileCache';
+import {DisplayTileTask} from '../BasicTile';
 
 
 const TO_RADIANS = Math.PI / 180;
@@ -155,6 +159,7 @@ class WebGlDisplay extends BasicDisplay {
     // This value is used to control horizon clipping when the map pitch exceeds the fixed tile pitch limit,
     // typically affecting the fixed (non-adaptive) tile grid rendering.
     protected horizonYFixed: number;
+    private terrainCache: HeightMapTileCache;
 
     constructor(mapEl: HTMLElement, renderTileSize: number, devicePixelRatio: number | string, renderOptions?: RenderOptions) {
         super(
@@ -168,7 +173,7 @@ class WebGlDisplay extends BasicDisplay {
         );
 
         if (this.dpr < 2) {
-            this.buckets.setSize(1024);
+            this.buckets.setMaxSize(this.buckets.getMaxSize()*2);
         }
 
         const display = this;
@@ -176,14 +181,15 @@ class WebGlDisplay extends BasicDisplay {
 
         this.buckets.onDrop = function(buffers, index) {
             const {quadkey, layers} = this;
-
             display.collision.clearTile(quadkey, layers[index]);
-
-            display.releaseBuffers(buffers);
+            display.releaseBuffers(buffers, quadkey);
         };
 
         const {render} = display;
-        render.init(this.canvas, this.dpr);
+
+        this.terrainCache = new HeightMapTileCache();
+
+        render.init(this.canvas, this.dpr, this.terrainCache);
 
         this.rayCaster = new Raycaster(render.screenMat, render.invScreenMat);
 
@@ -211,12 +217,12 @@ class WebGlDisplay extends BasicDisplay {
         }
     }
 
-    private releaseBuffers(buffers: GeometryBuffer[]) {
+    private releaseBuffers(buffers: GeometryBuffer[], quadkey: string) {
         const renderer = this.render;
 
         if (buffers) {
             for (let buf of buffers) {
-                renderer.deleteBuffer(buf);
+                renderer.releaseGeometryBuffer(buf, quadkey);
             }
         }
     }
@@ -224,7 +230,7 @@ class WebGlDisplay extends BasicDisplay {
     private initLights(displayLayer: Layer) {
         const lightSets: {
             [l: string]: ProcessedLights
-            [p: symbol]: { [u: string]: UniformMap }
+            [p: symbol]: { [u: string]: CompiledUniformMap }
         } = displayLayer.getLights();
 
         let processedLightSets = lightSets[PROCESSED_LIGHTS_SYMBOL];
@@ -247,6 +253,12 @@ class WebGlDisplay extends BasicDisplay {
 
     addLayer(layer: TileLayer | CustomLayer, index: number, styles?: XYZLayerStyle): Layer {
         const displayLayer = super.addLayer(layer, index, styles);
+
+        if (displayLayer) {
+            if (layer instanceof TerrainTileLayer) {
+                this.terrainCache.init(layer.tileSize);
+            }
+        }
 
         if (displayLayer?.index == 0) {
             this.initSky(styles?.skyColor || [1, 0, 0, 1]);
@@ -271,7 +283,6 @@ class WebGlDisplay extends BasicDisplay {
             // p[2] *= -1;
             return p;
         }
-
         // find line intersection with plane where z is 0
         // const targetZ = 0.0;
         const targetZ = 0;
@@ -378,7 +389,7 @@ class WebGlDisplay extends BasicDisplay {
         }
     }
 
-    prepareTile(tile, data, layer: TileLayer, dTile: GLTile, onDone: (dTile: GLTile, layer: TileLayer) => void) {
+    prepareTile(tile: Tile, data, layer: TileLayer, dTile: GLTile, onDone: (dTile: GLTile, layer: TileLayer) => void) {
         const display = this;
         const renderer = display.render;
         const gl = renderer.gl;
@@ -394,47 +405,53 @@ class WebGlDisplay extends BasicDisplay {
             dTile.preview(dTile.setData(layer, [buffer]), null);
             onDone(dTile, layer);
         } else if (data.length) {
-            const task = createBuffer(
+            let task: DisplayTileTask;
+            const onTaskDone = (geometryBuffers, pendingResources) => {
+                dTile.preview(dTile.setData(layer, geometryBuffers), null);
+
+
+                if (pendingResources.length) {
+                    // Promise.all(pendingResources).then(()=>this.refreshTile(quadkey, layerId));
+                    pendingResources.forEach((resource) => {
+                        resource.then(() => this.refreshTile(quadkey, layerId));
+                    });
+                }
+
+                const collisionsUpdated = display.collision.completeTile(true);
+                if (collisionsUpdated) {
+                    // trigger phase2 collision detection (fullscreen viewport)
+                    this.dirty = true;
+                }
+
+                // clear previews of related parent/child tiles...
+                let overlayingTiles = dTile.getOverlayingTiles();
+                for (let overlayingTile of overlayingTiles) {
+                    overlayingTile.preview(displayLayer.index, null);
+                }
+
+                if (task.outdated) {
+                    task.outdated = false;
+                    task.restart();
+                } else {
+                    dTile.removeTask(task, layer);
+                }
+
+                onDone(dTile, layer);
+            };
+
+            task = GeometryBufferFactory.startTask(
                 displayLayer,
-                tileSize,
                 tile,
+                dTile,
                 this.factory,
+                this.terrainCache,
+                this.render.gl,
                 // on initTile / start
                 () => {
                     display.collision.initTile(tile, displayLayer);
                 },
                 // on done
-                (buffer, pendingResources) => {
-                    dTile.preview(dTile.setData(layer, buffer), null);
-
-                    if (pendingResources.length) {
-                        // Promise.all(pendingResources).then(()=>this.refreshTile(quadkey, layerId));
-                        pendingResources.forEach((resource) => {
-                            resource.then(() => this.refreshTile(quadkey, layerId));
-                        });
-                    }
-
-                    const collisionsUpdated = display.collision.completeTile(true);
-                    if (collisionsUpdated) {
-                        // trigger phase2 collision detection (fullscreen viewport)
-                        this.dirty = true;
-                    }
-
-                    // clear previews of related parent/child tiles...
-                    let overlayingTiles = dTile.getOverlayingTiles();
-                    for (let overlayingTile of overlayingTiles) {
-                        overlayingTile.preview(displayLayer.index, null);
-                    }
-
-                    if (task.outdated) {
-                        task.outdated = false;
-                        task.restart();
-                    } else {
-                        dTile.removeTask(task, layer);
-                    }
-
-                    onDone(dTile, layer);
-                }
+                onTaskDone
             );
             dTile.addTask(task, layer);
         } else {
@@ -443,6 +460,7 @@ class WebGlDisplay extends BasicDisplay {
         }
     }
 
+    // initAndOrderBuffers
     private orderBuffers(
         zSorted: RenderData[],
         buffers: (GeometryBuffer | CustomRenderData['buffer'])[],
@@ -578,6 +596,9 @@ class WebGlDisplay extends BasicDisplay {
 
         for (let i = 0, z, zTile; i < tileBuffers.length; i++) {
             zTile = tileBuffers[i];
+
+            zTile.prepareHeightMapReferences();
+
             z = zTile.z = absZOrder[zTile.z];
 
             if (!zTile.buffer.flat && z < min3dZIndex) {
@@ -715,6 +736,7 @@ class WebGlDisplay extends BasicDisplay {
             () => this.update()
         );
     }
+
     destroy() {
         super.destroy();
         this.factory.destroy();
@@ -759,6 +781,8 @@ class WebGlDisplay extends BasicDisplay {
         const camWorldZ = this.rayCaster.origin[2] + 0.001;
         const {tileBuffers, min3dZIndex} = this._zSortedTileBuffers;
         let i = tileBuffers.length;
+
+
         while (i--) {
             if (!tileBuffers[i].tiled || !tileBuffers[i].buffer.pointerEvents) continue; // skip custom layers
 
@@ -783,7 +807,6 @@ class WebGlDisplay extends BasicDisplay {
                 minZ = buffer.zRange[0];
                 maxZ = buffer.zRange[1];
             }
-
             const worldModelMatrix = renderTile.getModelMatrix();
             const aabbMin = transformMat4([], [0, 0, minZ], worldModelMatrix);
             const aabbMax = transformMat4([], [size, size, maxZ], worldModelMatrix);
@@ -797,12 +820,9 @@ class WebGlDisplay extends BasicDisplay {
 
             if (!hitTile) {
                 continue;
-            };
+            }
 
-
-            const localTransform = worldModelMatrix && this.rayCaster.transformRayToLocal(worldModelMatrix);
-
-            const id = this.rayCaster.intersect(tileX, tileY, buffer, localTransform);
+            const id = this.rayCaster.intersect(tileX, tileY, buffer, worldModelMatrix);
 
             if (id != null) {
                 intersectLayer = layer;

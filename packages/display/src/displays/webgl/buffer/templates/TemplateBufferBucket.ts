@@ -25,10 +25,11 @@ export class TemplateBufferBucket<TmpBuffer extends TemplateBuffer> {
 
     length: number = 0;
 
+    requiresHeightMap?: boolean;
+
     constructor() {
         this.buffers = [];
     }
-
 
     push(buffer: TmpBuffer) {
         this.buffers.push(buffer);
@@ -67,5 +68,12 @@ export class TemplateBufferBucket<TmpBuffer extends TemplateBuffer> {
 
     toArray() {
         return this.buffers;
+    }
+
+    public setRequiresHeightMap(value: boolean): void {
+        for (let buf of this.buffers) {
+            buf.setRequiresHeightMap(value);
+        }
+        this.requiresHeightMap = value;
     }
 }

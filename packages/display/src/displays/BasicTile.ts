@@ -22,12 +22,13 @@ import {TileLayer} from '@here/xyz-maps-core';
 import {Layers} from './Layers';
 import BasicBucket from './BasicBucket';
 import basicBucket from './BasicBucket';
+import {TilePreviewInfo} from './Preview';
 
 let UNDEF;
 
-type PreviewData = any[][];
+type PreviewData = TilePreviewInfo[];
 
-export interface DisplayTileTask extends Task {
+export interface DisplayTileTask<I = any, O = any> extends Task<I, O> {
     // indicates if source data has been updated while task is running.
     outdated: boolean;
 };
@@ -44,109 +45,109 @@ abstract class BasicTile {
     private p: PreviewData[] | false[] = [];
     protected pool: BasicBucket;
 
-  abstract clear(index: number)
+    abstract clear(index: number)
 
-  abstract getData(index: number): any;
+    abstract getData(index: number): any;
 
-  constructor(pool: basicBucket) {
-      this.pool = pool;
-  }
+    constructor(pool: basicBucket) {
+        this.pool = pool;
+    }
 
-  init(quadkey: string, layers: Layers) {
-      this.luTs = null;
+    init(quadkey: string, layers: Layers) {
+        this.luTs = null;
 
-      this.quadkey = quadkey;
+        this.quadkey = quadkey;
 
-      this.layers = layers;
+        this.layers = layers;
 
-      this.tasks = {};
+        this.tasks = {};
 
-      this.r.length = 0;
-      this.p.length = 0;
-  }
+        this.r.length = 0;
+        this.p.length = 0;
+    }
 
-  busy(layer: TileLayer): DisplayTileTask {
-      const id = layer.id;
-      for (let t in this.tasks) {
-          const task = this.tasks[t];
-          if (id == task._lid) {
-              return task;
-          }
-      }
-  };
+    busy(layer: TileLayer): DisplayTileTask {
+        const id = layer.id;
+        for (let t in this.tasks) {
+            const task = this.tasks[t];
+            if (id == task._lid) {
+                return task;
+            }
+        }
+    };
 
-  addTask(task, layer: TileLayer) {
-      task._lid = layer.id;
-      this.tasks[task.id] = task;
-  };
+    addTask(task, layer: TileLayer) {
+        task._lid = layer.id;
+        this.tasks[task.id] = task;
+    };
 
 
-  cancelTasks(layer?: TileLayer) {
-      const tasks = this.tasks;
-      let task;
+    cancelTasks(layer?: TileLayer) {
+        const tasks = this.tasks;
+        let task;
 
-      for (let id in tasks) {
-          task = tasks[id];
+        for (let id in tasks) {
+            task = tasks[id];
 
-          if (!layer || layer.id == task._lid) {
-              task.cancel();
-              delete tasks[id];
-          }
-      }
-  };
+            if (!layer || layer.id == task._lid) {
+                task.cancel();
+                delete tasks[id];
+            }
+        }
+    };
 
-  removeTask(task, layer) {
-      delete this.tasks[task.id];
-  };
+    removeTask(task, layer) {
+        delete this.tasks[task.id];
+    };
 
-  index(layer: TileLayer) {
-      return this.layers.indexOf(layer);
-  };
+    index(layer: TileLayer) {
+        return this.layers.indexOf(layer);
+    };
 
-  getDisplayLayer(layer: TileLayer) {
-      return this.layers[this.index(layer)];
-  }
+    getDisplayLayer(layer: TileLayer) {
+        return this.layers[this.index(layer)];
+    }
 
-  ready(index: number, ready?: boolean): boolean {
-      if (arguments.length == 2) {
-          this.r[index] = ready;
+    ready(index: number, ready?: boolean): boolean {
+        if (arguments.length == 2) {
+            this.r[index] = ready;
 
-          if (ready) {
-              this.luTs = Date.now();
-          }
-      }
-      return this.r[index];
-  };
+            if (ready) {
+                this.luTs = Date.now();
+            }
+        }
+        return this.r[index];
+    };
 
-  addLayer(index: number) {
-      this.r.splice(index, 0, false);
-      this.p.splice(index, 0, UNDEF);
-  };
+    addLayer(index: number) {
+        this.r.splice(index, 0, false);
+        this.p.splice(index, 0, UNDEF);
+    };
 
-  removeLayer(index: number) {
-      this.r.splice(index, 1);
-      this.p.splice(index, 1);
-  };
+    removeLayer(index: number) {
+        this.r.splice(index, 1);
+        this.p.splice(index, 1);
+    };
 
-  preview(index: number, data?: PreviewData | undefined | false): PreviewData | undefined | false {
-      if (arguments.length == 2) {
-          this.p[index] = data;
-      }
-      return this.p[index];
-  };
+    preview(index: number, data?: PreviewData | undefined | false): PreviewData | undefined | false {
+        if (arguments.length == 2) {
+            this.p[index] = data;
+        }
+        return this.p[index];
+    };
 
-  getOverlayingTiles(): BasicTile[] {
-      const overlaying = [];
-      const {quadkey} = this;
-      const level = quadkey.length;
-      this.pool.forEach((tile) => {
-          const qk = tile.quadkey;
-          if ((qk.length < level && quadkey.indexOf(qk) == 0) || (qk.length > level && qk.indexOf(quadkey) == 0)) {
-              overlaying.push(tile);
-          }
-      });
-      return overlaying;
-  };
+    getOverlayingTiles(): BasicTile[] {
+        const overlaying = [];
+        const {quadkey} = this;
+        const level = quadkey.length;
+        this.pool.forEach((tile) => {
+            const qk = tile.quadkey;
+            if ((qk.length < level && quadkey.indexOf(qk) == 0) || (qk.length > level && qk.indexOf(quadkey) == 0)) {
+                overlaying.push(tile);
+            }
+        });
+        return overlaying;
+    };
 }
 
 export default BasicTile;

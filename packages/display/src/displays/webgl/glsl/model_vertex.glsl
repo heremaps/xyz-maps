@@ -33,10 +33,39 @@ varying vec3 v_tangent;
 varying vec2 v_tilePos;
 #endif
 
+#ifdef TERRAIN_MODEL_HM
+#include "utils.glsl/heightMapUtils"
+#endif
+
+
 void main(void) {
+
+    vec4 color = a_color;
+
+    #ifdef TERRAIN_MODEL_HM
+    float x = mod(a_position.x, 32768.0);
+    float y = a_position.y;
+    vec2 normalizedPos = vec2(x, y) / 32767.0;
+    float skirtFlag = step(32768.0, a_position.x);
+    float tileSize = uHeightMapTileSize.y;
+    float terrainHeight = getTerrainHeight(normalizedPos * tileSize);
+    float z = terrainHeight * (1.0 - 0.2 * skirtFlag);
+
+    vec4 position = a_modelMatrix * vec4(x, y, z, 1.0);
+    vec3 normal = getTerrainNormal(normalizedPos * tileSize);
+    #else
     vec4 position = a_modelMatrix * vec4(a_position, 1.0);
+    vec3 normal = a_normal;
+    #endif
+
     float xyUnitScale = u_isPixelCoords ? 1.0 : u_zMeterToPixel;
-    vec3 positionTileWorld = a_offset + vec3(position.xy * xyUnitScale, position.z);
+
+    #ifdef USE_HEIGHTMAP
+    vec3 localTilePosition = vec3(a_offset.xy, getTerrainHeight(a_offset.xy));
+    #else
+    vec3 localTilePosition = a_offset;
+    #endif
+    vec3 positionTileWorld = localTilePosition + vec3(position.xy * xyUnitScale, position.z);
     vec4 worldPos = vec4(u_topLeft + positionTileWorld.xy, positionTileWorld.z, 1.0);
 
     gl_Position = u_matrix * worldPos;
@@ -44,7 +73,7 @@ void main(void) {
 
     // only correct if model is not scaled (not uniform), otherwise normals are distorted
     // v_normal = normalize(mat3(a_modelMatrix) * a_normal);
-    v_normal = normalize(u_normalMatrix * a_normal);
+    v_normal = normalize(u_normalMatrix * normal);
 
     if (useUVMapping) {
         v_texCoord = a_uv;
@@ -68,5 +97,5 @@ void main(void) {
     // to ensure lighting calculations (e.g. specular intensity) are physically consistent.
     v_surfaceToCam.z *= u_zMeterToPixel;
     #endif
-    v_color = a_color;
+    v_color = color;
 }

@@ -88,4 +88,8 @@ export class TerrainTileLayer extends TileLayer {
     getStyle(): TerrainTileLayerStyle {
         return super.getStyle() as TerrainTileLayerStyle;
     }
+
+    getHeightmapPadding(): number {
+        return (this.getProvider() as TerrainTileProvider).getHeightmapPadding();
+    }
 }

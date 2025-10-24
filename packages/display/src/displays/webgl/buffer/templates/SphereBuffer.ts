@@ -49,14 +49,15 @@ export class SphereBuffer extends BoxBuffer {
         };
     }
 
-    rayIntersects(buffer: GeometryBuffer, result: { z: number }, tileX: number, tileY: number, rayCaster: Raycaster): number | string {
+    rayIntersects(buffer: GeometryBuffer, result: {
+        z: number
+    }, tileX: number, tileY: number, rayCaster: Raycaster): number | string {
         const {attributes} = buffer;
         const position = (attributes.a_position as Attribute).data;
         const size = (attributes.a_position as Attribute).size;
-        const alignMap = true;
         const scaleByAltitude = <boolean>buffer.getUniform('u_scaleByAltitude');
-        const [scaleX, scaleY, scaleZ] = rayCaster.getInverseScale(alignMap);
-        const [r] = <number[]>buffer.uniforms.u_radius;
+        const [scaleX, scaleY, scaleZ] = rayCaster.getInverseWorldScale(buffer.renderScale);
+        const r = <number>buffer.uniforms.u_radius[0];
         const rx = r * scaleX;
         const ry = r * scaleY;
         const rz = r * scaleZ;

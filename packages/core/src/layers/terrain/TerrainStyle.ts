@@ -25,6 +25,45 @@ const DEFAULT_TERRAIN_LIGHT = [{
     intensity: 1.0
 }];
 
+
+const createTerrainModelBuilder = (tileSize: number, material) => ({id, properties}, zoom: number) => {
+    const textures = {};
+    const textureOptions: { uvScale: number, diffuseMap?: any, uHeightMap?: any } = {uvScale: 1};
+    if (properties.texture) {
+        textures[textureOptions.diffuseMap = `dm-${id}`] = properties.texture;
+        textureOptions.uvScale = tileSize / properties.texture.width;
+    }
+    if (properties.heightMap) {
+        textures[textureOptions.uHeightMap = `hm-${id}`] = {
+            data: properties.heightMap
+        };
+    }
+    return {
+        id: `Terrain-${id}-${Math.random() * 1e6 ^ 0}`,
+        textures,
+        materials: {
+            terrain: {
+                diffuse: [1, 1, 1],
+                useUVMapping: false,
+                wrap: 'clamp',
+                ...material,
+                ...textureOptions
+            }
+        },
+        faces: [{
+            geometryIndex: 0,
+            material: 'terrain'
+        }],
+        geometries: [{
+            position: properties.vertices,
+            index: properties.indices,
+            normal: properties.normals || false
+            // uv: properties.uv
+        }]
+    };
+};
+
+
 /**
  * Configuration style for a 3D terrain tile layer.
  *
@@ -98,6 +137,16 @@ export class TerrainTileLayerStyle implements LayerStyle {
             tileSize = size;
         };
 
+
+        const terrainStyle = {
+            light,
+            zIndex: 0,
+            type: 'Terrain',
+            cullFace: 'Back',
+            rotate: [Math.PI / 2, 0, 0]
+        };
+
+
         Object.assign(this, <LayerStyle>{
             skyColor: style.skyColor || {
                 'type': 'LinearGradient',
@@ -118,13 +167,8 @@ export class TerrainTileLayerStyle implements LayerStyle {
             backgroundColor: style.backgroundColor || '#8c9c5a',
             lights,
             styleGroups: {
-                'TerrainModel': [<ModelStyle><unknown>{
-                    light,
-                    zIndex: 0,
-                    type: 'Model',
-                    rotate: [Math.PI / 2, 0, 0],
-                    cullFace: 'Back',
-                    terrain: true,
+                'TerrainModelMSH': [<ModelStyle><unknown>{
+                    ...terrainStyle,
                     scale({properties}) {
                         const {quantizationRange} = properties;
                         const quantizationUnit = 1 / quantizationRange;
@@ -140,46 +184,25 @@ export class TerrainTileLayerStyle implements LayerStyle {
                             -0.5 * tileSize
                         ];
                     },
-                    model({id, properties}, zoom: number) {
-                        const textures = {};
-                        const textureOptions: { uvScale: number, diffuseMap?: any, heightMap?: any } = {uvScale: 1};
-                        if (properties.texture) {
-                            textures[textureOptions.diffuseMap = `dm-${id}`] = properties.texture;
-                            textureOptions.uvScale = tileSize / properties.texture.width;
-                        }
-                        if (properties.heightMap) {
-                            textures[textureOptions.heightMap = `hm-${id}`] = {
-                                data: properties.heightMap
-                            };
-                        }
-                        return {
-                            id: `Terrain-${id}-${Math.random()*1e6^0}`,
-                            textures,
-                            materials: {
-                                terrain: {
-                                    diffuse: [1, 1, 1],
-                                    useUVMapping: false,
-                                    wrap: 'clamp',
-                                    ...material,
-                                    ...textureOptions
-                                }
-                            },
-                            faces: [{
-                                geometryIndex: 0,
-                                material: 'terrain'
-                            }],
-                            geometries: [{
-                                position: properties.vertices,
-                                index: properties.indices,
-                                normal: properties.normals
-                                // uv: properties.uv
-                            }]
-                        };
-                    }
+                    model: createTerrainModelBuilder(tileSize, material)
+                }],
+                'TerrainModelHM': [<ModelStyle><unknown>{
+                    ...terrainStyle,
+                    scale({properties}) {
+                        const {quantizationRange} = properties;
+                        const quantizationUnit = 1 / quantizationRange;
+                        const xyScale = quantizationUnit * (tileSize);
+                        // const zScale = (quantizedMaxHeight - quantizedMinHeight) / quantizationRange;
+                        const zScale = properties.heightScale;
+                        return [xyScale, xyScale, -zScale * exaggeration];
+                        // return [xyScale, xyScale, -1.0 * exaggeration];
+                    },
+                    translate: [-0.5 * tileSize, 0.0, -0.5 * tileSize],
+                    model: createTerrainModelBuilder(tileSize, material)
                 }]
             },
-            assign({geometry}) {
-                return 'TerrainModel';
+            assign(feature, zoom) {
+                return feature.properties.useHeightMap ? 'TerrainModelHM' : 'TerrainModelMSH';
             }
         });
     }

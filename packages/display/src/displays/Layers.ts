@@ -17,7 +17,7 @@
  * License-Filename: LICENSE
  */
 
-import {Tile, Layer as BasicLayer, TileLayer} from '@here/xyz-maps-core';
+import {Tile, Layer as BasicLayer, TileLayer, TerrainTileLayer} from '@here/xyz-maps-core';
 import {Expression, ExpressionParser} from '@here/xyz-maps-common';
 import {parseStyleGroup} from './styleTools';
 import {defaultLight, ProcessedLights} from './webgl/lights';
@@ -69,6 +69,10 @@ class Layer {
 
     getExpressionParser(): StyleExpressionParser {
         return this.expParser;
+    }
+
+    getTerrainLayer(): Layer {
+        return this.layers.getTerrainLayer();
     }
 
     getZ(z: number | string): number {
@@ -180,6 +184,8 @@ class Layers extends Array<Layer> {
 
     // tiles: TileMap = {};
 
+    private _terrainLayer: Layer;
+
     // @ts-ignore
     indexOf(layer: BasicLayer) {
         let item = this._map[layer.id];
@@ -208,6 +214,10 @@ class Layers extends Array<Layer> {
         } else {
             data = this._map[id] = new Layer(layer, this);
 
+            if (layer instanceof TerrainTileLayer) {
+                this._terrainLayer = data;
+            }
+
             this.splice(index, 0, data);
 
             isNew = true;
@@ -220,12 +230,20 @@ class Layers extends Array<Layer> {
         let index = this.indexOf(layer);
 
         if (index !== -1) {
+            if (this[index] === this._terrainLayer) {
+                this._terrainLayer = null;
+            }
             this.splice(index, 1);
+
             delete this._map[layer.id];
             this.fixZ();
         }
 
         return index;
+    }
+
+    getTerrainLayer(): Layer {
+        return this._terrainLayer;
     }
 
     get(layer: string | BasicLayer) {

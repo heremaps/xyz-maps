@@ -22,7 +22,6 @@ import {FlexArray} from './FlexArray';
 import {GeometryBuffer, Uniform} from '../GeometryBuffer';
 import {Raycaster} from '../../Raycaster';
 import {FRONT} from '../glType';
-import {Texture} from '../../Texture';
 
 export type FlexAttribute = {
     data: FlexArray;
@@ -67,6 +66,17 @@ export class TemplateBuffer {
     private _cnt: number;
 
     light?: string;
+
+    requiresHeightMap?: boolean;
+
+    heightMap?: GeometryBuffer['heightMap'];
+
+    public setRequiresHeightMap(required: boolean): void {
+        this.requiresHeightMap = required;
+        if (required) {
+            this._flat = false;
+        }
+    }
 
     constructor(flat: boolean, clipTile: boolean = false) {
         this._flat = flat;
@@ -127,6 +137,10 @@ export class TemplateBuffer {
         return this._flat;
     }
 
+    getPositionAttribute(): FlexAttribute {
+        return this.flexAttributes.a_position as FlexAttribute;
+    }
+
     finalize(type: string): GeometryBuffer | null {
         const buffer = this;
         const {flexAttributes} = buffer;
@@ -160,7 +174,17 @@ export class TemplateBuffer {
         this.idOffsets?.push(featureId);
     }
 
-    rayIntersects(buffer: GeometryBuffer, result: { z: number }, tileX: number, tileY: number, rayCaster: Raycaster): number | string {
+    populateGeometryBuffer(geoBuffer: GeometryBuffer) {
+        geoBuffer.instances = this.instances;
+        geoBuffer.idOffsets = this.idOffsets;
+        geoBuffer.cullFace(this.cullFace);
+        geoBuffer.rayIntersects = this.rayIntersects;
+        geoBuffer.setHeightMapRef(this.requiresHeightMap);
+    }
+
+    rayIntersects(buffer: GeometryBuffer, result: {
+        z: number
+    }, tileX: number, tileY: number, rayCaster: Raycaster): number | string {
         return null;
     }
 }

@@ -31,7 +31,7 @@ let UNDEF;
 type DropHandler = (data: GeometryBuffer[], layerIndex: number) => void;
 
 class GLTile extends BasicTile {
-    data = [];
+    data: GeometryBuffer[][] = [];
 
     private onDrop: DropHandler;
     protected pool: Bucket;

@@ -126,18 +126,30 @@ export interface SphereStyle {
     offsetZ?: number | string | StyleValueFunction<number | string> | StyleZoomRange<number | string> | StyleExpression<number | string>;
 
     /**
-     * The altitude of the style in meters.
-     * The altitude defines the distance in the vertical direction between the ground plane at 0 meters and the geometry/style.
-     * If altitude is set to true, the altitude from the feature's geometry coordinates will be used automatically.
-     * If a number is set for altitude, the altitude of the feature's geometry is ignored and the value of "altitude" is used instead.
-     * The height must be defined in meters.
+     * Altitude of the Sphere center in meters.
+     *
+     * Describes the vertical distance from the global ground plane (0m) to the Sphere.
+     *
+     * Supported values:
+     * - false (default): place at 0m.
+     * - true: use the altitude (z) from the feature geometry if present, else 0. Not re-aligned to the rendered terrain.
+     *         If the geometry altitude source differs from the TerrainTileLayer source/resolution, the Sphere can appear
+     *         slightly above or below the visible terrain surface.
+     * - number: fixed absolute altitude in meters. Also not adjusted when terrain tiles load; may not perfectly sit
+     *           on the terrain unless both use exactly the same elevation source, datum and resolution.
+     * - 'terrain': sample (clamp to) the current terrain surface height. While the terrain tile is not yet loaded
+     *              (or no terrain layer exists) the altitude is 0 and updates once data becomes available.
+     *
+     * Notes:
+     * - Use 'terrain' to keep the Sphere visually seated on the rendered terrain.
+     * - Use a numeric value for a constant absolute elevation independent of terrain updates.
+     * - To position something N meters above terrain: use 'terrain' plus offsetZ (e.g. offsetZ: '5m').
+     * - Expect mismatches (floating / sinking) when using true or a fixed number with a different terrain data source.
      *
      * @defaultValue false
-     *
      * @experimental
      */
-    altitude?: number | boolean | StyleValueFunction<number | boolean> | StyleZoomRange<number | boolean> | StyleExpression<number | boolean>;
-
+    altitude?: number | boolean | 'terrain' | StyleValueFunction<number | boolean | 'terrain'> | StyleZoomRange<number | boolean | 'terrain'> | StyleExpression<number | boolean | 'terrain'>;
 
     /**
      * Scales the size of a style based on the feature's altitude.

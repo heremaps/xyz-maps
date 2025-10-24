@@ -55,10 +55,6 @@ class TilePool extends BasicBucket {
         ctxCache.clear();
     };
 
-    setSize(size: number) {
-        this.tiles.setSize(size);
-    };
-
     releaseCtx(ctx: CanvasRenderingContext2D) {
         return ctxCache.release(ctx);
     };

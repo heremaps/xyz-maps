@@ -20,39 +20,51 @@ import Task from './Task';
 import {TaskManager} from './TaskManager';
 
 
-export class TaskSequence<I = any, O = any> extends Task<I, O> {
-    private tasks: Task[];
-    private results: O[] = [];
-    private current: number;
-    private onAllDone: (results?: O[]) => void;
+type TASK_RESULT<T extends readonly Task<any, any, any>[]> = {
+    [K in keyof T]: T[K] extends Task<any, any, infer R> ? R : never;
+};
 
-    private sequencePriority: number;
+// type FIRST_TASK_INPUT<I> = [Task<I, any, any>, ...Task<any, any, any>[]];
+
+export class TaskSequence<T extends readonly Task<any, any, any>[]> extends Task {
+    private tasks: T;
+    private results: any[] = [];
+    // private results: TASK_RESULT<T> = [];
+    private current: number;
+    private onAllDone: (results?: TASK_RESULT<T>) => void;
+
 
     constructor(options: {
-        tasks: Task[],
-        onDone?: (results?: O[]) => void,
+        tasks: T,
+        onDone?: (results?: TASK_RESULT<T>) => void,
         name?: string,
         /**
          * if defined will override priority of all tasks in the sequence,
          * otherwise each task's priority will be used.
          */
         priority?: number
-    }, manager: TaskManager) {
+    }, manager?: TaskManager) {
         const tasks = options.tasks;
         super({
             name: options.name,
             priority: options.priority
         }, manager);
 
-        this.sequencePriority = this.priority;
         this.tasks = tasks;
         this.onAllDone = options.onDone;
+
         this.initSequence();
     }
 
+    private setActiveTask(i: number) {
+        this.current = i;
+        this.priority = this.tasks[i].priority;
+        this.time = this.tasks[i].time;
+    }
+
     private initSequence() {
-        this.priority = this.tasks[0].priority ?? this.sequencePriority;
-        this.results.length = this.current = 0;
+        this.setActiveTask(0);
+        this.results.length = 0;
     }
 
     private curTask(): Task {
@@ -60,17 +72,20 @@ export class TaskSequence<I = any, O = any> extends Task<I, O> {
     }
 
     private nextTask(): Task {
-        return this.tasks[++this.current];
+        const nextIndex = this.current + 1;
+        if (nextIndex < this.tasks.length) {
+            this.setActiveTask(nextIndex);
+            return this.tasks[nextIndex];
+        }
     }
 
-    init(data?: I): O {
+    init(data?) {
         const task = this.curTask();
         return task.init(data);
     }
 
-    exec(data: O) {
-        const task = this.curTask();
-        return task.exec(data);
+    exec(data) {
+        return this.curTask()!.exec(data);
     }
 
     cancel(): boolean {
@@ -82,15 +97,15 @@ export class TaskSequence<I = any, O = any> extends Task<I, O> {
 
     onDone(result) {
         let task = this.curTask();
-        task.onDone?.call(task, result);
+
+        const doneResult = task.onDone?.(result);
+        result = doneResult === undefined ? result : doneResult;
         // const result = this._data;
         this.results.push(result);
 
         const nextTask = this.nextTask();
         if (nextTask) {
             this._initData = result;
-            const prio = nextTask.priority ?? this.sequencePriority;
-            this.priority = prio;
             // Re-insert the sequence task at the front of the queue with the correct priority to
             // prevent interruption by other tasks of the same priority.
             this.manager._insert(this, true);
@@ -98,7 +113,7 @@ export class TaskSequence<I = any, O = any> extends Task<I, O> {
         } else {
             const results = this.results.slice();
             this.initSequence();
-            this.onAllDone?.(results);
+            this.onAllDone?.(results as TASK_RESULT<T>[]);
         }
     }
 }

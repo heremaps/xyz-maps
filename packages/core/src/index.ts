@@ -69,6 +69,8 @@ import {ClusterTileLayer} from './layers/cluster/ClusterTileLayer';
 import {ClusterTileLayerOptions} from './layers/cluster/ClusterTileLayerOptions';
 export {ClusterTileLayer, ClusterTileLayerOptions};
 
+import {TerrainTileFeature} from './features/TerrainFeature';
+export {TerrainTileFeature};
 import {TerrainTileLayer} from './layers/terrain/TerrainTileLayer';
 import {TerrainTileLayerOptions} from './layers/terrain/TerrainTileLayerOptions';
 import {TerrainTileLayerStyle} from './layers/terrain/TerrainStyle';
@@ -175,7 +177,8 @@ const styles = XYZMAPS.styles = {
 };
 
 const features = XYZMAPS.features = {
-    Feature: Feature
+    Feature,
+    TerrainTileFeature
 };
 
 const tile = XYZMAPS.tile = {

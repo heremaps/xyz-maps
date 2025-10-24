@@ -13,12 +13,13 @@ uniform vec2 u_offsetZ;
 uniform float u_zMeterToPixel;
 uniform bool u_alignMap;
 uniform vec2 u_resolution;
-uniform bool u_scaleByAltitude;
 uniform float u_normalizePosition;
 
 varying vec2 vSize;
 varying vec2 vDir;
 
+#include "utils.glsl/heightMapUtils"
+#include "utils.glsl/altitudeScaleFactor"
 
 void main(void){
     // LSB defines visibility
@@ -39,16 +40,19 @@ void main(void){
 
         vec2 pixel_offset = vec2(toPixel(u_offset.xy, u_scale), toPixel(u_offset.zw, u_scale));
 
-        float z = a_position.z * SCALE_UINT16_Z + toPixel(u_offsetZ, u_scale)/ u_zMeterToPixel/ u_scale;
+        #ifdef USE_HEIGHTMAP
+        float z = getTerrainHeight( pos );
+        #else
+        float z = a_position.z * SCALE_UINT16_Z + toPixel(u_offsetZ, u_scale) / u_zMeterToPixel / u_scale;
+        #endif
 
         if (u_alignMap){
             vec2 posCenterWorld = u_topLeft + pos;
             vec2 shift = (pixel_offset + rotateZ(dir * vec2(size.x, -size.y), rotation)) / u_scale;
             vec3 posWorld = vec3(posCenterWorld + shift, z);
-            if(!u_scaleByAltitude){
-                float scaleDZ = 1.0 + posWorld.z * u_matrix[2][3] / (u_matrix[0][3] * posWorld.x + u_matrix[1][3] * posWorld.y + u_matrix[3][3]);
-                shift *= scaleDZ;
-            }
+
+            shift *= altitudeScaleFactor(posWorld, u_matrix);
+
             gl_Position = u_matrix * vec4(posCenterWorld + shift, z, 1.0);
         } else {
             vec4 cpos = u_matrix * vec4(u_topLeft + pos, z, 1.0);

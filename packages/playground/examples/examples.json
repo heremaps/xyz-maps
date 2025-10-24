@@ -75,6 +75,10 @@
     {
       "file": "./display/terrain.html",
       "docs": "interfaces/core.terraintilelayeroptions.html"
+    },
+    {
+      "file": "./display/terrain_clamped_points.html",
+      "docs": "interfaces/core.boxstyle.html#altitude"
     }
   ],
   "Editor": [

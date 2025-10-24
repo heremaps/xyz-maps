@@ -80,7 +80,7 @@ export class RenderTile {
     }
 
     worldToTile(worldX: number, worldY: number, worldZ?: number): [number, number, number] {
-        const p = [worldX, worldY, worldZ||0];
+        const p = [worldX, worldY, worldZ || 0];
         return transformMat4(p, p, this.getInverseModelMatrix());
     }
 
@@ -110,6 +110,15 @@ export class RenderTile {
             // scale(modelMatrix, modelMatrix, [s, s, 1]);
         }
         return this._modelMatrix;
+    }
+
+
+    prepareHeightMapReferences() {
+        const geometryBuffer = this.buffer;
+        if (geometryBuffer.heightMapRef == 'required' && this.layer.getTerrainLayer() ) {
+            // geometryBuffer.addUniform('uHeightMapTileSize', this.layer.getTerrainLayer().tileSize);
+            return geometryBuffer.heightMapRef = this.data.tile.quadkey;
+        }
     }
 };
 

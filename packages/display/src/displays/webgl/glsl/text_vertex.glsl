@@ -15,18 +15,17 @@ uniform float u_rotate;
 uniform bool u_alignMap;
 uniform bool u_fixedView;
 uniform vec2 u_texSize;
-uniform bool u_scaleByAltitude;
 uniform float u_normalizePosition;
 
 varying vec2 v_texcoord;
 varying vec4 vColor;
 
-const float OFFSET_SCALE = 1.0 / 32.0;
+#include "utils.glsl/altitudeScaleFactor"
 
+const float OFFSET_SCALE = 1.0 / 32.0;
 const float PI_05 = M_PI * 0.5;
 const float PI_15 = M_PI * 1.5;
 const float PI_20 = M_PI * 2.0;
-
 
 
 void main(void) {
@@ -62,10 +61,9 @@ void main(void) {
             offset.xy = rotateZ(offset.xy, rotationZ);
 
             vec3 posWorld = vec3(u_topLeft + position, z);
-            if (!u_scaleByAltitude) {
-                float scaleDZ = 1.0 + posWorld.z * u_matrix[2][3] / (u_matrix[0][3] * posWorld.x + u_matrix[1][3] * posWorld.y + u_matrix[3][3]);
-                offset.xy *= scaleDZ;
-            }
+
+            offset.xy *= altitudeScaleFactor(posWorld, u_matrix);
+
             gl_Position = u_matrix * vec4(posWorld + offset, 1.0);
 
         } else {

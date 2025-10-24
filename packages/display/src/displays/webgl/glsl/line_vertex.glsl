@@ -20,7 +20,8 @@ varying vec2 v_dir;
 
 uniform vec2 u_offset;
 uniform bool u_no_antialias;
-uniform bool u_scaleByAltitude;
+
+#include "utils.glsl/altitudeScaleFactor"
 
 const float N_SCALE = 1.0 / 8191.0;
 
@@ -59,11 +60,7 @@ void main(void){
 //    vec2 offset = dir.y * normal * width;
     vec2 offset = dir * normal * width;
 
-    if (!u_scaleByAltitude){
-        vec3 posWorld = vec3(posCenterWorld + offset, a_position.z);
-        float scaleDZ = 1.0 + posWorld.z * u_matrix[2][3] / (u_matrix[0][3] * posWorld.x + u_matrix[1][3] * posWorld.y + u_matrix[3][3]);
-        offset *= scaleDZ;
-    }
+    offset *= altitudeScaleFactor(vec3(posCenterWorld + offset, a_position.z), u_matrix);
 
     gl_Position = u_matrix * vec4(posCenterWorld + offset, a_position.z, 1.0);
 }

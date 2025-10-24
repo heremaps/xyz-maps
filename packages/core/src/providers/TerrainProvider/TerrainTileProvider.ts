@@ -34,6 +34,37 @@ import {StyleZoomRange} from '../../styles/LayerStyle';
 
 import {DataSourceAttribution} from '../../layers/DataSourceAttribution';
 
+
+function printHeightMap(heightMap, padding = 1) {
+    padding *= 2;
+    const backfill = 1;
+    const tileSize = Math.sqrt(heightMap.length) - backfill - padding; // z.B. 512
+    if (tileSize>33) return;
+
+    const endXY = padding ? tileSize+1 : tileSize;
+
+    const size = tileSize + backfill + padding; // z.B. 515
+    for (let y = 0; y < size; y++) {
+        let row = '';
+        for (let x = 0; x < size; x++) {
+            let val = heightMap[y * size + x];
+            let color = '\x1b[37m'; // weiß
+            // console.log(x, size, tileSize);
+            // Padding: äußerste Reihen/Spalten
+            if ( padding>0 && (x === 0 || y === 0 || x === size - 1 || y === size - 1)) {
+                color = '\x1b[36m'; // cyan;
+            } else if (x === endXY || y === endXY) {
+                // Backfill: die letzte Tile-Reihe/Spalte vor dem Padding
+                color = '\x1b[33m'; // gelb
+            }
+
+            row += color + Math.round(val).toString().padStart(5, ' ') + '\x1b[0m' + ' ';
+        }
+        console.log(row);
+    }
+};
+
+
 type TerrainTileProviderOptions = Omit<RemoteTileProviderOptions, 'level'> & {
     terrain?: TerrainTileLoaderOptions;
     maxGeometricError?: StyleZoomRange<number> | number;
@@ -56,7 +87,7 @@ export class TerrainTileProvider extends RemoteTileProvider {
     dataType = 'json';
 
     Feature = TerrainTileFeature;
-    private _twl: TerrainWorkerLoader; // TerrainWorkerLoader
+    private _hmPadding: number; // heightmap padding for edge stitching
 
     private maxGeometricError: { [zoom: number]: number };
 
@@ -65,7 +96,7 @@ export class TerrainTileProvider extends RemoteTileProvider {
 
         const attribution: (DataSourceAttribution | string)[] = [];
         const maxGeometricError = createGeometricErrorMap(options.maxGeometricError);
-
+        const heightMapPadding = options.terrain?.heightMapPadding ^ 0;
         const addAttribution = (attr: string | DataSourceAttribution | DataSourceAttribution[]) => {
             if (attr) {
                 attribution.push(...(Array.isArray(attr) ? attr : [attr]));
@@ -82,14 +113,22 @@ export class TerrainTileProvider extends RemoteTileProvider {
             for (let key of ['terrain', 'imagery']) {
                 const loaderOptions = options[key];
                 if (loaderOptions) {
-                    const Loader = key == 'terrain' ? TerrainWorkerLoader : HTTPLoader;
+                    let additionalLoaderOptions;
+                    let Loader;
+                    if (key == 'terrain') {
+                        Loader = TerrainWorkerLoader;
+                        additionalLoaderOptions = {maxGeometricError, heightMapPadding};
+                    } else {
+                        Loader = HTTPLoader;
+                        additionalLoaderOptions = {};
+                    }
                     tileLoadersConfig[key] = new Loader({
                         headers: {
                             'Accept': '*/*',
                             ...loaderOptions.headers
                         },
                         ...loaderOptions,
-                        maxGeometricError
+                        ...additionalLoaderOptions
                     });
                     if (key == 'terrain') {
                         terrainWorkderLoader = tileLoadersConfig[key];
@@ -112,7 +151,7 @@ export class TerrainTileProvider extends RemoteTileProvider {
 
         const provider = this;
 
-        this._twl = terrainWorkderLoader;
+        this._hmPadding = heightMapPadding;
 
         this.remoteTileLoader = new TileLoadDelegator({
             provider,
@@ -144,8 +183,8 @@ export class TerrainTileProvider extends RemoteTileProvider {
             if (data.imagery) {
                 properties.texture = data.imagery;
             }
+            let {heightMap} = properties;
 
-            const {heightMap} = properties;
             const updatedTiles = [];
             for (let side of [Neighbor.RIGHT, Neighbor.BOTTOM, Neighbor.LEFT, Neighbor.TOP]) {
                 // let [dx, dy] = side;
@@ -161,19 +200,23 @@ export class TerrainTileProvider extends RemoteTileProvider {
 
                     const neighborProperties = neighborTerrain.properties;
                     const oppositeSide = getOppositeNeighbor(side);
-                    updatedTiles.push(neighborTile);
 
-                    if (!properties.edgeIndices) {
-                        // fully uses heightmaps
-                        const neighborHeightMap = neighborProperties.heightMap;
-                        if (side === Neighbor.RIGHT || side === Neighbor.BOTTOM) {
-                            stitchHeightmapBorders(heightMap, neighborHeightMap, side, 1, 2);
-                            stitchHeightmapBorders(neighborHeightMap, heightMap, oppositeSide, 2, 1);
-                        } else {
-                            stitchHeightmapBorders(neighborHeightMap, heightMap, oppositeSide, 1, 2);
-                            stitchHeightmapBorders(heightMap, neighborHeightMap, side, 2, 1);
-                        }
+
+                    if (properties.useHeightMap && this._hmPadding > 0 ) {
+                        // const neighborHeightMap = neighborProperties.heightMap;
+                        // edge padding for lighting calculation
+                        // stitchHeightmapBorders(neighborHeightMap, heightMap, oppositeSide, 0, 0, 1);
+                        // stitchHeightmapBorders(heightMap, neighborHeightMap, side, 0, 0, 1);
+
+                        // if (side === Neighbor.RIGHT || side === Neighbor.BOTTOM) {
+                        //     stitchHeightmapBorders(neighborHeightMap, heightMap, oppositeSide, 1, 0, 2);
+                        //     stitchHeightmapBorders(heightMap, neighborHeightMap, side, 2, 0, 1);
+                        // } else {
+                        //     stitchHeightmapBorders(heightMap, neighborHeightMap, side, 1, 0, 2);
+                        //     stitchHeightmapBorders(neighborHeightMap, heightMap, oppositeSide, 2, 0, 1);
+                        // }
                     } else {
+                        updatedTiles.push(neighborTile);
                         if (side === Neighbor.RIGHT || side === Neighbor.BOTTOM) {
                             stitchMeshBorders(side, properties, neighborProperties);
                         } else {
@@ -193,6 +236,10 @@ export class TerrainTileProvider extends RemoteTileProvider {
         // const tile = res.provider.getCachedTile(res.quadkey);
         // feature.bbox = [...tile.bounds];
         return [feature];
+    }
+
+    getHeightmapPadding() {
+        return this._hmPadding;
     }
 }
 

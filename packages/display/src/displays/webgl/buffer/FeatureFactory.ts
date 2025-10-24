@@ -48,6 +48,7 @@ import {TemplateBufferBucket} from './templates/TemplateBufferBucket';
 import {ModelStyle, Color} from '@here/xyz-maps-core';
 import {ModelFactory} from './ModelFactory';
 import {ModelBuffer} from './templates/ModelBuffer';
+import {TerrainModelBuffer} from './templates/TerrainModelBuffer';
 import {ImageInfo} from '../Atlas';
 import {HeatmapBuffer} from './templates/HeatmapBuffer';
 import {TextureAtlasManager} from '../TextureAtlasManager';
@@ -110,7 +111,7 @@ type DrawGroup = {
         offsetZ: number;
         offsetUnit: string;
         alignment: string;
-        modelMode: [number, number]|null;
+        modelMode: [number, number] | null;
         scaleByAltitude: boolean;
         light: string;
         shininess: number;
@@ -191,10 +192,14 @@ export class FeatureFactory {
         this.groups = groups;
         this.tileSize = tileSize;
         this.z = zoom;
-        this.zLayer = zLayer;
+        this.zLayer = zLayer ?? -1;
         this.lineFactory.initTile();
         this.pendingCollisions.length = 0;
         this.waitAndRefresh = waitAndRefresh;
+    }
+
+    private isModelStyle(type: string): boolean {
+        return type === 'Model' || type === 'Terrain';
     }
 
     private createPoint(
@@ -210,9 +215,10 @@ export class FeatureFactory {
         rotationY: number | undefined,
         text?: string,
         defaultLineWrap?: number | boolean,
-        textAnchor?: ParsedStyleProperty<TextStyle['textAnchor']> | string
+        textAnchor?: ParsedStyleProperty<TextStyle['textAnchor']> | string,
+        requiresTerrain?: boolean
     ) {
-        const isFlat = z === null;
+        const isFlat = z === null; // && !requiresTerrain;
         const level = this.z;
         let positionBuffer;
         let collisionBufferStart;
@@ -257,7 +263,7 @@ export class FeatureFactory {
                 // !!this.collisionGroup
             );
         } else {
-            if (type == 'Model') {
+            if (this.isModelStyle(type)) {
                 let model = getValue('model', style, feature, level);
 
                 let modelId: string;
@@ -300,7 +306,27 @@ export class FeatureFactory {
                     }
 
                     const {shared} = group;
-                    bucket = group.buffer = this.modelFactory.createModelBuffer(modelId, shared.specular, shared.shininess, shared.emissive, faceCulling);
+                    bucket = group.buffer = this.modelFactory.createModelBuffer(
+                        modelId,
+                        shared.specular,
+                        shared.shininess,
+                        shared.emissive,
+                        faceCulling,
+                        type === 'Terrain' ? TerrainModelBuffer : ModelBuffer
+                    );
+
+                    if (type == 'Terrain' && feature.properties.useHeightMap) {
+                        const terrainTemplBuffer = bucket.get(0) as TerrainModelBuffer;
+                        const heightMap = feature.properties.heightMap;
+
+                        terrainTemplBuffer.heightMap = {
+                            tileSize: this.tileSize,
+                            size: Math.sqrt(heightMap.length),
+                            data: heightMap,
+                            texture: terrainTemplBuffer.getHeightMapTexture(),
+                            skirtHeight: feature.properties.skirtHeight || 0
+                        };
+                    }
                 }
 
                 this.modelFactory.addPosition(bucket, x, y, z, scale, translate, rotate, transform);
@@ -334,13 +360,11 @@ export class FeatureFactory {
                 const weight = getValue('weight', style, feature, level);
                 heatmapBuffer.addPoint(x, y, weight);
             } else if (type == 'Sphere') {
-                let width = 2 * getValue('radius', style, feature, level);
-
                 const sphereBuffer: SphereBuffer = ((group.buffer as SphereBuffer) ||= new SphereBuffer(isFlat));
                 const {flexAttributes} = sphereBuffer;
                 positionBuffer = flexAttributes.a_position;
 
-                addSphere(x, y, z, width, positionBuffer.data, flexAttributes.a_point.data, flexAttributes.a_normal.data);
+                addSphere(x, y, z, positionBuffer.data, flexAttributes.a_point.data, flexAttributes.a_normal.data);
             } else if (type == 'Box') {
                 let width = getValue('width', style, feature, level);
                 let height = getValue('height', style, feature, level) || width;
@@ -349,7 +373,7 @@ export class FeatureFactory {
                 const boxBuffer: BoxBuffer = ((group.buffer as BoxBuffer) ||= new BoxBuffer(isFlat));
                 const {flexAttributes} = boxBuffer;
                 positionBuffer = flexAttributes.a_position;
-
+                // console.log(isFlat, 'boxBuffer', boxBuffer, z);
                 addBox(x, y, z, width, height, depth, positionBuffer.data, flexAttributes.a_point.data, flexAttributes.a_normal.data);
             } else {
                 if (z > 0 && type == 'VerticalLine') {
@@ -361,6 +385,10 @@ export class FeatureFactory {
 
             collisionBufferStop = positionBuffer?.data.length;
             collisionBufferStart = collisionBufferStop - 12;
+        }
+
+        if (requiresTerrain) {
+            group.buffer.setRequiresHeightMap(true);
         }
 
         group.buffer.setIdOffset(feature.id);
@@ -435,7 +463,7 @@ export class FeatureFactory {
         for (let i = 0, iLen = styleGroups.length; i < iLen; i++) {
             style = styleGroups[i];
 
-            type = getValue('type', style, feature, level);
+            const orgType = type = getValue('type', style, feature, level);
 
             if (!type) continue;
 
@@ -526,12 +554,12 @@ export class FeatureFactory {
             rotation = getValue('rotation', style, feature, level) ^ 0;
             let altitude = getValue('altitude', style, feature, level);
 
-            if (type == 'Model') {
-                (style as ModelStyle).modelId ||= Math.random();
-                if ((style as any).terrain) {
+            if (this.isModelStyle(type)) {
+                if (type === 'Terrain') {
                     modelMode = [feature.properties.minHeight, feature.properties.maxHeight];
                 }
-                groupId = 'M' + (style as ModelStyle).modelId;
+                (style as ModelStyle).modelId ||= Math.random();
+                groupId = type.charAt(0) + (style as ModelStyle).modelId;
                 processPointOffset = true;
                 processAdvancedLight = true;
             } else if (type == 'Icon') {
@@ -707,6 +735,7 @@ export class FeatureFactory {
                                 }
                                 groupId += pointerEvents;
 
+                                alignment = 'map';
                                 processAdvancedLight = true;
                             } else {
                                 continue;
@@ -869,7 +898,15 @@ export class FeatureFactory {
                 } else {
                     const x = tile.lon2x((<GeoJSONCoordinate>coordinates)[0], tileSize);
                     const y = tile.lat2y((<GeoJSONCoordinate>coordinates)[1], tileSize);
-                    const z = typeof altitude == 'number' ? altitude : altitude ? <number>coordinates[2] || 0 : null;
+                    const requiresTerrain = altitude === 'terrain';
+
+                    const z = typeof altitude == 'number'
+                        ? altitude
+                        : requiresTerrain
+                            ? null
+                            : altitude
+                                ? <number>coordinates[2] || 0
+                                : null;
 
                     if (collisionGroup) {
                         collisionData = this.collisions.insert(
@@ -893,7 +930,8 @@ export class FeatureFactory {
                     }
 
                     this.createPoint(type, group, x, y, z, style, feature, collisionData, rotation, UNDEF, text, UNDEF,
-                        (type == 'Text' && getValue('textAnchor', style, feature, level)) as ParsedStyleProperty<TextStyle['textAnchor']>
+                        (type == 'Text' && getValue('textAnchor', style, feature, level)) as ParsedStyleProperty<TextStyle['textAnchor']>,
+                        requiresTerrain
                     );
                 }
             } else if (geomType == 'LineString') {
@@ -1050,8 +1088,8 @@ export class FeatureFactory {
 
                     const groupBuffer = group.buffer as PolygonBuffer | ExtrudeBuffer;
                     const vIndex = <number[]>groupBuffer.index();
-                    const {flexAttributes} = groupBuffer;
-                    const aPosition = flexAttributes.a_position.data;
+                    const positionAttribute = groupBuffer.getPositionAttribute();
+                    const aPosition = positionAttribute.data;
 
                     flatPolyStart = aPosition.length;
 
@@ -1074,7 +1112,13 @@ export class FeatureFactory {
                             strokeIndex
                         );
                     } else if (type == 'Polygon') {
-                        flatPoly = addPolygon(aPosition, <GeoJSONCoordinate[][]>coordinates, tile, tileSize, !groupBuffer.isFlat() );
+                        flatPoly = addPolygon(
+                            aPosition,
+                            <GeoJSONCoordinate[][]>coordinates,
+                            tile,
+                            tileSize,
+                            positionAttribute.size === 3
+                        );
                     }
 
                     group.buffer.setIdOffset(feature.id);

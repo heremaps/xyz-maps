@@ -101,12 +101,21 @@ export class PointBuffer extends TemplateBuffer {
         const alignMap = <boolean>buffer.getUniform('u_alignMap');
         const scaleByAltitude = <boolean>buffer.getUniform('u_scaleByAltitude');
         const {scale, scaleZ, sMat} = rayCaster;
-        const invMapScale = alignMap ? 1 / rayCaster.scale : 1;
+
+        // const invRenderScale = 1 / buffer.renderScale;
+        let scaleXYZ = alignMap
+            ? rayCaster.getInverseWorldScale(buffer.renderScale) // world scale
+            // : [1 / buffer.renderScale, 1 / buffer.renderScale, 1]; // screen scale
+            : [1, 1, 1]; // screen scale
+
+        const invMapScale = alignMap ? 1 / buffer.renderScale : 1;
         let width;
         let height;
         let [offsetX, offsetY, offsetZ] = getOffsetPixel(buffer, scale);
 
-        offsetZ = -offsetZ / scaleZ / scale;
+        offsetX *= scaleXYZ[0];
+        offsetY *= scaleXYZ[1];
+        offsetZ *= scaleXYZ[2];
 
         if (type === 'Rect') {
             const size = buffer.getUniform('u_size');
@@ -117,8 +126,8 @@ export class PointBuffer extends TemplateBuffer {
             width = height = buffer.getUniform('u_radius')[0];
         }
 
-        width *= invMapScale;
-        height *= invMapScale;
+        width *= scaleXYZ[0];
+        height *= scaleXYZ[1];
 
         const positionAttribute = (attributes.a_position as Attribute);
         const position = positionAttribute.data;
@@ -126,21 +135,26 @@ export class PointBuffer extends TemplateBuffer {
         const t0 = [0, 0, 0];
         const t1 = [0, 0, 0];
         let intersectionPoint;
-
         let rayOrigin;
         let rayDirection;
+        let screenMatrix;
         let bufferIndex = null;
+        let renderScale = 1;
 
         if (alignMap) {
             rayOrigin = rayCaster.origin;
             rayDirection = rayCaster.direction;
-
-            offsetX /= scale;
-            offsetY /= scale;
         } else {
             intersectionPoint = [0, 0, 0];
+            screenMatrix = rayCaster.sMat;
+            renderScale = buffer.renderScale / scale;
+            rayOrigin = rayCaster.sOrigin;
+            rayDirection = rayCaster.sDirection;
         }
-
+        // tileScale combines renderScale (screen-space scaling) and extentScale (tile coordinate normalization).
+        // renderScale only affects screen-space rendering (u_alignMap == false).
+        // In world-space mode, geometry uses map units directly, so renderScale is not applied.
+        const tileScale = renderScale / extentScale;
         const m3 = sMat[3];
         const m7 = sMat[7];
         const m11 = sMat[11];
@@ -149,25 +163,20 @@ export class PointBuffer extends TemplateBuffer {
         const stride = 6 * size;
 
         for (let i = 0, y = 0; i < position.length; i += stride, y += 6) {
-            let x0 = tileX + (position[i] >> 2) / extentScale;
-            let y0 = tileY + (position[i + 1] >> 2) / extentScale;
+            let x0 = tileX + (position[i] >> 2) * tileScale;
+            let y0 = tileY + (position[i + 1] >> 2) * tileScale;
             // convert normalized int16 to float meters (-500m ... +9000m)
             // z0 = (z0 - 32267.0) * 0.14496292001098665;
             let z0 = size == 3 ? decodeUint16z(position[i + 2]) : 0;
             let dx0 = (position[i] & 2) - 1;
             let dy0 = (position[i + 1] & 2) - 1;
 
-
             let j = i + 2 * size;
             let dx1 = (position[j] & 2) - 1;
             let dy1 = (position[j + 1] & 2) - 1;
 
-
             if (type === 'Icon') {
                 let point = (attributes.a_size as Attribute)?.data;
-                // const [scaleWidth, scaleHeight] = rayCaster.getInverseScale(true);
-                // width = point[y] / 2 * scaleWidth;
-                // height = point[y + 1] / 2 * scaleHeight;
                 width = point[y] * .5 * invMapScale;
                 height = point[y + 1] * .5 * invMapScale;
             }
@@ -210,8 +219,7 @@ export class PointBuffer extends TemplateBuffer {
                 // rayOrigin = rayCaster.origin;
                 // rayDirection = rayCaster.direction;
 
-
-                transformMat4(t0, t0, rayCaster.sMat);
+                transformMat4(t0, t0, screenMatrix);
 
                 t0[0] += offsetX;
                 t0[1] += offsetY;
@@ -222,9 +230,6 @@ export class PointBuffer extends TemplateBuffer {
 
                 t0[0] += dx0 * width;
                 t0[1] -= dy0 * height;
-
-                rayOrigin = rayCaster.sOrigin;
-                rayDirection = rayCaster.sDirection;
             }
 
             let intersectRayLength = rayCaster.intersectAABBox(
@@ -233,7 +238,6 @@ export class PointBuffer extends TemplateBuffer {
                 rayOrigin,
                 rayDirection
             );
-
 
             if (intersectRayLength) {
                 if (!alignMap) {

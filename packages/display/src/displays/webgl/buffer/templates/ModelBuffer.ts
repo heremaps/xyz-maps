@@ -154,7 +154,10 @@ export class ModelBuffer extends TemplateBuffer {
         return [minX, minY, minZ, maxX, maxY, maxZ];
     }
 
-    static init(data: ModelGeometry, attributes: ModelBuffer['flexAttributes'] = {}) {
+    static init(data: ModelGeometry & {
+        // Set `normal` to `false` to disable automatic normal vector calculation.
+        normal?: TypedArray | number[] | false
+    }, attributes: ModelBuffer['flexAttributes'] = {}) {
         if (data) {
             const {position, color, uv} = data;
             let colorRGB: Uint8Array | number[] | string = NO_COLOR_WHITE;
@@ -165,7 +168,7 @@ export class ModelBuffer extends TemplateBuffer {
                 size: 3
             };
 
-            const normal = data.normal ||= GeometryBuffer.computeNormals(position, data.index);
+            const normal = data.normal ??= GeometryBuffer.computeNormals(position, data.index);
             if (normal) {
                 attributes.a_normal = {
                     data: ModelBuffer.createFlexArray(normal),
@@ -413,17 +416,6 @@ export class ModelBuffer extends TemplateBuffer {
 
                 if (group.mode == GeometryBuffer.MODE_GL_LINES) continue;
 
-                // for (let i = 0, i0, i1, i2, positionLength = indexData ? indexData.length : position.length; i < positionLength; i += 3) {
-                //     if (indexData) {
-                //         i0 = indexData[i] * size;
-                //         i1 = indexData[i + 1] * size;
-                //         i2 = indexData[i + 2] * size;
-                //     } else {
-                //         i0 = i * size;
-                //         i1 = (i + 1) * size;
-                //         i2 = (i + 2) * size;
-                //     }
-
                 for (let i = 0; i < indexData.length; i += 3) {
                     const i0 = indexData[i] * size;
                     const i1 = indexData[i + 1] * size;
@@ -450,21 +442,28 @@ export class ModelBuffer extends TemplateBuffer {
                     // t2[0] += tileX;
                     // t2[1] += tileY;
 
+                    const x0 = position[i0] * positionScaleX;
+                    const y0 = position[i0 + 1] * positionScaleY;
 
-                    t0[0] = tileX + (position[i0]) * positionScaleX + translateX;
-                    t0[1] = tileY + (position[i0 + 1]) * positionScaleY + translateY;
+                    t0[0] = tileX + x0 + translateX;
+                    t0[1] = tileY + y0 + translateY;
 
-                    t1[0] = tileX + (position[i1]) * positionScaleX + translateX;
-                    t1[1] = tileY + (position[i1 + 1]) * positionScaleY + translateY;
+                    const x1 = position[i1] * positionScaleX;
+                    const y1 = position[i1 + 1] * positionScaleY;
 
-                    t2[0] = tileX + (position[i2]) * positionScaleX + translateX;
-                    t2[1] = tileY + (position[i2 + 1]) * positionScaleY + translateY;
+                    t1[0] = tileX + x1 + translateX;
+                    t1[1] = tileY + y1 + translateY;
+
+                    const x2 = position[i2] * positionScaleX;
+                    const y2 = position[i2 + 1] * positionScaleY;
+
+                    t2[0] = tileX + x2 + translateX;
+                    t2[1] = tileY + y2 + translateY;
 
                     if (size == 3) {
                         t0[2] = position[i0 + 2] * positionScaleZ + translateZ;
                         t1[2] = position[i1 + 2] * positionScaleZ + translateZ;
                         t2[2] = position[i2 + 2] * positionScaleZ + translateZ;
-                        // console.log(t0, t1, t2, positionScaleZ);
                     }
 
                     const intersectRayLength = Raycaster.rayIntersectsTriangle(rayOrigin, rayDirection, t0, t1, t2);

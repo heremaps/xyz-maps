@@ -37,15 +37,15 @@ class BoxProgram extends Program {
     });
 
     static getProgramId(buffer: GeometryBuffer, macros?: { [name: string]: string | number | boolean }) {
-        const specular = <number>macros?.SPECULAR;
+        const specular = macros ? (macros.SPECULAR as number) | (macros.USE_HEIGHTMAP as number) : '';
         return specular ? buffer.type + specular : buffer.type;
     }
 
     static getMacros(buffer: GeometryBuffer) {
-        const {uniforms} = buffer;
-        let macros;
-        if (uniforms.specular) {
-            macros = {SPECULAR: 2};
+        let macros = super.getMacros(buffer);
+        if (buffer.uniforms.specular) {
+            macros ||= {};
+            macros.SPECULAR = 2;
         }
         return macros;
     }

@@ -37,6 +37,23 @@ export type TextureOptions = {
     mipMaps?: boolean
     wrapS?: GLenum;
     wrapT?: GLenum;
+    // /**
+    //  * If true, the original pixel/source data for this texture
+    //  * is preserved in system (CPU) memory even after uploading
+    //  * the texture to the GPU.
+    //  *
+    //  * Useful when you need to:
+    //  * - directly read or analyze pixel values on the CPU
+    //  * - regenerate or re-upload the texture after context loss
+    //  * - perform image processing or debugging
+    //  *
+    //  * Note:
+    //  * Keeping the source data increases memory usage
+    //  * since both a CPU copy and a GPU copy will exist.
+    //  *
+    //  * Default: false
+    //  */
+    // preserveSourceData?: boolean;
 }
 
 class Texture {
@@ -61,6 +78,7 @@ class Texture {
     private minFilter: GLenum;
     private magFilter: GLenum;
 
+    // preserveSourceData: boolean;
 
     constructor(gl: WebGLRenderingContext, image?: ImageData, options: TextureOptions = {}) {
         this.gl = gl;
@@ -75,23 +93,26 @@ class Texture {
         const textureData = (image as TextureData)?.data;
         const float = options.float || textureData instanceof Float32Array;
 
+
         let minFilter: GLenum;
         let magFilter: GLenum;
 
         if (float) {
             type = gl.FLOAT;
-            this.format = this.internalFormat = gl.LUMINANCE; // mock gl.R32F
+            if (!(options.format && options.internalFormat)) {
+                // this.format = this.internalFormat = gl.RGBA;
+                this.format = this.internalFormat = gl.LUMINANCE; // mock gl.R32F
+            }
             minFilter = magFilter = gl.NEAREST;
-            const size = Math.sqrt(textureData.length);
-            (image as TextureData).width ??= size;
-            (image as TextureData).height ??= size;
+            (image as TextureData).width ??= Math.sqrt(textureData.length);
+            (image as TextureData).height ??= (image as TextureData).width;
         } else if (this.halfFloat) {
             type = gl.getExtension('OES_texture_half_float')?.HALF_FLOAT_OES;
             gl.getExtension('OES_texture_half_float_linear');
         }
 
         this.type = type;
-
+        // this.preserveSourceData = !!options.preserveSourceData;
         this.mipMaps = mipmaps;
         this.wrapS = options.wrapS ?? gl.CLAMP_TO_EDGE;
         this.wrapT = options.wrapT ?? gl.CLAMP_TO_EDGE;
@@ -116,6 +137,7 @@ class Texture {
 
         const {width, height} = image;
         const isSubImage = typeof x == 'number';
+
 
         if (!texture) {
             this.texture = texture = gl.createTexture();
@@ -151,16 +173,16 @@ class Texture {
         }
     }
 
-    onDestroyed(tex: Texture) {
-    }
-
     destroy() {
         const {gl, texture} = this;
         if (texture) {
             gl.deleteTexture(texture);
+            this.texture = null;
         }
-        this.texture = null;
-        this.onDestroyed(this);
+    }
+
+    isDestroyed(): boolean {
+        return this.texture === null;
     }
 
     getGLTexture(): WebGLTexture {

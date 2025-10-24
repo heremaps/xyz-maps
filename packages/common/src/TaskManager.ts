@@ -33,7 +33,8 @@ export class TaskManager {
     time: number = FPS60; // -> 60FPS
     // current executing task...
     private task: Task;
-    private now = Date.now;
+    private now = ()=> performance.now();
+    // private now = Date.now;
 
     private _resume: () => void;
 

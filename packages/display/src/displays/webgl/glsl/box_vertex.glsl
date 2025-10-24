@@ -14,11 +14,9 @@ uniform float u_strokeWidth;
 uniform vec2 u_topLeft;
 uniform float u_rotation;
 uniform vec4 u_offset;
-uniform bool u_alignMap;
 uniform vec2 u_resolution;
 uniform vec2 u_offsetZ;
 uniform float u_zMeterToPixel;
-uniform bool u_scaleByAltitude;
 
 #ifdef SPHERE
 varying vec3 v_rayOrigin;
@@ -39,6 +37,11 @@ varying vec3 v_surfaceToCam;
 uniform vec3 u_camWorld;
 #endif
 
+#include "utils.glsl/heightMapUtils"
+
+#include "utils.glsl/altitudeScaleFactor"
+
+varying vec2 v_localTilePos;
 
 void main(void) {
 
@@ -51,21 +54,26 @@ void main(void) {
     #endif
 
 
-    vec3 boxCenter = vec3(u_topLeft + a_position.xy * EXTENT_SCALE, a_position.z * SCALE_UINT16_Z);
+    vec2 localTilePos = a_position.xy * EXTENT_SCALE;
+
+    #ifdef USE_HEIGHTMAP
+    float z = getTerrainHeight( localTilePos );
+    #else
+    float z = a_position.z * SCALE_UINT16_Z;
+    #endif
+
+
+    vec3 boxCenter = vec3(u_topLeft + localTilePos, z);
     boxCenter += vec3(toPixel(u_offset.xy, u_scale), toPixel(u_offset.zw, u_scale), toPixel(u_offsetZ, u_scale) / u_zMeterToPixel) / u_scale;
 
-
-    float scaleDZ = 1.0 + (u_scaleByAltitude ? 0.0 : boxCenter.z * u_matrix[2][3] / (u_matrix[0][3] * boxCenter.x + u_matrix[1][3] * boxCenter.y + u_matrix[3][3]));
-
+    float scaleDZ = altitudeScaleFactor(boxCenter, u_matrix);
     size *= scaleDZ;
 
     vec3 vertexOffset = vec3(size.xy, size.z / u_zMeterToPixel) * dir;
     vec3 vertexPos = vec3(boxCenter.xy + rotateZ(vertexOffset.xy, u_rotation), boxCenter.z + vertexOffset.z);
-    //    vec3 vertexPos = vec3(boxCenter.xy + rotateZ(vertexOffset.xy / u_scale, u_rotation), boxCenter.z + vertexOffset.z / u_scale);
 
     // clip on ground plane
     vertexPos.z = max(vertexPos.z, 0.0);
-
 
     gl_Position = u_matrix * vec4(vertexPos, 1.0);
 

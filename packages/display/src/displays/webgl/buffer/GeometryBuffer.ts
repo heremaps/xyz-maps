@@ -18,14 +18,18 @@
  */
 
 import {Attribute} from './Attribute';
-import {glType, isTypedArray, TypedArray} from './glType';
+import {glType, TypedArray} from './glType';
 import {Texture} from '../Texture';
 import {ConstantAttribute, FlexAttribute, TemplateBuffer} from './templates/TemplateBuffer';
 import {Raycaster} from '../Raycaster';
 import {PASS} from '../program/GLStates';
-import {Expression, ExpressionMode} from '@here/xyz-maps-common';
+import {Expression} from '@here/xyz-maps-common';
+import {TilePreviewInfo} from '../../Preview';
+import {HeightMapTileCache} from '../HeightMapTileCache';
 
-export type Uniform = number | number[] | Float32Array | Float64Array | Int32Array | boolean | Texture;
+type Uniforms = { [name: string]: Uniform };
+
+export type Uniform = number | number[] | Float32Array | Float64Array | Int32Array | boolean | Texture | Texture[];
 export type DynamicUniform = Expression | (Expression | Uniform)[];
 
 
@@ -44,13 +48,13 @@ export type ArrayData = {
 export type ArrayGrp = {
     arrays: ArrayData,
     mode?: number,
-    uniforms?: { [name: string]: Uniform },
+    uniforms?: Uniforms,
     attributes?: { [name: string]: Attribute }
 };
 export type IndexGrp = {
     index: IndexData,
     mode?: number,
-    uniforms?: { [name: string]: Uniform },
+    uniforms?: Uniforms,
     attributes?: { [name: string]: Attribute }
 };
 
@@ -64,7 +68,7 @@ let UNDEF;
 type CompiledUniformCache = {
     clear: boolean,
     fromCache: boolean;
-    uniforms: { [name: string]: Uniform }
+    uniforms: Uniforms
 }
 
 export type CompiledUniformData = Omit<CompiledUniformCache, 'clear'>;
@@ -135,6 +139,9 @@ class GeometryBuffer {
     progId: string;
     // If set to true, the buffer should render "pixel-perfect" to ensure sharp, precise raster graphics.
     pixelPerfect?: boolean = false;
+    // The effective scale factor applied to this geometry buffer during rendering.
+    // Used for correct sizing and ray intersection calculations relative to the current view.
+    renderScale: number = 1;
 
     private _cullFace: number = 0;
 
@@ -143,10 +150,50 @@ class GeometryBuffer {
     id?: number | string;
 
     zRange?: [min: number, max: number];
-
-
     colorMask?: { r: boolean, g: boolean, b: boolean, a: boolean };
     light?: string;
+
+
+    /**
+     * Reference or requirement flag for the height map associated with this buffer.
+     * This is requested by styles with "altitude":"terrain".
+     * - `'required'`: Indicates that a height map is required but not yet resolved.
+     * - `string`: Represents a resolved height map reference, such as a quadkey.
+     * - `TilePreviewInfo[]`: Contains preview information for one or more tiles, used for deferred or previewed height map data.
+     */
+    heightMapRef?: 'required' | string | TilePreviewInfo[];
+    terrainCache: HeightMapTileCache;
+
+    public setHeightMapRef(required: boolean): void {
+        this.heightMapRef = required ? 'required' : null;
+    }
+    // used by TerrainModelBuffer for ray intersection only
+    heightMap?: {
+        tileSize?: number;
+        size?: number;
+        data?: Float32Array;
+        texture?: Texture;
+        // if skirt is 0 or undefined, no skirt, otherwise the value defines the height of the skirt
+        skirtHeight?: number;
+    };
+
+    /**
+     * Retrieves the heightmap associated with this buffer.
+     *
+     * @returns
+     * - The heightmap object if available.
+     * - `null` if a heightmap is required but not yet available.
+     * - `false` if a heightmap is not required or not needed.
+     *
+     * @internal
+     * @hidden
+     */
+    getHeightMap(): GeometryBuffer['heightMap'] | null | false {
+        return this.heightMap || (this.heightMapRef
+            ? this.terrainCache?.get(this.heightMapRef as string)
+            : false
+        );
+    };
 
     static computeNormals(vertex: ArrayLike<number>, index?: ArrayLike<number>): TypedArray {
         const vertexLength = vertex.length;
@@ -210,21 +257,14 @@ class GeometryBuffer {
                 geoBuffer.addAttribute(name, templBuffer.trimAttribute(attr as FlexAttribute));
             }
         }
-        geoBuffer.instances = templBuffer.instances;
-
-        geoBuffer.idOffsets = templBuffer.idOffsets;
-
-        geoBuffer.rayIntersects = templBuffer.rayIntersects;
-
-        // geoBuffer.finalize = templBuffer.finalize;
-
-        geoBuffer.cullFace(templBuffer.cullFace);
 
         for (let name in templBuffer.uniforms) {
             geoBuffer.addUniform(name, templBuffer.uniforms[name]);
         }
 
         geoBuffer.light = light || templBuffer.light;
+
+        templBuffer.populateGeometryBuffer(geoBuffer);
 
         return geoBuffer;
     }
@@ -351,7 +391,7 @@ class GeometryBuffer {
         this._uniformCache.clear = true;
     }
 
-    getUniformData(): { [name: string]: Uniform } {
+    getUniformData(): Uniforms {
         return this._uniformCache.uniforms;
     }
 
@@ -398,7 +438,11 @@ class GeometryBuffer {
     needs2AlphaPasses(): boolean {
         return !!(this.pass & PASS.POST_ALPHA);
     }
-}
 
+    getRenderSpace(): 'world' | 'screen' {
+        const alignMap = this.getUniform('u_alignMap') ?? true;
+        return alignMap ? 'world' : 'screen';
+    }
+}
 
 export {GeometryBuffer};

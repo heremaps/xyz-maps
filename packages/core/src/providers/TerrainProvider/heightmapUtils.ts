@@ -23,54 +23,58 @@ enum Neighbor {
     TOP = 'top',
     BOTTOM = 'bottom'
 }
-export const stitchHeightmapBorders = (
-    heightMap: Float32Array,
-    neighbor: Float32Array,
+
+export function stitchHeightmapBorders(
+    src: Float32Array,
+    dst: Float32Array,
     side: Neighbor,
-    offset: number = 0,
-    edgeCopySize: number = 1
-): Float32Array => {
-    const size = Math.sqrt(heightMap.length);
-    const lastIndex = size - 1;
-    const getHeight = (x: number, y: number): number => {
-        return neighbor[y * size + x];
-    };
-    const setHeight = (x: number, y: number, value: number) => {
-        heightMap[y * size + x] = value;
-    };
+    srcPadding: number = 0,
+    dstPadding: number = 0,
+    rowColSize: number = 1
+): void {
+    const size = Math.sqrt(src.length);
+    const last = size - 1;
+    const get = (x: number, y: number) => src[y * size + x];
+    const set = (x: number, y: number, val: number) => dst[y * size + x] = val;
 
-    if (side === Neighbor.BOTTOM) { // bottom
-        for (let y = 0; y < edgeCopySize; y++) {
+    if (side === Neighbor.TOP) {
+        // Copy the top row from `src` into the bottom row of `dst`
+        for (let row = 0; row < rowColSize; row++) {
             for (let x = 0; x < size; x++) {
-                setHeight(x, lastIndex - y, getHeight(x, edgeCopySize - 1 + offset - y));
+                const val = get(x, srcPadding + row);
+                set(x, last - dstPadding - (rowColSize - 1 - row), val);
             }
         }
-    } else if (side === Neighbor.TOP) { // top
-        for (let y = 0; y < edgeCopySize; y++) {
+    } else if (side === Neighbor.BOTTOM) {
+        // Copy the bottom row from `src` into the top row of `dst`
+        for (let row = 0; row < rowColSize; row++) {
             for (let x = 0; x < size; x++) {
-                setHeight(x, y, getHeight(x, size - edgeCopySize - offset + y));
+                const val = get(x, last - srcPadding - (rowColSize - 1 - row));
+                set(x, dstPadding + row, val);
+            }
+        }
+    } else if (side === Neighbor.LEFT) {
+        // Copy the left column from `src` into the right column of `dst`
+        for (let col = 0; col < rowColSize; col++) {
+            for (let y = 0; y < size; y++) {
+                const val = get(srcPadding + col, y);
+                set(last - dstPadding - (rowColSize - 1 - col), y, val);
+            }
+        }
+    } else if (side === Neighbor.RIGHT) {
+        // Copy the right column from `src` into the left column of `dst`
+        for (let col = 0; col < rowColSize; col++) {
+            for (let y = 0; y < size; y++) {
+                const val = get(last - srcPadding - (rowColSize - 1 - col), y);
+                set(dstPadding + col, y, val);
             }
         }
     }
-    if (side === Neighbor.RIGHT) { // right
-        for (let y = 0; y < size; y++) {
-            for (let x = 0; x < edgeCopySize; x++) {
-                setHeight(lastIndex - x, y, getHeight(edgeCopySize - 1 + offset - x, y));
-            }
-        }
-    } else if (side === Neighbor.LEFT) { // left
-        for (let y = 0; y < size; y++) {
-            for (let x = 0; x < edgeCopySize; x++) {
-                setHeight(edgeCopySize - 1 - x, y, getHeight(lastIndex - offset - x, y));
-            }
-        }
-    }
-    return heightMap;
-};
+}
 
-export const extendHeightMapWithFullClamping = (heightMap: ArrayLike<number> ) => {
+export const extendHeightMapWithFullClamping = (heightMap: ArrayLike<number>, padding: number) => {
     const size = Math.sqrt(heightMap.length);
-    const paddedSize = size + 2;
+    const paddedSize = size + 2 * padding;
     const result = new Float32Array(paddedSize * paddedSize);
     const get = (x: number, y: number) => heightMap[y * size + x];
     const set = (x: number, y, value: number) => result[y * paddedSize + x] = value;
@@ -198,7 +202,15 @@ const isPowerOfTwoPlusOne = (n: number): boolean => {
     return (v & (v - 1)) === 0;
 };
 
-export function decodeHeights(imgData: ImageData, encoding: string, fillStrategy: string = 'extrapolate', decodeScale: number = 1, decodeOffset: number = 1) {
+
+export function decodeHeights(
+    imgData: ImageData,
+    encoding: string,
+    fillStrategy: string = 'extrapolate',
+    decodeScale: number = 1,
+    decodeOffset: number = 1,
+    dbgVal?: string
+) {
     const {width, height, data} = imgData;
     const gridSize = width + Number(!isPowerOfTwoPlusOne(width));
     const terrain = new Float32Array(gridSize * gridSize);

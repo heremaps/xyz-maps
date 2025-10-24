@@ -165,7 +165,7 @@ export const quantizeVertexData = (
     return vertices3d;
 };
 
-type VertexData = Float64Array | Float32Array | Uint16Array | Int16Array | number[];
+type VertexData = Float64Array | Float32Array | Uint32Array | Uint16Array | Uint8Array | number[];
 
 const accumulateFaceNormal = (vertex: VertexData, i1: number, i2: number, i3: number, normals: VertexData, scaleXY: number = 1) => {
     const t3x = vertex[i1];

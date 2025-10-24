@@ -22,7 +22,7 @@ import {vec3, Color} from '@here/xyz-maps-common';
 // import multiply = vec3.multiply;
 import add = vec3.add;
 import toRGB = Color.toRGB;
-import {UniformMap} from './program/Program';
+import {CompiledUniformMap, UniformMap} from './program/Program';
 
 
 export type ProcessedLights = ((AmbientLight|DirectionalLight) & { color: Color.Color; })[];
@@ -46,10 +46,10 @@ export const defaultLight: ProcessedLights = [{
 // const LIGHT_SYMBOL = Symbol.for('lightID');
 const UNIFORMS = Symbol();
 
-export const initLightUniforms = (lights: ProcessedLights): UniformMap => {
+export const initLightUniforms = (lights: ProcessedLights): CompiledUniformMap => {
     const totalAmbientColor = [0, 0, 0];
     let dirLights = 0;
-    let uniforms: UniformMap = lights[UNIFORMS];
+    let uniforms: CompiledUniformMap = lights[UNIFORMS];
     if (uniforms) {
         return uniforms;
     }

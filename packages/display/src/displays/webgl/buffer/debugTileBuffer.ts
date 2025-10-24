@@ -27,14 +27,17 @@ import {FlexAttribute} from './templates/TemplateBuffer';
 import {PASS} from '../program/GLStates';
 import {createImageBuffer} from './createImageBuffer';
 import {Color as ColorUtils} from '@here/xyz-maps-common';
+import {CompiledUniformMap} from '../program/Program';
+
 const {toRGB} = ColorUtils;
 
-export const createStencilTileBuffer = (tileSize: number, gl: WebGLRenderingContext) => {
-    const tileBuffer = createImageBuffer({
+export type StencilTileBuffer = GeometryBuffer & { uniforms: CompiledUniformMap };
+export const createStencilTileBuffer = (tileSize: number, gl: WebGLRenderingContext) : StencilTileBuffer => {
+    const tileBuffer: StencilTileBuffer = createImageBuffer({
         width: 1,
         height: 1,
         data: new Uint8ClampedArray([255, 255, 255, 255])
-    }, gl, 1, false);
+    }, gl, 1, false) as StencilTileBuffer;
     tileBuffer.id = 'StencilTile';
     tileBuffer.clip = true;
     tileBuffer.depth = false;

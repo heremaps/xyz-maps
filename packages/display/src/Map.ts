@@ -143,7 +143,7 @@ export class Map {
     private _z: number; // zoom level
     private _tlwx: number;
     private _tlwy: number;
-    private _groundResolution: number; // meter per pixel at zoom
+    private _groundResolutionFixed: number; // meter per pixel at zoom
 
     private _maxZoomExtent: number;
     private _repeatWorldViewX: boolean;
@@ -346,7 +346,7 @@ export class Map {
 
         // Ensure the camera stays above the terrain after terrain data has finished loading
         tigerMap._onTerrainReadyListener = (ev) => {
-            this._camController.ensureAboveTerrain();
+            this._ensureCamAboveTerrain();
         };
 
         for (let layer of (options['layers'] || [])) {
@@ -406,9 +406,9 @@ export class Map {
 
         this._mvListener.watch(true);
 
-        this._groundResolution = earthCircumference(centerGeo.latitude) / this._worldSizeFixed;
+        this._groundResolutionFixed = earthCircumference(centerGeo.latitude) / this._worldSizeFixed;
 
-        display.setView(this.initViewPort(), this._s, this._rz, this._rx, this._groundResolution, this._worldSize);
+        display.setView(this.initViewPort(), this._s, this._rz, this._rx, this._groundResolutionFixed, this._worldSize);
 
         const zoomlevel = this.getZoomlevel();
 
@@ -426,9 +426,14 @@ export class Map {
             this._l.trigger('center', ['center', centerGeo, prevCenterGeo], true);
             this._pc = centerGeo;
         }
-        this._camController.ensureAboveTerrain();
+        this._ensureCamAboveTerrain();
     }
 
+    private _ensureCamAboveTerrain() {
+        if (this._terrainLayer) {
+            this._camController.ensureAboveTerrain();
+        }
+    }
 
     /**
      * Returns the terrain height at the specified world coordinates.
@@ -1128,7 +1133,7 @@ export class Map {
                     this._worldSizeFixed = Math.pow(2, this._z) * TILESIZE;
                 }
 
-                this._display.setView(this.initViewPort(), scale * Math.pow(.5, deltaFixedZoom), this._rz, this._rx, this._groundResolution, this._worldSize);
+                this._display.setView(this.initViewPort(), scale * Math.pow(.5, deltaFixedZoom), this._rz, this._rx, this._groundResolutionFixed, this._worldSize);
                 // this._display.setTransform(scale * Math.pow(.5, deltaFixedZoom), this._rz, this._rx, this._worldSizeFixed);
 
                 const uFixed = this._display.unproject(fixedX, fixedY);
@@ -1635,12 +1640,21 @@ export class Map {
          */
         position: { longitude: number, latitude: number, altitude: number }
         } {
-        const cameraWorld = (this._display.render as GLRender).cameraWorld;
-        const [longitude, latitude, altitude] = this._w2g(cameraWorld[0], cameraWorld[1], cameraWorld[2]);
+        let longitude;
+        let latitude;
+        let altitude = 0;
+        if (this._display instanceof WebglDisplay) {
+            const cameraWorld = (this._display.render as GLRender).cameraWorld;
+            const camGeo = this._w2g(cameraWorld[0], cameraWorld[1], cameraWorld[2]);
+            longitude = camGeo[0];
+            latitude = camGeo[1];
+            altitude = camGeo[2];
+        } else {
+            longitude = this._c.longitude;
+            latitude = this._c.latitude;
+        }
         // const [longitude, latitude, altitude] = this._w2g(map._unprj(map._cx, map._cy, -1));
-        return {
-            position: {longitude, latitude, altitude}
-        };
+        return {position: {longitude, latitude, altitude}};
     }
 
     /**
@@ -1651,7 +1665,7 @@ export class Map {
      */
     _translateGeoCoord(coordinate: number[], dx: number, dy: number, dz: number): number[] {
         const map = this;
-        const zPixelToMeter = map._groundResolution / map._s;
+        const zPixelToMeter = map._groundResolutionFixed / map._s;
         // const zPixelToMeter = 1 / map._display.render.zMeterToPixel / map._display.render.scale;
         let [longitude, latitude, altitude] = coordinate;
 

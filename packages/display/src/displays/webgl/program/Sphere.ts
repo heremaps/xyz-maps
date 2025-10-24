@@ -18,29 +18,13 @@
  */
 
 import BoxProgram from './Box';
-import {GeometryBuffer} from '../buffer/GeometryBuffer';
-import {BufferCache, ViewUniforms} from '../GLRender';
-
+import {ViewUniforms} from '../GLRender';
 
 class SphereProgram extends BoxProgram {
     name = 'Sphere';
 
-    static getProgramId(buffer: GeometryBuffer, macros?: { [name: string]: string | number | boolean }) {
-        const specular = <number>macros?.SPECULAR;
-        return specular ? buffer.type + specular : buffer.type;
-    }
-
-    static getMacros(buffer: GeometryBuffer) {
-        const {uniforms} = buffer;
-        let macros;
-        if (uniforms.specular) {
-            macros = {SPECULAR: 2};
-        }
-        return macros;
-    }
-
-    constructor(gl: WebGLRenderingContext, devicePixelRation: number) {
-        super(gl, devicePixelRation, {SPHERE: true});
+    constructor(gl: WebGLRenderingContext, devicePixelRation: number, macros?: { [name: string]: string | number | boolean }) {
+        super(gl, devicePixelRation, {SPHERE: true, ...macros});
     }
 
     override initViewUniforms(displayUniforms: ViewUniforms) {

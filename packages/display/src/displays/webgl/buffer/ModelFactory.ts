@@ -212,10 +212,12 @@ class ModelFactory {
 
     createModelBuffer(
         id: string,
-        specular?: [number, number, number],
-        shininess?: number,
-        emissive?: [number, number, number],
-        cullFace?: number) {
+        specular: [number, number, number],
+        shininess: number,
+        emissive: [number, number, number],
+        cullFace: number,
+        ModelBufferClass: typeof ModelBuffer = ModelBuffer
+    ) {
         const model = this.models[id];
         let bufferBucket;
         if (model) {
@@ -228,7 +230,7 @@ class ModelFactory {
             for (let i = 0; i < parts.length; i++) {
                 let {attributes, bbox, uniforms, index, first, count} = parts[i];
 
-                let buffer = new ModelBuffer(undef, undef, modelMatrix, positionOffset);
+                let buffer = new ModelBufferClass(undef, undef, modelMatrix, positionOffset);
                 // share a single buffer for the model-matrix data across multiple GeometryBuffers of the same model.
                 modelMatrix = buffer.flexAttributes.a_modelMatrix;
                 positionOffset = buffer.flexAttributes.a_offset;

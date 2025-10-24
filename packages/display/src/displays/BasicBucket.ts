@@ -31,8 +31,12 @@ abstract class BasicBucket {
 
     abstract create(quadkey: string, layers: any[]): BasicTile
 
-    setSize(size: number) {
+    setMaxSize(size: number) {
         this.tiles.setSize(size);
+    }
+
+    getMaxSize() {
+        return this.tiles.max;
     }
 
     get(quadkey: string, skipTrack?: boolean) {

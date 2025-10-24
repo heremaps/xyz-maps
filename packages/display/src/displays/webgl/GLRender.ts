@@ -32,16 +32,18 @@ import ExtrudeProgram from './program/Extrude';
 import BoxProgram from './program/Box';
 import SphereProgram from './program/Sphere';
 import ModelProgram from './program/Model';
+import TerrainProgram from './program/Terrain';
 import HeatmapProgram from './program/Heatmap';
 import VerticalLineProgram from './program/VerticalLine';
 import {createSkyBuffer, createSkyMatrix, SkyProgram} from './program/Sky';
-import Program, {ColorMask, UniformMap} from './program/Program';
+import Program, {ColorMask, UniformMap, CompiledUniformMap} from './program/Program';
 
-import {createGridTextBuffer, createGridTileBuffer, createStencilTileBuffer} from './buffer/debugTileBuffer';
+import {createGridTextBuffer, createGridTileBuffer, createStencilTileBuffer, StencilTileBuffer} from './buffer/debugTileBuffer';
 import {GeometryBuffer, IndexData, IndexGrp} from './buffer/GeometryBuffer';
 
 import {PASS} from './program/GLStates';
 import {GRID_PITCH_CLAMP} from './Display';
+import {HeightMapTileCache} from './HeightMapTileCache';
 
 import {transformMat4} from 'gl-matrix/vec3';
 import {
@@ -57,7 +59,8 @@ import {
     rotateX,
     rotateZ,
     scale,
-    translate
+    translate,
+    fromScaling
 } from 'gl-matrix/mat4';
 import BasicTile from '../BasicTile';
 import {Attribute} from './buffer/Attribute';
@@ -124,7 +127,6 @@ export type ViewUniforms = {
     inverseMatrix: Float32Array;
 }
 
-
 export class GLRender implements BasicRender {
     static DEFAULT_COLOR_MASK: ColorMask = {
         r: true, g: true, b: true, a: true
@@ -172,13 +174,13 @@ export class GLRender implements BasicRender {
 
     private dbgTile: { [tileSize: number]: GeometryBuffer } = {};
     private dbgRenderTile: RenderTile = new RenderTile();
-    private stencilTile: GeometryBuffer;
+    private stencilTile: StencilTileBuffer;
     private depthFnc: GLenum;
     private depthMask: boolean;
     private readonly ctxAttr: WebGLContextAttributes;
     private depthBufferSize: number;
 
-    processedLight: { [lightSetName: string]: UniformMap }[] = [];
+    processedLight: { [lightSetName: string]: CompiledUniformMap }[] = [];
 
     pass: PASS;
     buffers: BufferCache = new WeakMap();
@@ -206,7 +208,8 @@ export class GLRender implements BasicRender {
         fixedView: 0,
         inverseMatrix: new Float32Array(16)
     };
-    private bufferLightUniforms: UniformMap;
+    private bufferLightUniforms: CompiledUniformMap;
+    private terrainHeightMapCache: HeightMapTileCache;
 
     constructor(renderOptions: RenderOptions) {
         this.ctxAttr = {
@@ -301,14 +304,13 @@ export class GLRender implements BasicRender {
     }
 
 
-    init(canvas: HTMLCanvasElement, devicePixelRation: number): void {
+    init(canvas: HTMLCanvasElement, devicePixelRation: number, terrainHeightMapTextures: HeightMapTileCache): void {
         this.dpr = devicePixelRation;
 
         const gl = <WebGLRenderingContext>canvas.getContext('webgl', this.ctxAttr);
 
         // @ts-ignore
         gl.dpr = devicePixelRation;
-
 
         this.startTime = Date.now();
 
@@ -319,9 +321,12 @@ export class GLRender implements BasicRender {
             EXTENSION_OES_TEXTURE_FLOAT
         ]);
 
+        this.terrainHeightMapCache = terrainHeightMapTextures;
+        this.terrainHeightMapCache.initEmptyTexture(this.gl);
+
         this.initContext();
 
-        const stencilTile = createStencilTileBuffer(1, gl);
+        const stencilTile: StencilTileBuffer = createStencilTileBuffer(1, gl);
         stencilTile.pass = PASS.OPAQUE | PASS.ALPHA;
         // need to be set to enable stencil test in program init.
         stencilTile.blend = true;
@@ -348,6 +353,7 @@ export class GLRender implements BasicRender {
             Box: {program: BoxProgram, default: false},
             Sphere: {program: SphereProgram, default: false},
             Model: {program: ModelProgram, default: false},
+            Terrain: {program: TerrainProgram, default: false},
             Heatmap: {program: HeatmapProgram, default: false},
             Sky: {program: SkyProgram}
         };
@@ -398,9 +404,9 @@ export class GLRender implements BasicRender {
     grid(show: boolean | { grid3d: boolean }): void {
         if (typeof show == 'object') {
             if (show.grid3d != undefined) {
-                ModelProgram.dbgGrid = !!show.grid3d;
+                TerrainProgram.dbgGrid = !!show.grid3d;
                 for (let name in this.programs) {
-                    if (name.startsWith('Model')) {
+                    if (this.programs[name] instanceof TerrainProgram) {
                         this.programs[name].delete();
                         delete this.programs[name];
                     }
@@ -647,7 +653,7 @@ export class GLRender implements BasicRender {
         this.drawBuffer(dbgRenderTile, x + 4, y + 4);
     }
 
-    deleteBuffer(buffer: GeometryBuffer) {
+    releaseGeometryBuffer(buffer: GeometryBuffer, quadkey?: string): void {
         const {buffers, gl} = this;
         let {attributes, uniforms} = buffer;
 
@@ -675,6 +681,14 @@ export class GLRender implements BasicRender {
             const index = (<IndexGrp>grp).index;
             if (index) {
                 gl.deleteBuffer(buffers.get(index));
+            }
+        }
+
+        if (buffer.heightMap) {
+            const cached = this.terrainHeightMapCache.get(quadkey);
+            if (cached) {
+                cached.texture.destroy();
+                this.terrainHeightMapCache.delete(quadkey);
             }
         }
 
@@ -724,7 +738,7 @@ export class GLRender implements BasicRender {
         program: Program,
         buffer: GeometryBuffer,
         renderPass: PASS,
-        uniforms: UniformMap = buffer.getUniformData(),
+        uniforms: CompiledUniformMap = buffer.getUniformData(),
         cameraWorld?: Float64Array
     ) {
         const bufAttributes = buffer.getAttributes();
@@ -741,8 +755,8 @@ export class GLRender implements BasicRender {
         if (buffer.light && this.bufferLightUniforms) {
             program.initLight(this.bufferLightUniforms, cameraWorld || this.cameraWorld);
         }
-
         program.initUniforms(uniforms);
+        program.initHeightMap(buffer, this.terrainHeightMapCache);
     }
 
     private drawBuffer(
@@ -779,8 +793,10 @@ export class GLRender implements BasicRender {
                 const {sharedUniforms} = this;
                 sharedUniforms.u_scale = this.scale * dZoom;
                 sharedUniforms.u_matrix = mvpMat || renderTile.updateMVPMatrix(buffer.pixelPerfect ? this.vPRasterMat : this.vPMat);
+                // Converts a value in meters to pixels at the reference zoom level.
+                // The initial tile data is defined at this zoom, so this factor is equivalent to 1 divided by the ground resolution at the tile's zoom level.
                 sharedUniforms.u_zMeterToPixel = this.zMeterToPixel / dZoom;
-
+                buffer.renderScale = sharedUniforms.u_scale;
                 // must be set at render time
                 this.viewUniforms.fixedView = this.fixedView;
 

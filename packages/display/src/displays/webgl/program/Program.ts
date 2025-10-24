@@ -23,13 +23,25 @@ import {GLStates, PASS} from './GLStates';
 import introVertex from '../glsl/intro_vertex.glsl';
 // @ts-ignore
 import lightGLSL from '../glsl/light.glsl';
-import {ArrayGrp, DynamicUniform, GeometryBuffer, IndexData, IndexGrp, Uniform} from '../buffer/GeometryBuffer';
+// @ts-ignore
+import utilsGLSL from '../glsl/utils.glsl';
+import {
+    ArrayGrp,
+    DynamicUniform,
+    GeometryBuffer,
+    IndexData,
+    IndexGrp,
+    Uniform
+} from '../buffer/GeometryBuffer';
 import {BufferCache, ViewUniforms} from '../GLRender';
 import {Attribute} from '../buffer/Attribute';
 import {ConstantAttribute} from '../buffer/templates/TemplateBuffer';
+import {Texture} from '../Texture';
+import {HeightMapTileCache} from '../HeightMapTileCache';
 
 const GLSL_INCLUDES = {
-    'light.glsl': lightGLSL
+    'light.glsl': lightGLSL,
+    'utils.glsl': utilsGLSL
 };
 
 let UNDEF;
@@ -37,6 +49,11 @@ let UNDEF;
 type UniformLocations = {
     [name: string]: WebGLUniformLocation
 };
+
+
+export type CompiledUniformMap = {
+    [name: string]: Uniform;
+}
 
 export type UniformMap = {
     [name: string]: Uniform | DynamicUniform
@@ -59,9 +76,13 @@ class Program {
     protected framebuffer: WebGLFramebuffer;
     private colorMask: ColorMask;
 
+    // static _noMacros = {};
     static getMacros(buffer: GeometryBuffer): {
         [name: string]: string | number | boolean
     } {
+        if (buffer.heightMapRef) {
+            return {USE_HEIGHTMAP: 128};
+        }
         return null;
     }
 
@@ -96,12 +117,13 @@ class Program {
 
     protected _pass: PASS;
 
-    private textureUnits: number = 0;
+    private texUnitCount: number;
+
+    private terrainPreviewMaxTiles = 8;
 
     private macros: {
         [name: string]: string | number | boolean
     } = {
-        // '#version 300 es',s
             'M_PI': 3.1415927410125732
         };
 
@@ -118,6 +140,7 @@ class Program {
     ) {
         this.dpr = devicePixelRation;
         this.usage = gl.STATIC_DRAW;
+
         if (macros) {
             this.macros = {...this.macros, ...macros};
         }
@@ -186,12 +209,31 @@ class Program {
         case gl.INT:
             return (v) => gl.uniform1i(location, v);
         case gl.SAMPLER_2D:
-            const tu = this.textureUnits++;
-            return (v) => {
-                gl.uniform1i(location, tu);
-                gl.activeTexture(gl.TEXTURE0 + tu);
-                v?.bind();
-                // gl.bindTexture(gl.TEXTURE_2D, v?.texture);
+            if (uInfo.size === 1) {
+                const tu = this.texUnitCount++;
+                return (v) => {
+                    gl.uniform1i(location, tu);
+                    gl.activeTexture(gl.TEXTURE0 + tu);
+                    v?.bind();
+                    // gl.bindTexture(gl.TEXTURE_2D, v?.texture);
+                };
+            }
+            const baseUnit = this.texUnitCount;
+            this.texUnitCount += uInfo.size;
+
+            const maxUnits = new Int32Array(uInfo.size);
+            for (let i = 0; i < uInfo.size; i++) {
+                maxUnits[i] = baseUnit + i;
+            }
+
+            return (textures: Texture[]) => {
+                const count = textures.length;
+                for (let i = 0; i < count; i++) {
+                    gl.activeTexture(gl.TEXTURE0 + maxUnits[i]);
+                    textures[i]?.bind();
+                }
+                gl.uniform1iv(location, maxUnits);
+                // gl.uniform1iv(location, maxUnits.subarray(0, count));
             };
         }
 
@@ -226,6 +268,7 @@ class Program {
         const glProg = createProgram(gl, vertexSrc, fragSrc);
 
         this.prog = glProg;
+        this.texUnitCount = 0;
 
         // setup attributes
         let activeAttributes = gl.getProgramParameter(glProg, gl.ACTIVE_ATTRIBUTES);
@@ -244,9 +287,7 @@ class Program {
             const uInfo = gl.getActiveUniform(glProg, u);
             const name = uInfo.name;
             const location = gl.getUniformLocation(glProg, name);
-
             this.uniforms[name] = location;
-
             // gl.getUniformLocation(program, uniformInfo.name);
             this.uniformSetters[uInfo.name] = this.createUniformSetter(uInfo, location);
         }
@@ -260,17 +301,17 @@ class Program {
         return this.uniforms[name];
     }
 
-    initUniform(name: string, data: any) {
+    initUniform(name: string, data: Uniform) {
         this.uniformSetters[name]?.(data);
     }
 
-    initUniforms(uniforms: UniformMap) {
+    initUniforms(uniforms: CompiledUniformMap) {
         for (let name in uniforms) {
             this.initUniform(name, uniforms[name]);
         }
     }
 
-    initViewUniforms(displayUniforms: ViewUniforms ) {
+    initViewUniforms(displayUniforms: ViewUniforms) {
     }
 
     private setConstantAttributeValue(location: number, value: number[]) {
@@ -558,9 +599,43 @@ class Program {
         this.colorMask = colorMask;
     }
 
-    initLight(bufferLightUniforms: UniformMap, cameraWorld: Float64Array) {
+    initLight(bufferLightUniforms: CompiledUniformMap, cameraWorld: Float64Array) {
         this.initUniforms(bufferLightUniforms);
         this.initUniform('u_camWorld', cameraWorld);
+    }
+
+    /**
+     * Initializes the terrain heightmap for the given GeometryBuffer.
+     * Binds heightmap textures and sets related uniforms for the shader programs.
+     */
+    initHeightMap(geomBuffer: GeometryBuffer, heightMapTextures: HeightMapTileCache) {
+        const start = performance.now();
+        if (!geomBuffer.heightMapRef && !geomBuffer.heightMap) {
+            return;
+        }
+
+        let tileSize = heightMapTextures.tileSize;
+        let heightMapSize: number;
+
+        if (geomBuffer.heightMap) {
+            heightMapSize = geomBuffer.heightMap.size;
+            // Handle case when geomBuffer is a TerrainGeometryBuffer with a direct heightMap
+            // HeightMap is already set in uniforms -> no further action required here.
+        } else {
+            if (typeof geomBuffer.heightMapRef === 'string') {
+                // terrain data from same tile is available
+                const terrainQuadkey: string = geomBuffer.heightMapRef;
+                let heightMapTexture: Texture = heightMapTextures.get(terrainQuadkey)?.texture;
+                if (!heightMapTexture) {
+                    heightMapTexture = heightMapTextures.getEmptyTexture();
+                    tileSize = heightMapTexture.width - heightMapTextures.tilePadding;
+                }
+                heightMapSize = heightMapTexture.width;
+                this.initUniform('uHeightMap', heightMapTexture);
+            }
+        }
+
+        this.gl.uniform2f(this.getUniformLocation('uHeightMapTileSize'), heightMapSize, tileSize);
     }
 }
 

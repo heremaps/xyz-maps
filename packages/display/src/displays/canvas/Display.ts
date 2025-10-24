@@ -243,7 +243,7 @@ class CanvasDisplay extends BasicDisplay {
             tiles = deviceSetup[0];
         }
 
-        display.buckets.setSize(tiles);
+        display.buckets.setMaxSize(tiles);
 
         if (ctxLength < deviceSetup[2]) {
             ctxLength = deviceSetup[2];

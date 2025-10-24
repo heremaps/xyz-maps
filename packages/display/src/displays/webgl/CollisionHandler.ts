@@ -24,7 +24,7 @@ import {Layer} from '../Layers';
 import {FlexAttribute} from './buffer/templates/TemplateBuffer';
 import {Map as MapDisplay} from '../../Map';
 import {ViewportTile} from '../BasicDisplay';
-import {CREATE_BUFFER_TASK_PRIORITY} from './buffer/createBuffer';
+import {BUFFER_FACTORY_TASK_PRIORITY} from './buffer/factory/GeometryBufferFactory';
 
 const DEBUG = false;
 const UPDATE_DELAY_MS = !DEBUG && (1000/4); // 4 times per second
@@ -78,7 +78,7 @@ const CollisionTask: TaskOptions<[CollisionHandler, Iterable<Layer>, () => void]
     onDone?: (updated: boolean) => void
 }> = {
     time: 4,
-    priority: CREATE_BUFFER_TASK_PRIORITY - 1,
+    priority: BUFFER_FACTORY_TASK_PRIORITY - 1,
     init([collisionHandler, layers, onDone]) {
         const screenCollisionData = collisionHandler.projectCollisionsToScreen(layers, null);
         // sort by collision priority

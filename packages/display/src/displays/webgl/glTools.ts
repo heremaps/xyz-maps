@@ -84,14 +84,15 @@ export const preprocessShaderIncludes = (source: string, includes: {
     }
 
     return source.replace(includePattern, (match, includeFile, blockName) => {
-        const includeSource = includes[includeFile];
+        let includeSource = includes[includeFile];
         if (includeSource) {
             if (blockName) {
-                let blockSrc = extractBlock(includeSource, blockName);
+                const blockSrc = extractBlock(includeSource, blockName);
                 if (blockSrc == null) {
                     onError(`Block "${blockName}" not found in "${includeFile}".`);
                     return;
                 }
+                includeSource = blockSrc;
             }
             return includeSource;
         }

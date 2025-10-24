@@ -18,7 +18,7 @@
  */
 
 export type RTINMesh = {
-    vertices: Float32Array;
+    vertices: Uint8Array | Uint16Array | Uint32Array | Float32Array;
     indices: Uint32Array | Uint16Array;
     stride: number;
     /**
@@ -253,7 +253,8 @@ export class RTINMeshBuilder {
         maxError?: number,
         enableSkirts?: boolean,
         maxEdgeDetails?: boolean,
-        errors?: Float32Array
+        errors?: Float32Array,
+        vertexArrayType?: Uint8ArrayConstructor | Uint16ArrayConstructor | Uint32ArrayConstructor | Float32ArrayConstructor
     } = {}): RTINMesh {
         const maxError = options.maxError ?? 1;
         const enableSkirts = options.enableSkirts && this.vertexStride == 3;
@@ -297,11 +298,17 @@ export class RTINMeshBuilder {
         // processTriangle(maxXY, maxXY, 0, 0, 0, maxXY); // C->A->D (CCW)
         // processTriangle(0, 0, maxXY, maxXY, maxXY, 0); // A->C->B (CCW)
 
+
+        const len = this.curMeshVertexIndex * this.vertexStride;
+        const vertices = new (options.vertexArrayType || Float32Array)(len);
+        vertices.set(this.meshVertices.subarray(0, len));
+
         const mesh: RTINMesh = {
-            vertices: this.meshVertices.slice(0, this.curMeshVertexIndex * this.vertexStride),
             indices: meshIndices.slice(0, this.curMeshIndex),
+            vertices,
             stride: this.vertexStride
         };
+
         if (enableSkirts) {
             mesh.skirtToMainVertexMap = this.skirtToMainVertexMap;
         }

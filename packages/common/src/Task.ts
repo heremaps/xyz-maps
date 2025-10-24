@@ -21,22 +21,22 @@ import taskManagerSingleton, {TaskManager} from './TaskManager';
 
 let TASK_ID = 0;
 
-export interface TaskRestartOptions<I = any, O = any> {
+export interface TaskRestartOptions<I = any, O = any, R = O> {
     init?: (i: I) => O;
-    onDone?: () => void;
+    onDone?: (data?: R) => void;
     priority?: number;
 }
 
-export interface TaskOptions<I = any, O = any> {
+export interface TaskOptions<I = any, O = any, R = O> {
     priority?: number;
     exec?: (data?: O) => boolean | void;
-    init?: (data?: I) => any;
+    init?: (data?: I) => O;
     time?: number;
-    onDone?: (data?: O) => void;
+    onDone?: (data?: R) => void;
     name?: string;
 }
 
-class Task<I = any, O = any> {
+class Task<I = any, O = any, R = O> {
     protected manager: TaskManager;
 
     id: number;
@@ -69,7 +69,7 @@ class Task<I = any, O = any> {
 
 
     constructor(
-        options: TaskOptions<I, O> = {},
+        options: TaskOptions<I, O, R> = {},
         manager?: TaskManager
     ) {
         this.id = ++TASK_ID;
@@ -79,11 +79,12 @@ class Task<I = any, O = any> {
         if (options.onDone) this.onDone = options.onDone;
 
         this.name = options.name;
-        this.time = options.time || 100;
+        this.time = options.time || 3;
         this.setPriority(options.priority);
 
         this.manager = manager || taskManagerSingleton.getInstance();
     }
+
     protected setPriority(prio: number) {
         this.priority = Math.max(Math.min(prio ^ 0, 5), 1);
     }
@@ -107,7 +108,7 @@ class Task<I = any, O = any> {
         this.start(this._initData);
     }
 
-    restart(opt: TaskRestartOptions<I, O> = {}) {
+    restart(opt: TaskRestartOptions<I, O, R> = {}) {
         const {_initData} = this;
 
         // cancel in case of active
@@ -143,8 +144,8 @@ class Task<I = any, O = any> {
 
     }
 
-    onDone(data?: O) {
-
+    onDone(data?: R): void | R {
+        return data;
     };
 
     // yield() {

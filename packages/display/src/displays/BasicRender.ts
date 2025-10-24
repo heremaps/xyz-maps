@@ -22,7 +22,7 @@ import {TileLayer, Tile, Color} from '@here/xyz-maps-core';
 
 interface BasicRender {
 
-    init(canvas: HTMLCanvasElement, devicePixelRation: number): void;
+    init(canvas: HTMLCanvasElement, devicePixelRation: number, options?: any): void;
 
     convertColor(color: number | string | [number, number, number, number?]): any;
 

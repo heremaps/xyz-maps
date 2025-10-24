@@ -62,6 +62,7 @@
         display.rotate((display.rotate() + .4) % 360);
     };
 
+    let lightAnimationSpeed = 1;
     const animateLight = () => {
         const rotateZ = (p, rad) => {
             const cos = Math.cos(rad);
@@ -79,7 +80,7 @@
             for (let name in lights) {
                 for (let light of lights[name]) {
                     if (light.direction) {
-                        rotateZ(light.direction, Math.PI / 180);
+                        rotateZ(light.direction, lightAnimationSpeed * Math.PI / 180);
                     }
                 }
             }
@@ -113,7 +114,8 @@
     let optimise = false;
     let dbgLayer;
     const dbgTools = {
-        animateLight() {
+        animateLight(speed) {
+            lightAnimationSpeed = speed ?? 1;
             animations.toggleAnimation(animateLight);
         },
         getDisplay() {
@@ -185,7 +187,7 @@
             }, [{
                 zIndex: 1000,
                 type: 'Circle',
-                fill: '#000',
+                fill: '#F0F',
                 radius: 8,
                 opacity: .7,
                 alignment: 'map'

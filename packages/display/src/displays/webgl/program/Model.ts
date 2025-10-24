@@ -30,13 +30,13 @@ import {Texture} from '../Texture';
 
 class ModelProgram extends Program {
     name = 'Model';
-    static dbgGrid: boolean;
 
     static getMacros(buffer: GeometryBuffer) {
         const {uniforms} = buffer;
-        let macros;
+        let macros = super.getMacros(buffer);
         if (uniforms.illumination > 0) {
-            macros = {DIFFUSE: 1};
+            macros ||= {};
+            macros.DIFFUSE= 1;
         }
         if ((uniforms.normalMap as Texture).width > 1) {
             macros ||= {};
@@ -46,17 +46,16 @@ class ModelProgram extends Program {
             macros ||= {};
             macros.SPECULAR = 2;
         }
-
-        if (ModelProgram.dbgGrid) {
-            macros ||= {};
-            macros.DBG_GRID = 8;
-        }
-
         return macros;
     }
 
+    protected static computeMacroMask(macros?: { [name: string]: string | number | boolean }): number {
+        return ((macros.DIFFUSE as number) ^ 0) | ((macros.SPECULAR as number) ^ 0) | ((macros.NORMAL_MAP as number) ^ 0);
+    }
+
     static getProgramId(buffer: GeometryBuffer, macros?: { [name: string]: string | number | boolean }) {
-        return buffer.type + (macros ? (<number>macros.DIFFUSE | <number>macros.SPECULAR | <number>macros.NORMAL_MAP) : '');
+        return buffer.type + this.computeMacroMask(macros);
+        // return buffer.type + (macros ? (<number>macros.DIFFUSE | <number>macros.SPECULAR | <number>macros.NORMAL_MAP) : '');
         // return buffer.type + (macros ? JSON.stringify(macros) : '');
     }
 
@@ -66,7 +65,9 @@ class ModelProgram extends Program {
         depth: true
     });
 
-    constructor(gl: WebGLRenderingContext, devicePixelRation: number, macros?: { [name: string]: string | number | boolean }) {
+    constructor(gl: WebGLRenderingContext, devicePixelRation: number, macros?: {
+        [name: string]: string | number | boolean
+    }) {
         super(gl, devicePixelRation, macros);
 
         this.vertexShaderSrc = vertexShader;

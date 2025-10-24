@@ -25,6 +25,18 @@ const EMPTY_PREVIEW = [];
 
 let UNDEF;
 
+export type TilePreviewInfo = [
+    quadkey: string,
+    sourceX: number,
+    sourceY: number,
+    sourceWidth: number,
+    sourceHeight: number,
+    destX: number,
+    destY: number,
+    destWidth: number,
+    destHeight: number
+];
+
 // CHECK ALREADY CACHED/AVAILABLE TILES FOR QUICK PREVIEW
 class TilePreviewCreator {
     private display: BasicDisplay;
@@ -43,11 +55,11 @@ class TilePreviewCreator {
         }
     }
 
-    private lookUp(dTile: BasicTile, tileSize: number, level: number, deltaLevel: number, layerIndex: number, lookup: any) {
+    private lookUp(dTile: BasicTile, tileSize: number, level: number, deltaLevel: number, layerIndex: number, lookup: any): TilePreviewInfo[] {
         const quadkey: string = dTile.quadkey;
         let lookIntoLevel: number = level - deltaLevel;
         let last: number;
-        let preview: [][];
+
         let parentQuad: string;
 
         // CLIP IMAGES FROM UPPER LEVELS
@@ -59,7 +71,7 @@ class TilePreviewCreator {
 
         if (this.hasData(parentQuad, layerIndex)) {
             let dimension = tileSize / Math.pow(2, deltaLevel);
-            preview = [];
+            const preview: TilePreviewInfo[] = [];
             // clip image
             this.add(preview, parentQuad, lookup.x, lookup.y, dimension, 0, 0, tileSize);
             return preview;
@@ -69,7 +81,7 @@ class TilePreviewCreator {
     }
 
 
-    private add(preview: Array<any>, quadkey: string, sx: number, sy: number, sdim: number, x: number, y: number, dim: number) {
+    private add(preview: Array<TilePreviewInfo>, quadkey: string, sx: number, sy: number, sdim: number, x: number, y: number, dim: number) {
         preview.push([
             quadkey,
             sx, sy,
@@ -96,7 +108,7 @@ class TilePreviewCreator {
         let y: number;
         let dimension: number;
         let sub: number;
-        let preview: Array<any>;
+        let preview: Array<TilePreviewInfo>;
 
         subQuads = tileUtils.getTilesOfLevel(dTile.quadkey, lookIntoLevel);
 
@@ -112,7 +124,7 @@ class TilePreviewCreator {
 
                 if (ldown == levelDown - 1 && this.hasData(subQuads[s], layerIndex)) {
                     // clip image
-                    preview = preview || [];
+                    preview ||= [];
                     this.add(preview, subQuads[s], 0, 0, tileSize, x, y, dimension);
                 }
             }
@@ -120,7 +132,7 @@ class TilePreviewCreator {
         return preview;
     }
 
-    public create(dTile: BasicTile, layer: TileLayer, levelDown?: number, levelUp?: number): any[][] {
+    public create(dTile: BasicTile, layer: TileLayer, levelDown?: number, levelUp?: number): TilePreviewInfo[] {
         const quadkey = dTile.quadkey;
         const level = quadkey.length;
         const layerMin = layer.min;

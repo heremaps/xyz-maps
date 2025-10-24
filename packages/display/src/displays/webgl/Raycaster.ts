@@ -19,7 +19,7 @@
 
 import {add, cross, dot, normalize, scale, subtract, multiply, transformMat4} from 'gl-matrix/vec3';
 import {GeometryBuffer} from './buffer/GeometryBuffer';
-import {invert} from 'gl-matrix/mat4';
+import {invert, clone} from 'gl-matrix/mat4';
 
 export type Vec3 = [number, number, number];
 
@@ -45,11 +45,11 @@ class Raycaster {
 
     // https://en.wikipedia.org/wiki/M%C3%B6ller%E2%80%93Trumbore_intersection_algorithm
     static rayIntersectsTriangle(
-        rayOrigin: number[]|Float32Array,
-        rayVector: number[]|Float32Array,
-        vertex0: number[]|Float32Array,
-        vertex1: number[]|Float32Array,
-        vertex2: number[]|Float32Array,
+        rayOrigin: number[] | Float32Array,
+        rayVector: number[] | Float32Array,
+        vertex0: number[] | Float32Array,
+        vertex1: number[] | Float32Array,
+        vertex2: number[] | Float32Array,
         rayIntersectionPoint?: number[]
     ): number | null {
         const EPSILON = 1e-7;
@@ -84,7 +84,7 @@ class Raycaster {
         }
     };
 
-    static getPointAtRayLength(rayLength: number, rayOrigin: Vec3|Float32Array, rayVector: Vec3|Float32Array, point = []) {
+    static getPointAtRayLength(rayLength: number, rayOrigin: Vec3 | Float32Array, rayVector: Vec3 | Float32Array, point = []) {
         return add(point, rayOrigin, scale(point, rayVector, rayLength));
     }
 
@@ -131,8 +131,7 @@ class Raycaster {
      */
     scale: number;
     private pIntersection: Vec3;
-    private invMapScale: number[];
-    private invVpScale: number[];
+    private invScaleFactor: [number, number, number] = [1, 1, 1];
     private intersectRayLength: number;
 
     scaleZ: number;
@@ -150,8 +149,15 @@ class Raycaster {
         this.intersectRayLength = 0;
     }
 
-    getInverseScale(alignMap: boolean) {
-        return alignMap ? this.invMapScale : this.invVpScale;
+    getInverseWorldScale(tileScale: number): [number, number, number] {
+        const {invScaleFactor} = this;
+
+        const invScaleXY = 1 / tileScale;
+        invScaleFactor[0] = invScaleXY;
+        invScaleFactor[1] = invScaleXY;
+        invScaleFactor[2] = 1 / (this.scaleZ * this.scale);
+
+        return invScaleFactor;
     }
 
     intersectAABBox(minX: number, minY: number, minZ: number, maxX: number, maxY: number, maxZ: number, origin = this.origin, direction = this.direction) {
@@ -254,9 +260,17 @@ class Raycaster {
         this.w = width;
         this.h = height;
 
+        console.log('RAYCAST INIT', scale, scaleZ);
+
         this.scale = scale;
-        this.invMapScale = [1 / scale, 1 / scale, 1 / scale / scaleZ];
-        this.invVpScale = [2 / width, 2 / height];
+
+        // const invScaleXY = 1 / scale;
+        // this.invMapScale[0] = invScaleXY;
+        // this.invMapScale[1] = invScaleXY;
+        // this.invMapScale[2] = invScaleXY / scaleZ;
+        //
+        // this.invVpScale[0] = 2 / width;
+        // this.invVpScale[1] = 2 / height;
 
         this.scaleZ = scaleZ;
         // this.scaleZ = this.sMat[11]/scale;
@@ -331,12 +345,14 @@ class Raycaster {
         invModelMatrix: new Float32Array(16)
     };
 
-    transformRayToLocal(modelMatrix: Float32Array): LocalRay {
+    private transformRayToLocal(modelMatrix: Float32Array): LocalRay {
+        const origin = this.origin;
+        const direction = this.direction;
+
+
         const localRay = this.localRay;
         const invModelMatrix = invert(localRay.invModelMatrix, modelMatrix);
-        transformMat4(localRay.origin, this.origin, invModelMatrix);
-
-        const direction = this.direction;
+        transformMat4(localRay.origin, origin, invModelMatrix);
         const localDirection = localRay.direction;
         // transform direction, ignores translation
         // const rotationMat3 = mat3.fromMat4([], invModelMatrix);
@@ -355,13 +371,19 @@ class Raycaster {
         tileX: number,
         tileY: number,
         buffer: GeometryBuffer,
-        localRay?: LocalRay
+        localMatrix?: Float32Array
     ): string | number | null {
         if (buffer.pointerEvents === false) return;
 
         const result = this.result;
-        let orgOrigin = this.origin;
-        let orgDirection = this.direction;
+        const orgOrigin = this.origin;
+        const orgDirection = this.direction;
+
+
+        // const worldModelMatrix = buffer.getModelMatrix();
+        // const localRay = buffer.getRenderSpace() === 'world' && this.transformRayToLocal(localRay);
+        // console.warn('check (buffer.getRenderSpace() === \'world\') needed for points but breaks boxes and spheres!!', buffer.getRenderSpace());
+        const localRay = buffer.getRenderSpace() === 'world' && this.transformRayToLocal(localMatrix);
 
         if (localRay) {
             this.origin = localRay.origin;
@@ -373,10 +395,11 @@ class Raycaster {
         const featureId = buffer.rayIntersects(buffer, result, tileX, tileY, this);
 
         if (featureId != null) {
+            console.log(result.id, '<-', featureId);
             result.id = featureId;
-            result.origin = localRay?.origin.slice();
-            result.direction = localRay?.direction.slice();
-            result.localMatrix = localRay?.modelMatrix;
+            result.origin = localRay ? localRay.origin.slice() : null;
+            result.direction = localRay ? localRay.direction.slice() : null;
+            result.localMatrix = localRay ? localRay.modelMatrix : null;
         }
 
         // Restore the original origin and direction if local model matrix transformations have been applied

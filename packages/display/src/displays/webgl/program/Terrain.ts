@@ -17,38 +17,35 @@
  * License-Filename: LICENSE
  */
 
-// @ts-ignore
-import vertexShader from '../glsl/rect_vertex.glsl';
-// @ts-ignore
-import fragmentShader from '../glsl/rect_fragment.glsl';
-
-import Program from './Program';
-import {GLStates} from './GLStates';
+import ModelProgram from './Model';
 import {GeometryBuffer} from '../buffer/GeometryBuffer';
 
-class RectProgram extends Program {
-    name = 'Rect';
+class TerrainProgram extends ModelProgram {
+    name = 'Terrain';
 
-    glStates = new GLStates({
-        scissor: false,
-        blend: false,
-        depth: true
-    });
+    static dbgGrid: boolean;
+    static getMacros(buffer: GeometryBuffer) {
+        const macros = super.getMacros(buffer);
+        if (buffer.heightMap) {
+            delete macros.USE_HEIGHTMAP;
+            macros.TERRAIN_MODEL_HM = 128;
+        }
 
-
-    static getProgramId(buffer: GeometryBuffer, macros?: {
-        [name: string]: string | number | boolean
-    }) {
-        return buffer.type + macros?.USE_HEIGHTMAP||'';
+        if (TerrainProgram.dbgGrid) {
+            macros.DBG_GRID = 8;
+        }
+        return macros;
     }
 
-    constructor(gl: WebGLRenderingContext, devicePixelRation: number, macros?: { [name: string]: string | number | boolean }) {
-        super(gl, devicePixelRation, macros);
+    static computeMacroMask(macros?: { [name: string]: string | number | boolean }): number {
+        return super.computeMacroMask(macros) | (macros.USE_HEIGHTMAP as number) | macros.DBG_GRID as number;
+    }
 
-        this.mode = gl.TRIANGLES;
-        this.vertexShaderSrc = vertexShader;
-        this.fragmentShaderSrc = fragmentShader;
+    constructor(gl: WebGLRenderingContext, devicePixelRation: number, macros?: {
+        [name: string]: string | number | boolean
+    }) {
+        super(gl, devicePixelRation, macros);
     }
 }
 
-export default RectProgram;
+export default TerrainProgram;

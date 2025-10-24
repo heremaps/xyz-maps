@@ -328,7 +328,7 @@ export class TileLayer extends Layer {
         if (prov.addFeature) {
             const providerFeature = prov.addFeature(<Feature>feature);
 
-            if (style) {
+            if (providerFeature && style) {
                 this.setStyleGroup(providerFeature, style);
             }
             return providerFeature;
