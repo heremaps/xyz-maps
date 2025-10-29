@@ -1157,10 +1157,13 @@ export class GLRender implements BasicRender {
             id = buffer.progId = Program.getProgramId(buffer, Program.getMacros(buffer));
         }
 
+        console.log(id);
+
         let prog = this.programs[id];
 
         if (prog === undefined) {
             const Program = this.programConfig[type].program;
+            console.log(id, 'create', Program);
             if (Program) {
                 prog = this.createProgram(id, Program, Program.getMacros(buffer));
             }

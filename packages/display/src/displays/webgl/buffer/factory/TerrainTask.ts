@@ -22,7 +22,7 @@ import {GeometryBuffer} from '../GeometryBuffer';
 import GLTile from '../../GLTile';
 import {Texture} from '../../Texture';
 import {TilePreviewInfo} from '../../../Preview';
-import {HeightMapTileCache} from '../../Display';
+import {HeightMapTileCache} from '../../HeightMapTileCache';
 import {Layer} from '../../../Layers';
 
 type TerrainTaskInput = {
@@ -42,7 +42,7 @@ export class TerrainTask extends Task<TerrainTaskInput, TerrainTaskData, HeightM
     name = 'TerrainTask';
     time = 2;
 
-    private terrainCache: TerrainHeightMapCache;
+    private terrainCache: HeightMapTileCache;
 
     private tile: GLTile;
     private terrainLayer: Layer;
@@ -55,7 +55,7 @@ export class TerrainTask extends Task<TerrainTaskInput, TerrainTaskData, HeightM
         gl: WebGLRenderingContext,
         displayTile: GLTile,
         terrainLayer: Layer,
-        terrainCache: TerrainHeightMapCache
+        terrainCache: HeightMapTileCache
     }) {
         super(options);
 

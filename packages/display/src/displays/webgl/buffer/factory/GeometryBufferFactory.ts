@@ -22,7 +22,7 @@ import {Tile} from '@here/xyz-maps-core';
 import {Layer} from '../../../Layers';
 import {FeatureFactory} from '../FeatureFactory';
 import {DisplayTileTask} from '../../../BasicTile';
-import {HeightMapTileCache} from '../../Display';
+import {HeightMapTileCache} from '../../HeightMapTileCache';
 import GLTile from '../../GLTile';
 import {TerrainTask} from './TerrainTask';
 import {FactoryTask, FactoryTaskResult} from './FactoryTask';
@@ -37,7 +37,7 @@ export class GeometryBufferFactory {
         tile: Tile,
         displayTile: GLTile,
         factory: FeatureFactory,
-        terrainCache: TerrainHeightMapCache,
+        terrainCache: HeightMapTileCache,
         gl: WebGLRenderingContext,
         onInit: () => void,
         onDone: (

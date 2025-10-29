@@ -22,7 +22,7 @@ import vertexShader from '../glsl/heatmap_vertex.glsl';
 // @ts-ignore
 import fragmentShader from '../glsl/heatmap_fragment.glsl';
 
-import Program from './Program';
+import Program, {CompiledUniformMap} from './Program';
 import {GLStates, PASS} from './GLStates';
 import {Texture} from '../Texture';
 import {GeometryBuffer} from '../buffer/GeometryBuffer';
@@ -160,7 +160,7 @@ class HeatmapProgram extends Program {
             const {offscreenBuffer} = this;
 
             this.initBuffers(offscreenBuffer.attributes);
-            this.initUniforms(offscreenBuffer.uniforms);
+            this.initUniforms(offscreenBuffer.uniforms as CompiledUniformMap);
             this.initAttributes(offscreenBuffer.attributes);
             this.initGeometryBuffer(offscreenBuffer, PASS.ALPHA);
             gl.depthFunc(gl.LEQUAL);

@@ -111,9 +111,9 @@ export class TaskSequence<T extends readonly Task<any, any, any>[]> extends Task
             this.manager._insert(this, true);
             // this.resume();
         } else {
-            const results = this.results.slice();
+            const results = this.results.slice() as unknown as TASK_RESULT<T>;
             this.initSequence();
-            this.onAllDone?.(results as TASK_RESULT<T>[]);
+            this.onAllDone?.(results);
         }
     }
 }
