@@ -172,6 +172,10 @@ class Layer {
             dLayer.ready = true;
         }
     }
+
+    getRenderIndex() {
+        return this.index + 1;
+    }
 }
 
 class Layers extends Array<Layer> {

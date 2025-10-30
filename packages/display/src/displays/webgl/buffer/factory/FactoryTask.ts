@@ -149,9 +149,10 @@ export class FactoryTask extends Task<TaskInput, TaskData> {
         const waitAndRefresh = (promise: Promise<any>) => {
             pendingResources.push(promise);
         };
-        this.factory.init(tile, groups, layer.tileSize, zoom, layerStyles.zLayer, waitAndRefresh);
-
         const {showWireframe} = layerStyles;
+        const zLayer = layerStyles.zLayer ?? displayLayer.getRenderIndex();
+
+        this.factory.init(tile, groups, layer.tileSize, zoom, zLayer, waitAndRefresh);
 
         return {
             tile,
@@ -458,11 +459,6 @@ export class FactoryTask extends Task<TaskInput, TaskData> {
             }
         }
         // console.log('buffers', buffers);
-
-        for (let b of buffers) {
-            b.id = b.type + ':' + tile.quadkey;
-        }
-
         return taskData.onDone(buffers.reverse());
     };
 

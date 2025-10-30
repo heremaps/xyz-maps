@@ -474,10 +474,7 @@ class WebGlDisplay extends BasicDisplay {
         for (let buffer of buffers) {
             let {zLayer, zIndex} = buffer;
 
-            if (zLayer == null) {
-                zLayer = layer.index + 1;
-            }
-
+            zLayer ??= layer.getRenderIndex();
             let z = zLayer * 1e8 + zIndex * 10;
 
             if (!buffer.flat) {

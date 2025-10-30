@@ -192,7 +192,7 @@ export class FeatureFactory {
         this.groups = groups;
         this.tileSize = tileSize;
         this.z = zoom;
-        this.zLayer = zLayer ?? -1;
+        this.zLayer = zLayer;
         this.lineFactory.initTile();
         this.pendingCollisions.length = 0;
         this.waitAndRefresh = waitAndRefresh;
@@ -1176,7 +1176,6 @@ export class FeatureFactory {
 
             this.pendingCollisions.push(collisionGrp);
         }
-        ;
     }
 
     destroy() {
