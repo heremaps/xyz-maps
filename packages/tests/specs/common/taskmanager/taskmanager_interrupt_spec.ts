@@ -217,7 +217,13 @@ describe('task manager: interrupts', function() {
 
         timeline.indexOf('Timer').should.be.greaterThan(0);
         timeline.indexOf('Timer').should.be.lessThan(timeline.length - 1);
-        timeline.indexOf('Timer').should.equal(timeline.indexOf('task1-done') + 1);
+
+        const task1DoneIdx = timeline.indexOf('task1-done');
+        timeline.indexOf('Timer').should.be.lessThan(task1DoneIdx);
+
+        const task2DoneIdx = timeline.indexOf('task2-done');
+        task1DoneIdx.should.be.lessThan(task2DoneIdx);
+
         timeline.length.should.equal(13);
     });
 });

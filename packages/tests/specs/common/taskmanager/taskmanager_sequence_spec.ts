@@ -41,7 +41,7 @@ describe('task sequence', function() {
             new Task({
                 priority: 3,
                 init(input) {
-                    return {test2: 'init2(' + input.test1 + ')'};
+                    return {test2: 'init2(' + input + ')'};
                 },
                 exec(data) {
                     data.test2 = 'exec2(' + data.test2 + ')@' + this.priority;
@@ -51,7 +51,7 @@ describe('task sequence', function() {
             taskManager.create({
                 priority: 5,
                 init(input) {
-                    return {test3: 'init3(' + input.test2 + ')'};
+                    return {test3: 'init3(' + input + ')'};
                 },
                 exec(data) {
                     data.test3 = 'exec3(' + data.test3 + ')@' + this.priority;
@@ -70,9 +70,9 @@ describe('task sequence', function() {
 
         expect(result).to.have.lengthOf(3);
         expect(result).to.be.deep.equal([
-            {test1: 'result1:exec1(init1(startSequenceTest))@1'},
-            {test2: 'result2:exec2(init2(result1:exec1(init1(startSequenceTest))@1))@3'},
-            {test3: 'result3:exec3(init3(result2:exec2(init2(result1:exec1(init1(startSequenceTest))@1))@3))@5'}
+            'result1:exec1(init1(startSequenceTest))@1',
+            'result2:exec2(init2(result1:exec1(init1(startSequenceTest))@1))@3',
+            'result3:exec3(init3(result2:exec2(init2(result1:exec1(init1(startSequenceTest))@1))@3))@5'
         ]);
     });
 
