@@ -125,6 +125,7 @@ export class TerrainTask extends Task<TerrainTaskInput, TerrainTaskData, HeightM
 
             if (buffer.heightMapRef === 'required') {
                 const heightMapData = this.terrainCache.get(cacheKey) || this.heightMap;
+
                 if (!heightMapData) {
                     const preview: TilePreviewInfo[] = this.tile.preview(this.terrainLayer.index) as TilePreviewInfo[];
                     if (!preview?.length) return;
@@ -132,12 +133,19 @@ export class TerrainTask extends Task<TerrainTaskInput, TerrainTaskData, HeightM
                     const heightMapInfo = preview[data.heightMapIndex];
                     const heightMap = this.terrainCache.get(heightMapInfo[0])?.data;
                     const heightMapSize = Math.sqrt(heightMap?.length) || data.heightMapSize;
+                    const heightMapTileSize = heightMapSize - 1 - 2 * this.padding;
+                    // Ratio of logical tile pixels to usable heightmap pixels (inner area without padding).
+                    const tileToHeightmapPixelScale = heightMapTileSize / (this.terrainLayer.tileSize);
                     const target = data.heightMap ||= new Float32Array(heightMapSize * heightMapSize);
 
                     if (heightMap) {
                         this.blitHeightmap(heightMap, target, heightMapSize,
-                            heightMapInfo[1], heightMapInfo[2], heightMapInfo[3],
-                            heightMapInfo[5], heightMapInfo[6], heightMapInfo[7]
+                            heightMapInfo[1] * tileToHeightmapPixelScale,
+                            heightMapInfo[2] * tileToHeightmapPixelScale,
+                            heightMapInfo[3] * tileToHeightmapPixelScale,
+                            heightMapInfo[5] * tileToHeightmapPixelScale,
+                            heightMapInfo[6] * tileToHeightmapPixelScale,
+                            heightMapInfo[7] * tileToHeightmapPixelScale
                         );
                     }
 
@@ -170,6 +178,7 @@ export class TerrainTask extends Task<TerrainTaskInput, TerrainTaskData, HeightM
             return ++data.bufferIndex < buffers.length ? this.CONTINUE : this.BREAK;
         }
     }
+
     override onDone(data): HeightMapData {
         const heightMap = this.heightMap;
         this.heightMap = null;
