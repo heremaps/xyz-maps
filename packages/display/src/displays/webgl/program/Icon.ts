@@ -22,7 +22,7 @@ import vertexShader from '../glsl/icon_vertex.glsl';
 // @ts-ignore
 import fragmentShader from '../glsl/icon_fragment.glsl';
 
-import Program from './Program';
+import Program, {ProgramMacros} from './Program';
 import {GLStates} from './GLStates';
 import {ViewUniforms} from '../GLRender';
 
@@ -37,8 +37,8 @@ class IconProgram extends Program {
         depth: true
     });
 
-    constructor(gl: WebGLRenderingContext, devicePixelRation: number) {
-        super(gl, devicePixelRation);
+    constructor(gl: WebGLRenderingContext, devicePixelRation: number, macros?: ProgramMacros) {
+        super(gl, devicePixelRation, macros);
 
         this.mode = gl.TRIANGLES;
         this.vertexShaderSrc = vertexShader;

@@ -109,7 +109,7 @@ type DrawGroup = {
         offsetX: number;
         offsetY: number;
         offsetZ: number;
-        offsetUnit: string;
+        offsetUnit: string|string[];
         alignment: string;
         modelMode: [number, number] | null;
         scaleByAltitude: boolean;
@@ -639,6 +639,8 @@ export class FeatureFactory {
                     if (type == 'VerticalLine') {
                         offsetZ = getValue('offsetZ', style, feature, level) || 0;
                         groupId = 'VL' + stroke + offsetZ;
+
+                        [offsetZ, offsetUnit] = parseSizeValue(offsetZ);
                         if (altitude == UNDEF) {
                             altitude = true;
                         }
@@ -779,11 +781,16 @@ export class FeatureFactory {
                 offsetY = getValue('offsetY', style, feature, level);
                 offsetZ = getValue('offsetZ', style, feature, level);
 
-                offsetUnit = new Array(3);
+                const offsetXData = parseSizeValue(offsetX);
+                offsetX = offsetXData[0];
 
-                [offsetX, offsetUnit[0]] = parseSizeValue(offsetX);
-                [offsetY, offsetUnit[1]] = parseSizeValue(offsetY);
-                [offsetZ, offsetUnit[2]] = parseSizeValue(offsetZ);
+                const offsetYData = parseSizeValue(offsetY);
+                offsetY = offsetYData[0];
+
+                const offsetZData = parseSizeValue(offsetZ);
+                offsetZ = offsetZData[0];
+
+                offsetUnit = [offsetXData[1], offsetYData[1], offsetZData[1]];
 
                 groupId += offsetX + (offsetY << 8) + (offsetZ << 16) + offsetUnit[0] + offsetUnit[1] + offsetUnit[2];
             }
@@ -886,20 +893,20 @@ export class FeatureFactory {
             }
 
             if (geomType == 'Point') {
+                const requiresTerrain = altitude === 'terrain';
+
                 if (type == 'VerticalLine') {
-                    if (typeof altitude == 'number' || coordinates[2] > 0) {
+                    if (requiresTerrain || typeof altitude == 'number' || coordinates[2] > 0) {
                         const z = typeof altitude == 'number' ? altitude : <number>coordinates[2];
-                        if (z > 0) {
+                        if (z > 0 || requiresTerrain) {
                             const x = tile.lon2x((<GeoJSONCoordinate>coordinates)[0], tileSize);
                             const y = tile.lat2y((<GeoJSONCoordinate>coordinates)[1], tileSize);
-                            addVerticalLine(group, x, y, z);
+                            addVerticalLine(group, x, y, requiresTerrain ? 'terrain' : z);
                         }
                     }
                 } else {
                     const x = tile.lon2x((<GeoJSONCoordinate>coordinates)[0], tileSize);
                     const y = tile.lat2y((<GeoJSONCoordinate>coordinates)[1], tileSize);
-                    const requiresTerrain = altitude === 'terrain';
-
                     const z = typeof altitude == 'number'
                         ? altitude
                         : requiresTerrain

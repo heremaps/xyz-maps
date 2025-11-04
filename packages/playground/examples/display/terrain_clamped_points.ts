@@ -1,6 +1,6 @@
 import {TerrainTileLayer, LocalProvider, TileLayer} from '@here/xyz-maps-core';
 import {Map} from '@here/xyz-maps-display';
-
+/** setup the Map **/
 const display = new Map(document.getElementById('map'), {
     zoomlevel: 13,
     center: {
@@ -33,23 +33,6 @@ const display = new Map(document.getElementById('map'), {
                 url: `https://maps.hereapi.com/v3/base/mc/{z}/{x}/{y}/jpeg?apikey=${YOUR_API_KEY}&style=satellite.day&size=512`,
                 attribution: '2025 HERE, Maxar'
             }
-            // By default, only ambient lighting is applied to the terrain layer.
-            // To enhance 3D appearance with shadows and highlights, add a directional light in the style configuration as shown below.
-            // You can also use the `exaggeration` property to emphasize terrain elevation.
-            // Additionally, you can set `skyColor` and `backgroundColor` in the style to customize the sky and background colors of the map.
-            // style: new TerrainTileLayerStyle({
-            //     exaggeration: 1,
-            //     light: [{
-            //         type: 'ambient',
-            //         color: 'white',
-            //         intensity: 0.3
-            //     }, {
-            //         type: 'directional',
-            //         direction: [0, 1, 1],
-            //         color: [1.0, 1.0, 1.0],
-            //         intensity: 0.7
-            //     }]
-            // })
         })
     ]
 });
@@ -60,12 +43,16 @@ const myLayer = new TileLayer({
     provider: new LocalProvider()
 });
 display.addLayer(myLayer);
+/** **/
 
+// Add a feature representing Mount Fuji, clamped to terrain elevation.
+// Note: The coordinates array contains only longitude and latitude.
+// No altitude is specified; elevation is automatically derived from terrain data.
 myLayer.addFeature({
     type: 'Feature',
     geometry: {
         type: 'Point',
-        coordinates: [138.7277362, 35.3629274] // longitude, latitude, elevation in meters
+        coordinates: [138.73, 35.363] // [longitude, latitude] - altitude is omitted
     },
     properties: {
         name: 'Mount Fuji'
@@ -85,11 +72,11 @@ myLayer.addFeature({
     stroke: '#000000',
     strokeWidth: 3,
     altitude: 'terrain',
-    offsetZ: 16
+    offsetZ: 48
 }, {
     zIndex: 1,
     type: 'VerticalLine',
     stroke: 'black',
-    offsetZ: 16,
+    offsetZ: 48,
     altitude: 'terrain'
 }]);

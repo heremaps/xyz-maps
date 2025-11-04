@@ -328,8 +328,8 @@ class TerrainWorker extends HTTPWorker {
                     encoding,
                     'extrapolate', // 'backfill',
                     this.decodeScale,
-                    this.decodeOffset,
-                    tileXYToQuadKey(z, y, x).split('').pop()
+                    this.decodeOffset
+                    // tileXYToQuadKey(z, y, x).split('').pop()
                 );
 
                 const mesh: RTINMesh = createMeshFromHeightMap(heightMap, this.maxGeometricError[z]);

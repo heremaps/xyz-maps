@@ -19,11 +19,12 @@
 
 import BoxProgram from './Box';
 import {ViewUniforms} from '../GLRender';
+import {ProgramMacros} from './Program';
 
 class SphereProgram extends BoxProgram {
     name = 'Sphere';
 
-    constructor(gl: WebGLRenderingContext, devicePixelRation: number, macros?: { [name: string]: string | number | boolean }) {
+    constructor(gl: WebGLRenderingContext, devicePixelRation: number, macros?: ProgramMacros) {
         super(gl, devicePixelRation, {SPHERE: true, ...macros});
     }
 

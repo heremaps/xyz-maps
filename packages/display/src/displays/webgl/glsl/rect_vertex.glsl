@@ -43,8 +43,9 @@ void main(void){
         #ifdef USE_HEIGHTMAP
         float z = getTerrainHeight( pos );
         #else
-        float z = a_position.z * SCALE_UINT16_Z + toPixel(u_offsetZ, u_scale) / u_zMeterToPixel / u_scale;
+        float z = a_position.z * SCALE_UINT16_Z;
         #endif
+        z += toPixel(u_offsetZ, u_scale) / u_zMeterToPixel / u_scale;
 
         if (u_alignMap){
             vec2 posCenterWorld = u_topLeft + pos;

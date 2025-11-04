@@ -22,7 +22,7 @@ import vertexShader from '../glsl/text_vertex.glsl';
 // @ts-ignore
 import fragmentShader from '../glsl/text_fragment.glsl';
 
-import Program, {UniformMap} from './Program';
+import Program, {ProgramMacros} from './Program';
 import {GLStates, PASS} from './GLStates';
 import {GeometryBuffer} from '../buffer/GeometryBuffer';
 import {ViewUniforms} from '../GLRender';
@@ -36,8 +36,12 @@ class TextProgram extends Program {
         depth: true
     });
 
-    constructor(gl: WebGLRenderingContext, devicePixelRation: number) {
-        super(gl, devicePixelRation);
+    static getProgramId(buffer: GeometryBuffer, macros?: ProgramMacros) {
+        return buffer.type + macros?.USE_HEIGHTMAP||'';
+    }
+
+    constructor(gl: WebGLRenderingContext, devicePixelRation: number, macros?: ProgramMacros) {
+        super(gl, devicePixelRation, macros);
 
         this.mode = gl.TRIANGLES;
         this.vertexShaderSrc = vertexShader;

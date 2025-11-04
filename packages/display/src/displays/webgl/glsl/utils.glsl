@@ -5,8 +5,8 @@ uniform vec2 uHeightMapTileSize; // heigtMapWidth, tileSize
 uniform float meterPerpixel;
 
 float getTerrainHeight(vec2 tilePixelPos) {
-    float texSize  = uHeightMapTileSize.x; // z. B. 512
-    float tileSize = uHeightMapTileSize.y; // z. B. 512
+    float texSize  = uHeightMapTileSize.x;
+    float tileSize = uHeightMapTileSize.y;
     vec2 uv = (tilePixelPos + 0.5) / tileSize;
     return texture2D(uHeightMap, uv).r;
 }

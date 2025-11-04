@@ -22,7 +22,7 @@ import vertexShader from '../glsl/model_vertex.glsl';
 // @ts-ignore
 import fragmentShader from '../glsl/model_fragment.glsl';
 
-import Program from './Program';
+import Program, {ProgramMacros} from './Program';
 import {GLStates, PASS} from './GLStates';
 import {GeometryBuffer} from '../buffer/GeometryBuffer';
 import {Texture} from '../Texture';
@@ -49,11 +49,11 @@ class ModelProgram extends Program {
         return macros;
     }
 
-    protected static computeMacroMask(macros?: { [name: string]: string | number | boolean }): number {
+    protected static computeMacroMask(macros?: ProgramMacros): number {
         return ((macros.DIFFUSE as number) ^ 0) | ((macros.SPECULAR as number) ^ 0) | ((macros.NORMAL_MAP as number) ^ 0);
     }
 
-    static getProgramId(buffer: GeometryBuffer, macros?: { [name: string]: string | number | boolean }) {
+    static getProgramId(buffer: GeometryBuffer, macros?: ProgramMacros) {
         return buffer.type + this.computeMacroMask(macros);
         // return buffer.type + (macros ? (<number>macros.DIFFUSE | <number>macros.SPECULAR | <number>macros.NORMAL_MAP) : '');
         // return buffer.type + (macros ? JSON.stringify(macros) : '');
@@ -65,9 +65,7 @@ class ModelProgram extends Program {
         depth: true
     });
 
-    constructor(gl: WebGLRenderingContext, devicePixelRation: number, macros?: {
-        [name: string]: string | number | boolean
-    }) {
+    constructor(gl: WebGLRenderingContext, devicePixelRation: number, macros?: ProgramMacros) {
         super(gl, devicePixelRation, macros);
 
         this.vertexShaderSrc = vertexShader;

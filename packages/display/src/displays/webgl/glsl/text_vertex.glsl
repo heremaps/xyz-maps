@@ -20,6 +20,7 @@ uniform float u_normalizePosition;
 varying vec2 v_texcoord;
 varying vec4 vColor;
 
+#include "utils.glsl/heightMapUtils"
 #include "utils.glsl/altitudeScaleFactor"
 
 const float OFFSET_SCALE = 1.0 / 32.0;
@@ -44,7 +45,12 @@ void main(void) {
 
         rotationZ = rotationZ / 1024.0 * PI_20;// 9bit -> 2PI;
 
-        float z = a_position.z * SCALE_UINT16_Z + toPixel(u_offsetZ, u_scale) / u_zMeterToPixel / u_scale;
+        #ifdef USE_HEIGHTMAP
+        float z = getTerrainHeight( position );
+        #else
+        float z = a_position.z * SCALE_UINT16_Z;
+        #endif
+        z += toPixel(u_offsetZ, u_scale) / u_zMeterToPixel/ u_scale;
 
         if (u_alignMap) {
             float absRotation = mod(u_rotate + rotationZ, PI_20);

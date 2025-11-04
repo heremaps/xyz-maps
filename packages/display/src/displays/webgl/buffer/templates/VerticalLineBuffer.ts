@@ -24,6 +24,7 @@ import {Raycaster} from '../../Raycaster';
 export class VerticalLineBuffer extends PolygonBuffer {
     constructor(flat: boolean = false, clip: boolean = true) {
         super(flat, clip);
+        this._flat = false;
     }
     rayIntersects(buffer: GeometryBuffer, result: { z: number }, tileX: number, tileY: number, rayCaster: Raycaster): number | string {
         return null;

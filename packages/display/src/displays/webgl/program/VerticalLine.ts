@@ -16,22 +16,28 @@
  * SPDX-License-Identifier: Apache-2.0
  * License-Filename: LICENSE
  */
-import PolygonProgram from './Polygon';
 import {GeometryBuffer} from '../buffer/GeometryBuffer';
-
-class VerticalLineProgram extends PolygonProgram {
+import Program, {ProgramMacros} from './Program';
+// @ts-ignore
+import vertexShader from '../glsl/vline_vertex.glsl';
+// @ts-ignore
+import fragmentShader from '../glsl/polygon_fragment.glsl';
+class VerticalLineProgram extends Program {
     name = 'VerticalLine';
 
-    static getProgramId(buffer: GeometryBuffer, macros?: { [name: string]: string | number | boolean }) {
-        return 'VerticalLine';
+    static getProgramId(buffer: GeometryBuffer, macros?: ProgramMacros) {
+        return buffer.type + macros?.USE_HEIGHTMAP||'';
     }
 
     static getMacros(buffer: GeometryBuffer) {
-        return null;
+        return Program.getMacros(buffer);
     }
 
-    constructor(gl: WebGLRenderingContext, devicePixelRation: number, macros?: { [name: string]: string | number | boolean }) {
+    constructor(gl: WebGLRenderingContext, devicePixelRation: number, macros?: ProgramMacros) {
         super(gl, devicePixelRation, macros);
+
+        this.vertexShaderSrc = vertexShader;
+        this.fragmentShaderSrc = fragmentShader;
         this.mode = gl.LINES;
     }
 }

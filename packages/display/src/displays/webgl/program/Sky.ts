@@ -22,15 +22,13 @@ import vertexShader from '../glsl/sky_vertex.glsl';
 // @ts-ignore
 import fragmentShader from '../glsl/sky_fragment.glsl';
 
-import Program from './Program';
+import Program, {ProgramMacros} from './Program';
 import {GeometryBuffer} from '../buffer/GeometryBuffer';
 import {PASS} from './GLStates';
 
 class SkyProgram extends Program {
     name = 'Sky';
-    constructor(gl: WebGLRenderingContext, devicePixelRation: number, macros?: {
-        [name: string]: string | number | boolean
-    }) {
+    constructor(gl: WebGLRenderingContext, devicePixelRation: number, macros?: ProgramMacros) {
         super(gl, devicePixelRation, macros);
 
         this.mode = gl.TRIANGLES;

@@ -19,6 +19,7 @@
 
 import ModelProgram from './Model';
 import {GeometryBuffer} from '../buffer/GeometryBuffer';
+import {ProgramMacros} from './Program';
 
 class TerrainProgram extends ModelProgram {
     name = 'Terrain';
@@ -37,13 +38,11 @@ class TerrainProgram extends ModelProgram {
         return macros;
     }
 
-    static computeMacroMask(macros?: { [name: string]: string | number | boolean }): number {
+    static computeMacroMask(macros?: ProgramMacros): number {
         return super.computeMacroMask(macros) | (macros.USE_HEIGHTMAP as number) | macros.DBG_GRID as number;
     }
 
-    constructor(gl: WebGLRenderingContext, devicePixelRation: number, macros?: {
-        [name: string]: string | number | boolean
-    }) {
+    constructor(gl: WebGLRenderingContext, devicePixelRation: number, macros?: ProgramMacros) {
         super(gl, devicePixelRation, macros);
     }
 }

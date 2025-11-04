@@ -219,7 +219,7 @@ export class FactoryTask extends Task<TaskInput, TaskData> {
 
                         if (vertexType == 'VerticalLine') {
                             geoBuffer.addUniform('u_fill', shared.stroke);
-                            geoBuffer.addUniform('u_offsetZ', [shared.offsetZ, 0]);
+                            geoBuffer.addUniform('u_offsetZ', [shared.offsetZ, shared.offsetUnit == 'm' ? meterToPixel : 0]);
                         }
 
                         buffers.push(geoBuffer);
@@ -349,7 +349,7 @@ export class FactoryTask extends Task<TaskInput, TaskData> {
                                     geoBuffer.addUniform('u_gradient', gradientTexture);
                                 }
 
-                                if (shared.offsetUnit) {
+                                if (Array.isArray(shared.offsetUnit)) {
                                     geoBuffer.addUniform('u_offset', [
                                         shared.offsetX, shared.offsetUnit[0] == 'm' ? meterToPixel : 0,
                                         shared.offsetY, shared.offsetUnit[1] == 'm' ? meterToPixel : 0

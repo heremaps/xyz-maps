@@ -24,18 +24,24 @@ const addVerticalLine = (
     group,
     x: number,
     y: number,
-    z: number | false
+    z: number | 'terrain'
 ): number => {
     if (z) {
-        group.buffer ||= new VerticalLineBuffer();
+        let buffer = group.buffer;
+        if (!buffer) {
+            buffer = group.buffer = new VerticalLineBuffer();
+            buffer.setRequiresHeightMap(z === 'terrain');
+        }
+        const position = buffer.flexAttributes.a_position.data;
 
-        const position = group.buffer.flexAttributes.a_position.data;
+        if (buffer.requiresHeightMap) {
+            z = 1.0;
+        }
 
         position.push(
             x, y, 0,
             x, y, z
         );
-
         return position.length;
     }
 };

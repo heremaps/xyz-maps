@@ -62,18 +62,94 @@ export interface VerticalLineStyle {
     opacity?: number | StyleValueFunction<number> | StyleZoomRange<number> | StyleExpression<number>;
 
     /**
-     * Offset the shape in pixels on z-axis.
-     * A positive value offsets up, a negative value down.
-     * The default unit is pixels.
+     * Vertical offset of the shape along the z-axis.
+     *
+     * Shifts or extends the line relative to its reference altitude.
+     * - Positive values move the line upward.
+     * - Negative values move the line downward.
+     *
+     * Units:
+     * - Default is pixels.
+     * - Can also be a string with units (e.g., `"1m"` for meters).
+     *
+     * Special notes for VerticalLine:
+     * - `altitudeReference` defines which point the `altitude` value refers to (top or base).
+     * - `offsetZ` **always extends the line upward** from the reference point, regardless of whether
+     *   `altitudeReference` is `'base'` or `'top'`.
+     * - With `altitude: 'terrain'`, `offsetZ` shifts the line relative to the terrain surface.
      *
      * @example
-     * ```typescript
-     * // offset VerticalLine by 8px to the top.
-     * { type: "VerticalLine", zIndex: 0, stoke: 'black', offsetZ: 8}
+     * ```ts
+     * // Move the VerticalLine 8 px upward from its reference
+     * { type: "VerticalLine", zIndex: 0, stroke: "black", offsetZ: 8 }
      *
-     * // offset VerticalLine by 1m to the top
-     * {  type: "VerticalLine", zIndex: 0, stoke: 'black', offsetZ: "1m"}
+     * // Base = terrain, extend line 1 m upward
+     * { type: "VerticalLine", zIndex: 0, stroke: "black", altitude: "terrain", altitudeReference: "base", offsetZ: "1m" }
+     *
+     * // Top = terrain, extend line 2 m upward
+     * { type: "VerticalLine", zIndex: 0, stroke: "black", altitude: "terrain", altitudeReference: "top", offsetZ: "2m" }
      * ```
      */
     offsetZ?: number | string | StyleValueFunction<number | string> | StyleZoomRange<number | string> | StyleExpression<number | string>;
+
+    /**
+     * Defines how the altitude value is interpreted for the VerticalLine.
+     *
+     * By default, the meaning of altitude depends on the style type:
+     * - For most flat styles (Circle, Rect, Icon, etc.), `altitude` defines the **center** position.
+     * - For VerticalLine, {@link VerticalLineStyle.altitude} defines a **vertical reference** — either the top or the base.
+     *
+     * Supported values:
+     * - `'top'`: the altitude specifies the **top** of the line; the base is fixed at 0 m (global ground).
+     * - `'base'`: the altitude specifies the **base** (bottom) of the line; the top must be defined via {@link VerticalLineStyle.offsetZ}.
+     *
+     * Notes:
+     * - This property only affects VerticalLine styles; other style types ignore it.
+     * - When {@link VerticalLineStyle.altitude} is `'terrain'` and `altitudeReference` is not specified,
+     *   `'base'` is automatically assumed (the line stands on the terrain surface).
+     *
+     * @defaultValue 'top'
+     * @experimental
+     */
+    altitudeReference?: 'top' | 'base';
+
+    /**
+     * Altitude of the VerticalLine, in meters.
+     *
+     * Defines the reference height used together with {@link VerticalLineStyle.altitudeReference}
+     * to determine the vertical placement of the line.
+     *
+     * Supported values:
+     * - **number** – Fixed altitude in meters, relative to the global ground plane.
+     * - **true** – Use the altitude (z) from the feature geometry if present; otherwise 0 m.
+     * - **false** – Ignore any z-value from the feature geometry and use 0 m.
+     * - **'terrain'** – Clamp to the sampled terrain height.
+     *
+     * Notes:
+     * - When `altitudeReference = 'top'`, the altitude defines the **top** of the line;
+     *   the base is fixed at 0 m.
+     * - When `altitudeReference = 'base'`, the altitude defines the **base** of the line;
+     *   the top must be specified using {@link VerticalLineStyle.offsetZ}.
+     * - {@link VerticalLineStyle.offsetZ} extends the line upward from the reference altitude.
+     *   With 'terrain', it defines how far above the terrain the line extends.
+     *
+     * Examples:
+     * ```ts
+     * // Top = 100 m, Base = 0 m
+     * { type: "VerticalLine", altitudeReference: "top", altitude: 100 }
+     *
+     * // Base = terrain, Top = terrain + 2 m
+     * { type: "VerticalLine", altitudeReference: "base", altitude: "terrain", offsetZ: "2m" }
+     *
+     * // Base = 0, Top = feature Z (if available)
+     * { type: "VerticalLine", altitudeReference: "top", altitude: true }
+     * ```
+     *
+     * @defaultValue true
+     * @experimental
+     */
+    altitude?: number | boolean | 'terrain'
+        | StyleValueFunction<number | boolean | 'terrain'>
+        | StyleZoomRange<number | boolean | 'terrain'>
+        | StyleExpression<number | boolean | 'terrain'>;
 }

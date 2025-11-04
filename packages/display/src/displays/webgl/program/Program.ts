@@ -70,6 +70,8 @@ export type ColorMask = {
     a: boolean
 };
 
+export type ProgramMacros = { [name: string]: string | number | boolean };
+
 class Program {
     protected vertexShaderSrc: string;
     protected fragmentShaderSrc: string;
