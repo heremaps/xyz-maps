@@ -36,7 +36,7 @@ class CircleProgram extends Program {
     });
 
     static getProgramId(buffer: GeometryBuffer, macros?: ProgramMacros) {
-        return buffer.type + macros?.USE_HEIGHTMAP||'';
+        return buffer.type + (macros?.USE_HEIGHTMAP||'');
     }
 
     constructor(gl: WebGLRenderingContext, devicePixelRation: number, macros?: ProgramMacros) {

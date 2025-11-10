@@ -150,7 +150,7 @@ export class FactoryTask extends Task<TaskInput, TaskData> {
             pendingResources.push(promise);
         };
         const {showWireframe} = layerStyles;
-        const zLayer = layerStyles.zLayer ?? displayLayer.getRenderIndex();
+        const zLayer = layerStyles.zLayer; // ?? displayLayer.getRenderIndex();
 
         this.factory.init(tile, groups, layer.tileSize, zoom, zLayer, waitAndRefresh);
 

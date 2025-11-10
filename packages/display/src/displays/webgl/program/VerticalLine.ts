@@ -26,7 +26,7 @@ class VerticalLineProgram extends Program {
     name = 'VerticalLine';
 
     static getProgramId(buffer: GeometryBuffer, macros?: ProgramMacros) {
-        return buffer.type + macros?.USE_HEIGHTMAP||'';
+        return buffer.type + (macros?.USE_HEIGHTMAP||'');
     }
 
     static getMacros(buffer: GeometryBuffer) {
