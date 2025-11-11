@@ -26,7 +26,7 @@ const DEFAULT_TERRAIN_LIGHT = [{
 }];
 
 
-const createTerrainModelBuilder = (tileSize: number, material) => ({id, properties}, zoom: number) => {
+const createTerrainModelBuilder = (material) => ({id, properties}, zoom: number, tileSize: number) => {
     const textures = {};
     const textureOptions: { uvScale: number, diffuseMap?: any, uHeightMap?: any } = {uvScale: 1};
     if (properties.texture) {
@@ -146,6 +146,7 @@ export class TerrainTileLayerStyle implements LayerStyle {
             rotate: [Math.PI / 2, 0, 0]
         };
 
+        const buildModel = createTerrainModelBuilder(material);
 
         Object.assign(this, <LayerStyle>{
             skyColor: style.skyColor || {
@@ -184,21 +185,27 @@ export class TerrainTileLayerStyle implements LayerStyle {
                             -0.5 * tileSize
                         ];
                     },
-                    model: createTerrainModelBuilder(tileSize, material)
+                    model(feature, zoom) {
+                        return buildModel(feature, zoom, tileSize);
+                    }
                 }],
                 'TerrainModelHM': [<ModelStyle><unknown>{
                     ...terrainStyle,
                     scale({properties}) {
                         const {quantizationRange} = properties;
                         const quantizationUnit = 1 / quantizationRange;
-                        const xyScale = quantizationUnit * (tileSize);
+                        const xyScale = quantizationUnit * tileSize;
                         // const zScale = (quantizedMaxHeight - quantizedMinHeight) / quantizationRange;
                         const zScale = properties.heightScale;
                         return [xyScale, xyScale, -zScale * exaggeration];
                         // return [xyScale, xyScale, -1.0 * exaggeration];
                     },
-                    translate: [-0.5 * tileSize, 0.0, -0.5 * tileSize],
-                    model: createTerrainModelBuilder(tileSize, material)
+                    translate() {
+                        return [-0.5 * tileSize, 0.0, -0.5 * tileSize];
+                    },
+                    model(feature, zoom) {
+                        return buildModel(feature, zoom, tileSize);
+                    }
                 }]
             },
             assign(feature, zoom) {

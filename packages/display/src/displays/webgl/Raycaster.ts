@@ -259,9 +259,6 @@ class Raycaster {
 
         this.w = width;
         this.h = height;
-
-        console.log('RAYCAST INIT', scale, scaleZ);
-
         this.scale = scale;
 
         // const invScaleXY = 1 / scale;
@@ -395,7 +392,6 @@ class Raycaster {
         const featureId = buffer.rayIntersects(buffer, result, tileX, tileY, this);
 
         if (featureId != null) {
-            console.log(result.id, '<-', featureId);
             result.id = featureId;
             result.origin = localRay ? localRay.origin.slice() : null;
             result.direction = localRay ? localRay.direction.slice() : null;

@@ -68,35 +68,37 @@ export class TerrainTask extends Task<TerrainTaskInput, TerrainTaskData, HeightM
     }
 
     private blitHeightmap(
-        source: Float32Array, target: Float32Array, hmWidth: number,
-        sx: number = 0, sy: number = 0, sWidth: number,
-        dx: number = 0, dy: number = 0, dWidth: number
+        source: Float32Array,
+        target: Float32Array,
+        hmWidth: number,
+        sx = 0,
+        sy = 0,
+        sWidth: number,
+        dx = 0,
+        dy = 0,
+        dWidth: number
     ) {
         const pad = this.padding;
-        // usable area of the source excluding padding
-        const innerWidth = hmWidth - 2 * pad;
-        const tileSize = this.terrainLayer.tileSize;
-        // scale from source heightmap to tile resolution (even width)
-        const hmScale = (innerWidth - (innerWidth & 1)) / tileSize;
-        // scale between source region and destination region
-        const scaleXY = sWidth / dWidth;
-        // start positions in source incl. padding
-        const srcOffsetX = sx * hmScale + pad;
-        const srcOffsetY = sy * hmScale + pad;
-        // if downscaling ensure the last pixel gets copied
-        // const targetWidth = scaleXY < 1 ? dWidth + 1 : dWidth;
-        // // target end: always fill up to hmWidth (heightmap width) (computed but not explicitly used)
-        // const dEndX = dx + targetWidth * hmScale;
-        // const dEndY = dy + targetWidth * hmScale;
-        for (let y = Math.floor(dy); y < hmWidth; y++) {
-            const srcYf = srcOffsetY + (y - dy) * scaleXY;
-            const srcY = Math.min(innerWidth - 1 + pad, srcYf | 0) * hmWidth;
+
+        const destStartX = Math.max(0, Math.floor(dx));
+        const destStartY = Math.max(0, Math.floor(dy));
+        const destEndX = Math.min(hmWidth - 1, Math.floor(dx + dWidth));
+        const destEndY = Math.min(hmWidth - 1, Math.floor(dy + dWidth));
+
+        const scaleX = (sWidth - 1) / (dWidth - 1);
+        const scaleY = (sWidth - 1) / (dWidth - 1);
+
+        for (let y = destStartY; y <= destEndY; y++) {
+            const srcYFloat = sy + (y - dy) * scaleY;
+            const srcY = Math.min(hmWidth - 1, Math.max(pad, Math.round(srcYFloat)));
+            const srcRow = srcY * hmWidth;
             const targetRow = y * hmWidth;
 
-            for (let x = Math.floor(dx); x < hmWidth; x++) {
-                const srcXf = srcOffsetX + (x - dx) * scaleXY;
-                const srcX = Math.min(innerWidth - 1 + pad, srcXf | 0);
-                target[targetRow + x] = source[srcY + srcX];
+            for (let x = destStartX; x <= destEndX; x++) {
+                const srcXFloat = sx + (x - dx) * scaleX;
+                const srcX = Math.min(hmWidth - 1, Math.max(pad, Math.round(srcXFloat)));
+
+                target[targetRow + x] = source[srcRow + srcX];
             }
         }
     }
