@@ -1,4 +1,4 @@
-import {TerrainTileLayer, LocalProvider, TileLayer} from '@here/xyz-maps-core';
+import {TerrainTileLayer, LocalProvider, TileLayer, BoxStyle} from '@here/xyz-maps-core';
 import {Map} from '@here/xyz-maps-display';
 /** setup the Map **/
 const display = new Map(document.getElementById('map'), {
@@ -43,6 +43,39 @@ const myLayer = new TileLayer({
     provider: new LocalProvider()
 });
 display.addLayer(myLayer);
+
+const createRandomPoints = (size, center, radiusMeters = 5_000) => {
+    const metersPerDegLat = 111320;
+    const metersPerDegLon = 40075000 * Math.cos(center.latitude * Math.PI / 180) / 360;
+    const points = [];
+    for (let i = 0; i < size; i++) {
+        const angle = Math.random() * 2 * Math.PI;
+        const r = Math.sqrt(Math.random()) * radiusMeters;
+        const dLat = (r * Math.sin(angle)) / metersPerDegLat;
+        const dLon = (r * Math.cos(angle)) / metersPerDegLon;
+        points.push([center.longitude + dLon, center.latitude + dLat]);
+    }
+    return [{
+        type: 'Feature',
+        geometry: {
+            type: 'MultiPoint',
+            coordinates: points
+        }
+    }];
+};
+
+document.querySelector<HTMLButtonElement>('#createRandomPoints').onclick = function() {
+    const points = createRandomPoints(1000, display.getCenter());
+    const style = [{
+        zIndex: 0,
+        type: 'Box',
+        width: 8,
+        stroke: '#de0d8a',
+        fill: '#de0d8a',
+        altitude: 'terrain'
+    } as BoxStyle];
+    points.forEach((point, index) => myLayer.addFeature(point, style));
+};
 /** **/
 
 // Add a feature representing Mount Fuji, clamped to terrain elevation.
