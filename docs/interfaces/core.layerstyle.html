@@ -1,0 +1,455 @@
+<!doctype html>
+<html class="default no-js">
+<head>
+	<meta charset="utf-8">
+	<meta http-equiv="X-UA-Compatible" content="IE=edge">
+	<title>LayerStyle | XYZ Maps Documentation</title>
+	<meta name="description" content="Documentation for XYZ Maps Documentation">
+	<meta name="viewport" content="width=device-width, initial-scale=1">
+	<link rel="stylesheet" href="../assets/css/main.css">
+</head>
+<body>
+<header>
+	<div class="tsd-page-toolbar">
+		<div class="container">
+			<div class="table-wrap">
+				<div class="table-cell" id="tsd-search" data-index="../assets/js/search.json" data-base="..">
+					<div class="field">
+						<label for="tsd-search-field" class="tsd-widget search no-caption">Search</label>
+						<input id="tsd-search-field" type="text" />
+					</div>
+					<ul class="results">
+						<li class="state loading">Preparing search index...</li>
+						<li class="state failure">The search index is not available</li>
+					</ul>
+					<a href="../index.html" class="title">XYZ Maps Documentation</a>
+				</div>
+				<div class="table-cell" id="tsd-widgets">
+					<div id="tsd-filter">
+						<a href="#" class="tsd-widget options no-caption" data-toggle="options">Options</a>
+						<div class="tsd-filter-group">
+							<div class="tsd-select" id="tsd-filter-visibility">
+								<span class="tsd-select-label">All</span>
+								<ul class="tsd-select-list">
+									<li data-value="public">Public</li>
+									<li data-value="protected">Public/Protected</li>
+									<li data-value="private" class="selected">All</li>
+								</ul>
+							</div>
+							<input type="checkbox" id="tsd-filter-inherited" checked />
+							<label class="tsd-widget" for="tsd-filter-inherited">Inherited</label>
+						</div>
+					</div>
+					<a href="#" class="tsd-widget menu no-caption" data-toggle="menu">Menu</a>
+				</div>
+			</div>
+		</div>
+	</div>
+	<div class="tsd-page-title">
+		<div class="container">
+			<ul class="tsd-breadcrumb">
+				<li>
+					<a href="../globals.html">Globals</a>
+				</li>
+				<li>
+					<a href="../modules/core.html">core</a>
+				</li>
+				<li>
+					<a href="core.layerstyle.html">LayerStyle</a>
+				</li>
+			</ul>
+			<h1>Interface LayerStyle</h1>
+		</div>
+	</div>
+</header>
+<div class="container container-main">
+	<div class="row">
+		<div class="col-8 col-content">
+			<section class="tsd-panel tsd-comment">
+				<div class="tsd-comment tsd-typography">
+					<div class="lead">
+						<p>This is an interface to describe how certain features should be rendered within a layer.</p>
+					</div>
+					<dl class="tsd-comment-tags">
+						<dt>example</dt>
+						<dd><pre><code class="language-typescript">{
+ <span class="hljs-attr">styleGroups</span>: {
+   <span class="hljs-string">&quot;myLineStyle&quot;</span>: [
+     {<span class="hljs-attr">zIndex</span>: <span class="hljs-number">0</span>, <span class="hljs-attr">type</span>: <span class="hljs-string">&quot;Line&quot;</span>, <span class="hljs-attr">opacity</span>: <span class="hljs-number">1</span>, <span class="hljs-attr">stroke</span>: <span class="hljs-string">&quot;#BE6B65&quot;</span>, <span class="hljs-attr">strokeWidth</span>: <span class="hljs-number">16</span>},
+     {<span class="hljs-attr">zIndex</span>: <span class="hljs-number">1</span>, <span class="hljs-attr">type</span>: <span class="hljs-string">&quot;Line&quot;</span>, <span class="hljs-attr">opacity</span>: <span class="hljs-number">1</span>, <span class="hljs-attr">stroke</span>: <span class="hljs-string">&quot;#E6A08C&quot;</span>, <span class="hljs-attr">strokeWidth</span>: <span class="hljs-number">12</span>},
+     {<span class="hljs-attr">zIndex</span>: <span class="hljs-number">2</span>, <span class="hljs-attr">type</span>: <span class="hljs-string">&quot;Text&quot;</span>, <span class="hljs-attr">fill</span>: <span class="hljs-string">&quot;#000000&quot;</span>, <span class="hljs-string">&quot;textRef&quot;</span>: <span class="hljs-string">&quot;properties.name&quot;</span>}
+   ]
+ },
+ <span class="hljs-attr">assign</span>: <span class="hljs-function"><span class="hljs-keyword">function</span>(<span class="hljs-params">feature: Feature, zoomlevel: <span class="hljs-built_in">number</span></span>)</span>{
+   <span class="hljs-keyword">return</span> <span class="hljs-string">&quot;myLineStyle&quot;</span>;
+ }
+}
+</code></pre>
+						</dd>
+					</dl>
+				</div>
+			</section>
+			<section class="tsd-panel tsd-hierarchy">
+				<h3>Hierarchy</h3>
+				<ul class="tsd-hierarchy">
+					<li>
+						<span class="target">LayerStyle</span>
+					</li>
+				</ul>
+			</section>
+			<section class="tsd-panel">
+				<h3>Implemented by</h3>
+				<ul class="tsd-hierarchy">
+					<li><a href="../classes/core.terraintilelayerstyle.html" class="tsd-signature-type">TerrainTileLayerStyle</a></li>
+				</ul>
+			</section>
+			<section class="tsd-panel-group tsd-index-group">
+				<h2>Index</h2>
+				<section class="tsd-panel tsd-index-panel">
+					<div class="tsd-index-content">
+						<section class="tsd-index-section ">
+							<h3>Properties</h3>
+							<ul class="tsd-index-list">
+								<li class="tsd-kind-property tsd-parent-kind-interface"><a href="core.layerstyle.html#assign" class="tsd-kind-icon">assign</a></li>
+								<li class="tsd-kind-property tsd-parent-kind-interface"><a href="core.layerstyle.html#backgroundcolor" class="tsd-kind-icon">background<wbr>Color</a></li>
+								<li class="tsd-kind-property tsd-parent-kind-interface"><a href="core.layerstyle.html#definitions" class="tsd-kind-icon">definitions</a></li>
+								<li class="tsd-kind-property tsd-parent-kind-interface"><a href="core.layerstyle.html#lights" class="tsd-kind-icon">lights</a></li>
+								<li class="tsd-kind-property tsd-parent-kind-interface"><a href="core.layerstyle.html#skycolor" class="tsd-kind-icon">sky<wbr>Color</a></li>
+								<li class="tsd-kind-property tsd-parent-kind-interface"><a href="core.layerstyle.html#stylegroups" class="tsd-kind-icon">style<wbr>Groups</a></li>
+								<li class="tsd-kind-property tsd-parent-kind-interface"><a href="core.layerstyle.html#zlayer" class="tsd-kind-icon">z<wbr>Layer</a></li>
+							</ul>
+						</section>
+					</div>
+				</section>
+			</section>
+			<section class="tsd-panel-group tsd-member-group ">
+				<h2>Properties</h2>
+				<section class="tsd-panel tsd-member tsd-kind-property tsd-parent-kind-interface">
+					<a name="assign" class="tsd-anchor"></a>
+					<h3><span class="tsd-flag ts-flagOptional">Optional</span> assign</h3>
+					<div class="tsd-signature tsd-kind-icon">assign<span class="tsd-signature-symbol">:</span> <span class="tsd-signature-symbol">(</span>feature<span class="tsd-signature-symbol">: </span><a href="../classes/core.feature.html" class="tsd-signature-type">Feature</a>, zoomlevel<span class="tsd-signature-symbol">: </span><span class="tsd-signature-type">number</span><span class="tsd-signature-symbol">)</span><span class="tsd-signature-symbol"> =&gt; </span><span class="tsd-signature-type">string</span><span class="tsd-signature-symbol"> | </span><span class="tsd-signature-type">null</span><span class="tsd-signature-symbol"> | </span><span class="tsd-signature-type">undefined</span></div>
+					<aside class="tsd-sources">
+					</aside>
+					<div class="tsd-comment tsd-typography">
+						<div class="lead">
+							<p> The function returns a key that is defined in the styleGroups map.
+								This function will be called for each feature being rendered by the display.
+							The display expects this method to return the key for the styleGroup of how the feature should be rendered for the respective zoomlevel.</p>
+						</div>
+						<p> If <code>assign</code> is not defined, the <a href="core.style.html#filter">Style.filter</a> property must be used to determine whether the feature should be rendered.</p>
+						<dl class="tsd-comment-tags">
+							<dt>param</dt>
+							<dd><p>the feature to which style is applied</p>
+							</dd>
+							<dt>param</dt>
+							<dd><p>the zoomlevel of the tile the feature should be rendered in</p>
+							</dd>
+							<dt>returns</dt>
+							<dd><p>the key/identifier of the styleGroup in the styleGroupMap, or null/undefined if the feature should not be rendered.</p>
+							</dd>
+						</dl>
+					</div>
+					<div class="tsd-type-declaration">
+						<h4>Type declaration</h4>
+						<ul class="tsd-parameters">
+							<li class="tsd-parameter-signature">
+								<ul class="tsd-signatures tsd-kind-type-literal tsd-parent-kind-property">
+									<li class="tsd-signature tsd-kind-icon"><span class="tsd-signature-symbol">(</span>feature<span class="tsd-signature-symbol">: </span><a href="../classes/core.feature.html" class="tsd-signature-type">Feature</a>, zoomlevel<span class="tsd-signature-symbol">: </span><span class="tsd-signature-type">number</span><span class="tsd-signature-symbol">)</span><span class="tsd-signature-symbol">: </span><span class="tsd-signature-type">string</span><span class="tsd-signature-symbol"> | </span><span class="tsd-signature-type">null</span><span class="tsd-signature-symbol"> | </span><span class="tsd-signature-type">undefined</span></li>
+								</ul>
+								<ul class="tsd-descriptions">
+									<li class="tsd-description">
+										<h4 class="tsd-parameters-title">Parameters</h4>
+										<ul class="tsd-parameters">
+											<li>
+												<h5>feature: <a href="../classes/core.feature.html" class="tsd-signature-type">Feature</a></h5>
+											</li>
+											<li>
+												<h5>zoomlevel: <span class="tsd-signature-type">number</span></h5>
+											</li>
+										</ul>
+										<h4 class="tsd-returns-title">Returns <span class="tsd-signature-type">string</span><span class="tsd-signature-symbol"> | </span><span class="tsd-signature-type">null</span><span class="tsd-signature-symbol"> | </span><span class="tsd-signature-type">undefined</span></h4>
+									</li>
+								</ul>
+							</li>
+						</ul>
+					</div>
+				</section>
+				<section class="tsd-panel tsd-member tsd-kind-property tsd-parent-kind-interface">
+					<a name="backgroundcolor" class="tsd-anchor"></a>
+					<h3><span class="tsd-flag ts-flagOptional">Optional</span> background<wbr>Color</h3>
+					<div class="tsd-signature tsd-kind-icon">background<wbr>Color<span class="tsd-signature-symbol">:</span> <a href="../modules/core.html#color" class="tsd-signature-type">Color</a><span class="tsd-signature-symbol"> | </span><a href="../modules/core.html#stylezoomrange" class="tsd-signature-type">StyleZoomRange</a><span class="tsd-signature-symbol">&lt;</span><a href="../modules/core.html#color" class="tsd-signature-type">Color</a><span class="tsd-signature-symbol">&gt;</span><span class="tsd-signature-symbol"> | </span><span class="tsd-signature-symbol">(</span><span class="tsd-signature-symbol">(</span>zoomlevel<span class="tsd-signature-symbol">: </span><span class="tsd-signature-type">number</span><span class="tsd-signature-symbol">)</span><span class="tsd-signature-symbol"> =&gt; </span><a href="../modules/core.html#color" class="tsd-signature-type">Color</a><span class="tsd-signature-symbol">)</span><span class="tsd-signature-symbol"> | </span><a href="../modules/core.html#styleexpression" class="tsd-signature-type">StyleExpression</a><span class="tsd-signature-symbol">&lt;</span><a href="../modules/core.html#color" class="tsd-signature-type">Color</a><span class="tsd-signature-symbol">&gt;</span></div>
+					<aside class="tsd-sources">
+					</aside>
+					<div class="tsd-comment tsd-typography">
+						<div class="lead">
+							<p>Specifies the background color of the layer.</p>
+						</div>
+						<p>This property can accept different types of values to determine the background color:</p>
+						<ul>
+							<li>A fixed <code>Color</code>.</li>
+							<li>A <code>StyleZoomRange&lt;Color&gt;</code> object to define color based on zoom levels.</li>
+							<li>A function <code>(zoomlevel: number) =&gt; Color</code> to compute the color dynamically based on the zoom level.</li>
+							<li>A <code>StyleExpression&lt;Color&gt;</code> to compute the color using a style expression.</li>
+						</ul>
+					</div>
+				</section>
+				<section class="tsd-panel tsd-member tsd-kind-property tsd-parent-kind-interface">
+					<a name="definitions" class="tsd-anchor"></a>
+					<h3><span class="tsd-flag ts-flagOptional">Optional</span> definitions</h3>
+					<div class="tsd-signature tsd-kind-icon">definitions<span class="tsd-signature-symbol">:</span> <span class="tsd-signature-symbol">{}</span></div>
+					<aside class="tsd-sources">
+					</aside>
+					<div class="tsd-comment tsd-typography">
+						<div class="lead">
+							<p>Option LayerStyle definitions that can be references and reused by <a href="core.style.html">Styles</a> within the Layer.</p>
+						</div>
+					</div>
+					<div class="tsd-type-declaration">
+						<h4>Type declaration</h4>
+						<ul class="tsd-parameters">
+							<li class="tsd-parameter-index-signature">
+								<h5><span class="tsd-signature-symbol">[</span>definitionName: <span class="tsd-signature-type">string</span><span class="tsd-signature-symbol">]: </span><span class="tsd-signature-type">boolean</span><span class="tsd-signature-symbol"> | </span><span class="tsd-signature-type">number</span><span class="tsd-signature-symbol"> | </span><a href="../modules/core.html#styleexpression" class="tsd-signature-type">StyleExpression</a><span class="tsd-signature-symbol"> | </span><span class="tsd-signature-type">any</span><span class="tsd-signature-symbol">[]</span><span class="tsd-signature-symbol"> | </span><span class="tsd-signature-type">null</span></h5>
+							</li>
+						</ul>
+					</div>
+				</section>
+				<section class="tsd-panel tsd-member tsd-kind-property tsd-parent-kind-interface">
+					<a name="lights" class="tsd-anchor"></a>
+					<h3><span class="tsd-flag ts-flagOptional">Optional</span> lights</h3>
+					<div class="tsd-signature tsd-kind-icon">lights<span class="tsd-signature-symbol">:</span> <span class="tsd-signature-symbol">{}</span></div>
+					<aside class="tsd-sources">
+					</aside>
+					<div class="tsd-comment tsd-typography">
+						<div class="lead">
+							<p>The <code>lights</code> property specifies a collection of light sources that can be used to illuminate features within the layer.
+								It is a map where each key is a unique light group name, and the value is an array of light objects.
+							Lights can be of various types, including <a href="core.ambientlight.html">AmbientLight</a> and <a href="core.directionallight.html">DirectionalLight</a>, and can be used to create different lighting effects.</p>
+						</div>
+						<p>The <code>lights</code> property allows you to define and organize multiple light sources that influence the rendering of features in the layer.</p>
+						<a href="#structure" id="structure" style="color: inherit; text-decoration: none;">
+							<h3>Structure</h3>
+						</a>
+						<ul>
+							<li><strong>Key (string):</strong> A unique identifier for the light group.</li>
+							<li><strong>Value (array):</strong> An array of light objects, which can be of type <a href="core.ambientlight.html">AmbientLight</a> or <a href="core.directionallight.html">DirectionalLight</a>.</li>
+						</ul>
+						<a href="#relation-to-stylelight" id="relation-to-stylelight" style="color: inherit; text-decoration: none;">
+							<h3>Relation to Style.light</h3>
+						</a>
+						<ul>
+							<li><strong><a href="core.style.html#light">Style.light</a></strong>: Specifies which single light group to use for illuminating a specific feature. This property must reference a key defined in <code>LayerStyle.lights</code>.</li>
+							<li><strong>Default Light</strong>: If a <code>FeatureStyle</code> does not specify a <code>light</code>, the light group associated with the <code>&quot;defaultLight&quot;</code> key in <code>LayerStyle.lights</code> will be used. If <code>&quot;defaultLight&quot;</code> is not defined, a default light will be automatically provided.</li>
+							<li><strong>Only One Light Group</strong>: Only one light group is used to illuminate a feature. This is either the group specified in <code>FeatureStyle.light</code>, or if not specified, the <code>&quot;defaultLight&quot;</code> group from <code>LayerStyle.lights</code>.</li>
+							<li><strong>Override Default Light</strong>: To override the default light, set it explicitly in <code>LayerStyle.lights</code> under the key <code>&quot;defaultLight&quot;</code>.</li>
+						</ul>
+						<a href="#examples" id="examples" style="color: inherit; text-decoration: none;">
+							<h3>Examples</h3>
+						</a>
+						<pre><code class="language-typescript">{
+  <span class="hljs-attr">lights</span>: {
+     <span class="hljs-comment">// Define a light group named &quot;default&quot; to override the default lighting for the layer</span>
+   <span class="hljs-string">&quot;defaultLight&quot;</span>: [{
+       <span class="hljs-attr">type</span>: <span class="hljs-string">&#x27;ambient&#x27;</span>,
+       <span class="hljs-attr">color</span>: <span class="hljs-string">&#x27;#fff&#x27;</span>,
+       <span class="hljs-attr">intensity</span>: <span class="hljs-number">0.3</span>
+   }, {
+       <span class="hljs-attr">type</span>: <span class="hljs-string">&#x27;directional&#x27;</span>,
+       <span class="hljs-attr">color</span>: <span class="hljs-string">&#x27;#fff&#x27;</span>,
+       <span class="hljs-attr">direction</span>: [<span class="hljs-number">0</span>, <span class="hljs-number">0</span>, <span class="hljs-number">1</span>],
+       <span class="hljs-attr">intensity</span>: <span class="hljs-number">1.0</span>
+   }, {
+       <span class="hljs-attr">type</span>: <span class="hljs-string">&#x27;directional&#x27;</span>,
+       <span class="hljs-attr">color</span>: <span class="hljs-string">&#x27;#fff&#x27;</span>,
+       <span class="hljs-attr">direction</span>: [-<span class="hljs-number">1</span>, <span class="hljs-number">0</span>, <span class="hljs-number">0</span>],
+       <span class="hljs-attr">intensity</span>: <span class="hljs-number">0.2</span>
+   }],
+   <span class="hljs-comment">// Define a light group named &quot;buildingLights&quot; for specific features</span>
+    <span class="hljs-string">&quot;buildingLights&quot;</span>: [
+      { <span class="hljs-attr">type</span>: <span class="hljs-string">&quot;ambient&quot;</span>, <span class="hljs-attr">color</span>: <span class="hljs-string">&quot;#fff&quot;</span>, <span class="hljs-attr">intensity</span>: <span class="hljs-number">1.0</span> } <span class="hljs-comment">// A simple ambient light source for buildings</span>
+    ]
+  }
+}
+</code></pre>
+						<p>In the example above:</p>
+						<ul>
+							<li><code>&quot;defaultLight&quot;</code> is a light group that overrides the standard lighting configuration. It includes both an ambient and a directional light source and is used for all illuminated FeatureStyle instances where the light property is not explicitly set.</li>
+							<li><code>&quot;buildingLights&quot;</code> is a light group containing only an ambient light source. This group will only be used for features where <a href="core.style.html#light">Style.light</a> is set to <code>&quot;buildingLights&quot;</code>.</li>
+							<li>Each light source can be customized with properties such as <code>color</code>, <code>intensity</code>, and, for <code>DirectionalLight</code>, a <code>direction</code> vector.</li>
+						</ul>
+						<p>The lights specified here will be applied to the rendering of features within the layer. However, only one light group will be used for each feature:</p>
+						<ul>
+							<li>If <a href="core.style.html#light">Style.light</a> is defined, it will reference a specific light group in <code>LayerStyle.lights</code>.</li>
+							<li>If <a href="core.style.html#light">Style.light</a> is not defined, the <code>&quot;defaultLight&quot;</code> light group (if specified) will be used.</li>
+							<li>If no <code>&quot;defaultLight&quot;</code> light group is set, an automatic default light will be provided.</li>
+						</ul>
+					</div>
+					<div class="tsd-type-declaration">
+						<h4>Type declaration</h4>
+						<ul class="tsd-parameters">
+							<li class="tsd-parameter-index-signature">
+								<h5><span class="tsd-signature-symbol">[</span>name: <span class="tsd-signature-type">string</span><span class="tsd-signature-symbol">]: </span><span class="tsd-signature-symbol">(</span><a href="core.ambientlight.html" class="tsd-signature-type">AmbientLight</a><span class="tsd-signature-symbol"> | </span><a href="core.directionallight.html" class="tsd-signature-type">DirectionalLight</a><span class="tsd-signature-symbol">)</span><span class="tsd-signature-symbol">[]</span></h5>
+							</li>
+						</ul>
+					</div>
+				</section>
+				<section class="tsd-panel tsd-member tsd-kind-property tsd-parent-kind-interface">
+					<a name="skycolor" class="tsd-anchor"></a>
+					<h3><span class="tsd-flag ts-flagOptional">Optional</span> sky<wbr>Color</h3>
+					<div class="tsd-signature tsd-kind-icon">sky<wbr>Color<span class="tsd-signature-symbol">:</span> <a href="../modules/core.html#color" class="tsd-signature-type">Color</a><span class="tsd-signature-symbol"> | </span><a href="../modules/core.html#stylezoomrange" class="tsd-signature-type">StyleZoomRange</a><span class="tsd-signature-symbol">&lt;</span><a href="../modules/core.html#color" class="tsd-signature-type">Color</a><span class="tsd-signature-symbol">&gt;</span><span class="tsd-signature-symbol"> | </span><span class="tsd-signature-symbol">(</span><span class="tsd-signature-symbol">(</span>zoomlevel<span class="tsd-signature-symbol">: </span><span class="tsd-signature-type">number</span><span class="tsd-signature-symbol">)</span><span class="tsd-signature-symbol"> =&gt; </span><a href="../modules/core.html#color" class="tsd-signature-type">Color</a><span class="tsd-signature-symbol">)</span><span class="tsd-signature-symbol"> | </span><a href="../modules/core.html#styleexpression" class="tsd-signature-type">StyleExpression</a><span class="tsd-signature-symbol">&lt;</span><a href="../modules/core.html#color" class="tsd-signature-type">Color</a><span class="tsd-signature-symbol">&gt;</span><span class="tsd-signature-symbol"> | </span><a href="core.lineargradient.html" class="tsd-signature-type">LinearGradient</a></div>
+					<aside class="tsd-sources">
+					</aside>
+					<div class="tsd-comment tsd-typography">
+						<div class="lead">
+							<p>Defines the sky color of the map.</p>
+							<ul>
+								<li>The sky becomes visible when the map is pitched to higher angles.</li>
+								<li>When multiple layers with different sky colors are used, the sky color from the bottommost layer is applied.</li>
+								<li>Supports various formats, including:<ul>
+										<li><code>Color</code>: A single color applied across all zoom levels.</li>
+										<li><code>StyleZoomRange&lt;Color&gt;</code>: Specifies a range of colors based on zoom levels.</li>
+										<li><code>(zoomlevel: number) =&gt; Color</code>: A function that dynamically determines the color based on the current zoom level.</li>
+										<li><code>StyleExpression&lt;Color&gt;</code>: An expression to compute color based on style parameters.</li>
+										<li><code>LinearGradient</code>: Applies a gradient effect for smooth transitions in sky color.<ul>
+												<li>When using <code>LinearGradient</code>, stops at <code>0</code> represent the color near the horizon (close to the ground), and stops at <code>1</code> represent the color in the sky at the top of the screen.</li>
+												<li>The full gradient (0 to 1) becomes fully visible only when the map pitch is set to maximum (85 degrees).</li>
+											</ul>
+										</li>
+									</ul>
+								</li>
+							</ul>
+						</div>
+					</div>
+				</section>
+				<section class="tsd-panel tsd-member tsd-kind-property tsd-parent-kind-interface">
+					<a name="stylegroups" class="tsd-anchor"></a>
+					<h3>style<wbr>Groups</h3>
+					<div class="tsd-signature tsd-kind-icon">style<wbr>Groups<span class="tsd-signature-symbol">:</span> <span class="tsd-signature-symbol">{}</span></div>
+					<aside class="tsd-sources">
+					</aside>
+					<div class="tsd-comment tsd-typography">
+						<div class="lead">
+							<p> This object contains key/styleGroup pairs.
+							A styleGroup is an array of <a href="core.style.html">Style</a>, that exactly defines how a feature should be rendered.</p>
+						</div>
+					</div>
+					<div class="tsd-type-declaration">
+						<h4>Type declaration</h4>
+						<ul class="tsd-parameters">
+							<li class="tsd-parameter-index-signature">
+								<h5><span class="tsd-signature-symbol">[</span>key: <span class="tsd-signature-type">string</span><span class="tsd-signature-symbol">]: </span><span class="tsd-signature-type">Array</span><span class="tsd-signature-symbol">&lt;</span><a href="core.style.html" class="tsd-signature-type">Style</a><span class="tsd-signature-symbol">&gt;</span></h5>
+							</li>
+						</ul>
+					</div>
+				</section>
+				<section class="tsd-panel tsd-member tsd-kind-property tsd-parent-kind-interface">
+					<a name="zlayer" class="tsd-anchor"></a>
+					<h3><span class="tsd-flag ts-flagOptional">Optional</span> z<wbr>Layer</h3>
+					<div class="tsd-signature tsd-kind-icon">z<wbr>Layer<span class="tsd-signature-symbol">:</span> <span class="tsd-signature-type">number</span></div>
+					<aside class="tsd-sources">
+					</aside>
+					<div class="tsd-comment tsd-typography">
+						<div class="lead">
+							<p>Indicates the global drawing order across multiple layers.
+								This value acts as a fallback for the <a href="core.style.html#zlayer">Style.zLayer</a> property if not explicitly defined there.
+								Styles with higher zLayer values are rendered on top of those with lower values.
+							If no <code>zLayer</code> is defined, the display layer order is used by default.</p>
+						</div>
+					</div>
+				</section>
+			</section>
+		</div>
+		<div class="col-4 col-menu menu-sticky-wrap menu-highlight">
+			<nav class="tsd-navigation primary">
+				<ul>
+					<li class="globals  ">
+						<a href="../globals.html"><em>Globals</em></a>
+					</li>
+					<li class="current tsd-kind-module">
+						<a href="../modules/core.html">core</a>
+					</li>
+					<li class=" tsd-kind-module">
+						<a href="../modules/display.html">display</a>
+					</li>
+					<li class=" tsd-kind-module">
+						<a href="../modules/editor.html">editor</a>
+					</li>
+				</ul>
+			</nav>
+			<nav class="tsd-navigation secondary menu-sticky">
+				<ul class="before-current">
+				</ul>
+				<ul class="current">
+					<li class="current tsd-kind-module">
+						<a href="../modules/core.html" class="tsd-kind-icon">core</a>
+						<ul>
+							<li class="current tsd-kind-interface tsd-parent-kind-module">
+								<a href="core.layerstyle.html" class="tsd-kind-icon">Layer<wbr>Style</a>
+								<ul>
+									<li class=" tsd-kind-property tsd-parent-kind-interface">
+										<a href="core.layerstyle.html#assign" class="tsd-kind-icon">assign</a>
+									</li>
+									<li class=" tsd-kind-property tsd-parent-kind-interface">
+										<a href="core.layerstyle.html#backgroundcolor" class="tsd-kind-icon">background<wbr>Color</a>
+									</li>
+									<li class=" tsd-kind-property tsd-parent-kind-interface">
+										<a href="core.layerstyle.html#definitions" class="tsd-kind-icon">definitions</a>
+									</li>
+									<li class=" tsd-kind-property tsd-parent-kind-interface">
+										<a href="core.layerstyle.html#lights" class="tsd-kind-icon">lights</a>
+									</li>
+									<li class=" tsd-kind-property tsd-parent-kind-interface">
+										<a href="core.layerstyle.html#skycolor" class="tsd-kind-icon">sky<wbr>Color</a>
+									</li>
+									<li class=" tsd-kind-property tsd-parent-kind-interface">
+										<a href="core.layerstyle.html#stylegroups" class="tsd-kind-icon">style<wbr>Groups</a>
+									</li>
+									<li class=" tsd-kind-property tsd-parent-kind-interface">
+										<a href="core.layerstyle.html#zlayer" class="tsd-kind-icon">z<wbr>Layer</a>
+									</li>
+								</ul>
+							</li>
+						</ul>
+					</li>
+				</ul>
+				<ul class="after-current">
+					<li class=" tsd-kind-module">
+						<a href="../modules/display.html" class="tsd-kind-icon">display</a>
+					</li>
+					<li class=" tsd-kind-module">
+						<a href="../modules/editor.html" class="tsd-kind-icon">editor</a>
+					</li>
+				</ul>
+			</nav>
+		</div>
+	</div>
+</div>
+<footer class="with-border-bottom">
+	<div class="container">
+		<h2>Legend</h2>
+		<div class="tsd-legend-group">
+			<ul class="tsd-legend">
+				<li class="tsd-kind-object-literal"><span class="tsd-kind-icon">Object literal</span></li>
+				<li class="tsd-kind-variable"><span class="tsd-kind-icon">Variable</span></li>
+				<li class="tsd-kind-function"><span class="tsd-kind-icon">Function</span></li>
+				<li class="tsd-kind-type-alias"><span class="tsd-kind-icon">Type alias</span></li>
+				<li class="tsd-kind-type-alias tsd-has-type-parameter"><span class="tsd-kind-icon">Type alias with type parameter</span></li>
+			</ul>
+			<ul class="tsd-legend">
+				<li class="tsd-kind-interface"><span class="tsd-kind-icon">Interface</span></li>
+				<li class="tsd-kind-interface tsd-has-type-parameter"><span class="tsd-kind-icon">Interface with type parameter</span></li>
+				<li class="tsd-kind-property tsd-parent-kind-interface"><span class="tsd-kind-icon">Property</span></li>
+			</ul>
+			<ul class="tsd-legend">
+				<li class="tsd-kind-class"><span class="tsd-kind-icon">Class</span></li>
+				<li class="tsd-kind-class tsd-has-type-parameter"><span class="tsd-kind-icon">Class with type parameter</span></li>
+			</ul>
+		</div>
+	</div>
+</footer>
+<div class="container tsd-generator">
+	<p>Generated using <a href="https://typedoc.org/" target="_blank">TypeDoc</a></p>
+</div>
+<div class="overlay"></div>
+<script src="../assets/js/main.js"></script>
+</body>
+</html>

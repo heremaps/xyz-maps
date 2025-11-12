@@ -1,0 +1,1415 @@
+<!doctype html>
+<html class="default no-js">
+<head>
+	<meta charset="utf-8">
+	<meta http-equiv="X-UA-Compatible" content="IE=edge">
+	<title>Style | XYZ Maps Documentation</title>
+	<meta name="description" content="Documentation for XYZ Maps Documentation">
+	<meta name="viewport" content="width=device-width, initial-scale=1">
+	<link rel="stylesheet" href="../assets/css/main.css">
+</head>
+<body>
+<header>
+	<div class="tsd-page-toolbar">
+		<div class="container">
+			<div class="table-wrap">
+				<div class="table-cell" id="tsd-search" data-index="../assets/js/search.json" data-base="..">
+					<div class="field">
+						<label for="tsd-search-field" class="tsd-widget search no-caption">Search</label>
+						<input id="tsd-search-field" type="text" />
+					</div>
+					<ul class="results">
+						<li class="state loading">Preparing search index...</li>
+						<li class="state failure">The search index is not available</li>
+					</ul>
+					<a href="../index.html" class="title">XYZ Maps Documentation</a>
+				</div>
+				<div class="table-cell" id="tsd-widgets">
+					<div id="tsd-filter">
+						<a href="#" class="tsd-widget options no-caption" data-toggle="options">Options</a>
+						<div class="tsd-filter-group">
+							<div class="tsd-select" id="tsd-filter-visibility">
+								<span class="tsd-select-label">All</span>
+								<ul class="tsd-select-list">
+									<li data-value="public">Public</li>
+									<li data-value="protected">Public/Protected</li>
+									<li data-value="private" class="selected">All</li>
+								</ul>
+							</div>
+							<input type="checkbox" id="tsd-filter-inherited" checked />
+							<label class="tsd-widget" for="tsd-filter-inherited">Inherited</label>
+						</div>
+					</div>
+					<a href="#" class="tsd-widget menu no-caption" data-toggle="menu">Menu</a>
+				</div>
+			</div>
+		</div>
+	</div>
+	<div class="tsd-page-title">
+		<div class="container">
+			<ul class="tsd-breadcrumb">
+				<li>
+					<a href="../globals.html">Globals</a>
+				</li>
+				<li>
+					<a href="../modules/core.html">core</a>
+				</li>
+				<li>
+					<a href="core.style.html">Style</a>
+				</li>
+			</ul>
+			<h1>Interface Style</h1>
+		</div>
+	</div>
+</header>
+<div class="container container-main">
+	<div class="row">
+		<div class="col-8 col-content">
+			<section class="tsd-panel tsd-comment">
+				<div class="tsd-comment tsd-typography">
+					<div class="lead">
+						<p>The Style object defines how certain features should be rendered.
+						A style object must always contain the attributes &quot;zIndex&quot; and &quot;type&quot; as well as the mandatory attributes of the corresponding &quot;type&quot;:</p>
+						<ul>
+							<li>Circle: &quot;radius&quot; must be included and either &quot;fill&quot; or &quot;stroke&quot; should be included.</li>
+							<li>Rect: &quot;width&quot; must be included and &quot;height&quot; will be set with the same value as &quot;width&quot; if only &quot;width&quot; is present. Either &quot;fill&quot; or &quot;stroke&quot; should be included</li>
+							<li>Text: &quot;text&quot; or &quot;textRef&quot; should be included and &quot;fill&quot; or &quot;stroke&quot; should also be included for text color</li>
+							<li>Image: &quot;src&quot; and &quot;width&quot; must be included. &quot;height&quot; will be set with the same value as &quot;width&quot; if only &quot;width&quot; is present.</li>
+							<li>Line: &quot;stroke&quot; must be included.</li>
+							<li>Polygon: &quot;fill&quot; or &quot;stroke&quot; must be included.</li>
+							<li>Box: &quot;width&quot; must be included, while &quot;height&quot; and &quot;depth&quot; will be set with the same value as &quot;width&quot; if only &quot;width&quot; is present. Either &quot;fill&quot; or &quot;stroke&quot; should be included</li>
+							<li>Sphere: A style of type Sphere must include &quot;radius&quot; and &quot;fill&quot;.</li>
+							<li>VerticalLine: &quot;stroke&quot; must be included.</li>
+						</ul>
+					</div>
+					<dl class="tsd-comment-tags">
+						<dt>example</dt>
+						<dd><pre><code class="language-typescript"><span class="hljs-comment">// example of Circle:</span>
+{<span class="hljs-attr">zIndex</span>: <span class="hljs-number">0</span>, <span class="hljs-attr">type</span>: <span class="hljs-string">&quot;Circle&quot;</span>, <span class="hljs-attr">radius</span>: <span class="hljs-number">16</span>, <span class="hljs-attr">fill</span>: <span class="hljs-string">&quot;#FFFF00&quot;</span>}
+
+<span class="hljs-comment">// example of Rect:</span>
+{<span class="hljs-attr">zIndex</span>: <span class="hljs-number">0</span>, <span class="hljs-attr">type</span>: <span class="hljs-string">&quot;Rect&quot;</span>, <span class="hljs-attr">fill</span>: <span class="hljs-string">&quot;#4C9EEF&quot;</span>, <span class="hljs-attr">stroke</span>: <span class="hljs-string">&quot;#0156BB&quot;</span>, <span class="hljs-attr">width</span>: <span class="hljs-number">20</span>, <span class="hljs-attr">height</span>: <span class="hljs-number">20</span>}
+
+<span class="hljs-comment">// example of Text:</span>
+{<span class="hljs-attr">zIndex</span>:<span class="hljs-number">1</span>, <span class="hljs-attr">type</span>: <span class="hljs-string">&quot;Text&quot;</span>, <span class="hljs-attr">fill</span>: <span class="hljs-string">&quot;#FFFFFF&quot;</span>, <span class="hljs-attr">text</span>: <span class="hljs-string">&quot;HERE&quot;</span>, <span class="hljs-attr">font</span>: <span class="hljs-string">&quot;normal 12px Arial&quot;</span>}
+
+<span class="hljs-comment">// example of Image:</span>
+{<span class="hljs-attr">zIndex</span>: <span class="hljs-number">0</span>, <span class="hljs-attr">type</span>: <span class="hljs-string">&quot;Image&quot;</span>, <span class="hljs-attr">src</span>: <span class="hljs-string">&quot;./xyz.png&quot;</span>, <span class="hljs-attr">width</span>: <span class="hljs-number">20</span>, <span class="hljs-attr">height</span>: <span class="hljs-number">20</span>}
+
+<span class="hljs-comment">// example of Line:</span>
+{<span class="hljs-attr">zIndex</span>: <span class="hljs-number">0</span>, <span class="hljs-attr">type</span>: <span class="hljs-string">&quot;Line&quot;</span>, <span class="hljs-attr">opacity</span>: <span class="hljs-number">0.5</span>, <span class="hljs-attr">stroke</span>: <span class="hljs-string">&quot;#BE6B65&quot;</span>, <span class="hljs-attr">strokeLinecap</span>: <span class="hljs-string">&quot;round&quot;</span>, <span class="hljs-attr">strokeLinejoin</span>: <span class="hljs-string">&quot;round&quot;</span>, <span class="hljs-attr">strokeWidth</span>: <span class="hljs-number">16</span>}
+
+<span class="hljs-comment">// example of Polygon:</span>
+{<span class="hljs-attr">zIndex</span>: <span class="hljs-number">0</span>, <span class="hljs-attr">type</span>: <span class="hljs-string">&quot;Polygon&quot;</span>, <span class="hljs-attr">opacity</span>: <span class="hljs-number">0.5</span>, <span class="hljs-attr">stroke</span>: <span class="hljs-string">&quot;#BE6B65&quot;</span>, <span class="hljs-attr">fill</span>: <span class="hljs-string">&quot;#FFFFFF&quot;</span>}
+
+<span class="hljs-comment">// example of Box:</span>
+{<span class="hljs-attr">zIndex</span>: <span class="hljs-number">0</span>, <span class="hljs-attr">type</span>: <span class="hljs-string">&quot;Box&quot;</span>, <span class="hljs-attr">width</span>: <span class="hljs-number">16</span>, <span class="hljs-attr">height</span>: <span class="hljs-number">16</span>, <span class="hljs-attr">depth</span>: <span class="hljs-number">16</span>, <span class="hljs-attr">stroke</span>: <span class="hljs-string">&quot;#BE6B65&quot;</span>, <span class="hljs-attr">fill</span>: <span class="hljs-string">&quot;#FFFFFF&quot;</span>}
+
+<span class="hljs-comment">// example of Sphere:</span>
+{<span class="hljs-attr">zIndex</span>: <span class="hljs-number">0</span>, <span class="hljs-attr">type</span>: <span class="hljs-string">&quot;Sphere&quot;</span>, <span class="hljs-attr">radius</span>: <span class="hljs-number">16</span>, <span class="hljs-attr">fill</span>: <span class="hljs-string">&quot;#FFFFFF&quot;</span>}
+</code></pre>
+						</dd>
+					</dl>
+				</div>
+			</section>
+			<section class="tsd-panel tsd-hierarchy">
+				<h3>Hierarchy</h3>
+				<ul class="tsd-hierarchy">
+					<li>
+						<span class="target">Style</span>
+					</li>
+				</ul>
+			</section>
+			<section class="tsd-panel-group tsd-index-group">
+				<h2>Index</h2>
+				<section class="tsd-panel tsd-index-panel">
+					<div class="tsd-index-content">
+						<section class="tsd-index-section ">
+							<h3>Properties</h3>
+							<ul class="tsd-index-list">
+								<li class="tsd-kind-property tsd-parent-kind-interface"><a href="core.style.html#alignment" class="tsd-kind-icon">alignment</a></li>
+								<li class="tsd-kind-property tsd-parent-kind-interface"><a href="core.style.html#altitude" class="tsd-kind-icon">altitude</a></li>
+								<li class="tsd-kind-property tsd-parent-kind-interface"><a href="core.style.html#anchor" class="tsd-kind-icon">anchor</a></li>
+								<li class="tsd-kind-property tsd-parent-kind-interface"><a href="core.style.html#checklinespace" class="tsd-kind-icon">check<wbr>Line<wbr>Space</a></li>
+								<li class="tsd-kind-property tsd-parent-kind-interface"><a href="core.style.html#collide" class="tsd-kind-icon">collide</a></li>
+								<li class="tsd-kind-property tsd-parent-kind-interface"><a href="core.style.html#collisiongroup" class="tsd-kind-icon">collision<wbr>Group</a></li>
+								<li class="tsd-kind-property tsd-parent-kind-interface"><a href="core.style.html#depth" class="tsd-kind-icon">depth</a></li>
+								<li class="tsd-kind-property tsd-parent-kind-interface"><a href="core.style.html#emissive" class="tsd-kind-icon">emissive</a></li>
+								<li class="tsd-kind-property tsd-parent-kind-interface"><a href="core.style.html#extrude" class="tsd-kind-icon">extrude</a></li>
+								<li class="tsd-kind-property tsd-parent-kind-interface"><a href="core.style.html#extrudebase" class="tsd-kind-icon">extrude<wbr>Base</a></li>
+								<li class="tsd-kind-property tsd-parent-kind-interface"><a href="core.style.html#fill" class="tsd-kind-icon">fill</a></li>
+								<li class="tsd-kind-property tsd-parent-kind-interface"><a href="core.style.html#fillintensity" class="tsd-kind-icon">fill<wbr>Intensity</a></li>
+								<li class="tsd-kind-property tsd-parent-kind-interface"><a href="core.style.html#filter" class="tsd-kind-icon">filter</a></li>
+								<li class="tsd-kind-property tsd-parent-kind-interface"><a href="core.style.html#font" class="tsd-kind-icon">font</a></li>
+								<li class="tsd-kind-property tsd-parent-kind-interface"><a href="core.style.html#from" class="tsd-kind-icon">from</a></li>
+								<li class="tsd-kind-property tsd-parent-kind-interface"><a href="core.style.html#height" class="tsd-kind-icon">height</a></li>
+								<li class="tsd-kind-property tsd-parent-kind-interface"><a href="core.style.html#light" class="tsd-kind-icon">light</a></li>
+								<li class="tsd-kind-property tsd-parent-kind-interface"><a href="core.style.html#linewrap" class="tsd-kind-icon">line<wbr>Wrap</a></li>
+								<li class="tsd-kind-property tsd-parent-kind-interface"><a href="core.style.html#offset" class="tsd-kind-icon">offset</a></li>
+								<li class="tsd-kind-property tsd-parent-kind-interface"><a href="core.style.html#offsetx" class="tsd-kind-icon">offsetX</a></li>
+								<li class="tsd-kind-property tsd-parent-kind-interface"><a href="core.style.html#offsety" class="tsd-kind-icon">offsetY</a></li>
+								<li class="tsd-kind-property tsd-parent-kind-interface"><a href="core.style.html#offsetz" class="tsd-kind-icon">offsetZ</a></li>
+								<li class="tsd-kind-property tsd-parent-kind-interface"><a href="core.style.html#opacity" class="tsd-kind-icon">opacity</a></li>
+								<li class="tsd-kind-property tsd-parent-kind-interface"><a href="core.style.html#priority" class="tsd-kind-icon">priority</a></li>
+								<li class="tsd-kind-property tsd-parent-kind-interface"><a href="core.style.html#radius" class="tsd-kind-icon">radius</a></li>
+								<li class="tsd-kind-property tsd-parent-kind-interface"><a href="core.style.html#repeat" class="tsd-kind-icon">repeat</a></li>
+								<li class="tsd-kind-property tsd-parent-kind-interface"><a href="core.style.html#rotation" class="tsd-kind-icon">rotation</a></li>
+								<li class="tsd-kind-property tsd-parent-kind-interface"><a href="core.style.html#scalebyaltitude" class="tsd-kind-icon">scale<wbr>ByAltitude</a></li>
+								<li class="tsd-kind-property tsd-parent-kind-interface"><a href="core.style.html#shininess" class="tsd-kind-icon">shininess</a></li>
+								<li class="tsd-kind-property tsd-parent-kind-interface"><a href="core.style.html#specular" class="tsd-kind-icon">specular</a></li>
+								<li class="tsd-kind-property tsd-parent-kind-interface"><a href="core.style.html#src" class="tsd-kind-icon">src</a></li>
+								<li class="tsd-kind-property tsd-parent-kind-interface"><a href="core.style.html#stroke" class="tsd-kind-icon">stroke</a></li>
+								<li class="tsd-kind-property tsd-parent-kind-interface"><a href="core.style.html#strokedasharray" class="tsd-kind-icon">stroke<wbr>Dasharray</a></li>
+								<li class="tsd-kind-property tsd-parent-kind-interface"><a href="core.style.html#strokelinecap" class="tsd-kind-icon">stroke<wbr>Linecap</a></li>
+								<li class="tsd-kind-property tsd-parent-kind-interface"><a href="core.style.html#strokelinejoin" class="tsd-kind-icon">stroke<wbr>Linejoin</a></li>
+								<li class="tsd-kind-property tsd-parent-kind-interface"><a href="core.style.html#strokewidth" class="tsd-kind-icon">stroke<wbr>Width</a></li>
+								<li class="tsd-kind-property tsd-parent-kind-interface"><a href="core.style.html#text" class="tsd-kind-icon">text</a></li>
+								<li class="tsd-kind-property tsd-parent-kind-interface"><a href="core.style.html#textref" class="tsd-kind-icon">text<wbr>Ref</a></li>
+								<li class="tsd-kind-property tsd-parent-kind-interface"><a href="core.style.html#to" class="tsd-kind-icon">to</a></li>
+								<li class="tsd-kind-property tsd-parent-kind-interface"><a href="core.style.html#type" class="tsd-kind-icon">type</a></li>
+								<li class="tsd-kind-property tsd-parent-kind-interface"><a href="core.style.html#width" class="tsd-kind-icon">width</a></li>
+								<li class="tsd-kind-property tsd-parent-kind-interface"><a href="core.style.html#zindex" class="tsd-kind-icon">z<wbr>Index</a></li>
+								<li class="tsd-kind-property tsd-parent-kind-interface"><a href="core.style.html#zlayer" class="tsd-kind-icon">z<wbr>Layer</a></li>
+							</ul>
+						</section>
+					</div>
+				</section>
+			</section>
+			<section class="tsd-panel-group tsd-member-group ">
+				<h2>Properties</h2>
+				<section class="tsd-panel tsd-member tsd-kind-property tsd-parent-kind-interface">
+					<a name="alignment" class="tsd-anchor"></a>
+					<h3><span class="tsd-flag ts-flagOptional">Optional</span> alignment</h3>
+					<div class="tsd-signature tsd-kind-icon">alignment<span class="tsd-signature-symbol">:</span> <span class="tsd-signature-type">"map"</span><span class="tsd-signature-symbol"> | </span><span class="tsd-signature-type">"viewport"</span><span class="tsd-signature-symbol"> | </span><a href="../modules/core.html#stylevaluefunction" class="tsd-signature-type">StyleValueFunction</a><span class="tsd-signature-symbol">&lt;</span><span class="tsd-signature-type">string</span><span class="tsd-signature-symbol">&gt;</span><span class="tsd-signature-symbol"> | </span><a href="../modules/core.html#stylezoomrange" class="tsd-signature-type">StyleZoomRange</a><span class="tsd-signature-symbol">&lt;</span><span class="tsd-signature-type">string</span><span class="tsd-signature-symbol">&gt;</span><span class="tsd-signature-symbol"> | </span><a href="../modules/core.html#styleexpression" class="tsd-signature-type">StyleExpression</a><span class="tsd-signature-symbol">&lt;</span><span class="tsd-signature-type">string</span><span class="tsd-signature-symbol">&gt;</span></div>
+					<aside class="tsd-sources">
+					</aside>
+					<div class="tsd-comment tsd-typography">
+						<div class="lead">
+							<p>Alignment for styles of type &quot;Circle&quot;, &quot;Rect&quot;, &quot;Image&quot; and &quot;Text&quot;.
+								Possible values are: &quot;map&quot; and &quot;viewport&quot;.
+								&quot;map&quot; aligns to the plane of the map and &quot;viewport&quot; aligns to the plane of the viewport/screen.
+							Default alignment for Text based on point geometries is &quot;viewport&quot; while &quot;map&quot; is the default for line geometries.</p>
+						</div>
+					</div>
+				</section>
+				<section class="tsd-panel tsd-member tsd-kind-property tsd-parent-kind-interface">
+					<a name="altitude" class="tsd-anchor"></a>
+					<h3><span class="tsd-flag ts-flagOptional">Optional</span> altitude</h3>
+					<div class="tsd-signature tsd-kind-icon">altitude<span class="tsd-signature-symbol">:</span> <span class="tsd-signature-type">number</span><span class="tsd-signature-symbol"> | </span><span class="tsd-signature-type">boolean</span><span class="tsd-signature-symbol"> | </span><span class="tsd-signature-type">"terrain"</span><span class="tsd-signature-symbol"> | </span><a href="../modules/core.html#stylevaluefunction" class="tsd-signature-type">StyleValueFunction</a><span class="tsd-signature-symbol">&lt;</span><span class="tsd-signature-type">number</span><span class="tsd-signature-symbol"> | </span><span class="tsd-signature-type">boolean</span><span class="tsd-signature-symbol"> | </span><span class="tsd-signature-type">"terrain"</span><span class="tsd-signature-symbol">&gt;</span><span class="tsd-signature-symbol"> | </span><a href="../modules/core.html#stylezoomrange" class="tsd-signature-type">StyleZoomRange</a><span class="tsd-signature-symbol">&lt;</span><span class="tsd-signature-type">number</span><span class="tsd-signature-symbol"> | </span><span class="tsd-signature-type">boolean</span><span class="tsd-signature-symbol"> | </span><span class="tsd-signature-type">"terrain"</span><span class="tsd-signature-symbol">&gt;</span><span class="tsd-signature-symbol"> | </span><a href="../modules/core.html#styleexpression" class="tsd-signature-type">StyleExpression</a><span class="tsd-signature-symbol">&lt;</span><span class="tsd-signature-type">number</span><span class="tsd-signature-symbol"> | </span><span class="tsd-signature-type">boolean</span><span class="tsd-signature-symbol"> | </span><span class="tsd-signature-type">"terrain"</span><span class="tsd-signature-symbol">&gt;</span></div>
+					<aside class="tsd-sources">
+					</aside>
+					<div class="tsd-comment tsd-typography">
+						<div class="lead">
+							<p>Altitude of the Feature center in meters.</p>
+						</div>
+						<p>Describes the vertical distance from the global ground plane (0m) to the Feature.</p>
+						<p>Supported values:</p>
+						<ul>
+							<li>false (default): place at 0m.</li>
+							<li>true: use the altitude (z) from the feature geometry if present, else 0. Not re-aligned to the rendered terrain.<pre><code>  If <span class="hljs-keyword">the</span> geometry altitude source differs <span class="hljs-built_in">from</span> <span class="hljs-keyword">the</span> TerrainTileLayer source/resolution, <span class="hljs-keyword">the</span> Feature can appear
+  slightly above <span class="hljs-keyword">or</span> below <span class="hljs-keyword">the</span> visible terrain surface.
+</code></pre>
+							</li>
+							<li>number: fixed absolute altitude in meters. Also not adjusted when terrain tiles load; may not perfectly sit<pre><code>    on the terrain <span class="hljs-keyword">unless</span> both use exactly the same <span class="hljs-built_in">elevation</span> source, datum <span class="hljs-keyword">and</span> <span class="hljs-built_in">resolution</span>.
+</code></pre>
+							</li>
+							<li>&#39;terrain&#39;: sample (clamp to) the current terrain surface height. While the terrain tile is not yet loaded<pre><code>       (<span class="hljs-keyword">or </span>no terrain layer exists) the altitude is <span class="hljs-number">0</span> <span class="hljs-keyword">and </span>updates once data <span class="hljs-keyword">becomes </span>available.
+</code></pre>
+							</li>
+						</ul>
+						<p>Notes:</p>
+						<ul>
+							<li>&#39;terrain&#39; is supported for point styles only: &quot;Circle&quot;, &quot;Rect&quot;, &quot;Image&quot;, &quot;Text&quot;, &quot;Box&quot;, &quot;Sphere&quot;.</li>
+							<li>Use &#39;terrain&#39; to keep the Feature visually seated on the rendered terrain.</li>
+							<li>Use a numeric value for a constant absolute elevation independent of terrain updates.</li>
+							<li>To position something N meters above terrain: use &#39;terrain&#39; plus offsetZ (e.g. offsetZ: &#39;5m&#39;).</li>
+							<li>Expect mismatches (floating / sinking) when using true or a fixed number with a different terrain data source.</li>
+						</ul>
+						<dl class="tsd-comment-tags">
+							<dt>defaultvalue</dt>
+							<dd><p>false</p>
+							</dd>
+							<dt>experimental</dt>
+							<dd></dd>
+						</dl>
+					</div>
+				</section>
+				<section class="tsd-panel tsd-member tsd-kind-property tsd-parent-kind-interface">
+					<a name="anchor" class="tsd-anchor"></a>
+					<h3><span class="tsd-flag ts-flagOptional">Optional</span> anchor</h3>
+					<div class="tsd-signature tsd-kind-icon">anchor<span class="tsd-signature-symbol">:</span> <span class="tsd-signature-type">"Line"</span><span class="tsd-signature-symbol"> | </span><span class="tsd-signature-type">"Coordinate"</span><span class="tsd-signature-symbol"> | </span><span class="tsd-signature-type">"Centroid"</span><span class="tsd-signature-symbol"> | </span><span class="tsd-signature-type">"Center"</span><span class="tsd-signature-symbol"> | </span><a href="../modules/core.html#stylevaluefunction" class="tsd-signature-type">StyleValueFunction</a><span class="tsd-signature-symbol">&lt;</span><span class="tsd-signature-type">string</span><span class="tsd-signature-symbol">&gt;</span><span class="tsd-signature-symbol"> | </span><a href="../modules/core.html#stylezoomrange" class="tsd-signature-type">StyleZoomRange</a><span class="tsd-signature-symbol">&lt;</span><span class="tsd-signature-type">string</span><span class="tsd-signature-symbol">&gt;</span><span class="tsd-signature-symbol"> | </span><a href="../modules/core.html#styleexpression" class="tsd-signature-type">StyleExpression</a><span class="tsd-signature-symbol">&lt;</span><span class="tsd-signature-type">string</span><span class="tsd-signature-symbol">&gt;</span></div>
+					<aside class="tsd-sources">
+					</aside>
+					<div class="tsd-comment tsd-typography">
+						<div class="lead">
+							<p>Sets the anchor point for styles of type &quot;Circle&quot;, &quot;Rect&quot;, &quot;Image&quot; and &quot;Text&quot; used with Line or Polygon geometry.</p>
+						</div>
+						<p>Possible values for Line geometry are &quot;Coordinate&quot; and &quot;Line&quot;.</p>
+						<ul>
+							<li>&quot;Coordinate&quot;: the respective style is displayed at each coordinate of the polyline.</li>
+							<li>&quot;Line&quot;: the respective style is displayed on the shape of the polyline when there is enough space. See <a href="core.style.html#checklinespace">checkLineSpace</a> to disable the space check.</li>
+						</ul>
+						<p>Possible values for Polygon geometry are &quot;Center&quot; and &quot;Centroid&quot;.</p>
+						<ul>
+							<li>&quot;Center&quot;: the center of the bounding box of the polygon.</li>
+							<li>&quot;Centroid&quot;: the geometric centroid of the polygon geometry.</li>
+						</ul>
+						<dl class="tsd-comment-tags">
+							<dt>defaultvalue</dt>
+							<dd><p>For Polygon geometry the default is &quot;Center&quot;. For Line geometry the default for styles of type &quot;Text&quot; is &quot;Line&quot;, while &quot;Coordinate&quot; is the default for styles of type &quot;Circle&quot;, &quot;Rect&quot; or &quot;Image&quot;.</p>
+							</dd>
+						</dl>
+					</div>
+				</section>
+				<section class="tsd-panel tsd-member tsd-kind-property tsd-parent-kind-interface">
+					<a name="checklinespace" class="tsd-anchor"></a>
+					<h3><span class="tsd-flag ts-flagOptional">Optional</span> check<wbr>Line<wbr>Space</h3>
+					<div class="tsd-signature tsd-kind-icon">check<wbr>Line<wbr>Space<span class="tsd-signature-symbol">:</span> <span class="tsd-signature-type">boolean</span><span class="tsd-signature-symbol"> | </span><a href="../modules/core.html#stylevaluefunction" class="tsd-signature-type">StyleValueFunction</a><span class="tsd-signature-symbol">&lt;</span><span class="tsd-signature-type">boolean</span><span class="tsd-signature-symbol">&gt;</span><span class="tsd-signature-symbol"> | </span><a href="../modules/core.html#stylezoomrange" class="tsd-signature-type">StyleZoomRange</a><span class="tsd-signature-symbol">&lt;</span><span class="tsd-signature-type">boolean</span><span class="tsd-signature-symbol">&gt;</span><span class="tsd-signature-symbol"> | </span><a href="../modules/core.html#styleexpression" class="tsd-signature-type">StyleExpression</a><span class="tsd-signature-symbol">&lt;</span><span class="tsd-signature-type">boolean</span><span class="tsd-signature-symbol">&gt;</span></div>
+					<aside class="tsd-sources">
+					</aside>
+					<div class="tsd-comment tsd-typography">
+						<div class="lead">
+							<p>Enable or disable the space check for point styles on line geometries.
+								Only applies to &quot;Circle&quot;, &quot;Rect&quot;, &quot;Image&quot; and &quot;Text&quot; styles with <a href="core.style.html#anchor">anchor</a> set to &quot;Line&quot;.
+								If check checkLineSpace is enabled the respective style is only displayed if there is enough space on the line,
+							otherwise it is not displayed.</p>
+						</div>
+						<dl class="tsd-comment-tags">
+							<dt>defaultvalue</dt>
+							<dd><p>true</p>
+							</dd>
+						</dl>
+					</div>
+				</section>
+				<section class="tsd-panel tsd-member tsd-kind-property tsd-parent-kind-interface">
+					<a name="collide" class="tsd-anchor"></a>
+					<h3><span class="tsd-flag ts-flagOptional">Optional</span> collide</h3>
+					<div class="tsd-signature tsd-kind-icon">collide<span class="tsd-signature-symbol">:</span> <span class="tsd-signature-type">boolean</span><span class="tsd-signature-symbol"> | </span><a href="../modules/core.html#stylevaluefunction" class="tsd-signature-type">StyleValueFunction</a><span class="tsd-signature-symbol">&lt;</span><span class="tsd-signature-type">boolean</span><span class="tsd-signature-symbol">&gt;</span><span class="tsd-signature-symbol"> | </span><a href="../modules/core.html#stylezoomrange" class="tsd-signature-type">StyleZoomRange</a><span class="tsd-signature-symbol">&lt;</span><span class="tsd-signature-type">boolean</span><span class="tsd-signature-symbol">&gt;</span><span class="tsd-signature-symbol"> | </span><a href="../modules/core.html#styleexpression" class="tsd-signature-type">StyleExpression</a><span class="tsd-signature-symbol">&lt;</span><span class="tsd-signature-type">boolean</span><span class="tsd-signature-symbol">&gt;</span></div>
+					<aside class="tsd-sources">
+					</aside>
+					<div class="tsd-comment tsd-typography">
+						<div class="lead">
+							<p>Enable or disable collision detection.
+								Works for styles of type &quot;Circle&quot;, &quot;Rect&quot;, &quot;Image&quot; and &quot;Text&quot;.
+								If the collision detection is enabled for multiple Styles within the same StyleGroup, the respective Styles are
+							handled as a single Object (&quot;CollisionGroup&quot;) where the combined bounding-box is determined automatically.</p>
+						</div>
+						<ul>
+							<li>true: collision are allowed, Collision detection is disabled.</li>
+							<li>false: avoid collisions, Collision detection is enabled.</li>
+						</ul>
+						<dl class="tsd-comment-tags">
+							<dt>defaultvalue</dt>
+							<dd><p>false for &quot;Text&quot;, true for all other.</p>
+							</dd>
+						</dl>
+					</div>
+				</section>
+				<section class="tsd-panel tsd-member tsd-kind-property tsd-parent-kind-interface">
+					<a name="collisiongroup" class="tsd-anchor"></a>
+					<h3><span class="tsd-flag ts-flagOptional">Optional</span> collision<wbr>Group</h3>
+					<div class="tsd-signature tsd-kind-icon">collision<wbr>Group<span class="tsd-signature-symbol">:</span> <span class="tsd-signature-type">string</span><span class="tsd-signature-symbol"> | </span><a href="../modules/core.html#stylevaluefunction" class="tsd-signature-type">StyleValueFunction</a><span class="tsd-signature-symbol">&lt;</span><span class="tsd-signature-type">string</span><span class="tsd-signature-symbol">&gt;</span><span class="tsd-signature-symbol"> | </span><a href="../modules/core.html#stylezoomrange" class="tsd-signature-type">StyleZoomRange</a><span class="tsd-signature-symbol">&lt;</span><span class="tsd-signature-type">string</span><span class="tsd-signature-symbol">&gt;</span><span class="tsd-signature-symbol"> | </span><a href="../modules/core.html#styleexpression" class="tsd-signature-type">StyleExpression</a><span class="tsd-signature-symbol">&lt;</span><span class="tsd-signature-type">string</span><span class="tsd-signature-symbol">&gt;</span></div>
+					<aside class="tsd-sources">
+					</aside>
+					<div class="tsd-comment tsd-typography">
+						<div class="lead">
+							<p>Enables collision detection and combines all styles of a StyleGroup with the same &quot;CollisionGroup&quot; into a single logical object for collision detection.</p>
+						</div>
+					</div>
+				</section>
+				<section class="tsd-panel tsd-member tsd-kind-property tsd-parent-kind-interface">
+					<a name="depth" class="tsd-anchor"></a>
+					<h3><span class="tsd-flag ts-flagOptional">Optional</span> depth</h3>
+					<div class="tsd-signature tsd-kind-icon">depth<span class="tsd-signature-symbol">:</span> <span class="tsd-signature-type">number</span><span class="tsd-signature-symbol"> | </span><a href="../modules/core.html#stylevaluefunction" class="tsd-signature-type">StyleValueFunction</a><span class="tsd-signature-symbol">&lt;</span><span class="tsd-signature-type">number</span><span class="tsd-signature-symbol">&gt;</span><span class="tsd-signature-symbol"> | </span><a href="../modules/core.html#stylezoomrange" class="tsd-signature-type">StyleZoomRange</a><span class="tsd-signature-symbol">&lt;</span><span class="tsd-signature-type">number</span><span class="tsd-signature-symbol">&gt;</span><span class="tsd-signature-symbol"> | </span><a href="../modules/core.html#styleexpression" class="tsd-signature-type">StyleExpression</a><span class="tsd-signature-symbol">&lt;</span><span class="tsd-signature-type">number</span><span class="tsd-signature-symbol">&gt;</span></div>
+					<aside class="tsd-sources">
+					</aside>
+					<div class="tsd-comment tsd-typography">
+						<div class="lead">
+							<p>The depth of the style in pixels.
+								The depth defines the length of the edges of a &quot;Box&quot; parallel to the Z axis.
+							The unit of depth is defined in pixels and only required by styles of type &quot;Box&quot;.</p>
+						</div>
+						<dl class="tsd-comment-tags">
+							<dt>example</dt>
+							<dd><pre><code class="language-typescript"><span class="hljs-comment">// define a Box that has a width, height and depth of 16px</span>
+{
+    <span class="hljs-attr">zIndex</span>: <span class="hljs-number">0</span>,
+    <span class="hljs-attr">type</span>: <span class="hljs-string">&quot;Box&quot;</span>,
+    <span class="hljs-attr">stroke</span>: <span class="hljs-string">&quot;blue&quot;</span>,
+    <span class="hljs-attr">fill</span>: <span class="hljs-string">&quot;red&quot;</span>,
+    <span class="hljs-attr">width</span>: <span class="hljs-number">16</span>,
+    <span class="hljs-attr">height</span>: <span class="hljs-number">16</span>,
+    <span class="hljs-attr">depth</span>: <span class="hljs-number">16</span>
+}
+</code></pre>
+							</dd>
+						</dl>
+					</div>
+				</section>
+				<section class="tsd-panel tsd-member tsd-kind-property tsd-parent-kind-interface">
+					<a name="emissive" class="tsd-anchor"></a>
+					<h3><span class="tsd-flag ts-flagOptional">Optional</span> emissive</h3>
+					<div class="tsd-signature tsd-kind-icon">emissive<span class="tsd-signature-symbol">:</span> <a href="../modules/core.html#color" class="tsd-signature-type">Color</a><span class="tsd-signature-symbol"> | </span><a href="../modules/core.html#stylevaluefunction" class="tsd-signature-type">StyleValueFunction</a><span class="tsd-signature-symbol">&lt;</span><a href="../modules/core.html#color" class="tsd-signature-type">Color</a><span class="tsd-signature-symbol">&gt;</span><span class="tsd-signature-symbol"> | </span><a href="../modules/core.html#stylezoomrange" class="tsd-signature-type">StyleZoomRange</a><span class="tsd-signature-symbol">&lt;</span><a href="../modules/core.html#color" class="tsd-signature-type">Color</a><span class="tsd-signature-symbol">&gt;</span><span class="tsd-signature-symbol"> | </span><a href="../modules/core.html#styleexpression" class="tsd-signature-type">StyleExpression</a><span class="tsd-signature-symbol">&lt;</span><a href="../modules/core.html#color" class="tsd-signature-type">Color</a><span class="tsd-signature-symbol">&gt;</span></div>
+					<aside class="tsd-sources">
+					</aside>
+					<div class="tsd-comment tsd-typography">
+						<div class="lead">
+							<p>Sets the emissive color of the feature, giving it a glow effect.</p>
+						</div>
+						<p>This property is only applicable for Styles of type <code>&quot;Polygon&quot;</code>, <code>&quot;Box&quot;</code>, <code>&quot;Sphere&quot;</code> or <code>&quot;Model&quot;</code>;</p>
+						<dl class="tsd-comment-tags">
+							<dt>see</dt>
+							<dd><p><a href="../modules/core.html#color">Color</a> for a detailed list of possible supported formats.</p>
+							</dd>
+						</dl>
+					</div>
+				</section>
+				<section class="tsd-panel tsd-member tsd-kind-property tsd-parent-kind-interface">
+					<a name="extrude" class="tsd-anchor"></a>
+					<h3><span class="tsd-flag ts-flagOptional">Optional</span> extrude</h3>
+					<div class="tsd-signature tsd-kind-icon">extrude<span class="tsd-signature-symbol">:</span> <span class="tsd-signature-type">number</span><span class="tsd-signature-symbol"> | </span><a href="../modules/core.html#stylevaluefunction" class="tsd-signature-type">StyleValueFunction</a><span class="tsd-signature-symbol">&lt;</span><span class="tsd-signature-type">number</span><span class="tsd-signature-symbol">&gt;</span><span class="tsd-signature-symbol"> | </span><a href="../modules/core.html#stylezoomrange" class="tsd-signature-type">StyleZoomRange</a><span class="tsd-signature-symbol">&lt;</span><span class="tsd-signature-type">number</span><span class="tsd-signature-symbol">&gt;</span><span class="tsd-signature-symbol"> | </span><a href="../modules/core.html#styleexpression" class="tsd-signature-type">StyleExpression</a><span class="tsd-signature-symbol">&lt;</span><span class="tsd-signature-type">number</span><span class="tsd-signature-symbol">&gt;</span></div>
+					<aside class="tsd-sources">
+					</aside>
+					<div class="tsd-comment tsd-typography">
+						<div class="lead">
+							<p>Extrude a Polygon or MultiPolygon geometry in meters.
+							This attribute is validate for styles of type &quot;Polygon&quot; only.</p>
+						</div>
+					</div>
+				</section>
+				<section class="tsd-panel tsd-member tsd-kind-property tsd-parent-kind-interface">
+					<a name="extrudebase" class="tsd-anchor"></a>
+					<h3><span class="tsd-flag ts-flagOptional">Optional</span> extrude<wbr>Base</h3>
+					<div class="tsd-signature tsd-kind-icon">extrude<wbr>Base<span class="tsd-signature-symbol">:</span> <span class="tsd-signature-type">number</span><span class="tsd-signature-symbol"> | </span><a href="../modules/core.html#stylevaluefunction" class="tsd-signature-type">StyleValueFunction</a><span class="tsd-signature-symbol">&lt;</span><span class="tsd-signature-type">number</span><span class="tsd-signature-symbol">&gt;</span><span class="tsd-signature-symbol"> | </span><a href="../modules/core.html#stylezoomrange" class="tsd-signature-type">StyleZoomRange</a><span class="tsd-signature-symbol">&lt;</span><span class="tsd-signature-type">number</span><span class="tsd-signature-symbol">&gt;</span><span class="tsd-signature-symbol"> | </span><a href="../modules/core.html#styleexpression" class="tsd-signature-type">StyleExpression</a><span class="tsd-signature-symbol">&lt;</span><span class="tsd-signature-type">number</span><span class="tsd-signature-symbol">&gt;</span></div>
+					<aside class="tsd-sources">
+					</aside>
+					<div class="tsd-comment tsd-typography">
+						<div class="lead">
+							<p>The base of the Extrude in meters.
+								The extrudeBase is defined from the ground to the bottom of the extruded Polygon in meters.
+								The extrudeBase must be less or equal then <a href="core.style.html#extrude">extrude</a>.
+							This attribute applies only to styles of type &quot;Polygon&quot;.</p>
+						</div>
+						<dl class="tsd-comment-tags">
+							<dt>defaultvalue</dt>
+							<dd><p>0</p>
+							</dd>
+						</dl>
+					</div>
+				</section>
+				<section class="tsd-panel tsd-member tsd-kind-property tsd-parent-kind-interface">
+					<a name="fill" class="tsd-anchor"></a>
+					<h3><span class="tsd-flag ts-flagOptional">Optional</span> fill</h3>
+					<div class="tsd-signature tsd-kind-icon">fill<span class="tsd-signature-symbol">:</span> <a href="../modules/core.html#color" class="tsd-signature-type">Color</a><span class="tsd-signature-symbol"> | </span><a href="../modules/core.html#stylevaluefunction" class="tsd-signature-type">StyleValueFunction</a><span class="tsd-signature-symbol">&lt;</span><a href="../modules/core.html#color" class="tsd-signature-type">Color</a><span class="tsd-signature-symbol">&gt;</span><span class="tsd-signature-symbol"> | </span><a href="../modules/core.html#stylezoomrange" class="tsd-signature-type">StyleZoomRange</a><span class="tsd-signature-symbol">&lt;</span><a href="../modules/core.html#color" class="tsd-signature-type">Color</a><span class="tsd-signature-symbol">&gt;</span><span class="tsd-signature-symbol"> | </span><a href="core.lineargradient.html" class="tsd-signature-type">LinearGradient</a><span class="tsd-signature-symbol"> | </span><a href="../modules/core.html#styleexpression" class="tsd-signature-type">StyleExpression</a><span class="tsd-signature-symbol">&lt;</span><a href="../modules/core.html#color" class="tsd-signature-type">Color</a><span class="tsd-signature-symbol">&gt;</span></div>
+					<aside class="tsd-sources">
+					</aside>
+					<div class="tsd-comment tsd-typography">
+						<div class="lead">
+							<p>Sets the color to fill the shape.
+							This attribute is valid for Circle, Rect, Text and Polygon.</p>
+						</div>
+						<dl class="tsd-comment-tags">
+							<dt>see</dt>
+							<dd><p><a href="../modules/core.html#color">Color</a> for a detailed list of possible supported formats.</p>
+							</dd>
+						</dl>
+					</div>
+				</section>
+				<section class="tsd-panel tsd-member tsd-kind-property tsd-parent-kind-interface">
+					<a name="fillintensity" class="tsd-anchor"></a>
+					<h3><span class="tsd-flag ts-flagOptional">Optional</span> fill<wbr>Intensity</h3>
+					<div class="tsd-signature tsd-kind-icon">fill<wbr>Intensity<span class="tsd-signature-symbol">:</span> <span class="tsd-signature-type">number</span></div>
+					<aside class="tsd-sources">
+					</aside>
+					<div class="tsd-comment tsd-typography">
+						<div class="lead">
+							<p>Controls the intensity of the fill color under directional lighting.</p>
+						</div>
+						<p><code>fillIntensity</code> determines how much the feature&#39;s fill color is affected by the directional lighting in the scene.
+							A higher value increases the intensity of the fill color, making it more vibrant under strong lighting,
+						while a lower value reduces the effect, resulting in a more muted color.</p>
+						<p>This property is only applicable for Styles of type <code>&quot;Polygon&quot;</code>, <code>&quot;Box&quot;</code> or <code>&quot;Sphere&quot;</code>;</p>
+						<p>The value should range from 0 to 1, where 0 means no color intensity and 1 represents full intensity.</p>
+						<dl class="tsd-comment-tags">
+							<dt>defaultvalue</dt>
+							<dd><p>1</p>
+							</dd>
+						</dl>
+					</div>
+				</section>
+				<section class="tsd-panel tsd-member tsd-kind-property tsd-parent-kind-interface">
+					<a name="filter" class="tsd-anchor"></a>
+					<h3><span class="tsd-flag ts-flagOptional">Optional</span> filter</h3>
+					<div class="tsd-signature tsd-kind-icon">filter<span class="tsd-signature-symbol">:</span> <a href="../modules/core.html#stylevaluefunction" class="tsd-signature-type">StyleValueFunction</a><span class="tsd-signature-symbol">&lt;</span><span class="tsd-signature-type">boolean</span><span class="tsd-signature-symbol">&gt;</span><span class="tsd-signature-symbol"> | </span><a href="../modules/core.html#styleexpression" class="tsd-signature-type">StyleExpression</a><span class="tsd-signature-symbol">&lt;</span><span class="tsd-signature-type">boolean</span><span class="tsd-signature-symbol">&gt;</span></div>
+					<aside class="tsd-sources">
+					</aside>
+					<div class="tsd-comment tsd-typography">
+						<div class="lead">
+							<p>Sets the condition(s) to determine whether a feature should be rendered with the respective style.
+								The <code>filter</code> expression is evaluated to determine if the respective style should be applied to a feature.
+							It must resolve to a boolean value where <code>true</code> means the style applies and <code>false</code> means it does not.</p>
+						</div>
+						<p>This property is only used when <a href="core.layerstyle.html#assign">LayerStyle.assign</a> is not defined; otherwise, <code>filter</code> is ignored.</p>
+						<dl class="tsd-comment-tags">
+							<dt>example</dt>
+							<dd><p>// Render features where the &quot;type&quot; property is equal to &quot;park&quot;
+								filter: [&#39;==&#39;, [&#39;get&#39;, &#39;type&#39;], &#39;park&#39;]</p>
+							</dd>
+							<dt>example</dt>
+							<dd><p>// Render features where the &quot;population&quot; property is greater than 1000
+								filter: [&#39;&gt;&#39;, [&#39;get&#39;, &#39;population&#39;], 1000]</p>
+							</dd>
+							<dt>example</dt>
+							<dd><p>// Render features where the &quot;type&quot; property is &quot;park&quot; and &quot;population&quot; is less than 500
+								filter: [&#39;all&#39;, [&#39;==&#39;, [&#39;get&#39;, &#39;type&#39;], &#39;park&#39;], [&#39;&lt;&#39;, [&#39;get&#39;, &#39;population&#39;], 500]]</p>
+							</dd>
+							<dt>example</dt>
+							<dd><p>// Render features where the &quot;type&quot; property is not &quot;residential&quot;
+								filter: [&#39;!=&#39;, [&#39;get&#39;, &#39;type&#39;], &#39;residential&#39;]</p>
+							</dd>
+							<dt>example</dt>
+							<dd><p>// Render features where the &quot;type&quot; property is either &quot;park&quot; or &quot;garden&quot;
+								filter: [&#39;any&#39;, [&#39;==&#39;, [&#39;get&#39;, &#39;type&#39;], &#39;park&#39;], [&#39;==&#39;, [&#39;get&#39;, &#39;type&#39;], &#39;garden&#39;]]</p>
+							</dd>
+						</dl>
+					</div>
+				</section>
+				<section class="tsd-panel tsd-member tsd-kind-property tsd-parent-kind-interface">
+					<a name="font" class="tsd-anchor"></a>
+					<h3><span class="tsd-flag ts-flagOptional">Optional</span> font</h3>
+					<div class="tsd-signature tsd-kind-icon">font<span class="tsd-signature-symbol">:</span> <span class="tsd-signature-type">string</span><span class="tsd-signature-symbol"> | </span><a href="../modules/core.html#stylevaluefunction" class="tsd-signature-type">StyleValueFunction</a><span class="tsd-signature-symbol">&lt;</span><span class="tsd-signature-type">string</span><span class="tsd-signature-symbol">&gt;</span><span class="tsd-signature-symbol"> | </span><a href="../modules/core.html#stylezoomrange" class="tsd-signature-type">StyleZoomRange</a><span class="tsd-signature-symbol">&lt;</span><span class="tsd-signature-type">string</span><span class="tsd-signature-symbol">&gt;</span><span class="tsd-signature-symbol"> | </span><a href="../modules/core.html#styleexpression" class="tsd-signature-type">StyleExpression</a><span class="tsd-signature-symbol">&lt;</span><span class="tsd-signature-type">string</span><span class="tsd-signature-symbol">&gt;</span></div>
+					<aside class="tsd-sources">
+					</aside>
+					<div class="tsd-comment tsd-typography">
+						<div class="lead">
+							<p>CSS font string for texts.
+							It is only valid for Text.</p>
+						</div>
+						<dl class="tsd-comment-tags">
+							<dt>defaultvalue</dt>
+							<dd><p>“normal 12px Arial”</p>
+							</dd>
+						</dl>
+					</div>
+				</section>
+				<section class="tsd-panel tsd-member tsd-kind-property tsd-parent-kind-interface">
+					<a name="from" class="tsd-anchor"></a>
+					<h3><span class="tsd-flag ts-flagOptional">Optional</span> from</h3>
+					<div class="tsd-signature tsd-kind-icon">from<span class="tsd-signature-symbol">:</span> <span class="tsd-signature-type">number</span><span class="tsd-signature-symbol"> | </span><a href="../modules/core.html#stylevaluefunction" class="tsd-signature-type">StyleValueFunction</a><span class="tsd-signature-symbol">&lt;</span><span class="tsd-signature-type">number</span><span class="tsd-signature-symbol">&gt;</span><span class="tsd-signature-symbol"> | </span><a href="../modules/core.html#stylezoomrange" class="tsd-signature-type">StyleZoomRange</a><span class="tsd-signature-symbol">&lt;</span><span class="tsd-signature-type">number</span><span class="tsd-signature-symbol">&gt;</span><span class="tsd-signature-symbol"> | </span><a href="../modules/core.html#styleexpression" class="tsd-signature-type">StyleExpression</a><span class="tsd-signature-symbol">&lt;</span><span class="tsd-signature-type">number</span><span class="tsd-signature-symbol">&gt;</span></div>
+					<aside class="tsd-sources">
+					</aside>
+					<div class="tsd-comment tsd-typography">
+						<div class="lead">
+							<p>Define the starting position of a segment of the entire line in %.
+								A Segment allows to display and style parts of the entire line individually.
+								The value must be between 0 and 1.
+							The Default is 0.</p>
+						</div>
+						<dl class="tsd-comment-tags">
+							<dt>example</dt>
+							<dd><p>from: 0.0 // -&gt; 0%, the segment has the same starting point as the entire line
+								from:  0.5 // -&gt; 50%, the segment starts in the middle of the entire line</p>
+							</dd>
+						</dl>
+					</div>
+				</section>
+				<section class="tsd-panel tsd-member tsd-kind-property tsd-parent-kind-interface">
+					<a name="height" class="tsd-anchor"></a>
+					<h3><span class="tsd-flag ts-flagOptional">Optional</span> height</h3>
+					<div class="tsd-signature tsd-kind-icon">height<span class="tsd-signature-symbol">:</span> <span class="tsd-signature-type">number</span><span class="tsd-signature-symbol"> | </span><a href="../modules/core.html#stylevaluefunction" class="tsd-signature-type">StyleValueFunction</a><span class="tsd-signature-symbol">&lt;</span><span class="tsd-signature-type">number</span><span class="tsd-signature-symbol">&gt;</span><span class="tsd-signature-symbol"> | </span><a href="../modules/core.html#stylezoomrange" class="tsd-signature-type">StyleZoomRange</a><span class="tsd-signature-symbol">&lt;</span><span class="tsd-signature-type">number</span><span class="tsd-signature-symbol">&gt;</span><span class="tsd-signature-symbol"> | </span><a href="../modules/core.html#styleexpression" class="tsd-signature-type">StyleExpression</a><span class="tsd-signature-symbol">&lt;</span><span class="tsd-signature-type">number</span><span class="tsd-signature-symbol">&gt;</span></div>
+					<aside class="tsd-sources">
+					</aside>
+					<div class="tsd-comment tsd-typography">
+						<div class="lead">
+							<p>Height of the style in pixels.
+								It is only required by Rect and Image.
+								The maximum supported height for &quot;Image&quot; is 64 pixels.
+								The unit of height is defined in pixels.
+							For styles of type &quot;Rect&quot; the height can also be defined in meters by using a string: &quot;${width}m&quot;.</p>
+						</div>
+						<dl class="tsd-comment-tags">
+							<dt>example</dt>
+							<dd><pre><code class="language-typescript"><span class="hljs-comment">// define a Rect that has a width of 2 meter and a height of 1 meter.</span>
+{
+    <span class="hljs-attr">zIndex</span>: <span class="hljs-number">0</span>,
+    <span class="hljs-attr">type</span>: <span class="hljs-string">&quot;Line&quot;</span>,
+    <span class="hljs-attr">stroke</span>: <span class="hljs-string">&quot;blue&quot;</span>,
+    <span class="hljs-attr">width</span>: <span class="hljs-string">&quot;2m&quot;</span>,
+    <span class="hljs-attr">height</span>: <span class="hljs-string">&quot;1m&quot;</span>
+}
+</code></pre>
+							</dd>
+							<dt>example</dt>
+							<dd><pre><code class="language-typescript"><span class="hljs-comment">// define a Rect that has a width of 20 pixel and a height of 28 pixel.</span>
+{
+    <span class="hljs-attr">zIndex</span>: <span class="hljs-number">0</span>,
+    <span class="hljs-attr">type</span>: <span class="hljs-string">&quot;Line&quot;</span>,
+    <span class="hljs-attr">stroke</span>: <span class="hljs-string">&quot;green&quot;</span>,
+    <span class="hljs-attr">width</span>: <span class="hljs-number">20</span>,
+    <span class="hljs-attr">height</span>: <span class="hljs-number">28</span>
+}
+</code></pre>
+							</dd>
+							<dt>example</dt>
+							<dd><pre><code class="language-typescript"><span class="hljs-comment">// define a Image/Icon style with/height of 32pixel</span>
+{
+    <span class="hljs-attr">zIndex</span>: <span class="hljs-number">0</span>,
+    <span class="hljs-attr">type</span>: <span class="hljs-string">&quot;Image&quot;</span>,
+    <span class="hljs-attr">src</span>: <span class="hljs-string">&quot;urlToMyImageResource&quot;</span>,
+    <span class="hljs-attr">width</span>: <span class="hljs-number">32</span>
+}
+</code></pre>
+							</dd>
+						</dl>
+					</div>
+				</section>
+				<section class="tsd-panel tsd-member tsd-kind-property tsd-parent-kind-interface">
+					<a name="light" class="tsd-anchor"></a>
+					<h3><span class="tsd-flag ts-flagOptional">Optional</span> light</h3>
+					<div class="tsd-signature tsd-kind-icon">light<span class="tsd-signature-symbol">:</span> <span class="tsd-signature-type">string</span></div>
+					<aside class="tsd-sources">
+					</aside>
+					<div class="tsd-comment tsd-typography">
+						<div class="lead">
+							<p>Specifies the name of the light group to use for illuminating specific features on a layer.
+								This property must reference a key corresponding to a light group defined in <a href="core.layerstyle.html#lights">LayerStyle.lights</a>.
+							A light group consists of lighting sources such as ambient or directional lights that affect the appearance of features.</p>
+						</div>
+						<p>If <code>light</code> is not defined, the default light group <code>&quot;defaultLight&quot;</code> will be used to illuminate the layer&#39;s features.</p>
+						<dl class="tsd-comment-tags">
+							<dt>see</dt>
+							<dd><p><a href="core.layerstyle.html#lights">LayerStyle.lights</a> for defining and referencing available light groups.</p>
+							</dd>
+							<dt>defaultvalue</dt>
+							<dd><p>&quot;defaultLight&quot;</p>
+							</dd>
+						</dl>
+					</div>
+				</section>
+				<section class="tsd-panel tsd-member tsd-kind-property tsd-parent-kind-interface">
+					<a name="linewrap" class="tsd-anchor"></a>
+					<h3><span class="tsd-flag ts-flagOptional">Optional</span> line<wbr>Wrap</h3>
+					<div class="tsd-signature tsd-kind-icon">line<wbr>Wrap<span class="tsd-signature-symbol">:</span> <span class="tsd-signature-type">number</span><span class="tsd-signature-symbol"> | </span><a href="../modules/core.html#stylevaluefunction" class="tsd-signature-type">StyleValueFunction</a><span class="tsd-signature-symbol">&lt;</span><span class="tsd-signature-type">number</span><span class="tsd-signature-symbol">&gt;</span><span class="tsd-signature-symbol"> | </span><a href="../modules/core.html#stylezoomrange" class="tsd-signature-type">StyleZoomRange</a><span class="tsd-signature-symbol">&lt;</span><span class="tsd-signature-type">number</span><span class="tsd-signature-symbol">&gt;</span><span class="tsd-signature-symbol"> | </span><a href="../modules/core.html#styleexpression" class="tsd-signature-type">StyleExpression</a><span class="tsd-signature-symbol">&lt;</span><span class="tsd-signature-type">number</span><span class="tsd-signature-symbol">&gt;</span></div>
+					<aside class="tsd-sources">
+					</aside>
+					<div class="tsd-comment tsd-typography">
+						<div class="lead">
+							<p>Enable oder Disable line wrapping for styles of type &quot;Text&quot;.
+								The line wrapping for text on (Multi)Linestring geometry with anchor set to &quot;Line&quot; is disabled by default,
+							otherwise it&#39;s 14 characters.</p>
+						</div>
+						<ul>
+							<li>number: Maximum number of characters per line [Default 14 characters]</li>
+							<li>false: disable line wrapping</li>
+							<li>true: enable line wrapping [Default 14 characters]</li>
+						</ul>
+						<dl class="tsd-comment-tags">
+							<dt>defaultvalue</dt>
+							<dd><p>14</p>
+							</dd>
+						</dl>
+					</div>
+				</section>
+				<section class="tsd-panel tsd-member tsd-kind-property tsd-parent-kind-interface">
+					<a name="offset" class="tsd-anchor"></a>
+					<h3><span class="tsd-flag ts-flagOptional">Optional</span> offset</h3>
+					<div class="tsd-signature tsd-kind-icon">offset<span class="tsd-signature-symbol">:</span> <span class="tsd-signature-type">number</span><span class="tsd-signature-symbol"> | </span><span class="tsd-signature-type">string</span><span class="tsd-signature-symbol"> | </span><a href="../modules/core.html#stylevaluefunction" class="tsd-signature-type">StyleValueFunction</a><span class="tsd-signature-symbol">&lt;</span><span class="tsd-signature-type">number</span><span class="tsd-signature-symbol"> | </span><span class="tsd-signature-type">string</span><span class="tsd-signature-symbol">&gt;</span><span class="tsd-signature-symbol"> | </span><a href="../modules/core.html#stylezoomrange" class="tsd-signature-type">StyleZoomRange</a><span class="tsd-signature-symbol">&lt;</span><span class="tsd-signature-type">number</span><span class="tsd-signature-symbol"> | </span><span class="tsd-signature-type">string</span><span class="tsd-signature-symbol">&gt;</span><span class="tsd-signature-symbol"> | </span><a href="../modules/core.html#styleexpression" class="tsd-signature-type">StyleExpression</a><span class="tsd-signature-symbol">&lt;</span><span class="tsd-signature-type">number</span><span class="tsd-signature-symbol"> | </span><span class="tsd-signature-type">string</span><span class="tsd-signature-symbol">&gt;</span></div>
+					<aside class="tsd-sources">
+					</aside>
+					<div class="tsd-comment tsd-typography">
+						<div class="lead">
+							<p>Offset a line to the left or right side in pixel or meter.
+								A positive values offsets to the right side, a negative value offsets to the left.
+								The side is defined relative to the direction of the line geometry.
+								The default unit is pixels.
+								To define the offset in meters a string that contains the offset value and ends with &quot;m&quot; must be used.
+							Applies to Line style only.</p>
+						</div>
+						<dl class="tsd-comment-tags">
+							<dt>example</dt>
+							<dd><pre><code class="language-typescript"><span class="hljs-comment">// offset line by 8px</span>
+{ <span class="hljs-attr">type</span>: <span class="hljs-string">&quot;Line&quot;</span>, <span class="hljs-attr">zIndex</span>: <span class="hljs-number">0</span>, <span class="hljs-attr">stroke</span>:<span class="hljs-string">&#x27;blue&#x27;</span>, <span class="hljs-attr">strokeWidth</span>: <span class="hljs-number">4</span>, <span class="hljs-attr">offset</span>: <span class="hljs-number">8</span>}
+
+<span class="hljs-comment">// offset line by 2m</span>
+{ <span class="hljs-attr">type</span>: <span class="hljs-string">&quot;Line&quot;</span>, <span class="hljs-attr">zIndex</span>: <span class="hljs-number">0</span>, <span class="hljs-attr">stroke</span>:<span class="hljs-string">&#x27;blue&#x27;</span>, <span class="hljs-attr">strokeWidth</span>: <span class="hljs-number">4</span>, <span class="hljs-attr">offset</span>: <span class="hljs-string">&quot;2m&quot;</span>}
+</code></pre>
+							</dd>
+						</dl>
+					</div>
+				</section>
+				<section class="tsd-panel tsd-member tsd-kind-property tsd-parent-kind-interface">
+					<a name="offsetx" class="tsd-anchor"></a>
+					<h3><span class="tsd-flag ts-flagOptional">Optional</span> offsetX</h3>
+					<div class="tsd-signature tsd-kind-icon">offsetX<span class="tsd-signature-symbol">:</span> <span class="tsd-signature-type">number</span><span class="tsd-signature-symbol"> | </span><span class="tsd-signature-type">string</span><span class="tsd-signature-symbol"> | </span><a href="../modules/core.html#stylevaluefunction" class="tsd-signature-type">StyleValueFunction</a><span class="tsd-signature-symbol">&lt;</span><span class="tsd-signature-type">number</span><span class="tsd-signature-symbol"> | </span><span class="tsd-signature-type">string</span><span class="tsd-signature-symbol">&gt;</span><span class="tsd-signature-symbol"> | </span><a href="../modules/core.html#stylezoomrange" class="tsd-signature-type">StyleZoomRange</a><span class="tsd-signature-symbol">&lt;</span><span class="tsd-signature-type">number</span><span class="tsd-signature-symbol"> | </span><span class="tsd-signature-type">string</span><span class="tsd-signature-symbol">&gt;</span><span class="tsd-signature-symbol"> | </span><a href="../modules/core.html#styleexpression" class="tsd-signature-type">StyleExpression</a><span class="tsd-signature-symbol">&lt;</span><span class="tsd-signature-type">number</span><span class="tsd-signature-symbol"> | </span><span class="tsd-signature-type">string</span><span class="tsd-signature-symbol">&gt;</span></div>
+					<aside class="tsd-sources">
+					</aside>
+					<div class="tsd-comment tsd-typography">
+						<div class="lead">
+							<p>Offset the shape in pixels on x-axis.
+								It is valid for Circle, Rect, Text, Image, Box and Sphere.
+								A positive value offsets to the right, a negative value to the left.
+							The default unit is pixels.</p>
+						</div>
+						<dl class="tsd-comment-tags">
+							<dt>example</dt>
+							<dd><pre><code class="language-typescript"><span class="hljs-comment">// offset Image by 8px to the right.</span>
+{ <span class="hljs-attr">type</span>: <span class="hljs-string">&quot;Image&quot;</span>, <span class="hljs-attr">zIndex</span>: <span class="hljs-number">0</span>, <span class="hljs-attr">src</span>: <span class="hljs-string">&#x27;...&#x27;</span>, <span class="hljs-attr">offsetX</span>: <span class="hljs-number">8</span>}
+
+<span class="hljs-comment">// offset Circle by 1m to the left</span>
+{ <span class="hljs-attr">type</span>: <span class="hljs-string">&quot;Circle&quot;</span>, <span class="hljs-attr">zIndex</span>: <span class="hljs-number">0</span>, <span class="hljs-attr">fill</span>:<span class="hljs-string">&#x27;blue&#x27;</span>, <span class="hljs-attr">radius</span>: <span class="hljs-number">4</span>, <span class="hljs-attr">offsetX</span>: <span class="hljs-string">&quot;-1m&quot;</span>}
+</code></pre>
+							</dd>
+						</dl>
+					</div>
+				</section>
+				<section class="tsd-panel tsd-member tsd-kind-property tsd-parent-kind-interface">
+					<a name="offsety" class="tsd-anchor"></a>
+					<h3><span class="tsd-flag ts-flagOptional">Optional</span> offsetY</h3>
+					<div class="tsd-signature tsd-kind-icon">offsetY<span class="tsd-signature-symbol">:</span> <span class="tsd-signature-type">number</span><span class="tsd-signature-symbol"> | </span><a href="../modules/core.html#stylevaluefunction" class="tsd-signature-type">StyleValueFunction</a><span class="tsd-signature-symbol">&lt;</span><span class="tsd-signature-type">number</span><span class="tsd-signature-symbol">&gt;</span><span class="tsd-signature-symbol"> | </span><a href="../modules/core.html#stylezoomrange" class="tsd-signature-type">StyleZoomRange</a><span class="tsd-signature-symbol">&lt;</span><span class="tsd-signature-type">number</span><span class="tsd-signature-symbol">&gt;</span><span class="tsd-signature-symbol"> | </span><a href="../modules/core.html#styleexpression" class="tsd-signature-type">StyleExpression</a><span class="tsd-signature-symbol">&lt;</span><span class="tsd-signature-type">string</span><span class="tsd-signature-symbol">&gt;</span></div>
+					<aside class="tsd-sources">
+					</aside>
+					<div class="tsd-comment tsd-typography">
+						<div class="lead">
+							<p>Offset the shape in pixels on y-axis.
+								It is valid for Circle, Rect, Text, Image, Box and Sphere.
+								A positive value offsetY offsets downwards, a negative value upwards.
+							The default unit is pixels.</p>
+						</div>
+						<dl class="tsd-comment-tags">
+							<dt>example</dt>
+							<dd><pre><code class="language-typescript"><span class="hljs-comment">// offset Image by 8px to the bottom</span>
+{ <span class="hljs-attr">type</span>: <span class="hljs-string">&quot;Image&quot;</span>, <span class="hljs-attr">zIndex</span>: <span class="hljs-number">0</span>, <span class="hljs-attr">src</span>: <span class="hljs-string">&#x27;...&#x27;</span>, <span class="hljs-attr">offsetY</span>: <span class="hljs-number">8</span>}
+
+<span class="hljs-comment">// offset Circle by 1m to the top</span>
+{ <span class="hljs-attr">type</span>: <span class="hljs-string">&quot;Circle&quot;</span>, <span class="hljs-attr">zIndex</span>: <span class="hljs-number">0</span>, <span class="hljs-attr">fill</span>:<span class="hljs-string">&#x27;blue&#x27;</span>, <span class="hljs-attr">radius</span>: <span class="hljs-number">4</span>, <span class="hljs-attr">offsetY</span>: <span class="hljs-string">&quot;-1m&quot;</span>}
+</code></pre>
+							</dd>
+						</dl>
+					</div>
+				</section>
+				<section class="tsd-panel tsd-member tsd-kind-property tsd-parent-kind-interface">
+					<a name="offsetz" class="tsd-anchor"></a>
+					<h3><span class="tsd-flag ts-flagOptional">Optional</span> offsetZ</h3>
+					<div class="tsd-signature tsd-kind-icon">offsetZ<span class="tsd-signature-symbol">:</span> <span class="tsd-signature-type">number</span><span class="tsd-signature-symbol"> | </span><span class="tsd-signature-type">string</span><span class="tsd-signature-symbol"> | </span><a href="../modules/core.html#stylevaluefunction" class="tsd-signature-type">StyleValueFunction</a><span class="tsd-signature-symbol">&lt;</span><span class="tsd-signature-type">number</span><span class="tsd-signature-symbol"> | </span><span class="tsd-signature-type">string</span><span class="tsd-signature-symbol">&gt;</span><span class="tsd-signature-symbol"> | </span><a href="../modules/core.html#stylezoomrange" class="tsd-signature-type">StyleZoomRange</a><span class="tsd-signature-symbol">&lt;</span><span class="tsd-signature-type">number</span><span class="tsd-signature-symbol"> | </span><span class="tsd-signature-type">string</span><span class="tsd-signature-symbol">&gt;</span><span class="tsd-signature-symbol"> | </span><a href="../modules/core.html#styleexpression" class="tsd-signature-type">StyleExpression</a><span class="tsd-signature-symbol">&lt;</span><span class="tsd-signature-type">number</span><span class="tsd-signature-symbol"> | </span><span class="tsd-signature-type">string</span><span class="tsd-signature-symbol">&gt;</span></div>
+					<aside class="tsd-sources">
+					</aside>
+					<div class="tsd-comment tsd-typography">
+						<div class="lead">
+							<p>Offset the shape in pixels on z-axis.
+								It is valid for Circle, Rect, Text, Image, Box and Sphere.
+								A positive value offsets up, a negative value down.
+							The default unit is pixels.</p>
+						</div>
+						<dl class="tsd-comment-tags">
+							<dt>example</dt>
+							<dd><pre><code class="language-typescript"><span class="hljs-comment">// offset Image by 8px to the top.</span>
+{ <span class="hljs-attr">type</span>: <span class="hljs-string">&quot;Image&quot;</span>, <span class="hljs-attr">zIndex</span>: <span class="hljs-number">0</span>, <span class="hljs-attr">src</span>: <span class="hljs-string">&#x27;...&#x27;</span>, <span class="hljs-attr">offsetZ</span>: <span class="hljs-number">8</span>}
+
+<span class="hljs-comment">// offset Circle by 1m to the top</span>
+{ <span class="hljs-attr">type</span>: <span class="hljs-string">&quot;Circle&quot;</span>, <span class="hljs-attr">zIndex</span>: <span class="hljs-number">0</span>, <span class="hljs-attr">fill</span>:<span class="hljs-string">&#x27;blue&#x27;</span>, <span class="hljs-attr">radius</span>: <span class="hljs-number">4</span>, <span class="hljs-attr">offsetZ</span>: <span class="hljs-string">&quot;1m&quot;</span>}
+</code></pre>
+							</dd>
+						</dl>
+					</div>
+				</section>
+				<section class="tsd-panel tsd-member tsd-kind-property tsd-parent-kind-interface">
+					<a name="opacity" class="tsd-anchor"></a>
+					<h3><span class="tsd-flag ts-flagOptional">Optional</span> opacity</h3>
+					<div class="tsd-signature tsd-kind-icon">opacity<span class="tsd-signature-symbol">:</span> <span class="tsd-signature-type">number</span><span class="tsd-signature-symbol"> | </span><a href="../modules/core.html#stylevaluefunction" class="tsd-signature-type">StyleValueFunction</a><span class="tsd-signature-symbol">&lt;</span><span class="tsd-signature-type">number</span><span class="tsd-signature-symbol">&gt;</span><span class="tsd-signature-symbol"> | </span><a href="../modules/core.html#stylezoomrange" class="tsd-signature-type">StyleZoomRange</a><span class="tsd-signature-symbol">&lt;</span><span class="tsd-signature-type">number</span><span class="tsd-signature-symbol">&gt;</span><span class="tsd-signature-symbol"> | </span><a href="../modules/core.html#styleexpression" class="tsd-signature-type">StyleExpression</a><span class="tsd-signature-symbol">&lt;</span><span class="tsd-signature-type">number</span><span class="tsd-signature-symbol">&gt;</span></div>
+					<aside class="tsd-sources">
+					</aside>
+					<div class="tsd-comment tsd-typography">
+						<div class="lead">
+							<p>Defines the opacity of the style.
+								The value must be between 0.0 (fully transparent) and 1.0 (fully opaque).
+							It is valid for all style types.</p>
+						</div>
+						<dl class="tsd-comment-tags">
+							<dt>defaultvalue</dt>
+							<dd><p>1</p>
+							</dd>
+						</dl>
+					</div>
+				</section>
+				<section class="tsd-panel tsd-member tsd-kind-property tsd-parent-kind-interface">
+					<a name="priority" class="tsd-anchor"></a>
+					<h3><span class="tsd-flag ts-flagOptional">Optional</span> priority</h3>
+					<div class="tsd-signature tsd-kind-icon">priority<span class="tsd-signature-symbol">:</span> <span class="tsd-signature-type">number</span><span class="tsd-signature-symbol"> | </span><a href="../modules/core.html#stylevaluefunction" class="tsd-signature-type">StyleValueFunction</a><span class="tsd-signature-symbol">&lt;</span><span class="tsd-signature-type">number</span><span class="tsd-signature-symbol">&gt;</span><span class="tsd-signature-symbol"> | </span><a href="../modules/core.html#stylezoomrange" class="tsd-signature-type">StyleZoomRange</a><span class="tsd-signature-symbol">&lt;</span><span class="tsd-signature-type">number</span><span class="tsd-signature-symbol">&gt;</span><span class="tsd-signature-symbol"> | </span><a href="../modules/core.html#styleexpression" class="tsd-signature-type">StyleExpression</a><span class="tsd-signature-symbol">&lt;</span><span class="tsd-signature-type">number</span><span class="tsd-signature-symbol">&gt;</span></div>
+					<aside class="tsd-sources">
+					</aside>
+					<div class="tsd-comment tsd-typography">
+						<div class="lead">
+							<p>In case of label collision, Text with a higher priority (lower value) will be drawn before lower priorities (higher value).
+								If the collision detection is enabled for multiple Styles within the same StyleGroup, the highest priority (lowest value)
+							is used.</p>
+						</div>
+					</div>
+				</section>
+				<section class="tsd-panel tsd-member tsd-kind-property tsd-parent-kind-interface">
+					<a name="radius" class="tsd-anchor"></a>
+					<h3><span class="tsd-flag ts-flagOptional">Optional</span> radius</h3>
+					<div class="tsd-signature tsd-kind-icon">radius<span class="tsd-signature-symbol">:</span> <span class="tsd-signature-type">number</span><span class="tsd-signature-symbol"> | </span><span class="tsd-signature-type">string</span><span class="tsd-signature-symbol"> | </span><a href="../modules/core.html#stylevaluefunction" class="tsd-signature-type">StyleValueFunction</a><span class="tsd-signature-symbol">&lt;</span><span class="tsd-signature-type">number</span><span class="tsd-signature-symbol"> | </span><span class="tsd-signature-type">string</span><span class="tsd-signature-symbol">&gt;</span><span class="tsd-signature-symbol"> | </span><a href="../modules/core.html#stylezoomrange" class="tsd-signature-type">StyleZoomRange</a><span class="tsd-signature-symbol">&lt;</span><span class="tsd-signature-type">number</span><span class="tsd-signature-symbol"> | </span><span class="tsd-signature-type">string</span><span class="tsd-signature-symbol">&gt;</span><span class="tsd-signature-symbol"> | </span><a href="../modules/core.html#styleexpression" class="tsd-signature-type">StyleExpression</a><span class="tsd-signature-symbol">&lt;</span><span class="tsd-signature-type">number</span><span class="tsd-signature-symbol"> | </span><span class="tsd-signature-type">string</span><span class="tsd-signature-symbol">&gt;</span></div>
+					<aside class="tsd-sources">
+					</aside>
+					<div class="tsd-comment tsd-typography">
+						<div class="lead">
+							<p>The Radius of the Circle and Sphere.
+								It is required by styles of type &quot;Circle&quot; and &quot;Sphere&quot;.
+								The default unit is pixels.
+								To define the radius of a Circle in meters a string can be used: &quot;${width}m&quot;.
+							The radius of &quot;Sphere&quot; must be defined in pixels.</p>
+						</div>
+						<dl class="tsd-comment-tags">
+							<dt>example</dt>
+							<dd><pre><code class="language-typescript"><span class="hljs-comment">// define a Sphere with a radius of 32 pixel.</span>
+{
+    <span class="hljs-attr">zIndex</span>: <span class="hljs-number">0</span>,
+    <span class="hljs-attr">type</span>: <span class="hljs-string">&quot;Sphere&quot;</span>,
+    <span class="hljs-attr">fill</span>: <span class="hljs-string">&quot;red&quot;</span>,
+    <span class="hljs-attr">radius</span>: <span class="hljs-number">32</span>
+}
+</code></pre>
+							</dd>
+							<dt>example</dt>
+							<dd><pre><code class="language-typescript"><span class="hljs-comment">// define a Circle with a radius of 1 meter</span>
+{
+    <span class="hljs-attr">zIndex</span>: <span class="hljs-number">0</span>,
+    <span class="hljs-attr">type</span>: <span class="hljs-string">&quot;Circle&quot;</span>,
+    <span class="hljs-attr">fill</span>: <span class="hljs-string">&quot;red&quot;</span>,
+    <span class="hljs-attr">radius</span>: <span class="hljs-string">&quot;1m&quot;</span>
+}
+<span class="hljs-comment">// define a Circle with a radius of 16 pixel</span>
+{
+    <span class="hljs-attr">zIndex</span>: <span class="hljs-number">0</span>,
+    <span class="hljs-attr">type</span>: <span class="hljs-string">&quot;Circle&quot;</span>,
+    <span class="hljs-attr">fill</span>: <span class="hljs-string">&quot;red&quot;</span>,
+    <span class="hljs-attr">radius</span>: <span class="hljs-number">16</span>
+}
+</code></pre>
+							</dd>
+						</dl>
+					</div>
+				</section>
+				<section class="tsd-panel tsd-member tsd-kind-property tsd-parent-kind-interface">
+					<a name="repeat" class="tsd-anchor"></a>
+					<h3><span class="tsd-flag ts-flagOptional">Optional</span> repeat</h3>
+					<div class="tsd-signature tsd-kind-icon">repeat<span class="tsd-signature-symbol">:</span> <span class="tsd-signature-type">number</span><span class="tsd-signature-symbol"> | </span><a href="../modules/core.html#stylevaluefunction" class="tsd-signature-type">StyleValueFunction</a><span class="tsd-signature-symbol">&lt;</span><span class="tsd-signature-type">number</span><span class="tsd-signature-symbol">&gt;</span><span class="tsd-signature-symbol"> | </span><a href="../modules/core.html#stylezoomrange" class="tsd-signature-type">StyleZoomRange</a><span class="tsd-signature-symbol">&lt;</span><span class="tsd-signature-type">number</span><span class="tsd-signature-symbol">&gt;</span><span class="tsd-signature-symbol"> | </span><a href="../modules/core.html#styleexpression" class="tsd-signature-type">StyleExpression</a><span class="tsd-signature-symbol">&lt;</span><span class="tsd-signature-type">number</span><span class="tsd-signature-symbol">&gt;</span></div>
+					<aside class="tsd-sources">
+					</aside>
+					<div class="tsd-comment tsd-typography">
+						<div class="lead">
+							<p>Minimum distance in pixels between repeated style-groups on line geometries.
+							Applies per tile only.</p>
+						</div>
+						<dl class="tsd-comment-tags">
+							<dt>defaultvalue</dt>
+							<dd><p>256 (pixels)</p>
+							</dd>
+						</dl>
+					</div>
+				</section>
+				<section class="tsd-panel tsd-member tsd-kind-property tsd-parent-kind-interface">
+					<a name="rotation" class="tsd-anchor"></a>
+					<h3><span class="tsd-flag ts-flagOptional">Optional</span> rotation</h3>
+					<div class="tsd-signature tsd-kind-icon">rotation<span class="tsd-signature-symbol">:</span> <span class="tsd-signature-type">number</span><span class="tsd-signature-symbol"> | </span><a href="../modules/core.html#stylevaluefunction" class="tsd-signature-type">StyleValueFunction</a><span class="tsd-signature-symbol">&lt;</span><span class="tsd-signature-type">number</span><span class="tsd-signature-symbol">&gt;</span><span class="tsd-signature-symbol"> | </span><a href="../modules/core.html#stylezoomrange" class="tsd-signature-type">StyleZoomRange</a><span class="tsd-signature-symbol">&lt;</span><span class="tsd-signature-type">number</span><span class="tsd-signature-symbol">&gt;</span><span class="tsd-signature-symbol"> | </span><a href="../modules/core.html#styleexpression" class="tsd-signature-type">StyleExpression</a><span class="tsd-signature-symbol">&lt;</span><span class="tsd-signature-type">number</span><span class="tsd-signature-symbol">&gt;</span></div>
+					<aside class="tsd-sources">
+					</aside>
+					<div class="tsd-comment tsd-typography">
+						<div class="lead">
+							<p>Rotate the shape of the style to the angle in degrees.
+							This attribute is validate for Rect and Image.</p>
+						</div>
+					</div>
+				</section>
+				<section class="tsd-panel tsd-member tsd-kind-property tsd-parent-kind-interface">
+					<a name="scalebyaltitude" class="tsd-anchor"></a>
+					<h3><span class="tsd-flag ts-flagOptional">Optional</span> scale<wbr>ByAltitude</h3>
+					<div class="tsd-signature tsd-kind-icon">scale<wbr>ByAltitude<span class="tsd-signature-symbol">:</span> <span class="tsd-signature-type">boolean</span><span class="tsd-signature-symbol"> | </span><a href="../modules/core.html#stylevaluefunction" class="tsd-signature-type">StyleValueFunction</a><span class="tsd-signature-symbol">&lt;</span><span class="tsd-signature-type">boolean</span><span class="tsd-signature-symbol">&gt;</span><span class="tsd-signature-symbol"> | </span><a href="../modules/core.html#stylezoomrange" class="tsd-signature-type">StyleZoomRange</a><span class="tsd-signature-symbol">&lt;</span><span class="tsd-signature-type">boolean</span><span class="tsd-signature-symbol">&gt;</span><span class="tsd-signature-symbol"> | </span><a href="../modules/core.html#styleexpression" class="tsd-signature-type">StyleExpression</a><span class="tsd-signature-symbol">&lt;</span><span class="tsd-signature-type">boolean</span><span class="tsd-signature-symbol">&gt;</span></div>
+					<aside class="tsd-sources">
+					</aside>
+					<div class="tsd-comment tsd-typography">
+						<div class="lead">
+							<p>Scales the size of a style based on the feature&#39;s altitude.
+								If it&#39;s enabled (true), features closer to the camera will be drawn larger than those farther away.
+								When off (false), the size of the style is always the same size, regardless of its actual altitude, as if it were placed on the ground (altitude 0).
+								This attribute applies to styles of type &quot;Rect&quot;, &quot;Image&quot;, &quot;Text&quot;, &quot;Circle&quot;, &quot;Line&quot;, &quot;Box&quot;, or &quot;Sphere&quot; whose size (<a href="core.style.html#width">width</a>, <a href="core.style.html#radius">radius</a>, <a href="core.style.html#strokewidth">strokeWidth</a>) that are using &quot;map&quot; <a href="core.style.html#alignment">alignment</a> only.
+							If the size attribute is defined in meters, scaleByAltitude is enabled by default, for pixels it is disabled.</p>
+						</div>
+						<dl class="tsd-comment-tags">
+							<dt>defaultvalue</dt>
+							<dd><p>false (pixels), true (meters)</p>
+							</dd>
+							<dt>experimental</dt>
+							<dd></dd>
+						</dl>
+					</div>
+				</section>
+				<section class="tsd-panel tsd-member tsd-kind-property tsd-parent-kind-interface">
+					<a name="shininess" class="tsd-anchor"></a>
+					<h3><span class="tsd-flag ts-flagOptional">Optional</span> shininess</h3>
+					<div class="tsd-signature tsd-kind-icon">shininess<span class="tsd-signature-symbol">:</span> <span class="tsd-signature-type">number</span></div>
+					<aside class="tsd-sources">
+					</aside>
+					<div class="tsd-comment tsd-typography">
+						<div class="lead">
+							<p>Sets the shininess of the feature, determining how glossy its surface appears.
+							A higher value makes the polygon surface more reflective.</p>
+						</div>
+						<p>This property is only applicable for Styles of type <code>&quot;Polygon&quot;</code>, <code>&quot;Box&quot;</code>, <code>&quot;Sphere&quot;</code> or <code>&quot;Model&quot;</code>;</p>
+						<a href="#relationship-with-specular" id="relationship-with-specular" style="color: inherit; text-decoration: none;">
+							<h3>Relationship with Specular</h3>
+						</a>
+						<ul>
+							<li><strong>Effect:</strong> The <code>shininess</code> value controls the size and intensity of the specular highlight, which is colored by the <a href="core.style.html#specular">specular</a> property.</li>
+							<li><strong>Specular Dependency:</strong> The <code>shininess</code> property enhances the effect of the <code>specular</code> color. If <code>specular</code> is not set, <code>shininess</code> has no visible effect.</li>
+						</ul>
+						<a href="#shininess-value-range-and-effect" id="shininess-value-range-and-effect" style="color: inherit; text-decoration: none;">
+							<h3>Shininess Value Range and Effect</h3>
+						</a>
+						<ul>
+							<li><strong>Range:</strong> The <code>shininess</code> value typically ranges from 0 to 128.</li>
+							<li><strong>Low Values (0-10):</strong> Produce a wide, diffused highlight, resulting in a matte or dull appearance.</li>
+							<li><strong>High Values (50-128):</strong> Produce a small, intense highlight, resulting in a glossy or shiny appearance.</li>
+						</ul>
+						<dl class="tsd-comment-tags">
+							<dt>defaultvalue</dt>
+							<dd><p>32</p>
+							</dd>
+						</dl>
+					</div>
+				</section>
+				<section class="tsd-panel tsd-member tsd-kind-property tsd-parent-kind-interface">
+					<a name="specular" class="tsd-anchor"></a>
+					<h3><span class="tsd-flag ts-flagOptional">Optional</span> specular</h3>
+					<div class="tsd-signature tsd-kind-icon">specular<span class="tsd-signature-symbol">:</span> <a href="../modules/core.html#color" class="tsd-signature-type">Color</a><span class="tsd-signature-symbol"> | </span><a href="../modules/core.html#stylevaluefunction" class="tsd-signature-type">StyleValueFunction</a><span class="tsd-signature-symbol">&lt;</span><a href="../modules/core.html#color" class="tsd-signature-type">Color</a><span class="tsd-signature-symbol">&gt;</span><span class="tsd-signature-symbol"> | </span><a href="../modules/core.html#stylezoomrange" class="tsd-signature-type">StyleZoomRange</a><span class="tsd-signature-symbol">&lt;</span><a href="../modules/core.html#color" class="tsd-signature-type">Color</a><span class="tsd-signature-symbol">&gt;</span><span class="tsd-signature-symbol"> | </span><a href="../modules/core.html#styleexpression" class="tsd-signature-type">StyleExpression</a><span class="tsd-signature-symbol">&lt;</span><a href="../modules/core.html#color" class="tsd-signature-type">Color</a><span class="tsd-signature-symbol">&gt;</span></div>
+					<aside class="tsd-sources">
+					</aside>
+					<div class="tsd-comment tsd-typography">
+						<div class="lead">
+							<p>Sets the specular color of the feature, affecting how it reflects light.</p>
+						</div>
+						<p>This property is only applicable for Styles of type <code>&quot;Polygon&quot;</code>, <code>&quot;Box&quot;</code>, <code>&quot;Sphere&quot;</code> or <code>&quot;Model&quot;</code>;</p>
+						<a href="#relationship-with-shininess" id="relationship-with-shininess" style="color: inherit; text-decoration: none;">
+							<h3>Relationship with Shininess</h3>
+						</a>
+						<ul>
+							<li><strong>Effect:</strong> The <code>specular</code> property determines the color of the light reflection, while the <a href="core.style.html#shininess">shininess</a> value controls the intensity and size of the reflection.</li>
+							<li><strong>Shininess Dependency:</strong> If <code>specular</code> is set and <code>shininess</code> is not explicitly set, the default <a href="core.style.html#shininess">shininess</a> value will be used to control the reflection&#39;s appearance.</li>
+						</ul>
+						<dl class="tsd-comment-tags">
+							<dt>see</dt>
+							<dd><p><a href="../modules/core.html#color">Color</a> for a detailed list of possible supported formats.</p>
+							</dd>
+						</dl>
+					</div>
+				</section>
+				<section class="tsd-panel tsd-member tsd-kind-property tsd-parent-kind-interface">
+					<a name="src" class="tsd-anchor"></a>
+					<h3><span class="tsd-flag ts-flagOptional">Optional</span> src</h3>
+					<div class="tsd-signature tsd-kind-icon">src<span class="tsd-signature-symbol">:</span> <span class="tsd-signature-type">string</span><span class="tsd-signature-symbol"> | </span><a href="../modules/core.html#stylevaluefunction" class="tsd-signature-type">StyleValueFunction</a><span class="tsd-signature-symbol">&lt;</span><span class="tsd-signature-type">string</span><span class="tsd-signature-symbol">&gt;</span><span class="tsd-signature-symbol"> | </span><a href="../modules/core.html#stylezoomrange" class="tsd-signature-type">StyleZoomRange</a><span class="tsd-signature-symbol">&lt;</span><span class="tsd-signature-type">string</span><span class="tsd-signature-symbol">&gt;</span><span class="tsd-signature-symbol"> | </span><a href="../modules/core.html#styleexpression" class="tsd-signature-type">StyleExpression</a><span class="tsd-signature-symbol">&lt;</span><span class="tsd-signature-type">string</span><span class="tsd-signature-symbol">&gt;</span></div>
+					<aside class="tsd-sources">
+					</aside>
+					<div class="tsd-comment tsd-typography">
+						<div class="lead">
+							<p>Specifies the URL of an image.
+								It can be either absolute or relative path.
+							It is only required by &quot;Image&quot;.</p>
+						</div>
+					</div>
+				</section>
+				<section class="tsd-panel tsd-member tsd-kind-property tsd-parent-kind-interface">
+					<a name="stroke" class="tsd-anchor"></a>
+					<h3><span class="tsd-flag ts-flagOptional">Optional</span> stroke</h3>
+					<div class="tsd-signature tsd-kind-icon">stroke<span class="tsd-signature-symbol">:</span> <a href="../modules/core.html#color" class="tsd-signature-type">Color</a><span class="tsd-signature-symbol"> | </span><a href="../modules/core.html#stylevaluefunction" class="tsd-signature-type">StyleValueFunction</a><span class="tsd-signature-symbol">&lt;</span><a href="../modules/core.html#color" class="tsd-signature-type">Color</a><span class="tsd-signature-symbol">&gt;</span><span class="tsd-signature-symbol"> | </span><a href="../modules/core.html#stylezoomrange" class="tsd-signature-type">StyleZoomRange</a><span class="tsd-signature-symbol">&lt;</span><a href="../modules/core.html#color" class="tsd-signature-type">Color</a><span class="tsd-signature-symbol">&gt;</span><span class="tsd-signature-symbol"> | </span><a href="../modules/core.html#styleexpression" class="tsd-signature-type">StyleExpression</a><span class="tsd-signature-symbol">&lt;</span><a href="../modules/core.html#color" class="tsd-signature-type">Color</a><span class="tsd-signature-symbol">&gt;</span></div>
+					<aside class="tsd-sources">
+					</aside>
+					<div class="tsd-comment tsd-typography">
+						<div class="lead">
+							<p>Sets the stroke color of the shape.
+							This attribute is valid for Circle, Rect, Line, Text and Polygon.</p>
+						</div>
+						<dl class="tsd-comment-tags">
+							<dt>see</dt>
+							<dd><p><a href="../modules/core.html#color">Color</a> for a detailed list of possible supported formats.</p>
+							</dd>
+						</dl>
+					</div>
+				</section>
+				<section class="tsd-panel tsd-member tsd-kind-property tsd-parent-kind-interface">
+					<a name="strokedasharray" class="tsd-anchor"></a>
+					<h3><span class="tsd-flag ts-flagOptional">Optional</span> stroke<wbr>Dasharray</h3>
+					<div class="tsd-signature tsd-kind-icon">stroke<wbr>Dasharray<span class="tsd-signature-symbol">:</span> <span class="tsd-signature-symbol">(</span><span class="tsd-signature-type">number</span><span class="tsd-signature-symbol"> | </span><span class="tsd-signature-type">string</span><span class="tsd-signature-symbol">)</span><span class="tsd-signature-symbol">[]</span><span class="tsd-signature-symbol"> | </span><a href="../modules/core.html#stylevaluefunction" class="tsd-signature-type">StyleValueFunction</a><span class="tsd-signature-symbol">&lt;</span><span class="tsd-signature-symbol">(</span><span class="tsd-signature-type">number</span><span class="tsd-signature-symbol"> | </span><span class="tsd-signature-type">string</span><span class="tsd-signature-symbol">)</span><span class="tsd-signature-symbol">[]</span><span class="tsd-signature-symbol">&gt;</span><span class="tsd-signature-symbol"> | </span><a href="../modules/core.html#stylezoomrange" class="tsd-signature-type">StyleZoomRange</a><span class="tsd-signature-symbol">&lt;</span><span class="tsd-signature-symbol">(</span><span class="tsd-signature-type">number</span><span class="tsd-signature-symbol"> | </span><span class="tsd-signature-type">string</span><span class="tsd-signature-symbol">)</span><span class="tsd-signature-symbol">[]</span><span class="tsd-signature-symbol">&gt;</span><span class="tsd-signature-symbol"> | </span><a href="../modules/core.html#styleexpression" class="tsd-signature-type">StyleExpression</a><span class="tsd-signature-symbol">&lt;</span><span class="tsd-signature-symbol">(</span><span class="tsd-signature-type">number</span><span class="tsd-signature-symbol"> | </span><span class="tsd-signature-type">string</span><span class="tsd-signature-symbol">)</span><span class="tsd-signature-symbol">[]</span><span class="tsd-signature-symbol">&gt;</span><span class="tsd-signature-symbol"> | </span><span class="tsd-signature-type">"none"</span></div>
+					<aside class="tsd-sources">
+					</aside>
+					<div class="tsd-comment tsd-typography">
+						<div class="lead">
+							<p>The strokeDasharray attribute controls the pattern of dashes and gaps used to stroke paths.
+								It&#39;s an array of <length> that specify the lengths of alternating dashes and gaps. If an odd number of values is provided,
+									then the list of values is repeated to yield an even number of values. Thus, 5,3,2 is equivalent to 5,3,2,5,3,2.
+									The size of dashes and gaps can be defined in pixel or meter.
+									The default unit for dash and gap size is pixel.
+									In a pattern utilizing both meter and pixel units, only the initial &quot;dash&quot; and &quot;gap&quot; combination is utilized, with the subsequent ones being skipped.
+									To define the size in meters, a string containing the &quot;dash&quot;/&quot;gap&quot; size and ending with &quot;m&quot; must be used.
+							This attribute is valid for Line and Polygon styles only.</p>
+						</div>
+						<dl class="tsd-comment-tags">
+							<dt>example</dt>
+							<dd><p>// dash and gap size is defined in pixel.
+									strokeDasharray: [20,10]
+									// dash and gap size is defined in meter.
+									strokeDasharray: [&quot;20m&quot;,&quot;10m&quot;]
+									// dash -&gt; 10 meter, gap -&gt; 10 pixel.
+								strokeDasharray: [&quot;20m&quot;,10] || [&quot;20m&quot;,&quot;10px&quot;]</p>
+							</dd>
+						</dl>
+					</div>
+				</section>
+				<section class="tsd-panel tsd-member tsd-kind-property tsd-parent-kind-interface">
+					<a name="strokelinecap" class="tsd-anchor"></a>
+					<h3><span class="tsd-flag ts-flagOptional">Optional</span> stroke<wbr>Linecap</h3>
+					<div class="tsd-signature tsd-kind-icon">stroke<wbr>Linecap<span class="tsd-signature-symbol">:</span> <span class="tsd-signature-type">string</span><span class="tsd-signature-symbol"> | </span><a href="../modules/core.html#stylevaluefunction" class="tsd-signature-type">StyleValueFunction</a><span class="tsd-signature-symbol">&lt;</span><span class="tsd-signature-type">string</span><span class="tsd-signature-symbol">&gt;</span><span class="tsd-signature-symbol"> | </span><a href="../modules/core.html#stylezoomrange" class="tsd-signature-type">StyleZoomRange</a><span class="tsd-signature-symbol">&lt;</span><span class="tsd-signature-type">string</span><span class="tsd-signature-symbol">&gt;</span><span class="tsd-signature-symbol"> | </span><a href="../modules/core.html#styleexpression" class="tsd-signature-type">StyleExpression</a><span class="tsd-signature-symbol">&lt;</span><span class="tsd-signature-type">string</span><span class="tsd-signature-symbol">&gt;</span></div>
+					<aside class="tsd-sources">
+					</aside>
+					<div class="tsd-comment tsd-typography">
+						<div class="lead">
+							<p>This controls the shape of the ends of lines. there are three possible values for strokeLinecap:</p>
+							<ul>
+								<li>&quot;butt&quot; closes the line off with a straight edge that&#39;s normal (at 90 degrees) to the direction of the stroke and crosses its end.</li>
+								<li>&quot;square&quot; has essentially the same appearance, but stretches the stroke slightly beyond the actual path. The distance that the stroke goes beyond the path is half the strokeWidth.</li>
+								<li>&quot;round&quot; produces a rounded effect on the end of the stroke. The radius of this curve is also controlled by the strokeWidth.
+								This attribute is valid for Line styles only.</li>
+							</ul>
+						</div>
+						<p>If &quot;strokeLinecap&quot; is used in combination with &quot;altitude&quot;, only &quot;butt&quot; is supported for &quot;strokeLinecap&quot;.</p>
+					</div>
+				</section>
+				<section class="tsd-panel tsd-member tsd-kind-property tsd-parent-kind-interface">
+					<a name="strokelinejoin" class="tsd-anchor"></a>
+					<h3><span class="tsd-flag ts-flagOptional">Optional</span> stroke<wbr>Linejoin</h3>
+					<div class="tsd-signature tsd-kind-icon">stroke<wbr>Linejoin<span class="tsd-signature-symbol">:</span> <span class="tsd-signature-type">string</span><span class="tsd-signature-symbol"> | </span><a href="../modules/core.html#stylevaluefunction" class="tsd-signature-type">StyleValueFunction</a><span class="tsd-signature-symbol">&lt;</span><span class="tsd-signature-type">string</span><span class="tsd-signature-symbol">&gt;</span><span class="tsd-signature-symbol"> | </span><a href="../modules/core.html#stylezoomrange" class="tsd-signature-type">StyleZoomRange</a><span class="tsd-signature-symbol">&lt;</span><span class="tsd-signature-type">string</span><span class="tsd-signature-symbol">&gt;</span><span class="tsd-signature-symbol"> | </span><a href="../modules/core.html#styleexpression" class="tsd-signature-type">StyleExpression</a><span class="tsd-signature-symbol">&lt;</span><span class="tsd-signature-type">string</span><span class="tsd-signature-symbol">&gt;</span></div>
+					<aside class="tsd-sources">
+					</aside>
+					<div class="tsd-comment tsd-typography">
+						<div class="lead">
+							<p>The joint where the two segments in a line meet is controlled by the strokeLinejoin attribute, There are three possible values for this attribute:</p>
+							<ul>
+								<li>&quot;miter&quot; extends the line slightly beyond its normal width to create a square corner where only one angle is used.</li>
+								<li>&quot;round&quot; creates a rounded line segment.</li>
+								<li>&quot;bevel&quot; creates a new angle to aid in the transition between the two segments.
+								This attribute is valid for Line styles only.</li>
+							</ul>
+						</div>
+						<p>If &quot;strokeLinejoin&quot; is used in combination with &quot;altitude&quot;, the use of &quot;round&quot; is not supported.</p>
+					</div>
+				</section>
+				<section class="tsd-panel tsd-member tsd-kind-property tsd-parent-kind-interface">
+					<a name="strokewidth" class="tsd-anchor"></a>
+					<h3><span class="tsd-flag ts-flagOptional">Optional</span> stroke<wbr>Width</h3>
+					<div class="tsd-signature tsd-kind-icon">stroke<wbr>Width<span class="tsd-signature-symbol">:</span> <span class="tsd-signature-type">number</span><span class="tsd-signature-symbol"> | </span><span class="tsd-signature-type">string</span><span class="tsd-signature-symbol"> | </span><a href="../modules/core.html#stylevaluefunction" class="tsd-signature-type">StyleValueFunction</a><span class="tsd-signature-symbol">&lt;</span><span class="tsd-signature-type">number</span><span class="tsd-signature-symbol"> | </span><span class="tsd-signature-type">string</span><span class="tsd-signature-symbol">&gt;</span><span class="tsd-signature-symbol"> | </span><a href="../modules/core.html#stylezoomrange" class="tsd-signature-type">StyleZoomRange</a><span class="tsd-signature-symbol">&lt;</span><span class="tsd-signature-type">number</span><span class="tsd-signature-symbol"> | </span><span class="tsd-signature-type">string</span><span class="tsd-signature-symbol">&gt;</span><span class="tsd-signature-symbol"> | </span><a href="../modules/core.html#styleexpression" class="tsd-signature-type">StyleExpression</a><span class="tsd-signature-symbol">&lt;</span><span class="tsd-signature-type">number</span><span class="tsd-signature-symbol"> | </span><span class="tsd-signature-type">string</span><span class="tsd-signature-symbol">&gt;</span></div>
+					<aside class="tsd-sources">
+					</aside>
+					<div class="tsd-comment tsd-typography">
+						<div class="lead">
+							<p>Sets the width of the stroke.
+								This attribute is valid for Circle, Rect, Line, Text and Polygon.
+								The unit of strokeWidth is defined in pixels.
+								For Polygons that are using <a href="core.style.html#extrude">extrude</a>, the maximum possible strokeWidth is 1.0 pixel.
+							For Styles of type Line the strokeWidth can also be defined in meters by using a string: &quot;${width}m&quot;.</p>
+						</div>
+						<dl class="tsd-comment-tags">
+							<dt>example</dt>
+							<dd><pre><code class="language-typescript">// define a Line that has a with of 1 meter
+{
+    zIndex: 0,
+    type: &quot;Line&quot;,
+    stroke: &quot;blue&quot;,
+    strokeWidth: &quot;1m&quot;
+}
+// define a Line that has a with of 16 pixel
+{
+    zIndex: 0,
+    type: &quot;Line&quot;,
+    stroke: &quot;green&quot;,
+    strokeWidth: &quot;16
+}
+</code></pre>
+							</dd>
+							<dt>example</dt>
+							<dd><pre><code class="language-typescript">// define a Text style with a strokeWidth of 8px
+{
+    zIndex: 0,
+    type: &quot;Text&quot;,
+    text: &quot;doc&quot;,
+    fill: &quot;white&quot;,
+    stroke: &quot;black,
+    strokeWidth: 8
+}
+</code></pre>
+							</dd>
+						</dl>
+					</div>
+				</section>
+				<section class="tsd-panel tsd-member tsd-kind-property tsd-parent-kind-interface">
+					<a name="text" class="tsd-anchor"></a>
+					<h3><span class="tsd-flag ts-flagOptional">Optional</span> text</h3>
+					<div class="tsd-signature tsd-kind-icon">text<span class="tsd-signature-symbol">:</span> <span class="tsd-signature-type">string</span><span class="tsd-signature-symbol"> | </span><span class="tsd-signature-type">number</span><span class="tsd-signature-symbol"> | </span><span class="tsd-signature-type">boolean</span><span class="tsd-signature-symbol"> | </span><a href="../modules/core.html#stylevaluefunction" class="tsd-signature-type">StyleValueFunction</a><span class="tsd-signature-symbol">&lt;</span><span class="tsd-signature-type">string</span><span class="tsd-signature-symbol"> | </span><span class="tsd-signature-type">number</span><span class="tsd-signature-symbol"> | </span><span class="tsd-signature-type">boolean</span><span class="tsd-signature-symbol">&gt;</span><span class="tsd-signature-symbol"> | </span><a href="../modules/core.html#stylezoomrange" class="tsd-signature-type">StyleZoomRange</a><span class="tsd-signature-symbol">&lt;</span><span class="tsd-signature-type">string</span><span class="tsd-signature-symbol"> | </span><span class="tsd-signature-type">number</span><span class="tsd-signature-symbol"> | </span><span class="tsd-signature-type">boolean</span><span class="tsd-signature-symbol">&gt;</span><span class="tsd-signature-symbol"> | </span><a href="../modules/core.html#styleexpression" class="tsd-signature-type">StyleExpression</a><span class="tsd-signature-symbol">&lt;</span><span class="tsd-signature-type">string</span><span class="tsd-signature-symbol"> | </span><span class="tsd-signature-type">number</span><span class="tsd-signature-symbol"> | </span><span class="tsd-signature-type">boolean</span><span class="tsd-signature-symbol">&gt;</span></div>
+					<aside class="tsd-sources">
+					</aside>
+					<div class="tsd-comment tsd-typography">
+						<div class="lead">
+							<p>Text is either a string or a function that generates the string that should be displayed.
+							It is valid for Text style only.</p>
+						</div>
+						<dl class="tsd-comment-tags">
+							<dt>example</dt>
+							<dd><pre><code class="language-typescript"><span class="hljs-comment">// display the name property of a feature in uppercase</span>
+...
+<span class="hljs-attr">text</span>: <span class="hljs-function"><span class="hljs-keyword">function</span>(<span class="hljs-params">feature</span>)</span>{
+  <span class="hljs-keyword">return</span> feature.properties.name.toUpperCase();
+}
+</code></pre>
+							</dd>
+						</dl>
+					</div>
+				</section>
+				<section class="tsd-panel tsd-member tsd-kind-property tsd-parent-kind-interface">
+					<a name="textref" class="tsd-anchor"></a>
+					<h3><span class="tsd-flag ts-flagOptional">Optional</span> text<wbr>Ref</h3>
+					<div class="tsd-signature tsd-kind-icon">text<wbr>Ref<span class="tsd-signature-symbol">:</span> <span class="tsd-signature-type">string</span><span class="tsd-signature-symbol"> | </span><a href="../modules/core.html#stylevaluefunction" class="tsd-signature-type">StyleValueFunction</a><span class="tsd-signature-symbol">&lt;</span><span class="tsd-signature-type">string</span><span class="tsd-signature-symbol">&gt;</span><span class="tsd-signature-symbol"> | </span><a href="../modules/core.html#stylezoomrange" class="tsd-signature-type">StyleZoomRange</a><span class="tsd-signature-symbol">&lt;</span><span class="tsd-signature-type">string</span><span class="tsd-signature-symbol">&gt;</span><span class="tsd-signature-symbol"> | </span><a href="../modules/core.html#styleexpression" class="tsd-signature-type">StyleExpression</a><span class="tsd-signature-symbol">&lt;</span><span class="tsd-signature-type">string</span><span class="tsd-signature-symbol">&gt;</span></div>
+					<aside class="tsd-sources">
+					</aside>
+					<div class="tsd-comment tsd-typography">
+						<div class="lead">
+							<p>&quot;textRef&quot; Reference to an attribute of an feature that&#39;s value should be displayed as text.
+								If both &quot;text&quot; and &quot;textRef&quot; are set, &quot;text&quot; prevails.
+							It is only required by Text.</p>
+						</div>
+						<dl class="tsd-comment-tags">
+							<dt>example</dt>
+							<dd><pre><code class="language-typescript"><span class="hljs-comment">// display the property &quot;name&quot; of the feature&#x27;s properties</span>
+...
+<span class="hljs-attr">textRef</span>: <span class="hljs-string">&quot;properties.name&quot;</span>
+</code></pre>
+							</dd>
+							<dt>example</dt>
+							<dd><pre><code class="language-typescript"><span class="hljs-comment">// display the id of the featurre</span>
+...
+<span class="hljs-attr">textRef</span>: <span class="hljs-string">&quot;id&quot;</span>
+</code></pre>
+							</dd>
+						</dl>
+					</div>
+				</section>
+				<section class="tsd-panel tsd-member tsd-kind-property tsd-parent-kind-interface">
+					<a name="to" class="tsd-anchor"></a>
+					<h3><span class="tsd-flag ts-flagOptional">Optional</span> to</h3>
+					<div class="tsd-signature tsd-kind-icon">to<span class="tsd-signature-symbol">:</span> <span class="tsd-signature-type">number</span><span class="tsd-signature-symbol"> | </span><a href="../modules/core.html#stylevaluefunction" class="tsd-signature-type">StyleValueFunction</a><span class="tsd-signature-symbol">&lt;</span><span class="tsd-signature-type">number</span><span class="tsd-signature-symbol">&gt;</span><span class="tsd-signature-symbol"> | </span><a href="../modules/core.html#stylezoomrange" class="tsd-signature-type">StyleZoomRange</a><span class="tsd-signature-symbol">&lt;</span><span class="tsd-signature-type">number</span><span class="tsd-signature-symbol">&gt;</span><span class="tsd-signature-symbol"> | </span><a href="../modules/core.html#styleexpression" class="tsd-signature-type">StyleExpression</a><span class="tsd-signature-symbol">&lt;</span><span class="tsd-signature-type">number</span><span class="tsd-signature-symbol">&gt;</span></div>
+					<aside class="tsd-sources">
+					</aside>
+					<div class="tsd-comment tsd-typography">
+						<div class="lead">
+							<p>Define the end position of a segment of the entire line in %.
+								A Segment allows to display and style parts of the entire line individually.
+								The value must be between 0 and 1.
+							The Default is 1.</p>
+						</div>
+						<dl class="tsd-comment-tags">
+							<dt>example</dt>
+							<dd><p>to: 0.5 // -&gt; 50%, the segment ends in the middle of the entire line
+								to: 1.0 // -&gt; 100%, the segment has the same end point as the entire line</p>
+							</dd>
+						</dl>
+					</div>
+				</section>
+				<section class="tsd-panel tsd-member tsd-kind-property tsd-parent-kind-interface">
+					<a name="type" class="tsd-anchor"></a>
+					<h3>type</h3>
+					<div class="tsd-signature tsd-kind-icon">type<span class="tsd-signature-symbol">:</span> <span class="tsd-signature-type">"Circle"</span><span class="tsd-signature-symbol"> | </span><span class="tsd-signature-type">"Rect"</span><span class="tsd-signature-symbol"> | </span><span class="tsd-signature-type">"Image"</span><span class="tsd-signature-symbol"> | </span><span class="tsd-signature-type">"Text"</span><span class="tsd-signature-symbol"> | </span><span class="tsd-signature-type">"Line"</span><span class="tsd-signature-symbol"> | </span><span class="tsd-signature-type">"Polygon"</span><span class="tsd-signature-symbol"> | </span><span class="tsd-signature-type">"VerticalLine"</span><span class="tsd-signature-symbol"> | </span><span class="tsd-signature-type">"Box"</span><span class="tsd-signature-symbol"> | </span><span class="tsd-signature-type">"Sphere"</span><span class="tsd-signature-symbol"> | </span><span class="tsd-signature-type">string</span></div>
+					<aside class="tsd-sources">
+					</aside>
+					<div class="tsd-comment tsd-typography">
+						<div class="lead">
+							<p>Indicates type of the shape to render.
+							Its value must be one of the following: &quot;Circle&quot;, &quot;Rect&quot;, &quot;Text&quot;, &quot;Image&quot;, &quot;Line&quot;, &quot;Polygon&quot;, &quot;VerticalLine&quot;, &quot;Box&quot; or &quot;Sphere&quot;,</p>
+						</div>
+					</div>
+				</section>
+				<section class="tsd-panel tsd-member tsd-kind-property tsd-parent-kind-interface">
+					<a name="width" class="tsd-anchor"></a>
+					<h3><span class="tsd-flag ts-flagOptional">Optional</span> width</h3>
+					<div class="tsd-signature tsd-kind-icon">width<span class="tsd-signature-symbol">:</span> <span class="tsd-signature-type">number</span><span class="tsd-signature-symbol"> | </span><a href="../modules/core.html#stylevaluefunction" class="tsd-signature-type">StyleValueFunction</a><span class="tsd-signature-symbol">&lt;</span><span class="tsd-signature-type">number</span><span class="tsd-signature-symbol">&gt;</span><span class="tsd-signature-symbol"> | </span><a href="../modules/core.html#stylezoomrange" class="tsd-signature-type">StyleZoomRange</a><span class="tsd-signature-symbol">&lt;</span><span class="tsd-signature-type">number</span><span class="tsd-signature-symbol">&gt;</span><span class="tsd-signature-symbol"> | </span><a href="../modules/core.html#styleexpression" class="tsd-signature-type">StyleExpression</a><span class="tsd-signature-symbol">&lt;</span><span class="tsd-signature-type">number</span><span class="tsd-signature-symbol">&gt;</span></div>
+					<aside class="tsd-sources">
+					</aside>
+					<div class="tsd-comment tsd-typography">
+						<div class="lead">
+							<p>Width of the style in pixels.
+								It is only required by Rect, Image and Box.
+								The maximum supported width for &quot;Image&quot; is 64 pixels.
+								The unit of width is defined in pixels.
+							For styles of type &quot;Rect&quot; the width can also be defined in meters by using a string: &quot;${width}m&quot;.</p>
+						</div>
+						<dl class="tsd-comment-tags">
+							<dt>example</dt>
+							<dd><pre><code class="language-typescript"><span class="hljs-comment">// define a Rect that has a width (and height) of 2.2 meter</span>
+{
+    <span class="hljs-attr">zIndex</span>: <span class="hljs-number">0</span>,
+    <span class="hljs-attr">type</span>: <span class="hljs-string">&quot;Line&quot;</span>,
+    <span class="hljs-attr">stroke</span>: <span class="hljs-string">&quot;blue&quot;</span>,
+    <span class="hljs-attr">width</span>: <span class="hljs-string">&quot;2.2m&quot;</span>
+}
+</code></pre>
+							</dd>
+							<dt>example</dt>
+							<dd><pre><code class="language-typescript"><span class="hljs-comment">// define a Rect that has a width (and height) of 16 pixel</span>
+{
+    <span class="hljs-attr">zIndex</span>: <span class="hljs-number">0</span>,
+    <span class="hljs-attr">type</span>: <span class="hljs-string">&quot;Line&quot;</span>,
+    <span class="hljs-attr">stroke</span>: <span class="hljs-string">&quot;green&quot;</span>,
+    <span class="hljs-attr">width</span>: <span class="hljs-number">16</span>
+}
+</code></pre>
+							</dd>
+						</dl>
+					</div>
+				</section>
+				<section class="tsd-panel tsd-member tsd-kind-property tsd-parent-kind-interface">
+					<a name="zindex" class="tsd-anchor"></a>
+					<h3>z<wbr>Index</h3>
+					<div class="tsd-signature tsd-kind-icon">z<wbr>Index<span class="tsd-signature-symbol">:</span> <span class="tsd-signature-type">number</span><span class="tsd-signature-symbol"> | </span><a href="../modules/core.html#stylevaluefunction" class="tsd-signature-type">StyleValueFunction</a><span class="tsd-signature-symbol">&lt;</span><span class="tsd-signature-type">number</span><span class="tsd-signature-symbol">&gt;</span><span class="tsd-signature-symbol"> | </span><a href="../modules/core.html#stylezoomrange" class="tsd-signature-type">StyleZoomRange</a><span class="tsd-signature-symbol">&lt;</span><span class="tsd-signature-type">number</span><span class="tsd-signature-symbol">&gt;</span><span class="tsd-signature-symbol"> | </span><a href="../modules/core.html#styleexpression" class="tsd-signature-type">StyleExpression</a><span class="tsd-signature-symbol">&lt;</span><span class="tsd-signature-type">number</span><span class="tsd-signature-symbol">&gt;</span></div>
+					<aside class="tsd-sources">
+					</aside>
+					<div class="tsd-comment tsd-typography">
+						<div class="lead">
+							<p>Indicates the drawing order within a layer.
+								Styles with larger zIndex value are rendered above those with smaller values.
+								The zIndex is defined relative to the &quot;zLayer&quot; property.
+							If &quot;zLayer&quot; is defined all zIndex values are relative to the &quot;zLayer&quot; value.</p>
+						</div>
+					</div>
+				</section>
+				<section class="tsd-panel tsd-member tsd-kind-property tsd-parent-kind-interface">
+					<a name="zlayer" class="tsd-anchor"></a>
+					<h3><span class="tsd-flag ts-flagOptional">Optional</span> z<wbr>Layer</h3>
+					<div class="tsd-signature tsd-kind-icon">z<wbr>Layer<span class="tsd-signature-symbol">:</span> <span class="tsd-signature-type">number</span><span class="tsd-signature-symbol"> | </span><a href="../modules/core.html#stylevaluefunction" class="tsd-signature-type">StyleValueFunction</a><span class="tsd-signature-symbol">&lt;</span><span class="tsd-signature-type">number</span><span class="tsd-signature-symbol">&gt;</span><span class="tsd-signature-symbol"> | </span><a href="../modules/core.html#styleexpression" class="tsd-signature-type">StyleExpression</a><span class="tsd-signature-symbol">&lt;</span><span class="tsd-signature-type">number</span><span class="tsd-signature-symbol">&gt;</span></div>
+					<aside class="tsd-sources">
+					</aside>
+					<div class="tsd-comment tsd-typography">
+						<div class="lead">
+							<p>Indicates drawing order across multiple layers.
+								Styles using zLayer with a high value are rendered on top of zLayers with a low value.
+								If no zLayer is defined, it will fall back to the <a href="core.layerstyle.html#zlayer">LayerStyle.zLayer</a> or depend on the display layer order.
+								If no zLayer is defined, it will fall back to the <a href="core.layerstyle.html#zlayer">LayerStyle.zLayer</a> or depend on the display layer order.
+							The first (lowest) layer has a zLayer value of 1.</p>
+						</div>
+						<dl class="tsd-comment-tags">
+							<dt>example</dt>
+							<dd><p>{...zLayer: 2, zIndex: 5} will be rendered on top of {...zLayer: 1, zIndex: 10}</p>
+							</dd>
+						</dl>
+					</div>
+				</section>
+			</section>
+		</div>
+		<div class="col-4 col-menu menu-sticky-wrap menu-highlight">
+			<nav class="tsd-navigation primary">
+				<ul>
+					<li class="globals  ">
+						<a href="../globals.html"><em>Globals</em></a>
+					</li>
+					<li class="current tsd-kind-module">
+						<a href="../modules/core.html">core</a>
+					</li>
+					<li class=" tsd-kind-module">
+						<a href="../modules/display.html">display</a>
+					</li>
+					<li class=" tsd-kind-module">
+						<a href="../modules/editor.html">editor</a>
+					</li>
+				</ul>
+			</nav>
+			<nav class="tsd-navigation secondary menu-sticky">
+				<ul class="before-current">
+				</ul>
+				<ul class="current">
+					<li class="current tsd-kind-module">
+						<a href="../modules/core.html" class="tsd-kind-icon">core</a>
+						<ul>
+							<li class="current tsd-kind-interface tsd-parent-kind-module">
+								<a href="core.style.html" class="tsd-kind-icon">Style</a>
+								<ul>
+									<li class=" tsd-kind-property tsd-parent-kind-interface">
+										<a href="core.style.html#alignment" class="tsd-kind-icon">alignment</a>
+									</li>
+									<li class=" tsd-kind-property tsd-parent-kind-interface">
+										<a href="core.style.html#altitude" class="tsd-kind-icon">altitude</a>
+									</li>
+									<li class=" tsd-kind-property tsd-parent-kind-interface">
+										<a href="core.style.html#anchor" class="tsd-kind-icon">anchor</a>
+									</li>
+									<li class=" tsd-kind-property tsd-parent-kind-interface">
+										<a href="core.style.html#checklinespace" class="tsd-kind-icon">check<wbr>Line<wbr>Space</a>
+									</li>
+									<li class=" tsd-kind-property tsd-parent-kind-interface">
+										<a href="core.style.html#collide" class="tsd-kind-icon">collide</a>
+									</li>
+									<li class=" tsd-kind-property tsd-parent-kind-interface">
+										<a href="core.style.html#collisiongroup" class="tsd-kind-icon">collision<wbr>Group</a>
+									</li>
+									<li class=" tsd-kind-property tsd-parent-kind-interface">
+										<a href="core.style.html#depth" class="tsd-kind-icon">depth</a>
+									</li>
+									<li class=" tsd-kind-property tsd-parent-kind-interface">
+										<a href="core.style.html#emissive" class="tsd-kind-icon">emissive</a>
+									</li>
+									<li class=" tsd-kind-property tsd-parent-kind-interface">
+										<a href="core.style.html#extrude" class="tsd-kind-icon">extrude</a>
+									</li>
+									<li class=" tsd-kind-property tsd-parent-kind-interface">
+										<a href="core.style.html#extrudebase" class="tsd-kind-icon">extrude<wbr>Base</a>
+									</li>
+									<li class=" tsd-kind-property tsd-parent-kind-interface">
+										<a href="core.style.html#fill" class="tsd-kind-icon">fill</a>
+									</li>
+									<li class=" tsd-kind-property tsd-parent-kind-interface">
+										<a href="core.style.html#fillintensity" class="tsd-kind-icon">fill<wbr>Intensity</a>
+									</li>
+									<li class=" tsd-kind-property tsd-parent-kind-interface">
+										<a href="core.style.html#filter" class="tsd-kind-icon">filter</a>
+									</li>
+									<li class=" tsd-kind-property tsd-parent-kind-interface">
+										<a href="core.style.html#font" class="tsd-kind-icon">font</a>
+									</li>
+									<li class=" tsd-kind-property tsd-parent-kind-interface">
+										<a href="core.style.html#from" class="tsd-kind-icon">from</a>
+									</li>
+									<li class=" tsd-kind-property tsd-parent-kind-interface">
+										<a href="core.style.html#height" class="tsd-kind-icon">height</a>
+									</li>
+									<li class=" tsd-kind-property tsd-parent-kind-interface">
+										<a href="core.style.html#light" class="tsd-kind-icon">light</a>
+									</li>
+									<li class=" tsd-kind-property tsd-parent-kind-interface">
+										<a href="core.style.html#linewrap" class="tsd-kind-icon">line<wbr>Wrap</a>
+									</li>
+									<li class=" tsd-kind-property tsd-parent-kind-interface">
+										<a href="core.style.html#offset" class="tsd-kind-icon">offset</a>
+									</li>
+									<li class=" tsd-kind-property tsd-parent-kind-interface">
+										<a href="core.style.html#offsetx" class="tsd-kind-icon">offsetX</a>
+									</li>
+									<li class=" tsd-kind-property tsd-parent-kind-interface">
+										<a href="core.style.html#offsety" class="tsd-kind-icon">offsetY</a>
+									</li>
+									<li class=" tsd-kind-property tsd-parent-kind-interface">
+										<a href="core.style.html#offsetz" class="tsd-kind-icon">offsetZ</a>
+									</li>
+									<li class=" tsd-kind-property tsd-parent-kind-interface">
+										<a href="core.style.html#opacity" class="tsd-kind-icon">opacity</a>
+									</li>
+									<li class=" tsd-kind-property tsd-parent-kind-interface">
+										<a href="core.style.html#priority" class="tsd-kind-icon">priority</a>
+									</li>
+									<li class=" tsd-kind-property tsd-parent-kind-interface">
+										<a href="core.style.html#radius" class="tsd-kind-icon">radius</a>
+									</li>
+									<li class=" tsd-kind-property tsd-parent-kind-interface">
+										<a href="core.style.html#repeat" class="tsd-kind-icon">repeat</a>
+									</li>
+									<li class=" tsd-kind-property tsd-parent-kind-interface">
+										<a href="core.style.html#rotation" class="tsd-kind-icon">rotation</a>
+									</li>
+									<li class=" tsd-kind-property tsd-parent-kind-interface">
+										<a href="core.style.html#scalebyaltitude" class="tsd-kind-icon">scale<wbr>ByAltitude</a>
+									</li>
+									<li class=" tsd-kind-property tsd-parent-kind-interface">
+										<a href="core.style.html#shininess" class="tsd-kind-icon">shininess</a>
+									</li>
+									<li class=" tsd-kind-property tsd-parent-kind-interface">
+										<a href="core.style.html#specular" class="tsd-kind-icon">specular</a>
+									</li>
+									<li class=" tsd-kind-property tsd-parent-kind-interface">
+										<a href="core.style.html#src" class="tsd-kind-icon">src</a>
+									</li>
+									<li class=" tsd-kind-property tsd-parent-kind-interface">
+										<a href="core.style.html#stroke" class="tsd-kind-icon">stroke</a>
+									</li>
+									<li class=" tsd-kind-property tsd-parent-kind-interface">
+										<a href="core.style.html#strokedasharray" class="tsd-kind-icon">stroke<wbr>Dasharray</a>
+									</li>
+									<li class=" tsd-kind-property tsd-parent-kind-interface">
+										<a href="core.style.html#strokelinecap" class="tsd-kind-icon">stroke<wbr>Linecap</a>
+									</li>
+									<li class=" tsd-kind-property tsd-parent-kind-interface">
+										<a href="core.style.html#strokelinejoin" class="tsd-kind-icon">stroke<wbr>Linejoin</a>
+									</li>
+									<li class=" tsd-kind-property tsd-parent-kind-interface">
+										<a href="core.style.html#strokewidth" class="tsd-kind-icon">stroke<wbr>Width</a>
+									</li>
+									<li class=" tsd-kind-property tsd-parent-kind-interface">
+										<a href="core.style.html#text" class="tsd-kind-icon">text</a>
+									</li>
+									<li class=" tsd-kind-property tsd-parent-kind-interface">
+										<a href="core.style.html#textref" class="tsd-kind-icon">text<wbr>Ref</a>
+									</li>
+									<li class=" tsd-kind-property tsd-parent-kind-interface">
+										<a href="core.style.html#to" class="tsd-kind-icon">to</a>
+									</li>
+									<li class=" tsd-kind-property tsd-parent-kind-interface">
+										<a href="core.style.html#type" class="tsd-kind-icon">type</a>
+									</li>
+									<li class=" tsd-kind-property tsd-parent-kind-interface">
+										<a href="core.style.html#width" class="tsd-kind-icon">width</a>
+									</li>
+									<li class=" tsd-kind-property tsd-parent-kind-interface">
+										<a href="core.style.html#zindex" class="tsd-kind-icon">z<wbr>Index</a>
+									</li>
+									<li class=" tsd-kind-property tsd-parent-kind-interface">
+										<a href="core.style.html#zlayer" class="tsd-kind-icon">z<wbr>Layer</a>
+									</li>
+								</ul>
+							</li>
+						</ul>
+					</li>
+				</ul>
+				<ul class="after-current">
+					<li class=" tsd-kind-module">
+						<a href="../modules/display.html" class="tsd-kind-icon">display</a>
+					</li>
+					<li class=" tsd-kind-module">
+						<a href="../modules/editor.html" class="tsd-kind-icon">editor</a>
+					</li>
+				</ul>
+			</nav>
+		</div>
+	</div>
+</div>
+<footer class="with-border-bottom">
+	<div class="container">
+		<h2>Legend</h2>
+		<div class="tsd-legend-group">
+			<ul class="tsd-legend">
+				<li class="tsd-kind-object-literal"><span class="tsd-kind-icon">Object literal</span></li>
+				<li class="tsd-kind-variable"><span class="tsd-kind-icon">Variable</span></li>
+				<li class="tsd-kind-function"><span class="tsd-kind-icon">Function</span></li>
+				<li class="tsd-kind-type-alias"><span class="tsd-kind-icon">Type alias</span></li>
+				<li class="tsd-kind-type-alias tsd-has-type-parameter"><span class="tsd-kind-icon">Type alias with type parameter</span></li>
+			</ul>
+			<ul class="tsd-legend">
+				<li class="tsd-kind-interface"><span class="tsd-kind-icon">Interface</span></li>
+				<li class="tsd-kind-interface tsd-has-type-parameter"><span class="tsd-kind-icon">Interface with type parameter</span></li>
+				<li class="tsd-kind-property tsd-parent-kind-interface"><span class="tsd-kind-icon">Property</span></li>
+			</ul>
+			<ul class="tsd-legend">
+				<li class="tsd-kind-class"><span class="tsd-kind-icon">Class</span></li>
+				<li class="tsd-kind-class tsd-has-type-parameter"><span class="tsd-kind-icon">Class with type parameter</span></li>
+			</ul>
+		</div>
+	</div>
+</footer>
+<div class="container tsd-generator">
+	<p>Generated using <a href="https://typedoc.org/" target="_blank">TypeDoc</a></p>
+</div>
+<div class="overlay"></div>
+<script src="../assets/js/main.js"></script>
+</body>
+</html>
