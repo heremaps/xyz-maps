@@ -1,3 +1,26 @@
+## 0.44.0 (2025-11-12)
+### editor
+* fixed: ensure consistent styling for Line, Navlink, and Area shapes with StyleValueFunction
+### core
+* improved: enhance robustness when handling invalid GeoJSON feature geometry
+* added: Introduced TaskSequence supporting sequential execution with individual or unified priorities
+* added: Introduced TaskSequence supporting sequential execution with individual or unified priorities
+### display
+* added: Enable VerticalLine to support [terrain-clamped placement](https://heremaps.github.io/xyz-maps/docs/interfaces/core.verticallinestyle.html#altitude) and configurable [altitude reference](https://heremaps.github.io/xyz-maps/docs/interfaces/core.verticallinestyle.html#altitudereference) (top or base) for flexible vertical positioning.
+* added: VerticalLine can now be [offset](https://heremaps.github.io/xyz-maps/docs/interfaces/core.verticallinestyle.html#offsetz) (top or base) using meters in addition to pixels, allowing more precise placement in 3D space.
+* added: automatically fit feature geometry to rendered terrain surface. Enables on-the-fly terrain clamping regardless of real or missing altitude, allowing features to seamlessly follow the visible ground shape as terrain tiles load. Controlled via [altitude: 'terrain'](https://heremaps.github.io/xyz-maps/docs/interfaces/core.boxstyle.html#altitude). [Playground](https://heremaps.github.io/xyz-maps/playground/#Display-Terrain-Clamped_Points)
+* added: ensure correct pointer raycasting on layers with adaptiveGrid tile LOD
+* added: introduce [cameraTerrainOffset](https://heremaps.github.io/xyz-maps/docs/interfaces/display.mapoptions.html#cameraterrainoffset) option to control camera height above terrain and avoid intersection
+* added: introduce [FollowPathAnimationController](https://heremaps.github.io/xyz-maps/docs/classes/display.followpathanimationcontroller.html) for smooth, fluid path-following camera animations
+* added: camera now always stays above terrain, preventing users from zooming below ground with smooth adaptive clamping
+* added: auto-adjust camera zoom to maintain altitude above terrain when terrain data becomes available
+* added: introduce [setAltitude](https://heremaps.github.io/xyz-maps/docs/classes/display.map.html#setaltitude) to adjust map zoom level based on a target altitude in meters
+* fixed: render boxes and spheres smaller than 6px
+* fixed: restore pointer events for 3D point features using screen alignment
+* fixed: render boxes smaller than 6px
+* fixed: correct exterior triangulation of extruded polygons with holes that could break when reverse indexing ignored hole boundaries
+* fix: resolve rendering artifacts when "altitude" is not set for Box and Sphere styles.
+
 ## 0.43.0 (2025-8-6)
 ### editor
 * added: Marker [behavior](https://heremaps.github.io/xyz-maps/docs/classes/editor.marker.html#behavior) now supports dragSurface: 'terrain' to enable geometry editing based on terrain elevation ([Playground](https://heremaps.github.io/xyz-maps/playground/dist/#Editor-Drag_Marker_on_Terrain))
