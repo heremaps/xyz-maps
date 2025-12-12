@@ -635,11 +635,10 @@ export abstract class EditableRemoteTileProvider extends EditableFeatureProvider
             searchBBox = [bbox['minLon'], bbox['minLat'], bbox['maxLon'], bbox['maxLat']];
         } else if (geo = bbox['point'] || bbox['rect'] || bbox['viewport']) {
             return provider.search(geo, options);
-        } else if (bbox['id'] || bbox['ids']) {
-            return provider.getFeatures(
-                bbox['id'] || bbox['ids'],
-                options
-            );
+        } else if ('id' in bbox) {
+            return provider.getFeatures(bbox['id'], options);
+        } else if ('ids' in bbox) {
+            return provider.getFeatures(bbox['ids'], options);
         }
 
         searchBBox = {
