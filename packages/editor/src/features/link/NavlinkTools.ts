@@ -19,7 +19,7 @@
 
 import {Feature, GeoJSONBBox as BBox, GeoJSONCoordinate, StyleGroup} from '@here/xyz-maps-core';
 import {geotools, JSUtils} from '@here/xyz-maps-common';
-import {getPointAtLength, getTotalLength, getPntAt, getSegmentIndex} from '../../geometry';
+import {getPointAtLength, getTotalLength, getPntAt, getSegmentIndex, getClosestPntOnLine} from '../../geometry';
 import {calcRelPosOfPoiAtLink} from '../../map/GeoMath';
 import locTools from '../location/LocationTools';
 import {NavlinkShape} from './NavlinkShape';
@@ -231,7 +231,7 @@ function onPointerLeave(ev) {
 }
 
 
-var tools = {
+const tools = {
 
     private: getPrivate,
 
@@ -367,6 +367,38 @@ var tools = {
         return !line._e().getStyleProperty(line, 'altitude');
     },
 
+    _findIntersectionNodeIndex: (link: Navlink, node: GeoJSONCoordinate, ignoreZ?: boolean): number => {
+        const coordinates = link.geometry.coordinates as GeoJSONCoordinate[];
+        const lastIndex = coordinates.length - 1;
+        return tools.isIntersection(link._e(), coordinates[0], node, ignoreZ)
+            ? 0
+            : tools.isIntersection(link._e(), coordinates[lastIndex], node, ignoreZ)
+                ? lastIndex
+                : null;
+    },
+    _findGeometricIntersectionLinks: (line: Navlink, index: number, details: boolean = true): ({
+        link: Navlink,
+        index: number
+    }[]) => {
+        const connected = [];
+        const coordinates = line.geometry.coordinates as GeoJSONCoordinate[];
+        const isNode = index == 0 || index == coordinates.length - 1;
+        if (isNode /* &&!line.editState('removed')*/) {
+            const node = coordinates[index];
+            for (let feature of line._e().objects.getInBBox(line.bbox, line.getProvider())) {
+                if (feature.id != line.id && feature.class == 'NAVLINK') {
+                    const connectedNodeIndex = tools._findIntersectionNodeIndex(feature as Navlink, node, tools.ignoreZ(line));
+                    if (connectedNodeIndex != null /* && zLevels[shpIndex] == curEl.getZLevels()[index]*/) {
+                        connected.push(details ? {
+                            index: connectedNodeIndex,
+                            link: feature
+                        } : feature);
+                    }
+                }
+            }
+        }
+        return connected;
+    },
 
     //* ****************************************** protected link/shape only *******************************************
 

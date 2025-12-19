@@ -52,21 +52,7 @@ export {Crossing} from './API/MCrossing';
 
 export {DrawingShape} from './tools/drawingBoards/DrawingShape';
 
-const NAVLINK = 'NAVLINK';
-const AREA = 'AREA';
-const MARKER = 'MARKER';
-const PLACE = 'PLACE';
-const ADDRESS = 'ADDRESS';
-const LINE = 'LINE';
-const objectTypeMapping = {};
 let UNDEF;
-
-objectTypeMapping[NAVLINK] = 'Navlink';
-objectTypeMapping[AREA] = 'Area';
-objectTypeMapping[PLACE] = 'Place';
-objectTypeMapping[ADDRESS] = 'Address';
-objectTypeMapping[MARKER] = 'Marker';
-objectTypeMapping[LINE] = 'Line';
 
 
 // support for legacy api
@@ -107,13 +93,11 @@ export const features = ((() => {
             }, properties || {});
 
             that.geometry = {
-
                 type: (objType == 'PLACE' || objType == 'ADDRESS' || objType == 'MARKER')
                     ? 'Point'
                     : objType == 'AREA'
                         ? 'MultiPolygon'
                         : 'LineString',
-
                 coordinates: toGeojsonCoordinates(coords)
             };
         }
@@ -123,13 +107,10 @@ export const features = ((() => {
         return Obj;
     }
 
-    const objects = {};
-
-    for (const t in objectTypeMapping) {
-        objects[objectTypeMapping[t]] = createObjDef(t);
-    }
-
-    return objects;
+    return Object.fromEntries(
+        ['Navlink', 'Area', 'Place', 'Address', 'Marker', 'Line']
+            .map((t) => [t, createObjDef(t.toUpperCase())])
+    );
 }))();
 
 export {Editor};

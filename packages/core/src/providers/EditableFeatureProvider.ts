@@ -271,6 +271,54 @@ export abstract class EditableFeatureProvider extends FeatureTileProvider {
     abstract writeRoutingLink(feature: Feature, position, navlink: Navlink | null);
 
     /**
+     * Read intersection-related connectivity for a {@link editor.Navlink | Navlink}  node.
+     *
+     * This method allows an EditableFeatureProvider to override the
+     * default geometric intersection detection.
+     *
+     * It is called for the start or end node of a {@link editor.Navlink | Navlink}  to determine
+     * whether that node forms an intersection and which {@link editor.Navlink | Navlinks}  are
+     * connected to it.
+     *
+     * Implement this if intersection information is stored in feature
+     * properties, derived from external metadata, or otherwise known
+     * in advance.
+     *
+     * Return values:
+     *
+     * - `undefined`
+     *      → No custom information is provided.
+     *        The editor falls back to geometric intersection detection.
+     *
+     * - `[]` (empty array)
+     *      → Explicitly *no* connected links at this node.
+     *        The editor will NOT perform geometric detection.
+     *
+     * - `[ { id, index? }, ... ]`
+     *      → Explicitly defined connected Navlinks, referenced by their
+     *        feature ID.
+     *        If `index` is omitted, the editor automatically determines
+     *        the corresponding node coordinate of the connected link.
+     *
+     * @param link - The Navlink feature whose node connectivity is being read.
+     * @param index - The coordinate index of the node
+     *                (0 → start node, last coordinate → end node).
+     *
+     * Note: Regardless of the returned value, geometric requirements for intersection
+     * (such as spatial proximity and coordinate precision) must still be fulfilled.
+     * See the {@link EditorOptions.intersectionScale | intersectionScale}  property for details.
+     *
+     * @returns An array of `{ id: string | number; index?: number }`,
+     *          an empty array to signal "no connection",
+     *          or `undefined` to fall back to default detection.
+     */
+    abstract readConnectedLinks?(
+        link: Navlink,
+        index: number
+    ): Array<{ link: string | number; index?: number }> | [] | undefined;
+
+
+    /**
      * Attribute writer for storing the EditStates of a Feature.
      * The EditStates provide information about whether a feature has been created, modified, removed or split.
      *

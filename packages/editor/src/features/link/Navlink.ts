@@ -262,38 +262,27 @@ export class Navlink extends Feature {
 
     getConnectedLinks(index: number, details: boolean = false) {
         const line = this;
-        const EDITOR = line._e();
         const path = line.coord();
-        const c2 = path[index];
-        const cLinks = [];
-        let elPath;
-        let lastIndex;
-        const isNode = index == 0 || index == path.length - 1;
+        const node = path[index];
+        const custom = line.getProvider().readConnectedLinks?.(line, index);
+        if (custom !== undefined) {
+            const connected = [];
+            if (custom === null || custom.length === 0) return connected;
 
-        const ignoreZ = oTools.ignoreZ(line);
-
-        if (isNode /* &&!line.editState('removed')*/) {
-            for (let feature of EDITOR.objects.getInBBox(line.bbox, line.getProvider())) {
-                if (feature.id != line.id && feature.class == 'NAVLINK') {
-                    elPath = feature.coord();
-                    lastIndex = elPath.length - 1;
-
-                    index = oTools.isIntersection(EDITOR, elPath[0], c2, ignoreZ)
-                        ? 0
-                        : oTools.isIntersection(EDITOR, elPath[lastIndex], c2, ignoreZ)
-                            ? lastIndex
-                            : null;
-
-                    if (index != null /* && zLevels[shpIndex] == curEl.getZLevels()[index]*/) {
-                        cLinks.push(details ? {
-                            index: index,
-                            link: feature
-                        } : feature);
+            for (const item of custom) {
+                const connectedLink = line.getProvider().search({id: item.link}) as Navlink;
+                if (connectedLink) {
+                    const autoIndex = oTools._findIntersectionNodeIndex(connectedLink, node, oTools.ignoreZ(line));
+                    const connectedIndex = item.index ?? autoIndex;
+                    // Ensure the connected link's node still meets geometric intersection requirements (spatial proximity)
+                    if (typeof autoIndex === 'number') {
+                        connected.push(details ? {link: connectedLink, index: connectedIndex} : connectedLink);
                     }
                 }
             }
+            return connected;
         }
-        return cLinks;
+        return oTools._findGeometricIntersectionLinks(line, index, details);
     };
 
     /**

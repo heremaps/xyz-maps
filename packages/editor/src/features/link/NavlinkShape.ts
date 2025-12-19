@@ -191,7 +191,7 @@ function onMouseMoveShape(ev, dx, dy) {
     let curPos = <GeoJSONCoordinate>dragFeatureCoordinate(ev.mapX, ev.mapY, shp, orgCoordinate, EDITOR);
     if (ignoreZ) {
         // restore initial altitude
-        curPos[2] = shp.geometry.coordinates[2]||0;
+        curPos[2] = shp.geometry.coordinates[2] || 0;
     }
 
     if (!cfg.editRestrictions(link, EDIT_RESTRICTION.GEOMETRY)) {
@@ -348,7 +348,7 @@ function mouseInHandler() {
 
     prv.cLinks.forEach(({link}) => {
         const customStyle = EDITOR.getCustomStyle(link);
-        let style: StyleGroup & {__default?: StyleGroup};
+        let style: StyleGroup & { __default?: StyleGroup };
 
         if (customStyle) {
             style = JSUtils.extend(true, [], customStyle);
@@ -596,12 +596,10 @@ class NavlinkShape extends Feature {
      */
     disconnect() {
         const shape = this;
-        const prv = getPrivate(shape);
-        const EDITOR = prv.line._e();
+        const {cLinks, line, index} = getPrivate(shape);
+        const EDITOR = line._e();
 
-        if (shape.isNode() && prv.cLinks.length) {
-            const line = prv.line;
-            const index = prv.index;
+        if (shape.isNode() && cLinks.length) {
             const coords = line.coord();
             const p1 = coords[index];
             const p2 = coords[index + (!index ? 1 : -1)];
@@ -611,7 +609,6 @@ class NavlinkShape extends Feature {
                 EDITOR._config['disconnectShapeDistance'],
                 bearing
             );
-
 
             EDITOR.hooks.trigger('Navlink.disconnect', {
                 link: line,

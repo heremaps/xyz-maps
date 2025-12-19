@@ -51,7 +51,7 @@ export interface LocalProviderOptions extends EditableFeatureProviderOptions {
      */
     storage?: TileStorage;
 
-    size?: number
+    size?: number;
 }
 
 /**
@@ -129,7 +129,10 @@ export class LocalProvider extends EditableFeatureProvider {
         throw new Error(METHOD_NOT_IMPLEMENTED);
     }
 
-    writeTurnRestriction(restricted: boolean, turnFrom: { link: Feature; index: number; }, turnTo: { link: Feature; index: number; }) {
+    writeTurnRestriction(restricted: boolean, turnFrom: { link: Feature; index: number; }, turnTo: {
+        link: Feature;
+        index: number;
+    }) {
         throw new Error(METHOD_NOT_IMPLEMENTED);
     }
 
@@ -153,7 +156,10 @@ export class LocalProvider extends EditableFeatureProvider {
         throw new Error(METHOD_NOT_IMPLEMENTED);
     }
 
-    readTurnRestriction(turnFrom: { link: Feature; index: number; }, turnTo: { link: Feature; index: number; }): boolean {
+    readTurnRestriction(turnFrom: { link: Feature; index: number; }, turnTo: {
+        link: Feature;
+        index: number;
+    }): boolean {
         throw new Error(METHOD_NOT_IMPLEMENTED);
     }
 
@@ -168,6 +174,13 @@ export class LocalProvider extends EditableFeatureProvider {
 
     writeZLevels(link: Feature, zLevels: number[]) {
         throw new Error('Method not implemented.');
+    }
+
+    readConnectedLinks?(
+        link: Navlink,
+        index: number
+    ): Array<{ link: string | number; index?: number }> | [] | undefined {
+        return undefined;
     }
 
     writeEditState(feature, editState: 'created' | 'modified' | 'removed' | 'split') {
