@@ -7,7 +7,8 @@
     "types" : ["mocha", "chai"],
     "baseUrl": ".",
     "paths": {
-      "*": ["src/utils/*"]
+      "*": ["src/utils/*"],
+      "TestProviders": ["src/TestProvider.ts"]
     },
     "moduleResolution": "node",
     "resolveJsonModule": true,

@@ -20,6 +20,8 @@
 import * as coreUtils from './utils/coreUtils';
 import * as utils from './utils/utils';
 
+import {TestProvider, TestLocalProvider} from './TestProvider';
+
 import {run} from './runner';
 
 // @ts-ignore
@@ -27,5 +29,6 @@ import mochaSettings from 'settings';
 
 mocha.setup(mochaSettings);
 
-export default {coreUtils, utils, run};
+const TestProviders = {TestProvider, TestLocalProvider};
+export default {coreUtils, utils, TestProviders, run};
 

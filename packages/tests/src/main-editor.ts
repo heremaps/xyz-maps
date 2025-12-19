@@ -21,7 +21,7 @@ import * as displayUtils from './utils/displayUtils';
 import * as editorUtils from './utils/editorUtils';
 import * as utils from './utils/utils';
 import * as events from './utils/triggerEvents';
-
+import {TestProvider, TestLocalProvider} from './TestProvider';
 import {run} from './runner';
 
 // @ts-ignore
@@ -29,5 +29,6 @@ import mochaSettings from 'settings';
 
 mocha.setup(mochaSettings);
 
-export default {displayUtils, editorUtils, utils, events, run};
+const TestProviders = {TestProvider, TestLocalProvider};
+export default {displayUtils, editorUtils, utils, events, TestProviders, run};
 

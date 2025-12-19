@@ -56,7 +56,9 @@ module.exports = function(config) {
         'displayUtils',
         'editorUtils',
         'utils',
-        'triggerEvents'
+        'triggerEvents',
+        'TestProvider',
+        'TestLocalProvider'
     ];
 
     const globals = {
@@ -68,7 +70,9 @@ module.exports = function(config) {
         'displayUtils': 'here.test.displayUtils',
         'utils': 'here.test.utils',
         'triggerEvents': 'here.test.events',
-        'editorUtils': 'here.test.editorUtils'
+        'editorUtils': 'here.test.editorUtils',
+        'TestProvider': 'here.test.TestProvider',
+        'TestLocalProvider': 'here.test.TestLocalProvider'
     };
 
 
