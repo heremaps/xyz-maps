@@ -1,6 +1,6 @@
 {
   "name": "@here/xyz-maps-editor",
-  "version": "0.44.0",
+  "version": "0.45.0-dev.0",
   "description": "XYZ editor.",
   "author": {
     "name": "HERE Europe B.V.",
@@ -28,9 +28,9 @@
     "update-changelog": "npx build-changelog"
   },
   "dependencies": {
-    "@here/xyz-maps-common": "^0.44.0",
-    "@here/xyz-maps-core": "^0.44.0",
-    "@here/xyz-maps-display": "^0.44.0"
+    "@here/xyz-maps-common": "^0.45.0-dev.0",
+    "@here/xyz-maps-core": "^0.45.0-dev.0",
+    "@here/xyz-maps-display": "^0.45.0-dev.0"
   },
   "devDependencies": {
     "@rollup/plugin-terser": "^0.4.4",

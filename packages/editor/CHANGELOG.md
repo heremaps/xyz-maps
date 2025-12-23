@@ -1,3 +1,9 @@
+## 0.45.0-dev.0 (2025-12-23)
+### core
+* fixed: prevent provider.search() errors when called with {id: undefined}
+### editor
+* added: introduces [readConnectedLinks](https://heremaps.github.io/xyz-maps/docs/classes/core.editablefeatureprovider.html#readconnectedlinks) attribute reader for custom intersection connectivity and extends geometric intersection detection
+
 ## 0.44.0 (2025-11-12)
 ### editor
 * fixed: ensure consistent styling for Line, Navlink, and Area shapes with StyleValueFunction
