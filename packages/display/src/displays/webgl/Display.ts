@@ -594,7 +594,7 @@ class WebGlDisplay extends BasicDisplay {
         for (let i = 0, z, zTile; i < tileBuffers.length; i++) {
             zTile = tileBuffers[i];
 
-            zTile.prepareHeightMapReferences();
+            zTile.prepareHeightMapReferences?.();
 
             z = zTile.z = absZOrder[zTile.z];
 
