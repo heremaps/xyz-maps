@@ -16,7 +16,7 @@
  * SPDX-License-Identifier: Apache-2.0
  * License-Filename: LICENSE
  */
-import Task from './Task';
+import Task, {TaskRestartOptions} from './Task';
 import {TaskManager} from './TaskManager';
 
 
@@ -32,6 +32,7 @@ export class TaskSequence<T extends readonly Task<any, any, any>[]> extends Task
     // private results: TASK_RESULT<T> = [];
     private current: number;
     private onAllDone: (results?: TASK_RESULT<T>) => void;
+    private _initSequenceData: any;
 
 
     constructor(options: {
@@ -84,14 +85,26 @@ export class TaskSequence<T extends readonly Task<any, any, any>[]> extends Task
         return task.init(data);
     }
 
+    start(data?) {
+        this._initSequenceData = data;
+        super.start(data);
+    }
+
+    restart(opt: TaskRestartOptions<any, any, any> = {}) {
+        const seqInitData = this._initSequenceData;
+        this._initData = seqInitData;
+        this.initSequence();
+        super.restart(opt);
+        // Restore the initial sequence data, since it gets cleared when restart() internally calls cancel().
+        this._initSequenceData = seqInitData;
+    }
+
     exec(data) {
         return this.curTask()!.exec(data);
     }
 
     cancel(): boolean {
-        // cancel gets called before a task gets restarted.
-        // So we use to reset the sequence state.
-        this.initSequence();
+        this._initSequenceData = null;
         return super.cancel();
     }
 
