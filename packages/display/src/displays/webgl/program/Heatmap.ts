@@ -24,7 +24,7 @@ import fragmentShader from '../glsl/heatmap_fragment.glsl';
 
 import Program, {CompiledUniformMap} from './Program';
 import {GLStates, PASS} from './GLStates';
-import {Texture} from '../Texture';
+import {Texture, TextureOptions} from '../Texture';
 import {GeometryBuffer} from '../buffer/GeometryBuffer';
 
 const OFFSCREEN_PASS = PASS.ALPHA;
@@ -61,10 +61,23 @@ class HeatmapProgram extends Program {
         width *= offscreenScale;
         height *= offscreenScale;
 
-        const offscreenTexture = new Texture(gl, {width, height}, {
-            halfFloat: true,
+
+        let texOptions: TextureOptions = {
             premultiplyAlpha: false
-        });
+        };
+
+        if (gl instanceof WebGL2RenderingContext) {
+            texOptions.type = gl.HALF_FLOAT;
+            texOptions.internalFormat = gl.R16F;
+            texOptions.format = gl.RED;
+            gl.getExtension('EXT_color_buffer_float');
+            gl.getExtension('OES_texture_float_linear');
+        } else {
+            texOptions.type = gl.getExtension('OES_texture_half_float')?.HALF_FLOAT_OES;
+            gl.getExtension('OES_texture_half_float_linear');
+        }
+
+        const offscreenTexture = new Texture(gl, {width, height}, texOptions);
         const offscreenFrameBuffer = gl.createFramebuffer();
         gl.bindFramebuffer(gl.FRAMEBUFFER, offscreenFrameBuffer);
         gl.framebufferTexture2D(gl.FRAMEBUFFER, gl.COLOR_ATTACHMENT0, gl.TEXTURE_2D, offscreenTexture.getGLTexture(), 0);
@@ -159,10 +172,11 @@ class HeatmapProgram extends Program {
             // render offscreen-buffer to screen-buffer and colorize the heatmap.
             const {offscreenBuffer} = this;
 
-            this.initBuffers(offscreenBuffer.attributes);
+            // this.initBuffers(offscreenBuffer.attributes);
             this.initUniforms(offscreenBuffer.uniforms as CompiledUniformMap);
-            this.initAttributes(offscreenBuffer.attributes);
-            this.initGeometryBuffer(offscreenBuffer, PASS.ALPHA);
+            // this.initAttributes(offscreenBuffer.attributes);
+            // this.initGeometryBuffer(offscreenBuffer, PASS.ALPHA);
+            this.configureRenderState(offscreenBuffer, PASS.ALPHA);
             gl.depthFunc(gl.LEQUAL);
 
             super.draw(offscreenBuffer);

@@ -1,16 +1,12 @@
-vec2 round(vec2 point){
+#ifdef GL_ES
+#if __VERSION__ == 100
+vec2 round(vec2 point) {
     vec2 fractPoint = fract(point);
     point += step(0.5, fractPoint) - fractPoint;
     return point;
 }
-
-vec4 snapToScreenPixel(vec4 position, vec2 resolution){
-    resolution *= DEVICE_PIXEL_RATIO;
-    vec2 screenPixel = ((position.xy / position.w + 1.0) / 2.0) * resolution;
-    position.xy = (round(screenPixel) / resolution * 2.0 - 1.0) * position.w;
-    return position;
-}
-
+#endif
+#endif
 
 vec3 rotateY(vec3 v, float a) {
     float s = sin(a);
@@ -18,7 +14,7 @@ vec3 rotateY(vec3 v, float a) {
     return mat3(c, 0.0, -s, 0.0, 1.0, 0.0, s, 0.0, c) * v;
 }
 
-vec2 rotateZ(vec2 v, float a){
+vec2 rotateZ(vec2 v, float a) {
     float s = sin(a);
     float c = cos(a);
     return v * mat2(c, -s, s, c);
@@ -30,9 +26,9 @@ vec2 rotateZ(vec2 v, float a){
 //    return vec2(point.x * c + point.y * s, point.y * c - point.x * s);
 //}
 
-float toPixel(vec2 size, float zoom){
+float toPixel(vec2 size, float zoom) {
     float value = size.x;
-    if (size.y > 0.0){
+    if (size.y > 0.0) {
         // value is defined in meters -> convert to pixels at current zoom
         value *= zoom * size.y;
     }

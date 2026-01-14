@@ -1,6 +1,7 @@
+#version 300 es
 precision lowp float;
 
-attribute vec3 a_position;
+in vec3 a_position;
 //uniform vec2 u_offsetZ;
 //uniform float u_scale;
 uniform mat4 u_matrix;
@@ -9,7 +10,7 @@ uniform vec2 u_topLeft;
 #ifdef SPECULAR
 uniform float u_zMeterToPixel;
 uniform vec3 u_camWorld;
-varying vec3 v_surfaceToCam;
+out vec3 v_surfaceToCam;
 #endif
 
 void main(void){

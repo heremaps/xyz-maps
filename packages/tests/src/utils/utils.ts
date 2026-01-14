@@ -49,36 +49,35 @@ function backingScale() {
 export async function getCanvasPixelColor(
     elem: HTMLElement,
     pos: { x: number, y: number } | { x: number, y: number }[],
-    options: { expect?: string | string[], delay?: number, retry?: number, retryDelay?: number } = {}): Promise<string | string[]> {
+    options: {
+        expect?: string | string[],
+        delay?: number,
+        retry?: number,
+        retryDelay?: number
+    } = {}): Promise<string | string[]> {
     const positions = Array.isArray(pos) ? pos : [pos];
     const expect = options.expect ? (Array.isArray(options.expect) ? options.expect : [options.expect]) : new Array(positions.length);
     const delay = options.delay || 100;
     const retryDelay = options.retryDelay || 10;
     let retry = options.retry || 0;
     const scaleFactor = backingScale();
-    let canvas = elem.getElementsByTagName('canvas')[0];
-    let ctx = canvas.getContext('2d');
+    const canvas = elem.getElementsByTagName('canvas')[0];
+    const context = canvas.getContext('webgl2') || canvas.getContext('webgl') || canvas.getContext('2d');
     let resultColors = [];
     let retryCounter = 0;
     let expectedCounter = 0;
 
-    function getColor(x, y) {
+    const getColor = (x: number, y: number) => {
         let pixel;
-
-        if (ctx) {
-            pixel = ctx.getImageData(x, y, 1, 1).data;
+        if (context instanceof CanvasRenderingContext2D) {
+            pixel = context.getImageData(x, y, 1, 1).data;
         } else {
-            const gl = canvas.getContext('webgl');
+            const gl = context;
             pixel = new Uint8Array(4);
             gl.readPixels(x * scaleFactor, canvas.height - y * scaleFactor, 1, 1, gl.RGBA, gl.UNSIGNED_BYTE, pixel);
         }
-
-        let r = pixel[0];
-        let g = pixel[1];
-        let b = pixel[2];
-
-        return '#' + ('00000' + ((r << 16) | (g << 8) | b).toString(16)).slice(-6);
-    }
+        return '#' + ('00000' + ((pixel[0] << 16) | (pixel[1] << 8) | pixel[2]).toString(16)).slice(-6);
+    };
 
     function tryGetColor(timeout, cb) {
         setTimeout(function() {
@@ -230,7 +229,13 @@ export class MonitorXHR {
             this.openUrl = url;
 
             if ((monitoredMethod == 'ALL' || monitoredMethod == method) && (!filter || filter.test(url))) {
-                monitor.requests.set(this, {method: method, url: url, payload: null, origXHR: this, requestHeader: {}});
+                monitor.requests.set(this, {
+                    method: method,
+                    url: url,
+                    payload: null,
+                    origXHR: this,
+                    requestHeader: {}
+                });
             }
             this.origOpen(method, url, async);
         };

@@ -23,13 +23,8 @@ import {GeometryBuffer, Uniform} from '../GeometryBuffer';
 import {Raycaster} from '../../Raycaster';
 import {FRONT} from '../glType';
 
-export type FlexAttribute = {
+export type FlexAttribute = Omit<Attribute, 'data' | 'bytesPerElement' | 'ref'> & {
     data: FlexArray;
-    size: number;
-    normalized?: boolean;
-    stride?: number;
-    offset?: number;
-    instanced?: boolean;
 }
 export type ConstantAttribute = {
     value: number[];

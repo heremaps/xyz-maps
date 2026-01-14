@@ -20,6 +20,7 @@ uniform float u_normalizePosition;
 varying vec2 v_texcoord;
 varying vec4 vColor;
 
+#include "utils.glsl/snapToScreenPixel"
 #include "utils.glsl/heightMapUtils"
 #include "utils.glsl/altitudeScaleFactor"
 
@@ -27,7 +28,6 @@ const float OFFSET_SCALE = 1.0 / 32.0;
 const float PI_05 = M_PI * 0.5;
 const float PI_15 = M_PI * 1.5;
 const float PI_20 = M_PI * 2.0;
-
 
 void main(void) {
     if (mod(a_position.x, 2.0) == 1.0) {

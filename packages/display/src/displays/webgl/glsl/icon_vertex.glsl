@@ -19,6 +19,7 @@ varying float vOpacity;
 varying vec2 v_texcoord;
 
 #include "utils.glsl/altitudeScaleFactor"
+#include "utils.glsl/snapToScreenPixel"
 
 void main(void){
 

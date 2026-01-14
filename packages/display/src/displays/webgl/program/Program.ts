@@ -17,8 +17,12 @@
  * License-Filename: LICENSE
  */
 
-import {createProgram, preprocessShaderIncludes} from '../glTools';
+import {createProgram, positionGLSLVersion, preprocessShaderIncludes} from '../glTools';
 import {GLStates, PASS} from './GLStates';
+import {createWebGLInstancing, WebGLInstancing} from '../GLInstancing';
+import {GLExtensions} from '../GLExtensions';
+import {VAOManager} from '../VAOManager';
+
 // @ts-ignore
 import introVertex from '../glsl/intro_vertex.glsl';
 // @ts-ignore
@@ -26,11 +30,11 @@ import lightGLSL from '../glsl/light.glsl';
 // @ts-ignore
 import utilsGLSL from '../glsl/utils.glsl';
 import {
-    ArrayGrp,
+    ArrayDrawCmd,
     DynamicUniform,
     GeometryBuffer,
     IndexData,
-    IndexGrp,
+    ElementsDrawCmd,
     Uniform
 } from '../buffer/GeometryBuffer';
 import {BufferCache, ViewUniforms} from '../GLRender';
@@ -38,6 +42,7 @@ import {Attribute} from '../buffer/Attribute';
 import {ConstantAttribute} from '../buffer/templates/TemplateBuffer';
 import {Texture} from '../Texture';
 import {HeightMapTileCache} from '../HeightMapTileCache';
+import {UniformBlockInstance, UniformBlockLayout, UniformFieldLayout, std140Types} from '../UniformBlock';
 
 const GLSL_INCLUDES = {
     'light.glsl': lightGLSL,
@@ -77,6 +82,10 @@ class Program {
     protected fragmentShaderSrc: string;
     protected framebuffer: WebGLFramebuffer;
     private colorMask: ColorMask;
+    private glInstancing: WebGLInstancing;
+    private vaoManager: VAOManager;
+    activeAttributes: number;
+    private uniformBufferObjects: any[];
 
     // static _noMacros = {};
     static getMacros(buffer: GeometryBuffer): {
@@ -95,9 +104,7 @@ class Program {
     }
 
     prog: WebGLProgram;
-    gl: WebGLRenderingContext;
-    // eslint-disable-next-line camelcase
-    glExtAngleInstancedArrays: ANGLE_instanced_arrays;
+    gl: WebGLRenderingContext | WebGL2RenderingContext;
     name: string;
     attributeLocations: {
         [name: string]: {
@@ -108,7 +115,7 @@ class Program {
     attributeDivisors: number[] = [];
     uniforms: UniformLocations = {};
 
-    private usage;
+    private usage: GLenum;
     private buffers: BufferCache;
 
     protected glStates: GLStates;
@@ -128,6 +135,9 @@ class Program {
     } = {
             'M_PI': 3.1415927410125732
         };
+
+    // Parsed from shader source (WebGL2 only); empty in WebGL1
+    uniformBlocks?: UniformBlockLayout[];
 
     constructor(
         gl: WebGLRenderingContext,
@@ -154,53 +164,148 @@ class Program {
 
     init(
         buffers: BufferCache,
-        // eslint-disable-next-line camelcase
-        glExtAngleInstancedArrays: ANGLE_instanced_arrays
+        glExt: GLExtensions,
+        vaoManager: VAOManager,
+        ubos?
     ) {
         this.compile(this.vertexShaderSrc, this.fragmentShaderSrc, this.macros);
 
         this.setBufferCache(buffers);
 
-        this.glExtAngleInstancedArrays = glExtAngleInstancedArrays;
+        this.glInstancing = createWebGLInstancing(this.gl, glExt);
+        this.vaoManager = vaoManager;
+
+        this.initializeUBOs(ubos);
     }
 
 
-    initBuffers(attributes: {
-        [name: string]: Attribute | ConstantAttribute
-    }) {
+    // Parses the shader source to extract uniform block information (name and size)
+    private getUniformBlocksFromShader(shaderSource: string): UniformBlockLayout[] {
+        if (this.gl instanceof WebGLRenderingContext) return [];
+        const blockRegex = /layout\s*\(\s*std140\s*\)\s+uniform\s+(\w+)\s*\{([\s\S]*?)\};/gm;
+        const uniformRegex = /^\s*(?:(?:lowp|mediump|highp)\s+)?(\w+)\s+(\w+)(?:\s*\[\s*(\d+)\s*\])?\s*;\s*$/gm;
+        const blocks: UniformBlockLayout[] = [];
+        let match: RegExpExecArray | null;
+
+        while ((match = blockRegex.exec(shaderSource)) !== null) {
+            const [, blockName, blockBody] = match;
+            const fields: UniformFieldLayout[] = [];
+            let offset = 0;
+            // Reset regex lastIndex for each block
+            uniformRegex.lastIndex = 0;
+
+            let uniformMatch: RegExpExecArray | null;
+            while ((uniformMatch = uniformRegex.exec(blockBody)) !== null) {
+                const type = uniformMatch[1];
+                const arraySize = uniformMatch[3] ? parseInt(uniformMatch[3]) : undefined;
+                const typeInfo = std140Types[type];
+                if (!typeInfo) throw new Error(`Unknown uniform type: ${type}`);
+                let {size, align} = typeInfo;
+                if (arraySize) {
+                    // std140: array elements are aligned to max(16, baseAlignment)
+                    const memberAlign = Math.max(16, align);
+                    offset = Math.ceil(offset / memberAlign) * memberAlign;
+                    // Each element occupies size rounded up to 16
+                    const stride = Math.ceil(size / 16) * 16;
+                    size = stride * arraySize;
+                } else {
+                    // std140: align offset for non-array
+                    offset = Math.ceil(offset / align) * align;
+                }
+                fields.push({name: uniformMatch[2], type, offset, size, arraySize});
+                offset += size;
+            }
+            const byteSize = Math.ceil(offset / 16) * 16; // final block size rounded to 16
+            blocks.push({name: blockName, bindingPoint: 0, fields, byteSize});
+        }
+        return blocks;
+    }
+
+
+    // Automatically initializes UBOs based on the shader code (for WebGL2)
+    initializeUBOs(ubos) {
+        const gl = this.gl as WebGL2RenderingContext;
+        const program = this.prog;
+
+        // Ensure the program is active before setting UBO bindings
+        gl.useProgram(program);
+
+        // Parse the shader sources to find uniform blocks
+        this.uniformBlocks?.forEach((block) => {
+            // Get the block index for the current uniform block
+            const blockIndex = gl.getUniformBlockIndex(program, block.name);
+
+            // Check if the block index is valid
+            if (blockIndex !== gl.INVALID_INDEX) {
+                gl.uniformBlockBinding(program, blockIndex, 0);
+                console.log('Init UBO for', this.name, ':', block.name, 'blockIndex', blockIndex, 'bindingpoint', 0);
+                // Bind the UBO to the corresponding binding point
+                // gl.bindBufferBase(gl.UNIFORM_BUFFER, block.bindingPoint, ubos.view.buffer);
+            }
+        });
+
+        // uniformBlocks.forEach((block) => {
+        //     // Create UBO and bind the data for each uniform block
+        //     // const ubo = gl.createBuffer();
+        //     // gl.bindBuffer(gl.UNIFORM_BUFFER, ubo);
+        //
+        //     // Assuming data for UBO is a Float32Array (this could vary depending on the block)
+        //     // const initialData = new Float32Array(block.size); // Replace with actual size
+        //     // gl.bufferData(gl.UNIFORM_BUFFER, initialData, gl.STATIC_DRAW);
+        //
+        //     // Get the block index for the current uniform block
+        //     const blockIndex = gl.getUniformBlockIndex(program, block.name);
+        //     gl.uniformBlockBinding(program, blockIndex, block.bindingPoint);
+        //
+        //     // console.log('Init UBO for', this.name, ':', block.name, 'blockIndex', blockIndex, 'bindingpoint', block.bindingPoint);
+        //
+        //     // Bind the UBO to the corresponding binding point
+        //     // gl.bindBufferBase(gl.UNIFORM_BUFFER, block.bindingPoint, ubo);
+        //
+        //     // Store reference to the UBO for future updates (if needed)
+        //     // block.ubo = ubo;
+        // });
+
+        return this.uniformBlocks;
+    }
+
+    private initAttribute(attr: Attribute): WebGLBuffer {
         const gl = this.gl;
 
-        for (let name in attributes) {
-            let attr = <Attribute>attributes[name];
+        let buf = this.buffers.get(attr);
 
-            // attribute is using constant value -> no need to init/fill attribute buffers
-            if ((<ConstantAttribute><unknown>attr).value) continue;
-
-            let buf = this.buffers.get(attr);
-
-            if (!buf) {
-                buf = gl.createBuffer();
-                this.buffers.set(attr, buf);
-            }
-            if (attr.dirty) {
-                attr.dirty = false;
-                gl.bindBuffer(gl.ARRAY_BUFFER, buf);
-                gl.bufferData(gl.ARRAY_BUFFER, attr.data, gl.STATIC_DRAW);
-                // delete attr.data;
-            }
+        if (!buf) {
+            buf = gl.createBuffer();
+            this.buffers.set(attr, buf);
+            // attr.buffer = buf;
+            // attr.gl = gl;
         }
+
+        gl.bindBuffer(gl.ARRAY_BUFFER, buf);
+
+        if (attr.dirty) {
+            attr.dirty = false;
+            gl.bufferData(gl.ARRAY_BUFFER, attr.data, attr.dynamic ? gl.DYNAMIC_DRAW : gl.STATIC_DRAW);
+            // we keep attribute data because its might be needed for ray casting
+            // if (!attr.dynamic) delete attr.data;
+        }
+
+        return buf;
     }
 
 
     private createUniformSetter(uInfo: WebGLActiveInfo, location: WebGLUniformLocation) {
         const {gl} = this;
+
         switch (uInfo.type) {
         case gl.FLOAT:
             return (v) => gl.uniform1f(location, v);
         case gl.FLOAT_MAT3:
             return (v) => gl.uniformMatrix3fv(location, false, v);
         case gl.FLOAT_MAT4:
-            return (v) => gl.uniformMatrix4fv(location, false, v);
+            return (v) => {
+                gl.uniformMatrix4fv(location, false, v);
+            };
         case gl.FLOAT_VEC2:
             return (v) => gl.uniform2fv(location, v);
         case gl.FLOAT_VEC3:
@@ -244,7 +349,7 @@ class Program {
 
     private buildSource(vertexShader: string, fragmentShader: string, macros?: {
         [name: string]: any
-    }): [string, string] {
+    }): string[] {
         const prog = this;
 
         macros = {...prog.macros, DEVICE_PIXEL_RATIO: prog.dpr.toFixed(1), ...macros};
@@ -257,7 +362,7 @@ class Program {
         return [
             preprocessShaderIncludes(macroSrc + introVertex + vertexShader, GLSL_INCLUDES),
             preprocessShaderIncludes(macroSrc + fragmentShader, GLSL_INCLUDES)
-        ];
+        ].map(positionGLSLVersion);
     }
 
     protected compile(vertexShader: string, fragmentShader: string, macros?: {
@@ -274,6 +379,9 @@ class Program {
 
         // setup attributes
         let activeAttributes = gl.getProgramParameter(glProg, gl.ACTIVE_ATTRIBUTES);
+
+        this.activeAttributes = activeAttributes;
+
         for (let a = 0; a < activeAttributes; ++a) {
             const aInfo = gl.getActiveAttrib(glProg, a);
             const {name, type} = aInfo;
@@ -282,18 +390,65 @@ class Program {
             this.attributeLocations[name] = {index, length};
         }
 
+
+        this.uniformBlocks = this.getUniformBlocksFromShader(vertexSrc);
+
+
+        // for (let block of this.uniformBlocks) {
+        //     for (let uniformField of block.fields) {
+        //
+        //     }
+        //     console.log('Detected UBO in program', this.name, ':', block.name, 'size:', block.size, 'fields:', block.fields);
+        //     debugger;
+        // }
+
+
+        // this.uniformBufferObjects = this.initializeUBOs(vertexSrc);
+
         // setup uniforms
         let activeUniforms = gl.getProgramParameter(glProg, gl.ACTIVE_UNIFORMS);
+
+        console.log('----', this.name, this.uniformBlocks);
 
         for (let u = 0; u < activeUniforms; u++) {
             const uInfo = gl.getActiveUniform(glProg, u);
             const name = uInfo.name;
             const location = gl.getUniformLocation(glProg, name);
-            this.uniforms[name] = location;
-            // gl.getUniformLocation(program, uniformInfo.name);
-            this.uniformSetters[uInfo.name] = this.createUniformSetter(uInfo, location);
+            if (location) {
+                this.uniforms[name] = location;
+                // gl.getUniformLocation(program, uniformInfo.name);
+                this.uniformSetters[uInfo.name] = this.createUniformSetter(uInfo, location);
+            }
         }
     }
+
+
+    // // Initializes traditional uniforms for WebGL1
+    // initializeWebGL1Uniforms() {
+    //     const gl = this.gl;
+    //     const program = this.program;
+    //
+    //     // For WebGL1, you can define and get uniform locations like this
+    //     this.uMatrixLocation = gl.getUniformLocation(program, 'u_matrix');
+    // }
+    // Set UBO data (only for WebGL2)
+    setUBOData() {
+        const gl = this.gl as WebGL2RenderingContext;
+        if (gl instanceof WebGL2RenderingContext) {
+            // Update the UBO data only when necessary (e.g., during initialization or significant updates)
+            const updatedData = new Float32Array(16); // New matrix data (e.g., from animation)
+            // Iterate over the stored UBOs and update each one (if needed)
+            this.uniformBufferObjects.forEach((block) => {
+                gl.bindBuffer(gl.UNIFORM_BUFFER, block.ubo);
+                gl.bufferSubData(gl.UNIFORM_BUFFER, 0, updatedData); // Update data
+            });
+        }
+    }
+
+    usesUBO(): boolean {
+        return this.uniformBufferObjects?.length > 0;
+    }
+
 
     private setBufferCache(buffers: BufferCache) {
         this.buffers = buffers;
@@ -303,8 +458,12 @@ class Program {
         return this.uniforms[name];
     }
 
-    initUniform(name: string, data: Uniform) {
-        this.uniformSetters[name]?.(data);
+    initUniform(name: string, data: Uniform): boolean {
+        const uniformSetter = this.uniformSetters[name];
+        if (uniformSetter) {
+            uniformSetter(data);
+            return true;
+        }
     }
 
     initUniforms(uniforms: CompiledUniformMap) {
@@ -334,11 +493,39 @@ class Program {
         }
     }
 
-    initAttributes(attributes: AttributeMap) {
+    initBufferAttributes(geometryBuffer: GeometryBuffer, groupIndex: number) {
+        const bufAttributes = geometryBuffer.getAttributes();
+        const {vaoManager} = this;
+
+        const group = geometryBuffer.groups[groupIndex];
+        const vao = group.vao;
+        let bindShAttr = groupIndex === 0 && !vao;
+
+        if (vaoManager.isVAOSupported) {
+            if (!vao) {
+                group.vao = vaoManager.createVAO();
+                bindShAttr = true;
+            }
+            vaoManager.bindVAO(group.vao);
+        }
+
+        this.bindVertexAttributes(bufAttributes, !bindShAttr);
+
+        if (!vao) {
+            const index = (<ElementsDrawCmd>group).index;
+            if (index) {
+                this.initIndex(index);
+            }
+        }
+    }
+
+    bindVertexAttributes(attributes: AttributeMap, onlyWhenDirty: boolean) {
         const {gl, buffers, attributeLocations, attributeDivisors} = this;
 
+        // this.initBuffers(attributes);
+
         for (let name in attributes) {
-            let attribute = attributes[name];
+            const attribute = attributes[name];
 
             if (!attributeLocations[name]) continue;
 
@@ -347,28 +534,31 @@ class Program {
             const {value} = attribute as ConstantAttribute;
 
             if (value != undefined) {
-                for (let i = 0; i < length; ++i) {
-                    const location = index + i;
-                    // Attribute is using constant value
-                    this.setConstantAttributeValue(location, value);
+                if (!onlyWhenDirty) {
+                    for (let i = 0; i < length; ++i) {
+                        const location = index + i;
+                        // Attribute is using constant value
+                        this.setConstantAttributeValue(location, value);
+                    }
                 }
                 continue;
             }
 
-            let attr = attribute as Attribute;
-            let instanced = attr.instanced;
+            const attr = attribute as Attribute;
+
+            if (onlyWhenDirty && !attr.dirty) {
+                continue;
+            }
+
+            this.initAttribute(attr);
+            // gl.bindBuffer(gl.ARRAY_BUFFER, buffers.get(attr));
 
             if (index == UNDEF) {
                 console.warn(this.name, ': attribute', name, 'not found');
             }
 
-            gl.bindBuffer(gl.ARRAY_BUFFER, buffers.get(attr));
-
-
-            const bytesPerElement = attr.bytesPerElement;
+            const {bytesPerElement, instanced} = attr;
             const attributeDivisor = Number(instanced) | 0;
-            // console.log('bytesPerElement',bytesPerElement);
-
             const stride = attr.stride ^ 0 + attr.size * bytesPerElement;
             const offset = attr.offset ^ 0;
             const size = attr.size / length;
@@ -389,7 +579,7 @@ class Program {
                 // this.glExtAngleInstancedArrays?.vertexAttribDivisorANGLE(location, Number(instanced));
                 attributeDivisors[location] = attributeDivisor;
                 if (instanced) {
-                    this.glExtAngleInstancedArrays?.vertexAttribDivisorANGLE(location, 1);
+                    this.glInstancing.vertexAttribDivisor(location, 1);
                 }
             }
         }
@@ -476,36 +666,38 @@ class Program {
         //     this.dbgGLState(geoBuffer);
         // }
 
-        for (let grp of groups) {
+        for (let g = 0, len = groups.length; g < len; g++) {
+            let grp = groups[g];
             let mode = grp.mode != UNDEF ? grp.mode : this.mode;
+
+            this.initBufferAttributes(geoBuffer, g);
 
             if (grp.uniforms) {
                 this.initUniforms(grp.uniforms);
             }
 
-            if ((<IndexGrp>grp).index) {
-                const index = (<IndexGrp>grp).index;
+            if ((<ElementsDrawCmd>grp).index) {
+                const index = (<ElementsDrawCmd>grp).index;
                 const count = index.length;
                 const type = index.type;
 
-                this.initIndex(index);
-
                 if (instances) {
-                    this.glExtAngleInstancedArrays?.drawElementsInstancedANGLE(mode, count, type, 0, instances);
+                    this.glInstancing.drawElementsInstanced(mode, count, type, 0, instances);
                 } else {
                     gl.drawElements(mode, count, type, 0);
                 }
             } else {
-                const first = (<ArrayGrp>grp).arrays.first;
-                const count = (<ArrayGrp>grp).arrays.count;
+                const first = (<ArrayDrawCmd>grp).arrays.first;
+                const count = (<ArrayDrawCmd>grp).arrays.count;
 
                 if (instances) {
-                    this.glExtAngleInstancedArrays?.drawArraysInstancedANGLE(mode, first, count, instances);
+                    this.glInstancing.drawArraysInstanced(mode, first, count, instances);
                 } else {
                     gl.drawArrays(mode, first, count);
                 }
             }
         }
+        // this.vaoManager.bindVAO(null);
     };
 
     private toggleCapability(glCapability: GLenum, enable: boolean) {
@@ -520,7 +712,7 @@ class Program {
         this.gl.blendFunc(sFactor, dFactor);
     }
 
-    initGeometryBuffer(geoBuffer: GeometryBuffer, pass: PASS, zIndex?: number) {
+    configureRenderState(geoBuffer: GeometryBuffer, pass: PASS, zIndex?: number) {
         const prog = this;
         const {gl, glStates} = prog;
 
@@ -564,15 +756,21 @@ class Program {
         gl.disable(gl.POLYGON_OFFSET_FILL);
     }
 
-    disableAttributes() {
+    disableAttributes(newProgramMaxAttr: number) {
+        // With VAOs, attribute enable/disable state is stored in the VAO,
+        // so manually disabling here is unnecessary (and can be counterproductive).
+        if (this.vaoManager.isVAOSupported) return;
+
         const {attributeLocations, attributeDivisors, gl} = this;
+        // can be optimised to just disable unused attributes.
+        // like: for (let i = newProgramMaxAttr; i < oldProgramMaxAttr; i++)...
         for (let name in attributeLocations) {
             let {index, length} = attributeLocations[name];
 
             while (length--) {
                 let i = index + length;
                 if (attributeDivisors[i]) {
-                    this.glExtAngleInstancedArrays?.vertexAttribDivisorANGLE(i, 0);
+                    this.glInstancing.vertexAttribDivisor(i, 0);
                     attributeDivisors[i] = 0;
                 }
                 gl.disableVertexAttribArray(i);
@@ -638,6 +836,35 @@ class Program {
         }
 
         this.gl.uniform2f(this.getUniformLocation('uHeightMapTileSize'), heightMapSize, tileSize);
+    }
+
+
+    prepareUniformBlocks(buffer: GeometryBuffer) {
+        // for (const layout of this.uniformBlocks || []) {
+        //     if (!buffer.hasUniformBlockInstance(layout.name)) {
+        //         const instance = new UniformBlockInstance(this.gl as WebGL2RenderingContext, layout);
+        //         buffer.setUniformBlockInstance(layout.name, instance);
+        //     }
+        // }
+    }
+
+    initBufferUniforms(geometryBuffer: GeometryBuffer, uniforms: CompiledUniformMap) {
+        for (let name in uniforms) {
+            const data = uniforms[name];
+            const isSimpleUniform = this.initUniform(name, data);
+            // if (!isSimpleUniform) {
+            //     const blockInstance = geometryBuffer.getUniformBlockInstanceOfField(name);
+            //     if (blockInstance?.dirty) {
+            //         blockInstance.setters[name](data);
+            //     }
+            // }
+        }
+        // geometryBuffer.uploadUniformBlocks();
+        // const gl = this.gl as WebGL2RenderingContext;
+        // for (const block of this.uniformBlocks) {
+        //     const blockInstance = geometryBuffer.getUniformBlockInstance(block.name);
+        //     gl.bindBufferBase(gl.UNIFORM_BUFFER, block.bindingPoint, blockInstance.glBuffer);
+        // }
     }
 }
 

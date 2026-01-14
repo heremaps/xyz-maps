@@ -89,6 +89,7 @@ type DrawGroup = {
     type: string;
     zLayer: number;
     depthTest: boolean;
+    collision: boolean;
     shared: {
         unit: string;
         font: string;
@@ -202,6 +203,12 @@ export class FeatureFactory {
         return type === 'Model' || type === 'Terrain';
     }
 
+    private createTextBuffer(isFlat: boolean, group: DrawGroup, rotationY): TextBuffer {
+        const buffer = new TextBuffer(isFlat, this.tileSize, rotationY != UNDEF);
+        buffer.addUniform('u_texture', new GlyphTexture(this.gl, group.shared));
+        return buffer;
+    }
+
     private createPoint(
         type: string,
         group: DrawGroup,
@@ -228,15 +235,8 @@ export class FeatureFactory {
         rotationZ = (rotationZ + 360) % 360;
 
         if (type == 'Text') {
-            if (!group.buffer) {
-                group.buffer = new TextBuffer(isFlat, this.tileSize, rotationY != UNDEF);
-                group.buffer.addUniform('u_texture', new GlyphTexture(this.gl, group.shared));
-            }
-            // if (!group.texture) {
-            //     group.texture = new GlyphTexture(this.gl, group.shared);
-            //     group.buffer = new TextBuffer(isFlat, rotationY != undefined);
-            // }
-            // const texture = <GlyphTexture>group.texture;
+            group.buffer ||= this.createTextBuffer(isFlat, group, rotationY);
+
             const texture = (<TextBuffer>group.buffer).uniforms.u_texture as GlyphTexture;
             const {flexAttributes} = group.buffer as TextBuffer;
 
@@ -395,7 +395,7 @@ export class FeatureFactory {
 
         if (collisionData && positionBuffer) {
             collisionData.attrs.push({
-                buffer: positionBuffer,
+                attr: positionBuffer,
                 start: collisionBufferStart,
                 stop: collisionBufferStop
             });
@@ -858,6 +858,7 @@ export class FeatureFactory {
                     zLayer,
                     depthTest,
                     pointerEvents,
+                    collision: typeof priority === 'number',
                     shared: {
                         unit: sizeUnit,
                         font,
@@ -997,15 +998,10 @@ export class FeatureFactory {
                             h = getValue('height', style, feature, level) || width;
                         } else if (type == 'Text') {
                             if (!group.buffer) {
-                                group.buffer = new TextBuffer(true, this.tileSize, true);
-                                group.buffer.addUniform('u_texture', new GlyphTexture(this.gl, style as FontStyle));
+                                const z = typeof altitude == 'number' ? altitude : altitude ? <number>coordinates[2] || 0 : null;
+                                group.buffer = this.createTextBuffer(z === null, group, true);
                             }
-                            let texture = (group.buffer as TemplateBuffer).uniforms.u_texture as GlyphTexture;
-                            // let {texture} = group;
-                            // if (!texture) {
-                            //     texture = group.texture = new GlyphTexture(this.gl, style);
-                            //     group.buffer = new TextBuffer(true, true);
-                            // }
+                            let texture = (group.buffer as TextBuffer).uniforms.u_texture;
                             const glyphAtlas = (<GlyphTexture>texture).getAtlas();
                             w = glyphAtlas.getTextWidth(text);
                             h = glyphAtlas.letterHeight;

@@ -19,7 +19,7 @@
 
 import {FlexAttribute, TemplateBuffer} from './TemplateBuffer';
 import {FlexArray} from './FlexArray';
-import {GeometryBuffer, IndexGrp} from '../GeometryBuffer';
+import {GeometryBuffer, ElementsDrawCmd} from '../GeometryBuffer';
 import {Raycaster} from '../../Raycaster';
 import {Attribute} from '../Attribute';
 
@@ -59,7 +59,7 @@ export class PolygonBuffer extends TemplateBuffer {
         let resultId = null;
 
         for (let group of buffer.groups) {
-            const indexData = (<IndexGrp>group).index?.data;
+            const indexData = (<ElementsDrawCmd>group).index?.data;
             let bufferIndex = null;
 
             if (group.mode == GeometryBuffer.MODE_GL_LINES) continue;

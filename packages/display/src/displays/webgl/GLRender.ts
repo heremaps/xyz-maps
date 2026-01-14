@@ -38,8 +38,13 @@ import VerticalLineProgram from './program/VerticalLine';
 import {createSkyBuffer, createSkyMatrix, SkyProgram} from './program/Sky';
 import Program, {ColorMask, UniformMap, CompiledUniformMap} from './program/Program';
 
-import {createGridTextBuffer, createGridTileBuffer, createStencilTileBuffer, StencilTileBuffer} from './buffer/debugTileBuffer';
-import {GeometryBuffer, IndexData, IndexGrp} from './buffer/GeometryBuffer';
+import {
+    createGridTextBuffer,
+    createGridTileBuffer,
+    createStencilTileBuffer,
+    StencilTileBuffer
+} from './buffer/debugTileBuffer';
+import {GeometryBuffer, IndexData, ElementsDrawCmd} from './buffer/GeometryBuffer';
 
 import {PASS} from './program/GLStates';
 import {GRID_PITCH_CLAMP} from './Display';
@@ -72,6 +77,8 @@ import {ViewportTile} from '../BasicDisplay';
 import {RenderTile} from './RenderTile';
 
 import toRGB = Color.toRGB;
+import {createViewUBO, UBO} from './UBO';
+import {VAOManager} from './VAOManager';
 
 
 const mat4 = {
@@ -210,6 +217,11 @@ export class GLRender implements BasicRender {
     };
     private bufferLightUniforms: CompiledUniformMap;
     private terrainHeightMapCache: HeightMapTileCache;
+    private ubo: {
+        view: UBO;
+        lights: UBO
+    };
+    private vaoManager: VAOManager;
 
     constructor(renderOptions: RenderOptions) {
         this.ctxAttr = {
@@ -222,7 +234,21 @@ export class GLRender implements BasicRender {
             ...renderOptions
         };
 
-        this.vPMat = mat4.create();
+
+        this.ubo = {
+            view: createViewUBO(0),
+            // view: {
+            //     data: new Float32Array(4*4 + 2),
+            //     index: 0,
+            //     buffer: null
+            // },
+            lights: {
+                index: 1,
+                buffer: null
+            }
+        };
+        this.vPMat = this.ubo.view.data.subarray(0, 16);
+        // this.vPMat = new Float32Array(16);
         this.vPRasterMat = mat4.create();
         this.vMat = mat4.create();
         this.invVPMat = mat4.create();
@@ -234,7 +260,6 @@ export class GLRender implements BasicRender {
 
         this.localCamera = new Float64Array(3);
     }
-
     getContext(): WebGLRenderingContext {
         return this.gl;
     }
@@ -303,23 +328,39 @@ export class GLRender implements BasicRender {
         this.reservedStencils.clear();
     }
 
+    isWebGL2: boolean;
 
     init(canvas: HTMLCanvasElement, devicePixelRation: number, terrainHeightMapTextures: HeightMapTileCache): void {
         this.dpr = devicePixelRation;
 
-        const gl = <WebGLRenderingContext>canvas.getContext('webgl', this.ctxAttr);
-
+        // const gl = canvas.getContext('webgl', this.ctxAttr);
+        const gl = canvas.getContext('webgl2', this.ctxAttr) || canvas.getContext('webgl', this.ctxAttr);
+        this.isWebGL2 = gl instanceof WebGL2RenderingContext;
         // @ts-ignore
         gl.dpr = devicePixelRation;
 
         this.startTime = Date.now();
 
         this.gl = gl;
-        this.glExt = new GLExtensions(gl, [
+
+        this.vaoManager = new VAOManager(gl);
+
+        // initialize UBO buffers
+        if (this.isWebGL2) {
+            for (let name in this.ubo) {
+                const ubo = this.ubo[name];
+                ubo.buffer ||= gl.createBuffer();
+                const gl2 = (gl as WebGL2RenderingContext);
+                gl2.bindBufferBase(gl2.UNIFORM_BUFFER, ubo.index, ubo.buffer);
+            }
+        }
+
+
+        this.glExt = new GLExtensions(gl, !this.isWebGL2 ? [
             EXTENSION_OES_ELEMENT_INDEX_UINT,
             EXTENSION_ANGLE_INSTANCED_ARRAYS,
             EXTENSION_OES_TEXTURE_FLOAT
-        ]);
+        ] : []);
 
         this.terrainHeightMapCache = terrainHeightMapTextures;
         this.terrainHeightMapCache.initEmptyTexture(this.gl);
@@ -376,10 +417,7 @@ export class GLRender implements BasicRender {
 
         const program = programs[name] = new Prog(gl, dpr, macros);
 
-        program.init(
-            this.buffers,
-            this.glExt.getExtension(EXTENSION_ANGLE_INSTANCED_ARRAYS)
-        );
+        program.init(this.buffers, this.glExt, this.vaoManager, this.ubo);
 
         return program;
     }
@@ -595,6 +633,28 @@ export class GLRender implements BasicRender {
     private getCameraElevationMeters(): number {
         return -this.cameraWorld[2];
         // return -this.cameraWorld[2] / this.zMeterToPixel;
+
+        this.updateViewUBO();
+    }
+
+    private updateViewUBO() {
+        if (this.isWebGL2) {
+            const viewUbo = this.ubo.view;
+
+            // resolution
+            viewUbo.data[16] = this.resolution[0];
+            viewUbo.data[17] = this.resolution[1];
+
+            const gl = this.gl as WebGL2RenderingContext;
+            gl.bindBuffer(gl.UNIFORM_BUFFER, viewUbo.buffer);
+            gl.bufferData(gl.UNIFORM_BUFFER, viewUbo.data, gl.DYNAMIC_DRAW);
+
+            // gl.bufferData(gl.UNIFORM_BUFFER, this.vPMat, gl.DYNAMIC_DRAW);
+            // gl.bufferSubData(gl.UNIFORM_BUFFER, 0, viewMatrix);
+            // gl.bufferSubData(gl.UNIFORM_BUFFER, 64, new Float32Array([tileScale]));
+            // Bind to binding point 0
+            // gl.bindBufferBase(gl.UNIFORM_BUFFER, viewUbo.index, viewUbo.buffer);
+        }
     }
 
     private initDisplayUniforms() {
@@ -626,10 +686,11 @@ export class GLRender implements BasicRender {
 
             if (activeProgam) {
                 // disable bound Attributes from previous program.
-                activeProgam.disableAttributes();
+                activeProgam.disableAttributes(prog.activeAttributes);
             }
 
             gl.useProgram(prog.prog);
+            // prog.initializeUBOs(this.ubo);
             this.prog = prog;
             return true;
         }
@@ -678,9 +739,13 @@ export class GLRender implements BasicRender {
         }
 
         for (let grp of buffer.groups) {
-            const index = (<IndexGrp>grp).index;
+            const index = (<ElementsDrawCmd>grp).index;
             if (index) {
                 gl.deleteBuffer(buffers.get(index));
+            }
+            if (grp.vao) {
+                this.vaoManager.deleteVAO(grp.vao);
+                grp.vao = null;
             }
         }
 
@@ -741,13 +806,15 @@ export class GLRender implements BasicRender {
         uniforms: CompiledUniformMap = buffer.getUniformData(),
         cameraWorld?: Float64Array
     ) {
-        const bufAttributes = buffer.getAttributes();
+        // const bufAttributes = buffer.getAttributes();
         this.useProgram(program);
         program.setResolution(this.resolution);
-        program.initBuffers(bufAttributes);
+        // program.initBuffers(bufAttributes);
 
-        program.initGeometryBuffer(buffer, renderPass, this.zIndex);
-        program.initAttributes(bufAttributes);
+        program.prepareUniformBlocks(buffer);
+
+        program.configureRenderState(buffer, renderPass, this.zIndex);
+        // program.initBufferAttributes(buffer);
 
         program.initUniforms(this.sharedUniforms);
         program.initViewUniforms(this.viewUniforms);
@@ -755,7 +822,7 @@ export class GLRender implements BasicRender {
         if (buffer.light && this.bufferLightUniforms) {
             program.initLight(this.bufferLightUniforms, cameraWorld || this.cameraWorld);
         }
-        program.initUniforms(uniforms);
+        program.initBufferUniforms(buffer, uniforms);
         program.initHeightMap(buffer, this.terrainHeightMapCache);
     }
 
@@ -875,6 +942,7 @@ export class GLRender implements BasicRender {
                 }
 
                 program.draw(buffer, isScaledTile);
+                // this.vaoManager.bindVAO(null);
             }
         } else console.warn('no program found', buffer.type);
     }
@@ -1140,8 +1208,7 @@ export class GLRender implements BasicRender {
         layer.render(gl, render.worldMatrix);
 
         // make sure vao gets unbound in case of being used to prevent possible side effects
-        this.glExt.getExtension('OES_vertex_array_object')?.bindVertexArrayOES(null);
-
+        this.vaoManager.bindVAO(null);
         // make sure canvas framebuffer is used
         gl.bindFramebuffer(gl.FRAMEBUFFER, null);
 

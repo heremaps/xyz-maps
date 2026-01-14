@@ -18,7 +18,7 @@
  */
 
 import {ModelBuffer} from './ModelBuffer';
-import {GeometryBuffer, IndexGrp} from '../GeometryBuffer';
+import {GeometryBuffer, ElementsDrawCmd} from '../GeometryBuffer';
 import {Attribute} from '../Attribute';
 import {Raycaster} from '../../Raycaster';
 import {Texture} from '../../Texture';
@@ -95,7 +95,7 @@ export class TerrainModelBuffer extends ModelBuffer {
             const translateZ = modelMatrix[m + 14] + positionOffsetData[i + 2];
 
             for (let group of buffer.groups) {
-                const indexData = (<IndexGrp>group).index?.data;
+                const indexData = (<ElementsDrawCmd>group).index?.data;
 
                 if (group.mode == GeometryBuffer.MODE_GL_LINES) continue;
 

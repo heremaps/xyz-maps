@@ -38,7 +38,7 @@ export type BBox = {
 
 export type CollisionData = {
     boxes: BBox[],
-    attrs: { start: number, stop: number, buffer: Attribute | FlexAttribute }[],
+    attrs: { start: number, stop: number, attr: Attribute | FlexAttribute }[],
     priority: number,
     cx?: number,
     cy?: number,
@@ -411,7 +411,6 @@ export class CollisionHandler {
         let {tileKey, data, tileCache, tileSize, layer} = this.curLayerTileCollision;
 
         this.curLayerTileCollision = null;
-
         const tileCollisionData = tileCache.get(tileKey) || {};
         tileCollisionData[this.getLayerId(layer)] = data;
         tileCache.set(tileKey, tileCollisionData);
@@ -577,9 +576,9 @@ export class CollisionHandler {
         if (!intersects) {
             visibleItems[visibleItems.length] = bbox;
         }
-
-        for (let {buffer, start, stop} of bbox.attrs) {
-            const {data, size} = buffer;
+        // const updatedX = new Uint16Array(1);
+        for (let {attr, start, stop} of bbox.attrs) {
+            const {data, size} = attr;
             const visible = (data[start] & 1) == 1;
             if (
                 // Hide all buffers (intersects && visible) or
@@ -588,9 +587,15 @@ export class CollisionHandler {
             ) {
                 while (start < stop) {
                     data[start] ^= 1; // toggle LSB
+                    // updatedX[0] = data[start];
+                    // attr.gl.bindBuffer(attr.gl.ARRAY_BUFFER, attr.buffer);
+                    // attr.gl.bufferSubData(attr.gl.ARRAY_BUFFER,
+                    //     start * Uint16Array.BYTES_PER_ELEMENT, // Correct byte offset,
+                    //     updatedX
+                    // ); // Update only the x value
                     start += size;
                 }
-                (<Attribute>buffer).dirty = true;
+                (<Attribute>attr).dirty = true;
                 updated = true;
             }
         }

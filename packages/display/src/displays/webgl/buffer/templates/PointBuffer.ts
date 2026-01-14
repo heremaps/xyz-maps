@@ -76,7 +76,9 @@ export class PointBuffer extends TemplateBuffer {
             // vertex
             a_position: {
                 data: new FlexArray(Uint16Array),
-                size: flat ? 2 : 3
+                size: flat ? 2 : 3,
+                // Marked as dynamic since collision detection may modify LSB of the x component to indicate visibility
+                dynamic: true
             }
         };
 

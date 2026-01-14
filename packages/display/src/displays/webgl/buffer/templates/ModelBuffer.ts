@@ -19,7 +19,7 @@
 
 import {FlexArray} from './FlexArray';
 import {ConstantAttribute, FlexAttribute, TemplateBuffer} from './TemplateBuffer';
-import {GeometryBuffer, IndexGrp} from '../GeometryBuffer';
+import {GeometryBuffer, ElementsDrawCmd} from '../GeometryBuffer';
 import {Raycaster} from '../../Raycaster';
 import {multiply, create as createMat4, fromRotationTranslationScale} from 'gl-matrix/mat4';
 import {normalFromMat4, create as createMat3} from 'gl-matrix/mat3';
@@ -412,7 +412,7 @@ export class ModelBuffer extends TemplateBuffer {
             const translateZ = modelMatrix[m + 14] + positionOffsetData[i + 2];
 
             for (let group of buffer.groups) {
-                const indexData = (<IndexGrp>group).index?.data;
+                const indexData = (<ElementsDrawCmd>group).index?.data;
 
                 if (group.mode == GeometryBuffer.MODE_GL_LINES) continue;
 

@@ -28,11 +28,11 @@ export type ImageData = HTMLCanvasElement | HTMLImageElement | ImageBitmap | Tex
 const isPowerOf2 = (size: number) => (size & (size - 1)) == 0;
 
 export type TextureOptions = {
+    type?: GLenum,
     flipY?: boolean,
     format?: GLenum,
     internalFormat?: GLenum;
     float?: boolean;
-    halfFloat?: boolean,
     premultiplyAlpha?: boolean,
     mipMaps?: boolean
     wrapS?: GLenum;
@@ -67,7 +67,6 @@ class Texture {
     protected gl: WebGLRenderingContext;
 
     private flipY: boolean;
-    private halfFloat: boolean;
     private premultiplyAlpha: boolean;
     private mipMaps: boolean;
     private wrapS: GLenum;
@@ -85,10 +84,9 @@ class Texture {
         this.format = options.format || gl.RGBA;
         this.internalFormat = options.internalFormat || this.format;
         this.flipY = options.flipY || false;
-        this.halfFloat = options.halfFloat || false;
 
         let mipmaps = options.mipMaps ?? true;
-        let type = gl.UNSIGNED_BYTE;
+        let type = options.type ?? gl.UNSIGNED_BYTE;
 
         const textureData = (image as TextureData)?.data;
         const float = options.float || textureData instanceof Float32Array;
@@ -101,14 +99,16 @@ class Texture {
             type = gl.FLOAT;
             if (!(options.format && options.internalFormat)) {
                 // this.format = this.internalFormat = gl.RGBA;
-                this.format = this.internalFormat = gl.LUMINANCE; // mock gl.R32F
+                if (gl instanceof WebGL2RenderingContext) {
+                    this.internalFormat = gl.R32F;
+                    this.format = gl.RED;
+                } else {
+                    this.format = this.internalFormat = gl.LUMINANCE; // mock gl.R32F
+                }
             }
             minFilter = magFilter = gl.NEAREST;
             (image as TextureData).width ??= Math.sqrt(textureData.length);
             (image as TextureData).height ??= (image as TextureData).width;
-        } else if (this.halfFloat) {
-            type = gl.getExtension('OES_texture_half_float')?.HALF_FLOAT_OES;
-            gl.getExtension('OES_texture_half_float_linear');
         }
 
         this.type = type;

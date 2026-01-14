@@ -265,7 +265,7 @@ export class FactoryTask extends Task<TaskInput, TaskData> {
                                     geoBuffer.addUniform('u_strokePass', 0);
 
                                     if (shared.stroke) {
-                                        const indexGroup = geoBuffer.addGroup(grp.extrudeStrokeIndex, grpBuffer.i32, 1);
+                                        const indexGroup = geoBuffer.addDrawCmd(grp.extrudeStrokeIndex, grpBuffer.i32, 1);
                                         indexGroup.uniforms = {
                                             'u_strokePass': 1,
                                             'u_stroke': shared.stroke
@@ -383,7 +383,7 @@ export class FactoryTask extends Task<TaskInput, TaskData> {
 
                                     const {showWireframe} = taskData;
                                     if (showWireframe) {
-                                        const wireFrame = geoBuffer.addGroup(
+                                        const wireFrame = geoBuffer.addDrawCmd(
                                             (grpBuffer as ModelBuffer).generateWireframeIndices(),
                                             grpBuffer.i32,
                                             GeometryBuffer.MODE_GL_LINES

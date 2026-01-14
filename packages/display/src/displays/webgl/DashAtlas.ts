@@ -17,10 +17,11 @@
  * License-Filename: LICENSE
  */
 import {SharedTexture} from './Atlas';
+import {TextureOptions} from './Texture';
 
 type DashArray = number[];
 
-type DashTexture = { texture: SharedTexture, scale: number};
+type DashTexture = { texture: SharedTexture, scale: number };
 
 class DashAtlas {
     private gl: WebGLRenderingContext;
@@ -28,9 +29,17 @@ class DashAtlas {
 
     // scale by 10 to allow 0.1 meter precision
     scale: number = 10;
+    private textureOptions: TextureOptions;
 
     constructor(gl: WebGLRenderingContext) {
         this.gl = gl;
+
+        this.textureOptions = gl instanceof WebGL2RenderingContext ? {
+            format: gl.RED,
+            internalFormat: gl.R8
+        } : {
+            format: gl.LUMINANCE
+        };
     }
 
     private create(dashArray: DashArray) {
@@ -62,16 +71,13 @@ class DashAtlas {
                 width: pixels.length,
                 height: 1,
                 data: pixels
-            }, {
-                format: gl.LUMINANCE
-            })
+            }, this.textureOptions)
         };
     }
 
     get(dashArray: DashArray): DashTexture {
         const id = String(dashArray);
         let dashData = this.data[id];
-
         if (!dashData) {
             dashData = this.data[id] = this.create(dashArray);
         }

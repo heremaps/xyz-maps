@@ -19,14 +19,64 @@
 
 const dumpError = window.console.error;
 
-export const loadShader = (gl: WebGLRenderingContext, shaderSource: string, shaderType: number, onError: (error) => void = dumpError) => {
+const webglShaderVersion300 = '#version 300 es';
+const downgradeToWebGL1 = (shaderSrc: string, isFragmentShader: boolean = false) => {
+    if (shaderSrc.includes(webglShaderVersion300)) {
+        console.warn('WebGL2 not supported: Converting Shader to WebGL1.');
+        shaderSrc = shaderSrc
+            // Remove WebGL2 Version
+            .replace(webglShaderVersion300, '')
+            // Convert Uniform Blocks to Simple Uniforms
+            .replace(/\blayout\s*\(.*?\)\s*uniform\s+(\w+)\s*{([\s\S]*?)};/g, (_, blockName, uniforms) => {
+                return uniforms.trim().replace(/\b([\w\d_]+)\s+([\w\d_]+)\s*;/g, 'uniform $1 $2;');
+            })
+            // Convert `in` → `attribute` (Vertex) or `varying` (Fragment)
+            .replace(/\bin\s+((?:lowp|mediump|highp)\s+)?(\w+)\s+(\w+);/g, (_, precision, type, name) =>
+                isFragmentShader
+                    ? `varying ${precision ?? ''}${type} ${name};`
+                    : `attribute ${precision ?? ''}${type} ${name};`
+            )
+            // Convert `out` in Vertex Shaders to `varying`
+            .replace(/\bout\s+(\w+)\s+(\w+);/g, (match, type, name) => isFragmentShader ? '' : `varying ${type} ${name};`) // Drop `out` only in fragments
+            // Ensure `gl_FragColor` is used in Fragment Shaders if `fragColor` is found
+            .replace(/\bfragColor\b/g, 'gl_FragColor')
+            // Convert `texture()` to `texture2D()` in Fragment Shaders
+            .replace(/\btexture\(/g, 'texture2D(')
+            // Remove `flat` qualifiers (WebGL1 does not support it)
+            .replace(/\bflat\s+/g, '')
+            // Remove `centroid` qualifiers (WebGL1 does not support it)
+            .replace(/\bcentroid\s+/g, '')
+            // Convert `sampler2DArray` and `sampler3D` to `sampler2D` (Warning: May not work as intended)
+            .replace(/\bsampler2DArray\b/g, 'sampler2D')
+            .replace(/\bsampler3D\b/g, 'sampler2D');
+
+        // Warn about unsupported functions
+        for (let feature of ['dFdx', 'dFdy', 'textureSize'] ) {
+            shaderSrc = shaderSrc.replace(feature, `/* UNSUPPORTED in WebGL1: ${feature}( */`);
+        }
+        // Ensure `precision` is declared in Fragment Shader (WebGL1 requires it)
+        if (isFragmentShader && !/precision\s+\w+\s+float\s*;/.test(shaderSrc)) {
+            shaderSrc = `precision lowp float;\n${shaderSrc}`;
+        }
+        // console.log(shaderSrc);
+    }
+    return shaderSrc;
+};
+
+
+export const loadShader = (gl: WebGLRenderingContext, shaderSource: string, shaderType: number) => {
     const shader = gl.createShader(shaderType);
+
+    if (gl instanceof WebGLRenderingContext) {
+        shaderSource = downgradeToWebGL1(shaderSource, shaderType == gl.FRAGMENT_SHADER);
+    }
+
     gl.shaderSource(shader, shaderSource);
     gl.compileShader(shader);
     let compiled = gl.getShaderParameter(shader, gl.COMPILE_STATUS);
     if (!compiled) {
         let lastError = gl.getShaderInfoLog(shader);
-        onError('compileShader ' + lastError);
+        dumpError('compileShader ' + lastError);
         gl.deleteShader(shader);
         return null;
     }
@@ -79,7 +129,6 @@ export const preprocessShaderIncludes = (source: string, includes: {
         const endMarker = '#end';
         const blockPattern = new RegExp(`${beginMarker}\\s+${blockName}[\\s\\S]*?${endMarker}\\s+${blockName}`, 'g');
         const match = source.match(blockPattern);
-
         return match?.[0].replace(`${beginMarker} ${blockName}`, '').replace(`${endMarker} ${blockName}`, '').trim();
     }
 
@@ -87,10 +136,10 @@ export const preprocessShaderIncludes = (source: string, includes: {
         let includeSource = includes[includeFile];
         if (includeSource) {
             if (blockName) {
-                const blockSrc = extractBlock(includeSource, blockName);
+                let blockSrc = extractBlock(includeSource, blockName);
                 if (blockSrc == null) {
                     onError(`Block "${blockName}" not found in "${includeFile}".`);
-                    return;
+                    blockSrc = '';
                 }
                 includeSource = blockSrc;
             }
@@ -100,3 +149,10 @@ export const preprocessShaderIncludes = (source: string, includes: {
     });
 };
 
+export const positionGLSLVersion = (shaderSrc: string): string => {
+    if (shaderSrc.includes(webglShaderVersion300)) {
+        shaderSrc = shaderSrc.replace(webglShaderVersion300, '').trim();
+        shaderSrc = `${webglShaderVersion300}\n${shaderSrc}`;
+    }
+    return shaderSrc;
+};

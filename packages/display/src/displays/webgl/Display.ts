@@ -717,7 +717,7 @@ class WebGlDisplay extends BasicDisplay {
             for (let screenTile of display.tiles) {
                 for (let layer of display.layers) {
                     if (!layer.skipDbgGrid && layer.tiles.indexOf(screenTile) !== -1) {
-                        render.drawGrid(screenTile.x, screenTile.y, <GLTile>screenTile.tile, screenTile.size * screenTile.scale);
+                        render.drawGrid(screenTile.x, screenTile.y, <GLTile>screenTile.tile, screenTile.scaledSize);
                         break;
                     }
                 }

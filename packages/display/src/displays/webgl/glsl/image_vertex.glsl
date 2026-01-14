@@ -2,14 +2,11 @@ precision lowp float;
 
 attribute vec2 a_position;
 attribute vec2 a_textureCoord;
-
 uniform highp mat4 u_matrix;
 uniform highp vec2 u_topLeft;
-uniform highp vec2 u_resolution;
 uniform float u_tileScale;
-//uniform bool u_fixedView;
+uniform highp vec2 u_resolution;
 varying vec2 v_textureCoord;
-uniform float u_scale;
 
 void main(void){
     v_textureCoord = a_textureCoord;

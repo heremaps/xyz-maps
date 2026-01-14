@@ -58,10 +58,10 @@ class ExtrudeProgram extends Program {
         this.fragmentShaderSrc = fragmentShader;
     }
 
-    initGeometryBuffer(options: GeometryBuffer, pass: PASS) {
+    configureRenderState(options: GeometryBuffer, pass: PASS) {
         const {gl} = this;
 
-        super.initGeometryBuffer(options, pass);
+        super.configureRenderState(options, pass);
 
         // handle coplanar lines and polygons (stroke of extruded polygons)
         gl.polygonOffset(1, 1);

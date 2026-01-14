@@ -139,7 +139,10 @@ describe('zoom in 20+', function() {
             strokeWidth: 14
         }]);
 
-        display.setCenter(-77.0077688, 38.9011329);
+
+        await waitForViewportReady(display, () => {
+            display.setCenter(-77.0077688, 38.9011329);
+        });
 
         const color = await getCanvasPixelColor(mapContainer, {x: 400, y: 300});
         expect(color).to.equal('#0000ff');

@@ -26,6 +26,7 @@ import {PASS} from '../program/GLStates';
 import {Expression} from '@here/xyz-maps-common';
 import {TilePreviewInfo} from '../../Preview';
 import {HeightMapTileCache} from '../HeightMapTileCache';
+import {UniformBlockLayout, UniformBlockInstance, UniformBlockFieldSetter} from '../UniformBlock';
 
 type Uniforms = { [name: string]: Uniform };
 
@@ -45,17 +46,18 @@ export type ArrayData = {
     mode?: number;
 };
 
-export type ArrayGrp = {
-    arrays: ArrayData,
+type DrawCmdBase = {
     mode?: number,
     uniforms?: Uniforms,
-    attributes?: { [name: string]: Attribute }
+    attributes?: { [name: string]: Attribute },
+    vao?: WebGLVertexArrayObject | WebGLVertexArrayObjectOES
+}
+
+export type ArrayDrawCmd = DrawCmdBase & {
+    arrays: ArrayData
 };
-export type IndexGrp = {
-    index: IndexData,
-    mode?: number,
-    uniforms?: Uniforms,
-    attributes?: { [name: string]: Attribute }
+export type ElementsDrawCmd = DrawCmdBase & {
+    index: IndexData
 };
 
 type IndexArray = number[] | Uint32Array | Uint16Array;
@@ -131,7 +133,7 @@ class GeometryBuffer {
     blend?: boolean;
     mode?: number; // primitive to render
     flat: boolean = true;
-    groups: (IndexGrp | ArrayGrp)[] = [];
+    groups: (ElementsDrawCmd | ArrayDrawCmd)[] = [];
     idOffsets?: (string | number)[];
     pointerEvents?: boolean;
     instances: number = 0;
@@ -153,6 +155,8 @@ class GeometryBuffer {
     colorMask?: { r: boolean, g: boolean, b: boolean, a: boolean };
     light?: string;
 
+    private uniformBlocks: Map<string, UniformBlockInstance>;
+    private uniformBlockByField: Map<string, UniformBlockInstance>;
 
     /**
      * Reference or requirement flag for the height map associated with this buffer.
@@ -271,12 +275,15 @@ class GeometryBuffer {
 
     constructor(index?: ArrayData | IndexArray, type?: string, i32?: boolean) {
         if (index) {
-            this.addGroup(index, i32);
+            this.addDrawCmd(index, i32);
             this.type = type;
         }
+
+        // this.uniformBlocks = new Map();
+        // this.uniformBlockByField = new Map();
     }
 
-    private createIndex(index: number[] | Uint16Array | Uint32Array, i32?: boolean): IndexGrp {
+    private createElementsDrawCmd(index: number[] | Uint16Array | Uint32Array, i32?: boolean): ElementsDrawCmd {
         const data = Array.isArray(index) ?
             i32 ? new Uint32Array(index) : new Uint16Array(index)
             : index;
@@ -296,19 +303,19 @@ class GeometryBuffer {
         };
     }
 
-    private createArrays(arrays: ArrayData) {
+    private createArrayDrawCmd(arrays: ArrayData) {
         // this.arrays = arrays;
         return {arrays};
     }
 
-    addGroup(grp: ArrayData | IndexArray, i32?: boolean, mode?: number): IndexGrp | ArrayGrp {
-        if (grp) {
-            let group: IndexGrp | ArrayGrp;
+    addDrawCmd(cmd: ArrayData | IndexArray, i32?: boolean, mode?: number): ElementsDrawCmd | ArrayDrawCmd {
+        if (cmd) {
+            let group: ElementsDrawCmd | ArrayDrawCmd;
 
-            if ((<ArrayData>grp).first != UNDEF) {
-                group = this.createArrays(<ArrayData>grp);
+            if ((<ArrayData>cmd).first != UNDEF) {
+                group = this.createArrayDrawCmd(<ArrayData>cmd);
             } else {
-                group = this.createIndex(<IndexArray>grp, i32);
+                group = this.createElementsDrawCmd(<IndexArray>cmd, i32);
             }
 
             if (mode) {
@@ -326,12 +333,14 @@ class GeometryBuffer {
         return this.uniforms[name];
     }
 
-    addAttribute(name: string, attr: Attribute, attributes = this.attributes) {
+    addAttribute(name: string, attr: Attribute, dynamic?: boolean) {
         const {data} = attr;
 
         attr.type = glType(data);
 
         attr.bytesPerElement = data.BYTES_PER_ELEMENT;
+
+        attr.dynamic &&= dynamic;
 
         if (attr.stride == UNDEF) {
             attr.stride = 0;
@@ -341,14 +350,12 @@ class GeometryBuffer {
             attr.dirty = true;
         }
 
-        attributes[name] = attr;
-
-        // this.size = data.length;
+        this.attributes[name] = attr;
     }
 
     computeNormals(
         vertex: TypedArray = (this.attributes.a_position as Attribute)?.data,
-        index: TypedArray = (<IndexGrp> this.groups[0]).index?.data
+        index: TypedArray = (<ElementsDrawCmd> this.groups[0]).index?.data
     ) {
         return GeometryBuffer.computeNormals(vertex, index);
     }
@@ -359,6 +366,16 @@ class GeometryBuffer {
 
     destroy(buffer: GeometryBuffer) {
 
+    }
+
+    dirty() {
+        for (let name in this.attributes) {
+            let attribute = this.attributes[name];
+            if ((attribute as Attribute).dirty === true) {
+                return true;
+            }
+        }
+        return false;
     }
 
     isPointBuffer() {
@@ -442,6 +459,49 @@ class GeometryBuffer {
     getRenderSpace(): 'world' | 'screen' {
         const alignMap = this.getUniform('u_alignMap') ?? true;
         return alignMap ? 'world' : 'screen';
+    }
+
+    hasUniformBlockInstance(name: string): boolean {
+        return this.uniformBlocks.has(name);
+    }
+
+    getUniformBlockInstance(name: string): UniformBlockInstance | undefined {
+        return this.uniformBlocks.get(name);
+    }
+
+    getUniformBlockInstanceOfField(fieldName: string): UniformBlockInstance | undefined {
+        return this.uniformBlockByField.get(fieldName);
+        // for (const block of this.uniformBlocks.values()) {
+        //     if (fieldName in block.setters) {
+        //         return block;
+        //     }
+        // }
+        // return undefined;
+    }
+    // uniformBlockFieldSetter: {[fieldName:string]: UniformBlockFieldSetter} = {};
+    setUniformBlockInstance(name: string, instance: UniformBlockInstance) {
+        // this.uniformBlocks.set(name, instance);
+        // If overwriting an existing block, remove its indexed fields first
+        const prev = this.uniformBlocks.get(name);
+        if (prev) {
+            for (const field of Object.keys(prev.setters)) {
+                this.uniformBlockByField.delete(field);
+            }
+        }
+
+        this.uniformBlocks.set(name, instance);
+
+        // Index fields for O(1) lookup
+        for (const field of Object.keys(instance.setters)) {
+            this.uniformBlockByField.set(field, instance);
+        }
+    }
+
+    uploadUniformBlocks() {
+        for (const block of this.uniformBlocks.values()) {
+            if (!block.dirty) continue;
+            block.upload();
+        }
     }
 }
 

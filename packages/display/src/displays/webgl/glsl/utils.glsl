@@ -1,3 +1,12 @@
+#begin snapToScreenPixel
+vec4 snapToScreenPixel(vec4 position, vec2 resolution) {
+    resolution *= DEVICE_PIXEL_RATIO;
+    vec2 screenPixel = ((position.xy / position.w + 1.0) / 2.0) * resolution;
+    position.xy = (round(screenPixel) / resolution * 2.0 - 1.0) * position.w;
+    return position;
+}
+#end snapToScreenPixel
+
 #begin heightMapUtils
 #if defined(USE_HEIGHTMAP) || defined(TERRAIN_MODEL_HM)
 uniform sampler2D uHeightMap;

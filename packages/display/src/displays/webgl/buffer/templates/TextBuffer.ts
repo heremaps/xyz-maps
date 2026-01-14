@@ -46,7 +46,9 @@ export class TextBuffer extends TemplateBuffer {
             // LSB x,y defines visibility -> 14bit position precision (use LSB:x only to increase to 15bit)
             a_position: {
                 data: new FlexArray(Uint16Array),
-                size: flat ? 2 : 3
+                size: flat ? 2 : 3,
+                // Marked as dynamic since collision detection may modify LSB of the x component to indicate visibility
+                dynamic: true
             },
             a_point: {
                 data: new FlexArray(Int16Array),

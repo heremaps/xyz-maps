@@ -16,7 +16,6 @@ struct DirectionalLight {
 
 uniform EmissiveLight u_emissive;
 uniform AmbientLight u_ambient;
-
 uniform DirectionalLight u_directionalLight[MAX_DIR_LIGTHS];
 uniform int u_numDirectionalLights;
 

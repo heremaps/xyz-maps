@@ -27,6 +27,8 @@ import {FlexAttribute} from './templates/TemplateBuffer';
 import {PASS} from '../program/GLStates';
 import {createImageBuffer} from './createImageBuffer';
 import {Color as ColorUtils} from '@here/xyz-maps-common';
+import {Attribute} from './Attribute';
+
 import {CompiledUniformMap} from '../program/Program';
 
 const {toRGB} = ColorUtils;
@@ -46,7 +48,10 @@ export const createStencilTileBuffer = (tileSize: number, gl: WebGLRenderingCont
     return tileBuffer;
 };
 
-const createGridTileBuffer = (tileSize: number = 1, color: number[] = [1.0, 0.0, 0.0, 1.0], strokeWidth: number = 2) => {
+
+type GridTileBuffer = GeometryBuffer & { setSize(size: number); };
+
+const createGridTileBuffer = (tileSize: number = 1, color: number[] = [1.0, 0.0, 0.0, 1.0], strokeWidth: number = 2): GridTileBuffer => {
     const lineBuffer = new LineBuffer();
     const {flexAttributes} = lineBuffer;
 
@@ -65,7 +70,7 @@ const createGridTileBuffer = (tileSize: number = 1, color: number[] = [1.0, 0.0,
         strokeWidth
     );
 
-    const geoBuffer = lineBuffer.finalize('Line');
+    const geoBuffer = lineBuffer.finalize('Line') as GridTileBuffer;
 
     geoBuffer.addUniform('u_zIndex', 0.0);
     geoBuffer.addUniform('u_fill', color);
@@ -75,6 +80,17 @@ const createGridTileBuffer = (tileSize: number = 1, color: number[] = [1.0, 0.0,
     geoBuffer.clip = false;
     geoBuffer.depth = false;
     geoBuffer.pass = PASS.ALPHA;
+
+    geoBuffer.setSize = (size: number) => {
+        const position = geoBuffer.attributes.a_position as Attribute;
+        const {data} = position;
+        for (let i = 0; i < data.length; i++) {
+            if (data[i] && data[i] != size) {
+                data[i] = size;
+                position.dirty = true;
+            }
+        }
+    };
 
     return geoBuffer;
 };

@@ -1,6 +1,7 @@
+#version 300 es
 precision lowp float;
 
-attribute vec3 a_position;
+in vec3 a_position;
 
 uniform vec2 u_offsetZ;
 uniform float u_scale;
