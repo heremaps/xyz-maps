@@ -1187,6 +1187,9 @@ export class GLRender implements BasicRender {
     }
 
     destroy(): void {
+        for (let progName in this.programs) {
+            this.programs[progName].delete();
+        }
     }
 
     prepare(INSTRUCTIONS: any, tile: Tile, layer: TileLayer, display: any, dTile: BasicTile, cb: () => void): void {

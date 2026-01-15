@@ -22,9 +22,10 @@ import vertexShader from '../glsl/heatmap_vertex.glsl';
 // @ts-ignore
 import fragmentShader from '../glsl/heatmap_fragment.glsl';
 
+import {FrameBuffer} from '../FrameBuffer';
 import Program, {CompiledUniformMap} from './Program';
 import {GLStates, PASS} from './GLStates';
-import {Texture, TextureOptions} from '../Texture';
+import {TextureOptions} from '../Texture';
 import {GeometryBuffer} from '../buffer/GeometryBuffer';
 
 const OFFSCREEN_PASS = PASS.ALPHA;
@@ -38,16 +39,14 @@ class HeatmapProgram extends Program {
         depth: false
     });
 
-    private offscreen: {
-        framebuffer: WebGLFramebuffer;
-        depthStencilAttachment: WebGLFramebuffer;
-        texture: Texture;
-        scale: number
-    };
+    private offscreen: FrameBuffer;
     private offscreenBuffer: GeometryBuffer;
 
     // Indicates whether the screen buffer for the current frame has already been updated.
     private screenBufferRefreshed: boolean;
+    private offscreenScale: number;
+
+    private _pendingOffscreenSize: [width: number, height: number] = [null, null];
 
     constructor(gl: WebGLRenderingContext, devicePixelRation: number) {
         super(gl, devicePixelRation);
@@ -61,6 +60,8 @@ class HeatmapProgram extends Program {
         width *= offscreenScale;
         height *= offscreenScale;
 
+
+        this.offscreenScale = offscreenScale;
 
         let texOptions: TextureOptions = {
             premultiplyAlpha: false
@@ -77,22 +78,9 @@ class HeatmapProgram extends Program {
             gl.getExtension('OES_texture_half_float_linear');
         }
 
-        const offscreenTexture = new Texture(gl, {width, height}, texOptions);
-        const offscreenFrameBuffer = gl.createFramebuffer();
-        gl.bindFramebuffer(gl.FRAMEBUFFER, offscreenFrameBuffer);
-        gl.framebufferTexture2D(gl.FRAMEBUFFER, gl.COLOR_ATTACHMENT0, gl.TEXTURE_2D, offscreenTexture.getGLTexture(), 0);
-
-        const renderBuffer = gl.createRenderbuffer();
-        gl.bindRenderbuffer(gl.RENDERBUFFER, renderBuffer);
-        gl.renderbufferStorage(gl.RENDERBUFFER, gl.DEPTH_STENCIL, width, height);
-        gl.framebufferRenderbuffer(gl.FRAMEBUFFER, gl.DEPTH_STENCIL_ATTACHMENT, gl.RENDERBUFFER, renderBuffer);
-
-        this.offscreen = {
-            framebuffer: offscreenFrameBuffer,
-            depthStencilAttachment: renderBuffer,
-            texture: offscreenTexture,
-            scale: offscreenScale
-        };
+        const offscreenFBO = new FrameBuffer(gl, {width, height, depthStencilMode: 'depth-stencil', texOptions});
+        const offscreenTexture = offscreenFBO.colorTexture;
+        this.offscreen = offscreenFBO;
 
         const tileBuffer = new GeometryBuffer({first: 0, count: 6}, 'Heatmap');
         tileBuffer.addAttribute('a_position', {
@@ -107,9 +95,18 @@ class HeatmapProgram extends Program {
         this.offscreenBuffer = tileBuffer;
     }
 
+    private unbindOffscreenTexture(): void {
+        const {gl} = this;
+        // we know that offscreen texture is always bound to TEXTURE0
+        gl.activeTexture(gl.TEXTURE0);
+        gl.bindTexture(gl.TEXTURE_2D, null);
+    }
+
     initPass(pass: PASS, buffer: GeometryBuffer) {
         switch (pass) {
         case PASS.OPAQUE:
+            // use opaque pass to update offscreenbuffer size if needed.
+            this.updatePendingOffscreenSize();
             // By default, the offscreenbuffer gets cleared after rendered to screenbuffer immediately.
             // But if we want to debug the offscreenbuffer we do the following:
             // use opaque pass to only clear the offscreen framebuffer once.
@@ -120,7 +117,7 @@ class HeatmapProgram extends Program {
             // }
             return this.screenBufferRefreshed = false;
         case OFFSCREEN_PASS:
-            const {width, height} = this.offscreen.texture;
+            const {width, height} = this.offscreen.colorTexture;
             this.bindFramebuffer(this.offscreen.framebuffer, width, height);
             // Use the PASS.ALPHA to render the tiles to offscreen-framebuffer.
             return true;
@@ -137,87 +134,83 @@ class HeatmapProgram extends Program {
     }
 
     draw(geoBuffer: GeometryBuffer) {
-        const {gl, uniforms, offscreen} = this;
+        const {gl, uniforms} = this;
 
         if (this._pass == OFFSCREEN_PASS) {
             this.initUniforms({u_texture: null});
-
             // use the offscreen pass to render/blend the data-points into the offscreen-buffer.
             gl.uniform1i(uniforms.u_offscreen, 1);
             gl.enable(gl.BLEND);
-
             // allow debug offscreenbuffer as "image"
             // gl.colorMask(true, true, true, true);
             gl.colorMask(true, false, false, false);
 
-            // const {width, height} = offscreen.texture;
-            // this.bindFramebuffer(offscreen.framebuffer, width, height);
-            // // this.bindFramebuffer(null);
-
             gl.blendFunc(gl.ONE, gl.ONE);
-
             // gl.depthFunc(gl.LEQUAL);
             // gl.enable(gl.SCISSOR_TEST);
-
             // gl.depthMask(true);
             // gl.depthFunc(gl.NEVER);
             //* ** ?????? ***
             // gl.enable(gl.DEPTH_TEST);
-
-
             super.draw(geoBuffer);
-
+            // unbind offscreen framebuffer and use default framebuffer(screen)
             this.bindFramebuffer(null);
         } else {
             // render offscreen-buffer to screen-buffer and colorize the heatmap.
             const {offscreenBuffer} = this;
-
-            // this.initBuffers(offscreenBuffer.attributes);
             this.initUniforms(offscreenBuffer.uniforms as CompiledUniformMap);
-            // this.initAttributes(offscreenBuffer.attributes);
-            // this.initGeometryBuffer(offscreenBuffer, PASS.ALPHA);
             this.configureRenderState(offscreenBuffer, PASS.ALPHA);
             gl.depthFunc(gl.LEQUAL);
 
             super.draw(offscreenBuffer);
             // clear offscreen buffer for next frame
             this.clear();
+
+            // Ensure we are not sampling from the offscreen texture while rendering into its FBO.
+            this.unbindOffscreenTexture();
         }
     }
 
     private clear() {
         const {gl, offscreen} = this;
-        const {width, height} = offscreen.texture;
-
-        this.bindFramebuffer(offscreen.framebuffer, width, height);
+        // bind offscreen FBO and set viewport
+        this.bindFramebuffer(offscreen.framebuffer, offscreen.width, offscreen.height);
 
         gl.colorMask(true, true, true, true);
-        // gl.disable(gl.STENCIL_TEST);
         gl.disable(gl.SCISSOR_TEST);
-        // gl.disable(gl.DEPTH_TEST);
-        gl.clearColor(0, 0, 0, 0);
-        // gl.clear(gl.COLOR_BUFFER_BIT);
-        // gl.depthMask(true);
-        gl.clear(gl.COLOR_BUFFER_BIT);
-        // gl.colorMask(true, true, true, false);
+
+        offscreen.clear(gl, 0, 0, 0, 0);
+        // unbind FBO and set viewport back to canvas size
         this.bindFramebuffer(null);
+    }
+
+    private updatePendingOffscreenSize() {
+        // Defer FBO resize: reallocates attachments; avoid resizing while it’s bound for render/sampling.
+        const pendingSize = this._pendingOffscreenSize;
+        if (pendingSize[0] != null) {
+            this.offscreen.resize(this.gl, pendingSize[0], pendingSize[1]);
+            pendingSize[0] = null;
+            pendingSize[1] = null;
+        }
     }
 
     setResolution(resolution: readonly number[]) {
         const [screenWidth, screenHeight] = resolution;
-        const {gl, offscreen} = this;
-        const {scale} = offscreen;
-        const {width, height} = offscreen.texture;
+        const {offscreen} = this;
+        const {width, height} = offscreen;
 
-        const w = screenWidth * scale;
-        const h = screenHeight * scale;
+        const w = screenWidth * this.offscreenScale;
+        const h = screenHeight * this.offscreenScale;
 
         if (width != w || height != h) {
-            offscreen.texture.set({width: w, height: h});
-
-            gl.bindRenderbuffer(gl.RENDERBUFFER, offscreen.depthStencilAttachment);
-            gl.renderbufferStorage(gl.RENDERBUFFER, gl.DEPTH_STENCIL, w, h);
+            this._pendingOffscreenSize[0] = w;
+            this._pendingOffscreenSize[1] = h;
         }
+    }
+
+    delete() {
+        this.offscreen.destroy(this.gl);
+        super.delete();
     }
 }
 

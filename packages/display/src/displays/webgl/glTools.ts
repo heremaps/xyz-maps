@@ -156,3 +156,7 @@ export const positionGLSLVersion = (shaderSrc: string): string => {
     }
     return shaderSrc;
 };
+
+export const isWebGL2 = (gl: WebGLRenderingContext | WebGL2RenderingContext): gl is WebGL2RenderingContext => {
+    return typeof WebGL2RenderingContext !== 'undefined' && gl instanceof WebGL2RenderingContext;
+};
