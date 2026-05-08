@@ -26,6 +26,8 @@ import {Feature} from '../feature/Feature';
 import {JSUtils} from '@here/xyz-maps-common';
 import {GeoJSONCoordinate, GeoPoint, PixelPoint, Style} from '@here/xyz-maps-core';
 import lineTools from '../line/LineTools';
+import {ConnectionCandidate} from './ConnectionCandidate';
+import {geotools} from '@here/xyz-maps-common';
 
 
 let UNDEF;
@@ -35,7 +37,8 @@ const throwError = (msg) => {
 };
 
 const defaultBehavior = {
-    snapCoordinates: true
+    snapCoordinates: true,
+    autoConnect: true
 };
 
 
@@ -195,7 +198,15 @@ export class Navlink extends Feature {
         /**
          * Snap coordinates to {@link Navlink} geometry nearby.
          */
-        snapCoordinates?: boolean
+        snapCoordinates?: boolean,
+        /**
+         * Automatically connect to the nearest {@link Navlink} when a shape is dragged and dropped within snap tolerance.
+         * If set to false, the shape will remain unconnected after the drop and the connection can be established
+         * manually by using {@link NavlinkShape.getConnectionCandidates} and {@link Crossing.connect}.
+         *
+         * @defaultValue true
+         */
+        autoConnect?: boolean
     }): void;
     /**
      * Set the value of a specific behavior option.
@@ -215,7 +226,13 @@ export class Navlink extends Feature {
         /**
          * Snap coordinates to {@link Navlink} geometry nearby.
          */
-        snapCoordinates: boolean
+        snapCoordinates: boolean,
+        /**
+         * Automatically connect to the nearest {@link Navlink} when a shape is dragged and dropped within snap tolerance.
+         *
+         * @defaultValue true
+         */
+        autoConnect: boolean
     };
 
     behavior(options?: any, value?: boolean) {
@@ -283,6 +300,60 @@ export class Navlink extends Feature {
             return connected;
         }
         return oTools._findGeometricIntersectionLinks(line, index, details);
+    };
+
+    /**
+     * Get all nearby Navlink features that can be connected to at the specified coordinate index.
+     * Returns an array of {@link ConnectionCandidate} objects sorted by distance.
+     *
+     * @param index - The coordinate index of the shape/node to check for connection candidates.
+     *
+     * @returns Array of ConnectionCandidate objects, sorted by distance (nearest first).
+     *
+     * @example
+     * ```typescript
+     * const candidates = navlink.getConnectionCandidates(0);
+     * if (candidates.length > 1) {
+     *     // let user choose which link to connect to
+     *     candidates[0].connect();
+     * }
+     * ```
+     */
+    getConnectionCandidates(index: number): ConnectionCandidate[] {
+        const line = this;
+        const coordinate = line.coord()[index];
+        const ignoreZ = oTools.ignoreZ(line);
+        const EDITOR = line._e();
+        const maxDistance = EDITOR._config['snapTolerance'];
+        const ignore = <Navlink[]>line.getConnectedLinks(index);
+        ignore.push(line);
+
+        const candidates: ConnectionCandidate[] = [];
+        const searchBBox = geotools.getPointBBox(coordinate, maxDistance);
+        const features = EDITOR.objects.getInBBox(searchBBox, line.getProvider());
+
+        for (const feature of features) {
+            if (feature.class !== 'NAVLINK') continue;
+            if (ignore.indexOf(feature as Navlink) !== -1) continue;
+            if (!(feature as Navlink).behavior('snapCoordinates')) continue;
+
+            const crossing = EDITOR.map.searchPointOnLine(
+                feature.geometry.coordinates as GeoJSONCoordinate[],
+                coordinate, -1, UNDEF, UNDEF, ignoreZ
+            );
+
+            if (crossing && crossing.distance < maxDistance) {
+                candidates.push(new ConnectionCandidate(
+                    line, index, feature as Navlink,
+                    crossing.point, crossing.distance,
+                    crossing.existingShape ? null : crossing.index - 1,
+                    ignoreZ
+                ));
+            }
+        }
+
+        candidates.sort((a, b) => a.distance - b.distance);
+        return candidates;
     };
 
     /**

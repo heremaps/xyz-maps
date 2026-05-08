@@ -33,6 +33,7 @@ import NavlinkTools from './NavlinkTools';
 import {defaultBehavior} from '../line/LineShape';
 import {dragFeatureCoordinate} from '../oTools';
 import {EDIT_RESTRICTION} from '../../API/EditorOptions';
+import {ConnectionCandidate} from './ConnectionCandidate';
 
 
 const EDITOR_NS = '@ns:com:here:editor';
@@ -268,7 +269,7 @@ function onMouseUpShape(ev) {
 
     linkTools.showDirection(navlink);
 
-    if (navlink.behavior('snapCoordinates') && geoFence.isHidden() && !isGeoAutoFixed && isMoved) {
+    if (navlink.behavior('snapCoordinates') && navlink.behavior('autoConnect') && geoFence.isHidden() && !isGeoAutoFixed && isMoved) {
         connected = connectShpToNearestLink(navlink, index);
     }
 
@@ -720,6 +721,26 @@ class NavlinkShape extends Feature {
         const selectedShapes = linkTools.private(shape.getLink(), 'selectedShapes');
         const {index} = getPrivate(shape);
         return !!selectedShapes[index];
+    }
+
+    /**
+     * Get all Navlink features that this shape could be connected to within snap tolerance.
+     * Returns an array of {@link ConnectionCandidate} objects sorted by distance.
+     * Each candidate can be connected by calling {@link ConnectionCandidate.connect}.
+     *
+     * @returns Array of ConnectionCandidate objects, sorted by distance (nearest first).
+     *
+     * @example
+     * ```typescript
+     * const candidates = shape.getConnectionCandidates();
+     * if (candidates.length > 1) {
+     *     // let user choose which link to connect to
+     *     candidates[0].connect(); // connect to nearest
+     * }
+     * ```
+     */
+    getConnectionCandidates(): ConnectionCandidate[] {
+        return this.getLink().getConnectionCandidates(this.getIndex());
     }
 }
 

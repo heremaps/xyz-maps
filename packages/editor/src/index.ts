@@ -50,6 +50,8 @@ export {RangeSelector} from './API/ERangeSelector';
 
 export {Crossing} from './API/MCrossing';
 
+export {ConnectionCandidate} from './features/link/ConnectionCandidate';
+
 export {DrawingShape} from './tools/drawingBoards/DrawingShape';
 
 let UNDEF;

@@ -151,6 +151,10 @@
       "docs": "classes/editor.navlink.html#checkCrossings"
     },
     {
+      "file": "./editor/connection_candidates.html",
+      "docs": "classes/editor.navlink.html#getConnectionCandidates"
+    },
+    {
       "file": "./editor/select_shapes.html",
       "docs": "classes/editor.lineshape.html#select"
     },
