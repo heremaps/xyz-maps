@@ -236,7 +236,10 @@ export class Navlink extends Feature {
     };
 
     behavior(options?: any, value?: boolean) {
-        let behavior = oTools.private(this, 'b') || {...defaultBehavior};
+        let behavior = oTools.private(this, 'b') || {
+            ...defaultBehavior,
+            autoConnect: this._e()._config['autoConnect'] ?? defaultBehavior.autoConnect
+        };
 
         switch (arguments.length) {
         case 0:

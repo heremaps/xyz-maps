@@ -98,6 +98,15 @@ interface EditorOptions {
     disconnectShapeDistance?: number;
 
     /**
+     * Enable or disable automatic connection of Navlink shapes to nearby Navlinks on drag-drop.
+     * When set to false, shapes will not automatically connect after being dragged, allowing manual connection handling via {@link Navlink.getConnectionCandidates}.
+     * Can be overridden per feature using {@link Navlink.behavior}.
+     *
+     * @defaultValue true
+     */
+    autoConnect?: boolean;
+
+    /**
      * Keep features selected after mapview-change or click on the "ground" of the map.
      * if set to false -\> will be cleared after viewport change and click on ground.
      * if set to "viewportChange" -\> will only be cleared on ground click.
@@ -196,6 +205,7 @@ const defaultOptions: EditorOptions = {
     routingPointPrecision: 5,
     // XTestMaxDistance: 2,
     disconnectShapeDistance: 3,
+    autoConnect: true,
     keepFeatureSelection: 'viewportChange',
     featureSelectionByDefault: true,
     maxRoutingPointDistance: 1000,
