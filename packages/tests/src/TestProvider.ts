@@ -167,7 +167,7 @@ const createProvider = (provider) => {
             );
         }
 
-        writeEditState = function(feature: Feature, editState: string) {
+        writeEditState(feature: Feature, editState: string) {
             const {properties} = feature;
             if (properties.estate != 'SPLIT') {
                 if (properties.estate != 'CREATED' || editState.toUpperCase() == 'REMOVED') {

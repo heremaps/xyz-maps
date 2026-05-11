@@ -812,18 +812,6 @@ export abstract class EditableRemoteTileProvider extends EditableFeatureProvider
         this.writeRoutingPosition(location, position);
     };
 
-    /**
-     * Attribute writer for storing the EditStates of a Feature.
-     * The EditStates provide information about whether a feature has been created, modified, removed or split.
-     *
-     * By default EditStates aren't tracked/stored.
-     *
-     * @param feature - The Feature whose EditState should be written.
-     * @param editState - the EditState to store
-     */
-    writeEditState(feature, editState: 'created' | 'modified' | 'removed' | 'split') {
-    }
-
     readFeatureHeight(feature: Feature): number | null {
         return null;
     };

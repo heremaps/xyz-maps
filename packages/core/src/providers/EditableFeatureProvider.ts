@@ -329,7 +329,8 @@ export abstract class EditableFeatureProvider extends FeatureTileProvider {
      * @param feature - The Feature whose EditState should be written.
      * @param editState - the EditState to store
      */
-    abstract writeEditState(feature: Feature, editState: 'created' | 'modified' | 'removed' | 'split');
+    writeEditState(feature: Feature, editState: 'created' | 'modified' | 'removed' | 'split') {
+    };
 
 
     /**
