@@ -72,10 +72,6 @@ class MyProvider extends LocalProvider {
     readRoutingProvider(location) {
         return this.id;
     }
-
-    readConnectedLinks(navlink, index) {
-        return navlink.prop('connectedLinks')?.[index ? 'end' : 'start'];
-    }
 }
 
 // Satellite imagery to visualize the real-world road overlap

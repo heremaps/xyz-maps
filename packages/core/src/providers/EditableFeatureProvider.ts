@@ -312,10 +312,12 @@ export abstract class EditableFeatureProvider extends FeatureTileProvider {
      *          an empty array to signal "no connection",
      *          or `undefined` to fall back to default detection.
      */
-    abstract readConnectedLinks?(
+    readConnectedLinks?(
         link: Navlink,
         index: number
-    ): Array<{ link: string | number; index?: number }> | [] | undefined;
+    ): Array<{ link: string | number; index?: number }> | [] | undefined {
+        return undefined;
+    }
 
 
     /**

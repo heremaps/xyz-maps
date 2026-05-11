@@ -176,13 +176,6 @@ export class LocalProvider extends EditableFeatureProvider {
         throw new Error('Method not implemented.');
     }
 
-    readConnectedLinks?(
-        link: Navlink,
-        index: number
-    ): Array<{ link: string | number; index?: number }> | [] | undefined {
-        return undefined;
-    }
-
     writeEditState(feature, editState: 'created' | 'modified' | 'removed' | 'split') {
     }
 

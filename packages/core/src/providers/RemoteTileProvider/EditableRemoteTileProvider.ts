@@ -832,13 +832,6 @@ export abstract class EditableRemoteTileProvider extends EditableFeatureProvider
         throw new Error(METHOD_NOT_IMPLEMENTED);
     }
 
-    readConnectedLinks?(
-        link: Navlink,
-        index: number
-    ): Array<{ link: string | number; index?: number }> | [] | undefined {
-        return undefined;
-    }
-
     reserveId(createdFeatures, cb: (ids: (string | number)[]) => void) {
         let len = createdFeatures.length;
         const ids = [];
