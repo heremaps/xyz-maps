@@ -46,7 +46,7 @@ export const split = (HERE_WIKI: InternalEditor, options: SplitOptions): [Navlin
     let path = parentLink.coord();
     const lastIndex = path.length - 1;
     const parentLinkProperties = linkTools._props(parentLink);
-    const parentZLevels = parentLink.getProvider().readZLevels(parentLink);
+    let parentZLevels = parentLink.getProvider().readZLevels(parentLink);
     const snapTolerance = HERE_WIKI._config['snapTolerance'];
     const {point, ignoreZ} = options;
     let x;
@@ -85,6 +85,8 @@ export const split = (HERE_WIKI: InternalEditor, options: SplitOptions): [Navlin
         splitAtShpIndex = <number>linkTools.addShp(parentLink, [x, y, z], null, true, null, preferSegment);
 
         path = parentLink.coord();
+        // re-read z-levels after addShp inserted a new entry, so slicing stays in sync with the updated path
+        parentZLevels = parentLink.getProvider().readZLevels(parentLink);
     }
 
     linkTools.deHighlight(parentLink);
