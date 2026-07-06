@@ -1,0 +1,45 @@
+name: NPM Publish Auth Test
+
+on:
+    workflow_dispatch:
+
+jobs:
+    verify-npm-publish-credentials:
+        runs-on: ubuntu-latest
+        steps:
+            -   uses: actions/checkout@v2
+
+            -   name: Setup Node.js
+                uses: actions/setup-node@v3
+                with:
+                    node-version: '20'
+                    registry-url: 'https://registry.npmjs.org'
+                env:
+                    NODE_AUTH_TOKEN: ${{ secrets.NPM_TOKEN }}
+
+            -   name: Check token is present
+                run: test -n "${NODE_AUTH_TOKEN}"
+                env:
+                    NODE_AUTH_TOKEN: ${{ secrets.NPM_TOKEN }}
+
+            -   name: Verify npm authentication
+                run: npm whoami --registry https://registry.npmjs.org
+                env:
+                    NODE_AUTH_TOKEN: ${{ secrets.NPM_TOKEN }}
+
+            -   name: Verify write access for publish packages (no publish)
+                run: |
+                    packages_json=$(npm access ls-packages @here --json)
+                    echo "$packages_json" | jq .
+
+                    for pkg in \
+                        "@here/xyz-maps-common" \
+                        "@here/xyz-maps-core" \
+                        "@here/xyz-maps-display" \
+                        "@here/xyz-maps-editor"
+                    do
+                        echo "$packages_json" | jq -e --arg pkg "$pkg" '.[$pkg] == "write" or .[$pkg] == "read-write"' > /dev/null \
+                          || { echo "::error::No write access for $pkg"; exit 1; }
+                    done
+                env:
+                    NODE_AUTH_TOKEN: ${{ secrets.NPM_TOKEN }}
