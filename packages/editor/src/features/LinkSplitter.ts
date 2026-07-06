@@ -46,7 +46,7 @@ export const split = (HERE_WIKI: InternalEditor, options: SplitOptions): [Navlin
     let path = parentLink.coord();
     const lastIndex = path.length - 1;
     const parentLinkProperties = linkTools._props(parentLink);
-    const parentZLevels = parentLink.getProvider().readZLevels(parentLink);
+
     const snapTolerance = HERE_WIKI._config['snapTolerance'];
     const {point, ignoreZ} = options;
     let x;
@@ -80,7 +80,6 @@ export const split = (HERE_WIKI: InternalEditor, options: SplitOptions): [Navlin
         if ((splitAtShpIndex === 0 || splitAtShpIndex === lastIndex) && crossing.existingShape) {
             return false;
         }
-
         // addNewShape request index of the shape point regardless it is new or existing
         splitAtShpIndex = <number>linkTools.addShp(parentLink, [x, y, z], null, true, null, preferSegment);
 
@@ -112,6 +111,7 @@ export const split = (HERE_WIKI: InternalEditor, options: SplitOptions): [Navlin
         });
     };
 
+    const parentZLevels = parentLink.getProvider().readZLevels(parentLink);
     const newLink1 = createSplitLink(
         path.slice(0, splitAtShpIndex + 1),
         parentZLevels.slice(0, splitAtShpIndex + 1),

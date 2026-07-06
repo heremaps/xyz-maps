@@ -727,8 +727,7 @@ const tools = {
 
             changeGeometry(link, path);
 
-            // fallback for old non 3d zlevel passed in via coordinates z position
-            let zLevel = Math.round(pos[2] < 10 && pos[2]) || 0;
+            const zLevel = 0;
             zLevels.splice(index, 0, zLevel);
             EDITOR.objects.history.batch(() => {
                 link.getProvider().writeZLevels(link, zLevels);
