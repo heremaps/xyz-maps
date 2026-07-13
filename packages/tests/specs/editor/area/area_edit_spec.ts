@@ -158,7 +158,7 @@ describe('modify area geometry', () => {
             type: 'geometryValidation',
             target: area
         });
-        expect(results.geometryValidation[0].detail).to.deep.include({
+        expect(results.geometryValidation[0].detail.geometryValidation).to.deep.include({
             valid: false,
             reason: 'topologyViolation',
             operation: 'shapeMove',
@@ -181,7 +181,7 @@ describe('modify area geometry', () => {
             type: 'geometryValidation',
             target: area
         });
-        expect(results.geometryValidation[0].detail).to.deep.include({
+        expect(results.geometryValidation[0].detail.geometryValidation).to.deep.include({
             valid: false,
             reason: 'selfIntersection',
             operation: 'shapeMove',

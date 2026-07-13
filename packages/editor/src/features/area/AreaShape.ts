@@ -97,7 +97,17 @@ const setShapePosition = (
     holeIndex: number = 0,
     polyIndex: number = 0,
     connectedAreas?: ConnectedArea[]
-): boolean => {
+): {
+    status: 'validationError', geometryValidation: {
+        valid: boolean;
+        reason?: 'selfIntersection' | 'topologyViolation' | 'connectedAreaInvalid';
+        operation?: 'shapeMove' | 'shapeAdd' | 'polygonDraw';
+        blocked?: boolean;
+        polygonIndex?: number;
+        lineStringIndex?: number;
+        coordinateIndex?: number;
+    }
+} | { status: 'successful' } => {
     const coordinates = polygonTools.getCoords(area); // deepcopy!
     const poly = coordinates[polyIndex];
     const lineString = poly[holeIndex];
@@ -109,21 +119,20 @@ const setShapePosition = (
         lineString[lineString.length - 1] = position;
     }
 
-    if (!polygonTools.validateGeometry(lineString, (invalidIndex) => {
-        area._e().listeners.trigger({
-            type: 'geometryValidation',
-            detail: {
+    const validationResult: number | true = polygonTools.validateGeometry(lineString);
+    if (validationResult !== true) {
+        return {
+            status: 'validationError',
+            geometryValidation: {
                 valid: false,
                 reason: 'selfIntersection',
                 operation: 'shapeMove',
                 blocked: true,
                 polygonIndex: polyIndex,
                 lineStringIndex: holeIndex,
-                coordinateIndex: invalidIndex
+                coordinateIndex: validationResult
             }
-        }, area);
-    })) {
-        return false;
+        };
     }
 
     if (
@@ -132,9 +141,9 @@ const setShapePosition = (
         // make sure all interiors are inside exterior
         !polysInPoly(poly, poly[0], 1)
     ) {
-        area._e().listeners.trigger({
-            type: 'geometryValidation',
-            detail: {
+        return {
+            status: 'validationError',
+            geometryValidation: {
                 valid: false,
                 reason: 'topologyViolation',
                 operation: 'shapeMove',
@@ -143,8 +152,7 @@ const setShapePosition = (
                 lineStringIndex: holeIndex,
                 coordinateIndex: coordIndex
             }
-        }, area);
-        return false;
+        };
     }
 
     const shapes = polygonTools.private(area, 'shapePnts');
@@ -165,12 +173,12 @@ const setShapePosition = (
                     lineString[lineString.length - 1] = position;
                 }
 
-                const valid = polygonTools.validateGeometry(lineString) && polysInPoly(poly, poly[0], 1);
+                const valid = polygonTools.validateGeometry(lineString) === true && polysInPoly(poly, poly[0], 1);
 
                 if (!valid) {
-                    area._e().listeners.trigger({
-                        type: 'geometryValidation',
-                        detail: {
+                    return {
+                        status: 'validationError',
+                        geometryValidation: {
                             valid: false,
                             reason: 'connectedAreaInvalid',
                             operation: 'shapeMove',
@@ -179,8 +187,7 @@ const setShapePosition = (
                             lineStringIndex: lineIndex,
                             coordinateIndex: coordIndex
                         }
-                    }, area);
-                    return false;
+                    };
                 }
             } else {
                 coordinates.splice(i, 1);
@@ -203,7 +210,7 @@ const setShapePosition = (
             shp.getProvider().setFeatureCoordinates(shp, position.slice());
         }
     }
-    return true;
+    return {status: 'successful'};
 };
 
 let UNDEF;
@@ -306,7 +313,13 @@ class AreaShape extends Feature<'Point'> {
                 position = polygonTools.snapShape(shapePnt, position, cfg['snapTolerance']) || position;
             }
 
-            setShapePosition(area, position, index, holeIndex, polyIndex, shapePnt.__.cAreas);
+
+            let modifyResult = setShapePosition(area, position, index, holeIndex, polyIndex, shapePnt.__.cAreas);
+
+            if (modifyResult.status === 'validationError') {
+                e.detail.geometryValidation = modifyResult.geometryValidation;
+                area._e().listeners.trigger(e, area, 'geometryValidation');
+            }
         }
 
         function releaseShape(e) {

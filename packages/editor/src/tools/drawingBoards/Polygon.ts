@@ -79,7 +79,7 @@ class Polygon {
         if (path) {
             // close LineString
             path.push(<any>path[0].slice());
-            return path.length < 4 || polygonTools.validateGeometry(path);
+            return path.length < 4 || polygonTools.validateGeometry(path) === true;
         }
 
         return this.path.length > 2;

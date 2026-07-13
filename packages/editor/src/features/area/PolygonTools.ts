@@ -548,11 +548,10 @@ const tools = {
         return false;
     },
 
-    validateGeometry: (polygon: Point[], onInvalid?: (index: number) => void): boolean => {
+    validateGeometry: (polygon: Point[]): true|number => {
         for (let i = 1; i < polygon.length - 1; i += 1) {
             if (tools.willSelfIntersect(polygon, polygon[i], i)) {
-                onInvalid?.(i);
-                return false;
+                return i;
             }
         }
         return true;
