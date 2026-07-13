@@ -548,7 +548,13 @@ const tools = {
         return false;
     },
 
-    validateGeometry: (polygon: Point[]): true|number => {
+    validateGeometry: (polygon: Point[], coordinateIndex?: number): true|number => {
+        if (typeof coordinateIndex == 'number' && coordinateIndex >= 0 && coordinateIndex < polygon.length - 1) {
+            return tools.willSelfIntersect(polygon, polygon[coordinateIndex], coordinateIndex)
+                ? coordinateIndex
+                : true;
+        }
+
         for (let i = 1; i < polygon.length - 1; i += 1) {
             if (tools.willSelfIntersect(polygon, polygon[i], i)) {
                 return i;

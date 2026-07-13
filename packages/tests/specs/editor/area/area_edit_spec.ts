@@ -188,7 +188,7 @@ describe('modify area geometry', () => {
             blocked: true,
             polygonIndex: 0,
             lineStringIndex: 0,
-            coordinateIndex: 2
+            coordinateIndex: 4
         });
     });
 });

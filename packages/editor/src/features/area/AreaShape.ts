@@ -26,31 +26,63 @@ import {EDIT_RESTRICTION} from '../../API/EditorOptions';
 
 type PolygonTools = typeof PolyTools;
 
-function intersectLinePoly(l1, l2, poly) {
+type Ring = GeoJSONCoordinate[];
+type Polygon = GeoJSONCoordinate[][];
+
+function intersectLinePoly(l1: GeoJSONCoordinate, l2: GeoJSONCoordinate, poly: Ring): boolean {
     for (let p = 0, len = poly.length - 1; p < len; p++) {
         if (intersectLineLine(l1, l2, poly[p], poly[p + 1])) {
-            return 1;
+            return true;
         }
     }
+    return false;
 }
 
-function intersectPolyPoly(poly1, poly2) {
+function intersectPolyPoly(poly1: Ring, poly2: Ring): boolean {
     for (let p = 0, len = poly1.length - 1; p < len; p++) {
         if (intersectLinePoly(poly1[p], poly1[p + 1], poly2)) {
-            return 1;
+            return true;
         }
     }
+    return false;
 }
 
-function intersectPolyPolys(poly1, polys, skip) {
+function intersectPolyPolys(poly1: Ring, polys: Polygon, skip: number, coordinateIndex?: number): boolean {
+    if (typeof coordinateIndex == 'number') {
+        const lastIndex = poly1.length - 1;
+        if (coordinateIndex < 0 || coordinateIndex > lastIndex) {
+            return false;
+        }
+
+        const previousIndex = coordinateIndex == 0
+            ? lastIndex - 1
+            : coordinateIndex - 1;
+        const nextIndex = coordinateIndex == lastIndex
+            ? 1
+            : coordinateIndex + 1;
+
+        for (let p = 0, len = polys.length; p < len; p++) {
+            if (p == skip) continue;
+            const ring = polys[p];
+            if (
+                intersectLinePoly(poly1[previousIndex], poly1[coordinateIndex], ring) ||
+                intersectLinePoly(poly1[coordinateIndex], poly1[nextIndex], ring)
+            ) {
+                return true;
+            }
+        }
+        return false;
+    }
+
     for (let p = 0, len = polys.length; p < len; p++) {
         if (p != skip && intersectPolyPoly(poly1, polys[p])) {
-            return 1;
+            return true;
         }
     }
+    return false;
 }
 
-function pointInPoly(point, vs) {
+function pointInPoly(point: GeoJSONCoordinate, vs: Ring): boolean {
     // ray-casting algorithm based on
     // http://www.ecse.rpi.edu/Homepages/wrf/Research/Short_Notes/pnpoly.html
 
@@ -70,15 +102,78 @@ function pointInPoly(point, vs) {
     return inside;
 }
 
-function polysInPoly(polys, poly, start) {
-    for (let p = start ^ 0, len = polys.length; p < len; p++) {
-        for (let i = 0; i < polys[p].length; i++) {
-            if (!pointInPoly(polys[p][i], poly)) {
-                return 0;
-            }
+const EPSILON = 1e-12;
+
+function isPointOnSegment(point: GeoJSONCoordinate, a: GeoJSONCoordinate, b: GeoJSONCoordinate): boolean {
+    const ax = a[0];
+    const ay = a[1];
+    const bx = b[0];
+    const by = b[1];
+    const px = point[0];
+    const py = point[1];
+
+    const cross = (bx - ax) * (py - ay) - (by - ay) * (px - ax);
+
+    if (Math.abs(cross) > EPSILON) {
+        return false;
+    }
+
+    const minX = Math.min(ax, bx) - EPSILON;
+    const maxX = Math.max(ax, bx) + EPSILON;
+    const minY = Math.min(ay, by) - EPSILON;
+    const maxY = Math.max(ay, by) + EPSILON;
+
+    return px >= minX && px <= maxX && py >= minY && py <= maxY;
+}
+
+function isPointOnRingBoundary(point: GeoJSONCoordinate, ring: Ring): boolean {
+    for (let i = 0, len = ring.length - 1; i < len; i++) {
+        if (isPointOnSegment(point, ring[i], ring[i + 1])) {
+            return true;
         }
     }
-    return 1;
+    return false;
+}
+
+/**
+ * Validate that holes remain inside the exterior ring after moving one coordinate.
+ * For drag updates we use an incremental containment check:
+ * - if the exterior moved, test one representative point per hole;
+ * - if a hole moved, test only the moved coordinate.
+ * Points lying exactly on the exterior boundary are treated as invalid.
+ * This is safe because ring intersections are validated separately.
+ */
+function validateHoleContainment(
+    polygon: Polygon,
+    movedLineStringIndex: number,
+    movedCoordinateIndex: number
+): boolean {
+    const exterior = polygon[0];
+
+    if (!exterior) {
+        return false;
+    }
+
+    if (movedLineStringIndex == 0) {
+        for (let i = 1; i < polygon.length; i++) {
+            const hole = polygon[i];
+            if (
+                !hole?.length ||
+                isPointOnRingBoundary(hole[0], exterior) ||
+                !pointInPoly(hole[0], exterior)
+            ) {
+                return false;
+            }
+        }
+        return true;
+    }
+
+    const movedRing = polygon[movedLineStringIndex];
+    const movedPoint = movedRing?.[movedCoordinateIndex];
+
+    return !!movedPoint &&
+        !isPointOnRingBoundary(movedPoint, exterior) &&
+        pointInPoly(movedPoint, exterior);
 }
 
 let polygonTools: PolygonTools;
@@ -119,7 +214,7 @@ const setShapePosition = (
         lineString[lineString.length - 1] = position;
     }
 
-    const validationResult: number | true = polygonTools.validateGeometry(lineString);
+    const validationResult: number | true = polygonTools.validateGeometry(lineString, coordIndex);
     if (validationResult !== true) {
         return {
             status: 'validationError',
@@ -135,11 +230,12 @@ const setShapePosition = (
         };
     }
 
+
     if (
         // make sure holes are not colliding with each other
-        intersectPolyPolys(lineString, poly, holeIndex) ||
+        intersectPolyPolys(lineString, poly, holeIndex, coordIndex) ||
         // make sure all interiors are inside exterior
-        !polysInPoly(poly, poly[0], 1)
+        !validateHoleContainment(poly, holeIndex, coordIndex)
     ) {
         return {
             status: 'validationError',
@@ -173,7 +269,10 @@ const setShapePosition = (
                     lineString[lineString.length - 1] = position;
                 }
 
-                const valid = polygonTools.validateGeometry(lineString) === true && polysInPoly(poly, poly[0], 1);
+                const valid =
+                    polygonTools.validateGeometry(lineString, coordIndex) === true &&
+                    !intersectPolyPolys(lineString, poly, lineIndex, coordIndex) &&
+                    validateHoleContainment(poly, lineIndex, coordIndex);
 
                 if (!valid) {
                     return {
