@@ -569,6 +569,8 @@ const tools = {
 
         while (len--) {
             const cArea = areas[len];
+            if (cArea.class != 'AREA') continue;
+
             const coordinates = tools.getCoords(cArea);
             let polyIndex = coordinates.length;
 
