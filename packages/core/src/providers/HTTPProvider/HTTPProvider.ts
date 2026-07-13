@@ -164,7 +164,6 @@ abstract class HTTPProvider extends EditableRemoteTileProvider {
         let params = this.params || {};
 
         JSUtils.extend(params, parameters);
-        this.params = params;
 
         // in case of url is defined as a function user needs to deal with params by himself.
         if (typeof url == 'string') {
@@ -183,6 +182,7 @@ abstract class HTTPProvider extends EditableRemoteTileProvider {
             }
             loader.setUrl(newUrl);
         }
+        this.params = params;
     }
 
     /**
