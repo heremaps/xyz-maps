@@ -39,19 +39,15 @@ jobs:
                 run: yarn run build-release
             -   name: Verify write access via OIDC dry-run (no publish)
                 run: |
-                  declare -A packages=(
-                      ["@here/xyz-maps-common"]="packages/xyz-maps-common"
-                      ["@here/xyz-maps-core"]="packages/xyz-maps-core"
-                      ["@here/xyz-maps-display"]="packages/xyz-maps-display"
-                      ["@here/xyz-maps-editor"]="packages/xyz-maps-editor"
-                  )
-                
-                  for pkg in "${!packages[@]}"
-                  do
-                      echo "Checking OIDC auth and write permissions for $pkg..."
-                      (cd "${packages[$pkg]}" && npm publish --dry-run) || {
-                          echo "::error::Authentication or write permission check failed for $pkg";
-                          exit 1;
-                      }
-                      echo "✓ Success: OIDC verification passed for $pkg"
-                  done
+                    # npm install -g npm@latest
+                    package_paths=$(npx lerna list --parseable)
+
+                    for path in $package_paths
+                    do
+                        echo "Entering directory: $path"
+                        (cd "$path" && npm publish --dry-run) || {
+                            echo "::error::Authentication or write permission check failed in $path";
+                            exit 1;
+                        }
+                        echo "✓ Success: OIDC verification passed for this package"
+                    done
