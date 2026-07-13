@@ -6,7 +6,7 @@ on:
             - "!*"
         tags:
             - "v[0-9]+.[0-9]+.[0-9]+*"
-
+    workflow_dispatch:
 env:
     yarn-network-timeout: 1000000
 
@@ -43,4 +43,4 @@ jobs:
                     distTag=$(jq -r '.version | match(".*-([^.]*)").captures[0].string' package.json)
                     echo "::set-output name=dist-tag::${distTag:-latest}"
             -   name: npm publish
-                run: lerna publish from-package --no-git-tag-version --yes --dist-tag ${{ steps.get-dist-tag.outputs.dist-tag }}
+                run: lerna publish from-package --no-git-tag-version --yes --dist-tag ${{ steps.get-dist-tag.outputs.dist-tag }} --dry-run
