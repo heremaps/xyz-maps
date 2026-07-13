@@ -103,67 +103,107 @@ const setShapePosition = (
     const lineString = poly[holeIndex];
     const orgPos = lineString[coordIndex];
 
+    lineString[coordIndex] = position;
 
-    if (!polygonTools.willSelfIntersect(lineString, position, coordIndex)) {
-        lineString[coordIndex] = position;
-
-        if (!coordIndex) {
-            lineString[lineString.length - 1] = position;
-        }
-
-        if (
-            // make sure holes are not colliding with each other
-            !intersectPolyPolys(lineString, poly, holeIndex) &&
-            // make sure all interiors are inside exterior
-            polysInPoly(poly, poly[0], 1)
-        ) {
-            const shapes = polygonTools.private(area, 'shapePnts');
-            connectedAreas = connectedAreas || polygonTools.getConnectedAreas(area, orgPos);
-
-            if (area.behavior('snapCoordinates')) {
-                for (let i = 0; i < connectedAreas.length; i++) {
-                    let cAreaData = connectedAreas[i];
-                    const {coordinates, polyIndex, lineIndex, coordIndex} = cAreaData;
-                    const poly = coordinates[polyIndex];
-                    const lineString = poly[lineIndex];
-
-                    if (cAreaData.area.behavior('snapCoordinates')) {
-                        lineString[coordIndex][0] = position[0];
-                        lineString[coordIndex][1] = position[1];
-
-                        if (!coordIndex) {
-                            lineString[lineString.length - 1] = position;
-                        }
-
-                        const valid = !polygonTools.willSelfIntersect(lineString, position, coordIndex) && polysInPoly(poly, poly[0], 1);
-
-                        if (!valid) {
-                            return false;
-                        }
-                    } else {
-                        coordinates.splice(i, 1);
-                    }
-                }
-            }
-
-
-            // update geometry of connected areas
-            for (let {area, coordinates} of connectedAreas) {
-                polygonTools._setCoords(area, coordinates, false);
-            }
-
-            // set geometry of area itself
-            polygonTools._setCoords(area, coordinates, false);
-
-            for (let shp of shapes) {
-                const {coordinates} = shp.geometry;
-                if (coordinates[0] == orgPos[0] && coordinates[1] == orgPos[1]) {
-                    shp.getProvider().setFeatureCoordinates(shp, position.slice());
-                }
-            }
-        }
-        return true;
+    if (!coordIndex) {
+        lineString[lineString.length - 1] = position;
     }
+
+    if (!polygonTools.validateGeometry(lineString, (invalidIndex) => {
+        area._e().listeners.trigger({
+            type: 'geometryValidation',
+            detail: {
+                valid: false,
+                reason: 'selfIntersection',
+                operation: 'shapeMove',
+                blocked: true,
+                polygonIndex: polyIndex,
+                lineStringIndex: holeIndex,
+                coordinateIndex: invalidIndex
+            }
+        }, area);
+    })) {
+        return false;
+    }
+
+    if (
+        // make sure holes are not colliding with each other
+        intersectPolyPolys(lineString, poly, holeIndex) ||
+        // make sure all interiors are inside exterior
+        !polysInPoly(poly, poly[0], 1)
+    ) {
+        area._e().listeners.trigger({
+            type: 'geometryValidation',
+            detail: {
+                valid: false,
+                reason: 'topologyViolation',
+                operation: 'shapeMove',
+                blocked: true,
+                polygonIndex: polyIndex,
+                lineStringIndex: holeIndex,
+                coordinateIndex: coordIndex
+            }
+        }, area);
+        return false;
+    }
+
+    const shapes = polygonTools.private(area, 'shapePnts');
+    connectedAreas = connectedAreas || polygonTools.getConnectedAreas(area, orgPos);
+
+    if (area.behavior('snapCoordinates')) {
+        for (let i = 0; i < connectedAreas.length; i++) {
+            let cAreaData = connectedAreas[i];
+            const {coordinates, polyIndex, lineIndex, coordIndex} = cAreaData;
+            const poly = coordinates[polyIndex];
+            const lineString = poly[lineIndex];
+
+            if (cAreaData.area.behavior('snapCoordinates')) {
+                lineString[coordIndex][0] = position[0];
+                lineString[coordIndex][1] = position[1];
+
+                if (!coordIndex) {
+                    lineString[lineString.length - 1] = position;
+                }
+
+                const valid = polygonTools.validateGeometry(lineString) && polysInPoly(poly, poly[0], 1);
+
+                if (!valid) {
+                    area._e().listeners.trigger({
+                        type: 'geometryValidation',
+                        detail: {
+                            valid: false,
+                            reason: 'connectedAreaInvalid',
+                            operation: 'shapeMove',
+                            blocked: true,
+                            polygonIndex: polyIndex,
+                            lineStringIndex: lineIndex,
+                            coordinateIndex: coordIndex
+                        }
+                    }, area);
+                    return false;
+                }
+            } else {
+                coordinates.splice(i, 1);
+            }
+        }
+    }
+
+
+    // update geometry of connected areas
+    for (let {area, coordinates} of connectedAreas) {
+        polygonTools._setCoords(area, coordinates, false);
+    }
+
+    // set geometry of area itself
+    polygonTools._setCoords(area, coordinates, false);
+
+    for (let shp of shapes) {
+        const {coordinates} = shp.geometry;
+        if (coordinates[0] == orgPos[0] && coordinates[1] == orgPos[1]) {
+            shp.getProvider().setFeatureCoordinates(shp, position.slice());
+        }
+    }
+    return true;
 };
 
 let UNDEF;

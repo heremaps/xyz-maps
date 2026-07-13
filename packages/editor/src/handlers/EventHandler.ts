@@ -60,6 +60,8 @@ class EventHandler {
 
         'error',
 
+        'geometryValidation',
+
         // internal events only
         '_domResize', '_panMap',
 

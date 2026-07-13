@@ -45,6 +45,7 @@ export type EditorEventTypes = 'tap'
     | 'pointerleave'
     | 'featureUnselected'
     | 'error'
+    | 'geometryValidation'
     | 'dragStart'
     | 'dragStop';
 
@@ -55,7 +56,7 @@ export type EditorEventTypes = 'tap'
 export class EditorEvent {
     /**
      * The type of the event.
-     * Supported events: "tap", "dbltap", "pointerup", "pointerenter", "pointerleave", "featureUnselected", "error", "dragStart", "dragStop".
+     * Supported events: "tap", "dbltap", "pointerup", "pointerenter", "pointerleave", "featureUnselected", "error", "geometryValidation", "dragStart", "dragStop".
      */
     readonly type: string;
 
@@ -117,6 +118,19 @@ export class EditorEvent {
          * The respective {@link editor.Range|Range} on in which the event occurred.
          */
         range?: Range;
+        /**
+         * This property is set when polygon geometry validation rejects an edit operation.
+         * The payload includes the affected polygon, line string, and coordinate indices.
+         */
+        geometryValidation?: {
+            valid: boolean;
+            reason?: 'selfIntersection' | 'topologyViolation' | 'connectedAreaInvalid';
+            operation?: 'shapeMove' | 'shapeAdd' | 'polygonDraw';
+            blocked?: boolean;
+            polygonIndex?: number;
+            lineStringIndex?: number;
+            coordinateIndex?: number;
+        };
     };
 
     constructor(type: string, mapX, mapY, nativeEvent, button, target, detail) {
@@ -160,4 +174,3 @@ EvProto.timeStamp = NULL;
 EvProto.toString = function() {
     return 'EditorEvent ' + this.type;
 };
-

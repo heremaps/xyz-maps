@@ -16,7 +16,7 @@
  * SPDX-License-Identifier: Apache-2.0
  * License-Filename: LICENSE
  */
-import {prepare} from 'utils';
+import {Listener, prepare} from 'utils';
 import {waitForEditorReady, editorClick, submit} from 'editorUtils';
 import {drag} from 'triggerEvents';
 import {Map} from '@here/xyz-maps-display';
@@ -58,7 +58,6 @@ describe('modify area geometry', () => {
     after(async () => {
         editor.destroy();
         display.destroy();
-
         await preparedData.clear();
     });
 
@@ -143,5 +142,53 @@ describe('modify area geometry', () => {
             [-111.717243279, 40.211324241, 0],
             [-111.717575873, 40.211324241, 0]
         ]]]);
+    });
+
+    it('fire geometryValidation on blocked topologyViolation shape drag', async () => {
+        area.select();
+        // const before = JSON.parse(JSON.stringify(area.coord()));
+        const listener = new Listener(editor, ['geometryValidation']);
+        // exterior intersects with hole
+        await drag(mapContainer, {x: 400, y: 500}, {x: 400, y: 450});
+
+        const results = listener.stop();
+
+        expect(results.geometryValidation).to.have.lengthOf.above(0);
+        expect(results.geometryValidation[0]).to.deep.include({
+            type: 'geometryValidation',
+            target: area
+        });
+        expect(results.geometryValidation[0].detail).to.deep.include({
+            valid: false,
+            reason: 'topologyViolation',
+            operation: 'shapeMove',
+            blocked: true,
+            polygonIndex: 0,
+            lineStringIndex: 0,
+            coordinateIndex: 1
+        });
+    });
+
+    it('fire geometryValidation on blocked self-intersecting shape drag', async () => {
+        area.select();
+        const listener = new Listener(editor, ['geometryValidation']);
+
+        await drag(mapContainer, {x: 300, y: 250}, {x: 450, y: 320});
+
+        const results = listener.stop();
+        expect(results.geometryValidation).to.have.lengthOf.above(0);
+        expect(results.geometryValidation[0]).to.deep.include({
+            type: 'geometryValidation',
+            target: area
+        });
+        expect(results.geometryValidation[0].detail).to.deep.include({
+            valid: false,
+            reason: 'selfIntersection',
+            operation: 'shapeMove',
+            blocked: true,
+            polygonIndex: 0,
+            lineStringIndex: 0,
+            coordinateIndex: 2
+        });
     });
 });

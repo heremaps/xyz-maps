@@ -246,13 +246,14 @@ export default class Editor {
 
     /**
      * Add an EventListener to the editor.
-     * Valid Events are: "tap", "dbltap", "pointerup", "pointerenter", "pointerleave", "featureUnselected", "error", "dragStart", "dragStop".
+     * Valid Events are: "tap", "dbltap", "pointerup", "pointerenter", "pointerleave", "featureUnselected", "error", "geometryValidation", "dragStart", "dragStop".
      *
      * Additional details about the different events:
      * - "tap", "pointerup", "dbltap": These events are thrown when the user taps (or double taps) on any feature or the map itself.
      * - "pointerenter", "pointerleave": Occurs when a pointer enters or leaves the hit test area of a map feature.
      * - "featureUnselected": This event is fired when a feature gets unselected automatically by the Editor ( eg: automatic linksplit ).
      * - "error": The event is fired when error occurs.
+     * - "geometryValidation": The event is fired when a polygon edit operation is validated or rejected by geometry validation. The detail contains `valid`, `blocked`, `reason`, `operation`, `polygonIndex`, `lineStringIndex`, and `coordinateIndex`.
      * - "dragStart": The event is fired when the user starts dragging an Address, Place, Marker or a shape-point of a Navlink/Area.
      * - "dragStop": The event is fired when the user finishes dragging of a Address, Place, Marker or a shape-point of a Navlink/Area.
      *
@@ -284,7 +285,7 @@ export default class Editor {
 
     /**
      * Remove an EventListener from the layer.
-     * Valid Events are: "tap", "dbltap", "pointerup", "pointerenter", "pointerleave", "featureUnselected", "error", "dragStart", "dragStop".
+     * Valid Events are: "tap", "dbltap", "pointerup", "pointerenter", "pointerleave", "featureUnselected", "error", "geometryValidation", "dragStart", "dragStop".
      *
      * @param type - A string which specifies the type of event for which to remove an event listener.
      * @param listener - The listener function of the event handler to remove from the editor.
