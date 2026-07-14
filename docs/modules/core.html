@@ -1,0 +1,1172 @@
+<!doctype html>
+<html class="default no-js">
+<head>
+	<meta charset="utf-8">
+	<meta http-equiv="X-UA-Compatible" content="IE=edge">
+	<title>core | XYZ Maps Documentation</title>
+	<meta name="description" content="Documentation for XYZ Maps Documentation">
+	<meta name="viewport" content="width=device-width, initial-scale=1">
+	<link rel="stylesheet" href="../assets/css/main.css">
+</head>
+<body>
+<header>
+	<div class="tsd-page-toolbar">
+		<div class="container">
+			<div class="table-wrap">
+				<div class="table-cell" id="tsd-search" data-index="../assets/js/search.json" data-base="..">
+					<div class="field">
+						<label for="tsd-search-field" class="tsd-widget search no-caption">Search</label>
+						<input id="tsd-search-field" type="text" />
+					</div>
+					<ul class="results">
+						<li class="state loading">Preparing search index...</li>
+						<li class="state failure">The search index is not available</li>
+					</ul>
+					<a href="../index.html" class="title">XYZ Maps Documentation</a>
+				</div>
+				<div class="table-cell" id="tsd-widgets">
+					<div id="tsd-filter">
+						<a href="#" class="tsd-widget options no-caption" data-toggle="options">Options</a>
+						<div class="tsd-filter-group">
+							<div class="tsd-select" id="tsd-filter-visibility">
+								<span class="tsd-select-label">All</span>
+								<ul class="tsd-select-list">
+									<li data-value="public">Public</li>
+									<li data-value="protected">Public/Protected</li>
+									<li data-value="private" class="selected">All</li>
+								</ul>
+							</div>
+							<input type="checkbox" id="tsd-filter-inherited" checked />
+							<label class="tsd-widget" for="tsd-filter-inherited">Inherited</label>
+						</div>
+					</div>
+					<a href="#" class="tsd-widget menu no-caption" data-toggle="menu">Menu</a>
+				</div>
+			</div>
+		</div>
+	</div>
+	<div class="tsd-page-title">
+		<div class="container">
+			<ul class="tsd-breadcrumb">
+				<li>
+					<a href="../globals.html">Globals</a>
+				</li>
+				<li>
+					<a href="core.html">core</a>
+				</li>
+			</ul>
+			<h1>Package core</h1>
+		</div>
+	</div>
+</header>
+<div class="container container-main">
+	<div class="row">
+		<div class="col-8 col-content">
+			<section class="tsd-panel tsd-comment">
+				<div class="tsd-comment tsd-typography">
+					<a href="#xyz-maps-js-core" id="xyz-maps-js-core" style="color: inherit; text-decoration: none;">
+						<h1>XYZ Maps JS: Core</h1>
+					</a>
+					<p><a href="https://github.com/heremaps/xyz-maps">XYZ Maps</a> is an experimental and work in progress open-source map editor written in TypeScript/JavaScript.
+						The core module of <a href="https://github.com/heremaps/xyz-maps">XYZ Maps</a> provides the most basic functionality and is used by all other modules of xyz-maps.
+					Main functionalities of the module are: DataProviders, TileLayers, Geometric Classes and Styling definitions.</p>
+					<a href="#links" id="links" style="color: inherit; text-decoration: none;">
+						<h3>Links</h3>
+					</a>
+					<ul>
+						<li><a href="https://heremaps.github.io/xyz-maps/playground/#Display-Pitch_and_Rotate_Map">API Playground</a></li>
+						<li><a href="https://heremaps.github.io/xyz-maps/docs/">Documentation</a></li>
+					</ul>
+					<a href="#installation" id="installation" style="color: inherit; text-decoration: none;">
+						<h2>Installation</h2>
+					</a>
+					<p>Install XYZ Map Core by using</p>
+					<pre><code class="language-sh"><span class="hljs-comment"># install using npm</span>
+npm install @here/xyz-maps-core
+</code></pre>
+					<p>or</p>
+					<pre><code class="language-sh"><span class="hljs-comment"># install using yarn</span>
+yarn add @here/xyz-maps-core
+</code></pre>
+					<a href="#example-usage" id="example-usage" style="color: inherit; text-decoration: none;">
+						<h2>Example Usage:</h2>
+					</a>
+					<p>Create a MVTLayer</p>
+					<pre><code class="language-ts"><span class="hljs-keyword">import</span> {MVTLayer} <span class="hljs-keyword">from</span> <span class="hljs-string">&#x27;@here/xyz-maps-core&#x27;</span>;
+
+<span class="hljs-comment">// create a MVT Layer</span>
+<span class="hljs-keyword">const</span> myLayer = <span class="hljs-keyword">new</span> MVTLayer({
+    <span class="hljs-attr">remote</span>: {
+        <span class="hljs-attr">url</span>: <span class="hljs-string">&#x27;https://xyz.api.here.com/tiles/osmbase/512/all/{z}/{x}/{y}.mvt?access_token=&#x27;</span> + YOUR_ACCESS_TOKEN
+        <span class="hljs-attr">tileSize</span> : <span class="hljs-number">512</span>
+    },
+    <span class="hljs-attr">min</span>: <span class="hljs-number">1</span>,
+    <span class="hljs-attr">max</span>: <span class="hljs-number">20</span>
+})
+<span class="hljs-comment">// and add it to the map display</span>
+display.addLayer(myLayer);
+</code></pre>
+					<a href="#start-developing" id="start-developing" style="color: inherit; text-decoration: none;">
+						<h2>Start developing</h2>
+					</a>
+					<ol>
+						<li><p>Install node module dependencies</p>
+							<pre><code>yarn <span class="hljs-keyword">install</span>
+</code></pre>
+							<p> In case yarn is not installed already: <a href="https://yarnpkg.com/en/docs/install">install yarn</a></p>
+						</li>
+						<li><p>watch for source code changes and build dev version</p>
+							<pre><code>yarn <span class="hljs-builtin-name">run</span> watch-dev
+</code></pre>
+							<p> Builds are located in located in <code>./dist/</code></p>
+						</li>
+					</ol>
+					<a href="#other" id="other" style="color: inherit; text-decoration: none;">
+						<h2>Other</h2>
+					</a>
+					<ul>
+						<li><p>build dev version once <code>yarn run build-dev</code> (located in packages/*/dist/)</p>
+						</li>
+						<li><p>build release version only <code>yarn run build-release</code> (minified...)</p>
+						</li>
+					</ul>
+					<a href="#license" id="license" style="color: inherit; text-decoration: none;">
+						<h2>License</h2>
+					</a>
+					<p>Copyright (C) 2019-2022 HERE Europe B.V.</p>
+					<p>This project is licensed under the Apache License, Version 2.0 - see the <a href="LICENSE">LICENSE</a> file for details</p>
+				</div>
+			</section>
+			<section class="tsd-panel-group tsd-index-group">
+				<h2>Index</h2>
+				<section class="tsd-panel tsd-index-panel">
+					<div class="tsd-index-content">
+						<section class="tsd-index-section ">
+							<h3>Classes</h3>
+							<ul class="tsd-index-list">
+								<li class="tsd-kind-class tsd-parent-kind-module"><a href="../classes/core.clusterfeature.html" class="tsd-kind-icon">Cluster<wbr>Feature</a></li>
+								<li class="tsd-kind-class tsd-parent-kind-module"><a href="../classes/core.clustertilelayer.html" class="tsd-kind-icon">Cluster<wbr>Tile<wbr>Layer</a></li>
+								<li class="tsd-kind-class tsd-parent-kind-module"><a href="../classes/core.customlayer.html" class="tsd-kind-icon">Custom<wbr>Layer</a></li>
+								<li class="tsd-kind-class tsd-parent-kind-module"><a href="../classes/core.editablefeatureprovider.html" class="tsd-kind-icon">Editable<wbr>Feature<wbr>Provider</a></li>
+								<li class="tsd-kind-class tsd-parent-kind-module"><a href="../classes/core.editableremotetileprovider.html" class="tsd-kind-icon">Editable<wbr>Remote<wbr>Tile<wbr>Provider</a></li>
+								<li class="tsd-kind-class tsd-parent-kind-module tsd-has-type-parameter"><a href="../classes/core.feature.html" class="tsd-kind-icon">Feature</a></li>
+								<li class="tsd-kind-class tsd-parent-kind-module"><a href="../classes/core.featureprovider.html" class="tsd-kind-icon">Feature<wbr>Provider</a></li>
+								<li class="tsd-kind-class tsd-parent-kind-module"><a href="../classes/core.geocoder.html" class="tsd-kind-icon">Geo<wbr>Coder</a></li>
+								<li class="tsd-kind-class tsd-parent-kind-module"><a href="../classes/core.geojsonprovider.html" class="tsd-kind-icon">GeoJSONProvider</a></li>
+								<li class="tsd-kind-class tsd-parent-kind-module"><a href="../classes/core.geopoint.html" class="tsd-kind-icon">Geo<wbr>Point</a></li>
+								<li class="tsd-kind-class tsd-parent-kind-module"><a href="../classes/core.georect.html" class="tsd-kind-icon">Geo<wbr>Rect</a></li>
+								<li class="tsd-kind-class tsd-parent-kind-module"><a href="../classes/core.httpprovider.html" class="tsd-kind-icon">HTTPProvider</a></li>
+								<li class="tsd-kind-class tsd-parent-kind-module"><a href="../classes/core.imlprovider.html" class="tsd-kind-icon">IMLProvider</a></li>
+								<li class="tsd-kind-class tsd-parent-kind-module"><a href="../classes/core.imageprovider.html" class="tsd-kind-icon">Image<wbr>Provider</a></li>
+								<li class="tsd-kind-class tsd-parent-kind-module"><a href="../classes/core.layer.html" class="tsd-kind-icon">Layer</a></li>
+								<li class="tsd-kind-class tsd-parent-kind-module"><a href="../classes/core.localprovider.html" class="tsd-kind-icon">Local<wbr>Provider</a></li>
+								<li class="tsd-kind-class tsd-parent-kind-module"><a href="../classes/core.mvtlayer.html" class="tsd-kind-icon">MVTLayer</a></li>
+								<li class="tsd-kind-class tsd-parent-kind-module"><a href="../classes/core.pixelpoint.html" class="tsd-kind-icon">Pixel<wbr>Point</a></li>
+								<li class="tsd-kind-class tsd-parent-kind-module"><a href="../classes/core.pixelrect.html" class="tsd-kind-icon">Pixel<wbr>Rect</a></li>
+								<li class="tsd-kind-class tsd-parent-kind-module"><a href="../classes/core.rtinmeshbuilder.html" class="tsd-kind-icon">RTINMesh<wbr>Builder</a></li>
+								<li class="tsd-kind-class tsd-parent-kind-module"><a href="../classes/core.remotetileprovider.html" class="tsd-kind-icon">Remote<wbr>Tile<wbr>Provider</a></li>
+								<li class="tsd-kind-class tsd-parent-kind-module"><a href="../classes/core.spaceprovider.html" class="tsd-kind-icon">Space<wbr>Provider</a></li>
+								<li class="tsd-kind-class tsd-parent-kind-module"><a href="../classes/core.terraintilefeature.html" class="tsd-kind-icon">Terrain<wbr>Tile<wbr>Feature</a></li>
+								<li class="tsd-kind-class tsd-parent-kind-module"><a href="../classes/core.terraintilelayer.html" class="tsd-kind-icon">Terrain<wbr>Tile<wbr>Layer</a></li>
+								<li class="tsd-kind-class tsd-parent-kind-module"><a href="../classes/core.terraintilelayerstyle.html" class="tsd-kind-icon">Terrain<wbr>Tile<wbr>Layer<wbr>Style</a></li>
+								<li class="tsd-kind-class tsd-parent-kind-module"><a href="../classes/core.tile.html" class="tsd-kind-icon">Tile</a></li>
+								<li class="tsd-kind-class tsd-parent-kind-module"><a href="../classes/core.tilelayer.html" class="tsd-kind-icon">Tile<wbr>Layer</a></li>
+								<li class="tsd-kind-class tsd-parent-kind-module"><a href="../classes/core.tileprovider.html" class="tsd-kind-icon">Tile<wbr>Provider</a></li>
+							</ul>
+						</section>
+						<section class="tsd-index-section ">
+							<h3>Interfaces</h3>
+							<ul class="tsd-index-list">
+								<li class="tsd-kind-interface tsd-parent-kind-module"><a href="../interfaces/core.ambientlight.html" class="tsd-kind-icon">Ambient<wbr>Light</a></li>
+								<li class="tsd-kind-interface tsd-parent-kind-module"><a href="../interfaces/core.boxstyle.html" class="tsd-kind-icon">Box<wbr>Style</a></li>
+								<li class="tsd-kind-interface tsd-parent-kind-module"><a href="../interfaces/core.circlestyle.html" class="tsd-kind-icon">Circle<wbr>Style</a></li>
+								<li class="tsd-kind-interface tsd-parent-kind-module"><a href="../interfaces/core.clustertilelayeroptions.html" class="tsd-kind-icon">Cluster<wbr>Tile<wbr>Layer<wbr>Options</a></li>
+								<li class="tsd-kind-interface tsd-parent-kind-module"><a href="../interfaces/core.directionallight.html" class="tsd-kind-icon">Directional<wbr>Light</a></li>
+								<li class="tsd-kind-interface tsd-parent-kind-module"><a href="../interfaces/core.editablefeatureprovideroptions.html" class="tsd-kind-icon">Editable<wbr>Feature<wbr>Provider<wbr>Options</a></li>
+								<li class="tsd-kind-interface tsd-parent-kind-module"><a href="../interfaces/core.editableremotetileprovideroptions.html" class="tsd-kind-icon">Editable<wbr>Remote<wbr>Tile<wbr>Provider<wbr>Options</a></li>
+								<li class="tsd-kind-interface tsd-parent-kind-module"><a href="../interfaces/core.geocoderoptions.html" class="tsd-kind-icon">Geo<wbr>Coder<wbr>Options</a></li>
+								<li class="tsd-kind-interface tsd-parent-kind-module tsd-has-type-parameter"><a href="../interfaces/core.geojsonfeature.html" class="tsd-kind-icon">GeoJSONFeature</a></li>
+								<li class="tsd-kind-interface tsd-parent-kind-module"><a href="../interfaces/core.geojsonfeaturecollection.html" class="tsd-kind-icon">GeoJSONFeature<wbr>Collection</a></li>
+								<li class="tsd-kind-interface tsd-parent-kind-module"><a href="../interfaces/core.httpprovideroptions.html" class="tsd-kind-icon">HTTPProvider<wbr>Options</a></li>
+								<li class="tsd-kind-interface tsd-parent-kind-module"><a href="../interfaces/core.heatmapstyle.html" class="tsd-kind-icon">Heatmap<wbr>Style</a></li>
+								<li class="tsd-kind-interface tsd-parent-kind-module"><a href="../interfaces/core.imlprovideroptions.html" class="tsd-kind-icon">IMLProvider<wbr>Options</a></li>
+								<li class="tsd-kind-interface tsd-parent-kind-module"><a href="../interfaces/core.imageprovideroptions.html" class="tsd-kind-icon">Image<wbr>Provider<wbr>Options</a></li>
+								<li class="tsd-kind-interface tsd-parent-kind-module"><a href="../interfaces/core.imagestyle.html" class="tsd-kind-icon">Image<wbr>Style</a></li>
+								<li class="tsd-kind-interface tsd-parent-kind-module"><a href="../interfaces/core.layeroptions.html" class="tsd-kind-icon">Layer<wbr>Options</a></li>
+								<li class="tsd-kind-interface tsd-parent-kind-module"><a href="../interfaces/core.layerstyle.html" class="tsd-kind-icon">Layer<wbr>Style</a></li>
+								<li class="tsd-kind-interface tsd-parent-kind-module"><a href="../interfaces/core.linestyle.html" class="tsd-kind-icon">Line<wbr>Style</a></li>
+								<li class="tsd-kind-interface tsd-parent-kind-module"><a href="../interfaces/core.lineargradient.html" class="tsd-kind-icon">Linear<wbr>Gradient</a></li>
+								<li class="tsd-kind-interface tsd-parent-kind-module"><a href="../interfaces/core.localprovideroptions.html" class="tsd-kind-icon">Local<wbr>Provider<wbr>Options</a></li>
+								<li class="tsd-kind-interface tsd-parent-kind-module"><a href="../interfaces/core.mvtlayeroptions.html" class="tsd-kind-icon">MVTLayer<wbr>Options</a></li>
+								<li class="tsd-kind-interface tsd-parent-kind-module"><a href="../interfaces/core.material.html" class="tsd-kind-icon">Material</a></li>
+								<li class="tsd-kind-interface tsd-parent-kind-module"><a href="../interfaces/core.modeldata.html" class="tsd-kind-icon">Model<wbr>Data</a></li>
+								<li class="tsd-kind-interface tsd-parent-kind-module"><a href="../interfaces/core.modelgeometry.html" class="tsd-kind-icon">Model<wbr>Geometry</a></li>
+								<li class="tsd-kind-interface tsd-parent-kind-module"><a href="../interfaces/core.modelstyle.html" class="tsd-kind-icon">Model<wbr>Style</a></li>
+								<li class="tsd-kind-interface tsd-parent-kind-module"><a href="../interfaces/core.polygonstyle.html" class="tsd-kind-icon">Polygon<wbr>Style</a></li>
+								<li class="tsd-kind-interface tsd-parent-kind-module"><a href="../interfaces/core.remotetileprovideroptions.html" class="tsd-kind-icon">Remote<wbr>Tile<wbr>Provider<wbr>Options</a></li>
+								<li class="tsd-kind-interface tsd-parent-kind-module"><a href="../interfaces/core.spaceprovideroptions.html" class="tsd-kind-icon">Space<wbr>Provider<wbr>Options</a></li>
+								<li class="tsd-kind-interface tsd-parent-kind-module"><a href="../interfaces/core.spherestyle.html" class="tsd-kind-icon">Sphere<wbr>Style</a></li>
+								<li class="tsd-kind-interface tsd-parent-kind-module"><a href="../interfaces/core.style.html" class="tsd-kind-icon">Style</a></li>
+								<li class="tsd-kind-interface tsd-parent-kind-module"><a href="../interfaces/core.terrainmesh.html" class="tsd-kind-icon">Terrain<wbr>Mesh</a></li>
+								<li class="tsd-kind-interface tsd-parent-kind-module"><a href="../interfaces/core.terraintilelayeroptions.html" class="tsd-kind-icon">Terrain<wbr>Tile<wbr>Layer<wbr>Options</a></li>
+								<li class="tsd-kind-interface tsd-parent-kind-module"><a href="../interfaces/core.textstyle.html" class="tsd-kind-icon">Text<wbr>Style</a></li>
+								<li class="tsd-kind-interface tsd-parent-kind-module"><a href="../interfaces/core.tilelayeroptions.html" class="tsd-kind-icon">Tile<wbr>Layer<wbr>Options</a></li>
+								<li class="tsd-kind-interface tsd-parent-kind-module"><a href="../interfaces/core.tileprovideroptions.html" class="tsd-kind-icon">Tile<wbr>Provider<wbr>Options</a></li>
+								<li class="tsd-kind-interface tsd-parent-kind-module"><a href="../interfaces/core.verticallinestyle.html" class="tsd-kind-icon">Vertical<wbr>Line<wbr>Style</a></li>
+							</ul>
+						</section>
+						<section class="tsd-index-section ">
+							<h3>Type aliases</h3>
+							<ul class="tsd-index-list">
+								<li class="tsd-kind-type-alias tsd-parent-kind-module"><a href="core.html#clusterfeatureproperties" class="tsd-kind-icon">Cluster<wbr>Feature<wbr>Properties</a></li>
+								<li class="tsd-kind-type-alias tsd-parent-kind-module"><a href="core.html#color" class="tsd-kind-icon">Color</a></li>
+								<li class="tsd-kind-type-alias tsd-parent-kind-module"><a href="core.html#datasourceattribution" class="tsd-kind-icon">Data<wbr>Source<wbr>Attribution</a></li>
+								<li class="tsd-kind-type-alias tsd-parent-kind-module"><a href="core.html#geojsonbbox" class="tsd-kind-icon">GeoJSONBBox</a></li>
+								<li class="tsd-kind-type-alias tsd-parent-kind-module"><a href="core.html#geojsoncoordinate" class="tsd-kind-icon">GeoJSONCoordinate</a></li>
+								<li class="tsd-kind-type-alias tsd-parent-kind-module tsd-has-type-parameter"><a href="core.html#styleexpression" class="tsd-kind-icon">Style<wbr>Expression</a></li>
+								<li class="tsd-kind-type-alias tsd-parent-kind-module tsd-has-type-parameter"><a href="core.html#stylevaluefunction" class="tsd-kind-icon">Style<wbr>Value<wbr>Function</a></li>
+								<li class="tsd-kind-type-alias tsd-parent-kind-module tsd-has-type-parameter"><a href="core.html#stylezoomrange" class="tsd-kind-icon">Style<wbr>Zoom<wbr>Range</a></li>
+								<li class="tsd-kind-type-alias tsd-parent-kind-module"><a href="core.html#terraintilefeatureproperties" class="tsd-kind-icon">Terrain<wbr>Tile<wbr>Feature<wbr>Properties</a></li>
+							</ul>
+						</section>
+						<section class="tsd-index-section ">
+							<h3>Variables</h3>
+							<ul class="tsd-index-list">
+								<li class="tsd-kind-variable tsd-parent-kind-module"><a href="core.html#webmercator" class="tsd-kind-icon">web<wbr>Mercator</a></li>
+							</ul>
+						</section>
+						<section class="tsd-index-section ">
+							<h3>Object literals</h3>
+							<ul class="tsd-index-list">
+								<li class="tsd-kind-object-literal tsd-parent-kind-module"><a href="core.html#build" class="tsd-kind-icon">build</a></li>
+							</ul>
+						</section>
+					</div>
+				</section>
+			</section>
+			<section class="tsd-panel-group tsd-member-group ">
+				<h2>Type aliases</h2>
+				<section class="tsd-panel tsd-member tsd-kind-type-alias tsd-parent-kind-module">
+					<a name="clusterfeatureproperties" class="tsd-anchor"></a>
+					<h3>Cluster<wbr>Feature<wbr>Properties</h3>
+					<div class="tsd-signature tsd-kind-icon">Cluster<wbr>Feature<wbr>Properties<span class="tsd-signature-symbol">:</span> <span class="tsd-signature-symbol">{ </span>clusterSize<span class="tsd-signature-symbol">: </span><span class="tsd-signature-type">number</span><span class="tsd-signature-symbol">; </span>isCluster<span class="tsd-signature-symbol">: </span><span class="tsd-signature-type">true</span><span class="tsd-signature-symbol">; </span>zoom<span class="tsd-signature-symbol">: </span><span class="tsd-signature-type">number</span><span class="tsd-signature-symbol"> }</span></div>
+					<aside class="tsd-sources">
+					</aside>
+					<div class="tsd-comment tsd-typography">
+						<div class="lead">
+							<p>Properties of a ClusterFeature.</p>
+						</div>
+						<p>The <code>isCluster</code>, <code>clusterSize</code>, and <code>zoom</code> properties are automatically populated for each cluster feature.</p>
+						<p>Custom properties aggregation for clusters can be achieved by defining custom property creation and aggregation functions using the <a href="../interfaces/core.clustertilelayeroptions.html#createproperties">createProperties</a> and <a href="../interfaces/core.clustertilelayeroptions.html#aggregateproperties">aggregateProperties</a> options.</p>
+					</div>
+					<div class="tsd-type-declaration">
+						<h4>Type declaration</h4>
+						<ul class="tsd-parameters">
+							<li class="tsd-parameter-index-signature">
+								<h5><span class="tsd-signature-symbol">[</span>name: <span class="tsd-signature-type">string</span><span class="tsd-signature-symbol">]: </span><span class="tsd-signature-type">any</span></h5>
+								<div class="tsd-comment tsd-typography">
+									<div class="lead">
+										<p>Additional custom properties of the cluster feature.</p>
+									</div>
+								</div>
+							</li>
+							<li class="tsd-parameter">
+								<h5><span class="tsd-flag ts-flagReadonly">Readonly</span> cluster<wbr>Size<span class="tsd-signature-symbol">: </span><span class="tsd-signature-type">number</span></h5>
+								<div class="tsd-comment tsd-typography">
+									<div class="lead">
+										<p>The size of the cluster, i.e., the number of features it contains.</p>
+									</div>
+								</div>
+							</li>
+							<li class="tsd-parameter">
+								<h5><span class="tsd-flag ts-flagReadonly">Readonly</span> is<wbr>Cluster<span class="tsd-signature-symbol">: </span><span class="tsd-signature-type">true</span></h5>
+								<div class="tsd-comment tsd-typography">
+									<div class="lead">
+										<p>Indicates if the feature is a cluster.</p>
+									</div>
+								</div>
+							</li>
+							<li class="tsd-parameter">
+								<h5><span class="tsd-flag ts-flagReadonly">Readonly</span> zoom<span class="tsd-signature-symbol">: </span><span class="tsd-signature-type">number</span></h5>
+								<div class="tsd-comment tsd-typography">
+									<div class="lead">
+										<p>The zoom level at which the cluster was formed.</p>
+									</div>
+								</div>
+							</li>
+						</ul>
+					</div>
+				</section>
+				<section class="tsd-panel tsd-member tsd-kind-type-alias tsd-parent-kind-module">
+					<a name="color" class="tsd-anchor"></a>
+					<h3>Color</h3>
+					<div class="tsd-signature tsd-kind-icon">Color<span class="tsd-signature-symbol">:</span> <span class="tsd-signature-type">string</span><span class="tsd-signature-symbol"> | </span><span class="tsd-signature-type">number</span><span class="tsd-signature-symbol"> | </span><span class="tsd-signature-symbol">[</span><span class="tsd-signature-type">number</span><span class="tsd-signature-symbol">, </span><span class="tsd-signature-type">number</span><span class="tsd-signature-symbol">, </span><span class="tsd-signature-type">number</span><span class="tsd-signature-symbol">, </span><span class="tsd-signature-type">number</span><span class="tsd-signature-symbol">]</span></div>
+					<aside class="tsd-sources">
+					</aside>
+					<div class="tsd-comment tsd-typography">
+						<div class="lead">
+							<p>The Color is an RGBA color value representing RED, GREEN, and BLUE light sources with an optional alpha channel.
+							Colors can be specified in the following ways:</p>
+							<ul>
+								<li>CSS color names: &quot;red&quot;</li>
+								<li>RGB colors: &quot;rgb(255,0,0)&quot;</li>
+								<li>RGBA colors: &quot;rgba(255,0,0,1.0)&quot;</li>
+								<li>Hexadecimal colors: &quot;#ff0000&quot; | &quot;#f00&quot;</li>
+								<li>Hexadecimal colors with transparency: &quot;#ff0000ff&quot;</li>
+								<li>hexadecimal numbers: 0xff0000</li>
+								<li>RGBA Color Array: [1.0, 0.0, 0.0, 1.0]</li>
+							</ul>
+						</div>
+					</div>
+				</section>
+				<section class="tsd-panel tsd-member tsd-kind-type-alias tsd-parent-kind-module">
+					<a name="datasourceattribution" class="tsd-anchor"></a>
+					<h3>Data<wbr>Source<wbr>Attribution</h3>
+					<div class="tsd-signature tsd-kind-icon">Data<wbr>Source<wbr>Attribution<span class="tsd-signature-symbol">:</span> <span class="tsd-signature-symbol">{ </span>label<span class="tsd-signature-symbol">: </span><span class="tsd-signature-type">string</span><span class="tsd-signature-symbol">; </span>title<span class="tsd-signature-symbol">?: </span><span class="tsd-signature-type">string</span><span class="tsd-signature-symbol">; </span>url<span class="tsd-signature-symbol">?: </span><span class="tsd-signature-type">string</span><span class="tsd-signature-symbol"> }</span></div>
+					<aside class="tsd-sources">
+					</aside>
+					<div class="tsd-comment tsd-typography">
+						<div class="lead">
+							<p>Represents a structured attribution entry for a data source.</p>
+						</div>
+						<p>Used to provide detailed attribution information for map layers, supporting clickable labels and optional tooltips.</p>
+						<dl class="tsd-comment-tags">
+							<dt>property</dt>
+							<dd><p>label - The text label displayed in the attribution control.</p>
+							</dd>
+							<dt>property</dt>
+							<dd><p>url - (Optional) A URL that opens when the label is clicked.</p>
+							</dd>
+							<dt>property</dt>
+							<dd><p>title - (Optional) Tooltip shown on hover over the label.</p>
+							</dd>
+						</dl>
+					</div>
+					<div class="tsd-type-declaration">
+						<h4>Type declaration</h4>
+						<ul class="tsd-parameters">
+							<li class="tsd-parameter">
+								<h5>label<span class="tsd-signature-symbol">: </span><span class="tsd-signature-type">string</span></h5>
+								<div class="tsd-comment tsd-typography">
+									<div class="lead">
+										<p>The text label displayed in the attribution control.</p>
+									</div>
+								</div>
+							</li>
+							<li class="tsd-parameter">
+								<h5><span class="tsd-flag ts-flagOptional">Optional</span> title<span class="tsd-signature-symbol">?: </span><span class="tsd-signature-type">string</span></h5>
+								<div class="tsd-comment tsd-typography">
+									<div class="lead">
+										<p>(Optional) Tooltip shown on hover over the label.</p>
+									</div>
+								</div>
+							</li>
+							<li class="tsd-parameter">
+								<h5><span class="tsd-flag ts-flagOptional">Optional</span> url<span class="tsd-signature-symbol">?: </span><span class="tsd-signature-type">string</span></h5>
+								<div class="tsd-comment tsd-typography">
+									<div class="lead">
+										<p>(Optional) A URL that opens when the label is clicked.</p>
+									</div>
+								</div>
+							</li>
+						</ul>
+					</div>
+				</section>
+				<section class="tsd-panel tsd-member tsd-kind-type-alias tsd-parent-kind-module">
+					<a name="geojsonbbox" class="tsd-anchor"></a>
+					<h3>GeoJSONBBox</h3>
+					<div class="tsd-signature tsd-kind-icon">GeoJSONBBox<span class="tsd-signature-symbol">:</span> <span class="tsd-signature-symbol">[</span><span class="tsd-signature-type">number</span><span class="tsd-signature-symbol">, </span><span class="tsd-signature-type">number</span><span class="tsd-signature-symbol">, </span><span class="tsd-signature-type">number</span><span class="tsd-signature-symbol">, </span><span class="tsd-signature-type">number</span><span class="tsd-signature-symbol">]</span></div>
+					<aside class="tsd-sources">
+					</aside>
+					<div class="tsd-comment tsd-typography">
+						<div class="lead">
+							<p>Defines a geographical rectangle.
+							The values of a GeoJSONBBox array are &quot;[west: number, south: number, east: number, north: number]&quot;</p>
+						</div>
+					</div>
+				</section>
+				<section class="tsd-panel tsd-member tsd-kind-type-alias tsd-parent-kind-module">
+					<a name="geojsoncoordinate" class="tsd-anchor"></a>
+					<h3>GeoJSONCoordinate</h3>
+					<div class="tsd-signature tsd-kind-icon">GeoJSONCoordinate<span class="tsd-signature-symbol">:</span> <span class="tsd-signature-type">number</span><span class="tsd-signature-symbol">[]</span></div>
+					<aside class="tsd-sources">
+					</aside>
+					<div class="tsd-comment tsd-typography">
+						<div class="lead">
+							<p>A GeoJSON Geometry coordinate is a array of coordinates.
+							The array must contain two or three elements [longitude, latitude, altitude?] / [x, y, z?].</p>
+						</div>
+					</div>
+				</section>
+				<section class="tsd-panel tsd-member tsd-kind-type-alias tsd-parent-kind-module tsd-has-type-parameter">
+					<a name="styleexpression" class="tsd-anchor"></a>
+					<h3>Style<wbr>Expression</h3>
+					<div class="tsd-signature tsd-kind-icon">Style<wbr>Expression&lt;ResultType&gt;<span class="tsd-signature-symbol">:</span> <span class="tsd-signature-symbol">[</span><span class="tsd-signature-type">string</span><span class="tsd-signature-symbol">, </span><span class="tsd-signature-type">any</span><span class="tsd-signature-symbol">]</span></div>
+					<aside class="tsd-sources">
+					</aside>
+					<div class="tsd-comment tsd-typography">
+						<div class="lead">
+							<p>A StyleExpression is a JSON array representing an expression that returns the desired value
+							for a specific style property. It is particularly useful for data-driven styling in map or UI components.</p>
+						</div>
+						<p>The structure of a StyleExpression is as follows:</p>
+						<ul>
+							<li>The first element (index 0) is a string that specifies the operator of the expression.</li>
+							<li>The subsequent elements are the operands required by the operator.</li>
+						</ul>
+					</div>
+					<h4 class="tsd-type-parameters-title">Type parameters</h4>
+					<ul class="tsd-type-parameters">
+						<li>
+							<h4>ResultType = <span class="tsd-signature-type">any</span></h4>
+							<div class="tsd-comment tsd-typography">
+								<div class="lead">
+									<p>The type of the value that the expression returns.</p>
+									<a href="#styleexpression-operators" id="styleexpression-operators" style="color: inherit; text-decoration: none;">
+										<h2>StyleExpression Operators</h2>
+									</a>
+									<p>A StyleExpression is a JSON array representing an expression that returns the desired value for a specific style property. Below are the possible operators and their descriptions, along with examples.</p>
+									<a href="#reference" id="reference" style="color: inherit; text-decoration: none;">
+										<h3>Reference</h3>
+									</a>
+									<ul>
+										<li><strong><code>ref</code></strong>: References another expression by name.<ul>
+												<li>Example: <code>[&quot;ref&quot;, &quot;otherExpression&quot;]</code></li>
+											</ul>
+										</li>
+									</ul>
+									<a href="#data-retrieval" id="data-retrieval" style="color: inherit; text-decoration: none;">
+										<h3>Data Retrieval</h3>
+									</a>
+									<ul>
+										<li><p><strong><code>get</code></strong>: Retrieves a property from the input data. The third optional operand specifies the input data from which to retrieve the property. If not provided, it defaults to <code>feature.properties</code>.</p>
+											<p>The property name can also be a global map context variable:</p>
+											<ul>
+												<li><p><code>$zoom</code>: The current zoom level.</p>
+												</li>
+												<li><p><code>$layer</code>: The name of the datasource layer.</p>
+												</li>
+												<li><p><code>$geometryType</code>: The type of the current feature geometry (&quot;line&quot;, &quot;point&quot;, &quot;polygon&quot;).</p>
+												</li>
+												<li><p><code>$id</code>: The ID of the current feature.</p>
+												</li>
+												<li><p>Example: <code>[&quot;get&quot;, &quot;propertyName&quot;]</code> // Retrieves <code>propertyName</code> from <code>feature.properties</code>.</p>
+												</li>
+												<li><p>Example with input data: <code>[&quot;get&quot;, &quot;propertyName&quot;, { custom: &quot;data&quot; }]</code> // Retrieves <code>propertyName</code> from the specified input data.</p>
+												</li>
+												<li><p>Example with global map context variable: <code>[&quot;get&quot;, &quot;$zoom&quot;]</code> // Retrieves the current zoom level.</p>
+												</li>
+											</ul>
+										</li>
+									</ul>
+									<a href="#arithmetic" id="arithmetic" style="color: inherit; text-decoration: none;">
+										<h3>Arithmetic</h3>
+									</a>
+									<ul>
+										<li><strong><code>+</code></strong>: Adds two numbers.<ul>
+												<li>Example: <code>[&quot;+&quot;, 2, 3]</code> // Outputs: 5</li>
+											</ul>
+										</li>
+										<li><strong><code>-</code></strong>: Subtracts the second number from the first.<ul>
+												<li>Example: <code>[&quot;-&quot;, 5, 3]</code> // Outputs: 2</li>
+											</ul>
+										</li>
+										<li><strong><code>*</code></strong>: Multiplies two numbers.<ul>
+												<li>Example: <code>[&quot;*&quot;, 2, 3]</code> // Outputs: 6</li>
+											</ul>
+										</li>
+										<li><strong><code>/</code></strong>: Divides the first number by the second.<ul>
+												<li>Example: <code>[&quot;/&quot;, 6, 3]</code> // Outputs: 2</li>
+											</ul>
+										</li>
+										<li><strong><code>%</code></strong>: Computes the remainder of dividing the first number by the second.<ul>
+												<li>Example: <code>[&quot;%&quot;, 5, 2]</code> // Outputs: 1</li>
+											</ul>
+										</li>
+										<li><strong><code>floor</code></strong>: Rounds down a number to the nearest integer.<ul>
+												<li>Example: <code>[&quot;floor&quot;, 4.7]</code> // Outputs: 4</li>
+											</ul>
+										</li>
+										<li><strong><code>min</code></strong>: Returns the smallest number.<ul>
+												<li>Example: <code>[&quot;min&quot;, 1, 2, 3]</code> // Outputs: 1</li>
+											</ul>
+										</li>
+										<li><strong><code>max</code></strong>: Returns the largest number.<ul>
+												<li>Example: <code>[&quot;max&quot;, 1, 2, 3]</code> // Outputs: 3</li>
+											</ul>
+										</li>
+									</ul>
+									<a href="#logical" id="logical" style="color: inherit; text-decoration: none;">
+										<h3>Logical</h3>
+									</a>
+									<ul>
+										<li><strong><code>all</code></strong>: Returns true if all conditions are true.<ul>
+												<li>Example: <code>[&quot;all&quot;, true, true]</code> // Outputs: true</li>
+											</ul>
+										</li>
+										<li><strong><code>any</code></strong>: Returns true if any condition is true.<ul>
+												<li>Example: <code>[&quot;any&quot;, true, false]</code> // Outputs: true</li>
+											</ul>
+										</li>
+										<li><strong><code>!</code></strong>: Negates a boolean value.<ul>
+												<li>Example: <code>[&quot;!&quot;, true]</code> // Outputs: false</li>
+											</ul>
+										</li>
+										<li><strong><code>!has</code></strong>: Checks if a property does not exist.<ul>
+												<li>Example: <code>[&quot;!has&quot;, &quot;propertyName&quot;]</code></li>
+											</ul>
+										</li>
+										<li><strong><code>has</code></strong>: Checks if a property exists.<ul>
+												<li>Example: <code>[&quot;has&quot;, &quot;propertyName&quot;]</code></li>
+											</ul>
+										</li>
+										<li><strong><code>none</code></strong>: Returns true if no conditions are true.<ul>
+												<li>Example: <code>[&quot;none&quot;, false, false]</code> // Outputs: true</li>
+											</ul>
+										</li>
+									</ul>
+									<a href="#comparison" id="comparison" style="color: inherit; text-decoration: none;">
+										<h3>Comparison</h3>
+									</a>
+									<ul>
+										<li><strong><code>==</code></strong>: Checks if two values are equal.<ul>
+												<li>Example: <code>[&quot;==&quot;, 2, 2]</code> // Outputs: true</li>
+											</ul>
+										</li>
+										<li><strong><code>!=</code></strong>: Checks if two values are not equal.<ul>
+												<li>Example: <code>[&quot;!=&quot;, 2, 3]</code> // Outputs: true</li>
+											</ul>
+										</li>
+										<li><strong><code>&gt;</code></strong>: Checks if the first value is greater than the second.<ul>
+												<li>Example: <code>[&quot; &gt;&quot;, 3, 2]</code> // Outputs: true</li>
+											</ul>
+										</li>
+										<li><strong><code>&gt;=</code></strong>: Checks if the first value is greater than or equal to the second.<ul>
+												<li>Example: <code>[&quot; &gt;=&quot;, 3, 3]</code> // Outputs: true</li>
+											</ul>
+										</li>
+										<li><strong><code>&lt;=</code></strong>: Checks if the first value is less than or equal to the second.<ul>
+												<li>Example: <code>[&quot;&lt;=&quot;, 2, 2]</code> // Outputs: true</li>
+											</ul>
+										</li>
+										<li><strong><code>&lt;</code></strong>: Checks if the first value is less than the second.<ul>
+												<li>Example: <code>[&quot;&lt;&quot;, 2, 3]</code> // Outputs: true</li>
+											</ul>
+										</li>
+										<li><strong><code>^=</code></strong>: Checks if a string starts with a given substring.<ul>
+												<li>Example: <code>[&quot;^=&quot;, &quot;hello&quot;, &quot;he&quot;]</code> // Outputs: true</li>
+											</ul>
+										</li>
+										<li><strong><code>$=</code></strong>: Checks if a string ends with a given substring.<ul>
+												<li>Example: <code>[&quot;$=&quot;, &quot;hello&quot;, &quot;lo&quot;]</code> // Outputs: true</li>
+											</ul>
+										</li>
+									</ul>
+									<a href="#string-manipulation" id="string-manipulation" style="color: inherit; text-decoration: none;">
+										<h3>String Manipulation</h3>
+									</a>
+									<ul>
+										<li><strong><code>split</code></strong>: Splits a string by a delimiter.<ul>
+												<li>Example: <code>[&quot;split&quot;, &quot;a,b,c&quot;, &quot;,&quot;]</code> // Outputs: [&quot;a&quot;, &quot;b&quot;, &quot;c&quot;]</li>
+											</ul>
+										</li>
+										<li><strong><code>to-string</code></strong>: Converts a value to a string.<ul>
+												<li>Example: <code>[&quot;to-string&quot;, 123]</code> // Outputs: &quot;123&quot;</li>
+											</ul>
+										</li>
+										<li><strong><code>concat</code></strong>: Concatenates multiple strings.<ul>
+												<li>Example: <code>[&quot;concat&quot;, &quot;hello&quot;, &quot; &quot;, &quot;world&quot;]</code> // Outputs: &quot;hello world&quot;</li>
+											</ul>
+										</li>
+										<li><strong><code>regex-replace</code></strong>: Replaces parts of a string matching a regex.<ul>
+												<li>Example: <code>[&quot;regex-replace&quot;, &quot;hello world&quot;, &quot;world&quot;, &quot;there&quot;]</code> // Outputs: &quot;hello there&quot;</li>
+											</ul>
+										</li>
+										<li><strong><code>slice</code></strong>: Extracts a section of a string.<ul>
+												<li>Example: <code>[&quot;slice&quot;, &quot;hello&quot;, 0, 2]</code> // Outputs: &quot;he&quot;</li>
+											</ul>
+										</li>
+										<li><strong><code>at</code></strong>: Gets the character at a specified index in a string.<ul>
+												<li>Example: <code>[&quot;at&quot;, &quot;hello&quot;, 1]</code> // Outputs: &quot;e&quot;</li>
+											</ul>
+										</li>
+										<li><strong><code>length</code></strong>: Gets the length of a string.<ul>
+												<li>Example: <code>[&quot;length&quot;, &quot;hello&quot;]</code> // Outputs: 5</li>
+											</ul>
+										</li>
+									</ul>
+									<a href="#conditional" id="conditional" style="color: inherit; text-decoration: none;">
+										<h3>Conditional</h3>
+									</a>
+									<ul>
+										<li><strong><code>case</code></strong>: Evaluates conditions in order and returns the corresponding result for the first true condition.<ul>
+												<li>Example: <code>[&quot;case&quot;, [&quot;==&quot;, 1, 1], &quot;one&quot;, [&quot;==&quot;, 2, 2], &quot;two&quot;, &quot;default&quot;]</code> // Outputs: &quot;one&quot;</li>
+											</ul>
+										</li>
+										<li><strong><code>step</code></strong>: Returns a value from a step function based on input.<ul>
+												<li>Example: <code>[&quot;step&quot;, 3, &quot;small&quot;, 5, &quot;medium&quot;, 10, &quot;large&quot;]</code> // Outputs: &quot;small&quot;</li>
+											</ul>
+										</li>
+										<li><strong><code>match</code></strong>: Returns a value based on matching input values.<ul>
+												<li>Example: <code>[&quot;match&quot;, &quot;a&quot;, &quot;a&quot;, 1, &quot;b&quot;, 2, 0]</code> // Outputs: 1</li>
+											</ul>
+										</li>
+									</ul>
+									<a href="#utility" id="utility" style="color: inherit; text-decoration: none;">
+										<h3>Utility</h3>
+									</a>
+									<ul>
+										<li><strong><code>literal</code></strong>: Returns a literal value.<ul>
+												<li>Example: <code>[&quot;literal&quot;, [1, 2, 3]]</code> // Outputs: [1, 2, 3]</li>
+											</ul>
+										</li>
+										<li><strong><code>lookup</code></strong>: Finds an entry in a table that matches the given key values. The entry with the most matching keys is returned.
+											If multiple entries match equally, one of them is returned.
+											If no match is found, the default entry (if any) is returned. If no default entry is defined, null is returned.<ul>
+												<li>The <code>lookupTable</code> should be an array of objects, each with a <code>keys</code> member and an <code>attributes</code> member:<ul>
+														<li><code>keys</code>: An object containing key-value pairs used for matching.</li>
+														<li><code>attributes</code>: An object containing the attributes to be returned when a match is found.</li>
+													</ul>
+												</li>
+												<li>Example:<pre><code class="language-javascript">{
+<span class="hljs-string">&quot;definitions&quot;</span>: {
+  <span class="hljs-string">&quot;lookupTable&quot;</span>: [ <span class="hljs-string">&quot;literal&quot;</span>, [
+    { <span class="hljs-string">&quot;keys&quot;</span>: { <span class="hljs-string">&quot;country&quot;</span>: <span class="hljs-string">&quot;US&quot;</span> }, <span class="hljs-string">&quot;attributes&quot;</span>: { <span class="hljs-string">&quot;population&quot;</span>: <span class="hljs-number">331000000</span> } },
+    { <span class="hljs-string">&quot;keys&quot;</span>: { <span class="hljs-string">&quot;country&quot;</span>: <span class="hljs-string">&quot;US&quot;</span>, <span class="hljs-string">&quot;state&quot;</span>: <span class="hljs-string">&quot;CA&quot;</span> }, <span class="hljs-string">&quot;attributes&quot;</span>: { <span class="hljs-string">&quot;population&quot;</span>: <span class="hljs-number">39500000</span> } },
+    { <span class="hljs-string">&quot;keys&quot;</span>: {}, <span class="hljs-string">&quot;attributes&quot;</span>: { <span class="hljs-string">&quot;population&quot;</span>: <span class="hljs-number">7800000000</span> } } <span class="hljs-comment">// Default entry</span>
+  ]]
+}
+}
+<span class="hljs-comment">// This example looks up the population for the state of California in the United States from the `lookupTable`.</span>
+[<span class="hljs-string">&quot;lookup&quot;</span>, { <span class="hljs-string">&quot;country&quot;</span>: <span class="hljs-string">&quot;US&quot;</span>, <span class="hljs-string">&quot;state&quot;</span>: <span class="hljs-string">&quot;CA&quot;</span> }, [<span class="hljs-string">&quot;ref&quot;</span>, <span class="hljs-string">&quot;lookupTable&quot;</span>]] <span class="hljs-comment">// Outputts: `{ &quot;population&quot;: 39500000 }`.</span>
+</code></pre>
+												</li>
+											</ul>
+										</li>
+									</ul>
+									<a href="#type-conversion" id="type-conversion" style="color: inherit; text-decoration: none;">
+										<h3>Type Conversion</h3>
+									</a>
+									<ul>
+										<li><strong><code>number</code></strong>: Converts a value to a number.<ul>
+												<li>Example: <code>[&quot;number&quot;, &quot;123&quot;]</code> // Outputs: 123</li>
+											</ul>
+										</li>
+										<li><strong><code>boolean</code></strong>: Converts a value to a boolean.<ul>
+												<li>Example: <code>[&quot;boolean&quot;, &quot;true&quot;]</code> // Outputs: true</li>
+											</ul>
+										</li>
+										<li><strong><code>to-number</code></strong>: Converts a value to a number.<ul>
+												<li>Example: <code>[&quot;to-number&quot;, &quot;123&quot;]</code> // Outputs: 123</li>
+											</ul>
+										</li>
+										<li><strong><code>to-boolean</code></strong>: Converts a value to a boolean.<ul>
+												<li>Example: <code>[&quot;to-boolean&quot;, &quot;true&quot;]</code> // Outputs: true</li>
+											</ul>
+										</li>
+									</ul>
+									<a href="#zoom-and-interpolation" id="zoom-and-interpolation" style="color: inherit; text-decoration: none;">
+										<h3>Zoom and Interpolation</h3>
+									</a>
+									<ul>
+										<li><strong><code>zoom</code></strong>: Returns the current zoom level.<ul>
+												<li>Example: <code>[&quot;zoom&quot;]</code> // Outputs: current zoom level</li>
+											</ul>
+										</li>
+										<li><strong><code>interpolate</code></strong>: Interpolates between values based on zoom level.<ul>
+												<li>Example: <code>[&quot;interpolate&quot;, [&quot;linear&quot;], [&quot;zoom&quot;], 10, 1, 15, 10]</code></li>
+											</ul>
+										</li>
+									</ul>
+									<p>Example:</p>
+									<pre><code class="language-typescript"><span class="hljs-keyword">const</span> expression: StyleExpression = [<span class="hljs-string">&quot;==&quot;</span>, [<span class="hljs-string">&quot;get&quot;</span>, <span class="hljs-string">&quot;property&quot;</span>], <span class="hljs-string">&quot;value&quot;</span>];
+</code></pre>
+									<p>In this example, <code>&quot;==&quot;</code> is the operator, and <code>[&quot;get&quot;, &quot;property&quot;]</code> and <code>&quot;value&quot;</code> are the operands.</p>
+									<p>Operators can include logical, arithmetic, string manipulation, and other types of operations, which are evaluated
+									to determine the final value of the style property.</p>
+								</div>
+							</div>
+						</li>
+					</ul>
+				</section>
+				<section class="tsd-panel tsd-member tsd-kind-type-alias tsd-parent-kind-module tsd-has-type-parameter">
+					<a name="stylevaluefunction" class="tsd-anchor"></a>
+					<h3>Style<wbr>Value<wbr>Function</h3>
+					<div class="tsd-signature tsd-kind-icon">Style<wbr>Value<wbr>Function&lt;Type&gt;<span class="tsd-signature-symbol">:</span> <span class="tsd-signature-symbol">(</span>feature<span class="tsd-signature-symbol">: </span><a href="../classes/core.feature.html" class="tsd-signature-type">Feature</a>, zoom<span class="tsd-signature-symbol">: </span><span class="tsd-signature-type">number</span><span class="tsd-signature-symbol">)</span><span class="tsd-signature-symbol"> =&gt; </span><span class="tsd-signature-type">Type</span><span class="tsd-signature-symbol"> | </span><span class="tsd-signature-type">undefined</span></div>
+					<aside class="tsd-sources">
+					</aside>
+					<div class="tsd-comment tsd-typography">
+						<div class="lead">
+							<p>A StyleValueFunction is a function that returns the desired value for the respective style property.
+							It&#39;s especially useful for data driven styling.</p>
+						</div>
+						<dl class="tsd-comment-tags">
+							<dt>param</dt>
+							<dd><p>the feature for which the style is to be obtained</p>
+							</dd>
+							<dt>param</dt>
+							<dd><p>the zoomlevel of the style</p>
+							</dd>
+							<dt>example</dt>
+							<dd><pre><code class="language-typescript">text: <span class="hljs-function">(<span class="hljs-params">feature, zoom</span>) =&gt;</span> feature.properties.name
+</code></pre>
+							</dd>
+						</dl>
+					</div>
+					<h4 class="tsd-type-parameters-title">Type parameters</h4>
+					<ul class="tsd-type-parameters">
+						<li>
+							<h4>Type</h4>
+						</li>
+					</ul>
+					<div class="tsd-type-declaration">
+						<h4>Type declaration</h4>
+						<ul class="tsd-parameters">
+							<li class="tsd-parameter-signature">
+								<ul class="tsd-signatures tsd-kind-type-literal tsd-parent-kind-type-alias">
+									<li class="tsd-signature tsd-kind-icon"><span class="tsd-signature-symbol">(</span>feature<span class="tsd-signature-symbol">: </span><a href="../classes/core.feature.html" class="tsd-signature-type">Feature</a>, zoom<span class="tsd-signature-symbol">: </span><span class="tsd-signature-type">number</span><span class="tsd-signature-symbol">)</span><span class="tsd-signature-symbol">: </span><span class="tsd-signature-type">Type</span><span class="tsd-signature-symbol"> | </span><span class="tsd-signature-type">undefined</span></li>
+								</ul>
+								<ul class="tsd-descriptions">
+									<li class="tsd-description">
+										<h4 class="tsd-parameters-title">Parameters</h4>
+										<ul class="tsd-parameters">
+											<li>
+												<h5>feature: <a href="../classes/core.feature.html" class="tsd-signature-type">Feature</a></h5>
+											</li>
+											<li>
+												<h5>zoom: <span class="tsd-signature-type">number</span></h5>
+											</li>
+										</ul>
+										<h4 class="tsd-returns-title">Returns <span class="tsd-signature-type">Type</span><span class="tsd-signature-symbol"> | </span><span class="tsd-signature-type">undefined</span></h4>
+									</li>
+								</ul>
+							</li>
+						</ul>
+					</div>
+				</section>
+				<section class="tsd-panel tsd-member tsd-kind-type-alias tsd-parent-kind-module tsd-has-type-parameter">
+					<a name="stylezoomrange" class="tsd-anchor"></a>
+					<h3>Style<wbr>Zoom<wbr>Range</h3>
+					<div class="tsd-signature tsd-kind-icon">Style<wbr>Zoom<wbr>Range&lt;Type&gt;<span class="tsd-signature-symbol">:</span> <span class="tsd-signature-symbol">{}</span></div>
+					<aside class="tsd-sources">
+					</aside>
+					<div class="tsd-comment tsd-typography">
+						<div class="lead">
+							<p>A StyleZoomRange is a Map&lt;number,any&gt; with zoomlevel as its keys and the value for the respective <a href="../interfaces/core.style.html">Style Property</a> at the respective zoomlevel.
+							Values for intermediate zoom levels are interpolated linearly.</p>
+						</div>
+						<dl class="tsd-comment-tags">
+							<dt>example</dt>
+							<dd><pre><code class="language-typescript">strokeWidth: {
+    <span class="hljs-comment">// 2px for zoomlevel 1 to 12</span>
+    <span class="hljs-number">13</span>: <span class="hljs-number">2</span>,  <span class="hljs-comment">// 2px at zoomlevel 13</span>
+    <span class="hljs-comment">// 10px for zoomlevel 14 (linear interpolation)</span>
+    <span class="hljs-number">15</span>: <span class="hljs-number">18</span>, <span class="hljs-comment">// 18px at zoomlevel 15</span>
+    <span class="hljs-comment">// 27px for zoomlevel 16 (linear interpolation)</span>
+    <span class="hljs-number">17</span>: <span class="hljs-number">36</span>  <span class="hljs-comment">// 36px at zoomlevel 20</span>
+    <span class="hljs-comment">// 36px for zoomlevels 18 to 20</span>
+}
+</code></pre>
+							</dd>
+						</dl>
+					</div>
+					<h4 class="tsd-type-parameters-title">Type parameters</h4>
+					<ul class="tsd-type-parameters">
+						<li>
+							<h4>Type</h4>
+						</li>
+					</ul>
+					<div class="tsd-type-declaration">
+						<h4>Type declaration</h4>
+						<ul class="tsd-parameters">
+							<li class="tsd-parameter-index-signature">
+								<h5><span class="tsd-signature-symbol">[</span>zoom: <span class="tsd-signature-type">number</span><span class="tsd-signature-symbol"> | </span><span class="tsd-signature-type">string</span><span class="tsd-signature-symbol">]: </span><span class="tsd-signature-type">Type</span></h5>
+							</li>
+						</ul>
+					</div>
+				</section>
+				<section class="tsd-panel tsd-member tsd-kind-type-alias tsd-parent-kind-module">
+					<a name="terraintilefeatureproperties" class="tsd-anchor"></a>
+					<h3>Terrain<wbr>Tile<wbr>Feature<wbr>Properties</h3>
+					<div class="tsd-signature tsd-kind-icon">Terrain<wbr>Tile<wbr>Feature<wbr>Properties<span class="tsd-signature-symbol">:</span> <span class="tsd-signature-type">TerrainTileMesh</span><span class="tsd-signature-symbol"> &amp; </span><span class="tsd-signature-symbol">{ </span>isTerrain<span class="tsd-signature-symbol">: </span><span class="tsd-signature-type">true</span><span class="tsd-signature-symbol"> }</span></div>
+					<aside class="tsd-sources">
+					</aside>
+					<div class="tsd-comment tsd-typography">
+						<div class="lead">
+							<p>The Properties of a Terrain Tile feature.</p>
+						</div>
+					</div>
+				</section>
+			</section>
+			<section class="tsd-panel-group tsd-member-group ">
+				<h2>Variables</h2>
+				<section class="tsd-panel tsd-member tsd-kind-variable tsd-parent-kind-module">
+					<a name="webmercator" class="tsd-anchor"></a>
+					<h3><span class="tsd-flag ts-flagConst">Const</span> web<wbr>Mercator</h3>
+					<div class="tsd-signature tsd-kind-icon">web<wbr>Mercator<span class="tsd-signature-symbol">:</span> <span class="tsd-signature-symbol">{ </span>alt2z<span class="tsd-signature-symbol">: </span><span class="tsd-signature-type">alt2z</span><span class="tsd-signature-symbol">; </span>earthCircumference<span class="tsd-signature-symbol">: </span><span class="tsd-signature-type">earthCircumference</span><span class="tsd-signature-symbol">; </span>geoToPixel<span class="tsd-signature-symbol">: </span><span class="tsd-signature-type">geoToPixel</span><span class="tsd-signature-symbol">; </span>getGroundResolution<span class="tsd-signature-symbol">: </span><span class="tsd-signature-type">getGroundResolution</span><span class="tsd-signature-symbol">; </span>lat2y<span class="tsd-signature-symbol">: </span><span class="tsd-signature-type">lat2y</span><span class="tsd-signature-symbol">; </span>lon2x<span class="tsd-signature-symbol">: </span><span class="tsd-signature-type">lon2x</span><span class="tsd-signature-symbol">; </span>mapSizePixel<span class="tsd-signature-symbol">: </span><span class="tsd-signature-type">mapSizePixel</span><span class="tsd-signature-symbol">; </span>meterToPixel<span class="tsd-signature-symbol">: </span><span class="tsd-signature-type">meterToPixel</span><span class="tsd-signature-symbol">; </span>pixelToGeo<span class="tsd-signature-symbol">: </span><span class="tsd-signature-type">pixelToGeo</span><span class="tsd-signature-symbol">; </span>pixelToMeter<span class="tsd-signature-symbol">: </span><span class="tsd-signature-type">pixelToMeter</span><span class="tsd-signature-symbol">; </span>x2lon<span class="tsd-signature-symbol">: </span><span class="tsd-signature-type">x2lon</span><span class="tsd-signature-symbol">; </span>y2lat<span class="tsd-signature-symbol">: </span><span class="tsd-signature-type">y2lat</span><span class="tsd-signature-symbol"> }</span><span class="tsd-signature-symbol"> = webMercatorPrj</span></div>
+					<aside class="tsd-sources">
+					</aside>
+					<div class="tsd-comment tsd-typography">
+						<div class="lead">
+							<p>WebMercator projection utilities.</p>
+						</div>
+					</div>
+					<div class="tsd-type-declaration">
+						<h4>Type declaration</h4>
+						<ul class="tsd-parameters">
+							<li class="tsd-parameter">
+								<h5>alt2z<span class="tsd-signature-symbol">: </span><span class="tsd-signature-type">alt2z</span></h5>
+							</li>
+							<li class="tsd-parameter">
+								<h5>earth<wbr>Circumference<span class="tsd-signature-symbol">: </span><span class="tsd-signature-type">earthCircumference</span></h5>
+							</li>
+							<li class="tsd-parameter">
+								<h5>geo<wbr>ToPixel<span class="tsd-signature-symbol">: </span><span class="tsd-signature-type">geoToPixel</span></h5>
+							</li>
+							<li class="tsd-parameter">
+								<h5>get<wbr>Ground<wbr>Resolution<span class="tsd-signature-symbol">: </span><span class="tsd-signature-type">getGroundResolution</span></h5>
+							</li>
+							<li class="tsd-parameter">
+								<h5>lat2y<span class="tsd-signature-symbol">: </span><span class="tsd-signature-type">lat2y</span></h5>
+							</li>
+							<li class="tsd-parameter">
+								<h5>lon2x<span class="tsd-signature-symbol">: </span><span class="tsd-signature-type">lon2x</span></h5>
+							</li>
+							<li class="tsd-parameter">
+								<h5>map<wbr>Size<wbr>Pixel<span class="tsd-signature-symbol">: </span><span class="tsd-signature-type">mapSizePixel</span></h5>
+							</li>
+							<li class="tsd-parameter">
+								<h5>meter<wbr>ToPixel<span class="tsd-signature-symbol">: </span><span class="tsd-signature-type">meterToPixel</span></h5>
+							</li>
+							<li class="tsd-parameter">
+								<h5>pixel<wbr>ToGeo<span class="tsd-signature-symbol">: </span><span class="tsd-signature-type">pixelToGeo</span></h5>
+							</li>
+							<li class="tsd-parameter">
+								<h5>pixel<wbr>ToMeter<span class="tsd-signature-symbol">: </span><span class="tsd-signature-type">pixelToMeter</span></h5>
+							</li>
+							<li class="tsd-parameter">
+								<h5>x2lon<span class="tsd-signature-symbol">: </span><span class="tsd-signature-type">x2lon</span></h5>
+							</li>
+							<li class="tsd-parameter">
+								<h5>y2lat<span class="tsd-signature-symbol">: </span><span class="tsd-signature-type">y2lat</span></h5>
+							</li>
+						</ul>
+					</div>
+				</section>
+			</section>
+			<section class="tsd-panel-group tsd-member-group ">
+				<h2>Object literals</h2>
+				<section class="tsd-panel tsd-member tsd-kind-object-literal tsd-parent-kind-module">
+					<a name="build" class="tsd-anchor"></a>
+					<h3><span class="tsd-flag ts-flagConst">Const</span> build</h3>
+					<div class="tsd-signature tsd-kind-icon">build<span class="tsd-signature-symbol">:</span> <span class="tsd-signature-type">object</span></div>
+					<aside class="tsd-sources">
+					</aside>
+					<div class="tsd-comment tsd-typography">
+						<div class="lead">
+							<p> Detailed Information about the build.</p>
+						</div>
+					</div>
+					<section class="tsd-panel tsd-member tsd-kind-variable tsd-parent-kind-object-literal">
+						<a name="build.name" class="tsd-anchor"></a>
+						<h3>name</h3>
+						<div class="tsd-signature tsd-kind-icon">name<span class="tsd-signature-symbol">:</span> <span class="tsd-signature-type">string</span><span class="tsd-signature-symbol"> = &quot;xyz-maps&quot;</span></div>
+						<aside class="tsd-sources">
+						</aside>
+					</section>
+				</section>
+			</section>
+		</div>
+		<div class="col-4 col-menu menu-sticky-wrap menu-highlight">
+			<nav class="tsd-navigation primary">
+				<ul>
+					<li class="globals  ">
+						<a href="../globals.html"><em>Globals</em></a>
+					</li>
+					<li class="current tsd-kind-module">
+						<a href="core.html">core</a>
+					</li>
+					<li class=" tsd-kind-module">
+						<a href="display.html">display</a>
+					</li>
+					<li class=" tsd-kind-module">
+						<a href="editor.html">editor</a>
+					</li>
+				</ul>
+			</nav>
+			<nav class="tsd-navigation secondary menu-sticky">
+				<ul class="before-current">
+				</ul>
+				<ul class="current">
+					<li class="current tsd-kind-module">
+						<a href="core.html" class="tsd-kind-icon">core</a>
+						<ul>
+							<li class=" tsd-kind-class tsd-parent-kind-module">
+								<a href="../classes/core.clusterfeature.html" class="tsd-kind-icon">Cluster<wbr>Feature</a>
+							</li>
+							<li class=" tsd-kind-class tsd-parent-kind-module">
+								<a href="../classes/core.clustertilelayer.html" class="tsd-kind-icon">Cluster<wbr>Tile<wbr>Layer</a>
+							</li>
+							<li class=" tsd-kind-class tsd-parent-kind-module">
+								<a href="../classes/core.customlayer.html" class="tsd-kind-icon">Custom<wbr>Layer</a>
+							</li>
+							<li class=" tsd-kind-class tsd-parent-kind-module">
+								<a href="../classes/core.editablefeatureprovider.html" class="tsd-kind-icon">Editable<wbr>Feature<wbr>Provider</a>
+							</li>
+							<li class=" tsd-kind-class tsd-parent-kind-module">
+								<a href="../classes/core.editableremotetileprovider.html" class="tsd-kind-icon">Editable<wbr>Remote<wbr>Tile<wbr>Provider</a>
+							</li>
+							<li class=" tsd-kind-class tsd-parent-kind-module tsd-has-type-parameter">
+								<a href="../classes/core.feature.html" class="tsd-kind-icon">Feature</a>
+							</li>
+							<li class=" tsd-kind-class tsd-parent-kind-module">
+								<a href="../classes/core.featureprovider.html" class="tsd-kind-icon">Feature<wbr>Provider</a>
+							</li>
+							<li class=" tsd-kind-class tsd-parent-kind-module">
+								<a href="../classes/core.geocoder.html" class="tsd-kind-icon">Geo<wbr>Coder</a>
+							</li>
+							<li class=" tsd-kind-class tsd-parent-kind-module">
+								<a href="../classes/core.geojsonprovider.html" class="tsd-kind-icon">GeoJSONProvider</a>
+							</li>
+							<li class=" tsd-kind-class tsd-parent-kind-module">
+								<a href="../classes/core.geopoint.html" class="tsd-kind-icon">Geo<wbr>Point</a>
+							</li>
+							<li class=" tsd-kind-class tsd-parent-kind-module">
+								<a href="../classes/core.georect.html" class="tsd-kind-icon">Geo<wbr>Rect</a>
+							</li>
+							<li class=" tsd-kind-class tsd-parent-kind-module">
+								<a href="../classes/core.httpprovider.html" class="tsd-kind-icon">HTTPProvider</a>
+							</li>
+							<li class=" tsd-kind-class tsd-parent-kind-module">
+								<a href="../classes/core.imlprovider.html" class="tsd-kind-icon">IMLProvider</a>
+							</li>
+							<li class=" tsd-kind-class tsd-parent-kind-module">
+								<a href="../classes/core.imageprovider.html" class="tsd-kind-icon">Image<wbr>Provider</a>
+							</li>
+							<li class=" tsd-kind-class tsd-parent-kind-module">
+								<a href="../classes/core.layer.html" class="tsd-kind-icon">Layer</a>
+							</li>
+							<li class=" tsd-kind-class tsd-parent-kind-module">
+								<a href="../classes/core.localprovider.html" class="tsd-kind-icon">Local<wbr>Provider</a>
+							</li>
+							<li class=" tsd-kind-class tsd-parent-kind-module">
+								<a href="../classes/core.mvtlayer.html" class="tsd-kind-icon">MVTLayer</a>
+							</li>
+							<li class=" tsd-kind-class tsd-parent-kind-module">
+								<a href="../classes/core.pixelpoint.html" class="tsd-kind-icon">Pixel<wbr>Point</a>
+							</li>
+							<li class=" tsd-kind-class tsd-parent-kind-module">
+								<a href="../classes/core.pixelrect.html" class="tsd-kind-icon">Pixel<wbr>Rect</a>
+							</li>
+							<li class=" tsd-kind-class tsd-parent-kind-module">
+								<a href="../classes/core.rtinmeshbuilder.html" class="tsd-kind-icon">RTINMesh<wbr>Builder</a>
+							</li>
+							<li class=" tsd-kind-class tsd-parent-kind-module">
+								<a href="../classes/core.remotetileprovider.html" class="tsd-kind-icon">Remote<wbr>Tile<wbr>Provider</a>
+							</li>
+							<li class=" tsd-kind-class tsd-parent-kind-module">
+								<a href="../classes/core.spaceprovider.html" class="tsd-kind-icon">Space<wbr>Provider</a>
+							</li>
+							<li class=" tsd-kind-class tsd-parent-kind-module">
+								<a href="../classes/core.terraintilefeature.html" class="tsd-kind-icon">Terrain<wbr>Tile<wbr>Feature</a>
+							</li>
+							<li class=" tsd-kind-class tsd-parent-kind-module">
+								<a href="../classes/core.terraintilelayer.html" class="tsd-kind-icon">Terrain<wbr>Tile<wbr>Layer</a>
+							</li>
+							<li class=" tsd-kind-class tsd-parent-kind-module">
+								<a href="../classes/core.terraintilelayerstyle.html" class="tsd-kind-icon">Terrain<wbr>Tile<wbr>Layer<wbr>Style</a>
+							</li>
+							<li class=" tsd-kind-class tsd-parent-kind-module">
+								<a href="../classes/core.tile.html" class="tsd-kind-icon">Tile</a>
+							</li>
+							<li class=" tsd-kind-class tsd-parent-kind-module">
+								<a href="../classes/core.tilelayer.html" class="tsd-kind-icon">Tile<wbr>Layer</a>
+							</li>
+							<li class=" tsd-kind-class tsd-parent-kind-module">
+								<a href="../classes/core.tileprovider.html" class="tsd-kind-icon">Tile<wbr>Provider</a>
+							</li>
+							<li class=" tsd-kind-interface tsd-parent-kind-module">
+								<a href="../interfaces/core.ambientlight.html" class="tsd-kind-icon">Ambient<wbr>Light</a>
+							</li>
+							<li class=" tsd-kind-interface tsd-parent-kind-module">
+								<a href="../interfaces/core.boxstyle.html" class="tsd-kind-icon">Box<wbr>Style</a>
+							</li>
+							<li class=" tsd-kind-interface tsd-parent-kind-module">
+								<a href="../interfaces/core.circlestyle.html" class="tsd-kind-icon">Circle<wbr>Style</a>
+							</li>
+							<li class=" tsd-kind-interface tsd-parent-kind-module">
+								<a href="../interfaces/core.clustertilelayeroptions.html" class="tsd-kind-icon">Cluster<wbr>Tile<wbr>Layer<wbr>Options</a>
+							</li>
+							<li class=" tsd-kind-interface tsd-parent-kind-module">
+								<a href="../interfaces/core.directionallight.html" class="tsd-kind-icon">Directional<wbr>Light</a>
+							</li>
+							<li class=" tsd-kind-interface tsd-parent-kind-module">
+								<a href="../interfaces/core.editablefeatureprovideroptions.html" class="tsd-kind-icon">Editable<wbr>Feature<wbr>Provider<wbr>Options</a>
+							</li>
+							<li class=" tsd-kind-interface tsd-parent-kind-module">
+								<a href="../interfaces/core.editableremotetileprovideroptions.html" class="tsd-kind-icon">Editable<wbr>Remote<wbr>Tile<wbr>Provider<wbr>Options</a>
+							</li>
+							<li class=" tsd-kind-interface tsd-parent-kind-module">
+								<a href="../interfaces/core.geocoderoptions.html" class="tsd-kind-icon">Geo<wbr>Coder<wbr>Options</a>
+							</li>
+							<li class=" tsd-kind-interface tsd-parent-kind-module tsd-has-type-parameter">
+								<a href="../interfaces/core.geojsonfeature.html" class="tsd-kind-icon">GeoJSONFeature</a>
+							</li>
+							<li class=" tsd-kind-interface tsd-parent-kind-module">
+								<a href="../interfaces/core.geojsonfeaturecollection.html" class="tsd-kind-icon">GeoJSONFeature<wbr>Collection</a>
+							</li>
+							<li class=" tsd-kind-interface tsd-parent-kind-module">
+								<a href="../interfaces/core.httpprovideroptions.html" class="tsd-kind-icon">HTTPProvider<wbr>Options</a>
+							</li>
+							<li class=" tsd-kind-interface tsd-parent-kind-module">
+								<a href="../interfaces/core.heatmapstyle.html" class="tsd-kind-icon">Heatmap<wbr>Style</a>
+							</li>
+							<li class=" tsd-kind-interface tsd-parent-kind-module">
+								<a href="../interfaces/core.imlprovideroptions.html" class="tsd-kind-icon">IMLProvider<wbr>Options</a>
+							</li>
+							<li class=" tsd-kind-interface tsd-parent-kind-module">
+								<a href="../interfaces/core.imageprovideroptions.html" class="tsd-kind-icon">Image<wbr>Provider<wbr>Options</a>
+							</li>
+							<li class=" tsd-kind-interface tsd-parent-kind-module">
+								<a href="../interfaces/core.imagestyle.html" class="tsd-kind-icon">Image<wbr>Style</a>
+							</li>
+							<li class=" tsd-kind-interface tsd-parent-kind-module">
+								<a href="../interfaces/core.layeroptions.html" class="tsd-kind-icon">Layer<wbr>Options</a>
+							</li>
+							<li class=" tsd-kind-interface tsd-parent-kind-module">
+								<a href="../interfaces/core.layerstyle.html" class="tsd-kind-icon">Layer<wbr>Style</a>
+							</li>
+							<li class=" tsd-kind-interface tsd-parent-kind-module">
+								<a href="../interfaces/core.linestyle.html" class="tsd-kind-icon">Line<wbr>Style</a>
+							</li>
+							<li class=" tsd-kind-interface tsd-parent-kind-module">
+								<a href="../interfaces/core.lineargradient.html" class="tsd-kind-icon">Linear<wbr>Gradient</a>
+							</li>
+							<li class=" tsd-kind-interface tsd-parent-kind-module">
+								<a href="../interfaces/core.localprovideroptions.html" class="tsd-kind-icon">Local<wbr>Provider<wbr>Options</a>
+							</li>
+							<li class=" tsd-kind-interface tsd-parent-kind-module">
+								<a href="../interfaces/core.mvtlayeroptions.html" class="tsd-kind-icon">MVTLayer<wbr>Options</a>
+							</li>
+							<li class=" tsd-kind-interface tsd-parent-kind-module">
+								<a href="../interfaces/core.material.html" class="tsd-kind-icon">Material</a>
+							</li>
+							<li class=" tsd-kind-interface tsd-parent-kind-module">
+								<a href="../interfaces/core.modeldata.html" class="tsd-kind-icon">Model<wbr>Data</a>
+							</li>
+							<li class=" tsd-kind-interface tsd-parent-kind-module">
+								<a href="../interfaces/core.modelgeometry.html" class="tsd-kind-icon">Model<wbr>Geometry</a>
+							</li>
+							<li class=" tsd-kind-interface tsd-parent-kind-module">
+								<a href="../interfaces/core.modelstyle.html" class="tsd-kind-icon">Model<wbr>Style</a>
+							</li>
+							<li class=" tsd-kind-interface tsd-parent-kind-module">
+								<a href="../interfaces/core.polygonstyle.html" class="tsd-kind-icon">Polygon<wbr>Style</a>
+							</li>
+							<li class=" tsd-kind-interface tsd-parent-kind-module">
+								<a href="../interfaces/core.remotetileprovideroptions.html" class="tsd-kind-icon">Remote<wbr>Tile<wbr>Provider<wbr>Options</a>
+							</li>
+							<li class=" tsd-kind-interface tsd-parent-kind-module">
+								<a href="../interfaces/core.spaceprovideroptions.html" class="tsd-kind-icon">Space<wbr>Provider<wbr>Options</a>
+							</li>
+							<li class=" tsd-kind-interface tsd-parent-kind-module">
+								<a href="../interfaces/core.spherestyle.html" class="tsd-kind-icon">Sphere<wbr>Style</a>
+							</li>
+							<li class=" tsd-kind-interface tsd-parent-kind-module">
+								<a href="../interfaces/core.style.html" class="tsd-kind-icon">Style</a>
+							</li>
+							<li class=" tsd-kind-interface tsd-parent-kind-module">
+								<a href="../interfaces/core.terrainmesh.html" class="tsd-kind-icon">Terrain<wbr>Mesh</a>
+							</li>
+							<li class=" tsd-kind-interface tsd-parent-kind-module">
+								<a href="../interfaces/core.terraintilelayeroptions.html" class="tsd-kind-icon">Terrain<wbr>Tile<wbr>Layer<wbr>Options</a>
+							</li>
+							<li class=" tsd-kind-interface tsd-parent-kind-module">
+								<a href="../interfaces/core.textstyle.html" class="tsd-kind-icon">Text<wbr>Style</a>
+							</li>
+							<li class=" tsd-kind-interface tsd-parent-kind-module">
+								<a href="../interfaces/core.tilelayeroptions.html" class="tsd-kind-icon">Tile<wbr>Layer<wbr>Options</a>
+							</li>
+							<li class=" tsd-kind-interface tsd-parent-kind-module">
+								<a href="../interfaces/core.tileprovideroptions.html" class="tsd-kind-icon">Tile<wbr>Provider<wbr>Options</a>
+							</li>
+							<li class=" tsd-kind-interface tsd-parent-kind-module">
+								<a href="../interfaces/core.verticallinestyle.html" class="tsd-kind-icon">Vertical<wbr>Line<wbr>Style</a>
+							</li>
+							<li class=" tsd-kind-type-alias tsd-parent-kind-module">
+								<a href="core.html#clusterfeatureproperties" class="tsd-kind-icon">Cluster<wbr>Feature<wbr>Properties</a>
+							</li>
+							<li class=" tsd-kind-type-alias tsd-parent-kind-module">
+								<a href="core.html#color" class="tsd-kind-icon">Color</a>
+							</li>
+							<li class=" tsd-kind-type-alias tsd-parent-kind-module">
+								<a href="core.html#datasourceattribution" class="tsd-kind-icon">Data<wbr>Source<wbr>Attribution</a>
+							</li>
+							<li class=" tsd-kind-type-alias tsd-parent-kind-module">
+								<a href="core.html#geojsonbbox" class="tsd-kind-icon">GeoJSONBBox</a>
+							</li>
+							<li class=" tsd-kind-type-alias tsd-parent-kind-module">
+								<a href="core.html#geojsoncoordinate" class="tsd-kind-icon">GeoJSONCoordinate</a>
+							</li>
+							<li class=" tsd-kind-type-alias tsd-parent-kind-module tsd-has-type-parameter">
+								<a href="core.html#styleexpression" class="tsd-kind-icon">Style<wbr>Expression</a>
+							</li>
+							<li class=" tsd-kind-type-alias tsd-parent-kind-module tsd-has-type-parameter">
+								<a href="core.html#stylevaluefunction" class="tsd-kind-icon">Style<wbr>Value<wbr>Function</a>
+							</li>
+							<li class=" tsd-kind-type-alias tsd-parent-kind-module tsd-has-type-parameter">
+								<a href="core.html#stylezoomrange" class="tsd-kind-icon">Style<wbr>Zoom<wbr>Range</a>
+							</li>
+							<li class=" tsd-kind-type-alias tsd-parent-kind-module">
+								<a href="core.html#terraintilefeatureproperties" class="tsd-kind-icon">Terrain<wbr>Tile<wbr>Feature<wbr>Properties</a>
+							</li>
+							<li class=" tsd-kind-variable tsd-parent-kind-module">
+								<a href="core.html#webmercator" class="tsd-kind-icon">web<wbr>Mercator</a>
+							</li>
+							<li class=" tsd-kind-object-literal tsd-parent-kind-module">
+								<a href="core.html#build" class="tsd-kind-icon">build</a>
+							</li>
+						</ul>
+					</li>
+				</ul>
+				<ul class="after-current">
+					<li class=" tsd-kind-module">
+						<a href="display.html" class="tsd-kind-icon">display</a>
+					</li>
+					<li class=" tsd-kind-module">
+						<a href="editor.html" class="tsd-kind-icon">editor</a>
+					</li>
+				</ul>
+			</nav>
+		</div>
+	</div>
+</div>
+<footer class="with-border-bottom">
+	<div class="container">
+		<h2>Legend</h2>
+		<div class="tsd-legend-group">
+			<ul class="tsd-legend">
+				<li class="tsd-kind-object-literal"><span class="tsd-kind-icon">Object literal</span></li>
+				<li class="tsd-kind-variable"><span class="tsd-kind-icon">Variable</span></li>
+				<li class="tsd-kind-function"><span class="tsd-kind-icon">Function</span></li>
+				<li class="tsd-kind-type-alias"><span class="tsd-kind-icon">Type alias</span></li>
+				<li class="tsd-kind-type-alias tsd-has-type-parameter"><span class="tsd-kind-icon">Type alias with type parameter</span></li>
+			</ul>
+			<ul class="tsd-legend">
+				<li class="tsd-kind-interface"><span class="tsd-kind-icon">Interface</span></li>
+				<li class="tsd-kind-interface tsd-has-type-parameter"><span class="tsd-kind-icon">Interface with type parameter</span></li>
+			</ul>
+			<ul class="tsd-legend">
+				<li class="tsd-kind-class"><span class="tsd-kind-icon">Class</span></li>
+				<li class="tsd-kind-class tsd-has-type-parameter"><span class="tsd-kind-icon">Class with type parameter</span></li>
+			</ul>
+		</div>
+	</div>
+</footer>
+<div class="container tsd-generator">
+	<p>Generated using <a href="https://typedoc.org/" target="_blank">TypeDoc</a></p>
+</div>
+<div class="overlay"></div>
+<script src="../assets/js/main.js"></script>
+</body>
+</html>
