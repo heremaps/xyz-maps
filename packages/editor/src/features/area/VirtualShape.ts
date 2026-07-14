@@ -92,7 +92,6 @@ export class VirtualAreaShape extends Feature {
 
             if (!newShape) {// first move ?
                 newShape = polygonTools.addShp(area, pos.slice(), polyIdx, hole, index) as AreaShape;
-                // newShape = polygonTools.getShp(area, polyIdx, hole, index);
                 newShape.__.pointerdown.apply(newShape);
             }
             newShape.__.pressmove.apply(newShape, arguments);

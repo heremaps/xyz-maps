@@ -474,9 +474,6 @@ const tools = {
     },
 
     hideShape: function(shp: AreaShape | AreaShape[], overlay) {
-        // if (!Array.isArray(shp)) {
-        //     shp = [shp];
-        // }
         overlay.remove(shp);
         if (Array.isArray(shp)) {
             shp.length = 0;
