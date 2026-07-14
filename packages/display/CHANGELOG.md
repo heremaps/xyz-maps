@@ -1,18 +1,22 @@
-## 0.45.0-dev.4 (2026-7-6)
-### core
-* fixed: prevent provider.search() errors when called with {id: undefined}
+## 0.45.0 (2026-7-14)
+### editor
+* improved: greatly enhance drag smoothness for huge area geometries by optimizing validation checks
+* added: emit [geometryValidation](https://heremaps.github.io/xyz-maps/docs/classes/editor.editorevent.html#detail) events for blocked polygon edits due to self-crossing, topology violations, and connected area invalidation
+* added: support global [autoConnect option](https://heremaps.github.io/xyz-maps/docs/interfaces/editor.editoroptions.html#autoconnect) in EditorOptions as default for per-feature Navlink behavior
+* added: Introduce [autoConnect behavior](https://heremaps.github.io/xyz-maps/docs/classes/editor.navlink.html#behavior) option to Navlink to allow disabling automatic connection on shape drag-drop
+* added: [Navlink.getConnectionCandidates](https://heremaps.github.io/xyz-maps/docs/classes/editor.navlink.html#getconnectioncandidates) and [ConnectionCandidate](https://heremaps.github.io/xyz-maps/docs/classes/editor.connectioncandidate.html) enabling explicit selection of which overlapping Navlink to connect to. See [Playground](https://heremaps.github.io/xyz-maps/playground/#Editor-Connection_Candidates)
+* added: introduces [readConnectedLinks](https://heremaps.github.io/xyz-maps/docs/classes/core.editablefeatureprovider.html#readconnectedlinks) attribute reader for custom intersection connectivity and extends geometric intersection detection
+* fixed: prevent possible polygon editing errors in mixed-feature single-layer setups
+* fixed: correct navlink z-level in link-split edge cases
 ### common
 * fixed: ensure paused long-running TaskSequences can be restarted from the beginning
 ### display
 * added: support WebGL2 with automatic fallback to WebGL1, including shader transpilation and extension-based feature mapping
 * fixed: avoid framebuffer feedback loop on map resize when using heatmaps
 * fixed: restore broken support for CustomLayers
-### editor
-* added: support global [autoConnect option](https://heremaps.github.io/xyz-maps/docs/interfaces/editor.editoroptions.html#autoconnect) in EditorOptions as default for per-feature Navlink behavior
-* added: Introduce [autoConnect behavior](https://heremaps.github.io/xyz-maps/docs/classes/editor.navlink.html#behavior) option to Navlink to allow disabling automatic connection on shape drag-drop
-* added: [Navlink.getConnectionCandidates](https://heremaps.github.io/xyz-maps/docs/classes/editor.navlink.html#getconnectioncandidates) and [ConnectionCandidate](https://heremaps.github.io/xyz-maps/docs/classes/editor.connectioncandidate.html) enabling explicit selection of which overlapping Navlink to connect to. See [Playground](https://heremaps.github.io/xyz-maps/playground/#Editor-Connection_Candidates)
-* added: introduces [readConnectedLinks](https://heremaps.github.io/xyz-maps/docs/classes/core.editablefeatureprovider.html#readconnectedlinks) attribute reader for custom intersection connectivity and extends geometric intersection detection
-* fixed: correct navlink z-level in link-split edge cases
+### core
+* fixed: avoid sending removed provider parameters in non-tile requests
+* fixed: prevent provider.search() errors when called with {id: undefined}
 
 ## 0.44.0 (2025-11-12)
 ### editor
