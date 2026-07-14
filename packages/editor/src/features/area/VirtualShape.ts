@@ -18,9 +18,10 @@
  */
 
 import InternalEditor from '../../IEditor';
-import {Feature, FeatureProvider, GeoJSONFeature} from '@here/xyz-maps-core';
+import {Feature, FeatureProvider, GeoJSONCoordinate, GeoJSONFeature} from '@here/xyz-maps-core';
 import {Area} from './Area';
 import {AreaShape} from './AreaShape';
+import PolygonTools from './PolygonTools';
 
 let UNDEF;
 
@@ -30,7 +31,7 @@ export class VirtualAreaShape extends Feature {
         [name: string]: any
     };
 
-    constructor(area: Area, x: number, y: number, indexData: number[], polygonTools) {
+    constructor(area: Area, x: number, y: number, indexData: number[], polygonTools: typeof PolygonTools) {
         const internalEditor: InternalEditor = area._e();
         const zLayer = internalEditor.display.getLayers().indexOf(internalEditor.getLayer(area)) + 1;
         const overlay = internalEditor.objects.overlay;
@@ -86,21 +87,12 @@ export class VirtualAreaShape extends Feature {
             const props = shapePnt.properties;
             const index = props.index + 1;
             const polyIdx = props.poly;
-            const pos = shapePnt.geometry.coordinates;
+            const hole = props.hole;
+            const pos = shapePnt.geometry.coordinates as GeoJSONCoordinate;
 
             if (!newShape) {// first move ?
-                const shapes = polygonTools.private(area, 'midShapePnts');
-                for (let i = 0, shp, coord, p; i < shapes.length; i++) {
-                    shp = shapes[i];
-                    coord = shp.geometry.coordinates;
-
-                    if (coord[0] == pos[0] && coord[1] == pos[1]) {
-                        p = shp.properties;
-                        polygonTools.addShp(area, pos.slice(), p.poly, p.hole, p.index + 1);
-                    }
-                }
-
-                newShape = polygonTools.getShp(area, polyIdx, props.hole, index);
+                newShape = polygonTools.addShp(area, pos.slice(), polyIdx, hole, index) as AreaShape;
+                // newShape = polygonTools.getShp(area, polyIdx, hole, index);
                 newShape.__.pointerdown.apply(newShape);
             }
             newShape.__.pressmove.apply(newShape, arguments);

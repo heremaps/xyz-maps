@@ -21,6 +21,7 @@ import oTools from './PolygonTools';
 import {Feature} from '../feature/Feature';
 import {GeoJSONCoordinate, GeoPoint, PixelPoint} from '@here/xyz-maps-core';
 import {HeightKnob} from './HeightKnob';
+import {AreaShape} from '@here/xyz-maps-editor';
 
 const MIN_HOLE_SIZE = 8;
 
@@ -68,7 +69,7 @@ class Area extends Feature {
      * @returns index of the shape or false if shape could not be added
      */
     addShape(point: GeoPoint | PixelPoint, polygonIndex?: number, index?: number) {
-        let added: number | boolean = false;
+        let added: number | boolean | AreaShape = false;
         const coordinate = this._e().map.getGeoCoord(point);
 
         if (!point) {
@@ -77,12 +78,14 @@ class Area extends Feature {
             if (arguments.length == 1) {
                 polygonIndex = oTools.getPoly(this, coordinate);
             }
-
-            if ((added = oTools.addShp(this, coordinate, polygonIndex ^ 0, 0, index)) !== false) {
+            added = oTools.addShp(this, coordinate, polygonIndex ^ 0, 0, index);
+            if (added !== false) {
                 oTools.markAsModified(this);
             }
         }
-        return added;
+        return (added == false || typeof added == 'number')
+            ? added
+            : added.properties.index;
     };
 
     /**

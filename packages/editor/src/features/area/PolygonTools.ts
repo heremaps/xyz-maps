@@ -119,27 +119,31 @@ function addVShapes(area: Area) {
     }
 }
 
+
+const updateHeightKnob = (area: Area) => {
+    if (!getPrivate(area, 'isSelected')) return;
+
+    const height = area.getProvider().readFeatureHeight(area);
+    if (tools.isExtruded(area) && typeof height == 'number') {
+        let heightKnob = area.__.hk;
+
+        if (!heightKnob) {
+            heightKnob = area.__.hk = new HeightKnob(area, height, tools);
+            const overlay = area._e().objects.overlay;
+            overlay.addFeature(heightKnob);
+        } else {
+            heightKnob.show();
+        }
+
+        heightKnob.update(height);
+    }
+};
 function refreshGeometry(area: Area) {
     if (getPrivate(area, 'isSelected')) {
         removeShapes(area);
         addShapes(area);
         addVShapes(area);
-
-        const height = area.getProvider().readFeatureHeight(area);
-
-        if (tools.isExtruded(area) && typeof height == 'number') {
-            let heightKnob = area.__.hk;
-
-            if (!heightKnob) {
-                heightKnob = area.__.hk = new HeightKnob(area, height, tools);
-                const overlay = area._e().objects.overlay;
-                overlay.addFeature(heightKnob);
-            } else {
-                heightKnob.show();
-            }
-
-            heightKnob.update(height);
-        }
+        updateHeightKnob(area);
     }
 }
 
@@ -405,13 +409,12 @@ const tools = {
         }
     },
 
-    addShp: function(area: Area, pos: Point, polyIdx: number, holeIdx: number, index: number) {
+    addShp: function(area: Area, pos: Point, polyIdx: number, holeIdx: number, index: number): AreaShape | false | number {
         const coords = tools.getCoords(area);
         const poly = coords[polyIdx][holeIdx];
         const idx = typeof index == 'number'
             ? index
             : <number>getSegmentIndex(poly, pos) + 1;
-
 
         // filter out possible duplicate
         for (let i = 0; i < poly.length; i++) {
@@ -421,55 +424,63 @@ const tools = {
         }
 
         poly.splice(idx, 0, pos);
-
-        // area.attr('path', path);
-
         tools._setCoords(area, coords);
 
-        // var shapes = prv.shapePnts;
-        //
-        // if( shapes.length )
-        // {
-        //     var startIdx = null;
-        //
-        //     shapes.forEach(function(shp, i){// set new correct index
-        //         var shpProps = shp.properties;
-        //
-        //         if( shpProps.poly == polyIdx && shpProps.hole == holeIdx )
-        //         {
-        //             if( startIdx == null )
-        //             {
-        //                 startIdx = i;
-        //             }
-        //             shpProps.index += Number( shpProps.index >= idx );
-        //         }
-        //
-        //     });
-        //
-        //     shapes.splice(
-        //         startIdx + idx,
-        //         0,
-        //         new AreaShape( EDITOR, area, pos[0], pos[1], idx )
-        //     );
-        // }
+        const prv = getPrivate(area);
+        if (prv.isSelected) {
+            const overlay = area._e().objects.overlay;
+            const shapePnts = prv.shapePnts;
+            const midShapePnts = prv.midShapePnts;
 
+            // Helper to update indices in a shape array
+            const updateIndices = (shapes: Feature[]) => {
+                for (let i = 0; i < shapes.length; i++) {
+                    const shpProps = shapes[i].properties;
+                    if (shpProps.poly == polyIdx && shpProps.hole == holeIdx && shpProps.index >= idx) {
+                        shpProps.index++;
+                    }
+                }
+            };
 
-        refreshGeometry(area);
+            updateIndices(shapePnts);
+            updateIndices(midShapePnts);
 
+            // Insert new AreaShape at the correct position
+            let startIdx = null;
+            for (let i = 0; i < shapePnts.length; i++) {
+                const shpProps = shapePnts[i].properties;
+                if (shpProps.poly == polyIdx && shpProps.hole == holeIdx) {
+                    if (startIdx == null) startIdx = i;
+                    if (shpProps.index == idx) {
+                        i++; // account for the new shape being inserted
+                    }
+                }
+            }
+
+            const newShape = new AreaShape(area, pos[0], pos[1], [polyIdx, idx, holeIdx], tools);
+            overlay.addFeature(newShape);
+
+            if (startIdx != null) {
+                shapePnts.splice(startIdx + idx, 0, newShape);
+            } else {
+                shapePnts.push(newShape);
+            }
+
+            updateHeightKnob(area);
+            return newShape;
+        }
 
         return idx;
     },
 
     hideShape: function(shp: AreaShape | AreaShape[], overlay) {
-        if (!Array.isArray(shp)) {
-            shp = [shp];
+        // if (!Array.isArray(shp)) {
+        //     shp = [shp];
+        // }
+        overlay.remove(shp);
+        if (Array.isArray(shp)) {
+            shp.length = 0;
         }
-
-        for (let s = 0; s < shp.length; s++) {
-            overlay.remove(shp[s]);
-        }
-
-        shp.length = 0;
     },
 
     snapShape: (
