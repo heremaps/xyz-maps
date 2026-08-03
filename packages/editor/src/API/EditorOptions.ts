@@ -21,9 +21,38 @@ import {JSUtils} from '@here/xyz-maps-common';
 import {TileLayer} from '@here/xyz-maps-core';
 import {Feature} from '../features/feature/Feature';
 
-export enum EDIT_RESTRICTION {
-    GEOMETRY = 1,
-    REMOVE = 2
+/**
+ * Edit operation requested by the {@link EditorOptions.editRestrictions} callback.
+ */
+export enum EditOperation {
+    /**
+     * Change the feature geometry or one of its coordinates.
+     */
+    Geometry = 1,
+    /**
+     * Remove the feature or one of its editable geometry elements.
+     */
+    Remove = 2
+}
+
+/**
+ * Additional context for an edit restriction check.
+ */
+export interface EditRestrictionContext {
+    /**
+     * Zero-based index of the affected coordinate within its immediate coordinate array.
+     */
+    readonly coordinateIndex?: number;
+
+    /**
+     * Zero-based index of the affected LineString or polygon ring.
+     */
+    readonly lineStringIndex?: number;
+
+    /**
+     * Zero-based index of the affected polygon in a MultiPolygon.
+     */
+    readonly polygonIndex?: number;
 }
 
 /**
@@ -39,16 +68,23 @@ interface EditorOptions {
      * This callback can be used to allow or restrict specific edit operations based on the return value.
      *
      * @param feature - The map feature to be edited.
-     * @param restrictionMask - A bitmask representing the desired edit operations:
+     * @param operation - The requested edit operation:
      *     1 - GEOMETRY CHANGE
      *     2 - REMOVE
+     * @param context - Optional context of the affected edit target. For coordinate-level
+     *     restrictions it can contain `coordinateIndex`, `lineStringIndex`, and
+     *     `polygonIndex`. It is `undefined` when no concrete coordinate is affected.
      *
      * @returns {boolean} - Return `false` to allow the operation(s) and execute the edits.
      *                      Return `true` to forbid the operation(s); no edits will be executed.
      *
      * @defaultValue false
      */
-    editRestrictions?: (feature: Feature, restrictionMask: number) => boolean;
+    editRestrictions?: (
+        feature: Feature,
+        operation: EditOperation,
+        context?: EditRestrictionContext
+    ) => boolean;
 
     /**
      * Define the pixel radius of the area within a shape point of a Navlink Feature can be moved by mouse/touch interaction.

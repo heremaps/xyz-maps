@@ -38,7 +38,7 @@ import {getClosestPntOnLine, intersectBBox, rayIntersectPlane} from '../geometry
 import {Navlink} from './link/Navlink';
 import InternalEditor from '../IEditor';
 import {Feature} from './feature/Feature';
-import {EDIT_RESTRICTION} from '../API/EditorOptions';
+import {EditOperation} from '../API/EditorOptions';
 import {interpolateAltitude} from '../map/GeoMath';
 
 type Options = {
@@ -291,7 +291,7 @@ class ObjectManager {
 
         if (
             // if delete is triggered by a split-operation -> edit-restriction should be ignored!
-            params.split || !objManager.iEdit._config.editRestrictions(obj, EDIT_RESTRICTION.REMOVE)
+            params.split || objManager.iEdit.isEditAllowed(obj, EditOperation.Remove)
         ) {
             const animation = params.animation == null ? true : params.animation;
 

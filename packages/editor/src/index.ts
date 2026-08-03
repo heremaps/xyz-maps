@@ -20,6 +20,7 @@
 import {JSUtils, global} from '@here/xyz-maps-common';
 import {Feature} from './features/feature/Feature';
 import Editor from './API/Editor';
+import {EditOperation} from './API/EditorOptions';
 import {DefaultEditorProperties} from './features/feature/EditorProperties';
 import {Place} from './features/location/Place';
 import {Address} from './features/location/Address';
@@ -41,8 +42,10 @@ export * from './features/area/AreaShape';
 export * from './features/feature/EditorProperties';
 export * from './API/EditorEvent';
 export * from './API/DrawingBoard';
-export {EditorOptions} from './API/EditorOptions';
-
+export {
+    EditorOptions,
+    EditRestrictionContext
+} from './API/EditorOptions';
 
 export * from './Hooks';
 
@@ -115,7 +118,7 @@ export const features = ((() => {
     );
 }))();
 
-export {Editor};
+export {Editor, EditOperation};
 
 
 const dns = 'here.xyz.maps.editor'.split('.');
@@ -128,6 +131,7 @@ for (let i = 0; i < dns.length - 1; i++) {
 const editor = scp[dns.pop()] = {
     Editor: Editor,
     features: features,
+    EditOperation,
     PixelCoordinate: function(x: number, y: number, z: number) {
         this.x = x;
         this.y = y;

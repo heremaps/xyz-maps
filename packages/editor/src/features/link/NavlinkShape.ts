@@ -32,7 +32,7 @@ import {Feature as EditableFeature} from '../feature/Feature';
 import NavlinkTools from './NavlinkTools';
 import {defaultBehavior} from '../line/LineShape';
 import {dragFeatureCoordinate} from '../oTools';
-import {EDIT_RESTRICTION} from '../../API/EditorOptions';
+import {EditOperation} from '../../API/EditorOptions';
 import {ConnectionCandidate} from './ConnectionCandidate';
 
 
@@ -195,7 +195,9 @@ function onMouseMoveShape(ev, dx, dy) {
         curPos[2] = shp.geometry.coordinates[2] || 0;
     }
 
-    if (!cfg.editRestrictions(link, EDIT_RESTRICTION.GEOMETRY)) {
+    if (EDITOR.isEditAllowed(link, EditOperation.Geometry, {
+        coordinateIndex: prv.index
+    })) {
         if (geoFence.isPntInFence(curPos)) {
             !geoFence.isHidden() && geoFence.hide();
 
@@ -441,7 +443,9 @@ class NavlinkShape extends Feature {
 
         prv.pointerup = onMouseUpShape;
 
-        if (!EDITOR._config.editRestrictions(line, EDIT_RESTRICTION.GEOMETRY)) {
+        if (EDITOR.isEditAllowed(line, EditOperation.Geometry, {
+            coordinateIndex: i
+        })) {
             prv.pointerenter = mouseInHandler;
             prv.pointerleave = mouseOutHandler;
         }
@@ -584,7 +588,9 @@ class NavlinkShape extends Feature {
     remove() {
         const link = this.getLink();
 
-        if (!link._e()._config.editRestrictions(<EditableFeature>(link || this), EDIT_RESTRICTION.REMOVE)) {
+        if (link._e().isEditAllowed(<EditableFeature>(link || this), EditOperation.Remove, {
+            coordinateIndex: this.getIndex()
+        })) {
             linkTools.deleteShape(link, this);
         }
     };

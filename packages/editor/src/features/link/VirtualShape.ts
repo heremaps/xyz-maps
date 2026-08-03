@@ -22,6 +22,7 @@ import {JSUtils} from '@here/xyz-maps-common';
 import GeoFence from './GeoFence';
 import {Navlink} from './Navlink';
 import navlinkTools from './NavlinkTools';
+import {EditOperation} from '../../API/EditorOptions';
 
 let UNDEF;
 
@@ -142,7 +143,7 @@ class VirtualLinkShape extends Feature<'Point'> {
         shapePnt.pointerup = onMouseUpAddShape;
 
 
-        if (!EDITOR._config.editRestrictions(line, 1)) {
+        if (EDITOR.isEditAllowed(line, EditOperation.Geometry)) {
             shapePnt.pointerenter =
                 shapePnt.pointerleave = function onHover(ev) {
                     const hovered = ev.type == 'pointerenter';

@@ -170,7 +170,7 @@ function onPressmove(ev, dx, dy, ax, ay) {
     const prv = getPrivate(feature);
     const EDITOR = feature._e();
 
-    if (prv.isSelected && !EDITOR._config.editRestrictions(feature, 1)) {
+    if (prv.isSelected && EDITOR.isEditAllowed(feature, 1)) {
         if (!prv.moved) {
             // connect to a link if this object has link property, if not, do not connect to a link.
             if (tools.getRoutingData(feature).link != UNDEF) {

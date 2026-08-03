@@ -22,7 +22,7 @@ import InternalEditor from '../../IEditor';
 import {Area} from './Area';
 import {FeatureProvider, Feature, GeoJSONCoordinate, GeoJSONFeature} from '@here/xyz-maps-core';
 import PolyTools, {ConnectedArea} from './PolygonTools';
-import {EDIT_RESTRICTION} from '../../API/EditorOptions';
+import {EditOperation} from '../../API/EditorOptions';
 
 type PolygonTools = typeof PolyTools;
 
@@ -392,7 +392,17 @@ class AreaShape extends Feature<'Point'> {
 
         function moveShape(e, dx, dy, cx, cy) {
             const cfg = internalEditor._config;
-            if (cfg.editRestrictions(area, EDIT_RESTRICTION.GEOMETRY)) return;
+            const coordinateIndex = shapePnt.getIndex();
+            const polygonIndex = shapePnt.properties.poly;
+            const lineStringIndex = shapePnt.properties.hole;
+
+            if (!internalEditor.isEditAllowed(area, EditOperation.Geometry, {
+                polygonIndex,
+                lineStringIndex,
+                coordinateIndex
+            })) {
+                return;
+            }
 
             if (!isMoved) {// first move ?
                 isMoved = true;
@@ -402,9 +412,6 @@ class AreaShape extends Feature<'Point'> {
                 triggerEvents(e, 'dragStart');
             }
 
-            const index = shapePnt.getIndex();
-            const polyIndex = shapePnt.properties.poly;
-            const holeIndex = shapePnt.properties.hole;
 
             let position = <GeoJSONCoordinate>internalEditor.map.getGeoCoord(e.mapX, e.mapY);
 
@@ -413,7 +420,7 @@ class AreaShape extends Feature<'Point'> {
             }
 
 
-            let modifyResult = setShapePosition(area, position, index, holeIndex, polyIndex, shapePnt.__.cAreas);
+            let modifyResult = setShapePosition(area, position, coordinateIndex, lineStringIndex, polygonIndex, shapePnt.__.cAreas);
 
             if (modifyResult.status === 'validationError') {
                 e.detail.geometryValidation = modifyResult.geometryValidation;

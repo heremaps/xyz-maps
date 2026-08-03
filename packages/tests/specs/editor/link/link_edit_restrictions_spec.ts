@@ -20,7 +20,7 @@ import {prepare} from 'utils';
 import {waitForEditorReady} from 'editorUtils';
 import {drag, click} from 'triggerEvents';
 import {Map} from '@here/xyz-maps-display';
-import {Editor} from '@here/xyz-maps-editor';
+import {Editor, EditOperation} from '@here/xyz-maps-editor';
 // @ts-ignore @deprecated
 import {features} from '@here/xyz-maps-editor';
 import chaiAlmost from 'chai-almost';
@@ -175,5 +175,51 @@ describe('link edit restrictions', function() {
             [77.248439761, 13.108241071, 0],
             [77.248439761, 13.108763534, 0]
         ]);
+    });
+
+    it('passes the affected coordinate index and blocks the corresponding geometry change', async function() {
+        editor.destroy();
+        display.destroy();
+        await preparedData.clear();
+
+        preparedData = await prepare(dataset);
+        display = new Map(document.getElementById('map'), {
+            center: {longitude: 77.25004908649441, latitude: 13.107718606505642},
+            zoomlevel: 18,
+            layers: preparedData.getLayers()
+        });
+
+        const coordinateContexts = [];
+        let coordinateIndexOneChecks = 0;
+
+        editor = new Editor(display, {
+            layers: preparedData.getLayers(),
+            editRestrictions: function(feature, operation, context) {
+                if (operation === EditOperation.Geometry && context?.coordinateIndex === 1) {
+                    coordinateContexts.push(context);
+                    return ++coordinateIndexOneChecks > 1;
+                }
+                return false;
+            }
+        });
+
+        await waitForEditorReady(editor);
+
+        const link = editor.addFeature(new features.Navlink([
+            {x: 400, y: 200},
+            {x: 300, y: 200},
+            {x: 100, y: 200},
+            {x: 100, y: 100}
+        ], {featureClass: 'NAVLINK'}));
+
+        link.select();
+        const originalCoordinates = link.coord();
+
+        await drag(mapContainer, {x: 300, y: 200}, {x: 300, y: 300});
+
+        expect(coordinateContexts).to.have.length.greaterThan(0);
+        expect(coordinateContexts[0]).to.deep.equal({coordinateIndex: 1});
+        expect(coordinateIndexOneChecks).to.be.greaterThan(1);
+        expect(link.coord()).to.deep.almost(originalCoordinates);
     });
 });
