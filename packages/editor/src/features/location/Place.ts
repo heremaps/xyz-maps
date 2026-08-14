@@ -46,7 +46,7 @@ class Place extends Location {
         const obj = this;
 
         if (!oTools.getRoutingData(obj).link) {
-            oTools.connect(obj);
+            oTools.connect(obj, null, undefined, true);
 
             if (oTools.getRoutingData(obj).link) {
                 oTools.markAsModified(obj);
@@ -112,7 +112,7 @@ class Place extends Location {
         }
 
         // connect to a link if this object has link property, if not, disconnect possible previous connection.
-        if (oTools.getRoutingData(feature).link) {
+        if (oTools.getRoutingData(feature).link || feature.behavior('autoResolveRoutingPoint')) {
             oTools.connect(feature, null);
         } else {
             oTools.disconnect(feature);

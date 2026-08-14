@@ -455,13 +455,12 @@ class ObjectManager {
                     });
                 }
 
-                // Address needs to be connected to link.
-                // If no link is defined -> automatically get the nearest available.
-                if (
-                    featureClass === 'ADDRESS'
-                    && !history // in case of history recovering make sure the address is created untouched.
-                ) {
+                // Validate existing routing data and resolve missing data when enabled.
+                if (!history && (cLinkId || feature.behavior('autoResolveRoutingPoint'))) {
+                    // in case of history recovering make sure the feature is created untouched.
                     locationTools.connect(feature);
+                }
+                if (!history && feature.behavior('autoResolveRoutingPoint')) {
                     if (!feature.getLink()) {
                         // no link could be found -> undo creation
                         // cleanup history

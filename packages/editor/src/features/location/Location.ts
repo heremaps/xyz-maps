@@ -20,12 +20,103 @@ import oTools from './LocationTools';
 import {Navlink} from '../link/Navlink';
 import {GeoJSONCoordinate} from '@here/xyz-maps-core';
 import {Marker} from '../marker/Marker';
+import {isAutoResolveRoutingPointEnabled} from '../../API/EditorOptions';
+
+const getAutoResolveRoutingPoint = (feature: Location) => {
+    return isAutoResolveRoutingPointEnabled(feature._e()._config,
+        feature.class);
+};
+
+type LocationBehavior = {
+    autoResolveRoutingPoint?: boolean;
+    dragAxis?: [number, number, number] | 'X' | 'Y' | 'Z' | null;
+    dragPlane?: [number, number, number] | 'XY' | 'XZ' | 'YZ' | null;
+    dragSurface?: 'terrain' | null;
+};
 
 /**
  * @hidden
  */
 export class Location extends Marker {
     readonly class: 'PLACE' | 'ADDRESS';
+
+    /**
+     * Set or get behavior options for the location.
+     * @experimental
+     */
+    behavior(options: {
+        /**
+         * Automatically resolves to the nearest {@link Navlink} when no valid routing point exists.
+         * Overrides the corresponding EditorOptions setting for this feature.
+         */
+        autoResolveRoutingPoint?: boolean,
+        /**
+         * The axis along which the location can be dragged.
+         * Ignored if `dragPlane` or `dragSurface` is set.
+         */
+        dragAxis?: [number, number, number] | 'X' | 'Y' | 'Z',
+        /**
+         * The normal of the plane over which the location is dragged.
+         * Overrides `dragAxis` if both are set.
+         * Ignored if `dragSurface` is set.
+         */
+        dragPlane?: [number, number, number] | 'XY' | 'XZ' | 'YZ',
+        /**
+         * The surface over which the location is dragged.
+         * Takes precedence over both `dragPlane` and `dragAxis`.
+         */
+        dragSurface?: 'terrain'
+    }): void;
+    /**
+     * Set a specific behavior option.
+     * @experimental
+     */
+    behavior(name: string, value: boolean | string | [number, number, number]): void;
+
+    /**
+     * Get a specific behavior option.
+     * @experimental
+     */
+    behavior(option: string): any;
+
+    /**
+     * Get all behavior options for the location.
+     * @experimental
+     */
+    behavior(): {
+        /**
+         * Includes the per-feature override and the global EditorOptions default.
+         */
+        autoResolveRoutingPoint: boolean;
+        /**
+         * The axis along which the location can be dragged.
+         */
+        dragAxis?: [number, number, number] | 'X' | 'Y' | 'Z' | null;
+        /**
+         * The normal of the plane over which the location is dragged.
+         */
+        dragPlane?: [number, number, number] | 'XY' | 'XZ' | 'YZ' | null;
+        /**
+         * The surface over which the location is dragged.
+         */
+        dragSurface?: 'terrain' | null;
+    };
+
+    behavior(options?: any, value?: boolean) {
+        const argsLength = arguments.length;
+        if (argsLength == 0) {
+            const behavior: LocationBehavior = super.behavior();
+            return {
+                ...behavior,
+                autoResolveRoutingPoint: behavior.autoResolveRoutingPoint ?? getAutoResolveRoutingPoint(this)
+            };
+        }
+        if (argsLength == 1 && options === 'autoResolveRoutingPoint') {
+            return super.behavior(options) ?? getAutoResolveRoutingPoint(this);
+        }
+
+        super.behavior(options, value);
+    }
 
     constructor(feature, provider) {
         super(feature, provider);

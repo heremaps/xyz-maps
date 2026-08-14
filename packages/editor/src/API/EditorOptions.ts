@@ -167,6 +167,30 @@ interface EditorOptions {
     maxRoutingPointDistance?: number;
 
     /**
+     * Configure Address feature behavior.
+     */
+    address?: {
+        /**
+         * Automatically resolve to the nearest Navlink when no valid routing point is available.
+         *
+         * @defaultValue true
+         */
+        autoResolveRoutingPoint?: boolean;
+    };
+
+    /**
+     * Configure Place feature behavior.
+     */
+    place?: {
+        /**
+         * Automatically resolve to the nearest Navlink when no valid routing point is available.
+         *
+         * @defaultValue false
+         */
+        autoResolveRoutingPoint?: boolean;
+    };
+
+    /**
      *
      * Configure "automatic coordinates snapping" to nearby geometries when a shape of a Navlink or Area Feature is dragged.
      * - 'true' : coordinates are snapped during the drag operation. [DEFAULT]
@@ -245,7 +269,23 @@ const defaultOptions: EditorOptions = {
     keepFeatureSelection: 'viewportChange',
     featureSelectionByDefault: true,
     maxRoutingPointDistance: 1000,
+    address: {
+        autoResolveRoutingPoint: true
+    },
+    place: {
+        autoResolveRoutingPoint: false
+    },
     snapOnDrag: true
+};
+
+const isAutoResolveRoutingPointEnabled = (
+    options: EditorOptions,
+    featureClass: 'ADDRESS' | 'PLACE'
+) => {
+    const classOptions = featureClass == 'ADDRESS' ? options && options.address : options && options.place;
+    const option = classOptions && classOptions.autoResolveRoutingPoint;
+
+    return option == undefined ? featureClass == 'ADDRESS' : option;
 };
 
 
@@ -272,4 +312,4 @@ const mergeOptions = (options): EditorOptions => {
 };
 
 
-export {defaultOptions, EditorOptions, mergeOptions};
+export {defaultOptions, EditorOptions, mergeOptions, isAutoResolveRoutingPointEnabled};

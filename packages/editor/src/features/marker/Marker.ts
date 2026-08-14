@@ -64,8 +64,16 @@ export class Marker extends Feature {
         dragSurface?: 'terrain' | null
     };
 
+    /**
+     * Get a specific behavior option.
+     * @experimental
+     */
     behavior(option: string): any;
 
+    /**
+     * Set a specific behavior option.
+     * @experimental
+     */
     behavior(name: string, value: boolean | string | [number, number, number]): void;
 
     /**

@@ -99,23 +99,23 @@ const getRPoint = (obj): RoutingPoint => {
 
 
 function showRoutingPoint(obj, ev?) {
-    const isAddr = !isPOI(obj);
+    const isFloatingAddress = !isPOI(obj);
     const linkId = tools.getRoutingData(obj).link;
+    const shouldUpdateRoutingData = linkId || isFloatingAddress;
     const prv = getPrivate(obj);
 
     prv.isHovered = ev;
 
-    // in case of invalid data a address is marked as floating ->
-    // try to find nearest link in any case.
-    const isFLoatingAddress = linkId || isAddr;
+    // In case of invalid data, resolve to the nearest link when enabled.
+    const shouldResolveRoutingPoint = linkId || obj.behavior('autoResolveRoutingPoint');
 
-    if (linkId || isAddr) {
+    if (shouldResolveRoutingPoint) {
         const rPnt = getRPoint(obj);
 
         if (rPnt.updateRoutingPoint() || rPnt.setRoutingPoint()) {
             prv.cLink = rPnt.show();
 
-            if (isFLoatingAddress) {
+            if (shouldUpdateRoutingData) {
                 tools.setRoutingData(obj);
             }
         }
@@ -430,7 +430,7 @@ const tools = {
     },
 
     //* ********************************* location specific internal **********************************
-    connect: function(feature: PlaceAddress, link?: Navlink | false, rp?: GeoJSONCoordinate) {
+    connect: function(feature: PlaceAddress, link?: Navlink | false, rp?: GeoJSONCoordinate, force?: boolean) {
         const prv = getPrivate(feature);
 
         if (prv.writeProp) {
@@ -449,7 +449,11 @@ const tools = {
         // connect to the given link
         if (link) {
             prv.cLink = rPnt.setRoutingPoint(link, rp);
-        } else if (!(prv.cLink = rPnt.updateRoutingPoint()) && link !== false) {
+        } else if (
+            !(prv.cLink = rPnt.updateRoutingPoint()) &&
+            link !== false &&
+            (force || feature.behavior('autoResolveRoutingPoint'))
+        ) {
             // simply update routing point if link is given as false
             // update routing point, if connected link is not found, connect to a link nearby
             prv.cLink = rPnt.setRoutingPoint();
@@ -494,7 +498,7 @@ const tools = {
         prv.cLink = null;
 
         // set pois to floating!
-        if (!isPOI(feature)) {
+        if (!isPOI(feature) && feature.behavior('autoResolveRoutingPoint')) {
             getRPoint(feature).setRoutingPoint();
         }
 
