@@ -138,7 +138,15 @@ export default async function prepare(dataset: MapSetup) {
 
     const supportedLayerTypes = {'TileLayer': TileLayer, 'ClusterTileLayer': ClusterTileLayer};
 
-    if (dataset && dataset.layers) {
+
+    if (dataset?.layers) {
+        dataset = {
+            ...dataset,
+            layers: dataset.layers.map((layer) => {
+                const data = layer.data && structuredClone(layer.data);
+                return {...layer, ...(data && {data})};
+            })
+        };
         let ts = (new Date()).getTime().toString();
         for (let l of dataset.layers) {
             const providerType = l.provider.type;
@@ -360,5 +368,3 @@ export class TestData {
         }
     };
 }
-
-

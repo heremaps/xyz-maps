@@ -575,7 +575,8 @@ const tools = {
         let cAreas = [];
         const iEditor = area._e();
         const layer = iEditor.getLayer(area);
-        const round = (c) => Math.round(c * 1e9);
+        const coordinateDecimals = 10 ** iEditor._config.coordinatePrecision;
+        const round = (c) => Math.round(c * coordinateDecimals);
         const lon = round(position[0]);
         const lat = round(position[1]);
         const areas = iEditor.objects.getInBBox([position[0], position[1], position[0], position[1]], layer);

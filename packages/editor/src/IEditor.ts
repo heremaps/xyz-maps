@@ -107,7 +107,7 @@ export default class InternalEditor {
             layer.addEventListener(ERROR_EVENT, providerErrorListener);
         });
 
-        iEditor.map = new Map(display);
+        iEditor.map = new Map(display, () => config.coordinatePrecision);
 
         iEditor.transformer = new Transformer(iEditor);
 

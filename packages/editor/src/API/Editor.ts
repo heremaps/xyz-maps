@@ -629,7 +629,11 @@ export default class Editor {
             config[<string>name] = value;
             break;
         case 1:
-            return config[<string>name];
+            if (typeof name == 'string') {
+                return config[name];
+            }
+            Object.assign(config, name);
+            break;
         case 0:
             return {...config};
         }

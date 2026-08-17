@@ -25,8 +25,6 @@ import {Feature} from '../features/feature/Feature';
 import {interpolateAltitude} from './GeoMath';
 
 
-// var MAX_DECIMAL_PRECISION = 1e8; // ⁓1.1mm
-const LON_LAT_DECIMALS = 1e9; // ⁓110microns
 const ALT_DECIMALS = 1e3; // mm
 const TO_RAD = Math.PI / 180;
 let UNDEF;
@@ -80,9 +78,13 @@ function forEachCoord(coordinates, transform) {
 
 class Map {
     private display: MapDisplay;
+    private getCoordinateDecimals: () => number;
 
-    constructor(display: MapDisplay) {
+    constructor(display: MapDisplay, coordinatePrecision: number | (() => number) = 9) {
         this.display = display;
+        this.getCoordinateDecimals = typeof coordinatePrecision == 'function' ?
+            () => 10 ** coordinatePrecision() :
+            () => 10 ** coordinatePrecision;
     }
 
     distance(p1: Point, p2: Point) {
@@ -257,8 +259,9 @@ class Map {
 
     clipGeoCoord(c: Point, clipZ?: boolean): Point {
         const [x, y, z] = c;
-        c[0] = Math.round(x * LON_LAT_DECIMALS) / LON_LAT_DECIMALS;
-        c[1] = Math.round(y * LON_LAT_DECIMALS) / LON_LAT_DECIMALS;
+        const coordinateDecimals = this.getCoordinateDecimals();
+        c[0] = Math.round(x * coordinateDecimals) / coordinateDecimals;
+        c[1] = Math.round(y * coordinateDecimals) / coordinateDecimals;
         if (clipZ && typeof z == 'number') {
             c[2] = Math.round(z * ALT_DECIMALS) / ALT_DECIMALS;
         }

@@ -48,6 +48,14 @@ const copyLineStrings = (poly) => {
     return cpy;
 };
 
+const clipCoordinates = (coordinates, map) => {
+    if (typeof coordinates[0] == 'number') {
+        return map.clipGeoCoord(coordinates);
+    }
+    coordinates.forEach((coordinate) => clipCoordinates(coordinate, map));
+    return coordinates;
+};
+
 export type EditStates = 'created' | 'modified' | 'removed' | 'split' | 'hovered' | 'selected';
 
 /**
@@ -316,7 +324,7 @@ class Feature extends GeoJSONFeature {
         if (coordinates instanceof Array) {
             oTools.deHighlight(feature);
 
-            oTools._setCoords(feature, coordinates);
+            oTools._setCoords(feature, clipCoordinates(coordinates, feature._e().map));
 
             oTools.markAsModified(feature);
         } else {

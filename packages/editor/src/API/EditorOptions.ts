@@ -111,6 +111,13 @@ interface EditorOptions {
     routingPointPrecision?: number;
 
     /**
+     * The number of decimal places used when feature geometry coordinates are written.
+     *
+     * @defaultValue 9
+     */
+    coordinatePrecision?: number;
+
+    /**
      * Defines the coordinate precision for the automatic intersection detection.
      * Number of decimal points of the WGS coordinates that must match.
      *
@@ -263,6 +270,7 @@ const defaultOptions: EditorOptions = {
     snapTolerance: 2, // 2 meter
     intersectionScale: 5,
     routingPointPrecision: 5,
+    coordinatePrecision: 9,
     // XTestMaxDistance: 2,
     disconnectShapeDistance: 3,
     autoConnect: true,
