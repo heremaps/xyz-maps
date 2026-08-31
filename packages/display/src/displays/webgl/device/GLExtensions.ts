@@ -18,7 +18,7 @@
  */
 
 export class GLExtensions {
-    private gl: WebGLRenderingContext;
+    private readonly gl: WebGLRenderingContext;
 
     private ext: { [name: string]: any };
 
@@ -39,6 +39,8 @@ export class GLExtensions {
             extension = ext[name] = gl.getExtension(name);
             if (!extension) {
                 console.warn(`Extension "${name}" not supported!`);
+            } else {
+                console.log(`Extension "${name}" loaded.`);
             }
         }
         return extension;

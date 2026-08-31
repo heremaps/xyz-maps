@@ -53,14 +53,18 @@ const getValue = (val, feature, zoomlevel: number) => {
 };
 
 
-const createHighlightLineStyle = (use3d?: boolean) => [{
-    zLayer: (feature) => feature.properties.zLayer,
-    zIndex: 999990,
-    type: 'Line',
-    strokeWidth: 2,
-    stroke: '#FF0000',
-    altitude: !!use3d
-}];
+const createHighlightLineStyle = (use3d?: boolean) => {
+    return [{
+        zLayer: (feature) => feature.properties.zLayer,
+        zIndex: 999990,
+        type: 'Line',
+        strokeWidth: 2,
+        stroke: '#FF0000',
+        altitude: use3d ? ({properties}) => {
+            return properties[properties.parentType].altitude;
+        } : false
+    }];
+};
 
 const createSelectorStyle = (use3d?: boolean) => {
     const styleGroup: any[] = [{
@@ -70,7 +74,7 @@ const createSelectorStyle = (use3d?: boolean) => {
         stroke: '#FF0F00',
         radius: 20,
         pointerEvents: false,
-        altitude: use3d
+        altitude: use3d ? ({properties}) => properties[properties.parentType].altitude : false
     }];
 
     if (use3d) {
@@ -85,7 +89,9 @@ const createSelectorStyle = (use3d?: boolean) => {
             radius: 4,
             fill: BLACK,
             opacity: .6,
-            zLayer: ({properties}) => properties[properties.parentType].zLayer
+            zLayer: ({properties}) => properties[properties.parentType].zLayer,
+            // if no terrain is used renderer will place at altitude 0 automatically
+            altitude: 'terrain'
         });
     }
 
@@ -105,12 +111,14 @@ const createRoutingPointStyle = (use3d?: boolean) => use3d
     }, {
         zLayer: (feature) => feature.properties.zLayer,
         zIndex: 999991,
-        type: 'VerticalLine',
+        type: ({properties})=>properties[properties.parentType].altitude != 'terrain'
+            ? 'VerticalLine' : null,
         stroke: '#000',
-        altitude: true
+        altitude: ({properties})=>properties[properties.parentType].altitude
     }, {
         zIndex: 999990,
-        type: 'Circle',
+        type: ({properties})=>properties[properties.parentType].altitude != 'terrain'
+            ? 'Circle' : null,
         radius: 4,
         fill: BLACK,
         opacity: .6,
@@ -180,10 +188,23 @@ class OverlayStyles extends XYZLayerStyle {
 
         'AREA_SHAPE': [{
             zIndex: 0,
-            zLayer: ({properties}) => properties.AREA.zLayer,
             type: 'Circle',
+            zLayer: ({properties}) => properties.AREA.zLayer,
             strokeWidth: 2,
             stroke: BLACK,
+            radius: (feature) => isHovered(feature) ? 8 : 6,
+            fill: (feature, zoom) => {
+                const {fill, stroke} = feature.properties.AREA.style[0];
+                return isHovered(feature)
+                    ? BLACK
+                    : getValue(fill, feature.getArea(), zoom) || getValue(stroke, feature.getArea(), zoom);
+            }
+        }],
+        'AREA_SHAPE_3D': [{
+            zIndex: 0,
+            type: 'Sphere',
+            zLayer: ({properties}) => properties.AREA.zLayer,
+            altitude: ({properties}) => properties.AREA.usesTerrainAltitude ? 'terrain' : true,
             radius: (feature) => isHovered(feature) ? 8 : 6,
             fill: (feature, zoom) => {
                 const {fill, stroke} = feature.properties.AREA.style[0];
@@ -195,11 +216,20 @@ class OverlayStyles extends XYZLayerStyle {
 
         'AREA_VIRTUAL_SHAPE': [{
             zIndex: 0,
-            zLayer: ({properties}) => properties.AREA.zLayer,
             type: 'Circle',
+            zLayer: ({properties}) => properties.AREA.zLayer,
             strokeWidth: 1,
             fill: BLACK,
             stroke: BLACK,
+            radius: (feature) => isHovered(feature) ? 6 : 4
+        }],
+
+        'AREA_VIRTUAL_SHAPE_3D': [{
+            zIndex: 0,
+            type: 'Sphere',
+            zLayer: ({properties}) => properties.AREA.zLayer,
+            altitude: ({properties}) => properties.AREA.usesTerrainAltitude ? 'terrain' : true,
+            fill: BLACK,
             radius: (feature) => isHovered(feature) ? 6 : 4
         }],
 
@@ -253,16 +283,16 @@ class OverlayStyles extends XYZLayerStyle {
                 return style.length > 1 ? style[0].stroke : '#e9e9e9';
             },
             strokeWidth: 2,
-            altitude: true
+            altitude: ({properties}) => properties.LINE.usesTerrainAltitude ? 'terrain' : true
             // depthTest: false
         },
         {
             zIndex: 2,
-            type: 'VerticalLine',
+            type: ({properties}) => properties.LINE.usesTerrainAltitude ? null : 'VerticalLine',
             stroke: '#000'
         }, {
             zIndex: 9e5,
-            type: 'Circle',
+            type: ({properties}) => properties.LINE.usesTerrainAltitude ? null : 'Circle',
             radius: 4,
             fill: BLACK,
             opacity: .6,
@@ -315,16 +345,16 @@ class OverlayStyles extends XYZLayerStyle {
                 const [lineWidth] = styleTools.getLineWidth(style, feature.getLine(), zoom, 0);
                 return lineWidth / 2 ^ 0;
             },
-            fill: 'red',
+            fill: '#151515',
             altitude: ({properties}) => properties.LINE.style.find((s) => s.altitude)?.altitude
             // depthTest: false
         }, {
             zIndex: 2,
-            type: 'VerticalLine',
+            type: ({properties}) => properties.LINE.usesTerrainAltitude ? null : 'VerticalLine',
             stroke: '#000'
         }, {
             zIndex: 9e5,
-            type: 'Circle',
+            type: ({properties}) => properties.LINE.usesTerrainAltitude ? null : 'Circle',
             radius: 4,
             fill: BLACK,
             opacity: .6,
@@ -380,14 +410,15 @@ class OverlayStyles extends XYZLayerStyle {
                 ? '#FF0000'
                 : '#FFFFFF',
             alignment: 'map',
-            altitude: true
+            altitude: ({properties}) => properties.NAVLINK.usesTerrainAltitude ? 'terrain' : true
+            // altitude: true
         }, {
             zIndex: 2,
-            type: 'VerticalLine',
+            type: ({properties}) => properties.NAVLINK.usesTerrainAltitude ? null : 'VerticalLine',
             stroke: '#000'
         }, {
             zIndex: 9e5,
-            type: 'Circle',
+            type: ({properties}) => properties.NAVLINK.usesTerrainAltitude ? null : 'Circle',
             radius: 4,
             fill: BLACK,
             opacity: .6,
@@ -410,7 +441,7 @@ class OverlayStyles extends XYZLayerStyle {
 
         'NAVLINK_VIRTUAL_SHAPE_3D': [{
             zIndex: 1,
-            type: 'Sphere',
+            type: ({properties}) => properties.NAVLINK.usesTerrainAltitude ? 'Sphere' : null,
             radius: (feature, zoom) => {
                 const {style} = feature.properties.NAVLINK;
                 let [lw] = styleTools.getLineWidth(style, feature.getLink(), zoom, 0);
@@ -421,14 +452,15 @@ class OverlayStyles extends XYZLayerStyle {
             stroke: BLACK,
             strokeWidth: 2,
             alignment: 'map',
-            altitude: true
+            altitude: ({properties}) => properties.NAVLINK.usesTerrainAltitude ? 'terrain' : true
+            // altitude: true
         }, {
             zIndex: 2,
-            type: 'VerticalLine',
+            type: ({properties}) => properties.NAVLINK.usesTerrainAltitude ? null : 'VerticalLine',
             stroke: '#000'
         }, {
             zIndex: 9e5,
-            type: 'Circle',
+            type: ({properties}) => properties.NAVLINK.usesTerrainAltitude ? null : 'Circle',
             radius: 4,
             fill: BLACK,
             opacity: .6,
@@ -624,13 +656,15 @@ class OverlayStyles extends XYZLayerStyle {
         const {styleGroups} = this;
         const {properties} = feature;
         let type = feature.class || properties.type;
-        let is3d = false;
+        let is3d: boolean | string = false;
 
-        if (
-            type == 'LINE_SHAPE' || type == 'LINE_VIRTUAL_SHAPE' ||
-            type == 'NAVLINK_SHAPE' || type == 'NAVLINK_VIRTUAL_SHAPE'
-        ) {
-            is3d = (properties.LINE || properties.NAVLINK).style.find((s) => s.altitude)?.altitude;
+
+        if (type == 'LINE_SHAPE' || type == 'LINE_VIRTUAL_SHAPE') {
+            is3d = properties.LINE.usesAltitude;
+        } else if (type == 'NAVLINK_SHAPE' || type == 'NAVLINK_VIRTUAL_SHAPE') {
+            is3d = properties.NAVLINK.usesAltitude;
+        } else if (type == 'AREA_SHAPE' || type == 'AREA_VIRTUAL_SHAPE') {
+            is3d = properties.AREA.usesAltitude;
         } else if (type == 'MARKER_SELECTOR') {
             is3d = properties.MARKER.altitude;
             if (is3d == UNDEF) {
@@ -647,7 +681,6 @@ class OverlayStyles extends XYZLayerStyle {
             const type3d = type + '_3D';
             type = styleGroups[type3d] ? type3d : type;
         }
-
         return styleGroups[type] !== UNDEF ? type : 'UNKNOWN';
     }
 };

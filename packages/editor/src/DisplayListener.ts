@@ -20,6 +20,7 @@
 import {Set} from '@here/xyz-maps-common';
 import InternalEditor from './IEditor';
 import ObserverHandler from './handlers/ObserverHandler';
+import {TerrainTileLayer} from '@here/xyz-maps-core';
 
 export default class DisplayListener {
     // private layers = {};
@@ -30,19 +31,21 @@ export default class DisplayListener {
 
     private observers: ObserverHandler;
 
-    private iEdit;
+    private iEdit: InternalEditor;
 
-    constructor(HERE_WIKI: InternalEditor, display) {
+    constructor(iEdit: InternalEditor, display) {
         this.display = display;
 
-        this.iEdit = HERE_WIKI;
+        this.iEdit = iEdit;
 
-        this.observers = HERE_WIKI.observers;
+        this.observers = iEdit.observers;
 
         this.onStart = this.onStart.bind(this);
         this.onStop = this.onStop.bind(this);
 
-        HERE_WIKI.listeners.add('_layerAdd', (ev) => {
+        this.onLayerChange = this.onLayerChange.bind(this);
+
+        iEdit.listeners.add('_layerAdd', (ev) => {
             // make sure ready observers are getting triggered in any case even if layer is ready already.
             this.observers.change('ready', false);
             this.display.setCenter(this.display.getCenter());
@@ -50,7 +53,7 @@ export default class DisplayListener {
             ev.detail.layer.addEventListener('viewportReady', this.onStop);
         });
 
-        HERE_WIKI.listeners.add('_layerRemove', (ev) => {
+        iEdit.listeners.add('_layerRemove', (ev) => {
             ev.detail.layer.removeEventListener('viewportReady', this.onStop);
             this.busy?.delete(ev.detail.layer);
             if (!this.busy?.size && !this.iEdit.layers.length) {
@@ -81,14 +84,24 @@ export default class DisplayListener {
         }
     }
 
+    private onLayerChange(ev) {
+        if (ev.detail.layer instanceof TerrainTileLayer) {
+            this.iEdit.displayProvidesTerrain = ev.type === 'addLayer';
+        }
+    }
+
     start() {
-        // this.listen(true);
+        if (this.display.getLayers().some((layer)=>layer instanceof TerrainTileLayer)) {
+            this.iEdit.displayProvidesTerrain = true;
+        }
         this.display.addEventListener('mapviewchangestart', this.onStart);
+        this.display.addEventListener('addLayer removeLayer', this.onLayerChange);
     };
 
     stop() {
         // this.listen(false);
         this.display.removeEventListener('mapviewchangestart', this.onStart);
+        this.display.removeEventListener('layerAdd layerRemove', this.onLayerChange);
     };
 
     // private onStart(ev) {

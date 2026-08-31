@@ -16,33 +16,19 @@
  * SPDX-License-Identifier: Apache-2.0
  * License-Filename: LICENSE
  */
-import {Texture} from './Texture';
 import {GradientFactory, LinearGradientStops} from './GradientFactory';
+import {FillTexture} from './FillTexture';
 import {Color, LinearGradient} from '@here/xyz-maps-core';
 import {Color as Colors} from '@here/xyz-maps-common';
-
-export class FillTexture extends Texture {
-    ref: number = 0;
-    id: Color | LinearGradientStops | LinearGradient;
-    cache: TextureCache;
-
-    destroy() {
-        this.cache.delete(this.id);
-        super.destroy();
-    }
-}
-
-export type TextureCache = Map<Color | LinearGradientStops | LinearGradient, FillTexture>;
+import {GraphicsDevice} from './device/GraphicsDevice';
 
 type TextureInput = Color | LinearGradientStops | LinearGradient;
 
 export class TextureManager {
     private gradients: GradientFactory;
-    private gl: WebGLRenderingContext;
 
-    constructor(gl: WebGLRenderingContext) {
-        this.gradients = new GradientFactory(gl, 256, 1);
-        this.gl = gl;
+    constructor(private device: GraphicsDevice) {
+        this.gradients = new GradientFactory(device, 256, 1);
     }
 
     private textures: Map<TextureInput, FillTexture> = new Map();
@@ -55,7 +41,7 @@ export class TextureManager {
                 texture = gradients.createTexture((<unknown>color as LinearGradient));
             } else {
                 const rgba = Colors.toRGB(color as Color, true);
-                texture = new FillTexture(this.gl, {data: new Uint8Array(rgba.map((c) => c * 255)), width: 1, height: 1});
+                texture = new FillTexture(this.device, {data: new Uint8Array(rgba.map((c) => c * 255)), width: 1, height: 1});
             }
             this.addTexture(color, texture);
         }

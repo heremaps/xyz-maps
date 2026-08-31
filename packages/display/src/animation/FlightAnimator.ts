@@ -26,7 +26,19 @@ class FlightAnimator extends Animator {
     private map: Map;
 
     constructor(map: Map, options: AnimatorOptions = {}) {
+        const onStart = options.onStart;
+        const onStop = options.onStop;
+
         options.easing = options.easing || 'easeOut';
+        options.onStart = () => {
+            map._beginCameraAnimation();
+            onStart?.();
+        };
+        options.onStop = () => {
+            map._endCameraAnimation();
+            onStop?.();
+        };
+
         super(options);
         this.map = map;
     }

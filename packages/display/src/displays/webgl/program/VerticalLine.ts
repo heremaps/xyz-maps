@@ -22,23 +22,20 @@ import Program, {ProgramMacros} from './Program';
 import vertexShader from '../glsl/vline_vertex.glsl';
 // @ts-ignore
 import fragmentShader from '../glsl/polygon_fragment.glsl';
+import {GraphicsDevice} from '../device/GraphicsDevice';
 class VerticalLineProgram extends Program {
     name = 'VerticalLine';
-
-    static getProgramId(buffer: GeometryBuffer, macros?: ProgramMacros) {
-        return buffer.type + (macros?.USE_HEIGHTMAP||'');
-    }
 
     static getMacros(buffer: GeometryBuffer) {
         return Program.getMacros(buffer);
     }
 
-    constructor(gl: WebGLRenderingContext, devicePixelRation: number, macros?: ProgramMacros) {
-        super(gl, devicePixelRation, macros);
+    constructor(device: GraphicsDevice, devicePixelRation: number, macros?: ProgramMacros) {
+        super(device, devicePixelRation, macros);
 
         this.vertexShaderSrc = vertexShader;
         this.fragmentShaderSrc = fragmentShader;
-        this.mode = gl.LINES;
+        this.mode = device.gl.LINES;
     }
 }
 

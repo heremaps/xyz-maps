@@ -1,4 +1,4 @@
-precision lowp float;
+precision highp float;
 
 attribute vec3 a_position;
 attribute highp vec4 a_normal;
@@ -7,9 +7,9 @@ attribute float a_lengthSoFar;
 uniform mat4 u_matrix;
 uniform highp vec2 u_strokeWidth;
 uniform highp float u_scale;
-uniform vec2 u_topLeft;
+uniform vec4 u_tile;
 varying vec2 v_normal;
-#ifdef DASHARRAY
+#ifdef DASH_ARRAY
 varying float v_lengthSoFar;
 varying vec2 v_dashSize;
 uniform vec2 u_dashSize;
@@ -20,6 +20,7 @@ varying vec2 v_dir;
 
 uniform vec2 u_offset;
 uniform bool u_no_antialias;
+uniform float u_exaggeration;
 
 #include "utils.glsl/altitudeScaleFactor"
 
@@ -28,9 +29,20 @@ const float N_SCALE = 1.0 / 8191.0;
 void main(void){
 
     float strokeWidth = toPixel(u_strokeWidth, u_scale) * 0.5;
-    float alias = u_no_antialias
-        ? 0.0
-        : strokeWidth < 1. ? .65 : 1.;
+
+    // AA gutter (in pixels), ~1px for most sizes, smaller for very thin strokes.
+    float alias = 0.0;
+    if (!u_no_antialias) {
+        #if __VERSION__ >= 300
+        // estimate how fast clip space changes across a pixel to pick a stable AA size.
+        float px = max(fwidth(gl_Position.x) + fwidth(gl_Position.y), 1e-4);
+        // convert to a gutter in pixel-ish units; clamp to avoid excessive widening.
+        alias = clamp(0.5 / px, 0.5, 1.25);
+        #else
+        // smooth ramp from 0.5px to 1.0px as stroke grows.
+        alias = mix(0.5, 1.0, smoothstep(0.5, 2.0, strokeWidth));
+        #endif
+    }
 
     float width = (strokeWidth+alias) / u_scale;
     v_width = vec2(strokeWidth, alias /* *.5 */);
@@ -43,7 +55,7 @@ void main(void){
     vec2 dir = v_dir * 2.0 - 1.0;
     vec2 normal = floor(a_normal.xy * .5) * N_SCALE;
 
-    #ifdef DASHARRAY
+    #ifdef DASH_ARRAY
     v_lengthSoFar = a_lengthSoFar;
 
     v_dashSize = vec2(
@@ -56,12 +68,11 @@ void main(void){
 
     vec2 position = a_position.xy + normal * -lineOffset / u_scale;
 
-    vec2 posCenterWorld = vec2(u_topLeft + position);
+    vec2 posCenterWorld = vec2(u_tile.xy + position);
 //    vec2 offset = dir.y * normal * width;
     vec2 offset = dir * normal * width;
 
-    offset *= altitudeScaleFactor(vec3(posCenterWorld + offset, a_position.z), u_matrix);
+    offset *= altitudeScaleFactor(vec3(posCenterWorld + offset, a_position.z * u_exaggeration), u_matrix);
 
-    gl_Position = u_matrix * vec4(posCenterWorld + offset, a_position.z, 1.0);
+    gl_Position = u_matrix * vec4(posCenterWorld + offset, a_position.z * u_exaggeration, 1.0);
 }
-

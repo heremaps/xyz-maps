@@ -22,9 +22,10 @@ import vertexShader from '../glsl/box_vertex.glsl';
 // @ts-ignore
 import fragmentShader from '../glsl/box_fragment.glsl';
 
-import Program, {ProgramMacros} from './Program';
+import Program, {PROGRAM_MACRO, ProgramMacros} from './Program';
 import {GLStates} from './GLStates';
 import {GeometryBuffer} from '../buffer/GeometryBuffer';
+import {GraphicsDevice} from '../device/GraphicsDevice';
 
 
 class BoxProgram extends Program {
@@ -36,23 +37,18 @@ class BoxProgram extends Program {
         depth: true
     });
 
-    static getProgramId(buffer: GeometryBuffer, macros?: ProgramMacros) {
-        const specular = macros ? (macros.SPECULAR as number) | (macros.USE_HEIGHTMAP as number) : '';
-        return specular ? buffer.type + specular : buffer.type;
-    }
-
     static getMacros(buffer: GeometryBuffer) {
         let macros = super.getMacros(buffer);
         if (buffer.uniforms.specular) {
             macros ||= {};
-            macros.SPECULAR = 2;
+            macros.SPECULAR = PROGRAM_MACRO.SPECULAR;
         }
         return macros;
     }
 
-    constructor(gl: WebGLRenderingContext, devicePixelRation: number, macros?: ProgramMacros) {
-        super(gl, devicePixelRation, macros);
-        this.mode = gl.TRIANGLES;
+    constructor(device: GraphicsDevice, devicePixelRation: number, macros?: ProgramMacros) {
+        super(device, devicePixelRation, macros);
+        this.mode = device.gl.TRIANGLES;
         this.vertexShaderSrc = vertexShader;
         this.fragmentShaderSrc = fragmentShader;
     }

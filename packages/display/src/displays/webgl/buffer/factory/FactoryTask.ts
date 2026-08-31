@@ -17,31 +17,24 @@
  * License-Filename: LICENSE
  */
 
-import {Color as Colors, Task, TaskManager, TaskSequence} from '@here/xyz-maps-common';
-import {GeometryBuffer} from './../GeometryBuffer';
+import {Color as Colors, Task} from '@here/xyz-maps-common';
+import {GeometryBuffer, RenderUsage} from './../GeometryBuffer';
 import {getPolygonCenter, getValue} from '../../../styleTools';
-import {
-    Feature, LayerStyle,
-    LinearGradient,
-    StyleGroup,
-    Tile,
-    TileLayer,
-    webMercator
-} from '@here/xyz-maps-core';
+import {Feature, LayerStyle, LinearGradient, StyleGroup, Tile, TileLayer, webMercator} from '@here/xyz-maps-core';
 import {Layer} from '../../../Layers';
-import {CollisionGroup, FeatureFactory, GroupMap, isDynamicProperty} from '../FeatureFactory';
+import {CollisionGroup, FeatureFactory, GroupMap} from '../FeatureFactory';
 import {GlyphTexture} from '../../GlyphTexture';
 import {TemplateBufferBucket} from '../templates/TemplateBufferBucket';
+import {TerrainRenderMode} from '../TerrainRenderPolicy';
 import {Texture} from '../../Texture';
+import {ExtrudeBuffer} from '../templates/ExtrudeBuffer';
 import {ModelBuffer} from '../templates/ModelBuffer';
-import {PASS} from '../../program/GLStates';
 import {DEFAULT_HEATMAP_GRADIENT, HeatmapBuffer} from '../templates/HeatmapBuffer';
+import {PASS} from '../../RenderPass';
 
 
 const PROCESS_FEATURE_CHUNK_SIZE = 16;
 const EXCLUSIVE_TIME_MS = 4;
-
-const taskManager = TaskManager.getInstance();
 const TO_RAD = Math.PI / 180;
 const COLOR_UNDEFINED = new Float32Array([-1.0, -1.0, -1.0, -1.0]);
 
@@ -61,7 +54,10 @@ const handlePolygons = (
     for (let style of styleGroup) {
         const type = getValue('type', style, feature, zoom);
         if (type == 'Polygon' || type == 'Line') {
-            const {type: orgType, stroke: orgStroke, strokeWidth: orgStrokwWidth} = style;
+            if ( getValue('extrude', style, feature, zoom) ) {
+                continue;
+            }
+            const {type: orgType, stroke: orgStroke} = style;
             let stroke = getValue('stroke', style, feature, zoom);
             let strokeWidth = getValue('strokeWidth', style, feature, zoom);
             if (stroke && strokeWidth) {
@@ -150,9 +146,8 @@ export class FactoryTask extends Task<TaskInput, TaskData> {
             pendingResources.push(promise);
         };
         const {showWireframe} = layerStyles;
-        const zLayer = layerStyles.zLayer; // ?? displayLayer.getRenderIndex();
 
-        this.factory.init(tile, groups, layer.tileSize, zoom, zLayer, waitAndRefresh);
+        this.factory.init(tile, groups, layer.tileSize, zoom, layerStyles, waitAndRefresh);
 
         return {
             tile,
@@ -207,6 +202,12 @@ export class FactoryTask extends Task<TaskInput, TaskData> {
 
                         if (geoBuffer == null) continue;
 
+                        geoBuffer.terrainOcclusion = shared.terrainOcclusion;
+
+                        if (shared.terrainRenderMode === TerrainRenderMode.OFFSCREEN) {
+                            geoBuffer.renderUsage = RenderUsage.TERRAIN_PREPASS;
+                        }
+
                         // let hasAlphaColor = false;
                         const fillOpacity = shared.fill?.[3];
                         const strokeOpacity = shared.stroke?.[3];
@@ -233,14 +234,9 @@ export class FactoryTask extends Task<TaskInput, TaskData> {
                                     shared.strokeDasharray.units[1] == 'm' ? meterToPixel : 0
                                 ]);
                             }
-                            // scissor un-clipped geometry in any case...(huge geometry possible)
-                            // otherwise clipping can be skipped to avoid strokeWidth cutoffs close to tile edges
-                            geoBuffer.clip = !tile.clipped;
 
                             geoBuffer.addUniform('u_fill', stroke);
-
                             // if (isDynamicProperty(shared.strokeWidth)) debugger;
-
                             geoBuffer.addUniform('u_strokeWidth', [strokeWidth, shared.unit == 'm' ? meterToPixel : 0]);
                             // geoBuffer.addUniform('u_strokeWidth', [strokeWidth * .5, shared.unit == 'm' ? meterToPixel : 0]);
 
@@ -251,9 +247,9 @@ export class FactoryTask extends Task<TaskInput, TaskData> {
                             geoBuffer.addUniform('u_no_antialias', false);
                             // geoBuffer.addUniform('u_no_antialias', !grpBuffer.isFlat());
 
-                            geoBuffer.pass = PASS.ALPHA;
+                            geoBuffer.pass = PASS.ALPHA_COLOR;
                             if (!geoBuffer.isFlat() || shared.strokeDasharray || hasAlphaColor) {
-                                geoBuffer.pass |= PASS.POST_ALPHA;
+                                geoBuffer.pass |= PASS.ALPHA_DEPTH;
                             }
                             geoBuffer.depth = geoBuffer.blend = true;
                         } else {
@@ -263,9 +259,11 @@ export class FactoryTask extends Task<TaskInput, TaskData> {
 
                                 if (type == 'Extrude') {
                                     geoBuffer.addUniform('u_strokePass', 0);
-
                                     if (shared.stroke) {
-                                        const indexGroup = geoBuffer.addDrawCmd(grp.extrudeStrokeIndex, grpBuffer.i32, 1);
+                                        const indexGroup = geoBuffer.addDrawCmd(
+                                            (grpBuffer as ExtrudeBuffer).extrudeStrokeIndex,
+                                            grpBuffer.i32, 1
+                                        );
                                         indexGroup.uniforms = {
                                             'u_strokePass': 1,
                                             'u_stroke': shared.stroke
@@ -273,9 +271,9 @@ export class FactoryTask extends Task<TaskInput, TaskData> {
                                     }
                                 }
                                 if (hasAlphaColor) {
-                                    geoBuffer.pass = PASS.ALPHA;
+                                    geoBuffer.pass = PASS.ALPHA_COLOR;
                                     if (type == 'Extrude') {
-                                        geoBuffer.pass |= PASS.POST_ALPHA;
+                                        geoBuffer.pass |= PASS.ALPHA_DEPTH;
                                     }
                                     geoBuffer.depth = geoBuffer.blend = true;
                                 }
@@ -294,7 +292,7 @@ export class FactoryTask extends Task<TaskInput, TaskData> {
 
                                     geoBuffer.addUniform('u_alignMap', shared.alignment == 'map');
 
-                                    geoBuffer.pass = PASS.ALPHA;
+                                    geoBuffer.pass = PASS.ALPHA_COLOR;
                                     geoBuffer.depth = geoBuffer.blend = true;
                                     // geoBuffer.addUniform('u_offset', [shared.offsetX, shared.offsetY]);
                                 } else if (type == 'Rect' || type == 'Circle' || type == 'Box' || type == 'Sphere') {
@@ -318,7 +316,7 @@ export class FactoryTask extends Task<TaskInput, TaskData> {
                                     } else {
                                         if (fill == COLOR_UNDEFINED) {
                                             // use blend to enable shader to not use discard (faster)
-                                            geoBuffer.pass = PASS.ALPHA;
+                                            geoBuffer.pass = PASS.ALPHA_COLOR;
                                             geoBuffer.blend = true;
                                         }
                                         if (type == 'Rect') {
@@ -328,7 +326,7 @@ export class FactoryTask extends Task<TaskInput, TaskData> {
                                     }
 
                                     if (hasAlphaColor) {
-                                        geoBuffer.pass = PASS.ALPHA;
+                                        geoBuffer.pass = PASS.ALPHA_COLOR;
                                         geoBuffer.depth = geoBuffer.blend = true;
                                     }
 
@@ -338,7 +336,7 @@ export class FactoryTask extends Task<TaskInput, TaskData> {
                                     geoBuffer.addUniform('u_weight', 1.);
                                     geoBuffer.addUniform('u_intensity', typeof shared.height == 'number' ? shared.height : 1);
                                     geoBuffer.addUniform('u_opacity', shared.opacity);
-                                    geoBuffer.pass = PASS.ALPHA | PASS.POST_ALPHA;
+                                    geoBuffer.pass = PASS.ALPHA_COLOR | PASS.ALPHA_DEPTH;
                                     geoBuffer.flat = true;
                                     geoBuffer.depth = false;
                                     geoBuffer.blend = false;
@@ -384,7 +382,7 @@ export class FactoryTask extends Task<TaskInput, TaskData> {
                                     const {showWireframe} = taskData;
                                     if (showWireframe) {
                                         const wireFrame = geoBuffer.addDrawCmd(
-                                            (grpBuffer as ModelBuffer).generateWireframeIndices(),
+                                            GeometryBuffer.generateWireframeIndices(grpBuffer.index()),
                                             grpBuffer.i32,
                                             GeometryBuffer.MODE_GL_LINES
                                         );
@@ -401,13 +399,11 @@ export class FactoryTask extends Task<TaskInput, TaskData> {
                                     }
 
                                     if (geoBuffer.uniforms.opacity < 1.0) {
-                                        geoBuffer.pass = PASS.ALPHA;
+                                        geoBuffer.pass = PASS.ALPHA_COLOR;
                                         geoBuffer.blend = true;
                                     }
                                 }
                             }
-                            geoBuffer.clip = grpBuffer.clip;
-
 
                             // model emissive/specular lightning uniforms have already been merged with material.
                             if (type != 'Model') {
@@ -431,9 +427,7 @@ export class FactoryTask extends Task<TaskInput, TaskData> {
                         zIndex = Number(zIndex);
 
                         if (!geoBuffer.flat) {
-                            geoBuffer.clip = false;
-                            // geoBuffer.depth = true;
-                            // geoBuffer.alpha = true;
+                            // geoBuffer.clip = false;
 
                             const {depthTest} = grp;
                             if (depthTest != UNDEF) {
@@ -441,7 +435,7 @@ export class FactoryTask extends Task<TaskInput, TaskData> {
                                 if (!geoBuffer.pass || !depthTest) {
                                     // Ensure this buffer is rendered last so it remains visible
                                     // and is not obscured by transparent geometry
-                                    geoBuffer.pass = PASS.ALPHA;
+                                    geoBuffer.pass = PASS.ALPHA_COLOR;
                                 }
                             }
                         }
@@ -451,9 +445,13 @@ export class FactoryTask extends Task<TaskInput, TaskData> {
                         geoBuffer.zLayer = typeof zLayer == 'number' ? Math.ceil(zLayer) : null;
 
                         // scissoring is slow. we can skip if source data is already clipped on tile edges.
-                        geoBuffer.clip ??= !tile.clipped ||
+                        if (!grpBuffer.isPointBuffer && (
+                            !tile.clipped ||
                             (displayLayer.layer as TileLayer).getMargin() > 0 ||
-                            hasAlphaColor;
+                            hasAlphaColor
+                        )) {
+                            geoBuffer.clip = true;
+                        }
                     }
                 }
             }

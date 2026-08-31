@@ -19,7 +19,7 @@
 
 import Renderer from './Canvas';
 import DisplayTilePool from './CanvasTileBucket';
-import BasicDisplay, {ViewportTile} from '../BasicDisplay';
+import BasicDisplay, {DisplayTile} from '../BasicDisplay';
 import {TileLayer} from '@here/xyz-maps-core';
 import CanvasTile from './CanvasTile';
 import CanvasRenderer from './Canvas';
@@ -82,7 +82,8 @@ class CanvasDisplay extends BasicDisplay {
     render: CanvasRenderer;
     private cluster: LayerClusterer;
 
-    tiles: (ViewportTile & {lrTs?: number})[];
+    tiles: (DisplayTile & { lrTs?: number })[];
+
     constructor(mapEl, tileSize, devicePixelRatio, renderOptions?: {}) {
         tileSize = tileSize || DEFAULT_TILE_SIZE;
 
@@ -164,12 +165,12 @@ class CanvasDisplay extends BasicDisplay {
         const length = tiles.length;
 
         if (this.dirty || dirty) {
-            this.render.clear();
+            this.render.beginFrame();
             this.dirty = false;
         }
 
         for (let screenTile of tiles) {
-            if (screenTile.scaledSize != 256) continue;
+            if (screenTile.worldTileSize != 256) continue;
 
             const dTile = screenTile.tile as CanvasTile;
 

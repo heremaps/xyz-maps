@@ -58,6 +58,8 @@ export const getOffsetPixel = (buffer: GeometryBuffer, scale: number, scaleZ?: n
 
 
 export class PointBuffer extends TemplateBuffer {
+    isPointBuffer = true;
+
     flexAttributes: {
         'a_position': FlexAttribute
     };
@@ -113,7 +115,7 @@ export class PointBuffer extends TemplateBuffer {
         const invMapScale = alignMap ? 1 / buffer.renderScale : 1;
         let width;
         let height;
-        let [offsetX, offsetY, offsetZ] = getOffsetPixel(buffer, scale);
+        let [offsetX, offsetY, offsetZ] = getOffsetPixel(buffer, buffer.renderScale);
 
         offsetX *= scaleXYZ[0];
         offsetY *= scaleXYZ[1];
@@ -163,13 +165,21 @@ export class PointBuffer extends TemplateBuffer {
         const m15 = sMat[15];
 
         const stride = 6 * size;
+        const heightMap = buffer.getHeightMap();
+        const hmTransform = buffer.getHeightMapTransform() || [0, 0, 1];
 
         for (let i = 0, y = 0; i < position.length; i += stride, y += 6) {
-            let x0 = tileX + (position[i] >> 2) * tileScale;
-            let y0 = tileY + (position[i + 1] >> 2) * tileScale;
+            const tileLocalX = (position[i] >> 2) * tileScale;
+            const tileLocalY = (position[i + 1] >> 2) * tileScale;
+            const x0 = tileX + tileLocalX;
+            const y0 = tileY + tileLocalY;
             // convert normalized int16 to float meters (-500m ... +9000m)
             // z0 = (z0 - 32267.0) * 0.14496292001098665;
-            let z0 = size == 3 ? decodeUint16z(position[i + 2]) : 0;
+            const z0 = (heightMap
+                ? PointBuffer.getVertexZ(tileLocalX, tileLocalY, heightMap, hmTransform)
+                : (size === 2 ? 0 : decodeUint16z(position[i + 2]))
+            ) * rayCaster.exaggeration;
+
             let dx0 = (position[i] & 2) - 1;
             let dy0 = (position[i + 1] & 2) - 1;
 

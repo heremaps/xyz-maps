@@ -162,6 +162,12 @@ export interface ModelGeometry {
      * @internal
      */
     bbox?: number[];
+    /**
+    * position component size
+    * @hidden
+    * @internal
+    */
+    size?: number;
 }
 
 /**

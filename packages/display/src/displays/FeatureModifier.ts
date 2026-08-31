@@ -123,7 +123,6 @@ class FeatureModifier {
 
         for (var t = 0, len = prevTiles.length; t < len; t++) {
             this.removeFromTile(feature, prevTiles[t], layer);
-            this.removeFromTile(feature, prevTiles[t], layer);
         }
     }
 

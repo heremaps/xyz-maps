@@ -324,6 +324,20 @@ export type Color = string | number | [number, number, number, number?];
 export interface LayerStyle {
 
     /**
+     * Default altitude mode for all styles in this layer.
+     * Individual styles can override this setting by specifying their own `altitude` value.
+     *
+     * Possible values:
+     * - `'terrain'`: Styles follow the terrain elevation if available (default).
+     * - `true`: Styles use absolute height if provided be feature geometry.
+     * - `false`: Styles are rendered at the ground plane
+     *
+     * @default false
+     */
+    altitude?: number | boolean | 'terrain';
+
+
+    /**
      * Option LayerStyle definitions that can be references and reused by {@link Style|Styles} within the Layer.
      */
     definitions?: { [definitionName: string]: boolean | number | StyleExpression | any[] | null };

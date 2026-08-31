@@ -22,13 +22,59 @@ import {glType, TypedArray} from './glType';
 import {Texture} from '../Texture';
 import {ConstantAttribute, FlexAttribute, TemplateBuffer} from './templates/TemplateBuffer';
 import {Raycaster} from '../Raycaster';
-import {PASS} from '../program/GLStates';
 import {Expression} from '@here/xyz-maps-common';
-import {TilePreviewInfo} from '../../Preview';
-import {HeightMapTileCache} from '../HeightMapTileCache';
+import {HeightMapTileCache, HeightMapTileData} from '../HeightMapTileCache';
+import {measureStart, measureEnd} from '../PerfTimer';
 import {UniformBlockLayout, UniformBlockInstance, UniformBlockFieldSetter} from '../UniformBlock';
+import {PASS} from '../RenderPass';
+import {TerrainOcclusionMode} from './TerrainRenderPolicy';
+
+/**
+ * Heightmap reference for a GeometryBuffer.
+ * Describes which terrain tile this buffer needs for elevation sampling.
+ *
+ * @internal
+ * @hidden
+ */
+export interface HeightMapReference {
+    /**
+     * The terrain tile to sample, clamped to the terrain layer's maxDataZoom.
+     *
+     * Never mutated after creation: when this tile is not cached yet the per-frame resolve
+     * samples an ancestor instead, without overwriting this key. That way the buffer
+     * upgrades to the exact terrain tile as soon as it is loaded, rather than staying
+     * permanently downgraded to a coarser ancestor.
+     *
+     * @internal
+     * @hidden
+     */
+    terrainTileKey: number;
+    /**
+     * Tile whose coordinate space the geometry vertices live in.
+     *
+     * Needed to derive a correct transform when the resolve falls back to an ancestor.
+     * Defaults to terrainTileKey.
+     *
+     * @internal
+     * @hidden
+     */
+    geometryTileKey?: number;
+    /**
+     * Maps geometryTileKey into terrainTileKey
+     * null for an identity transform.
+     *
+     * @internal
+     * @hidden
+     */
+    transform?: Float32Array | null;
+}
 
 type Uniforms = { [name: string]: Uniform };
+
+export enum RenderUsage {
+    DEFAULT = 0,
+    TERRAIN_PREPASS = 1
+}
 
 export type Uniform = number | number[] | Float32Array | Float64Array | Int32Array | boolean | Texture | Texture[];
 export type DynamicUniform = Expression | (Expression | Uniform)[];
@@ -115,7 +161,44 @@ const averageFaceNormal = (vertex: ArrayLike<number>, i1: number, i2: number, i3
     normals[i3 + 2] += nz;
 };
 
+const _nextBufferUid = new Uint32Array(1);
+
 class GeometryBuffer {
+    // Monotonically increasing instance ID. Used for content-hash based FBO caching:
+    // new data -> new buffer -> new uid -> hash mismatch -> FBO re-rendered.
+    readonly uid: number = _nextBufferUid[0]++;
+
+    static generateWireframeIndices(triangleIndices: ArrayLike<number>): Uint16Array | Uint32Array {
+        // const triangleIndices: ArrayLike<number> = geomBuffer.index();
+        const edgeSet = new Set<string>();
+        const lines: number[] = [];
+
+        for (let i = 0; i < triangleIndices.length; i += 3) {
+            const i0 = triangleIndices[i];
+            const i1 = triangleIndices[i + 1];
+            const i2 = triangleIndices[i + 2];
+
+            const edges: [number, number][] = [
+                [i0, i1],
+                [i1, i2],
+                [i2, i0]
+            ];
+
+            for (const [a, b] of edges) {
+                const key = a < b ? `${a};${b}` : `${b};${a}`;
+                if (!edgeSet.has(key)) {
+                    edgeSet.add(key);
+                    lines.push(a, b);
+                }
+            }
+        }
+
+        const IndexArrayConstructor =
+            triangleIndices instanceof Uint32Array ? Uint32Array : Uint16Array;
+
+        return new IndexArrayConstructor(lines);
+    }
+
     static MODE_GL_POINTS: number = 0x0000;
     static MODE_GL_LINES: number = 0x0001;
     static MODE_GL_TRIANGLES: number = 0x0004;
@@ -126,8 +209,9 @@ class GeometryBuffer {
     pass: number = PASS.OPAQUE;
     zIndex?: number;
     zLayer?: number;
-    clip?: boolean;
-    depthMask?: boolean;
+    clip?: true | undefined;
+    // depthMask?: boolean;
+    // colorMask?: { r: boolean, g: boolean, b: boolean, a: boolean };
     scissorBox?: number[];
     depth?: boolean;
     blend?: boolean;
@@ -139,6 +223,7 @@ class GeometryBuffer {
     instances: number = 0;
     // id of the program to render the buffer
     progId: string;
+    isSynthetic?: boolean;
     // If set to true, the buffer should render "pixel-perfect" to ensure sharp, precise raster graphics.
     pixelPerfect?: boolean = false;
     // The effective scale factor applied to this geometry buffer during rendering.
@@ -152,34 +237,120 @@ class GeometryBuffer {
     id?: number | string;
 
     zRange?: [min: number, max: number];
-    colorMask?: { r: boolean, g: boolean, b: boolean, a: boolean };
+
     light?: string;
 
     private uniformBlocks: Map<string, UniformBlockInstance>;
     private uniformBlockByField: Map<string, UniformBlockInstance>;
 
+    renderUsage: RenderUsage = RenderUsage.DEFAULT;
+    rendered: boolean = false;
+    terrainOcclusion: TerrainOcclusionMode = TerrainOcclusionMode.NONE;
     /**
      * Reference or requirement flag for the height map associated with this buffer.
      * This is requested by styles with "altitude":"terrain".
      * - `'required'`: Indicates that a height map is required but not yet resolved.
-     * - `string`: Represents a resolved height map reference, such as a quadkey.
-     * - `TilePreviewInfo[]`: Contains preview information for one or more tiles, used for deferred or previewed height map data.
+     * - `HeightMapReference`: Resolved reference containing quadkey and optional UV transform.
      */
-    heightMapRef?: 'required' | string | TilePreviewInfo[];
+    heightMapRef?: 'required' | HeightMapReference;
     terrainCache: HeightMapTileCache;
+    // Heightmap data resolved from heightMapRef for the current frame.
+    resolvedHeightMap?: HeightMapTileData;
+    /**
+     * UV transform matching `resolvedHeightMap` for the current frame. Differs from
+     * `heightMapRef.transform` when the resolve fell back to an ancestor tile.
+     */
+    resolvedHeightMapTransform?: Float32Array | null;
+    /**
+     * per-buffer scratch storage for the ancestor-fallback transform, so the per-frame
+     * resolve does not allocate. Must not be shared between buffers.
+     *
+     * @internal
+     * @hidden
+     */
+    heightMapFallbackTransform?: Float32Array;
+
+    /**
+     * memoization state for {@link resolveHeightMap}, capturing everything the resolve
+     * outcome depends on. `-1` means "no valid memo".
+     *
+     * @internal
+     * @hidden
+     */
+    private resolvedVersion: number = -1;
+    private resolvedCache?: HeightMapTileCache;
+    private resolvedTerrainTileKey?: number;
+    private resolvedGeometryTileKey?: number;
 
     public setHeightMapRef(required: boolean): void {
         this.heightMapRef = required ? 'required' : null;
+        this.resolvedVersion = -1;
     }
+
     // used by TerrainModelBuffer for ray intersection only
-    heightMap?: {
-        tileSize?: number;
-        size?: number;
-        data?: Float32Array;
-        texture?: Texture;
-        // if skirt is 0 or undefined, no skirt, otherwise the value defines the height of the skirt
-        skirtHeight?: number;
-    };
+    heightMap?: HeightMapTileData;
+
+    /**
+     * Resolves `heightMapRef` against the terrain cache for rendering and CPU sampling.
+     *
+     * The reference remains unchanged so ancestor fallbacks can switch to the exact tile once
+     * loaded. Results are memoized by cache version and tile keys; keys are compared by value
+     * because pooled buffers may retarget the same reference object.
+     *
+     * @internal
+     * @hidden
+     */
+    resolveHeightMap(): void {
+        const ref = this.heightMapRef;
+        const cache = this.terrainCache;
+
+        if (!ref || ref === 'required' || !cache) {
+            this.resolvedHeightMap = null;
+            this.resolvedHeightMapTransform = null;
+            this.resolvedVersion = -1;
+            return;
+        }
+
+        const terrainTileKey = ref.terrainTileKey;
+        const geometryTileKey = ref.geometryTileKey ?? terrainTileKey;
+        const isMemoizedValid = this.resolvedVersion === cache.version &&
+            this.resolvedTerrainTileKey === terrainTileKey &&
+            this.resolvedGeometryTileKey === geometryTileKey;
+
+        if (isMemoizedValid) {
+            return;
+        }
+
+        this.resolvedVersion = cache.version;
+        this.resolvedTerrainTileKey = terrainTileKey;
+        this.resolvedGeometryTileKey = geometryTileKey;
+
+        // exact terrain tile available -> the pre-computed transform applies.
+        const heightMap = cache.getByKey(terrainTileKey);
+        if (heightMap) {
+            this.resolvedHeightMap = heightMap;
+            this.resolvedHeightMapTransform = ref.transform || null;
+            return;
+        }
+
+        // not loaded yet -> sample the nearest cached ancestor for now.
+        const ancestorKey = cache.findAncestorKey(terrainTileKey);
+        if (ancestorKey < 0) {
+            this.resolvedHeightMap = null;
+            this.resolvedHeightMapTransform = null;
+            return;
+        }
+
+        // map the geometry's own tile into that ancestor. Uses per-buffer scratch storage
+        // so the per-frame resolve stays allocation-free.
+        const out = this.heightMapFallbackTransform ||= new Float32Array(3);
+        this.resolvedHeightMap = cache.getByKey(ancestorKey) || null;
+        this.resolvedHeightMapTransform = HeightMapTileCache.computeTransform(
+            ancestorKey,
+            geometryTileKey,
+            out
+        );
+    }
 
     /**
      * Retrieves the heightmap associated with this buffer.
@@ -193,11 +364,39 @@ class GeometryBuffer {
      * @hidden
      */
     getHeightMap(): GeometryBuffer['heightMap'] | null | false {
-        return this.heightMap || (this.heightMapRef
-            ? this.terrainCache?.get(this.heightMapRef as string)
-            : false
-        );
+        if (this.heightMap) return this.heightMap;
+        const ref = this.heightMapRef;
+        if (!ref) return false;
+        if (ref === 'required') return null;
+        // CPU sampling paths run outside the render cycle -> resolve on demand.
+        this.resolveHeightMap();
+        return this.resolvedHeightMap || null;
     };
+
+    /**
+     * Returns the UV transform matching {@link getHeightMap}, for mapping tile-local
+     * coordinates into the heightmap texture.
+     *
+     * Safe to call in any order relative to `getHeightMap()` — both resolve the same state.
+     *
+     * @returns [offsetX, offsetY, scale] or null for identity (no transform needed).
+     *
+     * @internal
+     * @hidden
+     */
+    getHeightMapTransform(): Float32Array | null {
+        const ref = this.heightMapRef;
+        if (!ref || ref === 'required') return null;
+        // Buffers owning a direct `heightMap` (terrain meshes) sample that texture and are
+        // not subject to the reference resolve.
+        if (this.heightMap) return ref.transform || null;
+        this.resolveHeightMap();
+        return this.resolvedHeightMapTransform ?? null;
+    }
+
+    requiresHeightMap(): boolean {
+        return !!this.heightMapRef;
+    }
 
     static computeNormals(vertex: ArrayLike<number>, index?: ArrayLike<number>): TypedArray {
         const vertexLength = vertex.length;
@@ -281,6 +480,10 @@ class GeometryBuffer {
 
         // this.uniformBlocks = new Map();
         // this.uniformBlockByField = new Map();
+    }
+
+    acknowledgeRender() {
+        this.rendered = true;
     }
 
     private createElementsDrawCmd(index: number[] | Uint16Array | Uint32Array, i32?: boolean): ElementsDrawCmd {
@@ -368,15 +571,15 @@ class GeometryBuffer {
 
     }
 
-    dirty() {
-        for (let name in this.attributes) {
-            let attribute = this.attributes[name];
-            if ((attribute as Attribute).dirty === true) {
-                return true;
-            }
-        }
-        return false;
-    }
+    // dirty() {
+    //     for (let name in this.attributes) {
+    //         let attribute = this.attributes[name];
+    //         if ((attribute as Attribute).dirty === true) {
+    //             return true;
+    //         }
+    //     }
+    //     return false;
+    // }
 
     isPointBuffer() {
         const {type} = this;
@@ -452,8 +655,12 @@ class GeometryBuffer {
         return uniformData;
     }
 
-    needs2AlphaPasses(): boolean {
-        return !!(this.pass & PASS.POST_ALPHA);
+    needsAlphaDepthPass(): boolean {
+        return (this.pass & PASS.ALPHA_DEPTH) !== 0;
+    }
+
+    needsAlphaColorPass(): boolean {
+        return (this.pass & PASS.ALPHA_COLOR) !== 0;
     }
 
     getRenderSpace(): 'world' | 'screen' {
@@ -478,6 +685,7 @@ class GeometryBuffer {
         // }
         // return undefined;
     }
+
     // uniformBlockFieldSetter: {[fieldName:string]: UniformBlockFieldSetter} = {};
     setUniformBlockInstance(name: string, instance: UniformBlockInstance) {
         // this.uniformBlocks.set(name, instance);
@@ -502,6 +710,10 @@ class GeometryBuffer {
             if (!block.dirty) continue;
             block.upload();
         }
+    }
+
+    isTerrainSurface(): boolean {
+        return this.type === 'Terrain';
     }
 }
 

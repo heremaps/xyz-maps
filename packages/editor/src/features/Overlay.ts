@@ -136,12 +136,12 @@ class Overlay {
         return oFeature;
     };
 
-    addCircle(center: GeoJSONCoordinate, style: Style[], props?) {
+    addCircle(center: GeoJSONCoordinate, style: Style[], props?): Feature<'Point'> {
         // style = null -> invisible for display
         return this.addFeature(
             createFeature('Point', center, props),
             style
-        );
+        ) as Feature<'Point'>;
     };
 
     remove(feature) {

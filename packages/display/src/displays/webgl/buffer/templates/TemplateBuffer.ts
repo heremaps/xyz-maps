@@ -22,6 +22,7 @@ import {FlexArray} from './FlexArray';
 import {GeometryBuffer, Uniform} from '../GeometryBuffer';
 import {Raycaster} from '../../Raycaster';
 import {FRONT} from '../glType';
+import {sampleHeightMap} from '../../HeightMapTileCache';
 
 export type FlexAttribute = Omit<Attribute, 'data' | 'bytesPerElement' | 'ref'> & {
     data: FlexArray;
@@ -37,9 +38,43 @@ export type BufferGroup = {
 type Index = number[] | Uint16Array | Uint32Array;
 
 export class TemplateBuffer {
-    // clip on tile edges
-    clip: boolean;
+    /**
+     * Sample the heightmap at tile-local coordinates with bilinear interpolation.
+     * Matches the GPU shader's getTerrainHeight() exactly.
+     *
+     * @hidden
+     * @internal
+     */
+    static getVertexZ(x: number, y: number, heightMap: GeometryBuffer['heightMap'], hmTransform: ArrayLike<number> | null): number {
+        return sampleHeightMap(
+            heightMap.data, heightMap.size, heightMap.tileSize,
+            x, y,
+            hmTransform[0],
+            hmTransform[1],
+            hmTransform[2],
+            heightMap.padding
+        );
+        // Nearest neighbor
+        // const {tileSize, size} = heightMap;
+        // const lastRowColIndex = size - 1;
+        // // Normalize tile-local coordinates to [0, 1]
+        // let u = x / tileSize;
+        // let v = y / tileSize;
+        // // Apply UV transform if heightmap comes from a parent tile
+        // u = hmTransform[0] + u * hmTransform[2];
+        // v = hmTransform[1] + v * hmTransform[2];
+        // x = u * lastRowColIndex;
+        // y = v * lastRowColIndex;
+        // // const {tileSize, size, padding = 0} = heightMap;
+        // // const usable = size - 2 * padding - 1;
+        // // Map x/y from [0, tileSize] to [padding, size - padding - 1]
+        // // x = padding + (x / tileSize) * usable;
+        // // y = padding + (y / tileSize) * usable;
+        // // return heightMap.data[Math.round(y) * size + Math.round(x)];
+        // return heightMap.data[(y + .5 | 0) * size + (x + .5 | 0)];
+    }
 
+    isPointBuffer: boolean = false;
     first: number;
     last: number;
 
@@ -75,8 +110,7 @@ export class TemplateBuffer {
 
     constructor(flat: boolean, clipTile: boolean = false) {
         this._flat = flat;
-        this.clip = clipTile;
-        // this.flexAttributes = {};
+        // this.clip = clipTile;
 
         // if (!flat) {
         this.idOffsets = [];

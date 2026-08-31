@@ -1,4 +1,4 @@
-import {LocalProvider, TerrainTileLayer, TileLayer} from '@here/xyz-maps-core';
+import {ImageProvider, LocalProvider, TerrainTileLayer, TileLayer} from '@here/xyz-maps-core';
 import {Map} from '@here/xyz-maps-display';
 import {Editor, Marker} from '@here/xyz-maps-editor';
 
@@ -15,7 +15,7 @@ const markerLayer = new TileLayer({
                 zIndex: 1,
                 type: 'Text',
                 // Display altitude as label above the point
-                text: ({geometry}) => ` ${geometry.coordinates[2].toFixed(2)} m`,
+                text: ({geometry}) => ` ${(geometry.coordinates[2] as number).toFixed(2)} m`,
                 fill: '#ffde22',
                 stroke: '#fc4f30',
                 strokeWidth: 5,
@@ -42,7 +42,7 @@ const markerLayer = new TileLayer({
     }
 });
 
-// Terrain layer with elevation and imagery
+// Terrain layer with elevation
 const terrainLayer = new TerrainTileLayer({
     name: 'terrainLayer',
     min: 2,
@@ -56,11 +56,19 @@ const terrainLayer = new TerrainTileLayer({
         },
         encoding: 'terrarium',
         min: 8
-    },
-    imagery: {
+    }
+});
+
+// Satellite imagery layer
+const imageryLayer = new TileLayer({
+    name: 'Satellite Imagery',
+    min: 1,
+    max: 20,
+    tileSize: 512,
+    provider: new ImageProvider({
         url: `https://maps.hereapi.com/v3/base/mc/{z}/{x}/{y}/jpeg?apikey=${YOUR_API_KEY}&style=satellite.day&size=512`,
         attribution: '2025 HERE, Maxar'
-    }
+    })
 });
 
 // Initialize the map display
@@ -75,7 +83,7 @@ const display = new Map(document.getElementById('map'), {
         rotate: true,
         pitch: true
     },
-    layers: [terrainLayer, markerLayer]
+    layers: [terrainLayer, imageryLayer, markerLayer]
 });
 
 // Enable editing on the marker layer to make the marker(s) draggable
@@ -100,13 +108,13 @@ terrainLayer.addEventListener('viewportReady', function addTerrainMarker() {
     const {longitude, latitude, altitude} = terrainPoint;
 
     // Create a new marker feature at that location
-    const marker: Marker = markerLayer.addFeature({
+    const marker = markerLayer.addFeature({
         type: 'Feature',
         geometry: {
             type: 'Point',
             coordinates: [longitude, latitude, altitude]
         }
-    });
+    }) as Marker;
 
     // Enable dragging the marker along the terrain surface
     marker.behavior({dragSurface: 'terrain'});

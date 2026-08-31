@@ -25,10 +25,11 @@ import fragmentShader from '../glsl/icon_fragment.glsl';
 import Program, {ProgramMacros} from './Program';
 import {GLStates} from './GLStates';
 import {ViewUniforms} from '../GLRender';
-
+import {GraphicsDevice} from '../device/GraphicsDevice';
+import {GeometryBuffer} from '../buffer/GeometryBuffer';
 
 class IconProgram extends Program {
-    name = 'icon';
+    name = 'Icon';
 
     glStates = new GLStates({
         blend: true,
@@ -37,15 +38,16 @@ class IconProgram extends Program {
         depth: true
     });
 
-    constructor(gl: WebGLRenderingContext, devicePixelRation: number, macros?: ProgramMacros) {
-        super(gl, devicePixelRation, macros);
+    constructor(device: GraphicsDevice, devicePixelRation: number, macros?: ProgramMacros) {
+        super(device, devicePixelRation, macros);
 
-        this.mode = gl.TRIANGLES;
+        this.mode = device.gl.TRIANGLES;
         this.vertexShaderSrc = vertexShader;
         this.fragmentShaderSrc = fragmentShader;
     }
 
-    initViewUniforms(viewUniforms: ViewUniforms) {
+    initViewUniforms(viewUniforms: ViewUniforms, isOffscreenPass = false) {
+        super.initViewUniforms(viewUniforms, isOffscreenPass);
         this.initUniform('u_fixedView', viewUniforms.fixedView);
     }
 }

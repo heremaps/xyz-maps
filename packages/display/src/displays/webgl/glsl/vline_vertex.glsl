@@ -7,7 +7,7 @@ uniform vec2 u_offsetZ;
 uniform float u_scale;
 uniform float u_zMeterToPixel;
 uniform mat4 u_matrix;
-uniform vec2 u_topLeft;
+uniform vec4 u_tile;
 
 #include "utils.glsl/heightMapUtils"
 
@@ -19,10 +19,10 @@ void main(void) {
     #ifdef USE_HEIGHTMAP
     float positionZ = getTerrainHeight(a_position.xy) + a_position.z * offsetZ;
     #else
-    float positionZ = a_position.z + offsetZ;
+    float positionZ = (a_position.z * u_exaggeration + offsetZ);
     #endif
 
-    vec3 worldPos = vec3(u_topLeft + a_position.xy, positionZ);
+    vec3 worldPos = vec3(u_tile.xy + a_position.xy, positionZ);
 
     gl_Position = u_matrix * vec4(worldPos, 1.0);
 }

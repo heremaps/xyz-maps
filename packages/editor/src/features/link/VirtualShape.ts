@@ -18,11 +18,12 @@
  */
 
 import {Feature} from '@here/xyz-maps-core';
-import {JSUtils} from '@here/xyz-maps-common';
 import GeoFence from './GeoFence';
 import {Navlink} from './Navlink';
 import navlinkTools from './NavlinkTools';
 import {EditOperation} from '../../API/EditorOptions';
+import {createShapeLinkProperties, PrivateData} from './NavlinkShape';
+import {getOrSetShapeBehavior} from '../feature/shapeUtils';
 
 let UNDEF;
 
@@ -42,6 +43,13 @@ class VirtualLinkShape extends Feature<'Point'> {
     private pressmove;
     private pointerenter;
     private pointerleave;
+
+    /**
+     * private data storage for internal api
+     * @hidden
+     * @internal
+     */
+    __: PrivateData;
 
     properties: VirtualLinkShapeProperties;
 
@@ -75,6 +83,8 @@ class VirtualLinkShape extends Feature<'Point'> {
 
                     const shp = shapePnts[index];
 
+                    // apply behavior that was set on the virtual shape during pointerdown
+                    shp.__.b = shapePnt.behavior();
                     shp.x = shapePnt.x;
                     shp.y = shapePnt.y;
                     shp.z = shapePnt.z;
@@ -127,11 +137,7 @@ class VirtualLinkShape extends Feature<'Point'> {
             },
             properties: {
                 'type': 'NAVLINK_VIRTUAL_SHAPE',
-                'NAVLINK': {
-                    'properties': JSUtils.extend(true, {}, line.properties),
-                    'style': EDITOR.getStyle(line)
-                },
-                'parent': line
+                ...createShapeLinkProperties(line)
             }
         }, EDITOR.objects.overlay.layer.getProvider());
 
@@ -161,6 +167,53 @@ class VirtualLinkShape extends Feature<'Point'> {
 
     getLink(): Navlink {
         return this.properties.parent;
+    }
+
+    /**
+     * Set the behavior options.
+     * @experimental
+     */
+    behavior(options: {
+        /**
+         * The drag axis across which the LineShape is dragged upon user interaction.
+         * Once "dragAxis" is set, "dragPlane" has no effect.
+         * In case "dragAxis" and "dragPlane" are set, "dragPlane" is preferred.
+         * In case "dragPlane" and "dragAxis" are both set, "dragPlane" is preferred.
+         */
+        dragAxis?: 'X' | 'Y' | 'Z' | [number, number, number]
+        /**
+         * The normal of the plane over which the LineShape is dragged upon user interaction.
+         * Once "dragPlane" is set, "dragAxis" has no effect.
+         */
+        dragPlane?: 'XY' | 'XZ' | 'YZ' | [number, number, number]
+    }): void;
+    /**
+     * Set the value of a specific behavior option.
+     * @experimental
+     */
+    behavior(name: string, value: boolean | string | [number, number, number]): void;
+    /**
+     * Get the value of a specific behavior option.
+     * @experimental
+     */
+    behavior(option: string): any;
+    /**
+     * Get the behavior options.
+     * @experimental
+     */
+    behavior(): {
+        /**
+         * The drag axis across which the marker is dragged upon user interaction.
+         */
+        dragAxis?: [number, number, number] | 'X' | 'Y' | 'Z' | null
+        /**
+         * The normal of the plane over which the marker is dragged upon user interaction.
+         */
+        dragPlane?: [number, number, number] | 'XY' | 'XZ' | 'YZ' | null
+    };
+
+    behavior(options?: any, value?: boolean) {
+        return getOrSetShapeBehavior(this, arguments);
     }
 }
 

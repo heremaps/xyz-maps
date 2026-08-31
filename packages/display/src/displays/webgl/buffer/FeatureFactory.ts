@@ -23,7 +23,7 @@ import {calcBBox, getTextString, getValue, parseSizeValue, Style, StyleGroup} fr
 import {defaultFont, wrapText} from '../../textUtils';
 import {FontStyle, GlyphTexture} from '../GlyphTexture';
 import {BBox, CollisionData, CollisionHandler} from '../CollisionHandler';
-import {LineFactory} from './LineFactory';
+import {LineFactory, isDynamicProperty} from './LineFactory';
 import {TextBuffer} from './templates/TextBuffer';
 import {SymbolBuffer} from './templates/SymbolBuffer';
 import {PointBuffer} from './templates/PointBuffer';
@@ -36,7 +36,9 @@ import {
     GeoJSONCoordinate,
     TextStyle,
     ImageStyle,
-    ParsedStyleProperty
+    ParsedStyleProperty,
+    LayerStyle, TerrainTileFeature,
+    ElevationQuadTree
 } from '@here/xyz-maps-core';
 import {TemplateBuffer} from './templates/TemplateBuffer';
 import {addVerticalLine} from './addVerticalLine';
@@ -55,6 +57,8 @@ import {TextureAtlasManager} from '../TextureAtlasManager';
 import {LineBuffer} from './templates/LineBuffer';
 import {Color as ColorUtils, Expression, ExpressionMode} from '@here/xyz-maps-common';
 import {TextureManager} from '../TextureManager';
+import {CullFace, GraphicsDevice} from '../device/GraphicsDevice';
+import {getTerrainRenderPolicy, TerrainOcclusionMode, TerrainRenderMode} from './TerrainRenderPolicy';
 
 const {toRGB} = ColorUtils;
 type RGBA = ColorUtils.RGBA;
@@ -91,6 +95,9 @@ type DrawGroup = {
     depthTest: boolean;
     collision: boolean;
     shared: {
+        altitude: number | boolean | 'terrain';
+        terrainRenderMode: TerrainRenderMode;
+        terrainOcclusion: TerrainOcclusionMode;
         unit: string;
         font: string;
         fill: Float32Array;
@@ -110,7 +117,7 @@ type DrawGroup = {
         offsetX: number;
         offsetY: number;
         offsetZ: number;
-        offsetUnit: string|string[];
+        offsetUnit: string | string[];
         alignment: string;
         modelMode: [number, number] | null;
         scaleByAltitude: boolean;
@@ -120,7 +127,6 @@ type DrawGroup = {
         emissive: [number, number, number];
     };
     buffer?: TemplateBuffer | TemplateBufferBucket<ModelBuffer>;
-    extrudeStrokeIndex?: number[];
     pointerEvents?: boolean;
 };
 
@@ -130,9 +136,6 @@ type ZDrawGroup = {
 };
 
 export type GroupMap = { [zIndex: string]: ZDrawGroup };
-
-export const isDynamicProperty = (prop: any) => prop instanceof Expression;
-// const isDynamicProperty = (prop: any) => typeof prop == 'function';
 
 const DYNAMIC_MODE = ExpressionMode.dynamic;
 const PIXEL_UNITS = ['px', 'px'];
@@ -152,15 +155,15 @@ export class FeatureFactory {
     private waitAndRefresh: (p: Promise<any>) => void;
     textureManager: TextureManager;
     private zLayer: number;
+    private layerStyleDefaultAltitude: number | boolean | 'terrain';
 
-    constructor(gl: WebGLRenderingContext, collisionHandler, devicePixelRatio: number) {
-        this.gl = gl;
-        this.atlasManager = new TextureAtlasManager(gl);
-        this.textureManager = new TextureManager(gl);
+    constructor(private device: GraphicsDevice, collisionHandler, devicePixelRatio: number) {
+        this.atlasManager = new TextureAtlasManager(device);
+        this.textureManager = new TextureManager(device);
         this.dpr = devicePixelRatio;
         this.collisions = collisionHandler;
-        this.lineFactory = new LineFactory(gl);
-        this.modelFactory = new ModelFactory(gl);
+        this.lineFactory = new LineFactory(device);
+        this.modelFactory = new ModelFactory(device);
 
         const pixelCnt = 512 * 512;
         const pixelData = new Uint8Array(pixelCnt * 4);
@@ -188,12 +191,13 @@ export class FeatureFactory {
         return rgba || null;
     }
 
-    init(tile, groups: GroupMap, tileSize: number, zoom: number, zLayer: number, waitAndRefresh: (p: Promise<any>) => void) {
+    init(tile: Tile, groups: GroupMap, tileSize: number, zoom: number, layerStyles: LayerStyle, waitAndRefresh: (p: Promise<any>) => void) {
         this.tile = tile;
         this.groups = groups;
         this.tileSize = tileSize;
         this.z = zoom;
-        this.zLayer = zLayer;
+        this.zLayer = layerStyles.zLayer;
+        this.layerStyleDefaultAltitude = layerStyles.altitude;
         this.lineFactory.initTile();
         this.pendingCollisions.length = 0;
         this.waitAndRefresh = waitAndRefresh;
@@ -205,7 +209,7 @@ export class FeatureFactory {
 
     private createTextBuffer(isFlat: boolean, group: DrawGroup, rotationY): TextBuffer {
         const buffer = new TextBuffer(isFlat, this.tileSize, rotationY != UNDEF);
-        buffer.addUniform('u_texture', new GlyphTexture(this.gl, group.shared));
+        buffer.addUniform('u_texture', new GlyphTexture(this.device, group.shared));
         return buffer;
     }
 
@@ -223,9 +227,9 @@ export class FeatureFactory {
         text?: string,
         defaultLineWrap?: number | boolean,
         textAnchor?: ParsedStyleProperty<TextStyle['textAnchor']> | string,
-        requiresTerrain?: boolean
+        terrainRenderMode?: TerrainRenderMode
     ) {
-        const isFlat = z === null; // && !requiresTerrain;
+        const isFlat = z === null;
         const level = this.z;
         let positionBuffer;
         let collisionBufferStart;
@@ -302,7 +306,7 @@ export class FeatureFactory {
 
                     if (cullFace) {
                         // because default winding order is ccw and cullface set to front, we need to flip.
-                        faceCulling = cullFace == 'Front' ? this.gl.BACK : this.gl.FRONT;
+                        faceCulling = cullFace == 'Front' ? CullFace.BACK : CullFace.FRONT;
                     }
 
                     const {shared} = group;
@@ -315,16 +319,24 @@ export class FeatureFactory {
                         type === 'Terrain' ? TerrainModelBuffer : ModelBuffer
                     );
 
-                    if (type == 'Terrain' && feature.properties.useHeightMap) {
+                    const properties = feature.properties as TerrainTileFeature['properties'];
+
+                    if (type == 'Terrain' && properties.useHeightMap) {
                         const terrainTemplBuffer = bucket.get(0) as TerrainModelBuffer;
-                        const heightMap = feature.properties.heightMap;
+                        const heightMap = properties.heightMap;
 
                         terrainTemplBuffer.heightMap = {
                             tileSize: this.tileSize,
                             size: Math.sqrt(heightMap.length),
-                            data: heightMap,
+                            data: heightMap as Float32Array,
+                            padding: properties.heightMapPadding || 0,
+                            min: properties.minAltitude,
+                            max: properties.maxAltitude,
+                            elevationTree: properties.elevationTree
+                                ? ElevationQuadTree.deserialize(properties.elevationTree)
+                                : undefined,
                             texture: terrainTemplBuffer.getHeightMapTexture(),
-                            skirtHeight: feature.properties.skirtHeight || 0
+                            skirtHeight: properties.skirtHeight || 0
                         };
                     }
                 }
@@ -387,7 +399,7 @@ export class FeatureFactory {
             collisionBufferStart = collisionBufferStop - 12;
         }
 
-        if (requiresTerrain) {
+        if (terrainRenderMode === TerrainRenderMode.ONSCREEN) {
             group.buffer.setRequiresHeightMap(true);
         }
 
@@ -419,7 +431,6 @@ export class FeatureFactory {
         let flatPolyStart: number;
         let flatPoly: FlatPolygon[];
         let triangles;
-        let style: Style;
         let zIndex;
         let type;
         let opacity;
@@ -461,7 +472,7 @@ export class FeatureFactory {
         }
 
         for (let i = 0, iLen = styleGroups.length; i < iLen; i++) {
-            style = styleGroups[i];
+            const style: Style = styleGroups[i];
 
             const orgType = type = getValue('type', style, feature, level);
 
@@ -552,7 +563,7 @@ export class FeatureFactory {
             let colorIntensity = 1;
 
             rotation = getValue('rotation', style, feature, level) ^ 0;
-            let altitude = getValue('altitude', style, feature, level);
+            let altitude = getValue('altitude', style, feature, level) ?? this.layerStyleDefaultAltitude;
 
             if (this.isModelStyle(type)) {
                 if (type === 'Terrain') {
@@ -595,7 +606,7 @@ export class FeatureFactory {
                     [offsetX, offsetUnit] = parseSizeValue(offset);
 
                     groupId =
-                        (altitude ? 'AL' : 'L') +
+                        (altitude === 'terrain' ? 'TL' : altitude ? 'AL' : 'L') +
                         sizeUnit +
                         offsetX +
                         offsetUnit +
@@ -776,6 +787,11 @@ export class FeatureFactory {
                 groupId += (stroke || NONE) + (widthId || NONE) + (fill || NONE);
             }
 
+            const terrainPolicy = getTerrainRenderPolicy(type, geomType, alignment, altitude);
+            const terrainRenderMode = terrainPolicy.renderMode;
+            const terrainOcclusion = terrainPolicy.occlusion;
+            groupId += 'TP' + ((terrainRenderMode << 2) | terrainOcclusion);
+
             if (processPointOffset) {
                 offsetX = getValue('offsetX', style, feature, level);
                 offsetY = getValue('offsetY', style, feature, level);
@@ -839,7 +855,10 @@ export class FeatureFactory {
 
             if (scaleByAltitude == UNDEF) {
                 // scale xy by altitude is enable for meters by default.
-                scaleByAltitude = sizeUnit == 'm';
+                // For terrain-altitude features, disable per-vertex altitude compensation:
+                // the pivotScaleFactor is skipped at render time and the perspective matrix
+                // already projects the feature at the correct size on the terrain surface.
+                scaleByAltitude = sizeUnit == 'm' || altitude === 'terrain';
             } else {
                 scaleByAltitude = !!scaleByAltitude;
             }
@@ -860,6 +879,9 @@ export class FeatureFactory {
                     pointerEvents,
                     collision: typeof priority === 'number',
                     shared: {
+                        altitude,
+                        terrainRenderMode,
+                        terrainOcclusion,
                         unit: sizeUnit,
                         font,
                         fill: fillRGBA, // && fillRGBA.slice(0, 3),
@@ -895,6 +917,7 @@ export class FeatureFactory {
 
             if (geomType == 'Point') {
                 const requiresTerrain = altitude === 'terrain';
+                const terrainRenderMode = group.shared.terrainRenderMode;
 
                 if (type == 'VerticalLine') {
                     if (requiresTerrain || typeof altitude == 'number' || coordinates[2] > 0) {
@@ -920,14 +943,15 @@ export class FeatureFactory {
                         collisionData = this.collisions.insert(
                             x,
                             y,
-                            z,
+                            altitude === 'terrain' || typeof altitude == 'number' ?
+                                altitude
+                                : (altitude && <number>coordinates[2]) || 0,
                             collisionGroup.offsetX,
                             collisionGroup.offsetY,
                             collisionGroup.width,
                             collisionGroup.height,
-                            tile,
-                            tileSize,
-                            collisionGroup.priority
+                            collisionGroup.priority,
+                            alignment === 'map'
                         );
 
                         if (!collisionData) {
@@ -939,10 +963,13 @@ export class FeatureFactory {
 
                     this.createPoint(type, group, x, y, z, style, feature, collisionData, rotation, UNDEF, text, UNDEF,
                         (type == 'Text' && getValue('textAnchor', style, feature, level)) as ParsedStyleProperty<TextStyle['textAnchor']>,
-                        requiresTerrain
+                        terrainRenderMode
                     );
                 }
             } else if (geomType == 'LineString') {
+                const requiresTerrain = altitude === 'terrain';
+                const terrainRenderMode = group.shared.terrainRenderMode;
+
                 if (type == 'Line') {
                     if (strokeDashimage) {
                         const dashImgTexture = this.atlasManager.load(strokeDashimage, {mipMaps: false});
@@ -950,6 +977,10 @@ export class FeatureFactory {
                             this.waitAndRefresh(<Promise<ImageInfo>>dashImgTexture);
                             return;
                         }
+                    }
+
+                    if (requiresTerrain) {
+                        altitude = null;
                     }
 
                     let vertexLength = this.lineFactory.createLine(
@@ -987,9 +1018,9 @@ export class FeatureFactory {
                     const from = getValue('from', style, feature, level);
                     const to = getValue('to', style, feature, level);
 
-                    if (anchor == 'Line') {
-                        const applyRotation = alignment == 'map';
+                    const isMapAligned = alignment == 'map';
 
+                    if (anchor == 'Line') {
                         if (collisionGroup) {
                             w = collisionGroup.width * 2;
                             h = collisionGroup.height * 2;
@@ -998,7 +1029,10 @@ export class FeatureFactory {
                             h = getValue('height', style, feature, level) || width;
                         } else if (type == 'Text') {
                             if (!group.buffer) {
-                                const z = typeof altitude == 'number' ? altitude : altitude ? <number>coordinates[2] || 0 : null;
+                                const z = requiresTerrain ? null :
+                                    typeof altitude == 'number' ?
+                                        altitude : altitude ? <number>coordinates[2] || 0 : null;
+
                                 group.buffer = this.createTextBuffer(z === null, group, true);
                             }
                             let texture = (group.buffer as TextBuffer).uniforms.u_texture;
@@ -1033,7 +1067,7 @@ export class FeatureFactory {
                             offsetY,
                             w,
                             h,
-                            applyRotation,
+                            isMapAligned,
                             checkLineSpace,
                             from, to,
                             (x, y, z, rotationZ, rotationY, collisionData) => {
@@ -1050,7 +1084,8 @@ export class FeatureFactory {
                                     rotationY,
                                     text,
                                     false,
-                                    textAnchor
+                                    textAnchor,
+                                    terrainRenderMode
                                 );
                             }
                         );
@@ -1074,10 +1109,26 @@ export class FeatureFactory {
                             h,
                             offsetX,
                             offsetY,
+                            isMapAligned,
                             from,
                             to,
                             (x, y, z, rotZ, rotY, collisionData) => {
-                                this.createPoint(type, group, x, y, z, style, feature, collisionData, rotZ + rotation, UNDEF, text, UNDEF, textAnchor);
+                                this.createPoint(
+                                    type,
+                                    group,
+                                    x,
+                                    y,
+                                    z,
+                                    style,
+                                    feature,
+                                    collisionData,
+                                    rotZ + rotation,
+                                    UNDEF,
+                                    text,
+                                    UNDEF,
+                                    textAnchor,
+                                    terrainRenderMode
+                                );
                             }
                         );
                     }
@@ -1086,7 +1137,17 @@ export class FeatureFactory {
                 // Polygon geometry
                 if (type == 'Polygon' || type == 'Extrude') {
                     if (!group.buffer) {
-                        group.buffer = type == 'Polygon' ? new PolygonBuffer(!altitude) : new ExtrudeBuffer();
+                        const terrainRenderMode = group.shared.terrainRenderMode;
+                        const requiresTerrain = altitude === 'terrain';
+                        if (type == 'Polygon') {
+                            const flat = requiresTerrain || !altitude;
+                            group.buffer = new PolygonBuffer(flat);
+                        } else {
+                            group.buffer = new ExtrudeBuffer();
+                            if (terrainRenderMode === TerrainRenderMode.ONSCREEN) {
+                                group.buffer.setRequiresHeightMap(true);
+                            }
+                        }
                     }
 
                     const groupBuffer = group.buffer as PolygonBuffer | ExtrudeBuffer;
@@ -1100,7 +1161,7 @@ export class FeatureFactory {
                         let strokeIndex;
 
                         if (stroke) {
-                            strokeIndex = group.extrudeStrokeIndex = group.extrudeStrokeIndex || [];
+                            strokeIndex = (group.buffer as ExtrudeBuffer).extrudeStrokeIndex ||= [];
                         }
 
                         flatPoly = addExtrude(
@@ -1120,7 +1181,9 @@ export class FeatureFactory {
                             <GeoJSONCoordinate[][]>coordinates,
                             tile,
                             tileSize,
-                            positionAttribute.size === 3
+                            (typeof altitude === 'number' && altitude !== 0)
+                                ? altitude
+                                : positionAttribute.size === 3
                         );
                     }
 

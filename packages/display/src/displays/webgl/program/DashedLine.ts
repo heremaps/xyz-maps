@@ -22,18 +22,23 @@ import vertexShader from '../glsl/line_vertex.glsl';
 // @ts-ignore
 import fragmentShader from '../glsl/line_fragment.glsl';
 
-import Program from './Program';
-import {GLStates, PASS} from './GLStates';
+import Program, {PROGRAM_MACRO, ProgramMacros} from './Program';
+import {GLStates} from './GLStates';
 import {GeometryBuffer} from '../buffer/GeometryBuffer';
+import {GraphicsDevice} from '../device/GraphicsDevice';
+import {PASS} from '../RenderPass';
 
 class DashedLineProgram extends Program {
     static getMacros(buffer: GeometryBuffer) {
         const {uniforms} = buffer;
-        return {DASHARRAY: 1 | (uniforms.u_dashPattern?2:0) | (uniforms.u_dashTexture?4:0)};
-    }
-
-    static getProgramId(buffer: GeometryBuffer, macros?: { [name: string]: string | number | boolean }) {
-        return buffer.type + (<number>macros.DASHARRAY);
+        const macros: ProgramMacros = {DASH_ARRAY: PROGRAM_MACRO.DASH_ARRAY};
+        if (uniforms.u_dashPattern) {
+            macros.DASH_PATTERN = PROGRAM_MACRO.DASH_PATTERN;
+        }
+        if (uniforms.u_dashTexture) {
+            macros.DASH_TEXTURE = PROGRAM_MACRO.DASH_TEXTURE;
+        }
+        return macros;
     }
 
     name = 'DashedLine';
@@ -44,10 +49,10 @@ class DashedLineProgram extends Program {
         depth: true
     });
 
-    constructor(gl: WebGLRenderingContext, devicePixelRation: number, macros = {}) {
-        super(gl, devicePixelRation, macros);
+    constructor(device: GraphicsDevice, devicePixelRation: number, macros = {}) {
+        super(device, devicePixelRation, macros);
 
-        this.mode = gl.TRIANGLES;
+        this.mode = device.gl.TRIANGLES;
         this.vertexShaderSrc = vertexShader;
         this.fragmentShaderSrc = fragmentShader;
     }

@@ -17,11 +17,14 @@
  * License-Filename: LICENSE
  */
 
-import {Tile, Layer as BasicLayer, TileLayer, TerrainTileLayer} from '@here/xyz-maps-core';
-import {Expression, ExpressionParser} from '@here/xyz-maps-common';
-import {parseStyleGroup} from './styleTools';
+import {Tile, Layer as BasicLayer, TileLayer, TerrainTileLayer, LayerStyle} from '@here/xyz-maps-core';
+import {Color, Expression, ExpressionParser} from '@here/xyz-maps-common';
+import {parseColor, parseRGBA, parseStyleGroup} from './styleTools';
 import {defaultLight, ProcessedLights} from './webgl/lights';
-import {ViewportTile} from './BasicDisplay';
+import {ViewportTile, DisplayTile} from './BasicDisplay';
+
+const {toRGB} = Color;
+type RGBA = Color.RGBA;
 
 
 interface ResultCache<K, V> extends Map<K, V> {
@@ -42,7 +45,11 @@ class Layer {
     error: boolean;
     index: number;
     visible: boolean;
-    tiles: ViewportTile[] = [];
+    tiles: DisplayTile[] = [];
+    // Uncapped, display-zoom terrain render-tiles (only set for the terrain layer).
+    // Unlike `tiles` (capped at maxDataZoom for DEM loading), these follow the full
+    // adaptive LOD grid and are used to partition the terrain mesh per display tile.
+    terrainRenderTiles: DisplayTile[] = [];
     tileSize: number;
     handleTile: (tile: Tile) => void;
     z: { [zIndex: string]: number } = {};
@@ -50,7 +57,11 @@ class Layer {
 
     private layers: Layers;
     private zd: boolean = false; // dirty
-    bgColor: any;
+    private bgColor: [number, number, number, number?] | ((z: number) => [number, number, number, number?]);
+    private bgColorRGBA: {
+        zoomStamp: number,
+        color: RGBA
+    } = {zoomStamp: null, color: null};
 
     private expParser: StyleExpressionParser | undefined;
     skipDbgGrid: boolean; // do not render tile grid in debug mode
@@ -65,6 +76,7 @@ class Layer {
 
     initStyle() {
         this.expParser = (this.layer as TileLayer).getStyleManager?.().getExpressionParser?.() as StyleExpressionParser;
+        this.invalidateBackgroundColor();
     }
 
     getExpressionParser(): StyleExpressionParser {
@@ -158,6 +170,7 @@ class Layer {
         dLayer.error = false;
         dLayer.cnt = 0;
         dLayer.tiles = [];
+        dLayer.terrainRenderTiles = [];
 
         if (dLayer.visible = layer.isVisible(zoomlevel)) {
             dLayer.ready = false;
@@ -175,6 +188,21 @@ class Layer {
 
     getRenderIndex() {
         return this.index + 1;
+    }
+
+    setBackgroundColor(color: LayerStyle['backgroundColor']) {
+        this.bgColor = parseColor(color);
+    }
+
+    getBackgroundColorRGBA(zoomLevel: number): RGBA {
+        if (this.bgColorRGBA.zoomStamp === zoomLevel) return this.bgColorRGBA.color;
+        this.bgColorRGBA.zoomStamp = zoomLevel;
+        return this.bgColorRGBA.color = parseRGBA(this.bgColor, zoomLevel) ?? undefined;
+    }
+
+    invalidateBackgroundColor() {
+        this.bgColorRGBA.zoomStamp = null;
+        this.bgColorRGBA.color = null;
     }
 }
 
@@ -204,28 +232,32 @@ class Layers extends Array<Layer> {
 
     add(layer: BasicLayer, index: number) {
         const id = layer.id;
-        let data = this._map[id];
+        let displayLayer = this._map[id];
         let isNew;
 
         // it's already in ?
-        if (data) {
+        if (displayLayer) {
             // ..remove it!
-            this.splice(super.indexOf(data), 1);
+            this.splice(super.indexOf(displayLayer), 1);
             // ..and reinsert at desired postion
-            this.splice(index, 0, data);
+            this.splice(index, 0, displayLayer);
+
+            displayLayer.invalidateBackgroundColor();
 
             isNew = false;
         } else {
-            data = this._map[id] = new Layer(layer, this);
+            displayLayer = this._map[id] = new Layer(layer, this);
 
             if (layer instanceof TerrainTileLayer) {
-                this._terrainLayer = data;
+                this._terrainLayer = displayLayer;
             }
 
-            this.splice(index, 0, data);
+            this.splice(index, 0, displayLayer);
 
             isNew = true;
         }
+
+        this.invalidateTerrainColor();
         this.fixZ();
         return isNew;
     }
@@ -272,6 +304,41 @@ class Layers extends Array<Layer> {
             }
         }
         return Array.from(tileSizes);
+    }
+
+
+    /**
+     * Marks the cached terrain color state as invalid. Forces a re-evaluation on the next update.
+     *
+     * @hidden
+     * @internal
+     */
+    private invalidateTerrainColor(): void {
+        this._terrainColor.zoom = null;
+    }
+
+    private _terrainColor: { zoom: null | number, color: RGBA } = {zoom: null, color: null};
+
+    getTerrainColor(zoomlevel: number) {
+        if (this._terrainColor.zoom !== zoomlevel) {
+            this._terrainColor.zoom = zoomlevel;
+            const terrainLayer = this.getTerrainLayer();
+            if (terrainLayer) {
+                const colorSource = (terrainLayer.layer as TerrainTileLayer).getStyle().colorSource;
+
+                switch (colorSource.type) {
+                case 'material':
+                    break;
+                case 'solid':
+                    this._terrainColor.color = toRGB(colorSource.color);
+                    break;
+                case 'layerBackground':
+                    this._terrainColor.color = this.get(colorSource.layerId)?.getBackgroundColorRGBA(zoomlevel);
+                    break;
+                }
+            }
+        }
+        return this._terrainColor.color;
     }
 }
 

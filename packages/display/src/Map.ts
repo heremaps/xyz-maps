@@ -29,7 +29,6 @@ import MapViewListener from './MapViewListener';
 import UI from './ui/UI';
 import {JSUtils, Listener} from '@here/xyz-maps-common';
 import {ZoomAnimator} from './animation/ZoomAnimator';
-import {KineticPanAnimator} from './animation/KineticPanAnimator';
 import {defaultOptions, MapOptions} from './MapOptions';
 import {
     Feature,
@@ -55,6 +54,7 @@ import Logo from './ui/Logo';
 import {fillMap} from './displays/styleTools';
 import {GLRender} from './displays/webgl/GLRender';
 import {CameraTerrainController} from './CameraTerrainController';
+import {CameraUpdateState} from './CameraUpdateState';
 
 
 const project = webMercator;
@@ -87,7 +87,9 @@ const BEHAVIOR_ROTATE = 'rotate';
 const ON_LAYER_ADD_EVENT = 'addLayer';
 const ON_LAYER_REMOVE_EVENT = 'removeLayer';
 
-let instances = [];
+import {mapInstances} from './MapInstances';
+
+let instances = mapInstances;
 let UNDEF;
 
 function calcZoomLevelForBounds(minLon, minLat, maxLon, maxLat, mapWidth, mapHeight) {
@@ -147,6 +149,22 @@ export class Map {
 
     private _maxZoomExtent: number;
     private _repeatWorldViewX: boolean;
+
+    // Coordinates gesture/animation phases and internal pivot transactions.
+    private readonly _cameraUpdateState = new CameraUpdateState();
+
+    /**
+     * Calculates the integer grid tile zoom level from a fractional zoom.
+     * - `Math.round`: grid zoom switches at .5 boundaries (e.g. 15.5 → 16), tiles are scaled by max ±0.5 zoom levels.
+     * - `Math.floor`: grid zoom switches at integer boundaries (e.g. 15.9 → 15), tiles can be scaled up to 2×.
+     *
+     * @internal
+     * @hidden
+     */
+    private _gridZoom(zoom: number): number {
+        return Math.floor(Math.min(MAX_GRID_ZOOM, zoom));
+        // return Math.round(Math.min(MAX_GRID_ZOOM, zoom));
+    }
 
     _worldSizeFixed: number; // world size in pixel for fixed zoom
     _worldSize: number; // world size in pixel for smooth/intermediate zoom
@@ -287,7 +305,29 @@ export class Map {
 
         tigerMap._display = display;
 
-        this._camController = new CameraTerrainController(tigerMap, options);
+        const behaviorOptions = {...options['behavior'], ...options['behaviour']};
+
+        if (behaviorOptions[BEHAVIOR_ZOOM] == UNDEF) {
+            behaviorOptions[BEHAVIOR_ZOOM] = DEFAULT_ZOOM_BEHAVIOR;
+        }
+
+        let behavior = this._b = new Behavior(
+            mapContainer,
+            tigerMap,
+            <BehaviorOptions>behaviorOptions,
+            options
+        );
+
+        this._camController = new CameraTerrainController(tigerMap, display, options.cameraTerrainOffset);
+
+        // Terrain pivot strategy (Z-Compensation):
+        // - Z-Comp in updateVPMatrix ensures pivot changes are zoom-safe at any time.
+        // - During active gestures (pan/pitch/rotate): pivot stays fixed → no jitter.
+        // - At gesture end: update pivot with full compensation (invisible to the user).
+        // - At terrain-ready with pitch=0: safe because orbit is identity → fully invisible.
+        behavior.onGestureEnd = () => {
+            tigerMap._finishCameraInteraction();
+        };
 
         this.setBackgroundColor(options.backgroundColor);
 
@@ -301,22 +341,8 @@ export class Map {
 
 
         this._zoomAnimator = new ZoomAnimator(tigerMap);
-
         this._flightAnimator = new FlightAnimator(tigerMap);
 
-        const behaviorOptions = {...options['behavior'], ...options['behaviour']};
-
-        if (behaviorOptions[BEHAVIOR_ZOOM] == UNDEF) {
-            behaviorOptions[BEHAVIOR_ZOOM] = DEFAULT_ZOOM_BEHAVIOR;
-        }
-
-        let behavior = this._b = new Behavior(
-            mapContainer,
-            tigerMap,
-            new KineticPanAnimator(tigerMap),
-            <BehaviorOptions>behaviorOptions,
-            options
-        );
         // just attach the eventlisteners..
         // does not influence actual drag/zoom behavior
         behavior.drag(true);
@@ -344,9 +370,12 @@ export class Map {
 
         tigerMap._layerChangeListener = tigerMap._layerChangeListener.bind(tigerMap);
 
-        // Ensure the camera stays above the terrain after terrain data has finished loading
+        // When terrain tiles finish loading: update pivot and ensure camera is above terrain.
         tigerMap._onTerrainReadyListener = (ev) => {
-            this._ensureCamAboveTerrain();
+            // Skip during animations or pivot transactions. apply correction afterward.
+            if (!tigerMap._cameraUpdateState.canUpdatePivot()) return;
+            tigerMap._camController.ensureAboveTerrain();
+            tigerMap._updateTerrainPivot();
         };
 
         for (let layer of (options['layers'] || [])) {
@@ -360,9 +389,31 @@ export class Map {
         }
     }
 
+    _beginCameraGesture() {
+        return this._cameraUpdateState.beginGesture();
+    }
+
+    _endCameraGesture() {
+        return this._cameraUpdateState.endGesture();
+    }
+
+    _beginCameraAnimation() {
+        this._cameraUpdateState.beginAnimation();
+    }
+
+    _endCameraAnimation() {
+        this._cameraUpdateState.endAnimation();
+        this._finishCameraInteraction();
+    }
+
+    _finishCameraInteraction() {
+        this._camController.ensureAboveTerrain();
+        this._updateTerrainPivot();
+    }
+
     private _layerChangeListener(ev: MapEvent | CustomEvent<any>) {
         // refresh render-data if layer is cleared
-        this.refresh(ev.type === 'clear' ?? ev.detail.layer);
+        this.refresh(ev.detail.layer);
     }
 
     private initViewPort(): [number, number] {
@@ -403,6 +454,7 @@ export class Map {
         const display = this._display;
         const centerGeo = this._c;
         const prevCenterGeo = this._pc;
+        const centerChanged = prevCenterGeo[LON] != centerGeo[LON] || prevCenterGeo[LAT] != centerGeo[LAT];
 
         this._mvListener.watch(true);
 
@@ -422,34 +474,116 @@ export class Map {
         // display.updateGrid(this.initViewPort(), this.getZoomlevel(), this._ox, this._oy);
         // display.updateGrid(this.initViewPort(), this._z, this._ox, this._oy);
 
-        if (prevCenterGeo[LON] != centerGeo[LON] || prevCenterGeo[LAT] != centerGeo[LAT]) {
+        if (centerChanged) {
             this._l.trigger('center', ['center', centerGeo, prevCenterGeo], true);
             this._pc = centerGeo;
         }
-        this._ensureCamAboveTerrain();
-    }
 
-    private _ensureCamAboveTerrain() {
-        if (this._terrainLayer) {
+        // Ensure camera stays above terrain (also updates cached terrain height for getMaxZoom)
+        if (this._terrainLayer && this._cameraUpdateState.canCorrectTerrain()) {
             this._camController.ensureAboveTerrain();
         }
     }
 
     /**
-     * Returns the terrain height at the specified world coordinates.
-     * Used for camera terrain collision detection.
-     * Uses heightmaps for faster lookup.
-     * TODO: Need to implement fallback to (simplified) terrain mesh if no heightmap is available.
+     * Computes the camera's base distance to sea level (altitude 0) in a Web-Mercator projection.
+     * This is the theoretical vertical distance at pitch=0: `targetZ_px × groundRes_m/px`.
+     * At pitch > 0, the actual camera altitude is `baseDistance × cos(pitch) + pivotAlt`.
+     *
+     * @param zoom - Current zoom level (e.g. 14.5). Defaults to current map zoom.
+     * @param lat - Latitude in degrees at the focus point (affects Mercator scale). Defaults to map center.
+     * @param height - Map container height in pixels. Defaults to current map height.
+     * @param fovInRadians - Vertical field of view in radians. Defaults to display FOV.
+     * @returns Distance from camera to sea level in meters.
      *
      * @internal
      * @hidden
-     *
-     * @param worldX - The x coordinate in world space.
-     * @param worldY - The y coordinate in world space.
-     * @returns The terrain height at the given world coordinates, or undefined if not available.
      */
-    _getTerrainAtWorldXY(worldX: number, worldY: number) {
-        return this._display.getTerrainHeightAtWorldXY(worldX, worldY, this._terrainLayer);
+    private _getCameraDistanceToSealevel(
+        zoom?: number,
+        lat?: number,
+        height?: number,
+        fovInRadians?: number
+    ) {
+        zoom ??= this.getZoomlevel();
+        lat ??= this._c.latitude;
+        height ??= this._h;
+        fovInRadians ??= this._display.getFOV();
+        const worldSize = 256 * Math.pow(2, zoom);
+        const centerPixelY = height / 2;
+        const targetZ = centerPixelY / Math.tan(fovInRadians / 2); // in pixels
+        const groundRes = webMercator.earthCircumference(lat) / worldSize; // meters/pixel at this lat
+        return targetZ * groundRes; // in meters
+    }
+
+    /**
+     * Updates the terrain pivot at the screen center and compensates the zoom to
+     * preserve the camera's absolute altitude above sea level.
+     *
+     * The current pitch is included when calculating the camera altitude. After
+     * changing the pivot and zoom, the screen-center anchor is restored.
+     *
+     * Called after camera interactions or terrain updates; skipped during active
+     * animations or pivot transactions.
+     *
+     * @internal
+     * @hidden
+     */
+    _updateTerrainPivot(terrainPivotAlt?: number) {
+        if (!this._terrainLayer || !this._cameraUpdateState.canUpdatePivot()) return;
+
+        const display = this._display;
+        terrainPivotAlt ??= display.getTerrainCenterAltitude();
+        if (terrainPivotAlt == null) return;
+
+        const oldPivotAlt = display.terrainPivotAltitude;
+        if (Math.abs(terrainPivotAlt - oldPivotAlt) < 1) return;
+
+        // Preserve camera altitude when changing the terrain pivot.
+        // camAlt = baseDistance * cos(pitch) + pivotAlt
+        // deltaZoom = log2((camAlt - oldPivot) / (camAlt - newPivot))
+        const baseDistance = this._getCameraDistanceToSealevel();
+        if (baseDistance <= 0) return;
+
+        const cosPitch = Math.cos(this._rx);
+        const camAlt = baseDistance * cosPitch + oldPivotAlt;
+
+        const newDistToPivot = camAlt - terrainPivotAlt;
+        if (newDistToPivot <= 0) return;
+
+        const oldDistToPivot = camAlt - oldPivotAlt;
+        if (oldDistToPivot <= 0) return;
+
+        const newZoom = this.getZoomlevel() + Math.log2(oldDistToPivot / newDistToPivot);
+
+        // Save the center anchor before changing the pivot/zoom.
+        // Geographic coordinates remain valid across grid-zoom changes.
+        const cx = this._cx;
+        const cy = this._cy;
+        const anchorBefore = display.unprojectAtZ(cx, cy, terrainPivotAlt);
+        const oldWorldSize = this._worldSizeFixed;
+        const anchorLon = project.x2lon(anchorBefore[0] + this._tlwx, oldWorldSize);
+        const anchorLat = project.y2lat(anchorBefore[1] + this._tlwy, oldWorldSize);
+
+        // Prevent terrain and fixed-point corrections from running during the commit.
+        this._cameraUpdateState.withPivotCommit(() => {
+            display.terrainPivotAltitude = terrainPivotAlt;
+            // The compensation already preserves camera altitude; skip extra zoom correction.
+            this.setZoomlevel(newZoom);
+            // Reproject the new pivot plane to measure center-anchor drift.
+            const anchorAfter = display.unprojectAtZ(cx, cy, terrainPivotAlt);
+            const newWorldSize = this._worldSizeFixed;
+            const afterLon = project.x2lon(anchorAfter[0] + this._tlwx, newWorldSize);
+            const afterLat = project.y2lat(anchorAfter[1] + this._tlwy, newWorldSize);
+            const dLon = anchorLon - afterLon;
+            const dLat = anchorLat - afterLat;
+
+            if (Math.abs(dLon) > 1e-6 || Math.abs(dLat) > 1e-6) {
+                // Reuse the normal center path for wrapping, clipping and extent handling.
+                this._setCenter(this._c.longitude + dLon, this._c.latitude + dLat);
+                this.updateGrid();
+            }
+        });
     }
 
     private _clipLatitude(latitude: number) {
@@ -583,11 +717,15 @@ export class Map {
             if (rad !== rotZRad) {
                 const rcx = this._cx;
                 const rcy = this._cy;
-                const uRotCenter = this._display.unproject(rcx, rcy);
                 const centerWorldPixel = this._cWorldFixed;
 
-                centerWorldPixel.x += uRotCenter[0] - rcx;
-                centerWorldPixel.y += uRotCenter[1] - rcy;
+                // Skip center compensation with an active terrain pivot.
+                // the resulting delta is numerical noise.
+                if (!this._display.terrainPivotAltitude) {
+                    const uRotCenter = this._display.unproject(rcx, rcy);
+                    centerWorldPixel.x += uRotCenter[0] - rcx;
+                    centerWorldPixel.y += uRotCenter[1] - rcy;
+                }
 
                 this._rz = rad;
 
@@ -748,7 +886,10 @@ export class Map {
         );
 
         if (!animate) {
-            this.setZoomlevel(zoom);
+            this._cameraUpdateState.withPivotCommit(() => {
+                this.setZoomlevel(zoom);
+            });
+            // update pivot only once in setCenter
             this.setCenter(center);
         } else {
             this.flyTo(center, zoom, animate === true ? {} : animate);
@@ -905,7 +1046,8 @@ export class Map {
         return x1 != UNDEF && this._search.search(
             x1, y1, x2, y2,
             <TileLayer[]>layers,
-            skip3d
+            skip3d,
+            !!this._terrainLayer
         );
     };
 
@@ -1102,6 +1244,15 @@ export class Map {
         zoomTo = Math.round(zoomTo * 1e3) / 1e3;
         zoomTo = Math.max(Math.min(zoomTo, vplock.maxLevel), vplock.minLevel, this._maxZoomExtent);
 
+        // Internal pivot compensation already preserves the camera altitude. Its
+        // transaction must not be limited by the terrain clamp it is compensating for.
+        const maxTerrainZoom = this._cameraUpdateState.canApplyTerrainZoomClamp()
+            ? this._camController.getMaxZoom()
+            : null;
+        if (maxTerrainZoom != null) {
+            zoomTo = Math.min(zoomTo, maxTerrainZoom);
+        }
+
         if (arguments.length == 2) {
             animate = fixedX;
             fixedX = UNDEF;
@@ -1129,7 +1280,7 @@ export class Map {
                 const scale = Math.pow(2, zoomTo - gridZoom);
 
                 if (deltaFixedZoom) {
-                    this._z = Math.min(MAX_GRID_ZOOM, zoomTo) ^ 0;
+                    this._z = gridZoom;
                     this._worldSizeFixed = Math.pow(2, this._z) * TILESIZE;
                 }
 
@@ -1138,15 +1289,24 @@ export class Map {
 
                 const uFixed = this._display.unproject(fixedX, fixedY);
 
+                let dx = 0;
+                let dy = 0;
+                if (this._cameraUpdateState.useFixedPointCorrection()) {
+                    dx = _uFixed[0] - uFixed[0];
+                    dy = _uFixed[1] - uFixed[1];
+                }
+
                 this._setCenter(
-                    project.x2lon(this._cWorldFixed.x + _uFixed[0] - uFixed[0], worldSizePixel),
-                    project.y2lat(this._cWorldFixed.y + _uFixed[1] - uFixed[1], worldSizePixel)
+                    project.x2lon(this._cWorldFixed.x + dx, worldSizePixel),
+                    project.y2lat(this._cWorldFixed.y + dy, worldSizePixel)
                 );
 
                 this._s = scale;
                 this.updateGrid();
 
                 this._l.trigger('zoomlevel', ['zoomlevel', this.getZoomlevel(), startZoom], true);
+
+                this._updateTerrainPivot();
             }
         }
     };
@@ -1209,6 +1369,7 @@ export class Map {
     setCenter(lon: number | GeoPoint, lat?: number) {
         if (this._setCenter.apply(this, arguments)) {
             this.updateGrid();
+            this._updateTerrainPivot();
         }
     };
 
@@ -1330,9 +1491,13 @@ export class Map {
             const cx = this._cx;
             const cy = this._cy;
             const centerWorldPixel = this._cWorldFixed;
-            const uDelta = this._display.unproject(cx + dx, cy + dy);
-            const x = centerWorldPixel.x - uDelta[0] + cx;
-            const y = centerWorldPixel.y - uDelta[1] + cy;
+            // Compute the world-space delta by unprojecting both points.
+            const uCenter = this._display.unproject(cx, cy);
+            const uShifted = this._display.unproject(cx + dx, cy + dy);
+            const wdx = uShifted[0] - uCenter[0];
+            const wdy = uShifted[1] - uCenter[1];
+            const x = centerWorldPixel.x - wdx;
+            const y = centerWorldPixel.y - wdy;
 
             this.setCenter(
                 project.x2lon(x, worldSizePixel),
@@ -1393,7 +1558,6 @@ export class Map {
                     throw new Error('Only one TerrainTileLayer instance can be added to the MapDisplay. Please ensure you add a single terrain layer to avoid conflicts.');
                 }
                 this._terrainLayer = layer;
-
                 layer.addEventListener('viewportReady', this._onTerrainReadyListener);
             }
 
@@ -1405,8 +1569,8 @@ export class Map {
 
 
             const eventDetail = {
-                index: index,
-                layer: layer,
+                index,
+                layer,
                 map: this,
                 context: this._display.getContext(),
                 canvas: this._display.canvas
@@ -1434,7 +1598,9 @@ export class Map {
         if (index >= 0) {
             if (layer instanceof TerrainTileLayer) {
                 this._terrainLayer = null;
+                this._camController.reset();
                 layer.removeEventListener('viewportReady', this._onTerrainReadyListener);
+                this._display.terrainPivotAltitude = 0;
             }
             this._display.removeLayer(layer);
             // layer.removeEventListener('clear', (ev)=>this.refresh(ev.detail.layer));
@@ -1447,7 +1613,7 @@ export class Map {
 
             this._l.trigger(
                 ON_LAYER_REMOVE_EVENT,
-                [new MapEvent(ON_LAYER_REMOVE_EVENT, {index: index, layer: layer})]
+                [new MapEvent(ON_LAYER_REMOVE_EVENT, {index, layer})]
             );
         }
     };
@@ -1698,7 +1864,10 @@ export class Map {
         const mapEl = this._el;
         this.ui.destroy();
 
-        this._layers.forEach((layer) => this.removeLayer(layer));
+
+        while (this._layers.length) {
+            this.removeLayer(this._layers[0]);
+        }
 
         this._display.destroy();
 

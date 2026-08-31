@@ -20,7 +20,15 @@
 import {wrapText} from './textUtils';
 import {getRotatedBBox} from '../geometry';
 import {GlyphManager} from './webgl/GlyphManager';
-import {Feature, StyleZoomRange, webMercator, Style, StyleGroup, GeoJSONCoordinate} from '@here/xyz-maps-core';
+import {
+    Feature,
+    StyleZoomRange,
+    webMercator,
+    Style,
+    LayerStyle,
+    StyleGroup,
+    GeoJSONCoordinate
+} from '@here/xyz-maps-core';
 import {Expression, ExpressionParser, geometry as geometryUtils, Color} from '@here/xyz-maps-common';
 import toRGB = Color.toRGB;
 import {StyleExpressionParser} from './Layers';
@@ -187,12 +195,18 @@ const getMaxZoom = (styles: StyleGroup, feature: Feature, zoom: number, layerInd
 };
 
 
-const getLineWidth = (groups: StyleGroup, feature: Feature, zoom: number, layerIndex: number, skip3d?: boolean): [number, number] => {
+const getLineWidth = (
+    groups: StyleGroup,
+    feature: Feature,
+    zoom: number,
+    layerIndex: number,
+    skip3d?: boolean,
+    hasTerrainLayer?: boolean
+): [number, number] => {
     let width = 0;
     let maxZ = 0;
     let style;
     const tileGridZoom = getTileGridZoom(zoom);
-
 
     for (let s = 0; s < groups.length; s++) {
         style = groups[s];
@@ -200,24 +214,29 @@ const getLineWidth = (groups: StyleGroup, feature: Feature, zoom: number, layerI
 
         if (type != 'Line') continue;
 
-        if (!skip3d || !getValue('altitude', style, feature, tileGridZoom)) {
-            let z = getAbsZ(style, feature, tileGridZoom, layerIndex);
-            if (z > maxZ) {
-                maxZ = z;
+        if (skip3d) {
+            const altitude = getValue('altitude', style, feature, tileGridZoom);
+            if (altitude && (altitude !== 'terrain' || hasTerrainLayer)) {
+                continue;
             }
+        }
 
-            // let swVal = getValue('strokeWidth', grp, feature, tileGridZoom); // || 1;
-            // if (isNaN(swVal)) swVal = 1;
-            // let [value, unit] = parseSizeValue(swVal, true);
-            // if (unit == 'm') {
-            //     const dZoomScale = Math.pow(2, zoom % tileGridZoom);
-            //     value = dZoomScale * meterToPixel(value, tileGridZoom);
-            // }
+        let z = getAbsZ(style, feature, tileGridZoom, layerIndex);
+        if (z > maxZ) {
+            maxZ = z;
+        }
 
-            const value = getSizeInPixel('strokeWidth', style, feature, zoom, true);
-            if (value > width) {
-                width = value;
-            }
+        // let swVal = getValue('strokeWidth', grp, feature, tileGridZoom); // || 1;
+        // if (isNaN(swVal)) swVal = 1;
+        // let [value, unit] = parseSizeValue(swVal, true);
+        // if (unit == 'm') {
+        //     const dZoomScale = Math.pow(2, zoom % tileGridZoom);
+        //     value = dZoomScale * meterToPixel(value, tileGridZoom);
+        // }
+
+        const value = getSizeInPixel('strokeWidth', style, feature, zoom, true);
+        if (value > width) {
+            width = value;
         }
     }
 
@@ -515,21 +534,38 @@ const searchLerp = (map, search: number, parseSize: boolean = true) => {
     return rawVal;
 };
 
-export const parseColorMap = (map: { [zoom: string]: Color.RGBA }) => {
+export const parseColorMap = (map: StyleZoomRange<string | number | Color.RGBA>): StyleZoomRange<Color.RGBA> => {
     for (let z in map) {
         map[z] = toRGB(map[z]);
     }
-    return map;
+    return map as StyleZoomRange<Color.RGBA>;
 };
 
 export const createZoomRangeFunction = (map: StyleZoomRange<Color.RGBA>, /* isFeatureContext?:boolean,*/ parseSizeValue?: boolean) => {
     map = fillMap(map, parseSizeValue);
     // return new Function('f,zoom', `return (${JSON.stringify(map)})[zoom];`);
-    const range = (feature, zoom: number) => {
+    const range = (feature, zoom?: number) => {
         return map[zoom ?? feature];
     };
     range.map = map; // dbg
     return range;
+};
+
+type RGBAColorFunction = ((number) => Color.RGBA);
+export const parseColor = (
+    // color: number | string | Color.RGBA | StyleZoomRange<Color.RGBA> | ((z:number) => Color.RGBA)
+    color: LayerStyle['backgroundColor']
+): Color.RGBA | RGBAColorFunction => {
+    if (color) {
+        if (typeof color == 'object' && !Array.isArray(color)) {
+            color = createZoomRangeFunction(parseColorMap(color));
+        }
+        return typeof color == 'function' ? color as RGBAColorFunction : toRGB(color as Color.Color);
+    }
+};
+
+export const parseRGBA = (color, zoom: number): Color.RGBA => {
+    return color instanceof Function ? toRGB(color(zoom ^ 0)) : color;
 };
 
 const parseStyleGroup = (styleGroup: readonly(Style & { __p?: true })[], expParser: StyleExpressionParser) => {

@@ -24,7 +24,7 @@ import fragmentShader from '../glsl/line_fragment.glsl';
 
 import Program, {UniformMap} from './Program';
 import {GLStates} from './GLStates';
-
+import {GraphicsDevice} from '../device/GraphicsDevice';
 
 class LineProgram extends Program {
     name = 'Line';
@@ -35,12 +35,19 @@ class LineProgram extends Program {
         depth: true
     });
 
-    constructor(gl: WebGLRenderingContext, devicePixelRation: number) {
-        super(gl, devicePixelRation);
+    constructor(device: GraphicsDevice, devicePixelRation: number) {
+        super(device, devicePixelRation);
 
-        this.mode = gl.TRIANGLES;
+        this.mode = device.gl.TRIANGLES;
         this.vertexShaderSrc = vertexShader;
         this.fragmentShaderSrc = fragmentShader;
+    }
+
+
+    protected override ensureExtensions() {
+        if (!this.device.isWebGL2) {
+            this.device.extensions.getExtension('OES_standard_derivatives');
+        }
     }
 
     /**

@@ -4,8 +4,10 @@ attribute vec2 a_size;
 attribute highp vec3 a_position;
 attribute vec2 a_texcoord;
 
+uniform vec3 u_camWorld;
+
 uniform mat4 u_matrix;
-uniform vec2 u_topLeft;
+uniform vec4 u_tile;
 uniform float u_scale;
 uniform vec4 u_offset;
 uniform vec2 u_offsetZ;
@@ -18,6 +20,8 @@ uniform float u_normalizePosition;
 varying float vOpacity;
 varying vec2 v_texcoord;
 
+#include "utils.glsl/heightMapUtils"
+#include "utils.glsl/terrainOcclusion"
 #include "utils.glsl/altitudeScaleFactor"
 #include "utils.glsl/snapToScreenPixel"
 
@@ -36,19 +40,31 @@ void main(void){
         // bit1 is direction/normal vector [-1,+1]
         vec2 dir = mod(floor(a_position.xy / 2.0), 2.0) * 2.0 - 1.0;
         vec2 pos = floor(a_position.xy / 4.0) * u_normalizePosition;
-        float z = a_position.z * SCALE_UINT16_Z + toPixel(u_offsetZ, u_scale)/ u_zMeterToPixel/ u_scale;
 
+        #ifdef USE_HEIGHTMAP
+        float z = getTerrainHeight(pos);
+        #else
+        float z = a_position.z * SCALE_UINT16_Z * u_exaggeration;
+        #endif
+        z+= toPixel(u_offsetZ, u_scale) / u_zMeterToPixel/ u_scale;
+        vec4 anchorClip = u_matrix * vec4(u_tile.xy + pos, z, 1.0);
+
+        #if defined(TERRAIN_OCCLUSION)
+        if (applyTerrainOcclusion(anchorClip)) {
+            return;
+        }
+        #endif
         vec2 offsetXY = vec2(toPixel(u_offset.xy, u_scale),toPixel(u_offset.zw, u_scale));
 
         if (u_alignMap){
-            vec3 posWorld = vec3(u_topLeft + pos, z);
+            vec3 posWorld = vec3(u_tile.xy + pos, z);
             vec2 shift = rotateZ(offsetXY + dir * vec2(a_size.x, -a_size.y) * 0.5, rotation) / u_scale;
 
             shift *= altitudeScaleFactor(posWorld, u_matrix);
 
             gl_Position = u_matrix * vec4(posWorld.xy + shift, posWorld.z, 1.0);
         } else {
-            vec4 cpos = u_matrix * vec4(u_topLeft + pos, z, 1.0);
+            vec4 cpos = anchorClip;
             vec2 shift = rotateZ(dir * a_size, -rotation) * 0.5;
             vec2 offset = offsetXY * vec2(1.0, -1.0);
             gl_Position = vec4(cpos.xy / cpos.w + (offset + shift) / u_resolution * 2.0, cpos.z / cpos.w, 1.0);

@@ -17,6 +17,7 @@
  * License-Filename: LICENSE
  */
 import {GLExtensions} from './GLExtensions';
+import {isWebGL2} from '../glTools';
 
 export type WebGLInstancing = {
     drawElementsInstanced: (
@@ -30,13 +31,13 @@ export type WebGLInstancing = {
     drawArraysInstanced: (mode: number, first: number, count: number, instanceCount: number) => void;
 };
 
-export const createWebGLInstancing = (gl: WebGLRenderingContext | WebGL2RenderingContext, glExtensions?: GLExtensions): WebGLInstancing | null => {
-    const isWebGL2 = gl instanceof WebGL2RenderingContext;
+export const createWebGLInstancing = (gl: WebGLRenderingContext | WebGL2RenderingContext, glExtensions: GLExtensions): WebGLInstancing => {
+    const isWGL2 = isWebGL2(gl);
     const angleInstancedArrays = 'ANGLE_instanced_arrays';
     // eslint-disable-next-line camelcase
     let ext: ANGLE_instanced_arrays;
 
-    if (!isWebGL2) {
+    if (!isWGL2) {
         ext = glExtensions.getExtension(angleInstancedArrays);
         if (!ext) {
             console.error(`${angleInstancedArrays} not supported in WebGL1.`);
@@ -49,19 +50,19 @@ export const createWebGLInstancing = (gl: WebGLRenderingContext | WebGL2Renderin
     }
 
     return {
-        drawElementsInstanced: isWebGL2
+        drawElementsInstanced: isWGL2
             ? (mode, count, type, offset, instanceCount) =>
                 (gl as WebGL2RenderingContext).drawElementsInstanced(mode, count, type, offset, instanceCount)
             : (mode, count, type, offset, instanceCount) =>
                 ext!.drawElementsInstancedANGLE(mode, count, type, offset, instanceCount),
 
-        vertexAttribDivisor: isWebGL2
+        vertexAttribDivisor: isWGL2
             ? (index, divisor) =>
                 (gl as WebGL2RenderingContext).vertexAttribDivisor(index, divisor)
             : (index, divisor) =>
                 ext!.vertexAttribDivisorANGLE(index, divisor),
 
-        drawArraysInstanced: isWebGL2
+        drawArraysInstanced: isWGL2
             ? (mode, first, count, instanceCount) =>
                 (gl as WebGL2RenderingContext).drawArraysInstanced(mode, first, count, instanceCount)
             : (mode, first, count, instanceCount) =>

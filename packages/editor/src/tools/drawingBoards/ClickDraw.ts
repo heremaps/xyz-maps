@@ -26,32 +26,49 @@ import InternalEditor from '../../IEditor';
 import Overlay from '../../features/Overlay';
 import {Navlink} from '../../features/link/Navlink';
 import {JSUtils, global} from '@here/xyz-maps-common';
-import {EditableFeatureProvider, Style, TileLayer} from '@here/xyz-maps-core';
+import {
+    CircleStyle, SphereStyle,
+    EditableFeatureProvider,
+    GeoJSONCoordinate,
+    LineStyle,
+    Style,
+    TileLayer
+} from '@here/xyz-maps-core';
+import {MapEvent} from '@here/xyz-maps-display';
 
-const DEFAULT_SHAPE_STYLE = [{
-    'type': 'Circle',
-    'zIndex': 0,
-    'stroke': '#FFFFFF',
-    'fill': '#000000',
-    'strokeWidth': 2,
-    'radius': 6
-}];
+type ShapeStyle = (CircleStyle | SphereStyle)[];
 
-const DEFAULT_LINE_STYLE = [{
-    'zIndex': 0,
-    'type': 'Line',
-    'strokeWidth': 2,
-    'stroke': '#ffffff'
-}];
+const createDefaultShapeStyle = (editor: InternalEditor): ShapeStyle => {
+    return [{
+        type: editor.displayProvidesTerrain ? 'Sphere' : 'Circle',
+        stroke: '#FFFFFF',
+        strokeWidth: 2,
+        zIndex: 0,
+        fill: '#000000',
+        radius: 6,
+        altitude: editor.displayProvidesTerrain ? 'terrain' : false
+    }];
+};
 
 
-function createShapeStyle(shapeStyle, zIndex: number) {
-    const style = JSUtils.clone(shapeStyle || DEFAULT_SHAPE_STYLE);
-    style.forEach((s) => s.zIndex = (s.zIndex ^ 0) + zIndex);
+const createDefaultLineStyle = (editor: InternalEditor, stroke = '#ffffff'): [LineStyle] => {
+    return [{
+        zIndex: 0,
+        type: 'Line',
+        altitude: editor.displayProvidesTerrain ? 'terrain' : false,
+        strokeWidth: 2,
+        stroke
+    } as LineStyle];
+};
+
+
+const cloneStylesWithZIndexOffset = (style: ShapeStyle, zIndex: number): ShapeStyle => {
+    style = JSUtils.clone(style);
+    style.forEach((s) => s.zIndex = ((s.zIndex as number) ^ 0) + zIndex);
     return style;
-}
+};
 
-const setupStyleGroups = (settings: Settings, feature) => {
+const setupStyleGroups = (iEdit: InternalEditor, settings: Settings, feature) => {
     let styles;
     let stroke;
     let featureStyle;
@@ -71,11 +88,11 @@ const setupStyleGroups = (settings: Settings, feature) => {
 
         if (mode != 'Area') {
             // in case of line/navlink -> take "inline" style only as stroke by default
-            shapeStyle = JSUtils.clone(DEFAULT_SHAPE_STYLE);
+            shapeStyle = createDefaultShapeStyle(iEdit);
             shapeStyle[0].fill = styles[0].stroke;
 
-            featureStyle = JSUtils.clone(DEFAULT_LINE_STYLE);
-            featureStyle[0].stroke = (styles[1] || styles[0]).stroke;
+            featureStyle = createDefaultLineStyle(iEdit, (styles[1] || styles[0]).stroke);
+
             return {
                 feature: featureStyle,
                 shape: shapeStyle
@@ -93,7 +110,7 @@ const setupStyleGroups = (settings: Settings, feature) => {
     }
 
     if (!settings['styleGroup'] || !shapeStyle.length) {
-        shapeStyle = JSUtils.clone(DEFAULT_SHAPE_STYLE);
+        shapeStyle = createDefaultShapeStyle(iEdit);
 
         const style = featureStyle[0];
         stroke = style.stroke;
@@ -154,11 +171,22 @@ class ClickDraw {
         this.mousedown = false;
     }
 
+    private getEventsWorldPosition(ev: MapEvent): [number, number, number?] {
+        const p = this.iEdit.map.getEventsMapXY(ev);
+        const terrain = this.display.getTerrainPointAt({x: p[0], y: p[1]});
+        return terrain
+            ? [terrain.longitude, terrain.latitude, terrain.altitude || 0]
+            : this.iEdit.map.getGeoCoord(p);
+    }
+
     private updateCursor(ev) {
         const {iEdit, feature, shapes, display, cursor, mousedown, overlay} = this;
 
         if (!mousedown) {
-            const geoMouse = iEdit.map.getGeoCoord(iEdit.map.getEventsMapXY(ev));
+            // const geoMouse = iEdit.map.getGeoCoord(iEdit.map.getEventsMapXY(ev));
+            const geoMouse = this.getEventsWorldPosition(ev);
+
+
             const geo = shapes.map((f) => f.geometry.coordinates);
             geo.push(geoMouse);
 
@@ -201,7 +229,7 @@ class ClickDraw {
 
         this.feature = new this.FeatureClass(overlay, topLeft);
 
-        const cursor = overlay.addCircle(topLeft, createShapeStyle(DEFAULT_SHAPE_STYLE, 1));
+        const cursor = overlay.addCircle(topLeft, cloneStylesWithZIndexOffset(createDefaultShapeStyle(iEdit), 1));
         // @ts-ignore
         cursor.pointerdown = (ev) => {
             const {properties} = cursor;
@@ -217,7 +245,8 @@ class ClickDraw {
         // @ts-ignore
         cursor.pointerup = (ev) => {
             if (!cursor.properties.panned) {
-                board.addShape(iEdit.map.getGeoCoord(ev.mapX, ev.mapY), UNDEF, ev);
+                // board.addShape(iEdit.map.getGeoCoord(ev.mapX, ev.mapY), UNDEF, ev);
+                board.addShape(this.getEventsWorldPosition(ev));
             }
 
             board.onBoardUp();
@@ -270,7 +299,7 @@ class ClickDraw {
 
         const shp = this.overlay.addFeature(
             new DrawingShape(this, iEdit, shapes.length, pos, settings['mode']),
-            createShapeStyle(this.style.shape, 9)
+            cloneStylesWithZIndexOffset(this.style.shape, 9)
         );
 
         feature.update(shapes.length, pos);
@@ -353,7 +382,7 @@ class ClickDraw {
         if (attributes) {
             JSUtils.extend(feature.properties, attributes);
 
-            const style = setupStyleGroups(settings, feature.geojson);
+            const style = setupStyleGroups(iEdit, settings, feature.geojson);
 
             this.style = style;
 
@@ -364,7 +393,7 @@ class ClickDraw {
             iEdit.setStyle(feature.geojson, style.feature);
 
             shapes.concat(cursor).forEach((shp) => {
-                iEdit.setStyle(shp, createShapeStyle(style.shape, <number>iEdit.getStyle(shp)[0].zIndex));
+                iEdit.setStyle(shp, cloneStylesWithZIndexOffset(style.shape, <number>iEdit.getStyle(shp)[0].zIndex));
             });
         }
     };

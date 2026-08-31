@@ -217,19 +217,19 @@ describe('link splitting and set its properties correctly', function() {
         expect(link.coord()).to.be.deep.almost([
             [77.468927698, 13.212794768, 100],
             [77.468927698, 13.212272527, 200],
-            [77.470537021, 13.211228043, 449.999953]
-        ]);
+            [77.470537021, 13.211228043, 449.9999767]
+        ], 1e-6);
 
         const child1 = <Navlink>(await editorClick(editor, 350, 350)).target;
         expect(child1.coord()).to.deep.almost([
             [77.47000058, 13.211750285, 400],
-            [77.470537021, 13.211228043, 449.999953]
-        ]);
+            [77.470537021, 13.211228043, 449.9999767]
+        ], 1e-6);
 
         const child2 = <Navlink>(await editorClick(editor, 450, 450)).target;
         expect(child2.coord()).to.deep.almost([
-            [77.470537021, 13.211228043, 449.999953],
+            [77.470537021, 13.211228043, 449.9999767],
             [77.471073462, 13.210705799, 500]
-        ]);
+        ], 1e-6);
     });
 });

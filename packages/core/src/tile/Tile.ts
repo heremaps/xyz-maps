@@ -67,6 +67,17 @@ export class Tile {
      *
      */
     error?: NetworkError;
+    /**
+     * True when the provider has no usable data for this tile.
+     *
+     * This can occur when the remote source returns an HTTP 404, a network error,
+     * or an empty response that the provider interprets as missing data.
+     * A valid empty JSON tile (data = []) does not set this flag.
+     *
+     * @internal
+     * @hidden
+     */
+    dataUnavailable?: boolean;
 
     data: any;
     loadStartTs: number;

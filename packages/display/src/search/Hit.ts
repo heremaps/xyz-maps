@@ -172,7 +172,8 @@ class Hit {
         feature: Feature,
         zoomlevel: number,
         dimensions?: number[],
-        skip3d?: boolean
+        skip3d?: boolean,
+        hasTerrainLayer?: boolean
     ): number[] | false {
         let hit = false;
         const {dpr, map} = this;
@@ -211,7 +212,7 @@ class Hit {
                 hit = intersectBBox(x, x + halfWidth, y, y + halfHeight, featureX1, featureX2, featureY1, featureY2);
             }
         } else if (geoType == 'LineString') {
-            dimensions = dimensions || getLineWidth(featureStyle, feature, zoomlevel, layerIndex, skip3d);
+            dimensions ||= getLineWidth(featureStyle, feature, zoomlevel, layerIndex, skip3d, hasTerrainLayer);
             let cLen = coordinates.length;
             let [lineWidth] = dimensions;
             if (lineWidth) {
@@ -374,7 +375,8 @@ class Hit {
         featureStyle: StyleGroup,
         layerIndex: number,
         zoomlevel: number,
-        skip3d?: boolean
+        skip3d?: boolean,
+        hasTerrainLayer?: boolean
     ): number[] | false {
         return this.geometry(
             halfWidth,
@@ -387,7 +389,8 @@ class Hit {
             feature,
             zoomlevel,
             null,
-            skip3d
+            skip3d,
+            hasTerrainLayer
         );
     };
 }

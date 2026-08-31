@@ -20,17 +20,17 @@
 import {ImageLoader} from '../ImageLoader';
 import {Atlas, ImageInfo} from './Atlas';
 import {Texture} from './Texture';
+import {GraphicsDevice} from './device/GraphicsDevice';
 
 class IconAtlas {
     private loader = new ImageLoader();
     private atlas: Atlas;
     private textures: Map<string, Texture> = new Map();
     private promises = {};
-    private gl: WebGLRenderingContext;
 
-    constructor(gl: WebGLRenderingContext) {
-        this.gl = gl;
-        this.atlas = new Atlas({gl, maxImgSize: 64});
+
+    constructor(private device: GraphicsDevice) {
+        this.atlas = new Atlas({device, maxImgSize: 64});
     }
 
     getTexture(src): Texture {
@@ -53,7 +53,7 @@ class IconAtlas {
             return (promises[src] ||= new Promise((resolve, reject) => {
                 loader.get(src, (img) => {
                     delete promises[src];
-                    this.textures.set(src, new Texture(this.gl, img));
+                    this.textures.set(src, new Texture(this.device, img));
                     resolve(imageInfo);
                 });
             }));

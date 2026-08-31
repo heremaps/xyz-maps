@@ -19,6 +19,7 @@
 
 import {Texture} from './Texture';
 import {GlyphAtlas} from './GlyphAtlas';
+import {GraphicsDevice} from './device/GraphicsDevice';
 
 export type FontStyle = {
     font?: string;
@@ -32,13 +33,12 @@ class GlyphTexture extends Texture {
     private atlas: GlyphAtlas;
     private dirty: boolean = false;
 
-    constructor(gl: WebGLRenderingContext, style: FontStyle, size?: number) {
-        super(gl, null, {
-            format: gl.LUMINANCE_ALPHA
+    constructor(device: GraphicsDevice, style: FontStyle, size?: number) {
+        super(device, null, {
+            format: device.gl.LUMINANCE_ALPHA
         });
 
-        const {dpr} = <any>gl;
-        this.atlas = new GlyphAtlas(style, dpr, size);
+        this.atlas = new GlyphAtlas(style, (device.gl as any).dpr, size);
     }
 
     addChars(text: string) {
@@ -59,7 +59,7 @@ class GlyphTexture extends Texture {
 
     sync() {
         if (this.dirty) {
-            const {atlas, gl} = this;
+            const {atlas} = this;
             const glyphs = atlas.glyphInfos;
 
             this.set({width: atlas.width, height: atlas.height});

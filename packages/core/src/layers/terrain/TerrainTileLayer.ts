@@ -51,6 +51,13 @@ export class TerrainTileLayer extends TileLayer {
         // const zoomOffset = getProviderZoomOffset(tileSize);
         const imageryUrl = options.imagery?.url;
 
+        if (imageryUrl) {
+            console.warn(
+                'TerrainTileLayer: "imagery" is deprecated; ' +
+                'use a separate TileLayer with an ImageProvider for independent imagery and terrain zoom levels.'
+            );
+        }
+
         super({
             adaptiveGrid: true,
             pointerEvents: false,
@@ -83,6 +90,13 @@ export class TerrainTileLayer extends TileLayer {
         });
 
         this.getStyle().setTileSize(tileSize);
+        this.dataUnavailableFallback = options.dataUnavailableFallback ?? 'ancestor-preview';
+
+        // Set maxDataZoom from elevation.max so the display knows not to request
+        // terrain tiles beyond the available data zoom level.
+        if (elevationOptions.max != null) {
+            this.maxDataZoom = elevationOptions.max;
+        }
     }
 
     getStyle(): TerrainTileLayerStyle {

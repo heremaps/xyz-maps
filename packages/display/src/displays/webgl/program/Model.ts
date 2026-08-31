@@ -22,10 +22,11 @@ import vertexShader from '../glsl/model_vertex.glsl';
 // @ts-ignore
 import fragmentShader from '../glsl/model_fragment.glsl';
 
-import Program, {ProgramMacros} from './Program';
-import {GLStates, PASS} from './GLStates';
+import Program, {PROGRAM_MACRO, ProgramMacros} from './Program';
+import {GLStates} from './GLStates';
 import {GeometryBuffer} from '../buffer/GeometryBuffer';
 import {Texture} from '../Texture';
+import {GraphicsDevice} from '../device/GraphicsDevice';
 
 
 class ModelProgram extends Program {
@@ -36,27 +37,17 @@ class ModelProgram extends Program {
         let macros = super.getMacros(buffer);
         if (uniforms.illumination > 0) {
             macros ||= {};
-            macros.DIFFUSE= 1;
+            macros.DIFFUSE = PROGRAM_MACRO.DIFFUSE;
         }
         if ((uniforms.normalMap as Texture).width > 1) {
             macros ||= {};
-            macros.NORMAL_MAP = 4;
+            macros.NORMAL_MAP = PROGRAM_MACRO.NORMAL_MAP;
         }
         if (uniforms.shininess > 0) {
             macros ||= {};
-            macros.SPECULAR = 2;
+            macros.SPECULAR = PROGRAM_MACRO.SPECULAR;
         }
         return macros;
-    }
-
-    protected static computeMacroMask(macros?: ProgramMacros): number {
-        return ((macros.DIFFUSE as number) ^ 0) | ((macros.SPECULAR as number) ^ 0) | ((macros.NORMAL_MAP as number) ^ 0);
-    }
-
-    static getProgramId(buffer: GeometryBuffer, macros?: ProgramMacros) {
-        return buffer.type + this.computeMacroMask(macros);
-        // return buffer.type + (macros ? (<number>macros.DIFFUSE | <number>macros.SPECULAR | <number>macros.NORMAL_MAP) : '');
-        // return buffer.type + (macros ? JSON.stringify(macros) : '');
     }
 
     glStates = new GLStates({
@@ -65,18 +56,16 @@ class ModelProgram extends Program {
         depth: true
     });
 
-    constructor(gl: WebGLRenderingContext, devicePixelRation: number, macros?: ProgramMacros) {
-        super(gl, devicePixelRation, macros);
+    constructor(device: GraphicsDevice, devicePixelRation: number, macros?: ProgramMacros) {
+        super(device, devicePixelRation, macros);
 
         this.vertexShaderSrc = vertexShader;
         this.fragmentShaderSrc = fragmentShader;
     }
 
     draw(geoBuffer: GeometryBuffer, isPreview?: boolean) {
-        const {gl} = this;
         if (isPreview) {
-            gl.polygonOffset(1, 1);
-            gl.enable(gl.POLYGON_OFFSET_FILL);
+            this.device.applyPolygonOffsetState(true, 1, 1);
         }
         super.draw(geoBuffer);
     }

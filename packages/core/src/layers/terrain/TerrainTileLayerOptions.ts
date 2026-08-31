@@ -159,7 +159,11 @@ export interface TerrainTileLayerOptions extends TileLayerOptions {
          */
         min?: number;
         /**
-         * Maximum zoom level for elevation tile requests. Default is 20.
+         * Maximum zoom level for elevation tile requests.
+         * When set, the layer's {@link TileLayerOptions.maxDataZoom} is automatically configured
+         * so the display loads terrain tiles at this level and scales them up for deeper zoom levels.
+         *
+         * @defaultValue 20
          */
         max?: number;
         /**
@@ -222,6 +226,22 @@ export interface TerrainTileLayerOptions extends TileLayerOptions {
      * Optional imagery source to be used as a texture overlay on the terrain.
      * This can enhance visual detail by projecting raster tiles (e.g., satellite imagery)
      * over the elevation surface for a more realistic and visually rich 3D map.
+     *
+     * @deprecated Use a separate {@link TileLayer} with an {@link ImageProvider} instead.
+     * This decouples imagery loading from terrain and allows independent zoom levels for each.
+     *
+     * **Before (deprecated):**
+     * ```ts
+     * new TerrainTileLayer({ elevation: {...}, imagery: { url: '...' } })
+     * ```
+     *
+     * **After (recommended):**
+     * ```ts
+     * layers: [
+     *   new TerrainTileLayer({ elevation: {...} }),         // terrain only
+     *   new TileLayer({ provider: new ImageProvider({...}) }) // imagery as separate layer
+     * ]
+     * ```
      */
     imagery?: {
         /**

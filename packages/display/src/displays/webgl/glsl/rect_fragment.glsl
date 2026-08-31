@@ -7,6 +7,8 @@ uniform float u_strokeWidth;
 varying vec2 vSize;
 varying vec2 vDir;
 
+#include "utils.glsl/terrainOcclusion"
+
 #define COLOR_UNDEF -1.0
 
 void main(void){
@@ -23,4 +25,8 @@ void main(void){
         };
 
     }
+
+    #if defined(TERRAIN_OCCLUSION_DEBUG)
+    gl_FragColor = terrainOcclusionDebugColor(gl_FragColor);
+    #endif
 }

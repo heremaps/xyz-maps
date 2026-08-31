@@ -6,11 +6,12 @@ uniform float u_scale;
 uniform vec4 u_size;
 uniform mat4 u_matrix;
 uniform float u_strokeWidth;
-uniform vec2 u_topLeft;
+uniform vec4 u_tile;
 uniform float u_rotation;
 uniform vec4 u_offset;
 uniform vec2 u_offsetZ;
 uniform float u_zMeterToPixel;
+uniform vec3 u_camWorld;
 uniform bool u_alignMap;
 uniform vec2 u_resolution;
 uniform float u_normalizePosition;
@@ -19,9 +20,10 @@ varying vec2 vSize;
 varying vec2 vDir;
 
 #include "utils.glsl/heightMapUtils"
+#include "utils.glsl/terrainOcclusion"
 #include "utils.glsl/altitudeScaleFactor"
 
-void main(void){
+void main(void) {
     // LSB defines visibility
     if (mod(a_position.x, 2.0) == 1.0)
     {
@@ -34,21 +36,30 @@ void main(void){
 
         float rotation = u_rotation;
 
-        if (!u_alignMap){
+        if (!u_alignMap) {
             rotation *= -1.0;
         }
 
         vec2 pixel_offset = vec2(toPixel(u_offset.xy, u_scale), toPixel(u_offset.zw, u_scale));
 
         #ifdef USE_HEIGHTMAP
-        float z = getTerrainHeight( pos );
+        float z = getTerrainHeight(pos);
         #else
-        float z = a_position.z * SCALE_UINT16_Z;
+        float z = a_position.z * SCALE_UINT16_Z * u_exaggeration;
         #endif
         z += toPixel(u_offsetZ, u_scale) / u_zMeterToPixel / u_scale;
 
-        if (u_alignMap){
-            vec2 posCenterWorld = u_topLeft + pos;
+        vec3 posWorld = vec3(u_tile.xy + pos, z);
+        vec4 anchorClip = u_matrix * vec4(posWorld, 1.0);
+
+        #if defined(TERRAIN_OCCLUSION)
+        if (applyTerrainOcclusion(anchorClip)) {
+            return;
+        }
+        #endif
+
+        if (u_alignMap) {
+            vec2 posCenterWorld = u_tile.xy + pos;
             vec2 shift = (pixel_offset + rotateZ(dir * vec2(size.x, -size.y), rotation)) / u_scale;
             vec3 posWorld = vec3(posCenterWorld + shift, z);
 
@@ -56,7 +67,7 @@ void main(void){
 
             gl_Position = u_matrix * vec4(posCenterWorld + shift, z, 1.0);
         } else {
-            vec4 cpos = u_matrix * vec4(u_topLeft + pos, z, 1.0);
+            vec4 cpos = anchorClip;
             vec2 shift = rotateZ(dir * size, rotation);
             vec2 offset = pixel_offset * vec2(1.0, -1.0);
 

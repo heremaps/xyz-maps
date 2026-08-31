@@ -51,7 +51,7 @@ const downgradeToWebGL1 = (shaderSrc: string, isFragmentShader: boolean = false)
             .replace(/\bsampler3D\b/g, 'sampler2D');
 
         // Warn about unsupported functions
-        for (let feature of ['dFdx', 'dFdy', 'textureSize'] ) {
+        for (let feature of ['dFdx', 'dFdy', 'textureSize']) {
             shaderSrc = shaderSrc.replace(feature, `/* UNSUPPORTED in WebGL1: ${feature}( */`);
         }
         // Ensure `precision` is declared in Fragment Shader (WebGL1 requires it)
@@ -85,6 +85,8 @@ export const loadShader = (gl: WebGLRenderingContext, shaderSource: string, shad
 
 const loadProgram = (gl: WebGLRenderingContext, shaders: WebGLShader[], onError: (error) => void = dumpError) => {
     const program = gl.createProgram();
+    if (!program) return null;
+
     for (let shader of shaders) {
         gl.attachShader(program, shader);
     }
@@ -103,15 +105,16 @@ export const createProgram = (gl: WebGLRenderingContext, vertexShaderSrc: string
     const vertexShader = loadShader(gl, vertexShaderSrc, gl.VERTEX_SHADER);
     const fragmentShader = loadShader(gl, fragmentShaderSrc, gl.FRAGMENT_SHADER);
 
-    const program = loadProgram(gl, [
-        vertexShader,
-        fragmentShader
-    ]);
+    const program = vertexShader && fragmentShader
+        ? loadProgram(gl, [vertexShader, fragmentShader])
+        : null;
 
-    gl.detachShader(program, vertexShader);
-    gl.detachShader(program, fragmentShader);
-    gl.deleteShader(vertexShader);
-    gl.deleteShader(fragmentShader);
+    if (program) {
+        gl.detachShader(program, vertexShader);
+        gl.detachShader(program, fragmentShader);
+    }
+    if (vertexShader) gl.deleteShader(vertexShader);
+    if (fragmentShader) gl.deleteShader(fragmentShader);
     return program;
 };
 
@@ -149,7 +152,7 @@ export const preprocessShaderIncludes = (source: string, includes: {
     });
 };
 
-export const positionGLSLVersion = (shaderSrc: string): string => {
+export const hoistGLSLVersionDirective = (shaderSrc: string): string => {
     if (shaderSrc.includes(webglShaderVersion300)) {
         shaderSrc = shaderSrc.replace(webglShaderVersion300, '').trim();
         shaderSrc = `${webglShaderVersion300}\n${shaderSrc}`;
@@ -159,4 +162,66 @@ export const positionGLSLVersion = (shaderSrc: string): string => {
 
 export const isWebGL2 = (gl: WebGLRenderingContext | WebGL2RenderingContext): gl is WebGL2RenderingContext => {
     return typeof WebGL2RenderingContext !== 'undefined' && gl instanceof WebGL2RenderingContext;
+};
+
+let glEnumCache: { [key: number]: string };
+export const logGLRenderState = (gl: WebGLRenderingContext | WebGL2RenderingContext, optional: Record<string, unknown> = {}, program?: WebGLProgram) => {
+    const glEnums = glEnumCache ||= ((glEnums) => {
+        for (let func of [
+            'NEVER', 'LESS', 'LEQUAL', 'GREATER', 'GEQUAL', 'EQUAL', 'NOTEQUAL', 'ALWAYS',
+            'KEEP', 'ZERO', 'REPLACE', 'INCR', 'INCR_WRAP', 'DECR', 'DECR_WRAP', 'INVERT'
+        ]) glEnums[gl[func]] = func;
+        return glEnums;
+    })({});
+
+    console.table([{
+        ...optional,
+        'SCISSOR_TEST': gl.getParameter(gl.SCISSOR_TEST) ? `${gl.getParameter(gl.SCISSOR_BOX)}` : false,
+        'STENCIL_TEST': gl.getParameter(gl.STENCIL_TEST) ? `${glEnums[gl.getParameter(gl.STENCIL_FUNC)]} ${gl.getParameter(gl.STENCIL_REF)}` : false,
+        'STENCIL': `${glEnums[gl.getParameter(gl.STENCIL_FAIL)]}-${glEnums[gl.getParameter(gl.STENCIL_PASS_DEPTH_FAIL)]}-${glEnums[gl.getParameter(gl.STENCIL_PASS_DEPTH_PASS)]}`,
+        'STENCIL_CLEAR_VALUE': gl.getParameter(gl.STENCIL_CLEAR_VALUE),
+        'BLEND': gl.getParameter(gl.BLEND),
+        'BLEND_SRC RGB A': `${gl.getParameter(gl.BLEND_SRC_RGB)} ${gl.getParameter(gl.BLEND_SRC_ALPHA)}`,
+        'BLEND_DST RGB A': `${gl.getParameter(gl.BLEND_DST_RGB)} ${gl.getParameter(gl.BLEND_DST_ALPHA)}`,
+        'COLOR_WRITEMASK': `[${gl.getParameter(gl.COLOR_WRITEMASK).map((a) => Number(a))}]`,
+        'DEPTH_TEST': gl.getParameter(gl.DEPTH_TEST) ? `${glEnums[gl.getParameter(gl.DEPTH_FUNC)]}` : false,
+        'DEPTH_WRITEMASK': gl.getParameter(gl.DEPTH_WRITEMASK),
+        'DEPTH_RANGE': `[${gl.getParameter(gl.DEPTH_RANGE)}]`,
+        'POLYGON_OFFSET_FILL': gl.getParameter(gl.POLYGON_OFFSET_FILL) ? `${gl.getParameter(gl.POLYGON_OFFSET_FACTOR)}, ${gl.getParameter(gl.POLYGON_OFFSET_UNITS)}` : false,
+        'CULL_FACE': gl.getParameter(gl.CULL_FACE),
+        'CULL_FACE_MODE': gl.getParameter(gl.CULL_FACE_MODE),
+        'FB': gl.getParameter(gl.FRAMEBUFFER_BINDING)?.id ?? gl.getParameter(gl.FRAMEBUFFER_BINDING)
+    }]);
+
+
+    if (program) {
+        const activeCount = gl.getProgramParameter(program, gl.ACTIVE_UNIFORMS) as number;
+
+        const enumName = (value: number): string =>
+            Object.keys(gl).find((k) => (gl as any)[k] === value) ?? String(value);
+        const toPrintable = (v: unknown): unknown => {
+            if (ArrayBuffer.isView(v)) {
+                return JSON.stringify(Array.from(<unknown>v as ArrayLike<number>));
+            }
+            return v;
+        };
+        const rows: Array<Record<string, unknown>> = [];
+
+        for (let i =0; i < activeCount; i++) {
+            const info = gl.getActiveUniform(program, i);
+            if (!info) continue;
+            const baseName = info.name.replace(/\[0\]$/, '');
+            const loc = gl.getUniformLocation(program, baseName);
+            if (!loc) continue;
+            const value = gl.getUniform(program, loc);
+            rows.push({
+                // index: i,
+                name: info.name,
+                // type: enumName(info.type),
+                // size: info.size,
+                value: toPrintable(value)
+            });
+        }
+        console.table(rows);
+    }
 };

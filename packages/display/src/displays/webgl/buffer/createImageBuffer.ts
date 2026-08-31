@@ -17,10 +17,11 @@
  * License-Filename: LICENSE
  */
 
-import {GeometryBuffer} from './GeometryBuffer';
+import {GeometryBuffer, RenderUsage} from './GeometryBuffer';
 import {ImageData, Texture} from '../Texture';
-import {PASS} from '../program/GLStates';
 import {BACK, FRONT} from './glType';
+import {PASS} from '../RenderPass';
+import {GraphicsDevice} from '../device/GraphicsDevice';
 
 const textureCoordinates = [
     0, 0,
@@ -32,7 +33,7 @@ const textureCoordinates = [
     1, 1
 ];
 
-const createImageBuffer = (img: ImageData, gl: WebGLRenderingContext, size: number, alpha: boolean) => {
+const createImageBuffer = (img: ImageData, device: GraphicsDevice, size: number, alpha: boolean) => {
     // const id = (<any>img)._id || ((<any>img)._id = String(Math.random()));
     // const texInfo = atlas.get(id) || atlas.set(id, img); // [UNIT,X,Y]
 
@@ -63,11 +64,11 @@ const createImageBuffer = (img: ImageData, gl: WebGLRenderingContext, size: numb
     });
 
     tileBuffer.addUniform('u_tileScale', 1);
-    tileBuffer.addUniform('u_sampler', new Texture(gl, img));
+    tileBuffer.addUniform('u_sampler', new Texture(device, img, {mipMaps: false}));
     tileBuffer.zIndex = 0;
     tileBuffer.clip = true;
     tileBuffer.blend = alpha;
-    tileBuffer.pass = alpha ? PASS.ALPHA : PASS.OPAQUE;
+    tileBuffer.pass = alpha ? PASS.ALPHA_COLOR : PASS.OPAQUE;
     tileBuffer.pixelPerfect = true;
     tileBuffer.pointerEvents = false;
     tileBuffer.cullFace(FRONT);

@@ -35,36 +35,6 @@ import {StyleZoomRange} from '../../styles/LayerStyle';
 import {DataSourceAttribution} from '../../layers/DataSourceAttribution';
 
 
-function printHeightMap(heightMap, padding = 1) {
-    padding *= 2;
-    const backfill = 1;
-    const tileSize = Math.sqrt(heightMap.length) - backfill - padding; // z.B. 512
-    if (tileSize>33) return;
-
-    const endXY = padding ? tileSize+1 : tileSize;
-
-    const size = tileSize + backfill + padding; // z.B. 515
-    for (let y = 0; y < size; y++) {
-        let row = '';
-        for (let x = 0; x < size; x++) {
-            let val = heightMap[y * size + x];
-            let color = '\x1b[37m'; // weiß
-            // console.log(x, size, tileSize);
-            // Padding: äußerste Reihen/Spalten
-            if ( padding>0 && (x === 0 || y === 0 || x === size - 1 || y === size - 1)) {
-                color = '\x1b[36m'; // cyan;
-            } else if (x === endXY || y === endXY) {
-                // Backfill: die letzte Tile-Reihe/Spalte vor dem Padding
-                color = '\x1b[33m'; // gelb
-            }
-
-            row += color + Math.round(val).toString().padStart(5, ' ') + '\x1b[0m' + ' ';
-        }
-        console.log(row);
-    }
-};
-
-
 type TerrainTileProviderOptions = Omit<RemoteTileProviderOptions, 'level'> & {
     terrain?: TerrainTileLoaderOptions;
     maxGeometricError?: StyleZoomRange<number> | number;
@@ -96,7 +66,8 @@ export class TerrainTileProvider extends RemoteTileProvider {
 
         const attribution: (DataSourceAttribution | string)[] = [];
         const maxGeometricError = createGeometricErrorMap(options.maxGeometricError);
-        const heightMapPadding = options.terrain?.heightMapPadding ^ 0;
+        const heightMapPadding = (options.terrain?.heightMapPadding ?? 1) ^ 0;
+
         const addAttribution = (attr: string | DataSourceAttribution | DataSourceAttribution[]) => {
             if (attr) {
                 attribution.push(...(Array.isArray(attr) ? attr : [attr]));
@@ -158,9 +129,12 @@ export class TerrainTileProvider extends RemoteTileProvider {
             loader: options.loader,
             preProcessor: this.preProcessor.bind(this),
             processTileResponse: (tile, data, onDone) => {
-                if (tile.error) {
-                    return onDone(tile.data);
+                // Treat missing or empty responses as unavailable;
+                if (!data?.length) {
+                    tile.dataUnavailable = true;
+                    return onDone(null);
                 }
+                tile.dataUnavailable = false;
                 provider.insertTileData(tile, data, onDone);
             }
         });
@@ -185,7 +159,7 @@ export class TerrainTileProvider extends RemoteTileProvider {
             }
             let {heightMap} = properties;
 
-            const updatedTiles = [];
+            const updatedNeighborTiles : Tile[] = [];
             for (let side of [Neighbor.RIGHT, Neighbor.BOTTOM, Neighbor.LEFT, Neighbor.TOP]) {
                 // let [dx, dy] = side;
                 const dx = side === Neighbor.RIGHT ? 1 : side === Neighbor.LEFT ? -1 : 0;
@@ -195,28 +169,38 @@ export class TerrainTileProvider extends RemoteTileProvider {
 
                 const neighborTile = this.getCachedTile(tileXYToQuadKey(tile.z, tile.y + dy, tile.x + dx));
                 if (neighborTile?.isLoaded()) {
-                    const neighborTerrain = neighborTile.data[0];
+                    const neighborTerrain = neighborTile.data?.[0];
                     if (!neighborTerrain) continue;
 
                     const neighborProperties = neighborTerrain.properties;
                     const oppositeSide = getOppositeNeighbor(side);
 
+                    if (properties.useHeightMap) {
+                        const neighborHeightMap = neighborProperties.heightMap;
+                        const padding = this._hmPadding;
+                        const heightMapSize = heightMap && Math.sqrt(heightMap.length);
+                        const neighborHeightMapSize = neighborHeightMap && Math.sqrt(neighborHeightMap.length);
 
-                    if (properties.useHeightMap && this._hmPadding > 0 ) {
-                        // const neighborHeightMap = neighborProperties.heightMap;
-                        // edge padding for lighting calculation
-                        // stitchHeightmapBorders(neighborHeightMap, heightMap, oppositeSide, 0, 0, 1);
-                        // stitchHeightmapBorders(heightMap, neighborHeightMap, side, 0, 0, 1);
+                        // The last logical row/column is extrapolated by decodeHeights() to reach a
+                        // 2^n+1 grid, but it is the same point as the neighbor's measured index 0 —
+                        // hence the right/bottom tile owns the shared edge, regardless of load order.
+                        // The padding ring then takes the neighbor's interior samples so the shader's
+                        // central differences get a full step across the border instead of a half one.
+                        // padding === 1 only: extendHeightMapWithFullClamping() hardcodes a 1px ring.
+                        if (padding === 1 && neighborProperties.useHeightMap && heightMap && neighborHeightMap &&
+                            Number.isInteger(heightMapSize) && heightMapSize === neighborHeightMapSize) {
+                            updatedNeighborTiles.push(neighborTile);
 
-                        // if (side === Neighbor.RIGHT || side === Neighbor.BOTTOM) {
-                        //     stitchHeightmapBorders(neighborHeightMap, heightMap, oppositeSide, 1, 0, 2);
-                        //     stitchHeightmapBorders(heightMap, neighborHeightMap, side, 2, 0, 1);
-                        // } else {
-                        //     stitchHeightmapBorders(heightMap, neighborHeightMap, side, 1, 0, 2);
-                        //     stitchHeightmapBorders(neighborHeightMap, heightMap, oppositeSide, 2, 0, 1);
-                        // }
+                            if (side === Neighbor.RIGHT || side === Neighbor.BOTTOM) {
+                                stitchHeightmapBorders(neighborHeightMap, heightMap, oppositeSide, padding, 0, padding + 1);
+                                stitchHeightmapBorders(heightMap, neighborHeightMap, side, padding + 1, 0, padding);
+                            } else {
+                                stitchHeightmapBorders(heightMap, neighborHeightMap, side, padding, 0, padding + 1);
+                                stitchHeightmapBorders(neighborHeightMap, heightMap, oppositeSide, padding + 1, 0, padding);
+                            }
+                        }
                     } else {
-                        updatedTiles.push(neighborTile);
+                        updatedNeighborTiles.push(neighborTile);
                         if (side === Neighbor.RIGHT || side === Neighbor.BOTTOM) {
                             stitchMeshBorders(side, properties, neighborProperties);
                         } else {
@@ -226,16 +210,16 @@ export class TerrainTileProvider extends RemoteTileProvider {
                 }
             }
 
-            if (updatedTiles.length) {
+            if (updatedNeighborTiles.length) {
                 // trigger refresh
-                this.dispatchEvent('featuresAdd', {tiles: updatedTiles, features: []}, false);
+                this.dispatchEvent('featuresAdd', {tiles: updatedNeighborTiles, features: []}, false);
             }
         }
 
         // feature.bbox = calcBBox(feature);
         // const tile = res.provider.getCachedTile(res.quadkey);
         // feature.bbox = [...tile.bounds];
-        return [feature];
+        return feature ? [feature] : [];
     }
 
     getHeightmapPadding() {

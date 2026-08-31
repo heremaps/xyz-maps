@@ -30,10 +30,10 @@ import {Navlink} from './Navlink';
 import {TurnRestrictionEditor} from '../../tools/turnrestriction/TrEditor';
 import {Feature as EditableFeature} from '../feature/Feature';
 import NavlinkTools from './NavlinkTools';
-import {defaultBehavior} from '../line/LineShape';
 import {dragFeatureCoordinate} from '../oTools';
 import {EditOperation} from '../../API/EditorOptions';
 import {ConnectionCandidate} from './ConnectionCandidate';
+import {getAltitudeCapabilities, getOrSetShapeBehavior} from '../feature/shapeUtils';
 
 
 const EDITOR_NS = '@ns:com:here:editor';
@@ -52,7 +52,7 @@ type ConnectedLinkDetails = { link: Navlink, index: number };
 
 type EventHandler = (e, dx?: number, dy?: number) => void;
 
-type PrivateData = {
+export type PrivateData = {
     b?: { [behavior: string]: any },
     // [privateProperty: string]: any
     line: Navlink,
@@ -374,6 +374,18 @@ function mouseInHandler() {
     EDITOR.setStyle(this);
 }
 
+export const createShapeLinkProperties = (line: Navlink) => {
+    const linkStyle = line._e().getResolvedStyle(line);
+    return {
+        NAVLINK: {
+            'properties': JSUtils.extend(true, {}, line.properties),
+            'style': linkStyle,
+            ...getAltitudeCapabilities(line)
+        },
+        parent: line
+    };
+};
+
 
 /**
  * The NavlinkShape represents a shape-point / coordinate of a Navlink feature.
@@ -392,7 +404,7 @@ class NavlinkShape extends Feature {
      * @hidden
      * @internal
      */
-    private __: PrivateData;
+    __: PrivateData;
 
     constructor(line: Navlink, pos, i, lnkTools) {
         linkTools = lnkTools;
@@ -413,11 +425,7 @@ class NavlinkShape extends Feature {
             properties: {
                 'isNode': isNode,
                 'isConnected': !!connectedLinks.length,
-                'NAVLINK': {
-                    'properties': JSUtils.extend(true, {}, line.properties),
-                    'style': EDITOR.getStyle(line)
-                },
-                'parent': line,
+                ...createShapeLinkProperties(line),
                 '@ns:com:here:editor': {
                     selected: !!linkTools.private(line, 'selectedShapes')[i]
                 }
@@ -495,32 +503,7 @@ class NavlinkShape extends Feature {
     };
 
     behavior(options?: any, value?: boolean) {
-        let behavior = linkTools.private(this, 'b') || {...defaultBehavior};
-
-        switch (arguments.length) {
-        case 0:
-            return behavior;
-        case 1:
-            if (typeof options == 'string') {
-                // getter
-                return behavior[options];
-            }
-            break;
-        case 2:
-            const opt = {};
-            opt[options] = value;
-            options = opt;
-        }
-        // setter
-        behavior = {...behavior, ...options};
-
-        if (options.dragPlane) {
-            delete behavior.dragAxis;
-        } else if (options.dragAxis) {
-            delete behavior.dragPlane;
-        }
-
-        this.__.b = behavior;
+        return getOrSetShapeBehavior(this, arguments);
     }
 
     /**

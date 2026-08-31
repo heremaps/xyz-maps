@@ -7,38 +7,147 @@ vec4 snapToScreenPixel(vec4 position, vec2 resolution) {
 }
 #end snapToScreenPixel
 
-#begin heightMapUtils
-#if defined(USE_HEIGHTMAP) || defined(TERRAIN_MODEL_HM)
-uniform sampler2D uHeightMap;
-uniform vec2 uHeightMapTileSize; // heigtMapWidth, tileSize
-uniform float meterPerpixel;
+#begin terrainOcclusion
+#if defined(TERRAIN_OCCLUSION)
 
-float getTerrainHeight(vec2 tilePixelPos) {
-    float texSize  = uHeightMapTileSize.x;
-    float tileSize = uHeightMapTileSize.y;
-    vec2 uv = (tilePixelPos + 0.5) / tileSize;
-    return texture2D(uHeightMap, uv).r;
+#ifndef texture2D
+#if __VERSION__ >= 300
+#define texture2D texture
+#endif
+#endif
+// DBG only: Keep occluded symbols visible and tint them red while validating the depth snapshot.
+// #define TERRAIN_OCCLUSION_DEBUG 1
+
+#if defined(TERRAIN_OCCLUSION_DEBUG)
+varying float v_hidden;
+#endif
+
+#if defined(XYZ_VERTEX_SHADER)
+uniform sampler2D u_terrainDepth;
+
+const float TERRAIN_OCCLUSION_EPSILON = 0.0005;
+
+#if defined(TERRAIN_DEPTH_RGBA)
+float unpackTerrainDepth(vec4 packedDepth) {
+    const vec4 bitShift = vec4(
+        1.0 / (256.0 * 256.0 * 256.0),
+        1.0 / (256.0 * 256.0),
+        1.0 / 256.0,
+        1.0
+    );
+    return dot(packedDepth, bitShift);
+}
+#endif
+
+bool isTerrainAnchorOccluded(vec4 anchorClip) {
+    vec2 depthUV = anchorClip.xy / anchorClip.w * 0.5 + 0.5;
+    float anchorDepth = anchorClip.z / anchorClip.w * 0.5 + 0.5;
+    bool outsideDepthTexture = depthUV.x < 0.0 || depthUV.x > 1.0
+        || depthUV.y < 0.0 || depthUV.y > 1.0;
+
+    if (outsideDepthTexture) {
+        return false;
+    }
+
+    vec4 sampledDepth = texture2D(u_terrainDepth, depthUV);
+    #if defined(TERRAIN_DEPTH_RGBA)
+        float terrainDepth = unpackTerrainDepth(sampledDepth);
+    #else
+        float terrainDepth = sampledDepth.r;
+    #endif
+    return anchorDepth > terrainDepth + TERRAIN_OCCLUSION_EPSILON;
 }
 
-float sampleHeightWithPadding(vec2 tilePixelPos) {
+bool applyTerrainOcclusion(vec4 anchorClip) {
+    bool hidden = isTerrainAnchorOccluded(anchorClip);
+    #if defined(TERRAIN_OCCLUSION_DEBUG)
+    v_hidden = hidden ? 1.0 : 0.0;
+    return false;
+    #else
+    if (hidden) {
+        gl_Position = vec4(2.0, 2.0, 2.0, 1.0);
+        return true;
+    }
+    return false;
+    #endif
+}
+#endif
+
+#if defined(XYZ_FRAGMENT_SHADER) && defined(TERRAIN_OCCLUSION_DEBUG)
+vec4 terrainOcclusionDebugColor(vec4 color) {
+    if (v_hidden > 0.5) {
+        color.rgb = mix(color.rgb, vec3(1.0, 0.0, 0.0), 0.7);
+        color.a *= 0.45;
+    }
+    return color;
+}
+#endif
+#endif
+#end terrainOcclusion
+
+#begin heightMapUtils
+#ifndef texture2D
+#if __VERSION__ >= 300
+#define texture2D texture
+#endif
+#endif
+uniform float u_exaggeration;
+#if defined(USE_HEIGHTMAP) || defined(TERRAIN_MODEL_HM)
+uniform sampler2D uHeightMap;
+uniform vec3 uHeightMapTileSize; // textureWidth, tileSize, padding
+uniform float meterPerpixel;
+// transform from data-tile pixel space to heightmap UV space.
+// xy = offset (in UV), z = scale. Identity = vec3(0, 0, 1).
+// used when the heightmap comes from a parent tile (e.g. data at z14, heightmap at z13).
+uniform vec3 uHeightMapTransform;
+
+float getTerrainHeight(vec2 tilePixelPos) {
     float texSize = uHeightMapTileSize.x;
     float tileSize = uHeightMapTileSize.y;
-    float invTexSize = 1.0 / texSize;
-    // +1.0: data region shifted by left padding
-    vec2 uv = (tilePixelPos * ((texSize - 2.0) / tileSize) + 1.0 + 0.5) * invTexSize;
-    // Access with slightly expanded range (padding allowed)
-    uv = clamp(uv, vec2(invTexSize * 0.5), vec2(1.0 - invTexSize * 0.5));
-    return texture2D(uHeightMap, uv).r;
+    float padding = uHeightMapTileSize.z;
+    float logicalSize = texSize - 2.0 * padding;
+    float logicalGridSize = max(1.0, logicalSize - 1.0);
+
+    // map tile-local coordinates into the logical heightmap area. Coordinates
+    // outside the tile intentionally address the neighbour padding ring.
+    vec2 logicalUV = tilePixelPos / tileSize;
+    logicalUV = uHeightMapTransform.xy + logicalUV * uHeightMapTransform.z;
+    vec2 texCoord = vec2(padding) + logicalUV * logicalGridSize;
+    vec2 baseTexel = clamp(floor(texCoord), vec2(0.0), vec2(texSize - 2.0));
+    vec2 f = clamp(texCoord - baseTexel, vec2(0.0), vec2(1.0));
+    vec2 base = (baseTexel + 0.5) / texSize;
+    vec2 dd = vec2(1.0 / texSize);
+
+    // Manual bilinear filtering keeps float-texture sampling consistent with the
+    // heightmap transform, padding, and CPU-side interpolation.
+    float tl = texture2D(uHeightMap, base).r;
+    float tr = texture2D(uHeightMap, base + vec2(dd.x, 0.0)).r;
+    float bl = texture2D(uHeightMap, base + vec2(0.0, dd.y)).r;
+    float br = texture2D(uHeightMap, base + dd).r;
+
+    return mix(mix(tl, tr, f.x), mix(bl, br, f.x), f.y) * u_exaggeration;
 }
 
 vec3 getTerrainNormal(vec2 tilePixelPos) {
-    float hL = getTerrainHeight(tilePixelPos + vec2(-1.0, 0.0));
-    float hR = getTerrainHeight(tilePixelPos + vec2( 1.0, 0.0));
-    float hD = getTerrainHeight(tilePixelPos + vec2( 0.0,-1.0));
-    float hU = getTerrainHeight(tilePixelPos + vec2( 0.0, 1.0));
-    float heightScale = u_zMeterToPixel / uHeightMapTileSize.y; // meterPerpixel
-    float dx = (hR - hL) * heightScale;
-    float dy = (hU - hD) * heightScale;
+    float texSize = uHeightMapTileSize.x;
+    float tileSize = uHeightMapTileSize.y;
+    float padding = uHeightMapTileSize.z;
+    float logicalSize = texSize - 2.0 * padding;
+    // effective coverage of source height samples across the current tile.
+    // 1.0 -> native tile source, <1.0 -> synthetic child extracted from parent source.
+    float sourceScale = max(0.0001, uHeightMapTransform.z);
+    float hmSamples = max(1.0, (logicalSize - 1.0) * sourceScale);
+    float stepPx = max(1.0, tileSize / hmSamples);
+
+    float hL = getTerrainHeight(tilePixelPos + vec2(-stepPx, 0.0));
+    float hR = getTerrainHeight(tilePixelPos + vec2( stepPx, 0.0));
+    float hD = getTerrainHeight(tilePixelPos + vec2( 0.0,-stepPx));
+    float hU = getTerrainHeight(tilePixelPos + vec2( 0.0, stepPx));
+
+    float heightScale = u_zMeterToPixel / tileSize; // meterPerpixel
+    float gradientScale = heightScale / stepPx;
+    float dx = (hR - hL) * gradientScale;
+    float dy = (hU - hD) * gradientScale;
     return normalize(vec3(-dx, -dy, 1.0));
 }
 

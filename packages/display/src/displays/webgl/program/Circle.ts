@@ -25,6 +25,7 @@ import fragmentShader from '../glsl/circle_fragment.glsl';
 import Program, {ProgramMacros} from './Program';
 import {GLStates} from './GLStates';
 import {GeometryBuffer} from '../buffer/GeometryBuffer';
+import {GraphicsDevice} from '../device/GraphicsDevice';
 
 class CircleProgram extends Program {
     name = 'Circle';
@@ -35,14 +36,10 @@ class CircleProgram extends Program {
         depth: true
     });
 
-    static getProgramId(buffer: GeometryBuffer, macros?: ProgramMacros) {
-        return buffer.type + (macros?.USE_HEIGHTMAP||'');
-    }
+    constructor(device: GraphicsDevice, devicePixelRation: number, macros?: ProgramMacros) {
+        super(device, devicePixelRation, macros);
 
-    constructor(gl: WebGLRenderingContext, devicePixelRation: number, macros?: ProgramMacros) {
-        super(gl, devicePixelRation, macros);
-
-        this.mode = gl.TRIANGLES;
+        this.mode = device.gl.TRIANGLES;
         this.vertexShaderSrc = vertexShader;
         this.fragmentShaderSrc = fragmentShader;
     }

@@ -20,7 +20,7 @@
 import {Marker} from './Marker';
 import {GeoJSONCoordinate} from '@here/xyz-maps-core';
 import {Feature} from '../feature/Feature';
-import FeatureTools from '../feature/FeatureTools';
+import FeatureTools, {getRenderWorldGeoPosition, PointFeature} from '../feature/FeatureTools';
 import {dragFeatureCoordinate} from '../oTools';
 import {EditOperation} from '../../API/EditorOptions';
 
@@ -139,11 +139,7 @@ const tools = {
                     prv.isSelected &&
                     EDITOR.isEditAllowed(feature, EditOperation.Geometry)
                 ) {
-                    let coordinate = <GeoJSONCoordinate>[...feature.geometry.coordinates];
-
-                    if (typeof altitude == 'number') {
-                        coordinate[2] = altitude;
-                    }
+                    let coordinate = getRenderWorldGeoPosition(feature as PointFeature);
 
                     coordinate = dragFeatureCoordinate(ev.mapX, ev.mapY, feature, coordinate, EDITOR);
 
@@ -200,6 +196,5 @@ const tools = {
         return FeatureTools.markAsModified(feature, getPrivate(feature), saveView);
     }
 };
-
 
 export default tools;

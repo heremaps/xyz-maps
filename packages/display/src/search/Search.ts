@@ -53,7 +53,8 @@ export class Search {
         x2: number,
         y2: number,
         layers: TileLayer | CustomLayer | (TileLayer | CustomLayer)[],
-        skip3d: boolean
+        skip3d: boolean,
+        hasTerrainLayer: boolean
     ): {
         layer: TileLayer,
         features: Feature[]
@@ -146,7 +147,16 @@ export class Search {
                     feature = features[length];
 
                     if (featureStyle = displayLayer.processStyleGroup(feature, tileGridZoom)) {
-                        if (dimensions = hit.feature(halfWidth, halfHeight, feature, featureStyle, layerIndex, zoomlevel, skip3d)) {
+                        if (dimensions = hit.feature(
+                            halfWidth,
+                            halfHeight,
+                            feature,
+                            featureStyle,
+                            layerIndex,
+                            zoomlevel,
+                            skip3d,
+                            hasTerrainLayer)
+                        ) {
                             let zIndex = dimensions[dimensions.length - 1];
                             let zOrdered = results[zIndex] = results[zIndex] || [];
                             let zOrderedLayer = zOrdered[layerIndex] = zOrdered[layerIndex] || [];
@@ -189,7 +199,8 @@ export class Search {
         x2: number,
         y2: number,
         layers: (TileLayer | CustomLayer)[],
-        skip3d?: boolean
+        skip3d: boolean = true,
+        hasTerrainLayer: boolean = false
     ): { layer: TileLayer, features: Feature[] }[] {
         const {map} = this;
         const defaultLayers = map._layers;
@@ -204,7 +215,7 @@ export class Search {
         }
 
         if (isNumber(x) && isNumber(y) && isNumber(x2) && isNumber(y2)) {
-            return this.getFeaturesInRect(x, y, x2, y2, layers, skip3d);
+            return this.getFeaturesInRect(x, y, x2, y2, layers, skip3d, hasTerrainLayer);
         }
     };
 }

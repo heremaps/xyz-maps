@@ -70,12 +70,19 @@ function createShapes(
     creator: (p1: GeoJSONCoordinate, p2: GeoJSONCoordinate, polyIndex: number, shpIndex: number) => Feature
 ) {
     const overlay = area._e().objects.overlay;
+    const altitude = area._e().getStyleProperty(area, 'altitude');
+    const getCoordinate = (p: number, i: number) =>{
+        const coordinate = polygons[p][i].slice();
+        if (typeof altitude === 'number') {
+            coordinate[2] = altitude;
+        }
+        return coordinate;
+    };
 
     for (let p = 0; p < polygons.length; p++) {
-        let poly = polygons[p];
-
+        const poly = polygons[p];
         for (let i = 0; i < poly.length - 1; i++) {
-            let shp = creator(poly[i], poly[i + 1], i, p);
+            const shp = creator(getCoordinate(p, i), getCoordinate(p, i + 1), i, p);
             overlay.addFeature(shp);
             shapePnts.push(shp);
         }
@@ -86,14 +93,11 @@ function createShapes(
 function addShapes(area: Area) {
     const shapePnts = getPrivate(area, 'shapePnts');
     const coordinates = tools.getCoords(area);
-
-
     for (let p = 0; p < coordinates.length; p++) {
         createShapes(area, shapePnts, coordinates[p],
             (p1, p2, pi, ci) => new AreaShape(
                 area,
-                p1[0],
-                p1[1],
+                p1.slice(),
                 [p, pi, ci],
                 tools
             )
@@ -102,7 +106,7 @@ function addShapes(area: Area) {
 }
 
 
-function addVShapes(area: Area) {
+function addVirtualShapes(area: Area) {
     const shapePnts = getPrivate(area, 'midShapePnts');
     const coordinates = tools.getCoords(area);
 
@@ -110,8 +114,11 @@ function addVShapes(area: Area) {
         createShapes(area, shapePnts, coordinates[p],
             (p1, p2, pi, ci) => new VirtualAreaShape(
                 area,
-                (p1[0] + p2[0]) / 2,
-                (p1[1] + p2[1]) / 2,
+                [
+                    (p1[0] + p2[0]) * .5,
+                    (p1[1] + p2[1]) * .5,
+                    (p1[2] + p2[2]) * .5
+                ],
                 [p, pi, ci],
                 tools
             )
@@ -142,7 +149,7 @@ function refreshGeometry(area: Area) {
     if (getPrivate(area, 'isSelected')) {
         removeShapes(area);
         addShapes(area);
-        addVShapes(area);
+        addVirtualShapes(area);
         updateHeightKnob(area);
     }
 }
@@ -391,7 +398,7 @@ const tools = {
         return pi;
     },
 
-    addVShapes: addVShapes,
+    addVirtualShapes,
 
     getShp: function(area: Area, polyIdx: number, holeIdx: number, index: number) {
         const shapes = getPrivate(area, 'shapePnts');
@@ -457,7 +464,7 @@ const tools = {
                 }
             }
 
-            const newShape = new AreaShape(area, pos[0], pos[1], [polyIdx, idx, holeIdx], tools);
+            const newShape = new AreaShape(area, pos.slice(), [polyIdx, idx, holeIdx], tools);
             overlay.addFeature(newShape);
 
             if (startIdx != null) {

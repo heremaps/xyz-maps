@@ -23,6 +23,7 @@ import {Map} from '@here/xyz-maps-display';
 import {Editor} from '@here/xyz-maps-editor';
 import chaiAlmost from 'chai-almost';
 import dataset from './rangeselector_snap_overlap_spec.json';
+import {validateSegment} from './rangeselector_spec';
 
 describe('range selector: snapping and overlapping', () => {
     const expect = chai.expect;
@@ -78,7 +79,7 @@ describe('range selector: snapping and overlapping', () => {
             side: 'B'
         });
 
-        expect(info[0].segments[0]).to.deep.include({
+        validateSegment(info[0].segments[0], {
             from: 0.1,
             reversed: false,
             to: 0.752506506
@@ -120,7 +121,7 @@ describe('range selector: snapping and overlapping', () => {
             side: 'B'
         });
 
-        expect(info[0].segments[0]).to.deep.include({
+        validateSegment(info[0].segments[0], {
             from: 0.1,
             reversed: false,
             to: 0.752506506
@@ -132,7 +133,7 @@ describe('range selector: snapping and overlapping', () => {
             side: 'B'
         });
 
-        expect(info[1].segments[0]).to.deep.include({
+        validateSegment(info[1].segments[0], {
             from: 0.752506506,
             reversed: false,
             to: 0.9
@@ -162,7 +163,7 @@ describe('range selector: snapping and overlapping', () => {
             side: 'B'
         });
 
-        expect(info[0].segments[0]).to.deep.include({
+        validateSegment(info[0].segments[0], {
             from: 0.1,
             reversed: false,
             to: 0.752506506
@@ -204,7 +205,7 @@ describe('range selector: snapping and overlapping', () => {
             side: 'B'
         });
 
-        expect(info[0].segments[0]).to.deep.include({
+        validateSegment(info[0].segments[0], {
             from: 0.1,
             reversed: false,
             to: 0.752506506
@@ -216,7 +217,7 @@ describe('range selector: snapping and overlapping', () => {
             side: 'L'
         });
 
-        expect(info[1].segments[0]).to.deep.include({
+        validateSegment(info[1].segments[0], {
             from: 0.752506506,
             reversed: false,
             to: 0.9
@@ -246,7 +247,7 @@ describe('range selector: snapping and overlapping', () => {
             side: 'B'
         });
 
-        expect(info[0].segments[0]).to.deep.include({
+        validateSegment(info[0].segments[0], {
             from: 0.1,
             reversed: false,
             to: 0.752506506
@@ -288,7 +289,7 @@ describe('range selector: snapping and overlapping', () => {
             side: 'B'
         });
 
-        expect(info[0].segments[0]).to.deep.include({
+        validateSegment(info[0].segments[0], {
             from: 0.1,
             reversed: false,
             to: 0.752506506
@@ -300,7 +301,7 @@ describe('range selector: snapping and overlapping', () => {
             side: 'L'
         });
 
-        expect(info[1].segments[0]).to.deep.include({
+        validateSegment(info[1].segments[0], {
             from: 0.752506506,
             reversed: false,
             to: 0.9
@@ -331,7 +332,7 @@ describe('range selector: snapping and overlapping', () => {
             side: 'B'
         });
 
-        expect(info[0].segments[0]).to.deep.include({
+        validateSegment(info[0].segments[0], {
             from: 0.1,
             reversed: false,
             to: 0.485838614
@@ -373,7 +374,7 @@ describe('range selector: snapping and overlapping', () => {
             side: 'B'
         });
 
-        expect(info[0].segments[0]).to.deep.include({
+        validateSegment(info[0].segments[0], {
             from: 0.1,
             reversed: false,
             to: 0.552505587
@@ -385,7 +386,7 @@ describe('range selector: snapping and overlapping', () => {
             side: 'L'
         });
 
-        expect(info[1].segments[0]).to.deep.include({
+        validateSegment(info[1].segments[0], {
             from: 0.552505587,
             reversed: false,
             to: 0.9

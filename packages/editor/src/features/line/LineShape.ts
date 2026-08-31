@@ -22,6 +22,7 @@ import {Line} from './Line';
 import LineTools, {Coordinate} from './LineTools';
 import {dragFeatureCoordinate} from '../oTools';
 import {vec3} from '@here/xyz-maps-common';
+import {getAltitudeCapabilities, getOrSetShapeBehavior} from '../feature/shapeUtils';
 
 
 let lineTools: typeof LineTools;
@@ -32,16 +33,21 @@ type DefaultBehavior = {
     dragPlane?: [number, number, number] | 'XY'
 }
 
+
+const isAltitudeEditEnabled = (shape) => {
+    const line = shape.getLine();
+    const editor = line._e();
+    const lineInfo = shape.properties.LINE;
+    return lineInfo.usesTerrainAltitude ? editor.displayProvidesTerrain : lineInfo.usesAltitude;
+    // return editor.getStyleProperty(line, 'altitude');
+};
+
+
 export const defaultBehavior: DefaultBehavior = {
     'dragPlane': 'XY'
 };
 
 const EDITOR_NS = '@ns:com:here:editor';
-
-const getPrivateData = (shape: LineShape, prop?: string) => {
-    const data = shape.__ ||= {b: {...defaultBehavior}};
-    return prop ? data[prop] : data;
-};
 
 /**
  * The LineShape represents a shape-point / coordinate of a Line feature.
@@ -75,6 +81,7 @@ class LineShape extends Feature {
         y: number;
         z: number;
         button: number;
+        LINE: any
     };
 
     /** {@inheritdoc} */
@@ -89,8 +96,7 @@ class LineShape extends Feature {
 
     constructor(line: Line, coordinate: number[], lineStringIndex: number, index: number, zLayer: number, lTools: typeof LineTools) {
         lineTools = lTools;
-        const _editor = line._e();
-        const style = _editor.getResolvedStyle(line);
+
         super({
             type: 'Feature',
             properties: {
@@ -98,8 +104,9 @@ class LineShape extends Feature {
                 index,
                 'LINE': {
                     properties: line.prop(),
-                    style,
-                    zLayer
+                    style: line._e().getResolvedStyle(line),
+                    zLayer,
+                    ...getAltitudeCapabilities(line)
                 }
             },
             geometry: {
@@ -159,32 +166,7 @@ class LineShape extends Feature {
     };
 
     behavior(options?: any, value?: boolean) {
-        let behavior = getPrivateData(this, 'b');
-
-        switch (arguments.length) {
-        case 0:
-            return behavior;
-        case 1:
-            if (typeof options == 'string') {
-                // getter
-                return behavior[options];
-            }
-            break;
-        case 2:
-            const opt = {};
-            opt[options] = value;
-            options = opt;
-        }
-        // setter
-        behavior = {...behavior, ...options};
-
-        if (options.dragPlane) {
-            delete behavior.dragAxis;
-        } else if (options.dragAxis) {
-            delete behavior.dragPlane;
-        }
-
-        this.__.b = behavior;
+        return getOrSetShapeBehavior(this, arguments);
     }
 
     /**
@@ -330,7 +312,7 @@ class LineShape extends Feature {
         const editor = line._e();
         const coordinates = <Coordinate[][]>lineTools.getCoordinates(line);
         const lineStringCoordinates = coordinates[lineStringIndex];
-        const ignoreZ = !editor.getStyleProperty(line, 'altitude');
+        const ignoreZ = !isAltitudeEditEnabled(shape);
         const orgAltitude: number = lineStringCoordinates[index][2];
         const coord: number[] = shape.geometry.coordinates.slice(0, ignoreZ ? 2 : 3);
 

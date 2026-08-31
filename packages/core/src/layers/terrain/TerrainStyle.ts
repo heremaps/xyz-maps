@@ -16,8 +16,8 @@
  * SPDX-License-Identifier: Apache-2.0
  * License-Filename: LICENSE
  */
-import {AmbientLight, DirectionalLight, LayerStyle} from '../../styles/LayerStyle';
-import {Material, ModelStyle} from '../../styles/ModelStyle';
+import {AmbientLight, DirectionalLight, LayerStyle, Color} from '../../styles/LayerStyle';
+import {Material, ModelGeometry, ModelStyle} from '../../styles/ModelStyle';
 
 const DEFAULT_TERRAIN_LIGHT = [{
     type: 'ambient',
@@ -57,12 +57,12 @@ const createTerrainModelBuilder = (material) => ({id, properties}, zoom: number,
         geometries: [{
             position: properties.vertices,
             index: properties.indices,
-            normal: properties.normals || false
+            normal: properties.normals || false,
+            size: properties.size
             // uv: properties.uv
-        }]
+        } as ModelGeometry]
     };
 };
-
 
 /**
  * Configuration style for a 3D terrain tile layer.
@@ -74,10 +74,12 @@ const createTerrainModelBuilder = (material) => ({id, properties}, zoom: number,
  * of {@link TerrainTileLayerOptions}.
  */
 export class TerrainTileLayerStyle implements LayerStyle {
+    exaggeration: number;
     setTileSize(size: number) {
     };
 
     styleGroups: {};
+    colorSource?: { type: 'material' } | { type: 'solid', color: Color } | { type: 'layerBackground', layerId: string };
 
     /**
      * Creates a new instance of `TerrainTileLayerStyle`.
@@ -118,13 +120,64 @@ export class TerrainTileLayerStyle implements LayerStyle {
          * Defines the background color of the terrain layer, shown when terrain data is not fully loaded.
          */
         backgroundColor?: LayerStyle['backgroundColor']
+
+        /**
+         * Controls how the terrain surface is colored.
+         *
+         * The color source defines the base color (albedo) of the terrain mesh
+         * before lighting is applied.
+         *
+         * This property is independent of `backgroundColor`, which is only used
+         * when terrain data is missing or not yet rendered.
+         *
+         * ### Available modes
+         *
+         * - `{ type: 'material' }`
+         *   Uses the diffuse color defined by the terrain material.
+         *   This is the default behavior.
+         *
+         * - `{ type: 'solid', color }`
+         *   Uses a single, solid color for the entire terrain surface.
+         *   Lighting is still applied, but the base color is constant.
+         *
+         * - `{ type: 'layerBackground', layerId }`
+         *   Uses the background color of another layer as the terrain surface color.
+         *   Typically used when visual data from another layer is rendered offscreen
+         *   and projected onto the terrain.
+         *
+         *   If the referenced layer is not available or not yet rendered,
+         *   its `backgroundColor` is used as a fallback.
+         *
+         * @defaultValue `{ type: 'material' }`
+         */
+        colorSource?:
+            | { type: 'material' }
+            | { type: 'solid', color: Color }
+            | { type: 'layerBackground', layerId: string };
+
+        /**
+         * Specifies whether to display a wireframe for debugging purposes.
+         *
+         * - If set to `true`, the wireframe will be shown with an automatically inverted color
+         *   relative to the main color of the layer.
+         * - If set to a `Color`, the wireframe will be displayed in the specified color.
+         * - If set to `false`, the wireframe will not be shown.
+         *
+         * Default is `false`.
+         *
+         * @hidden
+         * @internal
+         */
+        showWireframe?: boolean | Color;
     }) = {}) {
         const lights = {};
         const material = style.material || {};
         let light = 'defaultTerrainLight';
         let tileSize = 512;
 
-        const exaggeration = style.exaggeration || 1;
+        const terrainStyle = this;
+
+        terrainStyle.exaggeration = style.exaggeration ?? 1;
 
         if (style.light) {
             light = 'terrainLight';
@@ -138,7 +191,7 @@ export class TerrainTileLayerStyle implements LayerStyle {
         };
 
 
-        const terrainStyle = {
+        const terrainFeatureStyle = {
             light,
             zIndex: 0,
             type: 'Terrain',
@@ -169,14 +222,14 @@ export class TerrainTileLayerStyle implements LayerStyle {
             lights,
             styleGroups: {
                 'TerrainModelMSH': [<ModelStyle><unknown>{
-                    ...terrainStyle,
+                    ...terrainFeatureStyle,
                     scale({properties}) {
                         const {quantizationRange} = properties;
                         const quantizationUnit = 1 / quantizationRange;
                         const xyScale = quantizationUnit * (tileSize);
                         // const zScale = (quantizedMaxHeight - quantizedMinHeight) / quantizationRange;
                         const zScale = properties.heightScale;
-                        return [xyScale, xyScale, -zScale * exaggeration];
+                        return [xyScale, xyScale, -zScale]; // * terrainStyle.exaggeration];
                     },
                     translate({properties}) {
                         return [
@@ -190,14 +243,14 @@ export class TerrainTileLayerStyle implements LayerStyle {
                     }
                 }],
                 'TerrainModelHM': [<ModelStyle><unknown>{
-                    ...terrainStyle,
+                    ...terrainFeatureStyle,
                     scale({properties}) {
                         const {quantizationRange} = properties;
                         const quantizationUnit = 1 / quantizationRange;
                         const xyScale = quantizationUnit * tileSize;
                         // const zScale = (quantizedMaxHeight - quantizedMinHeight) / quantizationRange;
                         const zScale = properties.heightScale;
-                        return [xyScale, xyScale, -zScale * exaggeration];
+                        return [xyScale, xyScale, -zScale]; //  * terrainStyle.exaggeration];
                         // return [xyScale, xyScale, -1.0 * exaggeration];
                     },
                     translate() {
@@ -212,5 +265,9 @@ export class TerrainTileLayerStyle implements LayerStyle {
                 return feature.properties.useHeightMap ? 'TerrainModelHM' : 'TerrainModelMSH';
             }
         });
+
+        this.colorSource = style.colorSource || {type: 'material'};
+
+        (this as LayerStyle).showWireframe = style.showWireframe;
     }
 }

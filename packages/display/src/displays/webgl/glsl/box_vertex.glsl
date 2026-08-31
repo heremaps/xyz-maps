@@ -11,7 +11,7 @@ uniform float u_scale;
 uniform mat4 u_matrix;
 uniform mat4 u_inverseMatrix;
 uniform float u_strokeWidth;
-uniform vec2 u_topLeft;
+uniform vec4 u_tile;
 uniform float u_rotation;
 uniform vec4 u_offset;
 uniform vec2 u_resolution;
@@ -59,11 +59,10 @@ void main(void) {
     #ifdef USE_HEIGHTMAP
     float z = getTerrainHeight( localTilePos );
     #else
-    float z = a_position.z * SCALE_UINT16_Z;
+    float z = a_position.z * SCALE_UINT16_Z * u_exaggeration;
     #endif
 
-
-    vec3 boxCenter = vec3(u_topLeft + localTilePos, z);
+    vec3 boxCenter = vec3(u_tile.xy + localTilePos, z);
     boxCenter += vec3(toPixel(u_offset.xy, u_scale), toPixel(u_offset.zw, u_scale), toPixel(u_offsetZ, u_scale) / u_zMeterToPixel) / u_scale;
 
     float scaleDZ = altitudeScaleFactor(boxCenter, u_matrix);

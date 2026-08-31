@@ -23,6 +23,7 @@ import {ModelData, Material} from '@here/xyz-maps-core';
 import {ObjParser} from '../ObjParser';
 import {vec3} from '@here/xyz-maps-common';
 import {TypedArray} from './glType';
+import {GraphicsDevice} from '../device/GraphicsDevice';
 
 class ModelTexture extends Texture {
     ref: number = 0;
@@ -44,7 +45,7 @@ interface MaterialUniforms extends Omit<Material, 'diffuseMap' | 'specularMap' |
     diffuseMap?: ModelTexture | string;
     specularMap?: ModelTexture | string;
     normalMap?: ModelTexture | string;
-    u_textureSize?: number[];
+    // u_textureSize?: number[];
 }
 
 type ModelTextures = {
@@ -55,17 +56,17 @@ class ModelFactory {
     // false means the model has already been processed and is invalid, preventing further processing.
     private models: { [id: string]: Model | false } = {};
     private unusedTexture: ModelTexture;
-    private gl: WebGLRenderingContext;
     private onBufferDestroyed: (buffer) => void;
     private objParser: ObjParser;
     private unusedNormalTexture: ModelTexture;
+    private device: GraphicsDevice;
 
-    constructor(gl: WebGLRenderingContext) {
-        const unusedTexture = new ModelTexture(gl, {width: 1, height: 1, data: new Uint8Array([255, 255, 255, 255])});
+    constructor(device: GraphicsDevice) {
+        const unusedTexture = new ModelTexture(device, {width: 1, height: 1, data: new Uint8Array([255, 255, 255, 255])});
         unusedTexture.ref = Infinity;
         this.unusedTexture = unusedTexture;
 
-        const unusedNormalTexture = new ModelTexture(gl, {
+        const unusedNormalTexture = new ModelTexture(device, {
             width: 1,
             height: 1,
             data: new Uint8Array([127, 127, 255, 255])
@@ -73,7 +74,7 @@ class ModelFactory {
         unusedNormalTexture.ref = Infinity;
         this.unusedNormalTexture = unusedNormalTexture;
 
-        this.gl = gl;
+        this.device = device;
 
         this.onBufferDestroyed = (buffer) => {
             if (buffer.attributes.a_position.ref === 0) {
@@ -101,7 +102,7 @@ class ModelFactory {
     private initTexture(name: string, imgData: ImageData, textures: ModelTextures, options?: TextureOptions) {
         let texture = textures[name];
         if (!texture) {
-            texture = new ModelTexture(this.gl, imgData, options);
+            texture = new ModelTexture(this.device, imgData, options);
             textures[name] = texture;
         }
         return texture;
@@ -157,14 +158,15 @@ class ModelFactory {
                 const bbox = (geom.bbox ||= ModelBuffer.calcBBox(geom));
                 const uniforms: MaterialUniforms = material;
 
+                const gl = this.device.gl;
 
                 for (let key in material) {
                     if (key.endsWith('Map')) {
                         const textureName = uniforms[key];
                         let imgData = imgTexData[textureName];
                         let wrap = material.wrap;
-                        let wrapS: GLenum = this.gl.REPEAT;
-                        let wrapT: GLenum = this.gl.REPEAT;
+                        let wrapS: GLenum = gl.REPEAT;
+                        let wrapT: GLenum = gl.REPEAT;
 
                         if (typeof wrap == 'string') {
                             wrap = [wrap, wrap];
@@ -172,10 +174,10 @@ class ModelFactory {
 
                         if (Array.isArray(wrap)) {
                             [wrapS, wrapT] = wrap.map((w) => w == 'clamp'
-                                ? this.gl.CLAMP_TO_EDGE
+                                ? gl.CLAMP_TO_EDGE
                                 : w == 'mirror'
-                                    ? this.gl.MIRRORED_REPEAT
-                                    : this.gl.REPEAT
+                                    ? gl.MIRRORED_REPEAT
+                                    : gl.REPEAT
                             );
                         }
 
@@ -188,11 +190,11 @@ class ModelFactory {
                     }
                 }
 
-                const diffuseMap = uniforms.diffuseMap as ModelTexture;
-                if (!uniforms.useUVMapping && diffuseMap) {
-                    const uvScale = material.uvScale || 1;
-                    uniforms.u_textureSize = [diffuseMap.width * uvScale, diffuseMap.height * uvScale];
-                }
+                // const diffuseMap = uniforms.diffuseMap as ModelTexture;
+                // if (!uniforms.useUVMapping && diffuseMap) {
+                //     const uvScale = material.uvScale || 1;
+                //     uniforms.u_textureSize = [diffuseMap.width * uvScale, diffuseMap.height * uvScale];
+                // }
 
                 // cleanup to be used as uniforms
                 delete uniforms.mode;

@@ -28,6 +28,8 @@ import {triggerEvent} from './triggerEvent';
 import InternalEditor from '../../IEditor';
 import {Navlink} from '../link/Navlink';
 import {Location} from './Location';
+import {Place} from './Place';
+import {Address} from './Address';
 import {Feature, GeoJSONCoordinate} from '@here/xyz-maps-core';
 import LocationTools from './LocationTools';
 import {EditOperation} from '../../API/EditorOptions';
@@ -41,13 +43,13 @@ class NvtRoutingPoint {
     rpFeature: Feature;
     cLink: Navlink;
     streetLine: Feature;
-    location: Location;
+    location: Place | Address;
     routingPoint: number[];
 
     private ignoreZ: boolean;
     private dragged: boolean;
 
-    constructor(location: Location, _locTools, lnkTools) {
+    constructor(location: Place | Address, _locTools, lnkTools) {
         linkTools = lnkTools;
         locTools = _locTools;
 

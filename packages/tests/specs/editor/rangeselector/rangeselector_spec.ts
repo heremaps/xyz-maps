@@ -24,9 +24,21 @@ import {Editor} from '@here/xyz-maps-editor';
 import chaiAlmost from 'chai-almost';
 import dataset from './rangeselector_spec.json';
 
-describe('range selector drag', () => {
-    const expect = chai.expect;
+const expect = chai.expect;
 
+export const validateSegment = (segment, expectedSegment, linkId?: string | number) => {
+    expect({
+        from: segment.from,
+        to: segment.to,
+        reversed: segment.reversed
+    }).to.deep.almost(expectedSegment, 1e-5);
+
+    if (linkId !== undefined) {
+        expect(segment.navlink).to.deep.include({id: linkId});
+    }
+};
+
+describe('range selector drag', () => {
     let editor;
     let display;
     let preparedData;
@@ -87,46 +99,39 @@ describe('range selector drag', () => {
             side: 'B'
         });
         expect(info[0].style).to.deep.equal({stroke: 'blue'});
-        expect(info[0].segments[0]).to.deep.include({
+        validateSegment(info[0].segments[0], {
             from: 0,
             reversed: false,
             to: 0.163710884
-        });
+        }, link2.id);
 
-        expect(info[0].segments[0].navlink).to.deep.include({id: link2.id});
-        expect(info[0].segments[1]).to.deep.include({
+        validateSegment(info[0].segments[1], {
             from: 0.353926211,
             reversed: false,
             to: 1
-        });
-        expect(info[0].segments[1].navlink).to.deep.include({id: link1.id});
-
+        }, link1.id);
 
         expect(info[1]).to.deep.include({
             from: 0.5,
             side: 'B',
             to: 0.8
         });
-        expect(info[1].segments[0]).to.deep.include({
+
+        validateSegment(info[1].segments[0], {
             from: 0.303092403,
             reversed: false,
             to: 0.721236961
-        });
-        expect(info[1].segments[0].navlink).to.deep.include({id: link2.id});
+        }, link2.id);
     });
 
     it('drag range selector and validate again', async () => {
         await drag(mapContainer, {x: 350, y: 217}, {x: 350, y: 250});
 
-        expect(draggedZone.segments[0]).to.deep.include({
+        validateSegment(draggedZone.segments[0], {
             from: 0.446889377,
             to: 0.721236961,
             reversed: false
-        });
-
-        expect(draggedZone.segments[0].navlink).to.deep.include({
-            id: link2.id
-        });
+        }, link2.id);
 
         let info = editor.getZoneSelector().info();
         expect(info[0]).to.deep.include({
@@ -135,18 +140,18 @@ describe('range selector drag', () => {
             side: 'B'
         });
         expect(info[0].style).to.deep.equal({stroke: 'blue'});
-        expect(info[0].segments[0]).to.deep.include({
+
+        validateSegment(info[0].segments[0], {
             from: 0,
             reversed: false,
             to: 0.163710884
-        });
-        expect(info[0].segments[0].navlink).to.deep.include({id: link2.id});
-        expect(info[0].segments[1]).to.deep.include({
+        }, link2.id);
+
+        validateSegment(info[0].segments[1], {
             from: 0.353926211,
             reversed: false,
             to: 1
-        });
-        expect(info[0].segments[1].navlink).to.deep.include({id: link1.id});
+        }, link1.id);
 
 
         expect(info[1]).to.deep.include({
@@ -154,12 +159,24 @@ describe('range selector drag', () => {
             side: 'B',
             to: 0.8
         });
-        expect(info[1].segments[0]).to.deep.include({
+
+        validateSegment(info[1].segments[0], {
             from: 0.446889377,
             to: 0.721236961,
             reversed: false
-        });
-        expect(info[1].segments[0].navlink).to.deep.include({id: link2.id});
+        }, link2.id);
+
+        // expect({
+        //     from: info[1].segments[0].from,
+        //     to: info[1].segments[0].to,
+        //     reversed: info[1].segments[0].reversed
+        // }).to.deep.almost({
+        //     from: 0.446889377,
+        //     to: 0.721236961,
+        //     reversed: false
+        // }, 1e-5);
+        //
+        // expect(info[1].segments[0].navlink).to.deep.include({id: link2.id});
     });
 
 

@@ -27,6 +27,7 @@ export class ExtrudeBuffer extends PolygonBuffer {
         'a_position': FlexAttribute,
         'a_normal': FlexAttribute
     };
+    extrudeStrokeIndex: number[];
 
     constructor() {
         super(false, false);

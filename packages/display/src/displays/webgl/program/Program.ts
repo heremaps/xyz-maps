@@ -16,12 +16,9 @@
  * SPDX-License-Identifier: Apache-2.0
  * License-Filename: LICENSE
  */
-
-import {createProgram, positionGLSLVersion, preprocessShaderIncludes} from '../glTools';
-import {GLStates, PASS} from './GLStates';
-import {createWebGLInstancing, WebGLInstancing} from '../GLInstancing';
-import {GLExtensions} from '../GLExtensions';
-import {VAOManager} from '../VAOManager';
+import {Color} from '@here/xyz-maps-common';
+import {createProgram, hoistGLSLVersionDirective, logGLRenderState, preprocessShaderIncludes} from '../glTools';
+import {GLStates} from './GLStates';
 
 // @ts-ignore
 import introVertex from '../glsl/intro_vertex.glsl';
@@ -32,17 +29,24 @@ import utilsGLSL from '../glsl/utils.glsl';
 import {
     ArrayDrawCmd,
     DynamicUniform,
-    GeometryBuffer,
-    IndexData,
     ElementsDrawCmd,
+    GeometryBuffer,
+    HeightMapReference,
+    IndexData,
     Uniform
 } from '../buffer/GeometryBuffer';
-import {BufferCache, ViewUniforms} from '../GLRender';
+import {BufferCache, ProgramContext, ViewUniforms} from '../GLRender';
 import {Attribute} from '../buffer/Attribute';
 import {ConstantAttribute} from '../buffer/templates/TemplateBuffer';
 import {Texture} from '../Texture';
 import {HeightMapTileCache} from '../HeightMapTileCache';
-import {UniformBlockInstance, UniformBlockLayout, UniformFieldLayout, std140Types} from '../UniformBlock';
+import {std140Types, UniformBlockLayout, UniformFieldLayout} from '../UniformBlock';
+import {RenderTile, RenderTileTarget} from '../RenderTile';
+import {IRenderTarget, ScreenRenderTarget} from '../RenderTarget';
+import {BlendFactor, GraphicsDevice} from '../device/GraphicsDevice';
+import {PASS, RenderPass} from '../RenderPass';
+import {RenderState} from '../RenderState';
+import {TerrainOcclusionMode} from '../buffer/TerrainRenderPolicy';
 
 const GLSL_INCLUDES = {
     'light.glsl': lightGLSL,
@@ -75,32 +79,88 @@ export type ColorMask = {
     a: boolean
 };
 
-export type ProgramMacros = { [name: string]: string | number | boolean };
+// Every program macro occupies a unique bit because variant masks are OR-combined.
+export const PROGRAM_MACRO = {
+    TERRAIN_OCCLUSION: 1 << 0,
+    DIFFUSE: 1 << 1,
+    SPECULAR: 1 << 2,
+    NORMAL_MAP: 1 << 3,
+    DASH_ARRAY: 1 << 4,
+    DASH_PATTERN: 1 << 5,
+    DASH_TEXTURE: 1 << 6,
+    USE_HEIGHTMAP: 1 << 7,
+    TERRAIN_MODEL_HM: 1 << 8,
+    OVERLAY_MAP: 1 << 9,
+    TERRAIN_LIGHTING_FRAGMENT: 1 << 10,
+    DBG_GRID: 1 << 11,
+    SPHERE: 1 << 12
+} as const;
+
+export type ProgramMacroName = keyof typeof PROGRAM_MACRO;
+
+export type ProgramMacros = {
+    -readonly [Name in ProgramMacroName]?: typeof PROGRAM_MACRO[Name]
+};
+
+type ShaderMacros = {
+    [name: string]: number | string
+};
+
+export type ProgramInitOptions = {
+    screenTarget: ScreenRenderTarget;
+    buffers: BufferCache;
+    ubos?: unknown;
+    [key: string]: unknown;
+};
+
+/**
+ * Depth bias (in polygon offset units) applied to heightmapped point features
+ * while hardware depth testing is active. It keeps them above the terrain
+ * surface without preventing terrain geometry at significantly different
+ * depths from occluding them.
+ */
+const TERRAIN_SURFACE_DEPTH_BIAS = -(1 << 11);
 
 class Program {
     protected vertexShaderSrc: string;
     protected fragmentShaderSrc: string;
     protected framebuffer: WebGLFramebuffer;
     private colorMask: ColorMask;
-    private glInstancing: WebGLInstancing;
-    private vaoManager: VAOManager;
     activeAttributes: number;
     private uniformBufferObjects: any[];
 
     // static _noMacros = {};
-    static getMacros(buffer: GeometryBuffer): {
-        [name: string]: string | number | boolean
-    } {
+    protected screenTarget: ScreenRenderTarget;
+    private readonly defaultHeightMapTransform: Float32Array = new Float32Array([0, 0, 1]);
+
+    static getMacros(buffer: GeometryBuffer, useTerrainOcclusion = true): ProgramMacros {
+        let macros: ProgramMacros;
         if (buffer.heightMapRef) {
-            return {USE_HEIGHTMAP: 128};
+            macros = {USE_HEIGHTMAP: PROGRAM_MACRO.USE_HEIGHTMAP};
         }
-        return null;
+        if (useTerrainOcclusion && buffer.terrainOcclusion === TerrainOcclusionMode.TERRAIN) {
+            macros ||= {};
+            macros.TERRAIN_OCCLUSION = PROGRAM_MACRO.TERRAIN_OCCLUSION;
+        }
+        return macros;
     }
 
-    static getProgramId(buffer: GeometryBuffer, macros?: {
-        [name: string]: string | number | boolean
-    }) {
-        return buffer.type;
+    static getMacroMask(macros?: ProgramMacros): number {
+        let mask = 0;
+        if (macros) {
+            // Compile-time macro values are numeric bit flags.
+            for (const name in macros) {
+                mask |= macros[name as ProgramMacroName] || 0;
+            }
+        }
+        return mask;
+    }
+
+    static getProgramId(buffer: GeometryBuffer, macros?: ProgramMacros) {
+        const macroMask = Program.getMacroMask(macros);
+        return macroMask
+            ? buffer.type + macroMask
+            : buffer.type;
     }
 
     prog: WebGLProgram;
@@ -119,7 +179,7 @@ class Program {
     private buffers: BufferCache;
 
     protected glStates: GLStates;
-    private uniformSetters = {};
+    protected uniformSetters: { [uniform: string]: (v: any) => void } = {};
     protected mode: number; // gl.POINTS;
 
     private dpr: number; // devicepixelratio
@@ -130,26 +190,23 @@ class Program {
 
     private terrainPreviewMaxTiles = 8;
 
-    private macros: {
-        [name: string]: string | number | boolean
-    } = {
-            'M_PI': 3.1415927410125732
-        };
+    private macros: ShaderMacros = {
+        'M_PI': 3.1415927410125732
+    };
 
     // Parsed from shader source (WebGL2 only); empty in WebGL1
     uniformBlocks?: UniformBlockLayout[];
 
     constructor(
-        gl: WebGLRenderingContext,
+        protected readonly device: GraphicsDevice,
         // mode: number,
         // vertexShader: string,
         // fragmentShader: string,
         devicePixelRation: number,
-        macros?: {
-            [name: string]: string | number | boolean
-        },
+        macros?: ProgramMacros,
         mode?: number
     ) {
+        const gl = device.gl;
         this.dpr = devicePixelRation;
         this.usage = gl.STATIC_DRAW;
 
@@ -162,20 +219,18 @@ class Program {
         this.glStates = new GLStates({scissor: true, blend: false, depth: true});
     }
 
-    init(
-        buffers: BufferCache,
-        glExt: GLExtensions,
-        vaoManager: VAOManager,
-        ubos?
-    ) {
+    init(options: ProgramInitOptions) {
+        this.screenTarget = options.screenTarget;
+        if (this.screenTarget.depthSnapshotFormat === 'rgba') {
+            this.macros.TERRAIN_DEPTH_RGBA = 1;
+        }
         this.compile(this.vertexShaderSrc, this.fragmentShaderSrc, this.macros);
 
-        this.setBufferCache(buffers);
+        this.setBufferCache(options.buffers);
 
-        this.glInstancing = createWebGLInstancing(this.gl, glExt);
-        this.vaoManager = vaoManager;
+        this.initializeUBOs(options.ubos);
 
-        this.initializeUBOs(ubos);
+        this.ensureExtensions();
     }
 
 
@@ -228,7 +283,7 @@ class Program {
         const program = this.prog;
 
         // Ensure the program is active before setting UBO bindings
-        gl.useProgram(program);
+        this.device.useProgram(this);
 
         // Parse the shader sources to find uniform blocks
         this.uniformBlocks?.forEach((block) => {
@@ -283,6 +338,11 @@ class Program {
 
         gl.bindBuffer(gl.ARRAY_BUFFER, buf);
 
+        // let err = gl.getError();
+        // if (err === gl.INVALID_OPERATION) {
+        //     throw new Error('WebGL bindBuffer: Invalid Operation');
+        // }
+
         if (attr.dirty) {
             attr.dirty = false;
             gl.bufferData(gl.ARRAY_BUFFER, attr.data, attr.dynamic ? gl.DYNAMIC_DRAW : gl.STATIC_DRAW);
@@ -320,9 +380,8 @@ class Program {
                 const tu = this.texUnitCount++;
                 return (v) => {
                     gl.uniform1i(location, tu);
-                    gl.activeTexture(gl.TEXTURE0 + tu);
-                    v?.bind();
-                    // gl.bindTexture(gl.TEXTURE_2D, v?.texture);
+                    // gl.activeTexture(gl.TEXTURE0 + tu);
+                    v?.bind(tu);
                 };
             }
             const baseUnit = this.texUnitCount;
@@ -336,8 +395,8 @@ class Program {
             return (textures: Texture[]) => {
                 const count = textures.length;
                 for (let i = 0; i < count; i++) {
-                    gl.activeTexture(gl.TEXTURE0 + maxUnits[i]);
-                    textures[i]?.bind();
+                    // gl.activeTexture(gl.TEXTURE0 + maxUnits[i]);
+                    textures[i]?.bind(maxUnits[i]);
                 }
                 gl.uniform1iv(location, maxUnits);
                 // gl.uniform1iv(location, maxUnits.subarray(0, count));
@@ -347,9 +406,7 @@ class Program {
         return () => console.warn('setting uniform not supported', uInfo, location);
     }
 
-    private buildSource(vertexShader: string, fragmentShader: string, macros?: {
-        [name: string]: any
-    }): string[] {
+    private buildSource(vertexShader: string, fragmentShader: string, macros?: ShaderMacros): string[] {
         const prog = this;
 
         macros = {...prog.macros, DEVICE_PIXEL_RATIO: prog.dpr.toFixed(1), ...macros};
@@ -358,16 +415,61 @@ class Program {
         for (let name in macros) {
             macroSrc += `#define ${name} ${macros[name]}\n`;
         }
+        const vertexMacroSrc = `${macroSrc}#define XYZ_VERTEX_SHADER 1\n`;
+        const fragmentMacroSrc = `${macroSrc}#define XYZ_FRAGMENT_SHADER 1\n`;
+
+        const insertIntroVertex = (src: string, intro: string): string => {
+            // Find insertion point: after the initial "header" block consisting of
+            // #version, #extension, #pragma, #line and blank lines.
+            // This avoids breaking WebGL rules where #version must be first and
+            // #extension must appear before any non-preprocessor tokens.
+            let i = 0;
+            let insertAt = 0;
+
+            while (i < src.length) {
+                const lineStart = i;
+                let lineEnd = src.indexOf('\n', i);
+                if (lineEnd === -1) lineEnd = src.length;
+                const line = src.slice(lineStart, lineEnd);
+                const trimmed = line.trim();
+                // if (trimmed.length === 0) {// Keep leading blank lines as part of the header.
+                //     insertAt = lineEnd; } else
+                if (trimmed.startsWith('#')) {
+                    // Allow only directives that are safe/required at the top.
+                    // Keep them grouped together before intro.
+                    if (/^\s*#\s*(version|extension|pragma|line)\b/.test(line)) {
+                        insertAt = lineEnd;
+                    } else {
+                        // Any other preprocessor directive: still keep it in the header
+                        // to avoid changing meaning.
+                        insertAt = lineEnd;
+                    }
+                } else {
+                    // First real token: stop. Insert right before this line.
+                    insertAt = lineStart;
+                    break;
+                }
+                i = lineEnd + 1;
+                if (lineEnd === src.length) break;
+            }
+            // Ensure we insert on a line boundary.
+            const needsTrailingNl = insertAt > 0 && src[insertAt - 1] !== '\n';
+            const prefix = src.slice(0, insertAt) + (needsTrailingNl ? '\n' : '');
+            const suffix = src.slice(insertAt);
+            return `${prefix}\n${intro}\n${suffix}`;
+        };
+
+
+        const vertexProcessed = preprocessShaderIncludes(vertexShader, GLSL_INCLUDES);
+        const fragmentProcessed = preprocessShaderIncludes(fragmentShader, GLSL_INCLUDES);
 
         return [
-            preprocessShaderIncludes(macroSrc + introVertex + vertexShader, GLSL_INCLUDES),
-            preprocessShaderIncludes(macroSrc + fragmentShader, GLSL_INCLUDES)
-        ].map(positionGLSLVersion);
+            insertIntroVertex(vertexProcessed, vertexMacroSrc + introVertex),
+            hoistGLSLVersionDirective(fragmentMacroSrc + fragmentProcessed)
+        ]; // .map(positionGLSLVersion);
     }
 
-    protected compile(vertexShader: string, fragmentShader: string, macros?: {
-        [name: string]: any
-    }) {
+    protected compile(vertexShader: string, fragmentShader: string, macros?: ShaderMacros) {
         const {gl} = this;
 
         const [vertexSrc, fragSrc] = this.buildSource(vertexShader, fragmentShader, macros || {});
@@ -393,22 +495,10 @@ class Program {
 
         this.uniformBlocks = this.getUniformBlocksFromShader(vertexSrc);
 
-
-        // for (let block of this.uniformBlocks) {
-        //     for (let uniformField of block.fields) {
-        //
-        //     }
-        //     console.log('Detected UBO in program', this.name, ':', block.name, 'size:', block.size, 'fields:', block.fields);
-        //     debugger;
-        // }
-
-
         // this.uniformBufferObjects = this.initializeUBOs(vertexSrc);
 
         // setup uniforms
         let activeUniforms = gl.getProgramParameter(glProg, gl.ACTIVE_UNIFORMS);
-
-        console.log('----', this.name, this.uniformBlocks);
 
         for (let u = 0; u < activeUniforms; u++) {
             const uInfo = gl.getActiveUniform(glProg, u);
@@ -472,7 +562,13 @@ class Program {
         }
     }
 
-    initViewUniforms(displayUniforms: ViewUniforms) {
+    initViewUniforms(_displayUniforms: ViewUniforms, isOffscreenPass = false) {
+        if (this.macros.TERRAIN_OCCLUSION && !isOffscreenPass) {
+            const terrainDepth = this.screenTarget?.getDepthTexture();
+            if (terrainDepth) {
+                this.initUniform('u_terrainDepth', terrainDepth);
+            }
+        }
     }
 
     private setConstantAttributeValue(location: number, value: number[]) {
@@ -495,7 +591,7 @@ class Program {
 
     initBufferAttributes(geometryBuffer: GeometryBuffer, groupIndex: number) {
         const bufAttributes = geometryBuffer.getAttributes();
-        const {vaoManager} = this;
+        const {vaoManager} = this.device;
 
         const group = geometryBuffer.groups[groupIndex];
         const vao = group.vao;
@@ -576,10 +672,9 @@ class Program {
                     stride, // stride, num bytes to advance to get to next set of values
                     offset + i * size * bytesPerElement
                 );
-                // this.glExtAngleInstancedArrays?.vertexAttribDivisorANGLE(location, Number(instanced));
                 attributeDivisors[location] = attributeDivisor;
                 if (instanced) {
-                    this.glInstancing.vertexAttribDivisor(location, 1);
+                    this.device.instancing.vertexAttribDivisor(location, 1);
                 }
             }
         }
@@ -621,41 +716,20 @@ class Program {
         return true;
     }
 
-    initPass(pass: PASS, buffer: GeometryBuffer) {
-        const passed = Boolean(pass & buffer.pass);
-        if (passed) {
-            this.bindFramebuffer(null);
-        }
+    isPassRequired(activePass: PASS, itemPassMask: PASS): boolean {
+        const passed = Boolean(activePass & itemPassMask);
+
+        if (!passed) debugger;
+
         return passed;
     }
 
     protected dbgGLState(geoBuffer) {
-        const {gl} = this;
-        const glEnums = (this as any).__dbgGlEnums ||= ((glEnums) => {
-            for (let func of [
-                'NEVER', 'LESS', 'LEQUAL', 'GREATER', 'GEQUAL', 'EQUAL', 'NOTEQUAL', 'ALWAYS',
-                'KEEP', 'ZERO', 'REPLACE', 'INCR', 'INCR_WRAP', 'DECR', 'DECR_WRAP', 'INVERT'
-            ]) glEnums[gl[func]] = func;
-            return glEnums;
-        })({});
-
-        console.table([{
-            // 'p': geoBuffer.p,
+        logGLRenderState(this.gl, {
             'TYPE (ID)': `${this.name} ${geoBuffer.id || null}`,
-            'PASS': this._pass,
-            'SCISSOR_TEST': gl.getParameter(gl.SCISSOR_TEST) ? `${gl.getParameter(gl.SCISSOR_BOX)}` : false,
-            'STENCIL_TEST': gl.getParameter(gl.STENCIL_TEST) ? `${glEnums[gl.getParameter(gl.STENCIL_FUNC)]} ${gl.getParameter(gl.STENCIL_REF)}` : false,
-            'STENCIL': `${glEnums[gl.getParameter(gl.STENCIL_FAIL)]}-${glEnums[gl.getParameter(gl.STENCIL_PASS_DEPTH_FAIL)]}-${glEnums[gl.getParameter(gl.STENCIL_PASS_DEPTH_PASS)]}`,
-            'BLEND': gl.getParameter(gl.BLEND),
-            'BLEND_SRC RGB A': `${gl.getParameter(gl.BLEND_SRC_RGB)} ${gl.getParameter(gl.BLEND_SRC_ALPHA)}`,
-            'BLEND_DST RGB A': `${gl.getParameter(gl.BLEND_DST_RGB)} ${gl.getParameter(gl.BLEND_DST_ALPHA)}`,
-            'COLOR_WRITEMASK': `[${gl.getParameter(gl.COLOR_WRITEMASK).map((a) => Number(a))}]`,
-            'DEPTH_TEST': gl.getParameter(gl.DEPTH_TEST) ? `${glEnums[gl.getParameter(gl.DEPTH_FUNC)]}` : false,
-            'DEPTH_WRITEMASK': gl.getParameter(gl.DEPTH_WRITEMASK),
-            // 'DEPTH_RANGE Near': gl.getParameter(gl.DEPTH_RANGE)[0],
-            // 'DEPTH_RANGE Far': gl.getParameter(gl.DEPTH_RANGE)[1]
-            'FB': gl.getParameter(gl.FRAMEBUFFER_BINDING)
-        }]);
+            'PASS': this._pass
+        }/* , this.prog*/);
+        console.log(geoBuffer);
     }
 
     draw(geoBuffer: GeometryBuffer, isPreview?: boolean) {
@@ -663,6 +737,7 @@ class Program {
         const {groups, instances} = geoBuffer;
 
         // if (this.name == 'Line' || this.name == 'Image'){
+        // if (this.name === 'Extrude') {
         //     this.dbgGLState(geoBuffer);
         // }
 
@@ -682,7 +757,7 @@ class Program {
                 const type = index.type;
 
                 if (instances) {
-                    this.glInstancing.drawElementsInstanced(mode, count, type, 0, instances);
+                    this.device.instancing.drawElementsInstanced(mode, count, type, 0, instances);
                 } else {
                     gl.drawElements(mode, count, type, 0);
                 }
@@ -691,13 +766,12 @@ class Program {
                 const count = (<ArrayDrawCmd>grp).arrays.count;
 
                 if (instances) {
-                    this.glInstancing.drawArraysInstanced(mode, first, count, instances);
+                    this.device.instancing.drawArraysInstanced(mode, first, count, instances);
                 } else {
                     gl.drawArrays(mode, first, count);
                 }
             }
         }
-        // this.vaoManager.bindVAO(null);
     };
 
     private toggleCapability(glCapability: GLenum, enable: boolean) {
@@ -706,60 +780,30 @@ class Program {
     };
 
     protected blendFunc(
-        sFactor: number = this.gl.ONE,
-        dFactor: number = this.gl.ONE_MINUS_SRC_ALPHA
+        sFactor: number = BlendFactor.ONE,
+        dFactor: number = BlendFactor.ONE_MINUS_SRC_ALPHA
     ) {
-        this.gl.blendFunc(sFactor, dFactor);
+        this.device.setBlendFunc(sFactor, dFactor);
     }
 
-    configureRenderState(geoBuffer: GeometryBuffer, pass: PASS, zIndex?: number) {
-        const prog = this;
-        const {gl, glStates} = prog;
-
+    configureRenderState(renderItem: RenderTile, pass: PASS) {
+        const geoBuffer = renderItem.buffer;
         this._pass = pass;
-
-        // overwrite with custom gl-states
-        const blend = geoBuffer.blend ?? glStates.blend;
-        const depth = geoBuffer.depth ?? glStates.depth;
-        const stencil = geoBuffer.clip ?? glStates.scissor;
-        const {scissorBox} = geoBuffer;
-        const scissor = !!scissorBox;
-
-        if (scissorBox) {
-            gl.scissor(scissorBox[0], scissorBox[1], scissorBox[2], scissorBox[3]);
-        }
-
-        prog.toggleCapability(gl.SCISSOR_TEST, scissor);
-        prog.toggleCapability(gl.BLEND, blend);
-        prog.toggleCapability(gl.DEPTH_TEST, depth);
-        prog.toggleCapability(gl.STENCIL_TEST, stencil);
-
-        this.blendFunc();
 
         const cullFace = geoBuffer.cullFace();
 
+        this.device.setCullFaceEnabled(!!cullFace);
         if (cullFace) {
-            gl.cullFace(cullFace);
-        }
-        prog.toggleCapability(gl.CULL_FACE, !!cullFace);
-
-
-        if (geoBuffer.depthMask != null) {
-            gl.depthMask(geoBuffer.depthMask);
+            this.device.setCullFace(cullFace);
         }
 
-        const colorMask = geoBuffer.colorMask || this.colorMask;
-        if (colorMask != null) {
-            gl.colorMask(colorMask.r, colorMask.g, colorMask.b, colorMask.a);
-        }
-
-        gl.disable(gl.POLYGON_OFFSET_FILL);
+        this.device.applyPolygonOffsetState(false);
     }
 
     disableAttributes(newProgramMaxAttr: number) {
         // With VAOs, attribute enable/disable state is stored in the VAO,
         // so manually disabling here is unnecessary (and can be counterproductive).
-        if (this.vaoManager.isVAOSupported) return;
+        if (this.device.vaoManager.isVAOSupported) return;
 
         const {attributeLocations, attributeDivisors, gl} = this;
         // can be optimised to just disable unused attributes.
@@ -770,7 +814,7 @@ class Program {
             while (length--) {
                 let i = index + length;
                 if (attributeDivisors[i]) {
-                    this.glInstancing.vertexAttribDivisor(i, 0);
+                    this.device.instancing.vertexAttribDivisor(i, 0);
                     attributeDivisors[i] = 0;
                 }
                 gl.disableVertexAttribArray(i);
@@ -782,16 +826,7 @@ class Program {
         this.gl.deleteProgram(this.prog);
     }
 
-    bindFramebuffer(
-        fb: WebGLFramebuffer | null = this.framebuffer,
-        width: number = this.gl.canvas.width,
-        height: number = this.gl.canvas.height
-    ) {
-        this.gl.bindFramebuffer(this.gl.FRAMEBUFFER, fb);
-        this.gl.viewport(0, 0, width, height);
-    }
-
-    setResolution(resolution: readonly number[]) {
+    setContext(context: ProgramContext) {
 
     }
 
@@ -808,34 +843,46 @@ class Program {
      * Initializes the terrain heightmap for the given GeometryBuffer.
      * Binds heightmap textures and sets related uniforms for the shader programs.
      */
-    initHeightMap(geomBuffer: GeometryBuffer, heightMapTextures: HeightMapTileCache) {
-        const start = performance.now();
+    initHeightMap(geomBuffer: GeometryBuffer, heightMapTextures: HeightMapTileCache, exaggeration: number = 1) {
         if (!geomBuffer.heightMapRef && !geomBuffer.heightMap) {
             return;
         }
 
         let tileSize = heightMapTextures.tileSize;
         let heightMapSize: number;
+        let padding = heightMapTextures.padding;
 
         if (geomBuffer.heightMap) {
+            padding = geomBuffer.heightMap.padding ?? padding;
             heightMapSize = geomBuffer.heightMap.size;
             // Handle case when geomBuffer is a TerrainGeometryBuffer with a direct heightMap
             // HeightMap is already set in uniforms -> no further action required here.
         } else {
-            if (typeof geomBuffer.heightMapRef === 'string') {
-                // terrain data from same tile is available
-                const terrainQuadkey: string = geomBuffer.heightMapRef;
-                let heightMapTexture: Texture = heightMapTextures.get(terrainQuadkey)?.texture;
+            const ref = geomBuffer.heightMapRef;
+            if (ref && typeof ref === 'object') {
+                const heightMapData = geomBuffer.resolvedHeightMap;
+                let heightMapTexture: Texture = heightMapData?.texture;
+                padding = heightMapData?.padding ?? padding;
+
                 if (!heightMapTexture) {
                     heightMapTexture = heightMapTextures.getEmptyTexture();
                     tileSize = heightMapTexture.width - heightMapTextures.tilePadding;
                 }
+
                 heightMapSize = heightMapTexture.width;
                 this.initUniform('uHeightMap', heightMapTexture);
             }
         }
 
-        this.gl.uniform2f(this.getUniformLocation('uHeightMapTileSize'), heightMapSize, tileSize);
+        // Prefer the per-frame resolved transform: it matches the heightmap that was
+        // actually bound, including the case where the resolve fell back to an ancestor.
+        const ref = geomBuffer.heightMapRef as HeightMapReference;
+        const heightMapTransform = geomBuffer.resolvedHeightMapTransform !== undefined
+            ? geomBuffer.resolvedHeightMapTransform
+            : ref?.transform;
+        this.initUniform('uHeightMapTransform', heightMapTransform ?? this.defaultHeightMapTransform);
+
+        this.gl.uniform3f(this.getUniformLocation('uHeightMapTileSize'), heightMapSize, tileSize, padding);
     }
 
 
@@ -865,6 +912,140 @@ class Program {
         //     const blockInstance = geometryBuffer.getUniformBlockInstance(block.name);
         //     gl.bindBufferBase(gl.UNIFORM_BUFFER, block.bindingPoint, blockInstance.glBuffer);
         // }
+    }
+
+    preparePass(pass: PASS, renderTile: RenderTile, renderTarget: IRenderTarget) {
+        // this.bindFramebuffer(frameBuffer, width, height);
+        renderTarget.bind(this.device);
+    }
+
+    // preparePass(pass: PASS, renderTile: RenderTile, frameBuffer: WebGLFramebuffer | null = null, width?: number, height?: number) {
+    //     this.bindFramebuffer(frameBuffer, width, height);
+    // }
+    // preparePass(pass: PASS, frameBuffer: WebGLFramebuffer | null = null, width?: number, height?: number) {
+    //     this.bindFramebuffer(frameBuffer, width, height);
+    // }
+    protected ensureExtensions() {
+
+    }
+
+    // getPassStateOverride(renderPass: RenderPass): RenderState | null {
+    //     return null;
+    // }
+
+    getPassStateOverride(renderPass: RenderPass, buffer: GeometryBuffer, stencilRefVal: number): RenderState | null {
+        const pass = renderPass.type;
+
+        if (buffer.needsAlphaDepthPass()) {
+            const gl = this.gl;
+            if (pass === PASS.ALPHA_COLOR) {
+                return {
+                    stencil: {
+                        enabled: false
+                        // func: {
+                        //     func: gl.EQUAL,
+                        //     ref: stencilRefVal,
+                        //     mask: 0xff
+                        // },
+                        // op: {fail: gl.KEEP, zfail: gl.KEEP, zpass: gl.KEEP}
+                    }
+                };
+            }
+        }
+
+
+        return null;
+    };
+
+
+    /**
+     * Applies per-draw render state overrides for stencil and depth testing.
+     *
+     * This method dynamically adjusts WebGL state for two main use cases:
+     *
+     * 1. **Tile Stenciling (2D / flat geometry only)**:
+     *    - Used to clip flat / unclipped geometry to a specific tile region.
+     *    - Sets `stencilTest = true`
+     *    - Uses `stencilFunc(EQUAL, tileStencilId, 0xff)`
+     *    - Uses `stencilOp(KEEP, KEEP, KEEP)` to leave stencil values unchanged
+     *    - Typically applied in both ALPHA_DEPTH and ALPHA_COLOR passes when rendering
+     *      2D tiles or other flat geometries, regardless of blending mode (opaque or alpha).
+     *
+     * 2. **Alpha Overlap / Dual-Pass Alpha (extruded polygons)**:
+     *    - Ensures color writes only for fragments that match the depth pre-pass.
+     *    - Sets `depthFunc = EQUAL` in ALPHA_COLOR pass.
+     *    - If no tile stencil is active, increments stencil via `stencilOp(KEEP, KEEP, INCR)`
+     *      to track overlapping fragments and prevent double-blending.
+     *
+     * Notes:
+     * - `ALPHA_DEPTH` pass writes depth only; does not change color.
+     * - `ALPHA_COLOR` pass blends fragment colors based on depth and optionally stencil.
+     * - Overrides are applied per-draw; defaults in RenderPass definitions remain unchanged.
+     *
+     * @internal
+     * @hidden
+     *
+     * @param renderPass - The RenderPass currently being drawn.
+     * @param buffer - GeometryBuffer being rendered.
+     * @param tileStencilId - Optional stencil reference ID for tile clipping; only used for 2D / flat geometry.
+     * @returns true if any overrides were applied, false otherwise.
+     */
+    applyPassOverrides(
+        renderPass: RenderPass,
+        renderTile: RenderTile,
+        // buffer: GeometryBuffer,
+        tileStencilId: number | null,
+        isOffscreenPass: boolean
+    ): boolean {
+        const buffer = renderTile.buffer;
+
+        let override = false;
+        // --- Tile Stencil Masking ---
+        if (tileStencilId !== null) {
+            // Only render inside the tile
+            this.device.setStencilTest(true);
+            // overwrites/sets pass default renderPass.desc.state.stencil
+            this.device.setStencilFunc(this.gl.EQUAL, tileStencilId, 0xff);
+            // Keep stencil untouched
+            this.device.setStencilOp(this.gl.KEEP, this.gl.KEEP, this.gl.KEEP);
+            override = true;
+        }
+
+
+        if (buffer.needsAlphaDepthPass()) {
+            if (renderPass.type === PASS.ALPHA_COLOR) {
+                // Ensure color writes only where depth matches the pre-pass
+                this.device.setDepthFunc(this.gl.EQUAL);
+                // If no tile stencil is active, we need to increment stencil for overlap tracking
+                if (tileStencilId === null && !isOffscreenPass) {
+                    this.device.setStencilTest(true);
+                    this.device.setStencilOp(this.gl.KEEP, this.gl.KEEP, this.gl.INCR);
+                }
+                override = true;
+            } else if (tileStencilId === null /* && renderPass.type === PASS.ALPHA_DEPTH*/) {
+                // make sure tile stencil test is disabled for 3d features and enable overlap alpha tracking.
+                this.device.setStencilTest(false);
+                override = true;
+            }
+        }
+
+        // Screen-depth occlusion disables hardware depth testing and evaluates
+        // terrain visibility in the shader. The polygon offset is only needed
+        // for the remaining onscreen heightmapped point features.
+        if (!isOffscreenPass) {
+            if (renderTile.isTerrainOcclusionCandidate() && this.screenTarget?.getDepthTexture()) {
+                this.device.setDepthTest(false);
+                override = true;
+            } else if (!buffer.isTerrainSurface() && buffer.requiresHeightMap() && buffer.isPointBuffer()) {
+                // Without shader-based screen-depth occlusion, heightmapped point features
+                // use hardware depth testing. Bias them slightly toward the camera so the
+                // terrain surface they sit on cannot partially occlude their geometry or
+                // cause z-fighting, while terrain at a different depth can still occlude them.
+                this.device.applyPolygonOffsetState(true, 0, TERRAIN_SURFACE_DEPTH_BIAS);
+                override = true;
+            }
+        }
+        return override;
     }
 }
 

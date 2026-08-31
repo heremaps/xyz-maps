@@ -69,22 +69,27 @@ class DetectFeatureTask extends Task {
     private interval = 1000 / 20; // 20 FPS
 
     priority: 5;
+
     constructor(findTarget: (ev: Event) => void) {
         super();
         this.findTarget = findTarget;
         this._active = false;
     }
+
     isActive() {
         return this._active;
     }
+
     setPointerEvent(ev: Event) {
         this.ev = ev;
     }
+
     exec() {
         this.findTarget(this.ev);
         this._active = false;
         this.ev = null;
     }
+
     start() {
         this._active = true;
         setTimeout(() => super.start(), this.interval);
@@ -103,6 +108,7 @@ export class EventDispatcher {
     private hActive: boolean = false; // GLOBAL_HANDLERS_ACTIVE
     private cnt: number = 0; // cnt
     private el: HTMLElement;
+    private _upEl: HTMLElement;
 
     constructor(domEl, map: Map, searchLayers, config) {
         this.el = domEl;
@@ -210,6 +216,8 @@ export class EventDispatcher {
         let skipMouseEvent = false;
 
         this.onPointerDown = function(ev) {
+            if (!this.hActive) return;
+
             const isTouchStart = ev.type == 'touchstart';
 
             if (!isTouchStart && skipMouseEvent) {
@@ -275,6 +283,8 @@ export class EventDispatcher {
         };
 
         this.onPointerUp = function(ev) {
+            if (!this.hActive) return;
+
             if (isPointerDown) {
                 let center = map.getCenter();
                 let isMapDragged = startMapCenter.longitude != center.longitude ||
@@ -299,19 +309,31 @@ export class EventDispatcher {
                 isPointerDown = isDragged = false;
             }
         };
+
+        this.onPointerDown = this.onPointerDown.bind(this);
+        this.onPointerMove = this.onPointerMove.bind(this);
+        this.onPointerUp = this.onPointerUp.bind(this);
+
+        let el = this.el;
+        addEventListener(el, ['touchstart', 'mousedown'], this.onPointerDown);
+        addEventListener(el, 'touchend', this.onPointerUp);
+        // support shadowdom!? Is this still needed?
+        while (el.parentNode) el = <HTMLElement>el.parentNode;
+        this._upEl = el;
+        addEventListener(el, 'mouseup', this.onPointerUp);
     }
 
-    private getGlobalHandlers() {
-        const {onPointerDown, onPointerMove, onPointerUp} = this;
-        return {
-            touchstart: onPointerDown,
-            touchmove: onPointerMove,
-            touchend: onPointerUp,
+    private _gListeners: { [ev: string]: EventHandler };
 
-            mousedown: onPointerDown,
-            mouseup: onPointerUp,
-            mousemove: onPointerMove
-        };
+    private getGlobalHandlers() {
+        if (!this._gListeners) {
+            this._gListeners = {
+                touchmove: this.onPointerMove,
+                mousemove: this.onPointerMove
+            };
+        }
+
+        return this._gListeners;
     }
 
     enable(event: string) {
@@ -328,38 +350,28 @@ export class EventDispatcher {
 
     destroy() {
         let globalEvents = this.getGlobalHandlers();
+        let el = this.el;
 
         if (this.hActive) {
             for (let type in globalEvents) {
-                removeEventListener(this.el, type, globalEvents[type]);
+                removeEventListener(el, type, globalEvents[type]);
             }
             this.hActive = false;
         }
+
+        removeEventListener(el, ['touchstart', 'mousedown'], this.onPointerDown);
+        removeEventListener(el, 'touchend', this.onPointerUp);
+        removeEventListener(this._upEl, 'mouseup', this.onPointerUp);
     };
 
     addEventListener(type: string, cb: MapEventListener, scope?) {
         if (isSupported(type) && this.cbs.add(type, cb, scope)) {
             this.cnt++;
-
-            let globalEvents = this.getGlobalHandlers();
-            let gl;
-
+            const globalEvents = this.getGlobalHandlers();
             if (!this.hActive) {
+                this.hActive = true;
                 for (let ev in globalEvents) {
-                    gl = globalEvents[ev];
-
-                    let {el} = this;
-
-                    if (ev == 'mouseup') {
-                        // support shadowdom
-                        while (el.parentNode) {
-                            el = <HTMLElement>el.parentNode;
-                        }
-                    }
-
-                    addEventListener(el, ev, gl);
-
-                    this.hActive = true;
+                    addEventListener(this.el, ev, globalEvents[ev]);
                 }
             }
         }
@@ -369,14 +381,13 @@ export class EventDispatcher {
         const {cbs, el} = this;
         if (isSupported(type) && cbs.remove(type, cb, scope)) {
             if (!--this.cnt && this.hActive) {
-                let globalEvents = this.getGlobalHandlers();
-
+                this.hActive = false;
+                const globalEvents = this.getGlobalHandlers();
                 for (let ev in globalEvents) {
                     if (!cbs.isListened(ev)) {
                         removeEventListener(el, ev, globalEvents[ev]);
                     }
                 }
-                this.hActive = false;
             }
         }
     };

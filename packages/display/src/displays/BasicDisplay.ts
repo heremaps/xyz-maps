@@ -26,8 +26,9 @@ import BasicRender from './BasicRender';
 import BasicTile from './BasicTile';
 import BasicBucket from './BasicBucket';
 import Preview from './Preview';
-import Grid, {GridTile} from '../Grid';
-import {createZoomRangeFunction, parseColorMap} from './styleTools';
+import Grid, {GridTile, ViewportTile} from '../Grid';
+import {parseColor} from './styleTools';
+import toRGB = ColorUtils.toRGB;
 
 type RGBA = ColorUtils.RGBA;
 
@@ -45,12 +46,31 @@ function toggleLayerEventListener(toggle: string, layer: any, listeners: any) {
 
 let UNDEF;
 
-export type ViewportTile = GridTile & { scale?: number, size?: number, tile?: BasicTile };
+export type TerrainStats = {
+    readonly min: number,
+    readonly max: number,
+    readonly avg: number,
+    readonly available: boolean
+};
+
+type TerrainElevationSource = {
+    readonly quadkey: string,
+    readonly gridZ: number,
+    readonly gridX: number,
+    readonly gridY: number
+};
+
+export {ViewportTile};
+
+export type DisplayTile = ViewportTile & {
+    scale?: number,
+    tile?: BasicTile
+};
 
 abstract class Display {
     private previewer: Preview;
-    private updating: boolean = false;
     private ti: number; // tile index
+    private renderFrameId: number = null;
     protected viewChange: boolean;
     protected sx: number; // grid/screen offset x (includes scale offset)
     protected sy: number; // grid/screen offset y (includes scale offset)
@@ -58,9 +78,9 @@ abstract class Display {
 
     centerWorld: number[]; // absolute world center xy
     zoom: number; // current zoomlevel
+    protected tileGridZoom: number; // grid zoom level from last updateGrid() call
 
-    protected bgColor: RGBA;
-    private globalBgc: boolean | Color = false;
+    protected globalBgc: RGBA | ((number) => RGBA);
 
     tileSize: number;
     layers: Layers;
@@ -74,8 +94,41 @@ abstract class Display {
     render: BasicRender;
     buckets: BasicBucket;
     listeners: { [event: string]: (a1?, a2?) => void };
-    tiles: ViewportTile[];
-    private grid: Grid;
+    tiles: DisplayTile[];
+    protected grid: Grid;
+    /**
+     * Terrain altitude used as the camera's pitch/rotation pivot. Remains fixed during camera interactions and
+     * is updated afterward with zoom and center compensation to prevent visual jumps.
+     *
+     * @internal
+     * @hidden
+     */
+    terrainPivotAltitude: number = null;
+
+    /**
+     * Min/max terrain elevation from the previous frame's visible tiles.
+     * Used for grid bounds, zFar calculation and fallback frustum culling.
+     *
+     * @internal
+     * @hidden
+     */
+    visibleTerrainElevation: { min: number, max: number, hasStats: boolean } = {min: 0, max: 0, hasStats: false};
+
+    private _pendingVisibleElevation: {
+        min: number,
+        max: number,
+        source?: TerrainElevationSource
+    } = {min: Infinity, max: 0};
+    protected _emptyTerrainStats: TerrainStats = {
+        min: 0,
+        max: 0,
+        avg: 0,
+        available: false
+    };
+
+    getFOV(): number {
+        return 0.6981317007977318; // 40 deg
+    }
 
     constructor(mapEl: HTMLElement, tileSize: number, dpr: string | number, bucketPool, tileRenderer: BasicRender, previewLookAhead: number | [number, number]) {
         const display = this;
@@ -137,7 +190,7 @@ abstract class Display {
                 const displayLayer = display.layers.get(layer);
                 const {index} = displayLayer;
                 displayLayer.initStyle();
-                display.setLayerBgColor(style, display.layers[index]);
+                displayLayer.setBackgroundColor((style as XYZLayerStyle).backgroundColor || display.globalBgc);
                 display.buckets.tiles.forEach((t) => t.clear(index));
             }
         };
@@ -174,9 +227,9 @@ abstract class Display {
                 }
             };
 
-            if (index == 0) {
-                display.setLayerBgColor((layer as TileLayer).getStyleManager(), dLayer);
-            }
+            dLayer.setBackgroundColor(
+                (layer as TileLayer).getStyleManager().backgroundColor || display.globalBgc
+            );
             return dLayer;
         }
     }
@@ -238,6 +291,16 @@ abstract class Display {
             display.layers[index].error = true;
         }
 
+        // A tile without usable data is handled according to the layer policy.
+        if (tile.dataUnavailable) {
+            if (layer.dataUnavailableFallback === 'ancestor-preview') {
+                displayTile.fallbackToAncestorPreview(index);
+            } else {
+                displayTile.markEmpty(index);
+            }
+            return;
+        }
+
         // prepare tile data for rendering. process/prerender vector data
         if (!displayTile.ready(index) && !displayTile.busy(layer)) {
             if (data = tile.data) {
@@ -269,29 +332,134 @@ abstract class Display {
 
     abstract unproject(x: number, y: number, z?: number): number[];
 
+
+    abstract unproject(x: number, y: number, z?: number): number[];
+
+    // Ray-plane intersection at a custom Z height. Override in WebGL Display.
+    unprojectAtZ(x: number, y: number, targetZ: number): number[] {
+        return this.unproject(x, y);
+    }
+
     abstract project(x: number, y: number, z?: number): number[];
 
-    computeDistanceScale(x: number, y: number): number {
-        return 1;
+    /**
+     * Check if a tile over a min/max terrain elevation range projects entirely outside the viewport.
+     * Override in WebGL Display for actual 4-corner projection check.
+     *
+     * @internal
+     * @hidden
+     */
+    isTileOutsideViewport(tileX: number, tileY: number, minZ: number, maxZ: number, tileSize: number): boolean {
+        return false;
     }
 
-    private setLayerBgColor(style, dLayer: Layer) {
-        dLayer.bgColor = this.parseColor(style.backgroundColor);
+    /**
+     * Compute viewport bounds at a given terrain altitude.
+     * Returns the 4 viewport corners projected onto the horizontal plane at z=terrainAltitude
+     * (in grid-space coordinates). This gives the actual visible footprint at terrain height —
+     * which is smaller than the sea-level bounds when terrain is elevated.
+     *
+     * @internal
+     * @hidden
+     */
+    getTerrainViewportBounds(terrainAltitude: number): number[][] | undefined {
+        return undefined;
     }
 
-    private parseColor(color) {
-        if (color) {
-            if (typeof color == 'object' && !Array.isArray(color)) {
-                color = createZoomRangeFunction(parseColorMap(color));
-            }
-            return typeof color == 'function' ? color : this.render.convertColor(color);
+    /**
+     * Sample the actual terrain height at the center of a given tile.
+     * Returns exaggerated height in meters, or 0 if not available.
+     *
+     * @internal
+     * @hidden
+     */
+    getTerrainHeight(zoom: number, x: number, y: number): TerrainStats {
+        return this._emptyTerrainStats;
+    }
+
+    beginVisibleTerrainElevationCollection() {
+        this._pendingVisibleElevation.min = Infinity;
+        this._pendingVisibleElevation.max = 0;
+        this._pendingVisibleElevation.source = undefined;
+    }
+
+    includeVisibleTerrainElevation(
+        minElevation: number,
+        maxElevation?: number,
+        source?: TerrainElevationSource
+    ) {
+        if (Number.isFinite(minElevation) && minElevation < this._pendingVisibleElevation.min) {
+            this._pendingVisibleElevation.min = minElevation;
+            this._pendingVisibleElevation.source = source;
+        }
+        if (maxElevation != null && maxElevation > this._pendingVisibleElevation.max) {
+            this._pendingVisibleElevation.max = maxElevation;
         }
     }
 
-    private processLayerBackgroundColor(zoomlevel?: number) {
-        const display = this;
-        const bgColor = display.layers[0]?.bgColor || display.globalBgc;
-        this.bgColor = typeof bgColor == 'function' ? display.render.convertColor(bgColor(zoomlevel ^ 0)) : bgColor;
+    commitVisibleTerrainElevationCollection(allowIncrease: boolean = true): boolean {
+        const fallback = this.terrainPivotAltitude || 0;
+        const hasStats = this._pendingVisibleElevation.min !== Infinity;
+        let nextMin = hasStats ? this._pendingVisibleElevation.min : fallback;
+
+        const debugMinVisibleTerrainElevation = (window as any)._minVisibleTerrainElevation;
+        if (debugMinVisibleTerrainElevation != null) {
+            nextMin = debugMinVisibleTerrainElevation;
+        }
+
+        const nextMax = this._pendingVisibleElevation.max > 0
+            ? this._pendingVisibleElevation.max
+            : fallback;
+
+        const current = this.visibleTerrainElevation;
+        const prevMin = current.min;
+        const hadStats = current.hasStats;
+
+        // Missing stats are not a newly observed low terrain value. Keep the last
+        // conservative real value instead of replacing it with the pivot fallback;
+        // otherwise a stats-less pass can trigger the same grid retry indefinitely.
+        if (!hasStats) {
+            if (!hadStats && prevMin === 0) {
+                current.min = fallback;
+                current.max = nextMax;
+            }
+            return false;
+        }
+
+        current.hasStats = true;
+        current.max = nextMax;
+
+        if (!hadStats && prevMin === 0) {
+            current.min = nextMin;
+            return Math.abs(nextMin - fallback) > 1e-3;
+        }
+
+        if (
+            // Lower terrain becoming visible must apply immediately to avoid clipping.
+            (nextMin < prevMin - 1e-3) ||
+            // Raising the minimum is less urgent and is disabled for the corrective
+            // retry, where it could otherwise recreate the same oscillation.
+            (allowIncrease && nextMin > prevMin + 1)
+        ) {
+            current.min = nextMin;
+            return true;
+        }
+        return false;
+    }
+
+    /**
+     * Approximate perspective distance scale for a world position.
+     * WebGL display overrides this with the actual view matrix calculation.
+     *
+     * @internal
+     * @hidden
+     */
+    computeDistanceScale(x: number, y: number, z: number = 0): number {
+        return 1;
+    }
+
+    toRGB(color: Color): RGBA {
+        return toRGB(color);
     }
 
     private isVisible(tile: Tile, dLayer: Layer): boolean {
@@ -324,7 +492,7 @@ abstract class Display {
     }
 
 
-    getScreenTile(quadkey: string, tileSize?: number): ViewportTile {
+    getScreenTile(quadkey: string, layer?: Layer): DisplayTile {
         return this.tiles.find((tile) => tile.quadkey == quadkey);
     }
 
@@ -382,7 +550,10 @@ abstract class Display {
         const prevVPTiles = display.tiles || [];
         const vpTiles = display.tiles = [];
         const center = {x: display.w / 2, y: display.h / 2};
-        const useAdaptiveLOD = this.useLODTiles();
+        const pitchExceedsLODThreshold = this.useLODTiles();
+
+        // Per-frame cache: layers with identical grid parameters reuse the same tile hierarchy.
+        const gridTileCache: { [key: string]: DisplayTile[] } = {};
 
         for (let dLayer of layers) {
             dLayer.reset(zoomLevel);
@@ -397,21 +568,81 @@ abstract class Display {
             dLayer.tiles = screenTiles;
 
             if (layer.isVisible(zoomLevel)) {
-                const adaptiveGrid = useAdaptiveLOD && layer.adaptiveGrid;
-                const tiles = gridTiles.flatMap((_gridTile) => {
-                    return _gridTile.generateTileHierarchy(display, layerTileSize, adaptiveGrid) as ViewportTile[];
-                });
+                const maxZoomLevel = (layer as TileLayer).max || 20;
+                let minZoomLevel = (layer as TileLayer).min || 1;
+
+                // If the current tile zoom exceeds maxDataZoom, increase minTileSize
+                // to stop subdivision at maxDataZoom level.
+                const {maxDataZoom} = layer;
+                const normalTileZoom = zoomLevel - (layer.levelOffset || 0);
+                let effectiveMinTileSize = layerTileSize;
+
+                if (normalTileZoom > maxDataZoom) {
+                    effectiveMinTileSize = layerTileSize << (normalTileZoom - maxDataZoom);
+                }
+
+                // Adaptive LOD: use distance-based LOD when the layer supports it
+                // (adaptiveGrid !== false). Activated in two cases:
+                // 1. High pitch (> 60°) — normal overpitch LOD
+                // 2. Large terrain height difference — prevents tile explosion when
+                //    camera is high above distant low-elevation tiles (e.g. mountain summit)
+                const terrainHeightRange = (display.terrainPivotAltitude || 0) - (display.visibleTerrainElevation.min || 0);
+                const significantTerrainDrop = terrainHeightRange > 500;
+                const useAdaptiveLOD = (layer as any).adaptiveGrid !== false && (pitchExceedsLODThreshold || significantTerrainDrop);
+
+                // Numeric cache key — bit layout:
+                // [22+] effectiveMinTileSize | [21] adaptiveLOD | [16..20] maxZoom | [11..15] minZoom | [0..10] gridTileSize
+                const gridCacheKey = effectiveMinTileSize * 4194304 // 1<<22
+                    + (useAdaptiveLOD ? 2097152 : 0) // 1<<21
+                    + maxZoomLevel * 65536 // 1<<15
+                    + minZoomLevel * 2048 // 1<<11
+                    + gridTileSize;
+                let tiles: DisplayTile[];
+                if (gridTileCache[gridCacheKey]) {
+                    tiles = gridTileCache[gridCacheKey];
+                } else {
+                    tiles = gridTiles.flatMap((_gridTile) => {
+                        return _gridTile.generateVisibleLODTiles(display,
+                            effectiveMinTileSize,
+                            useAdaptiveLOD,
+                            maxZoomLevel,
+                            minZoomLevel,
+                            [],
+                            gridTileSize
+                        ) as DisplayTile[];
+                    });
+                    gridTileCache[gridCacheKey] = tiles;
+                }
+                // Terrain: additionally generate an UNCAPPED display-zoom render-tile set.
+                // dLayer.tiles above is capped at maxDataZoom (for DEM loading); the mesh
+                // partitioning needs the full adaptive-LOD grid so each visible display
+                // tile gets its own terrain mesh sampling the parent DEM via UV-transform.
+                if (dLayer === this.layers.getTerrainLayer()) {
+                    // Reset elevation collection — the data-tile leaves (z10) may have
+                    // reported a coarse min covering area outside the viewport. Re-collect
+                    // from the finer render-tiles which use sub-region heightmap sampling.
+                    this.beginVisibleTerrainElevationCollection();
+                    dLayer.terrainRenderTiles = gridTiles.flatMap((_gridTile) => {
+                        return _gridTile.generateVisibleLODTiles(display,
+                            layerTileSize,
+                            useAdaptiveLOD,
+                            maxZoomLevel,
+                            minZoomLevel,
+                            [],
+                            layerTileSize
+                        );
+                    });
+                }
 
                 // load tiles in order of distance to the center of the screen
                 tiles.sort((a, b) => Math.hypot(a.x - center.x, a.y - center.y) - Math.hypot(b.x - center.y, b.y - center.y));
 
                 for (let gridTile of tiles) {
-                    const {quadkey, scaledSize} = gridTile;
+                    const {quadkey, worldTileSize} = gridTile;
                     const displayTile = display.getBucket(quadkey, CREATE_IF_NOT_EXISTS);
-                    const tileZoomScale = scaledSize / gridTileSize;
+                    const tileZoomScale = worldTileSize / gridTileSize;
 
                     gridTile.scale = tileZoomScale;
-                    gridTile.size = gridTileSize;
                     gridTile.tile = displayTile;
 
                     screenTiles.push(gridTile);
@@ -432,19 +663,19 @@ abstract class Display {
         }
     }
 
-    private freeStaleTilesLayer(vpTiles: ViewportTile[], prevVPTiles: ViewportTile[], displayLayer: Layer) {
+    private freeStaleTilesLayer(vpTiles: DisplayTile[], prevVPTiles: DisplayTile[], displayLayer: Layer) {
         // mark tiles to not be visible anymore
-        for (const {quadkey, size} of prevVPTiles) {
+        for (const {quadkey, renderTileSize} of prevVPTiles) {
             let staled = true;
-            for (const {quadkey: qk, size: s} of vpTiles) {
-                if (qk == quadkey && size == s) {
+            for (const {quadkey: qk, renderTileSize: s} of vpTiles) {
+                if (qk == quadkey && renderTileSize == s) {
                     staled = false;
                     break;
                 }
             }
             if (staled) {
                 const tileLayer = <TileLayer>displayLayer.layer;
-                if ((tileLayer).tileSize == size) {
+                if ((tileLayer).tileSize == renderTileSize) {
                     this.releaseTile(quadkey, displayLayer);
                 }
                 this.cancel(quadkey, tileLayer);
@@ -460,20 +691,29 @@ abstract class Display {
         return 0;
     }
 
-    isPointAboveHorizon(x: number, y: number) {
-        return false;
+    /**
+     * Returns the distance from camera to the map center in world pixels.
+     *
+     * @internal
+     * @hidden
+     */
+    getCameraToCenterDistance(): number {
+        return 1000;
     }
 
-    updateGrid(tileGridZoom: number, zoomLevel: number, screenOffsetX: number, screenOffsetY: number) {
+    updateGrid(
+        tileGridZoom: number,
+        zoomLevel: number,
+        screenOffsetX: number,
+        screenOffsetY: number,
+        isTerrainElevationRetry: boolean = false
+    ) {
         const centerWorldPixel = this.centerWorld;
-        // const screenOffsetX = this.sx;
-        // const screenOffsetY = this.sy;
-        // const worldSize = Math.pow(2, zoomlevel) * this.tileSize;
 
-        this.processLayerBackgroundColor(zoomLevel);
         this.setZoom(zoomLevel);
 
         this.viewChange = true;
+        this.tileGridZoom = tileGridZoom;
         this.sx = screenOffsetX;
         this.sy = screenOffsetY;
 
@@ -488,24 +728,46 @@ abstract class Display {
         // if map is pitched too much, we clip the grid at the top
         const maxGridPitchOffset = this.getHorizonYOffset();
 
-        // Calculate the world pixel bounds of the grid based on effective display height
+        const representativeTerrainAltitude = display.terrainPivotAltitude || 0;
+        const conservativeMinTerrainAltitude = this.visibleTerrainElevation.hasStats
+            ? this.visibleTerrainElevation.min
+            : representativeTerrainAltitude;
+
+        // Use the lowest observed visible terrain as the grid plane. Until DEM stats
+        // are available, fall back to the terrain pivot, then to sea level.
+        let gridPlaneAltitude: number;
+        if (this.visibleTerrainElevation.hasStats) {
+            gridPlaneAltitude = conservativeMinTerrainAltitude;
+        } else if (representativeTerrainAltitude > 0) {
+            gridPlaneAltitude = representativeTerrainAltitude;
+        } else {
+            gridPlaneAltitude = 0;
+        }
+
         const gridWorldPixel = [
-            display.unproject(0, maxGridPitchOffset),
-            display.unproject(displayWidth - 1, maxGridPitchOffset),
-            display.unproject(displayWidth - 1, displayHeight - 1),
-            display.unproject(0, displayHeight - 1)
+            display.unprojectAtZ(0, maxGridPitchOffset, gridPlaneAltitude), // top-left: far → terrain surface
+            display.unprojectAtZ(displayWidth - 1, maxGridPitchOffset, gridPlaneAltitude), // top-right: far → terrain surface
+            display.unprojectAtZ(displayWidth - 1, displayHeight - 1, gridPlaneAltitude), // bottom-right: near → terrain
+            display.unprojectAtZ(0, displayHeight - 1, gridPlaneAltitude) // bottom-left: near → terrain
         ];
 
         // Initialize the grid with the adjusted bounds
         this.grid.init(centerWorldPixel, mapWidthPixel, mapHeightPixel, gridWorldPixel);
-
         this.ti = 0;
-        const gridTiles = display.grid.getTiles(tileGridZoom);
+
+        const zoomOutLookahead = 10; // this.getGridZoomOutLookahead(tileGridZoom, zoomLevel);
+        const gridTiles = display.grid.getTiles(tileGridZoom, zoomOutLookahead);
 
         this.initVpTiles(gridTiles, tileGridZoom);
+        const elevationChanged = this.commitVisibleTerrainElevationCollection(!isTerrainElevationRetry);
+        if (elevationChanged && !isTerrainElevationRetry) {
+            // Terrain elevation can change the grid footprint and reveal lower terrain.
+            // Allow one corrective rebuild, but never recurse from the corrective pass.
+            this.updateGrid(tileGridZoom, zoomLevel, this.sx, this.sy, true);
+            return;
+        }
 
         this.dirty = true;
-
         display.update();
     }
 
@@ -540,11 +802,10 @@ abstract class Display {
 
         display.dirty ||= dirty;
 
-        if (!display.updating) {
-            display.updating = true;
-            requestAnimationFrame(() => {
+        if (display.renderFrameId === null) {
+            display.renderFrameId = requestAnimationFrame(() => {
+                display.renderFrameId = null;
                 display.viewport();
-                display.updating = false;
             });
         }
     }
@@ -557,10 +818,9 @@ abstract class Display {
             color = 'rgba(0, 0, 0, 0)';
         }
 
-        color = this.parseColor(color);
-        displ.globalBgc = color;
+        displ.globalBgc = parseColor(color);
 
-        render.setBackgroundColor(color);
+        render.setBackgroundColor(displ.globalBgc);
     }
 
     showGrid(show: boolean | { [opt: string]: any }) {
@@ -590,6 +850,10 @@ abstract class Display {
     }
 
     destroy() {
+        if (this.renderFrameId !== null) {
+            cancelAnimationFrame(this.renderFrameId);
+            this.renderFrameId = null;
+        }
         this.render.destroy();
         var canvas = this.canvas;
         canvas.parentElement.removeChild(canvas);
@@ -628,7 +892,7 @@ abstract class Display {
     }
 
     scaleOffsetXYByAltitude(pointWorld: number[]) {
-        // compensate altitude scaling is not supported by default
+        // compensate altitude scaling is not supported by defaultgetRenderedFeatureAt
         return 1;
     }
 
@@ -639,8 +903,21 @@ abstract class Display {
         }
     }
 
-    getTerrainHeightAtWorldXY(x: number, y: number, terrainLayer: TileLayer): number | null {
+
+    getTerrainHeightAtWorldXY(x: number, y: number): number | null {
         return null;
+    }
+
+    getTerrainPointHeight(lon: number, lat: number, terrainLayer?: TileLayer): number | null {
+        return null;
+    }
+
+    getTerrainRegionMaxHeight(lon: number, lat: number, terrainLayer?: TileLayer): number | null {
+        return null;
+    }
+
+    getTerrainCenterAltitude(): number {
+        return 0;
     }
 }
 

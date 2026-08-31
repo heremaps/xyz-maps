@@ -28,7 +28,7 @@ import {create as createQuat, fromEuler} from 'gl-matrix/quat';
 import {isTypedArray, TypedArray} from '../glType';
 import {Attribute} from '../Attribute';
 import {Color} from '@here/xyz-maps-common';
-import {ModelGeometry} from '@here/xyz-maps-core';
+import {ModelGeometry, ModelData} from '@here/xyz-maps-core';
 
 import toRGB = Color.toRGB;
 
@@ -122,33 +122,46 @@ function computeTangents(vertex: VertexData, uv: number[], indices?: Uint16Array
 }
 
 export class ModelBuffer extends TemplateBuffer {
+    isPointBuffer = true;
     destroy?: (buffer: GeometryBuffer) => void;
     private defaultOrientationMatrix: Float32Array = new Float32Array([1, 0, 0, 0, 0, 0, 1, 0, 0, 1, 0, 0, 0, 0, 0, 1]);
     // Flip Y and rotate by 90 degrees along the X-axis (pitch rotation).
     // private defaultOrientationMatrix: number[] = [1, 0, 0, 0, 0, 0, -1, 0, 0, -1, 0, 0, 0, 0, 0, 1];
 
-    static calcBBox(data: ModelGeometry) {
-        const {position} = data;
+    static calcBBox(geometry: ModelGeometry) {
+        const {position} = geometry;
+        let size = geometry.size ?? 3;
         let minX = Infinity;
         let maxX = -minX;
         let minY = minX;
         let maxY = maxX;
         let minZ = minX;
         let maxZ = maxX;
+
         // console.time('calcModelBBox');
-        for (let i = 0, {length} = position; i < length; i += 3) {
-            const x = position[i];
-            const y = position[i + 1];
-            const z = position[i + 2];
-
-            if (x < minX) minX = x;
-            else if (x > maxX) maxX = x;
-
-            if (y < minY) minY = y;
-            else if (y > maxY) maxY = y;
-
-            if (z < minZ) minZ = z;
-            else if (z > maxZ) maxZ = z;
+        if (size == 3) {
+            for (let i = 0, {length} = position; i < length; i += size) {
+                const x = position[i];
+                const y = position[i + 1];
+                const z = position[i + 2];
+                if (x < minX) minX = x;
+                else if (x > maxX) maxX = x;
+                if (y < minY) minY = y;
+                else if (y > maxY) maxY = y;
+                if (z < minZ) minZ = z;
+                else if (z > maxZ) maxZ = z;
+            }
+        } else {
+            minZ = 0;
+            maxZ = 0;
+            for (let i = 0, {length} = position; i < length; i += size) {
+                const x = position[i];
+                const y = position[i + 1];
+                if (x < minX) minX = x;
+                else if (x > maxX) maxX = x;
+                if (y < minY) minY = y;
+                else if (y > maxY) maxY = y;
+            }
         }
         // console.timeEnd('calcModelBBox');
         return [minX, minY, minZ, maxX, maxY, maxZ];
@@ -161,18 +174,19 @@ export class ModelBuffer extends TemplateBuffer {
         if (data) {
             const {position, color, uv} = data;
             let colorRGB: Uint8Array | number[] | string = NO_COLOR_WHITE;
+            let vertexSize = data.size ?? 3;
             let size;
 
             attributes.a_position = {
                 data: ModelBuffer.createFlexArray(position),
-                size: 3
+                size: vertexSize
             };
 
             const normal = data.normal ??= GeometryBuffer.computeNormals(position, data.index);
             if (normal) {
                 attributes.a_normal = {
                     data: ModelBuffer.createFlexArray(normal),
-                    size: 3,
+                    size: vertexSize,
                     normalized: normal instanceof Int8Array || normal instanceof Int16Array
                 };
             }
@@ -304,10 +318,8 @@ export class ModelBuffer extends TemplateBuffer {
         // this.uniforms.u_normalMatrix = transpose(modelMatrix, invert(modelMatrix, modelMatrix));
         // this.uniforms.u_normalMatrix = normalFromMat4(createMat3(), modelMatrix);
         // create normal matrix to support non-uniform coordinate systems
-        this.uniforms.u_normalMatrix = normalFromMat4(
-            createMat3(),
-            modelMatrix
-        );
+        const normalMatrix = createMat3();
+        this.uniforms.u_normalMatrix = normalFromMat4(normalMatrix, modelMatrix) || normalMatrix;
 
         const flexArray = this.flexAttributes.a_modelMatrix.data;
         flexArray.set(modelMatrix, flexArray.length);
@@ -486,36 +498,5 @@ export class ModelBuffer extends TemplateBuffer {
                 }
             }
         }
-    }
-
-    generateWireframeIndices(): Uint16Array | Uint32Array {
-        const triangleIndices: ArrayLike<number> = this.index();
-        const edgeSet = new Set<string>();
-        const lines: number[] = [];
-
-        for (let i = 0; i < triangleIndices.length; i += 3) {
-            const i0 = triangleIndices[i];
-            const i1 = triangleIndices[i + 1];
-            const i2 = triangleIndices[i + 2];
-
-            const edges: [number, number][] = [
-                [i0, i1],
-                [i1, i2],
-                [i2, i0]
-            ];
-
-            for (const [a, b] of edges) {
-                const key = a < b ? `${a};${b}` : `${b};${a}`;
-                if (!edgeSet.has(key)) {
-                    edgeSet.add(key);
-                    lines.push(a, b);
-                }
-            }
-        }
-
-        const IndexArrayConstructor =
-            triangleIndices instanceof Uint32Array ? Uint32Array : Uint16Array;
-
-        return new IndexArrayConstructor(lines);
     }
 }

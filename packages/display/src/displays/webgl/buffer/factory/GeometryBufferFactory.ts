@@ -27,7 +27,7 @@ import GLTile from '../../GLTile';
 import {TerrainTask} from './TerrainTask';
 import {FactoryTask, FactoryTaskResult} from './FactoryTask';
 import {GeometryBuffer} from '../GeometryBuffer';
-
+import {GraphicsDevice} from '../../device/GraphicsDevice';
 export const BUFFER_FACTORY_TASK_PRIORITY = 4;
 
 export class GeometryBufferFactory {
@@ -38,7 +38,7 @@ export class GeometryBufferFactory {
         displayTile: GLTile,
         factory: FeatureFactory,
         terrainCache: HeightMapTileCache,
-        gl: WebGLRenderingContext,
+        device: GraphicsDevice,
         onInit: () => void,
         onDone: (
             result: FactoryTaskResult['buffers'],
@@ -58,7 +58,7 @@ export class GeometryBufferFactory {
                 terrainLayer: displayLayer.getTerrainLayer(),
                 terrainCache,
                 displayTile,
-                gl
+                device
             })
         ] as const;
 
@@ -71,7 +71,7 @@ export class GeometryBufferFactory {
                 // This ensures newly created heightmaps persist and prevents wasted computation or missing terrain data.
                 const terrainHeightMap = data[1];
                 if (terrainHeightMap) {
-                    terrainCache.set(tile.quadkey, terrainHeightMap);
+                    terrainCache.setByTile(tile.z, tile.x, tile.y, terrainHeightMap);
                 }
             }
         }) as unknown as DisplayTileTask;

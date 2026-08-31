@@ -28,6 +28,8 @@ type TypedArray =
     | Int8Array
     | Int32Array;
 
+type TypedArrayConstructor = new (length: number) => TypedArray;
+
 export enum Neighbor {
     LEFT = 'left',
     RIGHT = 'right',
@@ -137,30 +139,48 @@ export const stitchMeshBorders = (
 
 export const quantizeVertexData = (
     vertices: TypedArray,
+    vertexSize: number,
+    includeHeights: boolean,
     scaleXY: number = 1,
     scaleZ: (v: number) => number = (v) => v,
     elevationData?: ArrayLike<number>
 ): typeof vertices => {
     const is3d = !elevationData;
-    const vertices3d = is3d
+    const outSize = (2 + Number(includeHeights));
+    const vertices3d = vertexSize === outSize
         ? vertices
-        : new Float32Array(vertices.length / 2 * 3);
+        : new (vertices.constructor as TypedArrayConstructor)(vertices.length / vertexSize * outSize);
+        // : new Float32Array(vertices.length / vertexSize * outSize);
+
+    includeHeights &&= vertexSize === 3 || !!elevationData;
 
     const gridSize = Math.sqrt(elevationData?.length);
-    const d = (2 + Number(is3d));
-    const length = vertices.length / d;
+    // const d = (2 + Number(is3d));
+    const length = vertices.length / vertexSize;
 
-    for (let i = 0; i < length; i++) {
-        const j = i * d;
-        const x = vertices[j];
-        const y = vertices[j + 1];
-        const z = is3d
-            ? vertices[j + 2]
-            : elevationData[y * gridSize + x];
-
-        vertices3d[j] = x * scaleXY;
-        vertices3d[j + 1] = y * scaleXY;
-        vertices3d[j + 2] = scaleZ(z);
+    if (!includeHeights) {
+        for (let i = 0; i < length; i++) {
+            const j = i * vertexSize;
+            vertices3d[j] = vertices[j] * scaleXY;
+            vertices3d[j + 1] = vertices[j + 1] * scaleXY;
+        }
+    } else if (is3d) {
+        for (let i = 0; i < length; i++) {
+            const j = i * vertexSize;
+            vertices3d[j] = vertices[j] * scaleXY;
+            vertices3d[j + 1] = vertices[j + 1] * scaleXY;
+            vertices3d[j + 2] = scaleZ(vertices[j + 2]);
+        }
+    } else {
+        for (let i = 0; i < length; i++) {
+            const j = i * vertexSize;
+            const x = vertices[j];
+            const y = vertices[j + 1];
+            vertices3d[j] = x * scaleXY;
+            vertices3d[j + 1] = y * scaleXY;
+            const z = elevationData[y * gridSize + x];
+            vertices3d[j + 2] = scaleZ(z);
+        }
     }
     return vertices3d;
 };

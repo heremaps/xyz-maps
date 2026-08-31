@@ -34,9 +34,9 @@ declare const self: Worker;
 
 // const QUANTIZED_RANGE = 4095;
 const ENABLE_SKIRTS = true;
-const QUANTIZED_RANGE = ENABLE_SKIRTS
-    ? 32767 // use 15 bit for height values, so that we can use the MSB to flag skirt vertices
-    : 0xffff;
+const QUANTIZED_RANGE = 32767;
+// use 15 bit for height values, so that we can use the MSB to flag skirt vertices
+// const QUANTIZED_RANGE =  ENABLE_SKIRTS ? 32767 : 0xffff;
 const QUANTIZED_MIN_HEIGHT = -500;
 const QUANTIZED_MAX_HEIGHT = 9000;
 
@@ -101,7 +101,7 @@ const createTerrainFeature = (
 };
 
 const terrainFactories = {
-    stride: 3,
+    stride: 2,
     meshBuilder: {},
     get(size: number): RTINMeshBuilder {
         return this.meshBuilder[size] ||= new RTINMeshBuilder(size, this.stride);
@@ -134,19 +134,24 @@ const quantizeMesh = (mesh: RTINMesh, heightMap: Float32Array) => {
     const heightMapSize = Math.sqrt(heightMap.length);
     const tileSize = heightMapSize % 2 == 0 ? heightMapSize : heightMapSize - 1;
     const quantizedHeightRange = QUANTIZED_MAX_HEIGHT - QUANTIZED_MIN_HEIGHT;
-    quantizeVertexData(
+    const includeHeight = false;
+
+    mesh.vertices = quantizeVertexData(
         mesh.vertices,
+        mesh.vertexSize,
+        includeHeight,
         QUANTIZED_RANGE / tileSize,
         (h) => (h - QUANTIZED_MIN_HEIGHT) * QUANTIZED_RANGE / quantizedHeightRange,
-        mesh.stride !== 3 && heightMap
-    ) as Float32Array;
+        mesh.vertexSize !== 3 && heightMap
+    ) as typeof mesh.vertices;
+
+    mesh.vertexSize = includeHeight ? 3 : 2;
 
     if (mesh.skirtToMainVertexMap && heightMap) {
         for (const [i, j] of mesh.skirtToMainVertexMap) {
-            mesh.vertices[i * mesh.stride] |= 0x8000; // MSB 16 Bit
+            mesh.vertices[i * mesh.vertexSize] |= 0x8000; // MSB 16 Bit
         }
     }
-
     return mesh.vertices;
 };
 
@@ -191,6 +196,7 @@ function prepareFeature(feature,
 
         if (heightMap) {
             const {data, padding} = heightMap;
+            properties.heightMapPadding = padding;
             properties.heightMap = padding
                 ? extendHeightMapWithFullClamping(data, padding)
                 : data;
@@ -214,6 +220,7 @@ type EdgeIndices = { left: Uint16Array, right: Uint16Array, top: Uint16Array, bo
 type TerrainMeshProperties = {
     vertices: Float32Array | Uint32Array | Uint16Array | Uint8Array,
     indices: Uint16Array | Uint32Array,
+    size: number // vertex component size
 }
 
 const computeTerrainEdges = (
@@ -224,7 +231,7 @@ const computeTerrainEdges = (
 ): EdgeIndices => {
     return properties.edgeIndices ||= computeEdgeIndices(
         properties.vertices,
-        3,
+        properties.size,
         properties.indices.constructor as typeof Uint16Array,
         QUANTIZED_RANGE,
         skirtToMainVertexMap
@@ -298,7 +305,7 @@ class TerrainWorker extends HTTPWorker {
         const vertices = quantizeMesh(mesh, croppedHeightMap);
         const worldSize = Math.pow(2, data.zoom) * 256;
         const meterPerPixel = webMercator.earthCircumference(data.centerLatitude) / worldSize;
-        const prepared = {vertices, indices};
+        const prepared = {vertices, indices, size: mesh.vertexSize};
         const normals = computeTerrainNormals(prepared, meterPerPixel, mesh.skirtToMainVertexMap);
 
         return {
@@ -315,7 +322,7 @@ class TerrainWorker extends HTTPWorker {
         let feature;
         let skirtToMainVertexMap: Map<number, number>;
         const encoding = this.encoding;
-        let heightMap = null;
+        let heightMapData = null;
 
         if (data instanceof ArrayBuffer) {
             const {indices, vertices} = XYZTerra.decode(data);
@@ -323,29 +330,33 @@ class TerrainWorker extends HTTPWorker {
             data = [feature];
         } else {
             if (data instanceof ImageBitmap) {
-                heightMap = decodeHeights(
+                const heightMap = decodeHeights(
                     getImageDataFromImageBitmap(data),
                     encoding,
-                    'extrapolate', // 'backfill',
+                    'extrapolate', // 'backfill'
                     this.decodeScale,
                     this.decodeOffset
-                    // tileXYToQuadKey(z, y, x).split('').pop()
                 );
+                heightMapData = heightMap.data;
 
-                const mesh: RTINMesh = createMeshFromHeightMap(heightMap, this.maxGeometricError[z]);
+                const mesh: RTINMesh = createMeshFromHeightMap(heightMapData, this.maxGeometricError[z]);
                 skirtToMainVertexMap = mesh.skirtToMainVertexMap;
-                data = createHeightmapTerrainFeature(x, y, z, mesh, heightMap);
+                data = createHeightmapTerrainFeature(x, y, z, mesh, heightMapData);
 
                 // compute min and max height, used to optimize ray intersection
                 let minHeight = Infinity;
                 let maxHeight = -minHeight;
-                for (let height of heightMap) {
+                for (let height of heightMapData) {
                     if (height < minHeight) minHeight = height;
                     else if (height > maxHeight) maxHeight = height;
                 }
                 Object.assign(data.properties, {minHeight, maxHeight});
 
                 data.properties.useHeightMap = true;
+                data.properties.size = mesh.vertexSize;
+                data.properties.elevationTree = heightMap.elevationTree;
+                data.properties.minAltitude = heightMap.min;
+                data.properties.maxAltitude = heightMap.max;
                 // data.properties.heightScale = 1.0;
                 // heightMap = null;
             }
@@ -353,7 +364,7 @@ class TerrainWorker extends HTTPWorker {
         }
 
         if (feature) {
-            prepareFeature(feature, z, feature.properties.useHeightMap && {data: heightMap, padding: this.heightMapPadding}, skirtToMainVertexMap, {});
+            prepareFeature(feature, z, feature.properties.useHeightMap && {data: heightMapData, padding: this.heightMapPadding}, skirtToMainVertexMap, {});
 
             // properties.uv = (function createUVs(
             //  vertices: Float64Array | Float32Array | Uint16Array | Int16Array | number[],

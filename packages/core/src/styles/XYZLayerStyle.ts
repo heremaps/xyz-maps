@@ -114,6 +114,8 @@ export class XYZLayerStyle implements LayerStyle {
      */
     skyColor: Colors.Color | LinearGradient;
 
+    altitude: boolean;
+
     /**
      *
      * @param styleJSON
@@ -121,6 +123,7 @@ export class XYZLayerStyle implements LayerStyle {
      */
     constructor(styleJSON?: LayerStyle) {
         if (styleJSON) {
+            styleJSON.altitude ??= this.altitude;
             for (let p in styleJSON) {
                 const property = styleJSON[p];
                 this[p] = p == 'styleGroups' ? deepCopy(property) : property;

@@ -6,7 +6,7 @@ attribute vec2 a_texcoord;
 
 uniform vec2 u_resolution;
 uniform mat4 u_matrix;
-uniform vec2 u_topLeft;
+uniform vec4 u_tile;
 uniform vec4 u_offset;
 uniform vec2 u_offsetZ;
 uniform float u_zMeterToPixel;
@@ -22,13 +22,13 @@ varying vec4 vColor;
 
 #include "utils.glsl/snapToScreenPixel"
 #include "utils.glsl/heightMapUtils"
+#include "utils.glsl/terrainOcclusion"
 #include "utils.glsl/altitudeScaleFactor"
 
 const float OFFSET_SCALE = 1.0 / 32.0;
 const float PI_05 = M_PI * 0.5;
 const float PI_15 = M_PI * 1.5;
 const float PI_20 = M_PI * 2.0;
-
 void main(void) {
     if (mod(a_position.x, 2.0) == 1.0) {
 
@@ -46,11 +46,19 @@ void main(void) {
         rotationZ = rotationZ / 1024.0 * PI_20;// 9bit -> 2PI;
 
         #ifdef USE_HEIGHTMAP
-        float z = getTerrainHeight( position );
+        float z = getTerrainHeight(position);
         #else
-        float z = a_position.z * SCALE_UINT16_Z;
+        float z = a_position.z * SCALE_UINT16_Z * u_exaggeration;
         #endif
-        z += toPixel(u_offsetZ, u_scale) / u_zMeterToPixel/ u_scale;
+        float offsetZ = toPixel(u_offsetZ, u_scale) / u_zMeterToPixel/ u_scale;
+        z += offsetZ;
+        vec4 anchorClip = u_matrix * vec4(u_tile.xy + position, z, 1.0);
+
+        #if defined(TERRAIN_OCCLUSION)
+        if (applyTerrainOcclusion(anchorClip)) {
+            return;
+        }
+        #endif
 
         if (u_alignMap) {
             float absRotation = mod(u_rotate + rotationZ, PI_20);
@@ -66,14 +74,21 @@ void main(void) {
             offset = rotateY(offset, rotationY);
             offset.xy = rotateZ(offset.xy, rotationZ);
 
-            vec3 posWorld = vec3(u_topLeft + position, z);
+            vec3 posWorld = vec3(u_tile.xy + position, z);
 
             offset.xy *= altitudeScaleFactor(posWorld, u_matrix);
 
-            gl_Position = u_matrix * vec4(posWorld + offset, 1.0);
+            vec3 vertexPos = posWorld + offset;
+            #ifdef USE_HEIGHTMAP
+            // map-aligned glyphs follow the terrain at their actual tile position.
+            vec2 heightPosition = position + offset.xy;
+            vertexPos.z = getTerrainHeight(heightPosition) + offsetZ + offset.z;
+            #endif
+
+            gl_Position = u_matrix * vec4(vertexPos, 1.0);
 
         } else {
-            vec4 cpos = u_matrix * vec4((u_topLeft + position), z, 1.0);
+            vec4 cpos = anchorClip;
             vec2 offset = rotateZ(a_point.xy * OFFSET_SCALE + labelOffset, rotationZ);
             //            posOffset = rotateY(vec3(posOffset, 0), a_point.z).xy;
             gl_Position = vec4(cpos.xy / cpos.w + vec2(1, -1) * offset / DEVICE_PIXEL_RATIO / u_resolution * 2.0, cpos.z / cpos.w, 1.0);

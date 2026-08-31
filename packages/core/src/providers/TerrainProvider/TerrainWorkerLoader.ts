@@ -60,7 +60,7 @@ class TerrainTileLoader extends WorkerHTTPLoader {
         super('TerrainWorker', {heightMapPadding: 0, ...options});
 
         this.min = options.min ?? 0;
-        this.max = options.min ?? 30;
+        this.max = options.max ?? 30;
     }
 
     protected processData(data: any): any {

@@ -32,6 +32,8 @@
             const index = this.animations.indexOf(animation);
             if (index == -1) {
                 this.animations.push(animation);
+                animation.animationMinZoom = dbgTools.getDisplay().getZoomlevel()^0;
+                animation.animationMaxZoom = animation.animationMinZoom +1;
                 if (this.animations.length == 1) {
                     this.animateMap();
                 }
@@ -57,10 +59,29 @@
         panAnimation._y = y;
     }
 
+
     const rotateAnimation = () => {
         const display = dbgTools.getDisplay();
         display.rotate((display.rotate() + .4) % 360);
     };
+
+    const zoomAnimation = () => {
+        let animationMinZoom = zoomAnimation.animationMinZoom;
+        let animationMaxZoom = zoomAnimation.animationMaxZoom;
+        const display = dbgTools.getDisplay();
+        let zoom = display.getZoomlevel();
+        let direction = zoomAnimation.zoomDirection || 1;
+        if (zoom >= animationMaxZoom) {
+            direction = -1;
+        } else if (zoom <= animationMinZoom) {
+            direction = 1;
+        }
+        const zoomStep = .01;
+        zoom = Math.max(animationMinZoom, Math.min(animationMaxZoom, zoom + direction * zoomStep));
+        display.setZoomlevel(zoom);
+        zoomAnimation.zoomDirection = direction;
+    };
+
 
     let lightAnimationSpeed = 1;
     const animateLight = () => {
@@ -96,6 +117,7 @@
 
 
     document.addEventListener('keydown', function(e) {
+        console.log(e.code);
         switch (e.code) {
         case 'KeyL':
             animations.toggleAnimation(animateLight);
@@ -105,6 +127,10 @@
             break;
         case 'KeyA':
             animations.toggleAnimation(panAnimation);
+            break;
+        case 'KeyY':
+        case 'KeyZ':
+            animations.toggleAnimation(zoomAnimation);
             break;
         }
     });
@@ -358,7 +384,8 @@
                 type: 'Polygon',
                 fill: color || '#FF722055',
                 stroke: '#FF7220',
-                strokeWidth: 10
+                strokeWidth: 10,
+                altitude: 'terrain'
             }]);
         }
     };

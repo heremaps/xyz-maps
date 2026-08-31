@@ -36,6 +36,7 @@ import {BinaryHeap} from './BinaryHeap';
 import {ExpressionParser} from './Expressions/ExpressionParser';
 import {JSONExpression, Expression, ExpressionMode} from './Expressions/Expression';
 import {Colors as Color} from './Color';
+import {Pool} from './Pool';
 // make sure global ns is also available for webpack users.
 let scp: any = global;
 'here.xyz.maps'.split('.').forEach((ns) => scp = (scp[ns] = scp[ns] || {}));
@@ -64,7 +65,8 @@ const common = {
     Set,
     Map,
     vec3,
-    geometry
+    geometry,
+    Pool
 };
 scp.common = common;
 export {
@@ -90,6 +92,7 @@ export {
     Set,
     Map,
     vec3,
-    geometry
+    geometry,
+    Pool
 };
 export default common;

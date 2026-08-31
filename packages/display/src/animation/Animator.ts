@@ -69,21 +69,32 @@ abstract class Animator {
             animator.active = true;
             animator.onStart();
 
-            animator.animation = new Animation(from, to, duration, this.easing, animate);
+            const animation = new Animation(from, to, duration, this.easing, animate);
+            animator.animation = animation;
 
-            await animator.animation.start();
-
-            animator.onStop();
-            animator.active = false;
-            animator.animation = null;
+            try {
+                await animation.start();
+            } finally {
+                // A stopped animation has already released the state in stop().
+                if (animator.animation === animation) {
+                    animator.animation = null;
+                    animator.active = false;
+                    animator.onStop();
+                }
+            }
         }
     };
 
     abstract start(...args: any);
 
     stop() {
-        this.animation?.stop();
-        this.active = false;
+        const animation = this.animation;
+        if (animation) {
+            this.animation = null;
+            this.active = false;
+            animation.stop();
+            this.onStop();
+        }
     }
 }
 

@@ -24,22 +24,23 @@ import {GlyphTexture} from '../GlyphTexture';
 import {LineBuffer} from './templates/LineBuffer';
 import {FlexArray} from './templates/FlexArray';
 import {FlexAttribute} from './templates/TemplateBuffer';
-import {PASS} from '../program/GLStates';
 import {createImageBuffer} from './createImageBuffer';
 import {Color as ColorUtils} from '@here/xyz-maps-common';
 import {Attribute} from './Attribute';
 
 import {CompiledUniformMap} from '../program/Program';
+import {PASS} from '../RenderPass';
+import {GraphicsDevice} from '../device/GraphicsDevice';
 
 const {toRGB} = ColorUtils;
 
 export type StencilTileBuffer = GeometryBuffer & { uniforms: CompiledUniformMap };
-export const createStencilTileBuffer = (tileSize: number, gl: WebGLRenderingContext) : StencilTileBuffer => {
+export const createStencilTileBuffer = (tileSize: number, device: GraphicsDevice) : StencilTileBuffer => {
     const tileBuffer: StencilTileBuffer = createImageBuffer({
         width: 1,
         height: 1,
         data: new Uint8ClampedArray([255, 255, 255, 255])
-    }, gl, 1, false) as StencilTileBuffer;
+    }, device, 1, false) as StencilTileBuffer;
     tileBuffer.id = 'StencilTile';
     tileBuffer.clip = true;
     tileBuffer.depth = false;
@@ -76,10 +77,9 @@ const createGridTileBuffer = (tileSize: number = 1, color: number[] = [1.0, 0.0,
     geoBuffer.addUniform('u_fill', color);
     geoBuffer.addUniform('u_strokeWidth', [strokeWidth, 0]);
     geoBuffer.addUniform('u_offset', [0, 0]);
-
-    geoBuffer.clip = false;
+    // geoBuffer.clip = false;
     geoBuffer.depth = false;
-    geoBuffer.pass = PASS.ALPHA;
+    geoBuffer.pass = PASS.ALPHA_COLOR;
 
     geoBuffer.setSize = (size: number) => {
         const position = geoBuffer.attributes.a_position as Attribute;
@@ -100,9 +100,9 @@ export {createGridTileBuffer};
 
 let glyphs;
 
-const createGridTextBuffer = (quadkey: string, gl: WebGLRenderingContext, font) => {
+const createGridTextBuffer = (quadkey: string, device: GraphicsDevice, font) => {
     if (!glyphs) {
-        glyphs = new GlyphTexture(gl, font);
+        glyphs = new GlyphTexture(device, font);
         glyphs.addChars('L0123456789');
         glyphs.sync();
     }
@@ -148,9 +148,9 @@ const createGridTextBuffer = (quadkey: string, gl: WebGLRenderingContext, font) 
     });
 
 
-    textBuffer.pass = PASS.ALPHA;
+    textBuffer.pass = PASS.ALPHA_COLOR;
     textBuffer.depth = false;
-    textBuffer.clip = false;
+    // textBuffer.clip = false;
     // textBuffer.texture = glyphs;
     textBuffer.addUniform('u_texture', glyphs);
     textBuffer.addUniform('u_texSize', [glyphs.width, glyphs.height]);

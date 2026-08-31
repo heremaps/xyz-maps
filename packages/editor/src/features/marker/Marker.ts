@@ -20,15 +20,6 @@
 import {Feature} from '../feature/Feature';
 import oTools from '../area/PolygonTools';
 
-type DefaultBehavior = {
-    dragAxis?: [number, number, number] | 'Z'
-    dragPlane?: [number, number, number] | 'XY'
-}
-
-const defaultBehavior: DefaultBehavior = {
-    dragPlane: 'XY'
-};
-
 /**
  * The Marker Feature is a generic editable Feature with "Point" geometry.
  * The Feature can be edited with the {@link Editor}.
@@ -102,7 +93,7 @@ export class Marker extends Feature {
     }): void;
 
     behavior(options?: any, value?: boolean) {
-        let behavior = oTools.private(this, 'b') || {...defaultBehavior};
+        let behavior = oTools.private(this, 'b') || {};
 
         switch (arguments.length) {
         case 0:

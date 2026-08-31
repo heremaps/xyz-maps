@@ -136,6 +136,20 @@ abstract class BasicTile {
         return this.p[index];
     };
 
+    fallbackToAncestorPreview(index: number) {
+        this.ready(index, false);
+
+        const preview = this.preview(index);
+        if (!preview || !preview.length) {
+            this.preview(index, false);
+        }
+    }
+
+    markEmpty(index: number) {
+        this.preview(index, false);
+        this.ready(index, true);
+    }
+
     getOverlayingTiles(): BasicTile[] {
         const overlaying = [];
         const {quadkey} = this;

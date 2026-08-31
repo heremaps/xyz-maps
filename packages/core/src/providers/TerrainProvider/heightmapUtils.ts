@@ -17,6 +17,8 @@
  * License-Filename: LICENSE
  */
 
+import {ElevationQuadTree} from './ElevationQuadTree';
+
 enum Neighbor {
     LEFT = 'left',
     RIGHT = 'right',
@@ -25,8 +27,8 @@ enum Neighbor {
 }
 
 export function stitchHeightmapBorders(
-    src: Float32Array,
-    dst: Float32Array,
+    src: ArrayLike<number>,
+    dst: Uint16Array | Uint32Array | Float32Array,
     side: Neighbor,
     srcPadding: number = 0,
     dstPadding: number = 0,
@@ -202,47 +204,66 @@ const isPowerOfTwoPlusOne = (n: number): boolean => {
     return (v & (v - 1)) === 0;
 };
 
-
+/**
+ * Decodes RGBA image data into a heightmap and builds an ElevationQuadTree
+ * for per-child-tile elevation statistics.
+ *
+ * Heights are decoded from the image using the specified encoding, then optionally
+ * padded to a power-of-two-plus-one grid size via the chosen fill strategy.
+ *
+ * The ElevationQuadTree uses a flat Float32Array with Morton-index addressing
+ * for O(1) lookup. Pre-computed levels are auto-determined from the image
+ * dimensions (each deepest block covers at least 8×8 pixels).
+ *
+ * @param imgData      - The RGBA ImageData to decode.
+ * @param encoding     - Height encoding format ('terrarium' | 'mtk' | 'mapboxrgb' | 'xyztrn').
+ * @param fillStrategy - Border fill strategy when grid needs padding ('extrapolate' | 'backfill').
+ * @param decodeScale  - Multiplier applied after decoding each height value.
+ * @param decodeOffset - Offset added after decoding and scaling each height value.
+ *
+ * @returns An object containing:
+ *  - `data`          – The decoded heightmap as Float32Array (gridSize x gridSize).
+ *  - `min`           – Global minimum height.
+ *  - `max`           – Global maximum height.
+ *  - `elevationTree` – The serialized ElevationQuadTree (Float32Array, transferable).
+ */
 export function decodeHeights(
     imgData: ImageData,
     encoding: string,
     fillStrategy: string = 'extrapolate',
     decodeScale: number = 1,
-    decodeOffset: number = 1,
-    dbgVal?: string
-) {
+    decodeOffset: number = 1
+): { data: Float32Array, min: number, max: number, elevationTree: Float32Array } {
     const {width, height, data} = imgData;
     const gridSize = width + Number(!isPowerOfTwoPlusOne(width));
-    const terrain = new Float32Array(gridSize * gridSize);
+    let terrain = new Float32Array(gridSize * gridSize);
 
-    const decode = ({
+    let decode = ({
         'terrarium': (r: number, g: number, b: number, a: number) => (r * 256 + g + b / 256) - 32768,
         'mtk': (r: number, g: number, b: number, a: number) => (r * 256 * 256 + g * 256 + b) * 0.03 - 10000,
         'mapboxrgb': (r: number, g: number, b: number, a: number) => (r * 256 * 256 + g * 256 + b) / 10 - 10000,
         'xyztrn': (r: number, g: number, b: number, a: number) => ((r << 16) | (g << 8) | b) * (9500 / 16777215) - 500
-        // 'Normal': (r: number, g: number, b: number, a: number) => decodeNormalElevation(a)
     })[encoding.toLowerCase()];
 
     if (!decode) throw new Error(`Unsupported Terrain encoding: ${encoding}`);
 
-    // decode terrain values
-    for (let y = 0; y < height; y++) {
+    for (let y = 0, terrainRowOffset = 0; y < height; y++, terrainRowOffset += gridSize) {
         for (let x = 0; x < width; x++) {
-            const k = (y * width + x) * 4;
-            terrain[y * gridSize + x] = decode(
-                data[k],
-                data[k + 1],
-                data[k + 2],
-                data[k + 3]
-            ) * decodeScale + decodeOffset;
+            const k = (y * width + x) << 2;
+            const h = decode(data[k], data[k + 1], data[k + 2], data[k + 3]) * decodeScale + decodeOffset;
+            terrain[terrainRowOffset + x] = h;
         }
     }
 
-    return gridSize === width
+    const tree = new ElevationQuadTree(terrain, width, height);
+
+    const heights = gridSize === width
         ? terrain
         : fillStrategy === 'extrapolate'
             ? extrapolateTileEdges(terrain, Math.sqrt(terrain.length))
             : backfillHeightmapBorders(terrain);
+
+    return {data: heights, min: tree.min, max: tree.max, elevationTree: tree.serialize()};
 }
 
 export const cropHeightMap = (

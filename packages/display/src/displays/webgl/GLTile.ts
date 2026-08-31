@@ -61,9 +61,7 @@ class GLTile extends BasicTile {
 
         const _data = this.data[index];
         if (_data && _data.length) {
-            if (this.onDrop) {
-                this.onDrop(_data, index);
-            }
+            this.onDrop?.(_data, index);
         }
         this.data[index] = data;
 

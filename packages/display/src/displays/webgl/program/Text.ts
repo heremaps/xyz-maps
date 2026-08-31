@@ -23,9 +23,10 @@ import vertexShader from '../glsl/text_vertex.glsl';
 import fragmentShader from '../glsl/text_fragment.glsl';
 
 import Program, {ProgramMacros} from './Program';
-import {GLStates, PASS} from './GLStates';
+import {GLStates} from './GLStates';
 import {GeometryBuffer} from '../buffer/GeometryBuffer';
 import {ViewUniforms} from '../GLRender';
+import {BlendFactor, GraphicsDevice} from '../device/GraphicsDevice';
 
 class TextProgram extends Program {
     name = 'Text';
@@ -36,36 +37,31 @@ class TextProgram extends Program {
         depth: true
     });
 
-    static getProgramId(buffer: GeometryBuffer, macros?: ProgramMacros) {
-        return buffer.type + (macros?.USE_HEIGHTMAP||'');
-    }
+    constructor(device: GraphicsDevice, devicePixelRation: number, macros?: ProgramMacros) {
+        super(device, devicePixelRation, macros);
 
-    constructor(gl: WebGLRenderingContext, devicePixelRation: number, macros?: ProgramMacros) {
-        super(gl, devicePixelRation, macros);
-
-        this.mode = gl.TRIANGLES;
+        this.mode = device.gl.TRIANGLES;
         this.vertexShaderSrc = vertexShader;
         this.fragmentShaderSrc = fragmentShader;
     }
 
 
     protected blendFunc() {
-        const {gl} = this;
-        gl.blendFunc(gl.ONE, gl.ONE_MINUS_SRC_ALPHA);
+        this.device.setBlendFunc(BlendFactor.ONE, BlendFactor.ONE_MINUS_SRC_ALPHA);
     }
 
-    configureRenderState(options: GeometryBuffer, pass: PASS, zIndex: number) {
-        const {gl} = this;
-        super.configureRenderState(options, pass);
-        // using LEQUAL and write to depthbuffer used as default in alpha pass will
-        // lead to lost context on some systems (driverbug?!)
-        // this issues is also related to overlapping (atlas.spacing) of characters
-        gl.depthMask(false);
-        // gl.depthFunc(gl.LESS);
-
-        gl.polygonOffset(0, (1 << 11) * -zIndex);
-        gl.enable(gl.POLYGON_OFFSET_FILL);
-    }
+    // configureRenderState(renderItem: RenderTile, pass: PASS) {
+    //     const {gl} = this;
+    //     // using LEQUAL and write to depthbuffer used as default in alpha pass will
+    //     // lead to lost context on some systems (driverbug?!)
+    //     // this issues is also related to overlapping (atlas.spacing) of characters
+    //     this.device.setDepthMask(false);
+    //     this.device.setDepthMask(true);
+    //     gl.depthFunc(gl.LESS);
+    //
+    //     gl.polygonOffset(0, (1 << 11) * -zIndex);
+    //     gl.enable(gl.POLYGON_OFFSET_FILL);
+    // }
 
     draw(geoBuffer: GeometryBuffer) {
         const {gl, uniforms} = this;
@@ -77,7 +73,8 @@ class TextProgram extends Program {
         super.draw(geoBuffer);
     }
 
-    override initViewUniforms(viewUniforms: ViewUniforms ) {
+    override initViewUniforms(viewUniforms: ViewUniforms, isOffscreenPass = false) {
+        super.initViewUniforms(viewUniforms, isOffscreenPass);
         this.initUniform('u_rotate', viewUniforms.rz);
         this.initUniform('u_fixedView', viewUniforms.fixedView);
     }

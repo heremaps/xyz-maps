@@ -17,6 +17,8 @@
  * License-Filename: LICENSE
  */
 
+import {GraphicsDevice} from './device/GraphicsDevice';
+
 export type TextureData = {
     width: number;
     height: number;
@@ -37,6 +39,9 @@ export type TextureOptions = {
     mipMaps?: boolean
     wrapS?: GLenum;
     wrapT?: GLenum;
+    minFilter?: GLenum;
+    magFilter?: GLenum;
+    anisotropy?: number;
     // /**
     //  * If true, the original pixel/source data for this texture
     //  * is preserved in system (CPU) memory even after uploading
@@ -64,7 +69,7 @@ class Texture {
     private internalFormat: number;
 
     protected texture: WebGLTexture;
-    protected gl: WebGLRenderingContext;
+    // protected gl: WebGLRenderingContext;
 
     private flipY: boolean;
     private premultiplyAlpha: boolean;
@@ -78,9 +83,11 @@ class Texture {
     private magFilter: GLenum;
 
     // preserveSourceData: boolean;
+    private anisotropy: number;
 
-    constructor(gl: WebGLRenderingContext, image?: ImageData, options: TextureOptions = {}) {
-        this.gl = gl;
+    constructor(protected device: GraphicsDevice, image?: ImageData, options: TextureOptions = {}) {
+        const {gl} = device;
+        // this.gl = gl;
         this.format = options.format || gl.RGBA;
         this.internalFormat = options.internalFormat || this.format;
         this.flipY = options.flipY || false;
@@ -91,6 +98,7 @@ class Texture {
         const textureData = (image as TextureData)?.data;
         const float = options.float || textureData instanceof Float32Array;
 
+        this.anisotropy = options.anisotropy ?? 0;
 
         let minFilter: GLenum;
         let magFilter: GLenum;
@@ -117,24 +125,26 @@ class Texture {
         this.wrapS = options.wrapS ?? gl.CLAMP_TO_EDGE;
         this.wrapT = options.wrapT ?? gl.CLAMP_TO_EDGE;
         this.premultiplyAlpha = options.premultiplyAlpha ?? true;
-        this.minFilter = minFilter ?? gl.LINEAR;
-        this.magFilter = magFilter ?? gl.LINEAR;
+
+
+        this.minFilter = options.minFilter ?? minFilter ?? gl.LINEAR;
+        this.magFilter = options.magFilter ?? magFilter ?? gl.LINEAR;
 
         if (image) {
             this.set(image);
         }
     }
 
-    bind() {
-        const {gl, texture} = this;
+    bind(unit: number = 0) {
+        const {texture} = this;
         if (texture) {
-            gl.bindTexture(gl.TEXTURE_2D, texture);
+            this.device.bindTexture2D(unit, texture);
         }
     }
 
     set(image: ImageData, x?: number, y?: number) {
-        let {gl, texture, format, internalFormat, flipY, wrapS, wrapT, type, minFilter, magFilter} = this;
-
+        let {device, texture, format, internalFormat, flipY, wrapS, wrapT, type, minFilter, magFilter} = this;
+        const {gl} = device;
         const {width, height} = image;
         const isSubImage = typeof x == 'number';
 
@@ -143,7 +153,7 @@ class Texture {
             this.texture = texture = gl.createTexture();
         }
 
-        gl.bindTexture(gl.TEXTURE_2D, texture);
+        this.device.bindTexture2D(0, texture);
         gl.pixelStorei(gl.UNPACK_PREMULTIPLY_ALPHA_WEBGL, this.premultiplyAlpha);
 
         gl.texParameteri(gl.TEXTURE_2D, gl.TEXTURE_WRAP_S, wrapS);
@@ -171,12 +181,21 @@ class Texture {
             gl.texParameteri(gl.TEXTURE_2D, gl.TEXTURE_MIN_FILTER, minFilter);
             gl.texParameteri(gl.TEXTURE_2D, gl.TEXTURE_MAG_FILTER, magFilter);
         }
+
+        // Apply anisotropic filtering when available.
+        if (this.anisotropy > 1) {
+            const ext = this.device.extensions.getExtension('EXT_texture_filter_anisotropic');
+            if (ext) {
+                const max = gl.getParameter(ext.MAX_TEXTURE_MAX_ANISOTROPY_EXT) as number;
+                const level = Math.max(1, Math.min(this.anisotropy, max));
+                gl.texParameterf(gl.TEXTURE_2D, ext.TEXTURE_MAX_ANISOTROPY_EXT, level);
+            }
+        }
     }
 
     destroy() {
-        const {gl, texture} = this;
-        if (texture) {
-            gl.deleteTexture(texture);
+        if (this.texture) {
+            this.device.gl.deleteTexture(this.texture);
             this.texture = null;
         }
     }

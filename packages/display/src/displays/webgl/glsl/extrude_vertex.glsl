@@ -4,26 +4,39 @@ attribute vec3 a_position;
 attribute vec3 a_normal;
 
 uniform mat4 u_matrix;
-uniform vec2 u_topLeft;
+uniform vec4 u_tile;
 uniform vec4 u_fill;
 uniform float u_fillIntensity;
 uniform bool u_strokePass;
 uniform vec4 u_stroke;
 
+varying vec4 v_fill;
+
 #include "light.glsl"
+
+
+#if defined(SPECULAR) || defined(USE_HEIGHTMAP)
+uniform float u_zMeterToPixel;
+#endif
 
 #ifdef SPECULAR
 uniform vec3 u_camWorld;
-uniform float u_zMeterToPixel;
 uniform vec3 specular;
 uniform float shininess;
 #endif
 
-varying vec4 v_fill;
+#include "utils.glsl/heightMapUtils"
 
 const vec3 TopSurfaceNormal = vec3(0, 0, 1);
 void main(void) {
-    vec3 worldPos = vec3(u_topLeft + a_position.xy, a_position.z);
+
+    float z = a_position.z;
+
+    #ifdef USE_HEIGHTMAP
+        z += getTerrainHeight(a_position.xy);
+    #endif
+
+    vec3 worldPos = vec3(u_tile.xy + a_position.xy, z);
     gl_Position = u_matrix * vec4(worldPos, 1.0);
 
     if(u_strokePass){

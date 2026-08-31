@@ -72,8 +72,19 @@ export class HTTPWorker {
                 data
             }, transfer);
         },
-        (e) => {
-            self.postMessage({msg: 'error', url, key: quadkey, data: e});
+        (error, xhr) => {
+            // Send a serializable XHR-like payload; structured cloning may lose
+            // NetworkError.statusCode, so the main thread recreates the error once.
+            self.postMessage({
+                msg: 'error',
+                url,
+                key: quadkey,
+                data: {
+                    status: error?.statusCode ?? xhr?.status,
+                    statusText: error?.message ?? xhr?.statusText,
+                    responseText: error?.responseText
+                }
+            });
         });
     }
 

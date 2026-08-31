@@ -18,21 +18,21 @@
  */
 import {SharedTexture} from './Atlas';
 import {TextureOptions} from './Texture';
+import {GraphicsDevice} from './device/GraphicsDevice';
 
 type DashArray = number[];
 
 type DashTexture = { texture: SharedTexture, scale: number };
 
 class DashAtlas {
-    private gl: WebGLRenderingContext;
     private data: { [id: string]: DashTexture } = {};
 
     // scale by 10 to allow 0.1 meter precision
     scale: number = 10;
     private textureOptions: TextureOptions;
 
-    constructor(gl: WebGLRenderingContext) {
-        this.gl = gl;
+    constructor(private device: GraphicsDevice) {
+        const gl = device.gl;
 
         this.textureOptions = gl instanceof WebGL2RenderingContext ? {
             format: gl.RED,
@@ -50,7 +50,6 @@ class DashAtlas {
         size *= scale;
 
         const pixels = new Uint8Array(size);
-        const {gl} = this;
         let fill = true;
         let offset = 0;
 
@@ -64,10 +63,9 @@ class DashAtlas {
                 fill = !fill;
             }
         }
-
         return {
             scale,
-            texture: new SharedTexture(gl, {
+            texture: new SharedTexture(this.device, {
                 width: pixels.length,
                 height: 1,
                 data: pixels

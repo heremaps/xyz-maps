@@ -1,4 +1,4 @@
-import {TerrainTileLayer, TerrainTileLayerStyle} from '@here/xyz-maps-core';
+import {TerrainTileLayer, TerrainTileLayerStyle, ImageProvider, TileLayer} from '@here/xyz-maps-core';
 import {Map} from '@here/xyz-maps-display';
 
 const display = new Map(document.getElementById('map'), {
@@ -18,8 +18,9 @@ const display = new Map(document.getElementById('map'), {
         new TerrainTileLayer({
             name: 'terrainLayer',
             min: 2,
-            max: 19,
+            max: 20,
             tileSize: 512,
+            maxDataZoom: 15,
             elevation: {
                 url: 'https://s3.amazonaws.com/elevation-tiles-prod/terrarium/{z}/{x}/{y}.png',
                 attribution: {
@@ -28,10 +29,6 @@ const display = new Map(document.getElementById('map'), {
                 },
                 encoding: 'terrarium',
                 min: 8
-            },
-            imagery: {
-                url: `https://maps.hereapi.com/v3/base/mc/{z}/{x}/{y}/jpeg?apikey=${YOUR_API_KEY}&style=satellite.day&size=512`,
-                attribution: '2025 HERE, Maxar'
             }
             // By default, only ambient lighting is applied to the terrain layer.
             // To enhance 3D appearance with shadows and highlights, add a directional light in the style configuration as shown below.
@@ -50,6 +47,16 @@ const display = new Map(document.getElementById('map'), {
             //         intensity: 0.7
             //     }]
             // })
+        }),
+        new TileLayer({
+            name: 'Satellite Imagery',
+            min: 1,
+            max: 20,
+            tileSize: 512,
+            provider: new ImageProvider({
+                url: `https://maps.hereapi.com/v3/base/mc/{z}/{x}/{y}/jpeg?apikey=${YOUR_API_KEY}&style=satellite.day&size=512`,
+                attribution: '2025 HERE, Maxar'
+            })
         })
     ]
 });

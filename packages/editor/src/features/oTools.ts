@@ -111,13 +111,34 @@ export default oTools;
 type DragBehavior = { terrain?: boolean, plane?: number[], axis?: number[] };
 
 // ********* shared utils *********
-const getDragBehavior = (feature: Marker): DragBehavior => {
-    if (feature.behavior?.('dragSurface') === 'terrain') {
+
+const isEmptyObject = (obj) => {
+    for (const key in obj) {
+        if (obj.hasOwnProperty(key)) {
+            return false;
+        }
+    }
+    return true;
+};
+
+const getDragBehavior = (feature: Feature & {
+    behavior?: (k?, v?) => any
+}, iEditor: InternalEditor): DragBehavior => {
+    const behavior = feature.behavior?.();
+
+    if (!behavior || isEmptyObject(behavior)) {
+        const usesTerrain = iEditor.getResolvedStyle(feature).some((s) => {
+            return s.altitude === 'terrain';
+        }) && iEditor.displayProvidesTerrain;
+        return usesTerrain ? {terrain: true} : {plane: [0, 0, 1]}; // {'dragPlane': 'XY'};
+    }
+
+    if (behavior.dragSurface === 'terrain') {
         return {terrain: true};
     }
 
-    const getDragVector = (behavior: string, map) => {
-        let b = feature.behavior?.(behavior);
+    const getDragVector = (key: string, map) => {
+        let b = behavior[key];
         if (b) {
             if (typeof b == 'string') {
                 b = map[b.split('').sort().join('').toUpperCase()];
@@ -148,7 +169,7 @@ export const dragFeatureCoordinate = (
     feature,
     coordinate: number[],
     editor: InternalEditor,
-    behavior: DragBehavior = getDragBehavior(feature)
+    behavior: DragBehavior = getDragBehavior(feature, editor)
 ): number[] => {
     editor = editor || feature._e();
     const display = editor.display;

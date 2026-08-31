@@ -17,13 +17,14 @@
  * License-Filename: LICENSE
  */
 import {Task, TaskOptions} from '@here/xyz-maps-common';
-import {TerrainTileLayer} from '@here/xyz-maps-core';
+import {TerrainTileLayer, tileUtils} from '@here/xyz-maps-core';
 import {GeometryBuffer} from '../GeometryBuffer';
 import GLTile from '../../GLTile';
 import {Texture} from '../../Texture';
 import {TilePreviewInfo} from '../../../Preview';
-import {HeightMapTileCache} from '../../HeightMapTileCache';
+import {HeightMapTileCache, HeightMapTileData} from '../../HeightMapTileCache';
 import {Layer} from '../../../Layers';
+import {GraphicsDevice} from '../../device/GraphicsDevice';
 
 type TerrainTaskInput = {
     buffers: GeometryBuffer[]
@@ -32,7 +33,9 @@ type TerrainTaskInput = {
 type TerrainTaskData = TerrainTaskInput & {
     bufferIndex: number;
     heightMapIndex: number;
-    heightMapSize: number,
+    heightMapSize: number;
+    min: number;
+    max: number;
     heightMap: Float32Array
 };
 
@@ -45,26 +48,60 @@ export class TerrainTask extends Task<TerrainTaskInput, TerrainTaskData, HeightM
     private terrainCache: HeightMapTileCache;
 
     private tile: GLTile;
+    private tileZ: number;
+    private tileX: number;
+    private tileY: number;
     private terrainLayer: Layer;
-    private gl: WebGLRenderingContext;
+    private device: GraphicsDevice;
 
     private heightMap: HeightMapData;
     private padding: number;
 
+
+    // true when a cached ancestor is referenced instead of creating a local copy.
+    private referenceAncestor: boolean;
+    // tile key whose coordinate space contains the geometry vertices.
+    private geometryTileKey: number;
+    // terrain tile key to sample (clamped to maxDataZoom)
+    private terrainTileKey: number;
+    // maps geometryTileKey into terrainTileKey (null when both keys are equal)
+    private terrainTransform: Float32Array | null;
+
     constructor(options: TaskOptions & {
-        gl: WebGLRenderingContext,
+        device: GraphicsDevice,
         displayTile: GLTile,
         terrainLayer: Layer,
         terrainCache: HeightMapTileCache
     }) {
         super(options);
 
-        this.gl = options.gl;
+        this.device = options.device;
         this.tile = options.displayTile;
         this.terrainCache = options.terrainCache;
         this.terrainLayer = options.terrainLayer;
         const terrainTileLayer = this.terrainLayer?.layer as TerrainTileLayer;
         this.padding = terrainTileLayer?.getHeightmapPadding();
+
+        const [zoom, y, x] = tileUtils.quadToGrid(this.tile.quadkey);
+
+        this.tileZ = zoom;
+        this.tileX = x;
+        this.tileY = y;
+
+        this.geometryTileKey = HeightMapTileCache.tileKey(zoom, x, y);
+        this.terrainTileKey = this.geometryTileKey;
+        this.terrainTransform = null;
+
+        const maxDataZoom = terrainTileLayer?.maxDataZoom;
+        if (typeof maxDataZoom === 'number' && zoom > maxDataZoom) {
+            const tilesPerTerrainTile = Math.pow(2, zoom - maxDataZoom);
+            this.terrainTileKey = HeightMapTileCache.tileKey(
+                maxDataZoom,
+                Math.floor(x / tilesPerTerrainTile),
+                Math.floor(y / tilesPerTerrainTile)
+            );
+            this.terrainTransform = HeightMapTileCache.computeTransform(this.terrainTileKey, this.geometryTileKey);
+        }
     }
 
     private blitHeightmap(
@@ -103,14 +140,139 @@ export class TerrainTask extends Task<TerrainTaskInput, TerrainTaskData, HeightM
         }
     }
 
+    private fillPaddingRing(data: Float32Array, size: number) {
+        const pad = this.padding;
+        if (pad <= 0) return;
+
+        const last = size - 1;
+        for (let i = pad; i < size - pad; i++) {
+            for (let p = 0; p < pad; p++) {
+                data[p * size + i] = data[pad * size + i]; // top
+                data[(last - p) * size + i] = data[(last - pad) * size + i]; // bottom
+                data[i * size + p] = data[i * size + pad]; // left
+                data[i * size + last - p] = data[i * size + last - pad]; // right
+            }
+        }
+        for (let py = 0; py < pad; py++) {
+            for (let px = 0; px < pad; px++) {
+                data[py * size + px] = data[pad * size + pad]; // top-left
+                data[py * size + last - px] = data[pad * size + last - pad]; // top-right
+                data[(last - py) * size + px] = data[(last - pad) * size + pad]; // bottom-left
+                data[(last - py) * size + last - px] = data[(last - pad) * size + last - pad]; // bottom-right
+            }
+        }
+    }
+
+    /**
+     * Blits the next preview source into the local heightmap.
+     * Finalizes and stores the heightmap after the last source.
+     *
+     * @returns true when all sources are processed.
+     *
+     * @internal
+     * @hidden
+     */
+    private blitPreviewHeightMap(data: TerrainTaskData, preview: TilePreviewInfo[]): boolean {
+        const cachedTerrainData = this.terrainCache.getByTile(this.tileZ, this.tileX, this.tileY) || ({} as HeightMapTileData);
+        const heightMapInfo = preview[data.heightMapIndex];
+        // heightMapInfo[0] is a quadkey from the preview system
+        const heightMapData = this.terrainCache.get(heightMapInfo[0] as string);
+        const heightMap = heightMapData?.data;
+        const heightMapSize = Math.sqrt(heightMap?.length) || data.heightMapSize;
+        const heightMapTileSize = heightMapSize - 1 - 2 * this.padding;
+        // Ratio of logical tile pixels to usable heightmap pixels (inner area without padding).
+        const tileToHeightmapPixelScale = heightMapTileSize / this.terrainLayer.tileSize;
+        const target = data.heightMap ||= new Float32Array(heightMapSize * heightMapSize);
+
+        if (heightMap) {
+            if (heightMapData.min < data.min) {
+                data.min = heightMapData.min;
+            }
+            if (heightMapData.max > data.max) {
+                data.max = heightMapData.max;
+            }
+
+            // Preview coordinates are expressed in the logical tile area. The
+            // heightmap data is stored in a physically padded texture, so both
+            // source and destination coordinates need to skip the padding ring.
+            const padding = this.padding;
+            this.blitHeightmap(heightMap, target, heightMapSize,
+                heightMapInfo[1] * tileToHeightmapPixelScale + padding,
+                heightMapInfo[2] * tileToHeightmapPixelScale + padding,
+                heightMapInfo[3] * tileToHeightmapPixelScale,
+                heightMapInfo[5] * tileToHeightmapPixelScale + padding,
+                heightMapInfo[6] * tileToHeightmapPixelScale + padding,
+                heightMapInfo[7] * tileToHeightmapPixelScale
+            );
+        }
+
+        if (++data.heightMapIndex < preview.length) {
+            return false;
+        }
+
+        // all preview heightmaps processed — fill padding ring from edge values
+        this.fillPaddingRing(target, heightMapSize);
+
+        const heightMapTexture = new Texture(this.device, {
+            data: target,
+            width: heightMapSize,
+            height: heightMapSize
+        });
+        // Use accumulated stats from all sources.
+        // fall back to 0 if none are valid.
+        const hasStats = Number.isFinite(data.min);
+        this.heightMap = {
+            ...cachedTerrainData,
+            data: target,
+            size: heightMapSize,
+            texture: heightMapTexture,
+            tileSize: this.terrainLayer.tileSize,
+            padding: this.padding,
+            min: hasStats ? data.min : 0,
+            max: hasStats ? data.max : 0
+        };
+
+        data.heightMap = null;
+        data.heightMapIndex = 0;
+        data.min = Infinity;
+        data.max = -Infinity;
+
+        return true;
+    }
+
+    /**
+     * Returns whether a single cached ancestor heightmap can be sampled directly
+     * via UV transform instead of creating a local copy.
+     *
+     * @internal
+     * @hidden
+     */
+    private canReferenceAncestor(preview: TilePreviewInfo[]): boolean {
+        if (preview.length !== 1) return false;
+        const quadkey = this.tile.quadkey;
+        // preview[n][0] is the quadkey of the preview source tile
+        const sourceQuadkey = preview[0][0] as string;
+        // Only prefix ancestors map onto a single contiguous UV sub-region.
+        return quadkey.startsWith(sourceQuadkey) && !!this.terrainCache.get(sourceQuadkey)?.data;
+    }
+
     override init(data: TerrainTaskInput): TerrainTaskData {
         this.heightMap = null;
+        this.referenceAncestor = false;
+
+        for (let buffer of data.buffers) {
+            if (buffer.heightMapRef === 'required') {
+                buffer.terrainCache = this.terrainCache;
+            }
+        }
         return {
             buffers: data.buffers,
             bufferIndex: 0,
             heightMapIndex: 0,
+            min: Infinity,
+            max: -Infinity,
             heightMap: null,
-            heightMapSize: this.terrainLayer?.tileSize + 1 // + 2
+            heightMapSize: this.terrainLayer?.tileSize + 1 + 2 * this.padding
         };
     }
 
@@ -122,60 +284,32 @@ export class TerrainTask extends Task<TerrainTaskInput, TerrainTaskData, HeightM
         while (data.bufferIndex < buffers.length) {
             const buffer = buffers[data.bufferIndex];
 
-            let cacheKey = this.tile.quadkey;
+            if (buffer.heightMap) {
+                // Capture direct heightmap data for caching; check before heightMapRef.
+                this.heightMap = buffer.heightMap;
+            } else if (buffer.heightMapRef === 'required') {
+                const cachedTerrainData = this.terrainCache.getByTile(this.tileZ, this.tileX, this.tileY) || ({} as HeightMapTileData);
+                const heightMapData = cachedTerrainData.data ? cachedTerrainData : this.heightMap;
 
-
-            if (buffer.heightMapRef === 'required') {
-                const heightMapData = this.terrainCache.get(cacheKey) || this.heightMap;
-
-                if (!heightMapData) {
+                if (!heightMapData && !this.referenceAncestor) {
                     const preview: TilePreviewInfo[] = this.tile.preview(this.terrainLayer.index) as TilePreviewInfo[];
+
                     if (!preview?.length) return;
 
-                    const heightMapInfo = preview[data.heightMapIndex];
-                    const heightMap = this.terrainCache.get(heightMapInfo[0])?.data;
-                    const heightMapSize = Math.sqrt(heightMap?.length) || data.heightMapSize;
-                    const heightMapTileSize = heightMapSize - 1 - 2 * this.padding;
-                    // Ratio of logical tile pixels to usable heightmap pixels (inner area without padding).
-                    const tileToHeightmapPixelScale = heightMapTileSize / (this.terrainLayer.tileSize);
-                    const target = data.heightMap ||= new Float32Array(heightMapSize * heightMapSize);
-
-                    if (heightMap) {
-                        this.blitHeightmap(heightMap, target, heightMapSize,
-                            heightMapInfo[1] * tileToHeightmapPixelScale,
-                            heightMapInfo[2] * tileToHeightmapPixelScale,
-                            heightMapInfo[3] * tileToHeightmapPixelScale,
-                            heightMapInfo[5] * tileToHeightmapPixelScale,
-                            heightMapInfo[6] * tileToHeightmapPixelScale,
-                            heightMapInfo[7] * tileToHeightmapPixelScale
-                        );
-                    }
-
-
-                    if (++data.heightMapIndex < preview.length) {
+                    if (this.canReferenceAncestor(preview)) {
+                        // Use the cached ancestor via UV transform until this tile is available.
+                        this.referenceAncestor = true;
+                    } else if (!this.blitPreviewHeightMap(data, preview)) {
+                        // Materialize a local copy when one texture cannot represent the preview.
                         return this.CONTINUE;
-                    } else {
-                        // all preview heightmaps processed
-                        const heightMapTexture = new Texture(this.gl, {
-                            data: target,
-                            width: heightMapSize,
-                            height: heightMapSize
-                        });
-                        this.heightMap = {
-                            data: target,
-                            size: heightMapSize,
-                            texture: heightMapTexture,
-                            tileSize: this.terrainLayer.tileSize
-                        };
-                        // printHeightMap(target, this.padding);
-                        data.heightMap = null;
-                        data.heightMapIndex = 0;
                     }
                 }
-                buffer.terrainCache = this.terrainCache;
-                buffer.heightMapRef = cacheKey;
-            } else if (buffer.heightMap) {
-                this.heightMap = buffer.heightMap;
+
+                buffer.heightMapRef = {
+                    terrainTileKey: this.terrainTileKey,
+                    geometryTileKey: this.geometryTileKey,
+                    transform: this.terrainTransform
+                };
             }
             return ++data.bufferIndex < buffers.length ? this.CONTINUE : this.BREAK;
         }

@@ -24,6 +24,7 @@ import {addText} from '../addText';
 import {GlyphAtlas} from '../../GlyphAtlas';
 
 export class TextBuffer extends TemplateBuffer {
+    isPointBuffer = true;
     uniforms: {
         u_texture: GlyphTexture
     };

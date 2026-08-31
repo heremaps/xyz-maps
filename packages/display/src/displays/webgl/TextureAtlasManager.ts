@@ -20,17 +20,17 @@
 import {ImageLoader} from '../ImageLoader';
 import {Atlas, ImageInfo} from './Atlas';
 import {Texture, TextureOptions} from './Texture';
+import {GraphicsDevice} from './device/GraphicsDevice';
 
 export class TextureAtlasManager {
     private loader = new ImageLoader();
     private atlas: Atlas;
     private textures: Map<string, Texture> = new Map();
     private promises: Map<string, HTMLImageElement | HTMLCanvasElement> = new Map();
-    private gl: WebGLRenderingContext;
 
-    constructor(gl: WebGLRenderingContext) {
-        this.gl = gl;
-        this.atlas = new Atlas({gl, maxImgSize: 64});
+
+    constructor(private device: GraphicsDevice) {
+        this.atlas = new Atlas({device, maxImgSize: 64});
     }
 
     getTexture(src): Texture {
@@ -44,7 +44,7 @@ export class TextureAtlasManager {
         return this.textures.get(src) ?? (promises[src] ||= new Promise((resolve, reject) => {
             loader.get(src, (img) => {
                 delete promises[src];
-                const texture = new Texture(this.gl, img, textureOptions);
+                const texture = new Texture(this.device, img, textureOptions);
                 texture.ref = Infinity;
                 // texture.onDestroyed = () => {
                 //     console.log('deleting texture', src);

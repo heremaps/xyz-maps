@@ -18,21 +18,19 @@
  */
 
 import {LinearGradient} from '@here/xyz-maps-core';
-import {FillTexture} from './TextureManager';
-export type LinearGradientStops = LinearGradient['stops'];
+import {FillTexture, LinearGradientStops} from './FillTexture';
+import {GraphicsDevice} from './device/GraphicsDevice';
+export {LinearGradientStops};
 
 export class GradientFactory {
     static canvas: HTMLCanvasElement = document.createElement('canvas');
     static ctx: CanvasRenderingContext2D = GradientFactory.canvas.getContext('2d');
 
-    private width: number;
-    private height: number;
-    private gl: WebGLRenderingContext;
-
-    constructor(gl: WebGLRenderingContext, width: number = 256, height: number = 1) {
-        this.gl = gl;
-        this.width = width;
-        this.height = height;
+    constructor(
+        private device: GraphicsDevice,
+        private width: number = 256,
+        private height: number = 1
+    ) {
     }
 
     isGradient(gradient: LinearGradient | any): boolean {
@@ -64,8 +62,7 @@ export class GradientFactory {
 
         const data = ctx.getImageData(0, 0, width, height).data;
 
-        return new FillTexture(this.gl, {width, height, data}, {premultiplyAlpha: true});
+        return new FillTexture(this.device, {width, height, data}, {premultiplyAlpha: true});
     }
 }
-
 

@@ -20,7 +20,7 @@
 import defaultStylesDef from '../styles/default';
 import {XYZLayerStyle} from '../styles/XYZLayerStyle';
 import {LayerStyle, Style} from '../styles/LayerStyle';
-import {TileLayerOptions} from './TileLayerOptions';
+import {TileLayerOptions, DataUnavailableFallback} from './TileLayerOptions';
 import TileProvider from '../providers/TileProvider/TileProvider';
 import {RemoteTileProvider} from '../providers/RemoteTileProvider/RemoteTileProvider';
 import {FeatureProvider} from '../providers/FeatureProvider';
@@ -31,6 +31,7 @@ import {GeoRect} from '../geo/GeoRect';
 import {GeoJSONBBox, GeoJSONCoordinate, GeoJSONFeature, GeoJSONFeatureCollection} from '../features/GeoJSON';
 import {Layer} from './Layer';
 import {DataSourceAttribution} from './DataSourceAttribution';
+import {ImageProvider} from '../providers/ImageProvider';
 
 const REMOVE_FEATURE_EVENT = 'featureRemove';
 const ADD_FEATURE_EVENT = 'featureAdd';
@@ -92,6 +93,25 @@ export class TileLayer extends Layer {
      */
     adaptiveGrid: boolean;
 
+    /**
+     * Maximum zoom level at which actual tile data is available from the data source.
+     * When the map is zoomed beyond this level, the display loads tiles at maxDataZoom and scales them up.
+     *
+     * @defaultValue Same as {@link max}
+     */
+    maxDataZoom: number;
+
+    /**
+     * Defines how the display handles tiles without usable data,
+     * for example when the remote source returns an HTTP 404 or a network error.
+     *
+     * @defaultValue 'none'
+     *
+     * @hidden
+     * @internal
+     */
+    public dataUnavailableFallback: DataUnavailableFallback;
+
     private attribution: DataSourceAttribution[];
 
     /**
@@ -111,6 +131,9 @@ export class TileLayer extends Layer {
             ...options
         });
         const layer = this;
+
+        layer.maxDataZoom ??= layer.max;
+        layer.dataUnavailableFallback ??= 'none';
 
         layer.attribution = attribution ? Array.isArray(attribution)
             ? attribution
@@ -170,7 +193,7 @@ export class TileLayer extends Layer {
         layer._p.forEach((provider, i) => {
             if (provider) {
                 const proxyEvents = [CLEAR_EVENT];
-                if (provider.__type == 'FeatureProvider') {
+                if (provider.__type == 'FeatureProvider' || provider.__type == 'TINProvider') {
                     proxyEvents.push(ADD_FEATURE_EVENT, 'featuresAdd', REMOVE_FEATURE_EVENT, 'featuresRemove', MODIFY_FEATURE_COORDINATES_EVENT);
                 }
                 for (let proxyEvent of proxyEvents) {
@@ -193,6 +216,10 @@ export class TileLayer extends Layer {
         ['style', 'styles', 'provider', 'providers'].forEach((prop) => {
             delete layer[prop];
         });
+
+        if (this.getProvider() instanceof ImageProvider) {
+            this.adaptiveGrid = options.adaptiveGrid ?? true;
+        }
     }
 
     /**

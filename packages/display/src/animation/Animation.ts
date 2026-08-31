@@ -31,6 +31,7 @@ export class Animation {
     private animator: Animator;
     private done;
     private easing;
+    private stopped = false;
 
     constructor(from: number | number[], to: number | number[], duration: number, easing: string | Animator, animator?: Animator) {
         this.from = typeof from == 'number' ? [from] : from;
@@ -50,6 +51,8 @@ export class Animation {
     }
 
     private animate() {
+        if (this.stopped) return;
+
         const {duration} = this;
         const current = Math.min(Date.now() - this.ts, duration);
 
@@ -81,10 +84,13 @@ export class Animation {
     }
 
     stop() {
+        if (this.stopped) return;
+        this.stopped = true;
         if (this.af != null) {
             cancelAnimationFrame(this.af);
             this.af = null;
         }
+        this.done?.();
     }
 }
 

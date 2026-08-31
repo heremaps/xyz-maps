@@ -20,7 +20,7 @@
 export type RTINMesh = {
     vertices: Uint8Array | Uint16Array | Uint32Array | Float32Array;
     indices: Uint32Array | Uint16Array;
-    stride: number;
+    vertexSize: number;
     /**
      * Maps skirt vertex indices to their corresponding main mesh vertex indices.
      * Used to identify and process skirt vertices (extra geometry along tile borders to hide cracks).
@@ -50,7 +50,7 @@ export type RTINMesh = {
  */
 export class RTINMeshBuilder {
     size: number; // width and height of the square grid (must be 2^n + 1)
-    vertexStride: number;
+    vertexSize: number;
     // precomputed triangle base coordinates (ax, ay, bx, by)å
     private triangleTree: Uint16Array;
     private totalLeafNodes: number;
@@ -73,9 +73,9 @@ export class RTINMeshBuilder {
      */
     private skirtToMainVertexMap: Map<number, number> = new Map();
 
-    constructor(gridSize: number = 257, stride: number = 2) {
+    constructor(gridSize: number = 257, vertexSize: number = 2) {
         this.size = gridSize;
-        this.vertexStride = stride;
+        this.vertexSize = vertexSize;
 
         const tileSize = gridSize - 1;
         if (tileSize & (tileSize - 1)) {
@@ -94,7 +94,7 @@ export class RTINMeshBuilder {
         this.vertexIndexMap = new Int32Array(heightmapLength);// .fill(-1);
         // skirt vertices
         const extraSkirtVertices = 4 * tileSize * 2;
-        this.meshVertices = new Float32Array(heightmapLength * this.vertexStride + extraSkirtVertices * 3);
+        this.meshVertices = new Float32Array(heightmapLength * this.vertexSize + extraSkirtVertices * 3);
         this.meshIndices = new Uint32Array(3 * this.totalLeafNodes * 2 + 3 * extraSkirtVertices);
         this.initTree();
     }
@@ -197,16 +197,16 @@ export class RTINMeshBuilder {
 
     private addMeshVertex(x: number, y: number, terrain): number {
         const key = this.index(x, y);
-        const {vertexStride, vertexIndexMap, meshVertices} = this;
+        const {vertexSize, vertexIndexMap, meshVertices} = this;
         let index = vertexIndexMap[key];
         if (index == -1) {
             index = this.curMeshVertexIndex++;
             vertexIndexMap[key] = index;
             // vertices.push(x, y, terrain[key]);
-            const i = vertexStride * index;
+            const i = vertexSize * index;
             meshVertices[i] = x;
             meshVertices[i + 1] = y;
-            if (vertexStride == 3) {
+            if (vertexSize == 3) {
                 meshVertices[i + 2] = terrain[key];
             }
         }
@@ -218,16 +218,21 @@ export class RTINMeshBuilder {
             const vertices = this.meshVertices;
             // const skirtMap = this.skirtMap||=new Map();
             // if (skirtMap.has(index)) return skirtMap.get(index)!;
-            const i3 = index * 3;
+            const vertexSize = this.vertexSize;
+            const i3 = index * vertexSize;
+
             const skirtIndex = this.curMeshVertexIndex++;
-            const i = skirtIndex * 3;
+            const i = skirtIndex * vertexSize;
 
             vertices[i] = vertices[i3];
             vertices[i + 1] = vertices[i3 + 1];
-            const z = vertices[i3 + 2];
-            // vertices[i + 2] = 0; // skirtHeight;
-            vertices[i + 2] = z - z * .2; // skirtHeight;
-            // skirtMap.set(index, skirtIndex);
+
+            if (vertexSize === 3) {
+                const z = vertices[i3 + 2];
+                // vertices[i + 2] = 0; // skirtHeight;
+                vertices[i + 2] = z - z * .2; // skirtHeight;
+                // skirtMap.set(index, skirtIndex);
+            }
             return skirtIndex;
         };
         const addSkirtIndices = (i1: number, i2: number, i3: number) => {
@@ -257,7 +262,7 @@ export class RTINMeshBuilder {
         vertexArrayType?: Uint8ArrayConstructor | Uint16ArrayConstructor | Uint32ArrayConstructor | Float32ArrayConstructor
     } = {}): RTINMesh {
         const maxError = options.maxError ?? 1;
-        const enableSkirts = options.enableSkirts && this.vertexStride == 3;
+        const enableSkirts = options.enableSkirts; // && this.vertexSize == 3;
         const maxEdgeDetails = options.maxEdgeDetails || false;
         const errors = options.errors || this.calculateErrors(terrain, maxEdgeDetails /* new Float32Array(this.size * this.size)*/);
         const maxXY = this.size - 1;
@@ -299,14 +304,14 @@ export class RTINMeshBuilder {
         // processTriangle(0, 0, maxXY, maxXY, maxXY, 0); // A->C->B (CCW)
 
 
-        const len = this.curMeshVertexIndex * this.vertexStride;
+        const len = this.curMeshVertexIndex * this.vertexSize;
         const vertices = new (options.vertexArrayType || Float32Array)(len);
         vertices.set(this.meshVertices.subarray(0, len));
 
         const mesh: RTINMesh = {
             indices: meshIndices.slice(0, this.curMeshIndex),
             vertices,
-            stride: this.vertexStride
+            vertexSize: this.vertexSize
         };
 
         if (enableSkirts) {

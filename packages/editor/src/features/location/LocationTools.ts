@@ -26,8 +26,8 @@ import {Navlink} from '../link/Navlink';
 import {EditableFeatureProvider, GeoJSONCoordinate} from '@here/xyz-maps-core';
 import {JSUtils} from '@here/xyz-maps-common';
 import {Location} from './Location';
-import {Feature} from '../feature/Feature';
-import FeatureTools from '../feature/FeatureTools';
+import {Feature} from '@here/xyz-maps-core';
+import FeatureTools, {PointFeature} from '../feature/FeatureTools';
 import {dragFeatureCoordinate} from '../oTools';
 
 const DRAG_STOP = 'dragStop';
@@ -40,23 +40,38 @@ let UNDEF;
 
 type PlaceAddress = Place | Address;
 
-const getPrivate = (feature, name?: string) => {
-    let prv = feature.__;
+type LocationPrivate = {
+    isEditable: boolean;
+    allowEdit: boolean;
+    isGeoMod: boolean;
+    isHovered: boolean | any; // keep flexible if you store event objects
+    cLink: Navlink | null;
+    moved: boolean;
 
-    if (!prv) {
-        prv = feature.__ = {
-            isEditable: true,
-            allowEdit: true,
-            isGeoMod: false,
-            isHovered: false,
-            cLink: null,
-            moved: false
-        };
-    }
-
-    return name ? prv[name] : prv;
+    _rp?: RoutingPoint | null;
+    selector?: Feature<'Point'>;
+    isSelected?: boolean;
+    pressmove?: ((ev: any, dx: number, dy: number, ax: number, ay: number) => void) | null;
+    writeProp?: boolean;
 };
 
+
+type PlaceAddressWithPrivate = PlaceAddress & { __?: LocationPrivate };
+
+function getPrivate(feature: PlaceAddress): LocationPrivate;
+function getPrivate<K extends keyof LocationPrivate>(feature: PlaceAddress, name: K): LocationPrivate[K];
+function getPrivate<K extends keyof LocationPrivate>(feature: PlaceAddressWithPrivate, name?: K) {
+    const f = feature;
+    const prv = f.__ ||= {
+        isEditable: true,
+        allowEdit: true,
+        isGeoMod: false,
+        isHovered: false,
+        cLink: null,
+        moved: false
+    };
+    return name ? prv[name] : prv;
+}
 
 //* ***************************************************** PRIVATE ******************************************************
 
@@ -85,7 +100,7 @@ function _props(line, props) {
 
 const isPOI = (obj) => obj.class == 'PLACE';
 
-const getRPoint = (obj): RoutingPoint => {
+const getRPoint = (obj: PlaceAddress): RoutingPoint => {
     const prv = getPrivate(obj);
 
     if (prv._rp == null) {
@@ -179,13 +194,8 @@ function onPressmove(ev, dx, dy, ax, ay) {
         }
         triggerEvent(feature, ev, 'display', prv.moved ? DRAG_MOVE : DRAG_START);
 
-        let coordinate = <GeoJSONCoordinate>[...feature.geometry.coordinates];
-        const altitude = EDITOR.getStyleProperty(feature, 'altitude');
 
-        // place/address coordinates are "3d" in any case after being dragged.
-        if (!altitude) {
-            coordinate[2] = 0;
-        }
+        let coordinate = tools.getRenderWorldGeoPosition(feature);
 
         coordinate = dragFeatureCoordinate(ev.mapX, ev.mapY, feature, coordinate, EDITOR);
 
@@ -316,13 +326,13 @@ const tools = {
         }
     },
 
-    _setCoords: function(feature: Feature, position: GeoJSONCoordinate) {
+    _setCoords: function(feature: PlaceAddress, position: GeoJSONCoordinate) {
         return markerTools._setCoords(feature, position);
     },
 
     markAsRemoved: markerTools.markAsRemoved,
 
-    markAsModified: function(feature: Feature, saveView?: boolean) {
+    markAsModified: function(feature: PlaceAddress, saveView?: boolean) {
         return FeatureTools.markAsModified(feature, getPrivate(feature), saveView);
     },
 
@@ -348,13 +358,27 @@ const tools = {
             };
 
             prv.selector = feature._e().objects.overlay.addCircle(
-                <GeoJSONCoordinate>feature.geometry.coordinates,
-                UNDEF, properties);
+                tools.getRenderWorldGeoPosition(feature),
+                UNDEF,
+                properties
+            );
         }
         // this.show_routing_point();
     },
 
     //* *************************************** protected (rp) ****************************************
+    /**
+     * Returns the effective world-geo position (lon/lat/alt) used as render base.
+     * Altitude/style may override raw feature geometry.
+     * When terrain is enabled, the original altitude is preserved.
+     *
+     * @internal
+     * @hidden
+     */
+    getRenderWorldGeoPosition(location: PlaceAddress | Location): GeoJSONCoordinate {
+        return FeatureTools.getRenderWorldGeoPosition(location as PointFeature);
+    },
+
 
     getRoutingProvider: (feature: PlaceAddress | Location) => {
         const EDITOR = feature._e();
@@ -377,7 +401,7 @@ const tools = {
         return rp;
     },
 
-    setRoutingData: function(feature: Location) {
+    setRoutingData: function(feature: PlaceAddress) {
         const rPoint = getRPoint(feature);
         // get current link and routing point value and set the data
         const link = rPoint.getLink();

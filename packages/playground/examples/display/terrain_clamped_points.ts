@@ -1,5 +1,6 @@
-import {TerrainTileLayer, LocalProvider, TileLayer, BoxStyle} from '@here/xyz-maps-core';
+import {TerrainTileLayer, LocalProvider, TileLayer, BoxStyle, ImageProvider} from '@here/xyz-maps-core';
 import {Map} from '@here/xyz-maps-display';
+
 /** setup the Map **/
 const display = new Map(document.getElementById('map'), {
     zoomlevel: 13,
@@ -28,11 +29,17 @@ const display = new Map(document.getElementById('map'), {
                 },
                 encoding: 'terrarium',
                 min: 8
-            },
-            imagery: {
+            }
+        }),
+        new TileLayer({
+            name: 'Satellite Imagery',
+            min: 1,
+            max: 20,
+            tileSize: 512,
+            provider: new ImageProvider({
                 url: `https://maps.hereapi.com/v3/base/mc/{z}/{x}/{y}/jpeg?apikey=${YOUR_API_KEY}&style=satellite.day&size=512`,
                 attribution: '2025 HERE, Maxar'
-            }
+            })
         })
     ]
 });

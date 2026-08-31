@@ -16,17 +16,19 @@
  * SPDX-License-Identifier: Apache-2.0
  * License-Filename: LICENSE
  */
+import {isWebGL2} from '../glTools';
+import {GLExtensions} from './GLExtensions';
+
 export class VAOManager {
-    isVAOSupported: boolean;
+    readonly isVAOSupported: boolean;
 
-    constructor(gl: WebGLRenderingContext | WebGL2RenderingContext) {
-        const isWebGL2 = gl instanceof WebGL2RenderingContext;
-        // const ext = null;
-        const ext = isWebGL2 ? null : gl.getExtension('OES_vertex_array_object');
+    constructor(gl: WebGLRenderingContext | WebGL2RenderingContext, glExtensions: GLExtensions) {
+        const isWGL2 = isWebGL2(gl);
+        const ext = isWGL2 ? null : glExtensions.getExtension('OES_vertex_array_object');
 
-        this.isVAOSupported = isWebGL2 || !!ext;
+        this.isVAOSupported = isWGL2 || !!ext;
 
-        if (isWebGL2) {
+        if (isWGL2) {
             this.createVAO = () => (gl as WebGL2RenderingContext).createVertexArray();
             this.bindVAO = (vao) => (gl as WebGL2RenderingContext).bindVertexArray(vao as WebGLVertexArrayObject);
             this.deleteVAO = (vao) => (gl as WebGL2RenderingContext).deleteVertexArray(vao as WebGLVertexArrayObject);

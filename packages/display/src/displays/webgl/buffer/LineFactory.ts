@@ -20,15 +20,19 @@
 import {LineBuffer} from './templates/LineBuffer';
 import {addLineString, Cap, Join} from './addLineString';
 import {DashAtlas} from '../DashAtlas';
-import {GeoJSONCoordinate as Coordinate, Tile} from '@here/xyz-maps-core';
 import {CollisionData, CollisionHandler} from '../CollisionHandler';
 import {DistanceGroup} from './DistanceGroup';
 import {FlexAttribute} from './templates/TemplateBuffer';
-import {isDynamicProperty} from './FeatureFactory';
+import {GraphicsDevice} from '../device/GraphicsDevice';
+import {GeoJSONCoordinate as Coordinate, Tile} from '@here/xyz-maps-core';
+import {Expression} from '@here/xyz-maps-common';
 
 const TO_DEG = 180 / Math.PI;
 const DEFAULT_MIN_REPEAT = 256;
+const LINE_STRAIGHTNESS_TOLERANCE_SQ = 2 * 2;
 let UNDEF;
+
+export const isDynamicProperty = (prop: any) => prop instanceof Expression;
 
 enum DIR {
     MID_TO_END = 1,
@@ -40,8 +44,6 @@ type PlacePointCallback = (x: number, y: number, z: number | null, rotZ: number,
 
 export class LineFactory {
     private dashes: DashAtlas;
-    private readonly gl: WebGLRenderingContext;
-
     private readonly pixels: Float32Array; // projected coordinate cache
     private length: number = 0; // length of coordinate cache
     private dimensions: number; // dimensions of coordinate cache
@@ -49,14 +51,14 @@ export class LineFactory {
     private lineLength: Float32Array; // length from start to segment at index of the current projected line
     private collisions: CollisionData[];
 
-    private decimals: number; // increase precision for tile scaling
+    private coordinateScale: number; // increase precision for tile scaling
 
     private readonly repeat: { [groupId: string]: DistanceGroup };
     private dId: string;
 
-    constructor(gl: WebGLRenderingContext) {
-        this.dashes = new DashAtlas(gl);
-        this.gl = gl;
+    constructor(device: GraphicsDevice) {
+        this.dashes = new DashAtlas(device);
+
         // reused pixel coordinate cache
         this.pixels = new Float32Array(262144); // -> 1MB;
         this.alpha = new Float32Array(131072);
@@ -69,23 +71,31 @@ export class LineFactory {
     }
 
     private projectLine(coordinates: Coordinate[], tile: Tile, tileSize: number): number {
-        const {pixels, decimals} = this;
+        const {pixels, coordinateScale} = this;
+        const minPointDistance = 1 / coordinateScale;
+        const minPointDistanceSq = minPointDistance * minPointDistance;
+
         if (!this.length) {
             let t = 0;
+            let pointCount = 0;
+            let lineLength = 0;
+            let lastX;
+            let lastY;
+            let lastZ;
             const dimensions = typeof coordinates[0][2] == 'number' ? 3 : 2;
             const hasZ = dimensions === 3;
 
-            for (let c = 0, length = coordinates.length, x, y, z, _x, _y, _z; c < length; c++) {
+            for (let c = 0, length = coordinates.length, x, y, z; c < length; c++) {
                 let coord = coordinates[c];
                 x = tile.lon2x(coord[0], tileSize);
                 y = tile.lat2y(coord[1], tileSize);
                 z = coord[2] || 0;
 
-                if (!c ||
-                    (Math.round(_x * decimals) - Math.round(x * decimals)) ||
-                    (Math.round(_y * decimals) - Math.round(y * decimals)) ||
-                    (hasZ && z != _z)
-                ) {
+                const dx = pointCount ? lastX - x : 0;
+                const dy = pointCount ? lastY - y : 0;
+                const distanceSq = dx * dx + dy * dy;
+
+                if (!pointCount || distanceSq >= minPointDistanceSq || (hasZ && z != lastZ)) {
                     pixels[t++] = x;
                     pixels[t++] = y;
 
@@ -93,15 +103,15 @@ export class LineFactory {
                         pixels[t++] = z;
                     }
 
-                    if (t > dimensions) {
-                        const dx = _x - x;
-                        const dy = _y - y;
-                        this.lineLength[c] = this.lineLength[c - 1] + Math.sqrt(dx * dx + dy * dy);
+                    if (pointCount) {
+                        lineLength += Math.sqrt(distanceSq);
                     }
+
+                    this.lineLength[pointCount++] = lineLength;
+                    lastX = x;
+                    lastY = y;
+                    lastZ = z;
                 }
-                _x = x;
-                _y = y;
-                _z = z;
             }
 
             this.length = t;
@@ -121,7 +131,7 @@ export class LineFactory {
             cx = (cx - tile.x / tilesPerAxis) * worldSize;
             cy = (cy - tile.y / tilesPerAxis) * worldSize;
 
-            place(cx, cy, cz, applyRotation ? this.alpha[i] : 0, 0, cData);
+            place(cx, cy, cz as number, applyRotation ? this.alpha[i] : 0, 0, cData);
         }
     }
 
@@ -135,11 +145,10 @@ export class LineFactory {
 
     initFeature(zoom: number, tileSize: number, distanceGroup?: string) {
         // allow more precision in case tiles are getting zoomed very close (zoomlevel 20+)
-        this.decimals = zoom >= 20 - Number(tileSize == 512) ? 1e2 : 1;
+        this.coordinateScale = zoom >= 20 - Number(tileSize == 512) ? 100 : 1;
         // clear projected coordinate cache
         this.length = 0;
         this.collisions = null;
-
 
         const {repeat} = this;
         this.dId = distanceGroup;
@@ -224,7 +233,7 @@ export class LineFactory {
         offsetY: number,
         width: number,
         height: number,
-        applyRotation: boolean,
+        isMapAligned: boolean,
         checkLineSpace: boolean,
         relativeStart: number,
         relativeStop: number,
@@ -252,7 +261,7 @@ export class LineFactory {
             offsetY,
             width,
             height,
-            applyRotation,
+            isMapAligned,
             checkLineSpace,
             altitude,
             relativeStart,
@@ -287,6 +296,7 @@ export class LineFactory {
         halfHeight: number,
         offsetX: number,
         offsetY: number,
+        isMapAligned: boolean,
         relativeStart: number = 0.0,
         relativeStop: number = 1.0,
         place: PlacePointCallback
@@ -303,11 +313,11 @@ export class LineFactory {
         }
 
         const checkCollisions = collisions && [];
-        let handleAltitude = altitude === true;
-        const fixZ = typeof altitude == 'number' ? altitude : null;
-        if (handleAltitude && dimensions == 2) {
-            handleAltitude = null;
-        }
+        const handleAltitude = altitude === true && dimensions == 3;
+        // const fixZ = typeof altitude == 'number' ? altitude : null;
+        const isAltitudeAbs = typeof altitude == 'number';
+        const fixZ = isAltitudeAbs ? altitude : null;
+
         let lengthSoFar = 0;
         let prevLengthSoFar;
 
@@ -327,12 +337,12 @@ export class LineFactory {
                     const i2 = i + dimensions;
                     const x2 = data[i2];
                     const y2 = data[i2 + 1];
-                    const z2 = handleAltitude ? data[i2 + 2] : fixZ;
 
                     x += (x2 - x) * relSegmentStart;
                     y += (y2 - y) * relSegmentStart;
 
                     if (z != null) {
+                        const z2 = handleAltitude ? data[i2 + 2] : fixZ;
                         z += (z2 - z) * relSegmentStart;
                     }
 
@@ -348,25 +358,24 @@ export class LineFactory {
             }
 
 
-            if (absStopPx) {
-                if (absStopPx && prevLengthSoFar > absStopPx) {
-                    const segmentLengthPx = prevLengthSoFar - lineLength[j - 1];
-                    const relSegmentStop = (absStopPx - prevLengthSoFar) / segmentLengthPx;
-                    const i0 = i - dimensions;
-                    const x0 = data[i0];
-                    const y0 = data[i0 + 1];
-                    const z0 = handleAltitude ? data[i0 + 2] : fixZ;
+            if (absStopPx && prevLengthSoFar > absStopPx) {
+                const segmentLengthPx = prevLengthSoFar - lineLength[j - 1];
+                const relSegmentStop = (absStopPx - prevLengthSoFar) / segmentLengthPx;
+                const i0 = i - dimensions;
+                const x0 = data[i0];
+                const y0 = data[i0 + 1];
+                const z0 = handleAltitude ? data[i0 + 2] : fixZ;
 
-                    x -= (x0 - x) * relSegmentStop;
-                    y -= (y0 - y) * relSegmentStop;
+                x -= (x0 - x) * relSegmentStop;
+                y -= (y0 - y) * relSegmentStop;
 
-                    if (z != null) {
-                        z -= (z0 - z) * relSegmentStop;
-                    }
-                    // stop after point has been placed...
-                    length = null;
+                if (z != null) {
+                    z -= (z0 - z) * relSegmentStop;
                 }
+                // stop after point has been placed...
+                length = null;
             }
+
 
             let collisionData;
 
@@ -379,8 +388,8 @@ export class LineFactory {
                             x, y, z,
                             offsetX, offsetY,
                             halfWidth, halfHeight,
-                            tile, tileSize,
-                            priority
+                            priority,
+                            isMapAligned
                         );
 
                         if (collisionData) {
@@ -410,21 +419,40 @@ export class LineFactory {
         offsetY: number,
         width: number,
         height: number,
-        applyRotation: boolean,
+        isMapAligned: boolean,
         checkLineSpace: boolean,
-        altitude: boolean | number,
+        altitude: boolean | number | 'terrain',
         relativeStart: number,
         relativeStop: number,
         place: PlacePointCallback
     ) {
         if (this.collisions) {
-            return this.placeCached(place, tile, tileSize, applyRotation);
+            return this.placeCached(place, tile, tileSize, isMapAligned);
         }
 
         let {length, dimensions, lineLength} = this;
         const totalLineLength = lineLength[length / dimensions - 1];
-        let absStartPx = relativeStart * totalLineLength;
-        let absStopPx = relativeStop * totalLineLength;
+        // segment extension is limited to the complete line because from/to points
+        // are interpolated and are not cached vertices.
+        let fullLine = true;
+        // number of consecutive short segments skipped while extending the current segment.
+        let segmentSkipCount = 0;
+        let referenceX = 0;
+        let referenceY = 0;
+        let referenceDx = 0;
+        let referenceDy = 0;
+        let referenceSqLineWidth = 0;
+        let absStartPx = 0;
+        let absStopPx = Infinity;
+
+        if (relativeStart > 0) {
+            absStartPx = relativeStart * totalLineLength;
+            fullLine = false;
+        }
+        if (relativeStop < 1) {
+            absStopPx = relativeStop * totalLineLength;
+            fullLine = false;
+        }
         const dim = this.dimensions;
         const checkCollisions = collisions && [];
         const vLength = this.length / dim;
@@ -437,37 +465,39 @@ export class LineFactory {
         // we move to the end of the linestring...
         let dir = DIR.MID_TO_END;
         let skipMidToStart = false;
-        let handleAltitude = altitude === true;
+        const handleAltitude = altitude === true && dimensions == 3;
 
-        const fixZ = typeof altitude == 'number' ? altitude : null;
-        let cz = typeof altitude == 'number' ? altitude : null;
 
-        if (handleAltitude && dimensions == 2) {
-            handleAltitude = null;
-        }
+        const isAltitudeAbs = typeof altitude == 'number';
+        const fixZ = isAltitudeAbs ? altitude : null;
+        let cz = fixZ;
+        const collisionZ = altitude === 'terrain' ? altitude : cz;
+
         for (let i = 1; i < vLength; i++) {
-            if (offset+i === vLength) {
+            if (offset + i === vLength) {
                 if (skipMidToStart) break;
                 // from now on we move from middle to beginning of linestring
                 dir = DIR.MID_TO_START;
                 offset = vLength;
+                segmentSkipCount = 0;
             }
             let c = (offset + dir * i) % vLength;
             const c0 = c - 1;
             const prevLengthSoFar = lineLength[c0];
             const lengthSoFar = lineLength[c];
 
-            const i1 = (c0) * dim;
+            // segmentSkipCount stays within the current directional run, keeping the extended indices in bounds.
+            const i1 = (dir == DIR.MID_TO_END ? c0 - segmentSkipCount : c0) * dim;
             let x1 = coordinates[i1];
             let y1 = coordinates[i1 + 1];
             let z1 = handleAltitude ? coordinates[i1 + 2] : fixZ;
 
-            const i2 = c * dim;
+            const i2 = (dir == DIR.MID_TO_START ? c + segmentSkipCount : c) * dim;
             let x2 = coordinates[i2];
             let y2 = coordinates[i2 + 1];
             let z2 = handleAltitude ? coordinates[i2 + 2] : fixZ;
 
-            if (absStartPx) {
+            if (absStartPx > 0) {
                 if (absStartPx < lengthSoFar) {
                     if (absStartPx >= prevLengthSoFar) {
                         const segmentLengthPx = lengthSoFar - prevLengthSoFar;
@@ -490,7 +520,7 @@ export class LineFactory {
                 }
             }
 
-            if (absStopPx) {
+            if (absStopPx !== Infinity) {
                 if (absStopPx > prevLengthSoFar) {
                     if (absStopPx <= lengthSoFar) {
                         const segmentLengthPx = lengthSoFar - prevLengthSoFar;
@@ -518,11 +548,12 @@ export class LineFactory {
             const cx = x1 + dx * .5;
             const cy = y1 + dy * .5;
 
+            let canExtendSegment = false;
             if (
                 // not inside tile -> skip!
                 cx >= 0 && cy >= 0 && cx < tileSize && cy < tileSize
             ) {
-                let sqLineWidth = checkLineSpace ? dx * dx + dy * dy : Infinity;
+                const sqLineWidth = checkLineSpace ? dx * dx + dy * dy : Infinity;
                 // let sqLineWidth = checkLineSpace ? Math.abs(lineLengthSq[c] - lineLengthSq[c-dir]) : Infinity;
 
                 if (sqLineWidth > sqWidth) {
@@ -543,17 +574,20 @@ export class LineFactory {
                             let ox = offsetX;
                             let oy = offsetY;
 
-                            if (applyRotation && alpha && (ox || oy)) {
+                            if (isMapAligned && alpha && (ox || oy)) {
                                 const sin = Math.sin(alpha);
                                 const cos = Math.cos(alpha);
                                 ox = cos * offsetX - sin * offsetY;
                                 oy = sin * offsetX + cos * offsetY;
                             }
 
-                            const slopeScale = Math.sqrt(sqWidth / sqLineWidth);
-                            const slope = [dx * slopeScale, dy * slopeScale];
+                            let slope = null;
+                            if (isMapAligned) {
+                                const slopeScale = Math.sqrt(sqWidth / sqLineWidth);
+                                slope = [dx * slopeScale, dy * slopeScale];
+                            }
 
-                            collisionData = collisions.insert(cx, cy, cz, ox, oy, width / 2, height / 2, tile, tileSize, priority, slope);
+                            collisionData = collisions.insert(cx, cy, collisionZ, ox, oy, width / 2, height / 2, priority, isMapAligned, slope);
 
                             if (collisionData) {
                                 this.alpha[checkCollisions.length] = alpha * TO_DEG;
@@ -563,11 +597,41 @@ export class LineFactory {
                     }
 
                     if ((!checkCollisions || collisionData)) {
-                        place(cx, cy, cz, applyRotation ? alpha * TO_DEG : 0, rotY, collisionData);
+                        place(cx, cy, cz, isMapAligned ? alpha * TO_DEG : 0, rotY, collisionData);
                         distanceGrp?.add(cx, cy);
+                    }
+                } else if (checkLineSpace && fullLine) {
+                    if (!segmentSkipCount) {
+                        referenceX = x1;
+                        referenceY = y1;
+                        referenceDx = dx;
+                        referenceDy = dy;
+                        referenceSqLineWidth = sqLineWidth;
+                    }
+
+                    const nextC = c + dir;
+                    const nextC0 = nextC - 1;
+
+                    if (nextC0 >= 0 && nextC < vLength) {
+                        const nextI1 = nextC0 * dim;
+                        const nextI2 = nextC * dim;
+                        const nextDx = coordinates[nextI2] - coordinates[nextI1];
+                        const nextDy = coordinates[nextI2 + 1] - coordinates[nextI1 + 1];
+                        const pointI = dir == DIR.MID_TO_END ? nextI2 : nextI1;
+                        const pointX = coordinates[pointI];
+                        const pointY = coordinates[pointI + 1];
+                        const pointDx = pointX - referenceX;
+                        const pointDy = pointY - referenceY;
+                        const cross = referenceDx * pointDy - referenceDy * pointDx;
+                        const dot = referenceDx * nextDx + referenceDy * nextDy;
+
+                        canExtendSegment = dot > 0 &&
+                            cross * cross <= referenceSqLineWidth * LINE_STRAIGHTNESS_TOLERANCE_SQ;
                     }
                 }
             }
+
+            segmentSkipCount = canExtendSegment ? segmentSkipCount + 1 : 0;
         }
 
         if (checkCollisions?.length) {
@@ -575,5 +639,3 @@ export class LineFactory {
         }
     }
 }
-
-

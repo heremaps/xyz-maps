@@ -37,8 +37,3 @@ export class GLStates implements States {
 }
 
 
-export enum PASS {
-    OPAQUE = 1,
-    ALPHA = 2,
-    POST_ALPHA = 4
-}

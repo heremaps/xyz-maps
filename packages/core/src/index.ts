@@ -62,7 +62,7 @@ export {MVTProvider} from './providers/MVTProvider/MVTProvider';
 export {TerrainTileProvider} from './providers/TerrainProvider/TerrainTileProvider';
 export {EditableFeatureProvider} from './providers/EditableFeatureProvider';
 export {MVTLayerOptions} from './layers/MVTLayerOptions';
-export {TileLayerOptions} from './layers/TileLayerOptions';
+export {TileLayerOptions, DataUnavailableFallback} from './layers/TileLayerOptions';
 export {ClusterFeature, ClusterFeatureProperties} from './features/ClusterFeature';
 
 import {ClusterTileLayer} from './layers/cluster/ClusterTileLayer';
@@ -76,6 +76,7 @@ import {TerrainTileLayerOptions} from './layers/terrain/TerrainTileLayerOptions'
 import {TerrainTileLayerStyle} from './layers/terrain/TerrainStyle';
 export {TerrainTileLayer, TerrainTileLayerOptions, TerrainTileLayerStyle};
 export {RTINMeshBuilder} from './providers/TerrainProvider/RTINMeshBuilder';
+export {ElevationQuadTree} from './providers/TerrainProvider/ElevationQuadTree';
 
 import webMercatorPrj from './projection/webMercator';
 

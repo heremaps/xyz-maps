@@ -54,20 +54,6 @@ export class BoxBuffer extends PointBuffer {
         this.light = 'defaultLight';
     }
 
-    static getVertexZ(heightMap: GeometryBuffer['heightMap'], x: number, y: number): number {
-        const {tileSize, size} = heightMap;
-        const lastRowColIndex = size - 1;
-        x = x / tileSize * lastRowColIndex;
-        y = y / tileSize * lastRowColIndex;
-        // const {tileSize, size, padding = 0} = heightMap;
-        // const usable = size - 2 * padding - 1;
-        // Map x/y from [0, tileSize] to [padding, size - padding - 1]
-        // x = padding + (x / tileSize) * usable;
-        // y = padding + (y / tileSize) * usable;
-        const height = heightMap.data[Math.round(y) * size + Math.round(x)];
-        return height;
-    }
-
     rayIntersects(buffer: GeometryBuffer, result: {
         z: number
     }, tileX: number, tileY: number, rayCaster: Raycaster): number | string {
@@ -80,7 +66,7 @@ export class BoxBuffer extends PointBuffer {
         const scaleByAltitude = <boolean>buffer.getUniform('u_scaleByAltitude');
         let index = null;
         const offset = size * 6 * 6;
-        let [offsetX, offsetY, offsetZ] = getOffsetPixel(buffer, rayCaster.scale);
+        let [offsetX, offsetY, offsetZ] = getOffsetPixel(buffer, buffer.renderScale);
         const {sMat} = rayCaster;
         const m3 = sMat[3]; // projX_w
         const m7 = sMat[7]; // projY_w
@@ -92,15 +78,16 @@ export class BoxBuffer extends PointBuffer {
         offsetZ *= scaleZ;
 
         const heightMap = buffer.getHeightMap();
+        const hmTransform = buffer.getHeightMapTransform() || [0, 0, 1];
 
         for (let i = 0, {length} = position; i < length; i += offset) {
             const x = tileX + position[i] * scaleXY + offsetX;
             const y = tileY + position[i + 1] * scaleXY + offsetY;
             // const z = (size == 3 ? decodeUint16z(position[i + 2]) : 0) + offsetZ;
             let z = (heightMap
-                ? BoxBuffer.getVertexZ(heightMap, x, y)
+                ? BoxBuffer.getVertexZ(x, y, heightMap, hmTransform)
                 : (size === 2 ? 0 : decodeUint16z(position[i + 2]))
-            ) + offsetZ;
+            ) * rayCaster.exaggeration + offsetZ;
 
             const scaleDZ = 1 + (scaleByAltitude ? 0 : z * m11 / (m3 * x + m7 * y + m15));
             // const scaleDZ = scaleByAltitude ? 1 : Math.min(Math.max(1 + (z * m11) / (m3 * x + m7 * y + m15), .5), 2);

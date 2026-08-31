@@ -20,10 +20,8 @@
 import InternalEditor from '../../IEditor';
 import {Feature, FeatureProvider, GeoJSONCoordinate, GeoJSONFeature} from '@here/xyz-maps-core';
 import {Area} from './Area';
-import {AreaShape} from './AreaShape';
+import {AreaShape, createAreaShapeGeoJSON} from './AreaShape';
 import PolygonTools from './PolygonTools';
-
-let UNDEF;
 
 export class VirtualAreaShape extends Feature {
     private __: {
@@ -31,30 +29,14 @@ export class VirtualAreaShape extends Feature {
         [name: string]: any
     };
 
-    constructor(area: Area, x: number, y: number, indexData: number[], polygonTools: typeof PolygonTools) {
+    constructor(area: Area, coordinate: GeoJSONCoordinate, indexData: number[], polygonTools: typeof PolygonTools) {
         const internalEditor: InternalEditor = area._e();
-        const zLayer = internalEditor.display.getLayers().indexOf(internalEditor.getLayer(area)) + 1;
         const overlay = internalEditor.objects.overlay;
 
-        const geojson: GeoJSONFeature = {
-            type: 'Feature',
-            geometry: {
-                type: 'Point',
-                coordinates: [x, y]
-            },
-            properties: {
-                type: 'AREA_VIRTUAL_SHAPE',
-                poly: indexData[0],
-                index: indexData[1],
-                hole: indexData[2],
-                AREA: {
-                    style: internalEditor.getStyle(area),
-                    zLayer: !zLayer ? UNDEF : zLayer + 1
-                }
-            }
-        };
-
-        super(geojson, <FeatureProvider>overlay.layer.getProvider());
+        super(
+            createAreaShapeGeoJSON('AREA_VIRTUAL_SHAPE', coordinate, indexData, area),
+            <FeatureProvider>overlay.layer.getProvider()
+        );
 
         const shapePnt = this;
 

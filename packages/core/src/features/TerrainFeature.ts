@@ -46,6 +46,38 @@ export type TerrainTileFeatureProperties = TerrainTileMesh & {
      * Additional custom properties of the terrain feature.
      */
     [name: string]: any;
+
+    heightMap?: Uint16Array | Uint32Array | Float32Array;
+
+    /**
+     * Minimum terrain altitude value present in the tile.
+     * Represents the lowest elevation contained in the height data for this tile.
+     * Units are the same as provided by the tile source (typically meters above mean sea level).
+     *
+     * @internal
+     * @hidden
+     */
+    minAltitude: number;
+    /**
+     * Maximum terrain altitude value present in the tile.
+     * Represents the highest elevation contained in the height data for this tile.
+     * Units are the same as provided by the tile source (typically meters above mean sea level).
+     *
+     * @internal
+     * @hidden
+     */
+    maxAltitude: number;
+
+    /**
+     * Serialized ElevationQuadTree data (Float32Array).
+     * Contains pre-computed min/max/avg elevation statistics for child tile
+     * subdivisions. Use ElevationQuadTree.deserialize() to reconstruct the tree
+     * on the main thread.
+     *
+     * @internal
+     * @hidden
+     */
+    elevationTree: Float32Array;
 }
 
 /**
@@ -90,16 +122,22 @@ export class TerrainTileFeature extends Feature<'Polygon'> {
      * Returns the height value from the height map at the given normalized local tile coordinates.
      *
      * @param normalizedX - The normalized X coordinate (0.0 to 1.0).
-     * @param nomralizedY - The normalized Y coordinate (0.0 to 1.0).
+     * @param normalizedY - The normalized Y coordinate (0.0 to 1.0).
+     * @param interpolate - Whether to bilinearly interpolate neighboring heights.
      *
      * @returns The height value at the specified coordinates, or null if no height map is available.
      */
-    getHeightAt(normalizedX: number, nomralizedY: number, interpolate: boolean = false) {
+    getHeightAt(normalizedX: number, normalizedY: number): number | null {
         const heightMap = this.getHeightMap();
         if (!heightMap) return null;
+
         const size = Math.sqrt(heightMap.length);
-        const x = Math.floor(normalizedX * size);
-        const y = Math.floor(nomralizedY * size);
-        return heightMap[y * size + x];
+        const padding = this.properties.heightMapPadding || 0;
+        const max = size - 2 * padding - 1;
+        const x = normalizedX <= 0 ? 0 : normalizedX >= 1 ? max : normalizedX * max;
+        const y = normalizedY <= 0 ? 0 : normalizedY >= 1 ? max : normalizedY * max;
+        const x0 = padding + Math.floor(x);
+        const y0 = padding + Math.floor(y);
+        return heightMap[y0 * size + x0];
     }
 }

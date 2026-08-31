@@ -23,6 +23,8 @@ import {Area} from './Area';
 import {FeatureProvider, Feature, GeoJSONCoordinate, GeoJSONFeature} from '@here/xyz-maps-core';
 import PolyTools, {ConnectedArea} from './PolygonTools';
 import {EditOperation} from '../../API/EditorOptions';
+import {getAltitudeCapabilities, isAltitudeEditEnabled} from '../feature/shapeUtils';
+import {dragFeatureCoordinate} from '../oTools';
 
 type PolygonTools = typeof PolyTools;
 
@@ -312,6 +314,31 @@ const setShapePosition = (
     return {status: 'successful'};
 };
 
+
+export const createAreaShapeGeoJSON = (type: string, coordinate: GeoJSONCoordinate, indexData: number[], area: Area) : GeoJSONFeature<'Point'> => {
+    const internalEditor: InternalEditor = area._e();
+    const zLayer = internalEditor.display.getLayers().indexOf(internalEditor.getLayer(area)) + 1;
+    return {
+        type: 'Feature',
+        geometry: {
+            type: 'Point',
+            coordinates: coordinate
+        },
+        properties: {
+            type,
+            poly: indexData[0],
+            index: indexData[1],
+            hole: indexData[2],
+            AREA: {
+                style: internalEditor.getStyle(area),
+                zLayer: !zLayer ? UNDEF : zLayer + 1,
+                ...getAltitudeCapabilities(area)
+            }
+        }
+    } as GeoJSONFeature<'Point'>;
+};
+
+
 let UNDEF;
 
 /**
@@ -333,31 +360,16 @@ class AreaShape extends Feature<'Point'> {
         poly: number;
     };
 
-    constructor(area: Area, x: number, y: number, indexData: number[], polyTools) {
+    constructor(area: Area, coordinate: GeoJSONCoordinate, indexData: number[], polyTools) {
         polygonTools = polyTools;
 
         const internalEditor: InternalEditor = area._e();
-        const zLayer = internalEditor.display.getLayers().indexOf(internalEditor.getLayer(area)) + 1;
-        const geojson: GeoJSONFeature<'Point'> = {
-            type: 'Feature',
-            geometry: {
-                type: 'Point',
-                coordinates: [x, y]
-            },
-            properties: {
-                type: 'AREA_SHAPE',
-                poly: indexData[0],
-                index: indexData[1],
-                hole: indexData[2],
-                AREA: {
-                    style: internalEditor.getStyle(area),
-                    zLayer: !zLayer ? UNDEF : zLayer + 1
-                }
-            }
-        };
 
         // TODO: cleanup provider add/attach to feature
-        super(geojson, <FeatureProvider>internalEditor.objects.overlay.layer.getProvider());
+        super(
+            createAreaShapeGeoJSON('AREA_SHAPE', coordinate, indexData, area),
+            <FeatureProvider>internalEditor.objects.overlay.layer.getProvider()
+        );
 
         const shapePnt: AreaShape = this;
         const overlay = internalEditor.objects.overlay;
@@ -413,7 +425,20 @@ class AreaShape extends Feature<'Point'> {
             }
 
 
-            let position = <GeoJSONCoordinate>internalEditor.map.getGeoCoord(e.mapX, e.mapY);
+            // let position = <GeoJSONCoordinate>internalEditor.map.getGeoCoord(e.mapX, e.mapY);
+            const ignoreZ = !isAltitudeEditEnabled(shapePnt, area);
+            const orgAlt = shapePnt.geometry.coordinates[2];
+            let position = <GeoJSONCoordinate>dragFeatureCoordinate(
+                e.mapX,
+                e.mapY,
+                shapePnt,
+                shapePnt.geometry.coordinates.slice(0, ignoreZ ? 2 : 3),
+                internalEditor
+            );
+
+            if (ignoreZ && typeof orgAlt == 'number') {
+                position[2] = orgAlt;
+            }
 
             if (area.behavior('snapCoordinates')) {
                 position = polygonTools.snapShape(shapePnt, position, cfg['snapTolerance']) || position;
@@ -439,7 +464,7 @@ class AreaShape extends Feature<'Point'> {
                 polygonTools.markAsModified(area);
 
                 area.__.hk?.show();
-                polygonTools.addVShapes(area);
+                polygonTools.addVirtualShapes(area);
             }
             triggerEvents(e, isMoved ? 'dragStop' : UNDEF);
         }

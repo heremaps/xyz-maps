@@ -197,5 +197,5 @@ export const defaultOptions: MapOptions = {
     zoomAnimationMs: 100,
     maxPitch: 50,
     singleWorldView: false,
-    cameraTerrainOffset: 200
+    cameraTerrainOffset: 100
 };

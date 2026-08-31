@@ -24,16 +24,30 @@ import fragmentShader from '../glsl/sky_fragment.glsl';
 
 import Program, {ProgramMacros} from './Program';
 import {GeometryBuffer} from '../buffer/GeometryBuffer';
-import {PASS} from './GLStates';
+import {GraphicsDevice} from '../device/GraphicsDevice';
+import {PASS, RenderPass} from '../RenderPass';
+import {RenderState} from '../RenderState';
 
 class SkyProgram extends Program {
     name = 'Sky';
-    constructor(gl: WebGLRenderingContext, devicePixelRation: number, macros?: ProgramMacros) {
-        super(gl, devicePixelRation, macros);
+    constructor(device: GraphicsDevice, devicePixelRation: number, macros?: ProgramMacros) {
+        super(device, devicePixelRation, macros);
 
-        this.mode = gl.TRIANGLES;
+        this.mode = device.gl.TRIANGLES;
         this.vertexShaderSrc = vertexShader;
         this.fragmentShaderSrc = fragmentShader;
+    }
+
+    isPassRequired(pass: PASS, itemPass: PASS) {
+        return true;
+    }
+
+    getPassStateOverride(renderPass: RenderPass, buffer: GeometryBuffer, stencilRefVal: number): RenderState | null {
+        return null;
+    }
+
+    applyPassOverrides() {
+        return false;
     }
 }
 
@@ -66,10 +80,10 @@ export const createSkyBuffer = () => {
     tileBuffer.id = 'sky';
     tileBuffer.addUniform('u_fill', [0, 0, 0, 1]);
     tileBuffer.addUniform('u_horizon', [0, 0]);
-    tileBuffer.clip = false;
+    // tileBuffer.clip = false;
     tileBuffer.depth = false;
-    tileBuffer.depthMask = false;
-    tileBuffer.pass = PASS.OPAQUE | PASS.ALPHA;
+    // tileBuffer.depthMask = false;
+    tileBuffer.pass = PASS.OPAQUE | PASS.ALPHA_COLOR;
     tileBuffer.blend = false;
     return tileBuffer;
 };

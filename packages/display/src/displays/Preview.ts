@@ -21,11 +21,9 @@ import {tileUtils, TileLayer} from '@here/xyz-maps-core';
 import BasicDisplay from './BasicDisplay';
 import BasicTile from './BasicTile';
 
-const EMPTY_PREVIEW = [];
+const EMPTY_PREVIEW: TilePreviewInfo[] = [];
 
-let UNDEF;
-
-export type TilePreviewInfo = [
+type TilePreviewFieldMap = {
     quadkey: string,
     sourceX: number,
     sourceY: number,
@@ -35,7 +33,81 @@ export type TilePreviewInfo = [
     destY: number,
     destWidth: number,
     destHeight: number
-];
+};
+
+export class TilePreviewInfo extends Array<string | number> {
+    [0]: string;
+    [1]: number;
+    [2]: number;
+    [3]: number;
+    [4]: number;
+    [5]: number;
+    [6]: number;
+    [7]: number;
+    [8]: number;
+
+    constructor(
+        quadkey: string,
+        sourceX: number,
+        sourceY: number,
+        sourceWidth: number,
+        sourceHeight: number,
+        destX: number,
+        destY: number,
+        destWidth: number,
+        destHeight: number
+    ) {
+        super(9);
+        this[0] = quadkey;
+        this[1] = sourceX;
+        this[2] = sourceY;
+        this[3] = sourceWidth;
+        this[4] = sourceHeight;
+        this[5] = destX;
+        this[6] = destY;
+        this[7] = destWidth;
+        this[8] = destHeight;
+    }
+    getQuadkey(): string {
+        return this[0];
+    }
+
+    getSourceX(): number {
+        return this[1];
+    }
+
+    getSourceY(): number {
+        return this[2];
+    }
+
+    getSourceWidth(): number {
+        return this[3];
+    }
+
+    getSourceHeight(): number {
+        return this[4];
+    }
+
+    getDestX(): number {
+        return this[5];
+    }
+
+    getDestY(): number {
+        return this[6];
+    }
+
+    getDestWidth(): number {
+        return this[7];
+    }
+
+    getDestHeight(): number {
+        return this[8];
+    }
+
+    getScale(): number {
+        return this[7] / this[3];
+    }
+}
 
 // CHECK ALREADY CACHED/AVAILABLE TILES FOR QUICK PREVIEW
 class TilePreviewCreator {
@@ -82,13 +154,13 @@ class TilePreviewCreator {
 
 
     private add(preview: Array<TilePreviewInfo>, quadkey: string, sx: number, sy: number, sdim: number, x: number, y: number, dim: number) {
-        preview.push([
+        preview.push(new TilePreviewInfo(
             quadkey,
             sx, sy,
             sdim, sdim,
             x ^ 0, y ^ 0,
             dim, dim
-        ]);
+        ));
     }
 
 
@@ -136,7 +208,7 @@ class TilePreviewCreator {
         const quadkey = dTile.quadkey;
         const level = quadkey.length;
         const layerMin = layer.min;
-        const layerMax = layer.max;
+        const layerMax = layer.maxDataZoom ?? layer.max;
         const maxDown = layerMax - level;
         const maxUp = level - layerMin;
         const lookup = {x: 0, y: 0};

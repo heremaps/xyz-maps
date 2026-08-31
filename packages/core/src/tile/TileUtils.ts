@@ -44,31 +44,16 @@ export const pixelToGrid = (x: number, y: number, z: number): Grid => {
     return [Math.floor(x), Math.floor(y), z];
 };
 
-export const quadToGrid = (quadKey: string): Grid => {
-    if (typeof quadKey == 'number') {
-        quadKey = String(quadKey);
-    }
-
-    const lvl = quadKey.length;
+export const quadToGrid = (quadkey: string): Grid => {
+    const zoom = quadkey.length;
     let x = 0;
     let y = 0;
-
-    for (let i = 0; i < lvl; ++i) {
-        x *= 2;
-        y *= 2;
-
-        switch (quadKey[i]) {
-        case '1':
-            y++;
-            break;
-        case '3':
-            y++;
-        case '2':
-            x++;
-        }
+    for (let i = 0; i < zoom; i++) {
+        const digit = quadkey.charCodeAt(i) - 48;
+        x = (x << 1) | (digit & 1);
+        y = (y << 1) | ((digit >> 1) & 1);
     }
-
-    return [lvl, x, y];
+    return [zoom, y, x];
 };
 
 export const getBoundsOfQuadkey = (quadkey: string): BBox => {
@@ -77,13 +62,10 @@ export const getBoundsOfQuadkey = (quadkey: string): BBox => {
 
 export const tileXYToQuadKey = (level: number, row: number, col: number): Quadkey => {
     let quadkey = '';
-    let tiles;
-
     while (level-- > 0) {
-        tiles = 1 << level;
+        const tiles = 1 << level;
         quadkey += (<any>((col & tiles) !== 0)) + (<any>((row & tiles) !== 0)) * 2;
     }
-
     return quadkey;
 };
 
@@ -197,6 +179,48 @@ export const getTilesInRect =
 // return [ level, col, row ];
 // }
 
+/**
+ * Computes the normalized [0,1] sub-tile offset and scale of a child quadkey
+ * relative to a parent quadkey.
+ *
+ * Quadkey digit layout per level:
+ * ```
+ *  0 | 1
+ * ---|---
+ *  2 | 3
+ * ```
+ *
+ * @internal
+ * @hidden
+ * @param parentQuadkey - the parent (shorter) quadkey
+ * @param childQuadkey  - the child (longer) quadkey
+ * @returns [offsetX, offsetY, scale] in normalized [0,1] coordinates
+ */
+export function getQuadkeyOffset(parentQuadkey: string, childQuadkey: string): number[];
+export function getQuadkeyOffset(parentQuadkey: string, childQuadkey: string, out: number[]): number[];
+export function getQuadkeyOffset(parentQuadkey: string, childQuadkey: string, out: Float32Array): Float32Array;
+export function getQuadkeyOffset(
+    parentQuadkey: string,
+    childQuadkey: string,
+    out: number[] | Float32Array = [0, 0, 0]
+): number[] | Float32Array {
+    const parentLevel = parentQuadkey.length;
+    const deltaLevel = childQuadkey.length - parentLevel;
+    let x = 0;
+    let y = 0;
+    let scale = 1;
+    for (let i = 0; i < deltaLevel; i++) {
+        scale *= 0.5;
+        const digit = Number(childQuadkey.charAt(parentLevel + i));
+        x += (digit % 2) * scale;
+        y += Number(digit > 1) * scale;
+    }
+    out[0] = x;
+    out[1] = y;
+    out[2] = scale;
+    return out;
+};
+
 export const tileUtils = {
     geoToGrid,
     pixelToGrid,
@@ -205,5 +229,6 @@ export const tileUtils = {
     getGeoBounds,
     getTilesOfLevel,
     getTilesIds,
-    getTilesInRect
+    getTilesInRect,
+    getQuadkeyOffset
 };

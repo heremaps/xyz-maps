@@ -23,16 +23,17 @@ import {ScrollHandler} from './ScrollHandler';
 import {Map} from '../Map';
 import {Animation} from '../animation/Animation';
 import {getDistance} from '../geometry';
+import {KineticPanAnimator} from '../animation/KineticPanAnimator';
 
 const MIN_ROTATION = 5;
 const TWO_FINGER_PINCH_THRESHOLD = 110;
 let UNDEF;
 
 type BehaviorOptions = {
-    zoom: boolean | 'fixed' | 'float';
-    drag: boolean;
-    rotate: boolean;
-    pitch: boolean;
+    zoom?: boolean | 'fixed' | 'float';
+    drag?: boolean;
+    rotate?: boolean;
+    pitch?: boolean;
 }
 
 const getCenter = (ev: TouchEvent | MouseEvent, mapEl: HTMLElement): [number, number] => {
@@ -91,13 +92,21 @@ const getAngle = (ev: TouchEvent): number => {
 
 class Behavior {
     drag: (boolean) => void;
-    scroll: (boolean) => void;
     scrollHandler: ScrollHandler;
-    getOptions: () => BehaviorOptions;
-
+    private _opt: BehaviorOptions;
     private resetAnimation: Animation;
+    private map: Map;
 
-    constructor(mapEl: HTMLElement, map: Map, kinetic, settings: BehaviorOptions, mapCfg) {
+    onGestureEnd: (() => void) | null = null;
+
+    constructor(mapEl: HTMLElement, map: Map, settings: BehaviorOptions, mapCfg) {
+        this.map = map;
+        const kinetic = new KineticPanAnimator(map, {
+            onStop: () => {
+                // console.log('Kinetic stop!');
+                this.endGesture();
+            }
+        });
         this.scrollHandler = new ScrollHandler(mapEl, map, settings, mapCfg.zoomAnimationMs);
         let that = this;
         let startX;
@@ -113,6 +122,7 @@ class Behavior {
         const dragDx = [];
         const dragDy = [];
 
+        this._opt = settings || {};
 
         const gestureThresholdExceeded = (gesture: string, x: number, y: number): boolean => {
             const threshold = mapCfg[gesture];
@@ -169,8 +179,8 @@ class Behavior {
             lastDragTS = Date.now();
 
             if (settings['drag'] && !map.lockViewport()['pan']) {
-                let dx = x - lastX;
-                let dy = y - lastY;
+                const dx = x - lastX;
+                const dy = y - lastY;
 
                 if (dragGrouped < GROUP_DRAG_CNT) {
                     dragDx[dragGrouped] = dx;
@@ -180,15 +190,11 @@ class Behavior {
                 } else {
                     dragGrouped = 0;
                 }
+                that.startGesture('pan');
+                map.pan(dx, dy);
 
-                map.pan(
-                    dx, dy
-                    // dragDx = x - lastX,
-                    // dragDy = y - lastY
-                );
                 dragged = true;
             }
-
 
             lastX = x;
             lastY = y;
@@ -206,6 +212,8 @@ class Behavior {
                         dragDx.reduce((a, b) => a + b, 0) * 3,
                         dragDy.reduce((a, b) => a + b, 0) * 3
                     );
+                } else {
+                    that.endGesture();
                 }
             }
         }
@@ -231,7 +239,6 @@ class Behavior {
 
         function onTouchStart(ev) {
             resetDrag();
-
 
             let targetTouches = ev.targetTouches;
             let touches = targetTouches.length;
@@ -279,6 +286,9 @@ class Behavior {
             let scale = getScale(ev);
 
             if (touches > 1) {
+                if (settings.zoom || settings.rotate || settings.pitch) {
+                    that.startGesture('touch');
+                }
                 if (settings.pitch) {
                     // wait some ticks for better gesture recognition
                     if (++ticks < 5) {
@@ -299,6 +309,7 @@ class Behavior {
                         Math.sign(dy1) == Math.sign(dy2)
                     ) {
                         pitch = true;
+                        that.startGesture('pitch');
                         map.pitch(startMapPitch + dy1 * .2);
                         ev.preventDefault();
                         return;
@@ -361,11 +372,12 @@ class Behavior {
 
             lastScale = getScale(ev);
 
-            if (targetTouchLength == 0 &&
-                ev.changedTouches.length == 1 &&
-                delta2ndPointerMs > 350
-            ) {
-                kineticPan(ev);
+            if (targetTouchLength == 0) {
+                if (ev.changedTouches.length == 1 && delta2ndPointerMs > 350) {
+                    kineticPan(ev);
+                } else {
+                    that.endGesture();
+                }
             }
             // ev.preventDefault();
         }
@@ -405,10 +417,12 @@ class Behavior {
             } else if (mouseButtonPressed == 2) {
                 if (settings.rotate && gestureThresholdExceeded('minRotateMapThreshold', x, y)) {
                     map.rotate(startMapRotation + (lastX - x) * .25);
+                    that.startGesture('rotate');
                 }
 
                 if (settings.pitch && gestureThresholdExceeded('minPanMapThreshold', x, y)) {
                     map.pitch(startMapPitch + (lastY - y) * .1);
+                    that.startGesture('pitch');
                 }
             }
         }
@@ -416,15 +430,15 @@ class Behavior {
         function onMouseUp(ev) {
             mouseButtonPressed = null;
             removeEventListener(mapEl, 'mousemove', onMouseMove);
+            kineticPan(ev);
 
-            if (dragged) {
-                kineticPan(ev);
-            } else if (settings['rotate']) {
+            if (!dragged && settings['rotate']) {
                 const rotation = map.rotate();
                 if (startMapRotation != rotation && Math.abs(rotation) <= MIN_ROTATION) {
                     that.resetAnimation = new Animation(rotation, 0, 500, 'easeOutSine', (a: number) => map.rotate(a));
                     that.resetAnimation.start();
                 }
+                that.endGesture();
             }
         }
 
@@ -440,16 +454,6 @@ class Behavior {
         //     toggleEventListener(WIN, 'resize', onResize);
         // };
 
-        that.scroll = (enable: boolean) => {
-            let {scrollHandler} = this;
-
-            if (enable) {
-                scrollHandler.enable();
-            } else {
-                scrollHandler.disable();
-            }
-        };
-
         that.drag = (enable: boolean) => {
             const toggleEventListener = enable ? addEventListener : removeEventListener;
 
@@ -463,11 +467,30 @@ class Behavior {
                 toggleEventListener(WIN, 'mouseup', onMouseUp);
             }, 0);
         };
-
-        that.getOptions = () => {
-            return settings;
-        };
     }
+
+    private startGesture(t?) {
+        this.map._beginCameraGesture();
+    }
+
+    private endGesture(t?) {
+        if (this.map._endCameraGesture()) {
+            this.onGestureEnd?.();
+        }
+    }
+
+    getOptions() {
+        return this._opt;
+    };
+
+    scroll(enable: boolean) {
+        const {scrollHandler} = this;
+        if (enable) {
+            scrollHandler.enable();
+        } else {
+            scrollHandler.disable();
+        }
+    };
 }
 
 export {Behavior, BehaviorOptions};

@@ -24,7 +24,7 @@ import fragmentShader from '../glsl/image_fragment.glsl';
 
 import Program from './Program';
 import {GLStates} from './GLStates';
-import {GeometryBuffer} from '../buffer/GeometryBuffer';
+import {GraphicsDevice} from '../device/GraphicsDevice';
 
 
 class ImageProgram extends Program {
@@ -36,10 +36,10 @@ class ImageProgram extends Program {
         depth: true
     });
 
-    constructor(gl: WebGLRenderingContext, devicePixelRation: number) {
-        super(gl, devicePixelRation);
+    constructor(device: GraphicsDevice, devicePixelRation: number) {
+        super(device, devicePixelRation);
 
-        this.mode = gl.TRIANGLES;
+        this.mode = device.gl.TRIANGLES;
         this.vertexShaderSrc = vertexShader;
         this.fragmentShaderSrc = fragmentShader;
     }

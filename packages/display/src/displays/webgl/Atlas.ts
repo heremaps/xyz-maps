@@ -19,7 +19,7 @@
 
 import {LRU} from '@here/xyz-maps-common';
 import {Texture, ImageData} from './Texture';
-
+import {GraphicsDevice} from './device/GraphicsDevice';
 
 class SharedTexture extends Texture {
     // do not destroy texture on tile drop because it's shared across multiple tiles.
@@ -31,7 +31,7 @@ class SharedTexture extends Texture {
 }
 
 interface AtlasOptions {
-    gl: WebGLRenderingContext;
+    device: GraphicsDevice;
     maxImgSize?: number,
 }
 
@@ -68,7 +68,7 @@ class ImageInfo {
 class Atlas {
     private c: LRU<ImageInfo>; // LRU Cache
 
-    private gl: WebGLRenderingContext;
+    private device: GraphicsDevice;
 
     private max: number; // imagesPerTexture
 
@@ -79,7 +79,6 @@ class Atlas {
     texture: SharedTexture;
 
     constructor(options: AtlasOptions) {
-        const gl = options.gl;
         const maxImgSize = options.maxImgSize || 256;
         const imagesPerTexture = Math.pow(1024 / maxImgSize, 2);
         const atlasDimension = Math.sqrt(imagesPerTexture);
@@ -88,7 +87,7 @@ class Atlas {
         this.c = new LRU(imagesPerTexture);
         this.max = imagesPerTexture;
         this.maxSize = maxImgSize;
-        this.gl = gl;
+        this.device = options.device;
         this.d = atlasDimension; // atlas-scale = 1/d
         // this.texture = new SharedTexture(gl, {width: textureAtlasSizePixel, height: textureAtlasSizePixel});
     }
@@ -98,11 +97,9 @@ class Atlas {
     };
 
     private init() {
-        let {texture, gl, maxSize, d} = this;
-
         if (!this.texture) {
-            const textureAtlasSizePixel = d * maxSize;
-            this.texture = new SharedTexture(this.gl, {width: textureAtlasSizePixel, height: textureAtlasSizePixel});
+            const textureAtlasSizePixel = this.d * this.maxSize;
+            this.texture = new SharedTexture(this.device, {width: textureAtlasSizePixel, height: textureAtlasSizePixel});
         }
     }
 

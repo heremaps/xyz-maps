@@ -25,6 +25,8 @@ import fragmentShader from '../glsl/rect_fragment.glsl';
 import Program, {ProgramMacros} from './Program';
 import {GLStates} from './GLStates';
 import {GeometryBuffer} from '../buffer/GeometryBuffer';
+import {GraphicsDevice} from '../device/GraphicsDevice';
+import {RenderTile} from '../RenderTile';
 
 class RectProgram extends Program {
     name = 'Rect';
@@ -36,16 +38,16 @@ class RectProgram extends Program {
     });
 
 
-    static getProgramId(buffer: GeometryBuffer, macros?: ProgramMacros) {
-        return buffer.type + (macros?.USE_HEIGHTMAP||'');
-    }
+    constructor(device: GraphicsDevice, devicePixelRation: number, macros?: ProgramMacros) {
+        super(device, devicePixelRation, macros);
 
-    constructor(gl: WebGLRenderingContext, devicePixelRation: number, macros?: ProgramMacros) {
-        super(gl, devicePixelRation, macros);
-
-        this.mode = gl.TRIANGLES;
+        this.mode = device.gl.TRIANGLES;
         this.vertexShaderSrc = vertexShader;
         this.fragmentShaderSrc = fragmentShader;
+    }
+
+    configureRenderState(renderItem: RenderTile, pass: number) {
+        super.configureRenderState(renderItem, pass);
     }
 }
 

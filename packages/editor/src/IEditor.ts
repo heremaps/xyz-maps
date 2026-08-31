@@ -36,6 +36,8 @@ import Map from './map/Map';
 import {Feature as EditorFeature} from './features/feature/Feature';
 import {RangeSelector} from './API/ERangeSelector';
 import {DrawingBoard} from './API/DrawingBoard';
+import {Line} from './features/line/Line';
+import {Navlink} from './features/link/Navlink';
 
 const ERROR_EVENT = 'error';
 
@@ -62,7 +64,10 @@ export default class InternalEditor {
     layers: TileLayer[];
     layerMap: { [id: string]: TileLayer };
     dump: (...args) => void;
-
+    // indicates if terrain is used by the display.
+    // used to automatically decide how feature are being edited (2d or 3d) and how overlay features should be presented.
+    // the property is managed by DisplayListener and is updated when layers are added or removed from the display.
+    displayProvidesTerrain: boolean = false;
 
     constructor(config: EditorOptions, display: Display) {
         this._config = config;
@@ -195,9 +200,19 @@ export default class InternalEditor {
     getResolvedStyle(feature: Feature, layerDefaults?: boolean): StyleGroup {
         const styleGroup = this.getStyle(feature, layerDefaults);
         const zoom = this.display.getZoomlevel() ^ 0;
+        let layerDefaultAltitude;
+
+        if (feature instanceof Line || feature instanceof Navlink) {
+            const layer = this.getLayer(feature);
+            layerDefaultAltitude = layer.getStyle().altitude;
+        }
+
         for (let style of styleGroup) {
             for (let prop in style) {
                 style[prop] = styleTools.getValue(prop, style, feature, zoom);
+            }
+            if (layerDefaultAltitude != UNDEF && style.altitude == UNDEF) {
+                style.altitude = layerDefaultAltitude;
             }
         }
         return styleGroup;
@@ -214,6 +229,8 @@ export default class InternalEditor {
                 return styleTools.getValue(propertyName, style, feature, this.display.getZoomlevel() ^ 0);
             }
         }
+        // check if layer style default is provided
+        return propertyName === 'altitude' ? this.getLayer(feature)?.getStyle()?.altitude : undefined;
     }
 
     getZLayer(layer: TileLayer): number {

@@ -1,6 +1,9 @@
 precision mediump float;
 
 varying vec2 v_texcoord;
+
+#include "utils.glsl/terrainOcclusion"
+
 uniform sampler2D u_texture;
 uniform bool u_strokeOnly;
 uniform vec4 u_fillColor;
@@ -20,4 +23,8 @@ void main() {
     }
 
     gl_FragColor = glyphAlpha * color;
+
+    #if defined(TERRAIN_OCCLUSION_DEBUG)
+    gl_FragColor = terrainOcclusionDebugColor(gl_FragColor);
+    #endif
 }

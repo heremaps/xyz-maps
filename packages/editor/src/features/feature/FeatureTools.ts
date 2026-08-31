@@ -17,10 +17,14 @@
  * License-Filename: LICENSE
  */
 import {Feature} from './Feature';
+import {GeoJSONCoordinate} from '@here/xyz-maps-core';
 
 let UNDEF;
 
-export const markAsModified = (feature: Feature, prv: { isGeoMod?: boolean, isMarking?: boolean }, saveView?: boolean): Feature => {
+export const markAsModified = (feature: Feature, prv: {
+    isGeoMod?: boolean,
+    isMarking?: boolean
+}, saveView?: boolean): Feature => {
     feature.editState('modified', Date.now());
 
     const iEditor = feature._e();
@@ -43,4 +47,27 @@ export const markAsModified = (feature: Feature, prv: { isGeoMod?: boolean, isMa
     return feature;
 };
 
-export default {markAsModified};
+
+export type PointFeature = Feature & {
+    geometry: { type: 'Point'; coordinates: GeoJSONCoordinate }
+};
+/**
+ * Returns the effective world-geo position (lon/lat/alt) used as render base.
+ * Altitude/style may override raw feature geometry.
+ * When terrain is enabled, the original altitude is preserved.
+ *
+ * @internal
+ * @hidden
+ */
+export const getRenderWorldGeoPosition = (feature: PointFeature ): GeoJSONCoordinate => {
+    const altitude = feature._e().getStyleProperty(feature, 'altitude');
+    const position = <GeoJSONCoordinate>feature.geometry.coordinates;
+    return [
+        position[0],
+        position[1],
+        typeof altitude === 'number' ? altitude : (position[2] || 0)
+    ];
+    // return typeof altitude === 'number' ? [position[0], position[1], altitude] : position;
+};
+
+export default {markAsModified, getRenderWorldGeoPosition};

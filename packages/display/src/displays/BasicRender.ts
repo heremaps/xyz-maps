@@ -24,9 +24,7 @@ interface BasicRender {
 
     init(canvas: HTMLCanvasElement, devicePixelRation: number, options?: any): void;
 
-    convertColor(color: number | string | [number, number, number, number?]): any;
-
-    setBackgroundColor(color: Color): void;
+    setBackgroundColor(color: Color | ((z:number)=>Color)): void;
 
     setScale(scale: number, sx: number, sy: number): void;
 
@@ -34,7 +32,7 @@ interface BasicRender {
 
     prepare(INSTRUCTIONS: any, tile: Tile, layer: TileLayer, display: any, dTile: BasicTile, cb: () => void): void;
 
-    clear(): void;
+    beginFrame(clearColor?: Color): void;
 
     grid(show: boolean | { [opt: string]: any }): void;
 

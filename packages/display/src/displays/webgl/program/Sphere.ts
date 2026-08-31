@@ -19,16 +19,18 @@
 
 import BoxProgram from './Box';
 import {ViewUniforms} from '../GLRender';
-import {ProgramMacros} from './Program';
+import {PROGRAM_MACRO, ProgramMacros} from './Program';
+import {GraphicsDevice} from '../device/GraphicsDevice';
 
 class SphereProgram extends BoxProgram {
     name = 'Sphere';
 
-    constructor(gl: WebGLRenderingContext, devicePixelRation: number, macros?: ProgramMacros) {
-        super(gl, devicePixelRation, {SPHERE: true, ...macros});
+    constructor(device: GraphicsDevice, devicePixelRation: number, macros?: ProgramMacros) {
+        super(device, devicePixelRation, {SPHERE: PROGRAM_MACRO.SPHERE, ...macros});
     }
 
-    override initViewUniforms(displayUniforms: ViewUniforms) {
+    override initViewUniforms(displayUniforms: ViewUniforms, isOffscreenPass = false) {
+        super.initViewUniforms(displayUniforms, isOffscreenPass);
         this.initUniform('u_inverseMatrix', displayUniforms.inverseMatrix);
     }
 }

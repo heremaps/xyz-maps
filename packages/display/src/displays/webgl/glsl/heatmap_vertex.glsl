@@ -4,7 +4,7 @@ attribute vec3 a_position;
 attribute float a_weight;
 uniform vec2 u_radius;
 uniform mat4 u_matrix;
-uniform vec2 u_topLeft;
+uniform vec4 u_tile;
 uniform float u_scale;
 uniform bool u_offscreen;
 uniform float u_normalizePosition;
@@ -27,7 +27,7 @@ void main(void) {
 
         v_weight = a_weight;
 
-        vec2 posCenter = vec2(u_topLeft + pos);
+        vec2 posCenter = vec2(u_tile.xy + pos);
         vec2 offset = (dir * u_radius.x * vec2(1.0, -1.0));
         gl_Position = u_matrix * vec4(posCenter + offset / u_scale, 0.0, 1.0);
     } else {

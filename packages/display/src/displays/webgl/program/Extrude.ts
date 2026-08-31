@@ -22,10 +22,12 @@ import vertexShader from '../glsl/extrude_vertex.glsl';
 // @ts-ignore
 import fragmentShader from '../glsl/fill_fragment.glsl';
 
-import Program from './Program';
-import {GLStates, PASS} from './GLStates';
+import Program, {PROGRAM_MACRO, ProgramMacros} from './Program';
+import {GLStates} from './GLStates';
 import {GeometryBuffer} from '../buffer/GeometryBuffer';
-
+import {GraphicsDevice} from '../device/GraphicsDevice';
+import {PASS} from '../RenderPass';
+import {RenderTile} from '../RenderTile';
 
 class ExtrudeProgram extends Program {
     name = 'Extrude';
@@ -36,44 +38,32 @@ class ExtrudeProgram extends Program {
         depth: true
     });
 
-    static getProgramId(buffer: GeometryBuffer, macros?: { [name: string]: string | number | boolean }) {
-        const specular = <number>macros?.SPECULAR;
-        return specular ? buffer.type + specular : buffer.type;
-    }
-
     static getMacros(buffer: GeometryBuffer) {
-        const {uniforms} = buffer;
-        let macros;
-        if (uniforms.specular) {
-            macros = {SPECULAR: 2};
+        let macros = super.getMacros(buffer);
+        if (buffer.uniforms.specular) {
+            macros ||= {};
+            macros.SPECULAR = PROGRAM_MACRO.SPECULAR;
         }
         return macros;
     }
 
-    constructor(gl: WebGLRenderingContext, devicePixelRation: number, macros?: { [name: string]: string | number | boolean }) {
-        super(gl, devicePixelRation, macros);
+    constructor(device: GraphicsDevice, devicePixelRation: number, macros?: ProgramMacros) {
+        super(device, devicePixelRation, macros);
 
-        this.mode = gl.TRIANGLES;
+        this.mode = device.gl.TRIANGLES;
         this.vertexShaderSrc = vertexShader;
         this.fragmentShaderSrc = fragmentShader;
     }
 
-    configureRenderState(options: GeometryBuffer, pass: PASS) {
-        const {gl} = this;
-
-        super.configureRenderState(options, pass);
-
+    configureRenderState(renderItem: RenderTile, pass: PASS) {
+        super.configureRenderState(renderItem, pass);
         // handle coplanar lines and polygons (stroke of extruded polygons)
-        gl.polygonOffset(1, 1);
-        gl.enable(gl.POLYGON_OFFSET_FILL);
+        this.device.applyPolygonOffsetState(true, 1, 1);
     }
 
     draw(geoBuffer: GeometryBuffer) {
-        const {gl} = this;
-
         super.draw(geoBuffer);
-
-        gl.disable(gl.POLYGON_OFFSET_FILL);
+        this.device.applyPolygonOffsetState(false);
     }
 }
 

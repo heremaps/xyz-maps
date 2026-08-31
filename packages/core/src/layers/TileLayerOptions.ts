@@ -30,6 +30,8 @@ export const parseTileSize = (url: string): number | null => {
 };
 
 
+export type DataUnavailableFallback = 'none' | 'ancestor-preview';
+
 /**
  *  Configuration options for a TileLayer.
  */
@@ -107,6 +109,36 @@ export interface TileLayerOptions extends LayerOptions {
      * @internal
      */
     adaptiveGrid?: boolean;
+
+    /**
+     * Maximum zoom level at which actual tile data is available from the data source.
+     *
+     * When the map is zoomed beyond this level, the layer will load tiles at `maxDataZoom`
+     * instead of the current viewport zoom level. This avoids unnecessary tile requests
+     * for zoom levels where no data exists.
+     *
+     * For example, if terrain data is only available up to zoom 15 but the map is at zoom 17,
+     * the display will request zoom-15 tiles and scale them up, while other layers (e.g., imagery)
+     * can still load tiles at zoom 17.
+     *
+     * @defaultValue Same as {@link TileLayerOptions.max} — tiles are loaded up to the layer's maximum visibility zoom level.
+     */
+    maxDataZoom?: number;
+
+    /**
+     * Defines how the display handles tiles for which no usable data is available,
+     * for example when the remote source returns an HTTP 404 or a network error.
+     *
+     * - `'none'`: treat the tile as empty and mark it as completed.
+     * - `'ancestor-preview'`: keep the tile unresolved and use a loaded ancestor
+     *   tile as fallback content until data becomes available.
+     *
+     * @defaultValue `'none'`
+     *
+     * @hidden
+     * @internal
+     */
+    dataUnavailableFallback?: DataUnavailableFallback;
 
     /**
      * Attribution information for data sources used by this layer.

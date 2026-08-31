@@ -16,100 +16,97 @@
  * SPDX-License-Identifier: Apache-2.0
  * License-Filename: LICENSE
  */
-
+import BasicDisplay from './displays/BasicDisplay';
 import {Map} from './Map';
-import {MapOptions} from './MapOptions';
-import {GeoPoint} from '@here/xyz-maps-core';
+import {measureStart, measureEnd} from './displays/webgl/PerfTimer';
 
 
 export class CameraTerrainController {
-    private _camTerrainGuard: boolean;
-    private _camTerrainSmoothedAltitude: number | null;
-    private _prevCamPos: GeoPoint | null;
-    private _prevTime: number | null;
-    private _options: MapOptions;
+    // Guard against recursive calls (ensureAboveTerrain → setAltitude → updateGrid → ensureAboveTerrain)
+    private _guard: boolean = false;
 
-    constructor(private map: Map, options: MapOptions) {
-        this._prevCamPos = {longitude: 0, latitude: 0, altitude: 0};
-        this._prevTime = null;
-        this._camTerrainSmoothedAltitude = null;
-        this._options = options;
-    }
+    // Best available terrain height at the camera position, or a conservative
+    // regional upper bound used to calculate the maximum safe zoom.
+    // Updated by ensureAboveTerrain() and read by getMaxZoom().
+    private _cachedTerrainHeightForZoom: number | null = null;
 
-    private computeCamSpeed(cam: GeoPoint): number {
-        const now = performance.now() / 1000; // seconds
-        let camSpeed = 0;
-        if (this._prevTime != null) {
-            const dt = now - this._prevTime;
-            if (dt > 0) {
-                const dx = cam.longitude - this._prevCamPos.longitude;
-                const dy = cam.latitude - this._prevCamPos.latitude;
-                const dz = cam.altitude - this._prevCamPos.altitude;
-                // rough distance in meters (for small deltas)
-                camSpeed = Math.sqrt(dx * dx + dy * dy + dz * dz) / dt;
-            }
-        }
-        this._prevCamPos.longitude = cam.longitude;
-        this._prevCamPos.latitude = cam.latitude;
-        this._prevCamPos.altitude = cam.altitude;
-        this._prevTime = now;
-        return camSpeed;
+    // Minimum distance (meters) the camera must remain above the terrain surface.
+    private minCamTerrainDistance: number;
+
+    constructor(private map: Map, private display: BasicDisplay, minCamTerrainDistance: number = 1000) {
+        this.minCamTerrainDistance = minCamTerrainDistance;
     }
 
     /**
      * Returns the terrain height at a given geographic coordinate.
+     * Uses the persistent heightmap cache — works even when the tile is not rendered (frustum-independent).
      *
+     *  @internal
      * @hidden
-     * @internal
-     * @param lon - Longitude of the location.
-     * @param lat - Latitude of the location.
      */
     private getTerrainHeightAtGeo(lon: number, lat: number): number | null {
-        const map = this.map;
-        const screen = map.geoToPixel(lon, lat);
-        const groundWorld = map._unprj(screen.x, screen.y);
-        return map._getTerrainAtWorldXY(groundWorld[0], groundWorld[1]);
+        const display = this.display;
+        // measureStart('getTerrainPointHeight');
+        const height = display.getTerrainPointHeight(lon, lat);
+        // measureEnd('getTerrainPointHeight');
+        this._cachedTerrainHeightForZoom = height ?? display.getTerrainRegionMaxHeight(lon, lat);
+        return height;
     }
 
-    public ensureAboveTerrain() {
-        if (this._camTerrainGuard) return null;
+    /**
+     * Returns the maximum zoom level at which the camera remains above the terrain surface,
+     * or null if terrain data is unavailable.
+     * Uses the cached terrain height below the camera (updated via ensureAboveTerrain).
+     *
+     * @internal
+     * @hidden
+     */
+    public getMaxZoom(): number | null {
+        const terrainAlt = this._cachedTerrainHeightForZoom;
+        if (terrainAlt == null || !Number.isFinite(terrainAlt)) {
+            return null;
+        }
+        const safeAltitude = terrainAlt + this.minCamTerrainDistance;
+        if (safeAltitude <= 0) {
+            return null;
+        }
+        const maxZoom = this.map._altToZoom(safeAltitude);
+        return Number.isFinite(maxZoom) ? maxZoom : null;
+    }
+
+    /**
+     * Checks whether the camera is above the terrain and corrects if not.
+     * Also updates the cached terrain height below the camera (used by getMaxZoom).
+     *
+     * Called after every view change (from updateGrid) and when terrain tiles finish loading.
+     *
+     * @internal
+     * @hidden
+     */
+    public ensureAboveTerrain(): void {
+        if (this._guard) return;
+
         const map = this.map;
         const cam = map.getCamera().position;
-        const rawTerrain = this.getTerrainHeightAtGeo(cam.longitude, cam.latitude);
-        if (rawTerrain == null) return;
+        const terrainAlt = this.getTerrainHeightAtGeo(cam.longitude, cam.latitude);
 
-        let smoothedAltitude = this._camTerrainSmoothedAltitude;
-        if (smoothedAltitude == null) {
-            smoothedAltitude = rawTerrain;
-        } else {
-            // Temporal smoothing of terrain altitude (Exponential Moving Average)
-            const smoothing = 0.85; // closer to 1 = smoother, but more lag
-            smoothedAltitude = smoothedAltitude * smoothing + rawTerrain * (1 - smoothing);
+        // ElevationTree.max is used only by getMaxZoom(); reactive correction requires an exact or parent-heightmap point sample.
+        if (terrainAlt == null || !Number.isFinite(terrainAlt)) return;
+
+        const minCamAlt = terrainAlt + this.minCamTerrainDistance;
+        const diff = minCamAlt - cam.altitude;
+
+        if (diff > 2) {
+            this._guard = true;
+            try {
+                map.setAltitude(minCamAlt);
+            } finally {
+                this._guard = false;
+            }
         }
-        this._camTerrainSmoothedAltitude = smoothedAltitude;
+    }
 
-        // Adaptive minDiff based on speed
-        // const camSpeed = this.computeCamSpeed(cam);
-        // const baseMinDiff = 1.0; // meters
-        // const speedScaling = 0.05;
-        // const minDiff = baseMinDiff + camSpeed * speedScaling;
-        const minDiff = 2.0; // meters
-        const targetAltitude = smoothedAltitude + this._options.cameraTerrainOffset;
-        const diff = targetAltitude - cam.altitude;
-
-        if (diff > minDiff) {
-            this._camTerrainGuard = true;
-            const newAltitude = diff > 5
-                // Way too deep -> snap directly to safe altitude
-                ? targetAltitude
-                // Slightly below -> ease upwards
-                : cam.altitude + diff * 0.2;
-
-            map.setAltitude(newAltitude);
-
-            this._camTerrainGuard = false;
-            return targetAltitude;
-        }
-        return null;
+    public reset(): void {
+        this._cachedTerrainHeightForZoom = null;
     }
 }

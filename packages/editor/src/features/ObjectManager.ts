@@ -31,7 +31,7 @@ import {
     FeatureProvider,
     EditableFeatureProvider,
     EditableRemoteTileProvider,
-    GeoJSONCoordinate
+    GeoJSONCoordinate, TerrainTileLayer
 } from '@here/xyz-maps-core';
 import {Map, JSUtils, geotools, vec3} from '@here/xyz-maps-common';
 import {getClosestPntOnLine, intersectBBox, rayIntersectPlane} from '../geometry';
@@ -188,10 +188,9 @@ class ObjectManager {
         const HERE_WIKI = this.iEdit;
         const o = e.target;
         const type = e.type;
+        const layer = e.detail?.layer;
 
-        if (o) {
-            const layer = e.detail.layer;
-
+        if (o && !(layer instanceof TerrainTileLayer) ) {
             if (!this.layers.has(layer.id)) {
                 // if layer is not known by editor no further action is wanted
                 // eg: ground trigger
