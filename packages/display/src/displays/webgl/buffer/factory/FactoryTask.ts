@@ -54,7 +54,7 @@ const handlePolygons = (
     for (let style of styleGroup) {
         const type = getValue('type', style, feature, zoom);
         if (type == 'Polygon' || type == 'Line') {
-            if ( getValue('extrude', style, feature, zoom) ) {
+            if (getValue('extrude', style, feature, zoom)) {
                 continue;
             }
             const {type: orgType, stroke: orgStroke} = style;
@@ -366,7 +366,10 @@ export class FactoryTask extends Task<TaskInput, TaskData> {
                                 }
 
                                 if (isModel) {
-                                    if (!geoBuffer.attributes.a_normal) {
+                                    // Heightmap normals are derived in the shader; skip CPU calculation.
+                                    const isMeshTerrain = geoBuffer.isTerrainSurface() && !geoBuffer.heightMap;
+
+                                    if (!geoBuffer.attributes.a_normal && isMeshTerrain) {
                                         geoBuffer.addAttribute('a_normal', {
                                             data: geoBuffer.computeNormals(),
                                             size: 3,

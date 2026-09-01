@@ -57,6 +57,8 @@ const createTerrainModelBuilder = (material) => ({id, properties}, zoom: number,
         geometries: [{
             position: properties.vertices,
             index: properties.indices,
+            // heightmap terrain derives normals from the heightmap in the shader, so `false`
+            // skips the unnecessary CPU-side calculation and upload of vertex normals.
             normal: properties.normals || false,
             size: properties.size
             // uv: properties.uv
