@@ -454,18 +454,32 @@ class Behavior {
         //     toggleEventListener(WIN, 'resize', onResize);
         // };
 
-        that.drag = (enable: boolean) => {
+        let dragEnabled = false;
+        const toggleDragListeners = (enable: boolean) => {
+            if (enable && !dragEnabled) return;
             const toggleEventListener = enable ? addEventListener : removeEventListener;
+            toggleEventListener(mapEl, 'touchstart', onTouchStart);
+            toggleEventListener(WIN, 'touchend', onTouchEnd);
+            toggleEventListener(mapEl, 'touchmove', onTouchMove);
 
-            setTimeout(() => {
-                toggleEventListener(mapEl, 'touchstart', onTouchStart);
-                toggleEventListener(WIN, 'touchend', onTouchEnd);
-                toggleEventListener(mapEl, 'touchmove', onTouchMove);
+            toggleEventListener(mapEl, 'mousedown', onMouseDown);
+            // toggleEventListener( mapEl,  'mousemove',  onMouseMove   );
+            toggleEventListener(WIN, 'mouseup', onMouseUp);
+        };
 
-                toggleEventListener(mapEl, 'mousedown', onMouseDown);
-                // toggleEventListener( mapEl,  'mousemove',  onMouseMove   );
-                toggleEventListener(WIN, 'mouseup', onMouseUp);
-            }, 0);
+        that.drag = (enable: boolean) => {
+            if (dragEnabled == enable) return;
+            dragEnabled = enable;
+
+            if (enable) {
+                setTimeout(() => {
+                    toggleDragListeners(true);
+                }, 0);
+            } else {
+                // Remove global listeners synchronously so destroyed maps cannot
+                // receive a later mouseup or touchend event.
+                toggleDragListeners(false);
+            }
         };
     }
 
