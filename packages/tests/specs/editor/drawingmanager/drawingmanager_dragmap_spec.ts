@@ -36,8 +36,14 @@ describe('Create new Links by drawing manager', function() {
     before(async function() {
         preparedData = await prepare(dataset);
         display = new Map(document.getElementById('map'), {
-            center: {longitude: 76.98506, latitude: 12.88776},
+            center: {
+                longitude: 76.98506,
+                latitude: 12.88776
+            },
             zoomlevel: 18,
+            behavior: {
+                pitch: true
+            },
             layers: preparedData.getLayers()
         });
         editor = new Editor(display, {
@@ -85,6 +91,32 @@ describe('Create new Links by drawing manager', function() {
             await drag(mapContainer, {x: 200, y: 100}, {x: 250, y: 100});
         });
         expect(display.getCenter().longitude).to.not.equal(76.98506);
+    });
+
+    it('pitch map with the secondary button while drawing', async function() {
+        await mousemove(mapContainer, {x: 200, y: 150}, {x: 250, y: 150});
+
+        const initialPitch = display.pitch();
+        const initialShapeCount = editor.getDrawingBoard().getLength();
+        const drawingBoard = editor.getDrawingBoard() as any;
+        const initialPreviewPosition =
+            drawingBoard._b.getFeature().geojson.geometry.coordinates.slice(-1)[0].slice();
+
+        await waitForEditorReady(editor, async ()=>{
+            await drag(mapContainer, {x: 250, y: 150}, {x: 250, y: 100}, 60, 2);
+        });
+
+        expect(display.pitch()).to.be.greaterThan(initialPitch);
+        expect(editor.getDrawingBoard().getLength()).to.equal(initialShapeCount);
+        expect(drawingBoard._b.getFeature().geojson.geometry.coordinates.slice(-1)[0])
+            .to.deep.equal(initialPreviewPosition);
+
+        await mousemove(mapContainer, {x: 250, y: 100}, {x: 250, y: 120});
+        expect(drawingBoard._b.getFeature().geojson.geometry.coordinates.slice(-1)[0])
+            .to.not.deep.equal(initialPreviewPosition);
+
+        await click(mapContainer, 250, 100, 2);
+        expect(editor.getDrawingBoard().getLength()).to.equal(initialShapeCount);
     });
 
 

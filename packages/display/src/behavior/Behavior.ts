@@ -432,11 +432,13 @@ class Behavior {
             removeEventListener(mapEl, 'mousemove', onMouseMove);
             kineticPan(ev);
 
-            if (!dragged && settings['rotate']) {
-                const rotation = map.rotate();
-                if (startMapRotation != rotation && Math.abs(rotation) <= MIN_ROTATION) {
-                    that.resetAnimation = new Animation(rotation, 0, 500, 'easeOutSine', (a: number) => map.rotate(a));
-                    that.resetAnimation.start();
+            if (!dragged && (settings.rotate || settings.pitch)) {
+                if (settings.rotate) {
+                    const rotation = map.rotate();
+                    if (startMapRotation != rotation && Math.abs(rotation) <= MIN_ROTATION) {
+                        that.resetAnimation = new Animation(rotation, 0, 500, 'easeOutSine', (a: number) => map.rotate(a));
+                        that.resetAnimation.start();
+                    }
                 }
                 that.endGesture();
             }

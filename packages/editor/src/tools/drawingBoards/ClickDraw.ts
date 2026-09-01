@@ -136,6 +136,8 @@ const setupStyleGroups = (iEdit: InternalEditor, settings: Settings, feature) =>
 };
 
 let UNDEF;
+const SECONDARY_MOUSE_BUTTON = 2;
+const SECONDARY_MOUSE_BUTTON_MASK = 2;
 
 type Settings = {
     mode?: 'Area' | 'Line' | 'Navlink',
@@ -167,8 +169,32 @@ class ClickDraw {
 
     overlay: Overlay;
 
-    private onBoardUp() {
+    private secondaryMouseButtonDown = false;
+
+    private onBoardDown(ev: MouseEvent) {
+        if (ev.button == SECONDARY_MOUSE_BUTTON) {
+            this.secondaryMouseButtonDown = true;
+        }
+    }
+
+    private onBoardUp(ev?: MouseEvent) {
+        if (ev?.button == SECONDARY_MOUSE_BUTTON) {
+            this.secondaryMouseButtonDown = false;
+        }
+
         this.mousedown = false;
+    }
+
+    private onBoardCancel() {
+        this.secondaryMouseButtonDown = false;
+        this.mousedown = false;
+    }
+
+    private isSecondaryMouseButton(ev: MapEvent | MouseEvent) {
+        const nativeEvent = (<MapEvent>ev).nativeEvent || <MouseEvent>ev;
+        return this.secondaryMouseButtonDown ||
+            (nativeEvent as MouseEvent).button == SECONDARY_MOUSE_BUTTON ||
+            ((nativeEvent as MouseEvent).buttons & SECONDARY_MOUSE_BUTTON_MASK) != 0;
     }
 
     private getEventsWorldPosition(ev: MapEvent): [number, number, number?] {
@@ -181,6 +207,10 @@ class ClickDraw {
 
     private updateCursor(ev) {
         const {iEdit, feature, shapes, display, cursor, mousedown, overlay} = this;
+
+        if (this.isSecondaryMouseButton(ev)) {
+            return;
+        }
 
         if (!mousedown) {
             // const geoMouse = iEdit.map.getGeoCoord(iEdit.map.getEventsMapXY(ev));
@@ -232,19 +262,25 @@ class ClickDraw {
         const cursor = overlay.addCircle(topLeft, cloneStylesWithZIndexOffset(createDefaultShapeStyle(iEdit), 1));
         // @ts-ignore
         cursor.pointerdown = (ev) => {
+            if (ev.button == SECONDARY_MOUSE_BUTTON) return;
+
             const {properties} = cursor;
             properties.prevPos = iEdit.map.getEventsMapXY(ev);
             board.mousedown = true;
             properties.panned = false;
         };
         // @ts-ignore
-        cursor.pressmove = (ev) => {
+        cursor.pressmove = (ev: MapEvent) => {
+            if (board.isSecondaryMouseButton(ev)) {
+                ev.propagateToMap();
+                return;
+            }
             updateCursor(ev);
             cursor.properties.panned = true;
         };
         // @ts-ignore
         cursor.pointerup = (ev) => {
-            if (!cursor.properties.panned) {
+            if (ev.button != SECONDARY_MOUSE_BUTTON && !cursor.properties.panned) {
                 // board.addShape(iEdit.map.getGeoCoord(ev.mapX, ev.mapY), UNDEF, ev);
                 board.addShape(this.getEventsWorldPosition(ev));
             }
@@ -256,8 +292,12 @@ class ClickDraw {
 
         this.inValid = false;
 
+        global.addEventListener('mousedown', this.onBoardDown);
         global.addEventListener('mousemove', this.updateCursor);
         global.addEventListener('mouseup', this.onBoardUp);
+        global.addEventListener('blur', this.onBoardCancel);
+        global.addEventListener('pointercancel', this.onBoardCancel);
+        global.addEventListener('touchcancel', this.onBoardCancel);
     };
 
     constructor(overlay: Overlay, HERE_WIKI: InternalEditor, display) {
@@ -267,7 +307,9 @@ class ClickDraw {
         clickDraw.iEdit = HERE_WIKI;
         clickDraw.display = display;
 
+        clickDraw.onBoardDown = clickDraw.onBoardDown.bind(clickDraw);
         clickDraw.onBoardUp = clickDraw.onBoardUp.bind(clickDraw);
+        clickDraw.onBoardCancel = clickDraw.onBoardCancel.bind(clickDraw);
         clickDraw.updateCursor = clickDraw.updateCursor.bind(clickDraw);
     }
 
@@ -515,8 +557,13 @@ class ClickDraw {
             overlay.remove(board.cursor);
             board.cursor = null;
 
+            board.secondaryMouseButtonDown = false;
+            global.removeEventListener('mousedown', board.onBoardDown);
             global.removeEventListener('mousemove', board.updateCursor);
             global.removeEventListener('mouseup', board.onBoardUp);
+            global.removeEventListener('blur', board.onBoardCancel);
+            global.removeEventListener('pointercancel', board.onBoardCancel);
+            global.removeEventListener('touchcancel', board.onBoardCancel);
         }
     }
 }

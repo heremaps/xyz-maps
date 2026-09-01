@@ -200,8 +200,11 @@ class ObjectManager {
             const evl = oTools.getEventListener(o, type);
 
             if (evl) {
-                e.stopPropagation();
-                return evl.apply(o, arguments);
+                const result = evl.apply(o, arguments);
+                if (!e.shouldPropagateToMap) {
+                    e.stopPropagation();
+                }
+                return result;
             }
         }
 

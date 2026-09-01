@@ -87,6 +87,25 @@ class MapEvent {
     };
     data?: any;
 
+    /**
+     * Whether the event should pass through to map interaction handling.
+     *
+     * @defaultValue false
+     *
+     * @internal
+     * @hidden
+     */
+    shouldPropagateToMap: boolean = false;
+
+    /**
+     * Allow the event to pass through an overlay handler to the map.
+     * @internal
+     * @hidden
+     */
+    propagateToMap() {
+        this.shouldPropagateToMap = true;
+    }
+
 
     constructor(
         type: string,

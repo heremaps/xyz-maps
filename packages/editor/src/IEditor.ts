@@ -184,6 +184,7 @@ export default class InternalEditor {
     };
 
     destroy() {
+        this._db?.cancel();
         this._dListener.stop();
         // removes the overlay
         this.objects.destroy();
