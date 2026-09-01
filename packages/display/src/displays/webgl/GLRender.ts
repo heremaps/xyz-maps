@@ -46,9 +46,8 @@ import {
 import {ElementsDrawCmd, GeometryBuffer, IndexData} from './buffer/GeometryBuffer';
 import {DisplayTile} from '../BasicDisplay';
 import {CustomRenderData, RenderData} from './Display';
-import {GRID_PITCH_CLAMP} from './constants';
+import {GRID_PITCH_CLAMP, Z_INDEX_DEPTH_SLOTS} from './constants';
 import {HeightMapTileCache} from './HeightMapTileCache';
-import {measureStart, measureEnd} from './PerfTimer';
 import {logGLRenderState} from './glTools';
 
 import {transformMat4} from 'gl-matrix/vec3';
@@ -208,7 +207,6 @@ export class GLRender implements BasicRender {
     private depthFnc: GLenum;
     private depthMask: boolean;
     private readonly ctxAttr: WebGLContextAttributes;
-    private depthBufferSize: number;
 
     processedLight: { [lightSetName: string]: CompiledUniformMap }[] = [];
 
@@ -515,8 +513,6 @@ export class GLRender implements BasicRender {
         // stencilTile.colorMask = {r: false, g: false, b: false, a: false};
         // stencilTile.depthMask = false;
         this.stencilTile = new RenderTile(stencilTile);
-        // this.depthBufferSize = 1 << 16;
-        this.depthBufferSize = 1 << gl.getParameter(gl.DEPTH_BITS);
 
         const programConfig = this.programConfig = {
             Rect: {program: RectProgram},
@@ -1125,9 +1121,7 @@ export class GLRender implements BasicRender {
             sharedUniforms.u_tile[1] = y;
             sharedUniforms.u_tile[2] = renderTile.getTileSize();
 
-            const depthBufferSize = this.depthBufferSize;
-            // const depthIndex = Math.max(0, Math.min(zIndex, depthBufferSize - 1));
-            const depth = (depthBufferSize - 1 - zIndex) / depthBufferSize;
+            const depth = this.getDepthForZIndex(zIndex);
             this.device.setDepthRange(buffer.flat ? depth : 0, depth);
 
             let cameraWorld = this.cameraWorld;
@@ -1474,9 +1468,7 @@ export class GLRender implements BasicRender {
                 y = 0;
             } else {
                 matrix = buffer.pixelPerfect ? this.vPRasterMat : this.vPMat;
-                // measureStart('updateMVPMatrix');
                 // matrix = renderTile.updateMVPMatrix(buffer.pixelPerfect ? this.vPRasterMat : this.vPMat);
-                // measureEnd('updateMVPMatrix');
                 // x = y = 0;
             }
             this.drawBuffer(renderTile, x, y, matrix, distanceScale);
@@ -1519,8 +1511,7 @@ export class GLRender implements BasicRender {
 
         // render.prog = null;
 
-        const depthBufferSize = this.depthBufferSize;
-        const zFar = (depthBufferSize - 1 - zIndex) / depthBufferSize;
+        const zFar = this.getDepthForZIndex(zIndex);
         const zNear = layer.renderOptions.mode == '3d' ? 0 : zFar;
 
         this.device.setDepthRange(zNear, zFar);
@@ -1535,6 +1526,12 @@ export class GLRender implements BasicRender {
 
         this.device.invalidateState();
         this.device.resetStateToDefaults({keepViewport: true});
+    }
+
+    private getDepthForZIndex(zIndex: number): number {
+        const lastZIndex = Z_INDEX_DEPTH_SLOTS - 1;
+        const depthIndex = zIndex > lastZIndex ? lastZIndex : zIndex;
+        return (lastZIndex - depthIndex) / Z_INDEX_DEPTH_SLOTS;
     }
 
     private getProgram(buffer: GeometryBuffer) {

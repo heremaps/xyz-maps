@@ -29,3 +29,14 @@ export const GRID_PITCH_CLAMP = 68 * TO_RADIANS;
 // If the actual pitch exceeds this value, fixed tiles are culled and no longer displayed.
 // Adaptive tiles may still render above this threshold by scaling appropriately.
 export const FIXED_TILE_PITCH_THRESHOLD = 60 * TO_RADIANS;
+
+// Depth slots for logical render-order levels, deliberately decoupled from the real depth buffer precision.
+// Render order is applied by narrowing the depth range per level (see GLRender.getDepthForZIndex), so the spacing
+// between levels must exceed the depth buffer quantization. On a 24-bit buffer these 16 bits leave a 256-step margin,
+// keeping overlapping non-flat geometry of adjacent `zIndex` levels apart, e.g. a line's outline and inline style.
+// The margin is needed because non-flat ranges start at 0, so the effective spacing scales with the projected depth,
+// and the alpha color pass uses depthFunc EQUAL, making even a single-step deviation visible.
+// A per-level polygon offset would be more explicit (its units are relative to the depth buffer resolution), but
+// requires an identical offset in the alpha depth/color pass and dropping the per-draw reset in
+// Program.configureRenderState.
+export const Z_INDEX_DEPTH_SLOTS = 1 << 16;
