@@ -215,7 +215,8 @@ export const createTextData = (
 
 
     if (rotationY) {
-        rotationY = 32767 * rotationY / (2 * Math.PI) ^ 0;
+        // a_point.z stores the Y rotation as a signed 16-bit angle fraction.
+        rotationY = Math.round(-32767 * rotationY / (2 * Math.PI));
     }
 
 

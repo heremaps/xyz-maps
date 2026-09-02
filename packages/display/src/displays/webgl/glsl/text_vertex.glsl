@@ -29,6 +29,25 @@ const float OFFSET_SCALE = 1.0 / 32.0;
 const float PI_05 = M_PI * 0.5;
 const float PI_15 = M_PI * 1.5;
 const float PI_20 = M_PI * 2.0;
+
+vec3 rotateYWithMeterZ(vec3 offset, float rotationY, float zScale) {
+    // readable reference implementation:
+    // float pixelRotationY = atan(sin(rotationY) * zScale, cos(rotationY));
+    // offset = rotateY(offset, pixelRotationY);
+    // offset.z /= zScale;
+
+    // performance optimization: normalize the pair directly to avoid atan() and evaluating a 2nd sin/cos pair in rotateY().
+    float s = sin(rotationY) * zScale;
+    float c = cos(rotationY);
+    float invLen = inversesqrt(s * s + c * c);
+    float sinY = s * invLen;
+    float cosY = c * invLen;
+    // Expanded rotateY(): mat3(c, 0, -s, 0, 1, 0, s, 0, c).
+    offset = vec3(cosY * offset.x + sinY * offset.z, offset.y, cosY * offset.z - sinY * offset.x);
+    offset.z /= zScale;
+    return offset;
+}
+
 void main(void) {
     if (mod(a_position.x, 2.0) == 1.0) {
 
@@ -62,7 +81,10 @@ void main(void) {
 
         if (u_alignMap) {
             float absRotation = mod(u_rotate + rotationZ, PI_20);
+            // createTextData stores the angle using rotateY's +X -> -Z convention.
             float rotationY = a_point.z / 32767.0 * PI_20;
+            // Convert the cached meter/tile-pixel slope to the rendered vertical scale.
+            float zScale = max(u_zMeterToPixel * u_exaggeration, 0.000001);
 
             if (absRotation > PI_05 && absRotation < PI_15) {
                 rotationZ += M_PI;
@@ -71,12 +93,13 @@ void main(void) {
             }
 
             vec3 offset = vec3(a_point.xy * OFFSET_SCALE + labelOffset, 0.0) / u_scale / DEVICE_PIXEL_RATIO;
-            offset = rotateY(offset, rotationY);
+            offset = rotateYWithMeterZ(offset, rotationY, zScale);
             offset.xy = rotateZ(offset.xy, rotationZ);
 
             vec3 posWorld = vec3(u_tile.xy + position, z);
 
-            offset.xy *= altitudeScaleFactor(posWorld, u_matrix);
+            // Scale the complete rotated offset to preserve its 3D proportions.
+            offset *= altitudeScaleFactor(posWorld, u_matrix);
 
             vec3 vertexPos = posWorld + offset;
             #ifdef USE_HEIGHTMAP

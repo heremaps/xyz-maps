@@ -39,16 +39,24 @@ enum DIR {
     MID_TO_START = -1
 }
 
-type PlacePointCallback = (x: number, y: number, z: number | null, rotZ: number, rotY: number, collisionData?: CollisionData) => void;
+type PlacePointCallback = (
+    x: number,
+    y: number,
+    z: number | null,
+    rotZDeg: number,
+    rotYRad: number,
+    collisionData?: CollisionData
+) => void;
 
 
 export class LineFactory {
     private dashes: DashAtlas;
     private readonly pixels: Float32Array; // projected coordinate cache
     private length: number = 0; // length of coordinate cache
-    private dimensions: number; // dimensions of coordinate cache
-    private readonly alpha: Float32Array; // segment angle cache
-    private lineLength: Float32Array; // length from start to segment at index of the current projected line
+    private readonly dimensions: number; // dimensions of coordinate cache
+    private readonly rotationZ: Float32Array; // cached horizontal rotation (degrees)
+    private readonly rotationY: Float32Array; // cached vertical rotation (radians)
+    private readonly lineLength: Float32Array; // length from start to segment at index of the current projected line
     private collisions: CollisionData[];
 
     private coordinateScale: number; // increase precision for tile scaling
@@ -61,7 +69,8 @@ export class LineFactory {
 
         // reused pixel coordinate cache
         this.pixels = new Float32Array(262144); // -> 1MB;
-        this.alpha = new Float32Array(131072);
+        this.rotationZ = new Float32Array(131072);
+        this.rotationY = new Float32Array(131072);
         this.lineLength = new Float32Array(131072);
         this.repeat = {};
     }
@@ -131,7 +140,14 @@ export class LineFactory {
             cx = (cx - tile.x / tilesPerAxis) * worldSize;
             cy = (cy - tile.y / tilesPerAxis) * worldSize;
 
-            place(cx, cy, cz as number, applyRotation ? this.alpha[i] : 0, 0, cData);
+            place(
+                cx,
+                cy,
+                typeof cz == 'number' ? cz : null,
+                applyRotation ? this.rotationZ[i] : 0,
+                applyRotation ? this.rotationY[i] : 0,
+                cData
+            );
         }
     }
 
@@ -471,7 +487,6 @@ export class LineFactory {
         const isAltitudeAbs = typeof altitude == 'number';
         const fixZ = isAltitudeAbs ? altitude : null;
         let cz = fixZ;
-        const collisionZ = altitude === 'terrain' ? altitude : cz;
 
         for (let i = 1; i < vLength; i++) {
             if (offset + i === vLength) {
@@ -587,10 +602,23 @@ export class LineFactory {
                                 slope = [dx * slopeScale, dy * slopeScale];
                             }
 
-                            collisionData = collisions.insert(cx, cy, collisionZ, ox, oy, width / 2, height / 2, priority, isMapAligned, slope);
+                            collisionData = collisions.insert(
+                                cx,
+                                cy,
+                                altitude === 'terrain' ? altitude : cz,
+                                ox,
+                                oy,
+                                width / 2,
+                                height / 2,
+                                priority,
+                                isMapAligned,
+                                slope
+                            );
 
                             if (collisionData) {
-                                this.alpha[checkCollisions.length] = alpha * TO_DEG;
+                                const collisionIndex = checkCollisions.length;
+                                this.rotationZ[collisionIndex] = alpha * TO_DEG;
+                                this.rotationY[collisionIndex] = rotY;
                                 checkCollisions.push(collisionData);
                             }
                         }
