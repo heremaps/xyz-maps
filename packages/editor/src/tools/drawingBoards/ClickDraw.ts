@@ -339,6 +339,12 @@ class ClickDraw {
             this.originPos = pos;
         }
 
+        // prevent a missed shape click from adding the same point twice.
+        const prevPos = shapes[shapes.length - 1]?.geometry.coordinates;
+        if (prevPos?.length == pos.length && prevPos.every((coordinate, index) => coordinate == pos[index])) {
+            return null;
+        }
+
         const shp = this.overlay.addFeature(
             new DrawingShape(this, iEdit, shapes.length, pos, settings['mode']),
             cloneStylesWithZIndexOffset(this.style.shape, 9)

@@ -57,7 +57,8 @@ class DrawingBoard {
      */
     addShape(position: PixelPoint | GeoPoint, navlink?: Navlink): DrawingShape {
         if (this._a) {
-            return this._b.addShape(this._e.map.getGeoCoord(position), navlink);
+            const geoCoordinate = this._e.map.getGeoCoord(position);
+            return this._b.addShape(geoCoordinate, navlink);
         }
     };
 
