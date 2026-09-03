@@ -18,7 +18,7 @@
  */
 
 import defaultStylesDef from '../styles/default';
-import {XYZLayerStyle} from '../styles/XYZLayerStyle';
+import {RuntimeLayerStyle} from '../styles/RuntimeLayerStyle';
 import {LayerStyle, Style} from '../styles/LayerStyle';
 import {TileLayerOptions, DataUnavailableFallback} from './TileLayerOptions';
 import TileProvider from '../providers/TileProvider/TileProvider';
@@ -59,7 +59,7 @@ export class TileLayer extends Layer {
 
     private _fp: FeatureProvider;
 
-    private _styleManager: XYZLayerStyle = null;
+    private _runtimeStyle: RuntimeLayerStyle = null;
     // pointer events active
     private _pev = true;
 
@@ -386,10 +386,10 @@ export class TileLayer extends Layer {
     setStyleGroup(feature: Feature, styleGroup?: Style[] | false | null): void;
 
     setStyleGroup(feature, styleGroup?, merge?) {
-        if (this._styleManager) {
+        if (this._runtimeStyle) {
             this.dispatchEvent(STYLEGROUP_CHANGE_EVENT, {
                 feature,
-                styleGroup: this._styleManager.setStyleGroup(feature, styleGroup, merge)
+                styleGroup: this._runtimeStyle.setStyleGroup(feature, styleGroup, merge)
             });
         }
     };
@@ -413,12 +413,12 @@ export class TileLayer extends Layer {
      * If no styles are found, a falsy value is returned, indicating that the feature is not displayed/visible.
      */
     getStyleGroup(feature: Feature, zoomlevel?: number, layerDefault?: boolean): readonly Style[] {
-        return this._styleManager?.getStyleGroup(feature, zoomlevel, layerDefault);
+        return this._runtimeStyle?.getStyleGroup(feature, zoomlevel, layerDefault);
     };
 
 
     _getCustomStyleGroup(feature: Feature): Style[] {
-        return this._styleManager?.getCustomStyleGroup(feature);
+        return this._runtimeStyle?.getCustomStyleGroup(feature);
     }
 
     /**
@@ -758,31 +758,57 @@ export class TileLayer extends Layer {
      * @param layerStyle - the layerStyle
      * @param keepCustom - keep and reuse custom set feature styles that have been set via {@link TileLayer.setStyleGroup}
      */
-    setStyle(layerStyle: LayerStyle | XYZLayerStyle, keepCustom: boolean = false) {
-        const _customFeatureStyles = keepCustom && this._styleManager?.getCustomStyles();
+    setStyle(layerStyle: LayerStyle | RuntimeLayerStyle, keepCustom: boolean = false) {
+        const _customFeatureStyles = keepCustom && this._runtimeStyle?.getCustomStyles();
         // const isFnc = (fnc) => typeof fnc == 'function';
         // if (!isFnc(layerStyle.getStyleGroup) || !isFnc(layerStyle.setStyleGroup)) {
-        if (!(layerStyle instanceof XYZLayerStyle)) {
-            layerStyle = new XYZLayerStyle(layerStyle);
+        if (!(layerStyle instanceof RuntimeLayerStyle)) {
+            layerStyle = new RuntimeLayerStyle(layerStyle);
         }
 
-        (layerStyle as XYZLayerStyle).init?.(this, _customFeatureStyles);
+        (layerStyle as RuntimeLayerStyle).init?.(this, _customFeatureStyles);
 
-        this._styleManager = layerStyle as XYZLayerStyle;
+        this._runtimeStyle = layerStyle as RuntimeLayerStyle;
 
         this.dispatchEvent(STYLE_CHANGE_EVENT, {style: layerStyle});
     };
 
 
-    getStyleManager(): XYZLayerStyle {
-        return this._styleManager;
+    /**
+     * Get the active runtime style instance of this layer.
+     *
+     * While {@link TileLayer.getStyle} returns the declarative style definition,
+     * the returned instance is the processed style the layer is rendering with.
+     * It provides runtime mutation methods such as `setLights`, whose changes
+     * are applied immediately. Call `map.repaint()` afterwards to render them.
+     *
+     * @returns The active, mutable runtime style instance.
+     *
+     * @hidden
+     * @internal
+     */
+    getRuntimeStyle(): RuntimeLayerStyle {
+        return this._runtimeStyle;
     };
 
     /**
-     * Get the current layerStyle.
+     * Get the active runtime style instance of this layer.
+     *
+     * @returns The active runtime style instance.
+     *
+     * @deprecated Use {@link TileLayer.getRuntimeStyle} instead.
+     * @hidden
+     * @internal
+     */
+    getStyleManager(): RuntimeLayerStyle {
+        return this.getRuntimeStyle();
+    };
+
+    /**
+     * Get the declarative style definition of this layer.
      */
     getStyle(): LayerStyle {
-        return this._styleManager.getLayerStyle();
+        return this._runtimeStyle.getLayerStyle();
     };
 
     getMargin() {
@@ -854,11 +880,11 @@ export class TileLayer extends Layer {
     };
 
     getStyleDefinitions(): LayerStyle['definitions'] {
-        return this._styleManager?.getDefinitions();
+        return this._runtimeStyle?.getDefinitions();
     }
 
     override _initZoom(zoomlevel: number) {
-        this.getStyleManager().initZoom(zoomlevel);
+        this.getRuntimeStyle().initZoom(zoomlevel);
     }
 }
 

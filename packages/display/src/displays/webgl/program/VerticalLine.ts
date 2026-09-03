@@ -26,8 +26,8 @@ import {GraphicsDevice} from '../device/GraphicsDevice';
 class VerticalLineProgram extends Program {
     name = 'VerticalLine';
 
-    static getMacros(buffer: GeometryBuffer) {
-        return Program.getMacros(buffer);
+    static getBufferMacroMask(buffer: GeometryBuffer) {
+        return Program.getBufferMacroMask(buffer);
     }
 
     constructor(device: GraphicsDevice, devicePixelRation: number, macros?: ProgramMacros) {

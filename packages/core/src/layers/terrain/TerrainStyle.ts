@@ -18,6 +18,7 @@
  */
 import {AmbientLight, DirectionalLight, LayerStyle, Color} from '../../styles/LayerStyle';
 import {Material, ModelGeometry, ModelStyle} from '../../styles/ModelStyle';
+import {RuntimeLayerStyle} from '../../styles/RuntimeLayerStyle';
 
 const DEFAULT_TERRAIN_LIGHT = [{
     type: 'ambient',
@@ -70,17 +71,28 @@ const createTerrainModelBuilder = (material) => ({id, properties}, zoom: number,
  * Configuration style for a 3D terrain tile layer.
  *
  * This class controls the visual appearance of terrain tiles, including vertical exaggeration,
- * lighting, material properties, and sky background color.
+ * lighting, material properties, and sky background color. It extends the regular processed
+ * layer style so it can be used directly as both the style definition and style manager.
  *
- * It implements the {@link LayerStyle} interface and can be passed to the `style` field
- * of {@link TerrainTileLayerOptions}.
+ * It can be passed to the `style` field of {@link TerrainTileLayerOptions}.
  */
-export class TerrainTileLayerStyle implements LayerStyle {
+export class TerrainTileLayerStyle extends RuntimeLayerStyle {
     exaggeration: number;
+    material: Material;
     setTileSize(size: number) {
     };
 
-    styleGroups: {};
+    /**
+     * Updates the terrain material values that can be changed without rebuilding terrain buffers.
+     *
+     * @param materialUpdate - The live `specular` color and/or `shininess` values.
+     *
+     * Call `display.refresh()` after changing the material to render the new values.
+     */
+    setMaterial(materialUpdate: Partial<Pick<Material, 'specular' | 'shininess'>>) {
+        Object.assign(this.material, materialUpdate);
+    }
+
     colorSource?: { type: 'material' } | { type: 'solid', color: Color } | { type: 'layerBackground', layerId: string };
 
     /**
@@ -172,8 +184,13 @@ export class TerrainTileLayerStyle implements LayerStyle {
          */
         showWireframe?: boolean | Color;
     }) = {}) {
+        super();
+
         const lights = {};
-        const material = style.material || {};
+        const material: Material = {...(style.material || {})};
+
+        this.material = material;
+
         let light = 'defaultTerrainLight';
         let tileSize = 512;
 

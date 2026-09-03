@@ -133,34 +133,51 @@ class Program {
     protected screenTarget: ScreenRenderTarget;
     private readonly defaultHeightMapTransform: Float32Array = new Float32Array([0, 0, 1]);
 
-    static getMacros(buffer: GeometryBuffer, useTerrainOcclusion = true): ProgramMacros {
-        let macros: ProgramMacros;
-        if (buffer.heightMapRef) {
-            macros = {USE_HEIGHTMAP: PROGRAM_MACRO.USE_HEIGHTMAP};
-        }
-        if (useTerrainOcclusion && buffer.terrainOcclusion === TerrainOcclusionMode.TERRAIN) {
-            macros ||= {};
-            macros.TERRAIN_OCCLUSION = PROGRAM_MACRO.TERRAIN_OCCLUSION;
-        }
-        return macros;
-    }
-
-    static getMacroMask(macros?: ProgramMacros): number {
+    static getBufferMacroMask(buffer: GeometryBuffer): number {
         let mask = 0;
-        if (macros) {
-            // Compile-time macro values are numeric bit flags.
-            for (const name in macros) {
-                mask |= macros[name as ProgramMacroName] || 0;
-            }
+
+        if (buffer.heightMapRef) {
+            mask |= PROGRAM_MACRO.USE_HEIGHTMAP;
+        }
+        if (buffer.terrainOcclusion === TerrainOcclusionMode.TERRAIN) {
+            mask |= PROGRAM_MACRO.TERRAIN_OCCLUSION;
         }
         return mask;
     }
 
-    static getProgramId(buffer: GeometryBuffer, macros?: ProgramMacros) {
-        const macroMask = Program.getMacroMask(macros);
-        return macroMask
-            ? buffer.type + macroMask
-            : buffer.type;
+    static getRenderMacroMask(_context?: ProgramContext, supportsTerrainOcclusion = true): number {
+        return supportsTerrainOcclusion ? PROGRAM_MACRO.TERRAIN_OCCLUSION : 0;
+    }
+
+    static resolveMacroMask(bufferMask: number, renderStateMask: number): number {
+        let mask = bufferMask | renderStateMask;
+
+        // TERRAIN_OCCLUSION is enabled only when both the buffer requires it and the
+        // current renderer supports it.
+        if (!(bufferMask & PROGRAM_MACRO.TERRAIN_OCCLUSION) ||
+            !(renderStateMask & PROGRAM_MACRO.TERRAIN_OCCLUSION)) {
+            mask &= ~PROGRAM_MACRO.TERRAIN_OCCLUSION;
+        }
+
+        return mask;
+    }
+
+    static getMacrosFromMask(mask: number): ProgramMacros {
+        let macros: ProgramMacros;
+
+        if (mask) {
+            for (const name in PROGRAM_MACRO) {
+                const macro = name as ProgramMacroName;
+                const value = PROGRAM_MACRO[macro];
+
+                if (mask & value) {
+                    macros ||= {};
+                    macros[macro] = value;
+                }
+            }
+        }
+
+        return macros;
     }
 
     prog: WebGLProgram;

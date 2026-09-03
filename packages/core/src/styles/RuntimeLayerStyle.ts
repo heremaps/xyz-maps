@@ -68,10 +68,14 @@ const deepCopy = (src: any) => {
 };
 
 /**
- * XYZLayerStyle
+ * Runtime style instance used by a {@link TileLayer}.
+ *
+ * It contains the processed style state used while rendering and exposes
+ * runtime mutation methods such as `setLights`.
+ *
  * @hidden
  */
-export class XYZLayerStyle implements LayerStyle {
+export class RuntimeLayerStyle implements LayerStyle {
     styleGroups = null;
     private _c: StyleGroupMap = null;
     /**
@@ -97,7 +101,7 @@ export class XYZLayerStyle implements LayerStyle {
         };
     private layer: TileLayer;
     /**
-     * XYZLayerStyle
+     * RuntimeLayerStyle
      * @protected
      * @hidden
      */
@@ -272,7 +276,7 @@ export class XYZLayerStyle implements LayerStyle {
      * @protected
      * @hidden
      */
-    protected initMapContext(feature: Feature, zoom: number): XYZLayerStyle['expContext'] {
+    protected initMapContext(feature: Feature, zoom: number): RuntimeLayerStyle['expContext'] {
         const geometryType = feature.geometry.type;
         const {expContext} = this;
         expContext.$geometryType = (geometryType == 'Point' || geometryType == 'MultiPoint')

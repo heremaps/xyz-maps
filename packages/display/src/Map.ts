@@ -1561,7 +1561,7 @@ export class Map {
                 layer.addEventListener('viewportReady', this._onTerrainReadyListener);
             }
 
-            this._display.addLayer(layer, index, (layer as TileLayer).getStyleManager?.());
+            this._display.addLayer(layer, index, (layer as TileLayer).getRuntimeStyle?.());
             // if layer get's cleared -> refresh/re-fetch data
             // layer.addEventListener('clear', (ev)=>this.refresh(ev.detail.layer));
             layer.addEventListener('clear', this._layerChangeListener);

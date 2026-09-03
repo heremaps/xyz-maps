@@ -103,6 +103,22 @@ export class TerrainTileLayer extends TileLayer {
         return super.getStyle() as TerrainTileLayerStyle;
     }
 
+    /**
+     * Get the active runtime style instance of this terrain layer.
+     *
+     * In addition to the common runtime style methods, the returned style
+     * exposes terrain-specific methods such as `setMaterial`. Changes are
+     * applied immediately. Call `map.repaint()` afterwards to render them.
+     *
+     * @returns The active, mutable terrain style instance.
+     *
+     * @hidden
+     * @internal
+     */
+    getRuntimeStyle(): TerrainTileLayerStyle {
+        return super.getRuntimeStyle() as TerrainTileLayerStyle;
+    }
+
     getHeightmapPadding(): number {
         return (this.getProvider() as TerrainTileProvider).getHeightmapPadding();
     }

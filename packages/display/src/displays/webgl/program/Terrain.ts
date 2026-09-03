@@ -35,26 +35,51 @@ class TerrainProgram extends ModelProgram {
     static dbgGrid: boolean;
     static terrainLightingInFragment: boolean = false;
     private terrainColor: [number, number, number] = [-1, -1, -1];
+    private terrainMaterial: ProgramContext['features']['terrainMaterial'];
     private _emptyTexture: Texture;
     private tileOffscreenTextures: RenderTargetManager;
 
-    static getMacros(buffer: GeometryBuffer) {
-        let macros = super.getMacros(buffer);
-        if (buffer.heightMap || buffer.heightMapRef) {
-            macros ||= {};
-            delete macros.USE_HEIGHTMAP;
-            macros.TERRAIN_MODEL_HM = PROGRAM_MACRO.TERRAIN_MODEL_HM;
-            if (TerrainProgram.terrainLightingInFragment) {
-                macros.TERRAIN_LIGHTING_FRAGMENT = PROGRAM_MACRO.TERRAIN_LIGHTING_FRAGMENT;
-            }
-        }
-        macros ||= {};
-        macros.OVERLAY_MAP = PROGRAM_MACRO.OVERLAY_MAP;
+    /**
+     * Terrain specular is driven by the live terrain material, which is part of the
+     * render state rather than the buffer.
+     */
+    protected static usesBufferSpecular(): boolean {
+        return false;
+    }
 
-        if (TerrainProgram.dbgGrid) {
-            macros.DBG_GRID = PROGRAM_MACRO.DBG_GRID;
+    static getBufferMacroMask(buffer: GeometryBuffer) {
+        let mask = super.getBufferMacroMask(buffer);
+        if (buffer.heightMap || buffer.heightMapRef) {
+            mask &= ~PROGRAM_MACRO.USE_HEIGHTMAP;
+            mask |= PROGRAM_MACRO.TERRAIN_MODEL_HM;
         }
-        return macros;
+        mask |= PROGRAM_MACRO.OVERLAY_MAP;
+        return mask;
+    }
+
+    static getRenderMacroMask(context?: ProgramContext, supportsTerrainOcclusion = true) {
+        let mask = super.getRenderMacroMask(context, supportsTerrainOcclusion);
+        if (TerrainProgram.terrainLightingInFragment) {
+            mask |= PROGRAM_MACRO.TERRAIN_LIGHTING_FRAGMENT;
+        }
+        if ((context?.features.terrainMaterial?.shininess ?? 0) > 0) {
+            mask |= PROGRAM_MACRO.SPECULAR;
+        }
+        if (TerrainProgram.dbgGrid) {
+            mask |= PROGRAM_MACRO.DBG_GRID;
+        }
+        return mask;
+    }
+
+    static resolveMacroMask(bufferMask: number, renderStateMask: number) {
+        let mask = super.resolveMacroMask(bufferMask, renderStateMask);
+
+        // Fragment lighting applies to heightmap-based terrain meshes only.
+        if (!(bufferMask & PROGRAM_MACRO.TERRAIN_MODEL_HM)) {
+            mask &= ~PROGRAM_MACRO.TERRAIN_LIGHTING_FRAGMENT;
+        }
+
+        return mask;
     }
 
     init(options: ProgramInitOptions & { tileOffscreenTextures: RenderTargetManager }) {
@@ -68,6 +93,20 @@ class TerrainProgram extends ModelProgram {
             diffuseUnifromSetter(terrainColor);
             // this.gl.uniform3fv(location, v);
         };
+
+        const specularUniformSetter = this.uniformSetters.specular;
+        if (specularUniformSetter) {
+            this.uniformSetters.specular = (color) => {
+                specularUniformSetter(this.terrainMaterial?.specular ?? color);
+            };
+        }
+
+        const shininessUniformSetter = this.uniformSetters.shininess;
+        if (shininessUniformSetter) {
+            this.uniformSetters.shininess = (shininess) => {
+                shininessUniformSetter(this.terrainMaterial?.shininess ?? shininess);
+            };
+        }
     }
 
     protected override ensureExtensions() {
@@ -84,6 +123,7 @@ class TerrainProgram extends ModelProgram {
     }
 
     setContext(context: ProgramContext) {
+        this.terrainMaterial = context.features.terrainMaterial;
         const terrainColor = context.features.terrainColor;
 
         if (terrainColor) {

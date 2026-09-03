@@ -29,13 +29,8 @@ import {GraphicsDevice} from '../device/GraphicsDevice';
 class PolygonProgram extends Program {
     name = 'Polygon';
 
-    static getMacros(buffer: GeometryBuffer) {
-        const {uniforms} = buffer;
-        let macros;
-        if (uniforms.specular) {
-            macros = {SPECULAR: PROGRAM_MACRO.SPECULAR};
-        }
-        return macros;
+    static getBufferMacroMask(buffer: GeometryBuffer) {
+        return buffer.uniforms.specular ? PROGRAM_MACRO.SPECULAR : 0;
     }
 
     constructor(device: GraphicsDevice, devicePixelRation: number, macros?: ProgramMacros) {

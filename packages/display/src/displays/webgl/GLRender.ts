@@ -17,7 +17,7 @@
  * License-Filename: LICENSE
  */
 import {Color} from '@here/xyz-maps-common';
-import {CustomLayer, Tile, TileLayer} from '@here/xyz-maps-core';
+import {CustomLayer, Material, Tile, TileLayer} from '@here/xyz-maps-core';
 import BasicRender from '../BasicRender';
 import GLTile from './GLTile';
 import RectProgram from './program/Rect';
@@ -134,7 +134,8 @@ export interface ProgramContext {
     resolution: number[];
     // Program specific features
     features: {
-        terrainColor?: Color.RGBA | null
+        terrainColor?: Color.RGBA | null,
+        terrainMaterial?: Material | null
     };
 }
 
@@ -189,7 +190,9 @@ export class GLRender implements BasicRender {
     private pivotScaleFactor: number = 1;
     private rz: number;
     private rx: number;
-    private programs: { [name: string]: Program };
+    // Compiled program variants per buffer type, indexed by the resolved macro mask.
+    private programVariantsByType: { [name: string]: Map<number, Program> };
+    private renderStateMacroMasks: { [name: string]: number } = {};
     private gridTextBuf = new WeakMap();
     // private dLayer: { z: number, z3d: number };
     // private min3dZIndex: number; // min zIndex containing 3d/extruded data
@@ -338,6 +341,19 @@ export class GLRender implements BasicRender {
         this.mapContext.features.terrainColor = terrainColor;
     }
 
+    private setTerrainMaterial(terrainMaterial: Material | null) {
+        this.mapContext.features.terrainMaterial = terrainMaterial;
+    }
+
+    private updateRenderStateMacroMasks() {
+        for (const type in this.programConfig) {
+            this.renderStateMacroMasks[type] = this.programConfig[type].program.getRenderMacroMask(
+                this.mapContext,
+                this.supportsTerrainOcclusion()
+            );
+        }
+    }
+
     setScale(scale: number, sx: number, sy: number) {
 
     }
@@ -345,7 +361,12 @@ export class GLRender implements BasicRender {
     setRotation(rz: number, rx: number) {
     }
 
-    beginFrame(clearColor: Color.RGBA, terrainColor?: Color.RGBA, terrainExaggeration?: number): void {
+    beginFrame(
+        clearColor: Color.RGBA,
+        terrainColor?: Color.RGBA,
+        terrainExaggeration?: number,
+        terrainMaterial?: Material
+    ): void {
         this.terrainExaggeration = terrainExaggeration ?? 1;
 
         this._stencilClearedForZIndex = -1;
@@ -363,6 +384,8 @@ export class GLRender implements BasicRender {
         this.screenRenderTarget.beginFrame();
 
         this.setTerrainColor(terrainColor);
+        this.setTerrainMaterial(terrainMaterial);
+        this.updateRenderStateMacroMasks();
 
         this.reservedStencils.clear();
 
@@ -533,30 +556,34 @@ export class GLRender implements BasicRender {
             Sky: {program: SkyProgram}
         };
 
-        this.programs = {};
+        this.programVariantsByType = {};
 
         for (let program in programConfig) {
             const cfg = programConfig[program];
+            this.programVariantsByType[program] = new Map<number, Program>();
             if (cfg.default === false) continue;
-            this.createProgram(program, cfg.program);
+            this.createProgramVariant(program, 0);
         }
     }
 
-    private createProgram(name: string, Prog: typeof Program, macros?): Program {
-        const {device, programs, dpr} = this;
+    private createProgramVariant(type: string, mask: number): Program {
+        const {device, dpr} = this;
+        const variants = this.programVariantsByType[type];
+        let program = variants.get(mask);
 
-        if (programs[name]) {
-            programs[name].delete();
+        if (program) {
+            return program;
         }
 
-        const program = programs[name] = new Prog(device, dpr, macros);
-
+        const ProgramClass = this.programConfig[type].program;
+        program = new ProgramClass(device, dpr, Program.getMacrosFromMask(mask));
         program.init({
             screenTarget: this.screenRenderTarget,
             buffers: this.buffers,
             ubos: this.ubo,
             tileOffscreenTextures: this.rtManager
         });
+        variants.set(mask, program);
 
         return program;
     }
@@ -565,13 +592,6 @@ export class GLRender implements BasicRender {
         if (typeof show == 'object') {
             if (show.grid3d != undefined) {
                 TerrainProgram.dbgGrid = !!show.grid3d;
-                for (let name in this.programs) {
-                    if (this.programs[name] instanceof TerrainProgram) {
-                        this.programs[name].delete();
-                        delete this.programs[name];
-                    }
-                }
-                // this.createProgram('Model', ModelProgram, show.grid3d && {DBG_GRID: 1});
             }
         } else {
             this.tileGrid = show;
@@ -1495,8 +1515,10 @@ export class GLRender implements BasicRender {
 
     destroy(): void {
         this.rtManager.destroy();
-        for (let progName in this.programs) {
-            this.programs[progName].delete();
+        for (const type in this.programVariantsByType) {
+            for (const program of this.programVariantsByType[type].values()) {
+                program.delete();
+            }
         }
         this.screenRenderTarget.destroy(this.device);
         this.device.destroy();
@@ -1535,25 +1557,22 @@ export class GLRender implements BasicRender {
     }
 
     private getProgram(buffer: GeometryBuffer) {
-        let id = buffer.progId;
         const type = buffer.type;
+        const ProgramClass = this.programConfig[type]?.program;
 
-        if (!id) {
-            const Program = this.programConfig[type].program;
-            const macros = Program.getMacros(buffer, this.supportsTerrainOcclusion());
-            id = buffer.progId = Program.getProgramId(buffer, macros);
+        if (!ProgramClass) {
+            return;
         }
 
-        let prog = this.programs[id];
+        buffer.macroMask ??= ProgramClass.getBufferMacroMask(buffer);
 
-        if (prog === undefined) {
-            const Program = this.programConfig[type].program;
-            if (Program) {
-                prog = this.createProgram(id, Program, Program.getMacros(buffer, this.supportsTerrainOcclusion()));
-            }
-        }
+        const renderStateMask = this.renderStateMacroMasks[type] ??= ProgramClass.getRenderMacroMask(
+            this.mapContext,
+            this.supportsTerrainOcclusion()
+        );
+        const mask = ProgramClass.resolveMacroMask(buffer.macroMask, renderStateMask);
 
-        return prog;
+        return this.programVariantsByType[type].get(mask) || this.createProgramVariant(type, mask);
     }
 
     private setResolution(width: number, height: number) {

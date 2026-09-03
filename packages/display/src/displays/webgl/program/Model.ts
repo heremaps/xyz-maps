@@ -32,22 +32,27 @@ import {GraphicsDevice} from '../device/GraphicsDevice';
 class ModelProgram extends Program {
     name = 'Model';
 
-    static getMacros(buffer: GeometryBuffer) {
+    /**
+     * Whether the specular highlights are driven by the buffer's own material uniforms.
+     * Subclasses sourcing their material from the render state override this.
+     */
+    protected static usesBufferSpecular(buffer: GeometryBuffer): boolean {
+        return (buffer.uniforms.shininess as number) > 0;
+    }
+
+    static getBufferMacroMask(buffer: GeometryBuffer) {
         const {uniforms} = buffer;
-        let macros = super.getMacros(buffer);
+        let mask = super.getBufferMacroMask(buffer);
         if (uniforms.illumination > 0) {
-            macros ||= {};
-            macros.DIFFUSE = PROGRAM_MACRO.DIFFUSE;
+            mask |= PROGRAM_MACRO.DIFFUSE;
         }
         if ((uniforms.normalMap as Texture).width > 1) {
-            macros ||= {};
-            macros.NORMAL_MAP = PROGRAM_MACRO.NORMAL_MAP;
+            mask |= PROGRAM_MACRO.NORMAL_MAP;
         }
-        if (uniforms.shininess > 0) {
-            macros ||= {};
-            macros.SPECULAR = PROGRAM_MACRO.SPECULAR;
+        if (this.usesBufferSpecular(buffer)) {
+            mask |= PROGRAM_MACRO.SPECULAR;
         }
-        return macros;
+        return mask;
     }
 
     glStates = new GLStates({

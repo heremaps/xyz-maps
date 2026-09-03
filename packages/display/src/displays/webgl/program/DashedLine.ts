@@ -29,16 +29,16 @@ import {GraphicsDevice} from '../device/GraphicsDevice';
 import {PASS} from '../RenderPass';
 
 class DashedLineProgram extends Program {
-    static getMacros(buffer: GeometryBuffer) {
+    static getBufferMacroMask(buffer: GeometryBuffer) {
         const {uniforms} = buffer;
-        const macros: ProgramMacros = {DASH_ARRAY: PROGRAM_MACRO.DASH_ARRAY};
+        let mask = PROGRAM_MACRO.DASH_ARRAY;
         if (uniforms.u_dashPattern) {
-            macros.DASH_PATTERN = PROGRAM_MACRO.DASH_PATTERN;
+            mask |= PROGRAM_MACRO.DASH_PATTERN;
         }
         if (uniforms.u_dashTexture) {
-            macros.DASH_TEXTURE = PROGRAM_MACRO.DASH_TEXTURE;
+            mask |= PROGRAM_MACRO.DASH_TEXTURE;
         }
-        return macros;
+        return mask;
     }
 
     name = 'DashedLine';

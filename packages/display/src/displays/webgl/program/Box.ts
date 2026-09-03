@@ -37,13 +37,12 @@ class BoxProgram extends Program {
         depth: true
     });
 
-    static getMacros(buffer: GeometryBuffer) {
-        let macros = super.getMacros(buffer);
+    static getBufferMacroMask(buffer: GeometryBuffer) {
+        let mask = super.getBufferMacroMask(buffer);
         if (buffer.uniforms.specular) {
-            macros ||= {};
-            macros.SPECULAR = PROGRAM_MACRO.SPECULAR;
+            mask |= PROGRAM_MACRO.SPECULAR;
         }
-        return macros;
+        return mask;
     }
 
     constructor(device: GraphicsDevice, devicePixelRation: number, macros?: ProgramMacros) {

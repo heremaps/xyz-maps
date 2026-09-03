@@ -39,7 +39,7 @@ import {
     Tile,
     TileLayer,
     tileUtils,
-    XYZLayerStyle,
+    RuntimeLayerStyle,
     webMercator
 } from '@here/xyz-maps-core';
 import {Raycaster} from './Raycaster';
@@ -252,7 +252,7 @@ class WebGlDisplay extends BasicDisplay {
         this.render.setSkyColor(color);
     }
 
-    addLayer(layer: TileLayer | CustomLayer, index: number, styles?: XYZLayerStyle): Layer {
+    addLayer(layer: TileLayer | CustomLayer, index: number, styles?: RuntimeLayerStyle): Layer {
         const displayLayer = super.addLayer(layer, index, styles);
 
         if (displayLayer) {
@@ -873,7 +873,8 @@ class WebGlDisplay extends BasicDisplay {
 
         const terrainLayerEntry = this.layers.getTerrainLayer();
         const terrainTileLayer = terrainLayerEntry?.layer as TerrainTileLayer | undefined;
-        const exaggeration = terrainTileLayer?.getStyle().exaggeration ?? 1;
+        const terrainStyle = terrainTileLayer?.getStyle();
+        const exaggeration = terrainStyle?.exaggeration ?? 1;
         // set exaggeration first (raycasting needs it)
         this.terrainExaggeration = exaggeration;
 
@@ -900,7 +901,8 @@ class WebGlDisplay extends BasicDisplay {
         render.beginFrame(
             backgroundColor,
             this.layers.getTerrainColor(display.zoom),
-            exaggeration
+            exaggeration,
+            terrainStyle?.material
         );
         render.drawSky(this.horizonY, this.h, this.maxHorizonY);
 

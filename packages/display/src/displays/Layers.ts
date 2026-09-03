@@ -75,7 +75,7 @@ class Layer {
     }
 
     initStyle() {
-        this.expParser = (this.layer as TileLayer).getStyleManager?.().getExpressionParser?.() as StyleExpressionParser;
+        this.expParser = (this.layer as TileLayer).getRuntimeStyle?.().getExpressionParser?.() as StyleExpressionParser;
         this.invalidateBackgroundColor();
     }
 
@@ -153,12 +153,12 @@ class Layer {
     }
 
     getLights(lightSet?: string): { [p: string]: ProcessedLights } {
-        const styleManager = (this.layer as TileLayer).getStyleManager?.();
-        let lights = styleManager?.lights || {};
+        const runtimeStyle = (this.layer as TileLayer).getRuntimeStyle?.();
+        let lights = runtimeStyle?.lights || {};
         if (!lights.defaultLight) {
             lights.defaultLight ||= defaultLight;
-            if (styleManager) {
-                styleManager.lights = lights;
+            if (runtimeStyle) {
+                runtimeStyle.lights = lights;
             }
         }
         return lights as { [p: string]: ProcessedLights };

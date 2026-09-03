@@ -221,8 +221,8 @@ class GeometryBuffer {
     idOffsets?: (string | number)[];
     pointerEvents?: boolean;
     instances: number = 0;
-    // id of the program to render the buffer
-    progId: string;
+    // Buffer-specific shader feature mask. Render-state bits are added by GLRender.
+    macroMask?: number;
     isSynthetic?: boolean;
     // If set to true, the buffer should render "pixel-perfect" to ensure sharp, precise raster graphics.
     pixelPerfect?: boolean = false;

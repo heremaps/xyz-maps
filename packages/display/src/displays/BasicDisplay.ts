@@ -18,7 +18,7 @@
  */
 
 import {global, Color as ColorUtils} from '@here/xyz-maps-common';
-import {Tile, TileLayer, CustomLayer, XYZLayerStyle, Color, tile} from '@here/xyz-maps-core';
+import {Tile, TileLayer, CustomLayer, RuntimeLayerStyle, Color, tile} from '@here/xyz-maps-core';
 import {getElDimension, createCanvas} from '../DOMTools';
 import {Layers, Layer} from './Layers';
 import FeatureModifier from './FeatureModifier';
@@ -190,7 +190,7 @@ abstract class Display {
                 const displayLayer = display.layers.get(layer);
                 const {index} = displayLayer;
                 displayLayer.initStyle();
-                displayLayer.setBackgroundColor((style as XYZLayerStyle).backgroundColor || display.globalBgc);
+                displayLayer.setBackgroundColor((style as RuntimeLayerStyle).backgroundColor || display.globalBgc);
                 display.buckets.tiles.forEach((t) => t.clear(index));
             }
         };
@@ -204,7 +204,7 @@ abstract class Display {
         return dpr < 1 ? 1 : dpr;
     }
 
-    addLayer(layer: TileLayer | CustomLayer, index: number, styles?: XYZLayerStyle): Layer {
+    addLayer(layer: TileLayer | CustomLayer, index: number, styles?: RuntimeLayerStyle): Layer {
         const display = this;
         const layers = display.layers;
         if (layers.add(layer, index)) {
@@ -228,7 +228,7 @@ abstract class Display {
             };
 
             dLayer.setBackgroundColor(
-                (layer as TileLayer).getStyleManager().backgroundColor || display.globalBgc
+                (layer as TileLayer).getRuntimeStyle().backgroundColor || display.globalBgc
             );
             return dLayer;
         }
