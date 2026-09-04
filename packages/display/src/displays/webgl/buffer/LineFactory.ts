@@ -53,7 +53,7 @@ export class LineFactory {
     private dashes: DashAtlas;
     private readonly pixels: Float32Array; // projected coordinate cache
     private length: number = 0; // length of coordinate cache
-    private readonly dimensions: number; // dimensions of coordinate cache
+    private dimensions: number; // dimensions of coordinate cache
     private readonly rotationZ: Float32Array; // cached horizontal rotation (degrees)
     private readonly rotationY: Float32Array; // cached vertical rotation (radians)
     private readonly lineLength: Float32Array; // length from start to segment at index of the current projected line
