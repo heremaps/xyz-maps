@@ -1600,7 +1600,8 @@ export class Map {
                 this._terrainLayer = null;
                 this._camController.reset();
                 layer.removeEventListener('viewportReady', this._onTerrainReadyListener);
-                this._display.terrainPivotAltitude = 0;
+                this._display.terrainPivotAltitude = null;
+                this._display.resetVisibleTerrainElevation();
             }
             this._display.removeLayer(layer);
             // layer.removeEventListener('clear', (ev)=>this.refresh(ev.detail.layer));
