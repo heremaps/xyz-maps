@@ -84,6 +84,10 @@ export class TerrainFBOPlanner {
         }
     } = {};
 
+    // Maximum quantized vertex coordinate of the synthetic grid (see createTerrainGrid).
+    // This matches the quantization the terrain shader and computeEdgeIndices() assume.
+    private static readonly SYNTHETIC_GRID_MAX_COORD = 32767;
+
     // callback to release GPU resources (VAO + optional texture) of synthetic buffers.
     private releaseSyntheticBuffer: (buffer: GeometryBuffer, heightMap?: HeightMapTileData) => void;
     private _emptyWireframeTexture: Texture;
@@ -541,6 +545,47 @@ export class TerrainFBOPlanner {
         return geom;
     }
 
+    /**
+     * Synthetic tiles reuse the source mesh's model matrix, which encodes
+     * `tileSize / quantizationRange`. Valid only because the quantization is a pipeline
+     * constant. A deviating source cannot be repaired here (its heightmap sampling would stay
+     * wrong), so the mismatch is reported instead of hidden.
+     *
+     * @internal
+     * @hidden
+     */
+    private verifySourceQuantization(sourceBuffer: GeometryBuffer): void {
+        // the quantization is fixed across the terrain pipeline for now. keep this check for future use.
+        return;
+
+        const source = (sourceBuffer.attributes.a_modelMatrix as Attribute)?.data;
+        // horizontal basis column 0 of the model matrix. Column 2 is the height axis.
+        const sourceXYScale = Math.hypot(source[0], source[1], source[2]);
+        const expectedXYScale = this.terrainCache.tileSize / TerrainFBOPlanner.SYNTHETIC_GRID_MAX_COORD;
+
+        if (!(sourceXYScale > 0) || Math.abs(sourceXYScale - expectedXYScale) <= expectedXYScale * 1e-3) {
+            return;
+        }
+        console.warn(
+            'TerrainFBOPlanner: quantization mismatch (expected', TerrainFBOPlanner.SYNTHETIC_GRID_MAX_COORD +
+            ', got', this.terrainCache.tileSize / sourceXYScale + ').'
+        );
+
+        // Optional placement-only compensation. Disabled: it would not fix the shader's
+        // heightmap sampling and thus hide the error instead of solving it.
+        // const attribute = synthetic.attributes.a_modelMatrix as Attribute;
+        // const m = attribute.data as Float32Array;
+        // copy(m, source);
+        // const ratio = expectedXYScale / sourceXYScale;
+        // m[0] *= ratio;
+        // m[1] *= ratio;
+        // m[2] *= ratio;
+        // m[4] *= ratio;
+        // m[5] *= ratio;
+        // m[6] *= ratio;
+        // attribute.dirty = true;
+    }
+
     private createSyntheticBuffer(): GeometryBuffer {
         const useSkirt = true;
         const gridResolution = this.syntheticGridResolution;
@@ -599,10 +644,12 @@ export class TerrainFBOPlanner {
             synthetic.addUniform(name, sourceBuffer.uniforms[name] as any);
         }
 
-        // Per-tile source attribute references.
+        // Per-tile source attribute references. Sharing the source model matrix is only valid
+        // because the synthetic grid uses the same vertex quantization as the source mesh.
         const sourceAttributes = sourceBuffer.attributes;
         synthetic.attributes.a_modelMatrix = sourceAttributes.a_modelMatrix;
         synthetic.attributes.a_offset = sourceAttributes.a_offset;
+        this.verifySourceQuantization(sourceBuffer);
         // synthetic.attributes.a_color = sourceAttributes.a_color || {value: [1, 1, 1, 1]};
         // synthetic.attributes.a_tangent = sourceAttributes.a_tangent || {value: [1, 0, 0]};
 

@@ -40,12 +40,21 @@ export interface TerrainTileLoaderOptions extends HTTPLoaderOptions {
     heightMapPadding?: number;
 }
 
+// Fixed vertex quantization of the terrain pipeline (TerrainStyle model matrix,
+// computeEdgeIndices, shader). Placeholder tiles must use the same range.
+const QUANTIZED_RANGE = 32767;
+
 const FLAT_TERRAIN_DATA = {
     indices: new Uint16Array([0, 1, 3, 1, 2, 3]),
-    vertices: new Uint8Array([0, 0, 0, 255, 0, 0, 255, 255, 0, 0, 255, 0]),
+    vertices: new Uint16Array([
+        0, 0, 0,
+        QUANTIZED_RANGE, 0, 0,
+        QUANTIZED_RANGE, QUANTIZED_RANGE, 0,
+        0, QUANTIZED_RANGE, 0
+    ]),
     normals: new Int8Array([0, 0, 127, 0, 0, 127, 0, 0, 127, 0, 0, 127]),
     quantizeOptions: {
-        quantizedRange: 255,
+        quantizedRange: QUANTIZED_RANGE,
         quantizedMinHeight: 0,
         quantizedMaxHeight: 255
     },
