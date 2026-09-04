@@ -586,8 +586,9 @@ export class TerrainFBOPlanner {
         synthetic.rayIntersects = sourceBuffer.rayIntersects;
         synthetic.pointerEvents = sourceBuffer.pointerEvents;
 
-        // Reset uniforms and copy from source.
-        // synthetic.uniforms = {};
+
+        synthetic.macroMask = undefined;
+        // reset uniforms and copy from source.
         synthetic.clearUniformCache();
         for (const name in sourceBuffer.uniforms) {
             synthetic.addUniform(name, sourceBuffer.uniforms[name] as any);

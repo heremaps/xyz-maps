@@ -24,7 +24,6 @@ import {ConstantAttribute, FlexAttribute, TemplateBuffer} from './templates/Temp
 import {Raycaster} from '../Raycaster';
 import {Expression} from '@here/xyz-maps-common';
 import {HeightMapTileCache, HeightMapTileData} from '../HeightMapTileCache';
-import {measureStart, measureEnd} from '../PerfTimer';
 import {UniformBlockLayout, UniformBlockInstance, UniformBlockFieldSetter} from '../UniformBlock';
 import {PASS} from '../RenderPass';
 import {TerrainOcclusionMode} from './TerrainRenderPolicy';
@@ -284,6 +283,7 @@ class GeometryBuffer {
 
     public setHeightMapRef(required: boolean): void {
         this.heightMapRef = required ? 'required' : null;
+        this.macroMask = undefined;
         this.resolvedVersion = -1;
     }
 
@@ -530,6 +530,7 @@ class GeometryBuffer {
 
     addUniform(name: string, uniform: Uniform) {
         this.uniforms[name] = uniform;
+        this.macroMask = undefined;
     }
 
     getUniform(name: string): Uniform | DynamicUniform {

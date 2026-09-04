@@ -1520,6 +1520,7 @@ export class GLRender implements BasicRender {
                 program.delete();
             }
         }
+        this.renderStateMacroMasks = {};
         this.screenRenderTarget.destroy(this.device);
         this.device.destroy();
     }

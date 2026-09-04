@@ -39,7 +39,7 @@ import {styleTools} from '@here/xyz-maps-display';
 import iconRotateBlack from '../../assets/icons/rotate.black.gif';
 // @ts-ignore
 import iconRotateWhite from '../../assets/icons/rotate.white.gif';
-import {XYZLayerStyle} from '@here/xyz-maps-core';
+import {RuntimeLayerStyle} from '@here/xyz-maps-core';
 
 let UNDEF;
 
@@ -168,7 +168,7 @@ const createTurnrestrictionSign = (src) => [{
     rotation: (feature) => feature.properties.rotation
 }];
 
-class OverlayStyles extends XYZLayerStyle {
+class OverlayStyles extends RuntimeLayerStyle {
     styleGroups = {
 
         'ADDRESS_LINE': createHighlightLineStyle(),
