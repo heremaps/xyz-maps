@@ -710,7 +710,8 @@ export class Map {
      */
     rotate(rotation?: number): number {
         if (rotation !== UNDEF) {
-            const deg = Math.round(10 * rotation || 0) / 10;
+            rotation = Math.round((rotation ?? 0) * 10) / 10;
+            const deg = ((rotation % 360) + 360) % 360;
             const rad = deg * Math.PI / 180;
             const rotZRad = this._rz;
 
