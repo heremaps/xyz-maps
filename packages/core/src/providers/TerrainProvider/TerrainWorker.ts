@@ -80,6 +80,7 @@ const createTerrainFeature = (
         type: 'Feature',
         properties: {
             isTerrain: true,
+            size: 3,
             source: {
                 type: sourceFormat,
                 tile: [x, y, z]
