@@ -239,7 +239,12 @@ export class TerrainFBOPlanner {
         const fboContentHashes: { [qk: string]: number } = {};
 
         for (const rt of prepassTiles) {
-            const dataQK = rt.data.tile.quadkey;
+            const rtData = rt.data;
+            const dataQK = rtData.tile.quadkey;
+            const previewQK = rtData.preview?.[0] as string;
+            // match "look-down" previews to their child FBO.
+            // using the parent would broadcast one preview to all descendant FBOs.
+            const coverageQK = previewQK?.length > dataQK.length ? previewQK : dataQK;
             const dataTileSize = rt.layer?.tileSize || terrainTileSize;
             rt.renderTarget = RenderTileTarget.OffscreenTerrain;
 
@@ -255,7 +260,7 @@ export class TerrainFBOPlanner {
 
                 if (first) {
                     // first matching FBO reuses the original RenderTile.
-                    rt.data.terrainTileQuadkey = terrainQK;
+                    rtData.terrainTileQuadkey = terrainQK;
                     first = false;
                 } else {
                     // additional FBOs need duplicate RenderTiles.
@@ -263,9 +268,9 @@ export class TerrainFBOPlanner {
                         rt.buffer,
                         rt.z,
                         {
-                            tile: rt.data.tile,
-                            preview: rt.data.preview,
-                            stencils: rt.data.stencils,
+                            tile: rtData.tile,
+                            preview: rtData.preview,
+                            stencils: rtData.stencils,
                             terrainTileQuadkey: terrainQK
                         },
                         rt.pass,
@@ -278,12 +283,12 @@ export class TerrainFBOPlanner {
 
             // apply each overlapping target once: exact match, ancestor targets via prefix
             // walk, and descendant targets via the ancestor index.
-            if (requiredTerrainTargets.has(dataQK)) applyTarget(dataQK);
-            for (let len = 1; len < dataQK.length; len++) {
-                const pfx = dataQK.substring(0, len);
+            if (requiredTerrainTargets.has(coverageQK)) applyTarget(coverageQK);
+            for (let len = 1; len < coverageQK.length; len++) {
+                const pfx = coverageQK.substring(0, len);
                 if (requiredTerrainTargets.has(pfx)) applyTarget(pfx);
             }
-            const descendants = targetsByAncestor.get(dataQK);
+            const descendants = targetsByAncestor.get(coverageQK);
             if (descendants) {
                 for (const terrainQK of descendants) applyTarget(terrainQK);
             }
