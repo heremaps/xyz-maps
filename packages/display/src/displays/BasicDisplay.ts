@@ -383,6 +383,13 @@ abstract class Display {
         this._pendingVisibleElevation.source = undefined;
     }
 
+    resetVisibleTerrainElevation() {
+        this.beginVisibleTerrainElevationCollection();
+        this.visibleTerrainElevation.min = 0;
+        this.visibleTerrainElevation.max = 0;
+        this.visibleTerrainElevation.hasStats = false;
+    }
+
     includeVisibleTerrainElevation(
         minElevation: number,
         maxElevation?: number,
