@@ -120,10 +120,22 @@ export class EventDispatcher {
         let isDragged = false;
         let isPointerDown = false;
         let startMapCenter;
+        let startMapRotation;
+        let startMapPitch;
+        let startMapZoomlevel;
         let prevPointerDownTs = 0;
         let prevPointerDownTarget;
         let currentHoverTarget;
         let callbacks = this.cbs;
+
+        const hasMapViewChanged = (): boolean => {
+            let center = map.getCenter();
+            return startMapCenter.longitude != center.longitude ||
+                startMapCenter.latitude != center.latitude ||
+                startMapRotation != map.rotate() ||
+                startMapPitch != map.pitch() ||
+                startMapZoomlevel != map.getZoomlevel();
+        };
 
         callbacks.sync(true);
 
@@ -226,6 +238,9 @@ export class EventDispatcher {
             }
 
             startMapCenter = map.getCenter();
+            startMapRotation = map.rotate();
+            startMapPitch = map.pitch();
+            startMapZoomlevel = map.getZoomlevel();
             isPointerDown = true;
             isDragged = false;
             MOUSEDOWN_POS = getMousePosition(domEl, ev);
@@ -286,15 +301,9 @@ export class EventDispatcher {
             if (!this.hActive) return;
 
             if (isPointerDown) {
-                let center = map.getCenter();
-                let isMapDragged = startMapCenter.longitude != center.longitude ||
-                    startMapCenter.latitude != center.latitude;
-
-                // currently pointerup is not getting triggered after drag to simulate SandwichMap's behavior!
-                // this is implemented to make sure objects are not getting selection after pan gesture.
-                // TODO: remove workaround and always trigger the pointerup event. Object selection needs to be prevented elsewhere
-                // if( !isDragged )
-                if (!isMapDragged) {
+                // Do not trigger selection events after a map gesture.
+                // Feature drags still trigger pointerup because they do not change the mapview.
+                if (!hasMapViewChanged()) {
                     // only trigger if mapel/canvas directly on top.. no other element in between
                     if (
                         (<HTMLElement>ev.target).parentNode == domEl && (MOUSEDOWN_TARGET || !isDragged)
