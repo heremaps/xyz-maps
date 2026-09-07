@@ -19,31 +19,35 @@
 
 import {VerticalLineBuffer} from './templates/VerticalLineBuffer';
 
+export const TERRAIN_BASE_SENTINEL = -16000;
+export const TERRAIN_OFFSET_SENTINEL = -16001;
 
 const addVerticalLine = (
     group,
     x: number,
     y: number,
-    z: number | 'terrain'
+    z?: number
 ): number => {
-    if (z) {
-        let buffer = group.buffer;
-        if (!buffer) {
-            buffer = group.buffer = new VerticalLineBuffer();
-            buffer.setRequiresHeightMap(z === 'terrain');
-        }
-        const position = buffer.flexAttributes.a_position.data;
-
-        if (buffer.requiresHeightMap) {
-            z = 1.0;
-        }
-
-        position.push(
-            x, y, 0,
-            x, y, z
-        );
-        return position.length;
+    const usesTerrain = group.shared.altitude === 'terrain';
+    const hasTopZ = Number.isFinite(z);
+    if (!usesTerrain && !hasTopZ) {
+        return;
     }
+
+    let buffer = group.buffer;
+    if (!buffer) {
+        buffer = group.buffer = new VerticalLineBuffer();
+        buffer.setRequiresHeightMap(usesTerrain);
+    }
+    const position = buffer.flexAttributes.a_position.data;
+    const topZ = hasTopZ ? z : TERRAIN_OFFSET_SENTINEL;
+    const bottomZ = usesTerrain ? TERRAIN_BASE_SENTINEL : 0;
+
+    position.push(
+        x, y, bottomZ,
+        x, y, topZ
+    );
+    return position.length;
 };
 
 export {addVerticalLine};

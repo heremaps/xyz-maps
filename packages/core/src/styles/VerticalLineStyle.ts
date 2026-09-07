@@ -132,6 +132,9 @@ export interface VerticalLineStyle {
      *   the top must be specified using {@link VerticalLineStyle.offsetZ}.
      * - {@link VerticalLineStyle.offsetZ} extends the line upward from the reference altitude.
      *   With 'terrain', it defines how far above the terrain the line extends.
+     * - If the feature contains a Z coordinate and `altitude` is `'terrain'`, the line ends at
+     *   that feature altitude; `offsetZ` is applied as an additional upward offset.
+     * - If no feature Z coordinate is available, `offsetZ` defines the line height above terrain.
      *
      * Examples:
      * ```ts

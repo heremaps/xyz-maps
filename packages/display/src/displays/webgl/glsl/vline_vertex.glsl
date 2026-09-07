@@ -11,13 +11,24 @@ uniform vec4 u_tile;
 
 #include "utils.glsl/heightMapUtils"
 
+const float TERRAIN_BASE_SENTINEL = -16000.0;
+const float TERRAIN_OFFSET_SENTINEL = -16001.0;
+
 void main(void) {
 
 //     float offsetZ = toPixel(u_offsetZ, u_scale) / u_zMeterToPixel / u_scale;
     float offsetZ = u_offsetZ.y > 0.0 ? u_offsetZ.x : u_offsetZ.x / u_zMeterToPixel / u_scale;
 
     #ifdef USE_HEIGHTMAP
-    float positionZ = getTerrainHeight(a_position.xy) + a_position.z * offsetZ;
+    float terrainZ = getTerrainHeight(a_position.xy);
+    float positionZ;
+    if (a_position.z == TERRAIN_BASE_SENTINEL) {
+        positionZ = terrainZ;
+    } else if (a_position.z == TERRAIN_OFFSET_SENTINEL) {
+        positionZ = terrainZ + offsetZ;
+    } else {
+        positionZ = a_position.z * u_exaggeration + offsetZ;
+    }
     #else
     float positionZ = (a_position.z * u_exaggeration + offsetZ);
     #endif

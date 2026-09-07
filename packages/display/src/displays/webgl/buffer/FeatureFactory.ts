@@ -920,13 +920,11 @@ export class FeatureFactory {
                 const terrainRenderMode = group.shared.terrainRenderMode;
 
                 if (type == 'VerticalLine') {
-                    if (requiresTerrain || typeof altitude == 'number' || coordinates[2] > 0) {
-                        const z = typeof altitude == 'number' ? altitude : <number>coordinates[2];
-                        if (z > 0 || requiresTerrain) {
-                            const x = tile.lon2x((<GeoJSONCoordinate>coordinates)[0], tileSize);
-                            const y = tile.lat2y((<GeoJSONCoordinate>coordinates)[1], tileSize);
-                            addVerticalLine(group, x, y, requiresTerrain ? 'terrain' : z);
-                        }
+                    const z = typeof altitude == 'number' ? altitude : <number>coordinates[2];
+                    if (requiresTerrain || (Number.isFinite(z) && z > 0)) {
+                        const x = tile.lon2x((<GeoJSONCoordinate>coordinates)[0], tileSize);
+                        const y = tile.lat2y((<GeoJSONCoordinate>coordinates)[1], tileSize);
+                        addVerticalLine(group, x, y, z);
                     }
                 } else {
                     const x = tile.lon2x((<GeoJSONCoordinate>coordinates)[0], tileSize);
