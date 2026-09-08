@@ -23,6 +23,12 @@ import {Raycaster} from '../../Raycaster';
 import {GeometryBuffer} from '../GeometryBuffer';
 import {Attribute} from '../Attribute';
 
+const N_SCALE = 1.0 / 8192.0;
+
+const toWorld = (value: number, meterToPixel: number, renderScale: number): number => {
+    return meterToPixel > 0 ? value * meterToPixel : value / renderScale;
+};
+
 export class LineBuffer extends TemplateBuffer {
     constructor(flat: boolean = true) {
         super(flat, true);
@@ -70,9 +76,11 @@ export class LineBuffer extends TemplateBuffer {
         // let feature;
         // const scaleX = 2 / rayCaster.w;
         // const scaleY = 2 / rayCaster.h;
-        let strokeWidth = 0.5 * buffer.getUniform('u_strokeWidth')[0] / buffer.renderScale;
+        const strokeWidthUniform = <number[]>buffer.getUniform('u_strokeWidth');
+        const offsetUniform = <number[]>buffer.getUniform('u_offset');
+        const strokeWidth = 0.5 * toWorld(strokeWidthUniform[0], strokeWidthUniform[1], buffer.renderScale);
+        const lineOffset = toWorld(offsetUniform[0], offsetUniform[1], buffer.renderScale);
         const scaleByAltitude = <boolean>buffer.getUniform('u_scaleByAltitude');
-        const N_SCALE = 1.0 / 8192.0;
 
         let index;
         const m3 = rayCaster.sMat[3];
@@ -83,6 +91,8 @@ export class LineBuffer extends TemplateBuffer {
         for (let i = 0, n = 0; i < position.length; n += 12) {
             let nx0 = normal[n];
             let ny0 = normal[n + 1];
+            const ox0 = (nx0 >> 1) * N_SCALE;
+            const oy0 = (ny0 >> 1) * N_SCALE;
 
             const dx0 = (nx0 & 1) * 2 - 1;
             nx0 = dx0 * (nx0 >> 1) * N_SCALE;
@@ -97,6 +107,8 @@ export class LineBuffer extends TemplateBuffer {
             // z0 = (z0 - 32267.0) * 0.14496292001098665;
             let nx1 = normal[n + 4];
             let ny1 = normal[n + 5];
+            const ox1 = (nx1 >> 1) * N_SCALE;
+            const oy1 = (ny1 >> 1) * N_SCALE;
 
             const dx1 = (nx1 & 1) * 2 - 1;
             nx1 = dx1 * (nx1 >> 1) * N_SCALE;
@@ -111,6 +123,8 @@ export class LineBuffer extends TemplateBuffer {
 
             let nx2 = normal[n + 8];
             let ny2 = normal[n + 9];
+            const ox2 = (nx2 >> 1) * N_SCALE;
+            const oy2 = (ny2 >> 1) * N_SCALE;
 
             const dx2 = (nx2 & 1) * 2 - 1;
             nx2 = dx2 * (nx2 >> 1) * N_SCALE;
@@ -122,21 +136,24 @@ export class LineBuffer extends TemplateBuffer {
             let y2 = position[i++];
             let z2 = size == 3 ? position[i++] * rayCaster.exaggeration : 0;
 
-            const tileX0 = tileX + x0;
-            const tileY0 = tileY + y0;
+
+            const tileX0 = tileX + x0 - ox0 * lineOffset;
+            const tileY0 = tileY + y0 - oy0 * lineOffset;
             const scaleDZ = 1 + (scaleByAltitude ? 0 : z0 * m11 / (m3 * tileX0 + m7 * tileY0 + m15));
-
-
             t0[0] = tileX0 + nx0 * strokeWidth * scaleDZ;
             t0[1] = tileY0 + ny0 * strokeWidth * scaleDZ;
             t0[2] = z0;
 
-            t1[0] = tileX + x1 + nx1 * strokeWidth * scaleDZ;
-            t1[1] = tileY + y1 + ny1 * strokeWidth * scaleDZ;
+            const tileX1 = tileX + x1 - ox1 * lineOffset;
+            const tileY1 = tileY + y1 - oy1 * lineOffset;
+            t1[0] = tileX1 + nx1 * strokeWidth * scaleDZ;
+            t1[1] = tileY1 + ny1 * strokeWidth * scaleDZ;
             t1[2] = z1;
 
-            t2[0] = tileX + x2 + nx2 * strokeWidth * scaleDZ;
-            t2[1] = tileY + y2 + ny2 * strokeWidth * scaleDZ;
+            const tileX2 = tileX + x2 - ox2 * lineOffset;
+            const tileY2 = tileY + y2 - oy2 * lineOffset;
+            t2[0] = tileX2 + nx2 * strokeWidth * scaleDZ;
+            t2[1] = tileY2 + ny2 * strokeWidth * scaleDZ;
             t2[2] = z2;
 
             let intersectRayLength = Raycaster.rayIntersectsTriangle(

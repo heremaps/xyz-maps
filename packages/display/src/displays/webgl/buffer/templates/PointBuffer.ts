@@ -28,25 +28,21 @@ import {addPoint} from '../addPoint';
 
 const extentScale = 32;
 
+const toPixel = (value: number, meterToPixel: number, renderScale: number): number => {
+    return meterToPixel > 0 ? value * meterToPixel * renderScale : value;
+};
+
 export const decodeUint16z = (z: number): number => {
     return z * 9000 / 0xffff;
 };
 
-const toPixelOffset = (offset: number, scaleMeter: number, scale: number) => {
-    if (scaleMeter > 0.0) {
-        // offset is defined in meters -> convert to pixels at current zoom
-        return offset * scaleMeter * scale;
-    }
-    return offset;
-};
-
 export const getOffsetPixel = (buffer: GeometryBuffer, scale: number, scaleZ?: number) => {
     const uOffset = <number[]>buffer.getUniform('u_offset');
-    const offsetX = toPixelOffset(uOffset[0], uOffset[1], scale);
-    const offsetY = toPixelOffset(uOffset[2], uOffset[3], scale);
+    const offsetX = toPixel(uOffset[0], uOffset[1], scale);
+    const offsetY = toPixel(uOffset[2], uOffset[3], scale);
 
     const uOffsetZ = <number[]>buffer.getUniform('u_offsetZ');
-    const offsetZ = toPixelOffset(uOffsetZ[0], uOffsetZ[1], scale);
+    const offsetZ = toPixel(uOffsetZ[0], uOffsetZ[1], scale);
 
     // if (offsetZUnit) {
     //     // value is defined in meters -> convert to pixels at current zoom
@@ -122,12 +118,14 @@ export class PointBuffer extends TemplateBuffer {
         offsetZ *= scaleXYZ[2];
 
         if (type === 'Rect') {
-            const size = buffer.getUniform('u_size');
-            const sw = buffer.getUniform('u_strokeWidth') || 0;
-            width = (size[0] + sw) * .5;
-            height = (size[2] + sw) * .5;
+            const size = <number[]>buffer.getUniform('u_size');
+            const strokeWidth = <number>buffer.getUniform('u_strokeWidth') || 0;
+            width = (toPixel(size[0], size[1], buffer.renderScale) + strokeWidth) * .5;
+            height = (toPixel(size[2], size[3], buffer.renderScale) + strokeWidth) * .5;
         } else if (type == 'Circle') {
-            width = height = buffer.getUniform('u_radius')[0];
+            const radius = <number[]>buffer.getUniform('u_radius');
+            const strokeWidth = <number>buffer.getUniform('u_strokeWidth') || 0;
+            width = height = toPixel(radius[0], radius[1], buffer.renderScale) + strokeWidth * .5;
         }
 
         width *= scaleXYZ[0];
