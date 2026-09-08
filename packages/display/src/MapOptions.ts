@@ -20,6 +20,11 @@
 import {Color, GeoPoint, TileLayer} from '@here/xyz-maps-core';
 
 /**
+ * Supported modifier keys for the combined map pitch and rotation gesture.
+ */
+export type ModifierKey = 'ctrl' | 'meta' | 'shift' | 'alt';
+
+/**
  *  Options to configure the map display.
  */
 export interface MapOptions {
@@ -122,6 +127,26 @@ export interface MapOptions {
          * @defaultValue falses
          */
         rotate?: boolean;
+        /**
+         * Modifier key or keys that activate pitch and rotation with a primary-button drag.
+         *
+         * Supported values are `'ctrl'`, `'meta'`, `'shift'`, and `'alt'`.
+         * If an array is provided, any one of the keys activates the gesture.
+         * Use an empty array to disable the gesture.
+         *
+         * @defaultValue ['ctrl', 'meta']
+         * @example
+         * ```typescript
+         * const options = {
+         *     behavior: {
+         *         pitch: true,
+         *         rotate: true,
+         *         pitchAndRotateModifiers: ['ctrl', 'meta']
+         *     }
+         * };
+         * ```
+         */
+        pitchAndRotateModifiers?: ModifierKey | ModifierKey[];
     };
     /**
      * initial rotation of the map in degree.
@@ -177,7 +202,8 @@ export const defaultOptions: MapOptions = {
     behavior: {
         drag: true,
         pitch: false,
-        rotate: false
+        rotate: false,
+        pitchAndRotateModifiers: ['ctrl', 'meta']
     },
 
     rotate: 0,

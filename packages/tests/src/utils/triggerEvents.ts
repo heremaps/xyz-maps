@@ -59,7 +59,7 @@ export function click(elem: HTMLElement, x: number, y: number, button: number = 
 export function drag(elem: HTMLElement, from: { x: number; y: number }, to: {
     x: number;
     y: number
-}, time: number = 60, button: number = 0): Promise<MouseEvent> {
+}, time: number = 60, button: number = 0, modifiers?: { metaKey?: boolean; ctrlKey?: boolean }): Promise<MouseEvent> {
     return new Promise((resolve) => {
         let e = getElement(elem, from.x, from.y);
 
@@ -70,7 +70,7 @@ export function drag(elem: HTMLElement, from: { x: number; y: number }, to: {
 
         elem.addEventListener('mouseup', callback);
 
-        dispatchEvent(e, {x: from.x, y: from.y, type: 'mousedown', button});
+        dispatchEvent(e, {x: from.x, y: from.y, type: 'mousedown', button, ...modifiers});
 
         let v = Math.max(1, Math.floor(Math.max(Math.abs(to.x - from.x) / 10, Math.abs(to.y - from.y) / 10)));
         let vx = (to.x - from.x) / v;
@@ -78,7 +78,7 @@ export function drag(elem: HTMLElement, from: { x: number; y: number }, to: {
         let i = 0;
         let si = setInterval(function() {
             if (i++ == v - 1) {
-                dispatchEvent(e, {x: to.x, y: to.y, type: 'mousemove', button});
+                dispatchEvent(e, {x: to.x, y: to.y, type: 'mousemove', button, ...modifiers});
                 setTimeout(() => dispatchEvent(e, {x: to.x, y: to.y, type: 'mouseup', button}), 1);
                 clearInterval(si);
             }
@@ -86,7 +86,8 @@ export function drag(elem: HTMLElement, from: { x: number; y: number }, to: {
                 x: Math.floor(from.x + vx * i),
                 y: Math.floor(from.y + vy * i),
                 type: 'mousemove',
-                button
+                button,
+                ...modifiers
             });
         }, time / v);
     });
@@ -199,11 +200,13 @@ type DispatchEventParams = {
     type: string;
     button?: number;
     delta?: number;
+    metaKey?: boolean;
+    ctrlKey?: boolean;
 };
 
 function dispatchEvent(
     {element, topLeft}: DispatchTarget,
-    {x, y, type, button, delta}: DispatchEventParams
+    {x, y, type, button, delta, metaKey, ctrlKey}: DispatchEventParams
 ) {
     const eventButton = type == 'mousemove' ? 0 : button ?? 0;
     const buttons = button != undefined &&
@@ -213,6 +216,8 @@ function dispatchEvent(
 
     let ev: any = new MouseEvent(type, {
         altKey: true,
+        metaKey: !!metaKey,
+        ctrlKey: !!ctrlKey,
         bubbles: true,
         cancelable: true,
         clientX: x + topLeft.top,

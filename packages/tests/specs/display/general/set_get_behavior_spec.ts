@@ -91,6 +91,23 @@ describe('set and get behavior', function() {
         );
     });
 
+    it('pitch and rotate without panning with a modifier drag', async function() {
+        display.setBehavior('pitch', true);
+        display.setBehavior('rotate', true);
+
+        const center = display.getCenter();
+        const pitch = display.pitch();
+        const rotation = display.rotate();
+
+        await waitForViewportReady(display, async ()=>{
+            await drag(mapContainer, {x: 200, y: 200}, {x: 240, y: 160}, 60, 0, {ctrlKey: true});
+        });
+
+        expect(display.getCenter()).to.deep.equal(center);
+        expect(display.pitch()).to.not.equal(pitch);
+        expect(display.rotate()).to.not.equal(rotation);
+    });
+
     it('zoom out and validate', async function() {
         display.setBehavior('zoom', false);
 

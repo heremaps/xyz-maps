@@ -17,56 +17,80 @@
  * License-Filename: LICENSE
  */
 
-import {addEventListener, removeEventListener} from '../DOMTools';
+import {addEventListener, getPointRelativeToElement, removeEventListener} from '../DOMTools';
 import {global as WIN} from '@here/xyz-maps-common';
 import {ScrollHandler} from './ScrollHandler';
 import {Map} from '../Map';
 import {Animation} from '../animation/Animation';
 import {getDistance} from '../geometry';
 import {KineticPanAnimator} from '../animation/KineticPanAnimator';
+import {MapOptions, ModifierKey} from '../MapOptions';
 
 const MIN_ROTATION = 5;
 const TWO_FINGER_PINCH_THRESHOLD = 110;
+const PRIMARY_MOUSE_BUTTON = 0;
+const SECONDARY_MOUSE_BUTTON = 2;
 let UNDEF;
+
+const DEFAULT_PITCH_AND_ROTATE_MODIFIERS: ModifierKey[] = ['ctrl', 'meta'];
+
+const isModifierPressed = (ev: MouseEvent, modifier: ModifierKey): boolean => {
+    switch (modifier) {
+    case 'ctrl':
+        return ev.ctrlKey;
+    case 'meta':
+        return ev.metaKey;
+    case 'shift':
+        return ev.shiftKey;
+    case 'alt':
+        return ev.altKey;
+    default:
+        return false;
+    }
+};
+
+const isPitchAndRotateModifierPressed = (
+    ev: MouseEvent,
+    modifiers?: ModifierKey | ModifierKey[]
+): boolean => {
+    const configuredModifiers = modifiers == UNDEF
+        ? DEFAULT_PITCH_AND_ROTATE_MODIFIERS
+        : Array.isArray(modifiers) ? modifiers : [modifiers];
+
+    return configuredModifiers.some((modifier) => isModifierPressed(ev, modifier));
+};
 
 type BehaviorOptions = {
     zoom?: boolean | 'fixed' | 'float';
     drag?: boolean;
     rotate?: boolean;
     pitch?: boolean;
+    pitchAndRotateModifiers?: ModifierKey | ModifierKey[];
 }
 
-const getCenter = (ev: TouchEvent | MouseEvent, mapEl: HTMLElement): [number, number] => {
-    let targetTouches = (<TouchEvent>ev).targetTouches;
-    let x: number;
-    let y: number;
+const getCenter = (ev: TouchEvent | MouseEvent, mapEl: HTMLElement): [x: number, y: number] | null => {
+    const targetTouches = (<TouchEvent>ev).targetTouches;
 
-    if (targetTouches) {
-        let targetLen = targetTouches.length;
-        let p1 = targetTouches[targetLen - 1];
-        let p2;
-
-        if (targetLen) {
-            let offset = mapEl.getBoundingClientRect();
-            let p1x = p1.pageX - offset.left;
-            let p1y = p1.pageY - offset.top;
-
-            if (targetLen > 1) {
-                p2 = targetTouches[targetLen - 2];
-
-                x = (p1x + p2.pageX - offset.left) / 2,
-                y = (p1y + p2.pageY - offset.top) / 2;
-            } else {
-                x = p1x;
-                y = p1y;
-            }
-        }
-    } else {
-        x = (<MouseEvent>ev).clientX;
-        y = (<MouseEvent>ev).clientY;
+    if (!targetTouches) {
+        return getPointRelativeToElement(mapEl, <MouseEvent>ev);
     }
 
-    return [x ^ 0, y ^ 0];
+    if (!targetTouches.length) {
+        return null;
+    }
+
+    const p1 = getPointRelativeToElement(mapEl, targetTouches[targetTouches.length - 1]);
+
+    if (targetTouches.length == 1) {
+        return p1;
+    }
+
+    const p2 = getPointRelativeToElement(mapEl, targetTouches[targetTouches.length - 2]);
+
+    return [
+        (p1[0] + p2[0]) / 2,
+        (p1[1] + p2[1]) / 2
+    ];
 };
 
 const getAngle = (ev: TouchEvent): number => {
@@ -99,11 +123,10 @@ class Behavior {
 
     onGestureEnd: (() => void) | null = null;
 
-    constructor(mapEl: HTMLElement, map: Map, settings: BehaviorOptions, mapCfg) {
+    constructor(mapEl: HTMLElement, map: Map, settings: BehaviorOptions, mapCfg: MapOptions) {
         this.map = map;
         const kinetic = new KineticPanAnimator(map, {
             onStop: () => {
-                // console.log('Kinetic stop!');
                 this.endGesture();
             }
         });
@@ -302,7 +325,6 @@ class Behavior {
                     const dy1 = t1y - t1.clientY;
                     const dy2 = t2y - t2.clientY;
 
-
                     if (
                         pitch || pitch != false &&
                         Math.abs(t2.clientY - t1.clientY) < TWO_FINGER_PINCH_THRESHOLD &&
@@ -385,11 +407,26 @@ class Behavior {
 
         //* ******************** MOUSE *********************
 
-        // 0 -> left, 2 -> right, null -> NONE
-        let mouseButtonPressed = null;
+        let activeMouseButton: number | null = null;
+        let isCameraGesture = false;
+
+        function updateCameraFromMouse(x: number, y: number) {
+            if (settings.rotate && gestureThresholdExceeded('minRotateMapThreshold', x, y)) {
+                map.rotate(startMapRotation + (lastX - x) * .25);
+                that.startGesture('rotate');
+            }
+
+            if (settings.pitch && gestureThresholdExceeded('minPitchMapThreshold', x, y)) {
+                map.pitch(startMapPitch + (lastY - y) * .1);
+                that.startGesture('pitch');
+            }
+        }
 
         function onMouseDown(ev) {
-            mouseButtonPressed = ev.button;
+            activeMouseButton = ev.button;
+            isCameraGesture = ev.button == SECONDARY_MOUSE_BUTTON ||
+                (ev.button == PRIMARY_MOUSE_BUTTON &&
+                    isPitchAndRotateModifierPressed(ev, settings.pitchAndRotateModifiers));
 
             resetDrag();
 
@@ -412,23 +449,16 @@ class Behavior {
             const x = ev.clientX;
             const y = ev.clientY;
 
-            if (mouseButtonPressed == 0) {
+            if (activeMouseButton == PRIMARY_MOUSE_BUTTON && !isCameraGesture) {
                 panMap(x, y);
-            } else if (mouseButtonPressed == 2) {
-                if (settings.rotate && gestureThresholdExceeded('minRotateMapThreshold', x, y)) {
-                    map.rotate(startMapRotation + (lastX - x) * .25);
-                    that.startGesture('rotate');
-                }
-
-                if (settings.pitch && gestureThresholdExceeded('minPanMapThreshold', x, y)) {
-                    map.pitch(startMapPitch + (lastY - y) * .1);
-                    that.startGesture('pitch');
-                }
+            } else if (isCameraGesture) {
+                updateCameraFromMouse(x, y);
             }
         }
 
         function onMouseUp(ev) {
-            mouseButtonPressed = null;
+            activeMouseButton = null;
+            isCameraGesture = false;
             removeEventListener(mapEl, 'mousemove', onMouseMove);
             kineticPan(ev);
 

@@ -39,7 +39,7 @@ globalNamespace.styleTools = styleTools;
 export {styleTools};
 export {Map};
 export {MapEvent} from './event/Event';
-export {MapOptions} from './MapOptions';
+export {MapOptions, ModifierKey} from './MapOptions';
 export {FollowPathAnimationController};
 
 export default Map;

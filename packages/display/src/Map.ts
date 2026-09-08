@@ -29,7 +29,7 @@ import MapViewListener from './MapViewListener';
 import UI from './ui/UI';
 import {JSUtils, Listener} from '@here/xyz-maps-common';
 import {ZoomAnimator} from './animation/ZoomAnimator';
-import {defaultOptions, MapOptions} from './MapOptions';
+import {defaultOptions, MapOptions, ModifierKey} from './MapOptions';
 import {
     Feature,
     TileLayer,
@@ -1138,11 +1138,20 @@ export class Map {
          * indicates if map rotation is enabled or disabled.
          */
         rotate: boolean;
+        /**
+         * Modifier key or keys for the combined pitch and rotation gesture.
+         */
+        pitchAndRotateModifiers: ModifierKey | ModifierKey[];
         } {
         const settings = {};
         const options = this._b.getOptions();
         for (let b in options) {
-            settings[b] = !!options[b];
+            if (b == 'pitchAndRotateModifiers') {
+                const modifiers = options[b];
+                settings[b] = Array.isArray(modifiers) ? modifiers.slice() : modifiers;
+            } else {
+                settings[b] = !!options[b];
+            }
         }
         return <any>settings;
     };
@@ -1175,6 +1184,10 @@ export class Map {
          * true to enable map rotation, false to disable.
          */
         rotate?: boolean;
+        /**
+         * Modifier key or keys for the combined pitch and rotation gesture.
+         */
+        pitchAndRotateModifiers?: ModifierKey | ModifierKey[];
     }): void;
 
     /**
@@ -1211,6 +1224,10 @@ export class Map {
                     ? DEFAULT_ZOOM_BEHAVIOR
                     : false;
             }
+        }
+        const modifiers = options.pitchAndRotateModifiers;
+        if (modifiers != UNDEF) {
+            behaviorOptions.pitchAndRotateModifiers = modifiers;
         }
         for (let option of [BEHAVIOR_DRAG, BEHAVIOR_PITCH, BEHAVIOR_ROTATE]) {
             let val = options[option];

@@ -34,13 +34,31 @@ export const fromString = (string: string): Node => {
     return parser.parseFromString(string, 'text/html').body.childNodes[0];
 };
 
-export const addEventListener = (el: HTMLElement | Window, ev: string | string[], fnc: EventListener, options?: { passive?: boolean, capture?: boolean } | boolean) => {
+export const getPointRelativeToElement = (elem: HTMLElement, point: {
+    clientX: number,
+    clientY: number
+}): [number, number] => {
+    const rect = elem.getBoundingClientRect();
+    return [
+        point.clientX - rect.left,
+        point.clientY - rect.top
+    ];
+};
+
+
+export const addEventListener = (el: HTMLElement | Window, ev: string | string[], fnc: EventListener, options?: {
+    passive?: boolean,
+    capture?: boolean
+} | boolean) => {
     (typeof ev === 'string' ? [ev] : ev).forEach((e) => {
         el.addEventListener(e, fnc, options);
     });
 };
 
-export const removeEventListener = (el: HTMLElement | Window, ev: string | string[], fnc: EventListener, options?: { passive?: boolean, capture?: boolean } | boolean) => {
+export const removeEventListener = (el: HTMLElement | Window, ev: string | string[], fnc: EventListener, options?: {
+    passive?: boolean,
+    capture?: boolean
+} | boolean) => {
     (typeof ev === 'string' ? [ev] : ev).forEach((e) => {
         el.removeEventListener(e, fnc, options);
     });

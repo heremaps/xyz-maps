@@ -17,7 +17,7 @@
  * License-Filename: LICENSE
  */
 
-import {addEventListener, removeEventListener} from '../DOMTools';
+import {addEventListener, getPointRelativeToElement, removeEventListener} from '../DOMTools';
 import {MapEvent} from './Event';
 import {Listener, Task} from '@here/xyz-maps-common';
 import {Map} from '../Map';
@@ -53,12 +53,7 @@ function getMousePosition(domEl, event) {
         event = event.changedTouches[event.changedTouches.length - 1];
     }
     // use parent node of canvas as its parent node stays static in panning
-    let offset = domEl.getBoundingClientRect();
-
-    return [
-        event.pageX - offset.left,
-        event.pageY - offset.top
-    ];
+    return getPointRelativeToElement(domEl, event);
 }
 
 
