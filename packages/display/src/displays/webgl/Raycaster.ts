@@ -21,8 +21,11 @@ import {add, cross, dot, normalize, scale, subtract, transformMat4} from 'gl-mat
 import {GeometryBuffer} from './buffer/GeometryBuffer';
 import {RenderTile, RenderTileTarget} from './RenderTile';
 import {invert} from 'gl-matrix/mat4';
+import {TerrainOcclusionMode} from './buffer/TerrainRenderPolicy';
 
 export type Vec3 = [number, number, number];
+
+type PickResultSource = 'none' | 'terrain' | 'terrain-overlay' | 'feature';
 
 type Result = {
     id: number | string;
@@ -272,13 +275,23 @@ class Raycaster {
         return hit < hit2 ? hit : hit2;
     }
 
-    beginPick(x: number, y: number, width: number, height: number, scale: number, scaleZ: number, exaggeration: number = 1) {
+    beginPick(
+        x: number,
+        y: number,
+        width: number,
+        height: number,
+        scale: number,
+        scaleZ: number,
+        exaggeration: number = 1,
+        terrainOcclusionSupported: boolean = true
+    ) {
         const {sMat, iSMat, origin, direction, sOrigin, sDirection} = this;
 
         this.w = width;
         this.h = height;
         this.scale = scale;
         this.exaggeration = Math.max(1e-6, exaggeration);
+        this.terrainOcclusionSupported = terrainOcclusionSupported;
 
         // const invScaleXY = 1 / scale;
         // this.invMapScale[0] = invScaleXY;
@@ -327,6 +340,7 @@ class Raycaster {
         this.terrainHit.terrainTileQuadkey = null;
         this._bestTerrainWorldT = Infinity;
         this._terrainResultZ = Infinity;
+        this.pickResultSource = 'none';
     }
 
 
@@ -355,6 +369,16 @@ class Raycaster {
             result.pointWorld = hitPoint;
         }
         return result;
+    }
+
+    canPickOverTerrain(buffer: GeometryBuffer): boolean {
+        // Screen-depth terrain overlays are rendered from their anchor depth,
+        // so a terrain hit at the pointer position must not hide the overlay.
+        // TODO: Mirror the shader's anchor-depth occlusion check so hidden overlays
+        // are not picked merely because their buffer uses terrain occlusion.
+        return this.terrainOcclusionSupported &&
+            buffer.terrainOcclusion === TerrainOcclusionMode.TERRAIN &&
+            this.pickResultSource === 'terrain';
     }
 
     // used to transform ray from world space to local space
@@ -411,6 +435,12 @@ class Raycaster {
      */
     private _terrainResultZ: number = Infinity;
 
+    // tracks the source of the currently selected result so terrain only
+    // yields to an already selected screen-depth overlay.
+    private pickResultSource: PickResultSource = 'none';
+
+    private terrainOcclusionSupported: boolean = true;
+
     private worldRayLength(point: Vec3 | number[], origin: Vec3 | Float32Array, direction: Vec3 | Float32Array): number {
         const delta = subtract(this._tmpDelta, point, origin);
         // dir is normalized
@@ -463,9 +493,10 @@ class Raycaster {
         if (worldT < this._bestTerrainWorldT) {
             this._bestTerrainWorldT = worldT;
             // only update result.z if terrain is actually closer than existing hits.
-            if (worldT < savedResultZ) {
+            if (worldT < savedResultZ && this.pickResultSource !== 'terrain-overlay') {
                 result.z = worldT;
                 this._terrainResultZ = worldT;
+                this.pickResultSource = 'terrain';
                 return featureId;
             }
         }
@@ -538,6 +569,11 @@ class Raycaster {
         }
 
         if (featureId != null) {
+            if (!isTerrainBuffer) {
+                this.pickResultSource = !isOffscreenBuffer && renderTile.isTerrainOcclusionCandidate()
+                    ? 'terrain-overlay'
+                    : 'feature';
+            }
             result.id = featureId;
         }
 

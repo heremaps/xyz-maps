@@ -248,6 +248,9 @@ export class PointBuffer extends TemplateBuffer {
                 rayOrigin,
                 rayDirection
             );
+            // the terrain-overlay path intentionally renders the whole
+            // symbol from its anchor depth, not from the terrain at each pointer pixel.
+            const canPickOverTerrain = rayCaster.canPickOverTerrain(buffer);
 
             if (intersectRayLength) {
                 if (!alignMap) {
@@ -255,7 +258,7 @@ export class PointBuffer extends TemplateBuffer {
                     intersectRayLength = rayCaster.rayLengthScreenToWorld(intersectionPoint);
                 }
 
-                if (intersectRayLength < result.z) {
+                if (intersectRayLength < result.z || canPickOverTerrain) {
                     result.z = intersectRayLength;
                     bufferIndex = i;
                 }

@@ -1164,7 +1164,9 @@ class WebGlDisplay extends BasicDisplay {
 
     getRenderedFeatureAt(x: number, y: number, layers?: TileLayer[]): RendereFeatureResult {
         // measureStart('raycast');
-        this.rayCaster.beginPick(x, y, this.w, this.h, this.s, 1 / this.groundResolution, this.terrainExaggeration);
+        this.rayCaster.beginPick(x, y, this.w, this.h, this.s, 1 / this.groundResolution, this.terrainExaggeration,
+            this.render.supportsTerrainOcclusion()
+        );
 
         let intersectLayer: Layer = null;
         // const camWorldZ = this.rayCaster.origin[2] + 0.001;
