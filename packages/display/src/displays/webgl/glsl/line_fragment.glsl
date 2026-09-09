@@ -60,19 +60,22 @@ void main(void){
 #endif
 
     if (!u_no_antialias){
-        // "width" is the distance from the line center in "expanded" units.
-        // the visible half-width is v_width.s, and v_width.t is the AA gutter size.
         float halfWidth = v_width.s;
         float dist = width;
-        // derivative-based smoothing in screen space (stable under pitch/zoom).
+        // sub-pixel lines keep a min. footprint of .5px and are dimmed by coverage instead
+        float aaHalfWidth = max(halfWidth, 0.5);
         #if defined(GL_OES_standard_derivatives) || __VERSION__ >= 300
-        float w = max(fwidth(dist), 1e-4);
+        // limited to the alias gutter and the line core, otherwise the fade gets cut off
+        // by the geometry edge (aliasing) or reaches past the center (translucent core).
+        float w = clamp(fwidth(dist), 1e-4, min(v_width.t, aaHalfWidth));
         // fade out over the AA region around the edge.
-        float alpha = 1.0 - smoothstep(halfWidth - w, halfWidth + w, dist);
+        float alpha = 1.0 - smoothstep(aaHalfWidth - w, aaHalfWidth + w, dist);
         #else
         // use the precomputed AA gutter (v_width.t) as a linear fade.
-        float alpha = 1.0 - clamp((dist - halfWidth) / max(v_width.t, 1e-4), 0.0, 1.0);
+        float alpha = 1.0 - clamp((dist - aaHalfWidth) / max(v_width.t, 1e-4), 0.0, 1.0);
         #endif
+        // halfWidth/aaHalfWidth without the division -> 1.0, or halfWidth*2.0 below .5px
+        alpha *= min(halfWidth * 2.0, 1.0);
         gl_FragColor *= alpha;
     }
 }

@@ -30,22 +30,11 @@ void main(void){
 
     float strokeWidth = toPixel(u_strokeWidth, u_scale) * 0.5;
 
-    // AA gutter (in pixels), ~1px for most sizes, smaller for very thin strokes.
-    float alias = 0.0;
-    if (!u_no_antialias) {
-        #if __VERSION__ >= 300
-        // estimate how fast clip space changes across a pixel to pick a stable AA size.
-        float px = max(fwidth(gl_Position.x) + fwidth(gl_Position.y), 1e-4);
-        // convert to a gutter in pixel-ish units; clamp to avoid excessive widening.
-        alias = clamp(0.5 / px, 0.5, 1.25);
-        #else
-        // smooth ramp from 0.5px to 1.0px as stroke grows.
-        alias = mix(0.5, 1.0, smoothstep(0.5, 2.0, strokeWidth));
-        #endif
-    }
+    // fixed 1px gutter, the actual AA width is computed in the fragment shader
+    float alias = u_no_antialias ? 0.0 : 1.0;
 
     float width = (strokeWidth+alias) / u_scale;
-    v_width = vec2(strokeWidth, alias /* *.5 */);
+    v_width = vec2(strokeWidth, alias);
     // LSB is direction/normal vector [-1,+1]
     vec2 dir2 = mod(a_normal.zw, 2.0) * 2.0 - 1.0;
     vec2 aliasNormal = floor(a_normal.zw * .5) * N_SCALE;
