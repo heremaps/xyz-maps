@@ -157,10 +157,7 @@ export class PointBuffer extends TemplateBuffer {
         // renderScale only affects screen-space rendering (u_alignMap == false).
         // In world-space mode, geometry uses map units directly, so renderScale is not applied.
         const tileScale = renderScale / extentScale;
-        const m3 = sMat[3];
-        const m7 = sMat[7];
-        const m11 = sMat[11];
-        const m15 = sMat[15];
+        const referenceW = buffer.referenceW;
 
         const stride = 6 * size;
         const heightMap = buffer.getHeightMap();
@@ -197,7 +194,7 @@ export class PointBuffer extends TemplateBuffer {
                 t0[1] = t1[1] = y0 + offsetY;
                 t0[2] = t1[2] = z0 + offsetZ;
 
-                const scaleDZ = 1 + (scaleByAltitude ? 0 : t0[2] * m11 / (m3 * t0[0] + m7 * t0[1] + m15));
+                const scaleDZ = rayCaster.getAltitudeScale(t0[0], t0[1], t0[2], scaleByAltitude, referenceW);
                 const w = width * scaleDZ;
                 const h = height * scaleDZ;
 

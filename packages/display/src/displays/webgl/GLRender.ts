@@ -188,6 +188,8 @@ export class GLRender implements BasicRender {
     // consistent regardless of the pivot-induced zoom adjustment.
     // Value: targetZ / (targetZ + terrainPivotZ), i.e. < 1 when pivot is active.
     private pivotScaleFactor: number = 1;
+    // Clip-space w of the z=0 plane at screen center, see updateVPMatrix.
+    private referenceW: number = 0;
     private rz: number;
     private rx: number;
     // Compiled program variants per buffer type, indexed by the resolved macro mask.
@@ -229,6 +231,7 @@ export class GLRender implements BasicRender {
         u_scale: number;
         u_zMeterToPixel: number;
         u_exaggeration: number;
+        u_referenceW: number;
     };
 
     private programConfig: { [name: string]: { program: typeof Program, default?: boolean, macros?: any } };
@@ -785,6 +788,11 @@ export class GLRender implements BasicRender {
         this.pivotScaleFactor = terrainPivotZ > 0
             ? targetZ / (targetZ + terrainPivotZ)
             : 1;
+        // Clip-space w at which u_scale is exact, aka the camera distance to the z=0 plane.
+        // Used as a fixed reference to keep pixel-defined 3d geometry at a constant
+        // screen size. A per-vertex reference (the ground point below the geometry) collapses
+        // when the map is pitched, because altitude then barely contributes to view depth.
+        this.referenceW = targetZ + terrainPivotZ;
 
         this.setResolution(pixelWidth, pixelHeight);
 
@@ -913,7 +921,8 @@ export class GLRender implements BasicRender {
             'u_tile': [0, 0, 0, 1],
             'u_matrix': this.vPMat,
             'u_zMeterToPixel': null, // this.zMeterToPixel / dZoom,
-            'u_exaggeration': 1
+            'u_exaggeration': 1,
+            'u_referenceW': 0
         };
     }
 
@@ -1120,8 +1129,12 @@ export class GLRender implements BasicRender {
             // u_scale includes dZoom for scaled/preview tiles. Divide by dZoom here so
             // elevation remains in the map-view scale and is not scaled twice by tile LOD.
             sharedUniforms.u_zMeterToPixel = this.zMeterToMapPixel / dZoom;
+            // A zero reference keeps the legacy altitude correction for offscreen and
+            // terrain-following passes, which use a different scale calibration.
+            sharedUniforms.u_referenceW = skipPivotScale ? 0 : this.referenceW;
 
             buffer.renderScale = sharedUniforms.u_scale;
+            buffer.referenceW = sharedUniforms.u_referenceW;
             // must be set at render time
             this.viewUniforms.fixedView = this.fixedView;
 

@@ -67,11 +67,7 @@ export class BoxBuffer extends PointBuffer {
         let index = null;
         const offset = size * 6 * 6;
         let [offsetX, offsetY, offsetZ] = getOffsetPixel(buffer, buffer.renderScale);
-        const {sMat} = rayCaster;
-        const m3 = sMat[3]; // projX_w
-        const m7 = sMat[7]; // projY_w
-        const m11 = sMat[11]; // projZ_w
-        const m15 = sMat[15]; // projW_w
+        const referenceW = buffer.referenceW;
 
         offsetX *= scaleX;
         offsetY *= scaleY;
@@ -89,8 +85,7 @@ export class BoxBuffer extends PointBuffer {
                 : (size === 2 ? 0 : decodeUint16z(position[i + 2]))
             ) * rayCaster.exaggeration + offsetZ;
 
-            const scaleDZ = 1 + (scaleByAltitude ? 0 : z * m11 / (m3 * x + m7 * y + m15));
-            // const scaleDZ = scaleByAltitude ? 1 : Math.min(Math.max(1 + (z * m11) / (m3 * x + m7 * y + m15), .5), 2);
+            const scaleDZ = rayCaster.getAltitudeScale(x, y, z, scaleByAltitude, referenceW);
 
             // Offsets (point[i]) represent the full box size -> offset only half the size from center to edge
             const halfScaledDZ = scaleDZ * 0.5;

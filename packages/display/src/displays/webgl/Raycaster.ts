@@ -182,6 +182,26 @@ class Raycaster {
         return invScaleFactor;
     }
 
+    getAltitudeScale(
+        x: number,
+        y: number,
+        z: number,
+        scaleByAltitude: boolean,
+        referenceW: number
+    ): number {
+        // Meter-sized geometry keeps its natural perspective scaling.
+        if (scaleByAltitude) {
+            return 1;
+        }
+        const {sMat} = this;
+        const groundW = sMat[3] * x + sMat[7] * y + sMat[15];
+        return referenceW > 0
+            // fixed pixel-size calibration
+            ? (groundW + sMat[11] * z) / referenceW
+            // legacy fallback for offscreen terrain
+            : 1 + z * sMat[11] / groundW;
+    }
+
     intersectAABBox(minX: number, minY: number, minZ: number, maxX: number, maxY: number, maxZ: number, origin = this.origin, direction = this.direction) {
         const [rayDirX, rayDirY, rayDirZ] = direction;
         const [rayOriginX, rayOriginY, rayOriginZ] = origin;

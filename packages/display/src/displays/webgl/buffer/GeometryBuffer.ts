@@ -228,6 +228,9 @@ class GeometryBuffer {
     // The effective scale factor applied to this geometry buffer during rendering.
     // Used for correct sizing and ray intersection calculations relative to the current view.
     renderScale: number = 1;
+    // Fixed per-frame W reference this buffer was rendered with, see GLRender.referenceW.
+    // 0 for passes that use the legacy altitude calibration.
+    referenceW: number = 0;
 
     private _cullFace: number = 0;
 

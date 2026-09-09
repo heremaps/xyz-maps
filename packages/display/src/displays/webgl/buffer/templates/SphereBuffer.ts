@@ -61,11 +61,8 @@ export class SphereBuffer extends BoxBuffer {
         const rx = r * scaleX;
         const ry = r * scaleY;
         const rz = r * scaleZ;
-        const {sMat} = rayCaster;
-        const m3 = sMat[3];
-        const m7 = sMat[7];
-        const m11 = sMat[11];
-        const m15 = sMat[15];
+        // Must match altitudeScaleFactor() in the shared vertex shaders.
+        const referenceW = buffer.referenceW;
         const offset = size * SPHERE_VERTICES;
         const sphereCenter: Vec3 = [0, 0, 0];
         const radius: Vec3 = [0, 0, 0];
@@ -88,7 +85,7 @@ export class SphereBuffer extends BoxBuffer {
                 : (size === 2 ? 0 : decodeUint16z(position[i + 2]))
             ) * rayCaster.exaggeration + offsetZ;
 
-            const scaleDZ = 1 + (scaleByAltitude ? 0 : z * m11 / (m3 * x + m7 * y + m15));
+            const scaleDZ = rayCaster.getAltitudeScale(x, y, z, scaleByAltitude, referenceW);
 
             sphereCenter[0] = x;
             sphereCenter[1] = y;

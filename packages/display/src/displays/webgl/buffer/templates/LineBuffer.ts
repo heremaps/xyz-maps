@@ -83,10 +83,7 @@ export class LineBuffer extends TemplateBuffer {
         const scaleByAltitude = <boolean>buffer.getUniform('u_scaleByAltitude');
 
         let index;
-        const m3 = rayCaster.sMat[3];
-        const m7 = rayCaster.sMat[7];
-        const m11 = rayCaster.sMat[11];
-        const m15 = rayCaster.sMat[15];
+        const referenceW = buffer.referenceW;
 
         for (let i = 0, n = 0; i < position.length; n += 12) {
             let nx0 = normal[n];
@@ -139,7 +136,7 @@ export class LineBuffer extends TemplateBuffer {
 
             const tileX0 = tileX + x0 - ox0 * lineOffset;
             const tileY0 = tileY + y0 - oy0 * lineOffset;
-            const scaleDZ = 1 + (scaleByAltitude ? 0 : z0 * m11 / (m3 * tileX0 + m7 * tileY0 + m15));
+            const scaleDZ = rayCaster.getAltitudeScale(tileX0, tileY0, z0, scaleByAltitude, referenceW);
             t0[0] = tileX0 + nx0 * strokeWidth * scaleDZ;
             t0[1] = tileY0 + ny0 * strokeWidth * scaleDZ;
             t0[2] = z0;
