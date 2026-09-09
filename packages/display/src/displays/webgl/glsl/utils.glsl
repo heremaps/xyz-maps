@@ -164,10 +164,9 @@ float altitudeScaleFactor(vec3 posWorld, mat4 u_matrix) {
     // A positive referenceW calibrates pixel-sized geometry against the fixed main-view
     // perspective. A zero reference uses the local groundW: orthographic offscreen passes
     // then stay at scale 1, while terrain-following geometry keeps its local calibration.
-    float scaleDZ = u_referenceW > 0.0
-        ? clipW / u_referenceW
-        : 1.0 + posWorld.z * u_matrix[2][3] / groundW;
-
+    float calibrationW = u_referenceW > 0.0 ? u_referenceW : groundW;
+    float scaleDZ = clipW / calibrationW;
+    // Legacy path (u_referenceW == 0): clipW / groundW -> 1.0 + posWorld.z * u_matrix[2][3] / groundW
     return mix(scaleDZ, 1.0, float(u_scaleByAltitude));
 }
 #end altitudeScaleFactor
