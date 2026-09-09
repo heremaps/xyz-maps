@@ -75,6 +75,18 @@ export class TemplateBuffer {
     }
 
     isPointBuffer: boolean = false;
+
+    /**
+     * Whether pixel-defined sizes/offsets are applied from a single anchor position, rather
+     * than spanning across the geometry itself.
+     * Enables calibration against a fixed view reference, see
+     * GeometryBuffer.usesFixedScreenSizeScale().
+     *
+     * @internal
+     * @hidden
+     */
+    anchoredPixelSize: boolean = false;
+
     first: number;
     last: number;
 
@@ -209,6 +221,7 @@ export class TemplateBuffer {
         geoBuffer.cullFace(this.cullFace);
         geoBuffer.rayIntersects = this.rayIntersects;
         geoBuffer.setHeightMapRef(this.requiresHeightMap);
+        geoBuffer.anchoredPixelSize = this.anchoredPixelSize;
     }
 
     rayIntersects(buffer: GeometryBuffer, result: {

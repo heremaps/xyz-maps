@@ -216,6 +216,9 @@ class GeometryBuffer {
     blend?: boolean;
     mode?: number; // primitive to render
     flat: boolean = true;
+    // Whether pixel-defined sizes/offsets are applied from a single anchor position,
+    // see usesFixedScreenSizeScale(). Mirrored from the TemplateBuffer.
+    anchoredPixelSize: boolean = false;
     groups: (ElementsDrawCmd | ArrayDrawCmd)[] = [];
     idOffsets?: (string | number)[];
     pointerEvents?: boolean;
@@ -592,6 +595,20 @@ class GeometryBuffer {
 
     isFlat() {
         return this.flat;
+    }
+
+    /**
+     * Whether pixel-defined sizes may be calibrated against the fixed view reference
+     * (GLRender.referenceW) to keep a constant screen size at any depth.
+     *
+     * Only elevated, single-anchor geometry qualifies: flat geometry stays at scale 1 and
+     * geometry extending in depth (lines) must narrow with distance, see altitudeScaleFactor().
+     *
+     * @internal
+     * @hidden
+     */
+    usesFixedScreenSizeScale(): boolean {
+        return this.anchoredPixelSize && !this.flat;
     }
 
     rayIntersects(buffer: GeometryBuffer, result, tileX: number, tileY: number, rayCaster: Raycaster): string | number {

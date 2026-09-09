@@ -55,6 +55,7 @@ export const getOffsetPixel = (buffer: GeometryBuffer, scale: number, scaleZ?: n
 
 export class PointBuffer extends TemplateBuffer {
     isPointBuffer = true;
+    anchoredPixelSize = true;
 
     flexAttributes: {
         'a_position': FlexAttribute

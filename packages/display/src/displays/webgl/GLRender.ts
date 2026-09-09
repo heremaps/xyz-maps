@@ -1129,9 +1129,11 @@ export class GLRender implements BasicRender {
             // u_scale includes dZoom for scaled/preview tiles. Divide by dZoom here so
             // elevation remains in the map-view scale and is not scaled twice by tile LOD.
             sharedUniforms.u_zMeterToPixel = this.zMeterToMapPixel / dZoom;
-            // A zero reference keeps the legacy altitude correction for offscreen and
-            // terrain-following passes, which use a different scale calibration.
-            sharedUniforms.u_referenceW = skipPivotScale ? 0 : this.referenceW;
+            // Flat geometry and geometry extending in depth keep the local ground calibration,
+            // offscreen and terrain-following passes use a different scale calibration.
+            sharedUniforms.u_referenceW = skipPivotScale || !buffer.usesFixedScreenSizeScale()
+                ? 0
+                : this.referenceW;
 
             buffer.renderScale = sharedUniforms.u_scale;
             buffer.referenceW = sharedUniforms.u_referenceW;

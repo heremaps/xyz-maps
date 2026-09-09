@@ -25,6 +25,7 @@ import {GlyphAtlas} from '../../GlyphAtlas';
 
 export class TextBuffer extends TemplateBuffer {
     isPointBuffer = true;
+    anchoredPixelSize = true;
     uniforms: {
         u_texture: GlyphTexture
     };
