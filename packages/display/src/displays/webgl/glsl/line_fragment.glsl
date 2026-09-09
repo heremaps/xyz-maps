@@ -1,6 +1,3 @@
-#ifdef GL_OES_standard_derivatives
-    #extension GL_OES_standard_derivatives: enable
-#endif
 precision highp float;
 
 uniform vec4 u_fill;
@@ -61,19 +58,10 @@ void main(void){
 
     if (!u_no_antialias){
         float halfWidth = v_width.s;
-        float dist = width;
         // sub-pixel lines keep a min. footprint of .5px and are dimmed by coverage instead
         float aaHalfWidth = max(halfWidth, 0.5);
-        #if defined(GL_OES_standard_derivatives) || __VERSION__ >= 300
-        // limited to the alias gutter and the line core, otherwise the fade gets cut off
-        // by the geometry edge (aliasing) or reaches past the center (translucent core).
-        float w = clamp(fwidth(dist), 1e-4, min(v_width.t, aaHalfWidth));
-        // fade out over the AA region around the edge.
-        float alpha = 1.0 - smoothstep(aaHalfWidth - w, aaHalfWidth + w, dist);
-        #else
-        // use the precomputed AA gutter (v_width.t) as a linear fade.
-        float alpha = 1.0 - clamp((dist - aaHalfWidth) / max(v_width.t, 1e-4), 0.0, 1.0);
-        #endif
+        // width is in screen pixels (normalized in the vertex shader) -> fade over the 1px gutter
+        float alpha = 1.0 - smoothstep(aaHalfWidth - 0.5, aaHalfWidth + 0.5, width);
         // halfWidth/aaHalfWidth without the division -> 1.0, or halfWidth*2.0 below .5px
         alpha *= min(halfWidth * 2.0, 1.0);
         gl_FragColor *= alpha;

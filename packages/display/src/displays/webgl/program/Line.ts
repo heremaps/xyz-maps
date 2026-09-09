@@ -44,12 +44,6 @@ class LineProgram extends Program {
     }
 
 
-    protected override ensureExtensions() {
-        if (!this.device.isWebGL2) {
-            this.device.extensions.getExtension('OES_standard_derivatives');
-        }
-    }
-
     /**
      * @internal
      * @hidden

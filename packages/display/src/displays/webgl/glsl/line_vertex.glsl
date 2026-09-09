@@ -29,12 +29,6 @@ const float N_SCALE = 1.0 / 8191.0;
 void main(void){
 
     float strokeWidth = toPixel(u_strokeWidth, u_scale) * 0.5;
-
-    // fixed 1px gutter, the actual AA width is computed in the fragment shader
-    float alias = u_no_antialias ? 0.0 : 1.0;
-
-    float width = (strokeWidth+alias) / u_scale;
-    v_width = vec2(strokeWidth, alias);
     // LSB is direction/normal vector [-1,+1]
     vec2 dir2 = mod(a_normal.zw, 2.0) * 2.0 - 1.0;
     vec2 aliasNormal = floor(a_normal.zw * .5) * N_SCALE;
@@ -58,10 +52,19 @@ void main(void){
     vec2 position = a_position.xy + normal * -lineOffset / u_scale;
 
     vec2 posCenterWorld = vec2(u_tile.xy + position);
-//    vec2 offset = dir.y * normal * width;
-    vec2 offset = dir * normal * width;
+    vec3 posCenter = vec3(posCenterWorld, a_position.z * u_exaggeration);
 
-    offset *= altitudeScaleFactor(vec3(posCenterWorld + offset, a_position.z * u_exaggeration), u_matrix);
+    float scaleDZ = altitudeScaleFactor(posCenter, u_matrix);
+    // extrusion units per screen pixel: 1.0 for pixel sizes, perspective scaled for meter sizes
+    // (scaleByAltitude keeps the perspective in the offset). normalizing here lets the fragment
+    // shader do its AA in screen pixels regardless of the size unit.
+    float pxScale = max(perspectiveScaleFactor(posCenter, u_matrix) / max(scaleDZ, 1e-4), 1e-4);
+    // 1px gutter for the AA fade
+    float alias = u_no_antialias ? 0.0 : pxScale;
 
-    gl_Position = u_matrix * vec4(posCenterWorld + offset, a_position.z * u_exaggeration, 1.0);
+    v_width = vec2(strokeWidth / pxScale, u_no_antialias ? 0.0 : 1.0);
+
+    vec2 offset = dir * normal * ((strokeWidth + alias) / u_scale) * scaleDZ;
+
+    gl_Position = u_matrix * vec4(posCenterWorld + offset, posCenter.z, 1.0);
 }

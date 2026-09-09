@@ -157,8 +157,8 @@ vec3 getTerrainNormal(vec2 tilePixelPos) {
 #begin altitudeScaleFactor
 uniform bool u_scaleByAltitude;
 uniform highp float u_referenceW;
-// Helper function to compute altitude-based perspective scaling
-float altitudeScaleFactor(vec3 posWorld, mat4 u_matrix) {
+// Perspective scale of a pixel-defined size at posWorld, relative to the calibration depth.
+float perspectiveScaleFactor(vec3 posWorld, mat4 u_matrix) {
     float groundW = u_matrix[0][3] * posWorld.x + u_matrix[1][3] * posWorld.y + u_matrix[3][3];
     float clipW = groundW + u_matrix[2][3] * posWorld.z;
     // Pixel-defined sizes reach the screen as: screenSize = worldOffset * k / clipW.
@@ -169,7 +169,11 @@ float altitudeScaleFactor(vec3 posWorld, mat4 u_matrix) {
     // depth. Only for geometry anchored at a single position; geometry extending in depth would
     // stop narrowing, see GeometryBuffer.usesFixedScreenSizeScale().
     float calibrationW = u_referenceW > 0.0 ? u_referenceW : groundW;
-    float scaleDZ = clipW / calibrationW;
-    return mix(scaleDZ, 1.0, float(u_scaleByAltitude));
+    return clipW / calibrationW;
+}
+
+// Helper function to compute altitude-based perspective scaling
+float altitudeScaleFactor(vec3 posWorld, mat4 u_matrix) {
+    return mix(perspectiveScaleFactor(posWorld, u_matrix), 1.0, float(u_scaleByAltitude));
 }
 #end altitudeScaleFactor
