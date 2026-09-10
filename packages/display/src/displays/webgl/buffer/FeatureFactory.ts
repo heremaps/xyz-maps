@@ -385,10 +385,13 @@ export class FeatureFactory {
                 const boxBuffer: BoxBuffer = ((group.buffer as BoxBuffer) ||= new BoxBuffer(isFlat));
                 const {flexAttributes} = boxBuffer;
                 positionBuffer = flexAttributes.a_position;
-                // console.log(isFlat, 'boxBuffer', boxBuffer, z);
+
                 addBox(x, y, z, width, height, depth, positionBuffer.data, flexAttributes.a_point.data, flexAttributes.a_normal.data);
             } else {
-                if (z > 0 && type == 'VerticalLine') {
+                if (type == 'VerticalLine' && (z > 0
+                    // with altitude terrain, VerticalLines can use terrain as their base without a coordinate z
+                    || group.shared.altitude === 'terrain'
+                )) {
                     addVerticalLine(group, x, y, z);
                 }
                 // unknown style-type
@@ -968,6 +971,7 @@ export class FeatureFactory {
                 const requiresTerrain = altitude === 'terrain';
                 const terrainRenderMode = group.shared.terrainRenderMode;
 
+
                 if (type == 'Line') {
                     if (strokeDashimage) {
                         const dashImgTexture = this.atlasManager.load(strokeDashimage, {mipMaps: false});
@@ -1017,6 +1021,8 @@ export class FeatureFactory {
                     const to = getValue('to', style, feature, level);
 
                     const isMapAligned = alignment == 'map';
+                    // Let terrain VerticalLines use the feature coordinate z as their top altitude.
+                    const placementAltitude = type == 'VerticalLine' && requiresTerrain ? true : altitude;
 
                     if (anchor == 'Line') {
                         if (collisionGroup) {
@@ -1055,7 +1061,7 @@ export class FeatureFactory {
 
                         this.lineFactory.placeAtSegments(
                             <GeoJSONCoordinate[]>coordinates,
-                            altitude,
+                            placementAltitude,
                             tile,
                             tileSize,
                             checkCollisions && this.collisions,
@@ -1098,7 +1104,7 @@ export class FeatureFactory {
 
                         this.lineFactory.placeAtPoints(
                             <GeoJSONCoordinate[]>coordinates,
-                            altitude,
+                            placementAltitude,
                             tile,
                             tileSize,
                             checkCollisions && this.collisions,
