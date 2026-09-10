@@ -111,13 +111,13 @@ const createRoutingPointStyle = (use3d?: boolean) => use3d
     }, {
         zLayer: (feature) => feature.properties.zLayer,
         zIndex: 999991,
-        type: ({properties})=>properties[properties.parentType].altitude != 'terrain'
+        type: ({properties}) => properties[properties.parentType].altitude != 'terrain'
             ? 'VerticalLine' : null,
         stroke: '#000',
-        altitude: ({properties})=>properties[properties.parentType].altitude
+        altitude: ({properties}) => properties[properties.parentType].altitude
     }, {
         zIndex: 999990,
-        type: ({properties})=>properties[properties.parentType].altitude != 'terrain'
+        type: ({properties}) => properties[properties.parentType].altitude != 'terrain'
             ? 'Circle' : null,
         radius: 4,
         fill: BLACK,
@@ -393,13 +393,13 @@ class OverlayStyles extends RuntimeLayerStyle {
         }],
 
         'NAVLINK_SHAPE_3D': [{
-            zIndex: 0,
+            zIndex: 3,
             type: (feature) => feature.properties.isConnected
                 ? 'Box'
                 : 'Sphere',
-            width: (feature) => isHovered(feature) ? 18 : 12,
+            width: (feature) => isHovered(feature) ? 20 : 14,
             rotation: 45,
-            radius: (feature) => isHovered(feature) ? 9 : 6,
+            radius: (feature) => isHovered(feature) ? 10 : 7,
             strokeWidth: 2,
 
             fill: (feature, zoom) => feature.isOverlapping()
@@ -415,14 +415,18 @@ class OverlayStyles extends RuntimeLayerStyle {
         }, {
             zIndex: 2,
             type: ({properties}) => properties.NAVLINK.usesTerrainAltitude ? null : 'VerticalLine',
-            stroke: '#000'
+            stroke: BLACK,
+            altitude: 'terrain'
         }, {
-            zIndex: 9e5,
+            zIndex: 1,
             type: ({properties}) => properties.NAVLINK.usesTerrainAltitude ? null : 'Circle',
             radius: 4,
             fill: BLACK,
             opacity: .6,
-            zLayer: ({properties}) => properties.NAVLINK.zLayer
+            // Skip terrain occlusion to keep overlays below 3D lines.
+            // enabling it disables depth testing and puts them in front.
+            alignment: 'map',
+            altitude: 'terrain'
         }],
 
         'NAVLINK_VIRTUAL_SHAPE': [{
@@ -440,31 +444,33 @@ class OverlayStyles extends RuntimeLayerStyle {
         }],
 
         'NAVLINK_VIRTUAL_SHAPE_3D': [{
-            zIndex: 1,
-            type: ({properties}) => properties.NAVLINK.usesTerrainAltitude ? 'Sphere' : null,
-            radius: (feature, zoom) => {
-                const {style} = feature.properties.NAVLINK;
-                let [lw] = styleTools.getLineWidth(style, feature.getLink(), zoom, 0);
-                return lw / 5;
-            },
-            opacity: .7,
+            zIndex: 3,
+            type: 'Sphere',
+            // radius: (feature, zoom) => {
+            //     const {style} = feature.properties.NAVLINK;
+            //     let [lw] = styleTools.getLineWidth(style, feature.getLink(), zoom, 0);
+            //     return Math.max(4, lw / 5);
+            // },
+            radius: 5,
             fill: BLACK,
-            stroke: BLACK,
-            strokeWidth: 2,
-            alignment: 'map',
+            opacity: .7,
+            // alignment: 'map',
             altitude: ({properties}) => properties.NAVLINK.usesTerrainAltitude ? 'terrain' : true
-            // altitude: true
         }, {
             zIndex: 2,
             type: ({properties}) => properties.NAVLINK.usesTerrainAltitude ? null : 'VerticalLine',
-            stroke: '#000'
+            stroke: BLACK,
+            altitude: 'terrain'
         }, {
-            zIndex: 9e5,
+            zIndex: 1,
             type: ({properties}) => properties.NAVLINK.usesTerrainAltitude ? null : 'Circle',
             radius: 4,
             fill: BLACK,
             opacity: .6,
-            zLayer: ({properties}) => properties.NAVLINK.zLayer
+            // Skip terrain occlusion to keep overlays below 3D lines.
+            // enabling it disables depth testing and puts them in front.
+            alignment: 'map',
+            altitude: 'terrain'
         }],
 
         'NAVLINK_DIRECTION_HINT_1WAY': [{

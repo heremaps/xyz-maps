@@ -63,10 +63,12 @@ export function getOrSetShapeBehavior(shape: EditorFeature | Shape, args: IArgum
 
     shape.__.b = behavior;
 }
+
 export function getAltitudeCapabilities(feature: EditorFeature) {
     const editor = feature._e();
     const style = editor.getResolvedStyle(feature);
-    const usesTerrainAltitude = editor.displayProvidesTerrain && style.some((s) => s.altitude === 'terrain');
+    const usesTerrainAltitude = editor.displayProvidesTerrain &&
+        style.some((s) => s.type === 'Line' && s.altitude === 'terrain');
     // treat boolean true and positive numeric altitude values as 3D */
     const usesAltitude = usesTerrainAltitude || style.some((s) => s.altitude > 0);
     return {usesTerrainAltitude, usesAltitude};
