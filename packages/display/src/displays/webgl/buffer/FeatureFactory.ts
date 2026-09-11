@@ -745,17 +745,18 @@ export class FeatureFactory {
                                     [width, sizeUnit] = parseSizeValue(width);
                                     groupId = 'S' + width;
                                 }
-                                const allowEvents = getValue('pointerEvents', style, feature, level);
-                                if (typeof allowEvents == 'boolean') {
-                                    pointerEvents = allowEvents;
-                                }
-                                groupId += pointerEvents;
 
                                 alignment = 'map';
                                 processAdvancedLight = true;
                             } else {
                                 continue;
                             }
+
+                            const allowEvents = getValue('pointerEvents', style, feature, level);
+                            if (typeof allowEvents == 'boolean') {
+                                pointerEvents = allowEvents;
+                            }
+                            groupId += pointerEvents ? 'PE' : '';
 
                             processPointOffset = true;
 
