@@ -1,5 +1,5 @@
 /*
- * Copyright (C) 2019-2023 HERE Europe B.V.
+ * Copyright (C) 2019-2026 HERE Europe B.V.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -101,7 +101,7 @@ export class PointBuffer extends TemplateBuffer {
         const {type, attributes} = buffer;
         const alignMap = <boolean>buffer.getUniform('u_alignMap');
         const scaleByAltitude = <boolean>buffer.getUniform('u_scaleByAltitude');
-        const {scale, scaleZ, sMat} = rayCaster;
+        const {scaleZ} = rayCaster;
 
         // const invRenderScale = 1 / buffer.renderScale;
         let scaleXYZ = alignMap
@@ -116,7 +116,8 @@ export class PointBuffer extends TemplateBuffer {
 
         offsetX *= scaleXYZ[0];
         offsetY *= scaleXYZ[1];
-        offsetZ *= scaleXYZ[2];
+        // Convert the pixel offset to meters, matching the shader's height conversion for both alignments.
+        offsetZ *= rayCaster.tileScale / (scaleZ * buffer.renderScale);
 
         if (type === 'Rect') {
             const size = <number[]>buffer.getUniform('u_size');
@@ -150,14 +151,10 @@ export class PointBuffer extends TemplateBuffer {
         } else {
             intersectionPoint = [0, 0, 0];
             screenMatrix = rayCaster.sMat;
-            renderScale = buffer.renderScale / scale;
+            renderScale = rayCaster.tileScale;
             rayOrigin = rayCaster.sOrigin;
             rayDirection = rayCaster.sDirection;
         }
-        // tileScale combines renderScale (screen-space scaling) and extentScale (tile coordinate normalization).
-        // renderScale only affects screen-space rendering (u_alignMap == false).
-        // In world-space mode, geometry uses map units directly, so renderScale is not applied.
-        const tileScale = renderScale / extentScale;
         const referenceW = buffer.referenceW;
 
         const stride = 6 * size;
@@ -165,10 +162,10 @@ export class PointBuffer extends TemplateBuffer {
         const hmTransform = buffer.getHeightMapTransform() || [0, 0, 1];
 
         for (let i = 0, y = 0; i < position.length; i += stride, y += 6) {
-            const tileLocalX = (position[i] >> 2) * tileScale;
-            const tileLocalY = (position[i + 1] >> 2) * tileScale;
-            const x0 = tileX + tileLocalX;
-            const y0 = tileY + tileLocalY;
+            const tileLocalX = (position[i] >> 2) / extentScale;
+            const tileLocalY = (position[i + 1] >> 2) / extentScale;
+            const x0 = tileX + tileLocalX * renderScale;
+            const y0 = tileY + tileLocalY * renderScale;
             // convert normalized int16 to float meters (-500m ... +9000m)
             // z0 = (z0 - 32267.0) * 0.14496292001098665;
             const z0 = (heightMap
@@ -190,12 +187,12 @@ export class PointBuffer extends TemplateBuffer {
             }
 
             if (alignMap) {
-                // position world feature center
+                // Position tile-local feature center. only the sizing anchor is transformed to world.
                 t0[0] = t1[0] = x0 + offsetX;
                 t0[1] = t1[1] = y0 + offsetY;
                 t0[2] = t1[2] = z0 + offsetZ;
 
-                const scaleDZ = rayCaster.getAltitudeScale(t0[0], t0[1], t0[2], scaleByAltitude, referenceW);
+                const scaleDZ = rayCaster.getLocalAltitudeScale(t0[0], t0[1], t0[2], scaleByAltitude, referenceW);
                 const w = width * scaleDZ;
                 const h = height * scaleDZ;
 

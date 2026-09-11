@@ -1,5 +1,5 @@
 /*
- * Copyright (C) 2019-2022 HERE Europe B.V.
+ * Copyright (C) 2019-2026 HERE Europe B.V.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -85,7 +85,7 @@ export class BoxBuffer extends PointBuffer {
                 : (size === 2 ? 0 : decodeUint16z(position[i + 2]))
             ) * rayCaster.exaggeration + offsetZ;
 
-            const scaleDZ = rayCaster.getAltitudeScale(x, y, z, scaleByAltitude, referenceW);
+            const scaleDZ = rayCaster.getLocalAltitudeScale(x, y, z, scaleByAltitude, referenceW);
 
             // Offsets (point[i]) represent the full box size -> offset only half the size from center to edge
             const halfScaledDZ = scaleDZ * 0.5;

@@ -1,5 +1,5 @@
 /*
- * Copyright (C) 2019-2024 HERE Europe B.V.
+ * Copyright (C) 2019-2026 HERE Europe B.V.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -119,7 +119,8 @@ export type ProgramInitOptions = {
  * surface without preventing terrain geometry at significantly different
  * depths from occluding them.
  */
-const TERRAIN_SURFACE_DEPTH_BIAS = -(1 << 11);
+// const TERRAIN_SURFACE_DEPTH_BIAS = -(1 << 11);
+const TERRAIN_SURFACE_DEPTH_BIAS = -(1<<2);
 
 class Program {
     protected vertexShaderSrc: string;

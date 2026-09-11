@@ -1,5 +1,5 @@
 /*
- * Copyright (C) 2019-2020 HERE Europe B.V.
+ * Copyright (C) 2019-2026 HERE Europe B.V.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -20,7 +20,7 @@
 import {add, cross, dot, normalize, scale, subtract, transformMat4} from 'gl-matrix/vec3';
 import {GeometryBuffer} from './buffer/GeometryBuffer';
 import {RenderTile, RenderTileTarget} from './RenderTile';
-import {invert} from 'gl-matrix/mat4';
+import {invert, multiply} from 'gl-matrix/mat4';
 import {TerrainOcclusionMode} from './buffer/TerrainRenderPolicy';
 
 export type Vec3 = [number, number, number];
@@ -157,6 +157,15 @@ class Raycaster {
 
     scaleZ: number;
 
+    // Spatial tile scale, independent of the renderer's symbol-size calibration.
+    tileScale: number = 1;
+
+    // RenderTile scales/translates XY only. Snapshot reusable matrices; identity outside intersections.
+    private anchorScaleX: number = 1;
+    private anchorScaleY: number = 1;
+    private anchorTranslateX: number = 0;
+    private anchorTranslateY: number = 0;
+
     // Terrain vertical exaggeration factor. Used for visual terrain scaling — ray intersection operates in
     // exaggerated space, but the reported pointWorld is de-exaggerated back to real height.
     exaggeration: number = 1;
@@ -182,6 +191,25 @@ class Raycaster {
         return invScaleFactor;
     }
 
+    // Convert only the sizing anchor. Z is already exaggerated world meters.
+    getLocalAltitudeScale(
+        x: number,
+        y: number,
+        z: number,
+        scaleByAltitude: boolean,
+        referenceW: number
+    ): number {
+        if (scaleByAltitude) return 1;
+        return this.getAltitudeScale(
+            x * this.anchorScaleX + this.anchorTranslateX,
+            y * this.anchorScaleY + this.anchorTranslateY,
+            z,
+            false,
+            referenceW
+        );
+    }
+
+    // Calculate perspective sizing from a world-coordinate anchor, independent of the active ray.
     getAltitudeScale(
         x: number,
         y: number,
@@ -451,6 +479,22 @@ class Raycaster {
         return dot(delta, direction);
     }
 
+    private intersectBuffer(buffer: GeometryBuffer, result: {z: number}, tileX: number, tileY: number, anchorToWorld: Float32Array): string | number {
+        const {anchorScaleX, anchorScaleY, anchorTranslateX, anchorTranslateY} = this;
+        this.anchorScaleX = anchorToWorld[0];
+        this.anchorScaleY = anchorToWorld[5];
+        this.anchorTranslateX = anchorToWorld[12];
+        this.anchorTranslateY = anchorToWorld[13];
+        try {
+            return buffer.rayIntersects(buffer, result, tileX, tileY, this);
+        } finally {
+            this.anchorScaleX = anchorScaleX;
+            this.anchorScaleY = anchorScaleY;
+            this.anchorTranslateX = anchorTranslateX;
+            this.anchorTranslateY = anchorTranslateY;
+        }
+    }
+
     prepareTerrainHit(renderTile: RenderTile) {
         const buffer = renderTile.buffer;
         const worldOrigin = this.origin;
@@ -465,7 +509,7 @@ class Raycaster {
 
         let featureId: string | number;
         try {
-            featureId = buffer.rayIntersects(buffer, result, 0, 0, this);
+            featureId = this.intersectBuffer(buffer, result, 0, 0, renderTile.getModelMatrix());
         } finally {
             this.origin = worldOrigin;
             this.direction = worldDirection;
@@ -521,9 +565,16 @@ class Raycaster {
                 featureId = hit.id;
             }
         } else {
-            if (buffer.getRenderSpace() === 'world' && !isOffscreenBuffer) {
-                const localMatrix = renderTile.getModelMatrix();
-                localRay = this.transformRayToLocal(localMatrix);
+            const tileMatrix = renderTile.getModelMatrix();
+            const savedTileScale = this.tileScale;
+            const renderSpace = buffer.getRenderSpace();
+            if (renderSpace === 'screen' && !isOffscreenBuffer) {
+                // Preview offsets are included in the model matrix, but not in data.tile.x/y.
+                tileX = tileMatrix[12];
+                tileY = tileMatrix[13];
+            }
+            if (renderSpace === 'world' && !isOffscreenBuffer) {
+                localRay = this.transformRayToLocal(tileMatrix);
                 this.origin = localRay.origin;
                 this.direction = localRay.direction;
                 tileX = 0;
@@ -531,7 +582,12 @@ class Raycaster {
             }
 
             if (isOffscreenBuffer) {
-                featureId = this.intersectWithLocalOrthoRay(buffer, renderTile);
+                this.tileScale = tileMatrix[0];
+                try {
+                    featureId = this.intersectWithLocalOrthoRay(buffer, renderTile);
+                } finally {
+                    this.tileScale = savedTileScale;
+                }
 
                 if (featureId != null) {
                     // offscreen features lie on the terrain surface, accept them unless a closer
@@ -546,7 +602,14 @@ class Raycaster {
             } else {
                 const prevZ = result.z;
                 const canPickOverTerrain = this.canPickOverTerrain(buffer);
-                featureId = buffer.rayIntersects(buffer, result, tileX, tileY, this);
+                this.tileScale = tileMatrix[0];
+                try {
+                    featureId = this.intersectBuffer(buffer, result, tileX, tileY, tileMatrix);
+                } finally {
+                    this.origin = orgOrigin;
+                    this.direction = orgDirection;
+                    this.tileScale = savedTileScale;
+                }
                 if (featureId != null && localRay && result.z !== prevZ) {
                     // convert result.z from local to world-space so hits across tiles with
                     // different model-matrix scales (LOD) are comparable.
@@ -573,10 +636,6 @@ class Raycaster {
             result.id = featureId;
         }
 
-        // restore the original origin and direction if local model matrix transformations have been applied
-        this.origin = orgOrigin;
-        this.direction = orgDirection;
-
         return featureId;
     }
 
@@ -584,6 +643,7 @@ class Raycaster {
     private _tmpRayOrthoDir = new Float32Array([0, 0, -1]);
     // separate result object for ortho ray tests to avoid wiping the main result's z
     private _orthoResult: { z: number } = {z: Infinity};
+    private _orthoAnchorMatrix = new Float32Array(16);
 
     private intersectWithLocalOrthoRay(buffer: GeometryBuffer, renderTile: RenderTile): string | number | null {
         const hit = this.terrainHit;
@@ -613,19 +673,20 @@ class Raycaster {
         const savedSOrigin = this.sOrigin;
         const savedSDir = this.sDirection;
 
+        this._orthoResult.z = Infinity;
+        // The offscreen model matrix maps data vertices to terrain-tile coordinates, not world.
+        // Flat offscreen anchors retain Z = 0 and referenceW = 0, hence unit altitude scaling.
+        multiply(this._orthoAnchorMatrix, hit.tileMatrix, renderTile.getModelMatrix());
         this.origin = this.sOrigin = _tmpRayOrthoOrigin;
         this.direction = this.sDirection = _tmpRayOrthoDir;
-
-        this._orthoResult.z = Infinity;
-        const id = buffer.rayIntersects(buffer, this._orthoResult, 0, 0, this);
-
-        // restore original ray(s)
-        this.origin = savedOrigin;
-        this.direction = savedDir;
-        this.sOrigin = savedSOrigin;
-        this.sDirection = savedSDir;
-
-        return id;
+        try {
+            return this.intersectBuffer(buffer, this._orthoResult, 0, 0, this._orthoAnchorMatrix);
+        } finally {
+            this.origin = savedOrigin;
+            this.direction = savedDir;
+            this.sOrigin = savedSOrigin;
+            this.sDirection = savedSDir;
+        }
     }
 
     hasTerrainHitForTile(tileX: number, tileY: number) {

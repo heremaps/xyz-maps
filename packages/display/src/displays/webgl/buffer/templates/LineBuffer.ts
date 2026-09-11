@@ -1,5 +1,5 @@
 /*
- * Copyright (C) 2019-2022 HERE Europe B.V.
+ * Copyright (C) 2019-2026 HERE Europe B.V.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -136,7 +136,7 @@ export class LineBuffer extends TemplateBuffer {
 
             const tileX0 = tileX + x0 - ox0 * lineOffset;
             const tileY0 = tileY + y0 - oy0 * lineOffset;
-            const scaleDZ = rayCaster.getAltitudeScale(tileX0, tileY0, z0, scaleByAltitude, referenceW);
+            const scaleDZ = rayCaster.getLocalAltitudeScale(tileX0, tileY0, z0, scaleByAltitude, referenceW);
             t0[0] = tileX0 + nx0 * strokeWidth * scaleDZ;
             t0[1] = tileY0 + ny0 * strokeWidth * scaleDZ;
             t0[2] = z0;
