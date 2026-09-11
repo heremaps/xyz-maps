@@ -541,13 +541,10 @@ class Raycaster {
     }
 
     intersect(
-        tileX: number,
-        tileY: number,
-        buffer: GeometryBuffer,
         renderTile: RenderTile,
         ignoreTerrainOcclusion: boolean = false
-        // localMatrix?: Float32Array
     ): string | number | null {
+        const buffer = renderTile.buffer;
         const result = this.result;
         const orgOrigin = this.origin;
         const orgDirection = this.direction;
@@ -568,8 +565,11 @@ class Raycaster {
             const tileMatrix = renderTile.getModelMatrix();
             const savedTileScale = this.tileScale;
             const renderSpace = buffer.getRenderSpace();
+            let tileX = 0;
+            let tileY = 0;
             if (renderSpace === 'screen' && !isOffscreenBuffer) {
-                // Preview offsets are included in the model matrix, but not in data.tile.x/y.
+                // Tile-to-world translation includes preview offsets.
+                // sMat handles world-to-screen projection.
                 tileX = tileMatrix[12];
                 tileY = tileMatrix[13];
             }
@@ -577,8 +577,6 @@ class Raycaster {
                 localRay = this.transformRayToLocal(tileMatrix);
                 this.origin = localRay.origin;
                 this.direction = localRay.direction;
-                tileX = 0;
-                tileY = 0;
             }
 
             if (isOffscreenBuffer) {

@@ -826,7 +826,7 @@ class WebGlDisplay extends BasicDisplay {
 
         for (let i = tileBuffers.length - 1; i >= 0; i--) {
             const renderTile = tileBuffers[i];
-            const {buffer, data} = renderTile;
+            const {data} = renderTile;
             if (!tileBuffers[i].tiled || !tileBuffers[i].buffer.pointerEvents) continue;
             // // only consider the main terrain mesh tiles (not offscreen / on-terrain-surface tiles)
             // if (renderTile.renderTarget === RenderTileTarget.OffscreenTerrain) continue;
@@ -842,7 +842,7 @@ class WebGlDisplay extends BasicDisplay {
 
             if (!this.intersectTileAABB(renderTile)) continue;
 
-            this.rayCaster.intersect(currentScreenTile.x, currentScreenTile.y, buffer, renderTile);
+            this.rayCaster.intersect(renderTile);
         }
 
         const result = this.rayCaster.getIntersectionTop();
@@ -1222,7 +1222,7 @@ class WebGlDisplay extends BasicDisplay {
                 continue;
             }
 
-            const id = this.rayCaster.intersect(tileX, tileY, buffer, renderTile, isOnTopOf3d);
+            const id = this.rayCaster.intersect(renderTile, isOnTopOf3d);
 
             if (id != null) {
                 intersectLayer = layer;
