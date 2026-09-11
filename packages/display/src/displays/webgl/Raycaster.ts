@@ -356,8 +356,6 @@ class Raycaster {
         this.terrainHit.tileX = NaN;
         this.terrainHit.tileY = NaN;
         this.terrainHit.terrainTileQuadkey = null;
-        this._bestTerrainWorldT = Infinity;
-        this._terrainResultZ = Infinity;
         this.pickResultSource = 'none';
     }
 
@@ -396,7 +394,8 @@ class Raycaster {
         // are not picked merely because their buffer uses terrain occlusion.
         return this.terrainOcclusionSupported &&
             buffer.terrainOcclusion === TerrainOcclusionMode.TERRAIN &&
-            this.pickResultSource === 'terrain';
+            (this.pickResultSource === 'terrain' ||
+                (this.pickResultSource === 'none' && this.terrainHit.pointWorld != null));
     }
 
     // used to transform ray from world space to local space
@@ -440,19 +439,6 @@ class Raycaster {
 
     private _tmpDelta: Vec3 = [0, 0, 0];
 
-    /**
-     * tracks the best (closest) terrain hit in world-space across all terrain tiles.
-     * Used by intersectTerrain to compare LOD tiles with different scales correctly,
-     * while still writing the local t-value into result.z for getIntersectionTop().
-     */
-    private _bestTerrainWorldT: number = Infinity;
-
-    /**
-     * the local t-value written to result.z by the winning terrain hit.
-     * Used by the offscreen branch to check if a closer 3D hit has replaced it.
-     */
-    private _terrainResultZ: number = Infinity;
-
     // tracks the source of the currently selected result so terrain only
     // yields to an already selected screen-depth overlay.
     private pickResultSource: PickResultSource = 'none';
@@ -465,33 +451,34 @@ class Raycaster {
         return dot(delta, direction);
     }
 
-    private intersectTerrain(
-        tileX: number,
-        tileY: number,
-        renderTile: RenderTile,
-        worldOrigin: Vec3 | Float32Array,
-        worldDirection: Vec3 | Float32Array
-    ): string | number | null {
-        const result = this.result;
+    prepareTerrainHit(renderTile: RenderTile) {
         const buffer = renderTile.buffer;
-
+        const worldOrigin = this.origin;
+        const worldDirection = this.direction;
+        const localRay = this.transformRayToLocal(renderTile.getModelMatrix());
+        this.origin = localRay.origin;
+        this.direction = localRay.direction;
         // isolate terrain DDA from shared result.z so each LOD tile finds its own closest hit.
         // Without this, a previous terrain tile with a different scale could block hits
         // (local t-values are not comparable across tiles with different model-matrix scales).
-        const savedResultZ = result.z;
-        result.z = Infinity;
+        const result = {z: Infinity};
 
-        const featureId = buffer.rayIntersects(buffer, result, tileX, tileY, this);
+        let featureId: string | number;
+        try {
+            featureId = buffer.rayIntersects(buffer, result, 0, 0, this);
+        } finally {
+            this.origin = worldOrigin;
+            this.direction = worldDirection;
+        }
 
         if (featureId == null) {
-            result.z = savedResultZ;
             return null;
         }
 
         const localT = result.z;
 
         // compute world hit point for correct cross-tile comparison
-        const localHitPoint = Raycaster.getPointAtRayLength(localT, this.origin, this.direction);
+        const localHitPoint = Raycaster.getPointAtRayLength(localT, localRay.origin, localRay.direction);
         const worldHitPoint = transformMat4(localHitPoint, localHitPoint, renderTile.getModelMatrix());
         const worldT = this.worldRayLength(worldHitPoint, worldOrigin, worldDirection);
 
@@ -499,35 +486,22 @@ class Raycaster {
         if (worldT < this.terrainHit.z) {
             this.terrainHit.z = worldT;
             this.terrainHit.pointWorld = worldHitPoint as Vec3;
-            this.terrainHit.tileX = tileX;
-            this.terrainHit.tileY = tileY;
+            this.terrainHit.tileX = renderTile.data.tile.x;
+            this.terrainHit.tileY = renderTile.data.tile.y;
             this.terrainHit.tileInvMatrix = renderTile.getInverseModelMatrix().slice();
             this.terrainHit.tileMatrix = renderTile.getModelMatrix().slice();
             this.terrainHit.terrainTileQuadkey = renderTile.data.terrainTileQuadkey || renderTile.data.tile.quadkey;
         }
 
-        // for feature picking: write local t-value into result.z so getIntersectionTop()
-        // can reconstruct pointWorld via localMatrix. Compare using worldT to handle LOD correctly.
-        if (worldT < this._bestTerrainWorldT) {
-            this._bestTerrainWorldT = worldT;
-            // only update result.z if terrain is actually closer than existing hits.
-            if (worldT < savedResultZ && this.pickResultSource !== 'terrain-overlay') {
-                result.z = worldT;
-                this._terrainResultZ = worldT;
-                this.pickResultSource = 'terrain';
-                return featureId;
-            }
-        }
-
-        result.z = savedResultZ;
-        return null;
+        return {id: featureId, z: worldT};
     }
 
     intersect(
         tileX: number,
         tileY: number,
         buffer: GeometryBuffer,
-        renderTile: RenderTile
+        renderTile: RenderTile,
+        ignoreTerrainOcclusion: boolean = false
         // localMatrix?: Float32Array
     ): string | number | null {
         const result = this.result;
@@ -536,19 +510,16 @@ class Raycaster {
         const isOffscreenBuffer = renderTile.renderTarget === RenderTileTarget.OffscreenTerrain;
         const isTerrainBuffer = buffer.type === 'Terrain';
         let localRay: LocalRay | null = null;
-        let featureId: string | number | null;
+        let featureId: string | number | null = null;
 
         if (isTerrainBuffer) {
-            // transform the world-space ray into the terrain tile's local coordinate space.
-            // This is essential for preview terrain: the RenderTile model matrix includes
-            // preview offset + scale (e.g. scale=2 for zoom-in preview from parent).
-            // without this, tileX/tileY from the screen tile don't match the mesh's vertex space.
-            const localMatrix = renderTile.getModelMatrix();
-            const terrainLocalRay = this.transformRayToLocal(localMatrix);
-            this.origin = terrainLocalRay.origin;
-            this.direction = terrainLocalRay.direction;
-
-            featureId = this.intersectTerrain(0, 0, renderTile, orgOrigin, orgDirection);
+            const hit = this.prepareTerrainHit(renderTile);
+            if (hit && hit.z <= this.terrainHit.z && hit.z < result.z &&
+                this.pickResultSource !== 'terrain-overlay') {
+                result.z = hit.z;
+                this.pickResultSource = 'terrain';
+                featureId = hit.id;
+            }
         } else {
             if (buffer.getRenderSpace() === 'world' && !isOffscreenBuffer) {
                 const localMatrix = renderTile.getModelMatrix();
@@ -564,8 +535,9 @@ class Raycaster {
 
                 if (featureId != null) {
                     // offscreen features lie on the terrain surface, accept them unless a closer
-                    // 3D hit exists, indicated by result.z < terrains localT.
-                    if (result.z >= this._terrainResultZ) {
+                    // 3D hit exists. Support terrain itself need not be selectable.
+                    if (result.z >= this.terrainHit.z) {
+                        result.z = this.terrainHit.z;
                         result.id = featureId;
                     } else {
                         featureId = null;
@@ -573,6 +545,7 @@ class Raycaster {
                 }
             } else {
                 const prevZ = result.z;
+                const canPickOverTerrain = this.canPickOverTerrain(buffer);
                 featureId = buffer.rayIntersects(buffer, result, tileX, tileY, this);
                 if (featureId != null && localRay && result.z !== prevZ) {
                     // convert result.z from local to world-space so hits across tiles with
@@ -582,6 +555,11 @@ class Raycaster {
                     result.z = this.worldRayLength(worldHit, orgOrigin, orgDirection);
 
                     localRay = null;
+                }
+                if (featureId != null && !ignoreTerrainOcclusion && !canPickOverTerrain &&
+                    result.z > this.terrainHit.z) {
+                    result.z = prevZ;
+                    featureId = null;
                 }
             }
         }
@@ -609,6 +587,7 @@ class Raycaster {
 
     private intersectWithLocalOrthoRay(buffer: GeometryBuffer, renderTile: RenderTile): string | number | null {
         const hit = this.terrainHit;
+        if (!hit.pointWorld) return null;
         const {_tmpRayOrthoOrigin, _tmpRayOrthoDir} = this;
         // skip data tiles that do not belong to the hit terrain tile. same-level tiles share
         // local coordinates and could otherwise select features from an adjacent tile.

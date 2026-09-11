@@ -1173,6 +1173,21 @@ class WebGlDisplay extends BasicDisplay {
         const {tileBuffers, min3dZIndex} = this._zSortedTileBuffers;
         let i = tileBuffers.length;
 
+        const terrainTileLayer: TileLayer = this.layers.getTerrainLayer()?.layer as TileLayer;
+        if (terrainTileLayer && (layers?.indexOf(terrainTileLayer) === -1 || !terrainTileLayer.pointerEvents())) {
+            // If terrain is excluded from picking, prepare its hit so offscreen terrain features
+            // can pass the hasTerrainHitForTile check.
+            while (i--) {
+                const renderTile = tileBuffers[i];
+                if (renderTile.tiled && renderTile.buffer.type === 'Terrain' &&
+                    renderTile.renderTarget !== RenderTileTarget.OffscreenTerrain &&
+                    (!renderTile.buffer.needsAlphaDepthPass() || renderTile.pass === PASS.ALPHA_COLOR) &&
+                    this.intersectTileAABB(renderTile)) {
+                    this.rayCaster.prepareTerrainHit(renderTile);
+                }
+            }
+        }
+        i = tileBuffers.length;
 
         while (i--) {
             if (!tileBuffers[i].tiled || !tileBuffers[i].buffer.pointerEvents) continue; // skip custom layers
@@ -1207,7 +1222,7 @@ class WebGlDisplay extends BasicDisplay {
                 continue;
             }
 
-            const id = this.rayCaster.intersect(tileX, tileY, buffer, renderTile);
+            const id = this.rayCaster.intersect(tileX, tileY, buffer, renderTile, isOnTopOf3d);
 
             if (id != null) {
                 intersectLayer = layer;
