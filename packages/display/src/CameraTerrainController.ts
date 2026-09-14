@@ -25,8 +25,8 @@ export class CameraTerrainController {
     // Guard against recursive calls (ensureAboveTerrain → setAltitude → updateGrid → ensureAboveTerrain)
     private _guard: boolean = false;
 
-    // Best available terrain height at the camera position, or a conservative
-    // regional upper bound used to calculate the maximum safe zoom.
+    // Terrain height sampled below the camera (possibly from a coarser parent heightmap), used to calculate the
+    // maximum safe zoom. Null while only a fallback reference exists, so it never restricts the zoom range.
     // Updated by ensureAboveTerrain() and read by getMaxZoom().
     private _cachedTerrainHeightForZoom: number | null = null;
 
@@ -40,8 +40,9 @@ export class CameraTerrainController {
     /**
      * Returns the terrain height at a given geographic coordinate.
      * Uses the persistent heightmap cache — works even when the tile is not rendered (frustum-independent).
+     * Falls back to the regional maximum at the map center if no heightmap covers the requested position.
      *
-     *  @internal
+     * @internal
      * @hidden
      */
     private getTerrainHeightAtGeo(lon: number, lat: number): number | null {
@@ -49,8 +50,15 @@ export class CameraTerrainController {
         // measureStart('getTerrainPointHeight');
         const height = display.getTerrainPointHeight(lon, lat);
         // measureEnd('getTerrainPointHeight');
-        this._cachedTerrainHeightForZoom = height ?? display.getTerrainRegionMaxHeight(lon, lat);
-        return height;
+        this._cachedTerrainHeightForZoom = height;
+
+        if (height != null) return height;
+        // No heightmap covers the camera position, which happens on a pitched start before the tile below the camera
+        // is loaded. Use the regional maximum at the map center as a conservative reference until a location-specific
+        // height becomes available.
+        const center = this.map.getCenter();
+        const centerRegionHeight = display.getTerrainRegionMaxHeight(center.longitude, center.latitude);
+        return Number.isFinite(centerRegionHeight) ? centerRegionHeight : null;
     }
 
     /**
@@ -90,7 +98,8 @@ export class CameraTerrainController {
         const cam = map.getCamera().position;
         const terrainAlt = this.getTerrainHeightAtGeo(cam.longitude, cam.latitude);
 
-        // ElevationTree.max is used only by getMaxZoom(); reactive correction requires an exact or parent-heightmap point sample.
+        // Fallback terrain references may temporarily place the camera higher than
+        // necessary until the exact point becomes available.
         if (terrainAlt == null || !Number.isFinite(terrainAlt)) return;
 
         const minCamAlt = terrainAlt + this.minCamTerrainDistance;
