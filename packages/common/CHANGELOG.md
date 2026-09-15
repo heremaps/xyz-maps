@@ -1,3 +1,52 @@
+## 0.46.0 (2026-9-15)
+### core
+* added: introduce [colorSource](https://heremaps.github.io/xyz-maps/docs/interfaces/core.terraintilelayeroptions.html#colorsource) for flexible terrain surface coloring with material, solid-color, or layer-based sources.
+* added: decouple imagery from TerrainTileLayer into separate TileLayer to enable imagery to be configured as independent TileLayer(s) with ImageProvider instead of via TerrainTileLayer.imagery. Enables independent zoom levels, multiple imagery sources, and simpler layer management (e.g. toggling terrain without affecting imagery).
+* added: add [maxDataZoom](https://heremaps.github.io/xyz-maps/docs/interfaces/core.tilelayeroptions.html#maxdatazoom) to TileLayer to specify the maximum zoom level at which tile data is available. When the map is zoomed beyond this level, the layer loads tiles at maxDataZoom and scales them up, reducing unnecessary tile requests and memory usage for limited-range data sources.
+* added: add [LayerStyle.altitude](https://heremaps.github.io/xyz-maps/docs/interfaces/core.layerstyle.html#altitude) for layer-wide terrain, absolute-height, and ground-plane style rendering
+* fixed: avoid sending removed provider parameters in non-tile requests
+### editor
+* added: allow map pitching and rotation while Drawingboard is active
+* added: introduce seamless terrain-aware editing across all supported geometries and EditFeature types, automatically deriving and applying terrain-conforming feature geometry updates as needed.
+* added: enable 3D editing for Markers, Places and Addresses when altitude is explicitly set to absolute in style
+* added: enable editing of 3D polygons with altitude support on a single elevation plane
+* added: drag behavior for NavLink/Line shapes is now auto-derived from styling and enabled 2D/3D/terrain capabilities when not explicitly defined
+* added: configure precision for modified feature coordinates via the [coordinatePrecision](https://heremaps.github.io/xyz-maps/docs/interfaces/editor.editoroptions.html#coordinatePrecision) option
+* added: make automatic routing point resolution configurable through the global [Address](https://heremaps.github.io/xyz-maps/docs/interfaces/editor.editoroptions.html#address) and [Place](https://heremaps.github.io/xyz-maps/docs/interfaces/editor.editoroptions.html#place) options, with per-feature overrides through the [Address](https://heremaps.github.io/xyz-maps/docs/classes/editor.address.html#behavior) and [Place](https://heremaps.github.io/xyz-maps/docs/classes/editor.place.html#behavior) behaviors
+* added: support coordinate-level edit restrictions for complex geometries
+* fixed: guard against duplicate points during terrain drawing
+### display
+* improved: add antialiasing for 3D lines
+* improved: enhance line antialiasing across all views, especially for near-camera roads in steeply pitched maps
+* improved: extend line label placement across consecutive short straight segments
+* improved: collision detection now respects bounding-box for viewport and map-aligned styles at high map pitch
+* improved: attach explicit pass to RenderItem and linearize pass handling
+* improved: centralize render state handling in render passes
+* improved: centralize render state overrides and simplify pass state restoration
+* improved: reuse tile stencil allocations and reduce clears
+* added: enable pitch and rotate gestures via primary-button drag with configurable modifier keys [pitchAndRotateModifiers](https://heremaps.github.io/xyz-maps/docs/interfaces/display.mapoptions.html#behavior)
+* added: VerticalLine styles now support terrain as base with feature coordinate altitude or offsetZ
+* added: update terrain [specular](https://heremaps.github.io/xyz-maps/docs/interfaces/core.material.html#specular) and [shininess](https://heremaps.github.io/xyz-maps/docs/interfaces/core.material.html#shininess) values at runtime without rebuilding terrain buffers. Changes take effect on the next repaint.
+* added: extend automatic terrain clamping to all supported feature geometries and style types, including lines and polygons, via [style.altitude: 'terrain'](https://heremaps.github.io/xyz-maps/docs/interfaces/core.linestyle.html#altitude)
+* added: introduce a terrain-centered camera pivot for natural pitch behavior, preserving the full zoom range for close inspection of elevated terrain without altitude-dependent zoom limits
+* added: support rendering polygons at fixed style-defined altitude
+* added: apply terrain exaggeration to all feature altitudes in rendering, allowing users to receive real (non-exaggerated) elevation values in API responses and events while terrain is rendered with vertical exaggeration
+* added: add 2D DDA ray traversal for ray picking, massively improving ray–terrain intersection performance
+* added: enable pointer events and ray-casting for preview terrain tiles
+* added: add (https://heremaps.github.io/xyz-maps/docs/classes/core.terraintilelayerstyle.html#colorSource)[colorSource] to control terrain surface coloring
+* added: introduced GraphicsDevice render backend to reduce redundant WebGL calls and improve rendering performance and stability
+* fixed: prevent camera from starting below terrain on pitched map initialization
+* fixed: ensure pixel-sized 3D geometry [scaleByAltitude=false](https://heremaps.github.io/xyz-maps/docs/interfaces/core.spherestyle.html#scalebyaltitude) remains visually consistent at absolute altitudes and on terrain regardless of map pitch and zoom level
+* fixed: ensure pixel-sized 3D geometry (scaleByAltitude:false) remains visually consistent at absolute altitudes and on terrain regardless of map pitch and zoom level
+* fixed: Rect, Circle and Icon styles with altitude 'terrain' are now reliably clickable where they are drawn, even when surrounding terrain is higher than the feature anchor
+* fixed: correct meter-sized Line, Circle and Rect picking on terrain and in absolute 3D positions
+* fixed: suppress pointerup after map gestures to prevent editor feature selection changes
+* fixed: realign the map to sea level after removing terrainLayer
+* fixed: Fixed a rare issue that could temporarily distort satellite imagery when zooming with terrain enabled.
+* fixed: correct map-aligned text rotation on altitude lines
+* fixed: restore CustomLayer rendering and harden against GL context state changes
+* fixed: eliminate transient artifacts from terrain preview tiles while awaiting real terrain data
+
 ## 0.45.0 (2026-7-14)
 ### editor
 * improved: greatly enhance drag smoothness for huge area geometries by optimizing validation checks
