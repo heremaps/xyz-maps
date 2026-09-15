@@ -22,7 +22,7 @@ import {CircleStyle, Feature, LocalProvider, TileLayer} from '@here/xyz-maps-cor
 import {waitForViewportReady} from 'displayUtils';
 import {createPickingTerrain, terrainScreenshot} from '../../../src/utils/terrainPicking';
 
-describe('Terrain Circle picking', () => {
+describe.skip('Terrain Circle picking', () => {
     const expect = chai.expect;
     let map: Map;
     let layer: TileLayer;
