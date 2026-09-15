@@ -20,9 +20,9 @@
 import {Map} from '@here/xyz-maps-display';
 import {CircleStyle, Feature, LocalProvider, TileLayer} from '@here/xyz-maps-core';
 import {waitForViewportReady} from 'displayUtils';
-import {createPickingTerrain, terrainScreenshot} from '../../../src/utils/terrainPicking';
+import {createPickingTerrain, sampleViewport, terrainScreenshot} from '../../../src/utils/terrainPicking';
 
-describe.skip('Terrain Circle picking', () => {
+describe('Terrain Circle picking', () => {
     const expect = chai.expect;
     let map: Map;
     let layer: TileLayer;
@@ -80,11 +80,9 @@ describe.skip('Terrain Circle picking', () => {
             }]);
             const {redPixels} = await terrainScreenshot(map);
             expect(redPixels).to.equal(0);
-            const container = map.getContainer();
-            for (let y = 10; y < container.clientHeight; y += 20) {
-                for (let x = 10; x < container.clientWidth; x += 20) {
-                    expect(map.getFeatureAt({x, y}, {layers: [layer]})?.feature.id).to.equal(undefined);
-                }
+            const center = map.geoToPixel(0.0038, 0.0031, 750);
+            for (const pixel of sampleViewport(map, [center])) {
+                expect(map.getFeatureAt(pixel, {layers: [layer]})?.feature.id).to.equal(undefined);
             }
         });
     }

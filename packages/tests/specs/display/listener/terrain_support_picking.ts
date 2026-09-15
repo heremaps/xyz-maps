@@ -22,9 +22,11 @@ import {Feature, LocalProvider, TerrainTileLayer, TileLayer} from '@here/xyz-map
 import {waitForViewportReady} from 'displayUtils';
 import {Listener} from 'utils';
 import {click} from 'triggerEvents';
-import {createPickingTerrain, terrainFixtureUrl, terrainScreenshot} from '../../../src/utils/terrainPicking';
+import {
+    createPickingTerrain, sampleViewport, terrainFixtureUrl, terrainScreenshot, waitForTerrainRender
+} from '../../../src/utils/terrainPicking';
 
-describe.skip('Terrain support picking', () => {
+describe('Terrain support picking', () => {
     const expect = chai.expect;
     let map: Map;
     let terrain: TerrainTileLayer;
@@ -67,7 +69,7 @@ describe.skip('Terrain support picking', () => {
     beforeEach(async () => {
         terrain.pointerEvents(false);
         overlay.pointerEvents(true);
-        await terrainScreenshot(map);
+        await waitForTerrainRender();
     });
 
     it('uses a 512x512 Terrarium hill with a flat, seamless 1000 m border', async () => {
@@ -177,10 +179,9 @@ describe.skip('Terrain support picking', () => {
                 type: 'Circle', zIndex: 2, radius: 24, fill: '#ff0000', altitude: true, offsetZ: '-600m'
             }]);
             expect((await terrainScreenshot(map)).redPixels).to.equal(0);
-            for (let y = 10; y < map.getContainer().clientHeight; y += 20) {
-                for (let x = 10; x < map.getContainer().clientWidth; x += 20) {
-                    expect(map.getFeatureAt({x, y}, {layers: [overlay]})?.feature.id).not.to.equal(circle.id);
-                }
+            const center = map.geoToPixel(0.0038, 0.0031, 750);
+            for (const pixel of sampleViewport(map, [center])) {
+                expect(map.getFeatureAt(pixel, {layers: [overlay]})?.feature.id).not.to.equal(circle.id);
             }
         } finally {
             overlay.removeFeature(circle);
@@ -214,10 +215,8 @@ describe.skip('Terrain support picking', () => {
             expect((await terrainScreenshot(map)).redPixels, 'hidden by the hill crest').to.equal(0);
             for (const enabled of [false, true]) {
                 terrain.pointerEvents(enabled);
-                for (let y = 10; y < map.getContainer().clientHeight; y += 20) {
-                    for (let x = 10; x < map.getContainer().clientWidth; x += 20) {
-                        expect(map.getFeatureAt({x, y}, {layers: [overlay]})?.feature.id).not.to.equal(rear.id);
-                    }
+                for (const pixel of sampleViewport(map, [projected])) {
+                    expect(map.getFeatureAt(pixel, {layers: [overlay]})?.feature.id).not.to.equal(rear.id);
                 }
             }
         } finally {
