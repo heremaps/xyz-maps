@@ -5,6 +5,7 @@ on:
         branches:
             - master
             - tests
+            - fix/ci
     pull_request:
         branches:
             - '*'
