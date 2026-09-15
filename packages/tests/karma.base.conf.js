@@ -32,7 +32,7 @@ module.exports = {
     basePath: '../',
 
     client: {
-        clearContext: false,
+        clearContext: true,
         captureConsole: false,
         mocha: {
             // change Karma's debug.html to the mocha web reporter
