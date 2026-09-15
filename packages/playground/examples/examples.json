@@ -181,6 +181,11 @@
     {
       "file": "./editor/drag_terrain.html",
       "docs": "classes/editor.marker.html#behavior"
+    },
+    {
+      "file": "./editor/draw_edit_terrain.html",
+      "title": "Draw & Edit on Terrain",
+      "docs": "classes/editor.editor-1.html#getdrawingboard"
     }
   ],
   "Layers / Providers": [

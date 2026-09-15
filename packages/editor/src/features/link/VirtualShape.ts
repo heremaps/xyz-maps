@@ -17,13 +17,13 @@
  * License-Filename: LICENSE
  */
 
-import {Feature} from '@here/xyz-maps-core';
+import {Feature, FeatureProvider, GeoJSONCoordinate, GeoJSONFeature} from '@here/xyz-maps-core';
 import GeoFence from './GeoFence';
 import {Navlink} from './Navlink';
 import navlinkTools from './NavlinkTools';
 import {EditOperation} from '../../API/EditorOptions';
 import {createShapeLinkProperties, PrivateData} from './NavlinkShape';
-import {getOrSetShapeBehavior} from '../feature/shapeUtils';
+import {AltitudeCapabilities, getOrSetShapeBehavior} from '../feature/shapeUtils';
 
 let UNDEF;
 
@@ -53,7 +53,7 @@ class VirtualLinkShape extends Feature<'Point'> {
 
     properties: VirtualLinkShapeProperties;
 
-    constructor(line, pos, index, linkTools: typeof navlinkTools) {
+    constructor(line: Navlink, pos, index: number, linkTools: typeof navlinkTools, altitudeCapabilities?: AltitudeCapabilities) {
         const EDITOR = line._e();
         const display = EDITOR.display;
         let geoFence;
@@ -136,11 +136,10 @@ class VirtualLinkShape extends Feature<'Point'> {
                 coordinates: pos.slice()
             },
             properties: {
-                'type': 'NAVLINK_VIRTUAL_SHAPE',
-                ...createShapeLinkProperties(line)
+                type: 'NAVLINK_VIRTUAL_SHAPE',
+                ...createShapeLinkProperties(line, altitudeCapabilities, pos)
             }
-        }, EDITOR.objects.overlay.layer.getProvider());
-
+        }, EDITOR.objects.overlay.layer.getProvider() as FeatureProvider);
 
         const shapePnt = this;
 

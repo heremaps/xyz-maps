@@ -25,6 +25,7 @@ import {Line} from './Line';
 import {GeoJSONCoordinate, webMercator} from '@here/xyz-maps-core';
 import FeatureTools from '../feature/FeatureTools';
 import {Feature} from '../feature/Feature';
+import {getAltitudeCapabilities} from '../feature/shapeUtils';
 
 let UNDEF;
 
@@ -132,14 +133,14 @@ const tools = {
         const _editor = line._e();
         const zLayer = _editor.getMaxZLayer(line) - 1;
         const altitude = _editor.getStyleProperty(line, 'altitude');
-
+        const altCapabilities = getAltitudeCapabilities(line);
 
         for (let i = 0; i < path.length; i++) {
             let coordinate = path[i].slice();
             if (typeof altitude == 'number') {
                 coordinate[2] = altitude;
             }
-            shapes[i] = new Shape(line, coordinate, lineStringIndex, i, zLayer, tools);
+            shapes[i] = new Shape(line, coordinate, lineStringIndex, i, zLayer, tools, altCapabilities);
             _editor.objects.overlay.addFeature(shapes[i]);
         }
     },

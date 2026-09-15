@@ -82,16 +82,18 @@ const createSelectorStyle = (use3d?: boolean) => {
             zIndex: 3,
             type: 'VerticalLine',
             stroke: BLACK,
-            altitude: ({properties}) => properties[properties.parentType].altitude
+            altitude: ({properties}) => properties[properties.parentType].altitude,
+            pointerEvents: false
         }, {
             zIndex: 1,
             type: 'Circle',
             radius: 4,
             fill: BLACK,
             opacity: .6,
-            zLayer: ({properties}) => properties[properties.parentType].zLayer,
+            // zLayer: ({properties}) => properties[properties.parentType].zLayer,
             // if no terrain is used renderer will place at altitude 0 automatically
-            altitude: 'terrain'
+            altitude: 'terrain',
+            pointerEvents: false
         });
     }
 

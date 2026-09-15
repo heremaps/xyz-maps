@@ -22,7 +22,7 @@ import {Line} from './Line';
 import LineTools, {Coordinate} from './LineTools';
 import {dragFeatureCoordinate} from '../oTools';
 import {vec3} from '@here/xyz-maps-common';
-import {getAltitudeCapabilities, getOrSetShapeBehavior} from '../feature/shapeUtils';
+import {AltitudeCapabilities, getAltitudeCapabilities, getOrSetShapeBehavior} from '../feature/shapeUtils';
 
 
 let lineTools: typeof LineTools;
@@ -94,7 +94,15 @@ class LineShape extends Feature {
 
     // getProvider: () => any;
 
-    constructor(line: Line, coordinate: number[], lineStringIndex: number, index: number, zLayer: number, lTools: typeof LineTools) {
+    constructor(
+        line: Line,
+        coordinate: number[],
+        lineStringIndex: number,
+        index: number,
+        zLayer: number,
+        lTools: typeof LineTools,
+        altCapabilities?: AltitudeCapabilities
+    ) {
         lineTools = lTools;
 
         super({
@@ -106,7 +114,7 @@ class LineShape extends Feature {
                     properties: line.prop(),
                     style: line._e().getResolvedStyle(line),
                     zLayer,
-                    ...getAltitudeCapabilities(line)
+                    ...(altCapabilities ?? getAltitudeCapabilities(line))
                 }
             },
             geometry: {

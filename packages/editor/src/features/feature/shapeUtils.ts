@@ -17,7 +17,7 @@
  * License-Filename: LICENSE
  */
 import {Feature as EditorFeature} from './Feature';
-import {Feature} from '@here/xyz-maps-core';
+import {Feature, Style, StyleGroup} from '@here/xyz-maps-core';
 
 type Shape = Feature & {
     __?: {
@@ -64,14 +64,48 @@ export function getOrSetShapeBehavior(shape: EditorFeature | Shape, args: IArgum
     shape.__.b = behavior;
 }
 
-export function getAltitudeCapabilities(feature: EditorFeature) {
+export type AltitudeCapabilities = {
+    usesTerrainAltitude: boolean,
+    usesAltitude: boolean,
+    usesAbsoluteAltitude: boolean
+};
+
+export function getAltitudeCapabilities(feature: EditorFeature, relativePosition: number = -1): AltitudeCapabilities {
     const editor = feature._e();
-    const style = editor.getResolvedStyle(feature);
-    const usesTerrainAltitude = editor.displayProvidesTerrain &&
-        style.some((s) => s.type === 'Line' && s.altitude === 'terrain');
-    // treat boolean true and positive numeric altitude values as 3D */
-    const usesAltitude = usesTerrainAltitude || style.some((s) => s.altitude > 0);
-    return {usesTerrainAltitude, usesAltitude};
+    let usesAbsoluteAltitude = false;
+    let usesTerrainAltitude = false;
+
+    if (editor.displayProvidesTerrain) {
+        const styleGroup = editor.getResolvedStyle(feature);
+        const isPointFeature = feature.geometry.type === 'Point';
+        for (let style of styleGroup) {
+            if (!isPointFeature && style.type !== 'Line' && style.type !== 'Polygon') continue;
+            if (relativePosition !== -1 && !(relativePosition >= style.from && relativePosition<= style.to ) ) continue;
+
+            const altitude = style.altitude;
+            usesTerrainAltitude ||= altitude === 'terrain';
+            usesAbsoluteAltitude ||= altitude === true || Number.isFinite(altitude) && altitude > 0;
+        }
+    }
+
+    return {
+        usesAbsoluteAltitude,
+        usesTerrainAltitude,
+        usesAltitude: usesAbsoluteAltitude || usesTerrainAltitude
+    };
+
+    // const usesTerrainAltitude = editor.displayProvidesTerrain &&
+    //     style.some((s) => matchesGeometry(s) && s.altitude === 'terrain');
+    // // treat boolean true and positive numeric altitude values as 3D */
+    // // const usesAltitude = usesTerrainAltitude || style.some((s) => s.altitude > 0);
+    //
+    //
+    // const usesAbsoluteAltitude = editor.displayProvidesTerrain &&
+    //     style.some((s) => matchesGeometry(s) && s.altitude > 0);
+    //
+    // console.log(feature.class, {usesTerrainAltitude, usesAltitude});
+    //
+    // return {usesTerrainAltitude, usesAltitude};
 }
 
 export const isAltitudeEditEnabled = (shape: Shape, parentFeature: EditorFeature) => {

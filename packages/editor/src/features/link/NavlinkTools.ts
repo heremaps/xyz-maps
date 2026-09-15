@@ -29,6 +29,7 @@ import {EditStates} from '../feature/Feature';
 import FeatureTools from '../feature/FeatureTools';
 import InternalEditor from '../../IEditor';
 import {EditOperation} from '../../API/EditorOptions';
+import {AltitudeCapabilities, getAltitudeCapabilities} from '../feature/shapeUtils';
 
 type LocationId = string | number;
 
@@ -466,9 +467,9 @@ const tools = {
         return allShapes ? overlapping : !!overlapping.pop();
     },
 
-    createLinkShape: function(line: Navlink, coordinate, i) {
+    createLinkShape: function(line: Navlink, coordinate, i: number, altCapabilities?: AltitudeCapabilities) {
         return line._e().objects.overlay.addFeature(
-            new NavlinkShape(line, coordinate, i, tools)
+            new NavlinkShape(line, coordinate, i, tools, altCapabilities)
         );
     },
 
@@ -482,8 +483,10 @@ const tools = {
             const isOverlapping = tools.checkOverlapping(line);
 
             if (!shapePnts.length) {
+                const altCapabilities = getAltitudeCapabilities(line);
+
                 for (let i = 0; i < length; i++) {
-                    const shp = tools.createLinkShape(line, [...path[i]], i);
+                    const shp = tools.createLinkShape(line, [...path[i]], i, altCapabilities);
 
                     updateOverlapping(shp, (<number[]>isOverlapping).indexOf(i) >= 0);
 
@@ -504,6 +507,7 @@ const tools = {
 
         if (!addShapePnts.length && !line.editState('removed') && line._e().isEditAllowed(line, EditOperation.Geometry)) {
             const path = line.geometry.coordinates;
+            const altCapabilities = getAltitudeCapabilities(line);
 
             for (let i = 1, p1, p2; i < path.length; i++) {
                 p1 = path[i - 1];
@@ -511,7 +515,7 @@ const tools = {
 
                 addShapePnts.push(
                     line._e().objects.overlay.addFeature(
-                        new VirtualLinkShape(line, getPntAt(p1, p2, .5), i, tools)
+                        new VirtualLinkShape(line, getPntAt(p1, p2, .5), i, tools, altCapabilities)
                     )
                 );
             }

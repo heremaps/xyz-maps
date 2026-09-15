@@ -33,7 +33,8 @@ import NavlinkTools from './NavlinkTools';
 import {dragFeatureCoordinate} from '../oTools';
 import {EditOperation} from '../../API/EditorOptions';
 import {ConnectionCandidate} from './ConnectionCandidate';
-import {getAltitudeCapabilities, getOrSetShapeBehavior} from '../feature/shapeUtils';
+import {AltitudeCapabilities, getAltitudeCapabilities, getOrSetShapeBehavior} from '../feature/shapeUtils';
+import {getRelPosOfPointOnLine} from '../../map/GeoMath';
 
 
 const EDITOR_NS = '@ns:com:here:editor';
@@ -374,15 +375,20 @@ function mouseInHandler() {
     EDITOR.setStyle(this);
 }
 
-export const createShapeLinkProperties = (line: Navlink) => {
+export const createShapeLinkProperties = (line: Navlink, altCapabilities: AltitudeCapabilities, pos: GeoJSONCoordinate) => {
     const linkStyle = line._e().getResolvedStyle(line);
+    // const shapeAltCapabilities = getAltitudeCapabilities(line,
+    //     getRelPosOfPointOnLine(pos, line.geometry.coordinates as GeoJSONCoordinate[])
+    // );
     return {
         NAVLINK: {
-            'properties': JSUtils.extend(true, {}, line.properties),
-            'style': linkStyle,
-            ...getAltitudeCapabilities(line)
+            properties: JSUtils.extend(true, {}, line.properties),
+            style: linkStyle,
+            ...(altCapabilities ?? getAltitudeCapabilities(line))
         },
         parent: line
+        // altitudeMode: shapeAltCapabilities.usesAbsoluteAltitude ||
+        //     (shapeAltCapabilities.usesTerrainAltitude ? 'terrain' : false)
     };
 };
 
@@ -406,15 +412,16 @@ class NavlinkShape extends Feature {
      */
     __: PrivateData;
 
-    constructor(line: Navlink, pos, i, lnkTools) {
+    constructor(line: Navlink, pos, i: number, lnkTools, altCapabilities: AltitudeCapabilities) {
         linkTools = lnkTools;
 
         // const connectedLinks = EDITOR.objects.tools.getCLinksForShape(line, i);
         const EDITOR = line._e();
         const connectedLinks = line.getConnectedLinks(i, true);
 
+        const lineCoordinates = line.geometry.coordinates;
         // const overlay = EDITOR.objects.overlay;
-        const isNode = (i == 0 || i == line.geometry.coordinates.length - 1);
+        const isNode = (i == 0 || i == lineCoordinates.length - 1);
 
         const shapePnt: GeoJSONFeature = {
             type: 'Feature',
@@ -425,7 +432,7 @@ class NavlinkShape extends Feature {
             properties: {
                 'isNode': isNode,
                 'isConnected': !!connectedLinks.length,
-                ...createShapeLinkProperties(line),
+                ...createShapeLinkProperties(line, altCapabilities, pos),
                 '@ns:com:here:editor': {
                     selected: !!linkTools.private(line, 'selectedShapes')[i]
                 }
