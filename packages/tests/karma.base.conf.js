@@ -23,7 +23,7 @@ module.exports = {
     customLaunchers: {
         ChromeHeadless: {
             base: 'Chrome',
-            flags: ['--headless', '--window-size=1280,1024', '--remote-debugging-port=9222']
+            flags: ['--headless', '--window-size=1280,1024', '--disable-dev-shm-usage', '--remote-debugging-port=0']
         }
     },
 

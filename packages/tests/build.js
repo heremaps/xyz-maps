@@ -280,7 +280,7 @@ function cleanReport(comp) {
 }
 
 function startTests(comps, done) {
-    let parallel = argv.parallel ? (argv.parallel === 'true' || argv.parallel === true) : parallelTest;
+    let parallel = argv.parallel === undefined ? parallelTest : (argv.parallel === 'true' || argv.parallel === true);
 
     let finishedTests = 0;
     let testResults = {};
@@ -376,5 +376,3 @@ function CleanupServer(port) {
         }
     }
 })();
-
-
