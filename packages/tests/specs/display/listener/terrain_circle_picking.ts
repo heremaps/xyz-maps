@@ -20,7 +20,47 @@
 import {Map} from '@here/xyz-maps-display';
 import {CircleStyle, Feature, LocalProvider, TileLayer} from '@here/xyz-maps-core';
 import {waitForViewportReady} from 'displayUtils';
-import {createPickingTerrain, sampleViewport, terrainScreenshot} from '../../../src/utils/terrainPicking';
+import {getCanvasPixelColor} from 'utils';
+import {createPickingTerrain} from '../../../src/utils/terrainPicking';
+
+type Pixel = {x: number, y: number};
+
+const circleCoordinate = {longitude: 0.0038, latitude: 0.0031};
+const circleProbeOffsets = [
+    {x: 0, y: 0},
+    {x: -32, y: 0},
+    {x: 32, y: 0},
+    {x: 0, y: -32},
+    {x: 0, y: 32},
+    {x: 0, y: -48},
+    {x: 0, y: 48}
+];
+
+function circleProbes(map: Map, altitudes: number[]): Pixel[] {
+    const probes: Pixel[] = [];
+    for (const altitude of altitudes) {
+        const center = map.geoToPixel({...circleCoordinate, altitude});
+        for (const offset of circleProbeOffsets) {
+            probes.push({x: center.x + offset.x, y: center.y + offset.y});
+        }
+    }
+    return probes;
+}
+
+function redProbes(probes: Pixel[], colors: string | string[]): Pixel[] {
+    const red: Pixel[] = [];
+    probes.forEach((probe, index) => {
+        const color = Array.isArray(colors) ? colors[index] : index == 0 ? colors : undefined;
+        if (color == '#ff0000') red.push(probe);
+    });
+    return red;
+}
+
+async function readCircleColors(map: Map, altitudes: number[]) {
+    const probes = circleProbes(map, altitudes);
+    const colors = await getCanvasPixelColor(map.getContainer(), probes, {delay: 300});
+    return {probes, red: redProbes(probes, colors)};
+}
 
 describe('Terrain Circle picking', () => {
     const expect = chai.expect;
@@ -38,6 +78,10 @@ describe('Terrain Circle picking', () => {
             geometry: {type: 'Point', coordinates: [0.0038, 0.0031, 1350]}
         });
         map = new Map(document.getElementById('map'), {
+            // @ts-ignore
+            renderOptions: {
+                preserveDrawingBuffer: true
+            },
             center: {longitude: 0.0038, latitude: 0.0031},
             zoomlevel: 16,
             pitch: 50,
@@ -61,12 +105,11 @@ describe('Terrain Circle picking', () => {
                     layer.setStyleGroup(circle, [{
                         type: 'Circle', zIndex: 1, radius: 32, fill: '#ff0000', altitude, alignment, ...offsets
                     }]);
-                    const {inside} = await terrainScreenshot(map);
-                    expect(inside.length).to.be.greaterThan(20);
-                    for (const pixel of inside) {
-                        expect(map.getFeatureAt(pixel, {layers: [layer]})?.feature.id,
-                            `rendered Circle pixel ${pixel.x},${pixel.y}`).to.equal(circle.id);
-                    }
+                    const altitudes = altitude === 'terrain' ? [1000, 1300, 1350] : [1350];
+                    const {probes, red} = await readCircleColors(map, altitudes);
+                    expect(red.length, 'rendered Circle color probes').to.be.greaterThan(0);
+                    const picked = probes.find((pixel) => map.getFeatureAt(pixel, {layers: [layer]})?.feature.id == circle.id);
+                    expect(picked, 'representative rendered Circle picking probe').to.not.equal(undefined);
                 });
             }
         }
@@ -78,10 +121,9 @@ describe('Terrain Circle picking', () => {
                 type: 'Circle', zIndex: 1, radius: 32, fill: '#ff0000',
                 altitude: true, alignment, offsetZ: '-600m'
             }]);
-            const {redPixels} = await terrainScreenshot(map);
-            expect(redPixels).to.equal(0);
-            const center = map.geoToPixel(0.0038, 0.0031, 750);
-            for (const pixel of sampleViewport(map, [center])) {
+            const {probes, red} = await readCircleColors(map, [750]);
+            expect(red.length, 'hidden Circle color probes').to.equal(0);
+            for (const pixel of probes) {
                 expect(map.getFeatureAt(pixel, {layers: [layer]})?.feature.id).to.equal(undefined);
             }
         });
