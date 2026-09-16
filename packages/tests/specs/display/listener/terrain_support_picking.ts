@@ -243,13 +243,6 @@ describe('Terrain support picking', () => {
             }
         } finally {
             dump('rear cleanup start');
-            await waitForViewportReady(map, () => map.pitch(0), 5000, 'rear-slope: cleanup pitch 0');
-            dump('rear cleanup pitch 0 ready');
-            await waitForViewportReady(map, () => {
-                map.setCenter({longitude: 0.0038, latitude: 0.0031});
-                map.pitch(50);
-            }, 5000, 'rear-slope: cleanup');
-            dump('rear cleanup camera ready');
             overlay.removeFeature(rear);
             dump('rear circle removed');
             overlay.setStyleGroup(draped, [{type: 'Polygon', zIndex: 1, fill: '#ff0000'}]);
@@ -260,8 +253,11 @@ describe('Terrain support picking', () => {
     it('does not retain terrain support after removing the terrain layer', async () => {
         await waitForViewportReady(map, [overlay], () => {
             map.removeLayer(terrain);
+        }, 5000, 'remove terrain');
+        await waitForViewportReady(map, [overlay], () => {
+            map.setCenter({longitude: 0.0038, latitude: 0.0031});
             map.pitch(0);
-        });
+        }, 5000, 'reset camera without terrain');
         const {inside} = await terrainScreenshot(map);
         expect(inside.length).to.be.greaterThan(20);
         for (const pixel of inside) {
