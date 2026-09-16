@@ -57,9 +57,11 @@ describe('Terrain support picking', () => {
             zoomlevel: 16,
             pitch: 50,
             maxPitch: 75,
-            layers: [terrain, overlay]
+            layers: [terrain]
         });
         await waitForViewportReady(map);
+        map.addLayer(overlay);
+        await waitForViewportReady(map, [overlay]);
         pixels = (await terrainScreenshot(map)).inside;
         expect(pixels.length, 'rendered draped polygon on the slope').to.be.greaterThan(20);
     });
