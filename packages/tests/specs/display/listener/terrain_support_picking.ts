@@ -71,16 +71,18 @@ describe('Terrain support picking', () => {
         await waitForViewportReady(map, [overlay]);
         dump('overlay ready');
         pixels = (await terrainScreenshot(map)).inside;
-        dump('initial screenshot ready');
+        dump(`initial screenshot ready (${pixels.length} pixels)`);
         expect(pixels.length, 'rendered draped polygon on the slope').to.be.greaterThan(20);
     });
 
     after(() => map.destroy());
 
     beforeEach(async () => {
+        dump('beforeEach start');
         terrain.pointerEvents(false);
         overlay.pointerEvents(true);
         await waitForTerrainRender();
+        dump('beforeEach ready');
     });
 
     it('uses a 512x512 Terrarium hill with a flat, seamless 1000 m border', async () => {
@@ -201,24 +203,33 @@ describe('Terrain support picking', () => {
     });
 
     it('occludes a rear-slope circle behind the hill, not outside the viewport', async () => {
+        dump('rear test start');
         overlay.setStyleGroup(draped, [{type: 'Polygon', zIndex: 1, fill: '#0000ff'}]);
+        dump('rear polygon styled');
         const rear = overlay.addFeature({
             id: 'rear-slope',
             type: 'Feature',
             properties: {},
             geometry: {type: 'Point', coordinates: [0.00472, 0.0083, 1180]}
         }, [{type: 'Circle', zIndex: 2, radius: 12, fill: '#ff0000', altitude: true}]);
+        dump('rear circle added');
         try {
+            dump('pitch 0 wait start');
             await waitForViewportReady(map, () => {
                 map.setCenter({longitude: 0.00472, latitude: 0.0057});
                 map.pitch(0);
             }, 5000, 'rear-slope: pitch 0');
+            dump('pitch 0 wait ready');
             const visible = await terrainScreenshot(map);
+            dump(`pitch 0 screenshot ready (${visible.inside.length} pixels)`);
             expect(visible.inside.length, 'rear circle visible from above').to.be.greaterThan(5);
             for (const pixel of visible.inside) {
                 expect(map.getFeatureAt(pixel, {layers: [overlay]})?.feature.id).to.equal(rear.id);
             }
+            dump('pitch 0 picking ready');
+            dump('pitch 75 wait start');
             await waitForViewportReady(map, () => map.pitch(75), 5000, 'rear-slope: pitch 75');
+            dump('pitch 75 wait ready');
             expect(map.pitch()).to.be.closeTo(75, 1e-6);
             const projected = map.geoToPixel(0.00472, 0.0083, 1180);
             expect(projected.x).to.be.within(20, map.getContainer().clientWidth - 20);
@@ -231,12 +242,14 @@ describe('Terrain support picking', () => {
                 }
             }
         } finally {
+            dump('rear cleanup start');
             overlay.removeFeature(rear);
             overlay.setStyleGroup(draped, [{type: 'Polygon', zIndex: 1, fill: '#ff0000'}]);
             await waitForViewportReady(map, () => {
                 map.setCenter({longitude: 0.0038, latitude: 0.0031});
                 map.pitch(50);
             }, 5000, 'rear-slope: cleanup');
+            dump('rear cleanup ready');
         }
     });
 
