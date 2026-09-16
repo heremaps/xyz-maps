@@ -438,14 +438,7 @@ class WebGlDisplay extends BasicDisplay {
         const displayLayer = this.layers.get(layerId);
 
         if (tile.type == 'image' && (data instanceof Image || data instanceof ImageBitmap)) {
-            const terrainDisplayLayer = this.layers.getTerrainLayer();
-            const isTerrainOverlay = terrainDisplayLayer != null && displayLayer !== terrainDisplayLayer;
             const buffer = createImageBuffer(data, renderer.device, tileSize, displayLayer.index > 0);
-            if (isTerrainOverlay) {
-                // route imagery into the terrain's offscreen FBO so it becomes part of the
-                // overlay texture that is composited onto the terrain mesh surface.
-                buffer.renderUsage = RenderUsage.TERRAIN_PREPASS;
-            }
             // make sure image tiles are considered by global zIndex
             displayLayer.addZ(buffer.zIndex);
             dTile.preview(dTile.setData(layer, [buffer]), null);
@@ -923,7 +916,9 @@ class WebGlDisplay extends BasicDisplay {
 
             // terrain-fallback imagery (TERRAIN_PREPASS on Display) must keep depth test
             // enabled so it renders behind already-loaded terrain meshes.
+            // renderUsage is intrinsic to the buffer, so the terrain layer must be checked here.
             const isTerrainFallback = !usesOffscreen && tb.tiled
+                && terrainDisplayLayer != null && tb.layer !== terrainDisplayLayer
                 && (tb.buffer as GeometryBuffer).renderUsage === RenderUsage.TERRAIN_PREPASS;
             tb.disableDepthTestOver3D = (tb.buffer.flat && tb.z > min3dZIndex) && !usesOffscreen && !isTerrainFallback;
 
