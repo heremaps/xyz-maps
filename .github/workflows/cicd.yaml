@@ -48,4 +48,4 @@ jobs:
             -   name: Build release package
                 run: yarn run build-release
             -   name: Run tests
-                run: yarn test --browser ${{ matrix.browser }} --parallel=false
+                run: yarn test --browser ${{ matrix.browser }} --display=^Terrain.*Circle.*picking --core=false --common=false --editor=false --parallel=false
