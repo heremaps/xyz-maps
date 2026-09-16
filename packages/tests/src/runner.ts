@@ -111,9 +111,10 @@ export function run(component: string, apiBuild: {version: string; }): void {
             })
 
             .on('end', function() {
+                sendMessage('info', {dump: 'runner: end start'});
                 let completeSent = false;
                 let cleanupTimer;
-                const complete = () => {
+                const complete = (reason: string) => {
                     if (completeSent) return;
                     completeSent = true;
                     if (cleanupTimer) clearTimeout(cleanupTimer);
@@ -122,15 +123,16 @@ export function run(component: string, apiBuild: {version: string; }): void {
                     document.removeEventListener('mousemove', stopEventPropagation, true);
                     document.removeEventListener('click', stopEventPropagation, true);
                     document.removeEventListener('dblClick', stopEventPropagation, true);
+                    sendMessage('info', {dump: `runner: complete (${reason})`});
                     sendMessage('complete', {});
                 };
 
                 // Space cleanup is best effort and must not block Karma forever.
-                cleanupTimer = setTimeout(complete, 5000);
+                cleanupTimer = setTimeout(() => complete('timeout'), 5000);
                 try {
-                    spacePool.clear(complete);
+                    spacePool.clear(() => complete('cleanup'));
                 } catch (e) {
-                    complete();
+                    complete('exception');
                 }
             })
 

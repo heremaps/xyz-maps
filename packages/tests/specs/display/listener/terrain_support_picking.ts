@@ -75,7 +75,16 @@ describe('Terrain support picking', () => {
         expect(pixels.length, 'rendered draped polygon on the slope').to.be.greaterThan(20);
     });
 
-    after(() => map.destroy());
+    after(() => {
+        const startedAt = performance.now();
+        dump(`after: map destroy start (${startedAt.toFixed(1)} ms)`);
+        map.destroy();
+        const finishedAt = performance.now();
+        dump(
+            `after: map destroy ready (${finishedAt.toFixed(1)} ms, ` +
+            `duration ${(finishedAt - startedAt).toFixed(1)} ms)`
+        );
+    });
 
     beforeEach(async () => {
         dump('beforeEach start');
