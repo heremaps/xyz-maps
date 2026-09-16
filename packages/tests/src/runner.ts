@@ -97,7 +97,13 @@ export function run(component: string, apiBuild: {version: string; }): void {
     try {
         window.addEventListener('beforeunload', function(e) {
             // sendMessage('info', {dump: 'clear'});
-            navigator.sendBeacon('http://localhost:' + cleanupServer.port, spacePool.getSpaces().join(','));
+            const spaces = spacePool.getSpaces();
+            if (spaces.length) {
+                navigator.sendBeacon(
+                    'http://localhost:' + cleanupServer.port,
+                    spaces.join(',')
+                );
+            }
             spacePool.clear(()=>{});
         });
 

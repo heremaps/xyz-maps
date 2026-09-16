@@ -337,8 +337,8 @@ function CleanupServer(port) {
         req.on('data', (chunk) => {
             spaces.push(chunk);
         }).on('end', () => {
-            spaces = Buffer.concat(spaces).toString();
-            spaces.split(',').forEach((space) => {
+            spaces = Buffer.concat(spaces).toString().split(',').filter(Boolean);
+            spaces.forEach((space) => {
                 console.log('cleanup(delete) space', space);
                 request.delete({
                     method: 'DELETE',
