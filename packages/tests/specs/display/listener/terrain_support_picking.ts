@@ -243,12 +243,14 @@ describe('Terrain support picking', () => {
             }
         } finally {
             dump('rear cleanup start');
-            overlay.removeFeature(rear);
-            overlay.setStyleGroup(draped, [{type: 'Polygon', zIndex: 1, fill: '#ff0000'}]);
             await waitForViewportReady(map, () => {
                 map.setCenter({longitude: 0.0038, latitude: 0.0031});
                 map.pitch(50);
             }, 5000, 'rear-slope: cleanup');
+            dump('rear cleanup camera ready');
+            overlay.removeFeature(rear);
+            dump('rear circle removed');
+            overlay.setStyleGroup(draped, [{type: 'Polygon', zIndex: 1, fill: '#ff0000'}]);
             dump('rear cleanup ready');
         }
     });
