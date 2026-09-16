@@ -243,6 +243,8 @@ describe('Terrain support picking', () => {
             }
         } finally {
             dump('rear cleanup start');
+            await waitForViewportReady(map, () => map.pitch(0), 5000, 'rear-slope: cleanup pitch 0');
+            dump('rear cleanup pitch 0 ready');
             await waitForViewportReady(map, () => {
                 map.setCenter({longitude: 0.0038, latitude: 0.0031});
                 map.pitch(50);
