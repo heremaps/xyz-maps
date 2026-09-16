@@ -26,7 +26,7 @@ import {
     createPickingTerrain, sampleViewport, terrainFixtureUrl, terrainScreenshot, waitForTerrainRender
 } from '../../../src/utils/terrainPicking';
 
-describe.skip('Terrain support picking', () => {
+describe('Terrain support picking', () => {
     const expect = chai.expect;
     let map: Map;
     let terrain: TerrainTileLayer;
