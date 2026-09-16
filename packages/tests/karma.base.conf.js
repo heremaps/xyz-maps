@@ -47,6 +47,9 @@ module.exports = {
 
     singleRun: true,
 
+    // Linux headless WebGL teardown can exceed Karma's default 30s idle watchdog.
+    browserNoActivityTimeout: 120000,
+
     plugins: [
         'karma-mocha',
         'karma-chai',

@@ -125,7 +125,7 @@ class SpaceLocalStorage {
     }
 
     clear(spaces) {
-        let spaceLocalStorage = JSON.parse(localStorage.getItem(this.key));
+        let spaceLocalStorage = JSON.parse(localStorage.getItem(this.key)) || {};
         for (let id in spaces) {
             delete spaceLocalStorage[id];
         }
@@ -189,20 +189,22 @@ export default class SpacePool {
 
     clear(cb) {
         let proms = [];
-        let allSpaces = this.spaceLocalStorage.getAll();
+        let allSpaces = this.spaceLocalStorage.getAll() || {};
         for (let id in allSpaces) {
             let space = {};
             space[id] = null;
             this.spaceLocalStorage.clear(space);
             proms.push(deleteSpace(id));
         }
-        Promise.all(proms).then((v) => {
+        Promise.all(proms).then(() => {
+            cb && cb();
+        }, () => {
             cb && cb();
         });
     }
 
     getSpaces() {
-        return Object.keys(this.spaceLocalStorage.getAll());
+        return Object.keys(this.spaceLocalStorage.getAll() || {});
     }
 
     getTag() {
