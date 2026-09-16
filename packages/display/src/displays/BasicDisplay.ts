@@ -856,15 +856,17 @@ abstract class Display {
         return this.layers;
     }
 
-    destroy() {
+    destroy(removeCanvas: boolean = true) {
         if (this.renderFrameId !== null) {
             cancelAnimationFrame(this.renderFrameId);
             this.renderFrameId = null;
         }
         this.render.destroy();
-        var canvas = this.canvas;
-        canvas.parentElement.removeChild(canvas);
-        canvas.width = canvas.height = 1;
+        if (removeCanvas) {
+            const canvas = this.canvas;
+            canvas.parentElement.removeChild(canvas);
+            canvas.width = canvas.height = 1;
+        }
     }
 
     clearLayer(layer: TileLayer) {

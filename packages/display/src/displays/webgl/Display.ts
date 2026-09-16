@@ -1018,7 +1018,9 @@ class WebGlDisplay extends BasicDisplay {
 
     destroy() {
         this.terrainFBOPlanner.destroy();
-        super.destroy();
+        // Map.destroy() removes the map container after the renderer is destroyed.
+        // Detaching a WebGL canvas here can block Linux headless/ANGLE for seconds.
+        super.destroy(false);
         this.factory.destroy();
     }
 
