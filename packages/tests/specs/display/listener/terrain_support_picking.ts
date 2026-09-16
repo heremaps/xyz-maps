@@ -28,6 +28,7 @@ import {
 
 describe('Terrain support picking', () => {
     const expect = chai.expect;
+    const dump = (phase: string) => window.__karma__.info({dump: `Terrain support setup: ${phase}`});
     let map: Map;
     let terrain: TerrainTileLayer;
     let overlay: TileLayer;
@@ -35,7 +36,9 @@ describe('Terrain support picking', () => {
     let pixels: {x: number, y: number}[];
 
     before(async () => {
+        dump('create terrain');
         terrain = createPickingTerrain();
+        dump('create overlay');
         overlay = new TileLayer({
             min: 2, max: 20, provider: new LocalProvider(),
             style: {altitude: 'terrain', styleGroups: {}}
@@ -52,6 +55,7 @@ describe('Terrain support picking', () => {
                 ]]
             }
         }, [{type: 'Polygon', zIndex: 1, fill: '#ff0000'}]);
+        dump('construct map');
         map = new Map(document.getElementById('map'), {
             center: {longitude: 0.0038, latitude: 0.0031},
             zoomlevel: 16,
@@ -59,10 +63,15 @@ describe('Terrain support picking', () => {
             maxPitch: 75,
             layers: [terrain]
         });
+        dump('map constructed');
         await waitForViewportReady(map);
+        dump('terrain ready');
         map.addLayer(overlay);
+        dump('overlay added');
         await waitForViewportReady(map, [overlay]);
+        dump('overlay ready');
         pixels = (await terrainScreenshot(map)).inside;
+        dump('initial screenshot ready');
         expect(pixels.length, 'rendered draped polygon on the slope').to.be.greaterThan(20);
     });
 
