@@ -1019,7 +1019,6 @@ class WebGlDisplay extends BasicDisplay {
     destroy() {
         this.terrainFBOPlanner.destroy();
         super.destroy();
-        this.render.destroy();
         this.factory.destroy();
     }
 
