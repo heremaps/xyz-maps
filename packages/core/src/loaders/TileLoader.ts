@@ -28,6 +28,7 @@ interface TileLoader {
 
     setUrl?: (url: string) => void;
     clear?: () => void;
+    destroy?: () => void;
 }
 
 export default TileLoader;

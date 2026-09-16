@@ -124,6 +124,12 @@ class ManagedLoader {
         });
     };
 
+    destroy() {
+        this.src.forEach((dataSource) => {
+            dataSource.destroy?.();
+        });
+    };
+
     setUrl() {
         for (const dataSource of this.src) {
             dataSource.setUrl?.apply(dataSource, arguments);

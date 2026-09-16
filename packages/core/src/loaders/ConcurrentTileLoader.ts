@@ -56,6 +56,12 @@ class ConcurrentTileLoader implements TileLoader {
             });
         }
     }
+
+    destroy(): void {
+        for (const key in this.loaders) {
+            this.loaders[key].destroy?.();
+        }
+    }
 };
 
 export {ConcurrentTileLoader};

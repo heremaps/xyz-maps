@@ -33,6 +33,8 @@ type CustomResponse = { resolve: (data: unknown) => void, reject(reason?: any): 
 
 class WorkerHTTPLoader extends HTTPLoader {
     private worker: Worker;
+    private messageHandler: (event: any) => void;
+    private destroyed = false;
 
     private pendingResponses: Map<string, TileResponse | CustomResponse> = new Map();
 
@@ -49,7 +51,8 @@ class WorkerHTTPLoader extends HTTPLoader {
             options: JSON.parse(JSON.stringify(options)),
             payload
         }, [payload]);
-        this.worker.addEventListener('message', this.receiveMessage.bind(this));
+        this.messageHandler = this.receiveMessage.bind(this);
+        this.worker.addEventListener('message', this.messageHandler);
     }
 
     protected processData(message: any) {
@@ -99,6 +102,14 @@ class WorkerHTTPLoader extends HTTPLoader {
         }
     }
 
+
+    destroy() {
+        if (this.destroyed) return;
+        this.destroyed = true;
+        this.worker.removeEventListener('message', this.messageHandler);
+        this.pendingResponses.clear();
+        this.worker.terminate();
+    }
 
     private addPendingResponse(key: string) {
         return new Promise(async (resolve, reject) => {

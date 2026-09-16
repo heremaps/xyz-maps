@@ -1884,9 +1884,19 @@ export class Map {
         this.ui.destroy();
 
 
+        const terrainLoaders = new Set<any>();
+        for (const layer of this._layers) {
+            if (layer instanceof TerrainTileLayer) {
+                const loader = (layer.getProvider() as any)?.getLoader?.();
+                if (loader) terrainLoaders.add(loader);
+            }
+        }
+
         while (this._layers.length) {
             this.removeLayer(this._layers[0]);
         }
+
+        terrainLoaders.forEach((loader) => loader.destroy?.());
 
         this._display.destroy();
 
