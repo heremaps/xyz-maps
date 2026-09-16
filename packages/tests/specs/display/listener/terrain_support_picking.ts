@@ -234,18 +234,11 @@ describe('Terrain support picking', () => {
             map.removeLayer(terrain);
             map.pitch(0);
         });
-        try {
-            const {inside} = await terrainScreenshot(map);
-            expect(inside.length).to.be.greaterThan(20);
-            for (const pixel of inside) {
-                expect(map.getFeatureAt(pixel, {layers: [overlay]})?.feature.id).to.equal(draped.id);
-                expect(map.getFeatureAt(pixel, {layers: []})?.feature.id).to.equal(undefined);
-            }
-        } finally {
-            await waitForViewportReady(map, [terrain, overlay], () => {
-                map.addLayer(terrain, 0);
-                map.pitch(50);
-            });
+        const {inside} = await terrainScreenshot(map);
+        expect(inside.length).to.be.greaterThan(20);
+        for (const pixel of inside) {
+            expect(map.getFeatureAt(pixel, {layers: [overlay]})?.feature.id).to.equal(draped.id);
+            expect(map.getFeatureAt(pixel, {layers: []})?.feature.id).to.equal(undefined);
         }
     });
 });
