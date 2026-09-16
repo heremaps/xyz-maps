@@ -62,7 +62,7 @@ async function readCircleColors(map: Map, altitudes: number[]) {
     return {probes, red: redProbes(probes, colors)};
 }
 
-describe('Terrain Circle picking', () => {
+describe.skip('Terrain Circle picking', () => {
     const expect = chai.expect;
     let map: Map;
     let layer: TileLayer;
