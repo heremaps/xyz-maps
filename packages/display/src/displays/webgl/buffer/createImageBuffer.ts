@@ -72,6 +72,9 @@ const createImageBuffer = (img: ImageData, device: GraphicsDevice, size: number,
     tileBuffer.pixelPerfect = true;
     tileBuffer.pointerEvents = false;
     tileBuffer.cullFace(FRONT);
+    // Mark imagery as terrain-prepass capable.
+    // on/offscreen routing remains terrain-dependent.
+    tileBuffer.renderUsage = RenderUsage.TERRAIN_PREPASS;
 
     // tileBuffer.uniforms.u_snapGrid = true;
 
