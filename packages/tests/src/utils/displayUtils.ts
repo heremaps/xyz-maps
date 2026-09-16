@@ -22,79 +22,141 @@ import Map from '@here/xyz-maps-display';
 
 
 type VpReadyCallback = Function | (() => void);
+const VIEWPORT_READY_TIMEOUT = 10000;
 
 
-// export function waitForViewportReady(display: Map, mapLayers: TileLayer[]): Promise<Map>;
-// export function waitForViewportReady(display: Map, fn?: VpReadyCallback): Promise<Map>;
-export function waitForViewportReady(display: Map, mapLayers?: TileLayer[] | VpReadyCallback, fn?: VpReadyCallback): Promise<Map> {
-    return new Promise(async (resolve) => {
-        if (!mapLayers) {
-            mapLayers = display.getLayers();
-        } else if (typeof mapLayers == 'function') {
+export function waitForViewportReady(
+    display: Map,
+    mapLayers: TileLayer[],
+    fn?: VpReadyCallback,
+    timeoutMs?: number,
+    label?: string
+): Promise<Map>;
+export function waitForViewportReady(
+    display: Map,
+    fn?: VpReadyCallback,
+    timeoutMs?: number,
+    label?: string
+): Promise<Map>;
+export function waitForViewportReady(
+    display: Map,
+    mapLayers?: TileLayer[] | VpReadyCallback,
+    fnOrTimeout?: VpReadyCallback | number,
+    timeoutOrLabel: number | string = VIEWPORT_READY_TIMEOUT,
+    label: string = 'viewport'
+): Promise<Map> {
+    return new Promise((resolve, reject) => {
+        let layers: TileLayer[];
+        let fn: VpReadyCallback;
+        let timeoutMs: number;
+
+        if (typeof mapLayers == 'function') {
+            layers = display.getLayers();
             fn = mapLayers;
-            mapLayers = display.getLayers();
+            if (typeof fnOrTimeout == 'number') {
+                timeoutMs = fnOrTimeout;
+                if (typeof timeoutOrLabel == 'string') {
+                    label = timeoutOrLabel;
+                }
+            } else {
+                timeoutMs = typeof timeoutOrLabel == 'number' ? timeoutOrLabel : VIEWPORT_READY_TIMEOUT;
+            }
+        } else {
+            layers = mapLayers || display.getLayers();
+            fn = typeof fnOrTimeout == 'function' ? fnOrTimeout : undefined;
+            timeoutMs = typeof timeoutOrLabel == 'number' ? timeoutOrLabel : VIEWPORT_READY_TIMEOUT;
         }
-        let layerAlwaysReady = !mapLayers.length;
+
+        if (!layers) {
+            layers = display.getLayers();
+        }
+
+        const layerAlwaysReady = !layers.length;
         let mapviewchangeend = false;
         let mapviewready = layerAlwaysReady;
+        let callbackComplete = !fn;
         let readyLayers = {};
-        let layerCb = (evt) => {
-            let layer = evt.detail.layer;
-            readyLayers[layer.id] = layer;
+        let readyTimer;
+        let timeoutTimer;
+        let settled = false;
 
+        let layerCb;
+        let mapviewchangestartcb;
+        let mapviewchangeendcb;
 
-            for (let i in readyLayers) {
-                if (!readyLayers[i]) return;
-            }
+        const cleanup = () => {
+            clearTimeout(readyTimer);
+            clearTimeout(timeoutTimer);
+            display.removeEventListener('mapviewchangestart', mapviewchangestartcb);
+            display.removeEventListener('mapviewchangeend', mapviewchangeendcb);
+            layers.forEach((layer) => layer.removeEventListener('viewportReady', layerCb));
+        };
 
-            mapviewready = true;
+        const fail = (error) => {
+            if (settled) return;
+            settled = true;
+            cleanup();
+            reject(error instanceof Error ? error : new Error(String(error)));
+        };
 
-            if (mapviewchangeend) {
-                for (let i in readyLayers) {
-                    readyLayers[i].removeEventListener('viewportReady', layerCb);
-                }
-                display.removeEventListener('mapviewchangestart', mapviewchangestartcb);
-                display.removeEventListener('mapviewchangeend', mapviewchangeendcb);
-
+        const checkReady = () => {
+            if (!settled && callbackComplete && mapviewchangeend && mapviewready) {
+                settled = true;
+                cleanup();
                 resolve(display);
             }
         };
 
-        let readyTimer;
-        let mapviewchangestartcb = () => {
+        layerCb = (evt) => {
+            const layer = evt.detail.layer;
+            readyLayers[layer.id] = layer;
+            mapviewready = Object.keys(readyLayers).every((id) => !!readyLayers[id]);
+            checkReady();
+        };
+
+        mapviewchangestartcb = () => {
             mapviewready = layerAlwaysReady;
             mapviewchangeend = false;
             clearTimeout(readyTimer);
         };
-        let mapviewchangeendcb = () => {
-            // wait for next mapviewchangestart event, if map is not ready (e.g. map is still dragging), timout will be cleared by next start event
+
+        mapviewchangeendcb = () => {
+            // Wait briefly for a following mapviewchange event during an active gesture.
             readyTimer = setTimeout(() => {
                 mapviewchangeend = true;
-                if (mapviewready) {
-                    for (let i in readyLayers) {
-                        readyLayers[i].removeEventListener('viewportReady', layerCb);
-                    }
-
-                    display.removeEventListener('mapviewchangestart', mapviewchangestartcb);
-                    display.removeEventListener('mapviewchangeend', mapviewchangeendcb);
-
-                    resolve(display);
-                }
+                checkReady();
             }, 10);
         };
 
         display.addEventListener('mapviewchangestart', mapviewchangestartcb);
         display.addEventListener('mapviewchangeend', mapviewchangeendcb);
 
-        mapLayers.forEach((layer) => {
-            if (!readyLayers[layer.id]) {
-                layer.addEventListener('viewportReady', layerCb);
-                readyLayers[layer.id] = false;
-            }
+        layers.forEach((layer) => {
+            readyLayers[layer.id] = false;
+            layer.addEventListener('viewportReady', layerCb);
         });
 
+        timeoutTimer = setTimeout(() => {
+            const pendingLayers = layers
+                .filter((layer) => !readyLayers[layer.id])
+                .map((layer) => layer.id)
+                .join(', ') || 'none';
+            fail(new Error(
+                `waitForViewportReady timed out for "${label}" after ${timeoutMs} ms ` +
+                `(mapviewchangeend: ${mapviewchangeend}, callbackComplete: ${callbackComplete}, ` +
+                `pending layers: ${pendingLayers})`
+            ));
+        }, timeoutMs);
+
         if (fn) {
-            await fn();
+            try {
+                Promise.resolve(fn()).then(() => {
+                    callbackComplete = true;
+                    checkReady();
+                }, fail);
+            } catch (error) {
+                fail(error);
+            }
         }
     });
 }

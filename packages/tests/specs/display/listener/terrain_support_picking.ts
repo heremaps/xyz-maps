@@ -201,13 +201,13 @@ describe('Terrain support picking', () => {
             await waitForViewportReady(map, () => {
                 map.setCenter({longitude: 0.00472, latitude: 0.0057});
                 map.pitch(0);
-            });
+            }, 5000, 'rear-slope: pitch 0');
             const visible = await terrainScreenshot(map);
             expect(visible.inside.length, 'rear circle visible from above').to.be.greaterThan(5);
             for (const pixel of visible.inside) {
                 expect(map.getFeatureAt(pixel, {layers: [overlay]})?.feature.id).to.equal(rear.id);
             }
-            await waitForViewportReady(map, () => map.pitch(75));
+            await waitForViewportReady(map, () => map.pitch(75), 5000, 'rear-slope: pitch 75');
             expect(map.pitch()).to.be.closeTo(75, 1e-6);
             const projected = map.geoToPixel(0.00472, 0.0083, 1180);
             expect(projected.x).to.be.within(20, map.getContainer().clientWidth - 20);
@@ -225,7 +225,7 @@ describe('Terrain support picking', () => {
             await waitForViewportReady(map, () => {
                 map.setCenter({longitude: 0.0038, latitude: 0.0031});
                 map.pitch(50);
-            });
+            }, 5000, 'rear-slope: cleanup');
         }
     });
 
