@@ -1,0 +1,359 @@
+<!doctype html>
+<html class="default no-js">
+<head>
+	<meta charset="utf-8">
+	<meta http-equiv="X-UA-Compatible" content="IE=edge">
+	<title>TerrainTileLayerStyle | XYZ Maps Documentation</title>
+	<meta name="description" content="Documentation for XYZ Maps Documentation">
+	<meta name="viewport" content="width=device-width, initial-scale=1">
+	<link rel="stylesheet" href="../assets/css/main.css">
+</head>
+<body>
+<header>
+	<div class="tsd-page-toolbar">
+		<div class="container">
+			<div class="table-wrap">
+				<div class="table-cell" id="tsd-search" data-index="../assets/js/search.json" data-base="..">
+					<div class="field">
+						<label for="tsd-search-field" class="tsd-widget search no-caption">Search</label>
+						<input id="tsd-search-field" type="text" />
+					</div>
+					<ul class="results">
+						<li class="state loading">Preparing search index...</li>
+						<li class="state failure">The search index is not available</li>
+					</ul>
+					<a href="../index.html" class="title">XYZ Maps Documentation</a>
+				</div>
+				<div class="table-cell" id="tsd-widgets">
+					<div id="tsd-filter">
+						<a href="#" class="tsd-widget options no-caption" data-toggle="options">Options</a>
+						<div class="tsd-filter-group">
+							<div class="tsd-select" id="tsd-filter-visibility">
+								<span class="tsd-select-label">All</span>
+								<ul class="tsd-select-list">
+									<li data-value="public">Public</li>
+									<li data-value="protected">Public/Protected</li>
+									<li data-value="private" class="selected">All</li>
+								</ul>
+							</div>
+							<input type="checkbox" id="tsd-filter-inherited" checked />
+							<label class="tsd-widget" for="tsd-filter-inherited">Inherited</label>
+						</div>
+					</div>
+					<a href="#" class="tsd-widget menu no-caption" data-toggle="menu">Menu</a>
+				</div>
+			</div>
+		</div>
+	</div>
+	<div class="tsd-page-title">
+		<div class="container">
+			<ul class="tsd-breadcrumb">
+				<li>
+					<a href="../globals.html">Globals</a>
+				</li>
+				<li>
+					<a href="../modules/core.html">core</a>
+				</li>
+				<li>
+					<a href="core.terraintilelayerstyle.html">TerrainTileLayerStyle</a>
+				</li>
+			</ul>
+			<h1>Class TerrainTileLayerStyle</h1>
+		</div>
+	</div>
+</header>
+<div class="container container-main">
+	<div class="row">
+		<div class="col-8 col-content">
+			<section class="tsd-panel tsd-comment">
+				<div class="tsd-comment tsd-typography">
+					<div class="lead">
+						<p>Configuration style for a 3D terrain tile layer.</p>
+					</div>
+					<p>This class controls the visual appearance of terrain tiles, including vertical exaggeration,
+						lighting, material properties, and sky background color. It extends the regular processed
+					layer style so it can be used directly as both the style definition and style manager.</p>
+					<p>It can be passed to the <code>style</code> field of <a href="../interfaces/core.terraintilelayeroptions.html">TerrainTileLayerOptions</a>.</p>
+				</div>
+			</section>
+			<section class="tsd-panel tsd-hierarchy">
+				<h3>Hierarchy</h3>
+				<ul class="tsd-hierarchy">
+					<li>
+						<span class="tsd-signature-type">RuntimeLayerStyle</span>
+						<ul class="tsd-hierarchy">
+							<li>
+								<span class="target">TerrainTileLayerStyle</span>
+							</li>
+						</ul>
+					</li>
+				</ul>
+			</section>
+			<section class="tsd-panel">
+				<h3>Implements</h3>
+				<ul class="tsd-hierarchy">
+					<li><a href="../interfaces/core.layerstyle.html" class="tsd-signature-type">LayerStyle</a></li>
+				</ul>
+			</section>
+			<section class="tsd-panel-group tsd-index-group">
+				<h2>Index</h2>
+				<section class="tsd-panel tsd-index-panel">
+					<div class="tsd-index-content">
+						<section class="tsd-index-section ">
+							<h3>Constructors</h3>
+							<ul class="tsd-index-list">
+								<li class="tsd-kind-constructor tsd-parent-kind-class tsd-is-overwrite"><a href="core.terraintilelayerstyle.html#constructor" class="tsd-kind-icon">constructor</a></li>
+							</ul>
+						</section>
+						<section class="tsd-index-section ">
+							<h3>Methods</h3>
+							<ul class="tsd-index-list">
+								<li class="tsd-kind-method tsd-parent-kind-class"><a href="core.terraintilelayerstyle.html#setmaterial" class="tsd-kind-icon">set<wbr>Material</a></li>
+							</ul>
+						</section>
+					</div>
+				</section>
+			</section>
+			<section class="tsd-panel-group tsd-member-group ">
+				<h2>Constructors</h2>
+				<section class="tsd-panel tsd-member tsd-kind-constructor tsd-parent-kind-class tsd-is-overwrite">
+					<a name="constructor" class="tsd-anchor"></a>
+					<h3>constructor</h3>
+					<ul class="tsd-signatures tsd-kind-constructor tsd-parent-kind-class tsd-is-overwrite">
+						<li class="tsd-signature tsd-kind-icon">new <wbr>Terrain<wbr>Tile<wbr>Layer<wbr>Style<span class="tsd-signature-symbol">(</span>style<span class="tsd-signature-symbol">?: </span><span class="tsd-signature-symbol">{ </span>backgroundColor<span class="tsd-signature-symbol">?: </span><span class="tsd-signature-type">LayerStyle</span><span class="tsd-signature-symbol">[</span><span class="tsd-signature-type">"backgroundColor"</span><span class="tsd-signature-symbol">]</span><span class="tsd-signature-symbol">; </span>colorSource<span class="tsd-signature-symbol">?: </span><span class="tsd-signature-symbol">{ </span>type<span class="tsd-signature-symbol">: </span><span class="tsd-signature-type">"material"</span><span class="tsd-signature-symbol"> }</span><span class="tsd-signature-symbol"> | </span><span class="tsd-signature-symbol">{ </span>color<span class="tsd-signature-symbol">: </span><a href="../modules/core.html#color" class="tsd-signature-type">Color</a><span class="tsd-signature-symbol">; </span>type<span class="tsd-signature-symbol">: </span><span class="tsd-signature-type">"solid"</span><span class="tsd-signature-symbol"> }</span><span class="tsd-signature-symbol"> | </span><span class="tsd-signature-symbol">{ </span>layerId<span class="tsd-signature-symbol">: </span><span class="tsd-signature-type">string</span><span class="tsd-signature-symbol">; </span>type<span class="tsd-signature-symbol">: </span><span class="tsd-signature-type">"layerBackground"</span><span class="tsd-signature-symbol"> }</span><span class="tsd-signature-symbol">; </span>exaggeration<span class="tsd-signature-symbol">?: </span><span class="tsd-signature-type">number</span><span class="tsd-signature-symbol">; </span>light<span class="tsd-signature-symbol">?: </span><span class="tsd-signature-symbol">(</span><a href="../interfaces/core.ambientlight.html" class="tsd-signature-type">AmbientLight</a><span class="tsd-signature-symbol"> | </span><a href="../interfaces/core.directionallight.html" class="tsd-signature-type">DirectionalLight</a><span class="tsd-signature-symbol">)</span><span class="tsd-signature-symbol">[]</span><span class="tsd-signature-symbol">; </span>material<span class="tsd-signature-symbol">?: </span><a href="../interfaces/core.material.html" class="tsd-signature-type">Material</a><span class="tsd-signature-symbol">; </span>skyColor<span class="tsd-signature-symbol">?: </span><span class="tsd-signature-type">LayerStyle</span><span class="tsd-signature-symbol">[</span><span class="tsd-signature-type">"skyColor"</span><span class="tsd-signature-symbol">]</span><span class="tsd-signature-symbol"> }</span><span class="tsd-signature-symbol">)</span><span class="tsd-signature-symbol">: </span><a href="core.terraintilelayerstyle.html" class="tsd-signature-type">TerrainTileLayerStyle</a></li>
+					</ul>
+					<ul class="tsd-descriptions">
+						<li class="tsd-description">
+							<aside class="tsd-sources">
+								<p>Overrides RuntimeLayerStyle.__constructor</p>
+							</aside>
+							<div class="tsd-comment tsd-typography">
+								<div class="lead">
+									<p>Creates a new instance of <code>TerrainTileLayerStyle</code>.</p>
+								</div>
+							</div>
+							<h4 class="tsd-parameters-title">Parameters</h4>
+							<ul class="tsd-parameters">
+								<li>
+									<h5><span class="tsd-flag ts-flagDefault value">Default value</span> style: <span class="tsd-signature-symbol">{ </span>backgroundColor<span class="tsd-signature-symbol">?: </span><span class="tsd-signature-type">LayerStyle</span><span class="tsd-signature-symbol">[</span><span class="tsd-signature-type">"backgroundColor"</span><span class="tsd-signature-symbol">]</span><span class="tsd-signature-symbol">; </span>colorSource<span class="tsd-signature-symbol">?: </span><span class="tsd-signature-symbol">{ </span>type<span class="tsd-signature-symbol">: </span><span class="tsd-signature-type">"material"</span><span class="tsd-signature-symbol"> }</span><span class="tsd-signature-symbol"> | </span><span class="tsd-signature-symbol">{ </span>color<span class="tsd-signature-symbol">: </span><a href="../modules/core.html#color" class="tsd-signature-type">Color</a><span class="tsd-signature-symbol">; </span>type<span class="tsd-signature-symbol">: </span><span class="tsd-signature-type">"solid"</span><span class="tsd-signature-symbol"> }</span><span class="tsd-signature-symbol"> | </span><span class="tsd-signature-symbol">{ </span>layerId<span class="tsd-signature-symbol">: </span><span class="tsd-signature-type">string</span><span class="tsd-signature-symbol">; </span>type<span class="tsd-signature-symbol">: </span><span class="tsd-signature-type">"layerBackground"</span><span class="tsd-signature-symbol"> }</span><span class="tsd-signature-symbol">; </span>exaggeration<span class="tsd-signature-symbol">?: </span><span class="tsd-signature-type">number</span><span class="tsd-signature-symbol">; </span>light<span class="tsd-signature-symbol">?: </span><span class="tsd-signature-symbol">(</span><a href="../interfaces/core.ambientlight.html" class="tsd-signature-type">AmbientLight</a><span class="tsd-signature-symbol"> | </span><a href="../interfaces/core.directionallight.html" class="tsd-signature-type">DirectionalLight</a><span class="tsd-signature-symbol">)</span><span class="tsd-signature-symbol">[]</span><span class="tsd-signature-symbol">; </span>material<span class="tsd-signature-symbol">?: </span><a href="../interfaces/core.material.html" class="tsd-signature-type">Material</a><span class="tsd-signature-symbol">; </span>skyColor<span class="tsd-signature-symbol">?: </span><span class="tsd-signature-type">LayerStyle</span><span class="tsd-signature-symbol">[</span><span class="tsd-signature-type">"skyColor"</span><span class="tsd-signature-symbol">]</span><span class="tsd-signature-symbol"> }</span><span class="tsd-signature-symbol"> = {}</span></h5>
+									<div class="tsd-comment tsd-typography">
+										<div class="lead">
+											<p>Optional configuration object for terrain style parameters.</p>
+										</div>
+									</div>
+									<ul class="tsd-parameters">
+										<li class="tsd-parameter">
+											<h5><span class="tsd-flag ts-flagOptional">Optional</span> background<wbr>Color<span class="tsd-signature-symbol">?: </span><span class="tsd-signature-type">LayerStyle</span><span class="tsd-signature-symbol">[</span><span class="tsd-signature-type">"backgroundColor"</span><span class="tsd-signature-symbol">]</span></h5>
+											<div class="tsd-comment tsd-typography">
+												<div class="lead">
+													<p>Defines the background color of the terrain layer, shown when terrain data is not fully loaded.</p>
+												</div>
+											</div>
+										</li>
+										<li class="tsd-parameter">
+											<h5><span class="tsd-flag ts-flagOptional">Optional</span> color<wbr>Source<span class="tsd-signature-symbol">?: </span><span class="tsd-signature-symbol">{ </span>type<span class="tsd-signature-symbol">: </span><span class="tsd-signature-type">"material"</span><span class="tsd-signature-symbol"> }</span><span class="tsd-signature-symbol"> | </span><span class="tsd-signature-symbol">{ </span>color<span class="tsd-signature-symbol">: </span><a href="../modules/core.html#color" class="tsd-signature-type">Color</a><span class="tsd-signature-symbol">; </span>type<span class="tsd-signature-symbol">: </span><span class="tsd-signature-type">"solid"</span><span class="tsd-signature-symbol"> }</span><span class="tsd-signature-symbol"> | </span><span class="tsd-signature-symbol">{ </span>layerId<span class="tsd-signature-symbol">: </span><span class="tsd-signature-type">string</span><span class="tsd-signature-symbol">; </span>type<span class="tsd-signature-symbol">: </span><span class="tsd-signature-type">"layerBackground"</span><span class="tsd-signature-symbol"> }</span></h5>
+											<div class="tsd-comment tsd-typography">
+												<div class="lead">
+													<p>Controls how the terrain surface is colored.</p>
+												</div>
+												<p>The color source defines the base color (albedo) of the terrain mesh
+												before lighting is applied.</p>
+												<p>This property is independent of <code>backgroundColor</code>, which is only used
+												when terrain data is missing or not yet rendered.</p>
+												<a href="#available-modes" id="available-modes" style="color: inherit; text-decoration: none;">
+													<h3>Available modes</h3>
+												</a>
+												<ul>
+													<li><p><code>{ type: &#39;material&#39; }</code>
+															Uses the diffuse color defined by the terrain material.
+														This is the default behavior.</p>
+													</li>
+													<li><p><code>{ type: &#39;solid&#39;, color }</code>
+															Uses a single, solid color for the entire terrain surface.
+														Lighting is still applied, but the base color is constant.</p>
+													</li>
+													<li><p><code>{ type: &#39;layerBackground&#39;, layerId }</code>
+															Uses the background color of another layer as the terrain surface color.
+															Typically used when visual data from another layer is rendered offscreen
+														and projected onto the terrain.</p>
+														<p>If the referenced layer is not available or not yet rendered,
+														its <code>backgroundColor</code> is used as a fallback.</p>
+													</li>
+												</ul>
+												<dl class="tsd-comment-tags">
+													<dt>defaultvalue</dt>
+													<dd><p><code>{ type: &#39;material&#39; }</code></p>
+													</dd>
+												</dl>
+											</div>
+										</li>
+										<li class="tsd-parameter">
+											<h5><span class="tsd-flag ts-flagOptional">Optional</span> exaggeration<span class="tsd-signature-symbol">?: </span><span class="tsd-signature-type">number</span></h5>
+											<div class="tsd-comment tsd-typography">
+												<div class="lead">
+													<p>Elevation scale multiplier applied during rendering.
+													This visually scales the terrain heights (e.g. 1 = real scale, 2 = double vertical exaggeration).</p>
+												</div>
+												<p>Also known as &quot;vertical exaggeration&quot;.
+												Has no effect on the actual height data.</p>
+												<dl class="tsd-comment-tags">
+													<dt>defaultvalue</dt>
+													<dd><p>1</p>
+													</dd>
+												</dl>
+											</div>
+										</li>
+										<li class="tsd-parameter">
+											<h5><span class="tsd-flag ts-flagOptional">Optional</span> light<span class="tsd-signature-symbol">?: </span><span class="tsd-signature-symbol">(</span><a href="../interfaces/core.ambientlight.html" class="tsd-signature-type">AmbientLight</a><span class="tsd-signature-symbol"> | </span><a href="../interfaces/core.directionallight.html" class="tsd-signature-type">DirectionalLight</a><span class="tsd-signature-symbol">)</span><span class="tsd-signature-symbol">[]</span></h5>
+											<div class="tsd-comment tsd-typography">
+												<div class="lead">
+													<p>Lights to illuminate the terrain surface.</p>
+												</div>
+												<p>Can include ambient and directional lights to control shading effects.
+												If omitted, a default terrain light setup is used, which is just a simple ambient light (no directional lights).</p>
+											</div>
+										</li>
+										<li class="tsd-parameter">
+											<h5><span class="tsd-flag ts-flagOptional">Optional</span> material<span class="tsd-signature-symbol">?: </span><a href="../interfaces/core.material.html" class="tsd-signature-type">Material</a></h5>
+											<div class="tsd-comment tsd-typography">
+												<div class="lead">
+													<p>Material properties applied to the terrain mesh.</p>
+												</div>
+												<p>This defines visual attributes such as color, shading, or roughness,
+												depending on the renderer&#39;s material model.</p>
+											</div>
+										</li>
+										<li class="tsd-parameter">
+											<h5><span class="tsd-flag ts-flagOptional">Optional</span> sky<wbr>Color<span class="tsd-signature-symbol">?: </span><span class="tsd-signature-type">LayerStyle</span><span class="tsd-signature-symbol">[</span><span class="tsd-signature-type">"skyColor"</span><span class="tsd-signature-symbol">]</span></h5>
+											<div class="tsd-comment tsd-typography">
+												<div class="lead">
+													<p>Defines the sky color of the map
+													<a href="../interfaces/core.layerstyle.html#skycolor">LayerStyle.skyColor</a></p>
+												</div>
+											</div>
+										</li>
+									</ul>
+								</li>
+							</ul>
+							<h4 class="tsd-returns-title">Returns <a href="core.terraintilelayerstyle.html" class="tsd-signature-type">TerrainTileLayerStyle</a></h4>
+						</li>
+					</ul>
+				</section>
+			</section>
+			<section class="tsd-panel-group tsd-member-group ">
+				<h2>Methods</h2>
+				<section class="tsd-panel tsd-member tsd-kind-method tsd-parent-kind-class">
+					<a name="setmaterial" class="tsd-anchor"></a>
+					<h3>set<wbr>Material</h3>
+					<ul class="tsd-signatures tsd-kind-method tsd-parent-kind-class">
+						<li class="tsd-signature tsd-kind-icon">set<wbr>Material<span class="tsd-signature-symbol">(</span>materialUpdate<span class="tsd-signature-symbol">: </span><span class="tsd-signature-type">Partial</span><span class="tsd-signature-symbol">&lt;</span><span class="tsd-signature-type">Pick</span><span class="tsd-signature-symbol">&lt;</span><a href="../interfaces/core.material.html" class="tsd-signature-type">Material</a><span class="tsd-signature-symbol">, </span><span class="tsd-signature-type">"specular"</span><span class="tsd-signature-symbol"> | </span><span class="tsd-signature-type">"shininess"</span><span class="tsd-signature-symbol">&gt;</span><span class="tsd-signature-symbol">&gt;</span><span class="tsd-signature-symbol">)</span><span class="tsd-signature-symbol">: </span><span class="tsd-signature-type">void</span></li>
+					</ul>
+					<ul class="tsd-descriptions">
+						<li class="tsd-description">
+							<aside class="tsd-sources">
+							</aside>
+							<div class="tsd-comment tsd-typography">
+								<div class="lead">
+									<p>Updates the terrain material values that can be changed without rebuilding terrain buffers.</p>
+								</div>
+							</div>
+							<h4 class="tsd-parameters-title">Parameters</h4>
+							<ul class="tsd-parameters">
+								<li>
+									<h5>materialUpdate: <span class="tsd-signature-type">Partial</span><span class="tsd-signature-symbol">&lt;</span><span class="tsd-signature-type">Pick</span><span class="tsd-signature-symbol">&lt;</span><a href="../interfaces/core.material.html" class="tsd-signature-type">Material</a><span class="tsd-signature-symbol">, </span><span class="tsd-signature-type">"specular"</span><span class="tsd-signature-symbol"> | </span><span class="tsd-signature-type">"shininess"</span><span class="tsd-signature-symbol">&gt;</span><span class="tsd-signature-symbol">&gt;</span></h5>
+									<div class="tsd-comment tsd-typography">
+										<p>The live <code>specular</code> color and/or <code>shininess</code> values.</p>
+										<p>Call <code>display.refresh()</code> after changing the material to render the new values.</p>
+									</div>
+								</li>
+							</ul>
+							<h4 class="tsd-returns-title">Returns <span class="tsd-signature-type">void</span></h4>
+						</li>
+					</ul>
+				</section>
+			</section>
+		</div>
+		<div class="col-4 col-menu menu-sticky-wrap menu-highlight">
+			<nav class="tsd-navigation primary">
+				<ul>
+					<li class="globals  ">
+						<a href="../globals.html"><em>Globals</em></a>
+					</li>
+					<li class="current tsd-kind-module">
+						<a href="../modules/core.html">core</a>
+					</li>
+					<li class=" tsd-kind-module">
+						<a href="../modules/display.html">display</a>
+					</li>
+					<li class=" tsd-kind-module">
+						<a href="../modules/editor.html">editor</a>
+					</li>
+				</ul>
+			</nav>
+			<nav class="tsd-navigation secondary menu-sticky">
+				<ul class="before-current">
+				</ul>
+				<ul class="current">
+					<li class="current tsd-kind-module">
+						<a href="../modules/core.html" class="tsd-kind-icon">core</a>
+						<ul>
+							<li class="current tsd-kind-class tsd-parent-kind-module">
+								<a href="core.terraintilelayerstyle.html" class="tsd-kind-icon">Terrain<wbr>Tile<wbr>Layer<wbr>Style</a>
+								<ul>
+									<li class=" tsd-kind-constructor tsd-parent-kind-class tsd-is-overwrite">
+										<a href="core.terraintilelayerstyle.html#constructor" class="tsd-kind-icon">constructor</a>
+									</li>
+									<li class=" tsd-kind-method tsd-parent-kind-class">
+										<a href="core.terraintilelayerstyle.html#setmaterial" class="tsd-kind-icon">set<wbr>Material</a>
+									</li>
+								</ul>
+							</li>
+						</ul>
+					</li>
+				</ul>
+				<ul class="after-current">
+					<li class=" tsd-kind-module">
+						<a href="../modules/display.html" class="tsd-kind-icon">display</a>
+					</li>
+					<li class=" tsd-kind-module">
+						<a href="../modules/editor.html" class="tsd-kind-icon">editor</a>
+					</li>
+				</ul>
+			</nav>
+		</div>
+	</div>
+</div>
+<footer class="with-border-bottom">
+	<div class="container">
+		<h2>Legend</h2>
+		<div class="tsd-legend-group">
+			<ul class="tsd-legend">
+				<li class="tsd-kind-object-literal"><span class="tsd-kind-icon">Object literal</span></li>
+				<li class="tsd-kind-variable"><span class="tsd-kind-icon">Variable</span></li>
+				<li class="tsd-kind-function"><span class="tsd-kind-icon">Function</span></li>
+				<li class="tsd-kind-type-alias"><span class="tsd-kind-icon">Type alias</span></li>
+				<li class="tsd-kind-type-alias tsd-has-type-parameter"><span class="tsd-kind-icon">Type alias with type parameter</span></li>
+			</ul>
+			<ul class="tsd-legend">
+				<li class="tsd-kind-class"><span class="tsd-kind-icon">Class</span></li>
+				<li class="tsd-kind-class tsd-has-type-parameter"><span class="tsd-kind-icon">Class with type parameter</span></li>
+				<li class="tsd-kind-constructor tsd-parent-kind-class"><span class="tsd-kind-icon">Constructor</span></li>
+				<li class="tsd-kind-method tsd-parent-kind-class"><span class="tsd-kind-icon">Method</span></li>
+			</ul>
+			<ul class="tsd-legend">
+				<li class="tsd-kind-interface"><span class="tsd-kind-icon">Interface</span></li>
+				<li class="tsd-kind-interface tsd-has-type-parameter"><span class="tsd-kind-icon">Interface with type parameter</span></li>
+			</ul>
+			<ul class="tsd-legend">
+				<li class="tsd-kind-enum"><span class="tsd-kind-icon">Enumeration</span></li>
+			</ul>
+		</div>
+	</div>
+</footer>
+<div class="container tsd-generator">
+	<p>Generated using <a href="https://typedoc.org/" target="_blank">TypeDoc</a></p>
+</div>
+<div class="overlay"></div>
+<script src="../assets/js/main.js"></script>
+</body>
+</html>

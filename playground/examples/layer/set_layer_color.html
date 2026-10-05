@@ -1,0 +1,48 @@
+<!DOCTYPE html>
+<html>
+	<head>
+		<meta name="viewport" content="width=device-width, initial-scale=1.0, minimum-scale=1.0, user-scalable=no">
+		<title>XYZ Maps Example: Change the Style of a TileLayer</title>
+ 		<style type="text/css">
+			#map {
+				position: absolute;
+            	overflow: hidden;
+				top: 0;
+				left: 0;
+				width: 100%;
+                height: 100%;
+			}
+            pre div, span div {
+                position: relative;
+                display: inline-block;
+                left: 20px;
+                background-color: #333;
+                color: #fff;
+                padding: 10px;
+                font-family: 'LFira Sans', Arial, Helvetica, sans-serif;
+            }
+
+			#swatches{
+				left: 0;
+			}
+
+			.info label {
+			    display: block;
+			}
+
+			.info button {
+			    width: 36px;
+			    height: 20px;
+			    border: none;
+			    cursor: pointer;
+			}
+ 		</style>
+	</head>
+	<body>
+		<div id="map"></div>
+	    <span><div class='info'>
+            <label>Choose a color:</label>
+            <div id='swatches'></div>
+	    </div></span>
+	</body>
+</html>
