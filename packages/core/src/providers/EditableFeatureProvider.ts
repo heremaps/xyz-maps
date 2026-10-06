@@ -85,6 +85,24 @@ export interface EditableFeatureProviderOptions extends TileProviderOptions {
  * EditableFeatureProvider is an abstract FeatureTileProvider that can be edited using the {@link Editor} module.
  */
 export abstract class EditableFeatureProvider extends FeatureTileProvider {
+    /**
+     * Set the resolver used to map detected feature classes to concrete feature constructors.
+     * Passing undefined restores the core feature-class lookup.
+     *
+     * @param resolver - resolver for editor-specific feature classes
+     *
+     * @internal
+     * @hidden
+     */
+    static setFeatureClassResolver(
+        resolver: ((this: EditableFeatureProvider, feature: Feature) => FeatureTileProvider['Feature']) | undefined
+    ): void {
+        if (resolver) {
+            EditableFeatureProvider.prototype.getFeatureClass = resolver;
+        } else {
+            EditableFeatureProvider.prototype.getFeatureClass = FeatureTileProvider.prototype.getFeatureClass;
+        }
+    }
     _e: any;
 
     editable: boolean;

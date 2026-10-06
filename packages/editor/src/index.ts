@@ -28,6 +28,7 @@ import {Navlink} from './features/link/Navlink';
 import {Line} from './features/line/Line';
 import {Area} from './features/area/Area';
 import {Marker} from './features/marker/Marker';
+import {EditableFeatureProvider} from '@here/xyz-maps-core';
 
 export * from './features/feature/Feature';
 export * from './features/marker/Marker';
@@ -145,10 +146,7 @@ const editor = scp[dns.pop()] = {
 };
 
 
-const providers = global.here['xyz']['maps']['providers'];
-// TODO: remove HACK required for geospace provider being editable...
-// providers.EditableRemoteTileProvider.prototype.getFeatureClass =
-providers.EditableFeatureProvider.prototype.getFeatureClass = function(feature) {
+EditableFeatureProvider.setFeatureClassResolver(function(this: EditableFeatureProvider, feature) {
     switch (this.detectFeatureClass(feature)) {
     case 'NAVLINK':
         return Navlink;
@@ -165,6 +163,6 @@ providers.EditableFeatureProvider.prototype.getFeatureClass = function(feature) 
     default:
         return this.Feature;
     }
-};
+});
 
 export default editor;
