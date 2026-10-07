@@ -147,22 +147,23 @@ const editor = scp[dns.pop()] = {
 
 
 EditableFeatureProvider.setFeatureClassResolver(function(this: EditableFeatureProvider, feature) {
-    switch (this.detectFeatureClass(feature)) {
-    case 'NAVLINK':
-        return Navlink;
-    case 'PLACE':
-        return Place;
-    case 'ADDRESS':
-        return Address;
-    case 'AREA':
-        return Area;
-    case 'MARKER':
-        return Marker;
-    case 'LINE':
-        return Line;
-    default:
-        return this.Feature;
+    if (this.editable) {
+        switch (this.detectFeatureClass(feature)) {
+        case 'NAVLINK':
+            return Navlink;
+        case 'PLACE':
+            return Place;
+        case 'ADDRESS':
+            return Address;
+        case 'AREA':
+            return Area;
+        case 'MARKER':
+            return Marker;
+        case 'LINE':
+            return Line;
+        }
     }
+    return this.Feature;
 });
 
 export default editor;

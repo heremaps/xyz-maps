@@ -72,11 +72,6 @@ export class LocalProvider extends EditableFeatureProvider {
 
         // TODO: remove tile marking on feature add in super provider
         delete (<any> this).level;
-
-        if (!this.editable) {
-            this.Feature = Feature;
-            this.detectFeatureClass = () => null;
-        }
     }
 
     cancel(quadkey: string) {

@@ -363,7 +363,7 @@ export class FeatureProvider extends Provider {
             : UNDEF; // clear filter
     };
 
-    getFeatureClass(o) {
+    getFeatureClass(o: GeoJSONFeature) {
         return this.Feature;
     };
 
