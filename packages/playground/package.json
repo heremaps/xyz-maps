@@ -38,7 +38,7 @@
     "@rollup/plugin-typescript": "^12.1.2",
     "@rollup/plugin-virtual": "^2.1.0",
     "postcss": "^8.4.16",
-    "rollup": "^3.29.5",
+    "rollup": "^3.30.0",
     "rollup-plugin-copy": "^3.4.0",
     "rollup-plugin-postcss": "^4.0.2",
     "sass": "^1.54.5",

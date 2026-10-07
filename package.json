@@ -38,8 +38,8 @@
   "private": true,
   "devDependencies": {
     "@strictsoftware/typedoc-plugin-monorepo": "^0.3.1",
-    "@typescript-eslint/parser": "^5.34.0",
-    "eslint": "8.22.0",
+    "@typescript-eslint/parser": "^5.62.0",
+    "eslint": "8.57.1",
     "eslint-config-google": "^0.14.0",
     "eslint-config-prettier": "^8.8.0",
     "eslint-plugin-prettier": "^4.2.1",
@@ -57,7 +57,9 @@
     "packages/*"
   ],
   "resolutions": {
+    "handlebars": "4.7.9",
     "http-cache-semantics": "4.3.0",
+    "lerna/tar": "7.5.22",
     "source-map-js": "1.2.2"
   },
   "engines": {
