@@ -504,14 +504,14 @@ export default class Editor {
      * create a history step for a series of edits.
      *
      * @example
-     * editor.startBatch();  // Start a batch operation
+     * editor.beginBatch();  // Start a batch operation
      * feature.prop("name", "newName");  // Modify feature property
      * feature.coord(newCoordinate);     // Modify feature coordinates
      * editor.endBatch();  // Finish the batch and commit changes as a single history entry
      *
      * @remarks
      * This method is helpful when you want to make multiple edits and control when the changes are committed to history.
-     * The edits made within the `startBatch`/`endBatch` block are treated as a single operation.
+     * The edits made within the `beginBatch`/`endBatch` block are treated as a single operation.
      *
      * @see {@link editor.endBatch} for finalizing a batch operation.
      * @see {@link editor.undo} for undoing the last action.
@@ -527,13 +527,13 @@ export default class Editor {
     private _b: number = 0;
 
     /**
-     * Ends the current batch operation and creates a single history entry for all changes made since `startBatch`.
+     * Ends the current batch operation and creates a single history entry for all changes made since `beginBatch`.
      *
-     * This function should be called after making all desired edits within a `startBatch` block. Once called,
+     * This function should be called after making all desired edits within a `beginBatch` block. Once called,
      * all changes will be committed as a single entry in the local history, enabling easy undo/redo of the entire batch.
      *
      * @example
-     * editor.startBatch();  // Start a batch operation
+     * editor.beginBatch();  // Start a batch operation
      * feature.prop("name", "newName");  // Modify feature property
      * feature.coord(newCoordinate);     // Modify feature coordinates
      * editor.endBatch();  // Finalize the batch and create a single history entry
@@ -542,10 +542,10 @@ export default class Editor {
      * The `endBatch` method ensures that all modifications made within the batch are recorded as a single step in the local history.
      * After calling this, you can undo or redo the entire set of changes together.
      *
-     * @see {@link editor.startBatch} for beginning a batch operation.
-     * @see {@link editor.undo} for undoing the last action.
-     * @see {@link editor.redo} for redoing the last undone action.
-     * @see {@link editor.batch} for an alternative method to group feature edits into a single history step without manually starting and ending a batch.
+     * @see {@link Editor.beginBatch} for beginning a batch operation.
+     * @see {@link Editor.undo} for undoing the last action.
+     * @see {@link Editor.redo} for redoing the last undone action.
+     * @see {@link Editor.batch} for an alternative method to group feature edits into a single history step without manually starting and ending a batch.
      */
     endBatch(): void {
         const history = this._i().objects.history;
