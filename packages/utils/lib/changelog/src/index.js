@@ -26,7 +26,6 @@ const CHANGELOG_TYPE_ALIASES = {
     fixed: 'fix',
     improved: 'improve'
 };
-let cwd;
 
 const normalizeChangelogType = (type) => CHANGELOG_TYPE_ALIASES[type.toLowerCase()] || type;
 
@@ -61,10 +60,9 @@ const resolveDocsLinks = (description, docsBaseUrl) => description.replace(
     }
 );
 
-const getCommitlogs = async (from, to) => {
-    // git log --first-parent master `git describe --tags --abbrev=0` ' + from + '..' + to + ' --format="%B%x00"
+const getCommitlogs = async (projectRoot, from, to) => {
     return new Promise((resolve, reject) => {
-        git(cwd).raw(['log', '--first-parent', 'master', from + '..' + to, '--format=%B%x00'], function(err, result) {
+        git(projectRoot).raw(['log', '--first-parent', from + '..' + to, '--format=%B%x00'], function(err, result) {
             if (err) {
                 reject(err);
             } else {
@@ -74,9 +72,9 @@ const getCommitlogs = async (from, to) => {
     });
 };
 
-const getLastReleaseTag = async () => {
+const getLastReleaseTag = async (projectRoot) => {
     return new Promise((resolve, reject) => {
-        git(cwd).tag(['-l', '--sort=v:refname'], (err, result) => {
+        git(projectRoot).tag(['-l', '--sort=v:refname'], (err, result) => {
             if (err) {
                 reject(err);
             } else {
@@ -97,8 +95,8 @@ const orderByType = (scopes) => {
     return scopes;
 };
 
-const parseCommitLogs = async (from, to) => {
-    let logs = await getCommitlogs(from, to);
+const parseCommitLogs = async (projectRoot, from, to) => {
+    let logs = await getCommitlogs(projectRoot, from, to);
 
     let scopes = {};
     let length = 0;
@@ -178,25 +176,26 @@ const createMarkup = async (newVersion, logs, docsBaseUrl) => {
     }
 };
 
-const getPath = (filename) => join(resolve(), filename);
+const getProjectRoot = (options) => resolve(options.path || process.cwd());
+const getPath = (filename, projectRoot) => join(projectRoot, filename);
 
 const changelog = {
 
     parse: async (options) => {
         options = options || {};
 
-        cwd = options.path;
-
+        const projectRoot = getProjectRoot(options);
         const to = options.to || 'HEAD';
-        const from = options.from || await getLastReleaseTag();
+        const from = options.from || await getLastReleaseTag(projectRoot);
 
-        return await parseCommitLogs(from, to);
+        return await parseCommitLogs(projectRoot, from, to);
     },
 
     getMarkup: async (options) => {
         options = options || {};
+        const projectRoot = getProjectRoot(options);
         let logs = await changelog.parse(options);
-        let version = options.version || require(getPath('package.json')).version;
+        let version = options.version || require(getPath('package.json', projectRoot)).version;
         let docsBaseUrl = options.docsBaseUrl === undefined ? DEFAULT_DOCS_BASE_URL : options.docsBaseUrl;
 
         return await createMarkup(version, logs, normalizeDocsBaseUrl(docsBaseUrl));
@@ -205,7 +204,8 @@ const changelog = {
     update: async (options) => {
         options = options || {};
         const text = await changelog.getMarkup(options);
-        const path = getPath(options.filename || 'CHANGELOG.md');
+        const projectRoot = getProjectRoot(options);
+        const path = getPath(options.filename || 'CHANGELOG.md', projectRoot);
         let clog;
 
         if (text) {

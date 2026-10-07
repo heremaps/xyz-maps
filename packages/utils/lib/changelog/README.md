@@ -24,9 +24,11 @@ updates CHANGELOG.md with latest conventional commit messages
 ---
 
 #### `.options.from` (optional)
-defaults to last semver tag
+Git ref to start the changelog range from.
+defaults to the latest SemVer tag in the selected project root
 
 #### `.options.to` (optional)
+Git ref to generate the changelog through.
 defaults to HEAD
 
 #### `.options.filename` (optional)
@@ -35,6 +37,7 @@ defaults to CHANGELOG.md
 #### `.options.path` (optional)
 path to project root.
 defaults to current directory
+used consistently for Git operations, `package.json`, and the changelog file
 
 #### `.options.docsBaseUrl` (optional)
 base URL used to resolve relative documentation links in commit messages.
