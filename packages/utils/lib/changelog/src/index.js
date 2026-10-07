@@ -21,7 +21,14 @@ const {join, dirname, resolve} = require('path');
 const {readFileSync, writeFileSync} = require('fs');
 const NO_SCOPE = 'NONE';
 const DEFAULT_DOCS_BASE_URL = 'https://heremaps.github.io/xyz-maps/';
+const CHANGELOG_TYPE_ALIASES = {
+    added: 'add',
+    fixed: 'fix',
+    improved: 'improve'
+};
 let cwd;
+
+const normalizeChangelogType = (type) => CHANGELOG_TYPE_ALIASES[type.toLowerCase()] || type;
 
 const hasNoChangelogTrailer = (commit) => {
     const paragraphs = commit.trim().split(/\r?\n(?:[ \t]*\r?\n)+/);
@@ -154,7 +161,8 @@ const createMarkup = async (newVersion, logs, docsBaseUrl) => {
 
         for (let name in scopes) {
             scopes[name].reverse().forEach((log) => {
-                text = '* ' + log.type + ':' + resolveDocsLinks(log.desc, docsBaseUrl) + '\n' + text;
+                const type = normalizeChangelogType(log.type);
+                text = '* ' + type + ':' + resolveDocsLinks(log.desc, docsBaseUrl) + '\n' + text;
             });
 
             if (logs.length > 1) {
