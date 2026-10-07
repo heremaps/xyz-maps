@@ -36,6 +36,12 @@ defaults to CHANGELOG.md
 path to project root.
 defaults to current directory
 
+#### `.options.docsBaseUrl` (optional)
+base URL used to resolve relative documentation links in commit messages.
+defaults to `https://heremaps.github.io/xyz-maps/`.
+Links written as `[text](docs/...)` or `[text](./docs/...)` are made absolute using this base URL.
+Use a path without a leading slash; absolute links and other relative links are left unchanged.
+
 ---
 
 ### License

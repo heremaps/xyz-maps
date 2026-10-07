@@ -20,7 +20,32 @@ const git = require('simple-git');
 const {join, dirname, resolve} = require('path');
 const {readFileSync, writeFileSync} = require('fs');
 const NO_SCOPE = 'NONE';
+const DEFAULT_DOCS_BASE_URL = 'https://heremaps.github.io/xyz-maps/';
 let cwd;
+
+const normalizeDocsBaseUrl = (docsBaseUrl) => {
+    const url = new URL(docsBaseUrl);
+
+    if (url.protocol !== 'http:' && url.protocol !== 'https:') {
+        throw new TypeError('docsBaseUrl must be an absolute HTTP(S) URL.');
+    }
+
+    if (!url.pathname.endsWith('/')) {
+        url.pathname += '/';
+    }
+
+    return url;
+};
+
+const resolveDocsLinks = (description, docsBaseUrl) => description.replace(
+    /\]\((?:<((?:\.\/)?docs\/[^>\s]+)>|((?:\.\/)?docs\/[^)\s]+))/g,
+    (match, angledHref, href) => {
+        const relativeUrl = angledHref || href;
+        const absoluteUrl = new URL(relativeUrl, docsBaseUrl).toString();
+
+        return match.replace(relativeUrl, absoluteUrl);
+    }
+);
 
 const getCommitlogs = async (from, to) => {
     // git log --first-parent master `git describe --tags --abbrev=0` ' + from + '..' + to + ' --format="%B"
@@ -103,7 +128,7 @@ const parseCommitLogs = async (from, to) => {
     };
 };
 
-const createMarkup = async (newVersion, logs) => {
+const createMarkup = async (newVersion, logs, docsBaseUrl) => {
     let now = new Date;
     let timeString = now.getFullYear() + '-' + (now.getMonth() + 1) + '-' + now.getDate();
     let changelog = '';
@@ -115,7 +140,9 @@ const createMarkup = async (newVersion, logs) => {
         changelog += '\n';
 
         for (let name in scopes) {
-            scopes[name].reverse().forEach((log) => text = '* ' + log.type + ':' + log.desc + '\n' + text);
+            scopes[name].reverse().forEach((log) => {
+                text = '* ' + log.type + ':' + resolveDocsLinks(log.desc, docsBaseUrl) + '\n' + text;
+            });
 
             if (logs.length > 1) {
                 let heading = name == NO_SCOPE ? 'general' : name;
@@ -149,8 +176,9 @@ const changelog = {
         options = options || {};
         let logs = await changelog.parse(options);
         let version = options.version || require(getPath('package.json')).version;
+        let docsBaseUrl = options.docsBaseUrl === undefined ? DEFAULT_DOCS_BASE_URL : options.docsBaseUrl;
 
-        return await createMarkup(version, logs);
+        return await createMarkup(version, logs, normalizeDocsBaseUrl(docsBaseUrl));
     },
 
     update: async (options) => {

@@ -27,6 +27,11 @@ const argv = require('yargs')(process.argv.slice(2))
             describe: 'the path to the module to update the changelog for.',
             demandOption: false,
             type: 'string'
+        },
+        docsBaseUrl: {
+            describe: 'base URL for relative docs links in commit messages.',
+            demandOption: false,
+            type: 'string'
         }
     })
     .help()
