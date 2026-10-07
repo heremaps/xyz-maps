@@ -34,7 +34,7 @@
     "@rollup/plugin-commonjs": "^22.0.2",
     "@rollup/plugin-node-resolve": "^16.0.0",
     "@rollup/plugin-terser": "^0.4.4",
-    "@rollup/plugin-typescript": "^12.1.2",
+    "@rollup/plugin-typescript": "^12.3.0",
     "@rollup/plugin-virtual": "^2.1.0",
     "@types/node": "^18.7.11",
     "@types/offscreencanvas": "^2019.7.3",
@@ -44,7 +44,7 @@
     "rollup": "^3.30.0",
     "rollup-plugin-sourcemaps": "^0.6.3",
     "tslib": "^2.4.0",
-    "typescript": "^4.7.4"
+    "typescript": "^5.9.3"
   },
   "gitHead": "45c1cfc050f2fd86d9540dfff1aed75acedb27fa"
 }

@@ -35,14 +35,14 @@
     "@rollup/plugin-commonjs": "^23.0.2",
     "@rollup/plugin-node-resolve": "^16.0.0",
     "@rollup/plugin-terser": "^0.4.4",
-    "@rollup/plugin-typescript": "^12.1.2",
+    "@rollup/plugin-typescript": "^12.3.0",
     "@rollup/plugin-virtual": "^2.1.0",
     "earcut": "^3.0.2",
     "gl-matrix": "^3.4.3",
     "rollup": "^3.30.0",
     "rollup-plugin-glslify": "^1.3.1",
     "tslib": "^2.4.1",
-    "typescript": "^4.7.4"
+    "typescript": "^5.9.3"
   },
   "gitHead": "45c1cfc050f2fd86d9540dfff1aed75acedb27fa"
 }

@@ -78,13 +78,14 @@ export function getAltitudeCapabilities(feature: EditorFeature, relativePosition
     if (editor.displayProvidesTerrain) {
         const styleGroup = editor.getResolvedStyle(feature);
         const isPointFeature = feature.geometry.type === 'Point';
+
         for (let style of styleGroup) {
             if (!isPointFeature && style.type !== 'Line' && style.type !== 'Polygon') continue;
-            if (relativePosition !== -1 && !(relativePosition >= style.from && relativePosition<= style.to ) ) continue;
+            if (relativePosition !== -1 && !(relativePosition >= style.from && relativePosition <= style.to)) continue;
 
             const altitude = style.altitude;
             usesTerrainAltitude ||= altitude === 'terrain';
-            usesAbsoluteAltitude ||= altitude === true || Number.isFinite(altitude) && altitude > 0;
+            usesAbsoluteAltitude ||= altitude === true || Number.isFinite(altitude) && (altitude as number) > 0;
         }
     }
 

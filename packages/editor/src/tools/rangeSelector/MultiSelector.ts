@@ -88,7 +88,7 @@ class MultiSelector {
         const {multiLink, lines} = this;
 
         for (let {feature} of lines) {
-            if (feature instanceof Feature) {
+            if (feature instanceof Navlink) {
                 oTools.defaults(feature);
             }
         }
@@ -153,7 +153,7 @@ class MultiSelector {
             }
 
             if (connected) {
-                if (feature instanceof Feature) {
+                if (feature instanceof Navlink) {
                     oTools.deHighlight(feature);
                 }
                 lines.push(lineSegment);

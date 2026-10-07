@@ -75,10 +75,16 @@ module.exports = function(config) {
         'TestLocalProvider': 'here.test.TestLocalProvider'
     };
 
+    const createTypeScriptPlugin = (include) => typescript({
+        typescript: require('typescript'),
+        include: include,
+        exclude: ['node_modules', 'dist'],
+        filterRoot: process.cwd()
+    });
 
     const createSpecPlugins = (module) => {
         return [
-            typescript(),
+            createTypeScriptPlugin(['src/**/*', 'specs/**/*']),
             json(),
             del({targets: [`dist/${module}/specs*.js`, `dist/${module}/*.html`]}),
             globImport({
@@ -113,12 +119,7 @@ module.exports = function(config) {
                         'credentials': 'export default' + JSON.stringify(credentials),
                         'cleanupServer': 'export default' + JSON.stringify(cleanupServer)
                     }),
-                    typescript({
-                        typescript: require('typescript'),
-                        // only compileroptions are read from tsconfig.json
-                        include: ['src/**/*'],
-                        exclude: ['node_modules', 'dist']
-                    }),
+                    createTypeScriptPlugin(['src/**/*']),
                     json(),
                     del({targets: ['dist/common/common*', 'dist/common/output*']}),
                     nodeResolve(),
@@ -165,12 +166,7 @@ module.exports = function(config) {
                 input: './src/main-core.ts',
                 external: externals,
                 plugins: [
-                    typescript({
-                        typescript: require('typescript'),
-                        // only compileroptions are read from tsconfig.json
-                        include: ['src/**/*'],
-                        exclude: ['node_modules', 'dist']
-                    }),
+                    createTypeScriptPlugin(['src/**/*']),
                     json(),
                     del({targets: ['dist/core/core*', 'dist/core/output*']}),
                     virtual({
@@ -224,12 +220,7 @@ module.exports = function(config) {
                 input: './src/main-display.ts',
                 external: externals,
                 plugins: [
-                    typescript({
-                        typescript: require('typescript'),
-                        // only compileroptions are read from tsconfig.json
-                        include: ['src/**/*'],
-                        exclude: ['node_modules', 'dist']
-                    }),
+                    createTypeScriptPlugin(['src/**/*']),
                     json(),
                     del({targets: ['dist/display/display*', 'dist/display/output*']}),
                     virtual({
@@ -283,12 +274,7 @@ module.exports = function(config) {
                 input: './src/main-editor.ts',
                 external: externals,
                 plugins: [
-                    typescript({
-                        typescript: require('typescript'),
-                        // only compileroptions are read from tsconfig.json
-                        include: ['src/**/*'],
-                        exclude: ['node_modules', 'dist']
-                    }),
+                    createTypeScriptPlugin(['src/**/*']),
                     json(),
                     del({targets: ['dist/editor/editor*', 'dist/editor/output*']}),
                     virtual({
@@ -341,12 +327,7 @@ module.exports = function(config) {
                 input: './src/main-integration.ts',
                 external: externals,
                 plugins: [
-                    typescript({
-                        typescript: require('typescript'),
-                        // only compileroptions are read from tsconfig.json
-                        include: ['src/**/*'],
-                        exclude: ['node_modules', 'dist']
-                    }),
+                    createTypeScriptPlugin(['src/**/*']),
                     json(),
                     del({targets: ['dist/integration/integration*', 'dist/integration/output*']}),
                     virtual({

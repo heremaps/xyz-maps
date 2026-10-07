@@ -299,7 +299,7 @@ class RangeMarker extends Feature<'Point'> {
         const curSegNr = getSegmentIndex(
             this.range.getMultiLink().coord().map((c) => iEditor.map.getPixelCoord(c)),
             position
-        );
+        ) as number;
 
         if (curSegNr >= sublink.from && curSegNr < sublink.to) {
             const coords = sublink.lineString.map((c) => iEditor.map.getPixelCoord(c));

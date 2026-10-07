@@ -151,7 +151,7 @@ class MultiLink {
         // const newPath = link.coord();
         const {links} = this;
 
-        if (feature instanceof Feature) {
+        if (feature instanceof Navlink) {
             oTools.defaults(feature);
         }
 

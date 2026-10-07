@@ -23,7 +23,7 @@ export class TransferableCollector {
 
     add(data: any|TypedArray) {
         const buffer = (data as Float32Array)?.buffer;
-        if (buffer) {
+        if (buffer instanceof ArrayBuffer) {
             this.transfer.add(buffer);
         } else if (!Array.isArray(data) && typeof data == 'object') {
             for (let p in data) {

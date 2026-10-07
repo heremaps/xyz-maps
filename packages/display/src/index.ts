@@ -36,7 +36,13 @@ const globalNamespace = global.here.xyz.maps;
 globalNamespace.Map = Map;
 globalNamespace.styleTools = styleTools;
 
+/**
+ * StyleTools
+ *
+ * @hidden
+ */
 export {styleTools};
+
 export {Map};
 export {MapEvent} from './event/Event';
 export {MapOptions, ModifierKey} from './MapOptions';

@@ -486,7 +486,7 @@ export class RenderTarget implements IRenderTarget {
         this.debugImageData(flipped, width, height);
     }
 
-    debugImageData(pixels: Uint8ClampedArray, width: number, height: number) {
+    debugImageData(pixels: Uint8ClampedArray<ArrayBuffer>, width: number, height: number) {
         // Draw to a canvas -> data URL
         const canvas = document.createElement('canvas');
         canvas.width = width;

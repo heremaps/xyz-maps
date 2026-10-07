@@ -258,7 +258,7 @@ export class GLRender implements BasicRender {
     private screenRenderTarget: ScreenRenderTarget;
     private useScreenDepthTexture: boolean;
 
-    private passes: Record<PASS, RenderPass>;
+    private passes: Record<Exclude<PASS, PASS.NONE>, RenderPass>;
     private _stencilClearedForZIndex: number;
     private _stencilClearTarget: IRenderTarget | null;
     private rtManager: RenderTargetManager;

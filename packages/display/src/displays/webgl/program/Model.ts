@@ -43,7 +43,7 @@ class ModelProgram extends Program {
     static getBufferMacroMask(buffer: GeometryBuffer) {
         const {uniforms} = buffer;
         let mask = super.getBufferMacroMask(buffer);
-        if (uniforms.illumination > 0) {
+        if (uniforms.illumination as number > 0) {
             mask |= PROGRAM_MACRO.DIFFUSE;
         }
         if ((uniforms.normalMap as Texture).width > 1) {

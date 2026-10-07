@@ -30,7 +30,7 @@ import {join} from 'path';
 import terser from '@rollup/plugin-terser';
 import fs from 'fs';
 import nodeResolve from 'resolve';
-const tsServicePath = nodeResolve.sync('typescript/lib/typescriptServices.js');
+const tsServicePath = nodeResolve.sync('typescript/lib/typescript.js');
 
 const env = process.env;
 const DEST = env['destination'] || settings.path.destination;
@@ -43,6 +43,13 @@ const production = env.BUILD == 'production';
 const ts = (new Date()).getTime();
 
 const pathCfg = settings.path['xyz-maps'];
+
+const createTypeScriptPlugin = () => typescript({
+    typescript: require('typescript'),
+    include: ['src/**/*', 'examples/**/*'],
+    exclude: ['node_modules', 'dist'],
+    filterRoot: process.cwd()
+});
 
 
 for (let module in pathCfg) {
@@ -115,7 +122,7 @@ const rollupConfig = [{
             inject: true,
             minimize: production
         }),
-        typescript(),
+        createTypeScriptPlugin(),
         production && terser(),
         copy({
             targets: [{
@@ -139,7 +146,7 @@ const rollupConfig = [{
   <title>${title}</title>
   ${env['html-metadata'] || ''}
   <script src="${settings.path.token}"></script>
-  <script src="./typescriptServices.js"></script>
+  <script src="./typescript.js"></script>
 </head>
 <body>
   <div id="app"></div>
@@ -176,7 +183,7 @@ if (!env['token-path']) {
                 'access_token': `export const TOKEN="${credentials.access_token}";
                 export const APIKEY="${credentials.api_key}";`
             }),
-            typescript(),
+            createTypeScriptPlugin(),
             terser()
         ],
         treeshake: production

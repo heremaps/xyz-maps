@@ -23,6 +23,10 @@ import {
     TileLayer,
     EditableRemoteTileProvider,
     StyleGroup,
+    Style,
+    StyleExpression,
+    StyleValueFunction,
+    StyleZoomRange,
     Feature
 } from '@here/xyz-maps-core';
 import {Map as Display, styleTools} from '@here/xyz-maps-display';
@@ -42,6 +46,18 @@ import {Navlink} from './features/link/Navlink';
 const ERROR_EVENT = 'error';
 
 let UNDEF;
+
+type ResolvedStyleValue<Value> =
+    Value extends StyleExpression<any> ? undefined :
+        Value extends StyleValueFunction<infer Result> ? Result | undefined :
+            Value extends StyleZoomRange<infer Result> ? Result | undefined :
+                Value;
+
+type ResolvedStyle<T extends Style = Style> = {
+    [Property in keyof T]: ResolvedStyleValue<T[Property]>
+};
+
+type ResolvedStyleGroup = ResolvedStyle[];
 
 
 export default class InternalEditor {
@@ -198,7 +214,7 @@ export default class InternalEditor {
         return JSUtils.extend(true, [], style);
     };
 
-    getResolvedStyle(feature: Feature, layerDefaults?: boolean): StyleGroup {
+    getResolvedStyle(feature: Feature, layerDefaults?: boolean): ResolvedStyleGroup {
         const styleGroup = this.getStyle(feature, layerDefaults);
         const zoom = this.display.getZoomlevel() ^ 0;
         let layerDefaultAltitude;
@@ -216,7 +232,7 @@ export default class InternalEditor {
                 style.altitude = layerDefaultAltitude;
             }
         }
-        return styleGroup;
+        return styleGroup as unknown as ResolvedStyleGroup;
     }
 
     getCustomStyle(feature: Feature): StyleGroup {

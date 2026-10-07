@@ -2,6 +2,8 @@
   "extends": "../../tsconfig.json",
   "compilerOptions": {
     "target": "ES2017",
+    "rootDir": "..",
+    "outDir": "dist",
     "sourceMap": true,
     "allowJs": true,
     "skipLibCheck": true,

@@ -228,7 +228,7 @@ export class TerrainModelBuffer extends ModelBuffer {
         if (hit) {
             const {idOffsets} = buffer;
             for (let i = 0, {length} = idOffsets; i < length; i += 2) {
-                if (0 < idOffsets[i]) {
+                if (0 < (idOffsets[i] as number)) {
                     return idOffsets[i + 1];
                 }
             }

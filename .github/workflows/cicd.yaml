@@ -19,7 +19,6 @@ jobs:
 
         strategy:
             matrix:
-                node-version: [ 20.x ]
                 browser: [ ChromeHeadless ]
                 os: [ ubuntu-latest ]
 
@@ -35,10 +34,10 @@ jobs:
                     key: ${{ runner.os }}-yarn-${{ hashFiles('**/yarn.lock') }}
                     restore-keys: |
                         ${{ runner.os }}-yarn-
-            -   name: Use Node.js ${{ matrix.node-version }}
-                uses: actions/setup-node@v1
+            -   name: Use Node.js from .nvmrc
+                uses: actions/setup-node@v4
                 with:
-                    node-version: ${{ matrix.node-version }}
+                    node-version-file: .nvmrc
                     registry-url: 'https://registry.npmjs.org'
                 env:
                     NODE_AUTH_TOKEN: ${{ secrets.NPM_TOKEN }}

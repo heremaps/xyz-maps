@@ -108,7 +108,7 @@ class WorkerHTTPLoader extends HTTPLoader {
 
     async call(args: { method: string, key?: string, data?: any, transfer?: any[] }): Promise<any> {
         const {method, data, transfer} = args;
-        const key = args.method + args.key ?? '';
+        const key = args.method + (args.key ?? '');
         const promise = this.addPendingResponse(key);
         this.worker.postMessage({msg: method, key, custom: data}, transfer);
         return promise;

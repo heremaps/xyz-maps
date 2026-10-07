@@ -14,7 +14,7 @@
   },
   "main": "dist/xyz-maps-common.min.js",
   "module": "dist/xyz-maps-common.esm.min.js",
-  "types": "dist/xyz-maps-common.d.js",
+  "types": "dist/xyz-maps-common.d.ts",
   "files": [
     "dist/xyz*.min.js",
     "dist/xyz-maps-common.d.ts"
@@ -30,10 +30,10 @@
   "publishConfig": {},
   "devDependencies": {
     "@rollup/plugin-terser": "^0.4.4",
-    "@rollup/plugin-typescript": "^12.1.2",
+    "@rollup/plugin-typescript": "^12.3.0",
     "rollup": "^3.30.0",
     "tslib": "^2.4.0",
-    "typescript": "^4.7.4"
+    "typescript": "^5.9.3"
   },
   "gitHead": "45c1cfc050f2fd86d9540dfff1aed75acedb27fa"
 }

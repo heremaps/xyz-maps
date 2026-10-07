@@ -16,7 +16,7 @@
  * SPDX-License-Identifier: Apache-2.0
  * License-Filename: LICENSE
  */
-import {rmdirSync, existsSync, mkdirSync} from 'fs';
+import {rmSync, existsSync, mkdirSync} from 'fs';
 import * as path from 'path';
 import {setReleaseTags} from './setReleaseTags';
 import {Extractor, ExtractorConfig, ExtractorResult, IConfigFile} from '@microsoft/api-extractor';
@@ -76,6 +76,6 @@ export const build = async (moduleDirectory: string, apiExtractorJsonPath: strin
         process.exitCode = 1;
     } finally {
         console.log(`Cleanup temporary declaration files`);
-        rmdirSync(path.join(moduleDirectory, dtsFolder), {recursive: true});
+        rmSync(path.join(moduleDirectory, dtsFolder), {recursive: true, force: true});
     }
 };

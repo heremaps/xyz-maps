@@ -1,17 +1,17 @@
 {
   "name": "XYZ Maps Documentation",
-  "mode": "modules",
+  "entryPointStrategy": "packages",
+  "entryPoints": ["packages/display", "packages/core", "packages/editor"],
+  "packageOptions": {
+    "entryPoints": ["src/index.ts"],
+    "skipErrorChecking": true,
+    "exclude": ["**/*.spec.ts"],
+    "disableSources": true,
+    "excludePrivate": true,
+    "excludeExternals": true,
+    "excludeNotDocumented": true
+  },
   "out": "docs",
   "theme": "default",
-  "ignoreCompilerErrors": "false",
-  "preserveConstEnums": "true",
-  "exclude": "*.spec.ts",
-  "disableSources": "true",
-  "excludePrivate": "true",
-  "excludeExternals": "true",
-  "excludeNotExported": "true",
-  "excludeNotDocumented": "true",
-  "external-modulemap": ".*packages\/([^\/]+)\/.*",
-  "stripInternal": "false",
-  "plugin": ["@strictsoftware/typedoc-plugin-monorepo","typedoc-plugin-remove-references"]
+  "plugin": ["typedoc-plugin-remove-references"]
 }

@@ -231,11 +231,13 @@ class Crossing implements GeoJSONFeature {
         const prv = this._;
         const {iEditor, xTester} = prv;
         const croLink = this.getLink();
+        const candidateModifiedTS = croCandidate.editState('modified') as number;
+        const linkModifiedTS = croLink.editState('modified') as number;
 
         if (
             !croCandidate.id || !croLink.id || croCandidate.editState('removed') ||
-            croCandidate.editState('modified') > xTester.createTS ||
-            croLink.editState('removed') || croLink.editState('modified') > xTester.createTS
+            candidateModifiedTS > xTester.createTS ||
+            croLink.editState('removed') || linkModifiedTS > xTester.createTS
         ) {
             return false;
         }

@@ -17,8 +17,6 @@
  * License-Filename: LICENSE
  */
 
-import {GeoJSONBBox} from '@here/xyz-maps-core';
-
 const TORAD = Math.PI / 180;
 const TODEG = 180 / Math.PI;
 const earthRadius = 6371000; // meters
@@ -82,7 +80,7 @@ export const mergeBBoxes = (bbox1: BBox, bbox2: BBox) => {
     return bbox1;
 };
 
-export const extendBBox = (bbox: BBox, distanceMeter: number): GeoJSONBBox => {
+export const extendBBox = (bbox: BBox, distanceMeter: number): BBox => {
     const leftLonD = Math.abs(Math.asin(distanceMeter / (earthRadius * Math.cos(bbox[0] * TORAD)))) * TODEG;
     const rightLonD = Math.abs(Math.asin(distanceMeter / (earthRadius * Math.cos(bbox[2] * TORAD)))) * TODEG;
     const latitudeD = Math.abs(Math.asin(distanceMeter / earthRadius)) * TODEG;

@@ -303,7 +303,8 @@ class CrossingTester {
 
         // calculate crossings if it is never calculated or link is modified after the calculation
         // if links is given, then force to do a calculating with the given links
-        if (!that.createTS || that.linkOrig.editState('modified') > that.createTS || option.links) {
+        const orgLinkEditTS = that.linkOrig.editState('modified') as number;
+        if (!that.createTS || orgLinkEditTS > that.createTS || option.links) {
             that.clear();
 
             that.foundCrossings = that.calculateCrossings(that.relatedLink, that.searchType);

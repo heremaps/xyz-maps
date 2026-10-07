@@ -40,6 +40,7 @@ export const compileDeclarations = (configFilePath: string, entryPoint: string, 
     cfg.options.emitDeclarationOnly = true;
     cfg.options.declarationMap = true;
     cfg.options.declaration = true;
+    cfg.options.rootDir = path.resolve(path.dirname(configFilePath), '..');
     cfg.options.outDir = outDir;
 
     const fileNames = [entryPoint];

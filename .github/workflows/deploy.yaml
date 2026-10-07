@@ -22,9 +22,9 @@ jobs:
                     restore-keys: |
                         ${{ runner.os }}-yarn-
             -   name: Setup Node.js
-                uses: actions/setup-node@v2
+                uses: actions/setup-node@v4
                 with:
-                    node-version: '20'
+                    node-version-file: .nvmrc
             -   name: Install dependencies
                 run: yarn install --network-timeout ${{ env.yarn-network-timeout }}
             -   name: Build documentation

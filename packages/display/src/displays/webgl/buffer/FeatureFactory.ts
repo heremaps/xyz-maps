@@ -703,7 +703,7 @@ export class FeatureFactory {
 
                                 let widthId;
                                 if (isDynamicProperty(width)) {
-                                    widthId = (width.id ||= width++);
+                                    widthId = (width as Expression).id();
                                 } else {
                                     [width, sizeUnit] = parseSizeValue(width);
                                     widthId = width;
