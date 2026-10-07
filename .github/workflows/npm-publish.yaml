@@ -20,7 +20,7 @@ jobs:
             -   uses: actions/checkout@v2
             -   name: Get yarn cache directory path
                 id: yarn-cache-dir-path
-                run: echo "::set-output name=dir::$(yarn cache dir)"
+                run: echo "dir=$(yarn cache dir)" >> "$GITHUB_OUTPUT"
             -   uses: actions/cache@v4
                 id: yarn-cache # use this to check for `cache-hit` (`steps.yarn-cache.outputs.cache-hit != 'true'`)
                 with:
@@ -41,6 +41,6 @@ jobs:
                 id: get-dist-tag
                 run: |
                     distTag=$(jq -r '.version | match(".*-([^.]*)").captures[0].string' package.json)
-                    echo "::set-output name=dist-tag::${distTag:-latest}"
+                    echo "dist-tag=${distTag:-latest}" >> "$GITHUB_OUTPUT"
             -   name: npm publish
                 run: lerna publish from-package --no-git-tag-version --yes --dist-tag ${{ steps.get-dist-tag.outputs.dist-tag }}
