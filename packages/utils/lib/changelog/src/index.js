@@ -23,6 +23,13 @@ const NO_SCOPE = 'NONE';
 const DEFAULT_DOCS_BASE_URL = 'https://heremaps.github.io/xyz-maps/';
 let cwd;
 
+const hasNoChangelogTrailer = (commit) => {
+    const paragraphs = commit.trim().split(/\r?\n(?:[ \t]*\r?\n)+/);
+    const footer = paragraphs[paragraphs.length - 1];
+
+    return footer.split(/\r?\n/).some((line) => /^Changelog:\s*none\s*$/i.test(line.trim()));
+};
+
 const normalizeDocsBaseUrl = (docsBaseUrl) => {
     const url = new URL(docsBaseUrl);
 
@@ -48,9 +55,9 @@ const resolveDocsLinks = (description, docsBaseUrl) => description.replace(
 );
 
 const getCommitlogs = async (from, to) => {
-    // git log --first-parent master `git describe --tags --abbrev=0` ' + from + '..' + to + ' --format="%B"
+    // git log --first-parent master `git describe --tags --abbrev=0` ' + from + '..' + to + ' --format="%B%x00"
     return new Promise((resolve, reject) => {
-        git(cwd).raw(['log', '--first-parent', 'master', from + '..' + to, '--format=%B'], function(err, result) {
+        git(cwd).raw(['log', '--first-parent', 'master', from + '..' + to, '--format=%B%x00'], function(err, result) {
             if (err) {
                 reject(err);
             } else {
@@ -90,34 +97,40 @@ const parseCommitLogs = async (from, to) => {
     let length = 0;
 
     if (logs) {
-        logs = logs.match(/^([a-z]+(\([a-z]+\))?:){1}.+/mgi);
-
-        logs && logs.forEach((log) => {
-            if (log) {
-                let scope = log.match(/^[a-z]+\(.+\):/i);
-                // group by scope...
-                if (scope) {
-                    scope = scope[0];
-                    scope = scope.slice(scope.indexOf('('), -1);
-                    log = log.replace(scope, '');
-                    // remove brackets
-                    scope = scope.slice(1, -1);
-                } else {
-                    scope = NO_SCOPE;
-                }
-
-                if (!scopes[scope]) {
-                    length++;
-                    scopes[scope] = [];
-                }
-
-                log = log.split(/:(.+)/);
-
-                scopes[scope].push({
-                    type: log[0],
-                    desc: log[1]
-                });
+        logs.split('\0').forEach((commit) => {
+            if (!commit.trim() || hasNoChangelogTrailer(commit)) {
+                return;
             }
+
+            const entries = commit.match(/^([a-z]+(\([a-z]+\))?:){1}.+/mgi);
+
+            entries && entries.forEach((log) => {
+                if (log) {
+                    let scope = log.match(/^[a-z]+\(.+\):/i);
+                    // group by scope...
+                    if (scope) {
+                        scope = scope[0];
+                        scope = scope.slice(scope.indexOf('('), -1);
+                        log = log.replace(scope, '');
+                        // remove brackets
+                        scope = scope.slice(1, -1);
+                    } else {
+                        scope = NO_SCOPE;
+                    }
+
+                    if (!scopes[scope]) {
+                        length++;
+                        scopes[scope] = [];
+                    }
+
+                    log = log.split(/:(.+)/);
+
+                    scopes[scope].push({
+                        type: log[0],
+                        desc: log[1]
+                    });
+                }
+            });
         });
     }
 

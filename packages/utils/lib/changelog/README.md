@@ -42,6 +42,18 @@ defaults to `https://heremaps.github.io/xyz-maps/`.
 Links written as `[text](docs/...)` or `[text](./docs/...)` are made absolute using this base URL.
 Use a path without a leading slash; absolute links and other relative links are left unchanged.
 
+## Excluding a commit from the changelog
+
+Add the custom `Changelog: none` trailer as its own line in the commit's final paragraph:
+
+```text
+fix(core): correct an internal edge case
+
+Changelog: none
+```
+
+This excludes every conventional-commit entry in that Git commit, including when the commit message contains multiple entries.
+
 ---
 
 ### License
