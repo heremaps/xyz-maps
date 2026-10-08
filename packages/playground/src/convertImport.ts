@@ -33,7 +33,7 @@ export const convertImport = (
 
     let pkg = from[1].match(/[\"|\''](.*?)[\"|\'']/)[1];
     let defaultModule: string | string[] = from[0].split(/ *\{/)[0].split(',');
-    let modules = from[0].match(/\{(.*?)\}/);
+    let modules: string[] = from[0].match(/\{(.*?)\}/);
 
     defaultModule = defaultModule[0].trim();
 
