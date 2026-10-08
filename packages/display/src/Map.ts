@@ -1374,7 +1374,7 @@ export class Map {
     /**
      * Set new geographical center for the map.
      *
-     * @param logitude - longitude to center the map
+     * @param longitude - longitude to center the map
      * @param latitude - latitude to center the map
      *
      * @example

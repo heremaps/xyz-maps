@@ -47,6 +47,10 @@ export type TerrainTileFeatureProperties = TerrainTileMesh & {
      */
     [name: string]: any;
 
+    /**
+     * @internal
+     * @hidden
+     */
     heightMap?: Uint16Array | Uint32Array | Float32Array;
 
     /**
@@ -88,6 +92,8 @@ export class TerrainTileFeature extends Feature<'Polygon'> {
 
     /**
      * The Properties of the Terrain Tile feature.
+     * @inlineType TerrainTileFeatureProperties
+     * @inlineType TerrainTileMesh
      */
     properties: TerrainTileFeatureProperties;
 

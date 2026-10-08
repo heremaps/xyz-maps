@@ -239,14 +239,13 @@ export interface ImageStyle {
     altitude?: number | boolean | 'terrain' | StyleValueFunction<number | boolean | 'terrain'> | StyleZoomRange<number | boolean | 'terrain'> | StyleExpression<number | boolean | 'terrain'>;
 
     /**
-     * Scales the size of a style based on the feature's altitude.
-     * If it's enabled (true), features closer to the camera will be drawn larger than those farther away.
-     * When off (false), the size of the style is always the same size, regardless of its actual altitude, as if it were placed on the ground (altitude 0).
-     * This attribute applies to styles of type "Rect", "Image", "Text", "Circle", "Line", "Box", or "Sphere" whose size ({@link width}, {@link radius}, {@link strokeWidth}) that are using "map" {@link alignment} only.
-     * If the size attribute is defined in meters, scaleByAltitude is enabled by default, for pixels it is disabled.
+     * Controls perspective scaling of an Image's {@link width} and {@link height} based on the feature's altitude.
+     * When disabled, the Image is scaled as if it were at ground level.
+     * This applies only when {@link alignment} is `"map"`; viewport-aligned Images are unaffected.
      *
-     * @defaultValue false (pixels), true (meters)
+     * Image dimensions are pixel-based, so scaling is disabled by default and enabled by default when {@link altitude} resolves to `"terrain"`.
      *
+     * @defaultValue false for pixel dimensions; true for terrain altitude
      * @experimental
      */
     scaleByAltitude?: boolean | StyleValueFunction<boolean> | StyleZoomRange<boolean> | StyleExpression<boolean>;

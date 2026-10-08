@@ -36,7 +36,7 @@ const intersectBBox = (ax, ax2, ay, ay2, bx, bx2, by, by2) => {
 };
 
 /**
- * The TileProvider is an abstract Provider that serves map-data partitioned in {@link Tiles}.
+ * The TileProvider is an abstract Provider that serves map data partitioned into {@link Tile} instances.
  */
 export default abstract class TileProvider {
     __type: string;

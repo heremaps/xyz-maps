@@ -137,8 +137,8 @@ export class RemoteTileProvider extends FeatureProvider {
      * @param callback - will be called as soon as tile is ready for consumption
      * @returns the Tile
      */
-    getTile(quadkey: string, cb: (tile: Tile) => void) {
-        return this.remoteTileLoader.getTile(quadkey, cb);
+    getTile(quadkey: string, callback: (tile: Tile) => void) {
+        return this.remoteTileLoader.getTile(quadkey, callback);
     }
 
     _removeTile(tile: Tile, triggerEvent) {

@@ -22,6 +22,7 @@ export * from './pixel/PixelRect';
 export * from './geo/GeoPoint';
 export * from './geo/GeoRect';
 export * from './layers/TileLayer';
+export type {DataSourceAttribution} from './layers/DataSourceAttribution';
 export * from './styles/LayerStyle';
 export * from './styles/BoxStyle';
 export * from './styles/CircleStyle';
@@ -46,7 +47,10 @@ export {tileUtils} from './tile/TileUtils';
 export * from './features/GeoJSON';
 
 export {ImageProvider} from './providers/ImageProvider';
+export type {ImageProviderOptions} from './providers/ImageProviderOptions';
 export {GeoJSONProvider} from './providers/GeoJSONProvider';
+export {default as TileProvider} from './providers/TileProvider/TileProvider';
+export type {TileProviderOptions} from './providers/TileProvider/TileProviderOptions';
 export {FeatureProvider} from './providers/FeatureProvider';
 export {LocalProvider, LocalProviderOptions} from './providers/LocalProvider';
 export {RemoteTileProvider} from './providers/RemoteTileProvider/RemoteTileProvider';
@@ -62,6 +66,7 @@ export {IMLProviderOptions} from './providers/IMLProvider/IMLProviderOptions';
 export {MVTProvider} from './providers/MVTProvider/MVTProvider';
 export {TerrainTileProvider} from './providers/TerrainProvider/TerrainTileProvider';
 export {EditableFeatureProvider} from './providers/EditableFeatureProvider';
+export {LayerOptions} from './layers/LayerOptions';
 export {MVTLayerOptions} from './layers/MVTLayerOptions';
 export {TileLayerOptions, DataUnavailableFallback} from './layers/TileLayerOptions';
 export {ClusterFeature, ClusterFeatureProperties} from './features/ClusterFeature';
@@ -234,4 +239,3 @@ export default {
     build,
     common
 };
-

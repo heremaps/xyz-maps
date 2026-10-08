@@ -28,27 +28,35 @@ import {
 } from '@here/xyz-maps-editor';
 import {GeoJSONCoordinate} from '../features/GeoJSON';
 import {TileProviderOptions} from './TileProvider/TileProviderOptions';
+import type {
+    Editor,
+    EditorOptions,
+    Feature as EditorFeature,
+    Line,
+    Marker,
+    Area,
+    Navlink as EditorNavlink,
+    Place,
+    Address
+} from '@here/xyz-maps-editor';
+
 
 // type EditorFeature = { editState: (state?: string, value?) => any };
-
-type NavlinkId = string | number;
-
-type Navlink = Feature;
 
 /**
  *  Configuration options of a EditableFeatureProviderOptions.
  */
 export interface EditableFeatureProviderOptions extends TileProviderOptions {
     /**
-     *  Allow or prevent editing by the {@link editor.Editor | Editor} module.
+     *  Allow or prevent editing by the {@link Editor} module.
      *
      *  @defaultValue false
      */
     editable?: boolean;
     /**
      * Enforce random ids for newly created features.
-     * If "enforceRandomFeatureId" is set to true, the ids of features created by {@link editor.Editor.addFeature | editor.addFeature} are ignored and randomly created.
-     * If "enforceRandomFeatureId" is set to false, ids of features created by {@link editor.Editor.addFeature | editor.addFeature} can be set. Random ids are only generated if none have been set.
+     * If "enforceRandomFeatureId" is set to true, the ids of features created by {@link Editor.addFeature | editor.addFeature} are ignored and randomly created.
+     * If "enforceRandomFeatureId" is set to false, ids of features created by {@link Editor.addFeature | editor.addFeature} can be set. Random ids are only generated if none have been set.
      *
      * @defaultValue true
      */
@@ -59,7 +67,7 @@ export interface EditableFeatureProviderOptions extends TileProviderOptions {
      *
      * Available editing operations are 'Navlink.disconnect', 'Navlink.split', 'Feature.remove', 'Coordinates.remove'.
      *
-     * @see {@link editor.Editor.addHook | editor.addHook}
+     * @see {@link Editor.addHook | editor.addHook}
      */
     hooks?: {
         /**
@@ -113,7 +121,7 @@ export abstract class EditableFeatureProvider extends FeatureTileProvider {
      *
      * Available editing operations are 'Navlink.disconnect', 'Navlink.split', 'Feature.remove', 'Coordinates.remove'.
      *
-     * @see {@link editor.Editor.addHook | editor.addHook }
+     * @see {@link Editor.addHook | editor.addHook }
      */
     hooks?: {
         'Navlink.split'?: NavlinkSplitHook | NavlinkSplitHook[],
@@ -129,14 +137,14 @@ export abstract class EditableFeatureProvider extends FeatureTileProvider {
     }
 
     /**
-     * This method is used to determine the {@link editor.Feature.class | FeatureClass} required to edit the feature.
-     * The {@link editor.Feature.class | FeatureClass} defines how a certain feature behaves when its getting edited.
+     * This method is used to determine the {@link EditorFeature.class | FeatureClass} required to edit the feature.
+     * The {@link EditorFeature.class | FeatureClass} defines how a certain feature behaves when its getting edited.
      *
-     * By default, the {@link editor.Editor Editor} handles all features of geometry type 'LineString' as {@link editor.Line | Line}, 'Point' as {@link editor.Marker | Marker} and '(Multi)Polygon' as {@link editor.Area | Area}.
+     * By default, the {@link Editor} handles all features of geometry type 'LineString' as {@link Line}, 'Point' as {@link Marker} and '(Multi)Polygon' as {@link Area}.
      *
-     * If you want to edit features with {@link editor.Feature.class | FeatureClass} 'NAVLINK', 'PLACE' or 'ADDRESS' this method must be overridden to enable editing of {@link editor.Navlink | Navlinks}, {@link editor.Place | Places} or {@link editor.Address | Addresses}.
+     * If you want to edit features with {@link EditorFeature.class | FeatureClass} 'NAVLINK', 'PLACE' or 'ADDRESS' this method must be overridden to enable editing of {@link EditorNavlink | Navlinks}, {@link Place | Places} or {@link Address | Addresses}.
      *
-     * @param feature - The feature whose {@link editor.Feature.class | FeatureClass} is requested
+     * @param feature - The feature whose {@link EditorFeature.class | FeatureClass} is requested
      *
      * @returns the FeatureClass of the feature, or null if the feature should not be editable.
      */
@@ -159,58 +167,58 @@ export abstract class EditableFeatureProvider extends FeatureTileProvider {
     /**
      * Attribute reader for obtaining the zLevels of a Navlink feature.
      *
-     * This method must be implemented to enable editing of {@link editor.Navlink | Navlinks}.
+     * This method must be implemented to enable editing of {@link EditorNavlink | Navlinks}.
      *
      * @param navlink - the Navlink whose zLevels are requested
      *
-     * @return An array containing the zLevel for each coordinate of the Navlink.
+     * @returns An array containing the zLevel for each coordinate of the Navlink.
      */
-    abstract readZLevels(navlink: Navlink): number[];
+    abstract readZLevels(navlink: Feature): number[];
 
     /**
      * Attribute writer for writing the zLevels of a Navlink feature.
      *
-     * This method must be implemented to enable editing of {@link editor.Navlink | Navlinks}.
+     * This method must be implemented to enable editing of {@link EditorNavlink | Navlinks}.
      *
      * @param navlink - the Navlink whose zLevels should be set
      * @param zLevels - An array containing the zLevel for each coordinate of the Navlink
      *
-     * @return An array containing the zLevel for each coordinate of the Navlink.
+     * @returns An array containing the zLevel for each coordinate of the Navlink.
      */
-    abstract writeZLevels(navlink: Navlink, zLevels: number[]);
+    abstract writeZLevels(navlink: Feature, zLevels: number[]);
 
     /**
      * Attribute reader for obtaining the direction of travel of a Navlink feature.
      *
-     * This method must be implemented to enable editing of {@link editor.Navlink | Navlinks}.
+     * This method must be implemented to enable editing of {@link EditorNavlink | Navlinks}.
      *
      * @param navlink - the Navlink whose direction is requested
      */
-    abstract readDirection(navlink: Navlink): 'BOTH' | 'START_TO_END' | 'END_TO_START';
+    abstract readDirection(navlink: Feature): 'BOTH' | 'START_TO_END' | 'END_TO_START';
 
     /**
      * Attribute reader for obtaining if a Navlink feature can be accessed by pedestrians only.
      *
-     * This method must be implemented to enable editing of {@link editor.Navlink | Navlinks}.
+     * This method must be implemented to enable editing of {@link EditorNavlink | Navlinks}.
      *
      * @param navlink - the Navlink
      *
      * @returns true, if the Navlink can be accessed by pedestrians only, otherwise false.
      */
-    abstract readPedestrianOnly(navlink: Navlink): boolean;
+    abstract readPedestrianOnly(navlink: Feature): boolean;
 
     /**
      * Attribute reader for obtaining the turn-restrictions of two Navlink Features.
      *
-     * This method must be implemented to enable editing of {@link editor.Navlink | Navlinks}.
+     * This method must be implemented to enable editing of {@link EditorNavlink | Navlinks}.
      *
      * @param turnFrom - The Navlink and it's coordinate index from which to turn from
      * @param turnTo - The Navlink and it's coordinate index to which you want to turn
      *
      * @returns true if turn is allowed, otherwise false.
      */
-    abstract readTurnRestriction(turnFrom: { link: Navlink, index: number }, turnTo: {
-        link: Navlink,
+    abstract readTurnRestriction(turnFrom: { link: Feature, index: number }, turnTo: {
+        link: Feature,
         index: number
     }): boolean;
 
@@ -218,7 +226,7 @@ export abstract class EditableFeatureProvider extends FeatureTileProvider {
     /**
      * Attribute writer for writing a turn restriction between two Navlink features.
      *
-     * This method must be implemented to enable editing of {@link editor.Navlink | Navlinks}.
+     * This method must be implemented to enable editing of {@link EditorNavlink | Navlinks}.
      * It defines whether a turn from one Navlink to another is permitted or restricted.
      *
      * @param restricted - Specifies whether the turn is forbidden (`true`) or allowed (`false`).
@@ -227,14 +235,14 @@ export abstract class EditableFeatureProvider extends FeatureTileProvider {
      */
     abstract writeTurnRestriction(
         restricted: boolean,
-        turnFrom: { link: Navlink; index: number },
-        turnTo: { link: Navlink; index: number }
+        turnFrom: { link: Feature; index: number },
+        turnTo: { link: Feature; index: number }
     );
 
     /**
      * Attribute reader for obtaining the id of the TileProvider containing the corresponding Navlink, of an Address or Place feature, on which the RoutingPoint is located.
      *
-     * This method must be implemented to enable editing of {@link editor.Place | Places} or {@link editor.Address | Addresses}.
+     * This method must be implemented to enable editing of {@link Place | Places} or {@link Address | Addresses}.
      *
      * @param feature - The Address or Place feature whose RoutingProvider is requested.
      *
@@ -246,7 +254,7 @@ export abstract class EditableFeatureProvider extends FeatureTileProvider {
      * Attribute reader for obtaining the RoutingPoint's geographical position of an Address or Place.
      * The geographical position must be located on the geometry of the related Navlink feature.
      *
-     * This method must be implemented to enable editing of {@link editor.Place | Places} or {@link editor.Address | Addresses}.
+     * This method must be implemented to enable editing of {@link Place | Places} or {@link Address | Addresses}.
      *
      * @param feature - The Address or Place feature whose RoutingProvider is requested.
      *
@@ -258,19 +266,19 @@ export abstract class EditableFeatureProvider extends FeatureTileProvider {
      * Attribute reader for obtaining the id of the Navlink Feature on which the RoutingPoint of an Address or Place feature is located.
      * For Addresses an Id must be returned. If null is returned for a Place, the Place is treated as "floating" without a RoutingPoint.
      *
-     * This method must be implemented to enable editing of {@link editor.Place | Places} or {@link editor.Address | Addresses}.
+     * This method must be implemented to enable editing of {@link Place | Places} or {@link Address | Addresses}.
      *
      * @param feature - The Address or Place of which the Navlink of the RoutingPoint is requested.
      *
      * @returns the Id of the Navlink on which the RoutingPoint is located.
      */
-    abstract readRoutingLink(feature: Feature): NavlinkId | null;
+    abstract readRoutingLink(feature: Feature): string | number | null;
 
     /**
      * Attribute writer to store the RoutingPoint's geographical position of an Address or Place.
      * The geographical position must be located on the geometry of the related Navlink feature.
      *
-     * This method must be implemented to enable editing of {@link editor.Place | Places} or {@link editor.Address | Addresses}.
+     * This method must be implemented to enable editing of {@link Place | Places} or {@link Address | Addresses}.
      *
      * @param feature - The Address or Place feature whose RoutingPoint position to write.
      * @param position - the geographical position of the RoutingPoint.
@@ -280,22 +288,22 @@ export abstract class EditableFeatureProvider extends FeatureTileProvider {
     /**
      * Attribute writer for storing the Navlink reference on which the RoutingPoint of an Address or Place feature is located.
      *
-     * This method must be implemented to enable editing of {@link editor.Place | Places} or {@link editor.Address | Addresses}.
+     * This method must be implemented to enable editing of {@link Place | Places} or {@link Address | Addresses}.
      *
      * @param feature - The Address or Place of which the Navlink reference of the RoutingPoint to store.
      * @param navlink - The navlink whose reference is to be written, or null in case of a Place becomes "floating" and has no RoutingPoint.
      *
      */
-    abstract writeRoutingLink(feature: Feature, position, navlink: Navlink | null);
+    abstract writeRoutingLink(feature: Feature, position, navlink: Feature | null);
 
     /**
-     * Read intersection-related connectivity for a {@link editor.Navlink | Navlink}  node.
+     * Read intersection-related connectivity for a {@link EditorNavlink | Navlink}  node.
      *
      * This method allows an EditableFeatureProvider to override the
      * default geometric intersection detection.
      *
-     * It is called for the start or end node of a {@link editor.Navlink | Navlink}  to determine
-     * whether that node forms an intersection and which {@link editor.Navlink | Navlinks}  are
+     * It is called for the start or end node of a {@link EditorNavlink | Navlink}  to determine
+     * whether that node forms an intersection and which {@link EditorNavlink | Navlinks}  are
      * connected to it.
      *
      * Implement this if intersection information is stored in feature
@@ -331,7 +339,7 @@ export abstract class EditableFeatureProvider extends FeatureTileProvider {
      *          or `undefined` to fall back to default detection.
      */
     readConnectedLinks?(
-        link: Navlink,
+        link: Feature,
         index: number
     ): Array<{ link: string | number; index?: number }> | [] | undefined {
         return undefined;
@@ -352,10 +360,10 @@ export abstract class EditableFeatureProvider extends FeatureTileProvider {
 
 
     /**
-     * Attribute reader for obtaining the Height of a Building (extruded {@link editor.Area | Area}).
+     * Attribute reader for obtaining the Height of a Building (extruded {@link Area}).
      * The height must be specified in meters.
      *
-     * This method must be implemented to enable editing of the height of an extruded {@link editor.Area | Area}.
+     * This method must be implemented to enable editing of the height of an extruded {@link Area}.
      *
      * @param feature - The Area feature whose height is requested.
      *
@@ -364,10 +372,10 @@ export abstract class EditableFeatureProvider extends FeatureTileProvider {
     abstract readFeatureHeight(feature: Feature): number | null;
 
     /**
-     * Attribute writer for storing the Height of a Building (extruded {@link editor.Area | Area}).
+     * Attribute writer for storing the Height of a Building (extruded {@link Area}).
      * The height must be specified in meters.
      *
-     * This method must be implemented to enable editing of the height of an extruded {@link editor.Area | Area}.
+     * This method must be implemented to enable editing of the height of an extruded {@link Area}.
      *
      * @param feature - The Area feature whose height should be updated/written.
      * @param height - The height specified in meters
@@ -376,7 +384,7 @@ export abstract class EditableFeatureProvider extends FeatureTileProvider {
     abstract writeFeatureHeight(feature: Feature, height: number | null);
 
 
-    readRoutingPoint(location): { link: NavlinkId, position: GeoJSONCoordinate } {
+    readRoutingPoint(location): { link: string | number, position: GeoJSONCoordinate } {
         return {
             link: this.readRoutingLink(location),
             position: this.readRoutingPosition(location)

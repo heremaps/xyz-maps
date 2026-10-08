@@ -31,6 +31,8 @@ import {Marker} from './features/marker/Marker';
 import {EditableFeatureProvider} from '@here/xyz-maps-core';
 
 export * from './features/feature/Feature';
+export type {FeatureContainer} from './features/Container';
+export type {FeatureProperties} from './features/feature/Properties';
 export * from './features/marker/Marker';
 export * from './features/line/Line';
 export * from './features/line/LineShape';
@@ -51,10 +53,13 @@ export {
 export * from './Hooks';
 
 export {RangeSelector} from './API/ERangeSelector';
+export type {Range, RangeSegment} from './API/ERangeSelector';
 
 export {Crossing} from './API/MCrossing';
 
 export {ConnectionCandidate} from './features/link/ConnectionCandidate';
+
+export type {TurnRestrictionEditor} from './tools/turnrestriction/TrEditor';
 
 export {DrawingShape} from './tools/drawingBoards/DrawingShape';
 

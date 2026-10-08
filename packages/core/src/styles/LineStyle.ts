@@ -17,6 +17,7 @@
  * License-Filename: LICENSE
  */
 import {Color, StyleExpression, StyleValueFunction, StyleZoomRange} from './LayerStyle';
+import type {PolygonStyle} from './PolygonStyle';
 
 /**
  * Interface for configuring the visual appearance of Lines.
@@ -57,7 +58,7 @@ export interface LineStyle {
     /**
      * Sets the width of the line.
      * The unit of strokeWidth is defined in pixels.
-     * For Polygons that are using {@link extrude}, the maximum possible strokeWidth is 1.0 pixel.
+     * For Polygons that are using {@link PolygonStyle.extrude}, the maximum possible strokeWidth is 1.0 pixel.
      * For Styles of type Line the strokeWidth can also be defined in meters by using a string: "$\{width\}m".
      *
      * @example
@@ -123,7 +124,7 @@ export interface LineStyle {
 
     /**
      * Specifies the URL of the image to be rendered at the positions of the dashes.
-     * If strokeDashimage is defined, only the first dash and gap definition of the {@link strokeDasharry} pattern is used.
+     * If strokeDashimage is defined, only the first dash and gap definition of the {@link LineStyle.strokeDasharray} pattern is used.
      * The dashimage will be colored with the color defined in {@link stroke}.
      */
     strokeDashimage?: string;
@@ -201,14 +202,12 @@ export interface LineStyle {
         StyleExpression<number | boolean | 'terrain'>;
 
     /**
-     * Scales the size of a style based on the feature's altitude.
-     * If it's enabled (true), features closer to the camera will be drawn larger than those farther away.
-     * When off (false), the size of the style is always the same size, regardless of its actual altitude, as if it were placed on the ground (altitude 0).
-     * This attribute applies to styles of type "Rect", "Image", "Text", "Circle", "Line", "Box", or "Sphere" whose size ({@link width}, {@link radius}, {@link strokeWidth}) that are using "map" {@link alignment} only.
-     * If the size attribute is defined in meters, scaleByAltitude is enabled by default, for pixels it is disabled.
+     * Controls whether a Line's {@link strokeWidth} follows perspective at the feature's actual altitude.
+     * When disabled, the Line is scaled as if it were at ground level.
      *
-     * @defaultValue false (pixels), true (meters)
+     * Scaling is enabled by default for meter-based stroke widths and when {@link altitude} resolves to `"terrain"`.
      *
+     * @defaultValue false for pixel stroke widths; true for meter stroke widths or terrain altitude
      * @experimental
      */
     scaleByAltitude?: boolean | StyleValueFunction<boolean> | StyleZoomRange<boolean> | StyleExpression<boolean>;

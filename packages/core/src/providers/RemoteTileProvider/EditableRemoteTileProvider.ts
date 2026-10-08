@@ -29,6 +29,7 @@ import {GeoJSONCoordinate, GeoJSONBBox, GeoJSONFeature} from '../../features/Geo
 import {GeoPoint} from '../../geo/GeoPoint';
 import {GeoRect} from '../../geo/GeoRect';
 import {FixedLevelTileLoadDelegator} from './FixedLevelTileLoadDelegator';
+import type {Editor} from '@here/xyz-maps-editor';
 
 let UNDEF;
 
@@ -740,8 +741,8 @@ export abstract class EditableRemoteTileProvider extends EditableFeatureProvider
      * @param callback - will be called as soon as tile is ready for consumption
      * @returns the Tile
      */
-    getTile(quadkey: string, cb: (tile: Tile) => void) {
-        return this.remoteTileLoader.getTile(quadkey, cb);
+    getTile(quadkey: string, callback: (tile: Tile) => void) {
+        return this.remoteTileLoader.getTile(quadkey, callback);
     }
 
     _removeTile(tile: Tile, triggerEvent) {

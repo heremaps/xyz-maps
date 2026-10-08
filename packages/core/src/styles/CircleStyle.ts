@@ -235,14 +235,13 @@ export interface CircleStyle {
 
 
     /**
-     * Scales the size of a style based on the feature's altitude.
-     * If it's enabled (true), features closer to the camera will be drawn larger than those farther away.
-     * When off (false), the size of the style is always the same size, regardless of its actual altitude, as if it were placed on the ground (altitude 0).
-     * This attribute applies to styles of type "Rect", "Image", "Text", "Circle", "Line", "Box", or "Sphere" whose size ({@link width}, {@link radius}, {@link strokeWidth}) that are using "map" {@link alignment} only.
-     * If the size attribute is defined in meters, scaleByAltitude is enabled by default, for pixels it is disabled.
+     * Controls whether a Circle's {@link radius} follows perspective at its actual altitude.
+     * When disabled, the radius is scaled as if the Circle were at ground level.
+     * This applies only when {@link alignment} is `"map"`; viewport-aligned Circles are unaffected.
      *
-     * @defaultValue false (pixels), true (meters)
+     * Scaling is enabled by default for meter-based radii and when {@link altitude} resolves to `"terrain"`.
      *
+     * @defaultValue false for pixel radii; true for meter radii or terrain altitude
      * @experimental
      */
     scaleByAltitude?: boolean | StyleValueFunction<boolean> | StyleZoomRange<boolean> | StyleExpression<boolean>;

@@ -102,7 +102,6 @@ export class RuntimeLayerStyle implements LayerStyle {
     private layer: TileLayer;
     /**
      * RuntimeLayerStyle
-     * @protected
      * @hidden
      */
     protected expParser: ExpressionParser;
@@ -113,7 +112,6 @@ export class RuntimeLayerStyle implements LayerStyle {
 
     /**
      * skyColor
-     * @protected
      * @hidden
      */
     skyColor: Colors.Color | LinearGradient;
@@ -273,7 +271,6 @@ export class RuntimeLayerStyle implements LayerStyle {
      * initMapContext
      * @param feature
      * @param zoom
-     * @protected
      * @hidden
      */
     protected initMapContext(feature: Feature, zoom: number): RuntimeLayerStyle['expContext'] {

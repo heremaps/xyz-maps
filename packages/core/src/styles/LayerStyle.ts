@@ -29,7 +29,7 @@ import {LinearGradient} from './HeatmapStyle';
  * - The first element (index 0) is a string that specifies the operator of the expression.
  * - The subsequent elements are the operands required by the operator.
  *
- * @template ResultType - The type of the value that the expression returns.
+ * @typeParam ResultType - The type of the value that the expression returns.
  *
  * ## StyleExpression Operators
  *
@@ -262,8 +262,6 @@ interface Light {
 
 /**
  * The `AmbientLight` interface represents ambient lighting, which provides a constant level of illumination across all objects.
- *
- * @extends Light
  */
 export interface AmbientLight extends Light {
     /**
@@ -274,8 +272,6 @@ export interface AmbientLight extends Light {
 
 /**
  * The `DirectionalLight` interface represents directional lighting, which simulates light coming from a specific direction.
- *
- * @extends Light
  */
 export interface DirectionalLight extends Light {
     /**
@@ -332,7 +328,7 @@ export interface LayerStyle {
      * - `true`: Styles use absolute height if provided be feature geometry.
      * - `false`: Styles are rendered at the ground plane
      *
-     * @default false
+     * @defaultValue false
      */
     altitude?: number | boolean | 'terrain';
 
@@ -428,8 +424,6 @@ export interface LayerStyle {
      * - If {@link Style.light} is defined, it will reference a specific light group in `LayerStyle.lights`.
      * - If {@link Style.light} is not defined, the `"defaultLight"` light group (if specified) will be used.
      * - If no `"defaultLight"` light group is set, an automatic default light will be provided.
-     *
-     * @type { { [name: string]: (AmbientLight | DirectionalLight)[] } }
      */
     lights?: { [name: string]: (AmbientLight | DirectionalLight)[] };
 

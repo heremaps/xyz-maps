@@ -181,7 +181,7 @@ export interface MapOptions {
      *
      * When set to `true` or `'latitude'`, zooming out is limited to prevent the map from repeating, allowing it to cover the entire visible area without repetition.
      *
-     * @default false
+     * @defaultValue false
      */
     singleWorldView?: boolean | 'both' | 'latitude';
     /**

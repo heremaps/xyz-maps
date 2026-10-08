@@ -56,11 +56,11 @@ class SimpleLinkCache<E> implements Cache<E> {
 }
 
 /**
- * @hidde
+ * @hidden
  */
 export class ExpressionParser {
     /**
-     * @hidde
+     * @hidden
      */
     static isJSONExp(exp: any) {
         return Array.isArray(exp) && typeof exp[0] == 'string';

@@ -94,8 +94,8 @@ export class ImageProvider extends TileProvider {
      * @param callback - the callback function
      * @returns the Tile is returned if its already cached locally
      */
-    getTile(quadkey: string, cb: (tile: Tile) => void) {
-        return this.tileLoader.getTile(quadkey, cb);
+    getTile(quadkey: string, callback: (tile: Tile) => void) {
+        return this.tileLoader.getTile(quadkey, callback);
     };
 
     _removeTile(tile: Tile) {

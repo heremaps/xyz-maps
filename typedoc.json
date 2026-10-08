@@ -13,5 +13,29 @@
   },
   "out": "docs",
   "theme": "default",
-  "plugin": ["typedoc-plugin-remove-references"]
+  "plugin": ["typedoc-plugin-remove-references"],
+  "externalSymbolLinkMappings": {
+    "global": {
+      "Editor": "../classes/_here_xyz-maps-editor.Editor.html",
+      "editor.Editor": "../classes/_here_xyz-maps-editor.Editor.html",
+      "editor.Editor.addFeature": "../classes/_here_xyz-maps-editor.Editor.html#addfeature",
+      "editor.Editor.addHook": "../classes/_here_xyz-maps-editor.Editor.html#addhook",
+      "editor.Feature.class": "../classes/_here_xyz-maps-editor.Feature.html#class",
+      "editor.Line": "../classes/_here_xyz-maps-editor.Line.html",
+      "editor.Marker": "../classes/_here_xyz-maps-editor.Marker.html",
+      "editor.Area": "../classes/_here_xyz-maps-editor.Area.html",
+      "editor.Navlink": "../classes/_here_xyz-maps-editor.Navlink.html",
+      "editor.Place": "../classes/_here_xyz-maps-editor.Place.html",
+      "editor.Address": "../classes/_here_xyz-maps-editor.Address.html",
+      "editor.undo": "../classes/_here_xyz-maps-editor.Editor.html#undo",
+      "editor.redo": "../classes/_here_xyz-maps-editor.Editor.html#redo",
+      "editor.beginBatch": "../classes/_here_xyz-maps-editor.Editor.html#beginbatch",
+      "editor.endBatch": "../classes/_here_xyz-maps-editor.Editor.html#endbatch",
+      "display.Map.getZoomlevel": "../classes/_here_xyz-maps-display.Map.html#getzoomlevel",
+      "display.Map.setZoomlevel": "../classes/_here_xyz-maps-display.Map.html#setzoomlevel",
+      "EditorOptions.intersectionScale": "../interfaces/_here_xyz-maps-editor.EditorOptions.html#intersectionscale",
+      "ClusterTileLayerOptions.createProperties": "../classes/_here_xyz-maps-core.ClusterTileLayerOptions.html",
+      "ClusterTileLayerOptions.aggregateProperties": "../classes/_here_xyz-maps-core.ClusterTileLayerOptions.html"
+    }
+  }
 }

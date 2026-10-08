@@ -24,7 +24,7 @@ import InternalEditor from '../../IEditor';
 
 /**
  * The DrawingShape represents a coordinate (shape-point) of the geometry that's drawn in the current drawing operation of the DrawingBoard utility.
- * {@link editor.DrawingBoard}
+ * {@link Editor.getDrawingBoard}
  */
 class DrawingShape extends Feature {
     properties: { [name: string]: any };

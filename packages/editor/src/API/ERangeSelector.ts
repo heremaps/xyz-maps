@@ -62,7 +62,7 @@ export type RangeSegment = {
 
 /**
  * A Range represents a part/subsegment on a line geometry or multiple line geometries.
- * It's used by the RangeSelector utility. {@link editor.RangeSelector}
+ * It's used by the RangeSelector utility. {@link RangeSelector}
  */
 export interface Range {
     /**
@@ -147,7 +147,7 @@ export interface Range {
     /**
      * The threshold in meters for automatic range snapping.
      *
-     * @default 1 (meter)
+     * @defaultValue 1 (meter)
      */
     snapTolerance?: number;
     /**
@@ -210,7 +210,7 @@ export class RangeSelector {
     /**
      * Add and show a Range. A Range can be located on a single or multiple Navlink(s).
      *
-     * @param range - The Range that should be displayed.
+     * @param ranges - The ranges that should be displayed.
      */
     show(...ranges: Range[]);
 

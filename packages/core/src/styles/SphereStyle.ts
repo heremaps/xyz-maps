@@ -26,7 +26,7 @@ import {
 } from './LayerStyle';
 
 /**
- * Interface for configuring the visual appearance of Rectangles.
+ * Interface for configuring the visual appearance of Spheres.
  */
 export interface SphereStyle {
     /**
@@ -152,14 +152,14 @@ export interface SphereStyle {
     altitude?: number | boolean | 'terrain' | StyleValueFunction<number | boolean | 'terrain'> | StyleZoomRange<number | boolean | 'terrain'> | StyleExpression<number | boolean | 'terrain'>;
 
     /**
-     * Scales the size of a style based on the feature's altitude.
-     * If it's enabled (true), features closer to the camera will be drawn larger than those farther away.
-     * When off (false), the size of the style is always the same size, regardless of its actual altitude, as if it were placed on the ground (altitude 0).
-     * This attribute applies to styles of type "Rect", "Image", "Text", "Circle", "Line", "Box", or "Sphere" whose size ({@link width}, {@link radius}, {@link strokeWidth}) that are using "map" {@link alignment} only.
-     * If the size attribute is defined in meters, scaleByAltitude is enabled by default, for pixels it is disabled.
+     * Controls whether the Sphere's apparent radius changes with its altitude.
+     * When enabled, perspective scaling makes Spheres closer to the camera appear larger than those farther away.
+     * When disabled, the Sphere is scaled as if it were on the ground, so its apparent radius does not vary with its altitude.
      *
-     * @defaultValue false (pixels), true (meters)
+     * The Sphere's `radius` is defined in pixels, so scaling is disabled by default.
+     * It is enabled by default when `altitude` resolves to `"terrain"`.
      *
+     * @defaultValue false for pixel-based radii; true when `altitude` is `"terrain"`
      * @experimental
      */
     scaleByAltitude?: boolean | StyleValueFunction<boolean> | StyleZoomRange<boolean> | StyleExpression<boolean>;

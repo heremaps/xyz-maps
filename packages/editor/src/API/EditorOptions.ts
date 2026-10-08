@@ -20,6 +20,7 @@
 import {JSUtils} from '@here/xyz-maps-common';
 import {TileLayer} from '@here/xyz-maps-core';
 import {Feature} from '../features/feature/Feature';
+import type Editor from './Editor';
 
 /**
  * Edit operation requested by the {@link EditorOptions.editRestrictions} callback.
@@ -56,11 +57,11 @@ export interface EditRestrictionContext {
 }
 
 /**
- * Options to configure the map editor ({@link editor.Editor}).
+ * Options to configure the map editor ({@link Editor}).
  */
 interface EditorOptions {
     /**
-     * define the TileLayers that should be edited with the {@link editor.Editor}
+     * define the TileLayers that should be edited with the {@link Editor}
      */
     layers?: TileLayer[];
     /**

@@ -53,7 +53,7 @@ class DrawingBoard {
      * Add a shape-point to the feature.
      *
      * @param position - the coordinate in pixels relative to the screen that should be added to the coordinates of the feature.
-     * @param Navlink - pass this parameter in case of a Navlink feature is drawn that should start on the geometry of another Navlink, to split it's geometry automatically.
+     * @param navlink - pass this parameter in case of a Navlink feature is drawn that should start on the geometry of another Navlink, to split it's geometry automatically.
      */
     addShape(position: PixelPoint | GeoPoint, navlink?: Navlink): DrawingShape {
         if (this._a) {

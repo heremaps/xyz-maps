@@ -72,7 +72,9 @@ class LineShape extends Feature {
      */
     class: string;
 
-    /** {@inheritdoc} */
+    /**
+     * Editor metadata for this shape point.
+     */
     properties: {
         lineStringIndex: number;
         moved: boolean;
@@ -84,11 +86,17 @@ class LineShape extends Feature {
         LINE: any
     };
 
-    /** {@inheritdoc} */
+    /**
+     * Point geometry for the coordinate represented by this shape point.
+     */
     geometry: {
-        /** {@inheritdoc} */
+        /**
+         * Always `"Point"` because each LineShape represents one line coordinate.
+         */
         type: 'Point',
-        /** {@inheritdoc} */
+        /**
+         * Coordinate of this LineShape in the parent Line geometry, as `[x, y, z?]`.
+         */
         coordinates: [number, number, number?]
     };
 

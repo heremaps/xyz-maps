@@ -18,6 +18,7 @@
  */
 import {Feature} from './Feature';
 import {GeoJSONBBox, GeoJSONCoordinate} from './GeoJSON';
+import type {ClusterTileLayerOptions} from '../layers/cluster/ClusterTileLayerOptions';
 
 export const updateBBox = (bbox: GeoJSONBBox, [longitude, latitude]: GeoJSONCoordinate) => {
     if (longitude < bbox[0]) bbox[0] = longitude;

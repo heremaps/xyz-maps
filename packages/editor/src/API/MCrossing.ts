@@ -25,7 +25,7 @@ import CrossingTester from '../tools/CrossingTester';
 import InternalEditor from '../IEditor';
 
 
-enum xClass {
+enum CrossingType {
     CROSSING = 'CROSSING',
     CROSSING_CANDIDATE = 'CROSSING_CANDIDATE'
 }
@@ -109,9 +109,9 @@ class Crossing implements GeoJSONFeature {
 
     type: string = 'Feature';
     /**
-     *  the feature class of the crossing. Can be either CROSSING or CROSSING_CANDIDATE.
+     * the feature class of the crossing. Can be either CROSSING or CROSSING_CANDIDATE.
      */
-    readonly class: xClass.CROSSING | xClass.CROSSING_CANDIDATE;
+    readonly class: 'CROSSING' | 'CROSSING_CANDIDATE';
 
     /**
      * the x coordinate of the crossing on screen in pixel.
@@ -199,7 +199,7 @@ class Crossing implements GeoJSONFeature {
             [croFoundPntPixel.x, croFoundPntPixel.y]
         );
 
-        this.class = isCandidate ? xClass.CROSSING_CANDIDATE : xClass.CROSSING;
+        this.class = isCandidate ? CrossingType.CROSSING_CANDIDATE : CrossingType.CROSSING;
 
         that.type = 'Feature';
 
@@ -241,7 +241,7 @@ class Crossing implements GeoJSONFeature {
         ) {
             return false;
         }
-        const isCandidate = this.class == xClass.CROSSING_CANDIDATE;
+        const isCandidate = this.class == CrossingType.CROSSING_CANDIDATE;
         const candidateIndexBeforeSplit = this.getCandidateIndex();
         const croFoundPnt = (prv.foundPnt || prv.searchPnt).slice();
         const newLinks = [];
@@ -364,7 +364,7 @@ class Crossing implements GeoJSONFeature {
      * This method affects Crossings of type "CROSSING_CANDIDATE" only.
      */
     getConnectedLinks(): Navlink[] {
-        return this.class == xClass.CROSSING_CANDIDATE ?
+        return this.class == CrossingType.CROSSING_CANDIDATE ?
             this.getLink().getConnectedLinks(<number> this.getLinkIndex())
             : [];
     }

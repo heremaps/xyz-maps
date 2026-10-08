@@ -19,21 +19,22 @@
 
 import {RemoteTileProviderOptions} from './RemoteTileProviderOptions';
 import {NavlinkSplitHook, NavlinkDisconnectHook, FeatureRemoveHook, CoordinatesUpdateHook} from '@here/xyz-maps-editor';
+import type {Editor} from '@here/xyz-maps-editor';
 
 /**
  *  Options to configure an EditableRemoteTile.
  */
 export interface EditableRemoteTileProviderOptions extends RemoteTileProviderOptions {
     /**
-     *  Allow or prevent editing by the {@link editor.Editor} module.
+     *  Allow or prevent editing by the {@link Editor} module.
      *
      *  @defaultValue false
      */
     editable?: boolean;
     /**
      * Enforce random ids for newly created features.
-     * If "enforceRandomFeatureId" is set to true, the ids of features created by {@link editor.Editor.addFeature | editor.addFeature} are ignored and randomly created.
-     * If "enforceRandomFeatureId" is set to false, ids of features created by {@link editor.Editor.addFeature | editor.addFeature} can be set. Random ids are only generated if none have been set.
+     * If "enforceRandomFeatureId" is set to true, the ids of features created by {@link Editor.addFeature | editor.addFeature} are ignored and randomly created.
+     * If "enforceRandomFeatureId" is set to false, ids of features created by {@link Editor.addFeature | editor.addFeature} can be set. Random ids are only generated if none have been set.
      *
      * @defaultValue true
      */
@@ -44,7 +45,7 @@ export interface EditableRemoteTileProviderOptions extends RemoteTileProviderOpt
      *
      * Available editing operations are 'Navlink.disconnect', 'Navlink.split', 'Feature.remove', 'Coordinates.remove'.
      *
-     * @see {@link editor.Editor.addHook}
+     * @see {@link Editor.addHook}
      */
     hooks?: {
         /**

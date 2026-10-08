@@ -131,10 +131,10 @@ export class Location extends Marker {
      *
      *  @param coordinates - the coordinates that should be set.
      */
-    coord(coordinate: GeoJSONCoordinate);
+    coord(coordinates: GeoJSONCoordinate);
 
-    coord(ccoordinate?: GeoJSONCoordinate): GeoJSONCoordinate {
-        return super.coord(ccoordinate);
+    coord(coordinates?: GeoJSONCoordinate): GeoJSONCoordinate {
+        return super.coord(coordinates);
     }
 
 

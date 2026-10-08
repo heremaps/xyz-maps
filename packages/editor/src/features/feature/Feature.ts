@@ -160,7 +160,7 @@ class Feature extends GeoJSONFeature {
      *
      * @param state - the "EditState" to retrieve its value.
      *
-     * @return the value of the respective "EditState".
+     * @returns the value of the respective "EditState".
      *
      */
     editState(state: 'created' | 'modified' | 'removed' | 'split' | 'hovered' | 'selected', value?: number | boolean): number | boolean | undefined;

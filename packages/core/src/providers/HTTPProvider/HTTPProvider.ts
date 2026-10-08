@@ -116,7 +116,7 @@ abstract class HTTPProvider extends EditableRemoteTileProvider {
     /**
      *  Set request-headers that should be added to all request handled by the provider.
      *
-     *  @param map - Map of key value pairs. the key represents the header name.
+     *  @param headers - Map of key value pairs. the key represents the header name.
      */
     setHeaders(headers: { [name: string]: string }) {
         let _headers = this.getHeaders();
@@ -156,7 +156,7 @@ abstract class HTTPProvider extends EditableRemoteTileProvider {
     /**
      *  Set request-parameters that should be added to all request handled by provider.
      *
-     *  @param map - A map of key value pairs. the key represents the parameter name. Possible value types are string, string[] or undefined. If undefined is used parameter get's cleared/removed.
+     *  @param parameters - A map of key value pairs. the key represents the parameter name. Possible value types are string, string[] or undefined. If undefined is used parameter get's cleared/removed.
      */
     setParams(parameters: { [name: string]: string | string[] | undefined }) {
         const loader = this._httpLoader();

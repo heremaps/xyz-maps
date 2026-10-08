@@ -24,7 +24,7 @@ import {LayerOptions} from './LayerOptions';
 /**
  * Options to configure the CustomLayer.
  */
-interface CustomLayerOptions extends LayerOptions {
+export interface CustomLayerOptions extends LayerOptions {
     /**
      * Event Listener that will be called when the layer is added to the display.
      * @param ev - Event of type "layerAdd"

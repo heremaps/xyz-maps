@@ -480,10 +480,10 @@ export default class Editor {
      * This method is useful when you want to execute multiple edits in sequence but treat them as a single operation
      * for undo/redo. The changes will be bundled into one history entry, simplifying the undo/redo process.
      *
-     * @see {@link editor.undo} for undoing the last action.
-     * @see {@link editor.redo} for redoing the last undone action.
-     * @see {@link editor.beginBatch} for starting a batch of edits manually.
-     * @see {@link editor.endBatch} for finalizing a batch of edits manually.
+     * @see {@link Editor.undo} for undoing the last action.
+     * @see {@link Editor.redo} for redoing the last undone action.
+     * @see {@link Editor.beginBatch} for starting a batch of edits manually.
+     * @see {@link Editor.endBatch} for finalizing a batch of edits manually.
      */
     batch(action: () => void): void {
         if (typeof action === 'function') {
@@ -513,10 +513,10 @@ export default class Editor {
      * This method is helpful when you want to make multiple edits and control when the changes are committed to history.
      * The edits made within the `beginBatch`/`endBatch` block are treated as a single operation.
      *
-     * @see {@link editor.endBatch} for finalizing a batch operation.
-     * @see {@link editor.undo} for undoing the last action.
-     * @see {@link editor.redo} for redoing the last undone action.
-     * @see {@link editor.batch} for an alternative method to group edits without manually starting and ending a batch.
+     * @see {@link Editor.endBatch} for finalizing a batch operation.
+     * @see {@link Editor.undo} for undoing the last action.
+     * @see {@link Editor.redo} for redoing the last undone action.
+     * @see {@link Editor.batch} for an alternative method to group edits without manually starting and ending a batch.
      */
     beginBatch(): void {
         this._b++;
@@ -605,7 +605,7 @@ export default class Editor {
     /**
      * Get a deep copy of the currently active editor options.
      *
-     * @return the editor options as a key/value map.
+     * @returns the editor options as a key/value map.
      */
     config(): EditorOptions;
     /**
@@ -967,17 +967,17 @@ export default class Editor {
     /**
      * Sets the desired zoomLevel.
      *
-     * @deprecated - use the map display directly {@link display.Map.setZooomlevel}
+     * @deprecated - use the map display directly {@link Map.setZoomlevel}
      * @param zoomLevel - The zoomlevel that the map should zoom to.
      */
-    setZoomLevel(zoomlevel: number) {
-        this._i().display.setZoomlevel(zoomlevel);
+    setZoomLevel(zoomLevel: number) {
+        this._i().display.setZoomlevel(zoomLevel);
     };
 
     /**
      * Get the current zoomLevel.
      *
-     * @deprecated - use the map display directly {@link display.Map.getZoomlevel}
+     * @deprecated - use the map display directly {@link Map.getZoomlevel}
      * @returns The current zoomLevel of the map.
      */
     getZoomLevel(): number {
