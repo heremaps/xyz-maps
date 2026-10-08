@@ -122,7 +122,7 @@ export const App: React.FC = (props: { examples: any }) => {
         let initExample = [0, 'Display'];
         const hash = window.location.hash.substr(1);
         if (hash) {
-            let [c, title] = hash.split(/-(.*)/s);
+            let [c, title] = hash.split(/-([\s\S]*)/);
             if (title) {
                 // capitalize
                 c = decodeURI(c).split(' ').map((w) => w[0].toUpperCase() + w.slice(1)).join(' ');

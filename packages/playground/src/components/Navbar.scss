@@ -17,7 +17,7 @@
  * License-Filename: LICENSE
  */
 
-@import "Theme";
+@use 'Theme' as *;
 
 $navbarHeight: 50px;
 

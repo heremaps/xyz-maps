@@ -27,6 +27,8 @@ import virtual from '@rollup/plugin-virtual';
 import json from '@rollup/plugin-json';
 import settings from './settings.json';
 import {join} from 'path';
+import {fileURLToPath, pathToFileURL} from 'url';
+import * as sass from 'sass';
 import terser from '@rollup/plugin-terser';
 import fs from 'fs';
 import nodeResolve from 'resolve';
@@ -44,12 +46,38 @@ const ts = (new Date()).getTime();
 
 const pathCfg = settings.path['xyz-maps'];
 
-const createTypeScriptPlugin = () => typescript({
+const createTypeScriptPlugin = (compilerOptions = {}) => typescript({
     typescript: require('typescript'),
     include: ['src/**/*', 'examples/**/*'],
     exclude: ['node_modules', 'dist'],
-    filterRoot: process.cwd()
+    filterRoot: process.cwd(),
+    compilerOptions
 });
+
+const modernSassLoader = {
+    name: 'sass',
+    test: /\.(sass|scss)$/i,
+    async process({code, map}) {
+        const sourceMap = Boolean(this.sourceMap);
+        const result = await sass.compileStringAsync(code, {
+            url: pathToFileURL(this.id),
+            syntax: /\.sass$/i.test(this.id) ? 'indented' : 'scss',
+            sourceMap,
+            sourceMapIncludeSources: sourceMap
+        });
+
+        for (const url of result.loadedUrls) {
+            if (url.protocol === 'file:') {
+                this.dependencies.add(fileURLToPath(url));
+            }
+        }
+
+        return {
+            code: result.css,
+            map: result.sourceMap ? JSON.stringify(result.sourceMap) : map
+        };
+    }
+};
 
 
 for (let module in pathCfg) {
@@ -92,7 +120,7 @@ for (let section in exampleList) {
 
 // cleanup dist dir
 if (fs.existsSync(DEST)) {
-    fs.rmdirSync(DEST, {recursive: true});
+    fs.rmSync(DEST, {recursive: true});
 }
 
 const rollupConfig = [{
@@ -121,7 +149,8 @@ const rollupConfig = [{
         commonjs(),
         postcss({
             inject: true,
-            minimize: production
+            minimize: production,
+            loaders: [modernSassLoader]
         }),
         createTypeScriptPlugin(),
         production && terser(),
@@ -184,7 +213,7 @@ if (!env['token-path']) {
                 'access_token': `export const TOKEN="${credentials.access_token}";
                 export const APIKEY="${credentials.api_key}";`
             }),
-            createTypeScriptPlugin(),
+            createTypeScriptPlugin({sourceMap: false}),
             terser()
         ],
         treeshake: production
