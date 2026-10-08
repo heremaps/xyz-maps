@@ -44,8 +44,7 @@ const createPlugins = () => {
             typescript: require('typescript'),
             // only compileroptions are read from tsconfig.json
             include: ['src/**/*'],
-            exclude: ['node_modules', 'dist'],
-            filterRoot: process.cwd()
+            exclude: ['node_modules', 'dist']
         }),
         production ? terser({
             output: {
