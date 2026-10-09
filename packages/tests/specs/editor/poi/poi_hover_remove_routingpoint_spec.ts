@@ -69,23 +69,30 @@ describe('POI hover then remove routing point then disable editing', function() 
         expect(place.prop('routingLink')).to.equal(objs[0].id);
 
         const hovered = [];
+        let error = null;
         editor.addEventListener('pointerenter pointerleave', function(e) {
             // Get feature in event
             const feature = e.target;
             // mouse enters a place
             if (feature && feature.geometry.type == 'Point') {
                 hovered.push(e.type);
+                // place is hovered (prv.isHovered is set to the event object) -> remove its routing point
+                // -> hideRoutingPoint(obj) without event -> prv.isHovered = null
+                if (e.type == 'pointerenter' && !error) {
+                    try {
+                        place.removeRoutingPoint();
+                        // _editable(false) must not throw on the reset hover state
+                        place.editable(false);
+                    } catch (err) {
+                        error = err;
+                    }
+                }
             }
         });
 
-        // mouse enters the place -> prv.isHovered is set to the event object
+        // mouse enters the place
         await mousemove(mapContainer, {x: 380, y: 280}, {x: 400, y: 300});
         expect(hovered).to.include('pointerenter');
-
-        // removes the routing point -> hideRoutingPoint(obj) without event -> prv.isHovered = true
-        place.removeRoutingPoint();
-
-        // _editable(false) -> `prv.isHovered.type = 'mouseout'` on a boolean -> TypeError in strict mode
-        expect(() => place.editable(false)).to.not.throw();
+        expect(error).to.equal(null);
     });
 });

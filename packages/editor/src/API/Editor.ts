@@ -315,6 +315,10 @@ export default class Editor {
      *  as well, but they do not create a history step, so the data does not show up in undo/redo and the edit history
      *  only contains the user's own changes.
      *
+     *  Features of class 'NAVLINK', 'PLACE' or 'ADDRESS' are only recognized if the layer's provider overrides
+     *  {@link EditableFeatureProvider.detectFeatureClass}, which maps the GeoJSON to the feature class. Places and
+     *  Addresses also need the routing position to be readable and writable through the provider.
+     *
      *  @example
      *  ```ts
      *  const link = editor.addFeature({

@@ -91,6 +91,16 @@ export interface EditableFeatureProviderOptions extends TileProviderOptions {
 
 /**
  * EditableFeatureProvider is an abstract FeatureTileProvider that can be edited using the {@link Editor} module.
+ *
+ * The editor needs to know how to interpret the data of a feature. Which methods have to be implemented depends on the
+ * feature class:
+ * - 'LINE', 'MARKER' and 'AREA' are detected by geometry type and need no additional methods.
+ * - 'NAVLINK', 'PLACE' and 'ADDRESS' require {@link EditableFeatureProvider.detectFeatureClass | detectFeatureClass} to be overridden.
+ * - 'PLACE' and 'ADDRESS' additionally require the routing methods, e.g. {@link EditableFeatureProvider.readRoutingPosition | readRoutingPosition},
+ *   {@link EditableFeatureProvider.readRoutingLink | readRoutingLink}, {@link EditableFeatureProvider.writeRoutingPosition | writeRoutingPosition},
+ *   {@link EditableFeatureProvider.writeRoutingLink | writeRoutingLink} and {@link EditableFeatureProvider.readRoutingProvider | readRoutingProvider}.
+ * - 'NAVLINK' features require the attribute readers and writers of the navlink, e.g. {@link EditableFeatureProvider.readDirection | readDirection}
+ *   and {@link EditableFeatureProvider.readZLevels | readZLevels}, as well as the turn restriction methods.
  */
 export abstract class EditableFeatureProvider extends FeatureTileProvider {
     /**
@@ -143,6 +153,7 @@ export abstract class EditableFeatureProvider extends FeatureTileProvider {
      * By default, the {@link Editor} handles all features of geometry type 'LineString' as {@link Line}, 'Point' as {@link Marker} and '(Multi)Polygon' as {@link Area}.
      *
      * If you want to edit features with {@link EditorFeature.class | FeatureClass} 'NAVLINK', 'PLACE' or 'ADDRESS' this method must be overridden to enable editing of {@link EditorNavlink | Navlinks}, {@link Place | Places} or {@link Address | Addresses}.
+     * The other methods required for each feature class are listed in the class documentation of {@link EditableFeatureProvider}.
      *
      * @param feature - The feature whose {@link EditorFeature.class | FeatureClass} is requested
      *
