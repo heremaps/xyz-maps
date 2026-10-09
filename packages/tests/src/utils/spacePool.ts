@@ -125,7 +125,7 @@ class SpaceLocalStorage {
     }
 
     clear(spaces) {
-        let spaceLocalStorage = JSON.parse(localStorage.getItem(this.key));
+        let spaceLocalStorage = JSON.parse(localStorage.getItem(this.key)) || {};
         for (let id in spaces) {
             delete spaceLocalStorage[id];
         }
@@ -133,7 +133,7 @@ class SpaceLocalStorage {
     }
 
     getAll() {
-        return JSON.parse(localStorage.getItem(this.key));
+        return JSON.parse(localStorage.getItem(this.key)) || {};
     }
 }
 

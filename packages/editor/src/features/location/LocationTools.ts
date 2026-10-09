@@ -44,7 +44,7 @@ type LocationPrivate = {
     isEditable: boolean;
     allowEdit: boolean;
     isGeoMod: boolean;
-    isHovered: boolean | any; // keep flexible if you store event objects
+    isHovered: any;
     cLink: Navlink | null;
     moved: boolean;
 
@@ -144,7 +144,7 @@ function showRoutingPoint(obj, ev?) {
 function hideRoutingPoint(obj, ev?) {
     const cLink = getPrivate(obj, 'cLink');
 
-    getPrivate(obj).isHovered = !ev;
+    getPrivate(obj).isHovered = null;
 
 
     if (cLink && linkTools.defaults(cLink, obj.id)) {
