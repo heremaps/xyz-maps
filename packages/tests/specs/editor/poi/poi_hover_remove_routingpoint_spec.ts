@@ -68,31 +68,28 @@ describe('POI hover then remove routing point then disable editing', function() 
         place.createRoutingPoint();
         expect(place.prop('routingLink')).to.equal(objs[0].id);
 
-        const hovered = [];
-        let error = null;
-        editor.addEventListener('pointerenter pointerleave', function(e) {
-            // Get feature in event
-            const feature = e.target;
-            // mouse enters a place
-            if (feature && feature.geometry.type == 'Point') {
-                hovered.push(e.type);
-                // place is hovered (prv.isHovered is set to the event object) -> remove its routing point
-                // -> hideRoutingPoint(obj) without event -> prv.isHovered = null
-                if (e.type == 'pointerenter' && !error) {
+        // resolves once the place is hovered and its routing point was removed while hovered
+        const hovered = new Promise((resolve) => {
+            editor.addEventListener('pointerenter', function(e) {
+                // Get feature in event
+                const feature = e.target;
+                // mouse enters a place
+                if (feature && feature.geometry.type == 'Point' && feature.id == place.id) {
                     try {
+                        // hover state is set to the event object -> removing the routing point resets it to null
                         place.removeRoutingPoint();
                         // _editable(false) must not throw on the reset hover state
                         place.editable(false);
+                        resolve(null);
                     } catch (err) {
-                        error = err;
+                        resolve(err);
                     }
                 }
-            }
+            });
         });
 
         // mouse enters the place
         await mousemove(mapContainer, {x: 380, y: 280}, {x: 400, y: 300});
-        expect(hovered).to.include('pointerenter');
-        expect(error).to.equal(null);
+        expect(await hovered).to.equal(null);
     });
 });
