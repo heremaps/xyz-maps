@@ -66,6 +66,10 @@ export {DrawingShape} from './tools/drawingBoards/DrawingShape';
 let UNDEF;
 
 
+/**
+ * @deprecated Use `editor.addFeature(geojson)` with a GeoJSON Feature instead, e.g.
+ * `editor.addFeature({type: 'Feature', properties: {featureClass: 'NAVLINK'}, geometry: {type: 'LineString', coordinates: [[lon, lat], [lon, lat]]}})`.
+ */
 // support for legacy api
 export const features = ((() => {
     function createObjDef(objType) {

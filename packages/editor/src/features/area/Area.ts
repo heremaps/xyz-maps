@@ -45,6 +45,17 @@ export type PrivateDataArea = {
 
 /**
  * The Area Feature is a generic editable Feature with "Polygon" or "MultiPolygon" geometry.
+ *
+ * Instances are created with {@link Editor.addFeature}, the constructor is not part of the public API.
+ *
+ * @example
+ * ```ts
+ * const area = editor.addFeature({
+ *     type: 'Feature',
+ *     properties: {featureClass: 'AREA'},
+ *     geometry: {type: 'Polygon', coordinates: [[[78.3546, 17.3137], [78.3550, 17.3137], [78.3550, 17.3150], [78.3546, 17.3137]]]}
+ * }, layer);
+ * ```
  */
 class Area extends Feature {
     /**

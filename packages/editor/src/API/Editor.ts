@@ -308,6 +308,22 @@ export default class Editor {
     /**
      *  Add a feature to the editor.
      *
+     *  Features added with this method are recorded in the editor history, so they can be undone and redone.
+     *  Use this method for user-created features.
+     *
+     *  To load data into the editor silently, use {@link TileLayer.addFeature} instead. Those features are editable
+     *  as well, but they do not create a history step, so the data does not show up in undo/redo and the edit history
+     *  only contains the user's own changes.
+     *
+     *  @example
+     *  ```ts
+     *  const link = editor.addFeature({
+     *      type: 'Feature',
+     *      properties: {featureClass: 'NAVLINK'},
+     *      geometry: {type: 'LineString', coordinates: [[78.3546, 17.3137], [78.3550, 17.3150]]}
+     *  }, layer);
+     *  ```
+     *
      *  @param feature - the feature to be added to the map.
      *  @param layer - the layer the feature should be added to.
      *  @param origin - offsets the geometry of the feature.

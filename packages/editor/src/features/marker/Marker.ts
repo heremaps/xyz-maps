@@ -23,6 +23,17 @@ import oTools from '../area/PolygonTools';
 /**
  * The Marker Feature is a generic editable Feature with "Point" geometry.
  * The Feature can be edited with the {@link Editor}.
+ *
+ * Instances are created with {@link Editor.addFeature}, the constructor is not part of the public API.
+ *
+ * @example
+ * ```ts
+ * const marker = editor.addFeature({
+ *     type: 'Feature',
+ *     properties: {featureClass: 'MARKER'},
+ *     geometry: {type: 'Point', coordinates: [78.3546, 17.3137]}
+ * }, layer);
+ * ```
  */
 export class Marker extends Feature {
     /**

@@ -27,6 +27,17 @@ import {JSUtils} from '@here/xyz-maps-common';
  * A Address must be linked/associated with a Navlink Feature.
  *
  * The Feature can be edited with the {@link Editor}.
+ *
+ * Instances are created with {@link Editor.addFeature}, the constructor is not part of the public API.
+ *
+ * @example
+ * ```ts
+ * const address = editor.addFeature({
+ *     type: 'Feature',
+ *     properties: {featureClass: 'ADDRESS'},
+ *     geometry: {type: 'Point', coordinates: [78.3546, 17.3137]}
+ * }, layer);
+ * ```
  */
 class Address extends Location {
     /**

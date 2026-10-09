@@ -30,6 +30,17 @@ const throwError = (msg) => {
 /**
  * The Line Feature is a generic editable Feature with "LineString" or "MultiLineString" geometry.
  * The Feature can be edited with the {@link Editor}.
+ *
+ * Instances are created with {@link Editor.addFeature}, the constructor is not part of the public API.
+ *
+ * @example
+ * ```ts
+ * const line = editor.addFeature({
+ *     type: 'Feature',
+ *     properties: {featureClass: 'LINE'},
+ *     geometry: {type: 'LineString', coordinates: [[78.3546, 17.3137], [78.3550, 17.3150]]}
+ * }, layer);
+ * ```
  */
 class Line extends Feature {
     /**

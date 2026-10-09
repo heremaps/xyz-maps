@@ -116,6 +116,12 @@ class Feature extends GeoJSONFeature {
     pointerup: (e: MapEvent) => void;
 
 
+    /**
+     * Internal constructor, use `editor.addFeature(geojson)` to create features.
+     *
+     * @hidden
+     * @internal
+     */
     constructor(geojsonFeature, provider?: EditableProvider) {
         super(geojsonFeature, provider);
         // @ts-ignore
