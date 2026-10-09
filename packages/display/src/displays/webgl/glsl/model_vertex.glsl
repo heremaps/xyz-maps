@@ -36,7 +36,7 @@ varying vec3 v_tangent;
 varying vec2 v_tilePos;
 #endif
 
-#ifdef TERRAIN_MODEL_HM
+#if defined(TERRAIN_MODEL_HM) || defined(USE_HEIGHTMAP)
 #include "utils.glsl/heightMapUtils"
 #else
 uniform float u_exaggeration;
