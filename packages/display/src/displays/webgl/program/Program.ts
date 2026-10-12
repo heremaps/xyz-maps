@@ -93,7 +93,11 @@ export const PROGRAM_MACRO = {
     OVERLAY_MAP: 1 << 9,
     TERRAIN_LIGHTING_FRAGMENT: 1 << 10,
     DBG_GRID: 1 << 11,
-    SPHERE: 1 << 12
+    SPHERE: 1 << 12,
+    MODEL_ALPHA_MASK: 1 << 13,
+    MODEL_ALPHA_BLEND: 1 << 14,
+    OPACITY_MAP: 1 << 15,
+    SHININESS_MAP: 1 << 16
 } as const;
 
 export type ProgramMacroName = keyof typeof PROGRAM_MACRO;

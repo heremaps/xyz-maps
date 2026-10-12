@@ -47,7 +47,7 @@ import {addBox} from './addBox';
 import {addSphere} from './addSphere';
 import {SphereBuffer} from './templates/SphereBuffer';
 import {TemplateBufferBucket} from './templates/TemplateBufferBucket';
-import {ModelStyle, Color} from '@here/xyz-maps-core';
+import {ModelStyle, ModelData, OBJModelSource, Color} from '@here/xyz-maps-core';
 import {ModelFactory} from './ModelFactory';
 import {ModelBuffer} from './templates/ModelBuffer';
 import {TerrainModelBuffer} from './templates/TerrainModelBuffer';
@@ -62,6 +62,7 @@ import {getTerrainRenderPolicy, TerrainOcclusionMode, TerrainRenderMode} from '.
 
 const {toRGB} = ColorUtils;
 type RGBA = ColorUtils.RGBA;
+type ResolvedModel = {source: string | ModelData | OBJModelSource; id: string};
 
 const DEFAULT_SPECULAR_SHININESS = 32;
 const DEFAULT_COLOR_INTENSITY = 1;
@@ -227,7 +228,8 @@ export class FeatureFactory {
         text?: string,
         defaultLineWrap?: number | boolean,
         textAnchor?: ParsedStyleProperty<TextStyle['textAnchor']> | string,
-        terrainRenderMode?: TerrainRenderMode
+        terrainRenderMode?: TerrainRenderMode,
+        resolvedModel?: ResolvedModel
     ) {
         const isFlat = z === null;
         const level = this.z;
@@ -268,14 +270,11 @@ export class FeatureFactory {
             );
         } else {
             if (this.isModelStyle(type)) {
-                let model = getValue('model', style, feature, level);
+                const source = resolvedModel.source;
+                const modelId = resolvedModel.id;
+                let model = this.modelFactory.getModel(modelId);
 
-                let modelId: string;
-                if (!model) return;
-
-                if (typeof model == 'string') {
-                    modelId = model;
-                    model = this.modelFactory.getModel(modelId);
+                if (typeof source == 'string') {
                     // check if model has been loaded and processed already
                     if (model === UNDEF) {
                         if (modelId.endsWith('.obj')) {
@@ -283,9 +282,13 @@ export class FeatureFactory {
                         }
                         return;
                     }
+                } else if ('format' in source && source.format === 'obj') {
+                    if (model === UNDEF) {
+                        this.waitAndRefresh(this.modelFactory.loadInline(source));
+                        return;
+                    }
                 } else {
-                    modelId = model.id ||= Math.random();
-                    model = this.modelFactory.initModel(modelId, model);
+                    model = this.modelFactory.initModel(modelId, source as ModelData);
                 }
 
                 if (model === false) {
@@ -316,7 +319,12 @@ export class FeatureFactory {
                         shared.shininess,
                         shared.emissive,
                         faceCulling,
-                        type === 'Terrain' ? TerrainModelBuffer : ModelBuffer
+                        type === 'Terrain' ? TerrainModelBuffer : ModelBuffer,
+                        {
+                            alphaMode: (style as ModelStyle).alphaMode,
+                            alphaCutoff: (style as ModelStyle).alphaCutoff,
+                            materialOverrides: (style as ModelStyle).materialOverrides
+                        }
                     );
 
                     const properties = feature.properties as TerrainTileFeature['properties'];
@@ -562,6 +570,7 @@ export class FeatureFactory {
             let pointerEvents = allowPointerEvents;
             let processPointOffset = false;
             let modelMode = null;
+            let resolvedModel: ResolvedModel;
             let emissive;
             let shininess: number;
             let specular;
@@ -573,11 +582,20 @@ export class FeatureFactory {
             let altitude = getValue('altitude', style, feature, level) ?? this.layerStyleDefaultAltitude;
 
             if (this.isModelStyle(type)) {
+                const source = getValue('model', style, feature, level);
+                if (!source) continue;
+                const id = this.modelFactory.getSourceId(source);
+                resolvedModel = {source, id};
                 if (type === 'Terrain') {
                     modelMode = [feature.properties.minHeight, feature.properties.maxHeight];
                 }
-                (style as ModelStyle).modelId ||= Math.random();
-                groupId = type.charAt(0) + (style as ModelStyle).modelId;
+                const modelStyle = style as ModelStyle;
+                modelStyle.modelId ||= Math.random();
+                const alphaConfigKey = modelStyle.alphaMode || modelStyle.alphaCutoff !== undefined
+                    || modelStyle.materialOverrides
+                    ? JSON.stringify([modelStyle.alphaMode, modelStyle.alphaCutoff, modelStyle.materialOverrides])
+                    : '';
+                groupId = type.charAt(0) + JSON.stringify([modelStyle.modelId, id, alphaConfigKey]);
                 processPointOffset = true;
                 processAdvancedLight = true;
             } else if (type == 'Icon') {
@@ -969,7 +987,7 @@ export class FeatureFactory {
 
                     this.createPoint(type, group, x, y, z, style, feature, collisionData, rotation, UNDEF, text, UNDEF,
                         (type == 'Text' && getValue('textAnchor', style, feature, level)) as ParsedStyleProperty<TextStyle['textAnchor']>,
-                        terrainRenderMode
+                        terrainRenderMode, resolvedModel
                     );
                 }
             } else if (geomType == 'LineString') {
@@ -1094,7 +1112,7 @@ export class FeatureFactory {
                                     text,
                                     false,
                                     textAnchor,
-                                    terrainRenderMode
+                                    terrainRenderMode, resolvedModel
                                 );
                             }
                         );
@@ -1136,7 +1154,7 @@ export class FeatureFactory {
                                     text,
                                     UNDEF,
                                     textAnchor,
-                                    terrainRenderMode
+                                    terrainRenderMode, resolvedModel
                                 );
                             }
                         );

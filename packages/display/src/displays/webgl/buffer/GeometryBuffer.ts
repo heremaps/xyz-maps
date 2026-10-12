@@ -206,6 +206,8 @@ class GeometryBuffer {
     uniforms: { [name: string]: Uniform | DynamicUniform } = {};
     type: string;
     pass: number = PASS.OPAQUE;
+    alphaMode?: 'opaque' | 'mask' | 'blend';
+    alphaCutoff?: number;
     zIndex?: number;
     zLayer?: number;
     clip?: true | undefined;

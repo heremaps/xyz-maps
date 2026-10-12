@@ -19,7 +19,13 @@
 import {Texture, TextureOptions, ImageData, TextureData} from '../Texture';
 import {ModelBuffer} from './templates/ModelBuffer';
 import {TemplateBufferBucket} from './templates/TemplateBufferBucket';
-import {ModelData, Material} from '@here/xyz-maps-core';
+import {
+    Material,
+    ModelAlphaMode,
+    ModelData,
+    ModelMaterialOverride,
+    OBJModelSource
+} from '@here/xyz-maps-core';
 import {ObjParser} from '../ObjParser';
 import {vec3} from '@here/xyz-maps-common';
 import {type TypedArray} from './glType';
@@ -32,6 +38,9 @@ class ModelTexture extends Texture {
 type Model = {
     textures: { [name: string]: ModelTexture };
     parts: {
+        materialName: string;
+        alphaMode?: ModelAlphaMode;
+        alphaCutoff?: number;
         attributes: any;
         uniforms: any;
         bbox: any;
@@ -41,12 +50,20 @@ type Model = {
     }[];
 };
 
-interface MaterialUniforms extends Omit<Material, 'diffuseMap' | 'specularMap' | 'normalMap'> {
+interface MaterialUniforms extends Omit<Material, 'diffuseMap' | 'specularMap' | 'shininessMap' | 'normalMap' | 'opacityMap' | 'alphaMode'> {
     diffuseMap?: ModelTexture | string;
     specularMap?: ModelTexture | string;
+    shininessMap?: ModelTexture | string;
     normalMap?: ModelTexture | string;
+    opacityMap?: ModelTexture | string;
     // u_textureSize?: number[];
 }
+
+type ModelAlphaOptions = {
+    alphaMode?: ModelAlphaMode;
+    alphaCutoff?: number;
+    materialOverrides?: Record<string, ModelMaterialOverride>;
+};
 
 type ModelTextures = {
     [id: string]: ModelTexture;
@@ -55,6 +72,8 @@ type ModelTextures = {
 class ModelFactory {
     // false means the model has already been processed and is invalid, preventing further processing.
     private models: { [id: string]: Model | false } = {};
+    private inlineSources = new WeakMap<OBJModelSource, {id: string; loading?: Promise<Model | false>}>();
+    private inlineId = 0;
     private unusedTexture: ModelTexture;
     private onBufferDestroyed: (buffer) => void;
     private objParser: ObjParser;
@@ -99,6 +118,33 @@ class ModelFactory {
         return this.initModel(url, data);
     }
 
+    getSourceId(source: string | ModelData | OBJModelSource): string {
+        if (typeof source === 'string') return source;
+        if ('format' in source && source.format === 'obj') return this.getInlineId(source);
+        return String((source as ModelData & {id?: string | number}).id ||= Math.random());
+    }
+
+    getInlineId(source: OBJModelSource): string {
+        let entry = this.inlineSources.get(source);
+        if (!entry) {
+            entry = {id: `inline-obj:${this.inlineId++}`};
+            this.inlineSources.set(source, entry);
+        }
+        return entry.id;
+    }
+
+    loadInline(source: OBJModelSource): Promise<Model | false> {
+        const id = this.getInlineId(source);
+        const entry = this.inlineSources.get(source);
+        return entry.loading ||= this.objParser.loadInline(source).then((data) => {
+            delete entry.loading;
+            return this.initModel(id, data);
+        }, (error) => {
+            this.models[id] = false;
+            throw error;
+        });
+    }
+
     private initTexture(name: string, imgData: ImageData, textures: ModelTextures, options?: TextureOptions) {
         let texture = textures[name];
         if (!texture) {
@@ -130,19 +176,23 @@ class ModelFactory {
 
                 if (!geom) continue;
 
-                const material = {
+                const materialName = face.material;
+                const material: Material = {
                     diffuse: [1, 1, 1],
                     diffuseMap: 'unusedTexture',
                     opacity: 1,
-                    illumination: 1,
+                    alphaCutoff: 0.5,
+                    illumination: 2,
                     ambient: [1, 1, 1],
                     specular: [1, 1, 1],
                     specularMap: 'unusedTexture',
                     shininess: 0,
                     normalMap: 'unusedNormalTexture',
                     useUVMapping: true,
-                    ...materials?.[face.material]
+                    ...materials?.[materialName]
                 };
+                const alphaMode = material.alphaMode;
+                const alphaCutoff = material.alphaCutoff;
 
                 let attributes = sharedAttr.get(geom);
                 const index = geom.index;
@@ -156,11 +206,13 @@ class ModelFactory {
 
 
                 const bbox = (geom.bbox ||= ModelBuffer.calcBBox(geom));
-                const uniforms: MaterialUniforms = material;
+                const uniformMaterial = {...material};
+                delete uniformMaterial.alphaMode;
+                const uniforms: MaterialUniforms = {...uniformMaterial};
 
                 const gl = this.device.gl;
 
-                for (let key in material) {
+                for (let key in uniforms) {
                     if (key.endsWith('Map')) {
                         const textureName = uniforms[key];
                         let imgData = imgTexData[textureName];
@@ -183,6 +235,7 @@ class ModelFactory {
 
                         const texOptions: TextureOptions = {
                             flipY: material.flipY,
+                            premultiplyAlpha: false,
                             wrapS,
                             wrapT
                         };
@@ -200,7 +253,17 @@ class ModelFactory {
                 delete uniforms.mode;
                 delete uniforms.flipY;
 
-                parts.push({attributes, bbox, uniforms, index, first: face.start, count: face.count});
+                parts.push({
+                    materialName,
+                    alphaMode,
+                    alphaCutoff,
+                    attributes,
+                    bbox,
+                    uniforms,
+                    index,
+                    first: face.start,
+                    count: face.count
+                });
             }
 
             this.models[id] = {textures: modelTextures, parts};
@@ -218,7 +281,8 @@ class ModelFactory {
         shininess: number,
         emissive: [number, number, number],
         cullFace: number,
-        ModelBufferClass: typeof ModelBuffer = ModelBuffer
+        ModelBufferClass: typeof ModelBuffer = ModelBuffer,
+        alphaOptions?: ModelAlphaOptions
     ) {
         const model = this.models[id];
         let bufferBucket;
@@ -230,9 +294,21 @@ class ModelFactory {
             let undef;
 
             for (let i = 0; i < parts.length; i++) {
-                let {attributes, bbox, uniforms, index, first, count} = parts[i];
+                let {materialName, alphaMode, alphaCutoff, attributes, bbox, uniforms, index, first, count} = parts[i];
 
                 let buffer = new ModelBufferClass(undef, undef, modelMatrix, positionOffset);
+                const materialOverride = alphaOptions?.materialOverrides?.[materialName];
+                const requestedAlphaMode = materialOverride?.alphaMode
+                    ?? alphaOptions?.alphaMode
+                    ?? alphaMode
+                    ?? 'auto';
+                buffer.alphaMode = requestedAlphaMode === 'auto'
+                    ? (Number(uniforms.opacity) < 1 || uniforms.opacityMap ? 'blend' : 'opaque')
+                    : requestedAlphaMode;
+                buffer.alphaCutoff = materialOverride?.alphaCutoff
+                    ?? alphaOptions?.alphaCutoff
+                    ?? alphaCutoff
+                    ?? 0.5;
                 // share a single buffer for the model-matrix data across multiple GeometryBuffers of the same model.
                 modelMatrix = buffer.flexAttributes.a_modelMatrix;
                 positionOffset = buffer.flexAttributes.a_offset;
@@ -251,6 +327,7 @@ class ModelFactory {
                     }
                     bufferUniforms[name] = uniform;
                 }
+                bufferUniforms.alphaCutoff = buffer.alphaCutoff;
 
                 if (specular) {
                     bufferUniforms.specular = vec3.add([], bufferUniforms.specular as number[], specular);

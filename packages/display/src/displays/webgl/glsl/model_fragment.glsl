@@ -9,6 +9,10 @@ uniform vec3 u_ambientLight;
 uniform float opacity;
 uniform float illumination;
 uniform sampler2D diffuseMap;
+#ifdef OPACITY_MAP
+uniform sampler2D opacityMap;
+#endif
+uniform float alphaCutoff;
 uniform sampler2D normalMap;
 varying vec4 v_color;
 varying vec3 v_normal;
@@ -23,6 +27,9 @@ uniform float u_zMeterToPixel;
 uniform float shininess;
 uniform vec3 specular;
 uniform sampler2D specularMap;
+#ifdef SHININESS_MAP
+uniform sampler2D shininessMap;
+#endif
 varying vec3 v_surfaceToCam;
 #endif
 #ifdef NORMAL_MAP
@@ -69,6 +76,22 @@ vec3 applyOverlay(vec3 baseRgb, vec2 texCoord) {
 #include "light.glsl"
 
 void main() {
+    vec4 diffuseMapColor = texture2D(diffuseMap, v_texCoord);
+    float alpha = 1.0;
+    #if defined(MODEL_ALPHA_MASK) || defined(MODEL_ALPHA_BLEND)
+    alpha = clamp(opacity * v_color.a * diffuseMapColor.a, 0.0, 1.0);
+    #ifdef OPACITY_MAP
+    alpha = clamp(alpha * texture2D(opacityMap, v_texCoord).r, 0.0, 1.0);
+    #endif
+    #endif
+
+    #ifdef MODEL_ALPHA_MASK
+    if (alpha < alphaCutoff) {
+        discard;
+    }
+    alpha = 1.0;
+    #endif
+
     #if defined(TERRAIN_MODEL_HM) && defined(TERRAIN_LIGHTING_FRAGMENT)
     vec3 normal = normalize(u_normalMatrix * getTerrainNormal(v_terrainTilePixelPos));
     #else
@@ -85,25 +108,40 @@ void main() {
     normal = normalize(matrixTbn * normal);
     #endif
 
-    vec4 diffuseMapColor = texture2D(diffuseMap, v_texCoord);
     vec3 color = diffuse * diffuseMapColor.rgb * v_color.rgb;
-    float alpha = v_color.a;
 
     // composite overlay on top of terrain
     #ifdef OVERLAY_MAP
     color.rgb = applyOverlay(color.rgb, v_texCoord);
     #endif
 
-    vec4 totalColor = computeBaseLighting(normal, color, 1.0, opacity * alpha);
+    #ifdef DIFFUSE
+    #ifdef MODEL_ALPHA_BLEND
+    vec4 totalColor = computeBaseLighting(normal, color, 1.0, 1.0);
+    #else
+    vec4 totalColor = computeBaseLighting(normal, color, 1.0, alpha);
+    #endif
+    #else
+    vec4 totalColor = vec4(color, alpha);
+    #endif
 
     #ifdef SPECULAR
+    float materialShininess = shininess;
+    #ifdef SHININESS_MAP
+    materialShininess *= texture2D(shininessMap, v_texCoord).r;
+    #endif
     totalColor = addSpecularHighlights(
         normal,
         totalColor,
         v_surfaceToCam,
-        shininess,
+        materialShininess,
         specular * texture2D(specularMap, v_texCoord).rgb
     );
+    #endif
+
+    #ifdef MODEL_ALPHA_BLEND
+    totalColor.a = alpha;
+    totalColor.rgb *= totalColor.a;
     #endif
 
     gl_FragColor = totalColor;

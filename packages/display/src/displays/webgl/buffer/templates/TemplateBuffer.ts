@@ -105,6 +105,8 @@ export class TemplateBuffer {
     instances: number = 0;
 
     uniforms: { [name: string]: Uniform } = {};
+    alphaMode?: 'opaque' | 'mask' | 'blend';
+    alphaCutoff?: number;
     private _cnt: number;
 
     light?: string;
@@ -218,6 +220,8 @@ export class TemplateBuffer {
     populateGeometryBuffer(geoBuffer: GeometryBuffer) {
         geoBuffer.instances = this.instances;
         geoBuffer.idOffsets = this.idOffsets;
+        geoBuffer.alphaMode = this.alphaMode;
+        geoBuffer.alphaCutoff = this.alphaCutoff;
         geoBuffer.cullFace(this.cullFace);
         geoBuffer.rayIntersects = this.rayIntersects;
         geoBuffer.setHeightMapRef(this.requiresHeightMap);

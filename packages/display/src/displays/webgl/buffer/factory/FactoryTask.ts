@@ -401,10 +401,12 @@ export class FactoryTask extends Task<TaskInput, TaskData> {
                                         geoBuffer.groups[0].mode = GeometryBuffer.MODE_GL_POINTS;
                                     }
 
-                                    const opacity = geoBuffer.uniforms.opacity as number;
-                                    if (opacity < 1.0) {
+                                    if (geoBuffer.alphaMode === 'blend') {
                                         geoBuffer.pass = PASS.ALPHA_COLOR;
                                         geoBuffer.blend = true;
+                                    } else {
+                                        geoBuffer.pass = PASS.OPAQUE;
+                                        geoBuffer.blend = false;
                                     }
                                 }
                             }

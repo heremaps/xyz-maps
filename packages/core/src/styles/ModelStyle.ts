@@ -31,6 +31,34 @@ import {
 type TypedArray = Int8Array | Uint8Array | Int16Array | Uint16Array | Int32Array | Uint32Array | Float32Array;
 
 /**
+ * How alpha from a model material is rendered.
+ *
+ * - `auto`: infer blending from explicit material opacity data; otherwise render opaque.
+ * - `opaque`: ignore texture alpha and render fully opaque.
+ * - `mask`: discard fragments below `alphaCutoff`, without blending.
+ * - `blend`: use texture/material alpha with blending and depth testing, without
+ *   writing depth. Ordering follows z-index/layer order. Camera-dependent depth
+ *   sorting of transparent model parts, instances, and triangles is intentionally
+ *   not performed at present, preserving instanced batching. Overlapping transparent
+ *   surfaces can therefore produce ordering artifacts as the camera moves.
+ *   Use `mask` for cutouts rather than partially transparent surfaces.
+ */
+export type ModelAlphaMode = 'auto' | 'opaque' | 'mask' | 'blend';
+
+/**
+ * Alpha-related overrides for a model material.
+ */
+export interface ModelMaterialOverride {
+    alphaMode?: ModelAlphaMode;
+    /**
+     * Alpha threshold for `alphaMode: 'mask'`.
+     *
+     * @defaultValue 0.5
+     */
+    alphaCutoff?: number;
+}
+
+/**
  * The Material to render the model/geometry using the Phong reflection model.
  *
  * @experimental
@@ -62,6 +90,28 @@ export interface Material {
     diffuseMap?: string;
 
     /**
+     * Opacity map name from MTL `map_d`.
+     * The actual texture must be defined in {@link ModelData.textures}.
+     */
+    opacityMap?: string;
+
+    /**
+     * Alpha rendering mode. `auto` infers blending from material opacity or an opacity map.
+     * Alpha in `diffuseMap` requires an explicit `mask` or `blend` mode.
+     * See {@link ModelAlphaMode} for the current blending and sorting limitations.
+     *
+     * @defaultValue 'auto'
+     */
+    alphaMode?: ModelAlphaMode;
+
+    /**
+     * Alpha threshold for `alphaMode: 'mask'`.
+     *
+     * @defaultValue 0.5
+     */
+    alphaCutoff?: number;
+
+    /**
      * Texture wrapping mode for the U (horizontal) and V (vertical) directions.
      * Supported values are 'clamp', 'repeat', and 'mirror'.
      *
@@ -86,10 +136,20 @@ export interface Material {
     specular?: number[];
 
     /**
-     * The name of the specular map used by the material.
+     * The name of the specular color map used by the material. In Wavefront MTL,
+     * this corresponds to `map_Ks` and modulates the specular color using RGB.
      * The actual texture must be defined in {@link ModelData.textures}.
      */
     specularMap?: string;
+
+    /**
+     * The name of the shininess map (Wavefront MTL `map_Ns`).
+     * Its red channel (0 to 1) multiplies the scalar {@link Material.shininess},
+     * including any style shininess contribution, without changing specular color.
+     * It is used only when specular lighting is enabled.
+     * The actual texture must be defined in {@link ModelData.textures}.
+     */
+    shininessMap?: string;
 
     /**
      * The name of the normal map used by the material.
@@ -110,10 +170,15 @@ export interface Material {
     /**
      * The Illumination Mode of the material.
      *
-     * - mode 0: Constant color mode. Colors, no lightning, no shading
-     * - mode 1: Diffuse lightning mode.
+     * - mode 0: Constant color mode. Colors, no lighting, no shading.
+     * - mode 1: Diffuse lighting only, without specular highlights.
+     * - mode 2 (and higher): Diffuse lighting and specular highlights when shininess is positive.
      *
-     * @defaultValue 1
+     * Explicit modes 0 and 1 disable highlights even when the style adds specular
+     * color or shininess. When omitted, mode 2 preserves material/style highlights.
+     * Higher MTL modes use the same lighting as mode 2; reflection/refraction is not implemented.
+     *
+     * @defaultValue 2
      */
     illumination?: number;
 
@@ -231,6 +296,34 @@ export interface ModelData {
 }
 
 /**
+ * Inline Wavefront OBJ source, for example decoded from GeoJSON properties.
+ *
+ * @experimental
+ */
+export interface OBJModelSource {
+    format: 'obj';
+    /** Decoded Wavefront OBJ text. */
+    obj: string;
+    /**
+     * Decoded MTL text, or texts keyed by the filenames in mtllib directives.
+     * Missing referenced entries in a supplied map cause a loading error.
+     * When omitted, default materials are used; mtllib files are never fetched.
+     */
+    mtl?: string | Record<string, string>;
+    /** Base URL for relative texture references (directory URLs should end with '/'). */
+    baseUrl?: string;
+    /**
+     * Texture filenames from MTL mapped to URLs or data URLs.
+     * Relative texture URLs require baseUrl; absolute and data URLs do not.
+     * Unresolvable or unloadable textures produce a warning and are omitted.
+     */
+    textures?: Record<string, string>;
+}
+
+/** A model URL, pre-parsed geometry, or inline Wavefront source. */
+export type ModelSource = string | ModelData | OBJModelSource;
+
+/**
  * Interface for configuring the visual appearance of Models.
  * The default orientation is with the Y axis pointing up.
  *
@@ -264,8 +357,39 @@ export interface ModelStyle {
      * In addition to passing the model directly, a string can also be provided that references a Wavefront OBJ file.
      *
      * @example \{zIndex: 0, type: "Model", model: "./MyModel.obj"\}
+     * @example \{zIndex: 0, type: "Model", model: (feature) => feature.properties.model\}
+     *
+     * Inline {@link OBJModelSource} objects are cached by identity. Reuse the same
+     * object across evaluations and replace it when its contents change.
      */
-    model: string | ModelData | StyleValueFunction<ModelData>;
+    model: ModelSource | StyleValueFunction<ModelSource>;
+
+    /**
+     * Alpha mode override applied to all materials in this model.
+     * In `auto` mode, material opacity and MTL opacity maps are used to infer blending.
+     * The alpha channel in a diffuse texture alone is ambiguous and does not change the mode.
+     * See {@link ModelAlphaMode} for the current blending and sorting limitations.
+     *
+     * @defaultValue 'auto'
+     */
+    alphaMode?: ModelAlphaMode;
+
+    /**
+     * Alpha threshold for masked materials.
+     *
+     * @defaultValue 0.5
+     */
+    alphaCutoff?: number;
+
+    /**
+     * Alpha overrides for named materials, keyed by their MTL material names.
+     * Per-material values take precedence over the model-wide alpha settings.
+     *
+     * @example \{Transparent: \{alphaMode: 'mask', alphaCutoff: 0.5\}\}
+     */
+    materialOverrides?: {
+        [materialName: string]: ModelMaterialOverride;
+    };
 
     /**
      * Configure Face culling.

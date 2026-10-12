@@ -37,13 +37,14 @@ class ModelProgram extends Program {
      * Subclasses sourcing their material from the render state override this.
      */
     protected static usesBufferSpecular(buffer: GeometryBuffer): boolean {
-        return (buffer.uniforms.shininess as number) > 0;
+        return (buffer.uniforms.illumination as number ?? 2) > 1 &&
+            (buffer.uniforms.shininess as number) > 0;
     }
 
     static getBufferMacroMask(buffer: GeometryBuffer) {
         const {uniforms} = buffer;
         let mask = super.getBufferMacroMask(buffer);
-        if (uniforms.illumination as number > 0) {
+        if ((uniforms.illumination as number ?? 2) > 0) {
             mask |= PROGRAM_MACRO.DIFFUSE;
         }
         if ((uniforms.normalMap as Texture).width > 1) {
@@ -51,6 +52,17 @@ class ModelProgram extends Program {
         }
         if (this.usesBufferSpecular(buffer)) {
             mask |= PROGRAM_MACRO.SPECULAR;
+            if (uniforms.shininessMap instanceof Texture) {
+                mask |= PROGRAM_MACRO.SHININESS_MAP;
+            }
+        }
+        if (buffer.alphaMode === 'mask') {
+            mask |= PROGRAM_MACRO.MODEL_ALPHA_MASK;
+        } else if (buffer.alphaMode === 'blend') {
+            mask |= PROGRAM_MACRO.MODEL_ALPHA_BLEND;
+        }
+        if (uniforms.opacityMap) {
+            mask |= PROGRAM_MACRO.OPACITY_MAP;
         }
         return mask;
     }

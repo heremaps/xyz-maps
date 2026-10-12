@@ -16,7 +16,7 @@
  * SPDX-License-Identifier: Apache-2.0
  * License-Filename: LICENSE
  */
-import {ModelData} from '@here/xyz-maps-core';
+import {ModelData, OBJModelSource} from '@here/xyz-maps-core';
 import {XYZWorker} from './XYZWorker';
 import {Material} from '@here/xyz-maps-core';
 
@@ -125,7 +125,7 @@ const worker = function() {
                 }
                 break;
             case 'mtllib':
-                mtlLibs.push(rawValue);
+                mtlLibs.push(...values);
                 break;
             case 'usemtl':
                 face.material = rawValue;
@@ -157,7 +157,9 @@ const worker = function() {
         'Ke': 'emissive',
         'Ns': 'shininess',
         'map_Kd': 'diffuseMap',
-        'map_Ns': 'specularMap',
+        'map_d': 'opacityMap',
+        'map_Ks': 'specularMap',
+        'map_Ns': 'shininessMap',
         'map_Bump': 'normalMap',
         'd': 'opacity',
         'illum': 'illumination'
@@ -182,6 +184,11 @@ const worker = function() {
                 materials[rawValue] = material;
                 break;
             case 'd':
+                material.opacity = parseFloat(values[0]);
+                break;
+            case 'Tr':
+                material.opacity = 1 - parseFloat(values[0]);
+                break;
             case 'Ns':
             case 'illum':
                 material[mtlToMaterial[key]] = parseFloat(values[0]);
@@ -193,6 +200,8 @@ const worker = function() {
                 material[mtlToMaterial[key]] = values.map(parseFloat);
                 break;
             case 'map_Kd':
+            case 'map_d':
+            case 'map_Ks':
             case 'map_Ns':
             case 'map_Bump':
                 material[mtlToMaterial[key]] = rawValue;
@@ -203,20 +212,24 @@ const worker = function() {
         return materials;
     };
 
-    const loadTextures = async (materials, baseUrl: URL) => {
-        const textures = {};
-        const promises = [];
+    const loadTextures = async (materials, baseUrl?: URL, textureUrls?: Record<string, string>) => {
+        const textures = Object.create(null);
+        const promises = Object.create(null);
         for (let name in materials) {
             const material = materials[name];
             for (let key in material) {
                 if (key.endsWith('Map')) {
                     const fileName = material[key];
-                    promises.push(
+                    promises[fileName] ||= (
                         (async () => {
-                            const response = await fetch(new URL(fileName, baseUrl).href);
-                            if (response.status >= 400) {
-                                console.warn(`load texture error:`, response);
-                                return;
+                            const url = textureUrls && Object.prototype.hasOwnProperty.call(textureUrls, fileName)
+                                ? textureUrls[fileName] : fileName;
+                            if (!baseUrl && !/^[a-z][a-z\d+.-]*:/i.test(url)) {
+                                throw new Error(`Relative OBJ texture "${fileName}" requires baseUrl or an absolute textures entry`);
+                            }
+                            const response = await fetch(new URL(url, baseUrl).href);
+                            if (!response.ok) {
+                                throw new Error(`Failed to load OBJ texture "${fileName}": ${response.status}`);
                             }
                             const blob = await response.blob();
                             const bitmap = await createImageBitmap(blob, {
@@ -226,12 +239,23 @@ const worker = function() {
                             });
                             textures[fileName] = bitmap;
                             return bitmap;
-                        })()
+                        })().catch((error) => {
+                            console.warn(`Failed to load OBJ texture "${fileName}"; rendering without this texture:`, error);
+                        })
                     );
                 }
             }
         }
-        await Promise.all(promises);
+        await Promise.all(Object.values(promises));
+
+        for (let name in materials) {
+            const material = materials[name];
+            for (let key in material) {
+                if (key.endsWith('Map') && !textures[material[key]]) {
+                    delete material[key];
+                }
+            }
+        }
 
         return textures;
     };
@@ -241,6 +265,9 @@ const worker = function() {
             let model: ModelData;
 
             const response = await fetch(objUrl);
+            if (!response.ok) {
+                throw new Error(`Failed to load OBJ "${objUrl}": ${response.status}`);
+            }
             const txt = await response.text();
 
             const {geometries, mtlLibs, faces} = parseOBJ(txt);
@@ -249,10 +276,10 @@ const worker = function() {
             const matTxts = await Promise.all(
                 mtlLibs.map(async (filename) => {
                     let response = await fetch(new URL(filename, baseHref).href);
-                    if (response.status == 200) {
+                    if (response.ok) {
                         return await response.text();
                     } else {
-                        console.warn('load material error:', response);
+                        throw new Error(`Failed to load OBJ material library "${filename}": ${response.status}`);
                     }
                 })
             );
@@ -263,13 +290,27 @@ const worker = function() {
             return model;
         })();
     };
-    return async ({url})=>{
-        let model: ModelData;
-        try {
-            model = await load(url);
-        } catch (e) {
-            return {error: e};
+    const loadInline = async (source: OBJModelSource): Promise<ModelData> => {
+        const {geometries, faces, mtlLibs} = parseOBJ(source.obj);
+        let text = '';
+        if (typeof source.mtl == 'string') {
+            text = source.mtl;
+        } else if (source.mtl) {
+            const filenames = mtlLibs.length ? mtlLibs : Object.keys(source.mtl);
+            text = filenames.map((filename) => {
+                if (!Object.prototype.hasOwnProperty.call(source.mtl, filename)) {
+                    throw new Error(`Missing inline OBJ material library "${filename}"`);
+                }
+                return source.mtl[filename];
+            }).join('\n');
         }
+        const materials = parseMTL(text);
+
+        const textures = await loadTextures(materials, source.baseUrl ? new URL(source.baseUrl) : undefined, source.textures);
+        return {geometries, faces, materials, textures};
+    };
+    return async ({url, source})=>{
+        const model = source ? await loadInline(source) : await load(url);
         let transfer = [];
         for (let geom of model.geometries) {
             for (let name of ['position', 'uv', 'normal', 'color']) {
@@ -300,12 +341,23 @@ export class ObjParser extends XYZWorker {
         super(worker);
     }
 
+    loadInline(source: OBJModelSource): Promise<ModelData> {
+        return this.main({source: {
+            ...source,
+            baseUrl: source.baseUrl ? new URL(source.baseUrl, window.top.location.href).href : undefined
+        }});
+    }
+
     async load(url: string): Promise<ModelData> {
         return (this.inProgress[url] ||= (async () => {
             const _url = new URL(url, window.top.location.href);
             // const _url = new URL(url, window.location.href);
-            const model: ModelData = await this.main({url: _url.href});
-            delete this.inProgress[url];
+            let model: ModelData;
+            try {
+                model = await this.main({url: _url.href});
+            } finally {
+                delete this.inProgress[url];
+            }
             // if (!model.geometries || model.geometries.length === 0) return null;
             return model;
         })());
