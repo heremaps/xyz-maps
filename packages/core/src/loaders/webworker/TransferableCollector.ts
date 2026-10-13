@@ -1,5 +1,5 @@
 /*
- * Copyright (C) 2019-2025 HERE Europe B.V.
+ * Copyright (C) 2019-2026 HERE Europe B.V.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -16,23 +16,35 @@
  * SPDX-License-Identifier: Apache-2.0
  * License-Filename: LICENSE
  */
-type TypedArray = Float64Array | Float32Array | Uint16Array | Int16Array | Uint8Array | Uint32Array | Int8Array | Int32Array
 
 export class TransferableCollector {
-    private transfer = new Set<ArrayBuffer>();
+    private transfer = new Set<Transferable>();
+    private visited = new Set<object>();
 
-    add(data: any|TypedArray) {
-        const buffer = (data as Float32Array)?.buffer;
-        if (buffer instanceof ArrayBuffer) {
+    add(value: unknown) {
+        if (!value || typeof value != 'object' || this.visited.has(value)) {
+            return;
+        }
+
+        const buffer = value instanceof ArrayBuffer
+            ? value
+            : ArrayBuffer.isView(value) && value.buffer instanceof ArrayBuffer
+                ? value.buffer
+                : undefined;
+
+        if (buffer) {
             this.transfer.add(buffer);
-        } else if (!Array.isArray(data) && typeof data == 'object') {
-            for (let p in data) {
-                this.add(data[p]);
+        } else if (value instanceof ImageBitmap) {
+            this.transfer.add(value);
+        } else if (!ArrayBuffer.isView(value)) {
+            this.visited.add(value);
+            for (const key in value) {
+                this.add(value[key]);
             }
         }
     }
 
-    getTransferables(): ArrayBuffer[] {
+    getTransferables(): Transferable[] {
         return Array.from(this.transfer);
     }
 }

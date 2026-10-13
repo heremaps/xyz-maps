@@ -19,7 +19,7 @@
 
 import {HTTPWorker} from '../../loaders/webworker/HTTPWorker';
 import {getGeoBounds, tileXYToQuadKey} from '../../tile/TileUtils';
-import {TransferableCollector} from './TransferableCollector';
+import {TransferableCollector} from '../../loaders/webworker/TransferableCollector';
 import {RTINMeshBuilder, RTINMesh} from './RTINMeshBuilder';
 import {quantizeVertexData, computeEdgeIndices, computeMeshNormals} from './terrainUtils';
 import {extendHeightMapWithFullClamping, decodeHeights, cropHeightMap} from './heightmapUtils';

@@ -1,5 +1,5 @@
 /*
- * Copyright (C) 2019-2025 HERE Europe B.V.
+ * Copyright (C) 2019-2026 HERE Europe B.V.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -18,6 +18,7 @@
  */
 
 import {HTTPWorker} from './webworker/HTTPWorker';
+import {TransferableCollector} from './webworker/TransferableCollector';
 import type {WorkerPreProcessorFunction, WorkerPreProcessorInput} from '../providers/RemoteTileProvider/RemoteTileProviderOptions';
 
 interface WorkerProcessorConfig {
@@ -32,39 +33,6 @@ interface WorkerProcessorResult {
 }
 
 const isWorkerProcessor = (processor: unknown): processor is WorkerPreProcessorFunction => typeof processor == 'function';
-
-const collectTransferables = (value: unknown, result: Set<Transferable>, visited: Set<object>) => {
-    if (!value || typeof value != 'object') {
-        return;
-    }
-    if (value instanceof ArrayBuffer) {
-        result.add(value);
-        return;
-    }
-    if (ArrayBuffer.isView(value)) {
-        if (value.buffer instanceof ArrayBuffer) {
-            result.add(value.buffer);
-        }
-        return;
-    }
-    if (typeof ImageBitmap != 'undefined' && value instanceof ImageBitmap) {
-        result.add(value);
-        return;
-    }
-    if (visited.has(value)) {
-        return;
-    }
-    visited.add(value);
-    for (const key of Object.keys(value)) {
-        collectTransferables(Reflect.get(value, key), result, visited);
-    }
-};
-
-const createTransferList = (value: unknown): Transferable[] => {
-    const result = new Set<Transferable>();
-    collectTransferables(value, result, new Set<object>());
-    return Array.from(result);
-};
 
 const loadProcessor = async (config: WorkerProcessorConfig): Promise<WorkerPreProcessorFunction> => {
     if (config.type == 'module') {
@@ -121,9 +89,12 @@ export default {
                 throw new Error('Worker preProcessor must return a GeoJSON feature array');
             }
 
+            const transfer = new TransferableCollector();
+            transfer.add(result);
+
             return {
                 data: result,
-                transfer: createTransferList(result)
+                transfer: transfer.getTransferables()
             };
         }
     }
