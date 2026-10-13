@@ -63,6 +63,58 @@ export class IMLProvider extends SpaceProvider {
      *     }
      * });
      * ```
+     *
+     * To decode model assets off the main thread, use a standalone worker preprocessor.
+     * The function must return the feature array; it cannot use closures or the DOM.
+     * Returning Blobs for inline OBJ/MTL/textures avoids sending large decoded strings
+     * back to the main thread. Browser-decodable image Blobs can be returned as texture
+     * entries; convert formats such as TGA in the worker before returning them. Remove
+     * large encoded source properties before returning the features if they are no
+     * longer needed.
+     *
+     * @example
+     * ```ts
+     * const provider = new IMLProvider({
+     *     level: 10,
+     *     layer: 'models',
+     *     catalog: 'hrn:here:data::example:catalog',
+     *     credentials: {apiKey: 'YOUR_API_KEY'},
+     *     preProcessor: {
+     *         execution: 'worker',
+     *         options: {
+     *             objProperty: 'objGzipBase64',
+     *             mtlProperty: 'mtlGzipBase64'
+     *         },
+     *         processor: async ({data}, options) => {
+     *             const decodeGzipBase64 = async (encoded) => {
+     *                 const bytes = Uint8Array.from(atob(encoded), (c) => c.charCodeAt(0));
+     *                 const stream = new Blob([bytes]).stream().pipeThrough(new DecompressionStream('gzip'));
+     *                 return new Response(stream).text();
+     *             };
+     *             const objProperty = String(options.objProperty);
+     *             const mtlProperty = String(options.mtlProperty);
+     *             for (const feature of data) {
+     *                 const obj = await decodeGzipBase64(feature.properties[objProperty]);
+     *                 const encodedMTL = feature.properties[mtlProperty];
+     *                 const mtl: Record<string, Blob> = {};
+     *                 for (const filename of Object.keys(encodedMTL || {})) {
+     *                     mtl[filename] = new Blob([
+     *                         await decodeGzipBase64(encodedMTL[filename])
+     *                     ], {type: 'text/plain'});
+     *                 }
+     *                 feature.properties.modelSource = {
+     *                     format: 'obj',
+     *                     obj: new Blob([obj], {type: 'text/plain'}),
+     *                     mtl
+     *                 };
+     *                 delete feature.properties[objProperty];
+     *                 delete feature.properties[mtlProperty];
+     *             }
+     *             return data;
+     *         }
+     *     }
+     * });
+     * ```
      */
     constructor(options: IMLProviderOptions) {
         super(createOptions(options));

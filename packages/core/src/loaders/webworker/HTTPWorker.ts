@@ -35,14 +35,14 @@ export class HTTPWorker {
         this.customHandlers = new Set<string>();
 
         self.addEventListener('message', (e) => {
-            const {msg, quadkey, url, x, y, z} = e.data;
+            const {msg, quadkey, url, x, y, z, headers, withCredentials} = e.data;
             switch (msg) {
             case 'abort':
                 loader.abort({quadkey});
                 break;
             case 'load':
                 loader.baseUrl = url;
-                this.load(x, y, z, quadkey, url);
+                this.load(x, y, z, quadkey, url, headers, withCredentials);
                 break;
             default:
                 if (this.customHandlers.has(msg)) {
@@ -61,16 +61,32 @@ export class HTTPWorker {
         }
     }
 
-    load(x: number, y: number, z: number, quadkey: string, url: string) {
+    load(x: number, y: number, z: number, quadkey: string, url: string, headers?, withCredentials?: boolean) {
         const worker = this;
+        worker.loader.headers = headers || worker.loader.headers;
+        if (withCredentials !== undefined) {
+            worker.loader.withCredentials = withCredentials;
+            worker.loader.http.withCredentials = withCredentials;
+        }
         worker.loader.load({quadkey}, (arrayBuffer) => {
-            const {data, transfer} = worker.process(arrayBuffer, x, y, z);
-            self.postMessage({
-                msg: 'success',
-                url,
-                key: quadkey,
-                data
-            }, transfer);
+            Promise.resolve().then(() => worker.process(arrayBuffer, x, y, z, quadkey)).then(({data, transfer}) => {
+                self.postMessage({
+                    msg: 'success',
+                    url,
+                    key: quadkey,
+                    data
+                }, transfer);
+            }).catch((error) => {
+                self.postMessage({
+                    msg: 'processorError',
+                    url,
+                    key: quadkey,
+                    data: {
+                        name: error?.name,
+                        message: error?.message || String(error)
+                    }
+                });
+            });
         },
         (error, xhr) => {
             // Send a serializable XHR-like payload; structured cloning may lose
@@ -88,7 +104,7 @@ export class HTTPWorker {
         });
     }
 
-    process(data: any, x: number, y: number, z: number): { data: any, transfer: any[] } {
+    process(data: any, x: number, y: number, z: number, _quadkey?: string): { data: any, transfer: any[] } | Promise<{ data: any, transfer: any[] }> {
         return {data, transfer: [data]};
     }
 };

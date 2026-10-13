@@ -35,21 +35,24 @@ class WorkerHTTPLoader extends HTTPLoader {
     private worker: Worker;
 
     private pendingResponses: Map<string, TileResponse | CustomResponse> = new Map();
+    private workerError: NetworkError;
 
-    constructor(worker: string, options: HTTPLoaderOptions, payload?) {
+    constructor(worker: string, options: HTTPLoaderOptions, payload?, workerOptions?) {
         super(options);
 
         payload ||= new ArrayBuffer(0);
 
         // @ts-ignore
         this.worker = new Worker(window.here.xyz.maps.__workerURL);
+        this.worker.addEventListener('message', this.receiveMessage.bind(this));
+        this.worker.addEventListener('error', this.receiveWorkerError.bind(this));
+        this.worker.addEventListener('messageerror', this.receiveWorkerError.bind(this));
         this.worker.postMessage({
             msg: 'init',
             worker,
-            options: JSON.parse(JSON.stringify(options)),
+            options: workerOptions || JSON.parse(JSON.stringify(options)),
             payload
         }, [payload]);
-        this.worker.addEventListener('message', this.receiveMessage.bind(this));
     }
 
     protected processData(message: any) {
@@ -72,6 +75,21 @@ class WorkerHTTPLoader extends HTTPLoader {
                 tile.error = new NetworkError(data.data);
                 (cb as TileResponse).error?.(tile.error, tile);
                 break;
+            case 'processorError': {
+                const {tile} = cb as TileResponse;
+                const message = data.data?.message || 'Worker preprocessor failed';
+                const error = new NetworkError({
+                    status: 0,
+                    statusText: message,
+                    responseType: '',
+                    responseText: message
+                } as XMLHttpRequest);
+                error.name = data.data?.name || 'WorkerProcessorError';
+                error.message = message;
+                tile.error = error;
+                (cb as TileResponse).error?.(error, tile);
+                break;
+            }
             default:
                 // custom messages
                 (cb as CustomResponse).resolve(data.data);
@@ -80,12 +98,49 @@ class WorkerHTTPLoader extends HTTPLoader {
         }
     }
 
+    private receiveWorkerError(event: ErrorEvent | MessageEvent) {
+        const message = event.type == 'error'
+            ? (event as ErrorEvent).message || 'Worker failed'
+            : 'Worker message could not be deserialized';
+        const error = new NetworkError({
+            status: 0,
+            statusText: message,
+            responseType: '',
+            responseText: message
+        } as XMLHttpRequest);
+        error.name = 'WorkerError';
+        error.message = message;
+        this.workerError = error;
+
+        this.pendingResponses.forEach((response) => {
+            if ('tile' in response) {
+                response.tile.error = error;
+                response.error?.(error, response.tile);
+            } else {
+                response.reject(error);
+            }
+        });
+        this.pendingResponses.clear();
+    }
 
     load(tile, success, error?) {
         const url = this.getUrl(tile);
         const {quadkey, x, y, z} = tile;
+        if (this.workerError) {
+            error?.(this.workerError, tile);
+            return;
+        }
         this.pendingResponses.set(quadkey, {tile, success, error});
-        this.worker.postMessage({msg: 'load', url, quadkey, x, y, z});
+        this.worker.postMessage({
+            msg: 'load',
+            url,
+            quadkey,
+            x,
+            y,
+            z,
+            headers: this.headers,
+            withCredentials: this.withCredentials
+        });
     }
 
 

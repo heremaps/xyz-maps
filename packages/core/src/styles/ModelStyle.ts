@@ -302,22 +302,23 @@ export interface ModelData {
  */
 export interface OBJModelSource {
     format: 'obj';
-    /** Decoded Wavefront OBJ text. */
-    obj: string;
+    /** Decoded Wavefront OBJ text or a Blob created in a worker. */
+    obj: string | Blob;
     /**
-     * Decoded MTL text, or texts keyed by the filenames in mtllib directives.
+     * Decoded MTL text or a Blob, or texts/Blobs keyed by the filenames in
+     * `mtllib` directives.
      * Missing referenced entries in a supplied map cause a loading error.
      * When omitted, default materials are used; mtllib files are never fetched.
      */
-    mtl?: string | Record<string, string>;
+    mtl?: string | Blob | Record<string, string | Blob>;
     /** Base URL for relative texture references (directory URLs should end with '/'). */
     baseUrl?: string;
     /**
-     * Texture filenames from MTL mapped to URLs or data URLs.
+     * Texture filenames from MTL mapped to Blobs, URLs, or data URLs.
      * Relative texture URLs require baseUrl; absolute and data URLs do not.
      * Unresolvable or unloadable textures produce a warning and are omitted.
      */
-    textures?: Record<string, string>;
+    textures?: Record<string, string | Blob>;
 }
 
 /** A model URL, pre-parsed geometry, or inline Wavefront source. */

@@ -1,0 +1,16 @@
+{
+  "type": "FeatureCollection",
+  "features": [
+    {
+      "type": "Feature",
+      "id": "worker-feature",
+      "geometry": {
+        "type": "Point",
+        "coordinates": [-90, 45]
+      },
+      "properties": {
+        "objGzipBase64": "large encoded source"
+      }
+    }
+  ]
+}

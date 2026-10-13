@@ -23,6 +23,7 @@ import {HTTPLoader} from '../../loaders/HTTPLoader';
 import {JSUtils} from '@here/xyz-maps-common';
 import {HTTPProviderOptions} from './HTTPProviderOptions';
 import {Feature} from '../../features/Feature';
+import GeoJSONWorkerLoader from '../../loaders/webworker/GeoJSONLoader';
 
 
 const METHOD_NOT_IMPLEMENTED = 'Method not implemented.';
@@ -49,6 +50,25 @@ abstract class HTTPProvider extends EditableRemoteTileProvider {
      */
     constructor(options: HTTPProviderOptions) {
         let loader = options.loader;
+        const workerPreProcessor = options.preProcessor && typeof options.preProcessor == 'object'
+            ? options.preProcessor
+            : undefined;
+
+        if (workerPreProcessor && workerPreProcessor.execution != 'worker') {
+            throw new Error('Unsupported preProcessor execution mode. Use `execution: "worker"`.');
+        }
+
+        if (workerPreProcessor) {
+            if (loader) {
+                throw new Error('A worker preProcessor cannot be combined with a custom loader. Remove `loader` to use the automatic GeoJSON worker loader.');
+            }
+            loader = new LoaderManager(new GeoJSONWorkerLoader({
+                url: options.url,
+                withCredentials: options.withCredentials,
+                headers: options.headers,
+                preProcessor: workerPreProcessor
+            }));
+        }
 
         if (loader) {
             if (!(loader instanceof LoaderManager)) {

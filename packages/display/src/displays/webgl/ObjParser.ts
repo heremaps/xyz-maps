@@ -212,7 +212,7 @@ const worker = function() {
         return materials;
     };
 
-    const loadTextures = async (materials, baseUrl?: URL, textureUrls?: Record<string, string>) => {
+    const loadTextures = async (materials, baseUrl?: URL, textureUrls?: Record<string, string | Blob>) => {
         const textures = Object.create(null);
         const promises = Object.create(null);
         for (let name in materials) {
@@ -222,8 +222,17 @@ const worker = function() {
                     const fileName = material[key];
                     promises[fileName] ||= (
                         (async () => {
-                            const url = textureUrls && Object.prototype.hasOwnProperty.call(textureUrls, fileName)
+                            const texture = textureUrls && Object.prototype.hasOwnProperty.call(textureUrls, fileName)
                                 ? textureUrls[fileName] : fileName;
+                            if (texture instanceof Blob) {
+                                textures[fileName] = await createImageBitmap(texture, {
+                                    imageOrientation: 'flipY',
+                                    premultiplyAlpha: 'none',
+                                    colorSpaceConversion: 'none'
+                                });
+                                return textures[fileName];
+                            }
+                            const url = texture;
                             if (!baseUrl && !/^[a-z][a-z\d+.-]*:/i.test(url)) {
                                 throw new Error(`Relative OBJ texture "${fileName}" requires baseUrl or an absolute textures entry`);
                             }
@@ -291,18 +300,22 @@ const worker = function() {
         })();
     };
     const loadInline = async (source: OBJModelSource): Promise<ModelData> => {
-        const {geometries, faces, mtlLibs} = parseOBJ(source.obj);
+        const objText = source.obj instanceof Blob ? await source.obj.text() : source.obj;
+        const {geometries, faces, mtlLibs} = parseOBJ(objText);
         let text = '';
         if (typeof source.mtl == 'string') {
             text = source.mtl;
+        } else if (source.mtl instanceof Blob) {
+            text = await source.mtl.text();
         } else if (source.mtl) {
             const filenames = mtlLibs.length ? mtlLibs : Object.keys(source.mtl);
-            text = filenames.map((filename) => {
+            text = (await Promise.all(filenames.map(async (filename) => {
                 if (!Object.prototype.hasOwnProperty.call(source.mtl, filename)) {
                     throw new Error(`Missing inline OBJ material library "${filename}"`);
                 }
-                return source.mtl[filename];
-            }).join('\n');
+                const material = source.mtl[filename];
+                return material instanceof Blob ? await material.text() : material;
+            }))).join('\n');
         }
         const materials = parseMTL(text);
 

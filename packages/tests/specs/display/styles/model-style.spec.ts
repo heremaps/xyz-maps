@@ -103,6 +103,30 @@ describe('3D model styles', function() {
         expect(color).toBe('#00ff00');
     });
 
+    it('validate worker-created Blob OBJ, MTL and texture assets', async () => {
+        const response = await fetch('base/tests/assets/model/cube.obj');
+        const obj = (await response.text()).replace(/^mtllib.*$/m, 'mtllib sides.mtl top.mtl');
+        const canvas = document.createElement('canvas');
+        canvas.width = canvas.height = 1;
+        const context = canvas.getContext('2d');
+        context.fillStyle = '#00ff00';
+        context.fillRect(0, 0, 1, 1);
+        const texture = await new Promise<Blob>((resolve, reject) => {
+            canvas.toBlob((blob) => blob ? resolve(blob) : reject(new Error('Failed to create test texture')));
+        });
+        const source: OBJModelSource = {
+            format: 'obj',
+            obj: new Blob([obj], {type: 'text/plain'}),
+            mtl: {
+                'sides.mtl': new Blob(['newmtl front\nKd 0 0 1\n'], {type: 'text/plain'}),
+                'top.mtl': new Blob(['newmtl top\nKd 1 1 1\nmap_Kd green.png'], {type: 'text/plain'})
+            },
+            textures: {'green.png': texture}
+        };
+        modelLayer.setStyleGroup(feature, [{...baseModelStyle, model: source}]);
+        expect(await getCanvasPixelColor(mapContainer, {x: 400, y: 300})).toBe('#00ff00');
+    });
+
     it('validate inline OBJ without MTL uses default materials', async () => {
         const response = await fetch('base/tests/assets/model/cube.obj');
         modelLayer.setStyleGroup(feature, [{

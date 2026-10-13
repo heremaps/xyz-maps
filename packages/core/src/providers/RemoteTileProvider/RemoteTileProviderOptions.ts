@@ -21,6 +21,57 @@ import {type TileProviderOptions} from '../TileProvider/TileProviderOptions';
 import {GeoJSONFeature} from '../../features/GeoJSON';
 
 /**
+ * Input received by a worker preprocessor.
+ *
+ * @public
+ */
+export interface WorkerPreProcessorInput {
+    data: any[];
+    tile: {
+        x: number;
+        y: number;
+        z: number;
+        quadkey: string;
+    };
+}
+
+/**
+ * Standalone preprocessor function that can be serialized into the worker.
+ *
+ * @public
+ */
+export type WorkerPreProcessorFunction = (
+    input: WorkerPreProcessorInput,
+    options: Record<string, unknown>
+) => any[] | Promise<any[]>;
+
+/**
+ * Worker execution configuration for a remote provider preprocessor.
+ *
+ * @public
+ */
+export interface WorkerPreProcessorOptions {
+    /**
+     * Run this preprocessor in the provider's web worker. The `processor` function
+     * must be self-contained; it cannot access closures or main-thread APIs.
+     */
+    execution: 'worker';
+    /**
+     * A standalone function (serialized and reconstructed in the worker) or a URL
+     * to a JavaScript module whose default export is the processor function.
+     * Serialized functions and module loading use dynamic code loading, which may
+     * require `unsafe-eval` and module URLs to be permitted by the Content Security Policy.
+     * Cross-origin module URLs must allow worker-origin CORS requests.
+     */
+    processor: WorkerPreProcessorFunction | URL | string;
+    /**
+     * Structured-cloneable values passed as the processor's second argument; an empty
+     * object is passed when omitted.
+     */
+    options?: Record<string, unknown>;
+}
+
+/**
  *  Configuration options of a RemoteTileProvider.
  */
 export interface RemoteTileProviderOptions extends TileProviderOptions {
@@ -30,28 +81,35 @@ export interface RemoteTileProviderOptions extends TileProviderOptions {
     level: number;
 
     /**
-     * PreProcessor for remote data sources.
-     * The PreProcessor will be executed just after Features are received from remote backend.
-     * If the processor function is returning the processed data then its treated as a synchronous processor.
-     * If the processor function does not return any value (undefined) or a Promise then its treated as asynchronous processor.
-     * An asynchronous processor that's not using a Promise MUST call the input.ready(..) callback when data processing is finished.
-     *
-     * Due to the execution of the processor in a separate worker thread the processor function must be scope independent.
-     * The processor must be a "standalone function/class" that only depends on its own scope and only accesses its own local variables.
-     * No references to the outer scope of the processor function are allowed.
+     * Preprocessor for remote data sources. A function runs on the main thread and
+     * receives `data`, `ready`, and `tile`; it may return the processed features or a
+     * Promise, or use `ready` for legacy callback-style async work. Use the worker
+     * configuration on an HTTP/GeoJSON provider to automatically load and preprocess
+     * GeoJSON in a worker. Worker processors receive only `data` and `tile`, plus the
+     * configured options as a second argument, and must return the processed array.
+     * They do not receive a provider reference or a `ready` callback. Worker mode is
+     * not supported by `RemoteTileProvider` with a custom loader. ArrayBuffers,
+     * typed-array buffers, and ImageBitmaps in the returned data are transferred to
+     * the main thread; the corresponding worker-side resources are detached. Blob
+     * assets are structured-cloned as Blobs, rather than returned as large text strings.
      *
      * @example
      * ```
-     * // PreProcessor:
-     *  ({data: any[], ready: (GeoJsonFeature[]) => void, tile?:{x:number,y:number,z:number}) => GeoJsonFeature[] | Promise<GeoJsonFeature[]>
+     * preProcessor: {
+     *     execution: 'worker',
+     *     processor: async ({data}, options) => {
+     *         // Return the processed feature array.
+     *         return data;
+     *     },
+     *     options: {}
+     * }
      * ```
      */
-    // preProcessor?: () => void;
-    preProcessor?(input: {
+    preProcessor?: WorkerPreProcessorOptions | ((input: {
         data: any[],
         ready: (features: GeoJSONFeature[]) => void,
         tile?: { x: number, y: number, z: number }
-    }): GeoJSONFeature[] | Promise<GeoJSONFeature[]>;
+    }) => GeoJSONFeature[] | Promise<GeoJSONFeature[]>);
 
     /**
      * PostProcessor for remote data sources.

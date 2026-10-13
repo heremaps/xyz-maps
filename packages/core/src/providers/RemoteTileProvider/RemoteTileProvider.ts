@@ -53,6 +53,9 @@ export class RemoteTileProvider extends FeatureProvider {
 
         const provider = this;
 
+        if (options.preProcessor && typeof options.preProcessor == 'object') {
+            throw new Error('Worker preProcessor requires an HTTP/GeoJSON provider with automatic worker loading; RemoteTileProvider uses a custom loader.');
+        }
 
         let loader = options.loader;
 
@@ -76,7 +79,7 @@ export class RemoteTileProvider extends FeatureProvider {
         //     );
         // }
 
-        const {preProcessor} = options;
+        const preProcessor = typeof options.preProcessor == 'function' ? options.preProcessor : undefined;
 
         this.remoteTileLoader = new FixedLevelTileLoadDelegator({
             provider,

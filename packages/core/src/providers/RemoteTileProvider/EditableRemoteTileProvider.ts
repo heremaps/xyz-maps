@@ -90,7 +90,7 @@ export abstract class EditableRemoteTileProvider extends EditableFeatureProvider
             throw (new Error('no tile loader defined.'));
         }
 
-        const {preProcessor} = options;
+        const preProcessor = typeof options.preProcessor == 'function' ? options.preProcessor : undefined;
         provider.preprocess = createRemoteProcessor(preProcessor || (<any>options).preprocessor, provider);
         provider.postprocess = createRemoteProcessor((<any>options).postProcessor, provider);
 

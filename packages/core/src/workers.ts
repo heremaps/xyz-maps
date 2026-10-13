@@ -17,10 +17,11 @@
  * License-Filename: LICENSE
  */
 import MVTWorker from './loaders/MVT/MVTWorker';
+import GeoJSONWorker from './loaders/GeoJSONWorker';
 import TerrainWorker from './providers/TerrainProvider/TerrainWorker';
 
 
-let workers = [MVTWorker, TerrainWorker];
+let workers = [MVTWorker, TerrainWorker, GeoJSONWorker];
 
 function initListener(e) {
     const {msg, worker, options} = e.data;

@@ -56,7 +56,12 @@ export {FeatureProvider} from './providers/FeatureProvider';
 export {LocalProvider} from './providers/LocalProvider';
 export type {LocalProviderOptions} from './providers/LocalProvider';
 export {RemoteTileProvider} from './providers/RemoteTileProvider/RemoteTileProvider';
-export type {RemoteTileProviderOptions} from './providers/RemoteTileProvider/RemoteTileProviderOptions';
+export type {
+    RemoteTileProviderOptions,
+    WorkerPreProcessorOptions,
+    WorkerPreProcessorFunction,
+    WorkerPreProcessorInput
+} from './providers/RemoteTileProvider/RemoteTileProviderOptions';
 export {EditableRemoteTileProvider} from './providers/RemoteTileProvider/EditableRemoteTileProvider';
 export type {
     EditableRemoteTileProviderOptions

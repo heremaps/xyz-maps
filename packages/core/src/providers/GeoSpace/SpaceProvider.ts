@@ -54,7 +54,11 @@ const addUrlParams = (url: string, params: { [key: string]: Parameter | Paramete
 };
 
 const createOptions = (options, preProcessor?) => {
+    const configuredPreProcessor = options?.preProcessor;
     options = JSUtils.extend(JSUtils.clone(defaultOptions), options);
+    if (configuredPreProcessor) {
+        options.preProcessor = configuredPreProcessor;
+    }
 
     // credentials are send as url parameters...
     options.params = JSUtils.extend(options.params || {}, options.credentials);
