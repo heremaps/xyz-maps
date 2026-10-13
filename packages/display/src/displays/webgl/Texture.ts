@@ -18,13 +18,15 @@
  */
 
 import {GraphicsDevice} from './device/GraphicsDevice';
+import type {ModelTextureData} from '@here/xyz-maps-core';
 
-export type TextureData = {
+export type TextureData = ModelTextureData | {
     width: number;
     height: number;
     data?: Uint8Array | Uint8ClampedArray | Float32Array;
     colorSpace?: string;
-}
+    flipY?: boolean;
+};
 export type ImageData = HTMLCanvasElement | HTMLImageElement | ImageBitmap | TextureData;
 
 const isPowerOf2 = (size: number) => (size & (size - 1)) == 0;
@@ -90,12 +92,12 @@ class Texture {
         // this.gl = gl;
         this.format = options.format || gl.RGBA;
         this.internalFormat = options.internalFormat || this.format;
-        this.flipY = options.flipY || false;
+        this.flipY = options.flipY ?? (image as TextureData)?.flipY ?? false;
 
         let mipmaps = options.mipMaps ?? true;
         let type = options.type ?? gl.UNSIGNED_BYTE;
 
-        const textureData = (image as TextureData)?.data;
+        const textureData = image ? (image as TextureData)?.data : undefined;
         const float = options.float || textureData instanceof Float32Array;
 
         this.anisotropy = options.anisotropy ?? 0;
@@ -165,7 +167,11 @@ class Texture {
             if (image instanceof HTMLCanvasElement || image instanceof HTMLImageElement || image instanceof ImageBitmap) {
                 gl.texImage2D(gl.TEXTURE_2D, 0, internalFormat, format, gl.UNSIGNED_BYTE, image);
             } else {
-                gl.texImage2D(gl.TEXTURE_2D, 0, internalFormat, width, height, 0, format, type, image.data);
+                const pixelData = (image as TextureData).data;
+                if (pixelData && !(pixelData instanceof Float32Array) && pixelData.length != width * height * 4) {
+                    throw new Error('Raw model texture data must contain width * height * 4 RGBA values');
+                }
+                gl.texImage2D(gl.TEXTURE_2D, 0, internalFormat, width, height, 0, format, type, pixelData || null);
             }
             this.width = width;
             this.height = height;

@@ -28,7 +28,7 @@ import {
 } from '@here/xyz-maps-core';
 import {ObjParser} from '../ObjParser';
 import {vec3} from '@here/xyz-maps-common';
-import {type TypedArray} from './glType';
+import {isTypedArray} from './glType';
 import {GraphicsDevice} from '../device/GraphicsDevice';
 
 class ModelTexture extends Texture {
@@ -69,10 +69,24 @@ type ModelTextures = {
     [id: string]: ModelTexture;
 }
 
+
+const normalizeLegacyModelTexture = (image: ImageData | undefined): ImageData | undefined => {
+    const legacyPixels: TextureData['data'] = (image as any)?.pixels;
+    if (isTypedArray(legacyPixels)) {
+        return {
+            width: image.width,
+            height: image.height,
+            data: legacyPixels,
+            flipY: (image as TextureData).flipY
+        };
+    }
+    return image;
+};
+
 class ModelFactory {
     // false means the model has already been processed and is invalid, preventing further processing.
     private models: { [id: string]: Model | false } = {};
-    private inlineSources = new WeakMap<OBJModelSource, {id: string; loading?: Promise<Model | false>}>();
+    private inlineSources = new WeakMap<OBJModelSource, { id: string; loading?: Promise<Model | false> }>();
     private inlineId = 0;
     private unusedTexture: ModelTexture;
     private onBufferDestroyed: (buffer) => void;
@@ -81,7 +95,11 @@ class ModelFactory {
     private device: GraphicsDevice;
 
     constructor(device: GraphicsDevice) {
-        const unusedTexture = new ModelTexture(device, {width: 1, height: 1, data: new Uint8Array([255, 255, 255, 255])});
+        const unusedTexture = new ModelTexture(device, {
+            width: 1,
+            height: 1,
+            data: new Uint8Array([255, 255, 255, 255])
+        });
         unusedTexture.ref = Infinity;
         this.unusedTexture = unusedTexture;
 
@@ -121,7 +139,7 @@ class ModelFactory {
     getSourceId(source: string | ModelData | OBJModelSource): string {
         if (typeof source === 'string') return source;
         if ('format' in source && source.format === 'obj') return this.getInlineId(source);
-        return String((source as ModelData & {id?: string | number}).id ||= Math.random());
+        return String((source as ModelData & { id?: string | number }).id ||= Math.random());
     }
 
     getInlineId(source: OBJModelSource): string {
@@ -145,7 +163,7 @@ class ModelFactory {
         });
     }
 
-    private initTexture(name: string, imgData: ImageData, textures: ModelTextures, options?: TextureOptions) {
+    private initTexture(name: string, imgData: ImageData | undefined, textures: ModelTextures, options?: TextureOptions) {
         let texture = textures[name];
         if (!texture) {
             texture = new ModelTexture(this.device, imgData, options);
@@ -215,7 +233,7 @@ class ModelFactory {
                 for (let key in uniforms) {
                     if (key.endsWith('Map')) {
                         const textureName = uniforms[key];
-                        let imgData = imgTexData[textureName];
+                        const imgData = normalizeLegacyModelTexture(imgTexData[textureName]);
                         let wrap = material.wrap;
                         let wrapS: GLenum = gl.REPEAT;
                         let wrapT: GLenum = gl.REPEAT;
@@ -294,7 +312,17 @@ class ModelFactory {
             let undef;
 
             for (let i = 0; i < parts.length; i++) {
-                let {materialName, alphaMode, alphaCutoff, attributes, bbox, uniforms, index, first, count} = parts[i];
+                let {
+                    materialName,
+                    alphaMode,
+                    alphaCutoff,
+                    attributes,
+                    bbox,
+                    uniforms,
+                    index,
+                    first,
+                    count
+                } = parts[i];
 
                 let buffer = new ModelBufferClass(undef, undef, modelMatrix, positionOffset);
                 const materialOverride = alphaOptions?.materialOverrides?.[materialName];

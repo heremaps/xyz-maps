@@ -127,6 +127,50 @@ describe('3D model styles', function() {
         expect(await getCanvasPixelColor(mapContainer, {x: 400, y: 300})).toBe('#00ff00');
     });
 
+    it('loads raw RGBA OBJ textures and retains the legacy ModelData pixels fallback', async () => {
+        const response = await fetch('base/tests/assets/model/cube.obj');
+        const obj = (await response.text()).replace(/^mtllib.*$/m, 'mtllib sides.mtl top.mtl');
+        const inlineSource: OBJModelSource = {
+            format: 'obj',
+            obj,
+            mtl: {
+                'sides.mtl': 'newmtl front\nKd 0 0 1',
+                'top.mtl': 'newmtl top\nKd 1 1 1\nmap_Kd green.rgba'
+            },
+            textures: {
+                'green.rgba': {width: 1, height: 1, data: new Uint8Array([0, 255, 0, 255])}
+            }
+        };
+
+        const modelDataSource: ModelData = {
+            geometries: [{
+                position: [-1, 0, -1, 1, 0, -1, 1, 0, 1, -1, 0, -1, 1, 0, 1, -1, 0, 1],
+                normal: [0, 1, 0, 0, 1, 0, 0, 1, 0, 0, 1, 0, 0, 1, 0, 0, 1, 0],
+                uv: [0, 0, 1, 0, 1, 1, 0, 0, 1, 1, 0, 1]
+            }],
+            materials: {
+                top: {diffuse: [1, 1, 1], diffuseMap: 'green.rgba'}
+            },
+            textures: {},
+            faces: [{geometryIndex: 0, material: 'top'}]
+        };
+        Reflect.set(modelDataSource.textures, 'green.rgba', {
+            width: 1,
+            height: 1,
+            pixels: new Uint8Array([0, 255, 0, 255])
+        });
+
+        try {
+            modelLayer.setStyleGroup(feature, [{...baseModelStyle, model: inlineSource}]);
+            expect(await getCanvasPixelColor(mapContainer, {x: 400, y: 300})).to.equal('#00ff00');
+
+            modelLayer.setStyleGroup(feature, [{...baseModelStyle, model: modelDataSource}]);
+            expect(await getCanvasPixelColor(mapContainer, {x: 400, y: 300})).to.equal('#00ff00');
+        } finally {
+            modelLayer.setStyleGroup(feature, [baseModelStyle]);
+        }
+    });
+
     it('validate inline OBJ without MTL uses default materials', async () => {
         const response = await fetch('base/tests/assets/model/cube.obj');
         modelLayer.setStyleGroup(feature, [{
@@ -284,7 +328,7 @@ describe('3D model styles', function() {
                 'transparent.png': {
                     width: 1,
                     height: 1,
-                    pixels: new Uint8Array([255, 0, 0, 0])
+                    data: new Uint8Array([255, 0, 0, 0])
                 }
             },
             faces: [{geometryIndex: 0, material: 'Cutout'}]

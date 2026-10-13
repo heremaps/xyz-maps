@@ -239,6 +239,18 @@ export interface ModelGeometry {
 }
 
 /**
+ * Raw RGBA pixel data for a model texture.
+ */
+export interface ModelTextureData {
+    width: number;
+    height: number;
+    /** RGBA values in row-major order; must contain width * height * 4 bytes. */
+    data: Uint8Array | Uint8ClampedArray;
+    /** Flip the texture vertically when uploading it. */
+    flipY?: boolean;
+}
+
+/**
  * The data format that describes the model to display.
  */
 export interface ModelData {
@@ -248,11 +260,9 @@ export interface ModelData {
     geometries: ModelGeometry[];
 
     /**
-     * Textures used by Materials.
+     * Textures used by Materials. Raw RGBA pixels use {@link ModelTextureData}.
      */
-    textures?: {
-        [name: string]: HTMLCanvasElement | HTMLImageElement | { width: number; height: number; pixels?: Uint8Array };
-    };
+    textures?: Record<string, HTMLCanvasElement | HTMLImageElement | ImageBitmap | ModelTextureData>;
     /**
      * Materials referenced by {@link ModelData.faces}.
      */
@@ -314,11 +324,11 @@ export interface OBJModelSource {
     /** Base URL for relative texture references (directory URLs should end with '/'). */
     baseUrl?: string;
     /**
-     * Texture filenames from MTL mapped to Blobs, URLs, or data URLs.
+     * Texture filenames from MTL mapped to Blobs, URLs, data URLs, or raw RGBA pixel data.
      * Relative texture URLs require baseUrl; absolute and data URLs do not.
      * Unresolvable or unloadable textures produce a warning and are omitted.
      */
-    textures?: Record<string, string | Blob>;
+    textures?: Record<string, string | Blob | ModelTextureData>;
 }
 
 /** A model URL, pre-parsed geometry, or inline Wavefront source. */

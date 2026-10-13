@@ -16,18 +16,22 @@
  * SPDX-License-Identifier: Apache-2.0
  * License-Filename: LICENSE
  */
-import {ModelData, OBJModelSource} from '@here/xyz-maps-core';
+import type {Material, ModelData, ModelTextureData, OBJModelSource} from '@here/xyz-maps-core';
 import {XYZWorker} from './XYZWorker';
-import {Material} from '@here/xyz-maps-core';
 
 type Face = {
     material: string;
     geometryIndex: number;
 };
 
-
 const worker = function() {
     const DEFAULT = 'default';
+    const isModelTextureData = (value: unknown): value is ModelTextureData => !!value
+        && typeof value == 'object'
+        && 'width' in value
+        && 'height' in value
+        && 'data' in value;
+
     const parseLine = (line: string) => {
         const regex = /^(\w+)\s+(.*?)\s*(?:#.*)?$/;
         const [, key, rawValue] = regex.exec(line);
@@ -212,8 +216,12 @@ const worker = function() {
         return materials;
     };
 
-    const loadTextures = async (materials, baseUrl?: URL, textureUrls?: Record<string, string | Blob>) => {
-        const textures = Object.create(null);
+    const loadTextures = async (
+        materials,
+        baseUrl?: URL,
+        textureUrls?: Record<string, string | Blob | ModelTextureData>
+    ) => {
+        const textures: Record<string, ImageBitmap | ModelTextureData> = Object.create(null);
         const promises = Object.create(null);
         for (let name in materials) {
             const material = materials[name];
@@ -231,6 +239,19 @@ const worker = function() {
                                     colorSpaceConversion: 'none'
                                 });
                                 return textures[fileName];
+                            }
+                            if (isModelTextureData(texture)) {
+                                const pixelData = texture.data;
+                                if (!Number.isInteger(texture.width) || texture.width <= 0
+                                    || !Number.isInteger(texture.height) || texture.height <= 0
+                                    || !pixelData || pixelData.length != texture.width * texture.height * 4) {
+                                    throw new Error(`Invalid RGBA pixel data for OBJ texture "${fileName}"`);
+                                }
+                                textures[fileName] = texture;
+                                return texture;
+                            }
+                            if (typeof texture != 'string') {
+                                throw new Error(`Unsupported OBJ texture source "${fileName}"`);
                             }
                             const url = texture;
                             if (!baseUrl && !/^[a-z][a-z\d+.-]*:/i.test(url)) {
@@ -324,23 +345,31 @@ const worker = function() {
     };
     return async ({url, source})=>{
         const model = source ? await loadInline(source) : await load(url);
-        let transfer = [];
+        const transfer = new Set<Transferable>();
         for (let geom of model.geometries) {
             for (let name of ['position', 'uv', 'normal', 'color']) {
                 if (geom[name]) {
                     if (geom[name].length) {
                         geom[name] = new Float32Array(geom[name]);
-                        transfer.push(geom[name].buffer);
+                        if (geom[name].buffer instanceof ArrayBuffer) {
+                            transfer.add(geom[name].buffer);
+                        }
                     } else {
                         delete geom[name];
                     }
                 }
             }
         }
-        for (let name in model.textures) {
-            transfer.push(model.textures[name]);
+        for (const texture of Object.values(model.textures || {})) {
+            if (typeof ImageBitmap != 'undefined' && texture instanceof ImageBitmap) {
+                transfer.add(texture);
+            } else if (isModelTextureData(texture)) {
+                if (texture.data.buffer instanceof ArrayBuffer) {
+                    transfer.add(texture.data.buffer);
+                }
+            }
         }
-        return {message: model, transfer};
+        return {message: model, transfer: Array.from(transfer)};
     };
 };
 
