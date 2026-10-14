@@ -203,6 +203,7 @@ class ModelFactory {
                     illumination: 2,
                     ambient: [1, 1, 1],
                     specular: [1, 1, 1],
+                    emissive: [0, 0, 0],
                     specularMap: 'unusedTexture',
                     shininess: 0,
                     normalMap: 'unusedNormalTexture',
@@ -361,12 +362,9 @@ class ModelFactory {
                     bufferUniforms.specular = vec3.add([], bufferUniforms.specular as number[], specular);
                     (bufferUniforms.shininess as number) += shininess;
                 }
+
                 if (emissive) {
-                    if (bufferUniforms.emissive) {
-                        bufferUniforms.emissive = vec3.add([], bufferUniforms.emissive as number[], emissive);
-                    } else {
-                        bufferUniforms.emissive = emissive;
-                    }
+                    bufferUniforms.emissive = vec3.add([], bufferUniforms.emissive as number[], emissive);
                 }
 
                 if (index) {
