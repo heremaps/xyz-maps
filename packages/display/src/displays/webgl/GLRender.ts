@@ -67,7 +67,7 @@ import {
     translate
 } from 'gl-matrix/mat4';
 import BasicTile from '../BasicTile';
-import {Attribute} from './buffer/Attribute';
+import {Attribute, ConstantAttribute} from './buffer/Attribute';
 import {Texture} from './Texture';
 import {FillTexture} from './FillTexture';
 import {RenderTile, RenderTileTarget, ViewportTileData} from './RenderTile';
@@ -952,6 +952,26 @@ export class GLRender implements BasicRender {
         this.drawBuffer(renderTile, x + 4, y + 4);
     }
 
+    private releaseAttributes(
+        attributes: GeometryBuffer['attributes'],
+        ignore?: GeometryBuffer['attributes']
+    ): void {
+        const {buffers, gl} = this;
+
+        for (const name in attributes) {
+            const attr = attributes[name];
+            if ((attr as ConstantAttribute).value !== undefined ||
+                // Attributes shared with the base map must use the same name.
+                ignore?.[name] === attr
+            ) continue;
+
+            const refCounter = (attr as Attribute).ref = ((attr as Attribute).ref || 1) - 1;
+            if (refCounter === 0) {
+                gl.deleteBuffer(buffers.get(attr as Attribute));
+            }
+        }
+    }
+
     releaseGeometryBuffer(buffer: GeometryBuffer, quadkey?: string): void {
         const {buffers, gl} = this;
         let {attributes, uniforms} = buffer;
@@ -967,16 +987,12 @@ export class GLRender implements BasicRender {
             }
         }
 
-        for (let name in attributes) {
-            let attr = <Attribute>attributes[name];
-            let refCounter = attr.ref = (attr.ref || 1) - 1;
-            if (refCounter === 0) {
-                const glBuffer = buffers.get(<Attribute>attr);
-                gl.deleteBuffer(glBuffer);
-            }
-        }
+        this.releaseAttributes(attributes);
 
         for (let grp of buffer.groups) {
+            if (grp.attributes) {
+                this.releaseAttributes(grp.attributes, attributes);
+            }
             const index = (<ElementsDrawCmd>grp).index;
             if (index) {
                 gl.deleteBuffer(buffers.get(index));

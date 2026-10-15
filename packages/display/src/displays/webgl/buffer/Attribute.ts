@@ -34,3 +34,6 @@ export type Attribute = {
     // reference counter for attribute sharing
     ref?: number;
 };
+export type ConstantAttribute = {
+    value: number[];
+}

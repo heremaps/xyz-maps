@@ -73,6 +73,12 @@ const DEFAULT_COLLISION_GRP = '0';
 const NONE = '*';
 let UNDEF;
 
+const normalizeDebugColor = (value: boolean | Color | undefined): boolean | number[] | undefined => {
+    if (typeof value === 'boolean') return value;
+    if (value == null) return undefined;
+    return toRGB(value).slice(0, 3);
+};
+
 export type CollisionGroup = {
     id: string;
     styleGrp: Style[];
@@ -126,6 +132,8 @@ type DrawGroup = {
         shininess: number;
         specular: [number, number, number];
         emissive: [number, number, number];
+        showWireframe?: boolean | number[];
+        showBBox?: boolean | number[];
     };
     buffer?: TemplateBuffer | TemplateBufferBucket<ModelBuffer>;
     pointerEvents?: boolean;
@@ -577,6 +585,8 @@ export class FeatureFactory {
             let light: string;
             let processAdvancedLight = false;
             let colorIntensity = 1;
+            let modelShowWireframe: boolean | number[] | undefined;
+            let modelShowBBox: boolean | number[] | undefined;
 
             rotation = getValue('rotation', style, feature, level) ^ 0;
             let altitude = getValue('altitude', style, feature, level) ?? this.layerStyleDefaultAltitude;
@@ -590,12 +600,22 @@ export class FeatureFactory {
                     modelMode = [feature.properties.minHeight, feature.properties.maxHeight];
                 }
                 const modelStyle = style as ModelStyle;
+                modelShowWireframe = normalizeDebugColor(getValue('showWireframe', style, feature, level));
+
+
+                modelShowBBox = normalizeDebugColor(getValue('showBBox', style, feature, level));
                 modelStyle.modelId ||= Math.random();
                 const alphaConfigKey = modelStyle.alphaMode || modelStyle.alphaCutoff !== undefined
                     || modelStyle.materialOverrides
                     ? JSON.stringify([modelStyle.alphaMode, modelStyle.alphaCutoff, modelStyle.materialOverrides])
                     : '';
-                groupId = type.charAt(0) + JSON.stringify([modelStyle.modelId, id, alphaConfigKey]);
+                groupId = type.charAt(0) + JSON.stringify([
+                    modelStyle.modelId,
+                    id,
+                    alphaConfigKey,
+                    modelShowWireframe,
+                    modelShowBBox
+                ]);
                 processPointOffset = true;
                 processAdvancedLight = true;
             } else if (type == 'Icon') {
@@ -933,7 +953,9 @@ export class FeatureFactory {
                         emissive,
                         shininess,
                         specular,
-                        light
+                        light,
+                        showWireframe: modelShowWireframe,
+                        showBBox: modelShowBBox
                     }
                     // ,index: []
                 };

@@ -171,6 +171,29 @@ describe('3D model styles', function() {
         }
     });
 
+    it('picks an unindexed model mesh with a pitched map', async () => {
+        const model: ModelData = {
+            geometries: [{
+                position: [-1, 0, -1, 1, 0, -1, 1, 0, 1, -1, 0, -1, 1, 0, 1, -1, 0, 1],
+                normal: [0, 1, 0, 0, 1, 0, 0, 1, 0, 0, 1, 0, 0, 1, 0, 0, 1, 0],
+                uv: [0, 0, 1, 0, 1, 1, 0, 0, 1, 1, 0, 1]
+            }],
+            materials: {top: {diffuse: [1, 1, 1]}},
+            textures: {},
+            faces: [{geometryIndex: 0, material: 'top'}]
+        };
+
+        modelLayer.setStyleGroup(feature, [{...baseModelStyle, model}]);
+        try {
+            await waitForViewportReady(display, () => display.pitch(50));
+            const result = display.getFeatureAt({x: 430, y: 300}, {layers: [modelLayer]});
+            expect(result?.feature.id).to.equal(feature.id);
+        } finally {
+            modelLayer.setStyleGroup(feature, [baseModelStyle]);
+            await waitForViewportReady(display, () => display.pitch(0));
+        }
+    });
+
     it('validate inline OBJ without MTL uses default materials', async () => {
         const response = await fetch('base/tests/assets/model/cube.obj');
         modelLayer.setStyleGroup(feature, [{

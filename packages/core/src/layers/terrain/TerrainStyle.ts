@@ -73,6 +73,8 @@ const createTerrainModelBuilder = (material) => ({id, properties}, zoom: number,
  * This class controls the visual appearance of terrain tiles, including vertical exaggeration,
  * lighting, material properties, and sky background color. It extends the regular processed
  * layer style so it can be used directly as both the style definition and style manager.
+ * Debug wireframes are configured through `showWireframe` on the individual terrain
+ * styles in `styleGroups`, not on the layer style itself.
  *
  * It can be passed to the `style` field of {@link TerrainTileLayerOptions}.
  */
@@ -169,20 +171,6 @@ export class TerrainTileLayerStyle extends RuntimeLayerStyle {
             | { type: 'solid', color: Color }
             | { type: 'layerBackground', layerId: string };
 
-        /**
-         * Specifies whether to display a wireframe for debugging purposes.
-         *
-         * - If set to `true`, the wireframe will be shown with an automatically inverted color
-         *   relative to the main color of the layer.
-         * - If set to a `Color`, the wireframe will be displayed in the specified color.
-         * - If set to `false`, the wireframe will not be shown.
-         *
-         * Default is `false`.
-         *
-         * @hidden
-         * @internal
-         */
-        showWireframe?: boolean | Color;
     }) = {}) {
         super();
 
@@ -286,7 +274,5 @@ export class TerrainTileLayerStyle extends RuntimeLayerStyle {
         });
 
         this.colorSource = style.colorSource || {type: 'material'};
-
-        (this as LayerStyle).showWireframe = style.showWireframe;
     }
 }

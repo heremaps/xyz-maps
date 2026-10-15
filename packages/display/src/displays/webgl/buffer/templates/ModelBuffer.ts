@@ -18,29 +18,161 @@
  */
 
 import {FlexArray} from './FlexArray';
-import {ConstantAttribute, FlexAttribute, TemplateBuffer} from './TemplateBuffer';
-import {GeometryBuffer, ElementsDrawCmd} from '../GeometryBuffer';
+import {FlexAttribute, TemplateBuffer} from './TemplateBuffer';
+import {GeometryBuffer, ElementsDrawCmd, ArrayDrawCmd} from '../GeometryBuffer';
 import {Raycaster} from '../../Raycaster';
-import {multiply, create as createMat4, fromRotationTranslationScale} from 'gl-matrix/mat4';
+import {multiply, create as createMat4, fromRotationTranslationScale, invert} from 'gl-matrix/mat4';
 import {normalFromMat4, create as createMat3} from 'gl-matrix/mat3';
-import {subtract, scale as scaleVec3, normalize as normalizeVec3} from 'gl-matrix/vec3';
+import {subtract, scale as scaleVec3, normalize as normalizeVec3, transformMat4} from 'gl-matrix/vec3';
 import {create as createQuat, fromEuler} from 'gl-matrix/quat';
 import {isTypedArray, type TypedArray} from '../glType';
-import {Attribute} from '../Attribute';
+import {Attribute, ConstantAttribute} from '../Attribute';
 import {Color} from '@here/xyz-maps-common';
 import {ModelGeometry, ModelData} from '@here/xyz-maps-core';
 
 import toRGB = Color.toRGB;
-
-enum HitTest {
-    bbox,
-    geometry
-}
+import {measureStart, measureEnd} from '../../PerfTimer';
 
 const NO_COLOR_WHITE = [1, 1, 1, 1];
 const TO_DEG = 180 / Math.PI;
 
 type VertexData = TypedArray | number[];
+
+type BBoxRayScratch = {
+    inverseModelMatrix: Float32Array;
+    origin: number[];
+    direction: number[];
+};
+
+type ModelVertexTransformCoefficients = {
+    x0: number;
+    x1: number;
+    x2: number;
+    xOffset: number;
+    y0: number;
+    y1: number;
+    y2: number;
+    yOffset: number;
+    z0: number;
+    z1: number;
+    z2: number;
+    zOffset: number;
+};
+
+const MODEL_BBOX_LINE_INDICES = [
+    0, 1, 1, 3, 3, 2, 2, 0,
+    4, 5, 5, 7, 7, 6, 6, 4,
+    0, 4, 1, 5, 2, 6, 3, 7
+];
+
+export const addModelWireframeDebugDraw = (
+    geoBuffer: GeometryBuffer,
+    templateBuffer: TemplateBuffer,
+    color: true | number[]
+): void => {
+    const indices = templateBuffer.hasIndex()
+        ? GeometryBuffer.generateWireframeIndices(templateBuffer.index())
+        : GeometryBuffer.generateWireframeIndices(templateBuffer.first, templateBuffer.count());
+    const wireframe = geoBuffer.addDrawCmd(
+        indices,
+        indices instanceof Uint32Array,
+        GeometryBuffer.MODE_GL_LINES
+    );
+    wireframe.uniforms = {
+        diffuse: [0, 0, 0],
+        emissive: color === true
+            ? (geoBuffer.getUniform('diffuse') as number[]).slice(0, 3).map((c) => 1 - c)
+            : color,
+        alphaCutoff: 0,
+        opacity: 1
+    };
+};
+
+export const addModelBBoxDebugDraw = (geoBuffer: GeometryBuffer, color: number[]) => {
+    const bbox = geoBuffer.bbox;
+    if (!bbox || bbox.length < 6) {
+        return;
+    }
+
+    const positions = new Float32Array([
+        bbox[0], bbox[1], bbox[2],
+        bbox[3], bbox[1], bbox[2],
+        bbox[0], bbox[4], bbox[2],
+        bbox[3], bbox[4], bbox[2],
+        bbox[0], bbox[1], bbox[5],
+        bbox[3], bbox[1], bbox[5],
+        bbox[0], bbox[4], bbox[5],
+        bbox[3], bbox[4], bbox[5]
+    ]);
+    const bboxLines = geoBuffer.addDrawCmd(
+        MODEL_BBOX_LINE_INDICES,
+        false,
+        GeometryBuffer.MODE_GL_LINES
+    );
+
+    geoBuffer.addGroupAttribute(bboxLines, 'a_position', {data: positions, size: 3});
+    geoBuffer.addGroupAttribute(bboxLines, 'a_normal', {value: [0, 0, 1]});
+    geoBuffer.addGroupAttribute(bboxLines, 'a_tangent', {value: [1, 0, 0]});
+    geoBuffer.addGroupAttribute(bboxLines, 'a_color', {value: [1, 1, 1, 1]});
+    geoBuffer.addGroupAttribute(bboxLines, 'a_uv', {value: [0, 0]});
+
+    bboxLines.uniforms = {
+        diffuse: [0, 0, 0],
+        emissive: color,
+        alphaCutoff: 0,
+        opacity: 1
+    };
+};
+
+function transformModelVertex(
+    target: number[],
+    position: ArrayLike<number>,
+    vertexIndex: number,
+    size: number,
+    coefficients: ModelVertexTransformCoefficients
+): void {
+    const x = position[vertexIndex];
+    const y = position[vertexIndex + 1];
+    const z = size > 2 ? position[vertexIndex + 2] : 0;
+    target[0] = x * coefficients.x0 + y * coefficients.x1 + z * coefficients.x2 + coefficients.xOffset;
+    target[1] = x * coefficients.y0 + y * coefficients.y1 + z * coefficients.y2 + coefficients.yOffset;
+    target[2] = x * coefficients.z0 + y * coefficients.z1 + z * coefficients.z2 + coefficients.zOffset;
+
+    // Equivalent reference implementation for affine model matrices:
+    // Using the modelMatrix, xyUnitScale, tile, offset and exaggeration used to compute the coefficients:
+    // target[0] = position[vertexIndex];
+    // target[1] = position[vertexIndex + 1];
+    // target[2] = size > 2 ? position[vertexIndex + 2] : 0;
+    // transformMat4(target, target, modelMatrix);
+    // target[0] = tileX + target[0] * xyUnitScale + offsetX;
+    // target[1] = tileY + target[1] * xyUnitScale + offsetY;
+    // target[2] += offsetZ * exaggeration;
+}
+
+function updateModelVertexTransformCoefficients(
+    coefficients: ModelVertexTransformCoefficients,
+    modelMatrix: Float32Array,
+    xyUnitScale: number,
+    tileX: number,
+    tileY: number,
+    offsetX: number,
+    offsetY: number,
+    offsetZ: number,
+    exaggeration: number
+): void {
+    coefficients.x0 = modelMatrix[0] * xyUnitScale;
+    coefficients.x1 = modelMatrix[4] * xyUnitScale;
+    coefficients.x2 = modelMatrix[8] * xyUnitScale;
+    coefficients.xOffset = modelMatrix[12] * xyUnitScale + tileX + offsetX;
+    coefficients.y0 = modelMatrix[1] * xyUnitScale;
+    coefficients.y1 = modelMatrix[5] * xyUnitScale;
+    coefficients.y2 = modelMatrix[9] * xyUnitScale;
+    coefficients.yOffset = modelMatrix[13] * xyUnitScale + tileY + offsetY;
+    coefficients.z0 = modelMatrix[2];
+    coefficients.z1 = modelMatrix[6];
+    coefficients.z2 = modelMatrix[10];
+    coefficients.zOffset = modelMatrix[14] + offsetZ * exaggeration;
+}
 
 function computeTangents(vertex: VertexData, uv: number[], indices?: Uint16Array | Uint32Array | number[]) {
     const tangents = new Float32Array(vertex.length);
@@ -116,7 +248,8 @@ function computeTangents(vertex: VertexData, uv: number[], indices?: Uint16Array
         tangents[pi1] = tangents[pi2] = tangents[pi3] = tangent[0];
         tangents[pi1 + 1] = tangents[pi2 + 1] = tangents[pi3 + 1] = tangent[1];
         tangents[pi1 + 2] = tangents[pi2 + 2] = tangents[pi3 + 2] = tangent[2];
-    };
+    }
+    ;
 
     return tangents;
 }
@@ -145,11 +278,11 @@ export class ModelBuffer extends TemplateBuffer {
                 const y = position[i + 1];
                 const z = position[i + 2];
                 if (x < minX) minX = x;
-                else if (x > maxX) maxX = x;
+                if (x > maxX) maxX = x;
                 if (y < minY) minY = y;
-                else if (y > maxY) maxY = y;
+                if (y > maxY) maxY = y;
                 if (z < minZ) minZ = z;
-                else if (z > maxZ) maxZ = z;
+                if (z > maxZ) maxZ = z;
             }
         } else {
             minZ = 0;
@@ -158,9 +291,9 @@ export class ModelBuffer extends TemplateBuffer {
                 const x = position[i];
                 const y = position[i + 1];
                 if (x < minX) minX = x;
-                else if (x > maxX) maxX = x;
+                if (x > maxX) maxX = x;
                 if (y < minY) minY = y;
-                else if (y > maxY) maxY = y;
+                if (y > maxY) maxY = y;
             }
         }
         // console.timeEnd('calcModelBBox');
@@ -258,7 +391,6 @@ export class ModelBuffer extends TemplateBuffer {
         a_uv?: FlexAttribute
         a_normal?: FlexAttribute
     };
-    hitTest: HitTest = HitTest.bbox;
     id: string | number;
     bbox: number[];
 
@@ -329,6 +461,88 @@ export class ModelBuffer extends TemplateBuffer {
         this.idOffsets?.push(this.flexAttributes.a_modelMatrix.data.length, featureId);
     }
 
+    private static rayIntersectsBBox(
+        buffer: GeometryBuffer,
+        modelMatrix: Float32Array,
+        positionOffsetData: ArrayLike<number>,
+        offsetIndex: number,
+        xyUnitScale: number,
+        tileX: number,
+        tileY: number,
+        rayCaster: Raycaster,
+        scratch: BBoxRayScratch
+    ): number | null {
+        const bbox = buffer.bbox;
+        if (!bbox) {
+            return null;
+        }
+
+        const {inverseModelMatrix, origin, direction} = scratch;
+        const groundRes = 1 / xyUnitScale;
+
+        // Singular transforms (e.g. zero scale on an axis) cannot map the ray into model space.
+        if (!invert(inverseModelMatrix, modelMatrix)) {
+            return null;
+        }
+
+        const rayOrigin = rayCaster.origin;
+        const rayDirection = rayCaster.direction;
+        origin[0] = (rayOrigin[0] - tileX - positionOffsetData[offsetIndex]) * groundRes;
+        origin[1] = (rayOrigin[1] - tileY - positionOffsetData[offsetIndex + 1]) * groundRes;
+        origin[2] = rayOrigin[2] - positionOffsetData[offsetIndex + 2] * rayCaster.exaggeration;
+        // gl-matrix equivalent:
+        // subtract(origin, rayOrigin, [tileX + positionOffsetData[offsetIndex],tileY + positionOffsetData[offsetIndex + 1],positionOffsetData[offsetIndex + 2] * rayCaster.exaggeration]);
+        // multiply(origin, origin, [groundRes, groundRes, 1]);
+        transformMat4(origin, origin, inverseModelMatrix);
+
+        const dx = rayDirection[0] * groundRes;
+        const dy = rayDirection[1] * groundRes;
+        const dz = rayDirection[2];
+        direction[0] = inverseModelMatrix[0] * dx + inverseModelMatrix[4] * dy + inverseModelMatrix[8] * dz;
+        direction[1] = inverseModelMatrix[1] * dx + inverseModelMatrix[5] * dy + inverseModelMatrix[9] * dz;
+        direction[2] = inverseModelMatrix[2] * dx + inverseModelMatrix[6] * dy + inverseModelMatrix[10] * dz;
+
+        let tNear = -Infinity;
+        let tFar = Infinity;
+        for (let axis = 0; axis < 3; axis++) {
+            const rayDirectionComponent = direction[axis];
+            const rayOriginComponent = origin[axis];
+            const boxMin = bbox[axis];
+            const boxMax = bbox[axis + 3];
+
+            if (rayDirectionComponent == 0) {
+                if (rayOriginComponent < boxMin || rayOriginComponent > boxMax) {
+                    return null;
+                }
+                continue;
+            }
+            let t1 = (boxMin - rayOriginComponent) / rayDirectionComponent;
+            let t2 = (boxMax - rayOriginComponent) / rayDirectionComponent;
+            if (t1 > t2) {
+                const tmp = t1;
+                t1 = t2;
+                t2 = tmp;
+            }
+            tNear = Math.max(tNear, t1);
+            tFar = Math.min(tFar, t2);
+            if (tNear > tFar) {
+                return null;
+            }
+        }
+        return tFar < 0
+            ? null
+            : tNear < 0 ? tFar : tNear;
+    }
+
+    private static xyUnitScaleFor(buffer: GeometryBuffer, rayCaster: Raycaster): number {
+        if (buffer.uniforms.u_isPixelCoords) {
+            return 1;
+        }
+        const zMeterToPixelUniform = <number>buffer.uniforms.u_zMeterToPixel;
+        // GLRender divides its shared u_zMeterToPixel by dZoom. the ray is already tile-local.
+        return zMeterToPixelUniform || rayCaster.scaleZ / rayCaster.tileScale;
+    }
+
     rayIntersects(
         buffer: GeometryBuffer,
         result: {
@@ -338,145 +552,77 @@ export class ModelBuffer extends TemplateBuffer {
         tileY: number,
         rayCaster: Raycaster
     ): number | string {
+        // measureStart('rayIntersect');
         const {attributes} = buffer;
         const positionAttr = attributes.a_position as Attribute;
-        const modelMatrixData = (attributes.a_modelMatrix as Attribute).data;
+        const modelMatrixData = (attributes.a_modelMatrix as Attribute).data as Float32Array;
         const positionOffsetData = (attributes.a_offset as Attribute).data;
         const position = positionAttr.data;
         const size = positionAttr.size;
         const rayOrigin = rayCaster.origin;
         const rayDirection = rayCaster.direction;
+        const xyUnitScale = ModelBuffer.xyUnitScaleFor(buffer, rayCaster);
         const t0 = [0, 0, 0];
         const t1 = [0, 0, 0];
         const t2 = [0, 0, 0];
         let bufferIndex = null;
+        const bbox = buffer.bbox;
 
+        const bboxScratch: BBoxRayScratch | undefined = bbox ? {
+            inverseModelMatrix: createMat4(),
+            origin: [0, 0, 0],
+            direction: [0, 0, 0]
+        } : undefined;
+
+        let coefficients: ModelVertexTransformCoefficients | undefined;
 
         for (let m = 0, i = 0, {length} = modelMatrixData; m < length; m += 16, i += 3) {
             const modelMatrix = modelMatrixData.subarray(m, m + 16);
-            // const modelMatrix = modelMatrixData.slice(m, m + 16);
-            // let rayDirection = transformMat4([], rayDirOrg, modelMatrix);
-
-            // if (buffer.bbox) {
-            //     const [minX, minY, minZ, maxX, maxY, maxZ] = buffer.bbox;
-            //     const box = [[minX, minY, minZ], [maxX, maxY, maxZ]];
-            //
-            //     let minXWorld = Infinity;
-            //     let minYWorld = Infinity;
-            //     let minZWorld = Infinity;
-            //     let maxXWorld = -Infinity;
-            //     let maxYWorld = -Infinity;
-            //     let maxZWorld = -Infinity;
-            //
-            //     const groundRes = 1 / (<number>buffer.uniforms.u_zMeterToPixel || rayCaster.scaleZ);
-            //
-            //     for (let p of box) {
-            //         // p[0] /= groundRes;
-            //         // p[1] /= groundRes;
-            //         // p[2] /= groundRes;
-            //         // transformMat4(p, p, modelMatrix);
-            //         // p[0] += tileX;
-            //         // p[1] += tileY;
-            //         // p[2] *= -groundRes;
-            //         transformMat4(p, p, modelMatrix);
-            //
-            //         p[0] = p[0] / groundRes + tileX + positionOffsetData[i];
-            //         p[1] = p[1] / groundRes + tileY + positionOffsetData[i + 1];
-            //         p[2] = -p[2] - positionOffsetData[i + 2];
-            //
-            //
-            //         let [x, y, z] = p;
-            //         if (x < minXWorld) minXWorld = x;
-            //         if (x > maxXWorld) maxXWorld = x;
-            //         if (y < minYWorld) minYWorld = y;
-            //         if (y > maxYWorld) maxYWorld = y;
-            //         if (z < minZWorld) minZWorld = z;
-            //         if (z > maxZWorld) maxZWorld = z;
-            //     }
-            //
-            //     const intersectRayLength = rayCaster.intersectAABBox(
-            //         minXWorld, minYWorld, minZWorld,
-            //         maxXWorld, maxYWorld, maxZWorld
-            //     );
-            //
-            //     const hitTestModeBBox = (buffer.hitTest || 0) == HitTest.bbox;
-            //
-            //     if (intersectRayLength != null) {
-            //         if (hitTestModeBBox) {
-            //             if (intersectRayLength < result.z) {
-            //                 bufferIndex = m;
-            //                 result.z = intersectRayLength;
-            //             }
-            //             continue;
-            //         }
-            //     } else {
-            //         continue;
-            //     }
-            // }
 
 
-            // scale to tile size in pixel
-            const positionScaleX = modelMatrix[m];
-            const positionScaleY = modelMatrix[m + 5];
-            const positionScaleZ = modelMatrix[m + 10];
-            const translateX = modelMatrix[m + 12] + positionOffsetData[i];
-            const translateY = modelMatrix[m + 13] + positionOffsetData[i + 1];
-            const translateZ = modelMatrix[m + 14] + positionOffsetData[i + 2];
+            if (bboxScratch) {
+                const intersectRayLength = ModelBuffer.rayIntersectsBBox(
+                    buffer,
+                    modelMatrix,
+                    positionOffsetData,
+                    i,
+                    xyUnitScale,
+                    tileX,
+                    tileY,
+                    rayCaster,
+                    bboxScratch
+                );
+
+                if (intersectRayLength == null) continue;
+            }
+
+            coefficients ||= {
+                x0: 0, x1: 0, x2: 0, xOffset: 0,
+                y0: 0, y1: 0, y2: 0, yOffset: 0,
+                z0: 0, z1: 0, z2: 0, zOffset: 0
+            };
+            // Precompute the combined affine transform once per mesh-tested instance and reuse it for every vertex.
+            updateModelVertexTransformCoefficients(
+                coefficients, modelMatrix, xyUnitScale, tileX, tileY,
+                positionOffsetData[i], positionOffsetData[i + 1], positionOffsetData[i + 2],
+                rayCaster.exaggeration
+            );
 
             for (let group of buffer.groups) {
                 const indexData = (<ElementsDrawCmd>group).index?.data;
+                const first = indexData ? 0 : (<ArrayDrawCmd>group).arrays.first;
+                const count = indexData ? indexData.length : (<ArrayDrawCmd>group).arrays.count;
 
                 if (group.mode == GeometryBuffer.MODE_GL_LINES) continue;
 
-                for (let i = 0; i < indexData.length; i += 3) {
-                    const i0 = indexData[i] * size;
-                    const i1 = indexData[i + 1] * size;
-                    const i2 = indexData[i + 2] * size;
+                for (let i = 0; i + 2 < count; i += 3) {
+                    const i0 = (indexData ? indexData[i] : first + i) * size;
+                    const i1 = (indexData ? indexData[i + 1] : first + i + 1) * size;
+                    const i2 = (indexData ? indexData[i + 2] : first + i + 2) * size;
 
-                    // t0[0] = position[i0];
-                    // t0[1] = position[i0 + 1];
-                    // t0[2] = position[i0 + 2];
-                    // transformMat4(t0, t0, modelMatrix);
-                    // t0[0] += tileX;
-                    // t0[1] += tileY;
-                    //
-                    // t1[0] = position[i1];
-                    // t1[1] = position[i1 + 1];
-                    // t1[2] = position[i1 + 2];
-                    // transformMat4(t1, t1, modelMatrix);
-                    // t1[0] += tileX;
-                    // t1[1] += tileY;
-                    //
-                    // t2[0] = position[i2];
-                    // t2[1] = position[i2 + 1];
-                    // t2[2] = position[i2 + 2];
-                    // transformMat4(t2, t2, modelMatrix);
-                    // t2[0] += tileX;
-                    // t2[1] += tileY;
-
-                    const x0 = position[i0] * positionScaleX;
-                    const y0 = position[i0 + 1] * positionScaleY;
-
-                    t0[0] = tileX + x0 + translateX;
-                    t0[1] = tileY + y0 + translateY;
-
-                    const x1 = position[i1] * positionScaleX;
-                    const y1 = position[i1 + 1] * positionScaleY;
-
-                    t1[0] = tileX + x1 + translateX;
-                    t1[1] = tileY + y1 + translateY;
-
-                    const x2 = position[i2] * positionScaleX;
-                    const y2 = position[i2 + 1] * positionScaleY;
-
-                    t2[0] = tileX + x2 + translateX;
-                    t2[1] = tileY + y2 + translateY;
-
-                    if (size == 3) {
-                        t0[2] = position[i0 + 2] * positionScaleZ + translateZ;
-                        t1[2] = position[i1 + 2] * positionScaleZ + translateZ;
-                        t2[2] = position[i2 + 2] * positionScaleZ + translateZ;
-                    }
+                    transformModelVertex(t0, position, i0, size, coefficients);
+                    transformModelVertex(t1, position, i1, size, coefficients);
+                    transformModelVertex(t2, position, i2, size, coefficients);
 
                     const intersectRayLength = Raycaster.rayIntersectsTriangle(rayOrigin, rayDirection, t0, t1, t2);
 

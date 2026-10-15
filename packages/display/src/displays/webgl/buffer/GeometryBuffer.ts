@@ -17,10 +17,10 @@
  * License-Filename: LICENSE
  */
 
-import {Attribute} from './Attribute';
+import {Attribute, ConstantAttribute} from './Attribute';
 import {glType, type TypedArray} from './glType';
 import {Texture} from '../Texture';
-import {ConstantAttribute, FlexAttribute, TemplateBuffer} from './templates/TemplateBuffer';
+import {FlexAttribute, TemplateBuffer} from './templates/TemplateBuffer';
 import {Raycaster} from '../Raycaster';
 import {Expression} from '@here/xyz-maps-common';
 import {HeightMapTileCache, HeightMapTileData} from '../HeightMapTileCache';
@@ -94,7 +94,7 @@ export type ArrayData = {
 type DrawCmdBase = {
     mode?: number,
     uniforms?: Uniforms,
-    attributes?: { [name: string]: Attribute },
+    attributes?: { [name: string]: Attribute | ConstantAttribute },
     vao?: WebGLVertexArrayObject | WebGLVertexArrayObjectOES
 }
 
@@ -167,8 +167,37 @@ class GeometryBuffer {
     // new data -> new buffer -> new uid -> hash mismatch -> FBO re-rendered.
     readonly uid: number = _nextBufferUid[0]++;
 
-    static generateWireframeIndices(triangleIndices: ArrayLike<number>): Uint16Array | Uint32Array {
-        // const triangleIndices: ArrayLike<number> = geomBuffer.index();
+    static generateWireframeIndices(triangleIndices: ArrayLike<number>): Uint16Array | Uint32Array;
+    static generateWireframeIndices(first: number, vertexCount: number): Uint16Array | Uint32Array;
+    static generateWireframeIndices(
+        triangleIndices: ArrayLike<number> | number,
+        vertexCount?: number
+    ): Uint16Array | Uint32Array {
+        if (typeof triangleIndices === 'number') {
+            if (vertexCount === undefined) {
+                throw new TypeError('Wireframe generation from first requires a vertex count.');
+            }
+            const first = triangleIndices;
+            const triangleCount = Math.floor(vertexCount / 3);
+            const lastVertex = first + triangleCount * 3 - 1;
+            const indices = lastVertex > 0xffff
+                ? new Uint32Array(triangleCount * 6)
+                : new Uint16Array(triangleCount * 6);
+
+            for (let triangle = 0; triangle < triangleCount; triangle++) {
+                const vertex = first + triangle * 3;
+                const index = triangle * 6;
+                indices[index] = vertex;
+                indices[index + 1] = vertex + 1;
+                indices[index + 2] = vertex + 1;
+                indices[index + 3] = vertex + 2;
+                indices[index + 4] = vertex + 2;
+                indices[index + 5] = vertex;
+            }
+
+            return indices;
+        }
+
         const edgeSet = new Set<string>();
         const lines: number[] = [];
 
@@ -546,6 +575,24 @@ class GeometryBuffer {
     }
 
     addAttribute(name: string, attr: Attribute, dynamic?: boolean) {
+        this.initAttribute(attr, dynamic);
+        this.attributes[name] = attr;
+    }
+
+    // reusing a base attribute requires the same name. group-only attributes are owned by the group.
+    addGroupAttribute(
+        group: ElementsDrawCmd | ArrayDrawCmd,
+        name: string,
+        attr: Attribute | ConstantAttribute,
+        dynamic?: boolean
+    ) {
+        if ((attr as ConstantAttribute).value === undefined) {
+            this.initAttribute(attr as Attribute, dynamic);
+        }
+        (group.attributes ||= {})[name] = attr;
+    }
+
+    private initAttribute(attr: Attribute, dynamic?: boolean) {
         const {data} = attr;
 
         attr.type = glType(data);
@@ -561,8 +608,6 @@ class GeometryBuffer {
         if (attr.dirty == UNDEF) {
             attr.dirty = true;
         }
-
-        this.attributes[name] = attr;
     }
 
     computeNormals(

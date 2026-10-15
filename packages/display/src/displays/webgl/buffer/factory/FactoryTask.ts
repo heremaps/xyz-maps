@@ -20,7 +20,7 @@
 import {Color as Colors, Task} from '@here/xyz-maps-common';
 import {GeometryBuffer, RenderUsage} from './../GeometryBuffer';
 import {getPolygonCenter, getValue} from '../../../styleTools';
-import {Feature, LayerStyle, LinearGradient, StyleGroup, Tile, TileLayer, webMercator} from '@here/xyz-maps-core';
+import {Color, Feature, LayerStyle, LinearGradient, StyleGroup, Tile, TileLayer, webMercator} from '@here/xyz-maps-core';
 import {Layer} from '../../../Layers';
 import {CollisionGroup, FeatureFactory, GroupMap} from '../FeatureFactory';
 import {GlyphTexture} from '../../GlyphTexture';
@@ -28,16 +28,14 @@ import {TemplateBufferBucket} from '../templates/TemplateBufferBucket';
 import {TerrainRenderMode} from '../TerrainRenderPolicy';
 import {Texture} from '../../Texture';
 import {ExtrudeBuffer} from '../templates/ExtrudeBuffer';
-import {ModelBuffer} from '../templates/ModelBuffer';
+import {ModelBuffer, addModelBBoxDebugDraw, addModelWireframeDebugDraw} from '../templates/ModelBuffer';
 import {DEFAULT_HEATMAP_GRADIENT, HeatmapBuffer} from '../templates/HeatmapBuffer';
 import {PASS} from '../../RenderPass';
-
 
 const PROCESS_FEATURE_CHUNK_SIZE = 16;
 const EXCLUSIVE_TIME_MS = 4;
 const TO_RAD = Math.PI / 180;
 const COLOR_UNDEFINED = new Float32Array([-1.0, -1.0, -1.0, -1.0]);
-
 let UNDEF;
 
 const handlePolygons = (
@@ -99,7 +97,6 @@ type TaskData = {
     zoom: number,
     collisions: null | CollisionGroup[],
     groups: GroupMap,
-    showWireframe: LayerStyle['showWireframe'],
     onDone?: (buffers: GeometryBuffer[]) => any
     // onDone?: (buffers: GeometryBuffer[]) => FactoryTaskResult
 };
@@ -145,7 +142,6 @@ export class FactoryTask extends Task<TaskInput, TaskData> {
         const waitAndRefresh = (promise: Promise<any>) => {
             pendingResources.push(promise);
         };
-        const {showWireframe} = layerStyles;
 
         this.factory.init(tile, groups, layer.tileSize, zoom, layerStyles, waitAndRefresh);
 
@@ -159,7 +155,6 @@ export class FactoryTask extends Task<TaskInput, TaskData> {
             zoom,
             collisions: null,
             groups,
-            showWireframe: (showWireframe && typeof showWireframe != 'boolean') ? Colors.toRGB(showWireframe) : showWireframe,
             onDone(buffers) {
                 const result = {buffers, pendingResources};
                 onDone?.(result);
@@ -187,6 +182,11 @@ export class FactoryTask extends Task<TaskInput, TaskData> {
                     let stroke = shared.stroke;
                     let strokeWidth = shared.strokeWidth;
                     let vertexType = type;
+
+                    const showWireframe = shared.showWireframe;
+
+                    const showBBox = type === 'Model' ? shared.showBBox : undefined;
+                    const modelBBoxes = showBBox ? new Set<number[]>() : undefined;
                     // grpBuffer = grp.buffer;
 
                     if (!grp.buffer || grp.buffer.isEmpty()) {
@@ -361,8 +361,6 @@ export class FactoryTask extends Task<TaskInput, TaskData> {
                                     isModel = true;
                                     // 0 meters (default),  1 pixel (terrain)
                                     geoBuffer.addUniform('u_isPixelCoords', !!shared.modelMode);
-                                    // terrain mode
-                                    // if (shared.modelMode) (geoBuffer as ModelBuffer).hitTest = 1;
                                 }
 
                                 if (isModel) {
@@ -382,19 +380,14 @@ export class FactoryTask extends Task<TaskInput, TaskData> {
                                     geoBuffer.destroy = (grpBuffer as ModelBuffer).destroy || geoBuffer.destroy;
                                     geoBuffer.depth = true;
 
-                                    const {showWireframe} = taskData;
                                     if (showWireframe) {
-                                        const wireFrame = geoBuffer.addDrawCmd(
-                                            GeometryBuffer.generateWireframeIndices(grpBuffer.index()),
-                                            grpBuffer.i32,
-                                            GeometryBuffer.MODE_GL_LINES
-                                        );
-                                        wireFrame.uniforms = {
-                                            // invert diffuse color for wireframe
-                                            diffuse: ((showWireframe === true ? geoBuffer.getUniform('diffuse') : showWireframe) as number[])
-                                                .slice(0, 3)
-                                                .map((c) => 1 - c)
-                                        };
+                                        addModelWireframeDebugDraw(geoBuffer, grpBuffer, showWireframe);
+                                    }
+
+                                    const bbox = geoBuffer.bbox;
+                                    if (showBBox && type === 'Model' && bbox?.length >= 6 && !modelBBoxes?.has(bbox)) {
+                                        modelBBoxes?.add(bbox);
+                                        addModelBBoxDebugDraw(geoBuffer, showBBox === true ? [1, 0, 1] : showBBox);
                                     }
 
                                     if (geoBuffer.uniforms.pointSize) {

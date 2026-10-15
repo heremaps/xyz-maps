@@ -36,8 +36,7 @@ import {
     Uniform
 } from '../buffer/GeometryBuffer';
 import {BufferCache, ProgramContext, ViewUniforms} from '../GLRender';
-import {Attribute} from '../buffer/Attribute';
-import {ConstantAttribute} from '../buffer/templates/TemplateBuffer';
+import {Attribute, ConstantAttribute} from '../buffer/Attribute';
 import {Texture} from '../Texture';
 import {HeightMapTileCache} from '../HeightMapTileCache';
 import {std140Types, UniformBlockLayout, UniformFieldLayout} from '../UniformBlock';
@@ -124,7 +123,7 @@ export type ProgramInitOptions = {
  * depths from occluding them.
  */
 // const TERRAIN_SURFACE_DEPTH_BIAS = -(1 << 11);
-const TERRAIN_SURFACE_DEPTH_BIAS = -(1<<2);
+const TERRAIN_SURFACE_DEPTH_BIAS = -(1 << 2);
 
 class Program {
     protected vertexShaderSrc: string;
@@ -612,24 +611,33 @@ class Program {
     }
 
     initBufferAttributes(geometryBuffer: GeometryBuffer, groupIndex: number) {
-        const bufAttributes = geometryBuffer.getAttributes();
         const {vaoManager} = this.device;
-
         const group = geometryBuffer.groups[groupIndex];
-        const vao = group.vao;
-        let bindShAttr = groupIndex === 0 && !vao;
+        const existingVAO = group.vao;
 
-        if (vaoManager.isVAOSupported) {
-            if (!vao) {
+        const hasVAO = vaoManager.isVAOSupported;
+        const isNewVAO = hasVAO && !existingVAO;
+
+        if (hasVAO) {
+            if (isNewVAO) {
                 group.vao = vaoManager.createVAO();
-                bindShAttr = true;
             }
             vaoManager.bindVAO(group.vao);
         }
 
-        this.bindVertexAttributes(bufAttributes, !bindShAttr);
+        const bindAllAttributes = isNewVAO || (!hasVAO && (
+            groupIndex === 0 || !!group.attributes || !!geometryBuffer.groups[groupIndex - 1].attributes
+        ));
+        const onlyWhenDirty = !bindAllAttributes;
+        const bufAttributes = geometryBuffer.getAttributes();
+        this.bindVertexAttributes(bufAttributes, onlyWhenDirty, group.attributes);
 
-        if (!vao) {
+        if (group.attributes) {
+            this.bindVertexAttributes(group.attributes, onlyWhenDirty);
+        }
+
+        // if (!hasVAO || isNewVAO) {
+        if (!existingVAO) {
             const index = (<ElementsDrawCmd>group).index;
             if (index) {
                 this.initIndex(index);
@@ -637,12 +645,14 @@ class Program {
         }
     }
 
-    bindVertexAttributes(attributes: AttributeMap, onlyWhenDirty: boolean) {
+    bindVertexAttributes(attributes: AttributeMap, onlyWhenDirty: boolean, overrides?: AttributeMap) {
         const {gl, buffers, attributeLocations, attributeDivisors} = this;
 
         // this.initBuffers(attributes);
 
         for (let name in attributes) {
+            if (overrides?.[name]) continue;
+
             const attribute = attributes[name];
 
             if (!attributeLocations[name]) continue;
@@ -652,12 +662,10 @@ class Program {
             const {value} = attribute as ConstantAttribute;
 
             if (value != undefined) {
-                if (!onlyWhenDirty) {
-                    for (let i = 0; i < length; ++i) {
-                        const location = index + i;
-                        // Attribute is using constant value
-                        this.setConstantAttributeValue(location, value);
-                    }
+                // Constant values are global context state, not stored in VAOs.
+                for (let i = 0; i < length; ++i) {
+                    const location = index + i;
+                    this.setConstantAttributeValue(location, value);
                 }
                 continue;
             }

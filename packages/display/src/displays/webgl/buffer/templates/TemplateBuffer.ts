@@ -17,7 +17,7 @@
  * License-Filename: LICENSE
  */
 
-import {Attribute} from '../Attribute';
+import {Attribute, ConstantAttribute} from '../Attribute';
 import {FlexArray} from './FlexArray';
 import {GeometryBuffer, Uniform} from '../GeometryBuffer';
 import {Raycaster} from '../../Raycaster';
@@ -26,9 +26,6 @@ import {sampleHeightMap} from '../../HeightMapTileCache';
 
 export type FlexAttribute = Omit<Attribute, 'data' | 'bytesPerElement' | 'ref'> & {
     data: FlexArray;
-}
-export type ConstantAttribute = {
-    value: number[];
 }
 
 export type BufferGroup = {

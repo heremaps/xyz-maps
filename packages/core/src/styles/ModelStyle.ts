@@ -489,4 +489,22 @@ export interface ModelStyle {
      * @defaultValue 32
      */
     shininess?: number;
+
+    /**
+     * Displays the model mesh wireframe for debugging.
+     * `true` uses the inverted material color; a `Color` selects the line color.
+     *
+     * @hidden
+     * @internal
+     */
+    showWireframe?: boolean | Color;
+
+    /**
+     * Displays the transformed model bounds as a 3D wireframe for debugging.
+     * `true` uses magenta; a `Color` selects the line color.
+     *
+     * @hidden
+     * @internal
+     */
+    showBBox?: boolean | Color;
 }

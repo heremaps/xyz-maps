@@ -139,6 +139,9 @@ void main() {
     );
     #endif
 
+    // Emissive is self-illumination, so it is added after the lighting and is not darkened by it.
+    totalColor.rgb += emissive;
+
     #ifdef MODEL_ALPHA_BLEND
     totalColor.a = alpha;
     totalColor.rgb *= totalColor.a;
