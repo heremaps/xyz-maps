@@ -96,6 +96,7 @@ export {TerrainTileLayer, TerrainTileLayerStyle};
 export type {TerrainTileLayerOptions} from './layers/terrain/TerrainTileLayerOptions';
 export {RTINMeshBuilder} from './providers/TerrainProvider/RTINMeshBuilder';
 export {ElevationQuadTree} from './providers/TerrainProvider/ElevationQuadTree';
+export {TransferableCollector} from './loaders/webworker/TransferableCollector';
 
 import webMercatorPrj from './projection/webMercator';
 

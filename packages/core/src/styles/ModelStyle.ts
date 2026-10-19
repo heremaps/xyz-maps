@@ -312,8 +312,8 @@ export interface ModelData {
  */
 export interface OBJModelSource {
     format: 'obj';
-    /** Decoded Wavefront OBJ text or a Blob created in a worker. */
-    obj: string | Blob;
+    /** Decoded Wavefront OBJ text, UTF-8 bytes, or a Blob created in a worker. */
+    obj: string | Uint8Array | Blob;
     /**
      * Decoded MTL text or a Blob, or texts/Blobs keyed by the filenames in
      * `mtllib` directives.
@@ -337,6 +337,28 @@ export type ModelSource = string | ModelData | OBJModelSource;
 /**
  * Interface for configuring the visual appearance of Models.
  * The default orientation is with the Y axis pointing up.
+ *
+ * For Point features, a non-degenerate 2D WGS84 `feature.bbox`
+ * (`[west, south, east, north]`, with west < east or south < north) declares
+ * explicit model coverage. The Point coordinates remain the model anchor.
+ * For Polygon and MultiPolygon features, the footprint's bounding box supplies
+ * coverage automatically; the existing polygon center remains the model anchor.
+ * A MultiPolygon places one model per feature, not one per component.
+ * Each intersecting tile renders and picks only its slice of the model.
+ * Bounds must cover the complete transformed geometry, including scale,
+ * translation and rotation, at every applicable zoom level. Antimeridian-crossing
+ * bounds are not supported. Without such bounds the anchor-tile behavior is unchanged.
+ * Other Point styles and Terrain styles do not use these coverage semantics.
+ *
+ * Coverage does not guarantee discovery of remote features: the provider/server
+ * must deliver the feature before its coverage can be indexed locally.
+ * Coverage also does not expand the viewport's tile candidate grid by model height.
+ * At high pitch, elevated geometry whose ground footprint lies outside that grid
+ * can remain unavailable even when its top would project into the viewport.
+ * Coverage is not supported with `altitude: 'terrain'`: these models retain
+ * anchor-tile rendering and picking. Use an explicit altitude for coverage across
+ * tiles; sampling separate tile heightmaps at an out-of-tile anchor would otherwise
+ * produce inconsistent elevations between slices.
  *
  * @experimental
  */

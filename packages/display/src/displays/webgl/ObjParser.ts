@@ -37,9 +37,253 @@ const worker = function() {
         const [, key, rawValue] = regex.exec(line);
         return [key, rawValue];
     };
-    const parseOBJ = (text: string) => {
-        const objVertexData: number[][][] = [[], [], [], []];
-        const [objPositions, objUVs, objNormals, objColors] = objVertexData;
+
+    let timeTotal = 0;
+    let bytesTotal = 0;
+
+    const parseOBJData = (text: string | Uint8Array) => {
+        const bytes = (typeof text === 'string' ? (new Blob([text])).size : text.length);
+        bytesTotal += bytes;
+
+        // console.log('[OBJ Parser] type:',typeof text, (bytes / 1024).toFixed(2),
+        //     'kb, total:', (bytesTotal / 1024).toFixed(2), 'kb'
+        // );
+
+        const len = text.length;
+        let cursor = 0;
+        let codeAt: (index: number) => number;
+        let stringFromRange: (start: number, end: number) => string;
+        if (typeof text === 'string') {
+            const stringData = text;
+            codeAt = (index) => stringData.charCodeAt(index);
+            stringFromRange = (start, end) => stringData.substring(start, end);
+        } else {
+            const byteData = text;
+            const decoder = new TextDecoder();
+            codeAt = (index) => byteData[index];
+            stringFromRange = (start, end) => decoder.decode(byteData.subarray(start, end));
+        }
+        if (codeAt(0) === 0xFEFF) {
+            cursor = 1;
+        } else if (codeAt(0) === 0xEF && codeAt(1) === 0xBB && codeAt(2) === 0xBF) {
+            cursor = 3;
+        }
+        const isWhitespace = (code: number) => code === 32 || code === 9 || code === 13 || code === 11 || code === 12;
+        const isLineEnd = (code: number) => code === 10 || code === 13;
+        const isValueTerminator = (code: number) => isWhitespace(code) || code === 10 || code === 35;
+        const skipWhitespace = () => {
+            while (cursor < len && isWhitespace(codeAt(cursor))) {
+                cursor++;
+            }
+        };
+        const skipToNextLine = () => {
+            while (cursor < len && codeAt(cursor) !== 10) {
+                cursor++;
+            }
+            if (cursor < len) {
+                cursor++;
+            }
+        };
+        const matchesText = (value: string, index: number) => {
+            if (index + value.length > len) {
+                return false;
+            }
+            for (let i = 0; i < value.length; i++) {
+                if (codeAt(index + i) !== value.charCodeAt(i)) {
+                    return false;
+                }
+            }
+            return true;
+        };
+        const matchesKeyword = (keyword: string) => matchesText(keyword, cursor)
+            && isWhitespace(codeAt(cursor + keyword.length));
+        const readFloat = () => {
+            const tokenStart = cursor;
+            let sign = 1;
+            let code = codeAt(cursor);
+            if (code === 45) {
+                sign = -1;
+                cursor++;
+            } else if (code === 43) {
+                cursor++;
+            }
+
+            if (codeAt(cursor) === 73 && matchesText('Infinity', cursor)) {
+                cursor += 8;
+                while (cursor < len && !isValueTerminator(codeAt(cursor))) {
+                    cursor++;
+                }
+                return sign * Infinity;
+            }
+
+            let value = 0;
+            let digitCount = 0;
+            while (cursor < len) {
+                code = codeAt(cursor);
+                if (code < 48 || code > 57) {
+                    break;
+                }
+                value = value * 10 + code - 48;
+                cursor++;
+                digitCount++;
+            }
+
+            if (codeAt(cursor) === 46) {
+                cursor++;
+                let fraction = 0.1;
+                while (cursor < len) {
+                    code = codeAt(cursor);
+                    if (code < 48 || code > 57) {
+                        break;
+                    }
+                    value += (code - 48) * fraction;
+                    fraction *= 0.1;
+                    cursor++;
+                    digitCount++;
+                }
+            }
+
+            if (!digitCount) {
+                cursor = tokenStart;
+                while (cursor < len && !isValueTerminator(codeAt(cursor))) {
+                    cursor++;
+                }
+                return NaN;
+            }
+
+            let exponent = 0;
+            code = codeAt(cursor);
+            if (code === 101 || code === 69) {
+                let expCursor = cursor + 1;
+                let expSign = 1;
+                code = codeAt(expCursor);
+                if (code === 45) {
+                    expSign = -1;
+                    expCursor++;
+                } else if (code === 43) {
+                    expCursor++;
+                }
+
+                let expValue = 0;
+                let expDigitCount = 0;
+                while (expCursor < len) {
+                    code = codeAt(expCursor);
+                    if (code < 48 || code > 57) {
+                        break;
+                    }
+                    expValue = expValue * 10 + code - 48;
+                    expCursor++;
+                    expDigitCount++;
+                }
+                if (expDigitCount) {
+                    exponent = expSign * expValue;
+                    cursor = expCursor;
+                }
+            }
+
+            const result = sign * value;
+            while (cursor < len && !isValueTerminator(codeAt(cursor))) {
+                cursor++;
+            }
+            return exponent && result ? result * Math.pow(10, exponent) : result;
+        };
+        type NumberBuffer = {
+            values: number[];
+            offsets: number[];
+        };
+        const readNumberValues = (target: NumberBuffer, maxValues = Infinity, overflow?: NumberBuffer) => {
+            target.offsets.push(target.values.length);
+            let valueCount = 0;
+            while (cursor < len) {
+                skipWhitespace();
+                const code = codeAt(cursor);
+                if (cursor >= len || isLineEnd(code) || code === 35) {
+                    break;
+                }
+                const value = readFloat();
+                if (valueCount < maxValues) {
+                    target.values.push(value);
+                } else if (overflow) {
+                    if (valueCount === maxValues) {
+                        overflow.offsets.push(overflow.values.length);
+                    }
+                    overflow.values.push(value);
+                }
+                valueCount++;
+            }
+        };
+        const readStringToken = () => {
+            skipWhitespace();
+            const start = cursor;
+            while (cursor < len) {
+                const code = codeAt(cursor);
+                if (isLineEnd(code) || code === 35) {
+                    break;
+                }
+                cursor++;
+            }
+            let end = cursor;
+            while (end > start && isWhitespace(codeAt(end - 1))) {
+                end--;
+            }
+            return stringFromRange(start, end);
+        };
+        const readStringTokens = () => {
+            const tokens: string[] = [];
+            while (cursor < len) {
+                skipWhitespace();
+                const code = codeAt(cursor);
+                if (cursor >= len || isLineEnd(code) || code === 35) {
+                    break;
+                }
+                const start = cursor;
+                while (cursor < len && !isValueTerminator(codeAt(cursor))) {
+                    cursor++;
+                }
+                tokens.push(stringFromRange(start, cursor));
+            }
+            return tokens;
+        };
+        const readFaceIndex = () => {
+            let sign = 1;
+            let code = codeAt(cursor);
+            if (code === 45) {
+                sign = -1;
+                cursor++;
+            } else if (code === 43) {
+                cursor++;
+            }
+
+            let index = 0;
+            let digitCount = 0;
+            while (cursor < len) {
+                code = codeAt(cursor);
+                if (code < 48 || code > 57) {
+                    break;
+                }
+                index = index * 10 + code - 48;
+                cursor++;
+                digitCount++;
+            }
+            const result = digitCount ? sign * index : NaN;
+            while (cursor < len) {
+                code = codeAt(cursor);
+                if (code === 47 || isValueTerminator(code)) {
+                    break;
+                }
+                cursor++;
+            }
+            return result;
+        };
+
+        const createNumberBuffer = (): NumberBuffer => ({
+            values: [],
+            offsets: []
+        });
+        const objPositions = createNumberBuffer();
+        const objUVs = createNumberBuffer();
+        const objNormals = createNumberBuffer();
+        const objColors = createNumberBuffer();
         const mtlLibs = [];
         const geometries = [];
         const faces = [];
@@ -51,6 +295,17 @@ const worker = function() {
         let object = DEFAULT;
         let vertexData = [[], [], [], []];
         let geometry;
+
+        const appendNumberValues = (target: number[], source: NumberBuffer, index: number) => {
+            let start = source.offsets[index];
+            if (start === undefined) {
+                throw new Error('Invalid OBJ face reference');
+            }
+            const end = source.offsets[index + 1] ?? source.values.length;
+            do {
+                target[target.length] = source.values[start];
+            } while (++start < end);
+        };
 
         const newGeometry = () => {
             if (geometry?.position.length) {
@@ -76,76 +331,164 @@ const worker = function() {
             }
         };
 
-        const addFace = (faceStr: string, colors: number[][]) => {
-            const face = faceStr.split('/');
-            for (let i = 0; i < face.length; i++) {
-                const data = objVertexData[i];
-                let index = parseInt(face[i]);
-                if (isNaN(index)) continue;
-                index += index < 0
-                    ? data.length // index is relative from the end
-                    : -1;
-
-                vertexData[i].push(...data[index]);
-                // copy colors if present
-                if (!i && colors) {
-                    geometry.color.push(...colors[index]);
+        const addFace = (
+            positionIndex: number,
+            uvIndex: number,
+            normalIndex: number,
+            colors: NumberBuffer | null
+        ) => {
+            if (!isNaN(positionIndex)) {
+                positionIndex += positionIndex < 0 ? objPositions.offsets.length : -1;
+                appendNumberValues(vertexData[0], objPositions, positionIndex);
+                if (colors) {
+                    appendNumberValues(geometry.color, colors, positionIndex);
                 }
+            }
+            if (!isNaN(uvIndex)) {
+                uvIndex += uvIndex < 0 ? objUVs.offsets.length : -1;
+                appendNumberValues(vertexData[1], objUVs, uvIndex);
+            }
+            if (!isNaN(normalIndex)) {
+                normalIndex += normalIndex < 0 ? objNormals.offsets.length : -1;
+                appendNumberValues(vertexData[2], objNormals, normalIndex);
             }
         };
-        const parseFloatArray = (a) => a.map(parseFloat);
 
-        const lines = text.split('\n');
-
-        for (let l = 0; l < lines.length; l++) {
-            const line = lines[l].trim();
-            if (line === '' || line.startsWith('#')) {
+        while (cursor < len) {
+            skipWhitespace();
+            if (cursor >= len) {
+                break;
+            }
+            const firstCode = codeAt(cursor);
+            if (firstCode === 35 || firstCode === 10) {
+                skipToNextLine();
                 continue;
             }
-            const [key, rawValue] = parseLine(line);
-            let values = rawValue.split(/\s+/);
 
-            switch (key) {
-            case 'v':
-                if (values.length > 3) {
-                    objColors.push(parseFloatArray(values.slice(3)));
-                    values = values.slice(0, 3);
-                }
-                objPositions.push(parseFloatArray(values));
-                break;
-            case 'vn':
-                objNormals.push(parseFloatArray(values));
-                break;
-            case 'vt':
-                objUVs.push(parseFloatArray(values));
-                break;
-            case 'f':
-                setGeometry();
-                const colors = objColors.length > 1 ? objColors : null;
-                for (let t = 0, triCnt = values.length - 2; t < triCnt; ++t) {
-                    addFace(values[0], colors);
-                    addFace(values[t + 1], colors);
-                    addFace(values[t + 2], colors);
-                }
-                break;
-            case 'mtllib':
-                mtlLibs.push(...values);
-                break;
-            case 'usemtl':
-                face.material = rawValue;
-                newGeometry();
-                break;
-            case 'g':
-                groups = values;
-                newGeometry();
-                break;
-            case 'o':
-                object = rawValue;
-                newGeometry();
-                break;
-                // default: console.warn(`objParser unhandled: ${key}`);
+            if (// firstCode === 118 &&
+                matchesKeyword('vn')) {
+                cursor += 2;
+                readNumberValues(objNormals);
+                skipToNextLine();
+                continue;
             }
+            if (// firstCode === 118 &&
+                matchesKeyword('vt')) {
+                cursor += 2;
+                readNumberValues(objUVs);
+                skipToNextLine();
+                continue;
+            }
+            if ( firstCode === 118
+            // && matchesKeyword('v')
+            ) {
+                cursor++;
+                readNumberValues(objPositions, 3, objColors);
+                skipToNextLine();
+                continue;
+            }
+            if (// firstCode === 102 &&
+                matchesKeyword('f')
+            ) {
+                cursor++;
+                setGeometry();
+                const colors = objColors.offsets.length > 1 ? objColors : null;
+                let vertexCount = 0;
+                let firstPositionIndex = 0;
+                let firstUVIndex = 0;
+                let firstNormalIndex = 0;
+                let previousPositionIndex = 0;
+                let previousUVIndex = 0;
+                let previousNormalIndex = 0;
+
+                while (cursor < len) {
+                    skipWhitespace();
+                    let code = codeAt(cursor);
+                    if (cursor >= len || isLineEnd(code) || code === 35) {
+                        break;
+                    }
+
+                    const positionIndex = readFaceIndex();
+                    let uvIndex = NaN;
+                    let normalIndex = NaN;
+                    if (codeAt(cursor) === 47) {
+                        cursor++;
+                        uvIndex = readFaceIndex();
+                        if (codeAt(cursor) === 47) {
+                            cursor++;
+                            normalIndex = readFaceIndex();
+                        }
+                    }
+                    while (cursor < len) {
+                        code = codeAt(cursor);
+                        if (isValueTerminator(code)) {
+                            break;
+                        }
+                        cursor++;
+                    }
+
+                    if (vertexCount === 0) {
+                        firstPositionIndex = positionIndex;
+                        firstUVIndex = uvIndex;
+                        firstNormalIndex = normalIndex;
+                    } else if (vertexCount === 1) {
+                        previousPositionIndex = positionIndex;
+                        previousUVIndex = uvIndex;
+                        previousNormalIndex = normalIndex;
+                    } else {
+                        addFace(firstPositionIndex, firstUVIndex, firstNormalIndex, colors);
+                        addFace(previousPositionIndex, previousUVIndex, previousNormalIndex, colors);
+                        addFace(positionIndex, uvIndex, normalIndex, colors);
+                        previousPositionIndex = positionIndex;
+                        previousUVIndex = uvIndex;
+                        previousNormalIndex = normalIndex;
+                    }
+                    vertexCount++;
+                }
+
+                skipToNextLine();
+                continue;
+            }
+            if (// firstCode === 109 &&
+                matchesKeyword('mtllib')
+            ) {
+                cursor += 6;
+                mtlLibs.push(...readStringTokens());
+                skipToNextLine();
+                continue;
+            }
+            if (// firstCode === 117 &&
+                matchesKeyword('usemtl')
+            ) {
+                cursor += 6;
+                face.material = readStringToken();
+                newGeometry();
+                skipToNextLine();
+                continue;
+            }
+            if (// firstCode === 103 &&
+                matchesKeyword('g')
+            ) {
+                cursor++;
+                groups = readStringTokens();
+                newGeometry();
+                skipToNextLine();
+                continue;
+            }
+            if (// firstCode === 111 &&
+                matchesKeyword('o')
+            ) {
+                cursor++;
+                object = readStringToken();
+                newGeometry();
+                skipToNextLine();
+                continue;
+            }
+
+            skipToNextLine();
         }
+
+
         return {
             faces,
             geometries,
@@ -153,6 +496,16 @@ const worker = function() {
         };
     };
 
+    const parseOBJ = (text: string | Uint8Array) => {
+        const startTime = performance.now();
+        try {
+            return parseOBJData(text);
+        } finally {
+            const duration = performance.now() - startTime;
+            timeTotal += duration;
+            console.log(`[OBJ Parser] parse: ${duration.toFixed(2)} ms; timeTotal: ${timeTotal.toFixed(2)} ms`);
+        }
+    };
 
     const mtlToMaterial = {
         'Ka': 'ambient',
@@ -321,20 +674,21 @@ const worker = function() {
         })();
     };
     const loadInline = async (source: OBJModelSource): Promise<ModelData> => {
-        const objText = source.obj instanceof Blob ? await source.obj.text() : source.obj;
-        const {geometries, faces, mtlLibs} = parseOBJ(objText);
+        const objData = source.obj instanceof Blob ? await source.obj.text() : source.obj;
+        const {geometries, faces, mtlLibs} = parseOBJ(objData);
+        const sourceMtl = source.mtl;
         let text = '';
-        if (typeof source.mtl == 'string') {
-            text = source.mtl;
-        } else if (source.mtl instanceof Blob) {
-            text = await source.mtl.text();
-        } else if (source.mtl) {
-            const filenames = mtlLibs.length ? mtlLibs : Object.keys(source.mtl);
+        if (typeof sourceMtl == 'string') {
+            text = sourceMtl;
+        } else if (sourceMtl instanceof Blob) {
+            text = await sourceMtl.text();
+        } else if (sourceMtl) {
+            const filenames = mtlLibs.length ? mtlLibs : Object.keys(sourceMtl);
             text = (await Promise.all(filenames.map(async (filename) => {
                 if (!Object.prototype.hasOwnProperty.call(source.mtl, filename)) {
                     throw new Error(`Missing inline OBJ material library "${filename}"`);
                 }
-                const material = source.mtl[filename];
+                const material = sourceMtl[filename];
                 return material instanceof Blob ? await material.text() : material;
             }))).join('\n');
         }
@@ -343,7 +697,7 @@ const worker = function() {
         const textures = await loadTextures(materials, source.baseUrl ? new URL(source.baseUrl) : undefined, source.textures);
         return {geometries, faces, materials, textures};
     };
-    return async ({url, source})=>{
+    return async ({url, source}) => {
         const model = source ? await loadInline(source) : await load(url);
         const transfer = new Set<Transferable>();
         for (let geom of model.geometries) {
@@ -369,7 +723,10 @@ const worker = function() {
                 }
             }
         }
-        return {message: model, transfer: Array.from(transfer)};
+        return {
+            message: model,
+            transfer: Array.from(transfer)
+        };
     };
 };
 
@@ -384,10 +741,12 @@ export class ObjParser extends XYZWorker {
     }
 
     loadInline(source: OBJModelSource): Promise<ModelData> {
-        return this.main({source: {
-            ...source,
-            baseUrl: source.baseUrl ? new URL(source.baseUrl, window.top.location.href).href : undefined
-        }});
+        return this.main({
+            source: {
+                ...source,
+                baseUrl: source.baseUrl ? new URL(source.baseUrl, window.top.location.href).href : undefined
+            }
+        });
     }
 
     async load(url: string): Promise<ModelData> {
