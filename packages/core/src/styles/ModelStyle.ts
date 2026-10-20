@@ -307,6 +307,8 @@ export interface ModelData {
 
 /**
  * Inline Wavefront OBJ source, for example decoded from GeoJSON properties.
+ * When byte arrays are transferred to the parser worker, their `obj` or texture `data`
+ * properties must be writable; the buffers are reattached before loading resolves.
  *
  * @experimental
  */
@@ -315,10 +317,9 @@ export interface OBJModelSource {
     /** Decoded Wavefront OBJ text, UTF-8 bytes, or a Blob created in a worker. */
     obj: string | Uint8Array | Blob;
     /**
-     * Decoded MTL text or a Blob, or texts/Blobs keyed by the filenames in
-     * `mtllib` directives.
+     * Decoded MTL text or a Blob, or texts/Blobs keyed by the filenames in `mtllib` directives.
      * Missing referenced entries in a supplied map cause a loading error.
-     * When omitted, default materials are used; mtllib files are never fetched.
+     * When omitted, default materials are used; `mtllib` files are never fetched.
      */
     mtl?: string | Blob | Record<string, string | Blob>;
     /** Base URL for relative texture references (directory URLs should end with '/'). */

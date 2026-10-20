@@ -1,5 +1,5 @@
 /*
- * Copyright (C) 2019-2023 HERE Europe B.V.
+ * Copyright (C) 2019-2026 HERE Europe B.V.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -16,6 +16,7 @@
  * SPDX-License-Identifier: Apache-2.0
  * License-Filename: LICENSE
  */
+import {TransferableCollector} from '@here/xyz-maps-core';
 import type {Material, ModelData, ModelTextureData, OBJModelSource} from '@here/xyz-maps-core';
 import {XYZWorker} from './XYZWorker';
 
@@ -23,6 +24,22 @@ type Face = {
     material: string;
     geometryIndex: number;
 };
+
+type ObjParserWorkerArgs = {
+    source?: OBJModelSource;
+    url?: string;
+};
+
+type ObjParserWorkerResult = {
+    model: ModelData;
+    srcObj?: Uint8Array;
+};
+
+const isInlineModelTextureData = (value: unknown): value is ModelTextureData => !!value
+    && typeof value === 'object'
+    && 'width' in value
+    && 'height' in value
+    && 'data' in value;
 
 const worker = function() {
     const DEFAULT = 'default';
@@ -379,7 +396,7 @@ const worker = function() {
                 skipToNextLine();
                 continue;
             }
-            if ( firstCode === 118
+            if (firstCode === 118
             // && matchesKeyword('v')
             ) {
                 cursor++;
@@ -697,8 +714,11 @@ const worker = function() {
         const textures = await loadTextures(materials, source.baseUrl ? new URL(source.baseUrl) : undefined, source.textures);
         return {geometries, faces, materials, textures};
     };
-    return async ({url, source}) => {
-        const model = source ? await loadInline(source) : await load(url);
+    return async ({url, source, baseUrl}) => {
+        const model = source
+            ? await loadInline(baseUrl ? {...source, baseUrl} : source)
+            : await load(url);
+
         const transfer = new Set<Transferable>();
         for (let geom of model.geometries) {
             for (let name of ['position', 'uv', 'normal', 'color']) {
@@ -714,6 +734,7 @@ const worker = function() {
                 }
             }
         }
+
         for (const texture of Object.values(model.textures || {})) {
             if (typeof ImageBitmap != 'undefined' && texture instanceof ImageBitmap) {
                 transfer.add(texture);
@@ -723,8 +744,15 @@ const worker = function() {
                 }
             }
         }
+
+        const srcObj = source?.obj instanceof Uint8Array ? source.obj : undefined;
+        if (srcObj) {
+            transfer.add(srcObj.buffer);
+        }
+
+
         return {
-            message: model,
+            message: {model, srcObj},
             transfer: Array.from(transfer)
         };
     };
@@ -732,35 +760,64 @@ const worker = function() {
 
 
 export class ObjParser extends XYZWorker {
-    private inProgress: { [url: string]: Promise<any> } = {};
+    private inProgress: Map<string | OBJModelSource, Promise<ModelData>> = new Map();
 
-    main: (args: any) => Promise<ModelData>;
+    main: (args: any, transfer?: Transferable[]) => Promise<ModelData>;
 
     constructor() {
         super(worker);
     }
 
-    loadInline(source: OBJModelSource): Promise<ModelData> {
-        return this.main({
-            source: {
-                ...source,
-                baseUrl: source.baseUrl ? new URL(source.baseUrl, window.top.location.href).href : undefined
+    protected handleWorkerResponse(
+        args: unknown,
+        result: unknown
+    ): unknown {
+        const request = args as ObjParserWorkerArgs;
+        const response = result as ObjParserWorkerResult;
+        const source = request.source;
+
+        if (source?.obj instanceof Uint8Array && response?.srcObj instanceof Uint8Array ) {
+            source.obj = response.srcObj;
+        }
+
+        if (source?.textures) {
+            for (let name in source.textures) {
+                const tex = source.textures[name];
+                const resultTexData = (response.model.textures[name] as ModelTextureData)?.data;
+                if ((tex as ModelTextureData).data && resultTexData) {
+                    (tex as ModelTextureData).data = resultTexData;
+                }
             }
+        }
+        return response.model;
+    }
+
+
+    private async _load(key: any, args: any, transferData?: any ) {
+        const cached = this.inProgress.get(key);
+        if (cached) {
+            return cached;
+        }
+        const transfer = transferData
+            ? new TransferableCollector(transferData).getTransferables()
+            : undefined;
+        const promise = this.main(args, transfer).finally(() => {
+            this.inProgress.delete(key);
         });
+        this.inProgress.set(key, promise);
+        return promise;
+    }
+
+    async loadInline(source: OBJModelSource): Promise<ModelData> {
+        const baseUrl = source.baseUrl
+            ? new URL(source.baseUrl, window.top.location.href).href
+            : undefined;
+        return this._load(source, {source, baseUrl}, source);
     }
 
     async load(url: string): Promise<ModelData> {
-        return (this.inProgress[url] ||= (async () => {
-            const _url = new URL(url, window.top.location.href);
-            // const _url = new URL(url, window.location.href);
-            let model: ModelData;
-            try {
-                model = await this.main({url: _url.href});
-            } finally {
-                delete this.inProgress[url];
-            }
-            // if (!model.geometries || model.geometries.length === 0) return null;
-            return model;
-        })());
+        const _url = new URL(url, window.top.location.href);
+        url = _url.href;
+        return this._load(url, {url});
     }
 }

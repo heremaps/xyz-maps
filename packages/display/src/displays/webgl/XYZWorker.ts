@@ -1,5 +1,5 @@
 /*
- * Copyright (C) 2019-2023 HERE Europe B.V.
+ * Copyright (C) 2019-2026 HERE Europe B.V.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -43,31 +43,30 @@ export class XYZWorker {
         this.workerStr = fncBody.trim() + `;self.__main=${returnVal}`;
         // this.workerStr = fncBody.trim() + `;self.__main=async(o)=>(${returnVal})(o);`;
     }
-    async main(args) {
+
+    async main(args, transfer?: Transferable[]): Promise<unknown> {
         // return this.call('main', args);
         this.init();
         const id = this.cnt++;
-        this.worker.postMessage({args, id, method: '__main'});
-        return new Promise((resolve, reject) => {
+
+        this.worker.postMessage({
+            args,
+            id,
+            method: '__main'
+        }, transfer || []);
+
+        return new Promise<unknown>((resolve, reject) => {
             this.callbacks[id] = [resolve, reject];
-        });
+        }).then((result) => this.handleWorkerResponse(args, result));
     }
-    // private initWorkerMethods(methods: string[]) {
-    //     let worker = this;
-    //     for (let method of methods) {
-    //         this[method] = async (args) => {
-    //             return worker.call(method, args);
-    //         };
-    //     }
-    // }
-    // async call(method: string, args: any) {
-    //     this.init();
-    //     const id = this.cnt++;
-    //     this.worker.postMessage({args, id, method: method});
-    //     return new Promise((resolve, reject) => {
-    //         this.callbacks[id] = [resolve, reject];
-    //     });
-    // }
+
+    protected handleWorkerResponse(
+        args: unknown,
+        result: unknown
+    ): unknown {
+        return result;
+    }
+
     private init() {
         if (!this.worker) {
             const workerUrl = URL.createObjectURL(new Blob([

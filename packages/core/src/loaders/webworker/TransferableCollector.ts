@@ -21,6 +21,10 @@ export class TransferableCollector {
     private transfer = new Set<Transferable>();
     private visited = new Set<object>();
 
+    constructor(value?: unknown) {
+        this.add(value);
+    }
+
     add(value: unknown) {
         if (!value || typeof value != 'object' || this.visited.has(value)) {
             return;
