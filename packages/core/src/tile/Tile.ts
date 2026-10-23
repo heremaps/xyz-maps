@@ -171,7 +171,7 @@ export class Tile {
      *  get tile bound including margin.
      *  @returns the bounding box with geographical coordinates [minLon, minLat, maxLon, maxLat]
      */
-    getContentBounds(): [number, number, number, number] {
+    getContentBounds(): [minLon: number, minLat: number, maxLon: number, maxLat: number] {
         if (!this.cbnds) {
             const {bounds, provider} = this;
             const {margin} = provider;
@@ -225,9 +225,9 @@ export class Tile {
     };
 
     isInside(point: GeoJSONCoordinate) {
-        const [minLon, minLat, maxLon, maxLat] = this.bounds;
-        const [x, y] = point;
-        return x >= minLon && x < maxLon && y > minLat && y <= maxLat;
+        const bounds = this.bounds;
+        // const [minLon, minLat, maxLon, maxLat] = this.bounds;
+        return point[0] >= bounds[0] && point[0] < bounds[2] && point[1] > bounds[1] && point[1] <= bounds[3];
     };
 }
 

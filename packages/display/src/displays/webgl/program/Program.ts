@@ -96,7 +96,8 @@ export const PROGRAM_MACRO = {
     MODEL_ALPHA_MASK: 1 << 13,
     MODEL_ALPHA_BLEND: 1 << 14,
     OPACITY_MAP: 1 << 15,
-    SHININESS_MAP: 1 << 16
+    SHININESS_MAP: 1 << 16,
+    FRAGMENT_TILE_CLIP: 1 << 17
 } as const;
 
 export type ProgramMacroName = keyof typeof PROGRAM_MACRO;

@@ -2,6 +2,10 @@
     #extension GL_OES_standard_derivatives: enable
 #endif
 precision highp float;
+#ifdef FRAGMENT_TILE_CLIP
+uniform vec4 u_tileClipBounds;
+varying vec2 v_modelTilePosition;
+#endif
 uniform vec3 ambient;
 uniform vec3 diffuse;
 uniform vec3 emissive;
@@ -76,6 +80,12 @@ vec3 applyOverlay(vec3 baseRgb, vec2 texCoord) {
 #include "light.glsl"
 
 void main() {
+    #ifdef FRAGMENT_TILE_CLIP
+    if (v_modelTilePosition.x < u_tileClipBounds.x || v_modelTilePosition.y < u_tileClipBounds.y ||
+        v_modelTilePosition.x >= u_tileClipBounds.z || v_modelTilePosition.y >= u_tileClipBounds.w) {
+        discard;
+    }
+    #endif
     vec4 diffuseMapColor = texture2D(diffuseMap, v_texCoord);
     float alpha = 1.0;
     #if defined(MODEL_ALPHA_MASK) || defined(MODEL_ALPHA_BLEND)

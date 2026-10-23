@@ -301,7 +301,8 @@ class ModelFactory {
         emissive: [number, number, number],
         cullFace: number,
         ModelBufferClass: typeof ModelBuffer = ModelBuffer,
-        alphaOptions?: ModelAlphaOptions
+        alphaOptions?: ModelAlphaOptions,
+        fragmentTileClip: boolean = false
     ) {
         const model = this.models[id];
         let bufferBucket;
@@ -326,6 +327,7 @@ class ModelFactory {
                 } = parts[i];
 
                 let buffer = new ModelBufferClass(undef, undef, modelMatrix, positionOffset);
+                buffer.fragmentTileClip = fragmentTileClip;
                 const materialOverride = alphaOptions?.materialOverrides?.[materialName];
                 const requestedAlphaMode = materialOverride?.alphaMode
                     ?? alphaOptions?.alphaMode

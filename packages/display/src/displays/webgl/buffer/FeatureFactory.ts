@@ -73,6 +73,12 @@ const DEFAULT_COLLISION_GRP = '0';
 const NONE = '*';
 let UNDEF;
 
+const featureBoundsIntersectTile = (featureBounds: number[], tile: Tile): boolean => {
+    const tileBounds = tile.getContentBounds();
+    return featureBounds[0] <= tileBounds[2] && featureBounds[2] >= tileBounds[0] &&
+        featureBounds[1] <= tileBounds[3] && featureBounds[3] >= tileBounds[1];
+};
+
 const normalizeDebugColor = (value: boolean | Color | undefined): boolean | number[] | undefined => {
     if (typeof value === 'boolean') return value;
     if (value == null) return undefined;
@@ -89,6 +95,7 @@ export type CollisionGroup = {
     feature?: Feature;
     geomType?: string;
     coordinates?: any;
+    pointCoverageBounds?: number[];
 
     offsetX?: number;
     offsetY?: number;
@@ -237,7 +244,8 @@ export class FeatureFactory {
         defaultLineWrap?: number | boolean,
         textAnchor?: ParsedStyleProperty<TextStyle['textAnchor']> | string,
         terrainRenderMode?: TerrainRenderMode,
-        resolvedModel?: ResolvedModel
+        resolvedModel?: ResolvedModel,
+        fragmentTileClip: boolean = false
     ) {
         const isFlat = z === null;
         const level = this.z;
@@ -332,7 +340,8 @@ export class FeatureFactory {
                             alphaMode: (style as ModelStyle).alphaMode,
                             alphaCutoff: (style as ModelStyle).alphaCutoff,
                             materialOverrides: (style as ModelStyle).materialOverrides
-                        }
+                        },
+                        fragmentTileClip
                     );
 
                     const properties = feature.properties as TerrainTileFeature['properties'];
@@ -439,14 +448,16 @@ export class FeatureFactory {
 
     create(
         feature: Feature,
-        geomType: 'Point' | 'LineString' | 'Polygon',
+        renderGeometryType: 'Point' | 'LineString' | 'Polygon',
         coordinates: GeoJSONCoordinate | GeoJSONCoordinate[] | GeoJSONCoordinate[][],
         styleGroups: StyleGroup,
         strokeWidthScale: number,
         removeTileBounds?: boolean,
         priority?: number,
         collisionGroup?: CollisionGroup,
-        allowPointerEvents: boolean = true
+        allowPointerEvents: boolean = true,
+        // [minLon, minLat, maxLon, maxLat] bounds for cross-tile point placement and clipping (currently Model-only).
+        pointCoverageBounds?: number[]
     ): boolean {
         const {tile, groups, tileSize} = this;
         // this.collisionGroup = collisionGroup;
@@ -489,23 +500,41 @@ export class FeatureFactory {
 
         this.lineFactory.initFeature(level, tileSize, collisionGroup?.id);
 
-        if (priority === UNDEF && geomType === 'Point' && !tile.isInside(<GeoJSONCoordinate>coordinates)) {
-            // not inside tile
-            return;
-        }
+        const isPointRenderGeometry = renderGeometryType === 'Point';
+
+
+        // A defined priority marks the deferred collision pass. do not reapply anchor-tile filtering there.
+        const pointOutsideTile = priority === UNDEF
+            && isPointRenderGeometry && !tile.isInside(<GeoJSONCoordinate>coordinates);
+
+        const hasModelCoverage = isPointRenderGeometry
+            && !!pointCoverageBounds
+            && featureBoundsIntersectTile(pointCoverageBounds, tile);
+
+        // Outside-anchor points can only render here when their feature coverage reaches this tile.
+        if (pointOutsideTile && !hasModelCoverage) return;
+
 
         for (let i = 0, iLen = styleGroups.length; i < iLen; i++) {
             const style: Style = styleGroups[i];
 
-            const orgType = type = getValue('type', style, feature, level);
-
+            type = getValue('type', style, feature, level);
             if (!type) continue;
 
-            opacity = getValue('opacity', style, feature, level);
+            if (pointOutsideTile && type !== 'Model') continue;
 
+            opacity = getValue('opacity', style, feature, level);
             if (opacity === 0) continue;
 
-            let collide = geomType == 'Polygon'
+            let altitude = getValue('altitude', style, feature, level) ?? this.layerStyleDefaultAltitude;
+            const fragmentTileClip = type === 'Model' && !!pointCoverageBounds && altitude !== 'terrain';
+
+            // Terrain-height sampling requires the anchor tile, so terrain-relative models cannot use neighboring tiles yet.
+            if (pointOutsideTile && !fragmentTileClip) {
+                continue;
+            }
+
+            let collide = renderGeometryType == 'Polygon'
                 ? true // no collision detection support for polygons
                 : getValue('collide', style, feature, level);
 
@@ -589,7 +618,6 @@ export class FeatureFactory {
             let modelShowBBox: boolean | number[] | undefined;
 
             rotation = getValue('rotation', style, feature, level) ^ 0;
-            let altitude = getValue('altitude', style, feature, level) ?? this.layerStyleDefaultAltitude;
 
             if (this.isModelStyle(type)) {
                 const source = getValue('model', style, feature, level);
@@ -616,6 +644,9 @@ export class FeatureFactory {
                     modelShowWireframe,
                     modelShowBBox
                 ]);
+                if (fragmentTileClip) {
+                    groupId += 'TC';
+                }
                 processPointOffset = true;
                 processAdvancedLight = true;
             } else if (type == 'Icon') {
@@ -704,7 +735,7 @@ export class FeatureFactory {
                         fill = getValue('fill', style, feature, level);
 
                         if (type == 'Polygon') {
-                            if (!fill || geomType != 'Polygon') {
+                            if (!fill || renderGeometryType != 'Polygon') {
                                 continue;
                             }
                             extrude = getValue('extrude', style, feature, level);
@@ -719,7 +750,7 @@ export class FeatureFactory {
                                 groupId = 'P';
                             }
                         } else {
-                            if (geomType == 'Polygon') {
+                            if (renderGeometryType == 'Polygon') {
                                 continue;
                             }
 
@@ -737,7 +768,7 @@ export class FeatureFactory {
                                 font = getValue('font', style, feature, level) || defaultFont;
 
                                 if (alignment == UNDEF) {
-                                    alignment = geomType == 'Point' ? 'viewport' : 'map';
+                                    alignment = renderGeometryType == 'Point' ? 'viewport' : 'map';
                                 }
                                 groupId = 'T' + (font || NONE);
                             } else if (type == 'Circle') {
@@ -833,7 +864,7 @@ export class FeatureFactory {
                 groupId += (stroke || NONE) + (widthId || NONE) + (fill || NONE);
             }
 
-            const terrainPolicy = getTerrainRenderPolicy(type, geomType, alignment, altitude);
+            const terrainPolicy = getTerrainRenderPolicy(type, renderGeometryType, alignment, altitude);
             const terrainRenderMode = terrainPolicy.renderMode;
             const terrainOcclusion = terrainPolicy.occlusion;
             groupId += 'TP' + ((terrainRenderMode << 2) | terrainOcclusion);
@@ -963,7 +994,7 @@ export class FeatureFactory {
                 group = zGrouped.groups[index];
             }
 
-            if (geomType == 'Point') {
+            if (renderGeometryType == 'Point') {
                 const requiresTerrain = altitude === 'terrain';
                 const terrainRenderMode = group.shared.terrainRenderMode;
 
@@ -1009,10 +1040,10 @@ export class FeatureFactory {
 
                     this.createPoint(type, group, x, y, z, style, feature, collisionData, rotation, UNDEF, text, UNDEF,
                         (type == 'Text' && getValue('textAnchor', style, feature, level)) as ParsedStyleProperty<TextStyle['textAnchor']>,
-                        terrainRenderMode, resolvedModel
+                        terrainRenderMode, resolvedModel, fragmentTileClip
                     );
                 }
-            } else if (geomType == 'LineString') {
+            } else if (renderGeometryType == 'LineString') {
                 const requiresTerrain = altitude === 'terrain';
                 const terrainRenderMode = group.shared.terrainRenderMode;
 
@@ -1281,8 +1312,9 @@ export class FeatureFactory {
             const halfHeight = (y2 - y1) * 0.5;
 
             collisionGrp.feature = feature;
-            collisionGrp.geomType = geomType;
+            collisionGrp.geomType = renderGeometryType;
             collisionGrp.coordinates = coordinates;
+            collisionGrp.pointCoverageBounds = pointCoverageBounds;
 
             collisionGrp.offsetX = x1 + halfWidth;
             collisionGrp.offsetY = y1 + halfHeight;

@@ -59,6 +59,10 @@ export class RenderTile {
     private _mvpUpdated: boolean;
     private _iMMUpdate: boolean;
 
+    // Reuse the array across init() calls to avoid allocating clip bounds.
+    private readonly _clipBounds: number[] = [0, 0, 0, 0];
+    private clipBounds: number[] | null = null;
+
     pool?: RenderTilePool;
     pass: PASS;
     renderTarget: RenderTileTarget;
@@ -92,6 +96,25 @@ export class RenderTile {
         this.pass = pass;
         this.data = data;
 
+        this.clipBounds = null;
+        if (buffer?.fragmentTileClip && data && layer) {
+            const bounds = this.clipBounds = this._clipBounds;
+            const preview = data.preview;
+            if (preview) {
+                const x = preview[1];
+                const y = preview[2];
+                bounds[0] = x;
+                bounds[1] = y;
+                bounds[2] = x + preview[3];
+                bounds[3] = y + preview[4];
+            } else {
+                bounds[0] = 0;
+                bounds[1] = 0;
+                bounds[2] = layer.tileSize;
+                bounds[3] = layer.tileSize;
+            }
+        }
+
         this.renderTarget = RenderTileTarget.Display;
 
         this.disableDepthTestOver3D = false;
@@ -103,6 +126,7 @@ export class RenderTile {
         this.buffer = null;
         this.data = null;
         this.layer = null;
+        this.clipBounds = null;
     }
 
     getTileSize(): number {
@@ -124,6 +148,11 @@ export class RenderTile {
     worldToTile(worldX: number, worldY: number, worldZ?: number): [number, number, number] {
         const p = [worldX, worldY, worldZ || 0];
         return transformMat4(p, p, this.getInverseModelMatrix());
+    }
+
+    // Returns reusable tile-local bounds for active clipping, or null when clipping is disabled.
+    getClipBounds(): number[] | null {
+        return this.clipBounds;
     }
 
     updateMVPMatrix(vpMatrix: Float32Array) {

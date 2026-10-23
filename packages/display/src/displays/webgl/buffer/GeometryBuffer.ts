@@ -268,12 +268,16 @@ class GeometryBuffer {
 
     private _cullFace: number = 0;
 
-    // currently used by "Model" only
+    // ------ currently used by "Model" only ------
     bbox?: number[];
-    id?: number | string;
-
+    // Cached transformed model heights after exaggeration; the third value is the cache key.
+    instanceHeightBounds?: [min: number, max: number, exaggeration: number];
+    fragmentTileClip?: boolean;
+    // Terrain height range before exaggeration, used by the picking AABB.
     zRange?: [min: number, max: number];
+    // --------------------------------------------
 
+    id?: number | string;
     light?: string;
 
     private uniformBlocks: Map<string, UniformBlockInstance>;

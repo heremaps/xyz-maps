@@ -44,6 +44,9 @@ class ModelProgram extends Program {
     static getBufferMacroMask(buffer: GeometryBuffer) {
         const {uniforms} = buffer;
         let mask = super.getBufferMacroMask(buffer);
+        if (buffer.fragmentTileClip) {
+            mask |= PROGRAM_MACRO.FRAGMENT_TILE_CLIP;
+        }
         if ((uniforms.illumination as number ?? 2) > 0) {
             mask |= PROGRAM_MACRO.DIFFUSE;
         }

@@ -1182,6 +1182,11 @@ export class GLRender implements BasicRender {
 
             // initialize uniforms and gl states
             this.initProgram(program, renderTile, pass, buffer.getUniformData(), cameraWorld);
+            // Fragment tile clipping uses the full tile bounds, or the preview subregion.
+            const clipBounds = renderTile.getClipBounds();
+            if (clipBounds) {
+                program.initUniform('u_tileClipBounds', clipBounds);
+            }
 
             // fbo gets bound inside preparePass
             program.preparePass(pass, renderTile, renderTarget);

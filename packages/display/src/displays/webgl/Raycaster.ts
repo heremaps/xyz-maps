@@ -456,6 +456,8 @@ class Raycaster {
         return localRay;
     }
 
+    tileClipBounds: number[] | null = null;
+
     private terrainHit: TerrainHit = {
         pointWorld: null,
         tileInvMatrix: null,
@@ -546,6 +548,7 @@ class Raycaster {
     ): string | number | null {
         const buffer = renderTile.buffer;
         const result = this.result;
+        this.tileClipBounds = renderTile.getClipBounds();
         const orgOrigin = this.origin;
         const orgDirection = this.direction;
         const isOffscreenBuffer = renderTile.renderTarget === RenderTileTarget.OffscreenTerrain;

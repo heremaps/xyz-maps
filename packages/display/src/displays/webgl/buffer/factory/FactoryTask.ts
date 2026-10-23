@@ -73,12 +73,15 @@ const handlePolygons = (
                 style.strokeWidth = strokeWidth;
             }
         } else if (multiIndex == 0) {
-            const {bounds} = tile;
             const center = getPolygonCenter(style, feature, zoom);
-            const [cx, cy] = center;
-
-            if (cx >= bounds[0] && cy >= bounds[1] && cx < bounds[2] && cy < bounds[3]) {
-                factory.create(feature, 'Point', center, [style], lsScale);
+            // A building model can span its polygon footprint, so emit it in every covered tile,
+            // even when its anchor is elsewhere. clipping then limits each instance to its tile.
+            if (type === 'Model' || tile.isInside(center)) {
+                factory.create(feature, 'Point', center, [style], lsScale,
+                    undefined, undefined, undefined, undefined,
+                    // Use the polygon bounds as the model's tile coverage, independently of its anchor.
+                    type === 'Model' ? feature.bbox : undefined
+                );
             }
         }
     }
@@ -375,6 +378,7 @@ export class FactoryTask extends Task<TaskInput, TaskData> {
                                         });
                                     }
                                     geoBuffer.bbox = (grpBuffer as ModelBuffer).bbox;
+                                    geoBuffer.fragmentTileClip = (grpBuffer as ModelBuffer).fragmentTileClip;
                                     geoBuffer.id = (grpBuffer as ModelBuffer).id;
                                     geoBuffer.zRange = shared.modelMode || null;
                                     geoBuffer.destroy = (grpBuffer as ModelBuffer).destroy || geoBuffer.destroy;
@@ -498,7 +502,11 @@ export class FactoryTask extends Task<TaskInput, TaskData> {
                                 handlePolygons(factory, feature, coordinates[p], styleGroups, lsScale, tile, p);
                             }
                         } else {
-                            factory.create(feature, geomType, coordinates, styleGroups, lsScale);
+                            const bounds = feature.bbox;
+                            const pointCoverageBounds = geomType === 'Point' && bounds?.length === 4 &&
+                                (bounds[0] < bounds[2] || bounds[1] < bounds[3]) ? bounds : undefined;
+                            factory.create(feature, geomType, coordinates, styleGroups, lsScale,
+                                undefined, undefined, undefined, true, pointCoverageBounds);
 
                             if (geomType == 'Polygon') {
                                 handlePolygons(factory, feature, coordinates, styleGroups, lsScale, tile);
@@ -543,7 +551,9 @@ export class FactoryTask extends Task<TaskInput, TaskData> {
                                 lsScale,
                                 false,
                                 priority,
-                                candidate
+                                candidate,
+                                true,
+                                candidate.pointCoverageBounds
                             );
                         }
                     } else {

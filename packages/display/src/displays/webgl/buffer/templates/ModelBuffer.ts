@@ -394,6 +394,8 @@ export class ModelBuffer extends TemplateBuffer {
     id: string | number;
     bbox: number[];
 
+    fragmentTileClip: boolean = false;
+
     constructor(geometryData?: ModelGeometry, material?, modelMatrix?, offset?) {
         super(false);
 
@@ -543,6 +545,47 @@ export class ModelBuffer extends TemplateBuffer {
         return zMeterToPixelUniform || rayCaster.scaleZ / rayCaster.tileScale;
     }
 
+    static getInstanceHeightBounds(buffer: GeometryBuffer, exaggeration: number): number[] | null {
+        const bbox = buffer.bbox;
+        if (!bbox) return null;
+        // Finalized model instance transforms are immutable. only exaggeration changes their height bounds.
+        const cached = buffer.instanceHeightBounds;
+        if (cached?.[2] === exaggeration) {
+            return cached[0] <= cached[1] ? cached : null;
+        }
+
+        const matrices = (buffer.attributes.a_modelMatrix as Attribute).data as Float32Array;
+        const offsets = (buffer.attributes.a_offset as Attribute).data;
+        const coefficients = {} as ModelVertexTransformCoefficients;
+        const point = [0, 0, 0];
+        const corner = [0, 0, 0];
+        let min = Infinity;
+        let max = -Infinity;
+        for (let m = 0, i = 0; m < matrices.length; m += 16, i += 3) {
+            updateModelVertexTransformCoefficients(
+                coefficients, matrices.subarray(m, m + 16), 1, 0, 0,
+                offsets[i], offsets[i + 1], offsets[i + 2], exaggeration
+            );
+            for (let c = 0; c < 8; c++) {
+                corner[0] = bbox[c & 1 ? 3 : 0];
+                corner[1] = bbox[c & 2 ? 4 : 1];
+                corner[2] = bbox[c & 4 ? 5 : 2];
+                transformModelVertex(point, corner, 0, 3, coefficients);
+                min = Math.min(min, point[2]);
+                max = Math.max(max, point[2]);
+            }
+        }
+        const bounds = buffer.instanceHeightBounds;
+        if (bounds) {
+            bounds[0] = min;
+            bounds[1] = max;
+            bounds[2] = exaggeration;
+        } else {
+            buffer.instanceHeightBounds = [min, max, exaggeration];
+        }
+        return min <= max ? buffer.instanceHeightBounds : null;
+    }
+
     rayIntersects(
         buffer: GeometryBuffer,
         result: {
@@ -557,6 +600,7 @@ export class ModelBuffer extends TemplateBuffer {
         const positionAttr = attributes.a_position as Attribute;
         const modelMatrixData = (attributes.a_modelMatrix as Attribute).data as Float32Array;
         const positionOffsetData = (attributes.a_offset as Attribute).data;
+        const clipBounds = rayCaster.tileClipBounds;
         const position = positionAttr.data;
         const size = positionAttr.size;
         const rayOrigin = rayCaster.origin;
@@ -627,6 +671,13 @@ export class ModelBuffer extends TemplateBuffer {
                     const intersectRayLength = Raycaster.rayIntersectsTriangle(rayOrigin, rayDirection, t0, t1, t2);
 
                     if (intersectRayLength) {
+                        if (clipBounds) {
+                            const x = rayOrigin[0] + rayDirection[0] * intersectRayLength - tileX;
+                            const y = rayOrigin[1] + rayDirection[1] * intersectRayLength - tileY;
+                            if (x < clipBounds[0] || y < clipBounds[1] || x >= clipBounds[2] || y >= clipBounds[3]) {
+                                continue;
+                            }
+                        }
                         if (intersectRayLength < result.z) {
                             bufferIndex = m;
                             // bufferIndex = Math.max(i0, i1, i2);

@@ -29,6 +29,7 @@ import {invert} from 'gl-matrix/mat4';
 import {Layer, Layers} from '../Layers';
 import GLTile from './GLTile';
 import {FeatureFactory} from './buffer/FeatureFactory';
+import {ModelBuffer} from './buffer/templates/ModelBuffer';
 import {CollisionHandler} from './CollisionHandler';
 import {GeometryBuffer, RenderUsage} from './buffer/GeometryBuffer';
 import {
@@ -1241,17 +1242,32 @@ class WebGlDisplay extends BasicDisplay {
         const buffer = renderTile.buffer;
         const localTileSize = renderTile.layer.tileSize;
 
+        let minZ: number;
+        let maxZ: number;
+        if (buffer.type === 'Model') {
+            // Terrain-relative model elevation is supplied by the GPU heightmap.
+            // Do not reject it using an unrelated ground-to-camera height interval.
+            if (buffer.requiresHeightMap()) return true;
+            const heightBounds = ModelBuffer.getInstanceHeightBounds(buffer, this.terrainExaggeration);
+            if (!heightBounds) return true;
+            minZ = heightBounds[0];
+            maxZ = heightBounds[1];
+        } else {
+            minZ = (buffer.zRange?.[0] ?? 0) * this.terrainExaggeration;
+            maxZ = buffer.zRange?.[1] != null
+                ? buffer.zRange[1] * this.terrainExaggeration
+                // Without zRange, bound maxZ just above the camera to improve ray-intersection precision.
+                : this.rayCaster.origin[2] + 0.001;
+        }
+
         const worldModelMatrix = renderTile.getModelMatrix();
         const aabb = this._tmpAABB;
         aabb.min[0] = 0;
         aabb.min[1] = 0;
-        aabb.min[2] = (buffer.zRange?.[0] ?? 0) * this.terrainExaggeration;
+        aabb.min[2] = minZ;
         aabb.max[0] = localTileSize;
         aabb.max[1] = localTileSize;
-        aabb.max[2] = buffer.zRange?.[1] != null
-            ? buffer.zRange[1] * this.terrainExaggeration
-            // without zRange, cap maxZ just above the camera to keep the AABB bounded and improve ray-intersection precision.
-            : this.rayCaster.origin[2] + 0.001;
+        aabb.max[2] = maxZ;
 
         const aabbMin = transformMat4(aabb.min, aabb.min, worldModelMatrix);
         const aabbMax = transformMat4(aabb.max, aabb.max, worldModelMatrix);

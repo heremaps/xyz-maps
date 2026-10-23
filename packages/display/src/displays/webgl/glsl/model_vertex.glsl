@@ -2,6 +2,9 @@ precision highp float;
 
 attribute vec3 a_position;
 attribute vec3 a_offset;
+#ifdef FRAGMENT_TILE_CLIP
+varying vec2 v_modelTilePosition;
+#endif
 attribute vec3 a_normal;
 attribute vec3 a_tangent;
 attribute vec4 a_color;
@@ -81,6 +84,9 @@ void main(void) {
     vec3 localTilePosition = vec3(a_offset.xy, a_offset.z * u_exaggeration);
     #endif
     vec3 positionTileWorld = localTilePosition + vec3(position.xy * xyUnitScale, position.z);
+    #ifdef FRAGMENT_TILE_CLIP
+    v_modelTilePosition = positionTileWorld.xy;
+    #endif
     vec4 worldPos = vec4(u_tile.xy + positionTileWorld.xy, positionTileWorld.z, 1.0);
 
     gl_Position = u_matrix * worldPos;
