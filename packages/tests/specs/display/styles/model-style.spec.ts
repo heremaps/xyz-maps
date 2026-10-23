@@ -21,8 +21,8 @@ import {waitForViewportReady} from 'displayUtils';
 import {getCanvasPixelColor, expectCanvasPixelColor, prepare} from 'utils';
 import {Map} from '@here/xyz-maps-display';
 import dataset from './model-style.json';
-import {ModelData, ModelStyle, OBJModelSource} from '@here/xyz-maps-core';
-import {describe, beforeAll, afterAll, it, expect} from 'vitest';
+import {LocalProvider, ModelData, ModelStyle, OBJModelSource, TileLayer} from '@here/xyz-maps-core';
+import {describe, beforeAll, afterAll, beforeEach, afterEach, it, expect} from 'vitest';
 
 
 describe('3D model styles', function() {
@@ -82,6 +82,40 @@ describe('3D model styles', function() {
         }]);
         const color = await getCanvasPixelColor(mapContainer, {x: 400, y: 300});
         expect(color).toBe('#ff0000');
+        delete feature.properties.inlineModel;
+    });
+
+    it('parses tab-delimited UTF-8 Uint8Array OBJ data, inline comments and relative face indices', async () => {
+        const [sourceObj, mtl] = await Promise.all(['cube.obj', 'cube.mtl'].map(async (filename) => {
+            const response = await fetch(`base/tests/assets/model/${filename}`);
+            return response.text();
+        }));
+        const faceCounts = [8, 4, 6];
+        const obj = sourceObj
+            .replace(/^f (.+)$/gm, (_line: string, refs: string) => {
+                const face = refs.split(/\s+/).map((reference) => reference.split('/').map(
+                    (index, component) => Number(index) - faceCounts[component] - 1
+                ).join('/'));
+                return `f\t${face.join('\t')} # face comment`;
+            })
+            .replace(/\b1\.0\b/g, '1e0')
+            .replace(/\b0\.0\b/g, '0e0')
+            .replace(/^(mtllib|usemtl|vn|vt|v|g|o) +/gm, '$1\t')
+            .replace(/\n/g, '\r\n');
+        const byteObj = `\uFEFF${obj.slice(obj.indexOf('mtllib'))}`
+            .replace('mtllib\tcube.mtl\r\n', 'mtllib\tcube.mtl\r\no\tcafé model\r\n');
+        const source: OBJModelSource = {format: 'obj', obj: new TextEncoder().encode(byteObj), mtl};
+        feature.properties.inlineModel = source;
+        modelLayer.setStyleGroup(feature, [{
+            ...baseModelStyle,
+            model: (feature) => feature.properties.inlineModel
+        }]);
+        const color = await getCanvasPixelColor(mapContainer, {x: 400, y: 300});
+        expect(color).toBe('#ff0000');
+        if (!(source.obj instanceof Uint8Array)) {
+            throw new Error('Expected the transferred OBJ byte source to be restored');
+        }
+        expect(source.obj).toStrictEqual(new TextEncoder().encode(byteObj));
         delete feature.properties.inlineModel;
     });
 
@@ -162,10 +196,10 @@ describe('3D model styles', function() {
 
         try {
             modelLayer.setStyleGroup(feature, [{...baseModelStyle, model: inlineSource}]);
-            expect(await getCanvasPixelColor(mapContainer, {x: 400, y: 300})).to.equal('#00ff00');
+            expect(await getCanvasPixelColor(mapContainer, {x: 400, y: 300})).toBe('#00ff00');
 
             modelLayer.setStyleGroup(feature, [{...baseModelStyle, model: modelDataSource}]);
-            expect(await getCanvasPixelColor(mapContainer, {x: 400, y: 300})).to.equal('#00ff00');
+            expect(await getCanvasPixelColor(mapContainer, {x: 400, y: 300})).toBe('#00ff00');
         } finally {
             modelLayer.setStyleGroup(feature, [baseModelStyle]);
         }
@@ -187,7 +221,7 @@ describe('3D model styles', function() {
         try {
             await waitForViewportReady(display, () => display.pitch(50));
             const result = display.getFeatureAt({x: 430, y: 300}, {layers: [modelLayer]});
-            expect(result?.feature.id).to.equal(feature.id);
+            expect(result?.feature.id).toBe(feature.id);
         } finally {
             modelLayer.setStyleGroup(feature, [baseModelStyle]);
             await waitForViewportReady(display, () => display.pitch(0));
@@ -481,3 +515,220 @@ describe('3D model styles', function() {
         expect(colors[0]).toBe('#ffffff');
     });
 });
+
+function modelCoverageTests(geometryType: 'Point' | 'Polygon' | 'MultiPolygon') {
+    const tileWidth = 360 / Math.pow(2, 18);
+    const anchor = [tileWidth / 2, tileWidth / 2, 0];
+    const center = {longitude: tileWidth * 4, latitude: tileWidth / 2};
+    const geometryCoordinates = (x = anchor[0], y = anchor[1]) => {
+        const ring = (west: number, east: number) => [
+            [west, y - 0.01], [east, y - 0.01], [east, y + 0.01],
+            [west, y + 0.01], [west, y - 0.01]
+        ];
+        if (geometryType === 'Point') return [x, y, 0];
+        if (geometryType === 'Polygon') return [ring(x - 0.02, x + 0.02)];
+        return [[ring(x - 0.02, x - tileWidth / 8)], [ring(x + tileWidth / 8, x + 0.02)]];
+    };
+    const model: ModelData = {
+        geometries: [{
+            position: [0, 0, -400, 1400, 0, -400, 1400, 0, 400,
+                0, 0, -400, 1400, 0, 400, 0, 0, 400],
+            normal: [0, 1, 0, 0, 1, 0, 0, 1, 0, 0, 1, 0, 0, 1, 0, 0, 1, 0]
+        }],
+        materials: {surface: {diffuse: [1, 0, 0]}},
+        textures: {},
+        faces: [{geometryIndex: 0, material: 'surface'}]
+    };
+    const style: ModelStyle = {
+        zIndex: 0,
+        type: 'Model',
+        model,
+        scale: [1, 1, 1],
+        specular: [0, 0, 0],
+        shininess: 0
+    };
+    const createPreviewProvider = () => {
+        const provider = new LocalProvider();
+        const getTile = provider.getTile.bind(provider);
+        const pending: (() => void)[] = [];
+        let blocked = false;
+        provider.getTile = (quadkey, callback) => {
+            if (blocked) {
+                pending.push(() => getTile(quadkey, callback));
+                return undefined;
+            }
+            return getTile(quadkey, callback);
+        };
+        return {
+            provider,
+            pending,
+            block: () => blocked = true,
+            release: () => {
+                blocked = false;
+                pending.splice(0).forEach((load) => load());
+            }
+        };
+    };
+    let display;
+    let layer;
+    let feature;
+    let container;
+    let previewProvider: ReturnType<typeof createPreviewProvider>;
+
+    beforeEach(async () => {
+        previewProvider = createPreviewProvider();
+        layer = new TileLayer({provider: previewProvider.provider});
+        feature = layer.addFeature({
+            id: 'coverage-model',
+            type: 'Feature',
+            ...(geometryType === 'Point' ? {bbox: [-0.005, -0.01, 0.02, 0.01]} : {}),
+            geometry: {type: geometryType, coordinates: geometryCoordinates()},
+            properties: {}
+        });
+        layer.setStyleGroup(feature, [style]);
+        container = document.getElementById('map');
+        display = new Map(container, {
+            // @ts-ignore
+            renderOptions: {preserveDrawingBuffer: true},
+            center,
+            zoomlevel: 18,
+            layers: [layer]
+        });
+        display.setBackgroundColor('#ffffff');
+        await waitForViewportReady(display);
+    });
+
+    afterEach(() => {
+        previewProvider.release();
+        display.destroy();
+    });
+
+    const expectRedAndPickable = async (points) => {
+        const colors = points.map(() => '#ff0000');
+        expect(await getCanvasPixelColor(container, points, {
+            expect: colors, retry: 100, retryDelay: 20
+        })).toStrictEqual(colors);
+        points.forEach((point) => {
+            expect(display.getFeatureAt(point, {layers: [layer]})?.feature.id).toBe(feature.id);
+        });
+    };
+
+    it('renders and picks coverage tiles without ever visiting the anchor tile', async () => {
+        // The whole anchor tile is more than three tiles west of the center.
+        const eastEdge = display.geoToPixel(tileWidth, anchor[1]);
+        expect(eastEdge.x).toBeLessThan(0);
+        await expectRedAndPickable([{x: 200, y: 300}, {x: 400, y: 300}, {x: 600, y: 300}]);
+    });
+
+    it('keeps translucent coverage continuous and single-blended across tile seams', async () => {
+        const translucentModel: ModelData = {
+            geometries: model.geometries,
+            faces: model.faces,
+            textures: model.textures,
+            materials: {surface: {...model.materials.surface, opacity: 0.5}}
+        };
+        layer.setStyleGroup(feature, [{...style, model: translucentModel, alphaMode: 'blend'}]);
+        const seam = display.geoToPixel(center.longitude, center.latitude);
+        const points = [-2, -1, 0, 1, 2].map((offset) => ({
+            x: Math.round(seam.x) + offset, y: Math.round(seam.y)
+        }));
+        const colors = await getCanvasPixelColor(container, points, {delay: 200});
+        if (!Array.isArray(colors)) {
+            throw new Error('Expected one pixel color per seam sample');
+        }
+        expect(colors).toHaveLength(5);
+        colors.forEach((color) => {
+            const green = parseInt(color.slice(3, 5), 16);
+            expect(color.slice(1, 3)).toBe('ff');
+            // One blend on white is ~128; duplicate slices would produce ~64.
+            expect(green).toBeGreaterThanOrEqual(120);
+            expect(green).toBeLessThanOrEqual(136);
+            expect(color.slice(5, 7)).toBe(color.slice(3, 5));
+        });
+        points.forEach((point) => {
+            expect(display.getFeatureAt(point, {layers: [layer]})?.feature.id).toBe(feature.id);
+        });
+    });
+
+    it('updates rotated and scaled coverage, then clears all slices on removal', async () => {
+        layer.setStyleGroup(feature, [{...style, scale: [1.5, 1, 1.5], rotate: [0, Math.PI / 12, 0]}]);
+        await waitForViewportReady(display, () => {
+            display.pitch(35);
+            display.rotate(20);
+        });
+        await expectRedAndPickable([{x: 400, y: 300}]);
+        await waitForViewportReady(display, () => {
+            display.pitch(0);
+            display.rotate(0);
+        });
+        layer.setStyleGroup(feature, [{...style, scale: [0.1, 1, 0.1]}]);
+        const points = [{x: 200, y: 300}, {x: 400, y: 300}, {x: 600, y: 300}];
+        const white = points.map(() => '#ffffff');
+        expect(await getCanvasPixelColor(container, points, {
+            expect: white, retry: 100, retryDelay: 20
+        })).toStrictEqual(white);
+        points.forEach((point) => expect(display.getFeatureAt(point, {layers: [layer]})).toBeUndefined());
+        layer.setStyleGroup(feature, [style]);
+        await expectRedAndPickable(points);
+        layer.removeFeature(feature);
+        expect(await getCanvasPixelColor(container, points, {
+            expect: white, retry: 100, retryDelay: 20
+        })).toStrictEqual(white);
+        points.forEach((point) => expect(display.getFeatureAt(point, {layers: [layer]})).toBeUndefined());
+    });
+
+    it('invalidates every old coverage slice when the feature coordinates change', async () => {
+        const points = [{x: 200, y: 300}, {x: 400, y: 300}, {x: 600, y: 300}];
+        await expectRedAndPickable(points);
+        layer.setFeatureCoordinates(feature, geometryCoordinates(1, 1));
+        const white = points.map(() => '#ffffff');
+        expect(await getCanvasPixelColor(container, points, {
+            expect: white, retry: 100, retryDelay: 20
+        })).toStrictEqual(white);
+        points.forEach((point) => expect(display.getFeatureAt(point, {layers: [layer]})).toBeUndefined());
+    });
+
+    [false, true].forEach((translucent) => {
+        it(`renders and picks ${translucent ? 'alpha' : 'opaque'} parent coverage previews while child loads are blocked`, async () => {
+            const points = [{x: 300, y: 300}, {x: 400, y: 300}, {x: 500, y: 300}];
+            const check = async () => {
+                if (!translucent) return expectRedAndPickable(points);
+                const colors = await getCanvasPixelColor(container, points, {delay: 200});
+                if (!Array.isArray(colors)) throw new Error('Expected preview pixel samples');
+                colors.forEach((color) => {
+                    expect(color.slice(1, 3)).toBe('ff');
+                    expect(parseInt(color.slice(3, 5), 16)).toBeGreaterThanOrEqual(120);
+                    expect(parseInt(color.slice(3, 5), 16)).toBeLessThanOrEqual(136);
+                    expect(color.slice(5, 7)).toBe(color.slice(3, 5));
+                });
+                points.forEach((point) => {
+                    expect(display.getFeatureAt(point, {layers: [layer]})?.feature.id).toBe(feature.id);
+                });
+            };
+            if (translucent) {
+                layer.setStyleGroup(feature, [{
+                    ...style,
+                    model: {
+                        geometries: model.geometries,
+                        faces: model.faces,
+                        materials: {surface: {...model.materials.surface, opacity: 0.5}}
+                    },
+                    alphaMode: 'blend'
+                }]);
+            }
+            await check();
+            previewProvider.block();
+            const ready = waitForViewportReady(display, () => display.setZoomlevel(19));
+            await new Promise((resolve) => setTimeout(resolve, 200));
+            expect(previewProvider.pending.length).toBeGreaterThan(0);
+            await check();
+            previewProvider.release();
+            await ready;
+            await check();
+        });
+    });
+}
+
+for (const geometryType of ['Point', 'Polygon', 'MultiPolygon'] as const) {
+    describe(`3d Model Styles with ${geometryType} coverage`, () => modelCoverageTests(geometryType));
+}
