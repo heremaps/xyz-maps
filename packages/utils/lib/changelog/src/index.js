@@ -80,6 +80,8 @@ const getLastReleaseTag = async (projectRoot) => {
     });
 };
 
+const CHANGELOG_SCOPE_ORDER = ['editor', 'display', 'core', 'common', 'general'];
+
 const orderByType = (scopes) => {
     const typeOrder = ['improved', 'improve', 'added', 'add', 'fixed', 'fix'];
 
@@ -88,6 +90,25 @@ const orderByType = (scopes) => {
     }
 
     return scopes;
+};
+
+const orderByScope = (scopes) => {
+    const orderedScopes = {};
+
+    Object.keys(scopes).sort((a, b) => {
+        const aName = a === NO_SCOPE ? 'general' : a.toLowerCase();
+        const bName = b === NO_SCOPE ? 'general' : b.toLowerCase();
+        const aIndex = CHANGELOG_SCOPE_ORDER.indexOf(aName);
+        const bIndex = CHANGELOG_SCOPE_ORDER.indexOf(bName);
+        const aOrder = aIndex === -1 ? CHANGELOG_SCOPE_ORDER.length : aIndex;
+        const bOrder = bIndex === -1 ? CHANGELOG_SCOPE_ORDER.length : bIndex;
+
+        return aOrder - bOrder || aName.localeCompare(bName) || a.localeCompare(b);
+    }).forEach((scope) => {
+        orderedScopes[scope] = scopes[scope];
+    });
+
+    return orderedScopes;
 };
 
 const parseCommitLogs = async (projectRoot, from, to) => {
@@ -147,7 +168,7 @@ const parseCommitLogs = async (projectRoot, from, to) => {
 
 
     return {
-        scopes: orderByType(scopes),
+        scopes: orderByScope(orderByType(scopes)),
         length: length
     };
 };
@@ -163,16 +184,20 @@ const createMarkup = async (newVersion, logs, docsBaseUrl) => {
 
         changelog += '\n';
 
-        for (let name in scopes) {
-            scopes[name].reverse().forEach((log) => {
+        for (let name of Object.keys(scopes)) {
+            let section = '';
+
+            scopes[name].forEach((log) => {
                 const type = normalizeChangelogType(log.type);
-                text = '* ' + type + ':' + resolveDocsLinks(log.desc, docsBaseUrl) + '\n' + text;
+                section += '* ' + type + ':' + resolveDocsLinks(log.desc, docsBaseUrl) + '\n';
             });
 
             if (logs.length > 1) {
                 let heading = name == NO_SCOPE ? 'general' : name;
-                text = '### ' + heading + '\n' + text;
+                section = '### ' + heading + '\n' + section;
             }
+
+            text += section;
         }
 
         changelog = text + changelog;
