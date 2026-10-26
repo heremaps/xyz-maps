@@ -190,7 +190,7 @@ abstract class Display {
                 const displayLayer = display.layers.get(layer);
                 const {index} = displayLayer;
                 displayLayer.initStyle();
-                displayLayer.setBackgroundColor((style as RuntimeLayerStyle).backgroundColor || display.globalBgc);
+                displayLayer.setBackgroundColor((style as RuntimeLayerStyle).backgroundColor);
                 display.buckets.tiles.forEach((t) => t.clear(index));
             }
         };
@@ -228,7 +228,7 @@ abstract class Display {
             };
 
             dLayer.setBackgroundColor(
-                (layer as TileLayer).getRuntimeStyle().backgroundColor || display.globalBgc
+                (layer as TileLayer).getRuntimeStyle().backgroundColor
             );
             return dLayer;
         }

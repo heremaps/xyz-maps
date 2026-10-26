@@ -742,7 +742,10 @@ export class Map {
     };
 
     /**
-     * Set the background color of the map
+     * Sets the background color of the map.
+     *
+     * The background color of the layer at index 0 takes precedence over this color.
+     * If that layer has no background color, or the map has no layers, the updated map background color is used.
      *
      * @param color - the background color to set
      */

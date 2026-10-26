@@ -93,6 +93,14 @@ describe('layer with background color', function() {
         let color = await getCanvasPixelColor(mapContainer, {x: 400, y: 300});
         expect(color).to.equal(globalBackgroundcolor);
 
+        display.setBackgroundColor('blue');
+        color = await getCanvasPixelColor(mapContainer, {x: 400, y: 300});
+        expect(color).to.equal('#0000ff');
+
+        display.setBackgroundColor(globalBackgroundcolor);
+        color = await getCanvasPixelColor(mapContainer, {x: 400, y: 300});
+        expect(color).to.equal(globalBackgroundcolor);
+
         display.removeLayer(newLayer);
     });
 
@@ -119,6 +127,15 @@ describe('layer with background color', function() {
         expect(color).to.equal('#0000ff');
     });
 
+    it('keep explicit layer background when changing global background', async () => {
+        display.setBackgroundColor('yellow');
+
+        let color = await getCanvasPixelColor(mapContainer, {x: 400, y: 300});
+        expect(color).to.equal('#0000ff');
+
+        display.setBackgroundColor(globalBackgroundcolor);
+    });
+
     it('change layers background color', async () => {
         let layer = display.getLayers(0);
         let style = layer.getStyle();
@@ -132,6 +149,26 @@ describe('layer with background color', function() {
 
         let color = await getCanvasPixelColor(mapContainer, {x: 400, y: 300});
         expect(color).to.equal('#00ff00');
+    });
+
+    it('use current global background after removing layer background', async () => {
+        let layer = display.getLayers(0);
+        let style = layer.getStyle();
+        delete style.backgroundColor;
+
+        await waitForViewportReady(display, () => {
+            layer.setStyle(style);
+            display.refresh();
+        });
+
+        let color = await getCanvasPixelColor(mapContainer, {x: 400, y: 300});
+        expect(color).to.equal(globalBackgroundcolor);
+
+        display.setBackgroundColor('blue');
+        color = await getCanvasPixelColor(mapContainer, {x: 400, y: 300});
+        expect(color).to.equal('#0000ff');
+
+        display.setBackgroundColor(globalBackgroundcolor);
     });
 
     it('remove Layer and validate global background color is set', async () => {

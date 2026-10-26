@@ -65,6 +65,10 @@ export interface MapOptions {
      * The default background color of the map is white.
      * To achieve a transparent map background, you can set it to "rgba(0, 0, 0, 0)" or simply use the keyword "transparent".
      *
+     * The background color of the layer at index 0 takes precedence over this color.
+     * If that layer has no background color, or the map has no layers, the map background color is used.
+     * The map background color can be updated after initialization using {@link Map.setBackgroundColor}.
+     *
      * @defaultValue "white"
      */
     backgroundColor?: Color;

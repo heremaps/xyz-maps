@@ -347,6 +347,11 @@ export interface LayerStyle {
     /**
      * Specifies the background color of the layer.
      *
+     * Only the background color of the layer at index 0 is used as the map background.
+     * It takes precedence over the map background color, including subsequent changes using `Map.setBackgroundColor()`.
+     * If the layer at index 0 has no background color, or the map has no layers, the current map background color is used.
+     * Background colors of layers at higher indices are not used as a fallback.
+     *
      * This property can accept different types of values to determine the background color:
      * - A fixed `Color`.
      * - A `StyleZoomRange<Color>` object to define color based on zoom levels.

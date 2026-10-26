@@ -192,6 +192,7 @@ class Layer {
 
     setBackgroundColor(color: LayerStyle['backgroundColor']) {
         this.bgColor = parseColor(color);
+        this.invalidateBackgroundColor();
     }
 
     getBackgroundColorRGBA(zoomLevel: number): RGBA {
