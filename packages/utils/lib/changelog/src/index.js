@@ -29,12 +29,7 @@ const CHANGELOG_TYPE_ALIASES = {
 
 const normalizeChangelogType = (type) => CHANGELOG_TYPE_ALIASES[type.toLowerCase()] || type;
 
-const hasNoChangelogTrailer = (commit) => {
-    const paragraphs = commit.trim().split(/\r?\n(?:[ \t]*\r?\n)+/);
-    const footer = paragraphs[paragraphs.length - 1];
-
-    return footer.split(/\r?\n/).some((line) => /^Changelog:\s*none\s*$/i.test(line.trim()));
-};
+const isChangelogNoneMarker = (line) => /^Changelog:\s*none\s*$/i.test(line.trim());
 
 const normalizeDocsBaseUrl = (docsBaseUrl) => {
     const url = new URL(docsBaseUrl);
@@ -103,13 +98,24 @@ const parseCommitLogs = async (projectRoot, from, to) => {
 
     if (logs) {
         logs.split('\0').forEach((commit) => {
-            if (!commit.trim() || hasNoChangelogTrailer(commit)) {
+            if (!commit.trim()) {
                 return;
             }
 
-            const entries = commit.match(/^([a-z]+(\([a-z]+\))?:){1}.+/mgi);
+            let entries = [];
+            commit.split(/\r?\n/).forEach((line) => {
+                if (isChangelogNoneMarker(line)) {
+                    entries = [];
+                    return;
+                }
 
-            entries && entries.forEach((log) => {
+                const entry = line.match(/^([a-z]+(\([a-z]+\))?:){1}.+/i);
+                if (entry) {
+                    entries.push(entry[0]);
+                }
+            });
+
+            entries.forEach((log) => {
                 if (log) {
                     let scope = log.match(/^[a-z]+\(.+\):/i);
                     // group by scope...

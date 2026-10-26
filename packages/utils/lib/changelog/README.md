@@ -45,17 +45,18 @@ defaults to `https://heremaps.github.io/xyz-maps/`.
 Links written as `[text](docs/...)` or `[text](./docs/...)` are made absolute using this base URL.
 Use a path without a leading slash; absolute links and other relative links are left unchanged.
 
-## Excluding a commit from the changelog
+## Excluding a section from the changelog
 
-Add the custom `Changelog: none` trailer as its own line in the commit's final paragraph:
+Add `Changelog: none` as its own line after a section of conventional commit entries:
 
 ```text
-fix(core): correct an internal edge case
-
+fix(editor): correct an internal edge case
 Changelog: none
+
+fix(display): preserve the visible map
 ```
 
-This excludes every conventional-commit entry in that Git commit, including when the commit message contains multiple entries.
+The entries above the marker are excluded, and parsing continues below it. Each marker excludes the entries since the previous marker (or since the beginning of the commit), so a marker at the end excludes all entries in the commit. This also works when `Signed-off-by` or other commit footers follow the marker.
 
 ---
 
