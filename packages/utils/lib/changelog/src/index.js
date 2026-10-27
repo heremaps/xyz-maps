@@ -57,7 +57,7 @@ const resolveDocsLinks = (description, docsBaseUrl) => description.replace(
 
 const getCommitlogs = async (projectRoot, from, to) => {
     return new Promise((resolve, reject) => {
-        git(projectRoot).raw(['log', '--first-parent', from + '..' + to, '--format=%B%x00'], function(err, result) {
+        git(projectRoot).raw(['log', '--first-parent', from + '..' + to, '--format=%H%x1f%B%x00'], function(err, result) {
             if (err) {
                 reject(err);
             } else {
@@ -116,9 +116,18 @@ const parseCommitLogs = async (projectRoot, from, to) => {
 
     let scopes = {};
     let length = 0;
+    const excluded = [];
 
     if (logs) {
-        logs.split('\0').forEach((commit) => {
+        logs.split('\0').forEach((record) => {
+            const separator = record.indexOf('\x1f');
+            if (separator === -1) {
+                return;
+            }
+
+            const hash = record.slice(0, separator).trim();
+            const commit = record.slice(separator + 1);
+
             if (!commit.trim()) {
                 return;
             }
@@ -126,6 +135,7 @@ const parseCommitLogs = async (projectRoot, from, to) => {
             let entries = [];
             commit.split(/\r?\n/).forEach((line) => {
                 if (isChangelogNoneMarker(line)) {
+                    entries.forEach((text) => excluded.push({hash, entry: text}));
                     entries = [];
                     return;
                 }
@@ -169,7 +179,8 @@ const parseCommitLogs = async (projectRoot, from, to) => {
 
     return {
         scopes: orderByScope(orderByType(scopes)),
-        length: length
+        length: length,
+        excluded: excluded
     };
 };
 
@@ -208,6 +219,20 @@ const createMarkup = async (newVersion, logs, docsBaseUrl) => {
     }
 };
 
+const formatReport = (logs) => {
+    const included = Object.values(logs.scopes).reduce((count, entries) => count + entries.length, 0);
+    const lines = ['[changelog] included: ' + included];
+
+    if (!logs.excluded.length) {
+        lines.push('[changelog] nothing excluded.');
+    } else {
+        lines.push('[changelog] excluded by "Changelog: none" (' + logs.excluded.length + '):');
+        logs.excluded.forEach(({hash, entry}) => lines.push('  ' + hash.slice(0, 9) + ' ' + entry));
+    }
+
+    return lines.join('\n');
+};
+
 const getProjectRoot = (options) => resolve(options.path || process.cwd());
 const getPath = (filename, projectRoot) => join(projectRoot, filename);
 
@@ -231,6 +256,13 @@ const changelog = {
         let docsBaseUrl = options.docsBaseUrl === undefined ? DEFAULT_DOCS_BASE_URL : options.docsBaseUrl;
 
         return await createMarkup(version, logs, normalizeDocsBaseUrl(docsBaseUrl));
+    },
+
+    report: async (options) => {
+        options = options || {};
+        const logs = await changelog.parse(options);
+
+        console.log(formatReport(logs));
     },
 
     update: async (options) => {

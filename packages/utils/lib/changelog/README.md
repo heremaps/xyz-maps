@@ -21,6 +21,9 @@ returns markup formatted string of conventional commit messages
 ### `.update([options])`
 updates CHANGELOG.md with latest conventional commit messages
 
+### `.report([options])`
+prints the entries excluded from the changelog by a `Changelog: none` marker. Writes no file. `build-changelog --report` calls it.
+
 ---
 
 #### `.options.from` (optional)

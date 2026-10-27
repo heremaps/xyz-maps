@@ -32,9 +32,18 @@ const argv = require('yargs')(process.argv.slice(2))
             describe: 'base URL for relative docs links in commit messages.',
             demandOption: false,
             type: 'string'
+        },
+        report: {
+            describe: 'print the entries excluded by "Changelog: none" instead of updating the changelog.',
+            demandOption: false,
+            type: 'boolean'
         }
     })
     .help()
     .argv;
 
-changelog.update(argv);
+if (argv.report) {
+    changelog.report(argv);
+} else {
+    changelog.update(argv);
+}
