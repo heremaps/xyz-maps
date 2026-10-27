@@ -175,7 +175,8 @@ const parseCommitLogs = async (projectRoot, from, to) => {
 
 const createMarkup = async (newVersion, logs, docsBaseUrl) => {
     let now = new Date;
-    let timeString = now.getFullYear() + '-' + (now.getMonth() + 1) + '-' + now.getDate();
+    const pad = (value) => String(value).padStart(2, '0');
+    let timeString = now.getFullYear() + '-' + pad(now.getMonth() + 1) + '-' + pad(now.getDate());
     let changelog = '';
     let text = '';
 
