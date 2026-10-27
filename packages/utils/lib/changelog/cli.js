@@ -34,7 +34,7 @@ const argv = require('yargs')(process.argv.slice(2))
             type: 'string'
         },
         report: {
-            describe: 'print the entries excluded by "Changelog: none" instead of updating the changelog.',
+            describe: 'print the included and excluded entries instead of updating the changelog.',
             demandOption: false,
             type: 'boolean'
         }

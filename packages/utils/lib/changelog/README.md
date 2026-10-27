@@ -22,7 +22,7 @@ returns markup formatted string of conventional commit messages
 updates CHANGELOG.md with latest conventional commit messages
 
 ### `.report([options])`
-prints the entries excluded from the changelog by a `Changelog: none` marker. Writes no file. `build-changelog --report` calls it.
+prints the entries included in the changelog and the entries excluded by a `Changelog: none` marker. Writes no file. `build-changelog --report` calls it.
 
 ---
 

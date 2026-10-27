@@ -148,6 +148,8 @@ const parseCommitLogs = async (projectRoot, from, to) => {
 
             entries.forEach((log) => {
                 if (log) {
+                    const entry = log;
+
                     let scope = log.match(/^[a-z]+\(.+\):/i);
                     // group by scope...
                     if (scope) {
@@ -169,7 +171,9 @@ const parseCommitLogs = async (projectRoot, from, to) => {
 
                     scopes[scope].push({
                         type: log[0],
-                        desc: log[1]
+                        desc: log[1],
+                        hash: hash,
+                        entry: entry
                     });
                 }
             });
@@ -220,15 +224,14 @@ const createMarkup = async (newVersion, logs, docsBaseUrl) => {
 };
 
 const formatReport = (logs) => {
-    const included = Object.values(logs.scopes).reduce((count, entries) => count + entries.length, 0);
-    const lines = ['[changelog] included: ' + included];
+    const lines = [];
+    const addGroup = (title, items) => {
+        lines.push('[changelog] ' + title + ' (' + items.length + '):');
+        items.forEach(({hash, entry}) => lines.push('  ' + hash.slice(0, 9) + ' ' + entry));
+    };
 
-    if (!logs.excluded.length) {
-        lines.push('[changelog] nothing excluded.');
-    } else {
-        lines.push('[changelog] excluded by "Changelog: none" (' + logs.excluded.length + '):');
-        logs.excluded.forEach(({hash, entry}) => lines.push('  ' + hash.slice(0, 9) + ' ' + entry));
-    }
+    addGroup('included', Object.values(logs.scopes).flat());
+    addGroup('excluded by "Changelog: none"', logs.excluded);
 
     return lines.join('\n');
 };
