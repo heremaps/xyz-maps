@@ -23,7 +23,7 @@ jobs:
     deploy:
         needs: test
         if: ${{ always() && (needs.test.result == 'success' || needs.test.result == 'skipped') }}
-        runs-on: ubuntu-latest
+        runs-on: ubuntu-24.04
         steps:
             -   uses: actions/checkout@v2
             -   name: Get yarn cache directory path

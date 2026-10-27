@@ -17,7 +17,7 @@ jobs:
 
     deploy:
         needs: test
-        runs-on: ubuntu-latest
+        runs-on: ubuntu-24.04
         permissions:
             id-token: write
             contents: read
@@ -48,4 +48,4 @@ jobs:
                     distTag=$(jq -r '.version | match(".*-([^.]*)").captures[0].string' package.json)
                     echo "dist-tag=${distTag:-latest}" >> "$GITHUB_OUTPUT"
             -   name: npm publish
-                run: lerna publish from-package --no-git-tag-version --yes --dist-tag ${{ steps.get-dist-tag.outputs.dist-tag }}
+                run: yarn lerna publish from-package --no-git-tag-version --yes --dist-tag ${{ steps.get-dist-tag.outputs.dist-tag }}
