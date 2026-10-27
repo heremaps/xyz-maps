@@ -1,3 +1,13 @@
+## 0.46.1 (2026-10-27)
+### editor
+* fix: prevent possible TypeError when disabling editing of a hovered Place/Address
+* fix: honor editable class fields in EditableFeatureProvider subclasses
+### display
+* fix: preserve satellite imagery when terrain is added later
+* fix: make Map.setBackgroundColor() take effect after initialization when the first layer has no explicit background color
+### general
+* improve: update generated API documentation layout
+
 ## 0.46.0 (2026-9-15)
 ### core
 * added: introduce [colorSource](https://heremaps.github.io/xyz-maps/docs/interfaces/core.terraintilelayeroptions.html#colorsource) for flexible terrain surface coloring with material, solid-color, or layer-based sources.
