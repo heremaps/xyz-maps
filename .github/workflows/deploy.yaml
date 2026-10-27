@@ -2,6 +2,9 @@ name: Docs & Playground
 
 on:
     workflow_dispatch:
+    push:
+        tags:
+            - "v[0-9]+.[0-9]+.[0-9]+"
 
 env:
     yarn-network-timeout: 1000000

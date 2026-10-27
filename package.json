@@ -14,10 +14,9 @@
   "scripts": {
     "prepare": "husky install",
     "test": "lerna run --stream --no-prefix --scope @here/xyz-maps-test test -- ",
-    "preversion": "yarn run build-release",
     "update-changelog": "lerna run update-changelog --parallel && build-changelog --report",
     "version": "yarn run update-changelog && ts-node scripts/bumpversion && git add -u",
-    "postversion": "yarn run bundle-release",
+    "postversion": "yarn run build-release",
     "watch-dev": "lerna run watch-dev --parallel --stream",
     "build-dev": "lerna run build-dev --parallel --stream",
     "build-doc": "npx typedoc",
