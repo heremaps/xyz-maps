@@ -1,0 +1,950 @@
+<!DOCTYPE html><html class="default" lang="en" data-base="../"><head><meta charset="utf-8"/><meta http-equiv="x-ua-compatible" content="IE=edge"/><title>Map | XYZ Maps Documentation</title><meta name="description" content="Documentation for XYZ Maps Documentation"/><meta name="viewport" content="width=device-width, initial-scale=1"/><link rel="stylesheet" href="../assets/style.css"/><link rel="stylesheet" href="../assets/highlight.css"/><script defer src="../assets/main.js"></script><script async src="../assets/icons.js" id="tsd-icons-script"></script><script async src="../assets/search.js" id="tsd-search-script"></script><script async src="../assets/navigation.js" id="tsd-nav-script"></script><script async src="../assets/hierarchy.js" id="tsd-hierarchy-script"></script></head><body><script>document.documentElement.dataset.theme = localStorage.getItem("tsd-theme") || "os";document.body.style.display="none";setTimeout(() => window.app?app.showPage():document.body.style.removeProperty("display"),500)</script><header class="tsd-page-toolbar">
+<div class="tsd-toolbar-contents container"><a href="../index.html" class="title">XYZ Maps Documentation</a>
+<div id="tsd-toolbar-links"></div><button id="tsd-search-trigger" class="tsd-widget" aria-label="Search"><svg width="16" height="16" viewBox="0 0 16 16" fill="none" aria-hidden="true"><use href="../assets/icons.svg#icon-search"></use></svg></button><dialog id="tsd-search" aria-label="Search"><input role="combobox" id="tsd-search-input" aria-controls="tsd-search-results" aria-autocomplete="list" aria-expanded="true" autocapitalize="off" autocomplete="off" placeholder="Search the docs" maxLength="100"/>
+<ul role="listbox" id="tsd-search-results"></ul>
+<div id="tsd-search-status" aria-live="polite" aria-atomic="true">
+<div>Preparing search index...</div></div></dialog><a href="#" class="tsd-widget menu" id="tsd-toolbar-menu-trigger" data-toggle="menu" aria-label="Menu"><svg width="16" height="16" viewBox="0 0 16 16" fill="none" aria-hidden="true"><use href="../assets/icons.svg#icon-menu"></use></svg></a></div></header>
+<div class="container container-main">
+<div class="col-content">
+<div class="tsd-page-title">
+<ul class="tsd-breadcrumb" aria-label="Breadcrumb">
+<li><a href="../modules/display.html">@here/xyz-maps-display</a></li>
+<li><a href="" aria-current="page">Map</a></li></ul>
+<h1>Class Map</h1></div>
+<section class="tsd-panel tsd-comment">
+<div class="tsd-comment tsd-typography"><p>XYZ Map is a highly customizable WebGL based vector map display that's optimized for map editing, larger raw datasets and frequently changing data.</p>
+</div></section>
+<section class="tsd-panel-group tsd-index-group">
+<section class="tsd-panel tsd-index-panel">
+<details class="tsd-index-content tsd-accordion" open><summary class="tsd-accordion-summary tsd-index-summary"><svg width="20" height="20" viewBox="0 0 24 24" fill="none" aria-hidden="true"><use href="../assets/icons.svg#icon-chevronDown"></use></svg>
+<h5 class="tsd-index-heading uppercase">Index</h5></summary>
+<div class="tsd-accordion-details">
+<section class="tsd-index-section">
+<h3 class="tsd-index-heading tsd-anchor-link" id="Constructors">Constructors<a href="#Constructors" aria-label="Permalink" class="tsd-anchor-icon"><svg viewBox="0 0 24 24" aria-hidden="true"><use href="../assets/icons.svg#icon-anchor"></use></svg></a></h3>
+<div class="tsd-index-list"><a href="#constructor" class="tsd-index-link"><svg class="tsd-kind-icon" viewBox="0 0 24 24" aria-label="Constructor"><use href="../assets/icons.svg#icon-512"></use></svg><span>constructor</span></a>
+</div></section>
+<section class="tsd-index-section">
+<h3 class="tsd-index-heading tsd-anchor-link" id="Methods">Methods<a href="#Methods" aria-label="Permalink" class="tsd-anchor-icon"><svg viewBox="0 0 24 24" aria-hidden="true"><use href="../assets/icons.svg#icon-anchor"></use></svg></a></h3>
+<div class="tsd-index-list"><a href="#addEventListener" class="tsd-index-link"><svg class="tsd-kind-icon" viewBox="0 0 24 24" aria-label="Method"><use href="../assets/icons.svg#icon-2048"></use></svg><span>add<wbr/>Event<wbr/>Listener</span></a>
+<a href="#addLayer" class="tsd-index-link"><svg class="tsd-kind-icon" viewBox="0 0 24 24" aria-label="Method"><use href="../assets/icons.svg#icon-2048"></use></svg><span>add<wbr/>Layer</span></a>
+<a href="#addObserver" class="tsd-index-link"><svg class="tsd-kind-icon" viewBox="0 0 24 24" aria-label="Method"><use href="../assets/icons.svg#icon-2048"></use></svg><span>add<wbr/>Observer</span></a>
+<a href="#destroy" class="tsd-index-link"><svg class="tsd-kind-icon" viewBox="0 0 24 24" aria-label="Method"><use href="../assets/icons.svg#icon-2048"></use></svg><span>destroy</span></a>
+<a href="#flyTo" class="tsd-index-link"><svg class="tsd-kind-icon" viewBox="0 0 24 24" aria-label="Method"><use href="../assets/icons.svg#icon-2048"></use></svg><span>fly<wbr/>To</span></a>
+<a href="#geoToPixel" class="tsd-index-link"><svg class="tsd-kind-icon" viewBox="0 0 24 24" aria-label="Method"><use href="../assets/icons.svg#icon-2048"></use></svg><span>geo<wbr/>To<wbr/>Pixel</span></a>
+<a href="#getBehavior" class="tsd-index-link"><svg class="tsd-kind-icon" viewBox="0 0 24 24" aria-label="Method"><use href="../assets/icons.svg#icon-2048"></use></svg><span>get<wbr/>Behavior</span></a>
+<a href="#getCamera" class="tsd-index-link"><svg class="tsd-kind-icon" viewBox="0 0 24 24" aria-label="Method"><use href="../assets/icons.svg#icon-2048"></use></svg><span>get<wbr/>Camera</span></a>
+<a href="#getCenter" class="tsd-index-link"><svg class="tsd-kind-icon" viewBox="0 0 24 24" aria-label="Method"><use href="../assets/icons.svg#icon-2048"></use></svg><span>get<wbr/>Center</span></a>
+<a href="#getContainer" class="tsd-index-link"><svg class="tsd-kind-icon" viewBox="0 0 24 24" aria-label="Method"><use href="../assets/icons.svg#icon-2048"></use></svg><span>get<wbr/>Container</span></a>
+<a href="#getFeatureAt" class="tsd-index-link"><svg class="tsd-kind-icon" viewBox="0 0 24 24" aria-label="Method"><use href="../assets/icons.svg#icon-2048"></use></svg><span>get<wbr/>Feature<wbr/>At</span></a>
+<a href="#getFeaturesAt" class="tsd-index-link"><svg class="tsd-kind-icon" viewBox="0 0 24 24" aria-label="Method"><use href="../assets/icons.svg#icon-2048"></use></svg><span>get<wbr/>Features<wbr/>At</span></a>
+<a href="#getHeight" class="tsd-index-link"><svg class="tsd-kind-icon" viewBox="0 0 24 24" aria-label="Method"><use href="../assets/icons.svg#icon-2048"></use></svg><span>get<wbr/>Height</span></a>
+<a href="#getLayers" class="tsd-index-link"><svg class="tsd-kind-icon" viewBox="0 0 24 24" aria-label="Method"><use href="../assets/icons.svg#icon-2048"></use></svg><span>get<wbr/>Layers</span></a>
+<a href="#getTerrainPointAt" class="tsd-index-link"><svg class="tsd-kind-icon" viewBox="0 0 24 24" aria-label="Method"><use href="../assets/icons.svg#icon-2048"></use></svg><span>get<wbr/>Terrain<wbr/>Point<wbr/>At</span></a>
+<a href="#getViewBounds" class="tsd-index-link"><svg class="tsd-kind-icon" viewBox="0 0 24 24" aria-label="Method"><use href="../assets/icons.svg#icon-2048"></use></svg><span>get<wbr/>View<wbr/>Bounds</span></a>
+<a href="#getWidth" class="tsd-index-link"><svg class="tsd-kind-icon" viewBox="0 0 24 24" aria-label="Method"><use href="../assets/icons.svg#icon-2048"></use></svg><span>get<wbr/>Width</span></a>
+<a href="#getZoomlevel" class="tsd-index-link"><svg class="tsd-kind-icon" viewBox="0 0 24 24" aria-label="Method"><use href="../assets/icons.svg#icon-2048"></use></svg><span>get<wbr/>Zoomlevel</span></a>
+<a href="#lockViewport" class="tsd-index-link"><svg class="tsd-kind-icon" viewBox="0 0 24 24" aria-label="Method"><use href="../assets/icons.svg#icon-2048"></use></svg><span>lock<wbr/>Viewport</span></a>
+<a href="#pan" class="tsd-index-link"><svg class="tsd-kind-icon" viewBox="0 0 24 24" aria-label="Method"><use href="../assets/icons.svg#icon-2048"></use></svg><span>pan</span></a>
+<a href="#pitch" class="tsd-index-link"><svg class="tsd-kind-icon" viewBox="0 0 24 24" aria-label="Method"><use href="../assets/icons.svg#icon-2048"></use></svg><span>pitch</span></a>
+<a href="#pixelToGeo" class="tsd-index-link"><svg class="tsd-kind-icon" viewBox="0 0 24 24" aria-label="Method"><use href="../assets/icons.svg#icon-2048"></use></svg><span>pixel<wbr/>To<wbr/>Geo</span></a>
+<a href="#refresh" class="tsd-index-link"><svg class="tsd-kind-icon" viewBox="0 0 24 24" aria-label="Method"><use href="../assets/icons.svg#icon-2048"></use></svg><span>refresh</span></a>
+<a href="#removeEventListener" class="tsd-index-link"><svg class="tsd-kind-icon" viewBox="0 0 24 24" aria-label="Method"><use href="../assets/icons.svg#icon-2048"></use></svg><span>remove<wbr/>Event<wbr/>Listener</span></a>
+<a href="#removeLayer" class="tsd-index-link"><svg class="tsd-kind-icon" viewBox="0 0 24 24" aria-label="Method"><use href="../assets/icons.svg#icon-2048"></use></svg><span>remove<wbr/>Layer</span></a>
+<a href="#removeObserver" class="tsd-index-link"><svg class="tsd-kind-icon" viewBox="0 0 24 24" aria-label="Method"><use href="../assets/icons.svg#icon-2048"></use></svg><span>remove<wbr/>Observer</span></a>
+<a href="#resize" class="tsd-index-link"><svg class="tsd-kind-icon" viewBox="0 0 24 24" aria-label="Method"><use href="../assets/icons.svg#icon-2048"></use></svg><span>resize</span></a>
+<a href="#rotate" class="tsd-index-link"><svg class="tsd-kind-icon" viewBox="0 0 24 24" aria-label="Method"><use href="../assets/icons.svg#icon-2048"></use></svg><span>rotate</span></a>
+<a href="#setAltitude" class="tsd-index-link"><svg class="tsd-kind-icon" viewBox="0 0 24 24" aria-label="Method"><use href="../assets/icons.svg#icon-2048"></use></svg><span>set<wbr/>Altitude</span></a>
+<a href="#setBackgroundColor" class="tsd-index-link"><svg class="tsd-kind-icon" viewBox="0 0 24 24" aria-label="Method"><use href="../assets/icons.svg#icon-2048"></use></svg><span>set<wbr/>Background<wbr/>Color</span></a>
+<a href="#setBehavior" class="tsd-index-link"><svg class="tsd-kind-icon" viewBox="0 0 24 24" aria-label="Method"><use href="../assets/icons.svg#icon-2048"></use></svg><span>set<wbr/>Behavior</span></a>
+<a href="#setCenter" class="tsd-index-link"><svg class="tsd-kind-icon" viewBox="0 0 24 24" aria-label="Method"><use href="../assets/icons.svg#icon-2048"></use></svg><span>set<wbr/>Center</span></a>
+<a href="#setViewBounds" class="tsd-index-link"><svg class="tsd-kind-icon" viewBox="0 0 24 24" aria-label="Method"><use href="../assets/icons.svg#icon-2048"></use></svg><span>set<wbr/>View<wbr/>Bounds</span></a>
+<a href="#setZoomlevel" class="tsd-index-link"><svg class="tsd-kind-icon" viewBox="0 0 24 24" aria-label="Method"><use href="../assets/icons.svg#icon-2048"></use></svg><span>set<wbr/>Zoomlevel</span></a>
+<a href="#snapshot" class="tsd-index-link"><svg class="tsd-kind-icon" viewBox="0 0 24 24" aria-label="Method"><use href="../assets/icons.svg#icon-2048"></use></svg><span>snapshot</span></a>
+</div></section></div></details></section></section>
+<details class="tsd-panel-group tsd-member-group tsd-accordion" open><summary class="tsd-accordion-summary" data-key="section-Constructors"><svg width="20" height="20" viewBox="0 0 24 24" fill="none" aria-hidden="true"><use href="../assets/icons.svg#icon-chevronDown"></use></svg>
+<h2 class="tsd-anchor-link" id="Constructors-1">Constructors<a href="#Constructors-1" aria-label="Permalink" class="tsd-anchor-icon"><svg viewBox="0 0 24 24" aria-hidden="true"><use href="../assets/icons.svg#icon-anchor"></use></svg></a></h2></summary>
+<section>
+<section class="tsd-panel tsd-member">
+<h3 class="tsd-anchor-link" id="constructor"><span>constructor</span><a href="#constructor" aria-label="Permalink" class="tsd-anchor-icon"><svg viewBox="0 0 24 24" aria-hidden="true"><use href="../assets/icons.svg#icon-anchor"></use></svg></a></h3>
+<ul class="tsd-signatures">
+<li class="">
+<div class="tsd-signature tsd-anchor-link" id="constructorMap"><span class="tsd-signature-keyword">new</span> <span class="tsd-kind-constructor-signature">Map</span><span class="tsd-signature-symbol">(</span><span class="tsd-kind-parameter">mapElement</span><span class="tsd-signature-symbol">:</span> <span class="tsd-signature-type">HTMLElement</span><span class="tsd-signature-symbol">,</span> <span class="tsd-kind-parameter">options</span><span class="tsd-signature-symbol">:</span> <a href="../interfaces/display.mapoptions.html" class="tsd-signature-type tsd-kind-interface">MapOptions</a><span class="tsd-signature-symbol">)</span><span class="tsd-signature-symbol">:</span> <a href="" class="tsd-signature-type tsd-kind-class">Map</a><a href="#constructorMap" aria-label="Permalink" class="tsd-anchor-icon"><svg viewBox="0 0 24 24" aria-hidden="true"><use href="../assets/icons.svg#icon-anchor"></use></svg></a></div>
+<div class="tsd-description">
+<div class="tsd-parameters">
+<h4 class="tsd-parameters-title">Parameters</h4>
+<ul class="tsd-parameter-list">
+<li><span><span class="tsd-kind-parameter">mapElement</span>: <span class="tsd-signature-type">HTMLElement</span></span>
+<div class="tsd-comment tsd-typography"><p>HTMLElement used to create the map display</p>
+</div></li>
+<li><span><span class="tsd-kind-parameter">options</span>: <a href="../interfaces/display.mapoptions.html" class="tsd-signature-type tsd-kind-interface">MapOptions</a></span>
+<div class="tsd-comment tsd-typography"><p>options to configure for the map</p>
+</div></li></ul></div>
+<h4 class="tsd-returns-title">Returns <a href="" class="tsd-signature-type tsd-kind-class">Map</a></h4>
+<div class="tsd-comment tsd-typography">
+<div class="tsd-tag-example">
+<h4 class="tsd-anchor-link" id="Example">Example<a href="#Example" aria-label="Permalink" class="tsd-anchor-icon"><svg viewBox="0 0 24 24" aria-hidden="true"><use href="../assets/icons.svg#icon-anchor"></use></svg></a></h4><pre><code class="typescript"><span class="hl-7">import</span><span class="hl-1"> {</span><span class="hl-0">Map</span><span class="hl-1">} </span><span class="hl-7">from</span><span class="hl-1"> </span><span class="hl-6">&#39;@here/xyz-maps-display&#39;</span><span class="hl-1">;</span><br/><br/><span class="hl-3">//create map display</span><br/><span class="hl-8">const</span><span class="hl-1"> </span><span class="hl-4">display</span><span class="hl-1"> = </span><span class="hl-8">new</span><span class="hl-1"> </span><span class="hl-5">Map</span><span class="hl-1">( </span><span class="hl-0">mapDiv</span><span class="hl-1">, {</span><br/><span class="hl-1">    </span><span class="hl-0">zoomLevel :</span><span class="hl-1"> </span><span class="hl-9">19</span><span class="hl-1">,</span><br/><span class="hl-1">    </span><span class="hl-0">center:</span><span class="hl-1"> {</span><br/><span class="hl-1">        </span><span class="hl-0">longitude:</span><span class="hl-1"> </span><span class="hl-9">8.53422</span><span class="hl-1">,</span><br/><span class="hl-1">        </span><span class="hl-0">latitude:</span><span class="hl-1"> </span><span class="hl-9">50.16212</span><br/><span class="hl-1">    },</span><br/><span class="hl-1">    </span><span class="hl-3">// add layers to display</span><br/><span class="hl-1">    </span><span class="hl-0">layers:</span><span class="hl-1"> </span><span class="hl-0">layers</span><br/><span class="hl-1">});</span>
+</code><button type="button">Copy</button></pre>
+
+</div></div></div></li></ul></section></section></details>
+<details class="tsd-panel-group tsd-member-group tsd-accordion" open><summary class="tsd-accordion-summary" data-key="section-Methods"><svg width="20" height="20" viewBox="0 0 24 24" fill="none" aria-hidden="true"><use href="../assets/icons.svg#icon-chevronDown"></use></svg>
+<h2 class="tsd-anchor-link" id="Methods-1">Methods<a href="#Methods-1" aria-label="Permalink" class="tsd-anchor-icon"><svg viewBox="0 0 24 24" aria-hidden="true"><use href="../assets/icons.svg#icon-anchor"></use></svg></a></h2></summary>
+<section>
+<section class="tsd-panel tsd-member">
+<h3 class="tsd-anchor-link" id="addEventListener"><span>add<wbr/>Event<wbr/>Listener</span><a href="#addEventListener" aria-label="Permalink" class="tsd-anchor-icon"><svg viewBox="0 0 24 24" aria-hidden="true"><use href="../assets/icons.svg#icon-anchor"></use></svg></a></h3>
+<ul class="tsd-signatures">
+<li class="">
+<div class="tsd-signature tsd-anchor-link" id="addEventListener-1"><span class="tsd-kind-call-signature">addEventListener</span><span class="tsd-signature-symbol">(</span><span class="tsd-kind-parameter">type</span><span class="tsd-signature-symbol">:</span> <span class="tsd-signature-type">string</span><span class="tsd-signature-symbol">,</span> <span class="tsd-kind-parameter">listener</span><span class="tsd-signature-symbol">:</span> <span class="tsd-signature-symbol">(</span><span class="tsd-kind-parameter">e</span><span class="tsd-signature-symbol">:</span> <a href="display.mapevent.html" class="tsd-signature-type tsd-kind-class">MapEvent</a><span class="tsd-signature-symbol">)</span> <span class="tsd-signature-symbol">=&gt;</span> <span class="tsd-signature-type">void</span><span class="tsd-signature-symbol">)</span><span class="tsd-signature-symbol">:</span> <span class="tsd-signature-type">void</span><a href="#addEventListener-1" aria-label="Permalink" class="tsd-anchor-icon"><svg viewBox="0 0 24 24" aria-hidden="true"><use href="../assets/icons.svg#icon-anchor"></use></svg></a></div>
+<div class="tsd-description">
+<div class="tsd-comment tsd-typography"><p>Adds an event listener to the map.
+supported events: 'mapviewchangestart', 'mapviewchange', 'mapviewchangeend', 'resize',
+'tap', 'dbltap', 'pointerup', 'pointerenter', 'pointerleave', 'pointerdown', 'pointermove', 'pressmove'</p>
+</div>
+<div class="tsd-parameters">
+<h4 class="tsd-parameters-title">Parameters</h4>
+<ul class="tsd-parameter-list">
+<li><span><span class="tsd-kind-parameter">type</span>: <span class="tsd-signature-type">string</span></span>
+<div class="tsd-comment tsd-typography"><p>A string representing the event type to listen for.</p>
+</div></li>
+<li><span><span class="tsd-kind-parameter">listener</span>: <span class="tsd-signature-symbol">(</span><span class="tsd-kind-parameter">e</span><span class="tsd-signature-symbol">:</span> <a href="display.mapevent.html" class="tsd-signature-type tsd-kind-class">MapEvent</a><span class="tsd-signature-symbol">)</span> <span class="tsd-signature-symbol">=&gt;</span> <span class="tsd-signature-type">void</span></span>
+<div class="tsd-comment tsd-typography"><p>the listener function that will be called when an event of the specific type occurs</p>
+</div></li></ul></div>
+<h4 class="tsd-returns-title">Returns <span class="tsd-signature-type">void</span></h4></div></li></ul></section>
+<section class="tsd-panel tsd-member">
+<h3 class="tsd-anchor-link" id="addLayer"><span>add<wbr/>Layer</span><a href="#addLayer" aria-label="Permalink" class="tsd-anchor-icon"><svg viewBox="0 0 24 24" aria-hidden="true"><use href="../assets/icons.svg#icon-anchor"></use></svg></a></h3>
+<ul class="tsd-signatures">
+<li class="">
+<div class="tsd-signature tsd-anchor-link" id="addLayer-1"><span class="tsd-kind-call-signature">addLayer</span><span class="tsd-signature-symbol">(</span><span class="tsd-kind-parameter">layer</span><span class="tsd-signature-symbol">:</span> <a href="core.tilelayer.html" class="tsd-signature-type tsd-kind-class">TileLayer</a> <span class="tsd-signature-symbol">|</span> <a href="core.customlayer.html" class="tsd-signature-type tsd-kind-class">CustomLayer</a><span class="tsd-signature-symbol">,</span> <span class="tsd-kind-parameter">index</span><span class="tsd-signature-symbol">?:</span> <span class="tsd-signature-type">number</span><span class="tsd-signature-symbol">)</span><span class="tsd-signature-symbol">:</span> <span class="tsd-signature-type">void</span><a href="#addLayer-1" aria-label="Permalink" class="tsd-anchor-icon"><svg viewBox="0 0 24 24" aria-hidden="true"><use href="../assets/icons.svg#icon-anchor"></use></svg></a></div>
+<div class="tsd-description">
+<div class="tsd-comment tsd-typography"><p>Adds a layer to the map.</p>
+<p>If an <code>index</code> is provided, the layer will be inserted at the specified position within the layer hierarchy,
+which allows placing the layer between existing layers. If the <code>index</code> is not specified, the layer will be
+added on top of all existing layers (i.e., as the last layer in the hierarchy).</p>
+<p>The <code>index</code> is zero-based, meaning an index of <code>0</code> will insert the layer at the bottom, and an index equal
+to the current number of layers will place it on top. If the specified <code>index</code> exceeds the current number
+of layers, the layer will be added on top.</p>
+</div>
+<div class="tsd-parameters">
+<h4 class="tsd-parameters-title">Parameters</h4>
+<ul class="tsd-parameter-list">
+<li><span><span class="tsd-kind-parameter">layer</span>: <a href="core.tilelayer.html" class="tsd-signature-type tsd-kind-class">TileLayer</a> <span class="tsd-signature-symbol">|</span> <a href="core.customlayer.html" class="tsd-signature-type tsd-kind-class">CustomLayer</a></span>
+<div class="tsd-comment tsd-typography"><p>The layer to be added to the map. This can be a <code>TileLayer</code> or a <code>CustomLayer</code>.</p>
+</div></li>
+<li><span><code class="tsd-tag">Optional</code><span class="tsd-kind-parameter">index</span>: <span class="tsd-signature-type">number</span></span>
+<div class="tsd-comment tsd-typography"><p>(Optional) The zero-based index in the layer hierarchy where the layer should be inserted.
+If omitted, the layer will be added as the topmost layer.</p>
+</div></li></ul></div>
+<h4 class="tsd-returns-title">Returns <span class="tsd-signature-type">void</span></h4></div></li></ul></section>
+<section class="tsd-panel tsd-member">
+<h3 class="tsd-anchor-link" id="addObserver"><span>add<wbr/>Observer</span><a href="#addObserver" aria-label="Permalink" class="tsd-anchor-icon"><svg viewBox="0 0 24 24" aria-hidden="true"><use href="../assets/icons.svg#icon-anchor"></use></svg></a></h3>
+<ul class="tsd-signatures">
+<li class="">
+<div class="tsd-signature tsd-anchor-link" id="addObserver-1"><span class="tsd-kind-call-signature">addObserver</span><span class="tsd-signature-symbol">(</span><br/>    <span class="tsd-kind-parameter">name</span><span class="tsd-signature-symbol">:</span> <span class="tsd-signature-type">string</span><span class="tsd-signature-symbol">,</span><br/>    <span class="tsd-kind-parameter">observer</span><span class="tsd-signature-symbol">:</span> <span class="tsd-signature-symbol">(</span><span class="tsd-kind-parameter">name</span><span class="tsd-signature-symbol">:</span> <span class="tsd-signature-type">string</span><span class="tsd-signature-symbol">,</span> <span class="tsd-kind-parameter">newValue</span><span class="tsd-signature-symbol">:</span> <span class="tsd-signature-type">any</span><span class="tsd-signature-symbol">,</span> <span class="tsd-kind-parameter">prevValue</span><span class="tsd-signature-symbol">:</span> <span class="tsd-signature-type">any</span><span class="tsd-signature-symbol">)</span> <span class="tsd-signature-symbol">=&gt;</span> <span class="tsd-signature-type">void</span><span class="tsd-signature-symbol">,</span><br/><span class="tsd-signature-symbol">)</span><span class="tsd-signature-symbol">:</span> <span class="tsd-signature-type">boolean</span><a href="#addObserver-1" aria-label="Permalink" class="tsd-anchor-icon"><svg viewBox="0 0 24 24" aria-hidden="true"><use href="../assets/icons.svg#icon-anchor"></use></svg></a></div>
+<div class="tsd-description">
+<div class="tsd-comment tsd-typography"><p>Add an observer to the map.
+Supported observers are: &quot;zoomlevel&quot;, &quot;center&quot;, &quot;rotation&quot; and &quot;pitch&quot;.</p>
+</div>
+<div class="tsd-parameters">
+<h4 class="tsd-parameters-title">Parameters</h4>
+<ul class="tsd-parameter-list">
+<li><span><span class="tsd-kind-parameter">name</span>: <span class="tsd-signature-type">string</span></span>
+<div class="tsd-comment tsd-typography"><p>the name of the value to observe</p>
+</div></li>
+<li><span><span class="tsd-kind-parameter">observer</span>: <span class="tsd-signature-symbol">(</span><span class="tsd-kind-parameter">name</span><span class="tsd-signature-symbol">:</span> <span class="tsd-signature-type">string</span><span class="tsd-signature-symbol">,</span> <span class="tsd-kind-parameter">newValue</span><span class="tsd-signature-symbol">:</span> <span class="tsd-signature-type">any</span><span class="tsd-signature-symbol">,</span> <span class="tsd-kind-parameter">prevValue</span><span class="tsd-signature-symbol">:</span> <span class="tsd-signature-type">any</span><span class="tsd-signature-symbol">)</span> <span class="tsd-signature-symbol">=&gt;</span> <span class="tsd-signature-type">void</span></span>
+<div class="tsd-comment tsd-typography"><p>the observer that will be executed on value changes.</p>
+</div></li></ul></div>
+<h4 class="tsd-returns-title">Returns <span class="tsd-signature-type">boolean</span></h4><p>boolean that's indicating if observer was added.</p>
+</div></li></ul></section>
+<section class="tsd-panel tsd-member">
+<h3 class="tsd-anchor-link" id="destroy"><span>destroy</span><a href="#destroy" aria-label="Permalink" class="tsd-anchor-icon"><svg viewBox="0 0 24 24" aria-hidden="true"><use href="../assets/icons.svg#icon-anchor"></use></svg></a></h3>
+<ul class="tsd-signatures">
+<li class="">
+<div class="tsd-signature tsd-anchor-link" id="destroy-1"><span class="tsd-kind-call-signature">destroy</span><span class="tsd-signature-symbol">()</span><span class="tsd-signature-symbol">:</span> <span class="tsd-signature-type">void</span><a href="#destroy-1" aria-label="Permalink" class="tsd-anchor-icon"><svg viewBox="0 0 24 24" aria-hidden="true"><use href="../assets/icons.svg#icon-anchor"></use></svg></a></div>
+<div class="tsd-description">
+<div class="tsd-comment tsd-typography"><p>Destroy the the map.</p>
+</div>
+<h4 class="tsd-returns-title">Returns <span class="tsd-signature-type">void</span></h4></div></li></ul></section>
+<section class="tsd-panel tsd-member">
+<h3 class="tsd-anchor-link" id="flyTo"><span>fly<wbr/>To</span><a href="#flyTo" aria-label="Permalink" class="tsd-anchor-icon"><svg viewBox="0 0 24 24" aria-hidden="true"><use href="../assets/icons.svg#icon-anchor"></use></svg></a></h3>
+<ul class="tsd-signatures">
+<li class="">
+<div class="tsd-signature tsd-anchor-link" id="flyTo-1"><span class="tsd-kind-call-signature">flyTo</span><span class="tsd-signature-symbol">(</span><span class="tsd-kind-parameter">center</span><span class="tsd-signature-symbol">:</span> <a href="core.geopoint.html" class="tsd-signature-type tsd-kind-class">GeoPoint</a><span class="tsd-signature-symbol">,</span> <span class="tsd-kind-parameter">options</span><span class="tsd-signature-symbol">?:</span> <span class="tsd-signature-symbol">{</span> <span class="tsd-kind-property">duration</span><span class="tsd-signature-symbol">?:</span> <span class="tsd-signature-type">number</span> <span class="tsd-signature-symbol">}</span><span class="tsd-signature-symbol">)</span><span class="tsd-signature-symbol">:</span> <span class="tsd-signature-type">any</span><a href="#flyTo-1" aria-label="Permalink" class="tsd-anchor-icon"><svg viewBox="0 0 24 24" aria-hidden="true"><use href="../assets/icons.svg#icon-anchor"></use></svg></a></div>
+<div class="tsd-description">
+<div class="tsd-comment tsd-typography"><p>Set the map center using a bow animation combining pan and zoom operations.</p>
+</div>
+<div class="tsd-parameters">
+<h4 class="tsd-parameters-title">Parameters</h4>
+<ul class="tsd-parameter-list">
+<li><span><span class="tsd-kind-parameter">center</span>: <a href="core.geopoint.html" class="tsd-signature-type tsd-kind-class">GeoPoint</a></span>
+<div class="tsd-comment tsd-typography"><p>the geographical coordinate to center the map.</p>
+</div></li>
+<li><span><code class="tsd-tag">Optional</code><span class="tsd-kind-parameter">options</span>: <span class="tsd-signature-symbol">{</span> <span class="tsd-kind-property">duration</span><span class="tsd-signature-symbol">?:</span> <span class="tsd-signature-type">number</span> <span class="tsd-signature-symbol">}</span></span>
+<div class="tsd-comment tsd-typography"><p>options to configure the bow animation</p>
+</div>
+<ul class="tsd-parameters">
+<li class="tsd-parameter">
+<h5><code class="tsd-tag">Optional</code><span class="tsd-kind-property">duration</span><span class="tsd-signature-symbol">?: </span><span class="tsd-signature-type">number</span></h5>
+<div class="tsd-comment tsd-typography"><p>the duration of the bow animation in milliseconds</p>
+</div></li></ul></li></ul></div>
+<h4 class="tsd-returns-title">Returns <span class="tsd-signature-type">any</span></h4></div></li>
+<li class="">
+<div class="tsd-signature tsd-anchor-link" id="flyTo-2"><span class="tsd-kind-call-signature">flyTo</span><span class="tsd-signature-symbol">(</span><span class="tsd-kind-parameter">center</span><span class="tsd-signature-symbol">:</span> <a href="core.geopoint.html" class="tsd-signature-type tsd-kind-class">GeoPoint</a><span class="tsd-signature-symbol">,</span> <span class="tsd-kind-parameter">zoomTo</span><span class="tsd-signature-symbol">:</span> <span class="tsd-signature-type">number</span><span class="tsd-signature-symbol">,</span> <span class="tsd-kind-parameter">options</span><span class="tsd-signature-symbol">?:</span> <span class="tsd-signature-symbol">{</span> <span class="tsd-kind-property">duration</span><span class="tsd-signature-symbol">?:</span> <span class="tsd-signature-type">number</span> <span class="tsd-signature-symbol">}</span><span class="tsd-signature-symbol">)</span><span class="tsd-signature-symbol">:</span> <span class="tsd-signature-type">any</span><a href="#flyTo-2" aria-label="Permalink" class="tsd-anchor-icon"><svg viewBox="0 0 24 24" aria-hidden="true"><use href="../assets/icons.svg#icon-anchor"></use></svg></a></div>
+<div class="tsd-description">
+<div class="tsd-comment tsd-typography"><p>Set the map center and zoomlevel using a bow animation combining pan and zoom operations.</p>
+</div>
+<div class="tsd-parameters">
+<h4 class="tsd-parameters-title">Parameters</h4>
+<ul class="tsd-parameter-list">
+<li><span><span class="tsd-kind-parameter">center</span>: <a href="core.geopoint.html" class="tsd-signature-type tsd-kind-class">GeoPoint</a></span>
+<div class="tsd-comment tsd-typography"><p>the geographical coordinate to center the map.</p>
+</div></li>
+<li><span><span class="tsd-kind-parameter">zoomTo</span>: <span class="tsd-signature-type">number</span></span>
+<div class="tsd-comment tsd-typography"><p>the zoomlevel the map should be zoomed to.</p>
+</div></li>
+<li><span><code class="tsd-tag">Optional</code><span class="tsd-kind-parameter">options</span>: <span class="tsd-signature-symbol">{</span> <span class="tsd-kind-property">duration</span><span class="tsd-signature-symbol">?:</span> <span class="tsd-signature-type">number</span> <span class="tsd-signature-symbol">}</span></span>
+<div class="tsd-comment tsd-typography"><p>options to configure the bow animation</p>
+</div>
+<ul class="tsd-parameters">
+<li class="tsd-parameter">
+<h5><code class="tsd-tag">Optional</code><span class="tsd-kind-property">duration</span><span class="tsd-signature-symbol">?: </span><span class="tsd-signature-type">number</span></h5>
+<div class="tsd-comment tsd-typography"><p>the duration of the bow animation in milliseconds</p>
+</div></li></ul></li></ul></div>
+<h4 class="tsd-returns-title">Returns <span class="tsd-signature-type">any</span></h4></div></li></ul></section>
+<section class="tsd-panel tsd-member">
+<h3 class="tsd-anchor-link" id="geoToPixel"><span>geo<wbr/>To<wbr/>Pixel</span><a href="#geoToPixel" aria-label="Permalink" class="tsd-anchor-icon"><svg viewBox="0 0 24 24" aria-hidden="true"><use href="../assets/icons.svg#icon-anchor"></use></svg></a></h3>
+<ul class="tsd-signatures">
+<li class="">
+<div class="tsd-signature tsd-anchor-link" id="geoToPixel-1"><span class="tsd-kind-call-signature">geoToPixel</span><span class="tsd-signature-symbol">(</span><span class="tsd-kind-parameter">longitude</span><span class="tsd-signature-symbol">:</span> <span class="tsd-signature-type">number</span><span class="tsd-signature-symbol">,</span> <span class="tsd-kind-parameter">latitude</span><span class="tsd-signature-symbol">:</span> <span class="tsd-signature-type">number</span><span class="tsd-signature-symbol">,</span> <span class="tsd-kind-parameter">altitude</span><span class="tsd-signature-symbol">?:</span> <span class="tsd-signature-type">number</span><span class="tsd-signature-symbol">)</span><span class="tsd-signature-symbol">:</span> <a href="core.pixelpoint.html" class="tsd-signature-type tsd-kind-class">PixelPoint</a><a href="#geoToPixel-1" aria-label="Permalink" class="tsd-anchor-icon"><svg viewBox="0 0 24 24" aria-hidden="true"><use href="../assets/icons.svg#icon-anchor"></use></svg></a></div>
+<div class="tsd-description">
+<div class="tsd-comment tsd-typography"><p>Convert a geographical coordinate to a pixel coordinate relative to the current viewport of the map.</p>
+</div>
+<div class="tsd-parameters">
+<h4 class="tsd-parameters-title">Parameters</h4>
+<ul class="tsd-parameter-list">
+<li><span><span class="tsd-kind-parameter">longitude</span>: <span class="tsd-signature-type">number</span></span>
+<div class="tsd-comment tsd-typography"><p>the longitude in degrees</p>
+</div></li>
+<li><span><span class="tsd-kind-parameter">latitude</span>: <span class="tsd-signature-type">number</span></span>
+<div class="tsd-comment tsd-typography"><p>the latitude in degrees</p>
+</div></li>
+<li><span><code class="tsd-tag">Optional</code><span class="tsd-kind-parameter">altitude</span>: <span class="tsd-signature-type">number</span></span>
+<div class="tsd-comment tsd-typography"><p>the altitude in meters</p>
+</div></li></ul></div>
+<h4 class="tsd-returns-title">Returns <a href="core.pixelpoint.html" class="tsd-signature-type tsd-kind-class">PixelPoint</a></h4><p>the pixel coordinate relative to the current viewport.</p>
+</div></li>
+<li class="">
+<div class="tsd-signature tsd-anchor-link" id="geoToPixel-2"><span class="tsd-kind-call-signature">geoToPixel</span><span class="tsd-signature-symbol">(</span><span class="tsd-kind-parameter">coordinate</span><span class="tsd-signature-symbol">:</span> <a href="core.geopoint.html" class="tsd-signature-type tsd-kind-class">GeoPoint</a><span class="tsd-signature-symbol">)</span><span class="tsd-signature-symbol">:</span> <a href="core.pixelpoint.html" class="tsd-signature-type tsd-kind-class">PixelPoint</a><a href="#geoToPixel-2" aria-label="Permalink" class="tsd-anchor-icon"><svg viewBox="0 0 24 24" aria-hidden="true"><use href="../assets/icons.svg#icon-anchor"></use></svg></a></div>
+<div class="tsd-description">
+<div class="tsd-comment tsd-typography"><p>Convert a geographical coordinate to a pixel coordinate relative to the current viewport of the map.</p>
+</div>
+<div class="tsd-parameters">
+<h4 class="tsd-parameters-title">Parameters</h4>
+<ul class="tsd-parameter-list">
+<li><span><span class="tsd-kind-parameter">coordinate</span>: <a href="core.geopoint.html" class="tsd-signature-type tsd-kind-class">GeoPoint</a></span>
+<div class="tsd-comment tsd-typography"><p>the geographical coordinate</p>
+</div></li></ul></div>
+<h4 class="tsd-returns-title">Returns <a href="core.pixelpoint.html" class="tsd-signature-type tsd-kind-class">PixelPoint</a></h4><p>the pixel coordinate relative to the current viewport.</p>
+</div></li></ul></section>
+<section class="tsd-panel tsd-member">
+<h3 class="tsd-anchor-link" id="getBehavior"><span>get<wbr/>Behavior</span><a href="#getBehavior" aria-label="Permalink" class="tsd-anchor-icon"><svg viewBox="0 0 24 24" aria-hidden="true"><use href="../assets/icons.svg#icon-anchor"></use></svg></a></h3>
+<ul class="tsd-signatures">
+<li class="">
+<div class="tsd-signature tsd-anchor-link" id="getBehavior-1"><span class="tsd-kind-call-signature">getBehavior</span><span class="tsd-signature-symbol">()</span><span class="tsd-signature-symbol">:</span> <span class="tsd-signature-symbol">{</span><br/>    <span class="tsd-kind-property">drag</span><span class="tsd-signature-symbol">:</span> <span class="tsd-signature-type">boolean</span><span class="tsd-signature-symbol">;</span><br/>    <span class="tsd-kind-property">pitch</span><span class="tsd-signature-symbol">:</span> <span class="tsd-signature-type">boolean</span><span class="tsd-signature-symbol">;</span><br/>    <span class="tsd-kind-property">pitchAndRotateModifiers</span><span class="tsd-signature-symbol">:</span> <a href="../types/display.modifierkey.html" class="tsd-signature-type tsd-kind-type-alias">ModifierKey</a><br/>    <span class="tsd-signature-symbol">|</span> <a href="../types/display.modifierkey.html" class="tsd-signature-type tsd-kind-type-alias">ModifierKey</a><span class="tsd-signature-symbol">[]</span><span class="tsd-signature-symbol">;</span><br/>    <span class="tsd-kind-property">rotate</span><span class="tsd-signature-symbol">:</span> <span class="tsd-signature-type">boolean</span><span class="tsd-signature-symbol">;</span><br/>    <span class="tsd-kind-property">zoom</span><span class="tsd-signature-symbol">:</span> <span class="tsd-signature-type">boolean</span><span class="tsd-signature-symbol">;</span><br/><span class="tsd-signature-symbol">}</span><a href="#getBehavior-1" aria-label="Permalink" class="tsd-anchor-icon"><svg viewBox="0 0 24 24" aria-hidden="true"><use href="../assets/icons.svg#icon-anchor"></use></svg></a></div>
+<div class="tsd-description">
+<div class="tsd-comment tsd-typography"><p>Get current active map behavior options.</p>
+</div>
+<h4 class="tsd-returns-title">Returns <span class="tsd-signature-symbol">{</span><br/>    <span class="tsd-kind-property">drag</span><span class="tsd-signature-symbol">:</span> <span class="tsd-signature-type">boolean</span><span class="tsd-signature-symbol">;</span><br/>    <span class="tsd-kind-property">pitch</span><span class="tsd-signature-symbol">:</span> <span class="tsd-signature-type">boolean</span><span class="tsd-signature-symbol">;</span><br/>    <span class="tsd-kind-property">pitchAndRotateModifiers</span><span class="tsd-signature-symbol">:</span> <a href="../types/display.modifierkey.html" class="tsd-signature-type tsd-kind-type-alias">ModifierKey</a> <span class="tsd-signature-symbol">|</span> <a href="../types/display.modifierkey.html" class="tsd-signature-type tsd-kind-type-alias">ModifierKey</a><span class="tsd-signature-symbol">[]</span><span class="tsd-signature-symbol">;</span><br/>    <span class="tsd-kind-property">rotate</span><span class="tsd-signature-symbol">:</span> <span class="tsd-signature-type">boolean</span><span class="tsd-signature-symbol">;</span><br/>    <span class="tsd-kind-property">zoom</span><span class="tsd-signature-symbol">:</span> <span class="tsd-signature-type">boolean</span><span class="tsd-signature-symbol">;</span><br/><span class="tsd-signature-symbol">}</span></h4>
+<ul class="tsd-parameters">
+<li class="tsd-parameter">
+<h5><span class="tsd-kind-property">drag</span><span class="tsd-signature-symbol">: </span><span class="tsd-signature-type">boolean</span></h5>
+<div class="tsd-comment tsd-typography"><p>indicates if map dragging is enabled or disabled.</p>
+</div></li>
+<li class="tsd-parameter">
+<h5><span class="tsd-kind-property">pitch</span><span class="tsd-signature-symbol">: </span><span class="tsd-signature-type">boolean</span></h5>
+<div class="tsd-comment tsd-typography"><p>indicates if map pitching is enabled or disabled.</p>
+</div></li>
+<li class="tsd-parameter">
+<h5><span class="tsd-kind-property">pitchAndRotateModifiers</span><span class="tsd-signature-symbol">: </span><a href="../types/display.modifierkey.html" class="tsd-signature-type tsd-kind-type-alias">ModifierKey</a> <span class="tsd-signature-symbol">|</span> <a href="../types/display.modifierkey.html" class="tsd-signature-type tsd-kind-type-alias">ModifierKey</a><span class="tsd-signature-symbol">[]</span></h5>
+<div class="tsd-comment tsd-typography"><p>Modifier key or keys for the combined pitch and rotation gesture.</p>
+</div></li>
+<li class="tsd-parameter">
+<h5><span class="tsd-kind-property">rotate</span><span class="tsd-signature-symbol">: </span><span class="tsd-signature-type">boolean</span></h5>
+<div class="tsd-comment tsd-typography"><p>indicates if map rotation is enabled or disabled.</p>
+</div></li>
+<li class="tsd-parameter">
+<h5><span class="tsd-kind-property">zoom</span><span class="tsd-signature-symbol">: </span><span class="tsd-signature-type">boolean</span></h5>
+<div class="tsd-comment tsd-typography"><p>indicates if map zooming is enabled or disabled.</p>
+</div></li></ul></div></li></ul></section>
+<section class="tsd-panel tsd-member">
+<h3 class="tsd-anchor-link" id="getCamera"><span>get<wbr/>Camera</span><a href="#getCamera" aria-label="Permalink" class="tsd-anchor-icon"><svg viewBox="0 0 24 24" aria-hidden="true"><use href="../assets/icons.svg#icon-anchor"></use></svg></a></h3>
+<ul class="tsd-signatures">
+<li class="">
+<div class="tsd-signature tsd-anchor-link" id="getCamera-1"><span class="tsd-kind-call-signature">getCamera</span><span class="tsd-signature-symbol">()</span><span class="tsd-signature-symbol">:</span> <span class="tsd-signature-symbol">{</span><br/>    <span class="tsd-kind-property">position</span><span class="tsd-signature-symbol">:</span> <span class="tsd-signature-symbol">{</span> <span class="tsd-kind-property">altitude</span><span class="tsd-signature-symbol">:</span> <span class="tsd-signature-type">number</span><span class="tsd-signature-symbol">;</span> <span class="tsd-kind-property">latitude</span><span class="tsd-signature-symbol">:</span> <span class="tsd-signature-type">number</span><span class="tsd-signature-symbol">;</span> <span class="tsd-kind-property">longitude</span><span class="tsd-signature-symbol">:</span> <span class="tsd-signature-type">number</span> <span class="tsd-signature-symbol">}</span><span class="tsd-signature-symbol">;</span><br/><span class="tsd-signature-symbol">}</span><a href="#getCamera-1" aria-label="Permalink" class="tsd-anchor-icon"><svg viewBox="0 0 24 24" aria-hidden="true"><use href="../assets/icons.svg#icon-anchor"></use></svg></a></div>
+<div class="tsd-description"><code class="tsd-tag">Experimental</code>
+<div class="tsd-comment tsd-typography"><p>Get the camera of the current viewport.</p>
+</div>
+<h4 class="tsd-returns-title">Returns <span class="tsd-signature-symbol">{</span> <span class="tsd-kind-property">position</span><span class="tsd-signature-symbol">:</span> <span class="tsd-signature-symbol">{</span> <span class="tsd-kind-property">altitude</span><span class="tsd-signature-symbol">:</span> <span class="tsd-signature-type">number</span><span class="tsd-signature-symbol">;</span> <span class="tsd-kind-property">latitude</span><span class="tsd-signature-symbol">:</span> <span class="tsd-signature-type">number</span><span class="tsd-signature-symbol">;</span> <span class="tsd-kind-property">longitude</span><span class="tsd-signature-symbol">:</span> <span class="tsd-signature-type">number</span> <span class="tsd-signature-symbol">}</span> <span class="tsd-signature-symbol">}</span></h4>
+<ul class="tsd-parameters">
+<li class="tsd-parameter">
+<h5><span class="tsd-kind-property">position</span><span class="tsd-signature-symbol">: </span><span class="tsd-signature-symbol">{</span> <span class="tsd-kind-property">altitude</span><span class="tsd-signature-symbol">:</span> <span class="tsd-signature-type">number</span><span class="tsd-signature-symbol">;</span> <span class="tsd-kind-property">latitude</span><span class="tsd-signature-symbol">:</span> <span class="tsd-signature-type">number</span><span class="tsd-signature-symbol">;</span> <span class="tsd-kind-property">longitude</span><span class="tsd-signature-symbol">:</span> <span class="tsd-signature-type">number</span> <span class="tsd-signature-symbol">}</span></h5>
+<div class="tsd-comment tsd-typography"><p>The camera's center position in geographical coordinates (world-space).</p>
+</div></li></ul></div></li></ul></section>
+<section class="tsd-panel tsd-member">
+<h3 class="tsd-anchor-link" id="getCenter"><span>get<wbr/>Center</span><a href="#getCenter" aria-label="Permalink" class="tsd-anchor-icon"><svg viewBox="0 0 24 24" aria-hidden="true"><use href="../assets/icons.svg#icon-anchor"></use></svg></a></h3>
+<ul class="tsd-signatures">
+<li class="">
+<div class="tsd-signature tsd-anchor-link" id="getCenter-1"><span class="tsd-kind-call-signature">getCenter</span><span class="tsd-signature-symbol">()</span><span class="tsd-signature-symbol">:</span> <a href="core.geopoint.html" class="tsd-signature-type tsd-kind-class">GeoPoint</a><a href="#getCenter-1" aria-label="Permalink" class="tsd-anchor-icon"><svg viewBox="0 0 24 24" aria-hidden="true"><use href="../assets/icons.svg#icon-anchor"></use></svg></a></div>
+<div class="tsd-description">
+<div class="tsd-comment tsd-typography"><p>Get the current geographical center of the map.</p>
+</div>
+<h4 class="tsd-returns-title">Returns <a href="core.geopoint.html" class="tsd-signature-type tsd-kind-class">GeoPoint</a></h4><p>the map's geographical center point.</p>
+</div></li></ul></section>
+<section class="tsd-panel tsd-member">
+<h3 class="tsd-anchor-link" id="getContainer"><span>get<wbr/>Container</span><a href="#getContainer" aria-label="Permalink" class="tsd-anchor-icon"><svg viewBox="0 0 24 24" aria-hidden="true"><use href="../assets/icons.svg#icon-anchor"></use></svg></a></h3>
+<ul class="tsd-signatures">
+<li class="">
+<div class="tsd-signature tsd-anchor-link" id="getContainer-1"><span class="tsd-kind-call-signature">getContainer</span><span class="tsd-signature-symbol">()</span><span class="tsd-signature-symbol">:</span> <span class="tsd-signature-type">HTMLElement</span><a href="#getContainer-1" aria-label="Permalink" class="tsd-anchor-icon"><svg viewBox="0 0 24 24" aria-hidden="true"><use href="../assets/icons.svg#icon-anchor"></use></svg></a></div>
+<div class="tsd-description">
+<div class="tsd-comment tsd-typography"><p>Get the HTMLElement used by the map.</p>
+</div>
+<h4 class="tsd-returns-title">Returns <span class="tsd-signature-type">HTMLElement</span></h4></div></li></ul></section>
+<section class="tsd-panel tsd-member">
+<h3 class="tsd-anchor-link" id="getFeatureAt"><span>get<wbr/>Feature<wbr/>At</span><a href="#getFeatureAt" aria-label="Permalink" class="tsd-anchor-icon"><svg viewBox="0 0 24 24" aria-hidden="true"><use href="../assets/icons.svg#icon-anchor"></use></svg></a></h3>
+<ul class="tsd-signatures">
+<li class="">
+<div class="tsd-signature tsd-anchor-link" id="getFeatureAt-1"><span class="tsd-kind-call-signature">getFeatureAt</span><span class="tsd-signature-symbol">(</span><br/>    <span class="tsd-kind-parameter">position</span><span class="tsd-signature-symbol">:</span> <a href="core.pixelpoint.html" class="tsd-signature-type tsd-kind-class">PixelPoint</a> <span class="tsd-signature-symbol">|</span> <a href="core.pixelrect.html" class="tsd-signature-type tsd-kind-class">PixelRect</a><span class="tsd-signature-symbol">,</span><br/>    <span class="tsd-kind-parameter">options</span><span class="tsd-signature-symbol">?:</span> <span class="tsd-signature-symbol">{</span><br/>        <span class="tsd-kind-property">height</span><span class="tsd-signature-symbol">?:</span> <span class="tsd-signature-type">number</span><span class="tsd-signature-symbol">;</span><br/>        <span class="tsd-kind-property">layers</span><span class="tsd-signature-symbol">?:</span> <a href="core.tilelayer.html" class="tsd-signature-type tsd-kind-class">TileLayer</a> <span class="tsd-signature-symbol">|</span> <a href="core.tilelayer.html" class="tsd-signature-type tsd-kind-class">TileLayer</a><span class="tsd-signature-symbol">[]</span><span class="tsd-signature-symbol">;</span><br/>        <span class="tsd-kind-property">width</span><span class="tsd-signature-symbol">?:</span> <span class="tsd-signature-type">number</span><span class="tsd-signature-symbol">;</span><br/>    <span class="tsd-signature-symbol">}</span><span class="tsd-signature-symbol">,</span><br/><span class="tsd-signature-symbol">)</span><span class="tsd-signature-symbol">:</span> <span class="tsd-signature-symbol">{</span> <span class="tsd-kind-property">feature</span><span class="tsd-signature-symbol">:</span> <a href="core.feature.html" class="tsd-signature-type tsd-kind-class">Feature</a><span class="tsd-signature-symbol">;</span> <span class="tsd-kind-property">layer</span><span class="tsd-signature-symbol">:</span> <a href="core.tilelayer.html" class="tsd-signature-type tsd-kind-class">TileLayer</a> <span class="tsd-signature-symbol">}</span><a href="#getFeatureAt-1" aria-label="Permalink" class="tsd-anchor-icon"><svg viewBox="0 0 24 24" aria-hidden="true"><use href="../assets/icons.svg#icon-anchor"></use></svg></a></div>
+<div class="tsd-description">
+<div class="tsd-comment tsd-typography"><p>Get most top rendered feature within the given area of map</p>
+</div>
+<div class="tsd-parameters">
+<h4 class="tsd-parameters-title">Parameters</h4>
+<ul class="tsd-parameter-list">
+<li><span><span class="tsd-kind-parameter">position</span>: <a href="core.pixelpoint.html" class="tsd-signature-type tsd-kind-class">PixelPoint</a> <span class="tsd-signature-symbol">|</span> <a href="core.pixelrect.html" class="tsd-signature-type tsd-kind-class">PixelRect</a></span>
+<div class="tsd-comment tsd-typography"><p>Point or Rect in pixel to define search area.
+If a Point is used, width and height must be passed in options parameter.</p>
+</div></li>
+<li><span><code class="tsd-tag">Optional</code><span class="tsd-kind-parameter">options</span>: <span class="tsd-signature-symbol">{</span> <span class="tsd-kind-property">height</span><span class="tsd-signature-symbol">?:</span> <span class="tsd-signature-type">number</span><span class="tsd-signature-symbol">;</span> <span class="tsd-kind-property">layers</span><span class="tsd-signature-symbol">?:</span> <a href="core.tilelayer.html" class="tsd-signature-type tsd-kind-class">TileLayer</a> <span class="tsd-signature-symbol">|</span> <a href="core.tilelayer.html" class="tsd-signature-type tsd-kind-class">TileLayer</a><span class="tsd-signature-symbol">[]</span><span class="tsd-signature-symbol">;</span> <span class="tsd-kind-property">width</span><span class="tsd-signature-symbol">?:</span> <span class="tsd-signature-type">number</span> <span class="tsd-signature-symbol">}</span></span>
+<div class="tsd-comment tsd-typography"><p>Describing the options param</p>
+</div>
+<ul class="tsd-parameters">
+<li class="tsd-parameter">
+<h5><code class="tsd-tag">Optional</code><span class="tsd-kind-property">height</span><span class="tsd-signature-symbol">?: </span><span class="tsd-signature-type">number</span></h5>
+<div class="tsd-comment tsd-typography"><p>height in pixel of rectangle if point geometry is used.</p>
+</div></li>
+<li class="tsd-parameter">
+<h5><code class="tsd-tag">Optional</code><span class="tsd-kind-property">layers</span><span class="tsd-signature-symbol">?: </span><a href="core.tilelayer.html" class="tsd-signature-type tsd-kind-class">TileLayer</a> <span class="tsd-signature-symbol">|</span> <a href="core.tilelayer.html" class="tsd-signature-type tsd-kind-class">TileLayer</a><span class="tsd-signature-symbol">[]</span></h5>
+<div class="tsd-comment tsd-typography"><p>defines the layer(s) to search in.</p>
+</div></li>
+<li class="tsd-parameter">
+<h5><code class="tsd-tag">Optional</code><span class="tsd-kind-property">width</span><span class="tsd-signature-symbol">?: </span><span class="tsd-signature-type">number</span></h5>
+<div class="tsd-comment tsd-typography"><p>width in pixel of rectangle if point geometry is used.</p>
+</div></li></ul></li></ul></div>
+<h4 class="tsd-returns-title">Returns <span class="tsd-signature-symbol">{</span> <span class="tsd-kind-property">feature</span><span class="tsd-signature-symbol">:</span> <a href="core.feature.html" class="tsd-signature-type tsd-kind-class">Feature</a><span class="tsd-signature-symbol">;</span> <span class="tsd-kind-property">layer</span><span class="tsd-signature-symbol">:</span> <a href="core.tilelayer.html" class="tsd-signature-type tsd-kind-class">TileLayer</a> <span class="tsd-signature-symbol">}</span></h4><p>The result providing found feature and layer.
+undefined is returned if nothing is found.</p>
+</div></li></ul></section>
+<section class="tsd-panel tsd-member">
+<h3 class="tsd-anchor-link" id="getFeaturesAt"><span>get<wbr/>Features<wbr/>At</span><a href="#getFeaturesAt" aria-label="Permalink" class="tsd-anchor-icon"><svg viewBox="0 0 24 24" aria-hidden="true"><use href="../assets/icons.svg#icon-anchor"></use></svg></a></h3>
+<ul class="tsd-signatures">
+<li class="">
+<div class="tsd-signature tsd-anchor-link" id="getFeaturesAt-1"><span class="tsd-kind-call-signature">getFeaturesAt</span><span class="tsd-signature-symbol">(</span><br/>    <span class="tsd-kind-parameter">position</span><span class="tsd-signature-symbol">:</span> <a href="core.pixelpoint.html" class="tsd-signature-type tsd-kind-class">PixelPoint</a> <span class="tsd-signature-symbol">|</span> <a href="core.pixelrect.html" class="tsd-signature-type tsd-kind-class">PixelRect</a><span class="tsd-signature-symbol">,</span><br/>    <span class="tsd-kind-parameter">options</span><span class="tsd-signature-symbol">?:</span> <span class="tsd-signature-symbol">{</span><br/>        <span class="tsd-kind-property">height</span><span class="tsd-signature-symbol">?:</span> <span class="tsd-signature-type">number</span><span class="tsd-signature-symbol">;</span><br/>        <span class="tsd-kind-property">layers</span><span class="tsd-signature-symbol">?:</span> <a href="core.tilelayer.html" class="tsd-signature-type tsd-kind-class">TileLayer</a> <span class="tsd-signature-symbol">|</span> <a href="core.tilelayer.html" class="tsd-signature-type tsd-kind-class">TileLayer</a><span class="tsd-signature-symbol">[]</span><span class="tsd-signature-symbol">;</span><br/>        <span class="tsd-kind-property">width</span><span class="tsd-signature-symbol">?:</span> <span class="tsd-signature-type">number</span><span class="tsd-signature-symbol">;</span><br/>    <span class="tsd-signature-symbol">}</span><span class="tsd-signature-symbol">,</span><br/><span class="tsd-signature-symbol">)</span><span class="tsd-signature-symbol">:</span> <span class="tsd-signature-symbol">{</span> <span class="tsd-kind-property">features</span><span class="tsd-signature-symbol">:</span> <a href="core.feature.html" class="tsd-signature-type tsd-kind-class">Feature</a><span class="tsd-signature-symbol">&lt;</span><span class="tsd-signature-type">string</span><span class="tsd-signature-symbol">&gt;</span><span class="tsd-signature-symbol">[]</span><span class="tsd-signature-symbol">;</span> <span class="tsd-kind-property">layer</span><span class="tsd-signature-symbol">:</span> <a href="core.tilelayer.html" class="tsd-signature-type tsd-kind-class">TileLayer</a> <span class="tsd-signature-symbol">}</span><span class="tsd-signature-symbol">[]</span><a href="#getFeaturesAt-1" aria-label="Permalink" class="tsd-anchor-icon"><svg viewBox="0 0 24 24" aria-hidden="true"><use href="../assets/icons.svg#icon-anchor"></use></svg></a></div>
+<div class="tsd-description">
+<div class="tsd-comment tsd-typography"><p>Get rendered features within the given area of map</p>
+</div>
+<div class="tsd-parameters">
+<h4 class="tsd-parameters-title">Parameters</h4>
+<ul class="tsd-parameter-list">
+<li><span><span class="tsd-kind-parameter">position</span>: <a href="core.pixelpoint.html" class="tsd-signature-type tsd-kind-class">PixelPoint</a> <span class="tsd-signature-symbol">|</span> <a href="core.pixelrect.html" class="tsd-signature-type tsd-kind-class">PixelRect</a></span>
+<div class="tsd-comment tsd-typography"><p>Point or Rect in pixel to define search area.
+If a Point is used, width and height must be passed in options parameter.</p>
+</div></li>
+<li><span><code class="tsd-tag">Optional</code><span class="tsd-kind-parameter">options</span>: <span class="tsd-signature-symbol">{</span> <span class="tsd-kind-property">height</span><span class="tsd-signature-symbol">?:</span> <span class="tsd-signature-type">number</span><span class="tsd-signature-symbol">;</span> <span class="tsd-kind-property">layers</span><span class="tsd-signature-symbol">?:</span> <a href="core.tilelayer.html" class="tsd-signature-type tsd-kind-class">TileLayer</a> <span class="tsd-signature-symbol">|</span> <a href="core.tilelayer.html" class="tsd-signature-type tsd-kind-class">TileLayer</a><span class="tsd-signature-symbol">[]</span><span class="tsd-signature-symbol">;</span> <span class="tsd-kind-property">width</span><span class="tsd-signature-symbol">?:</span> <span class="tsd-signature-type">number</span> <span class="tsd-signature-symbol">}</span></span>
+<div class="tsd-comment tsd-typography"><p>Describing the options param</p>
+</div>
+<ul class="tsd-parameters">
+<li class="tsd-parameter">
+<h5><code class="tsd-tag">Optional</code><span class="tsd-kind-property">height</span><span class="tsd-signature-symbol">?: </span><span class="tsd-signature-type">number</span></h5>
+<div class="tsd-comment tsd-typography"><p>height in pixel of rectangle if point geometry is used.</p>
+</div></li>
+<li class="tsd-parameter">
+<h5><code class="tsd-tag">Optional</code><span class="tsd-kind-property">layers</span><span class="tsd-signature-symbol">?: </span><a href="core.tilelayer.html" class="tsd-signature-type tsd-kind-class">TileLayer</a> <span class="tsd-signature-symbol">|</span> <a href="core.tilelayer.html" class="tsd-signature-type tsd-kind-class">TileLayer</a><span class="tsd-signature-symbol">[]</span></h5>
+<div class="tsd-comment tsd-typography"><p>defines the layer(s) to search in.</p>
+</div></li>
+<li class="tsd-parameter">
+<h5><code class="tsd-tag">Optional</code><span class="tsd-kind-property">width</span><span class="tsd-signature-symbol">?: </span><span class="tsd-signature-type">number</span></h5>
+<div class="tsd-comment tsd-typography"><p>width in pixel of rectangle if point geometry is used.</p>
+</div></li></ul></li></ul></div>
+<h4 class="tsd-returns-title">Returns <span class="tsd-signature-symbol">{</span> <span class="tsd-kind-property">features</span><span class="tsd-signature-symbol">:</span> <a href="core.feature.html" class="tsd-signature-type tsd-kind-class">Feature</a><span class="tsd-signature-symbol">&lt;</span><span class="tsd-signature-type">string</span><span class="tsd-signature-symbol">&gt;</span><span class="tsd-signature-symbol">[]</span><span class="tsd-signature-symbol">;</span> <span class="tsd-kind-property">layer</span><span class="tsd-signature-symbol">:</span> <a href="core.tilelayer.html" class="tsd-signature-type tsd-kind-class">TileLayer</a> <span class="tsd-signature-symbol">}</span><span class="tsd-signature-symbol">[]</span></h4><p>zIndex ordered results array</p>
+</div></li></ul></section>
+<section class="tsd-panel tsd-member">
+<h3 class="tsd-anchor-link" id="getHeight"><span>get<wbr/>Height</span><a href="#getHeight" aria-label="Permalink" class="tsd-anchor-icon"><svg viewBox="0 0 24 24" aria-hidden="true"><use href="../assets/icons.svg#icon-anchor"></use></svg></a></h3>
+<ul class="tsd-signatures">
+<li class="">
+<div class="tsd-signature tsd-anchor-link" id="getHeight-1"><span class="tsd-kind-call-signature">getHeight</span><span class="tsd-signature-symbol">()</span><span class="tsd-signature-symbol">:</span> <span class="tsd-signature-type">number</span><a href="#getHeight-1" aria-label="Permalink" class="tsd-anchor-icon"><svg viewBox="0 0 24 24" aria-hidden="true"><use href="../assets/icons.svg#icon-anchor"></use></svg></a></div>
+<div class="tsd-description">
+<div class="tsd-comment tsd-typography"><p>Get the current height in pixels of map.</p>
+</div>
+<h4 class="tsd-returns-title">Returns <span class="tsd-signature-type">number</span></h4></div></li></ul></section>
+<section class="tsd-panel tsd-member">
+<h3 class="tsd-anchor-link" id="getLayers"><span>get<wbr/>Layers</span><a href="#getLayers" aria-label="Permalink" class="tsd-anchor-icon"><svg viewBox="0 0 24 24" aria-hidden="true"><use href="../assets/icons.svg#icon-anchor"></use></svg></a></h3>
+<ul class="tsd-signatures">
+<li class="">
+<div class="tsd-signature tsd-anchor-link" id="getLayers-1"><span class="tsd-kind-call-signature">getLayers</span><span class="tsd-signature-symbol">()</span><span class="tsd-signature-symbol">:</span> <a href="core.tilelayer.html" class="tsd-signature-type tsd-kind-class">TileLayer</a><span class="tsd-signature-symbol">[]</span><a href="#getLayers-1" aria-label="Permalink" class="tsd-anchor-icon"><svg viewBox="0 0 24 24" aria-hidden="true"><use href="../assets/icons.svg#icon-anchor"></use></svg></a></div>
+<div class="tsd-description">
+<div class="tsd-comment tsd-typography"><p>Get the current added layer(s) of the map.</p>
+</div>
+<h4 class="tsd-returns-title">Returns <a href="core.tilelayer.html" class="tsd-signature-type tsd-kind-class">TileLayer</a><span class="tsd-signature-symbol">[]</span></h4><p>the layer(s) that are added to the map</p>
+</div></li>
+<li class="">
+<div class="tsd-signature tsd-anchor-link" id="getLayers-2"><span class="tsd-kind-call-signature">getLayers</span><span class="tsd-signature-symbol">(</span><span class="tsd-kind-parameter">index</span><span class="tsd-signature-symbol">:</span> <span class="tsd-signature-type">number</span><span class="tsd-signature-symbol">)</span><span class="tsd-signature-symbol">:</span> <a href="core.tilelayer.html" class="tsd-signature-type tsd-kind-class">TileLayer</a><a href="#getLayers-2" aria-label="Permalink" class="tsd-anchor-icon"><svg viewBox="0 0 24 24" aria-hidden="true"><use href="../assets/icons.svg#icon-anchor"></use></svg></a></div>
+<div class="tsd-description">
+<div class="tsd-comment tsd-typography"><p>Get a specific Layer of the map.</p>
+</div>
+<div class="tsd-parameters">
+<h4 class="tsd-parameters-title">Parameters</h4>
+<ul class="tsd-parameter-list">
+<li><span><span class="tsd-kind-parameter">index</span>: <span class="tsd-signature-type">number</span></span>
+<div class="tsd-comment tsd-typography"><p>get a specific layer at index in the layer hierarchy</p>
+</div></li></ul></div>
+<h4 class="tsd-returns-title">Returns <a href="core.tilelayer.html" class="tsd-signature-type tsd-kind-class">TileLayer</a></h4><p>the layer that is added to the map</p>
+</div></li></ul></section>
+<section class="tsd-panel tsd-member">
+<h3 class="tsd-anchor-link" id="getTerrainPointAt"><span>get<wbr/>Terrain<wbr/>Point<wbr/>At</span><a href="#getTerrainPointAt" aria-label="Permalink" class="tsd-anchor-icon"><svg viewBox="0 0 24 24" aria-hidden="true"><use href="../assets/icons.svg#icon-anchor"></use></svg></a></h3>
+<ul class="tsd-signatures">
+<li class="">
+<div class="tsd-signature tsd-anchor-link" id="getTerrainPointAt-1"><span class="tsd-kind-call-signature">getTerrainPointAt</span><span class="tsd-signature-symbol">(</span><span class="tsd-kind-parameter">screen</span><span class="tsd-signature-symbol">:</span> <a href="core.pixelpoint.html" class="tsd-signature-type tsd-kind-class">PixelPoint</a><span class="tsd-signature-symbol">)</span><span class="tsd-signature-symbol">:</span> <a href="core.geopoint.html" class="tsd-signature-type tsd-kind-class">GeoPoint</a><a href="#getTerrainPointAt-1" aria-label="Permalink" class="tsd-anchor-icon"><svg viewBox="0 0 24 24" aria-hidden="true"><use href="../assets/icons.svg#icon-anchor"></use></svg></a></div>
+<div class="tsd-description">
+<div class="tsd-comment tsd-typography"><p>Returns the 3D geographic coordinates (including elevation) of the terrain
+at a given screen position.</p>
+<p>This method performs a raycast from the screen pixel into the scene and returns
+the intersection point on the terrain surface, if available.</p>
+<p>It can be used to convert screen positions into real-world terrain positions,
+including altitude based on the terrain elevation data.</p>
+</div>
+<div class="tsd-parameters">
+<h4 class="tsd-parameters-title">Parameters</h4>
+<ul class="tsd-parameter-list">
+<li><span><span class="tsd-kind-parameter">screen</span>: <a href="core.pixelpoint.html" class="tsd-signature-type tsd-kind-class">PixelPoint</a></span>
+<div class="tsd-comment tsd-typography"><p>The screen (pixel) coordinates <code>{x, y}</code> to query.</p>
+</div></li></ul></div>
+<h4 class="tsd-returns-title">Returns <a href="core.geopoint.html" class="tsd-signature-type tsd-kind-class">GeoPoint</a></h4><p>A <code>GeoPoint</code> object <code>{longitude, latitude, altitude}</code> representing
+the 3D position on the terrain, or <code>null</code> if the terrain data is not yet loaded
+or if the ray does not intersect any terrain surface.</p>
+
+<div class="tsd-comment tsd-typography">
+<div class="tsd-tag-example">
+<h4 class="tsd-anchor-link" id="Example-1">Example<a href="#Example-1" aria-label="Permalink" class="tsd-anchor-icon"><svg viewBox="0 0 24 24" aria-hidden="true"><use href="../assets/icons.svg#icon-anchor"></use></svg></a></h4><pre><code class="ts"><span class="hl-8">const</span><span class="hl-1"> </span><span class="hl-4">terrainPoint</span><span class="hl-1"> = </span><span class="hl-0">map</span><span class="hl-1">.</span><span class="hl-5">getTerrainPointAt</span><span class="hl-1">({</span><span class="hl-0">x:</span><span class="hl-1"> </span><span class="hl-9">300</span><span class="hl-1">, </span><span class="hl-0">y:</span><span class="hl-1"> </span><span class="hl-9">200</span><span class="hl-1">});</span><br/><span class="hl-7">if</span><span class="hl-1"> (</span><span class="hl-0">terrainPoint</span><span class="hl-1">) {</span><br/><span class="hl-1">    </span><span class="hl-0">console</span><span class="hl-1">.</span><span class="hl-5">log</span><span class="hl-1">(</span><span class="hl-6">`Longitude: </span><span class="hl-8">${</span><span class="hl-0">terrainPoint</span><span class="hl-12">.</span><span class="hl-0">longitude</span><span class="hl-8">}</span><span class="hl-6">`</span><span class="hl-1">);</span><br/><span class="hl-1">    </span><span class="hl-0">console</span><span class="hl-1">.</span><span class="hl-5">log</span><span class="hl-1">(</span><span class="hl-6">`Latitude: </span><span class="hl-8">${</span><span class="hl-0">terrainPoint</span><span class="hl-12">.</span><span class="hl-0">latitude</span><span class="hl-8">}</span><span class="hl-6">`</span><span class="hl-1">);</span><br/><span class="hl-1">    </span><span class="hl-0">console</span><span class="hl-1">.</span><span class="hl-5">log</span><span class="hl-1">(</span><span class="hl-6">`Altitude: </span><span class="hl-8">${</span><span class="hl-0">terrainPoint</span><span class="hl-12">.</span><span class="hl-0">altitude</span><span class="hl-8">}</span><span class="hl-6"> m`</span><span class="hl-1">);</span><br/><span class="hl-1">}</span>
+</code><button type="button">Copy</button></pre>
+
+</div></div></div></li></ul></section>
+<section class="tsd-panel tsd-member">
+<h3 class="tsd-anchor-link" id="getViewBounds"><span>get<wbr/>View<wbr/>Bounds</span><a href="#getViewBounds" aria-label="Permalink" class="tsd-anchor-icon"><svg viewBox="0 0 24 24" aria-hidden="true"><use href="../assets/icons.svg#icon-anchor"></use></svg></a></h3>
+<ul class="tsd-signatures">
+<li class="">
+<div class="tsd-signature tsd-anchor-link" id="getViewBounds-1"><span class="tsd-kind-call-signature">getViewBounds</span><span class="tsd-signature-symbol">()</span><span class="tsd-signature-symbol">:</span> <a href="core.georect.html" class="tsd-signature-type tsd-kind-class">GeoRect</a><a href="#getViewBounds-1" aria-label="Permalink" class="tsd-anchor-icon"><svg viewBox="0 0 24 24" aria-hidden="true"><use href="../assets/icons.svg#icon-anchor"></use></svg></a></div>
+<div class="tsd-description">
+<div class="tsd-comment tsd-typography"><p>Gets the current view bounds of the view port.</p>
+</div>
+<h4 class="tsd-returns-title">Returns <a href="core.georect.html" class="tsd-signature-type tsd-kind-class">GeoRect</a></h4></div></li></ul></section>
+<section class="tsd-panel tsd-member">
+<h3 class="tsd-anchor-link" id="getWidth"><span>get<wbr/>Width</span><a href="#getWidth" aria-label="Permalink" class="tsd-anchor-icon"><svg viewBox="0 0 24 24" aria-hidden="true"><use href="../assets/icons.svg#icon-anchor"></use></svg></a></h3>
+<ul class="tsd-signatures">
+<li class="">
+<div class="tsd-signature tsd-anchor-link" id="getWidth-1"><span class="tsd-kind-call-signature">getWidth</span><span class="tsd-signature-symbol">()</span><span class="tsd-signature-symbol">:</span> <span class="tsd-signature-type">number</span><a href="#getWidth-1" aria-label="Permalink" class="tsd-anchor-icon"><svg viewBox="0 0 24 24" aria-hidden="true"><use href="../assets/icons.svg#icon-anchor"></use></svg></a></div>
+<div class="tsd-description">
+<div class="tsd-comment tsd-typography"><p>Get the current width in pixels of map.</p>
+</div>
+<h4 class="tsd-returns-title">Returns <span class="tsd-signature-type">number</span></h4></div></li></ul></section>
+<section class="tsd-panel tsd-member">
+<h3 class="tsd-anchor-link" id="getZoomlevel"><span>get<wbr/>Zoomlevel</span><a href="#getZoomlevel" aria-label="Permalink" class="tsd-anchor-icon"><svg viewBox="0 0 24 24" aria-hidden="true"><use href="../assets/icons.svg#icon-anchor"></use></svg></a></h3>
+<ul class="tsd-signatures">
+<li class="">
+<div class="tsd-signature tsd-anchor-link" id="getZoomlevel-1"><span class="tsd-kind-call-signature">getZoomlevel</span><span class="tsd-signature-symbol">()</span><span class="tsd-signature-symbol">:</span> <span class="tsd-signature-type">number</span><a href="#getZoomlevel-1" aria-label="Permalink" class="tsd-anchor-icon"><svg viewBox="0 0 24 24" aria-hidden="true"><use href="../assets/icons.svg#icon-anchor"></use></svg></a></div>
+<div class="tsd-description">
+<div class="tsd-comment tsd-typography"><p>Get the current zoom level</p>
+</div>
+<h4 class="tsd-returns-title">Returns <span class="tsd-signature-type">number</span></h4><p>the current zoom level of the map</p>
+</div></li></ul></section>
+<section class="tsd-panel tsd-member">
+<h3 class="tsd-anchor-link" id="lockViewport"><span>lock<wbr/>Viewport</span><a href="#lockViewport" aria-label="Permalink" class="tsd-anchor-icon"><svg viewBox="0 0 24 24" aria-hidden="true"><use href="../assets/icons.svg#icon-anchor"></use></svg></a></h3>
+<ul class="tsd-signatures">
+<li class="">
+<div class="tsd-signature tsd-anchor-link" id="lockViewport-1"><span class="tsd-kind-call-signature">lockViewport</span><span class="tsd-signature-symbol">()</span><span class="tsd-signature-symbol">:</span> <span class="tsd-signature-symbol">{</span> <span class="tsd-kind-property">maxLevel</span><span class="tsd-signature-symbol">:</span> <span class="tsd-signature-type">number</span><span class="tsd-signature-symbol">;</span> <span class="tsd-kind-property">minLevel</span><span class="tsd-signature-symbol">:</span> <span class="tsd-signature-type">number</span><span class="tsd-signature-symbol">;</span> <span class="tsd-kind-property">pan</span><span class="tsd-signature-symbol">:</span> <span class="tsd-signature-type">boolean</span> <span class="tsd-signature-symbol">}</span><a href="#lockViewport-1" aria-label="Permalink" class="tsd-anchor-icon"><svg viewBox="0 0 24 24" aria-hidden="true"><use href="../assets/icons.svg#icon-anchor"></use></svg></a></div>
+<div class="tsd-description">
+<div class="tsd-comment tsd-typography"><p>get the current applied lock status of the map.</p>
+</div>
+<h4 class="tsd-returns-title">Returns <span class="tsd-signature-symbol">{</span> <span class="tsd-kind-property">maxLevel</span><span class="tsd-signature-symbol">:</span> <span class="tsd-signature-type">number</span><span class="tsd-signature-symbol">;</span> <span class="tsd-kind-property">minLevel</span><span class="tsd-signature-symbol">:</span> <span class="tsd-signature-type">number</span><span class="tsd-signature-symbol">;</span> <span class="tsd-kind-property">pan</span><span class="tsd-signature-symbol">:</span> <span class="tsd-signature-type">boolean</span> <span class="tsd-signature-symbol">}</span></h4><p>the current applied lock options.</p>
+</div></li>
+<li class="">
+<div class="tsd-signature tsd-anchor-link" id="lockViewport-2"><span class="tsd-kind-call-signature">lockViewport</span><span class="tsd-signature-symbol">(</span><br/>    <span class="tsd-kind-parameter">options</span><span class="tsd-signature-symbol">:</span> <span class="tsd-signature-symbol">{</span> <span class="tsd-kind-property">maxLevel</span><span class="tsd-signature-symbol">?:</span> <span class="tsd-signature-type">number</span><span class="tsd-signature-symbol">;</span> <span class="tsd-kind-property">minLevel</span><span class="tsd-signature-symbol">?:</span> <span class="tsd-signature-type">number</span><span class="tsd-signature-symbol">;</span> <span class="tsd-kind-property">pan</span><span class="tsd-signature-symbol">?:</span> <span class="tsd-signature-type">boolean</span> <span class="tsd-signature-symbol">}</span><span class="tsd-signature-symbol">,</span><br/><span class="tsd-signature-symbol">)</span><span class="tsd-signature-symbol">:</span> <span class="tsd-signature-symbol">{</span> <span class="tsd-kind-property">maxLevel</span><span class="tsd-signature-symbol">:</span> <span class="tsd-signature-type">number</span><span class="tsd-signature-symbol">;</span> <span class="tsd-kind-property">minLevel</span><span class="tsd-signature-symbol">:</span> <span class="tsd-signature-type">number</span><span class="tsd-signature-symbol">;</span> <span class="tsd-kind-property">pan</span><span class="tsd-signature-symbol">:</span> <span class="tsd-signature-type">boolean</span> <span class="tsd-signature-symbol">}</span><a href="#lockViewport-2" aria-label="Permalink" class="tsd-anchor-icon"><svg viewBox="0 0 24 24" aria-hidden="true"><use href="../assets/icons.svg#icon-anchor"></use></svg></a></div>
+<div class="tsd-description">
+<div class="tsd-comment tsd-typography"><p>set lock the viewport of the map.
+by indicating if panning, minLevel and maxLevel should be locked.</p>
+</div>
+<div class="tsd-parameters">
+<h4 class="tsd-parameters-title">Parameters</h4>
+<ul class="tsd-parameter-list">
+<li><span><span class="tsd-kind-parameter">options</span>: <span class="tsd-signature-symbol">{</span> <span class="tsd-kind-property">maxLevel</span><span class="tsd-signature-symbol">?:</span> <span class="tsd-signature-type">number</span><span class="tsd-signature-symbol">;</span> <span class="tsd-kind-property">minLevel</span><span class="tsd-signature-symbol">?:</span> <span class="tsd-signature-type">number</span><span class="tsd-signature-symbol">;</span> <span class="tsd-kind-property">pan</span><span class="tsd-signature-symbol">?:</span> <span class="tsd-signature-type">boolean</span> <span class="tsd-signature-symbol">}</span></span>
+<div class="tsd-comment tsd-typography"><p>the lock options.</p>
+</div>
+<ul class="tsd-parameters">
+<li class="tsd-parameter">
+<h5><code class="tsd-tag">Optional</code><span class="tsd-kind-property">maxLevel</span><span class="tsd-signature-symbol">?: </span><span class="tsd-signature-type">number</span></h5>
+<div class="tsd-comment tsd-typography"><p>the maximum allowed zoom level that can be zoomed to.</p>
+</div></li>
+<li class="tsd-parameter">
+<h5><code class="tsd-tag">Optional</code><span class="tsd-kind-property">minLevel</span><span class="tsd-signature-symbol">?: </span><span class="tsd-signature-type">number</span></h5>
+<div class="tsd-comment tsd-typography"><p>the minimum allowed zoom level that can be zoomed to.</p>
+</div></li>
+<li class="tsd-parameter">
+<h5><code class="tsd-tag">Optional</code><span class="tsd-kind-property">pan</span><span class="tsd-signature-symbol">?: </span><span class="tsd-signature-type">boolean</span></h5>
+<div class="tsd-comment tsd-typography"><p>true to enable panning, false to disable panning.</p>
+</div></li></ul></li></ul></div>
+<h4 class="tsd-returns-title">Returns <span class="tsd-signature-symbol">{</span> <span class="tsd-kind-property">maxLevel</span><span class="tsd-signature-symbol">:</span> <span class="tsd-signature-type">number</span><span class="tsd-signature-symbol">;</span> <span class="tsd-kind-property">minLevel</span><span class="tsd-signature-symbol">:</span> <span class="tsd-signature-type">number</span><span class="tsd-signature-symbol">;</span> <span class="tsd-kind-property">pan</span><span class="tsd-signature-symbol">:</span> <span class="tsd-signature-type">boolean</span> <span class="tsd-signature-symbol">}</span></h4><p>the current applied lock options.</p>
+</div></li></ul></section>
+<section class="tsd-panel tsd-member">
+<h3 class="tsd-anchor-link" id="pan"><span>pan</span><a href="#pan" aria-label="Permalink" class="tsd-anchor-icon"><svg viewBox="0 0 24 24" aria-hidden="true"><use href="../assets/icons.svg#icon-anchor"></use></svg></a></h3>
+<ul class="tsd-signatures">
+<li class="">
+<div class="tsd-signature tsd-anchor-link" id="pan-1"><span class="tsd-kind-call-signature">pan</span><span class="tsd-signature-symbol">(</span><span class="tsd-kind-parameter">dx</span><span class="tsd-signature-symbol">:</span> <span class="tsd-signature-type">number</span><span class="tsd-signature-symbol">,</span> <span class="tsd-kind-parameter">dy</span><span class="tsd-signature-symbol">:</span> <span class="tsd-signature-type">number</span><span class="tsd-signature-symbol">)</span><span class="tsd-signature-symbol">:</span> <span class="tsd-signature-type">void</span><a href="#pan-1" aria-label="Permalink" class="tsd-anchor-icon"><svg viewBox="0 0 24 24" aria-hidden="true"><use href="../assets/icons.svg#icon-anchor"></use></svg></a></div>
+<div class="tsd-description">
+<div class="tsd-comment tsd-typography"><p>Shift the geographical center of the map in pixels.</p>
+</div>
+<div class="tsd-parameters">
+<h4 class="tsd-parameters-title">Parameters</h4>
+<ul class="tsd-parameter-list">
+<li><span><span class="tsd-kind-parameter">dx</span>: <span class="tsd-signature-type">number</span></span>
+<div class="tsd-comment tsd-typography"><p>distance in pixels to pan the map on x axis</p>
+</div></li>
+<li><span><span class="tsd-kind-parameter">dy</span>: <span class="tsd-signature-type">number</span></span>
+<div class="tsd-comment tsd-typography"><p>distance in pixels to pan the map on y axis</p>
+</div></li></ul></div>
+<h4 class="tsd-returns-title">Returns <span class="tsd-signature-type">void</span></h4></div></li></ul></section>
+<section class="tsd-panel tsd-member">
+<h3 class="tsd-anchor-link" id="pitch"><span>pitch</span><a href="#pitch" aria-label="Permalink" class="tsd-anchor-icon"><svg viewBox="0 0 24 24" aria-hidden="true"><use href="../assets/icons.svg#icon-anchor"></use></svg></a></h3>
+<ul class="tsd-signatures">
+<li class="">
+<div class="tsd-signature tsd-anchor-link" id="pitch-1"><span class="tsd-kind-call-signature">pitch</span><span class="tsd-signature-symbol">(</span><span class="tsd-kind-parameter">pitch</span><span class="tsd-signature-symbol">?:</span> <span class="tsd-signature-type">number</span><span class="tsd-signature-symbol">)</span><span class="tsd-signature-symbol">:</span> <span class="tsd-signature-type">number</span><a href="#pitch-1" aria-label="Permalink" class="tsd-anchor-icon"><svg viewBox="0 0 24 24" aria-hidden="true"><use href="../assets/icons.svg#icon-anchor"></use></svg></a></div>
+<div class="tsd-description">
+<div class="tsd-comment tsd-typography"><p>Set or get map pitch (tilt) in degrees</p>
+</div>
+<div class="tsd-parameters">
+<h4 class="tsd-parameters-title">Parameters</h4>
+<ul class="tsd-parameter-list">
+<li><span><code class="tsd-tag">Optional</code><span class="tsd-kind-parameter">pitch</span>: <span class="tsd-signature-type">number</span></span>
+<div class="tsd-comment tsd-typography"><p>pitch in degrees</p>
+</div></li></ul></div>
+<h4 class="tsd-returns-title">Returns <span class="tsd-signature-type">number</span></h4></div></li></ul></section>
+<section class="tsd-panel tsd-member">
+<h3 class="tsd-anchor-link" id="pixelToGeo"><span>pixel<wbr/>To<wbr/>Geo</span><a href="#pixelToGeo" aria-label="Permalink" class="tsd-anchor-icon"><svg viewBox="0 0 24 24" aria-hidden="true"><use href="../assets/icons.svg#icon-anchor"></use></svg></a></h3>
+<ul class="tsd-signatures">
+<li class="">
+<div class="tsd-signature tsd-anchor-link" id="pixelToGeo-1"><span class="tsd-kind-call-signature">pixelToGeo</span><span class="tsd-signature-symbol">(</span><span class="tsd-kind-parameter">x</span><span class="tsd-signature-symbol">:</span> <span class="tsd-signature-type">number</span><span class="tsd-signature-symbol">,</span> <span class="tsd-kind-parameter">y</span><span class="tsd-signature-symbol">:</span> <span class="tsd-signature-type">number</span><span class="tsd-signature-symbol">)</span><span class="tsd-signature-symbol">:</span> <a href="core.geopoint.html" class="tsd-signature-type tsd-kind-class">GeoPoint</a><a href="#pixelToGeo-1" aria-label="Permalink" class="tsd-anchor-icon"><svg viewBox="0 0 24 24" aria-hidden="true"><use href="../assets/icons.svg#icon-anchor"></use></svg></a></div>
+<div class="tsd-description">
+<div class="tsd-comment tsd-typography"><p>Converts from screen pixel to geo coordinate</p>
+</div>
+<div class="tsd-parameters">
+<h4 class="tsd-parameters-title">Parameters</h4>
+<ul class="tsd-parameter-list">
+<li><span><span class="tsd-kind-parameter">x</span>: <span class="tsd-signature-type">number</span></span>
+<div class="tsd-comment tsd-typography"><p>the x position on screen in pixel</p>
+</div></li>
+<li><span><span class="tsd-kind-parameter">y</span>: <span class="tsd-signature-type">number</span></span>
+<div class="tsd-comment tsd-typography"><p>the y position on screen in pixel</p>
+</div></li></ul></div>
+<h4 class="tsd-returns-title">Returns <a href="core.geopoint.html" class="tsd-signature-type tsd-kind-class">GeoPoint</a></h4><p>the geographical coordinate</p>
+</div></li>
+<li class="">
+<div class="tsd-signature tsd-anchor-link" id="pixelToGeo-2"><span class="tsd-kind-call-signature">pixelToGeo</span><span class="tsd-signature-symbol">(</span><span class="tsd-kind-parameter">position</span><span class="tsd-signature-symbol">:</span> <a href="core.pixelpoint.html" class="tsd-signature-type tsd-kind-class">PixelPoint</a><span class="tsd-signature-symbol">)</span><span class="tsd-signature-symbol">:</span> <a href="core.geopoint.html" class="tsd-signature-type tsd-kind-class">GeoPoint</a><a href="#pixelToGeo-2" aria-label="Permalink" class="tsd-anchor-icon"><svg viewBox="0 0 24 24" aria-hidden="true"><use href="../assets/icons.svg#icon-anchor"></use></svg></a></div>
+<div class="tsd-description">
+<div class="tsd-comment tsd-typography"><p>Converts from screen pixel to geo coordinate</p>
+</div>
+<div class="tsd-parameters">
+<h4 class="tsd-parameters-title">Parameters</h4>
+<ul class="tsd-parameter-list">
+<li><span><span class="tsd-kind-parameter">position</span>: <a href="core.pixelpoint.html" class="tsd-signature-type tsd-kind-class">PixelPoint</a></span>
+<div class="tsd-comment tsd-typography"><p>the pixel coordinate on screen</p>
+</div></li></ul></div>
+<h4 class="tsd-returns-title">Returns <a href="core.geopoint.html" class="tsd-signature-type tsd-kind-class">GeoPoint</a></h4><p>the geographical coordinate</p>
+</div></li></ul></section>
+<section class="tsd-panel tsd-member">
+<h3 class="tsd-anchor-link" id="refresh"><span>refresh</span><a href="#refresh" aria-label="Permalink" class="tsd-anchor-icon"><svg viewBox="0 0 24 24" aria-hidden="true"><use href="../assets/icons.svg#icon-anchor"></use></svg></a></h3>
+<ul class="tsd-signatures">
+<li class="">
+<div class="tsd-signature tsd-anchor-link" id="refresh-1"><span class="tsd-kind-call-signature">refresh</span><span class="tsd-signature-symbol">(</span><span class="tsd-kind-parameter">layers</span><span class="tsd-signature-symbol">?:</span> <a href="core.tilelayer.html" class="tsd-signature-type tsd-kind-class">TileLayer</a> <span class="tsd-signature-symbol">|</span> <a href="core.layer.html" class="tsd-signature-type tsd-kind-class">Layer</a> <span class="tsd-signature-symbol">|</span> (<a href="core.tilelayer.html" class="tsd-signature-type tsd-kind-class">TileLayer</a> <span class="tsd-signature-symbol">|</span> <a href="core.layer.html" class="tsd-signature-type tsd-kind-class">Layer</a>)<span class="tsd-signature-symbol">[]</span><span class="tsd-signature-symbol">)</span><span class="tsd-signature-symbol">:</span> <span class="tsd-signature-type">void</span><a href="#refresh-1" aria-label="Permalink" class="tsd-anchor-icon"><svg viewBox="0 0 24 24" aria-hidden="true"><use href="../assets/icons.svg#icon-anchor"></use></svg></a></div>
+<div class="tsd-description">
+<div class="tsd-comment tsd-typography"><p>Refresh the map view.
+Manually trigger re-rendering of specific layer(s) of the map.</p>
+</div>
+<div class="tsd-parameters">
+<h4 class="tsd-parameters-title">Parameters</h4>
+<ul class="tsd-parameter-list">
+<li><span><code class="tsd-tag">Optional</code><span class="tsd-kind-parameter">layers</span>: <a href="core.tilelayer.html" class="tsd-signature-type tsd-kind-class">TileLayer</a> <span class="tsd-signature-symbol">|</span> <a href="core.layer.html" class="tsd-signature-type tsd-kind-class">Layer</a> <span class="tsd-signature-symbol">|</span> (<a href="core.tilelayer.html" class="tsd-signature-type tsd-kind-class">TileLayer</a> <span class="tsd-signature-symbol">|</span> <a href="core.layer.html" class="tsd-signature-type tsd-kind-class">Layer</a>)<span class="tsd-signature-symbol">[]</span></span>
+<div class="tsd-comment tsd-typography"><p>the layer(s) that should be refreshed/re-rendered.</p>
+</div></li></ul></div>
+<h4 class="tsd-returns-title">Returns <span class="tsd-signature-type">void</span></h4></div></li></ul></section>
+<section class="tsd-panel tsd-member">
+<h3 class="tsd-anchor-link" id="removeEventListener"><span>remove<wbr/>Event<wbr/>Listener</span><a href="#removeEventListener" aria-label="Permalink" class="tsd-anchor-icon"><svg viewBox="0 0 24 24" aria-hidden="true"><use href="../assets/icons.svg#icon-anchor"></use></svg></a></h3>
+<ul class="tsd-signatures">
+<li class="">
+<div class="tsd-signature tsd-anchor-link" id="removeEventListener-1"><span class="tsd-kind-call-signature">removeEventListener</span><span class="tsd-signature-symbol">(</span><span class="tsd-kind-parameter">type</span><span class="tsd-signature-symbol">:</span> <span class="tsd-signature-type">string</span><span class="tsd-signature-symbol">,</span> <span class="tsd-kind-parameter">listener</span><span class="tsd-signature-symbol">:</span> <span class="tsd-signature-symbol">(</span><span class="tsd-kind-parameter">e</span><span class="tsd-signature-symbol">:</span> <a href="display.mapevent.html" class="tsd-signature-type tsd-kind-class">MapEvent</a><span class="tsd-signature-symbol">)</span> <span class="tsd-signature-symbol">=&gt;</span> <span class="tsd-signature-type">void</span><span class="tsd-signature-symbol">)</span><span class="tsd-signature-symbol">:</span> <span class="tsd-signature-type">void</span><a href="#removeEventListener-1" aria-label="Permalink" class="tsd-anchor-icon"><svg viewBox="0 0 24 24" aria-hidden="true"><use href="../assets/icons.svg#icon-anchor"></use></svg></a></div>
+<div class="tsd-description">
+<div class="tsd-comment tsd-typography"><p>Removes an event listener to the map.</p>
+</div>
+<div class="tsd-parameters">
+<h4 class="tsd-parameters-title">Parameters</h4>
+<ul class="tsd-parameter-list">
+<li><span><span class="tsd-kind-parameter">type</span>: <span class="tsd-signature-type">string</span></span>
+<div class="tsd-comment tsd-typography"><p>A string representing the event type to listen for.</p>
+</div></li>
+<li><span><span class="tsd-kind-parameter">listener</span>: <span class="tsd-signature-symbol">(</span><span class="tsd-kind-parameter">e</span><span class="tsd-signature-symbol">:</span> <a href="display.mapevent.html" class="tsd-signature-type tsd-kind-class">MapEvent</a><span class="tsd-signature-symbol">)</span> <span class="tsd-signature-symbol">=&gt;</span> <span class="tsd-signature-type">void</span></span>
+<div class="tsd-comment tsd-typography"><p>The EventListener function of the event handler to remove from the editor.</p>
+</div></li></ul></div>
+<h4 class="tsd-returns-title">Returns <span class="tsd-signature-type">void</span></h4></div></li></ul></section>
+<section class="tsd-panel tsd-member">
+<h3 class="tsd-anchor-link" id="removeLayer"><span>remove<wbr/>Layer</span><a href="#removeLayer" aria-label="Permalink" class="tsd-anchor-icon"><svg viewBox="0 0 24 24" aria-hidden="true"><use href="../assets/icons.svg#icon-anchor"></use></svg></a></h3>
+<ul class="tsd-signatures">
+<li class="">
+<div class="tsd-signature tsd-anchor-link" id="removeLayer-1"><span class="tsd-kind-call-signature">removeLayer</span><span class="tsd-signature-symbol">(</span><span class="tsd-kind-parameter">layer</span><span class="tsd-signature-symbol">:</span> <a href="core.tilelayer.html" class="tsd-signature-type tsd-kind-class">TileLayer</a> <span class="tsd-signature-symbol">|</span> <a href="core.customlayer.html" class="tsd-signature-type tsd-kind-class">CustomLayer</a><span class="tsd-signature-symbol">)</span><span class="tsd-signature-symbol">:</span> <span class="tsd-signature-type">void</span><a href="#removeLayer-1" aria-label="Permalink" class="tsd-anchor-icon"><svg viewBox="0 0 24 24" aria-hidden="true"><use href="../assets/icons.svg#icon-anchor"></use></svg></a></div>
+<div class="tsd-description">
+<div class="tsd-comment tsd-typography"><p>Remove a layer from the map.</p>
+</div>
+<div class="tsd-parameters">
+<h4 class="tsd-parameters-title">Parameters</h4>
+<ul class="tsd-parameter-list">
+<li><span><span class="tsd-kind-parameter">layer</span>: <a href="core.tilelayer.html" class="tsd-signature-type tsd-kind-class">TileLayer</a> <span class="tsd-signature-symbol">|</span> <a href="core.customlayer.html" class="tsd-signature-type tsd-kind-class">CustomLayer</a></span>
+<div class="tsd-comment tsd-typography"><p>the layer to remove</p>
+</div></li></ul></div>
+<h4 class="tsd-returns-title">Returns <span class="tsd-signature-type">void</span></h4></div></li></ul></section>
+<section class="tsd-panel tsd-member">
+<h3 class="tsd-anchor-link" id="removeObserver"><span>remove<wbr/>Observer</span><a href="#removeObserver" aria-label="Permalink" class="tsd-anchor-icon"><svg viewBox="0 0 24 24" aria-hidden="true"><use href="../assets/icons.svg#icon-anchor"></use></svg></a></h3>
+<ul class="tsd-signatures">
+<li class="">
+<div class="tsd-signature tsd-anchor-link" id="removeObserver-1"><span class="tsd-kind-call-signature">removeObserver</span><span class="tsd-signature-symbol">(</span><br/>    <span class="tsd-kind-parameter">name</span><span class="tsd-signature-symbol">:</span> <span class="tsd-signature-type">string</span><span class="tsd-signature-symbol">,</span><br/>    <span class="tsd-kind-parameter">observer</span><span class="tsd-signature-symbol">:</span> <span class="tsd-signature-symbol">(</span><span class="tsd-kind-parameter">name</span><span class="tsd-signature-symbol">:</span> <span class="tsd-signature-type">string</span><span class="tsd-signature-symbol">,</span> <span class="tsd-kind-parameter">newValue</span><span class="tsd-signature-symbol">:</span> <span class="tsd-signature-type">any</span><span class="tsd-signature-symbol">,</span> <span class="tsd-kind-parameter">prevValue</span><span class="tsd-signature-symbol">:</span> <span class="tsd-signature-type">any</span><span class="tsd-signature-symbol">)</span> <span class="tsd-signature-symbol">=&gt;</span> <span class="tsd-signature-type">void</span><span class="tsd-signature-symbol">,</span><br/><span class="tsd-signature-symbol">)</span><span class="tsd-signature-symbol">:</span> <span class="tsd-signature-type">boolean</span><a href="#removeObserver-1" aria-label="Permalink" class="tsd-anchor-icon"><svg viewBox="0 0 24 24" aria-hidden="true"><use href="../assets/icons.svg#icon-anchor"></use></svg></a></div>
+<div class="tsd-description">
+<div class="tsd-comment tsd-typography"><p>Removes an observer from the map.</p>
+</div>
+<div class="tsd-parameters">
+<h4 class="tsd-parameters-title">Parameters</h4>
+<ul class="tsd-parameter-list">
+<li><span><span class="tsd-kind-parameter">name</span>: <span class="tsd-signature-type">string</span></span>
+<div class="tsd-comment tsd-typography"><p>the name of the value to observe</p>
+</div></li>
+<li><span><span class="tsd-kind-parameter">observer</span>: <span class="tsd-signature-symbol">(</span><span class="tsd-kind-parameter">name</span><span class="tsd-signature-symbol">:</span> <span class="tsd-signature-type">string</span><span class="tsd-signature-symbol">,</span> <span class="tsd-kind-parameter">newValue</span><span class="tsd-signature-symbol">:</span> <span class="tsd-signature-type">any</span><span class="tsd-signature-symbol">,</span> <span class="tsd-kind-parameter">prevValue</span><span class="tsd-signature-symbol">:</span> <span class="tsd-signature-type">any</span><span class="tsd-signature-symbol">)</span> <span class="tsd-signature-symbol">=&gt;</span> <span class="tsd-signature-type">void</span></span>
+<div class="tsd-comment tsd-typography"><p>the observer that should be removed.</p>
+</div></li></ul></div>
+<h4 class="tsd-returns-title">Returns <span class="tsd-signature-type">boolean</span></h4><p>boolean that's indicating if observer was removed.</p>
+</div></li></ul></section>
+<section class="tsd-panel tsd-member">
+<h3 class="tsd-anchor-link" id="resize"><span>resize</span><a href="#resize" aria-label="Permalink" class="tsd-anchor-icon"><svg viewBox="0 0 24 24" aria-hidden="true"><use href="../assets/icons.svg#icon-anchor"></use></svg></a></h3>
+<ul class="tsd-signatures">
+<li class="">
+<div class="tsd-signature tsd-anchor-link" id="resize-1"><span class="tsd-kind-call-signature">resize</span><span class="tsd-signature-symbol">(</span><span class="tsd-kind-parameter">width</span><span class="tsd-signature-symbol">?:</span> <span class="tsd-signature-type">number</span><span class="tsd-signature-symbol">,</span> <span class="tsd-kind-parameter">height</span><span class="tsd-signature-symbol">?:</span> <span class="tsd-signature-type">number</span><span class="tsd-signature-symbol">)</span><span class="tsd-signature-symbol">:</span> <span class="tsd-signature-type">void</span><a href="#resize-1" aria-label="Permalink" class="tsd-anchor-icon"><svg viewBox="0 0 24 24" aria-hidden="true"><use href="../assets/icons.svg#icon-anchor"></use></svg></a></div>
+<div class="tsd-description">
+<div class="tsd-comment tsd-typography"><p>Resize the map view.
+If no width/height is passed the map will resize automatically to the maximum possible size defined by the HTMLElement.</p>
+</div>
+<div class="tsd-parameters">
+<h4 class="tsd-parameters-title">Parameters</h4>
+<ul class="tsd-parameter-list">
+<li><span><code class="tsd-tag">Optional</code><span class="tsd-kind-parameter">width</span>: <span class="tsd-signature-type">number</span></span>
+<div class="tsd-comment tsd-typography"><p>new width in pixels</p>
+</div></li>
+<li><span><code class="tsd-tag">Optional</code><span class="tsd-kind-parameter">height</span>: <span class="tsd-signature-type">number</span></span>
+<div class="tsd-comment tsd-typography"><p>new height in pixels</p>
+</div></li></ul></div>
+<h4 class="tsd-returns-title">Returns <span class="tsd-signature-type">void</span></h4></div></li></ul></section>
+<section class="tsd-panel tsd-member">
+<h3 class="tsd-anchor-link" id="rotate"><span>rotate</span><a href="#rotate" aria-label="Permalink" class="tsd-anchor-icon"><svg viewBox="0 0 24 24" aria-hidden="true"><use href="../assets/icons.svg#icon-anchor"></use></svg></a></h3>
+<ul class="tsd-signatures">
+<li class="">
+<div class="tsd-signature tsd-anchor-link" id="rotate-1"><span class="tsd-kind-call-signature">rotate</span><span class="tsd-signature-symbol">(</span><span class="tsd-kind-parameter">rotation</span><span class="tsd-signature-symbol">?:</span> <span class="tsd-signature-type">number</span><span class="tsd-signature-symbol">)</span><span class="tsd-signature-symbol">:</span> <span class="tsd-signature-type">number</span><a href="#rotate-1" aria-label="Permalink" class="tsd-anchor-icon"><svg viewBox="0 0 24 24" aria-hidden="true"><use href="../assets/icons.svg#icon-anchor"></use></svg></a></div>
+<div class="tsd-description">
+<div class="tsd-comment tsd-typography"><p>Set or get map rotation along z-axis</p>
+</div>
+<div class="tsd-parameters">
+<h4 class="tsd-parameters-title">Parameters</h4>
+<ul class="tsd-parameter-list">
+<li><span><code class="tsd-tag">Optional</code><span class="tsd-kind-parameter">rotation</span>: <span class="tsd-signature-type">number</span></span>
+<div class="tsd-comment tsd-typography"><p>set absolute map rotation in degrees</p>
+</div></li></ul></div>
+<h4 class="tsd-returns-title">Returns <span class="tsd-signature-type">number</span></h4><p>current applied rotation in degrees</p>
+</div></li></ul></section>
+<section class="tsd-panel tsd-member">
+<h3 class="tsd-anchor-link" id="setAltitude"><span>set<wbr/>Altitude</span><a href="#setAltitude" aria-label="Permalink" class="tsd-anchor-icon"><svg viewBox="0 0 24 24" aria-hidden="true"><use href="../assets/icons.svg#icon-anchor"></use></svg></a></h3>
+<ul class="tsd-signatures">
+<li class="">
+<div class="tsd-signature tsd-anchor-link" id="setAltitude-1"><span class="tsd-kind-call-signature">setAltitude</span><span class="tsd-signature-symbol">(</span><span class="tsd-kind-parameter">targetAltitude</span><span class="tsd-signature-symbol">:</span> <span class="tsd-signature-type">number</span><span class="tsd-signature-symbol">,</span> <span class="tsd-kind-parameter">duration</span><span class="tsd-signature-symbol">?:</span> <span class="tsd-signature-type">number</span><span class="tsd-signature-symbol">)</span><span class="tsd-signature-symbol">:</span> <span class="tsd-signature-type">void</span><a href="#setAltitude-1" aria-label="Permalink" class="tsd-anchor-icon"><svg viewBox="0 0 24 24" aria-hidden="true"><use href="../assets/icons.svg#icon-anchor"></use></svg></a></div>
+<div class="tsd-description">
+<div class="tsd-comment tsd-typography"><p>Adjusts the map zoom level so that the camera altitude matches the target altitude.
+Moves the camera straight up or down — elevator style — while keeping the ground point
+directly beneath the camera fixed in the same screen position.</p>
+<p>Unlike a plain <a href="#setZoomlevel" class="tsd-kind-method">setZoomlevel()</a>, which zooms towards a specified anchor point (default: map center),
+this method ensures the zoom is anchored to the point directly under the camera.</p>
+<p>Pitch and bearing remain unchanged, so the map center (lookAt) will shift as altitude changes.</p>
+</div>
+<div class="tsd-parameters">
+<h4 class="tsd-parameters-title">Parameters</h4>
+<ul class="tsd-parameter-list">
+<li><span><span class="tsd-kind-parameter">targetAltitude</span>: <span class="tsd-signature-type">number</span></span>
+<div class="tsd-comment tsd-typography"><p>The desired camera altitude in meters.</p>
+</div></li>
+<li><span><code class="tsd-tag">Optional</code><span class="tsd-kind-parameter">duration</span>: <span class="tsd-signature-type">number</span><span class="tsd-signature-symbol"> = 0</span></span>
+<div class="tsd-comment tsd-typography"><p>Optional zoom animation duration in milliseconds.</p>
+</div></li></ul></div>
+<h4 class="tsd-returns-title">Returns <span class="tsd-signature-type">void</span></h4></div></li></ul></section>
+<section class="tsd-panel tsd-member">
+<h3 class="tsd-anchor-link" id="setBackgroundColor"><span>set<wbr/>Background<wbr/>Color</span><a href="#setBackgroundColor" aria-label="Permalink" class="tsd-anchor-icon"><svg viewBox="0 0 24 24" aria-hidden="true"><use href="../assets/icons.svg#icon-anchor"></use></svg></a></h3>
+<ul class="tsd-signatures">
+<li class="">
+<div class="tsd-signature tsd-anchor-link" id="setBackgroundColor-1"><span class="tsd-kind-call-signature">setBackgroundColor</span><span class="tsd-signature-symbol">(</span><span class="tsd-kind-parameter">color</span><span class="tsd-signature-symbol">:</span> <a href="../types/core.color.html" class="tsd-signature-type tsd-kind-type-alias">Color</a><span class="tsd-signature-symbol">)</span><span class="tsd-signature-symbol">:</span> <span class="tsd-signature-type">void</span><a href="#setBackgroundColor-1" aria-label="Permalink" class="tsd-anchor-icon"><svg viewBox="0 0 24 24" aria-hidden="true"><use href="../assets/icons.svg#icon-anchor"></use></svg></a></div>
+<div class="tsd-description">
+<div class="tsd-comment tsd-typography"><p>Sets the background color of the map.</p>
+<p>The background color of the layer at index 0 takes precedence over this color.
+If that layer has no background color, or the map has no layers, the updated map background color is used.</p>
+</div>
+<div class="tsd-parameters">
+<h4 class="tsd-parameters-title">Parameters</h4>
+<ul class="tsd-parameter-list">
+<li><span><span class="tsd-kind-parameter">color</span>: <a href="../types/core.color.html" class="tsd-signature-type tsd-kind-type-alias">Color</a></span>
+<div class="tsd-comment tsd-typography"><p>the background color to set</p>
+</div></li></ul></div>
+<h4 class="tsd-returns-title">Returns <span class="tsd-signature-type">void</span></h4></div></li></ul></section>
+<section class="tsd-panel tsd-member">
+<h3 class="tsd-anchor-link" id="setBehavior"><span>set<wbr/>Behavior</span><a href="#setBehavior" aria-label="Permalink" class="tsd-anchor-icon"><svg viewBox="0 0 24 24" aria-hidden="true"><use href="../assets/icons.svg#icon-anchor"></use></svg></a></h3>
+<ul class="tsd-signatures">
+<li class="">
+<div class="tsd-signature tsd-anchor-link" id="setBehavior-1"><span class="tsd-kind-call-signature">setBehavior</span><span class="tsd-signature-symbol">(</span><br/>    <span class="tsd-kind-parameter">options</span><span class="tsd-signature-symbol">:</span> <span class="tsd-signature-symbol">{</span><br/>        <span class="tsd-kind-property">drag</span><span class="tsd-signature-symbol">?:</span> <span class="tsd-signature-type">boolean</span><span class="tsd-signature-symbol">;</span><br/>        <span class="tsd-kind-property">pitch</span><span class="tsd-signature-symbol">?:</span> <span class="tsd-signature-type">boolean</span><span class="tsd-signature-symbol">;</span><br/>        <span class="tsd-kind-property">pitchAndRotateModifiers</span><span class="tsd-signature-symbol">?:</span> <a href="../types/display.modifierkey.html" class="tsd-signature-type tsd-kind-type-alias">ModifierKey</a> <span class="tsd-signature-symbol">|</span> <a href="../types/display.modifierkey.html" class="tsd-signature-type tsd-kind-type-alias">ModifierKey</a><span class="tsd-signature-symbol">[]</span><span class="tsd-signature-symbol">;</span><br/>        <span class="tsd-kind-property">rotate</span><span class="tsd-signature-symbol">?:</span> <span class="tsd-signature-type">boolean</span><span class="tsd-signature-symbol">;</span><br/>        <span class="tsd-kind-property">zoom</span><span class="tsd-signature-symbol">?:</span> <span class="tsd-signature-type">boolean</span><span class="tsd-signature-symbol">;</span><br/>    <span class="tsd-signature-symbol">}</span><span class="tsd-signature-symbol">,</span><br/><span class="tsd-signature-symbol">)</span><span class="tsd-signature-symbol">:</span> <span class="tsd-signature-type">void</span><a href="#setBehavior-1" aria-label="Permalink" class="tsd-anchor-icon"><svg viewBox="0 0 24 24" aria-hidden="true"><use href="../assets/icons.svg#icon-anchor"></use></svg></a></div>
+<div class="tsd-description">
+<div class="tsd-comment tsd-typography"><p>Set the map behavior on user interaction.</p>
+</div>
+<div class="tsd-parameters">
+<h4 class="tsd-parameters-title">Parameters</h4>
+<ul class="tsd-parameter-list">
+<li><span><span class="tsd-kind-parameter">options</span>: <span class="tsd-signature-symbol">{</span><br/>    <span class="tsd-kind-property">drag</span><span class="tsd-signature-symbol">?:</span> <span class="tsd-signature-type">boolean</span><span class="tsd-signature-symbol">;</span><br/>    <span class="tsd-kind-property">pitch</span><span class="tsd-signature-symbol">?:</span> <span class="tsd-signature-type">boolean</span><span class="tsd-signature-symbol">;</span><br/>    <span class="tsd-kind-property">pitchAndRotateModifiers</span><span class="tsd-signature-symbol">?:</span> <a href="../types/display.modifierkey.html" class="tsd-signature-type tsd-kind-type-alias">ModifierKey</a> <span class="tsd-signature-symbol">|</span> <a href="../types/display.modifierkey.html" class="tsd-signature-type tsd-kind-type-alias">ModifierKey</a><span class="tsd-signature-symbol">[]</span><span class="tsd-signature-symbol">;</span><br/>    <span class="tsd-kind-property">rotate</span><span class="tsd-signature-symbol">?:</span> <span class="tsd-signature-type">boolean</span><span class="tsd-signature-symbol">;</span><br/>    <span class="tsd-kind-property">zoom</span><span class="tsd-signature-symbol">?:</span> <span class="tsd-signature-type">boolean</span><span class="tsd-signature-symbol">;</span><br/><span class="tsd-signature-symbol">}</span></span>
+<div class="tsd-comment tsd-typography"><p>Behavior options</p>
+</div>
+<ul class="tsd-parameters">
+<li class="tsd-parameter">
+<h5><code class="tsd-tag">Optional</code><span class="tsd-kind-property">drag</span><span class="tsd-signature-symbol">?: </span><span class="tsd-signature-type">boolean</span></h5>
+<div class="tsd-comment tsd-typography"><p>true to enable map dragging, false to disable.</p>
+</div></li>
+<li class="tsd-parameter">
+<h5><code class="tsd-tag">Optional</code><span class="tsd-kind-property">pitch</span><span class="tsd-signature-symbol">?: </span><span class="tsd-signature-type">boolean</span></h5>
+<div class="tsd-comment tsd-typography"><p>true to enable map pitching, false to disable.</p>
+</div></li>
+<li class="tsd-parameter">
+<h5><code class="tsd-tag">Optional</code><span class="tsd-kind-property">pitchAndRotateModifiers</span><span class="tsd-signature-symbol">?: </span><a href="../types/display.modifierkey.html" class="tsd-signature-type tsd-kind-type-alias">ModifierKey</a> <span class="tsd-signature-symbol">|</span> <a href="../types/display.modifierkey.html" class="tsd-signature-type tsd-kind-type-alias">ModifierKey</a><span class="tsd-signature-symbol">[]</span></h5>
+<div class="tsd-comment tsd-typography"><p>Modifier key or keys for the combined pitch and rotation gesture.</p>
+</div></li>
+<li class="tsd-parameter">
+<h5><code class="tsd-tag">Optional</code><span class="tsd-kind-property">rotate</span><span class="tsd-signature-symbol">?: </span><span class="tsd-signature-type">boolean</span></h5>
+<div class="tsd-comment tsd-typography"><p>true to enable map rotation, false to disable.</p>
+</div></li>
+<li class="tsd-parameter">
+<h5><code class="tsd-tag">Optional</code><span class="tsd-kind-property">zoom</span><span class="tsd-signature-symbol">?: </span><span class="tsd-signature-type">boolean</span></h5>
+<div class="tsd-comment tsd-typography"><p>true to enable map zooming, false to disable.</p>
+</div></li></ul></li></ul></div>
+<h4 class="tsd-returns-title">Returns <span class="tsd-signature-type">void</span></h4>
+<div class="tsd-comment tsd-typography">
+<div class="tsd-tag-example">
+<h4 class="tsd-anchor-link" id="Example-2">Example<a href="#Example-2" aria-label="Permalink" class="tsd-anchor-icon"><svg viewBox="0 0 24 24" aria-hidden="true"><use href="../assets/icons.svg#icon-anchor"></use></svg></a></h4><pre><code class="typescript"><span class="hl-3">// to deactivate map zoom on mouse scroll:</span><br/><span class="hl-5">setBehavior</span><span class="hl-1">({</span><span class="hl-0">zoom:</span><span class="hl-1"> </span><span class="hl-8">false</span><span class="hl-1">, </span><span class="hl-0">drag:</span><span class="hl-1"> </span><span class="hl-8">true</span><span class="hl-1">});</span>
+</code><button type="button">Copy</button></pre>
+
+</div></div></div></li>
+<li class="">
+<div class="tsd-signature tsd-anchor-link" id="setBehavior-2"><span class="tsd-kind-call-signature">setBehavior</span><span class="tsd-signature-symbol">(</span><span class="tsd-kind-parameter">behavior</span><span class="tsd-signature-symbol">:</span> <span class="tsd-signature-type">string</span><span class="tsd-signature-symbol">,</span> <span class="tsd-kind-parameter">active</span><span class="tsd-signature-symbol">:</span> <span class="tsd-signature-type">boolean</span><span class="tsd-signature-symbol">)</span><span class="tsd-signature-symbol">:</span> <span class="tsd-signature-type">any</span><a href="#setBehavior-2" aria-label="Permalink" class="tsd-anchor-icon"><svg viewBox="0 0 24 24" aria-hidden="true"><use href="../assets/icons.svg#icon-anchor"></use></svg></a></div>
+<div class="tsd-description">
+<div class="tsd-comment tsd-typography"><p>Enable/Disable a specific map behavior on user interaction.
+Possible behavior are: &quot;zoom&quot;, &quot;drag&quot;, &quot;pitch&quot; and &quot;rotate</p>
+</div>
+<div class="tsd-parameters">
+<h4 class="tsd-parameters-title">Parameters</h4>
+<ul class="tsd-parameter-list">
+<li><span><span class="tsd-kind-parameter">behavior</span>: <span class="tsd-signature-type">string</span></span>
+<div class="tsd-comment tsd-typography"><p>the behavior that should be disabled or enabled.</p>
+</div></li>
+<li><span><span class="tsd-kind-parameter">active</span>: <span class="tsd-signature-type">boolean</span></span>
+<div class="tsd-comment tsd-typography"><p>true to enable, false to disable</p>
+</div></li></ul></div>
+<h4 class="tsd-returns-title">Returns <span class="tsd-signature-type">any</span></h4>
+<div class="tsd-comment tsd-typography">
+<div class="tsd-tag-example">
+<h4 class="tsd-anchor-link" id="Example-3">Example<a href="#Example-3" aria-label="Permalink" class="tsd-anchor-icon"><svg viewBox="0 0 24 24" aria-hidden="true"><use href="../assets/icons.svg#icon-anchor"></use></svg></a></h4><pre><code class="typescript"><span class="hl-3">// to deactivate map zoom on mouse scroll:</span><br/><span class="hl-5">setBehavior</span><span class="hl-1">(</span><span class="hl-6">&#39;zoom&#39;</span><span class="hl-1">,</span><span class="hl-8">true</span><span class="hl-1">);</span>
+</code><button type="button">Copy</button></pre>
+
+</div></div></div></li></ul></section>
+<section class="tsd-panel tsd-member">
+<h3 class="tsd-anchor-link" id="setCenter"><span>set<wbr/>Center</span><a href="#setCenter" aria-label="Permalink" class="tsd-anchor-icon"><svg viewBox="0 0 24 24" aria-hidden="true"><use href="../assets/icons.svg#icon-anchor"></use></svg></a></h3>
+<ul class="tsd-signatures">
+<li class="">
+<div class="tsd-signature tsd-anchor-link" id="setCenter-1"><span class="tsd-kind-call-signature">setCenter</span><span class="tsd-signature-symbol">(</span><span class="tsd-kind-parameter">center</span><span class="tsd-signature-symbol">:</span> <a href="core.geopoint.html" class="tsd-signature-type tsd-kind-class">GeoPoint</a><span class="tsd-signature-symbol">)</span><span class="tsd-signature-symbol">:</span> <span class="tsd-signature-type">any</span><a href="#setCenter-1" aria-label="Permalink" class="tsd-anchor-icon"><svg viewBox="0 0 24 24" aria-hidden="true"><use href="../assets/icons.svg#icon-anchor"></use></svg></a></div>
+<div class="tsd-description">
+<div class="tsd-comment tsd-typography"><p>Set new geographical center for the map.</p>
+</div>
+<div class="tsd-parameters">
+<h4 class="tsd-parameters-title">Parameters</h4>
+<ul class="tsd-parameter-list">
+<li><span><span class="tsd-kind-parameter">center</span>: <a href="core.geopoint.html" class="tsd-signature-type tsd-kind-class">GeoPoint</a></span>
+<div class="tsd-comment tsd-typography"><p>the geographical coordinate to center the map</p>
+</div></li></ul></div>
+<h4 class="tsd-returns-title">Returns <span class="tsd-signature-type">any</span></h4>
+<div class="tsd-comment tsd-typography">
+<div class="tsd-tag-example">
+<h4 class="tsd-anchor-link" id="Example-4">Example<a href="#Example-4" aria-label="Permalink" class="tsd-anchor-icon"><svg viewBox="0 0 24 24" aria-hidden="true"><use href="../assets/icons.svg#icon-anchor"></use></svg></a></h4><pre><code class="typescript"><span class="hl-0">display</span><span class="hl-1">.</span><span class="hl-5">setCenter</span><span class="hl-1">({</span><span class="hl-0">longitude:</span><span class="hl-1"> </span><span class="hl-9">8.53422</span><span class="hl-1">, </span><span class="hl-0">latitude:</span><span class="hl-1"> </span><span class="hl-9">50.16212</span><span class="hl-1">});</span>
+</code><button type="button">Copy</button></pre>
+
+</div></div></div></li>
+<li class="">
+<div class="tsd-signature tsd-anchor-link" id="setCenter-2"><span class="tsd-kind-call-signature">setCenter</span><span class="tsd-signature-symbol">(</span><span class="tsd-kind-parameter">longitude</span><span class="tsd-signature-symbol">:</span> <span class="tsd-signature-type">number</span> <span class="tsd-signature-symbol">|</span> <a href="core.geopoint.html" class="tsd-signature-type tsd-kind-class">GeoPoint</a><span class="tsd-signature-symbol">,</span> <span class="tsd-kind-parameter">latitude</span><span class="tsd-signature-symbol">:</span> <span class="tsd-signature-type">number</span><span class="tsd-signature-symbol">)</span><span class="tsd-signature-symbol">:</span> <span class="tsd-signature-type">any</span><a href="#setCenter-2" aria-label="Permalink" class="tsd-anchor-icon"><svg viewBox="0 0 24 24" aria-hidden="true"><use href="../assets/icons.svg#icon-anchor"></use></svg></a></div>
+<div class="tsd-description">
+<div class="tsd-comment tsd-typography"><p>Set new geographical center for the map.</p>
+</div>
+<div class="tsd-parameters">
+<h4 class="tsd-parameters-title">Parameters</h4>
+<ul class="tsd-parameter-list">
+<li><span><span class="tsd-kind-parameter">longitude</span>: <span class="tsd-signature-type">number</span> <span class="tsd-signature-symbol">|</span> <a href="core.geopoint.html" class="tsd-signature-type tsd-kind-class">GeoPoint</a></span>
+<div class="tsd-comment tsd-typography"><p>longitude to center the map</p>
+</div></li>
+<li><span><span class="tsd-kind-parameter">latitude</span>: <span class="tsd-signature-type">number</span></span>
+<div class="tsd-comment tsd-typography"><p>latitude to center the map</p>
+</div></li></ul></div>
+<h4 class="tsd-returns-title">Returns <span class="tsd-signature-type">any</span></h4>
+<div class="tsd-comment tsd-typography">
+<div class="tsd-tag-example">
+<h4 class="tsd-anchor-link" id="Example-5">Example<a href="#Example-5" aria-label="Permalink" class="tsd-anchor-icon"><svg viewBox="0 0 24 24" aria-hidden="true"><use href="../assets/icons.svg#icon-anchor"></use></svg></a></h4><pre><code class="typescript"><span class="hl-0">display</span><span class="hl-1">.</span><span class="hl-5">setCenter</span><span class="hl-1">(</span><span class="hl-9">8.53422</span><span class="hl-1">, </span><span class="hl-9">50.16212</span><span class="hl-1">);</span>
+</code><button type="button">Copy</button></pre>
+
+</div></div></div></li></ul></section>
+<section class="tsd-panel tsd-member">
+<h3 class="tsd-anchor-link" id="setViewBounds"><span>set<wbr/>View<wbr/>Bounds</span><a href="#setViewBounds" aria-label="Permalink" class="tsd-anchor-icon"><svg viewBox="0 0 24 24" aria-hidden="true"><use href="../assets/icons.svg#icon-anchor"></use></svg></a></h3>
+<ul class="tsd-signatures">
+<li class="">
+<div class="tsd-signature tsd-anchor-link" id="setViewBounds-1"><span class="tsd-kind-call-signature">setViewBounds</span><span class="tsd-signature-symbol">(</span><br/>    <span class="tsd-kind-parameter">bounds</span><span class="tsd-signature-symbol">:</span><br/>        <span class="tsd-signature-symbol">|</span> <a href="core.georect.html" class="tsd-signature-type tsd-kind-class">GeoRect</a><br/>        <span class="tsd-signature-symbol">|</span> <span class="tsd-signature-symbol">[</span><span class="tsd-signature-type">number</span><span class="tsd-signature-symbol">,</span> <span class="tsd-signature-type">number</span><span class="tsd-signature-symbol">,</span> <span class="tsd-signature-type">number</span><span class="tsd-signature-symbol">,</span> <span class="tsd-signature-type">number</span><span class="tsd-signature-symbol">]</span><br/>        <span class="tsd-signature-symbol">|</span> <a href="../interfaces/core.geojsonfeature.html" class="tsd-signature-type tsd-kind-interface">GeoJSONFeature</a><span class="tsd-signature-symbol">&lt;</span><span class="tsd-signature-type">string</span><span class="tsd-signature-symbol">&gt;</span><br/>        <span class="tsd-signature-symbol">|</span> <a href="../interfaces/core.geojsonfeature.html" class="tsd-signature-type tsd-kind-interface">GeoJSONFeature</a><span class="tsd-signature-symbol">&lt;</span><span class="tsd-signature-type">string</span><span class="tsd-signature-symbol">&gt;</span><span class="tsd-signature-symbol">[]</span><br/>        <span class="tsd-signature-symbol">|</span> <a href="../interfaces/core.geojsonfeaturecollection.html" class="tsd-signature-type tsd-kind-interface">GeoJSONFeatureCollection</a><span class="tsd-signature-symbol">,</span><br/>    <span class="tsd-kind-parameter">animate</span><span class="tsd-signature-symbol">?:</span> <span class="tsd-signature-type">boolean</span><span class="tsd-signature-symbol">,</span><br/><span class="tsd-signature-symbol">)</span><span class="tsd-signature-symbol">:</span> <span class="tsd-signature-type">any</span><a href="#setViewBounds-1" aria-label="Permalink" class="tsd-anchor-icon"><svg viewBox="0 0 24 24" aria-hidden="true"><use href="../assets/icons.svg#icon-anchor"></use></svg></a></div>
+<div class="tsd-description">
+<div class="tsd-comment tsd-typography"><p>Set view bounds for the map to display.</p>
+</div>
+<div class="tsd-parameters">
+<h4 class="tsd-parameters-title">Parameters</h4>
+<ul class="tsd-parameter-list">
+<li><span><span class="tsd-kind-parameter">bounds</span>: <br/>    <span class="tsd-signature-symbol">|</span> <a href="core.georect.html" class="tsd-signature-type tsd-kind-class">GeoRect</a><br/>    <span class="tsd-signature-symbol">|</span> <span class="tsd-signature-symbol">[</span><span class="tsd-signature-type">number</span><span class="tsd-signature-symbol">,</span> <span class="tsd-signature-type">number</span><span class="tsd-signature-symbol">,</span> <span class="tsd-signature-type">number</span><span class="tsd-signature-symbol">,</span> <span class="tsd-signature-type">number</span><span class="tsd-signature-symbol">]</span><br/>    <span class="tsd-signature-symbol">|</span> <a href="../interfaces/core.geojsonfeature.html" class="tsd-signature-type tsd-kind-interface">GeoJSONFeature</a><span class="tsd-signature-symbol">&lt;</span><span class="tsd-signature-type">string</span><span class="tsd-signature-symbol">&gt;</span><br/>    <span class="tsd-signature-symbol">|</span> <a href="../interfaces/core.geojsonfeature.html" class="tsd-signature-type tsd-kind-interface">GeoJSONFeature</a><span class="tsd-signature-symbol">&lt;</span><span class="tsd-signature-type">string</span><span class="tsd-signature-symbol">&gt;</span><span class="tsd-signature-symbol">[]</span><br/>    <span class="tsd-signature-symbol">|</span> <a href="../interfaces/core.geojsonfeaturecollection.html" class="tsd-signature-type tsd-kind-interface">GeoJSONFeatureCollection</a></span>
+<div class="tsd-comment tsd-typography"><p>GeoRect, GeoJson Feature or an GeoJson bbox [minLon, minLat, maxLon, maxLat] defining the view bounds.</p>
+</div></li>
+<li><span><code class="tsd-tag">Optional</code><span class="tsd-kind-parameter">animate</span>: <span class="tsd-signature-type">boolean</span></span>
+<div class="tsd-comment tsd-typography"><p>animate using a bow animation</p>
+</div></li></ul></div>
+<h4 class="tsd-returns-title">Returns <span class="tsd-signature-type">any</span></h4>
+<div class="tsd-comment tsd-typography">
+<div class="tsd-tag-see">
+<h4 class="tsd-anchor-link" id="See">See<a href="#See" aria-label="Permalink" class="tsd-anchor-icon"><svg viewBox="0 0 24 24" aria-hidden="true"><use href="../assets/icons.svg#icon-anchor"></use></svg></a></h4><p><a href="#flyTo" class="tsd-kind-method">Map.flyTo</a>. true to enable, false to disable.</p>
+</div></div></div></li>
+<li class="">
+<div class="tsd-signature tsd-anchor-link" id="setViewBounds-2"><span class="tsd-kind-call-signature">setViewBounds</span><span class="tsd-signature-symbol">(</span><br/>    <span class="tsd-kind-parameter">bounds</span><span class="tsd-signature-symbol">:</span><br/>        <span class="tsd-signature-symbol">|</span> <a href="core.georect.html" class="tsd-signature-type tsd-kind-class">GeoRect</a><br/>        <span class="tsd-signature-symbol">|</span> <span class="tsd-signature-symbol">[</span><span class="tsd-signature-type">number</span><span class="tsd-signature-symbol">,</span> <span class="tsd-signature-type">number</span><span class="tsd-signature-symbol">,</span> <span class="tsd-signature-type">number</span><span class="tsd-signature-symbol">,</span> <span class="tsd-signature-type">number</span><span class="tsd-signature-symbol">]</span><br/>        <span class="tsd-signature-symbol">|</span> <a href="../interfaces/core.geojsonfeature.html" class="tsd-signature-type tsd-kind-interface">GeoJSONFeature</a><span class="tsd-signature-symbol">&lt;</span><span class="tsd-signature-type">string</span><span class="tsd-signature-symbol">&gt;</span><br/>        <span class="tsd-signature-symbol">|</span> <a href="../interfaces/core.geojsonfeature.html" class="tsd-signature-type tsd-kind-interface">GeoJSONFeature</a><span class="tsd-signature-symbol">&lt;</span><span class="tsd-signature-type">string</span><span class="tsd-signature-symbol">&gt;</span><span class="tsd-signature-symbol">[]</span><br/>        <span class="tsd-signature-symbol">|</span> <a href="../interfaces/core.geojsonfeaturecollection.html" class="tsd-signature-type tsd-kind-interface">GeoJSONFeatureCollection</a><span class="tsd-signature-symbol">,</span><br/>    <span class="tsd-kind-parameter">animationOptions</span><span class="tsd-signature-symbol">?:</span> <span class="tsd-signature-symbol">{</span> <span class="tsd-kind-property">duration</span><span class="tsd-signature-symbol">?:</span> <span class="tsd-signature-type">number</span> <span class="tsd-signature-symbol">}</span><span class="tsd-signature-symbol">,</span><br/><span class="tsd-signature-symbol">)</span><span class="tsd-signature-symbol">:</span> <span class="tsd-signature-type">any</span><a href="#setViewBounds-2" aria-label="Permalink" class="tsd-anchor-icon"><svg viewBox="0 0 24 24" aria-hidden="true"><use href="../assets/icons.svg#icon-anchor"></use></svg></a></div>
+<div class="tsd-description">
+<div class="tsd-comment tsd-typography"><p>Set view bounds for the map to display.</p>
+</div>
+<div class="tsd-parameters">
+<h4 class="tsd-parameters-title">Parameters</h4>
+<ul class="tsd-parameter-list">
+<li><span><span class="tsd-kind-parameter">bounds</span>: <br/>    <span class="tsd-signature-symbol">|</span> <a href="core.georect.html" class="tsd-signature-type tsd-kind-class">GeoRect</a><br/>    <span class="tsd-signature-symbol">|</span> <span class="tsd-signature-symbol">[</span><span class="tsd-signature-type">number</span><span class="tsd-signature-symbol">,</span> <span class="tsd-signature-type">number</span><span class="tsd-signature-symbol">,</span> <span class="tsd-signature-type">number</span><span class="tsd-signature-symbol">,</span> <span class="tsd-signature-type">number</span><span class="tsd-signature-symbol">]</span><br/>    <span class="tsd-signature-symbol">|</span> <a href="../interfaces/core.geojsonfeature.html" class="tsd-signature-type tsd-kind-interface">GeoJSONFeature</a><span class="tsd-signature-symbol">&lt;</span><span class="tsd-signature-type">string</span><span class="tsd-signature-symbol">&gt;</span><br/>    <span class="tsd-signature-symbol">|</span> <a href="../interfaces/core.geojsonfeature.html" class="tsd-signature-type tsd-kind-interface">GeoJSONFeature</a><span class="tsd-signature-symbol">&lt;</span><span class="tsd-signature-type">string</span><span class="tsd-signature-symbol">&gt;</span><span class="tsd-signature-symbol">[]</span><br/>    <span class="tsd-signature-symbol">|</span> <a href="../interfaces/core.geojsonfeaturecollection.html" class="tsd-signature-type tsd-kind-interface">GeoJSONFeatureCollection</a></span>
+<div class="tsd-comment tsd-typography"><p>GeoRect, GeoJson Feature or an GeoJson bbox [minLon, minLat, maxLon, maxLat] defining the view bounds.</p>
+</div></li>
+<li><span><code class="tsd-tag">Optional</code><span class="tsd-kind-parameter">animationOptions</span>: <span class="tsd-signature-symbol">{</span> <span class="tsd-kind-property">duration</span><span class="tsd-signature-symbol">?:</span> <span class="tsd-signature-type">number</span> <span class="tsd-signature-symbol">}</span></span>
+<div class="tsd-comment tsd-typography"><p>options to configure the bow animation</p>
+</div>
+<ul class="tsd-parameters">
+<li class="tsd-parameter">
+<h5><code class="tsd-tag">Optional</code><span class="tsd-kind-property">duration</span><span class="tsd-signature-symbol">?: </span><span class="tsd-signature-type">number</span></h5>
+<div class="tsd-comment tsd-typography"><p>the duration of the bow animation in milliseconds</p>
+</div></li></ul></li></ul></div>
+<h4 class="tsd-returns-title">Returns <span class="tsd-signature-type">any</span></h4>
+<div class="tsd-comment tsd-typography">
+<div class="tsd-tag-see">
+<h4 class="tsd-anchor-link" id="See-1">See<a href="#See-1" aria-label="Permalink" class="tsd-anchor-icon"><svg viewBox="0 0 24 24" aria-hidden="true"><use href="../assets/icons.svg#icon-anchor"></use></svg></a></h4><p><a href="#flyTo" class="tsd-kind-method">Map.flyTo</a>.</p>
+</div></div></div></li></ul></section>
+<section class="tsd-panel tsd-member">
+<h3 class="tsd-anchor-link" id="setZoomlevel"><span>set<wbr/>Zoomlevel</span><a href="#setZoomlevel" aria-label="Permalink" class="tsd-anchor-icon"><svg viewBox="0 0 24 24" aria-hidden="true"><use href="../assets/icons.svg#icon-anchor"></use></svg></a></h3>
+<ul class="tsd-signatures">
+<li class="">
+<div class="tsd-signature tsd-anchor-link" id="setZoomlevel-1"><span class="tsd-kind-call-signature">setZoomlevel</span><span class="tsd-signature-symbol">(</span><br/>    <span class="tsd-kind-parameter">zoomTo</span><span class="tsd-signature-symbol">:</span> <span class="tsd-signature-type">number</span><span class="tsd-signature-symbol">,</span><br/>    <span class="tsd-kind-parameter">fixedX</span><span class="tsd-signature-symbol">?:</span> <span class="tsd-signature-type">number</span><span class="tsd-signature-symbol">,</span><br/>    <span class="tsd-kind-parameter">fixedY</span><span class="tsd-signature-symbol">?:</span> <span class="tsd-signature-type">number</span><span class="tsd-signature-symbol">,</span><br/>    <span class="tsd-kind-parameter">animate</span><span class="tsd-signature-symbol">?:</span> <span class="tsd-signature-type">number</span><span class="tsd-signature-symbol">,</span><br/><span class="tsd-signature-symbol">)</span><span class="tsd-signature-symbol">:</span> <span class="tsd-signature-type">void</span><a href="#setZoomlevel-1" aria-label="Permalink" class="tsd-anchor-icon"><svg viewBox="0 0 24 24" aria-hidden="true"><use href="../assets/icons.svg#icon-anchor"></use></svg></a></div>
+<div class="tsd-description">
+<div class="tsd-comment tsd-typography"><p>Set zoomlevel with an optional anchor point.</p>
+</div>
+<div class="tsd-parameters">
+<h4 class="tsd-parameters-title">Parameters</h4>
+<ul class="tsd-parameter-list">
+<li><span><span class="tsd-kind-parameter">zoomTo</span>: <span class="tsd-signature-type">number</span></span>
+<div class="tsd-comment tsd-typography"><p>new zoomlevel</p>
+</div></li>
+<li><span><code class="tsd-tag">Optional</code><span class="tsd-kind-parameter">fixedX</span>: <span class="tsd-signature-type">number</span></span>
+<div class="tsd-comment tsd-typography"><p>x coordinate of fixed anchor point on screen in pixels</p>
+</div></li>
+<li><span><code class="tsd-tag">Optional</code><span class="tsd-kind-parameter">fixedY</span>: <span class="tsd-signature-type">number</span></span>
+<div class="tsd-comment tsd-typography"><p>y coordinate of fixed anchor point on screen in pixels</p>
+</div></li>
+<li><span><code class="tsd-tag">Optional</code><span class="tsd-kind-parameter">animate</span>: <span class="tsd-signature-type">number</span></span>
+<div class="tsd-comment tsd-typography"><p>zoom transition animation time in milliseconds [default: 0]</p>
+</div></li></ul></div>
+<h4 class="tsd-returns-title">Returns <span class="tsd-signature-type">void</span></h4></div></li></ul></section>
+<section class="tsd-panel tsd-member">
+<h3 class="tsd-anchor-link" id="snapshot"><span>snapshot</span><a href="#snapshot" aria-label="Permalink" class="tsd-anchor-icon"><svg viewBox="0 0 24 24" aria-hidden="true"><use href="../assets/icons.svg#icon-anchor"></use></svg></a></h3>
+<ul class="tsd-signatures">
+<li class="">
+<div class="tsd-signature tsd-anchor-link" id="snapshot-1"><span class="tsd-kind-call-signature">snapshot</span><span class="tsd-signature-symbol">(</span><br/>    <span class="tsd-kind-parameter">callback</span><span class="tsd-signature-symbol">:</span> <span class="tsd-signature-symbol">(</span><span class="tsd-kind-parameter">screenshot</span><span class="tsd-signature-symbol">:</span> <span class="tsd-signature-type">HTMLCanvasElement</span><span class="tsd-signature-symbol">)</span> <span class="tsd-signature-symbol">=&gt;</span> <span class="tsd-signature-type">void</span><span class="tsd-signature-symbol">,</span><br/>    <span class="tsd-kind-parameter">dx</span><span class="tsd-signature-symbol">?:</span> <span class="tsd-signature-type">number</span><span class="tsd-signature-symbol">,</span><br/>    <span class="tsd-kind-parameter">dy</span><span class="tsd-signature-symbol">?:</span> <span class="tsd-signature-type">number</span><span class="tsd-signature-symbol">,</span><br/>    <span class="tsd-kind-parameter">width</span><span class="tsd-signature-symbol">?:</span> <span class="tsd-signature-type">number</span><span class="tsd-signature-symbol">,</span><br/>    <span class="tsd-kind-parameter">height</span><span class="tsd-signature-symbol">?:</span> <span class="tsd-signature-type">number</span><span class="tsd-signature-symbol">,</span><br/><span class="tsd-signature-symbol">)</span><span class="tsd-signature-symbol">:</span> <span class="tsd-signature-type">void</span><a href="#snapshot-1" aria-label="Permalink" class="tsd-anchor-icon"><svg viewBox="0 0 24 24" aria-hidden="true"><use href="../assets/icons.svg#icon-anchor"></use></svg></a></div>
+<div class="tsd-description">
+<div class="tsd-comment tsd-typography"><p>Take a snapshot of the current map's viewport.</p>
+</div>
+<div class="tsd-parameters">
+<h4 class="tsd-parameters-title">Parameters</h4>
+<ul class="tsd-parameter-list">
+<li><span><span class="tsd-kind-parameter">callback</span>: <span class="tsd-signature-symbol">(</span><span class="tsd-kind-parameter">screenshot</span><span class="tsd-signature-symbol">:</span> <span class="tsd-signature-type">HTMLCanvasElement</span><span class="tsd-signature-symbol">)</span> <span class="tsd-signature-symbol">=&gt;</span> <span class="tsd-signature-type">void</span></span>
+<div class="tsd-comment tsd-typography"><p>Callback function that will be called when the requested snapshot has been captured.</p>
+</div>
+<ul class="tsd-parameters">
+<li class="tsd-parameter-signature">
+<ul class="tsd-signatures">
+<li class="tsd-signature"><span class="tsd-signature-symbol">(</span><span class="tsd-kind-parameter">screenshot</span><span class="tsd-signature-symbol">:</span> <span class="tsd-signature-type">HTMLCanvasElement</span><span class="tsd-signature-symbol">)</span><span class="tsd-signature-symbol">:</span> <span class="tsd-signature-type">void</span></li>
+<li class="tsd-description">
+<div class="tsd-parameters">
+<h4 class="tsd-parameters-title">Parameters</h4>
+<ul class="tsd-parameter-list">
+<li><span><span class="tsd-kind-parameter">screenshot</span>: <span class="tsd-signature-type">HTMLCanvasElement</span></span>
+<div class="tsd-comment tsd-typography"><p>A HTMLCanvasElement containing the requested screenshot.</p>
+</div></li></ul></div>
+<h4 class="tsd-returns-title">Returns <span class="tsd-signature-type">void</span></h4></li></ul></li></ul></li>
+<li><span><code class="tsd-tag">Optional</code><span class="tsd-kind-parameter">dx</span>: <span class="tsd-signature-type">number</span></span>
+<div class="tsd-comment tsd-typography"><p>x coordinate of the left edge of the capturing rectangle in pixel</p>
+</div></li>
+<li><span><code class="tsd-tag">Optional</code><span class="tsd-kind-parameter">dy</span>: <span class="tsd-signature-type">number</span></span>
+<div class="tsd-comment tsd-typography"><p>y coordinate of the top edge of the capturing rectangle in pixel</p>
+</div></li>
+<li><span><code class="tsd-tag">Optional</code><span class="tsd-kind-parameter">width</span>: <span class="tsd-signature-type">number</span></span>
+<div class="tsd-comment tsd-typography"><p>width of the capturing rectangle in pixel</p>
+</div></li>
+<li><span><code class="tsd-tag">Optional</code><span class="tsd-kind-parameter">height</span>: <span class="tsd-signature-type">number</span></span>
+<div class="tsd-comment tsd-typography"><p>height of the capturing rectangle in pixel</p>
+</div></li></ul></div>
+<h4 class="tsd-returns-title">Returns <span class="tsd-signature-type">void</span></h4></div></li></ul></section></section></details></div>
+<div class="col-sidebar">
+<div class="page-menu">
+<div class="tsd-navigation settings">
+<details class="tsd-accordion"><summary class="tsd-accordion-summary"><svg width="20" height="20" viewBox="0 0 24 24" fill="none" aria-hidden="true"><use href="../assets/icons.svg#icon-chevronDown"></use></svg>
+<h3>Settings</h3></summary>
+<div class="tsd-accordion-details">
+<div class="tsd-filter-visibility"><span class="settings-label">Member Visibility</span>
+<ul id="tsd-filter-options">
+<li class="tsd-filter-item"><label class="tsd-filter-input"><input type="checkbox" id="tsd-filter-protected" name="protected"/><svg width="32" height="32" viewBox="0 0 32 32" aria-hidden="true"><rect class="tsd-checkbox-background" width="30" height="30" x="1" y="1" rx="6" fill="none"></rect><path class="tsd-checkbox-checkmark" d="M8.35422 16.8214L13.2143 21.75L24.6458 10.25" stroke="none" stroke-width="3.5" stroke-linejoin="round" fill="none"></path></svg><span>Protected</span></label></li>
+<li class="tsd-filter-item"><label class="tsd-filter-input"><input type="checkbox" id="tsd-filter-inherited" name="inherited" checked/><svg width="32" height="32" viewBox="0 0 32 32" aria-hidden="true"><rect class="tsd-checkbox-background" width="30" height="30" x="1" y="1" rx="6" fill="none"></rect><path class="tsd-checkbox-checkmark" d="M8.35422 16.8214L13.2143 21.75L24.6458 10.25" stroke="none" stroke-width="3.5" stroke-linejoin="round" fill="none"></path></svg><span>Inherited</span></label></li>
+<li class="tsd-filter-item"><label class="tsd-filter-input"><input type="checkbox" id="tsd-filter-external" name="external"/><svg width="32" height="32" viewBox="0 0 32 32" aria-hidden="true"><rect class="tsd-checkbox-background" width="30" height="30" x="1" y="1" rx="6" fill="none"></rect><path class="tsd-checkbox-checkmark" d="M8.35422 16.8214L13.2143 21.75L24.6458 10.25" stroke="none" stroke-width="3.5" stroke-linejoin="round" fill="none"></path></svg><span>External</span></label></li></ul></div>
+<div class="tsd-theme-toggle"><label class="settings-label" for="tsd-theme">Theme</label><select id="tsd-theme"><option value="os">OS</option><option value="light">Light</option><option value="dark">Dark</option></select></div></div></details></div>
+<details open class="tsd-accordion tsd-page-navigation"><summary class="tsd-accordion-summary"><svg width="20" height="20" viewBox="0 0 24 24" fill="none" aria-hidden="true"><use href="../assets/icons.svg#icon-chevronDown"></use></svg>
+<h3>On This Page</h3></summary>
+<div class="tsd-accordion-details">
+<details open class="tsd-accordion tsd-page-navigation-section"><summary class="tsd-accordion-summary" data-key="section-Constructors"><svg width="20" height="20" viewBox="0 0 24 24" fill="none" aria-hidden="true"><use href="../assets/icons.svg#icon-chevronDown"></use></svg>Constructors</summary>
+<div><a href="#constructor"><svg class="tsd-kind-icon" viewBox="0 0 24 24" aria-label="Constructor"><use href="../assets/icons.svg#icon-512"></use></svg><span>constructor</span></a></div></details>
+<details open class="tsd-accordion tsd-page-navigation-section"><summary class="tsd-accordion-summary" data-key="section-Methods"><svg width="20" height="20" viewBox="0 0 24 24" fill="none" aria-hidden="true"><use href="../assets/icons.svg#icon-chevronDown"></use></svg>Methods</summary>
+<div><a href="#addEventListener"><svg class="tsd-kind-icon" viewBox="0 0 24 24" aria-label="Method"><use href="../assets/icons.svg#icon-2048"></use></svg><span>add<wbr/>Event<wbr/>Listener</span></a><a href="#addLayer"><svg class="tsd-kind-icon" viewBox="0 0 24 24" aria-label="Method"><use href="../assets/icons.svg#icon-2048"></use></svg><span>add<wbr/>Layer</span></a><a href="#addObserver"><svg class="tsd-kind-icon" viewBox="0 0 24 24" aria-label="Method"><use href="../assets/icons.svg#icon-2048"></use></svg><span>add<wbr/>Observer</span></a><a href="#destroy"><svg class="tsd-kind-icon" viewBox="0 0 24 24" aria-label="Method"><use href="../assets/icons.svg#icon-2048"></use></svg><span>destroy</span></a><a href="#flyTo"><svg class="tsd-kind-icon" viewBox="0 0 24 24" aria-label="Method"><use href="../assets/icons.svg#icon-2048"></use></svg><span>fly<wbr/>To</span></a><a href="#geoToPixel"><svg class="tsd-kind-icon" viewBox="0 0 24 24" aria-label="Method"><use href="../assets/icons.svg#icon-2048"></use></svg><span>geo<wbr/>To<wbr/>Pixel</span></a><a href="#getBehavior"><svg class="tsd-kind-icon" viewBox="0 0 24 24" aria-label="Method"><use href="../assets/icons.svg#icon-2048"></use></svg><span>get<wbr/>Behavior</span></a><a href="#getCamera"><svg class="tsd-kind-icon" viewBox="0 0 24 24" aria-label="Method"><use href="../assets/icons.svg#icon-2048"></use></svg><span>get<wbr/>Camera</span></a><a href="#getCenter"><svg class="tsd-kind-icon" viewBox="0 0 24 24" aria-label="Method"><use href="../assets/icons.svg#icon-2048"></use></svg><span>get<wbr/>Center</span></a><a href="#getContainer"><svg class="tsd-kind-icon" viewBox="0 0 24 24" aria-label="Method"><use href="../assets/icons.svg#icon-2048"></use></svg><span>get<wbr/>Container</span></a><a href="#getFeatureAt"><svg class="tsd-kind-icon" viewBox="0 0 24 24" aria-label="Method"><use href="../assets/icons.svg#icon-2048"></use></svg><span>get<wbr/>Feature<wbr/>At</span></a><a href="#getFeaturesAt"><svg class="tsd-kind-icon" viewBox="0 0 24 24" aria-label="Method"><use href="../assets/icons.svg#icon-2048"></use></svg><span>get<wbr/>Features<wbr/>At</span></a><a href="#getHeight"><svg class="tsd-kind-icon" viewBox="0 0 24 24" aria-label="Method"><use href="../assets/icons.svg#icon-2048"></use></svg><span>get<wbr/>Height</span></a><a href="#getLayers"><svg class="tsd-kind-icon" viewBox="0 0 24 24" aria-label="Method"><use href="../assets/icons.svg#icon-2048"></use></svg><span>get<wbr/>Layers</span></a><a href="#getTerrainPointAt"><svg class="tsd-kind-icon" viewBox="0 0 24 24" aria-label="Method"><use href="../assets/icons.svg#icon-2048"></use></svg><span>get<wbr/>Terrain<wbr/>Point<wbr/>At</span></a><a href="#getViewBounds"><svg class="tsd-kind-icon" viewBox="0 0 24 24" aria-label="Method"><use href="../assets/icons.svg#icon-2048"></use></svg><span>get<wbr/>View<wbr/>Bounds</span></a><a href="#getWidth"><svg class="tsd-kind-icon" viewBox="0 0 24 24" aria-label="Method"><use href="../assets/icons.svg#icon-2048"></use></svg><span>get<wbr/>Width</span></a><a href="#getZoomlevel"><svg class="tsd-kind-icon" viewBox="0 0 24 24" aria-label="Method"><use href="../assets/icons.svg#icon-2048"></use></svg><span>get<wbr/>Zoomlevel</span></a><a href="#lockViewport"><svg class="tsd-kind-icon" viewBox="0 0 24 24" aria-label="Method"><use href="../assets/icons.svg#icon-2048"></use></svg><span>lock<wbr/>Viewport</span></a><a href="#pan"><svg class="tsd-kind-icon" viewBox="0 0 24 24" aria-label="Method"><use href="../assets/icons.svg#icon-2048"></use></svg><span>pan</span></a><a href="#pitch"><svg class="tsd-kind-icon" viewBox="0 0 24 24" aria-label="Method"><use href="../assets/icons.svg#icon-2048"></use></svg><span>pitch</span></a><a href="#pixelToGeo"><svg class="tsd-kind-icon" viewBox="0 0 24 24" aria-label="Method"><use href="../assets/icons.svg#icon-2048"></use></svg><span>pixel<wbr/>To<wbr/>Geo</span></a><a href="#refresh"><svg class="tsd-kind-icon" viewBox="0 0 24 24" aria-label="Method"><use href="../assets/icons.svg#icon-2048"></use></svg><span>refresh</span></a><a href="#removeEventListener"><svg class="tsd-kind-icon" viewBox="0 0 24 24" aria-label="Method"><use href="../assets/icons.svg#icon-2048"></use></svg><span>remove<wbr/>Event<wbr/>Listener</span></a><a href="#removeLayer"><svg class="tsd-kind-icon" viewBox="0 0 24 24" aria-label="Method"><use href="../assets/icons.svg#icon-2048"></use></svg><span>remove<wbr/>Layer</span></a><a href="#removeObserver"><svg class="tsd-kind-icon" viewBox="0 0 24 24" aria-label="Method"><use href="../assets/icons.svg#icon-2048"></use></svg><span>remove<wbr/>Observer</span></a><a href="#resize"><svg class="tsd-kind-icon" viewBox="0 0 24 24" aria-label="Method"><use href="../assets/icons.svg#icon-2048"></use></svg><span>resize</span></a><a href="#rotate"><svg class="tsd-kind-icon" viewBox="0 0 24 24" aria-label="Method"><use href="../assets/icons.svg#icon-2048"></use></svg><span>rotate</span></a><a href="#setAltitude"><svg class="tsd-kind-icon" viewBox="0 0 24 24" aria-label="Method"><use href="../assets/icons.svg#icon-2048"></use></svg><span>set<wbr/>Altitude</span></a><a href="#setBackgroundColor"><svg class="tsd-kind-icon" viewBox="0 0 24 24" aria-label="Method"><use href="../assets/icons.svg#icon-2048"></use></svg><span>set<wbr/>Background<wbr/>Color</span></a><a href="#setBehavior"><svg class="tsd-kind-icon" viewBox="0 0 24 24" aria-label="Method"><use href="../assets/icons.svg#icon-2048"></use></svg><span>set<wbr/>Behavior</span></a><a href="#setCenter"><svg class="tsd-kind-icon" viewBox="0 0 24 24" aria-label="Method"><use href="../assets/icons.svg#icon-2048"></use></svg><span>set<wbr/>Center</span></a><a href="#setViewBounds"><svg class="tsd-kind-icon" viewBox="0 0 24 24" aria-label="Method"><use href="../assets/icons.svg#icon-2048"></use></svg><span>set<wbr/>View<wbr/>Bounds</span></a><a href="#setZoomlevel"><svg class="tsd-kind-icon" viewBox="0 0 24 24" aria-label="Method"><use href="../assets/icons.svg#icon-2048"></use></svg><span>set<wbr/>Zoomlevel</span></a><a href="#snapshot"><svg class="tsd-kind-icon" viewBox="0 0 24 24" aria-label="Method"><use href="../assets/icons.svg#icon-2048"></use></svg><span>snapshot</span></a></div></details></div></details></div>
+<div class="site-menu">
+<nav class="tsd-navigation"><a href="../modules.html">XYZ Maps Documentation</a>
+<ul class="tsd-small-nested-navigation" id="tsd-nav-container">
+<li>Loading...</li></ul></nav></div></div></div><footer>
+<p class="tsd-generator">Generated using <a href="https://typedoc.org/" target="_blank">TypeDoc</a></p></footer>
+<div class="overlay"></div></body></html>

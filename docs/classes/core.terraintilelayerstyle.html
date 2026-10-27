@@ -1,0 +1,288 @@
+<!DOCTYPE html><html class="default" lang="en" data-base="../"><head><meta charset="utf-8"/><meta http-equiv="x-ua-compatible" content="IE=edge"/><title>TerrainTileLayerStyle | XYZ Maps Documentation</title><meta name="description" content="Documentation for XYZ Maps Documentation"/><meta name="viewport" content="width=device-width, initial-scale=1"/><link rel="stylesheet" href="../assets/style.css"/><link rel="stylesheet" href="../assets/highlight.css"/><script defer src="../assets/main.js"></script><script async src="../assets/icons.js" id="tsd-icons-script"></script><script async src="../assets/search.js" id="tsd-search-script"></script><script async src="../assets/navigation.js" id="tsd-nav-script"></script><script async src="../assets/hierarchy.js" id="tsd-hierarchy-script"></script></head><body><script>document.documentElement.dataset.theme = localStorage.getItem("tsd-theme") || "os";document.body.style.display="none";setTimeout(() => window.app?app.showPage():document.body.style.removeProperty("display"),500)</script><header class="tsd-page-toolbar">
+<div class="tsd-toolbar-contents container"><a href="../index.html" class="title">XYZ Maps Documentation</a>
+<div id="tsd-toolbar-links"></div><button id="tsd-search-trigger" class="tsd-widget" aria-label="Search"><svg width="16" height="16" viewBox="0 0 16 16" fill="none" aria-hidden="true"><use href="../assets/icons.svg#icon-search"></use></svg></button><dialog id="tsd-search" aria-label="Search"><input role="combobox" id="tsd-search-input" aria-controls="tsd-search-results" aria-autocomplete="list" aria-expanded="true" autocapitalize="off" autocomplete="off" placeholder="Search the docs" maxLength="100"/>
+<ul role="listbox" id="tsd-search-results"></ul>
+<div id="tsd-search-status" aria-live="polite" aria-atomic="true">
+<div>Preparing search index...</div></div></dialog><a href="#" class="tsd-widget menu" id="tsd-toolbar-menu-trigger" data-toggle="menu" aria-label="Menu"><svg width="16" height="16" viewBox="0 0 16 16" fill="none" aria-hidden="true"><use href="../assets/icons.svg#icon-menu"></use></svg></a></div></header>
+<div class="container container-main">
+<div class="col-content">
+<div class="tsd-page-title">
+<ul class="tsd-breadcrumb" aria-label="Breadcrumb">
+<li><a href="../modules/core.html">@here/xyz-maps-core</a></li>
+<li><a href="" aria-current="page">TerrainTileLayerStyle</a></li></ul>
+<h1>Class TerrainTileLayerStyle</h1></div>
+<section class="tsd-panel tsd-comment">
+<div class="tsd-comment tsd-typography"><p>Configuration style for a 3D terrain tile layer.</p>
+<p>This class controls the visual appearance of terrain tiles, including vertical exaggeration,
+lighting, material properties, and sky background color. It extends the regular processed
+layer style so it can be used directly as both the style definition and style manager.</p>
+<p>It can be passed to the <code>style</code> field of <a href="../interfaces/core.terraintilelayeroptions.html" class="tsd-kind-interface">TerrainTileLayerOptions</a>.</p>
+</div></section>
+<section class="tsd-panel-group tsd-index-group">
+<section class="tsd-panel tsd-index-panel">
+<details class="tsd-index-content tsd-accordion" open><summary class="tsd-accordion-summary tsd-index-summary"><svg width="20" height="20" viewBox="0 0 24 24" fill="none" aria-hidden="true"><use href="../assets/icons.svg#icon-chevronDown"></use></svg>
+<h5 class="tsd-index-heading uppercase">Index</h5></summary>
+<div class="tsd-accordion-details">
+<section class="tsd-index-section">
+<h3 class="tsd-index-heading tsd-anchor-link" id="Constructors">Constructors<a href="#Constructors" aria-label="Permalink" class="tsd-anchor-icon"><svg viewBox="0 0 24 24" aria-hidden="true"><use href="../assets/icons.svg#icon-anchor"></use></svg></a></h3>
+<div class="tsd-index-list"><a href="#constructor" class="tsd-index-link"><svg class="tsd-kind-icon" viewBox="0 0 24 24" aria-label="Constructor"><use href="../assets/icons.svg#icon-512"></use></svg><span>constructor</span></a>
+</div></section>
+<section class="tsd-index-section">
+<h3 class="tsd-index-heading tsd-anchor-link" id="Properties">Properties<a href="#Properties" aria-label="Permalink" class="tsd-anchor-icon"><svg viewBox="0 0 24 24" aria-hidden="true"><use href="../assets/icons.svg#icon-anchor"></use></svg></a></h3>
+<div class="tsd-index-list"><a href="#altitude" class="tsd-index-link tsd-is-inherited"><svg class="tsd-kind-icon" viewBox="0 0 24 24" aria-label="Property"><use href="../assets/icons.svg#icon-1024"></use></svg><span>altitude</span></a>
+<a href="#backgroundColor" class="tsd-index-link tsd-is-inherited"><svg class="tsd-kind-icon" viewBox="0 0 24 24" aria-label="Property"><use href="../assets/icons.svg#icon-1024"></use></svg><span>background<wbr/>Color?</span></a>
+<a href="#lights" class="tsd-index-link tsd-is-inherited"><svg class="tsd-kind-icon" viewBox="0 0 24 24" aria-label="Property"><use href="../assets/icons.svg#icon-1024"></use></svg><span>lights</span></a>
+<a href="#styleGroups" class="tsd-index-link tsd-is-inherited"><svg class="tsd-kind-icon" viewBox="0 0 24 24" aria-label="Property"><use href="../assets/icons.svg#icon-1024"></use></svg><span>style<wbr/>Groups</span></a>
+</div></section>
+<section class="tsd-index-section">
+<h3 class="tsd-index-heading tsd-anchor-link" id="Methods">Methods<a href="#Methods" aria-label="Permalink" class="tsd-anchor-icon"><svg viewBox="0 0 24 24" aria-hidden="true"><use href="../assets/icons.svg#icon-anchor"></use></svg></a></h3>
+<div class="tsd-index-list"><a href="#assign" class="tsd-index-link tsd-is-inherited"><svg class="tsd-kind-icon" viewBox="0 0 24 24" aria-label="Method"><use href="../assets/icons.svg#icon-2048"></use></svg><span>assign</span></a>
+<a href="#setMaterial" class="tsd-index-link"><svg class="tsd-kind-icon" viewBox="0 0 24 24" aria-label="Method"><use href="../assets/icons.svg#icon-2048"></use></svg><span>set<wbr/>Material</span></a>
+</div></section></div></details></section></section>
+<details class="tsd-panel-group tsd-member-group tsd-accordion" open><summary class="tsd-accordion-summary" data-key="section-Constructors"><svg width="20" height="20" viewBox="0 0 24 24" fill="none" aria-hidden="true"><use href="../assets/icons.svg#icon-chevronDown"></use></svg>
+<h2 class="tsd-anchor-link" id="Constructors-1">Constructors<a href="#Constructors-1" aria-label="Permalink" class="tsd-anchor-icon"><svg viewBox="0 0 24 24" aria-hidden="true"><use href="../assets/icons.svg#icon-anchor"></use></svg></a></h2></summary>
+<section>
+<section class="tsd-panel tsd-member">
+<h3 class="tsd-anchor-link" id="constructor"><span>constructor</span><a href="#constructor" aria-label="Permalink" class="tsd-anchor-icon"><svg viewBox="0 0 24 24" aria-hidden="true"><use href="../assets/icons.svg#icon-anchor"></use></svg></a></h3>
+<ul class="tsd-signatures">
+<li class="">
+<div class="tsd-signature tsd-anchor-link" id="constructorTerrainTileLayerStyle"><span class="tsd-signature-keyword">new</span> <span class="tsd-kind-constructor-signature">TerrainTileLayerStyle</span><span class="tsd-signature-symbol">(</span><br/>    <span class="tsd-kind-parameter">style</span><span class="tsd-signature-symbol">?:</span> <span class="tsd-signature-symbol">{</span><br/>        <span class="tsd-kind-property">backgroundColor</span><span class="tsd-signature-symbol">?:</span><br/>            <span class="tsd-signature-symbol">|</span> <a href="../types/core.color.html" class="tsd-signature-type tsd-kind-type-alias">Color</a><br/>            <span class="tsd-signature-symbol">|</span> <a href="../types/core.stylezoomrange.html" class="tsd-signature-type tsd-kind-type-alias">StyleZoomRange</a><span class="tsd-signature-symbol">&lt;</span><a href="../types/core.color.html" class="tsd-signature-type tsd-kind-type-alias">Color</a><span class="tsd-signature-symbol">&gt;</span><br/>            <span class="tsd-signature-symbol">|</span> <a href="../types/core.styleexpression.html" class="tsd-signature-type tsd-kind-type-alias">StyleExpression</a><span class="tsd-signature-symbol">&lt;</span><a href="../types/core.color.html" class="tsd-signature-type tsd-kind-type-alias">Color</a><span class="tsd-signature-symbol">&gt;</span><br/>            <span class="tsd-signature-symbol">|</span> (<span class="tsd-signature-symbol">(</span><span class="tsd-kind-parameter">zoomlevel</span><span class="tsd-signature-symbol">:</span> <span class="tsd-signature-type">number</span><span class="tsd-signature-symbol">)</span> <span class="tsd-signature-symbol">=&gt;</span> <a href="../types/core.color.html" class="tsd-signature-type tsd-kind-type-alias">Color</a>)<span class="tsd-signature-symbol">;</span><br/>        <span class="tsd-kind-property">colorSource</span><span class="tsd-signature-symbol">?:</span><br/>            <span class="tsd-signature-symbol">|</span> <span class="tsd-signature-symbol">{</span> <span class="tsd-kind-property">type</span><span class="tsd-signature-symbol">:</span> <span class="tsd-signature-type">&quot;material&quot;</span> <span class="tsd-signature-symbol">}</span><br/>            <span class="tsd-signature-symbol">|</span> <span class="tsd-signature-symbol">{</span> <span class="tsd-kind-property">color</span><span class="tsd-signature-symbol">:</span> <a href="../types/core.color.html" class="tsd-signature-type tsd-kind-type-alias">Color</a><span class="tsd-signature-symbol">;</span> <span class="tsd-kind-property">type</span><span class="tsd-signature-symbol">:</span> <span class="tsd-signature-type">&quot;solid&quot;</span> <span class="tsd-signature-symbol">}</span><br/>            <span class="tsd-signature-symbol">|</span> <span class="tsd-signature-symbol">{</span> <span class="tsd-kind-property">layerId</span><span class="tsd-signature-symbol">:</span> <span class="tsd-signature-type">string</span><span class="tsd-signature-symbol">;</span> <span class="tsd-kind-property">type</span><span class="tsd-signature-symbol">:</span> <span class="tsd-signature-type">&quot;layerBackground&quot;</span> <span class="tsd-signature-symbol">}</span><span class="tsd-signature-symbol">;</span><br/>        <span class="tsd-kind-property">exaggeration</span><span class="tsd-signature-symbol">?:</span> <span class="tsd-signature-type">number</span><span class="tsd-signature-symbol">;</span><br/>        <span class="tsd-kind-property">light</span><span class="tsd-signature-symbol">?:</span> (<a href="../interfaces/core.ambientlight.html" class="tsd-signature-type tsd-kind-interface">AmbientLight</a> <span class="tsd-signature-symbol">|</span> <a href="../interfaces/core.directionallight.html" class="tsd-signature-type tsd-kind-interface">DirectionalLight</a>)<span class="tsd-signature-symbol">[]</span><span class="tsd-signature-symbol">;</span><br/>        <span class="tsd-kind-property">material</span><span class="tsd-signature-symbol">?:</span> <a href="../interfaces/core.material.html" class="tsd-signature-type tsd-kind-interface">Material</a><span class="tsd-signature-symbol">;</span><br/>        <span class="tsd-kind-property">skyColor</span><span class="tsd-signature-symbol">?:</span><br/>            <span class="tsd-signature-symbol">|</span> <a href="../types/core.color.html" class="tsd-signature-type tsd-kind-type-alias">Color</a><br/>            <span class="tsd-signature-symbol">|</span> <a href="../types/core.stylezoomrange.html" class="tsd-signature-type tsd-kind-type-alias">StyleZoomRange</a><span class="tsd-signature-symbol">&lt;</span><a href="../types/core.color.html" class="tsd-signature-type tsd-kind-type-alias">Color</a><span class="tsd-signature-symbol">&gt;</span><br/>            <span class="tsd-signature-symbol">|</span> <a href="../types/core.styleexpression.html" class="tsd-signature-type tsd-kind-type-alias">StyleExpression</a><span class="tsd-signature-symbol">&lt;</span><a href="../types/core.color.html" class="tsd-signature-type tsd-kind-type-alias">Color</a><span class="tsd-signature-symbol">&gt;</span><br/>            <span class="tsd-signature-symbol">|</span> (<span class="tsd-signature-symbol">(</span><span class="tsd-kind-parameter">zoomlevel</span><span class="tsd-signature-symbol">:</span> <span class="tsd-signature-type">number</span><span class="tsd-signature-symbol">)</span> <span class="tsd-signature-symbol">=&gt;</span> <a href="../types/core.color.html" class="tsd-signature-type tsd-kind-type-alias">Color</a>)<br/>            <span class="tsd-signature-symbol">|</span> <a href="../interfaces/core.lineargradient.html" class="tsd-signature-type tsd-kind-interface">LinearGradient</a><span class="tsd-signature-symbol">;</span><br/>    <span class="tsd-signature-symbol">}</span><span class="tsd-signature-symbol">,</span><br/><span class="tsd-signature-symbol">)</span><span class="tsd-signature-symbol">:</span> <a href="" class="tsd-signature-type tsd-kind-class">TerrainTileLayerStyle</a><a href="#constructorTerrainTileLayerStyle" aria-label="Permalink" class="tsd-anchor-icon"><svg viewBox="0 0 24 24" aria-hidden="true"><use href="../assets/icons.svg#icon-anchor"></use></svg></a></div>
+<div class="tsd-description">
+<div class="tsd-comment tsd-typography"><p>Creates a new instance of <code>TerrainTileLayerStyle</code>.</p>
+</div>
+<div class="tsd-parameters">
+<h4 class="tsd-parameters-title">Parameters</h4>
+<ul class="tsd-parameter-list">
+<li><span><span class="tsd-kind-parameter">style</span>: <span class="tsd-signature-symbol">{</span><br/>    <span class="tsd-kind-property">backgroundColor</span><span class="tsd-signature-symbol">?:</span><br/>        <span class="tsd-signature-symbol">|</span> <a href="../types/core.color.html" class="tsd-signature-type tsd-kind-type-alias">Color</a><br/>        <span class="tsd-signature-symbol">|</span> <a href="../types/core.stylezoomrange.html" class="tsd-signature-type tsd-kind-type-alias">StyleZoomRange</a><span class="tsd-signature-symbol">&lt;</span><a href="../types/core.color.html" class="tsd-signature-type tsd-kind-type-alias">Color</a><span class="tsd-signature-symbol">&gt;</span><br/>        <span class="tsd-signature-symbol">|</span> <a href="../types/core.styleexpression.html" class="tsd-signature-type tsd-kind-type-alias">StyleExpression</a><span class="tsd-signature-symbol">&lt;</span><a href="../types/core.color.html" class="tsd-signature-type tsd-kind-type-alias">Color</a><span class="tsd-signature-symbol">&gt;</span><br/>        <span class="tsd-signature-symbol">|</span> (<span class="tsd-signature-symbol">(</span><span class="tsd-kind-parameter">zoomlevel</span><span class="tsd-signature-symbol">:</span> <span class="tsd-signature-type">number</span><span class="tsd-signature-symbol">)</span> <span class="tsd-signature-symbol">=&gt;</span> <a href="../types/core.color.html" class="tsd-signature-type tsd-kind-type-alias">Color</a>)<span class="tsd-signature-symbol">;</span><br/>    <span class="tsd-kind-property">colorSource</span><span class="tsd-signature-symbol">?:</span><br/>        <span class="tsd-signature-symbol">|</span> <span class="tsd-signature-symbol">{</span> <span class="tsd-kind-property">type</span><span class="tsd-signature-symbol">:</span> <span class="tsd-signature-type">&quot;material&quot;</span> <span class="tsd-signature-symbol">}</span><br/>        <span class="tsd-signature-symbol">|</span> <span class="tsd-signature-symbol">{</span> <span class="tsd-kind-property">color</span><span class="tsd-signature-symbol">:</span> <a href="../types/core.color.html" class="tsd-signature-type tsd-kind-type-alias">Color</a><span class="tsd-signature-symbol">;</span> <span class="tsd-kind-property">type</span><span class="tsd-signature-symbol">:</span> <span class="tsd-signature-type">&quot;solid&quot;</span> <span class="tsd-signature-symbol">}</span><br/>        <span class="tsd-signature-symbol">|</span> <span class="tsd-signature-symbol">{</span> <span class="tsd-kind-property">layerId</span><span class="tsd-signature-symbol">:</span> <span class="tsd-signature-type">string</span><span class="tsd-signature-symbol">;</span> <span class="tsd-kind-property">type</span><span class="tsd-signature-symbol">:</span> <span class="tsd-signature-type">&quot;layerBackground&quot;</span> <span class="tsd-signature-symbol">}</span><span class="tsd-signature-symbol">;</span><br/>    <span class="tsd-kind-property">exaggeration</span><span class="tsd-signature-symbol">?:</span> <span class="tsd-signature-type">number</span><span class="tsd-signature-symbol">;</span><br/>    <span class="tsd-kind-property">light</span><span class="tsd-signature-symbol">?:</span> (<a href="../interfaces/core.ambientlight.html" class="tsd-signature-type tsd-kind-interface">AmbientLight</a> <span class="tsd-signature-symbol">|</span> <a href="../interfaces/core.directionallight.html" class="tsd-signature-type tsd-kind-interface">DirectionalLight</a>)<span class="tsd-signature-symbol">[]</span><span class="tsd-signature-symbol">;</span><br/>    <span class="tsd-kind-property">material</span><span class="tsd-signature-symbol">?:</span> <a href="../interfaces/core.material.html" class="tsd-signature-type tsd-kind-interface">Material</a><span class="tsd-signature-symbol">;</span><br/>    <span class="tsd-kind-property">skyColor</span><span class="tsd-signature-symbol">?:</span><br/>        <span class="tsd-signature-symbol">|</span> <a href="../types/core.color.html" class="tsd-signature-type tsd-kind-type-alias">Color</a><br/>        <span class="tsd-signature-symbol">|</span> <a href="../types/core.stylezoomrange.html" class="tsd-signature-type tsd-kind-type-alias">StyleZoomRange</a><span class="tsd-signature-symbol">&lt;</span><a href="../types/core.color.html" class="tsd-signature-type tsd-kind-type-alias">Color</a><span class="tsd-signature-symbol">&gt;</span><br/>        <span class="tsd-signature-symbol">|</span> <a href="../types/core.styleexpression.html" class="tsd-signature-type tsd-kind-type-alias">StyleExpression</a><span class="tsd-signature-symbol">&lt;</span><a href="../types/core.color.html" class="tsd-signature-type tsd-kind-type-alias">Color</a><span class="tsd-signature-symbol">&gt;</span><br/>        <span class="tsd-signature-symbol">|</span> (<span class="tsd-signature-symbol">(</span><span class="tsd-kind-parameter">zoomlevel</span><span class="tsd-signature-symbol">:</span> <span class="tsd-signature-type">number</span><span class="tsd-signature-symbol">)</span> <span class="tsd-signature-symbol">=&gt;</span> <a href="../types/core.color.html" class="tsd-signature-type tsd-kind-type-alias">Color</a>)<br/>        <span class="tsd-signature-symbol">|</span> <a href="../interfaces/core.lineargradient.html" class="tsd-signature-type tsd-kind-interface">LinearGradient</a><span class="tsd-signature-symbol">;</span><br/><span class="tsd-signature-symbol">}</span><span class="tsd-signature-symbol"> = {}</span></span>
+<div class="tsd-comment tsd-typography"><p>Optional configuration object for terrain style parameters.</p>
+</div>
+<ul class="tsd-parameters">
+<li class="tsd-parameter">
+<h5><code class="tsd-tag">Optional</code><span class="tsd-kind-property">backgroundColor</span><span class="tsd-signature-symbol">?: </span><br/>    <span class="tsd-signature-symbol">|</span> <a href="../types/core.color.html" class="tsd-signature-type tsd-kind-type-alias">Color</a><br/>    <span class="tsd-signature-symbol">|</span> <a href="../types/core.stylezoomrange.html" class="tsd-signature-type tsd-kind-type-alias">StyleZoomRange</a><span class="tsd-signature-symbol">&lt;</span><a href="../types/core.color.html" class="tsd-signature-type tsd-kind-type-alias">Color</a><span class="tsd-signature-symbol">&gt;</span><br/>    <span class="tsd-signature-symbol">|</span> <a href="../types/core.styleexpression.html" class="tsd-signature-type tsd-kind-type-alias">StyleExpression</a><span class="tsd-signature-symbol">&lt;</span><a href="../types/core.color.html" class="tsd-signature-type tsd-kind-type-alias">Color</a><span class="tsd-signature-symbol">&gt;</span><br/>    <span class="tsd-signature-symbol">|</span> (<span class="tsd-signature-symbol">(</span><span class="tsd-kind-parameter">zoomlevel</span><span class="tsd-signature-symbol">:</span> <span class="tsd-signature-type">number</span><span class="tsd-signature-symbol">)</span> <span class="tsd-signature-symbol">=&gt;</span> <a href="../types/core.color.html" class="tsd-signature-type tsd-kind-type-alias">Color</a>)</h5>
+<div class="tsd-comment tsd-typography"><p>Defines the background color of the terrain layer, shown when terrain data is not fully loaded.</p>
+</div></li>
+<li class="tsd-parameter">
+<h5><code class="tsd-tag">Optional</code><span class="tsd-kind-property">colorSource</span><span class="tsd-signature-symbol">?: </span><br/>    <span class="tsd-signature-symbol">|</span> <span class="tsd-signature-symbol">{</span> <span class="tsd-kind-property">type</span><span class="tsd-signature-symbol">:</span> <span class="tsd-signature-type">&quot;material&quot;</span> <span class="tsd-signature-symbol">}</span><br/>    <span class="tsd-signature-symbol">|</span> <span class="tsd-signature-symbol">{</span> <span class="tsd-kind-property">color</span><span class="tsd-signature-symbol">:</span> <a href="../types/core.color.html" class="tsd-signature-type tsd-kind-type-alias">Color</a><span class="tsd-signature-symbol">;</span> <span class="tsd-kind-property">type</span><span class="tsd-signature-symbol">:</span> <span class="tsd-signature-type">&quot;solid&quot;</span> <span class="tsd-signature-symbol">}</span><br/>    <span class="tsd-signature-symbol">|</span> <span class="tsd-signature-symbol">{</span> <span class="tsd-kind-property">layerId</span><span class="tsd-signature-symbol">:</span> <span class="tsd-signature-type">string</span><span class="tsd-signature-symbol">;</span> <span class="tsd-kind-property">type</span><span class="tsd-signature-symbol">:</span> <span class="tsd-signature-type">&quot;layerBackground&quot;</span> <span class="tsd-signature-symbol">}</span></h5>
+<div class="tsd-comment tsd-typography"><p>Controls how the terrain surface is colored.</p>
+<p>The color source defines the base color (albedo) of the terrain mesh
+before lighting is applied.</p>
+<p>This property is independent of <code>backgroundColor</code>, which is only used
+when terrain data is missing or not yet rendered.</p>
+<h3 id="Available-modes" class="tsd-anchor-link">Available modes<a href="#Available-modes" aria-label="Permalink" class="tsd-anchor-icon"><svg viewBox="0 0 24 24" aria-hidden="true"><use href="../assets/icons.svg#icon-anchor"></use></svg></a></h3>
+<ul>
+<li>
+<p><code>{ type: 'material' }</code>
+Uses the diffuse color defined by the terrain material.
+This is the default behavior.</p>
+</li>
+<li>
+<p><code>{ type: 'solid', color }</code>
+Uses a single, solid color for the entire terrain surface.
+Lighting is still applied, but the base color is constant.</p>
+</li>
+<li>
+<p><code>{ type: 'layerBackground', layerId }</code>
+Uses the background color of another layer as the terrain surface color.
+Typically used when visual data from another layer is rendered offscreen
+and projected onto the terrain.</p>
+<p>If the referenced layer is not available or not yet rendered,
+its <code>backgroundColor</code> is used as a fallback.</p>
+</li>
+</ul>
+</div>
+<div class="tsd-comment tsd-typography">
+<div class="tsd-tag-defaultValue">
+<h4 class="tsd-anchor-link" id="Default-Value">Default Value<a href="#Default-Value" aria-label="Permalink" class="tsd-anchor-icon"><svg viewBox="0 0 24 24" aria-hidden="true"><use href="../assets/icons.svg#icon-anchor"></use></svg></a></h4><p><code>{ type: 'material' }</code></p>
+</div></div></li>
+<li class="tsd-parameter">
+<h5><code class="tsd-tag">Optional</code><span class="tsd-kind-property">exaggeration</span><span class="tsd-signature-symbol">?: </span><span class="tsd-signature-type">number</span></h5>
+<div class="tsd-comment tsd-typography"><p>Elevation scale multiplier applied during rendering.
+This visually scales the terrain heights (e.g. 1 = real scale, 2 = double vertical exaggeration).</p>
+<p>Also known as &quot;vertical exaggeration&quot;.
+Has no effect on the actual height data.</p>
+</div>
+<div class="tsd-comment tsd-typography">
+<div class="tsd-tag-defaultValue">
+<h4 class="tsd-anchor-link" id="Default-Value-1">Default Value<a href="#Default-Value-1" aria-label="Permalink" class="tsd-anchor-icon"><svg viewBox="0 0 24 24" aria-hidden="true"><use href="../assets/icons.svg#icon-anchor"></use></svg></a></h4><pre><code class="ts"><span class="hl-9">1</span>
+</code><button type="button">Copy</button></pre>
+
+</div></div></li>
+<li class="tsd-parameter">
+<h5><code class="tsd-tag">Optional</code><span class="tsd-kind-property">light</span><span class="tsd-signature-symbol">?: </span>(<a href="../interfaces/core.ambientlight.html" class="tsd-signature-type tsd-kind-interface">AmbientLight</a> <span class="tsd-signature-symbol">|</span> <a href="../interfaces/core.directionallight.html" class="tsd-signature-type tsd-kind-interface">DirectionalLight</a>)<span class="tsd-signature-symbol">[]</span></h5>
+<div class="tsd-comment tsd-typography"><p>Lights to illuminate the terrain surface.</p>
+<p>Can include ambient and directional lights to control shading effects.
+If omitted, a default terrain light setup is used, which is just a simple ambient light (no directional lights).</p>
+</div></li>
+<li class="tsd-parameter">
+<h5><code class="tsd-tag">Optional</code><span class="tsd-kind-property">material</span><span class="tsd-signature-symbol">?: </span><a href="../interfaces/core.material.html" class="tsd-signature-type tsd-kind-interface">Material</a></h5>
+<div class="tsd-comment tsd-typography"><p>Material properties applied to the terrain mesh.</p>
+<p>This defines visual attributes such as color, shading, or roughness,
+depending on the renderer's material model.</p>
+</div></li>
+<li class="tsd-parameter">
+<h5><code class="tsd-tag">Optional</code><span class="tsd-kind-property">skyColor</span><span class="tsd-signature-symbol">?: </span><br/>    <span class="tsd-signature-symbol">|</span> <a href="../types/core.color.html" class="tsd-signature-type tsd-kind-type-alias">Color</a><br/>    <span class="tsd-signature-symbol">|</span> <a href="../types/core.stylezoomrange.html" class="tsd-signature-type tsd-kind-type-alias">StyleZoomRange</a><span class="tsd-signature-symbol">&lt;</span><a href="../types/core.color.html" class="tsd-signature-type tsd-kind-type-alias">Color</a><span class="tsd-signature-symbol">&gt;</span><br/>    <span class="tsd-signature-symbol">|</span> <a href="../types/core.styleexpression.html" class="tsd-signature-type tsd-kind-type-alias">StyleExpression</a><span class="tsd-signature-symbol">&lt;</span><a href="../types/core.color.html" class="tsd-signature-type tsd-kind-type-alias">Color</a><span class="tsd-signature-symbol">&gt;</span><br/>    <span class="tsd-signature-symbol">|</span> (<span class="tsd-signature-symbol">(</span><span class="tsd-kind-parameter">zoomlevel</span><span class="tsd-signature-symbol">:</span> <span class="tsd-signature-type">number</span><span class="tsd-signature-symbol">)</span> <span class="tsd-signature-symbol">=&gt;</span> <a href="../types/core.color.html" class="tsd-signature-type tsd-kind-type-alias">Color</a>)<br/>    <span class="tsd-signature-symbol">|</span> <a href="../interfaces/core.lineargradient.html" class="tsd-signature-type tsd-kind-interface">LinearGradient</a></h5>
+<div class="tsd-comment tsd-typography"><p>Defines the sky color of the map
+<a href="../interfaces/core.layerstyle.html#skyColor" class="tsd-kind-property">LayerStyle.skyColor</a></p>
+</div></li></ul></li></ul></div>
+<h4 class="tsd-returns-title">Returns <a href="" class="tsd-signature-type tsd-kind-class">TerrainTileLayerStyle</a></h4><aside class="tsd-sources">
+<p>Overrides RuntimeLayerStyle.constructor</p></aside></div></li></ul></section></section></details>
+<details class="tsd-panel-group tsd-member-group tsd-accordion" open><summary class="tsd-accordion-summary" data-key="section-Properties"><svg width="20" height="20" viewBox="0 0 24 24" fill="none" aria-hidden="true"><use href="../assets/icons.svg#icon-chevronDown"></use></svg>
+<h2 class="tsd-anchor-link" id="Properties-1">Properties<a href="#Properties-1" aria-label="Permalink" class="tsd-anchor-icon"><svg viewBox="0 0 24 24" aria-hidden="true"><use href="../assets/icons.svg#icon-anchor"></use></svg></a></h2></summary>
+<section>
+<section class="tsd-panel tsd-member tsd-is-inherited">
+<h3 class="tsd-anchor-link" id="altitude"><span>altitude</span><a href="#altitude" aria-label="Permalink" class="tsd-anchor-icon"><svg viewBox="0 0 24 24" aria-hidden="true"><use href="../assets/icons.svg#icon-anchor"></use></svg></a></h3>
+<div class="tsd-signature"><span class="tsd-kind-property">altitude</span><span class="tsd-signature-symbol">:</span> <span class="tsd-signature-type">boolean</span></div>
+<div class="tsd-comment tsd-typography"><p>Default altitude mode for all styles in this layer.
+Individual styles can override this setting by specifying their own <code>altitude</code> value.</p>
+<p>Possible values:</p>
+<ul>
+<li><code>'terrain'</code>: Styles follow the terrain elevation if available (default).</li>
+<li><code>true</code>: Styles use absolute height if provided be feature geometry.</li>
+<li><code>false</code>: Styles are rendered at the ground plane</li>
+</ul>
+</div>
+<div class="tsd-comment tsd-typography">
+<div class="tsd-tag-defaultValue">
+<h4 class="tsd-anchor-link" id="Default-Value-2">Default Value<a href="#Default-Value-2" aria-label="Permalink" class="tsd-anchor-icon"><svg viewBox="0 0 24 24" aria-hidden="true"><use href="../assets/icons.svg#icon-anchor"></use></svg></a></h4><pre><code class="ts"><span class="hl-8">false</span>
+</code><button type="button">Copy</button></pre>
+
+</div></div><aside class="tsd-sources">
+<p>Inherited from RuntimeLayerStyle.altitude</p></aside></section>
+<section class="tsd-panel tsd-member tsd-is-inherited">
+<h3 class="tsd-anchor-link" id="backgroundColor"><code class="tsd-tag">Optional</code><span>background<wbr/>Color</span><a href="#backgroundColor" aria-label="Permalink" class="tsd-anchor-icon"><svg viewBox="0 0 24 24" aria-hidden="true"><use href="../assets/icons.svg#icon-anchor"></use></svg></a></h3>
+<div class="tsd-signature"><span class="tsd-kind-property">backgroundColor</span><span class="tsd-signature-symbol">?:</span><br/>    <span class="tsd-signature-symbol">|</span> <a href="../types/core.color.html" class="tsd-signature-type tsd-kind-type-alias">Color</a><br/>    <span class="tsd-signature-symbol">|</span> <a href="../types/core.stylezoomrange.html" class="tsd-signature-type tsd-kind-type-alias">StyleZoomRange</a><span class="tsd-signature-symbol">&lt;</span><a href="../types/core.color.html" class="tsd-signature-type tsd-kind-type-alias">Color</a><span class="tsd-signature-symbol">&gt;</span><br/>    <span class="tsd-signature-symbol">|</span> <a href="../types/core.styleexpression.html" class="tsd-signature-type tsd-kind-type-alias">StyleExpression</a><span class="tsd-signature-symbol">&lt;</span><a href="../types/core.color.html" class="tsd-signature-type tsd-kind-type-alias">Color</a><span class="tsd-signature-symbol">&gt;</span><br/>    <span class="tsd-signature-symbol">|</span> (<span class="tsd-signature-symbol">(</span><span class="tsd-kind-parameter">zoomlevel</span><span class="tsd-signature-symbol">:</span> <span class="tsd-signature-type">number</span><span class="tsd-signature-symbol">)</span> <span class="tsd-signature-symbol">=&gt;</span> <a href="../types/core.color.html" class="tsd-signature-type tsd-kind-type-alias">Color</a>)</div>
+<div class="tsd-comment tsd-typography"><p>Specifies the background color of the layer.</p>
+<p>Only the background color of the layer at index 0 is used as the map background.
+It takes precedence over the map background color, including subsequent changes using <code>Map.setBackgroundColor()</code>.
+If the layer at index 0 has no background color, or the map has no layers, the current map background color is used.
+Background colors of layers at higher indices are not used as a fallback.</p>
+<p>This property can accept different types of values to determine the background color:</p>
+<ul>
+<li>A fixed <code>Color</code>.</li>
+<li>A <code>StyleZoomRange&lt;Color&gt;</code> object to define color based on zoom levels.</li>
+<li>A function <code>(zoomlevel: number) =&gt; Color</code> to compute the color dynamically based on the zoom level.</li>
+<li>A <code>StyleExpression&lt;Color&gt;</code> to compute the color using a style expression.</li>
+</ul>
+</div><aside class="tsd-sources">
+<p>Inherited from <a href="">TerrainTileLayerStyle</a>.<a href="#backgroundColor">backgroundColor</a></p></aside></section>
+<section class="tsd-panel tsd-member tsd-is-inherited">
+<h3 class="tsd-anchor-link" id="lights"><span>lights</span><a href="#lights" aria-label="Permalink" class="tsd-anchor-icon"><svg viewBox="0 0 24 24" aria-hidden="true"><use href="../assets/icons.svg#icon-anchor"></use></svg></a></h3>
+<div class="tsd-signature"><span class="tsd-kind-property">lights</span><span class="tsd-signature-symbol">:</span> <span class="tsd-signature-symbol">{</span> <span class="tsd-signature-symbol">[</span><span class="tsd-kind-index-signature">name</span><span class="tsd-signature-symbol">:</span> <span class="tsd-signature-type">string</span><span class="tsd-signature-symbol">]:</span> (<a href="../interfaces/core.ambientlight.html" class="tsd-signature-type tsd-kind-interface">AmbientLight</a> <span class="tsd-signature-symbol">|</span> <a href="../interfaces/core.directionallight.html" class="tsd-signature-type tsd-kind-interface">DirectionalLight</a>)<span class="tsd-signature-symbol">[]</span> <span class="tsd-signature-symbol">}</span><span class="tsd-signature-symbol"> = {}</span></div>
+<div class="tsd-comment tsd-typography"><p>The <code>lights</code> property specifies a collection of light sources that can be used to illuminate features within the layer.
+It is a map where each key is a unique light group name, and the value is an array of light objects.
+Lights can be of various types, including <a href="../interfaces/core.ambientlight.html" class="tsd-kind-interface">AmbientLight</a> and <a href="../interfaces/core.directionallight.html" class="tsd-kind-interface">DirectionalLight</a>, and can be used to create different lighting effects.</p>
+<p>The <code>lights</code> property allows you to define and organize multiple light sources that influence the rendering of features in the layer.</p>
+<h3 id="Structure" class="tsd-anchor-link">Structure<a href="#Structure" aria-label="Permalink" class="tsd-anchor-icon"><svg viewBox="0 0 24 24" aria-hidden="true"><use href="../assets/icons.svg#icon-anchor"></use></svg></a></h3>
+<ul>
+<li><strong>Key (string):</strong> A unique identifier for the light group.</li>
+<li><strong>Value (array):</strong> An array of light objects, which can be of type <a href="../interfaces/core.ambientlight.html" class="tsd-kind-interface">AmbientLight</a> or <a href="../interfaces/core.directionallight.html" class="tsd-kind-interface">DirectionalLight</a>.</li>
+</ul>
+<h3 id="Relation-to-Stylelight" class="tsd-anchor-link">Relation to Style.light<a href="#Relation-to-Stylelight" aria-label="Permalink" class="tsd-anchor-icon"><svg viewBox="0 0 24 24" aria-hidden="true"><use href="../assets/icons.svg#icon-anchor"></use></svg></a></h3>
+<ul>
+<li><strong><a href="../interfaces/core.style.html#light" class="tsd-kind-property">Style.light</a></strong>: Specifies which single light group to use for illuminating a specific feature. This property must reference a key defined in <code>LayerStyle.lights</code>.</li>
+<li><strong>Default Light</strong>: If a <code>FeatureStyle</code> does not specify a <code>light</code>, the light group associated with the <code>&quot;defaultLight&quot;</code> key in <code>LayerStyle.lights</code> will be used. If <code>&quot;defaultLight&quot;</code> is not defined, a default light will be automatically provided.</li>
+<li><strong>Only One Light Group</strong>: Only one light group is used to illuminate a feature. This is either the group specified in <code>FeatureStyle.light</code>, or if not specified, the <code>&quot;defaultLight&quot;</code> group from <code>LayerStyle.lights</code>.</li>
+<li><strong>Override Default Light</strong>: To override the default light, set it explicitly in <code>LayerStyle.lights</code> under the key <code>&quot;defaultLight&quot;</code>.</li>
+</ul>
+<h3 id="Examples" class="tsd-anchor-link">Examples<a href="#Examples" aria-label="Permalink" class="tsd-anchor-icon"><svg viewBox="0 0 24 24" aria-hidden="true"><use href="../assets/icons.svg#icon-anchor"></use></svg></a></h3>
+<pre><code class="typescript"><span class="hl-1">{</span><br/><span class="hl-1">  </span><span class="hl-2">lights</span><span class="hl-1">: {</span><br/><span class="hl-1">     </span><span class="hl-3">// Define a light group named &quot;default&quot; to override the default lighting for the layer</span><br/><span class="hl-1">   </span><span class="hl-6">&quot;defaultLight&quot;</span><span class="hl-1">: [{</span><br/><span class="hl-1">       </span><span class="hl-0">type:</span><span class="hl-1"> </span><span class="hl-6">&#39;ambient&#39;</span><span class="hl-1">,</span><br/><span class="hl-1">       </span><span class="hl-0">color:</span><span class="hl-1"> </span><span class="hl-6">&#39;#fff&#39;</span><span class="hl-1">,</span><br/><span class="hl-1">       </span><span class="hl-0">intensity:</span><span class="hl-1"> </span><span class="hl-9">0.3</span><br/><span class="hl-1">   }, {</span><br/><span class="hl-1">       </span><span class="hl-0">type:</span><span class="hl-1"> </span><span class="hl-6">&#39;directional&#39;</span><span class="hl-1">,</span><br/><span class="hl-1">       </span><span class="hl-0">color:</span><span class="hl-1"> </span><span class="hl-6">&#39;#fff&#39;</span><span class="hl-1">,</span><br/><span class="hl-1">       </span><span class="hl-0">direction:</span><span class="hl-1"> [</span><span class="hl-9">0</span><span class="hl-1">, </span><span class="hl-9">0</span><span class="hl-1">, </span><span class="hl-9">1</span><span class="hl-1">],</span><br/><span class="hl-1">       </span><span class="hl-0">intensity:</span><span class="hl-1"> </span><span class="hl-9">1.0</span><br/><span class="hl-1">   }, {</span><br/><span class="hl-1">       </span><span class="hl-0">type:</span><span class="hl-1"> </span><span class="hl-6">&#39;directional&#39;</span><span class="hl-1">,</span><br/><span class="hl-1">       </span><span class="hl-0">color:</span><span class="hl-1"> </span><span class="hl-6">&#39;#fff&#39;</span><span class="hl-1">,</span><br/><span class="hl-1">       </span><span class="hl-0">direction:</span><span class="hl-1"> [-</span><span class="hl-9">1</span><span class="hl-1">, </span><span class="hl-9">0</span><span class="hl-1">, </span><span class="hl-9">0</span><span class="hl-1">],</span><br/><span class="hl-1">       </span><span class="hl-0">intensity:</span><span class="hl-1"> </span><span class="hl-9">0.2</span><br/><span class="hl-1">   }],</span><br/><span class="hl-1">   </span><span class="hl-3">// Define a light group named &quot;buildingLights&quot; for specific features</span><br/><span class="hl-1">    </span><span class="hl-6">&quot;buildingLights&quot;</span><span class="hl-1">: [</span><br/><span class="hl-1">      { </span><span class="hl-0">type:</span><span class="hl-1"> </span><span class="hl-6">&quot;ambient&quot;</span><span class="hl-1">, </span><span class="hl-0">color:</span><span class="hl-1"> </span><span class="hl-6">&quot;#fff&quot;</span><span class="hl-1">, </span><span class="hl-0">intensity:</span><span class="hl-1"> </span><span class="hl-9">1.0</span><span class="hl-1"> } </span><span class="hl-3">// A simple ambient light source for buildings</span><br/><span class="hl-1">    ]</span><br/><span class="hl-1">  }</span><br/><span class="hl-1">}</span>
+</code><button type="button">Copy</button></pre>
+
+<p>In the example above:</p>
+<ul>
+<li><code>&quot;defaultLight&quot;</code> is a light group that overrides the standard lighting configuration. It includes both an ambient and a directional light source and is used for all illuminated FeatureStyle instances where the light property is not explicitly set.</li>
+<li><code>&quot;buildingLights&quot;</code> is a light group containing only an ambient light source. This group will only be used for features where <a href="../interfaces/core.style.html#light" class="tsd-kind-property">Style.light</a> is set to <code>&quot;buildingLights&quot;</code>.</li>
+<li>Each light source can be customized with properties such as <code>color</code>, <code>intensity</code>, and, for <code>DirectionalLight</code>, a <code>direction</code> vector.</li>
+</ul>
+<p>The lights specified here will be applied to the rendering of features within the layer. However, only one light group will be used for each feature:</p>
+<ul>
+<li>If <a href="../interfaces/core.style.html#light" class="tsd-kind-property">Style.light</a> is defined, it will reference a specific light group in <code>LayerStyle.lights</code>.</li>
+<li>If <a href="../interfaces/core.style.html#light" class="tsd-kind-property">Style.light</a> is not defined, the <code>&quot;defaultLight&quot;</code> light group (if specified) will be used.</li>
+<li>If no <code>&quot;defaultLight&quot;</code> light group is set, an automatic default light will be provided.</li>
+</ul>
+</div><aside class="tsd-sources">
+<p>Inherited from <a href="">TerrainTileLayerStyle</a>.<a href="#lights">lights</a></p></aside></section>
+<section class="tsd-panel tsd-member tsd-is-inherited">
+<h3 class="tsd-anchor-link" id="styleGroups"><span>style<wbr/>Groups</span><a href="#styleGroups" aria-label="Permalink" class="tsd-anchor-icon"><svg viewBox="0 0 24 24" aria-hidden="true"><use href="../assets/icons.svg#icon-anchor"></use></svg></a></h3>
+<div class="tsd-signature"><span class="tsd-kind-property">styleGroups</span><span class="tsd-signature-symbol">:</span> <span class="tsd-signature-type">any</span><span class="tsd-signature-symbol"> = null</span></div>
+<div class="tsd-comment tsd-typography"><p>This object contains key/styleGroup pairs.
+A styleGroup is an array of <a href="../interfaces/core.style.html" class="tsd-kind-interface">Style</a>, that exactly defines how a feature should be rendered.</p>
+</div><aside class="tsd-sources">
+<p>Inherited from RuntimeLayerStyle.styleGroups</p></aside></section></section></details>
+<details class="tsd-panel-group tsd-member-group tsd-accordion" open><summary class="tsd-accordion-summary" data-key="section-Methods"><svg width="20" height="20" viewBox="0 0 24 24" fill="none" aria-hidden="true"><use href="../assets/icons.svg#icon-chevronDown"></use></svg>
+<h2 class="tsd-anchor-link" id="Methods-1">Methods<a href="#Methods-1" aria-label="Permalink" class="tsd-anchor-icon"><svg viewBox="0 0 24 24" aria-hidden="true"><use href="../assets/icons.svg#icon-anchor"></use></svg></a></h2></summary>
+<section>
+<section class="tsd-panel tsd-member tsd-is-inherited">
+<h3 class="tsd-anchor-link" id="assign"><span>assign</span><a href="#assign" aria-label="Permalink" class="tsd-anchor-icon"><svg viewBox="0 0 24 24" aria-hidden="true"><use href="../assets/icons.svg#icon-anchor"></use></svg></a></h3>
+<ul class="tsd-signatures tsd-is-inherited">
+<li class="tsd-is-inherited">
+<div class="tsd-signature tsd-anchor-link" id="assign-1"><span class="tsd-kind-call-signature">assign</span><span class="tsd-signature-symbol">(</span><span class="tsd-kind-parameter">feature</span><span class="tsd-signature-symbol">:</span> <a href="core.feature.html" class="tsd-signature-type tsd-kind-class">Feature</a><span class="tsd-signature-symbol">,</span> <span class="tsd-kind-parameter">level</span><span class="tsd-signature-symbol">?:</span> <span class="tsd-signature-type">number</span><span class="tsd-signature-symbol">)</span><span class="tsd-signature-symbol">:</span> <span class="tsd-signature-type">string</span><a href="#assign-1" aria-label="Permalink" class="tsd-anchor-icon"><svg viewBox="0 0 24 24" aria-hidden="true"><use href="../assets/icons.svg#icon-anchor"></use></svg></a></div>
+<div class="tsd-description">
+<div class="tsd-comment tsd-typography"><p>The function returns a key that is defined in the styleGroups map.
+This function will be called for each feature being rendered by the display.
+The display expects this method to return the key for the styleGroup of how the feature should be rendered for the respective zoomlevel.</p>
+<p>If <code>assign</code> is not defined, the <a href="../interfaces/core.style.html#filter" class="tsd-kind-property">Style.filter</a> property must be used to determine whether the feature should be rendered.</p>
+</div>
+<div class="tsd-parameters">
+<h4 class="tsd-parameters-title">Parameters</h4>
+<ul class="tsd-parameter-list">
+<li><span><span class="tsd-kind-parameter">feature</span>: <a href="core.feature.html" class="tsd-signature-type tsd-kind-class">Feature</a></span>
+<div class="tsd-comment tsd-typography"><p>the feature to which style is applied</p>
+</div></li>
+<li><span><code class="tsd-tag">Optional</code><span class="tsd-kind-parameter">level</span>: <span class="tsd-signature-type">number</span></span></li></ul></div>
+<h4 class="tsd-returns-title">Returns <span class="tsd-signature-type">string</span></h4><p>the key/identifier of the styleGroup in the styleGroupMap, or null/undefined if the feature should not be rendered.</p>
+<aside class="tsd-sources">
+<p>Inherited from <a href="">TerrainTileLayerStyle</a>.<a href="#assign">assign</a></p></aside></div></li></ul></section>
+<section class="tsd-panel tsd-member">
+<h3 class="tsd-anchor-link" id="setMaterial"><span>set<wbr/>Material</span><a href="#setMaterial" aria-label="Permalink" class="tsd-anchor-icon"><svg viewBox="0 0 24 24" aria-hidden="true"><use href="../assets/icons.svg#icon-anchor"></use></svg></a></h3>
+<ul class="tsd-signatures">
+<li class="">
+<div class="tsd-signature tsd-anchor-link" id="setMaterial-1"><span class="tsd-kind-call-signature">setMaterial</span><span class="tsd-signature-symbol">(</span><br/>    <span class="tsd-kind-parameter">materialUpdate</span><span class="tsd-signature-symbol">:</span> <span class="tsd-signature-type">Partial</span><span class="tsd-signature-symbol">&lt;</span><span class="tsd-signature-type">Pick</span><span class="tsd-signature-symbol">&lt;</span><a href="../interfaces/core.material.html" class="tsd-signature-type tsd-kind-interface">Material</a><span class="tsd-signature-symbol">,</span> <span class="tsd-signature-type">&quot;specular&quot;</span> <span class="tsd-signature-symbol">|</span> <span class="tsd-signature-type">&quot;shininess&quot;</span><span class="tsd-signature-symbol">&gt;</span><span class="tsd-signature-symbol">&gt;</span><span class="tsd-signature-symbol">,</span><br/><span class="tsd-signature-symbol">)</span><span class="tsd-signature-symbol">:</span> <span class="tsd-signature-type">void</span><a href="#setMaterial-1" aria-label="Permalink" class="tsd-anchor-icon"><svg viewBox="0 0 24 24" aria-hidden="true"><use href="../assets/icons.svg#icon-anchor"></use></svg></a></div>
+<div class="tsd-description">
+<div class="tsd-comment tsd-typography"><p>Updates the terrain material values that can be changed without rebuilding terrain buffers.</p>
+</div>
+<div class="tsd-parameters">
+<h4 class="tsd-parameters-title">Parameters</h4>
+<ul class="tsd-parameter-list">
+<li><span><span class="tsd-kind-parameter">materialUpdate</span>: <span class="tsd-signature-type">Partial</span><span class="tsd-signature-symbol">&lt;</span><span class="tsd-signature-type">Pick</span><span class="tsd-signature-symbol">&lt;</span><a href="../interfaces/core.material.html" class="tsd-signature-type tsd-kind-interface">Material</a><span class="tsd-signature-symbol">,</span> <span class="tsd-signature-type">&quot;specular&quot;</span> <span class="tsd-signature-symbol">|</span> <span class="tsd-signature-type">&quot;shininess&quot;</span><span class="tsd-signature-symbol">&gt;</span><span class="tsd-signature-symbol">&gt;</span></span>
+<div class="tsd-comment tsd-typography"><p>The live <code>specular</code> color and/or <code>shininess</code> values.</p>
+<p>Call <code>display.refresh()</code> after changing the material to render the new values.</p>
+</div></li></ul></div>
+<h4 class="tsd-returns-title">Returns <span class="tsd-signature-type">void</span></h4></div></li></ul></section></section></details></div>
+<div class="col-sidebar">
+<div class="page-menu">
+<div class="tsd-navigation settings">
+<details class="tsd-accordion"><summary class="tsd-accordion-summary"><svg width="20" height="20" viewBox="0 0 24 24" fill="none" aria-hidden="true"><use href="../assets/icons.svg#icon-chevronDown"></use></svg>
+<h3>Settings</h3></summary>
+<div class="tsd-accordion-details">
+<div class="tsd-filter-visibility"><span class="settings-label">Member Visibility</span>
+<ul id="tsd-filter-options">
+<li class="tsd-filter-item"><label class="tsd-filter-input"><input type="checkbox" id="tsd-filter-protected" name="protected"/><svg width="32" height="32" viewBox="0 0 32 32" aria-hidden="true"><rect class="tsd-checkbox-background" width="30" height="30" x="1" y="1" rx="6" fill="none"></rect><path class="tsd-checkbox-checkmark" d="M8.35422 16.8214L13.2143 21.75L24.6458 10.25" stroke="none" stroke-width="3.5" stroke-linejoin="round" fill="none"></path></svg><span>Protected</span></label></li>
+<li class="tsd-filter-item"><label class="tsd-filter-input"><input type="checkbox" id="tsd-filter-inherited" name="inherited" checked/><svg width="32" height="32" viewBox="0 0 32 32" aria-hidden="true"><rect class="tsd-checkbox-background" width="30" height="30" x="1" y="1" rx="6" fill="none"></rect><path class="tsd-checkbox-checkmark" d="M8.35422 16.8214L13.2143 21.75L24.6458 10.25" stroke="none" stroke-width="3.5" stroke-linejoin="round" fill="none"></path></svg><span>Inherited</span></label></li>
+<li class="tsd-filter-item"><label class="tsd-filter-input"><input type="checkbox" id="tsd-filter-external" name="external"/><svg width="32" height="32" viewBox="0 0 32 32" aria-hidden="true"><rect class="tsd-checkbox-background" width="30" height="30" x="1" y="1" rx="6" fill="none"></rect><path class="tsd-checkbox-checkmark" d="M8.35422 16.8214L13.2143 21.75L24.6458 10.25" stroke="none" stroke-width="3.5" stroke-linejoin="round" fill="none"></path></svg><span>External</span></label></li></ul></div>
+<div class="tsd-theme-toggle"><label class="settings-label" for="tsd-theme">Theme</label><select id="tsd-theme"><option value="os">OS</option><option value="light">Light</option><option value="dark">Dark</option></select></div></div></details></div>
+<details open class="tsd-accordion tsd-page-navigation"><summary class="tsd-accordion-summary"><svg width="20" height="20" viewBox="0 0 24 24" fill="none" aria-hidden="true"><use href="../assets/icons.svg#icon-chevronDown"></use></svg>
+<h3>On This Page</h3></summary>
+<div class="tsd-accordion-details">
+<details open class="tsd-accordion tsd-page-navigation-section"><summary class="tsd-accordion-summary" data-key="section-Constructors"><svg width="20" height="20" viewBox="0 0 24 24" fill="none" aria-hidden="true"><use href="../assets/icons.svg#icon-chevronDown"></use></svg>Constructors</summary>
+<div><a href="#constructor"><svg class="tsd-kind-icon" viewBox="0 0 24 24" aria-label="Constructor"><use href="../assets/icons.svg#icon-512"></use></svg><span>constructor</span></a>
+<ul>
+<li><a href="#Available-modes"><span>Available modes</span></a></li></ul></div></details>
+<details open class="tsd-accordion tsd-page-navigation-section"><summary class="tsd-accordion-summary" data-key="section-Properties"><svg width="20" height="20" viewBox="0 0 24 24" fill="none" aria-hidden="true"><use href="../assets/icons.svg#icon-chevronDown"></use></svg>Properties</summary>
+<div><a href="#altitude" class="tsd-is-inherited"><svg class="tsd-kind-icon" viewBox="0 0 24 24" aria-label="Property"><use href="../assets/icons.svg#icon-1024"></use></svg><span>altitude</span></a><a href="#backgroundColor" class="tsd-is-inherited"><svg class="tsd-kind-icon" viewBox="0 0 24 24" aria-label="Property"><use href="../assets/icons.svg#icon-1024"></use></svg><span>background<wbr/>Color</span></a><a href="#lights" class="tsd-is-inherited"><svg class="tsd-kind-icon" viewBox="0 0 24 24" aria-label="Property"><use href="../assets/icons.svg#icon-1024"></use></svg><span>lights</span></a>
+<ul>
+<li>
+<ul>
+<li>
+<ul>
+<li><a href="#Structure"><span>Structure</span></a></li>
+<li><a href="#Relation-to-Stylelight"><span>Relation to <wbr/>Style.light</span></a></li>
+<li><a href="#Examples"><span>Examples</span></a></li></ul></li></ul></li></ul><a href="#styleGroups" class="tsd-is-inherited"><svg class="tsd-kind-icon" viewBox="0 0 24 24" aria-label="Property"><use href="../assets/icons.svg#icon-1024"></use></svg><span>style<wbr/>Groups</span></a></div></details>
+<details open class="tsd-accordion tsd-page-navigation-section"><summary class="tsd-accordion-summary" data-key="section-Methods"><svg width="20" height="20" viewBox="0 0 24 24" fill="none" aria-hidden="true"><use href="../assets/icons.svg#icon-chevronDown"></use></svg>Methods</summary>
+<div><a href="#assign" class="tsd-is-inherited"><svg class="tsd-kind-icon" viewBox="0 0 24 24" aria-label="Method"><use href="../assets/icons.svg#icon-2048"></use></svg><span>assign</span></a><a href="#setMaterial"><svg class="tsd-kind-icon" viewBox="0 0 24 24" aria-label="Method"><use href="../assets/icons.svg#icon-2048"></use></svg><span>set<wbr/>Material</span></a></div></details></div></details></div>
+<div class="site-menu">
+<nav class="tsd-navigation"><a href="../modules.html">XYZ Maps Documentation</a>
+<ul class="tsd-small-nested-navigation" id="tsd-nav-container">
+<li>Loading...</li></ul></nav></div></div></div><footer>
+<p class="tsd-generator">Generated using <a href="https://typedoc.org/" target="_blank">TypeDoc</a></p></footer>
+<div class="overlay"></div></body></html>

@@ -1,0 +1,39 @@
+<!DOCTYPE html>
+<html>
+	<head>
+		<meta name="viewport" content="width=device-width, initial-scale=1.0, minimum-scale=1.0, user-scalable=no">
+		<title>XYZ Maps Example: Create a Context Menu</title>
+		<style type="text/css">
+			#map {
+				position: absolute;
+            	overflow: hidden;
+				top: 0;
+				left: 0;
+				width: 100%;
+                height: 100%;
+			}
+			.contextmenu {
+                display: none;
+				position: absolute;
+				background: #fff;
+				z-index: 2000;
+				border: 3px solid #CDCDCD;
+				list-style: none outside none;
+				padding: 5px;
+				border-radius: 3px 3px 3px 3px;
+				box-shadow: 0 0 15px #999999;
+				color: #373D49;
+			}
+			.contextmenu li {
+				cursor: pointer;
+			}
+			.contextmenu li:hover {
+				background: #eee;
+			}
+		</style>
+	</head>
+	<body>
+		<div id="map"></div>
+        <ul class="contextmenu"></ul>
+	</body>
+</html>

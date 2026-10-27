@@ -1,0 +1,47 @@
+<!DOCTYPE html>
+<html>
+    <head>
+        <meta name="viewport" content="width=device-width, initial-scale=1.0, minimum-scale=1.0, user-scalable=no">
+        <title>XYZ Maps Example: Draw &amp; Edit on Terrain</title>
+        <style type="text/css">
+            #map {
+                position: absolute;
+                overflow: hidden;
+                top: 0;
+                left: 0;
+                width: 100%;
+                height: 100%;
+            }
+            #controls {
+                position: relative;
+                margin: 20px;
+                padding: 12px;
+                max-width: 340px;
+                background: #333;
+                color: #fff;
+                font: 14px Arial, Helvetica, sans-serif;
+            }
+            #controls p {
+                margin: 0 0 10px;
+            }
+            button {
+                padding: 6px 10px;
+                cursor: pointer;
+            }
+            button:disabled {
+                cursor: default;
+            }
+        </style>
+    </head>
+    <body>
+        <div id="map"></div>
+        <div id="controls">
+            <p><strong>Draw &amp; Edit on Terrain — Hahnenkamm</strong></p>
+            <p id="info"></p>
+            <p>Right-drag to tilt / rotate, even while drawing. Scroll to zoom.</p>
+            <button id="draw" type="button">Draw path</button>
+            <button id="draw-area" type="button">Draw area</button>
+            <button id="cancel" type="button" disabled>Cancel</button>
+        </div>
+    </body>
+</html>

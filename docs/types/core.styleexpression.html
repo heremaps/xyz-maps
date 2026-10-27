@@ -1,0 +1,342 @@
+<!DOCTYPE html><html class="default" lang="en" data-base="../"><head><meta charset="utf-8"/><meta http-equiv="x-ua-compatible" content="IE=edge"/><title>StyleExpression | XYZ Maps Documentation</title><meta name="description" content="Documentation for XYZ Maps Documentation"/><meta name="viewport" content="width=device-width, initial-scale=1"/><link rel="stylesheet" href="../assets/style.css"/><link rel="stylesheet" href="../assets/highlight.css"/><script defer src="../assets/main.js"></script><script async src="../assets/icons.js" id="tsd-icons-script"></script><script async src="../assets/search.js" id="tsd-search-script"></script><script async src="../assets/navigation.js" id="tsd-nav-script"></script><script async src="../assets/hierarchy.js" id="tsd-hierarchy-script"></script></head><body><script>document.documentElement.dataset.theme = localStorage.getItem("tsd-theme") || "os";document.body.style.display="none";setTimeout(() => window.app?app.showPage():document.body.style.removeProperty("display"),500)</script><header class="tsd-page-toolbar">
+<div class="tsd-toolbar-contents container"><a href="../index.html" class="title">XYZ Maps Documentation</a>
+<div id="tsd-toolbar-links"></div><button id="tsd-search-trigger" class="tsd-widget" aria-label="Search"><svg width="16" height="16" viewBox="0 0 16 16" fill="none" aria-hidden="true"><use href="../assets/icons.svg#icon-search"></use></svg></button><dialog id="tsd-search" aria-label="Search"><input role="combobox" id="tsd-search-input" aria-controls="tsd-search-results" aria-autocomplete="list" aria-expanded="true" autocapitalize="off" autocomplete="off" placeholder="Search the docs" maxLength="100"/>
+<ul role="listbox" id="tsd-search-results"></ul>
+<div id="tsd-search-status" aria-live="polite" aria-atomic="true">
+<div>Preparing search index...</div></div></dialog><a href="#" class="tsd-widget menu" id="tsd-toolbar-menu-trigger" data-toggle="menu" aria-label="Menu"><svg width="16" height="16" viewBox="0 0 16 16" fill="none" aria-hidden="true"><use href="../assets/icons.svg#icon-menu"></use></svg></a></div></header>
+<div class="container container-main">
+<div class="col-content">
+<div class="tsd-page-title">
+<ul class="tsd-breadcrumb" aria-label="Breadcrumb">
+<li><a href="../modules/core.html">@here/xyz-maps-core</a></li>
+<li><a href="" aria-current="page">StyleExpression</a></li></ul>
+<h1>Type Alias StyleExpression&lt;ResultType&gt;</h1></div>
+<div class="tsd-signature"><span class="tsd-kind-type-alias">StyleExpression</span><span class="tsd-signature-symbol">:</span> <span class="tsd-signature-symbol">[</span><span class="tsd-signature-type">string</span><span class="tsd-signature-symbol">,</span> <span class="tsd-signature-symbol">...</span><span class="tsd-signature-type">any</span><span class="tsd-signature-symbol">[]</span><span class="tsd-signature-symbol">]</span></div>
+<div class="tsd-comment tsd-typography"><p>A StyleExpression is a JSON array representing an expression that returns the desired value
+for a specific style property. It is particularly useful for data-driven styling in map or UI components.</p>
+<p>The structure of a StyleExpression is as follows:</p>
+<ul>
+<li>The first element (index 0) is a string that specifies the operator of the expression.</li>
+<li>The subsequent elements are the operands required by the operator.</li>
+</ul>
+</div>
+<section class="tsd-panel">
+<h4>Type Parameters</h4>
+<ul class="tsd-type-parameter-list">
+<li><span id="ResultType"><span class="tsd-kind-type-parameter">ResultType</span> = <span class="tsd-signature-type">any</span></span>
+<div class="tsd-comment tsd-typography"><p>The type of the value that the expression returns.</p>
+<h2 id="StyleExpression-Operators" class="tsd-anchor-link">StyleExpression Operators<a href="#StyleExpression-Operators" aria-label="Permalink" class="tsd-anchor-icon"><svg viewBox="0 0 24 24" aria-hidden="true"><use href="../assets/icons.svg#icon-anchor"></use></svg></a></h2>
+<p>A StyleExpression is a JSON array representing an expression that returns the desired value for a specific style property. Below are the possible operators and their descriptions, along with examples.</p>
+<h3 id="Reference" class="tsd-anchor-link">Reference<a href="#Reference" aria-label="Permalink" class="tsd-anchor-icon"><svg viewBox="0 0 24 24" aria-hidden="true"><use href="../assets/icons.svg#icon-anchor"></use></svg></a></h3>
+<ul>
+<li><strong><code>ref</code></strong>: References another expression by name.
+<ul>
+<li>Example: <code>[&quot;ref&quot;, &quot;otherExpression&quot;]</code></li>
+</ul>
+</li>
+</ul>
+<h3 id="Data-Retrieval" class="tsd-anchor-link">Data Retrieval<a href="#Data-Retrieval" aria-label="Permalink" class="tsd-anchor-icon"><svg viewBox="0 0 24 24" aria-hidden="true"><use href="../assets/icons.svg#icon-anchor"></use></svg></a></h3>
+<ul>
+<li>
+<p><strong><code>get</code></strong>: Retrieves a property from the input data. The third optional operand specifies the input data from which to retrieve the property. If not provided, it defaults to <code>feature.properties</code>.</p>
+<p>The property name can also be a global map context variable:</p>
+<ul>
+<li>
+<p><code>$zoom</code>: The current zoom level.</p>
+</li>
+<li>
+<p><code>$layer</code>: The name of the datasource layer.</p>
+</li>
+<li>
+<p><code>$geometryType</code>: The type of the current feature geometry (&quot;line&quot;, &quot;point&quot;, &quot;polygon&quot;).</p>
+</li>
+<li>
+<p><code>$id</code>: The ID of the current feature.</p>
+</li>
+<li>
+<p>Example: <code>[&quot;get&quot;, &quot;propertyName&quot;]</code> // Retrieves <code>propertyName</code> from <code>feature.properties</code>.</p>
+</li>
+<li>
+<p>Example with input data: <code>[&quot;get&quot;, &quot;propertyName&quot;, { custom: &quot;data&quot; }]</code> // Retrieves <code>propertyName</code> from the specified input data.</p>
+</li>
+<li>
+<p>Example with global map context variable: <code>[&quot;get&quot;, &quot;$zoom&quot;]</code> // Retrieves the current zoom level.</p>
+</li>
+</ul>
+</li>
+</ul>
+<h3 id="Arithmetic" class="tsd-anchor-link">Arithmetic<a href="#Arithmetic" aria-label="Permalink" class="tsd-anchor-icon"><svg viewBox="0 0 24 24" aria-hidden="true"><use href="../assets/icons.svg#icon-anchor"></use></svg></a></h3>
+<ul>
+<li><strong><code>+</code></strong>: Adds two numbers.
+<ul>
+<li>Example: <code>[&quot;+&quot;, 2, 3]</code> // Outputs: 5</li>
+</ul>
+</li>
+<li><strong><code>-</code></strong>: Subtracts the second number from the first.
+<ul>
+<li>Example: <code>[&quot;-&quot;, 5, 3]</code> // Outputs: 2</li>
+</ul>
+</li>
+<li><strong><code>*</code></strong>: Multiplies two numbers.
+<ul>
+<li>Example: <code>[&quot;*&quot;, 2, 3]</code> // Outputs: 6</li>
+</ul>
+</li>
+<li><strong><code>/</code></strong>: Divides the first number by the second.
+<ul>
+<li>Example: <code>[&quot;/&quot;, 6, 3]</code> // Outputs: 2</li>
+</ul>
+</li>
+<li><strong><code>%</code></strong>: Computes the remainder of dividing the first number by the second.
+<ul>
+<li>Example: <code>[&quot;%&quot;, 5, 2]</code> // Outputs: 1</li>
+</ul>
+</li>
+<li><strong><code>floor</code></strong>: Rounds down a number to the nearest integer.
+<ul>
+<li>Example: <code>[&quot;floor&quot;, 4.7]</code> // Outputs: 4</li>
+</ul>
+</li>
+<li><strong><code>min</code></strong>: Returns the smallest number.
+<ul>
+<li>Example: <code>[&quot;min&quot;, 1, 2, 3]</code> // Outputs: 1</li>
+</ul>
+</li>
+<li><strong><code>max</code></strong>: Returns the largest number.
+<ul>
+<li>Example: <code>[&quot;max&quot;, 1, 2, 3]</code> // Outputs: 3</li>
+</ul>
+</li>
+</ul>
+<h3 id="Logical" class="tsd-anchor-link">Logical<a href="#Logical" aria-label="Permalink" class="tsd-anchor-icon"><svg viewBox="0 0 24 24" aria-hidden="true"><use href="../assets/icons.svg#icon-anchor"></use></svg></a></h3>
+<ul>
+<li><strong><code>all</code></strong>: Returns true if all conditions are true.
+<ul>
+<li>Example: <code>[&quot;all&quot;, true, true]</code> // Outputs: true</li>
+</ul>
+</li>
+<li><strong><code>any</code></strong>: Returns true if any condition is true.
+<ul>
+<li>Example: <code>[&quot;any&quot;, true, false]</code> // Outputs: true</li>
+</ul>
+</li>
+<li><strong><code>!</code></strong>: Negates a boolean value.
+<ul>
+<li>Example: <code>[&quot;!&quot;, true]</code> // Outputs: false</li>
+</ul>
+</li>
+<li><strong><code>!has</code></strong>: Checks if a property does not exist.
+<ul>
+<li>Example: <code>[&quot;!has&quot;, &quot;propertyName&quot;]</code></li>
+</ul>
+</li>
+<li><strong><code>has</code></strong>: Checks if a property exists.
+<ul>
+<li>Example: <code>[&quot;has&quot;, &quot;propertyName&quot;]</code></li>
+</ul>
+</li>
+<li><strong><code>none</code></strong>: Returns true if no conditions are true.
+<ul>
+<li>Example: <code>[&quot;none&quot;, false, false]</code> // Outputs: true</li>
+</ul>
+</li>
+</ul>
+<h3 id="Comparison" class="tsd-anchor-link">Comparison<a href="#Comparison" aria-label="Permalink" class="tsd-anchor-icon"><svg viewBox="0 0 24 24" aria-hidden="true"><use href="../assets/icons.svg#icon-anchor"></use></svg></a></h3>
+<ul>
+<li><strong><code>==</code></strong>: Checks if two values are equal.
+<ul>
+<li>Example: <code>[&quot;==&quot;, 2, 2]</code> // Outputs: true</li>
+</ul>
+</li>
+<li><strong><code>!=</code></strong>: Checks if two values are not equal.
+<ul>
+<li>Example: <code>[&quot;!=&quot;, 2, 3]</code> // Outputs: true</li>
+</ul>
+</li>
+<li><strong><code>&gt;</code></strong>: Checks if the first value is greater than the second.
+<ul>
+<li>Example: <code>[&quot; &gt;&quot;, 3, 2]</code> // Outputs: true</li>
+</ul>
+</li>
+<li><strong><code>&gt;=</code></strong>: Checks if the first value is greater than or equal to the second.
+<ul>
+<li>Example: <code>[&quot; &gt;=&quot;, 3, 3]</code> // Outputs: true</li>
+</ul>
+</li>
+<li><strong><code>&lt;=</code></strong>: Checks if the first value is less than or equal to the second.
+<ul>
+<li>Example: <code>[&quot;&lt;=&quot;, 2, 2]</code> // Outputs: true</li>
+</ul>
+</li>
+<li><strong><code>&lt;</code></strong>: Checks if the first value is less than the second.
+<ul>
+<li>Example: <code>[&quot;&lt;&quot;, 2, 3]</code> // Outputs: true</li>
+</ul>
+</li>
+<li><strong><code>^=</code></strong>: Checks if a string starts with a given substring.
+<ul>
+<li>Example: <code>[&quot;^=&quot;, &quot;hello&quot;, &quot;he&quot;]</code> // Outputs: true</li>
+</ul>
+</li>
+<li><strong><code>$=</code></strong>: Checks if a string ends with a given substring.
+<ul>
+<li>Example: <code>[&quot;$=&quot;, &quot;hello&quot;, &quot;lo&quot;]</code> // Outputs: true</li>
+</ul>
+</li>
+</ul>
+<h3 id="String-Manipulation" class="tsd-anchor-link">String Manipulation<a href="#String-Manipulation" aria-label="Permalink" class="tsd-anchor-icon"><svg viewBox="0 0 24 24" aria-hidden="true"><use href="../assets/icons.svg#icon-anchor"></use></svg></a></h3>
+<ul>
+<li><strong><code>split</code></strong>: Splits a string by a delimiter.
+<ul>
+<li>Example: <code>[&quot;split&quot;, &quot;a,b,c&quot;, &quot;,&quot;]</code> // Outputs: [&quot;a&quot;, &quot;b&quot;, &quot;c&quot;]</li>
+</ul>
+</li>
+<li><strong><code>to-string</code></strong>: Converts a value to a string.
+<ul>
+<li>Example: <code>[&quot;to-string&quot;, 123]</code> // Outputs: &quot;123&quot;</li>
+</ul>
+</li>
+<li><strong><code>concat</code></strong>: Concatenates multiple strings.
+<ul>
+<li>Example: <code>[&quot;concat&quot;, &quot;hello&quot;, &quot; &quot;, &quot;world&quot;]</code> // Outputs: &quot;hello world&quot;</li>
+</ul>
+</li>
+<li><strong><code>regex-replace</code></strong>: Replaces parts of a string matching a regex.
+<ul>
+<li>Example: <code>[&quot;regex-replace&quot;, &quot;hello world&quot;, &quot;world&quot;, &quot;there&quot;]</code> // Outputs: &quot;hello there&quot;</li>
+</ul>
+</li>
+<li><strong><code>slice</code></strong>: Extracts a section of a string.
+<ul>
+<li>Example: <code>[&quot;slice&quot;, &quot;hello&quot;, 0, 2]</code> // Outputs: &quot;he&quot;</li>
+</ul>
+</li>
+<li><strong><code>at</code></strong>: Gets the character at a specified index in a string.
+<ul>
+<li>Example: <code>[&quot;at&quot;, &quot;hello&quot;, 1]</code> // Outputs: &quot;e&quot;</li>
+</ul>
+</li>
+<li><strong><code>length</code></strong>: Gets the length of a string.
+<ul>
+<li>Example: <code>[&quot;length&quot;, &quot;hello&quot;]</code> // Outputs: 5</li>
+</ul>
+</li>
+</ul>
+<h3 id="Conditional" class="tsd-anchor-link">Conditional<a href="#Conditional" aria-label="Permalink" class="tsd-anchor-icon"><svg viewBox="0 0 24 24" aria-hidden="true"><use href="../assets/icons.svg#icon-anchor"></use></svg></a></h3>
+<ul>
+<li><strong><code>case</code></strong>: Evaluates conditions in order and returns the corresponding result for the first true condition.
+<ul>
+<li>Example: <code>[&quot;case&quot;, [&quot;==&quot;, 1, 1], &quot;one&quot;, [&quot;==&quot;, 2, 2], &quot;two&quot;, &quot;default&quot;]</code> // Outputs: &quot;one&quot;</li>
+</ul>
+</li>
+<li><strong><code>step</code></strong>: Returns a value from a step function based on input.
+<ul>
+<li>Example: <code>[&quot;step&quot;, 3, &quot;small&quot;, 5, &quot;medium&quot;, 10, &quot;large&quot;]</code> // Outputs: &quot;small&quot;</li>
+</ul>
+</li>
+<li><strong><code>match</code></strong>: Returns a value based on matching input values.
+<ul>
+<li>Example: <code>[&quot;match&quot;, &quot;a&quot;, &quot;a&quot;, 1, &quot;b&quot;, 2, 0]</code> // Outputs: 1</li>
+</ul>
+</li>
+</ul>
+<h3 id="Utility" class="tsd-anchor-link">Utility<a href="#Utility" aria-label="Permalink" class="tsd-anchor-icon"><svg viewBox="0 0 24 24" aria-hidden="true"><use href="../assets/icons.svg#icon-anchor"></use></svg></a></h3>
+<ul>
+<li><strong><code>literal</code></strong>: Returns a literal value.
+<ul>
+<li>Example: <code>[&quot;literal&quot;, [1, 2, 3]]</code> // Outputs: [1, 2, 3]</li>
+</ul>
+</li>
+<li><strong><code>lookup</code></strong>: Finds an entry in a table that matches the given key values. The entry with the most matching keys is returned.
+If multiple entries match equally, one of them is returned.
+If no match is found, the default entry (if any) is returned. If no default entry is defined, null is returned.
+<ul>
+<li>The <code>lookupTable</code> should be an array of objects, each with a <code>keys</code> member and an <code>attributes</code> member:
+<ul>
+<li><code>keys</code>: An object containing key-value pairs used for matching.</li>
+<li><code>attributes</code>: An object containing the attributes to be returned when a match is found.</li>
+</ul>
+</li>
+<li>Example:<pre><code class="javascript"><span class="hl-1">{</span><br/><span class="hl-6">&quot;definitions&quot;</span><span class="hl-1">: {</span><br/><span class="hl-1">  </span><span class="hl-6">&quot;lookupTable&quot;</span><span class="hl-0">:</span><span class="hl-1"> [ </span><span class="hl-6">&quot;literal&quot;</span><span class="hl-1">, [</span><br/><span class="hl-1">    { </span><span class="hl-6">&quot;keys&quot;</span><span class="hl-0">:</span><span class="hl-1"> { </span><span class="hl-6">&quot;country&quot;</span><span class="hl-0">:</span><span class="hl-1"> </span><span class="hl-6">&quot;US&quot;</span><span class="hl-1"> }, </span><span class="hl-6">&quot;attributes&quot;</span><span class="hl-0">:</span><span class="hl-1"> { </span><span class="hl-6">&quot;population&quot;</span><span class="hl-0">:</span><span class="hl-1"> </span><span class="hl-9">331000000</span><span class="hl-1"> } },</span><br/><span class="hl-1">    { </span><span class="hl-6">&quot;keys&quot;</span><span class="hl-0">:</span><span class="hl-1"> { </span><span class="hl-6">&quot;country&quot;</span><span class="hl-0">:</span><span class="hl-1"> </span><span class="hl-6">&quot;US&quot;</span><span class="hl-1">, </span><span class="hl-6">&quot;state&quot;</span><span class="hl-0">:</span><span class="hl-1"> </span><span class="hl-6">&quot;CA&quot;</span><span class="hl-1"> }, </span><span class="hl-6">&quot;attributes&quot;</span><span class="hl-0">:</span><span class="hl-1"> { </span><span class="hl-6">&quot;population&quot;</span><span class="hl-0">:</span><span class="hl-1"> </span><span class="hl-9">39500000</span><span class="hl-1"> } },</span><br/><span class="hl-1">    { </span><span class="hl-6">&quot;keys&quot;</span><span class="hl-0">:</span><span class="hl-1"> {}, </span><span class="hl-6">&quot;attributes&quot;</span><span class="hl-0">:</span><span class="hl-1"> { </span><span class="hl-6">&quot;population&quot;</span><span class="hl-0">:</span><span class="hl-1"> </span><span class="hl-9">7800000000</span><span class="hl-1"> } } </span><span class="hl-3">// Default entry</span><br/><span class="hl-1">  ]]</span><br/><span class="hl-1">}</span><br/><span class="hl-1">}</span><br/><span class="hl-3">// This example looks up the population for the state of California in the United States from the `lookupTable`.</span><br/><span class="hl-1">[</span><span class="hl-6">&quot;lookup&quot;</span><span class="hl-1">, { </span><span class="hl-6">&quot;country&quot;</span><span class="hl-0">:</span><span class="hl-1"> </span><span class="hl-6">&quot;US&quot;</span><span class="hl-1">, </span><span class="hl-6">&quot;state&quot;</span><span class="hl-0">:</span><span class="hl-1"> </span><span class="hl-6">&quot;CA&quot;</span><span class="hl-1"> }, [</span><span class="hl-6">&quot;ref&quot;</span><span class="hl-1">, </span><span class="hl-6">&quot;lookupTable&quot;</span><span class="hl-1">]] </span><span class="hl-3">// Outputts: `{ &quot;population&quot;: 39500000 }`.</span>
+</code><button type="button">Copy</button></pre>
+
+</li>
+</ul>
+</li>
+</ul>
+<h3 id="Type-Conversion" class="tsd-anchor-link">Type Conversion<a href="#Type-Conversion" aria-label="Permalink" class="tsd-anchor-icon"><svg viewBox="0 0 24 24" aria-hidden="true"><use href="../assets/icons.svg#icon-anchor"></use></svg></a></h3>
+<ul>
+<li><strong><code>number</code></strong>: Converts a value to a number.
+<ul>
+<li>Example: <code>[&quot;number&quot;, &quot;123&quot;]</code> // Outputs: 123</li>
+</ul>
+</li>
+<li><strong><code>boolean</code></strong>: Converts a value to a boolean.
+<ul>
+<li>Example: <code>[&quot;boolean&quot;, &quot;true&quot;]</code> // Outputs: true</li>
+</ul>
+</li>
+<li><strong><code>to-number</code></strong>: Converts a value to a number.
+<ul>
+<li>Example: <code>[&quot;to-number&quot;, &quot;123&quot;]</code> // Outputs: 123</li>
+</ul>
+</li>
+<li><strong><code>to-boolean</code></strong>: Converts a value to a boolean.
+<ul>
+<li>Example: <code>[&quot;to-boolean&quot;, &quot;true&quot;]</code> // Outputs: true</li>
+</ul>
+</li>
+</ul>
+<h3 id="Zoom-and-Interpolation" class="tsd-anchor-link">Zoom and Interpolation<a href="#Zoom-and-Interpolation" aria-label="Permalink" class="tsd-anchor-icon"><svg viewBox="0 0 24 24" aria-hidden="true"><use href="../assets/icons.svg#icon-anchor"></use></svg></a></h3>
+<ul>
+<li><strong><code>zoom</code></strong>: Returns the current zoom level.
+<ul>
+<li>Example: <code>[&quot;zoom&quot;]</code> // Outputs: current zoom level</li>
+</ul>
+</li>
+<li><strong><code>interpolate</code></strong>: Interpolates between values based on zoom level.
+<ul>
+<li>Example: <code>[&quot;interpolate&quot;, [&quot;linear&quot;], [&quot;zoom&quot;], 10, 1, 15, 10]</code></li>
+</ul>
+</li>
+</ul>
+<p>Example:</p>
+<pre><code class="typescript"><span class="hl-8">const</span><span class="hl-1"> </span><span class="hl-4">expression</span><span class="hl-1">: </span><span class="hl-11">StyleExpression</span><span class="hl-1"> = [</span><span class="hl-6">&quot;==&quot;</span><span class="hl-1">, [</span><span class="hl-6">&quot;get&quot;</span><span class="hl-1">, </span><span class="hl-6">&quot;property&quot;</span><span class="hl-1">], </span><span class="hl-6">&quot;value&quot;</span><span class="hl-1">];</span>
+</code><button type="button">Copy</button></pre>
+
+<p>In this example, <code>&quot;==&quot;</code> is the operator, and <code>[&quot;get&quot;, &quot;property&quot;]</code> and <code>&quot;value&quot;</code> are the operands.</p>
+<p>Operators can include logical, arithmetic, string manipulation, and other types of operations, which are evaluated
+to determine the final value of the style property.</p>
+</div></li></ul></section></div>
+<div class="col-sidebar">
+<div class="page-menu">
+<div class="tsd-navigation settings">
+<details class="tsd-accordion"><summary class="tsd-accordion-summary"><svg width="20" height="20" viewBox="0 0 24 24" fill="none" aria-hidden="true"><use href="../assets/icons.svg#icon-chevronDown"></use></svg>
+<h3>Settings</h3></summary>
+<div class="tsd-accordion-details">
+<div class="tsd-filter-visibility"><span class="settings-label">Member Visibility</span>
+<ul id="tsd-filter-options">
+<li class="tsd-filter-item"><label class="tsd-filter-input"><input type="checkbox" id="tsd-filter-protected" name="protected"/><svg width="32" height="32" viewBox="0 0 32 32" aria-hidden="true"><rect class="tsd-checkbox-background" width="30" height="30" x="1" y="1" rx="6" fill="none"></rect><path class="tsd-checkbox-checkmark" d="M8.35422 16.8214L13.2143 21.75L24.6458 10.25" stroke="none" stroke-width="3.5" stroke-linejoin="round" fill="none"></path></svg><span>Protected</span></label></li>
+<li class="tsd-filter-item"><label class="tsd-filter-input"><input type="checkbox" id="tsd-filter-inherited" name="inherited" checked/><svg width="32" height="32" viewBox="0 0 32 32" aria-hidden="true"><rect class="tsd-checkbox-background" width="30" height="30" x="1" y="1" rx="6" fill="none"></rect><path class="tsd-checkbox-checkmark" d="M8.35422 16.8214L13.2143 21.75L24.6458 10.25" stroke="none" stroke-width="3.5" stroke-linejoin="round" fill="none"></path></svg><span>Inherited</span></label></li>
+<li class="tsd-filter-item"><label class="tsd-filter-input"><input type="checkbox" id="tsd-filter-external" name="external"/><svg width="32" height="32" viewBox="0 0 32 32" aria-hidden="true"><rect class="tsd-checkbox-background" width="30" height="30" x="1" y="1" rx="6" fill="none"></rect><path class="tsd-checkbox-checkmark" d="M8.35422 16.8214L13.2143 21.75L24.6458 10.25" stroke="none" stroke-width="3.5" stroke-linejoin="round" fill="none"></path></svg><span>External</span></label></li></ul></div>
+<div class="tsd-theme-toggle"><label class="settings-label" for="tsd-theme">Theme</label><select id="tsd-theme"><option value="os">OS</option><option value="light">Light</option><option value="dark">Dark</option></select></div></div></details></div>
+<details open class="tsd-accordion tsd-page-navigation"><summary class="tsd-accordion-summary"><svg width="20" height="20" viewBox="0 0 24 24" fill="none" aria-hidden="true"><use href="../assets/icons.svg#icon-chevronDown"></use></svg>
+<h3>On This Page</h3></summary>
+<div class="tsd-accordion-details"><a href="#StyleExpression-Operators"><span>Style<wbr/>Expression <wbr/>Operators</span></a>
+<ul>
+<li><a href="#Reference"><span>Reference</span></a></li>
+<li><a href="#Data-Retrieval"><span>Data <wbr/>Retrieval</span></a></li>
+<li><a href="#Arithmetic"><span>Arithmetic</span></a></li>
+<li><a href="#Logical"><span>Logical</span></a></li>
+<li><a href="#Comparison"><span>Comparison</span></a></li>
+<li><a href="#String-Manipulation"><span>String <wbr/>Manipulation</span></a></li>
+<li><a href="#Conditional"><span>Conditional</span></a></li>
+<li><a href="#Utility"><span>Utility</span></a></li>
+<li><a href="#Type-Conversion"><span>Type <wbr/>Conversion</span></a></li>
+<li><a href="#Zoom-and-Interpolation"><span>Zoom and <wbr/>Interpolation</span></a></li></ul></div></details></div>
+<div class="site-menu">
+<nav class="tsd-navigation"><a href="../modules.html">XYZ Maps Documentation</a>
+<ul class="tsd-small-nested-navigation" id="tsd-nav-container">
+<li>Loading...</li></ul></nav></div></div></div><footer>
+<p class="tsd-generator">Generated using <a href="https://typedoc.org/" target="_blank">TypeDoc</a></p></footer>
+<div class="overlay"></div></body></html>

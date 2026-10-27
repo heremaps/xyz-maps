@@ -1,0 +1,982 @@
+<!DOCTYPE html><html class="default" lang="en" data-base="../"><head><meta charset="utf-8"/><meta http-equiv="x-ua-compatible" content="IE=edge"/><title>EditableFeatureProvider | XYZ Maps Documentation</title><meta name="description" content="Documentation for XYZ Maps Documentation"/><meta name="viewport" content="width=device-width, initial-scale=1"/><link rel="stylesheet" href="../assets/style.css"/><link rel="stylesheet" href="../assets/highlight.css"/><script defer src="../assets/main.js"></script><script async src="../assets/icons.js" id="tsd-icons-script"></script><script async src="../assets/search.js" id="tsd-search-script"></script><script async src="../assets/navigation.js" id="tsd-nav-script"></script><script async src="../assets/hierarchy.js" id="tsd-hierarchy-script"></script></head><body><script>document.documentElement.dataset.theme = localStorage.getItem("tsd-theme") || "os";document.body.style.display="none";setTimeout(() => window.app?app.showPage():document.body.style.removeProperty("display"),500)</script><header class="tsd-page-toolbar">
+<div class="tsd-toolbar-contents container"><a href="../index.html" class="title">XYZ Maps Documentation</a>
+<div id="tsd-toolbar-links"></div><button id="tsd-search-trigger" class="tsd-widget" aria-label="Search"><svg width="16" height="16" viewBox="0 0 16 16" fill="none" aria-hidden="true"><use href="../assets/icons.svg#icon-search"></use></svg></button><dialog id="tsd-search" aria-label="Search"><input role="combobox" id="tsd-search-input" aria-controls="tsd-search-results" aria-autocomplete="list" aria-expanded="true" autocapitalize="off" autocomplete="off" placeholder="Search the docs" maxLength="100"/>
+<ul role="listbox" id="tsd-search-results"></ul>
+<div id="tsd-search-status" aria-live="polite" aria-atomic="true">
+<div>Preparing search index...</div></div></dialog><a href="#" class="tsd-widget menu" id="tsd-toolbar-menu-trigger" data-toggle="menu" aria-label="Menu"><svg width="16" height="16" viewBox="0 0 16 16" fill="none" aria-hidden="true"><use href="../assets/icons.svg#icon-menu"></use></svg></a></div></header>
+<div class="container container-main">
+<div class="col-content">
+<div class="tsd-page-title">
+<ul class="tsd-breadcrumb" aria-label="Breadcrumb">
+<li><a href="../modules/core.html">@here/xyz-maps-core</a></li>
+<li><a href="" aria-current="page">EditableFeatureProvider</a></li></ul>
+<h1>Class EditableFeatureProvider<code class="tsd-tag">Abstract</code></h1></div>
+<section class="tsd-panel tsd-comment">
+<div class="tsd-comment tsd-typography"><p>EditableFeatureProvider is an abstract FeatureTileProvider that can be edited using the <a href="editor.editor.html" class="tsd-kind-class">Editor</a> module.</p>
+<p>The editor needs to know how to interpret the data of a feature. Which methods have to be implemented depends on the
+feature class:</p>
+<ul>
+<li>'LINE', 'MARKER' and 'AREA' are detected by geometry type and need no additional methods.</li>
+<li>'NAVLINK', 'PLACE' and 'ADDRESS' require <a href="#detectFeatureClass" class="tsd-kind-method">detectFeatureClass</a> to be overridden.</li>
+<li>'PLACE' and 'ADDRESS' additionally require the routing methods, e.g. <a href="#readRoutingPosition" class="tsd-kind-method">readRoutingPosition</a>,
+<a href="#readRoutingLink" class="tsd-kind-method">readRoutingLink</a>, <a href="#writeRoutingPosition" class="tsd-kind-method">writeRoutingPosition</a>,
+<a href="#writeRoutingLink" class="tsd-kind-method">writeRoutingLink</a> and <a href="#readRoutingProvider" class="tsd-kind-method">readRoutingProvider</a>.</li>
+<li>'NAVLINK' features require the attribute readers and writers of the navlink, e.g. <a href="#readDirection" class="tsd-kind-method">readDirection</a>
+and <a href="#readZLevels" class="tsd-kind-method">readZLevels</a>, as well as the turn restriction methods.</li>
+</ul>
+</div></section>
+<section class="tsd-panel tsd-hierarchy" data-refl="10827">
+<h4>Hierarchy (<a href="../hierarchy.html#@here/xyz-maps-core.EditableFeatureProvider">View Summary</a>)</h4>
+<ul class="tsd-hierarchy">
+<li class="tsd-hierarchy-item"><a href="core.featureprovider.html" class="tsd-signature-type tsd-kind-class">FeatureProvider</a>
+<ul class="tsd-hierarchy">
+<li class="tsd-hierarchy-item"><span class="tsd-hierarchy-target">EditableFeatureProvider</span>
+<ul class="tsd-hierarchy">
+<li class="tsd-hierarchy-item"><a href="core.localprovider.html" class="tsd-signature-type tsd-kind-class">LocalProvider</a></li>
+<li class="tsd-hierarchy-item"><a href="core.editableremotetileprovider.html" class="tsd-signature-type tsd-kind-class">EditableRemoteTileProvider</a></li></ul></li></ul></li></ul></section>
+<section class="tsd-panel-group tsd-index-group">
+<section class="tsd-panel tsd-index-panel">
+<details class="tsd-index-content tsd-accordion" open><summary class="tsd-accordion-summary tsd-index-summary"><svg width="20" height="20" viewBox="0 0 24 24" fill="none" aria-hidden="true"><use href="../assets/icons.svg#icon-chevronDown"></use></svg>
+<h5 class="tsd-index-heading uppercase">Index</h5></summary>
+<div class="tsd-accordion-details">
+<section class="tsd-index-section">
+<h3 class="tsd-index-heading tsd-anchor-link" id="Properties">Properties<a href="#Properties" aria-label="Permalink" class="tsd-anchor-icon"><svg viewBox="0 0 24 24" aria-hidden="true"><use href="../assets/icons.svg#icon-anchor"></use></svg></a></h3>
+<div class="tsd-index-list"><a href="#hooks" class="tsd-index-link"><svg class="tsd-kind-icon" viewBox="0 0 24 24" aria-label="Property"><use href="../assets/icons.svg#icon-1024"></use></svg><span>hooks?</span></a>
+<a href="#id" class="tsd-index-link tsd-is-inherited"><svg class="tsd-kind-icon" viewBox="0 0 24 24" aria-label="Property"><use href="../assets/icons.svg#icon-1024"></use></svg><span>id?</span></a>
+<a href="#margin" class="tsd-index-link tsd-is-inherited"><svg class="tsd-kind-icon" viewBox="0 0 24 24" aria-label="Property"><use href="../assets/icons.svg#icon-1024"></use></svg><span>margin?</span></a>
+<a href="#name" class="tsd-index-link tsd-is-inherited"><svg class="tsd-kind-icon" viewBox="0 0 24 24" aria-label="Property"><use href="../assets/icons.svg#icon-1024"></use></svg><span>name?</span></a>
+</div></section>
+<section class="tsd-index-section">
+<h3 class="tsd-index-heading tsd-anchor-link" id="Methods">Methods<a href="#Methods" aria-label="Permalink" class="tsd-anchor-icon"><svg viewBox="0 0 24 24" aria-hidden="true"><use href="../assets/icons.svg#icon-anchor"></use></svg></a></h3>
+<div class="tsd-index-list"><a href="#addEventListener" class="tsd-index-link tsd-is-inherited"><svg class="tsd-kind-icon" viewBox="0 0 24 24" aria-label="Method"><use href="../assets/icons.svg#icon-2048"></use></svg><span>add<wbr/>Event<wbr/>Listener</span></a>
+<a href="#addFeature" class="tsd-index-link tsd-is-inherited"><svg class="tsd-kind-icon" viewBox="0 0 24 24" aria-label="Method"><use href="../assets/icons.svg#icon-2048"></use></svg><span>add<wbr/>Feature</span></a>
+<a href="#all" class="tsd-index-link tsd-is-inherited"><svg class="tsd-kind-icon" viewBox="0 0 24 24" aria-label="Method"><use href="../assets/icons.svg#icon-2048"></use></svg><span>all</span></a>
+<a href="#clear" class="tsd-index-link tsd-is-inherited"><svg class="tsd-kind-icon" viewBox="0 0 24 24" aria-label="Method"><use href="../assets/icons.svg#icon-2048"></use></svg><span>clear</span></a>
+<a href="#config" class="tsd-index-link tsd-is-inherited"><svg class="tsd-kind-icon" viewBox="0 0 24 24" aria-label="Method"><use href="../assets/icons.svg#icon-2048"></use></svg><span>config</span></a>
+<a href="#createTile" class="tsd-index-link tsd-is-inherited"><svg class="tsd-kind-icon" viewBox="0 0 24 24" aria-label="Method"><use href="../assets/icons.svg#icon-2048"></use></svg><span>create<wbr/>Tile</span></a>
+<a href="#detectFeatureClass" class="tsd-index-link"><svg class="tsd-kind-icon" viewBox="0 0 24 24" aria-label="Method"><use href="../assets/icons.svg#icon-2048"></use></svg><span>detect<wbr/>Feature<wbr/>Class</span></a>
+<a href="#exists" class="tsd-index-link tsd-is-inherited"><svg class="tsd-kind-icon" viewBox="0 0 24 24" aria-label="Method"><use href="../assets/icons.svg#icon-2048"></use></svg><span>exists</span></a>
+<a href="#findPath" class="tsd-index-link tsd-is-inherited"><svg class="tsd-kind-icon" viewBox="0 0 24 24" aria-label="Method"><use href="../assets/icons.svg#icon-2048"></use></svg><span>find<wbr/>Path</span></a>
+<a href="#getCachedTile" class="tsd-index-link tsd-is-inherited"><svg class="tsd-kind-icon" viewBox="0 0 24 24" aria-label="Method"><use href="../assets/icons.svg#icon-2048"></use></svg><span>get<wbr/>Cached<wbr/>Tile</span></a>
+<a href="#getCachedTiles" class="tsd-index-link tsd-is-inherited"><svg class="tsd-kind-icon" viewBox="0 0 24 24" aria-label="Method"><use href="../assets/icons.svg#icon-2048"></use></svg><span>get<wbr/>Cached<wbr/>Tiles</span></a>
+<a href="#getFeature" class="tsd-index-link tsd-is-inherited"><svg class="tsd-kind-icon" viewBox="0 0 24 24" aria-label="Method"><use href="../assets/icons.svg#icon-2048"></use></svg><span>get<wbr/>Feature</span></a>
+<a href="#getFeatures" class="tsd-index-link tsd-is-inherited"><svg class="tsd-kind-icon" viewBox="0 0 24 24" aria-label="Method"><use href="../assets/icons.svg#icon-2048"></use></svg><span>get<wbr/>Features</span></a>
+<a href="#getTile" class="tsd-index-link tsd-is-inherited"><svg class="tsd-kind-icon" viewBox="0 0 24 24" aria-label="Method"><use href="../assets/icons.svg#icon-2048"></use></svg><span>get<wbr/>Tile</span></a>
+<a href="#readConnectedLinks" class="tsd-index-link"><svg class="tsd-kind-icon" viewBox="0 0 24 24" aria-label="Method"><use href="../assets/icons.svg#icon-2048"></use></svg><span>read<wbr/>Connected<wbr/>Links?</span></a>
+<a href="#readDirection" class="tsd-index-link"><svg class="tsd-kind-icon" viewBox="0 0 24 24" aria-label="Method"><use href="../assets/icons.svg#icon-2048"></use></svg><span>read<wbr/>Direction</span></a>
+<a href="#readFeatureHeight" class="tsd-index-link"><svg class="tsd-kind-icon" viewBox="0 0 24 24" aria-label="Method"><use href="../assets/icons.svg#icon-2048"></use></svg><span>read<wbr/>Feature<wbr/>Height</span></a>
+<a href="#readPedestrianOnly" class="tsd-index-link"><svg class="tsd-kind-icon" viewBox="0 0 24 24" aria-label="Method"><use href="../assets/icons.svg#icon-2048"></use></svg><span>read<wbr/>Pedestrian<wbr/>Only</span></a>
+<a href="#readRoutingLink" class="tsd-index-link"><svg class="tsd-kind-icon" viewBox="0 0 24 24" aria-label="Method"><use href="../assets/icons.svg#icon-2048"></use></svg><span>read<wbr/>Routing<wbr/>Link</span></a>
+<a href="#readRoutingPosition" class="tsd-index-link"><svg class="tsd-kind-icon" viewBox="0 0 24 24" aria-label="Method"><use href="../assets/icons.svg#icon-2048"></use></svg><span>read<wbr/>Routing<wbr/>Position</span></a>
+<a href="#readRoutingProvider" class="tsd-index-link"><svg class="tsd-kind-icon" viewBox="0 0 24 24" aria-label="Method"><use href="../assets/icons.svg#icon-2048"></use></svg><span>read<wbr/>Routing<wbr/>Provider</span></a>
+<a href="#readTurnRestriction" class="tsd-index-link"><svg class="tsd-kind-icon" viewBox="0 0 24 24" aria-label="Method"><use href="../assets/icons.svg#icon-2048"></use></svg><span>read<wbr/>Turn<wbr/>Restriction</span></a>
+<a href="#readZLevels" class="tsd-index-link"><svg class="tsd-kind-icon" viewBox="0 0 24 24" aria-label="Method"><use href="../assets/icons.svg#icon-2048"></use></svg><span>read<wbr/>Z<wbr/>Levels</span></a>
+<a href="#removeEventListener" class="tsd-index-link tsd-is-inherited"><svg class="tsd-kind-icon" viewBox="0 0 24 24" aria-label="Method"><use href="../assets/icons.svg#icon-2048"></use></svg><span>remove<wbr/>Event<wbr/>Listener</span></a>
+<a href="#removeFeature" class="tsd-index-link tsd-is-inherited"><svg class="tsd-kind-icon" viewBox="0 0 24 24" aria-label="Method"><use href="../assets/icons.svg#icon-2048"></use></svg><span>remove<wbr/>Feature</span></a>
+<a href="#search" class="tsd-index-link tsd-is-inherited"><svg class="tsd-kind-icon" viewBox="0 0 24 24" aria-label="Method"><use href="../assets/icons.svg#icon-2048"></use></svg><span>search</span></a>
+<a href="#setFeatureCoordinates" class="tsd-index-link tsd-is-inherited"><svg class="tsd-kind-icon" viewBox="0 0 24 24" aria-label="Method"><use href="../assets/icons.svg#icon-2048"></use></svg><span>set<wbr/>Feature<wbr/>Coordinates</span></a>
+<a href="#setMargin" class="tsd-index-link tsd-is-inherited"><svg class="tsd-kind-icon" viewBox="0 0 24 24" aria-label="Method"><use href="../assets/icons.svg#icon-2048"></use></svg><span>set<wbr/>Margin</span></a>
+<a href="#writeEditState" class="tsd-index-link"><svg class="tsd-kind-icon" viewBox="0 0 24 24" aria-label="Method"><use href="../assets/icons.svg#icon-2048"></use></svg><span>write<wbr/>Edit<wbr/>State</span></a>
+<a href="#writeFeatureHeight" class="tsd-index-link"><svg class="tsd-kind-icon" viewBox="0 0 24 24" aria-label="Method"><use href="../assets/icons.svg#icon-2048"></use></svg><span>write<wbr/>Feature<wbr/>Height</span></a>
+<a href="#writeRoutingLink" class="tsd-index-link"><svg class="tsd-kind-icon" viewBox="0 0 24 24" aria-label="Method"><use href="../assets/icons.svg#icon-2048"></use></svg><span>write<wbr/>Routing<wbr/>Link</span></a>
+<a href="#writeRoutingPosition" class="tsd-index-link"><svg class="tsd-kind-icon" viewBox="0 0 24 24" aria-label="Method"><use href="../assets/icons.svg#icon-2048"></use></svg><span>write<wbr/>Routing<wbr/>Position</span></a>
+<a href="#writeTurnRestriction" class="tsd-index-link"><svg class="tsd-kind-icon" viewBox="0 0 24 24" aria-label="Method"><use href="../assets/icons.svg#icon-2048"></use></svg><span>write<wbr/>Turn<wbr/>Restriction</span></a>
+<a href="#writeZLevels" class="tsd-index-link"><svg class="tsd-kind-icon" viewBox="0 0 24 24" aria-label="Method"><use href="../assets/icons.svg#icon-2048"></use></svg><span>write<wbr/>Z<wbr/>Levels</span></a>
+</div></section></div></details></section></section>
+<details class="tsd-panel-group tsd-member-group tsd-accordion" open><summary class="tsd-accordion-summary" data-key="section-Properties"><svg width="20" height="20" viewBox="0 0 24 24" fill="none" aria-hidden="true"><use href="../assets/icons.svg#icon-chevronDown"></use></svg>
+<h2 class="tsd-anchor-link" id="Properties-1">Properties<a href="#Properties-1" aria-label="Permalink" class="tsd-anchor-icon"><svg viewBox="0 0 24 24" aria-hidden="true"><use href="../assets/icons.svg#icon-anchor"></use></svg></a></h2></summary>
+<section>
+<section class="tsd-panel tsd-member">
+<h3 class="tsd-anchor-link" id="hooks"><code class="tsd-tag">Optional</code><span>hooks</span><a href="#hooks" aria-label="Permalink" class="tsd-anchor-icon"><svg viewBox="0 0 24 24" aria-hidden="true"><use href="../assets/icons.svg#icon-anchor"></use></svg></a></h3>
+<div class="tsd-signature"><span class="tsd-kind-property">hooks</span><span class="tsd-signature-symbol">?:</span> <span class="tsd-signature-symbol">{</span><br/>    <span class="tsd-kind-property">&quot;Coordinates.update&quot;</span><span class="tsd-signature-symbol">?:</span> <a href="../types/editor.coordinatesupdatehook.html" class="tsd-signature-type tsd-kind-type-alias">CoordinatesUpdateHook</a> <span class="tsd-signature-symbol">|</span> <a href="../types/editor.coordinatesupdatehook.html" class="tsd-signature-type tsd-kind-type-alias">CoordinatesUpdateHook</a><span class="tsd-signature-symbol">[]</span><span class="tsd-signature-symbol">;</span><br/>    <span class="tsd-kind-property">&quot;Feature.remove&quot;</span><span class="tsd-signature-symbol">?:</span> <a href="../types/editor.featureremovehook.html" class="tsd-signature-type tsd-kind-type-alias">FeatureRemoveHook</a> <span class="tsd-signature-symbol">|</span> <a href="../types/editor.featureremovehook.html" class="tsd-signature-type tsd-kind-type-alias">FeatureRemoveHook</a><span class="tsd-signature-symbol">[]</span><span class="tsd-signature-symbol">;</span><br/>    <span class="tsd-kind-property">&quot;Navlink.disconnect&quot;</span><span class="tsd-signature-symbol">?:</span> <a href="../types/editor.navlinkdisconnecthook.html" class="tsd-signature-type tsd-kind-type-alias">NavlinkDisconnectHook</a> <span class="tsd-signature-symbol">|</span> <a href="../types/editor.navlinkdisconnecthook.html" class="tsd-signature-type tsd-kind-type-alias">NavlinkDisconnectHook</a><span class="tsd-signature-symbol">[]</span><span class="tsd-signature-symbol">;</span><br/>    <span class="tsd-kind-property">&quot;Navlink.split&quot;</span><span class="tsd-signature-symbol">?:</span> <a href="../types/editor.navlinksplithook.html" class="tsd-signature-type tsd-kind-type-alias">NavlinkSplitHook</a> <span class="tsd-signature-symbol">|</span> <a href="../types/editor.navlinksplithook.html" class="tsd-signature-type tsd-kind-type-alias">NavlinkSplitHook</a><span class="tsd-signature-symbol">[]</span><span class="tsd-signature-symbol">;</span><br/><span class="tsd-signature-symbol">}</span></div>
+<div class="tsd-comment tsd-typography"><p>Hook functions that will be called during the execution of the corresponding &quot;editing operation&quot;.
+The &quot;hooks&quot; property is a map with the &quot;editing operation&quot; as its key and the corresponding Hook or Array of Hook function(s) as its value.</p>
+<p>Available editing operations are 'Navlink.disconnect', 'Navlink.split', 'Feature.remove', 'Coordinates.remove'.</p>
+</div>
+<div class="tsd-comment tsd-typography">
+<div class="tsd-tag-see">
+<h4 class="tsd-anchor-link" id="See">See<a href="#See" aria-label="Permalink" class="tsd-anchor-icon"><svg viewBox="0 0 24 24" aria-hidden="true"><use href="../assets/icons.svg#icon-anchor"></use></svg></a></h4><p><a href="editor.editor.html#addHook" class="tsd-kind-method">editor.addHook </a></p>
+</div></div></section>
+<section class="tsd-panel tsd-member tsd-is-inherited">
+<h3 class="tsd-anchor-link" id="id"><code class="tsd-tag">Optional</code><span>id</span><a href="#id" aria-label="Permalink" class="tsd-anchor-icon"><svg viewBox="0 0 24 24" aria-hidden="true"><use href="../assets/icons.svg#icon-anchor"></use></svg></a></h3>
+<div class="tsd-signature"><span class="tsd-kind-property">id</span><span class="tsd-signature-symbol">?:</span> <span class="tsd-signature-type">string</span></div>
+<div class="tsd-comment tsd-typography"><p>The id of the Provider</p>
+</div><aside class="tsd-sources">
+<p>Inherited from <a href="core.featureprovider.html">FeatureProvider</a>.<a href="core.featureprovider.html#id">id</a></p></aside></section>
+<section class="tsd-panel tsd-member tsd-is-inherited">
+<h3 class="tsd-anchor-link" id="margin"><code class="tsd-tag">Optional</code><span>margin</span><a href="#margin" aria-label="Permalink" class="tsd-anchor-icon"><svg viewBox="0 0 24 24" aria-hidden="true"><use href="../assets/icons.svg#icon-anchor"></use></svg></a></h3>
+<div class="tsd-signature"><span class="tsd-kind-property">margin</span><span class="tsd-signature-symbol">?:</span> <span class="tsd-signature-type">number</span><span class="tsd-signature-symbol"> = 0</span></div>
+<div class="tsd-comment tsd-typography"><p>default tile margin.</p>
+</div><aside class="tsd-sources">
+<p>Inherited from <a href="core.featureprovider.html">FeatureProvider</a>.<a href="core.featureprovider.html#margin">margin</a></p></aside></section>
+<section class="tsd-panel tsd-member tsd-is-inherited">
+<h3 class="tsd-anchor-link" id="name"><code class="tsd-tag">Optional</code><span>name</span><a href="#name" aria-label="Permalink" class="tsd-anchor-icon"><svg viewBox="0 0 24 24" aria-hidden="true"><use href="../assets/icons.svg#icon-anchor"></use></svg></a></h3>
+<div class="tsd-signature"><span class="tsd-kind-property">name</span><span class="tsd-signature-symbol">?:</span> <span class="tsd-signature-type">string</span></div>
+<div class="tsd-comment tsd-typography"><p>The name of the Provider.</p>
+</div><aside class="tsd-sources">
+<p>Inherited from <a href="core.featureprovider.html">FeatureProvider</a>.<a href="core.featureprovider.html#name">name</a></p></aside></section></section></details>
+<details class="tsd-panel-group tsd-member-group tsd-accordion" open><summary class="tsd-accordion-summary" data-key="section-Methods"><svg width="20" height="20" viewBox="0 0 24 24" fill="none" aria-hidden="true"><use href="../assets/icons.svg#icon-chevronDown"></use></svg>
+<h2 class="tsd-anchor-link" id="Methods-1">Methods<a href="#Methods-1" aria-label="Permalink" class="tsd-anchor-icon"><svg viewBox="0 0 24 24" aria-hidden="true"><use href="../assets/icons.svg#icon-anchor"></use></svg></a></h2></summary>
+<section>
+<section class="tsd-panel tsd-member tsd-is-inherited">
+<h3 class="tsd-anchor-link" id="addEventListener"><span>add<wbr/>Event<wbr/>Listener</span><a href="#addEventListener" aria-label="Permalink" class="tsd-anchor-icon"><svg viewBox="0 0 24 24" aria-hidden="true"><use href="../assets/icons.svg#icon-anchor"></use></svg></a></h3>
+<ul class="tsd-signatures tsd-is-inherited">
+<li class="tsd-is-inherited">
+<div class="tsd-signature tsd-anchor-link" id="addEventListener-1"><span class="tsd-kind-call-signature">addEventListener</span><span class="tsd-signature-symbol">(</span><br/>    <span class="tsd-kind-parameter">type</span><span class="tsd-signature-symbol">:</span> <span class="tsd-signature-type">string</span><span class="tsd-signature-symbol">,</span><br/>    <span class="tsd-kind-parameter">listener</span><span class="tsd-signature-symbol">:</span> <span class="tsd-signature-symbol">(</span><span class="tsd-kind-parameter">e</span><span class="tsd-signature-symbol">:</span> <span class="tsd-signature-type">CustomEvent</span><span class="tsd-signature-symbol">)</span> <span class="tsd-signature-symbol">=&gt;</span> <span class="tsd-signature-type">void</span><span class="tsd-signature-symbol">,</span><br/>    <span class="tsd-kind-parameter">_c</span><span class="tsd-signature-symbol">?:</span> <span class="tsd-signature-type">any</span><span class="tsd-signature-symbol">,</span><br/><span class="tsd-signature-symbol">)</span><span class="tsd-signature-symbol">:</span> <span class="tsd-signature-type">boolean</span><a href="#addEventListener-1" aria-label="Permalink" class="tsd-anchor-icon"><svg viewBox="0 0 24 24" aria-hidden="true"><use href="../assets/icons.svg#icon-anchor"></use></svg></a></div>
+<div class="tsd-description">
+<div class="tsd-comment tsd-typography"><p>Add an EventListener to the provider.
+Valid events: &quot;featureAdd&quot;, &quot;featureRemove&quot;, &quot;featureCoordinatesChange&quot;, &quot;clear&quot; and &quot;error&quot;</p>
+<p>The detail property of the Event gives additional information about the event.
+detail.provider is a reference to the provider onto which the event was dispatched and is set for all events.</p>
+</div>
+<div class="tsd-parameters">
+<h4 class="tsd-parameters-title">Parameters</h4>
+<ul class="tsd-parameter-list">
+<li><span><span class="tsd-kind-parameter">type</span>: <span class="tsd-signature-type">string</span></span>
+<div class="tsd-comment tsd-typography"><p>A string representing the event type to listen for</p>
+</div></li>
+<li><span><span class="tsd-kind-parameter">listener</span>: <span class="tsd-signature-symbol">(</span><span class="tsd-kind-parameter">e</span><span class="tsd-signature-symbol">:</span> <span class="tsd-signature-type">CustomEvent</span><span class="tsd-signature-symbol">)</span> <span class="tsd-signature-symbol">=&gt;</span> <span class="tsd-signature-type">void</span></span>
+<div class="tsd-comment tsd-typography"><p>the listener function that will be called when an event of the specific type occurs</p>
+</div></li>
+<li><span><code class="tsd-tag">Optional</code><span class="tsd-kind-parameter">_c</span>: <span class="tsd-signature-type">any</span></span></li></ul></div>
+<h4 class="tsd-returns-title">Returns <span class="tsd-signature-type">boolean</span></h4><aside class="tsd-sources">
+<p>Inherited from <a href="core.featureprovider.html">FeatureProvider</a>.<a href="core.featureprovider.html#addEventListener">addEventListener</a></p></aside></div></li></ul></section>
+<section class="tsd-panel tsd-member tsd-is-inherited">
+<h3 class="tsd-anchor-link" id="addFeature"><span>add<wbr/>Feature</span><a href="#addFeature" aria-label="Permalink" class="tsd-anchor-icon"><svg viewBox="0 0 24 24" aria-hidden="true"><use href="../assets/icons.svg#icon-anchor"></use></svg></a></h3>
+<ul class="tsd-signatures tsd-is-inherited">
+<li class="tsd-is-inherited">
+<div class="tsd-signature tsd-anchor-link" id="addFeature-1"><span class="tsd-kind-call-signature">addFeature</span><span class="tsd-signature-symbol">(</span><span class="tsd-kind-parameter">feature</span><span class="tsd-signature-symbol">:</span> <a href="core.feature.html" class="tsd-signature-type tsd-kind-class">Feature</a><span class="tsd-signature-symbol">&lt;</span><span class="tsd-signature-type">string</span><span class="tsd-signature-symbol">&gt;</span> <span class="tsd-signature-symbol">|</span> <a href="../interfaces/core.geojsonfeature.html" class="tsd-signature-type tsd-kind-interface">GeoJSONFeature</a><span class="tsd-signature-symbol">&lt;</span><span class="tsd-signature-type">string</span><span class="tsd-signature-symbol">&gt;</span><span class="tsd-signature-symbol">)</span><span class="tsd-signature-symbol">:</span> <a href="core.feature.html" class="tsd-signature-type tsd-kind-class">Feature</a><a href="#addFeature-1" aria-label="Permalink" class="tsd-anchor-icon"><svg viewBox="0 0 24 24" aria-hidden="true"><use href="../assets/icons.svg#icon-anchor"></use></svg></a></div>
+<div class="tsd-description">
+<div class="tsd-comment tsd-typography"><p>Add a feature to the provider.</p>
+</div>
+<div class="tsd-parameters">
+<h4 class="tsd-parameters-title">Parameters</h4>
+<ul class="tsd-parameter-list">
+<li><span><span class="tsd-kind-parameter">feature</span>: <a href="core.feature.html" class="tsd-signature-type tsd-kind-class">Feature</a><span class="tsd-signature-symbol">&lt;</span><span class="tsd-signature-type">string</span><span class="tsd-signature-symbol">&gt;</span> <span class="tsd-signature-symbol">|</span> <a href="../interfaces/core.geojsonfeature.html" class="tsd-signature-type tsd-kind-interface">GeoJSONFeature</a><span class="tsd-signature-symbol">&lt;</span><span class="tsd-signature-type">string</span><span class="tsd-signature-symbol">&gt;</span></span>
+<div class="tsd-comment tsd-typography"><p>the feature to be added to the provider</p>
+</div></li></ul></div>
+<h4 class="tsd-returns-title">Returns <a href="core.feature.html" class="tsd-signature-type tsd-kind-class">Feature</a></h4>
+<div class="tsd-comment tsd-typography">
+<div class="tsd-tag-example">
+<h4 class="tsd-anchor-link" id="Example">Example<a href="#Example" aria-label="Permalink" class="tsd-anchor-icon"><svg viewBox="0 0 24 24" aria-hidden="true"><use href="../assets/icons.svg#icon-anchor"></use></svg></a></h4><pre><code><span class="hl-3">// add a feature to the provider.</span><br/><span class="hl-0">provider</span><span class="hl-1">.</span><span class="hl-5">addFeature</span><span class="hl-1">({</span><br/><span class="hl-1">   </span><span class="hl-0">type:</span><span class="hl-1"> </span><span class="hl-6">&quot;Feature&quot;</span><br/><span class="hl-1">   </span><span class="hl-0">geometry</span><span class="hl-1">: {</span><br/><span class="hl-1">       </span><span class="hl-0">coordinates:</span><span class="hl-1"> [[-</span><span class="hl-9">122.49373</span><span class="hl-1">, </span><span class="hl-9">37.78202</span><span class="hl-1">], [-</span><span class="hl-9">122.49263</span><span class="hl-1">, </span><span class="hl-9">37.78602</span><span class="hl-1">]],</span><br/><span class="hl-1">       </span><span class="hl-0">type:</span><span class="hl-1"> </span><span class="hl-6">&quot;LineString&quot;</span><br/><span class="hl-1">   }</span><br/><span class="hl-1">});</span>
+</code><button>Copy</button></pre>
+
+</div></div><aside class="tsd-sources">
+<p>Inherited from <a href="core.featureprovider.html">FeatureProvider</a>.<a href="core.featureprovider.html#addFeature">addFeature</a></p></aside></div></li>
+<li class="tsd-is-inherited">
+<div class="tsd-signature tsd-anchor-link" id="addFeature-2"><span class="tsd-kind-call-signature">addFeature</span><span class="tsd-signature-symbol">(</span><br/>    <span class="tsd-kind-parameter">feature</span><span class="tsd-signature-symbol">:</span> <a href="../interfaces/core.geojsonfeaturecollection.html" class="tsd-signature-type tsd-kind-interface">GeoJSONFeatureCollection</a> <span class="tsd-signature-symbol">|</span> <a href="../interfaces/core.geojsonfeature.html" class="tsd-signature-type tsd-kind-interface">GeoJSONFeature</a><span class="tsd-signature-symbol">&lt;</span><span class="tsd-signature-type">string</span><span class="tsd-signature-symbol">&gt;</span><span class="tsd-signature-symbol">[]</span><span class="tsd-signature-symbol">,</span><br/><span class="tsd-signature-symbol">)</span><span class="tsd-signature-symbol">:</span> <a href="core.feature.html" class="tsd-signature-type tsd-kind-class">Feature</a><span class="tsd-signature-symbol">&lt;</span><span class="tsd-signature-type">string</span><span class="tsd-signature-symbol">&gt;</span><span class="tsd-signature-symbol">[]</span><a href="#addFeature-2" aria-label="Permalink" class="tsd-anchor-icon"><svg viewBox="0 0 24 24" aria-hidden="true"><use href="../assets/icons.svg#icon-anchor"></use></svg></a></div>
+<div class="tsd-description">
+<div class="tsd-comment tsd-typography"><p>Add multiple features to the provider.</p>
+</div>
+<div class="tsd-parameters">
+<h4 class="tsd-parameters-title">Parameters</h4>
+<ul class="tsd-parameter-list">
+<li><span><span class="tsd-kind-parameter">feature</span>: <a href="../interfaces/core.geojsonfeaturecollection.html" class="tsd-signature-type tsd-kind-interface">GeoJSONFeatureCollection</a> <span class="tsd-signature-symbol">|</span> <a href="../interfaces/core.geojsonfeature.html" class="tsd-signature-type tsd-kind-interface">GeoJSONFeature</a><span class="tsd-signature-symbol">&lt;</span><span class="tsd-signature-type">string</span><span class="tsd-signature-symbol">&gt;</span><span class="tsd-signature-symbol">[]</span></span>
+<div class="tsd-comment tsd-typography"><p>the features to be added to the provider</p>
+</div></li></ul></div>
+<h4 class="tsd-returns-title">Returns <a href="core.feature.html" class="tsd-signature-type tsd-kind-class">Feature</a><span class="tsd-signature-symbol">&lt;</span><span class="tsd-signature-type">string</span><span class="tsd-signature-symbol">&gt;</span><span class="tsd-signature-symbol">[]</span></h4>
+<div class="tsd-comment tsd-typography">
+<div class="tsd-tag-example">
+<h4 class="tsd-anchor-link" id="Example-1">Example<a href="#Example-1" aria-label="Permalink" class="tsd-anchor-icon"><svg viewBox="0 0 24 24" aria-hidden="true"><use href="../assets/icons.svg#icon-anchor"></use></svg></a></h4><pre><code><span class="hl-3">// add multiple features to the provider.</span><br/><span class="hl-0">provider</span><span class="hl-1">.</span><span class="hl-5">addFeature</span><span class="hl-1">([{</span><br/><span class="hl-1">   </span><span class="hl-0">type:</span><span class="hl-1"> </span><span class="hl-6">&quot;Feature&quot;</span><br/><span class="hl-1">   </span><span class="hl-0">geometry</span><span class="hl-1">: {</span><br/><span class="hl-1">       </span><span class="hl-0">coordinates:</span><span class="hl-1"> [[-</span><span class="hl-9">122.49373</span><span class="hl-1">, </span><span class="hl-9">37.78202</span><span class="hl-1">], [-</span><span class="hl-9">122.49263</span><span class="hl-1">, </span><span class="hl-9">37.78602</span><span class="hl-1">]],</span><br/><span class="hl-1">       </span><span class="hl-0">type:</span><span class="hl-1"> </span><span class="hl-6">&quot;LineString&quot;</span><br/><span class="hl-1">   }</span><br/><span class="hl-1">},{</span><br/><span class="hl-1">   </span><span class="hl-0">type:</span><span class="hl-1"> </span><span class="hl-6">&quot;Feature&quot;</span><br/><span class="hl-1">   </span><span class="hl-0">geometry</span><span class="hl-1">: {</span><br/><span class="hl-1">       </span><span class="hl-0">coordinates:</span><span class="hl-1"> [[-</span><span class="hl-9">122.49375</span><span class="hl-1">, </span><span class="hl-9">37.78203</span><span class="hl-1">], [-</span><span class="hl-9">122.49265</span><span class="hl-1">, </span><span class="hl-9">37.78604</span><span class="hl-1">]],</span><br/><span class="hl-1">       </span><span class="hl-0">type:</span><span class="hl-1"> </span><span class="hl-6">&quot;LineString&quot;</span><br/><span class="hl-1">   }</span><br/><span class="hl-1">}]);</span>
+</code><button>Copy</button></pre>
+
+</div></div><aside class="tsd-sources">
+<p>Inherited from <a href="core.featureprovider.html">FeatureProvider</a>.<a href="core.featureprovider.html#addFeature">addFeature</a></p></aside></div></li>
+<li class="tsd-is-inherited">
+<div class="tsd-signature tsd-anchor-link" id="addFeature-3"><span class="tsd-kind-call-signature">addFeature</span><span class="tsd-signature-symbol">(</span><br/>    <span class="tsd-kind-parameter">feature</span><span class="tsd-signature-symbol">:</span><br/>        <span class="tsd-signature-symbol">|</span> <a href="core.feature.html" class="tsd-signature-type tsd-kind-class">Feature</a><span class="tsd-signature-symbol">&lt;</span><span class="tsd-signature-type">string</span><span class="tsd-signature-symbol">&gt;</span><br/>        <span class="tsd-signature-symbol">|</span> <a href="../interfaces/core.geojsonfeature.html" class="tsd-signature-type tsd-kind-interface">GeoJSONFeature</a><span class="tsd-signature-symbol">&lt;</span><span class="tsd-signature-type">string</span><span class="tsd-signature-symbol">&gt;</span><br/>        <span class="tsd-signature-symbol">|</span> <a href="../interfaces/core.geojsonfeaturecollection.html" class="tsd-signature-type tsd-kind-interface">GeoJSONFeatureCollection</a><br/>        <span class="tsd-signature-symbol">|</span> <a href="../interfaces/core.geojsonfeature.html" class="tsd-signature-type tsd-kind-interface">GeoJSONFeature</a><span class="tsd-signature-symbol">&lt;</span><span class="tsd-signature-type">string</span><span class="tsd-signature-symbol">&gt;</span><span class="tsd-signature-symbol">[]</span><span class="tsd-signature-symbol">,</span><br/>    <span class="tsd-kind-parameter">updateTileSet</span><span class="tsd-signature-symbol">?:</span> <span class="tsd-signature-type">Set</span><span class="tsd-signature-symbol">&lt;</span><a href="core.tile.html" class="tsd-signature-type tsd-kind-class">Tile</a><span class="tsd-signature-symbol">&gt;</span><span class="tsd-signature-symbol">,</span><br/><span class="tsd-signature-symbol">)</span><span class="tsd-signature-symbol">:</span> <span class="tsd-signature-type">any</span><a href="#addFeature-3" aria-label="Permalink" class="tsd-anchor-icon"><svg viewBox="0 0 24 24" aria-hidden="true"><use href="../assets/icons.svg#icon-anchor"></use></svg></a></div>
+<div class="tsd-description">
+<div class="tsd-comment tsd-typography"><p>Add a feature to the provider.</p>
+</div>
+<div class="tsd-parameters">
+<h4 class="tsd-parameters-title">Parameters</h4>
+<ul class="tsd-parameter-list">
+<li><span><span class="tsd-kind-parameter">feature</span>: <br/>    <span class="tsd-signature-symbol">|</span> <a href="core.feature.html" class="tsd-signature-type tsd-kind-class">Feature</a><span class="tsd-signature-symbol">&lt;</span><span class="tsd-signature-type">string</span><span class="tsd-signature-symbol">&gt;</span><br/>    <span class="tsd-signature-symbol">|</span> <a href="../interfaces/core.geojsonfeature.html" class="tsd-signature-type tsd-kind-interface">GeoJSONFeature</a><span class="tsd-signature-symbol">&lt;</span><span class="tsd-signature-type">string</span><span class="tsd-signature-symbol">&gt;</span><br/>    <span class="tsd-signature-symbol">|</span> <a href="../interfaces/core.geojsonfeaturecollection.html" class="tsd-signature-type tsd-kind-interface">GeoJSONFeatureCollection</a><br/>    <span class="tsd-signature-symbol">|</span> <a href="../interfaces/core.geojsonfeature.html" class="tsd-signature-type tsd-kind-interface">GeoJSONFeature</a><span class="tsd-signature-symbol">&lt;</span><span class="tsd-signature-type">string</span><span class="tsd-signature-symbol">&gt;</span><span class="tsd-signature-symbol">[]</span></span>
+<div class="tsd-comment tsd-typography"><p>the feature to be added to the provider</p>
+</div></li>
+<li><span><code class="tsd-tag">Optional</code><span class="tsd-kind-parameter">updateTileSet</span>: <span class="tsd-signature-type">Set</span><span class="tsd-signature-symbol">&lt;</span><a href="core.tile.html" class="tsd-signature-type tsd-kind-class">Tile</a><span class="tsd-signature-symbol">&gt;</span></span></li></ul></div>
+<h4 class="tsd-returns-title">Returns <span class="tsd-signature-type">any</span></h4>
+<div class="tsd-comment tsd-typography">
+<div class="tsd-tag-example">
+<h4 class="tsd-anchor-link" id="Example-2">Example<a href="#Example-2" aria-label="Permalink" class="tsd-anchor-icon"><svg viewBox="0 0 24 24" aria-hidden="true"><use href="../assets/icons.svg#icon-anchor"></use></svg></a></h4><pre><code><span class="hl-3">// add a feature to the provider.</span><br/><span class="hl-0">provider</span><span class="hl-1">.</span><span class="hl-5">addFeature</span><span class="hl-1">({</span><br/><span class="hl-1">   </span><span class="hl-0">type:</span><span class="hl-1"> </span><span class="hl-6">&quot;Feature&quot;</span><br/><span class="hl-1">   </span><span class="hl-0">geometry</span><span class="hl-1">: {</span><br/><span class="hl-1">       </span><span class="hl-0">coordinates:</span><span class="hl-1"> [[-</span><span class="hl-9">122.49373</span><span class="hl-1">, </span><span class="hl-9">37.78202</span><span class="hl-1">], [-</span><span class="hl-9">122.49263</span><span class="hl-1">, </span><span class="hl-9">37.78602</span><span class="hl-1">]],</span><br/><span class="hl-1">       </span><span class="hl-0">type:</span><span class="hl-1"> </span><span class="hl-6">&quot;LineString&quot;</span><br/><span class="hl-1">   }</span><br/><span class="hl-1">});</span>
+</code><button>Copy</button></pre>
+
+</div></div><aside class="tsd-sources">
+<p>Inherited from <a href="core.featureprovider.html">FeatureProvider</a>.<a href="core.featureprovider.html#addFeature">addFeature</a></p></aside></div></li></ul></section>
+<section class="tsd-panel tsd-member tsd-is-inherited">
+<h3 class="tsd-anchor-link" id="all"><span>all</span><a href="#all" aria-label="Permalink" class="tsd-anchor-icon"><svg viewBox="0 0 24 24" aria-hidden="true"><use href="../assets/icons.svg#icon-anchor"></use></svg></a></h3>
+<ul class="tsd-signatures tsd-is-inherited">
+<li class="tsd-is-inherited">
+<div class="tsd-signature tsd-anchor-link" id="all-1"><span class="tsd-kind-call-signature">all</span><span class="tsd-signature-symbol">()</span><span class="tsd-signature-symbol">:</span> <a href="core.feature.html" class="tsd-signature-type tsd-kind-class">Feature</a><span class="tsd-signature-symbol">&lt;</span><span class="tsd-signature-type">string</span><span class="tsd-signature-symbol">&gt;</span><span class="tsd-signature-symbol">[]</span><a href="#all-1" aria-label="Permalink" class="tsd-anchor-icon"><svg viewBox="0 0 24 24" aria-hidden="true"><use href="../assets/icons.svg#icon-anchor"></use></svg></a></div>
+<div class="tsd-description">
+<div class="tsd-comment tsd-typography"><p>Get all the features that are currently present in the provider.</p>
+</div>
+<h4 class="tsd-returns-title">Returns <a href="core.feature.html" class="tsd-signature-type tsd-kind-class">Feature</a><span class="tsd-signature-symbol">&lt;</span><span class="tsd-signature-type">string</span><span class="tsd-signature-symbol">&gt;</span><span class="tsd-signature-symbol">[]</span></h4><aside class="tsd-sources">
+<p>Inherited from <a href="core.featureprovider.html">FeatureProvider</a>.<a href="core.featureprovider.html#all">all</a></p></aside></div></li></ul></section>
+<section class="tsd-panel tsd-member tsd-is-inherited">
+<h3 class="tsd-anchor-link" id="clear"><span>clear</span><a href="#clear" aria-label="Permalink" class="tsd-anchor-icon"><svg viewBox="0 0 24 24" aria-hidden="true"><use href="../assets/icons.svg#icon-anchor"></use></svg></a></h3>
+<ul class="tsd-signatures tsd-is-inherited">
+<li class="tsd-is-inherited">
+<div class="tsd-signature tsd-anchor-link" id="clear-1"><span class="tsd-kind-call-signature">clear</span><span class="tsd-signature-symbol">(</span><span class="tsd-kind-parameter">bbox</span><span class="tsd-signature-symbol">?:</span> <a href="core.tile.html" class="tsd-signature-type tsd-kind-class">Tile</a> <span class="tsd-signature-symbol">|</span> <a href="../types/core.geojsonbbox.html" class="tsd-signature-type tsd-kind-type-alias">GeoJSONBBox</a> <span class="tsd-signature-symbol">|</span> <a href="core.tile.html" class="tsd-signature-type tsd-kind-class">Tile</a><span class="tsd-signature-symbol">[]</span><span class="tsd-signature-symbol">,</span> <span class="tsd-kind-parameter">triggerEvent</span><span class="tsd-signature-symbol">?:</span> <span class="tsd-signature-type">boolean</span><span class="tsd-signature-symbol">)</span><span class="tsd-signature-symbol">:</span> <span class="tsd-signature-type">string</span><span class="tsd-signature-symbol">[]</span><a href="#clear-1" aria-label="Permalink" class="tsd-anchor-icon"><svg viewBox="0 0 24 24" aria-hidden="true"><use href="../assets/icons.svg#icon-anchor"></use></svg></a></div>
+<div class="tsd-description">
+<div class="tsd-comment tsd-typography"><p>Clears the given tile(s) from the provider's cache.</p>
+</div>
+<div class="tsd-parameters">
+<h4 class="tsd-parameters-title">Parameters</h4>
+<ul class="tsd-parameter-list">
+<li><span><code class="tsd-tag">Optional</code><span class="tsd-kind-parameter">bbox</span>: <a href="core.tile.html" class="tsd-signature-type tsd-kind-class">Tile</a> <span class="tsd-signature-symbol">|</span> <a href="../types/core.geojsonbbox.html" class="tsd-signature-type tsd-kind-type-alias">GeoJSONBBox</a> <span class="tsd-signature-symbol">|</span> <a href="core.tile.html" class="tsd-signature-type tsd-kind-class">Tile</a><span class="tsd-signature-symbol">[]</span></span>
+<div class="tsd-comment tsd-typography"><p>A single <code>Tile</code> or an array of <code>Tile</code>s to be cleared.</p>
+</div></li>
+<li><span><code class="tsd-tag">Optional</code><span class="tsd-kind-parameter">triggerEvent</span>: <span class="tsd-signature-type">boolean</span></span></li></ul></div>
+<h4 class="tsd-returns-title">Returns <span class="tsd-signature-type">string</span><span class="tsd-signature-symbol">[]</span></h4><aside class="tsd-sources">
+<p>Inherited from <a href="core.featureprovider.html">FeatureProvider</a>.<a href="core.featureprovider.html#clear">clear</a></p></aside></div></li></ul></section>
+<section class="tsd-panel tsd-member tsd-is-inherited">
+<h3 class="tsd-anchor-link" id="config"><span>config</span><a href="#config" aria-label="Permalink" class="tsd-anchor-icon"><svg viewBox="0 0 24 24" aria-hidden="true"><use href="../assets/icons.svg#icon-anchor"></use></svg></a></h3>
+<ul class="tsd-signatures tsd-is-inherited">
+<li class="tsd-is-inherited">
+<div class="tsd-signature tsd-anchor-link" id="config-1"><span class="tsd-kind-call-signature">config</span><span class="tsd-signature-symbol">(</span><span class="tsd-kind-parameter">options</span><span class="tsd-signature-symbol">:</span> <span class="tsd-signature-type">string</span> <span class="tsd-signature-symbol">|</span> <a href="../interfaces/core.tileprovideroptions.html" class="tsd-signature-type tsd-kind-interface">TileProviderOptions</a><span class="tsd-signature-symbol">,</span> <span class="tsd-kind-parameter">value</span><span class="tsd-signature-symbol">?:</span> <span class="tsd-signature-type">any</span><span class="tsd-signature-symbol">)</span><span class="tsd-signature-symbol">:</span> <a href="../interfaces/core.tileprovideroptions.html" class="tsd-signature-type tsd-kind-interface">TileProviderOptions</a><a href="#config-1" aria-label="Permalink" class="tsd-anchor-icon"><svg viewBox="0 0 24 24" aria-hidden="true"><use href="../assets/icons.svg#icon-anchor"></use></svg></a></div>
+<div class="tsd-description">
+<div class="tsd-comment tsd-typography"><p>Get or set configuration options for the provider.</p>
+<p>If a string is provided as the first argument, returns the value of the corresponding property.
+If an object is provided, sets the provider's properties according to the object.</p>
+</div>
+<div class="tsd-parameters">
+<h4 class="tsd-parameters-title">Parameters</h4>
+<ul class="tsd-parameter-list">
+<li><span><span class="tsd-kind-parameter">options</span>: <span class="tsd-signature-type">string</span> <span class="tsd-signature-symbol">|</span> <a href="../interfaces/core.tileprovideroptions.html" class="tsd-signature-type tsd-kind-interface">TileProviderOptions</a></span>
+<div class="tsd-comment tsd-typography"><p>The configuration key as a string to get a value, or an object to set multiple options.</p>
+</div></li>
+<li><span><code class="tsd-tag">Optional</code><span class="tsd-kind-parameter">value</span>: <span class="tsd-signature-type">any</span></span>
+<div class="tsd-comment tsd-typography"><p>Optional value to set if a string key is provided.</p>
+</div></li></ul></div>
+<h4 class="tsd-returns-title">Returns <a href="../interfaces/core.tileprovideroptions.html" class="tsd-signature-type tsd-kind-interface">TileProviderOptions</a></h4><aside class="tsd-sources">
+<p>Inherited from <a href="core.featureprovider.html">FeatureProvider</a>.<a href="core.featureprovider.html#config">config</a></p></aside></div></li></ul></section>
+<section class="tsd-panel tsd-member tsd-is-inherited">
+<h3 class="tsd-anchor-link" id="createTile"><span>create<wbr/>Tile</span><a href="#createTile" aria-label="Permalink" class="tsd-anchor-icon"><svg viewBox="0 0 24 24" aria-hidden="true"><use href="../assets/icons.svg#icon-anchor"></use></svg></a></h3>
+<ul class="tsd-signatures tsd-is-inherited">
+<li class="tsd-is-inherited">
+<div class="tsd-signature tsd-anchor-link" id="createTile-1"><span class="tsd-kind-call-signature">createTile</span><span class="tsd-signature-symbol">(</span><span class="tsd-kind-parameter">quadkey</span><span class="tsd-signature-symbol">:</span> <span class="tsd-signature-type">string</span><span class="tsd-signature-symbol">)</span><span class="tsd-signature-symbol">:</span> <a href="core.tile.html" class="tsd-signature-type tsd-kind-class">Tile</a><a href="#createTile-1" aria-label="Permalink" class="tsd-anchor-icon"><svg viewBox="0 0 24 24" aria-hidden="true"><use href="../assets/icons.svg#icon-anchor"></use></svg></a></div>
+<div class="tsd-description">
+<div class="tsd-comment tsd-typography"><p>Create a new Tile.</p>
+</div>
+<div class="tsd-parameters">
+<h4 class="tsd-parameters-title">Parameters</h4>
+<ul class="tsd-parameter-list">
+<li><span><span class="tsd-kind-parameter">quadkey</span>: <span class="tsd-signature-type">string</span></span>
+<div class="tsd-comment tsd-typography"><p>the quadkey of the tile to create</p>
+</div></li></ul></div>
+<h4 class="tsd-returns-title">Returns <a href="core.tile.html" class="tsd-signature-type tsd-kind-class">Tile</a></h4><aside class="tsd-sources">
+<p>Inherited from <a href="core.featureprovider.html">FeatureProvider</a>.<a href="core.featureprovider.html#createTile">createTile</a></p></aside></div></li></ul></section>
+<section class="tsd-panel tsd-member">
+<h3 class="tsd-anchor-link" id="detectFeatureClass"><span>detect<wbr/>Feature<wbr/>Class</span><a href="#detectFeatureClass" aria-label="Permalink" class="tsd-anchor-icon"><svg viewBox="0 0 24 24" aria-hidden="true"><use href="../assets/icons.svg#icon-anchor"></use></svg></a></h3>
+<ul class="tsd-signatures">
+<li class="">
+<div class="tsd-signature tsd-anchor-link" id="detectFeatureClass-1"><span class="tsd-kind-call-signature">detectFeatureClass</span><span class="tsd-signature-symbol">(</span><span class="tsd-kind-parameter">feature</span><span class="tsd-signature-symbol">:</span> <a href="core.feature.html" class="tsd-signature-type tsd-kind-class">Feature</a><span class="tsd-signature-symbol">)</span><span class="tsd-signature-symbol">:</span> <span class="tsd-signature-type">string</span><a href="#detectFeatureClass-1" aria-label="Permalink" class="tsd-anchor-icon"><svg viewBox="0 0 24 24" aria-hidden="true"><use href="../assets/icons.svg#icon-anchor"></use></svg></a></div>
+<div class="tsd-description">
+<div class="tsd-comment tsd-typography"><p>This method is used to determine the <a href="editor.feature.html#class" class="tsd-kind-property">FeatureClass</a> required to edit the feature.
+The <a href="editor.feature.html#class" class="tsd-kind-property">FeatureClass</a> defines how a certain feature behaves when its getting edited.</p>
+<p>By default, the <a href="editor.editor.html" class="tsd-kind-class">Editor</a> handles all features of geometry type 'LineString' as <a href="editor.line.html" class="tsd-kind-class">Line</a>, 'Point' as <a href="editor.marker.html" class="tsd-kind-class">Marker</a> and '(Multi)Polygon' as <a href="editor.area.html" class="tsd-kind-class">Area</a>.</p>
+<p>If you want to edit features with <a href="editor.feature.html#class" class="tsd-kind-property">FeatureClass</a> 'NAVLINK', 'PLACE' or 'ADDRESS' this method must be overridden to enable editing of <a href="editor.navlink.html" class="tsd-kind-class">Navlinks</a>, <a href="editor.place.html" class="tsd-kind-class">Places</a> or <a href="editor.address.html" class="tsd-kind-class">Addresses</a>.
+The other methods required for each feature class are listed in the class documentation of <a href="#" class="tsd-kind-class">EditableFeatureProvider</a>.</p>
+</div>
+<div class="tsd-parameters">
+<h4 class="tsd-parameters-title">Parameters</h4>
+<ul class="tsd-parameter-list">
+<li><span><span class="tsd-kind-parameter">feature</span>: <a href="core.feature.html" class="tsd-signature-type tsd-kind-class">Feature</a></span>
+<div class="tsd-comment tsd-typography"><p>The feature whose <a href="editor.feature.html#class" class="tsd-kind-property">FeatureClass</a> is requested</p>
+</div></li></ul></div>
+<h4 class="tsd-returns-title">Returns <span class="tsd-signature-type">string</span></h4><p>the FeatureClass of the feature, or null if the feature should not be editable.</p>
+</div></li></ul></section>
+<section class="tsd-panel tsd-member tsd-is-inherited">
+<h3 class="tsd-anchor-link" id="exists"><span>exists</span><a href="#exists" aria-label="Permalink" class="tsd-anchor-icon"><svg viewBox="0 0 24 24" aria-hidden="true"><use href="../assets/icons.svg#icon-anchor"></use></svg></a></h3>
+<ul class="tsd-signatures tsd-is-inherited">
+<li class="tsd-is-inherited">
+<div class="tsd-signature tsd-anchor-link" id="exists-1"><span class="tsd-kind-call-signature">exists</span><span class="tsd-signature-symbol">(</span><span class="tsd-kind-parameter">feature</span><span class="tsd-signature-symbol">:</span> <span class="tsd-signature-symbol">{</span> <span class="tsd-kind-property">id</span><span class="tsd-signature-symbol">:</span> <span class="tsd-signature-type">string</span> <span class="tsd-signature-symbol">|</span> <span class="tsd-signature-type">number</span> <span class="tsd-signature-symbol">}</span><span class="tsd-signature-symbol">)</span><span class="tsd-signature-symbol">:</span> <span class="tsd-signature-symbol">{</span> <span class="tsd-kind-property">feature</span><span class="tsd-signature-symbol">?:</span> <a href="core.feature.html" class="tsd-signature-type tsd-kind-class">Feature</a> <span class="tsd-signature-symbol">}</span><a href="#exists-1" aria-label="Permalink" class="tsd-anchor-icon"><svg viewBox="0 0 24 24" aria-hidden="true"><use href="../assets/icons.svg#icon-anchor"></use></svg></a></div>
+<div class="tsd-description">
+<div class="tsd-comment tsd-typography"><p>Validate if a feature is stored in the local provider cache.</p>
+</div>
+<div class="tsd-parameters">
+<h4 class="tsd-parameters-title">Parameters</h4>
+<ul class="tsd-parameter-list">
+<li><span><span class="tsd-kind-parameter">feature</span>: <span class="tsd-signature-symbol">{</span> <span class="tsd-kind-property">id</span><span class="tsd-signature-symbol">:</span> <span class="tsd-signature-type">string</span> <span class="tsd-signature-symbol">|</span> <span class="tsd-signature-type">number</span> <span class="tsd-signature-symbol">}</span></span>
+<div class="tsd-comment tsd-typography"><p>Object literal containing &quot;id&quot; property.</p>
+</div></li></ul></div>
+<h4 class="tsd-returns-title">Returns <span class="tsd-signature-symbol">{</span> <span class="tsd-kind-property">feature</span><span class="tsd-signature-symbol">?:</span> <a href="core.feature.html" class="tsd-signature-type tsd-kind-class">Feature</a> <span class="tsd-signature-symbol">}</span></h4><p>the <a href="core.feature.html" class="tsd-kind-class">Feature</a> if it is found, otherwise undefined</p>
+<aside class="tsd-sources">
+<p>Inherited from <a href="core.featureprovider.html">FeatureProvider</a>.<a href="core.featureprovider.html#exists">exists</a></p></aside></div></li></ul></section>
+<section class="tsd-panel tsd-member tsd-is-inherited">
+<h3 class="tsd-anchor-link" id="findPath"><span>find<wbr/>Path</span><a href="#findPath" aria-label="Permalink" class="tsd-anchor-icon"><svg viewBox="0 0 24 24" aria-hidden="true"><use href="../assets/icons.svg#icon-anchor"></use></svg></a></h3>
+<ul class="tsd-signatures tsd-is-inherited">
+<li class="tsd-is-inherited">
+<div class="tsd-signature tsd-anchor-link" id="findPath-1"><span class="tsd-kind-call-signature">findPath</span><span class="tsd-signature-symbol">(</span><br/>    <span class="tsd-kind-parameter">options</span><span class="tsd-signature-symbol">:</span> <span class="tsd-signature-symbol">{</span><br/>        <span class="tsd-kind-property">allowTurn</span><span class="tsd-signature-symbol">?:</span> <span class="tsd-signature-symbol">(</span><br/>            <span class="tsd-kind-parameter">turn</span><span class="tsd-signature-symbol">:</span> <span class="tsd-signature-symbol">{</span><br/>                <span class="tsd-kind-property">from</span><span class="tsd-signature-symbol">:</span> <span class="tsd-signature-symbol">{</span> <span class="tsd-kind-property">index</span><span class="tsd-signature-symbol">:</span> <span class="tsd-signature-type">number</span><span class="tsd-signature-symbol">;</span> <span class="tsd-kind-property">link</span><span class="tsd-signature-symbol">:</span> <a href="core.feature.html" class="tsd-signature-type tsd-kind-class">Feature</a><span class="tsd-signature-symbol">&lt;</span><span class="tsd-signature-type">&quot;LineString&quot;</span><span class="tsd-signature-symbol">&gt;</span> <span class="tsd-signature-symbol">}</span><span class="tsd-signature-symbol">;</span><br/>                <span class="tsd-kind-property">to</span><span class="tsd-signature-symbol">:</span> <span class="tsd-signature-symbol">{</span> <span class="tsd-kind-property">index</span><span class="tsd-signature-symbol">:</span> <span class="tsd-signature-type">number</span><span class="tsd-signature-symbol">;</span> <span class="tsd-kind-property">link</span><span class="tsd-signature-symbol">:</span> <a href="core.feature.html" class="tsd-signature-type tsd-kind-class">Feature</a><span class="tsd-signature-symbol">&lt;</span><span class="tsd-signature-type">&quot;LineString&quot;</span><span class="tsd-signature-symbol">&gt;</span> <span class="tsd-signature-symbol">}</span><span class="tsd-signature-symbol">;</span><br/>            <span class="tsd-signature-symbol">}</span><span class="tsd-signature-symbol">,</span><br/>        <span class="tsd-signature-symbol">)</span> <span class="tsd-signature-symbol">=&gt;</span> <span class="tsd-signature-type">boolean</span><span class="tsd-signature-symbol">;</span><br/>        <span class="tsd-kind-property">from</span><span class="tsd-signature-symbol">:</span> <a href="core.geopoint.html" class="tsd-signature-type tsd-kind-class">GeoPoint</a><br/>        <span class="tsd-signature-symbol">|</span> <a href="../types/core.geojsoncoordinate.html" class="tsd-signature-type tsd-kind-type-alias">GeoJSONCoordinate</a><span class="tsd-signature-symbol">;</span><br/>        <span class="tsd-kind-property">to</span><span class="tsd-signature-symbol">:</span> <a href="core.geopoint.html" class="tsd-signature-type tsd-kind-class">GeoPoint</a> <span class="tsd-signature-symbol">|</span> <a href="../types/core.geojsoncoordinate.html" class="tsd-signature-type tsd-kind-type-alias">GeoJSONCoordinate</a><span class="tsd-signature-symbol">;</span><br/>        <span class="tsd-kind-property">weight</span><span class="tsd-signature-symbol">?:</span> <span class="tsd-signature-symbol">(</span><br/>            <span class="tsd-kind-parameter">data</span><span class="tsd-signature-symbol">:</span> <span class="tsd-signature-symbol">{</span><br/>                <span class="tsd-kind-property">direction</span><span class="tsd-signature-symbol">:</span> <span class="tsd-signature-type">&quot;START_TO_END&quot;</span> <span class="tsd-signature-symbol">|</span> <span class="tsd-signature-type">&quot;END_TO_START&quot;</span><span class="tsd-signature-symbol">;</span><br/>                <span class="tsd-kind-property">distance</span><span class="tsd-signature-symbol">:</span> <span class="tsd-signature-type">number</span><span class="tsd-signature-symbol">;</span><br/>                <span class="tsd-kind-property">feature</span><span class="tsd-signature-symbol">:</span> <a href="core.feature.html" class="tsd-signature-type tsd-kind-class">Feature</a><span class="tsd-signature-symbol">&lt;</span><span class="tsd-signature-type">&quot;LineString&quot;</span><span class="tsd-signature-symbol">&gt;</span><span class="tsd-signature-symbol">;</span><br/>                <span class="tsd-kind-property">from</span><span class="tsd-signature-symbol">:</span> <a href="../types/core.geojsoncoordinate.html" class="tsd-signature-type tsd-kind-type-alias">GeoJSONCoordinate</a><span class="tsd-signature-symbol">;</span><br/>                <span class="tsd-kind-property">to</span><span class="tsd-signature-symbol">:</span> <a href="../types/core.geojsoncoordinate.html" class="tsd-signature-type tsd-kind-type-alias">GeoJSONCoordinate</a><span class="tsd-signature-symbol">;</span><br/>            <span class="tsd-signature-symbol">}</span><span class="tsd-signature-symbol">,</span><br/>        <span class="tsd-signature-symbol">)</span> <span class="tsd-signature-symbol">=&gt;</span> <span class="tsd-signature-type">number</span><span class="tsd-signature-symbol">;</span><br/>    <span class="tsd-signature-symbol">}</span><span class="tsd-signature-symbol">,</span><br/><span class="tsd-signature-symbol">)</span><span class="tsd-signature-symbol">:</span> <span class="tsd-signature-type">Promise</span><span class="tsd-signature-symbol">&lt;</span><br/>    <span class="tsd-signature-symbol">{</span><br/>        <span class="tsd-kind-property">distance</span><span class="tsd-signature-symbol">:</span> <span class="tsd-signature-type">number</span><span class="tsd-signature-symbol">;</span><br/>        <span class="tsd-kind-property">features</span><span class="tsd-signature-symbol">:</span> <a href="core.feature.html" class="tsd-signature-type tsd-kind-class">Feature</a><span class="tsd-signature-symbol">&lt;</span><span class="tsd-signature-type">&quot;LineString&quot;</span><span class="tsd-signature-symbol">&gt;</span><span class="tsd-signature-symbol">[]</span><span class="tsd-signature-symbol">;</span><br/>        <span class="tsd-kind-property">from</span><span class="tsd-signature-symbol">:</span> <a href="../types/core.geojsoncoordinate.html" class="tsd-signature-type tsd-kind-type-alias">GeoJSONCoordinate</a><span class="tsd-signature-symbol">;</span><br/>        <span class="tsd-kind-property">path</span><span class="tsd-signature-symbol">:</span> <a href="../interfaces/core.geojsonfeature.html" class="tsd-signature-type tsd-kind-interface">GeoJSONFeature</a><span class="tsd-signature-symbol">&lt;</span><span class="tsd-signature-type">&quot;MultiLineString&quot;</span><span class="tsd-signature-symbol">&gt;</span><span class="tsd-signature-symbol">;</span><br/>        <span class="tsd-kind-property">to</span><span class="tsd-signature-symbol">:</span> <a href="../types/core.geojsoncoordinate.html" class="tsd-signature-type tsd-kind-type-alias">GeoJSONCoordinate</a><span class="tsd-signature-symbol">;</span><br/>    <span class="tsd-signature-symbol">}</span><span class="tsd-signature-symbol">,</span><br/><span class="tsd-signature-symbol">&gt;</span><a href="#findPath-1" aria-label="Permalink" class="tsd-anchor-icon"><svg viewBox="0 0 24 24" aria-hidden="true"><use href="../assets/icons.svg#icon-anchor"></use></svg></a></div>
+<div class="tsd-description"><code class="tsd-tag">Experimental</code>
+<div class="tsd-comment tsd-typography"><p>Finds the optimal path between two coordinates on a GeoJSON road network, considering various options.
+By default, the weight function returns the distance of the road segment, a lower distance implies a shorter route and is considered more favorable.
+If you have specific criteria such as road quality, traffic conditions, or other factors influencing the desirability of a road segment, you can customize the weight function accordingly.
+Pathfinding will consider only the locally cached data available on the client.</p>
+</div>
+<div class="tsd-parameters">
+<h4 class="tsd-parameters-title">Parameters</h4>
+<ul class="tsd-parameter-list">
+<li><span><span class="tsd-kind-parameter">options</span>: <span class="tsd-signature-symbol">{</span><br/>    <span class="tsd-kind-property">allowTurn</span><span class="tsd-signature-symbol">?:</span> <span class="tsd-signature-symbol">(</span><br/>        <span class="tsd-kind-parameter">turn</span><span class="tsd-signature-symbol">:</span> <span class="tsd-signature-symbol">{</span><br/>            <span class="tsd-kind-property">from</span><span class="tsd-signature-symbol">:</span> <span class="tsd-signature-symbol">{</span> <span class="tsd-kind-property">index</span><span class="tsd-signature-symbol">:</span> <span class="tsd-signature-type">number</span><span class="tsd-signature-symbol">;</span> <span class="tsd-kind-property">link</span><span class="tsd-signature-symbol">:</span> <a href="core.feature.html" class="tsd-signature-type tsd-kind-class">Feature</a><span class="tsd-signature-symbol">&lt;</span><span class="tsd-signature-type">&quot;LineString&quot;</span><span class="tsd-signature-symbol">&gt;</span> <span class="tsd-signature-symbol">}</span><span class="tsd-signature-symbol">;</span><br/>            <span class="tsd-kind-property">to</span><span class="tsd-signature-symbol">:</span> <span class="tsd-signature-symbol">{</span> <span class="tsd-kind-property">index</span><span class="tsd-signature-symbol">:</span> <span class="tsd-signature-type">number</span><span class="tsd-signature-symbol">;</span> <span class="tsd-kind-property">link</span><span class="tsd-signature-symbol">:</span> <a href="core.feature.html" class="tsd-signature-type tsd-kind-class">Feature</a><span class="tsd-signature-symbol">&lt;</span><span class="tsd-signature-type">&quot;LineString&quot;</span><span class="tsd-signature-symbol">&gt;</span> <span class="tsd-signature-symbol">}</span><span class="tsd-signature-symbol">;</span><br/>        <span class="tsd-signature-symbol">}</span><span class="tsd-signature-symbol">,</span><br/>    <span class="tsd-signature-symbol">)</span> <span class="tsd-signature-symbol">=&gt;</span> <span class="tsd-signature-type">boolean</span><span class="tsd-signature-symbol">;</span><br/>    <span class="tsd-kind-property">from</span><span class="tsd-signature-symbol">:</span> <a href="core.geopoint.html" class="tsd-signature-type tsd-kind-class">GeoPoint</a><br/>    <span class="tsd-signature-symbol">|</span> <a href="../types/core.geojsoncoordinate.html" class="tsd-signature-type tsd-kind-type-alias">GeoJSONCoordinate</a><span class="tsd-signature-symbol">;</span><br/>    <span class="tsd-kind-property">to</span><span class="tsd-signature-symbol">:</span> <a href="core.geopoint.html" class="tsd-signature-type tsd-kind-class">GeoPoint</a> <span class="tsd-signature-symbol">|</span> <a href="../types/core.geojsoncoordinate.html" class="tsd-signature-type tsd-kind-type-alias">GeoJSONCoordinate</a><span class="tsd-signature-symbol">;</span><br/>    <span class="tsd-kind-property">weight</span><span class="tsd-signature-symbol">?:</span> <span class="tsd-signature-symbol">(</span><br/>        <span class="tsd-kind-parameter">data</span><span class="tsd-signature-symbol">:</span> <span class="tsd-signature-symbol">{</span><br/>            <span class="tsd-kind-property">direction</span><span class="tsd-signature-symbol">:</span> <span class="tsd-signature-type">&quot;START_TO_END&quot;</span> <span class="tsd-signature-symbol">|</span> <span class="tsd-signature-type">&quot;END_TO_START&quot;</span><span class="tsd-signature-symbol">;</span><br/>            <span class="tsd-kind-property">distance</span><span class="tsd-signature-symbol">:</span> <span class="tsd-signature-type">number</span><span class="tsd-signature-symbol">;</span><br/>            <span class="tsd-kind-property">feature</span><span class="tsd-signature-symbol">:</span> <a href="core.feature.html" class="tsd-signature-type tsd-kind-class">Feature</a><span class="tsd-signature-symbol">&lt;</span><span class="tsd-signature-type">&quot;LineString&quot;</span><span class="tsd-signature-symbol">&gt;</span><span class="tsd-signature-symbol">;</span><br/>            <span class="tsd-kind-property">from</span><span class="tsd-signature-symbol">:</span> <a href="../types/core.geojsoncoordinate.html" class="tsd-signature-type tsd-kind-type-alias">GeoJSONCoordinate</a><span class="tsd-signature-symbol">;</span><br/>            <span class="tsd-kind-property">to</span><span class="tsd-signature-symbol">:</span> <a href="../types/core.geojsoncoordinate.html" class="tsd-signature-type tsd-kind-type-alias">GeoJSONCoordinate</a><span class="tsd-signature-symbol">;</span><br/>        <span class="tsd-signature-symbol">}</span><span class="tsd-signature-symbol">,</span><br/>    <span class="tsd-signature-symbol">)</span> <span class="tsd-signature-symbol">=&gt;</span> <span class="tsd-signature-type">number</span><span class="tsd-signature-symbol">;</span><br/><span class="tsd-signature-symbol">}</span></span>
+<div class="tsd-comment tsd-typography"><p>The options object containing parameters for finding the path.</p>
+</div>
+<ul class="tsd-parameters">
+<li class="tsd-parameter">
+<h5><code class="tsd-tag">Optional</code><span class="tsd-kind-property">allowTurn</span><span class="tsd-signature-symbol">?: </span><span class="tsd-signature-symbol">(</span><br/>    <span class="tsd-kind-parameter">turn</span><span class="tsd-signature-symbol">:</span> <span class="tsd-signature-symbol">{</span><br/>        <span class="tsd-kind-property">from</span><span class="tsd-signature-symbol">:</span> <span class="tsd-signature-symbol">{</span> <span class="tsd-kind-property">index</span><span class="tsd-signature-symbol">:</span> <span class="tsd-signature-type">number</span><span class="tsd-signature-symbol">;</span> <span class="tsd-kind-property">link</span><span class="tsd-signature-symbol">:</span> <a href="core.feature.html" class="tsd-signature-type tsd-kind-class">Feature</a><span class="tsd-signature-symbol">&lt;</span><span class="tsd-signature-type">&quot;LineString&quot;</span><span class="tsd-signature-symbol">&gt;</span> <span class="tsd-signature-symbol">}</span><span class="tsd-signature-symbol">;</span><br/>        <span class="tsd-kind-property">to</span><span class="tsd-signature-symbol">:</span> <span class="tsd-signature-symbol">{</span> <span class="tsd-kind-property">index</span><span class="tsd-signature-symbol">:</span> <span class="tsd-signature-type">number</span><span class="tsd-signature-symbol">;</span> <span class="tsd-kind-property">link</span><span class="tsd-signature-symbol">:</span> <a href="core.feature.html" class="tsd-signature-type tsd-kind-class">Feature</a><span class="tsd-signature-symbol">&lt;</span><span class="tsd-signature-type">&quot;LineString&quot;</span><span class="tsd-signature-symbol">&gt;</span> <span class="tsd-signature-symbol">}</span><span class="tsd-signature-symbol">;</span><br/>    <span class="tsd-signature-symbol">}</span><span class="tsd-signature-symbol">,</span><br/><span class="tsd-signature-symbol">)</span> <span class="tsd-signature-symbol">=&gt;</span> <span class="tsd-signature-type">boolean</span></h5>
+<div class="tsd-comment tsd-typography"><p>Optional callback function to determine if a turn is allowed between road segments.
+If not provided, all turns are considered allowed.</p>
+</div></li>
+<li class="tsd-parameter">
+<h5><span class="tsd-kind-property">from</span><span class="tsd-signature-symbol">: </span><a href="core.geopoint.html" class="tsd-signature-type tsd-kind-class">GeoPoint</a> <span class="tsd-signature-symbol">|</span> <a href="../types/core.geojsoncoordinate.html" class="tsd-signature-type tsd-kind-type-alias">GeoJSONCoordinate</a></h5>
+<div class="tsd-comment tsd-typography"><p>The starting coordinates defining the path.</p>
+</div></li>
+<li class="tsd-parameter">
+<h5><span class="tsd-kind-property">to</span><span class="tsd-signature-symbol">: </span><a href="core.geopoint.html" class="tsd-signature-type tsd-kind-class">GeoPoint</a> <span class="tsd-signature-symbol">|</span> <a href="../types/core.geojsoncoordinate.html" class="tsd-signature-type tsd-kind-type-alias">GeoJSONCoordinate</a></h5>
+<div class="tsd-comment tsd-typography"><p>The ending coordinates of the path.</p>
+</div></li>
+<li class="tsd-parameter">
+<h5><code class="tsd-tag">Optional</code><span class="tsd-kind-property">weight</span><span class="tsd-signature-symbol">?: </span><span class="tsd-signature-symbol">(</span><br/>    <span class="tsd-kind-parameter">data</span><span class="tsd-signature-symbol">:</span> <span class="tsd-signature-symbol">{</span><br/>        <span class="tsd-kind-property">direction</span><span class="tsd-signature-symbol">:</span> <span class="tsd-signature-type">&quot;START_TO_END&quot;</span> <span class="tsd-signature-symbol">|</span> <span class="tsd-signature-type">&quot;END_TO_START&quot;</span><span class="tsd-signature-symbol">;</span><br/>        <span class="tsd-kind-property">distance</span><span class="tsd-signature-symbol">:</span> <span class="tsd-signature-type">number</span><span class="tsd-signature-symbol">;</span><br/>        <span class="tsd-kind-property">feature</span><span class="tsd-signature-symbol">:</span> <a href="core.feature.html" class="tsd-signature-type tsd-kind-class">Feature</a><span class="tsd-signature-symbol">&lt;</span><span class="tsd-signature-type">&quot;LineString&quot;</span><span class="tsd-signature-symbol">&gt;</span><span class="tsd-signature-symbol">;</span><br/>        <span class="tsd-kind-property">from</span><span class="tsd-signature-symbol">:</span> <a href="../types/core.geojsoncoordinate.html" class="tsd-signature-type tsd-kind-type-alias">GeoJSONCoordinate</a><span class="tsd-signature-symbol">;</span><br/>        <span class="tsd-kind-property">to</span><span class="tsd-signature-symbol">:</span> <a href="../types/core.geojsoncoordinate.html" class="tsd-signature-type tsd-kind-type-alias">GeoJSONCoordinate</a><span class="tsd-signature-symbol">;</span><br/>    <span class="tsd-signature-symbol">}</span><span class="tsd-signature-symbol">,</span><br/><span class="tsd-signature-symbol">)</span> <span class="tsd-signature-symbol">=&gt;</span> <span class="tsd-signature-type">number</span></h5>
+<div class="tsd-comment tsd-typography"><p>Optional callback function to determine the weight (cost) of traversing a road segment.</p>
+</div></li></ul></li></ul></div>
+<h4 class="tsd-returns-title">Returns <span class="tsd-signature-type">Promise</span><span class="tsd-signature-symbol">&lt;</span><br/>    <span class="tsd-signature-symbol">{</span><br/>        <span class="tsd-kind-property">distance</span><span class="tsd-signature-symbol">:</span> <span class="tsd-signature-type">number</span><span class="tsd-signature-symbol">;</span><br/>        <span class="tsd-kind-property">features</span><span class="tsd-signature-symbol">:</span> <a href="core.feature.html" class="tsd-signature-type tsd-kind-class">Feature</a><span class="tsd-signature-symbol">&lt;</span><span class="tsd-signature-type">&quot;LineString&quot;</span><span class="tsd-signature-symbol">&gt;</span><span class="tsd-signature-symbol">[]</span><span class="tsd-signature-symbol">;</span><br/>        <span class="tsd-kind-property">from</span><span class="tsd-signature-symbol">:</span> <a href="../types/core.geojsoncoordinate.html" class="tsd-signature-type tsd-kind-type-alias">GeoJSONCoordinate</a><span class="tsd-signature-symbol">;</span><br/>        <span class="tsd-kind-property">path</span><span class="tsd-signature-symbol">:</span> <a href="../interfaces/core.geojsonfeature.html" class="tsd-signature-type tsd-kind-interface">GeoJSONFeature</a><span class="tsd-signature-symbol">&lt;</span><span class="tsd-signature-type">&quot;MultiLineString&quot;</span><span class="tsd-signature-symbol">&gt;</span><span class="tsd-signature-symbol">;</span><br/>        <span class="tsd-kind-property">to</span><span class="tsd-signature-symbol">:</span> <a href="../types/core.geojsoncoordinate.html" class="tsd-signature-type tsd-kind-type-alias">GeoJSONCoordinate</a><span class="tsd-signature-symbol">;</span><br/>    <span class="tsd-signature-symbol">}</span><span class="tsd-signature-symbol">,</span><br/><span class="tsd-signature-symbol">&gt;</span></h4><p>A Promise that resolves to an object containing the path, additional information, and the distance of the path.</p>
+
+<div class="tsd-comment tsd-typography">
+<div class="tsd-tag-example">
+<h4 class="tsd-anchor-link" id="Example-3">Example<a href="#Example-3" aria-label="Permalink" class="tsd-anchor-icon"><svg viewBox="0 0 24 24" aria-hidden="true"><use href="../assets/icons.svg#icon-anchor"></use></svg></a></h4><pre><code class="typescript"><span class="hl-8">const</span><span class="hl-1"> </span><span class="hl-4">pathOptions</span><span class="hl-1"> = {</span><br/><span class="hl-1">  </span><span class="hl-0">from:</span><span class="hl-1"> [</span><span class="hl-0">startLongitude</span><span class="hl-1">, </span><span class="hl-0">startLatitude</span><span class="hl-1">],</span><br/><span class="hl-1">  </span><span class="hl-0">to:</span><span class="hl-1"> [</span><span class="hl-0">endLongitude</span><span class="hl-1">, </span><span class="hl-0">endLatitude</span><span class="hl-1">],</span><br/><span class="hl-1">  </span><span class="hl-3">// optional</span><br/><span class="hl-1">  </span><span class="hl-5">allowTurn</span><span class="hl-0">:</span><span class="hl-1"> (</span><span class="hl-0">turn</span><span class="hl-1">) </span><span class="hl-8">=&gt;</span><span class="hl-1"> {</span><br/><span class="hl-1">     </span><span class="hl-3">// Custom logic to determine whether a turn is allowed</span><br/><span class="hl-1">    </span><span class="hl-7">return</span><span class="hl-1"> </span><span class="hl-8">true</span><span class="hl-1">;</span><br/><span class="hl-1">  },</span><br/><span class="hl-1">  </span><span class="hl-3">// optional</span><br/><span class="hl-1">  </span><span class="hl-5">weight</span><span class="hl-0">:</span><span class="hl-1"> (</span><span class="hl-0">data</span><span class="hl-1">) </span><span class="hl-8">=&gt;</span><span class="hl-1"> {</span><br/><span class="hl-1">    </span><span class="hl-3">// Custom weight function to determine the cost of traversing a road segment</span><br/><span class="hl-1">    </span><span class="hl-7">return</span><span class="hl-1"> </span><span class="hl-0">data</span><span class="hl-1">.</span><span class="hl-0">distance</span><span class="hl-1">; </span><span class="hl-3">// Default implementation uses distance as the weight</span><br/><span class="hl-1">  },</span><br/><span class="hl-1">};</span><br/><span class="hl-8">const</span><span class="hl-1"> </span><span class="hl-4">result</span><span class="hl-1"> = </span><span class="hl-7">await</span><span class="hl-1"> </span><span class="hl-0">provider</span><span class="hl-1">.</span><span class="hl-5">findPath</span><span class="hl-1">(</span><span class="hl-0">pathOptions</span><span class="hl-1">);</span><br/><span class="hl-0">console</span><span class="hl-1">.</span><span class="hl-5">log</span><span class="hl-1">(</span><span class="hl-0">result</span><span class="hl-1">);</span>
+</code><button type="button">Copy</button></pre>
+
+</div></div><aside class="tsd-sources">
+<p>Inherited from <a href="core.featureprovider.html">FeatureProvider</a>.<a href="core.featureprovider.html#findPath">findPath</a></p></aside></div></li></ul></section>
+<section class="tsd-panel tsd-member tsd-is-inherited">
+<h3 class="tsd-anchor-link" id="getCachedTile"><span>get<wbr/>Cached<wbr/>Tile</span><a href="#getCachedTile" aria-label="Permalink" class="tsd-anchor-icon"><svg viewBox="0 0 24 24" aria-hidden="true"><use href="../assets/icons.svg#icon-anchor"></use></svg></a></h3>
+<ul class="tsd-signatures tsd-is-inherited">
+<li class="tsd-is-inherited">
+<div class="tsd-signature tsd-anchor-link" id="getCachedTile-1"><span class="tsd-kind-call-signature">getCachedTile</span><span class="tsd-signature-symbol">(</span><span class="tsd-kind-parameter">quadkey</span><span class="tsd-signature-symbol">:</span> <span class="tsd-signature-type">string</span><span class="tsd-signature-symbol">)</span><span class="tsd-signature-symbol">:</span> <a href="core.tile.html" class="tsd-signature-type tsd-kind-class">Tile</a><a href="#getCachedTile-1" aria-label="Permalink" class="tsd-anchor-icon"><svg viewBox="0 0 24 24" aria-hidden="true"><use href="../assets/icons.svg#icon-anchor"></use></svg></a></div>
+<div class="tsd-description">
+<div class="tsd-comment tsd-typography"><p>Get a locally cached tile by quadkey.</p>
+</div>
+<div class="tsd-parameters">
+<h4 class="tsd-parameters-title">Parameters</h4>
+<ul class="tsd-parameter-list">
+<li><span><span class="tsd-kind-parameter">quadkey</span>: <span class="tsd-signature-type">string</span></span>
+<div class="tsd-comment tsd-typography"><p>the quadkey of the tile</p>
+</div></li></ul></div>
+<h4 class="tsd-returns-title">Returns <a href="core.tile.html" class="tsd-signature-type tsd-kind-class">Tile</a></h4><aside class="tsd-sources">
+<p>Inherited from <a href="core.featureprovider.html">FeatureProvider</a>.<a href="core.featureprovider.html#getCachedTile">getCachedTile</a></p></aside></div></li></ul></section>
+<section class="tsd-panel tsd-member tsd-is-inherited">
+<h3 class="tsd-anchor-link" id="getCachedTiles"><span>get<wbr/>Cached<wbr/>Tiles</span><a href="#getCachedTiles" aria-label="Permalink" class="tsd-anchor-icon"><svg viewBox="0 0 24 24" aria-hidden="true"><use href="../assets/icons.svg#icon-anchor"></use></svg></a></h3>
+<ul class="tsd-signatures tsd-is-inherited">
+<li class="tsd-is-inherited">
+<div class="tsd-signature tsd-anchor-link" id="getCachedTiles-1"><span class="tsd-kind-call-signature">getCachedTiles</span><span class="tsd-signature-symbol">(</span><span class="tsd-kind-parameter">bbox</span><span class="tsd-signature-symbol">?:</span> <span class="tsd-signature-type">number</span><span class="tsd-signature-symbol">[]</span><span class="tsd-signature-symbol">,</span> <span class="tsd-kind-parameter">zoomlevel</span><span class="tsd-signature-symbol">?:</span> <span class="tsd-signature-type">number</span><span class="tsd-signature-symbol">)</span><span class="tsd-signature-symbol">:</span> <a href="core.tile.html" class="tsd-signature-type tsd-kind-class">Tile</a><span class="tsd-signature-symbol">[]</span><a href="#getCachedTiles-1" aria-label="Permalink" class="tsd-anchor-icon"><svg viewBox="0 0 24 24" aria-hidden="true"><use href="../assets/icons.svg#icon-anchor"></use></svg></a></div>
+<div class="tsd-description">
+<div class="tsd-comment tsd-typography"><p>Retrieves cached tiles within a specified bounding box or all cached tiles if no parameters are provided.</p>
+<p>If no arguments are passed, all cached tiles are returned.
+If a bounding box (<code>bbox</code>) and/or zoom level (<code>zoomlevel</code>) are provided, it filters the cached tiles based on the specified area and zoom level.</p>
+</div>
+<div class="tsd-parameters">
+<h4 class="tsd-parameters-title">Parameters</h4>
+<ul class="tsd-parameter-list">
+<li><span><code class="tsd-tag">Optional</code><span class="tsd-kind-parameter">bbox</span>: <span class="tsd-signature-type">number</span><span class="tsd-signature-symbol">[]</span></span>
+<div class="tsd-comment tsd-typography"><p>An optional array of coordinates defining the bounding box in the format: <code>[minLon, minLat, maxLon, maxLat]</code>.
+If provided, only tiles within this geographic area will be returned.</p>
+</div></li>
+<li><span><code class="tsd-tag">Optional</code><span class="tsd-kind-parameter">zoomlevel</span>: <span class="tsd-signature-type">number</span></span>
+<div class="tsd-comment tsd-typography"><p>An optional zoom level to filter tiles. If provided, only tiles at the specified zoom level will be returned.</p>
+</div></li></ul></div>
+<h4 class="tsd-returns-title">Returns <a href="core.tile.html" class="tsd-signature-type tsd-kind-class">Tile</a><span class="tsd-signature-symbol">[]</span></h4><ul>
+<li>An array of <a href="core.tile.html" class="tsd-kind-class">Tile</a> objects that match the specified parameters, or all cached tiles if no parameters are given.</li>
+</ul>
+<aside class="tsd-sources">
+<p>Inherited from <a href="core.featureprovider.html">FeatureProvider</a>.<a href="core.featureprovider.html#getCachedTiles">getCachedTiles</a></p></aside></div></li></ul></section>
+<section class="tsd-panel tsd-member tsd-is-inherited">
+<h3 class="tsd-anchor-link" id="getFeature"><span>get<wbr/>Feature</span><a href="#getFeature" aria-label="Permalink" class="tsd-anchor-icon"><svg viewBox="0 0 24 24" aria-hidden="true"><use href="../assets/icons.svg#icon-anchor"></use></svg></a></h3>
+<ul class="tsd-signatures tsd-is-inherited">
+<li class="tsd-is-inherited">
+<div class="tsd-signature tsd-anchor-link" id="getFeature-1"><span class="tsd-kind-call-signature">getFeature</span><span class="tsd-signature-symbol">(</span><span class="tsd-kind-parameter">id</span><span class="tsd-signature-symbol">:</span> <span class="tsd-signature-type">string</span> <span class="tsd-signature-symbol">|</span> <span class="tsd-signature-type">number</span><span class="tsd-signature-symbol">)</span><span class="tsd-signature-symbol">:</span> <a href="core.feature.html" class="tsd-signature-type tsd-kind-class">Feature</a><span class="tsd-signature-symbol">&lt;</span><span class="tsd-signature-type">string</span><span class="tsd-signature-symbol">&gt;</span><a href="#getFeature-1" aria-label="Permalink" class="tsd-anchor-icon"><svg viewBox="0 0 24 24" aria-hidden="true"><use href="../assets/icons.svg#icon-anchor"></use></svg></a></div>
+<div class="tsd-description">
+<div class="tsd-comment tsd-typography"><p>Gets a feature from the provider by id.</p>
+</div>
+<div class="tsd-parameters">
+<h4 class="tsd-parameters-title">Parameters</h4>
+<ul class="tsd-parameter-list">
+<li><span><span class="tsd-kind-parameter">id</span>: <span class="tsd-signature-type">string</span> <span class="tsd-signature-symbol">|</span> <span class="tsd-signature-type">number</span></span>
+<div class="tsd-comment tsd-typography"><p>the id of the feature</p>
+</div></li></ul></div>
+<h4 class="tsd-returns-title">Returns <a href="core.feature.html" class="tsd-signature-type tsd-kind-class">Feature</a><span class="tsd-signature-symbol">&lt;</span><span class="tsd-signature-type">string</span><span class="tsd-signature-symbol">&gt;</span></h4><p>the found feature or undefined if feature is not present.</p>
+<aside class="tsd-sources">
+<p>Inherited from <a href="core.featureprovider.html">FeatureProvider</a>.<a href="core.featureprovider.html#getFeature">getFeature</a></p></aside></div></li></ul></section>
+<section class="tsd-panel tsd-member tsd-is-inherited">
+<h3 class="tsd-anchor-link" id="getFeatures"><span>get<wbr/>Features</span><a href="#getFeatures" aria-label="Permalink" class="tsd-anchor-icon"><svg viewBox="0 0 24 24" aria-hidden="true"><use href="../assets/icons.svg#icon-anchor"></use></svg></a></h3>
+<ul class="tsd-signatures tsd-is-inherited">
+<li class="tsd-is-inherited">
+<div class="tsd-signature tsd-anchor-link" id="getFeatures-1"><span class="tsd-kind-call-signature">getFeatures</span><span class="tsd-signature-symbol">(</span><span class="tsd-kind-parameter">ids</span><span class="tsd-signature-symbol">:</span> <span class="tsd-signature-type">number</span><span class="tsd-signature-symbol">[]</span> <span class="tsd-signature-symbol">|</span> <span class="tsd-signature-type">string</span><span class="tsd-signature-symbol">[]</span><span class="tsd-signature-symbol">)</span><span class="tsd-signature-symbol">:</span> <a href="core.feature.html" class="tsd-signature-type tsd-kind-class">Feature</a><span class="tsd-signature-symbol">&lt;</span><span class="tsd-signature-type">string</span><span class="tsd-signature-symbol">&gt;</span> <span class="tsd-signature-symbol">|</span> <a href="core.feature.html" class="tsd-signature-type tsd-kind-class">Feature</a><span class="tsd-signature-symbol">&lt;</span><span class="tsd-signature-type">string</span><span class="tsd-signature-symbol">&gt;</span><span class="tsd-signature-symbol">[]</span><a href="#getFeatures-1" aria-label="Permalink" class="tsd-anchor-icon"><svg viewBox="0 0 24 24" aria-hidden="true"><use href="../assets/icons.svg#icon-anchor"></use></svg></a></div>
+<div class="tsd-description">
+<div class="tsd-comment tsd-typography"><p>Gets features from provider by id.</p>
+</div>
+<div class="tsd-parameters">
+<h4 class="tsd-parameters-title">Parameters</h4>
+<ul class="tsd-parameter-list">
+<li><span><span class="tsd-kind-parameter">ids</span>: <span class="tsd-signature-type">number</span><span class="tsd-signature-symbol">[]</span> <span class="tsd-signature-symbol">|</span> <span class="tsd-signature-type">string</span><span class="tsd-signature-symbol">[]</span></span>
+<div class="tsd-comment tsd-typography"><p>array of feature ids to search for.</p>
+</div></li></ul></div>
+<h4 class="tsd-returns-title">Returns <a href="core.feature.html" class="tsd-signature-type tsd-kind-class">Feature</a><span class="tsd-signature-symbol">&lt;</span><span class="tsd-signature-type">string</span><span class="tsd-signature-symbol">&gt;</span> <span class="tsd-signature-symbol">|</span> <a href="core.feature.html" class="tsd-signature-type tsd-kind-class">Feature</a><span class="tsd-signature-symbol">&lt;</span><span class="tsd-signature-type">string</span><span class="tsd-signature-symbol">&gt;</span><span class="tsd-signature-symbol">[]</span></h4><p>if just a single feature is found its getting returned otherwise an array of features or undefined if none is found.</p>
+<aside class="tsd-sources">
+<p>Inherited from <a href="core.featureprovider.html">FeatureProvider</a>.<a href="core.featureprovider.html#getFeatures">getFeatures</a></p></aside></div></li></ul></section>
+<section class="tsd-panel tsd-member tsd-is-inherited">
+<h3 class="tsd-anchor-link" id="getTile"><span>get<wbr/>Tile</span><a href="#getTile" aria-label="Permalink" class="tsd-anchor-icon"><svg viewBox="0 0 24 24" aria-hidden="true"><use href="../assets/icons.svg#icon-anchor"></use></svg></a></h3>
+<ul class="tsd-signatures tsd-is-inherited">
+<li class="tsd-is-inherited">
+<div class="tsd-signature tsd-anchor-link" id="getTile-1"><span class="tsd-kind-call-signature">getTile</span><span class="tsd-signature-symbol">(</span><span class="tsd-kind-parameter">quadkey</span><span class="tsd-signature-symbol">:</span> <span class="tsd-signature-type">string</span><span class="tsd-signature-symbol">,</span> <span class="tsd-kind-parameter">callback</span><span class="tsd-signature-symbol">?:</span> <span class="tsd-signature-symbol">(</span><span class="tsd-kind-parameter">tile</span><span class="tsd-signature-symbol">:</span> <a href="core.tile.html" class="tsd-signature-type tsd-kind-class">Tile</a><span class="tsd-signature-symbol">)</span> <span class="tsd-signature-symbol">=&gt;</span> <span class="tsd-signature-type">void</span><span class="tsd-signature-symbol">)</span><span class="tsd-signature-symbol">:</span> <a href="core.tile.html" class="tsd-signature-type tsd-kind-class">Tile</a><a href="#getTile-1" aria-label="Permalink" class="tsd-anchor-icon"><svg viewBox="0 0 24 24" aria-hidden="true"><use href="../assets/icons.svg#icon-anchor"></use></svg></a></div>
+<div class="tsd-description">
+<div class="tsd-comment tsd-typography"><p>Get a tile by quadkey.
+If the tile is not cached already, it will be created and stored automatically.</p>
+</div>
+<div class="tsd-parameters">
+<h4 class="tsd-parameters-title">Parameters</h4>
+<ul class="tsd-parameter-list">
+<li><span><span class="tsd-kind-parameter">quadkey</span>: <span class="tsd-signature-type">string</span></span>
+<div class="tsd-comment tsd-typography"><p>quadkey of the tile</p>
+</div></li>
+<li><span><code class="tsd-tag">Optional</code><span class="tsd-kind-parameter">callback</span>: <span class="tsd-signature-symbol">(</span><span class="tsd-kind-parameter">tile</span><span class="tsd-signature-symbol">:</span> <a href="core.tile.html" class="tsd-signature-type tsd-kind-class">Tile</a><span class="tsd-signature-symbol">)</span> <span class="tsd-signature-symbol">=&gt;</span> <span class="tsd-signature-type">void</span></span>
+<div class="tsd-comment tsd-typography"><p>the callback function</p>
+</div></li></ul></div>
+<h4 class="tsd-returns-title">Returns <a href="core.tile.html" class="tsd-signature-type tsd-kind-class">Tile</a></h4><p>the Tile</p>
+<aside class="tsd-sources">
+<p>Inherited from <a href="core.featureprovider.html">FeatureProvider</a>.<a href="core.featureprovider.html#getTile">getTile</a></p></aside></div></li></ul></section>
+<section class="tsd-panel tsd-member">
+<h3 class="tsd-anchor-link" id="readConnectedLinks"><code class="tsd-tag">Optional</code><span>read<wbr/>Connected<wbr/>Links</span><a href="#readConnectedLinks" aria-label="Permalink" class="tsd-anchor-icon"><svg viewBox="0 0 24 24" aria-hidden="true"><use href="../assets/icons.svg#icon-anchor"></use></svg></a></h3>
+<ul class="tsd-signatures">
+<li class="">
+<div class="tsd-signature tsd-anchor-link" id="readConnectedLinks-1"><span class="tsd-kind-call-signature">readConnectedLinks</span><span class="tsd-signature-symbol">?</span><span class="tsd-signature-symbol">(</span><br/>    <span class="tsd-kind-parameter">link</span><span class="tsd-signature-symbol">:</span> <a href="core.feature.html" class="tsd-signature-type tsd-kind-class">Feature</a><span class="tsd-signature-symbol">,</span><br/>    <span class="tsd-kind-parameter">index</span><span class="tsd-signature-symbol">:</span> <span class="tsd-signature-type">number</span><span class="tsd-signature-symbol">,</span><br/><span class="tsd-signature-symbol">)</span><span class="tsd-signature-symbol">:</span> <span class="tsd-signature-symbol">{</span> <span class="tsd-kind-property">index</span><span class="tsd-signature-symbol">?:</span> <span class="tsd-signature-type">number</span><span class="tsd-signature-symbol">;</span> <span class="tsd-kind-property">link</span><span class="tsd-signature-symbol">:</span> <span class="tsd-signature-type">string</span> <span class="tsd-signature-symbol">|</span> <span class="tsd-signature-type">number</span> <span class="tsd-signature-symbol">}</span><span class="tsd-signature-symbol">[]</span> <span class="tsd-signature-symbol">|</span> <span class="tsd-signature-symbol">[</span><span class="tsd-signature-symbol">]</span><a href="#readConnectedLinks-1" aria-label="Permalink" class="tsd-anchor-icon"><svg viewBox="0 0 24 24" aria-hidden="true"><use href="../assets/icons.svg#icon-anchor"></use></svg></a></div>
+<div class="tsd-description">
+<div class="tsd-comment tsd-typography"><p>Read intersection-related connectivity for a <a href="editor.navlink.html" class="tsd-kind-class">Navlink</a>  node.</p>
+<p>This method allows an EditableFeatureProvider to override the
+default geometric intersection detection.</p>
+<p>It is called for the start or end node of a <a href="editor.navlink.html" class="tsd-kind-class">Navlink</a>  to determine
+whether that node forms an intersection and which <a href="editor.navlink.html" class="tsd-kind-class">Navlinks</a>  are
+connected to it.</p>
+<p>Implement this if intersection information is stored in feature
+properties, derived from external metadata, or otherwise known
+in advance.</p>
+<p>Return values:</p>
+<ul>
+<li>
+<p><code>undefined</code>
+→ No custom information is provided.
+The editor falls back to geometric intersection detection.</p>
+</li>
+<li>
+<p><code>[]</code> (empty array)
+→ Explicitly <em>no</em> connected links at this node.
+The editor will NOT perform geometric detection.</p>
+</li>
+<li>
+<p><code>[ { id, index? }, ... ]</code>
+→ Explicitly defined connected Navlinks, referenced by their
+feature ID.
+If <code>index</code> is omitted, the editor automatically determines
+the corresponding node coordinate of the connected link.</p>
+</li>
+</ul>
+</div>
+<div class="tsd-parameters">
+<h4 class="tsd-parameters-title">Parameters</h4>
+<ul class="tsd-parameter-list">
+<li><span><span class="tsd-kind-parameter">link</span>: <a href="core.feature.html" class="tsd-signature-type tsd-kind-class">Feature</a></span>
+<div class="tsd-comment tsd-typography"><p>The Navlink feature whose node connectivity is being read.</p>
+</div></li>
+<li><span><span class="tsd-kind-parameter">index</span>: <span class="tsd-signature-type">number</span></span>
+<div class="tsd-comment tsd-typography"><p>The coordinate index of the node
+(0 → start node, last coordinate → end node).</p>
+<p>Note: Regardless of the returned value, geometric requirements for intersection
+(such as spatial proximity and coordinate precision) must still be fulfilled.
+See the <a href="../interfaces/editor.editoroptions.html#intersectionScale" class="tsd-kind-property">intersectionScale</a>  property for details.</p>
+</div></li></ul></div>
+<h4 class="tsd-returns-title">Returns <span class="tsd-signature-symbol">{</span> <span class="tsd-kind-property">index</span><span class="tsd-signature-symbol">?:</span> <span class="tsd-signature-type">number</span><span class="tsd-signature-symbol">;</span> <span class="tsd-kind-property">link</span><span class="tsd-signature-symbol">:</span> <span class="tsd-signature-type">string</span> <span class="tsd-signature-symbol">|</span> <span class="tsd-signature-type">number</span> <span class="tsd-signature-symbol">}</span><span class="tsd-signature-symbol">[]</span> <span class="tsd-signature-symbol">|</span> <span class="tsd-signature-symbol">[</span><span class="tsd-signature-symbol">]</span></h4><p>An array of <code>{ id: string | number; index?: number }</code>,
+an empty array to signal &quot;no connection&quot;,
+or <code>undefined</code> to fall back to default detection.</p>
+</div></li></ul></section>
+<section class="tsd-panel tsd-member">
+<h3 class="tsd-anchor-link" id="readDirection"><code class="tsd-tag">Abstract</code><span>read<wbr/>Direction</span><a href="#readDirection" aria-label="Permalink" class="tsd-anchor-icon"><svg viewBox="0 0 24 24" aria-hidden="true"><use href="../assets/icons.svg#icon-anchor"></use></svg></a></h3>
+<ul class="tsd-signatures">
+<li class="">
+<div class="tsd-signature tsd-anchor-link" id="readDirection-1"><span class="tsd-kind-call-signature">readDirection</span><span class="tsd-signature-symbol">(</span><span class="tsd-kind-parameter">navlink</span><span class="tsd-signature-symbol">:</span> <a href="core.feature.html" class="tsd-signature-type tsd-kind-class">Feature</a><span class="tsd-signature-symbol">)</span><span class="tsd-signature-symbol">:</span> <span class="tsd-signature-type">&quot;BOTH&quot;</span> <span class="tsd-signature-symbol">|</span> <span class="tsd-signature-type">&quot;START_TO_END&quot;</span> <span class="tsd-signature-symbol">|</span> <span class="tsd-signature-type">&quot;END_TO_START&quot;</span><a href="#readDirection-1" aria-label="Permalink" class="tsd-anchor-icon"><svg viewBox="0 0 24 24" aria-hidden="true"><use href="../assets/icons.svg#icon-anchor"></use></svg></a></div>
+<div class="tsd-description">
+<div class="tsd-comment tsd-typography"><p>Attribute reader for obtaining the direction of travel of a Navlink feature.</p>
+<p>This method must be implemented to enable editing of <a href="editor.navlink.html" class="tsd-kind-class">Navlinks</a>.</p>
+</div>
+<div class="tsd-parameters">
+<h4 class="tsd-parameters-title">Parameters</h4>
+<ul class="tsd-parameter-list">
+<li><span><span class="tsd-kind-parameter">navlink</span>: <a href="core.feature.html" class="tsd-signature-type tsd-kind-class">Feature</a></span>
+<div class="tsd-comment tsd-typography"><p>the Navlink whose direction is requested</p>
+</div></li></ul></div>
+<h4 class="tsd-returns-title">Returns <span class="tsd-signature-type">&quot;BOTH&quot;</span> <span class="tsd-signature-symbol">|</span> <span class="tsd-signature-type">&quot;START_TO_END&quot;</span> <span class="tsd-signature-symbol">|</span> <span class="tsd-signature-type">&quot;END_TO_START&quot;</span></h4></div></li></ul></section>
+<section class="tsd-panel tsd-member">
+<h3 class="tsd-anchor-link" id="readFeatureHeight"><code class="tsd-tag">Abstract</code><span>read<wbr/>Feature<wbr/>Height</span><a href="#readFeatureHeight" aria-label="Permalink" class="tsd-anchor-icon"><svg viewBox="0 0 24 24" aria-hidden="true"><use href="../assets/icons.svg#icon-anchor"></use></svg></a></h3>
+<ul class="tsd-signatures">
+<li class="">
+<div class="tsd-signature tsd-anchor-link" id="readFeatureHeight-1"><span class="tsd-kind-call-signature">readFeatureHeight</span><span class="tsd-signature-symbol">(</span><span class="tsd-kind-parameter">feature</span><span class="tsd-signature-symbol">:</span> <a href="core.feature.html" class="tsd-signature-type tsd-kind-class">Feature</a><span class="tsd-signature-symbol">)</span><span class="tsd-signature-symbol">:</span> <span class="tsd-signature-type">number</span><a href="#readFeatureHeight-1" aria-label="Permalink" class="tsd-anchor-icon"><svg viewBox="0 0 24 24" aria-hidden="true"><use href="../assets/icons.svg#icon-anchor"></use></svg></a></div>
+<div class="tsd-description">
+<div class="tsd-comment tsd-typography"><p>Attribute reader for obtaining the Height of a Building (extruded <a href="editor.area.html" class="tsd-kind-class">Area</a>).
+The height must be specified in meters.</p>
+<p>This method must be implemented to enable editing of the height of an extruded <a href="editor.area.html" class="tsd-kind-class">Area</a>.</p>
+</div>
+<div class="tsd-parameters">
+<h4 class="tsd-parameters-title">Parameters</h4>
+<ul class="tsd-parameter-list">
+<li><span><span class="tsd-kind-parameter">feature</span>: <a href="core.feature.html" class="tsd-signature-type tsd-kind-class">Feature</a></span>
+<div class="tsd-comment tsd-typography"><p>The Area feature whose height is requested.</p>
+</div></li></ul></div>
+<h4 class="tsd-returns-title">Returns <span class="tsd-signature-type">number</span></h4><p>The height in meters of the Building/Area or null if the Area is considered flat.</p>
+</div></li></ul></section>
+<section class="tsd-panel tsd-member">
+<h3 class="tsd-anchor-link" id="readPedestrianOnly"><code class="tsd-tag">Abstract</code><span>read<wbr/>Pedestrian<wbr/>Only</span><a href="#readPedestrianOnly" aria-label="Permalink" class="tsd-anchor-icon"><svg viewBox="0 0 24 24" aria-hidden="true"><use href="../assets/icons.svg#icon-anchor"></use></svg></a></h3>
+<ul class="tsd-signatures">
+<li class="">
+<div class="tsd-signature tsd-anchor-link" id="readPedestrianOnly-1"><span class="tsd-kind-call-signature">readPedestrianOnly</span><span class="tsd-signature-symbol">(</span><span class="tsd-kind-parameter">navlink</span><span class="tsd-signature-symbol">:</span> <a href="core.feature.html" class="tsd-signature-type tsd-kind-class">Feature</a><span class="tsd-signature-symbol">)</span><span class="tsd-signature-symbol">:</span> <span class="tsd-signature-type">boolean</span><a href="#readPedestrianOnly-1" aria-label="Permalink" class="tsd-anchor-icon"><svg viewBox="0 0 24 24" aria-hidden="true"><use href="../assets/icons.svg#icon-anchor"></use></svg></a></div>
+<div class="tsd-description">
+<div class="tsd-comment tsd-typography"><p>Attribute reader for obtaining if a Navlink feature can be accessed by pedestrians only.</p>
+<p>This method must be implemented to enable editing of <a href="editor.navlink.html" class="tsd-kind-class">Navlinks</a>.</p>
+</div>
+<div class="tsd-parameters">
+<h4 class="tsd-parameters-title">Parameters</h4>
+<ul class="tsd-parameter-list">
+<li><span><span class="tsd-kind-parameter">navlink</span>: <a href="core.feature.html" class="tsd-signature-type tsd-kind-class">Feature</a></span>
+<div class="tsd-comment tsd-typography"><p>the Navlink</p>
+</div></li></ul></div>
+<h4 class="tsd-returns-title">Returns <span class="tsd-signature-type">boolean</span></h4><p>true, if the Navlink can be accessed by pedestrians only, otherwise false.</p>
+</div></li></ul></section>
+<section class="tsd-panel tsd-member">
+<h3 class="tsd-anchor-link" id="readRoutingLink"><code class="tsd-tag">Abstract</code><span>read<wbr/>Routing<wbr/>Link</span><a href="#readRoutingLink" aria-label="Permalink" class="tsd-anchor-icon"><svg viewBox="0 0 24 24" aria-hidden="true"><use href="../assets/icons.svg#icon-anchor"></use></svg></a></h3>
+<ul class="tsd-signatures">
+<li class="">
+<div class="tsd-signature tsd-anchor-link" id="readRoutingLink-1"><span class="tsd-kind-call-signature">readRoutingLink</span><span class="tsd-signature-symbol">(</span><span class="tsd-kind-parameter">feature</span><span class="tsd-signature-symbol">:</span> <a href="core.feature.html" class="tsd-signature-type tsd-kind-class">Feature</a><span class="tsd-signature-symbol">)</span><span class="tsd-signature-symbol">:</span> <span class="tsd-signature-type">string</span> <span class="tsd-signature-symbol">|</span> <span class="tsd-signature-type">number</span><a href="#readRoutingLink-1" aria-label="Permalink" class="tsd-anchor-icon"><svg viewBox="0 0 24 24" aria-hidden="true"><use href="../assets/icons.svg#icon-anchor"></use></svg></a></div>
+<div class="tsd-description">
+<div class="tsd-comment tsd-typography"><p>Attribute reader for obtaining the id of the Navlink Feature on which the RoutingPoint of an Address or Place feature is located.
+For Addresses an Id must be returned. If null is returned for a Place, the Place is treated as &quot;floating&quot; without a RoutingPoint.</p>
+<p>This method must be implemented to enable editing of <a href="editor.place.html" class="tsd-kind-class">Places</a> or <a href="editor.address.html" class="tsd-kind-class">Addresses</a>.</p>
+</div>
+<div class="tsd-parameters">
+<h4 class="tsd-parameters-title">Parameters</h4>
+<ul class="tsd-parameter-list">
+<li><span><span class="tsd-kind-parameter">feature</span>: <a href="core.feature.html" class="tsd-signature-type tsd-kind-class">Feature</a></span>
+<div class="tsd-comment tsd-typography"><p>The Address or Place of which the Navlink of the RoutingPoint is requested.</p>
+</div></li></ul></div>
+<h4 class="tsd-returns-title">Returns <span class="tsd-signature-type">string</span> <span class="tsd-signature-symbol">|</span> <span class="tsd-signature-type">number</span></h4><p>the Id of the Navlink on which the RoutingPoint is located.</p>
+</div></li></ul></section>
+<section class="tsd-panel tsd-member">
+<h3 class="tsd-anchor-link" id="readRoutingPosition"><code class="tsd-tag">Abstract</code><span>read<wbr/>Routing<wbr/>Position</span><a href="#readRoutingPosition" aria-label="Permalink" class="tsd-anchor-icon"><svg viewBox="0 0 24 24" aria-hidden="true"><use href="../assets/icons.svg#icon-anchor"></use></svg></a></h3>
+<ul class="tsd-signatures">
+<li class="">
+<div class="tsd-signature tsd-anchor-link" id="readRoutingPosition-1"><span class="tsd-kind-call-signature">readRoutingPosition</span><span class="tsd-signature-symbol">(</span><span class="tsd-kind-parameter">feature</span><span class="tsd-signature-symbol">:</span> <a href="core.feature.html" class="tsd-signature-type tsd-kind-class">Feature</a><span class="tsd-signature-symbol">)</span><span class="tsd-signature-symbol">:</span> <a href="../types/core.geojsoncoordinate.html" class="tsd-signature-type tsd-kind-type-alias">GeoJSONCoordinate</a><a href="#readRoutingPosition-1" aria-label="Permalink" class="tsd-anchor-icon"><svg viewBox="0 0 24 24" aria-hidden="true"><use href="../assets/icons.svg#icon-anchor"></use></svg></a></div>
+<div class="tsd-description">
+<div class="tsd-comment tsd-typography"><p>Attribute reader for obtaining the RoutingPoint's geographical position of an Address or Place.
+The geographical position must be located on the geometry of the related Navlink feature.</p>
+<p>This method must be implemented to enable editing of <a href="editor.place.html" class="tsd-kind-class">Places</a> or <a href="editor.address.html" class="tsd-kind-class">Addresses</a>.</p>
+</div>
+<div class="tsd-parameters">
+<h4 class="tsd-parameters-title">Parameters</h4>
+<ul class="tsd-parameter-list">
+<li><span><span class="tsd-kind-parameter">feature</span>: <a href="core.feature.html" class="tsd-signature-type tsd-kind-class">Feature</a></span>
+<div class="tsd-comment tsd-typography"><p>The Address or Place feature whose RoutingProvider is requested.</p>
+</div></li></ul></div>
+<h4 class="tsd-returns-title">Returns <a href="../types/core.geojsoncoordinate.html" class="tsd-signature-type tsd-kind-type-alias">GeoJSONCoordinate</a></h4><p>GeoJSON Coordinate representing the geographical position of the RoutingPoint or null if a Place does not have a RoutingPoint.</p>
+</div></li></ul></section>
+<section class="tsd-panel tsd-member">
+<h3 class="tsd-anchor-link" id="readRoutingProvider"><code class="tsd-tag">Abstract</code><span>read<wbr/>Routing<wbr/>Provider</span><a href="#readRoutingProvider" aria-label="Permalink" class="tsd-anchor-icon"><svg viewBox="0 0 24 24" aria-hidden="true"><use href="../assets/icons.svg#icon-anchor"></use></svg></a></h3>
+<ul class="tsd-signatures">
+<li class="">
+<div class="tsd-signature tsd-anchor-link" id="readRoutingProvider-1"><span class="tsd-kind-call-signature">readRoutingProvider</span><span class="tsd-signature-symbol">(</span><span class="tsd-kind-parameter">feature</span><span class="tsd-signature-symbol">:</span> <a href="core.feature.html" class="tsd-signature-type tsd-kind-class">Feature</a><span class="tsd-signature-symbol">)</span><span class="tsd-signature-symbol">:</span> <span class="tsd-signature-type">string</span><a href="#readRoutingProvider-1" aria-label="Permalink" class="tsd-anchor-icon"><svg viewBox="0 0 24 24" aria-hidden="true"><use href="../assets/icons.svg#icon-anchor"></use></svg></a></div>
+<div class="tsd-description">
+<div class="tsd-comment tsd-typography"><p>Attribute reader for obtaining the id of the TileProvider containing the corresponding Navlink, of an Address or Place feature, on which the RoutingPoint is located.</p>
+<p>This method must be implemented to enable editing of <a href="editor.place.html" class="tsd-kind-class">Places</a> or <a href="editor.address.html" class="tsd-kind-class">Addresses</a>.</p>
+</div>
+<div class="tsd-parameters">
+<h4 class="tsd-parameters-title">Parameters</h4>
+<ul class="tsd-parameter-list">
+<li><span><span class="tsd-kind-parameter">feature</span>: <a href="core.feature.html" class="tsd-signature-type tsd-kind-class">Feature</a></span>
+<div class="tsd-comment tsd-typography"><p>The Address or Place feature whose RoutingProvider is requested.</p>
+</div></li></ul></div>
+<h4 class="tsd-returns-title">Returns <span class="tsd-signature-type">string</span></h4><p>the Id of the TileProvider in which the object is stored. If undefined is returned, the RoutingPoint's Navlink is assumed to be in the same TileProvider as the Address/Place.</p>
+</div></li></ul></section>
+<section class="tsd-panel tsd-member">
+<h3 class="tsd-anchor-link" id="readTurnRestriction"><code class="tsd-tag">Abstract</code><span>read<wbr/>Turn<wbr/>Restriction</span><a href="#readTurnRestriction" aria-label="Permalink" class="tsd-anchor-icon"><svg viewBox="0 0 24 24" aria-hidden="true"><use href="../assets/icons.svg#icon-anchor"></use></svg></a></h3>
+<ul class="tsd-signatures">
+<li class="">
+<div class="tsd-signature tsd-anchor-link" id="readTurnRestriction-1"><span class="tsd-kind-call-signature">readTurnRestriction</span><span class="tsd-signature-symbol">(</span><br/>    <span class="tsd-kind-parameter">turnFrom</span><span class="tsd-signature-symbol">:</span> <span class="tsd-signature-symbol">{</span> <span class="tsd-kind-property">index</span><span class="tsd-signature-symbol">:</span> <span class="tsd-signature-type">number</span><span class="tsd-signature-symbol">;</span> <span class="tsd-kind-property">link</span><span class="tsd-signature-symbol">:</span> <a href="core.feature.html" class="tsd-signature-type tsd-kind-class">Feature</a> <span class="tsd-signature-symbol">}</span><span class="tsd-signature-symbol">,</span><br/>    <span class="tsd-kind-parameter">turnTo</span><span class="tsd-signature-symbol">:</span> <span class="tsd-signature-symbol">{</span> <span class="tsd-kind-property">index</span><span class="tsd-signature-symbol">:</span> <span class="tsd-signature-type">number</span><span class="tsd-signature-symbol">;</span> <span class="tsd-kind-property">link</span><span class="tsd-signature-symbol">:</span> <a href="core.feature.html" class="tsd-signature-type tsd-kind-class">Feature</a> <span class="tsd-signature-symbol">}</span><span class="tsd-signature-symbol">,</span><br/><span class="tsd-signature-symbol">)</span><span class="tsd-signature-symbol">:</span> <span class="tsd-signature-type">boolean</span><a href="#readTurnRestriction-1" aria-label="Permalink" class="tsd-anchor-icon"><svg viewBox="0 0 24 24" aria-hidden="true"><use href="../assets/icons.svg#icon-anchor"></use></svg></a></div>
+<div class="tsd-description">
+<div class="tsd-comment tsd-typography"><p>Attribute reader for obtaining the turn-restrictions of two Navlink Features.</p>
+<p>This method must be implemented to enable editing of <a href="editor.navlink.html" class="tsd-kind-class">Navlinks</a>.</p>
+</div>
+<div class="tsd-parameters">
+<h4 class="tsd-parameters-title">Parameters</h4>
+<ul class="tsd-parameter-list">
+<li><span><span class="tsd-kind-parameter">turnFrom</span>: <span class="tsd-signature-symbol">{</span> <span class="tsd-kind-property">index</span><span class="tsd-signature-symbol">:</span> <span class="tsd-signature-type">number</span><span class="tsd-signature-symbol">;</span> <span class="tsd-kind-property">link</span><span class="tsd-signature-symbol">:</span> <a href="core.feature.html" class="tsd-signature-type tsd-kind-class">Feature</a> <span class="tsd-signature-symbol">}</span></span>
+<div class="tsd-comment tsd-typography"><p>The Navlink and it's coordinate index from which to turn from</p>
+</div></li>
+<li><span><span class="tsd-kind-parameter">turnTo</span>: <span class="tsd-signature-symbol">{</span> <span class="tsd-kind-property">index</span><span class="tsd-signature-symbol">:</span> <span class="tsd-signature-type">number</span><span class="tsd-signature-symbol">;</span> <span class="tsd-kind-property">link</span><span class="tsd-signature-symbol">:</span> <a href="core.feature.html" class="tsd-signature-type tsd-kind-class">Feature</a> <span class="tsd-signature-symbol">}</span></span>
+<div class="tsd-comment tsd-typography"><p>The Navlink and it's coordinate index to which you want to turn</p>
+</div></li></ul></div>
+<h4 class="tsd-returns-title">Returns <span class="tsd-signature-type">boolean</span></h4><p>true if turn is allowed, otherwise false.</p>
+</div></li></ul></section>
+<section class="tsd-panel tsd-member">
+<h3 class="tsd-anchor-link" id="readZLevels"><code class="tsd-tag">Abstract</code><span>read<wbr/>Z<wbr/>Levels</span><a href="#readZLevels" aria-label="Permalink" class="tsd-anchor-icon"><svg viewBox="0 0 24 24" aria-hidden="true"><use href="../assets/icons.svg#icon-anchor"></use></svg></a></h3>
+<ul class="tsd-signatures">
+<li class="">
+<div class="tsd-signature tsd-anchor-link" id="readZLevels-1"><span class="tsd-kind-call-signature">readZLevels</span><span class="tsd-signature-symbol">(</span><span class="tsd-kind-parameter">navlink</span><span class="tsd-signature-symbol">:</span> <a href="core.feature.html" class="tsd-signature-type tsd-kind-class">Feature</a><span class="tsd-signature-symbol">)</span><span class="tsd-signature-symbol">:</span> <span class="tsd-signature-type">number</span><span class="tsd-signature-symbol">[]</span><a href="#readZLevels-1" aria-label="Permalink" class="tsd-anchor-icon"><svg viewBox="0 0 24 24" aria-hidden="true"><use href="../assets/icons.svg#icon-anchor"></use></svg></a></div>
+<div class="tsd-description">
+<div class="tsd-comment tsd-typography"><p>Attribute reader for obtaining the zLevels of a Navlink feature.</p>
+<p>This method must be implemented to enable editing of <a href="editor.navlink.html" class="tsd-kind-class">Navlinks</a>.</p>
+</div>
+<div class="tsd-parameters">
+<h4 class="tsd-parameters-title">Parameters</h4>
+<ul class="tsd-parameter-list">
+<li><span><span class="tsd-kind-parameter">navlink</span>: <a href="core.feature.html" class="tsd-signature-type tsd-kind-class">Feature</a></span>
+<div class="tsd-comment tsd-typography"><p>the Navlink whose zLevels are requested</p>
+</div></li></ul></div>
+<h4 class="tsd-returns-title">Returns <span class="tsd-signature-type">number</span><span class="tsd-signature-symbol">[]</span></h4><p>An array containing the zLevel for each coordinate of the Navlink.</p>
+</div></li></ul></section>
+<section class="tsd-panel tsd-member tsd-is-inherited">
+<h3 class="tsd-anchor-link" id="removeEventListener"><span>remove<wbr/>Event<wbr/>Listener</span><a href="#removeEventListener" aria-label="Permalink" class="tsd-anchor-icon"><svg viewBox="0 0 24 24" aria-hidden="true"><use href="../assets/icons.svg#icon-anchor"></use></svg></a></h3>
+<ul class="tsd-signatures tsd-is-inherited">
+<li class="tsd-is-inherited">
+<div class="tsd-signature tsd-anchor-link" id="removeEventListener-1"><span class="tsd-kind-call-signature">removeEventListener</span><span class="tsd-signature-symbol">(</span><br/>    <span class="tsd-kind-parameter">type</span><span class="tsd-signature-symbol">:</span> <span class="tsd-signature-type">string</span><span class="tsd-signature-symbol">,</span><br/>    <span class="tsd-kind-parameter">listener</span><span class="tsd-signature-symbol">:</span> <span class="tsd-signature-symbol">(</span><span class="tsd-kind-parameter">event</span><span class="tsd-signature-symbol">:</span> <span class="tsd-signature-type">CustomEvent</span><span class="tsd-signature-symbol">)</span> <span class="tsd-signature-symbol">=&gt;</span> <span class="tsd-signature-type">void</span><span class="tsd-signature-symbol">,</span><br/>    <span class="tsd-kind-parameter">_c</span><span class="tsd-signature-symbol">?:</span> <span class="tsd-signature-type">any</span><span class="tsd-signature-symbol">,</span><br/><span class="tsd-signature-symbol">)</span><span class="tsd-signature-symbol">:</span> <span class="tsd-signature-type">boolean</span><a href="#removeEventListener-1" aria-label="Permalink" class="tsd-anchor-icon"><svg viewBox="0 0 24 24" aria-hidden="true"><use href="../assets/icons.svg#icon-anchor"></use></svg></a></div>
+<div class="tsd-description">
+<div class="tsd-comment tsd-typography"><p>Remove an EventListener from the provider.
+Valid events: &quot;featureAdd&quot;, &quot;featureRemove&quot;, &quot;featureCoordinatesChange&quot;, &quot;clear&quot; and &quot;error&quot;</p>
+</div>
+<div class="tsd-parameters">
+<h4 class="tsd-parameters-title">Parameters</h4>
+<ul class="tsd-parameter-list">
+<li><span><span class="tsd-kind-parameter">type</span>: <span class="tsd-signature-type">string</span></span>
+<div class="tsd-comment tsd-typography"><p>A string which specifies the type of event for which to remove an event listener.</p>
+</div></li>
+<li><span><span class="tsd-kind-parameter">listener</span>: <span class="tsd-signature-symbol">(</span><span class="tsd-kind-parameter">event</span><span class="tsd-signature-symbol">:</span> <span class="tsd-signature-type">CustomEvent</span><span class="tsd-signature-symbol">)</span> <span class="tsd-signature-symbol">=&gt;</span> <span class="tsd-signature-type">void</span></span>
+<div class="tsd-comment tsd-typography"><p>The listener function of the event handler to remove from the provider.</p>
+</div></li>
+<li><span><code class="tsd-tag">Optional</code><span class="tsd-kind-parameter">_c</span>: <span class="tsd-signature-type">any</span></span></li></ul></div>
+<h4 class="tsd-returns-title">Returns <span class="tsd-signature-type">boolean</span></h4><aside class="tsd-sources">
+<p>Inherited from <a href="core.featureprovider.html">FeatureProvider</a>.<a href="core.featureprovider.html#removeEventListener">removeEventListener</a></p></aside></div></li></ul></section>
+<section class="tsd-panel tsd-member tsd-is-inherited">
+<h3 class="tsd-anchor-link" id="removeFeature"><span>remove<wbr/>Feature</span><a href="#removeFeature" aria-label="Permalink" class="tsd-anchor-icon"><svg viewBox="0 0 24 24" aria-hidden="true"><use href="../assets/icons.svg#icon-anchor"></use></svg></a></h3>
+<ul class="tsd-signatures tsd-is-inherited">
+<li class="tsd-is-inherited">
+<div class="tsd-signature tsd-anchor-link" id="removeFeature-1"><span class="tsd-kind-call-signature">removeFeature</span><span class="tsd-signature-symbol">(</span><br/>    <span class="tsd-kind-parameter">feature</span><span class="tsd-signature-symbol">:</span><br/>        <span class="tsd-signature-symbol">|</span> <a href="core.feature.html" class="tsd-signature-type tsd-kind-class">Feature</a><span class="tsd-signature-symbol">&lt;</span><span class="tsd-signature-type">string</span><span class="tsd-signature-symbol">&gt;</span><br/>        <span class="tsd-signature-symbol">|</span> <a href="../interfaces/core.geojsonfeature.html" class="tsd-signature-type tsd-kind-interface">GeoJSONFeature</a><span class="tsd-signature-symbol">&lt;</span><span class="tsd-signature-type">string</span><span class="tsd-signature-symbol">&gt;</span><br/>        <span class="tsd-signature-symbol">|</span> <a href="../interfaces/core.geojsonfeaturecollection.html" class="tsd-signature-type tsd-kind-interface">GeoJSONFeatureCollection</a><br/>        <span class="tsd-signature-symbol">|</span> <a href="../interfaces/core.geojsonfeature.html" class="tsd-signature-type tsd-kind-interface">GeoJSONFeature</a><span class="tsd-signature-symbol">&lt;</span><span class="tsd-signature-type">string</span><span class="tsd-signature-symbol">&gt;</span><span class="tsd-signature-symbol">[]</span><span class="tsd-signature-symbol">,</span><br/><span class="tsd-signature-symbol">)</span><span class="tsd-signature-symbol">:</span> <span class="tsd-signature-type">any</span><a href="#removeFeature-1" aria-label="Permalink" class="tsd-anchor-icon"><svg viewBox="0 0 24 24" aria-hidden="true"><use href="../assets/icons.svg#icon-anchor"></use></svg></a></div>
+<div class="tsd-description">
+<div class="tsd-comment tsd-typography"><p>Remove feature(s) from the provider.</p>
+</div>
+<div class="tsd-parameters">
+<h4 class="tsd-parameters-title">Parameters</h4>
+<ul class="tsd-parameter-list">
+<li><span><span class="tsd-kind-parameter">feature</span>: <br/>    <span class="tsd-signature-symbol">|</span> <a href="core.feature.html" class="tsd-signature-type tsd-kind-class">Feature</a><span class="tsd-signature-symbol">&lt;</span><span class="tsd-signature-type">string</span><span class="tsd-signature-symbol">&gt;</span><br/>    <span class="tsd-signature-symbol">|</span> <a href="../interfaces/core.geojsonfeature.html" class="tsd-signature-type tsd-kind-interface">GeoJSONFeature</a><span class="tsd-signature-symbol">&lt;</span><span class="tsd-signature-type">string</span><span class="tsd-signature-symbol">&gt;</span><br/>    <span class="tsd-signature-symbol">|</span> <a href="../interfaces/core.geojsonfeaturecollection.html" class="tsd-signature-type tsd-kind-interface">GeoJSONFeatureCollection</a><br/>    <span class="tsd-signature-symbol">|</span> <a href="../interfaces/core.geojsonfeature.html" class="tsd-signature-type tsd-kind-interface">GeoJSONFeature</a><span class="tsd-signature-symbol">&lt;</span><span class="tsd-signature-type">string</span><span class="tsd-signature-symbol">&gt;</span><span class="tsd-signature-symbol">[]</span></span>
+<div class="tsd-comment tsd-typography"><p>features that should be removed from the provider</p>
+</div></li></ul></div>
+<h4 class="tsd-returns-title">Returns <span class="tsd-signature-type">any</span></h4><aside class="tsd-sources">
+<p>Inherited from <a href="core.featureprovider.html">FeatureProvider</a>.<a href="core.featureprovider.html#removeFeature">removeFeature</a></p></aside></div></li>
+<li class="tsd-is-inherited">
+<div class="tsd-signature tsd-anchor-link" id="removeFeature-2"><span class="tsd-kind-call-signature">removeFeature</span><span class="tsd-signature-symbol">(</span><br/>    <span class="tsd-kind-parameter">feature</span><span class="tsd-signature-symbol">:</span><br/>        <span class="tsd-signature-symbol">|</span> <a href="core.feature.html" class="tsd-signature-type tsd-kind-class">Feature</a><span class="tsd-signature-symbol">&lt;</span><span class="tsd-signature-type">string</span><span class="tsd-signature-symbol">&gt;</span><br/>        <span class="tsd-signature-symbol">|</span> <a href="../interfaces/core.geojsonfeature.html" class="tsd-signature-type tsd-kind-interface">GeoJSONFeature</a><span class="tsd-signature-symbol">&lt;</span><span class="tsd-signature-type">string</span><span class="tsd-signature-symbol">&gt;</span><br/>        <span class="tsd-signature-symbol">|</span> <a href="../interfaces/core.geojsonfeaturecollection.html" class="tsd-signature-type tsd-kind-interface">GeoJSONFeatureCollection</a><br/>        <span class="tsd-signature-symbol">|</span> <a href="../interfaces/core.geojsonfeature.html" class="tsd-signature-type tsd-kind-interface">GeoJSONFeature</a><span class="tsd-signature-symbol">&lt;</span><span class="tsd-signature-type">string</span><span class="tsd-signature-symbol">&gt;</span><span class="tsd-signature-symbol">[]</span><span class="tsd-signature-symbol">,</span><br/>    <span class="tsd-kind-parameter">updateTileSet</span><span class="tsd-signature-symbol">?:</span> <span class="tsd-signature-type">Set</span><span class="tsd-signature-symbol">&lt;</span><a href="core.tile.html" class="tsd-signature-type tsd-kind-class">Tile</a><span class="tsd-signature-symbol">&gt;</span><span class="tsd-signature-symbol">,</span><br/><span class="tsd-signature-symbol">)</span><span class="tsd-signature-symbol">:</span> <span class="tsd-signature-type">any</span><a href="#removeFeature-2" aria-label="Permalink" class="tsd-anchor-icon"><svg viewBox="0 0 24 24" aria-hidden="true"><use href="../assets/icons.svg#icon-anchor"></use></svg></a></div>
+<div class="tsd-description">
+<div class="tsd-comment tsd-typography"><p>Remove feature(s) from the provider.</p>
+</div>
+<div class="tsd-parameters">
+<h4 class="tsd-parameters-title">Parameters</h4>
+<ul class="tsd-parameter-list">
+<li><span><span class="tsd-kind-parameter">feature</span>: <br/>    <span class="tsd-signature-symbol">|</span> <a href="core.feature.html" class="tsd-signature-type tsd-kind-class">Feature</a><span class="tsd-signature-symbol">&lt;</span><span class="tsd-signature-type">string</span><span class="tsd-signature-symbol">&gt;</span><br/>    <span class="tsd-signature-symbol">|</span> <a href="../interfaces/core.geojsonfeature.html" class="tsd-signature-type tsd-kind-interface">GeoJSONFeature</a><span class="tsd-signature-symbol">&lt;</span><span class="tsd-signature-type">string</span><span class="tsd-signature-symbol">&gt;</span><br/>    <span class="tsd-signature-symbol">|</span> <a href="../interfaces/core.geojsonfeaturecollection.html" class="tsd-signature-type tsd-kind-interface">GeoJSONFeatureCollection</a><br/>    <span class="tsd-signature-symbol">|</span> <a href="../interfaces/core.geojsonfeature.html" class="tsd-signature-type tsd-kind-interface">GeoJSONFeature</a><span class="tsd-signature-symbol">&lt;</span><span class="tsd-signature-type">string</span><span class="tsd-signature-symbol">&gt;</span><span class="tsd-signature-symbol">[]</span></span>
+<div class="tsd-comment tsd-typography"><p>features that should be removed from the provider</p>
+</div></li>
+<li><span><code class="tsd-tag">Optional</code><span class="tsd-kind-parameter">updateTileSet</span>: <span class="tsd-signature-type">Set</span><span class="tsd-signature-symbol">&lt;</span><a href="core.tile.html" class="tsd-signature-type tsd-kind-class">Tile</a><span class="tsd-signature-symbol">&gt;</span></span></li></ul></div>
+<h4 class="tsd-returns-title">Returns <span class="tsd-signature-type">any</span></h4><aside class="tsd-sources">
+<p>Inherited from <a href="core.featureprovider.html">FeatureProvider</a>.<a href="core.featureprovider.html#removeFeature">removeFeature</a></p></aside></div></li></ul></section>
+<section class="tsd-panel tsd-member tsd-is-inherited">
+<h3 class="tsd-anchor-link" id="search"><span>search</span><a href="#search" aria-label="Permalink" class="tsd-anchor-icon"><svg viewBox="0 0 24 24" aria-hidden="true"><use href="../assets/icons.svg#icon-anchor"></use></svg></a></h3>
+<ul class="tsd-signatures tsd-is-inherited">
+<li class="tsd-is-inherited">
+<div class="tsd-signature tsd-anchor-link" id="search-1"><span class="tsd-kind-call-signature">search</span><span class="tsd-signature-symbol">(</span><br/>    <span class="tsd-kind-parameter">options</span><span class="tsd-signature-symbol">:</span> <span class="tsd-signature-symbol">{</span><br/>        <span class="tsd-kind-property">id</span><span class="tsd-signature-symbol">?:</span> <span class="tsd-signature-type">string</span> <span class="tsd-signature-symbol">|</span> <span class="tsd-signature-type">number</span><span class="tsd-signature-symbol">;</span><br/>        <span class="tsd-kind-property">ids</span><span class="tsd-signature-symbol">?:</span> <span class="tsd-signature-type">number</span><span class="tsd-signature-symbol">[]</span> <span class="tsd-signature-symbol">|</span> <span class="tsd-signature-type">string</span><span class="tsd-signature-symbol">[]</span><span class="tsd-signature-symbol">;</span><br/>        <span class="tsd-kind-property">point</span><span class="tsd-signature-symbol">?:</span> <a href="core.geopoint.html" class="tsd-signature-type tsd-kind-class">GeoPoint</a><span class="tsd-signature-symbol">;</span><br/>        <span class="tsd-kind-property">radius</span><span class="tsd-signature-symbol">?:</span> <span class="tsd-signature-type">number</span><span class="tsd-signature-symbol">;</span><br/>        <span class="tsd-kind-property">rect</span><span class="tsd-signature-symbol">?:</span> <a href="core.georect.html" class="tsd-signature-type tsd-kind-class">GeoRect</a> <span class="tsd-signature-symbol">|</span> <a href="../types/core.geojsonbbox.html" class="tsd-signature-type tsd-kind-type-alias">GeoJSONBBox</a><span class="tsd-signature-symbol">;</span><br/>    <span class="tsd-signature-symbol">}</span><span class="tsd-signature-symbol">,</span><br/><span class="tsd-signature-symbol">)</span><span class="tsd-signature-symbol">:</span> <a href="core.feature.html" class="tsd-signature-type tsd-kind-class">Feature</a><span class="tsd-signature-symbol">&lt;</span><span class="tsd-signature-type">string</span><span class="tsd-signature-symbol">&gt;</span><br/><span class="tsd-signature-symbol">|</span> <a href="core.feature.html" class="tsd-signature-type tsd-kind-class">Feature</a><span class="tsd-signature-symbol">&lt;</span><span class="tsd-signature-type">string</span><span class="tsd-signature-symbol">&gt;</span><span class="tsd-signature-symbol">[]</span><a href="#search-1" aria-label="Permalink" class="tsd-anchor-icon"><svg viewBox="0 0 24 24" aria-hidden="true"><use href="../assets/icons.svg#icon-anchor"></use></svg></a></div>
+<div class="tsd-description">
+<div class="tsd-comment tsd-typography"><p>Search for feature(s) in the provider.</p>
+</div>
+<div class="tsd-parameters">
+<h4 class="tsd-parameters-title">Parameters</h4>
+<ul class="tsd-parameter-list">
+<li><span><span class="tsd-kind-parameter">options</span>: <span class="tsd-signature-symbol">{</span><br/>    <span class="tsd-kind-property">id</span><span class="tsd-signature-symbol">?:</span> <span class="tsd-signature-type">string</span> <span class="tsd-signature-symbol">|</span> <span class="tsd-signature-type">number</span><span class="tsd-signature-symbol">;</span><br/>    <span class="tsd-kind-property">ids</span><span class="tsd-signature-symbol">?:</span> <span class="tsd-signature-type">number</span><span class="tsd-signature-symbol">[]</span> <span class="tsd-signature-symbol">|</span> <span class="tsd-signature-type">string</span><span class="tsd-signature-symbol">[]</span><span class="tsd-signature-symbol">;</span><br/>    <span class="tsd-kind-property">point</span><span class="tsd-signature-symbol">?:</span> <a href="core.geopoint.html" class="tsd-signature-type tsd-kind-class">GeoPoint</a><span class="tsd-signature-symbol">;</span><br/>    <span class="tsd-kind-property">radius</span><span class="tsd-signature-symbol">?:</span> <span class="tsd-signature-type">number</span><span class="tsd-signature-symbol">;</span><br/>    <span class="tsd-kind-property">rect</span><span class="tsd-signature-symbol">?:</span> <a href="core.georect.html" class="tsd-signature-type tsd-kind-class">GeoRect</a> <span class="tsd-signature-symbol">|</span> <a href="../types/core.geojsonbbox.html" class="tsd-signature-type tsd-kind-type-alias">GeoJSONBBox</a><span class="tsd-signature-symbol">;</span><br/><span class="tsd-signature-symbol">}</span></span>
+<div class="tsd-comment tsd-typography"><p>configure the search</p>
+</div>
+<ul class="tsd-parameters">
+<li class="tsd-parameter">
+<h5><code class="tsd-tag">Optional</code><span class="tsd-kind-property">id</span><span class="tsd-signature-symbol">?: </span><span class="tsd-signature-type">string</span> <span class="tsd-signature-symbol">|</span> <span class="tsd-signature-type">number</span></h5>
+<div class="tsd-comment tsd-typography"><p>search feature by id.</p>
+</div></li>
+<li class="tsd-parameter">
+<h5><code class="tsd-tag">Optional</code><span class="tsd-kind-property">ids</span><span class="tsd-signature-symbol">?: </span><span class="tsd-signature-type">number</span><span class="tsd-signature-symbol">[]</span> <span class="tsd-signature-symbol">|</span> <span class="tsd-signature-type">string</span><span class="tsd-signature-symbol">[]</span></h5>
+<div class="tsd-comment tsd-typography"><p>Array of feature ids to search.</p>
+</div></li>
+<li class="tsd-parameter">
+<h5><code class="tsd-tag">Optional</code><span class="tsd-kind-property">point</span><span class="tsd-signature-symbol">?: </span><a href="core.geopoint.html" class="tsd-signature-type tsd-kind-class">GeoPoint</a></h5>
+<div class="tsd-comment tsd-typography"><p>Geographical center point of the point to search in. options.radius must be defined.</p>
+</div></li>
+<li class="tsd-parameter">
+<h5><code class="tsd-tag">Optional</code><span class="tsd-kind-property">radius</span><span class="tsd-signature-symbol">?: </span><span class="tsd-signature-type">number</span></h5>
+<div class="tsd-comment tsd-typography"><p>Radius of the point in meters, it is used in &quot;point&quot; search.</p>
+</div></li>
+<li class="tsd-parameter">
+<h5><code class="tsd-tag">Optional</code><span class="tsd-kind-property">rect</span><span class="tsd-signature-symbol">?: </span><a href="core.georect.html" class="tsd-signature-type tsd-kind-class">GeoRect</a> <span class="tsd-signature-symbol">|</span> <a href="../types/core.geojsonbbox.html" class="tsd-signature-type tsd-kind-type-alias">GeoJSONBBox</a></h5>
+<div class="tsd-comment tsd-typography"><p>Geographical Rectangle to search in. [minLon, minLat, maxLon, maxLat] | GeoRect.</p>
+</div></li></ul></li></ul></div>
+<h4 class="tsd-returns-title">Returns <a href="core.feature.html" class="tsd-signature-type tsd-kind-class">Feature</a><span class="tsd-signature-symbol">&lt;</span><span class="tsd-signature-type">string</span><span class="tsd-signature-symbol">&gt;</span> <span class="tsd-signature-symbol">|</span> <a href="core.feature.html" class="tsd-signature-type tsd-kind-class">Feature</a><span class="tsd-signature-symbol">&lt;</span><span class="tsd-signature-type">string</span><span class="tsd-signature-symbol">&gt;</span><span class="tsd-signature-symbol">[]</span></h4><p>array of features</p>
+
+<div class="tsd-comment tsd-typography">
+<div class="tsd-tag-example">
+<h4 class="tsd-anchor-link" id="Example-4">Example<a href="#Example-4" aria-label="Permalink" class="tsd-anchor-icon"><svg viewBox="0 0 24 24" aria-hidden="true"><use href="../assets/icons.svg#icon-anchor"></use></svg></a></h4><pre><code class="typescript"><span class="hl-3">// searching by id:</span><br/><span class="hl-0">layer</span><span class="hl-1">.</span><span class="hl-5">search</span><span class="hl-1">({</span><span class="hl-0">id:</span><span class="hl-1"> </span><span class="hl-9">1058507462</span><span class="hl-1">})</span><br/><span class="hl-3">// or:</span><br/><span class="hl-0">layer</span><span class="hl-1">.</span><span class="hl-5">search</span><span class="hl-1">({</span><span class="hl-0">ids:</span><span class="hl-1"> [</span><span class="hl-9">1058507462</span><span class="hl-1">, </span><span class="hl-9">1058507464</span><span class="hl-1">]})</span><br/><br/><span class="hl-3">// searching by point and radius:</span><br/><span class="hl-0">layer</span><span class="hl-1">.</span><span class="hl-5">search</span><span class="hl-1">({</span><br/><span class="hl-1"> </span><span class="hl-0">point:</span><span class="hl-1"> { </span><span class="hl-0">longitude:</span><span class="hl-1"> </span><span class="hl-9">72.84205</span><span class="hl-1">, </span><span class="hl-0">latitude:</span><span class="hl-1"> </span><span class="hl-9">18.97172</span><span class="hl-1"> },</span><br/><span class="hl-1"> </span><span class="hl-0">radius:</span><span class="hl-1"> </span><span class="hl-9">100</span><br/><span class="hl-1">})</span><br/><br/><span class="hl-3">// searching by Rect:</span><br/><span class="hl-0">layer</span><span class="hl-1">.</span><span class="hl-5">search</span><span class="hl-1">({</span><br/><span class="hl-1"> </span><span class="hl-0">rect:</span><span class="hl-1">  { </span><span class="hl-0">minLon:</span><span class="hl-1"> </span><span class="hl-9">72.83584</span><span class="hl-1">, </span><span class="hl-0">maxLat:</span><span class="hl-1"> </span><span class="hl-9">18.97299</span><span class="hl-1">, </span><span class="hl-0">maxLon:</span><span class="hl-1"> </span><span class="hl-9">72.84443</span><span class="hl-1">, </span><span class="hl-0">minLat:</span><span class="hl-1"> </span><span class="hl-9">18.96876</span><span class="hl-1"> }</span><br/><span class="hl-1">})</span>
+</code><button type="button">Copy</button></pre>
+
+</div></div><aside class="tsd-sources">
+<p>Inherited from <a href="core.featureprovider.html">FeatureProvider</a>.<a href="core.featureprovider.html#search">search</a></p></aside></div></li>
+<li class="tsd-is-inherited">
+<div class="tsd-signature tsd-anchor-link" id="search-2"><span class="tsd-kind-call-signature">search</span><span class="tsd-signature-symbol">(</span><span class="tsd-kind-parameter">point</span><span class="tsd-signature-symbol">:</span> <a href="core.geopoint.html" class="tsd-signature-type tsd-kind-class">GeoPoint</a><span class="tsd-signature-symbol">,</span> <span class="tsd-kind-parameter">options</span><span class="tsd-signature-symbol">?:</span> <span class="tsd-signature-symbol">{</span> <span class="tsd-kind-property">radius</span><span class="tsd-signature-symbol">:</span> <span class="tsd-signature-type">number</span> <span class="tsd-signature-symbol">}</span><span class="tsd-signature-symbol">)</span><span class="tsd-signature-symbol">:</span> <a href="core.feature.html" class="tsd-signature-type tsd-kind-class">Feature</a><span class="tsd-signature-symbol">&lt;</span><span class="tsd-signature-type">string</span><span class="tsd-signature-symbol">&gt;</span><span class="tsd-signature-symbol">[]</span><a href="#search-2" aria-label="Permalink" class="tsd-anchor-icon"><svg viewBox="0 0 24 24" aria-hidden="true"><use href="../assets/icons.svg#icon-anchor"></use></svg></a></div>
+<div class="tsd-description">
+<div class="tsd-comment tsd-typography"><p>Point Search for feature(s) in provider.</p>
+</div>
+<div class="tsd-parameters">
+<h4 class="tsd-parameters-title">Parameters</h4>
+<ul class="tsd-parameter-list">
+<li><span><span class="tsd-kind-parameter">point</span>: <a href="core.geopoint.html" class="tsd-signature-type tsd-kind-class">GeoPoint</a></span>
+<div class="tsd-comment tsd-typography"><p>Geographical center point of the point to search in. options.radius must be defined.</p>
+</div></li>
+<li><span><code class="tsd-tag">Optional</code><span class="tsd-kind-parameter">options</span>: <span class="tsd-signature-symbol">{</span> <span class="tsd-kind-property">radius</span><span class="tsd-signature-symbol">:</span> <span class="tsd-signature-type">number</span> <span class="tsd-signature-symbol">}</span></span>
+<div class="tsd-comment tsd-typography"><p>configure the search</p>
+</div>
+<ul class="tsd-parameters">
+<li class="tsd-parameter">
+<h5><span class="tsd-kind-property">radius</span><span class="tsd-signature-symbol">: </span><span class="tsd-signature-type">number</span></h5>
+<div class="tsd-comment tsd-typography"><p>The radius of the circular area in meters to search in.</p>
+</div></li></ul></li></ul></div>
+<h4 class="tsd-returns-title">Returns <a href="core.feature.html" class="tsd-signature-type tsd-kind-class">Feature</a><span class="tsd-signature-symbol">&lt;</span><span class="tsd-signature-type">string</span><span class="tsd-signature-symbol">&gt;</span><span class="tsd-signature-symbol">[]</span></h4>
+<div class="tsd-comment tsd-typography">
+<div class="tsd-tag-example">
+<h4 class="tsd-anchor-link" id="Example-5">Example<a href="#Example-5" aria-label="Permalink" class="tsd-anchor-icon"><svg viewBox="0 0 24 24" aria-hidden="true"><use href="../assets/icons.svg#icon-anchor"></use></svg></a></h4><pre><code class="typescript"><span class="hl-0">layer</span><span class="hl-1">.</span><span class="hl-5">search</span><span class="hl-1">({</span><span class="hl-0">longitude:</span><span class="hl-1"> </span><span class="hl-9">72.84205</span><span class="hl-1">, </span><span class="hl-0">latitude:</span><span class="hl-1"> </span><span class="hl-9">18.97172</span><span class="hl-1">},{</span><br/><span class="hl-1"> </span><span class="hl-0">radius:</span><span class="hl-1"> </span><span class="hl-9">100</span><br/><span class="hl-1">})</span><br/><span class="hl-3">// or:</span><br/><span class="hl-0">layer</span><span class="hl-1">.</span><span class="hl-5">search</span><span class="hl-1">([</span><span class="hl-9">72.84205</span><span class="hl-1">, </span><span class="hl-9">18.97172</span><span class="hl-1">], {</span><br/><span class="hl-1"> </span><span class="hl-0">radius:</span><span class="hl-1"> </span><span class="hl-9">100</span><br/><span class="hl-1">})</span>
+</code><button type="button">Copy</button></pre>
+
+</div></div><aside class="tsd-sources">
+<p>Inherited from <a href="core.featureprovider.html">FeatureProvider</a>.<a href="core.featureprovider.html#search">search</a></p></aside></div></li>
+<li class="tsd-is-inherited">
+<div class="tsd-signature tsd-anchor-link" id="search-3"><span class="tsd-kind-call-signature">search</span><span class="tsd-signature-symbol">(</span><span class="tsd-kind-parameter">rect</span><span class="tsd-signature-symbol">:</span> <a href="core.georect.html" class="tsd-signature-type tsd-kind-class">GeoRect</a> <span class="tsd-signature-symbol">|</span> <a href="../types/core.geojsonbbox.html" class="tsd-signature-type tsd-kind-type-alias">GeoJSONBBox</a><span class="tsd-signature-symbol">)</span><span class="tsd-signature-symbol">:</span> <a href="core.feature.html" class="tsd-signature-type tsd-kind-class">Feature</a><span class="tsd-signature-symbol">&lt;</span><span class="tsd-signature-type">string</span><span class="tsd-signature-symbol">&gt;</span><span class="tsd-signature-symbol">[]</span><a href="#search-3" aria-label="Permalink" class="tsd-anchor-icon"><svg viewBox="0 0 24 24" aria-hidden="true"><use href="../assets/icons.svg#icon-anchor"></use></svg></a></div>
+<div class="tsd-description">
+<div class="tsd-comment tsd-typography"><p>Rectangle Search for feature(s) in provider.</p>
+</div>
+<div class="tsd-parameters">
+<h4 class="tsd-parameters-title">Parameters</h4>
+<ul class="tsd-parameter-list">
+<li><span><span class="tsd-kind-parameter">rect</span>: <a href="core.georect.html" class="tsd-signature-type tsd-kind-class">GeoRect</a> <span class="tsd-signature-symbol">|</span> <a href="../types/core.geojsonbbox.html" class="tsd-signature-type tsd-kind-type-alias">GeoJSONBBox</a></span>
+<div class="tsd-comment tsd-typography"><p>Geographical Rectangle to search in. [minLon, minLat, maxLon, maxLat] | GeoRect.</p>
+</div></li></ul></div>
+<h4 class="tsd-returns-title">Returns <a href="core.feature.html" class="tsd-signature-type tsd-kind-class">Feature</a><span class="tsd-signature-symbol">&lt;</span><span class="tsd-signature-type">string</span><span class="tsd-signature-symbol">&gt;</span><span class="tsd-signature-symbol">[]</span></h4>
+<div class="tsd-comment tsd-typography">
+<div class="tsd-tag-example">
+<h4 class="tsd-anchor-link" id="Example-6">Example<a href="#Example-6" aria-label="Permalink" class="tsd-anchor-icon"><svg viewBox="0 0 24 24" aria-hidden="true"><use href="../assets/icons.svg#icon-anchor"></use></svg></a></h4><pre><code><span class="hl-0">layer</span><span class="hl-1">.</span><span class="hl-5">search</span><span class="hl-1">({</span><span class="hl-0">minLon:</span><span class="hl-1"> </span><span class="hl-9">72.83584</span><span class="hl-1">, </span><span class="hl-0">maxLat:</span><span class="hl-1"> </span><span class="hl-9">18.97299</span><span class="hl-1">, </span><span class="hl-0">maxLon:</span><span class="hl-1"> </span><span class="hl-9">72.84443</span><span class="hl-1">, </span><span class="hl-0">minLat:</span><span class="hl-1"> </span><span class="hl-9">18.96876</span><span class="hl-1">})</span><br/><span class="hl-3">// or:</span><br/><span class="hl-0">layer</span><span class="hl-1">.</span><span class="hl-5">search</span><span class="hl-1">([</span><span class="hl-9">72.83584</span><span class="hl-1">, </span><span class="hl-9">18.96876</span><span class="hl-1">, </span><span class="hl-9">72.84443</span><span class="hl-1">,</span><span class="hl-9">18.97299</span><span class="hl-1">])</span>
+</code><button>Copy</button></pre>
+
+</div></div><aside class="tsd-sources">
+<p>Inherited from <a href="core.featureprovider.html">FeatureProvider</a>.<a href="core.featureprovider.html#search">search</a></p></aside></div></li>
+<li class="tsd-is-inherited">
+<div class="tsd-signature tsd-anchor-link" id="search-4"><span class="tsd-kind-call-signature">search</span><span class="tsd-signature-symbol">(</span><span class="tsd-kind-parameter">id</span><span class="tsd-signature-symbol">:</span> <span class="tsd-signature-type">string</span> <span class="tsd-signature-symbol">|</span> <span class="tsd-signature-type">number</span><span class="tsd-signature-symbol">)</span><span class="tsd-signature-symbol">:</span> <a href="core.feature.html" class="tsd-signature-type tsd-kind-class">Feature</a><a href="#search-4" aria-label="Permalink" class="tsd-anchor-icon"><svg viewBox="0 0 24 24" aria-hidden="true"><use href="../assets/icons.svg#icon-anchor"></use></svg></a></div>
+<div class="tsd-description">
+<div class="tsd-comment tsd-typography"><p>Search for feature by id in the provider.</p>
+</div>
+<div class="tsd-parameters">
+<h4 class="tsd-parameters-title">Parameters</h4>
+<ul class="tsd-parameter-list">
+<li><span><span class="tsd-kind-parameter">id</span>: <span class="tsd-signature-type">string</span> <span class="tsd-signature-symbol">|</span> <span class="tsd-signature-type">number</span></span>
+<div class="tsd-comment tsd-typography"><p>id of the feature to search for</p>
+</div></li></ul></div>
+<h4 class="tsd-returns-title">Returns <a href="core.feature.html" class="tsd-signature-type tsd-kind-class">Feature</a></h4>
+<div class="tsd-comment tsd-typography">
+<div class="tsd-tag-example">
+<h4 class="tsd-anchor-link" id="Example-7">Example<a href="#Example-7" aria-label="Permalink" class="tsd-anchor-icon"><svg viewBox="0 0 24 24" aria-hidden="true"><use href="../assets/icons.svg#icon-anchor"></use></svg></a></h4><pre><code><span class="hl-0">layer</span><span class="hl-1">.</span><span class="hl-5">search</span><span class="hl-1">(</span><span class="hl-9">1058507462</span><span class="hl-1">)</span>
+</code><button>Copy</button></pre>
+
+</div></div><aside class="tsd-sources">
+<p>Inherited from <a href="core.featureprovider.html">FeatureProvider</a>.<a href="core.featureprovider.html#search">search</a></p></aside></div></li></ul></section>
+<section class="tsd-panel tsd-member tsd-is-inherited">
+<h3 class="tsd-anchor-link" id="setFeatureCoordinates"><span>set<wbr/>Feature<wbr/>Coordinates</span><a href="#setFeatureCoordinates" aria-label="Permalink" class="tsd-anchor-icon"><svg viewBox="0 0 24 24" aria-hidden="true"><use href="../assets/icons.svg#icon-anchor"></use></svg></a></h3>
+<ul class="tsd-signatures tsd-is-inherited">
+<li class="tsd-is-inherited">
+<div class="tsd-signature tsd-anchor-link" id="setFeatureCoordinates-1"><span class="tsd-kind-call-signature">setFeatureCoordinates</span><span class="tsd-signature-symbol">(</span><br/>    <span class="tsd-kind-parameter">feature</span><span class="tsd-signature-symbol">:</span> <a href="core.feature.html" class="tsd-signature-type tsd-kind-class">Feature</a><span class="tsd-signature-symbol">,</span><br/>    <span class="tsd-kind-parameter">coordinates</span><span class="tsd-signature-symbol">:</span><br/>        <span class="tsd-signature-symbol">|</span> <a href="../types/core.geojsoncoordinate.html" class="tsd-signature-type tsd-kind-type-alias">GeoJSONCoordinate</a><br/>        <span class="tsd-signature-symbol">|</span> <a href="../types/core.geojsoncoordinate.html" class="tsd-signature-type tsd-kind-type-alias">GeoJSONCoordinate</a><span class="tsd-signature-symbol">[]</span><br/>        <span class="tsd-signature-symbol">|</span> <a href="../types/core.geojsoncoordinate.html" class="tsd-signature-type tsd-kind-type-alias">GeoJSONCoordinate</a><span class="tsd-signature-symbol">[]</span><span class="tsd-signature-symbol">[]</span><br/>        <span class="tsd-signature-symbol">|</span> <a href="../types/core.geojsoncoordinate.html" class="tsd-signature-type tsd-kind-type-alias">GeoJSONCoordinate</a><span class="tsd-signature-symbol">[]</span><span class="tsd-signature-symbol">[]</span><span class="tsd-signature-symbol">[]</span><span class="tsd-signature-symbol">,</span><br/><span class="tsd-signature-symbol">)</span><span class="tsd-signature-symbol">:</span> <span class="tsd-signature-type">void</span><a href="#setFeatureCoordinates-1" aria-label="Permalink" class="tsd-anchor-icon"><svg viewBox="0 0 24 24" aria-hidden="true"><use href="../assets/icons.svg#icon-anchor"></use></svg></a></div>
+<div class="tsd-description">
+<div class="tsd-comment tsd-typography"><p>Modify coordinates of a feature in the provider.</p>
+</div>
+<div class="tsd-parameters">
+<h4 class="tsd-parameters-title">Parameters</h4>
+<ul class="tsd-parameter-list">
+<li><span><span class="tsd-kind-parameter">feature</span>: <a href="core.feature.html" class="tsd-signature-type tsd-kind-class">Feature</a></span>
+<div class="tsd-comment tsd-typography"><p>the Feature whose coordinates should be modified/updated</p>
+</div></li>
+<li><span><span class="tsd-kind-parameter">coordinates</span>: <br/>    <span class="tsd-signature-symbol">|</span> <a href="../types/core.geojsoncoordinate.html" class="tsd-signature-type tsd-kind-type-alias">GeoJSONCoordinate</a><br/>    <span class="tsd-signature-symbol">|</span> <a href="../types/core.geojsoncoordinate.html" class="tsd-signature-type tsd-kind-type-alias">GeoJSONCoordinate</a><span class="tsd-signature-symbol">[]</span><br/>    <span class="tsd-signature-symbol">|</span> <a href="../types/core.geojsoncoordinate.html" class="tsd-signature-type tsd-kind-type-alias">GeoJSONCoordinate</a><span class="tsd-signature-symbol">[]</span><span class="tsd-signature-symbol">[]</span><br/>    <span class="tsd-signature-symbol">|</span> <a href="../types/core.geojsoncoordinate.html" class="tsd-signature-type tsd-kind-type-alias">GeoJSONCoordinate</a><span class="tsd-signature-symbol">[]</span><span class="tsd-signature-symbol">[]</span><span class="tsd-signature-symbol">[]</span></span>
+<div class="tsd-comment tsd-typography"><p>the modified coordinates to set. The coordinates must match features geometry type.</p>
+</div></li></ul></div>
+<h4 class="tsd-returns-title">Returns <span class="tsd-signature-type">void</span></h4><aside class="tsd-sources">
+<p>Inherited from <a href="core.featureprovider.html">FeatureProvider</a>.<a href="core.featureprovider.html#setFeatureCoordinates">setFeatureCoordinates</a></p></aside></div></li></ul></section>
+<section class="tsd-panel tsd-member tsd-is-inherited">
+<h3 class="tsd-anchor-link" id="setMargin"><span>set<wbr/>Margin</span><a href="#setMargin" aria-label="Permalink" class="tsd-anchor-icon"><svg viewBox="0 0 24 24" aria-hidden="true"><use href="../assets/icons.svg#icon-anchor"></use></svg></a></h3>
+<ul class="tsd-signatures tsd-is-inherited">
+<li class="tsd-is-inherited">
+<div class="tsd-signature tsd-anchor-link" id="setMargin-1"><span class="tsd-kind-call-signature">setMargin</span><span class="tsd-signature-symbol">(</span><span class="tsd-kind-parameter">tileMargin</span><span class="tsd-signature-symbol">?:</span> <span class="tsd-signature-type">number</span><span class="tsd-signature-symbol">)</span><span class="tsd-signature-symbol">:</span> <span class="tsd-signature-type">void</span><a href="#setMargin-1" aria-label="Permalink" class="tsd-anchor-icon"><svg viewBox="0 0 24 24" aria-hidden="true"><use href="../assets/icons.svg#icon-anchor"></use></svg></a></div>
+<div class="tsd-description">
+<div class="tsd-comment tsd-typography"><p>Set the tile margin in pixel.</p>
+</div>
+<div class="tsd-parameters">
+<h4 class="tsd-parameters-title">Parameters</h4>
+<ul class="tsd-parameter-list">
+<li><span><span class="tsd-kind-parameter">tileMargin</span>: <span class="tsd-signature-type">number</span><span class="tsd-signature-symbol"> = 0</span></span>
+<div class="tsd-comment tsd-typography"><p>the tileMargin</p>
+</div></li></ul></div>
+<h4 class="tsd-returns-title">Returns <span class="tsd-signature-type">void</span></h4><aside class="tsd-sources">
+<p>Inherited from <a href="core.featureprovider.html">FeatureProvider</a>.<a href="core.featureprovider.html#setMargin">setMargin</a></p></aside></div></li></ul></section>
+<section class="tsd-panel tsd-member">
+<h3 class="tsd-anchor-link" id="writeEditState"><span>write<wbr/>Edit<wbr/>State</span><a href="#writeEditState" aria-label="Permalink" class="tsd-anchor-icon"><svg viewBox="0 0 24 24" aria-hidden="true"><use href="../assets/icons.svg#icon-anchor"></use></svg></a></h3>
+<ul class="tsd-signatures">
+<li class="">
+<div class="tsd-signature tsd-anchor-link" id="writeEditState-1"><span class="tsd-kind-call-signature">writeEditState</span><span class="tsd-signature-symbol">(</span><br/>    <span class="tsd-kind-parameter">feature</span><span class="tsd-signature-symbol">:</span> <a href="core.feature.html" class="tsd-signature-type tsd-kind-class">Feature</a><span class="tsd-signature-symbol">,</span><br/>    <span class="tsd-kind-parameter">editState</span><span class="tsd-signature-symbol">:</span> <span class="tsd-signature-type">&quot;created&quot;</span> <span class="tsd-signature-symbol">|</span> <span class="tsd-signature-type">&quot;modified&quot;</span> <span class="tsd-signature-symbol">|</span> <span class="tsd-signature-type">&quot;removed&quot;</span> <span class="tsd-signature-symbol">|</span> <span class="tsd-signature-type">&quot;split&quot;</span><span class="tsd-signature-symbol">,</span><br/><span class="tsd-signature-symbol">)</span><span class="tsd-signature-symbol">:</span> <span class="tsd-signature-type">void</span><a href="#writeEditState-1" aria-label="Permalink" class="tsd-anchor-icon"><svg viewBox="0 0 24 24" aria-hidden="true"><use href="../assets/icons.svg#icon-anchor"></use></svg></a></div>
+<div class="tsd-description">
+<div class="tsd-comment tsd-typography"><p>Attribute writer for storing the EditStates of a Feature.
+The EditStates provide information about whether a feature has been created, modified, removed or split.</p>
+<p>By default EditStates aren't tracked/stored.</p>
+</div>
+<div class="tsd-parameters">
+<h4 class="tsd-parameters-title">Parameters</h4>
+<ul class="tsd-parameter-list">
+<li><span><span class="tsd-kind-parameter">feature</span>: <a href="core.feature.html" class="tsd-signature-type tsd-kind-class">Feature</a></span>
+<div class="tsd-comment tsd-typography"><p>The Feature whose EditState should be written.</p>
+</div></li>
+<li><span><span class="tsd-kind-parameter">editState</span>: <span class="tsd-signature-type">&quot;created&quot;</span> <span class="tsd-signature-symbol">|</span> <span class="tsd-signature-type">&quot;modified&quot;</span> <span class="tsd-signature-symbol">|</span> <span class="tsd-signature-type">&quot;removed&quot;</span> <span class="tsd-signature-symbol">|</span> <span class="tsd-signature-type">&quot;split&quot;</span></span>
+<div class="tsd-comment tsd-typography"><p>the EditState to store</p>
+</div></li></ul></div>
+<h4 class="tsd-returns-title">Returns <span class="tsd-signature-type">void</span></h4></div></li></ul></section>
+<section class="tsd-panel tsd-member">
+<h3 class="tsd-anchor-link" id="writeFeatureHeight"><code class="tsd-tag">Abstract</code><span>write<wbr/>Feature<wbr/>Height</span><a href="#writeFeatureHeight" aria-label="Permalink" class="tsd-anchor-icon"><svg viewBox="0 0 24 24" aria-hidden="true"><use href="../assets/icons.svg#icon-anchor"></use></svg></a></h3>
+<ul class="tsd-signatures">
+<li class="">
+<div class="tsd-signature tsd-anchor-link" id="writeFeatureHeight-1"><span class="tsd-kind-call-signature">writeFeatureHeight</span><span class="tsd-signature-symbol">(</span><span class="tsd-kind-parameter">feature</span><span class="tsd-signature-symbol">:</span> <a href="core.feature.html" class="tsd-signature-type tsd-kind-class">Feature</a><span class="tsd-signature-symbol">,</span> <span class="tsd-kind-parameter">height</span><span class="tsd-signature-symbol">:</span> <span class="tsd-signature-type">number</span><span class="tsd-signature-symbol">)</span><span class="tsd-signature-symbol">:</span> <span class="tsd-signature-type">any</span><a href="#writeFeatureHeight-1" aria-label="Permalink" class="tsd-anchor-icon"><svg viewBox="0 0 24 24" aria-hidden="true"><use href="../assets/icons.svg#icon-anchor"></use></svg></a></div>
+<div class="tsd-description">
+<div class="tsd-comment tsd-typography"><p>Attribute writer for storing the Height of a Building (extruded <a href="editor.area.html" class="tsd-kind-class">Area</a>).
+The height must be specified in meters.</p>
+<p>This method must be implemented to enable editing of the height of an extruded <a href="editor.area.html" class="tsd-kind-class">Area</a>.</p>
+</div>
+<div class="tsd-parameters">
+<h4 class="tsd-parameters-title">Parameters</h4>
+<ul class="tsd-parameter-list">
+<li><span><span class="tsd-kind-parameter">feature</span>: <a href="core.feature.html" class="tsd-signature-type tsd-kind-class">Feature</a></span>
+<div class="tsd-comment tsd-typography"><p>The Area feature whose height should be updated/written.</p>
+</div></li>
+<li><span><span class="tsd-kind-parameter">height</span>: <span class="tsd-signature-type">number</span></span>
+<div class="tsd-comment tsd-typography"><p>The height specified in meters</p>
+</div></li></ul></div>
+<h4 class="tsd-returns-title">Returns <span class="tsd-signature-type">any</span></h4></div></li></ul></section>
+<section class="tsd-panel tsd-member">
+<h3 class="tsd-anchor-link" id="writeRoutingLink"><code class="tsd-tag">Abstract</code><span>write<wbr/>Routing<wbr/>Link</span><a href="#writeRoutingLink" aria-label="Permalink" class="tsd-anchor-icon"><svg viewBox="0 0 24 24" aria-hidden="true"><use href="../assets/icons.svg#icon-anchor"></use></svg></a></h3>
+<ul class="tsd-signatures">
+<li class="">
+<div class="tsd-signature tsd-anchor-link" id="writeRoutingLink-1"><span class="tsd-kind-call-signature">writeRoutingLink</span><span class="tsd-signature-symbol">(</span><span class="tsd-kind-parameter">feature</span><span class="tsd-signature-symbol">:</span> <a href="core.feature.html" class="tsd-signature-type tsd-kind-class">Feature</a><span class="tsd-signature-symbol">,</span> <span class="tsd-kind-parameter">position</span><span class="tsd-signature-symbol">:</span> <span class="tsd-signature-type">any</span><span class="tsd-signature-symbol">,</span> <span class="tsd-kind-parameter">navlink</span><span class="tsd-signature-symbol">:</span> <a href="core.feature.html" class="tsd-signature-type tsd-kind-class">Feature</a><span class="tsd-signature-symbol">&lt;</span><span class="tsd-signature-type">string</span><span class="tsd-signature-symbol">&gt;</span><span class="tsd-signature-symbol">)</span><span class="tsd-signature-symbol">:</span> <span class="tsd-signature-type">any</span><a href="#writeRoutingLink-1" aria-label="Permalink" class="tsd-anchor-icon"><svg viewBox="0 0 24 24" aria-hidden="true"><use href="../assets/icons.svg#icon-anchor"></use></svg></a></div>
+<div class="tsd-description">
+<div class="tsd-comment tsd-typography"><p>Attribute writer for storing the Navlink reference on which the RoutingPoint of an Address or Place feature is located.</p>
+<p>This method must be implemented to enable editing of <a href="editor.place.html" class="tsd-kind-class">Places</a> or <a href="editor.address.html" class="tsd-kind-class">Addresses</a>.</p>
+</div>
+<div class="tsd-parameters">
+<h4 class="tsd-parameters-title">Parameters</h4>
+<ul class="tsd-parameter-list">
+<li><span><span class="tsd-kind-parameter">feature</span>: <a href="core.feature.html" class="tsd-signature-type tsd-kind-class">Feature</a></span>
+<div class="tsd-comment tsd-typography"><p>The Address or Place of which the Navlink reference of the RoutingPoint to store.</p>
+</div></li>
+<li><span><span class="tsd-kind-parameter">position</span>: <span class="tsd-signature-type">any</span></span></li>
+<li><span><span class="tsd-kind-parameter">navlink</span>: <a href="core.feature.html" class="tsd-signature-type tsd-kind-class">Feature</a><span class="tsd-signature-symbol">&lt;</span><span class="tsd-signature-type">string</span><span class="tsd-signature-symbol">&gt;</span></span>
+<div class="tsd-comment tsd-typography"><p>The navlink whose reference is to be written, or null in case of a Place becomes &quot;floating&quot; and has no RoutingPoint.</p>
+</div></li></ul></div>
+<h4 class="tsd-returns-title">Returns <span class="tsd-signature-type">any</span></h4></div></li></ul></section>
+<section class="tsd-panel tsd-member">
+<h3 class="tsd-anchor-link" id="writeRoutingPosition"><code class="tsd-tag">Abstract</code><span>write<wbr/>Routing<wbr/>Position</span><a href="#writeRoutingPosition" aria-label="Permalink" class="tsd-anchor-icon"><svg viewBox="0 0 24 24" aria-hidden="true"><use href="../assets/icons.svg#icon-anchor"></use></svg></a></h3>
+<ul class="tsd-signatures">
+<li class="">
+<div class="tsd-signature tsd-anchor-link" id="writeRoutingPosition-1"><span class="tsd-kind-call-signature">writeRoutingPosition</span><span class="tsd-signature-symbol">(</span><span class="tsd-kind-parameter">feature</span><span class="tsd-signature-symbol">:</span> <a href="core.feature.html" class="tsd-signature-type tsd-kind-class">Feature</a><span class="tsd-signature-symbol">,</span> <span class="tsd-kind-parameter">position</span><span class="tsd-signature-symbol">:</span> <a href="../types/core.geojsoncoordinate.html" class="tsd-signature-type tsd-kind-type-alias">GeoJSONCoordinate</a><span class="tsd-signature-symbol">)</span><span class="tsd-signature-symbol">:</span> <span class="tsd-signature-type">any</span><a href="#writeRoutingPosition-1" aria-label="Permalink" class="tsd-anchor-icon"><svg viewBox="0 0 24 24" aria-hidden="true"><use href="../assets/icons.svg#icon-anchor"></use></svg></a></div>
+<div class="tsd-description">
+<div class="tsd-comment tsd-typography"><p>Attribute writer to store the RoutingPoint's geographical position of an Address or Place.
+The geographical position must be located on the geometry of the related Navlink feature.</p>
+<p>This method must be implemented to enable editing of <a href="editor.place.html" class="tsd-kind-class">Places</a> or <a href="editor.address.html" class="tsd-kind-class">Addresses</a>.</p>
+</div>
+<div class="tsd-parameters">
+<h4 class="tsd-parameters-title">Parameters</h4>
+<ul class="tsd-parameter-list">
+<li><span><span class="tsd-kind-parameter">feature</span>: <a href="core.feature.html" class="tsd-signature-type tsd-kind-class">Feature</a></span>
+<div class="tsd-comment tsd-typography"><p>The Address or Place feature whose RoutingPoint position to write.</p>
+</div></li>
+<li><span><span class="tsd-kind-parameter">position</span>: <a href="../types/core.geojsoncoordinate.html" class="tsd-signature-type tsd-kind-type-alias">GeoJSONCoordinate</a></span>
+<div class="tsd-comment tsd-typography"><p>the geographical position of the RoutingPoint.</p>
+</div></li></ul></div>
+<h4 class="tsd-returns-title">Returns <span class="tsd-signature-type">any</span></h4></div></li></ul></section>
+<section class="tsd-panel tsd-member">
+<h3 class="tsd-anchor-link" id="writeTurnRestriction"><code class="tsd-tag">Abstract</code><span>write<wbr/>Turn<wbr/>Restriction</span><a href="#writeTurnRestriction" aria-label="Permalink" class="tsd-anchor-icon"><svg viewBox="0 0 24 24" aria-hidden="true"><use href="../assets/icons.svg#icon-anchor"></use></svg></a></h3>
+<ul class="tsd-signatures">
+<li class="">
+<div class="tsd-signature tsd-anchor-link" id="writeTurnRestriction-1"><span class="tsd-kind-call-signature">writeTurnRestriction</span><span class="tsd-signature-symbol">(</span><br/>    <span class="tsd-kind-parameter">restricted</span><span class="tsd-signature-symbol">:</span> <span class="tsd-signature-type">boolean</span><span class="tsd-signature-symbol">,</span><br/>    <span class="tsd-kind-parameter">turnFrom</span><span class="tsd-signature-symbol">:</span> <span class="tsd-signature-symbol">{</span> <span class="tsd-kind-property">index</span><span class="tsd-signature-symbol">:</span> <span class="tsd-signature-type">number</span><span class="tsd-signature-symbol">;</span> <span class="tsd-kind-property">link</span><span class="tsd-signature-symbol">:</span> <a href="core.feature.html" class="tsd-signature-type tsd-kind-class">Feature</a> <span class="tsd-signature-symbol">}</span><span class="tsd-signature-symbol">,</span><br/>    <span class="tsd-kind-parameter">turnTo</span><span class="tsd-signature-symbol">:</span> <span class="tsd-signature-symbol">{</span> <span class="tsd-kind-property">index</span><span class="tsd-signature-symbol">:</span> <span class="tsd-signature-type">number</span><span class="tsd-signature-symbol">;</span> <span class="tsd-kind-property">link</span><span class="tsd-signature-symbol">:</span> <a href="core.feature.html" class="tsd-signature-type tsd-kind-class">Feature</a> <span class="tsd-signature-symbol">}</span><span class="tsd-signature-symbol">,</span><br/><span class="tsd-signature-symbol">)</span><span class="tsd-signature-symbol">:</span> <span class="tsd-signature-type">any</span><a href="#writeTurnRestriction-1" aria-label="Permalink" class="tsd-anchor-icon"><svg viewBox="0 0 24 24" aria-hidden="true"><use href="../assets/icons.svg#icon-anchor"></use></svg></a></div>
+<div class="tsd-description">
+<div class="tsd-comment tsd-typography"><p>Attribute writer for writing a turn restriction between two Navlink features.</p>
+<p>This method must be implemented to enable editing of <a href="editor.navlink.html" class="tsd-kind-class">Navlinks</a>.
+It defines whether a turn from one Navlink to another is permitted or restricted.</p>
+</div>
+<div class="tsd-parameters">
+<h4 class="tsd-parameters-title">Parameters</h4>
+<ul class="tsd-parameter-list">
+<li><span><span class="tsd-kind-parameter">restricted</span>: <span class="tsd-signature-type">boolean</span></span>
+<div class="tsd-comment tsd-typography"><p>Specifies whether the turn is forbidden (<code>true</code>) or allowed (<code>false</code>).</p>
+</div></li>
+<li><span><span class="tsd-kind-parameter">turnFrom</span>: <span class="tsd-signature-symbol">{</span> <span class="tsd-kind-property">index</span><span class="tsd-signature-symbol">:</span> <span class="tsd-signature-type">number</span><span class="tsd-signature-symbol">;</span> <span class="tsd-kind-property">link</span><span class="tsd-signature-symbol">:</span> <a href="core.feature.html" class="tsd-signature-type tsd-kind-class">Feature</a> <span class="tsd-signature-symbol">}</span></span>
+<div class="tsd-comment tsd-typography"><p>The originating Navlink and its coordinate index from which the turn starts.</p>
+</div></li>
+<li><span><span class="tsd-kind-parameter">turnTo</span>: <span class="tsd-signature-symbol">{</span> <span class="tsd-kind-property">index</span><span class="tsd-signature-symbol">:</span> <span class="tsd-signature-type">number</span><span class="tsd-signature-symbol">;</span> <span class="tsd-kind-property">link</span><span class="tsd-signature-symbol">:</span> <a href="core.feature.html" class="tsd-signature-type tsd-kind-class">Feature</a> <span class="tsd-signature-symbol">}</span></span>
+<div class="tsd-comment tsd-typography"><p>The destination Navlink and its coordinate index to which the turn is directed.</p>
+</div></li></ul></div>
+<h4 class="tsd-returns-title">Returns <span class="tsd-signature-type">any</span></h4></div></li></ul></section>
+<section class="tsd-panel tsd-member">
+<h3 class="tsd-anchor-link" id="writeZLevels"><code class="tsd-tag">Abstract</code><span>write<wbr/>Z<wbr/>Levels</span><a href="#writeZLevels" aria-label="Permalink" class="tsd-anchor-icon"><svg viewBox="0 0 24 24" aria-hidden="true"><use href="../assets/icons.svg#icon-anchor"></use></svg></a></h3>
+<ul class="tsd-signatures">
+<li class="">
+<div class="tsd-signature tsd-anchor-link" id="writeZLevels-1"><span class="tsd-kind-call-signature">writeZLevels</span><span class="tsd-signature-symbol">(</span><span class="tsd-kind-parameter">navlink</span><span class="tsd-signature-symbol">:</span> <a href="core.feature.html" class="tsd-signature-type tsd-kind-class">Feature</a><span class="tsd-signature-symbol">,</span> <span class="tsd-kind-parameter">zLevels</span><span class="tsd-signature-symbol">:</span> <span class="tsd-signature-type">number</span><span class="tsd-signature-symbol">[]</span><span class="tsd-signature-symbol">)</span><span class="tsd-signature-symbol">:</span> <span class="tsd-signature-type">any</span><a href="#writeZLevels-1" aria-label="Permalink" class="tsd-anchor-icon"><svg viewBox="0 0 24 24" aria-hidden="true"><use href="../assets/icons.svg#icon-anchor"></use></svg></a></div>
+<div class="tsd-description">
+<div class="tsd-comment tsd-typography"><p>Attribute writer for writing the zLevels of a Navlink feature.</p>
+<p>This method must be implemented to enable editing of <a href="editor.navlink.html" class="tsd-kind-class">Navlinks</a>.</p>
+</div>
+<div class="tsd-parameters">
+<h4 class="tsd-parameters-title">Parameters</h4>
+<ul class="tsd-parameter-list">
+<li><span><span class="tsd-kind-parameter">navlink</span>: <a href="core.feature.html" class="tsd-signature-type tsd-kind-class">Feature</a></span>
+<div class="tsd-comment tsd-typography"><p>the Navlink whose zLevels should be set</p>
+</div></li>
+<li><span><span class="tsd-kind-parameter">zLevels</span>: <span class="tsd-signature-type">number</span><span class="tsd-signature-symbol">[]</span></span>
+<div class="tsd-comment tsd-typography"><p>An array containing the zLevel for each coordinate of the Navlink</p>
+</div></li></ul></div>
+<h4 class="tsd-returns-title">Returns <span class="tsd-signature-type">any</span></h4><p>An array containing the zLevel for each coordinate of the Navlink.</p>
+</div></li></ul></section></section></details></div>
+<div class="col-sidebar">
+<div class="page-menu">
+<div class="tsd-navigation settings">
+<details class="tsd-accordion"><summary class="tsd-accordion-summary"><svg width="20" height="20" viewBox="0 0 24 24" fill="none" aria-hidden="true"><use href="../assets/icons.svg#icon-chevronDown"></use></svg>
+<h3>Settings</h3></summary>
+<div class="tsd-accordion-details">
+<div class="tsd-filter-visibility"><span class="settings-label">Member Visibility</span>
+<ul id="tsd-filter-options">
+<li class="tsd-filter-item"><label class="tsd-filter-input"><input type="checkbox" id="tsd-filter-protected" name="protected"/><svg width="32" height="32" viewBox="0 0 32 32" aria-hidden="true"><rect class="tsd-checkbox-background" width="30" height="30" x="1" y="1" rx="6" fill="none"></rect><path class="tsd-checkbox-checkmark" d="M8.35422 16.8214L13.2143 21.75L24.6458 10.25" stroke="none" stroke-width="3.5" stroke-linejoin="round" fill="none"></path></svg><span>Protected</span></label></li>
+<li class="tsd-filter-item"><label class="tsd-filter-input"><input type="checkbox" id="tsd-filter-inherited" name="inherited" checked/><svg width="32" height="32" viewBox="0 0 32 32" aria-hidden="true"><rect class="tsd-checkbox-background" width="30" height="30" x="1" y="1" rx="6" fill="none"></rect><path class="tsd-checkbox-checkmark" d="M8.35422 16.8214L13.2143 21.75L24.6458 10.25" stroke="none" stroke-width="3.5" stroke-linejoin="round" fill="none"></path></svg><span>Inherited</span></label></li>
+<li class="tsd-filter-item"><label class="tsd-filter-input"><input type="checkbox" id="tsd-filter-external" name="external"/><svg width="32" height="32" viewBox="0 0 32 32" aria-hidden="true"><rect class="tsd-checkbox-background" width="30" height="30" x="1" y="1" rx="6" fill="none"></rect><path class="tsd-checkbox-checkmark" d="M8.35422 16.8214L13.2143 21.75L24.6458 10.25" stroke="none" stroke-width="3.5" stroke-linejoin="round" fill="none"></path></svg><span>External</span></label></li></ul></div>
+<div class="tsd-theme-toggle"><label class="settings-label" for="tsd-theme">Theme</label><select id="tsd-theme"><option value="os">OS</option><option value="light">Light</option><option value="dark">Dark</option></select></div></div></details></div>
+<details open class="tsd-accordion tsd-page-navigation"><summary class="tsd-accordion-summary"><svg width="20" height="20" viewBox="0 0 24 24" fill="none" aria-hidden="true"><use href="../assets/icons.svg#icon-chevronDown"></use></svg>
+<h3>On This Page</h3></summary>
+<div class="tsd-accordion-details">
+<details open class="tsd-accordion tsd-page-navigation-section"><summary class="tsd-accordion-summary" data-key="section-Properties"><svg width="20" height="20" viewBox="0 0 24 24" fill="none" aria-hidden="true"><use href="../assets/icons.svg#icon-chevronDown"></use></svg>Properties</summary>
+<div><a href="#hooks"><svg class="tsd-kind-icon" viewBox="0 0 24 24" aria-label="Property"><use href="../assets/icons.svg#icon-1024"></use></svg><span>hooks</span></a><a href="#id" class="tsd-is-inherited"><svg class="tsd-kind-icon" viewBox="0 0 24 24" aria-label="Property"><use href="../assets/icons.svg#icon-1024"></use></svg><span>id</span></a><a href="#margin" class="tsd-is-inherited"><svg class="tsd-kind-icon" viewBox="0 0 24 24" aria-label="Property"><use href="../assets/icons.svg#icon-1024"></use></svg><span>margin</span></a><a href="#name" class="tsd-is-inherited"><svg class="tsd-kind-icon" viewBox="0 0 24 24" aria-label="Property"><use href="../assets/icons.svg#icon-1024"></use></svg><span>name</span></a></div></details>
+<details open class="tsd-accordion tsd-page-navigation-section"><summary class="tsd-accordion-summary" data-key="section-Methods"><svg width="20" height="20" viewBox="0 0 24 24" fill="none" aria-hidden="true"><use href="../assets/icons.svg#icon-chevronDown"></use></svg>Methods</summary>
+<div><a href="#addEventListener" class="tsd-is-inherited"><svg class="tsd-kind-icon" viewBox="0 0 24 24" aria-label="Method"><use href="../assets/icons.svg#icon-2048"></use></svg><span>add<wbr/>Event<wbr/>Listener</span></a><a href="#addFeature" class="tsd-is-inherited"><svg class="tsd-kind-icon" viewBox="0 0 24 24" aria-label="Method"><use href="../assets/icons.svg#icon-2048"></use></svg><span>add<wbr/>Feature</span></a><a href="#all" class="tsd-is-inherited"><svg class="tsd-kind-icon" viewBox="0 0 24 24" aria-label="Method"><use href="../assets/icons.svg#icon-2048"></use></svg><span>all</span></a><a href="#clear" class="tsd-is-inherited"><svg class="tsd-kind-icon" viewBox="0 0 24 24" aria-label="Method"><use href="../assets/icons.svg#icon-2048"></use></svg><span>clear</span></a><a href="#config" class="tsd-is-inherited"><svg class="tsd-kind-icon" viewBox="0 0 24 24" aria-label="Method"><use href="../assets/icons.svg#icon-2048"></use></svg><span>config</span></a><a href="#createTile" class="tsd-is-inherited"><svg class="tsd-kind-icon" viewBox="0 0 24 24" aria-label="Method"><use href="../assets/icons.svg#icon-2048"></use></svg><span>create<wbr/>Tile</span></a><a href="#detectFeatureClass"><svg class="tsd-kind-icon" viewBox="0 0 24 24" aria-label="Method"><use href="../assets/icons.svg#icon-2048"></use></svg><span>detect<wbr/>Feature<wbr/>Class</span></a><a href="#exists" class="tsd-is-inherited"><svg class="tsd-kind-icon" viewBox="0 0 24 24" aria-label="Method"><use href="../assets/icons.svg#icon-2048"></use></svg><span>exists</span></a><a href="#findPath" class="tsd-is-inherited"><svg class="tsd-kind-icon" viewBox="0 0 24 24" aria-label="Method"><use href="../assets/icons.svg#icon-2048"></use></svg><span>find<wbr/>Path</span></a><a href="#getCachedTile" class="tsd-is-inherited"><svg class="tsd-kind-icon" viewBox="0 0 24 24" aria-label="Method"><use href="../assets/icons.svg#icon-2048"></use></svg><span>get<wbr/>Cached<wbr/>Tile</span></a><a href="#getCachedTiles" class="tsd-is-inherited"><svg class="tsd-kind-icon" viewBox="0 0 24 24" aria-label="Method"><use href="../assets/icons.svg#icon-2048"></use></svg><span>get<wbr/>Cached<wbr/>Tiles</span></a><a href="#getFeature" class="tsd-is-inherited"><svg class="tsd-kind-icon" viewBox="0 0 24 24" aria-label="Method"><use href="../assets/icons.svg#icon-2048"></use></svg><span>get<wbr/>Feature</span></a><a href="#getFeatures" class="tsd-is-inherited"><svg class="tsd-kind-icon" viewBox="0 0 24 24" aria-label="Method"><use href="../assets/icons.svg#icon-2048"></use></svg><span>get<wbr/>Features</span></a><a href="#getTile" class="tsd-is-inherited"><svg class="tsd-kind-icon" viewBox="0 0 24 24" aria-label="Method"><use href="../assets/icons.svg#icon-2048"></use></svg><span>get<wbr/>Tile</span></a><a href="#readConnectedLinks"><svg class="tsd-kind-icon" viewBox="0 0 24 24" aria-label="Method"><use href="../assets/icons.svg#icon-2048"></use></svg><span>read<wbr/>Connected<wbr/>Links</span></a><a href="#readDirection"><svg class="tsd-kind-icon" viewBox="0 0 24 24" aria-label="Method"><use href="../assets/icons.svg#icon-2048"></use></svg><span>read<wbr/>Direction</span></a><a href="#readFeatureHeight"><svg class="tsd-kind-icon" viewBox="0 0 24 24" aria-label="Method"><use href="../assets/icons.svg#icon-2048"></use></svg><span>read<wbr/>Feature<wbr/>Height</span></a><a href="#readPedestrianOnly"><svg class="tsd-kind-icon" viewBox="0 0 24 24" aria-label="Method"><use href="../assets/icons.svg#icon-2048"></use></svg><span>read<wbr/>Pedestrian<wbr/>Only</span></a><a href="#readRoutingLink"><svg class="tsd-kind-icon" viewBox="0 0 24 24" aria-label="Method"><use href="../assets/icons.svg#icon-2048"></use></svg><span>read<wbr/>Routing<wbr/>Link</span></a><a href="#readRoutingPosition"><svg class="tsd-kind-icon" viewBox="0 0 24 24" aria-label="Method"><use href="../assets/icons.svg#icon-2048"></use></svg><span>read<wbr/>Routing<wbr/>Position</span></a><a href="#readRoutingProvider"><svg class="tsd-kind-icon" viewBox="0 0 24 24" aria-label="Method"><use href="../assets/icons.svg#icon-2048"></use></svg><span>read<wbr/>Routing<wbr/>Provider</span></a><a href="#readTurnRestriction"><svg class="tsd-kind-icon" viewBox="0 0 24 24" aria-label="Method"><use href="../assets/icons.svg#icon-2048"></use></svg><span>read<wbr/>Turn<wbr/>Restriction</span></a><a href="#readZLevels"><svg class="tsd-kind-icon" viewBox="0 0 24 24" aria-label="Method"><use href="../assets/icons.svg#icon-2048"></use></svg><span>read<wbr/>Z<wbr/>Levels</span></a><a href="#removeEventListener" class="tsd-is-inherited"><svg class="tsd-kind-icon" viewBox="0 0 24 24" aria-label="Method"><use href="../assets/icons.svg#icon-2048"></use></svg><span>remove<wbr/>Event<wbr/>Listener</span></a><a href="#removeFeature" class="tsd-is-inherited"><svg class="tsd-kind-icon" viewBox="0 0 24 24" aria-label="Method"><use href="../assets/icons.svg#icon-2048"></use></svg><span>remove<wbr/>Feature</span></a><a href="#search" class="tsd-is-inherited"><svg class="tsd-kind-icon" viewBox="0 0 24 24" aria-label="Method"><use href="../assets/icons.svg#icon-2048"></use></svg><span>search</span></a><a href="#setFeatureCoordinates" class="tsd-is-inherited"><svg class="tsd-kind-icon" viewBox="0 0 24 24" aria-label="Method"><use href="../assets/icons.svg#icon-2048"></use></svg><span>set<wbr/>Feature<wbr/>Coordinates</span></a><a href="#setMargin" class="tsd-is-inherited"><svg class="tsd-kind-icon" viewBox="0 0 24 24" aria-label="Method"><use href="../assets/icons.svg#icon-2048"></use></svg><span>set<wbr/>Margin</span></a><a href="#writeEditState"><svg class="tsd-kind-icon" viewBox="0 0 24 24" aria-label="Method"><use href="../assets/icons.svg#icon-2048"></use></svg><span>write<wbr/>Edit<wbr/>State</span></a><a href="#writeFeatureHeight"><svg class="tsd-kind-icon" viewBox="0 0 24 24" aria-label="Method"><use href="../assets/icons.svg#icon-2048"></use></svg><span>write<wbr/>Feature<wbr/>Height</span></a><a href="#writeRoutingLink"><svg class="tsd-kind-icon" viewBox="0 0 24 24" aria-label="Method"><use href="../assets/icons.svg#icon-2048"></use></svg><span>write<wbr/>Routing<wbr/>Link</span></a><a href="#writeRoutingPosition"><svg class="tsd-kind-icon" viewBox="0 0 24 24" aria-label="Method"><use href="../assets/icons.svg#icon-2048"></use></svg><span>write<wbr/>Routing<wbr/>Position</span></a><a href="#writeTurnRestriction"><svg class="tsd-kind-icon" viewBox="0 0 24 24" aria-label="Method"><use href="../assets/icons.svg#icon-2048"></use></svg><span>write<wbr/>Turn<wbr/>Restriction</span></a><a href="#writeZLevels"><svg class="tsd-kind-icon" viewBox="0 0 24 24" aria-label="Method"><use href="../assets/icons.svg#icon-2048"></use></svg><span>write<wbr/>Z<wbr/>Levels</span></a></div></details></div></details></div>
+<div class="site-menu">
+<nav class="tsd-navigation"><a href="../modules.html">XYZ Maps Documentation</a>
+<ul class="tsd-small-nested-navigation" id="tsd-nav-container">
+<li>Loading...</li></ul></nav></div></div></div><footer>
+<p class="tsd-generator">Generated using <a href="https://typedoc.org/" target="_blank">TypeDoc</a></p></footer>
+<div class="overlay"></div></body></html>
