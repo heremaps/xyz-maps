@@ -8,6 +8,7 @@ on:
     pull_request:
         branches:
             - '*'
+    workflow_call:
 
 env:
     yarn-network-timeout: 1000000

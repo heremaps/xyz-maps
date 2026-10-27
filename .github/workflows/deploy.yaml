@@ -2,6 +2,11 @@ name: Docs & Playground
 
 on:
     workflow_dispatch:
+        inputs:
+            skip_tests:
+                description: Skip the test run before deploying (manual runs only)
+                type: boolean
+                default: false
     push:
         tags:
             - "v[0-9]+.[0-9]+.[0-9]+"
@@ -10,7 +15,14 @@ env:
     yarn-network-timeout: 1000000
 
 jobs:
+    test:
+        if: ${{ github.event_name != 'workflow_dispatch' || !inputs.skip_tests }}
+        uses: ./.github/workflows/cicd.yaml
+        secrets: inherit
+
     deploy:
+        needs: test
+        if: ${{ always() && (needs.test.result == 'success' || needs.test.result == 'skipped') }}
         runs-on: ubuntu-latest
         steps:
             -   uses: actions/checkout@v2
