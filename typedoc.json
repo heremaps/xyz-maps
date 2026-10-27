@@ -13,5 +13,12 @@
   },
   "out": "docs",
   "theme": "default",
-  "plugin": ["typedoc-plugin-remove-references"]
+  "router": "legacy",
+  "sluggerConfiguration": {
+    "lowercase": false
+  },
+  "plugin": [
+    "typedoc-plugin-remove-references",
+    "./scripts/legacy-url-router.mjs"
+  ]
 }
