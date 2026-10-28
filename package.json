@@ -38,6 +38,9 @@
   "publishConfig": {},
   "private": true,
   "devDependencies": {
+    "@here/xyz-maps-utils": "^0.46.1",
+    "@microsoft/api-extractor": "^7.18.4",
+    "@types/node": "^26.6.4",
     "@typescript-eslint/parser": "^8.71.1",
     "eslint": "8.57.1",
     "eslint-config-google": "^0.14.0",
