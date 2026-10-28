@@ -40,9 +40,15 @@ export class TaskSequence<T extends readonly Task<any, any, any>[]> extends Task
     private _initSequenceData: any;
 
 
+    /**
+     * Creates a sequence of tasks.
+     * Internal, not part of the public API. Do not use directly.
+     * @hidden
+     */
     constructor(options: {
         tasks: T,
-        onDone?: (results?: TASK_RESULT<T>) => void,
+        // Inlined instead of TASK_RESULT<T>: api-extractor drops the unexported alias from the d.ts.
+        onDone?: (results?: {[K in keyof T]: T[K] extends Task<any, any, infer R> ? R : never}) => void,
         name?: string,
         /**
          * if defined will override priority of all tasks in the sequence,

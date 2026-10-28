@@ -63,7 +63,7 @@ describe('task sequence', function() {
 
 
     it('start sequence', async function() {
-        let result = await new Promise<void>((resolve) => {
+        let result = await new Promise<any[]>((resolve) => {
             const taskSequence = new TaskSequence({tasks, onDone: resolve}, taskManager);
             taskSequence.start('startSequenceTest');
         });
@@ -77,7 +77,7 @@ describe('task sequence', function() {
     });
 
     it('make sure sequence priorities are respected', async function() {
-        let result = await new Promise<void>((resolve) => {
+        let result = await new Promise<any[]>((resolve) => {
             let execTaskOrderResults = [];
 
             const taskSequence = new TaskSequence({
@@ -129,7 +129,7 @@ describe('task sequence', function() {
 
 
     it('make sure sequence is not interrupted by same prio task', async function() {
-        let result = await new Promise<void>((resolve) => {
+        let result = await new Promise<any[]>((resolve) => {
             let execTaskOrderResults = [];
 
             const taskSequence = new TaskSequence({

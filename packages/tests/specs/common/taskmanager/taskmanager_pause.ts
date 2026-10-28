@@ -92,7 +92,7 @@ describe('task manager pause&resume', function() {
             runTask1(),
             new Promise<string[]>((resolve)=>{
                 const task = createTask('T2', 2);
-                task.resolve = resolve;
+                (task as any).resolve = resolve;
                 task.start();
             })
         ]);
@@ -118,7 +118,7 @@ describe('task manager pause&resume', function() {
             runTask1(),
             new Promise<string[]>((resolve)=>{
                 const task = createTask('T2', 2, 1);
-                task.resolve = resolve;
+                (task as any).resolve = resolve;
                 task.start();
             })
         ]);

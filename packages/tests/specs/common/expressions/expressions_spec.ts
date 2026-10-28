@@ -17,7 +17,7 @@
  * License-Filename: LICENSE
  */
 
-import {JSONExpression, ExpressionMode, ExpressionParser} from '@here/xyz-maps-common';
+import {Def, ExpressionMode, ExpressionParser} from '@here/xyz-maps-common';
 
 describe('Expressions', function() {
     const {expect} = chai;
@@ -43,7 +43,7 @@ describe('Expressions', function() {
     let exprParser = new ExpressionParser(definitions, environment);
 
     const context = {aName: 'testName', aNumber: 123, aString: 'testString'};
-    const evalExpression = (exp: JSONExpression, mode = ExpressionMode.static, ctx: { [key: string]: any } = context) => {
+    const evalExpression = (exp: Def, mode = ExpressionMode.static, ctx: { [key: string]: any } = context) => {
         return exprParser.evaluate(exp, ctx, mode);
     };
 

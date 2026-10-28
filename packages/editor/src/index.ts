@@ -65,10 +65,25 @@ export {DrawingShape} from './tools/drawingBoards/DrawingShape';
 
 let UNDEF;
 
+/**
+ * Constructor of a legacy feature.
+ * @deprecated Use `editor.addFeature(geojson)` with a GeoJSON Feature instead.
+ * @hidden
+ */
+interface LegacyFeatureConstructor {
+    (id: any, coords: any, properties?: any): void;
+
+    new(coords: any, properties?: any): Feature;
+
+    new(id: string | number, coords: any, properties?: any): Feature;
+
+    prototype: Feature;
+}
+
 
 /**
- * @deprecated Use `editor.addFeature(geojson)` with a GeoJSON Feature instead, e.g.
- * `editor.addFeature({type: 'Feature', properties: {featureClass: 'NAVLINK'}, geometry: {type: 'LineString', coordinates: [[lon, lat], [lon, lat]]}})`.
+ * @deprecated Use `editor.addFeature(geojson)` with a GeoJSON Feature instead, e.g. `editor.addFeature({type: 'Feature', properties: {featureClass: 'MARKER'}, geometry: {type: 'Point', coordinates: [lon, lat]}})
+ * @hidden
  */
 // support for legacy api
 export const features = ((() => {
@@ -125,7 +140,7 @@ export const features = ((() => {
     return Object.fromEntries(
         ['Navlink', 'Area', 'Place', 'Address', 'Marker', 'Line']
             .map((t) => [t, createObjDef(t.toUpperCase())])
-    );
+    ) as unknown as { [name: string]: LegacyFeatureConstructor };
 }))();
 
 export {Editor, EditOperation};
