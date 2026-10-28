@@ -7,9 +7,6 @@ on:
         tags:
             - "v[0-9]+.[0-9]+.[0-9]+*"
 
-env:
-    yarn-network-timeout: 1000000
-
 jobs:
     test:
         uses: ./.github/workflows/cicd.yaml
@@ -23,29 +20,22 @@ jobs:
             contents: read
         steps:
             -   uses: actions/checkout@v2
-            -   name: Get yarn cache directory path
-                id: yarn-cache-dir-path
-                run: echo "dir=$(yarn cache dir)" >> "$GITHUB_OUTPUT"
-            -   uses: actions/cache@v4
-                id: yarn-cache # use this to check for `cache-hit` (`steps.yarn-cache.outputs.cache-hit != 'true'`)
-                with:
-                    path: ${{ steps.yarn-cache-dir-path.outputs.dir }}
-                    key: ${{ runner.os }}-yarn-${{ hashFiles('**/yarn.lock') }}
-                    restore-keys: |
-                        ${{ runner.os }}-yarn-
+            -   name: Setup pnpm
+                uses: pnpm/action-setup@v4
             -   name: Setup Node.js
                 uses: actions/setup-node@v4
                 with:
                     node-version-file: .nvmrc
                     registry-url: 'https://registry.npmjs.org'
+                    cache: pnpm
             -   name: Install dependencies
-                run: yarn install --network-timeout ${{ env.yarn-network-timeout }}
+                run: pnpm install --frozen-lockfile
             -   name: Build release
-                run: yarn run build-release
+                run: pnpm run build-release
             -   name: Get npm dist-tag
                 id: get-dist-tag
                 run: |
                     distTag=$(jq -r '.version | match(".*-([^.]*)").captures[0].string' package.json)
                     echo "dist-tag=${distTag:-latest}" >> "$GITHUB_OUTPUT"
             -   name: npm publish
-                run: yarn lerna publish from-package --no-git-tag-version --yes --dist-tag ${{ steps.get-dist-tag.outputs.dist-tag }}
+                run: pnpm exec lerna publish from-package --no-git-tag-version --yes --dist-tag ${{ steps.get-dist-tag.outputs.dist-tag }}

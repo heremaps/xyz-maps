@@ -10,9 +10,6 @@ on:
             - '*'
     workflow_call:
 
-env:
-    yarn-network-timeout: 1000000
-
 jobs:
     build:
         name: Test ${{ matrix.browser }} (${{ matrix.os }})
@@ -25,26 +22,19 @@ jobs:
 
         steps:
             -   uses: actions/checkout@v2
-            -   name: Get yarn cache directory path
-                id: yarn-cache-dir-path
-                run: echo "dir=$(yarn cache dir)" >> "$GITHUB_OUTPUT"
-            -   uses: actions/cache@v4
-                id: yarn-cache # use this to check for `cache-hit` (`steps.yarn-cache.outputs.cache-hit != 'true'`)
-                with:
-                    path: ${{ steps.yarn-cache-dir-path.outputs.dir }}
-                    key: ${{ runner.os }}-yarn-${{ hashFiles('**/yarn.lock') }}
-                    restore-keys: |
-                        ${{ runner.os }}-yarn-
+            -   name: Setup pnpm
+                uses: pnpm/action-setup@v4
             -   name: Use Node.js from .nvmrc
                 uses: actions/setup-node@v4
                 with:
                     node-version-file: .nvmrc
                     registry-url: 'https://registry.npmjs.org'
+                    cache: pnpm
                 env:
                     NODE_AUTH_TOKEN: ${{ secrets.NPM_TOKEN }}
             -   name: Install dependencies
-                run: yarn install --network-timeout ${{ env.yarn-network-timeout }}
+                run: pnpm install --frozen-lockfile
             -   name: Build release package
-                run: yarn run build-release
+                run: pnpm run build-release
             -   name: Run tests
-                run: yarn test --browser ${{ matrix.browser }}
+                run: pnpm test --browser ${{ matrix.browser }}

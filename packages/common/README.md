@@ -11,26 +11,26 @@ The Common module provides commonly used javascript functionality that are requi
 
 1. Install node module dependencies
     ```
-    yarn install
+    pnpm install
     ```
-    In case yarn is not installed already: [install yarn](https://yarnpkg.com/en/docs/install)
+    In case pnpm is not installed already: [install pnpm](https://pnpm.io/installation)
 
 2. watch for source code changes and build dev version
     ```
-    yarn run watch-dev
+    pnpm run watch-dev
     ```
     Builds are located in located in `./dist/`
 
 
 ## Other
 
-* build dev version once `yarn run build-dev` (located in packages/*/dist/)
+* build dev version once `pnpm run build-dev` (located in packages/*/dist/)
 
-* build release version only `yarn run build-release` (minified...)
+* build release version only `pnpm run build-release` (minified...)
 
 
 ## License
 
-Copyright (C) 2019-2022 HERE Europe B.V.
+Copyright (C) 2019-2026 HERE Europe B.V.
 
 This project is licensed under the Apache License, Version 2.0 - see the [LICENSE](LICENSE) file for details

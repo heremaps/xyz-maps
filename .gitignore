@@ -10,9 +10,4 @@ deploy/
 .*/
 !.github/
 !.husky/
-.yarn/*
-!.yarn/patches
-!.yarn/plugins
-!.yarn/releases
-!.yarn/sdks
-!.yarn/versions
+pnpm-debug.log*

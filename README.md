@@ -20,8 +20,8 @@ XYZ Maps consists of the following main modules:
 
 ## Prerequisites
 
-* [Node.js](https://nodejs.org) (>=20.0.0)
-* [Yarn](https://yarnpkg.com/en/docs/install) (>=1.22.0)
+* [Node.js](https://nodejs.org) (version in `.nvmrc`)
+* [pnpm](https://pnpm.io/installation) (any version, the project pins its own, see below)
 
 
 ## Start developing
@@ -34,14 +34,20 @@ XYZ Maps consists of the following main modules:
     cd xyz-maps
     ```
 
-2. Install node module dependencies
+2. Install pnpm, if it is not installed yet
     ```
-    yarn install
+    npm install -g pnpm
+    ```
+    The project pins the pnpm version in `package.json` (`packageManager`). pnpm switches to that version automatically. Installs with `npm` or `yarn` are blocked on purpose.
+
+3. Install node module dependencies
+    ```
+    pnpm install
     ```
 
-3. watch for source code changes and build dev version
+4. watch for source code changes and build dev version
     ```
-    yarn run watch-dev
+    pnpm run watch-dev
     ```
     Builds are located in `./packages/*/dist/`
 
@@ -57,14 +63,14 @@ Running integration tests / playground and debug pages requires the XYZ token to
 
 * Configure your XYZ token
     ```
-    yarn run set-access-token YOUR_ACCESS_TOKEN
+    pnpm run set-access-token YOUR_ACCESS_TOKEN
     ```
 
 ## Serve debug page
 
 * Start debug server (requires xyz access token)
     ```
-    yarn run server
+    pnpm run server
     ```
     browser will start and open http://localhost:8080/debug automatically
 
@@ -74,24 +80,24 @@ Running integration tests / playground and debug pages requires the XYZ token to
 
 * Build and start the playground (requires xyz access token)
     ```
-    yarn run playground
+    pnpm run playground
     ```
     browser will start and open http://localhost:8081/packages/playground/dist automatically
 
 
 ## Other Commands
 
-* Run tests on release build `yarn run test`
+* Run tests on release build `pnpm run test`
 
-* Build development version `yarn run build-dev` (located in docs/)
+* Build development version `pnpm run build-dev` (located in docs/)
 
-* Build release version only `yarn run build-release` (minified...)
+* Build release version only `pnpm run build-release` (minified...)
 
-* Build the documentation `yarn run build-doc` (located in packages/docs/dist/)
+* Build the documentation `pnpm run build-doc` (located in packages/docs/dist/)
 
-* Create full release bundle `yarn run bundle-release` (includes documentation and playground)
+* Create full release bundle `pnpm run bundle-release` (includes documentation and playground)
 
-* Configure XYZ access token `yarn run set-access-token YOUR_ACCESS_TOKEN`
+* Configure XYZ access token `pnpm run set-access-token YOUR_ACCESS_TOKEN`
 
 
 ## Guides
@@ -104,6 +110,6 @@ Running integration tests / playground and debug pages requires the XYZ token to
 
 ## License
 
-Copyright (C) 2019-2021 HERE Europe B.V.
+Copyright (C) 2019-2026 HERE Europe B.V.
 
 This project is licensed under the Apache License, Version 2.0 - see the [LICENSE](LICENSE) file for details

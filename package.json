@@ -1,6 +1,7 @@
 {
   "name": "@here/xyz-maps",
   "version": "0.46.1",
+  "packageManager": "pnpm@12.15.0",
   "description": "XYZ Editor is an experimental and work in progress open-source map editor written in TypeScript/JavaScript",
   "author": {
     "name": "HERE Europe B.V.",
@@ -12,18 +13,19 @@
     "url": "https://github.com/heremaps/xyz-maps.git"
   },
   "scripts": {
+    "preinstall": "npx only-allow pnpm",
     "prepare": "husky install",
     "test": "lerna run --stream --no-prefix --scope @here/xyz-maps-test test -- ",
     "update-changelog": "lerna run update-changelog --parallel && build-changelog --report",
-    "version": "yarn run update-changelog && ts-node scripts/bumpversion && git add -u",
-    "postversion": "yarn run build-release",
+    "version": "pnpm run update-changelog && ts-node scripts/bumpversion && git add -u",
+    "postversion": "pnpm run build-release",
     "watch-dev": "lerna run watch-dev --parallel --stream",
     "build-dev": "lerna run build-dev --parallel --stream",
     "build-doc": "npx typedoc",
-    "build-release": "yarn run build-declarations && lerna run build-release --parallel --stream",
-    "bundle-release": "yarn run build-doc && yarn run build-playground && yarn run build-release",
+    "build-release": "pnpm run build-declarations && lerna run build-release --parallel --stream",
+    "bundle-release": "pnpm run build-doc && pnpm run build-playground && pnpm run build-release",
     "build-declarations": "lerna run build-dts --stream",
-    "playground": "yarn run build-playground && npx http-server . -d -c-1 -p 8081 -o ./packages/playground/dist",
+    "playground": "pnpm run build-playground && npx http-server . -d -c-1 -p 8081 -o ./packages/playground/dist",
     "build-playground": "lerna run --scope @here/xyz-maps-playground build --stream --no-prefix",
     "cleanup:dist": "rm -r ./packages/*/dist && ./packages/core/build/index.js ./packages/core/build/shared.js ./packages/core/build/workers.js",
     "eslint:fix": "eslint ./packages/*/src/**/*.ts --fix",
@@ -51,21 +53,13 @@
     "typedoc-plugin-remove-references": "^0.0.6",
     "typescript": "^5.9.3"
   },
-  "workspaces": [
-    "packages/*"
-  ],
-  "resolutions": {
-    "handlebars": "4.7.9",
-    "http-cache-semantics": "4.3.0",
-    "lerna/tar": "7.5.22",
-    "source-map-js": "1.2.2"
-  },
   "engines": {
     "node": "^20.19.0 || ^22.12.0 || >=24.0.0",
-    "yarn": ">=1.22"
+    "pnpm": ">=12"
   },
   "volta": {
-    "node": "24.11.0"
+    "node": "24.11.0",
+    "pnpm": "12.15.0"
   },
   "lint-staged": {
     "*.{js,ts}": "eslint --cache --fix"

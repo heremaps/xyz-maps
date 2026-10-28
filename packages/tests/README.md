@@ -4,7 +4,7 @@
 
 Build XYZ Editor JS for tests to run against:
 
-* build in root directory `yarn run build-release`
+* build in root directory `pnpm run build-release`
 
 ### Setup Environments
 
@@ -29,16 +29,16 @@ Create `credentials.json` in ./tests with your credentials, the credentials will
 
 Test is started through a command under root directory:
    ```
-   yarn run test
+   pnpm run test
    ```
 Runs a test with predefined configures
 
 ### Customize a test with parameters
 
-Start a test under 'test/' sub-directory. API is build under root directory `yarn run build-release` beforhand.
+Start a test under 'test/' sub-directory. API is build under root directory `pnpm run build-release` beforhand.
 
     Usage:
-        `yarn run test [OPTIONS]`
+        `pnpm run test [OPTIONS]`
 
     Config Options:
         --browser               Run tests in specified browser                           ['Chrome'|'ChromeHeadless'|'Firefox'] [default: 'Chrome']
@@ -78,6 +78,6 @@ Start a test under 'test/' sub-directory. API is build under root directory `yar
 
 ### Other commands
 
-  * Build test: `yarn run build`
+  * Build test: `pnpm run build`
 
-  * Rebuild test when test changes: `yarn run watch`
+  * Rebuild test when test changes: `pnpm run watch`

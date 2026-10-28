@@ -2,7 +2,7 @@
 
 ## Repository Overview
 
-XYZ Maps is a TypeScript/JavaScript open-source map editor and rendering library by HERE Europe. It is a **Yarn workspaces monorepo** managed with **Lerna**.
+XYZ Maps is a TypeScript/JavaScript open-source map editor and rendering library by HERE Europe. It is a **pnpm workspaces monorepo** managed with **Lerna**.
 
 ### Package dependency order (build/understand bottom-up)
 
@@ -22,43 +22,43 @@ XYZ Maps is a TypeScript/JavaScript open-source map editor and rendering library
 
 ```bash
 # Install dependencies
-yarn install
+pnpm install
 
 # Dev build (all packages, with sourcemaps)
-yarn run build-dev
+pnpm run build-dev
 
 # Watch mode (rebuilds on change)
-yarn run watch-dev
+pnpm run watch-dev
 
 # Production/release build (minified, no sourcemaps)
-yarn run build-release
+pnpm run build-release
 
 # Run all tests (requires credentials.json + environments.json in packages/tests/)
-yarn run test
+pnpm run test
 
 # Run tests for a single component, optionally filtered by string
-yarn run test -- --editor=true
-yarn run test -- --editor="drawing"      # filter by spec name substring
-yarn run test -- --core=true --browser=ChromeHeadless --singleRun=true
+pnpm run test -- --editor=true
+pnpm run test -- --editor="drawing"      # filter by spec name substring
+pnpm run test -- --core=true --browser=ChromeHeadless --singleRun=true
 
 # Lint and auto-fix
-yarn run eslint:fix
+pnpm run eslint:fix
 
 # Debug server (http://localhost:8080/debug)
-yarn run server
+pnpm run server
 
 # Playground server (http://localhost:8081/packages/playground/dist)
-yarn run playground
+pnpm run playground
 
 # Build API docs
-yarn run build-doc
+pnpm run build-doc
 ```
 
 ### Per-package scripts (run from package directory or via lerna --scope)
 
 Each package has its own `rollup.config.js` and supports:
-- `yarn run build-dev` / `yarn run watch-dev` / `yarn run build-release`
-- `yarn run build-dts` — generates `.d.ts` declaration bundles
+- `pnpm run build-dev` / `pnpm run watch-dev` / `pnpm run build-release`
+- `pnpm run build-dts` — generates `.d.ts` declaration bundles
 
 ## Architecture
 
@@ -131,7 +131,7 @@ Lint runs automatically on staged files via Husky + lint-staged.
 - Tests run **in-browser** (Chrome by default); requires:
   - `packages/tests/environments.json` — XYZ Hub endpoint and tile image server URL
   - `packages/tests/credentials.json` — access token
-- Build release artifacts before testing: `yarn run build-release`
+- Build release artifacts before testing: `pnpm run build-release`
 
 ### Style definitions
 Style values can be **static** or **expression-based** (using the `Expressions` DSL from `@here/xyz-maps-common`). Expression objects are evaluated at render time against feature properties and zoom level — do not assume style property values are always primitive types.
