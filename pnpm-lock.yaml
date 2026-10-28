@@ -173,7 +173,7 @@ importers:
   .:
     devDependencies:
       '@here/xyz-maps-utils':
-        specifier: ^0.46.1
+        specifier: workspace:^
         version: link:packages/utils
       '@microsoft/api-extractor':
         specifier: ^7.18.4
