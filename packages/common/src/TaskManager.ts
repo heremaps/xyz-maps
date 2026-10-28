@@ -24,12 +24,22 @@ import Task, {TaskOptions} from './Task';
 const FPS60 = 1000 / 60 - 4;
 let TMID = 0;
 
+/**
+ * Task scheduler.
+ * Internal, not part of the public API. Do not use directly.
+ * @hidden
+ */
 export class TaskManager {
     private active: boolean;
     private queue: Array<Array<Task>>;
 
     id: number;
     // exclusive runtime for all running tasks in ms
+    /**
+     * Exclusive runtime for all running tasks in ms.
+     * Internal, not part of the public API. Do not use directly.
+     * @hidden
+     */
     time: number = FPS60; // -> 60FPS
     // current executing task...
     private task: Task;
@@ -39,6 +49,11 @@ export class TaskManager {
     private _resume: () => void;
 
 
+    /**
+     * Creates a task manager.
+     * Internal, not part of the public API. Do not use directly.
+     * @hidden
+     */
     constructor(time?: number) {
         const taskManager = this;
 
@@ -179,6 +194,11 @@ export class TaskManager {
         return this.task = task;
     };
 
+    /**
+     * Creates a task.
+     * Internal, not part of the public API. Do not use directly.
+     * @hidden
+     */
     create<I = any, O = any>(task: TaskOptions<I, O>): Task<I, O> {
         return new Task(task, this);
     };
@@ -200,6 +220,11 @@ export class TaskManager {
     };
 
 
+    /**
+     * Starts a task.
+     * Internal, not part of the public API. Do not use directly.
+     * @hidden
+     */
     start(task: Task, forceSync?: boolean) {
         const curTask = this.task;
         // var taskPrio = this.getPriority( task )
@@ -229,6 +254,11 @@ export class TaskManager {
         }
     };
 
+    /**
+     * Cancels a task.
+     * Internal, not part of the public API. Do not use directly.
+     * @hidden
+     */
     cancel(task: Task) {
         task.canceled = true;
 

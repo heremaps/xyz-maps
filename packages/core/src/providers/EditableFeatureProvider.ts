@@ -20,7 +20,7 @@
 import {FeatureProvider as FeatureTileProvider} from './FeatureProvider';
 import {Feature} from '../features/Feature';
 import {JSUtils} from '@here/xyz-maps-common';
-import {
+import type {
     NavlinkSplitHook,
     NavlinkDisconnectHook,
     FeatureRemoveHook,
@@ -35,7 +35,7 @@ import type {
     Line,
     Marker,
     Area,
-    Navlink as EditorNavlink,
+    Navlink,
     Place,
     Address
 } from '@here/xyz-maps-editor';
@@ -152,7 +152,7 @@ export abstract class EditableFeatureProvider extends FeatureTileProvider {
      *
      * By default, the {@link Editor} handles all features of geometry type 'LineString' as {@link Line}, 'Point' as {@link Marker} and '(Multi)Polygon' as {@link Area}.
      *
-     * If you want to edit features with {@link EditorFeature.class | FeatureClass} 'NAVLINK', 'PLACE' or 'ADDRESS' this method must be overridden to enable editing of {@link EditorNavlink | Navlinks}, {@link Place | Places} or {@link Address | Addresses}.
+     * If you want to edit features with {@link EditorFeature.class | FeatureClass} 'NAVLINK', 'PLACE' or 'ADDRESS' this method must be overridden to enable editing of {@link Navlink | Navlinks}, {@link Place | Places} or {@link Address | Addresses}.
      * The other methods required for each feature class are listed in the class documentation of {@link EditableFeatureProvider}.
      *
      * @param feature - The feature whose {@link EditorFeature.class | FeatureClass} is requested
@@ -178,7 +178,7 @@ export abstract class EditableFeatureProvider extends FeatureTileProvider {
     /**
      * Attribute reader for obtaining the zLevels of a Navlink feature.
      *
-     * This method must be implemented to enable editing of {@link EditorNavlink | Navlinks}.
+     * This method must be implemented to enable editing of {@link Navlink | Navlinks}.
      *
      * @param navlink - the Navlink whose zLevels are requested
      *
@@ -189,7 +189,7 @@ export abstract class EditableFeatureProvider extends FeatureTileProvider {
     /**
      * Attribute writer for writing the zLevels of a Navlink feature.
      *
-     * This method must be implemented to enable editing of {@link EditorNavlink | Navlinks}.
+     * This method must be implemented to enable editing of {@link Navlink | Navlinks}.
      *
      * @param navlink - the Navlink whose zLevels should be set
      * @param zLevels - An array containing the zLevel for each coordinate of the Navlink
@@ -201,7 +201,7 @@ export abstract class EditableFeatureProvider extends FeatureTileProvider {
     /**
      * Attribute reader for obtaining the direction of travel of a Navlink feature.
      *
-     * This method must be implemented to enable editing of {@link EditorNavlink | Navlinks}.
+     * This method must be implemented to enable editing of {@link Navlink | Navlinks}.
      *
      * @param navlink - the Navlink whose direction is requested
      */
@@ -210,7 +210,7 @@ export abstract class EditableFeatureProvider extends FeatureTileProvider {
     /**
      * Attribute reader for obtaining if a Navlink feature can be accessed by pedestrians only.
      *
-     * This method must be implemented to enable editing of {@link EditorNavlink | Navlinks}.
+     * This method must be implemented to enable editing of {@link Navlink | Navlinks}.
      *
      * @param navlink - the Navlink
      *
@@ -221,7 +221,7 @@ export abstract class EditableFeatureProvider extends FeatureTileProvider {
     /**
      * Attribute reader for obtaining the turn-restrictions of two Navlink Features.
      *
-     * This method must be implemented to enable editing of {@link EditorNavlink | Navlinks}.
+     * This method must be implemented to enable editing of {@link Navlink | Navlinks}.
      *
      * @param turnFrom - The Navlink and it's coordinate index from which to turn from
      * @param turnTo - The Navlink and it's coordinate index to which you want to turn
@@ -237,7 +237,7 @@ export abstract class EditableFeatureProvider extends FeatureTileProvider {
     /**
      * Attribute writer for writing a turn restriction between two Navlink features.
      *
-     * This method must be implemented to enable editing of {@link EditorNavlink | Navlinks}.
+     * This method must be implemented to enable editing of {@link Navlink | Navlinks}.
      * It defines whether a turn from one Navlink to another is permitted or restricted.
      *
      * @param restricted - Specifies whether the turn is forbidden (`true`) or allowed (`false`).
@@ -308,13 +308,13 @@ export abstract class EditableFeatureProvider extends FeatureTileProvider {
     abstract writeRoutingLink(feature: Feature, position, navlink: Feature | null);
 
     /**
-     * Read intersection-related connectivity for a {@link EditorNavlink | Navlink}  node.
+     * Read intersection-related connectivity for a {@link Navlink | Navlink}  node.
      *
      * This method allows an EditableFeatureProvider to override the
      * default geometric intersection detection.
      *
-     * It is called for the start or end node of a {@link EditorNavlink | Navlink}  to determine
-     * whether that node forms an intersection and which {@link EditorNavlink | Navlinks}  are
+     * It is called for the start or end node of a {@link Navlink | Navlink}  to determine
+     * whether that node forms an intersection and which {@link Navlink | Navlinks}  are
      * connected to it.
      *
      * Implement this if intersection information is stored in feature

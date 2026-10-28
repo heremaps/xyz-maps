@@ -23,14 +23,29 @@ export enum ExpressionMode {
     dynamic
 };
 
+/**
+ * Interface of an expression.
+ * Internal, not part of the public API. Do not use directly.
+ * @hidden
+ */
 export interface IExpression {
     json: any[];
 
     eval(context: any);
 }
 
+/**
+ * JSON representation of an expression.
+ * Internal, not part of the public API. Do not use directly.
+ * @hidden
+ */
 export type JSONExpression = [string, ...any[]];
 
+/**
+ * Evaluation context of an expression.
+ * Internal, not part of the public API. Do not use directly.
+ * @hidden
+ */
 export type Context = { [name: string]: any };
 
 let expId = 0;

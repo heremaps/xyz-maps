@@ -32,6 +32,11 @@ interface Cache<E> {
     clear();
 }
 
+/**
+ * Definition of an expression or value.
+ * Internal, not part of the public API. Do not use directly.
+ * @hidden
+ */
 export type Def = JSONExpression | Expression | boolean | number | string | null | any[];
 export type Value = { value: Def };
 export type Definitions = { [name: string]: Def | Value };
@@ -97,6 +102,11 @@ export class ExpressionParser {
         this.Expressions = expressions;
     }
 
+    /**
+     * Creates an expression parser.
+     * Internal, not part of the public API. Do not use directly.
+     * @hidden
+     */
     constructor(definitions: Definitions = {}, context: Context = {}) {
         this.definitions = definitions;
         this.context = context;

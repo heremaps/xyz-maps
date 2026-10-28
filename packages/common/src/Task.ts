@@ -27,6 +27,11 @@ export interface TaskRestartOptions<I = any, O = any, R = O> {
     priority?: number;
 }
 
+/**
+ * Options of a task.
+ * Internal, not part of the public API. Do not use directly.
+ * @hidden
+ */
 export interface TaskOptions<I = any, O = any, R = O> {
     priority?: number;
     exec?: (data?: O) => boolean | void;
@@ -36,6 +41,11 @@ export interface TaskOptions<I = any, O = any, R = O> {
     name?: string;
 }
 
+/**
+ * Base class of a task.
+ * Internal, not part of the public API. Do not use directly.
+ * @hidden
+ */
 class Task<I = any, O = any, R = O> {
     protected manager: TaskManager;
 
@@ -68,6 +78,11 @@ class Task<I = any, O = any, R = O> {
     started: boolean;
 
 
+    /**
+     * Creates a task.
+     * Internal, not part of the public API. Do not use directly.
+     * @hidden
+     */
     constructor(
         options: TaskOptions<I, O, R> = {},
         manager?: TaskManager
@@ -93,16 +108,31 @@ class Task<I = any, O = any, R = O> {
         this.manager = manager;
     }
 
+    /**
+     * Starts the task.
+     * Internal, not part of the public API. Do not use directly.
+     * @hidden
+     */
     start(data?: any) {
         this._initData = data;
         return this.manager.start(this);
     };
 
+    /**
+     * Pauses the task.
+     * Internal, not part of the public API. Do not use directly.
+     * @hidden
+     */
     pause() {
         this.paused = true;
         return this.CONTINUE;
     }
 
+    /**
+     * Resumes the task.
+     * Internal, not part of the public API. Do not use directly.
+     * @hidden
+     */
     resume() {
         this.paused = false;
         this.start(this._initData);
@@ -153,6 +183,11 @@ class Task<I = any, O = any, R = O> {
     //     return task.manager.yield(task);
     // };
 
+    /**
+     * Cancels the task.
+     * Internal, not part of the public API. Do not use directly.
+     * @hidden
+     */
     cancel() {
         this._initData = null;
         return this.manager.cancel(this);

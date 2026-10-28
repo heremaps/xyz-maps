@@ -22,7 +22,6 @@ import LRUStorage from '../storage/LRUStorage';
 import {Feature} from '../features/Feature';
 import {TileStorage} from '../storage/TileStorage';
 import {GeoJSONCoordinate} from '../features/GeoJSON';
-import type {Editor} from '@here/xyz-maps-editor';
 
 type Navlink = Feature;
 

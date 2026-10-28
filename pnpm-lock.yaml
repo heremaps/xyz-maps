@@ -443,6 +443,18 @@ importers:
 
   packages/tests:
     devDependencies:
+      '@here/xyz-maps-common':
+        specifier: workspace:^
+        version: link:../common
+      '@here/xyz-maps-core':
+        specifier: workspace:^
+        version: link:../core
+      '@here/xyz-maps-display':
+        specifier: workspace:^
+        version: link:../display
+      '@here/xyz-maps-editor':
+        specifier: workspace:^
+        version: link:../editor
       '@rollup/plugin-commonjs':
         specifier: ^29.0.3
         version: 29.0.3(rollup@4.64.2)

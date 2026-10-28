@@ -26,6 +26,11 @@ type TASK_RESULT<T extends readonly Task<any, any, any>[]> = {
 
 // type FIRST_TASK_INPUT<I> = [Task<I, any, any>, ...Task<any, any, any>[]];
 
+/**
+ * Sequence of tasks.
+ * Internal, not part of the public API. Do not use directly.
+ * @hidden
+ */
 export class TaskSequence<T extends readonly Task<any, any, any>[]> extends Task {
     private tasks: T;
     private results: any[] = [];

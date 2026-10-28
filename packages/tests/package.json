@@ -19,6 +19,10 @@
     "test": "node build.js --test"
   },
   "devDependencies": {
+    "@here/xyz-maps-common": "workspace:^",
+    "@here/xyz-maps-core": "workspace:^",
+    "@here/xyz-maps-display": "workspace:^",
+    "@here/xyz-maps-editor": "workspace:^",
     "@rollup/plugin-commonjs": "^29.0.3",
     "@rollup/plugin-json": "^6.1.0",
     "@rollup/plugin-node-resolve": "^16.0.3",

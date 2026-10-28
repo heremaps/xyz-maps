@@ -33,8 +33,8 @@ import Queue from './Queue';
 import * as vec3 from './Vec3';
 import {AStar, AStarNode} from './AStar';
 import {BinaryHeap} from './BinaryHeap';
-import {ExpressionParser} from './Expressions/ExpressionParser';
-import {JSONExpression, Expression, ExpressionMode} from './Expressions/Expression';
+import {ExpressionParser, Def} from './Expressions/ExpressionParser';
+import {JSONExpression, Expression, ExpressionMode, IExpression, Context} from './Expressions/Expression';
 import {Colors as Color} from './Color';
 import {Pool} from './Pool';
 // make sure global ns is also available for webpack users.
@@ -74,6 +74,9 @@ export {
     AStarNode,
     BinaryHeap,
     Color,
+    Context,
+    Def,
+    IExpression,
     JSONExpression,
     Expression,
     ExpressionMode,

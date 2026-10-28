@@ -18,7 +18,7 @@
  */
 
 import {RemoteTileProviderOptions} from './RemoteTileProviderOptions';
-import {NavlinkSplitHook, NavlinkDisconnectHook, FeatureRemoveHook, CoordinatesUpdateHook} from '@here/xyz-maps-editor';
+import type {NavlinkSplitHook, NavlinkDisconnectHook, FeatureRemoveHook, CoordinatesUpdateHook} from '@here/xyz-maps-editor';
 import type {Editor} from '@here/xyz-maps-editor';
 
 /**
