@@ -319,6 +319,11 @@ export default class Editor {
      *  {@link EditableFeatureProvider.detectFeatureClass}, which maps the GeoJSON to the feature class. Places and
      *  Addresses also need the routing position to be readable and writable through the provider.
      *
+     *  Without a layer argument, the feature is added to the first layer whose provider classifies it as that layer's
+     *  feature class (see {@link EditableFeatureProvider.detectFeatureClass}). If no layer matches, the feature is added
+     *  to the first layer that is not restricted to a feature class. If there is no such layer, the feature is not added.
+     *  If several layers match, the first one in the layer list is used.
+     *
      *  @example
      *  ```ts
      *  const link = editor.addFeature({

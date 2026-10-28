@@ -165,6 +165,34 @@ export default class InternalEditor {
         return found || firstMultiTypeLayer;
     };
 
+    /**
+     * Returns the layer for a feature that is added without an explicit layer.
+     * A layer whose provider has a class is used if that provider classifies the feature as its class.
+     * Otherwise the first layer whose provider has no class is used.
+     *
+     * @internal
+     * @hidden
+     */
+    getLayerForFeature(feature: any): TileLayer {
+        let firstMultiTypeLayer;
+        let prov;
+
+        // legacy: the provider class marks dedicated layers. It is not part of the public API (see TODO in Editor.addLayer).
+        for (let layer of this.layers) {
+            prov = layer.getProvider ? layer.getProvider() : undefined;
+            if (!prov) continue;
+
+            if (!prov.class) {
+                if (!firstMultiTypeLayer) {
+                    firstMultiTypeLayer = layer;
+                }
+            } else if (typeof prov.detectFeatureClass == 'function' && prov.detectFeatureClass(feature) == prov.class) {
+                return layer;
+            }
+        }
+        return firstMultiTypeLayer;
+    };
+
     // also supporting currently not active layers.
     getProviderById(layerId: string): EditableRemoteTileProvider {
         const layer = this.prvIdLayerMap[layerId];

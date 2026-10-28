@@ -336,7 +336,11 @@ class ObjectManager {
             if (typeof layer == 'string') { // --> layerId
                 layer = this.layers.get(layer);
             } else if (!layer) {
-                layer = HERE_WIKI.getLayerForClass(getFeatureClass(obj));
+                const featureClass = getFeatureClass(obj);
+
+                layer = featureClass
+                    ? HERE_WIKI.getLayerForClass(featureClass)
+                    : HERE_WIKI.getLayerForFeature(obj);
             }
 
             if (layer) {
