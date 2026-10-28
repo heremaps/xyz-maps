@@ -1,0 +1,11 @@
+packages:
+  - packages/*
+allowBuilds:
+  '@parcel/watcher': true
+  nx: true
+linkWorkspacePackages: true
+overrides:
+  handlebars: '4.7.9'
+  http-cache-semantics: '4.3.0'
+  'lerna>tar': '7.5.22'
+  source-map-js: '1.2.2'

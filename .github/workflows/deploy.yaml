@@ -11,9 +11,6 @@ on:
         tags:
             - "v[0-9]+.[0-9]+.[0-9]+"
 
-env:
-    yarn-network-timeout: 1000000
-
 jobs:
     test:
         if: ${{ github.event_name != 'workflow_dispatch' || !inputs.skip_tests }}
@@ -26,28 +23,21 @@ jobs:
         runs-on: ubuntu-24.04
         steps:
             -   uses: actions/checkout@v2
-            -   name: Get yarn cache directory path
-                id: yarn-cache-dir-path
-                run: echo "dir=$(yarn cache dir)" >> "$GITHUB_OUTPUT"
-            -   uses: actions/cache@v4
-                id: yarn-cache # use this to check for `cache-hit` (`steps.yarn-cache.outputs.cache-hit != 'true'`)
-                with:
-                    path: ${{ steps.yarn-cache-dir-path.outputs.dir }}
-                    key: ${{ runner.os }}-yarn-${{ hashFiles('**/yarn.lock') }}
-                    restore-keys: |
-                        ${{ runner.os }}-yarn-
+            -   name: Setup pnpm
+                uses: pnpm/action-setup@v4
             -   name: Setup Node.js
                 uses: actions/setup-node@v4
                 with:
                     node-version-file: .nvmrc
+                    cache: pnpm
             -   name: Install dependencies
-                run: yarn install --network-timeout ${{ env.yarn-network-timeout }}
+                run: pnpm install --frozen-lockfile
             -   name: Build documentation
-                run: yarn run build-doc
+                run: pnpm run build-doc
             -   name: Build release
-                run: yarn run build-release
+                run: pnpm run build-release
             -   name: Build playgorund
-                run: yarn run build-playground -- -- --environment BUILD:production --environment doc-path:../docs/ --environment api-path:../ --environment token-path:${{ secrets.TOKEN_PATH }}
+                run: pnpm run build-playground -- -- --environment BUILD:production --environment doc-path:../docs/ --environment api-path:../ --environment token-path:${{ secrets.TOKEN_PATH }}
             -   name: Preapre deployment
                 run: node scripts/prepare-pages.js
             -   name: Deploy to gh-pages

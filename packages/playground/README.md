@@ -3,11 +3,11 @@
 ### Prepare
 
 The XYZ Maps Playground uses XYZ Maps JS, therefore please make sure a build of XYZ Maps is available.<br>
-To build XYZ Maps just run `yarn run build-release` in the git root directory.
+To build XYZ Maps just run `pnpm run build-release` in the git root directory.
 
 ### Setup Credentials
 
-Credentials can be set up automatically by running `yarn run set-access-token YOUR_ACCESS_TOKEN` in git root<br>
+Credentials can be set up automatically by running `pnpm run set-access-token YOUR_ACCESS_TOKEN` in git root<br>
 or manually by creating `credentials.json` in the playground package root.
 ```javascript
 {
@@ -17,12 +17,12 @@ or manually by creating `credentials.json` in the playground package root.
 
 ### Build the Playground with default options
 ```
-yarn run build
+pnpm run build
 ```
 
 ### Build Playground with custom options
 
-Usage: `yarn run build [OPTIONS]`
+Usage: `pnpm run build [OPTIONS]`
 
 Options:
 
@@ -41,6 +41,6 @@ Options:
 
 ## License
 
-Copyright (C) 2019-2022 HERE Europe B.V.
+Copyright (C) 2019-2026 HERE Europe B.V.
 
 This project is licensed under the Apache License, Version 2.0 - see the [LICENSE](LICENSE) file for details
