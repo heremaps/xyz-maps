@@ -9,6 +9,7 @@ on:
         branches:
             - '*'
     workflow_call:
+    workflow_dispatch:
 
 env:
     yarn-network-timeout: 1000000
