@@ -38,7 +38,7 @@
   "publishConfig": {},
   "private": true,
   "devDependencies": {
-    "@here/xyz-maps-utils": "^0.46.1",
+    "@here/xyz-maps-utils": "workspace:^",
     "@microsoft/api-extractor": "^7.18.4",
     "@types/node": "^26.6.4",
     "@typescript-eslint/parser": "^8.71.1",

@@ -3,7 +3,8 @@
   "version": "0.46.1",
   "command": {
     "version": {
-      "push": false
+      "push": false,
+      "forcePublish": true
     }
   }
 }
