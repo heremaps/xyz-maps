@@ -17,13 +17,12 @@
  * License-Filename: LICENSE
  */
 import {prepare} from 'utils';
-import {waitForEditorReady} from 'editorUtils';
+import {validateSegment, waitForEditorReady} from 'editorUtils';
 import {drag} from 'triggerEvents';
 import {Map} from '@here/xyz-maps-display';
 import {Editor} from '@here/xyz-maps-editor';
 import chaiAlmost from 'chai-almost';
 import dataset from './rangeselector_snap_overlap_spec.json';
-import {validateSegment} from './rangeselector_spec';
 
 describe('range selector: snapping and overlapping', () => {
     const expect = chai.expect;

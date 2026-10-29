@@ -55,21 +55,23 @@ describe('map error listener', function() {
         await preparedData.clear();
     });
 
-    xit('submit a link with invalid token', function(done) {
-        const _open = XMLHttpRequest.prototype.open;
+    xit('submit a link with invalid token', function() {
+        return new Promise<void>((done) => {
+            const _open = XMLHttpRequest.prototype.open;
 
-        XMLHttpRequest.prototype.open = function(
-            method: string, url: string, async?: boolean, username?: string, password?: string
-        ) {
-            _open.call(this, method, url + 'invalidtoken', async);
-            XMLHttpRequest.prototype.open = _open;
-        };
+            XMLHttpRequest.prototype.open = function(
+                method: string, url: string, async?: boolean, username?: string, password?: string
+            ) {
+                _open.call(this, method, url + 'invalidtoken', async);
+                XMLHttpRequest.prototype.open = _open;
+            };
 
-        listener = new Listener(editor, ['error']);
+            listener = new Listener(editor, ['error']);
 
-        let lnk = editor.search({point: {longitude: 86.904889, latitude: 16.410735}, radius: 50, remote: true});
+            let lnk = editor.search({point: {longitude: 86.904889, latitude: 16.410735}, radius: 50, remote: true});
 
-        let results = listener.stop();
-        expect(results.error).to.have.lengthOf(1);
+            let results = listener.stop();
+            expect(results.error).to.have.lengthOf(1);
+        });
     });
 });

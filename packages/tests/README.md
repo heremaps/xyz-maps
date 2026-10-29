@@ -1,14 +1,66 @@
-## XYZ Editor JS: Tests
+## XYZ Maps JS: Tests
 
-### Build XYZ-MAPS JS
+The tests run in a real browser with [Vitest browser mode](https://vitest.dev/guide/browser/) and Playwright.
+The specs are written with Mocha-style globals (`describe`, `it`, `before`, `after`, `xit`) and Chai.
+`vitest/setup.ts` provides them.
 
-Build XYZ Editor JS for tests to run against:
+### Build XYZ Maps JS
 
-* build in root directory `pnpm run build-release`
+The tests run against the bundles in `packages/*/dist`. Build them first in the root directory:
 
-### Setup Environments
+* `pnpm run build-release` for the minified bundles (default)
+* `pnpm run build-dev` for the bundles that are used with `XYZ_DIST=dev`
 
-Create `environments.json` in ./tests with your settings, tests will run in the environments you specified:
+### Requirements
+
+* Google Chrome is installed. It is used by default.
+* To use Playwright's own browsers instead, run `pnpm exec playwright install chromium` (or `firefox`) and set `XYZ_BROWSER`.
+
+### Start the tests
+
+Under the root directory or in `packages/tests`:
+
+```
+pnpm run test
+```
+
+This runs `common`, `core`, `display` and `editor`. Each of them is a Vitest project.
+
+### Select tests
+
+Everything after `pnpm run test` is passed to Vitest, see `vitest run --help`.
+
+```
+pnpm run test --project editor                  # a single component, can be repeated
+pnpm run test --project editor specs/editor/link   # only spec files whose path contains the string
+pnpm run test --project editor -t "drawing"     # only tests whose name matches
+pnpm run test --bail 1                          # stop after the first failure
+pnpm run test --browser.headless=false          # show the browser
+pnpm run watch                                  # rerun on changes (in packages/tests)
+```
+
+### Environment variables
+
+| Variable | Default | Description |
+|---|---|---|
+| `XYZ_DIST` | `min` | `dev` uses `dist/xyz-maps-<name>.js` instead of `dist/xyz-maps-<name>.min.js` |
+| `XYZ_COMMON_SRC`, `XYZ_CORE_SRC`, `XYZ_DISPLAY_SRC`, `XYZ_EDITOR_SRC` | | Path of the bundle of a single component |
+| `XYZ_BROWSER` | `chrome` | `chrome` (installed Google Chrome), `chromium` or `firefox` (Playwright browsers) |
+| `XYZ_ENVIRONMENTS` | `./environments.json` | Path of the environments file |
+| `XYZ_IMAGE_URL`, `XYZ_HUB_URL` | | Overwrite `image` and `xyzhub` of the environments file |
+| `XYZ_CREDENTIALS` | `./credentials.json` | Path of the credentials file (integration tests only) |
+| `XYZ_ACCESS_TOKEN` | | Overwrite `access_token` of the credentials file (integration tests only) |
+
+Example: `XYZ_DIST=dev pnpm run test --project display`
+
+The specs load data from `assets/` through the path `/base/tests/assets/`.
+
+### Integration tests
+
+The integration tests create spaces in an XYZ Hub and delete them afterwards. They are not part of `pnpm run test`.
+
+Create `environments.json` in `packages/tests` with your settings:
+
 ```javascript
 {
     "xyzhub": "YOUR_XYZHUB_ENDPOINT",
@@ -16,68 +68,19 @@ Create `environments.json` in ./tests with your settings, tests will run in the 
 }
 ```
 
-### Setup Credentials
+Create `credentials.json` in `packages/tests` with your credentials. The file is ignored by git.
 
-Create `credentials.json` in ./tests with your credentials, the credentials will work within your environments:
 ```javascript
 {
     "access_token": "YOUR_ACCESS_TOKEN"
 }
 ```
 
-### Start a test
+Run them with `pnpm run test:integration`.
 
-Test is started through a command under root directory:
-   ```
-   pnpm run test
-   ```
-Runs a test with predefined configures
+### Write specs
 
-### Customize a test with parameters
-
-Start a test under 'test/' sub-directory. API is build under root directory `pnpm run build-release` beforhand.
-
-    Usage:
-        `pnpm run test [OPTIONS]`
-
-    Config Options:
-        --browser               Run tests in specified browser                           ['Chrome'|'ChromeHeadless'|'Firefox'] [default: 'Chrome']
-        --singleRun             Run tests and then exit with an exit code of 0 or 1 depending on whether all tests passed or any tests failed
-                                                                                                                      [true|false] [default: true]
-
-    Component Options:
-        Tests run against all components except integration by default
-        --common                Include or exclude component 'common' or only run tests matching this string                    [true|false|string]
-        --core                  Include or exclude component 'core' or only run tests matching this string                      [true|false|string]
-        --display               Include or exclude component 'display' or only run tests matching this string                   [true|false|string]
-        --editor                Include or exclude component 'editor' or only run tests matching this string                    [true|false|string]
-        --integration           Include or exclude component 'integration' or only run tests matching this string               [true|false|string]
-
-    Mocha Options:
-        --bail                  Abort ("bail") after first test failure                                               [true|false] [default: false]
-        --timeout               Specify test timeout threshold (in milliseconds)                                          [number] [default: 20000]
-        --invert                Inverts matches defined in Component Options                                                              [boolean]
-
-    Sources:
-        --common-src            Path of component 'common'                              [string] [default: '../common/dist/xyz-maps-common.min.js']
-        --core-src              Path of component 'core'                                    [string] [default: '../core/dist/xyz-maps-core.min.js']
-        --display-src           Path of component 'display'                           [string] [default: '../display/dist/xyz-maps-display.min.js']
-        --editor-src            Path of component 'editor'                              [string] [default: '../editor/dist/xyz-maps-editor.min.js']
-        --dev                   Use dev source path of all components                                                    [boolean] [default: false]
-
-    Test Environments:
-        --environments          Path of environments file, details of the file see above in `Setup Environments`
-                                                                                                        ['string'] [default: './environments.json']
-        --environments.xyzhub   Set/overwrite endpoint of XYZ Hub                                                                        ['string']
-        --environments.image    Set/overwrite endpoint of image server                                                                   ['string']
-
-    XYZ Hub credentials:
-        --credentials:          Path of credentials file, details of the file see above in `Setup Credentials`
-                                                                                                         ['string'] [default: './credentials.json']
-        --credentials.access_token  Set/overwrite access token for XYZ Hub                                                               ['string']
-
-### Other commands
-
-  * Build test: `pnpm run build`
-
-  * Rebuild test when test changes: `pnpm run watch`
+* Do not use `done` callbacks or `this.timeout()`, Vitest does not support them. Return a promise or use `async`.
+* A spec file must not import another spec file. Put shared helpers into `src/utils`.
+* Vitest does not check types. Run `pnpm run typecheck` for that.
+* The imports `utils`, `editorUtils`, `displayUtils`, `coreUtils`, `triggerEvents` and `TestProviders` refer to `src/utils` and `src/TestProvider.ts`, see `vitest/projects.mts`.

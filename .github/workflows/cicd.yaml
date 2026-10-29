@@ -13,12 +13,11 @@ on:
 
 jobs:
     build:
-        name: Test ${{ matrix.browser }} (${{ matrix.os }})
+        name: Test (${{ matrix.os }})
         runs-on: ${{ matrix.os }}
 
         strategy:
             matrix:
-                browser: [ ChromeHeadless ]
                 os: [ ubuntu-24.04 ]
 
         steps:
@@ -38,4 +37,4 @@ jobs:
             -   name: Build release package
                 run: pnpm run build-release
             -   name: Run tests
-                run: pnpm test --browser ${{ matrix.browser }}
+                run: pnpm test

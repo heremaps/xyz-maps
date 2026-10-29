@@ -209,3 +209,6 @@ export default class SpacePool {
         return this.featureTag;
     }
 }
+
+// Shared by all tests of a page. Used by prepareData.ts to create and recycle spaces of the XYZ Hub.
+export const spacePool = new SpacePool();

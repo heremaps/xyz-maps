@@ -40,14 +40,16 @@ describe('destroy display with space layer and copyright', function() {
         if (display.destroy) display.destroy();
     });
 
-    it('destroy display and validate', function(done) {
-        setTimeout(()=>{
-            display.destroy();
+    it('destroy display and validate', function() {
+        return new Promise<void>((done) => {
+            setTimeout(()=>{
+                display.destroy();
 
-            expect(display).to.deep.equal({});
+                expect(display).to.deep.equal({});
 
-            // wait 100ms for exception thrown asynchronously by destroy
-            setTimeout(done, 100);
-        }, 0);
+                // wait 100ms for exception thrown asynchronously by destroy
+                setTimeout(done, 100);
+            }, 0);
+        });
     });
 });

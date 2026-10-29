@@ -57,131 +57,137 @@ xdescribe('get and cancel requesting all other related requests', function() {
         qk42 = '3112301330131030'; // length 16
     });
 
-    this.timeout(10000);
-
     // Sydney, AUS
-    xit('get tile at level 16 and another at 17, cancel request at 16', function(done) {
-        // expect 1 request, 1 callback, 0 cancel
-        // qk11    = '3112301330131010' // length 16
-        // qk12    = '31123013301310101' // length 17
-        getTileOnProvider({
-            provider: placeProvider,
-            quadkeys: [qk11, qk12],
-            sameCallback: false,
-            cancel: {
-                quadkeys: [qk11],
-                withCallback: false
-            },
-            onFinish: function(requests, callbackResults) {
-                expect(requests.length).to.equal(1);
-                expect(callbackResults.length).to.equal(1);
+    xit('get tile at level 16 and another at 17, cancel request at 16', function() {
+        return new Promise<void>((done) => {
+            // expect 1 request, 1 callback, 0 cancel
+            // qk11    = '3112301330131010' // length 16
+            // qk12    = '31123013301310101' // length 17
+            getTileOnProvider({
+                provider: placeProvider,
+                quadkeys: [qk11, qk12],
+                sameCallback: false,
+                cancel: {
+                    quadkeys: [qk11],
+                    withCallback: false
+                },
+                onFinish: function(requests, callbackResults) {
+                    expect(requests.length).to.equal(1);
+                    expect(callbackResults.length).to.equal(1);
 
-                let cancelledRequests = 0;
-                for (let r in requests) {
-                    if (requests[r].status == 0) {
-                        cancelledRequests++;
+                    let cancelledRequests = 0;
+                    for (let r in requests) {
+                        if (requests[r].status == 0) {
+                            cancelledRequests++;
+                        }
                     }
+
+                    expect(cancelledRequests).to.equal(1);
+
+                    done();
                 }
-
-                expect(cancelledRequests).to.equal(1);
-
-                done();
-            }
+            });
         });
     });
 
-    xit('get tile at level 15 and another at 16, cancel request at 15', function(done) {
-        // expect 4 requests, 1 callback, 3 cancels
-        // qk21    = '311230133013100' // length 15
-        // qk22    = '3112301330131001' // length 16
-        getTileOnProvider({
-            provider: placeProvider,
-            quadkeys: [qk21, qk22],
-            sameCallback: false,
-            cancel: {
-                quadkeys: [qk21],
-                withCallback: false
-            },
-            onFinish: function(requests, callbackResults) {
-                expect(requests.length).to.equal(4);
-                expect(callbackResults.length).to.equal(1);
+    xit('get tile at level 15 and another at 16, cancel request at 15', function() {
+        return new Promise<void>((done) => {
+            // expect 4 requests, 1 callback, 3 cancels
+            // qk21    = '311230133013100' // length 15
+            // qk22    = '3112301330131001' // length 16
+            getTileOnProvider({
+                provider: placeProvider,
+                quadkeys: [qk21, qk22],
+                sameCallback: false,
+                cancel: {
+                    quadkeys: [qk21],
+                    withCallback: false
+                },
+                onFinish: function(requests, callbackResults) {
+                    expect(requests.length).to.equal(4);
+                    expect(callbackResults.length).to.equal(1);
 
-                let cancelledRequests = 0;
-                for (let r in requests) {
-                    if (requests[r].status == 0) {
-                        cancelledRequests++;
+                    let cancelledRequests = 0;
+                    for (let r in requests) {
+                        if (requests[r].status == 0) {
+                            cancelledRequests++;
+                        }
                     }
+
+                    expect(cancelledRequests).to.equal(3);
+
+
+                    done();
                 }
-
-                expect(cancelledRequests).to.equal(3);
-
-
-                done();
-            }
-        });
-    });
-
-
-    xit('get tile at level 16 and another at 17, cancel request at 17', function(done) {
-        // expect 1 request, 1 callback, 0 cancel
-        // qk31    = '3112301330131020' // length 16
-        // qk32    = '31123013301310201' // length 17
-        getTileOnProvider({
-            provider: placeProvider,
-            quadkeys: [qk31, qk32],
-            sameCallback: false,
-            cancel: {
-                quadkeys: [null, qk32],
-                withCallback: false
-            },
-            onFinish: function(requests, callbackResults) {
-                expect(requests.length).to.equal(1);
-                expect(callbackResults.length).to.equal(1);
-
-                let cancelledRequests = 0;
-                for (let r in requests) {
-                    if (requests[r].status == 0) {
-                        cancelledRequests++;
-                    }
-                }
-
-                expect(cancelledRequests).to.equal(0);
-
-
-                done();
-            }
+            });
         });
     });
 
 
-    xit('get tile at level 15 and another at 16, cancel request at 16', function(done) {
-        // expect 4 requests, 1 callback, 0 cancel
-        // qk41    = '311230133013103' // length 15
-        // qk42    = '3112301330131030' // length 16
-        getTileOnProvider({
-            provider: placeProvider,
-            quadkeys: [qk41, qk42],
-            sameCallback: false,
-            cancel: {
-                quadkeys: [null, qk42],
-                withCallback: false
-            },
-            onFinish: function(requests, callbackResults) {
-                expect(requests.length).to.equal(4);
-                expect(callbackResults.length).to.equal(1);
+    xit('get tile at level 16 and another at 17, cancel request at 17', function() {
+        return new Promise<void>((done) => {
+            // expect 1 request, 1 callback, 0 cancel
+            // qk31    = '3112301330131020' // length 16
+            // qk32    = '31123013301310201' // length 17
+            getTileOnProvider({
+                provider: placeProvider,
+                quadkeys: [qk31, qk32],
+                sameCallback: false,
+                cancel: {
+                    quadkeys: [null, qk32],
+                    withCallback: false
+                },
+                onFinish: function(requests, callbackResults) {
+                    expect(requests.length).to.equal(1);
+                    expect(callbackResults.length).to.equal(1);
 
-                let cancelledRequests = 0;
-                for (let r in requests) {
-                    if (requests[r].status == 0) {
-                        cancelledRequests++;
+                    let cancelledRequests = 0;
+                    for (let r in requests) {
+                        if (requests[r].status == 0) {
+                            cancelledRequests++;
+                        }
                     }
+
+                    expect(cancelledRequests).to.equal(0);
+
+
+                    done();
                 }
+            });
+        });
+    });
 
-                expect(cancelledRequests).to.equal(0);
+
+    xit('get tile at level 15 and another at 16, cancel request at 16', function() {
+        return new Promise<void>((done) => {
+            // expect 4 requests, 1 callback, 0 cancel
+            // qk41    = '311230133013103' // length 15
+            // qk42    = '3112301330131030' // length 16
+            getTileOnProvider({
+                provider: placeProvider,
+                quadkeys: [qk41, qk42],
+                sameCallback: false,
+                cancel: {
+                    quadkeys: [null, qk42],
+                    withCallback: false
+                },
+                onFinish: function(requests, callbackResults) {
+                    expect(requests.length).to.equal(4);
+                    expect(callbackResults.length).to.equal(1);
+
+                    let cancelledRequests = 0;
+                    for (let r in requests) {
+                        if (requests[r].status == 0) {
+                            cancelledRequests++;
+                        }
+                    }
+
+                    expect(cancelledRequests).to.equal(0);
 
 
-                done();
-            }
+                    done();
+                }
+            });
         });
     });
 });

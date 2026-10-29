@@ -17,7 +17,7 @@
  * License-Filename: LICENSE
  */
 import {prepare} from 'utils';
-import {waitForEditorReady} from 'editorUtils';
+import {validateSegment, waitForEditorReady} from 'editorUtils';
 import {drag} from 'triggerEvents';
 import {Map} from '@here/xyz-maps-display';
 import {Editor} from '@here/xyz-maps-editor';
@@ -25,18 +25,6 @@ import chaiAlmost from 'chai-almost';
 import dataset from './rangeselector_spec.json';
 
 const expect = chai.expect;
-
-export const validateSegment = (segment, expectedSegment, linkId?: string | number) => {
-    expect({
-        from: segment.from,
-        to: segment.to,
-        reversed: segment.reversed
-    }).to.deep.almost(expectedSegment, 1e-5);
-
-    if (linkId !== undefined) {
-        expect(segment.feature).to.deep.include({id: linkId});
-    }
-};
 
 describe('range selector drag', () => {
     let editor;

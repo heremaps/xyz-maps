@@ -33,13 +33,17 @@ pnpm run watch-dev
 # Production/release build (minified, no sourcemaps)
 pnpm run build-release
 
-# Run all tests (requires credentials.json + environments.json in packages/tests/)
+# Run the tests of common, core, display and editor against the built dist bundles
 pnpm run test
 
-# Run tests for a single component, optionally filtered by string
-pnpm run test -- --editor=true
-pnpm run test -- --editor="drawing"      # filter by spec name substring
-pnpm run test -- --core=true --browser=ChromeHeadless --singleRun=true
+# Run a single component, optionally filtered by spec file path or test name
+pnpm run test -- --project editor
+pnpm run test -- --project editor specs/editor/link
+pnpm run test -- --project editor -t "drawing"
+XYZ_DIST=dev pnpm run test              # use dist/xyz-maps-*.js instead of the minified bundles
+
+# Type check the specs (vitest does not)
+pnpm --filter @here/xyz-maps-test run typecheck
 
 # Lint and auto-fix
 pnpm run eslint:fix
@@ -127,11 +131,11 @@ Lint runs automatically on staged files via Husky + lint-staged.
 
 ### Tests
 - Tests live in `packages/tests/specs/{common,core,display,editor,integration}/`
-- Framework: **Karma + Mocha + Chai** (including `chai-almost` for float comparisons)
-- Tests run **in-browser** (Chrome by default); requires:
-  - `packages/tests/environments.json` — XYZ Hub endpoint and tile image server URL
-  - `packages/tests/credentials.json` — access token
-- Build release artifacts before testing: `pnpm run build-release`
+- Runner: **Vitest browser mode** (Playwright, installed Google Chrome). Specs use Mocha-style globals (`describe`, `it`, `before`, `after`, `xit`) and **Chai** (including `chai-almost` for float comparisons), which `packages/tests/vitest/setup.ts` provides
+- Do not use `done` callbacks or `this.timeout()` in specs, vitest does not support them. Return a promise or use `async`
+- Specs run against the built bundles in `packages/*/dist`, so build before testing: `pnpm run build-release`
+- Integration tests talk to an XYZ Hub and run separately with `pnpm --filter @here/xyz-maps-test run test:integration`. They need `packages/tests/environments.json` and `packages/tests/credentials.json` (access token)
+- See `packages/tests/README.md` for options
 
 ### Style definitions
 Style values can be **static** or **expression-based** (using the `Expressions` DSL from `@here/xyz-maps-common`). Expression objects are evaluated at render time against feature properties and zoom level — do not assume style property values are always primitive types.

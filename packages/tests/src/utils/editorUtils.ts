@@ -107,3 +107,17 @@ export async function clean(editor: Editor, idMapStack) {
         await submit(editor);
     });
 }
+
+export function validateSegment(segment, expectedSegment, linkId?: string | number) {
+    const expect = chai.expect;
+
+    expect({
+        from: segment.from,
+        to: segment.to,
+        reversed: segment.reversed
+    }).to.deep.almost(expectedSegment, 1e-5);
+
+    if (linkId !== undefined) {
+        expect(segment.feature).to.deep.include({id: linkId});
+    }
+}
