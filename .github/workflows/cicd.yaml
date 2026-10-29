@@ -36,5 +36,7 @@ jobs:
                 run: pnpm install --frozen-lockfile
             -   name: Build release package
                 run: pnpm run build-release
+            -   name: Typecheck test specs
+                run: pnpm --filter @here/xyz-maps-test run typecheck
             -   name: Run tests
                 run: pnpm test
