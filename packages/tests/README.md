@@ -9,7 +9,7 @@ The specs are written with Mocha-style globals (`describe`, `it`, `before`, `aft
 The tests run against the bundles in `packages/*/dist`. Build them first in the root directory:
 
 * `pnpm run build-release` for the minified bundles (default)
-* `pnpm run build-dev` for the bundles that are used with `XYZ_DIST=dev`
+* `pnpm run build-dev` for the bundles that are used with `--mode dev`
 
 ### Requirements
 
@@ -34,6 +34,7 @@ Everything after `pnpm run test` is passed to Vitest, see `vitest run --help`.
 pnpm run test --project editor                  # a single component, can be repeated
 pnpm run test --project editor specs/editor/link   # only spec files whose path contains the string
 pnpm run test --project editor -t "drawing"     # only tests whose name matches
+pnpm run test --mode dev                        # run against dist/xyz-maps-<name>.js instead of the minified bundles
 pnpm run test --bail 1                          # stop after the first failure
 pnpm run test --browser.headless=false          # show the browser
 pnpm run watch                                  # rerun on changes (in packages/tests)
@@ -43,7 +44,6 @@ pnpm run watch                                  # rerun on changes (in packages/
 
 | Variable | Default | Description |
 |---|---|---|
-| `XYZ_DIST` | `min` | `dev` uses `dist/xyz-maps-<name>.js` instead of `dist/xyz-maps-<name>.min.js` |
 | `XYZ_COMMON_SRC`, `XYZ_CORE_SRC`, `XYZ_DISPLAY_SRC`, `XYZ_EDITOR_SRC` | | Path of the bundle of a single component |
 | `XYZ_BROWSER` | `chrome` | `chrome` (installed Google Chrome), `chromium` or `firefox` (Playwright browsers) |
 | `XYZ_ENVIRONMENTS` | `./environments.json` | Path of the environments file |
@@ -51,7 +51,7 @@ pnpm run watch                                  # rerun on changes (in packages/
 | `XYZ_CREDENTIALS` | `./credentials.json` | Path of the credentials file (integration tests only) |
 | `XYZ_ACCESS_TOKEN` | | Overwrite `access_token` of the credentials file (integration tests only) |
 
-Example: `XYZ_DIST=dev pnpm run test --project display`
+Example: `XYZ_BROWSER=firefox pnpm run test --project display`
 
 The specs load data from `assets/` through the path `/base/tests/assets/`.
 

@@ -1,6 +1,6 @@
 import path from 'node:path';
 import {playwright} from '@vitest/browser-playwright';
-import {type Component, root, xyzAssets, xyzEnvironment, xyzGlobals, xyzLibs} from './plugins.mts';
+import {type Component, distOf, root, xyzAssets, xyzEnvironment, xyzGlobals, xyzLibs} from './plugins.mts';
 
 const src = path.join(root, 'src');
 
@@ -50,11 +50,12 @@ function browser() {
     throw new Error(`Unknown XYZ_BROWSER "${name}". Use chrome, chromium or firefox.`);
 }
 
-export function project(component: Component) {
+// mode: the vitest mode, see distOf() in plugins.mts
+export function project(component: Component, mode: string) {
     const {libs, include, map} = COMPONENTS[component];
 
     return {
-        plugins: [xyzLibs(libs), xyzGlobals(), xyzAssets(), xyzEnvironment(component)],
+        plugins: [xyzLibs(libs, distOf(mode)), xyzGlobals(), xyzAssets(), xyzEnvironment(component)],
         resolve: {
             alias: [
                 // bare module names of the specs, same mapping as "paths" in tsconfig.json
@@ -83,8 +84,6 @@ export function project(component: Component) {
             hookTimeout: 20000,
             // one spec file after another. The specs drive a single map with simulated mouse events.
             fileParallelism: false,
-            // karma: captureConsole false
-            silent: true,
             browser: {
                 enabled: true,
                 headless: true,

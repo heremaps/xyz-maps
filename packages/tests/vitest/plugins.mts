@@ -6,6 +6,18 @@ const assetsDir = path.join(root, 'assets');
 
 export type Component = 'common' | 'core' | 'display' | 'editor' | 'integration';
 
+export type Dist = 'min' | 'dev';
+
+/**
+ * Maps the vitest mode to the flavor of the library bundles.
+ * The default mode "test" uses the minified bundles, `--mode dev` the dev bundles.
+ */
+export function distOf(mode: string): Dist {
+    if (mode == 'test') return 'min';
+    if (mode == 'dev') return 'dev';
+    throw new Error(`Unknown mode "${mode}". Use "--mode dev" for the dev bundles or leave the mode out for the minified bundles.`);
+}
+
 // The libraries are UMD builds that find each other through the global namespace.
 const GLOBALS: { [pkg: string]: string } = {
     '@here/xyz-maps-common': 'here.xyz.maps.common',
@@ -27,10 +39,10 @@ const LIBS_ID = 'virtual:xyz-libs';
  * Provides the library bundles as strings. vitest/setup.ts runs them as classic scripts in the order of
  * the given components, so that they set up the global namespace themselves.
  *
- * XYZ_DIST=dev uses dist/xyz-maps-<name>.js instead of the minified dist/xyz-maps-<name>.min.js.
+ * dist 'dev' uses dist/xyz-maps-<name>.js instead of the minified dist/xyz-maps-<name>.min.js, see distOf().
  * XYZ_<NAME>_SRC=<path> uses a different file for a single component, e.g. XYZ_EDITOR_SRC=../editor/dist/xyz-maps-editor.js
  */
-export function xyzLibs(components: string[]): any {
+export function xyzLibs(components: string[], dist: Dist): any {
     return {
         name: 'xyz-libs',
         enforce: 'pre',
@@ -44,10 +56,10 @@ export function xyzLibs(components: string[]): any {
                 const custom = process.env[`XYZ_${name.toUpperCase()}_SRC`];
                 const file = custom
                     ? path.resolve(process.cwd(), custom)
-                    : path.join(root, '..', name, 'dist', `xyz-maps-${name}${process.env.XYZ_DIST == 'dev' ? '' : '.min'}.js`);
+                    : path.join(root, '..', name, 'dist', `xyz-maps-${name}${dist == 'dev' ? '' : '.min'}.js`);
 
                 if (!fs.existsSync(file)) {
-                    throw new Error(`Cannot find "${file}". Build the packages first with "pnpm run build-release" (XYZ_DIST=dev: "pnpm run build-dev").`);
+                    throw new Error(`Cannot find "${file}". Build the packages first with "pnpm run build-release" (--mode dev: "pnpm run build-dev").`);
                 }
                 this.addWatchFile(file);
 
