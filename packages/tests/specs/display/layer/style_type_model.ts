@@ -76,7 +76,12 @@ describe('3d Model Styles', function() {
     it('validate Wavefront .obj model is loaded and displayed', async () => {
         modelLayer.setStyleGroup(feature, [baseModelStyle]);
 
-        let color = await getCanvasPixelColor(mapContainer, {x: 400, y: 300});
+        // The OBJ loads asynchronously after the style is applied.
+        let color = await getCanvasPixelColor(mapContainer, {x: 400, y: 300}, {
+            expect: '#ff0000',
+            retry: 8,
+            retryDelay: 50
+        });
         if (color !== '#ff0000') {
             const canvas = mapContainer.querySelector('canvas');
             const gl = canvas.getContext('webgl2') || canvas.getContext('webgl');
