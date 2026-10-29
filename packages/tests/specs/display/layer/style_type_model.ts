@@ -55,16 +55,6 @@ describe('3d Model Styles', function() {
         await waitForViewportReady(display);
 
         mapContainer = display.getContainer();
-        const canvas = mapContainer.querySelector('canvas');
-        const gl = canvas.getContext('webgl2') || canvas.getContext('webgl');
-        if (gl) {
-            const info = gl.getExtension('WEBGL_debug_renderer_info');
-            console.log('Model WebGL renderer', {
-                renderer: gl.getParameter(info ? info.UNMASKED_RENDERER_WEBGL : gl.RENDERER),
-                vendor: gl.getParameter(info ? info.UNMASKED_VENDOR_WEBGL : gl.VENDOR),
-                version: gl.getParameter(gl.VERSION)
-            });
-        }
         modelLayer = preparedData.getLayers('modelLayer');
         feature = preparedData.getFeature('modelLayer', 'model1');
     });
@@ -82,19 +72,6 @@ describe('3d Model Styles', function() {
             retry: 8,
             retryDelay: 50
         });
-        if (color !== '#ff0000') {
-            const canvas = mapContainer.querySelector('canvas');
-            const gl = canvas.getContext('webgl2') || canvas.getContext('webgl');
-            console.error('Model rendering diagnostics', {
-                color,
-                visibility: document.visibilityState,
-                canvasSize: [canvas.width, canvas.height],
-                contextLost: gl?.isContextLost(),
-                resources: performance.getEntriesByType('resource')
-                    .filter((entry) => /\.(obj|mtl|png)(?:[?#]|$)/i.test(entry.name))
-                    .map((entry) => entry.toJSON())
-            });
-        }
         expect(color).to.equal('#ff0000');
     });
 
