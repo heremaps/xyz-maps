@@ -85,7 +85,9 @@ describe('collision detection - Circle', function() {
 
         let color = await getCanvasPixelColor(mapContainer,
             display.geoToPixel(73.47146955841399, 21.404434999821802)
-        );
+            , {
+                expect: color1
+            });
 
         expect(color).to.equal(color1);
     });
@@ -110,7 +112,9 @@ describe('collision detection - Circle', function() {
             priority: 1
         }]);
 
-        let color = await getCanvasPixelColor(mapContainer, {x: x1, y: y1});
+        let color = await getCanvasPixelColor(mapContainer, {x: x1, y: y1}, {
+            expect: color1
+        });
 
         expect(color).to.equal(color1);
     });
@@ -134,7 +138,9 @@ describe('collision detection - Circle', function() {
             priority: 2
         }]);
 
-        let color = await getCanvasPixelColor(mapContainer, {x: x2, y: y2});
+        let color = await getCanvasPixelColor(mapContainer, {x: x2, y: y2}, {
+            expect: '#ffffff'
+        });
 
         expect(color).to.equal('#ffffff');
     });
@@ -148,7 +154,9 @@ describe('collision detection - Circle', function() {
         style2[0].collide = true;
         testLayer.setStyleGroup(feature2, style2);
 
-        let colors = await getCanvasPixelColor(mapContainer, [{x: x1, y: y1}, {x: x2, y: y2}]);
+        let colors = await getCanvasPixelColor(mapContainer, [{x: x1, y: y1}, {x: x2, y: y2}], {
+            expect: [color1, color2]
+        });
 
         expect(colors[0]).to.equal(color1);
         expect(colors[1]).to.equal(color2);
@@ -163,7 +171,9 @@ describe('collision detection - Circle', function() {
         style2[0].collide = false;
         testLayer.setStyleGroup(feature2, style2);
 
-        let colors = await getCanvasPixelColor(mapContainer, [{x: x1, y: y1}, {x: x2, y: y2}]);
+        let colors = await getCanvasPixelColor(mapContainer, [{x: x1, y: y1}, {x: x2, y: y2}], {
+            expect: [color1, '#ffffff']
+        });
 
         expect(colors[0]).to.equal(color1);
         expect(colors[1]).to.equal('#ffffff');
@@ -178,7 +188,9 @@ describe('collision detection - Circle', function() {
         style2[0].priority = 1;
         testLayer.setStyleGroup(feature2, style2);
 
-        let colors = await getCanvasPixelColor(mapContainer, [{x: x1, y: y1}, {x: x2, y: y2}]);
+        let colors = await getCanvasPixelColor(mapContainer, [{x: x1, y: y1}, {x: x2, y: y2}], {
+            expect: ['#ffffff', color2]
+        });
 
         expect(colors[0]).to.equal('#ffffff');
         expect(colors[1]).to.equal(color2);

@@ -56,12 +56,15 @@ describe('display image and link layers', function() {
         expect(display.getLayers()).to.lengthOf(2);
 
         // validate map tile is displayed
-        let color = await getCanvasPixelColor(mapContainer, {x: 700, y: 150});
+        let color = await getCanvasPixelColor(mapContainer, {x: 700, y: 150}, {
+            expect: (colors) => colors[0] !== '#ffffff' &&
+                colors[0] !== '#ff0000'
+        });
         expect(color).to.not.equal('#ffffff');
         expect(color).to.not.equal('#ff0000');
 
         // validate link is displayed
-        color = await getCanvasPixelColor(mapContainer, {x: 700, y: 110});
+        color = await getCanvasPixelColor(mapContainer, {x: 700, y: 110}, {expect: '#ff0000'});
         expect(color).to.equal('#ff0000');
     });
 });

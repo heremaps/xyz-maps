@@ -86,7 +86,9 @@ describe('feature drawing order', () => {
             fill: '#0000ff'
         }]);
 
-        let colors = await getCanvasPixelColor(mapContainer, [{x: 413, y: 290}, {x: 409, y: 308}, {x: 390, y: 305}]);
+        let colors = await getCanvasPixelColor(mapContainer, [{x: 413, y: 290}, {x: 409, y: 308}, {x: 390, y: 305}], {
+            expect: ['#0000ff', '#00ff00', '#ff0000']
+        });
 
         expect(colors[0]).to.equal('#0000ff');
         expect(colors[1]).to.equal('#00ff00');
@@ -101,7 +103,9 @@ describe('feature drawing order', () => {
             fill: '#ff0000'
         }]);
 
-        let colors = await getCanvasPixelColor(mapContainer, [{x: 413, y: 290}, {x: 421, y: 310}, {x: 440, y: 298}]);
+        let colors = await getCanvasPixelColor(mapContainer, [{x: 413, y: 290}, {x: 421, y: 310}, {x: 440, y: 298}], {
+            expect: ['#0000ff', '#ff0000', '#00ff00']
+        });
 
         expect(colors[0]).to.equal('#0000ff');
         expect(colors[1]).to.equal('#ff0000');
@@ -117,7 +121,9 @@ describe('feature drawing order', () => {
             fill: '#0000ff'
         }]);
 
-        let colors = await getCanvasPixelColor(mapContainer, [{x: 413, y: 280}, {x: 435, y: 281}, {x: 440, y: 300}]);
+        let colors = await getCanvasPixelColor(mapContainer, [{x: 413, y: 280}, {x: 435, y: 281}, {x: 440, y: 300}], {
+            expect: ['#ff0000', '#0000ff', '#00ff00']
+        });
 
         expect(colors[0]).to.equal('#ff0000');
         expect(colors[1]).to.equal('#0000ff');
@@ -133,7 +139,9 @@ describe('feature drawing order', () => {
             fill: '#0000ff'
         }]);
 
-        let colors = await getCanvasPixelColor(mapContainer, [{x: 413, y: 280}, {x: 435, y: 281}, {x: 415, y: 258}]);
+        let colors = await getCanvasPixelColor(mapContainer, [{x: 413, y: 280}, {x: 435, y: 281}, {x: 415, y: 258}], {
+            expect: ['#ff0000', '#00ff00', '#0000ff']
+        });
 
         expect(colors[0]).to.equal('#ff0000');
         expect(colors[1]).to.equal('#00ff00');
@@ -165,7 +173,9 @@ describe('feature drawing order', () => {
             fill: '#0000ff'
         }]);
 
-        let colors = await getCanvasPixelColor(mapContainer, [{x: 396, y: 280}, {x: 405, y: 308}, {x: 394, y: 306}]);
+        let colors = await getCanvasPixelColor(mapContainer, [{x: 396, y: 280}, {x: 405, y: 308}, {x: 394, y: 306}], {
+            expect: ['#0000ff', '#00ff00', '#ff0000']
+        });
 
         expect(colors[0]).to.equal('#0000ff');
         expect(colors[1]).to.equal('#00ff00');
@@ -194,7 +204,9 @@ describe('feature drawing order', () => {
             fill: '#0000ff'
         }]);
 
-        let colors = await getCanvasPixelColor(mapContainer, [{x: 420, y: 282}, {x: 414, y: 310}, {x: 396, y: 320}]);
+        let colors = await getCanvasPixelColor(mapContainer, [{x: 420, y: 282}, {x: 414, y: 310}, {x: 396, y: 320}], {
+            expect: ['#0000ff', '#00ff00', '#ff0000']
+        });
 
         expect(colors[0]).to.equal('#0000ff');
         expect(colors[1]).to.equal('#00ff00');
@@ -211,7 +223,9 @@ describe('feature drawing order', () => {
         }]);
 
 
-        let color = await getCanvasPixelColor(mapContainer, {x: 405, y: 282});
+        let color = await getCanvasPixelColor(mapContainer, {x: 405, y: 282}, {
+            expect: '#ff0000'
+        });
 
         expect(color).to.equal('#ff0000');
     });
@@ -232,7 +246,9 @@ describe('feature drawing order', () => {
             fill: '#ff0000'
         }]);
 
-        let color = await getCanvasPixelColor(mapContainer, {x: 405, y: 282});
+        let color = await getCanvasPixelColor(mapContainer, {x: 405, y: 282}, {
+            expect: '#00ff00'
+        });
 
         expect(color).to.equal('#00ff00');
     });

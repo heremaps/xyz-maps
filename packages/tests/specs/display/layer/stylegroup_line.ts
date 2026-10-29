@@ -71,7 +71,9 @@ describe('StyleGroup Line geometry', () => {
     after(async () => display.destroy());
 
     it('validate default line style', async () => {
-        const colors = await getCanvasPixelColor(mapContainer, [segment05to1, segment0to05]);
+        const colors = await getCanvasPixelColor(mapContainer, [segment05to1, segment0to05], {
+            expect: '#ff0000'
+        });
 
         expect(colors[0]).to.equal('#ff0000');
         expect(colors[1]).to.equal('#ff0000');
@@ -88,7 +90,9 @@ describe('StyleGroup Line geometry', () => {
         }]);
 
 
-        const colors = await getCanvasPixelColor(mapContainer, [segment0to05, segment05to1]);
+        const colors = await getCanvasPixelColor(mapContainer, [segment0to05, segment05to1], {
+            expect: ['#0000ff', '#ffffff']
+        });
         expect(colors[0]).to.equal('#0000ff');
         expect(colors[1]).to.equal('#ffffff');
     });
@@ -104,7 +108,9 @@ describe('StyleGroup Line geometry', () => {
         }]);
 
 
-        const colors = await getCanvasPixelColor(mapContainer, [segment0to05, segment05to1]);
+        const colors = await getCanvasPixelColor(mapContainer, [segment0to05, segment05to1], {
+            expect: ['#ffffff', '#00ff00']
+        });
         expect(colors[0]).to.equal('#ffffff');
         expect(colors[1]).to.equal('#00ff00');
     });

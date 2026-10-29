@@ -73,7 +73,9 @@ describe('setStyleGroup Polygon', () => {
         // validate features have new style
         // get fill color
         // get stroke color on first shape point
-        let colors = await getCanvasPixelColor(mapContainer, [{x: 380, y: 280}, {x: 247, y: 327}]);
+        let colors = await getCanvasPixelColor(mapContainer, [{x: 380, y: 280}, {x: 247, y: 327}], {
+            expect: ['#9fe030', '#906fff']
+        });
 
         expect(colors[0]).to.equal('#9fe030');
         expect(colors[1]).to.equal('#906fff');
@@ -87,7 +89,9 @@ describe('setStyleGroup Polygon', () => {
                 {'zIndex': 0, 'type': 'Polygon', 'opacity': 0.6, 'fill': '#9be128', 'stroke': '#3750cd', 'strokeWidth': 15}
             ]);
 
-        let colors = await getCanvasPixelColor(mapContainer, [{x: 380, y: 280}, {x: 315, y: 337}]);
+        let colors = await getCanvasPixelColor(mapContainer, [{x: 380, y: 280}, {x: 315, y: 337}], {
+            expect: ['#c3ed7e', '#8796e1']
+        });
 
         expect(colors[0]).to.equal('#c3ed7e');
         expect(colors[1]).to.equal('#8796e1');
@@ -104,7 +108,9 @@ describe('setStyleGroup Polygon', () => {
         // validate features have new style
         // get fill color
         // get stroke color on first shape point
-        let colors = await getCanvasPixelColor(mapContainer, [{x: 380, y: 280}, {x: 247, y: 327}]);
+        let colors = await getCanvasPixelColor(mapContainer, [{x: 380, y: 280}, {x: 247, y: 327}], {
+            expect: ['#ff0000', '#906fff']
+        });
 
         expect(colors[0]).to.equal('#ff0000');
         expect(colors[1]).to.equal('#906fff');
@@ -130,7 +136,9 @@ describe('setStyleGroup Polygon', () => {
                 {'zIndex': 1, 'type': 'Circle', 'radius': 6, 'fill': '#ff0000'}
             ]);
 
-        let color = await getCanvasPixelColor(mapContainer, {x: 400, y: 300});
+        let color = await getCanvasPixelColor(mapContainer, {x: 400, y: 300}, {
+            expect: '#ff0000'
+        });
 
         expect(color).to.equal('#ff0000');
     });
@@ -142,7 +150,9 @@ describe('setStyleGroup Polygon', () => {
                 {'zIndex': 1, 'type': 'Circle', 'radius': 6, 'fill': '#0000ff', 'anchor': 'Center'}
             ]);
 
-        let color = await getCanvasPixelColor(mapContainer, {x: 400, y: 300});
+        let color = await getCanvasPixelColor(mapContainer, {x: 400, y: 300}, {
+            expect: '#0000ff'
+        });
 
         expect(color).to.equal('#0000ff');
     });
@@ -154,7 +164,9 @@ describe('setStyleGroup Polygon', () => {
                 {'zIndex': 1, 'type': 'Circle', 'radius': 6, 'fill': '#ff0000', 'anchor': 'Centroid'}
             ]);
 
-        let color = await getCanvasPixelColor(mapContainer, {x: 276, y: 307});
+        let color = await getCanvasPixelColor(mapContainer, {x: 276, y: 307}, {
+            expect: '#ff0000'
+        });
 
         expect(color).to.equal('#ff0000');
     });
@@ -166,7 +178,9 @@ describe('setStyleGroup Polygon', () => {
                 {'zIndex': 1, 'type': 'Rect', 'width': 12, 'fill': '#ff0000'}
             ]);
 
-        let color = await getCanvasPixelColor(mapContainer, {x: 400, y: 300});
+        let color = await getCanvasPixelColor(mapContainer, {x: 400, y: 300}, {
+            expect: '#ff0000'
+        });
 
         expect(color).to.equal('#ff0000');
     });
@@ -178,7 +192,9 @@ describe('setStyleGroup Polygon', () => {
                 {'zIndex': 1, 'type': 'Rect', 'width': 12, 'fill': '#0000ff', 'anchor': 'Center'}
             ]);
 
-        let color = await getCanvasPixelColor(mapContainer, {x: 400, y: 300});
+        let color = await getCanvasPixelColor(mapContainer, {x: 400, y: 300}, {
+            expect: '#0000ff'
+        });
 
         expect(color).to.equal('#0000ff');
     });
@@ -190,7 +206,9 @@ describe('setStyleGroup Polygon', () => {
                 {'zIndex': 1, 'type': 'Rect', 'width': 12, 'fill': '#ff0000', 'anchor': 'Centroid'}
             ]);
 
-        let color = await getCanvasPixelColor(mapContainer, {x: 276, y: 307});
+        let color = await getCanvasPixelColor(mapContainer, {x: 276, y: 307}, {
+            expect: '#ff0000'
+        });
 
         expect(color).to.equal('#ff0000');
     });
@@ -202,7 +220,9 @@ describe('setStyleGroup Polygon', () => {
                 {'zIndex': 1, 'type': 'Image', 'width': 12, 'src': IMG_SRC_RED}
             ]);
 
-        let color = await getCanvasPixelColor(mapContainer, {x: 400, y: 300});
+        let color = await getCanvasPixelColor(mapContainer, {x: 400, y: 300}, {
+            expect: '#ff0000'
+        });
 
         expect(color).to.equal('#ff0000');
     });
@@ -214,7 +234,9 @@ describe('setStyleGroup Polygon', () => {
                 {'zIndex': 1, 'type': 'Image', 'width': 12, 'src': IMG_SRC_BLUE, 'anchor': 'Center'}
             ]);
 
-        let color = await getCanvasPixelColor(mapContainer, {x: 400, y: 300});
+        let color = await getCanvasPixelColor(mapContainer, {x: 400, y: 300}, {
+            expect: '#0000ff'
+        });
 
         expect(color).to.equal('#0000ff');
     });
@@ -226,7 +248,9 @@ describe('setStyleGroup Polygon', () => {
                 {'zIndex': 1, 'type': 'Image', 'width': 12, 'src': IMG_SRC_RED, 'anchor': 'Centroid'}
             ]);
 
-        let color = await getCanvasPixelColor(mapContainer, {x: 276, y: 307});
+        let color = await getCanvasPixelColor(mapContainer, {x: 276, y: 307}, {
+            expect: '#ff0000'
+        });
 
         expect(color).to.equal('#ff0000');
     });
@@ -240,7 +264,9 @@ describe('setStyleGroup Polygon', () => {
 
             ]);
 
-        let color = await getCanvasPixelColor(mapContainer, {x: 400, y: 300});
+        let color = await getCanvasPixelColor(mapContainer, {x: 400, y: 300}, {
+            expect: '#ff0000'
+        });
 
         expect(color).to.equal('#ff0000');
     });
@@ -252,7 +278,9 @@ describe('setStyleGroup Polygon', () => {
                 {'zIndex': 1, 'type': 'Text', 'font': FONT, 'text': FULL_BLOCK_CHAR, 'width': 12, 'fill': '#0000ff', 'anchor': 'Center'}
             ]);
 
-        let color = await getCanvasPixelColor(mapContainer, {x: 400, y: 300});
+        let color = await getCanvasPixelColor(mapContainer, {x: 400, y: 300}, {
+            expect: '#0000ff'
+        });
 
         expect(color).to.equal('#0000ff');
     });
@@ -264,7 +292,9 @@ describe('setStyleGroup Polygon', () => {
                 {'zIndex': 1, 'type': 'Text', 'font': FONT, 'text': FULL_BLOCK_CHAR, 'width': 12, 'fill': '#ff0000', 'anchor': 'Centroid'}
             ]);
 
-        let color = await getCanvasPixelColor(mapContainer, {x: 276, y: 307});
+        let color = await getCanvasPixelColor(mapContainer, {x: 276, y: 307}, {
+            expect: '#ff0000'
+        });
 
         expect(color).to.equal('#ff0000');
     });

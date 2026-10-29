@@ -134,7 +134,9 @@ describe('pointer listener with different style point', function() {
 
         display.refresh(poiLayer);
 
-        let color = await getCanvasPixelColor(mapContainer, {x: 254, y: 205});
+        let color = await getCanvasPixelColor(mapContainer, {x: 254, y: 205}, {
+            expect: '#ff0000'
+        });
         expect(color).to.equal('#ff0000');
     });
 });

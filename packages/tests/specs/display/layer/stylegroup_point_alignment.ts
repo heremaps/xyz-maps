@@ -71,7 +71,9 @@ describe('stylegroup Point alignment', function() {
             zIndex: 0, type: 'Rect', width: 64, height: 64, fill: '#ff0000'
         }]);
 
-        let color = await getCanvasPixelColor(mapContainer, {x: 400, y: 300});
+        let color = await getCanvasPixelColor(mapContainer, {x: 400, y: 300}, {
+            expect: '#ff0000'
+        });
 
         expect(color).to.equal('#ff0000');
     });
@@ -82,7 +84,9 @@ describe('stylegroup Point alignment', function() {
             zIndex: 0, type: 'Rect', width: 64, height: 64, fill: '#0000ff', alignment: 'map'
         }]);
 
-        let color = await getCanvasPixelColor(mapContainer, {x: 400, y: 300});
+        let color = await getCanvasPixelColor(mapContainer, {x: 400, y: 300}, {
+            expect: '#0000ff'
+        });
 
         expect(color).to.equal('#0000ff');
     });
@@ -93,7 +97,9 @@ describe('stylegroup Point alignment', function() {
             zIndex: 0, type: 'Rect', width: 64, height: 64, fill: '#00ff00', alignment: 'viewport'
         }]);
 
-        let color = await getCanvasPixelColor(mapContainer, {x: 400, y: 300});
+        let color = await getCanvasPixelColor(mapContainer, {x: 400, y: 300}, {
+            expect: '#00ff00'
+        });
 
         expect(color).to.equal('#00ff00');
     });
@@ -104,7 +110,9 @@ describe('stylegroup Point alignment', function() {
             zIndex: 0, type: 'Circle', radius: 32, fill: '#ff0000'
         }]);
 
-        let color = await getCanvasPixelColor(mapContainer, {x: 400, y: 300});
+        let color = await getCanvasPixelColor(mapContainer, {x: 400, y: 300}, {
+            expect: '#ff0000'
+        });
 
         expect(color).to.equal('#ff0000');
     });
@@ -115,7 +123,9 @@ describe('stylegroup Point alignment', function() {
             zIndex: 0, type: 'Circle', radius: 32, fill: '#0000ff', alignment: 'map'
         }]);
 
-        let color = await getCanvasPixelColor(mapContainer, {x: 400, y: 300});
+        let color = await getCanvasPixelColor(mapContainer, {x: 400, y: 300}, {
+            expect: '#0000ff'
+        });
 
         expect(color).to.equal('#0000ff');
     });
@@ -126,7 +136,9 @@ describe('stylegroup Point alignment', function() {
             zIndex: 0, type: 'Circle', radius: 32, fill: '#00ff00', alignment: 'viewport'
         }]);
 
-        let color = await getCanvasPixelColor(mapContainer, {x: 400, y: 300});
+        let color = await getCanvasPixelColor(mapContainer, {x: 400, y: 300}, {
+            expect: '#00ff00'
+        });
 
         expect(color).to.equal('#00ff00');
     });
@@ -138,7 +150,9 @@ describe('stylegroup Point alignment', function() {
             zIndex: 0, type: 'Image', width: 64, height: 64, fill: '#ff0000', src: redImg
         }]);
 
-        let color = await getCanvasPixelColor(mapContainer, {x: 390, y: 290});
+        let color = await getCanvasPixelColor(mapContainer, {x: 390, y: 290}, {
+            expect: '#ff0000'
+        });
 
         expect(color).to.equal('#ff0000');
     });
@@ -149,7 +163,9 @@ describe('stylegroup Point alignment', function() {
             zIndex: 0, type: 'Image', width: 64, height: 64, fill: '#0000ff', alignment: 'map', src: blueImg
         }]);
 
-        let color = await getCanvasPixelColor(mapContainer, {x: 390, y: 290});
+        let color = await getCanvasPixelColor(mapContainer, {x: 390, y: 290}, {
+            expect: '#0000ff'
+        });
 
         expect(color).to.equal('#0000ff');
     });
@@ -160,7 +176,9 @@ describe('stylegroup Point alignment', function() {
             zIndex: 0, type: 'Image', width: 64, height: 64, fill: '#00ff00', alignment: 'viewport', src: greenImg
         }]);
 
-        let color = await getCanvasPixelColor(mapContainer, {x: 390, y: 290});
+        let color = await getCanvasPixelColor(mapContainer, {x: 390, y: 290}, {
+            expect: '#00ff00'
+        });
 
         expect(color).to.equal('#00ff00');
     });
@@ -171,7 +189,9 @@ describe('stylegroup Point alignment', function() {
             zIndex: 0, type: 'Text', fill: '#ff0000', font: FONT, text: FULL_BLOCK_CHAR
         }]);
 
-        let color = await getCanvasPixelColor(mapContainer, {x: 400, y: 300});
+        let color = await getCanvasPixelColor(mapContainer, {x: 400, y: 300}, {
+            expect: '#ff0000'
+        });
 
         expect(color).to.equal('#ff0000');
     });
@@ -182,7 +202,9 @@ describe('stylegroup Point alignment', function() {
             zIndex: 0, type: 'Text', fill: '#0000ff', alignment: 'map', font: FONT, text: FULL_BLOCK_CHAR
         }]);
 
-        let color = await getCanvasPixelColor(mapContainer, {x: 400, y: 300});
+        let color = await getCanvasPixelColor(mapContainer, {x: 400, y: 300}, {
+            expect: '#0000ff'
+        });
 
         expect(color).to.equal('#0000ff');
     });
@@ -193,7 +215,9 @@ describe('stylegroup Point alignment', function() {
             zIndex: 0, type: 'Text', fill: '#00ff00', alignment: 'viewport', font: FONT, text: FULL_BLOCK_CHAR
         }]);
 
-        let color = await getCanvasPixelColor(mapContainer, {x: 400, y: 300});
+        let color = await getCanvasPixelColor(mapContainer, {x: 400, y: 300}, {
+            expect: '#00ff00'
+        });
 
         expect(color).to.equal('#00ff00');
     });

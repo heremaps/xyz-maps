@@ -72,7 +72,9 @@ describe('setStyleGroup Point with circle', function() {
         let colors = await getCanvasPixelColor(mapContainer, [{x: 400, y: 300}, {x: 388, y: 300}, {x: 412, y: 300}, {
             x: 400,
             y: 288
-        }, {x: 400, y: 312}]);
+        }, {x: 400, y: 312}], {
+            expect: ['#ff0000', '#000000', '#000000', '#000000', '#000000']
+        });
 
         expect(colors[0]).to.equal('#ff0000');
         expect(colors[1]).to.equal('#000000');
@@ -98,7 +100,9 @@ describe('setStyleGroup Point with circle', function() {
         let colors = await getCanvasPixelColor(mapContainer, [{x: 400, y: 300}, {x: 388, y: 300}, {x: 412, y: 300}, {
             x: 400,
             y: 288
-        }, {x: 400, y: 312}]);
+        }, {x: 400, y: 312}], {
+            expect: ['#ff0000', '#000000', '#ff0000', '#000000', '#000000']
+        });
 
         expect(colors[0]).to.equal('#ff0000');
         expect(colors[1]).to.equal('#000000');
@@ -124,7 +128,9 @@ describe('setStyleGroup Point with circle', function() {
         let colors = await getCanvasPixelColor(mapContainer, [{x: 400, y: 300}, {x: 388, y: 300}, {x: 412, y: 300}, {
             x: 400,
             y: 288
-        }, {x: 400, y: 312}]);
+        }, {x: 400, y: 312}], {
+            expect: ['#ff0000', '#ff0000', '#000000', '#000000', '#000000']
+        });
 
         expect(colors[0]).to.equal('#ff0000');
         expect(colors[1]).to.equal('#ff0000');
@@ -150,7 +156,9 @@ describe('setStyleGroup Point with circle', function() {
         let colors = await getCanvasPixelColor(mapContainer, [{x: 400, y: 300}, {x: 388, y: 300}, {x: 412, y: 300}, {
             x: 400,
             y: 288
-        }, {x: 400, y: 312}]);
+        }, {x: 400, y: 312}], {
+            expect: ['#ff0000', '#000000', '#000000', '#000000', '#ff0000']
+        });
 
         expect(colors[0]).to.equal('#ff0000');
         expect(colors[1]).to.equal('#000000');
@@ -176,7 +184,9 @@ describe('setStyleGroup Point with circle', function() {
         let colors = await getCanvasPixelColor(mapContainer, [{x: 400, y: 300}, {x: 388, y: 300}, {x: 412, y: 300}, {
             x: 400,
             y: 288
-        }, {x: 400, y: 312}]);
+        }, {x: 400, y: 312}], {
+            expect: ['#ff0000', '#000000', '#000000', '#ff0000', '#000000']
+        });
 
         expect(colors[0]).to.equal('#ff0000');
         expect(colors[1]).to.equal('#000000');
@@ -203,7 +213,9 @@ describe('setStyleGroup Point with circle', function() {
         let colors = await getCanvasPixelColor(mapContainer, [{x: 400, y: 300}, {x: 388, y: 300}, {x: 412, y: 300}, {
             x: 400,
             y: 288
-        }, {x: 400, y: 312}]);
+        }, {x: 400, y: 312}], {
+            expect: ['#ff0000', '#ffff00', '#ffff00', '#ffff00', '#ffff00']
+        });
 
         expect(colors[0]).to.equal('#ff0000');
         expect(colors[1]).to.equal('#ffff00');
@@ -217,13 +229,17 @@ describe('setStyleGroup Point with circle', function() {
         paLayer.setStyleGroup(feature, [{
             'zIndex': 0, 'type': 'Circle', 'radius': '30m', 'opacity': 1, 'fill': '#ff0000'
         }]);
-        const colors = await getCanvasPixelColor(mapContainer, {x: 400 - 30, y: 300 - 30});
+        const colors = await getCanvasPixelColor(mapContainer, {x: 400 - 30, y: 300 - 30}, {
+            expect: '#ff0000'
+        });
         expect(colors).to.equal('#ff0000');
     });
 
     it('zoom in and validate radius in meter is double in size', async () => {
         await waitForViewportReady(display, () => display.setZoomlevel(display.getZoomlevel() + 1));
-        const colors = await getCanvasPixelColor(mapContainer, {x: 400 - 60, y: 300 - 60});
+        const colors = await getCanvasPixelColor(mapContainer, {x: 400 - 60, y: 300 - 60}, {
+            expect: '#ff0000'
+        });
         expect(colors).to.equal('#ff0000');
     });
 

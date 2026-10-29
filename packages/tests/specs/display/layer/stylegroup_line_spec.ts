@@ -55,7 +55,9 @@ describe('setStyleGroup Line', () => {
 
     it('style feature, validate its new style', async () => {
         // validate link style
-        let color1 = await getCanvasPixelColor(mapContainer, {x: 448, y: 300}); // get link color
+        let color1 = await getCanvasPixelColor(mapContainer, {x: 448, y: 300}, {
+            expect: '#ff0000'
+        }); // get link color
         // default color is red
         expect(color1).to.equal('#ff0000');
 
@@ -66,7 +68,9 @@ describe('setStyleGroup Line', () => {
         );
 
         // validate new link style
-        let color2 = await getCanvasPixelColor(mapContainer, {x: 448, y: 300}); // get link color
+        let color2 = await getCanvasPixelColor(mapContainer, {x: 448, y: 300}, {
+            expect: '#be6b65'
+        }); // get link color
         expect(color2).to.equal('#be6b65');
 
         // reset link style
@@ -75,7 +79,9 @@ describe('setStyleGroup Line', () => {
         );
 
         // validate link style is reset
-        let color3 = await getCanvasPixelColor(mapContainer, {x: 448, y: 300}); // get link color
+        let color3 = await getCanvasPixelColor(mapContainer, {x: 448, y: 300}, {
+            expect: '#ff0000'
+        }); // get link color
         expect(color3).to.equal('#ff0000');
     });
 
@@ -90,7 +96,9 @@ describe('setStyleGroup Line', () => {
         // validate new link style
         // get color at position of inline
         // get color at position of outline
-        let colors1 = await getCanvasPixelColor(mapContainer, [{x: 448, y: 300}, {x: 448, y: 307}]);
+        let colors1 = await getCanvasPixelColor(mapContainer, [{x: 448, y: 300}, {x: 448, y: 307}], {
+            expect: '#ffffff'
+        });
         expect(colors1[0]).to.equal('#ffffff');
         expect(colors1[1]).to.equal('#ffffff');
 
@@ -104,7 +112,9 @@ describe('setStyleGroup Line', () => {
         // validate new link style
         // get color at position of inline
         // get color at position of outline
-        let colors2 = await getCanvasPixelColor(mapContainer, [{x: 448, y: 300}, {x: 448, y: 307}]);
+        let colors2 = await getCanvasPixelColor(mapContainer, [{x: 448, y: 300}, {x: 448, y: 307}], {
+            expect: ['#be6b65', '#ffffff']
+        });
         expect(colors2[0]).to.equal('#be6b65');
         expect(colors2[1]).to.equal('#ffffff');
     });
@@ -132,7 +142,9 @@ describe('setStyleGroup Line', () => {
         let colors = await getCanvasPixelColor(mapContainer, [{x: 420, y: 308}, {x: 431, y: 308}, {
             x: 443,
             y: 308
-        }, {x: 452, y: 308}, {x: 461, y: 308}]);
+        }, {x: 452, y: 308}, {x: 461, y: 308}], {
+            expect: ['#000000', '#ffffff', '#000000', '#ffffff', '#000000']
+        });
 
         expect(colors[0]).to.equal('#000000');
         expect(colors[1]).to.equal('#ffffff');
@@ -153,7 +165,9 @@ describe('setStyleGroup Line', () => {
             }]);
 
         // H character
-        const color = await getCanvasPixelColor(mapContainer, {x: 431, y: 308});
+        const color = await getCanvasPixelColor(mapContainer, {x: 431, y: 308}, {
+            expect: '#ff0000'
+        });
         expect(color).to.equal('#ff0000');
     });
 
@@ -180,7 +194,9 @@ describe('setStyleGroup Line', () => {
             {x: 420, y: 325}, {x: 575, y: 325}, {x: 690, y: 505},
             // no offset line
             {x: 410, y: 300}, {x: 585, y: 300}, {x: 715, y: 500}
-        ]);
+        ], {
+            expect: ['#ff0000', '#ff0000', '#ff0000', '#000000', '#000000', '#000000']
+        });
 
         expect(colors[0]).to.equal('#ff0000');
         expect(colors[1]).to.equal('#ff0000');
@@ -213,7 +229,9 @@ describe('setStyleGroup Line', () => {
             {x: 420, y: 280}, {x: 600, y: 280}, {x: 735, y: 480},
             // no offset line
             {x: 410, y: 300}, {x: 585, y: 300}, {x: 715, y: 500}
-        ]);
+        ], {
+            expect: ['#0000ff', '#0000ff', '#0000ff', '#000000', '#000000', '#000000']
+        });
 
         expect(colors[0]).to.equal('#0000ff');
         expect(colors[1]).to.equal('#0000ff');

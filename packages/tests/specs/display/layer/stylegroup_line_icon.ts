@@ -127,7 +127,9 @@ describe('StyleGroup Image and Line geometry', () => {
             'zIndex': 1, 'type': 'Image', 'width': 28, 'src': greenImg
         }]);
 
-        const colors = await getCanvasPixelColor(mapContainer, [px1, px2, px3, px4]);
+        const colors = await getCanvasPixelColor(mapContainer, [px1, px2, px3, px4], {
+            expect: '#00ff00'
+        });
         for (let color of colors) {
             expect(color).to.equal('#00ff00');
         }
@@ -138,7 +140,9 @@ describe('StyleGroup Image and Line geometry', () => {
             'zIndex': 2, 'type': 'Image', 'width': 12, 'src': greenImg, 'anchor': 'Line'
         }]);
 
-        const colors = await getCanvasPixelColor(mapContainer, [{x: 300, y: 300}, {x: 400, y: 300}, {x: 500, y: 300}]);
+        const colors = await getCanvasPixelColor(mapContainer, [{x: 300, y: 300}, {x: 400, y: 300}, {x: 500, y: 300}], {
+            expect: '#00ff00'
+        });
         for (let color of colors) {
             expect(color).to.equal('#00ff00');
         }
@@ -159,7 +163,9 @@ describe('StyleGroup Image and Line geometry', () => {
             zIndex: 1, type: 'Image', width: 28, opacity: 1, src: blueImg, anchor: 'Line', collide: false, repeat: 0
         }]);
 
-        const colors = await getCanvasPixelColor(mapContainer, [{x: 300, y: 300}, {x: 400, y: 300}, {x: 500, y: 300}]);
+        const colors = await getCanvasPixelColor(mapContainer, [{x: 300, y: 300}, {x: 400, y: 300}, {x: 500, y: 300}], {
+            expect: ['#00ff00', '#0000ff', '#00ff00']
+        });
 
         expect(colors[0]).to.equal('#00ff00');
         expect(colors[1]).to.equal('#0000ff');
@@ -181,7 +187,9 @@ describe('StyleGroup Image and Line geometry', () => {
             zIndex: 1, type: 'Image', width: 28, opacity: 1, src: blueImg, anchor: 'Line', collide: false, repeat: 0
         }]);
 
-        const colors = await getCanvasPixelColor(mapContainer, [{x: 300, y: 300}, {x: 400, y: 300}, {x: 500, y: 300}]);
+        const colors = await getCanvasPixelColor(mapContainer, [{x: 300, y: 300}, {x: 400, y: 300}, {x: 500, y: 300}], {
+            expect: '#00ff00'
+        });
 
         expect(colors[0]).to.equal('#00ff00');
         expect(colors[1]).to.equal('#00ff00');
@@ -202,7 +210,9 @@ describe('StyleGroup Image and Line geometry', () => {
             zIndex: 1, type: 'Image', width: 28, opacity: 1, src: blueImg, anchor: 'Line', collide: false
         }]);
 
-        const colors = await getCanvasPixelColor(mapContainer, [{x: 400, y: 300}, px1, px2, px3, px4]);
+        const colors = await getCanvasPixelColor(mapContainer, [{x: 400, y: 300}, px1, px2, px3, px4], {
+            expect: ['#0000ff', '#00ff00', '#00ff00', '#00ff00', '#00ff00']
+        });
 
         expect(colors[0]).to.equal('#0000ff');
         expect(colors[1]).to.equal('#00ff00');
@@ -225,7 +235,9 @@ describe('StyleGroup Image and Line geometry', () => {
             zIndex: 1, type: 'Circle', width: 14, opacity: 1, src: blueImg, anchor: 'Coordinate', collide: false
         }]);
 
-        const colors = await getCanvasPixelColor(mapContainer, [{x: 400, y: 300}, px1, px2, px3, px4]);
+        const colors = await getCanvasPixelColor(mapContainer, [{x: 400, y: 300}, px1, px2, px3, px4], {
+            expect: ['#ffffff', '#00ff00', '#00ff00', '#00ff00', '#00ff00']
+        });
 
         expect(colors[0]).to.equal('#ffffff');
         expect(colors[1]).to.equal('#00ff00');
@@ -255,7 +267,9 @@ describe('StyleGroup Image and Line geometry', () => {
             priority: 1
         }]);
 
-        const colors = await getCanvasPixelColor(mapContainer, [{x: 400, y: 300}, px1, px2, px3, px4]);
+        const colors = await getCanvasPixelColor(mapContainer, [{x: 400, y: 300}, px1, px2, px3, px4], {
+            expect: ['#ffffff', '#0000ff', '#0000ff', '#00ff00', '#00ff00']
+        });
 
         expect(colors[0]).to.equal('#ffffff');
         expect(colors[1]).to.equal('#0000ff');
@@ -369,7 +383,9 @@ describe('StyleGroup Image and Line geometry', () => {
             repeat: 256
         }]);
 
-        const colors = await getCanvasPixelColor(mapContainer, [{x: 300, y: 300}, {x: 400, y: 300}, {x: 500, y: 300}]);
+        const colors = await getCanvasPixelColor(mapContainer, [{x: 300, y: 300}, {x: 400, y: 300}, {x: 500, y: 300}], {
+            expect: ['#ffffff', '#00ff00', '#ffffff']
+        });
 
         expect(colors[0]).to.equal('#ffffff');
         expect(colors[1]).to.equal('#00ff00');
@@ -391,7 +407,9 @@ describe('StyleGroup Image and Line geometry', () => {
 
         const colors = await getCanvasPixelColor(mapContainer, [
             {x: 300, y: 500}, {x: 300, y: 100}, {x: 500, y: 100}, {x: 500, y: 500}
-        ]);
+        ], {
+            expect: ['#00ff00', '#00ff00', '#ffffff', '#ffffff']
+        });
 
         expect(colors[0]).to.equal('#00ff00');
         expect(colors[1]).to.equal('#00ff00');
@@ -419,7 +437,9 @@ describe('StyleGroup Image and Line geometry', () => {
             collide: false
         }]);
 
-        const color = await getCanvasPixelColor(mapContainer, {x: 400, y: 300});
+        const color = await getCanvasPixelColor(mapContainer, {x: 400, y: 300}, {
+            expect: '#ff0000'
+        });
         expect(color).to.equal('#ff0000');
     });
 
@@ -439,7 +459,9 @@ describe('StyleGroup Image and Line geometry', () => {
             collide: false
         }]);
 
-        const color = await getCanvasPixelColor(mapContainer, {x: 400, y: 300});
+        const color = await getCanvasPixelColor(mapContainer, {x: 400, y: 300}, {
+            expect: '#00ff00'
+        });
         expect(color).to.equal('#00ff00');
     });
 });

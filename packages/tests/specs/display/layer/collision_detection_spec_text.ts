@@ -134,7 +134,9 @@ describe('collision detection - Text', function() {
             priority: 2
         }]);
 
-        let color = await getCanvasPixelColor(mapContainer, {x: x2, y: y2});
+        let color = await getCanvasPixelColor(mapContainer, {x: x2, y: y2}, {
+            expect: '#ffffff'
+        });
 
         expect(color).to.equal('#ffffff');
     });
@@ -148,7 +150,9 @@ describe('collision detection - Text', function() {
         style2[0].collide = true;
         testLayer.setStyleGroup(feature2, style2);
 
-        let colors = await getCanvasPixelColor(mapContainer, [{x: x1, y: y1}, {x: x2, y: y2}]);
+        let colors = await getCanvasPixelColor(mapContainer, [{x: x1, y: y1}, {x: x2, y: y2}], {
+            expect: [color1, color2]
+        });
 
         expect(colors[0]).to.equal(color1);
         expect(colors[1]).to.equal(color2);
@@ -163,7 +167,9 @@ describe('collision detection - Text', function() {
         style2[0].collide = false;
         testLayer.setStyleGroup(feature2, style2);
 
-        let colors = await getCanvasPixelColor(mapContainer, [{x: x1, y: y1}, {x: x2, y: y2}]);
+        let colors = await getCanvasPixelColor(mapContainer, [{x: x1, y: y1}, {x: x2, y: y2}], {
+            expect: [color1, '#ffffff']
+        });
 
         expect(colors[0]).to.equal(color1);
         expect(colors[1]).to.equal('#ffffff');
@@ -178,7 +184,9 @@ describe('collision detection - Text', function() {
         style2[0].priority = 1;
         testLayer.setStyleGroup(feature2, style2);
 
-        let colors = await getCanvasPixelColor(mapContainer, [{x: x1, y: y1}, {x: x2, y: y2}]);
+        let colors = await getCanvasPixelColor(mapContainer, [{x: x1, y: y1}, {x: x2, y: y2}], {
+            expect: ['#ffffff', color2]
+        });
 
         expect(colors[0]).to.equal('#ffffff');
         expect(colors[1]).to.equal(color2);
@@ -212,7 +220,9 @@ describe('collision detection - Text', function() {
             lineWrap: 1
         }]);
 
-        let color = await getCanvasPixelColor(mapContainer, {x: 400, y: 250});
+        let color = await getCanvasPixelColor(mapContainer, {x: 400, y: 250}, {
+            expect: color1
+        });
         expect(color).to.equal(color1);
     });
 
@@ -227,7 +237,9 @@ describe('collision detection - Text', function() {
             priority: 2
         }]);
 
-        let color = await getCanvasPixelColor(mapContainer, {x: 400, y: 250});
+        let color = await getCanvasPixelColor(mapContainer, {x: 400, y: 250}, {
+            expect: '#ffffff'
+        });
         expect(color).to.equal('#ffffff');
     });
 
@@ -240,7 +252,9 @@ describe('collision detection - Text', function() {
         style2[0].priority = 2;
         testLayer.setStyleGroup(feature2, style2);
 
-        let colors = await getCanvasPixelColor(mapContainer, [{x: 330, y: 335}, {x: 355, y: 300}, {x: 450, y: 300}]);
+        let colors = await getCanvasPixelColor(mapContainer, [{x: 330, y: 335}, {x: 355, y: 300}, {x: 450, y: 300}], {
+            expect: ['#ffffff', color1, color1]
+        });
 
         expect(colors[0]).to.equal('#ffffff'); // invisible
         expect(colors[1]).to.equal(color1);

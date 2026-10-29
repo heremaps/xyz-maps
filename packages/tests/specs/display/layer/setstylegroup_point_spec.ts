@@ -73,7 +73,9 @@ describe('setStyleGroup Point', function() {
         // validate features have new style
         // get color of address 1
         // get color of address 2
-        let colors1 = await getCanvasPixelColor(mapContainer, [{x: 400, y: 300}, {x: 217, y: 300}]);
+        let colors1 = await getCanvasPixelColor(mapContainer, [{x: 400, y: 300}, {x: 217, y: 300}], {
+            expect: '#be6b65'
+        });
 
         expect(colors1[0]).to.equal('#be6b65');
         expect(colors1[1]).to.equal('#be6b65');
@@ -90,7 +92,9 @@ describe('setStyleGroup Point', function() {
         // validate features have style reset
         // get color of address 1 again
         // get color of address 2 again
-        let colors2 = await getCanvasPixelColor(mapContainer, [{x: 400, y: 300}, {x: 217, y: 300}]);
+        let colors2 = await getCanvasPixelColor(mapContainer, [{x: 400, y: 300}, {x: 217, y: 300}], {
+            expect: '#ff0000'
+        });
 
         expect(colors2[0]).to.equal('#ff0000');
         expect(colors2[1]).to.equal('#ff0000');
@@ -108,7 +112,9 @@ describe('setStyleGroup Point', function() {
         // get color in middle of address 1
         // get color in mid bottom of address 1
         // get color in mid right of address 1
-        let colors1 = await getCanvasPixelColor(mapContainer, [{x: 400, y: 300}, {x: 400, y: 305}, {x: 405, y: 300}]);
+        let colors1 = await getCanvasPixelColor(mapContainer, [{x: 400, y: 300}, {x: 400, y: 305}, {x: 405, y: 300}], {
+            expect: ['#ffffff', '#be6b65', '#ffffff']
+        });
 
         expect(colors1[0]).to.equal('#ffffff');
         expect(colors1[1]).to.equal('#be6b65');
@@ -126,7 +132,9 @@ describe('setStyleGroup Point', function() {
         // get color in middle of address 1
         // get color in mid bottom of address 1
         // get color in mid right of address 1
-        let colors2 = await getCanvasPixelColor(mapContainer, [{x: 400, y: 300}, {x: 400, y: 305}, {x: 405, y: 300}]);
+        let colors2 = await getCanvasPixelColor(mapContainer, [{x: 400, y: 300}, {x: 400, y: 305}, {x: 405, y: 300}], {
+            expect: ['#be6b65', '#be6b65', '#ffffff']
+        });
 
         expect(colors2[0]).to.equal('#be6b65');
         expect(colors2[1]).to.equal('#be6b65');

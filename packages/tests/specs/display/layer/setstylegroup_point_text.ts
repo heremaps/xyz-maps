@@ -138,7 +138,9 @@ describe('setStyleGroup Point with text', function() {
                 {'zIndex': 1, 'type': 'Text', 'fill': '#000000', 'text': FULL_BLOCK_CHAR, 'font': FONT, 'offsetX': -24}
             ]);
 
-        let colors = await getCanvasPixelColor(mapContainer, [{x: 355, y: 300}, {x: 375, y: 300}, {x: 400, y: 300}]);
+        let colors = await getCanvasPixelColor(mapContainer, [{x: 355, y: 300}, {x: 375, y: 300}, {x: 400, y: 300}], {
+            expect: ['#ff0000', '#000000', '#ff0000']
+        });
 
         expect(colors[0]).to.equal('#ff0000');
         expect(colors[1]).to.equal('#000000');
@@ -152,7 +154,9 @@ describe('setStyleGroup Point with text', function() {
                 {'zIndex': 1, 'type': 'Text', 'fill': '#000000', 'text': FULL_BLOCK_CHAR, 'font': FONT, 'offsetY': 24}
             ]);
 
-        let colors = await getCanvasPixelColor(mapContainer, [{x: 400, y: 350}, {x: 400, y: 325}, {x: 400, y: 295}]);
+        let colors = await getCanvasPixelColor(mapContainer, [{x: 400, y: 350}, {x: 400, y: 325}, {x: 400, y: 295}], {
+            expect: ['#ff0000', '#000000', '#ff0000']
+        });
 
         expect(colors[0]).to.equal('#ff0000');
         expect(colors[1]).to.equal('#000000');
@@ -166,7 +170,9 @@ describe('setStyleGroup Point with text', function() {
                 {'zIndex': 1, 'type': 'Text', 'fill': '#000000', 'text': FULL_BLOCK_CHAR, 'font': FONT, 'offsetY': -24}
             ]);
 
-        let colors = await getCanvasPixelColor(mapContainer, [{x: 400, y: 245}, {x: 400, y: 275}, {x: 400, y: 305}]);
+        let colors = await getCanvasPixelColor(mapContainer, [{x: 400, y: 245}, {x: 400, y: 275}, {x: 400, y: 305}], {
+            expect: ['#ff0000', '#000000', '#ff0000']
+        });
 
         expect(colors[0]).to.equal('#ff0000');
         expect(colors[1]).to.equal('#000000');
@@ -190,7 +196,9 @@ describe('setStyleGroup Point with text', function() {
 
         let colors = await getCanvasPixelColor(mapContainer, [
             {x: 400, y: 325}, {x: 425, y: 355}, {x: 450, y: 325}, {x: 420, y: 295}, {x: 425, y: 325}
-        ]);
+        ], {
+            expect: ['#ff0000', '#ff0000', '#ff0000', '#ff0000', '#000000']
+        });
 
         expect(colors[0]).to.equal('#ff0000');
         expect(colors[1]).to.equal('#ff0000');
@@ -212,7 +220,9 @@ describe('setStyleGroup Point with text', function() {
             }]);
 
         // O O O
-        let colors = await getCanvasPixelColor(mapContainer, [{x: 350, y: 300}, {x: 400, y: 300}, {x: 450, y: 300}]);
+        let colors = await getCanvasPixelColor(mapContainer, [{x: 350, y: 300}, {x: 400, y: 300}, {x: 450, y: 300}], {
+            expect: '#ff0000'
+        });
 
         for (let color of colors) {
             expect(color).to.equal('#ff0000');
@@ -235,7 +245,9 @@ describe('setStyleGroup Point with text', function() {
         //   O
         //   O
         //   O
-        let colors = await getCanvasPixelColor(mapContainer, [{x: 400, y: 250}, {x: 400, y: 300}, {x: 400, y: 350}]);
+        let colors = await getCanvasPixelColor(mapContainer, [{x: 400, y: 250}, {x: 400, y: 300}, {x: 400, y: 350}], {
+            expect: '#ff0000'
+        });
 
         for (let color of colors) {
             expect(color).to.equal('#ff0000');
@@ -257,7 +269,9 @@ describe('setStyleGroup Point with text', function() {
 
         //  O O
         //   O
-        let colors = await getCanvasPixelColor(mapContainer, [{x: 375, y: 275}, {x: 425, y: 275}, {x: 400, y: 325}]);
+        let colors = await getCanvasPixelColor(mapContainer, [{x: 375, y: 275}, {x: 425, y: 275}, {x: 400, y: 325}], {
+            expect: '#ff0000'
+        });
 
         for (let color of colors) {
             expect(color).to.equal('#ff0000');
@@ -280,7 +294,9 @@ describe('setStyleGroup Point with text', function() {
         //   O
         //   O
         //   O
-        let colors = await getCanvasPixelColor(mapContainer, [{x: 400, y: 250}, {x: 400, y: 300}, {x: 400, y: 350}]);
+        let colors = await getCanvasPixelColor(mapContainer, [{x: 400, y: 250}, {x: 400, y: 300}, {x: 400, y: 350}], {
+            expect: '#ff0000'
+        });
 
         for (let color of colors) {
             expect(color).to.equal('#ff0000');

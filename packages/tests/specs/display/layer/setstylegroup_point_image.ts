@@ -94,7 +94,7 @@ describe('setStyleGroup Point with image', function() {
         // get color mid bottom
         let opacolors = await getCanvasPixelColor(mapContainer, [
             {x: 400, y: 300}, {x: 390, y: 300}, {x: 410, y: 300}, {x: 400, y: 290}, {x: 400, y: 310}
-        ]);
+        ], {expect: (opacolors) => opacolors.every((color, index) => color !== colors[index])});
 
         expect(colors[0]).to.not.equal(opacolors[0]);
         expect(colors[1]).to.not.equal(opacolors[1]);
@@ -119,7 +119,13 @@ describe('setStyleGroup Point with image', function() {
         // get color mid bottom
         let colors = await getCanvasPixelColor(mapContainer, [
             {x: 400, y: 300}, {x: 390, y: 300}, {x: 410, y: 300}, {x: 400, y: 290}, {x: 400, y: 310}
-        ]);
+        ], {
+            expect: (colors) => colors[0] !== '#ffffff' &&
+                colors[1] === '#ffffff' &&
+                colors[2] !== '#ffffff' &&
+                colors[3] === '#ffffff' &&
+                colors[4] === '#ffffff'
+        });
 
         expect(colors[0]).to.not.equal('#ffffff');
         expect(colors[1]).to.equal('#ffffff');
@@ -144,7 +150,13 @@ describe('setStyleGroup Point with image', function() {
         // get color mid bottom
         let colors = await getCanvasPixelColor(mapContainer, [
             {x: 400, y: 300}, {x: 390, y: 300}, {x: 410, y: 300}, {x: 400, y: 290}, {x: 400, y: 310}
-        ]);
+        ], {
+            expect: (colors) => colors[0] !== '#ffffff' &&
+                colors[1] !== '#ffffff' &&
+                colors[2] === '#ffffff' &&
+                colors[3] === '#ffffff' &&
+                colors[4] === '#ffffff'
+        });
 
         expect(colors[0]).to.not.equal('#ffffff');
         expect(colors[1]).to.not.equal('#ffffff');
@@ -169,7 +181,13 @@ describe('setStyleGroup Point with image', function() {
         // get color mid bottom
         let colors = await getCanvasPixelColor(mapContainer, [
             {x: 400, y: 300}, {x: 390, y: 300}, {x: 410, y: 300}, {x: 400, y: 290}, {x: 400, y: 310}
-        ]);
+        ], {
+            expect: (colors) => colors[0] !== '#ffffff' &&
+                colors[1] === '#ffffff' &&
+                colors[2] === '#ffffff' &&
+                colors[3] === '#ffffff' &&
+                colors[4] !== '#ffffff'
+        });
 
         expect(colors[0]).to.not.equal('#ffffff');
         expect(colors[1]).to.equal('#ffffff');
@@ -194,7 +212,13 @@ describe('setStyleGroup Point with image', function() {
         // get color mid bottom
         let colors = await getCanvasPixelColor(mapContainer, [
             {x: 400, y: 300}, {x: 390, y: 300}, {x: 410, y: 300}, {x: 400, y: 290}, {x: 400, y: 310}
-        ]);
+        ], {
+            expect: (colors) => colors[0] !== '#ffffff' &&
+                colors[1] === '#ffffff' &&
+                colors[2] === '#ffffff' &&
+                colors[3] !== '#ffffff' &&
+                colors[4] === '#ffffff'
+        });
 
         expect(colors[0]).to.not.equal('#ffffff');
         expect(colors[1]).to.equal('#ffffff');
@@ -220,7 +244,13 @@ describe('setStyleGroup Point with image', function() {
         // get color mid bottom
         let colors = await getCanvasPixelColor(mapContainer, [
             {x: 400, y: 300}, {x: 390, y: 300}, {x: 410, y: 300}, {x: 400, y: 290}, {x: 400, y: 310}
-        ]);
+        ], {
+            expect: (colors) => colors[0] === '#ffffff' &&
+                colors[1] === '#ffffff' &&
+                colors[2] !== '#ffffff' &&
+                colors[3] === '#ffffff' &&
+                colors[4] !== '#ffffff'
+        });
 
         expect(colors[0]).to.equal('#ffffff');
         expect(colors[1]).to.equal('#ffffff');

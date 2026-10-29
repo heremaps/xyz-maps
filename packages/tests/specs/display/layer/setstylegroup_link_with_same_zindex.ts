@@ -70,7 +70,7 @@ describe('setStyleGroup link with same zIndex', () => {
         // validate features have new style
         // get color of link inline
         // get color of link outline
-        let colors = await getCanvasPixelColor(mapContainer, [{x: 450, y: 300}, {x: 450, y: 304}]);
+        let colors = await getCanvasPixelColor(mapContainer, [{x: 450, y: 300}, {x: 450, y: 304}], {expect: '#be6b65'});
         expect(colors[0]).to.equal('#be6b65');
         expect(colors[1]).to.equal('#be6b65');
     });
@@ -86,7 +86,9 @@ describe('setStyleGroup link with same zIndex', () => {
         // validate features have new style
         // get color of link inline
         // get color of link outline
-        let colors1 = await getCanvasPixelColor(mapContainer, [{x: 450, y: 300}, {x: 450, y: 306}]);
+        let colors1 = await getCanvasPixelColor(mapContainer, [{x: 450, y: 300}, {x: 450, y: 306}], {
+            expect: (colors) => colors[1] === '#be6b65'
+        });
         expect(colors1[1]).to.equal('#be6b65');
 
 
@@ -100,7 +102,9 @@ describe('setStyleGroup link with same zIndex', () => {
         // validate features have new style
         // get color of link inline
         // get color of link outline
-        let colors2 = await getCanvasPixelColor(mapContainer, [{x: 450, y: 300}, {x: 450, y: 306}]);
+        let colors2 = await getCanvasPixelColor(mapContainer, [{x: 450, y: 300}, {x: 450, y: 306}], {
+            expect: (colors) => colors[1] === '#be6b65'
+        });
         expect(colors2[1]).to.equal('#be6b65');
     });
 
@@ -115,7 +119,7 @@ describe('setStyleGroup link with same zIndex', () => {
         // validate features have new style
         // get color of link inline
         // get color of link outline
-        let colors1 = await getCanvasPixelColor(mapContainer, [{x: 450, y: 300}, {x: 450, y: 306}]);
+        let colors1 = await getCanvasPixelColor(mapContainer, [{x: 450, y: 300}, {x: 450, y: 306}], {expect: '#be6b65'});
         expect(colors1[0]).to.equal('#be6b65');
         expect(colors1[1]).to.equal('#be6b65');
 
@@ -129,7 +133,7 @@ describe('setStyleGroup link with same zIndex', () => {
         // validate features have new style
         // get color of link inline
         // get color of link outline
-        let colors2 = await getCanvasPixelColor(mapContainer, [{x: 450, y: 300}, {x: 450, y: 306}]);
+        let colors2 = await getCanvasPixelColor(mapContainer, [{x: 450, y: 300}, {x: 450, y: 306}], {expect: '#be6b65'});
         expect(colors2[0]).to.equal('#be6b65');
         expect(colors2[1]).to.equal('#be6b65');
     });
@@ -150,7 +154,7 @@ describe('setStyleGroup link with same zIndex', () => {
 
         // validate features have new style
         // get color of link in the middle
-        let color = await getCanvasPixelColor(mapContainer, {x: 450, y: 300});
+        let color = await getCanvasPixelColor(mapContainer, {x: 450, y: 300}, {expect: '#e0e0e0'});
         expect(color).to.equal('#e0e0e0');
     });
 
@@ -164,7 +168,7 @@ describe('setStyleGroup link with same zIndex', () => {
 
         // validate features have new style
         // get color of link in the middle
-        let color = await getCanvasPixelColor(mapContainer, {x: 450, y: 300});
+        let color = await getCanvasPixelColor(mapContainer, {x: 450, y: 300}, {expect: '#e0e0e0'});
         expect(color).to.equal('#e0e0e0');
     });
 
@@ -178,7 +182,7 @@ describe('setStyleGroup link with same zIndex', () => {
 
         // validate features have new style
         // get color of link in the middle
-        let color = await getCanvasPixelColor(mapContainer, {x: 450, y: 300});
+        let color = await getCanvasPixelColor(mapContainer, {x: 450, y: 300}, {expect: '#e0e0e0'});
         expect(color).to.equal('#e0e0e0');
     });
 
@@ -189,13 +193,13 @@ describe('setStyleGroup link with same zIndex', () => {
             {
                 'zIndex': 1, 'type': 'Line', 'stroke': '#ff0000', 'strokeWidth': '50m'
             }]);
-        const colors = await getCanvasPixelColor(mapContainer, {x: 500, y: 300 - 40});
+        const colors = await getCanvasPixelColor(mapContainer, {x: 500, y: 300 - 40}, {expect: '#ff0000'});
         expect(colors).to.equal('#ff0000');
     });
 
     it('zoom in and validate strokeWidth in meter is double in size', async () => {
         await waitForViewportReady(display, () => display.setZoomlevel(display.getZoomlevel() + 1));
-        const colors = await getCanvasPixelColor(mapContainer, {x: 500, y: 300 - 80});
+        const colors = await getCanvasPixelColor(mapContainer, {x: 500, y: 300 - 80}, {expect: '#ff0000'});
         expect(colors).to.equal('#ff0000');
     });
 

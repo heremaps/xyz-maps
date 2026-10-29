@@ -134,7 +134,9 @@ describe('Styling drawingboard', function() {
 
         expect(editor.getDrawingBoard().getLength()).to.be.equal(2);
 
-        let colors = await getCanvasPixelColor(mapContainer, [{x: 200, y: 100}, {x: 208, y: 108}, {x: 200, y: 250}, {x: 208, y: 250}]);
+        let colors = await getCanvasPixelColor(mapContainer, [{x: 200, y: 100}, {x: 208, y: 108}, {x: 200, y: 250}, {x: 208, y: 250}], {
+            expect: ['#ee9922', '#2233ee', '#c799e8', '#aa84a4']
+        });
 
         expect(colors[0]).to.equal('#ee9922');
         expect(colors[1]).to.equal('#2233ee');

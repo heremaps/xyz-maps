@@ -65,7 +65,9 @@ describe('custom/overwritten styles', () => {
     });
 
     it('validate default layer style', async () => {
-        let color = await getCanvasPixelColor(mapContainer, {x: 300, y: 400});
+        let color = await getCanvasPixelColor(mapContainer, {x: 300, y: 400}, {
+            expect: '#ff0000'
+        });
         expect(color).to.equal('#ff0000');
     });
 
@@ -83,14 +85,18 @@ describe('custom/overwritten styles', () => {
     it('set property to trigger style refresh', async () => {
         area.prop('test', 'test');
 
-        let color = await getCanvasPixelColor(mapContainer, {x: 300, y: 400});
+        let color = await getCanvasPixelColor(mapContainer, {x: 300, y: 400}, {
+            expect: '#0000ff'
+        });
         expect(color).to.equal('#0000ff');
     });
 
     it('clear custom style', async () => {
         areaLayer.setStyleGroup(area);
 
-        let color = await getCanvasPixelColor(mapContainer, {x: 300, y: 400});
+        let color = await getCanvasPixelColor(mapContainer, {x: 300, y: 400}, {
+            expect: '#ff0000'
+        });
         expect(color).to.equal('#ff0000');
     });
 });

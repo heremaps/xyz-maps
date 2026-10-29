@@ -67,7 +67,9 @@ describe('zoom in 20+', function() {
     });
 
     it('validate point is displayed', async () => {
-        let color = await getCanvasPixelColor(mapContainer, {x: 447, y: 79});
+        let color = await getCanvasPixelColor(mapContainer, {x: 447, y: 79}, {
+            expect: '#ff0000'
+        });
         expect(color).to.equal('#ff0000');
     });
 
@@ -81,7 +83,9 @@ describe('zoom in 20+', function() {
             {x: 200, y: 400},
             // bottom right screen quad (red)
             {x: 500, y: 400}
-        ]);
+        ], {
+            expect: (colors) => colors.every((color) => color !== '#ffffff')
+        });
         for (let color of colors) {
             expect(color).to.not.equal('#ffffff');
         }
@@ -99,7 +103,9 @@ describe('zoom in 20+', function() {
             {x: 200, y: 400},
             // bottom right screen quad
             {x: 500, y: 400}
-        ]);
+        ], {
+            expect: (colors) => colors.every((color) => color !== '#ffffff')
+        });
 
         for (let color of colors) {
             expect(color).to.not.equal('#ffffff');
@@ -144,7 +150,9 @@ describe('zoom in 20+', function() {
             display.setCenter(-77.0077688, 38.9011329);
         });
 
-        const color = await getCanvasPixelColor(mapContainer, {x: 400, y: 300});
+        const color = await getCanvasPixelColor(mapContainer, {x: 400, y: 300}, {
+            expect: '#0000ff'
+        });
         expect(color).to.equal('#0000ff');
     });
 });
