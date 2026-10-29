@@ -65,7 +65,7 @@ export function xyzLibs(components: string[], dist: Dist): any {
 
                 // a sourceMappingURL comment would make the browser look for the map next to the page
                 const code = fs.readFileSync(file, 'utf8').replace(/^\/\/# sourceMappingURL=.*$/gm, '');
-                return {name: path.basename(file), code};
+                return {component: name, name: path.basename(file), code};
             });
             return `export default ${JSON.stringify(libs)};`;
         }

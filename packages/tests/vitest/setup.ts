@@ -9,15 +9,37 @@ declare const __XYZ_MAP__: 'none' | 'plain' | 'sized';
 
 const g = <any>globalThis;
 
+const libraryChecks: Record<string, () => boolean> = {
+    common: () => typeof g.here?.xyz?.maps?.common?.JSUtils?.extend === 'function',
+    core: () => typeof g.here?.xyz?.maps?.TileLayer === 'function',
+    display: () => typeof g.here?.xyz?.maps?.Map === 'function',
+    editor: () => typeof g.here?.xyz?.maps?.editor?.Editor === 'function'
+};
+
 // The libraries are UMD builds. Run them as classic scripts in the same order as karma did.
 // They set up the global namespace (here.xyz.maps...) that they use to find each other.
 for (const lib of libs) {
+    const check = libraryChecks[lib.component];
+    if (!check) throw new Error(`Unknown xyz-maps component "${lib.component}" in "${lib.name}"`);
+
     const script = document.createElement('script');
     script.textContent = lib.code + '\n//# sourceURL=' + lib.name;
-    document.head.appendChild(script);
-}
-if (!g.here?.xyz?.maps?.common) {
-    throw new Error('xyz-maps libraries are not available after loading them');
+    const errors: ErrorEvent[] = [];
+    const onError = (event: ErrorEvent) => errors.push(event);
+    // Exceptions in classic scripts fire window errors rather than escaping appendChild().
+    window.addEventListener('error', onError);
+    try {
+        document.head.appendChild(script);
+    } finally {
+        window.removeEventListener('error', onError);
+    }
+    if (errors.length) {
+        const details = errors.map((event) => `${event.message} (${event.filename}:${event.lineno}:${event.colno})`);
+        throw new Error(`Failed to load xyz-maps bundle "${lib.name}":\n${details.join('\n')}`);
+    }
+    if (!check()) {
+        throw new Error(`xyz-maps bundle "${lib.name}" did not initialize the expected "${lib.component}" API`);
+    }
 }
 
 // Mocha names that the specs use and vitest does not define.
