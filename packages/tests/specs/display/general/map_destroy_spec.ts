@@ -19,6 +19,8 @@
 
 import {prepare} from 'utils';
 import {waitForViewportReady} from 'displayUtils';
+import {drag} from 'triggerEvents';
+import {vi} from 'vitest';
 import {Map} from '@here/xyz-maps-display';
 import dataset from './map_destroy_spec.json';
 
@@ -71,6 +73,34 @@ describe('destroy display', function() {
             map.destroy();
 
             // Hover detection is deferred by 50 ms and must not run against the destroyed map.
+            await new Promise<void>((resolve) => setTimeout(resolve, 200));
+            expect(errors).to.deep.equal([]);
+        } finally {
+            window.removeEventListener('error', onError);
+            if (map.destroy) map.destroy();
+        }
+    });
+
+    it('cancels kinetic panning when the display is destroyed', async function() {
+        const map = new Map(document.getElementById('map'), {
+            center: {longitude: 77.852437, latitude: 13.542848},
+            zoomlevel: 18,
+            layers: []
+        });
+        const errors: string[] = [];
+        const onError = (event: ErrorEvent) => errors.push(event.message);
+        window.addEventListener('error', onError);
+        try {
+            await waitForViewportReady(map);
+            const pan = vi.spyOn(map, 'pan');
+            await drag(map.getContainer(), {x: 300, y: 300}, {x: 400, y: 300});
+            const callsAfterRelease = pan.mock.calls.length;
+            await vi.waitFor(() => {
+                expect(pan.mock.calls.length).to.be.greaterThan(callsAfterRelease);
+            }, {timeout: 300, interval: 10});
+            pan.mockRestore();
+            map.destroy();
+
             await new Promise<void>((resolve) => setTimeout(resolve, 200));
             expect(errors).to.deep.equal([]);
         } finally {
