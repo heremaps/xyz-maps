@@ -10,6 +10,17 @@ on:
             - '*'
     workflow_call:
     workflow_dispatch:
+        inputs:
+            component:
+                description: Test component
+                type: choice
+                default: all
+                options:
+                    - all
+                    - common
+                    - core
+                    - display
+                    - editor
 
 jobs:
     build:
@@ -39,4 +50,11 @@ jobs:
             -   name: Typecheck test specs
                 run: pnpm --filter @here/xyz-maps-test run typecheck
             -   name: Run tests
-                run: pnpm test
+                env:
+                    TEST_COMPONENT: ${{ github.event_name == 'workflow_dispatch' && inputs.component || 'all' }}
+                run: |
+                    case "$TEST_COMPONENT" in
+                        all) pnpm test ;;
+                        common|core|display|editor) pnpm test --project "$TEST_COMPONENT" ;;
+                        *) echo "Unknown test component: $TEST_COMPONENT" >&2; exit 1 ;;
+                    esac
