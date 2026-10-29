@@ -46,6 +46,7 @@ pnpm run watch                                  # rerun on changes (in packages/
 |---|---|---|
 | `XYZ_COMMON_SRC`, `XYZ_CORE_SRC`, `XYZ_DISPLAY_SRC`, `XYZ_EDITOR_SRC` | | Path of the bundle of a single component |
 | `XYZ_BROWSER` | `chrome` | `chrome` (installed Google Chrome), `chromium` or `firefox` (Playwright browsers) |
+| `XYZ_SOFTWARE_RENDERING` | | Set to `1` to force SwiftShader software rendering in Chrome or Chromium (not Firefox) |
 | `XYZ_ENVIRONMENTS` | `./environments.json` | Path of the environments file |
 | `XYZ_IMAGE_URL`, `XYZ_HUB_URL` | | Overwrite `image` and `xyzhub` of the environments file |
 | `XYZ_CREDENTIALS` | `./credentials.json` | Path of the credentials file (integration tests only) |

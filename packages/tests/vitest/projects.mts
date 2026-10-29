@@ -42,10 +42,23 @@ const COMPONENTS: { [name in Component]: { libs: string[]; include: string[]; ma
 // XYZ_BROWSER: chrome (default, the installed Google Chrome), chromium or firefox (see "playwright install")
 function browser() {
     const name = process.env.XYZ_BROWSER || 'chrome';
+    const softwareRendering = process.env.XYZ_SOFTWARE_RENDERING === '1';
+    if (softwareRendering && name === 'firefox') {
+        throw new Error('XYZ_SOFTWARE_RENDERING=1 requires XYZ_BROWSER=chrome or chromium.');
+    }
     if (name == 'firefox') return {provider: playwright(), instances: [{browser: <const>'firefox'}]};
-    if (name == 'chromium') return {provider: playwright(), instances: [{browser: <const>'chromium'}]};
-    if (name == 'chrome') {
-        return {provider: playwright({launchOptions: {channel: 'chrome'}}), instances: [{browser: <const>'chromium'}]};
+    if (name == 'chrome' || name == 'chromium') {
+        return {
+            provider: playwright({
+                launchOptions: {
+                    ...(name == 'chrome' ? {channel: 'chrome'} : {}),
+                    ...(softwareRendering ? {
+                        args: ['--use-gl=angle', '--use-angle=swiftshader', '--enable-unsafe-swiftshader']
+                    } : {})
+                }
+            }),
+            instances: [{browser: <const>'chromium'}]
+        };
     }
     throw new Error(`Unknown XYZ_BROWSER "${name}". Use chrome, chromium or firefox.`);
 }
