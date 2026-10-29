@@ -21,6 +21,7 @@ import {waitForViewportReady} from 'displayUtils';
 import {getCanvasPixelColor} from 'utils';
 import {TileLayer, LocalProvider} from '@here/xyz-maps-core';
 import {Map} from '@here/xyz-maps-display';
+import {vi} from 'vitest';
 
 describe('StyleGroup Image and Line geometry', () => {
     const redImg = 'data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAAAgAAAAICAYAAADED76LAAAAE0lEQVR42mP8z8AARLgB48hQAAAdEw/5itjcFgAAAABJRU5ErkJggg==';
@@ -105,10 +106,11 @@ describe('StyleGroup Image and Line geometry', () => {
             'zIndex': 1, 'type': 'Image', 'src': blueImg, 'width': 28, 'opacity': 1
         }]);
 
-        const colors = await getCanvasPixelColor(mapContainer, [px1, px2]);
-
-        expect(colors[0]).to.equal('#0000ff');
-        expect(colors[1]).to.equal('#0000ff');
+        // Style changes and image loading complete asynchronously; wait for the rendered result.
+        await vi.waitFor(async () => {
+            const colors = await getCanvasPixelColor(mapContainer, [px1, px2]);
+            expect(colors).to.deep.equal(['#0000ff', '#0000ff']);
+        }, {timeout: 2000});
     });
 
     it('set anchor to Line', async () => {
@@ -116,11 +118,11 @@ describe('StyleGroup Image and Line geometry', () => {
             'zIndex': 1, 'type': 'Image', 'width': 28, 'src': blueImg, 'anchor': 'Line'
         }]);
 
-        const colors = await getCanvasPixelColor(mapContainer, [px1, px2, {x: 400, y: 300}]);
-
-        expect(colors[0]).to.equal('#ffffff');
-        expect(colors[1]).to.equal('#ffffff');
-        expect(colors[2]).to.equal('#0000ff');
+        // Wait for the new anchor placement to replace the previous rendered frame.
+        await vi.waitFor(async () => {
+            const colors = await getCanvasPixelColor(mapContainer, [px1, px2, {x: 400, y: 300}]);
+            expect(colors).to.deep.equal(['#ffffff', '#ffffff', '#0000ff']);
+        }, {timeout: 2000});
     });
 
     it('stlye line 2', async () => {
