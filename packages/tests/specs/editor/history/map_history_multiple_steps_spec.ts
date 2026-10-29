@@ -27,9 +27,10 @@ describe('map history for multiple steps redo and undo', function() {
 
     var editor;
     var display;
+    var preparedData;
 
     before(async function() {
-        let preparedData = await prepare(dataset);
+        preparedData = await prepare(dataset);
         display = new Map(document.getElementById('map'), {
             center: {latitude: 18.865855, longitude: 73.07682},
             zoomlevel: 18,
@@ -96,11 +97,11 @@ describe('map history for multiple steps redo and undo', function() {
             }
         };
 
-        editor.addFeature(lnk);
-        editor.addFeature(poi1);
-        editor.addFeature(poi2);
-        editor.addFeature(poi3);
-        editor.addFeature(poi4);
+        editor.addFeature(lnk, preparedData.getLayers('linkLayer'));
+        editor.addFeature(poi1, preparedData.getLayers('placeLayer'));
+        editor.addFeature(poi2, preparedData.getLayers('placeLayer'));
+        editor.addFeature(poi3, preparedData.getLayers('placeLayer'));
+        editor.addFeature(poi4, preparedData.getLayers('placeLayer'));
 
         expect(editor.get('history.current')).to.equal(5);
         expect(editor.get('history.length')).to.equal(5);

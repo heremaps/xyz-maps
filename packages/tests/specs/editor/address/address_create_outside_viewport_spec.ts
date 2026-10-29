@@ -59,7 +59,7 @@ describe('create an address outside viewport, it connects to a link nearby', fun
                 type: 'LineString',
                 coordinates: editor.toGeoJSONCoordinates([{x: 100, y: 300}, {x: 400, y: 300}])
             }
-        });
+        }, preparedData.getLayers('linkLayer'));
 
         await waitForEditorReady(editor, ()=>{
             // move map to a new area
@@ -74,7 +74,7 @@ describe('create an address outside viewport, it connects to a link nearby', fun
                 type: 'Point',
                 coordinates: editor.toGeoJSONCoordinates({longitude: 75.55616842610328, latitude: 14.022611963396827})
             }
-        });
+        }, preparedData.getLayers('paLayer'));
 
         // validate address connects to correct link
         expect(address.prop()).to.deep.include({

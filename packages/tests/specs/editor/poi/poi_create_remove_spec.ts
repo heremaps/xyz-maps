@@ -126,7 +126,7 @@ describe('add POI object and then remove', function() {
                 coordinates: editor.toGeoJSONCoordinates({x: 300, y: 250})
             }
         };
-        let poi = editor.addFeature(p);
+        let poi = editor.addFeature(p, preparedData.getLayers('placeLayer'));
 
         expect(poi.prop('type')).to.equal('restaurant');
     });

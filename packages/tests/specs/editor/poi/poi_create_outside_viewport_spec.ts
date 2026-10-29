@@ -64,7 +64,7 @@ describe('create a poi outside viewport, it connects to a link nearby', function
                 coordinates: editor.toGeoJSONCoordinates({longitude: 78.68822870649961, latitude: 17.065070322770552})
             }
         };
-        let poi = editor.addFeature(p);
+        let poi = editor.addFeature(p, preparedData.getLayers('placeLayer'));
 
         poi.createRoutingPoint();
 

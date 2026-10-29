@@ -15,8 +15,7 @@
             "id": "linkProvider",
             "type": "TestLocalProvider",
             "name": "Links",
-            "level": 15,
-            "class": "NAVLINK"
+            "level": 15
         },
         "min": 14,
         "max": 20,

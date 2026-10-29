@@ -78,7 +78,7 @@ describe('autoResolveRoutingPoint configuration', function() {
         let added;
 
         return waitForEditorReady(editor, () => {
-            added = editor.addFeature([link, address, place]);
+            added = editor.addFeature({linkLayer: [link], paLayer: [address, place]});
 
             if (configure) {
                 configure(added[1], added[2]);

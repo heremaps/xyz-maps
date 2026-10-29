@@ -74,7 +74,7 @@ describe('POI routing point auto reconnect', function() {
                 coordinates: editor.toGeoJSONCoordinates({x: 400, y: 300})
             }
         };
-        objs = editor.addFeature([l, p]);
+        objs = editor.addFeature({linkLayer: [l], placeLayer: [p]});
 
         objs[1].createRoutingPoint();
 

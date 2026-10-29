@@ -61,7 +61,7 @@ describe('poi and link create', function() {
                 coordinates: editor.toGeoJSONCoordinates({x: 300, y: 250})
             }
         };
-        editor.addFeature(p);
+        editor.addFeature(p, preparedData.getLayers('placeLayer'));
 
         let l = {
             type: 'Feature',
@@ -71,7 +71,7 @@ describe('poi and link create', function() {
                 coordinates: editor.toGeoJSONCoordinates([{x: 200, y: 100}, {x: 200, y: 200}])
             }
         };
-        editor.addFeature(l);
+        editor.addFeature(l, preparedData.getLayers('linkLayer'));
 
         let idMap;
         await waitForEditorReady(editor, async ()=>{

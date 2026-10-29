@@ -63,7 +63,7 @@ describe('modify object and remove its layer, then undo the change', function() 
                 coordinates: editor.toGeoJSONCoordinates({x: 300, y: 250})
             }
         };
-        editor.addFeature(p);
+        editor.addFeature(p, preparedData.getLayers('placeLayer'));
 
         await click(mapContainer, 300, 250);
 

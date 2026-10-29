@@ -27,9 +27,10 @@ describe('map history', function() {
 
     var editor;
     var display;
+    var preparedData;
 
     before(async function() {
-        let preparedData = await prepare(dataset);
+        preparedData = await prepare(dataset);
         display = new Map(document.getElementById('map'), {
             center: {latitude: 18.865855, longitude: 73.07682},
             zoomlevel: 18,
@@ -56,7 +57,7 @@ describe('map history', function() {
             }
         };
 
-        editor.addFeature(poi1);
+        editor.addFeature(poi1, preparedData.getLayers('placeLayer'));
 
         expect(editor.get('history.current')).to.equal(1);
         expect(editor.get('history.length')).to.equal(1);
@@ -72,7 +73,7 @@ describe('map history', function() {
                 coordinates: editor.toGeoJSONCoordinates({x: 200, y: 200})
             }
         };
-        editor.addFeature(poi2);
+        editor.addFeature(poi2, preparedData.getLayers('placeLayer'));
 
         expect(editor.get('history.current')).to.equal(2);
         expect(editor.get('history.length')).to.equal(2);
@@ -119,7 +120,7 @@ describe('map history', function() {
                 coordinates: editor.toGeoJSONCoordinates({x: 250, y: 200})
             }
         };
-        editor.addFeature(poi3);
+        editor.addFeature(poi3, preparedData.getLayers('placeLayer'));
 
         expect(editor.get('history.current')).to.equal(1);
         expect(editor.get('history.length')).to.equal(1);
@@ -158,7 +159,7 @@ describe('map history', function() {
                 coordinates: editor.toGeoJSONCoordinates({x: 250, y: 250})
             }
         };
-        editor.addFeature(poi4);
+        editor.addFeature(poi4, preparedData.getLayers('placeLayer'));
 
         expect(editor.get('history.current')).to.equal(1);
         expect(editor.get('history.length')).to.equal(1);

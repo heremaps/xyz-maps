@@ -52,7 +52,7 @@ describe('map double click listener', function() {
     });
 
     it('start drawingmanager and validate pointup and dbltap events', async function() {
-        editor.getDrawingBoard().start();
+        editor.getDrawingBoard().start({layer: preparedData.getLayers('linkLayer')});
 
         let listener = new Listener(editor, ['pointerup', 'dbltap']);
 
@@ -86,7 +86,7 @@ describe('map double click listener', function() {
 
 
     it('start drawingmanager and validate pointerup and dbltap', async function() {
-        editor.getDrawingBoard().start();
+        editor.getDrawingBoard().start({layer: preparedData.getLayers('linkLayer')});
 
         let listener = new Listener(editor, ['pointerup', 'dbltap']);
 

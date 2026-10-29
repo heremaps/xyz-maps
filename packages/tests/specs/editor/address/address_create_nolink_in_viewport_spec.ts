@@ -61,7 +61,7 @@ describe('create an address where no link exists within 1000 meters', function()
                 type: 'Point',
                 coordinates: editor.toGeoJSONCoordinates({x: 200, y: 300})
             }
-        });
+        }, preparedData.getLayers('paLayer'));
 
         // add one more address
         let addr2 = editor.addFeature({
@@ -71,7 +71,7 @@ describe('create an address where no link exists within 1000 meters', function()
                 type: 'Point',
                 coordinates: editor.toGeoJSONCoordinates({x: 50, y: 300})
             }
-        });
+        }, preparedData.getLayers('paLayer'));
 
         let objs = editor.search({rect: display.getViewBounds(), layers: [addrLayer]});
         expect(objs).to.have.lengthOf(1);

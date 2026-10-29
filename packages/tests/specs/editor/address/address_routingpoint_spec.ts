@@ -84,7 +84,7 @@ describe('routing point of address objects should always exists', function() {
                 coordinates: editor.toGeoJSONCoordinates([{x: 200, y: 400}, {x: 100, y: 500}])
             }
         };
-        let link3 = editor.addFeature(l3);
+        let link3 = editor.addFeature(l3, preparedData.getLayers('linkLayer'));
 
         await click(mapContainer, 200, 100);
 

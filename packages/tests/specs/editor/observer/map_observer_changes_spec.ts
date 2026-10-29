@@ -70,8 +70,8 @@ describe('map changes observers', function() {
             }
         };
 
-        editor.addFeature(lnk);
-        editor.addFeature(addr1);
+        editor.addFeature(lnk, preparedData.getLayers('linkLayer'));
+        editor.addFeature(addr1, preparedData.getLayers('paLayer'));
 
         editor.undo();
         editor.redo();
@@ -95,7 +95,7 @@ describe('map changes observers', function() {
                 coordinates: editor.toGeoJSONCoordinates({x: 200, y: 300})
             }
         };
-        editor.addFeature(addr1);
+        editor.addFeature(addr1, preparedData.getLayers('paLayer'));
 
         editor.undo();
 
@@ -111,7 +111,7 @@ describe('map changes observers', function() {
                 coordinates: editor.toGeoJSONCoordinates({x: 300, y: 300})
             }
         };
-        editor.addFeature(addr2);
+        editor.addFeature(addr2, preparedData.getLayers('paLayer'));
         let idMap;
         await waitForEditorReady(editor, async ()=>{
             idMap = await submit(editor);

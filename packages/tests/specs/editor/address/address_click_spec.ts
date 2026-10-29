@@ -99,7 +99,7 @@ describe('click on address to validate the coordinate', function() {
                 coordinates: editor.toGeoJSONCoordinates({x: 200, y: 200})
             }
         };
-        let address = editor.addFeature(a);
+        let address = editor.addFeature(a, preparedData.getLayers('paLayer'));
 
         // click on an address
         await click(mapContainer, 200, 200);

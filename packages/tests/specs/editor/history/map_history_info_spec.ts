@@ -63,7 +63,7 @@ describe('map history info', function() {
                 coordinates: editor.toGeoJSONCoordinates({x: 100, y: 200})
             }
         };
-        let poi = editor.addFeature(p);
+        let poi = editor.addFeature(p, preparedData.getLayers('paLayer'));
 
         expect(editor.get('history.current')).to.equal(1);
         expect(editor.get('history.length')).to.equal(1);

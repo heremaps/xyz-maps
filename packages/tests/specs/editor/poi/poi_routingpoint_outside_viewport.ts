@@ -111,7 +111,7 @@ describe('poi connects to a link which is outside of viewport', function() {
                 coordinates: editor.toGeoJSONCoordinates({x: 400, y: 300})
             }
         };
-        poi2 = editor.addFeature(p);
+        poi2 = editor.addFeature(p, preparedData.getLayers('placeLayer'));
         poi2.createRoutingPoint();
 
         expect(poi2.prop('routingPoint')).to.deep.equal([78.35377, 17.31523, 0]);
@@ -138,7 +138,7 @@ describe('poi connects to a link which is outside of viewport', function() {
                 coordinates: editor.toGeoJSONCoordinates({x: 400, y: 300})
             }
         };
-        let poi3 = editor.addFeature(p);
+        let poi3 = editor.addFeature(p, preparedData.getLayers('placeLayer'));
         poi3.createRoutingPoint();
 
         expect(poi2.prop('routingPoint')).to.deep.equal([78.35377, 17.31523, 0]);

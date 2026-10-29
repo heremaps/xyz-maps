@@ -74,7 +74,7 @@ describe('POI hover then remove routing point then disable editing', function() 
                 coordinates: editor.toGeoJSONCoordinates({x: 400, y: 300})
             }
         };
-        objs = editor.addFeature([l, p]);
+        objs = editor.addFeature({linkLayer: [l], placeLayer: [p]});
         const place = objs[1];
 
         place.createRoutingPoint();

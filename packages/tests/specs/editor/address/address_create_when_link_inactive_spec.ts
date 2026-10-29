@@ -71,7 +71,7 @@ describe('add Address object when link is deactivated', function() {
                 coordinates: editor.toGeoJSONCoordinates({x: 200, y: 300})
             }
         };
-        let address = editor.addFeature(addr);
+        let address = editor.addFeature(addr, preparedData.getLayers('paLayer'));
 
         let objs = editor.search({rect: display.getViewBounds()});
         expect(objs).to.have.lengthOf(3);

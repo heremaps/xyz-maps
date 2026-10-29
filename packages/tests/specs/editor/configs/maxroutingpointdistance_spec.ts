@@ -87,14 +87,14 @@ describe('set maxRoutingPointDistance', function() {
             }
         };
 
-        editor.addFeature(l1);
-        let pa = editor.addFeature(addr1);
+        editor.addFeature(l1, preparedData.getLayers('linkLayer'));
+        let pa = editor.addFeature(addr1, preparedData.getLayers('paLayer'));
 
         // validate address is not created
         expect(pa).to.equal(undefined);
         expect(editor.info()).to.have.lengthOf(1);
 
-        editor.addFeature(addr2);
+        editor.addFeature(addr2, preparedData.getLayers('paLayer'));
         expect(editor.info()).to.have.lengthOf(2);
     });
 
@@ -136,11 +136,11 @@ describe('set maxRoutingPointDistance', function() {
             }
         };
 
-        editor.addFeature(l1);
-        editor.addFeature(addr1);
+        editor.addFeature(l1, preparedData.getLayers('linkLayer'));
+        editor.addFeature(addr1, preparedData.getLayers('paLayer'));
         expect(editor.info()).to.have.lengthOf(2);
 
-        editor.addFeature(addr2);
+        editor.addFeature(addr2, preparedData.getLayers('paLayer'));
         expect(editor.info()).to.have.lengthOf(3);
     });
 });
