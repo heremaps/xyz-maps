@@ -127,4 +127,31 @@ describe('ui component compass', function() {
         await click(mapContainer, 765, 490);
         display.destroy();
     });
+
+    it('stops compass animations after repeated clicks when destroyed', async () => {
+        display = new Map(mapContainer, {
+            ui: {Compass: true},
+            zoomlevel: 18,
+            layers: [],
+            rotate: 45,
+            pitch: INITIAL_PITCH
+        });
+        await waitForViewportReady(display);
+
+        const errors: string[] = [];
+        const onError = (event: ErrorEvent) => errors.push(event.message);
+        window.addEventListener('error', onError);
+        try {
+            await click(mapContainer, 765, 490);
+            await click(mapContainer, 765, 490);
+            display.destroy();
+
+            // Allow pending animation frames to expose callbacks against the destroyed map.
+            await new Promise<void>((resolve) => setTimeout(resolve, 200));
+            expect(errors).to.deep.equal([]);
+        } finally {
+            window.removeEventListener('error', onError);
+            if (display.destroy) display.destroy();
+        }
+    });
 });
