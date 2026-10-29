@@ -67,27 +67,26 @@ Compass.prototype.listeners = {
     '.btn':
         {
             'click': async function(ev) {
-                if (!this.aip) {
-                    const {map} = this;
-                    const rotation = (map.rotate() + 360) % 360;
-                    const pitch = map.pitch();
-                    let toRot = rotation < 180 ? 0 : 360;
-                    let toPitch = 0;
+                this.a?.stop();
+                const {map} = this;
+                const rotation = (map.rotate() + 360) % 360;
+                const pitch = map.pitch();
+                let toRot = rotation < 180 ? 0 : 360;
+                let toPitch = 0;
 
-                    if (!rotation && !pitch) {
-                        toPitch = this.maxPitch;
-                        toRot = 0;
-                    }
-
-                    this.a = new Animation([rotation, pitch], [toRot, toPitch], ANIMATION_MS, 'easeOutCubic', (values) => {
-                        map.rotate(values[0]);
-                        map.pitch(values[1]);
-                    });
-
-                    await this.a.start();
-
-                    this.a = null;
+                if (!rotation && !pitch) {
+                    toPitch = this.maxPitch;
+                    toRot = 0;
                 }
+
+                const animation = this.a = new Animation([rotation, pitch], [toRot, toPitch], ANIMATION_MS, 'easeOutCubic', (values) => {
+                    map.rotate(values[0]);
+                    map.pitch(values[1]);
+                });
+
+                await animation.start();
+
+                if (this.a === animation) this.a = null;
             }
         }
 };
@@ -131,4 +130,3 @@ Compass.prototype.templ =
     </div>';
 
 export default Compass;
-
