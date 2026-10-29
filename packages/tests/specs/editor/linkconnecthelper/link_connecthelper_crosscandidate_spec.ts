@@ -23,6 +23,7 @@ import {Editor} from '@here/xyz-maps-editor';
 import chaiAlmost from 'chai-almost';
 import dataset from './link_connecthelper_crosscandidate_spec.json';
 import {Crossing} from '@here/xyz-maps-editor';
+import {vi} from 'vitest';
 
 describe('link connect helper crosscandidate', function() {
     const expect = chai.expect;
@@ -90,10 +91,11 @@ describe('link connect helper crosscandidate', function() {
             c.show();
         });
 
-        let colors = await getCanvasPixelColor(mapContainer, [{x: 380, y: 247}, {x: 532, y: 240}]);
-
-        expect(colors[0]).to.equal('#ff0000');
-        expect(colors[1]).to.equal('#ff0000');
+        // Showing crossings schedules overlay rendering; wait until both markers are visible.
+        await vi.waitFor(async () => {
+            const colors = await getCanvasPixelColor(mapContainer, [{x: 380, y: 247}, {x: 532, y: 240}]);
+            expect(colors).to.deep.equal(['#ff0000', '#ff0000']);
+        }, {timeout: 2000});
 
         let crx = <Crossing>(await editorClick(editor, 536, 239)).target;
         crx.connect();
