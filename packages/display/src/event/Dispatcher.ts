@@ -1,5 +1,5 @@
 /*
- * Copyright (C) 2019-2022 HERE Europe B.V.
+ * Copyright (C) 2019-2026 HERE Europe B.V.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -62,6 +62,7 @@ class DetectFeatureTask extends Task {
     private _active: boolean;
     private findTarget: (ev: Event) => void;
     private interval = 1000 / 20; // 20 FPS
+    private timer: ReturnType<typeof setTimeout>;
 
     priority: 5;
 
@@ -87,7 +88,14 @@ class DetectFeatureTask extends Task {
 
     start() {
         this._active = true;
-        setTimeout(() => super.start(), this.interval);
+        this.timer = setTimeout(() => super.start(), this.interval);
+    }
+
+    cancel() {
+        clearTimeout(this.timer);
+        this._active = false;
+        this.ev = null;
+        return super.cancel();
     }
 }
 
@@ -104,6 +112,7 @@ export class EventDispatcher {
     private cnt: number = 0; // cnt
     private el: HTMLElement;
     private _upEl: HTMLElement;
+    private detectFeatureHover: DetectFeatureTask;
 
     constructor(domEl, map: Map, searchLayers, config) {
         this.el = domEl;
@@ -139,7 +148,7 @@ export class EventDispatcher {
             disabled[ev] = false;
         });
 
-        const detectFeatureHover = new DetectFeatureTask(findTarget);
+        const detectFeatureHover = this.detectFeatureHover = new DetectFeatureTask(findTarget);
 
         function handleDoubleClick(ev) {
             let timestamp = Date.now();
@@ -353,6 +362,7 @@ export class EventDispatcher {
     };
 
     destroy() {
+        this.detectFeatureHover.cancel();
         let globalEvents = this.getGlobalHandlers();
         let el = this.el;
 
