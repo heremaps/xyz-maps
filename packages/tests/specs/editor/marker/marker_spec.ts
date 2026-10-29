@@ -18,6 +18,7 @@
  */
 import {prepare} from 'utils';
 import {waitForEditorReady} from 'editorUtils';
+import {vi} from 'vitest';
 import {mousemove} from 'triggerEvents';
 import {Editor} from '@here/xyz-maps-editor';
 import {Map} from '@here/xyz-maps-display';
@@ -65,7 +66,10 @@ describe('Basic Marker tests', () => {
     it('test hovered editStates', async () => {
         await mousemove(mapContainer, {x: 380, y: 300}, {x: 400, y: 300});
         expect(marker.editState('selected')).to.be.false;
-        expect(marker.editState('hovered')).to.be.true;
+        // Hover detection runs asynchronously after the simulated mouse events.
+        await vi.waitFor(() => {
+            expect(marker.editState('hovered')).to.be.true;
+        }, {timeout: 2000});
     });
 
     it('test selected editStates', async () => {
@@ -77,7 +81,10 @@ describe('Basic Marker tests', () => {
     it('unhover and validate editStates', async () => {
         await mousemove(mapContainer, {x: 380, y: 300}, {x: 400, y: 280});
         expect(marker.editState('selected')).to.be.true;
-        expect(marker.editState('hovered')).to.be.false;
+        // Wait for hover detection to process the pointer leaving the marker.
+        await vi.waitFor(() => {
+            expect(marker.editState('hovered')).to.be.false;
+        }, {timeout: 2000});
     });
 
     it('unselect and validate editStates', async () => {
